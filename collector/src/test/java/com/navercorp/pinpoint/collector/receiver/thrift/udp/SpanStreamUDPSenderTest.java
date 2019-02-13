@@ -26,6 +26,7 @@ import com.navercorp.pinpoint.collector.util.ObjectPoolFactory;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.io.request.ServerResponse;
+import com.navercorp.pinpoint.profiler.context.DefaultSpanChunk;
 import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SpanChunk;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
@@ -201,7 +202,7 @@ public class SpanStreamUDPSenderTest {
 
 
     private SpanChunk newSpanChunk(TraceRoot traceRoot, List<SpanEvent> spanEventList) {
-        SpanChunk spanChunk = new SpanChunk(traceRoot, spanEventList);
+        SpanChunk spanChunk = new DefaultSpanChunk(traceRoot, spanEventList);
         return spanChunk;
     }
     private int getObjectCount(List<ServerRequest> tbaseList, Class clazz) {

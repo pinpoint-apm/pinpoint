@@ -116,10 +116,8 @@ export class ServerMapData {
             }
         });
     }
-    // @TODO 병합 가능한 serviceType에 대한 조건이 좀 이상한 듯...
-    // @TODO isQueue는 뭐지?
     private canMergeType(nodeData: any): boolean {
-        return nodeData.isWas === false && nodeData.isQueue === false && this.canNotMergeableServiceTypeList.indexOf(nodeData.serviceType) === -1;
+        return nodeData.isWas === false && this.canNotMergeableServiceTypeList.indexOf(nodeData.serviceType) === -1;
     }
     private isRootNode(key: string) {
         return this.countMap[key].inCount === 0;

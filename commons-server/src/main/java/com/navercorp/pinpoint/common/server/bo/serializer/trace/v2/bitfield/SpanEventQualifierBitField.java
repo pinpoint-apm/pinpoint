@@ -1,5 +1,6 @@
 package com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.bitfield;
 
+import com.navercorp.pinpoint.common.server.bo.LocalAsyncIdBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import com.navercorp.pinpoint.common.util.BitFieldUtils;
 
@@ -10,6 +11,7 @@ public class SpanEventQualifierBitField {
 
     public static final int SET_ASYNC = 0;
 
+    @Deprecated
     public static byte buildBitField(SpanEventBo firstSpanEvent) {
         if (firstSpanEvent == null) {
             // no async bit field
@@ -20,6 +22,27 @@ public class SpanEventQualifierBitField {
 
         final int asyncId = firstSpanEvent.getAsyncId();
         final short asyncSequence = firstSpanEvent.getAsyncSequence();
+        if (asyncId == -1 && asyncSequence == -1) {
+            bitField = setAsync(bitField, false);
+        } else {
+            bitField = setAsync(bitField, true);
+        }
+
+        return bitField;
+    }
+
+
+
+    public static byte buildBitField(LocalAsyncIdBo localAsyncIdBo) {
+        if (localAsyncIdBo == null) {
+            // no async bit field
+            return 0;
+        }
+
+        byte bitField = 0;
+
+        final int asyncId = localAsyncIdBo.getAsyncId();
+        final int asyncSequence = localAsyncIdBo.getSequence();
         if (asyncId == -1 && asyncSequence == -1) {
             bitField = setAsync(bitField, false);
         } else {

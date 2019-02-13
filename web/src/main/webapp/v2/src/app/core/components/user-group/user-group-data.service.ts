@@ -37,9 +37,9 @@ export class UserGroupDataService {
     }
     private makeRequestOptionsArgs(param?: any): object {
         if (param) {
-            const httpParams = new HttpParams();
+            let httpParams = new HttpParams();
             Object.keys(param).forEach((key: string) => {
-                httpParams.set(key, param[key]);
+                httpParams = httpParams.set(key, param[key]);
             });
             return {
                 params: httpParams

@@ -126,9 +126,10 @@ public class SpanFactoryAssert {
             Assert.assertEquals(tSpanEvent.getExceptionInfo().getStringValue(), spanEventBo.getExceptionMessage());
         }
 
-        Assert.assertEquals(tSpanEvent.getAsyncId(), spanEventBo.getAsyncId());
         Assert.assertEquals(tSpanEvent.getNextAsyncId(), spanEventBo.getNextAsyncId());
-        Assert.assertEquals(tSpanEvent.getAsyncSequence(), spanEventBo.getAsyncSequence());
+
+        Assert.assertEquals(-1, spanEventBo.getAsyncId());
+        Assert.assertEquals(-1, spanEventBo.getAsyncSequence());
     }
 
 

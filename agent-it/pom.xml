@@ -76,7 +76,7 @@
         <!-- plug-ins -->
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
-            <artifactId>pinpoint-plugins</artifactId>
+            <artifactId>pinpoint-plugins-assembly</artifactId>
             <type>pom</type>
             <scope>runtime</scope>
         </dependency>

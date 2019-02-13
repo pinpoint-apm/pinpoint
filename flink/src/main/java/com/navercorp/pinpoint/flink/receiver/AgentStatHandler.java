@@ -21,31 +21,67 @@ import com.navercorp.pinpoint.flink.vo.RawData;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import org.apache.flink.streaming.api.functions.source.SourceFunction.SourceContext;
 import org.apache.thrift.TBase;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Objects;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author minwoo.jung
  */
 public class AgentStatHandler implements SimpleHandler {
 
-    private final SourceContext sourceContext;
-
-    public AgentStatHandler(SourceContext sourceContext) {
-        this.sourceContext = Objects.requireNonNull(sourceContext, "sourceContext must not be null");
-    }
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final List<SourceContext> sourceContextList = new CopyOnWriteArrayList<>();
+    private AtomicInteger callCount = new AtomicInteger(1);
 
     @Override
     public void handleSimple(ServerRequest serverRequest) {
         if (!(serverRequest.getData() instanceof TBase<?, ?>)) {
             throw new UnsupportedOperationException("data is not support type : " + serverRequest.getData());
         }
+
         final TBase<?, ?> tBase = (TBase<?, ?>) serverRequest.getData();
         final Map<String, String> metaInfo = new HashMap<>(serverRequest.getHeaderEntity().getEntityAll());
-
-        RawData rawData = new RawData(tBase, metaInfo);
+        final RawData rawData = new RawData(tBase, metaInfo);
+        final SourceContext sourceContext = roundRobinSourceContext();
         sourceContext.collect(rawData);
+
+        if (sourceContext == null) {
+            logger.warn("sourceContext is null.");
+            return;
+        }
+    }
+
+    public void addSourceContext(SourceContext sourceContext) {
+        logger.info("add sourceContext.");
+        sourceContextList.add(sourceContext);
+    }
+
+    private SourceContext roundRobinSourceContext() {
+        if (sourceContextList.isEmpty()) {
+            logger.warn("sourceContextList is empty.");
+            return null;
+        }
+
+        int count = callCount.getAndIncrement();
+        int sourceContextListIndex = count % sourceContextList.size();
+
+        if (sourceContextListIndex < 0) {
+            sourceContextListIndex = sourceContextListIndex * -1;
+            callCount.set(0);
+        }
+
+        try {
+            return sourceContextList.get(sourceContextListIndex);
+        } catch (Exception e) {
+            logger.warn("not get sourceContext", e);
+        }
+
+        return null;
     }
 }

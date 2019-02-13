@@ -23,7 +23,7 @@ public interface AsyncId {
 
     int getAsyncId();
 
-    short nextAsyncSequence();
+    int nextAsyncSequence();
 
     LocalAsyncId nextLocalAsyncId();
 }

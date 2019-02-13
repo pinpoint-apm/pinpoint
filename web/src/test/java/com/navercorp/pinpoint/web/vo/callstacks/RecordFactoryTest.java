@@ -27,6 +27,7 @@ import com.navercorp.pinpoint.common.trace.AnnotationKeyMatcher;
 import com.navercorp.pinpoint.common.util.TransactionId;
 import com.navercorp.pinpoint.common.util.logger.CommonLoggerFactory;
 import com.navercorp.pinpoint.common.util.logger.StdoutCommonLoggerFactory;
+import com.navercorp.pinpoint.web.calltree.span.Align;
 import com.navercorp.pinpoint.web.calltree.span.SpanAlign;
 import com.navercorp.pinpoint.web.service.AnnotationKeyMatcherService;
 import org.junit.Assert;
@@ -64,10 +65,10 @@ public class RecordFactoryTest {
         SpanBo spanBo = new SpanBo();
         spanBo.setTransactionId(new TransactionId("test", 0, 0));
         spanBo.setExceptionInfo(1, null);
-        SpanAlign spanAlign = new SpanAlign(spanBo);
+        Align align = new SpanAlign(spanBo);
 
 
-        Record exceptionRecord = factory.getException(0, 0, spanAlign);
+        Record exceptionRecord = factory.getException(0, 0, align);
 
         Assert.assertNotNull(exceptionRecord.getArguments());
     }

@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.common.util.IntStringValue;
 import com.navercorp.pinpoint.profiler.context.Annotation;
 import com.navercorp.pinpoint.profiler.context.AsyncId;
+import com.navercorp.pinpoint.profiler.context.AsyncSpanChunk;
 import com.navercorp.pinpoint.profiler.context.LocalAsyncId;
 import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SpanChunk;
@@ -36,6 +37,7 @@ import com.navercorp.pinpoint.profiler.util.AnnotationValueMapper;
 import com.navercorp.pinpoint.thrift.dto.TAnnotation;
 import com.navercorp.pinpoint.thrift.dto.TAnnotationValue;
 import com.navercorp.pinpoint.thrift.dto.TIntStringValue;
+import com.navercorp.pinpoint.thrift.dto.TLocalAsyncId;
 import com.navercorp.pinpoint.thrift.dto.TSpan;
 import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
 import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
@@ -177,6 +179,13 @@ public class SpanThriftMessageConverter implements MessageConverter<TBase<?, ?>>
         final Shared shared = traceRoot.getShared();
         tSpanChunk.setEndPoint(shared.getEndPoint());
 
+        if (spanChunk instanceof AsyncSpanChunk) {
+            final AsyncSpanChunk asyncSpanChunk = (AsyncSpanChunk) spanChunk;
+            final LocalAsyncId localAsyncId = asyncSpanChunk.getLocalAsyncId();
+            final TLocalAsyncId tLocalAsyncId = new TLocalAsyncId(localAsyncId.getAsyncId(), localAsyncId.getSequence());
+            tSpanChunk.setLocalAsyncId(tLocalAsyncId);
+        }
+
         final List<SpanEvent> spanEventList = spanChunk.getSpanEventList();
         if (CollectionUtils.hasLength(spanEventList)) {
             final Context context = spanPostProcessor.newContext(spanChunk, tSpanChunk);
@@ -225,11 +234,6 @@ public class SpanThriftMessageConverter implements MessageConverter<TBase<?, ?>>
         final AsyncId asyncIdObject = spanEvent.getAsyncIdObject();
         if (asyncIdObject != null) {
             tSpanEvent.setNextAsyncId(asyncIdObject.getAsyncId());
-        }
-        final LocalAsyncId localAsyncId = spanEvent.getLocalAsyncId();
-        if (localAsyncId != null) {
-            tSpanEvent.setAsyncId(localAsyncId.getAsyncId());
-            tSpanEvent.setAsyncSequence(localAsyncId.getSequence());
         }
 
         final List<Annotation> annotations = spanEvent.getAnnotations();

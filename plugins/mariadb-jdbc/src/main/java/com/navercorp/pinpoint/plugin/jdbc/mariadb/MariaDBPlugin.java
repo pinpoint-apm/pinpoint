@@ -91,8 +91,6 @@ public class MariaDBPlugin implements ProfilerPlugin, TransformTemplateAware {
     }
 
     private void addConnectionTransformer() {
-
-
         transformTemplate.transform("org.mariadb.jdbc.MariaDbConnection", MariaDbConnectionTransform.class);
     }
 
@@ -191,9 +189,12 @@ public class MariaDBPlugin implements ProfilerPlugin, TransformTemplateAware {
     private void addPreparedStatementTransformer() {
         transformTemplate.transform("org.mariadb.jdbc.MariaDbServerPreparedStatement", PreparedStatementTransform.class);
         transformTemplate.transform("org.mariadb.jdbc.MariaDbClientPreparedStatement", PreparedStatementTransform.class);
-        // 1.6.x
+        // [1.6.0,1.8.0), [2.0.0,2.4.0)
         transformTemplate.transform("org.mariadb.jdbc.MariaDbPreparedStatementServer", PreparedStatementTransform.class);
         transformTemplate.transform("org.mariadb.jdbc.MariaDbPreparedStatementClient", PreparedStatementTransform.class);
+        // [1.8.0,2.0.0), [2.4.0,)
+        transformTemplate.transform("org.mariadb.jdbc.ServerSidePreparedStatement", PreparedStatementTransform.class);
+        transformTemplate.transform("org.mariadb.jdbc.ClientSidePreparedStatement", PreparedStatementTransform.class);
 
     }
 
@@ -226,7 +227,6 @@ public class MariaDBPlugin implements ProfilerPlugin, TransformTemplateAware {
     };
 
     private void addPreparedStatementBindVariableTransformer() {
-
         transformTemplate.transform("org.mariadb.jdbc.AbstractMariaDbPrepareStatement", PreparedStatementBindVariableTransformer.class);
         // Class renamed in 1.5.6 - https://github.com/MariaDB/mariadb-connector-j/commit/16c8313960cf4fbc6b2b83136504d1ba9e662919
         transformTemplate.transform("org.mariadb.jdbc.AbstractPrepareStatement", PreparedStatementBindVariableTransformer.class);
@@ -299,8 +299,6 @@ public class MariaDBPlugin implements ProfilerPlugin, TransformTemplateAware {
     };
 
     private void addCallableStatementTransformer() {
-
-
         transformTemplate.transform("org.mariadb.jdbc.AbstractCallableProcedureStatement", CallableStatementTransformer.class);
         transformTemplate.transform("org.mariadb.jdbc.AbstractCallableFunctionStatement", CallableStatementTransformer.class);
         // 1.6.x

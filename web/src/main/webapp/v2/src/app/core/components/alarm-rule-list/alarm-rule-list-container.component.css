@@ -2,7 +2,11 @@
     position: relative;
 }
 .l-wrapper {
+    height: 100%;
     position: relative;
+}
+.l-alarm-rules-table {
+    height: 100%;
 }
 .l-alarm-rules-table th {
     color:#333;
@@ -23,9 +27,9 @@
     margin-left: 2px;
 }
 .l-alarm-rules-tr-wrap { 
-    height: 440px;
-    overflow-y: scroll;
+    height: 100%;
     position: relative;
+    overflow-y: scroll;
 }
 .l-alarm-rules-th {
     display: flex;

@@ -3,6 +3,7 @@ package com.navercorp.pinpoint.common.server.bo.serializer.trace.v2;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.BasicSpan;
+import com.navercorp.pinpoint.common.server.bo.LocalAsyncIdBo;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
@@ -164,9 +165,9 @@ public class SpanDecoderV0 implements SpanDecoder {
     private List<SpanEventBo> readSpanEvent(Buffer buffer, SpanEventBo firstSpanEvent, SpanDecodingContext decodingContext) {
         final int spanEventSize = buffer.readVInt();
         if (spanEventSize <= 0) {
-            return new ArrayList<SpanEventBo>();
+            return new ArrayList<>();
         }
-        final List<SpanEventBo> spanEventBoList = new ArrayList<SpanEventBo>();
+        final List<SpanEventBo> spanEventBoList = new ArrayList<>();
         SpanEventBo prev = null;
         for (int i = 0; i < spanEventSize; i++) {
             SpanEventBo spanEvent;
@@ -398,21 +399,26 @@ public class SpanDecoderV0 implements SpanDecoder {
             logger.warn("firstSpanEvent is null. bug!!!! firstSpanEventSequence:{}", firstSpanEventSequence);
             throw new IllegalStateException("firstSpanEvent is null");
         } else {
-            return readQualifierFirstSpanEvent(buffer);
+            final LocalAsyncIdBo localAsyncIdBo = readQualifierLocalAsyncIdBo(buffer);
+            if (localAsyncIdBo != null) {
+                if (basicSpan instanceof SpanChunkBo) {
+                    ((SpanChunkBo) basicSpan).setLocalAsyncId(localAsyncIdBo);
+                } else {
+                    throw new IllegalStateException("decode error. unexpected span:" + basicSpan);
+                }
+            }
+            return new SpanEventBo();
         }
     }
 
-    private SpanEventBo readQualifierFirstSpanEvent(Buffer buffer) {
-        final SpanEventBo firstSpanEvent = new SpanEventBo();
-
+    private LocalAsyncIdBo readQualifierLocalAsyncIdBo(Buffer buffer) {
         final byte bitField = buffer.readByte();
         if (SpanEventQualifierBitField.isSetAsync(bitField)) {
-            int asyncId = buffer.readInt();
-            int asyncSequence = buffer.readVInt();
-            firstSpanEvent.setAsyncId(asyncId);
-            firstSpanEvent.setAsyncSequence((short) asyncSequence);
+            final int asyncId = buffer.readInt();
+            final int asyncSequence = buffer.readVInt();
+            return new LocalAsyncIdBo(asyncId, asyncSequence);
         }
-        return firstSpanEvent;
+        return null;
     }
 
     @Override

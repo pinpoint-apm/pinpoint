@@ -25,16 +25,16 @@ import com.navercorp.pinpoint.common.server.bo.SpanBo;
  * @author netspider
  * @author emeroad
  */
-public interface Filter {
+public interface Filter<T> {
     boolean ACCEPT = true;
     boolean REJECT = false;
 
     Filter NONE = new Filter() {
         @Override
-        public boolean include(List<SpanBo> transaction) {
+        public boolean include(List transaction) {
             return ACCEPT;
         }
     };
 
-    boolean include(List<SpanBo> transaction);
+    boolean include(List<T> transaction);
 }

@@ -23,13 +23,11 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.MongoDatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.UnKnownDatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.util.InterceptorUtils;
-import com.navercorp.pinpoint.common.util.StringStringValue;
 import com.navercorp.pinpoint.plugin.mongo.MongoUtil;
-import org.bson.conversions.Bson;
+import com.navercorp.pinpoint.plugin.mongo.NormalizedBson;
 
 /**
  * @author Roy Kim
@@ -50,12 +48,7 @@ public class MongoRSessionInterceptor extends SpanEventSimpleAroundInterceptorFo
     @Override
     protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
 
-        DatabaseInfo databaseInfo;
-        if (target instanceof DatabaseInfoAccessor) {
-            databaseInfo = ((DatabaseInfoAccessor) target)._$PINPOINT$_getDatabaseInfo();
-        } else {
-            databaseInfo = UnKnownDatabaseInfo.INSTANCE;
-        }
+        DatabaseInfo databaseInfo = DatabaseInfoUtils.getDatabaseInfo(target, UnKnownDatabaseInfo.MONGO_INSTANCE);
 
         recorder.recordServiceType(databaseInfo.getExecuteQueryType());
         recorder.recordEndPoint(databaseInfo.getMultipleHost());
@@ -75,7 +68,7 @@ public class MongoRSessionInterceptor extends SpanEventSimpleAroundInterceptorFo
             final boolean success = InterceptorUtils.isSuccess(throwable);
             if (success) {
                 if (args != null) {
-                    StringStringValue parsedBson = MongoUtil.parseBson(args, traceBsonBindValue);
+                    NormalizedBson parsedBson = MongoUtil.parseBson(args, traceBsonBindValue);
                     MongoUtil.recordParsedBson(recorder, parsedBson);
                 }
             }

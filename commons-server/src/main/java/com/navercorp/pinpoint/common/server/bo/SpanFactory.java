@@ -2,6 +2,7 @@ package com.navercorp.pinpoint.common.server.bo;
 
 
 
+import com.google.common.annotations.VisibleForTesting;
 import com.navercorp.pinpoint.common.server.bo.filter.EmptySpanEventFilter;
 import com.navercorp.pinpoint.common.server.bo.filter.SpanEventFilter;
 import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
@@ -11,15 +12,17 @@ import com.navercorp.pinpoint.common.util.TransactionIdUtils;
 import com.navercorp.pinpoint.io.util.AnnotationTranscoder;
 import com.navercorp.pinpoint.thrift.dto.TAnnotation;
 import com.navercorp.pinpoint.thrift.dto.TIntStringValue;
+import com.navercorp.pinpoint.thrift.dto.TLocalAsyncId;
 import com.navercorp.pinpoint.thrift.dto.TSpan;
 import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
 import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
 import org.apache.commons.collections.CollectionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -28,6 +31,7 @@ import java.util.List;
 @Component
 public class SpanFactory {
 
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private SpanEventFilter spanEventFilter = new EmptySpanEventFilter();
 
@@ -35,7 +39,20 @@ public class SpanFactory {
 
     private static final AnnotationTranscoder transcoder = new AnnotationTranscoder();
 
+    // TODO
+    private final boolean fastAsyncIdGen;
+
     public SpanFactory() {
+        this(fastAsyncIdGen());
+    }
+
+    private static boolean fastAsyncIdGen() {
+        final String fastAsyncIdGen = System.getProperty("collector.spanfactory.fastasyncidgen", "true");
+        return Boolean.parseBoolean(fastAsyncIdGen);
+    }
+
+    public SpanFactory(boolean fastAsyncIdGen) {
+        this.fastAsyncIdGen = fastAsyncIdGen;
     }
 
     @Autowired(required = false)
@@ -149,23 +166,32 @@ public class SpanFactory {
             spanEvent.setExceptionInfo(exceptionInfo.getIntValue(), exceptionInfo.getStringValue());
         }
 
-        if (tSpanEvent.isSetAsyncId()) {
-            spanEvent.setAsyncId(tSpanEvent.getAsyncId());
-        }
-
         if (tSpanEvent.isSetNextAsyncId()) {
             spanEvent.setNextAsyncId(tSpanEvent.getNextAsyncId());
         }
 
-        if (tSpanEvent.isSetAsyncSequence()) {
-            spanEvent.setAsyncSequence(tSpanEvent.getAsyncSequence());
-        }
+        // async id
+//        if (localAsyncId == null) {
+//            if (tSpanEvent.isSetAsyncId()) {
+//                spanEvent.setAsyncId(tSpanEvent.getAsyncId());
+//            }
+//            if (tSpanEvent.isSetAsyncSequence()) {
+//                spanEvent.setAsyncSequence(tSpanEvent.getAsyncSequence());
+//            }
+//        } else {
+//            spanEvent.setAsyncId(localAsyncId.getAsyncId());
+//            spanEvent.setAsyncSequence((short) localAsyncId.getSequence());
+//        }
     }
 
 
 
     public SpanChunkBo buildSpanChunkBo(TSpanChunk tSpanChunk) {
         final SpanChunkBo spanChunkBo = newSpanChunkBo(tSpanChunk);
+        final LocalAsyncIdBo localAsyncIdBo = getLocalAsyncId(tSpanChunk);
+        if (localAsyncIdBo != null) {
+            spanChunkBo.setLocalAsyncId(localAsyncIdBo);
+        }
 
         List<TSpanEvent> spanEventList = tSpanChunk.getSpanEventList();
         List<SpanEventBo> spanEventBoList = buildSpanEventBoList(spanEventList);
@@ -176,6 +202,88 @@ public class SpanFactory {
         spanChunkBo.setCollectorAcceptTime(acceptedTime);
 
         return spanChunkBo;
+    }
+
+    private LocalAsyncIdBo getLocalAsyncId(TSpanChunk tSpanChunk) {
+        final TLocalAsyncId localAsyncId = tSpanChunk.getLocalAsyncId();
+        if (localAsyncId != null) {
+            return new LocalAsyncIdBo(localAsyncId.getAsyncId(), localAsyncId.getSequence());
+        } else {
+            return extractLocalAsyncId(tSpanChunk);
+        }
+    }
+
+    // for compatibility
+    // https://github.com/naver/pinpoint/issues/5156
+    private LocalAsyncIdBo extractLocalAsyncId(TSpanChunk tSpanChunk) {
+        List<TSpanEvent> tSpanEventList = tSpanChunk.getSpanEventList();
+        if (CollectionUtils.isEmpty(tSpanEventList)) {
+            return null;
+        }
+        if (fastAsyncIdGen) {
+            return fastLocalAsyncIdBo(tSpanEventList);
+        } else {
+            return fullScanLocalAsyncIdBo(tSpanChunk);
+        }
+    }
+
+    @VisibleForTesting
+    LocalAsyncIdBo fullScanLocalAsyncIdBo(TSpanChunk tSpanChunk) {
+        int asyncId = -1;
+        int asyncSequence = -1;
+        boolean first = true;
+        boolean asyncIdNotSame = false;
+        for (TSpanEvent tSpanEvent : tSpanChunk.getSpanEventList()) {
+            if (first) {
+                first = false;
+                if (isSetAsyncId(tSpanEvent)) {
+                    asyncId = tSpanEvent.getAsyncId();
+                    asyncSequence = tSpanEvent.getAsyncSequence();
+                }
+            } else {
+                if (isSetAsyncId(tSpanEvent)) {
+                    if (asyncId != tSpanEvent.getAsyncId()) {
+                        asyncIdNotSame = true;
+                        break;
+                    }
+                    if (asyncSequence != tSpanEvent.getAsyncSequence()) {
+                        asyncIdNotSame = true;
+                        break;
+                    }
+                }
+            }
+        }
+        if (asyncIdNotSame) {
+            logger.warn("AsyncId consistency is broken. tSpanChunk:{}", tSpanChunk);
+            return null;
+        }
+        if (asyncId != -1 && asyncSequence != -1) {
+            return new LocalAsyncIdBo(asyncId, asyncSequence);
+        }
+        // non async
+        return null;
+    }
+
+    @VisibleForTesting
+    LocalAsyncIdBo fastLocalAsyncIdBo(List<TSpanEvent> tSpanEventList) {
+        final TSpanEvent first = tSpanEventList.get(0);
+        if (isSetAsyncId(first)) {
+            final int asyncId = first.getAsyncId();
+            final short asyncSequence = first.getAsyncSequence();
+            return new LocalAsyncIdBo(asyncId, asyncSequence);
+        }
+        return null;
+    }
+
+    private boolean isSetAsyncId(TSpanEvent tSpanEvent) {
+        if (!tSpanEvent.isSetAsyncId()) {
+            return false;
+        }
+        if (!tSpanEvent.isSetAsyncSequence()) {
+            logger.warn("AsyncId & AsyncSequence consistency is broken. {}", tSpanEvent);
+            return false;
+        }
+        return true;
     }
 
     // for test
@@ -213,9 +321,9 @@ public class SpanFactory {
 
     private List<SpanEventBo> buildSpanEventBoList(List<TSpanEvent> spanEventList) {
         if (CollectionUtils.isEmpty(spanEventList)) {
-            return new ArrayList<SpanEventBo>();
+            return new ArrayList<>();
         }
-        List<SpanEventBo> spanEventBoList = new ArrayList<SpanEventBo>(spanEventList.size());
+        List<SpanEventBo> spanEventBoList = new ArrayList<>(spanEventList.size());
         for (TSpanEvent tSpanEvent : spanEventList) {
             final SpanEventBo spanEventBo = buildSpanEventBo(tSpanEvent);
             if (!spanEventFilter.filter(spanEventBo)) {
@@ -224,21 +332,21 @@ public class SpanFactory {
             spanEventBoList.add(spanEventBo);
         }
 
-        Collections.sort(spanEventBoList, SpanEventComparator.INSTANCE);
+        spanEventBoList.sort(SpanEventComparator.INSTANCE);
         return spanEventBoList;
     }
 
     private List<AnnotationBo> buildAnnotationList(List<TAnnotation> tAnnotationList) {
         if (tAnnotationList == null) {
-            return new ArrayList<AnnotationBo>();
+            return new ArrayList<>();
         }
-        List<AnnotationBo> boList = new ArrayList<AnnotationBo>(tAnnotationList.size());
+        List<AnnotationBo> boList = new ArrayList<>(tAnnotationList.size());
         for (TAnnotation tAnnotation : tAnnotationList) {
             final AnnotationBo annotationBo = newAnnotationBo(tAnnotation);
             boList.add(annotationBo);
         }
 
-        Collections.sort(boList, AnnotationComparator.INSTANCE);
+        boList.sort(AnnotationComparator.INSTANCE);
         return boList;
     }
 

@@ -61,6 +61,7 @@ public class Bootstrap {
     private final TBaseFlatMapperInterceptor tBaseFlatMapperInterceptor;
     private final StatisticsDaoInterceptor statisticsDaoInterceptor;
     private final ApplicationStatBoWindowInterceptor applicationStatBoWindowInterceptor;
+    private final AgentStatHandler agentStatHandler;
 
     private Bootstrap() {
         applicationContext = new ClassPathXmlApplicationContext("applicationContext-flink.xml");
@@ -82,6 +83,7 @@ public class Bootstrap {
         tBaseFlatMapperInterceptor = applicationContext.getBean("tBaseFlatMapperInterceptor", TBaseFlatMapperInterceptor.class);
         statisticsDaoInterceptor =  applicationContext.getBean("statisticsDaoInterceptor", StatisticsDaoInterceptor.class);
         applicationStatBoWindowInterceptor = applicationContext.getBean("applicationStatBoWindowInterceptor", ApplicationStatBoWindowInterceptor.class);
+        agentStatHandler = applicationContext.getBean("agentStatHandler", AgentStatHandler.class);
     }
 
     public FileDescriptorDao getFileDescriptorDao() {
@@ -150,13 +152,8 @@ public class Bootstrap {
         }
     }
 
-    public void setSourceFunctionParallel(DataStreamSource rawData) {
-        int parallel = flinkConfiguration.getFlinkSourceFunctionParallel();
-        rawData.setParallelism(parallel);
-    }
-
     public void setStatHandlerTcpDispatchHandler(SourceContext<RawData> sourceContext) {
-        AgentStatHandler agentStatHandler = new AgentStatHandler(sourceContext);
+        agentStatHandler.addSourceContext(sourceContext);
         tcpDispatchHandler.setAgentStatHandler(agentStatHandler);
     }
 

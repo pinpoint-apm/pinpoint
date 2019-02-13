@@ -22,10 +22,6 @@ import java.util.Stack;
  * @author jaehong.kim
  */
 public class CallTreeFactory {
-    private static final int INTERNAL = 0;
-    private static final int REMOTE = 1;
-    private static final int ASYNC = 2;
-    private static final int END = 3;
 
     private final Stack<CallStackMock> callStacks = new Stack<CallStackMock>();
     private int nextAsyncId = 0;
@@ -34,16 +30,16 @@ public class CallTreeFactory {
         int prevDepth = 0;
         for (String event : events) {
             int depth = event.length() - 1;
-            int type = INTERNAL;
-            if (event.startsWith("R")) {
-                type = REMOTE;
-            } else if (event.startsWith("A")) {
-                type = ASYNC;
-            } else if (event.startsWith("E")) {
-                type = END;
+            EventType type = EventType.INTERNAL;
+            if (event.startsWith(EventType.REMOTE.getEventCode())) {
+                type = EventType.REMOTE;
+            } else if (event.startsWith(EventType.ASYNC.getEventCode())) {
+                type = EventType.ASYNC;
+            } else if (event.startsWith(EventType.END.getEventCode())) {
+                type = EventType.END;
             }
 
-            if (callStacks.empty() && type == REMOTE) {
+            if (callStacks.empty() && type == EventType.REMOTE) {
                 callStacks.push(new CallStackMock());
                 continue;
             }
@@ -70,11 +66,11 @@ public class CallTreeFactory {
         return callStack.close();
     }
 
-    private void push(int type) {
-        if (type == REMOTE) {
+    private void push(EventType type) {
+        if (type == EventType.REMOTE) {
             callStacks.push(new CallStackMock());
             CallStackMock callStack = callStacks.peek();
-        } else if (type == ASYNC) {
+        } else if (type == EventType.ASYNC) {
             final int asyncId = nextAsyncId++;
             CallStackMock callStack = callStacks.peek();
             callStack.peek().setNextAsyncId(asyncId);
@@ -93,7 +89,7 @@ public class CallTreeFactory {
         if (callStack.empty()) {
             if (callStacks.size() > 1) {
                 callStacks.pop();
-               callStacks.peek().append(callStack.close());
+                callStacks.peek().append(callStack.close());
             }
         } else {
             callStack.pop();

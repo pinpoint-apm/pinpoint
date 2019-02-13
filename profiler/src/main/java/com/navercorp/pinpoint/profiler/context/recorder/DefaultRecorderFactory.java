@@ -56,7 +56,7 @@ public class DefaultRecorderFactory implements RecorderFactory {
     @Override
     public WrappedSpanEventRecorder newWrappedSpanEventRecorder(TraceRoot traceRoot) {
         final AsyncContextFactory asyncContextFactory = asyncContextFactoryProvider.get();
-        return new WrappedSpanEventRecorder(traceRoot, asyncContextFactory, stringMetaDataService, sqlMetaDataService, null);
+        return new WrappedSpanEventRecorder(traceRoot, asyncContextFactory, stringMetaDataService, sqlMetaDataService);
     }
 
     @Override
@@ -64,6 +64,6 @@ public class DefaultRecorderFactory implements RecorderFactory {
         Assert.requireNonNull(asyncState, "asyncState must not be null");
 
         final AsyncContextFactory asyncContextFactory = asyncContextFactoryProvider.get();
-        return new WrappedSpanEventRecorder(traceRoot, asyncContextFactory, stringMetaDataService, sqlMetaDataService, asyncState);
+        return new WrappedAsyncSpanEventRecorder(traceRoot, asyncContextFactory, stringMetaDataService, sqlMetaDataService, asyncState);
     }
 }

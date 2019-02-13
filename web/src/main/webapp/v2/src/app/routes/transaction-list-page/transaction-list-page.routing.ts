@@ -17,7 +17,19 @@ export const routing: Routes = [
         },
         children: [
             {
-                path: '',
+                path: ':' + UrlPathId.APPLICATION + '/:' + UrlPathId.PERIOD + '/:' + UrlPathId.END_TIME + '/:' + UrlPathId.TRANSACTION_INFO + '/:' + UrlPathId.VIEW_TYPE,
+                component: TransactionListBottomContentsContainerComponent,
+            },
+            {
+                path: ':' + UrlPathId.APPLICATION + '/:' + UrlPathId.PERIOD + '/:' + UrlPathId.END_TIME + '/:' + UrlPathId.TRANSACTION_INFO,
+                component: TransactionListBottomContentsContainerComponent,
+            },
+            {
+                path: ':' + UrlPathId.APPLICATION + '/:' + UrlPathId.PERIOD + '/:' + UrlPathId.END_TIME,
+                component: TransactionListEmptyComponent,
+            },
+            {
+                path: ':' + UrlPathId.APPLICATION + '/:' + UrlPathId.PERIOD,
                 redirectTo: TO_MAIN,
                 pathMatch: 'full'
             },
@@ -27,36 +39,9 @@ export const routing: Routes = [
                 pathMatch: 'full'
             },
             {
-                path: ':' + UrlPathId.APPLICATION + '/:' + UrlPathId.PERIOD,
+                path: '',
                 redirectTo: TO_MAIN,
                 pathMatch: 'full'
-            },
-            {
-                path: ':' + UrlPathId.APPLICATION + '/:' + UrlPathId.PERIOD + '/:' + UrlPathId.END_TIME,
-                children: [
-                    {
-                        path: '',
-                        component: TransactionListEmptyComponent
-                    },
-                    {
-                        path: ':' + UrlPathId.TRANSACTION_INFO,
-                        children: [
-                            {
-                                path: '',
-                                component: TransactionListBottomContentsContainerComponent,
-                            },
-                            {
-                                path: ':' + UrlPathId.VIEW_TYPE,
-                                children: [
-                                    {
-                                        path: '',
-                                        component: TransactionListBottomContentsContainerComponent,
-                                    }
-                                ]
-                            }
-                        ]
-                    }
-                ]
             }
         ]
     }

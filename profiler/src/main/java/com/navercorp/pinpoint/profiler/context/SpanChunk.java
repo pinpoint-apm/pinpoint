@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,36 +16,15 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
-
-import com.navercorp.pinpoint.common.util.Assert;
-import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 
 import java.util.List;
 
-
 /**
- * @author emeroad
+ * @author Woonduk Kang(emeroad)
  */
-public class SpanChunk  {
+public interface SpanChunk {
+    TraceRoot getTraceRoot();
 
-    private final TraceRoot traceRoot;
-
-    private final List<SpanEvent> spanEventList; // required
-
-
-    public SpanChunk(TraceRoot traceRoot, List<SpanEvent> spanEventList) {
-        this.traceRoot = Assert.requireNonNull(traceRoot, "traceRoot must not be null");
-        this.spanEventList = Assert.requireNonNull(spanEventList, "spanEventList must not be null");
-    }
-
-    public TraceRoot getTraceRoot() {
-        return traceRoot;
-    }
-
-
-    public List<SpanEvent> getSpanEventList() {
-        return spanEventList;
-    }
-
+    List<SpanEvent> getSpanEventList();
 }

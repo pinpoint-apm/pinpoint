@@ -5,9 +5,13 @@ permalink: main.html
 sidebar: mydoc_sidebar
 ---
 
-[Check out updates on lastest stable release](https://naver.github.io/pinpoint/1.8.1/main.html)
+[Check out updates on lastest stable release](https://naver.github.io/pinpoint/1.8.2/main.html)
 
-## What's Next in 1.9.0?
+## What's Next in 1.9.0
+
+
+### Pinpoint Plugin
+
 
 ### Upgrade consideration
 

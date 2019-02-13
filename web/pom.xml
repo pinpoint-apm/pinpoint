@@ -37,6 +37,7 @@
         <plugin.frontend.verison>1.6</plugin.frontend.verison>
         <plugin.frontend.node.verison>v10.15.0</plugin.frontend.node.verison>
         <plugin.frontend.npm.verison>6.1.0</plugin.frontend.npm.verison>
+        <plugin.frontend.node.install.dir>${basedir}/node_install/node-${plugin.frontend.node.verison}</plugin.frontend.node.install.dir>
     </properties>
 
     <dependencies>
@@ -62,7 +63,7 @@
         </dependency>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
-            <artifactId>pinpoint-plugins</artifactId>
+            <artifactId>pinpoint-plugins-assembly</artifactId>
             <type>pom</type>
         </dependency>
         <dependency>
@@ -266,6 +267,11 @@
             <version>1.11</version>
         </dependency>
 
+        <dependency>
+            <groupId>javax.mail</groupId>
+            <artifactId>mail</artifactId>
+        </dependency>
+
         <!-- Test dependencies -->
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
@@ -392,7 +398,7 @@
                 <configuration>
                     <srcdir>${basedir}/target/main/webapp</srcdir>
                     <outputdir>${basedir}/target/main/webapp</outputdir>
-                    <installDirectory>target</installDirectory>
+                    <installDirectory>${plugin.frontend.node.install.dir}</installDirectory>
                 </configuration>
                 <executions>
                     <execution>
@@ -479,7 +485,7 @@
                         <artifactId>frontend-maven-plugin</artifactId>
                         <version>${plugin.frontend.verison}</version>
                         <configuration>
-                            <installDirectory>target</installDirectory>
+                            <installDirectory>${plugin.frontend.node.install.dir}</installDirectory>
                         </configuration>
                         <executions>
                             <execution>
