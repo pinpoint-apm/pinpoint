@@ -35,7 +35,7 @@ import org.junit.runner.RunWith;
         "org.mongodb:mongodb-driver:[3.4.0,3.6.max]",
         "de.flapdoodle.embed:de.flapdoodle.embed.mongo:2.1.1"
 })
-public class MongoDB_3_5_x extends MongoDBBase {
+public class MongoDB_3_4_x_IT extends MongoDBBase {
 
     private static com.mongodb.MongoClient mongoClient;
 
