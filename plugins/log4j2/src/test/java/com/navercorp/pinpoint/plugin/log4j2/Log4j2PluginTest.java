@@ -58,7 +58,7 @@ public class Log4j2PluginTest {
         LoggingEventOfLog4j2Interceptor interceptor = spy(new LoggingEventOfLog4j2Interceptor(traceContext));
         interceptor.before(null);
         interceptor.after(null, null, null);
-        Assert.assertTrue(ThreadContext.get(TRANSACTION_ID) == null);
+        Assert.assertTrue(ThreadContext.get(TRANSACTION_ID) != null);
     }
 
     @Test
