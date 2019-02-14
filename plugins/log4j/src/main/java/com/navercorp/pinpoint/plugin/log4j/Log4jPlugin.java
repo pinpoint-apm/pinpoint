@@ -36,13 +36,13 @@ import com.navercorp.pinpoint.plugin.log4j.interceptor.LoggingEventOfLog4jInterc
  * and under 1.2.15 version is too old.
  * For reference 1.2.14 version release on Sep. 2006.
  * Refer to url http://mvnrepository.com/artifact/log4j/log4j for detail.
- * 
+ *
  * @author minwoo.jung
  */
 public class Log4jPlugin implements ProfilerPlugin, TransformTemplateAware {
     private final PLogger logger = PLoggerFactory.getLogger(getClass());
     private TransformTemplate transformTemplate;
-    
+
 
     @Override
     public void setup(ProfilerPluginSetupContext context) {
