@@ -1,5 +1,5 @@
-[note]: <> (Don't add/remove column. `Min/Max version` columns will be automatically updated for the rows marked with `<AG>` at the end, via Integration test from 'agent-it')
-[note]: <> (Contents can be modified at will, key value for the update is 'name of the library')
+<!-- Don't add/remove column. `Min/Max version` columns will be automatically updated for the rows marked with `<AG>` at the end, via Integration test from 'agent-it' -->
+<!-- Contents can be modified at will, key value for the update is 'name of the library' -->
 
 | Title                                                                             | Instrumented Library       | Min     | Max     | Comment                |  
 |-----------------------------------------------------------------------------------|----------------------------|---------|---------|------------------------|  
