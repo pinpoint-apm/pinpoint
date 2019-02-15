@@ -68,7 +68,7 @@ First add the maven dependency of BBoss to your pom.xml:
        <dependency>
             <groupId>com.bbossgroups.plugins</groupId>
             <artifactId>bboss-elasticsearch-rest-jdbc</artifactId>
-            <version>5.2.7</version>
+            <version>5.3.7</version>
         </dependency>
 ```
 
@@ -78,7 +78,7 @@ If it's a spring boot project, you can replace the Maven coordinates above with 
         <dependency>
             <groupId>com.bbossgroups.plugins</groupId>
             <artifactId>bboss-elasticsearch-spring-boot-starter</artifactId>
-            <version>5.2.7</version>
+            <version>5.3.7</version>
         </dependency>
 ```
 
@@ -139,7 +139,7 @@ And last  create a jsp file named testElasticsearch.jsp :
 				System.out.println("dataList.size:0");
 			}
 			//do something other such as do a db query.
-			SQLExecutor.queryList(Map.class,"select * from td_sm_user");
+			//SQLExecutor.queryList(Map.class,"select * from td_sm_user");
 		}
 	},Map.class);
     //Use slice parallel scoll query all documents of indice  twitter by 2 thread tasks. DEFAULT_FETCHSIZE is 5000
