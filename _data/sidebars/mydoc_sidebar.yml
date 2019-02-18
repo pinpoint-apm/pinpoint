@@ -113,7 +113,7 @@ entries:
       url: /contribution.html
       output: web, pdf
 
-    - title: Help Wanted
+    - title: Open to Contribution
       external_url: https://github.com/naver/pinpoint/labels/proposal
       output: web, pdf
 
