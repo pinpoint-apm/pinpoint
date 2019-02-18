@@ -17,7 +17,6 @@ import { SystemConfigurationDataService } from './services/system-configuration-
 import { SystemConfigurationResolverService } from './services/system-configuration-resolver.service';
 import { SplitRatioService } from './services/split-ratio.service';
 import { GutterEventService } from './services/gutter-event.service';
-import { AjaxExceptionCheckerService } from './services/ajax-exception-checker.service';
 import { ApplicationListResolverService } from './services/application-list-resolver.service';
 import { AnalyticsService } from './services/analytics.service';
 import { BrowserSupportCheckService } from './services/browser-support-check.service';
@@ -92,7 +91,6 @@ import { DynamicPopupService } from 'app/shared/services/dynamic-popup.service';
         SystemConfigurationResolverService,
         SplitRatioService,
         GutterEventService,
-        AjaxExceptionCheckerService,
         ApplicationListResolverService,
         AnalyticsService,
         BrowserSupportCheckService,

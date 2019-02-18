@@ -5,7 +5,6 @@ import * as moment from 'moment-timezone';
 import {
     WebAppSettingDataService,
     NewUrlStateNotificationService,
-    AjaxExceptionCheckerService,
     AnalyticsService,
     StoreHelperService,
     DynamicPopupService
@@ -30,7 +29,6 @@ export class AgentDirectBufferCountChartContainerComponent extends InspectorChar
         newUrlStateNotificationService: NewUrlStateNotificationService,
         chartDataService: AgentDirectBufferChartDataService,
         translateService: TranslateService,
-        ajaxExceptionCheckerService: AjaxExceptionCheckerService,
         analyticsService: AnalyticsService,
         dynamicPopupService: DynamicPopupService
     ) {
@@ -42,7 +40,6 @@ export class AgentDirectBufferCountChartContainerComponent extends InspectorChar
             newUrlStateNotificationService,
             chartDataService,
             translateService,
-            ajaxExceptionCheckerService,
             analyticsService,
             dynamicPopupService
         );

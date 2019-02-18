@@ -5,9 +5,10 @@ import { TranslateService } from '@ngx-translate/core';
 import * as moment from 'moment-timezone';
 
 import { II18nText, IChartConfig, IErrObj } from 'app/core/components/inspector-chart/inspector-chart.component';
-import { StoreHelperService, WebAppSettingDataService, NewUrlStateNotificationService, AjaxExceptionCheckerService, GutterEventService } from 'app/shared/services';
+import { StoreHelperService, WebAppSettingDataService, NewUrlStateNotificationService, GutterEventService } from 'app/shared/services';
 import { IChartDataService, IChartDataFromServer } from 'app/core/components/inspector-chart/chart-data.service';
 import { UrlPathId } from 'app/shared/models';
+import { isThatType } from 'app/core/utils/util';
 
 export abstract class TransactionViewChartContainer {
     protected chartData: IChartDataFromServer;
@@ -30,7 +31,6 @@ export abstract class TransactionViewChartContainer {
         protected newUrlStateNotificationService: NewUrlStateNotificationService,
         protected chartDataService: IChartDataService,
         protected translateService: TranslateService,
-        protected ajaxExceptionCheckerService: AjaxExceptionCheckerService,
         protected gutterEventService: GutterEventService,
         protected el: ElementRef
     ) {}
@@ -99,7 +99,7 @@ export abstract class TransactionViewChartContainer {
         this.chartDataService.getData(range)
             .subscribe(
                 (data: IChartDataFromServer | AjaxException) => {
-                    if (this.ajaxExceptionCheckerService.isAjaxException(data)) {
+                    if (isThatType<AjaxException>(data, 'exception')) {
                         this.setErrObj(data);
                     } else {
                         this.xRawData = data.charts.x;
@@ -107,7 +107,7 @@ export abstract class TransactionViewChartContainer {
                         this.setChartConfig(this.makeChartData(data));
                     }
                 },
-                (err) => {
+                () => {
                     this.setErrObj();
                 }
             );

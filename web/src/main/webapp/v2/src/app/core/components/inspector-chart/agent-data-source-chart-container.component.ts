@@ -7,7 +7,6 @@ import * as moment from 'moment-timezone';
 import {
     WebAppSettingDataService,
     NewUrlStateNotificationService,
-    AjaxExceptionCheckerService,
     AnalyticsService,
     StoreHelperService,
     DynamicPopupService
@@ -16,6 +15,7 @@ import { Actions } from 'app/shared/store';
 import { AgentDataSourceChartDataService, IAgentDataSourceChart } from './agent-data-source-chart-data.service';
 import { HELP_VIEWER_LIST } from 'app/core/components/help-viewer-popup/help-viewer-popup-container.component';
 import { InspectorChartContainer } from 'app/core/components/inspector-chart/inspector-chart-container';
+import { isThatType } from 'app/core/utils/util';
 
 @Component({
     selector: 'pp-agent-data-source-chart-container',
@@ -37,7 +37,6 @@ export class AgentDataSourceChartContainerComponent extends InspectorChartContai
         newUrlStateNotificationService: NewUrlStateNotificationService,
         chartDataService: AgentDataSourceChartDataService,
         translateService: TranslateService,
-        ajaxExceptionCheckerService: AjaxExceptionCheckerService,
         analyticsService: AnalyticsService,
         dynamicPopupService: DynamicPopupService
     ) {
@@ -49,7 +48,6 @@ export class AgentDataSourceChartContainerComponent extends InspectorChartContai
             newUrlStateNotificationService,
             chartDataService,
             translateService,
-            ajaxExceptionCheckerService,
             analyticsService,
             dynamicPopupService
         );
@@ -120,7 +118,7 @@ export class AgentDataSourceChartContainerComponent extends InspectorChartContai
         this.chartDataService.getData(range)
             .subscribe(
                 (data: IAgentDataSourceChart[] | AjaxException) => {
-                    if (this.ajaxExceptionCheckerService.isAjaxException(data)) {
+                    if (isThatType<AjaxException>(data, 'exception')) {
                         this.setErrObj(data);
                     } else {
                         this.chartData = data;
@@ -128,7 +126,7 @@ export class AgentDataSourceChartContainerComponent extends InspectorChartContai
                         this.setChartConfig(this.sourceDataArr);
                     }
                 },
-                (err) => {
+                () => {
                     this.setErrObj();
                 }
             );

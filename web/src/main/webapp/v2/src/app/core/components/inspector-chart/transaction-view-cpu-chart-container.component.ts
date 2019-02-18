@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRe
 import { TranslateService } from '@ngx-translate/core';
 import * as moment from 'moment-timezone';
 
-import { WebAppSettingDataService, NewUrlStateNotificationService, AjaxExceptionCheckerService, GutterEventService, StoreHelperService } from 'app/shared/services';
+import { WebAppSettingDataService, NewUrlStateNotificationService, GutterEventService, StoreHelperService } from 'app/shared/services';
 import { TransactionViewCPUChartDataService } from './transaction-view-cpu-chart-data.service';
 import { TransactionViewChartContainer } from 'app/core/components/inspector-chart/transaction-view-chart-container';
 import { IChartDataFromServer } from 'app/core/components/inspector-chart/chart-data.service';
@@ -21,7 +21,6 @@ export class TransactionViewCPUChartContainerComponent extends TransactionViewCh
         newUrlStateNotificationService: NewUrlStateNotificationService,
         chartDataService: TransactionViewCPUChartDataService,
         translateService: TranslateService,
-        ajaxExceptionCheckerService: AjaxExceptionCheckerService,
         gutterEventService: GutterEventService,
         el: ElementRef
     ) {
@@ -33,7 +32,6 @@ export class TransactionViewCPUChartContainerComponent extends TransactionViewCh
             newUrlStateNotificationService,
             chartDataService,
             translateService,
-            ajaxExceptionCheckerService,
             gutterEventService,
             el
         );
