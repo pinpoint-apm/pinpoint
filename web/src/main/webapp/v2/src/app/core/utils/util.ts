@@ -9,3 +9,9 @@ export function filterObj<T extends object>(predi: Function, obj: T): T {
         return predi(curr) ? { ...(acc as object), [curr]: obj[curr as keyof T] } as T : acc;
     }, {} as T);
 }
+
+export function isThatType<T extends object>(obj: T | any, ...props: string[]): obj is T {
+    return props.every((prop: string) => {
+        return obj.hasOwnProperty(prop);
+    });
+}
