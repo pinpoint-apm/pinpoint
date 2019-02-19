@@ -28,6 +28,7 @@ import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
+import com.navercorp.pinpoint.bootstrap.plugin.util.InstrumentUtils;
 import com.navercorp.pinpoint.plugin.elasticsearchbboss.interceptor.*;
 
 import java.security.ProtectionDomain;
@@ -44,7 +45,6 @@ public class ElasticsearchPlugin implements ProfilerPlugin, TransformTemplateAwa
 	private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
 	private TransformTemplate transformTemplate;
 	private static RestSeachExecutorMethodFilter restSeachExecutorMethodFilter = new RestSeachExecutorMethodFilter();
-	final static ElasticsearchParallelMethodFilter elasticsearchParallelMethodFilter = new ElasticsearchParallelMethodFilter();
 	static final ElasticsearchCustomMethodFilter elasticsearchCustomMethodFilter = new ElasticsearchCustomMethodFilter();
 	@Override
 	public void setup(ProfilerPluginSetupContext context) {
@@ -124,7 +124,7 @@ public class ElasticsearchPlugin implements ProfilerPlugin, TransformTemplateAwa
 
 			InstrumentMethod constructor = target.getConstructor("org.frameworkset.elasticsearch.client.RestClientUtil","int",
 					"java.lang.String","java.lang.String",  "java.lang.String",  "java.lang.Class",
-					"org.frameworkset.elasticsearch.scroll.ParallelSliceScrollResult" );
+					"org.frameworkset.elasticsearch.scroll.ParallelSliceScrollResult","org.frameworkset.elasticsearch.serial.SerialContext" );
 			constructor.addScopedInterceptor(SliceWorkerConstructorInterceptor.class, scope, ExecutionPolicy.INTERNAL);
 
 			InstrumentMethod run = target.getDeclaredMethod("run");
@@ -140,10 +140,16 @@ public class ElasticsearchPlugin implements ProfilerPlugin, TransformTemplateAwa
 			for (InstrumentMethod methodToTrace : methodsToTrace) {
 				methodToTrace.addScopedInterceptor(ElasticsearchOperationInterceptor.class, ElasticsearchConstants.ELASTICSEARCH_SCOPE, ExecutionPolicy.BOUNDARY);
 			}
-			List<InstrumentMethod> sliceMethodsToTrace = target.getDeclaredMethods(elasticsearchParallelMethodFilter);
-			for (InstrumentMethod methodToTrace : sliceMethodsToTrace) {
-				methodToTrace.addScopedInterceptor(ElasticsearchOperationAsyncInitiatorInterceptor.class, ElasticsearchConstants.ELASTICSEARCH_SLICE_SCOPE);
-			}
+			InstrumentMethod runSliceTaskMethod = InstrumentUtils.findMethod(target,"runSliceTask",
+													"int","java.lang.String","java.lang.String","java.lang.String","java.lang.Class"
+													,"org.frameworkset.elasticsearch.scroll.ParallelSliceScrollResult"
+													,"java.util.concurrent.ExecutorService"
+													,"java.util.List"
+													,"org.frameworkset.elasticsearch.serial.SerialContext"	);
+//			List<InstrumentMethod> sliceMethodsToTrace = target.getDeclaredMethods(elasticsearchParallelMethodFilter);
+//			for (InstrumentMethod methodToTrace : sliceMethodsToTrace) {
+			runSliceTaskMethod.addScopedInterceptor(ElasticsearchOperationAsyncInitiatorInterceptor.class, ElasticsearchConstants.ELASTICSEARCH_SLICE_SCOPE);
+//			}
 			return target.toBytecode();
 		}
 	}
