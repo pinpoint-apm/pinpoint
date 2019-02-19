@@ -16,45 +16,20 @@ package com.navercorp.pinpoint.plugin.elasticsearchbboss.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
-import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.logging.PLogger;
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
 
 /**
  * @author yinbp[yin-bp@163.com]
  */
-public abstract class ElasticsearchBaseOperationInterceptor implements AroundInterceptor {
-    protected final PLogger logger = PLoggerFactory.getLogger(getClass());
-    protected final boolean isDebug = logger.isDebugEnabled();
+public abstract class ElasticsearchBaseOperationInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
 
-    protected final MethodDescriptor methodDescriptor;
-    protected final TraceContext traceContext;
     protected String className;
-
-
-
-
-
-
-
     protected ElasticsearchBaseOperationInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
-        if (traceContext == null) {
-            throw new NullPointerException("traceContext must not be null");
-        }
-        if (descriptor == null) {
-            throw new NullPointerException("descriptor must not be null");
-        }
-        this.traceContext = traceContext;
-        this.methodDescriptor = descriptor;
+        super(traceContext,descriptor);
 		this.className = methodDescriptor.getClassName().substring(methodDescriptor.getClassName().lastIndexOf('.')+1);
     }
 
-
-    protected Trace createTrace(Object target, Object[] args) {
-          return traceContext.newTraceObject();
-    }
     protected boolean isTraceMethod(){
 		if(methodDescriptor.getMethodName().equals("discover")
 				|| methodDescriptor.getMethodName().equals("discoverHost")){
@@ -67,84 +42,22 @@ public abstract class ElasticsearchBaseOperationInterceptor implements AroundInt
     public void before(Object target, Object[] args) {
 		if(!isTraceMethod())
 			return ;
-        if (isDebug) {
-            logBeforeInterceptor(target, args);
-        }
-
-      
-		Trace trace = traceContext.currentTraceObject();
-
-		if (trace == null) {
-			return;
-		}
-
-
-		try {
-			final SpanEventRecorder recorder = trace.traceBlockBegin();
-			doInBeforeTrace(recorder, target, args);
-		} catch (Throwable th) {
-			if (logger.isWarnEnabled()) {
-				logger.warn("BEFORE. Caused:{}", th.getMessage(), th);
-			}
-		}
+        super.before(target,args);
     }
 
 
-
-    protected void logBeforeInterceptor(Object target, Object[] args) {
-        logger.beforeInterceptor(target, args);
-    }
-
-
-
-
-    protected void doInBeforeTrace(final SpanEventRecorder recorder, final Object target, final Object[] args){
+	@Override
+	protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
 
 	}
+
+
 
     @Override
     public void after(Object target, Object[] args, Object result, Throwable throwable) {
 		if(!isTraceMethod())
 			return ;
-        if (isDebug) {
-            logAfterInterceptor(target, args, result, throwable);
-        }
-
-		final Trace trace = traceContext.currentRawTraceObject();
-		if (trace == null) {
-			return;
-		}
-		try {
-			final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
-			doInAfterTrace(recorder, target, args, result, throwable);
-		} catch (Throwable th) {
-			if (logger.isWarnEnabled()) {
-				logger.warn("AFTER error. Caused:{}", th.getMessage(), th);
-			}
-		} finally {
-			trace.traceBlockEnd();
-		}
+        super.after(target,args,result,throwable);
 
     }
-
-
-
-    protected void logAfterInterceptor(Object target, Object[] args, Object result, Throwable throwable) {
-        logger.afterInterceptor(target, args, result, throwable);
-    }
-
-    protected abstract void doInAfterTrace(final SpanEventRecorder recorder, final Object target, final Object[] args, final Object result, Throwable throwable);
-    protected MethodDescriptor getMethodDescriptor() {
-        return methodDescriptor;
-    }
-
-    protected TraceContext getTraceContext() {
-        return traceContext;
-    }
-
-
-
-
-
-
 }
