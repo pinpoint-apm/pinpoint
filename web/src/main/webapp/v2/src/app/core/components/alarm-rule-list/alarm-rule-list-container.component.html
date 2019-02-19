@@ -9,8 +9,8 @@
                     <div class="l-table-title">
                         Alarm
                         <div>
+                            <button class="btn btn-sm" [ngClass]="getAddButtonClass()" (click)="onShowCreateAlarmPopup()"><i class="fas fa-plus"></i></button>
                             <button class="btn btn-sm btn-blue" *ngIf="currentApplication" (click)="onReload()"><i class="fas fa-sync"></i></button>
-                            <button class="btn btn-sm" [ngClass]="getAddButtonClass()" (click)="onShowCreateAlarmPopup()">+ Add</button>
                         </div>
                     </div>
                     <div class="l-alarm-rules-th">
@@ -37,10 +37,6 @@
             </tr>
         </tbody>
     </table>
-    <div class="l-message" [hidden]="!hasMessage()">
-        <button class="btn btn-black" (click)="onCloseMessage()"><i class="fas fa-times"></i></button>
-        <span>{{message}}</span>
-    </div>
     <pp-alarm-rule-create-and-update
         [showCreate]="showCreate"
         [checkerList]="checkerList"
@@ -50,8 +46,14 @@
         [editAlarm]="editAlarm"
         (outUpdateAlarm)="onUpdateAlarm($event)"
         (outCreateAlarm)="onCreateAlarm($event)"
-        (outClose)="onCloseCreateAlarmPopup()"
-    ></pp-alarm-rule-create-and-update>
+        (outClose)="onCloseCreateAlarmPopup()">
+    </pp-alarm-rule-create-and-update>
+    <ng-container *ngIf="errorMessage">
+        <pp-server-error-message
+            [message]="errorMessage"
+            (outClose)="onCloseErrorMessage()">
+        </pp-server-error-message>
+    </ng-container>
     <pp-film-for-disable *ngIf="useDisable" [zIndex]="9" [marginWidth]="0"></pp-film-for-disable>    
     <pp-loading [showLoading]="showLoading" [zIndex]="20"></pp-loading>                                        
 </div>

@@ -27,10 +27,6 @@
             </pp-pinpoint-user>
         </cdk-virtual-scroll-viewport>
     </div>
-    <div class="l-message" [hidden]="!hasMessage()">
-        <button class="btn btn-black" (click)="onCloseMessage()"><i class="fas fa-times"></i></button>
-        <span>{{message}}</span>
-    </div>
     <pp-pinpoint-user-create-and-update
         [showCreate]="showCreate"
         [i18nLabel]="i18nLabel"
@@ -39,8 +35,14 @@
         [editPinpointUser]="editPinpointUser"
         (outUpdatePinpointUser)="onUpdatePinpointUser($event)"
         (outCreatePinpointUser)="onCreatePinpointUser($event)"
-        (outClose)="onCloseCreateUserPopup()"
-    ></pp-pinpoint-user-create-and-update>
+        (outClose)="onCloseCreateUserPopup()">
+    </pp-pinpoint-user-create-and-update>
+    <ng-container *ngIf="errorMessage">
+        <pp-server-error-message
+            [message]="errorMessage"
+            (outClose)="onCloseErrorMessage()">
+        </pp-server-error-message>
+    </ng-container>
     <pp-film-for-disable *ngIf="useDisable" [zIndex]="9" [marginWidth]="0"></pp-film-for-disable>    
     <pp-loading [showLoading]="showLoading" [zIndex]="20"></pp-loading>
 </div>

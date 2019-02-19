@@ -20,10 +20,6 @@
             (outSelected)="onSelectUserGroup($event)"
         ></pp-user-group>
     </div>
-    <div class="l-message" [hidden]="!hasMessage()">
-        <button class="btn btn-black" (click)="onCloseMessage()"><i class="fas fa-times"></i></button>
-        <span>{{message}}</span>
-    </div>
     <pp-user-group-create-and-update
         [showCreate]="showCreate"
         [nameLabel]="i18nText.NAME_LABEL"
@@ -31,8 +27,14 @@
         [nameLengthGuide]="i18nText.USER_GROUP_SEARCH_MIN_LENGTH"
         [minLength]="USER_GROUP_NAME_MIN_LENGTH"
         (outCreateUserGroup)="onCreateUserGroup($event)"
-        (outClose)="onCloseCreateUserPopup()"
-    ></pp-user-group-create-and-update>
+        (outClose)="onCloseCreateUserPopup()">
+    </pp-user-group-create-and-update>
+    <ng-container *ngIf="errorMessage">
+        <pp-server-error-message
+            [message]="errorMessage"
+            (outClose)="onCloseErrorMessage()">
+        </pp-server-error-message>
+    </ng-container>
     <pp-film-for-disable *ngIf="useDisable" [zIndex]="9" [marginWidth]="0"></pp-film-for-disable>    
     <pp-loading [showLoading]="showLoading" [zIndex]="20"></pp-loading>
 </div>
