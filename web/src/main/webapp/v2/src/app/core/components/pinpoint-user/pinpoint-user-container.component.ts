@@ -9,6 +9,7 @@ import { UserGroupInteractionService } from 'app/core/components/user-group/user
 import { PinpointUserInteractionService } from './pinpoint-user-interaction.service';
 import { PinpointUser } from './pinpoint-user-create-and-update.component';
 import { PinpointUserDataService, IPinpointUser, IPinpointUserResponse } from './pinpoint-user-data.service';
+import { isThatType } from 'app/core/utils/util';
 
 @Component({
     selector: 'pp-pinpoint-user-container',
@@ -52,7 +53,7 @@ export class PinpointUserContainerComponent implements OnInit, OnDestroy {
     useDisable = true;
     showLoading = true;
     showCreate = false;
-    message = '';
+    errorMessage: string;
 
     displayPinpointUserList: IPinpointUser[] = [];
     defaultScrollSize = 100;
@@ -148,15 +149,12 @@ export class PinpointUserContainerComponent implements OnInit, OnDestroy {
     isChecked(userId: string): boolean {
         return this.groupMemberList.indexOf(userId) !== -1;
     }
-    hasMessage(): boolean {
-        return this.message !== '';
-    }
     onAddUser(pinpointUserId: string): void {
         this.showProcessing();
         this.pinpointUserInteractionService.setAddPinpointUser(pinpointUserId);
     }
-    onCloseMessage(): void {
-        this.message = '';
+    onCloseErrorMessage(): void {
+        this.errorMessage = '';
     }
     onSearch(query: string): void {
         this.searchQuery = query;
@@ -179,15 +177,13 @@ export class PinpointUserContainerComponent implements OnInit, OnDestroy {
             email: pinpointUser.email,
             department: pinpointUser.department
         } as IPinpointUser).subscribe((response: IPinpointUserResponse | IServerErrorShortFormat) => {
-            if ((response as IServerErrorShortFormat).errorCode) {
-                this.message = (response as IServerErrorShortFormat).errorMessage;
-                this.hideProcessing();
-            } else {
-                this.getPinpointUserList();
-            }
+            isThatType<IServerErrorShortFormat>(response, 'errorCode', 'errorMessage')
+                ? this.errorMessage = response.errorMessage
+                : this.getPinpointUserList(this.searchQuery);
+            this.hideProcessing();
         }, (error: string) => {
             this.hideProcessing();
-            this.message = error;
+            this.errorMessage = error;
         });
     }
     onUpdatePinpointUser(pinpointUser: PinpointUser): void {
@@ -200,9 +196,8 @@ export class PinpointUserContainerComponent implements OnInit, OnDestroy {
             department: pinpointUser.department,
             number: editPinpointUser.number
         } as IPinpointUser).subscribe((response: IPinpointUserResponse | IServerErrorShortFormat) => {
-            if ((response as IServerErrorShortFormat).errorCode) {
-                this.message = (response as IServerErrorShortFormat).errorMessage;
-                this.hideProcessing();
+            if (isThatType<IServerErrorShortFormat>(response, 'errorCode', 'errorMessage')) {
+                this.errorMessage = response.errorMessage;
             } else {
                 this.getPinpointUserList();
                 this.pinpointUserInteractionService.setUserUpdated({
@@ -213,21 +208,19 @@ export class PinpointUserContainerComponent implements OnInit, OnDestroy {
             }
         }, (error: IServerErrorFormat) => {
             this.hideProcessing();
-            this.message = error.exception.message;
+            this.errorMessage = error.exception.message;
         });
     }
     onRemovePinpointUser(userId: string): void {
         this.showProcessing();
         this.pinpointUserDataService.remove(userId).subscribe((response: IPinpointUserResponse | IServerErrorShortFormat) => {
-            if ((response as IServerErrorShortFormat).errorCode) {
-                this.message = (response as IServerErrorShortFormat).errorMessage;
-            } else {
-                this.pinpointUserList.splice(this.getPinpointUserIndexByUserId(userId), 1);
-            }
+            isThatType<IServerErrorShortFormat>(response, 'errorCode', 'errorMessage')
+                ? this.errorMessage = response.errorMessage
+                : this.pinpointUserList.splice(this.getPinpointUserIndexByUserId(userId), 1);
             this.hideProcessing();
         }, (error: IServerErrorFormat) => {
             this.hideProcessing();
-            this.message = error.exception.message;
+            this.errorMessage = error.exception.message;
         });
     }
     onEditPinpointUser(userId: string): void {

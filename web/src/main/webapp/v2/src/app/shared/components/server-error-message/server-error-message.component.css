@@ -1,0 +1,25 @@
+:host {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 15;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(226, 226, 226, 0.8);
+}
+
+.l-message {
+    color: #ff8c00;
+    text-align: center;
+}
+
+.l-close-button {
+    top: 0px;
+    right: 0px;
+    position: absolute;
+    padding: 0 9px;
+    border-radius: 2px;
+}
