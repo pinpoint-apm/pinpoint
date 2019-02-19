@@ -2,16 +2,18 @@
     <div class="l-user-group-title">
         <span>User Group ({{userGroupList.length}})</span>
         <div>
+            <button class="btn btn-sm btn-blue" (click)="onShowCreateUserPopup()"><i class="fas fa-plus"></i></button>
             <button class="btn btn-sm btn-blue" (click)="onReload()"><i class="fas fa-sync"></i></button> 
-            <button class="btn btn-sm btn-blue" (click)="onShowCreateUserPopup()">+ Add</button>
         </div>
     </div>
     <div class="l-user-group-search">
-            <input type="text" placeholder="{{i18nText.USER_GROUP_SEARCH_MIN_LENGTH}}" class="l-search-input" 
-                ppSearchInput 
-                [searchMinLength]="SEARCH_MIN_LENGTH"
-                [useEnter]="searchUseEnter"
-                (outSearch)="onSearch($event)">
+        <input type="text" placeholder="{{i18nText.SEARCH_INPUT_GUIDE}}" class="l-search-input" 
+            ppSearchInput 
+            [searchMinLength]="SEARCH_MIN_LENGTH"
+            [useEnter]="searchUseEnter"
+            (outSearch)="onSearch($event)"
+            #searchInput>
+        <button class="l-search-button" (click)="onSearch(searchInput.value)"><i class="fas fa-search"></i></button>
     </div>
     <div class="l-user-group-list">
         <pp-user-group
