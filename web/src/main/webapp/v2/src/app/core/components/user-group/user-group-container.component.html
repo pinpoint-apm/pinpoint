@@ -22,9 +22,8 @@
     </div>
     <pp-user-group-create-and-update
         [showCreate]="showCreate"
-        [nameLabel]="i18nText.NAME_LABEL"
-        [nameGuide]="i18nText.USER_GROUP_NAME_REQUIRED"
-        [nameLengthGuide]="i18nText.USER_GROUP_SEARCH_MIN_LENGTH"
+        [i18nLabel]="i18nLabel"
+        [i18nGuide]="i18nGuide"
         [minLength]="USER_GROUP_NAME_MIN_LENGTH"
         (outCreateUserGroup)="onCreateUserGroup($event)"
         (outClose)="onCloseCreateUserPopup()">

@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
-import { Subject, combineLatest } from 'rxjs';
+import { Subject, forkJoin } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
 
@@ -35,12 +35,7 @@ export class AlarmRuleListContainerComponent implements OnInit, OnDestroy {
         TYPE_LABEL: '',
         NOTES_LABEL: '',
     };
-    i18nGuide = {
-        CHECKER_REQUIRED: '',
-        USER_GROUP_REQUIRED: '',
-        THRESHOLD_REQUIRED: '',
-        TYPE_REQUIRED: ''
-    };
+    i18nGuide: { [key: string]: IFormFieldErrorType };
     editAlarm: any;
 
     constructor(
@@ -82,24 +77,29 @@ export class AlarmRuleListContainerComponent implements OnInit, OnDestroy {
         this.unsubscribe.complete();
     }
     private getI18NText(): void {
-        combineLatest(
+        forkJoin(
             this.translateService.get('COMMON.REQUIRED_SELECT'),
             this.translateService.get('CONFIGURATION.COMMON.CHECKER'),
             this.translateService.get('CONFIGURATION.COMMON.USER_GROUP'),
             this.translateService.get('CONFIGURATION.COMMON.THRESHOLD'),
             this.translateService.get('CONFIGURATION.COMMON.TYPE'),
             this.translateService.get('CONFIGURATION.COMMON.NOTES'),
-        ).subscribe((i18n: string[]) => {
-            this.i18nGuide.CHECKER_REQUIRED = this.translateReplaceService.replace(i18n[0], i18n[1]);
-            this.i18nGuide.USER_GROUP_REQUIRED = this.translateReplaceService.replace(i18n[0], i18n[2]);
-            this.i18nGuide.THRESHOLD_REQUIRED = this.translateReplaceService.replace(i18n[0], i18n[3]);
-            this.i18nGuide.TYPE_REQUIRED = this.translateReplaceService.replace(i18n[0], i18n[4]);
+        ).subscribe(([requiredMessage, checkerLabel, userGroupLabel, thresholdLabel, typeLabel, notesLabel]: string[]) => {
+            this.i18nGuide = {
+                checkerName: { required: this.translateReplaceService.replace(requiredMessage, checkerLabel) },
+                userGroupId: { required: this.translateReplaceService.replace(requiredMessage, userGroupLabel) },
+                threshold: {
+                    required: this.translateReplaceService.replace(requiredMessage, thresholdLabel),
+                    min: 'Must be greater than 0'
+                },
+                type: { required: this.translateReplaceService.replace(requiredMessage, typeLabel) }
+            };
 
-            this.i18nLabel.CHECKER_LABEL = i18n[1];
-            this.i18nLabel.USER_GROUP_LABEL = i18n[2];
-            this.i18nLabel.THRESHOLD_LABEL = i18n[3];
-            this.i18nLabel.TYPE_LABEL = i18n[4];
-            this.i18nLabel.NOTES_LABEL = i18n[5];
+            this.i18nLabel.CHECKER_LABEL = checkerLabel;
+            this.i18nLabel.USER_GROUP_LABEL = userGroupLabel;
+            this.i18nLabel.THRESHOLD_LABEL = thresholdLabel;
+            this.i18nLabel.TYPE_LABEL = typeLabel;
+            this.i18nLabel.NOTES_LABEL = notesLabel;
         });
     }
     private getAlarmData(): void {

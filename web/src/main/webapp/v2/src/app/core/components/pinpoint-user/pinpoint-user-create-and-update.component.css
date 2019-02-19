@@ -32,12 +32,6 @@
     right: 0px;
     position: absolute;
 }
-.l-wrapper .l-alert {
-    color: #FFF;
-    padding: 4px;
-    margin-bottom: 4px;
-    background-color: #000;
-}
 .ng-valid[required], .ng-valid.required  {
     border-left: 5px solid #42A948 !important; 
 }

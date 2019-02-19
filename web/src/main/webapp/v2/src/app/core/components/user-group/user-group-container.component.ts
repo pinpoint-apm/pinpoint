@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { combineLatest } from 'rxjs';
+import { forkJoin } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
+
 import { WebAppSettingDataService, TranslateReplaceService } from 'app/shared/services';
 import { UserGroupInteractionService } from './user-group-interaction.service';
 import { UserGroupDataService, IUserGroup, IUserGroupCreated, IUserGroupDeleted } from './user-group-data.service';
@@ -14,11 +15,12 @@ import { isThatType } from 'app/core/utils/util';
 export class UserGroupContainerComponent implements OnInit {
     private searchQuery = '';
     private userId = '';
-    i18nText: { [key: string]: string } = {
+    i18nLabel = {
         NAME_LABEL: '',
-        USER_GROUP_NAME_REQUIRED: '',
-        USER_GROUP_NAME_MIN_LENGTH: '',
-        USER_GROUP_SERACH_MIN_LENGTH: ''
+    };
+    i18nGuide: { [key: string]: IFormFieldErrorType };
+    i18nText = {
+        SEARCH_INPUT_GUIDE: ''
     };
     USER_GROUP_NAME_MIN_LENGTH = 3;
     SEARCH_MIN_LENGTH = 2;
@@ -44,15 +46,20 @@ export class UserGroupContainerComponent implements OnInit {
         });
     }
     private getI18NText(): void {
-        combineLatest(
+        forkJoin(
             this.translateService.get('COMMON.MIN_LENGTH'),
             this.translateService.get('COMMON.REQUIRED'),
             this.translateService.get('CONFIGURATION.COMMON.NAME')
-        ).subscribe((i18n: string[]) => {
-            this.i18nText.USER_GROUP_NAME_MIN_LENGTH = this.translateReplaceService.replace(i18n[0], this.USER_GROUP_NAME_MIN_LENGTH);
-            this.i18nText.USER_GROUP_SEARCH_MIN_LENGTH = this.translateReplaceService.replace(i18n[0], this.SEARCH_MIN_LENGTH);
-            this.i18nText.USER_GROUP_NAME_REQUIRED = this.translateReplaceService.replace(i18n[1], i18n[2]);
-            this.i18nText.NAME_LABEL = i18n[2];
+        ).subscribe(([minLengthMessage, requiredMessage, nameLabel]: string[]) => {
+            this.i18nGuide = {
+                userGroupName: {
+                    required: this.translateReplaceService.replace(requiredMessage, nameLabel),
+                    minlength: this.translateReplaceService.replace(minLengthMessage, this.USER_GROUP_NAME_MIN_LENGTH)
+                }
+            };
+
+            this.i18nText.SEARCH_INPUT_GUIDE = this.translateReplaceService.replace(minLengthMessage, this.SEARCH_MIN_LENGTH);
+            this.i18nLabel.NAME_LABEL = nameLabel;
         });
     }
     private getUserGroupList(params: any): void  {
