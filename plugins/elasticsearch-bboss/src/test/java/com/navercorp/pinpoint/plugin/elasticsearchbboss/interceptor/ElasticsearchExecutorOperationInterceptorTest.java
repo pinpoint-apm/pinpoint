@@ -60,19 +60,6 @@ public class ElasticsearchExecutorOperationInterceptorTest {
 
 
 
-
-	@Test
-	public void testConvertParams(){
-		try {
-			String value = elasticsearchExecutorOperationInterceptor.convertParams(args);
-		}
-		catch (Exception e){
-
-		}
-	}
-
-
-
 	@Test
 	public void doInEventAfterTrace() {
 		try {

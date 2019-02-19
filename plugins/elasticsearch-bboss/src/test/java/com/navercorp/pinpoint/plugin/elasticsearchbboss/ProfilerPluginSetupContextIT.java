@@ -19,6 +19,7 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.plugin.ApplicationTypeDetector;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParserV2;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.plugin.elasticsearchbboss.interceptor.ProfilerConfigIT;
 
 /**
@@ -33,6 +34,21 @@ public class ProfilerPluginSetupContextIT implements ProfilerPluginSetupContext 
 	@Override
 	public void addApplicationTypeDetector(ApplicationTypeDetector... detectors) {
 
+	}
+
+	@Override
+	public ServiceType getConfiguredApplicationType() {
+		return null;
+	}
+
+	@Override
+	public ServiceType getApplicationType() {
+		return null;
+	}
+
+	@Override
+	public boolean registerApplicationType(ServiceType applicationType) {
+		return false;
 	}
 
 	@Override

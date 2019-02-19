@@ -28,6 +28,7 @@ import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
+import com.navercorp.pinpoint.plugin.elasticsearchbboss.interceptor.*;
 
 import java.security.ProtectionDomain;
 import java.util.List;
@@ -38,15 +39,13 @@ import java.util.List;
 public class ElasticsearchPlugin implements ProfilerPlugin, TransformTemplateAware {
 
 
-	public static String[] getClazzInterceptors(){
-		return ElasticsearchConstants.clazzInterceptors;
-	}
+
 
 	private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
 	private TransformTemplate transformTemplate;
-	private RestSeachExecutorMethodFilter restSeachExecutorMethodFilter = new RestSeachExecutorMethodFilter();
-	final ElasticsearchParallelMethodFilter elasticsearchParallelMethodFilter = new ElasticsearchParallelMethodFilter();
-
+	private static RestSeachExecutorMethodFilter restSeachExecutorMethodFilter = new RestSeachExecutorMethodFilter();
+	final static ElasticsearchParallelMethodFilter elasticsearchParallelMethodFilter = new ElasticsearchParallelMethodFilter();
+	static final ElasticsearchCustomMethodFilter elasticsearchCustomMethodFilter = new ElasticsearchCustomMethodFilter();
 	@Override
 	public void setup(ProfilerPluginSetupContext context) {
 		if (context == null) {
@@ -69,57 +68,15 @@ public class ElasticsearchPlugin implements ProfilerPlugin, TransformTemplateAwa
 
 	//  implementations
 	private void addElasticsearchInterceptors() {
-		final ElasticsearchCustomMethodFilter elasticsearchCustomMethodFilter = new ElasticsearchCustomMethodFilter();
-		for (final String interceptorClass: ElasticsearchConstants.clazzInterceptors) {
-			transformTemplate.transform(interceptorClass, new TransformCallback() {
+		transformTemplate.transform("org.frameworkset.elasticsearch.client.ConfigRestClientUtil",ConfigRestClientTransformCallback.class);
+		transformTemplate.transform("org.frameworkset.elasticsearch.client.RestClientUtil",RestClientTransformCallback.class);
 
-				@Override
-				public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader,
-											String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain,
-											byte[] classfileBuffer) throws InstrumentException {
-
-					final InstrumentClass target = instrumentor.getInstrumentClass(loader, interceptorClass, classfileBuffer);
-
-					final List<InstrumentMethod> methodsToTrace = target.getDeclaredMethods(elasticsearchCustomMethodFilter);
-					for (InstrumentMethod methodToTrace : methodsToTrace) {
-						String operationInterceptor = "com.navercorp.pinpoint.plugin.elasticsearchbboss.interceptor.ElasticsearchOperationInterceptor";
-						methodToTrace.addScopedInterceptor(operationInterceptor, ElasticsearchConstants.ELASTICSEARCH_SCOPE, ExecutionPolicy.BOUNDARY);
-					}
-					final List<InstrumentMethod> sliceMethodsToTrace = target.getDeclaredMethods(elasticsearchParallelMethodFilter);
-					for (InstrumentMethod methodToTrace : sliceMethodsToTrace) {
-						methodToTrace.addScopedInterceptor("com.navercorp.pinpoint.plugin.elasticsearchbboss.interceptor.ElasticsearchOperationAsyncInitiatorInterceptor", ElasticsearchConstants.ELASTICSEARCH_SLICE_SCOPE);
-					}
-					return target.toBytecode();
-				}
-			});
-
-		}
 	}
 
 	//  implementations
 	private void addElasticsearchExecutorInterceptors() {
 
-		transformTemplate.transform("org.frameworkset.elasticsearch.client.RestSearchExecutor", new TransformCallback() {
-
-			@Override
-			public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader,
-										String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain,
-										byte[] classfileBuffer) throws InstrumentException {
-
-				final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
-
-				final List<InstrumentMethod> methodsToTrace = target.getDeclaredMethods(restSeachExecutorMethodFilter);
-				String operationInterceptor = "com.navercorp.pinpoint.plugin.elasticsearchbboss.interceptor.ElasticsearchExecutorOperationInterceptor";
-				//logger.info(operationInterceptor+" methodsToTrace",methodsToTrace);
-				for (InstrumentMethod methodToTrace : methodsToTrace) {
-
-					methodToTrace.addScopedInterceptor(operationInterceptor, ElasticsearchConstants.ELASTICSEARCH_EXECUTOR_SCOPE, ExecutionPolicy.ALWAYS);
-//                    methodToTrace.addInterceptor(operationInterceptor);
-				}
-
-				return target.toBytecode();
-			}
-		});
+		transformTemplate.transform("org.frameworkset.elasticsearch.client.RestSearchExecutor", RestSearchExecutorTransformCallback.class);
 
 
 	}
@@ -127,33 +84,90 @@ public class ElasticsearchPlugin implements ProfilerPlugin, TransformTemplateAwa
 	//  implementations
 	private void addSliceElasticsearchInterceptors() {
 
-		transformTemplate.transform("org.frameworkset.elasticsearch.SliceRunTask", new TransformCallback() {
-
-			@Override
-			public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader,
-										String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain,
-										byte[] classfileBuffer) throws InstrumentException {
-
-				final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
-				InterceptorScope scope = instrumentor.getInterceptorScope(ElasticsearchConstants.ELASTICSEARCH_SLICE_SCOPE);
-
-				target.addField(AsyncContextAccessor.class.getName());
-
-				InstrumentMethod constructor = target.getConstructor("org.frameworkset.elasticsearch.client.RestClientUtil","int",
-																	"java.lang.String","java.lang.String",  "java.lang.String",  "java.lang.Class",
-																	"org.frameworkset.elasticsearch.scroll.ParallelSliceScrollResult" );
-				constructor.addScopedInterceptor("com.navercorp.pinpoint.plugin.elasticsearchbboss.interceptor.SliceWorkerConstructorInterceptor", scope, ExecutionPolicy.INTERNAL);
-
-				InstrumentMethod run = target.getDeclaredMethod("run");
-				run.addInterceptor("com.navercorp.pinpoint.plugin.elasticsearchbboss.interceptor.SliceWorkerRunInterceptor");
-
-				return target.toBytecode();
-			}
-		});
+		transformTemplate.transform("org.frameworkset.elasticsearch.SliceRunTask", SliceRunTaskTransformCallback.class);
 	}
 
 	@Override
 	public void setTransformTemplate(TransformTemplate transformTemplate) {
 		this.transformTemplate = transformTemplate;
+	}
+
+	public static class RestSearchExecutorTransformCallback implements TransformCallback{
+		@Override
+		public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader,
+									String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain,
+									byte[] classfileBuffer) throws InstrumentException {
+
+			final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+
+			final List<InstrumentMethod> methodsToTrace = target.getDeclaredMethods(restSeachExecutorMethodFilter);
+			for (InstrumentMethod methodToTrace : methodsToTrace) {
+
+				methodToTrace.addScopedInterceptor(ElasticsearchExecutorOperationInterceptor.class, ElasticsearchConstants.ELASTICSEARCH_EXECUTOR_SCOPE, ExecutionPolicy.ALWAYS);
+			}
+
+			return target.toBytecode();
+		}
+
+	}
+
+	public static class SliceRunTaskTransformCallback implements TransformCallback{
+		@Override
+		public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader,
+									String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain,
+									byte[] classfileBuffer) throws InstrumentException {
+
+			final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+			InterceptorScope scope = instrumentor.getInterceptorScope(ElasticsearchConstants.ELASTICSEARCH_SLICE_SCOPE);
+
+			target.addField(AsyncContextAccessor.class);
+
+			InstrumentMethod constructor = target.getConstructor("org.frameworkset.elasticsearch.client.RestClientUtil","int",
+					"java.lang.String","java.lang.String",  "java.lang.String",  "java.lang.Class",
+					"org.frameworkset.elasticsearch.scroll.ParallelSliceScrollResult" );
+			constructor.addScopedInterceptor(SliceWorkerConstructorInterceptor.class, scope, ExecutionPolicy.INTERNAL);
+
+			InstrumentMethod run = target.getDeclaredMethod("run");
+			run.addInterceptor(SliceWorkerRunInterceptor.class);
+
+			return target.toBytecode();
+		}
+	}
+
+	public static abstract class BaseClientTransformCallback implements TransformCallback{
+		protected byte[] toBytecode(InstrumentClass target)  throws InstrumentException{
+			List<InstrumentMethod> methodsToTrace = target.getDeclaredMethods(elasticsearchCustomMethodFilter);
+			for (InstrumentMethod methodToTrace : methodsToTrace) {
+				methodToTrace.addScopedInterceptor(ElasticsearchOperationInterceptor.class, ElasticsearchConstants.ELASTICSEARCH_SCOPE, ExecutionPolicy.BOUNDARY);
+			}
+			List<InstrumentMethod> sliceMethodsToTrace = target.getDeclaredMethods(elasticsearchParallelMethodFilter);
+			for (InstrumentMethod methodToTrace : sliceMethodsToTrace) {
+				methodToTrace.addScopedInterceptor(ElasticsearchOperationAsyncInitiatorInterceptor.class, ElasticsearchConstants.ELASTICSEARCH_SLICE_SCOPE);
+			}
+			return target.toBytecode();
+		}
+	}
+	public static class RestClientTransformCallback extends BaseClientTransformCallback{
+		@Override
+		public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader,
+									String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain,
+									byte[] classfileBuffer) throws InstrumentException {
+
+			final InstrumentClass target = instrumentor.getInstrumentClass(loader, "org.frameworkset.elasticsearch.client.RestClientUtil", classfileBuffer);
+
+			return toBytecode(target);
+		}
+	}
+
+	public static class ConfigRestClientTransformCallback extends BaseClientTransformCallback{
+		@Override
+		public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader,
+									String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain,
+									byte[] classfileBuffer) throws InstrumentException {
+
+			final InstrumentClass target = instrumentor.getInstrumentClass(loader, "org.frameworkset.elasticsearch.client.ConfigRestClientUtil", classfileBuffer);
+
+			return toBytecode(target);
+		}
 	}
 }

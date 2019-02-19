@@ -14,13 +14,13 @@
  */
 package com.navercorp.pinpoint.plugin.elasticsearchbboss.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.context.*;
+import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
+import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
+import com.navercorp.pinpoint.bootstrap.context.Trace;
+import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-
-import java.lang.reflect.Array;
-import java.util.Arrays;
 
 /**
  * @author yinbp[yin-bp@163.com]
@@ -34,76 +34,10 @@ public abstract class ElasticsearchBaseOperationInterceptor implements AroundInt
     protected String className;
 
 
-	protected String mergeParameterVariableNameDescription(StringBuilder sb ,String[] parameterType, String[] variableName) {
-		if (parameterType == null && variableName == null) {
-			return "()";
-		} else if (variableName != null && parameterType != null) {
-			if (parameterType.length != variableName.length) {
-				throw new IllegalArgumentException("args size not equal");
-			} else if (parameterType.length == 0) {
-				return "()";
-			} else {
-
-				sb.append('(');
-				int end = parameterType.length - 1;
-
-				for(int i = 0; i < parameterType.length; ++i) {
-					sb.append(parameterType[i]);
-					sb.append('_');
-					sb.append(variableName[i]);
-					if (i < end) {
-						sb.append(",");
-					}
-				}
-
-				sb.append(')');
-				return sb.toString();
-			}
-		} else {
-			throw new IllegalArgumentException("invalid null pair parameterType:" + Arrays.toString(parameterType) + ", variableName:" + Arrays.toString(variableName));
-		}
-	}
 
 
-	public String convertParams(Object[] args){
 
-		if(args != null && args.length > 0){
-			if(args.length == 1){
-				return String.valueOf(args[0]);
-			}
-			StringBuilder builder = new StringBuilder();
-			int i = 0;
-			for(Object arg:args) {
 
-				if(i > 0) {
-					builder.append(",");
-
-				}
-				convertInner(  arg,  builder);
-				i ++;
-			}
-			return builder.toString();
-		}
-		return null;
-	}
-
-	private void convertInner(Object arg,StringBuilder builder){
-		boolean isArray = arg != null && arg.getClass().isArray();
-		if(!isArray) {
-			builder.append(arg);
-		}
-		else {
-			builder.append("[");
-			for (int i = 0; i < Array.getLength(arg); i ++) {
-				if (i > 0) {
-					builder.append(",");
-
-				}
-				convertInner(Array.get(arg,i),  builder);
-			}
-			builder.append("]");
-		}
-	}
 
     protected ElasticsearchBaseOperationInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
         if (traceContext == null) {

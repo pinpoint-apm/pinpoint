@@ -14,22 +14,27 @@
  */
 package com.navercorp.pinpoint.plugin.elasticsearchbboss;
 
-import org.junit.Before;
+import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
+import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import org.junit.Test;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * @author yinbp[yin-bp@163.com]
  */
 public class ElasticsearchPluginTest {
-    private ElasticsearchPlugin elasticsearchPlugin;
-    @Before
-    public void setUp(){
-        elasticsearchPlugin = new ElasticsearchPlugin();
-    }
+    private ElasticsearchPlugin elasticsearchPlugin = new ElasticsearchPlugin();
+
     @Test
     public void testSetup() {
+        ProfilerPluginSetupContext profilerPluginSetupContext = mock(ProfilerPluginSetupContext.class);
+        when(profilerPluginSetupContext.getConfig()).thenReturn(new DefaultProfilerConfig());
         try {
-            elasticsearchPlugin.setup(new ProfilerPluginSetupContextIT());
+            elasticsearchPlugin.setup(profilerPluginSetupContext);
         }
         catch (Exception e){
 
@@ -37,7 +42,8 @@ public class ElasticsearchPluginTest {
     }
     @Test
     public void setTransformTemplate() {
-        elasticsearchPlugin.setTransformTemplate(null);
+        InstrumentContext instrumentContext = mock(InstrumentContext.class);
+        elasticsearchPlugin.setTransformTemplate(new TransformTemplate(instrumentContext));
     }
 
 }

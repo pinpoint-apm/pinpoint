@@ -282,6 +282,11 @@ public class ProfilerConfigIT implements ProfilerConfig {
 	}
 
 	@Override
+	public List<String> getPluginLoadOrder() {
+		return null;
+	}
+
+	@Override
 	public List<String> getDisabledPlugins() {
 		return new ArrayList<String>();
 	}
