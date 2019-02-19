@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Subject, combineLatest } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { Subject, iif, of, forkJoin } from 'rxjs';
+import { takeUntil, switchMap } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
 
 import { TranslateReplaceService, WebAppSettingDataService } from 'app/shared/services';
@@ -26,14 +26,7 @@ export class PinpointUserContainerComponent implements OnInit, OnDestroy {
         PHONE_LABEL: '',
         EMAIL_LABEL: '',
     };
-    i18nGuide = {
-        USER_ID_MIN_LENGTH: '',
-        NAME_MIN_LENGTH: '',
-        USER_ID_REQUIRED: '',
-        NAME_REQUIRED: '',
-        PHONE_REQUIRED: '',
-        EMAIL_REQUIRED: '',
-    };
+    i18nGuide: { [key: string]: IFormFieldErrorType };
     i18nText = {
         SEARCH_INPUT_GUIDE: ''
     };
@@ -90,7 +83,7 @@ export class PinpointUserContainerComponent implements OnInit, OnDestroy {
         this.unsubscribe.complete();
     }
     private getI18NText(): void {
-        combineLatest(
+        forkJoin(
             this.translateService.get('COMMON.MIN_LENGTH'),
             this.translateService.get('COMMON.REQUIRED'),
             this.translateService.get('CONFIGURATION.COMMON.USER_ID'),
@@ -98,22 +91,27 @@ export class PinpointUserContainerComponent implements OnInit, OnDestroy {
             this.translateService.get('CONFIGURATION.COMMON.DEPARTMENT'),
             this.translateService.get('CONFIGURATION.COMMON.PHONE'),
             this.translateService.get('CONFIGURATION.COMMON.EMAIL'),
-            this.translateService.get('CONFIGURATION.USER_GROUP.USER_GROUP_REQUIRED')
-        ).subscribe((i18n: string[]) => {
-            this.i18nGuide.USER_ID_MIN_LENGTH = this.translateReplaceService.replace(i18n[0], this.minLength.userId);
-            this.i18nGuide.NAME_MIN_LENGTH = this.translateReplaceService.replace(i18n[0], this.minLength.name);
-            this.i18nGuide.USER_ID_REQUIRED = this.translateReplaceService.replace(i18n[1], i18n[2]);
-            this.i18nGuide.NAME_REQUIRED = this.translateReplaceService.replace(i18n[1], i18n[3]);
-            this.i18nGuide.PHONE_REQUIRED = this.translateReplaceService.replace(i18n[1], i18n[5]);
-            this.i18nGuide.EMAIL_REQUIRED = this.translateReplaceService.replace(i18n[1], i18n[6]);
+        ).subscribe(([minLengthMessage, requiredMessage, idLabel, nameLabel, departmentLabel, phoneLabel, emailLabel]: string[]) => {
+            this.i18nGuide = {
+                userId: {
+                    required: this.translateReplaceService.replace(requiredMessage, idLabel),
+                    minlength: this.translateReplaceService.replace(minLengthMessage, this.minLength.userId)
+                },
+                name: {
+                    required: this.translateReplaceService.replace(requiredMessage, nameLabel),
+                    minlength: this.translateReplaceService.replace(minLengthMessage, this.minLength.name)
+                },
+                phoneNumber: { required: this.translateReplaceService.replace(requiredMessage, phoneLabel) },
+                email: { required: this.translateReplaceService.replace(requiredMessage, emailLabel) }
+            };
 
-            this.i18nText.SEARCH_INPUT_GUIDE = this.translateReplaceService.replace(i18n[0], this.minLength.search);
+            this.i18nText.SEARCH_INPUT_GUIDE = this.translateReplaceService.replace(minLengthMessage, this.minLength.search);
 
-            this.i18nLabel.USER_ID_LABEL = i18n[2];
-            this.i18nLabel.NAME_LABEL = i18n[3];
-            this.i18nLabel.DEPARTMENT_LABEL = i18n[4];
-            this.i18nLabel.PHONE_LABEL = i18n[5];
-            this.i18nLabel.EMAIL_LABEL = i18n[6];
+            this.i18nLabel.USER_ID_LABEL = idLabel;
+            this.i18nLabel.NAME_LABEL = nameLabel;
+            this.i18nLabel.DEPARTMENT_LABEL = departmentLabel;
+            this.i18nLabel.PHONE_LABEL = phoneLabel;
+            this.i18nLabel.EMAIL_LABEL = emailLabel;
         });
     }
     private getPinpointUserList(): void  {

@@ -32,6 +32,7 @@ import { UrlRedirectorComponent } from './components/url-redirector';
 import { LoadingComponent } from './components/loading';
 import { FilmForDisableComponent } from './components/film-for-disable';
 import { SimpleProgressSliderComponent } from './components/simple-progress-slider';
+import { FormFieldErrorMessageComponent } from './components/form-field-error-message';
 import { ServerErrorMessageComponent } from './components/server-error-message';
 import { SettingHeightDirective } from './directives/setting-height.directive';
 import { ContextPopupDirective } from './directives/context-popup.directive';
@@ -50,6 +51,7 @@ import { DynamicPopupService } from 'app/shared/services/dynamic-popup.service';
         LoadingComponent,
         FilmForDisableComponent,
         SimpleProgressSliderComponent,
+        FormFieldErrorMessageComponent,
         ServerErrorMessageComponent,
         SafeHtmlPipe,
         JSONTextParserPipe,
@@ -73,6 +75,7 @@ import { DynamicPopupService } from 'app/shared/services/dynamic-popup.service';
         LoadingComponent,
         FilmForDisableComponent,
         SimpleProgressSliderComponent,
+        FormFieldErrorMessageComponent,
         ServerErrorMessageComponent,
         SafeHtmlPipe,
         JSONTextParserPipe,
