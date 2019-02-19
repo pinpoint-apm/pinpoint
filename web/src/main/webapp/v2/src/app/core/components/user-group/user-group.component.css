@@ -1,9 +1,9 @@
 li {
     color: #333;
-    height: 28px;
+    /* height: 28px; */
     margin: 0;
     cursor: pointer;
-    padding: 6px 15px 0px 15px;
+    padding: 6px 17px;
     font-size: 13px;    
 }
 li:hover {

@@ -24,7 +24,7 @@ export class UserGroupContainerComponent implements OnInit {
     };
     USER_GROUP_NAME_MIN_LENGTH = 3;
     SEARCH_MIN_LENGTH = 2;
-    searchUseEnter = false;
+    searchUseEnter = true;
     userGroupList: IUserGroup[] = [];
     useDisable = true;
     showLoading = true;

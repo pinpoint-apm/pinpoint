@@ -1,8 +1,10 @@
+:host {
+    display: block;
+}
 .l-item-wrapper {
-    height: 28px;
     margin: 0;
     color: #333;
-    padding: 6px 15px 0px 15px;
+    padding: 6px 17px;
     font-size: 13px;    
     display: block;
     overflow: hidden;

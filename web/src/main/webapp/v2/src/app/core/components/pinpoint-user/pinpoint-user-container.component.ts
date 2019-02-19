@@ -36,9 +36,8 @@ export class PinpointUserContainerComponent implements OnInit, OnDestroy {
         search: 2
     };
     allowedUserEdit = false;
-    searchUseEnter = false;
+    searchUseEnter = true;
     pinpointUserList: IPinpointUser[] = [];
-    filteredPinpointUserList: IPinpointUser[] = [];
     groupMemberList: string[] = [];
     editPinpointUserIndex: number;
     editPinpointUser: PinpointUser;
@@ -48,9 +47,6 @@ export class PinpointUserContainerComponent implements OnInit, OnDestroy {
     showCreate = false;
     errorMessage: string;
 
-    displayPinpointUserList: IPinpointUser[] = [];
-    defaultScrollSize = 100;
-    currentSize: number;
     constructor(
         private webAppSettingDataService: WebAppSettingDataService,
         private pinpointUserDataService: PinpointUserDataService,
@@ -114,32 +110,22 @@ export class PinpointUserContainerComponent implements OnInit, OnDestroy {
             this.i18nLabel.EMAIL_LABEL = emailLabel;
         });
     }
-    private getPinpointUserList(): void  {
+    private getPinpointUserList(query?: string): void  {
         this.showProcessing();
-        this.webAppSettingDataService.getUserDepartment().subscribe((department: string) => {
-            this.pinpointUserDataService.retrieve(department).subscribe((pinpointUserData: IPinpointUser[] | IServerErrorShortFormat) => {
-                if ((pinpointUserData as IServerErrorShortFormat).errorCode) {
-                    this.message = (pinpointUserData as IServerErrorShortFormat).errorMessage;
-                } else {
-                    this.pinpointUserList = pinpointUserData as IPinpointUser[];
-                    this.filteringPinpointUserList();
-                }
-                this.hideProcessing();
-            }, (error: IServerErrorFormat) => {
-                this.message = error.exception.message;
-                this.hideProcessing();
-            });
+        iif(() => !!query,
+            of(query),
+            this.webAppSettingDataService.getUserDepartment()
+        ).pipe(
+            switchMap((department?: string) => this.pinpointUserDataService.retrieve(department))
+        ).subscribe((result: IPinpointUser[] | IServerErrorShortFormat) => {
+            isThatType<IServerErrorShortFormat>(result, 'errorCode', 'errorMessage')
+                ? this.errorMessage = result.errorMessage
+                : this.pinpointUserList = result;
+            this.hideProcessing();
+        }, (error: IServerErrorFormat) => {
+            this.errorMessage = error.exception.message;
+            this.hideProcessing();
         });
-    }
-    private filteringPinpointUserList(): void {
-        if (this.searchQuery === '') {
-            this.filteredPinpointUserList = this.pinpointUserList;
-        } else {
-            this.filteredPinpointUserList = this.pinpointUserList.filter((pinpointUser: IPinpointUser): boolean => {
-                return pinpointUser.name.indexOf(this.searchQuery) === -1 ? false : true;
-            });
-        }
-        this.displayPinpointUserList = this.filteredPinpointUserList;
     }
     isEnable(): boolean {
         return false;
@@ -156,10 +142,10 @@ export class PinpointUserContainerComponent implements OnInit, OnDestroy {
     }
     onSearch(query: string): void {
         this.searchQuery = query;
-        this.filteringPinpointUserList();
+        this.getPinpointUserList(this.searchQuery);
     }
     onReload(): void {
-        this.getPinpointUserList();
+        this.getPinpointUserList(this.searchQuery);
     }
     onCloseCreateUserPopup(): void {
         this.showCreate = false;
@@ -197,13 +183,15 @@ export class PinpointUserContainerComponent implements OnInit, OnDestroy {
             if (isThatType<IServerErrorShortFormat>(response, 'errorCode', 'errorMessage')) {
                 this.errorMessage = response.errorMessage;
             } else {
-                this.getPinpointUserList();
+                this.getPinpointUserList(this.searchQuery);
                 this.pinpointUserInteractionService.setUserUpdated({
                     userId: pinpointUser.userId,
                     department: pinpointUser.department,
                     name: pinpointUser.name
                 });
             }
+
+            this.hideProcessing();
         }, (error: IServerErrorFormat) => {
             this.hideProcessing();
             this.errorMessage = error.exception.message;
