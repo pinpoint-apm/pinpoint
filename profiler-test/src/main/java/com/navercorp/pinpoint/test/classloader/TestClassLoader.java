@@ -29,7 +29,8 @@ import com.navercorp.pinpoint.profiler.instrument.ASMEngine;
 import com.navercorp.pinpoint.profiler.instrument.classloading.ClassInjector;
 import com.navercorp.pinpoint.profiler.instrument.classloading.DebugTransformerClassInjector;
 import com.navercorp.pinpoint.profiler.plugin.ClassFileTransformerLoader;
-import com.navercorp.pinpoint.profiler.plugin.MatchableClassFileTransformerGuardDelegate;
+import com.navercorp.pinpoint.profiler.plugin.InstanceTransformCallbackProvider;
+import com.navercorp.pinpoint.profiler.plugin.MatchableClassFileTransformerDelegate;
 import com.navercorp.pinpoint.profiler.plugin.PluginInstrumentContext;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
@@ -37,6 +38,7 @@ import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matchers;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.profiler.plugin.TransformCallbackProvider;
 
 
 /**
@@ -104,7 +106,8 @@ public class TestClassLoader extends TransformClassLoader {
             logger.fine("addTransformer targetClassName:{}" + targetClassName + " callback:{}" + transformer);
         }
         final Matcher matcher = Matchers.newClassNameMatcher(targetClassName);
-        final MatchableClassFileTransformerGuardDelegate guard = new MatchableClassFileTransformerGuardDelegate(applicationContext.getProfilerConfig(), instrumentContext, matcher, transformer);
+        final TransformCallbackProvider transformCallbackProvider = new InstanceTransformCallbackProvider(transformer);
+        final MatchableClassFileTransformerDelegate guard = new MatchableClassFileTransformerDelegate(applicationContext.getProfilerConfig(), instrumentContext, matcher, transformCallbackProvider);
 
         this.instrumentTranslator.addTransformer(guard);
     }

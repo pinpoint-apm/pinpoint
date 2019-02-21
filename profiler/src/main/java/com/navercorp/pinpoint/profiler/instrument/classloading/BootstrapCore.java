@@ -19,6 +19,8 @@ package com.navercorp.pinpoint.profiler.instrument.classloading;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.instrument.BootstrapPackage;
 import com.navercorp.pinpoint.profiler.instrument.scanner.JarFileRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
 import java.util.List;
@@ -27,8 +29,12 @@ import java.util.List;
  * @author Woonduk Kang(emeroad)
  */
 public class BootstrapCore {
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final boolean isDebug = logger.isDebugEnabled();
+
     private final BootstrapPackage bootstrapPackage;
     private final JarFileRepository bootstrapRepository;
+    private final ClassLoader bootstrapClassLoader = Object.class.getClassLoader();
 
 
     public BootstrapCore(List<String> bootstrapJarPaths) {
@@ -48,5 +54,19 @@ public class BootstrapCore {
 
     public InputStream openStream(String internalClassName) {
         return bootstrapRepository.openStream(internalClassName);
+    }
+
+    public <T> Class<? extends T> loadClass(String className) {
+        try {
+            if (isDebug) {
+                logger.debug("loadClass:{}", className);
+            }
+            return (Class<T>) Class.forName(className, false, bootstrapClassLoader);
+        } catch (ClassNotFoundException ex) {
+            if (isDebug) {
+                logger.debug("ClassNotFound {} cl:{}", ex.getMessage(), bootstrapClassLoader);
+            }
+            throw new RuntimeException(ex.getMessage(), ex);
+        }
     }
 }

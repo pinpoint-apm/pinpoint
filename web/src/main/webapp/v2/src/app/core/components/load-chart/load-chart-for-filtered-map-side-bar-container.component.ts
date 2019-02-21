@@ -87,6 +87,7 @@ export class LoadChartForFilteredMapSideBarContainerComponent implements OnInit,
             })
         ).subscribe((target: ISelectedTarget) => {
             this.yMax = -1;
+            this.selectedAgent = '';
             this.selectedTarget = target;
             this.hiddenComponent = target.isMerged;
             if (target.isMerged === false) {

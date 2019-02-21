@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.web.calltree.span;
 
 import java.util.List;
+import java.util.Objects;
 
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
@@ -28,10 +29,8 @@ import org.apache.commons.collections.CollectionUtils;
  * @author emeroad
  * @author jaehong.kim
  */
-public class SpanAlign {
+public class SpanAlign implements Align {
     private final SpanBo spanBo;
-    private final SpanEventBo spanEventBo;
-    private final boolean span;
     private final boolean hasChild;
     private final boolean meta;
 
@@ -45,265 +44,224 @@ public class SpanAlign {
     }
 
     public SpanAlign(SpanBo spanBo, boolean meta) {
-        if (spanBo == null) {
-            throw new NullPointerException("spanBo must not be null");
-        }
-        this.spanBo = spanBo;
-        this.spanEventBo = null;
-        this.span = true;
-        List<SpanEventBo> spanEvents = this.spanBo.getSpanEventBoList();
-        if (CollectionUtils.isEmpty(spanEvents)) {
-            this.hasChild = false;
-        } else {
-            this.hasChild = true;
-        }
+        this.spanBo = Objects.requireNonNull(spanBo, "spanBo must not be null");
+        this.hasChild = hasChild0();
         this.meta = meta;
     }
 
-    public SpanAlign(SpanBo spanBo, SpanEventBo spanEventBo) {
-        if (spanBo == null) {
-            throw new NullPointerException("spanBo must not be null");
-        }
-        if (spanEventBo == null) {
-            throw new NullPointerException("spanEventBo must not be null");
-        }
-        this.spanBo = spanBo;
-        this.spanEventBo = spanEventBo;
-        this.span = false;
-        this.hasChild = false;
-        this.meta = false;
+    private boolean hasChild0() {
+        List<SpanEventBo> spanEvents = this.spanBo.getSpanEventBoList();
+        return CollectionUtils.isNotEmpty(spanEvents);
     }
 
+    @Override
     public boolean isMeta() {
         return meta;
     }
 
+    @Override
     public boolean isSpan() {
-        return span;
+        return true;
     }
 
+    @Override
     public SpanBo getSpanBo() {
         return spanBo;
     }
 
+    @Override
     public SpanEventBo getSpanEventBo() {
-        return spanEventBo;
+        return null;
     }
 
+    @Override
     public boolean hasChild() {
         return hasChild;
     }
 
+    @Override
     public int getId() {
         return id;
     }
 
+    @Override
     public void setId(int id) {
         this.id = id;
     }
 
+    @Override
     public long getGap() {
         return gap;
     }
 
+    @Override
     public void setGap(long gap) {
         this.gap = gap;
     }
 
+    @Override
     public int getDepth() {
         return depth;
     }
 
+    @Override
     public void setDepth(int depth) {
         this.depth = depth;
     }
 
+    @Override
     public boolean isAsync() {
-        if (isSpan()) {
-            return false;
-        }
+        return false;
 
-        return spanEventBo.isAsync();
     }
 
+    @Override
     public boolean isAsyncFirst() {
-        if (!isAsync()) {
-            return false;
-        }
-
-        return spanEventBo.getSequence() == 0;
+        return false;
     }
 
+    @Override
     public long getExecutionMilliseconds() {
         return executionMilliseconds;
     }
 
+    @Override
     public void setExecutionMilliseconds(long executionMilliseconds) {
         this.executionMilliseconds = executionMilliseconds;
     }
 
+    @Override
     public long getCollectorAcceptTime() {
         return spanBo.getCollectorAcceptTime();
     }
 
+    @Override
     public byte getLoggingTransactionInfo() {
         return spanBo.getLoggingTransactionInfo();
     }
 
+    @Override
     public long getLastTime() {
-        if (isSpan()) {
-            return spanBo.getStartTime() + spanBo.getElapsed();
-        } else {
-            return spanBo.getStartTime() + spanEventBo.getStartElapsed() + spanEventBo.getEndElapsed();
-        }
+        return spanBo.getStartTime() + spanBo.getElapsed();
     }
 
+    @Override
     public long getStartTime() {
-        if (isSpan()) {
-            return spanBo.getStartTime();
-        } else {
-            return spanBo.getStartTime() + spanEventBo.getStartElapsed();
-        }
+        return spanBo.getStartTime();
     }
 
+    @Override
     public long getElapsed() {
-        if (isSpan()) {
-            return spanBo.getElapsed();
-        } else {
-            return spanEventBo.getEndElapsed();
-        }
+        return spanBo.getElapsed();
     }
 
+    @Override
     public String getAgentId() {
-        if(isMeta()) {
+        if (isMeta()) {
             return " ";
         }
 
         return spanBo.getAgentId();
     }
 
+    @Override
     public String getApplicationId() {
-        if(isMeta()) {
+        if (isMeta()) {
             return " ";
         }
         return spanBo.getApplicationId();
     }
 
+    @Override
     public long getAgentStartTime() {
         return spanBo.getAgentStartTime();
     }
 
+    @Override
     public short getServiceType() {
-        if (isSpan()) {
-            return spanBo.getServiceType();
-        }
-        return spanEventBo.getServiceType();
+        return spanBo.getServiceType();
     }
 
+    @Override
     public String getTransactionId() {
         return TransactionIdUtils.formatString(spanBo.getTransactionId());
     }
 
+    @Override
     public long getSpanId() {
         return spanBo.getSpanId();
     }
 
+    @Override
     public boolean hasException() {
-        if (isSpan()) {
-            return spanBo.hasException();
-        }
-        return spanEventBo.hasException();
+        return spanBo.hasException();
     }
 
+    @Override
     public int getExceptionId() {
-        if (isSpan()) {
-            return spanBo.getExceptionId();
-        }
-        return spanEventBo.getExceptionId();
+        return spanBo.getExceptionId();
     }
 
+    @Override
     public String getExceptionClass() {
-        if (isSpan()) {
-            return spanBo.getExceptionClass();
-        }
-        return spanEventBo.getExceptionClass();
+        return spanBo.getExceptionClass();
     }
 
+    @Override
     public void setExceptionClass(String exceptionClass) {
-        if (isSpan()) {
-            spanBo.setExceptionClass(exceptionClass);
-        } else {
-            spanEventBo.setExceptionClass(exceptionClass);
-        }
+        spanBo.setExceptionClass(exceptionClass);
     }
 
+    @Override
     public String getExceptionMessage() {
-        if (isSpan()) {
-            return spanBo.getExceptionMessage();
-        }
-
-        return spanEventBo.getExceptionMessage();
+        return spanBo.getExceptionMessage();
     }
 
+    @Override
     public String getRemoteAddr() {
-        if (isSpan()) {
-            return spanBo.getRemoteAddr();
-        }
+        return spanBo.getRemoteAddr();
+    }
 
+    @Override
+    public String getRpc() {
+        return spanBo.getRpc();
+    }
+
+    @Override
+    public int getApiId() {
+        return spanBo.getApiId();
+    }
+
+    @Override
+    public List<AnnotationBo> getAnnotationBoList() {
+        return spanBo.getAnnotationBoList();
+    }
+
+    @Override
+    public void setAnnotationBoList(List<AnnotationBo> annotationBoList) {
+        spanBo.setAnnotationBoList(annotationBoList);
+    }
+
+    @Override
+    public String getDestinationId() {
         return null;
     }
 
-    public int getApiId() {
-        if (isSpan()) {
-            return spanBo.getApiId();
-        } else {
-            return spanEventBo.getApiId();
-        }
-    }
-
-    public List<AnnotationBo> getAnnotationBoList() {
-        if (isSpan()) {
-            return spanBo.getAnnotationBoList();
-        }
-        return spanEventBo.getAnnotationBoList();
-    }
-
-    public void setAnnotationBoList(List<AnnotationBo> annotationBoList) {
-        if (isSpan()) {
-            spanBo.setAnnotationBoList(annotationBoList);
-        } else {
-            spanEventBo.setAnnotationBoList(annotationBoList);
-        }
-    }
-
-    public String getDestinationId() {
-        if (isSpan()) {
-            return null;
-        }
-
-        return spanEventBo.getDestinationId();
+    @Override
+    public int getAsyncId() {
+        return -1;
     }
 
     @Override
     public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("{spanBo=");
-        builder.append(spanBo);
-        builder.append(", spanEventBo=");
-        builder.append(spanEventBo);
-        builder.append(", span=");
-        builder.append(span);
-        builder.append(", hasChild=");
-        builder.append(hasChild);
-        builder.append(", id=");
-        builder.append(id);
-        builder.append(", gap=");
-        builder.append(gap);
-        builder.append(", depth=");
-        builder.append(depth);
-        builder.append(", executionTime=");
-        builder.append(executionMilliseconds);
-        builder.append("}");
-        return builder.toString();
+        return "SpanAlign{" +
+                "spanBo=" + spanBo +
+                ", hasChild=" + hasChild +
+                ", meta=" + meta +
+                ", id=" + id +
+                ", gap=" + gap +
+                ", depth=" + depth +
+                ", executionMilliseconds=" + executionMilliseconds +
+                '}';
     }
 }

@@ -31,7 +31,7 @@ export class AlarmRuleCreateAndUpdateComponent implements OnInit, OnChanges {
     @Input() checkerList: string[];
     @Input() userGroupList: string[];
     @Input() i18nLabel: any;
-    @Input() i18nGuide: any;
+    @Input() i18nGuide: { [key: string]: IFormFieldErrorType };
     @Input() editAlarm: Alarm = null;
     @Output() outUpdateAlarm: EventEmitter<Alarm> = new EventEmitter();
     @Output() outCreateAlarm: EventEmitter<Alarm> = new EventEmitter();

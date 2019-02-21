@@ -23,8 +23,8 @@ package com.navercorp.pinpoint.web.calltree.span;
  */
 public class SpanAsyncCallTree extends SpanCallTree {
 
-    public SpanAsyncCallTree(final SpanAlign spanAlign) {
-        super(spanAlign);
+    public SpanAsyncCallTree(final Align align) {
+        super(align);
     }
 
     @Override
@@ -47,6 +47,6 @@ public class SpanAsyncCallTree extends SpanCallTree {
         if (root == null) {
             return true;
         }
-        return root.getValue() == null;
+        return root.getAlign() == null;
     }
 }

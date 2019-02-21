@@ -8,10 +8,9 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 })
 export class UserGroupCreateAndUpdateComponent implements OnInit, AfterViewChecked {
     @Input() showCreate = false;
+    @Input() i18nLabel: { [key: string]: string };
+    @Input() i18nGuide: { [key: string]: IFormFieldErrorType };
     @Input() minLength: number;
-    @Input() nameLabel: string;
-    @Input() nameGuide: string;
-    @Input() nameLengthGuide: string;
     @Output() outCreateUserGroup: EventEmitter<string> = new EventEmitter();
     @Output() outClose: EventEmitter<null> = new EventEmitter();
     newUserGroupModel = '';
@@ -22,7 +21,7 @@ export class UserGroupCreateAndUpdateComponent implements OnInit, AfterViewCheck
         this.userGroupForm = new FormGroup({
             'userGroupName': new FormControl(this.newUserGroupModel, [
                 Validators.required,
-                Validators.minLength(3)
+                Validators.minLength(this.minLength)
             ])
         });
     }

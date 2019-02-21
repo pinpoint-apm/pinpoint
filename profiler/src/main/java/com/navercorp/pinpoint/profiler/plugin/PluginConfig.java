@@ -22,18 +22,12 @@ import com.navercorp.pinpoint.common.util.Assert;
 
 
 import java.net.URL;
-import java.util.Collections;
-import java.util.List;
 import java.util.jar.JarFile;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
 public class PluginConfig {
-
-
-    public static final String PINPOINT_PLUGIN_PACKAGE = "Pinpoint-Plugin-Package";
-    public static final String DEFAULT_PINPOINT_PLUGIN_PACKAGE_NAME = "com.navercorp.pinpoint.plugin";
 
     private final Plugin plugin;
     private final JarFile pluginJar;

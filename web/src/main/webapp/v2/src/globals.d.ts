@@ -358,3 +358,11 @@ interface ISystemConfiguration {
     userName?: string;
     userDepartment?: string;
 }
+
+interface IFormFieldErrorType {
+    required?: string;
+    minlength?: string;
+    min?: string;
+    max?: string;
+}
+

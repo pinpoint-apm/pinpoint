@@ -21,7 +21,7 @@ import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.util.DateUtils;
 import com.navercorp.pinpoint.common.util.IntBooleanIntBooleanValue;
 import com.navercorp.pinpoint.common.util.LongIntIntByteByteStringValue;
-import com.navercorp.pinpoint.web.calltree.span.SpanAlign;
+import com.navercorp.pinpoint.web.calltree.span.Align;
 
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
@@ -42,7 +42,7 @@ public class AnnotationRecordFormatter {
     public AnnotationRecordFormatter() {
     }
 
-    public String formatTitle(final AnnotationKey annotationKey, final AnnotationBo annotationBo, SpanAlign align) {
+    public String formatTitle(final AnnotationKey annotationKey, final AnnotationBo annotationBo, Align align) {
         if (annotationKey.getCode() == AnnotationKey.PROXY_HTTP_HEADER.getCode()) {
             if (!(annotationBo.getValue() instanceof LongIntIntByteByteStringValue)) {
                 return PROXY_UNKNOWN;
@@ -62,11 +62,11 @@ public class AnnotationRecordFormatter {
         return annotationKey.getName();
     }
 
-    String formatArguments(final AnnotationKey annotationKey, final AnnotationBo annotationBo, final SpanAlign spanAlign) {
+    String formatArguments(final AnnotationKey annotationKey, final AnnotationBo annotationBo, final Align align) {
         if (annotationKey.getCode() == AnnotationKey.PROXY_HTTP_HEADER.getCode()) {
             if (annotationBo.getValue() instanceof LongIntIntByteByteStringValue) {
                 final LongIntIntByteByteStringValue value = (LongIntIntByteByteStringValue) annotationBo.getValue();
-                return buildProxyHttpHeaderAnnotationArguments(value, spanAlign.getStartTime());
+                return buildProxyHttpHeaderAnnotationArguments(value, align.getStartTime());
             } else {
                 return "Unsupported type(collector server needs to be upgraded)";
             }

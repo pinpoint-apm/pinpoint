@@ -15,7 +15,6 @@
  */
 package com.navercorp.pinpoint.plugin.vertx;
 
-import com.navercorp.pinpoint.bootstrap.resolver.ConditionProvider;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -26,15 +25,8 @@ import static org.junit.Assert.*;
 public class VertxDetectorTest {
 
     @Test
-    public void getApplicationType() {
-        VertxDetector detector = new VertxDetector(null);
-        assertEquals(VertxConstants.VERTX, detector.getApplicationType());
-
-    }
-
-    @Test
     public void detect() {
         VertxDetector detector = new VertxDetector(null);
-        assertEquals(false, detector.detect(ConditionProvider.DEFAULT_CONDITION_PROVIDER));
+        assertFalse(detector.detect());
     }
 }

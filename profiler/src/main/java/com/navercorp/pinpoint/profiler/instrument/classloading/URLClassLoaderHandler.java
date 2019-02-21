@@ -49,11 +49,9 @@ public class URLClassLoaderHandler implements ClassInjector {
     }
 
     private final PluginConfig pluginConfig;
-    private final BootstrapCore bootstrapCore;
 
-    public URLClassLoaderHandler(PluginConfig pluginConfig, BootstrapCore bootstrapCore) {
+    public URLClassLoaderHandler(PluginConfig pluginConfig) {
         this.pluginConfig = Assert.requireNonNull(pluginConfig, "pluginConfig must not be null");
-        this.bootstrapCore = Assert.requireNonNull(bootstrapCore, "bootstrapCore must not be null");
     }
 
     @Override
@@ -76,10 +74,6 @@ public class URLClassLoaderHandler implements ClassInjector {
     public InputStream getResourceAsStream(ClassLoader targetClassLoader, String internalName) {
         try {
             if (targetClassLoader instanceof URLClassLoader) {
-                if (bootstrapCore.isBootstrapPackageByInternalName(internalName)) {
-                    return bootstrapCore.openStream(internalName);
-                }
-
                 final URLClassLoader urlClassLoader = (URLClassLoader) targetClassLoader;
                 addPluginURLIfAbsent(urlClassLoader);
                 return targetClassLoader.getResourceAsStream(internalName);

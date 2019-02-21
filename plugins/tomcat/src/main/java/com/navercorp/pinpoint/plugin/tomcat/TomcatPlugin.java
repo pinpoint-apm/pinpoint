@@ -27,7 +27,15 @@ import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
-import com.navercorp.pinpoint.bootstrap.resolver.ConditionProvider;
+import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.plugin.jboss.JbossConfig;
+import com.navercorp.pinpoint.plugin.jboss.JbossConstants;
+import com.navercorp.pinpoint.plugin.jboss.JbossDetector;
+import com.navercorp.pinpoint.plugin.tomcat.interceptor.ConnectorInitializeInterceptor;
+import com.navercorp.pinpoint.plugin.tomcat.interceptor.RequestStartAsyncInterceptor;
+import com.navercorp.pinpoint.plugin.tomcat.interceptor.StandardHostValveInvokeInterceptor;
+import com.navercorp.pinpoint.plugin.tomcat.interceptor.StandardServiceStartInterceptor;
+import com.navercorp.pinpoint.plugin.tomcat.interceptor.WebappLoaderStartInterceptor;
 
 /**
  * @author Jongho Moon
@@ -43,38 +51,44 @@ public class TomcatPlugin implements ProfilerPlugin, TransformTemplateAware {
     public void setup(ProfilerPluginSetupContext context) {
         final TomcatConfig config = new TomcatConfig(context.getConfig());
         if (!config.isEnable()) {
-            logger.info("TomcatPlugin disabled");
+            logger.info("{} disabled", this.getClass().getSimpleName());
             return;
         }
+        logger.info("{} config:{}", this.getClass().getSimpleName(), config);
 
-        if (logger.isInfoEnabled()) {
-            logger.info("TomcatPlugin config:{}", config);
+        if (ServiceType.UNDEFINED.equals(context.getConfiguredApplicationType())) {
+            final TomcatDetector tomcatDetector = new TomcatDetector(config.getBootstrapMains());
+            if (tomcatDetector.detect()) {
+                logger.info("Detected application type : {}", TomcatConstants.TOMCAT);
+                if (!context.registerApplicationType(TomcatConstants.TOMCAT)) {
+                    logger.info("Application type [{}] already set, skipping [{}] registration.", context.getApplicationType(), TomcatConstants.TOMCAT);
+                }
+            }
         }
 
-        final TomcatDetector tomcatDetector = new TomcatDetector(config.getBootstrapMains());
-        context.addApplicationTypeDetector(tomcatDetector);
-
-        if (shouldAddTransformers(config)) {
+        if (shouldAddTransformers(context)) {
             logger.info("Adding Tomcat transformers");
             addTransformers(config);
         } else {
-            logger.info("Not adding Tomcat transfomers");
+            logger.info("Not adding Tomcat transformers");
         }
     }
 
-    private boolean shouldAddTransformers(TomcatConfig config) {
-        // Transform if conditional check is disabled
-        if (!config.isConditionalTransformEnable()) {
+    private boolean shouldAddTransformers(ProfilerPluginSetupContext context) {
+        final ServiceType configuredApplicationType = context.getConfiguredApplicationType();
+        if (TomcatConstants.TOMCAT.equals(configuredApplicationType)) {
             return true;
         }
-        // Only transform if it's a Tomcat application or SpringBoot application
-        final ConditionProvider conditionProvider = ConditionProvider.DEFAULT_CONDITION_PROVIDER;
-        final boolean isTomcatApplication = conditionProvider.checkMainClass(config.getBootstrapMains());
-        final boolean isSpringBootApplication = conditionProvider.checkMainClass(config.getSpringBootBootstrapMains());
-        return isTomcatApplication || isSpringBootApplication;
+        final JbossConfig jbossConfig = new JbossConfig(context.getConfig());
+        final JbossDetector jbossDetector = new JbossDetector(jbossConfig.getBootstrapMains());
+        if (jbossDetector.detect()) {
+            logger.info("Detected application type : {}", JbossConstants.JBOSS);
+            return false;
+        }
+        return true;
     }
 
-    private void addTransformers(TomcatConfig config) {
+    public void addTransformers(TomcatConfig config) {
         // Add server metadata
         addStandardService();
         addTomcatConnector();
@@ -90,120 +104,133 @@ public class TomcatPlugin implements ProfilerPlugin, TransformTemplateAware {
 
 
     private void addStandardService() {
-        transformTemplate.transform("org.apache.catalina.core.StandardService", new TransformCallback() {
+        transformTemplate.transform("org.apache.catalina.core.StandardService", StandardServiceTransform.class);
+    }
 
-            @Override
-            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
-                // Add server metadata
-                // Tomcat 6
-                final InstrumentMethod startEditor = target.getDeclaredMethod("start");
-                if (startEditor != null) {
-                    startEditor.addInterceptor("com.navercorp.pinpoint.plugin.tomcat.interceptor.StandardServiceStartInterceptor");
-                }
+    public static class StandardServiceTransform implements TransformCallback {
 
-                // Tomcat 7
-                final InstrumentMethod startInternalEditor = target.getDeclaredMethod("startInternal");
-                if (startInternalEditor != null) {
-                    startInternalEditor.addInterceptor("com.navercorp.pinpoint.plugin.tomcat.interceptor.StandardServiceStartInterceptor");
-                }
-                return target.toBytecode();
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+            // Add server metadata
+            // Tomcat 6
+            final InstrumentMethod startEditor = target.getDeclaredMethod("start");
+            if (startEditor != null) {
+                startEditor.addInterceptor(StandardServiceStartInterceptor.class);
             }
-        });
+
+            // Tomcat 7
+            final InstrumentMethod startInternalEditor = target.getDeclaredMethod("startInternal");
+            if (startInternalEditor != null) {
+                startInternalEditor.addInterceptor(StandardServiceStartInterceptor.class);
+            }
+            return target.toBytecode();
+        }
     }
 
     private void addTomcatConnector() {
-        transformTemplate.transform("org.apache.catalina.connector.Connector", new TransformCallback() {
+        transformTemplate.transform("org.apache.catalina.connector.Connector", ConnectorTransform.class);
+    }
+    public static class ConnectorTransform implements TransformCallback {
 
-            @Override
-            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
-                // Add server metadata
-                // Tomcat 6
-                final InstrumentMethod initializeEditor = target.getDeclaredMethod("initialize");
-                if (initializeEditor != null) {
-                    initializeEditor.addInterceptor("com.navercorp.pinpoint.plugin.tomcat.interceptor.ConnectorInitializeInterceptor");
-                }
-
-                // Tomcat 7
-                final InstrumentMethod initInternalEditor = target.getDeclaredMethod("initInternal");
-                if (initInternalEditor != null) {
-                    initInternalEditor.addScopedInterceptor("com.navercorp.pinpoint.plugin.tomcat.interceptor.ConnectorInitializeInterceptor", TomcatConstants.TOMCAT_SERVLET_ASYNC_SCOPE);
-                }
-                return target.toBytecode();
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+            // Add server metadata
+            // Tomcat 6
+            final InstrumentMethod initializeEditor = target.getDeclaredMethod("initialize");
+            if (initializeEditor != null) {
+                initializeEditor.addInterceptor(ConnectorInitializeInterceptor.class);
             }
-        });
+
+            // Tomcat 7
+            final InstrumentMethod initInternalEditor = target.getDeclaredMethod("initInternal");
+            if (initInternalEditor != null) {
+                initInternalEditor.addScopedInterceptor(ConnectorInitializeInterceptor.class, TomcatConstants.TOMCAT_SERVLET_ASYNC_SCOPE);
+            }
+            return target.toBytecode();
+        }
     }
 
+
     private void addWebappLoader() {
-        transformTemplate.transform("org.apache.catalina.loader.WebappLoader", new TransformCallback() {
+        transformTemplate.transform("org.apache.catalina.loader.WebappLoader", WebappLoaderTransform.class);
+    }
 
-            @Override
-            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
-                // Add servlet information
-                InstrumentMethod startMethod = null;
-                if (target.hasDeclaredMethod("start")) {
-                    // Tomcat 6 - org.apache.catalina.loader.WebappLoader.start()
-                    startMethod = target.getDeclaredMethod("start");
-                } else if (target.hasDeclaredMethod("startInternal")) {
-                    // Tomcat 7, 8 - org.apache.catalina.loader.WebappLoader.startInternal()
-                    startMethod = target.getDeclaredMethod("startInternal");
-                }
+    public static class WebappLoaderTransform implements TransformCallback {
 
-                if (startMethod != null) {
-                    startMethod.addInterceptor("com.navercorp.pinpoint.plugin.tomcat.interceptor.WebappLoaderStartInterceptor");
-                }
-                return target.toBytecode();
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+            // Add servlet information
+            InstrumentMethod startMethod = null;
+            if (target.hasDeclaredMethod("start")) {
+                // Tomcat 6 - org.apache.catalina.loader.WebappLoader.start()
+                startMethod = target.getDeclaredMethod("start");
+            } else if (target.hasDeclaredMethod("startInternal")) {
+                // Tomcat 7, 8 - org.apache.catalina.loader.WebappLoader.startInternal()
+                startMethod = target.getDeclaredMethod("startInternal");
             }
-        });
+
+            if (startMethod != null) {
+                startMethod.addInterceptor(WebappLoaderStartInterceptor.class);
+            }
+            return target.toBytecode();
+        }
     }
 
     private void addRequest() {
-        transformTemplate.transform("org.apache.catalina.connector.Request", new TransformCallback() {
+        transformTemplate.transform("org.apache.catalina.connector.Request", RequestTransform.class);
+    }
 
-            @Override
-            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
-                // Add async listener. Servlet 3.0
-                final InstrumentMethod startAsyncMethodEditor = target.getDeclaredMethod("startAsync", "javax.servlet.ServletRequest", "javax.servlet.ServletResponse");
-                if (startAsyncMethodEditor != null) {
-                    startAsyncMethodEditor.addInterceptor("com.navercorp.pinpoint.plugin.tomcat.interceptor.RequestStartAsyncInterceptor");
-                }
-                return target.toBytecode();
+    public static class RequestTransform implements TransformCallback {
+
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+            // Add async listener. Servlet 3.0
+            final InstrumentMethod startAsyncMethodEditor = target.getDeclaredMethod("startAsync", "javax.servlet.ServletRequest", "javax.servlet.ServletResponse");
+            if (startAsyncMethodEditor != null) {
+                startAsyncMethodEditor.addInterceptor(RequestStartAsyncInterceptor.class);
             }
-        });
+            return target.toBytecode();
+        }
     }
 
     private void addRequestFacade(final TomcatConfig config) {
-        transformTemplate.transform("org.apache.catalina.connector.RequestFacade", new TransformCallback() {
+        transformTemplate.transform("org.apache.catalina.connector.RequestFacade", RequestFacadeTransform.class);
+    }
 
-            @Override
-            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
-                if (config.isHidePinpointHeader()) {
-                    // Hide pinpoint headers
-                    target.weave("com.navercorp.pinpoint.plugin.tomcat.aspect.RequestFacadeAspect");
-                }
-                return target.toBytecode();
+    public static class RequestFacadeTransform implements TransformCallback {
+
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+            final TomcatConfig config = new TomcatConfig(instrumentor.getProfilerConfig());
+            if (config.isHidePinpointHeader()) {
+                // Hide pinpoint headers
+                target.weave("com.navercorp.pinpoint.plugin.tomcat.aspect.RequestFacadeAspect");
             }
-        });
+            return target.toBytecode();
+        }
     }
 
     private void addStandardHostValve() {
-        transformTemplate.transform("org.apache.catalina.core.StandardHostValve", new TransformCallback() {
+        transformTemplate.transform("org.apache.catalina.core.StandardHostValve", StandardHostValveTransform.class);
+    }
 
-            @Override
-            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
-                // Remove bind trace
-                final InstrumentMethod method = target.getDeclaredMethod("invoke", "org.apache.catalina.connector.Request", "org.apache.catalina.connector.Response");
-                if (method != null) {
-                    method.addInterceptor("com.navercorp.pinpoint.plugin.tomcat.interceptor.StandardHostValveInvokeInterceptor");
-                }
-                return target.toBytecode();
+    public static class StandardHostValveTransform implements TransformCallback {
+
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+            // Remove bind trace
+            final InstrumentMethod method = target.getDeclaredMethod("invoke", "org.apache.catalina.connector.Request", "org.apache.catalina.connector.Response");
+            if (method != null) {
+                method.addInterceptor(StandardHostValveInvokeInterceptor.class);
             }
-        });
+            return target.toBytecode();
+        }
     }
 
 

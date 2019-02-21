@@ -53,11 +53,11 @@ public class ASMEngine implements InstrumentEngine {
 
         try {
             if (classFileBuffer == null) {
-                ASMClassNodeAdapter classNode = ASMClassNodeAdapter.get(instrumentContext, classLoader, JavaAssistUtils.javaNameToJvmName(className));
+                final ASMClassNodeAdapter classNode = ASMClassNodeAdapter.get(instrumentContext, classLoader, protectionDomain, JavaAssistUtils.javaNameToJvmName(className));
                 if (classNode == null) {
                     return null;
                 }
-                return new ASMClass(engineComponent, instrumentContext, classLoader, classNode);
+                return new ASMClass(engineComponent, instrumentContext, classNode);
             }
 
             // Use ASM tree api.
@@ -66,7 +66,7 @@ public class ASMEngine implements InstrumentEngine {
             classReader.accept(classNode, 0);
 
 
-            return new ASMClass(engineComponent, instrumentContext, classLoader, classNode);
+            return new ASMClass(engineComponent, instrumentContext, classLoader, protectionDomain, classNode);
         } catch (Exception e) {
             throw new NotFoundInstrumentException(e);
         }

@@ -22,10 +22,7 @@ import com.mongodb.connection.Cluster;
 import com.mongodb.connection.ClusterDescription;
 import com.mongodb.connection.ServerDescription;
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
-import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
-import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
-import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
+import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor;
@@ -44,26 +41,26 @@ import java.util.List;
 /**
  * @author Roy Kim
  */
-public class MongoDriverConnectInterceptor3_0 extends SpanEventSimpleAroundInterceptorForPlugin {
+public class MongoDriverConnectInterceptor3_0 implements AroundInterceptor {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
-    public MongoDriverConnectInterceptor3_0(TraceContext traceContext, MethodDescriptor descriptor) {
-        super(traceContext, descriptor);
+    public MongoDriverConnectInterceptor3_0() {
     }
 
     @Override
-    protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
+    public void before(Object target, Object[] args) {
+        if (isDebug) {
+            logBeforeInterceptor(target, args);
+        }
     }
 
     @Override
-    protected void prepareAfterTrace(Object target, Object[] args, Object result, Throwable throwable) {
-    }
-
-    @Override
-    protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result,
-                                  Throwable throwable) {
+    public void after(Object target, Object[] args, Object result, Throwable throwable) {
+        if (isDebug) {
+            logAfterInterceptor(target, args, result, throwable);
+        }
 
         final boolean success = InterceptorUtils.isSuccess(throwable);
         // Must not check if current transaction is trace target or not. Connection can be made by other thread.
@@ -79,20 +76,21 @@ public class MongoDriverConnectInterceptor3_0 extends SpanEventSimpleAroundInter
 
             DatabaseInfo databaseInfo = createDatabaseInfo(hostList, readPreference, writeConcern);
             if (databaseInfo == null) {
-                databaseInfo = UnKnownDatabaseInfo.INSTANCE;
+                databaseInfo = UnKnownDatabaseInfo.MONGO_INSTANCE;
             }
 
             if (target instanceof DatabaseInfoAccessor) {
                 ((DatabaseInfoAccessor) target)._$PINPOINT$_setDatabaseInfo(databaseInfo);
             }
-
-            recorder.recordServiceType(databaseInfo.getType());
-            recorder.recordEndPoint(databaseInfo.getMultipleHost());
-            recorder.recordDestinationId(databaseInfo.getDatabaseId());
         }
+    }
 
-        recorder.recordApi(methodDescriptor);
-        recorder.recordException(throwable);
+    private void logBeforeInterceptor(Object target, Object[] args) {
+        logger.beforeInterceptor(target, args);
+    }
+
+    private void logAfterInterceptor(Object target, Object[] args, Object result, Throwable throwable) {
+        logger.afterInterceptor(target, args, result, throwable);
     }
 
     private DatabaseInfo createDatabaseInfo(List<String> hostList, String readPreference, String writeConcern) {

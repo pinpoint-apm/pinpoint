@@ -174,7 +174,9 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     private long agentInfoSendRetryInterval = DEFAULT_AGENT_INFO_SEND_RETRY_INTERVAL;
 
     private String applicationServerType;
+    @Deprecated // As of 1.9.0, set application type in plugins
     private List<String> applicationTypeDetectOrder = Collections.emptyList();
+    private List<String> pluginLoadOrder = Collections.emptyList();
     private List<String> disabledPlugins = Collections.emptyList();
 
     private boolean propagateInterceptorException = false;
@@ -455,9 +457,18 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         return profilableClassFilter;
     }
 
+    /**
+     * @deprecated As of 1.9.0, set application type in plugins
+     */
+    @Deprecated
     @Override
     public List<String> getApplicationTypeDetectOrder() {
         return applicationTypeDetectOrder;
+    }
+
+    @Override
+    public List<String> getPluginLoadOrder() {
+        return pluginLoadOrder;
     }
 
     @Override
@@ -591,7 +602,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
 
         // CallStack
         this.callStackMaxDepth = readInt("profiler.callstack.max.depth", 64);
-        if (this.callStackMaxDepth < 2) {
+        if (this.callStackMaxDepth != -1 && this.callStackMaxDepth < 2) {
             this.callStackMaxDepth = 2;
         }
 
@@ -625,6 +636,8 @@ public class DefaultProfilerConfig implements ProfilerConfig {
 
         // application type detector order
         this.applicationTypeDetectOrder = readList("profiler.type.detect.order");
+
+        this.pluginLoadOrder = readList("profiler.plugin.load.order");
 
         this.disabledPlugins = readList("profiler.plugin.disable");
 
@@ -664,8 +677,8 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         }
         String value = properties.getProperty(propertyName, defaultValue);
         value = valueResolver.resolve(value, properties);
-        if (logger.isInfoEnabled()) {
-            logger.info(propertyName + "=" + value);
+        if (logger.isDebugEnabled()) {
+            logger.debug(propertyName + "=" + value);
         }
         return value;
     }
@@ -674,8 +687,8 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     public int readInt(String propertyName, int defaultValue) {
         String value = properties.getProperty(propertyName);
         int result = NumberUtils.parseInteger(value, defaultValue);
-        if (logger.isInfoEnabled()) {
-            logger.info(propertyName + "=" + result);
+        if (logger.isDebugEnabled()) {
+            logger.debug(propertyName + "=" + result);
         }
         return result;
     }
@@ -693,8 +706,8 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         } catch (IllegalArgumentException e) {
             result = defaultDump;
         }
-        if (logger.isInfoEnabled()) {
-            logger.info(propertyName + "=" + result);
+        if (logger.isDebugEnabled()) {
+            logger.debug(propertyName + "=" + result);
         }
         return result;
     }
@@ -703,8 +716,8 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     public long readLong(String propertyName, long defaultValue) {
         String value = properties.getProperty(propertyName);
         long result = NumberUtils.parseLong(value, defaultValue);
-        if (logger.isInfoEnabled()) {
-            logger.info(propertyName + "=" + result);
+        if (logger.isDebugEnabled()) {
+            logger.debug(propertyName + "=" + result);
         }
         return result;
     }
@@ -722,8 +735,8 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     public boolean readBoolean(String propertyName, boolean defaultValue) {
         String value = properties.getProperty(propertyName, Boolean.toString(defaultValue));
         boolean result = Boolean.parseBoolean(value);
-        if (logger.isInfoEnabled()) {
-            logger.info(propertyName + "=" + result);
+        if (logger.isDebugEnabled()) {
+            logger.debug(propertyName + "=" + result);
         }
         return result;
     }
@@ -810,6 +823,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         sb.append(", agentInfoSendRetryInterval=").append(agentInfoSendRetryInterval);
         sb.append(", applicationServerType='").append(applicationServerType).append('\'');
         sb.append(", applicationTypeDetectOrder=").append(applicationTypeDetectOrder);
+        sb.append(", pluginLoadOrder=").append(pluginLoadOrder);
         sb.append(", disabledPlugins=").append(disabledPlugins);
         sb.append(", propagateInterceptorException=").append(propagateInterceptorException);
         sb.append(", supportLambdaExpressions=").append(supportLambdaExpressions);

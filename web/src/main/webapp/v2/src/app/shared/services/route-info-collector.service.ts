@@ -20,13 +20,13 @@ export class RouteInfoCollectorService {
             const pathIds = {};
             const queryParams = {};
             this.collectUrlInfo(this.activatedRoute.snapshot.children, pathIds, queryParams, innerData);
-            this.newUrlStateNotificationService.updateUrl(startPath, pathIds, queryParams, innerData);
+            this.newUrlStateNotificationService.updateUrl(startPath, pathIds, queryParams, innerData, this.activatedRoute.children[0].children[0]);
             this.analyticsService.trackPage(startPath);
         });
     }
     private collectUrlInfo(activatedChildRouteSnapshot: ActivatedRouteSnapshot[], pathIds: any, queryParams: any, innerData: any): void {
         if (activatedChildRouteSnapshot.length !== 0) {
-            for ( let i = 0 ; i < activatedChildRouteSnapshot.length ; i++ ) {
+            for (let i = 0; i < activatedChildRouteSnapshot.length; i++) {
                 this.assign(pathIds, activatedChildRouteSnapshot[i].paramMap);
                 this.assign(queryParams, activatedChildRouteSnapshot[i].queryParamMap);
                 Object.assign(innerData, activatedChildRouteSnapshot[i].data);

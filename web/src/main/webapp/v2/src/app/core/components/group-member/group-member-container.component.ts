@@ -5,6 +5,7 @@ import { UserGroupInteractionService } from 'app/core/components/user-group/user
 import { PinpointUserInteractionService } from 'app/core/components/pinpoint-user/pinpoint-user-interaction.service';
 import { GroupMemberInteractionService } from './group-member-interaction.service';
 import { GroupMemberDataService, IGroupMember, IGroupMemberResponse } from './group-member-data.service';
+import { isThatType } from 'app/core/utils/util';
 
 @Component({
     selector: 'pp-group-member-container',
@@ -18,7 +19,8 @@ export class GroupMemberContainerComponent implements OnInit {
     groupMemberList: IGroupMember[] = [];
     useDisable = false;
     showLoading = false;
-    message = '';
+    errorMessage: string;
+
     constructor(
         private groupMemberDataService: GroupMemberDataService,
         private groupMemberInteractionService: GroupMemberInteractionService,
@@ -68,12 +70,12 @@ export class GroupMemberContainerComponent implements OnInit {
     }
     private getGroupMemberList(): void {
         this.showProcessing();
-        this.groupMemberDataService.retrieve(this.currentUserGroupId).subscribe((groupMemberData: IGroupMember[] | IServerErrorShortFormat) => {
-            if ((groupMemberData as IServerErrorShortFormat).errorCode) {
+        this.groupMemberDataService.retrieve(this.currentUserGroupId).subscribe((data: IGroupMember[] | IServerErrorShortFormat) => {
+            if (isThatType<IServerErrorShortFormat>(data, 'errorCode', 'errorMessage')) {
                 this.groupMemberInteractionService.setChangeGroupMember(this.getMemberIdList());
-                this.message = (groupMemberData as IServerErrorShortFormat).errorMessage;
+                this.errorMessage = data.errorMessage;
             } else {
-                this.groupMemberList = groupMemberData as IGroupMember[];
+                this.groupMemberList = data;
                 this.sortGroupMemberList();
                 this.groupMemberInteractionService.setChangeGroupMember(this.getMemberIdList());
             }
@@ -81,20 +83,20 @@ export class GroupMemberContainerComponent implements OnInit {
         }, (error: IServerErrorFormat) => {
             this.groupMemberInteractionService.setChangeGroupMember(this.getMemberIdList());
             this.hideProcessing();
-            this.message = error.exception.message;
+            this.errorMessage = error.exception.message;
         });
     }
     private addGroupMember(userId: string): void {
         this.groupMemberDataService.create(userId, this.currentUserGroupId).subscribe((response: IGroupMemberResponse | IServerErrorShortFormat) => {
-            if ((response as IServerErrorShortFormat).errorCode) {
-                this.message = (response as IServerErrorShortFormat).errorMessage;
+            if (isThatType<IServerErrorShortFormat>(response, 'errorCode', 'errorMessage')) {
+                this.errorMessage = response.errorMessage;
                 this.hideProcessing();
             } else {
-                this.doAfterAddAndRemoveAction(response as IGroupMemberResponse);
+                this.doAfterAddAndRemoveAction(response);
             }
         }, (error: IServerErrorFormat) => {
             this.hideProcessing();
-            this.message = error.exception.message;
+            this.errorMessage = error.exception.message;
         });
     }
     private getMemberIdList(): string[] {
@@ -132,11 +134,11 @@ export class GroupMemberContainerComponent implements OnInit {
             this.doAfterAddAndRemoveAction(response);
         }, (error: string) => {
             this.hideProcessing();
-            this.message = error;
+            this.errorMessage = error;
         });
     }
-    onCloseMessage(): void {
-        this.message = '';
+    onCloseErrorMessage(): void {
+        this.errorMessage = '';
         this.groupMemberInteractionService.setChangeGroupMember(this.getMemberIdList());
     }
     onSort(): void {
@@ -147,9 +149,6 @@ export class GroupMemberContainerComponent implements OnInit {
     }
     onReload(): void {
         this.getGroupMemberList();
-    }
-    hasMessage(): boolean {
-        return this.message !== '';
     }
     private showProcessing(): void {
         this.useDisable = true;

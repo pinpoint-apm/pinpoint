@@ -90,8 +90,12 @@ public class DefaultMongoJsonParser implements MongoJsonParser {
                     stack.push(ch);
                 } else if (ch == '}' && !stack.empty()) {
                     stack.pop();
-                    if (!stack.empty() && stack.peek() != '[') {
-                        statusKey = true;
+                    if (!stack.empty()){
+                        if(stack.peek() != '[') {
+                            statusKey = true;
+                        } else if(stack.peek() == '[') {
+                            statusKey = false;
+                        }
                     }
                 } else if (ch == '[') {
                     stack.push(ch);
@@ -102,7 +106,6 @@ public class DefaultMongoJsonParser implements MongoJsonParser {
                     }
                 }
             }
-
             if (!statusKey) {
                 if (ch == '\"' && lookAhead(json, i, 1) == '?' && lookAhead(json, i, 2) == '\"') {
                     if (!bindValueQueue.isEmpty()) {

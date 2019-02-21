@@ -176,7 +176,7 @@ public class SpanEncoderTest {
     private void assertSpanChunk(SpanChunkBo spanChunkBo) {
         spanChunkBo.setCollectorAcceptTime(getCollectorAcceptTime());
 
-        SpanEncodingContext<SpanChunkBo> encodingContext = new SpanEncodingContext<SpanChunkBo>(spanChunkBo);
+        SpanEncodingContext<SpanChunkBo> encodingContext = new SpanEncodingContext<>(spanChunkBo);
         Buffer qualifier = wrapBuffer(spanEncoder.encodeSpanChunkQualifier(encodingContext));
         Buffer column = wrapBuffer(spanEncoder.encodeSpanChunkColumnValue(encodingContext));
 
@@ -189,7 +189,7 @@ public class SpanEncoderTest {
         // logger.debug("spanChunk dump \noriginal spanChunkBo:{} \ndecode spanChunkBo:{} ", spanChunkBo, decode);
 
         List<String> notSerializedField = Lists.newArrayList("endPoint", "serviceType", "applicationServiceType");
-        List<String> excludeField = Lists.newArrayList("spanEventBoList");
+        List<String> excludeField = Lists.newArrayList("spanEventBoList", "localAsyncId");
         notSerializedField.addAll(excludeField);
         Assert.assertTrue(EqualsBuilder.reflectionEquals(decode, spanChunkBo, notSerializedField));
 

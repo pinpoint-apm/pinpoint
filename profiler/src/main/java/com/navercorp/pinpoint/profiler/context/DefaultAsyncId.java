@@ -41,14 +41,14 @@ public class DefaultAsyncId implements AsyncId {
     }
 
     @Override
-    public short nextAsyncSequence() {
-        return (short) ASYNC_SEQUENCE_UPDATER.incrementAndGet(this);
+    public int nextAsyncSequence() {
+        return ASYNC_SEQUENCE_UPDATER.incrementAndGet(this);
     }
 
     @Override
     public LocalAsyncId nextLocalAsyncId() {
         final int asyncId = getAsyncId();
-        final short sequence = nextAsyncSequence();
+        final int sequence = nextAsyncSequence();
         return new DefaultLocalAsyncId(asyncId, sequence);
     }
 

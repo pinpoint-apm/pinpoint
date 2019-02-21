@@ -25,6 +25,14 @@ import com.navercorp.pinpoint.common.trace.AnnotationKeyFactory;
 import com.navercorp.pinpoint.common.trace.AnnotationKeyProperty;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
+import com.navercorp.pinpoint.plugin.thrift.field.accessor.AsyncMarkerFlagFieldAccessor;
+import com.navercorp.pinpoint.plugin.thrift.field.accessor.ServerMarkerFlagFieldAccessor;
+import com.navercorp.pinpoint.plugin.thrift.field.accessor.SocketAddressFieldAccessor;
+import com.navercorp.pinpoint.plugin.thrift.field.accessor.SocketFieldAccessor;
+import com.navercorp.pinpoint.plugin.thrift.field.getter.TNonblockingTransportFieldGetter;
+import com.navercorp.pinpoint.plugin.thrift.field.getter.TProtocolFieldGetter;
+import com.navercorp.pinpoint.plugin.thrift.field.getter.TTransportFieldGetter;
+import com.navercorp.pinpoint.plugin.thrift.field.getter.UrlFieldGetter;
 
 /**
  * @author HyunGil Jeong
@@ -58,16 +66,14 @@ public final class ThriftConstants {
     public static final String T_HTTP_CLIENT_FIELD_URL_ = "url_";
 
     // custom field injector (accessor) FQCN
-    private static final String FIELD_ACCESSOR_BASE = "com.navercorp.pinpoint.plugin.thrift.field.accessor.";
-    public static final String FIELD_ACCESSOR_ASYNC_MARKER_FLAG = FIELD_ACCESSOR_BASE + "AsyncMarkerFlagFieldAccessor";
-    public static final String FIELD_ACCESSOR_SERVER_MARKER_FLAG = FIELD_ACCESSOR_BASE + "ServerMarkerFlagFieldAccessor";
-    public static final String FIELD_ACCESSOR_SOCKET_ADDRESS = FIELD_ACCESSOR_BASE + "SocketAddressFieldAccessor";
-    public static final String FIELD_ACCESSOR_SOCKET = FIELD_ACCESSOR_BASE + "SocketFieldAccessor";
+    public static final Class<?> FIELD_ACCESSOR_ASYNC_MARKER_FLAG = AsyncMarkerFlagFieldAccessor.class;
+    public static final Class<?> FIELD_ACCESSOR_SERVER_MARKER_FLAG = ServerMarkerFlagFieldAccessor.class;
+    public static final Class<?> FIELD_ACCESSOR_SOCKET_ADDRESS = SocketAddressFieldAccessor.class;
+    public static final Class<?> FIELD_ACCESSOR_SOCKET = SocketFieldAccessor.class;
 
     // field getter FQCN
-    private static final String FIELD_GETTER_BASE = "com.navercorp.pinpoint.plugin.thrift.field.getter.";
-    public static final String FIELD_GETTER_T_NON_BLOCKING_TRANSPORT = FIELD_GETTER_BASE + "TNonblockingTransportFieldGetter";
-    public static final String FIELD_GETTER_T_TRANSPORT = FIELD_GETTER_BASE + "TTransportFieldGetter";
-    public static final String FIELD_GETTER_T_PROTOCOL = FIELD_GETTER_BASE + "TProtocolFieldGetter";
-    public static final String FIELD_GETTER_URL = FIELD_GETTER_BASE + "UrlFieldGetter";
+    public static final Class<?> FIELD_GETTER_T_NON_BLOCKING_TRANSPORT = TNonblockingTransportFieldGetter.class;
+    public static final Class<?> FIELD_GETTER_T_TRANSPORT = TTransportFieldGetter.class;
+    public static final Class<?> FIELD_GETTER_T_PROTOCOL = TProtocolFieldGetter.class;
+    public static final Class<?> FIELD_GETTER_URL = UrlFieldGetter.class;
 }

@@ -70,18 +70,24 @@ public class AutoBindingObjectFactory {
 
     public Object createInstance(ObjectFactory objectFactory, ArgumentProvider... providers) {
         final Class<?> type = pluginContext.injectClass(classLoader, objectFactory.getClassName());
-        final ArgumentsResolver argumentsResolver = getArgumentResolver(objectFactory, providers);
+        final Object[] arguments = objectFactory.getArguments();
+        final ArgumentsResolver argumentsResolver = getArgumentResolver(arguments, providers);
         
         if (objectFactory instanceof ByConstructor) {
-            return byConstructor(type, (ByConstructor) objectFactory, argumentsResolver);
+            return byConstructor(type, argumentsResolver);
         } else if (objectFactory instanceof ByStaticFactoryMethod) {
             return byStaticFactoryMethod(type, (ByStaticFactoryMethod) objectFactory, argumentsResolver);
         }
         
         throw new IllegalArgumentException("Unknown objectFactory type: " + objectFactory);
     }
+
+    public Object createInstance(Class<?> type, Object[] arguments, ArgumentProvider... providers) {
+        final ArgumentsResolver argumentsResolver = getArgumentResolver(arguments, providers);
+        return byConstructor(type, argumentsResolver);
+    }
     
-    private Object byConstructor(Class<?> type, ByConstructor byConstructor, ArgumentsResolver argumentsResolver) {
+    private Object byConstructor(Class<?> type, ArgumentsResolver argumentsResolver) {
         final ConstructorResolver resolver = new ConstructorResolver(type, argumentsResolver);
         
         if (!resolver.resolve()) {
@@ -124,12 +130,12 @@ public class AutoBindingObjectFactory {
 
     }
     
-    private ArgumentsResolver getArgumentResolver(ObjectFactory objectFactory, ArgumentProvider[] providers) {
+    private ArgumentsResolver getArgumentResolver(Object[] argument, ArgumentProvider[] providers) {
         final List<ArgumentProvider> merged = new ArrayList<ArgumentProvider>(commonProviders);
         merged.addAll(Arrays.asList(providers));
         
-        if (objectFactory.getArguments() != null) {
-            merged.add(new OrderedValueProvider(this, objectFactory.getArguments()));
+        if (argument != null) {
+            merged.add(new OrderedValueProvider(this, argument));
         }
         
         return new ArgumentsResolver(merged);

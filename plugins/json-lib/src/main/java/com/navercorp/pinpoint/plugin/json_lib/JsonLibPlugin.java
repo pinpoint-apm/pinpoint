@@ -27,6 +27,8 @@ import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
+import com.navercorp.pinpoint.plugin.json_lib.interceptor.ParsingInterceptor;
+import com.navercorp.pinpoint.plugin.json_lib.interceptor.ToStringInterceptor;
 
 import java.lang.reflect.Modifier;
 import java.security.ProtectionDomain;
@@ -36,9 +38,6 @@ import java.security.ProtectionDomain;
  *
  */
 public class JsonLibPlugin implements ProfilerPlugin, TransformTemplateAware {
-    private static final String BASIC_INTERCEPTOR = BasicMethodInterceptor.class.getName();
-    private static final String PARSING_INTERCEPTOR = "com.navercorp.pinpoint.plugin.json_lib.interceptor.ParsingInterceptor";
-    private static final String TO_STRING_INTERCEPTOR = "com.navercorp.pinpoint.plugin.json_lib.interceptor.ToStringInterceptor";
 
     private static final String JSON_LIB_SCOPE = "json-lib";
 
@@ -48,115 +47,103 @@ public class JsonLibPlugin implements ProfilerPlugin, TransformTemplateAware {
     @Override
     public void setup(ProfilerPluginSetupContext context) {
         JsonLibConfig config = new JsonLibConfig(context.getConfig());
-        logger.debug("[JsonLib] Initialized config={}", config);
-
-        if (config.isProfile()) {
-            addJSONSerializerInterceptor("net.sf.json.JSONSerializer");
-            addJSONObjectInterceptor("net.sf.json.JSONObject");
-            addJSONArrayInterceptor("net.sf.json.JSONArray");
+        if (!config.isProfile()) {
+            logger.info("{} disabled", this.getClass().getSimpleName());
+            return;
         }
+        logger.info("{} config:{}", this.getClass().getSimpleName(), config);
+        addJSONSerializerInterceptor("net.sf.json.JSONSerializer");
+        addJSONObjectInterceptor("net.sf.json.JSONObject");
+        addJSONArrayInterceptor("net.sf.json.JSONArray");
     }
     
     private void addJSONSerializerInterceptor(String clazzName) {
-        transformTemplate.transform(clazzName, new TransformCallback() {
+        transformTemplate.transform(clazzName, JSONSerializerTransform.class);
+    }
+    public static class JSONSerializerTransform implements TransformCallback {
 
-            @Override
-            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
 
-                for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("toJSON"))) {
-                    addInterceptor(method, PARSING_INTERCEPTOR);
-                }
-
-                for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("toJava"))) {
-                    addInterceptor(method, BASIC_INTERCEPTOR, JsonLibConstants.SERVICE_TYPE);
-                }
-
-                return target.toBytecode();
+            for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("toJSON"))) {
+                JsonUtils.addInterceptor(method, ParsingInterceptor.class);
             }
 
-        });
+            for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("toJava"))) {
+                JsonUtils.addInterceptor(method, BasicMethodInterceptor.class, JsonLibConstants.SERVICE_TYPE);
+            }
+
+            return target.toBytecode();
+        }
 
     }
 
+
     private void addJSONObjectInterceptor(String clazzName) {
-        transformTemplate.transform(clazzName, new TransformCallback() {
+        transformTemplate.transform(clazzName, JSONObjectTransform.class);
+    }
 
-            @Override
-            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+    public static class JSONObjectTransform implements TransformCallback {
 
-                for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("fromObject"))) {
-                    addInterceptor(method, PARSING_INTERCEPTOR);
-                }
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
 
-                for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("toBean"))) {
-                    addInterceptor(method, BASIC_INTERCEPTOR, JsonLibConstants.SERVICE_TYPE);
-                }
-
-                for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("toString"))) {
-                    addInterceptor(method, TO_STRING_INTERCEPTOR);
-                }
-
-                return target.toBytecode();
+            for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("fromObject"))) {
+                JsonUtils.addInterceptor(method, ParsingInterceptor.class);
             }
 
-        });
+            for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("toBean"))) {
+                JsonUtils.addInterceptor(method, BasicMethodInterceptor.class, JsonLibConstants.SERVICE_TYPE);
+            }
+
+            for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("toString"))) {
+                JsonUtils.addInterceptor(method, ToStringInterceptor.class);
+            }
+
+            return target.toBytecode();
+        }
+
     }
 
     private void addJSONArrayInterceptor(String clazzName) {
-        transformTemplate.transform(clazzName, new TransformCallback() {
-
-            @Override
-            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
-
-                for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("fromObject"))) {
-                    addInterceptor(method, PARSING_INTERCEPTOR);
-                }
-
-                for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("toArray"))) {
-                    addInterceptor(method, BASIC_INTERCEPTOR, JsonLibConstants.SERVICE_TYPE);
-                }
-
-                for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("toList"))) {
-                    addInterceptor(method, BASIC_INTERCEPTOR, JsonLibConstants.SERVICE_TYPE);
-                }
-
-                for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("toCollection"))) {
-                    addInterceptor(method, BASIC_INTERCEPTOR, JsonLibConstants.SERVICE_TYPE);
-                }
-
-                for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("toString"))) {
-                    addInterceptor(method, TO_STRING_INTERCEPTOR);
-                }
-
-                return target.toBytecode();
-            }
-
-        });
+        transformTemplate.transform(clazzName, JSONArrayTransform.class);
 
     }
 
-    private boolean addInterceptor(InstrumentMethod method, String interceptorClassName, Object... constructorArgs) {
-        if (method != null && isPublicMethod(method)) {
-            try {
-                method.addScopedInterceptor(interceptorClassName, constructorArgs, JSON_LIB_SCOPE);
-                return true;
-            } catch (InstrumentException e) {
-                if (logger.isWarnEnabled()) {
-                    logger.warn("Unsupported method " + method, e);
-                }
+    public static class JSONArrayTransform implements TransformCallback {
+
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+
+            for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("fromObject"))) {
+                JsonUtils.addInterceptor(method, ParsingInterceptor.class);
             }
+
+            for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("toArray"))) {
+                JsonUtils.addInterceptor(method, BasicMethodInterceptor.class, JsonLibConstants.SERVICE_TYPE);
+            }
+
+            for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("toList"))) {
+                JsonUtils.addInterceptor(method, BasicMethodInterceptor.class, JsonLibConstants.SERVICE_TYPE);
+            }
+
+            for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("toCollection"))) {
+                JsonUtils.addInterceptor(method, BasicMethodInterceptor.class, JsonLibConstants.SERVICE_TYPE);
+            }
+
+            for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("toString"))) {
+                JsonUtils.addInterceptor(method, ToStringInterceptor.class);
+            }
+
+            return target.toBytecode();
         }
-        return false;
+
     }
 
 
-    private boolean isPublicMethod(InstrumentMethod method) {
-        int modifier = method.getModifiers();
-        return Modifier.isPublic(modifier);
-    }
 
     @Override
     public void setTransformTemplate(TransformTemplate transformTemplate) {

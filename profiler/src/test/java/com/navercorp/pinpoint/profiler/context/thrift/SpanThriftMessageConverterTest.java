@@ -21,7 +21,7 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.IntStringValue;
 import com.navercorp.pinpoint.profiler.context.Annotation;
 import com.navercorp.pinpoint.profiler.context.DefaultAsyncId;
-import com.navercorp.pinpoint.profiler.context.DefaultLocalAsyncId;
+import com.navercorp.pinpoint.profiler.context.DefaultSpanChunk;
 import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SpanChunk;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
@@ -130,7 +130,7 @@ public class SpanThriftMessageConverterTest {
     private SpanChunk newSpanChunk() {
         final TraceId traceId = new DefaultTraceId(AGENT_ID, AGENT_START_TIME, 1L);
         final TraceRoot traceRoot = new DefaultTraceRoot(traceId, AGENT_ID, AGENT_START_TIME, 100L);
-        return new SpanChunk(traceRoot, Collections.<SpanEvent>emptyList());
+        return new DefaultSpanChunk(traceRoot, Collections.<SpanEvent>emptyList());
     }
 
 
@@ -160,7 +160,6 @@ public class SpanThriftMessageConverterTest {
 
         spanEvent.setAsyncIdObject(new DefaultAsyncId(RandomUtils.nextInt(0, 100)));
 
-        spanEvent.setLocalAsyncId(new DefaultLocalAsyncId(RandomUtils.nextInt(0, 100), (short) RandomUtils.nextInt(0, 100)));
 
         spanEvent.addAnnotation(new Annotation(1));
 
@@ -177,9 +176,6 @@ public class SpanThriftMessageConverterTest {
         Assert.assertEquals(spanEvent.getNextSpanId(), tSpanEvent.getNextSpanId());
 
         Assert.assertEquals(spanEvent.getAsyncIdObject().getAsyncId(), tSpanEvent.getNextAsyncId());
-
-        Assert.assertEquals(spanEvent.getLocalAsyncId().getAsyncId(), tSpanEvent.getAsyncId());
-        Assert.assertEquals(spanEvent.getLocalAsyncId().getSequence(), tSpanEvent.getAsyncSequence());
 
         Assert.assertEquals(spanEvent.getAnnotations().size(), tSpanEvent.getAnnotations().size());
     }

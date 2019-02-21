@@ -17,8 +17,12 @@
 
 package com.navercorp.pinpoint.test.plugin;
 
+import java.io.File;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -33,11 +37,37 @@ public class PluginTestClassLoader extends URLClassLoader {
         super(urls);
     }
 
-
-
     @Override
     public Class<?> loadClass(String name) throws ClassNotFoundException {
         // override for debugging
         return super.loadClass(name);
     }
+
+    public static ClassLoader getClassLoader(List<File> fileList) {
+        URL[] urlList = getUrlList(fileList);
+        return new PluginTestClassLoader(urlList);
+    }
+
+    private static URL[] getUrlList(List<File> fileList)  {
+        if (fileList == null) {
+            return new URL[0];
+        }
+
+        final List<URL> urls = new ArrayList<URL>();
+        for (File file : fileList) {
+            final URL url = toURL(file);
+            urls.add(url);
+        }
+        return urls.toArray(new URL[0]);
+    }
+
+    private static URL toURL(File file) {
+        try {
+            return file.toURI().toURL();
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e. getMessage(), e);
+        }
+    }
+
+
 }

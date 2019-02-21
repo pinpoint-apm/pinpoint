@@ -15,19 +15,6 @@
  */
 package com.navercorp.pinpoint.plugin.google.httpclient;
 
-import java.io.IOException;
-import java.lang.reflect.Method;
-import java.util.concurrent.Callable;
-import java.util.concurrent.Executor;
-
-import com.navercorp.pinpoint.plugin.AgentPath;
-import com.navercorp.pinpoint.plugin.WebServer;
-import com.navercorp.pinpoint.test.plugin.PinpointAgent;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
 import com.google.api.client.http.GenericUrl;
 import com.google.api.client.http.HttpRequest;
 import com.google.api.client.http.HttpRequestFactory;
@@ -38,8 +25,20 @@ import com.google.api.client.http.javanet.NetHttpTransport;
 import com.navercorp.pinpoint.bootstrap.plugin.test.Expectations;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
+import com.navercorp.pinpoint.plugin.AgentPath;
+import com.navercorp.pinpoint.plugin.WebServer;
 import com.navercorp.pinpoint.test.plugin.Dependency;
+import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import java.io.IOException;
+import java.lang.reflect.Method;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Executor;
 
 /**
  * @author jaehong.kim
@@ -48,7 +47,7 @@ import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
 @PinpointAgent(AgentPath.PATH)
 // guava dependency issue
 // google-http-client 1.26.0 does not include repackaged guava
-@Dependency({ "com.google.http-client:google-http-client:[1.19.0],[1.20.0,)", "com.google.guava:guava:20.0", "org.nanohttpd:nanohttpd:2.3.1"})
+@Dependency({ "com.google.http-client:google-http-client:[1.19.0],[1.20.0,1.27.0]", "com.google.guava:guava:20.0", "org.nanohttpd:nanohttpd:2.3.1"})
 public class HttpRequestIT {
 
     private static WebServer webServer;

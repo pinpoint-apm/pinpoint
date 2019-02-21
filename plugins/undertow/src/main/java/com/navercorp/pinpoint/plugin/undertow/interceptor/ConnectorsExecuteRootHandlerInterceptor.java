@@ -30,12 +30,15 @@ import com.navercorp.pinpoint.plugin.undertow.ParameterRecorderFactory;
 import com.navercorp.pinpoint.plugin.undertow.UndertowConfig;
 import com.navercorp.pinpoint.plugin.undertow.UndertowConstants;
 import com.navercorp.pinpoint.plugin.undertow.UndertowHttpHeaderFilter;
+import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
 
 /**
  * @author jaehong.kim
  */
 public class ConnectorsExecuteRootHandlerInterceptor implements AroundInterceptor {
+    private static final String SERVLET_INITIAL_HANDLER_CLASS_NAME = "io.undertow.servlet.handlers.ServletInitialHandler$1";
+
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
     private final boolean isInfo = logger.isInfoEnabled();
@@ -47,8 +50,8 @@ public class ConnectorsExecuteRootHandlerInterceptor implements AroundIntercepto
 
     public ConnectorsExecuteRootHandlerInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
         this.methodDescriptor = descriptor;
-        this.argumentValidator = new ConnectorsArgumentValidator();
         final UndertowConfig config = new UndertowConfig(traceContext.getProfilerConfig());
+        this.argumentValidator = new ConnectorsArgumentValidator(config.isDeployServlet());
         RequestAdaptor<HttpServerExchange> requestAdaptor = new HttpServerExchangeAdaptor();
         requestAdaptor = RemoteAddressResolverFactory.wrapRealIpSupport(requestAdaptor, config.getRealIpHeader(), config.getRealIpEmptyValue());
         ParameterRecorder<HttpServerExchange> parameterRecorder = ParameterRecorderFactory.newParameterRecorderFactory(config.getExcludeProfileMethodFilter(), config.isTraceRequestParam());
@@ -108,6 +111,12 @@ public class ConnectorsExecuteRootHandlerInterceptor implements AroundIntercepto
     }
 
     private static class ConnectorsArgumentValidator implements ArgumentValidator {
+        private final boolean deployServlet;
+
+        public ConnectorsArgumentValidator(boolean deployServlet) {
+            this.deployServlet = deployServlet;
+        }
+
         @Override
         public boolean validate(Object[] args) {
             if (args == null) {
@@ -116,6 +125,19 @@ public class ConnectorsExecuteRootHandlerInterceptor implements AroundIntercepto
 
             if (args.length < 2) {
                 return false;
+            }
+
+            if (!(args[0] instanceof HttpHandler)) {
+                return false;
+            }
+
+            // For servlet deployments, use only the inner class of the ServletInitialHandler class.
+            if (deployServlet) {
+                // Compares the class name in case the servlet jar file is detached.
+                final String httpHandlerClassName = args[0].getClass().getName();
+                if (!SERVLET_INITIAL_HANDLER_CLASS_NAME.equals(httpHandlerClassName)) {
+                    return false;
+                }
             }
 
             if (!(args[1] instanceof HttpServerExchange)) {

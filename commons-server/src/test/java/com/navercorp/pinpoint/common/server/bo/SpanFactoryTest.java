@@ -10,6 +10,9 @@ import org.apache.commons.lang3.RandomUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.Arrays;
+import java.util.Collections;
+
 /**
  * @author Woonduk Kang(emeroad)
  */
@@ -149,6 +152,58 @@ public class SpanFactoryTest {
         Assert.assertEquals(transactionId.getAgentId(), "transactionAgentId");
         Assert.assertEquals(transactionId.getAgentStartTime(), 1);
         Assert.assertEquals(transactionId.getTransactionSequence(), 2);
+    }
+
+
+    @Test
+    public void testFastLocalAsyncIdBo() throws Exception {
+        int asyncId = 1;
+        short asyncSequence = 0;
+        TSpanEvent tSpanEvent = new TSpanEvent();
+
+        tSpanEvent.setAsyncId(asyncId);
+        tSpanEvent.setAsyncSequence(asyncSequence);
+        LocalAsyncIdBo localAsyncIdBo = spanFactory.fastLocalAsyncIdBo(Collections.singletonList(tSpanEvent));
+
+        Assert.assertEquals(localAsyncIdBo.getAsyncId(), asyncId);
+        Assert.assertEquals(localAsyncIdBo.getSequence(), asyncSequence);
+    }
+
+    @Test
+    public void testFastLocalAsyncIdBo_empty() throws Exception {
+
+        TSpanEvent tSpanEvent = new TSpanEvent();
+
+        LocalAsyncIdBo localAsyncIdBo = spanFactory.fastLocalAsyncIdBo(Collections.singletonList(tSpanEvent));
+        Assert.assertNull(localAsyncIdBo);
+    }
+
+    @Test
+    public void testFullScanLocalAsyncIdBo() throws Exception {
+        int asyncId = 1;
+        short asyncSequence = 0;
+        TSpanEvent tSpanEvent = new TSpanEvent();
+        tSpanEvent.setAsyncId(asyncId);
+        tSpanEvent.setAsyncSequence(asyncSequence);
+
+        TSpanChunk tSpanChunk = new TSpanChunk();
+        tSpanChunk.setSpanEventList(Arrays.asList(tSpanEvent, tSpanEvent));
+
+        LocalAsyncIdBo localAsyncIdBo = spanFactory.fullScanLocalAsyncIdBo(tSpanChunk);
+
+        Assert.assertEquals(localAsyncIdBo.getAsyncId(), asyncId);
+        Assert.assertEquals(localAsyncIdBo.getSequence(), asyncSequence);
+    }
+
+    @Test
+    public void testFullScanLocalAsyncIdBo_empty() throws Exception {
+
+        TSpanEvent tSpanEvent = new TSpanEvent();
+        TSpanChunk tSpanChunk = new TSpanChunk();
+        tSpanChunk.setSpanEventList(Arrays.asList(tSpanEvent, tSpanEvent));
+
+        LocalAsyncIdBo localAsyncIdBo = spanFactory.fullScanLocalAsyncIdBo(tSpanChunk);
+        Assert.assertNull(localAsyncIdBo);
     }
 
 }

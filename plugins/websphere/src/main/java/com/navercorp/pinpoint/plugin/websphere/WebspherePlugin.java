@@ -27,6 +27,10 @@ import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
+import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.plugin.websphere.interceptor.WCCRequestImplStartAsyncInterceptor;
+import com.navercorp.pinpoint.plugin.websphere.interceptor.WCCResponseImplInterceptor;
+import com.navercorp.pinpoint.plugin.websphere.interceptor.WebContainerHandleRequestInterceptor;
 
 /**
  * @author sjmittal
@@ -41,15 +45,25 @@ public class WebspherePlugin implements ProfilerPlugin, TransformTemplateAware {
     public void setup(ProfilerPluginSetupContext context) {
         final WebsphereConfiguration config = new WebsphereConfiguration(context.getConfig());
         if (!config.isEnable()) {
-            logger.info("WebspherePlugin disabled");
+            logger.info("{} disabled", this.getClass().getSimpleName());
             return;
         }
-        logger.info("WebspherePlugin config:{}", config);
+        logger.info("{} config:{}", this.getClass().getSimpleName(), config);
 
-        context.addApplicationTypeDetector(new WebsphereDetector(config.getBootstrapMains()));
 
+        if (ServiceType.UNDEFINED.equals(context.getConfiguredApplicationType())) {
+            WebsphereDetector websphereDetector = new WebsphereDetector(config.getBootstrapMains());
+            if (websphereDetector.detect()) {
+                logger.info("Detected application type : {}", WebsphereConstants.WEBSPHERE);
+                if (!context.registerApplicationType(WebsphereConstants.WEBSPHERE)) {
+                    logger.info("Application type [{}] already set, skipping [{}] registration.", context.getApplicationType(), WebsphereConstants.WEBSPHERE);
+                }
+            }
+        }
+
+        logger.info("Adding WebSphere transformers");
         // Hide pinpoint header & Add async listener. Servlet 3.0
-        addSRTServletRequest(config);
+        addSRTServletRequest();
         // Entry Point
         addWSWebContainer();
         // Set status code
@@ -57,66 +71,75 @@ public class WebspherePlugin implements ProfilerPlugin, TransformTemplateAware {
         addWSAsyncContextImpl();
     }
 
-    private void addSRTServletRequest(final WebsphereConfiguration config) {
-        transformTemplate.transform("com.ibm.ws.webcontainer.srt.SRTServletRequest", new TransformCallback() {
-            @Override
-            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
-                if (config.isHidePinpointHeader()) {
-                    // Hide pinpoint headers
-                    target.weave("com.navercorp.pinpoint.plugin.websphere.aspect.SRTServletRequestAspect");
-                }
+    private void addSRTServletRequest() {
+        transformTemplate.transform("com.ibm.ws.webcontainer.srt.SRTServletRequest", SRTServletRequestTransform.class);
+    }
 
-                // Add async listener. Servlet 3.0
-                final InstrumentMethod startAsyncMethodEditor = target.getDeclaredMethod("startAsync", "javax.servlet.ServletRequest", "javax.servlet.ServletResponse");
-                if (startAsyncMethodEditor != null) {
-                    startAsyncMethodEditor.addInterceptor("com.navercorp.pinpoint.plugin.websphere.interceptor.WCCRequestImplStartAsyncInterceptor");
-                }
-                return target.toBytecode();
+    public static class SRTServletRequestTransform implements TransformCallback {
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+            final WebsphereConfiguration config = new WebsphereConfiguration(instrumentor.getProfilerConfig());
+            if (config.isHidePinpointHeader()) {
+                // Hide pinpoint headers
+                target.weave("com.navercorp.pinpoint.plugin.websphere.aspect.SRTServletRequestAspect");
             }
-        });
+
+            // Add async listener. Servlet 3.0
+            final InstrumentMethod startAsyncMethodEditor = target.getDeclaredMethod("startAsync", "javax.servlet.ServletRequest", "javax.servlet.ServletResponse");
+            if (startAsyncMethodEditor != null) {
+                startAsyncMethodEditor.addInterceptor(WCCRequestImplStartAsyncInterceptor.class);
+            }
+            return target.toBytecode();
+        }
     }
 
     private void addWSWebContainer() {
-        transformTemplate.transform("com.ibm.ws.webcontainer.WSWebContainer", new TransformCallback() {
-            @Override
-            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
-                // Clear remained trace - defense code
-                final InstrumentMethod handleMethodEditorBuilder = target.getDeclaredMethod("handleRequest", "com.ibm.websphere.servlet.request.IRequest", "com.ibm.websphere.servlet.response.IResponse");
-                if (handleMethodEditorBuilder != null) {
-                    handleMethodEditorBuilder.addInterceptor("com.navercorp.pinpoint.plugin.websphere.interceptor.WebContainerHandleRequestInterceptor");
-                }
-                return target.toBytecode();
+        transformTemplate.transform("com.ibm.ws.webcontainer.WSWebContainer", WSWebContainerTransform.class);
+    }
+
+    public static class WSWebContainerTransform implements TransformCallback {
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+            // Clear remained trace - defense code
+            final InstrumentMethod handleMethodEditorBuilder = target.getDeclaredMethod("handleRequest", "com.ibm.websphere.servlet.request.IRequest", "com.ibm.websphere.servlet.response.IResponse");
+            if (handleMethodEditorBuilder != null) {
+                handleMethodEditorBuilder.addInterceptor(WebContainerHandleRequestInterceptor.class);
             }
-        });
+            return target.toBytecode();
+        }
     }
 
 
     private void addWCCResponseImpl() {
-        transformTemplate.transform("com.ibm.ws.webcontainer.channel.WCCResponseImpl", new TransformCallback() {
-            @Override
-            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
-                target.addField(WebsphereConstants.STATUS_CODE_ACCESSOR);
-                final InstrumentMethod setStatusCodeMethod = target.getDeclaredMethod("setStatusCode", "int");
-                if (setStatusCodeMethod != null) {
-                    setStatusCodeMethod.addInterceptor("com.navercorp.pinpoint.plugin.websphere.interceptor.WCCResponseImplInterceptor");
-                }
-                return target.toBytecode();
+        transformTemplate.transform("com.ibm.ws.webcontainer.channel.WCCResponseImpl", WCCResponseImplTransform.class);
+    }
+
+    public static class WCCResponseImplTransform implements TransformCallback {
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+            target.addField(StatusCodeAccessor.class);
+            final InstrumentMethod setStatusCodeMethod = target.getDeclaredMethod("setStatusCode", "int");
+            if (setStatusCodeMethod != null) {
+                setStatusCodeMethod.addInterceptor(WCCResponseImplInterceptor.class);
             }
-        });
+            return target.toBytecode();
+        }
     }
 
     private void addWSAsyncContextImpl() {
-        transformTemplate.transform("com.ibm.ws.webcontainer.async.WSAsyncContextImpl", new TransformCallback() {
-            @Override
-            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
-                target.addGetter("com.navercorp.pinpoint.plugin.websphere.InitResponseGetter", "initResponse");
-                return target.toBytecode();
-            }
-        });
+        transformTemplate.transform("com.ibm.ws.webcontainer.async.WSAsyncContextImpl", WSAsyncContextImplTransform.class);
+    }
+
+    public static class WSAsyncContextImplTransform implements TransformCallback {
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+            target.addGetter(InitResponseGetter.class, "initResponse");
+            return target.toBytecode();
+        }
     }
 
     @Override

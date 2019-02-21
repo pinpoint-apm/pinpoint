@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
+import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
@@ -70,12 +71,83 @@ public class DefaultTraceTest {
 
     @Test
     public void testPushPop() {
+        Trace trace = newTrace();
+        trace.traceBlockBegin();
+        trace.traceBlockBegin();
+        trace.traceBlockEnd();
+        trace.traceBlockEnd();
+        trace.close();
+    }
+
+    @Test
+    public void testPreviousSpanEvent() {
+        Trace trace = newTrace();
+        SpanEventRecorder recorder1 = trace.traceBlockBegin();
+        recorder1.attachFrameObject("1");
+        SpanEventRecorder recorder2 = trace.traceBlockBegin();
+        recorder2.attachFrameObject("2");
+        trace.traceBlockEnd();
+        // access the previous SpanEvent
+        Assert.assertEquals(recorder1.getFrameObject(), "1");
+        trace.traceBlockEnd();
+        trace.close();
+    }
+
+    @Test
+    public void overflow() {
+        Trace trace = newTrace(2);
+        SpanEventRecorder recorder1 = trace.traceBlockBegin();
+        SpanEventRecorder recorder2 = trace.traceBlockBegin();
+        SpanEventRecorder recorder3 = trace.traceBlockBegin();
+        // overflow
+        SpanEventRecorder recorder4 = trace.traceBlockBegin();
+        trace.traceBlockEnd();
+
+        trace.traceBlockEnd();
+        trace.traceBlockEnd();
+        trace.traceBlockEnd();
+        trace.close();
+    }
+
+    @Test
+    public void overflowUnlimit() {
+        Trace trace = newTrace(-1);
+        for(int i = 0; i < 256; i++) {
+            trace.traceBlockBegin();
+        }
+
+        for(int i = 0; i < 256; i++) {
+            trace.traceBlockEnd();
+        }
+    }
+
+    @Test
+    public void close() {
+        Trace trace = newTrace();
+        trace.close();
+        // Already closed
+        SpanEventRecorder recorder1 = trace.traceBlockBegin();
+        trace.traceBlockEnd();
+    }
+
+    @Test
+    public void notEmpty() {
+        Trace trace = newTrace();
+        SpanEventRecorder recorder1 = trace.traceBlockBegin();
+        trace.close();
+    }
+
+    private Trace newTrace() {
+        return newTrace(64);
+    }
+
+    private Trace newTrace(final int maxCallStackDepth) {
         when(traceRoot.getShared()).thenReturn(shared);
 
-        TraceId traceId = new DefaultTraceId(agentId, System.currentTimeMillis(), 0);
+        TraceId traceId = new DefaultTraceId(agentId, agentStartTime, 0);
         when(traceRoot.getTraceId()).thenReturn(traceId);
 
-        CallStackFactory<SpanEvent> callStackFactory = new CallStackFactoryV1(64);
+        CallStackFactory<SpanEvent> callStackFactory = new CallStackFactoryV1(maxCallStackDepth);
         CallStack<SpanEvent> callStack = callStackFactory.newCallStack();
 
         SpanFactory spanFactory = new DefaultSpanFactory();
@@ -85,13 +157,8 @@ public class DefaultTraceTest {
         final Span span = spanFactory.newSpan(traceRoot);
         final boolean root = span.getTraceRoot().getTraceId().isRoot();
         final SpanRecorder spanRecorder = new DefaultSpanRecorder(span, root, true, stringMetaDataService, sqlMetaDataService);
-        final WrappedSpanEventRecorder wrappedSpanEventRecorder = new WrappedSpanEventRecorder(traceRoot, asyncContextFactory, stringMetaDataService, sqlMetaDataService, null);
+        final WrappedSpanEventRecorder wrappedSpanEventRecorder = new WrappedSpanEventRecorder(traceRoot, asyncContextFactory, stringMetaDataService, sqlMetaDataService);
 
-        Trace trace = new DefaultTrace(span, callStack, storage, true, spanRecorder, wrappedSpanEventRecorder, ActiveTraceHandle.EMPTY_HANDLE);
-        trace.traceBlockBegin();
-        trace.traceBlockBegin();
-        trace.traceBlockEnd();
-        trace.traceBlockEnd();
-        trace.close();
+        return new DefaultTrace(span, callStack, storage, true, spanRecorder, wrappedSpanEventRecorder, ActiveTraceHandle.EMPTY_HANDLE);
     }
 }

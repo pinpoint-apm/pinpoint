@@ -23,7 +23,6 @@ import java.util.Map;
 
 import org.junit.Test;
 
-import com.navercorp.pinpoint.bootstrap.resolver.condition.PropertyCondition;
 import com.navercorp.pinpoint.common.util.SystemProperty;
 
 /**
@@ -37,7 +36,7 @@ public class SystemPropertyConditionTest {
         final String existingSystemProperty1 = "set.one.key.one";
         final String existingSystemProperty2 = "set.one.key.two";
         SystemProperty property = createTestProperty(existingSystemProperty1, existingSystemProperty2);
-        PropertyCondition systemPropertyCondition = new PropertyCondition(property);
+        SystemPropertyCondition systemPropertyCondition = new SystemPropertyCondition(property);
         // When
         boolean firstKeyExists = systemPropertyCondition.check(existingSystemProperty1);
         boolean secondKeyExists = systemPropertyCondition.check(existingSystemProperty2);
@@ -51,7 +50,7 @@ public class SystemPropertyConditionTest {
         // Given
         final String existingSystemProperty = "existing.system.property";
         SystemProperty property = createTestProperty(existingSystemProperty);
-        PropertyCondition systemPropertyCondition = new PropertyCondition(property);
+        SystemPropertyCondition systemPropertyCondition = new SystemPropertyCondition(property);
         // When
         boolean keyExists = systemPropertyCondition.check("some.other.property");
         // Then
@@ -63,7 +62,7 @@ public class SystemPropertyConditionTest {
         // Given
         final String existingSystemProperty = "existing.system.property";
         SystemProperty property = createTestProperty(existingSystemProperty);
-        PropertyCondition systemPropertyCondition = new PropertyCondition(property);
+        SystemPropertyCondition systemPropertyCondition = new SystemPropertyCondition(property);
         // When
         boolean matches = systemPropertyCondition.check("");
         // Then
@@ -75,7 +74,7 @@ public class SystemPropertyConditionTest {
         // Given
         final String existingSystemProperty = "existing.system.property";
         SystemProperty property = createTestProperty(existingSystemProperty);
-        PropertyCondition systemPropertyCondition = new PropertyCondition(property);
+        SystemPropertyCondition systemPropertyCondition = new SystemPropertyCondition(property);
         // When
         boolean matches = systemPropertyCondition.check(null);
         // Then

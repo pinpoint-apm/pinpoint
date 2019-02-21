@@ -30,7 +30,11 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
  * If no match is found, the application type defaults to {@code ServiceType.STAND_ALONE}
  * 
  * @author HyunGil Jeong
+ *
+ * @deprecated As of 1.9.0, application type detection timing has been changed to plugins' setup time.
+ *             {@code ApplicationServerTypePluginResolver} should no longer be needed.
  */
+@Deprecated
 public class ApplicationServerTypePluginResolver {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());

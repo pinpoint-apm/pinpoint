@@ -32,6 +32,4 @@ public final class LettuceConstants {
     public static final ServiceType REDIS_LETTUCE = ServiceTypeFactory.of(8201, "REDIS_LETTUCE", "REDIS", TERMINAL, RECORD_STATISTICS);
     public static final String REDIS_SCOPE = "redisLettuceScope";
 
-    public static final String END_POINT_ACCESSOR = "com.navercorp.pinpoint.plugin.redis.lettuce.EndPointAccessor";
-
 }

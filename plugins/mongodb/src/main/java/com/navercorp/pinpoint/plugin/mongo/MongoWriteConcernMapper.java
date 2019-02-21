@@ -33,6 +33,8 @@ public class MongoWriteConcernMapper {
 
     private final Map<WriteConcern, String> writeConcernMap;
 
+    private static final String INVALID = "INVALID_WRITECONCERN";
+
     public MongoWriteConcernMapper() {
         writeConcernMap = buildWriteConcern();
     }
@@ -58,6 +60,10 @@ public class MongoWriteConcernMapper {
     }
 
     public String getName(WriteConcern writeConcern) {
-        return writeConcernMap.get(writeConcern);
+        String ret = writeConcernMap.get(writeConcern);
+        if (ret == null) {
+            return INVALID;
+        }
+        return ret;
     }
 }

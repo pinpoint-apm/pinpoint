@@ -3,7 +3,7 @@ import { TranslateService } from '@ngx-translate/core';
 import * as moment from 'moment-timezone';
 
 import { Actions } from 'app/shared/store';
-import { WebAppSettingDataService, NewUrlStateNotificationService, AjaxExceptionCheckerService, AnalyticsService, StoreHelperService, DynamicPopupService } from 'app/shared/services';
+import { WebAppSettingDataService, NewUrlStateNotificationService, AnalyticsService, StoreHelperService, DynamicPopupService } from 'app/shared/services';
 import { ApplicationMemoryChartDataService } from './application-memory-chart-data.service';
 import { HELP_VIEWER_LIST } from 'app/core/components/help-viewer-popup/help-viewer-popup-container.component';
 import { InspectorChartContainer } from 'app/core/components/inspector-chart/inspector-chart-container';
@@ -23,7 +23,6 @@ export class ApplicationJVMHeapChartContainerComponent extends InspectorChartCon
         newUrlStateNotificationService: NewUrlStateNotificationService,
         chartDataService: ApplicationMemoryChartDataService,
         translateService: TranslateService,
-        ajaxExceptionCheckerService: AjaxExceptionCheckerService,
         analyticsService: AnalyticsService,
         dynamicPopupService: DynamicPopupService
     ) {
@@ -35,7 +34,6 @@ export class ApplicationJVMHeapChartContainerComponent extends InspectorChartCon
             newUrlStateNotificationService,
             chartDataService,
             translateService,
-            ajaxExceptionCheckerService,
             analyticsService,
             dynamicPopupService
         );

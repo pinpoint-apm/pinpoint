@@ -11,6 +11,9 @@ import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
+import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.plugin.dubbo.interceptor.DubboConsumerInterceptor;
+import com.navercorp.pinpoint.plugin.dubbo.interceptor.DubboProviderInterceptor;
 
 import java.security.ProtectionDomain;
 
@@ -27,44 +30,52 @@ public class DubboPlugin implements ProfilerPlugin, TransformTemplateAware {
     public void setup(ProfilerPluginSetupContext context) {
         DubboConfiguration config = new DubboConfiguration(context.getConfig());
         if (!config.isDubboEnabled()) {
-            logger.info("DubboPlugin disabled");
+            logger.info("{} disabled", this.getClass().getSimpleName());
             return;
         }
+        logger.info("{} config:{}", this.getClass().getSimpleName(), config);
 
-        this.addApplicationTypeDetector(context, config);
+        if (ServiceType.UNDEFINED.equals(context.getConfiguredApplicationType())) {
+            final DubboProviderDetector dubboProviderDetector = new DubboProviderDetector(config.getDubboBootstrapMains());
+            if (dubboProviderDetector.detect()) {
+                logger.info("Detected application type : {}", DubboConstants.DUBBO_PROVIDER_SERVICE_TYPE);
+                if (!context.registerApplicationType(DubboConstants.DUBBO_PROVIDER_SERVICE_TYPE)) {
+                    logger.info("Application type [{}] already set, skipping [{}] registration.", context.getApplicationType(), DubboConstants.DUBBO_PROVIDER_SERVICE_TYPE);
+                }
+            }
+        }
+
+        logger.info("Adding Dubbo transformers");
         this.addTransformers();
     }
 
     private void addTransformers() {
-        transformTemplate.transform("com.alibaba.dubbo.rpc.protocol.AbstractInvoker", new TransformCallback() {
-            @Override
-            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
-                InstrumentMethod invokeMethod = target.getDeclaredMethod("invoke", "com.alibaba.dubbo.rpc.Invocation");
-                if (invokeMethod != null) {
-                    invokeMethod.addInterceptor("com.navercorp.pinpoint.plugin.dubbo.interceptor.DubboConsumerInterceptor");
-                }
-                return target.toBytecode();
-            }
-        });
-        transformTemplate.transform("com.alibaba.dubbo.rpc.proxy.AbstractProxyInvoker", new TransformCallback() {
-            @Override
-            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
-                InstrumentMethod invokeMethod = target.getDeclaredMethod("invoke", "com.alibaba.dubbo.rpc.Invocation");
-                if (invokeMethod != null) {
-                    invokeMethod.addInterceptor("com.navercorp.pinpoint.plugin.dubbo.interceptor.DubboProviderInterceptor");
-                }
-                return target.toBytecode();
-            }
-        });
+        transformTemplate.transform("com.alibaba.dubbo.rpc.protocol.AbstractInvoker", AbstractInvokerTransform.class);
+        transformTemplate.transform("com.alibaba.dubbo.rpc.proxy.AbstractProxyInvoker", AbstractProxyInvokerTransform.class);
     }
 
-    /**
-     * Pinpoint profiler agent uses this detector to find out the service type of current application.
-     */
-    private void addApplicationTypeDetector(ProfilerPluginSetupContext context, DubboConfiguration config) {
-        context.addApplicationTypeDetector(new DubboProviderDetector(config.getDubboBootstrapMains()));
+    public static class AbstractInvokerTransform implements TransformCallback {
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+            InstrumentMethod invokeMethod = target.getDeclaredMethod("invoke", "com.alibaba.dubbo.rpc.Invocation");
+            if (invokeMethod != null) {
+                invokeMethod.addInterceptor(DubboConsumerInterceptor.class);
+            }
+            return target.toBytecode();
+        }
+    }
+
+    public static class AbstractProxyInvokerTransform implements TransformCallback {
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+            InstrumentMethod invokeMethod = target.getDeclaredMethod("invoke", "com.alibaba.dubbo.rpc.Invocation");
+            if (invokeMethod != null) {
+                invokeMethod.addInterceptor(DubboProviderInterceptor.class);
+            }
+            return target.toBytecode();
+        }
     }
 
     @Override

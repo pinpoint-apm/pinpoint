@@ -22,13 +22,29 @@ import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
+import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.BindValueAccessor;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParserV2;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.ParsingResultAccessor;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.PreparedStatementBindingMethodFilter;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.CallableStatementRegisterOutParameterInterceptor;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.ConnectionCloseInterceptor;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.DriverConnectInterceptorV2;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.PreparedStatementBindVariableInterceptor;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.PreparedStatementCreateInterceptor;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.PreparedStatementExecuteQueryInterceptor;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.StatementCreateInterceptor;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.StatementExecuteQueryInterceptor;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.StatementExecuteUpdateInterceptor;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.TransactionCommitInterceptor;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.TransactionRollbackInterceptor;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.TransactionSetAutoCommitInterceptor;
 import com.navercorp.pinpoint.bootstrap.plugin.util.InstrumentUtils;
 
 import java.security.ProtectionDomain;
@@ -52,11 +68,11 @@ public class JtdsPlugin implements ProfilerPlugin, TransformTemplateAware {
     @Override
     public void setup(ProfilerPluginSetupContext context) {
         JtdsConfig config = new JtdsConfig(context.getConfig());
-
         if (!config.isPluginEnable()) {
-            logger.info("Jtds plugin is not executed because plugin enable value is false.");
+            logger.info("{} disabled", this.getClass().getSimpleName());
             return;
         }
+        logger.info("{} config:{}", this.getClass().getSimpleName(), config);
 
         context.addJdbcUrlParser(jdbcUrlParser);
 
@@ -68,170 +84,183 @@ public class JtdsPlugin implements ProfilerPlugin, TransformTemplateAware {
     }
 
     private void addConnectionTransformer(final JtdsConfig config) {
-        TransformCallback transformer = new TransformCallback() {
-
-            @Override
-            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
-                target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor");
-
-                // close
-                InstrumentUtils.findMethod(target, "close")
-                        .addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.ConnectionCloseInterceptor", JTDS_SCOPE);
-
-                // createStatement
-                final String statementCreate = "com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.StatementCreateInterceptor";
-                InstrumentUtils.findMethod(target, "createStatement")
-                        .addScopedInterceptor(statementCreate, JTDS_SCOPE);
-                InstrumentUtils.findMethod(target, "createStatement", "int", "int")
-                        .addScopedInterceptor(statementCreate, JTDS_SCOPE);
-                InstrumentUtils.findMethod(target, "createStatement", "int", "int", "int")
-                        .addScopedInterceptor(statementCreate, JTDS_SCOPE);
-
-                // preparedStatement
-                final String preparedStatementCreate = "com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.PreparedStatementCreateInterceptor";
-                InstrumentUtils.findMethod(target, "prepareStatement",  "java.lang.String")
-                        .addScopedInterceptor(preparedStatementCreate, JTDS_SCOPE);
-                InstrumentUtils.findMethod(target, "prepareStatement",  "java.lang.String", "int")
-                        .addScopedInterceptor(preparedStatementCreate, JTDS_SCOPE);
-                InstrumentUtils.findMethod(target, "prepareStatement",  "java.lang.String", "int[]")
-                        .addScopedInterceptor(preparedStatementCreate, JTDS_SCOPE);
-                InstrumentUtils.findMethod(target, "prepareStatement",  "java.lang.String", "java.lang.String[]")
-                        .addScopedInterceptor(preparedStatementCreate, JTDS_SCOPE);
-                InstrumentUtils.findMethod(target, "prepareStatement",  "java.lang.String", "int", "int")
-                        .addScopedInterceptor(preparedStatementCreate, JTDS_SCOPE);
-                InstrumentUtils.findMethod(target, "prepareStatement",  "java.lang.String", "int", "int", "int")
-                        .addScopedInterceptor(preparedStatementCreate, JTDS_SCOPE);
-                // preparecall
-                InstrumentUtils.findMethod(target, "prepareCall",  "java.lang.String")
-                        .addScopedInterceptor(preparedStatementCreate, JTDS_SCOPE);
-                InstrumentUtils.findMethod(target, "prepareCall",  "java.lang.String", "int", "int")
-                        .addScopedInterceptor(preparedStatementCreate, JTDS_SCOPE);
-                InstrumentUtils.findMethod(target, "prepareCall",  "java.lang.String", "int", "int", "int")
-                        .addScopedInterceptor(preparedStatementCreate, JTDS_SCOPE);
-
-                if (config.isProfileSetAutoCommit()) {
-                    InstrumentUtils.findMethod(target, "setAutoCommit",  "boolean")
-                            .addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.TransactionSetAutoCommitInterceptor", JTDS_SCOPE);
-                }
-
-                if (config.isProfileCommit()) {
-                    InstrumentUtils.findMethod(target, "commit")
-                            .addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.TransactionCommitInterceptor", JTDS_SCOPE);
-                }
-
-                if (config.isProfileRollback()) {
-                    InstrumentUtils.findMethod(target, "rollback")
-                            .addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.TransactionRollbackInterceptor", JTDS_SCOPE);
-                }
-
-                return target.toBytecode();
-            }
-        };
-
-        transformTemplate.transform("net.sourceforge.jtds.jdbc.ConnectionJDBC2", transformer);
-        transformTemplate.transform("net.sourceforge.jtds.jdbc.JtdsConnection", transformer);
+        transformTemplate.transform("net.sourceforge.jtds.jdbc.ConnectionJDBC2", ConnectionTransform.class);
+        transformTemplate.transform("net.sourceforge.jtds.jdbc.JtdsConnection", ConnectionTransform.class);
     }
 
-    private void addDriverTransformer() {
-        transformTemplate.transform("net.sourceforge.jtds.jdbc.Driver", new TransformCallback() {
+    public static class ConnectionTransform implements TransformCallback {
 
-            @Override
-            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
 
-                InstrumentUtils.findMethod(target, "connect",  "java.lang.String", "java.util.Properties")
-                        .addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.DriverConnectInterceptorV2", va(JtdsConstants.MSSQL), JTDS_SCOPE, ExecutionPolicy.ALWAYS);
+            JtdsConfig config = new JtdsConfig(instrumentor.getProfilerConfig());
 
-                return target.toBytecode();
+            InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+            target.addField(DatabaseInfoAccessor.class);
+
+            // close
+            InstrumentUtils.findMethod(target, "close")
+                    .addScopedInterceptor(ConnectionCloseInterceptor.class, JTDS_SCOPE);
+
+            // createStatement
+            final Class<? extends Interceptor> statementCreate = StatementCreateInterceptor.class;
+            InstrumentUtils.findMethod(target, "createStatement")
+                    .addScopedInterceptor(statementCreate, JTDS_SCOPE);
+            InstrumentUtils.findMethod(target, "createStatement", "int", "int")
+                    .addScopedInterceptor(statementCreate, JTDS_SCOPE);
+            InstrumentUtils.findMethod(target, "createStatement", "int", "int", "int")
+                    .addScopedInterceptor(statementCreate, JTDS_SCOPE);
+
+            // preparedStatement
+            final Class<? extends Interceptor> preparedStatementCreate = PreparedStatementCreateInterceptor.class;
+            InstrumentUtils.findMethod(target, "prepareStatement",  "java.lang.String")
+                    .addScopedInterceptor(preparedStatementCreate, JTDS_SCOPE);
+            InstrumentUtils.findMethod(target, "prepareStatement",  "java.lang.String", "int")
+                    .addScopedInterceptor(preparedStatementCreate, JTDS_SCOPE);
+            InstrumentUtils.findMethod(target, "prepareStatement",  "java.lang.String", "int[]")
+                    .addScopedInterceptor(preparedStatementCreate, JTDS_SCOPE);
+            InstrumentUtils.findMethod(target, "prepareStatement",  "java.lang.String", "java.lang.String[]")
+                    .addScopedInterceptor(preparedStatementCreate, JTDS_SCOPE);
+            InstrumentUtils.findMethod(target, "prepareStatement",  "java.lang.String", "int", "int")
+                    .addScopedInterceptor(preparedStatementCreate, JTDS_SCOPE);
+            InstrumentUtils.findMethod(target, "prepareStatement",  "java.lang.String", "int", "int", "int")
+                    .addScopedInterceptor(preparedStatementCreate, JTDS_SCOPE);
+            // preparecall
+            InstrumentUtils.findMethod(target, "prepareCall",  "java.lang.String")
+                    .addScopedInterceptor(preparedStatementCreate, JTDS_SCOPE);
+            InstrumentUtils.findMethod(target, "prepareCall",  "java.lang.String", "int", "int")
+                    .addScopedInterceptor(preparedStatementCreate, JTDS_SCOPE);
+            InstrumentUtils.findMethod(target, "prepareCall",  "java.lang.String", "int", "int", "int")
+                    .addScopedInterceptor(preparedStatementCreate, JTDS_SCOPE);
+
+            if (config.isProfileSetAutoCommit()) {
+                InstrumentUtils.findMethod(target, "setAutoCommit",  "boolean")
+                        .addScopedInterceptor(TransactionSetAutoCommitInterceptor.class, JTDS_SCOPE);
             }
-        });
+
+            if (config.isProfileCommit()) {
+                InstrumentUtils.findMethod(target, "commit")
+                        .addScopedInterceptor(TransactionCommitInterceptor.class, JTDS_SCOPE);
+            }
+
+            if (config.isProfileRollback()) {
+                InstrumentUtils.findMethod(target, "rollback")
+                        .addScopedInterceptor(TransactionRollbackInterceptor.class, JTDS_SCOPE);
+            }
+
+            return target.toBytecode();
+        }
+    };
+
+    private void addDriverTransformer() {
+        transformTemplate.transform("net.sourceforge.jtds.jdbc.Driver", DriverTransform.class);
+    }
+
+    public static class DriverTransform implements TransformCallback {
+
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+
+            InstrumentUtils.findMethod(target, "connect",  "java.lang.String", "java.util.Properties")
+                    .addScopedInterceptor(DriverConnectInterceptorV2.class, va(JtdsConstants.MSSQL), JTDS_SCOPE, ExecutionPolicy.ALWAYS);
+
+            return target.toBytecode();
+        }
     }
 
     private void addPreparedStatementTransformer(final JtdsConfig config) {
-        transformTemplate.transform("net.sourceforge.jtds.jdbc.JtdsPreparedStatement", new TransformCallback() {
+        transformTemplate.transform("net.sourceforge.jtds.jdbc.JtdsPreparedStatement", JtdsPreparedStatementTransform.class);
+    }
 
-            @Override
-            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+    public static class JtdsPreparedStatementTransform implements TransformCallback {
 
-                target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor");
-                target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.ParsingResultAccessor");
-                target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.BindValueAccessor");
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
 
-                int maxBindValueSize = config.getMaxSqlBindValueSize();
+            JtdsConfig config = new JtdsConfig(instrumentor.getProfilerConfig());
+            InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
-                final String preparedStatementInterceptor = "com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.PreparedStatementExecuteQueryInterceptor";
-                InstrumentUtils.findMethod(target, "execute")
-                        .addScopedInterceptor(preparedStatementInterceptor, va(maxBindValueSize), JTDS_SCOPE);
-                InstrumentUtils.findMethod(target, "executeQuery")
-                        .addScopedInterceptor(preparedStatementInterceptor, va(maxBindValueSize), JTDS_SCOPE);
-                InstrumentUtils.findMethod(target, "executeUpdate")
-                        .addScopedInterceptor(preparedStatementInterceptor, va(maxBindValueSize), JTDS_SCOPE);
+            target.addField(DatabaseInfoAccessor.class);
+            target.addField(ParsingResultAccessor.class);
+            target.addField(BindValueAccessor.class);
 
-                if (config.isTraceSqlBindValue()) {
-                    MethodFilter filter = new PreparedStatementBindingMethodFilter();
-                    List<InstrumentMethod> declaredMethods = target.getDeclaredMethods(filter);
-                    for (InstrumentMethod method : declaredMethods) {
-                        method.addScopedInterceptor("com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.PreparedStatementBindVariableInterceptor", JTDS_SCOPE);
-                    }
+            int maxBindValueSize = config.getMaxSqlBindValueSize();
+
+            final Class<? extends Interceptor> preparedStatementInterceptor = PreparedStatementExecuteQueryInterceptor.class;
+            InstrumentUtils.findMethod(target, "execute")
+                    .addScopedInterceptor(preparedStatementInterceptor, va(maxBindValueSize), JTDS_SCOPE);
+            InstrumentUtils.findMethod(target, "executeQuery")
+                    .addScopedInterceptor(preparedStatementInterceptor, va(maxBindValueSize), JTDS_SCOPE);
+            InstrumentUtils.findMethod(target, "executeUpdate")
+                    .addScopedInterceptor(preparedStatementInterceptor, va(maxBindValueSize), JTDS_SCOPE);
+
+            if (config.isTraceSqlBindValue()) {
+                MethodFilter filter = new PreparedStatementBindingMethodFilter();
+                List<InstrumentMethod> declaredMethods = target.getDeclaredMethods(filter);
+                for (InstrumentMethod method : declaredMethods) {
+                    method.addScopedInterceptor(PreparedStatementBindVariableInterceptor.class, JTDS_SCOPE);
                 }
-
-                return target.toBytecode();
             }
-        });
+
+            return target.toBytecode();
+        }
     }
 
     private void addCallableStatementTransformer() {
-        transformTemplate.transform("net.sourceforge.jtds.jdbc.JtdsCallableStatement", new TransformCallback() {
+        transformTemplate.transform("net.sourceforge.jtds.jdbc.JtdsCallableStatement", JtdsCallableStatementTransform.class);
+    }
 
-            @Override
-            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+    public static class JtdsCallableStatementTransform implements TransformCallback {
 
-                target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor");
-                target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.ParsingResultAccessor");
-                target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.BindValueAccessor");
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
-                final String callableStatementInterceptor = "com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.CallableStatementRegisterOutParameterInterceptor";
-                InstrumentUtils.findMethod(target, "registerOutParameter", "int", "int")
-                        .addScopedInterceptor(callableStatementInterceptor, JTDS_SCOPE);
-                InstrumentUtils.findMethod(target, "registerOutParameter", "int", "int", "int")
-                        .addScopedInterceptor(callableStatementInterceptor, JTDS_SCOPE);
-                InstrumentUtils.findMethod(target, "registerOutParameter", "int", "int", "java.lang.String")
-                        .addScopedInterceptor(callableStatementInterceptor, JTDS_SCOPE);
+            target.addField(DatabaseInfoAccessor.class);
+            target.addField(ParsingResultAccessor.class);
+            target.addField(BindValueAccessor.class);
 
-                return target.toBytecode();
-            }
-        });
+            final Class<? extends Interceptor> callableStatementInterceptor = CallableStatementRegisterOutParameterInterceptor.class;
+            InstrumentUtils.findMethod(target, "registerOutParameter", "int", "int")
+                    .addScopedInterceptor(callableStatementInterceptor, JTDS_SCOPE);
+            InstrumentUtils.findMethod(target, "registerOutParameter", "int", "int", "int")
+                    .addScopedInterceptor(callableStatementInterceptor, JTDS_SCOPE);
+            InstrumentUtils.findMethod(target, "registerOutParameter", "int", "int", "java.lang.String")
+                    .addScopedInterceptor(callableStatementInterceptor, JTDS_SCOPE);
+
+            return target.toBytecode();
+        }
     }
 
     private void addStatementTransformer() {
-        transformTemplate.transform("net.sourceforge.jtds.jdbc.JtdsStatement", new TransformCallback() {
+        transformTemplate.transform("net.sourceforge.jtds.jdbc.JtdsStatement", JtdsStatementTransform.class);
+    }
 
-            @Override
-            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+    public static class JtdsStatementTransform implements TransformCallback {
 
-                target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor");
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
-                final String executeQueryInterceptor = "com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.StatementExecuteQueryInterceptor";
-                InstrumentUtils.findMethod(target, "executeQuery", "java.lang.String")
-                        .addScopedInterceptor(executeQueryInterceptor, JTDS_SCOPE);
+            target.addField(DatabaseInfoAccessor.class);
 
-                final String executeUpdateInterceptor = "com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.StatementExecuteUpdateInterceptor";
-                InstrumentUtils.findMethod(target, "executeUpdate", "java.lang.String")
-                        .addScopedInterceptor(executeUpdateInterceptor, JTDS_SCOPE);
-                InstrumentUtils.findMethod(target, "executeUpdate",  "java.lang.String", "int")
-                        .addScopedInterceptor(executeUpdateInterceptor, JTDS_SCOPE);
-                InstrumentUtils.findMethod(target, "execute",  "java.lang.String")
-                        .addScopedInterceptor(executeUpdateInterceptor, JTDS_SCOPE);
-                InstrumentUtils.findMethod(target, "execute",  "java.lang.String", "int")
-                        .addScopedInterceptor(executeUpdateInterceptor, JTDS_SCOPE);
+            final Class<? extends Interceptor> executeQueryInterceptor = StatementExecuteQueryInterceptor.class;
+            InstrumentUtils.findMethod(target, "executeQuery", "java.lang.String")
+                    .addScopedInterceptor(executeQueryInterceptor, JTDS_SCOPE);
 
-                return target.toBytecode();
-            }
-        });
+            final Class<? extends Interceptor> executeUpdateInterceptor = StatementExecuteUpdateInterceptor.class;
+            InstrumentUtils.findMethod(target, "executeUpdate", "java.lang.String")
+                    .addScopedInterceptor(executeUpdateInterceptor, JTDS_SCOPE);
+            InstrumentUtils.findMethod(target, "executeUpdate",  "java.lang.String", "int")
+                    .addScopedInterceptor(executeUpdateInterceptor, JTDS_SCOPE);
+            InstrumentUtils.findMethod(target, "execute",  "java.lang.String")
+                    .addScopedInterceptor(executeUpdateInterceptor, JTDS_SCOPE);
+            InstrumentUtils.findMethod(target, "execute",  "java.lang.String", "int")
+                    .addScopedInterceptor(executeUpdateInterceptor, JTDS_SCOPE);
+
+            return target.toBytecode();
+        }
     }
 
     @Override
