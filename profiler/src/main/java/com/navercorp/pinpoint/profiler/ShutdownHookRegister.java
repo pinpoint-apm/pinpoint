@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,19 +14,13 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap;
+package com.navercorp.pinpoint.profiler;
 
 /**
- * @author emeroad
- * @author hyungil.jeong
+ * @author Taejin Koo
  */
-public interface Agent {
+public interface ShutdownHookRegister {
 
-    /**
-     * // caution
-     * stop is registered together to run when exit the jvm.
-     * If inherit this method, should implement it to shut down automatically
-     */
-    void start();
+    void register(Thread thread);
 
 }

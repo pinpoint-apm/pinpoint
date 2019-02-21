@@ -53,11 +53,7 @@ public class MockApplicationContextModuleTest {
                 null);
 
         PluginTestAgent pluginTestAgent = new PluginTestAgent(agentOption);
-        try {
-            pluginTestAgent.start();
-        } finally {
-            pluginTestAgent.stop();
-        }
+        pluginTestAgent.start();
     }
 
     @Test
