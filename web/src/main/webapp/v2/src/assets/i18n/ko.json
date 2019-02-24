@@ -7,7 +7,8 @@
         "REQUIRED": "!{0}를(을) 입력하세요.",
         "REQUIRED_SELECT": "!{0}를(을) 선택하세요.",
         "MAX_SEARCH_PERIOD": "한번에 검색할 수 있는 최대 기간은 !{0}일 입니다.",
-        "DO_NOT_HAVE_PERMISSION": "권한이 없습니다."
+        "DO_NOT_HAVE_PERMISSION": "권한이 없습니다.",
+        "SUBMIT": "저장"
     },
     "MAIN": {
         "SELECT_YOUR_APP": "애플리케이션을 선택하세요.",
