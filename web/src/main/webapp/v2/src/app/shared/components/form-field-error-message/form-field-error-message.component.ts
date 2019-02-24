@@ -1,5 +1,5 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { FormControl } from '@angular/forms';
+import { AbstractControl } from '@angular/forms';
 
 @Component({
     selector: 'pp-form-field-error-message',
@@ -7,7 +7,7 @@ import { FormControl } from '@angular/forms';
     styleUrls: ['./form-field-error-message.component.css']
 })
 export class FormFieldErrorMessageComponent implements OnInit {
-    @Input() control: FormControl;
+    @Input() control: AbstractControl;
     @Input() errorMessage: IFormFieldErrorType;
 
     constructor() {}
