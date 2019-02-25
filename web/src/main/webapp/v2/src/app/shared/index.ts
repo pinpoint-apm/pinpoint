@@ -40,7 +40,8 @@ import { SplitterDirective } from './directives/splitter.directive';
 import { SearchInputDirective } from './directives/search-input.directive';
 import { SafeHtmlPipe } from './pipes/safe-html.pipe';
 import { JSONTextParserPipe } from './pipes/json-text-parser.pipe';
-import { DynamicPopupService } from 'app/shared/services/dynamic-popup.service';
+import { DynamicPopupService } from './services/dynamic-popup.service';
+import { MessageQueueService } from './services/message-queue.service';
 
 @NgModule({
     declarations: [
@@ -105,7 +106,8 @@ import { DynamicPopupService } from 'app/shared/services/dynamic-popup.service';
         TransactionViewTypeService,
         StoreHelperService,
         UrlValidateGuard,
-        DynamicPopupService
+        DynamicPopupService,
+        MessageQueueService
     ]
 })
 export class SharedModule { }
