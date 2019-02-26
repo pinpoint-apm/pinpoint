@@ -23,11 +23,15 @@ import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.sampler.SamplingFlagUtils;
 import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.common.util.StringUtils;
 
 /**
  * @author jaehong.kim
  */
 public class DefaultRequestTraceWriter<T> implements RequestTraceWriter<T> {
+
+    private static final String NOT_SET = null;
+
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
     private final ClientHeaderAdaptor<T> clientHeaderAdaptor;
@@ -36,7 +40,7 @@ public class DefaultRequestTraceWriter<T> implements RequestTraceWriter<T> {
     private final String applicationNamespace;
 
     public DefaultRequestTraceWriter(ClientHeaderAdaptor<T> clientHeaderAdaptor, TraceContext traceContext) {
-        this(clientHeaderAdaptor, traceContext.getApplicationName(), traceContext.getServerTypeCode(), traceContext.getApplicationName());
+        this(clientHeaderAdaptor, traceContext.getApplicationName(), traceContext.getServerTypeCode(), traceContext.getProfilerConfig().getApplicationNamespace());
     }
 
     public DefaultRequestTraceWriter(ClientHeaderAdaptor<T> clientHeaderAdaptor, String applicationName, short serverTypeCode, String applicationNamespace) {
@@ -44,7 +48,11 @@ public class DefaultRequestTraceWriter<T> implements RequestTraceWriter<T> {
 
         this.applicationName = Assert.requireNonNull(applicationName, "applicationName must not be null");
         this.serverTypeCode = serverTypeCode;
-        this.applicationNamespace = Assert.requireNonNull(applicationNamespace, "applicationNamespace must not be null");
+        if (StringUtils.isEmpty(applicationNamespace)) {
+            this.applicationNamespace = NOT_SET;
+        } else {
+            this.applicationNamespace = applicationNamespace;
+        }
     }
 
     @Override
@@ -70,7 +78,7 @@ public class DefaultRequestTraceWriter<T> implements RequestTraceWriter<T> {
         clientHeaderAdaptor.setHeader(header, Header.HTTP_PARENT_APPLICATION_NAME.toString(), applicationName);
         clientHeaderAdaptor.setHeader(header, Header.HTTP_PARENT_APPLICATION_TYPE.toString(), Short.toString(serverTypeCode));
 
-        if (applicationNamespace != null) {
+        if (applicationNamespace != NOT_SET) {
             clientHeaderAdaptor.setHeader(header, Header.HTTP_PARENT_APPLICATION_NAMESPACE.toString(), applicationNamespace);
         }
 
