@@ -20,6 +20,7 @@ export class PinpointUserDataService {
     private url = 'user.pinpoint';
     constructor(private http: HttpClient) { }
     retrieve(department?: string): Observable<IPinpointUser[] | {}> {
+        department = department || 'PaaS';
         return this.http.get<IPinpointUser[] | {}>(this.url, this.makeRequestOptionsArgs(department)).pipe(
             retry(3)
         );

@@ -1,11 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
-import { UserGroupInteractionService } from 'app/core/components/user-group/user-group-interaction.service';
-import { PinpointUserInteractionService } from 'app/core/components/pinpoint-user/pinpoint-user-interaction.service';
-import { GroupMemberInteractionService } from './group-member-interaction.service';
 import { GroupMemberDataService, IGroupMember, IGroupMemberResponse } from './group-member-data.service';
 import { isThatType } from 'app/core/utils/util';
+import { MessageQueueService, MESSAGE_TO } from 'app/shared/services';
 
 @Component({
     selector: 'pp-group-member-container',
@@ -23,30 +20,23 @@ export class GroupMemberContainerComponent implements OnInit {
 
     constructor(
         private groupMemberDataService: GroupMemberDataService,
-        private groupMemberInteractionService: GroupMemberInteractionService,
-        private userGroupInteractionService: UserGroupInteractionService,
-        private pinpointUserInteracionService: PinpointUserInteractionService
+        private messageQueueService: MessageQueueService
     ) {}
     ngOnInit() {
-        this.userGroupInteractionService.onSelect$.pipe(
-            takeUntil(this.unsubscribe)
-        ).subscribe((id: string) => {
-            this.currentUserGroupId = id;
+        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.USER_GROUP_SELECTED_USER_GROUP).subscribe((param: any[]) => {
+            this.currentUserGroupId = param[0];
             if (this.isValidUserGroupId()) {
                 this.getGroupMemberList();
             } else {
                 this.groupMemberList = [];
-                this.groupMemberInteractionService.setChangeGroupMember([]);
+                this.sendMessageCurrentGroupMemeberList([]);
             }
         });
-        this.pinpointUserInteracionService.onAdd$.pipe(
-            takeUntil(this.unsubscribe)
-        ).subscribe((userId: string) => {
-            this.addGroupMember(userId);
+        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.PINPOINT_USER_ADD_USER).subscribe((param: any[]) => {
+            this.addGroupMember(param[0] as string);
         });
-        this.pinpointUserInteracionService.onUpdate$.pipe(
-            takeUntil(this.unsubscribe)
-        ).subscribe((memberInfo: any) => {
+        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.PINPOINT_USER_UPDATE_USER).subscribe((param: any[]) => {
+            const memberInfo = param[0];
             let memberIndex = -1;
             let editMemberInfo;
             for (let i = 0 ; i < this.groupMemberList.length ; i++) {
@@ -64,6 +54,12 @@ export class GroupMemberContainerComponent implements OnInit {
             }
             this.groupMemberList.splice(memberIndex, 1, editMemberInfo);
         });
+        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.PINPOINT_USER_REMOVE_USER).subscribe((param: any[]) => {
+            const userId = param[0];
+            this.groupMemberList = this.groupMemberList.filter((member: IGroupMember) => {
+                return member.memberId !== userId;
+            });
+        });
     }
     private isValidUserGroupId(): boolean {
         return this.currentUserGroupId !== '';
@@ -72,16 +68,16 @@ export class GroupMemberContainerComponent implements OnInit {
         this.showProcessing();
         this.groupMemberDataService.retrieve(this.currentUserGroupId).subscribe((data: IGroupMember[] | IServerErrorShortFormat) => {
             if (isThatType<IServerErrorShortFormat>(data, 'errorCode', 'errorMessage')) {
-                this.groupMemberInteractionService.setChangeGroupMember(this.getMemberIdList());
+                this.sendMessageCurrentGroupMemeberList(this.getMemberIdList());
                 this.errorMessage = data.errorMessage;
             } else {
                 this.groupMemberList = data;
                 this.sortGroupMemberList();
-                this.groupMemberInteractionService.setChangeGroupMember(this.getMemberIdList());
+                this.sendMessageCurrentGroupMemeberList(this.getMemberIdList());
             }
             this.hideProcessing();
         }, (error: IServerErrorFormat) => {
-            this.groupMemberInteractionService.setChangeGroupMember(this.getMemberIdList());
+            this.sendMessageCurrentGroupMemeberList(this.getMemberIdList());
             this.hideProcessing();
             this.errorMessage = error.exception.message;
         });
@@ -128,6 +124,12 @@ export class GroupMemberContainerComponent implements OnInit {
             this.sortDescend();
         }
     }
+    private sendMessageCurrentGroupMemeberList(list: string[]): void {
+        this.messageQueueService.sendMessage({
+            to: MESSAGE_TO.GROUP_MEMBER_SET_CURRENT_GROUP_MEMBERS,
+            param: [list]
+        });
+    }
     onRemoveGroupMember(id: string): void {
         this.showProcessing();
         this.groupMemberDataService.remove(id, this.currentUserGroupId).subscribe((response: IGroupMemberResponse) => {
@@ -139,7 +141,7 @@ export class GroupMemberContainerComponent implements OnInit {
     }
     onCloseErrorMessage(): void {
         this.errorMessage = '';
-        this.groupMemberInteractionService.setChangeGroupMember(this.getMemberIdList());
+        this.sendMessageCurrentGroupMemeberList(this.getMemberIdList());
     }
     onSort(): void {
         if (this.isValidUserGroupId()) {

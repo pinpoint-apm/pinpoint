@@ -2,8 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { forkJoin } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
 
-import { WebAppSettingDataService, TranslateReplaceService } from 'app/shared/services';
-import { UserGroupInteractionService } from './user-group-interaction.service';
+import { WebAppSettingDataService, TranslateReplaceService, MessageQueueService, MESSAGE_TO } from 'app/shared/services';
 import { UserGroupDataService, IUserGroup, IUserGroupCreated, IUserGroupDeleted } from './user-group-data.service';
 import { isThatType } from 'app/core/utils/util';
 
@@ -33,10 +32,10 @@ export class UserGroupContainerComponent implements OnInit {
     selectedUserGroupId = '';
     constructor(
         private webAppSettingDataService: WebAppSettingDataService,
-        private userGroupDataService: UserGroupDataService,
         private translateService: TranslateService,
         private translateReplaceService: TranslateReplaceService,
-        private userGroupInteractionService: UserGroupInteractionService
+        private messageQueueService: MessageQueueService,
+        private userGroupDataService: UserGroupDataService
     ) {}
     ngOnInit() {
         this.getI18NText();
@@ -88,7 +87,10 @@ export class UserGroupContainerComponent implements OnInit {
                 this.hideProcessing();
             } else {
                 if (response.result === 'SUCCESS') {
-                    this.userGroupInteractionService.setSelectedUserGroup('');
+                    this.messageQueueService.sendMessage({
+                        to: MESSAGE_TO.USER_GROUP_SELECTED_USER_GROUP,
+                        param: ['']
+                    });
                     this.getUserGroupList(this.makeUserGroupQuery());
                 } else {
                     this.hideProcessing();
@@ -124,7 +126,10 @@ export class UserGroupContainerComponent implements OnInit {
     }
     onSelectUserGroup(userGroupId: string): void {
         this.selectedUserGroupId = userGroupId;
-        this.userGroupInteractionService.setSelectedUserGroup(userGroupId);
+        this.messageQueueService.sendMessage({
+            to: MESSAGE_TO.USER_GROUP_SELECTED_USER_GROUP,
+            param: [userGroupId]
+        });
     }
     onCloseErrorMessage(): void {
         this.errorMessage = '';

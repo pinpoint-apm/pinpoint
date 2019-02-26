@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Subject, Observable } from 'rxjs';
 import { filter, takeUntil, map } from 'rxjs/operators';
 
-export interface IMessageParam {
+interface IMessageParam {
     to: string;
     param: any[];
 }
@@ -14,7 +14,7 @@ export class MessageQueueService {
     sendMessage(message: IMessageParam): void {
         this.messageQueue.next(message);
     }
-    receiveMessage(unsubscribe: Subject<null>, to: string): Observable<any[]> {
+    receiveMessage(unsubscribe: Subject<any>, to: string): Observable<any[]> {
         return this.messageQueue.pipe(
             takeUntil(unsubscribe),
             filter((message: IMessageParam) => {
@@ -28,5 +28,19 @@ export class MessageQueueService {
 }
 
 export enum MESSAGE_TO {
-    
+    TIMELINE_SELECTED_POINTING_TIME = 'TIMELINE_SELECTED_POINTING_TIME',
+    TIMELINE_SELECTED_EVENT_STATUS = 'TIMELINE_SELECTED_EVENT_STATUS',
+    TIMELINE_ZOOM_IN = 'TIMELINE_ZOOM_IN',
+    TIMELINE_ZOOM_OUT = 'TIMELINE_ZOOM_OUT',
+    TIMELINE_MOVE_PREV = 'TIMELINE_MOVE_PREV',
+    TIMELINE_MOVE_NEXT = 'TIMELINE_MOVE_NEXT',
+    TIMELINE_MOVE_NOW = 'TIMELINE_MOVE_NOW',
+
+    THREAD_DUMP_SET_PARAM = 'THREAD_DUMP_SET_PARAM',
+
+    USER_GROUP_SELECTED_USER_GROUP = 'USER_GROUP_SELECTED_USER_GROUP',
+    GROUP_MEMBER_SET_CURRENT_GROUP_MEMBERS =  'GROUP_MEMBER_SET_CURRENT_GROUP_MEMBERS',
+    PINPOINT_USER_ADD_USER = 'PINPOINT_USER_ADD_USER',
+    PINPOINT_USER_REMOVE_USER = 'PINPOINT_USER_REMOVE_USER',
+    PINPOINT_USER_UPDATE_USER = 'PINPOINT_USER_UPDATE_USER'
 }

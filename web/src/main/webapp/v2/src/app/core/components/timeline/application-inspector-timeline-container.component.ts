@@ -3,10 +3,9 @@ import { Subject, Observable } from 'rxjs';
 import { takeUntil, withLatestFrom, map } from 'rxjs/operators';
 
 import { Actions } from 'app/shared/store';
-import { StoreHelperService, NewUrlStateNotificationService, AnalyticsService, TRACKED_EVENT_LIST } from 'app/shared/services';
+import { StoreHelperService, NewUrlStateNotificationService, AnalyticsService, TRACKED_EVENT_LIST, MessageQueueService, MESSAGE_TO } from 'app/shared/services';
 import { Timeline, ITimelineEventSegment, TimelineUIEvent } from './class';
 import { TimelineComponent } from './timeline.component';
-import { TimelineInteractionService, ITimelineCommandParam, TimelineCommand } from './timeline-interaction.service';
 import { IAgentTimeline } from './agent-timeline-data.service';
 import { UrlPathId } from 'app/shared/models';
 
@@ -33,37 +32,31 @@ export class ApplicationInspectorTimelineContainerComponent implements OnInit, O
         private changeDetector: ChangeDetectorRef,
         private storeHelperService: StoreHelperService,
         private newUrlStateNotificationService: NewUrlStateNotificationService,
-        private timelineInteractionService: TimelineInteractionService,
+        private messageQueueService: MessageQueueService,
         private analyticsService: AnalyticsService,
     ) {}
 
     ngOnInit() {
         this.connectStore();
-        this.timelineInteractionService.onCommand$.pipe(
-            takeUntil(this.unsubscribe)
-        ).subscribe((param: ITimelineCommandParam) => {
-            switch (param.command) {
-                case TimelineCommand.zoomIn:
-                    this.analyticsService.trackEvent(TRACKED_EVENT_LIST.ZOOM_IN_TIMELINE);
-                    this.timelineComponent.zoomIn();
-                    break;
-                case TimelineCommand.zoomOut:
-                    this.analyticsService.trackEvent(TRACKED_EVENT_LIST.ZOOM_OUT_TIMELINE);
-                    this.timelineComponent.zoomOut();
-                    break;
-                case TimelineCommand.prev:
-                    this.analyticsService.trackEvent(TRACKED_EVENT_LIST.MOVE_TO_PREV_ON_TIMELINE);
-                    this.timelineComponent.movePrev();
-                    break;
-                case TimelineCommand.next:
-                    this.analyticsService.trackEvent(TRACKED_EVENT_LIST.MOVE_TO_NEXT_ON_TIMELINE);
-                    this.timelineComponent.moveNext();
-                    break;
-                case TimelineCommand.now:
-                    this.analyticsService.trackEvent(TRACKED_EVENT_LIST.MOVE_TO_NOW_ON_TIMELINE);
-                    this.timelineComponent.moveNow();
-                    break;
-            }
+        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.TIMELINE_ZOOM_IN).subscribe(() => {
+            this.analyticsService.trackEvent(TRACKED_EVENT_LIST.ZOOM_IN_TIMELINE);
+            this.timelineComponent.zoomIn();
+        });
+        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.TIMELINE_ZOOM_OUT).subscribe(() => {
+            this.analyticsService.trackEvent(TRACKED_EVENT_LIST.ZOOM_OUT_TIMELINE);
+            this.timelineComponent.zoomOut();
+        });
+        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.TIMELINE_MOVE_PREV).subscribe(() => {
+            this.analyticsService.trackEvent(TRACKED_EVENT_LIST.MOVE_TO_PREV_ON_TIMELINE);
+            this.timelineComponent.movePrev();
+        });
+        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.TIMELINE_MOVE_NEXT).subscribe(() => {
+            this.analyticsService.trackEvent(TRACKED_EVENT_LIST.MOVE_TO_PREV_ON_TIMELINE);
+            this.timelineComponent.moveNext();
+        });
+        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.TIMELINE_MOVE_NOW).subscribe(() => {
+            this.analyticsService.trackEvent(TRACKED_EVENT_LIST.MOVE_TO_NOW_ON_TIMELINE);
+            this.timelineComponent.moveNow();
         });
         this.newUrlStateNotificationService.onUrlStateChange$.pipe(
             takeUntil(this.unsubscribe),
