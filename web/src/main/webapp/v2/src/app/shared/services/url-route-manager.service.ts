@@ -54,6 +54,7 @@ export class UrlRouteManagerService {
         ]);
     }
     move({ url, needServerTimeRequest, nextUrl = [], queryParam }: { url: string[], needServerTimeRequest: boolean, nextUrl?: string[], queryParam?: any} ): void {
+        url = url[0] === this.getBaseHref().replace(/\//g, '') ? url.slice(1) : url;
         if (needServerTimeRequest) {
             this.serverTimeDataService.getServerTime().subscribe(time => {
                 const newUrl = url.concat([EndTime.formatDate(time)]).concat(nextUrl).filter((v: string) => {
@@ -87,10 +88,10 @@ export class UrlRouteManagerService {
     }
     moveOnPage({ url, queryParam }: { url: string[], queryParam?: any }): void {
         this.move({
-            url: url,
+            url,
             needServerTimeRequest: false,
             nextUrl: [],
-            queryParam: queryParam
+            queryParam
         });
     }
     openPage(path: string | string[], title?: string): void {
