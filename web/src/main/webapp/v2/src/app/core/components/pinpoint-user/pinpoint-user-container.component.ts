@@ -1,12 +1,9 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Subject, iif, of, forkJoin } from 'rxjs';
-import { takeUntil, switchMap } from 'rxjs/operators';
+import { switchMap } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
 
-import { TranslateReplaceService, WebAppSettingDataService } from 'app/shared/services';
-import { GroupMemberInteractionService } from 'app/core/components/group-member/group-member-interaction.service';
-import { UserGroupInteractionService } from 'app/core/components/user-group/user-group-interaction.service';
-import { PinpointUserInteractionService } from './pinpoint-user-interaction.service';
+import { TranslateReplaceService, WebAppSettingDataService, MessageQueueService, MESSAGE_TO } from 'app/shared/services';
 import { PinpointUser } from './pinpoint-user-create-and-update.component';
 import { PinpointUserDataService, IPinpointUser, IPinpointUserResponse } from './pinpoint-user-data.service';
 import { isThatType } from 'app/core/utils/util';
@@ -52,23 +49,18 @@ export class PinpointUserContainerComponent implements OnInit, OnDestroy {
         private pinpointUserDataService: PinpointUserDataService,
         private translateService: TranslateService,
         private translateReplaceService: TranslateReplaceService,
-        private userGroupInteractionService: UserGroupInteractionService,
-        private groupMemberInteractionService: GroupMemberInteractionService,
-        private pinpointUserInteractionService: PinpointUserInteractionService
+        private messageQueueService: MessageQueueService
     ) {}
     ngOnInit() {
         this.webAppSettingDataService.useUserEdit().subscribe((allowedUserEdit: boolean) => {
             this.allowedUserEdit = allowedUserEdit;
         });
-        this.userGroupInteractionService.onSelect$.pipe(
-            takeUntil(this.unsubscribe)
-        ).subscribe((userGroupId: string) => {
+        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.USER_GROUP_SELECTED_USER_GROUP).subscribe((param: any[]) => {
+            const userGroupId = param[0];
             this.isUserGroupSelected = userGroupId === '' ? false : true;
         });
-        this.groupMemberInteractionService.onChangeGroupMember$.pipe(
-            takeUntil(this.unsubscribe)
-        ).subscribe((memberList: string[]) => {
-            this.groupMemberList = memberList;
+        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.GROUP_MEMBER_SET_CURRENT_GROUP_MEMBERS).subscribe((param: any[]) => {
+            this.groupMemberList = param[0] as string[];
             this.hideProcessing();
         });
         this.getI18NText();
@@ -134,8 +126,10 @@ export class PinpointUserContainerComponent implements OnInit, OnDestroy {
         return this.groupMemberList.indexOf(userId) !== -1;
     }
     onAddUser(pinpointUserId: string): void {
-        this.showProcessing();
-        this.pinpointUserInteractionService.setAddPinpointUser(pinpointUserId);
+        this.messageQueueService.sendMessage({
+            to: MESSAGE_TO.PINPOINT_USER_ADD_USER,
+            param: [pinpointUserId]
+        });
     }
     onCloseErrorMessage(): void {
         this.errorMessage = '';
@@ -171,6 +165,7 @@ export class PinpointUserContainerComponent implements OnInit, OnDestroy {
         });
     }
     onUpdatePinpointUser(pinpointUser: PinpointUser): void {
+        this.showProcessing();
         const editPinpointUser = this.pinpointUserList[this.editPinpointUserIndex];
         this.pinpointUserDataService.update({
             userId: pinpointUser.userId,
@@ -184,10 +179,13 @@ export class PinpointUserContainerComponent implements OnInit, OnDestroy {
                 this.errorMessage = response.errorMessage;
             } else {
                 this.getPinpointUserList(this.searchQuery);
-                this.pinpointUserInteractionService.setUserUpdated({
-                    userId: pinpointUser.userId,
-                    department: pinpointUser.department,
-                    name: pinpointUser.name
+                this.messageQueueService.sendMessage({
+                    to: MESSAGE_TO.PINPOINT_USER_UPDATE_USER,
+                    param: [{
+                        userId: pinpointUser.userId,
+                        department: pinpointUser.department,
+                        name: pinpointUser.name
+                    }]
                 });
             }
 
@@ -200,9 +198,15 @@ export class PinpointUserContainerComponent implements OnInit, OnDestroy {
     onRemovePinpointUser(userId: string): void {
         this.showProcessing();
         this.pinpointUserDataService.remove(userId).subscribe((response: IPinpointUserResponse | IServerErrorShortFormat) => {
-            isThatType<IServerErrorShortFormat>(response, 'errorCode', 'errorMessage')
-                ? this.errorMessage = response.errorMessage
-                : this.pinpointUserList.splice(this.getPinpointUserIndexByUserId(userId), 1);
+            if (isThatType<IServerErrorShortFormat>(response, 'errorCode', 'errorMessage')) {
+                this.errorMessage = response.errorMessage;
+            } else {
+                this.pinpointUserList.splice(this.getPinpointUserIndexByUserId(userId), 1);
+                this.messageQueueService.sendMessage({
+                    to: MESSAGE_TO.PINPOINT_USER_REMOVE_USER,
+                    param: [userId]
+                });
+            }
             this.hideProcessing();
         }, (error: IServerErrorFormat) => {
             this.hideProcessing();
