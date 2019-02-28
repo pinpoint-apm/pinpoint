@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.web.vo.exception.PinpointUserGroupException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -46,8 +47,9 @@ import com.navercorp.pinpoint.web.vo.UserGroupMemberParam;
 public class UserGroupController {
     
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    
+
     private static final String SSO_USER = "SSO_USER";
+    public static final String EDIT_GROUP_ONLY_GROUPMEMBER = "permission_userGroup_editGroupOnlyGroupMember";
     public static final String USER_GROUP_ID = "userGroupId";
     public static final String USER_ID = "userId";
 
@@ -72,6 +74,7 @@ public class UserGroupController {
         }
     }
 
+    @PreAuthorize("hasPermission(#userGroup.getId(), null, T(com.navercorp.pinpoint.web.controller.UserGroupController).EDIT_GROUP_ONLY_GROUPMEMBER)")
     @RequestMapping(method = RequestMethod.DELETE)
     @ResponseBody
     public Map<String, String> deleteUserGroup(@RequestBody UserGroup userGroup, @RequestHeader(value=SSO_USER, required=false) String userId) {
@@ -101,24 +104,22 @@ public class UserGroupController {
         return userGroupService.selectUserGroup();
     }
 
+    @PreAuthorize("hasPermission(#userGroupMember.getMemberId(), null, T(com.navercorp.pinpoint.web.controller.UserGroupController).EDIT_GROUP_ONLY_GROUPMEMBER)")
     @RequestMapping(value = "/member", method = RequestMethod.POST)
     @ResponseBody
-    public Map<String, String> insertUserGroupMember(@RequestBody UserGroupMemberParam userGroupMember, @RequestHeader(value=SSO_USER, required=false) String userId) {
+    public Map<String, String> insertUserGroupMember(@RequestBody UserGroupMemberParam userGroupMember) {
         if (StringUtils.isEmpty(userGroupMember.getMemberId()) || StringUtils.isEmpty(userGroupMember.getUserGroupId())) {
             return createErrorMessage("500", "there is not userGroupId or memberId in params to insert user group member");
         }
 
-        try {
-            userGroupService.insertMemberWithCheckAuthority(userGroupMember, userId);
-            Map<String, String> result = new HashMap<>();
-            result.put("result", "SUCCESS");
-            return result;
-        } catch (PinpointUserGroupException e) {
-            logger.error(e.getMessage(), e);
-            return createErrorMessage("500", e.getMessage());
-        }
+        userGroupService.insertMember(userGroupMember);
+        Map<String, String> result = new HashMap<>();
+        result.put("result", "SUCCESS");
+        return result;
+
     }
 
+    @PreAuthorize("hasPermission(#userGroupMember.getMemberId(), null, T(com.navercorp.pinpoint.web.controller.UserGroupController).EDIT_GROUP_ONLY_GROUPMEMBER)")
     @RequestMapping(value = "/member", method = RequestMethod.DELETE)
     @ResponseBody
     public Map<String, String> deleteUserGroupMember(@RequestBody UserGroupMemberParam userGroupMember, @RequestHeader(value=SSO_USER, required=false) String userId) {
@@ -126,15 +127,10 @@ public class UserGroupController {
             return createErrorMessage("500", "there is not userGroupId or memberId in params to delete user group member");
         }
 
-        try {
-            userGroupService.deleteMemberWithCheckAuthority(userGroupMember, userId);
-            Map<String, String> result = new HashMap<>();
-            result.put("result", "SUCCESS");
-            return result;
-        } catch (PinpointUserGroupException e) {
-            logger.error(e.getMessage(), e);
-            return createErrorMessage("500", e.getMessage());
-        }
+        userGroupService.deleteMember(userGroupMember);
+        Map<String, String> result = new HashMap<>();
+        result.put("result", "SUCCESS");
+        return result;
     }
     
     @RequestMapping(value = "/member", method = RequestMethod.GET)
