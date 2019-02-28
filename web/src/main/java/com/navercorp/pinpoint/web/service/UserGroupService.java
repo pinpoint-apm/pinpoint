@@ -38,9 +38,9 @@ public interface UserGroupService {
 
     void deleteUserGroup(UserGroup userGroup, String userId) throws PinpointUserGroupException;
 
-    void insertMember(UserGroupMember userGroupMember);
+    boolean checkValid(String userId, String userGroupId);
 
-    void deleteMemberWithCheckAuthority(UserGroupMember userGroupMember, String userId) throws PinpointUserGroupException;
+    void insertMember(UserGroupMember userGroupMember);
 
     void deleteMember(UserGroupMember userGroupMember);
 
@@ -52,11 +52,5 @@ public interface UserGroupService {
 
     List<String> selectEmailOfMember(String userGroupId);
 
-    void deleteMemberByUserGroupId(String userGroupId);
-
     void updateUserGroupIdOfMember(UserGroup userGroup);
-
-    boolean containMemberForUserGroup(String userId, String userGroupId);
-
-    void insertMemberWithCheckAuthority(UserGroupMemberParam userGroupMember, String userId) throws PinpointUserGroupException;
 }
