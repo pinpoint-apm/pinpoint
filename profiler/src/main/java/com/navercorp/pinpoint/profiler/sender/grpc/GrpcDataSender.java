@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.gpc.trace.PSpan;
 import com.navercorp.pinpoint.gpc.trace.PSpanChunk;
 import com.navercorp.pinpoint.gpc.trace.TraceGrpc;
 import com.navercorp.pinpoint.grpc.AgentHeaderFactory;
+import com.navercorp.pinpoint.grpc.ExecutorUtils;
 import com.navercorp.pinpoint.grpc.client.ChannelFactory;
 import com.navercorp.pinpoint.grpc.HeaderFactory;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
@@ -53,14 +54,14 @@ public class GrpcDataSender implements DataSender<Object> {
     private final StreamObserver<PSpan> spanStream;
     private final StreamObserver<PSpanChunk> spanChunkStream;
 
-    private MessageConverter<GeneratedMessageV3> messageConverter;
+    private final MessageConverter<GeneratedMessageV3> messageConverter;
 
     private final ThreadPoolExecutor executor;
 
-    private final HeaderFactory<AgentHeaderFactory.Header> headerFactory;
+    private final ChannelFactory channelFactory;
 
     private ThreadPoolExecutor newExecutorService(String name) {
-        ThreadFactory threadFactory = new PinpointThreadFactory(name);
+        ThreadFactory threadFactory = new PinpointThreadFactory(name, true);
         return ExecutorFactory.newFixedThreadPool(1, 1000, threadFactory);
     }
 
@@ -68,22 +69,19 @@ public class GrpcDataSender implements DataSender<Object> {
         this.name = Assert.requireNonNull(name, "name must not be null");
         this.messageConverter = Assert.requireNonNull(messageConverter, "messageConverter must not be null");
 
-        this.managedChannel = newChannel(name, host, port);
+        this.executor = newExecutorService(name);
+
+        this.channelFactory = newChannelFactory(name, headerFactory);
+        this.managedChannel = channelFactory.build(name, host, port);
 
         this.traceStub = TraceGrpc.newStub(managedChannel);
         this.spanStream = traceStub.sendSpan(response);
         this.spanChunkStream = traceStub.sendSpanChunk(response);
-
-        this.executor = newExecutorService(name);
-        this.headerFactory = Assert.requireNonNull(headerFactory, "headerFactory must not be null");
     }
 
-    private ManagedChannel newChannel(String name, String host, int port) {
-        ChannelFactory channelFactory = new ChannelFactory(name, host, port, headerFactory);
-        return channelFactory.build();
+    private ChannelFactory newChannelFactory(String name, HeaderFactory<AgentHeaderFactory.Header> headerFactory) {
+        return new ChannelFactory(name, headerFactory);
     }
-
-
 
     @Override
     public boolean send(final Object data) {
@@ -126,15 +124,8 @@ public class GrpcDataSender implements DataSender<Object> {
         if (this.managedChannel != null) {
             this.managedChannel.shutdown();
         }
-        if (executor != null) {
-            this.executor.shutdown();
-            try {
-                this.executor.awaitTermination(1000*3, TimeUnit.MILLISECONDS);
-            } catch (InterruptedException ignore) {
-                // ignore
-                Thread.currentThread().interrupt();
-            }
-        }
+        ExecutorUtils.shutdownExecutorService(name, executor);
+        this.channelFactory.close();
     }
 
 

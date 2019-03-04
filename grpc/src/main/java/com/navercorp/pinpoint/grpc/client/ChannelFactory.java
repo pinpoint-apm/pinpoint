@@ -17,16 +17,30 @@
 package com.navercorp.pinpoint.grpc.client;
 
 import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
+import com.navercorp.pinpoint.grpc.ExecutorUtils;
 import com.navercorp.pinpoint.grpc.HeaderFactory;
 import io.grpc.ClientInterceptor;
 import io.grpc.ConnectivityState;
 import io.grpc.ManagedChannel;
 import io.grpc.Metadata;
+import io.grpc.NameResolverProvider;
+import io.grpc.internal.PinpointDnsNameResolverProvider;
 import io.grpc.netty.InternalNettyChannelBuilder;
 import io.grpc.netty.NettyChannelBuilder;
 import io.grpc.stub.MetadataUtils;
+import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.util.concurrent.Future;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -36,32 +50,70 @@ public class ChannelFactory {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final String name;
-    private final String host;
-    private final int port;
-
     private final HeaderFactory headerFactory;
 
-    public ChannelFactory(String name, String host, int port, HeaderFactory headerFactory) {
-        this.name = Assert.requireNonNull(name, "name must not be null");
-        this.host = Assert.requireNonNull(host, "host must not be null");
-        this.port = port;
+    private final NioEventLoopGroup eventLoopGroup;
+
+    private final ExecutorService eventLoopExecutor;
+
+    private final ExecutorService executorService;
+    private final int executorQueueSize = 1024;
+
+    private final ExecutorService dnsExecutorService;
+    private final String dnsExecutorName;
+
+
+    public ChannelFactory(String name, HeaderFactory headerFactory) {
+        this.name = Assert.requireNonNull(name, "channelFactoryName must not be null");
+
         this.headerFactory = Assert.requireNonNull(headerFactory, "headerFactory must not be null");
+
+        this.eventLoopExecutor = newCachedExecutorService(name + "-eventLoop");
+        this.eventLoopGroup = newEventLoopGroup(eventLoopExecutor);
+        this.executorService = newExecutorService(name + "-executor");
+
+
+        this.dnsExecutorName = name + "-dns-executor";
+        this.dnsExecutorService = newCachedExecutorService(dnsExecutorName);
+    }
+
+    private ExecutorService newExecutorService(String name) {
+        ThreadFactory threadFactory = new PinpointThreadFactory(name, true);
+        BlockingQueue<Runnable> workQueue = new LinkedBlockingQueue<Runnable>(executorQueueSize);
+        return new ThreadPoolExecutor(1, 1,
+                0L, TimeUnit.MILLISECONDS,
+                workQueue, threadFactory);
+    }
+
+    private ExecutorService newCachedExecutorService(String name) {
+        ThreadFactory threadFactory = new PinpointThreadFactory(name, true);
+        return Executors.newCachedThreadPool(threadFactory);
     }
 
 
-
-    public ManagedChannel build() {
-        NettyChannelBuilder channelBuilder = NettyChannelBuilder.forAddress(host, port);
+    public ManagedChannel build(String channelName, String host, int port) {
+        final NettyChannelBuilder channelBuilder = NettyChannelBuilder.forAddress(host, port);
         channelBuilder.usePlaintext();
-
+        channelBuilder.eventLoopGroup(eventLoopGroup);
         setupInternal(channelBuilder);
 
         addHeader(channelBuilder);
-
-        ManagedChannel channel = channelBuilder.build();
-        setChannelStateNotifier(channel, name);
+        channelBuilder.executor(executorService);
+        NameResolverProvider nameResolverFactory = newNameResolverFactory();
+        channelBuilder.nameResolverFactory(nameResolverFactory);
+        final ManagedChannel channel = channelBuilder.build();
+        setChannelStateNotifier(channel, channelName);
 
         return channel;
+    }
+
+    private NameResolverProvider newNameResolverFactory() {
+        // rename dns thread
+        return new PinpointDnsNameResolverProvider(dnsExecutorName, dnsExecutorService);
+    }
+
+    private NioEventLoopGroup newEventLoopGroup(ExecutorService executorService) {
+        return new NioEventLoopGroup(1, executorService);
     }
 
     private void setupInternal(NettyChannelBuilder channelBuilder) {
@@ -121,4 +173,18 @@ public class ChannelFactory {
 
 
     }
+
+    public void close() {
+        final Future<?> future = eventLoopGroup.shutdownGracefully();
+        try {
+            logger.debug("shutdown {}-eventLoopGroup", name);
+            future.await(1000*3);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+        ExecutorUtils.shutdownExecutorService(name + "-eventLoopExecutor", eventLoopExecutor);
+        ExecutorUtils.shutdownExecutorService(name + "-executorService", executorService);
+        ExecutorUtils.shutdownExecutorService(name + "-dnsExecutor", dnsExecutorService);
+    }
+
 }
