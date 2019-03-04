@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.grpc;
 
 import com.google.protobuf.Empty;
+import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,12 +43,12 @@ public class CountdownStreamObserver implements StreamObserver<Empty> {
     @Override
     public void onNext(Empty value) {
         latch.countDown();
-        logger.debug("onNext:{}", value);
+        logger.debug("onNext Empty:{}", value);
     }
 
     @Override
     public void onError(Throwable t) {
-        logger.debug("onError", t);
+        logger.debug("onError:{}", Status.fromThrowable(t), t);
     }
 
     @Override
