@@ -20,35 +20,40 @@ import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.TraceService;
 import com.navercorp.pinpoint.common.server.util.AddressFilter;
 import com.navercorp.pinpoint.common.util.Assert;
-import com.navercorp.pinpoint.grpc.server.DefaultServerTransportFilter;
 import com.navercorp.pinpoint.grpc.server.ServerFactory;
+import io.grpc.BindableService;
 import com.navercorp.pinpoint.grpc.server.ServerOption;
 import io.grpc.Server;
+import io.grpc.ServerTransportFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executor;
 
 /**
  * @author jaehong.kim
  */
 public class SpanServer implements InitializingBean, DisposableBean, BeanNameAware {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    // Bean property
+
     private String beanName;
     private boolean enable;
 
     private String bindIp;
     private int bindPort;
-    private ExecutorService executor;
-    private AddressFilter addressFilter;
+
+    private ServerFactory serverFactory;
+    private Executor executor;
+
     private DispatchHandler dispatchHandler;
+    private AddressFilter addressFilter;
     private ServerOption serverOption;
 
     private Server server;
+
 
     @Override
     public void afterPropertiesSet() throws Exception {
@@ -57,12 +62,19 @@ public class SpanServer implements InitializingBean, DisposableBean, BeanNameAwa
         }
 
         Assert.requireNonNull(this.beanName, "beanName must not be null");
+        Assert.requireNonNull(this.bindIp, "bindIp must not be null");
         Assert.requireNonNull(this.dispatchHandler, "dispatchHandler must not be null");
         Assert.requireNonNull(this.addressFilter, "addressFilter must not be null");
 
-        final ServerFactory serverFactory = new ServerFactory(this.beanName, this.bindPort, this.executor, this.serverOption);
-        serverFactory.addService(new TraceService(this.dispatchHandler));
-        serverFactory.addTransportFilter(new DefaultServerTransportFilter());
+
+        this.serverFactory = new ServerFactory(beanName, this.bindIp, this.bindPort, this.executor);
+        ServerTransportFilter permissionServerTransportFilter = new PermissionServerTransportFilter(addressFilter);
+        this.serverFactory.addTransportFilter(permissionServerTransportFilter);
+
+        // Add service
+        BindableService traceService = new TraceService(this.dispatchHandler);
+        this.serverFactory.addService(traceService);
+
         this.server = serverFactory.build();
         if (logger.isInfoEnabled()) {
             logger.info("Start span server {}", this.server);
@@ -78,6 +90,9 @@ public class SpanServer implements InitializingBean, DisposableBean, BeanNameAwa
 
         if (this.server != null) {
             this.server.shutdown();
+        }
+        if (this.serverFactory != null) {
+            this.serverFactory.close();
         }
     }
 
@@ -113,7 +128,7 @@ public class SpanServer implements InitializingBean, DisposableBean, BeanNameAwa
         this.addressFilter = addressFilter;
     }
 
-    public void setExecutor(ExecutorService executor) {
+    public void setExecutor(Executor executor) {
         this.executor = executor;
     }
 

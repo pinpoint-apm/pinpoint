@@ -22,10 +22,12 @@ import com.navercorp.pinpoint.collector.util.ManagedAgentLifeCycle;
 import com.navercorp.pinpoint.common.server.util.AgentEventType;
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
 import com.navercorp.pinpoint.grpc.AgentHeaderFactory;
-import com.navercorp.pinpoint.grpc.server.AgentInfoContext;
+import com.navercorp.pinpoint.grpc.server.ServerContext;
+import com.navercorp.pinpoint.grpc.server.TransportMetadata;
 import com.navercorp.pinpoint.grpc.trace.KeepAliveGrpc;
 import com.navercorp.pinpoint.grpc.trace.PPing;
 import com.navercorp.pinpoint.rpc.packet.HandshakePropertyType;
+import io.grpc.Context;
 import io.grpc.Status;
 import io.grpc.stub.ServerCallStreamObserver;
 import io.grpc.stub.StreamObserver;
@@ -34,6 +36,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class KeepAliveService extends KeepAliveGrpc.KeepAliveImplBase {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -41,9 +44,9 @@ public class KeepAliveService extends KeepAliveGrpc.KeepAliveImplBase {
     private final AgentEventAsyncTaskService agentEventAsyncTask;
     private final AgentLifeCycleAsyncTaskService agentLifeCycleAsyncTask;
 
-    public KeepAliveService(AgentEventAsyncTaskService grpcAgentEventAsyncTask, AgentLifeCycleAsyncTaskService grpcAgentLifeCycleAsyncTask) {
-        this.agentEventAsyncTask = grpcAgentEventAsyncTask;
-        this.agentLifeCycleAsyncTask = grpcAgentLifeCycleAsyncTask;
+    public KeepAliveService(AgentEventAsyncTaskService agentEventAsyncTask, AgentLifeCycleAsyncTaskService agentLifeCycleAsyncTask) {
+        this.agentEventAsyncTask = Objects.requireNonNull(agentEventAsyncTask, "agentEventAsyncTask must not be null");
+        this.agentLifeCycleAsyncTask = Objects.requireNonNull(agentLifeCycleAsyncTask, "agentLifeCycleAsyncTask must not be null");
     }
 
     @Override
@@ -110,19 +113,25 @@ public class KeepAliveService extends KeepAliveGrpc.KeepAliveImplBase {
     }
 
     private void updateState(ManagedAgentLifeCycle managedAgentLifeCycle) {
-        final AgentHeaderFactory.Header header = AgentInfoContext.agentInfoKey.get();
+
+        final Context current = Context.current();
+        final AgentHeaderFactory.Header header = ServerContext.AGENT_INFO_KEY.get(current);
         if (header == null) {
             logger.warn("Not found request header");
+            return;
+        }
+        final TransportMetadata transportMetadata = ServerContext.TRANSPORT_METADATA_KEY.get(current);
+        if (transportMetadata == null) {
+            logger.warn("Not found transportMetadata");
             return;
         }
 
         // TODO Need licenseKey
         long eventTimestamp = System.currentTimeMillis();
         Map<Object, Object> properties = new HashMap<>();
-        properties.put("socketId", header.getTransportId());
+        properties.put("socketId", transportMetadata.getTransportId());
         properties.put(HandshakePropertyType.AGENT_ID.getName(), header.getAgentId());
         properties.put(HandshakePropertyType.START_TIMESTAMP.getName(), header.getAgentStartTime());
-        properties.put("licenseKey", "");
 
         AgentLifeCycleState agentLifeCycleState = managedAgentLifeCycle.getMappedState();
         AgentEventType agentEventType = managedAgentLifeCycle.getMappedEvent();

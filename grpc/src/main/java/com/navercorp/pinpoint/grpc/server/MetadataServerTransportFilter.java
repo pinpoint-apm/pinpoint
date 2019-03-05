@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,41 +16,40 @@
 
 package com.navercorp.pinpoint.grpc.server;
 
+import com.navercorp.pinpoint.common.util.Assert;
 import io.grpc.Attributes;
 import io.grpc.ServerTransportFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.atomic.AtomicInteger;
+public class MetadataServerTransportFilter extends ServerTransportFilter {
 
-import static com.navercorp.pinpoint.grpc.AgentHeaderFactory.KEY_TRANSPORT_ID;
-
-/**
- * @author jaehong.kim
- */
-public class IdGeneratorServerTransportFilter extends ServerTransportFilter {
-    private static final AtomicInteger idGenerator = new AtomicInteger(0);
+    public static final Attributes.Key<TransportMetadata> TRANSPORT_METADATA_KEY = Attributes.Key.create("transportMetadata");
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final TransportMetadataFactory transportMetadataFactory;
+
+    public MetadataServerTransportFilter(TransportMetadataFactory transportMetadataFactory) {
+        this.transportMetadataFactory = Assert.requireNonNull(transportMetadataFactory, "transportMetadataFactory must not be null");
+    }
 
     @Override
     public Attributes transportReady(Attributes attributes) {
-        // Set transport id
-        final int transportId = idGenerator.getAndIncrement();
-        final Attributes.Builder builder = attributes.toBuilder();
-        builder.set(KEY_TRANSPORT_ID, transportId);
-        final Attributes newAttributes = builder.build();
-
         if (logger.isDebugEnabled()) {
-            logger.debug("Ready attributes={}", newAttributes);
+            logger.debug("transportReady attributes={}", attributes);
         }
-        return newAttributes;
+        final TransportMetadata transportMetadata = transportMetadataFactory.build(attributes);
+
+        Attributes.Builder builder = attributes.toBuilder();
+        builder.set(TRANSPORT_METADATA_KEY, transportMetadata);
+        return builder.build();
     }
+
 
     @Override
     public void transportTerminated(Attributes transportAttrs) {
         if (logger.isDebugEnabled()) {
-            logger.debug("Terminated attributes={}", transportAttrs);
+            logger.debug("transportTerminated attributes={}", transportAttrs);
         }
     }
 }

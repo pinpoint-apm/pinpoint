@@ -26,8 +26,6 @@ public interface HeaderFactory<H> {
 
     H extract(Metadata headers);
 
-    H extract(Metadata headers, Attributes attributes);
-
     Metadata newHeader();
 
 }

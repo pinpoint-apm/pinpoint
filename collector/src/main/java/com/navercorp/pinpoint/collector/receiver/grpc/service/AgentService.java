@@ -16,10 +16,12 @@
 
 package com.navercorp.pinpoint.collector.receiver.grpc.service;
 
+import com.google.protobuf.Empty;
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.collector.receiver.grpc.GrpcServerResponse;
 import com.navercorp.pinpoint.grpc.AgentHeaderFactory;
-import com.navercorp.pinpoint.grpc.server.AgentInfoContext;
+import com.navercorp.pinpoint.grpc.server.ServerContext;
+import com.navercorp.pinpoint.grpc.server.TransportMetadata;
 import com.navercorp.pinpoint.grpc.trace.AgentGrpc;
 import com.navercorp.pinpoint.grpc.trace.PAgentInfo;
 import com.navercorp.pinpoint.grpc.trace.PApiMetaData;
@@ -35,20 +37,25 @@ import com.navercorp.pinpoint.io.request.Message;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.io.request.ServerResponse;
 import com.navercorp.pinpoint.thrift.io.DefaultTBaseLocator;
+import io.grpc.Context;
 import io.grpc.Status;
+import io.grpc.StatusException;
 import io.grpc.stub.StreamObserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.InetSocketAddress;
 import java.util.HashMap;
+import java.util.Objects;
 
 public class AgentService extends AgentGrpc.AgentImplBase {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final DispatchHandler dispatchHandler;
+    private final ServerRequestFactory serverRequestFactory = new ServerRequestFactory();
 
     public AgentService(DispatchHandler dispatchHandler) {
-        this.dispatchHandler = dispatchHandler;
+        this.dispatchHandler = Objects.requireNonNull(dispatchHandler, "dispatchHandler must not be null");
     }
 
     @Override
@@ -96,23 +103,15 @@ public class AgentService extends AgentGrpc.AgentImplBase {
     }
 
     private void request(Message<?> message, StreamObserver<PResult> responseObserver) {
-        final AgentHeaderFactory.Header header = AgentInfoContext.agentInfoKey.get();
-        if (header == null) {
-            logger.warn("Not found request header");
-            // TODO response 500 ?
-            responseObserver.onError(Status.INVALID_ARGUMENT.withDescription("Not found request header").asException());
+        ServerRequest<?> request;
+        try {
+            request = serverRequestFactory.newServerRequest(message);
+        } catch (StatusException e) {
+            logger.warn("serverRequest create fail Caused by:" + e.getMessage(), e);
+            responseObserver.onError(e);
             return;
         }
-
-        // TODO remoteAddress, remotePort
-        ServerRequest request = new DefaultServerRequest(message, header.getRemoteAddress(), header.getRemotePort());
         ServerResponse response = new GrpcServerResponse(responseObserver);
-        // TODO DispatchHandler
-        if (this.dispatchHandler != null) {
-             this.dispatchHandler.dispatchRequestMessage(request, response);
-        } else {
-            responseObserver.onNext(PResult.newBuilder().build());
-            responseObserver.onCompleted();
-        }
+        this.dispatchHandler.dispatchRequestMessage(request, response);
     }
 }
