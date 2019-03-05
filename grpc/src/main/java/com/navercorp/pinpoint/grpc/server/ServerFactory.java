@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.grpc.ExecutorUtils;
 import com.navercorp.pinpoint.grpc.HeaderFactory;
 import io.grpc.BindableService;
 import io.grpc.Server;
+import io.grpc.netty.InternalNettyServerBuilder;
 import io.grpc.netty.NettyServerBuilder;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -90,6 +91,8 @@ public class ServerFactory {
         serverBuilder.bossEventLoopGroup(bossEventLoopGroup);
         serverBuilder.workerEventLoopGroup(workerEventLoopGroup);
 
+        setupInternal(serverBuilder);
+
         for (BindableService bindableService : this.bindableServices) {
             serverBuilder.addService(bindableService);
         }
@@ -100,6 +103,12 @@ public class ServerFactory {
         serverBuilder.intercept(headerContext);
         Server server = serverBuilder.build();
         return server;
+    }
+
+    private void setupInternal(NettyServerBuilder serverBuilder) {
+        InternalNettyServerBuilder.setTracingEnabled(serverBuilder, false);
+        InternalNettyServerBuilder.setStatsRecordStartedRpcs(serverBuilder, false);
+        InternalNettyServerBuilder.setStatsEnabled(serverBuilder, false);
     }
 
     public void close() {

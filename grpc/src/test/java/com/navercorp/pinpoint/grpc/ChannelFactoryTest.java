@@ -56,7 +56,7 @@ public class ChannelFactoryTest {
 
     @BeforeClass
     public static void setUp() throws Exception {
-        executorService = Executors.newCachedThreadPool(PinpointThreadFactory.createThreadFactory("executor"));
+        executorService = Executors.newCachedThreadPool(PinpointThreadFactory.createThreadFactory("test-executor"));
         server = serverStart(executorService);
         server.start();
     }
@@ -68,7 +68,7 @@ public class ChannelFactoryTest {
             server.awaitTermination();
             serverFactory.close();
         }
-        executorService.shutdown();
+        ExecutorUtils.shutdownExecutorService("test-executor", executorService);
     }
 
     @Test
