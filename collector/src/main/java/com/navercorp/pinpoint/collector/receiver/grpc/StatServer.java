@@ -20,21 +20,22 @@ import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.StatService;
 import com.navercorp.pinpoint.common.server.util.AddressFilter;
 import com.navercorp.pinpoint.common.util.Assert;
-import com.navercorp.pinpoint.grpc.server.DefaultServerTransportFilter;
+import com.navercorp.pinpoint.grpc.server.MetadataServerTransportFilter;
 import com.navercorp.pinpoint.grpc.server.ServerFactory;
+import com.navercorp.pinpoint.grpc.server.TransportMetadataFactory;
+import io.grpc.BindableService;
 import com.navercorp.pinpoint.grpc.server.ServerOption;
 import io.grpc.Server;
+import io.grpc.ServerTransportFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 
-import java.util.concurrent.ExecutorService;
+import java.util.Objects;
+import java.util.concurrent.Executor;
 
-/**
- * @author jaehong.kim
- */
 public class StatServer implements InitializingBean, DisposableBean, BeanNameAware {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -44,9 +45,11 @@ public class StatServer implements InitializingBean, DisposableBean, BeanNameAwa
     private String bindIp;
     private int bindPort;
 
-    private ExecutorService executor;
-    private AddressFilter addressFilter;
+    private ServerFactory serverFactory;
+    private Executor executor;
+
     private DispatchHandler dispatchHandler;
+    private AddressFilter addressFilter;
     private ServerOption serverOption;
 
     private Server server;
@@ -58,12 +61,21 @@ public class StatServer implements InitializingBean, DisposableBean, BeanNameAwa
         }
 
         Assert.requireNonNull(this.beanName, "beanName must not be null");
+        Assert.requireNonNull(this.bindIp, "bindIp must not be null");
         Assert.requireNonNull(this.dispatchHandler, "dispatchHandler must not be null");
         Assert.requireNonNull(this.addressFilter, "addressFilter must not be null");
 
-        final ServerFactory serverFactory = new ServerFactory(this.beanName, this.bindPort, this.executor, this.serverOption);
-        serverFactory.addTransportFilter(new DefaultServerTransportFilter());
-        serverFactory.addService(new StatService(this.dispatchHandler));
+
+        this.serverFactory = new ServerFactory(beanName, this.bindIp, this.bindPort, this.executor);
+        ServerTransportFilter permissionServerTransportFilter = new PermissionServerTransportFilter(addressFilter);
+        this.serverFactory.addTransportFilter(permissionServerTransportFilter);
+
+        // Add options
+
+        // Add service
+        BindableService statService = new StatService(this.dispatchHandler);
+        serverFactory.addService(statService);
+
         this.server = serverFactory.build();
         if (logger.isInfoEnabled()) {
             logger.info("Start stat server {}", this.server);
@@ -79,6 +91,9 @@ public class StatServer implements InitializingBean, DisposableBean, BeanNameAwa
 
         if (this.server != null) {
             this.server.shutdown();
+        }
+        if (this.serverFactory != null) {
+            this.serverFactory.close();
         }
     }
 
@@ -114,7 +129,7 @@ public class StatServer implements InitializingBean, DisposableBean, BeanNameAwa
         this.addressFilter = addressFilter;
     }
 
-    public void setExecutor(ExecutorService executor) {
+    public void setExecutor(Executor executor) {
         this.executor = executor;
     }
 

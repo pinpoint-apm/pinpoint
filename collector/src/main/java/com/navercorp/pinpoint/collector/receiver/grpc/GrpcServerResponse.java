@@ -20,6 +20,8 @@ import com.navercorp.pinpoint.grpc.trace.PResult;
 import com.navercorp.pinpoint.io.request.ServerResponse;
 import io.grpc.stub.StreamObserver;
 
+import java.util.Objects;
+
 /**
  * @author jaehong.kim
  */
@@ -28,7 +30,7 @@ public class GrpcServerResponse implements ServerResponse<PResult> {
     private final StreamObserver<PResult> responseObserver;
 
     public GrpcServerResponse(StreamObserver<PResult> responseObserver) {
-        this.responseObserver = responseObserver;
+        this.responseObserver = Objects.requireNonNull(responseObserver, "responseObserver must not be null");
     }
 
     @Override

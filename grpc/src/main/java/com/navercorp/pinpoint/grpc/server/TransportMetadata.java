@@ -16,14 +16,12 @@
 
 package com.navercorp.pinpoint.grpc.server;
 
-import com.navercorp.pinpoint.grpc.AgentHeaderFactory;
-import io.grpc.Context;
+import java.net.InetSocketAddress;
 
-/**
- * @author Woonduk Kang(emeroad)
- */
-public class AgentInfoContext {
+public interface TransportMetadata {
 
-    public static final Context.Key<AgentHeaderFactory.Header> agentInfoKey = Context.key("agentinfo");
+    InetSocketAddress getRemoteAddress();
+
+    long getTransportId();
 
 }

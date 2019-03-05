@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.grpc.server;
+package com.navercorp.pinpoint.collector.receiver.grpc;
 
+import com.navercorp.pinpoint.common.server.util.AddressFilter;
 import com.navercorp.pinpoint.common.util.Assert;
 import io.grpc.Attributes;
 import io.grpc.Grpc;
@@ -33,10 +34,10 @@ import java.net.InetSocketAddress;
 public class PermissionServerTransportFilter extends ServerTransportFilter {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final InetAddressFilter inetAddressFilter;
+    private final AddressFilter addressFilter;
 
-    public PermissionServerTransportFilter(final InetAddressFilter inetAddressFilter) {
-        this.inetAddressFilter = Assert.requireNonNull(inetAddressFilter, "addressFilter must not be null");
+    public PermissionServerTransportFilter(final AddressFilter addressFilter) {
+        this.addressFilter = Assert.requireNonNull(addressFilter, "addressFilter must not be null");
     }
 
     @Override
@@ -49,17 +50,17 @@ public class PermissionServerTransportFilter extends ServerTransportFilter {
         if (remoteSocketAddress == null) {
             // Unauthenticated
             logger.debug("Unauthenticated transport. TRANSPORT_ATTR_REMOTE_ADDR must not be null");
-            throw Status.UNAUTHENTICATED.asRuntimeException();
+            throw Status.INTERNAL.withDescription("RemoteAddress is null").asRuntimeException();
         }
 
         final InetAddress inetAddress = remoteSocketAddress.getAddress();
-        if (!inetAddressFilter.accept(inetAddress)) {
-            // Permission denied
-            logger.debug("Permission denied transport.");
-            throw Status.PERMISSION_DENIED.asRuntimeException();
+        if (addressFilter.accept(inetAddress)) {
+            return attributes;
         }
 
-        return attributes;
+        // Permission denied
+        logger.debug("Permission denied transport.");
+        throw Status.PERMISSION_DENIED.asRuntimeException();
     }
 
     @Override

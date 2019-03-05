@@ -19,7 +19,8 @@ package com.navercorp.pinpoint.collector.receiver.grpc.service;
 import com.google.protobuf.Empty;
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.grpc.AgentHeaderFactory;
-import com.navercorp.pinpoint.grpc.server.AgentInfoContext;
+import com.navercorp.pinpoint.grpc.server.ServerContext;
+import com.navercorp.pinpoint.grpc.server.TransportMetadata;
 import com.navercorp.pinpoint.grpc.trace.PSpan;
 import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
 import com.navercorp.pinpoint.grpc.trace.TraceGrpc;
@@ -31,20 +32,25 @@ import com.navercorp.pinpoint.io.request.DefaultServerRequest;
 import com.navercorp.pinpoint.io.request.Message;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.thrift.io.DefaultTBaseLocator;
+import io.grpc.Context;
 import io.grpc.Status;
+import io.grpc.StatusException;
 import io.grpc.stub.StreamObserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.InetSocketAddress;
 import java.util.HashMap;
+import java.util.Objects;
 
 public class TraceService extends TraceGrpc.TraceImplBase {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private DispatchHandler dispatchHandler;
+    private final DispatchHandler dispatchHandler;
+    private final ServerRequestFactory serverRequestFactory = new ServerRequestFactory();
 
     public TraceService(DispatchHandler dispatchHandler) {
-        this.dispatchHandler = dispatchHandler;
+        this.dispatchHandler = Objects.requireNonNull(dispatchHandler, "dispatchHandler must not be null");
     }
 
     @Override
@@ -61,12 +67,13 @@ public class TraceService extends TraceGrpc.TraceImplBase {
 
             @Override
             public void onError(Throwable throwable) {
-                throwable.printStackTrace();
+                logger.warn("span stream-error ", throwable);
             }
 
             @Override
             public void onCompleted() {
-                responseObserver.onNext(Empty.newBuilder().build());
+                Empty empty = Empty.newBuilder().build();
+                responseObserver.onNext(empty);
                 responseObserver.onCompleted();
             }
         };
@@ -81,19 +88,20 @@ public class TraceService extends TraceGrpc.TraceImplBase {
             public void onNext(PSpanChunk pSpanChunk) {
                 logger.debug("Send SpanChunk {}", pSpanChunk);
                 final Header header = new HeaderV2(Header.SIGNATURE, HeaderV2.VERSION, DefaultTBaseLocator.SPANCHUNK);
-                final HeaderEntity headerEntity = new HeaderEntity(new HashMap<String, String>());
-                Message<PSpanChunk> message = new DefaultMessage<PSpanChunk>(header, headerEntity, pSpanChunk);
+                final HeaderEntity headerEntity = new HeaderEntity(new HashMap<>());
+                Message<PSpanChunk> message = new DefaultMessage<>(header, headerEntity, pSpanChunk);
                 send(responseObserver, message);
             }
 
             @Override
             public void onError(Throwable throwable) {
-                logger.debug("Failed to received PSpan", throwable);
+                logger.warn("spanChunk stream-error ", throwable);
             }
 
             @Override
             public void onCompleted() {
-                responseObserver.onNext(Empty.newBuilder().build());
+                Empty empty = Empty.newBuilder().build();
+                responseObserver.onNext(empty);
                 responseObserver.onCompleted();
             }
         };
@@ -101,18 +109,15 @@ public class TraceService extends TraceGrpc.TraceImplBase {
         return observer;
     }
 
-
     private void send(StreamObserver<Empty> responseObserver, final Message<?> message) {
-        final AgentHeaderFactory.Header header = AgentInfoContext.agentInfoKey.get();
-        if (header == null) {
-            logger.warn("Not found request header");
-            responseObserver.onError(Status.INVALID_ARGUMENT.withDescription("Not found request header").asException());
+        ServerRequest<?> request;
+        try {
+            request = serverRequestFactory.newServerRequest(message);
+        } catch (StatusException e) {
+            logger.warn("serverRequest create fail Caused by:" + e.getMessage(), e);
+            responseObserver.onError(e);
             return;
         }
-        // TODO remoteAddress, remotePort
-        ServerRequest request = new DefaultServerRequest(message, header.getRemoteAddress(), header.getRemotePort());
-        if (dispatchHandler != null) {
-            dispatchHandler.dispatchSendMessage(request);
-        }
+        this.dispatchHandler.dispatchSendMessage(request);
     }
 }

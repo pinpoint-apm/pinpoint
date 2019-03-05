@@ -24,8 +24,10 @@ import com.navercorp.pinpoint.grpc.ExecutorUtils;
 import com.navercorp.pinpoint.grpc.HeaderFactory;
 import io.grpc.BindableService;
 import io.grpc.Server;
+import io.grpc.ServerInterceptor;
 import io.grpc.ServerServiceDefinition;
 import io.grpc.ServerTransportFilter;
+import io.grpc.netty.InternalNettyServerBuilder;
 import io.grpc.netty.NettyServerBuilder;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
@@ -34,8 +36,10 @@ import io.netty.util.concurrent.Future;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
@@ -48,6 +52,7 @@ public class ServerFactory {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final String name;
+    private String hostname;
     private final int port;
 
     private final ExecutorService bossExecutor;
@@ -56,20 +61,21 @@ public class ServerFactory {
     private final ExecutorService workerExecutor;
     private final EventLoopGroup workerEventLoopGroup;
 
-    private final ExecutorService executor;
+    private final Executor executor;
 
-    private final List<BindableService> bindableServices = new ArrayList<BindableService>();
-    private final List<ServerServiceDefinition> serverServices = new ArrayList<ServerServiceDefinition>();
+    private final List<ServerServiceDefinition> bindableServices = new ArrayList<ServerServiceDefinition>();
     private final List<ServerTransportFilter> serverTransportFilters = new ArrayList<ServerTransportFilter>();
+    private final List<ServerInterceptor> serverInterceptors = new ArrayList<ServerInterceptor>();
 
     private ServerOption serverOption;
 
-    public ServerFactory(String name, int port, ExecutorService executor) {
-        this(name, port, executor, null);
+    public ServerFactory(String name, String hostname, int port, Executor executor) {
+        this(name, hostname, port, executor, null);
     }
 
-    public ServerFactory(String name, int port, ExecutorService executor, ServerOption serverOption) {
+    public ServerFactory(String name, String hostname, int port, Executor executor, ServerOption serverOption) {
         this.name = Assert.requireNonNull(name, "name must not be null");
+        this.hostname = Assert.requireNonNull(hostname, "hostname must not be null");
         this.port = port;
 
         this.bossExecutor = newExecutor(name + "-boss");
@@ -95,42 +101,55 @@ public class ServerFactory {
 
     public void addService(BindableService bindableService) {
         Assert.requireNonNull(bindableService, "bindableService must not be null");
-        this.bindableServices.add(bindableService);
+        this.bindableServices.add(bindableService.bindService());
     }
 
     public void addService(ServerServiceDefinition serverServiceDefinition) {
-        this.serverServices.add(serverServiceDefinition);
+        Assert.requireNonNull(serverServiceDefinition, "serverServiceDefinition must not be null");
+        this.bindableServices.add(serverServiceDefinition);
     }
 
     public void addTransportFilter(ServerTransportFilter serverTransportFilter) {
+        Assert.requireNonNull(serverTransportFilter, "serverTransportFilter must not be null");
         this.serverTransportFilters.add(serverTransportFilter);
+    }
+    public void addInterceptor(ServerInterceptor serverInterceptor) {
+        Assert.requireNonNull(serverInterceptor, "serverInterceptor must not be null");
+        this.serverInterceptors.add(serverInterceptor);
     }
 
     public Server build() {
-        NettyServerBuilder serverBuilder = NettyServerBuilder.forPort(port);
+        InetSocketAddress bindAddress = new InetSocketAddress(this.hostname, this.port);
+        NettyServerBuilder serverBuilder = NettyServerBuilder.forAddress(bindAddress);
         serverBuilder.bossEventLoopGroup(bossEventLoopGroup);
         serverBuilder.workerEventLoopGroup(workerEventLoopGroup);
 
-        for (BindableService bindableService : this.bindableServices) {
+        setupInternal(serverBuilder);
+
+        for (ServerServiceDefinition bindableService : this.bindableServices) {
             serverBuilder.addService(bindableService);
         }
-
-        for(ServerServiceDefinition serverServiceDefinition : this.serverServices) {
-            serverBuilder.addService(serverServiceDefinition);
+        for (ServerTransportFilter transportFilter : this.serverTransportFilters) {
+            serverBuilder.addTransportFilter(transportFilter);
         }
-
-        for(ServerTransportFilter serverTransportFilter : this.serverTransportFilters) {
-            serverBuilder.addTransportFilter(serverTransportFilter);
+        for (ServerInterceptor serverInterceptor : this.serverInterceptors) {
+            serverBuilder.intercept(serverInterceptor);
         }
 
         serverBuilder.executor(executor);
         setupServerOption(serverBuilder);
 
         HeaderFactory<AgentHeaderFactory.Header> headerFactory = new AgentHeaderFactory();
-        HeaderPropagationInterceptor<AgentHeaderFactory.Header> headerContext = new HeaderPropagationInterceptor<AgentHeaderFactory.Header>(headerFactory, AgentInfoContext.agentInfoKey);
+        ServerInterceptor headerContext = new HeaderPropagationInterceptor<AgentHeaderFactory.Header>(headerFactory, ServerContext.AGENT_INFO_KEY);
         serverBuilder.intercept(headerContext);
         Server server = serverBuilder.build();
         return server;
+    }
+
+    private void setupInternal(NettyServerBuilder serverBuilder) {
+        InternalNettyServerBuilder.setTracingEnabled(serverBuilder, false);
+        InternalNettyServerBuilder.setStatsRecordStartedRpcs(serverBuilder, false);
+        InternalNettyServerBuilder.setStatsEnabled(serverBuilder, false);
     }
 
     private void setupServerOption(final NettyServerBuilder builder) {
@@ -163,7 +182,6 @@ public class ServerFactory {
     }
 
     public void close() {
-        ExecutorUtils.shutdownExecutorService(name + "-executor", this.executor);
 
         final Future<?> workerShutdown = this.workerEventLoopGroup.shutdownGracefully();
         workerShutdown.awaitUninterruptibly();
@@ -172,5 +190,14 @@ public class ServerFactory {
         final Future<?> bossShutdown = this.bossEventLoopGroup.shutdownGracefully();
         bossShutdown.awaitUninterruptibly();
         ExecutorUtils.shutdownExecutorService(name + "-boss", bossExecutor);
+    }
+
+    @Override
+    public String toString() {
+        return "ServerFactory{" +
+                "name='" + name + '\'' +
+                ", hostname='" + hostname + '\'' +
+                ", port=" + port +
+                '}';
     }
 }

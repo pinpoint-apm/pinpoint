@@ -24,16 +24,16 @@ import com.navercorp.pinpoint.collector.service.async.AgentEventAsyncTaskService
 import com.navercorp.pinpoint.collector.service.async.AgentLifeCycleAsyncTaskService;
 import com.navercorp.pinpoint.common.server.util.AddressFilter;
 import com.navercorp.pinpoint.common.util.Assert;
-import com.navercorp.pinpoint.grpc.server.DefaultServerTransportFilter;
-import com.navercorp.pinpoint.grpc.server.IdGeneratorServerTransportFilter;
-import com.navercorp.pinpoint.grpc.server.InetAddressFilter;
-import com.navercorp.pinpoint.grpc.server.PermissionServerTransportFilter;
+import com.navercorp.pinpoint.grpc.server.MetadataServerTransportFilter;
 import com.navercorp.pinpoint.grpc.server.ServerFactory;
 import com.navercorp.pinpoint.grpc.server.ServerOption;
+import com.navercorp.pinpoint.grpc.server.TransportMetadataFactory;
+import com.navercorp.pinpoint.grpc.server.TransportMetadataServerInterceptor;
 import com.navercorp.pinpoint.rpc.server.handler.ServerStateChangeEventHandler;
+import io.grpc.BindableService;
 import io.grpc.Server;
-import io.grpc.ServerInterceptors;
-import io.grpc.ServerServiceDefinition;
+import io.grpc.ServerInterceptor;
+import io.grpc.ServerTransportFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.BeanNameAware;
@@ -42,7 +42,6 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.annotation.Resource;
-import java.net.InetAddress;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -56,11 +55,14 @@ public class AgentServer implements InitializingBean, DisposableBean, BeanNameAw
     private String beanName;
     private boolean enable = true;
 
+    private String bindIp;
     private int bindPort;
+
     private ExecutorService executor;
     private AddressFilter addressFilter;
-    private DispatchHandler dispatchHandler;
     private ServerOption serverOption;
+
+    private ServerFactory serverFactory;
 
     private Server server;
 
@@ -70,7 +72,9 @@ public class AgentServer implements InitializingBean, DisposableBean, BeanNameAw
     @Autowired
     private AgentLifeCycleAsyncTaskService agentLifeCycleAsyncTask;
 
-    // TODO
+    private DispatchHandler dispatchHandler;
+
+
     @Resource(name = "channelStateChangeEventHandlers")
     private List<ServerStateChangeEventHandler> channelStateChangeEventHandlers = Collections.emptyList();
     private ZookeeperClusterService clusterService;
@@ -81,20 +85,27 @@ public class AgentServer implements InitializingBean, DisposableBean, BeanNameAw
         }
 
         Assert.requireNonNull(this.beanName, "beanName must not be null");
+        Assert.requireNonNull(this.bindIp, "bindIp must not be null");
         Assert.requireNonNull(this.dispatchHandler, "dispatchHandler must not be null");
         Assert.requireNonNull(this.addressFilter, "addressFilter must not be null");
 
-        final ServerFactory serverFactory = new ServerFactory(this.beanName, this.bindPort, this.executor, this.serverOption);
-        serverFactory.addService(new AgentService(this.dispatchHandler));
-        serverFactory.addService(new KeepAliveService(this.agentEventAsyncTask, this.agentLifeCycleAsyncTask));
-        serverFactory.addTransportFilter(new DefaultServerTransportFilter());
-        serverFactory.addTransportFilter(new IdGeneratorServerTransportFilter());
-        serverFactory.addTransportFilter(new PermissionServerTransportFilter(new InetAddressFilter() {
-            @Override
-            public boolean accept(InetAddress inetAddress) {
-                return addressFilter.accept(inetAddress);
-            }
-        }));
+        this.serverFactory = new ServerFactory(beanName, this.bindIp, this.bindPort, executor);
+        ServerTransportFilter permissionServerTransportFilter = new PermissionServerTransportFilter(addressFilter);
+        this.serverFactory.addTransportFilter(permissionServerTransportFilter);
+
+        TransportMetadataFactory transportMetadataFactory = new TransportMetadataFactory();
+        final ServerTransportFilter metadataTransportFilter = new MetadataServerTransportFilter(transportMetadataFactory);
+        this.serverFactory.addTransportFilter(metadataTransportFilter);
+
+        ServerInterceptor transportMetadataServerInterceptor = new TransportMetadataServerInterceptor();
+        this.serverFactory.addInterceptor(transportMetadataServerInterceptor);
+
+        // Add service
+        BindableService agentService = new AgentService(dispatchHandler);
+        this.serverFactory.addService(agentService);
+
+        KeepAliveService keepAliveService = new KeepAliveService(agentEventAsyncTask, agentLifeCycleAsyncTask);
+        serverFactory.addService(keepAliveService);
 
         this.server = serverFactory.build();
         if (logger.isInfoEnabled()) {
@@ -111,6 +122,9 @@ public class AgentServer implements InitializingBean, DisposableBean, BeanNameAw
 
         if (this.server != null) {
             this.server.shutdown();
+        }
+        if (this.serverFactory != null) {
+            this.serverFactory.close();
         }
     }
 

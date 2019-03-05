@@ -21,7 +21,7 @@ import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
 import com.navercorp.pinpoint.grpc.trace.PSpan;
 import com.navercorp.pinpoint.grpc.trace.TraceGrpc;
 import com.navercorp.pinpoint.grpc.client.ChannelFactory;
-import com.navercorp.pinpoint.grpc.server.AgentInfoContext;
+import com.navercorp.pinpoint.grpc.server.ServerContext;
 import com.navercorp.pinpoint.grpc.server.ServerFactory;
 import io.grpc.Context;
 import io.grpc.ManagedChannel;
@@ -56,7 +56,7 @@ public class ChannelFactoryTest {
 
     @BeforeClass
     public static void setUp() throws Exception {
-        executorService = Executors.newCachedThreadPool(PinpointThreadFactory.createThreadFactory("executor"));
+        executorService = Executors.newCachedThreadPool(PinpointThreadFactory.createThreadFactory("test-executor"));
         server = serverStart(executorService);
         server.start();
     }
@@ -68,7 +68,7 @@ public class ChannelFactoryTest {
             server.awaitTermination();
             serverFactory.close();
         }
-        executorService.shutdown();
+        ExecutorUtils.shutdownExecutorService("test-executor", executorService);
     }
 
     @Test
@@ -115,7 +115,7 @@ public class ChannelFactoryTest {
     private static Server serverStart(ExecutorService executorService) throws IOException {
         logger.debug("server start");
 
-        serverFactory = new ServerFactory(ChannelFactoryTest.class.getSimpleName() + "-server", PORT, executorService);
+        serverFactory = new ServerFactory(ChannelFactoryTest.class.getSimpleName() + "-server", "127.0.0.1", PORT, executorService);
         traceService = new TraceService(1);
         serverFactory.addService(traceService);
         Server server = serverFactory.build();
@@ -136,15 +136,13 @@ public class ChannelFactoryTest {
             return new StreamObserver<PSpan>() {
                 @Override
                 public void onNext(PSpan value) {
-                    final Context context = Context.current();
-                    AgentHeaderFactory.Header header = AgentInfoContext.agentInfoKey.get(context);
+                    AgentHeaderFactory.Header header = ServerContext.AGENT_INFO_KEY.get();
                     logger.debug("server-onNext:{} header:{}" , value, header);
                     logger.debug("server-threadName:{}", Thread.currentThread().getName());
 
                     logger.debug("server-onNext: send Empty" );
                     Empty.Builder builder = Empty.newBuilder();
                     responseObserver.onNext(builder.build());
-
                 }
 
                 @Override

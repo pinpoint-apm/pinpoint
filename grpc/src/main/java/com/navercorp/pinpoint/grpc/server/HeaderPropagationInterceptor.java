@@ -43,7 +43,7 @@ public class HeaderPropagationInterceptor<H> implements ServerInterceptor {
 
     @Override
     public <ReqT, RespT> ServerCall.Listener<ReqT> interceptCall(ServerCall<ReqT, RespT> call, Metadata headers, ServerCallHandler<ReqT, RespT> next) {
-        final H headerObject = headerFactory.extract(headers, call.getAttributes());
+        final H headerObject = headerFactory.extract(headers);
 
         final Context currentContext = Context.current();
         final Context newContext = currentContext.withValue(contextKey, headerObject);
