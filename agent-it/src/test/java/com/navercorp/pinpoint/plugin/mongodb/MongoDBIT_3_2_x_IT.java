@@ -41,17 +41,11 @@ public class MongoDBIT_3_2_x_IT extends MongoDBITBase {
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
-        if (isWindows()) {
-            return;
-        }
         version = 3.2;
     }
 
     @AfterClass
     public static void tearDownAfterClass() {
-        if (isWindows()) {
-            return;
-        }
     }
 
     @Override
