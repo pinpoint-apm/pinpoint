@@ -32,10 +32,10 @@ import org.junit.runner.RunWith;
 @RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
 @Dependency({
-        "org.mongodb:mongodb-driver:[3.4.0,3.6.max]",
+        "org.mongodb:mongodb-driver:[3.2.0,3.3.max]",
         "de.flapdoodle.embed:de.flapdoodle.embed.mongo:2.1.1"
 })
-public class MongoDB_3_4_x_IT extends MongoDBBase {
+public class MongoDBIT_3_2_x_IT extends MongoDBITBase {
 
     private static com.mongodb.MongoClient mongoClient;
 
@@ -44,7 +44,7 @@ public class MongoDB_3_4_x_IT extends MongoDBBase {
         if (isWindows()) {
             return;
         }
-        version = 3.4;
+        version = 3.2;
     }
 
     @AfterClass
