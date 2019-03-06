@@ -18,8 +18,6 @@ package com.navercorp.pinpoint.plugin.mongodb;
 
 import com.mongodb.ReadPreference;
 import com.mongodb.WriteConcern;
-import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoClients;
 import com.navercorp.pinpoint.plugin.AgentPath;
 import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
@@ -34,19 +32,19 @@ import org.junit.runner.RunWith;
 @RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
 @Dependency({
-        "org.mongodb:mongodb-driver:[3.7.0,]",
+        "org.mongodb:mongodb-driver:[3.4.0,3.6.max]",
         "de.flapdoodle.embed:de.flapdoodle.embed.mongo:2.1.1"
 })
-public class MongoDB_3_7_x_IT extends MongoDBBase {
+public class MongoDBIT_3_4_x_IT extends MongoDBITBase {
 
-    private static MongoClient mongoClient;
+    private static com.mongodb.MongoClient mongoClient;
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
         if (isWindows()) {
             return;
         }
-        version = 3.7;
+        version = 3.4;
     }
 
     @AfterClass
@@ -58,13 +56,12 @@ public class MongoDB_3_7_x_IT extends MongoDBBase {
 
     @Override
     public void setClient() {
-        mongoClient = MongoClients.create("mongodb://localhost:27018");
+        mongoClient = new com.mongodb.MongoClient("localhost", 27018);
         database = mongoClient.getDatabase("myMongoDbFake").withReadPreference(ReadPreference.secondaryPreferred()).withWriteConcern(WriteConcern.MAJORITY);
     }
 
     @Override
     public void closeClient() {
-
         mongoClient.close();
     }
 }

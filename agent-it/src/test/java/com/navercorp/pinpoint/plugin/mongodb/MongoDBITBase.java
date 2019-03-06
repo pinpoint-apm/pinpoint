@@ -74,7 +74,7 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
 /**
  * @author Roy Kim
  */
-public abstract class MongoDBBase {
+public abstract class MongoDBITBase {
 
     protected static final String MONGO = "MONGO";
     protected static final String MONGO_EXECUTE_QUERY = "MONGO_EXECUTE_QUERY";
