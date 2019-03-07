@@ -147,7 +147,7 @@ export class ServerMapContainerComponent implements OnInit, OnDestroy {
     onClickBackground($event: any): void {}
     onClickNode(nodeData: any): void {
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.CLICK_NODE);
-        let payload;
+        let payload: any;
         if (NodeGroup.isGroupKey(nodeData.key)) {
             this.analyticsService.trackEvent(TRACKED_EVENT_LIST.SHOW_GROUPED_NODE_VIEW);
             payload = {
@@ -162,6 +162,11 @@ export class ServerMapContainerComponent implements OnInit, OnDestroy {
                     return nodeInfo.key;
                 })
             };
+            if (nodeData.mergedSourceNodes) {
+                payload.groupedNode = nodeData.mergedSourceNodes.map((nodeInfo: any) => {
+                    return nodeInfo.applicationName;
+                });
+            }
         } else {
             payload = {
                 period: this.period,
@@ -189,6 +194,7 @@ export class ServerMapContainerComponent implements OnInit, OnDestroy {
                 isNode: false,
                 isLink: true,
                 isMerged: true,
+                isSourceMerge: NodeGroup.isGroupKey(linkData.from),
                 isWAS: false,
                 node: [linkData.from],
                 link: linkData.targetInfo.map((linkInfo: any) => {

@@ -179,9 +179,11 @@ interface ISelectedTarget {
     isNode?: boolean;
     isLink?: boolean;
     isMerged: boolean;
+    isSourceMerge?: boolean;
     isWAS: boolean;
     node?: string[];
     link?: string[];
+    groupedNode?: string[];
     hasServerList?: boolean;
     isAuthorized?: boolean;
 }
