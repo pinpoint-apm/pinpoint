@@ -1,42 +1,41 @@
 import { Injectable } from '@angular/core';
-import { ActivatedRoute, ActivatedRouteSnapshot, Router, NavigationEnd, ParamMap } from '@angular/router';
-import { filter } from 'rxjs/operators';
+import { ParamMap, ActivatedRoute } from '@angular/router';
+
+import { AnalyticsService } from './analytics.service';
 import { NewUrlStateNotificationService } from './new-url-state-notification.service';
-import { AnalyticsService } from 'app/shared/services/analytics.service';
 
 @Injectable()
 export class RouteInfoCollectorService {
     constructor(
-        private router: Router,
-        private activatedRoute: ActivatedRoute,
         private newUrlStateNotificationService: NewUrlStateNotificationService,
         private analyticsService: AnalyticsService
-    ) {
-        this.router.events.pipe(
-            filter(event => event instanceof NavigationEnd)
-        ).subscribe((event: NavigationEnd) => {
-            const startPath = this.activatedRoute.snapshot.root.firstChild.url[0].path;
-            const innerData = {};
-            const pathIds = {};
-            const queryParams = {};
-            this.collectUrlInfo(this.activatedRoute.snapshot.children, pathIds, queryParams, innerData);
-            this.newUrlStateNotificationService.updateUrl(startPath, pathIds, queryParams, innerData, this.activatedRoute.children[0].children[0]);
-            this.analyticsService.trackPage(startPath);
-        });
-    }
-    private collectUrlInfo(activatedChildRouteSnapshot: ActivatedRouteSnapshot[], pathIds: any, queryParams: any, innerData: any): void {
-        if (activatedChildRouteSnapshot.length !== 0) {
-            for (let i = 0; i < activatedChildRouteSnapshot.length; i++) {
-                this.assign(pathIds, activatedChildRouteSnapshot[i].paramMap);
-                this.assign(queryParams, activatedChildRouteSnapshot[i].queryParamMap);
-                Object.assign(innerData, activatedChildRouteSnapshot[i].data);
-                this.collectUrlInfo(activatedChildRouteSnapshot[i].children, pathIds, queryParams, innerData);
-            }
+    ) {}
+
+    collectUrlInfo(activatedRoute: ActivatedRoute): void {
+        /**
+         * snapshot: is the constructed route itself.
+         * firstChild: starts from the path definition, e.g. the very root path with the resolve at the moment.
+         */
+        const startPath = activatedRoute.snapshot.firstChild.firstChild.url[0].path;
+        const pathIdMap = new Map<string, string>();
+        const queryParamMap = new Map<string, string>();
+        let innerData = {};
+        let routeChild = activatedRoute.snapshot.firstChild;
+
+        while (routeChild) {
+            this.setData(pathIdMap, routeChild.paramMap);
+            this.setData(queryParamMap, routeChild.queryParamMap);
+            innerData = { ...innerData, ...routeChild.data };
+            routeChild = routeChild.firstChild;
         }
+
+        this.newUrlStateNotificationService.updateUrl(startPath, pathIdMap, queryParamMap, innerData, activatedRoute.firstChild);
+        this.analyticsService.trackPage(startPath);
     }
-    private assign(data: any, mapData: ParamMap): void {
-        mapData.keys.forEach((key: string) => {
-            data[key] = mapData.get(key);
+
+    private setData(dataMap: Map<string, string>, routeData: ParamMap): void {
+        routeData.keys.forEach((key: string) => {
+            dataMap.set(key, routeData.get(key));
         });
     }
 }
