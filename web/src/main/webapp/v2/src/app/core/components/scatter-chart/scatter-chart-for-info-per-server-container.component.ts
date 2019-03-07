@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, ChangeDetectorRef, OnInit, AfterViewInit, OnDestroy } from '@angular/core';
+import { Component, ChangeDetectionStrategy, ChangeDetectorRef, OnInit, AfterViewInit, OnDestroy, ComponentFactoryResolver, Injector } from '@angular/core';
 import { combineLatest, Subject } from 'rxjs';
 import { takeUntil, filter } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
@@ -67,7 +67,9 @@ export class ScatterChartForInfoPerServerContainerComponent implements OnInit, A
         private scatterChartDataService: ScatterChartDataService,
         private scatterChartInteractionService: ScatterChartInteractionService,
         private analyticsService: AnalyticsService,
-        private dynamicPopupService: DynamicPopupService
+        private dynamicPopupService: DynamicPopupService,
+        private componentFactoryResolver: ComponentFactoryResolver,
+        private injector: Injector
     ) {}
     ngOnInit() {
         this.setScatterY();
@@ -196,6 +198,9 @@ export class ScatterChartForInfoPerServerContainerComponent implements OnInit, A
                 coordY: top + height / 2
             },
             component: HelpViewerPopupContainerComponent
+        }, {
+            resolver: this.componentFactoryResolver,
+            injector: this.injector
         });
     }
     onChangedSelectType(params: {instanceKey: string, name: string, checked: boolean}): void {

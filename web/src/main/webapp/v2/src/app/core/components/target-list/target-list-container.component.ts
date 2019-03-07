@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, AfterViewInit, AfterViewChecked, ElementRef, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, AfterViewInit, AfterViewChecked, ElementRef, ChangeDetectionStrategy, ChangeDetectorRef, ComponentFactoryResolver, Injector } from '@angular/core';
 import { Subject } from 'rxjs';
 import { takeUntil, debounceTime, distinctUntilChanged, filter } from 'rxjs/operators';
 
@@ -40,7 +40,9 @@ export class TargetListContainerComponent implements OnInit, OnDestroy, AfterVie
         private storeHelperService: StoreHelperService,
         private newUrlStateNotificationService: NewUrlStateNotificationService,
         private dynamicPopupService: DynamicPopupService,
-        private analyticsService: AnalyticsService
+        private analyticsService: AnalyticsService,
+        private componentFactoryResolver: ComponentFactoryResolver,
+        private injector: Injector
     ) {}
     ngOnInit() {
         this.connectStore();
@@ -144,6 +146,9 @@ export class TargetListContainerComponent implements OnInit, OnDestroy, AfterVie
         this.dynamicPopupService.openPopup({
             data: this.serverMapData.getLinkData(target[1]),
             component: FilterTransactionWizardPopupContainerComponent
+        }, {
+            resolver: this.componentFactoryResolver,
+            injector: this.injector
         });
     }
     onKeyUp($event: any): void {

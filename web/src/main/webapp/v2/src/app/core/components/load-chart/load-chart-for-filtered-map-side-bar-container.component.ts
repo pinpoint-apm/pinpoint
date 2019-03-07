@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef, ComponentFactoryResolver, Injector } from '@angular/core';
 import { Subject } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
@@ -39,7 +39,9 @@ export class LoadChartForFilteredMapSideBarContainerComponent implements OnInit,
         private webAppSettingDataService: WebAppSettingDataService,
         private agentHistogramDataService: AgentHistogramDataService,
         private analyticsService: AnalyticsService,
-        private dynamicPopupService: DynamicPopupService
+        private dynamicPopupService: DynamicPopupService,
+        private componentFactoryResolver: ComponentFactoryResolver,
+        private injector: Injector
     ) {}
     ngOnInit() {
         this.chartColors = this.webAppSettingDataService.getColorByRequest();
@@ -153,6 +155,9 @@ export class LoadChartForFilteredMapSideBarContainerComponent implements OnInit,
                 coordY: top + height / 2
             },
             component: HelpViewerPopupContainerComponent
+        }, {
+            resolver: this.componentFactoryResolver,
+            injector: this.injector
         });
     }
 }

@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef, ViewChild } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef, ViewChild, ComponentFactoryResolver, Injector } from '@angular/core';
 import { Subject, Observable } from 'rxjs';
 import { takeUntil, map, switchMap, tap, withLatestFrom } from 'rxjs/operators';
 
@@ -38,8 +38,10 @@ export class AgentInspectorTimelineContainerComponent implements OnInit, OnDestr
         private urlRouteManagerService: UrlRouteManagerService,
         private agentTimelineDataService: AgentTimelineDataService,
         private messageQueueService: MessageQueueService,
-    private dynamicPopupService: DynamicPopupService,
+        private dynamicPopupService: DynamicPopupService,
         private analyticsService: AnalyticsService,
+        private componentFactoryResolver: ComponentFactoryResolver,
+        private injector: Injector
     ) {}
 
     ngOnInit() {
@@ -117,6 +119,9 @@ export class AgentInspectorTimelineContainerComponent implements OnInit, OnDestr
                 onCloseCallback: () => {
                     this.urlRouteManagerService.reload();
                 }
+            }, {
+                resolver: this.componentFactoryResolver,
+                injector: this.injector
             });
         });
     }

@@ -1,4 +1,4 @@
-import { ChangeDetectorRef } from '@angular/core';
+import { ChangeDetectorRef, ComponentFactoryResolver, Injector } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import * as moment from 'moment-timezone';
 import { Subject, Observable, combineLatest, merge } from 'rxjs';
@@ -32,7 +32,9 @@ export abstract class InspectorChartContainer {
         protected chartDataService: IChartDataService,
         protected translateService: TranslateService,
         protected analyticsService: AnalyticsService,
-        protected dynamicPopupService: DynamicPopupService
+        protected dynamicPopupService: DynamicPopupService,
+        private componentFactoryResolver: ComponentFactoryResolver,
+        private injector: Injector
     ) {}
 
     protected initI18nText(): void {
@@ -167,6 +169,9 @@ export abstract class InspectorChartContainer {
                 coordY: top + height / 2
             },
             component: HelpViewerPopupContainerComponent
+        }, {
+            resolver: this.componentFactoryResolver,
+            injector: this.injector
         });
     }
 }

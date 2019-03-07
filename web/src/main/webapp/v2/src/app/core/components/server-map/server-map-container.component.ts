@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, Inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, Inject, ComponentFactoryResolver, Injector } from '@angular/core';
 import { Router, NavigationStart, RouterEvent } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil, filter, map, switchMap } from 'rxjs/operators';
@@ -50,6 +50,8 @@ export class ServerMapContainerComponent implements OnInit, OnDestroy {
         private webAppSettingDataService: WebAppSettingDataService,
         private dynamicPopupService: DynamicPopupService,
         private analyticsService: AnalyticsService,
+        private componentFactoryResolver: ComponentFactoryResolver,
+        private injector: Injector,
         @Inject(SERVER_MAP_TYPE) public type: ServerMapType
     ) {}
     ngOnInit() {
@@ -104,6 +106,9 @@ export class ServerMapContainerComponent implements OnInit, OnDestroy {
                         needServerTimeRequest: false
                     });
                 }
+            }, {
+                resolver: this.componentFactoryResolver,
+                injector: this.injector
             });
         });
         this.storeHelperService.getServerMapDisableState(this.unsubscribe).subscribe((disabled: boolean) => {
@@ -224,6 +229,9 @@ export class ServerMapContainerComponent implements OnInit, OnDestroy {
             data: this.mapData,
             coord,
             component: ServerMapContextPopupContainerComponent
+        }, {
+            resolver: this.componentFactoryResolver,
+            injector: this.injector
         });
     }
     onContextClickNode($event: any): void {}
@@ -232,6 +240,9 @@ export class ServerMapContainerComponent implements OnInit, OnDestroy {
             data: this.mapData.getLinkData(key),
             coord,
             component: LinkContextPopupContainerComponent
+        }, {
+            resolver: this.componentFactoryResolver,
+            injector: this.injector
         });
     }
 }

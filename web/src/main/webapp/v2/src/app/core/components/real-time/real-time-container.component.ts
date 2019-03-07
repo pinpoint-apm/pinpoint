@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, AfterViewInit } from '@angular/core';
+import { Component, OnInit, OnDestroy, AfterViewInit, ComponentFactoryResolver, Injector } from '@angular/core';
 import { Subject, Observable, fromEvent } from 'rxjs';
 import { takeUntil, filter, delay } from 'rxjs/operators';
 
@@ -57,7 +57,9 @@ export class RealTimeContainerComponent implements OnInit, AfterViewInit, OnDest
         private webAppSettingDataService: WebAppSettingDataService,
         private realTimeWebSocketService: RealTimeWebSocketService,
         private analyticsService: AnalyticsService,
-        private dynamicPopupService: DynamicPopupService
+        private dynamicPopupService: DynamicPopupService,
+        private componentFactoryResolver: ComponentFactoryResolver,
+        private injector: Injector
     ) {}
     ngOnInit() {
         this.lastHeight = this.webAppSettingDataService.getLayerHeight() || this.minHeight;
@@ -245,6 +247,9 @@ export class RealTimeContainerComponent implements OnInit, AfterViewInit, OnDest
                 coordY: top + height / 2
             },
             component: HelpViewerPopupContainerComponent
+        }, {
+            resolver: this.componentFactoryResolver,
+            injector: this.injector
         });
     }
     onRenderCompleted(): void {

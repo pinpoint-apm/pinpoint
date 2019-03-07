@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef, ComponentFactoryResolver, Injector } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import * as moment from 'moment-timezone';
 
@@ -26,7 +26,9 @@ export class ApplicationDataSourceChartContainerComponent extends InspectorChart
         chartDataService: ApplicationDataSourceChartDataService,
         translateService: TranslateService,
         analyticsService: AnalyticsService,
-        dynamicPopupService: DynamicPopupService
+        dynamicPopupService: DynamicPopupService,
+        componentFactoryResolver: ComponentFactoryResolver,
+        injector: Injector
     ) {
         super(
             10,
@@ -37,7 +39,9 @@ export class ApplicationDataSourceChartContainerComponent extends InspectorChart
             chartDataService,
             translateService,
             analyticsService,
-            dynamicPopupService
+            dynamicPopupService,
+            componentFactoryResolver,
+            injector
         );
     }
 

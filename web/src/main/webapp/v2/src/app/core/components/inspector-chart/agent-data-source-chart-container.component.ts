@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ViewChild, ChangeDetectionStrategy, ChangeDetectorRef  } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ChangeDetectionStrategy, ChangeDetectorRef, ComponentFactoryResolver, Injector  } from '@angular/core';
 import { InspectorChartComponent } from './inspector-chart.component';
 import { TranslateService } from '@ngx-translate/core';
 import { filter, skip, tap } from 'rxjs/operators';
@@ -38,7 +38,9 @@ export class AgentDataSourceChartContainerComponent extends InspectorChartContai
         chartDataService: AgentDataSourceChartDataService,
         translateService: TranslateService,
         analyticsService: AnalyticsService,
-        dynamicPopupService: DynamicPopupService
+        dynamicPopupService: DynamicPopupService,
+        componentFactoryResolver: ComponentFactoryResolver,
+        injector: Injector
     ) {
         super(
             10,
@@ -49,7 +51,9 @@ export class AgentDataSourceChartContainerComponent extends InspectorChartContai
             chartDataService,
             translateService,
             analyticsService,
-            dynamicPopupService
+            dynamicPopupService,
+            componentFactoryResolver,
+            injector
         );
     }
 

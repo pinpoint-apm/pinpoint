@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ComponentFactoryResolver, Injector } from '@angular/core';
 import { state, style, animate, transition, trigger } from '@angular/animations';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -37,8 +37,11 @@ export class InspectorPageComponent implements OnInit {
     constructor(
         private newUrlStateNotificationService: NewUrlStateNotificationService,
         private analyticsService: AnalyticsService,
-        private dynamicPopupService: DynamicPopupService
+        private dynamicPopupService: DynamicPopupService,
+        private componentFactoryResolver: ComponentFactoryResolver,
+        private injector: Injector
     ) {}
+
     ngOnInit() {
         this.endTime$ = this.newUrlStateNotificationService.onUrlStateChange$.pipe(
             map((urlService: NewUrlStateNotificationService) => {
@@ -46,6 +49,7 @@ export class InspectorPageComponent implements OnInit {
             })
         );
     }
+
     onShowHelp($event: MouseEvent): void {
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.TOGGLE_HELP_VIEWER, HELP_VIEWER_LIST.NAVBAR);
         const {left, top, width, height} = ($event.target as HTMLElement).getBoundingClientRect();
@@ -57,6 +61,9 @@ export class InspectorPageComponent implements OnInit {
                 coordY: top + height / 2
             },
             component: HelpViewerPopupContainerComponent
+        }, {
+            resolver: this.componentFactoryResolver,
+            injector: this.injector
         });
     }
 }

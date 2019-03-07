@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ComponentFactoryResolver, Injector } from '@angular/core';
 import { Subject, Observable, of } from 'rxjs';
 import { take, takeUntil, switchMap } from 'rxjs/operators';
 
@@ -29,7 +29,9 @@ export class TransactionViewPageComponent implements OnInit, OnDestroy {
         private urlRouteManagerService: UrlRouteManagerService,
         private transactionDetailDataService: TransactionDetailDataService,
         private gutterEventService: GutterEventService,
-        private dynamicPopupService: DynamicPopupService
+        private dynamicPopupService: DynamicPopupService,
+        private componentFactoryResolver: ComponentFactoryResolver,
+        private injector: Injector
     ) { }
 
     ngOnInit() {
@@ -71,6 +73,9 @@ export class TransactionViewPageComponent implements OnInit, OnDestroy {
                 onCloseCallback: () => {
                     this.urlRouteManagerService.reload();
                 }
+            }, {
+                resolver: this.componentFactoryResolver,
+                injector: this.injector
             });
         });
     }

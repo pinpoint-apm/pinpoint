@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, Inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, Inject, ComponentFactoryResolver, Injector } from '@angular/core';
 import { Router, NavigationStart } from '@angular/router';
 import { Subject, combineLatest } from 'rxjs';
 import { takeUntil, filter } from 'rxjs/operators';
@@ -53,6 +53,8 @@ export class ServerMapForFilteredMapContainerComponent implements OnInit, OnDest
         private webAppSettingDataService: WebAppSettingDataService,
         private dynamicPopupService: DynamicPopupService,
         private analyticsService: AnalyticsService,
+        private componentFactoryResolver: ComponentFactoryResolver,
+        private injector: Injector,
         @Inject(SERVER_MAP_TYPE) public type: ServerMapType
     ) {}
     ngOnInit() {
@@ -208,6 +210,9 @@ export class ServerMapForFilteredMapContainerComponent implements OnInit, OnDest
             data: this.mapData,
             coord,
             component: ServerMapContextPopupContainerComponent
+        }, {
+            resolver: this.componentFactoryResolver,
+            injector: this.injector
         });
     }
     onContextClickNode($event: any): void {}
@@ -216,6 +221,9 @@ export class ServerMapForFilteredMapContainerComponent implements OnInit, OnDest
             data: this.mapData.getLinkData(key),
             coord,
             component: LinkContextPopupContainerComponent
+        }, {
+            resolver: this.componentFactoryResolver,
+            injector: this.injector
         });
     }
     mergeServerMapData(serverMapAndScatterData: any): void {
