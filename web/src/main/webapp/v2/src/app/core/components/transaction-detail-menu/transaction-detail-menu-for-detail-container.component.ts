@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ComponentFactoryResolver, Injector } from '@angular/core';
 
 import {
     NewUrlStateNotificationService,
@@ -29,7 +29,9 @@ export class TransactionDetailMenuForDetailContainerComponent implements OnInit 
         private transactionViewTypeService: TransactionViewTypeService,
         private transactionDetailDataService: TransactionDetailDataService,
         private analyticsService: AnalyticsService,
-        private dynamicPopupService: DynamicPopupService
+        private dynamicPopupService: DynamicPopupService,
+        private componentFactoryResolver: ComponentFactoryResolver,
+        private injector: Injector
     ) {}
     ngOnInit() {
         this.viewTypeList = this.transactionViewTypeService.getViewTypeList();
@@ -73,6 +75,9 @@ export class TransactionDetailMenuForDetailContainerComponent implements OnInit 
                     contents: this.partInfo.disableButtonMessage
                 },
                 component: MessagePopupContainerComponent
+            }, {
+                resolver: this.componentFactoryResolver,
+                injector: this.injector
             });
         }
     }

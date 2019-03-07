@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, ChangeDetectorRef, OnInit, OnDestroy, ViewChild, ElementRef, Renderer2 } from '@angular/core';
+import { Component, ChangeDetectionStrategy, ChangeDetectorRef, OnInit, OnDestroy, ViewChild, ElementRef, Renderer2, ComponentFactoryResolver, Injector } from '@angular/core';
 import { Observable, Subject, of, combineLatest, Subscription } from 'rxjs';
 import { takeUntil, delay } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
@@ -69,7 +69,9 @@ export class ScatterChartForFullScreenModeContainerComponent implements OnInit, 
         private scatterChartDataService: ScatterChartDataService,
         private scatterChartInteractionService: ScatterChartInteractionService,
         private analyticsService: AnalyticsService,
-        private dynamicPopupService: DynamicPopupService
+        private dynamicPopupService: DynamicPopupService,
+        private componentFactoryResolver: ComponentFactoryResolver,
+        private injector: Injector
     ) {}
     ngOnInit() {
         this.setScatterY();
@@ -213,6 +215,9 @@ export class ScatterChartForFullScreenModeContainerComponent implements OnInit, 
                 coordY: top + height / 2
             },
             component: HelpViewerPopupContainerComponent
+        }, {
+            resolver: this.componentFactoryResolver,
+            injector: this.injector
         });
     }
     onChangedSelectType(params: {instanceKey: string, name: string, checked: boolean}): void {

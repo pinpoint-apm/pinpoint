@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef, ComponentFactoryResolver, Injector } from '@angular/core';
 import { Observable, Subject } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 
@@ -24,7 +24,9 @@ export class AgentEventViewContainerComponent implements OnInit, OnDestroy {
         private storeHelperService: StoreHelperService,
         private messageQueueService: MessageQueueService,
         private agentEventsDataService: AgentEventsDataService,
-        private dynamicPopupService: DynamicPopupService
+        private dynamicPopupService: DynamicPopupService,
+        private componentFactoryResolver: ComponentFactoryResolver,
+        private injector: Injector
     ) {}
     ngOnInit() {
         this.connectStore();
@@ -48,6 +50,9 @@ export class AgentEventViewContainerComponent implements OnInit, OnDestroy {
                     contents: error
                 },
                 component: ServerErrorPopupContainerComponent
+            }, {
+                resolver: this.componentFactoryResolver,
+                injector: this.injector
             });
         });
     }

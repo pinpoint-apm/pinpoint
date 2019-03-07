@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, ComponentFactoryResolver, Injector } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Subject, Observable } from 'rxjs';
 import { filter } from 'rxjs/operators';
@@ -37,7 +37,9 @@ export class TransactionMetaDataService {
         private translateService: TranslateService,
         private newUrlStateNotificationService: NewUrlStateNotificationService,
         private urlRouteManagerService: UrlRouteManagerService,
-        private dynamicPopupService: DynamicPopupService
+        private dynamicPopupService: DynamicPopupService,
+        private componentFactoryResolver: ComponentFactoryResolver,
+        private injector: Injector
     ) {
         this.onTransactionDataLoad$ = this.outTransactionDataLoad.asObservable();
         this.onTransactionDataRange$ = this.outTransactionDataRange.asObservable();
@@ -73,6 +75,9 @@ export class TransactionMetaDataService {
                         ]
                     });
                 }
+            }, {
+                resolver: this.componentFactoryResolver,
+                injector: this.injector
             });
         } else {
             this.http.post<{ metadata: ITransactionMetaData[] }>(this.requestURL, this.makeRequestOptionsArgs(), {
@@ -111,6 +116,9 @@ export class TransactionMetaDataService {
                     onCloseCallback: () => {
                         this.urlRouteManagerService.reload();
                     }
+                }, {
+                    resolver: this.componentFactoryResolver,
+                    injector: this.injector
                 });
             });
         }

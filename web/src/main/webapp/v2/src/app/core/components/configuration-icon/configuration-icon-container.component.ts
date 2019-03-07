@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, Injector, ComponentFactoryResolver } from '@angular/core';
 
 import { AnalyticsService, TRACKED_EVENT_LIST, DynamicPopupService } from 'app/shared/services';
 import { ConfigurationPopupContainerComponent } from 'app/core/components/configuration-popup/configuration-popup-container.component';
@@ -13,6 +13,8 @@ export class ConfigurationIconContainerComponent implements OnInit {
     constructor(
         private dynamicPopupService: DynamicPopupService,
         private analyticsService: AnalyticsService,
+        private componentFactoryResolver: ComponentFactoryResolver,
+        private injector: Injector
     ) {}
 
     ngOnInit() {}
@@ -21,6 +23,9 @@ export class ConfigurationIconContainerComponent implements OnInit {
         this.dynamicPopupService.openPopup({
             coord,
             component: ConfigurationPopupContainerComponent
+        }, {
+            resolver: this.componentFactoryResolver,
+            injector: this.injector
         });
     }
 }

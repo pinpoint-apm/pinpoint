@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, ComponentFactoryResolver, Injector } from '@angular/core';
 import { combineLatest } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
 
@@ -23,7 +23,9 @@ export class AgentSearchInputContainerComponent implements OnInit {
         private translateService: TranslateService,
         private translateReplaceService: TranslateReplaceService,
         private analyticsService: AnalyticsService,
-        private dynamicPopupService: DynamicPopupService
+        private dynamicPopupService: DynamicPopupService,
+        private componentFactoryResolver: ComponentFactoryResolver,
+        private injector: Injector
     ) {}
     ngOnInit() {
         this.getI18NText();
@@ -51,6 +53,9 @@ export class AgentSearchInputContainerComponent implements OnInit {
                 coordY: top + height / 2
             },
             component: HelpViewerPopupContainerComponent
+        }, {
+            resolver: this.componentFactoryResolver,
+            injector: this.injector
         });
     }
 }

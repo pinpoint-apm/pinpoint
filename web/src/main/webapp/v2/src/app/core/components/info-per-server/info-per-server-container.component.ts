@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef, ComponentFactoryResolver, Injector } from '@angular/core';
 import { trigger, state, style, animate, transition } from '@angular/animations';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -63,6 +63,8 @@ export class InfoPerServerContainerComponent implements OnInit, OnDestroy {
         private agentHistogramDataService: AgentHistogramDataService,
         private dynamicPopupService: DynamicPopupService,
         private analyticsService: AnalyticsService,
+        private componentFactoryResolver: ComponentFactoryResolver,
+        private injector: Injector
     ) {}
     ngOnInit() {
         this.connectStore();
@@ -103,6 +105,9 @@ export class InfoPerServerContainerComponent implements OnInit, OnDestroy {
                                 contents: error
                             },
                             component: ServerErrorPopupContainerComponent
+                        }, {
+                            resolver: this.componentFactoryResolver,
+                            injector: this.injector
                         });
                         this.storeHelperService.dispatch(new Actions.ChangeServerMapDisableState(false));
                         this.storeHelperService.dispatch(new Actions.ChangeInfoPerServerVisibleState(false));

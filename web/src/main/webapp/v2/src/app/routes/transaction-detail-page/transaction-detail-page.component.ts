@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ComponentFactoryResolver, Injector } from '@angular/core';
 import { Subject } from 'rxjs';
 import { takeUntil, filter } from 'rxjs/operators';
 
@@ -26,8 +26,11 @@ export class TransactionDetailPageComponent implements OnInit, OnDestroy {
         private newUrlStateNotificationService: NewUrlStateNotificationService,
         private urlRouteManagerService: UrlRouteManagerService,
         private transactionDetailDataService: TransactionDetailDataService,
-        private dynamicPopupService: DynamicPopupService
+        private dynamicPopupService: DynamicPopupService,
+        private componentFactoryResolver: ComponentFactoryResolver,
+        private injector: Injector
     ) {}
+
     ngOnInit() {
         this.newUrlStateNotificationService.onUrlStateChange$.pipe(
             takeUntil(this.unsubscribe),
@@ -52,10 +55,14 @@ export class TransactionDetailPageComponent implements OnInit, OnDestroy {
                     onCloseCallback: () => {
                         this.urlRouteManagerService.reload();
                     }
+                }, {
+                    resolver: this.componentFactoryResolver,
+                    injector: this.injector
                 });
             });
         });
     }
+
     ngOnDestroy() {
         this.unsubscribe.next();
         this.unsubscribe.complete();

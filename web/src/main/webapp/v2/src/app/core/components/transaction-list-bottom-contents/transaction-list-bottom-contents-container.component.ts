@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ComponentFactoryResolver, Injector } from '@angular/core';
 import { Subject } from 'rxjs';
 import { filter } from 'rxjs/operators';
 
@@ -31,7 +31,9 @@ export class TransactionListBottomContentsContainerComponent implements OnInit, 
         private transactionDetailDataService: TransactionDetailDataService,
         private transactionViewTypeService: TransactionViewTypeService,
         private analyticsService: AnalyticsService,
-        private dynamicPopupService: DynamicPopupService
+        private dynamicPopupService: DynamicPopupService,
+        private componentFactoryResolver: ComponentFactoryResolver,
+        private injector: Injector
     ) {}
     ngOnInit() {
         this.transactionViewTypeService.onChangeViewType$.subscribe((viewType: string) => {
@@ -71,6 +73,9 @@ export class TransactionListBottomContentsContainerComponent implements OnInit, 
                         contents: error
                     },
                     component: ServerErrorPopupContainerComponent
+                }, {
+                    resolver: this.componentFactoryResolver,
+                    injector: this.injector
                 });
             });
         });
@@ -106,6 +111,9 @@ export class TransactionListBottomContentsContainerComponent implements OnInit, 
                 coordY: top + height / 2
             },
             component: HelpViewerPopupContainerComponent
+        }, {
+            resolver: this.componentFactoryResolver,
+            injector: this.injector
         });
     }
 }
