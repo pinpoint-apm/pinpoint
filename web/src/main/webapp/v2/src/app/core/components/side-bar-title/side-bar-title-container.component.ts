@@ -60,12 +60,12 @@ export class SideBarTitleContainerComponent implements OnInit, OnDestroy {
         });
     }
     makeFromToData() {
-        if ( this.selectedTarget.isNode ) {
+        if (this.selectedTarget.isNode) {
             this.isWAS = this.selectedTarget.isWAS;
             this.isNode = true;
             const node = this.serverMapData.getNodeData(this.selectedTarget.node[0]);
             this.toAppData = this.formatToAppData({ node: node });
-        } else if ( this.selectedTarget.isLink ) {
+        } else if (this.selectedTarget.isLink) {
             this.isWAS = false;
             this.isNode = false;
             const link = this.serverMapData.getLinkData(this.selectedTarget.link[0]);
@@ -77,10 +77,17 @@ export class SideBarTitleContainerComponent implements OnInit, OnDestroy {
         return type.toUpperCase() === 'USER';
     }
     private formatFromAppData(link: any): IAppData {
-        return {
-            applicationName: this.isUserType(link.sourceInfo.serviceType) ? link.sourceInfo.serviceType : link.sourceInfo.applicationName,
-            serviceType: link.sourceInfo.serviceType
-        };
+        if (this.selectedTarget.isSourceMerge) {
+            return {
+                applicationName: `[ ${this.selectedTarget.link.length} ] ${link.sourceInfo.serviceType} GROUP`,
+                serviceType: link.sourceInfo.serviceType
+            };
+        } else {
+            return {
+                applicationName: this.isUserType(link.sourceInfo.serviceType) ? link.sourceInfo.serviceType : link.sourceInfo.applicationName,
+                serviceType: link.sourceInfo.serviceType
+            };
+        }
     }
     private formatToAppData({ node, link }: { node?: any, link?: any }): IAppData {
         if (this.isNode) {
@@ -99,11 +106,20 @@ export class SideBarTitleContainerComponent implements OnInit, OnDestroy {
             }
         } else {
             if (this.selectedTarget.isMerged) {
-                return {
-                    applicationName: `[ ${this.selectedTarget.link.length} ] ${link.targetInfo.serviceType} GROUP`,
-                    serviceType: link.targetInfo.serviceType,
-                    agentList: []
-                };
+                if (this.selectedTarget.isSourceMerge) {
+                    return {
+                        applicationName: link.targetInfo.applicationName,
+                        serviceType: link.targetInfo.serviceType,
+                        agentList: []
+                    };
+
+                } else {
+                    return {
+                        applicationName: `[ ${this.selectedTarget.link.length} ] ${link.targetInfo.serviceType} GROUP`,
+                        serviceType: link.targetInfo.serviceType,
+                        agentList: []
+                    };
+                }
             } else {
                 return {
                     applicationName: link.targetInfo.applicationName,

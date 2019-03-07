@@ -26,7 +26,7 @@ export class TargetListContainerComponent implements OnInit, OnDestroy, AfterVie
     minLength = 2;
     isLink = false;
     filterQuery = '';
-    selectedTarget: ISelectedTarget;
+    selectedTarget: any;
     serverMapData: ServerMapData;
     notFilteredTargetList: any[];
     targetList: any[];
@@ -91,15 +91,22 @@ export class TargetListContainerComponent implements OnInit, OnDestroy, AfterVie
     }
     gatherTargets(): void {
         if ( this.selectedTarget.isMerged ) {
-            const targetList: any = [];
-            if ( this.selectedTarget.isNode ) {
-                this.selectedTarget.node.forEach(nodeKey => {
+            const targetList: any[] = [];
+            if (this.selectedTarget.isNode) {
+                this.selectedTarget.node.forEach((nodeKey: string) => {
                     targetList.push([this.serverMapData.getNodeData(nodeKey), '']);
                 });
+                if (this.selectedTarget.groupedNode) {
+                    targetList.forEach((targetData: any[]) => {
+                        targetData[0].subTargetList = this.selectedTarget.groupedNode.map((key: string) => {
+                            return this.serverMapData.getLinkData(key + '~' + targetData[0].key);
+                        });
+                    });
+                }
             } else if ( this.selectedTarget.isLink ) {
                 // Link 인 경우 필터 관련 버튼을 추가해야 함.
-                this.selectedTarget.link.forEach(linkKey => {
-                    targetList.push([this.serverMapData.getNodeData(this.serverMapData.getLinkData(linkKey).to), linkKey]);
+                this.selectedTarget.link.forEach((linkKey: string) => {
+                    targetList.push([this.serverMapData.getLinkData(linkKey), linkKey]);
                 });
             }
             this.notFilteredTargetList = this.targetList = targetList;

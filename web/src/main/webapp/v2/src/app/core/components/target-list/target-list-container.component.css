@@ -53,7 +53,7 @@
     flex-direction: row;
     justify-content: space-between;
     height: 100%;
-    padding: 0px 28px 0px 8px;
+    padding: 0px 8px 0px 8px;
 }
 button {
     cursor: pointer;
