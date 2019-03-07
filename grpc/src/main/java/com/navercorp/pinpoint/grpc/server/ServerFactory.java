@@ -24,7 +24,9 @@ import com.navercorp.pinpoint.grpc.ExecutorUtils;
 import com.navercorp.pinpoint.grpc.HeaderFactory;
 import io.grpc.BindableService;
 import io.grpc.Server;
+import io.grpc.ServerTransportFilter;
 import io.grpc.netty.NettyServerBuilder;
+import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.util.concurrent.Future;
@@ -36,6 +38,7 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -55,8 +58,15 @@ public class ServerFactory {
     private final ExecutorService executor;
 
     private final List<BindableService> bindableServices = new ArrayList<BindableService>();
+    private final List<ServerTransportFilter> serverTransportFilters = new ArrayList<ServerTransportFilter>();
+
+    private ServerOption serverOption;
 
     public ServerFactory(String name, int port, ExecutorService executor) {
+        this(name, port, executor, null);
+    }
+
+    public ServerFactory(String name, int port, ExecutorService executor, ServerOption serverOption) {
         this.name = Assert.requireNonNull(name, "name must not be null");
         this.port = port;
 
@@ -67,6 +77,7 @@ public class ServerFactory {
         this.workerEventLoopGroup = newEventLoopGroup(CpuUtils.workerCount(), bossExecutor);
 
         this.executor = Assert.requireNonNull(executor, "executor must not be null");
+        this.serverOption = serverOption;
     }
 
     private NioEventLoopGroup newEventLoopGroup(int i, ExecutorService executorService) {
@@ -85,6 +96,10 @@ public class ServerFactory {
         this.bindableServices.add(bindableService);
     }
 
+    public void addTransportFilter(ServerTransportFilter serverTransportFilter) {
+        this.serverTransportFilters.add(serverTransportFilter);
+    }
+
     public Server build() {
         NettyServerBuilder serverBuilder = NettyServerBuilder.forPort(port);
         serverBuilder.bossEventLoopGroup(bossEventLoopGroup);
@@ -93,13 +108,48 @@ public class ServerFactory {
         for (BindableService bindableService : this.bindableServices) {
             serverBuilder.addService(bindableService);
         }
+
+        for(ServerTransportFilter serverTransportFilter : this.serverTransportFilters) {
+            serverBuilder.addTransportFilter(serverTransportFilter);
+        }
+
         serverBuilder.executor(executor);
+        setupServerOption(serverBuilder);
 
         HeaderFactory<AgentHeaderFactory.Header> headerFactory = new AgentHeaderFactory();
         HeaderPropagationInterceptor<AgentHeaderFactory.Header> headerContext = new HeaderPropagationInterceptor<AgentHeaderFactory.Header>(headerFactory, AgentInfoContext.agentInfoKey);
         serverBuilder.intercept(headerContext);
         Server server = serverBuilder.build();
         return server;
+    }
+
+    private void setupServerOption(final NettyServerBuilder builder) {
+        // TODO @see PinpointServerAcceptor
+        builder.withChildOption(ChannelOption.TCP_NODELAY, true);
+        builder.withChildOption(ChannelOption.SO_KEEPALIVE, true);
+        builder.withChildOption(ChannelOption.SO_SNDBUF, 1024 * 64);
+        builder.withChildOption(ChannelOption.SO_RCVBUF, 1024 * 64);
+
+        if (this.serverOption == null) {
+            // Use default
+            return;
+        }
+
+        builder.handshakeTimeout(this.serverOption.getHandshakeTimeout(), TimeUnit.MILLISECONDS);
+        builder.flowControlWindow(this.serverOption.getFlowControlWindow());
+
+        builder.maxInboundMessageSize(this.serverOption.getMaxInboundMessageSize());
+        builder.maxHeaderListSize(this.serverOption.getMaxHeaderListSize());
+
+        builder.keepAliveTimeout(this.serverOption.getKeepAliveTimeout(), TimeUnit.MILLISECONDS);
+        builder.keepAliveTime(this.serverOption.getKeepAliveTime(), TimeUnit.MILLISECONDS);
+        builder.permitKeepAliveTime(this.serverOption.getPermitKeepAliveTimeout(), TimeUnit.MILLISECONDS);
+        builder.permitKeepAliveWithoutCalls(this.serverOption.isPermitKeepAliveWithoutCalls());
+
+        builder.maxConnectionIdle(this.serverOption.getMaxConnectionIdle(), TimeUnit.MILLISECONDS);
+        builder.maxConnectionAge(this.serverOption.getMaxConnectionAge(), TimeUnit.MILLISECONDS);
+        builder.maxConnectionAgeGrace(this.serverOption.getMaxConnectionAgeGrace(), TimeUnit.MILLISECONDS);
+        builder.maxConcurrentCallsPerConnection(this.serverOption.getMaxConcurrentCallsPerConnection());
     }
 
     public void close() {

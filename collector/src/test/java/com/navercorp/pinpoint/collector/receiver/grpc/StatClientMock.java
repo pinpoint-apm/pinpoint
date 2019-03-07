@@ -17,11 +17,16 @@
 package com.navercorp.pinpoint.collector.receiver.grpc;
 
 import com.google.protobuf.Empty;
+import com.navercorp.pinpoint.grpc.AgentHeaderFactory;
+import com.navercorp.pinpoint.grpc.HeaderFactory;
 import com.navercorp.pinpoint.grpc.trace.PAgentStat;
 import com.navercorp.pinpoint.grpc.trace.PAgentStatBatch;
 import com.navercorp.pinpoint.grpc.trace.StatGrpc;
+import io.grpc.ClientInterceptor;
 import io.grpc.ManagedChannel;
+import io.grpc.Metadata;
 import io.grpc.netty.NettyChannelBuilder;
+import io.grpc.stub.MetadataUtils;
 import io.grpc.stub.StreamObserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,6 +43,11 @@ public class StatClientMock {
 
     public StatClientMock(final String host, final int port) {
         NettyChannelBuilder builder = NettyChannelBuilder.forAddress(host, port);
+        AgentHeaderFactory.Header header = new AgentHeaderFactory.Header("mockAgentId", "mockApplicationName", System.currentTimeMillis());
+        HeaderFactory headerFactory = new AgentHeaderFactory(header);
+        final Metadata extraHeaders = headerFactory.newHeader();
+        final ClientInterceptor headersInterceptor = MetadataUtils.newAttachHeadersInterceptor(extraHeaders);
+        builder.intercept(headersInterceptor);
         builder.usePlaintext();
 
         channel = builder.build();

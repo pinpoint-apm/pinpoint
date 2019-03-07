@@ -30,6 +30,9 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
+/**
+ * @author jaehong.kim
+ */
 public class LifeCycleServerInterceptor implements ServerInterceptor {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final List<ServerStateChangeEventHandler> channelStateChangeEventHandlers;
@@ -42,8 +45,6 @@ public class LifeCycleServerInterceptor implements ServerInterceptor {
     public <ReqT, RespT> ServerCall.Listener<ReqT> interceptCall(ServerCall<ReqT, RespT> serverCall, Metadata metadata, ServerCallHandler<ReqT, RespT> serverCallHandler) {
         final Context context = Context.current();
         final GrpcRequestHeader requestHeaderContextValue = GrpcRequestHeaderContextValue.get();
-        System.out.println("## Header=" + requestHeaderContextValue);
-
         final ServerCall.Listener<ReqT> listener = Contexts.interceptCall(context, serverCall, metadata, serverCallHandler);
 
 //        final ServerCall.Listener<ReqT> listener = serverCallHandler.startCall(serverCall, metadata);
@@ -51,14 +52,12 @@ public class LifeCycleServerInterceptor implements ServerInterceptor {
             @Override
             public void onMessage(ReqT message) {
                 final GrpcRequestHeader requestHeaderContextValue = GrpcRequestHeaderContextValue.get();
-                System.out.println("## onMessage " + message + ", header=" + requestHeaderContextValue);
                 super.onMessage(message);
             }
 
             @Override
             public void onHalfClose() {
                 final GrpcRequestHeader requestHeaderContextValue = GrpcRequestHeaderContextValue.get();
-                System.out.println("## onHaflClose, header=" + requestHeaderContextValue);
                 super.onHalfClose();
                 eventHandle(SocketStateCode.CLOSED_BY_CLIENT);
             }
@@ -66,7 +65,6 @@ public class LifeCycleServerInterceptor implements ServerInterceptor {
             @Override
             public void onCancel() {
                 final GrpcRequestHeader requestHeaderContextValue = GrpcRequestHeaderContextValue.get();
-                System.out.println("## onCancel, header=" + requestHeaderContextValue);
                 super.onCancel();
                 eventHandle(SocketStateCode.CLOSED_BY_CLIENT);
             }
@@ -74,7 +72,6 @@ public class LifeCycleServerInterceptor implements ServerInterceptor {
             @Override
             public void onComplete() {
                 final GrpcRequestHeader requestHeaderContextValue = GrpcRequestHeaderContextValue.get();
-                System.out.println("## onComplete, header=" + requestHeaderContextValue);
                 super.onComplete();
                 eventHandle(SocketStateCode.CLOSED_BY_SERVER);
             }
@@ -82,7 +79,6 @@ public class LifeCycleServerInterceptor implements ServerInterceptor {
             @Override
             public void onReady() {
                 final GrpcRequestHeader requestHeaderContextValue = GrpcRequestHeaderContextValue.get();
-                System.out.println("## onReady, header=" + requestHeaderContextValue);
                 super.onReady();
                 eventHandle(SocketStateCode.CONNECTED);
             }

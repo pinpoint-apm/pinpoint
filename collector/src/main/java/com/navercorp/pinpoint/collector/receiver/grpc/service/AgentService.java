@@ -17,9 +17,9 @@
 package com.navercorp.pinpoint.collector.receiver.grpc.service;
 
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
-import com.navercorp.pinpoint.collector.receiver.grpc.GrpcRequestHeader;
-import com.navercorp.pinpoint.collector.receiver.grpc.GrpcRequestHeaderContextValue;
 import com.navercorp.pinpoint.collector.receiver.grpc.GrpcServerResponse;
+import com.navercorp.pinpoint.grpc.AgentHeaderFactory;
+import com.navercorp.pinpoint.grpc.server.AgentInfoContext;
 import com.navercorp.pinpoint.grpc.trace.AgentGrpc;
 import com.navercorp.pinpoint.grpc.trace.PAgentInfo;
 import com.navercorp.pinpoint.grpc.trace.PApiMetaData;
@@ -35,6 +35,7 @@ import com.navercorp.pinpoint.io.request.Message;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.io.request.ServerResponse;
 import com.navercorp.pinpoint.thrift.io.DefaultTBaseLocator;
+import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -95,13 +96,14 @@ public class AgentService extends AgentGrpc.AgentImplBase {
     }
 
     private void request(Message<?> message, StreamObserver<PResult> responseObserver) {
-        final GrpcRequestHeader requestHeaderContextValue = GrpcRequestHeaderContextValue.get();
-        if (requestHeaderContextValue == null) {
-            // TODO Handle error
+        final AgentHeaderFactory.Header header = AgentInfoContext.agentInfoKey.get();
+        if (header == null) {
             logger.warn("Not found request header");
+            responseObserver.onError(Status.INVALID_ARGUMENT.withDescription("Not found request header").asException());
             return;
         }
-        ServerRequest request = new DefaultServerRequest(message, requestHeaderContextValue.getRemoteAddress(), requestHeaderContextValue.getRemotePort());
+        // TODO remoteAddress, remotePort
+        ServerRequest request = new DefaultServerRequest(message, "", 0);
         ServerResponse response = new GrpcServerResponse(responseObserver);
         // TODO DispatchHandler
         if (this.dispatchHandler != null) {

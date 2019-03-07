@@ -22,8 +22,9 @@ public class StatClientTestMain {
 
     public static void main(String[] args) throws Exception {
         StatClientMock clientMock = new StatClientMock("0.0.0.0", 9999);
+
         clientMock.agentStat(10);
-//        clientMock.agentStatBatch(1);
+        clientMock.agentStatBatch(1);
 
         TimeUnit.SECONDS.sleep(60);
         clientMock.stop();

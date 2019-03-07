@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.collector.receiver.grpc;
 
 import com.navercorp.pinpoint.bootstrap.plugin.util.SocketAddressUtils;
-import com.navercorp.pinpoint.common.server.util.AddressFilter;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import io.grpc.Attributes;
 import io.grpc.Grpc;
@@ -25,70 +24,48 @@ import io.grpc.ServerTransportFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * @author jaehong.kim
+ */
 public class DefaultServerTransportFilter extends ServerTransportFilter {
-    private static final AtomicInteger idGenerator = new AtomicInteger(0);
+    public static final Attributes.Key<String> KEY_REMOTE_ADDRESS = Attributes.Key.create("remoteAddress");
+    public static final Attributes.Key<Integer> KEY_REMOTE_PORT = Attributes.Key.create("remotePort");
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
-    private AddressFilter addressFilter;
-
-    public void setAddressFilter(AddressFilter addressFilter) {
-        this.addressFilter = addressFilter;
-    }
 
     @Override
     public Attributes transportReady(Attributes attributes) {
         final Attributes newAttributes = setup(attributes);
         if (logger.isDebugEnabled()) {
-            logger.debug("Ready attributes={}", attributes);
+            logger.debug("Ready attributes={}", newAttributes);
         }
         return newAttributes;
     }
 
     private Attributes setup(final Attributes attributes) {
-        final Attributes.Builder builder = attributes.toBuilder();
         final InetSocketAddress remoteSocketAddress = (InetSocketAddress) attributes.get(Grpc.TRANSPORT_ATTR_REMOTE_ADDR);
         if (remoteSocketAddress == null) {
-            // Unauthenticated
-            builder.set(GrpcRequestHeader.KEY_TRANSPORT_STATUS, TransportStatus.UNAUTHENTICATED);
-            return builder.build();
+            logger.debug("Not found TRANSPORT_ATTR_REMOTE_ADDR. attributes={}", attributes);
+            return attributes;
         }
 
-        if (!auth(remoteSocketAddress)) {
-            // Permission denied
-            builder.set(GrpcRequestHeader.KEY_TRANSPORT_STATUS, TransportStatus.PERMISSION_DENIED);
-            return builder.build();
-        }
-
+        final Attributes.Builder builder = attributes.toBuilder();
         // Set remote address and port
         final String remoteAddress = SocketAddressUtils.getAddressFirst(remoteSocketAddress);
         if (StringUtils.isEmpty(remoteAddress)) {
             // Invalid argument
-            builder.set(GrpcRequestHeader.KEY_TRANSPORT_STATUS, TransportStatus.INVALID_ARGUMENT);
-            return builder.build();
+            if (logger.isDebugEnabled()) {
+                logger.debug("Internal error transport. remoteAddress={}", remoteAddress);
+            }
+            return attributes;
         }
+
         final int remotePort = remoteSocketAddress.getPort();
-        builder.set(GrpcRequestHeader.KEY_REMOTE_ADDRESS, remoteAddress);
-        builder.set(GrpcRequestHeader.KEY_REMOTE_PORT, remotePort);
-
-        // Set transport id
-        final int transportId = idGenerator.getAndIncrement();
-        builder.set(GrpcRequestHeader.KEY_TRANSPORT_ID, transportId);
-
-        builder.set(GrpcRequestHeader.KEY_TRANSPORT_STATUS, TransportStatus.OK);
+        builder.set(KEY_REMOTE_ADDRESS, remoteAddress);
+        builder.set(KEY_REMOTE_PORT, remotePort);
         return builder.build();
-    }
-
-    private boolean auth(final InetSocketAddress remoteSocketAddress) {
-        final InetAddress inetAddress = remoteSocketAddress.getAddress();
-        if (this.addressFilter != null && !addressFilter.accept(inetAddress)) {
-            return false;
-        }
-        return true;
     }
 
     @Override

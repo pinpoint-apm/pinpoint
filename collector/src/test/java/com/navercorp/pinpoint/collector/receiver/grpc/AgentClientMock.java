@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.collector.receiver.grpc;
 
+import com.navercorp.pinpoint.grpc.AgentHeaderFactory;
+import com.navercorp.pinpoint.grpc.HeaderFactory;
 import com.navercorp.pinpoint.grpc.trace.AgentGrpc;
 import com.navercorp.pinpoint.grpc.trace.KeepAliveGrpc;
 import com.navercorp.pinpoint.grpc.trace.PAgentInfo;
@@ -24,8 +26,11 @@ import com.navercorp.pinpoint.grpc.trace.PPing;
 import com.navercorp.pinpoint.grpc.trace.PResult;
 import com.navercorp.pinpoint.grpc.trace.PSqlMetaData;
 import com.navercorp.pinpoint.grpc.trace.PStringMetaData;
+import io.grpc.ClientInterceptor;
 import io.grpc.ManagedChannel;
+import io.grpc.Metadata;
 import io.grpc.netty.NettyChannelBuilder;
+import io.grpc.stub.MetadataUtils;
 import io.grpc.stub.StreamObserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,8 +44,15 @@ public class AgentClientMock {
     private final AgentGrpc.AgentBlockingStub agentStub;
     private final KeepAliveGrpc.KeepAliveStub keepAliveStub;
 
+
     public AgentClientMock(final String host, final int port) throws Exception {
         NettyChannelBuilder builder = NettyChannelBuilder.forAddress(host, port);
+
+        AgentHeaderFactory.Header header = new AgentHeaderFactory.Header("mockAgentId", "mockApplicationName", System.currentTimeMillis());
+        HeaderFactory headerFactory = new AgentHeaderFactory(header);
+        final Metadata extraHeaders = headerFactory.newHeader();
+        final ClientInterceptor headersInterceptor = MetadataUtils.newAttachHeadersInterceptor(extraHeaders);
+        builder.intercept(headersInterceptor);
         builder.usePlaintext();
 
         channel = builder.build();
@@ -106,11 +118,16 @@ public class AgentClientMock {
     }
 
     StreamObserver<PPing> requestObserver;
+
     public void pingPoing() {
         StreamObserver<PPing> responseObserver = new StreamObserver<PPing>() {
             @Override
             public void onNext(PPing ping) {
                 logger.info("Response {}", ping);
+                try {
+                    TimeUnit.SECONDS.sleep(10);
+                } catch (InterruptedException e) {
+                }
                 pingPong("ping");
             }
 
@@ -124,8 +141,8 @@ public class AgentClientMock {
                 logger.info("Completed");
             }
         };
-        requestObserver = keepAliveStub.serverKeepAlive(responseObserver);
-//        requestObserver.onNext(PPing.newBuilder().setMessage("connect").build());
+        requestObserver = keepAliveStub.clientKeepAlive(responseObserver);
+        requestObserver.onNext(PPing.newBuilder().build());
     }
 
     private void pingPong(final String message) {

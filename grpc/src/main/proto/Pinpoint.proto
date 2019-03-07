@@ -32,9 +32,7 @@ service Stat {
 }
 
 service KeepAlive {
-    rpc ServerKeepAlive (stream PPing) returns (stream PPing) {
-    }
-    rpc ClientKeepAlive (stream PPing) returns (stream PPing) {
+    rpc ClientKeepAlive(stream PPing) returns (stream PPing) {
     }
 }
 
