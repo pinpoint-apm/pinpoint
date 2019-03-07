@@ -3,7 +3,7 @@ import { state, style, animate, transition, trigger } from '@angular/animations'
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-import { RouteInfoCollectorService, NewUrlStateNotificationService, AnalyticsService, TRACKED_EVENT_LIST, DynamicPopupService } from 'app/shared/services';
+import { NewUrlStateNotificationService, AnalyticsService, TRACKED_EVENT_LIST, DynamicPopupService } from 'app/shared/services';
 import { EndTime } from 'app/core/models';
 import { UrlPathId } from 'app/shared/models';
 import { HELP_VIEWER_LIST, HelpViewerPopupContainerComponent } from 'app/core/components/help-viewer-popup/help-viewer-popup-container.component';
@@ -35,7 +35,6 @@ export class InspectorPageComponent implements OnInit {
     endTime$: Observable<EndTime>;
 
     constructor(
-        private routeInfoCollectorService: RouteInfoCollectorService,
         private newUrlStateNotificationService: NewUrlStateNotificationService,
         private analyticsService: AnalyticsService,
         private dynamicPopupService: DynamicPopupService

@@ -81,6 +81,7 @@ export class AnalyticsService {
         private windowRefService: WindowRefService,
         private webAppSettingDataService: WebAppSettingDataService
     ) {}
+
     private isAllowed(): Observable<boolean> {
         return this.webAppSettingDataService.isDataUsageAllowed().pipe(
             filter((result: boolean) => {

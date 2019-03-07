@@ -10,7 +10,6 @@ import { RouteInfoCollectorService, UrlRouteManagerService, StoreHelperService }
 })
 export class ConfigPageComponent implements OnInit {
     constructor(
-        private routeInfoCollectorService: RouteInfoCollectorService,
         private urlRouteManagerService: UrlRouteManagerService,
         private storeHelperService: StoreHelperService
     ) {}

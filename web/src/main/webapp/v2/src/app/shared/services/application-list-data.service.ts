@@ -9,12 +9,15 @@ import { Application } from 'app/core/models/application';
 
 @Injectable()
 export class ApplicationListDataService {
+    private url = 'applications.pinpoint';
+
     constructor(
         private http: HttpClient,
         private storeHelperService: StoreHelperService
-    ) { }
+    ) {}
+
     getApplicationList(): Observable<IApplication[]> {
-        return this.http.get<IApplication[]>('applications.pinpoint').pipe(
+        return this.http.get<IApplication[]>(this.url).pipe(
             map((res: IApplication[]) => {
                 const body = res || [];
                 const convertData = body.map(app => new Application(app.applicationName, app.serviceType, app.code));

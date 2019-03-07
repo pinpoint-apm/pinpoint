@@ -53,7 +53,7 @@ export class UrlRedirectorComponent {
                 activatedRoute = activatedRoute.parent;
             }
         }
-        params['startPath'] = activatedRoute.snapshot.root.firstChild.url[0].path;
+        params['startPath'] = activatedRoute.snapshot.firstChild.firstChild.url[0].path;
         return params;
     }
 }
