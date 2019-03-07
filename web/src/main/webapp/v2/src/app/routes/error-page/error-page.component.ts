@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 
-import { SystemConfigurationDataService, ServerTimeDataService, UrlRouteManagerService } from 'app/shared/services';
-import { ApplicationListDataService } from 'app/core/components/application-list/application-list-data.service';
+import { SystemConfigurationDataService, ServerTimeDataService, UrlRouteManagerService, ApplicationListDataService } from 'app/shared/services';
+
 @Component({
     templateUrl: './error-page.component.html',
     styleUrls: ['./error-page.component.css']

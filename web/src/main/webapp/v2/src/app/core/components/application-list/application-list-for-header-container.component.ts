@@ -9,10 +9,10 @@ import {
     UrlRouteManagerService,
     NewUrlStateNotificationService,
     AnalyticsService,
-    TRACKED_EVENT_LIST
+    TRACKED_EVENT_LIST,
+    ApplicationListDataService
 } from 'app/shared/services';
 import { UrlPathId } from 'app/shared/models';
-import { ApplicationListDataService } from './application-list-data.service';
 import { FOCUS_TYPE } from './application-list-for-header.component';
 
 @Component({
@@ -249,7 +249,7 @@ export class ApplicationListForHeaderContainerComponent implements OnInit, After
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.CLICK_RELOAD_APPLICATION_LIST_BUTTON);
         this.showLoading = false;
         this.refreshList([], []);
-        this.applicationListDataService.getApplicationList().subscribe((applicationList: IApplication[]) => {
+        this.applicationListDataService.getApplicationList().subscribe(() => {
             this.showLoading = true;
             this.changeDetector.detectChanges();
         });

@@ -20,7 +20,10 @@ export class TransactionDetailDataService {
     private lastKey: string;
     cachedData: { [key: string]: Observable<ITransactionDetailData> } = {};
     partInfo$: Observable<any>;
-    constructor(private http: HttpClient) {
+
+    constructor(
+        private http: HttpClient
+    ) {
         this.partInfo$ = this.partInfo.asObservable();
     }
     getData(agentId: string, spanId: string, traceId: string, focusTimestamp: number): Observable<ITransactionDetailData> {

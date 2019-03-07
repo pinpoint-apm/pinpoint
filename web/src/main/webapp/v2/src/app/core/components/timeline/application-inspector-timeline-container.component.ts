@@ -62,7 +62,7 @@ export class ApplicationInspectorTimelineContainerComponent implements OnInit, O
             takeUntil(this.unsubscribe),
             withLatestFrom(this.storeHelperService.getInspectorTimelineData(this.unsubscribe)),
             map(([urlService, storeState]: [NewUrlStateNotificationService, ITimelineInfo]) => {
-                if (urlService.isPathChanged(UrlPathId.PERIOD) || urlService.isPathChanged(UrlPathId.END_TIME)) {
+                if (urlService.isValueChanged(UrlPathId.PERIOD) || urlService.isValueChanged(UrlPathId.END_TIME)) {
                     const selectionStartTime = urlService.getStartTimeToNumber();
                     const selectionEndTime = urlService.getEndTimeToNumber();
                     const [start, end] = this.calcuRetrieveTime(selectionStartTime, selectionEndTime);

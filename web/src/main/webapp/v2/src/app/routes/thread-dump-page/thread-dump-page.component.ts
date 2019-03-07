@@ -3,7 +3,7 @@ import { Subject } from 'rxjs';
 import { filter, takeUntil } from 'rxjs/operators';
 
 import { UrlPathId } from 'app/shared/models';
-import { RouteInfoCollectorService, NewUrlStateNotificationService } from 'app/shared/services';
+import { NewUrlStateNotificationService } from 'app/shared/services';
 
 @Component({
     selector: 'pp-thread-dump-page',
@@ -14,10 +14,11 @@ export class ThreadDumpPageComponent implements OnInit, OnDestroy {
     private unsubscribe: Subject<null> = new Subject();
     applicationName: string;
     agentId: string;
+
     constructor(
-        private routeInfoCollectorService: RouteInfoCollectorService,
         private newUrlStateNotificationService: NewUrlStateNotificationService,
     ) {}
+
     ngOnInit() {
         this.newUrlStateNotificationService.onUrlStateChange$.pipe(
             takeUntil(this.unsubscribe),
@@ -32,6 +33,7 @@ export class ThreadDumpPageComponent implements OnInit, OnDestroy {
             this.agentId = urlService.getPathValue(UrlPathId.AGENT_ID);
         });
     }
+
     ngOnDestroy() {
         this.unsubscribe.next();
         this.unsubscribe.complete();

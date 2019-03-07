@@ -4,7 +4,6 @@ import { takeUntil, filter } from 'rxjs/operators';
 
 import {
     StoreHelperService,
-    RouteInfoCollectorService,
     UrlRouteManagerService,
     NewUrlStateNotificationService,
     DynamicPopupService,
@@ -21,8 +20,8 @@ import { ServerErrorPopupContainerComponent } from 'app/core/components/server-e
 })
 export class TransactionDetailPageComponent implements OnInit, OnDestroy {
     private unsubscribe: Subject<void> = new Subject();
+
     constructor(
-        private routeInfoCollectorService: RouteInfoCollectorService,
         private storeHelperService: StoreHelperService,
         private newUrlStateNotificationService: NewUrlStateNotificationService,
         private urlRouteManagerService: UrlRouteManagerService,

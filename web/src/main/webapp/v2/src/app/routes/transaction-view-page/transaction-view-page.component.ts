@@ -4,7 +4,6 @@ import { take, takeUntil, switchMap } from 'rxjs/operators';
 
 import {
     StoreHelperService,
-    RouteInfoCollectorService,
     UrlRouteManagerService,
     NewUrlStateNotificationService,
     TransactionDetailDataService,
@@ -25,7 +24,6 @@ export class TransactionViewPageComponent implements OnInit, OnDestroy {
     splitSize: number[];
 
     constructor(
-        private routeInfoCollectorService: RouteInfoCollectorService,
         private storeHelperService: StoreHelperService,
         private newUrlStateNotificationService: NewUrlStateNotificationService,
         private urlRouteManagerService: UrlRouteManagerService,

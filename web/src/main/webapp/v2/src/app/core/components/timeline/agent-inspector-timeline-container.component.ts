@@ -72,13 +72,13 @@ export class AgentInspectorTimelineContainerComponent implements OnInit, OnDestr
         this.newUrlStateNotificationService.onUrlStateChange$.pipe(
             takeUntil(this.unsubscribe),
             tap((urlService: NewUrlStateNotificationService) => {
-                if (urlService.isPathChanged(UrlPathId.AGENT_ID)) {
+                if (urlService.isValueChanged(UrlPathId.AGENT_ID)) {
                     this.agentId = urlService.getPathValue(UrlPathId.AGENT_ID);
                 }
             }),
             withLatestFrom(this.storeHelperService.getInspectorTimelineData(this.unsubscribe)),
             map(([urlService, storeState]: [NewUrlStateNotificationService, ITimelineInfo]) => {
-                if ((urlService.isPathChanged(UrlPathId.PERIOD) || urlService.isPathChanged(UrlPathId.END_TIME)) || storeState.selectedTime === 0) {
+                if ((urlService.isValueChanged(UrlPathId.PERIOD) || urlService.isValueChanged(UrlPathId.END_TIME)) || storeState.selectedTime === 0) {
                     const selectionStartTime = urlService.getStartTimeToNumber();
                     const selectionEndTime = urlService.getEndTimeToNumber();
                     const [start, end] = this.calcuRetrieveTime(selectionStartTime, selectionEndTime);
