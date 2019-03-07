@@ -27,6 +27,9 @@ import io.grpc.Status;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * @author jaehong.kim
+ */
 public class RequestHeaderServerInterceptor implements ServerInterceptor {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -42,17 +45,6 @@ public class RequestHeaderServerInterceptor implements ServerInterceptor {
             final GrpcRequestHeader requestHeader = this.requestHeaderMetadataReader.read(attributes, metadata);
             if (logger.isDebugEnabled()) {
                 logger.debug("Header {}", requestHeader);
-            }
-
-            if (!requestHeader.getTransportStatus().isOk()) {
-                // TODO Error Handling + log
-                return new ServerCall.Listener<ReqT>() {
-                    @Override
-                    public void onReady() {
-                        logger.warn("Invalid transport status {}", requestHeader.getTransportStatus());
-                        serverCall.close(Status.INTERNAL.withDescription(requestHeader.getTransportStatus().getCause()), new Metadata());
-                    }
-                };
             }
 
             // Setup request header

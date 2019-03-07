@@ -22,12 +22,12 @@ public class AgentClientTestMain {
     private static final int MAX = Integer.MAX_VALUE;
 
     public static void main(String[] args) throws Exception {
-        AgentClientMock clientMock = new AgentClientMock("0.0.0.0", 9997);
-//        clientMock.info(10);
+        AgentClientMock clientMock = new AgentClientMock("127.0.0.1", 9997);
+        clientMock.info(10);
 
-//        clientMock.apiMetaData(1);
-//        clientMock.sqlMetaData(1);
-//        clientMock.stringMetaData(1);
+        clientMock.apiMetaData(1);
+        clientMock.sqlMetaData(1);
+        clientMock.stringMetaData(1);
 
         clientMock.pingPoing();
 

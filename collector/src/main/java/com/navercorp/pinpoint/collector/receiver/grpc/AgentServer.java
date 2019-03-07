@@ -16,27 +16,18 @@
 
 package com.navercorp.pinpoint.collector.receiver.grpc;
 
-
 import com.navercorp.pinpoint.collector.cluster.zookeeper.ZookeeperClusterService;
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.AgentService;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.KeepAliveService;
-import com.navercorp.pinpoint.collector.receiver.thrift.tcp.TCPPacketHandler;
 import com.navercorp.pinpoint.collector.service.async.AgentEventAsyncTaskService;
 import com.navercorp.pinpoint.collector.service.async.AgentLifeCycleAsyncTaskService;
 import com.navercorp.pinpoint.common.server.util.AddressFilter;
 import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.grpc.server.ServerFactory;
+import com.navercorp.pinpoint.grpc.server.ServerOption;
 import com.navercorp.pinpoint.rpc.server.handler.ServerStateChangeEventHandler;
 import io.grpc.Server;
-import io.grpc.ServerInterceptors;
-import io.grpc.ServerServiceDefinition;
-import io.grpc.ServerTransportFilter;
-import io.grpc.netty.GrpcSslContexts;
-import io.grpc.netty.NettyServerBuilder;
-import io.netty.handler.ssl.ClientAuth;
-import io.netty.handler.ssl.SslContext;
-import io.netty.handler.ssl.SslContextBuilder;
-import io.netty.handler.ssl.SslProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.BeanNameAware;
@@ -45,46 +36,37 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.annotation.Resource;
-import java.io.File;
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.ExecutorService;
 
+/**
+ * @author jaehong.kim
+ */
 public class AgentServer implements InitializingBean, DisposableBean, BeanNameAware {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
+    // Bean property
     private String beanName;
     private boolean enable = true;
 
-    private String bindIp;
     private int bindPort;
-
+    private ExecutorService executor;
     private AddressFilter addressFilter;
+    private DispatchHandler dispatchHandler;
+    private ServerOption serverOption;
 
     private Server server;
-    private String certChainFilePath;
-    private String privateKeyFilePath;
-    private String trustCertCollectionFilePath;
-
-    // TODO Add constructor arguments ?
-    private TCPPacketHandler tcpPacketHandler;
-    private ZookeeperClusterService clusterService;
 
     @Autowired
     private AgentEventAsyncTaskService agentEventAsyncTask;
+
     @Autowired
     private AgentLifeCycleAsyncTaskService agentLifeCycleAsyncTask;
 
-    private DispatchHandler dispatchHandler;
-
-    private SslContext sslContext;
-
+    // TODO
     @Resource(name = "channelStateChangeEventHandlers")
     private List<ServerStateChangeEventHandler> channelStateChangeEventHandlers = Collections.emptyList();
-
-    private AtomicInteger idGenerator = new AtomicInteger(0);
+    private ZookeeperClusterService clusterService;
 
     public void afterPropertiesSet() throws Exception {
         if (Boolean.FALSE == this.enable) {
@@ -92,22 +74,17 @@ public class AgentServer implements InitializingBean, DisposableBean, BeanNameAw
         }
 
         Assert.requireNonNull(this.beanName, "beanName must not be null");
-        Assert.requireNonNull(this.bindIp, "bindIp must not be null");
         Assert.requireNonNull(this.dispatchHandler, "dispatchHandler must not be null");
         Assert.requireNonNull(this.addressFilter, "addressFilter must not be null");
 
-        final SocketAddress socketAddress = new InetSocketAddress(this.bindIp, this.bindPort);
-        final NettyServerBuilder builder = NettyServerBuilder.forAddress(socketAddress);
-        final ServerTransportFilter serverTransportFilter = new DefaultServerTransportFilter();
-        builder.addTransportFilter(serverTransportFilter);
+        final ServerFactory serverFactory = new ServerFactory(this.beanName, this.bindPort, this.executor, this.serverOption);
+        serverFactory.addService(new AgentService(this.dispatchHandler));
+        serverFactory.addService(new KeepAliveService(this.agentEventAsyncTask, this.agentLifeCycleAsyncTask));
+        serverFactory.addTransportFilter(new DefaultServerTransportFilter());
+        serverFactory.addTransportFilter(new IdGeneratorServerTransportFilter());
+        serverFactory.addTransportFilter(new PermissionServerTransportFilter(this.addressFilter));
 
-        final ServerServiceDefinition service = ServerInterceptors.intercept(new AgentService(dispatchHandler), new RequestHeaderServerInterceptor());
-        builder.addService(service);
-        builder.addService(ServerInterceptors.intercept(new KeepAliveService(agentEventAsyncTask, agentLifeCycleAsyncTask), new LifeCycleServerInterceptor(channelStateChangeEventHandlers)));
-
-        //        builder.sslContext(this.sslContext);
-
-        this.server = builder.build();
+        this.server = serverFactory.build();
         if (logger.isInfoEnabled()) {
             logger.info("Start AgentServer {}", this.server);
         }
@@ -137,25 +114,8 @@ public class AgentServer implements InitializingBean, DisposableBean, BeanNameAw
         this.beanName = beanName;
     }
 
-    public void setSslContext(final SslContext sslContext) {
-        this.sslContext = sslContext;
-    }
-
-    private SslContextBuilder getSslContextBuilder() {
-        SslContextBuilder sslClientContextBuilder = SslContextBuilder.forServer(new File(certChainFilePath), new File(privateKeyFilePath));
-        if (trustCertCollectionFilePath != null) {
-            sslClientContextBuilder.trustManager(new File(trustCertCollectionFilePath));
-            sslClientContextBuilder.clientAuth(ClientAuth.REQUIRE);
-        }
-        return GrpcSslContexts.configure(sslClientContextBuilder, SslProvider.OPENSSL);
-    }
-
     public void setEnable(boolean enable) {
         this.enable = enable;
-    }
-
-    public void setBindIp(String bindIp) {
-        this.bindIp = bindIp;
     }
 
     public void setBindPort(int bindPort) {
@@ -166,15 +126,19 @@ public class AgentServer implements InitializingBean, DisposableBean, BeanNameAw
         this.addressFilter = addressFilter;
     }
 
-    public AddressFilter getAddressFilter() {
-        return addressFilter;
-    }
-
-    public DispatchHandler getDispatchHandler() {
-        return dispatchHandler;
-    }
-
     public void setDispatchHandler(DispatchHandler dispatchHandler) {
         this.dispatchHandler = dispatchHandler;
+    }
+
+    public void setExecutor(ExecutorService executor) {
+        this.executor = executor;
+    }
+
+    public void setServerOption(ServerOption serverOption) {
+        this.serverOption = serverOption;
+    }
+
+    public void setClusterService(ZookeeperClusterService clusterService) {
+        this.clusterService = clusterService;
     }
 }

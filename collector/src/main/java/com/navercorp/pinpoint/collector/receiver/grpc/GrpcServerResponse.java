@@ -20,6 +20,9 @@ import com.navercorp.pinpoint.grpc.trace.PResult;
 import com.navercorp.pinpoint.io.request.ServerResponse;
 import io.grpc.stub.StreamObserver;
 
+/**
+ * @author jaehong.kim
+ */
 public class GrpcServerResponse implements ServerResponse<PResult> {
 
     private final StreamObserver<PResult> responseObserver;

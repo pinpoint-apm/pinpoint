@@ -20,21 +20,12 @@ import com.navercorp.pinpoint.common.util.StringUtils;
 import io.grpc.Attributes;
 import io.grpc.Metadata;
 
+/**
+ * @author jaehong.kim
+ */
 public class GrpcRequestHeaderReader {
     public GrpcRequestHeader read(final Attributes attributes, final Metadata metadata) {
         final GrpcRequestHeader requestHeader = new GrpcRequestHeader();
-
-        // Read attributes
-        final TransportStatus transportStatus = attributes.get(GrpcRequestHeader.KEY_TRANSPORT_STATUS);
-        if (transportStatus == null) {
-            requestHeader.setTransportStatus(TransportStatus.INTERNAL_ERROR);
-            return requestHeader;
-        }
-        // Set transport status
-        requestHeader.setTransportStatus(transportStatus);
-        if (!requestHeader.getTransportStatus().isOk()) {
-            return requestHeader;
-        }
 
         final int transportId = attributes.get(GrpcRequestHeader.KEY_TRANSPORT_ID);
         final String remoteAddress = attributes.get(GrpcRequestHeader.KEY_REMOTE_ADDRESS);

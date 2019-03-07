@@ -20,34 +20,32 @@ import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.TraceService;
 import com.navercorp.pinpoint.common.server.util.AddressFilter;
 import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.grpc.server.ServerFactory;
+import com.navercorp.pinpoint.grpc.server.ServerOption;
 import io.grpc.Server;
-import io.grpc.ServerInterceptors;
-import io.grpc.ServerServiceDefinition;
-import io.grpc.ServerTransportFilter;
-import io.grpc.netty.NettyServerBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
+import java.util.concurrent.ExecutorService;
 
 /**
  * @author jaehong.kim
  */
 public class SpanServer implements InitializingBean, DisposableBean, BeanNameAware {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
+    // Bean property
     private String beanName;
     private boolean enable;
 
     private String bindIp;
     private int bindPort;
-
-    private DispatchHandler dispatchHandler;
+    private ExecutorService executor;
     private AddressFilter addressFilter;
+    private DispatchHandler dispatchHandler;
+    private ServerOption serverOption;
 
     private Server server;
 
@@ -58,28 +56,18 @@ public class SpanServer implements InitializingBean, DisposableBean, BeanNameAwa
         }
 
         Assert.requireNonNull(this.beanName, "beanName must not be null");
-        Assert.requireNonNull(this.bindIp, "bindIp must not be null");
         Assert.requireNonNull(this.dispatchHandler, "dispatchHandler must not be null");
         Assert.requireNonNull(this.addressFilter, "addressFilter must not be null");
 
-        final SocketAddress socketAddress = new InetSocketAddress(this.bindIp, this.bindPort);
-        final NettyServerBuilder builder = NettyServerBuilder.forAddress(socketAddress);
-        final ServerTransportFilter serverTransportFilter = new DefaultServerTransportFilter();
-        builder.addTransportFilter(serverTransportFilter);
-
-        // Add options
-
-        // Add service
-        final ServerServiceDefinition service = ServerInterceptors.intercept(new TraceService(this.dispatchHandler), new RequestHeaderServerInterceptor());
-        builder.addService(service);
-
-        this.server = builder.build();
+        final ServerFactory serverFactory = new ServerFactory(this.beanName, this.bindPort, this.executor, this.serverOption);
+        serverFactory.addService(new TraceService(this.dispatchHandler));
+        serverFactory.addTransportFilter(new DefaultServerTransportFilter());
+        this.server = serverFactory.build();
         if (logger.isInfoEnabled()) {
             logger.info("Start span server {}", this.server);
         }
         this.server.start();
     }
-
 
     @Override
     public void destroy() throws Exception {
@@ -120,15 +108,15 @@ public class SpanServer implements InitializingBean, DisposableBean, BeanNameAwa
         this.dispatchHandler = dispatchHandler;
     }
 
-    public DispatchHandler getDispatchHandler() {
-        return dispatchHandler;
-    }
-
     public void setAddressFilter(AddressFilter addressFilter) {
         this.addressFilter = addressFilter;
     }
 
-    public AddressFilter getAddressFilter() {
-        return addressFilter;
+    public void setExecutor(ExecutorService executor) {
+        this.executor = executor;
+    }
+
+    public void setServerOption(ServerOption serverOption) {
+        this.serverOption = serverOption;
     }
 }

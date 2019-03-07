@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.collector.receiver.grpc.service;
 
 import com.google.protobuf.Empty;
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
-import com.navercorp.pinpoint.collector.receiver.grpc.GrpcRequestHeader;
-import com.navercorp.pinpoint.collector.receiver.grpc.GrpcRequestHeaderContextValue;
+import com.navercorp.pinpoint.grpc.AgentHeaderFactory;
+import com.navercorp.pinpoint.grpc.server.AgentInfoContext;
 import com.navercorp.pinpoint.grpc.trace.PSpan;
 import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
 import com.navercorp.pinpoint.grpc.trace.TraceGrpc;
@@ -31,6 +31,7 @@ import com.navercorp.pinpoint.io.request.DefaultServerRequest;
 import com.navercorp.pinpoint.io.request.Message;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.thrift.io.DefaultTBaseLocator;
+import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,7 +42,6 @@ public class TraceService extends TraceGrpc.TraceImplBase {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private DispatchHandler dispatchHandler;
-
 
     public TraceService(DispatchHandler dispatchHandler) {
         this.dispatchHandler = dispatchHandler;
@@ -56,7 +56,7 @@ public class TraceService extends TraceGrpc.TraceImplBase {
                 final Header header = new HeaderV2(Header.SIGNATURE, HeaderV2.VERSION, DefaultTBaseLocator.SPAN);
                 final HeaderEntity headerEntity = new HeaderEntity(new HashMap<String, String>());
                 final Message<PSpan> message = new DefaultMessage<PSpan>(header, headerEntity, pSpan);
-                send(message);
+                send(responseObserver, message);
             }
 
             @Override
@@ -83,7 +83,7 @@ public class TraceService extends TraceGrpc.TraceImplBase {
                 final Header header = new HeaderV2(Header.SIGNATURE, HeaderV2.VERSION, DefaultTBaseLocator.SPANCHUNK);
                 final HeaderEntity headerEntity = new HeaderEntity(new HashMap<String, String>());
                 Message<PSpanChunk> message = new DefaultMessage<PSpanChunk>(header, headerEntity, pSpanChunk);
-                send(message);
+                send(responseObserver, message);
             }
 
             @Override
@@ -103,14 +103,15 @@ public class TraceService extends TraceGrpc.TraceImplBase {
     }
 
 
-    private void send(final Message<?> message) {
-        final GrpcRequestHeader requestHeaderContextValue = GrpcRequestHeaderContextValue.get();
-        if (requestHeaderContextValue == null) {
-            // TODO Handle error
+    private void send(StreamObserver<Empty> responseObserver, final Message<?> message) {
+        final AgentHeaderFactory.Header header = AgentInfoContext.agentInfoKey.get();
+        if (header == null) {
             logger.warn("Not found request header");
+            responseObserver.onError(Status.INVALID_ARGUMENT.withDescription("Not found request header").asException());
             return;
         }
-        ServerRequest request = new DefaultServerRequest(message, requestHeaderContextValue.getRemoteAddress(), requestHeaderContextValue.getRemotePort());
+        // TODO remoteAddress, remotePort
+        ServerRequest request = new DefaultServerRequest(message, "", 0);
         if (dispatchHandler != null) {
             dispatchHandler.dispatchSendMessage(request);
         }

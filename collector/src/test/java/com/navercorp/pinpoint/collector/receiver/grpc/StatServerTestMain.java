@@ -26,17 +26,18 @@ import java.net.InetAddress;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class AgentServerTestMain {
+public class StatServerTestMain {
     public static final String IP = "0.0.0.0";
-    public static final int PORT = 9997;
+    public static final int PORT = 9999;
 
     public void run() throws Exception {
-        AgentServer server = new AgentServer();
-        server.setBeanName("AgentServer");
+        StatServer server = new StatServer();
+        server.setBeanName("StatServer");
         server.setBindPort(PORT);
         server.setDispatchHandler(new MockDispatchHandler());
         server.setAddressFilter(new MockAddressFilter());
         server.setExecutor(Executors.newFixedThreadPool(8));
+        server.setEnable(true);
 
         server.afterPropertiesSet();
 
@@ -45,7 +46,7 @@ public class AgentServerTestMain {
     }
 
     public static void main(String[] args) throws Exception {
-        AgentServerTestMain main = new AgentServerTestMain();
+        StatServerTestMain main = new StatServerTestMain();
         main.run();
     }
 
@@ -70,4 +71,5 @@ public class AgentServerTestMain {
             return true;
         }
     }
+
 }

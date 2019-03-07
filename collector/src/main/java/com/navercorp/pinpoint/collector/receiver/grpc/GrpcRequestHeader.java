@@ -19,6 +19,9 @@ package com.navercorp.pinpoint.collector.receiver.grpc;
 import io.grpc.Attributes;
 import io.grpc.Metadata;
 
+/**
+ * @author jaehong.kim
+ */
 public class GrpcRequestHeader {
     public static final Attributes.Key<TransportStatus> KEY_TRANSPORT_STATUS = Attributes.Key.create("transportStatus");
     public static final Attributes.Key<Integer> KEY_TRANSPORT_ID = Attributes.Key.create("transportId");
