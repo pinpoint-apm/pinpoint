@@ -104,7 +104,7 @@ public class UserGroupController {
         return userGroupService.selectUserGroup();
     }
 
-    @PreAuthorize("hasPermission(#userGroupMember.getMemberId(), null, T(com.navercorp.pinpoint.web.controller.UserGroupController).EDIT_GROUP_ONLY_GROUPMEMBER)")
+    @PreAuthorize("hasPermission(#userGroupMember.getUserGroupId(), null, T(com.navercorp.pinpoint.web.controller.UserGroupController).EDIT_GROUP_ONLY_GROUPMEMBER)")
     @RequestMapping(value = "/member", method = RequestMethod.POST)
     @ResponseBody
     public Map<String, String> insertUserGroupMember(@RequestBody UserGroupMemberParam userGroupMember) {
@@ -119,7 +119,7 @@ public class UserGroupController {
 
     }
 
-    @PreAuthorize("hasPermission(#userGroupMember.getMemberId(), null, T(com.navercorp.pinpoint.web.controller.UserGroupController).EDIT_GROUP_ONLY_GROUPMEMBER)")
+    @PreAuthorize("hasPermission(#userGroupMember.getUserGroupId(), null, T(com.navercorp.pinpoint.web.controller.UserGroupController).EDIT_GROUP_ONLY_GROUPMEMBER)")
     @RequestMapping(value = "/member", method = RequestMethod.DELETE)
     @ResponseBody
     public Map<String, String> deleteUserGroupMember(@RequestBody UserGroupMemberParam userGroupMember, @RequestHeader(value=SSO_USER, required=false) String userId) {
