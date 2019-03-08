@@ -82,7 +82,7 @@ export class ServerMapData {
     private countMap: { [key: string]: ILinkCount };
     private nodeMap: IShortNodeInfoMap;
     private linkMap: IShortLinkInfoMap;
-    private mergeStateMap: IStateCheckMap;
+    private mergeStateMap: IStateCheckMap = {};
     private groupServiceTypeMap: IStateCheckMap;
     private originalNodeMap: INodeInfoMap;
     private originalLinkMap: ILinkInfoMap;
@@ -105,7 +105,6 @@ export class ServerMapData {
         this.countMap = {};
         this.nodeMap = {};
         this.linkMap = {};
-        this.mergeStateMap = {};
         this.groupServiceTypeMap = {};
         this.originalNodeMap = {};
         this.originalLinkMap = {};
@@ -307,6 +306,7 @@ export class ServerMapData {
         this.extractLinkCountData();
         this.mergeNodes();
         this.mergeMultiLinkNodes();
+        this.addFilterFlag();
     }
     removeByKey(dataList: any, dataMap: any, removeList: any) {
         const removeIndex: Array<number> = [];
@@ -335,6 +335,9 @@ export class ServerMapData {
         }
 
         targetNodeList.forEach((outerNode: IShortNodeInfo) => {
+            if (this.mergeStateMap[outerNode.serviceType] === false) {
+                return;
+            }
             const outerNodeKey = outerNode.key;
             // inner loop 에 체크한 노드를 다시 체크하지 않기 위해
             if (checkedNodes[outerNodeKey] === true) {
@@ -343,6 +346,7 @@ export class ServerMapData {
             checkedNodes[outerNodeKey] = true;
             const fromNodeKeysOfOuter: string[] = this.getFromNodeKeys(outerNodeKey);
             const mergeTargetLinks: {[key: string]: IShortLinkInfo[] } = {};
+            const mergeTargetLoopLinks: {[key: string]: IShortLinkInfo[] } = {};
             const mergeTargetNodeList: IShortNodeInfo[] = [];
 
             targetNodeList.forEach((innerNode: IShortNodeInfo) => {
@@ -359,11 +363,11 @@ export class ServerMapData {
                 if (this.hasSameNodeList(fromNodeKeysOfOuter, fromNodeKeysOfInner) === false) {
                     return;
                 }
-                this.extractConnectLink(mergeTargetLinks, fromNodeKeysOfInner, innerNodeKey);
+                this.extractConnectLink(mergeTargetLinks, mergeTargetLoopLinks, fromNodeKeysOfInner, innerNodeKey);
                 mergeTargetNodeList.push(innerNode);
             });
             if (mergeTargetNodeList.length > 0) {
-                this.extractConnectLink(mergeTargetLinks, fromNodeKeysOfOuter, outerNodeKey);
+                this.extractConnectLink(mergeTargetLinks, mergeTargetLoopLinks, fromNodeKeysOfOuter, outerNodeKey);
                 mergeTargetNodeList.push(outerNode);
 
                 const multiConnectNodeGroup = new MultiConnectNodeGroup(outerNode.serviceType);
@@ -386,20 +390,41 @@ export class ServerMapData {
                         this.linkList.push(linkGroup.sortLinkData().getLinkGroupData());
                     }
                 }
+                for (const fromKey in mergeTargetLoopLinks) {
+                    if (mergeTargetLoopLinks.hasOwnProperty(fromKey)) {
+                        // multiConnectNodeGroup.addSubNodeGroup(multiConnectNodeGroup.getGroupKey());
+                        const linkGroup = new LinkGroup(multiConnectNodeGroup.getGroupKey(), fromKey);
+                        for (let i = 0; i < mergeTargetLoopLinks[fromKey].length; i++) {
+                            const link = mergeTargetLoopLinks[fromKey][i];
+                            // multiConnectNodeGroup.addSubNodeGroupData(multiConnectNodeGroup.getGroupKey(), link);
+                            linkGroup.addLinkData(link);
+                            removeLinkKeys[link.key] = true;
+                        }
+                        this.linkList.push(linkGroup.sortLinkData().getLinkGroupData());
+                    }
+                }
                 this.nodeList.push(multiConnectNodeGroup.sortNodeData().getNodeGroupData());
                 this.groupServiceTypeMap[multiConnectNodeGroup.getGroupServiceType()] = true;
+                this.mergeStateMap[outerNode.serviceType] = true;
             }
         });
         this.removeByKey(this.nodeList, this.nodeMap, removeNodeKeys);
         this.removeByKey(this.linkList, this.linkMap, removeLinkKeys);
         console.timeEnd('mergeMultiLinkGroup()');
     }
-    private extractConnectLink(mergeTargetLinks: any, fromKeys: string[], toKey: string): void {
+    private extractConnectLink(mergeTargetLinks: {[key: string]: IShortLinkInfo[] }, mergeTargetLoopLinks: {[key: string]: IShortLinkInfo[] }, fromKeys: string[], toKey: string): void {
         fromKeys.forEach((fromKey: string) => {
             if ((fromKey in mergeTargetLinks) === false) {
                 mergeTargetLinks[fromKey] = [];
             }
             mergeTargetLinks[fromKey].push(this.linkMap[fromKey + '~' + toKey]);
+            // loop 링크가 있으면 저장해 둠.
+            if (this.linkMap[toKey + '~' + fromKey]) {
+                if ((fromKey in mergeTargetLoopLinks) === false) {
+                    mergeTargetLoopLinks[fromKey] = [];
+                }
+                mergeTargetLoopLinks[fromKey].push(this.linkMap[toKey + '~' + fromKey]);
+            }
         });
     }
     private getMergeTargetNodes(): IShortNodeInfo[] {

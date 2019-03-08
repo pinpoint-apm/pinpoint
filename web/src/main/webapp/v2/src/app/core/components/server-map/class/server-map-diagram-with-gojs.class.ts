@@ -232,16 +232,16 @@ export class ServerMapDiagramWithGojs extends ServerMapDiagram {
         this.outClickNode.emit(obj['data']);
     }
     onDoubleClickNode(event: go.DiagramEvent, obj: go.GraphObject): void {
-        console.log('onDoubleClick-Node :', event, obj);
+        // console.log('onDoubleClick-Node :', event, obj);
         this.diagram.centerRect(obj.actualBounds);
         this.diagram.scale *= 1.3;
     }
     onContextClickNode(event: go.DiagramEvent, obj: go.GraphObject): void {
-        console.log('onContextClick-Node :', event, obj);
+        // console.log('onContextClick-Node :', event, obj);
         this.outContextClickNode.emit(<go.Node>obj);
     }
     onClickLink(event: go.DiagramEvent, obj: go.GraphObject): void {
-        console.log('onClick-Link :', event, obj);
+        // console.log('onClick-Link :', event, obj);
         this.updateHighlights(<go.Part>obj);
         this.outClickLink.emit(<go.Link>obj['data']);
     }
