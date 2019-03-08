@@ -107,7 +107,7 @@ public class StatService extends StatGrpc.StatImplBase {
             return;
         }
         // TODO remoteAddress, remotePort
-        ServerRequest request = new DefaultServerRequest(message, "", 0);
+        ServerRequest request = new DefaultServerRequest(message, header.getRemoteAddress(), header.getRemotePort());
         if (dispatchHandler != null) {
             dispatchHandler.dispatchSendMessage(request);
         }

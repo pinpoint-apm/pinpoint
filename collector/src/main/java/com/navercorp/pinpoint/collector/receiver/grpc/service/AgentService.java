@@ -99,11 +99,13 @@ public class AgentService extends AgentGrpc.AgentImplBase {
         final AgentHeaderFactory.Header header = AgentInfoContext.agentInfoKey.get();
         if (header == null) {
             logger.warn("Not found request header");
+            // TODO response 500 ?
             responseObserver.onError(Status.INVALID_ARGUMENT.withDescription("Not found request header").asException());
             return;
         }
+
         // TODO remoteAddress, remotePort
-        ServerRequest request = new DefaultServerRequest(message, "", 0);
+        ServerRequest request = new DefaultServerRequest(message, header.getRemoteAddress(), header.getRemotePort());
         ServerResponse response = new GrpcServerResponse(responseObserver);
         // TODO DispatchHandler
         if (this.dispatchHandler != null) {

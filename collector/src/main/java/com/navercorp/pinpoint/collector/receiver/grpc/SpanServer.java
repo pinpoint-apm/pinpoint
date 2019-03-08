@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.TraceService;
 import com.navercorp.pinpoint.common.server.util.AddressFilter;
 import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.grpc.server.DefaultServerTransportFilter;
 import com.navercorp.pinpoint.grpc.server.ServerFactory;
 import com.navercorp.pinpoint.grpc.server.ServerOption;
 import io.grpc.Server;
