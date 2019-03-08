@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.collector.receiver.grpc;
+package com.navercorp.pinpoint.grpc.server;
 
-import com.navercorp.pinpoint.common.server.util.AddressFilter;
 import com.navercorp.pinpoint.common.util.Assert;
 import io.grpc.Attributes;
 import io.grpc.Grpc;
@@ -34,10 +33,10 @@ import java.net.InetSocketAddress;
 public class PermissionServerTransportFilter extends ServerTransportFilter {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final AddressFilter addressFilter;
+    private final InetAddressFilter inetAddressFilter;
 
-    public PermissionServerTransportFilter(final AddressFilter addressFilter) {
-        this.addressFilter = Assert.requireNonNull(addressFilter, "addressFilter must not be null");
+    public PermissionServerTransportFilter(final InetAddressFilter inetAddressFilter) {
+        this.inetAddressFilter = Assert.requireNonNull(inetAddressFilter, "addressFilter must not be null");
     }
 
     @Override
@@ -54,7 +53,7 @@ public class PermissionServerTransportFilter extends ServerTransportFilter {
         }
 
         final InetAddress inetAddress = remoteSocketAddress.getAddress();
-        if (!addressFilter.accept(inetAddress)) {
+        if (!inetAddressFilter.accept(inetAddress)) {
             // Permission denied
             logger.debug("Permission denied transport.");
             throw Status.PERMISSION_DENIED.asRuntimeException();

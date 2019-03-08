@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.collector.receiver.grpc;
+package com.navercorp.pinpoint.grpc.server;
 
 import io.grpc.Attributes;
 import io.grpc.ServerTransportFilter;
@@ -23,12 +23,12 @@ import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static com.navercorp.pinpoint.grpc.AgentHeaderFactory.KEY_TRANSPORT_ID;
+
 /**
  * @author jaehong.kim
  */
 public class IdGeneratorServerTransportFilter extends ServerTransportFilter {
-    public static final Attributes.Key<Integer> KEY_TRANSPORT_ID = Attributes.Key.create("transportId");
-
     private static final AtomicInteger idGenerator = new AtomicInteger(0);
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());

@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.collector.receiver.grpc;
+package com.navercorp.pinpoint.grpc.server;
 
-import com.navercorp.pinpoint.bootstrap.plugin.util.SocketAddressUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import io.grpc.Attributes;
 import io.grpc.Grpc;
@@ -24,15 +23,16 @@ import io.grpc.ServerTransportFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
+
+import static com.navercorp.pinpoint.grpc.AgentHeaderFactory.KEY_REMOTE_ADDRESS;
+import static com.navercorp.pinpoint.grpc.AgentHeaderFactory.KEY_REMOTE_PORT;
 
 /**
  * @author jaehong.kim
  */
 public class DefaultServerTransportFilter extends ServerTransportFilter {
-    public static final Attributes.Key<String> KEY_REMOTE_ADDRESS = Attributes.Key.create("remoteAddress");
-    public static final Attributes.Key<Integer> KEY_REMOTE_PORT = Attributes.Key.create("remotePort");
-
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
@@ -53,7 +53,7 @@ public class DefaultServerTransportFilter extends ServerTransportFilter {
 
         final Attributes.Builder builder = attributes.toBuilder();
         // Set remote address and port
-        final String remoteAddress = SocketAddressUtils.getAddressFirst(remoteSocketAddress);
+        final String remoteAddress = getAddressFirst(remoteSocketAddress);
         if (StringUtils.isEmpty(remoteAddress)) {
             // Invalid argument
             if (logger.isDebugEnabled()) {
@@ -66,6 +66,19 @@ public class DefaultServerTransportFilter extends ServerTransportFilter {
         builder.set(KEY_REMOTE_ADDRESS, remoteAddress);
         builder.set(KEY_REMOTE_PORT, remotePort);
         return builder.build();
+    }
+
+    private String getAddressFirst(InetSocketAddress inetSocketAddress) {
+        if (inetSocketAddress == null) {
+            return null;
+        }
+        InetAddress inetAddress = inetSocketAddress.getAddress();
+        if (inetAddress != null) {
+            return inetAddress.getHostAddress();
+        }
+        // This won't trigger a DNS lookup as if it got to here, the hostName should not be null on the basis
+        // that InetSocketAddress does not allow both address and hostName fields to be null.
+        return inetSocketAddress.getHostName();
     }
 
     @Override

@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,20 +14,11 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.grpc;
+package com.navercorp.pinpoint.grpc.server;
 
-import io.grpc.Attributes;
-import io.grpc.Metadata;
+import java.net.InetAddress;
 
-/**
- * @author Woonduk Kang(emeroad)
- */
-public interface HeaderFactory<H> {
+public interface InetAddressFilter<T> {
 
-    H extract(Metadata headers);
-
-    H extract(Metadata headers, Attributes attributes);
-
-    Metadata newHeader();
-
+    boolean accept(InetAddress inetAddress);
 }

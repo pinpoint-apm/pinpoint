@@ -116,10 +116,10 @@ public class KeepAliveService extends KeepAliveGrpc.KeepAliveImplBase {
             return;
         }
 
-        // TODO Need socketId, licenseKey
+        // TODO Need licenseKey
         long eventTimestamp = System.currentTimeMillis();
         Map<Object, Object> properties = new HashMap<>();
-        properties.put("socketId", 1);
+        properties.put("socketId", header.getTransportId());
         properties.put(HandshakePropertyType.AGENT_ID.getName(), header.getAgentId());
         properties.put(HandshakePropertyType.START_TIMESTAMP.getName(), header.getAgentStartTime());
         properties.put("licenseKey", "");

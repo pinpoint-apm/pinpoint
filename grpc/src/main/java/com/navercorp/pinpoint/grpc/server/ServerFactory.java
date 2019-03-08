@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.grpc.ExecutorUtils;
 import com.navercorp.pinpoint.grpc.HeaderFactory;
 import io.grpc.BindableService;
 import io.grpc.Server;
+import io.grpc.ServerServiceDefinition;
 import io.grpc.ServerTransportFilter;
 import io.grpc.netty.NettyServerBuilder;
 import io.netty.channel.ChannelOption;
@@ -58,6 +59,7 @@ public class ServerFactory {
     private final ExecutorService executor;
 
     private final List<BindableService> bindableServices = new ArrayList<BindableService>();
+    private final List<ServerServiceDefinition> serverServices = new ArrayList<ServerServiceDefinition>();
     private final List<ServerTransportFilter> serverTransportFilters = new ArrayList<ServerTransportFilter>();
 
     private ServerOption serverOption;
@@ -96,6 +98,10 @@ public class ServerFactory {
         this.bindableServices.add(bindableService);
     }
 
+    public void addService(ServerServiceDefinition serverServiceDefinition) {
+        this.serverServices.add(serverServiceDefinition);
+    }
+
     public void addTransportFilter(ServerTransportFilter serverTransportFilter) {
         this.serverTransportFilters.add(serverTransportFilter);
     }
@@ -107,6 +113,10 @@ public class ServerFactory {
 
         for (BindableService bindableService : this.bindableServices) {
             serverBuilder.addService(bindableService);
+        }
+
+        for(ServerServiceDefinition serverServiceDefinition : this.serverServices) {
+            serverBuilder.addService(serverServiceDefinition);
         }
 
         for(ServerTransportFilter serverTransportFilter : this.serverTransportFilters) {

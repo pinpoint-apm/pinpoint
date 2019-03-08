@@ -88,8 +88,7 @@ public class TraceService extends TraceGrpc.TraceImplBase {
 
             @Override
             public void onError(Throwable throwable) {
-                System.out.println("Failed to received PSpan");
-                throwable.printStackTrace();
+                logger.debug("Failed to received PSpan", throwable);
             }
 
             @Override
@@ -111,7 +110,7 @@ public class TraceService extends TraceGrpc.TraceImplBase {
             return;
         }
         // TODO remoteAddress, remotePort
-        ServerRequest request = new DefaultServerRequest(message, "", 0);
+        ServerRequest request = new DefaultServerRequest(message, header.getRemoteAddress(), header.getRemotePort());
         if (dispatchHandler != null) {
             dispatchHandler.dispatchSendMessage(request);
         }

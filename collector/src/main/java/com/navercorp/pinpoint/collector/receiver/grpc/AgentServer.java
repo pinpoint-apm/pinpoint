@@ -24,10 +24,16 @@ import com.navercorp.pinpoint.collector.service.async.AgentEventAsyncTaskService
 import com.navercorp.pinpoint.collector.service.async.AgentLifeCycleAsyncTaskService;
 import com.navercorp.pinpoint.common.server.util.AddressFilter;
 import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.grpc.server.DefaultServerTransportFilter;
+import com.navercorp.pinpoint.grpc.server.IdGeneratorServerTransportFilter;
+import com.navercorp.pinpoint.grpc.server.InetAddressFilter;
+import com.navercorp.pinpoint.grpc.server.PermissionServerTransportFilter;
 import com.navercorp.pinpoint.grpc.server.ServerFactory;
 import com.navercorp.pinpoint.grpc.server.ServerOption;
 import com.navercorp.pinpoint.rpc.server.handler.ServerStateChangeEventHandler;
 import io.grpc.Server;
+import io.grpc.ServerInterceptors;
+import io.grpc.ServerServiceDefinition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.BeanNameAware;
@@ -36,6 +42,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.annotation.Resource;
+import java.net.InetAddress;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -82,7 +89,12 @@ public class AgentServer implements InitializingBean, DisposableBean, BeanNameAw
         serverFactory.addService(new KeepAliveService(this.agentEventAsyncTask, this.agentLifeCycleAsyncTask));
         serverFactory.addTransportFilter(new DefaultServerTransportFilter());
         serverFactory.addTransportFilter(new IdGeneratorServerTransportFilter());
-        serverFactory.addTransportFilter(new PermissionServerTransportFilter(this.addressFilter));
+        serverFactory.addTransportFilter(new PermissionServerTransportFilter(new InetAddressFilter() {
+            @Override
+            public boolean accept(InetAddress inetAddress) {
+                return addressFilter.accept(inetAddress);
+            }
+        }));
 
         this.server = serverFactory.build();
         if (logger.isInfoEnabled()) {
