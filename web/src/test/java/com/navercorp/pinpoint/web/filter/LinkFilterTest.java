@@ -9,7 +9,6 @@ import com.navercorp.pinpoint.common.trace.AnnotationKeyFactory;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.web.TestTraceUtils;
-import org.apache.hadoop.hbase.util.Base64;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;

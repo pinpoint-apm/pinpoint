@@ -26,7 +26,6 @@ import com.navercorp.pinpoint.common.trace.AnnotationKeyFactory;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
 import com.navercorp.pinpoint.common.trace.ServiceTypeProperty;
-import org.apache.hadoop.hbase.util.Base64;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

@@ -95,6 +95,9 @@
         <jdk.home>${env.JAVA_6_HOME}</jdk.home>
         <test.jdk.home>${jdk.home}</test.jdk.home>
 
+        <!-- hbase -->
+        <hbase.shaded.client.version>1.2.6.1</hbase.shaded.client.version>
+
         <!-- library -->
         <slf4j.version>1.7.21</slf4j.version>
         <metrics.version>3.1.2</metrics.version>
@@ -400,7 +403,7 @@
             <dependency>
                 <groupId>org.apache.hbase</groupId>
                 <artifactId>hbase-shaded-client</artifactId>
-                <version>1.2.6.1</version>
+                <version>${hbase.shaded.client.version}</version>
             </dependency>
 
             <dependency>
@@ -1032,6 +1035,14 @@
     </reporting>
 
     <profiles>
+        <!-- for Hbase2 -->
+        <profile>
+            <id>hbase2</id>
+            <properties>
+                <hbase.shaded.client.version>2.1.1</hbase.shaded.client.version>
+            </properties>
+        </profile>
+
         <!-- for Local (Development) -->
         <profile>
             <id>local</id>
