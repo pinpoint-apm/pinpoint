@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
-import { Router, Resolve, RouterStateSnapshot, ActivatedRouteSnapshot } from '@angular/router';
+import { Router, Resolve, ActivatedRouteSnapshot } from '@angular/router';
 import { Observable, EMPTY } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { catchError, tap } from 'rxjs/operators';
 
 import { ApplicationListDataService } from 'app/shared/services/application-list-data.service';
+import { UrlPathId, UrlPath } from 'app/shared/models';
 
 @Injectable()
 export class ApplicationListResolverService implements Resolve<IApplication[]> {
@@ -12,13 +13,38 @@ export class ApplicationListResolverService implements Resolve<IApplication[]> {
         private applicationListDataService: ApplicationListDataService
     ) {}
 
-    // TODO: #2342 Guard the application param => empty main으로 보내기.
-    resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<IApplication[]> {
+    resolve(route: ActivatedRouteSnapshot): Observable<IApplication[]> {
         return this.applicationListDataService.getApplicationList().pipe(
-            catchError((error: any) => {
+            tap((appList: IApplication[]) => {
+                const providedApp = this.getAppKeyStr(route);
+                const isAppIncludedFunc = (appKeyStr: string) => !!appList.find((app: IApplication) => app.getUrlStr() === appKeyStr);
+
+                if (providedApp && !isAppIncludedFunc(providedApp)) {
+                    this.router.navigate([`/${UrlPath.MAIN}`]);
+                }
+            }),
+            catchError(() => {
                 this.router.navigate(['/error']);
                 return EMPTY;
             })
         );
+    }
+
+    private getAppKeyStr(route: ActivatedRouteSnapshot): string {
+        let routeChild = route;
+        let appKeyStr = '';
+
+        while (routeChild) {
+            const paramMap = routeChild.paramMap;
+
+            if (paramMap.has(UrlPathId.APPLICATION)) {
+                appKeyStr = paramMap.get(UrlPathId.APPLICATION);
+                break;
+            }
+
+            routeChild = routeChild.firstChild;
+        }
+
+        return appKeyStr;
     }
 }
