@@ -105,6 +105,10 @@ entries:
       url: /proxyhttpheader.html
       output: web, pdf
 
+    - title: Upgrade Database Hbase2
+      url: /hbaseupgrade.html
+      output: web, pdf
+
   - title: Contribution
     output: web, pdf
 
