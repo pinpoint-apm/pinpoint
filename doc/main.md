@@ -31,5 +31,6 @@ Agent compatibility to Collector table:
 ## Supported Modules
 
 * JDK 6+
+* Supported versions of the \* indicated library may differ from the actual version.
 
 {% include_relative modules.md %}

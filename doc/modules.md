@@ -33,15 +33,15 @@
 | AsyncHttpClient                                                                   | async-http-client          | 1.7.24  | 1.8.17  |                        | <AG> 
 | OkHttp                                                                            | okhttp                     | 2.0.0   | 3.10.0  |                        | <AG> 
 | Apache HttpAsyncClient                                                            | httpasyncclient            | 4.0     | 4.1.3   |                        | <AG>
-| *Akka HTTP                                                                        | akka-http_2.12             | 10.1.0  | 10.1.x  |                        | 
-| *Kafka                                                                            | kafka-clients              | 0.11.0.1|         |                        |
+| \*Akka HTTP                                                                        | akka-http_2.12             | 10.1.0  | 10.1.x  |                        | 
+| \*Kafka                                                                            | kafka-clients              | 0.11.0.1|         |                        |
 | GRPC                                                                              | grpc-stub                  | 1.8.0   | 1.18.0  |                        | <AG>
 |                                                                                   |                            |         |         |                        | 
 | Log4j                                                                             | log4j                      | 1.2.16  | 1.2.17  |                        | <AG> 
 | Logback                                                                           | logback-classic            | 1.0.13  | 1.2.3   |                        | <AG> 
 |                                                                                   |                            |         |         |                        |
-| *Arcus                                                                            | arcus-java-client          | 1.7.0   | 1.11.4  |                        | 
-| *MsSQL (jTDS)                                                                     | jtds                       | 1.2.8   |         |                        | 
+| \*Arcus                                                                            | arcus-java-client          | 1.7.0   | 1.11.4  |                        | 
+| \*MsSQL (jTDS)                                                                     | jtds                       | 1.2.8   |         |                        | 
 | HikariCP                                                                          | HikariCP-java6             | 2.3.0   | 2.3.13  |                        | <AG>
 | Jackson-mapper-asl                                                                | jackson-mapper-asl         | 1.0.1   | 1.8.11  |                        | <AG>
 | Jackson Databind                                                                  | jackson-databind           | 2.0.6   | 2.9.8   |                        | <AG>
@@ -49,15 +49,15 @@
 | MongoDB Java Driver                                                               | mongodb-java-driver        | 3.0.0   | 3.9.0   |                        | <AG>
 | Datastax Java Driver                                                              | cassandra-driver-core      | 2.0.10  | 3.6.0   |                        | <AG>
 | Druid                                                                             | druid                      | 1.0.0   | 1.1.13  |                        | <AG>
-| *Cubrid                                                                           | cubrid-jdbc-driver         | 8.4.1   | 10.0.0  |                        | 
-| *Commons DBCP                                                                     | commons-dbcp               | 1.0     | 1.4     |                        | 
-| *Commons DBCP2                                                                    | commons-dbcp2              | 2.0     | 2.5.0   |                        | 
-| *HBase                                                                            | hbase-client               | 1.2.6.1 | 1.2.6.1 |                        |
-| *MySQL                                                                            | mysql-connector-java       | 5.0     | 8.x     |                        |
-| *Oracle JDBC Driver                                                               | ojdbc                      |         |         |                        |
-| *PostgreSQL JDBC Driver                                                           | postgresql                 |         |         |                        |
-| *[Redis](https://github.com/naver/pinpoint/tree/master/plugins/redis)             | jedis                      | 2.4.2   |         |                        |
-| *[Redis](https://github.com/naver/pinpoint/tree/master/plugins/redis-lettuce)     | lettuce-core               | 5.0.0   | 5.1.2   |                        | 
+| \*Cubrid                                                                           | cubrid-jdbc-driver         | 8.4.1   | 10.0.0  |                        | 
+| \*Commons DBCP                                                                     | commons-dbcp               | 1.0     | 1.4     |                        | 
+| \*Commons DBCP2                                                                    | commons-dbcp2              | 2.0     | 2.5.0   |                        | 
+| \*HBase                                                                            | hbase-client               | 1.2.6.1 | 1.2.6.1 |                        |
+| \*MySQL                                                                            | mysql-connector-java       | 5.0     | 8.x     |                        |
+| \*Oracle JDBC Driver                                                               | ojdbc                      |         |         |                        |
+| \*PostgreSQL JDBC Driver                                                           | postgresql                 |         |         |                        |
+| \*[Redis](https://github.com/naver/pinpoint/tree/master/plugins/redis)             | jedis                      | 2.4.2   |         |                        |
+| \*[Redis](https://github.com/naver/pinpoint/tree/master/plugins/redis-lettuce)     | lettuce-core               | 5.0.0   | 5.1.2   |                        | 
 |                                                                                   |                            |         |         |                        |
 | Apache CXF                                                                        | cxf-rt-rs-client           | 3.0.0   | 3.3.0   |                        | <AG> 
 | Netty                                                                             | netty-all                  | 4.1.0   | 4.1.33  |                        | <AG> 
