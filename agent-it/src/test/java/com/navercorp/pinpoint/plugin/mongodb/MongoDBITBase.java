@@ -76,29 +76,18 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
  */
 public abstract class MongoDBITBase {
 
-    protected static final String MONGO = "MONGO";
     protected static final String MONGO_EXECUTE_QUERY = "MONGO_EXECUTE_QUERY";
     public static MongoDatabase database;
     public static String secondCollectionDefaultOption = "ACKNOWLEDGED";
     public static double version = 0;
-    public static boolean version_over_3_4_0 = true;
-    public static boolean version_over_3_7_0 = true;
     protected static String MONGODB_ADDRESS = "localhost:" + 27018;
-    private static String OS = System.getProperty("os.name").toLowerCase();
     MongodProcess mongod;
-
-    public static boolean isWindows() {
-        return OS.contains("win");
-    }
 
     public abstract void setClient();
 
     public abstract void closeClient();
 
     public void startDB() throws Exception {
-        if (isWindows()) {
-            return;
-        }
         MongodStarter starter = MongodStarter.getDefaultInstance();
 
         String bindIp = "localhost";
@@ -117,9 +106,6 @@ public abstract class MongoDBITBase {
     }
 
     public void stopDB() throws Exception {
-        if (isWindows()) {
-            return;
-        }
 
         //give time for the test to finish"
         Thread.sleep(100L);
@@ -131,9 +117,6 @@ public abstract class MongoDBITBase {
 
     @Test
     public void testConnection() throws Exception {
-        if (isWindows()) {
-            return;
-        }
         startDB();
 
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
