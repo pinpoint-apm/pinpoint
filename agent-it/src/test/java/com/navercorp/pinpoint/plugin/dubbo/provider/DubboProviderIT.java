@@ -44,7 +44,7 @@ import static org.mockito.Mockito.when;
  */
 @RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
-@Dependency({"com.alibaba:dubbo:2.5.3", "org.mockito:mockito-all:1.8.4"})
+@Dependency({"com.alibaba:dubbo:[2.5.x,]", "org.mockito:mockito-all:1.8.4"})
 @TraceObjectManagable
 public class DubboProviderIT {
 
