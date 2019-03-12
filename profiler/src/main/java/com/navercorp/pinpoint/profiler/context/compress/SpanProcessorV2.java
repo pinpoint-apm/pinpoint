@@ -60,22 +60,38 @@ public class SpanProcessorV2 implements SpanProcessor<TSpan, TSpanChunk> {
     }
 
     @Override
-    public void postProcess(SpanChunk span, TSpanChunk tSpan) {
-        final List<SpanEvent> spanEventList = span.getSpanEventList();
-        final List<TSpanEvent> tSpanEventList = tSpan.getSpanEventList();
+    public void postProcess(Span span, TSpan tSpan) {
+        List<SpanEvent> spanEventList = span.getSpanEventList();
+        if (spanEventList == null) {
+            spanEventList = Collections.emptyList();
+        }
+
+        List<TSpanEvent> tSpanEventList = tSpan.getSpanEventList();
+        if (tSpanEventList == null) {
+            tSpanEventList = Collections.emptyList();
+        }
+
         postEventProcess(spanEventList, tSpanEventList);
     }
 
     @Override
-    public void postProcess(Span span, TSpan tSpan) {
+    public void postProcess(SpanChunk span, TSpanChunk tSpan) {
         final List<SpanEvent> spanEventList = span.getSpanEventList();
+        if (CollectionUtils.isEmpty(spanEventList)) {
+            throw new IllegalStateException("SpanChunk.spanEventList is empty");
+        }
+
         final List<TSpanEvent> tSpanEventList = tSpan.getSpanEventList();
+        if (CollectionUtils.isEmpty(tSpanEventList)) {
+            throw new IllegalStateException("TSpanChunk.spanEventList is empty");
+        }
+
         postEventProcess(spanEventList, tSpanEventList);
     }
 
     void postEventProcess(List<SpanEvent> spanEventList, List<TSpanEvent> tSpanEventList) {
         if (!(CollectionUtils.nullSafeSize(spanEventList) == CollectionUtils.nullSafeSize(tSpanEventList))) {
-            throw new IllegalStateException("list size not same");
+            throw new IllegalStateException("list size not same, spanEventList=" + CollectionUtils.nullSafeSize(spanEventList) + ", tSpanEventList=" + CollectionUtils.nullSafeSize(tSpanEventList));
         }
 
         final Iterator<TSpanEvent> tSpanEventIterator = tSpanEventList.iterator();
