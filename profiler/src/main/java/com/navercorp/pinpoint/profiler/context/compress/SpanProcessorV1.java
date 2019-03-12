@@ -27,6 +27,7 @@ import com.navercorp.pinpoint.thrift.dto.TSpan;
 import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
 import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
 
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -56,30 +57,41 @@ public class SpanProcessorV1 implements SpanProcessor<TSpan, TSpanChunk> {
         final TraceRoot traceRoot = span.getTraceRoot();
         final long keyTime = traceRoot.getTraceStartTime();
 
-        final List<SpanEvent> spanEventList = span.getSpanEventList();
-        final List<TSpanEvent> tSpanEventList = tSpan.getSpanEventList();
+        List<SpanEvent> spanEventList = span.getSpanEventList();
+        if (spanEventList == null) {
+            spanEventList = Collections.emptyList();
+        }
+
+        List<TSpanEvent> tSpanEventList = tSpan.getSpanEventList();
+        if (tSpanEventList == null) {
+            tSpanEventList = Collections.emptyList();
+        }
 
         postEventProcess(spanEventList, tSpanEventList, keyTime);
-
     }
 
     @Override
     public void postProcess(SpanChunk spanChunk, TSpanChunk tSpanChunk) {
-
         final TraceRoot traceRoot = spanChunk.getTraceRoot();
         final long keyTime = traceRoot.getTraceStartTime();
 
         final List<SpanEvent> spanEventList = spanChunk.getSpanEventList();
         if (CollectionUtils.isEmpty(spanEventList)) {
-            throw new IllegalStateException("spanEventList is empty");
+            throw new IllegalStateException("SpanChunk.spanEventList is empty");
         }
         final List<TSpanEvent> tSpanEventList = tSpanChunk.getSpanEventList();
-
+        if (CollectionUtils.isEmpty(tSpanEventList)) {
+            throw new IllegalStateException("TSpanChunk.spanEventList is empty");
+        }
         postEventProcess(spanEventList, tSpanEventList, keyTime);
     }
 
     @VisibleForTesting
     public void postEventProcess(List<SpanEvent> spanEventList, List<TSpanEvent> tSpanEventList, long keyTime) {
+        if (!(CollectionUtils.nullSafeSize(spanEventList) == CollectionUtils.nullSafeSize(tSpanEventList))) {
+            throw new IllegalStateException("list size not same, spanEventList=" + CollectionUtils.nullSafeSize(spanEventList) + ", tSpanEventList=" + CollectionUtils.nullSafeSize(tSpanEventList));
+        }
+
         Iterator<TSpanEvent> tSpanEventIterator = tSpanEventList.iterator();
         for (SpanEvent spanEvent : spanEventList) {
             final long startTime = spanEvent.getStartTime();
@@ -89,6 +101,4 @@ public class SpanProcessorV1 implements SpanProcessor<TSpan, TSpanChunk> {
             tSpanEvent.setStartElapsed((int) startElapsedTime);
         }
     }
-
-
 }
