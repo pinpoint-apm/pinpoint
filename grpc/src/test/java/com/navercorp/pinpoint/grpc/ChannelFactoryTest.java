@@ -136,7 +136,7 @@ public class ChannelFactoryTest {
             return new StreamObserver<PSpan>() {
                 @Override
                 public void onNext(PSpan value) {
-                    AgentHeaderFactory.Header header = ServerContext.AGENT_INFO_KEY.get();
+                    AgentHeaderFactory.Header header = ServerContext.getAgentInfo();
                     logger.debug("server-onNext:{} header:{}" , value, header);
                     logger.debug("server-threadName:{}", Thread.currentThread().getName());
 

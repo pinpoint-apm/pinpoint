@@ -26,11 +26,8 @@ import com.navercorp.pinpoint.io.request.ServerRequest;
 import io.grpc.Context;
 import io.grpc.Status;
 import io.grpc.StatusException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
-import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -43,12 +40,12 @@ public class ServerRequestFactory {
 
     public ServerRequest<GeneratedMessageV3> newServerRequest(Message<?> message) throws StatusException {
         final Context current = Context.current();
-        final AgentHeaderFactory.Header header = ServerContext.AGENT_INFO_KEY.get(current);
+        final AgentHeaderFactory.Header header = ServerContext.getAgentInfo(current);
         if (header == null) {
             throw Status.INTERNAL.withDescription("Not found request header").asException();
         }
 
-        final TransportMetadata transportMetadata = ServerContext.TRANSPORT_METADATA_KEY.get(current);
+        final TransportMetadata transportMetadata = ServerContext.getTransportMetadata(current);
         if (transportMetadata == null) {
             throw Status.INTERNAL.withDescription("Not found transportMetadata").asException();
         }

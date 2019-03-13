@@ -389,6 +389,8 @@
     </bean>
 
     <!-- gRPC -->
+    <bean id="socketIdProvider" class="com.navercorp.pinpoint.collector.receiver.grpc.service.CurrentTimeSocketIdProvider"/>
+
     <bean id="grpcAgentServerExecutor" class="com.navercorp.pinpoint.collector.receiver.thrift.ExecutorFactoryBean" parent="abstractReceiverExecutorFactoryBean">
         <property name="corePoolSize" value="#{baseDataReceiverConfig.grpcWorkerThreadSize}"/>
         <property name="maxPoolSize" value="#{baseDataReceiverConfig.grpcWorkerThreadSize}"/>
@@ -411,6 +413,7 @@
         <property name="dispatchHandler" ref="tcpDispatchHandlerFactoryBean"/>
         <property name="enable" value="#{baseDataReceiverConfig.isGrpcEnable()}"/>
         <property name="serverOption" ref="grpcAgentServerOption"/>
+        <property name="socketIdProvider" ref="socketIdProvider"/>
     </bean>
 
 

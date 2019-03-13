@@ -24,8 +24,33 @@ import io.grpc.Context;
  */
 public class ServerContext {
 
-    public static final Context.Key<AgentHeaderFactory.Header> AGENT_INFO_KEY = Context.key("agentinfo");
+    private static final Context.Key<AgentHeaderFactory.Header> AGENT_INFO_KEY = Context.key("agentinfo");
 
-    public static final Context.Key<TransportMetadata> TRANSPORT_METADATA_KEY = Context.key("transportmetadata");
+    private static final Context.Key<TransportMetadata> TRANSPORT_METADATA_KEY = Context.key("transportmetadata");
 
+    public static Context.Key<AgentHeaderFactory.Header> getAgentInfoKey() {
+        return AGENT_INFO_KEY;
+    }
+
+    public static Context.Key<TransportMetadata> getTransportMetadataKey() {
+        return TRANSPORT_METADATA_KEY;
+    }
+
+    public static AgentHeaderFactory.Header getAgentInfo() {
+        final Context current = Context.current();
+        return getAgentInfo(current);
+    }
+
+    public static AgentHeaderFactory.Header getAgentInfo(Context context) {
+        return AGENT_INFO_KEY.get(context);
+    }
+
+    public static TransportMetadata getTransportMetadata() {
+        final Context current = Context.current();
+        return getTransportMetadata(current);
+    }
+
+    public static TransportMetadata getTransportMetadata(Context context) {
+        return TRANSPORT_METADATA_KEY.get(context);
+    }
 }

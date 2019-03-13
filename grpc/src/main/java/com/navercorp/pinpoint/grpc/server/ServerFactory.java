@@ -140,7 +140,7 @@ public class ServerFactory {
         setupServerOption(serverBuilder);
 
         HeaderFactory<AgentHeaderFactory.Header> headerFactory = new AgentHeaderFactory();
-        ServerInterceptor headerContext = new HeaderPropagationInterceptor<AgentHeaderFactory.Header>(headerFactory, ServerContext.AGENT_INFO_KEY);
+        ServerInterceptor headerContext = new HeaderPropagationInterceptor<AgentHeaderFactory.Header>(headerFactory, ServerContext.getAgentInfoKey());
         serverBuilder.intercept(headerContext);
         Server server = serverBuilder.build();
         return server;

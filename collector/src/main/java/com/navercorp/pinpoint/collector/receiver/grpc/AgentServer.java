@@ -19,7 +19,9 @@ package com.navercorp.pinpoint.collector.receiver.grpc;
 import com.navercorp.pinpoint.collector.cluster.zookeeper.ZookeeperClusterService;
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.AgentService;
+import com.navercorp.pinpoint.collector.receiver.grpc.service.CurrentTimeSocketIdProvider;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.KeepAliveService;
+import com.navercorp.pinpoint.collector.receiver.grpc.service.SocketIdProvider;
 import com.navercorp.pinpoint.collector.service.async.AgentEventAsyncTaskService;
 import com.navercorp.pinpoint.collector.service.async.AgentLifeCycleAsyncTaskService;
 import com.navercorp.pinpoint.common.server.util.AddressFilter;
@@ -78,6 +80,7 @@ public class AgentServer implements InitializingBean, DisposableBean, BeanNameAw
     @Resource(name = "channelStateChangeEventHandlers")
     private List<ServerStateChangeEventHandler> channelStateChangeEventHandlers = Collections.emptyList();
     private ZookeeperClusterService clusterService;
+    private SocketIdProvider socketIdProvider;
 
     public void afterPropertiesSet() throws Exception {
         if (Boolean.FALSE == this.enable) {
@@ -104,7 +107,7 @@ public class AgentServer implements InitializingBean, DisposableBean, BeanNameAw
         BindableService agentService = new AgentService(dispatchHandler);
         this.serverFactory.addService(agentService);
 
-        KeepAliveService keepAliveService = new KeepAliveService(agentEventAsyncTask, agentLifeCycleAsyncTask);
+        KeepAliveService keepAliveService = new KeepAliveService(agentEventAsyncTask, agentLifeCycleAsyncTask, socketIdProvider);
         serverFactory.addService(keepAliveService);
 
         this.server = serverFactory.build();
@@ -113,6 +116,7 @@ public class AgentServer implements InitializingBean, DisposableBean, BeanNameAw
         }
         this.server.start();
     }
+
 
     @Override
     public void destroy() throws Exception {
@@ -170,5 +174,9 @@ public class AgentServer implements InitializingBean, DisposableBean, BeanNameAw
 
     public void setClusterService(ZookeeperClusterService clusterService) {
         this.clusterService = clusterService;
+    }
+
+    public void setSocketIdProvider(SocketIdProvider socketIdProvider) {
+        this.socketIdProvider = socketIdProvider;
     }
 }

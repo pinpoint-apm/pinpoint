@@ -46,7 +46,7 @@ public class TransportMetadataServerInterceptor implements ServerInterceptor {
         }
 
         final Context currentContext = Context.current();
-        final Context newContext = currentContext.withValue(ServerContext.TRANSPORT_METADATA_KEY, transportMetadata);
+        final Context newContext = currentContext.withValue(ServerContext.getTransportMetadataKey(), transportMetadata);
         if (logger.isDebugEnabled()) {
             logger.debug("interceptCall(call = [{}], headers = [{}], next = [{}])", serverCall, metadata, serverCallHandler);
         }
