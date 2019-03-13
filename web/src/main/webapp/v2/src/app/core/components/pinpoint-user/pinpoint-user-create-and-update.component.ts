@@ -20,7 +20,7 @@ export class PinpointUserCreateAndUpdateComponent implements OnInit, OnChanges, 
     @ViewChild('newUserGroupName') userGroupInput: ElementRef;
     @Input() showCreate = false;
     @Input() i18nLabel: any;
-    @Input() i18nGuide: any;
+    @Input() i18nGuide: { [key: string]: IFormFieldErrorType };
     @Input() minLength: any;
     @Input() editPinpointUser: PinpointUser = null;
     @Output() outUpdatePinpointUser: EventEmitter<PinpointUser> = new EventEmitter();

@@ -1,13 +1,14 @@
-import { ChangeDetectorRef } from '@angular/core';
+import { ChangeDetectorRef, ComponentFactoryResolver, Injector } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import * as moment from 'moment-timezone';
 import { Subject, Observable, combineLatest, merge } from 'rxjs';
 import { filter, map, skip, takeUntil, withLatestFrom } from 'rxjs/operators';
 
 import { II18nText, IChartConfig, IErrObj } from 'app/core/components/inspector-chart/inspector-chart.component';
-import { WebAppSettingDataService, NewUrlStateNotificationService, AjaxExceptionCheckerService, AnalyticsService, TRACKED_EVENT_LIST, StoreHelperService, DynamicPopupService } from 'app/shared/services';
+import { WebAppSettingDataService, NewUrlStateNotificationService, AnalyticsService, TRACKED_EVENT_LIST, StoreHelperService, DynamicPopupService } from 'app/shared/services';
 import { HELP_VIEWER_LIST, HelpViewerPopupContainerComponent } from 'app/core/components/help-viewer-popup/help-viewer-popup-container.component';
 import { IChartDataService, IChartDataFromServer } from 'app/core/components/inspector-chart/chart-data.service';
+import { isThatType } from 'app/core/utils/util';
 
 export abstract class InspectorChartContainer {
     private previousRange: number[];
@@ -30,9 +31,10 @@ export abstract class InspectorChartContainer {
         protected newUrlStateNotificationService: NewUrlStateNotificationService,
         protected chartDataService: IChartDataService,
         protected translateService: TranslateService,
-        protected ajaxExceptionCheckerService: AjaxExceptionCheckerService,
         protected analyticsService: AnalyticsService,
-        protected dynamicPopupService: DynamicPopupService
+        protected dynamicPopupService: DynamicPopupService,
+        private componentFactoryResolver: ComponentFactoryResolver,
+        private injector: Injector
     ) {}
 
     protected initI18nText(): void {
@@ -113,7 +115,7 @@ export abstract class InspectorChartContainer {
 
     protected getChartData(range: number[]): void {
         this.chartDataService.getData(range).subscribe((data: IChartDataFromServer | IChartDataFromServer[] | AjaxException) => {
-            if (this.ajaxExceptionCheckerService.isAjaxException(data)) {
+            if (isThatType<AjaxException>(data, 'exception')) {
                 this.setErrObj(data);
             } else {
                 this.chartData = data;
@@ -167,6 +169,9 @@ export abstract class InspectorChartContainer {
                 coordY: top + height / 2
             },
             component: HelpViewerPopupContainerComponent
+        }, {
+            resolver: this.componentFactoryResolver,
+            injector: this.injector
         });
     }
 }

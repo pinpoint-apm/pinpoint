@@ -23,8 +23,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.navercorp.pinpoint.common.service.AnnotationKeyRegistryService;
-import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
+import com.navercorp.pinpoint.loader.service.AnnotationKeyRegistryService;
+import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import org.apache.commons.lang3.StringUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;

@@ -24,8 +24,8 @@ import java.util.Objects;
 
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
-import com.navercorp.pinpoint.common.service.AnnotationKeyRegistryService;
-import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
+import com.navercorp.pinpoint.loader.service.AnnotationKeyRegistryService;
+import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.filter.agent.*;
 import com.navercorp.pinpoint.web.filter.responsetime.ResponseTimeFilter;

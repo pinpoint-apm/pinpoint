@@ -17,6 +17,16 @@
     <dependencies>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-common-servlet</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-external-plugins</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-httpclient3-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -257,11 +267,6 @@
         </dependency>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
-            <artifactId>pinpoint-php-plugin</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-akka-http-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -303,11 +308,6 @@
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-openwhisk-plugin</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.navercorp.pinpoint</groupId>
-            <artifactId>pinpoint-node-js-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

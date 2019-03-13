@@ -5,7 +5,6 @@ import { SharedModule } from 'app/shared';
 import { UserGroupComponent } from './user-group.component';
 import { UserGroupCreateAndUpdateComponent } from './user-group-create-and-update.component';
 import { UserGroupContainerComponent } from './user-group-container.component';
-import { UserGroupInteractionService } from './user-group-interaction.service';
 import { UserGroupDataService } from './user-group-data.service';
 
 @NgModule({
@@ -27,7 +26,6 @@ import { UserGroupDataService } from './user-group-data.service';
         UserGroupContainerComponent
     ],
     providers: [
-        UserGroupInteractionService,
         UserGroupDataService
     ]
 })

@@ -22,8 +22,8 @@ import com.navercorp.pinpoint.io.request.Message;
 import com.navercorp.pinpoint.profiler.context.DefaultSpanChunk;
 import com.navercorp.pinpoint.profiler.context.SpanChunk;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
-import com.navercorp.pinpoint.profiler.context.compress.SpanPostProcessor;
-import com.navercorp.pinpoint.profiler.context.compress.SpanPostProcessorV1;
+import com.navercorp.pinpoint.profiler.context.compress.SpanProcessor;
+import com.navercorp.pinpoint.profiler.context.compress.SpanProcessorV1;
 import com.navercorp.pinpoint.profiler.context.id.DefaultTraceRoot;
 import com.navercorp.pinpoint.profiler.context.id.DefaultTraceId;
 import com.navercorp.pinpoint.profiler.context.id.DefaultTransactionIdEncoder;
@@ -37,6 +37,7 @@ import com.navercorp.pinpoint.profiler.sender.SpanStreamSendData;
 import com.navercorp.pinpoint.profiler.sender.SpanStreamSendDataFactory;
 import com.navercorp.pinpoint.profiler.sender.SpanStreamSendDataSerializer;
 import com.navercorp.pinpoint.profiler.util.ObjectPool;
+import com.navercorp.pinpoint.thrift.dto.TSpan;
 import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
 import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializer;
@@ -64,7 +65,7 @@ public class SpanChunkStreamSendDataPlanerTest {
     private final ServiceType applicationServiceType = ServiceType.STAND_ALONE;
     private final TransactionIdEncoder encoder = new DefaultTransactionIdEncoder(agentId, agentStartTime);
 
-    private SpanPostProcessor spanPostProcessor = new SpanPostProcessorV1();
+    private SpanProcessor<TSpan, TSpanChunk> spanPostProcessor = new SpanProcessorV1();
     private TraceRoot traceRoot;
     private MessageConverter<TBase<?, ?>> messageConverter =
             new SpanThriftMessageConverter(applicationName, agentId, agentStartTime, applicationServiceType.getCode(), encoder, spanPostProcessor);
@@ -109,8 +110,6 @@ public class SpanChunkStreamSendDataPlanerTest {
     }
 
     private List<SpanEvent> createSpanEventList(int size) {
-
-        TraceRoot traceRoot = mock(TraceRoot.class);
 
         List<SpanEvent> spanEventList = new ArrayList<SpanEvent>(size);
         for (int i = 0; i < size; i++) {

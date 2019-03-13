@@ -7,7 +7,8 @@
         "REQUIRED": "!{0} is required.",
         "REQUIRED_SELECT": "Select !{0}",
         "MAX_SEARCH_PERIOD": "Search duration may not be greater than !{0}days.",
-        "DO_NOT_HAVE_PERMISSION": "Don't have permission."
+        "DO_NOT_HAVE_PERMISSION": "Don't have permission.",
+        "SUBMIT": "Submit"
     },
     "MAIN": {
         "SELECT_YOUR_APP": "Select your application",
@@ -41,7 +42,7 @@
     "CONFIGURATION": {
         "GENERAL": {
             "DESC": "* User configuration is stored in browser cache. Server-side storage will be supported in a future release.",
-            "EMPTY": "Favorite list is empty."
+            "EMPTY": "The list is empty."
         },
         "INSTALLATION": {
             "DESC": "* You can check if Application Name and Agent ID are duplicated.",

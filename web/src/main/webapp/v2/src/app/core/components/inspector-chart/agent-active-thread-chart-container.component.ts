@@ -1,11 +1,10 @@
-import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef, ComponentFactoryResolver, Injector } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import * as moment from 'moment-timezone';
 
 import {
     WebAppSettingDataService,
     NewUrlStateNotificationService,
-    AjaxExceptionCheckerService,
     AnalyticsService,
     StoreHelperService,
     DynamicPopupService
@@ -30,9 +29,10 @@ export class AgentActiveThreadChartContainerComponent extends InspectorChartCont
         newUrlStateNotificationService: NewUrlStateNotificationService,
         chartDataService: AgentActiveThreadChartDataService,
         translateService: TranslateService,
-        ajaxExceptionCheckerService: AjaxExceptionCheckerService,
         analyticsService: AnalyticsService,
-        dynamicPopupService: DynamicPopupService
+        dynamicPopupService: DynamicPopupService,
+        componentFactoryResolver: ComponentFactoryResolver,
+        injector: Injector
     ) {
         super(
             10,
@@ -42,9 +42,10 @@ export class AgentActiveThreadChartContainerComponent extends InspectorChartCont
             newUrlStateNotificationService,
             chartDataService,
             translateService,
-            ajaxExceptionCheckerService,
             analyticsService,
-            dynamicPopupService
+            dynamicPopupService,
+            componentFactoryResolver,
+            injector
         );
     }
 

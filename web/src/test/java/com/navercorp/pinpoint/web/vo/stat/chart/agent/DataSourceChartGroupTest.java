@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.web.vo.stat.chart.agent;
 
 import com.navercorp.pinpoint.common.server.bo.stat.DataSourceBo;
-import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
+import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.DataSourceSampler;

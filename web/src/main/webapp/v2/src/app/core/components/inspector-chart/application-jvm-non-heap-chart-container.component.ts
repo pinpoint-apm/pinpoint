@@ -1,9 +1,9 @@
-import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef, ComponentFactoryResolver, Injector } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import * as moment from 'moment-timezone';
 
 import { Actions } from 'app/shared/store';
-import { WebAppSettingDataService, NewUrlStateNotificationService, AjaxExceptionCheckerService, AnalyticsService, StoreHelperService, DynamicPopupService } from 'app/shared/services';
+import { WebAppSettingDataService, NewUrlStateNotificationService, AnalyticsService, StoreHelperService, DynamicPopupService } from 'app/shared/services';
 import { ApplicationMemoryChartDataService } from './application-memory-chart-data.service';
 import { HELP_VIEWER_LIST } from 'app/core/components/help-viewer-popup/help-viewer-popup-container.component';
 import { InspectorChartContainer } from 'app/core/components/inspector-chart/inspector-chart-container';
@@ -23,9 +23,10 @@ export class ApplicationJVMNonHeapChartContainerComponent extends InspectorChart
         newUrlStateNotificationService: NewUrlStateNotificationService,
         chartDataService: ApplicationMemoryChartDataService,
         translateService: TranslateService,
-        ajaxExceptionCheckerService: AjaxExceptionCheckerService,
         analyticsService: AnalyticsService,
-        dynamicPopupService: DynamicPopupService
+        dynamicPopupService: DynamicPopupService,
+        componentFactoryResolver: ComponentFactoryResolver,
+        injector: Injector
     ) {
         super(
             100000,
@@ -35,9 +36,10 @@ export class ApplicationJVMNonHeapChartContainerComponent extends InspectorChart
             newUrlStateNotificationService,
             chartDataService,
             translateService,
-            ajaxExceptionCheckerService,
             analyticsService,
-            dynamicPopupService
+            dynamicPopupService,
+            componentFactoryResolver,
+            injector
         );
     }
 

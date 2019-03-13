@@ -30,9 +30,4 @@ public class DummyAgent implements Agent {
     public void start() {
     }
 
-    @Override
-    public void stop() {
-    }
-
-
 }

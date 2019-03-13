@@ -31,6 +31,7 @@
         <module>bom</module>
         <module>assembly</module>
         <module>common-servlet</module>
+        <module>external</module>
 
         <module>httpclient3</module>
         <module>httpclient4</module>
@@ -79,7 +80,6 @@
         <module>rxjava</module>
         <module>rabbitmq</module>
         <module>weblogic</module>
-        <module>php</module>
         <module>akka-http</module>
         <module>undertow</module>
         <module>undertow-servlet</module>
@@ -88,9 +88,8 @@
         <module>fastjson</module>
         <module>druid</module>
         <module>hbase</module>
-        <module>openwhisk</module>
         <module>log4j2</module>
-        <module>node-js</module>
+        <module>openwhisk</module>
     </modules>
 
     <dependencyManagement>

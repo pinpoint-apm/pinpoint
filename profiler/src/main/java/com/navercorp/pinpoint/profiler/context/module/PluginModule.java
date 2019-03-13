@@ -18,13 +18,15 @@ package com.navercorp.pinpoint.profiler.context.module;
 
 import com.google.inject.PrivateModule;
 import com.google.inject.Scopes;
-import com.navercorp.pinpoint.common.service.AnnotationKeyRegistryService;
-import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
-import com.navercorp.pinpoint.common.service.TraceMetadataLoaderService;
+import com.navercorp.pinpoint.loader.service.AnnotationKeyRegistryService;
+import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
+import com.navercorp.pinpoint.loader.service.TraceMetadataLoaderService;
+import com.navercorp.pinpoint.loader.trace.TraceMetadataLoader;
 import com.navercorp.pinpoint.common.util.logger.CommonLoggerFactory;
 import com.navercorp.pinpoint.profiler.context.provider.plugin.AnnotationKeyRegistryServiceProvider;
 import com.navercorp.pinpoint.profiler.context.provider.plugin.ServiceTypeRegistryServiceProvider;
 import com.navercorp.pinpoint.profiler.context.provider.plugin.Slf4jCommonLoggerFactory;
+import com.navercorp.pinpoint.profiler.context.provider.plugin.TraceMetadataLoaderProvider;
 import com.navercorp.pinpoint.profiler.context.provider.plugin.TraceMetadataLoaderServiceProvider;
 
 /**
@@ -40,6 +42,7 @@ public class PluginModule extends PrivateModule {
         binder().disableCircularProxies();
 
         bind(CommonLoggerFactory.class).toInstance(new Slf4jCommonLoggerFactory());
+        bind(TraceMetadataLoader.class).toProvider(TraceMetadataLoaderProvider.class);
         bind(TraceMetadataLoaderService.class).toProvider(TraceMetadataLoaderServiceProvider.class).in(Scopes.SINGLETON);
 
         bind(ServiceTypeRegistryService.class).toProvider(ServiceTypeRegistryServiceProvider.class).in(Scopes.SINGLETON);

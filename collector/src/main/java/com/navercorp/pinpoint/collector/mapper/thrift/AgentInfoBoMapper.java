@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.collector.mapper.thrift;
 import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
 import com.navercorp.pinpoint.common.server.bo.JvmInfoBo;
 import com.navercorp.pinpoint.common.server.bo.ServerMetaDataBo;
+import com.navercorp.pinpoint.grpc.trace.PAgentInfo;
 import com.navercorp.pinpoint.thrift.dto.TAgentInfo;
 
 import com.navercorp.pinpoint.thrift.dto.TJvmInfo;
@@ -31,16 +32,13 @@ import org.springframework.stereotype.Component;
  * @author hyungil.jeong
  */
 @Component
-public class AgentInfoBoMapper implements ThriftBoMapper<AgentInfoBo, TAgentInfo> {
+public class AgentInfoBoMapper {
     @Autowired
-    @Qualifier("serverMetaDataBoMapper")
-    private ThriftBoMapper<ServerMetaDataBo, TServerMetaData> serverMetaDataBoMapper;
+    private ServerMetaDataBoMapper serverMetaDataBoMapper;
 
     @Autowired
-    @Qualifier("jvmInfoBoMapper")
-    private ThriftBoMapper<JvmInfoBo, TJvmInfo> jvmInfoBoMapper;
+    private JvmInfoBoMapper jvmInfoBoMapper;
 
-    @Override
     public AgentInfoBo map(TAgentInfo thriftObject) {
         final String hostName = thriftObject.getHostname();
         final String ip = thriftObject.getIp();
@@ -80,5 +78,9 @@ public class AgentInfoBoMapper implements ThriftBoMapper<AgentInfoBo, TAgentInfo
         }
 
         return builder.build();
+    }
+
+    public AgentInfoBo map(PAgentInfo thriftObject) {
+        return null;
     }
 }

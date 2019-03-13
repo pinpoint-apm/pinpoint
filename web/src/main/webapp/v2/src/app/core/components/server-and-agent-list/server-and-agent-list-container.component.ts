@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef, ComponentFactoryResolver, Injector } from '@angular/core';
 import { Subject } from 'rxjs';
 import { switchMap, takeUntil, filter } from 'rxjs/operators';
 
@@ -40,6 +40,8 @@ export class ServerAndAgentListContainerComponent implements OnInit, OnDestroy {
         private serverAndAgentListDataService: ServerAndAgentListDataService,
         private dynamicPopupService: DynamicPopupService,
         private analyticsService: AnalyticsService,
+        private componentFactoryResolver: ComponentFactoryResolver,
+        private injector: Injector
     ) {}
     ngOnInit() {
         this.funcImagePath = this.webAppSettingDataService.getImagePathMakeFunc();
@@ -66,6 +68,9 @@ export class ServerAndAgentListContainerComponent implements OnInit, OnDestroy {
                     contents: error
                 },
                 component: ServerErrorPopupContainerComponent
+            }, {
+                resolver: this.componentFactoryResolver,
+                injector: this.injector
             });
         });
         this.storeHelperService.getServerAndAgentQuery<string>(this.unsubscribe).subscribe((query: string) => {

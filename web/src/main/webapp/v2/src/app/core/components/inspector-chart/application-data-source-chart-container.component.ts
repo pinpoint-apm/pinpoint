@@ -1,12 +1,13 @@
-import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef, ComponentFactoryResolver, Injector } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import * as moment from 'moment-timezone';
 
 import { Actions } from 'app/shared/store';
-import { WebAppSettingDataService, NewUrlStateNotificationService, AjaxExceptionCheckerService, AnalyticsService, StoreHelperService, DynamicPopupService } from 'app/shared/services';
+import { WebAppSettingDataService, NewUrlStateNotificationService, AnalyticsService, StoreHelperService, DynamicPopupService } from 'app/shared/services';
 import { ApplicationDataSourceChartDataService, IApplicationDataSourceChart } from './application-data-source-chart-data.service';
 import { HELP_VIEWER_LIST } from 'app/core/components/help-viewer-popup/help-viewer-popup-container.component';
 import { InspectorChartContainer } from 'app/core/components/inspector-chart/inspector-chart-container';
+import { isThatType } from 'app/core/utils/util';
 
 @Component({
     selector: 'pp-application-data-source-chart-container',
@@ -24,9 +25,10 @@ export class ApplicationDataSourceChartContainerComponent extends InspectorChart
         newUrlStateNotificationService: NewUrlStateNotificationService,
         chartDataService: ApplicationDataSourceChartDataService,
         translateService: TranslateService,
-        ajaxExceptionCheckerService: AjaxExceptionCheckerService,
         analyticsService: AnalyticsService,
-        dynamicPopupService: DynamicPopupService
+        dynamicPopupService: DynamicPopupService,
+        componentFactoryResolver: ComponentFactoryResolver,
+        injector: Injector
     ) {
         super(
             10,
@@ -36,9 +38,10 @@ export class ApplicationDataSourceChartContainerComponent extends InspectorChart
             newUrlStateNotificationService,
             chartDataService,
             translateService,
-            ajaxExceptionCheckerService,
             analyticsService,
-            dynamicPopupService
+            dynamicPopupService,
+            componentFactoryResolver,
+            injector
         );
     }
 
@@ -58,7 +61,7 @@ export class ApplicationDataSourceChartContainerComponent extends InspectorChart
         this.chartDataService.getData(range)
             .subscribe(
                 (data: IApplicationDataSourceChart[] | AjaxException) => {
-                    if (this.ajaxExceptionCheckerService.isAjaxException(data)) {
+                    if (isThatType<AjaxException>(data, 'exception')) {
                         this.setErrObj(data);
                     } else {
                         this.chartData = data;
@@ -66,7 +69,7 @@ export class ApplicationDataSourceChartContainerComponent extends InspectorChart
                         this.setChartConfig(this.sourceDataArr[0]);
                     }
                 },
-                (err) => {
+                () => {
                     this.setErrObj();
                 }
             );

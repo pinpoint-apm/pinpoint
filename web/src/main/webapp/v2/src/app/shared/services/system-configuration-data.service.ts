@@ -19,7 +19,11 @@ export class SystemConfigurationDataService {
         userName: '',
         userDepartment: ''
     };
-    constructor(private http: HttpClient) {}
+
+    constructor(
+        private http: HttpClient
+    ) {}
+
     getConfiguration(): Observable<ISystemConfiguration> {
         return this.http.get<ISystemConfiguration>(this.url).pipe(
             map(res => {

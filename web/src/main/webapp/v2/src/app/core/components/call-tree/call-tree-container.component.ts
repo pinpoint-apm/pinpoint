@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, AfterViewInit, OnDestroy, ViewChild, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
+import { Component, Input, OnInit, AfterViewInit, OnDestroy, ViewChild, ChangeDetectorRef, ChangeDetectionStrategy, ComponentFactoryResolver, Injector } from '@angular/core';
 import { Observable, Subject } from 'rxjs';
 import { takeUntil, filter } from 'rxjs/operators';
 
@@ -45,7 +45,9 @@ export class CallTreeContainerComponent implements OnInit, OnDestroy, AfterViewI
         private transactionSearchInteractionService: TransactionSearchInteractionService,
         private transactionViewTypeService: TransactionViewTypeService,
         private analyticsService: AnalyticsService,
-        private dynamicPopupService: DynamicPopupService
+        private dynamicPopupService: DynamicPopupService,
+        private componentFactoryResolver: ComponentFactoryResolver,
+        private injector: Injector
     ) {}
     ngOnInit() {
         this.transactionViewTypeService.onChangeViewType$.pipe(
@@ -172,6 +174,9 @@ export class CallTreeContainerComponent implements OnInit, OnDestroy, AfterViewI
                 bindValue
             },
             component: SyntaxHighlightPopupContainerComponent
+        }, {
+            resolver: this.componentFactoryResolver,
+            injector: this.injector
         });
     }
     onRowSelected(rowData: IGridData): void {
@@ -189,6 +194,9 @@ export class CallTreeContainerComponent implements OnInit, OnDestroy, AfterViewI
                 contents
             },
             component: MessagePopupContainerComponent
+        }, {
+            resolver: this.componentFactoryResolver,
+            injector: this.injector
         });
     }
 }

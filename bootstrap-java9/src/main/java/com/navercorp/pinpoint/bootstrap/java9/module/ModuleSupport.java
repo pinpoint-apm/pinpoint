@@ -22,10 +22,14 @@ import jdk.internal.module.Modules;
 
 import java.lang.instrument.Instrumentation;
 import java.net.URL;
-import java.util.Optional;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Woonduk Kang(emeroad)
+ * @author jaehong.kim - Add ServiceLoaderClassPathLookupHelper logic
  */
 public class ModuleSupport {
 
@@ -65,7 +69,7 @@ public class ModuleSupport {
 
         final JavaModule agentModule = newAgentModule(classLoader, jarFileList);
 
-        prepareAgentModule(agentModule);
+        prepareAgentModule(classLoader, agentModule);
 
         addPermissionToLog4jModule(agentModule);
         addPermissionToGuiceModule(agentModule);
@@ -106,7 +110,7 @@ public class ModuleSupport {
     }
 
 
-    private void prepareAgentModule(JavaModule agentModule) {
+    private void prepareAgentModule(final ClassLoader classLoader, JavaModule agentModule) {
         JavaModule bootstrapModule = getBootstrapModule();
         // Error:class com.navercorp.pinpoint.bootstrap.AgentBootLoader$1 cannot access class com.navercorp.pinpoint.profiler.DefaultAgent (in module pinpoint.agent)
         // because module pinpoint.agent does not export com.navercorp.pinpoint.profiler to unnamed module @7bfcd12c
@@ -140,11 +144,24 @@ public class ModuleSupport {
         Class<?> traceMataDataClass = forName("com.navercorp.pinpoint.common.trace.TraceMetadataProvider", bootstrapClassLoader);
         agentModule.addUses(traceMataDataClass);
 
-        Class<?> pluginClazz = forName( "com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin", bootstrapClassLoader);
+
+        Class<?> pluginClazz = forName("com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin", bootstrapClassLoader);
         agentModule.addUses(pluginClazz);
+
+        final String serviceClassName = "com.navercorp.pinpoint.profiler.context.recorder.proxy.ProxyRequestParserProvider";
+        Class<?> serviceClazz = forName(serviceClassName, classLoader);
+        agentModule.addUses(serviceClazz);
+
+        // Add provides
+        final ServiceLoaderClassPathLookupHelper serviceLoaderClassPathLookupHelper = new ServiceLoaderClassPathLookupHelper(classLoader);
+        final Set<String> serviceProviderClassNameSet = serviceLoaderClassPathLookupHelper.lookup(serviceClassName);
+        final List<Class<?>> providerClassList = new ArrayList<>();
+        for (String providerClassName : serviceProviderClassNameSet) {
+            Class<?> providerClazz = forName(providerClassName, classLoader);
+            providerClassList.add(providerClazz);
+        }
+        agentModule.addProvides(serviceClazz, providerClassList);
     }
-
-
 
     private Class<?> forName(String className, ClassLoader classLoader) {
         try {

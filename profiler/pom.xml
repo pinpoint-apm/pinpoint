@@ -67,6 +67,10 @@
             <artifactId>pinpoint-rpc</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-plugins-loader</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
         </dependency>

@@ -1,14 +1,12 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Subject, combineLatest } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { Subject, iif, of, forkJoin } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
 
-import { TranslateReplaceService, WebAppSettingDataService } from 'app/shared/services';
-import { GroupMemberInteractionService } from 'app/core/components/group-member/group-member-interaction.service';
-import { UserGroupInteractionService } from 'app/core/components/user-group/user-group-interaction.service';
-import { PinpointUserInteractionService } from './pinpoint-user-interaction.service';
+import { TranslateReplaceService, WebAppSettingDataService, MessageQueueService, MESSAGE_TO } from 'app/shared/services';
 import { PinpointUser } from './pinpoint-user-create-and-update.component';
 import { PinpointUserDataService, IPinpointUser, IPinpointUserResponse } from './pinpoint-user-data.service';
+import { isThatType } from 'app/core/utils/util';
 
 @Component({
     selector: 'pp-pinpoint-user-container',
@@ -25,14 +23,7 @@ export class PinpointUserContainerComponent implements OnInit, OnDestroy {
         PHONE_LABEL: '',
         EMAIL_LABEL: '',
     };
-    i18nGuide = {
-        USER_ID_MIN_LENGTH: '',
-        NAME_MIN_LENGTH: '',
-        USER_ID_REQUIRED: '',
-        NAME_REQUIRED: '',
-        PHONE_REQUIRED: '',
-        EMAIL_REQUIRED: '',
-    };
+    i18nGuide: { [key: string]: IFormFieldErrorType };
     i18nText = {
         SEARCH_INPUT_GUIDE: ''
     };
@@ -42,9 +33,8 @@ export class PinpointUserContainerComponent implements OnInit, OnDestroy {
         search: 2
     };
     allowedUserEdit = false;
-    searchUseEnter = false;
+    searchUseEnter = true;
     pinpointUserList: IPinpointUser[] = [];
-    filteredPinpointUserList: IPinpointUser[] = [];
     groupMemberList: string[] = [];
     editPinpointUserIndex: number;
     editPinpointUser: PinpointUser;
@@ -52,33 +42,25 @@ export class PinpointUserContainerComponent implements OnInit, OnDestroy {
     useDisable = true;
     showLoading = true;
     showCreate = false;
-    message = '';
+    errorMessage: string;
 
-    displayPinpointUserList: IPinpointUser[] = [];
-    defaultScrollSize = 100;
-    currentSize: number;
     constructor(
         private webAppSettingDataService: WebAppSettingDataService,
         private pinpointUserDataService: PinpointUserDataService,
         private translateService: TranslateService,
         private translateReplaceService: TranslateReplaceService,
-        private userGroupInteractionService: UserGroupInteractionService,
-        private groupMemberInteractionService: GroupMemberInteractionService,
-        private pinpointUserInteractionService: PinpointUserInteractionService
+        private messageQueueService: MessageQueueService
     ) {}
     ngOnInit() {
         this.webAppSettingDataService.useUserEdit().subscribe((allowedUserEdit: boolean) => {
             this.allowedUserEdit = allowedUserEdit;
         });
-        this.userGroupInteractionService.onSelect$.pipe(
-            takeUntil(this.unsubscribe)
-        ).subscribe((userGroupId: string) => {
+        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.USER_GROUP_SELECTED_USER_GROUP).subscribe((param: any[]) => {
+            const userGroupId = param[0];
             this.isUserGroupSelected = userGroupId === '' ? false : true;
         });
-        this.groupMemberInteractionService.onChangeGroupMember$.pipe(
-            takeUntil(this.unsubscribe)
-        ).subscribe((memberList: string[]) => {
-            this.groupMemberList = memberList;
+        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.GROUP_MEMBER_SET_CURRENT_GROUP_MEMBERS).subscribe((param: any[]) => {
+            this.groupMemberList = param[0] as string[];
             this.hideProcessing();
         });
         this.getI18NText();
@@ -89,7 +71,7 @@ export class PinpointUserContainerComponent implements OnInit, OnDestroy {
         this.unsubscribe.complete();
     }
     private getI18NText(): void {
-        combineLatest(
+        forkJoin(
             this.translateService.get('COMMON.MIN_LENGTH'),
             this.translateService.get('COMMON.REQUIRED'),
             this.translateService.get('CONFIGURATION.COMMON.USER_ID'),
@@ -97,50 +79,45 @@ export class PinpointUserContainerComponent implements OnInit, OnDestroy {
             this.translateService.get('CONFIGURATION.COMMON.DEPARTMENT'),
             this.translateService.get('CONFIGURATION.COMMON.PHONE'),
             this.translateService.get('CONFIGURATION.COMMON.EMAIL'),
-            this.translateService.get('CONFIGURATION.USER_GROUP.USER_GROUP_REQUIRED')
-        ).subscribe((i18n: string[]) => {
-            this.i18nGuide.USER_ID_MIN_LENGTH = this.translateReplaceService.replace(i18n[0], this.minLength.userId);
-            this.i18nGuide.NAME_MIN_LENGTH = this.translateReplaceService.replace(i18n[0], this.minLength.name);
-            this.i18nGuide.USER_ID_REQUIRED = this.translateReplaceService.replace(i18n[1], i18n[2]);
-            this.i18nGuide.NAME_REQUIRED = this.translateReplaceService.replace(i18n[1], i18n[3]);
-            this.i18nGuide.PHONE_REQUIRED = this.translateReplaceService.replace(i18n[1], i18n[5]);
-            this.i18nGuide.EMAIL_REQUIRED = this.translateReplaceService.replace(i18n[1], i18n[6]);
+        ).subscribe(([minLengthMessage, requiredMessage, idLabel, nameLabel, departmentLabel, phoneLabel, emailLabel]: string[]) => {
+            this.i18nGuide = {
+                userId: {
+                    required: this.translateReplaceService.replace(requiredMessage, idLabel),
+                    minlength: this.translateReplaceService.replace(minLengthMessage, this.minLength.userId)
+                },
+                name: {
+                    required: this.translateReplaceService.replace(requiredMessage, nameLabel),
+                    minlength: this.translateReplaceService.replace(minLengthMessage, this.minLength.name)
+                },
+                phoneNumber: { required: this.translateReplaceService.replace(requiredMessage, phoneLabel) },
+                email: { required: this.translateReplaceService.replace(requiredMessage, emailLabel) }
+            };
 
-            this.i18nText.SEARCH_INPUT_GUIDE = this.translateReplaceService.replace(i18n[0], this.minLength.search);
+            this.i18nText.SEARCH_INPUT_GUIDE = this.translateReplaceService.replace(minLengthMessage, this.minLength.search);
 
-            this.i18nLabel.USER_ID_LABEL = i18n[2];
-            this.i18nLabel.NAME_LABEL = i18n[3];
-            this.i18nLabel.DEPARTMENT_LABEL = i18n[4];
-            this.i18nLabel.PHONE_LABEL = i18n[5];
-            this.i18nLabel.EMAIL_LABEL = i18n[6];
+            this.i18nLabel.USER_ID_LABEL = idLabel;
+            this.i18nLabel.NAME_LABEL = nameLabel;
+            this.i18nLabel.DEPARTMENT_LABEL = departmentLabel;
+            this.i18nLabel.PHONE_LABEL = phoneLabel;
+            this.i18nLabel.EMAIL_LABEL = emailLabel;
         });
     }
-    private getPinpointUserList(): void  {
+    private getPinpointUserList(query?: string): void  {
         this.showProcessing();
-        this.webAppSettingDataService.getUserDepartment().subscribe((department: string) => {
-            this.pinpointUserDataService.retrieve(department).subscribe((pinpointUserData: IPinpointUser[] | IServerErrorShortFormat) => {
-                if ((pinpointUserData as IServerErrorShortFormat).errorCode) {
-                    this.message = (pinpointUserData as IServerErrorShortFormat).errorMessage;
-                } else {
-                    this.pinpointUserList = pinpointUserData as IPinpointUser[];
-                    this.filteringPinpointUserList();
-                }
-                this.hideProcessing();
-            }, (error: IServerErrorFormat) => {
-                this.message = error.exception.message;
-                this.hideProcessing();
-            });
+        iif(() => !!query,
+            of(query),
+            this.webAppSettingDataService.getUserDepartment()
+        ).pipe(
+            switchMap((department?: string) => this.pinpointUserDataService.retrieve(department))
+        ).subscribe((result: IPinpointUser[] | IServerErrorShortFormat) => {
+            isThatType<IServerErrorShortFormat>(result, 'errorCode', 'errorMessage')
+                ? this.errorMessage = result.errorMessage
+                : this.pinpointUserList = result;
+            this.hideProcessing();
+        }, (error: IServerErrorFormat) => {
+            this.errorMessage = error.exception.message;
+            this.hideProcessing();
         });
-    }
-    private filteringPinpointUserList(): void {
-        if (this.searchQuery === '') {
-            this.filteredPinpointUserList = this.pinpointUserList;
-        } else {
-            this.filteredPinpointUserList = this.pinpointUserList.filter((pinpointUser: IPinpointUser): boolean => {
-                return pinpointUser.name.indexOf(this.searchQuery) === -1 ? false : true;
-            });
-        }
-        this.displayPinpointUserList = this.filteredPinpointUserList;
     }
     isEnable(): boolean {
         return false;
@@ -148,22 +125,21 @@ export class PinpointUserContainerComponent implements OnInit, OnDestroy {
     isChecked(userId: string): boolean {
         return this.groupMemberList.indexOf(userId) !== -1;
     }
-    hasMessage(): boolean {
-        return this.message !== '';
-    }
     onAddUser(pinpointUserId: string): void {
-        this.showProcessing();
-        this.pinpointUserInteractionService.setAddPinpointUser(pinpointUserId);
+        this.messageQueueService.sendMessage({
+            to: MESSAGE_TO.PINPOINT_USER_ADD_USER,
+            param: [pinpointUserId]
+        });
     }
-    onCloseMessage(): void {
-        this.message = '';
+    onCloseErrorMessage(): void {
+        this.errorMessage = '';
     }
     onSearch(query: string): void {
         this.searchQuery = query;
-        this.filteringPinpointUserList();
+        this.getPinpointUserList(this.searchQuery);
     }
     onReload(): void {
-        this.getPinpointUserList();
+        this.getPinpointUserList(this.searchQuery);
     }
     onCloseCreateUserPopup(): void {
         this.showCreate = false;
@@ -179,18 +155,17 @@ export class PinpointUserContainerComponent implements OnInit, OnDestroy {
             email: pinpointUser.email,
             department: pinpointUser.department
         } as IPinpointUser).subscribe((response: IPinpointUserResponse | IServerErrorShortFormat) => {
-            if ((response as IServerErrorShortFormat).errorCode) {
-                this.message = (response as IServerErrorShortFormat).errorMessage;
-                this.hideProcessing();
-            } else {
-                this.getPinpointUserList();
-            }
+            isThatType<IServerErrorShortFormat>(response, 'errorCode', 'errorMessage')
+                ? this.errorMessage = response.errorMessage
+                : this.getPinpointUserList(this.searchQuery);
+            this.hideProcessing();
         }, (error: string) => {
             this.hideProcessing();
-            this.message = error;
+            this.errorMessage = error;
         });
     }
     onUpdatePinpointUser(pinpointUser: PinpointUser): void {
+        this.showProcessing();
         const editPinpointUser = this.pinpointUserList[this.editPinpointUserIndex];
         this.pinpointUserDataService.update({
             userId: pinpointUser.userId,
@@ -200,34 +175,42 @@ export class PinpointUserContainerComponent implements OnInit, OnDestroy {
             department: pinpointUser.department,
             number: editPinpointUser.number
         } as IPinpointUser).subscribe((response: IPinpointUserResponse | IServerErrorShortFormat) => {
-            if ((response as IServerErrorShortFormat).errorCode) {
-                this.message = (response as IServerErrorShortFormat).errorMessage;
-                this.hideProcessing();
+            if (isThatType<IServerErrorShortFormat>(response, 'errorCode', 'errorMessage')) {
+                this.errorMessage = response.errorMessage;
             } else {
-                this.getPinpointUserList();
-                this.pinpointUserInteractionService.setUserUpdated({
-                    userId: pinpointUser.userId,
-                    department: pinpointUser.department,
-                    name: pinpointUser.name
+                this.getPinpointUserList(this.searchQuery);
+                this.messageQueueService.sendMessage({
+                    to: MESSAGE_TO.PINPOINT_USER_UPDATE_USER,
+                    param: [{
+                        userId: pinpointUser.userId,
+                        department: pinpointUser.department,
+                        name: pinpointUser.name
+                    }]
                 });
             }
+
+            this.hideProcessing();
         }, (error: IServerErrorFormat) => {
             this.hideProcessing();
-            this.message = error.exception.message;
+            this.errorMessage = error.exception.message;
         });
     }
     onRemovePinpointUser(userId: string): void {
         this.showProcessing();
         this.pinpointUserDataService.remove(userId).subscribe((response: IPinpointUserResponse | IServerErrorShortFormat) => {
-            if ((response as IServerErrorShortFormat).errorCode) {
-                this.message = (response as IServerErrorShortFormat).errorMessage;
+            if (isThatType<IServerErrorShortFormat>(response, 'errorCode', 'errorMessage')) {
+                this.errorMessage = response.errorMessage;
             } else {
                 this.pinpointUserList.splice(this.getPinpointUserIndexByUserId(userId), 1);
+                this.messageQueueService.sendMessage({
+                    to: MESSAGE_TO.PINPOINT_USER_REMOVE_USER,
+                    param: [userId]
+                });
             }
             this.hideProcessing();
         }, (error: IServerErrorFormat) => {
             this.hideProcessing();
-            this.message = error.exception.message;
+            this.errorMessage = error.exception.message;
         });
     }
     onEditPinpointUser(userId: string): void {

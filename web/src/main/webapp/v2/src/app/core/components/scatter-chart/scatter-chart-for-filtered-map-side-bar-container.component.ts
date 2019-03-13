@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, ChangeDetectorRef, OnInit, OnDestroy } from '@angular/core';
+import { Component, ChangeDetectionStrategy, ChangeDetectorRef, OnInit, OnDestroy, ComponentFactoryResolver, Injector } from '@angular/core';
 import { combineLatest, Subject } from 'rxjs';
 import { takeUntil, filter } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
@@ -65,7 +65,9 @@ export class ScatterChartForFilteredMapSideBarContainerComponent implements OnIn
         private urlRouteManagerService: UrlRouteManagerService,
         private scatterChartInteractionService: ScatterChartInteractionService,
         private analyticsService: AnalyticsService,
-        private dynamicPopupService: DynamicPopupService
+        private dynamicPopupService: DynamicPopupService,
+        private componentFactoryResolver: ComponentFactoryResolver,
+        private injector: Injector
     ) {}
     ngOnInit() {
         this.setScatterY();
@@ -210,6 +212,9 @@ export class ScatterChartForFilteredMapSideBarContainerComponent implements OnIn
                 coordY: top + height / 2
             },
             component: HelpViewerPopupContainerComponent
+        }, {
+            resolver: this.componentFactoryResolver,
+            injector: this.injector
         });
     }
     onChangedSelectType(params: {instanceKey: string, name: string, checked: boolean}): void {

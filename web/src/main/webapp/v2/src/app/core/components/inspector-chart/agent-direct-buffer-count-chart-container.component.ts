@@ -1,11 +1,10 @@
-import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef, ComponentFactoryResolver, Injector } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import * as moment from 'moment-timezone';
 
 import {
     WebAppSettingDataService,
     NewUrlStateNotificationService,
-    AjaxExceptionCheckerService,
     AnalyticsService,
     StoreHelperService,
     DynamicPopupService
@@ -30,9 +29,10 @@ export class AgentDirectBufferCountChartContainerComponent extends InspectorChar
         newUrlStateNotificationService: NewUrlStateNotificationService,
         chartDataService: AgentDirectBufferChartDataService,
         translateService: TranslateService,
-        ajaxExceptionCheckerService: AjaxExceptionCheckerService,
         analyticsService: AnalyticsService,
-        dynamicPopupService: DynamicPopupService
+        dynamicPopupService: DynamicPopupService,
+        componentFactoryResolver: ComponentFactoryResolver,
+        injector: Injector
     ) {
         super(
             100,
@@ -42,9 +42,10 @@ export class AgentDirectBufferCountChartContainerComponent extends InspectorChar
             newUrlStateNotificationService,
             chartDataService,
             translateService,
-            ajaxExceptionCheckerService,
             analyticsService,
-            dynamicPopupService
+            dynamicPopupService,
+            componentFactoryResolver,
+            injector
         );
     }
 

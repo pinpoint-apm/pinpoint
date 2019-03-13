@@ -16,8 +16,7 @@
 package com.navercorp.pinpoint.plugin.vertx;
 
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
-import com.navercorp.pinpoint.common.trace.ServiceTypeProperty;
+import com.navercorp.pinpoint.common.trace.ServiceTypeProvider;
 
 /**
  * @author jaehong.kim
@@ -26,12 +25,12 @@ public final class VertxConstants {
     private VertxConstants() {
     }
 
-    public static final ServiceType VERTX = ServiceTypeFactory.of(1050, "VERTX", ServiceTypeProperty.RECORD_STATISTICS);
-    public static final ServiceType VERTX_INTERNAL = ServiceTypeFactory.of(1051, "VERTX_INTERNAL", "VERTX");
-    public static final ServiceType VERTX_HTTP_SERVER = ServiceTypeFactory.of(1052, "VERTX_HTTP_SERVER", ServiceTypeProperty.RECORD_STATISTICS);
-    public static final ServiceType VERTX_HTTP_SERVER_INTERNAL = ServiceTypeFactory.of(1053, "VERTX_HTTP_SERVER_INTERNAL", "VERTX_HTTP_SERVER");
-    public static final ServiceType VERTX_HTTP_CLIENT = ServiceTypeFactory.of(9130, "VERTX_HTTP_CLIENT", ServiceTypeProperty.RECORD_STATISTICS);
-    public static final ServiceType VERTX_HTTP_CLIENT_INTERNAL = ServiceTypeFactory.of(9131, "VERTX_HTTP_CLIENT_INTERNAL", "VERTX_HTTP_CLIENT");
+    public static final ServiceType VERTX = ServiceTypeProvider.getByName("VERTX");
+    public static final ServiceType VERTX_INTERNAL = ServiceTypeProvider.getByName("VERTX_INTERNAL");
+    public static final ServiceType VERTX_HTTP_SERVER = ServiceTypeProvider.getByName("VERTX_HTTP_SERVER");
+    public static final ServiceType VERTX_HTTP_SERVER_INTERNAL = ServiceTypeProvider.getByName("VERTX_HTTP_SERVER_INTERNAL");
+    public static final ServiceType VERTX_HTTP_CLIENT = ServiceTypeProvider.getByName("VERTX_HTTP_CLIENT");
+    public static final ServiceType VERTX_HTTP_CLIENT_INTERNAL = ServiceTypeProvider.getByName("VERTX_HTTP_CLIENT_INTERNAL");
 
     public static final String HTTP_CLIENT_REQUEST_SCOPE = "HttpClientRequestScope";
     public static final String HTTP_CLIENT_CREATE_REQUEST_SCOPE = "HttpClientCreateRequestScope";

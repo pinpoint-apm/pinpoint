@@ -66,6 +66,7 @@
         <module>annotations</module>
         <module>agent</module>
         <module>agent-it</module>
+        <module>agent-plugins</module>
         <module>bootstrap</module>
         <module>bootstrap-core</module>
         <module>bootstrap-java7</module>
@@ -77,6 +78,7 @@
         <module>commons-server</module>
         <module>tools</module>
         <module>plugins</module>
+        <module>plugins-loader</module>
         <module>profiler</module>
         <module>profiler-optional</module>
         <module>profiler-test</module>
@@ -94,6 +96,9 @@
         <jdk.version>1.6</jdk.version>
         <jdk.home>${env.JAVA_6_HOME}</jdk.home>
         <test.jdk.home>${jdk.home}</test.jdk.home>
+
+        <!-- hbase -->
+        <hbase.shaded.client.version>1.2.6.1</hbase.shaded.client.version>
 
         <!-- library -->
         <slf4j.version>1.7.21</slf4j.version>
@@ -129,7 +134,7 @@
         <plugin.pmd.version>3.9.0</plugin.pmd.version>
 
         <plugin.enforcer.version>3.0.0-M2</plugin.enforcer.version>
-        <plugin.animal-sniffer.version>1.16</plugin.animal-sniffer.version>
+        <plugin.animal-sniffer.version>1.17</plugin.animal-sniffer.version>
 
         <sniffer.artifactid>java16</sniffer.artifactid>
     </properties>
@@ -232,6 +237,18 @@
             </dependency>
             <dependency>
                 <groupId>com.navercorp.pinpoint</groupId>
+                <artifactId>pinpoint-agent-plugins</artifactId>
+                <type>pom</type>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.navercorp.pinpoint</groupId>
+                <artifactId>pinpoint-agent-plugins</artifactId>
+                <type>zip</type>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.navercorp.pinpoint</groupId>
                 <artifactId>pinpoint-collector</artifactId>
                 <type>war</type>
                 <version>${project.version}</version>
@@ -258,6 +275,11 @@
                 <groupId>com.navercorp.pinpoint</groupId>
                 <artifactId>pinpoint-plugins</artifactId>
                 <type>pom</type>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.navercorp.pinpoint</groupId>
+                <artifactId>pinpoint-plugins-loader</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -400,7 +422,7 @@
             <dependency>
                 <groupId>org.apache.hbase</groupId>
                 <artifactId>hbase-shaded-client</artifactId>
-                <version>1.2.6.1</version>
+                <version>${hbase.shaded.client.version}</version>
             </dependency>
 
             <dependency>
@@ -1032,6 +1054,14 @@
     </reporting>
 
     <profiles>
+        <!-- for Hbase2 -->
+        <profile>
+            <id>hbase2</id>
+            <properties>
+                <hbase.shaded.client.version>2.1.1</hbase.shaded.client.version>
+            </properties>
+        </profile>
+
         <!-- for Local (Development) -->
         <profile>
             <id>local</id>

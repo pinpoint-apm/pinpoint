@@ -11,6 +11,7 @@ import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.plugin.dubbo.interceptor.DubboConsumerInterceptor;
 import com.navercorp.pinpoint.plugin.dubbo.interceptor.DubboProviderInterceptor;
 
@@ -34,7 +35,17 @@ public class DubboPlugin implements ProfilerPlugin, TransformTemplateAware {
         }
         logger.info("{} config:{}", this.getClass().getSimpleName(), config);
 
-        this.addApplicationTypeDetector(context, config);
+        if (ServiceType.UNDEFINED.equals(context.getConfiguredApplicationType())) {
+            final DubboProviderDetector dubboProviderDetector = new DubboProviderDetector(config.getDubboBootstrapMains());
+            if (dubboProviderDetector.detect()) {
+                logger.info("Detected application type : {}", DubboConstants.DUBBO_PROVIDER_SERVICE_TYPE);
+                if (!context.registerApplicationType(DubboConstants.DUBBO_PROVIDER_SERVICE_TYPE)) {
+                    logger.info("Application type [{}] already set, skipping [{}] registration.", context.getApplicationType(), DubboConstants.DUBBO_PROVIDER_SERVICE_TYPE);
+                }
+            }
+        }
+
+        logger.info("Adding Dubbo transformers");
         this.addTransformers();
     }
 
@@ -65,13 +76,6 @@ public class DubboPlugin implements ProfilerPlugin, TransformTemplateAware {
             }
             return target.toBytecode();
         }
-    }
-
-    /**
-     * Pinpoint profiler agent uses this detector to find out the service type of current application.
-     */
-    private void addApplicationTypeDetector(ProfilerPluginSetupContext context, DubboConfiguration config) {
-        context.addApplicationTypeDetector(new DubboProviderDetector(config.getDubboBootstrapMains()));
     }
 
     @Override

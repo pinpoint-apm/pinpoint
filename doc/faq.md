@@ -62,3 +62,7 @@ This data is used to better understand how users interact with the Web UI which 
 config.sendUsage=false
 ```
 
+### I'd like to use Hbase 2.x for Pinpoint.
+If you'd like to use Hbase 2.x for Pinpoint database, check out [Hbase upgrade guide](https://naver.github.io/pinpoint/plugindevguide.html).
+
+

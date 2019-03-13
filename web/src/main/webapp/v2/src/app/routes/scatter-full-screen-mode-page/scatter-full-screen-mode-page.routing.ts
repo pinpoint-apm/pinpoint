@@ -1,17 +1,15 @@
 import { Routes } from '@angular/router';
+
 import { UrlPath, UrlPathId } from 'app/shared/models';
 import { ScatterChartForFullScreenModeContainerComponent } from 'app/core/components/scatter-chart/scatter-chart-for-full-screen-mode-container.component';
 import { UrlRedirectorComponent } from 'app/shared/components/url-redirector/url-redirector.component';
-import { SystemConfigurationResolverService, ServerTimeResolverService } from 'app/shared/services';
+import { ServerTimeResolverService } from 'app/shared/services';
 import { ScatterFullScreenModePageComponent } from './scatter-full-screen-mode-page.component';
 
 export const routing: Routes = [
     {
         path: '',
         component: ScatterFullScreenModePageComponent,
-        resolve: {
-            configuration: SystemConfigurationResolverService,
-        },
         children: [
             {
                 path: ':' + UrlPathId.APPLICATION + '/:' + UrlPathId.PERIOD + '/:' + UrlPathId.END_TIME + '/:' + UrlPathId.AGENT_ID,
@@ -56,7 +54,7 @@ export const routing: Routes = [
             },
             {
                 path: '',
-                redirectTo: '/' + UrlPath.MAIN,
+                redirectTo: `/${UrlPath.MAIN}`,
                 pathMatch: 'full'
             }
         ]

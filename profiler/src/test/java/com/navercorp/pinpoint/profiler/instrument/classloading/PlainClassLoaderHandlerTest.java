@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.instrument.classloading;
 
-import com.navercorp.pinpoint.common.plugin.JarPlugin;
+import com.navercorp.pinpoint.profiler.plugin.JarPlugin;
 import com.navercorp.pinpoint.profiler.plugin.ClassNameFilter;
 import com.navercorp.pinpoint.profiler.plugin.PluginConfig;
 import org.junit.Assert;

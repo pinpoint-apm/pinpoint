@@ -53,12 +53,6 @@ form {
     right: 0px;
     position: absolute;
 }
-.l-wrapper .l-alert {
-    color: #FFF;
-    padding: 4px;
-    margin-bottom: 4px;
-    background-color: #000;
-}
 select { 
     width: 100%;
     appearance: none;
@@ -84,4 +78,8 @@ textarea {
 }
 input[disabled] {
     border: 1px solid #DDD !important;
+}
+.btn {
+    padding: 0 9px;
+    border-radius: 2px;
 }

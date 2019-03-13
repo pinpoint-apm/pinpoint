@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, AfterViewInit, AfterViewChecked, ElementRef, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, AfterViewInit, AfterViewChecked, ElementRef, ChangeDetectionStrategy, ChangeDetectorRef, ComponentFactoryResolver, Injector } from '@angular/core';
 import { Subject } from 'rxjs';
 import { takeUntil, debounceTime, distinctUntilChanged, filter } from 'rxjs/operators';
 
@@ -26,7 +26,7 @@ export class TargetListContainerComponent implements OnInit, OnDestroy, AfterVie
     minLength = 2;
     isLink = false;
     filterQuery = '';
-    selectedTarget: ISelectedTarget;
+    selectedTarget: any;
     serverMapData: ServerMapData;
     notFilteredTargetList: any[];
     targetList: any[];
@@ -40,7 +40,9 @@ export class TargetListContainerComponent implements OnInit, OnDestroy, AfterVie
         private storeHelperService: StoreHelperService,
         private newUrlStateNotificationService: NewUrlStateNotificationService,
         private dynamicPopupService: DynamicPopupService,
-        private analyticsService: AnalyticsService
+        private analyticsService: AnalyticsService,
+        private componentFactoryResolver: ComponentFactoryResolver,
+        private injector: Injector
     ) {}
     ngOnInit() {
         this.connectStore();
@@ -91,15 +93,22 @@ export class TargetListContainerComponent implements OnInit, OnDestroy, AfterVie
     }
     gatherTargets(): void {
         if ( this.selectedTarget.isMerged ) {
-            const targetList: any = [];
-            if ( this.selectedTarget.isNode ) {
-                this.selectedTarget.node.forEach(nodeKey => {
+            const targetList: any[] = [];
+            if (this.selectedTarget.isNode) {
+                this.selectedTarget.node.forEach((nodeKey: string) => {
                     targetList.push([this.serverMapData.getNodeData(nodeKey), '']);
                 });
+                if (this.selectedTarget.groupedNode) {
+                    targetList.forEach((targetData: any[]) => {
+                        targetData[0].subTargetList = this.selectedTarget.groupedNode.map((key: string) => {
+                            return this.serverMapData.getLinkData(key + '~' + targetData[0].key);
+                        });
+                    });
+                }
             } else if ( this.selectedTarget.isLink ) {
                 // Link 인 경우 필터 관련 버튼을 추가해야 함.
-                this.selectedTarget.link.forEach(linkKey => {
-                    targetList.push([this.serverMapData.getNodeData(this.serverMapData.getLinkData(linkKey).to), linkKey]);
+                this.selectedTarget.link.forEach((linkKey: string) => {
+                    targetList.push([this.serverMapData.getLinkData(linkKey), linkKey]);
                 });
             }
             this.notFilteredTargetList = this.targetList = targetList;
@@ -137,6 +146,9 @@ export class TargetListContainerComponent implements OnInit, OnDestroy, AfterVie
         this.dynamicPopupService.openPopup({
             data: this.serverMapData.getLinkData(target[1]),
             component: FilterTransactionWizardPopupContainerComponent
+        }, {
+            resolver: this.componentFactoryResolver,
+            injector: this.injector
         });
     }
     onKeyUp($event: any): void {

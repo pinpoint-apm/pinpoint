@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, Inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, Inject, ComponentFactoryResolver, Injector } from '@angular/core';
 import { Router, NavigationStart } from '@angular/router';
 import { Subject, combineLatest } from 'rxjs';
 import { takeUntil, filter } from 'rxjs/operators';
@@ -53,6 +53,8 @@ export class ServerMapForFilteredMapContainerComponent implements OnInit, OnDest
         private webAppSettingDataService: WebAppSettingDataService,
         private dynamicPopupService: DynamicPopupService,
         private analyticsService: AnalyticsService,
+        private componentFactoryResolver: ComponentFactoryResolver,
+        private injector: Injector,
         @Inject(SERVER_MAP_TYPE) public type: ServerMapType
     ) {}
     ngOnInit() {
@@ -208,6 +210,9 @@ export class ServerMapForFilteredMapContainerComponent implements OnInit, OnDest
             data: this.mapData,
             coord,
             component: ServerMapContextPopupContainerComponent
+        }, {
+            resolver: this.componentFactoryResolver,
+            injector: this.injector
         });
     }
     onContextClickNode($event: any): void {}
@@ -216,6 +221,9 @@ export class ServerMapForFilteredMapContainerComponent implements OnInit, OnDest
             data: this.mapData.getLinkData(key),
             coord,
             component: LinkContextPopupContainerComponent
+        }, {
+            resolver: this.componentFactoryResolver,
+            injector: this.injector
         });
     }
     mergeServerMapData(serverMapAndScatterData: any): void {
@@ -238,7 +246,7 @@ export class ServerMapForFilteredMapContainerComponent implements OnInit, OnDest
     mergeNodeDataList(newNodeData: INodeInfo[]): void {
         newNodeData.forEach((nodeData: INodeInfo) => {
             if (this.mapData && this.mapData.getNodeData(nodeData.key)) {
-                const currentNodeData = this.mapData.getNodeData(nodeData.key);
+                const currentNodeData = this.mapData.getNodeData(nodeData.key) as INodeInfo;
                 MergeServerMapData.mergeNodeData(currentNodeData, nodeData);
             } else {
                 this.mergedNodeDataList.push(nodeData);
@@ -248,7 +256,7 @@ export class ServerMapForFilteredMapContainerComponent implements OnInit, OnDest
     mergeLinkDataList(newLinkData: ILinkInfo[]): void {
         newLinkData.forEach((linkData: ILinkInfo) => {
             if (this.mapData && this.mapData.getLinkData(linkData.key)) {
-                const currentLinkData = this.mapData.getLinkData(linkData.key);
+                const currentLinkData = this.mapData.getLinkData(linkData.key) as ILinkInfo;
                 MergeServerMapData.mergeLinkData(currentLinkData, linkData);
             } else {
                 this.mergedLinkDataList.push(linkData);

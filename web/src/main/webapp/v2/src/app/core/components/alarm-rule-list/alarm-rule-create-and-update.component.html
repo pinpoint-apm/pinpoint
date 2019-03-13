@@ -10,11 +10,10 @@
                     <option *ngFor="let checker of checkerList" [value]="checker">{{checker}}</option>
                 </select>
                 <span class="fas fa-angle-down"></span>
-                <div *ngIf="checkerName.invalid && (checkerName.dirty || checkerName.touched)" class="l-alert alert-danger">
-                    <div *ngIf="checkerName.errors.required">
-                        {{i18nGuide.CHECKER_REQUIRED}}
-                    </div>
-                </div>
+                <pp-form-field-error-message
+                    [control]="alarmForm.get('checkerName')"
+                    [errorMessage]="i18nGuide['checkerName']">
+                </pp-form-field-error-message>
             </div>
             <div>
                 <div>{{i18nLabel.USER_GROUP_LABEL}}</div>
@@ -23,20 +22,18 @@
                     <option *ngFor="let userGroup of userGroupList" [value]="userGroup">{{userGroup}}</option>
                 </select>
                 <span class="fas fa-angle-down"></span>
-                <div *ngIf="userGroupId.invalid && (userGroupId.dirty || userGroupId.touched)" class="l-alert alert-danger">
-                    <div *ngIf="userGroupId.errors.required">
-                        {{i18nGuide.USER_GROUP_REQUIRED}}
-                    </div>
-                </div>
+                <pp-form-field-error-message
+                    [control]="alarmForm.get('userGroupId')"
+                    [errorMessage]="i18nGuide['userGroupId']">
+                </pp-form-field-error-message>
             </div>
             <div>
                 <div>{{i18nLabel.THRESHOLD_LABEL}}</div>
                 <input type="number" id="threshold" formControlName="threshold">
-                <div *ngIf="threshold.invalid && (threshold.dirty || threshold.touched)" class="l-alert alert-danger">
-                    <div *ngIf="threshold.errors.min">
-                        Must be greater than 0
-                    </div>
-                </div>
+                <pp-form-field-error-message
+                    [control]="alarmForm.get('threshold')"
+                    [errorMessage]="i18nGuide['threshold']">
+                </pp-form-field-error-message>
             </div>
             <div>
                 <div>{{i18nLabel.TYPE_LABEL}}</div>

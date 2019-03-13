@@ -2,7 +2,6 @@ import { Routes } from '@angular/router';
 
 import { UrlPath, UrlPathId } from 'app/shared/models';
 import { FilteredMapContentsContainerComponent } from 'app/core/components/filtered-map-contents/filtered-map-contents-container.component';
-import { SystemConfigurationResolverService } from 'app/shared/services';
 import { UrlRedirectorComponent } from 'app/shared/components/url-redirector/url-redirector.component';
 import { FilteredMapPageComponent } from './filtered-map-page.component';
 
@@ -10,9 +9,6 @@ export const routing: Routes = [
     {
         path: '',
         component: FilteredMapPageComponent,
-        resolve: {
-            configuration: SystemConfigurationResolverService,
-        },
         children: [
             {
                 path: ':' + UrlPathId.APPLICATION + '/:' + UrlPathId.PERIOD + '/:' + UrlPathId.END_TIME + '/:' + UrlPathId.FILTER + '/:' + UrlPathId.HINT,
@@ -42,7 +38,7 @@ export const routing: Routes = [
             },
             {
                 path: '',
-                redirectTo: '/' + UrlPath.MAIN,
+                redirectTo: `/${UrlPath.MAIN}`,
                 pathMatch: 'full'
             }
         ]

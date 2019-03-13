@@ -1,20 +1,16 @@
-
 import { Routes } from '@angular/router';
+
 import { UrlPath, UrlPathId } from 'app/shared/models';
 import { MainContentsContainerComponent } from 'app/core/components/main-contents/main-contents-container.component';
 import { EmptyContentsComponent } from 'app/shared/components/empty-contents';
 import { UrlRedirectorComponent } from 'app/shared/components/url-redirector';
-import { SystemConfigurationResolverService, ApplicationListResolverService, ServerTimeResolverService } from 'app/shared/services';
+import { ServerTimeResolverService } from 'app/shared/services';
 import { MainPageComponent } from './main-page.component';
 
 export const routing: Routes = [
     {
         path: '',
         component: MainPageComponent,
-        resolve: {
-            configuration: SystemConfigurationResolverService,
-            applicationList: ApplicationListResolverService
-        },
         children: [
             {
                 path: ':' + UrlPathId.APPLICATION + '/:' + UrlPathId.PERIOD + '/:' + UrlPathId.END_TIME,
@@ -25,7 +21,7 @@ export const routing: Routes = [
                 component: MainContentsContainerComponent
             },
             {
-                path: ':' + UrlPathId.APPLICATION + '/' + UrlPath.REAL_TIME,
+                path: ':' + UrlPathId.APPLICATION + '/:' + UrlPath.REAL_TIME,
                 resolve: {
                     serverTime: ServerTimeResolverService
                 },

@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { take, map } from 'rxjs/operators';
 
-import { RouteInfoCollectorService, UrlRouteManagerService, StoreHelperService } from 'app/shared/services';
+import { UrlRouteManagerService, NewUrlStateNotificationService } from 'app/shared/services';
+import { UrlPath } from 'app/shared/models';
 
 @Component({
     selector: 'pp-config-page',
@@ -10,20 +10,18 @@ import { RouteInfoCollectorService, UrlRouteManagerService, StoreHelperService }
 })
 export class ConfigPageComponent implements OnInit {
     constructor(
-        private routeInfoCollectorService: RouteInfoCollectorService,
         private urlRouteManagerService: UrlRouteManagerService,
-        private storeHelperService: StoreHelperService
+        private newUrlStateNotificationService: NewUrlStateNotificationService
     ) {}
 
     ngOnInit() {}
     onClickExit(): void {
-        this.storeHelperService.getURLPath().pipe(
-            take(1),
-            map((urlPath: string) => {
-                return urlPath.split('/').slice(1).map((path: string) => decodeURIComponent(path));
-            })
-        ).subscribe((url: string[]) => {
-            this.urlRouteManagerService.moveOnPage({ url });
-        });
+        const { startPath, pathParams, queryParams } = this.newUrlStateNotificationService.getPrevPageUrlInfo();
+        const url = startPath === UrlPath.CONFIG ? [UrlPath.MAIN] : [startPath, ...[ ...pathParams.values() ]];
+        const queryParam = [ ...queryParams.entries() ].reduce((acc: object, [key, value]: string[]) => {
+            return { ...acc, [key]: value };
+        }, {});
+
+        this.urlRouteManagerService.moveOnPage({ url, queryParam });
     }
 }

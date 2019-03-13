@@ -36,11 +36,12 @@ import java.util.Map;
  * @author HyunGil Jeong
  */
 @Controller
-@PreAuthorize("hasPermission(null, null, 'admin')")
+@PreAuthorize("hasPermission(null, null, T(com.navercorp.pinpoint.web.controller.AdminController).CALL_API_FOR_APP_AGENT_MANAGEMENT)")
 @RequestMapping("/admin")
 public class AdminController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    public final static String CALL_API_FOR_APP_AGENT_MANAGEMENT = "permission_administration_callApiForAppAgentManagement";
 
     @Autowired
     private AdminService adminService;
