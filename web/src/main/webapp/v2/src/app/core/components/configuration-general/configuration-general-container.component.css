@@ -27,19 +27,19 @@
     font-weight: 600;
     color: #333;
     background-color: #f6f8fb;
-    padding: 8px 20px;
+    padding: 12px 0;
 }
 
 .l-popup-table td {
     font-size: 13px;
     font-weight: 400;
     color: #999;
-    padding: 8px 20px;
+    padding: 12px 20px;
     border-left: 1px solid #e5e8f0;
 }
 
 .l-favorite-application-table {
-    margin-top: 17px;
+    margin-top: 25px;
     table-layout: fixed;
 }
 
@@ -69,7 +69,7 @@
 }
 
 .l-timezone-dateformat-table {
-    margin-top: 17px;
+    margin-top: 25px;
 }
 
 .l-timezone-dateformat-table th {
