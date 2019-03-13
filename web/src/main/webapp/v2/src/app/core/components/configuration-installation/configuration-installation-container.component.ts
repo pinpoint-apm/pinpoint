@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { Observable, combineLatest, of } from 'rxjs';
 import { filter, catchError, pluck } from 'rxjs/operators';
@@ -7,12 +7,10 @@ import { ApplicationNameDuplicationCheckInteractionService } from 'app/core/comp
 import { AgentIdDuplicationCheckInteractionService } from 'app/core/components/duplication-check/agent-id-duplication-check-interaction.service';
 import { ConfigurationInstallationDataService, IInstallationData } from './configuration-installation-data.service';
 
-
 @Component({
     selector: 'pp-configuration-installation-container',
     templateUrl: './configuration-installation-container.component.html',
     styleUrls: ['./configuration-installation-container.component.css'],
-    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ConfigurationInstallationContainerComponent implements OnInit {
     desc$: Observable<string>;

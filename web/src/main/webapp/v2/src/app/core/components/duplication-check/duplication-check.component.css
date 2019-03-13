@@ -4,15 +4,6 @@
     flex-wrap: wrap;
 }
 
-label {
-    font-size: 15px;
-    font-weight: 600;
-    width: 135px;
-    display: inline-block;
-    text-align: right;
-    margin-right: 15px;
-}
-
 .l-input-wrapper {
     flex: 1;
     display: inline-block;
@@ -22,7 +13,7 @@ label {
 input {
     border: 1px solid #ccc;
     border-radius: 4px;
-    padding: 10px 14px;
+    padding: 9px 14px;
     font-size: 13px;
     width: 100%;
     display: inline-block;
@@ -68,9 +59,9 @@ input.l-fail-input:focus {
 .l-check-button {
     border: 1px solid #ccc;
     border-radius: 4px;
-    padding: 10px;
+    padding: 9px;
     font-size: 13px;
-    width: 120px;
+    width: 100px;
     margin-left: 15px;
 }
 
