@@ -3,13 +3,13 @@
 
 | Title                                                                             | Instrumented Library       | Min     | Max     | Comment                |  
 |-----------------------------------------------------------------------------------|----------------------------|---------|---------|------------------------|  
-| [Tomcat](https://github.com/naver/pinpoint/tree/master/plugins/tomcat)            |                            |         |         |                        | 
-| [Jetty](https://github.com/naver/pinpoint/tree/master/plugins/jetty)              |                            |         |         |                        | 
-| [JBoss](https://github.com/naver/pinpoint/tree/master/plugins/jboss)              |                            |         |         |                        | 
-| [Resin](https://github.com/naver/pinpoint/tree/master/plugins/resin)              |                            |         |         |                        | 
-| [Websphere](https://github.com/naver/pinpoint/tree/master/plugins/websphere)      |                            |         |         |                        | 
-| [Vertx](https://github.com/naver/pinpoint/tree/master/plugins/vertx)              |                            |         |         |                        | 
-| [Weblogic](https://github.com/naver/pinpoint/tree/master/plugins/weblogic)        |                            |         |         |                        | 
+| [Tomcat](https://github.com/naver/pinpoint/tree/master/plugins/tomcat)            |                            | 6.x     | 9.x     |                        | 
+| [Jetty](https://github.com/naver/pinpoint/tree/master/plugins/jetty)              |                            | 8.x     | 9.x     |                        | 
+| [JBoss](https://github.com/naver/pinpoint/tree/master/plugins/jboss)              |                            | 6.x     | 7.x     |                        | 
+| [Resin](https://github.com/naver/pinpoint/tree/master/plugins/resin)              |                            | 4.x     | 4.x     |                        | 
+| [Websphere](https://github.com/naver/pinpoint/tree/master/plugins/websphere)      |                            | 6.x     | 8.x     |                        | 
+| [Vertx](https://github.com/naver/pinpoint/tree/master/plugins/vertx)              |                            | 3.3     | 3.5     |                        | 
+| [Weblogic](https://github.com/naver/pinpoint/tree/master/plugins/weblogic)        |                            | 10.x    | 12.x    |                        | 
 | Undertow                                                                          |                            |         |         |                        |
 | Jasper                                                                            |                            |         |         |                        | 
 |                                                                                   |                            |         |         |                        |
