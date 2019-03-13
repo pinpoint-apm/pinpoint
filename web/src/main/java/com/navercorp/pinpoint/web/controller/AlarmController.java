@@ -45,7 +45,7 @@ import com.navercorp.pinpoint.web.service.AlarmService;
 public class AlarmController {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    public final static String EDIT_ALARM_ONLY_MANAGER = "permission_alarm_editAlarmOnlyGroupMember";
+    public final static String EDIT_ALARM_ONLY_MANAGER = "permission_alarm_editAlarmOnlyManager";
     public final static String USER_GROUP_ID = "userGroupId";
     public final static String APPLICATION_ID = "applicationId";
 
