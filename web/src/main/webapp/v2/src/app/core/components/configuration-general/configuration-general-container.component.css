@@ -11,18 +11,18 @@
     font-size: 14px;
 }
 
-.l-popup-table {
+.l-section-table {
     border: 1px solid #e5e8f0;
     width: 100%;
     background-color: #fff;
     font-family: 'Open Sans', sans-serif;
 }
 
-.l-popup-table thead {
+.l-section-table thead {
     border-bottom: 1px solid #e5e8f0;
 }
 
-.l-popup-table th {
+.l-section-table th {
     font-size: 13px;
     font-weight: 600;
     color: #333;
@@ -30,7 +30,7 @@
     padding: 12px 0;
 }
 
-.l-popup-table td {
+.l-section-table td {
     font-size: 13px;
     font-weight: 400;
     color: #999;
@@ -68,10 +68,18 @@
     color: #33b692;
 }
 
-.l-timezone-dateformat-table {
+.l-row {
     margin-top: 25px;
 }
 
-.l-timezone-dateformat-table th {
-    border-left: 1px solid #e5e8f0;
+.l-row {
+    display: flex;
+}
+
+.l-row > table {
+    flex: 1;
+}
+
+.l-row > table:first-child {
+    margin-right: 10px;
 }
