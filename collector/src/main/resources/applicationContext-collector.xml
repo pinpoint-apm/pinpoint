@@ -404,6 +404,7 @@
     <bean id="grpcAgentServerOption" class="com.navercorp.pinpoint.grpc.server.ServerOption" factory-bean="grpcAgentServerOptionBuilder" factory-method="build"/>
 
     <bean id="grpcAgentReceiver" class="com.navercorp.pinpoint.collector.receiver.grpc.AgentServer">
+        <property name="bindIp" value="#{baseDataReceiverConfig.grpcBindIp}"/>
         <property name="bindPort" value="#{baseDataReceiverConfig.grpcBindPort}"/>
         <property name="executor" ref="grpcAgentServerExecutor"/>
         <property name="addressFilter" ref="addressFilter"/>
