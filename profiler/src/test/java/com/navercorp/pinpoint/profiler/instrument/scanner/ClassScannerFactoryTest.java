@@ -96,4 +96,16 @@ public class ClassScannerFactoryTest {
 
         Assert.assertFalse(ClassScannerFactory.isJarExtension(".zip"));
     }
+
+    @Test
+    public void isNestedJar() {
+        Assert.assertTrue(ClassScannerFactory.isNestedJar("file:/path/to/some.jar!/nested/another.jar!/"));
+
+        Assert.assertFalse(ClassScannerFactory.isNestedJar(null));
+        Assert.assertFalse(ClassScannerFactory.isNestedJar(""));
+        Assert.assertFalse(ClassScannerFactory.isNestedJar("/path/to/some.jar"));
+        Assert.assertFalse(ClassScannerFactory.isNestedJar("/path/to/some.jar!/"));
+        Assert.assertFalse(ClassScannerFactory.isNestedJar("file:/path/to/some.jar"));
+        Assert.assertFalse(ClassScannerFactory.isNestedJar("file:/path/to/some.jar!/"));
+    }
 }
