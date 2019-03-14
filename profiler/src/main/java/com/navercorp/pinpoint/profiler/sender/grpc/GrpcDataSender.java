@@ -31,6 +31,7 @@ import com.navercorp.pinpoint.grpc.HeaderFactory;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
 import io.grpc.ManagedChannel;
+import io.grpc.NameResolverProvider;
 import io.grpc.stub.StreamObserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +39,6 @@ import org.slf4j.LoggerFactory;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -54,6 +54,7 @@ public class GrpcDataSender implements DataSender<Object> {
     private final StreamObserver<PSpan> spanStream;
     private final StreamObserver<PSpanChunk> spanChunkStream;
 
+    // not thread safe
     private final MessageConverter<GeneratedMessageV3> messageConverter;
 
     private final ThreadPoolExecutor executor;
@@ -65,13 +66,14 @@ public class GrpcDataSender implements DataSender<Object> {
         return ExecutorFactory.newFixedThreadPool(1, 1000, threadFactory);
     }
 
-    public GrpcDataSender(String name, String host, int port, MessageConverter<GeneratedMessageV3> messageConverter, HeaderFactory<AgentHeaderFactory.Header> headerFactory) {
+    public GrpcDataSender(String name, String host, int port, MessageConverter<GeneratedMessageV3> messageConverter, HeaderFactory<AgentHeaderFactory.Header> headerFactory,
+                          NameResolverProvider nameResolverProvider) {
         this.name = Assert.requireNonNull(name, "name must not be null");
         this.messageConverter = Assert.requireNonNull(messageConverter, "messageConverter must not be null");
 
         this.executor = newExecutorService(name);
 
-        this.channelFactory = newChannelFactory(name, headerFactory);
+        this.channelFactory = newChannelFactory(name, headerFactory, nameResolverProvider);
         this.managedChannel = channelFactory.build(name, host, port);
 
         this.traceStub = TraceGrpc.newStub(managedChannel);
@@ -79,8 +81,8 @@ public class GrpcDataSender implements DataSender<Object> {
         this.spanChunkStream = traceStub.sendSpanChunk(response);
     }
 
-    private ChannelFactory newChannelFactory(String name, HeaderFactory<AgentHeaderFactory.Header> headerFactory) {
-        return new ChannelFactory(name, headerFactory);
+    private ChannelFactory newChannelFactory(String name, HeaderFactory<AgentHeaderFactory.Header> headerFactory, NameResolverProvider nameResolverProvider) {
+        return new ChannelFactory(name, headerFactory, nameResolverProvider);
     }
 
     @Override
