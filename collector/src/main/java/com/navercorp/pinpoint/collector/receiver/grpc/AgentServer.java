@@ -144,6 +144,10 @@ public class AgentServer implements InitializingBean, DisposableBean, BeanNameAw
         this.enable = enable;
     }
 
+    public void setBindIp(String bindIp) {
+        this.bindIp = bindIp;
+    }
+
     public void setBindPort(int bindPort) {
         this.bindPort = bindPort;
     }
