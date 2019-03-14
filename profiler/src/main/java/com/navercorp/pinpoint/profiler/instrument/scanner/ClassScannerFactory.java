@@ -25,6 +25,10 @@ import java.security.ProtectionDomain;
  * @author Woonduk Kang(emeroad)
  */
 public class ClassScannerFactory {
+
+    private static final String FORCE_CLASS_LOADER_SCANNER_PROPERTY_KEY = "pinpoint.force.classloader.scanner";
+    private static final boolean FORCE_CLASS_LOADER_SCANNER = forceClassLoaderScanner();
+
     // jboss vfs support
     private static final String[] FILE_PROTOCOLS = {"file", "vfs"};
     private static final String[] JAR_EXTENSIONS = {".jar", ".war", ".ear"};
@@ -40,9 +44,16 @@ public class ClassScannerFactory {
             return scanner;
         }
 
+        // workaround for scanning for classes in nested jars - see newURLScanner(URL) below.
+        if (FORCE_CLASS_LOADER_SCANNER || isNestedJar(codeLocation.getPath())) {
+            ClassLoader protectionDomainClassLoader = protectionDomain.getClassLoader();
+            if (protectionDomainClassLoader != null) {
+                return new ClassLoaderScanner(protectionDomainClassLoader);
+            }
+        }
+
         throw new IllegalArgumentException("unknown scanner type classLoader:" + classLoader + " protectionDomain:" + protectionDomain);
     }
-
 
     public static Scanner newScanner(ProtectionDomain protectionDomain) {
         final URL codeLocation = CodeSourceUtils.getCodeLocation(protectionDomain);
@@ -70,9 +81,13 @@ public class ClassScannerFactory {
                 return new DirectoryScanner(path);
             }
         }
+        // TODO consider a scanner for nested jars
+        // Though the workaround above should work for current use cases, adding a scanner for nested jars would
+        // be the "correct" way of handling Spring Boot or One-jar executable jars. However, there doesn't seem
+        // to be a way to efficiently handle them.
+        // Spring Boot loader's JarFile and JarFileEntries implementations look like a great reference for this.
         return null;
     }
-
 
     static boolean isJarExtension(String path) {
         if (path == null) {
@@ -95,5 +110,20 @@ public class ClassScannerFactory {
         return false;
     }
 
+    static boolean isNestedJar(String path) {
+        if (path == null) {
+            return false;
+        }
+        final String separator = "!/";
+        if (!path.endsWith(separator)) {
+            return false;
+        }
+        String subPath = path.substring(0, path.lastIndexOf(separator));
+        return subPath.contains(separator);
+    }
 
+    private static boolean forceClassLoaderScanner() {
+        String forceClassLoaderScanner = System.getProperty(FORCE_CLASS_LOADER_SCANNER_PROPERTY_KEY);
+        return Boolean.parseBoolean(forceClassLoaderScanner);
+    }
 }
