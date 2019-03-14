@@ -40,9 +40,14 @@ public class ClassScannerFactory {
             return scanner;
         }
 
+        // workaround for scanning for classes in nested jars - see newURLScanner(URL) below.
+        ClassLoader protectionDomainClassLoader = protectionDomain.getClassLoader();
+        if (protectionDomainClassLoader != null) {
+            return new ClassLoaderScanner(protectionDomainClassLoader);
+        }
+
         throw new IllegalArgumentException("unknown scanner type classLoader:" + classLoader + " protectionDomain:" + protectionDomain);
     }
-
 
     public static Scanner newScanner(ProtectionDomain protectionDomain) {
         final URL codeLocation = CodeSourceUtils.getCodeLocation(protectionDomain);
@@ -70,9 +75,13 @@ public class ClassScannerFactory {
                 return new DirectoryScanner(path);
             }
         }
+        // TODO consider a scanner for nested jars
+        // Though the workaround above should work for current use cases, adding a scanner for nested jars would be
+        // the "correct" way of handling Spring Boot or One-jar executable jars. However, there doesn't seem to be a
+        // way to efficiently handle them.
+        // Spring Boot loader's JarFile and JarFileEntries implementations look like a great reference for this.
         return null;
     }
-
 
     static boolean isJarExtension(String path) {
         if (path == null) {
