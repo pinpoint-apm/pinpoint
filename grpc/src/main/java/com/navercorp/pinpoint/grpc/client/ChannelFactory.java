@@ -59,11 +59,13 @@ public class ChannelFactory {
     private final ExecutorService executorService;
     private final int executorQueueSize = 1024;
 
-    private final ExecutorService dnsExecutorService;
-    private final String dnsExecutorName;
-
+    private final NameResolverProvider nameResolverProvider;
 
     public ChannelFactory(String name, HeaderFactory headerFactory) {
+        this(name, headerFactory, null);
+    }
+
+    public ChannelFactory(String name, HeaderFactory headerFactory, NameResolverProvider nameResolverProvider) {
         this.name = Assert.requireNonNull(name, "channelFactoryName must not be null");
 
         this.headerFactory = Assert.requireNonNull(headerFactory, "headerFactory must not be null");
@@ -72,9 +74,7 @@ public class ChannelFactory {
         this.eventLoopGroup = newEventLoopGroup(eventLoopExecutor);
         this.executorService = newExecutorService(name + "-executor");
 
-
-        this.dnsExecutorName = name + "-dns-executor";
-        this.dnsExecutorService = newCachedExecutorService(dnsExecutorName);
+        this.nameResolverProvider = nameResolverProvider;
     }
 
     private ExecutorService newExecutorService(String name) {
@@ -99,18 +99,16 @@ public class ChannelFactory {
 
         addHeader(channelBuilder);
         channelBuilder.executor(executorService);
-        NameResolverProvider nameResolverFactory = newNameResolverFactory();
-        channelBuilder.nameResolverFactory(nameResolverFactory);
+        if (this.nameResolverProvider != null) {
+            logger.info("setNameResolverProvider:{}", this.nameResolverProvider);
+            channelBuilder.nameResolverFactory(this.nameResolverProvider);
+        }
         final ManagedChannel channel = channelBuilder.build();
         setChannelStateNotifier(channel, channelName);
 
         return channel;
     }
 
-    private NameResolverProvider newNameResolverFactory() {
-        // rename dns thread
-        return new PinpointDnsNameResolverProvider(dnsExecutorName, dnsExecutorService);
-    }
 
     private NioEventLoopGroup newEventLoopGroup(ExecutorService executorService) {
         return new NioEventLoopGroup(1, executorService);
@@ -184,7 +182,6 @@ public class ChannelFactory {
         }
         ExecutorUtils.shutdownExecutorService(name + "-eventLoopExecutor", eventLoopExecutor);
         ExecutorUtils.shutdownExecutorService(name + "-executorService", executorService);
-        ExecutorUtils.shutdownExecutorService(name + "-dnsExecutor", dnsExecutorService);
     }
 
 }

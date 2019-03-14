@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.context.provider;
+package com.navercorp.pinpoint.profiler.context.provider.grpc;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -28,6 +28,10 @@ import com.navercorp.pinpoint.profiler.context.module.MetadataConverter;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
 import com.navercorp.pinpoint.profiler.sender.grpc.GrpcDataSender;
+import io.grpc.NameResolverProvider;
+import io.grpc.internal.PinpointDnsNameResolverProvider;
+
+import java.util.concurrent.ExecutorService;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -36,13 +40,16 @@ public class GrpcDataSenderProvider implements Provider<DataSender<Object>> {
     private final ProfilerConfig profilerConfig;
     private final MessageConverter<GeneratedMessageV3> messageConverter;
     private final AgentInformation agentInformation;
+    private final Provider<ExecutorService> dnsExecutorService;
 
     @Inject
     public GrpcDataSenderProvider(ProfilerConfig profilerConfig,
-                                  @MetadataConverter MessageConverter<GeneratedMessageV3> messageConverter, AgentInformation agentInformation) {
+                                  @MetadataConverter MessageConverter<GeneratedMessageV3> messageConverter, AgentInformation agentInformation,
+                                  Provider<ExecutorService> dnsExecutorService) {
         this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig must not be null");
         this.messageConverter = Assert.requireNonNull(messageConverter, "messageConverter must not be null");
         this.agentInformation = Assert.requireNonNull(agentInformation, "agentInformation must not be null");
+        this.dnsExecutorService = Assert.requireNonNull(dnsExecutorService, "dnsExecutorService must not be null");
     }
 
     @Override
@@ -50,7 +57,10 @@ public class GrpcDataSenderProvider implements Provider<DataSender<Object>> {
         String collectorTcpServerIp = profilerConfig.getCollectorTcpServerIp();
         int collectorTcpServerPort = profilerConfig.getCollectorTcpServerPort();
         HeaderFactory<AgentHeaderFactory.Header> headerHeaderFactory = newAgentHeaderFactory();
-        return new GrpcDataSender("Default", collectorTcpServerIp, collectorTcpServerPort,  messageConverter, headerHeaderFactory);
+
+        ExecutorService executorService = dnsExecutorService.get();
+        NameResolverProvider nameResolverProvider = new PinpointDnsNameResolverProvider("pinpoint-dns", executorService);
+        return new GrpcDataSender("Default", collectorTcpServerIp, collectorTcpServerPort,  messageConverter, headerHeaderFactory, nameResolverProvider);
     }
 
     private HeaderFactory<AgentHeaderFactory.Header> newAgentHeaderFactory() {
