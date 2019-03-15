@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Subject } from 'rxjs';
 import { GroupMemberDataService, IGroupMember, IGroupMemberResponse } from './group-member-data.service';
 import { isThatType } from 'app/core/utils/util';
@@ -9,7 +9,7 @@ import { MessageQueueService, MESSAGE_TO } from 'app/shared/services';
     templateUrl: './group-member-container.component.html',
     styleUrls: ['./group-member-container.component.css']
 })
-export class GroupMemberContainerComponent implements OnInit {
+export class GroupMemberContainerComponent implements OnInit, OnDestroy {
     private unsubscribe: Subject<null> = new Subject();
     private ascendSort = true;
     currentUserGroupId: string;
@@ -60,6 +60,10 @@ export class GroupMemberContainerComponent implements OnInit {
                 return member.memberId !== userId;
             });
         });
+    }
+    ngOnDestroy() {
+        this.unsubscribe.next();
+        this.unsubscribe.complete();
     }
     private isValidUserGroupId(): boolean {
         return this.currentUserGroupId !== '';
