@@ -106,8 +106,6 @@ export class ServerMapData {
         this.nodeMap = {};
         this.linkMap = {};
         this.groupServiceTypeMap = {};
-        // this.originalNodeMap = {};
-        // this.originalLinkMap = {};
     }
     private init() {
         this.initVar();
@@ -215,7 +213,6 @@ export class ServerMapData {
         // 병합 할 링크를 모으는 작업
         this.linkList.forEach((link) => {
             if (this.hasMergeableNode(link) === false) {
-                console.timeEnd('mergeGroup()');
                 return;
             }
             if ((link.from in collectMergeLink) === false) {
