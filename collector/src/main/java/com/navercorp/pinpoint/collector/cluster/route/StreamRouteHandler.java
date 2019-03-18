@@ -20,7 +20,6 @@ import com.navercorp.pinpoint.collector.cluster.ClusterPointLocator;
 import com.navercorp.pinpoint.collector.cluster.PinpointServerClusterPoint;
 import com.navercorp.pinpoint.collector.cluster.TargetClusterPoint;
 import com.navercorp.pinpoint.collector.cluster.route.filter.RouteFilter;
-import com.navercorp.pinpoint.rpc.ResponseMessage;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamClosePacket;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamResponsePacket;
 import com.navercorp.pinpoint.rpc.server.PinpointServer;
@@ -192,9 +191,6 @@ public class StreamRouteHandler extends AbstractRouteHandler<StreamEvent> {
 
         @Override
         public void handleStreamClose(ClientStreamChannelContext producerContext, StreamClosePacket packet) {
-            ResponseMessage responseMessage = new ResponseMessage();
-            responseMessage.setMessage(packet.getPayload());
-
             StreamRouteCloseEvent event = new StreamRouteCloseEvent(streamEvent.getDeliveryCommand(), producerContext, streamEvent.getStreamChannelContext());
             streamCloseFilterChain.doEvent(event);
 
