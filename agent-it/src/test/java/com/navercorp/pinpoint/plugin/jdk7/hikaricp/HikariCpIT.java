@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.plugin.hikaricp;
+package com.navercorp.pinpoint.plugin.jdk7.hikaricp;
 
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
@@ -40,11 +40,11 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.annotati
 import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
 
 /**
- * @author Taejin Koo
+ * @author Roy Kim
  */
 @RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
-@Dependency({"com.zaxxer:HikariCP-java6:[2.3.0,2.3.4),(2.3.4,2.3.10),(2.3.11,]", "com.h2database:h2:1.4.191"})
+@Dependency({"com.zaxxer:HikariCP-java6:[2.3.10,2.3.11]", "com.h2database:h2:1.4.191"})
 public class HikariCpIT {
 
     private static final String serviceType = "HIKARICP";
