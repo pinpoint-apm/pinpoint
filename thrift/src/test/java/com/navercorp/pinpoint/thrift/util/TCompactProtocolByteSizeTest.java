@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.common.util;
+package com.navercorp.pinpoint.thrift.util;
 
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TCompactProtocol;
@@ -30,7 +30,7 @@ import java.util.concurrent.TimeUnit;
 /**
  *
  */
-public class ByteSizeTest {
+public class TCompactProtocolByteSizeTest {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 
