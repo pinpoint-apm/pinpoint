@@ -1,4 +1,4 @@
-<div class="l-wrapper" (clickOutside)="onClose()" (keydown)="onKeyDown($event.keyCode)">
+<div class="l-wrapper" (clickOutside)="onClose()" [exclude]="'.l-logo-link, .l-exit-button'" (keydown)="onKeyDown($event.keyCode)">
     <div class="l-app-select" (click)="toggleApplicationList()">
         <div>
             <img [src]="getSelectedApplicationIcon()" width="23px" height="18px" *ngIf="selectedApplication"/>
