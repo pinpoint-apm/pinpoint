@@ -9,7 +9,8 @@
         "MAX_SEARCH_PERIOD": "Search duration may not be greater than !{0}days.",
         "DO_NOT_HAVE_PERMISSION": "Don't have permission.",
         "SUBMIT": "Submit",
-        "REMOVE": "Remove"
+        "REMOVE": "Remove",
+        "CANCEL": "Cancel"
     },
     "MAIN": {
         "SELECT_YOUR_APP": "Select your application",
