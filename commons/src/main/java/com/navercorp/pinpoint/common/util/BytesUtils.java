@@ -657,12 +657,18 @@ public final class BytesUtils {
         if (string == null) {
             return null;
         }
+        if (string.isEmpty()) {
+            return "";
+        }
         final int length = string.length();
         int index = length;
 
         // need to use Character.isWhitespace()? may not needed.
         while (string.charAt(index - 1) <= ' ') {
             index--;
+            if (index <= 0) {
+                break;
+            }
         }
         if (index == length) {
             return string;
