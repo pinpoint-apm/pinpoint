@@ -89,6 +89,7 @@
         <module>druid</module>
         <module>hbase</module>
         <module>openwhisk</module>
+        <module>redis-redisson</module>
     </modules>
 
     <dependencyManagement>
