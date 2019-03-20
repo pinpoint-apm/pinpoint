@@ -1,5 +1,5 @@
-<section class="l-sidemenu-wrap font-opensans" [hidden]="sideBarWidth === 0">
-    <div class="l-sidemenu" [style.width.px]="sideBarWidth">
+<section class="l-sidemenu-wrap font-opensans">
+    <div class="l-sidemenu">
         <div class="l-title-group">
             <pp-side-bar-title-container></pp-side-bar-title-container>
         </div>
@@ -19,4 +19,4 @@
     <pp-info-per-server-for-filtered-map-container></pp-info-per-server-for-filtered-map-container>
 </section>
 <pp-film-for-disable *ngIf="useDisable" [zIndex]="100" [marginWidth]="0"></pp-film-for-disable>
-<pp-loading [showLoading]="showLoading" [zIndex]="101" [hidden]="sideBarWidth === 0"></pp-loading>
+<pp-loading [showLoading]="showLoading" [zIndex]="101"></pp-loading>

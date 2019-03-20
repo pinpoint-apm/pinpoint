@@ -80,16 +80,6 @@ export class StoreHelperService {
     getAgentSelectionForServerList<T>(unsubscribe: Subject<void>): Observable<T> {
         return this.getObservable(STORE_KEY.AGENT_SELECTION_FOR_SERVER_LIST, unsubscribe);
     }
-    getRealTimeScatterChartRange(unsubscribe: Subject<void>): Observable<IScatterXRange> {
-        return this.getObservable(STORE_KEY.REAL_TIME_SCATTER_CHART, unsubscribe).pipe(
-            filter((range: IScatterXRange) => {
-                if (range && range.from && range.to && range.from !== -1 && range.to !== -1) {
-                    return true;
-                }
-                return false;
-            })
-        );
-    }
     getScatterChartData<T>(unsubscribe: Subject<void>): Observable<T> {
         return this.getObservable(STORE_KEY.SCATTER_CHART, unsubscribe);
     }
