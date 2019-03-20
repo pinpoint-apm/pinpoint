@@ -16,5 +16,5 @@
         </article>
         <pp-real-time-container *ngIf="enableRealTime$ | async"></pp-real-time-container>
     </section>
-    <pp-side-bar-container></pp-side-bar-container>
+    <pp-side-bar-container *ngIf="isAppKeyProvided$ | async"></pp-side-bar-container>
 </div>

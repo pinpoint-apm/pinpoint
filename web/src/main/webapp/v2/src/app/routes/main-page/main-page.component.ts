@@ -4,6 +4,7 @@ import { map } from 'rxjs/operators';
 
 import { WebAppSettingDataService, NewUrlStateNotificationService, AnalyticsService, TRACKED_EVENT_LIST, DynamicPopupService } from 'app/shared/services';
 import { HELP_VIEWER_LIST, HelpViewerPopupContainerComponent } from 'app/core/components/help-viewer-popup/help-viewer-popup-container.component';
+import { UrlPathId } from 'app/shared/models';
 
 @Component({
     selector: 'pp-main-page',
@@ -12,6 +13,7 @@ import { HELP_VIEWER_LIST, HelpViewerPopupContainerComponent } from 'app/core/co
 })
 export class MainPageComponent implements OnInit {
     enableRealTime$: Observable<boolean>;
+    isAppKeyProvided$: Observable<boolean>;
 
     constructor(
         private newUrlStateNotificationService: NewUrlStateNotificationService,
@@ -30,6 +32,9 @@ export class MainPageComponent implements OnInit {
             this.webAppSettingDataService.useActiveThreadChart()
         ).pipe(
             map(([isRealTimeMode, useActiveThreadChart]: boolean[]) => isRealTimeMode && useActiveThreadChart)
+        );
+        this.isAppKeyProvided$ = this.newUrlStateNotificationService.onUrlStateChange$.pipe(
+            map((urlService: NewUrlStateNotificationService) => urlService.hasValue(UrlPathId.APPLICATION))
         );
         this.webAppSettingDataService.getVersion().subscribe((version: string) => {
             this.analyticsService.trackEvent(TRACKED_EVENT_LIST.VERSION, version);

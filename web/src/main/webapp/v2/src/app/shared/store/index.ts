@@ -10,7 +10,6 @@ import * as favoriteApplicationList from './favorite-application-list.reducer';
 import * as inspectorChartHover from './inspector-chart-hover.reducer';
 import * as loadChart from './load-chart.reducer';
 import * as responseSummaryChart from './response-summary-chart.reducer';
-import * as scatterChartRealTime from './scatter-chart-real-time.reducer';
 import * as scatterChart from './scatter-chart.reducer';
 import * as serverAndAgent from './server-and-agent.reducer';
 import * as serverList from './server-list.reducer';
@@ -41,7 +40,6 @@ export interface AppState {
     favoriteApplicationList: IApplication[];
     serverList: any;
     scatterChart: IScatterData;
-    realTimeScatterChart: IScatterXRange;
     serverMapData: any;
     serverMapLoadingState: string;
     serverMapTargetSelected: ISelectedTarget;
@@ -68,7 +66,6 @@ export const STORE_KEY = {
     FAVORITE_APPLICATION_LIST: 'favoriteApplicationList',
     SERVER_LIST: 'serverList',
     SCATTER_CHART: 'scatterChart',
-    REAL_TIME_SCATTER_CHART: 'realTimeScatterChart',
     SERVER_MAP_DATA: 'serverMapData',
     SERVER_MAP_LOADING_STATE: 'serverMapLoadingState',
     SERVER_MAP_TARGET_SELECTED: 'serverMapTargetSelected',
@@ -90,7 +87,6 @@ export const reducers: ActionReducerMap<any> = {
     hoverOnInspectorCharts: inspectorChartHover.Reducer,
     loadChartYMax: loadChart.Reducer,
     responseSummaryChartYMax: responseSummaryChart.Reducer,
-    realTimeScatterChart: scatterChartRealTime.Reducer,
     scatterChart: scatterChart.Reducer,
     serverList: serverList.Reducer,
     serverMapLoadingState: serverMapLoadingState.Reducer,
@@ -121,7 +117,6 @@ export const Actions = {
     'RemoveFavoriteApplication': favoriteApplicationList.RemoveFavoriteApplication,
     'UpdateServerList': serverList.UpdateServerList,
     'AddScatterChartData': scatterChart.AddScatterChartData,
-    'UpdateRealTimeScatterChartXRange': scatterChartRealTime.UpdateRealTimeScatterChartXRange,
     'UpdateServerMapData': serverMap.UpdateServerMapData,
     'UpdateServerMapLoadingState': serverMapLoadingState.UpdateServerMapLoadingState,
     'UpdateServerMapTargetSelected': serverMapSelectedTarget.UpdateServerMapTargetSelected,

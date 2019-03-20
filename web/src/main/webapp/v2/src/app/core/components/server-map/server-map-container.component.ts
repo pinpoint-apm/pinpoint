@@ -124,7 +124,7 @@ export class ServerMapContainerComponent implements OnInit, OnDestroy {
             filter((e: RouterEvent) => {
                 return e instanceof NavigationStart;
             })
-        ).subscribe((e) => {
+        ).subscribe(() => {
             this.showLoading = true;
             this.useDisable = true;
         });

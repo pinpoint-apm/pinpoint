@@ -5,7 +5,7 @@ import { TranslateService } from '@ngx-translate/core';
 
 import { Actions } from 'app/shared/store';
 import { ServerMapData } from 'app/core/components/server-map/class/server-map-data.class';
-import { StoreHelperService, WebAppSettingDataService, AgentHistogramDataService, AnalyticsService, TRACKED_EVENT_LIST, DynamicPopupService } from 'app/shared/services';
+import { StoreHelperService, WebAppSettingDataService, AgentHistogramDataService, AnalyticsService, TRACKED_EVENT_LIST, DynamicPopupService, MessageQueueService, MESSAGE_TO } from 'app/shared/services';
 import { HELP_VIEWER_LIST, HelpViewerPopupContainerComponent } from 'app/core/components/help-viewer-popup/help-viewer-popup-container.component';
 
 @Component({
@@ -40,7 +40,8 @@ export class ResponseSummaryChartForSideBarContainerComponent implements OnInit,
         private analyticsService: AnalyticsService,
         private dynamicPopupService: DynamicPopupService,
         private componentFactoryResolver: ComponentFactoryResolver,
-        private injector: Injector
+        private injector: Injector,
+        private messageQueueService: MessageQueueService
     ) {}
     ngOnInit() {
         this.chartColors = this.webAppSettingDataService.getColorByRequest();
@@ -54,6 +55,10 @@ export class ResponseSummaryChartForSideBarContainerComponent implements OnInit,
             };
         });
         this.connectStore();
+        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.REAL_TIME_SCATTER_CHART_X_RANGE).subscribe(([{ from, to }]: IScatterXRange[]) => {
+            this.yMax = -1;
+            this.loadResponseSummaryChartData(from, to);
+        });
     }
     ngOnDestroy() {
         this.unsubscribe.next();
@@ -84,10 +89,6 @@ export class ResponseSummaryChartForSideBarContainerComponent implements OnInit,
                 this.loadResponseSummaryChartData();
             }
             this.changeDetector.detectChanges();
-        });
-        this.storeHelperService.getRealTimeScatterChartRange(this.unsubscribe).subscribe((range: IScatterXRange) => {
-            this.yMax = -1;
-            this.loadResponseSummaryChartData(range.from, range.to);
         });
         this.storeHelperService.getServerMapTargetSelectedByList(this.unsubscribe).subscribe((target: any) => {
             this.yMax = -1;

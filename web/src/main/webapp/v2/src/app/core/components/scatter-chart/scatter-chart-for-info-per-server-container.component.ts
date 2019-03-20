@@ -10,9 +10,10 @@ import {
     UrlRouteManagerService,
     AnalyticsService,
     TRACKED_EVENT_LIST,
-    DynamicPopupService
+    DynamicPopupService,
+    MessageQueueService,
+    MESSAGE_TO
 } from 'app/shared/services';
-import { Actions } from 'app/shared/store';
 import { UrlPath, UrlPathId } from 'app/shared/models';
 import { ScatterChart } from './class/scatter-chart.class';
 import { ScatterChartInteractionService } from './scatter-chart-interaction.service';
@@ -69,7 +70,8 @@ export class ScatterChartForInfoPerServerContainerComponent implements OnInit, A
         private analyticsService: AnalyticsService,
         private dynamicPopupService: DynamicPopupService,
         private componentFactoryResolver: ComponentFactoryResolver,
-        private injector: Injector
+        private injector: Injector,
+        private messageQueueService: MessageQueueService
     ) {}
     ngOnInit() {
         this.setScatterY();
@@ -211,7 +213,10 @@ export class ScatterChartForInfoPerServerContainerComponent implements OnInit, A
         this.typeCount = params;
     }
     onChangeRangeX(params: IScatterXRange): void {
-        this.storeHelperService.dispatch(new Actions.UpdateRealTimeScatterChartXRange(params));
+        this.messageQueueService.sendMessage({
+            to: MESSAGE_TO.REAL_TIME_SCATTER_CHART_X_RANGE,
+            param: [params]
+        });
     }
     onSelectArea(params: any): void {
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.OPEN_TRANSACTION_LIST);
