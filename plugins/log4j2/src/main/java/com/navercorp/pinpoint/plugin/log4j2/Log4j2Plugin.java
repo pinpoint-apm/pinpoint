@@ -64,11 +64,14 @@ public class Log4j2Plugin implements ProfilerPlugin, TransformTemplateAware {
 
             InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
             final Class<? extends Interceptor> interceptorClassName = LoggingEventOfLog4j2Interceptor.class;
+
             /**
-             *
-             *  support log4j 2.1 ~ 2.11++
+             * support log4j2 2.7+ Constructor
              */
             addInterceptor(target, new String[]{"java.lang.String", "org.apache.logging.log4j.Marker", "java.lang.String", "org.apache.logging.log4j.Level", "org.apache.logging.log4j.message.Message", "java.lang.Throwable", "org.apache.logging.log4j.core.impl.ThrowableProxy", "org.apache.logging.log4j.util.StringMap", "org.apache.logging.log4j.ThreadContext$ContextStack", "long", "java.lang.String", "int", "java.lang.StackTraceElement", "long", "long"}, interceptorClassName);
+            /**
+             * log4j 2.1~2.7 Constructor .  This constructor will be removed in an upcoming release
+             */
             addInterceptor(target, new String[]{"java.lang.String", "org.apache.logging.log4j.Marker", "java.lang.String", "org.apache.logging.log4j.Level", "org.apache.logging.log4j.message.Message", "java.lang.Throwable", "org.apache.logging.log4j.core.impl.ThrowableProxy", "java.util.Map", "org.apache.logging.log4j.ThreadContext$ContextStack", "java.lang.String", "java.lang.StackTraceElement", "long"}, interceptorClassName);
             return target.toBytecode();
         }
