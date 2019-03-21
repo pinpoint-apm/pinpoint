@@ -101,6 +101,9 @@ public abstract class MongoDBITBase {
         MongodExecutable mongodExecutable = null;
 
         mongodExecutable = starter.prepare(mongodConfig);
+
+        //give time for previous DB close to finish and port to be released"
+        Thread.sleep(200L);
         mongod = mongodExecutable.start();
         setClient();
     }
