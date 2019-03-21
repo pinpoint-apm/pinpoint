@@ -27,6 +27,7 @@ import com.navercorp.pinpoint.rpc.stream.LoggingStreamChannelMessageListener;
 import com.navercorp.pinpoint.rpc.stream.StreamChannel;
 import com.navercorp.pinpoint.rpc.stream.StreamChannelStateChangeEventHandler;
 import com.navercorp.pinpoint.rpc.stream.StreamChannelStateCode;
+import com.navercorp.pinpoint.rpc.stream.StreamException;
 import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadCount;
 import com.navercorp.pinpoint.thrift.dto.command.TCommandTransferResponse;
 import com.navercorp.pinpoint.thrift.dto.command.TRouteResult;
@@ -152,27 +153,21 @@ public class ActiveThreadCountWorker implements PinpointWebSocketHandlerWorker {
 
     private boolean active0(AgentInfo agentInfo) {
         synchronized (lock) {
-            boolean active = false;
             try {
                 ClientStreamChannelContext clientStreamChannelContext = agentService.openStream(agentInfo, COMMAND_INSTANCE, messageListener, stateChangeListener);
-                if (clientStreamChannelContext == null) {
-                    setDefaultErrorMessage(StreamCode.CONNECTION_NOT_FOUND.name());
+                streamChannel = clientStreamChannelContext.getStreamChannel();
+                setDefaultErrorMessage(TRouteResult.TIMEOUT.name());
+                return true;
+            } catch (StreamException streamException) {
+                StreamCode streamCode = streamException.getStreamCode();
+                if (streamCode == StreamCode.CONNECTION_NOT_FOUND) {
                     workerActiveManager.addReactiveWorker(agentInfo);
-                } else {
-                    if (clientStreamChannelContext.getCreateFailPacket() == null) {
-                        streamChannel = clientStreamChannelContext.getStreamChannel();
-                        setDefaultErrorMessage(TRouteResult.TIMEOUT.name());
-                        active = true;
-                    } else {
-                        StreamCreateFailPacket createFailPacket = clientStreamChannelContext.getCreateFailPacket();
-                        setDefaultErrorMessage(createFailPacket.getCode().name());
-                    }
                 }
+                setDefaultErrorMessage(streamCode.name());
             } catch (TException exception) {
                 setDefaultErrorMessage(TRouteResult.NOT_SUPPORTED_REQUEST.name());
             }
-
-            return active;
+            return false;
         }
     }
 

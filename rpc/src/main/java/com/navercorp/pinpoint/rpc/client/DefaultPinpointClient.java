@@ -28,6 +28,8 @@ import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelContext;
 import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelMessageListener;
 import com.navercorp.pinpoint.rpc.stream.StreamChannelContext;
 import com.navercorp.pinpoint.rpc.stream.StreamChannelStateChangeEventHandler;
+import com.navercorp.pinpoint.rpc.stream.StreamException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -131,12 +133,12 @@ public class DefaultPinpointClient implements PinpointClient {
     }
 
     @Override
-    public ClientStreamChannelContext openStream(byte[] payload, ClientStreamChannelMessageListener messageListener) {
+    public ClientStreamChannelContext openStream(byte[] payload, ClientStreamChannelMessageListener messageListener) throws StreamException {
         return openStream(payload, messageListener, null);
     }
 
     @Override
-    public ClientStreamChannelContext openStream(byte[] payload, ClientStreamChannelMessageListener messageListener, StreamChannelStateChangeEventHandler<ClientStreamChannel> stateChangeListener) {
+    public ClientStreamChannelContext openStream(byte[] payload, ClientStreamChannelMessageListener messageListener, StreamChannelStateChangeEventHandler<ClientStreamChannel> stateChangeListener) throws StreamException {
         // StreamChannel must be changed into interface in order to throw the StreamChannel that returns failure.
         // fow now throw just exception
         ensureOpen();

@@ -50,6 +50,7 @@ import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelMessageListener;
 import com.navercorp.pinpoint.rpc.stream.StreamChannelContext;
 import com.navercorp.pinpoint.rpc.stream.StreamChannelManager;
 import com.navercorp.pinpoint.rpc.stream.StreamChannelStateChangeEventHandler;
+import com.navercorp.pinpoint.rpc.stream.StreamException;
 import com.navercorp.pinpoint.rpc.util.ClassUtils;
 import com.navercorp.pinpoint.rpc.util.ControlMessageEncodingUtils;
 import com.navercorp.pinpoint.rpc.util.IDGenerator;
@@ -240,12 +241,12 @@ public class DefaultPinpointServer implements PinpointServer {
     }
 
     @Override
-    public ClientStreamChannelContext openStream(byte[] payload, ClientStreamChannelMessageListener messageListener) {
+    public ClientStreamChannelContext openStream(byte[] payload, ClientStreamChannelMessageListener messageListener) throws StreamException {
         return openStream(payload, messageListener, null);
     }
 
     @Override
-    public ClientStreamChannelContext openStream(byte[] payload, ClientStreamChannelMessageListener messageListener, StreamChannelStateChangeEventHandler<ClientStreamChannel> stateChangeListener) {
+    public ClientStreamChannelContext openStream(byte[] payload, ClientStreamChannelMessageListener messageListener, StreamChannelStateChangeEventHandler<ClientStreamChannel> stateChangeListener) throws StreamException {
         logger.info("{} createStream() started.", objectUniqName);
 
         ClientStreamChannelContext streamChannel = streamChannelManager.openStream(payload, messageListener, stateChangeListener);

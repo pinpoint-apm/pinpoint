@@ -48,8 +48,8 @@ public interface PinpointClientHandler {
 
     void response(int requestId, byte[] payload);
 
-    ClientStreamChannelContext openStream(byte[] payload, ClientStreamChannelMessageListener messageListener);
-    ClientStreamChannelContext openStream(byte[] payload, ClientStreamChannelMessageListener messageListener, StreamChannelStateChangeEventHandler<ClientStreamChannel> stateChangeListener);
+    ClientStreamChannelContext openStream(byte[] payload, ClientStreamChannelMessageListener messageListener) throws StreamException;
+    ClientStreamChannelContext openStream(byte[] payload, ClientStreamChannelMessageListener messageListener, StreamChannelStateChangeEventHandler<ClientStreamChannel> stateChangeListener) throws StreamException;
 
     StreamChannelContext findStreamChannel(int streamChannelId);
     

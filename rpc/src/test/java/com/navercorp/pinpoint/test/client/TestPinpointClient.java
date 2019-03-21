@@ -26,6 +26,7 @@ import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelContext;
 import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelMessageListener;
 import com.navercorp.pinpoint.rpc.stream.ServerStreamChannelMessageListener;
 import com.navercorp.pinpoint.rpc.stream.StreamChannelContext;
+import com.navercorp.pinpoint.rpc.stream.StreamException;
 import com.navercorp.pinpoint.test.server.TestPinpointServerAcceptor;
 
 import java.util.Collections;
@@ -89,7 +90,7 @@ public class TestPinpointClient {
         this.pinpointClient = pinpointClientFactory.connect(host, port);
     }
 
-    public ClientStreamChannelContext openStream(byte[] payload, ClientStreamChannelMessageListener messageListener) {
+    public ClientStreamChannelContext openStream(byte[] payload, ClientStreamChannelMessageListener messageListener) throws StreamException {
         Assert.requireNonNull(pinpointClient, "pinpointClient must not be null");
         return pinpointClient.openStream(payload, messageListener);
     }

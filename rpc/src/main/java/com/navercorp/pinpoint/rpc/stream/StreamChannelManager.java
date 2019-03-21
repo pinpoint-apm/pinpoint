@@ -17,10 +17,17 @@
 package com.navercorp.pinpoint.rpc.stream;
 
 import com.navercorp.pinpoint.common.util.Assert;
-import com.navercorp.pinpoint.rpc.PinpointSocketException;
 import com.navercorp.pinpoint.rpc.packet.PacketType;
-import com.navercorp.pinpoint.rpc.packet.stream.*;
+import com.navercorp.pinpoint.rpc.packet.stream.StreamClosePacket;
+import com.navercorp.pinpoint.rpc.packet.stream.StreamCode;
+import com.navercorp.pinpoint.rpc.packet.stream.StreamCreateFailPacket;
+import com.navercorp.pinpoint.rpc.packet.stream.StreamCreatePacket;
+import com.navercorp.pinpoint.rpc.packet.stream.StreamCreateSuccessPacket;
+import com.navercorp.pinpoint.rpc.packet.stream.StreamPacket;
+import com.navercorp.pinpoint.rpc.packet.stream.StreamPingPacket;
+import com.navercorp.pinpoint.rpc.packet.stream.StreamResponsePacket;
 import com.navercorp.pinpoint.rpc.util.IDGenerator;
+
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFuture;
 import org.slf4j.Logger;
@@ -69,11 +76,11 @@ public class StreamChannelManager {
         }
     }
 
-    public ClientStreamChannelContext openStream(byte[] payload, ClientStreamChannelMessageListener messageListener) {
+    public ClientStreamChannelContext openStream(byte[] payload, ClientStreamChannelMessageListener messageListener) throws StreamException {
         return openStream(payload, messageListener, LOGGING_STATE_CHANGE_HANDLER);
     }
 
-    public ClientStreamChannelContext openStream(byte[] payload, ClientStreamChannelMessageListener messageListener, StreamChannelStateChangeEventHandler<ClientStreamChannel> stateChangeListener) {
+    public ClientStreamChannelContext openStream(byte[] payload, ClientStreamChannelMessageListener messageListener, StreamChannelStateChangeEventHandler<ClientStreamChannel> stateChangeListener) throws StreamException {
         logger.info("Open streamChannel initialization started. Channel:{} ", channel);
 
         final int streamChannelId = idGenerator.generate();
@@ -82,16 +89,14 @@ public class StreamChannelManager {
 
         if (stateChangeListener != null) {
             newStreamChannel.addStateChangeEventHandler(stateChangeListener);
-        } else {
-            newStreamChannel.addStateChangeEventHandler(LOGGING_STATE_CHANGE_HANDLER);
         }
-        newStreamChannel.changeStateOpen();
 
+        newStreamChannel.changeStateOpen();
         ClientStreamChannelContext newStreamChannelContext = new ClientStreamChannelContext(newStreamChannel, messageListener);
 
-        StreamChannelContext old = channelMap.put(streamChannelId, newStreamChannelContext);
+        StreamChannelContext old = channelMap.putIfAbsent(streamChannelId, newStreamChannelContext);
         if (old != null) {
-            throw new PinpointSocketException("already streamChannelId exist:" + streamChannelId + " streamChannel:" + old);
+            throw new StreamException(StreamCode.ID_DUPLICATED);
         }
 
         // the order of below code is very important.
@@ -105,7 +110,7 @@ public class StreamChannelManager {
         } else {
             newStreamChannel.changeStateClose();
             channelMap.remove(streamChannelId);
-            newStreamChannelContext.setCreateFailPacket(new StreamCreateFailPacket(streamChannelId, StreamCode.CONNECTION_TIMEOUT));
+            throw new StreamException(StreamCode.CONNECTION_TIMEOUT);
         }
         return newStreamChannelContext;
     }
@@ -189,12 +194,10 @@ public class StreamChannelManager {
     private void handleCreate(StreamCreatePacket packet) {
         final int streamChannelId = packet.getStreamChannelId();
 
-        StreamCode code = StreamCode.OK;
         ServerStreamChannel streamChannel = new ServerStreamChannel(this.channel, streamChannelId, this);
         ServerStreamChannelContext streamChannelContext = new ServerStreamChannelContext(streamChannel);
 
-        code = registerStreamChannel(streamChannelContext);
-
+        StreamCode code = registerStreamChannel(streamChannelContext);
         if (code == StreamCode.OK) {
             code = streamChannelMessageListener.handleStreamCreate(streamChannelContext, packet);
 
@@ -235,7 +238,6 @@ public class StreamChannelManager {
     }
 
     private void handleCreateFail(ClientStreamChannelContext streamChannelContext, StreamCreateFailPacket packet) {
-        streamChannelContext.setCreateFailPacket(packet);
         clearStreamChannelResource(streamChannelContext.getStreamId());
     }
 
