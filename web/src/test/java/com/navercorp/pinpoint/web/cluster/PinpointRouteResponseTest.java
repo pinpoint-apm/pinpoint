@@ -63,21 +63,23 @@ public class PinpointRouteResponseTest {
 
         Assert.assertEquals(TRouteResult.OK, response.getRouteResult());
         Assert.assertTrue(response.getResponse() instanceof TCommandEcho);
+        Assert.assertNull(response.getMessage());
     }
 
     @Test
     public void routeResponseTest3() throws Exception {
         HeaderTBaseSerializer serializer = serializerFactory.createSerializer();
 
-        byte[] responsePayload = serializer.serialize(wrapResponse(TRouteResult.OK, new byte[1]));
+        String message = "hello";
+        byte[] responsePayload = serializer.serialize(wrapResponse(TRouteResult.OK, new byte[1], message));
 
         DefaultPinpointRouteResponse response = new DefaultPinpointRouteResponse(responsePayload);
         response.parse(deserializerFactory);
 
         Assert.assertEquals(TRouteResult.OK, response.getRouteResult());
         Assert.assertNull(response.getResponse());
+        Assert.assertEquals(message, response.getMessage());
     }
-
 
     private TCommandEcho createCommandEcho(String message) {
         TCommandEcho echo = new TCommandEcho(message);
@@ -85,9 +87,17 @@ public class PinpointRouteResponseTest {
     }
 
     private TCommandTransferResponse wrapResponse(TRouteResult routeResult, byte[] payload) {
+        return wrapResponse(routeResult, payload, null);
+    }
+
+    private TCommandTransferResponse wrapResponse(TRouteResult routeResult, byte[] payload, String message) {
         TCommandTransferResponse response = new TCommandTransferResponse();
         response.setRouteResult(routeResult);
         response.setPayload(payload);
+
+        if (message != null) {
+            response.setMessage(message);
+        }
 
         return response;
     }

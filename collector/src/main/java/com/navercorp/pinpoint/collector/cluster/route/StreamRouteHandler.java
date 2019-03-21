@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.collector.cluster.PinpointServerClusterPoint;
 import com.navercorp.pinpoint.collector.cluster.TargetClusterPoint;
 import com.navercorp.pinpoint.collector.cluster.route.filter.RouteFilter;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamClosePacket;
+import com.navercorp.pinpoint.rpc.packet.stream.StreamCode;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamResponsePacket;
 import com.navercorp.pinpoint.rpc.server.PinpointServer;
 import com.navercorp.pinpoint.rpc.stream.ClientStreamChannel;
@@ -30,6 +31,7 @@ import com.navercorp.pinpoint.rpc.stream.ServerStreamChannel;
 import com.navercorp.pinpoint.rpc.stream.ServerStreamChannelContext;
 import com.navercorp.pinpoint.rpc.stream.StreamChannelStateChangeEventHandler;
 import com.navercorp.pinpoint.rpc.stream.StreamChannelStateCode;
+import com.navercorp.pinpoint.rpc.stream.StreamException;
 import com.navercorp.pinpoint.thrift.dto.command.TCommandTransferResponse;
 import com.navercorp.pinpoint.thrift.dto.command.TRouteResult;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializer;
@@ -115,14 +117,15 @@ public class StreamRouteHandler extends AbstractRouteHandler<StreamEvent> {
                 consumerContext.setAttributeIfAbsent(ATTACHMENT_KEY, routeManager);
 
                 ClientStreamChannelContext producerContext = createStreamChannel((PinpointServerClusterPoint) clusterPoint, event.getDeliveryCommand().getPayload(), routeManager);
-                if (producerContext.getCreateFailPacket() == null) {
-                    routeManager.setProducer(producerContext.getStreamChannel());
-                    producerContext.getStreamChannel().addStateChangeEventHandler(routeManager);
-                    return createResponse(TRouteResult.OK);
-                }
+                routeManager.setProducer(producerContext.getStreamChannel());
+                producerContext.getStreamChannel().addStateChangeEventHandler(routeManager);
+                return createResponse(TRouteResult.OK);
             } else {
                 return createResponse(TRouteResult.NOT_SUPPORTED_SERVICE);
             }
+        } catch (StreamException e) {
+            StreamCode streamCode = e.getStreamCode();
+            return createResponse(TRouteResult.STREAM_CREATE_ERROR, streamCode.name());
         } catch (Exception e) {
             if (logger.isWarnEnabled()) {
                 logger.warn("Create StreamChannel failed. target:{}, message:{}", clusterPoint, e.getMessage(), e);
@@ -132,7 +135,7 @@ public class StreamRouteHandler extends AbstractRouteHandler<StreamEvent> {
         return createResponse(TRouteResult.UNKNOWN);
     }
     
-    private ClientStreamChannelContext createStreamChannel(PinpointServerClusterPoint clusterPoint, byte[] payload, ClientStreamChannelMessageListener messageListener) {
+    private ClientStreamChannelContext createStreamChannel(PinpointServerClusterPoint clusterPoint, byte[] payload, ClientStreamChannelMessageListener messageListener) throws StreamException {
         PinpointServer pinpointServer = clusterPoint.getPinpointServer();
         return pinpointServer.openStream(payload, messageListener);
     }
@@ -145,21 +148,9 @@ public class StreamRouteHandler extends AbstractRouteHandler<StreamEvent> {
         }
     }
 
-    private TCommandTransferResponse createResponse(TRouteResult result) {
-        return createResponse(result, new byte[0]);
-    }
-
-    private TCommandTransferResponse createResponse(TRouteResult result, byte[] payload) {
-        TCommandTransferResponse response = new TCommandTransferResponse();
-        response.setRouteResult(result);
-        response.setPayload(payload);
-        return response;
-    }
-
     private byte[] serialize(TBase<?,?> result) {
         return SerializationUtils.serialize(result, commandSerializerFactory, null);
     }
-
 
     // fix me : StreamRouteManager will change worker thread pattern. 
     private class StreamRouteManager implements ClientStreamChannelMessageListener, StreamChannelStateChangeEventHandler<ClientStreamChannel> {

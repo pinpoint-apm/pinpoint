@@ -23,6 +23,7 @@ public enum TRouteResult implements org.apache.thrift.TEnum {
   NOT_FOUND(230),
   NOT_ACCEPTABLE(240),
   NOT_SUPPORTED_SERVICE(241),
+  STREAM_CREATE_ERROR(250),
   UNKNOWN(-1);
 
   private final int value;
@@ -66,6 +67,8 @@ public enum TRouteResult implements org.apache.thrift.TEnum {
         return NOT_ACCEPTABLE;
       case 241:
         return NOT_SUPPORTED_SERVICE;
+      case 250:
+        return STREAM_CREATE_ERROR;
       case -1:
         return UNKNOWN;
       default:

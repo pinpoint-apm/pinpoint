@@ -45,7 +45,7 @@ public class StreamChannelManagerTest {
 
     // Client to Server Stream
     @Test
-    public void streamSuccessTest1() throws IOException, InterruptedException {
+    public void streamSuccessTest1() throws IOException, InterruptedException, StreamException {
         SimpleStreamBO bo = new SimpleStreamBO();
 
         TestPinpointServerAcceptor testPinpointServerAcceptor = new TestPinpointServerAcceptor(testServerMessageListenerFactory, new ServerListener(bo));
@@ -76,7 +76,7 @@ public class StreamChannelManagerTest {
 
     // Client to Server Stream
     @Test
-    public void streamSuccessTest2() throws IOException, InterruptedException {
+    public void streamSuccessTest2() throws IOException, InterruptedException, StreamException {
         SimpleStreamBO bo = new SimpleStreamBO();
 
         TestPinpointServerAcceptor testPinpointServerAcceptor = new TestPinpointServerAcceptor(testServerMessageListenerFactory, new ServerListener(bo));
@@ -119,7 +119,7 @@ public class StreamChannelManagerTest {
     }
 
     @Test
-    public void streamSuccessTest3() throws IOException, InterruptedException {
+    public void streamSuccessTest3() throws IOException, InterruptedException, StreamException {
         TestPinpointServerAcceptor testPinpointServerAcceptor = new TestPinpointServerAcceptor(testServerMessageListenerFactory);
         int bindPort = testPinpointServerAcceptor.bind();
 
@@ -158,8 +158,8 @@ public class StreamChannelManagerTest {
         }
     }
 
-    @Test
-    public void streamClosedTest1() throws IOException, InterruptedException {
+    @Test(expected = StreamException.class)
+    public void streamClosedTest1() throws IOException, InterruptedException, StreamException {
         TestPinpointServerAcceptor testPinpointServerAcceptor = new TestPinpointServerAcceptor(testServerMessageListenerFactory);
         int bindPort = testPinpointServerAcceptor.bind();
 
@@ -169,13 +169,7 @@ public class StreamChannelManagerTest {
 
             RecordedStreamChannelMessageListener clientListener = new RecordedStreamChannelMessageListener(4);
 
-            ClientStreamChannelContext clientContext = testPinpointClient.openStream(new byte[0], clientListener);
-            StreamCreateFailPacket createFailPacket = clientContext.getCreateFailPacket();
-            if (createFailPacket == null) {
-                Assert.fail();
-            }
-
-            clientContext.getStreamChannel().close();
+            testPinpointClient.openStream(new byte[0], clientListener);
         } finally {
             testPinpointClient.closeAll();
             testPinpointServerAcceptor.close();
@@ -183,7 +177,7 @@ public class StreamChannelManagerTest {
     }
 
     @Test
-    public void streamClosedTest2() throws IOException, InterruptedException {
+    public void streamClosedTest2() throws IOException, InterruptedException, StreamException {
         final SimpleStreamBO bo = new SimpleStreamBO();
 
         TestPinpointServerAcceptor testPinpointServerAcceptor = new TestPinpointServerAcceptor(testServerMessageListenerFactory, new ServerListener(bo));
@@ -218,7 +212,7 @@ public class StreamChannelManagerTest {
 
     // ServerStreamChannel first close.
     @Test(expected = PinpointSocketException.class)
-    public void streamClosedTest3() throws IOException, InterruptedException {
+    public void streamClosedTest3() throws IOException, InterruptedException, StreamException {
         TestPinpointServerAcceptor testPinpointServerAcceptor = new TestPinpointServerAcceptor(testServerMessageListenerFactory);
         int bindPort = testPinpointServerAcceptor.bind();
 

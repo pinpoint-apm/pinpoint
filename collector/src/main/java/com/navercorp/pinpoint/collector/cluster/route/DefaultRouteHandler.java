@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.rpc.Future;
 import com.navercorp.pinpoint.rpc.ResponseMessage;
 import com.navercorp.pinpoint.thrift.dto.command.TCommandTransferResponse;
 import com.navercorp.pinpoint.thrift.dto.command.TRouteResult;
+
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.thrift.TBase;
 
@@ -97,17 +98,6 @@ public class DefaultRouteHandler extends AbstractRouteHandler<RequestEvent> {
         }
 
         return createResponse(TRouteResult.OK, responsePayload);
-    }
-
-    private TCommandTransferResponse createResponse(TRouteResult result) {
-        return createResponse(result, new byte[0]);
-    }
-
-    private TCommandTransferResponse createResponse(TRouteResult result, byte[] payload) {
-        TCommandTransferResponse response = new TCommandTransferResponse();
-        response.setRouteResult(result);
-        response.setPayload(payload);
-        return response;
     }
 
 }
