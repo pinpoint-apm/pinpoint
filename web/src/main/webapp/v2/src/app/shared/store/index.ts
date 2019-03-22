@@ -1,7 +1,6 @@
 import { ActionReducerMap, createSelector, createFeatureSelector } from '@ngrx/store';
 
 import * as admin from './admin.reducer';
-import * as agentInfo from './agent-info.reducer';
 import * as agentSelectionForInfoPerServer from './agent-selection-for-info-per-server.reducer';
 import * as agentSelectionForSideBar from './agent-selection-for-side-bar.reducer';
 import * as applicationList from './application-list.reducer';
@@ -35,7 +34,6 @@ export interface AppState {
     transactionData: ITransactionMetaData;
     transactionDetailData: ITransactionDetailData;
     hoverOnInspectorCharts: number;
-    agentInfo: IServerAndAgentData;
     applicationList: IApplication[];
     favoriteApplicationList: IApplication[];
     serverList: any;
@@ -61,7 +59,6 @@ export const STORE_KEY = {
     TRANSACTION_DATA: 'transactionData',
     TRANSACTION_DETAIL_DATA: 'transactionDetailData',
     HOVER_ON_INSPECTOR_CHARTS: 'hoverOnInspectorCharts',
-    AGENT_INFO: 'agentInfo',
     APPLICATION_LIST: 'applicationList',
     FAVORITE_APPLICATION_LIST: 'favoriteApplicationList',
     SERVER_LIST: 'serverList',
@@ -78,7 +75,6 @@ export const STORE_KEY = {
 
 export const reducers: ActionReducerMap<any> = {
     // [STORE_KEY.AGENT_INFo]: agentInfoReducer 방식은 빌드시 에러가 발생 함.
-    agentInfo: agentInfo.Reducer,
     agentSelection: agentSelectionForSideBar.Reducer,
     agentSelectionForServerList: agentSelectionForInfoPerServer.Reducer,
     applicationList: applicationList.Reducer,
@@ -122,7 +118,6 @@ export const Actions = {
     'UpdateServerMapTargetSelected': serverMapSelectedTarget.UpdateServerMapTargetSelected,
     'UpdateServerMapSelectedTargetByList': targetList.UpdateServerMapSelectedTargetByList,
     'UpdateFilterOfServerAndAgentList': serverAndAgent.UpdateFilterOfServerAndAgentList,
-    'UpdateAgentInfo': agentInfo.UpdateAgentInfo,
     'UpdateAdminAgentList': admin.UpdateAdminAgentList,
     'ChangeServerMapDisableState': uiState.ChangeServerMapDisableState,
     'ChangeInfoPerServerVisibleState': uiState.ChangeInfoPerServerVisibleState,
