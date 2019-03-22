@@ -29,14 +29,14 @@ public class DisabledServerStreamChannelMessageListener implements ServerStreamC
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
-    public StreamCode handleStreamCreate(ServerStreamChannelContext streamChannelContext, StreamCreatePacket packet) {
-        logger.info("{} handleStreamCreate unsupported operation. StreamChannel:{}, Packet:{}", this.getClass().getSimpleName(), streamChannelContext, packet);
+    public StreamCode handleStreamCreate(ServerStreamChannel serverStreamChannel, StreamCreatePacket packet) {
+        logger.info("handleStreamCreate() unsupported operation. StreamChannel:{}, Packet:{}", serverStreamChannel, packet);
         return StreamCode.CONNECTION_UNSUPPORT;
     }
 
     @Override
-    public void handleStreamClose(ServerStreamChannelContext streamChannelContext, StreamClosePacket packet) {
-        logger.info("{} handleStreamClose unsupported operation. StreamChannel:{}, Packet:{}", this.getClass().getSimpleName(), streamChannelContext, packet);
+    public void handleStreamClose(ServerStreamChannel serverStreamChannel, StreamClosePacket packet) {
+        logger.info("handleStreamClose() unsupported operation. StreamChannel:{}, Packet:{}", serverStreamChannel, packet);
     }
 
 }

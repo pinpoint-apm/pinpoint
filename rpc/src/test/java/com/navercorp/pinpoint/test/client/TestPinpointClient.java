@@ -22,10 +22,10 @@ import com.navercorp.pinpoint.rpc.MessageListener;
 import com.navercorp.pinpoint.rpc.client.DefaultPinpointClientFactory;
 import com.navercorp.pinpoint.rpc.client.PinpointClient;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
-import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelContext;
+import com.navercorp.pinpoint.rpc.stream.ClientStreamChannel;
 import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelMessageListener;
 import com.navercorp.pinpoint.rpc.stream.ServerStreamChannelMessageListener;
-import com.navercorp.pinpoint.rpc.stream.StreamChannelContext;
+import com.navercorp.pinpoint.rpc.stream.StreamChannel;
 import com.navercorp.pinpoint.rpc.stream.StreamException;
 import com.navercorp.pinpoint.test.server.TestPinpointServerAcceptor;
 
@@ -90,12 +90,12 @@ public class TestPinpointClient {
         this.pinpointClient = pinpointClientFactory.connect(host, port);
     }
 
-    public ClientStreamChannelContext openStream(byte[] payload, ClientStreamChannelMessageListener messageListener) throws StreamException {
+    public ClientStreamChannel openStream(byte[] payload, ClientStreamChannelMessageListener messageListener) throws StreamException {
         Assert.requireNonNull(pinpointClient, "pinpointClient must not be null");
         return pinpointClient.openStream(payload, messageListener);
     }
 
-    public StreamChannelContext findStreamChannel(int streamChannelId) {
+    public StreamChannel findStreamChannel(int streamChannelId) {
         Assert.requireNonNull(pinpointClient, "pinpointClient must not be null");
         return pinpointClient.findStreamChannel(streamChannelId);
     }

@@ -24,7 +24,6 @@ import com.navercorp.pinpoint.profiler.receiver.ProfilerRequestCommandService;
 import com.navercorp.pinpoint.profiler.receiver.ProfilerStreamCommandService;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamCode;
 import com.navercorp.pinpoint.rpc.stream.ServerStreamChannel;
-import com.navercorp.pinpoint.rpc.stream.ServerStreamChannelContext;
 import com.navercorp.pinpoint.rpc.stream.StreamChannelStateChangeEventHandler;
 import com.navercorp.pinpoint.rpc.stream.StreamChannelStateCode;
 import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadCountRes;
@@ -88,9 +87,9 @@ public class ActiveThreadCountService implements ProfilerRequestCommandService<T
     }
 
     @Override
-    public StreamCode streamCommandService(TBase<?, ?> tBase, ServerStreamChannelContext streamChannelContext) {
-        logger.info("streamCommandService object:{}, streamChannelContext:{}", tBase, streamChannelContext);
-        streamChannelContext.getStreamChannel().addStateChangeEventHandler(stateChangeEventHandler);
+    public StreamCode streamCommandService(TBase<?, ?> tBase, ServerStreamChannel serverStreamChannel) {
+        logger.info("streamCommandService object:{}, serverStreamChannel:{}", tBase, serverStreamChannel);
+        serverStreamChannel.addStateChangeEventHandler(stateChangeEventHandler);
         return StreamCode.OK;
     }
 

@@ -22,7 +22,6 @@ import com.navercorp.pinpoint.rpc.PinpointSocket;
 import com.navercorp.pinpoint.rpc.ResponseMessage;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamCode;
 import com.navercorp.pinpoint.rpc.stream.ClientStreamChannel;
-import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelContext;
 import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelMessageListener;
 import com.navercorp.pinpoint.rpc.stream.StreamChannelStateChangeEventHandler;
 import com.navercorp.pinpoint.rpc.stream.StreamException;
@@ -251,24 +250,24 @@ public class AgentServiceImpl implements AgentService {
     }
 
     @Override
-    public ClientStreamChannelContext openStream(AgentInfo agentInfo, TBase<?, ?> tBase, ClientStreamChannelMessageListener messageListener) throws TException, StreamException {
+    public ClientStreamChannel openStream(AgentInfo agentInfo, TBase<?, ?> tBase, ClientStreamChannelMessageListener messageListener) throws TException, StreamException {
         byte[] payload = serializeRequest(tBase);
         return openStream(agentInfo, payload, messageListener, null);
     }
 
     @Override
-    public ClientStreamChannelContext openStream(AgentInfo agentInfo, byte[] payload, ClientStreamChannelMessageListener messageListener) throws TException, StreamException {
+    public ClientStreamChannel openStream(AgentInfo agentInfo, byte[] payload, ClientStreamChannelMessageListener messageListener) throws TException, StreamException {
         return openStream(agentInfo, payload, messageListener, null);
     }
 
     @Override
-    public ClientStreamChannelContext openStream(AgentInfo agentInfo, TBase<?, ?> tBase, ClientStreamChannelMessageListener messageListener, StreamChannelStateChangeEventHandler<ClientStreamChannel> stateChangeListener) throws TException, StreamException {
+    public ClientStreamChannel openStream(AgentInfo agentInfo, TBase<?, ?> tBase, ClientStreamChannelMessageListener messageListener, StreamChannelStateChangeEventHandler<ClientStreamChannel> stateChangeListener) throws TException, StreamException {
         byte[] payload = serializeRequest(tBase);
         return openStream(agentInfo, payload, messageListener, stateChangeListener);
     }
 
     @Override
-    public ClientStreamChannelContext openStream(AgentInfo agentInfo, byte[] payload, ClientStreamChannelMessageListener messageListener, StreamChannelStateChangeEventHandler<ClientStreamChannel> stateChangeListener) throws TException, StreamException {
+    public ClientStreamChannel openStream(AgentInfo agentInfo, byte[] payload, ClientStreamChannelMessageListener messageListener, StreamChannelStateChangeEventHandler<ClientStreamChannel> stateChangeListener) throws TException, StreamException {
         TCommandTransfer transferObject = createCommandTransferObject(agentInfo, payload);
         PinpointSocket socket = clusterManager.getSocket(agentInfo);
         if (socket == null) {
