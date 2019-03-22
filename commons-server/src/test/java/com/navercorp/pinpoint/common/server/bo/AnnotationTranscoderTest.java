@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,13 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.io.util;
+package com.navercorp.pinpoint.common.server.bo;
 
 
 import com.navercorp.pinpoint.common.util.IntBooleanIntBooleanValue;
 import com.navercorp.pinpoint.common.util.IntStringValue;
 import com.navercorp.pinpoint.common.util.LongIntIntByteByteStringValue;
-import com.navercorp.pinpoint.thrift.dto.TIntBooleanIntBooleanValue;
-import com.navercorp.pinpoint.thrift.dto.TIntStringValue;
 
-import com.navercorp.pinpoint.thrift.dto.TLongIntIntByteByteStringValue;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TCompactProtocol;
 import org.apache.thrift.protocol.TProtocol;
@@ -144,8 +141,7 @@ public class AnnotationTranscoderTest {
 
     private void testIntString(int intValue, String stringValue) {
         AnnotationTranscoder transcoder = new AnnotationTranscoder();
-        TIntStringValue tIntStringValue = new TIntStringValue(intValue);
-        tIntStringValue.setStringValue(stringValue);
+        IntStringValue tIntStringValue = new IntStringValue(intValue, stringValue);
         byte[] encode = transcoder.encode(tIntStringValue, AnnotationTranscoder.CODE_INT_STRING);
         IntStringValue decode = (IntStringValue) transcoder.decode(AnnotationTranscoder.CODE_INT_STRING, encode);
         Assert.assertEquals(tIntStringValue.getIntValue(), decode.getIntValue());
@@ -159,13 +155,9 @@ public class AnnotationTranscoderTest {
 
     private void testLongIntIntByteByteString(long longValue, int intValue1, int intValue2, byte byteValue1, byte byteValue2, String stringValue) {
         AnnotationTranscoder transcoder = new AnnotationTranscoder();
-        TLongIntIntByteByteStringValue value = new TLongIntIntByteByteStringValue();
-        value.setLongValue(longValue);
-        value.setIntValue1(intValue1);
-        value.setIntValue2(intValue2);
-        value.setByteValue1(byteValue1);
-        value.setByteValue2(byteValue2);
-        value.setStringValue(stringValue);
+        LongIntIntByteByteStringValue value = new LongIntIntByteByteStringValue(longValue, intValue1, intValue2,
+                byteValue1, byteValue2, stringValue);
+
         byte[] encode = transcoder.encode(value, AnnotationTranscoder.CODE_LONG_INT_INT_BYTE_BYTE_STRING);
         LongIntIntByteByteStringValue decode = (LongIntIntByteByteStringValue) transcoder.decode(AnnotationTranscoder.CODE_LONG_INT_INT_BYTE_BYTE_STRING, encode);
         Assert.assertEquals(value.getLongValue(), decode.getLongValue());
@@ -179,11 +171,7 @@ public class AnnotationTranscoderTest {
     @Test
     public void testIntBooleanIntBoolean() {
         AnnotationTranscoder transcoder = new AnnotationTranscoder();
-        TIntBooleanIntBooleanValue value = new TIntBooleanIntBooleanValue();
-        value.setIntValue1(10);
-        value.setBoolValue1(false);
-        value.setIntValue2(5000);
-        value.setBoolValue2(true);
+        IntBooleanIntBooleanValue value = new IntBooleanIntBooleanValue(10, false, 5000, true);
 
         byte[] encode = transcoder.encode(value, AnnotationTranscoder.CODE_INT_BOOLEAN_INT_BOOLEAN);
         IntBooleanIntBooleanValue decode = (IntBooleanIntBooleanValue) transcoder.decode(AnnotationTranscoder.CODE_INT_BOOLEAN_INT_BOOLEAN, encode);
