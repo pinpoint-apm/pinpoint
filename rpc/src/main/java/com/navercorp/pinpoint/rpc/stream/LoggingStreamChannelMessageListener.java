@@ -36,14 +36,14 @@ public class LoggingStreamChannelMessageListener {
     static class Server implements ServerStreamChannelMessageListener {
 
         @Override
-        public StreamCode handleStreamCreate(ServerStreamChannelContext streamChannelContext, StreamCreatePacket packet) {
-            LOGGER.info("handleStreamCreate StreamChannel:{}, Packet:{}", streamChannelContext, packet);
+        public StreamCode handleStreamCreate(ServerStreamChannel serverStreamChannel, StreamCreatePacket packet) {
+            LOGGER.info("handleStreamCreate StreamChannel:{}, Packet:{}", serverStreamChannel, packet);
             return StreamCode.OK;
         }
 
         @Override
-        public void handleStreamClose(ServerStreamChannelContext streamChannelContext, StreamClosePacket packet) {
-            LOGGER.info("handleStreamClose StreamChannel:{}, Packet:{}", streamChannelContext, packet);
+        public void handleStreamClose(ServerStreamChannel serverStreamChannel, StreamClosePacket packet) {
+            LOGGER.info("handleStreamClose StreamChannel:{}, Packet:{}", serverStreamChannel, packet);
         }
 
     }
@@ -51,13 +51,13 @@ public class LoggingStreamChannelMessageListener {
     static class Client implements ClientStreamChannelMessageListener {
 
         @Override
-        public void handleStreamData(ClientStreamChannelContext streamChannelContext, StreamResponsePacket packet) {
-            LOGGER.debug("handleStreamData StreamChannel:{}, Packet:{}", streamChannelContext, packet);
+        public void handleStreamData(ClientStreamChannel clientStreamChannel, StreamResponsePacket packet) {
+            LOGGER.debug("handleStreamData StreamChannel:{}, Packet:{}", clientStreamChannel, packet);
         }
 
         @Override
-        public void handleStreamClose(ClientStreamChannelContext streamChannelContext, StreamClosePacket packet) {
-            LOGGER.info("handleStreamClose StreamChannel:{}, Packet:{}", streamChannelContext, packet);
+        public void handleStreamClose(ClientStreamChannel clientStreamChannel, StreamClosePacket packet) {
+            LOGGER.info("handleStreamClose StreamChannel:{}, Packet:{}", clientStreamChannel, packet);
         }
 
     }

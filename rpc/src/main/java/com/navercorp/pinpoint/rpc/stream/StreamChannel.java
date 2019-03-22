@@ -16,17 +16,19 @@
 
 package com.navercorp.pinpoint.rpc.stream;
 
-import com.navercorp.pinpoint.rpc.PinpointSocketException;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamCode;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamPingPacket;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamPongPacket;
+
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFuture;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.SocketAddress;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -38,11 +40,13 @@ public abstract class StreamChannel {
 
     protected final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final Channel channel;
+    private final ConcurrentHashMap<String, Object> attribute = new ConcurrentHashMap<String, Object>();
+
+    final Channel channel;
     private final int streamChannelId;
     private final StreamChannelManager streamChannelManager;
 
-    private final StreamChannelState state;
+    final StreamChannelState state;
     private final CountDownLatch openLatch = new CountDownLatch(1);
 
     private List<StreamChannelStateChangeEventHandler> stateChangeEventHandlers = new CopyOnWriteArrayList<StreamChannelStateChangeEventHandler>();
@@ -82,7 +86,7 @@ public abstract class StreamChannel {
 
     boolean changeStateClose() {
         try {
-            if (checkState(StreamChannelStateCode.CLOSED)) {
+            if (state.checkState(StreamChannelStateCode.CLOSED)) {
                 return true;
             }
             return changeStateTo(StreamChannelStateCode.CLOSED);
@@ -94,7 +98,7 @@ public abstract class StreamChannel {
     public boolean awaitOpen() {
         try {
             openLatch.await();
-            return true;
+            return state.checkState(StreamChannelStateCode.CONNECTED);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
@@ -103,7 +107,8 @@ public abstract class StreamChannel {
 
     public boolean awaitOpen(long timeoutMillis) {
         try {
-            return openLatch.await(timeoutMillis, TimeUnit.MILLISECONDS);
+            openLatch.await(timeoutMillis, TimeUnit.MILLISECONDS);
+            return state.checkState(StreamChannelStateCode.CONNECTED);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
@@ -116,14 +121,14 @@ public abstract class StreamChannel {
     }
 
     public ChannelFuture sendPing(int requestId) {
-        assertState(StreamChannelStateCode.CONNECTED);
+        state.assertState(StreamChannelStateCode.CONNECTED);
 
         StreamPingPacket packet = new StreamPingPacket(streamChannelId, requestId);
         return this.channel.write(packet);
     }
 
     public ChannelFuture sendPong(int requestId) {
-        assertState(StreamChannelStateCode.CONNECTED);
+        state.assertState(StreamChannelStateCode.CONNECTED);
 
         StreamPongPacket packet = new StreamPongPacket(streamChannelId, requestId);
         return this.channel.write(packet);
@@ -133,43 +138,12 @@ public abstract class StreamChannel {
         this.streamChannelManager.clearResourceAndSendClose(getStreamId(), StreamCode.STATE_CLOSED);
     }
 
-    public Channel getChannel() {
-        return channel;
+    public SocketAddress getRemoteAddress() {
+        return channel.getRemoteAddress();
     }
 
     public int getStreamId() {
         return streamChannelId;
-    }
-
-    protected StreamChannelState getState() {
-        return state;
-    }
-
-    public boolean isServer() {
-        if (this instanceof ServerStreamChannel) {
-            return true;
-        }
-
-        return false;
-    }
-
-    void assertState(StreamChannelStateCode stateCode) {
-        final StreamChannelStateCode currentCode = getCurrentState();
-        if (!checkState(currentCode, stateCode)) {
-            throw new PinpointSocketException("expected:<" + stateCode + "> but was:<" + currentCode + ">;");
-        }
-    }
-
-    boolean checkState(StreamChannelStateCode expectedCode) {
-        return checkState(getCurrentState(), expectedCode);
-    }
-
-    boolean checkState(StreamChannelStateCode currentCode, StreamChannelStateCode expectedCode) {
-        if (currentCode == expectedCode) {
-            return true;
-        } else {
-            return false;
-        }
     }
 
     protected boolean changeStateTo(StreamChannelStateCode nextState) {
@@ -193,6 +167,18 @@ public abstract class StreamChannel {
         return isChanged;
     }
 
+    public final Object getAttribute(String key) {
+        return attribute.get(key);
+    }
+
+    public final Object setAttributeIfAbsent(String key, Object value) {
+        return attribute.putIfAbsent(key, value);
+    }
+
+    public final Object removeAttribute(String key) {
+        return attribute.remove(key);
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -200,13 +186,10 @@ public abstract class StreamChannel {
 
         sb.append("[Channel:");
         sb.append(channel);
-
         sb.append(", StreamId:");
         sb.append(getStreamId());
-
         sb.append(", State:");
         sb.append(getCurrentState());
-
         sb.append("].");
 
         return sb.toString();
