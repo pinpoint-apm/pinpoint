@@ -1,9 +1,9 @@
 import { Component, OnInit, OnDestroy, ElementRef, Renderer2 } from '@angular/core';
+import { Router, RouterEvent, NavigationStart } from '@angular/router';
 import { Subject } from 'rxjs';
 import { filter } from 'rxjs/operators';
 
 import { StoreHelperService } from 'app/shared/services';
-import { Router, RouterEvent, NavigationStart } from '@angular/router';
 
 @Component({
     selector: 'pp-side-bar-for-filtered-map-container',
@@ -62,7 +62,7 @@ export class SideBarForFilteredMapContainerComponent implements OnInit, OnDestro
             filter((target: ISelectedTarget) => {
                 return target && (target.isNode === true || target.isNode === false) ? true : false;
             })
-        ).subscribe((target: any) => {
+        ).subscribe((target: ISelectedTarget) => {
             this.target = target;
             this.renderer.setStyle(this.el.nativeElement, 'width', '461px');
         });
