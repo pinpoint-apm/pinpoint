@@ -19,9 +19,8 @@ package com.navercorp.pinpoint.collector.handler.thrift;
 import com.navercorp.pinpoint.collector.handler.SimpleHandler;
 import com.navercorp.pinpoint.collector.service.TraceService;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
-import com.navercorp.pinpoint.common.server.bo.SpanFactory;
 
-import com.navercorp.pinpoint.grpc.trace.PSpan;
+import com.navercorp.pinpoint.common.server.bo.thrift.SpanFactory;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,8 +54,6 @@ public class ThriftSpanHandler implements SimpleHandler {
 
         if (data instanceof TSpan) {
             handleSpan((TSpan) data);
-        } else if (data instanceof PSpan) {
-            handleSpan((PSpan) data);
         } else {
             throw new UnsupportedOperationException("data is not support type : " + data);
         }
@@ -74,16 +71,4 @@ public class ThriftSpanHandler implements SimpleHandler {
         }
     }
 
-    private void handleSpan(PSpan tSpan) {
-        if (logger.isDebugEnabled()) {
-            logger.debug("Handle PSpan={}", tSpan);
-        }
-
-//        try {
-//            final SpanBo spanBo = spanFactory.buildSpanBo(tSpan);
-//            traceService.insertSpan(spanBo);
-//        } catch (Exception e) {
-//            logger.warn("Span handle error. Caused:{}. Span:{}", e.getMessage(), tSpan, e);
-//        }
-    }
 }

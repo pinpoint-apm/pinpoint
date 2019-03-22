@@ -136,13 +136,13 @@ public class SpanProtoMessageConverter implements MessageConverter<GeneratedMess
         final List<Annotation> annotations = span.getAnnotations();
         if (CollectionUtils.hasLength(annotations)) {
             final List<PAnnotation> tAnnotations = buildPAnnotation(annotations);
-            pSpan.addAllAnnotations(tAnnotations);
+            pSpan.addAllAnnotation(tAnnotations);
         }
         this.spanProcessor.preProcess(span, pSpan);
         final List<SpanEvent> spanEventList = span.getSpanEventList();
         if (CollectionUtils.hasLength(spanEventList)) {
             final List<PSpanEvent> pSpanEvents = buildPSpanEventList(spanEventList);
-            pSpan.addAllSpanEventList(pSpanEvents);
+            pSpan.addAllSpanEvent(pSpanEvents);
         }
         this.spanProcessor.postProcess(span, pSpan);
         return pSpan.build();
@@ -218,7 +218,7 @@ public class SpanProtoMessageConverter implements MessageConverter<GeneratedMess
         final List<SpanEvent> spanEventList = spanChunk.getSpanEventList();
         if (CollectionUtils.hasLength(spanEventList)) {
             final List<PSpanEvent> pSpanEvents = buildPSpanEventList(spanEventList);
-            pSpanChunk.addAllSpanEventList(pSpanEvents);
+            pSpanChunk.addAllSpanEvent(pSpanEvents);
         }
         this.spanProcessor.postProcess(spanChunk, pSpanChunk);
 
@@ -258,7 +258,7 @@ public class SpanProtoMessageConverter implements MessageConverter<GeneratedMess
         final List<Annotation> annotations = spanEvent.getAnnotations();
         if (CollectionUtils.hasLength(annotations)) {
             final List<PAnnotation> pAnnotations = buildPAnnotation(annotations);
-            pSpanEvent.addAllAnnotations(pAnnotations);
+            pSpanEvent.addAllAnnotation(pAnnotations);
         }
 
         return pSpanEvent;

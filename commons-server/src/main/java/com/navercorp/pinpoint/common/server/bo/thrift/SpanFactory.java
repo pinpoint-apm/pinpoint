@@ -1,17 +1,39 @@
-package com.navercorp.pinpoint.common.server.bo;
+/*
+ * Copyright 2019 NAVER Corp.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.navercorp.pinpoint.common.server.bo.thrift;
 
 
 
 import com.google.common.annotations.VisibleForTesting;
+import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
+import com.navercorp.pinpoint.common.server.bo.AnnotationComparator;
+import com.navercorp.pinpoint.common.server.bo.AnnotationFactory;
+import com.navercorp.pinpoint.common.server.bo.BasicSpan;
+import com.navercorp.pinpoint.common.server.bo.LocalAsyncIdBo;
+import com.navercorp.pinpoint.common.server.bo.SpanBo;
+import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
+import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
+import com.navercorp.pinpoint.common.server.bo.SpanEventComparator;
 import com.navercorp.pinpoint.common.server.bo.filter.EmptySpanEventFilter;
 import com.navercorp.pinpoint.common.server.bo.filter.SpanEventFilter;
 import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
 import com.navercorp.pinpoint.common.server.util.EmptyAcceptedTimeService;
 import com.navercorp.pinpoint.common.util.TransactionId;
 import com.navercorp.pinpoint.common.util.TransactionIdUtils;
-import com.navercorp.pinpoint.grpc.trace.PSpan;
-import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
-import com.navercorp.pinpoint.io.util.AnnotationTranscoder;
 import com.navercorp.pinpoint.thrift.dto.TAnnotation;
 import com.navercorp.pinpoint.thrift.dto.TIntStringValue;
 import com.navercorp.pinpoint.thrift.dto.TLocalAsyncId;
@@ -25,7 +47,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -40,7 +61,7 @@ public class SpanFactory {
 
     private AcceptedTimeService acceptedTimeService = new EmptyAcceptedTimeService();
 
-    private static final AnnotationTranscoder transcoder = new AnnotationTranscoder();
+    private final AnnotationFactory<TAnnotation> annotationFactory = new AnnotationFactory<>(new ThriftAnnotationHandler());
 
     // TODO
     private final boolean fastAsyncIdGen;
@@ -186,11 +207,6 @@ public class SpanFactory {
 //            spanEvent.setAsyncSequence((short) localAsyncId.getSequence());
 //        }
     }
-
-    public SpanBo buildSpanBo(PSpan tSpan) {
-        return null;
-    }
-
 
     public SpanChunkBo buildSpanChunkBo(TSpanChunk tSpanChunk) {
         final SpanChunkBo spanChunkBo = newSpanChunkBo(tSpanChunk);
@@ -371,17 +387,8 @@ public class SpanFactory {
         if (tAnnotation == null) {
             throw new NullPointerException("annotation must not be null");
         }
-        AnnotationBo annotationBo = new AnnotationBo();
-
-        annotationBo.setKey(tAnnotation.getKey());
-
-        Object value = transcoder.getMappingValue(tAnnotation);
-        annotationBo.setValue(value);
-
+        AnnotationBo annotationBo = annotationFactory.buildAnnotation(tAnnotation);
         return annotationBo;
     }
 
-    public SpanChunkBo buildSpanChunkBo(PSpanChunk tSpanChunk) {
-        return null;
-    }
 }

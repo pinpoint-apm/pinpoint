@@ -204,9 +204,7 @@ public class LinkFilterTest {
         Assert.assertFalse(linkFilter.include(Collections.singletonList(spanBo)));
 
         // Accept - has matching rpc span event
-        AnnotationBo rpcAnnotation = new AnnotationBo();
-        rpcAnnotation.setKey(RPC_ANNOTATION_CODE);
-        rpcAnnotation.setValue(rpcUrl);
+        AnnotationBo rpcAnnotation = new AnnotationBo(RPC_ANNOTATION_CODE, rpcUrl);
         SpanEventBo rpcSpanEvent = new SpanEventBo();
         rpcSpanEvent.setServiceType(RPC_TYPE_CODE);
         rpcSpanEvent.setDestinationId(rpcHost);
@@ -319,9 +317,7 @@ public class LinkFilterTest {
         fromSpan.setParentSpanId(-1);
         fromSpan.setApplicationId("APP_A");
         fromSpan.setApplicationServiceType(tomcat.getCode());
-        AnnotationBo rpcAnnotation = new AnnotationBo();
-        rpcAnnotation.setKey(RPC_ANNOTATION_CODE);
-        rpcAnnotation.setValue(rpcUrl);
+        AnnotationBo rpcAnnotation = new AnnotationBo(RPC_ANNOTATION_CODE, rpcUrl);
         SpanEventBo rpcSpanEvent = new SpanEventBo();
         rpcSpanEvent.setServiceType(RPC_TYPE_CODE);
         rpcSpanEvent.setDestinationId(rpcHost);

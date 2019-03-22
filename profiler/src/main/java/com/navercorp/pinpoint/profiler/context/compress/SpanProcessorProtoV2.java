@@ -63,14 +63,14 @@ public class SpanProcessorProtoV2 implements SpanProcessor<PSpan.Builder, PSpanC
     @Override
     public void postProcess(SpanChunk span, PSpanChunk.Builder tSpan) {
         final List<SpanEvent> spanEventList = span.getSpanEventList();
-        final List<PSpanEvent.Builder> tSpanEventList = tSpan.getSpanEventListBuilderList();
+        final List<PSpanEvent.Builder> tSpanEventList = tSpan.getSpanEventBuilderList();
         postProcess(spanEventList, tSpanEventList);
     }
 
     @Override
     public void postProcess(Span span, PSpan.Builder tSpan) {
         final List<SpanEvent> spanEventList = span.getSpanEventList();
-        final List<PSpanEvent.Builder> tSpanEventList = tSpan.getSpanEventListBuilderList();
+        final List<PSpanEvent.Builder> tSpanEventList = tSpan.getSpanEventBuilderList();
         postProcess(spanEventList, tSpanEventList);
     }
 

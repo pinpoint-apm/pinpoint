@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.io.util;
+package com.navercorp.pinpoint.common.server.bo;
 
 
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
@@ -27,13 +27,7 @@ import com.navercorp.pinpoint.common.util.IntStringStringValue;
 import com.navercorp.pinpoint.common.util.IntStringValue;
 import com.navercorp.pinpoint.common.util.LongIntIntByteByteStringValue;
 import com.navercorp.pinpoint.common.util.StringStringValue;
-import com.navercorp.pinpoint.thrift.dto.TAnnotation;
-import com.navercorp.pinpoint.thrift.dto.TAnnotationValue;
-import com.navercorp.pinpoint.thrift.dto.TIntBooleanIntBooleanValue;
-import com.navercorp.pinpoint.thrift.dto.TIntStringStringValue;
-import com.navercorp.pinpoint.thrift.dto.TIntStringValue;
-import com.navercorp.pinpoint.thrift.dto.TLongIntIntByteByteStringValue;
-import com.navercorp.pinpoint.thrift.dto.TStringStringValue;
+
 
 /**
  * @author emeroad
@@ -64,15 +58,6 @@ public class AnnotationTranscoder {
     static final byte CODE_STRING_STRING = 24;
 
     private static final byte[] EMPTY_BYTE_ARRAY = new byte[0];
-
-
-    public Object getMappingValue(TAnnotation annotation) {
-        final TAnnotationValue value = annotation.getValue();
-        if (value == null) {
-            return null;
-        }
-        return value.getFieldValue();
-    }
 
 
     public Object decode(final byte dataType, final byte[] data) {
@@ -144,15 +129,15 @@ public class AnnotationTranscoder {
             return CODE_DOUBLE;
         } else if (o instanceof byte[]) {
             return CODE_BYTEARRAY;
-        } else if (o instanceof TIntStringValue) {
+        } else if (o instanceof IntStringValue) {
             return CODE_INT_STRING;
-        } else if (o instanceof TIntStringStringValue) {
+        } else if (o instanceof IntStringStringValue) {
             return CODE_INT_STRING_STRING;
-        } else if (o instanceof TStringStringValue) {
+        } else if (o instanceof StringStringValue) {
             return CODE_STRING_STRING;
-        } else if (o instanceof TLongIntIntByteByteStringValue) {
+        } else if (o instanceof LongIntIntByteByteStringValue) {
             return CODE_LONG_INT_INT_BYTE_BYTE_STRING;
-        } else if (o instanceof TIntBooleanIntBooleanValue) {
+        } else if (o instanceof IntBooleanIntBooleanValue) {
             return CODE_INT_BOOLEAN_INT_BOOLEAN;
         }
         return CODE_TOSTRING;
@@ -223,7 +208,7 @@ public class AnnotationTranscoder {
 
 
     private byte[] encodeIntStringValue(Object value) {
-        final TIntStringValue tIntStringValue = (TIntStringValue) value;
+        final IntStringValue tIntStringValue = (IntStringValue) value;
         final int intValue = tIntStringValue.getIntValue();
         final byte[] stringValue = BytesUtils.toBytes(tIntStringValue.getStringValue());
         // TODO increase by a more precise value
@@ -251,7 +236,7 @@ public class AnnotationTranscoder {
     }
 
     private byte[] encodeIntStringStringValue(Object o) {
-        final TIntStringStringValue tIntStringStringValue = (TIntStringStringValue) o;
+        final IntStringStringValue tIntStringStringValue = (IntStringStringValue) o;
         final int intValue = tIntStringStringValue.getIntValue();
         final byte[] stringValue1 = BytesUtils.toBytes(tIntStringStringValue.getStringValue1());
         final byte[] stringValue2 = BytesUtils.toBytes(tIntStringStringValue.getStringValue2());
@@ -302,12 +287,9 @@ public class AnnotationTranscoder {
     }
 
     private byte[] encodeLongIntIntByteByteStringValue(Object o) {
-        final TLongIntIntByteByteStringValue value = (TLongIntIntByteByteStringValue) o;
+        final LongIntIntByteByteStringValue value = (LongIntIntByteByteStringValue) o;
         byte bitField = 0;
-        bitField = BitFieldUtils.setBit(bitField, 0, value.isSetIntValue2());
-        bitField = BitFieldUtils.setBit(bitField, 1, value.isSetByteValue1());
-        bitField = BitFieldUtils.setBit(bitField, 2, value.isSetByteValue2());
-        bitField = BitFieldUtils.setBit(bitField, 3, value.isSetStringValue());
+        bitField = newBitField(value);
         final byte[] stringValue = BytesUtils.toBytes(value.getStringValue());
 
         // bitField + long + int + int + byte + byte + string
@@ -316,19 +298,44 @@ public class AnnotationTranscoder {
         buffer.putByte(bitField);
         buffer.putVLong(value.getLongValue());
         buffer.putVInt(value.getIntValue1());
-        if (value.isSetIntValue2()) {
+        if (isSetIntValue2(value)) {
             buffer.putVInt(value.getIntValue2());
         }
-        if (value.isSetByteValue1()) {
+        if (isSetByteValue1(value)) {
             buffer.putByte(value.getByteValue1());
         }
-        if (value.isSetByteValue2()) {
+        if (isSetByteValue2(value)) {
             buffer.putByte(value.getByteValue2());
         }
-        if (value.isSetStringValue()) {
+        if (isSetStringValue(value)) {
             buffer.putPrefixedBytes(stringValue);
         }
         return buffer.getBuffer();
+    }
+
+    private byte newBitField(LongIntIntByteByteStringValue value) {
+
+        byte bitField = BitFieldUtils.setBit((byte)0, 0, isSetIntValue2(value));
+        bitField = BitFieldUtils.setBit(bitField, 1, isSetByteValue1(value));
+        bitField = BitFieldUtils.setBit(bitField, 2, isSetByteValue2(value));
+        bitField = BitFieldUtils.setBit(bitField, 3, isSetStringValue(value));
+        return bitField;
+    }
+
+    private boolean isSetStringValue(LongIntIntByteByteStringValue value) {
+        return value.getStringValue() != null;
+    }
+
+    private boolean isSetByteValue2(LongIntIntByteByteStringValue value) {
+        return value.getByteValue2() != 0;
+    }
+
+    private boolean isSetByteValue1(LongIntIntByteByteStringValue value) {
+        return value.getByteValue1() != 0;
+    }
+
+    private boolean isSetIntValue2(LongIntIntByteByteStringValue value) {
+        return value.getIntValue2() != 0;
     }
 
     private Object decodeIntBooleanIntBooleanValue(byte[] data) {
@@ -342,14 +349,14 @@ public class AnnotationTranscoder {
     }
 
     private byte[] encodeIntBooleanIntBooleanValue(Object o) {
-        final TIntBooleanIntBooleanValue value = (TIntBooleanIntBooleanValue) o;
+        final IntBooleanIntBooleanValue value = (IntBooleanIntBooleanValue) o;
 
         // int + int
         final Buffer buffer = new AutomaticBuffer(8);
         buffer.putVInt(value.getIntValue1());
-        buffer.putBoolean(value.isBoolValue1());
+        buffer.putBoolean(value.isBooleanValue1());
         buffer.putVInt(value.getIntValue2());
-        buffer.putBoolean(value.isBoolValue2());
+        buffer.putBoolean(value.isBooleanValue2());
         return buffer.getBuffer();
     }
 //    private Object decodeIntStringStringValue(byte[] data) {
@@ -395,7 +402,7 @@ public class AnnotationTranscoder {
     }
 
     private byte[] encodeStringStringValue(Object o) {
-        final TStringStringValue tStringStringValue = (TStringStringValue) o;
+        final StringStringValue tStringStringValue = (StringStringValue) o;
         final byte[] stringValue1 = BytesUtils.toBytes(tStringStringValue.getStringValue1());
         final byte[] stringValue2 = BytesUtils.toBytes(tStringStringValue.getStringValue2());
         // TODO increase by a more precise value

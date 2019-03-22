@@ -92,9 +92,7 @@ public class SpanMapperV2Test {
     }
 
     private AnnotationBo newAnnotation(int key, Object value) {
-        AnnotationBo annotationBo = new AnnotationBo();
-        annotationBo.setKey(key);
-        annotationBo.setValue(value);
+        AnnotationBo annotationBo = new AnnotationBo(key, value);
         return annotationBo;
     }
 
