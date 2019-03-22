@@ -1,6 +1,6 @@
 :host {
     display: block;
-    /* 98px = 32px(Title) + 66px(Search Input) */
-    height: calc(100% - 98px); 
+    /* 71px = 38px(Search Input) + 33px(Title) */
+    height: calc(100% - 71px); 
     overflow-y: auto;
 }

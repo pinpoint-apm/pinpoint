@@ -101,9 +101,6 @@ export class StoreHelperService {
     getServerListData(unsubscribe: Subject<void>): Observable<any> {
         return this.getObservable(STORE_KEY.SERVER_LIST, unsubscribe);
     }
-    getAgentInfo(unsubscribe?: Subject<void>): Observable<IServerAndAgentData> {
-        return this.getObservable(STORE_KEY.AGENT_INFO, unsubscribe);
-    }
     getLoadChartYMax(unsubscribe: Subject<void>): Observable<number> {
         return this.getObservable(STORE_KEY.LOAD_CHART_Y_MAX, unsubscribe);
     }
