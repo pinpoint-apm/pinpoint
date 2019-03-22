@@ -17,7 +17,7 @@
     height: 100%;
 }
 .l-sidemenu-left {
-    width: 260px;
+    width: 250px;
     overflow: visible;
     border-right: 1px solid #E5E8F0;
     background: #FFF;
@@ -35,4 +35,7 @@
 }
 button {
     outline: none;
+}
+.l-application-inspector-title-wrapper {
+    border-bottom: 1px solid #e0e7ee;
 }

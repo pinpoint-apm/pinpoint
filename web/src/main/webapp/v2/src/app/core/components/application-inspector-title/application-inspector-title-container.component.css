@@ -5,7 +5,7 @@
 .l-wrapper {
     cursor: pointer;
     display: block;
-    padding: 8px 6px 6px 8px;
+    padding: 8px 6px 6px 13px;
     overflow: hidden;
     font-size: 12px;
     white-space: nowrap;
@@ -15,15 +15,14 @@
     float: left;
     width: 22px;
     height: 18px;
-    margin-right: 10px;
+    margin-right: 4px;
 }
 .l-wrapper.active {
     color: #418CD3;
     font-weight: 600;
-    box-shadow: 2px 2px 5px 0px rgba(53,61,117,1);
 }
 .l-wrapper:hover {
-    color: #FFF;
     cursor: pointer;
-    background-color: #418CD3;
+    color: #418CD3;
+    background-color: #eee;
 }
