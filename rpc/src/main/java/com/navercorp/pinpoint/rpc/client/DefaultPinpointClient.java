@@ -24,7 +24,6 @@ import com.navercorp.pinpoint.rpc.ResponseMessage;
 import com.navercorp.pinpoint.rpc.cluster.ClusterOption;
 import com.navercorp.pinpoint.rpc.stream.ClientStreamChannel;
 import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelMessageListener;
-import com.navercorp.pinpoint.rpc.stream.StreamChannel;
 import com.navercorp.pinpoint.rpc.stream.StreamChannelStateChangeEventHandler;
 import com.navercorp.pinpoint.rpc.stream.StreamException;
 
@@ -156,12 +155,6 @@ public class DefaultPinpointClient implements PinpointClient {
     @Override
     public ClusterOption getRemoteClusterOption() {
         return pinpointClientHandler.getRemoteClusterOption();
-    }
-
-    @Override
-    public StreamChannel findStreamChannel(int streamChannelId) {
-        ensureOpen();
-        return pinpointClientHandler.findStreamChannel(streamChannelId);
     }
 
     private Future<ResponseMessage> returnFailureFuture() {

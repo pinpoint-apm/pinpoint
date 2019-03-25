@@ -22,7 +22,6 @@ import com.navercorp.pinpoint.rpc.cluster.ClusterOption;
 import com.navercorp.pinpoint.rpc.common.SocketStateCode;
 import com.navercorp.pinpoint.rpc.stream.ClientStreamChannel;
 import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelMessageListener;
-import com.navercorp.pinpoint.rpc.stream.StreamChannel;
 import com.navercorp.pinpoint.rpc.stream.StreamChannelStateChangeEventHandler;
 import com.navercorp.pinpoint.rpc.stream.StreamException;
 
@@ -55,14 +54,10 @@ public interface PinpointClientHandler {
     ClientStreamChannel openStream(byte[] payload, ClientStreamChannelMessageListener messageListener) throws StreamException;
     ClientStreamChannel openStream(byte[] payload, ClientStreamChannelMessageListener messageListener, StreamChannelStateChangeEventHandler<ClientStreamChannel> stateChangeListener) throws StreamException;
 
-    StreamChannel findStreamChannel(int streamChannelId);
-    
     void sendPing();
 
     boolean isConnected();
 
-    boolean isSupportServerMode();
-    
     SocketStateCode getCurrentStateCode();
 
     SocketAddress getRemoteAddress();

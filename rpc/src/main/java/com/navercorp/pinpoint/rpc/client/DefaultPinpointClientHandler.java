@@ -43,7 +43,6 @@ import com.navercorp.pinpoint.rpc.packet.stream.StreamPacket;
 import com.navercorp.pinpoint.rpc.stream.ClientStreamChannel;
 import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelMessageListener;
 import com.navercorp.pinpoint.rpc.stream.ServerStreamChannelMessageListener;
-import com.navercorp.pinpoint.rpc.stream.StreamChannel;
 import com.navercorp.pinpoint.rpc.stream.StreamChannelManager;
 import com.navercorp.pinpoint.rpc.stream.StreamChannelStateChangeEventHandler;
 import com.navercorp.pinpoint.rpc.stream.StreamException;
@@ -373,14 +372,6 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
     }
 
     @Override
-    public StreamChannel findStreamChannel(int streamChannelId) {
-        ensureOpen();
-
-        PinpointClientHandlerContext context = getChannelContext(channel);
-        return context.getStreamChannel(streamChannelId);
-    }
-
-    @Override
     public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
         final Object message = e.getMessage();
         if (message instanceof Packet) {
@@ -631,11 +622,6 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
     @Override
     public boolean isConnected() {
         return this.state.isEnableCommunication();
-    }
-
-    @Override
-    public boolean isSupportServerMode() {
-        return messageListener != SimpleMessageListener.INSTANCE;
     }
 
     @Override

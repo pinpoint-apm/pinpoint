@@ -52,17 +52,20 @@ public class ServerStreamChannel extends StreamChannel {
         return channel.write(packet);
     }
 
-    boolean changeStateConnectArrived() {
-        return changeStateTo(StreamChannelStateCode.CONNECT_ARRIVED);
-    }
-
-    public StreamCode handleStreamCreate(StreamCreatePacket packet) {
-        return serverStreamChannelMessageListener.handleStreamCreate(this, packet);
+    public void handleStreamCreatePacket(StreamCreatePacket packet) throws StreamException {
+        changeStateTo(StreamChannelStateCode.CONNECT_ARRIVED, true);
+        StreamCode result = serverStreamChannelMessageListener.handleStreamCreate(this, packet);
+        if (result != StreamCode.OK) {
+            throw new StreamException(result);
+        }
+        changeStateConnected();
+        sendCreateSuccess();
     }
 
     @Override
-    public void handleStreamClose(StreamClosePacket packet) {
+    public void handleStreamClosePacket(StreamClosePacket packet) {
         serverStreamChannelMessageListener.handleStreamClose(this, packet);
+        disconnect(packet.getCode());
     }
 
     @Override

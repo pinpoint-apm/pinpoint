@@ -218,7 +218,8 @@ public class StreamChannelManagerTest {
 
         SimpleStreamBO bo = new SimpleStreamBO();
 
-        TestPinpointClient testPinpointClient = new TestPinpointClient(SimpleMessageListener.INSTANCE, new ServerListener(bo));
+        ServerListener serverStreamChannelMessageListener = new ServerListener(bo);
+        TestPinpointClient testPinpointClient = new TestPinpointClient(SimpleMessageListener.INSTANCE, serverStreamChannelMessageListener);
         testPinpointClient.connect(bindPort);
         try {
             testPinpointServerAcceptor.assertAwaitClientConnected(1000);
@@ -233,7 +234,7 @@ public class StreamChannelManagerTest {
 
                 ClientStreamChannel clientStreamChannel = ((PinpointServer)writableServer).openStream(new byte[0], clientListener);
 
-                StreamChannel streamChannel = testPinpointClient.findStreamChannel(2);
+                StreamChannel streamChannel = serverStreamChannelMessageListener.bo.serverStreamChannelList.get(0);
 
                 streamChannel.close();
 
@@ -303,6 +304,10 @@ public class StreamChannelManagerTest {
 
         int getStreamChannelContextSize() {
             return serverStreamChannelList.size();
+        }
+
+        public List<ServerStreamChannel> getServerStreamChannelList() {
+            return serverStreamChannelList;
         }
     }
 
