@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.rpc.client;
 
 import com.navercorp.pinpoint.rpc.Future;
 import com.navercorp.pinpoint.rpc.PinpointSocket;
-import com.navercorp.pinpoint.rpc.stream.StreamChannel;
 
 /**
  * @author emeroad
@@ -41,8 +40,6 @@ public interface PinpointClient extends PinpointSocket {
     void sendSync(byte[] bytes) ;
 
     Future sendAsync(byte[] bytes);
-
-    StreamChannel findStreamChannel(int streamChannelId);
 
     /**
      * write ping packet on tcp channel

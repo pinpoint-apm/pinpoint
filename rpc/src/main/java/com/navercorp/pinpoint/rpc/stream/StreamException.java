@@ -27,7 +27,11 @@ public class StreamException extends Exception {
     private final StreamCode streamCode;
 
     public StreamException(StreamCode streamCode) {
-        super(streamCode.name());
+        this(streamCode, streamCode.name());
+    }
+
+    public StreamException(StreamCode streamCode, String message) {
+        super(message);
         this.streamCode = Assert.requireNonNull(streamCode, "streamCode must not be null");
     }
 

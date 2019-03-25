@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.rpc.client;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamPacket;
 import com.navercorp.pinpoint.rpc.stream.ClientStreamChannel;
 import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelMessageListener;
-import com.navercorp.pinpoint.rpc.stream.StreamChannel;
 import com.navercorp.pinpoint.rpc.stream.StreamChannelManager;
 import com.navercorp.pinpoint.rpc.stream.StreamChannelStateChangeEventHandler;
 import com.navercorp.pinpoint.rpc.stream.StreamException;
@@ -64,8 +63,4 @@ public class PinpointClientHandlerContext {
         streamChannelManager.close();
     }
 
-    public StreamChannel getStreamChannel(int streamChannelId) {
-        return streamChannelManager.findStreamChannel(streamChannelId);
-    }
-    
 }

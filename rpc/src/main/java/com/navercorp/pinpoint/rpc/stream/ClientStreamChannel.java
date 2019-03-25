@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.rpc.stream;
 
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamClosePacket;
+import com.navercorp.pinpoint.rpc.packet.stream.StreamCode;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamCreatePacket;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamResponsePacket;
 
@@ -36,24 +37,40 @@ public class ClientStreamChannel extends StreamChannel {
         this.messageListener = Assert.requireNonNull(messageListener, "messageListener must not be null");
     }
 
-    public ChannelFuture sendCreate(byte[] payload) {
+    public void connect(byte[] payload, long timeout) throws StreamException {
+        changeStateTo(StreamChannelStateCode.CONNECT_AWAIT, true);
+
+        sendCreate(payload);
+
+        boolean connected = awaitOpen(timeout);
+        if (connected) {
+            logger.info("Open streamChannel initialization completed. streamChannel:{} ", this);
+        } else {
+            throw new StreamException(StreamCode.CONNECTION_TIMEOUT);
+        }
+    }
+
+    private ChannelFuture sendCreate(byte[] payload) {
         state.assertState(StreamChannelStateCode.CONNECT_AWAIT);
 
         StreamCreatePacket packet = new StreamCreatePacket(getStreamId(), payload);
         return channel.write(packet);
     }
 
-    boolean changeStateConnectAwait() {
-        return changeStateTo(StreamChannelStateCode.CONNECT_AWAIT);
-    }
-
-    public void handleStreamData(StreamResponsePacket packet) {
-        messageListener.handleStreamData(this, packet);
+    public void handleStreamResponsePacket(StreamResponsePacket packet) throws StreamException {
+        if (state.checkState(StreamChannelStateCode.CONNECTED)) {
+            messageListener.handleStreamData(this, packet);
+        } else if (state.checkState(StreamChannelStateCode.CONNECT_AWAIT)) {
+            // may happen in the timing
+        } else {
+            throw new StreamException(StreamCode.STATE_NOT_CONNECTED);
+        }
     }
 
     @Override
-    public void handleStreamClose(StreamClosePacket packet) {
+    public void handleStreamClosePacket(StreamClosePacket packet) {
         messageListener.handleStreamClose(this, packet);
+        disconnect(packet.getCode());
     }
 
     @Override

@@ -67,8 +67,9 @@ public abstract class StreamChannel {
         return new ArrayList<StreamChannelStateChangeEventHandler>(stateChangeEventHandlers);
     }
 
-    boolean changeStateOpen() {
-        return changeStateTo(StreamChannelStateCode.OPEN);
+    void init() throws StreamException {
+        changeStateTo(StreamChannelStateCode.OPEN, true);
+        streamChannelRepository.registerIfAbsent(this);
     }
 
     boolean changeStateConnected() {
@@ -79,7 +80,7 @@ public abstract class StreamChannel {
         }
     }
 
-    boolean changeStateClose() {
+    private boolean changeStateClose() {
         try {
             if (state.checkState(StreamChannelStateCode.CLOSED)) {
                 return true;
@@ -154,7 +155,7 @@ public abstract class StreamChannel {
     }
 
     public void disconnect(StreamCode streamCode) {
-        logger.info("{} disconnected. from remote streamChannel caused:{}", this, streamCode);
+        logger.info("{} disconnected. from remote streamChannel:{} caused:{}", this, streamCode);
         clearStreamChannelResource();
     }
 
@@ -166,9 +167,21 @@ public abstract class StreamChannel {
         return streamChannelId;
     }
 
+    protected boolean changeStateTo(StreamChannelStateCode nextState, boolean throwException) throws StreamException {
+        StreamChannelStateCode currentState = getCurrentState();
+        boolean changed = changeStateTo(currentState, nextState);
+        if (!changed && throwException) {
+            throw new StreamException(StreamCode.STATE_ERROR, "Failed to change state. updateWanted:<" + nextState + ">, current:<" + currentState + ">");
+        }
+        return changed;
+    }
+
     protected boolean changeStateTo(StreamChannelStateCode nextState) {
         StreamChannelStateCode currentState = getCurrentState();
+        return changeStateTo(currentState, nextState);
+    }
 
+    protected boolean changeStateTo(StreamChannelStateCode currentState, StreamChannelStateCode nextState) {
         boolean isChanged = state.to(currentState, nextState);
         if (!isChanged && (getCurrentState() != StreamChannelStateCode.ILLEGAL_STATE)) {
             changeStateTo(StreamChannelStateCode.ILLEGAL_STATE);
@@ -199,7 +212,7 @@ public abstract class StreamChannel {
         return attribute.remove(key);
     }
 
-    abstract void handleStreamClose(StreamClosePacket packet);
+    abstract void handleStreamClosePacket(StreamClosePacket packet);
 
     @Override
     public String toString() {

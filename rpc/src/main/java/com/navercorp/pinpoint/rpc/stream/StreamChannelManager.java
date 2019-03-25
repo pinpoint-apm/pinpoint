@@ -90,22 +90,14 @@ public class StreamChannelManager {
             newStreamChannel.addStateChangeEventHandler(stateChangeListener);
         }
 
-        newStreamChannel.changeStateOpen();
-
-        streamChannelRepository.registerIfAbsent(newStreamChannel);
-
-        // the order of below code is very important.
-        newStreamChannel.changeStateConnectAwait();
-        newStreamChannel.sendCreate(payload);
-
-        boolean connected = newStreamChannel.awaitOpen(3000);
-        if (connected) {
-            logger.info("Open streamChannel initialization completed. Channel:{}, streamChannel:{} ", channel, newStreamChannel);
-        } else {
-            newStreamChannel.close(StreamCode.CONNECTION_TIMEOUT);
-            throw new StreamException(StreamCode.CONNECTION_TIMEOUT);
+        try {
+            newStreamChannel.init();
+            newStreamChannel.connect(payload, 3000);
+            return newStreamChannel;
+        } catch (StreamException e) {
+            newStreamChannel.close(e.getStreamCode());
+            throw e;
         }
-        return newStreamChannel;
     }
 
     public void messageReceived(StreamPacket packet) {
@@ -137,11 +129,10 @@ public class StreamChannelManager {
 
     private void messageReceived(ServerStreamChannel serverStreamChannel, StreamPacket packet) {
         final short packetType = packet.getPacketType();
-        final int streamChannelId = packet.getStreamChannelId();
 
         switch (packetType) {
             case PacketType.APPLICATION_STREAM_CLOSE:
-                handleStreamClose(serverStreamChannel, (StreamClosePacket) packet);
+                serverStreamChannel.handleStreamClosePacket((StreamClosePacket) packet);
                 break;
             case PacketType.APPLICATION_STREAM_PING:
                 handlePing(serverStreamChannel, (StreamPingPacket) packet);
@@ -151,36 +142,39 @@ public class StreamChannelManager {
                 break;
             default:
                 serverStreamChannel.close(StreamCode.PACKET_UNKNOWN);
-                logger.info("Unknown StreamPacket received Channel:{}, StreamId:{}, Packet;{}.", channel, streamChannelId, packet);
+                logger.info("Unknown StreamPacket received streamChannel:{}, Packet;{}.", serverStreamChannel, packet);
         }
     }
 
     private void messageReceived(ClientStreamChannel clientStreamChannel, StreamPacket packet) {
         final short packetType = packet.getPacketType();
-        final int streamChannelId = packet.getStreamChannelId();
 
-        switch (packetType) {
-            case PacketType.APPLICATION_STREAM_CREATE_SUCCESS:
-                clientStreamChannel.changeStateConnected();
-                break;
-            case PacketType.APPLICATION_STREAM_CREATE_FAIL:
-                clientStreamChannel.disconnect(((StreamCreateFailPacket) packet).getCode());
-                break;
-            case PacketType.APPLICATION_STREAM_RESPONSE:
-                handleStreamResponse(clientStreamChannel, (StreamResponsePacket) packet);
-                break;
-            case PacketType.APPLICATION_STREAM_CLOSE:
-                handleStreamClose(clientStreamChannel, (StreamClosePacket) packet);
-                break;
-            case PacketType.APPLICATION_STREAM_PING:
-                handlePing(clientStreamChannel, (StreamPingPacket) packet);
-                break;
-            case PacketType.APPLICATION_STREAM_PONG:
-                // handlePong((StreamPongPacket) packet);
-                break;
-            default:
-                clientStreamChannel.close(StreamCode.PACKET_UNKNOWN);
-                logger.info("Unknown StreamPacket received Channel:{}, StreamId:{}, Packet;{}.", channel, streamChannelId, packet);
+        try {
+            switch (packetType) {
+                case PacketType.APPLICATION_STREAM_CREATE_SUCCESS:
+                    clientStreamChannel.changeStateConnected();
+                    break;
+                case PacketType.APPLICATION_STREAM_CREATE_FAIL:
+                    clientStreamChannel.disconnect(((StreamCreateFailPacket) packet).getCode());
+                    break;
+                case PacketType.APPLICATION_STREAM_RESPONSE:
+                    clientStreamChannel.handleStreamResponsePacket((StreamResponsePacket) packet);
+                    break;
+                case PacketType.APPLICATION_STREAM_CLOSE:
+                    clientStreamChannel.handleStreamClosePacket((StreamClosePacket) packet);
+                    break;
+                case PacketType.APPLICATION_STREAM_PING:
+                    handlePing(clientStreamChannel, (StreamPingPacket) packet);
+                    break;
+                case PacketType.APPLICATION_STREAM_PONG:
+                    // handlePong((StreamPongPacket) packet);
+                    break;
+                default:
+                    clientStreamChannel.close(StreamCode.PACKET_UNKNOWN);
+                    logger.info("Unknown StreamPacket received streamChannel:{}, Packet;{}.", clientStreamChannel, packet);
+            }
+        } catch (StreamException e) {
+            clientStreamChannel.close(e.getStreamCode());
         }
     }
 
@@ -188,52 +182,12 @@ public class StreamChannelManager {
         final int streamChannelId = packet.getStreamChannelId();
 
         ServerStreamChannel streamChannel = new ServerStreamChannel(this.channel, streamChannelId, streamChannelRepository, streamChannelMessageListener);
-
-        StreamCode streamCode = null;
         try {
-            registerStreamChannel(streamChannel);
-            streamCode = streamChannel.handleStreamCreate(packet);
-
-            if (streamCode == StreamCode.OK) {
-                streamChannel.changeStateConnected();
-                streamChannel.sendCreateSuccess();
-            }
+            streamChannel.init();
+            streamChannel.handleStreamCreatePacket(packet);
         } catch (StreamException e) {
-            streamCode = e.getStreamCode();
+            streamChannel.close(new StreamCreateFailPacket(streamChannelId, e.getStreamCode()));
         }
-
-        if (streamCode != StreamCode.OK) {
-            streamChannel.close(new StreamCreateFailPacket(streamChannelId, streamCode));
-        }
-    }
-
-    private StreamCode registerStreamChannel(ServerStreamChannel streamChannel) throws StreamException {
-        streamChannel.changeStateOpen();
-
-        streamChannelRepository.registerIfAbsent(streamChannel);
-
-        if (!streamChannel.changeStateConnectArrived()) {
-            throw new StreamException(StreamCode.STATE_ERROR);
-        }
-
-        return StreamCode.OK;
-    }
-
-    private void handleStreamResponse(ClientStreamChannel clientStreamChannel, StreamResponsePacket packet) {
-        StreamChannelStateCode currentCode = clientStreamChannel.getCurrentState();
-
-        if (StreamChannelStateCode.CONNECTED == currentCode) {
-            clientStreamChannel.handleStreamData(packet);
-        } else if (StreamChannelStateCode.CONNECT_AWAIT == currentCode) {
-            // may happen in the timing
-        } else {
-            clientStreamChannel.close(StreamCode.STATE_NOT_CONNECTED);
-        }
-    }
-
-    private void handleStreamClose(StreamChannel clientStreamChannel, StreamClosePacket packet) {
-        clientStreamChannel.handleStreamClose(packet);
-        clientStreamChannel.disconnect(packet.getCode());
     }
 
     private void handlePing(StreamChannel streamChannel, StreamPingPacket packet) {
@@ -242,10 +196,6 @@ public class StreamChannelManager {
         } catch (PinpointSocketException e) {
             streamChannel.close(StreamCode.STATE_NOT_CONNECTED);
         }
-    }
-
-    public StreamChannel findStreamChannel(int channelId) {
-        return streamChannelRepository.getStreamChannel(channelId);
     }
 
 }
