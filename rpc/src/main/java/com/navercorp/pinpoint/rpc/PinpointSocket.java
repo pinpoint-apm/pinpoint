@@ -17,11 +17,10 @@
 package com.navercorp.pinpoint.rpc;
 
 import com.navercorp.pinpoint.rpc.cluster.ClusterOption;
-import com.navercorp.pinpoint.rpc.packet.RequestPacket;
 import com.navercorp.pinpoint.rpc.stream.ClientStreamChannel;
-import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelContext;
 import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelMessageListener;
 import com.navercorp.pinpoint.rpc.stream.StreamChannelStateChangeEventHandler;
+import com.navercorp.pinpoint.rpc.stream.StreamException;
 
 import java.net.SocketAddress;
 
@@ -36,8 +35,8 @@ public interface PinpointSocket {
 
     void response(int requestId, byte[] payload);
 
-    ClientStreamChannelContext openStream(byte[] payload, ClientStreamChannelMessageListener messageListener);
-    ClientStreamChannelContext openStream(byte[] payload, ClientStreamChannelMessageListener messageListener, StreamChannelStateChangeEventHandler<ClientStreamChannel> stateChangeListener);
+    ClientStreamChannel openStream(byte[] payload, ClientStreamChannelMessageListener messageListener)  throws StreamException;
+    ClientStreamChannel openStream(byte[] payload, ClientStreamChannelMessageListener messageListener, StreamChannelStateChangeEventHandler<ClientStreamChannel> stateChangeListener)  throws StreamException;
 
     SocketAddress getRemoteAddress();
 

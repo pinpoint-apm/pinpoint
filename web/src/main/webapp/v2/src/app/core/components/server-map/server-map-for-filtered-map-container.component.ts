@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, Inject, ComponentFactoryResolver, Injector } from '@angular/core';
-import { Router, NavigationStart } from '@angular/router';
+import { Router, NavigationStart, RouterEvent } from '@angular/router';
 import { Subject, combineLatest } from 'rxjs';
 import { takeUntil, filter } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
@@ -59,13 +59,9 @@ export class ServerMapForFilteredMapContainerComponent implements OnInit, OnDest
     ) {}
     ngOnInit() {
         this.funcServerMapImagePath = this.webAppSettingDataService.getServerMapIconPathMakeFunc();
+        this.addPageLoadingHandler();
         this.getI18NText();
-        this.router.events.pipe(
-            filter(e => e instanceof NavigationStart)
-        ).subscribe((e) => {
-            this.showLoading = true;
-            this.useDisable = true;
-        });
+
         this.newUrlStateNotificationService.onUrlStateChange$.pipe(
             takeUntil(this.unsubscribe)
         ).subscribe((urlService: NewUrlStateNotificationService) => {
@@ -92,6 +88,16 @@ export class ServerMapForFilteredMapContainerComponent implements OnInit, OnDest
     ngOnDestroy() {
         this.unsubscribe.next();
         this.unsubscribe.complete();
+    }
+    private addPageLoadingHandler(): void {
+        this.router.events.pipe(
+            filter((e: RouterEvent) => {
+                return e instanceof NavigationStart;
+            })
+        ).subscribe(() => {
+            this.showLoading = true;
+            this.useDisable = true;
+        });
     }
     private connectStore(): void {
         this.storeHelperService.getServerMapLoadingState(this.unsubscribe).subscribe((state: string) => {

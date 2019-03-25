@@ -90,6 +90,7 @@
         <module>hbase</module>
         <module>log4j2</module>
         <module>openwhisk</module>
+        <module>redis-redisson</module>
     </modules>
 
     <dependencyManagement>

@@ -21,7 +21,6 @@ import io.grpc.Grpc;
 import io.grpc.Status;
 
 import java.net.InetSocketAddress;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**

@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.profiler.receiver;
 
-import com.google.inject.Inject;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.io.request.Message;
 import com.navercorp.pinpoint.rpc.MessageListener;
@@ -26,10 +25,12 @@ import com.navercorp.pinpoint.rpc.packet.SendPacket;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamClosePacket;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamCode;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamCreatePacket;
-import com.navercorp.pinpoint.rpc.stream.ServerStreamChannelContext;
+import com.navercorp.pinpoint.rpc.stream.ServerStreamChannel;
 import com.navercorp.pinpoint.rpc.stream.ServerStreamChannelMessageListener;
 import com.navercorp.pinpoint.thrift.dto.TResult;
 import com.navercorp.pinpoint.thrift.util.SerializationUtils;
+
+import com.google.inject.Inject;
 import org.apache.thrift.TBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -97,8 +98,8 @@ public class CommandDispatcher implements MessageListener, ServerStreamChannelMe
 
 
     @Override
-    public StreamCode handleStreamCreate(ServerStreamChannelContext streamChannelContext, StreamCreatePacket packet) {
-        logger.info("MessageReceived handleStreamCreate {} {}", packet, streamChannelContext);
+    public StreamCode handleStreamCreate(ServerStreamChannel serverStreamChannel, StreamCreatePacket packet) {
+        logger.info("MessageReceived handleStreamCreate {} {}", packet, serverStreamChannel);
 
         final Message<TBase<?, ?>> message = SerializationUtils.deserialize(packet.getPayload(), CommandSerializer.DESERIALIZER_FACTORY, null);
         if (message == null) {
@@ -112,11 +113,11 @@ public class CommandDispatcher implements MessageListener, ServerStreamChannelMe
         }
 
         final TBase<?, ?> request = message.getData();
-        return service.streamCommandService(request, streamChannelContext);
+        return service.streamCommandService(request, serverStreamChannel);
     }
 
     @Override
-    public void handleStreamClose(ServerStreamChannelContext streamChannelContext, StreamClosePacket packet) {
+    public void handleStreamClose(ServerStreamChannel serverStreamChannel, StreamClosePacket packet) {
     }
 
     public Set<Short> getRegisteredCommandServiceCodes() {

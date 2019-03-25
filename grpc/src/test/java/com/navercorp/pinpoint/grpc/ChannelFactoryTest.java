@@ -23,10 +23,11 @@ import com.navercorp.pinpoint.grpc.trace.TraceGrpc;
 import com.navercorp.pinpoint.grpc.client.ChannelFactory;
 import com.navercorp.pinpoint.grpc.server.ServerContext;
 import com.navercorp.pinpoint.grpc.server.ServerFactory;
-import io.grpc.Context;
 import io.grpc.ManagedChannel;
+import io.grpc.NameResolverProvider;
 import io.grpc.Server;
 import io.grpc.Status;
+import io.grpc.internal.PinpointDnsNameResolverProvider;
 import io.grpc.stub.StreamObserver;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -38,6 +39,7 @@ import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -54,8 +56,14 @@ public class ChannelFactoryTest {
     private static TraceService traceService;
     private static ExecutorService executorService;
 
+    private static ExecutorService dnsExecutorService;
+    private static NameResolverProvider nameResolverProvider;
+
     @BeforeClass
     public static void setUp() throws Exception {
+        dnsExecutorService = newCachedExecutorService("dnsExecutor");
+        nameResolverProvider = new PinpointDnsNameResolverProvider("dnsExecutor", dnsExecutorService);
+
         executorService = Executors.newCachedThreadPool(PinpointThreadFactory.createThreadFactory("test-executor"));
         server = serverStart(executorService);
         server.start();
@@ -69,13 +77,16 @@ public class ChannelFactoryTest {
             serverFactory.close();
         }
         ExecutorUtils.shutdownExecutorService("test-executor", executorService);
+
+        ExecutorUtils.shutdownExecutorService("dnsExecutor", dnsExecutorService);
     }
 
     @Test
     public void build() throws InterruptedException {
+
         AgentHeaderFactory.Header header = new AgentHeaderFactory.Header("agentId", "appName", System.currentTimeMillis());
         HeaderFactory<AgentHeaderFactory.Header> headerFactory = new AgentHeaderFactory(header);
-        ChannelFactory channelFactory = new ChannelFactory(this.getClass().getSimpleName(), headerFactory);
+        ChannelFactory channelFactory = new ChannelFactory(this.getClass().getSimpleName(), headerFactory, nameResolverProvider);
         ManagedChannel managedChannel = channelFactory.build("test-channel", "127.0.0.1", PORT);
         managedChannel.getState(false);
 
@@ -103,6 +114,11 @@ public class ChannelFactoryTest {
 
         channelFactory.close();
 
+    }
+
+    private static ExecutorService newCachedExecutorService(String name) {
+        ThreadFactory threadFactory = new PinpointThreadFactory(name, true);
+        return Executors.newCachedThreadPool(threadFactory);
     }
 
     private PSpan newSpan() {
@@ -136,7 +152,7 @@ public class ChannelFactoryTest {
             return new StreamObserver<PSpan>() {
                 @Override
                 public void onNext(PSpan value) {
-                    AgentHeaderFactory.Header header = ServerContext.AGENT_INFO_KEY.get();
+                    AgentHeaderFactory.Header header = ServerContext.getAgentInfo();
                     logger.debug("server-onNext:{} header:{}" , value, header);
                     logger.debug("server-threadName:{}", Thread.currentThread().getName());
 

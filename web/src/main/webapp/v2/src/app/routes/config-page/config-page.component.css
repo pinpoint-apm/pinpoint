@@ -29,20 +29,22 @@
     margin-bottom: 10px;
 }
 
-.l-link {
+.l-depth-0 .l-link {
     display: inline-block;
     width: 100%;
-    padding: 15px 27px;
+    padding: 15px 15px 15px 27px;
+    font-weight: 600;
+    color: rgba(0,0,0,.85);
 }
 
 .l-link:hover {
     cursor: pointer;
     background-color: #eee;
+    color: #4b99e3 !important;
 }
 
 .l-link.active { 
-    color: #FFF !important;
-    background-color: #4b99e3; 
+    color: #4b99e3 !important;
 }
 
 .l-main-section {

@@ -44,12 +44,12 @@ message PSpan {
 
     PAcceptEvent acceptEvent = 9;
 
-    repeated PAnnotation annotations = 10;
+    repeated PAnnotation annotation = 10;
 
     int32 flag = 11;
     sint32 err = 12;
 
-    repeated PSpanEvent spanEventList = 13;
+    repeated PSpanEvent spanEvent = 13;
 
     PIntStringValue exceptionInfo = 14;
 
@@ -85,7 +85,7 @@ message PSpanEvent {
 
     sint32 serviceType = 5;
 
-    repeated PAnnotation annotations = 6;
+    repeated PAnnotation annotation = 6;
 
     sint32 apiId = 10;
     PIntStringValue exceptionInfo = 11;
@@ -120,7 +120,7 @@ message PSpanChunk {
 
     string endPoint = 5;
 
-    repeated PSpanEvent spanEventList = 6;
+    repeated PSpanEvent spanEvent = 6;
 
     int32 applicationServiceType = 7;
 

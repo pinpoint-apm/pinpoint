@@ -50,14 +50,10 @@ public class MetaSpanCallTreeFactory {
         apiMetaData.setApiInfo("Unknown");
         apiMetaData.setMethodTypeEnum(MethodTypeEnum.WEB_REQUEST);
 
-        final AnnotationBo apiMetaDataAnnotation = new AnnotationBo();
-        apiMetaDataAnnotation.setKey(AnnotationKey.API_METADATA.getCode());
-        apiMetaDataAnnotation.setValue(apiMetaData);
+        final AnnotationBo apiMetaDataAnnotation = new AnnotationBo(AnnotationKey.API_METADATA.getCode(), apiMetaData);
         annotations.add(apiMetaDataAnnotation);
 
-        final AnnotationBo argumentAnnotation = new AnnotationBo();
-        argumentAnnotation.setKey(AnnotationKeyUtils.getArgs(0).getCode());
-        argumentAnnotation.setValue("No Agent Data");
+        final AnnotationBo argumentAnnotation = new AnnotationBo(AnnotationKeyUtils.getArgs(0).getCode(), "No Agent Data");
         annotations.add(argumentAnnotation);
         rootSpan.setAnnotationBoList(annotations);
 
@@ -82,24 +78,27 @@ public class MetaSpanCallTreeFactory {
         apiMetaData.setApiInfo("...");
         apiMetaData.setMethodTypeEnum(MethodTypeEnum.CORRUPTED);
 
-        final AnnotationBo apiMetaDataAnnotation = new AnnotationBo();
-        apiMetaDataAnnotation.setKey(AnnotationKey.API_METADATA.getCode());
-        apiMetaDataAnnotation.setValue(apiMetaData);
+        final AnnotationBo apiMetaDataAnnotation = new AnnotationBo(AnnotationKey.API_METADATA.getCode(), apiMetaData);
         annotations.add(apiMetaDataAnnotation);
 
-        final AnnotationBo argumentAnnotation = new AnnotationBo();
-        argumentAnnotation.setKey(AnnotationKeyUtils.getArgs(0).getCode());
-        if (System.currentTimeMillis() - startTimeMillis < timeoutMillisec) {
-            argumentAnnotation.setValue("Corrupted(waiting for packet) ");
-        } else {
-            if (title != null) {
-                argumentAnnotation.setValue("Corrupted(lost packet - " + title + ")");
-            } else {
-                argumentAnnotation.setValue("Corrupted(lost packet)");
-            }
-        }
+
+        int key = AnnotationKeyUtils.getArgs(0).getCode();
+        String errorMessage = getErrorMessage(title, startTimeMillis);
+        final AnnotationBo argumentAnnotation = new AnnotationBo(key, errorMessage);
         annotations.add(argumentAnnotation);
         rootSpan.setAnnotationBoList(annotations);
         return new MetaSpanCallTree(new SpanAlign(rootSpan, true));
+    }
+
+    private String getErrorMessage(String title, long startTimeMillis) {
+        if (System.currentTimeMillis() - startTimeMillis < timeoutMillisec) {
+            return "Corrupted(waiting for packet) ";
+        } else {
+            if (title != null) {
+                return "Corrupted(lost packet - " + title + ")";
+            } else {
+                return "Corrupted(lost packet)";
+            }
+        }
     }
 }

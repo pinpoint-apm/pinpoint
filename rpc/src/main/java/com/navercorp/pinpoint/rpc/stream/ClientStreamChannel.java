@@ -16,7 +16,11 @@
 
 package com.navercorp.pinpoint.rpc.stream;
 
+import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.rpc.packet.stream.StreamClosePacket;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamCreatePacket;
+import com.navercorp.pinpoint.rpc.packet.stream.StreamResponsePacket;
+
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFuture;
 
@@ -25,19 +29,40 @@ import org.jboss.netty.channel.ChannelFuture;
  */
 public class ClientStreamChannel extends StreamChannel {
 
-    public ClientStreamChannel(Channel channel, int streamId, StreamChannelManager streamChannelManager) {
-        super(channel, streamId, streamChannelManager);
+    private final ClientStreamChannelMessageListener messageListener;
+
+    public ClientStreamChannel(Channel channel, int streamId, StreamChannelRepository streamChannelRepository, ClientStreamChannelMessageListener messageListener) {
+        super(channel, streamId, streamChannelRepository);
+        this.messageListener = Assert.requireNonNull(messageListener, "messageListener must not be null");
     }
 
     public ChannelFuture sendCreate(byte[] payload) {
-        assertState(StreamChannelStateCode.CONNECT_AWAIT);
+        state.assertState(StreamChannelStateCode.CONNECT_AWAIT);
 
         StreamCreatePacket packet = new StreamCreatePacket(getStreamId(), payload);
-        return this.getChannel().write(packet);
+        return channel.write(packet);
     }
 
     boolean changeStateConnectAwait() {
         return changeStateTo(StreamChannelStateCode.CONNECT_AWAIT);
+    }
+
+    public void handleStreamData(StreamResponsePacket packet) {
+        messageListener.handleStreamData(this, packet);
+    }
+
+    @Override
+    public void handleStreamClose(StreamClosePacket packet) {
+        messageListener.handleStreamClose(this, packet);
+    }
+
+    @Override
+    public String toString() {
+        return "ClientStreamChannel{" +
+                "remoteAddress=" + getRemoteAddress() +
+                ", streamId=" + getStreamId() +
+                ", state=" + state +
+                '}';
     }
 
 }

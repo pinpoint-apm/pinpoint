@@ -18,15 +18,14 @@ package com.navercorp.pinpoint.web.websocket;
 
 import com.navercorp.pinpoint.rpc.packet.stream.StreamClosePacket;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamCode;
-import com.navercorp.pinpoint.rpc.packet.stream.StreamCreateFailPacket;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamResponsePacket;
 import com.navercorp.pinpoint.rpc.stream.ClientStreamChannel;
-import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelContext;
 import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelMessageListener;
 import com.navercorp.pinpoint.rpc.stream.LoggingStreamChannelMessageListener;
 import com.navercorp.pinpoint.rpc.stream.StreamChannel;
 import com.navercorp.pinpoint.rpc.stream.StreamChannelStateChangeEventHandler;
 import com.navercorp.pinpoint.rpc.stream.StreamChannelStateCode;
+import com.navercorp.pinpoint.rpc.stream.StreamException;
 import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadCount;
 import com.navercorp.pinpoint.thrift.dto.command.TCommandTransferResponse;
 import com.navercorp.pinpoint.thrift.dto.command.TRouteResult;
@@ -34,6 +33,7 @@ import com.navercorp.pinpoint.web.service.AgentService;
 import com.navercorp.pinpoint.web.vo.AgentActiveThreadCount;
 import com.navercorp.pinpoint.web.vo.AgentActiveThreadCountFactory;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
+
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 import org.slf4j.Logger;
@@ -152,27 +152,20 @@ public class ActiveThreadCountWorker implements PinpointWebSocketHandlerWorker {
 
     private boolean active0(AgentInfo agentInfo) {
         synchronized (lock) {
-            boolean active = false;
             try {
-                ClientStreamChannelContext clientStreamChannelContext = agentService.openStream(agentInfo, COMMAND_INSTANCE, messageListener, stateChangeListener);
-                if (clientStreamChannelContext == null) {
-                    setDefaultErrorMessage(StreamCode.CONNECTION_NOT_FOUND.name());
+                streamChannel = agentService.openStream(agentInfo, COMMAND_INSTANCE, messageListener, stateChangeListener);
+                setDefaultErrorMessage(TRouteResult.TIMEOUT.name());
+                return true;
+            } catch (StreamException streamException) {
+                StreamCode streamCode = streamException.getStreamCode();
+                if (streamCode == StreamCode.CONNECTION_NOT_FOUND) {
                     workerActiveManager.addReactiveWorker(agentInfo);
-                } else {
-                    if (clientStreamChannelContext.getCreateFailPacket() == null) {
-                        streamChannel = clientStreamChannelContext.getStreamChannel();
-                        setDefaultErrorMessage(TRouteResult.TIMEOUT.name());
-                        active = true;
-                    } else {
-                        StreamCreateFailPacket createFailPacket = clientStreamChannelContext.getCreateFailPacket();
-                        setDefaultErrorMessage(createFailPacket.getCode().name());
-                    }
                 }
+                setDefaultErrorMessage(streamCode.name());
             } catch (TException exception) {
                 setDefaultErrorMessage(TRouteResult.NOT_SUPPORTED_REQUEST.name());
             }
-
-            return active;
+            return false;
         }
     }
 
@@ -209,8 +202,8 @@ public class ActiveThreadCountWorker implements PinpointWebSocketHandlerWorker {
     private class MessageListener implements ClientStreamChannelMessageListener {
 
         @Override
-        public void handleStreamData(ClientStreamChannelContext streamChannelContext, StreamResponsePacket packet) {
-            LOGGING.handleStreamData(streamChannelContext, packet);
+        public void handleStreamData(ClientStreamChannel clientStreamChannel, StreamResponsePacket packet) {
+            LOGGING.handleStreamData(clientStreamChannel, packet);
 
             TBase response = agentService.deserializeResponse(packet.getPayload(), null);
             AgentActiveThreadCount activeThreadCount = getAgentActiveThreadCount(response);
@@ -218,8 +211,8 @@ public class ActiveThreadCountWorker implements PinpointWebSocketHandlerWorker {
         }
 
         @Override
-        public void handleStreamClose(ClientStreamChannelContext streamChannelContext, StreamClosePacket packet) {
-            LOGGING.handleStreamClose(streamChannelContext, packet);
+        public void handleStreamClose(ClientStreamChannel clientStreamChannel, StreamClosePacket packet) {
+            LOGGING.handleStreamClose(clientStreamChannel, packet);
             setDefaultErrorMessage(StreamCode.STATE_CLOSED.name());
         }
 

@@ -25,6 +25,8 @@ import org.slf4j.LoggerFactory;
 import com.navercorp.pinpoint.collector.cluster.ClusterPointLocator;
 import com.navercorp.pinpoint.collector.cluster.TargetClusterPoint;
 import com.navercorp.pinpoint.thrift.dto.command.TCommandTransfer;
+import com.navercorp.pinpoint.thrift.dto.command.TCommandTransferResponse;
+import com.navercorp.pinpoint.thrift.dto.command.TRouteResult;
 
 /**
  * @author koo.taejin
@@ -72,6 +74,24 @@ public abstract class AbstractRouteHandler<T extends RouteEvent> implements Rout
         }
 
         return null;
+    }
+
+    protected TCommandTransferResponse createResponse(TRouteResult result) {
+        return createResponse(result, new byte[0]);
+    }
+
+    protected TCommandTransferResponse createResponse(TRouteResult result, byte[] payload) {
+        TCommandTransferResponse response = new TCommandTransferResponse();
+        response.setRouteResult(result);
+        response.setPayload(payload);
+        return response;
+    }
+
+    protected TCommandTransferResponse createResponse(TRouteResult result, String message) {
+        TCommandTransferResponse response = new TCommandTransferResponse();
+        response.setRouteResult(result);
+        response.setMessage(message);
+        return response;
     }
 
 }

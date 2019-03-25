@@ -84,8 +84,8 @@ export class ServerMapData {
     private linkMap: IShortLinkInfoMap;
     private mergeStateMap: IStateCheckMap = {};
     private groupServiceTypeMap: IStateCheckMap;
-    private originalNodeMap: INodeInfoMap;
-    private originalLinkMap: ILinkInfoMap;
+    private originalNodeMap: INodeInfoMap = {};
+    private originalLinkMap: ILinkInfoMap = {};
 
     constructor(
         private originalNodeList: INodeInfo[],
@@ -106,8 +106,6 @@ export class ServerMapData {
         this.nodeMap = {};
         this.linkMap = {};
         this.groupServiceTypeMap = {};
-        this.originalNodeMap = {};
-        this.originalLinkMap = {};
     }
     private init() {
         this.initVar();
@@ -300,10 +298,10 @@ export class ServerMapData {
     }
     resetMergeState(): void {
         this.initVar();
-        this.convertToMap();
         this.extractNodeData();
         this.extractLinkData();
         this.extractLinkCountData();
+        this.extractServiceTypeWhichCanMerge();
         this.mergeNodes();
         this.mergeMultiLinkNodes();
         this.addFilterFlag();
@@ -331,6 +329,7 @@ export class ServerMapData {
         const removeNodeKeys: IStateCheckMap = {};
         const removeLinkKeys: IStateCheckMap = {};
         if (targetNodeList.length <= 1) {
+            console.timeEnd('mergeMultiLinkGroup()');
             return;
         }
 

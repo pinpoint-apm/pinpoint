@@ -17,17 +17,47 @@
 package com.navercorp.pinpoint.rpc.client;
 
 import com.navercorp.pinpoint.common.util.Assert;
-import com.navercorp.pinpoint.rpc.*;
+import com.navercorp.pinpoint.rpc.ChannelWriteCompleteListenableFuture;
+import com.navercorp.pinpoint.rpc.ChannelWriteFailListenableFuture;
+import com.navercorp.pinpoint.rpc.DefaultFuture;
+import com.navercorp.pinpoint.rpc.Future;
+import com.navercorp.pinpoint.rpc.MessageListener;
+import com.navercorp.pinpoint.rpc.PinpointSocket;
+import com.navercorp.pinpoint.rpc.PinpointSocketException;
+import com.navercorp.pinpoint.rpc.ResponseMessage;
+import com.navercorp.pinpoint.rpc.StateChangeEventListener;
 import com.navercorp.pinpoint.rpc.client.ConnectFuture.Result;
 import com.navercorp.pinpoint.rpc.cluster.ClusterOption;
 import com.navercorp.pinpoint.rpc.common.SocketStateChangeResult;
 import com.navercorp.pinpoint.rpc.common.SocketStateCode;
-import com.navercorp.pinpoint.rpc.packet.*;
+import com.navercorp.pinpoint.rpc.packet.ClientClosePacket;
+import com.navercorp.pinpoint.rpc.packet.ControlHandshakeResponsePacket;
+import com.navercorp.pinpoint.rpc.packet.HandshakeResponseCode;
+import com.navercorp.pinpoint.rpc.packet.Packet;
+import com.navercorp.pinpoint.rpc.packet.PacketType;
+import com.navercorp.pinpoint.rpc.packet.PingPayloadPacket;
+import com.navercorp.pinpoint.rpc.packet.RequestPacket;
+import com.navercorp.pinpoint.rpc.packet.ResponsePacket;
+import com.navercorp.pinpoint.rpc.packet.SendPacket;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamPacket;
-import com.navercorp.pinpoint.rpc.stream.*;
+import com.navercorp.pinpoint.rpc.stream.ClientStreamChannel;
+import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelMessageListener;
+import com.navercorp.pinpoint.rpc.stream.ServerStreamChannelMessageListener;
+import com.navercorp.pinpoint.rpc.stream.StreamChannel;
+import com.navercorp.pinpoint.rpc.stream.StreamChannelManager;
+import com.navercorp.pinpoint.rpc.stream.StreamChannelStateChangeEventHandler;
+import com.navercorp.pinpoint.rpc.stream.StreamException;
 import com.navercorp.pinpoint.rpc.util.ClassUtils;
 import com.navercorp.pinpoint.rpc.util.IDGenerator;
-import org.jboss.netty.channel.*;
+
+import org.jboss.netty.channel.Channel;
+import org.jboss.netty.channel.ChannelFuture;
+import org.jboss.netty.channel.ChannelFutureListener;
+import org.jboss.netty.channel.ChannelHandlerContext;
+import org.jboss.netty.channel.ChannelStateEvent;
+import org.jboss.netty.channel.ExceptionEvent;
+import org.jboss.netty.channel.MessageEvent;
+import org.jboss.netty.channel.SimpleChannelHandler;
 import org.jboss.netty.util.Timeout;
 import org.jboss.netty.util.Timer;
 import org.jboss.netty.util.TimerTask;
@@ -330,12 +360,12 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
     }
 
     @Override
-    public ClientStreamChannelContext openStream(byte[] payload, ClientStreamChannelMessageListener messageListener) {
+    public ClientStreamChannel openStream(byte[] payload, ClientStreamChannelMessageListener messageListener) throws StreamException {
         return openStream(payload, messageListener, null);
     }
 
     @Override
-    public ClientStreamChannelContext openStream(byte[] payload, ClientStreamChannelMessageListener messageListener, StreamChannelStateChangeEventHandler<ClientStreamChannel> stateChangeListener) {
+    public ClientStreamChannel openStream(byte[] payload, ClientStreamChannelMessageListener messageListener, StreamChannelStateChangeEventHandler<ClientStreamChannel> stateChangeListener) throws StreamException {
         ensureOpen();
 
         PinpointClientHandlerContext context = getChannelContext(channel);
@@ -343,7 +373,7 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
     }
 
     @Override
-    public StreamChannelContext findStreamChannel(int streamChannelId) {
+    public StreamChannel findStreamChannel(int streamChannelId) {
         ensureOpen();
 
         PinpointClientHandlerContext context = getChannelContext(channel);

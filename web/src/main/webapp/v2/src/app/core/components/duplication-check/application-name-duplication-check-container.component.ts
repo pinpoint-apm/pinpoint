@@ -14,7 +14,6 @@ import { ApplicationNameDuplicationCheckInteractionService } from './application
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ApplicationNameDuplicationCheckContainerComponent implements OnInit {
-    labelText = 'Application Name';
     message: string;
     isValueValid: boolean;
     placeholder$: Observable<string>;

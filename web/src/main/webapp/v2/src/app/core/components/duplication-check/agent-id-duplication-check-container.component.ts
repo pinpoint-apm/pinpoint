@@ -14,7 +14,6 @@ import { AgentIdDuplicationCheckInteractionService } from './agent-id-duplicatio
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AgentIdDuplicationCheckContainerComponent implements OnInit {
-    labelText = 'Agent ID';
     message: string;
     isValueValid: boolean;
     placeholder$: Observable<string>;

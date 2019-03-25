@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import com.navercorp.pinpoint.rpc.packet.stream.StreamClosePacket;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamResponsePacket;
-import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelContext;
+import com.navercorp.pinpoint.rpc.stream.ClientStreamChannel;
 import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelMessageListener;
 
 /**
@@ -46,15 +46,15 @@ public class RecordedStreamChannelMessageListener implements ClientStreamChannel
     }
 
     @Override
-    public void handleStreamData(ClientStreamChannelContext streamChannelContext, StreamResponsePacket packet) {
-        logger.debug("handleStreamData {}, {}", streamChannelContext, packet);
+    public void handleStreamData(ClientStreamChannel clientStreamChannel, StreamResponsePacket packet) {
+        logger.debug("handleStreamData {}, {}", clientStreamChannel, packet);
         receivedMessageList.add(packet.getPayload());
         latch.countDown();
     }
 
     @Override
-    public void handleStreamClose(ClientStreamChannelContext streamChannelContext, StreamClosePacket packet) {
-        logger.debug("handleClose {}, {}", streamChannelContext, packet);
+    public void handleStreamClose(ClientStreamChannel clientStreamChannel, StreamClosePacket packet) {
+        logger.debug("handleClose {}, {}", clientStreamChannel, packet);
         receivedMessageList.add(packet.getPayload());
         latch.countDown();
     }

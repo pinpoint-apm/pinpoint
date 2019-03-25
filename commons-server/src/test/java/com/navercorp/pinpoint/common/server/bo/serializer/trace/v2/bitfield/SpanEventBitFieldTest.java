@@ -117,7 +117,7 @@ public class SpanEventBitFieldTest {
     public void testAnnotation_first() throws Exception {
         SpanEventBo spanEventBo = new SpanEventBo();
 
-        spanEventBo.setAnnotationBoList(Lists.newArrayList(new AnnotationBo()));
+        spanEventBo.setAnnotationBoList(Lists.newArrayList(new AnnotationBo(1, "test")));
 
         SpanEventBitField bitField = SpanEventBitField.buildFirst(spanEventBo);
         Assert.assertTrue(bitField.isSetAnnotation());

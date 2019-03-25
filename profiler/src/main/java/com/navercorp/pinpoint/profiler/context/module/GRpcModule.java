@@ -20,11 +20,13 @@ import com.google.inject.Key;
 import com.google.inject.PrivateModule;
 import com.google.inject.Scopes;
 import com.google.inject.TypeLiteral;
+import com.google.inject.name.Names;
 import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.profiler.context.proto.SpanProtoMessageConverterProvider;
 import com.navercorp.pinpoint.profiler.context.provider.CommandDispatcherProvider;
 import com.navercorp.pinpoint.profiler.context.provider.ConnectionFactoryProviderProvider;
-import com.navercorp.pinpoint.profiler.context.provider.GrpcDataSenderProvider;
+import com.navercorp.pinpoint.profiler.context.provider.grpc.DnsExecutorServiceProvider;
+import com.navercorp.pinpoint.profiler.context.provider.grpc.GrpcDataSenderProvider;
 import com.navercorp.pinpoint.profiler.context.provider.HeaderTBaseSerializerProvider;
 import com.navercorp.pinpoint.profiler.context.provider.MetadataMessageConverterProvider;
 import com.navercorp.pinpoint.profiler.context.provider.PinpointClientFactoryProvider;
@@ -40,6 +42,8 @@ import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializer;
 import org.apache.thrift.TBase;
 
+import java.util.concurrent.ExecutorService;
+
 /**
  * @author Woonduk Kang(emeroad)
  */
@@ -48,6 +52,9 @@ public class GRpcModule extends PrivateModule {
     protected void configure() {
         Key<CommandDispatcher> commandDispatcher = Key.get(CommandDispatcher.class);
         bind(commandDispatcher).toProvider(CommandDispatcherProvider.class).in(Scopes.SINGLETON);
+
+        // dns executor
+        bind(ExecutorService.class).toProvider(DnsExecutorServiceProvider.class).in(Scopes.SINGLETON);
 
         bind(ConnectionFactoryProvider.class).toProvider(ConnectionFactoryProviderProvider.class).in(Scopes.SINGLETON);
 
@@ -82,6 +89,11 @@ public class GRpcModule extends PrivateModule {
         bind(DataSender.class).annotatedWith(StatDataSender.class)
                 .toProvider(StatDataSenderProvider.class).in(Scopes.SINGLETON);
         expose(statDataSender);
+
+
+        Key<ModuleLifeCycle> rpcModuleLifeCycleKey = Key.get(ModuleLifeCycle.class, Names.named("RPC-MODULE"));
+        bind(rpcModuleLifeCycleKey).to(GRpcModuleLifeCycle.class).in(Scopes.SINGLETON);
+        expose(rpcModuleLifeCycleKey);
     }
 
 }

@@ -43,10 +43,12 @@ public class KeepAliveService extends KeepAliveGrpc.KeepAliveImplBase {
 
     private final AgentEventAsyncTaskService agentEventAsyncTask;
     private final AgentLifeCycleAsyncTaskService agentLifeCycleAsyncTask;
+    private final SocketIdProvider socketIdProvider;
 
-    public KeepAliveService(AgentEventAsyncTaskService agentEventAsyncTask, AgentLifeCycleAsyncTaskService agentLifeCycleAsyncTask) {
+    public KeepAliveService(AgentEventAsyncTaskService agentEventAsyncTask, AgentLifeCycleAsyncTaskService agentLifeCycleAsyncTask, SocketIdProvider socketIdProvider) {
         this.agentEventAsyncTask = Objects.requireNonNull(agentEventAsyncTask, "agentEventAsyncTask must not be null");
         this.agentLifeCycleAsyncTask = Objects.requireNonNull(agentLifeCycleAsyncTask, "agentLifeCycleAsyncTask must not be null");
+        this.socketIdProvider = Objects.requireNonNull(socketIdProvider, "socketIdProvider must not be null");
     }
 
     @Override
@@ -115,21 +117,22 @@ public class KeepAliveService extends KeepAliveGrpc.KeepAliveImplBase {
     private void updateState(ManagedAgentLifeCycle managedAgentLifeCycle) {
 
         final Context current = Context.current();
-        final AgentHeaderFactory.Header header = ServerContext.AGENT_INFO_KEY.get(current);
+        final AgentHeaderFactory.Header header = ServerContext.getAgentInfo(current);
         if (header == null) {
             logger.warn("Not found request header");
             return;
         }
-        final TransportMetadata transportMetadata = ServerContext.TRANSPORT_METADATA_KEY.get(current);
+        final TransportMetadata transportMetadata = ServerContext.getTransportMetadata(current);
         if (transportMetadata == null) {
             logger.warn("Not found transportMetadata");
             return;
         }
 
-        // TODO Need licenseKey
         long eventTimestamp = System.currentTimeMillis();
         Map<Object, Object> properties = new HashMap<>();
-        properties.put("socketId", transportMetadata.getTransportId());
+        // TODO type miss match  int != long
+        final long socketId = socketIdProvider.getSocketId();
+        properties.put("socketId", socketId);
         properties.put(HandshakePropertyType.AGENT_ID.getName(), header.getAgentId());
         properties.put(HandshakePropertyType.START_TIMESTAMP.getName(), header.getAgentStartTime());
 

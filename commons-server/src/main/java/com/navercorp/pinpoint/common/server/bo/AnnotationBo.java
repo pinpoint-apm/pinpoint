@@ -25,8 +25,13 @@ public class AnnotationBo {
     private Object value;
 
     private boolean isAuthorized = true;
-    
+
     public AnnotationBo() {
+    }
+
+    public AnnotationBo(int key, Object value) {
+        this.key = key;
+        this.value = value;
     }
 
     public int getKey() {

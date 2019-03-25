@@ -1,7 +1,9 @@
 :host {
     position: relative;
+    width: 0;
 }
 .l-sidemenu-wrap {
+    width: 100%;
     display: flex;
     flex-flow: column nowrap;
     height: 100%;
@@ -9,6 +11,7 @@
     overflow-x: hidden;
 }
 .l-sidemenu {
+    width: 100%;
     height: 100%;
     z-index: 10;
     border-left: 1px solid #e5e8f0;

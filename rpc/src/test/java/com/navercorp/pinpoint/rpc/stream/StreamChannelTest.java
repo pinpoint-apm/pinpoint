@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.rpc.stream;
 
+import com.navercorp.pinpoint.rpc.RecordedStreamChannelMessageListener;
+
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -26,7 +28,7 @@ public class StreamChannelTest {
 
     @Test
     public void stateChangeTest() throws Exception {
-        ClientStreamChannel sc = new ClientStreamChannel(null, 1, null);
+        ClientStreamChannel sc = new ClientStreamChannel(null, 1, null, new RecordedStreamChannelMessageListener(0));
 
         boolean isChanged = sc.changeStateOpen();
         Assert.assertTrue(isChanged);
@@ -41,7 +43,7 @@ public class StreamChannelTest {
     public void testName() throws Exception {
         TestStateChangeHandler testStateChangeHandler = new TestStateChangeHandler();
 
-        ClientStreamChannel sc = new ClientStreamChannel(null, 1, null);
+        ClientStreamChannel sc = new ClientStreamChannel(null, 1, null, new RecordedStreamChannelMessageListener(0));
         sc.addStateChangeEventHandler(testStateChangeHandler);
 
         sc.changeStateOpen();

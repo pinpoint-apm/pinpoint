@@ -60,10 +60,10 @@ public class DefaultProfilerConfigTest {
 
 
         ProfilerConfig profilerConfig = new DefaultProfilerConfig(properties);
-
-        Assert.assertEquals(profilerConfig.getCollectorSpanServerIp(), "placeHolder1");
-        Assert.assertEquals(profilerConfig.getCollectorStatServerIp(), "placeHolder1");
-        Assert.assertEquals(profilerConfig.getCollectorTcpServerIp(), "placeHolder2");
+        ThriftTransportConfig thriftTransportConfig = profilerConfig.getThriftTransportConfig();
+        Assert.assertEquals(thriftTransportConfig.getCollectorSpanServerIp(), "placeHolder1");
+        Assert.assertEquals(thriftTransportConfig.getCollectorStatServerIp(), "placeHolder1");
+        Assert.assertEquals(thriftTransportConfig.getCollectorTcpServerIp(), "placeHolder2");
     }
 
 
@@ -95,8 +95,8 @@ public class DefaultProfilerConfigTest {
         logger.debug("path:{}", path);
 
         ProfilerConfig profilerConfig = DefaultProfilerConfig.load(path);
-
-        Assert.assertFalse(profilerConfig.isTcpDataSenderCommandAcceptEnable());
+        ThriftTransportConfig thriftTransportConfig = profilerConfig.getThriftTransportConfig();
+        Assert.assertFalse(thriftTransportConfig.isTcpDataSenderCommandAcceptEnable());
     }
 
     @Test
@@ -105,8 +105,8 @@ public class DefaultProfilerConfigTest {
         logger.debug("path:{}", path);
 
         ProfilerConfig profilerConfig = DefaultProfilerConfig.load(path);
-
-        Assert.assertTrue(profilerConfig.isTcpDataSenderCommandAcceptEnable());
+        ThriftTransportConfig thriftTransportConfig = profilerConfig.getThriftTransportConfig();
+        Assert.assertTrue(thriftTransportConfig.isTcpDataSenderCommandAcceptEnable());
     }
 
     @Test

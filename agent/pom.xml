@@ -50,6 +50,10 @@
             <scope>runtime</scope>
             <type>pom</type>
         </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-grpc</artifactId>
+        </dependency>
 
         <!-- plug-ins -->
         <dependency>
