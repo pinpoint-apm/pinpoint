@@ -19,12 +19,13 @@ package com.navercorp.pinpoint.profiler.context.provider.grpc;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.protobuf.GeneratedMessageV3;
+import com.navercorp.pinpoint.bootstrap.config.GrpcTransportConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.grpc.AgentHeaderFactory;
 import com.navercorp.pinpoint.grpc.HeaderFactory;
 import com.navercorp.pinpoint.profiler.AgentInformation;
-import com.navercorp.pinpoint.profiler.context.module.MetadataConverter;
+import com.navercorp.pinpoint.profiler.context.module.SpanConverter;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
 import com.navercorp.pinpoint.profiler.sender.grpc.GrpcDataSender;
@@ -44,7 +45,7 @@ public class GrpcDataSenderProvider implements Provider<DataSender<Object>> {
 
     @Inject
     public GrpcDataSenderProvider(ProfilerConfig profilerConfig,
-                                  @MetadataConverter MessageConverter<GeneratedMessageV3> messageConverter, AgentInformation agentInformation,
+                                  @SpanConverter MessageConverter<GeneratedMessageV3> messageConverter, AgentInformation agentInformation,
                                   Provider<ExecutorService> dnsExecutorService) {
         this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig must not be null");
         this.messageConverter = Assert.requireNonNull(messageConverter, "messageConverter must not be null");
@@ -54,8 +55,9 @@ public class GrpcDataSenderProvider implements Provider<DataSender<Object>> {
 
     @Override
     public DataSender<Object> get() {
-        String collectorTcpServerIp = profilerConfig.getCollectorTcpServerIp();
-        int collectorTcpServerPort = profilerConfig.getCollectorTcpServerPort();
+        GrpcTransportConfig grpcTransportConfig = profilerConfig.getGrpcTransportConfig();
+        String collectorTcpServerIp = grpcTransportConfig.getCollectorSpanServerIp();
+        int collectorTcpServerPort = grpcTransportConfig.getCollectorSpanServerPort();
         HeaderFactory<AgentHeaderFactory.Header> headerHeaderFactory = newAgentHeaderFactory();
 
         ExecutorService executorService = dnsExecutorService.get();

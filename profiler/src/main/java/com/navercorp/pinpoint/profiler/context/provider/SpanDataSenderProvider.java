@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.profiler.context.provider;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+import com.navercorp.pinpoint.bootstrap.config.ThriftTransportConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.module.SpanConverter;
@@ -57,13 +58,14 @@ public class SpanDataSenderProvider  implements Provider<DataSender> {
         Assert.requireNonNull(profilerConfig, "profilerConfig must not be null");
         this.clientFactoryProvider = Assert.requireNonNull(clientFactoryProvider, "clientFactoryProvider must not be null");
 
-        this.ip = profilerConfig.getCollectorSpanServerIp();
-        this.port = profilerConfig.getCollectorSpanServerPort();
-        this.writeQueueSize = profilerConfig.getSpanDataSenderWriteQueueSize();
-        this.timeout = profilerConfig.getSpanDataSenderSocketTimeout();
-        this.sendBufferSize = profilerConfig.getSpanDataSenderSocketSendBufferSize();
-        this.ioType = profilerConfig.getSpanDataSenderSocketType();
-        this.transportType = profilerConfig.getSpanDataSenderTransportType();
+        ThriftTransportConfig thriftTransportConfig = profilerConfig.getThriftTransportConfig();
+        this.ip = thriftTransportConfig.getCollectorSpanServerIp();
+        this.port = thriftTransportConfig.getCollectorSpanServerPort();
+        this.writeQueueSize = thriftTransportConfig.getSpanDataSenderWriteQueueSize();
+        this.timeout = thriftTransportConfig.getSpanDataSenderSocketTimeout();
+        this.sendBufferSize = thriftTransportConfig.getSpanDataSenderSocketSendBufferSize();
+        this.ioType = thriftTransportConfig.getSpanDataSenderSocketType();
+        this.transportType = thriftTransportConfig.getSpanDataSenderTransportType();
         this.messageConverter = Assert.requireNonNull(messageConverter, "messageConverter must not be null");
     }
 
