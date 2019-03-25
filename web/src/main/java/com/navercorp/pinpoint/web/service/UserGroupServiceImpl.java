@@ -51,10 +51,11 @@ public class UserGroupServiceImpl implements UserGroupService {
     @Autowired
     private ConfigProperties webProperties;
 
+    @Autowired
+    UserService userService;
 
-    
     @Override
-    public String createUserGroup(UserGroup userGroup, String userId) throws PinpointUserGroupException {
+    public String createUserGroup(UserGroup userGroup) throws PinpointUserGroupException {
         if (userGroupDao.isExistUserGroup(userGroup.getId())) {
             throw new PinpointUserGroupException("userGroup's name already exist. :" + userGroup.getId());
         }
@@ -62,6 +63,7 @@ public class UserGroupServiceImpl implements UserGroupService {
         String userGroupNumber = userGroupDao.createUserGroup(userGroup);
 
         if (webProperties.isOpenSource() == false) {
+            String userId = userService.getUserIdFromSecurity();
             if (StringUtils.isEmpty(userId)) {
                 throw new PinpointUserGroupException("There is not userId or fail to create userGroup.");
             }
@@ -96,7 +98,7 @@ public class UserGroupServiceImpl implements UserGroupService {
     }
 
     @Override
-    public void deleteUserGroup(UserGroup userGroup, String userId) throws PinpointUserGroupException {
+    public void deleteUserGroup(UserGroup userGroup) throws PinpointUserGroupException {
         userGroupDao.deleteUserGroup(userGroup);
         userGroupDao.deleteMemberByUserGroupId(userGroup.getId());
         alarmService.deleteRuleByUserGroupId(userGroup.getId());
