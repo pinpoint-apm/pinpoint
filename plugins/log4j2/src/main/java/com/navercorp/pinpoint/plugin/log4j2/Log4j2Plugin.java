@@ -68,7 +68,7 @@ public class Log4j2Plugin implements ProfilerPlugin, TransformTemplateAware {
             /**
              * support log4j2 2.7+ Constructor
              */
-            addInterceptor(target, new String[]{"java.lang.String", "org.apache.logging.log4j.Marker", "java.lang.String", "org.apache.logging.log4j.Level", "org.apache.logging.log4j.message.Message", "java.lang.Throwable", "org.apache.logging.log4j.core.impl.ThrowableProxy", "org.apache.logging.log4j.util.StringMap", "org.apache.logging.log4j.ThreadContext$ContextStack", "long", "java.lang.String", "int", "java.lang.StackTraceElement", "long", "long"}, interceptorClassName);
+            addInterceptor(target, new String[]{"java.lang.String", "org.apache.logging.log4j.Marker", "java.lang.String", "org.apache.logging.log4j.Level", "org.apache.logging.log4j.message.Message", "java.lang.Throwable", "org.apache.logging.log4j.core.impl.ThrowableProxy", "org.apache.logging.log4j.util.StringMap", "org.apache.logging.log4j.ThreadContext$ContextStack", "long", "java.lang.String", "int", "java.lang.StackTraceElement", "long"}, interceptorClassName);
             /**
              * log4j 2.1~2.7 Constructor .  This constructor will be removed in an upcoming release
              */
