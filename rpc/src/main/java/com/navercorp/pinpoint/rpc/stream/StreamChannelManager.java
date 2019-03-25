@@ -23,20 +23,16 @@ import com.navercorp.pinpoint.rpc.packet.stream.StreamClosePacket;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamCode;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamCreateFailPacket;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamCreatePacket;
-import com.navercorp.pinpoint.rpc.packet.stream.StreamCreateSuccessPacket;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamPacket;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamPingPacket;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamResponsePacket;
 import com.navercorp.pinpoint.rpc.util.IDGenerator;
 
 import org.jboss.netty.channel.Channel;
-import org.jboss.netty.channel.ChannelFuture;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 /**
  * @author koo.taejin
@@ -53,7 +49,7 @@ public class StreamChannelManager {
 
     private final ServerStreamChannelMessageListener streamChannelMessageListener;
 
-    private final ConcurrentMap<Integer, StreamChannel> channelMap = new ConcurrentHashMap<Integer, StreamChannel>();
+    private final StreamChannelRepository streamChannelRepository = new StreamChannelRepository();
 
     public StreamChannelManager(Channel channel, IDGenerator idGenerator) {
         this(channel, idGenerator, DisabledServerStreamChannelMessageListener.INSTANCE);
@@ -70,10 +66,13 @@ public class StreamChannelManager {
     }
 
     public void close() {
-        Set<Integer> keySet = channelMap.keySet();
+        Set<Integer> keySet = streamChannelRepository.getStreamIdSet();
 
         for (Integer key : keySet) {
-            clearResourceAndSendClose(key, StreamCode.STATE_CLOSED);
+            StreamChannel unregister = streamChannelRepository.unregister(key);
+            if (unregister != null) {
+                unregister.close(StreamCode.STATE_CLOSED);
+            }
         }
     }
 
@@ -86,18 +85,14 @@ public class StreamChannelManager {
 
         final int streamChannelId = idGenerator.generate();
 
-        ClientStreamChannel newStreamChannel = new ClientStreamChannel(channel, streamChannelId, this, messageListener);
-
+        ClientStreamChannel newStreamChannel = new ClientStreamChannel(channel, streamChannelId, streamChannelRepository, messageListener);
         if (stateChangeListener != null) {
             newStreamChannel.addStateChangeEventHandler(stateChangeListener);
         }
 
         newStreamChannel.changeStateOpen();
 
-        StreamChannel old = channelMap.putIfAbsent(streamChannelId, newStreamChannel);
-        if (old != null) {
-            throw new StreamException(StreamCode.ID_DUPLICATED);
-        }
+        streamChannelRepository.registerIfAbsent(newStreamChannel);
 
         // the order of below code is very important.
         newStreamChannel.changeStateConnectAwait();
@@ -107,8 +102,7 @@ public class StreamChannelManager {
         if (connected) {
             logger.info("Open streamChannel initialization completed. Channel:{}, streamChannel:{} ", channel, newStreamChannel);
         } else {
-            newStreamChannel.changeStateClose();
-            channelMap.remove(streamChannelId);
+            newStreamChannel.close(StreamCode.CONNECTION_TIMEOUT);
             throw new StreamException(StreamCode.CONNECTION_TIMEOUT);
         }
         return newStreamChannel;
@@ -125,10 +119,10 @@ public class StreamChannelManager {
             return;
         }
 
-        StreamChannel streamChannel = findStreamChannel(streamChannelId);
+        StreamChannel streamChannel = streamChannelRepository.getStreamChannel(streamChannelId);
         if (streamChannel == null) {
             if (!(PacketType.APPLICATION_STREAM_CLOSE == packetType)) {
-                clearResourceAndSendClose(streamChannelId, StreamCode.ID_NOT_FOUND);
+                streamChannel.close(StreamCode.ID_NOT_FOUND);
             }
         } else {
             if (streamChannel instanceof ServerStreamChannel) {
@@ -136,7 +130,7 @@ public class StreamChannelManager {
             } else if (streamChannel instanceof ClientStreamChannel) {
                 messageReceived((ClientStreamChannel) streamChannel, packet);
             } else {
-                clearResourceAndSendClose(streamChannelId, StreamCode.UNKNWON_ERROR);
+                streamChannel.close(StreamCode.UNKNWON_ERROR);
             }
         }
     }
@@ -147,7 +141,7 @@ public class StreamChannelManager {
 
         switch (packetType) {
             case PacketType.APPLICATION_STREAM_CLOSE:
-                handleStreamClose(serverStreamChannel, (StreamClosePacket)packet);
+                handleStreamClose(serverStreamChannel, (StreamClosePacket) packet);
                 break;
             case PacketType.APPLICATION_STREAM_PING:
                 handlePing(serverStreamChannel, (StreamPingPacket) packet);
@@ -156,7 +150,7 @@ public class StreamChannelManager {
                 // handlePong((StreamPongPacket) packet);
                 break;
             default:
-                clearResourceAndSendClose(streamChannelId, StreamCode.PACKET_UNKNOWN);
+                serverStreamChannel.close(StreamCode.PACKET_UNKNOWN);
                 logger.info("Unknown StreamPacket received Channel:{}, StreamId:{}, Packet;{}.", channel, streamChannelId, packet);
         }
     }
@@ -167,10 +161,10 @@ public class StreamChannelManager {
 
         switch (packetType) {
             case PacketType.APPLICATION_STREAM_CREATE_SUCCESS:
-                handleCreateSuccess(clientStreamChannel, (StreamCreateSuccessPacket) packet);
+                clientStreamChannel.changeStateConnected();
                 break;
             case PacketType.APPLICATION_STREAM_CREATE_FAIL:
-                handleCreateFail(clientStreamChannel, (StreamCreateFailPacket) packet);
+                clientStreamChannel.disconnect(((StreamCreateFailPacket) packet).getCode());
                 break;
             case PacketType.APPLICATION_STREAM_RESPONSE:
                 handleStreamResponse(clientStreamChannel, (StreamResponsePacket) packet);
@@ -185,7 +179,7 @@ public class StreamChannelManager {
                 // handlePong((StreamPongPacket) packet);
                 break;
             default:
-                clearResourceAndSendClose(streamChannelId, StreamCode.PACKET_UNKNOWN);
+                clientStreamChannel.close(StreamCode.PACKET_UNKNOWN);
                 logger.info("Unknown StreamPacket received Channel:{}, StreamId:{}, Packet;{}.", channel, streamChannelId, packet);
         }
     }
@@ -193,53 +187,39 @@ public class StreamChannelManager {
     private void handleCreate(StreamCreatePacket packet) {
         final int streamChannelId = packet.getStreamChannelId();
 
-        ServerStreamChannel streamChannel = new ServerStreamChannel(this.channel, streamChannelId, this);
+        ServerStreamChannel streamChannel = new ServerStreamChannel(this.channel, streamChannelId, streamChannelRepository, streamChannelMessageListener);
 
-        StreamCode code = registerStreamChannel(streamChannel);
-        if (code == StreamCode.OK) {
-            code = streamChannelMessageListener.handleStreamCreate(streamChannel, packet);
+        StreamCode streamCode = null;
+        try {
+            registerStreamChannel(streamChannel);
+            streamCode = streamChannel.handleStreamCreate(packet);
 
-            if (code == StreamCode.OK) {
+            if (streamCode == StreamCode.OK) {
                 streamChannel.changeStateConnected();
                 streamChannel.sendCreateSuccess();
             }
+        } catch (StreamException e) {
+            streamCode = e.getStreamCode();
         }
 
-        if (code != StreamCode.OK) {
-            clearResourceAndSendCreateFail(streamChannelId, code);
+        if (streamCode != StreamCode.OK) {
+            streamChannel.close(new StreamCreateFailPacket(streamChannelId, streamCode));
         }
     }
 
-    private StreamCode registerStreamChannel(ServerStreamChannel streamChannel) {
-        int streamChannelId = streamChannel.getStreamId();
+    private StreamCode registerStreamChannel(ServerStreamChannel streamChannel) throws StreamException {
         streamChannel.changeStateOpen();
 
-        if (channelMap.putIfAbsent(streamChannelId, streamChannel) != null) {
-            streamChannel.changeStateClose();
-            return StreamCode.ID_DUPLICATED;
-        }
+        streamChannelRepository.registerIfAbsent(streamChannel);
 
         if (!streamChannel.changeStateConnectArrived()) {
-            streamChannel.changeStateClose();
-            channelMap.remove(streamChannelId);
-
-            return StreamCode.STATE_ERROR;
+            throw new StreamException(StreamCode.STATE_ERROR);
         }
 
         return StreamCode.OK;
     }
 
-    private void handleCreateSuccess(ClientStreamChannel clientStreamChannel, StreamCreateSuccessPacket packet) {
-        clientStreamChannel.changeStateConnected();
-    }
-
-    private void handleCreateFail(ClientStreamChannel clientStreamChannel, StreamCreateFailPacket packet) {
-        clearStreamChannelResource(clientStreamChannel.getStreamId());
-    }
-
     private void handleStreamResponse(ClientStreamChannel clientStreamChannel, StreamResponsePacket packet) {
-        int streamChannelId = packet.getStreamChannelId();
-
         StreamChannelStateCode currentCode = clientStreamChannel.getCurrentState();
 
         if (StreamChannelStateCode.CONNECTED == currentCode) {
@@ -247,67 +227,25 @@ public class StreamChannelManager {
         } else if (StreamChannelStateCode.CONNECT_AWAIT == currentCode) {
             // may happen in the timing
         } else {
-            clearResourceAndSendClose(streamChannelId, StreamCode.STATE_NOT_CONNECTED);
+            clientStreamChannel.close(StreamCode.STATE_NOT_CONNECTED);
         }
     }
 
-    private void handleStreamClose(ClientStreamChannel clientStreamChannel, StreamClosePacket packet) {
+    private void handleStreamClose(StreamChannel clientStreamChannel, StreamClosePacket packet) {
         clientStreamChannel.handleStreamClose(packet);
-        clearStreamChannelResource(clientStreamChannel.getStreamId());
-    }
-
-    private void handleStreamClose(ServerStreamChannel serverStreamChannel, StreamClosePacket packet) {
-        streamChannelMessageListener.handleStreamClose(serverStreamChannel, packet);
-        clearStreamChannelResource(serverStreamChannel.getStreamId());
+        clientStreamChannel.disconnect(packet.getCode());
     }
 
     private void handlePing(StreamChannel streamChannel, StreamPingPacket packet) {
-        int streamChannelId = packet.getStreamChannelId();
         try {
             streamChannel.sendPong(packet.getRequestId());
         } catch (PinpointSocketException e) {
-            clearResourceAndSendClose(streamChannelId, StreamCode.STATE_NOT_CONNECTED);
-            return;
+            streamChannel.close(StreamCode.STATE_NOT_CONNECTED);
         }
     }
 
     public StreamChannel findStreamChannel(int channelId) {
-        return this.channelMap.get(channelId);
-    }
-
-    private ChannelFuture clearResourceAndSendCreateFail(int streamChannelId, StreamCode code) {
-        clearStreamChannelResource(streamChannelId);
-        return sendCreateFail(streamChannelId, code);
-    }
-
-    protected ChannelFuture clearResourceAndSendClose(int streamChannelId, StreamCode code) {
-        clearStreamChannelResource(streamChannelId);
-        return sendClose(streamChannelId, code);
-    }
-
-    private void clearStreamChannelResource(int streamId) {
-        StreamChannel streamChannel = channelMap.remove(streamId);
-        if (streamChannel != null) {
-            streamChannel.changeStateClose();
-        }
-    }
-
-    private ChannelFuture sendCreateFail(int streamChannelId, StreamCode code) {
-        StreamCreateFailPacket packet = new StreamCreateFailPacket(streamChannelId, code);
-        return this.channel.write(packet);
-    }
-
-    private ChannelFuture sendClose(int streamChannelId, StreamCode code) {
-        if (channel.isConnected()) {
-            StreamClosePacket packet = new StreamClosePacket(streamChannelId, code);
-            return this.channel.write(packet);
-        } else {
-            return null;
-        }
-    }
-
-    public boolean isSupportServerMode() {
-        return streamChannelMessageListener != DisabledServerStreamChannelMessageListener.INSTANCE;
+        return streamChannelRepository.getStreamChannel(channelId);
     }
 
 }

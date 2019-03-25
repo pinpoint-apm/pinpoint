@@ -31,8 +31,8 @@ public class ClientStreamChannel extends StreamChannel {
 
     private final ClientStreamChannelMessageListener messageListener;
 
-    public ClientStreamChannel(Channel channel, int streamId, StreamChannelManager streamChannelManager, ClientStreamChannelMessageListener messageListener) {
-        super(channel, streamId, streamChannelManager);
+    public ClientStreamChannel(Channel channel, int streamId, StreamChannelRepository streamChannelRepository, ClientStreamChannelMessageListener messageListener) {
+        super(channel, streamId, streamChannelRepository);
         this.messageListener = Assert.requireNonNull(messageListener, "messageListener must not be null");
     }
 
@@ -51,7 +51,8 @@ public class ClientStreamChannel extends StreamChannel {
         messageListener.handleStreamData(this, packet);
     }
 
-    void handleStreamClose(StreamClosePacket packet) {
+    @Override
+    public void handleStreamClose(StreamClosePacket packet) {
         messageListener.handleStreamClose(this, packet);
     }
 

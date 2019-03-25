@@ -236,10 +236,6 @@ public class DefaultPinpointServer implements PinpointServer {
         return future;
     }
 
-    public StreamChannel getStreamChannel(int channelId) {
-        return streamChannelManager.findStreamChannel(channelId);
-    }
-
     @Override
     public ClientStreamChannel openStream(byte[] payload, ClientStreamChannelMessageListener messageListener) throws StreamException {
         return openStream(payload, messageListener, null);

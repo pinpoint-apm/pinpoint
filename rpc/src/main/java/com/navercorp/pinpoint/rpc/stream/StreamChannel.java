@@ -16,7 +16,9 @@
 
 package com.navercorp.pinpoint.rpc.stream;
 
+import com.navercorp.pinpoint.rpc.packet.stream.StreamClosePacket;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamCode;
+import com.navercorp.pinpoint.rpc.packet.stream.StreamPacket;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamPingPacket;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamPongPacket;
 
@@ -42,31 +44,24 @@ public abstract class StreamChannel {
 
     private final ConcurrentHashMap<String, Object> attribute = new ConcurrentHashMap<String, Object>();
 
-    final Channel channel;
+    protected final Channel channel;
     private final int streamChannelId;
-    private final StreamChannelManager streamChannelManager;
-
-    final StreamChannelState state;
+    protected final StreamChannelState state  = new StreamChannelState();
     private final CountDownLatch openLatch = new CountDownLatch(1);
+
+    protected final StreamChannelRepository streamChannelRepository;
 
     private List<StreamChannelStateChangeEventHandler> stateChangeEventHandlers = new CopyOnWriteArrayList<StreamChannelStateChangeEventHandler>();
 
-    public StreamChannel(Channel channel, int streamId, StreamChannelManager streamChannelManager) {
+    public StreamChannel(Channel channel, int streamId, StreamChannelRepository streamChannelRepository) {
         this.channel = channel;
         this.streamChannelId = streamId;
-        this.streamChannelManager = streamChannelManager;
-
-        this.state = new StreamChannelState();
+        this.streamChannelRepository = streamChannelRepository;
     }
 
     public void addStateChangeEventHandler(StreamChannelStateChangeEventHandler stateChangeEventHandler) {
         stateChangeEventHandlers.add(stateChangeEventHandler);
     }
-
-    public void setStateChangeEventHandler(List<StreamChannelStateChangeEventHandler> stateChangeEventHandlers) {
-        this.stateChangeEventHandlers = stateChangeEventHandlers;
-    }
-
 
     public List<StreamChannelStateChangeEventHandler> getStateChangeEventHandlers() {
         return new ArrayList<StreamChannelStateChangeEventHandler>(stateChangeEventHandlers);
@@ -93,16 +88,6 @@ public abstract class StreamChannel {
         } finally {
             openLatch.countDown();
         }
-    }
-
-    public boolean awaitOpen() {
-        try {
-            openLatch.await();
-            return state.checkState(StreamChannelStateCode.CONNECTED);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
-        return false;
     }
 
     public boolean awaitOpen(long timeoutMillis) {
@@ -135,7 +120,42 @@ public abstract class StreamChannel {
     }
 
     public void close() {
-        this.streamChannelManager.clearResourceAndSendClose(getStreamId(), StreamCode.STATE_CLOSED);
+        close(StreamCode.STATE_CLOSED);
+    }
+
+    public void close(StreamCode code) {
+        clearStreamChannelResource();
+        if (!StreamCode.isConnectionError(code)) {
+            sendClose(streamChannelId, code);
+        }
+    }
+
+    public void close(StreamPacket streamPacket) {
+        clearStreamChannelResource();
+        channel.write(streamPacket);
+    }
+
+    private void clearStreamChannelResource() {
+        streamChannelRepository.unregister(this);
+        changeStateClose();
+    }
+
+    private ChannelFuture sendClose(int streamChannelId, StreamCode code) {
+        if (channel.isConnected()) {
+            StreamClosePacket packet = new StreamClosePacket(streamChannelId, code);
+            return this.channel.write(packet);
+        } else {
+            return null;
+        }
+    }
+
+    public void disconnect() {
+        disconnect(StreamCode.STATE_CLOSED);
+    }
+
+    public void disconnect(StreamCode streamCode) {
+        logger.info("{} disconnected. from remote streamChannel caused:{}", this, streamCode);
+        clearStreamChannelResource();
     }
 
     public SocketAddress getRemoteAddress() {
@@ -178,6 +198,8 @@ public abstract class StreamChannel {
     public final Object removeAttribute(String key) {
         return attribute.remove(key);
     }
+
+    abstract void handleStreamClose(StreamClosePacket packet);
 
     @Override
     public String toString() {
