@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.profiler.context.provider;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+import com.navercorp.pinpoint.bootstrap.config.ThriftTransportConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.rpc.client.DefaultPinpointClientFactory;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
@@ -41,10 +42,11 @@ public class SpanStatClientFactoryProvider implements Provider<PinpointClientFac
     public PinpointClientFactory get() {
         int workerCount = 0;
 
-        if ("TCP".equalsIgnoreCase(profilerConfig.getSpanDataSenderTransportType())) {
+        ThriftTransportConfig thriftTransportConfig = profilerConfig.getThriftTransportConfig();
+        if ("TCP".equalsIgnoreCase(thriftTransportConfig.getSpanDataSenderTransportType())) {
             workerCount++;
         }
-        if ("TCP".equalsIgnoreCase(profilerConfig.getStatDataSenderTransportType())) {
+        if ("TCP".equalsIgnoreCase(thriftTransportConfig.getStatDataSenderTransportType())) {
             workerCount++;
         }
 
