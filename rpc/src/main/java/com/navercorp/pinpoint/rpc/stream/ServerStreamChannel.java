@@ -16,6 +16,10 @@
 
 package com.navercorp.pinpoint.rpc.stream;
 
+import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.rpc.packet.stream.StreamClosePacket;
+import com.navercorp.pinpoint.rpc.packet.stream.StreamCode;
+import com.navercorp.pinpoint.rpc.packet.stream.StreamCreatePacket;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamCreateSuccessPacket;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamResponsePacket;
 
@@ -27,8 +31,11 @@ import org.jboss.netty.channel.ChannelFuture;
  */
 public class ServerStreamChannel extends StreamChannel {
 
-    public ServerStreamChannel(Channel channel, int streamId, StreamChannelManager streamChannelManager) {
-        super(channel, streamId, streamChannelManager);
+    private final ServerStreamChannelMessageListener serverStreamChannelMessageListener;
+    
+    public ServerStreamChannel(Channel channel, int streamId, StreamChannelRepository streamChannelRepository, ServerStreamChannelMessageListener serverStreamChannelMessageListener) {
+        super(channel, streamId, streamChannelRepository);
+        this.serverStreamChannelMessageListener = Assert.requireNonNull(serverStreamChannelMessageListener, "serverStreamChannelMessageListener must not be null");
     }
 
     public ChannelFuture sendData(byte[] payload) {
@@ -47,6 +54,15 @@ public class ServerStreamChannel extends StreamChannel {
 
     boolean changeStateConnectArrived() {
         return changeStateTo(StreamChannelStateCode.CONNECT_ARRIVED);
+    }
+
+    public StreamCode handleStreamCreate(StreamCreatePacket packet) {
+        return serverStreamChannelMessageListener.handleStreamCreate(this, packet);
+    }
+
+    @Override
+    public void handleStreamClose(StreamClosePacket packet) {
+        serverStreamChannelMessageListener.handleStreamClose(this, packet);
     }
 
     @Override
