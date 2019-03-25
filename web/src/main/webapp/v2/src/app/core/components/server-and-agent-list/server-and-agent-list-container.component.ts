@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, ComponentFactoryResolver, Injector } from '@angular/core';
 import { Subject } from 'rxjs';
-import { switchMap, takeUntil, filter, tap } from 'rxjs/operators';
+import { switchMap, takeUntil, filter, tap, skip } from 'rxjs/operators';
 
 import {
     NewUrlStateNotificationService,
@@ -69,7 +69,9 @@ export class ServerAndAgentListContainerComponent implements OnInit, OnDestroy {
             });
         });
 
-        this.storeHelperService.getServerAndAgentQuery<string>(this.unsubscribe).subscribe((query: string) => {
+        this.storeHelperService.getServerAndAgentQuery<string>(this.unsubscribe).pipe(
+            skip(1)
+        ).subscribe((query: string) => {
             this.filteringServerList(query);
         });
     }
