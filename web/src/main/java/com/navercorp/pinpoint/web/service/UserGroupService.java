@@ -26,7 +26,7 @@ import com.navercorp.pinpoint.web.vo.exception.PinpointUserGroupException;
  * @author minwoo.jung
  */
 public interface UserGroupService {
-    String createUserGroup(UserGroup userGroup, String userId) throws PinpointUserGroupException;
+    String createUserGroup(UserGroup userGroup) throws PinpointUserGroupException;
     
     List<UserGroup> selectUserGroup();
     
@@ -36,7 +36,7 @@ public interface UserGroupService {
 
     void updateUserGroup(UserGroup userGroup);
 
-    void deleteUserGroup(UserGroup userGroup, String userId) throws PinpointUserGroupException;
+    void deleteUserGroup(UserGroup userGroup) throws PinpointUserGroupException;
 
     boolean checkValid(String userId, String userGroupId);
 

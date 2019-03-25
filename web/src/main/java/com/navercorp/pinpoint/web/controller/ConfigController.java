@@ -50,7 +50,7 @@ public class ConfigController {
     
     @RequestMapping(value="/configuration", method=RequestMethod.GET)
     @ResponseBody
-    public Map<String, Object> getProperties(@RequestHeader(value=SSO_USER, required=false) String userId) {
+    public Map<String, Object> getProperties() {
         Map<String, Object> result = new HashMap<>();
 
         result.put("sendUsage", webProperties.getSendUsage());
@@ -63,6 +63,7 @@ public class ConfigController {
         result.put("openSource", webProperties.isOpenSource());
         result.put("version", Version.VERSION);
 
+        String userId = userService.getUserIdFromSecurity();
         if (!StringUtils.isEmpty(userId)) {
             User user = userService.selectUserByUserId(userId);
 
