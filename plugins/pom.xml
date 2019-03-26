@@ -89,6 +89,7 @@
         <module>fastjson</module>
         <module>druid</module>
         <module>hbase</module>
+        <module>log4j2</module>
         <module>openwhisk</module>
         <module>redis-redisson</module>
 	    <module>elasticsearch-bboss</module>
