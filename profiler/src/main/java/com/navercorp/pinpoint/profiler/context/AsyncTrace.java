@@ -145,6 +145,11 @@ public class AsyncTrace implements Trace {
     }
 
     @Override
+    public TraceScope removeScope(String name) {
+        return trace.removeScope(name);
+    }
+
+    @Override
     public String toString() {
         return "AsyncTrace{" +
                 "traceRoot=" + traceRoot +

@@ -142,4 +142,9 @@ public class DisableTrace implements Trace {
     public TraceScope addScope(String name) {
         return scopePool.add(name);
     }
+
+    @Override
+    public TraceScope removeScope(String name) {
+        return scopePool.remove(name);
+    }
 }

@@ -299,6 +299,14 @@ public class AsyncChildTrace implements Trace {
     }
 
     @Override
+    public TraceScope removeScope(String name) {
+        if (scopePool == null) {
+            return null;
+        }
+        return scopePool.remove(name);
+    }
+
+    @Override
     public String toString() {
         return "AsyncChildTrace{" +
                 "traceRoot=" + getTraceRoot() +

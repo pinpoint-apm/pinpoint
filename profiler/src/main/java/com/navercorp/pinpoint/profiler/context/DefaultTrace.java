@@ -314,6 +314,14 @@ public final class DefaultTrace implements Trace {
     }
 
     @Override
+    public TraceScope removeScope(String name) {
+        if (scopePool == null) {
+            return null;
+        }
+        return scopePool.remove(name);
+    }
+
+    @Override
     public String toString() {
         return "DefaultTrace{" +
                 ", traceRoot=" + getTraceRoot() +

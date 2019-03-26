@@ -42,6 +42,14 @@ public class DefaultTraceScopePool {
         return oldScope;
     }
 
+    public TraceScope remove(String name) {
+        if (name == null) {
+            throw new IllegalArgumentException("name must not be null");
+        }
+
+        return list.remove(name);
+    }
+
     public void clear() {
         list.clear();
     }
