@@ -21,12 +21,14 @@ import com.google.inject.PrivateModule;
 import com.google.inject.Scopes;
 import com.google.inject.TypeLiteral;
 import com.google.inject.name.Names;
+import com.navercorp.pinpoint.profiler.context.compress.SpanProcessor;
 import com.navercorp.pinpoint.profiler.context.provider.CommandDispatcherProvider;
 import com.navercorp.pinpoint.profiler.context.provider.ConnectionFactoryProviderProvider;
 import com.navercorp.pinpoint.profiler.context.provider.HeaderTBaseSerializerProvider;
 import com.navercorp.pinpoint.profiler.context.provider.MetadataMessageConverterProvider;
 import com.navercorp.pinpoint.profiler.context.provider.PinpointClientFactoryProvider;
 import com.navercorp.pinpoint.profiler.context.provider.SpanDataSenderProvider;
+import com.navercorp.pinpoint.profiler.context.provider.SpanPostProcessorProvider;
 import com.navercorp.pinpoint.profiler.context.provider.SpanStatClientFactoryProvider;
 import com.navercorp.pinpoint.profiler.context.provider.StatDataSenderProvider;
 import com.navercorp.pinpoint.profiler.context.provider.TcpDataSenderProvider;
@@ -37,18 +39,23 @@ import com.navercorp.pinpoint.profiler.sender.DataSender;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 import com.navercorp.pinpoint.rpc.client.ConnectionFactoryProvider;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
+import com.navercorp.pinpoint.thrift.dto.TSpan;
+import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializer;
 import org.apache.thrift.TBase;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class RpcModule extends PrivateModule {
+public class ThriftModule extends PrivateModule {
     @Override
     protected void configure() {
         Key<CommandDispatcher> commandDispatcher = Key.get(CommandDispatcher.class);
         bind(commandDispatcher).toProvider(CommandDispatcherProvider.class).in(Scopes.SINGLETON);
 //        expose(commandDispatcher);
+
+        TypeLiteral<SpanProcessor<TSpan, TSpanChunk>> spanPostProcessorType = new TypeLiteral<SpanProcessor<TSpan, TSpanChunk>>() {};
+        bind(spanPostProcessorType).toProvider(SpanPostProcessorProvider.class).in(Scopes.SINGLETON);
 
         bind(ConnectionFactoryProvider.class).toProvider(ConnectionFactoryProviderProvider.class).in(Scopes.SINGLETON);
 
@@ -86,7 +93,7 @@ public class RpcModule extends PrivateModule {
 
 
         Key<ModuleLifeCycle> rpcModuleLifeCycleKey = Key.get(ModuleLifeCycle.class, Names.named("RPC-MODULE"));
-        bind(rpcModuleLifeCycleKey).to(RpcModuleLifeCycle.class).in(Scopes.SINGLETON);
+        bind(rpcModuleLifeCycleKey).to(ThriftModuleLifeCycle.class).in(Scopes.SINGLETON);
         expose(rpcModuleLifeCycleKey);
     }
 

@@ -44,7 +44,6 @@ import com.navercorp.pinpoint.profiler.context.SpanFactory;
 import com.navercorp.pinpoint.profiler.context.ThreadLocalBinder;
 import com.navercorp.pinpoint.profiler.context.TraceFactory;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
-import com.navercorp.pinpoint.profiler.context.compress.SpanProcessor;
 import com.navercorp.pinpoint.profiler.context.id.AsyncIdGenerator;
 import com.navercorp.pinpoint.profiler.context.id.AtomicIdGenerator;
 import com.navercorp.pinpoint.profiler.context.id.DefaultAsyncIdGenerator;
@@ -86,7 +85,6 @@ import com.navercorp.pinpoint.profiler.context.provider.PluginContextLoadResultP
 import com.navercorp.pinpoint.profiler.context.provider.SamplerProvider;
 import com.navercorp.pinpoint.profiler.context.provider.ServerMetaDataHolderProvider;
 import com.navercorp.pinpoint.profiler.context.provider.ServerMetaDataRegistryServiceProvider;
-import com.navercorp.pinpoint.profiler.context.provider.SpanPostProcessorProvider;
 import com.navercorp.pinpoint.profiler.context.provider.StorageFactoryProvider;
 import com.navercorp.pinpoint.profiler.context.provider.TraceContextProvider;
 import com.navercorp.pinpoint.profiler.context.provider.TraceFactoryProvider;
@@ -117,8 +115,6 @@ import com.navercorp.pinpoint.profiler.plugin.PluginContextLoadResult;
 import com.navercorp.pinpoint.profiler.plugin.PluginSetup;
 import com.navercorp.pinpoint.profiler.plugin.ProfilerPluginContextLoader;
 import com.navercorp.pinpoint.profiler.util.AgentInfoFactory;
-import com.navercorp.pinpoint.thrift.dto.TSpan;
-import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
 
 import java.lang.instrument.ClassFileTransformer;
 
@@ -206,8 +202,6 @@ public class ApplicationContextModule extends AbstractModule {
 
         bind(SpanFactory.class).to(DefaultSpanFactory.class).in(Scopes.SINGLETON);
 
-        TypeLiteral<SpanProcessor<TSpan, TSpanChunk>> spanPostProcessorType = new TypeLiteral<SpanProcessor<TSpan, TSpanChunk>>() {};
-        bind(spanPostProcessorType).toProvider(SpanPostProcessorProvider.class).in(Scopes.SINGLETON);
 
         bind(RecorderFactory.class).to(DefaultRecorderFactory.class).in(Scopes.SINGLETON);
 

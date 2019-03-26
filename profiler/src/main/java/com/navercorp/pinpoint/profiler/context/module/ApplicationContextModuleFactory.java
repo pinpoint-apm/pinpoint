@@ -42,13 +42,15 @@ public class ApplicationContextModuleFactory implements ModuleFactory {
 
     private Module newRpcModule(AgentOption agentOption) {
         final String transportModule = agentOption.getProfilerConfig().getTransportModule();
-        logger.info("load RpcModule:{}", transportModule);
         if ("GRPC".equalsIgnoreCase(transportModule)) {
-            return new GRpcModule();
+            logger.info("load GrpcModule");
+            return new GrpcModule();
         }
         if ("THRIFT".equalsIgnoreCase(transportModule)) {
-            return new RpcModule();
+            logger.info("load ThriftModule");
+            return new ThriftModule();
         }
-        return new RpcModule();
+        logger.info("load ThriftModule");
+        return new ThriftModule();
     }
 }
