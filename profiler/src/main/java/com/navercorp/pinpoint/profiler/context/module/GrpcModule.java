@@ -22,6 +22,9 @@ import com.google.inject.Scopes;
 import com.google.inject.TypeLiteral;
 import com.google.inject.name.Names;
 import com.google.protobuf.GeneratedMessageV3;
+import com.navercorp.pinpoint.grpc.trace.PSpan;
+import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
+import com.navercorp.pinpoint.profiler.context.compress.SpanProcessor;
 import com.navercorp.pinpoint.profiler.context.proto.SpanProtoMessageConverterProvider;
 import com.navercorp.pinpoint.profiler.context.provider.CommandDispatcherProvider;
 import com.navercorp.pinpoint.profiler.context.provider.ConnectionFactoryProviderProvider;
@@ -33,6 +36,7 @@ import com.navercorp.pinpoint.profiler.context.provider.PinpointClientFactoryPro
 import com.navercorp.pinpoint.profiler.context.provider.SpanStatClientFactoryProvider;
 import com.navercorp.pinpoint.profiler.context.provider.StatDataSenderProvider;
 import com.navercorp.pinpoint.profiler.context.provider.TcpDataSenderProvider;
+import com.navercorp.pinpoint.profiler.context.provider.grpc.GrpcSpanProcessorProvider;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
 import com.navercorp.pinpoint.profiler.receiver.CommandDispatcher;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
@@ -47,11 +51,14 @@ import java.util.concurrent.ExecutorService;
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class GRpcModule extends PrivateModule {
+public class GrpcModule extends PrivateModule {
     @Override
     protected void configure() {
         Key<CommandDispatcher> commandDispatcher = Key.get(CommandDispatcher.class);
         bind(commandDispatcher).toProvider(CommandDispatcherProvider.class).in(Scopes.SINGLETON);
+
+        TypeLiteral<SpanProcessor<PSpan.Builder, PSpanChunk.Builder>> spanPostProcessorType = new TypeLiteral<SpanProcessor<PSpan.Builder, PSpanChunk.Builder>>() {};
+        bind(spanPostProcessorType).toProvider(GrpcSpanProcessorProvider.class).in(Scopes.SINGLETON);
 
         // dns executor
         bind(ExecutorService.class).toProvider(DnsExecutorServiceProvider.class).in(Scopes.SINGLETON);
@@ -92,7 +99,7 @@ public class GRpcModule extends PrivateModule {
 
 
         Key<ModuleLifeCycle> rpcModuleLifeCycleKey = Key.get(ModuleLifeCycle.class, Names.named("RPC-MODULE"));
-        bind(rpcModuleLifeCycleKey).to(GRpcModuleLifeCycle.class).in(Scopes.SINGLETON);
+        bind(rpcModuleLifeCycleKey).to(GrpcModuleLifeCycle.class).in(Scopes.SINGLETON);
         expose(rpcModuleLifeCycleKey);
     }
 

@@ -31,7 +31,7 @@ import java.util.concurrent.ExecutorService;
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class GRpcModuleLifeCycle implements ModuleLifeCycle {
+public class GrpcModuleLifeCycle implements ModuleLifeCycle {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
 
@@ -57,7 +57,7 @@ public class GRpcModuleLifeCycle implements ModuleLifeCycle {
     private ExecutorService dnsExecutorService;
 
     @Inject
-    public GRpcModuleLifeCycle(
+    public GrpcModuleLifeCycle(
             Provider<CommandDispatcher> commandDispatcherProvider,
             @DefaultClientFactory Provider<PinpointClientFactory> clientFactoryProvider,
             Provider<EnhancedDataSender<Object>> tcpDataSenderProvider,
@@ -135,7 +135,7 @@ public class GRpcModuleLifeCycle implements ModuleLifeCycle {
 
     @Override
     public String toString() {
-        return "RpcModuleLifeCycle{" +
+        return "GrpcModuleLifeCycle{" +
                 ", commandDispatcherProvider=" + commandDispatcherProvider +
                 ", clientFactoryProvider=" + clientFactoryProvider +
                 ", tcpDataSenderProvider=" + tcpDataSenderProvider +

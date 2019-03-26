@@ -29,7 +29,7 @@ import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class RpcModuleLifeCycle implements ModuleLifeCycle {
+public class ThriftModuleLifeCycle implements ModuleLifeCycle {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
 
@@ -51,7 +51,7 @@ public class RpcModuleLifeCycle implements ModuleLifeCycle {
     private DataSender statDataSender;
 
     @Inject
-    public RpcModuleLifeCycle(
+    public ThriftModuleLifeCycle(
             Provider<CommandDispatcher> commandDispatcherProvider,
             @DefaultClientFactory Provider<PinpointClientFactory> clientFactoryProvider,
             Provider<EnhancedDataSender<Object>> tcpDataSenderProvider,
@@ -119,7 +119,7 @@ public class RpcModuleLifeCycle implements ModuleLifeCycle {
 
     @Override
     public String toString() {
-        return "RpcModuleLifeCycle{" +
+        return "ThriftModuleLifeCycle{" +
                 ", commandDispatcherProvider=" + commandDispatcherProvider +
                 ", clientFactoryProvider=" + clientFactoryProvider +
                 ", tcpDataSenderProvider=" + tcpDataSenderProvider +
