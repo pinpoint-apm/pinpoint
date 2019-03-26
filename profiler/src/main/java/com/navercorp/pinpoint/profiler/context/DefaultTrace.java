@@ -16,19 +16,22 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
-import com.navercorp.pinpoint.bootstrap.context.*;
+import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
+import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
+import com.navercorp.pinpoint.bootstrap.context.Trace;
+import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
 import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.exception.PinpointException;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHandle;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.context.recorder.WrappedSpanEventRecorder;
 import com.navercorp.pinpoint.profiler.context.scope.DefaultTraceScopePool;
+import com.navercorp.pinpoint.profiler.context.storage.Storage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.navercorp.pinpoint.exception.PinpointException;
-import com.navercorp.pinpoint.profiler.context.storage.Storage;
 
 /**
  * @author netspider
@@ -53,7 +56,6 @@ public final class DefaultTrace implements Trace {
 
     private final Span span;
     private final ActiveTraceHandle activeTraceHandle;
-
 
     public DefaultTrace(Span span, CallStack<SpanEvent> callStack, Storage storage, boolean sampling,
                         SpanRecorder spanRecorder, WrappedSpanEventRecorder wrappedSpanEventRecorder, ActiveTraceHandle activeTraceHandle) {
@@ -314,9 +316,36 @@ public final class DefaultTrace implements Trace {
     }
 
     @Override
+    public boolean isTraceEmbedded(ServiceType serviceType) {
+
+        if (span.getFrameObject() != null) {
+            if (span.getFrameObject() instanceof ServiceType) {
+                if (serviceType.equals(span.getFrameObject())) {
+                    logger.debug("Embedded " + serviceType + " trace is disabled");
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    @Override
+    public void disableEmbeddedTrace(ServiceType serviceType) {
+        logger.debug("Disabling trace for " + serviceType);
+        this.span.attachFrameObject(serviceType);
+    }
+
+    @Override
+    public void enableEmbeddedTrace() {
+        logger.debug("Enabling embedded trace");
+        this.span.detachFrameObject();
+    }
+
+    @Override
     public String toString() {
         return "DefaultTrace{" +
                 ", traceRoot=" + getTraceRoot() +
-        '}';
+                '}';
     }
 }

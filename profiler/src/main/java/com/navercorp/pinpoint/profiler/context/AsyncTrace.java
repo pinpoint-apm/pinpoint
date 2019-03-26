@@ -15,8 +15,13 @@
  */
 package com.navercorp.pinpoint.profiler.context;
 
-import com.navercorp.pinpoint.bootstrap.context.*;
+import com.navercorp.pinpoint.bootstrap.context.AsyncState;
+import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
+import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
+import com.navercorp.pinpoint.bootstrap.context.Trace;
+import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import org.slf4j.Logger;
@@ -142,6 +147,22 @@ public class AsyncTrace implements Trace {
     @Override
     public TraceScope addScope(String name) {
         return trace.addScope(name);
+    }
+
+    @Override
+    public boolean isTraceEmbedded(ServiceType serviceType) {
+
+        return this.trace.isTraceEmbedded(serviceType);
+    }
+
+    @Override
+    public void disableEmbeddedTrace(ServiceType serviceType) {
+        this.trace.disableEmbeddedTrace(serviceType);
+    }
+
+    @Override
+    public void enableEmbeddedTrace() {
+        this.trace.enableEmbeddedTrace();
     }
 
     @Override

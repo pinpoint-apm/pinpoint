@@ -16,9 +16,13 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
-import com.navercorp.pinpoint.bootstrap.context.*;
+import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
+import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
+import com.navercorp.pinpoint.bootstrap.context.Trace;
+import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
 import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.exception.PinpointException;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
@@ -50,7 +54,7 @@ public class AsyncChildTrace implements Trace {
     private final LocalAsyncId localAsyncId;
 
     public AsyncChildTrace(final TraceRoot traceRoot, CallStack<SpanEvent> callStack, Storage storage, boolean sampling,
-                             SpanRecorder spanRecorder, WrappedSpanEventRecorder wrappedSpanEventRecorder, final LocalAsyncId localAsyncId) {
+                           SpanRecorder spanRecorder, WrappedSpanEventRecorder wrappedSpanEventRecorder, final LocalAsyncId localAsyncId) {
 
         this.traceRoot = Assert.requireNonNull(traceRoot, "traceRoot must not be null");
         this.callStack = Assert.requireNonNull(callStack, "callStack must not be null");
@@ -296,6 +300,19 @@ public class AsyncChildTrace implements Trace {
             this.scopePool = new DefaultTraceScopePool();
         }
         return scopePool.add(name);
+    }
+
+    @Override
+    public boolean isTraceEmbedded(ServiceType serviceType) {
+        return true;
+    }
+
+    @Override
+    public void disableEmbeddedTrace(ServiceType serviceType) {
+    }
+
+    @Override
+    public void enableEmbeddedTrace() {
     }
 
     @Override

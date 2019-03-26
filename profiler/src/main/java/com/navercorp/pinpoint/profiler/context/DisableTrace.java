@@ -16,8 +16,12 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
-import com.navercorp.pinpoint.bootstrap.context.*;
+import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
+import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
+import com.navercorp.pinpoint.bootstrap.context.Trace;
+import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHandle;
 import com.navercorp.pinpoint.profiler.context.scope.DefaultTraceScopePool;
@@ -29,7 +33,7 @@ import com.navercorp.pinpoint.profiler.context.scope.DefaultTraceScopePool;
  */
 public class DisableTrace implements Trace {
 
-    public static final String UNSUPPORTED_OPERATION  = "disable trace";
+    public static final String UNSUPPORTED_OPERATION = "disable trace";
     public static final long DISABLE_TRACE_OBJECT_ID = -1;
 
     private final long id;
@@ -38,7 +42,7 @@ public class DisableTrace implements Trace {
     private final ActiveTraceHandle handle;
     private boolean closed = false;
 
-    public DisableTrace(long id, long startTime,  ActiveTraceHandle handle) {
+    public DisableTrace(long id, long startTime, ActiveTraceHandle handle) {
         this.id = id;
         this.startTime = startTime;
         this.handle = Assert.requireNonNull(handle, "handle must not be null");
@@ -130,7 +134,7 @@ public class DisableTrace implements Trace {
 
     @Override
     public SpanEventRecorder currentSpanEventRecorder() {
-       return null;
+        return null;
     }
 
     @Override
@@ -141,5 +145,18 @@ public class DisableTrace implements Trace {
     @Override
     public TraceScope addScope(String name) {
         return scopePool.add(name);
+    }
+
+    @Override
+    public boolean isTraceEmbedded(ServiceType serviceType) {
+        return true;
+    }
+
+    @Override
+    public void disableEmbeddedTrace(ServiceType serviceType) {
+    }
+
+    @Override
+    public void enableEmbeddedTrace() {
     }
 }

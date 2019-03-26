@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.bootstrap.context;
 
 import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
 import com.navercorp.pinpoint.common.annotations.InterfaceAudience;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 
 /**
  * @author emeroad
@@ -44,9 +45,9 @@ public interface Trace extends StackOperation {
     boolean isRoot();
 
     boolean isAsync();
-    
+
     SpanRecorder getSpanRecorder();
-    
+
     SpanEventRecorder currentSpanEventRecorder();
 
     boolean isClosed();
@@ -56,4 +57,10 @@ public interface Trace extends StackOperation {
     TraceScope getScope(String name);
 
     TraceScope addScope(String name);
+
+    boolean isTraceEmbedded(ServiceType serviceType);
+
+    void disableEmbeddedTrace(ServiceType serviceType);
+
+    void enableEmbeddedTrace();
 }
