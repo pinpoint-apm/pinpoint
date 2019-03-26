@@ -31,27 +31,18 @@ import org.slf4j.LoggerFactory;
 public class DefaultProxyRequestRecorder<T> implements ProxyRequestRecorder<T> {
     private static final Logger logger = LoggerFactory.getLogger(DefaultTrace.class.getName());
     private final boolean isDebug = logger.isDebugEnabled();
-    private final boolean isInfo = logger.isInfoEnabled();
+
     private final ProxyRequestParserLoaderService proxyRequestParserLoaderServicer;
-    private final boolean enable;
     private final RequestAdaptor<T> requestAdaptor;
     private final ProxyRequestAnnotationFactory annotationFactory = new ProxyRequestAnnotationFactory();
 
-    public DefaultProxyRequestRecorder(final ProxyRequestParserLoaderService proxyRequestparserLoaderService, final boolean enable, final RequestAdaptor<T> requestAdaptor) {
+    public DefaultProxyRequestRecorder(final ProxyRequestParserLoaderService proxyRequestparserLoaderService, final RequestAdaptor<T> requestAdaptor) {
         this.proxyRequestParserLoaderServicer = proxyRequestparserLoaderService;
-        this.enable = enable;
         this.requestAdaptor = Assert.requireNonNull(requestAdaptor, "requestAdaptor must not be null");
     }
 
     public void record(final SpanRecorder recorder, final T request) {
         if (recorder == null || request == null) {
-            return;
-        }
-
-        if (this.enable == Boolean.FALSE) {
-            if (isDebug) {
-                logger.debug("Disable record proxy http header.");
-            }
             return;
         }
 
@@ -61,7 +52,7 @@ public class DefaultProxyRequestRecorder<T> implements ProxyRequestRecorder<T> {
             }
         } catch (Exception e) {
             // for handler operations.
-            if (isInfo) {
+            if (logger.isInfoEnabled()) {
                 logger.info("Failed to record proxy http header. cause={}", e.getMessage());
             }
         }
@@ -82,7 +73,7 @@ public class DefaultProxyRequestRecorder<T> implements ProxyRequestRecorder<T> {
                 logger.debug("Record proxy request header. name={}, value={}", name, value);
             }
         } else {
-            if (isInfo) {
+            if (logger.isInfoEnabled()) {
                 logger.info("Failed to parse proxy request header. name={}. value={}, cause={}", name, value, header.getCause());
             }
         }
