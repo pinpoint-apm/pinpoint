@@ -14,6 +14,12 @@
  */
 package com.navercorp.pinpoint.plugin.mongo;
 
+import static com.navercorp.pinpoint.common.util.VarArgs.va;
+
+import java.lang.reflect.Modifier;
+import java.security.ProtectionDomain;
+import java.util.List;
+
 import com.navercorp.pinpoint.bootstrap.instrument.ClassFilters;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
@@ -29,14 +35,6 @@ import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.bootstrap.plugin.util.InstrumentUtils;
-
-import java.lang.reflect.Modifier;
-import java.security.ProtectionDomain;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import static com.navercorp.pinpoint.common.util.VarArgs.va;
 
 /**
  * @author Roy Kim
@@ -75,7 +73,6 @@ public class MongoPlugin implements ProfilerPlugin, TransformTemplateAware {
 	}
 
 	private void addConnectionTransformer2_X() {
-		// DB
 		transformTemplate.transform("com.mongodb.Mongo", new TransformCallback() {
 
 			@Override
@@ -106,6 +103,7 @@ public class MongoPlugin implements ProfilerPlugin, TransformTemplateAware {
 			}
 		});
 		
+		// DB
 		transformTemplate.transform("com.mongodb.DB", new TransformCallback() {
 
 			@Override
@@ -452,7 +450,7 @@ public class MongoPlugin implements ProfilerPlugin, TransformTemplateAware {
 			}
 		};
 
-		// java driver 3.0.0 ~ 3.6.4
+		// java driver 2.X
 		transformTemplate.transform("com.mongodb.DBCollection", transformCallback);
 	}
 
