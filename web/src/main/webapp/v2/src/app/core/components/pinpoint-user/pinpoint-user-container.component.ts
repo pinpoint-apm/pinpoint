@@ -3,7 +3,7 @@ import { Subject, iif, of, forkJoin } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
 
-import { TranslateReplaceService, WebAppSettingDataService, MessageQueueService, MESSAGE_TO } from 'app/shared/services';
+import { TranslateReplaceService, WebAppSettingDataService, MessageQueueService, MESSAGE_TO, AnalyticsService, TRACKED_EVENT_LIST } from 'app/shared/services';
 import { PinpointUser } from './pinpoint-user-create-and-update.component';
 import { PinpointUserDataService, IPinpointUser, IPinpointUserResponse } from './pinpoint-user-data.service';
 import { isThatType } from 'app/core/utils/util';
@@ -49,7 +49,8 @@ export class PinpointUserContainerComponent implements OnInit, OnDestroy {
         private pinpointUserDataService: PinpointUserDataService,
         private translateService: TranslateService,
         private translateReplaceService: TranslateReplaceService,
-        private messageQueueService: MessageQueueService
+        private messageQueueService: MessageQueueService,
+        private analyticsService: AnalyticsService,
     ) {}
     ngOnInit() {
         this.webAppSettingDataService.useUserEdit().subscribe((allowedUserEdit: boolean) => {
@@ -130,6 +131,7 @@ export class PinpointUserContainerComponent implements OnInit, OnDestroy {
             to: MESSAGE_TO.PINPOINT_USER_ADD_USER,
             param: [pinpointUserId]
         });
+        this.analyticsService.trackEvent(TRACKED_EVENT_LIST.ADD_USER_TO_GROUP);
     }
     onCloseErrorMessage(): void {
         this.errorMessage = '';
@@ -137,15 +139,18 @@ export class PinpointUserContainerComponent implements OnInit, OnDestroy {
     onSearch(query: string): void {
         this.searchQuery = query;
         this.getPinpointUserList(this.searchQuery);
+        this.analyticsService.trackEvent(TRACKED_EVENT_LIST.SEARCH_USER);
     }
     onReload(): void {
         this.getPinpointUserList(this.searchQuery);
+        this.analyticsService.trackEvent(TRACKED_EVENT_LIST.RELOAD_USER_LIST);
     }
     onCloseCreateUserPopup(): void {
         this.showCreate = false;
     }
     onShowCreateUserPopup(): void {
         this.showCreate = true;
+        this.analyticsService.trackEvent(TRACKED_EVENT_LIST.SHOW_USER_CREATION_POPUP);
     }
     onCreatePinpointUser(pinpointUser: PinpointUser): void {
         this.pinpointUserDataService.create({
@@ -157,7 +162,10 @@ export class PinpointUserContainerComponent implements OnInit, OnDestroy {
         } as IPinpointUser).subscribe((response: IPinpointUserResponse | IServerErrorShortFormat) => {
             isThatType<IServerErrorShortFormat>(response, 'errorCode', 'errorMessage')
                 ? this.errorMessage = response.errorMessage
-                : this.getPinpointUserList(this.searchQuery);
+                : (
+                    this.getPinpointUserList(this.searchQuery),
+                    this.analyticsService.trackEvent(TRACKED_EVENT_LIST.CREATE_USER)
+                );
             this.hideProcessing();
         }, (error: string) => {
             this.hideProcessing();
@@ -187,6 +195,7 @@ export class PinpointUserContainerComponent implements OnInit, OnDestroy {
                         name: pinpointUser.name
                     }]
                 });
+                this.analyticsService.trackEvent(TRACKED_EVENT_LIST.UPDATE_USER);
             }
 
             this.hideProcessing();
@@ -206,6 +215,7 @@ export class PinpointUserContainerComponent implements OnInit, OnDestroy {
                     to: MESSAGE_TO.PINPOINT_USER_REMOVE_USER,
                     param: [userId]
                 });
+                this.analyticsService.trackEvent(TRACKED_EVENT_LIST.REMOVE_USER);
             }
             this.hideProcessing();
         }, (error: IServerErrorFormat) => {
@@ -224,6 +234,7 @@ export class PinpointUserContainerComponent implements OnInit, OnDestroy {
             editPinpointUser.department
         );
         this.onShowCreateUserPopup();
+        this.analyticsService.trackEvent(TRACKED_EVENT_LIST.SHOW_USER_UPDATE_POPUP);
     }
     private getPinpointUserIndexByUserId(userId: string): number {
         let index = -1;

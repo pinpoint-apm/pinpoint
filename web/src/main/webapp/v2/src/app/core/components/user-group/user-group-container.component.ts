@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { forkJoin } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
 
-import { WebAppSettingDataService, TranslateReplaceService, MessageQueueService, MESSAGE_TO } from 'app/shared/services';
+import { WebAppSettingDataService, TranslateReplaceService, MessageQueueService, MESSAGE_TO, AnalyticsService, TRACKED_EVENT_LIST } from 'app/shared/services';
 import { UserGroupDataService, IUserGroup, IUserGroupCreated, IUserGroupDeleted } from './user-group-data.service';
 import { isThatType } from 'app/core/utils/util';
 
@@ -35,7 +35,8 @@ export class UserGroupContainerComponent implements OnInit {
         private translateService: TranslateService,
         private translateReplaceService: TranslateReplaceService,
         private messageQueueService: MessageQueueService,
-        private userGroupDataService: UserGroupDataService
+        private userGroupDataService: UserGroupDataService,
+        private analyticsService: AnalyticsService,
     ) {}
     ngOnInit() {
         this.getI18NText();
@@ -92,6 +93,7 @@ export class UserGroupContainerComponent implements OnInit {
                         param: ['']
                     });
                     this.getUserGroupList(this.makeUserGroupQuery());
+                    this.analyticsService.trackEvent(TRACKED_EVENT_LIST.REMOVE_USER_GROUP);
                 } else {
                     this.hideProcessing();
                 }
@@ -111,6 +113,7 @@ export class UserGroupContainerComponent implements OnInit {
                     id: newUserGroupName,
                     number: data.number
                 });
+                this.analyticsService.trackEvent(TRACKED_EVENT_LIST.CREATE_USER_GROUP);
             }
             this.hideProcessing();
         }, (error: IServerErrorFormat) => {
@@ -123,6 +126,7 @@ export class UserGroupContainerComponent implements OnInit {
     }
     onShowCreateUserPopup(): void {
         this.showCreate = true;
+        this.analyticsService.trackEvent(TRACKED_EVENT_LIST.SHOW_USER_GROUP_CREATION_POPUP);
     }
     onSelectUserGroup(userGroupId: string): void {
         this.selectedUserGroupId = userGroupId;
@@ -130,6 +134,7 @@ export class UserGroupContainerComponent implements OnInit {
             to: MESSAGE_TO.USER_GROUP_SELECTED_USER_GROUP,
             param: [userGroupId]
         });
+        this.analyticsService.trackEvent(TRACKED_EVENT_LIST.SELECT_USER_GROUP);
     }
     onCloseErrorMessage(): void {
         this.errorMessage = '';
@@ -137,11 +142,13 @@ export class UserGroupContainerComponent implements OnInit {
     onReload(): void {
         this.showProcessing();
         this.getUserGroupList(this.makeUserGroupQuery());
+        this.analyticsService.trackEvent(TRACKED_EVENT_LIST.RELOAD_USER_GROUP_LIST);
     }
     onSearch(query: string): void {
         this.showProcessing();
         this.searchQuery = query;
         this.getUserGroupList(this.makeUserGroupQuery());
+        this.analyticsService.trackEvent(TRACKED_EVENT_LIST.SEARCH_USER_GROUP);
     }
     private showProcessing(): void {
         this.useDisable = true;
