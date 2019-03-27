@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 
-import { UrlRouteManagerService, NewUrlStateNotificationService } from 'app/shared/services';
+import { UrlRouteManagerService, NewUrlStateNotificationService, TRACKED_EVENT_LIST, AnalyticsService } from 'app/shared/services';
 import { UrlPath } from 'app/shared/models';
 
 @Component({
@@ -11,7 +11,8 @@ import { UrlPath } from 'app/shared/models';
 export class ConfigPageComponent implements OnInit {
     constructor(
         private urlRouteManagerService: UrlRouteManagerService,
-        private newUrlStateNotificationService: NewUrlStateNotificationService
+        private newUrlStateNotificationService: NewUrlStateNotificationService,
+        private analyticsService: AnalyticsService,
     ) {}
 
     ngOnInit() {}
@@ -23,5 +24,10 @@ export class ConfigPageComponent implements OnInit {
         }, {});
 
         this.urlRouteManagerService.moveOnPage({ url, queryParam });
+        this.analyticsService.trackEvent(TRACKED_EVENT_LIST.CLICK_CONFIGURATION_PAGE_EXIT_BUTTON);
+    }
+
+    onMenuClick(menu: string): void {
+        this.analyticsService.trackEvent(TRACKED_EVENT_LIST.CLICK_CONFIGURATION_MENU, menu);
     }
 }

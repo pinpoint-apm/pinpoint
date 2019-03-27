@@ -58,7 +58,7 @@
             </thead>
             <tbody>
                 <tr>
-                    <td class="l-download-link-cell"><a [attr.href]="installationInfo.downloadUrl" class="l-download-link">{{installationInfo.downloadUrl}}</a></td>
+                    <td class="l-download-link-cell"><a (click)="onLinkClick()" [attr.href]="installationInfo.downloadUrl" class="l-download-link">{{installationInfo.downloadUrl}}</a></td>
                 </tr>
             </tbody>
         </table>

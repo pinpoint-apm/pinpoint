@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy, ChangeDetectionStrategy } from '@angular/
 import { TranslateService } from '@ngx-translate/core';
 import { Observable, Subject } from 'rxjs';
 
-import { WebAppSettingDataService, StoreHelperService } from 'app/shared/services';
+import { WebAppSettingDataService, StoreHelperService, AnalyticsService, TRACKED_EVENT_LIST } from 'app/shared/services';
 
 @Component({
     selector: 'pp-favorite-application-list-for-configuration-container',
@@ -21,6 +21,7 @@ export class FavoriteApplicationListForConfigurationContainerComponent implement
         private storeHelperService: StoreHelperService,
         private translateService: TranslateService,
         private webAppSettingDataService: WebAppSettingDataService,
+        private analyticsService: AnalyticsService,
     ) {}
 
     ngOnInit() {
@@ -42,5 +43,6 @@ export class FavoriteApplicationListForConfigurationContainerComponent implement
 
     onSelectApp(app: IApplication): void {
         this.webAppSettingDataService.removeFavoriteApplication(app);
+        this.analyticsService.trackEvent(TRACKED_EVENT_LIST.REMOVE_FAVORITE_APPLICATION);
     }
 }

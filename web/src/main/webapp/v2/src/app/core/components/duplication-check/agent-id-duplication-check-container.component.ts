@@ -3,7 +3,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { Observable, of } from 'rxjs';
 import { map, filter, switchMap, pluck } from 'rxjs/operators';
 
-import { TranslateReplaceService } from 'app/shared/services';
+import { TranslateReplaceService, AnalyticsService, TRACKED_EVENT_LIST } from 'app/shared/services';
 import { AgentIdDuplicationCheckDataService, IAgentIdAvailable } from './agent-id-duplication-check-data.service';
 import { AgentIdDuplicationCheckInteractionService } from './agent-id-duplication-check-interaction.service';
 
@@ -26,7 +26,8 @@ export class AgentIdDuplicationCheckContainerComponent implements OnInit {
         private translateService: TranslateService,
         private translateReplaceService: TranslateReplaceService,
         private agentIdDuplicationCheckDataService: AgentIdDuplicationCheckDataService,
-        private agentIdDuplicationCheckInteractionService: AgentIdDuplicationCheckInteractionService
+        private agentIdDuplicationCheckInteractionService: AgentIdDuplicationCheckInteractionService,
+        private analyticsService: AnalyticsService,
     ) {}
 
     ngOnInit() {
@@ -69,6 +70,7 @@ export class AgentIdDuplicationCheckContainerComponent implements OnInit {
         }, (error: IServerErrorFormat) => {
             this.onCheckFail(error.exception.message);
         });
+        this.analyticsService.trackEvent(TRACKED_EVENT_LIST.CHECK_AGENT_NAME_DUPLICATION);
     }
 
     private isLengthValid(length: number): boolean {
