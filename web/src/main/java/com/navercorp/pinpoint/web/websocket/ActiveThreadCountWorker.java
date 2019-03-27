@@ -20,10 +20,8 @@ import com.navercorp.pinpoint.rpc.packet.stream.StreamClosePacket;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamCode;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamResponsePacket;
 import com.navercorp.pinpoint.rpc.stream.ClientStreamChannel;
-import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelMessageListener;
-import com.navercorp.pinpoint.rpc.stream.LoggingStreamChannelMessageListener;
+import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelEventHandler;
 import com.navercorp.pinpoint.rpc.stream.StreamChannel;
-import com.navercorp.pinpoint.rpc.stream.StreamChannelStateChangeEventHandler;
 import com.navercorp.pinpoint.rpc.stream.StreamChannelStateCode;
 import com.navercorp.pinpoint.rpc.stream.StreamException;
 import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadCount;
@@ -46,7 +44,6 @@ import java.util.Objects;
  */
 public class ActiveThreadCountWorker implements PinpointWebSocketHandlerWorker {
 
-    private static final ClientStreamChannelMessageListener LOGGING = LoggingStreamChannelMessageListener.CLIENT_LISTENER;
     private static final TCmdActiveThreadCount COMMAND_INSTANCE = new TCmdActiveThreadCount();
 
     private static final ActiveThreadCountErrorType INTERNAL_ERROR = ActiveThreadCountErrorType.PINPOINT_INTERNAL_ERROR;
@@ -64,8 +61,7 @@ public class ActiveThreadCountWorker implements PinpointWebSocketHandlerWorker {
     private final AgentActiveThreadCountFactory failResponseFactory;
     private volatile AgentActiveThreadCount defaultFailResponse;
 
-    private final MessageListener messageListener;
-    private final StateChangeListener stateChangeListener;
+    private final EventHandler eventHandler = new EventHandler();
 
     private volatile boolean started = false;
     private volatile boolean active = false;
@@ -91,9 +87,6 @@ public class ActiveThreadCountWorker implements PinpointWebSocketHandlerWorker {
         this.failResponseFactory = failResponseFactory;
 
         this.defaultFailResponse = failResponseFactory.createFail(INTERNAL_ERROR.getMessage());
-
-        this.messageListener = new MessageListener();
-        this.stateChangeListener = new StateChangeListener();
     }
 
     @Override
@@ -153,7 +146,7 @@ public class ActiveThreadCountWorker implements PinpointWebSocketHandlerWorker {
     private boolean active0(AgentInfo agentInfo) {
         synchronized (lock) {
             try {
-                streamChannel = agentService.openStream(agentInfo, COMMAND_INSTANCE, messageListener, stateChangeListener);
+                streamChannel = agentService.openStream(agentInfo, COMMAND_INSTANCE, eventHandler);
                 setDefaultErrorMessage(TRouteResult.TIMEOUT.name());
                 return true;
             } catch (StreamException streamException) {
@@ -199,11 +192,12 @@ public class ActiveThreadCountWorker implements PinpointWebSocketHandlerWorker {
         return defaultFailResponse;
     }
 
-    private class MessageListener implements ClientStreamChannelMessageListener {
+
+    private class EventHandler extends ClientStreamChannelEventHandler {
 
         @Override
-        public void handleStreamData(ClientStreamChannel clientStreamChannel, StreamResponsePacket packet) {
-            LOGGING.handleStreamData(clientStreamChannel, packet);
+        public void handleStreamResponsePacket(ClientStreamChannel streamChannel, StreamResponsePacket packet) {
+            logger.info("handleStreamResponsePacket() streamChannel:{}, packet:{}", streamChannel, packet);
 
             TBase response = agentService.deserializeResponse(packet.getPayload(), null);
             AgentActiveThreadCount activeThreadCount = getAgentActiveThreadCount(response);
@@ -211,9 +205,26 @@ public class ActiveThreadCountWorker implements PinpointWebSocketHandlerWorker {
         }
 
         @Override
-        public void handleStreamClose(ClientStreamChannel clientStreamChannel, StreamClosePacket packet) {
-            LOGGING.handleStreamClose(clientStreamChannel, packet);
+        public void handleStreamClosePacket(ClientStreamChannel streamChannel, StreamClosePacket packet) {
+            logger.info("handleStreamClosePacket() streamChannel:{}, packet:{}", streamChannel, packet);
+
             setDefaultErrorMessage(StreamCode.STATE_CLOSED.name());
+        }
+
+        @Override
+        public void stateUpdated(ClientStreamChannel streamChannel, StreamChannelStateCode updatedStateCode) {
+            logger.info("stateUpdated() streamChannel:{}, stateCode:{}", streamChannel, updatedStateCode);
+
+            switch (updatedStateCode) {
+                case CLOSED:
+                case ILLEGAL_STATE:
+                    if (isTurnOn()) {
+                        active = false;
+                        workerActiveManager.addReactiveWorker(agentId);
+                        setDefaultErrorMessage(StreamCode.STATE_CLOSED.name());
+                    }
+                    break;
+            }
         }
 
         private AgentActiveThreadCount getAgentActiveThreadCount(TBase routeResponse) {
@@ -231,31 +242,6 @@ public class ActiveThreadCountWorker implements PinpointWebSocketHandlerWorker {
                 factory.setAgentId(agentId);
                 return factory.createFail(INTERNAL_ERROR.getMessage());
             }
-        }
-
-    }
-
-    private class StateChangeListener implements StreamChannelStateChangeEventHandler<ClientStreamChannel> {
-
-        @Override
-        public void eventPerformed(ClientStreamChannel streamChannel, StreamChannelStateCode updatedStateCode) throws Exception {
-            logger.info("eventPerformed streamChannel:{}, stateCode:{}", streamChannel, updatedStateCode);
-
-            switch (updatedStateCode) {
-                case CLOSED:
-                case ILLEGAL_STATE:
-                    if (isTurnOn()) {
-                        active = false;
-                        workerActiveManager.addReactiveWorker(agentId);
-                        setDefaultErrorMessage(StreamCode.STATE_CLOSED.name());
-                    }
-                    break;
-            }
-        }
-
-        @Override
-        public void exceptionCaught(ClientStreamChannel streamChannel, StreamChannelStateCode updatedStateCode, Throwable e) {
-            logger.warn("exceptionCaught message:{}, streamChannel:{}, stateCode:{}", e.getMessage(), streamChannel, updatedStateCode, e);
         }
 
     }

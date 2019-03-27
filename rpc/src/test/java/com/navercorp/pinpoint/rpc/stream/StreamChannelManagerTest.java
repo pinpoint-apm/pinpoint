@@ -218,8 +218,8 @@ public class StreamChannelManagerTest {
 
         SimpleStreamBO bo = new SimpleStreamBO();
 
-        ServerListener serverStreamChannelMessageListener = new ServerListener(bo);
-        TestPinpointClient testPinpointClient = new TestPinpointClient(SimpleMessageListener.INSTANCE, serverStreamChannelMessageListener);
+        ServerListener serverStreamChannelMessageHandler = new ServerListener(bo);
+        TestPinpointClient testPinpointClient = new TestPinpointClient(SimpleMessageListener.INSTANCE, serverStreamChannelMessageHandler);
         testPinpointClient.connect(bindPort);
         try {
             testPinpointServerAcceptor.assertAwaitClientConnected(1000);
@@ -234,7 +234,7 @@ public class StreamChannelManagerTest {
 
                 ClientStreamChannel clientStreamChannel = ((PinpointServer)writableServer).openStream(new byte[0], clientListener);
 
-                StreamChannel streamChannel = serverStreamChannelMessageListener.bo.serverStreamChannelList.get(0);
+                StreamChannel streamChannel = serverStreamChannelMessageHandler.bo.serverStreamChannelList.get(0);
 
                 streamChannel.close();
 
@@ -258,7 +258,7 @@ public class StreamChannelManagerTest {
         bo.sendResponse(openBytes);
     }
 
-    class ServerListener implements ServerStreamChannelMessageListener {
+    class ServerListener extends ServerStreamChannelMessageHandler {
 
         private final SimpleStreamBO bo;
 
@@ -267,14 +267,14 @@ public class StreamChannelManagerTest {
         }
 
         @Override
-        public StreamCode handleStreamCreate(ServerStreamChannel serverStreamChannel, StreamCreatePacket packet) {
-            bo.addServerStreamChannelContext(serverStreamChannel);
+        public StreamCode handleStreamCreatePacket(ServerStreamChannel streamChannel, StreamCreatePacket packet) {
+            bo.addServerStreamChannelContext(streamChannel);
             return StreamCode.OK;
         }
 
         @Override
-        public void handleStreamClose(ServerStreamChannel serverStreamChannel, StreamClosePacket packet) {
-            bo.removeServerStreamChannelContext(serverStreamChannel);
+        public void handleStreamClosePacket(ServerStreamChannel streamChannel, StreamClosePacket packet) {
+            bo.removeServerStreamChannelContext(streamChannel);
         }
 
     }

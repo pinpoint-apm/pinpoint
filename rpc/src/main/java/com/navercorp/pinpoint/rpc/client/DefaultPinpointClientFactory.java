@@ -22,10 +22,10 @@ import com.navercorp.pinpoint.rpc.PinpointSocketException;
 import com.navercorp.pinpoint.rpc.StateChangeEventListener;
 import com.navercorp.pinpoint.rpc.cluster.ClusterOption;
 import com.navercorp.pinpoint.rpc.cluster.Role;
-import com.navercorp.pinpoint.rpc.stream.DisabledServerStreamChannelMessageListener;
-import com.navercorp.pinpoint.rpc.stream.ServerStreamChannelMessageListener;
+import com.navercorp.pinpoint.rpc.stream.ServerStreamChannelMessageHandler;
 import com.navercorp.pinpoint.rpc.util.LoggerFactorySetup;
 import com.navercorp.pinpoint.rpc.util.TimerFactory;
+
 import org.jboss.netty.channel.ChannelFactory;
 import org.jboss.netty.channel.ChannelFuture;
 import org.jboss.netty.util.HashedWheelTimer;
@@ -70,7 +70,7 @@ public class DefaultPinpointClientFactory implements PinpointClientFactory {
 
     private MessageListener messageListener = SimpleMessageListener.INSTANCE;
     private List<StateChangeEventListener> stateChangeEventListeners = new ArrayList<StateChangeEventListener>();
-    private ServerStreamChannelMessageListener serverStreamChannelMessageListener = DisabledServerStreamChannelMessageListener.INSTANCE;
+    private volatile ServerStreamChannelMessageHandler serverStreamChannelMessageHandler = ServerStreamChannelMessageHandler.DISABLED_INSTANCE;
 
 
     static {
@@ -188,13 +188,13 @@ public class DefaultPinpointClientFactory implements PinpointClientFactory {
         final ClusterOption clusterOption = ClusterOption.copy(this.clusterOption);
 
         final MessageListener messageListener = this.getMessageListener(SimpleMessageListener.INSTANCE);
-        final ServerStreamChannelMessageListener serverStreamChannelMessageListener = this.getServerStreamChannelMessageListener(DisabledServerStreamChannelMessageListener.INSTANCE);
+        final ServerStreamChannelMessageHandler serverStreamChannelMessageHandler = this.getServerStreamChannelMessageHandler();
         final List<StateChangeEventListener> stateChangeEventListeners = this.getStateChangeEventListeners();
 
         Map<String, Object> copyProperties = new HashMap<String, Object>(this.properties);
         final HandshakerFactory handshakerFactory = new HandshakerFactory(socketId, copyProperties, clientOption, clusterOption);
         final ClientHandlerFactory clientHandlerFactory =  new DefaultPinpointClientHandlerFactory(clientOption, clusterOption, handshakerFactory,
-                messageListener, serverStreamChannelMessageListener, stateChangeEventListeners);
+                messageListener, serverStreamChannelMessageHandler, stateChangeEventListeners);
 
         final SocketOption socketOption = this.socketOptionBuilder.build();
 
@@ -292,22 +292,12 @@ public class DefaultPinpointClientFactory implements PinpointClientFactory {
         this.messageListener = messageListener;
     }
 
-    public ServerStreamChannelMessageListener getServerStreamChannelMessageListener() {
-        return serverStreamChannelMessageListener;
+    public ServerStreamChannelMessageHandler getServerStreamChannelMessageHandler() {
+        return serverStreamChannelMessageHandler;
     }
 
-    public ServerStreamChannelMessageListener getServerStreamChannelMessageListener(ServerStreamChannelMessageListener defaultStreamMessageListener) {
-        if (serverStreamChannelMessageListener == null) {
-            return defaultStreamMessageListener;
-        }
-
-        return serverStreamChannelMessageListener;
-    }
-
-    public void setServerStreamChannelMessageListener(ServerStreamChannelMessageListener serverStreamChannelMessageListener) {
-        Assert.requireNonNull(serverStreamChannelMessageListener, "serverStreamChannelMessageListener must not be null");
-
-        this.serverStreamChannelMessageListener = serverStreamChannelMessageListener;
+    public void setServerStreamChannelMessageHandler(ServerStreamChannelMessageHandler serverStreamChannelMessageHandler) {
+        this.serverStreamChannelMessageHandler = Assert.requireNonNull(serverStreamChannelMessageHandler, "serverStreamChannelMessageHandler must not be null");
     }
 
     public List<StateChangeEventListener> getStateChangeEventListeners() {

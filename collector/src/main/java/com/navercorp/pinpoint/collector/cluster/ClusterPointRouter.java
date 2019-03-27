@@ -29,7 +29,7 @@ import com.navercorp.pinpoint.rpc.packet.stream.StreamClosePacket;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamCode;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamCreatePacket;
 import com.navercorp.pinpoint.rpc.stream.ServerStreamChannel;
-import com.navercorp.pinpoint.rpc.stream.ServerStreamChannelMessageListener;
+import com.navercorp.pinpoint.rpc.stream.ServerStreamChannelMessageHandler;
 import com.navercorp.pinpoint.thrift.dto.TResult;
 import com.navercorp.pinpoint.thrift.dto.command.TCommandTransfer;
 import com.navercorp.pinpoint.thrift.dto.command.TCommandTransferResponse;
@@ -52,7 +52,7 @@ import javax.annotation.PreDestroy;
  * @author koo.taejin
  * @author HyunGil Jeong
  */
-public class ClusterPointRouter implements MessageListener, ServerStreamChannelMessageListener {
+public class ClusterPointRouter extends ServerStreamChannelMessageHandler implements MessageListener {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -109,24 +109,24 @@ public class ClusterPointRouter implements MessageListener, ServerStreamChannelM
     }
 
     @Override
-    public StreamCode handleStreamCreate(ServerStreamChannel serverStreamChannel, StreamCreatePacket packet) {
-        logger.info("handleStreamCreate packet:{}, streamChannel:{}", packet, serverStreamChannel);
+    public StreamCode handleStreamCreatePacket(ServerStreamChannel streamChannel, StreamCreatePacket packet) {
+        logger.info("handleStreamCreatePacket() streamChannel:{}, packet:{}", streamChannel, packet);
 
         TBase<?, ?> request = deserialize(packet.getPayload());
         if (request == null) {
             return StreamCode.TYPE_UNKNOWN;
         } else if (request instanceof TCommandTransfer) {
-            return handleStreamRouteCreate((TCommandTransfer)request, packet, serverStreamChannel);
+            return handleStreamRouteCreate((TCommandTransfer)request, packet, streamChannel);
         } else {
             return StreamCode.TYPE_UNSUPPORT;
         }
     }
 
     @Override
-    public void handleStreamClose(ServerStreamChannel serverStreamChannel, StreamClosePacket packet) {
-        logger.info("handleStreamClose packet:{}, streamChannel:{}", packet, serverStreamChannel);
+    public void handleStreamClosePacket(ServerStreamChannel streamChannel, StreamClosePacket packet) {
+        logger.info("handleStreamClosePacket() streamChannel:{}, packet:{}", streamChannel, packet);
 
-        streamRouteHandler.close(serverStreamChannel);
+        streamRouteHandler.close(streamChannel);
     }
 
     private boolean handleRouteRequest(TCommandTransfer request, RequestPacket requestPacket, PinpointSocket pinpointSocket) {

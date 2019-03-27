@@ -39,30 +39,20 @@ import java.util.Set;
  */
 public class StreamChannelManager {
 
-    private static final LoggingStreamChannelStateChangeEventHandler LOGGING_STATE_CHANGE_HANDLER = new LoggingStreamChannelStateChangeEventHandler();
-
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final Channel channel;
 
     private final IDGenerator idGenerator;
 
-    private final ServerStreamChannelMessageListener streamChannelMessageListener;
+    private final ServerStreamChannelMessageHandler streamChannelMessageHandler;
 
     private final StreamChannelRepository streamChannelRepository = new StreamChannelRepository();
 
-    public StreamChannelManager(Channel channel, IDGenerator idGenerator) {
-        this(channel, idGenerator, DisabledServerStreamChannelMessageListener.INSTANCE);
-    }
-
-    public StreamChannelManager(Channel channel, IDGenerator idGenerator, ServerStreamChannelMessageListener serverStreamChannelMessageListener) {
-        Assert.requireNonNull(channel, "Channel must not be null.");
-        Assert.requireNonNull(idGenerator, "IDGenerator must not be null.");
-        Assert.requireNonNull(serverStreamChannelMessageListener, "ServerStreamChannelMessageListener must not be null.");
-
-        this.channel = channel;
-        this.idGenerator = idGenerator;
-        this.streamChannelMessageListener = serverStreamChannelMessageListener;
+    public StreamChannelManager(Channel channel, IDGenerator idGenerator, ServerStreamChannelMessageHandler streamChannelMessageHandler) {
+        this.channel = Assert.requireNonNull(channel, "Channel must not be null.");
+        this.idGenerator = Assert.requireNonNull(idGenerator, "IDGenerator must not be null.");
+        this.streamChannelMessageHandler = Assert.requireNonNull(streamChannelMessageHandler, "streamChannelMessageHandler must not be null.");
     }
 
     public void close() {
@@ -76,20 +66,12 @@ public class StreamChannelManager {
         }
     }
 
-    public ClientStreamChannel openStream(byte[] payload, ClientStreamChannelMessageListener messageListener) throws StreamException {
-        return openStream(payload, messageListener, LOGGING_STATE_CHANGE_HANDLER);
-    }
-
-    public ClientStreamChannel openStream(byte[] payload, ClientStreamChannelMessageListener messageListener, StreamChannelStateChangeEventHandler<ClientStreamChannel> stateChangeListener) throws StreamException {
+    public ClientStreamChannel openStream(byte[] payload, ClientStreamChannelEventHandler streamChannelEventHandler) throws StreamException {
         logger.info("Open streamChannel initialization started. Channel:{} ", channel);
 
         final int streamChannelId = idGenerator.generate();
 
-        ClientStreamChannel newStreamChannel = new ClientStreamChannel(channel, streamChannelId, streamChannelRepository, messageListener);
-        if (stateChangeListener != null) {
-            newStreamChannel.addStateChangeEventHandler(stateChangeListener);
-        }
-
+        ClientStreamChannel newStreamChannel = new ClientStreamChannel(channel, streamChannelId, streamChannelRepository, streamChannelEventHandler);
         try {
             newStreamChannel.init();
             newStreamChannel.connect(payload, 3000);
@@ -181,7 +163,7 @@ public class StreamChannelManager {
     private void handleCreate(StreamCreatePacket packet) {
         final int streamChannelId = packet.getStreamChannelId();
 
-        ServerStreamChannel streamChannel = new ServerStreamChannel(this.channel, streamChannelId, streamChannelRepository, streamChannelMessageListener);
+        ServerStreamChannel streamChannel = new ServerStreamChannel(this.channel, streamChannelId, streamChannelRepository, streamChannelMessageHandler);
         try {
             streamChannel.init();
             streamChannel.handleStreamCreatePacket(packet);
