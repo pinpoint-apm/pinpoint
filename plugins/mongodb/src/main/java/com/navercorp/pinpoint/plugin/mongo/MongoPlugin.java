@@ -26,6 +26,7 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilters;
+import com.navercorp.pinpoint.bootstrap.instrument.NotFoundInstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
@@ -63,6 +64,7 @@ public class MongoPlugin implements ProfilerPlugin, TransformTemplateAware {
 		// addSortsTransformer();
 		// addProjectionTransformer();
 
+		addMongoConnectionTransformer_2Plus();
 		addConnectionTransformer3_0_X();
 		addConnectionTransformer2_X();
 		addConnectionTransformer3_7_X();
@@ -72,106 +74,9 @@ public class MongoPlugin implements ProfilerPlugin, TransformTemplateAware {
 		addSessionTransformer3_7_X(config);
 	}
 
-	private void addConnectionTransformer2_X() {
-		transformTemplate.transform("com.mongodb.Mongo", new TransformCallback() {
-
-			@Override
-			public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className,
-					Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer)
-					throws InstrumentException {
-				InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
-
-				if (!target.isInterceptable()) {
-					return null;
-				}
-
-				target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor");
-
-				InstrumentMethod connect = InstrumentUtils.findConstructor(target, "com.mongodb.connection.Cluster",
-						"com.mongodb.MongoClientOptions", "java.util.List");
-
-				connect.addScopedInterceptor(
-						"com.navercorp.pinpoint.plugin.mongo.interceptor.MongoDriverConnectInterceptor2_X", MONGO_SCOPE,
-						ExecutionPolicy.BOUNDARY);
-
-				InstrumentMethod close = InstrumentUtils.findMethod(target, "close");
-				close.addScopedInterceptor(
-						"com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.ConnectionCloseInterceptor",
-						MONGO_SCOPE);
-
-				return target.toBytecode();
-			}
-		});
-		
-		// DB
-		transformTemplate.transform("com.mongodb.DB", new TransformCallback() {
-
-			@Override
-			public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className,
-					Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer)
-					throws InstrumentException {
-				InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
-
-				if (!target.isInterceptable()) {
-					return null;
-				}
-
-				target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor");
-
-				InstrumentMethod connect = InstrumentUtils.findMethod(target, "getCollection", "java.lang.String");
-				connect.addScopedInterceptor(
-						"com.navercorp.pinpoint.plugin.mongo.interceptor.MongoDriverGetCollectionInterceptor",
-						MONGO_SCOPE, ExecutionPolicy.BOUNDARY);
-
-				/*InstrumentMethod getReadPreference = InstrumentUtils.findMethod(target, "withReadPreference",
-						"com.mongodb.ReadPreference");
-				getReadPreference.addScopedInterceptor(
-						"com.navercorp.pinpoint.plugin.mongo.interceptor.MongoReadPreferenceInterceptor", MONGO_SCOPE,
-						ExecutionPolicy.BOUNDARY);
-
-				InstrumentMethod getWriteConcern = InstrumentUtils.findMethod(target, "withWriteConcern",
-						"com.mongodb.WriteConcern");
-				getWriteConcern.addScopedInterceptor(
-						"com.navercorp.pinpoint.plugin.mongo.interceptor.MongoWriteConcernInterceptor", MONGO_SCOPE,
-						ExecutionPolicy.BOUNDARY);*/
-
-				return target.toBytecode();
-			}
-		});
-	}
-
 	private void addConnectionTransformer3_0_X() {
 
 		// 3.0.0 ~ 3.6.4
-		transformTemplate.transform("com.mongodb.Mongo", new TransformCallback() {
-
-			@Override
-			public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className,
-					Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer)
-					throws InstrumentException {
-				InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
-
-				if (!target.isInterceptable()) {
-					return null;
-				}
-
-				target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor");
-
-				InstrumentMethod connect = InstrumentUtils.findConstructor(target, "com.mongodb.connection.Cluster",
-						"com.mongodb.MongoClientOptions", "java.util.List");
-
-				connect.addScopedInterceptor(
-						"com.navercorp.pinpoint.plugin.mongo.interceptor.MongoDriverConnectInterceptor3_0", MONGO_SCOPE,
-						ExecutionPolicy.BOUNDARY);
-
-				InstrumentMethod close = InstrumentUtils.findMethod(target, "close");
-				close.addScopedInterceptor(
-						"com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.ConnectionCloseInterceptor",
-						MONGO_SCOPE);
-
-				return target.toBytecode();
-			}
-		});
 		transformTemplate.transform("com.mongodb.MongoClient", new TransformCallback() {
 
 			@Override
@@ -225,6 +130,98 @@ public class MongoPlugin implements ProfilerPlugin, TransformTemplateAware {
 				getWriteConcern.addScopedInterceptor(
 						"com.navercorp.pinpoint.plugin.mongo.interceptor.MongoWriteConcernInterceptor", MONGO_SCOPE,
 						ExecutionPolicy.BOUNDARY);
+
+				return target.toBytecode();
+			}
+		});
+	}
+
+	private void addConnectionTransformer2_X() {		
+		// DB
+		transformTemplate.transform("com.mongodb.DB", new TransformCallback() {
+
+			@Override
+			public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className,
+					Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer)
+					throws InstrumentException {
+				InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+
+				if (!target.isInterceptable()) {
+					return null;
+				}
+
+				target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor");
+
+				InstrumentMethod connect = InstrumentUtils.findMethod(target, "getCollection", "java.lang.String");
+				connect.addScopedInterceptor(
+						"com.navercorp.pinpoint.plugin.mongo.interceptor.MongoDriverGetCollectionInterceptor",
+						MONGO_SCOPE, ExecutionPolicy.BOUNDARY);
+
+				/*InstrumentMethod getReadPreference = InstrumentUtils.findMethod(target, "withReadPreference",
+						"com.mongodb.ReadPreference");
+				getReadPreference.addScopedInterceptor(
+						"com.navercorp.pinpoint.plugin.mongo.interceptor.MongoReadPreferenceInterceptor", MONGO_SCOPE,
+						ExecutionPolicy.BOUNDARY);
+
+				InstrumentMethod getWriteConcern = InstrumentUtils.findMethod(target, "withWriteConcern",
+						"com.mongodb.WriteConcern");
+				getWriteConcern.addScopedInterceptor(
+						"com.navercorp.pinpoint.plugin.mongo.interceptor.MongoWriteConcernInterceptor", MONGO_SCOPE,
+						ExecutionPolicy.BOUNDARY);*/
+
+				return target.toBytecode();
+			}
+		});
+	}
+
+	/**
+	 * The <code>com.mongodb.Mongo</code> exists starting from MongoDB Driver v2 and
+	 * it continues to exist in v3 with the v2 methods deprecated.
+	 * 
+	 * This method is supposed to handle both the versions.
+	 */
+	private void addMongoConnectionTransformer_2Plus() {
+		transformTemplate.transform("com.mongodb.Mongo", new TransformCallback() {
+
+			@Override
+			public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className,
+					Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer)
+					throws InstrumentException {
+				InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+
+				if (!target.isInterceptable()) {
+					return null;
+				}
+
+				target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor");
+
+				try {
+					InstrumentMethod connect = InstrumentUtils.findConstructor(target, "com.mongodb.connection.Cluster",
+							"com.mongodb.MongoClientOptions", "java.util.List");
+					connect.addScopedInterceptor(
+							"com.navercorp.pinpoint.plugin.mongo.interceptor.MongoDriverConnectInterceptor3_0",
+							MONGO_SCOPE, ExecutionPolicy.BOUNDARY);
+				} catch (NotFoundInstrumentException e) {
+					if (logger.isDebugEnabled()) {
+						logger.debug("3.x constructor not found. Ignoring...");
+					}
+				}
+
+				InstrumentMethod close = InstrumentUtils.findMethod(target, "close");
+				close.addScopedInterceptor(
+						"com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor.ConnectionCloseInterceptor",
+						MONGO_SCOPE);
+
+				try {
+					InstrumentMethod database = InstrumentUtils.findMethod(target, "getDB", "java.lang.String");
+					database.addScopedInterceptor(
+							"com.navercorp.pinpoint.plugin.mongo.interceptor.MongoDriverGetDatabaseInterceptor",
+							MONGO_SCOPE, ExecutionPolicy.BOUNDARY);
+				} catch (NotFoundInstrumentException e) {
+					if (logger.isDebugEnabled()) {
+						logger.debug("2.x method getDB not found. Ignoring...");
+					}
+				}
 
 				return target.toBytecode();
 			}
@@ -977,7 +974,7 @@ public class MongoPlugin implements ProfilerPlugin, TransformTemplateAware {
 
 		final String[] methodList = new String[] { "findOneAndUpdate", "findOneAndReplace", "findOneAndDelete", "find",
 				"count", "distinct", "listIndexes", "aggregate", "findOne"
-				// , "watch" ,"aggregate","mapReduce"
+				// , "watch", "mapReduce"
 		};
 		return methodList;
 	}
