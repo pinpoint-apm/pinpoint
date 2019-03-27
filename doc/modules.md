@@ -29,7 +29,7 @@
 | Httpclient3                                                                       | commons-httpclient         | 3.0     | 3.1     |                        | <AG>
 | Httpclient4                                                                       | httpclient                 | 4.0     | 4.5.4   |                        | <AG>  
 | Thrift                                                                            | libthrift                  | 0.9.1   | 0.12.0  |                        | <AG> 
-| Google HTTP Client                                                                | google-http-client         | 1.19.0  | 1.27.0  |                        | <AG> 
+| Google HTTP Client                                                                | google-http-client         | 1.19.0  | 1.29.0  |                        | <AG> 
 | AsyncHttpClient                                                                   | async-http-client          | 1.7.24  | 1.8.17  |                        | <AG> 
 | OkHttp                                                                            | okhttp                     | 2.0.0   | 3.10.0  |                        | <AG> 
 | Apache HttpAsyncClient                                                            | httpasyncclient            | 4.0     | 4.1.3   |                        | <AG>
@@ -45,10 +45,10 @@
 | HikariCP                                                                          | HikariCP-java6             | 2.3.0   | 2.3.13  |                        | <AG>
 | Jackson-mapper-asl                                                                | jackson-mapper-asl         | 1.0.1   | 1.8.11  |                        | <AG>
 | Jackson Databind                                                                  | jackson-databind           | 2.0.6   | 2.9.8   |                        | <AG>
-| MariaDB Connector/J                                                               | mariadb-java-client        | 1.3.0   | 2.3.0   |                        | <AG>
-| MongoDB Java Driver                                                               | mongodb-driver             | 3.0.0   | 3.9.0   |                        | <AG>
+| MariaDB Connector/J                                                               | mariadb-java-client        | 1.3.0   | 2.4.1   |                        | <AG>
+| MongoDB Java Driver                                                               | mongodb-driver             | 3.0.0   | 3.11.0  |                        | <AG>
 | Datastax Java Driver                                                              | cassandra-driver-core      | 2.0.10  | 3.7.1   |                        | <AG>
-| Druid                                                                             | druid                      | 1.0.0   | 1.1.14  |                        | <AG>
+| Druid                                                                             | druid                      | 1.0.0   | 1.1.15  |                        | <AG>
 | \*Cubrid                                                                          | cubrid-jdbc-driver         | 8.4.1   | 10.0.0  |                        | 
 | \*Commons DBCP                                                                    | commons-dbcp               | 1.0     | 1.4     |                        | 
 | \*Commons DBCP2                                                                   | commons-dbcp2              | 2.0     | 2.5.0   |                        | 
@@ -62,7 +62,7 @@
 |                                                                                   |                            |         |         |                        |
 | Apache CXF                                                                        | cxf-rt-rs-client           | 3.0.0   | 3.3.1   |                        | <AG> 
 | Netty                                                                             | netty-all                  | 4.1.0   | 4.1.34  |                        | <AG> 
-| ActiveMQ                                                                          | activemq-all               | 5.1.0   | 5.15.8  |                        | <AG> 
+| ActiveMQ                                                                          | activemq-all               | 5.1.0   | 5.15.9  |                        | <AG> 
 | RxJAVA                                                                            | rxjava                     | 1.0.0   | 1.3.8   |                        | <AG> 
 | RabbitMQ                                                                          | amqp-client                | 2.7.0   | 5.6.0   |                        | <AG> 
 |                                                                                   |                            |         |         |                        |
