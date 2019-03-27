@@ -26,7 +26,7 @@ import com.navercorp.pinpoint.rpc.packet.stream.StreamClosePacket;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamCode;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamCreatePacket;
 import com.navercorp.pinpoint.rpc.stream.ServerStreamChannel;
-import com.navercorp.pinpoint.rpc.stream.ServerStreamChannelMessageListener;
+import com.navercorp.pinpoint.rpc.stream.ServerStreamChannelMessageHandler;
 import com.navercorp.pinpoint.thrift.dto.TResult;
 import com.navercorp.pinpoint.thrift.util.SerializationUtils;
 
@@ -41,7 +41,7 @@ import java.util.Set;
 /**
  * @author Taejin Koo
  */
-public class CommandDispatcher implements MessageListener, ServerStreamChannelMessageListener {
+public class CommandDispatcher extends ServerStreamChannelMessageHandler implements MessageListener {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -96,10 +96,9 @@ public class CommandDispatcher implements MessageListener, ServerStreamChannelMe
         return tResponse;
     }
 
-
     @Override
-    public StreamCode handleStreamCreate(ServerStreamChannel serverStreamChannel, StreamCreatePacket packet) {
-        logger.info("MessageReceived handleStreamCreate {} {}", packet, serverStreamChannel);
+    public StreamCode handleStreamCreatePacket(ServerStreamChannel streamChannel, StreamCreatePacket packet) {
+        logger.info("handleStreamCreatePacket() streamChannel:{}, packet:{}", streamChannel, packet);
 
         final Message<TBase<?, ?>> message = SerializationUtils.deserialize(packet.getPayload(), CommandSerializer.DESERIALIZER_FACTORY, null);
         if (message == null) {
@@ -113,11 +112,12 @@ public class CommandDispatcher implements MessageListener, ServerStreamChannelMe
         }
 
         final TBase<?, ?> request = message.getData();
-        return service.streamCommandService(request, serverStreamChannel);
+        return service.streamCommandService(request, streamChannel);
     }
 
     @Override
-    public void handleStreamClose(ServerStreamChannel serverStreamChannel, StreamClosePacket packet) {
+    public void handleStreamClosePacket(ServerStreamChannel streamChannel, StreamClosePacket packet) {
+        logger.info("handleStreamClosePacket() streamChannel:{}, packet:{}", streamChannel, packet);
     }
 
     public Set<Short> getRegisteredCommandServiceCodes() {

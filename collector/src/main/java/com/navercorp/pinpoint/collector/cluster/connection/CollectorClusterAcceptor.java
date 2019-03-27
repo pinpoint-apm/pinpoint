@@ -29,6 +29,7 @@ import com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor;
 import com.navercorp.pinpoint.rpc.server.ServerOption;
 import com.navercorp.pinpoint.rpc.server.handler.ServerStateChangeEventHandler;
 import com.navercorp.pinpoint.rpc.util.ClassUtils;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,7 +69,7 @@ public class CollectorClusterAcceptor implements CollectorClusterConnectionProvi
 
         PinpointServerAcceptor serverAcceptor = new PinpointServerAcceptor(serverOptionBuilder.build(), ChannelFilter.BYPASS);
         serverAcceptor.setMessageListenerFactory(new ClusterServerMessageListenerFactory(option.getClusterId(), option.getRouteMessageHandler()));
-        serverAcceptor.setServerStreamChannelMessageListener(option.getRouteStreamMessageHandler());
+        serverAcceptor.setServerStreamChannelMessageHandler(option.getRouteStreamMessageHandler());
         serverAcceptor.addStateChangeEventHandler(new WebClusterServerChannelStateChangeHandler());
         serverAcceptor.bind(bindAddress);
 

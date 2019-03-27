@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,15 +17,20 @@
 package com.navercorp.pinpoint.rpc.stream;
 
 import com.navercorp.pinpoint.rpc.packet.stream.StreamClosePacket;
+import com.navercorp.pinpoint.rpc.packet.stream.StreamCode;
+import com.navercorp.pinpoint.rpc.packet.stream.StreamCreatePacket;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamResponsePacket;
 
 /**
- * @author koo.taejin
+ * @author Taejin Koo
  */
-public interface ClientStreamChannelMessageListener {
+public interface StreamChannelMessageHandler<T extends StreamChannel> {
 
-    void handleStreamData(ClientStreamChannel clientStreamChannel, StreamResponsePacket packet);
+    StreamCode handleStreamCreatePacket(T streamChannel, StreamCreatePacket packet);
 
-    void handleStreamClose(ClientStreamChannel clientStreamChannel, StreamClosePacket packet);
+    void handleStreamResponsePacket(T streamChannel, StreamResponsePacket packet);
+
+    void handleStreamClosePacket(T streamChannel, StreamClosePacket packet);
 
 }
+

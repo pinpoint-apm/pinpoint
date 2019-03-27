@@ -31,11 +31,16 @@ import org.jboss.netty.channel.ChannelFuture;
  */
 public class ServerStreamChannel extends StreamChannel {
 
-    private final ServerStreamChannelMessageListener serverStreamChannelMessageListener;
+    private final ServerStreamChannelMessageHandler streamChannelMessageHandler;
+    private StreamChannelStateChangeEventHandler stateChangeEventHandler = new LoggingStreamChannelStateChangeEventHandler();
     
-    public ServerStreamChannel(Channel channel, int streamId, StreamChannelRepository streamChannelRepository, ServerStreamChannelMessageListener serverStreamChannelMessageListener) {
+    public ServerStreamChannel(Channel channel, int streamId, StreamChannelRepository streamChannelRepository, ServerStreamChannelMessageHandler streamChannelMessageHandler) {
         super(channel, streamId, streamChannelRepository);
-        this.serverStreamChannelMessageListener = Assert.requireNonNull(serverStreamChannelMessageListener, "serverStreamChannelMessageListener must not be null");
+        this.streamChannelMessageHandler = Assert.requireNonNull(streamChannelMessageHandler, "streamChannelMessageHandler must not be null");
+    }
+
+    public void setStateChangeEventHandler(StreamChannelStateChangeEventHandler stateChangeEventHandler) {
+        this.stateChangeEventHandler = Assert.requireNonNull(stateChangeEventHandler, "stateChangeEventHandler must not be null");
     }
 
     public ChannelFuture sendData(byte[] payload) {
@@ -54,7 +59,7 @@ public class ServerStreamChannel extends StreamChannel {
 
     public void handleStreamCreatePacket(StreamCreatePacket packet) throws StreamException {
         changeStateTo(StreamChannelStateCode.CONNECT_ARRIVED, true);
-        StreamCode result = serverStreamChannelMessageListener.handleStreamCreate(this, packet);
+        StreamCode result = streamChannelMessageHandler.handleStreamCreatePacket(this, packet);
         if (result != StreamCode.OK) {
             throw new StreamException(result);
         }
@@ -64,8 +69,13 @@ public class ServerStreamChannel extends StreamChannel {
 
     @Override
     public void handleStreamClosePacket(StreamClosePacket packet) {
-        serverStreamChannelMessageListener.handleStreamClose(this, packet);
+        streamChannelMessageHandler.handleStreamClosePacket(this, packet);
         disconnect(packet.getCode());
+    }
+
+    @Override
+    public StreamChannelStateChangeEventHandler getStateChangeEventHandler() {
+        return stateChangeEventHandler;
     }
 
     @Override

@@ -16,16 +16,17 @@
 
 package com.navercorp.pinpoint.profiler.context.provider;
 
-import com.google.inject.Inject;
-import com.google.inject.Provider;
-import com.navercorp.pinpoint.bootstrap.config.ThriftTransportConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.config.ThriftTransportConfig;
 import com.navercorp.pinpoint.profiler.AgentInformation;
 import com.navercorp.pinpoint.profiler.receiver.CommandDispatcher;
 import com.navercorp.pinpoint.rpc.client.ConnectionFactoryProvider;
 import com.navercorp.pinpoint.rpc.client.DefaultPinpointClientFactory;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 import com.navercorp.pinpoint.rpc.packet.HandshakePropertyType;
+
+import com.google.inject.Inject;
+import com.google.inject.Provider;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -76,7 +77,7 @@ public class PinpointClientFactoryProvider implements Provider<PinpointClientFac
 
         if (isSupportServerMode) {
             pinpointClientFactory.setMessageListener(commandDispatcher);
-            pinpointClientFactory.setServerStreamChannelMessageListener(commandDispatcher);
+            pinpointClientFactory.setServerStreamChannelMessageHandler(commandDispatcher);
 
             properties.put(HandshakePropertyType.SUPPORT_SERVER.getName(), true);
             properties.put(HandshakePropertyType.SUPPORT_COMMAND_LIST.getName(), commandDispatcher.getRegisteredCommandServiceCodes());

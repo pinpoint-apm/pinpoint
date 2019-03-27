@@ -30,11 +30,11 @@ import org.jboss.netty.channel.ChannelFuture;
  */
 public class ClientStreamChannel extends StreamChannel {
 
-    private final ClientStreamChannelMessageListener messageListener;
+    private final ClientStreamChannelEventHandler streamChannelEventHandler;
 
-    public ClientStreamChannel(Channel channel, int streamId, StreamChannelRepository streamChannelRepository, ClientStreamChannelMessageListener messageListener) {
+    public ClientStreamChannel(Channel channel, int streamId, StreamChannelRepository streamChannelRepository, ClientStreamChannelEventHandler streamChannelEventHandler) {
         super(channel, streamId, streamChannelRepository);
-        this.messageListener = Assert.requireNonNull(messageListener, "messageListener must not be null");
+        this.streamChannelEventHandler = Assert.requireNonNull(streamChannelEventHandler, "streamChannelEventHandler must not be null");
     }
 
     public void connect(byte[] payload, long timeout) throws StreamException {
@@ -59,7 +59,7 @@ public class ClientStreamChannel extends StreamChannel {
 
     public void handleStreamResponsePacket(StreamResponsePacket packet) throws StreamException {
         if (state.checkState(StreamChannelStateCode.CONNECTED)) {
-            messageListener.handleStreamData(this, packet);
+            streamChannelEventHandler.handleStreamResponsePacket(this, packet);
         } else if (state.checkState(StreamChannelStateCode.CONNECT_AWAIT)) {
             // may happen in the timing
         } else {
@@ -69,8 +69,13 @@ public class ClientStreamChannel extends StreamChannel {
 
     @Override
     public void handleStreamClosePacket(StreamClosePacket packet) {
-        messageListener.handleStreamClose(this, packet);
+        streamChannelEventHandler.handleStreamClosePacket(this, packet);
         disconnect(packet.getCode());
+    }
+
+    @Override
+    StreamChannelStateChangeEventHandler getStateChangeEventHandler() {
+        return streamChannelEventHandler;
     }
 
     @Override

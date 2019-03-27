@@ -45,10 +45,8 @@ import com.navercorp.pinpoint.rpc.packet.stream.StreamPacket;
 import com.navercorp.pinpoint.rpc.server.handler.DoNothingChannelStateEventHandler;
 import com.navercorp.pinpoint.rpc.server.handler.ServerStateChangeEventHandler;
 import com.navercorp.pinpoint.rpc.stream.ClientStreamChannel;
-import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelMessageListener;
-import com.navercorp.pinpoint.rpc.stream.StreamChannel;
+import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelEventHandler;
 import com.navercorp.pinpoint.rpc.stream.StreamChannelManager;
-import com.navercorp.pinpoint.rpc.stream.StreamChannelStateChangeEventHandler;
 import com.navercorp.pinpoint.rpc.stream.StreamException;
 import com.navercorp.pinpoint.rpc.util.ClassUtils;
 import com.navercorp.pinpoint.rpc.util.ControlMessageEncodingUtils;
@@ -115,7 +113,7 @@ public class DefaultPinpointServer implements PinpointServer {
 
         this.messageListener = serverConfig.getMessageListener();
 
-        StreamChannelManager streamChannelManager = new StreamChannelManager(channel, IDGenerator.createEvenIdGenerator(), serverConfig.getStreamMessageListener());
+        StreamChannelManager streamChannelManager = new StreamChannelManager(channel, IDGenerator.createEvenIdGenerator(), serverConfig.getServerStreamMessageHandler());
         this.streamChannelManager = streamChannelManager;
 
         this.stateChangeEventListeners = new ArrayList<ServerStateChangeEventHandler>();
@@ -237,15 +235,10 @@ public class DefaultPinpointServer implements PinpointServer {
     }
 
     @Override
-    public ClientStreamChannel openStream(byte[] payload, ClientStreamChannelMessageListener messageListener) throws StreamException {
-        return openStream(payload, messageListener, null);
-    }
-
-    @Override
-    public ClientStreamChannel openStream(byte[] payload, ClientStreamChannelMessageListener messageListener, StreamChannelStateChangeEventHandler<ClientStreamChannel> stateChangeListener) throws StreamException {
+    public ClientStreamChannel openStream(byte[] payload, ClientStreamChannelEventHandler streamChannelEventHandler) throws StreamException {
         logger.info("{} createStream() started.", objectUniqName);
 
-        ClientStreamChannel streamChannel = streamChannelManager.openStream(payload, messageListener, stateChangeListener);
+        ClientStreamChannel streamChannel = streamChannelManager.openStream(payload, streamChannelEventHandler);
 
         logger.info("{} createStream() completed.", objectUniqName);
         return streamChannel;

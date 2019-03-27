@@ -28,10 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.SocketAddress;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -51,20 +48,10 @@ public abstract class StreamChannel {
 
     protected final StreamChannelRepository streamChannelRepository;
 
-    private List<StreamChannelStateChangeEventHandler> stateChangeEventHandlers = new CopyOnWriteArrayList<StreamChannelStateChangeEventHandler>();
-
     public StreamChannel(Channel channel, int streamId, StreamChannelRepository streamChannelRepository) {
         this.channel = channel;
         this.streamChannelId = streamId;
         this.streamChannelRepository = streamChannelRepository;
-    }
-
-    public void addStateChangeEventHandler(StreamChannelStateChangeEventHandler stateChangeEventHandler) {
-        stateChangeEventHandlers.add(stateChangeEventHandler);
-    }
-
-    public List<StreamChannelStateChangeEventHandler> getStateChangeEventHandlers() {
-        return new ArrayList<StreamChannelStateChangeEventHandler>(stateChangeEventHandlers);
     }
 
     void init() throws StreamException {
@@ -188,12 +175,10 @@ public abstract class StreamChannel {
         }
 
         if (isChanged) {
-            for (StreamChannelStateChangeEventHandler handler : stateChangeEventHandlers) {
-                try {
-                    handler.eventPerformed(this, nextState);
-                } catch (Exception e) {
-                    handler.exceptionCaught(this, nextState, e);
-                }
+            try {
+                getStateChangeEventHandler().stateUpdated(this, nextState);
+            } catch (Exception e) {
+                logger.warn("Please handling exception in StreamChannelStateChangeEventHandler.stateUpdated method. message:{}", e.getMessage(), e);
             }
         }
 
@@ -213,6 +198,8 @@ public abstract class StreamChannel {
     }
 
     abstract void handleStreamClosePacket(StreamClosePacket packet);
+
+    abstract StreamChannelStateChangeEventHandler getStateChangeEventHandler();
 
     @Override
     public String toString() {

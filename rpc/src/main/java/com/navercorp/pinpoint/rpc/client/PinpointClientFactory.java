@@ -22,7 +22,8 @@ import com.navercorp.pinpoint.rpc.PinpointSocketException;
 import com.navercorp.pinpoint.rpc.StateChangeEventListener;
 import com.navercorp.pinpoint.rpc.cluster.ClusterOption;
 import com.navercorp.pinpoint.rpc.cluster.Role;
-import com.navercorp.pinpoint.rpc.stream.ServerStreamChannelMessageListener;
+import com.navercorp.pinpoint.rpc.stream.ServerStreamChannelMessageHandler;
+
 import org.jboss.netty.channel.ChannelFuture;
 
 import java.net.InetSocketAddress;
@@ -105,12 +106,9 @@ public interface PinpointClientFactory {
 
     void setMessageListener(MessageListener messageListener);
 
-    ServerStreamChannelMessageListener getServerStreamChannelMessageListener();
+    ServerStreamChannelMessageHandler getServerStreamChannelMessageHandler();
 
-    ServerStreamChannelMessageListener getServerStreamChannelMessageListener(ServerStreamChannelMessageListener defaultStreamMessageListener);
-
-
-    void setServerStreamChannelMessageListener(ServerStreamChannelMessageListener serverStreamChannelMessageListener);
+    void setServerStreamChannelMessageHandler(ServerStreamChannelMessageHandler serverStreamChannelMessageHandler);
 
     List<StateChangeEventListener> getStateChangeEventListeners();
 

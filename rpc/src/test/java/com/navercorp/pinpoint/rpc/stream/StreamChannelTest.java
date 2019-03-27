@@ -42,43 +42,17 @@ public class StreamChannelTest {
 
     @Test(expected = StreamException.class)
     public void testName() throws Exception {
-        TestStateChangeHandler testStateChangeHandler = new TestStateChangeHandler();
-
         Channel mockChannel = Mockito.mock(Channel.class);
         Mockito.when(mockChannel.write(Mockito.any())).thenReturn(null);
 
-        ClientStreamChannel sc = new ClientStreamChannel(mockChannel, 1, new StreamChannelRepository(), new RecordedStreamChannelMessageListener(0));
-        sc.addStateChangeEventHandler(testStateChangeHandler);
+        RecordedStreamChannelMessageListener recordEventHandler = new RecordedStreamChannelMessageListener(0);
+
+        ClientStreamChannel sc = new ClientStreamChannel(mockChannel, 1, new StreamChannelRepository(), recordEventHandler);
 
         sc.init();
-        Assert.assertEquals(StreamChannelStateCode.OPEN, testStateChangeHandler.getLatestEventPerformedStateCode());
+        Assert.assertEquals(StreamChannelStateCode.OPEN, recordEventHandler.getCurrentState());
 
         sc.connect(new byte[0], 3000);
-    }
-
-    class TestStateChangeHandler implements StreamChannelStateChangeEventHandler {
-
-        private int totalEventPerformedCount;
-        private StreamChannelStateCode latestEventPerformedStateCode;
-
-
-        @Override
-        public void eventPerformed(StreamChannel streamChannel, StreamChannelStateCode updatedStateCode) throws Exception {
-            this.latestEventPerformedStateCode = updatedStateCode;
-            this.totalEventPerformedCount++;
-        }
-
-        @Override
-        public void exceptionCaught(StreamChannel streamChannel, StreamChannelStateCode updatedStateCode, Throwable e) {
-        }
-
-        public StreamChannelStateCode getLatestEventPerformedStateCode() {
-            return latestEventPerformedStateCode;
-        }
-
-        public int getTotalEventPerformedCount() {
-            return totalEventPerformedCount;
-        }
     }
 
 }
