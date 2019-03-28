@@ -24,4 +24,6 @@ public interface ClusterPoint {
 
     Future request(byte[] data);
 
+    AgentInfo getDestAgentInfo();
+
 }

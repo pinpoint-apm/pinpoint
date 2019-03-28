@@ -26,12 +26,14 @@ import com.navercorp.pinpoint.rpc.packet.HandshakePropertyType;
 import com.navercorp.pinpoint.rpc.server.PinpointServer;
 import com.navercorp.pinpoint.rpc.server.handler.ServerStateChangeEventHandler;
 import com.navercorp.pinpoint.rpc.util.MapUtils;
+
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Taejin Koo
@@ -112,18 +114,28 @@ public class ZookeeperProfilerClusterManager implements ServerStateChangeEventHa
 
             synchronized (lock) {
                 if (SocketStateCode.RUN_DUPLEX == stateCode) {
-                    profileCluster.addClusterPoint(new PinpointServerClusterPoint(pinpointServer));
-                    worker.addPinpointServer(pinpointServer);
+                    PinpointServerClusterPoint pinpointServerClusterPoint = new PinpointServerClusterPoint(pinpointServer);
+                    String key = pinpointServerClusterPoint.getDestAgentInfo().getAgentKey();
+
+                    boolean added = profileCluster.addAndIsKeyCreated(pinpointServerClusterPoint);
+                    if (StringUtils.isNotEmpty(key) && added) {
+                        worker.addPinpointServer(key);
+                    }
                 } else if (SocketStateCode.isClosed(stateCode)) {
-                    profileCluster.removeClusterPoint(new PinpointServerClusterPoint(pinpointServer));
-                    worker.removePinpointServer(pinpointServer);
+                    PinpointServerClusterPoint pinpointServerClusterPoint = new PinpointServerClusterPoint(pinpointServer);
+                    String key = pinpointServerClusterPoint.getDestAgentInfo().getAgentKey();
+
+                    boolean removed = profileCluster.removeAndGetIsKeyRemoved(pinpointServerClusterPoint);
+                    if (StringUtils.isNotEmpty(key) && removed) {
+                        worker.removePinpointServer(key);
+                    }
                 }
             }
         } else {
             logger.info("eventPerformed() failed. caused:unexpected state.");
         }
     }
-    
+
     @Override
     public void exceptionCaught(PinpointServer pinpointServer, SocketStateCode stateCode, Throwable e) {
         logger.warn("exceptionCaught(). (pinpointServer:{}, PinpointServerStateCode:{}). caused:{}.", pinpointServer, stateCode, e.getMessage(), e);
@@ -137,14 +149,9 @@ public class ZookeeperProfilerClusterManager implements ServerStateChangeEventHa
         worker.clear();
 
         synchronized (lock) {
-            List clusterPointList = profileCluster.getClusterPointList();
-            for (Object clusterPoint : clusterPointList) {
-                if (clusterPoint instanceof PinpointServerClusterPoint) {
-                    PinpointServer pinpointServer = ((PinpointServerClusterPoint) clusterPoint).getPinpointServer();
-                    if (SocketStateCode.isRunDuplex(pinpointServer.getCurrentStateCode())) {
-                        worker.addPinpointServer(pinpointServer);
-                    }
-                }
+            Set<String> availableAgentKeyList = profileCluster.getAvailableAgentKeyList();
+            for (String availableAgentKey : availableAgentKeyList) {
+                worker.addPinpointServer(availableAgentKey);
             }
         }
     }

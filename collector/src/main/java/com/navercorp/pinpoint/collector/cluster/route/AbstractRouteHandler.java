@@ -16,17 +16,18 @@
 
 package com.navercorp.pinpoint.collector.cluster.route;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import com.navercorp.pinpoint.collector.cluster.AgentInfo;
 import com.navercorp.pinpoint.collector.cluster.ClusterPointLocator;
 import com.navercorp.pinpoint.collector.cluster.TargetClusterPoint;
 import com.navercorp.pinpoint.thrift.dto.command.TCommandTransfer;
 import com.navercorp.pinpoint.thrift.dto.command.TCommandTransferResponse;
 import com.navercorp.pinpoint.thrift.dto.command.TRouteResult;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author koo.taejin
@@ -49,19 +50,10 @@ public abstract class AbstractRouteHandler<T extends RouteEvent> implements Rout
         List<TargetClusterPoint> result = new ArrayList<>();
 
         for (TargetClusterPoint targetClusterPoint : targetClusterPointLocator.getClusterPointList()) {
-            if (!targetClusterPoint.getApplicationName().equals(applicationName)) {
-                continue;
+            AgentInfo destAgentInfo = targetClusterPoint.getDestAgentInfo();
+            if (destAgentInfo.equals(applicationName, agentId, startTimeStamp)) {
+                result.add(targetClusterPoint);
             }
-
-            if (!targetClusterPoint.getAgentId().equals(agentId)) {
-                continue;
-            }
-
-            if (!(targetClusterPoint.getStartTimeStamp() == startTimeStamp)) {
-                continue;
-            }
-
-            result.add(targetClusterPoint);
         }
 
         if (result.size() == 1) {
