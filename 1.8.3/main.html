@@ -5,8 +5,8 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="">
-<meta name="keywords" content=" pinpoint release, 1.9.0">
-<title>Pinpoint 1.9.0 | Leading Open-Source APM</title>
+<meta name="keywords" content=" pinpoint release, 1.8.3">
+<title>Pinpoint 1.8.3 | Leading Open-Source APM</title>
 <link rel="stylesheet" href="css/syntax.css">
 
 <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -158,7 +158,7 @@
                                 searchInput: document.getElementById('search-input'),
                                 resultsContainer: document.getElementById('results-container'),
                                 dataSource: 'search.json',
-                                searchResultTemplate: '<li><a href="{url}" title="Pinpoint 1.9.0">{title}</a></li>',
+                                searchResultTemplate: '<li><a href="{url}" title="Pinpoint 1.8.3">{title}</a></li>',
                     noResultsText: 'No results found.',
                             limit: 10,
                             fuzzy: true,
@@ -517,7 +517,7 @@
 </script>
 
 <div class="post-header">
-   <h1 class="post-title-main" id="pathname">Pinpoint 1.9.0</h1>
+   <h1 class="post-title-main" id="pathname">Pinpoint 1.8.3</h1>
 </div>
 
 
@@ -557,11 +557,24 @@ $('#toc').on('click', 'a', function() {
 
     
 
-  <p><a href="https://naver.github.io/pinpoint/1.8.2/main.html">Check out updates on lastest stable release</a></p>
+  <h2 id="whats-new-in-183">What’s New in 1.8.3</h2>
 
-<h2 id="whats-next-in-190">What’s Next in 1.9.0</h2>
+<p>If you are tracing Oracle java driver, Cassandra Datastax java driver, or OkHttp V2 on Spring Boot/One-Jar executable jar, we highly suggest upgrading your agent to 1.8.3 as it includes a bug fix for these plugins.
+Please see Agent Issues below for more details.</p>
 
 <h3 id="pinpoint-plugin">Pinpoint Plugin</h3>
+
+<ul>
+  <li>Bug Fix for Oracle java driver</li>
+  <li>Bug Fix for Cassandra Datastax java driver</li>
+  <li>
+    <p>Bug Fix for OkHttp V2</p>
+
+    <p><a href="https://github.com/naver/pinpoint/issues?q=is%3Aissue+milestone%3A1.8.3">Detail</a></p>
+  </li>
+</ul>
+
+<h3 id="pinpoint-plugin-1">Pinpoint Plugin</h3>
 
 <h3 id="upgrade-consideration">Upgrade consideration</h3>
 
