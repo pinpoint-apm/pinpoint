@@ -17,28 +17,22 @@
 package com.navercorp.pinpoint.collector.cluster.zookeeper;
 
 import com.navercorp.pinpoint.collector.cluster.ClusterPointRepository;
-import com.navercorp.pinpoint.collector.cluster.PinpointServerClusterPoint;
+import com.navercorp.pinpoint.collector.cluster.TargetClusterPoint;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperClient;
 import com.navercorp.pinpoint.common.server.util.concurrent.CommonStateContext;
 import com.navercorp.pinpoint.common.util.Assert;
-import com.navercorp.pinpoint.rpc.common.SocketStateCode;
-import com.navercorp.pinpoint.rpc.packet.HandshakePropertyType;
-import com.navercorp.pinpoint.rpc.server.PinpointServer;
-import com.navercorp.pinpoint.rpc.server.handler.ServerStateChangeEventHandler;
-import com.navercorp.pinpoint.rpc.util.MapUtils;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 /**
  * @author Taejin Koo
  */
-public class ZookeeperProfilerClusterManager implements ServerStateChangeEventHandler {
+public class ZookeeperProfilerClusterManager {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -100,45 +94,34 @@ public class ZookeeperProfilerClusterManager implements ServerStateChangeEventHa
         logger.info("stop() completed.");
     }
 
-    @Override
-    public void eventPerformed(PinpointServer pinpointServer, SocketStateCode stateCode) {
+    public void register(TargetClusterPoint targetClusterPoint) {
         if (workerState.isStarted()) {
-            logger.info("eventPerformed() started. (PinpointServer={}, State={})", pinpointServer, stateCode);
-
-            Map agentProperties = pinpointServer.getChannelProperties();
-
-            // skip when applicationName and agentId is unknown
-            if (skipAgent(agentProperties)) {
-                return;
-            }
-
             synchronized (lock) {
-                if (SocketStateCode.RUN_DUPLEX == stateCode) {
-                    PinpointServerClusterPoint pinpointServerClusterPoint = new PinpointServerClusterPoint(pinpointServer);
-                    String key = pinpointServerClusterPoint.getDestAgentInfo().getAgentKey();
+                String key = targetClusterPoint.getDestAgentInfo().getAgentKey();
 
-                    boolean added = profileCluster.addAndIsKeyCreated(pinpointServerClusterPoint);
-                    if (StringUtils.isNotEmpty(key) && added) {
-                        worker.addPinpointServer(key);
-                    }
-                } else if (SocketStateCode.isClosed(stateCode)) {
-                    PinpointServerClusterPoint pinpointServerClusterPoint = new PinpointServerClusterPoint(pinpointServer);
-                    String key = pinpointServerClusterPoint.getDestAgentInfo().getAgentKey();
-
-                    boolean removed = profileCluster.removeAndGetIsKeyRemoved(pinpointServerClusterPoint);
-                    if (StringUtils.isNotEmpty(key) && removed) {
-                        worker.removePinpointServer(key);
-                    }
+                boolean added = profileCluster.addAndIsKeyCreated(targetClusterPoint);
+                if (StringUtils.isNotEmpty(key) && added) {
+                    worker.addPinpointServer(key);
                 }
             }
         } else {
-            logger.info("eventPerformed() failed. caused:unexpected state.");
+            logger.info("register() failed. caused:unexpected state.");
         }
     }
 
-    @Override
-    public void exceptionCaught(PinpointServer pinpointServer, SocketStateCode stateCode, Throwable e) {
-        logger.warn("exceptionCaught(). (pinpointServer:{}, PinpointServerStateCode:{}). caused:{}.", pinpointServer, stateCode, e.getMessage(), e);
+    public void unregister(TargetClusterPoint targetClusterPoint) {
+        if (workerState.isStarted()) {
+            synchronized (lock) {
+                String key = targetClusterPoint.getDestAgentInfo().getAgentKey();
+
+                boolean removed = profileCluster.removeAndGetIsKeyRemoved(targetClusterPoint);
+                if (StringUtils.isNotEmpty(key) && removed) {
+                    worker.removePinpointServer(key);
+                }
+            }
+        } else {
+            logger.info("unregister() failed. caused:unexpected state.");
+        }
     }
 
     public List<String> getClusterData() {
@@ -154,17 +137,6 @@ public class ZookeeperProfilerClusterManager implements ServerStateChangeEventHa
                 worker.addPinpointServer(availableAgentKey);
             }
         }
-    }
-
-    private boolean skipAgent(Map<Object, Object> agentProperties) {
-        String applicationName = MapUtils.getString(agentProperties, HandshakePropertyType.APPLICATION_NAME.getName());
-        String agentId = MapUtils.getString(agentProperties, HandshakePropertyType.AGENT_ID.getName());
-
-        if (StringUtils.isBlank(applicationName) || StringUtils.isBlank(agentId)) {
-            return true;
-        }
-
-        return false;
     }
 
 }
