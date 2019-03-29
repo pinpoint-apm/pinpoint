@@ -106,7 +106,7 @@ public class AgentLifeCycleChangeEventHandlerTest {
         }
         for (SocketStateCode unmanagedState : unmanagedStates) {
             // when
-            this.lifeCycleChangeEventHandler.eventPerformed(this.server, unmanagedState);
+            this.lifeCycleChangeEventHandler.stateUpdated(this.server, unmanagedState);
             // then
             verify(this.agentLifeCycleAsyncTaskService, never()).handleLifeCycleEvent(any(Map.class), anyLong(), any(AgentLifeCycleState.class), anyInt());
             verify(this.agentEventAsyncTaskService, never()).handleEvent(any(Map.class), anyLong(), any(AgentEventType.class));
@@ -116,7 +116,7 @@ public class AgentLifeCycleChangeEventHandlerTest {
     private void runAndVerifyByStateCodes(Set<SocketStateCode> socketStates) throws Exception {
         int testCount = 0;
         for (SocketStateCode socketState : socketStates) {
-            this.lifeCycleChangeEventHandler.eventPerformed(this.server, socketState);
+            this.lifeCycleChangeEventHandler.stateUpdated(this.server, socketState);
             testCount++;
             verify(this.agentLifeCycleAsyncTaskService, times(testCount))
                     .handleLifeCycleEvent(any(Map.class), anyLong(), any(AgentLifeCycleState.class), anyInt());

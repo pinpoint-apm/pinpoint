@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
 import com.navercorp.pinpoint.rpc.common.SocketStateCode;
 import com.navercorp.pinpoint.rpc.server.PinpointServer;
 import com.navercorp.pinpoint.rpc.server.handler.ServerStateChangeEventHandler;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +34,7 @@ import java.util.Map;
 /**
  * @author HyunGil Jeong
  */
-public class AgentLifeCycleChangeEventHandler implements ServerStateChangeEventHandler {
+public class AgentLifeCycleChangeEventHandler extends ServerStateChangeEventHandler {
 
     public static final ManagedAgentLifeCycle STATE_NOT_MANAGED = null;
 
@@ -46,12 +47,12 @@ public class AgentLifeCycleChangeEventHandler implements ServerStateChangeEventH
     private AgentEventAsyncTaskService agentEventAsyncTaskService;
 
     @Override
-    public void eventPerformed(PinpointServer pinpointServer, SocketStateCode stateCode) throws Exception {
-        ManagedAgentLifeCycle managedAgentLifeCycle = ManagedAgentLifeCycle.getManagedAgentLifeCycleByStateCode(stateCode);
+    public void stateUpdated(PinpointServer pinpointServer, SocketStateCode updatedStateCode) {
+        ManagedAgentLifeCycle managedAgentLifeCycle = ManagedAgentLifeCycle.getManagedAgentLifeCycleByStateCode(updatedStateCode);
         if (managedAgentLifeCycle == STATE_NOT_MANAGED) {
             return;
         } else {
-            logger.info("{} eventPerformed(). pinpointServer:{}, code:{}", this.getClass().getSimpleName(), pinpointServer, stateCode);
+            logger.info("stateUpdated(). pinpointServer:{}, updatedStateCode:{}", pinpointServer, updatedStateCode);
 
             long eventTimestamp = System.currentTimeMillis();
 
@@ -63,8 +64,4 @@ public class AgentLifeCycleChangeEventHandler implements ServerStateChangeEventH
         }
     }
 
-    @Override
-    public void exceptionCaught(PinpointServer pinpointServer, SocketStateCode stateCode, Throwable e) {
-        logger.warn("{} exceptionCaught(). pinpointServer:{}, code:{}. error: {}.", this.getClass().getSimpleName(), pinpointServer, stateCode, e.getMessage(), e);
-    }
 }
