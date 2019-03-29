@@ -38,7 +38,7 @@
     "bowser": "^1.9.4",
     "chart.js": "git+https://github.com/chartjs/Chart.js.git#48fefd92b6dc61345021c6508b23698830ff392f",
     "core-js": "^2.5.4",
-    "gojs": "^1.8.32",
+    "gojs": "^2.0.4",
     "js-beautify": "^1.8.8",
     "moment": "^2.22.2",
     "moment-timezone": "^0.5.21",

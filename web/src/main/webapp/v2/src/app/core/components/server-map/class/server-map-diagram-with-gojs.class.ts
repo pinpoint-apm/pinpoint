@@ -34,7 +34,7 @@ export class ServerMapDiagramWithGojs extends ServerMapDiagram {
         this.diagram.nodeTemplate = ServerMapTemplateWithGojs.makeNodeTemplate(this);
     }
     setNodeTemplateMap(): void {
-        this.groupServiceTypeList.forEach((groupType) => {
+        this.groupServiceTypeList.forEach((groupType: string) => {
             this.diagram.nodeTemplateMap.add(groupType, ServerMapTemplateWithGojs.makeNodeGroupTemplate(this));
         });
     }
