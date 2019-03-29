@@ -166,6 +166,13 @@ public class SpanCallTree implements CallTree {
         sibling.setSibling(node);
     }
 
+    public void add(final Align align) {
+        Objects.requireNonNull(align, "align must not be null");
+
+        final int depth = align.getSpanEventBo().getDepth();
+        add(depth, align);
+    }
+
     public void add(final int depth, final Align align) {
 
         if (hasCorrupted(align)) {

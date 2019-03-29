@@ -74,7 +74,9 @@ public class CallStackMock {
         final SpanEventAlign spanEventAlign;
         if (this.async) {
             LocalAsyncIdBo localAsyncIdBo = new LocalAsyncIdBo(asyncId, 1);
-            spanEventAlign = new SpanChunkEventAlign(spanBo, spanEvent, localAsyncIdBo);
+            SpanChunkBo spanChunkBo = new SpanChunkBo();
+            spanChunkBo.setLocalAsyncId(localAsyncIdBo);
+            spanEventAlign = new SpanChunkEventAlign(spanBo, spanChunkBo, spanEvent);
         } else {
             spanEventAlign = new SpanEventAlign(spanBo, spanEvent);
         }

@@ -30,6 +30,8 @@ import com.navercorp.pinpoint.thrift.dto.TSpan;
 
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
+
 /**
  * @author emeroad
  * @author netspider
@@ -39,11 +41,14 @@ public class ThriftSpanHandler implements SimpleHandler {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    @Autowired
-    private TraceService traceService;
+    private final TraceService traceService;
 
-    @Autowired
-    private SpanFactory spanFactory;
+    private final SpanFactory spanFactory;
+
+    public ThriftSpanHandler(TraceService traceService, SpanFactory spanFactory) {
+        this.traceService = Objects.requireNonNull(traceService, "traceService must not be null");
+        this.spanFactory = Objects.requireNonNull(spanFactory, "spanFactory must not be null");
+    }
 
     @Override
     public void handleSimple(ServerRequest serverRequest) {
