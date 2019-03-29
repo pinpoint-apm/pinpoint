@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilters;
+import com.navercorp.pinpoint.bootstrap.instrument.NotFoundInstrumentException;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
@@ -69,7 +70,7 @@ import static com.navercorp.pinpoint.common.util.VarArgs.va;
  */
 public class MongoPlugin implements ProfilerPlugin, TransformTemplateAware {
 
-    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
+    private static final PLogger LOGGER = PLoggerFactory.getLogger(MongoPlugin.class);
     private static final String MONGO_SCOPE = MongoConstants.MONGO_SCOPE;
 
     private TransformTemplate transformTemplate;
@@ -78,10 +79,10 @@ public class MongoPlugin implements ProfilerPlugin, TransformTemplateAware {
     public void setup(ProfilerPluginSetupContext context) {
         MongoConfig config = new MongoConfig(context.getConfig());
         if (!config.isEnable()) {
-            logger.info("{} disabled", this.getClass().getSimpleName());
+            LOGGER.info("{} disabled", this.getClass().getSimpleName());
             return;
         }
-        logger.info("{} config:{}", this.getClass().getSimpleName(), config);
+        LOGGER.info("{} config:{}", this.getClass().getSimpleName(), config);
 
         addFilterTransformer();
         addUpdatesTransformer();
@@ -91,20 +92,71 @@ public class MongoPlugin implements ProfilerPlugin, TransformTemplateAware {
 //        addSortsTransformer();
 //        addProjectionTransformer();
 
+        addMongoConnectionTransformer_2Plus();
         addConnectionTransformer3_0_X();
         addConnectionTransformer3_7_X();
         addConnectionTransformer3_8_X();
+        addConnectionTransformer2_X();
         addSessionTransformer3_0_X();
         addSessionTransformer3_7_X();
+        addSessionTransformer2_X();
     }
 
     private void addConnectionTransformer3_0_X() {
-
         // 3.0.0 ~ 3.6.4
-        transformTemplate.transform("com.mongodb.Mongo", ClientConnectionTransform3_0_X.class);
         transformTemplate.transform("com.mongodb.MongoClient", DatabaseConnectionTransform3_0_X.class);
         transformTemplate.transform("com.mongodb.MongoDatabaseImpl", CollectionConnectionTransform3_0_X.class);
+    }
 
+    /**
+     * The <code>com.mongodb.Mongo</code> exists starting from MongoDB Driver v2 and
+     * it continues to exist in v3 with the v2 methods deprecated.
+     *
+     * This method is supposed to handle both the versions.
+     */
+    private void addMongoConnectionTransformer_2Plus() {
+        transformTemplate.transform("com.mongodb.Mongo", MongoConnectionTransformer_2Plus.class);
+    }
+
+    public static class MongoConnectionTransformer_2Plus implements TransformCallback {
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className,
+                Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer)
+                throws InstrumentException {
+            InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+
+            if (!target.isInterceptable()) {
+                return null;
+            }
+
+            target.addField(DatabaseInfoAccessor.class);
+
+            try {
+                InstrumentMethod connect = InstrumentUtils.findConstructor(target, "com.mongodb.connection.Cluster",
+                        "com.mongodb.MongoClientOptions", "java.util.List");
+                connect.addScopedInterceptor(MongoDriverConnectInterceptor3_0.class, MONGO_SCOPE,
+                        ExecutionPolicy.BOUNDARY);
+            } catch (NotFoundInstrumentException e) {
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("3.x constructor not found. Ignoring...");
+                }
+            }
+
+            InstrumentMethod close = InstrumentUtils.findMethod(target, "close");
+            close.addScopedInterceptor(ConnectionCloseInterceptor.class, MONGO_SCOPE);
+
+            try {
+                InstrumentMethod database = InstrumentUtils.findMethod(target, "getDB", "java.lang.String");
+                database.addScopedInterceptor(MongoDriverGetDatabaseInterceptor.class, MONGO_SCOPE,
+                        ExecutionPolicy.BOUNDARY);
+            } catch (NotFoundInstrumentException e) {
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("2.x method getDB not found. Ignoring...");
+                }
+            }
+
+            return target.toBytecode();
+        }
     }
 
     public static class ClientConnectionTransform3_0_X implements TransformCallback {
@@ -121,7 +173,6 @@ public class MongoPlugin implements ProfilerPlugin, TransformTemplateAware {
             InstrumentMethod connect = InstrumentUtils.findConstructor(target, "com.mongodb.connection.Cluster", "com.mongodb.MongoClientOptions", "java.util.List");
 
             connect.addScopedInterceptor(MongoDriverConnectInterceptor3_0.class, MONGO_SCOPE, ExecutionPolicy.BOUNDARY);
-
 
             InstrumentMethod close = InstrumentUtils.findMethod(target, "close");
             close.addScopedInterceptor(ConnectionCloseInterceptor.class, MONGO_SCOPE);
@@ -270,6 +321,31 @@ public class MongoPlugin implements ProfilerPlugin, TransformTemplateAware {
         }
     }
 
+    private void addConnectionTransformer2_X() {
+        transformTemplate.transform("com.mongodb.DB", ConnectionTransformer2_X.class);
+    }
+
+    public static class ConnectionTransformer2_X implements TransformCallback {
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className,
+                Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer)
+                throws InstrumentException {
+            InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+
+            if (!target.isInterceptable()) {
+                return null;
+            }
+
+            target.addField(DatabaseInfoAccessor.class);
+
+            InstrumentMethod connect = InstrumentUtils.findMethod(target, "getCollection", "java.lang.String");
+            connect.addScopedInterceptor(MongoDriverGetCollectionInterceptor.class,
+                    MONGO_SCOPE, ExecutionPolicy.BOUNDARY);
+
+            return target.toBytecode();
+        }
+    }
+
     private void addSessionTransformer3_0_X() {
         transformTemplate.transform("com.mongodb.MongoCollectionImpl", SessionTransform3_0_X.class);
     }
@@ -336,6 +412,44 @@ public class MongoPlugin implements ProfilerPlugin, TransformTemplateAware {
             InstrumentMethod getWriteConcern = InstrumentUtils.findMethod(target, "withWriteConcern", "com.mongodb.WriteConcern");
             getWriteConcern.addScopedInterceptor(MongoWriteConcernInterceptor.class, MONGO_SCOPE, ExecutionPolicy.BOUNDARY);
 
+
+            return target.toBytecode();
+        }
+    }
+
+    private void addSessionTransformer2_X() {
+        // java driver 2.X
+        transformTemplate.transform("com.mongodb.DBCollection", SessionTransformer2_X.class);
+    }
+
+    public static class SessionTransformer2_X implements TransformCallback {
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className,
+                Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer)
+                throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+
+            if (!target.isInterceptable()) {
+                return null;
+            }
+
+            MongoConfig config = new MongoConfig(instrumentor.getProfilerConfig());
+
+            target.addField(DatabaseInfoAccessor.class);
+
+            for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters
+                    .chain(MethodFilters.modifier(Modifier.PUBLIC), MethodFilters.name(getMethodlistR2_x())))) {
+                method.addScopedInterceptor(MongoRSessionInterceptor.class,
+                        va(config.isCollectJson(), config.istraceBsonBindValue()), MONGO_SCOPE,
+                        ExecutionPolicy.BOUNDARY);
+            }
+
+            for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters
+                    .chain(MethodFilters.modifier(Modifier.PUBLIC), MethodFilters.name(getMethodlistCUD2_x())))) {
+                method.addScopedInterceptor(MongoCUDSessionInterceptor.class,
+                        va(config.isCollectJson(), config.istraceBsonBindValue()), MONGO_SCOPE,
+                        ExecutionPolicy.BOUNDARY);
+            }
 
             return target.toBytecode();
         }
@@ -720,12 +834,25 @@ public class MongoPlugin implements ProfilerPlugin, TransformTemplateAware {
 //                , "watch" ,"aggregate","mapReduce"
         };
         return methodList;
-    }
+	}
+
+	private static String[] getMethodlistR2_x() {
+		return new String[] { "findOneAndUpdate", "findOneAndReplace", "findOneAndDelete", "find", "count", "distinct",
+				"listIndexes", "aggregate", "findOne"
+				// , "watch", "mapReduce"
+		};
+	}
 
     private static String[] getMethodlistCUD3_0_x() {
         final String[] methodList = new String[]{"dropIndexes", "dropIndex", "createIndexes", "createIndex"
                 , "updateMany", "updateOne", "replaceOne", "deleteMany", "deleteOne", "insertMany", "insertOne", "bulkWrite"};
         return methodList;
+    }
+
+    private static String[] getMethodlistCUD2_x() {
+        return new String[] { "dropIndexes", "dropIndex", "createIndexes", "createIndex", "updateMany", "updateOne",
+                "replaceOne", "deleteMany", "deleteOne", "insertMany", "insertOne", "bulkWrite", "save", "update",
+                "updateMulti" };
     }
 
     private static String[] getMethodlistR3_7_x() {
