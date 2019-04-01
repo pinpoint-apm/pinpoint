@@ -158,7 +158,7 @@ public class LinkFilter implements Filter<SpanBo> {
         FAIL_ONLY
     }
 
-    private Filter resolveFilter() {
+    private Filter<SpanBo> resolveFilter() {
         if (includeWas(fromServiceDescList) && includeWas(toServiceDescList)) {
             return new WasToWasFilter();
         }
