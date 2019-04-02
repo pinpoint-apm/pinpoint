@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.navercorp.pinpoint.web.util.ValueValidator;
 import com.navercorp.pinpoint.web.vo.exception.PinpointUserGroupException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,7 +49,6 @@ public class UserGroupController {
     
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private static final String SSO_USER = "SSO_USER";
     public static final String EDIT_GROUP_ONLY_GROUPMEMBER = "permission_userGroup_editGroupOnlyGroupMember";
     public static final String USER_GROUP_ID = "userGroupId";
     public static final String USER_ID = "userId";
@@ -59,8 +59,8 @@ public class UserGroupController {
     @RequestMapping(method = RequestMethod.POST)
     @ResponseBody
     public Map<String, String> createUserGroup(@RequestBody UserGroup userGroup) {
-        if (StringUtils.isEmpty(userGroup.getId())) {
-            return createErrorMessage("500", "There is not id of userGroup in params to create user group");
+        if (ValueValidator.validateUserGroupId(userGroup.getId())) {
+            return createErrorMessage("500", "usergroupId pattern is invalid to create user group");
         }
 
         try {
