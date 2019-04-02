@@ -9,11 +9,11 @@ import * as md5 from 'blueimp-md5';
     animations: [
         trigger('collapseSpread', [
             state('collapsed', style({
-                maxHeight: 0,
+                height: 0,
                 overflow: 'hidden'
             })),
             state('spreaded', style({
-                maxHeight: '300px'
+                height: 'auto'
             })),
             transition('collapsed <=> spreaded', [
                 animate('0.5s')
