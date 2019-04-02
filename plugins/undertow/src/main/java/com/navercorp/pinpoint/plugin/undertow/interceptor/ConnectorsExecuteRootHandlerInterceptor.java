@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.plugin.undertow.interceptor;
 
+import com.navercorp.pinpoint.bootstrap.config.Filter;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
@@ -38,8 +39,6 @@ import io.undertow.server.HttpServerExchange;
  * @author jaehong.kim
  */
 public class ConnectorsExecuteRootHandlerInterceptor implements AroundInterceptor {
-    private static final String SERVLET_INITIAL_HANDLER_CLASS_NAME = "io.undertow.servlet.handlers.ServletInitialHandler$1";
-
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
     private final boolean isInfo = logger.isInfoEnabled();
@@ -52,7 +51,7 @@ public class ConnectorsExecuteRootHandlerInterceptor implements AroundIntercepto
     public ConnectorsExecuteRootHandlerInterceptor(TraceContext traceContext, MethodDescriptor descriptor, RequestRecorderFactory<HttpServerExchange> requestRecorderFactory) {
         this.methodDescriptor = descriptor;
         final UndertowConfig config = new UndertowConfig(traceContext.getProfilerConfig());
-        this.argumentValidator = new ConnectorsArgumentValidator(config.isDeployServlet());
+        this.argumentValidator = new ConnectorsArgumentValidator(config.getHttpHandlerClassNameFilter());
         RequestAdaptor<HttpServerExchange> requestAdaptor = new HttpServerExchangeAdaptor();
         requestAdaptor = RemoteAddressResolverFactory.wrapRealIpSupport(requestAdaptor, config.getRealIpHeader(), config.getRealIpEmptyValue());
         ParameterRecorder<HttpServerExchange> parameterRecorder = ParameterRecorderFactory.newParameterRecorderFactory(config.getExcludeProfileMethodFilter(), config.isTraceRequestParam());
@@ -112,10 +111,10 @@ public class ConnectorsExecuteRootHandlerInterceptor implements AroundIntercepto
     }
 
     private static class ConnectorsArgumentValidator implements ArgumentValidator {
-        private final boolean deployServlet;
+        private final Filter<String> httpHandlerClassNameFilter;
 
-        public ConnectorsArgumentValidator(boolean deployServlet) {
-            this.deployServlet = deployServlet;
+        public ConnectorsArgumentValidator(final Filter<String> httpHandlerClassNameFilter) {
+            this.httpHandlerClassNameFilter = httpHandlerClassNameFilter;
         }
 
         @Override
@@ -132,13 +131,9 @@ public class ConnectorsExecuteRootHandlerInterceptor implements AroundIntercepto
                 return false;
             }
 
-            // For servlet deployments, use only the inner class of the ServletInitialHandler class.
-            if (deployServlet) {
-                // Compares the class name in case the servlet jar file is detached.
-                final String httpHandlerClassName = args[0].getClass().getName();
-                if (!SERVLET_INITIAL_HANDLER_CLASS_NAME.equals(httpHandlerClassName)) {
-                    return false;
-                }
+            final String httpHandlerClassName = args[0].getClass().getName();
+            if (!this.httpHandlerClassNameFilter.filter(httpHandlerClassName)) {
+                return false;
             }
 
             if (!(args[1] instanceof HttpServerExchange)) {
