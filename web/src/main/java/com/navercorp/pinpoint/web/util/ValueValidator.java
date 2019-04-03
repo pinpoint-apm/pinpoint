@@ -57,12 +57,12 @@ public class ValueValidator {
     private static final Pattern USER_GROUP_ID_PATTERN = Pattern.compile(USER_GROUP_ID_PATTERN_EXPRESSION);
 
     private static final int PHONENUMBER_MAX_LENGTH = 24;
-    private static final int PHONENUMBER_MIN_LENGTH = 0;
+    private static final int PHONENUMBER_MIN_LENGTH = 3;
     private static final String PHONENUMBER_PATTERN_EXPRESSION = "[0-9]+";
     private static final Pattern PHONENUMBER_PATTERN = Pattern.compile(PHONENUMBER_PATTERN_EXPRESSION);
 
     private static final int EMAIL_MAX_LENGTH = 60;
-    private static final int EMAIL_MIN_LENGTH = 0;
+    private static final int EMAIL_MIN_LENGTH = 3;
     private static final String EMAIL_PATTERN_EXPRESSION = "^[A-Za-z0-9._-]+@[A-Za-z0-9.-]+\\.[A-Za-z]+$";
     private static final Pattern EMAIL_PATTERN = Pattern.compile(EMAIL_PATTERN_EXPRESSION);
 
