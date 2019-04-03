@@ -18,10 +18,10 @@ package com.navercorp.pinpoint.web.service.map;
 
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
-import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.trace.HistogramSchema;
 import com.navercorp.pinpoint.common.trace.HistogramSlot;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
 import com.navercorp.pinpoint.web.filter.visitor.SpanAcceptor;
@@ -72,6 +72,7 @@ public class FilteredMapBuilder {
     // @Nullable
     private ServerMapDataFilter serverMapDataFilter;
 
+    private final Map<String, Application> applicationHashMap = new HashMap<>();
 
     public FilteredMapBuilder(ApplicationFactory applicationFactory, ServiceTypeRegistryService registry, Range range, int version) {
         this.applicationFactory = Objects.requireNonNull(applicationFactory, "applicationFactory must not be null");
@@ -125,7 +126,7 @@ public class FilteredMapBuilder {
                     logger.trace("span user:{} {} -> span:{} {}", parentApplication, span.getAgentId(), spanApplication, span.getAgentId());
                 }
                 final LinkDataMap sourceLinkData = linkDataDuplexMap.getSourceLinkDataMap();
-                sourceLinkData.addLinkData(parentApplication, span.getAgentId(), spanApplication,  span.getAgentId(), timestamp, slotTime, 1);
+                sourceLinkData.addLinkData(parentApplication, span.getAgentId(), spanApplication, span.getAgentId(), timestamp, slotTime, 1);
 
                 if (logger.isTraceEnabled()) {
                     logger.trace("span target user:{} {} -> span:{} {}", parentApplication, span.getAgentId(), spanApplication, span.getAgentId());
@@ -230,20 +231,37 @@ public class FilteredMapBuilder {
 
     private void addNode(SpanBo span, Map<Long, SpanBo> transactionSpanMap, Application srcApplication, LinkDataMap sourceLinkDataMap, SpanEventBo spanEvent) {
         ServiceType destServiceType = registry.findServiceType(spanEvent.getServiceType());
+
+        if (destServiceType.isAlias()) {
+            final Application destApplication = this.applicationFactory.createApplication(spanEvent.getDestinationId(), destServiceType);
+            applicationHashMap.putIfAbsent(spanEvent.getEndPoint(), destApplication);
+        }
+
         if (!destServiceType.isRecordStatistics()) {
             // internal method
             return;
         }
+
+        String dest = StringUtils.defaultString(spanEvent.getDestinationId(), "Unknown");
+
         // convert to Unknown if destServiceType is a rpc client and there is no acceptor.
         // acceptor exists if there is a span with spanId identical to the current spanEvent's next spanId.
         // logic for checking acceptor
         if (destServiceType.isRpcClient()) {
             if (!transactionSpanMap.containsKey(spanEvent.getNextSpanId())) {
-                destServiceType = ServiceType.UNKNOWN;
+
+                Application replacedApplication = applicationHashMap.get(spanEvent.getDestinationId());
+                if (replacedApplication == null) {
+                    destServiceType = ServiceType.UNKNOWN;
+                } else {
+                    //replace with alias instead of Unkown when exists
+                    logger.debug("replace with alias {}", replacedApplication.getServiceType());
+                    destServiceType = replacedApplication.getServiceType();
+                    dest = replacedApplication.getName();
+                }
             }
         }
 
-        final String dest = StringUtils.defaultString(spanEvent.getDestinationId(), "Unknown");
 
         final Application destApplication = this.applicationFactory.createApplication(dest, destServiceType);
 

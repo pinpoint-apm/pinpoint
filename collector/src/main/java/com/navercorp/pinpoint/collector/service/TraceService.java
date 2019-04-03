@@ -22,8 +22,8 @@ import com.navercorp.pinpoint.collector.dao.TraceDao;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
-import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class TraceService {
@@ -72,6 +73,19 @@ public class TraceService {
         insertAcceptorHost(spanBo);
         insertSpanStat(spanBo);
         insertSpanEventStat(spanBo);
+    }
+
+    private void insertAcceptorHost(SpanEventBo spanEvent, String applicationId, ServiceType serviceType) {
+
+        String endPoint = spanEvent.getEndPoint();
+        if(endPoint == null){
+            return;
+        }
+        String destinationId = spanEvent.getDestinationId();
+        if(destinationId == null){
+            return;
+        }
+        hostApplicationMapDao.insert(endPoint, destinationId, spanEvent.getServiceType(), applicationId, serviceType.getCode());
     }
 
     private void insertAcceptorHost(SpanBo span) {
@@ -177,11 +191,20 @@ public class TraceService {
     }
 
     private void insertSpanEventList(List<SpanEventBo> spanEventList, ServiceType applicationServiceType, String applicationId, String agentId, String endPoint) {
+
         for (SpanEventBo spanEvent : spanEventList) {
             final ServiceType spanEventType = registry.findServiceType(spanEvent.getServiceType());
+
+            if (spanEventType.isAlias()) {
+                insertAcceptorHost(spanEvent, applicationId, applicationServiceType);
+            }
+
             if (!spanEventType.isRecordStatistics()) {
                 continue;
             }
+
+            final String spanEventApplicationName = spanEvent.getDestinationId();
+            final String spanEventEndPoint = spanEvent.getEndPoint();
 
             // if terminal update statistics
             final int elapsed = spanEvent.getEndElapsed();
@@ -191,10 +214,10 @@ public class TraceService {
              * save information to draw a server map based on statistics
              */
             // save the information of caller (the spanevent that called span)
-            statisticsService.updateCaller(applicationId, applicationServiceType, agentId, spanEvent.getDestinationId(), spanEventType, spanEvent.getEndPoint(), elapsed, hasException);
+            statisticsService.updateCaller(applicationId, applicationServiceType, agentId, spanEventApplicationName, spanEventType, spanEventEndPoint, elapsed, hasException);
 
             // save the information of callee (the span that spanevent called)
-            statisticsService.updateCallee(spanEvent.getDestinationId(), spanEventType, applicationId, applicationServiceType, endPoint, elapsed, hasException);
+            statisticsService.updateCallee(spanEventApplicationName, spanEventType, applicationId, applicationServiceType, endPoint, elapsed, hasException);
         }
     }
 }
