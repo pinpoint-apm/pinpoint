@@ -25,6 +25,7 @@ public class ParsedServiceTypeProperty {
     private boolean queue;
     private boolean recordStatistics;
     private boolean includeDestinationId;
+    private boolean alias;
 
     public boolean isTerminal() {
         return terminal;
@@ -56,5 +57,13 @@ public class ParsedServiceTypeProperty {
 
     public void setIncludeDestinationId(boolean includeDestinationId) {
         this.includeDestinationId = includeDestinationId;
+    }
+
+    public boolean isAlias() {
+        return alias;
+    }
+
+    public void setAlias(boolean alias) {
+        this.alias = alias;
     }
 }
