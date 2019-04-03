@@ -108,7 +108,8 @@ export enum TRACKED_EVENT_LIST {
     CLICK_ISSUES_BUTTON = 'Click Issues Button in Help',
     CLICK_USER_COMMUNITY_BUTTON = 'Click User Community Button in Help',
     CLICK_START_GUIDE = 'Click Start Guide in Help',
-    CLICK_TECHNICAL_OVERVIEW = 'Click Technical Overview in Help'
+    CLICK_TECHNICAL_OVERVIEW = 'Click Technical Overview in Help',
+    CLICK_INSPECTOR_CHART_LAYOUT_OPTION = 'Click Inspector Chart Layout Option'
 }
 
 @Injectable()
