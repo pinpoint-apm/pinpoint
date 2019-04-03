@@ -1,6 +1,12 @@
 import { Component, OnInit, AfterViewChecked, Input, Output, EventEmitter } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { FormControl, FormGroup, Validators, ValidatorFn, AbstractControl } from '@angular/forms';
 
+function userGroupNameValidator(valueRe: RegExp): ValidatorFn {
+    return (control: AbstractControl): {[key: string]: any} | null => {
+        const invalid = !valueRe.test(control.value);
+        return invalid ? {'valueRule': {value: control.value}} : null;
+    };
+}
 @Component({
     selector: 'pp-user-group-create-and-update',
     templateUrl: './user-group-create-and-update.component.html',
@@ -21,7 +27,7 @@ export class UserGroupCreateAndUpdateComponent implements OnInit, AfterViewCheck
         this.userGroupForm = new FormGroup({
             'userGroupName': new FormControl(this.newUserGroupModel, [
                 Validators.required,
-                Validators.minLength(this.minLength)
+                userGroupNameValidator(/^[\w\-]{4,30}$/)
             ])
         });
     }
