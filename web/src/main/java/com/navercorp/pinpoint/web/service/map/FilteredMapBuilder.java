@@ -221,6 +221,9 @@ public class FilteredMapBuilder {
         final Application srcApplication = applicationFactory.createApplication(span.getApplicationId(), span.getApplicationServiceType());
 
         LinkDataMap sourceLinkDataMap = linkDataDuplexMap.getSourceLinkDataMap();
+
+        SpanEventBo aliasSpanEventBo = null;
+
         for (SpanEventBo spanEvent : spanEventBoList) {
 
             ServiceType destServiceType = registry.findServiceType(spanEvent.getServiceType());
@@ -228,6 +231,28 @@ public class FilteredMapBuilder {
                 // internal method
                 continue;
             }
+
+            if (destServiceType.isAlias()) {
+                aliasSpanEventBo = spanEvent;
+                continue;
+            }
+
+            String dest = spanEvent.getDestinationId();
+            String spanEventEndPoint = spanEvent.getEndPoint();
+            int elapsed = spanEvent.getStartElapsed();
+            boolean hasException = spanEvent.hasException();
+
+            if(aliasSpanEventBo != null){
+                destServiceType = registry.findServiceType(aliasSpanEventBo.getServiceType());
+                logger.debug("replace spanEvent with aliasSpanEvent" + destServiceType);
+                dest = aliasSpanEventBo.getDestinationId();
+                spanEventEndPoint = aliasSpanEventBo.getEndPoint();
+                //TODO depth >2
+                elapsed += aliasSpanEventBo.getStartElapsed();
+                hasException |= aliasSpanEventBo.hasException();
+                aliasSpanEventBo = null;
+            }
+
             // convert to Unknown if destServiceType is a rpc client and there is no acceptor.
             // acceptor exists if there is a span with spanId identical to the current spanEvent's next spanId.
             // logic for checking acceptor
@@ -237,22 +262,21 @@ public class FilteredMapBuilder {
                 }
             }
 
-            String dest = spanEvent.getDestinationId();
             if (dest == null) {
                 dest = "Unknown";
             }
 
             final Application destApplication = this.applicationFactory.createApplication(dest, destServiceType);
 
-            final short slotTime = getHistogramSlotTime(spanEvent, destServiceType);
+            final short slotTime = getHistogramSlotTime(hasException, elapsed, destServiceType);
 
             // FIXME
-            final long spanEventTimeStamp = timeWindow.refineTimestamp(span.getStartTime() + spanEvent.getStartElapsed());
+            final long spanEventTimeStamp = timeWindow.refineTimestamp(span.getStartTime() + elapsed);
             if (logger.isTraceEnabled()) {
-                logger.trace("spanEvent  src:{} {} -> dest:{} {}", srcApplication, span.getAgentId(), destApplication, spanEvent.getEndPoint());
+                logger.trace("spanEvent  src:{} {} -> dest:{} {}", srcApplication, span.getAgentId(), destApplication, spanEventEndPoint);
             }
             // endPoint may be null
-            final String destinationAgentId = StringUtils.defaultString(spanEvent.getEndPoint());
+            final String destinationAgentId = StringUtils.defaultString(spanEventEndPoint);
             sourceLinkDataMap.addLinkData(srcApplication, span.getAgentId(), destApplication, destinationAgentId, spanEventTimeStamp, slotTime, 1);
         }
     }
@@ -260,10 +284,6 @@ public class FilteredMapBuilder {
     public FilteredMap build() {
         ResponseHistograms responseHistograms = responseHistogramsBuilder.build();
         return new FilteredMap(linkDataDuplexMap, responseHistograms, dotExtractor);
-    }
-
-    private short getHistogramSlotTime(SpanEventBo spanEvent, ServiceType serviceType) {
-        return getHistogramSlotTime(spanEvent.hasException(), spanEvent.getEndElapsed(), serviceType);
     }
 
     private short getHistogramSlotTime(SpanBo span, ServiceType serviceType) {

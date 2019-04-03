@@ -177,24 +177,48 @@ public class TraceService {
     }
 
     private void insertSpanEventList(List<SpanEventBo> spanEventList, ServiceType applicationServiceType, String applicationId, String agentId, String endPoint) {
+
+        SpanEventBo aliasSpanEventBo = null;
+
         for (SpanEventBo spanEvent : spanEventList) {
-            final ServiceType spanEventType = registry.findServiceType(spanEvent.getServiceType());
+            ServiceType spanEventType = registry.findServiceType(spanEvent.getServiceType());
+
             if (!spanEventType.isRecordStatistics()) {
                 continue;
             }
 
+            if (spanEventType.isAlias()) {
+                aliasSpanEventBo = spanEvent;
+                continue;
+            }
+
+            String spanEventApplicationName = spanEvent.getDestinationId();
+            String spanEventEndPoint = spanEvent.getEndPoint();
+
             // if terminal update statistics
-            final int elapsed = spanEvent.getEndElapsed();
-            final boolean hasException = spanEvent.hasException();
+            int elapsed = spanEvent.getEndElapsed();
+            boolean hasException = spanEvent.hasException();
+
+//            if(spanEventType.isRpcClient() && aliasServiceType != null){
+            if(aliasSpanEventBo != null){
+                spanEventType = registry.findServiceType(aliasSpanEventBo.getServiceType());
+                logger.debug("replace spanEvent with aliasSpanEvent" + spanEventType);
+                spanEventApplicationName = aliasSpanEventBo.getDestinationId();
+                spanEventEndPoint = aliasSpanEventBo.getEndPoint();
+                //TODO depth >2
+                elapsed += aliasSpanEventBo.getStartElapsed();
+                hasException |= aliasSpanEventBo.hasException();
+                aliasSpanEventBo = null;
+            }
 
             /*
              * save information to draw a server map based on statistics
              */
             // save the information of caller (the spanevent that called span)
-            statisticsService.updateCaller(applicationId, applicationServiceType, agentId, spanEvent.getDestinationId(), spanEventType, spanEvent.getEndPoint(), elapsed, hasException);
+            statisticsService.updateCaller(applicationId, applicationServiceType, agentId, spanEventApplicationName, spanEventType, spanEventEndPoint, elapsed, hasException);
 
             // save the information of callee (the span that spanevent called)
-            statisticsService.updateCallee(spanEvent.getDestinationId(), spanEventType, applicationId, applicationServiceType, endPoint, elapsed, hasException);
+            statisticsService.updateCallee(spanEventApplicationName, spanEventType, applicationId, applicationServiceType, endPoint, elapsed, hasException);
         }
     }
 }
