@@ -241,9 +241,9 @@ public interface ServiceType {
     // return true when the service type is USER or can not be identified
     boolean isUser();
 
-
-
     boolean isTerminal();
+
+    boolean isAlias();
 
     boolean isQueue();
 
