@@ -36,6 +36,10 @@ import org.mockito.junit.MockitoJUnitRunner;
 import java.util.Collections;
 import java.util.Set;
 
+import static com.navercorp.pinpoint.common.trace.ServiceTypeFactory.of;
+import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.AS_ALIAS;
+import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.RECORD_STATISTICS;
+import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.TERMINAL;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -218,5 +222,46 @@ public class RpcCallProcessorTest {
         Assert.assertEquals(toApplication, linkData.getToApplication());
 
         Assert.assertTrue(virtualLinkMarker.getVirtualLinkData().isEmpty());
+    }
+
+    @Test
+    public void multipleAcceptApplications_with_AliasAndOriginal() {
+
+        ServiceType AliasServiceType = of(1008, "TEST_ALIAS_CLIENT", AS_ALIAS);
+        ServiceType ServerServiceType = of(1009, "TEST_ALIAS_SERVER", RECORD_STATISTICS, TERMINAL);
+
+        // Given
+        ServiceType rpcClientServiceType = mock(ServiceType.class);
+        when(rpcClientServiceType.isRpcClient()).thenReturn(true);
+        String rpcUri = "accept.host/foo";
+
+        Application fromApplication = new Application("WAS", ServiceType.TEST_STAND_ALONE);
+        Application toApplication = new Application(rpcUri, rpcClientServiceType);
+
+        LinkDataMap linkDataMap = new LinkDataMap();
+        linkDataMap.addLinkData(new LinkData(fromApplication, toApplication));
+
+        Application expectedToApplication1 = new Application("AliasClient", AliasServiceType);
+        Application expectedToApplication2 = new Application("AliasServer", ServerServiceType);
+        when(hostApplicationMapDao.findAcceptApplicationName(fromApplication, testRange))
+                .thenReturn(Sets.newHashSet(
+                        new AcceptApplication(rpcUri, expectedToApplication1),
+                        new AcceptApplication(rpcUri, expectedToApplication2)));
+
+        // When
+        VirtualLinkMarker virtualLinkMarker = new VirtualLinkMarker();
+        RpcCallProcessor rpcCallProcessor = new RpcCallProcessor(hostApplicationMapDao, virtualLinkMarker);
+        LinkDataMap replacedLinkDataMap = rpcCallProcessor.processLinkDataMap(linkDataMap, testRange);
+
+        // Then
+        LinkKey originalLinkKey = new LinkKey(fromApplication, toApplication);
+        Assert.assertNull(replacedLinkDataMap.getLinkData(originalLinkKey));
+
+        LinkKey replacedLinkKey2 = new LinkKey(fromApplication, expectedToApplication2);
+        LinkData replacedLinkData2 = replacedLinkDataMap.getLinkData(replacedLinkKey2);
+        Assert.assertNotNull(replacedLinkData2);
+        Assert.assertEquals(fromApplication, replacedLinkData2.getFromApplication());
+        Assert.assertEquals(expectedToApplication2, replacedLinkData2.getToApplication());
+
     }
 }
