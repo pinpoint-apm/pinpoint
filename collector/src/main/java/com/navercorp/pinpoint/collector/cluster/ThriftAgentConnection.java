@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.rpc.server.PinpointServer;
 import com.navercorp.pinpoint.rpc.util.MapUtils;
 import com.navercorp.pinpoint.thrift.io.TCommandType;
 import com.navercorp.pinpoint.thrift.io.TCommandTypeVersion;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.thrift.TBase;
 import org.springframework.util.NumberUtils;
@@ -35,7 +36,7 @@ import java.util.Map;
 /**
  * @author koo.taejin
  */
-public class PinpointServerClusterPoint implements TargetClusterPoint {
+public class ThriftAgentConnection implements ClusterPoint<byte[]> {
 
     private final PinpointServer pinpointServer;
 
@@ -43,7 +44,7 @@ public class PinpointServerClusterPoint implements TargetClusterPoint {
 
     private final List<TCommandType> supportCommandList;
 
-    public PinpointServerClusterPoint(PinpointServer pinpointServer) {
+    public ThriftAgentConnection(PinpointServer pinpointServer) {
         Assert.requireNonNull(pinpointServer, "pinpointServer must not be null.");
         this.pinpointServer = pinpointServer;
 
@@ -82,11 +83,6 @@ public class PinpointServerClusterPoint implements TargetClusterPoint {
         }
         return result;
 
-    }
-
-    @Override
-    public void send(byte[] payload) {
-        pinpointServer.send(payload);
     }
 
     @Override
@@ -145,11 +141,11 @@ public class PinpointServerClusterPoint implements TargetClusterPoint {
             return true;
         }
 
-        if (!(obj instanceof PinpointServerClusterPoint)) {
+        if (!(obj instanceof ThriftAgentConnection)) {
             return false;
         }
 
-        if (this.getPinpointServer() == ((PinpointServerClusterPoint) obj).getPinpointServer()) {
+        if (this.getPinpointServer() == ((ThriftAgentConnection) obj).getPinpointServer()) {
             return true;
         }
 

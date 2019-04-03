@@ -17,8 +17,8 @@
 package com.navercorp.pinpoint.collector.cluster.route;
 
 import com.navercorp.pinpoint.collector.cluster.AgentInfo;
+import com.navercorp.pinpoint.collector.cluster.ClusterPoint;
 import com.navercorp.pinpoint.collector.cluster.ClusterPointLocator;
-import com.navercorp.pinpoint.collector.cluster.TargetClusterPoint;
 import com.navercorp.pinpoint.thrift.dto.command.TCommandTransfer;
 import com.navercorp.pinpoint.thrift.dto.command.TCommandTransferResponse;
 import com.navercorp.pinpoint.thrift.dto.command.TRouteResult;
@@ -36,20 +36,20 @@ public abstract class AbstractRouteHandler<T extends RouteEvent> implements Rout
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final ClusterPointLocator<TargetClusterPoint> targetClusterPointLocator;
+    private final ClusterPointLocator<ClusterPoint> targetClusterPointLocator;
 
-    public AbstractRouteHandler(ClusterPointLocator<TargetClusterPoint> targetClusterPointLocator) {
+    public AbstractRouteHandler(ClusterPointLocator<ClusterPoint> targetClusterPointLocator) {
         this.targetClusterPointLocator = targetClusterPointLocator;
     }
 
-    protected TargetClusterPoint findClusterPoint(TCommandTransfer deliveryCommand) {
+    protected ClusterPoint findClusterPoint(TCommandTransfer deliveryCommand) {
         String applicationName = deliveryCommand.getApplicationName();
         String agentId = deliveryCommand.getAgentId();
         long startTimeStamp = deliveryCommand.getStartTime();
 
-        List<TargetClusterPoint> result = new ArrayList<>();
+        List<ClusterPoint> result = new ArrayList<>();
 
-        for (TargetClusterPoint targetClusterPoint : targetClusterPointLocator.getClusterPointList()) {
+        for (ClusterPoint targetClusterPoint : targetClusterPointLocator.getClusterPointList()) {
             AgentInfo destAgentInfo = targetClusterPoint.getDestAgentInfo();
             if (destAgentInfo.equals(applicationName, agentId, startTimeStamp)) {
                 result.add(targetClusterPoint);

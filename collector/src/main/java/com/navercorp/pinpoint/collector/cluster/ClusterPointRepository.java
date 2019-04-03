@@ -90,8 +90,8 @@ public class ClusterPointRepository<T extends ClusterPoint> implements ClusterPo
             for (String key : keySet) {
                 Set<T> clusterPointSet = clusterPointRepository.get(key);
                 for (T clusterPoint : clusterPointSet) {
-                    if (clusterPoint instanceof PinpointServerClusterPoint) {
-                        PinpointServer pinpointServer = ((PinpointServerClusterPoint) clusterPoint).getPinpointServer();
+                    if (clusterPoint instanceof ThriftAgentConnection) {
+                        PinpointServer pinpointServer = ((ThriftAgentConnection) clusterPoint).getPinpointServer();
                         if (SocketStateCode.isRunDuplex(pinpointServer.getCurrentStateCode())) {
                             availableAgentKeySet.add(key);
                         }

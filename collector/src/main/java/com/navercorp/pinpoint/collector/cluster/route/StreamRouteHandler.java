@@ -16,9 +16,9 @@
 
 package com.navercorp.pinpoint.collector.cluster.route;
 
+import com.navercorp.pinpoint.collector.cluster.ClusterPoint;
 import com.navercorp.pinpoint.collector.cluster.ClusterPointLocator;
-import com.navercorp.pinpoint.collector.cluster.PinpointServerClusterPoint;
-import com.navercorp.pinpoint.collector.cluster.TargetClusterPoint;
+import com.navercorp.pinpoint.collector.cluster.ThriftAgentConnection;
 import com.navercorp.pinpoint.collector.cluster.route.filter.RouteFilter;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamClosePacket;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamCode;
@@ -58,7 +58,7 @@ public class StreamRouteHandler extends AbstractRouteHandler<StreamEvent> {
     @Qualifier("commandHeaderTBaseSerializerFactory")
     private SerializerFactory<HeaderTBaseSerializer> commandSerializerFactory;
 
-    public StreamRouteHandler(ClusterPointLocator<TargetClusterPoint> targetClusterPointLocator,
+    public StreamRouteHandler(ClusterPointLocator<ClusterPoint> targetClusterPointLocator,
             RouteFilterChain<StreamEvent> streamCreateFilterChain,
             RouteFilterChain<ResponseEvent> responseFilterChain,
             RouteFilterChain<StreamRouteCloseEvent> streamCloseFilterChain) {
@@ -97,7 +97,7 @@ public class StreamRouteHandler extends AbstractRouteHandler<StreamEvent> {
             return createResponse(TRouteResult.EMPTY_REQUEST);
         }
 
-        TargetClusterPoint clusterPoint = findClusterPoint(event.getDeliveryCommand());
+        ClusterPoint clusterPoint = findClusterPoint(event.getDeliveryCommand());
         if (clusterPoint == null) {
             return createResponse(TRouteResult.NOT_FOUND);
         }
@@ -108,13 +108,13 @@ public class StreamRouteHandler extends AbstractRouteHandler<StreamEvent> {
         }
 
         try {
-            if (clusterPoint instanceof PinpointServerClusterPoint) {
+            if (clusterPoint instanceof ThriftAgentConnection) {
                 StreamRouteManager routeManager = new StreamRouteManager(event);
 
                 ServerStreamChannel consumerStreamChannel = event.getStreamChannel();
                 consumerStreamChannel.setAttributeIfAbsent(ATTACHMENT_KEY, routeManager);
 
-                ClientStreamChannel producerStreamChannel = createStreamChannel((PinpointServerClusterPoint) clusterPoint, event.getDeliveryCommand().getPayload(), routeManager);
+                ClientStreamChannel producerStreamChannel = createStreamChannel((ThriftAgentConnection) clusterPoint, event.getDeliveryCommand().getPayload(), routeManager);
                 routeManager.setProducer(producerStreamChannel);
                 return createResponse(TRouteResult.OK);
             } else {
@@ -132,7 +132,7 @@ public class StreamRouteHandler extends AbstractRouteHandler<StreamEvent> {
         return createResponse(TRouteResult.UNKNOWN);
     }
     
-    private ClientStreamChannel createStreamChannel(PinpointServerClusterPoint clusterPoint, byte[] payload, ClientStreamChannelEventHandler streamChannelEventHandler) throws StreamException {
+    private ClientStreamChannel createStreamChannel(ThriftAgentConnection clusterPoint, byte[] payload, ClientStreamChannelEventHandler streamChannelEventHandler) throws StreamException {
         PinpointServer pinpointServer = clusterPoint.getPinpointServer();
         return pinpointServer.openStream(payload, streamChannelEventHandler);
     }

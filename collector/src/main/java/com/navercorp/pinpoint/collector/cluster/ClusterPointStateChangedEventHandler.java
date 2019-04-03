@@ -54,10 +54,10 @@ public class ClusterPointStateChangedEventHandler extends ServerStateChangeEvent
         }
 
         if (SocketStateCode.RUN_DUPLEX == updatedStateCode) {
-            PinpointServerClusterPoint pinpointServerClusterPoint = new PinpointServerClusterPoint(pinpointServer);
+            ThriftAgentConnection pinpointServerClusterPoint = new ThriftAgentConnection(pinpointServer);
             zookeeperProfilerClusterManager.register(pinpointServerClusterPoint);
         } else if (SocketStateCode.isClosed(updatedStateCode)) {
-            PinpointServerClusterPoint pinpointServerClusterPoint = new PinpointServerClusterPoint(pinpointServer);
+            ThriftAgentConnection pinpointServerClusterPoint = new ThriftAgentConnection(pinpointServer);
             zookeeperProfilerClusterManager.unregister(pinpointServerClusterPoint);
         }
     }
