@@ -29,6 +29,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.navercorp.pinpoint.common.util.DateUtils;
 import com.navercorp.pinpoint.web.applicationmap.link.Link;
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
+import com.navercorp.pinpoint.web.calltree.span.TraceState;
 import com.navercorp.pinpoint.web.vo.callstacks.Record;
 import com.navercorp.pinpoint.web.vo.callstacks.RecordSet;
 import org.apache.commons.lang3.StringEscapeUtils;
@@ -44,18 +45,18 @@ public class TransactionInfoViewModel {
     private Collection<Node> nodes;
     private Collection<Link> links;
     private RecordSet recordSet;
-    private String completeState;
+    private TraceState.State completeState;
     private boolean logLinkEnable;
     private String logButtonName;
     private String logPageUrl;
     private String disableButtonMessage;
 
-    public TransactionInfoViewModel(TransactionId transactionId, Collection<Node> nodes, Collection<Link> links, RecordSet recordSet, String completeState, boolean logLinkEnable, String logButtonName, String logPageUrl, String disableButtonMessage) {
+    public TransactionInfoViewModel(TransactionId transactionId, Collection<Node> nodes, Collection<Link> links, RecordSet recordSet, TraceState.State state, boolean logLinkEnable, String logButtonName, String logPageUrl, String disableButtonMessage) {
         this.transactionId = transactionId;
         this.nodes = nodes;
         this.links = links;
         this.recordSet = recordSet;
-        this.completeState = completeState;
+        this.completeState = state;
         this.logLinkEnable = logLinkEnable;
         this.logButtonName = logButtonName;
         this.logPageUrl = logPageUrl;
@@ -94,7 +95,7 @@ public class TransactionInfoViewModel {
 
     @JsonProperty("completeState")
     public String getCompleteState() {
-        return completeState;
+        return completeState.toString();
     }
 
     @JsonProperty("logLinkEnable")

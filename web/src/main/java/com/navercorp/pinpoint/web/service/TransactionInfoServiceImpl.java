@@ -243,7 +243,7 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
             return 0;
         }
         Align align = alignList.get(0);
-        return align.getLastTime();
+        return align.getEndTime();
     }
 
     private Align findViewPoint(List<Align> alignList, long focusTimestamp, String agentId, long spanId) {

@@ -26,12 +26,12 @@ import java.util.Objects;
  * @author emeroad
  * @author jaehong.kim
  */
-public class AsyncSpanEventAlign extends SpanEventAlign {
+public class SpanChunkEventAlign extends SpanEventAlign {
 
     private final LocalAsyncIdBo localAsyncIdBo;
 
 
-    public AsyncSpanEventAlign(SpanBo spanBo, SpanEventBo spanEventBo, LocalAsyncIdBo localAsyncIdBo) {
+    public SpanChunkEventAlign(SpanBo spanBo, SpanEventBo spanEventBo, LocalAsyncIdBo localAsyncIdBo) {
         super(spanBo, spanEventBo);
         this.localAsyncIdBo = Objects.requireNonNull(localAsyncIdBo, "localAsyncIdBo must not be null");
     }

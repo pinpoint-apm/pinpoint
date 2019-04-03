@@ -30,6 +30,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author netspider
@@ -40,18 +41,11 @@ public class SpanAligner {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
-    public static final int INIT_MATCH = -1;
-    // not matched
-    public static final int ERROR_MATCH = 0;
-    // transaction completed successfully
-    public static final int COMPLETE_MATCH = 1;
-    // transaction in-flight or missing data
-    public static final int PROGRESS_MATCH = 2;
+    private final TraceState traceState = new TraceState();
 
-    private int matchType = INIT_MATCH;
     private final long collectorAcceptTime;
     private final List<Node> nodeList;
-    private final Map<SpanIdPair, Node> spanToLinkMap;
+    private final Map<LongPair, Node> spanToLinkMap;
     private final List<Link> linkList = new ArrayList<>();
     private final MetaSpanCallTreeFactory metaSpanCallTreeFactory = new MetaSpanCallTreeFactory();
 
@@ -74,29 +68,29 @@ public class SpanAligner {
         nodeList.sort(new Comparator<Node>() {
             @Override
             public int compare(Node first, Node second) {
-                return (int) (first.span.getStartTime() - second.span.getStartTime());
+                return (int) (first.getSpanBo().getStartTime() - second.getSpanBo().getStartTime());
             }
         });
         return nodeList;
     }
 
-    private Map<SpanIdPair, Node> newSpanToLinkMap(List<Node> nodeList, long collectorAcceptTime) {
-        final Map<SpanIdPair, Node> spanToLinkMap = new HashMap<>();
+    private Map<LongPair, Node> newSpanToLinkMap(List<Node> nodeList, long collectorAcceptTime) {
+        final Map<LongPair, Node> spanToLinkMap = new HashMap<>();
         // for performance & remove duplicate span
         final List<Node> duplicatedNodeList = new ArrayList<>();
         for (Node node : nodeList) {
-            final SpanBo span = node.span;
-            final SpanIdPair key = new SpanIdPair(span.getParentSpanId(), span.getSpanId());
+            final SpanBo span = node.getSpanBo();
+            final LongPair spanIdPairKey = new LongPair(span.getParentSpanId(), span.getSpanId());
             // check duplicated span
-            final Node existNode = spanToLinkMap.get(key);
+            final Node existNode = spanToLinkMap.get(spanIdPairKey);
             if (existNode == null) {
-                spanToLinkMap.put(key, node);
+                spanToLinkMap.put(spanIdPairKey, node);
             } else {
-                updateMatchType(PROGRESS_MATCH);
+                traceState.progress();
                 // duplicated span, choose focus span
                 if (span.getCollectorAcceptTime() == collectorAcceptTime) {
                     // replace value
-                    spanToLinkMap.put(key, node);
+                    spanToLinkMap.put(spanIdPairKey, node);
                     duplicatedNodeList.add(existNode);
                     logger.warn("Duplicated span - choose focus {}", node);
                 } else {
@@ -112,14 +106,8 @@ public class SpanAligner {
         return spanToLinkMap;
     }
 
-    private void updateMatchType(final int matchType) {
-        if (this.matchType == INIT_MATCH) {
-            this.matchType = matchType;
-        }
-    }
-
-    public int getMatchType() {
-        return matchType;
+    public TraceState.State getMatchType() {
+        return traceState.getState();
     }
 
     public CallTree align() {
@@ -137,9 +125,9 @@ public class SpanAligner {
 
     private void populate() {
         for (Node node : this.nodeList) {
-            final SpanBo span = node.span;
+            final SpanBo span = node.getSpanBo();
             final List<SpanEventBo> spanEventBoList = span.getSpanEventBoList();
-            final SpanAsyncEventMap asyncSpanEventMap = SpanAsyncEventMap.build(span.getAsyncSpanChunkBoList());
+            final SpanAsyncEventMap asyncSpanEventMap = SpanAsyncEventMap.build(span.getSpanChunkBoList());
             if (isDebug) {
                 logger.debug("Populate span {parentSpanId={}, spanId={}, startTime={}, root={}, eventSize={}, asyncEventSize={}}", span.getParentSpanId(), span.getSpanId(), span.getStartTime(), span.isRoot(), spanEventBoList.size(), asyncSpanEventMap.size());
             }
@@ -160,18 +148,20 @@ public class SpanAligner {
             if (isDebug) {
                 logger.debug("Populate spanEvent{seq={}, depth={}, async={}, event={}}", spanEventBo.getSequence(), spanEventBo.getDepth(), localAsyncIdBo, spanEventBo);
             }
-            final Align spanEventAlign = newSpanEventAlign(node, spanEventBo, localAsyncIdBo);
+            final SpanBo spanBo = node.getSpanBo();
+            final Align spanEventAlign = getSpanEventAlign(node, spanEventBo, localAsyncIdBo);
             try {
                 if (!node.corrupted) {
-                    tree.add(spanEventBo.getDepth(), spanEventAlign);
+                    final int depth = spanEventBo.getDepth();
+                    tree.add(depth, spanEventAlign);
                 }
             } catch (CorruptedSpanCallTreeNodeException e) {
                 logger.warn("Corrupted span event {}", e.getMessage(), e);
                 node.corrupted = true;
-                updateMatchType(PROGRESS_MATCH);
+                traceState.progress();
 
-                final long startTimeMillis = node.span.getStartTime() + spanEventBo.getStartElapsed();
-                final SpanCallTree corruptedCallTree = metaSpanCallTreeFactory.corrupted(e.getTitle(), node.span.getParentSpanId(), node.span.getSpanId(), startTimeMillis);
+                final long startTimeMillis = spanEventAlign.getStartTime();
+                final SpanCallTree corruptedCallTree = metaSpanCallTreeFactory.corrupted(e.getTitle(), spanBo.getParentSpanId(), spanBo.getSpanId(), startTimeMillis);
                 tree.add(corruptedCallTree);
                 // replace cursor tree.
                 tree = corruptedCallTree;
@@ -182,8 +172,8 @@ public class SpanAligner {
                 // add linked call tree
                 final LinkedCallTree linkedCallTree = new LinkedCallTree(new SpanAlign(new SpanBo()));
                 tree.add(linkedCallTree);
-                final long startTimeMillis = node.span.getStartTime() + spanEventBo.getStartElapsed();
-                final Link link = new Link(node.span.getParentSpanId(), node.span.getSpanId(), nextSpanId, linkedCallTree, startTimeMillis);
+                final long startTimeMillis = spanEventAlign.getStartTime();
+                final Link link = new Link(spanBo.getParentSpanId(), spanBo.getSpanId(), nextSpanId, linkedCallTree, startTimeMillis);
                 this.linkList.add(link);
             }
             // async
@@ -194,13 +184,13 @@ public class SpanAligner {
         }
     }
 
-    private SpanEventAlign newSpanEventAlign(Node node, SpanEventBo spanEventBo, LocalAsyncIdBo localAsyncIdBo) {
+    private Align getSpanEventAlign(Node node, SpanEventBo spanEventBo, LocalAsyncIdBo localAsyncIdBo) {
         if (localAsyncIdBo == null) {
-            return new SpanEventAlign(node.span, spanEventBo);
-        } else {
-            return new AsyncSpanEventAlign(node.span, spanEventBo, localAsyncIdBo);
+            return node.newSpanEventAlign(spanEventBo);
         }
+        return node.newSpanEventAlign(spanEventBo, localAsyncIdBo);
     }
+
 
     private void populateAsyncSpanEvent(final Node node, final SpanCallTree callTree, final SpanChunkBo spanChunkBo, final SpanAsyncEventMap asyncSpanEventMap) {
         if (node.corrupted) {
@@ -220,7 +210,7 @@ public class SpanAligner {
     private void link() {
         final List<Link> linkedList = new ArrayList<>();
         for (Link link : this.linkList) {
-            final SpanIdPair key = new SpanIdPair(link.spanId, link.nextSpanId);
+            final LongPair key = new LongPair(link.spanId, link.nextSpanId);
             final Node node = this.spanToLinkMap.get(key);
             if (node != null) {
                 if (isDebug) {
@@ -240,7 +230,8 @@ public class SpanAligner {
     private void fill() {
         final List<Node> unlinkedNodeList = NodeList.filterUnlinked(this.nodeList);
         for (Node node : unlinkedNodeList) {
-            if (node.linked || node.span.isRoot()) {
+            final SpanBo spanBo = node.getSpanBo();
+            if (node.linked || spanBo.isRoot()) {
                 continue;
             }
             // find missing grand parent.
@@ -258,7 +249,7 @@ public class SpanAligner {
                     matchedLink.linked = true;
                     // clear
                     this.linkList.remove(matchedLink);
-                    updateMatchType(PROGRESS_MATCH);
+                    traceState.progress();
                 }
             }
         }
@@ -276,7 +267,7 @@ public class SpanAligner {
         if (this.nodeList.isEmpty()) {
             // WARNING what wrong ?
             logger.warn("Not found span, node list is empty");
-            updateMatchType(PROGRESS_MATCH);
+            traceState.progress();
             return this.metaSpanCallTreeFactory.unknown(0);
         }
 
@@ -284,7 +275,7 @@ public class SpanAligner {
         if (unlinkedNodeList.isEmpty()) {
             // WARNING recursive link ?
             logger.warn("Not found top node, node list={}", this.nodeList);
-            updateMatchType(PROGRESS_MATCH);
+            traceState.progress();
             return this.metaSpanCallTreeFactory.unknown(0);
         } else if (unlinkedNodeList.size() == 1) {
             // best matching
@@ -297,15 +288,15 @@ public class SpanAligner {
     private CallTree selectFirstSpan(List<Node> topNodeList) {
         final Node node = topNodeList.get(0);
         if (node.spanCallTree.isRootSpan()) {
-            updateMatchType(COMPLETE_MATCH);
+            traceState.complete();
             return node.spanCallTree;
         }
 
         logger.info("Select span in top node list, not found root span");
 
-        CallTree rootCallTree = this.metaSpanCallTreeFactory.unknown(node.span.getStartTime());
+        CallTree rootCallTree = this.metaSpanCallTreeFactory.unknown(node.getSpanBo().getStartTime());
         rootCallTree.add(node.spanCallTree);
-        updateMatchType(PROGRESS_MATCH);
+        traceState.progress();
         return rootCallTree;
     }
 
@@ -334,7 +325,7 @@ public class SpanAligner {
         logger.info("Select first span in top node list, not found root & focus span");
 
         final Node node = topNodeList.get(0);
-        updateMatchType(PROGRESS_MATCH);
+        traceState.progress();
         return selectInNodeList(node, topNodeList);
     }
 
@@ -344,7 +335,7 @@ public class SpanAligner {
             logger.info("Select root span in top node list");
 
             final Node node = rootNodeList.get(0);
-            updateMatchType(PROGRESS_MATCH);
+            traceState.progress();
             return node.spanCallTree;
         }
         // find focus
@@ -352,41 +343,42 @@ public class SpanAligner {
         if (focusNodeList.size() == 1) {
             logger.info("Select root & focus span in top node list");
             final Node node = focusNodeList.get(0);
-            updateMatchType(PROGRESS_MATCH);
+            traceState.progress();
             return node.spanCallTree;
         } else if (focusNodeList.size() > 1) {
             logger.info("Select first root & focus span in top node list");
             final Node node = focusNodeList.get(0);
-            updateMatchType(PROGRESS_MATCH);
+            traceState.progress();
             return node.spanCallTree;
         }
         // not found focus
         logger.info("Select first root span in top node list, not found focus span");
         final Node node = rootNodeList.get(0);
-        updateMatchType(PROGRESS_MATCH);
+        traceState.progress();
         return node.spanCallTree;
     }
 
     private CallTree selectInFocusNodeList(final List<Node> focusNodeList, final List<Node> topNodeList) {
         if (focusNodeList.size() == 1) {
-             logger.info("Select focus span in top node list, not found root span");
+            logger.info("Select focus span in top node list, not found root span");
             final Node node = focusNodeList.get(0);
-            updateMatchType(PROGRESS_MATCH);
+            traceState.progress();
             return selectInNodeList(node, topNodeList);
         }
 
         logger.info("Select first focus span in top node list, not found root span");
 
         final Node node = focusNodeList.get(0);
-        updateMatchType(PROGRESS_MATCH);
+        traceState.progress();
         return selectInNodeList(node, topNodeList);
     }
 
     private CallTree selectInNodeList(final Node node, final List<Node> topNodeList) {
-        final CallTree unknownCallTree = this.metaSpanCallTreeFactory.unknown(node.span.getStartTime());
+        final SpanBo spanBo = node.getSpanBo();
+        final CallTree unknownCallTree = this.metaSpanCallTreeFactory.unknown(spanBo.getStartTime());
         unknownCallTree.add(node.spanCallTree);
         // find same parent
-        final List<Node> sameParentNodeList = NodeList.filterParent(topNodeList, node.span.getParentSpanId());
+        final List<Node> sameParentNodeList = NodeList.filterParent(topNodeList, spanBo.getParentSpanId());
         sameParentNodeList.remove(node);
         for (Node siblingNode : sameParentNodeList) {
             unknownCallTree.add(siblingNode.spanCallTree);
@@ -405,6 +397,10 @@ public class SpanAligner {
             this.spanCallTree = spanCallTree;
         }
 
+        public SpanBo getSpanBo() {
+            return span;
+        }
+
         @Override
         public String toString() {
             final StringBuilder sb = new StringBuilder("{");
@@ -415,6 +411,17 @@ public class SpanAligner {
             sb.append(", linked=").append(linked);
             sb.append('}');
             return sb.toString();
+        }
+
+        public Align newSpanEventAlign(SpanEventBo spanEventBo) {
+            Objects.requireNonNull(spanEventBo, "spanEventBo must not be null");
+            return new SpanEventAlign(span, spanEventBo);
+        }
+
+        public Align newSpanEventAlign(SpanEventBo spanEventBo, LocalAsyncIdBo localAsyncIdBo) {
+            Objects.requireNonNull(spanEventBo, "spanEventBo must not be null");
+            Objects.requireNonNull(localAsyncIdBo, "localAsyncIdBo must not be null");
+            return new SpanChunkEventAlign(span, spanEventBo, localAsyncIdBo);
         }
     }
 
@@ -432,7 +439,7 @@ public class SpanAligner {
             return filter(nodeList, new NodeFilter() {
                 @Override
                 public boolean filter(Node node) {
-                    return node.span.isRoot();
+                    return node.getSpanBo().isRoot();
                 }
             });
         }
@@ -450,7 +457,7 @@ public class SpanAligner {
             return filter(nodeList, new NodeFilter() {
                 @Override
                 public boolean filter(Node node) {
-                    return parentSpanId == node.span.getParentSpanId();
+                    return parentSpanId == node.getSpanBo().getParentSpanId();
                 }
             });
         }
@@ -543,47 +550,4 @@ public class SpanAligner {
         }
     }
 
-    private static class SpanIdPair {
-        private final long spanId1;
-        private final long spanId2;
-
-        public SpanIdPair(long spanId1, long spanId2) {
-            this.spanId1 = spanId1;
-            this.spanId2 = spanId2;
-        }
-
-        public long getSpanId1() {
-            return spanId1;
-        }
-
-        public long getSpanId2() {
-            return spanId2;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (!(o instanceof SpanIdPair)) return false;
-
-            SpanIdPair that = (SpanIdPair) o;
-
-            if (spanId1 != that.spanId1) return false;
-            return spanId2 == that.spanId2;
-        }
-
-        @Override
-        public int hashCode() {
-            int result = (int) (spanId1 ^ (spanId1 >>> 32));
-            result = 31 * result + (int) (spanId2 ^ (spanId2 >>> 32));
-            return result;
-        }
-
-        @Override
-        public String toString() {
-            return "SpanIdPair{" +
-                    "spanId1=" + spanId1 +
-                    ", spanId2=" + spanId2 +
-                    '}';
-        }
-    }
 }

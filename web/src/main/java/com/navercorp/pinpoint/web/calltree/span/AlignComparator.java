@@ -14,27 +14,25 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.context.provider.grpc;
+package com.navercorp.pinpoint.web.calltree.span;
 
-import com.google.inject.Inject;
-import com.google.inject.Provider;
-import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
+import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
+import com.navercorp.pinpoint.common.server.bo.SpanEventComparator;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
+import java.util.Comparator;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class DnsExecutorServiceProvider implements Provider<ExecutorService> {
-    @Inject
-    public DnsExecutorServiceProvider() {
-    }
+public final class AlignComparator implements Comparator<Align> {
+
+    public static final AlignComparator INSTANCE = new AlignComparator();
 
     @Override
-    public ExecutorService get() {
-        ThreadFactory threadFactory = new PinpointThreadFactory("pinpoint-dns", true);
-        return Executors.newCachedThreadPool(threadFactory);
+    public int compare(Align a1, Align a2) {
+        final SpanEventBo event1 = a1.getSpanEventBo();
+        final SpanEventBo event2 = a2.getSpanEventBo();
+        return SpanEventComparator.INSTANCE.compare(event1, event2);
     }
+
 }

@@ -175,7 +175,7 @@ public class SpanMapperV2 implements RowMapper<List<SpanBo>> {
                     if (isChildSpanChunk(spanBo, spanChunkBo)) {
                         final LocalAsyncIdBo parentAsyncIdBo = spanChunkBo.getLocalAsyncId();
                         if (parentAsyncIdBo != null) {
-                            spanBo.addAsyncSpanBo(spanChunkBo);
+                            spanBo.addSpanChunkBo(spanChunkBo);
                         } else {
                             spanBo.addSpanEventBoList(spanChunkBo.getSpanEventBoList());
                         }

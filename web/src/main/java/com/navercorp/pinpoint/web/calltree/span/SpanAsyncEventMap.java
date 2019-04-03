@@ -23,7 +23,6 @@ public class SpanAsyncEventMap {
             return new SpanAsyncEventMap();
         }
 
-
         final SpanAsyncEventMap spanAsyncEventMap = new SpanAsyncEventMap();
         for (SpanChunkBo spanChunk : spanChunkBoList) {
             if (!spanAsyncEventMap.add(spanChunk)) {
@@ -35,7 +34,7 @@ public class SpanAsyncEventMap {
     }
 
     private boolean add(final SpanChunkBo spanChunkBo) {
-        LocalAsyncIdBo localAsyncId = spanChunkBo.getLocalAsyncId();
+        final LocalAsyncIdBo localAsyncId = spanChunkBo.getLocalAsyncId();
         if (localAsyncId  == null) {
             return false;
         }

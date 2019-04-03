@@ -47,7 +47,7 @@ public class SpanEventVisitor implements Filter<SpanBo> {
             if (spanEventFilter.include(spanEventBoList)) {
                 return ACCEPT;
             }
-            final List<SpanChunkBo> asyncSpanChunkBoList = span.getAsyncSpanChunkBoList();
+            final List<SpanChunkBo> asyncSpanChunkBoList = span.getSpanChunkBoList();
             if (CollectionUtils.isNotEmpty(asyncSpanChunkBoList)) {
                 for (SpanChunkBo asyncSpanChunkBo : asyncSpanChunkBoList) {
                     final List<SpanEventBo> asyncSpanEventBoList = asyncSpanChunkBo.getSpanEventBoList();
