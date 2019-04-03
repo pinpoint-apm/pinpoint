@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.collector.cluster.zookeeper;
 
+import com.navercorp.pinpoint.collector.cluster.ClusterPoint;
 import com.navercorp.pinpoint.collector.cluster.ClusterPointRepository;
-import com.navercorp.pinpoint.collector.cluster.TargetClusterPoint;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperClient;
 import com.navercorp.pinpoint.common.server.util.concurrent.CommonStateContext;
 import com.navercorp.pinpoint.common.util.Assert;
@@ -94,7 +94,7 @@ public class ZookeeperProfilerClusterManager {
         logger.info("stop() completed.");
     }
 
-    public void register(TargetClusterPoint targetClusterPoint) {
+    public void register(ClusterPoint targetClusterPoint) {
         if (workerState.isStarted()) {
             synchronized (lock) {
                 String key = targetClusterPoint.getDestAgentInfo().getAgentKey();
@@ -109,7 +109,7 @@ public class ZookeeperProfilerClusterManager {
         }
     }
 
-    public void unregister(TargetClusterPoint targetClusterPoint) {
+    public void unregister(ClusterPoint targetClusterPoint) {
         if (workerState.isStarted()) {
             synchronized (lock) {
                 String key = targetClusterPoint.getDestAgentInfo().getAgentKey();
