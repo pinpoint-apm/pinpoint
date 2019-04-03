@@ -141,7 +141,7 @@ public class SpanAlign implements Align {
     }
 
     @Override
-    public long getLastTime() {
+    public long getEndTime() {
         return spanBo.getStartTime() + spanBo.getElapsed();
     }
 

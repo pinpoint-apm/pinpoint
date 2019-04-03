@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.web.service;
 import com.google.common.collect.Lists;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
+import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.util.TransactionId;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
@@ -156,7 +157,7 @@ public class FilteredMapServiceImpl implements FilteredMapService {
         for (SpanBo span : filteredTransactionList) {
             if (sourceApplication.equals(span.getApplicationId(), registry.findServiceType(span.getApplicationServiceType()))) {
                 List<SpanEventBo> spanEventBoList = span.getSpanEventBoList();
-                if (spanEventBoList == null) {
+                if (CollectionUtils.isEmpty(spanEventBoList)) {
                     continue;
                 }
 
