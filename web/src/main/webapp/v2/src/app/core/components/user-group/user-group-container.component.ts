@@ -21,7 +21,7 @@ export class UserGroupContainerComponent implements OnInit {
     i18nText = {
         SEARCH_INPUT_GUIDE: ''
     };
-    USER_GROUP_NAME_MIN_LENGTH = 3;
+    USER_GROUP_NAME_MIN_LENGTH = 4;
     SEARCH_MIN_LENGTH = 2;
     searchUseEnter = true;
     userGroupList: IUserGroup[] = [];
@@ -49,12 +49,14 @@ export class UserGroupContainerComponent implements OnInit {
         forkJoin(
             this.translateService.get('COMMON.MIN_LENGTH'),
             this.translateService.get('COMMON.REQUIRED'),
-            this.translateService.get('CONFIGURATION.COMMON.NAME')
-        ).subscribe(([minLengthMessage, requiredMessage, nameLabel]: string[]) => {
+            this.translateService.get('CONFIGURATION.COMMON.NAME'),
+            this.translateService.get('CONFIGURATION.USER_GROUP.VALIDATION'),
+        ).subscribe(([minLengthMessage, requiredMessage, nameLabel, validationGuide]: string[]) => {
             this.i18nGuide = {
                 userGroupName: {
                     required: this.translateReplaceService.replace(requiredMessage, nameLabel),
-                    minlength: this.translateReplaceService.replace(minLengthMessage, this.USER_GROUP_NAME_MIN_LENGTH)
+                    minlength: this.translateReplaceService.replace(minLengthMessage, this.USER_GROUP_NAME_MIN_LENGTH),
+                    valueRule: validationGuide
                 }
             };
 

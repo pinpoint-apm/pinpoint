@@ -51,6 +51,16 @@
             "APPLICATION_NAME_PLACEHOLDER": "Application Name을 입력하세요.",
             "AGENT_ID_PLACEHOLDER": "Agent ID를 입력하세요."
         },
+        "USER_GROUP": {
+            "VALIDATION": "영문자와 숫자 '-_' 특수 문자를 입력 할 수 있습니다.(4 ~ 30)"
+        },
+        "PINPOINT_USER": {
+            "USER_ID_VALIDATION": "영문 소문자와 숫자, '-_' 특수 문자를 입력 할 수 있습니다.(4~24)",
+            "NAME_VALIDATION": "영문자와 한글, 숫자, '_-.' 특수 문자를 입력 할 수 있습니다.(3~30)",
+            "DEPARTMENT_VALIDATION": "영문자와 한글, 숫자, '_-.' 특수 문자를 입력 할 수 있습니다.(3~40)",
+            "PHONE_VALIDATION": "숫자만 입력 할 수 있습니다.(3~24)",
+            "EMAIL_VALIDATION": "이메일을 입력하세요."
+        },
         "COMMON": {
             "NAME": "이름",
             "USER_ID": "사용자 ID",

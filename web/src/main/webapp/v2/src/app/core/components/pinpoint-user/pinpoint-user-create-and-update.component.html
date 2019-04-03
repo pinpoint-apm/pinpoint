@@ -24,7 +24,7 @@
         </div>
         <div>
             <label for="phoneNumber">{{i18nLabel.PHONE_LABEL}}</label>
-            <input type="text" id="phoneNumber" formControlName="phoneNumber" required>
+            <input type="text" id="phoneNumber" formControlName="phoneNumber">
             <pp-form-field-error-message
                 [control]="pinpointUserForm.get('phoneNumber')"
                 [errorMessage]="i18nGuide['phoneNumber']">
@@ -32,7 +32,7 @@
         </div>
         <div>
             <label for="email">{{i18nLabel.EMAIL_LABEL}}</label>
-            <input type="text" id="email" formControlName="email" required>
+            <input type="text" id="email" formControlName="email">
             <pp-form-field-error-message
                 [control]="pinpointUserForm.get('email')"
                 [errorMessage]="i18nGuide['email']">
