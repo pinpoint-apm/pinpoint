@@ -1,3 +1,7 @@
+:host {
+    display: block;
+}
+
 .l-command-group {
     display: flex;
     padding: 5px 12px;

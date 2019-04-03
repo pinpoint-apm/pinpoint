@@ -1,24 +1,36 @@
 :host {
     display: flex;
     flex-flow: column nowrap;
+    width: 100%;
     height: 100%;
 }
+
 .l-date-range {
     border-bottom: 1px solid #e5e8f0;
     background-color: #FFF;
     min-height: 161px;
-    max-height: 1000px
+    max-height: 1000px;
+    margin-bottom: 10px;
 }
+
 .l-main-contents {
+    width: 100%;
     height: 100%;
     position: relative;
     overflow: auto;
 }
+
 .l-chart-group-wrap {
-    display: flex;
-    flex-flow: row wrap;
+    display: grid;
+    width: 100%;
+    column-gap: 10px;
+    row-gap: 10px;
+    padding: 10px;
+    min-height: 0;
+    min-width: 0;
 }
-.l-empty-content {
-    width: calc(50% - 20px);
-    margin: 10px;
+
+.l-chart-wrapper {
+    overflow: hidden;
+    min-width: 0;
 }
