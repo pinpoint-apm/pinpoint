@@ -59,7 +59,7 @@ export class ComponentDefaultSettingDataService {
         ['D MMM YYYY HH:mm:ss', 'D MMM YYYY HH:mm:ss Z', 'D MMM YYYY HH:mm:ss SSS', 'D MMM YYYY', 'HH:mm:ss', 'D MMM', 'HH:mm'],
         ['D MMM YYYY h:mm:ss a', 'D MMM YYYY h:mm:ss a Z', 'D MMM YYYY h:mm:ss SSS a', 'D MMM YYYY', 'h:mm:ss a', 'D MMM', 'h:mm a']
     ];
-    private chartNumPerRow = 2;
+    private chartNumPerRow = 3;
     constructor() {}
     getInboundList(): number[] {
         return this.inboundList;
