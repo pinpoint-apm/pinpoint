@@ -1,4 +1,4 @@
-<p class="l-source-select-text" [hidden]="isDataEmpty" (click)="onSourceSelectClick()">Select Source<span class="far fa-caret-square-down" aria-hidden="true"></span></p>
+<button class="l-source-select-button" [hidden]="isDataEmpty" (click)="onSourceSelectClick()"><i class="fas fa-filter"></i></button>
 <div class="l-source-select-modal" [hidden]="!showSourceSelectModal">
     <button type="button" class="button l-select-all-button" (click)="onCheckAllBtnClick()">Check All</button>
     <ul class="l-source-data-list">
