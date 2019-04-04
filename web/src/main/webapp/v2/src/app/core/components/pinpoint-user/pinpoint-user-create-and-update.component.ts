@@ -63,10 +63,7 @@ export class PinpointUserCreateAndUpdateComponent implements OnInit, OnChanges, 
             'email': new FormControl(this.newUserModel.email, [
                 Validators.minLength(3),
                 Validators.maxLength(60),
-                (control: AbstractControl): {[key: string]: any} | null => {
-                    const invalid =  !(control.value === '' || Validators.email(control) === null);
-                    return invalid ? {'valueRule': {value: control.value}} : null;
-                }
+                valueValidatorWithEmpty(/^[A-Za-z0-9\.\_\-]+@[A-Za-z0-9\.\-]+\.[A-Za-z]+$/)
             ]),
             'department': new FormControl(this.newUserModel.department, [
                 valueValidatorWithEmpty(/^[\w\.\-ㄱ-ㅎ|ㅏ-ㅣ|가-힣]{3,40}$/)
