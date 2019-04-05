@@ -138,7 +138,7 @@ export class UrlRouteManagerService {
     back(): void {
         this.windowRef.nativeWindow.history.back();
     }
-    private getBaseHref(): string {
+    getBaseHref(): string {
         if (this.baseHref === '/') {
             return '';
         } else {
