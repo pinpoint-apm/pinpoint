@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.collector.cluster.route;
 
 import com.navercorp.pinpoint.collector.cluster.ClusterPoint;
 import com.navercorp.pinpoint.collector.cluster.ClusterPointLocator;
+import com.navercorp.pinpoint.collector.cluster.GrpcAgentConnection;
 import com.navercorp.pinpoint.collector.cluster.ThriftAgentConnection;
 import com.navercorp.pinpoint.collector.cluster.route.filter.RouteFilter;
 import com.navercorp.pinpoint.rpc.Future;
@@ -86,6 +87,9 @@ public class DefaultRouteHandler extends AbstractRouteHandler<RequestEvent> {
         if (clusterPoint instanceof ThriftAgentConnection) {
             ThriftAgentConnection thriftAgentConnection = (ThriftAgentConnection) clusterPoint;
             future = thriftAgentConnection.request(event.getDeliveryCommand().getPayload());
+        } else if (clusterPoint instanceof GrpcAgentConnection) {
+            GrpcAgentConnection grpcAgentConnection = (GrpcAgentConnection) clusterPoint;
+            future = grpcAgentConnection.request(event.getRequestObject());
         } else {
             return createResponse(TRouteResult.NOT_ACCEPTABLE);
         }
@@ -93,6 +97,10 @@ public class DefaultRouteHandler extends AbstractRouteHandler<RequestEvent> {
         boolean isCompleted = future.await();
         if (!isCompleted) {
             return createResponse(TRouteResult.TIMEOUT);
+        }
+
+        if (future.getCause() != null) {
+            return createResponse(TRouteResult.UNKNOWN, future.getCause().getMessage());
         }
 
         ResponseMessage responseMessage = future.getResult();
