@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.collector.receiver.grpc;
 import com.navercorp.pinpoint.collector.cluster.zookeeper.ZookeeperClusterService;
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.AgentService;
-import com.navercorp.pinpoint.collector.receiver.grpc.service.CurrentTimeSocketIdProvider;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.KeepAliveService;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.SocketIdProvider;
 import com.navercorp.pinpoint.collector.service.async.AgentEventAsyncTaskService;
@@ -32,6 +31,7 @@ import com.navercorp.pinpoint.grpc.server.ServerOption;
 import com.navercorp.pinpoint.grpc.server.TransportMetadataFactory;
 import com.navercorp.pinpoint.grpc.server.TransportMetadataServerInterceptor;
 import com.navercorp.pinpoint.rpc.server.handler.ServerStateChangeEventHandler;
+
 import io.grpc.BindableService;
 import io.grpc.Server;
 import io.grpc.ServerInterceptor;
@@ -68,6 +68,8 @@ public class AgentServer implements InitializingBean, DisposableBean, BeanNameAw
 
     private Server server;
 
+//    private Timer timer;
+
     @Autowired
     private AgentEventAsyncTaskService agentEventAsyncTask;
 
@@ -75,7 +77,6 @@ public class AgentServer implements InitializingBean, DisposableBean, BeanNameAw
     private AgentLifeCycleAsyncTaskService agentLifeCycleAsyncTask;
 
     private DispatchHandler dispatchHandler;
-
 
     @Resource(name = "channelStateChangeEventHandlers")
     private List<ServerStateChangeEventHandler> channelStateChangeEventHandlers = Collections.emptyList();
@@ -91,6 +92,9 @@ public class AgentServer implements InitializingBean, DisposableBean, BeanNameAw
         Assert.requireNonNull(this.bindIp, "bindIp must not be null");
         Assert.requireNonNull(this.dispatchHandler, "dispatchHandler must not be null");
         Assert.requireNonNull(this.addressFilter, "addressFilter must not be null");
+//        Assert.requireNonNull(this.clusterService, "clusterService must not be null");
+//
+//        this.timer = TimerFactory.createHashedWheelTimer("AgentServer-Timer", 100, TimeUnit.MILLISECONDS, 512);
 
         this.serverFactory = new ServerFactory(beanName, this.bindIp, this.bindPort, executor);
         ServerTransportFilter permissionServerTransportFilter = new PermissionServerTransportFilter(addressFilter);
@@ -109,6 +113,9 @@ public class AgentServer implements InitializingBean, DisposableBean, BeanNameAw
 
         KeepAliveService keepAliveService = new KeepAliveService(agentEventAsyncTask, agentLifeCycleAsyncTask, socketIdProvider);
         serverFactory.addService(keepAliveService);
+
+//        BindableService commandService = new GrpcCommandService(clusterService.getProfilerClusterManager(), timer);
+//        this.serverFactory.addService(commandService);
 
         this.server = serverFactory.build();
         if (logger.isInfoEnabled()) {
@@ -130,6 +137,9 @@ public class AgentServer implements InitializingBean, DisposableBean, BeanNameAw
         if (this.serverFactory != null) {
             this.serverFactory.close();
         }
+//        if (timer != null) {
+//            timer.stop();
+//        }
     }
 
     // Test only
