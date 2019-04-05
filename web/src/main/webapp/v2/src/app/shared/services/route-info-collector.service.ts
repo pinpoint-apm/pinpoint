@@ -3,11 +3,13 @@ import { ParamMap, ActivatedRoute } from '@angular/router';
 
 import { AnalyticsService } from './analytics.service';
 import { NewUrlStateNotificationService } from './new-url-state-notification.service';
+import { UrlRouteManagerService } from './url-route-manager.service';
 
 @Injectable()
 export class RouteInfoCollectorService {
     constructor(
         private newUrlStateNotificationService: NewUrlStateNotificationService,
+        private urlRouteManagerService: UrlRouteManagerService,
         private analyticsService: AnalyticsService
     ) {}
 
@@ -30,7 +32,7 @@ export class RouteInfoCollectorService {
         }
 
         this.newUrlStateNotificationService.updateUrl(startPath, pathIdMap, queryParamMap, innerData, activatedRoute.firstChild);
-        this.analyticsService.trackPage(startPath);
+        this.analyticsService.trackPage(startPath + this.urlRouteManagerService.getBaseHref().replace(/(.*)(\/)$/, '$1'));
     }
 
     private setData(dataMap: Map<string, string>, routeData: ParamMap): void {
