@@ -17,7 +17,7 @@
 |                                                                                   |                            |         |         |                        |
 | SpringMVC Framework                                                               | spring-webmvc              | 3.0.7   | 5.1.6   |                        | <AG>
 | Spring Web                                                                        | spring-web                 | 4.1.2   | 4.3.23  |                        | <AG>
-| Spring RabbitMQ                                                                   | spring-rabbit              | 1.3.3   | 2.1.4   |                        | <AG>
+| Spring RabbitMQ                                                                   | spring-rabbit              | 1.3.3   | 2.1.5   |                        | <AG>
 | Spring IBatis                                                                     | spring-ibatis              | 2.0.7   | 2.0.8   |                        | <AG>
 | Spring MyBatis                                                                    | mybatis-spring             | 1.1.0   | 1.3.2   |                        | <AG>
 | Spring Boot                                                                       | spring-boot-autoconfigure  |         |         |                        |  
@@ -64,7 +64,7 @@
 | Netty                                                                             | netty-all                  | 4.1.0   | 4.1.34  |                        | <AG> 
 | ActiveMQ                                                                          | activemq-all               | 5.1.0   | 5.15.9  |                        | <AG> 
 | RxJAVA                                                                            | rxjava                     | 1.0.0   | 1.3.8   |                        | <AG> 
-| RabbitMQ                                                                          | amqp-client                | 2.7.0   | 5.6.0   |                        | <AG> 
+| RabbitMQ                                                                          | amqp-client                | 2.7.0   | 5.7.0   |                        | <AG> 
 |                                                                                   |                            |         |         |                        |
 | Gson                                                                              | gson                       | 1.1     | 2.8.3   |                        | <AG>
 | Json                                                                              | json-lib                   | 1.0     | 2.2.2   |                        | <AG>
