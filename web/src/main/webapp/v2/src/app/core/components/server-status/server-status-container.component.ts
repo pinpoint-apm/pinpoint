@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
-import { Subject } from 'rxjs';
-import { takeUntil, filter } from 'rxjs/operators';
+import { Subject, combineLatest } from 'rxjs';
+import { takeUntil, filter, map, take } from 'rxjs/operators';
 
 import { Actions } from 'app/shared/store';
 import { StoreHelperService, NewUrlStateNotificationService, UrlRouteManagerService, AnalyticsService, TRACKED_EVENT_LIST } from 'app/shared/services';
@@ -83,7 +83,16 @@ export class ServerStatusContainerComponent implements OnInit, OnDestroy {
     }
     onClickOpenInspector(): void {
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.OPEN_INSPECTOR);
-        this.urlRouteManagerService.openInspectorPage(this.enableRealTime);
+        combineLatest(
+            this.newUrlStateNotificationService.onUrlStateChange$.pipe(
+                map((urlService: NewUrlStateNotificationService) => urlService.isRealTimeMode())
+            ),
+            this.storeHelperService.getAgentSelection<string>(this.unsubscribe)
+        ).pipe(
+            take(1),
+        ).subscribe(([isRealTimeMode, selectedAgent]: [boolean, string]) => {
+            this.urlRouteManagerService.openInspectorPage(isRealTimeMode, selectedAgent);
+        });
     }
     getAngle(): string {
         return this.isInfoPerServerShow ? 'right' : 'left';

@@ -107,24 +107,21 @@ export class UrlRouteManagerService {
             FilterParamMaker.makeParam(filterStr, addedFilter) +
             HintParamMaker.makeParam(hintStr, addedHint);
     }
-    openInspectorPage(realTimeMode: boolean): void {
-        if (realTimeMode) {
-            this.serverTimeDataService.getServerTime().subscribe(time => {
-                this.windowRef.nativeWindow.open([
-                    this.getBaseHref() + UrlPath.INSPECTOR,
-                    this.newUrlStateNotificationService.getPathValue(UrlPathId.APPLICATION).getUrlStr(),
-                    this.webAppSettingDataService.getSystemDefaultPeriod().getValueWithTime(),
-                    EndTime.newByNumber(time).getEndTime()
-                ].join('/'));
-            });
-        } else {
-            this.windowRef.nativeWindow.open([
-                this.getBaseHref() + UrlPath.INSPECTOR,
+    openInspectorPage(isRealTimeMode: boolean, selectedAgent: string): void {
+        isRealTimeMode ?
+            this.openPage([
+                UrlPath.INSPECTOR,
+                UrlPathId.REAL_TIME,
+                this.newUrlStateNotificationService.getPathValue(UrlPathId.APPLICATION).getUrlStr(),
+                selectedAgent
+            ]) :
+            this.openPage([
+                UrlPath.INSPECTOR,
                 this.newUrlStateNotificationService.getPathValue(UrlPathId.APPLICATION).getUrlStr(),
                 this.newUrlStateNotificationService.getPathValue(UrlPathId.PERIOD).getValueWithTime(),
-                this.newUrlStateNotificationService.getPathValue(UrlPathId.END_TIME).getEndTime()
-            ].join('/'));
-        }
+                this.newUrlStateNotificationService.getPathValue(UrlPathId.END_TIME).getEndTime(),
+                selectedAgent
+            ]);
     }
     openMainPage(): void {
         this.windowRef.nativeWindow.open([
