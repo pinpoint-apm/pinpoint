@@ -17,15 +17,10 @@
 package com.navercorp.pinpoint.collector.mapper.thrift;
 
 import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
-import com.navercorp.pinpoint.common.server.bo.JvmInfoBo;
-import com.navercorp.pinpoint.common.server.bo.ServerMetaDataBo;
 import com.navercorp.pinpoint.grpc.trace.PAgentInfo;
 import com.navercorp.pinpoint.thrift.dto.TAgentInfo;
 
-import com.navercorp.pinpoint.thrift.dto.TJvmInfo;
-import com.navercorp.pinpoint.thrift.dto.TServerMetaData;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 /**

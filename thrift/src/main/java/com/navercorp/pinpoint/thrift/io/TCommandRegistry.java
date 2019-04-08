@@ -16,20 +16,12 @@
 
 package com.navercorp.pinpoint.thrift.io;
 
-import com.navercorp.pinpoint.io.header.Header;
-import com.navercorp.pinpoint.io.util.BodyFactory;
 import com.navercorp.pinpoint.io.util.TypeLocator;
 import com.navercorp.pinpoint.io.util.TypeLocatorBuilder;
-import org.apache.thrift.TBase;
-import org.apache.thrift.TException;
 
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.HashSet;
+import org.apache.thrift.TBase;
+
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * @author koo.taejin
