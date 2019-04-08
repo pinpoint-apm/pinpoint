@@ -144,12 +144,6 @@ export class InfoPerServerContainerComponent implements OnInit, OnDestroy {
     }
     onOpenInspector(agentName: string): void {
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.OPEN_INSPECTOR_WITH_AGENT);
-        this.urlRouteManagerService.openPage([
-            UrlPath.INSPECTOR,
-            this.newUrlStateNotificationService.getPathValue(UrlPathId.APPLICATION).getUrlStr(),
-            this.newUrlStateNotificationService.getPathValue(UrlPathId.PERIOD).getValueWithTime(),
-            this.newUrlStateNotificationService.getPathValue(UrlPathId.END_TIME).getEndTime(),
-            agentName
-        ]);
+        this.urlRouteManagerService.openInspectorPage(false, agentName);
     }
 }

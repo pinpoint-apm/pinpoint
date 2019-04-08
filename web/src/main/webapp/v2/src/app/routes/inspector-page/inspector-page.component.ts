@@ -4,7 +4,6 @@ import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import { NewUrlStateNotificationService, AnalyticsService, TRACKED_EVENT_LIST, DynamicPopupService } from 'app/shared/services';
-import { EndTime } from 'app/core/models';
 import { UrlPathId } from 'app/shared/models';
 import { HELP_VIEWER_LIST, HelpViewerPopupContainerComponent } from 'app/core/components/help-viewer-popup/help-viewer-popup-container.component';
 
@@ -32,7 +31,7 @@ import { HELP_VIEWER_LIST, HelpViewerPopupContainerComponent } from 'app/core/co
     styleUrls: ['./inspector-page.component.css']
 })
 export class InspectorPageComponent implements OnInit {
-    endTime$: Observable<EndTime>;
+    showSideMenu$: Observable<boolean>;
 
     constructor(
         private newUrlStateNotificationService: NewUrlStateNotificationService,
@@ -43,9 +42,9 @@ export class InspectorPageComponent implements OnInit {
     ) {}
 
     ngOnInit() {
-        this.endTime$ = this.newUrlStateNotificationService.onUrlStateChange$.pipe(
+        this.showSideMenu$ = this.newUrlStateNotificationService.onUrlStateChange$.pipe(
             map((urlService: NewUrlStateNotificationService) => {
-                return urlService.getPathValue(UrlPathId.END_TIME);
+                return urlService.isRealTimeMode() || urlService.hasValue(UrlPathId.END_TIME);
             })
         );
     }
