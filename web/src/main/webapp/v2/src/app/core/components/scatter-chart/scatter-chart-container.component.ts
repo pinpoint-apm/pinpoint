@@ -231,8 +231,9 @@ export class ScatterChartContainerComponent implements OnInit, OnDestroy {
         } else {
             this.urlRouteManagerService.openPage([
                 UrlPath.SCATTER_FULL_SCREEN_MODE,
+                UrlPathId.REAL_TIME,
                 this.newUrlStateNotificationService.getPathValue(UrlPathId.APPLICATION).getUrlStr(),
-                UrlPathId.REAL_TIME
+                this.selectedAgent
             ]);
         }
     }

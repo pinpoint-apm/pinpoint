@@ -8,7 +8,6 @@ import { WebAppSettingDataService, UrlRouteManagerService } from 'app/shared/ser
     template: ''
 })
 export class UrlRedirectorComponent {
-
     constructor(
         private activatedRoute: ActivatedRoute,
         private webAppSettingDataService: WebAppSettingDataService,
