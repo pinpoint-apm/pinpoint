@@ -48,7 +48,7 @@
 | MariaDB Connector/J                                                               | mariadb-java-client        | 1.3.0   | 2.4.1   |                        | <AG>
 | MongoDB Java Driver                                                               | mongodb-driver             | 3.0.0   | 3.11.0  |                        | <AG>
 | Datastax Java Driver                                                              | cassandra-driver-core      | 2.0.10  | 3.7.1   |                        | <AG>
-| Druid                                                                             | druid                      | 1.0.0   | 1.1.15  |                        | <AG>
+| Druid                                                                             | druid                      | 1.0.0   | 1.1.16  |                        | <AG>
 | \*Cubrid                                                                          | cubrid-jdbc-driver         | 8.4.1   | 10.0.0  |                        | 
 | \*Commons DBCP                                                                    | commons-dbcp               | 1.0     | 1.4     |                        | 
 | \*Commons DBCP2                                                                   | commons-dbcp2              | 2.0     | 2.5.0   |                        | 
