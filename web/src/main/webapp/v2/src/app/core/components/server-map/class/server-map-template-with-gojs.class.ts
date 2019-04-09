@@ -1,5 +1,7 @@
 import * as go from 'gojs';
 import ServerMapTheme from './server-map-theme';
+import { ServerMapDiagramWithGojs } from './server-map-diagram-with-gojs.class';
+import { ServerMapNodeClickExtraParam } from './server-map-node-click-extra-param.class';
 
 enum CIRCLE_TYPE {
     GREEN = 'GREEN',
@@ -103,7 +105,7 @@ export class ServerMapTemplateWithGojs {
     public static CIRCLE_WIDTH = 100;
     public static CIRCLE_HEIGHT = 100;
     public static CIRCLE_RADIUS = 50;
-    public static makeNodeTemplate(serverMapComponent: any) {
+    public static makeNodeTemplate(serverMapComponent: ServerMapDiagramWithGojs) {
         const $ = go.GraphObject.make;
         return $(
             go.Node,
@@ -146,7 +148,7 @@ export class ServerMapTemplateWithGojs {
                         width: 108,
                         height: 108,
                         figure: 'Circle',
-                        position: new go.Point(-4, -4),
+                        position: new go.Point(-4, -4)
                     },
                     new go.Binding('fill', 'key', (key) => {
                         const type = serverMapComponent.isBaseApplication(key) ? 'main' : 'normal';
@@ -190,7 +192,7 @@ export class ServerMapTemplateWithGojs {
                         portId: '',
                         position: new go.Point(-4, -4),
                         fromLinkable: true, fromLinkableSelfNode: true, fromLinkableDuplicates: true,
-                        toLinkable: true, toLinkableSelfNode: true, toLinkableDuplicates: true,
+                        toLinkable: true, toLinkableSelfNode: true, toLinkableDuplicates: true
                     },
                     new go.Binding('stroke', 'key', (key, node) => {
                         const type = serverMapComponent.isBaseApplication(key) ? 'main' : 'normal';
@@ -209,7 +211,8 @@ export class ServerMapTemplateWithGojs {
                         stroke: ServerMapTheme.general.circle.good.stroke,
                         strokeWidth: ServerMapTheme.general.circle.good.strokeWidth,
                         click: (event: go.InputEvent, obj: go.GraphObject) => {
-                            console.log( 'click green');
+                            serverMapComponent.onClickNode(event, obj, ServerMapNodeClickExtraParam.REQUEST_GREEN);
+                            event.handled = true;
                         },
                     },
                     new go.Binding('visible', '', (data) => {
@@ -227,7 +230,8 @@ export class ServerMapTemplateWithGojs {
                         stroke: ServerMapTheme.general.circle.slow.stroke,
                         strokeWidth: ServerMapTheme.general.circle.slow.strokeWidth,
                         click: (event: go.InputEvent, obj: go.GraphObject) => {
-                            console.log( 'click orange');
+                            serverMapComponent.onClickNode(event, obj, ServerMapNodeClickExtraParam.REQUEST_GREEN);
+                            event.handled = true;
                         },
                     },
                     new go.Binding('visible', '', (data) => {
@@ -245,7 +249,8 @@ export class ServerMapTemplateWithGojs {
                         stroke: ServerMapTheme.general.circle.bad.stroke,
                         strokeWidth: ServerMapTheme.general.circle.bad.strokeWidth,
                         click: (event: go.InputEvent, obj: go.GraphObject) => {
-                            console.log( 'click red');
+                            serverMapComponent.onClickNode(event, obj, ServerMapNodeClickExtraParam.REQUEST_RED);
+                            event.handled = true;
                         },
                     },
                     new go.Binding('visible', '', (data) => {
@@ -279,7 +284,11 @@ export class ServerMapTemplateWithGojs {
                     $(
                         go.TextBlock,
                         {
-                            margin: new go.Margin(0, 0, 10, 0)
+                            margin: new go.Margin(0, 0, 10, 0),
+                            click: (event: go.InputEvent, obj: go.GraphObject) => {
+                                serverMapComponent.onClickNode(event, obj, ServerMapNodeClickExtraParam.INSTANCE_COUNT);
+                                event.handled = true;
+                            }
                         },
                         new go.Binding('visible', 'instanceCount', (v) => {
                             return v > 1 ? true : false;

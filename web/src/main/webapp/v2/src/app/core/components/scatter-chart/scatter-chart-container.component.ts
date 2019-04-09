@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, ChangeDetectorRef, OnInit, OnDestroy, ComponentFactoryResolver, Injector } from '@angular/core';
+import { Component, OnInit, OnDestroy, ComponentFactoryResolver, Injector } from '@angular/core';
 import { combineLatest, of, Subject } from 'rxjs';
 import { takeUntil, filter, delay } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
@@ -24,8 +24,7 @@ import { HELP_VIEWER_LIST, HelpViewerPopupContainerComponent } from 'app/core/co
 @Component({
     selector: 'pp-scatter-chart-container',
     templateUrl: './scatter-chart-container.component.html',
-    styleUrls: ['./scatter-chart-container.component.css'],
-    changeDetection: ChangeDetectionStrategy.OnPush
+    styleUrls: ['./scatter-chart-container.component.css']
 })
 export class ScatterChartContainerComponent implements OnInit, OnDestroy {
     instanceKey = 'side-bar';
@@ -40,15 +39,6 @@ export class ScatterChartContainerComponent implements OnInit, OnDestroy {
     unsubscribe: Subject<null> = new Subject();
     hideSettingPopup = true;
     selectedAgent: string;
-    typeInfo = [{
-        name: 'failed',
-        color: '#E95459',
-        order: 10
-    }, {
-        name: 'success',
-        color: '#34B994',
-        order: 20
-    }];
     typeCount: object;
     width = 460;
     height = 230;
@@ -63,7 +53,6 @@ export class ScatterChartContainerComponent implements OnInit, OnDestroy {
     timezone: string;
     dateFormat: string[];
     constructor(
-        private changeDetectorRef: ChangeDetectorRef,
         private storeHelperService: StoreHelperService,
         private translateService: TranslateService,
         private webAppSettingDataService: WebAppSettingDataService,
@@ -100,7 +89,6 @@ export class ScatterChartContainerComponent implements OnInit, OnDestroy {
             this.selectedAgent = '';
             this.currentRange.from = this.fromX = urlService.getStartTimeToNumber();
             this.currentRange.to = this.toX = urlService.getEndTimeToNumber();
-            this.changeDetectorRef.detectChanges();
         });
         this.scatterChartDataService.outScatterData$.pipe(
             takeUntil(this.unsubscribe)
@@ -154,11 +142,9 @@ export class ScatterChartContainerComponent implements OnInit, OnDestroy {
     private connectStore(): void {
         this.storeHelperService.getTimezone(this.unsubscribe).subscribe((timezone: string) => {
             this.timezone = timezone;
-            this.changeDetectorRef.detectChanges();
         });
         this.storeHelperService.getDateFormatArray(this.unsubscribe, 3, 4).subscribe((format: string[]) => {
             this.dateFormat = format;
-            this.changeDetectorRef.detectChanges();
         });
         this.storeHelperService.getAgentSelection<string>(this.unsubscribe).subscribe((agent: string) => {
             if (this.selectedAgent !== agent) {
@@ -175,10 +161,9 @@ export class ScatterChartContainerComponent implements OnInit, OnDestroy {
             if (this.isHide() === false) {
                 this.selectedAgent = '';
                 this.selectedApplication = this.selectedTarget.node[0];
-                this.scatterChartInteractionService.reset(this.instanceKey, this.selectedApplication, this.selectedAgent, this.fromX, this.toX, this.scatterChartMode);
+                this.scatterChartInteractionService.reset(this.instanceKey, this.selectedApplication, this.selectedAgent, this.fromX, this.toX, this.scatterChartMode, this.selectedTarget.clickParam);
                 this.getScatterData();
             }
-            this.changeDetectorRef.detectChanges();
         });
     }
     getScatterData(): void {
