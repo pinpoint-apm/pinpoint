@@ -164,6 +164,7 @@ export class ServerMapForFilteredMapContainerComponent implements OnInit, OnDest
             };
         } else {
             payload = {
+                clickParam: nodeData.clickParam,
                 period: this.period,
                 endTime: this.endTime,
                 isAuthorized: nodeData.isAuthorized,
@@ -233,7 +234,6 @@ export class ServerMapForFilteredMapContainerComponent implements OnInit, OnDest
         });
     }
     mergeServerMapData(serverMapAndScatterData: any): void {
-        console.time('merge server-map data');
         const newNodeDataList = serverMapAndScatterData.applicationMapData.nodeDataArray;
         const newLinkDataList = serverMapAndScatterData.applicationMapData.linkDataArray;
 
@@ -247,7 +247,6 @@ export class ServerMapForFilteredMapContainerComponent implements OnInit, OnDest
         } else {
             this.mergeLinkDataList(newLinkDataList);
         }
-        console.timeEnd('merge server-map data');
     }
     mergeNodeDataList(newNodeData: INodeInfo[]): void {
         newNodeData.forEach((nodeData: INodeInfo) => {

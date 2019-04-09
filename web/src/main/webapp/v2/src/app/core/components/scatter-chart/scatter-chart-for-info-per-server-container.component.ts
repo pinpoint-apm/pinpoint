@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, ChangeDetectorRef, OnInit, AfterViewInit, OnDestroy, ComponentFactoryResolver, Injector } from '@angular/core';
+import { Component, OnInit, AfterViewInit, OnDestroy, ComponentFactoryResolver, Injector } from '@angular/core';
 import { combineLatest, Subject } from 'rxjs';
 import { takeUntil, filter } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
@@ -23,8 +23,7 @@ import { HELP_VIEWER_LIST, HelpViewerPopupContainerComponent } from 'app/core/co
 @Component({
     selector: 'pp-scatter-chart-for-info-per-server-container',
     templateUrl: './scatter-chart-for-info-per-server-container.component.html',
-    styleUrls: ['./scatter-chart-for-info-per-server-container.component.css'],
-    changeDetection: ChangeDetectionStrategy.OnPush
+    styleUrls: ['./scatter-chart-for-info-per-server-container.component.css']
 })
 export class ScatterChartForInfoPerServerContainerComponent implements OnInit, AfterViewInit, OnDestroy {
     instanceKey = 'info-per-server';
@@ -36,15 +35,6 @@ export class ScatterChartForInfoPerServerContainerComponent implements OnInit, A
     unsubscribe: Subject<null> = new Subject();
     hideSettingPopup = true;
     selectedAgent: string;
-    typeInfo = [{
-        name: 'failed',
-        color: '#E95459',
-        order: 10
-    }, {
-        name: 'success',
-        color: '#34B994',
-        order: 20
-    }];
     typeCount: object;
     width = 460;
     height = 230;
@@ -59,7 +49,6 @@ export class ScatterChartForInfoPerServerContainerComponent implements OnInit, A
     timezone: string;
     dateFormat: string[];
     constructor(
-        private changeDetectorRef: ChangeDetectorRef,
         private storeHelperService: StoreHelperService,
         private translateService: TranslateService,
         private webAppSettingDataService: WebAppSettingDataService,
@@ -96,17 +85,10 @@ export class ScatterChartForInfoPerServerContainerComponent implements OnInit, A
             this.selectedAgent = '';
             this.fromX = urlService.getStartTimeToNumber();
             this.toX = urlService.getEndTimeToNumber();
-            this.changeDetectorRef.detectChanges();
         });
     }
     ngAfterViewInit() {
         this.storeHelperService.getInfoPerServerState(this.unsubscribe).subscribe((visibleState: boolean) => {
-            if (visibleState && this.isChangedTarget) {
-                this.scatterChartDataService.loadLastData().forEach((data: IScatterData) => {
-                    this.scatterChartInteractionService.addChartData(this.instanceKey, data);
-                });
-                this.isChangedTarget = false;
-            }
         });
     }
     ngOnDestroy() {
@@ -121,11 +103,9 @@ export class ScatterChartForInfoPerServerContainerComponent implements OnInit, A
     private connectStore(): void {
         this.storeHelperService.getTimezone(this.unsubscribe).subscribe((timezone: string) => {
             this.timezone = timezone;
-            this.changeDetectorRef.detectChanges();
         });
         this.storeHelperService.getDateFormatArray(this.unsubscribe, 3, 4).subscribe((format: string[]) => {
             this.dateFormat = format;
-            this.changeDetectorRef.detectChanges();
         });
         this.storeHelperService.getAgentSelectionForServerList(this.unsubscribe).pipe(
             filter((chartData: IAgentSelection) => {
@@ -145,7 +125,11 @@ export class ScatterChartForInfoPerServerContainerComponent implements OnInit, A
             this.selectedAgent = '';
             this.selectedApplication = this.selectedTarget.node[0];
             this.scatterChartInteractionService.reset(this.instanceKey, this.selectedApplication, this.selectedAgent, this.fromX, this.toX, this.scatterChartMode);
-            this.changeDetectorRef.detectChanges();
+            this.scatterChartDataService.getSavedData().pipe(
+                takeUntil(this.unsubscribe)
+            ).subscribe((data: IScatterData) => {
+                this.scatterChartInteractionService.addChartData(this.instanceKey, data);
+            });
         });
     }
     isHide(): boolean {

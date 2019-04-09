@@ -2,10 +2,10 @@ import { Component, OnInit, OnDestroy, OnChanges, Input, Output, EventEmitter, V
 import { Subject } from 'rxjs';
 import { takeUntil, filter } from 'rxjs/operators';
 import { WindowRefService } from 'app/shared/services';
-import { ScatterChart, ITypeInfo } from './class/scatter-chart.class';
+import { ScatterChart } from './class/scatter-chart.class';
 import { ScatterChartDataBlock } from './class/scatter-chart-data-block.class';
 import { ScatterChartInteractionService, IChangedViewTypeParam, IRangeParam, IResetParam, IChangedAgentParam } from './scatter-chart-interaction.service';
-
+import { ScatterChartTransactionTypeManager } from './class/scatter-chart-transaction-type-manager.class';
 @Component({
     selector: 'pp-scatter-chart',
     templateUrl: './scatter-chart.component.html',
@@ -24,7 +24,6 @@ export class ScatterChartComponent implements OnInit, OnDestroy, OnChanges {
     @Input() mode: string;
     @Input() application: string;
     @Input() agent: string;
-    @Input() typeInfo: ITypeInfo[];
     @Input() i18nText: { [key: string]: string };
     @Input() timezone: string;
     @Input() dateFormat: string[];
@@ -42,7 +41,7 @@ export class ScatterChartComponent implements OnInit, OnDestroy, OnChanges {
     ) {}
     ngOnInit() {}
     ngOnChanges(changes: SimpleChanges) {
-        if (this.mode && (this.fromX >= 0) && (this.toX >= 0) && (this.fromY >= 0) && (this.toY >= 0) && this.typeInfo && this.application && this.timezone && this.dateFormat) {
+        if (this.mode && (this.fromX >= 0) && (this.toX >= 0) && (this.fromY >= 0) && (this.toY >= 0) && this.application && this.timezone && this.dateFormat) {
             if (this.scatterChartInstance === null) {
                 this.scatterChartInstance = new ScatterChart(
                     this.mode,
@@ -51,7 +50,6 @@ export class ScatterChartComponent implements OnInit, OnDestroy, OnChanges {
                     this.toX,
                     this.fromY,
                     this.toY,
-                    this.typeInfo,
                     this.application,
                     this.agent,
                     this.width,
@@ -180,7 +178,11 @@ export class ScatterChartComponent implements OnInit, OnDestroy, OnChanges {
             this.fromX = params.from;
             this.toX = params.to;
             this.mode = params.mode;
-            this.scatterChartInstance.reset(params.application, params.agent, params.from, params.to, params.mode);
+            let typeCheck;
+            if (params.clickParam) {
+                typeCheck = ScatterChartTransactionTypeManager.getTypeCheckValue(params.clickParam.isRed(), params.clickParam.isGreen() || params.clickParam.isOrange());
+            }
+            this.scatterChartInstance.reset(params.application, params.agent, params.from, params.to, params.mode, typeCheck);
             this.addToWindow();
         });
         this.scatterChartInteractionService.onError$.pipe(

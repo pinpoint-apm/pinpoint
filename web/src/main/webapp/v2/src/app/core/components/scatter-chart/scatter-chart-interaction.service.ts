@@ -22,6 +22,7 @@ export interface IResetParam {
     from: number;
     to: number;
     mode: string;
+    clickParam?: any;
 }
 
 @Injectable()
@@ -77,14 +78,15 @@ export class ScatterChartInteractionService {
     downloadChart(instanceKey: string): void {
         this.outInvokeDownloadChart.next(instanceKey);
     }
-    reset(instanceKey: string, application: string, agent: string, from: number, to: number, mode: string): void {
+    reset(instanceKey: string, application: string, agent: string, from: number, to: number, mode: string, clickParam?: any): void {
         this.outReset.next({
             instanceKey: instanceKey,
             application: application,
             agent: agent,
             from: from,
             to: to,
-            mode: mode
+            mode: mode,
+            clickParam: clickParam
         });
     }
     setError(error: IServerErrorFormat): void {
