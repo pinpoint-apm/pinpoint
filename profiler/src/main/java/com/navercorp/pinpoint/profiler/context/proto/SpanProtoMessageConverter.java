@@ -203,15 +203,19 @@ public class SpanProtoMessageConverter implements MessageConverter<GeneratedMess
         pSpanChunk.setSpanId(traceId.getSpanId());
 
         final Shared shared = traceRoot.getShared();
-        pSpanChunk.setEndPoint(shared.getEndPoint());
+        final String endPoint = shared.getEndPoint();
+        if (endPoint != null) {
+            pSpanChunk.setEndPoint(endPoint);
+        }
 
         if (spanChunk instanceof AsyncSpanChunk) {
             final AsyncSpanChunk asyncSpanChunk = (AsyncSpanChunk) spanChunk;
             final LocalAsyncId localAsyncId = asyncSpanChunk.getLocalAsyncId();
-            final PLocalAsyncId.Builder pLocalAsyncId = PLocalAsyncId.newBuilder();
-            pLocalAsyncId.setAsyncId(localAsyncId.getAsyncId());
-            pLocalAsyncId.setSequence(localAsyncId.getSequence());
-            pSpanChunk.setLocalAsyncId(pLocalAsyncId.build());
+            final PLocalAsyncId.Builder pAsyncIdBuilder = PLocalAsyncId.newBuilder();
+            pAsyncIdBuilder.setAsyncId(localAsyncId.getAsyncId());
+            pAsyncIdBuilder.setSequence(localAsyncId.getSequence());
+            final PLocalAsyncId pLocalAsyncId = pAsyncIdBuilder.build();
+            pSpanChunk.setLocalAsyncId(pLocalAsyncId);
         }
 
         this.spanProcessor.preProcess(spanChunk, pSpanChunk);
@@ -226,7 +230,7 @@ public class SpanProtoMessageConverter implements MessageConverter<GeneratedMess
     }
 
     @VisibleForTesting
-    PSpanEvent.Builder buildPSpanEvent(SpanEvent spanEvent) {
+    public PSpanEvent.Builder buildPSpanEvent(SpanEvent spanEvent) {
         final PSpanEvent.Builder pSpanEvent = getSpanEventBuilder();
 
 //        if (spanEvent.getStartElapsed() != 0) {
@@ -253,7 +257,10 @@ public class SpanProtoMessageConverter implements MessageConverter<GeneratedMess
             pSpanEvent.setExceptionInfo(pIntStringValue);
         }
 
-        buildNextEvent(spanEvent, pSpanEvent);
+        PNextEvent nextEvent = buildNextEvent(spanEvent, pSpanEvent);
+        if (nextEvent != null) {
+            pSpanEvent.setNextEvent(nextEvent);
+        }
 
         final List<Annotation> annotations = spanEvent.getAnnotations();
         if (CollectionUtils.hasLength(annotations)) {
@@ -274,16 +281,37 @@ public class SpanProtoMessageConverter implements MessageConverter<GeneratedMess
         }
 
 
-        PMessageEvent.Builder messageEvent = PMessageEvent.newBuilder();
-        messageEvent.setEndPoint(spanEvent.getEndPoint());
-        if (spanEvent.getNextSpanId() != -1) {
-            messageEvent.setNextSpanId(spanEvent.getNextSpanId());
+        PMessageEvent.Builder messageEventBuilder = null;
+        final String endPoint = spanEvent.getEndPoint();
+        if (endPoint != null) {
+            messageEventBuilder = newPMessageEvent(messageEventBuilder);
+            messageEventBuilder.setEndPoint(endPoint);
         }
-        messageEvent.setDestinationId(spanEvent.getDestinationId());
 
-        PNextEvent.Builder nextEvent = PNextEvent.newBuilder();
-        nextEvent.setMessageEvent(messageEvent.build());
-        return nextEvent.build();
+        if (spanEvent.getNextSpanId() != -1) {
+            messageEventBuilder = newPMessageEvent(messageEventBuilder);
+            messageEventBuilder.setNextSpanId(spanEvent.getNextSpanId());
+        }
+
+        final String destinationId = spanEvent.getDestinationId();
+        if (destinationId != null) {
+            messageEventBuilder = newPMessageEvent(messageEventBuilder);
+            messageEventBuilder.setDestinationId(destinationId);
+        }
+
+        if (messageEventBuilder != null) {
+            PNextEvent.Builder nextEvent = PNextEvent.newBuilder();
+            nextEvent.setMessageEvent(messageEventBuilder.build());
+            return nextEvent.build();
+        }
+        return null;
+    }
+
+    private PMessageEvent.Builder newPMessageEvent(PMessageEvent.Builder builder) {
+        if (builder == null) {
+            return PMessageEvent.newBuilder();
+        }
+        return builder;
     }
 
     private PIntStringValue buildPIntStringValue(IntStringValue exceptionInfo) {

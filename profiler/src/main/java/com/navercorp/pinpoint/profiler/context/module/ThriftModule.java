@@ -28,7 +28,7 @@ import com.navercorp.pinpoint.profiler.context.provider.HeaderTBaseSerializerPro
 import com.navercorp.pinpoint.profiler.context.provider.MetadataMessageConverterProvider;
 import com.navercorp.pinpoint.profiler.context.provider.PinpointClientFactoryProvider;
 import com.navercorp.pinpoint.profiler.context.provider.SpanDataSenderProvider;
-import com.navercorp.pinpoint.profiler.context.provider.SpanPostProcessorProvider;
+import com.navercorp.pinpoint.profiler.context.provider.SpanProcessorProvider;
 import com.navercorp.pinpoint.profiler.context.provider.SpanStatClientFactoryProvider;
 import com.navercorp.pinpoint.profiler.context.provider.StatDataSenderProvider;
 import com.navercorp.pinpoint.profiler.context.provider.TcpDataSenderProvider;
@@ -55,7 +55,7 @@ public class ThriftModule extends PrivateModule {
 //        expose(commandDispatcher);
 
         TypeLiteral<SpanProcessor<TSpan, TSpanChunk>> spanPostProcessorType = new TypeLiteral<SpanProcessor<TSpan, TSpanChunk>>() {};
-        bind(spanPostProcessorType).toProvider(SpanPostProcessorProvider.class).in(Scopes.SINGLETON);
+        bind(spanPostProcessorType).toProvider(SpanProcessorProvider.class).in(Scopes.SINGLETON);
 
         bind(ConnectionFactoryProvider.class).toProvider(ConnectionFactoryProviderProvider.class).in(Scopes.SINGLETON);
 

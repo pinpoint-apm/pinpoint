@@ -60,7 +60,7 @@ public class PermissionServerTransportFilter extends ServerTransportFilter {
 
         // Permission denied
         logger.debug("Permission denied transport.");
-        throw Status.PERMISSION_DENIED.asRuntimeException();
+        throw Status.PERMISSION_DENIED.withDescription("invalid IP").asRuntimeException();
     }
 
     @Override
