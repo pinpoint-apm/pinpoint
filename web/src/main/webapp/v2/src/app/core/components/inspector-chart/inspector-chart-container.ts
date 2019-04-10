@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, ComponentFactoryResolver, Injector } from '@angular/core';
+import { ComponentFactoryResolver, Injector } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import * as moment from 'moment-timezone';
 import { Subject, Observable, combineLatest, merge } from 'rxjs';
@@ -26,7 +26,6 @@ export abstract class InspectorChartContainer {
     constructor(
         protected defaultYMax: number,
         protected storeHelperService: StoreHelperService,
-        protected changeDetector: ChangeDetectorRef,
         protected webAppSettingDataService: WebAppSettingDataService,
         protected newUrlStateNotificationService: NewUrlStateNotificationService,
         protected chartDataService: IChartDataService,
@@ -69,7 +68,6 @@ export abstract class InspectorChartContainer {
 
                 this.chartConfig = {...this.chartConfig};
                 this.chartConfig.dataConfig.labels = this.getNewFormattedLabels(xDataArr);
-                this.changeDetector.detectChanges();
             }
         });
     }
@@ -133,7 +131,6 @@ export abstract class InspectorChartContainer {
             elseConfig: this.makeNormalOption(data),
             isDataEmpty: this.isDataEmpty(data)
         };
-        this.changeDetector.detectChanges();
     }
 
     protected setErrObj(data?: AjaxException): void {
@@ -141,7 +138,6 @@ export abstract class InspectorChartContainer {
             errType: data ? 'EXCEPTION' : 'ELSE',
             errMessage: data ? data.exception.message : null
         };
-        this.changeDetector.detectChanges();
     }
 
     protected isDataEmpty(data: {[key: string]: any} | {[key: string]: any}[]): boolean {

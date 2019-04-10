@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, ElementRef } from '@angular/core';
+import { ElementRef } from '@angular/core';
 import { Subject, Observable, combineLatest } from 'rxjs';
 import { filter, map } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
@@ -26,7 +26,6 @@ export abstract class TransactionViewChartContainer {
     constructor(
         protected defaultYMax: number,
         protected storeHelperService: StoreHelperService,
-        protected changeDetector: ChangeDetectorRef,
         protected webAppSettingDataService: WebAppSettingDataService,
         protected newUrlStateNotificationService: NewUrlStateNotificationService,
         protected chartDataService: IChartDataService,
@@ -64,7 +63,6 @@ export abstract class TransactionViewChartContainer {
 
                 this.chartConfig = {...this.chartConfig};
                 this.chartConfig.dataConfig.labels = this.getNewFormattedLabels(xDataArr);
-                this.changeDetector.detectChanges();
             }
         });
     }
@@ -120,7 +118,6 @@ export abstract class TransactionViewChartContainer {
             elseConfig: this.makeNormalOption(data),
             isDataEmpty: this.isDataEmpty(data)
         };
-        this.changeDetector.detectChanges();
     }
 
     protected setErrObj(data?: AjaxException): void {
@@ -128,7 +125,6 @@ export abstract class TransactionViewChartContainer {
             errType: data ? 'EXCEPTION' : 'ELSE',
             errMessage: data ? data.exception.message : null
         };
-        this.changeDetector.detectChanges();
     }
 
     protected isDataEmpty(data: {[key: string]: any} | {[key: string]: any}[]): boolean {
