@@ -71,7 +71,7 @@ public class StreamChannelManager {
 
         final int streamChannelId = idGenerator.generate();
 
-        ClientStreamChannel newStreamChannel = new ClientStreamChannel(channel, streamChannelId, streamChannelRepository, streamChannelEventHandler);
+        NettyClientStreamChannel newStreamChannel = new NettyClientStreamChannel(channel, streamChannelId, streamChannelRepository, streamChannelEventHandler);
         try {
             newStreamChannel.init();
             newStreamChannel.connect(payload, 3000);
