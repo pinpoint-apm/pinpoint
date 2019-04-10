@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef, ElementRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ElementRef } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import * as moment from 'moment-timezone';
 
@@ -11,12 +11,10 @@ import { IChartDataFromServer } from 'app/core/components/inspector-chart/chart-
     selector: 'pp-transaction-view-cpu-chart-container',
     templateUrl: './transaction-view-cpu-chart-container.component.html',
     styleUrls: ['./transaction-view-cpu-chart-container.component.css'],
-    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TransactionViewCPUChartContainerComponent extends TransactionViewChartContainer implements OnInit, OnDestroy {
     constructor(
         storeHelperService: StoreHelperService,
-        changeDetector: ChangeDetectorRef,
         webAppSettingDataService: WebAppSettingDataService,
         newUrlStateNotificationService: NewUrlStateNotificationService,
         chartDataService: TransactionViewCPUChartDataService,
@@ -27,7 +25,6 @@ export class TransactionViewCPUChartContainerComponent extends TransactionViewCh
         super(
             100,
             storeHelperService,
-            changeDetector,
             webAppSettingDataService,
             newUrlStateNotificationService,
             chartDataService,

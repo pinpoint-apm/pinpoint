@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ViewChild, ChangeDetectionStrategy, ChangeDetectorRef, ComponentFactoryResolver, Injector  } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ComponentFactoryResolver, Injector } from '@angular/core';
 import { InspectorChartComponent } from './inspector-chart.component';
 import { TranslateService } from '@ngx-translate/core';
 import { filter, skip, tap } from 'rxjs/operators';
@@ -21,7 +21,6 @@ import { isThatType } from 'app/core/utils/util';
     selector: 'pp-agent-data-source-chart-container',
     templateUrl: './agent-data-source-chart-container.component.html',
     styleUrls: ['./agent-data-source-chart-container.component.css'],
-    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AgentDataSourceChartContainerComponent extends InspectorChartContainer implements OnInit, OnDestroy {
     @ViewChild(InspectorChartComponent) inspectorChartComponent: InspectorChartComponent;
@@ -32,7 +31,6 @@ export class AgentDataSourceChartContainerComponent extends InspectorChartContai
 
     constructor(
         storeHelperService: StoreHelperService,
-        changeDetector: ChangeDetectorRef,
         webAppSettingDataService: WebAppSettingDataService,
         newUrlStateNotificationService: NewUrlStateNotificationService,
         chartDataService: AgentDataSourceChartDataService,
@@ -45,7 +43,6 @@ export class AgentDataSourceChartContainerComponent extends InspectorChartContai
         super(
             10,
             storeHelperService,
-            changeDetector,
             webAppSettingDataService,
             newUrlStateNotificationService,
             chartDataService,

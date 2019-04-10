@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef, ComponentFactoryResolver, Injector  } from '@angular/core';
+import { Component, OnInit, OnDestroy, ComponentFactoryResolver, Injector } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import * as moment from 'moment-timezone';
 
@@ -13,12 +13,10 @@ import { IChartDataFromServer } from 'app/core/components/inspector-chart/chart-
     selector: 'pp-application-response-time-chart-container',
     templateUrl: './application-response-time-chart-container.component.html',
     styleUrls: ['./application-response-time-chart-container.component.css'],
-    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ApplicationResponseTimeChartContainerComponent extends InspectorChartContainer implements OnInit, OnDestroy {
     constructor(
         storeHelperService: StoreHelperService,
-        changeDetector: ChangeDetectorRef,
         webAppSettingDataService: WebAppSettingDataService,
         newUrlStateNotificationService: NewUrlStateNotificationService,
         chartDataService: ApplicationResponseTimeChartDataService,
@@ -31,7 +29,6 @@ export class ApplicationResponseTimeChartContainerComponent extends InspectorCha
         super(
             100,
             storeHelperService,
-            changeDetector,
             webAppSettingDataService,
             newUrlStateNotificationService,
             chartDataService,

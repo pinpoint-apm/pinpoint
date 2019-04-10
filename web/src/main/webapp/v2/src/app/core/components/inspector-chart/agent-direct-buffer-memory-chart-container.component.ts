@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef, ComponentFactoryResolver, Injector } from '@angular/core';
+import { Component, OnInit, OnDestroy, ComponentFactoryResolver, Injector } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import * as moment from 'moment-timezone';
 
@@ -13,12 +13,10 @@ import { IChartDataFromServer } from 'app/core/components/inspector-chart/chart-
     selector: 'pp-agent-direct-buffer-memory-chart-container',
     templateUrl: './agent-direct-buffer-memory-chart-container.component.html',
     styleUrls: ['./agent-direct-buffer-memory-chart-container.component.css'],
-    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AgentDirectBufferMemoryChartContainerComponent extends InspectorChartContainer implements OnInit, OnDestroy {
     constructor(
         storeHelperService: StoreHelperService,
-        changeDetector: ChangeDetectorRef,
         webAppSettingDataService: WebAppSettingDataService,
         newUrlStateNotificationService: NewUrlStateNotificationService,
         chartDataService: AgentDirectBufferChartDataService,
@@ -31,7 +29,6 @@ export class AgentDirectBufferMemoryChartContainerComponent extends InspectorCha
         super(
             100,
             storeHelperService,
-            changeDetector,
             webAppSettingDataService,
             newUrlStateNotificationService,
             chartDataService,
