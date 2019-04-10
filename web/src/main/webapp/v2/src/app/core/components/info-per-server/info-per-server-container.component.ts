@@ -31,7 +31,7 @@ import { ServerErrorPopupContainerComponent } from 'app/core/components/server-e
                 left: '-809px'
             })),
             transition('* => *', [
-                animate('0.2s 0.5s ease-out')
+                animate('0.2s 0s ease-out')
             ])
         ]),
         trigger('chartAnimationTrigger', [
