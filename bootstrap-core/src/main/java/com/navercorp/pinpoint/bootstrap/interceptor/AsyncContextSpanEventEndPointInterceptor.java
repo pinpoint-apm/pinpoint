@@ -1,11 +1,11 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,10 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.navercorp.pinpoint.bootstrap.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessorUtils;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
+import com.navercorp.pinpoint.bootstrap.context.AsyncState;
+import com.navercorp.pinpoint.bootstrap.context.AsyncStateSupport;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
@@ -24,23 +27,22 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.common.util.Assert;
 
-public abstract class AsyncContextSpanEventSimpleAroundInterceptor implements AroundInterceptor {
+/**
+ * @author jaehong.kim
+ */
+public abstract class AsyncContextSpanEventEndPointInterceptor implements AroundInterceptor {
     protected final PLogger logger = PLoggerFactory.getLogger(getClass());
     protected final boolean isDebug = logger.isDebugEnabled();
     protected static final String ASYNC_TRACE_SCOPE = AsyncContext.ASYNC_TRACE_SCOPE;
 
     protected final MethodDescriptor methodDescriptor;
+    protected final TraceContext traceContext;
 
-    public AsyncContextSpanEventSimpleAroundInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
-        if (traceContext == null) {
-            throw new NullPointerException("traceContext must not be null");
-        }
-        if (methodDescriptor == null) {
-            throw new NullPointerException("methodDescriptor must not be null");
-        }
-
-        this.methodDescriptor = methodDescriptor;
+    public AsyncContextSpanEventEndPointInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
+        this.traceContext = Assert.requireNonNull(traceContext, "traceContext must not be null");
+        this.methodDescriptor = Assert.requireNonNull(methodDescriptor, "methodDescriptor must not be null");
     }
 
     @Override
@@ -60,6 +62,9 @@ public abstract class AsyncContextSpanEventSimpleAroundInterceptor implements Ar
             return;
         }
 
+        if (isDebug) {
+            logger.debug("Asynchronous invocation. asyncTraceId={}, trace={}", asyncContext, trace);
+        }
         // entry scope.
         entryAsyncTraceScope(trace);
 
@@ -82,15 +87,21 @@ public abstract class AsyncContextSpanEventSimpleAroundInterceptor implements Ar
             logger.afterInterceptor(target, args, result, throwable);
         }
 
-        final AsyncContext asyncContext = getAsyncContext(target);
+        final AsyncContext asyncContext = getAsyncContext(target, args);
         if (asyncContext == null) {
-            logger.debug("AsyncContext not found");
+            logger.debug("Not found asynchronous invocation metadata");
             return;
+        }
+        if (isDebug) {
+            logger.debug("Asynchronous invocation. asyncContext={}", asyncContext);
         }
 
         final Trace trace = asyncContext.currentAsyncTraceObject();
         if (trace == null) {
             return;
+        }
+        if (isDebug) {
+            logger.debug("Asynchronous invocation. asyncTraceId={}, trace={}", asyncContext, trace);
         }
 
         // leave scope.
@@ -99,7 +110,7 @@ public abstract class AsyncContextSpanEventSimpleAroundInterceptor implements Ar
                 logger.warn("Failed to leave scope of async trace {}.", trace);
             }
             // delete unstable trace.
-            deleteAsyncContext(trace, asyncContext);
+            deleteAsyncTrace(trace);
             return;
         }
 
@@ -113,16 +124,16 @@ public abstract class AsyncContextSpanEventSimpleAroundInterceptor implements Ar
         } finally {
             trace.traceBlockEnd();
             if (isAsyncTraceDestination(trace)) {
-                deleteAsyncContext(trace, asyncContext);
+                if (isDebug) {
+                    logger.debug("Arrived at async trace destination. asyncTraceId={}", asyncContext);
+                }
+                deleteAsyncTrace(trace);
             }
+            finishAsyncState(asyncContext);
         }
     }
 
     protected abstract void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable);
-
-    protected AsyncContext getAsyncContext(Object target) {
-        return getAsyncContext(target, null);
-    }
 
     protected AsyncContext getAsyncContext(Object target, Object[] args) {
         return AsyncContextAccessorUtils.getAsyncContext(target);
@@ -143,13 +154,12 @@ public abstract class AsyncContextSpanEventSimpleAroundInterceptor implements Ar
         return trace;
     }
 
-    private void deleteAsyncContext(final Trace trace, AsyncContext asyncContext) {
+    private void deleteAsyncTrace(final Trace trace) {
         if (isDebug) {
             logger.debug("Delete async trace {}.", trace);
         }
-
+        traceContext.removeTraceObject();
         trace.close();
-        asyncContext.close();
     }
 
     private void entryAsyncTraceScope(final Trace trace) {
@@ -180,4 +190,14 @@ public abstract class AsyncContextSpanEventSimpleAroundInterceptor implements Ar
         return scope != null && !scope.isActive();
     }
 
+    private void finishAsyncState(final AsyncContext asyncContext) {
+        if (asyncContext instanceof AsyncStateSupport) {
+            final AsyncStateSupport asyncStateSupport = (AsyncStateSupport) asyncContext;
+            AsyncState asyncState = asyncStateSupport.getAsyncState();
+            asyncState.finish();
+            if (isDebug) {
+                logger.debug("finished asyncState. asyncTraceId={}", asyncContext);
+            }
+        }
+    }
 }
