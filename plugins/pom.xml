@@ -63,6 +63,7 @@
         <module>websphere</module>
         <module>spring</module>
         <module>spring-boot</module>
+        <module>spring-webflux</module>
         <module>ibatis</module>
         <module>mybatis</module>
         <module>okhttp</module>
