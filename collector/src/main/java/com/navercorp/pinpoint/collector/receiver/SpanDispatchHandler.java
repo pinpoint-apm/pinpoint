@@ -17,39 +17,36 @@
 package com.navercorp.pinpoint.collector.receiver;
 
 import com.navercorp.pinpoint.collector.handler.SimpleHandler;
-import com.navercorp.pinpoint.collector.handler.thrift.ThriftSpanChunkHandler;
-import com.navercorp.pinpoint.collector.handler.thrift.ThriftSpanHandler;
-import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.io.header.Header;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.io.request.ServerResponse;
 import com.navercorp.pinpoint.thrift.io.DefaultTBaseLocator;
-import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.Objects;
 
 /**
  * @author emeroad
  */
 public class SpanDispatchHandler implements DispatchHandler {
 
-    @Autowired()
-    private ThriftSpanHandler spanDataHandler;
+    private final SimpleHandler spanDataHandler;
 
-    @Autowired()
-    private ThriftSpanChunkHandler thriftSpanChunkHandler;
+    private final SimpleHandler spanChunkHandler;
+    
 
-    public SpanDispatchHandler() {
+    public SpanDispatchHandler(SimpleHandler spanDataHandler, SimpleHandler spanChunkHandler) {
+        this.spanDataHandler = Objects.requireNonNull(spanDataHandler, "spanDataHandler must not be null");
+        this.spanChunkHandler = Objects.requireNonNull(spanChunkHandler, "spanChunkHandler must not be null");
     }
-
 
     private SimpleHandler getSimpleHandler(Header header) {
         final short type = header.getType();
-        if (type == DefaultTBaseLocator.SPAN) {
-            return spanDataHandler;
+        switch (type) {
+            case DefaultTBaseLocator.SPAN:
+                return spanDataHandler;
+            case DefaultTBaseLocator.SPANCHUNK:
+                return spanChunkHandler;
         }
-        if (type == DefaultTBaseLocator.SPANCHUNK) {
-            return thriftSpanChunkHandler;
-        }
-
         throw new UnsupportedOperationException("unsupported header:" + header);
     }
 

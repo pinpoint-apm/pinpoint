@@ -27,7 +27,9 @@ public enum TraceDataFormatVersion {
     V1(TraceConstants.TRACE_V1),
     V2(TraceConstants.TRACE_V2);
 
-    private static final String TRACE_VERSION_NAME = "profiler.trace.dataformat.version";
+    private static final String THRIFT_TRACE_VERSION_KEY = "profiler.transport.thrift.trace.dataformat.version";
+
+    private static final String GRPC_TRACE_VERSION_KEY = "profiler.transport.grpc.trace.dataformat.version";
 
     private byte version;
 
@@ -43,14 +45,24 @@ public enum TraceDataFormatVersion {
         if (profilerConfig == null) {
             throw new NullPointerException("profilerConfig must not be null");
         }
+        final String transportModule = profilerConfig.getTransportModule();
+        if ("THRIFT".equalsIgnoreCase(transportModule)) {
+            final String version = profilerConfig.readString(THRIFT_TRACE_VERSION_KEY, "v1");
+            if ("v1".equalsIgnoreCase(version)) {
+                return V1;
+            }
+            throw new UnsupportedOperationException("unknown " + THRIFT_TRACE_VERSION_KEY + ":" + version);
+        }
 
-        final String lowerCaseVersion = profilerConfig.readString(TRACE_VERSION_NAME, "v1").toLowerCase();
-        if ("v2".equals(lowerCaseVersion)) {
-            return V2;
+
+        if ("GRPC".equalsIgnoreCase(transportModule)) {
+            final String version = profilerConfig.readString(GRPC_TRACE_VERSION_KEY, "v2");
+            if ("v2".equalsIgnoreCase(version)) {
+                return V2;
+            }
+            throw new UnsupportedOperationException("unknown " + GRPC_TRACE_VERSION_KEY + ":" + version);
         }
-        if("v1".equals(lowerCaseVersion)) {
-            return V1;
-        }
-        throw new UnsupportedOperationException("unknown profiler.trace.dataformat.version:" + lowerCaseVersion);
+
+        throw new UnsupportedOperationException("unknown transportModule:" + transportModule);
     }
 }

@@ -93,9 +93,14 @@ public class BufferedStorage implements Storage {
         span.setSpanEventList(spanEventList);
         span.finish();
 
-        final boolean success = this.dataSender.send(span);
         if (isDebug) {
-            flushLog(success, span);
+            logger.debug("Flush {}", span);
+        }
+        final boolean success = this.dataSender.send(span);
+        if (!success) {
+            // WARN : Do not call span.toString ()
+            // concurrentmodificationexceptionr may occur in spanProcessV2
+            logger.debug("send fail");
         }
     }
 
@@ -109,19 +114,17 @@ public class BufferedStorage implements Storage {
     private void sendSpanChunk(List<SpanEvent> spanEventList) {
         final SpanChunk spanChunk = this.spanChunkFactory.newSpanChunk(spanEventList);
 
-        final boolean success = this.dataSender.send(spanChunk);
         if (isDebug) {
-            flushLog(success, spanChunk);
+            logger.debug("Flush {}", spanChunk);
+        }
+        final boolean success = this.dataSender.send(spanChunk);
+        if (!success) {
+            // WARN : Do not call span.toString ()
+            // concurrentmodificationexceptionr may occur in spanProcessV2
+            logger.debug("send fail");
         }
     }
 
-    private void flushLog(boolean success, Object message) {
-        if (success) {
-            logger.debug("Flush {}", message);
-        } else {
-            logger.debug("Flush fail {}", message);
-        }
-    }
 
     @Override
     public void close() {

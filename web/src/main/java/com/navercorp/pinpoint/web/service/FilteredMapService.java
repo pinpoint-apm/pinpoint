@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.service;
 
+import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.util.TransactionId;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
 import com.navercorp.pinpoint.web.filter.Filter;
@@ -39,10 +40,10 @@ public interface FilteredMapService {
 
     LimitedScanResult<List<TransactionId>> selectTraceIdsFromApplicationTraceIndex(String applicationName, SelectedScatterArea area, int limit);
 
-    LoadFactor linkStatistics(Range range, List<TransactionId> traceIdSet, Application sourceApplication, Application destinationApplication, Filter filter);
+    LoadFactor linkStatistics(Range range, List<TransactionId> traceIdSet, Application sourceApplication, Application destinationApplication, Filter<SpanBo> filter);
 
     ApplicationMap selectApplicationMap(TransactionId transactionId, int version);
 
-    ApplicationMap selectApplicationMapWithScatterData(List<TransactionId> traceIdList, Range originalRange, Range scanRange, int xGroupUnit, int yGroupUnit, Filter filter, int version);
+    ApplicationMap selectApplicationMapWithScatterData(List<TransactionId> traceIdList, Range originalRange, Range scanRange, int xGroupUnit, int yGroupUnit, Filter<SpanBo> filter, int version);
 
 }

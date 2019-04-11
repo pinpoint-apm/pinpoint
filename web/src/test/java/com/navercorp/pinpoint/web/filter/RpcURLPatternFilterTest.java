@@ -30,7 +30,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -85,12 +84,17 @@ public class RpcURLPatternFilterTest {
         };
     }
 
+
+    private RpcURLPatternFilter newRpcURLPatternFilter(String urlPattern) {
+        return new RpcURLPatternFilter(urlPattern, serviceTypeRegistryService, annotationKeyRegistryService);
+    }
+
     @Test
     public void emptyPatternShouldReject() {
         // Given
         final String urlPattern = "";
         final String rpcUrl = "http://a.b.c";
-        final RpcURLPatternFilter rpcURLPatternFilter = new RpcURLPatternFilter(encode(urlPattern), serviceTypeRegistryService, annotationKeyRegistryService);
+        final RpcURLPatternFilter rpcURLPatternFilter = newRpcURLPatternFilter(urlPattern);
         // When
         boolean accept = rpcURLPatternFilter.accept(createTestRpcSpans(rpcUrl));
         // Then
@@ -102,7 +106,7 @@ public class RpcURLPatternFilterTest {
         // Given
         final String urlPattern = "/test/**";
         final String rpcUrl = "/test/rpc/path";
-        final RpcURLPatternFilter rpcURLPatternFilter = new RpcURLPatternFilter(encode(urlPattern), serviceTypeRegistryService, annotationKeyRegistryService);
+        final RpcURLPatternFilter rpcURLPatternFilter = newRpcURLPatternFilter(urlPattern);
         // When
         boolean accept = rpcURLPatternFilter.accept(createTestRpcSpans(rpcUrl));
         // Then
@@ -114,7 +118,7 @@ public class RpcURLPatternFilterTest {
         // Given
         final String urlPattern = "/test/**";
         final String rpcUrl = "http://some.test.domain:8080/test/rpc/path";
-        final RpcURLPatternFilter rpcURLPatternFilter = new RpcURLPatternFilter(encode(urlPattern), serviceTypeRegistryService, annotationKeyRegistryService);
+        final RpcURLPatternFilter rpcURLPatternFilter = newRpcURLPatternFilter(urlPattern);
         // When
         boolean accept = rpcURLPatternFilter.accept(createTestRpcSpans(rpcUrl));
         // Then
@@ -126,7 +130,7 @@ public class RpcURLPatternFilterTest {
         // Given
         final String urlPattern = "some.test.domain/test/rpc/**";
         final String rpcUrl = "some.test.domain/test/rpc/test?value=11";
-        final RpcURLPatternFilter rpcURLPatternFilter = new RpcURLPatternFilter(encode(urlPattern), serviceTypeRegistryService, annotationKeyRegistryService);
+        final RpcURLPatternFilter rpcURLPatternFilter = newRpcURLPatternFilter(urlPattern);
         // When
         boolean accept = rpcURLPatternFilter.accept(createTestRpcSpans(rpcUrl));
         // Then
@@ -138,7 +142,7 @@ public class RpcURLPatternFilterTest {
         // Given
         final String urlPattern = "some*";
         final String rpcUrl = "someName";
-        final RpcURLPatternFilter rpcURLPatternFilter = new RpcURLPatternFilter(encode(urlPattern), serviceTypeRegistryService, annotationKeyRegistryService);
+        final RpcURLPatternFilter rpcURLPatternFilter = newRpcURLPatternFilter(urlPattern);
         // When
         boolean accept = rpcURLPatternFilter.accept(createTestRpcSpans(rpcUrl));
         // Then
@@ -150,15 +154,11 @@ public class RpcURLPatternFilterTest {
         // Given
         final String urlPattern = ":/**";
         final String rpcUrl = ":/invalid/uri";
-        final RpcURLPatternFilter rpcURLPatternFilter = new RpcURLPatternFilter(encode(urlPattern), serviceTypeRegistryService, annotationKeyRegistryService);
+        final RpcURLPatternFilter rpcURLPatternFilter = newRpcURLPatternFilter(urlPattern);
         // When
         boolean accept = rpcURLPatternFilter.accept(createTestRpcSpans(rpcUrl));
         // Then
         Assert.assertTrue(accept);
-    }
-
-    private String encode(String value) {
-        return Base64.encodeBytes(value.getBytes(StandardCharsets.UTF_8));
     }
 
     private List<SpanBo> createTestRpcSpans(String... rpcUrls) {

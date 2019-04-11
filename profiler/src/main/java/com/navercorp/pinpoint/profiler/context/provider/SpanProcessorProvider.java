@@ -21,7 +21,6 @@ import com.google.inject.Provider;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.compress.SpanProcessor;
 import com.navercorp.pinpoint.profiler.context.compress.SpanProcessorV1;
-import com.navercorp.pinpoint.profiler.context.compress.SpanProcessorV2;
 import com.navercorp.pinpoint.profiler.context.TraceDataFormatVersion;
 import com.navercorp.pinpoint.thrift.dto.TSpan;
 import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
@@ -29,20 +28,17 @@ import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class SpanPostProcessorProvider implements Provider<SpanProcessor<TSpan, TSpanChunk>> {
+public class SpanProcessorProvider implements Provider<SpanProcessor<TSpan, TSpanChunk>> {
 
     private final TraceDataFormatVersion version;
 
     @Inject
-    public SpanPostProcessorProvider(TraceDataFormatVersion version) {
+    public SpanProcessorProvider(TraceDataFormatVersion version) {
         this.version = Assert.requireNonNull(version, "version must not be null");
     }
 
     @Override
     public SpanProcessor<TSpan, TSpanChunk> get() {
-        if (version == TraceDataFormatVersion.V2) {
-            return new SpanProcessorV2();
-        }
         if (version == TraceDataFormatVersion.V1) {
             return new SpanProcessorV1();
         }

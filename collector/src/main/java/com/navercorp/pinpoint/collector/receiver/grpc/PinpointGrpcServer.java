@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.collector.receiver.grpc;
 
 import com.navercorp.pinpoint.collector.cluster.AgentInfo;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.grpc.trace.PCmdEcho;
 import com.navercorp.pinpoint.grpc.trace.PCmdRequest;
 import com.navercorp.pinpoint.grpc.trace.PCmdResponse;
@@ -43,6 +42,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -62,9 +62,9 @@ public class PinpointGrpcServer {
     private final StreamObserver<PCmdRequest> requestObserver;
 
     public PinpointGrpcServer(AgentInfo agentInfo, RequestManager requestManager, StreamObserver<PCmdRequest> requestObserver) {
-        this.agentInfo = Assert.requireNonNull(agentInfo, "agentInfo must not be null");
-        this.requestManager = Assert.requireNonNull(requestManager, "requestManager must not be null");
-        this.requestObserver = Assert.requireNonNull(requestObserver, "requestObserver must not be null");
+        this.agentInfo = Objects.requireNonNull(agentInfo, "agentInfo must not be null");
+        this.requestManager = Objects.requireNonNull(requestManager, "requestManager must not be null");
+        this.requestObserver = Objects.requireNonNull(requestObserver, "requestObserver must not be null");
     }
 
     public void connected() {

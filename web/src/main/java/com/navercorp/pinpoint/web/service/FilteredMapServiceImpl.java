@@ -132,7 +132,7 @@ public class FilteredMapServiceImpl implements FilteredMapService {
 
     @Override
     @Deprecated
-    public LoadFactor linkStatistics(Range range, List<TransactionId> traceIdSet, Application sourceApplication, Application destinationApplication, Filter filter) {
+    public LoadFactor linkStatistics(Range range, List<TransactionId> traceIdSet, Application sourceApplication, Application destinationApplication, Filter<SpanBo> filter) {
         if (sourceApplication == null) {
             throw new NullPointerException("sourceApplication must not be null");
         }
@@ -181,7 +181,7 @@ public class FilteredMapServiceImpl implements FilteredMapService {
         return statistics;
     }
 
-    private List<SpanBo> filterList(List<List<SpanBo>> transactionList, Filter filter) {
+    private List<SpanBo> filterList(List<List<SpanBo>> transactionList, Filter<SpanBo> filter) {
         final List<SpanBo> filteredResult = new ArrayList<>();
         for (List<SpanBo> transaction : transactionList) {
             if (filter.include(transaction)) {
@@ -191,7 +191,7 @@ public class FilteredMapServiceImpl implements FilteredMapService {
         return filteredResult;
     }
 
-    private List<List<SpanBo>> filterList2(List<List<SpanBo>> transactionList, Filter filter) {
+    private List<List<SpanBo>> filterList2(List<List<SpanBo>> transactionList, Filter<SpanBo> filter) {
         final List<List<SpanBo>> filteredResult = new ArrayList<>();
         for (List<SpanBo> transaction : transactionList) {
             if (filter.include(transaction)) {
@@ -221,7 +221,7 @@ public class FilteredMapServiceImpl implements FilteredMapService {
     }
 
     @Override
-    public ApplicationMap selectApplicationMapWithScatterData(List<TransactionId> transactionIdList, Range originalRange, Range scanRange, int xGroupUnit, int yGroupUnit, Filter filter, int version) {
+    public ApplicationMap selectApplicationMapWithScatterData(List<TransactionId> transactionIdList, Range originalRange, Range scanRange, int xGroupUnit, int yGroupUnit, Filter<SpanBo> filter, int version) {
         if (transactionIdList == null) {
             throw new NullPointerException("transactionIdList must not be null");
         }
@@ -249,7 +249,7 @@ public class FilteredMapServiceImpl implements FilteredMapService {
         return applicationMapWithScatterData;
     }
 
-    private List<List<SpanBo>> selectFilteredSpan(List<TransactionId> transactionIdList, Filter filter) {
+    private List<List<SpanBo>> selectFilteredSpan(List<TransactionId> transactionIdList, Filter<SpanBo> filter) {
         // filters out recursive calls by looking at each objects
         // do not filter here if we change to a tree-based collision check in the future. 
         final List<TransactionId> recursiveFilterList = recursiveCallFilter(transactionIdList);

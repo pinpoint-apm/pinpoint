@@ -163,7 +163,13 @@ public class GrpcSpanFactory {
 
         spanEvent.setSequence((short) pSpanEvent.getSequence());
 
-        spanEvent.setStartElapsed(pSpanEvent.getStartElapsed());
+        if (prevSpanEvent == null) {
+            int startElapsed = pSpanEvent.getStartElapsed();
+            spanEvent.setStartElapsed(startElapsed);
+        } else {
+            int startElapsed = pSpanEvent.getStartElapsed() + prevSpanEvent.getStartElapsed();
+            spanEvent.setStartElapsed(startElapsed);
+        }
         spanEvent.setEndElapsed(pSpanEvent.getEndElapsed());
 
         spanEvent.setServiceType((short) pSpanEvent.getServiceType());
@@ -206,7 +212,7 @@ public class GrpcSpanFactory {
 
         final SpanChunkBo spanChunkBo = newSpanChunkBo(pSpanChunk, header);
         final PLocalAsyncId pLocalAsyncId = pSpanChunk.getLocalAsyncId();
-        if (pLocalAsyncId == PLocalAsyncId.getDefaultInstance()) {
+        if (pLocalAsyncId != PLocalAsyncId.getDefaultInstance()) {
             LocalAsyncIdBo localAsyncIdBo = new LocalAsyncIdBo(pLocalAsyncId.getAsyncId(), pLocalAsyncId.getSequence());
             spanChunkBo.setLocalAsyncId(localAsyncIdBo);
         }

@@ -120,18 +120,20 @@ public class LinkFilter implements Filter<SpanBo> {
     }
 
     private URLPatternFilter createAcceptUrlFilter(FilterDescriptor filterDescriptor) {
-        if (StringUtils.isEmpty(filterDescriptor.getUrlPattern())) {
+        final String urlPattern = filterDescriptor.getUrlPattern();
+        if (StringUtils.isEmpty(urlPattern)) {
             return new BypassURLPatternFilter();
         }
         // TODO remove decode
-        return new AcceptUrlFilter(filterDescriptor.getUrlPattern());
+        return new AcceptUrlFilter(urlPattern);
     }
 
     private URLPatternFilter createRpcUrlFilter(FilterDescriptor filterDescriptor) {
-        if (StringUtils.isEmpty(filterDescriptor.getUrlPattern())) {
+        final String urlPattern = filterDescriptor.getUrlPattern();
+        if (StringUtils.isEmpty(urlPattern)) {
             return new BypassURLPatternFilter();
         }
-        return new RpcURLPatternFilter(filterDescriptor.getUrlPattern(), serviceTypeRegistryService, annotationKeyRegistryService);
+        return new RpcURLPatternFilter(urlPattern, serviceTypeRegistryService, annotationKeyRegistryService);
     }
 
     private ResponseTimeFilter createResponseTimeFilter(FilterDescriptor filterDescriptor) {

@@ -64,24 +64,26 @@ public class SpanProcessorProtoV2 implements SpanProcessor<PSpan.Builder, PSpanC
     public void postProcess(SpanChunk span, PSpanChunk.Builder tSpan) {
         final List<SpanEvent> spanEventList = span.getSpanEventList();
         final List<PSpanEvent.Builder> tSpanEventList = tSpan.getSpanEventBuilderList();
-        postProcess(spanEventList, tSpanEventList);
+        long keyTime = getKeyTime(spanEventList);
+        tSpan.setKeyTime(keyTime);
+        postProcess(keyTime, spanEventList, tSpanEventList);
     }
 
     @Override
     public void postProcess(Span span, PSpan.Builder tSpan) {
         final List<SpanEvent> spanEventList = span.getSpanEventList();
         final List<PSpanEvent.Builder> tSpanEventList = tSpan.getSpanEventBuilderList();
-        postProcess(spanEventList, tSpanEventList);
+        long keyTime = getKeyTime(spanEventList);
+        postProcess(keyTime, spanEventList, tSpanEventList);
     }
 
-    private void postProcess(List<SpanEvent> spanEventList, List<PSpanEvent.Builder> tSpanEventList) {
+    private void postProcess(long keyTime, List<SpanEvent> spanEventList, List<PSpanEvent.Builder> tSpanEventList) {
         if (!(CollectionUtils.nullSafeSize(spanEventList) == CollectionUtils.nullSafeSize(tSpanEventList))) {
             throw new IllegalStateException("list size not same");
         }
 
         final Iterator<PSpanEvent.Builder> tSpanEventIterator = tSpanEventList.iterator();
 
-        long keyTime = getKeyTime(spanEventList);
         int prevDepth = 0;
         boolean first = true;
         for (SpanEvent spanEvent : spanEventList) {
