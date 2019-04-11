@@ -96,7 +96,7 @@ public class StreamChannelManager {
         StreamChannel streamChannel = streamChannelRepository.getStreamChannel(streamChannelId);
         if (streamChannel == null) {
             if (!(PacketType.APPLICATION_STREAM_CLOSE == packetType)) {
-                streamChannel.close(StreamCode.ID_NOT_FOUND);
+                write(new StreamClosePacket(streamChannelId, StreamCode.ID_NOT_FOUND));
             }
         } else {
             if (streamChannel instanceof ServerStreamChannel) {
@@ -106,6 +106,12 @@ public class StreamChannelManager {
             } else {
                 streamChannel.close(StreamCode.UNKNWON_ERROR);
             }
+        }
+    }
+
+    private void write(StreamPacket streamPacket) {
+        if (channel.isConnected()) {
+            channel.write(streamPacket);
         }
     }
 
