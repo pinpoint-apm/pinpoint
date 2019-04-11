@@ -29,6 +29,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
+
 /**
  * @author emeroad
  * @author netspider
@@ -38,11 +40,15 @@ public class GrpcSpanHandler implements SimpleHandler {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    @Autowired
     private TraceService traceService;
 
-    @Autowired
     private GrpcSpanFactory spanFactory;
+
+    @Autowired
+    public GrpcSpanHandler(TraceService traceService, GrpcSpanFactory spanFactory) {
+        this.traceService = Objects.requireNonNull(traceService, "traceService must not be null");
+        this.spanFactory = Objects.requireNonNull(spanFactory, "spanFactory must not be null");
+    }
 
     @Override
     public void handleSimple(ServerRequest serverRequest) {

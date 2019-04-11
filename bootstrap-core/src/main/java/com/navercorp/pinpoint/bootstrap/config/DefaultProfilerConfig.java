@@ -44,6 +44,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     private final Properties properties;
 
     public static final String INSTRUMENT_ENGINE_ASM = "ASM";
+    private static final String DEFAULT_TRANSPORT_MODULE = "THRIFT";
 
     public static final int DEFAULT_AGENT_STAT_COLLECTION_INTERVAL_MS = 5 * 1000;
     public static final int DEFAULT_NUM_AGENT_STAT_BATCH_SEND = 6;
@@ -100,7 +101,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     @VisibleForTesting
     private boolean staticResourceCleanup = false;
 
-    private String transportModule;
+    private String transportModule = DEFAULT_TRANSPORT_MODULE;
 
     private ThriftTransportConfig thriftTransportConfig;
     private GrpcTransportConfig grpcTransportConfig;
@@ -157,8 +158,8 @@ public class DefaultProfilerConfig implements ProfilerConfig {
 
     public DefaultProfilerConfig() {
         this.properties = new Properties();
-        this.thriftTransportConfig = readThriftTransportConfig(this);
-        this.grpcTransportConfig = readGrpcTransportConfig(this);
+        this.thriftTransportConfig = new DefaultThriftTransportConfig();
+        this.grpcTransportConfig = new GrpcTransportConfig();
     }
 
     public DefaultProfilerConfig(Properties properties) {

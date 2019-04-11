@@ -42,7 +42,6 @@ import java.util.Set;
 // TODO development class
 public class RpcURLPatternFilter implements URLPatternFilter {
 
-    private static final Charset UTF8 = StandardCharsets.UTF_8;
     private final String urlPattern;
     private final AntPathMatcher matcher = new AntPathMatcher();
     private final ServiceTypeRegistryService serviceTypeRegistryService;
@@ -52,12 +51,10 @@ public class RpcURLPatternFilter implements URLPatternFilter {
     private final Set<Integer> rpcEndpointAnnotationCodes;
 
     public RpcURLPatternFilter(String urlPattern, ServiceTypeRegistryService serviceTypeRegistryService, AnnotationKeyRegistryService annotationKeyRegistryService) {
-        Objects.requireNonNull(urlPattern, "urlPattern must not be null");
+        this.urlPattern = Objects.requireNonNull(urlPattern, "urlPattern must not be null");
         this.serviceTypeRegistryService = Objects.requireNonNull(serviceTypeRegistryService, "serviceTypeRegistryService must not be null");
         this.annotationKeyRegistryService = Objects.requireNonNull(annotationKeyRegistryService, "annotationKeyRegistryService must not be null");
 
-        // TODO remove decode
-        this.urlPattern = new String(Base64.decodeBase64(urlPattern), UTF8);
         // TODO serviceType rpctype
 
         // TODO remove. hard coded annotation for compatibility, need a better to group rpc url annotations
