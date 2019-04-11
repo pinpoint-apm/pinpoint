@@ -30,7 +30,9 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.filter.agent.*;
 import com.navercorp.pinpoint.web.filter.responsetime.ResponseTimeFilter;
 import com.navercorp.pinpoint.web.filter.responsetime.ResponseTimeFilterFactory;
-import org.apache.commons.collections.CollectionUtils;
+import com.navercorp.pinpoint.web.filter.visitor.SpanAcceptor;
+import com.navercorp.pinpoint.web.filter.visitor.SpanReader;
+import com.navercorp.pinpoint.web.filter.visitor.SpanVisitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
@@ -192,21 +194,21 @@ public class LinkFilter implements Filter<SpanBo> {
 
         switch (executionType) {
             case ALL: {
-                return true;
+                return SpanVisitor.ACCEPT;
             }
             case FAIL_ONLY: {
                 // is error
                 if (hasError == true) {
-                    return true;
+                    return SpanVisitor.ACCEPT;
                 }
-                return false;
+                return SpanVisitor.REJECT;
             }
             case SUCCESS_ONLY: {
                 // is success
                 if (hasError == false) {
-                    return true;
+                    return SpanVisitor.ACCEPT;
                 }
-                return false;
+                return SpanVisitor.REJECT;
             }
             default: {
                 throw new UnsupportedOperationException("Unsupported ExecutionType:" + executionType);
@@ -228,11 +230,11 @@ public class LinkFilter implements Filter<SpanBo> {
             for (SpanBo span : toNode) {
                 if (span.isRoot()) {
                     if (checkResponseCondition(span.getElapsed(), isError(span))) {
-                        return true;
+                        return SpanVisitor.ACCEPT;
                     }
                 }
             }
-            return false;
+            return SpanVisitor.REJECT;
         }
     }
 
@@ -249,26 +251,22 @@ public class LinkFilter implements Filter<SpanBo> {
             if (!rpcUrlFilter.accept(fromNode)) {
                 return false;
             }
-            Filter<SpanBo> spanEventVisitor = new SpanEventVisitor(this::filter);
-            return spanEventVisitor.include(fromNode);
+            SpanAcceptor acceptor = new SpanReader(fromNode);
+            return acceptor.accept(this::filter);
         }
 
-        private boolean filter(List<SpanEventBo> spanEventBoList) {
-            if (CollectionUtils.isEmpty(spanEventBoList)) {
-                return false;
-            }
-            for (SpanEventBo event : spanEventBoList) {
-                // check only whether a client exists or not.
-                final ServiceType eventServiceType = serviceTypeRegistryService.findServiceType(event.getServiceType());
-                if (eventServiceType.isRpcClient() && eventServiceType.isRecordStatistics()) {
-                    if (toApplicationName.equals(event.getDestinationId())) {
-                        if (checkResponseCondition(event.getEndElapsed(), event.hasException())) {
-                            return true;
-                        }
+        private boolean filter(SpanEventBo spanEventBo) {
+
+            // check only whether a client exists or not.
+            final ServiceType eventServiceType = serviceTypeRegistryService.findServiceType(spanEventBo.getServiceType());
+            if (eventServiceType.isRpcClient() && eventServiceType.isRecordStatistics()) {
+                if (toApplicationName.equals(spanEventBo.getDestinationId())) {
+                    if (checkResponseCondition(spanEventBo.getEndElapsed(), spanEventBo.hasException())) {
+                        return SpanVisitor.ACCEPT;
                     }
                 }
             }
-            return false;
+            return SpanVisitor.REJECT;
         }
     }
 
@@ -278,23 +276,18 @@ public class LinkFilter implements Filter<SpanBo> {
     class WasToBackendFilter implements Filter<SpanBo> {
         public boolean include(List<SpanBo> transaction) {
             final List<SpanBo> fromNode = findFromNode(transaction);
-            Filter<SpanBo> spanEventVisitor = new SpanEventVisitor(this::filter);
-            return spanEventVisitor.include(fromNode);
+            SpanAcceptor acceptor = new SpanReader(fromNode);
+            return acceptor.accept(this::filter);
         }
 
-        private boolean filter(List<SpanEventBo> eventBoList) {
-            if (CollectionUtils.isEmpty(eventBoList)) {
-                return false;
-            }
-            for (SpanEventBo event : eventBoList) {
-                final ServiceType eventServiceType = serviceTypeRegistryService.findServiceType(event.getServiceType());
-                if (isToNode(event.getDestinationId(), eventServiceType)) {
-                    if (checkResponseCondition(event.getEndElapsed(), event.hasException())) {
-                        return true;
-                    }
+        private boolean filter(SpanEventBo event) {
+            final ServiceType eventServiceType = serviceTypeRegistryService.findServiceType(event.getServiceType());
+            if (isToNode(event.getDestinationId(), eventServiceType)) {
+                if (checkResponseCondition(event.getEndElapsed(), event.hasException())) {
+                    return SpanVisitor.ACCEPT;
                 }
             }
-            return false;
+            return SpanVisitor.REJECT;
         }
     }
 
@@ -312,7 +305,7 @@ public class LinkFilter implements Filter<SpanBo> {
             final List<SpanBo> fromSpanList = findFromNode(transaction);
             if (fromSpanList.isEmpty()) {
                 // from span not found
-                return false;
+                return Filter.REJECT;
             }
             final List<SpanBo> toSpanList = findToNode(transaction);
             if (!toSpanList.isEmpty()) {
@@ -320,18 +313,18 @@ public class LinkFilter implements Filter<SpanBo> {
                 // from -> to compare SpanId & pSpanId filter
                 final boolean exactMatch = wasToWasExactMatch(fromSpanList, toSpanList);
                 if (exactMatch) {
-                    return true;
+                    return Filter.ACCEPT;
                 }
             }
             if (isToAgentFilter()) {
                 // fast skip. toAgent filtering condition exist.
                 // url filter not available.
-                return false;
+                return Filter.REJECT;
             }
 
             // Check for url pattern should now be done on the caller side (from spans) as to spans are missing at this point
             if (!rpcUrlFilter.accept(fromSpanList)) {
-                return false;
+                return Filter.REJECT;
             }
 
             // if agent filter is FromAgentFilter or AcceptAgentFilter(agent filter is not selected), url filtering is available.
@@ -360,11 +353,11 @@ public class LinkFilter implements Filter<SpanBo> {
             for (SpanBo span : toNode) {
                 if (fromApplicationName.equals(span.getAcceptorHost())) {
                     if (checkResponseCondition(span.getElapsed(), isError(span))) {
-                        return true;
+                        return Filter.ACCEPT;
                     }
                 }
             }
-            return false;
+            return Filter.REJECT;
         }
     }
 
@@ -377,18 +370,15 @@ public class LinkFilter implements Filter<SpanBo> {
             // fast skip. There is nothing more we can do if rpcHintList is empty.
             return false;
         }
-        for (SpanBo fromSpan : fromSpanList) {
-            final List<SpanEventBo> eventBoList = fromSpan.getSpanEventBoList();
-            if (CollectionUtils.isEmpty(eventBoList)) {
-                continue;
-            }
-            for (SpanEventBo event : eventBoList) {
-                if (filterByRpcHints(rpcHintList, event)) {
-                    return true;
-                }
-            }
+        SpanAcceptor acceptor = new SpanReader(fromSpanList);
+        return acceptor.accept(this::filterByRpcHints);
+    }
+
+    private boolean filterByRpcHints(SpanEventBo spanEventBo) {
+        if (filterByRpcHints(rpcHintList, spanEventBo)) {
+            return SpanVisitor.ACCEPT;
         }
-        return false;
+        return SpanVisitor.REJECT;
     }
 
     private boolean filterByRpcHints(List<RpcHint> rpcHintList, SpanEventBo event) {
@@ -405,13 +395,13 @@ public class LinkFilter implements Filter<SpanBo> {
                 for (RpcType rpcType : rpcHint.getRpcTypeList()) {
                     if (rpcType.isMatched(event.getDestinationId(), eventServiceType.getCode())) {
                         if (checkResponseCondition(event.getEndElapsed(), event.hasException())) {
-                            return true;
+                            return Filter.ACCEPT;
                         }
                     }
                 }
             }
         }
-        return false;
+        return Filter.REJECT;
     }
 
     private boolean isToAgentFilter() {
@@ -430,12 +420,12 @@ public class LinkFilter implements Filter<SpanBo> {
                     final int elapsed = toSpanBo.getElapsed();
                     final boolean error = isError(toSpanBo);
                     if (checkResponseCondition(elapsed, error)) {
-                        return true;
+                        return Filter.ACCEPT;
                     }
                 }
             }
         }
-        return false;
+        return Filter.REJECT;
     }
 
     private List<SpanBo> findFromNode(List<SpanBo> transaction) {
@@ -484,46 +474,46 @@ public class LinkFilter implements Filter<SpanBo> {
     private boolean includeUser(List<ServiceType> serviceTypeList) {
         for (ServiceType serviceType : serviceTypeList) {
             if (serviceType.isUser()) {
-                return true;
+                return Filter.ACCEPT;
             }
         }
-        return false;
+        return Filter.REJECT;
     }
 
     private boolean includeUnknown(List<ServiceType> serviceTypeList) {
         for (ServiceType serviceType : serviceTypeList) {
             if (serviceType.isUnknown()) {
-                return true;
+                return Filter.ACCEPT;
             }
         }
-        return false;
+        return Filter.REJECT;
     }
 
     private boolean includeWas(List<ServiceType> serviceTypeList) {
         for (ServiceType serviceType : serviceTypeList) {
             if (serviceType.isWas()) {
-                return true;
+                return Filter.ACCEPT;
             }
         }
-        return false;
+        return Filter.REJECT;
     }
 
     private boolean includeQueue(List<ServiceType> serviceTypeList) {
         for (ServiceType serviceType : serviceTypeList) {
             if (serviceType.isQueue()) {
-                return true;
+                return Filter.ACCEPT;
             }
         }
-        return false;
+        return Filter.REJECT;
     }
 
     private boolean includeServiceType(List<ServiceType> serviceTypeList, ServiceType targetServiceType) {
         for (ServiceType serviceType : serviceTypeList) {
             if (serviceType == targetServiceType) {
-                return true;
+                return Filter.ACCEPT;
             }
         }
-        return false;
+        return Filter.REJECT;
     }
 
     @Override
