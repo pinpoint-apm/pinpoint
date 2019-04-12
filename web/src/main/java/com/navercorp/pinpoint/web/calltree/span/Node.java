@@ -135,9 +135,18 @@ public class Node {
 
         List<SpanChunkBo> spanChunkBoList = spanBo.getSpanChunkBoList();
         List<Align> chunkSpanEventList = node.buildSpanChunkBaseAligns(spanChunkBoList);
-        alignList.addAll(chunkSpanEventList);
-        alignList.sort(AlignComparator.INSTANCE);
-        return alignList;
+
+        return mergeAndSort(alignList, chunkSpanEventList);
+    }
+
+    private static List<Align> mergeAndSort(List<Align> alignList1, List<Align> alignList2) {
+
+        List<Align> mergedList = new ArrayList<>(alignList1.size() + alignList2.size());
+        mergedList.addAll(alignList1);
+        mergedList.addAll(alignList2);
+
+        mergedList.sort(AlignComparator.INSTANCE);
+        return mergedList;
     }
 
     private List<Align> buildAlignList(List<SpanEventBo> spanEventBoList) {
