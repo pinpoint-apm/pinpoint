@@ -284,11 +284,9 @@ TOTAL COUNT TO CALLEE
 
 HEAP USAGE RATE
    heap의 사용률이 임계치를 초과한 경우 알람이 전송된다.
-   설정 화면의 Note 항목에 외부서버의 도메인 이나 주소(ip, port)를 입력해야 합니다.
-
+   
 JVM CPU USAGE RATE
    applicaiton의 CPU 사용률이 임계치를 초과한 경우 알람이 전송된다.
-   설정 화면의 Note 항목에 외부서버의 도메인 이나 주소(ip, port)를 입력해야 합니다.
 
 DATASOURCE CONNECTION USAGE RATE
    applicaiton의 DataSource내의 Connection 사용률이 임계치를 초과한 경우 알람이 전송된다.
