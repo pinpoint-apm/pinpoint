@@ -119,7 +119,7 @@
 	        		$("#customLogPopup").find("h4").html("Notice").end().find("div.modal-body").html( $scope.logDisableMessage ).end().modal("show");
 	        		return false;
 	        	} else {
-	        		window.open(url);
+	        		window.open(encodeURI(url));
 	        	}
 	        };
 	
