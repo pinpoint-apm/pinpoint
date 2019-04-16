@@ -10,14 +10,14 @@
         "DO_NOT_HAVE_PERMISSION": "Don't have permission.",
         "SUBMIT": "Submit",
         "REMOVE": "Remove",
-        "CANCEL": "Cancel"
+        "CANCEL": "Cancel",
+        "SEARCH_INPUT": "Input query"
     },
     "MAIN": {
         "SELECT_YOUR_APP": "Select your application",
         "INPUT_APP_NAME_PLACE_HOLDER": "Input application name",
         "FAVORITE_APP_LIST": "Favorite List",
         "APP_LIST": "Application List",
-        "SEARCH_SERVER_MAP_PLACE_HOLDER": "Search",
         "EMPTY_RESULT": "We couldn't find anything"
     },
     "INSPECTOR": {

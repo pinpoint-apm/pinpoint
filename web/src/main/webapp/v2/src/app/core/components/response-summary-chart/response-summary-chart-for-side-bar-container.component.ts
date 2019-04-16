@@ -70,8 +70,9 @@ export class ResponseSummaryChartForSideBarContainerComponent implements OnInit,
             this.selectedAgent = agent;
             if (this.selectedTarget) {
                 this.loadResponseSummaryChartData();
+            } else {
+                this.changeDetector.detectChanges();
             }
-            this.changeDetector.detectChanges();
         });
         this.storeHelperService.getServerMapData(this.unsubscribe).subscribe((serverMapData: ServerMapData) => {
             this.serverMapData = serverMapData;
@@ -87,8 +88,9 @@ export class ResponseSummaryChartForSideBarContainerComponent implements OnInit,
             this.hiddenComponent = target.isMerged;
             if (target.isMerged === false) {
                 this.loadResponseSummaryChartData();
+            } else {
+                this.changeDetector.detectChanges();
             }
-            this.changeDetector.detectChanges();
         });
         this.storeHelperService.getServerMapTargetSelectedByList(this.unsubscribe).subscribe((target: any) => {
             this.yMax = -1;

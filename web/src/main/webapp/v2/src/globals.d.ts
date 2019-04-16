@@ -266,6 +266,8 @@ interface IHoveredInfo {
     time?: number;
     offsetX?: number;
     offsetY?: number;
+    applicationId?: string;
+    agentId?: string;
 }
 // @store
 interface IServerAndAgentData {

@@ -25,6 +25,8 @@ export class ResponseSummaryChartComponent implements OnInit, OnChanges {
         if (this.chartObj) {
             if (this.chartData.max) {
                 this.chartObj.config.options.scales.yAxes[0].ticks.max = this.chartData.max;
+            } else {
+                delete(this.chartObj.config.options.scales.yAxes[0].ticks.max);
             }
             this.chartObj.data.labels = this.chartData.keys;
             this.chartObj.data.datasets[0].data = this.chartData.values;

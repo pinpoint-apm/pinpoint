@@ -3,6 +3,7 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 // import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatTooltipModule } from '@angular/material';
+import {MatSelectModule} from '@angular/material/select';
 import { SideBarTitleComponent } from './side-bar-title.component';
 import { SideBarTitleContainerComponent } from './side-bar-title-container.component';
 
@@ -14,7 +15,8 @@ import { SideBarTitleContainerComponent } from './side-bar-title-container.compo
     imports: [
         CommonModule,
         // BrowserAnimationsModule,
-        MatTooltipModule
+        MatTooltipModule,
+        MatSelectModule
     ],
     exports: [
         SideBarTitleContainerComponent

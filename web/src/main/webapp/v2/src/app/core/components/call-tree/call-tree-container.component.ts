@@ -183,7 +183,9 @@ export class CallTreeContainerComponent implements OnInit, OnDestroy, AfterViewI
         if (rowData.startTime !== 0) {
             this.storeHelperService.dispatch(new Actions.ChangeHoverOnInspectorCharts({
                 index: -1,
-                time: rowData.startTime
+                time: rowData.startTime,
+                applicationId: rowData.application,
+                agentId: rowData.agent
             }));
         }
     }

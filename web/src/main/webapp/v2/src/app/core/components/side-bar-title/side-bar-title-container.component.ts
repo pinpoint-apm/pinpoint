@@ -24,6 +24,7 @@ export class SideBarTitleContainerComponent implements OnInit, OnDestroy {
     isNode: boolean;
     fromAppData: IAppData = null;
     toAppData: IAppData = null;
+    selectedAgent = 'All';
     selectedTarget: ISelectedTarget;
     serverMapData: any;
     funcImagePath: Function;
@@ -52,11 +53,16 @@ export class SideBarTitleContainerComponent implements OnInit, OnDestroy {
                 return target && (target.isNode === true || target.isNode === false) ? true : false;
             })
         ).subscribe((target: ISelectedTarget) => {
+            this.selectedAgent = 'All';
             if ( target.isNode || target.isLink ) {
                 this.selectedTarget = target;
                 this.makeFromToData();
                 this.changeDetector.detectChanges();
             }
+        });
+        this.storeHelperService.getServerMapTargetSelectedByList(this.unsubscribe).subscribe((target: any) => {
+            this.selectedAgent = 'All';
+            this.changeDetector.detectChanges();
         });
     }
     makeFromToData() {
@@ -101,7 +107,7 @@ export class SideBarTitleContainerComponent implements OnInit, OnDestroy {
                 return {
                     applicationName: node.applicationName,
                     serviceType: node.serviceType,
-                    agentList: node.agentIds.sort()
+                    agentList: ['All'].concat(node.agentIds.sort())
                 };
             }
         } else {
@@ -130,8 +136,8 @@ export class SideBarTitleContainerComponent implements OnInit, OnDestroy {
         }
     }
     onChangeAgent(agentName: string): void {
+        this.selectedAgent = agentName;
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.SELECT_AGENT);
-        agentName = agentName === 'All' ? '' : agentName;
-        this.storeHelperService.dispatch(new Actions.ChangeAgent(agentName));
+        this.storeHelperService.dispatch(new Actions.ChangeAgent(agentName === 'All' ? '' : agentName));
     }
 }

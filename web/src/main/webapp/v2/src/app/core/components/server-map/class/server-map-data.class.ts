@@ -473,16 +473,36 @@ export class ServerMapData {
         return types;
     }
     getMergeState(): any {
-        return Object.keys(this.mergeStateMap).reduce((accumulator, key) => {
+        return Object.keys(this.mergeStateMap).reduce((accumulator: IStateCheckMap, key: string) => {
             accumulator[key] = this.mergeStateMap[key];
             return accumulator;
         }, {});
     }
-    getMergedNodeData(key: string): any {
-        return this.nodeList.find((node: {[key: string]: any}) => node.key === key);
+    getLinkListByFrom(from: string): ILinkInfo[] {
+        const linkList: ILinkInfo[] = [];
+        Object.keys(this.originalLinkMap).forEach((key: string) => {
+            const link = this.originalLinkMap[key];
+            if (link.from === from) {
+                linkList.push(link);
+            }
+        });
+        return linkList;
     }
-    getMergedLinkData(key: string): any {
-        return this.linkList.find((link: {[key: string]: any}) => link.key === key);
+    getLinkListByTo(to: string): ILinkInfo[] {
+        const linkList: ILinkInfo[] = [];
+        Object.keys(this.originalLinkMap).forEach((key: string) => {
+            const link = this.originalLinkMap[key];
+            if (link.to === to) {
+                linkList.push(link);
+            }
+        });
+        return linkList;
+    }
+    getMergedNodeData(key: string): IShortNodeInfo {
+        return this.nodeList.find((node: IShortNodeInfo) => node.key === key);
+    }
+    getMergedLinkData(key: string): IShortLinkInfo {
+        return this.linkList.find((link: IShortLinkInfo) => link.key === key);
     }
     getNodeData(key: string): INodeInfo | IShortNodeInfo {
         return this.originalNodeMap[key] || this.nodeMap[key];

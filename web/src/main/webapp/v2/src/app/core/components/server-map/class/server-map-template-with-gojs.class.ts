@@ -74,29 +74,39 @@ function calcuCircleData(type: CIRCLE_TYPE, histogram: IResponseTime | IResponse
     const greenAngle = green === 0 ? 0 : Math.ceil(360 * green / sum);
     const orangeAngle = orange === 0 ? 0 : Math.ceil(360 * orange / sum);
     const redAngle = red === 0 ? 0 : Math.ceil(360 * red / sum);
+    const CIRCLE = {
+        x: radius,
+        y: 0,
+        startAngle: -90,
+        sweepAngle: 360
+    };
+
 
     switch (type) {
         case CIRCLE_TYPE.GREEN:
-            return {
-                x: radius,
-                y: 0,
-                startAngle: -90,
-                sweepAngle: greenAngle
-            };
+            return CIRCLE;
         case CIRCLE_TYPE.ORANGE:
-            return {
-                x: calcuX(greenAngle, radius, baseX),
-                y: calcuY(greenAngle, radius, baseY),
-                startAngle: -90 + greenAngle,
-                sweepAngle: orangeAngle
-            };
+            if (orange === sum) {
+                return CIRCLE;
+            } else {
+                return {
+                    x: calcuX(greenAngle, radius, baseX),
+                    y: calcuY(greenAngle, radius, baseY),
+                    startAngle: -90 + greenAngle,
+                    sweepAngle: orangeAngle
+                };
+            }
         case CIRCLE_TYPE.RED:
-            return {
-                x: calcuX(greenAngle + orangeAngle, radius, baseX),
-                y: calcuY(greenAngle + orangeAngle, radius, baseY),
-                startAngle: -90 + greenAngle + orangeAngle,
-                sweepAngle: redAngle
-            };
+            if (red === sum) {
+                return CIRCLE;
+            } else {
+                return {
+                    x: calcuX(greenAngle + orangeAngle, radius, baseX),
+                    y: calcuY(greenAngle + orangeAngle, radius, baseY),
+                    startAngle: -90 + greenAngle + orangeAngle,
+                    sweepAngle: redAngle
+                };
+            }
     }
 }
 
@@ -338,7 +348,7 @@ export class ServerMapTemplateWithGojs {
                     new go.Binding('visible', '', (data) => {
                         return data.isAuthorized && data.hasAlert;
                     })
-                ),
+                )
             )
         );
     }
@@ -480,7 +490,7 @@ export class ServerMapTemplateWithGojs {
                     new go.Binding('visible', '', (data) => {
                         return data.isAuthorized && data.hasAlert;
                     })
-                ),
+                )
             )
         );
     }
