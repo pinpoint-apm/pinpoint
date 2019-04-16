@@ -22,11 +22,8 @@ import static com.mongodb.client.model.Filters.nin;
 import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
 
 import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
-import java.util.Arrays;
 import java.util.Iterator;
 
-import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.junit.Assert;
 import org.junit.Test;
