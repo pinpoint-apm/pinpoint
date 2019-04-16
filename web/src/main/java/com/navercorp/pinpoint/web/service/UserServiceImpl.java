@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 
 import com.navercorp.pinpoint.web.dao.UserDao;
 import com.navercorp.pinpoint.web.vo.User;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.security.sasl.AuthorizeCallback;
@@ -97,7 +98,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
     public String getUserIdFromSecurity() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null) {
