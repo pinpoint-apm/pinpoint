@@ -15,7 +15,6 @@
 }
 .l-target-sub-item {
     margin-left: 20px;
-    margin-bottom: 4px;
 }
 .l-target-sub-item:first-child {
     margin-top: 10px;
@@ -37,6 +36,7 @@
     text-overflow: ellipsis;
 }
 button {
+    border-radius: 10px;
     font-size: 11px;
     padding: 1px 3px 0px 3px;
 }
@@ -48,6 +48,6 @@ button:first-of-type {
 button:last-of-type {
     color: #e95459;
     border: #CCC 1px solid;
-    margin-right: 8px;
+    margin-right: 4px;
 }
 

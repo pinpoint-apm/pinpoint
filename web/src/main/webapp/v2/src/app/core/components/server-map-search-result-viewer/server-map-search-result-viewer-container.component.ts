@@ -48,7 +48,7 @@ export class ServerMapSearchResultViewerContainerComponent implements OnInit {
 
     private getI18NText() {
         combineLatest(
-            this.translateService.get('MAIN.SEARCH_SERVER_MAP_PLACE_HOLDER'),
+            this.translateService.get('COMMON.SEARCH_INPUT'),
             this.translateService.get('MAIN.EMPTY_RESULT')
         ).subscribe((i18n: string[]) => {
             this.i18nText = {

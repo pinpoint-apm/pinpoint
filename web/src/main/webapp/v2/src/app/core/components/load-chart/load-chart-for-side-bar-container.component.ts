@@ -86,8 +86,9 @@ export class LoadChartForSideBarContainerComponent implements OnInit, OnDestroy 
             this.selectedAgent = agent;
             if (this.selectedTarget) {
                 this.loadLoadChartData();
+            } else {
+                this.changeDetector.detectChanges();
             }
-            this.changeDetector.detectChanges();
         });
         this.storeHelperService.getServerMapData(this.unsubscribe).subscribe((serverMapData: ServerMapData) => {
             this.serverMapData = serverMapData;
