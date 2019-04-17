@@ -17,8 +17,8 @@
 package com.navercorp.pinpoint.collector.handler.thrift;
 
 import com.navercorp.pinpoint.collector.dao.AgentStatDaoV2;
-import com.navercorp.pinpoint.collector.mapper.thrift.stat.AgentStatBatchMapper;
-import com.navercorp.pinpoint.collector.mapper.thrift.stat.AgentStatMapper;
+import com.navercorp.pinpoint.collector.mapper.thrift.stat.ThriftAgentStatBatchMapper;
+import com.navercorp.pinpoint.collector.mapper.thrift.stat.ThriftAgentStatMapper;
 import com.navercorp.pinpoint.collector.service.AgentStatService;
 import com.navercorp.pinpoint.collector.service.HBaseAgentStatService;
 import com.navercorp.pinpoint.common.server.bo.stat.ActiveTraceBo;
@@ -61,10 +61,10 @@ import static org.mockito.Mockito.*;
 public class ThriftAgentStatHandlerV2Test {
 
     @Mock
-    private AgentStatMapper agentStatMapper;
+    private ThriftAgentStatMapper agentStatMapper;
 
     @Mock
-    private AgentStatBatchMapper agentStatBatchMapper;
+    private ThriftAgentStatBatchMapper agentStatBatchMapper;
 
     @Mock
     private AgentStatDaoV2<JvmGcBo> jvmGcDao;

@@ -74,7 +74,7 @@ public class AgentClientMock {
 
     public void info(final int count) throws InterruptedException {
         for (int i = 0; i < count; i++) {
-            PAgentInfo request = PAgentInfo.newBuilder().setAgentId("AgentInfo(" + i + ")").build();
+            PAgentInfo request = PAgentInfo.newBuilder().build();
             StreamObserver<PResult> responseObserver = getResponseObserver();
             PResult pResult = agentStub.requestAgentInfo(request);
             logger.info("Result {}", pResult);
@@ -87,7 +87,7 @@ public class AgentClientMock {
 
     public void apiMetaData(final int count) throws InterruptedException {
         for (int i = 0; i < count; i++) {
-            PApiMetaData request = PApiMetaData.newBuilder().setAgentId("ApiMetaData(" + i + ")").build();
+            PApiMetaData request = PApiMetaData.newBuilder().build();
             StreamObserver<PResult> responseObserver = getResponseObserver();
             PResult result = agentStub.requestApiMetaData(request);
         }
@@ -99,7 +99,7 @@ public class AgentClientMock {
 
     public void sqlMetaData(final int count) throws InterruptedException {
         for (int i = 0; i < count; i++) {
-            PSqlMetaData request = PSqlMetaData.newBuilder().setAgentId("SqlMetaData(" + i + ")").build();
+            PSqlMetaData request = PSqlMetaData.newBuilder().build();
             StreamObserver<PResult> responseObserver = getResponseObserver();
             PResult result = agentStub.requestSqlMetaData(request);
         }
@@ -111,7 +111,7 @@ public class AgentClientMock {
 
     public void stringMetaData(final int count) throws InterruptedException {
         for (int i = 0; i < count; i++) {
-            PStringMetaData request = PStringMetaData.newBuilder().setAgentId("StringMetaData(" + i + ")").build();
+            PStringMetaData request = PStringMetaData.newBuilder().build();
             StreamObserver<PResult> responseObserver = getResponseObserver();
             PResult result = agentStub.requestStringMetaData(request);
         }

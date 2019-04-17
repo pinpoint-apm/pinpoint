@@ -69,5 +69,4 @@ public class ThriftSpanChunkHandler implements SimpleHandler {
             logger.warn("SpanChunk handle error Caused:{}", e.getMessage(), e);
         }
     }
-
 }

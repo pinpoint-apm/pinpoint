@@ -23,11 +23,11 @@ import com.navercorp.pinpoint.common.util.ExecutorFactory;
 import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
 import com.navercorp.pinpoint.grpc.trace.PSpan;
 import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
-import com.navercorp.pinpoint.grpc.trace.TraceGrpc;
 import com.navercorp.pinpoint.grpc.AgentHeaderFactory;
 import com.navercorp.pinpoint.grpc.ExecutorUtils;
 import com.navercorp.pinpoint.grpc.client.ChannelFactory;
 import com.navercorp.pinpoint.grpc.HeaderFactory;
+import com.navercorp.pinpoint.grpc.trace.SpanGrpc;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
 import io.grpc.ManagedChannel;
@@ -52,7 +52,7 @@ public class GrpcDataSender implements DataSender<Object> {
 
     private final String name;
     private final ManagedChannel managedChannel;
-    private final TraceGrpc.TraceStub traceStub;
+    private final SpanGrpc.SpanStub spanStub;
 
     private volatile StreamObserver<PSpan> spanStream;
     private volatile StreamObserver<PSpanChunk> spanChunkStream;
@@ -84,19 +84,19 @@ public class GrpcDataSender implements DataSender<Object> {
         this.channelFactory = newChannelFactory(name, headerFactory, nameResolverProvider);
         this.managedChannel = channelFactory.build(name, host, port);
 
-        this.traceStub = TraceGrpc.newStub(managedChannel);
+        this.spanStub = SpanGrpc.newStub(managedChannel);
         this.spanStream = newSpanStream();
         this.spanChunkStream = newSpanChunkStream();
     }
 
     private StreamObserver<PSpanChunk> newSpanChunkStream() {
         final ResponseStreamObserver responseObserver = new ResponseStreamObserver();
-        final StreamObserver<PSpanChunk> pSpanChunkStreamObserver = traceStub.sendSpanChunk(responseObserver);
+        final StreamObserver<PSpanChunk> pSpanChunkStreamObserver = spanStub.sendSpanChunk(responseObserver);
 
         responseObserver.setReconnectAction(new ExponentialBackoffReconnectJob() {
             @Override
             public void run() {
-                spanChunkStream = traceStub.sendSpanChunk(responseObserver);
+                spanChunkStream = spanStub.sendSpanChunk(responseObserver);
             }
         });
         return pSpanChunkStreamObserver;
@@ -104,12 +104,12 @@ public class GrpcDataSender implements DataSender<Object> {
 
     private StreamObserver<PSpan> newSpanStream() {
         final ResponseStreamObserver responseObserver = new ResponseStreamObserver();
-        StreamObserver<PSpan> pSpanStreamObserver = traceStub.sendSpan(responseObserver);
+        StreamObserver<PSpan> pSpanStreamObserver = spanStub.sendSpan(responseObserver);
 
         responseObserver.setReconnectAction(new ExponentialBackoffReconnectJob() {
             @Override
             public void run() {
-                spanStream = traceStub.sendSpan(responseObserver);
+                spanStream = spanStub.sendSpan(responseObserver);
             }
         });
 
