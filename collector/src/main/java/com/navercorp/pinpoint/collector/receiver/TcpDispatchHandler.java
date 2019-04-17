@@ -16,18 +16,13 @@
 
 package com.navercorp.pinpoint.collector.receiver;
 
-import com.navercorp.pinpoint.collector.handler.thrift.ThriftAgentInfoHandler;
+import com.navercorp.pinpoint.collector.handler.SimpleAndRequestResponseHandler;
 import com.navercorp.pinpoint.collector.handler.RequestResponseHandler;
 import com.navercorp.pinpoint.collector.handler.SimpleHandler;
-import com.navercorp.pinpoint.collector.handler.thrift.ThriftApiMetaDataHandler;
-import com.navercorp.pinpoint.collector.handler.thrift.ThriftSqlMetaDataHandler;
-import com.navercorp.pinpoint.collector.handler.thrift.ThriftStringMetaDataHandler;
-import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.io.header.Header;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.io.request.ServerResponse;
 import com.navercorp.pinpoint.thrift.io.DefaultTBaseLocator;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author emeroad
@@ -35,35 +30,35 @@ import org.springframework.beans.factory.annotation.Autowired;
  */
 public class TcpDispatchHandler implements DispatchHandler {
 
-    @Autowired
-    private ThriftAgentInfoHandler thriftAgentInfoHandler;
+    private SimpleAndRequestResponseHandler agentInfoHandler;
 
-    @Autowired
-    private ThriftSqlMetaDataHandler thriftSqlMetaDataHandler;
+    private RequestResponseHandler sqlMetaDataHandler;
 
-    @Autowired
-    private ThriftApiMetaDataHandler thriftApiMetaDataHandler;
+    private RequestResponseHandler apiMetaDataHandler;
 
-    @Autowired
-    private ThriftStringMetaDataHandler thriftStringMetaDataHandler;
+    private RequestResponseHandler stringMetaDataHandler;
 
-    public TcpDispatchHandler() {
+    public TcpDispatchHandler(final SimpleAndRequestResponseHandler agentInfoHandler, final RequestResponseHandler sqlMetaDataHandler, final RequestResponseHandler apiMetaDataHandler, final RequestResponseHandler stringMetaDataHandler) {
+        this.agentInfoHandler = agentInfoHandler;
+        this.sqlMetaDataHandler = sqlMetaDataHandler;
+        this.apiMetaDataHandler = apiMetaDataHandler;
+        this.stringMetaDataHandler = stringMetaDataHandler;
     }
 
     protected RequestResponseHandler getRequestResponseHandler(ServerRequest serverRequest) {
         final Header header = serverRequest.getHeader();
         final short type = header.getType();
         if (type == DefaultTBaseLocator.SQLMETADATA) {
-            return thriftSqlMetaDataHandler;
+            return sqlMetaDataHandler;
         }
         if (type == DefaultTBaseLocator.APIMETADATA) {
-            return thriftApiMetaDataHandler;
+            return apiMetaDataHandler;
         }
         if (type == DefaultTBaseLocator.STRINGMETADATA) {
-            return thriftStringMetaDataHandler;
+            return stringMetaDataHandler;
         }
         if (type == DefaultTBaseLocator.AGENT_INFO) {
-            return thriftAgentInfoHandler;
+            return agentInfoHandler;
         }
         throw new UnsupportedOperationException("unsupported header:" + header);
     }
@@ -71,7 +66,7 @@ public class TcpDispatchHandler implements DispatchHandler {
     private SimpleHandler getSimpleHandler(Header header) {
         final short type = header.getType();
         if (type == DefaultTBaseLocator.AGENT_INFO) {
-            return thriftAgentInfoHandler;
+            return agentInfoHandler;
         }
 
         throw new UnsupportedOperationException("unsupported header:" + header);
@@ -89,5 +84,4 @@ public class TcpDispatchHandler implements DispatchHandler {
         RequestResponseHandler requestResponseHandler = getRequestResponseHandler(serverRequest);
         requestResponseHandler.handleRequest(serverRequest, serverResponse);
     }
-
 }

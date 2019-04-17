@@ -71,7 +71,7 @@ public class StatClientMock {
 
         StreamObserver<PAgentStat> requestObserver = statStub.sendAgentStat(responseObserver);
         for (int i = 0; i < count; i++) {
-            final PAgentStat agentStat = PAgentStat.newBuilder().setAgentId("AgentStat(" + i + ")").build();
+            final PAgentStat agentStat = PAgentStat.newBuilder().build();
             requestObserver.onNext(agentStat);
         }
         requestObserver.onCompleted();
@@ -86,7 +86,7 @@ public class StatClientMock {
 
         StreamObserver<PAgentStatBatch> requestObserver = statStub.sendAgentStatBatch(responseObserver);
         for (int i = 0; i < count; i++) {
-            final PAgentStatBatch agentStatBatch = PAgentStatBatch.newBuilder().setAgentId("AgentStatBatch(" + i + ")").build();
+            final PAgentStatBatch agentStatBatch = PAgentStatBatch.newBuilder().build();
             requestObserver.onNext(agentStatBatch);
         }
         requestObserver.onCompleted();

@@ -24,7 +24,6 @@ import com.navercorp.pinpoint.common.server.bo.thrift.SpanFactory;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import com.navercorp.pinpoint.thrift.dto.TSpan;
 
@@ -75,5 +74,4 @@ public class ThriftSpanHandler implements SimpleHandler {
             logger.warn("Span handle error. Caused:{}. Span:{}", e.getMessage(), tSpan, e);
         }
     }
-
 }

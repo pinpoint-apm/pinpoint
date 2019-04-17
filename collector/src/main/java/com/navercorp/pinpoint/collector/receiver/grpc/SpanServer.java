@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.collector.receiver.grpc;
 
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
-import com.navercorp.pinpoint.collector.receiver.grpc.service.TraceService;
+import com.navercorp.pinpoint.collector.receiver.grpc.service.SpanService;
 import com.navercorp.pinpoint.common.server.util.AddressFilter;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.grpc.server.MetadataServerTransportFilter;
@@ -83,7 +83,7 @@ public class SpanServer implements InitializingBean, DisposableBean, BeanNameAwa
         this.serverFactory.addInterceptor(transportMetadataServerInterceptor);
 
         // Add service
-        BindableService traceService = new TraceService(this.dispatchHandler);
+        BindableService traceService = new SpanService(this.dispatchHandler);
         this.serverFactory.addService(traceService);
 
         this.server = serverFactory.build();

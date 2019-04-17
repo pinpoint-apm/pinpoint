@@ -126,13 +126,24 @@
     </bean>
 
     <!-- DispatchHandler-related Beans -->
-    <bean id="tcpDispatchHandler" class="com.navercorp.pinpoint.collector.receiver.TcpDispatchHandler"/>
+    <!-- Thrift -->
+    <bean id="tcpDispatchHandler" class="com.navercorp.pinpoint.collector.receiver.TcpDispatchHandler">
+        <constructor-arg ref="thriftAgentInfoHandler"/>
+        <constructor-arg ref="thriftSqlMetaDataHandler"/>
+        <constructor-arg ref="thriftApiMetaDataHandler"/>
+        <constructor-arg ref="thriftStringMetaDataHandler"/>
+    </bean>
+
     <bean id="tcpDispatchHandlerFactoryBean" class="com.navercorp.pinpoint.collector.receiver.thrift.DispatchHandlerFactoryBean">
         <constructor-arg ref="tcpDispatchHandler"/>
         <constructor-arg ref="handlerManager"/>
     </bean>
 
-    <bean id="statDispatchHandler" class="com.navercorp.pinpoint.collector.receiver.StatDispatchHandler"/>
+    <bean id="statDispatchHandler" class="com.navercorp.pinpoint.collector.receiver.StatDispatchHandler">
+        <constructor-arg ref="thriftAgentStatHandlerV2"/>
+        <constructor-arg ref="thriftAgentEventHandler"/>
+    </bean>
+
     <bean id="statDispatchHandlerFactoryBean" class="com.navercorp.pinpoint.collector.receiver.thrift.DispatchHandlerFactoryBean">
         <constructor-arg ref="statDispatchHandler"/>
         <constructor-arg ref="handlerManager"/>
@@ -392,6 +403,18 @@
     </bean>
 
     <!-- gRPC -->
+    <bean id="grpcTcpDispatchHandler" class="com.navercorp.pinpoint.collector.receiver.TcpDispatchHandler">
+        <constructor-arg ref="grpcAgentInfoHandler"/>
+        <constructor-arg ref="grpcSqlMetaDataHandler"/>
+        <constructor-arg ref="grpcApiMetaDataHandler"/>
+        <constructor-arg ref="grpcStringMetaDataHandler"/>
+    </bean>
+
+    <bean id="grpcDispatchHandlerFactoryBean" class="com.navercorp.pinpoint.collector.receiver.thrift.DispatchHandlerFactoryBean">
+        <constructor-arg ref="grpcTcpDispatchHandler"/>
+        <constructor-arg ref="handlerManager"/>
+    </bean>
+
     <bean id="grpcSpanDispatchHandler" class="com.navercorp.pinpoint.collector.receiver.SpanDispatchHandler">
         <constructor-arg ref="grpcSpanHandler"/>
         <constructor-arg ref="grpcSpanChunkHandler"/>
@@ -400,6 +423,16 @@
         <constructor-arg ref="grpcSpanDispatchHandler"/>
         <constructor-arg ref="handlerManager"/>
     </bean>
+
+    <bean id="grpcStatDispatchHandler" class="com.navercorp.pinpoint.collector.receiver.StatDispatchHandler">
+        <constructor-arg ref="grpcAgentStatHandlerV2"/>
+        <constructor-arg ref="grpcAgentEventHandler"/>
+    </bean>
+    <bean id="grpcStatDispatchHandlerFactoryBean" class="com.navercorp.pinpoint.collector.receiver.thrift.DispatchHandlerFactoryBean">
+        <constructor-arg ref="grpcStatDispatchHandler"/>
+        <constructor-arg ref="handlerManager"/>
+    </bean>
+
 
     <bean id="socketIdProvider" class="com.navercorp.pinpoint.collector.receiver.grpc.service.CurrentTimeSocketIdProvider"/>
 
@@ -470,7 +503,7 @@
         <property name="bindIp" value="#{statReceiverConfig.grpcBindIp}"/>
         <property name="bindPort" value="#{statReceiverConfig.grpcBindPort}"/>
         <property name="addressFilter" ref="addressFilter"/>
-        <property name="dispatchHandler" ref="statDispatchHandlerFactoryBean"/>
+        <property name="dispatchHandler" ref="grpcStatDispatchHandlerFactoryBean"/>
         <property name="executor" ref="grpcStatServerExecutor"/>
         <property name="enable" value="#{statReceiverConfig.isGrpcEnable()}"/>
     </bean>
