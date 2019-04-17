@@ -24,6 +24,11 @@ import com.navercorp.pinpoint.common.trace.HistogramSlot;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
+import com.navercorp.pinpoint.web.filter.visitor.SpanAcceptor;
+import com.navercorp.pinpoint.web.filter.visitor.SpanEventVisitAdaptor;
+import com.navercorp.pinpoint.web.filter.visitor.SpanEventVisitor;
+import com.navercorp.pinpoint.web.filter.visitor.SpanReader;
+import com.navercorp.pinpoint.web.filter.visitor.SpanVisitor;
 import com.navercorp.pinpoint.web.security.ServerMapDataFilter;
 import com.navercorp.pinpoint.web.service.ApplicationFactory;
 import com.navercorp.pinpoint.web.service.DotExtractor;
@@ -37,9 +42,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author HyunGil Jeong
@@ -51,8 +58,6 @@ public class FilteredMapBuilder {
     private final ApplicationFactory applicationFactory;
 
     private final ServiceTypeRegistryService registry;
-
-    private final Range range;
 
     private final int version;
 
@@ -69,23 +74,15 @@ public class FilteredMapBuilder {
 
 
     public FilteredMapBuilder(ApplicationFactory applicationFactory, ServiceTypeRegistryService registry, Range range, int version) {
-        if (applicationFactory == null) {
-            throw new NullPointerException("applicationFactory must not be null");
-        }
-        if (registry == null) {
-            throw new NullPointerException("registry must not be null");
-        }
-        if (range == null) {
-            throw new NullPointerException("range must not be null");
-        }
-        this.applicationFactory = applicationFactory;
-        this.registry = registry;
-        this.range = range;
+        this.applicationFactory = Objects.requireNonNull(applicationFactory, "applicationFactory must not be null");
+        this.registry = Objects.requireNonNull(registry, "registry must not be null");
+        Objects.requireNonNull(range, "range must not be null");
+
         this.version = version;
 
-        this.timeWindow = new TimeWindow(this.range, TimeWindowDownSampler.SAMPLER);
+        this.timeWindow = new TimeWindow(range, TimeWindowDownSampler.SAMPLER);
         this.linkDataDuplexMap = new LinkDataDuplexMap();
-        this.responseHistogramsBuilder = new ResponseHistograms.Builder(this.range);
+        this.responseHistogramsBuilder = new ResponseHistograms.Builder(range);
         this.dotExtractor = new DotExtractor(this.applicationFactory);
     }
 
@@ -214,47 +211,48 @@ public class FilteredMapBuilder {
         /*
          * add span event statistics
          */
-        final List<SpanEventBo> spanEventBoList = span.getSpanEventBoList();
-        if (CollectionUtils.isEmpty(spanEventBoList)) {
+        final Application srcApplication = applicationFactory.createApplication(span.getApplicationId(), span.getApplicationServiceType());
+        LinkDataMap sourceLinkDataMap = linkDataDuplexMap.getSourceLinkDataMap();
+
+        SpanAcceptor acceptor = new SpanReader(Collections.singletonList(span));
+        acceptor.accept(new SpanEventVisitAdaptor(new SpanEventVisitor() {
+            @Override
+            public boolean visit(SpanEventBo spanEventBo) {
+                addNode(span, transactionSpanMap, srcApplication, sourceLinkDataMap, spanEventBo);
+                return SpanVisitor.REJECT;
+            }
+        }));
+    }
+
+    private void addNode(SpanBo span, Map<Long, SpanBo> transactionSpanMap, Application srcApplication, LinkDataMap sourceLinkDataMap, SpanEventBo spanEvent) {
+        ServiceType destServiceType = registry.findServiceType(spanEvent.getServiceType());
+        if (!destServiceType.isRecordStatistics()) {
+            // internal method
             return;
         }
-        final Application srcApplication = applicationFactory.createApplication(span.getApplicationId(), span.getApplicationServiceType());
-
-        LinkDataMap sourceLinkDataMap = linkDataDuplexMap.getSourceLinkDataMap();
-        for (SpanEventBo spanEvent : spanEventBoList) {
-
-            ServiceType destServiceType = registry.findServiceType(spanEvent.getServiceType());
-            if (!destServiceType.isRecordStatistics()) {
-                // internal method
-                continue;
+        // convert to Unknown if destServiceType is a rpc client and there is no acceptor.
+        // acceptor exists if there is a span with spanId identical to the current spanEvent's next spanId.
+        // logic for checking acceptor
+        if (destServiceType.isRpcClient()) {
+            if (!transactionSpanMap.containsKey(spanEvent.getNextSpanId())) {
+                destServiceType = ServiceType.UNKNOWN;
             }
-            // convert to Unknown if destServiceType is a rpc client and there is no acceptor.
-            // acceptor exists if there is a span with spanId identical to the current spanEvent's next spanId.
-            // logic for checking acceptor
-            if (destServiceType.isRpcClient()) {
-                if (!transactionSpanMap.containsKey(spanEvent.getNextSpanId())) {
-                    destServiceType = ServiceType.UNKNOWN;
-                }
-            }
-
-            String dest = spanEvent.getDestinationId();
-            if (dest == null) {
-                dest = "Unknown";
-            }
-
-            final Application destApplication = this.applicationFactory.createApplication(dest, destServiceType);
-
-            final short slotTime = getHistogramSlotTime(spanEvent, destServiceType);
-
-            // FIXME
-            final long spanEventTimeStamp = timeWindow.refineTimestamp(span.getStartTime() + spanEvent.getStartElapsed());
-            if (logger.isTraceEnabled()) {
-                logger.trace("spanEvent  src:{} {} -> dest:{} {}", srcApplication, span.getAgentId(), destApplication, spanEvent.getEndPoint());
-            }
-            // endPoint may be null
-            final String destinationAgentId = StringUtils.defaultString(spanEvent.getEndPoint());
-            sourceLinkDataMap.addLinkData(srcApplication, span.getAgentId(), destApplication, destinationAgentId, spanEventTimeStamp, slotTime, 1);
         }
+
+        final String dest = StringUtils.defaultString(spanEvent.getDestinationId(), "Unknown");
+
+        final Application destApplication = this.applicationFactory.createApplication(dest, destServiceType);
+
+        final short slotTime = getHistogramSlotTime(spanEvent, destServiceType);
+
+        // FIXME
+        final long spanEventTimeStamp = timeWindow.refineTimestamp(span.getStartTime() + spanEvent.getStartElapsed());
+        if (logger.isTraceEnabled()) {
+            logger.trace("spanEvent  src:{} {} -> dest:{} {}", srcApplication, span.getAgentId(), destApplication, spanEvent.getEndPoint());
+        }
+        // endPoint may be null
+        final String destinationAgentId = StringUtils.defaultString(spanEvent.getEndPoint());
+        sourceLinkDataMap.addLinkData(srcApplication, span.getAgentId(), destApplication, destinationAgentId, spanEventTimeStamp, slotTime, 1);
     }
 
     public FilteredMap build() {
