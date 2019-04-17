@@ -23,7 +23,7 @@ import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.plugin.openwhisk.OpenwhiskConfig;
 import com.navercorp.pinpoint.plugin.openwhisk.OpenwhiskConstants;
 import com.navercorp.pinpoint.plugin.openwhisk.descriptor.LogMarkerMethodDescriptor;
-import scala.runtime.AbstractFunction0;
+import scala.Function0;
 import org.apache.openwhisk.common.LogMarkerToken;
 
 /**
@@ -75,7 +75,7 @@ public class TransactionIdMarkInterceptor implements AroundInterceptor {
 
         try {
             LogMarkerToken logMarkerToken = (LogMarkerToken) args[2];
-            String message = ((AbstractFunction0) args[3]).apply().toString();
+            String message = ((Function0) args[3]).apply().toString();
             recorder.recordApi(new LogMarkerMethodDescriptor(logMarkerToken));
 
             if (isLoggingMessage && message.length() > 0) {
