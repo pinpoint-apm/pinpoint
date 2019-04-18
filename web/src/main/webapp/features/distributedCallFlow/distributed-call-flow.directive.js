@@ -35,7 +35,7 @@
 						if ( text === undefined || text === null ) {
 							return "";
 						} else {
-							return text.replace(/</g, "&lt;").replace(/>/g, "$gt;");
+							return text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
 						}
 					};
 					var getAuthorizeView = function( bIsAuthorized, text ) {
