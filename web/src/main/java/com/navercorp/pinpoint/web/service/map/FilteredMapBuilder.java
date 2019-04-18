@@ -37,7 +37,7 @@ import com.navercorp.pinpoint.web.util.TimeWindowDownSampler;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.ResponseHistograms;
-import org.apache.commons.collections.CollectionUtils;
+import com.navercorp.pinpoint.web.vo.scatter.Dot;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -83,7 +83,7 @@ public class FilteredMapBuilder {
         this.timeWindow = new TimeWindow(range, TimeWindowDownSampler.SAMPLER);
         this.linkDataDuplexMap = new LinkDataDuplexMap();
         this.responseHistogramsBuilder = new ResponseHistograms.Builder(range);
-        this.dotExtractor = new DotExtractor(this.applicationFactory);
+        this.dotExtractor = new DotExtractor();
     }
 
     public FilteredMapBuilder serverMapDataFilter(ServerMapDataFilter serverMapDataFilter) {
@@ -142,15 +142,20 @@ public class FilteredMapBuilder {
                 targetLinkDataMap.addLinkData(parentApplication, span.getAgentId(), spanApplication, span.getAgentId(), timestamp, slotTime, 1);
             }
 
-            dotExtractor.addDot(span);
+            addDot(span, spanApplication);
 
             if (serverMapDataFilter != null && serverMapDataFilter.filter(spanApplication)) {
                 continue;
             }
 
-            addNodeFromSpanEvent(span, transactionSpanMap);
+            addNodeFromSpanEvent(span, spanApplication, transactionSpanMap);
         }
         return this;
+    }
+
+    private void addDot(SpanBo span, Application srcApplication) {
+        final Dot dot = this.dotExtractor.newDot(span);
+        this.dotExtractor.addDot(srcApplication, dot);
     }
 
     private Map<Long, SpanBo> checkDuplicatedSpanId(List<SpanBo> transaction) {
@@ -207,11 +212,10 @@ public class FilteredMapBuilder {
         }
     }
 
-    private void addNodeFromSpanEvent(SpanBo span, Map<Long, SpanBo> transactionSpanMap) {
+    private void addNodeFromSpanEvent(SpanBo span, Application srcApplication, Map<Long, SpanBo> transactionSpanMap) {
         /*
          * add span event statistics
          */
-        final Application srcApplication = applicationFactory.createApplication(span.getApplicationId(), span.getApplicationServiceType());
         LinkDataMap sourceLinkDataMap = linkDataDuplexMap.getSourceLinkDataMap();
 
         SpanAcceptor acceptor = new SpanReader(Collections.singletonList(span));
