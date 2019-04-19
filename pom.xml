@@ -911,6 +911,7 @@
                         <exclude>com/navercorp/pinpoint/common/util/apache/**/*.java</exclude>
                         <exclude>com/navercorp/pinpoint/common/util/jsr166/**/*.java</exclude>
                         <exclude>com/navercorp/pinpoint/profiler/util/jdk/**/*.java</exclude>
+                        <exclude>com/navercorp/pinpoint/grpc/trace/**/*.java</exclude>
                     </excludes>
                 </configuration>
             </plugin>
