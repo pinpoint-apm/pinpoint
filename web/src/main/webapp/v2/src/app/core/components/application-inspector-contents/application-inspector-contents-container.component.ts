@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Observable, of, Subject, merge } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-import { WebAppSettingDataService, MessageQueueService, MESSAGE_TO } from 'app/shared/services';
+import { WebAppSettingDataService, MessageQueueService, MESSAGE_TO, NewUrlStateNotificationService } from 'app/shared/services';
 
 @Component({
     selector: 'pp-application-inspector-contents-container',
@@ -14,10 +14,12 @@ export class ApplicationInspectorContentsContainerComponent implements OnInit, O
 
     isApplicationInspectorActivated$: Observable<boolean>;
     gridLayout$: Observable<string>;
+    coverRangeElements$: Observable<boolean>;
 
     constructor(
         private webAppSettingDataService: WebAppSettingDataService,
         private messageQueueService: MessageQueueService,
+        private newUrlStateNotificationService: NewUrlStateNotificationService
     ) {}
 
     ngOnInit() {
@@ -29,6 +31,9 @@ export class ApplicationInspectorContentsContainerComponent implements OnInit, O
             )
         ).pipe(
             map((chartNumPerRow: number) => this.getGridLayout(chartNumPerRow))
+        );
+        this.coverRangeElements$ = this.newUrlStateNotificationService.onUrlStateChange$.pipe(
+            map((urlService: NewUrlStateNotificationService) => urlService.isRealTimeMode())
         );
     }
 

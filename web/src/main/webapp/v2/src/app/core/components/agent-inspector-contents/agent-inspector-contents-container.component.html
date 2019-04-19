@@ -1,6 +1,9 @@
 <article class="l-date-range">
     <pp-timeline-command-group-container></pp-timeline-command-group-container>
     <pp-agent-inspector-timeline-container></pp-agent-inspector-timeline-container>
+    <ng-container *ngIf="coverRangeElements$ | async">
+        <div class="l-cover"></div>
+    </ng-container>
 </article>
 <pp-agent-event-view-container></pp-agent-event-view-container>
 <div class="l-main-contents">

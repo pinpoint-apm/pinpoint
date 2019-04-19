@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef, ComponentFactoryResolver, Injector } from '@angular/core';
+import { Component, OnInit, OnDestroy, ComponentFactoryResolver, Injector } from '@angular/core';
 import { Observable, Subject, combineLatest } from 'rxjs';
 import { filter, tap, map, switchMap, takeUntil } from 'rxjs/operators';
 
@@ -15,7 +15,6 @@ import { AgentInfoDataService } from './agent-info-data.service';
     selector: 'pp-agent-info-container',
     templateUrl: './agent-info-container.component.html',
     styleUrls: ['./agent-info-container.component.css'],
-    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AgentInfoContainerComponent implements OnInit, OnDestroy {
     private unsubscribe: Subject<void> = new Subject();
@@ -30,7 +29,6 @@ export class AgentInfoContainerComponent implements OnInit, OnDestroy {
     showLoading = true;
 
     constructor(
-        private changeDetectorRef: ChangeDetectorRef,
         private newUrlStateNotificationService: NewUrlStateNotificationService,
         private storeHelperService: StoreHelperService,
         private agentInfoDataService: AgentInfoDataService,
@@ -43,7 +41,11 @@ export class AgentInfoContainerComponent implements OnInit, OnDestroy {
         this.urlAgentId$ = this.newUrlStateNotificationService.onUrlStateChange$.pipe(
             takeUntil(this.unsubscribe),
             filter((urlService: NewUrlStateNotificationService) => {
-                return urlService.isValueChanged(UrlPathId.AGENT_ID);
+                // * Route의 sub root가 바뀔 때(ex: realtime <=> non-realtime) 컴포넌트가 destroy되었다가 다시 init되는데, 이걸 감지할 다른방법이 있을지..
+                // * 이때, agentId는 바뀐게 아니라서 해당 스트림이 emit을 하지않고, 밑에 combineLatest가 동작을 안함.
+                // * 이걸 감지하기 위해서 임시로 agentData 존재여부를 체크하는 조건을 추가함.
+                // ! sub root change를 detect할 수 있는 방법이 있으면 리팩토링하기.
+                return !this.agentData || urlService.isValueChanged(UrlPathId.AGENT_ID);
             }),
             map((urlService: NewUrlStateNotificationService) => {
                 return urlService.getPathValue(UrlPathId.AGENT_ID);
@@ -72,7 +74,6 @@ export class AgentInfoContainerComponent implements OnInit, OnDestroy {
         ).pipe(
             tap(() => {
                 this.showLoading = true;
-                this.changeDetectorRef.detectChanges();
             }),
             switchMap(([agentId, endTime]: [string, number]) => {
                 this.lastRequestParam = [agentId, endTime];
@@ -92,7 +93,6 @@ export class AgentInfoContainerComponent implements OnInit, OnDestroy {
     }
     private completed(): void {
         this.showLoading = false;
-        this.changeDetectorRef.detectChanges();
     }
     onRequestAgain(): void {
         const [agentId, endTime] = this.lastRequestParam;

@@ -134,6 +134,9 @@ export class StoreHelperService {
             select(selectTimelineSelectedTime),
         );
     }
+    getRange(unsubscribe: Subject<void>): Observable<number[]> {
+        return this.getObservable(STORE_KEY.RANGE, unsubscribe);
+    }
     getObservable(key: string, unsubscribe?: Subject<void>): Observable<any> {
         return iif(
             () => !!unsubscribe,

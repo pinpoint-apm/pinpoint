@@ -61,14 +61,20 @@ export class ApplicationInspectorTitleContainerComponent implements OnInit, OnDe
         return this.funcImagePath(this.applicationServiceType);
     }
     onSelectApplication() {
-        this.analyticsService.trackEvent(TRACKED_EVENT_LIST.GO_TO_APPLICATION_INSPECTOR);
-        this.urlRouteManagerService.moveOnPage({
-            url: [
+        const url = this.newUrlStateNotificationService.isRealTimeMode() ?
+            [
+                UrlPath.INSPECTOR,
+                UrlPath.REAL_TIME,
+                this.newUrlStateNotificationService.getPathValue(UrlPathId.APPLICATION).getUrlStr(),
+            ] :
+            [
                 UrlPath.INSPECTOR,
                 this.newUrlStateNotificationService.getPathValue(UrlPathId.APPLICATION).getUrlStr(),
                 this.newUrlStateNotificationService.getPathValue(UrlPathId.PERIOD).getValueWithTime(),
-                this.newUrlStateNotificationService.getPathValue(UrlPathId.END_TIME).getEndTime()
-            ]
-        });
+                this.newUrlStateNotificationService.getPathValue(UrlPathId.END_TIME).getEndTime(),
+            ];
+
+        this.urlRouteManagerService.moveOnPage({ url });
+        this.analyticsService.trackEvent(TRACKED_EVENT_LIST.GO_TO_APPLICATION_INSPECTOR);
     }
 }
