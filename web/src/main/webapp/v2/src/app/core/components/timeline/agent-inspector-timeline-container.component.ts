@@ -1,6 +1,6 @@
-import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef, ViewChild, ComponentFactoryResolver, Injector } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ComponentFactoryResolver, Injector } from '@angular/core';
 import { Subject, Observable } from 'rxjs';
-import { takeUntil, map, switchMap, tap, withLatestFrom } from 'rxjs/operators';
+import { map, switchMap, tap, filter, withLatestFrom } from 'rxjs/operators';
 
 import { Actions } from 'app/shared/store';
 import { StoreHelperService, NewUrlStateNotificationService, UrlRouteManagerService, AnalyticsService, DynamicPopupService, TRACKED_EVENT_LIST, MessageQueueService, MESSAGE_TO } from 'app/shared/services';
@@ -14,13 +14,11 @@ import { UrlPathId } from 'app/shared/models';
     selector: 'pp-agent-inspector-timeline-container',
     templateUrl: './agent-inspector-timeline-container.component.html',
     styleUrls: ['./agent-inspector-timeline-container.component.css'],
-    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AgentInspectorTimelineContainerComponent implements OnInit, OnDestroy {
     @ViewChild(TimelineComponent)
     private timelineComponent: TimelineComponent;
     private unsubscribe: Subject<void> = new Subject();
-    private agentId: string;
 
     timelineStartTime: number;
     timelineEndTime: number;
@@ -30,9 +28,10 @@ export class AgentInspectorTimelineContainerComponent implements OnInit, OnDestr
     timelineData: IAgentTimeline;
     timezone$: Observable<string>;
     dateFormat$: Observable<string[]>;
+    timelineInfoFromUrl$: Observable<ITimelineInfo>;
+    timelineInfoFromStore$: Observable<ITimelineInfo>;
 
     constructor(
-        private changeDetector: ChangeDetectorRef,
         private storeHelperService: StoreHelperService,
         private newUrlStateNotificationService: NewUrlStateNotificationService,
         private urlRouteManagerService: UrlRouteManagerService,
@@ -41,7 +40,7 @@ export class AgentInspectorTimelineContainerComponent implements OnInit, OnDestr
         private dynamicPopupService: DynamicPopupService,
         private analyticsService: AnalyticsService,
         private componentFactoryResolver: ComponentFactoryResolver,
-        private injector: Injector
+        private injector: Injector,
     ) {}
 
     ngOnInit() {
@@ -71,44 +70,47 @@ export class AgentInspectorTimelineContainerComponent implements OnInit, OnDestr
             this.timelineComponent.moveNow();
             this.updateTimelineData();
         });
-        this.newUrlStateNotificationService.onUrlStateChange$.pipe(
-            takeUntil(this.unsubscribe),
-            tap((urlService: NewUrlStateNotificationService) => {
-                if (urlService.isValueChanged(UrlPathId.AGENT_ID)) {
-                    this.agentId = urlService.getPathValue(UrlPathId.AGENT_ID);
-                }
-            }),
-            withLatestFrom(this.storeHelperService.getInspectorTimelineData(this.unsubscribe)),
-            map(([urlService, storeState]: [NewUrlStateNotificationService, ITimelineInfo]) => {
-                if ((urlService.isValueChanged(UrlPathId.PERIOD) || urlService.isValueChanged(UrlPathId.END_TIME)) || storeState.selectedTime === 0) {
-                    const selectionStartTime = urlService.getStartTimeToNumber();
-                    const selectionEndTime = urlService.getEndTimeToNumber();
-                    const [start, end] = this.calcuRetrieveTime(selectionStartTime, selectionEndTime);
-                    const timelineInfo: ITimelineInfo = {
-                        range: [start, end],
-                        selectedTime: selectionEndTime,
-                        selectionRange: [selectionStartTime, selectionEndTime]
-                    };
 
-                    this.storeHelperService.dispatch(new Actions.UpdateTimelineData(timelineInfo));
-                    return timelineInfo;
-                } else {
-                    return storeState;
-                }
+        this.timelineInfoFromStore$ = this.storeHelperService.getInspectorTimelineData(this.unsubscribe);
+        this.timelineInfoFromUrl$ = this.storeHelperService.getRange(this.unsubscribe).pipe(
+            filter((range: number[]) => !!range),
+            map(([from, to]: number[]) => {
+                return {
+                    range: this.calcuRetrieveTime(from, to),
+                    selectedTime: to,
+                    selectionRange: [from, to]
+                } as ITimelineInfo;
             }),
             tap((timelineInfo: ITimelineInfo) => {
-                this.timelineStartTime = timelineInfo.range[0];
-                this.timelineEndTime = timelineInfo.range[1];
-                this.selectionStartTime = timelineInfo.selectionRange[0];
-                this.selectionEndTime = timelineInfo.selectionRange[1];
-                this.pointingTime = timelineInfo.selectedTime;
+                const urlService = this.newUrlStateNotificationService;
+
+                if (urlService.isRealTimeMode() || urlService.isValueChanged(UrlPathId.PERIOD) || urlService.isValueChanged(UrlPathId.END_TIME)) {
+                    this.storeHelperService.dispatch(new Actions.UpdateTimelineData(timelineInfo));
+                }
+            })
+        );
+
+        this.timelineInfoFromUrl$.pipe(
+            withLatestFrom(this.timelineInfoFromStore$),
+            map(([timelineInfoFromUrl, timelineInfoFromStore]: ITimelineInfo[]) => {
+                const urlService = this.newUrlStateNotificationService;
+                const agentId = urlService.getPathValue(UrlPathId.AGENT_ID);
+                const shouldUseInfoFromUrl = urlService.isRealTimeMode() || urlService.isValueChanged(UrlPathId.PERIOD) || urlService.isValueChanged(UrlPathId.END_TIME);
+                const { range, selectionRange, selectedTime } = shouldUseInfoFromUrl ? timelineInfoFromUrl : timelineInfoFromStore;
+
+                this.timelineStartTime = range[0];
+                this.timelineEndTime = range[1];
+                this.selectionStartTime = selectionRange[0];
+                this.selectionEndTime = selectionRange[1];
+                this.pointingTime = selectedTime;
+
+                return { agentId, range };
             }),
-            switchMap(({range}: {range: number[]}) => {
-                return this.agentTimelineDataService.getData(this.agentId, range);
+            switchMap(({agentId, range}: {agentId: string, range: number[]}) => {
+                return this.agentTimelineDataService.getData(agentId, range);
             })
         ).subscribe((response: IAgentTimeline) => {
             this.timelineData = response;
-            this.changeDetector.detectChanges();
         }, (error: IServerErrorFormat) => {
             this.dynamicPopupService.openPopup({
                 data: {
@@ -133,7 +135,7 @@ export class AgentInspectorTimelineContainerComponent implements OnInit, OnDestr
         this.timezone$ = this.storeHelperService.getTimezone(this.unsubscribe);
         this.dateFormat$ = this.storeHelperService.getDateFormatArray(this.unsubscribe, 0, 5, 6);
     }
-    calcuRetrieveTime(startTime: number, endTime: number ): number[] {
+    calcuRetrieveTime(startTime: number, endTime: number): number[] {
         const allowedMaxRagne = Timeline.MAX_TIME_RANGE;
         const timeGap = endTime - startTime;
 
@@ -147,8 +149,9 @@ export class AgentInspectorTimelineContainerComponent implements OnInit, OnDestr
     }
     updateTimelineData(): void {
         const range = this.timelineComponent.getTimelineRange();
+        const agentId = this.newUrlStateNotificationService.getPathValue(UrlPathId.AGENT_ID);
 
-        this.agentTimelineDataService.getData(this.agentId, range).subscribe((response: IAgentTimeline) => {
+        this.agentTimelineDataService.getData(agentId, range).subscribe((response: IAgentTimeline) => {
             this.timelineComponent.updateData(response);
         });
     }

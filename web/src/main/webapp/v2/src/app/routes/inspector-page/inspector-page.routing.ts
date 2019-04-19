@@ -23,9 +23,9 @@ export const routing: Routes = [
                     },
                     {
                         path: ':' + UrlPathId.APPLICATION,
-                        resolve: {
-                            serverTime: ServerTimeResolverService
-                        },
+                        // resolve: {
+                        //     serverTime: ServerTimeResolverService
+                        // },
                         data: {
                             showRealTimeButton: true,
                             enableRealTimeMode: true
@@ -34,10 +34,16 @@ export const routing: Routes = [
                             {
                                 path: '',
                                 pathMatch: 'full',
+                                resolve: {
+                                    serverTime: ServerTimeResolverService
+                                },
                                 component: ApplicationInspectorContentsContainerComponent
                             },
                             {
                                 path: ':' + UrlPathId.AGENT_ID,
+                                resolve: {
+                                    serverTime: ServerTimeResolverService
+                                },
                                 component: AgentInspectorContentsContainerComponent
                             }
                         ]

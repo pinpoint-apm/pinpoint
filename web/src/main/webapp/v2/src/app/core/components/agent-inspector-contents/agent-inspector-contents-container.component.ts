@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Subject, Observable, merge, of } from 'rxjs';
 import { map } from 'rxjs/operators';
 
-import { MessageQueueService, MESSAGE_TO, WebAppSettingDataService } from 'app/shared/services';
+import { MessageQueueService, MESSAGE_TO, WebAppSettingDataService, NewUrlStateNotificationService } from 'app/shared/services';
 
 @Component({
     selector: 'pp-agent-inspector-contents-container',
@@ -13,10 +13,12 @@ export class AgentInspectorContentsContainerComponent implements OnInit, OnDestr
     private unsubscribe = new Subject<void>();
 
     gridLayout$: Observable<string>;
+    coverRangeElements$: Observable<boolean>;
 
     constructor(
         private webAppSettingDataService: WebAppSettingDataService,
         private messageQueueService: MessageQueueService,
+        private newUrlStateNotificationService: NewUrlStateNotificationService
     ) {}
 
     ngOnInit() {
@@ -27,6 +29,9 @@ export class AgentInspectorContentsContainerComponent implements OnInit, OnDestr
             )
         ).pipe(
             map((chartNumPerRow: number) => this.getGridLayout(chartNumPerRow))
+        );
+        this.coverRangeElements$ = this.newUrlStateNotificationService.onUrlStateChange$.pipe(
+            map((urlService: NewUrlStateNotificationService) => urlService.isRealTimeMode())
         );
     }
 

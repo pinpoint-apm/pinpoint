@@ -111,7 +111,7 @@ export class UrlRouteManagerService {
         isRealTimeMode ?
             this.openPage([
                 UrlPath.INSPECTOR,
-                UrlPathId.REAL_TIME,
+                UrlPath.REAL_TIME,
                 this.newUrlStateNotificationService.getPathValue(UrlPathId.APPLICATION).getUrlStr(),
                 selectedAgent
             ]) :
