@@ -23,6 +23,8 @@ export class ApplicationListForConfigurationContainerComponent implements OnInit
     i18nText = {
         SEARCH_INPUT_GUIDE: ''
     };
+    useDisable = true;
+    showLoading = true;
 
     constructor(
         private storeHelperService: StoreHelperService,
@@ -64,6 +66,7 @@ export class ApplicationListForConfigurationContainerComponent implements OnInit
         } else {
             this.applicationList = applicationList;
         }
+        this.hideProcessing();
     }
     private initEmptyText(): void {
         forkJoin(
@@ -89,7 +92,16 @@ export class ApplicationListForConfigurationContainerComponent implements OnInit
         }
     }
     onSelectApp(app: IApplication): void {
+        this.showProcessing();
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.SET_FAVORITE_APPLICATION_IN_CONFIGURATION);
         this.webAppSettingDataService.addFavoriteApplication(app);
+    }
+    private showProcessing(): void {
+        this.useDisable = true;
+        this.showLoading = true;
+    }
+    private hideProcessing(): void {
+        this.useDisable = false;
+        this.showLoading = false;
     }
 }
