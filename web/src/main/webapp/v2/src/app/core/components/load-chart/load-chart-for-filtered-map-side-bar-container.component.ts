@@ -21,6 +21,7 @@ export class LoadChartForFilteredMapSideBarContainerComponent implements OnInit,
     private dateFormatDay: string;
     hiddenComponent = false;
     hiddenChart = false;
+    isOriginalNode = false;
     yMax = -1;
     selectedTarget: ISelectedTarget;
     selectedAgent = '';
@@ -90,6 +91,7 @@ export class LoadChartForFilteredMapSideBarContainerComponent implements OnInit,
         ).subscribe((target: ISelectedTarget) => {
             this.yMax = -1;
             this.selectedAgent = '';
+            this.isOriginalNode = true;
             this.selectedTarget = target;
             this.hiddenComponent = target.isMerged;
             if (target.isMerged === false) {
@@ -98,7 +100,7 @@ export class LoadChartForFilteredMapSideBarContainerComponent implements OnInit,
             this.changeDetector.detectChanges();
         });
         this.storeHelperService.getServerMapTargetSelectedByList(this.unsubscribe).subscribe((target: any) => {
-            this.yMax = -1;
+            this.isOriginalNode = this.selectedTarget.node[0] === target.key;
             this.hiddenComponent = false;
             this.passDownChartData(this.agentHistogramDataService.makeChartDataForLoad(target.timeSeriesHistogram, this.timezone, [this.dateFormatMonth, this.dateFormatDay], this.getChartYMax()));
         });
@@ -108,7 +110,7 @@ export class LoadChartForFilteredMapSideBarContainerComponent implements OnInit,
         this.showLoading = disable;
     }
     private getChartYMax(): number {
-        return this.yMax === -1 ? null : this.yMax;
+        return this.isOriginalNode ? (this.yMax === -1 ? null : this.yMax) : null;
     }
     private loadLoadChartData(from?: number, to?: number): void {
         const target = this.getTargetInfo();
@@ -136,7 +138,7 @@ export class LoadChartForFilteredMapSideBarContainerComponent implements OnInit,
         }
     }
     onNotifyMax(max: number) {
-        if (max > this.yMax) {
+        if (max > this.yMax && this.isOriginalNode) {
             this.yMax = max;
             this.storeHelperService.dispatch(new Actions.ChangeLoadChartYMax(max));
         }

@@ -26,26 +26,25 @@ import { SearchInputDirective } from 'app/shared/directives/search-input.directi
 })
 export class TargetListContainerComponent implements OnInit, OnDestroy {
     @ViewChild(SearchInputDirective) searchInputDirective: SearchInputDirective;
-    i18nText: { [key: string]: string } = {};
-    minLength = 2;
-    isLink = false;
-    filterQuery = '';
-    selectedTarget: any;
-    serverMapData: ServerMapData;
-    notFilteredTargetList: any[];
-    targetList: any[];
     unsubscribe: Subject<null> = new Subject();
+    i18nText: { [key: string]: string } = {};
+    query = '';
+    target: ISelectedTarget;
+    minLength = 2;
+    targetList: any[];
+    serverMapData: ServerMapData;
+    originalTargetList: any[];
     searchUseEnter = false;
     constructor(
+        private injector: Injector,
         private changeDetector: ChangeDetectorRef,
+        private componentFactoryResolver: ComponentFactoryResolver,
         private translateService: TranslateService,
+        private analyticsService: AnalyticsService,
         private urlRouteManagerService: UrlRouteManagerService,
         private storeHelperService: StoreHelperService,
         private newUrlStateNotificationService: NewUrlStateNotificationService,
-        private dynamicPopupService: DynamicPopupService,
-        private analyticsService: AnalyticsService,
-        private componentFactoryResolver: ComponentFactoryResolver,
-        private injector: Injector
+        private dynamicPopupService: DynamicPopupService
     ) {}
     ngOnInit() {
         this.getI18NText();
@@ -61,64 +60,65 @@ export class TargetListContainerComponent implements OnInit, OnDestroy {
         });
     }
     private connectStore(): void {
+        this.storeHelperService.getServerMapData(this.unsubscribe).subscribe((serverMapData: ServerMapData) => {
+            this.serverMapData = serverMapData;
+        });
         this.storeHelperService.getServerMapTargetSelected(this.unsubscribe).pipe(
             filter((target: ISelectedTarget) => {
                 return target && (target.isNode === true || target.isNode === false) ? true : false;
             })
         ).subscribe((target: ISelectedTarget) => {
-            this.selectedTarget = target;
+            this.target = target;
             if (this.hasMultiInput()) {
-                this.isLink = target.isLink;
-                if (this.searchInputDirective) {
-                    this.searchInputDirective.clear();
-                }
                 this.gatherTargets();
+                this.initSearchInput();
             }
             this.changeDetector.detectChanges();
         });
-        this.storeHelperService.getServerMapData(this.unsubscribe).subscribe((serverMapData: ServerMapData) => {
-            this.serverMapData = serverMapData;
-        });
+    }
+    private initSearchInput(): void {
+        if (this.searchInputDirective) {
+            this.searchInputDirective.clear();
+        }
     }
     hasMultiInput(): boolean {
-        if (this.selectedTarget && this.selectedTarget.isWAS === false) {
-            if (this.selectedTarget.isMerged) {
+        if (this.target && this.target.isWAS === false) {
+            if (this.target.isMerged) {
                 return true;
             } else {
-                // if (this.selectedTarget.isLink) {
-                //     return false;
-                // } else {
-                //     const fromList = this.serverMapData.getLinkListByTo(this.selectedTarget.node[0]);
-                //     if (fromList.length > 1) {
-                //         return true;
-                //     }
-                // }
+                if (this.target.isLink) {
+                    return false;
+                } else {
+                    const fromList = this.serverMapData.getLinkListByTo(this.target.node[0]);
+                    if (fromList.length > 1) {
+                        return true;
+                    }
+                }
             }
         }
         return false;
     }
     gatherTargets(): void {
         const targetList: any[] = [];
-        if (this.selectedTarget.isNode) {
-            this.selectedTarget.node.forEach((nodeKey: string) => {
+        if (this.target.isNode) {
+            this.target.node.forEach((nodeKey: string) => {
                 targetList.push([this.serverMapData.getNodeData(nodeKey), '']);
             });
-            if (this.selectedTarget.groupedNode) {
+            if (this.target.groupedNode) {
                 targetList.forEach((targetData: any[]) => {
-                    targetData[0].fromList = this.selectedTarget.groupedNode.map((key: string) => {
+                    targetData[0].fromList = this.target.groupedNode.map((key: string) => {
                         return this.serverMapData.getLinkData(key + '~' + targetData[0].key);
                     });
                 });
-            } else if (this.selectedTarget.isMerged === false) {
-                targetList[0][0].fromList = this.serverMapData.getLinkListByTo(this.selectedTarget.node[0]);
+            } else if (this.target.isMerged === false) {
+                targetList[0][0].fromList = this.serverMapData.getLinkListByTo(this.target.node[0]);
             }
-        } else if (this.selectedTarget.isLink) {
-            // Link 인 경우 필터 관련 버튼을 추가해야 함.
-            this.selectedTarget.link.forEach((linkKey: string) => {
+        } else if (this.target.isLink) {
+            this.target.link.forEach((linkKey: string) => {
                 targetList.push([this.serverMapData.getLinkData(linkKey), linkKey]);
             });
         }
-        this.notFilteredTargetList = this.targetList = targetList;
+        this.originalTargetList = this.targetList = targetList;
     }
     onSelectTarget(target: any): void {
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.CLICK_NODE_IN_GROUPED_VIEW);
@@ -143,8 +143,8 @@ export class TargetListContainerComponent implements OnInit, OnDestroy {
         ));
     }
     getRequestSum(): number  {
-        return this.targetList.reduce((accumulator: number,    target: any) => {
-            return accumulator + target[0].totalCount;
+        return this.targetList.reduce((acc: number, target: any) => {
+            return acc + target[0].totalCount;
         }, 0);
     }
     onOpenFilterWizard(target: any): void {
@@ -164,17 +164,17 @@ export class TargetListContainerComponent implements OnInit, OnDestroy {
         this.setFilterQuery(query);
     }
     setFilterQuery(query: string): void {
-        this.filterQuery = query;
+        this.query = query;
         this.targetList = this.filterList();
         this.changeDetector.detectChanges();
     }
     filterList(): any[] {
-        if ( this.filterQuery === '' ) {
-            return this.notFilteredTargetList;
+        if ( this.query === '' ) {
+            return this.originalTargetList;
         }
         const filteredList: any = [];
-        this.notFilteredTargetList.forEach(aTarget => {
-            if ( aTarget[0].applicationName.indexOf(this.filterQuery) !== -1 ) {
+        this.originalTargetList.forEach((aTarget: any) => {
+            if ( aTarget[0].applicationName.indexOf(this.query) !== -1 ) {
                 filteredList.push(aTarget);
             }
         });
