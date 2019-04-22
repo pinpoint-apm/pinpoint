@@ -11,7 +11,8 @@
         "SUBMIT": "Submit",
         "REMOVE": "Remove",
         "CANCEL": "Cancel",
-        "SEARCH_INPUT": "Input query"
+        "SEARCH_INPUT": "Input query",
+        "NO_CONTENT_TO_DISPLAY": "No content to display"
     },
     "MAIN": {
         "SELECT_YOUR_APP": "Select your application",
