@@ -1,5 +1,6 @@
 :host {
     display: block;
+    position: relative;
 }
 .l-search {
     position: relative;

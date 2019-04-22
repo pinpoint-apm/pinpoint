@@ -22,6 +22,8 @@ export class FavoriteApplicationListForConfigurationContainerComponent implement
     i18nText = {
         SEARCH_INPUT_GUIDE: ''
     };
+    useDisable = true;
+    showLoading = true;
 
     constructor(
         private storeHelperService: StoreHelperService,
@@ -55,6 +57,7 @@ export class FavoriteApplicationListForConfigurationContainerComponent implement
         } else {
             this.applicationList = this.favoriteApplicationList;
         }
+        this.hideProcessing();
     }
     private initEmptyText(): void {
         forkJoin(
@@ -80,7 +83,16 @@ export class FavoriteApplicationListForConfigurationContainerComponent implement
         }
     }
     onSelectApp(app: IApplication): void {
+        this.showProcessing();
         this.webAppSettingDataService.removeFavoriteApplication(app);
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.REMOVE_FAVORITE_APPLICATION);
+    }
+    private showProcessing(): void {
+        this.useDisable = true;
+        this.showLoading = true;
+    }
+    private hideProcessing(): void {
+        this.useDisable = false;
+        this.showLoading = false;
     }
 }
