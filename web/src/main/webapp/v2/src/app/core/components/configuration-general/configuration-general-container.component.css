@@ -45,6 +45,9 @@ tbody > tr {
     margin-top: 25px;
     table-layout: fixed;
 }
+.l-favorite-application-table .l-favorite-list {
+    height: 298px;
+}
 
 .l-favorite-application-table td {
     padding: 0;

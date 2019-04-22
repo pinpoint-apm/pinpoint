@@ -1,11 +1,11 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 
 @Component({
-    selector: 'pp-application-list-for-configuration',
-    templateUrl: './application-list-for-configuration.component.html',
-    styleUrls: ['./application-list-for-configuration.component.css']
+    selector: 'pp-favorite-application-list-for-configuration',
+    templateUrl: './favorite-application-list-for-configuration.component.html',
+    styleUrls: ['./favorite-application-list-for-configuration.component.css']
 })
-export class ApplicationListForConfigurationComponent implements OnInit {
+export class FavoriteApplicationListForConfigurationComponent implements OnInit {
     @Input() applicationList: IApplication[];
     @Input() emptyText: string;
     @Input() funcImagePath: Function;
@@ -21,6 +21,6 @@ export class ApplicationListForConfigurationComponent implements OnInit {
         this.outSelectApp.emit(app);
     }
     isEmpty(): boolean {
-        return this.applicationList.length === 0;
+        return this.applicationList && this.applicationList.length === 0;
     }
 }

@@ -5,12 +5,12 @@
         [useEnter]="searchUseEnter"
         (outSearch)="onSearch($event)"
         #searchInput>
-    <button class="l-search-button" (click)="onClearSearch(searchInput);"><i class="fas fa-times-circle"></i></button>
+    <button class="l-search-button" (click)="onClearSearch(searchInput)"><i class="fas fa-times-circle"></i></button>
 </div>
-<pp-application-list-for-configuration
+<pp-favorite-application-list-for-configuration
     [applicationList]="applicationList"
     [funcImagePath]="funcImagePath"
     [emptyText]="emptyText"
     [iconBtnClassName]="iconBtnClassName"
     (outSelectApp)="onSelectApp($event)">
-</pp-application-list-for-configuration>
+</pp-favorite-application-list-for-configuration>

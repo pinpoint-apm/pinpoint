@@ -11,7 +11,8 @@
         "SUBMIT": "저장",
         "REMOVE": "삭제",
         "CANCEL": "취소",
-        "SEARCH_INPUT": "검색어를 입력하세요."
+        "SEARCH_INPUT": "검색어를 입력하세요.",
+        "NO_CONTENT_TO_DISPLAY": "표시 할 내용이 없습니다."
     },
     "MAIN": {
         "SELECT_YOUR_APP": "애플리케이션을 선택하세요.",
