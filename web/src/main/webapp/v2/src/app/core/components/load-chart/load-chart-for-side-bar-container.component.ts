@@ -22,6 +22,7 @@ export class LoadChartForSideBarContainerComponent implements OnInit, OnDestroy 
     hasRequestError = false;
     hiddenComponent = false;
     hiddenChart = false;
+    isOriginalNode = false;
     yMax = -1;
     selectedTarget: ISelectedTarget = null;
     selectedAgent = '';
@@ -99,6 +100,7 @@ export class LoadChartForSideBarContainerComponent implements OnInit, OnDestroy 
             })
         ).subscribe((target: ISelectedTarget) => {
             this.yMax = -1;
+            this.isOriginalNode = true;
             this.selectedAgent = '';
             this.selectedTarget = target;
             this.hiddenComponent = target.isMerged;
@@ -108,7 +110,7 @@ export class LoadChartForSideBarContainerComponent implements OnInit, OnDestroy 
             this.changeDetector.detectChanges();
         });
         this.storeHelperService.getServerMapTargetSelectedByList(this.unsubscribe).subscribe((target: any) => {
-            this.yMax = -1;
+            this.isOriginalNode = this.selectedTarget.node[0] === target.key;
             this.hiddenComponent = false;
             this.passDownChartData(this.agentHistogramDataService.makeChartDataForLoad(target.timeSeriesHistogram, this.timezone, [this.dateFormatMonth, this.dateFormatDay], this.getChartYMax()));
         });
@@ -118,7 +120,7 @@ export class LoadChartForSideBarContainerComponent implements OnInit, OnDestroy 
         this.showLoading = disable;
     }
     private getChartYMax(): number {
-        return this.yMax === -1 ? null : this.yMax;
+        return this.isOriginalNode ? (this.yMax === -1 ? null : this.yMax) : null;
     }
     private loadLoadChartData(from?: number, to?: number): void {
         const target = this.getTargetInfo();
@@ -163,7 +165,7 @@ export class LoadChartForSideBarContainerComponent implements OnInit, OnDestroy 
         return this.hasRequestError ? this.i18nText.FAILED_TO_FETCH_DATA : this.i18nText.NO_DATA;
     }
     onNotifyMax(max: number) {
-        if (this.yMax === -1) {
+        if (this.yMax === -1 && this.isOriginalNode) {
             this.yMax = max;
             this.storeHelperService.dispatch(new Actions.ChangeLoadChartYMax(max));
         }

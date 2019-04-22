@@ -2,13 +2,13 @@
     margin: 0;
     position: relative;
     width: 459px;
-    height: 310px;
+    height: 290px;
     font-size: 14px;
 }
 .l-target-container {
     display: grid;
     grid-template-columns: auto;
-    grid-template-rows: 32px 248px 30px;
+    grid-template-rows: 32px 228px 30px;
 }
 .l-target-container .l-search-header {
     /* autoprefixer: off */

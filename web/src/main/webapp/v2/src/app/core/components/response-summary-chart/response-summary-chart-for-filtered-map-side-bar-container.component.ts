@@ -22,6 +22,7 @@ export class ResponseSummaryChartForFilteredMapSideBarContainerComponent impleme
     serverMapData: ServerMapData;
     hiddenComponent = false;
     hiddenChart = false;
+    isOriginalNode = false;
     useDisable = false;
     showLoading = false;
     i18nText = {
@@ -75,6 +76,7 @@ export class ResponseSummaryChartForFilteredMapSideBarContainerComponent impleme
         ).subscribe((target: ISelectedTarget) => {
             this.yMax = -1;
             this.selectedAgent = '';
+            this.isOriginalNode = true;
             this.selectedTarget = target;
             this.hiddenComponent = target.isMerged;
             if (target.isMerged === false) {
@@ -84,13 +86,13 @@ export class ResponseSummaryChartForFilteredMapSideBarContainerComponent impleme
             }
         });
         this.storeHelperService.getServerMapTargetSelectedByList(this.unsubscribe).subscribe((target: any) => {
-            this.yMax = -1;
+            this.isOriginalNode = this.selectedTarget.node[0] === target.key;
             this.hiddenComponent = false;
             this.passDownChartData(this.agentHistogramDataService.makeChartDataForResponseSummary(target.histogram, this.getChartYMax()));
         });
     }
     private getChartYMax(): number {
-        return this.yMax === -1 ? null : this.yMax;
+        return this.isOriginalNode ? (this.yMax === -1 ? null : this.yMax) : null;
     }
     private setDisable(disable: boolean): void {
         this.useDisable = disable;
@@ -123,7 +125,7 @@ export class ResponseSummaryChartForFilteredMapSideBarContainerComponent impleme
         }
     }
     onNotifyMax(max: number): void {
-        if (max > this.yMax) {
+        if (max > this.yMax && this.isOriginalNode) {
             this.yMax = max;
             this.storeHelperService.dispatch(new Actions.ChangeResponseSummaryChartYMax(max));
         }
