@@ -56,7 +56,7 @@ public class SpanBo implements Event, BasicSpan {
     private int errCode;
 
     private List<SpanEventBo> spanEventBoList = new ArrayList<>();
-    private List<SpanChunkBo> asyncSpanChunkBoList;
+    private List<SpanChunkBo> spanChunkBoList;
 
     private long collectorAcceptTime;
 
@@ -225,18 +225,18 @@ public class SpanBo implements Event, BasicSpan {
         return spanEventBoList;
     }
 
-    public List<SpanChunkBo> getAsyncSpanChunkBoList() {
-        if (asyncSpanChunkBoList == null) {
-            return Collections.emptyList();
+    public List<SpanChunkBo> getSpanChunkBoList() {
+        if (spanChunkBoList == null) {
+            spanChunkBoList = new ArrayList<>();
         }
-        return asyncSpanChunkBoList;
+        return spanChunkBoList;
     }
 
-    public void addAsyncSpanBo(SpanChunkBo asyncSpanBo) {
-        if (asyncSpanChunkBoList == null) {
-            this.asyncSpanChunkBoList = new ArrayList<>();
+    public void addSpanChunkBo(SpanChunkBo asyncSpanBo) {
+        if (spanChunkBoList == null) {
+            this.spanChunkBoList = new ArrayList<>();
         }
-        this.asyncSpanChunkBoList.add(asyncSpanBo);
+        this.spanChunkBoList.add(asyncSpanBo);
     }
 
     public short getServiceType() {

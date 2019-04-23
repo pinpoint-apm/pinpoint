@@ -16,6 +16,9 @@
 
 package com.navercorp.pinpoint.collector.receiver.thrift.tcp;
 
+import com.navercorp.pinpoint.collector.receiver.AgentLifeCycleChangeEventHandler;
+import com.navercorp.pinpoint.collector.service.async.AgentEventAsyncTaskService;
+import com.navercorp.pinpoint.collector.service.async.AgentLifeCycleAsyncTaskService;
 import com.navercorp.pinpoint.collector.util.ManagedAgentLifeCycle;
 import com.navercorp.pinpoint.common.server.util.AgentEventType;
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
@@ -29,6 +32,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import static org.mockito.Mockito.*;
@@ -40,10 +44,10 @@ import static org.mockito.Mockito.*;
 public class AgentLifeCycleChangeEventHandlerTest {
 
     @Mock
-    private AgentLifeCycleEventHandler agentLifeCycleEventHandler;
+    private AgentLifeCycleAsyncTaskService agentLifeCycleAsyncTaskService;
 
     @Mock
-    private AgentEventHandler agentEventHandler;
+    private AgentEventAsyncTaskService agentEventAsyncTaskService;
 
     @Mock
     private PinpointServer server;
@@ -102,21 +106,21 @@ public class AgentLifeCycleChangeEventHandlerTest {
         }
         for (SocketStateCode unmanagedState : unmanagedStates) {
             // when
-            this.lifeCycleChangeEventHandler.eventPerformed(this.server, unmanagedState);
+            this.lifeCycleChangeEventHandler.stateUpdated(this.server, unmanagedState);
             // then
-            verify(this.agentLifeCycleEventHandler, never()).handleLifeCycleEvent(any(PinpointServer.class), anyLong(), any(AgentLifeCycleState.class), anyInt());
-            verify(this.agentEventHandler, never()).handleEvent(any(PinpointServer.class), anyLong(), any(AgentEventType.class));
+            verify(this.agentLifeCycleAsyncTaskService, never()).handleLifeCycleEvent(any(Map.class), anyLong(), any(AgentLifeCycleState.class), anyInt());
+            verify(this.agentEventAsyncTaskService, never()).handleEvent(any(Map.class), anyLong(), any(AgentEventType.class));
         }
     }
 
     private void runAndVerifyByStateCodes(Set<SocketStateCode> socketStates) throws Exception {
         int testCount = 0;
         for (SocketStateCode socketState : socketStates) {
-            this.lifeCycleChangeEventHandler.eventPerformed(this.server, socketState);
+            this.lifeCycleChangeEventHandler.stateUpdated(this.server, socketState);
             testCount++;
-            verify(this.agentLifeCycleEventHandler, times(testCount))
-                    .handleLifeCycleEvent(any(PinpointServer.class), anyLong(), any(AgentLifeCycleState.class), anyInt());
-            verify(this.agentEventHandler, times(testCount)).handleEvent(any(PinpointServer.class), anyLong(), any(AgentEventType.class));
+            verify(this.agentLifeCycleAsyncTaskService, times(testCount))
+                    .handleLifeCycleEvent(any(Map.class), anyLong(), any(AgentLifeCycleState.class), anyInt());
+            verify(this.agentEventAsyncTaskService, times(testCount)).handleEvent(any(Map.class), anyLong(), any(AgentEventType.class));
         }
     }
 

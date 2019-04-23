@@ -16,15 +16,17 @@
 
 package com.navercorp.pinpoint.profiler.context.provider;
 
-import com.google.inject.Inject;
-import com.google.inject.Provider;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.config.ThriftTransportConfig;
 import com.navercorp.pinpoint.profiler.AgentInformation;
 import com.navercorp.pinpoint.profiler.receiver.CommandDispatcher;
 import com.navercorp.pinpoint.rpc.client.ConnectionFactoryProvider;
 import com.navercorp.pinpoint.rpc.client.DefaultPinpointClientFactory;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 import com.navercorp.pinpoint.rpc.packet.HandshakePropertyType;
+
+import com.google.inject.Inject;
+import com.google.inject.Provider;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -61,20 +63,21 @@ public class PinpointClientFactoryProvider implements Provider<PinpointClientFac
 
     public PinpointClientFactory get() {
         PinpointClientFactory pinpointClientFactory = new DefaultPinpointClientFactory(connectionFactoryProvider.get());
-        pinpointClientFactory.setWriteTimeoutMillis(profilerConfig.getTcpDataSenderPinpointClientWriteTimeout());
-        pinpointClientFactory.setRequestTimeoutMillis(profilerConfig.getTcpDataSenderPinpointClientRequestTimeout());
-        pinpointClientFactory.setReconnectDelay(profilerConfig.getTcpDataSenderPinpointClientReconnectInterval());
-        pinpointClientFactory.setPingDelay(profilerConfig.getTcpDataSenderPinpointClientPingInterval());
-        pinpointClientFactory.setEnableWorkerPacketDelay(profilerConfig.getTcpDataSenderPinpointClientHandshakeInterval());
+        ThriftTransportConfig thriftTransportConfig = profilerConfig.getThriftTransportConfig();
+        pinpointClientFactory.setWriteTimeoutMillis(thriftTransportConfig.getTcpDataSenderPinpointClientWriteTimeout());
+        pinpointClientFactory.setRequestTimeoutMillis(thriftTransportConfig.getTcpDataSenderPinpointClientRequestTimeout());
+        pinpointClientFactory.setReconnectDelay(thriftTransportConfig.getTcpDataSenderPinpointClientReconnectInterval());
+        pinpointClientFactory.setPingDelay(thriftTransportConfig.getTcpDataSenderPinpointClientPingInterval());
+        pinpointClientFactory.setEnableWorkerPacketDelay(thriftTransportConfig.getTcpDataSenderPinpointClientHandshakeInterval());
 
         AgentInformation agentInformation = this.agentInformation.get();
         Map<String, Object> properties = toMap(agentInformation);
 
-        boolean isSupportServerMode = profilerConfig.isTcpDataSenderCommandAcceptEnable();
+        boolean isSupportServerMode = thriftTransportConfig.isTcpDataSenderCommandAcceptEnable();
 
         if (isSupportServerMode) {
             pinpointClientFactory.setMessageListener(commandDispatcher);
-            pinpointClientFactory.setServerStreamChannelMessageListener(commandDispatcher);
+            pinpointClientFactory.setServerStreamChannelMessageHandler(commandDispatcher);
 
             properties.put(HandshakePropertyType.SUPPORT_SERVER.getName(), true);
             properties.put(HandshakePropertyType.SUPPORT_COMMAND_LIST.getName(), commandDispatcher.getRegisteredCommandServiceCodes());

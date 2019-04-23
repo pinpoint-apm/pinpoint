@@ -1,10 +1,9 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ComponentFactoryResolver, Injector } from '@angular/core';
 import { Subject, Observable, of } from 'rxjs';
 import { take, takeUntil, switchMap } from 'rxjs/operators';
 
 import {
     StoreHelperService,
-    RouteInfoCollectorService,
     UrlRouteManagerService,
     NewUrlStateNotificationService,
     TransactionDetailDataService,
@@ -25,13 +24,14 @@ export class TransactionViewPageComponent implements OnInit, OnDestroy {
     splitSize: number[];
 
     constructor(
-        private routeInfoCollectorService: RouteInfoCollectorService,
         private storeHelperService: StoreHelperService,
         private newUrlStateNotificationService: NewUrlStateNotificationService,
         private urlRouteManagerService: UrlRouteManagerService,
         private transactionDetailDataService: TransactionDetailDataService,
         private gutterEventService: GutterEventService,
-        private dynamicPopupService: DynamicPopupService
+        private dynamicPopupService: DynamicPopupService,
+        private componentFactoryResolver: ComponentFactoryResolver,
+        private injector: Injector
     ) { }
 
     ngOnInit() {
@@ -73,6 +73,9 @@ export class TransactionViewPageComponent implements OnInit, OnDestroy {
                 onCloseCallback: () => {
                     this.urlRouteManagerService.reload();
                 }
+            }, {
+                resolver: this.componentFactoryResolver,
+                injector: this.injector
             });
         });
     }

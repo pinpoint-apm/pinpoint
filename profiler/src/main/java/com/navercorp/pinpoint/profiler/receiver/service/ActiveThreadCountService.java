@@ -24,12 +24,12 @@ import com.navercorp.pinpoint.profiler.receiver.ProfilerRequestCommandService;
 import com.navercorp.pinpoint.profiler.receiver.ProfilerStreamCommandService;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamCode;
 import com.navercorp.pinpoint.rpc.stream.ServerStreamChannel;
-import com.navercorp.pinpoint.rpc.stream.ServerStreamChannelContext;
 import com.navercorp.pinpoint.rpc.stream.StreamChannelStateChangeEventHandler;
 import com.navercorp.pinpoint.rpc.stream.StreamChannelStateCode;
 import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadCountRes;
 import com.navercorp.pinpoint.thrift.io.TCommandType;
 import com.navercorp.pinpoint.thrift.util.SerializationUtils;
+
 import org.apache.thrift.TBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -88,9 +88,9 @@ public class ActiveThreadCountService implements ProfilerRequestCommandService<T
     }
 
     @Override
-    public StreamCode streamCommandService(TBase<?, ?> tBase, ServerStreamChannelContext streamChannelContext) {
-        logger.info("streamCommandService object:{}, streamChannelContext:{}", tBase, streamChannelContext);
-        streamChannelContext.getStreamChannel().addStateChangeEventHandler(stateChangeEventHandler);
+    public StreamCode streamCommandService(TBase<?, ?> tBase, ServerStreamChannel serverStreamChannel) {
+        logger.info("streamCommandService object:{}, serverStreamChannel:{}", tBase, serverStreamChannel);
+        serverStreamChannel.setStateChangeEventHandler(stateChangeEventHandler);
         return StreamCode.OK;
     }
 
@@ -117,8 +117,8 @@ public class ActiveThreadCountService implements ProfilerRequestCommandService<T
         private final AtomicReference<ActiveThreadCountTimerTask> currentTaskReference = new AtomicReference<ActiveThreadCountTimerTask>();
 
         @Override
-        public void eventPerformed(ServerStreamChannel streamChannel, StreamChannelStateCode updatedStateCode) throws Exception {
-            logger.info("eventPerformed. ServerStreamChannel:{}, StreamChannelStateCode:{}.", streamChannel, updatedStateCode);
+        public void stateUpdated(ServerStreamChannel streamChannel, StreamChannelStateCode updatedStateCode) {
+            logger.info("stateUpdated() streamChannel:{}, updatedStateCode:{}.", streamChannel, updatedStateCode);
             synchronized (lock) {
                 switch (updatedStateCode) {
                     case CONNECTED:
@@ -148,11 +148,6 @@ public class ActiveThreadCountService implements ProfilerRequestCommandService<T
                         break;
                 }
             }
-        }
-
-        @Override
-        public void exceptionCaught(ServerStreamChannel streamChannel, StreamChannelStateCode updatedStateCode, Throwable e) {
-            logger.warn("exceptionCaught caused:{}. ServerStreamChannel:{}, StreamChannelStateCode:{}.", e.getMessage(), streamChannel, updatedStateCode, e);
         }
 
     }

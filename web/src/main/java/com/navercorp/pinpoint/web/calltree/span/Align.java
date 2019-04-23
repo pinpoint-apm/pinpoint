@@ -60,9 +60,9 @@ public interface Align {
 
     byte getLoggingTransactionInfo();
 
-    long getLastTime();
-
     long getStartTime();
+
+    long getEndTime();
 
     long getElapsed();
 

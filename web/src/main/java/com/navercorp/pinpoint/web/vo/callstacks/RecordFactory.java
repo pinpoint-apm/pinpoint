@@ -21,8 +21,8 @@ import java.util.List;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.ApiMetaDataBo;
 import com.navercorp.pinpoint.common.server.bo.MethodTypeEnum;
-import com.navercorp.pinpoint.common.service.AnnotationKeyRegistryService;
-import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
+import com.navercorp.pinpoint.loader.service.AnnotationKeyRegistryService;
+import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.AnnotationKeyMatcher;
 import com.navercorp.pinpoint.common.trace.ServiceType;
@@ -32,6 +32,7 @@ import com.navercorp.pinpoint.common.server.util.ApiDescriptionParser;
 import com.navercorp.pinpoint.web.calltree.span.Align;
 import com.navercorp.pinpoint.web.calltree.span.CallTreeNode;
 import com.navercorp.pinpoint.web.service.AnnotationKeyMatcherService;
+import com.navercorp.pinpoint.web.service.ProxyRequestTypeRegistryService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,12 +50,14 @@ public class RecordFactory {
     private AnnotationKeyRegistryService annotationKeyRegistryService;
     private final ApiDescriptionParser apiDescriptionParser = new ApiDescriptionParser();
     private final AnnotationRecordFormatter annotationRecordFormatter;
+    private final ProxyRequestTypeRegistryService proxyRequestTypeRegistryService;
 
-    public RecordFactory(final AnnotationKeyMatcherService annotationKeyMatcherService, final ServiceTypeRegistryService registry, final AnnotationKeyRegistryService annotationKeyRegistryService) {
+    public RecordFactory(final AnnotationKeyMatcherService annotationKeyMatcherService, final ServiceTypeRegistryService registry, final AnnotationKeyRegistryService annotationKeyRegistryService, final ProxyRequestTypeRegistryService proxyRequestTypeRegistryService) {
         this.annotationKeyMatcherService = annotationKeyMatcherService;
         this.registry = registry;
         this.annotationKeyRegistryService = annotationKeyRegistryService;
-        this.annotationRecordFormatter = new AnnotationRecordFormatter();
+        this.proxyRequestTypeRegistryService = proxyRequestTypeRegistryService;
+        this.annotationRecordFormatter = new AnnotationRecordFormatter(proxyRequestTypeRegistryService);
     }
 
     public Record get(final CallTreeNode node) {

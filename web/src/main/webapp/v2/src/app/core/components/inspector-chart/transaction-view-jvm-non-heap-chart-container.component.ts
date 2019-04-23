@@ -1,8 +1,8 @@
-import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef, ElementRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ElementRef } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import * as moment from 'moment-timezone';
 
-import { WebAppSettingDataService, NewUrlStateNotificationService, AjaxExceptionCheckerService, GutterEventService, StoreHelperService } from 'app/shared/services';
+import { WebAppSettingDataService, NewUrlStateNotificationService, GutterEventService, StoreHelperService } from 'app/shared/services';
 import { TransactionViewMemoryChartDataService } from './transaction-view-memory-chart-data.service';
 import { TransactionViewChartContainer } from 'app/core/components/inspector-chart/transaction-view-chart-container';
 import { IChartDataFromServer } from 'app/core/components/inspector-chart/chart-data.service';
@@ -11,29 +11,24 @@ import { IChartDataFromServer } from 'app/core/components/inspector-chart/chart-
     selector: 'pp-transaction-view-jvm-non-heap-chart-container',
     templateUrl: './transaction-view-jvm-non-heap-chart-container.component.html',
     styleUrls: ['./transaction-view-jvm-non-heap-chart-container.component.css'],
-    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TransactionViewJVMNonHeapChartContainerComponent extends TransactionViewChartContainer implements OnInit, OnDestroy {
     constructor(
         storeHelperService: StoreHelperService,
-        changeDetector: ChangeDetectorRef,
         webAppSettingDataService: WebAppSettingDataService,
         newUrlStateNotificationService: NewUrlStateNotificationService,
         chartDataService: TransactionViewMemoryChartDataService,
         translateService: TranslateService,
-        ajaxExceptionCheckerService: AjaxExceptionCheckerService,
         gutterEventService: GutterEventService,
         el: ElementRef
     ) {
         super(
             100,
             storeHelperService,
-            changeDetector,
             webAppSettingDataService,
             newUrlStateNotificationService,
             chartDataService,
             translateService,
-            ajaxExceptionCheckerService,
             gutterEventService,
             el
         );
@@ -59,7 +54,6 @@ export class TransactionViewJVMNonHeapChartContainerComponent extends Transactio
             elseConfig: this.makeNormalOption(data),
             isDataEmpty: this.isDataEmpty(data)
         };
-        this.changeDetector.detectChanges();
     }
 
     protected makeChartData(chartData: IChartDataFromServer): {[key: string]: any} {

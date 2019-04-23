@@ -31,6 +31,7 @@
         <module>bom</module>
         <module>assembly</module>
         <module>common-servlet</module>
+        <module>external</module>
 
         <module>httpclient3</module>
         <module>httpclient4</module>
@@ -62,6 +63,7 @@
         <module>websphere</module>
         <module>spring</module>
         <module>spring-boot</module>
+        <module>spring-webflux</module>
         <module>ibatis</module>
         <module>mybatis</module>
         <module>okhttp</module>
@@ -79,7 +81,6 @@
         <module>rxjava</module>
         <module>rabbitmq</module>
         <module>weblogic</module>
-        <module>php</module>
         <module>akka-http</module>
         <module>undertow</module>
         <module>undertow-servlet</module>
@@ -89,8 +90,8 @@
         <module>druid</module>
         <module>hbase</module>
         <module>openwhisk</module>
-        <module>node-js</module>
-        <module>elasticsearch-bboss</module>
+        <module>redis-redisson</module>
+		<module>elasticsearch-bboss</module>
     </modules>
 
     <dependencyManagement>

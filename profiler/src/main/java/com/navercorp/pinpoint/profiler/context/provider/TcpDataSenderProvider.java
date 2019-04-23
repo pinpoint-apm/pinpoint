@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.profiler.context.provider;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+import com.navercorp.pinpoint.bootstrap.config.ThriftTransportConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.module.DefaultClientFactory;
@@ -53,8 +54,10 @@ public class TcpDataSenderProvider implements Provider<EnhancedDataSender<Object
     @Override
     public EnhancedDataSender<Object> get() {
         PinpointClientFactory clientFactory = clientFactoryProvider.get();
-        String collectorTcpServerIp = profilerConfig.getCollectorTcpServerIp();
-        int collectorTcpServerPort = profilerConfig.getCollectorTcpServerPort();
+
+        ThriftTransportConfig thriftTransportConfig = profilerConfig.getThriftTransportConfig();
+        String collectorTcpServerIp = thriftTransportConfig.getCollectorTcpServerIp();
+        int collectorTcpServerPort = thriftTransportConfig.getCollectorTcpServerPort();
         HeaderTBaseSerializer headerTBaseSerializer = tBaseSerializerProvider.get();
         MessageSerializer<byte[]> messageSerializer = new ThriftMessageSerializer(messageConverter, headerTBaseSerializer);
         return new TcpDataSender("Default", collectorTcpServerIp, collectorTcpServerPort, clientFactory, messageSerializer);

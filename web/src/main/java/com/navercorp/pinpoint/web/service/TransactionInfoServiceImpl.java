@@ -23,8 +23,8 @@ import java.util.Objects;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.Event;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
-import com.navercorp.pinpoint.common.service.AnnotationKeyRegistryService;
-import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
+import com.navercorp.pinpoint.loader.service.AnnotationKeyRegistryService;
+import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.trace.AnnotationKeyMatcher;
 import com.navercorp.pinpoint.common.trace.LoggingInfo;
 import com.navercorp.pinpoint.common.util.TransactionId;
@@ -72,6 +72,9 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
 
     @Autowired(required=false)
     private MetaDataFilter metaDataFilter;
+
+    @Autowired
+    private ProxyRequestTypeRegistryService proxyRequestTypeRegistryService;
 
     // Temporarily disabled Because We need to solve authentication problem inter system.
     // @Value("#{pinpointWebProps['log.enable'] ?: false}")
@@ -240,7 +243,7 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
             return 0;
         }
         Align align = alignList.get(0);
-        return align.getLastTime();
+        return align.getEndTime();
     }
 
     private Align findViewPoint(List<Align> alignList, long focusTimestamp, String agentId, long spanId) {
@@ -337,7 +340,7 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
             }
 
             final List<Record> recordList = new ArrayList<>(callTreeIterator.size() * 2);
-            final RecordFactory factory = new RecordFactory(annotationKeyMatcherService, registry, annotationKeyRegistryService);
+            final RecordFactory factory = new RecordFactory(annotationKeyMatcherService, registry, annotationKeyRegistryService, proxyRequestTypeRegistryService);
 
             // annotation id has nothing to do with spanAlign's seq and thus may be incremented as long as they don't overlap.
             while (callTreeIterator.hasNext()) {

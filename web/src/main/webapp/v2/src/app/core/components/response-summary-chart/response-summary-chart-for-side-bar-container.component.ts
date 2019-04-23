@@ -1,11 +1,11 @@
-import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef, ComponentFactoryResolver, Injector } from '@angular/core';
 import { Subject, combineLatest } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
 
 import { Actions } from 'app/shared/store';
 import { ServerMapData } from 'app/core/components/server-map/class/server-map-data.class';
-import { StoreHelperService, WebAppSettingDataService, AgentHistogramDataService, AnalyticsService, TRACKED_EVENT_LIST, DynamicPopupService } from 'app/shared/services';
+import { StoreHelperService, WebAppSettingDataService, AgentHistogramDataService, AnalyticsService, TRACKED_EVENT_LIST, DynamicPopupService, MessageQueueService, MESSAGE_TO } from 'app/shared/services';
 import { HELP_VIEWER_LIST, HelpViewerPopupContainerComponent } from 'app/core/components/help-viewer-popup/help-viewer-popup-container.component';
 
 @Component({
@@ -22,6 +22,7 @@ export class ResponseSummaryChartForSideBarContainerComponent implements OnInit,
     serverMapData: ServerMapData;
     hiddenComponent = false;
     hiddenChart = false;
+    isOriginalNode = false;
     yMax = -1;
     useDisable = false;
     showLoading = false;
@@ -38,7 +39,10 @@ export class ResponseSummaryChartForSideBarContainerComponent implements OnInit,
         private webAppSettingDataService: WebAppSettingDataService,
         private agentHistogramDataService: AgentHistogramDataService,
         private analyticsService: AnalyticsService,
-        private dynamicPopupService: DynamicPopupService
+        private dynamicPopupService: DynamicPopupService,
+        private componentFactoryResolver: ComponentFactoryResolver,
+        private injector: Injector,
+        private messageQueueService: MessageQueueService
     ) {}
     ngOnInit() {
         this.chartColors = this.webAppSettingDataService.getColorByRequest();
@@ -52,6 +56,10 @@ export class ResponseSummaryChartForSideBarContainerComponent implements OnInit,
             };
         });
         this.connectStore();
+        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.REAL_TIME_SCATTER_CHART_X_RANGE).subscribe(([{ from, to }]: IScatterXRange[]) => {
+            this.yMax = -1;
+            this.loadResponseSummaryChartData(from, to);
+        });
     }
     ngOnDestroy() {
         this.unsubscribe.next();
@@ -63,8 +71,9 @@ export class ResponseSummaryChartForSideBarContainerComponent implements OnInit,
             this.selectedAgent = agent;
             if (this.selectedTarget) {
                 this.loadResponseSummaryChartData();
+            } else {
+                this.changeDetector.detectChanges();
             }
-            this.changeDetector.detectChanges();
         });
         this.storeHelperService.getServerMapData(this.unsubscribe).subscribe((serverMapData: ServerMapData) => {
             this.serverMapData = serverMapData;
@@ -76,25 +85,23 @@ export class ResponseSummaryChartForSideBarContainerComponent implements OnInit,
         ).subscribe((target: ISelectedTarget) => {
             this.yMax = -1;
             this.selectedAgent = '';
+            this.isOriginalNode = true;
             this.selectedTarget = target;
             this.hiddenComponent = target.isMerged;
             if (target.isMerged === false) {
                 this.loadResponseSummaryChartData();
+            } else {
+                this.changeDetector.detectChanges();
             }
-            this.changeDetector.detectChanges();
-        });
-        this.storeHelperService.getRealTimeScatterChartRange(this.unsubscribe).subscribe((range: IScatterXRange) => {
-            this.yMax = -1;
-            this.loadResponseSummaryChartData(range.from, range.to);
         });
         this.storeHelperService.getServerMapTargetSelectedByList(this.unsubscribe).subscribe((target: any) => {
-            this.yMax = -1;
+            this.isOriginalNode = this.selectedTarget.node[0] === target.key;
             this.hiddenComponent = false;
             this.passDownChartData(this.agentHistogramDataService.makeChartDataForResponseSummary(target.histogram, this.getChartYMax()));
         });
     }
     private getChartYMax(): number {
-        return this.yMax === -1 ? null : this.yMax;
+        return this.isOriginalNode ? (this.yMax === -1 ? null : this.yMax) : null;
     }
     private setDisable(disable: boolean): void {
         this.useDisable = disable;
@@ -143,7 +150,7 @@ export class ResponseSummaryChartForSideBarContainerComponent implements OnInit,
         return this.hasRequestError ? this.i18nText.FAILED_TO_FETCH_DATA : this.i18nText.NO_DATA;
     }
     onNotifyMax(max: number): void {
-        if (this.yMax === -1) {
+        if (this.yMax === -1 && this.isOriginalNode) {
             this.yMax = max;
             this.storeHelperService.dispatch(new Actions.ChangeResponseSummaryChartYMax(max));
         }
@@ -175,6 +182,9 @@ export class ResponseSummaryChartForSideBarContainerComponent implements OnInit,
                 coordY: top + height / 2
             },
             component: HelpViewerPopupContainerComponent
+        }, {
+            resolver: this.componentFactoryResolver,
+            injector: this.injector
         });
     }
 }

@@ -27,10 +27,11 @@ import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.plugin.RequestRecorderFactory;
+import com.navercorp.pinpoint.bootstrap.plugin.proxy.ProxyRequestRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.ParameterRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.RemoteAddressResolverFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.request.RequestAdaptor;
-import com.navercorp.pinpoint.bootstrap.plugin.proxy.ProxyHttpHeaderRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.request.RequestTraceReader;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ServerRequestRecorder;
 import com.navercorp.pinpoint.plugin.vertx.ParameterRecorderFactory;
@@ -54,7 +55,7 @@ public class ServerConnectionHandleRequestInterceptor implements AroundIntercept
 
     private final Filter<String> excludeUrlFilter;
 
-    private final ProxyHttpHeaderRecorder<HttpServerRequest> proxyHttpHeaderRecorder;
+    private final ProxyRequestRecorder<HttpServerRequest> proxyRequestRecorder;
     private final VertxHttpHeaderFilter httpHeaderFilter;
     private final ServerRequestRecorder<HttpServerRequest> serverRequestRecorder;
     private final RequestTraceReader<HttpServerRequest> requestTraceReader;
@@ -63,7 +64,7 @@ public class ServerConnectionHandleRequestInterceptor implements AroundIntercept
     private TraceContext traceContext;
     private MethodDescriptor descriptor;
 
-    public ServerConnectionHandleRequestInterceptor(final TraceContext traceContext, final MethodDescriptor methodDescriptor) {
+    public ServerConnectionHandleRequestInterceptor(final TraceContext traceContext, final MethodDescriptor methodDescriptor, final RequestRecorderFactory<HttpServerRequest> requestRecorderFactory) {
         this.traceContext = traceContext;
         this.descriptor = methodDescriptor;
 
@@ -73,8 +74,7 @@ public class ServerConnectionHandleRequestInterceptor implements AroundIntercept
         RequestAdaptor<HttpServerRequest> requestAdaptor = new HttpServerRequestAdaptor();
         requestAdaptor = RemoteAddressResolverFactory.wrapRealIpSupport(requestAdaptor, config.getRealIpHeader(), config.getRealIpEmptyValue());
         this.parameterRecorder = ParameterRecorderFactory.newParameterRecorderFactory(config.getExcludeProfileMethodFilter(), config.isTraceRequestParam());
-
-        this.proxyHttpHeaderRecorder = new ProxyHttpHeaderRecorder<HttpServerRequest>(traceContext.getProfilerConfig().isProxyHttpHeaderEnable(), requestAdaptor);
+        this.proxyRequestRecorder = requestRecorderFactory.getProxyRequestRecorder(traceContext.getProfilerConfig().isProxyHttpHeaderEnable(), requestAdaptor);
         this.httpHeaderFilter = new VertxHttpHeaderFilter(config.isHidePinpointHeader());
         this.serverRequestRecorder = new ServerRequestRecorder<HttpServerRequest>(requestAdaptor);
         this.requestTraceReader = new RequestTraceReader<HttpServerRequest>(traceContext, requestAdaptor, true);
@@ -235,7 +235,7 @@ public class ServerConnectionHandleRequestInterceptor implements AroundIntercept
             recorder.recordApi(VERTX_HTTP_SERVER_METHOD_DESCRIPTOR);
             this.serverRequestRecorder.record(recorder, request);
             // record proxy HTTP header.
-            this.proxyHttpHeaderRecorder.record(recorder, request);
+            this.proxyRequestRecorder.record(recorder, request);
         }
 
         if (!initScope(trace)) {

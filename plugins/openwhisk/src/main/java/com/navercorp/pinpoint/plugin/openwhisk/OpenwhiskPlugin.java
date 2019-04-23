@@ -24,10 +24,9 @@ import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
-import com.navercorp.pinpoint.plugin.openwhisk.accessor.PinpointTraceAccessor;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.plugin.openwhisk.interceptor.KafkaProducerSendInterceptor;
 import com.navercorp.pinpoint.plugin.openwhisk.interceptor.NoopTracerSetTraceContextInterceptor;
-import com.navercorp.pinpoint.plugin.openwhisk.interceptor.StartMarkerCopyInterceptor;
 import com.navercorp.pinpoint.plugin.openwhisk.interceptor.TransactionIdCreateInterceptor;
 import com.navercorp.pinpoint.plugin.openwhisk.interceptor.TransactionIdFailedInterceptor;
 import com.navercorp.pinpoint.plugin.openwhisk.interceptor.TransactionIdFinishedInterceptor;
@@ -55,8 +54,16 @@ public class OpenwhiskPlugin implements ProfilerPlugin, TransformTemplateAware {
         }
         logger.info("{} config:{}", this.getClass().getSimpleName(), config);
 
-        OpenwhiskDetector openwhiskDetector = new OpenwhiskDetector();
-        context.addApplicationTypeDetector(openwhiskDetector);
+        if (ServiceType.UNDEFINED.equals(context.getConfiguredApplicationType())) {
+            OpenwhiskDetector openwhiskDetector = new OpenwhiskDetector();
+            ServiceType detectedApplicationType = openwhiskDetector.detectApplicationType();
+            if (detectedApplicationType != ServiceType.UNKNOWN) {
+                logger.info("Detected application type : {}", detectedApplicationType);
+                if (!context.registerApplicationType(detectedApplicationType)) {
+                    logger.info("Application type [{}] already set, skipping [{}] registration.", context.getApplicationType(), detectedApplicationType);
+                }
+            }
+        }
 
 
         transformTemplate.transform(config.getTransformTargetName(), EntryPointTransform.class);

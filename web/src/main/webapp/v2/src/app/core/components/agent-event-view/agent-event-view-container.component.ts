@@ -1,10 +1,9 @@
-import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef, ComponentFactoryResolver, Injector } from '@angular/core';
 import { Observable, Subject } from 'rxjs';
-import { takeUntil, switchMap } from 'rxjs/operators';
+import { switchMap } from 'rxjs/operators';
 
-import { StoreHelperService, DynamicPopupService } from 'app/shared/services';
+import { StoreHelperService, DynamicPopupService, MessageQueueService, MESSAGE_TO } from 'app/shared/services';
 import { ITimelineEventSegment } from 'app/core/components/timeline/class/timeline-data.class';
-import { TimelineInteractionService } from 'app/core/components/timeline/timeline-interaction.service';
 import { AgentEventsDataService, IEventStatus } from './agent-events-data.service';
 import { ServerErrorPopupContainerComponent } from 'app/core/components/server-error-popup';
 
@@ -23,9 +22,11 @@ export class AgentEventViewContainerComponent implements OnInit, OnDestroy {
     constructor(
         private changeDetectorRef: ChangeDetectorRef,
         private storeHelperService: StoreHelperService,
-        private timelineInteractionService: TimelineInteractionService,
+        private messageQueueService: MessageQueueService,
         private agentEventsDataService: AgentEventsDataService,
-        private dynamicPopupService: DynamicPopupService
+        private dynamicPopupService: DynamicPopupService,
+        private componentFactoryResolver: ComponentFactoryResolver,
+        private injector: Injector
     ) {}
     ngOnInit() {
         this.connectStore();
@@ -33,9 +34,9 @@ export class AgentEventViewContainerComponent implements OnInit, OnDestroy {
     private connectStore(): void {
         this.timezone$ = this.storeHelperService.getTimezone(this.unsubscribe);
         this.dateFormat$ = this.storeHelperService.getDateFormat(this.unsubscribe, 1);
-        this.timelineInteractionService.onSelectEventStatus$.pipe(
-            takeUntil(this.unsubscribe),
-            switchMap((eventSegment: ITimelineEventSegment) => {
+        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.TIMELINE_SELECTED_EVENT_STATUS).pipe(
+            switchMap((param: any[]) => {
+                const eventSegment = param[0] as ITimelineEventSegment;
                 return this.agentEventsDataService.getData(eventSegment.startTimestamp, eventSegment.endTimestamp);
             })
         ).subscribe((response: IEventStatus[]) => {
@@ -49,6 +50,9 @@ export class AgentEventViewContainerComponent implements OnInit, OnDestroy {
                     contents: error
                 },
                 component: ServerErrorPopupContainerComponent
+            }, {
+                resolver: this.componentFactoryResolver,
+                injector: this.injector
             });
         });
     }

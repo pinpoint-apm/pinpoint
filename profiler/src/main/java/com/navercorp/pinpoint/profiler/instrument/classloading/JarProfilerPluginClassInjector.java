@@ -71,6 +71,7 @@ public class JarProfilerPluginClassInjector implements ClassInjector {
         }
     }
 
+    @Override
     public InputStream getResourceAsStream(ClassLoader targetClassLoader, String internalName) {
         try {
             if (bootstrapCore.isBootstrapPackageByInternalName(internalName)) {

@@ -35,7 +35,16 @@ class DefaultServiceType implements ServiceType {
     private final boolean includeDestinationId;
     private final ServiceTypeCategory category;
 
-
+    DefaultServiceType(ServiceTypeBuilder builder) {
+        this.code = builder.code();
+        this.name = builder.name();
+        this.desc = builder.desc();
+        this.terminal = builder.terminal();
+        this.queue = builder.queue();
+        this.recordStatistics = builder.recordStatistics();
+        this.includeDestinationId = builder.includeDestinationId();
+        this.category = ServiceTypeCategory.findCategory(code);
+    }
 
     DefaultServiceType(int code, String name, String desc, ServiceTypeProperty... properties) {
         // code must be a short value but constructors accept int to make declaring ServiceType values more cleaner by removing casting to short.
@@ -81,7 +90,6 @@ class DefaultServiceType implements ServiceType {
         this.recordStatistics = recordStatistics;
         this.includeDestinationId = includeDestinationId;
     }
-
 
     @Override
     public boolean isInternalMethod() {
@@ -179,6 +187,4 @@ class DefaultServiceType implements ServiceType {
     public static boolean isWas(final short code) {
         return ServiceTypeCategory.SERVER.contains(code);
     }
-
-
 }

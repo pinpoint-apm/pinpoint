@@ -1,5 +1,5 @@
-import { Component, OnInit, OnDestroy, Inject } from '@angular/core';
-import { Router, NavigationStart } from '@angular/router';
+import { Component, OnInit, OnDestroy, Inject, ComponentFactoryResolver, Injector } from '@angular/core';
+import { Router, NavigationStart, RouterEvent } from '@angular/router';
 import { Subject, combineLatest } from 'rxjs';
 import { takeUntil, filter } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
@@ -53,17 +53,15 @@ export class ServerMapForFilteredMapContainerComponent implements OnInit, OnDest
         private webAppSettingDataService: WebAppSettingDataService,
         private dynamicPopupService: DynamicPopupService,
         private analyticsService: AnalyticsService,
+        private componentFactoryResolver: ComponentFactoryResolver,
+        private injector: Injector,
         @Inject(SERVER_MAP_TYPE) public type: ServerMapType
     ) {}
     ngOnInit() {
         this.funcServerMapImagePath = this.webAppSettingDataService.getServerMapIconPathMakeFunc();
+        this.addPageLoadingHandler();
         this.getI18NText();
-        this.router.events.pipe(
-            filter(e => e instanceof NavigationStart)
-        ).subscribe((e) => {
-            this.showLoading = true;
-            this.useDisable = true;
-        });
+
         this.newUrlStateNotificationService.onUrlStateChange$.pipe(
             takeUntil(this.unsubscribe)
         ).subscribe((urlService: NewUrlStateNotificationService) => {
@@ -90,6 +88,16 @@ export class ServerMapForFilteredMapContainerComponent implements OnInit, OnDest
     ngOnDestroy() {
         this.unsubscribe.next();
         this.unsubscribe.complete();
+    }
+    private addPageLoadingHandler(): void {
+        this.router.events.pipe(
+            filter((e: RouterEvent) => {
+                return e instanceof NavigationStart;
+            })
+        ).subscribe(() => {
+            this.showLoading = true;
+            this.useDisable = true;
+        });
     }
     private connectStore(): void {
         this.storeHelperService.getServerMapLoadingState(this.unsubscribe).subscribe((state: string) => {
@@ -156,6 +164,7 @@ export class ServerMapForFilteredMapContainerComponent implements OnInit, OnDest
             };
         } else {
             payload = {
+                clickParam: nodeData.clickParam,
                 period: this.period,
                 endTime: this.endTime,
                 isAuthorized: nodeData.isAuthorized,
@@ -208,6 +217,9 @@ export class ServerMapForFilteredMapContainerComponent implements OnInit, OnDest
             data: this.mapData,
             coord,
             component: ServerMapContextPopupContainerComponent
+        }, {
+            resolver: this.componentFactoryResolver,
+            injector: this.injector
         });
     }
     onContextClickNode($event: any): void {}
@@ -216,10 +228,12 @@ export class ServerMapForFilteredMapContainerComponent implements OnInit, OnDest
             data: this.mapData.getLinkData(key),
             coord,
             component: LinkContextPopupContainerComponent
+        }, {
+            resolver: this.componentFactoryResolver,
+            injector: this.injector
         });
     }
     mergeServerMapData(serverMapAndScatterData: any): void {
-        console.time('merge server-map data');
         const newNodeDataList = serverMapAndScatterData.applicationMapData.nodeDataArray;
         const newLinkDataList = serverMapAndScatterData.applicationMapData.linkDataArray;
 
@@ -233,12 +247,11 @@ export class ServerMapForFilteredMapContainerComponent implements OnInit, OnDest
         } else {
             this.mergeLinkDataList(newLinkDataList);
         }
-        console.timeEnd('merge server-map data');
     }
     mergeNodeDataList(newNodeData: INodeInfo[]): void {
         newNodeData.forEach((nodeData: INodeInfo) => {
             if (this.mapData && this.mapData.getNodeData(nodeData.key)) {
-                const currentNodeData = this.mapData.getNodeData(nodeData.key);
+                const currentNodeData = this.mapData.getNodeData(nodeData.key) as INodeInfo;
                 MergeServerMapData.mergeNodeData(currentNodeData, nodeData);
             } else {
                 this.mergedNodeDataList.push(nodeData);
@@ -248,7 +261,7 @@ export class ServerMapForFilteredMapContainerComponent implements OnInit, OnDest
     mergeLinkDataList(newLinkData: ILinkInfo[]): void {
         newLinkData.forEach((linkData: ILinkInfo) => {
             if (this.mapData && this.mapData.getLinkData(linkData.key)) {
-                const currentLinkData = this.mapData.getLinkData(linkData.key);
+                const currentLinkData = this.mapData.getLinkData(linkData.key) as ILinkInfo;
                 MergeServerMapData.mergeLinkData(currentLinkData, linkData);
             } else {
                 this.mergedLinkDataList.push(linkData);

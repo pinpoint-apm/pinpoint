@@ -10,11 +10,18 @@ import { UrlPath, UrlPathIdFactory, UrlPathId, IUrlPathId, UrlQueryFactory, UrlQ
 interface IGeneral {
     [key: string]: any;
 }
+
 interface IUrlState {
     [key: string]: {
         prev: IUrlPathId<any> | IUrlQuery<any>;
         curr: IUrlPathId<any> | IUrlQuery<any>;
     };
+}
+
+export interface IUrlInfo {
+    startPath: string;
+    pathParams: Map<string, string>;
+    queryParams: Map<string, string>;
 }
 
 @Injectable()
@@ -24,10 +31,13 @@ export class NewUrlStateNotificationService {
     private innerRouteData: IGeneral = {};
     private onUrlStateChange: BehaviorSubject<NewUrlStateNotificationService> = new BehaviorSubject(null);
     private pageComponentRoute: ActivatedRoute;
+    private pageUrlHistory: IUrlInfo[] = [];
 
     onUrlStateChange$: Observable<NewUrlStateNotificationService>;
 
-    constructor(private componentDefaultSettingDataService: ComponentDefaultSettingDataService) {
+    constructor(
+        private componentDefaultSettingDataService: ComponentDefaultSettingDataService
+    ) {
         this.onUrlStateChange$ = this.onUrlStateChange.asObservable();
         this.initState();
     }
@@ -45,12 +55,18 @@ export class NewUrlStateNotificationService {
             };
         });
     }
-    updateUrl(startPath: string, pathParams: IGeneral, queryParams: IGeneral, routeData: IGeneral, pageComponentRoute?: ActivatedRoute): void {
+    updateUrl(startPath: string, pathParams: Map<string, string>, queryParams: Map<string, string>, routeData: IGeneral, pageComponentRoute: ActivatedRoute): void {
         const bStartPathChanged = this.updateStartPath(startPath);
         const bPathChanged = this.updatePathId(pathParams);
         const bQueryChanged = this.updateQuery(queryParams);
         this.pageComponentRoute = pageComponentRoute;
         this.updateRouteData(routeData);
+
+        if (bStartPathChanged || (startPath !== UrlPath.CONFIG && (bPathChanged || bQueryChanged))) {
+            const newUrlInfo = { startPath, pathParams, queryParams };
+
+            this.pageUrlHistory = this.pageUrlHistory.length < 2 ? [ ...this.pageUrlHistory, newUrlInfo ] : [ this.pageUrlHistory[1], newUrlInfo ];
+        }
 
         if (bStartPathChanged || bPathChanged || bQueryChanged) {
             // this.onUrlStateChange.next(this.urlState);
@@ -65,30 +81,32 @@ export class NewUrlStateNotificationService {
             return true;
         }
     }
-    private updatePathId(pathParams: IGeneral): boolean {
+    private updatePathId(pathParams: Map<string, string>): boolean {
         let updated = false;
 
         UrlPathId.getPathIdList().forEach((path: string) => {
-            this.changePathIdState(path, pathParams[path] ? UrlPathIdFactory.createPath(path, pathParams[path]) : null);
-            if (this.isPathChanged(path)) {
+            const pathValue = pathParams.get(path);
+
+            this.updateUrlState(path, pathValue ? UrlPathIdFactory.createPath(path, pathValue) : null);
+            if (this.isValueChanged(path)) {
                 updated = true;
             }
         });
 
-        if (this.isPathChanged(UrlPathId.FOCUS_TIMESTAMP)) {
-            this.setConnectedPath(pathParams[UrlPathId.FOCUS_TIMESTAMP]);
+        if (this.isValueChanged(UrlPathId.FOCUS_TIMESTAMP)) {
+            this.setConnectedPath(pathParams.get(UrlPathId.FOCUS_TIMESTAMP));
         }
 
         return updated;
     }
-    isPathChanged(path: string): boolean {
-        const { prev, curr } = this.urlState[path];
+    isValueChanged(key: string): boolean {
+        const { prev, curr } = this.urlState[key];
 
         return prev === null ? curr !== null : !prev.equals(curr);
     }
-    private changePathIdState(path: string, newPathIdObject: IUrlPathId<any>): void {
-        this.urlState[path].prev = this.urlState[path].curr;
-        this.urlState[path].curr = newPathIdObject;
+    private updateUrlState(key: string, newStateObj: IUrlPathId<any> | IUrlQuery<any>): void {
+        this.urlState[key].prev = this.urlState[key].curr;
+        this.urlState[key].curr = newStateObj;
     }
     private setConnectedPath(focusTimeStamp: string): void {
         this.urlState[UrlPathId.END_TIME].prev = this.urlState[UrlPathId.END_TIME].curr;
@@ -96,33 +114,22 @@ export class NewUrlStateNotificationService {
         this.urlState[UrlPathId.PERIOD].prev = this.urlState[UrlPathId.PERIOD].curr;
         this.urlState[UrlPathId.PERIOD].curr = UrlPathIdFactory.createPath(UrlPathId.PERIOD, this.componentDefaultSettingDataService.getSystemDefaultTransactionViewPeriod().getValueWithTime());
     }
-    private updateQuery(queryParams: IGeneral): boolean {
+    private updateQuery(queryParams: Map<string, string>): boolean {
         let updated = false;
+
         UrlQuery.getQueryList().forEach((query: string) => {
-            if (this.changedQuery(query, queryParams[query])) {
-                this.changeQueryState(query, queryParams[query] ? UrlQueryFactory.createQuery(query, queryParams[query]) : null);
+            const queryValue = queryParams.get(query);
+
+            this.updateUrlState(query, queryValue ? UrlQueryFactory.createQuery(query, queryValue) : null);
+            if (this.isValueChanged(query)) {
                 updated = true;
             }
         });
+
         return updated;
     }
-    private changedQuery(query: string, queryValue: any): boolean {
-        if (queryValue === null || queryValue === undefined) {
-            return this.urlState[query].curr !== null;
-        } else {
-            if (this.urlState[query].curr === null) {
-                return true;
-            } else {
-                return !(this.urlState[query].curr as IUrlQuery<any>).equals(UrlQueryFactory.createQuery(query, queryValue));
-            }
-        }
-    }
-    private changeQueryState(query: string, newQueryObject: IUrlQuery<any>): void {
-        this.urlState[query].prev = this.urlState[query].curr;
-        this.urlState[query].curr = newQueryObject;
-    }
     private updateRouteData(routeData: IGeneral) {
-        Object.assign(this.innerRouteData, routeData);
+        this.innerRouteData = { ...this.innerRouteData, ...routeData };
     }
     getConfiguration(key: string): Observable<any> {
         return this.pageComponentRoute.data.pipe(
@@ -143,9 +150,7 @@ export class NewUrlStateNotificationService {
         return this.innerRouteData['serverTime'];
     }
     hasValue(...names: string[]): boolean {
-        return names.reduce((previous: boolean, name: string) => {
-            return previous && (this.urlState[name].curr === null ? false : true);
-        }, true);
+        return names.every((name: string) => this.urlState[name].curr !== null);
     }
     getStartPath(): string {
         return this.startPath || UrlPath.MAIN;
@@ -171,5 +176,8 @@ export class NewUrlStateNotificationService {
             return this.getPathValue(UrlPathId.END_TIME).getDate().valueOf();
         }
         return Date.now();
+    }
+    getPrevPageUrlInfo(): IUrlInfo {
+        return this.pageUrlHistory[0];
     }
 }

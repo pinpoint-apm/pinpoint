@@ -18,7 +18,7 @@
 package com.navercorp.pinpoint.collector.cluster.connection;
 
 import com.navercorp.pinpoint.rpc.MessageListener;
-import com.navercorp.pinpoint.rpc.stream.ServerStreamChannelMessageListener;
+import com.navercorp.pinpoint.rpc.stream.ServerStreamChannelMessageHandler;
 
 /**
  * @author Taejin Koo
@@ -29,6 +29,6 @@ public interface CollectorClusterConnectionOption {
 
     MessageListener getRouteMessageHandler();
 
-    ServerStreamChannelMessageListener getRouteStreamMessageHandler();
+    ServerStreamChannelMessageHandler getRouteStreamMessageHandler();
 
 }

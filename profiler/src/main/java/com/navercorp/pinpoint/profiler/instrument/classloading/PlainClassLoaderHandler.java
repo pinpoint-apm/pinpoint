@@ -199,7 +199,7 @@ public class PlainClassLoaderHandler implements ClassInjector {
 
     private void defineJarClass(ClassLoader classLoader, ClassLoaderAttachment attachment) {
         if (isDebug) {
-            logger.debug("define Jar:{}", pluginConfig.getPluginJar());
+            logger.debug("define Jar:{}", pluginConfig.getPluginUrl());
         }
 
         List<FileBinary> fileBinaryList = readJar();

@@ -1,13 +1,15 @@
-import { ChangeDetectorRef } from '@angular/core';
+import { ComponentFactoryResolver, Injector } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import * as moment from 'moment-timezone';
 import { Subject, Observable, combineLatest, merge } from 'rxjs';
-import { filter, map, skip, takeUntil, withLatestFrom } from 'rxjs/operators';
+import { filter, map, skip, withLatestFrom } from 'rxjs/operators';
 
 import { II18nText, IChartConfig, IErrObj } from 'app/core/components/inspector-chart/inspector-chart.component';
-import { WebAppSettingDataService, NewUrlStateNotificationService, AjaxExceptionCheckerService, AnalyticsService, TRACKED_EVENT_LIST, StoreHelperService, DynamicPopupService } from 'app/shared/services';
+import { WebAppSettingDataService, NewUrlStateNotificationService, AnalyticsService, TRACKED_EVENT_LIST, StoreHelperService, DynamicPopupService } from 'app/shared/services';
 import { HELP_VIEWER_LIST, HelpViewerPopupContainerComponent } from 'app/core/components/help-viewer-popup/help-viewer-popup-container.component';
 import { IChartDataService, IChartDataFromServer } from 'app/core/components/inspector-chart/chart-data.service';
+import { isThatType } from 'app/core/utils/util';
+import { UrlPathId } from 'app/shared/models';
 
 export abstract class InspectorChartContainer {
     private previousRange: number[];
@@ -25,14 +27,14 @@ export abstract class InspectorChartContainer {
     constructor(
         protected defaultYMax: number,
         protected storeHelperService: StoreHelperService,
-        protected changeDetector: ChangeDetectorRef,
         protected webAppSettingDataService: WebAppSettingDataService,
         protected newUrlStateNotificationService: NewUrlStateNotificationService,
         protected chartDataService: IChartDataService,
         protected translateService: TranslateService,
-        protected ajaxExceptionCheckerService: AjaxExceptionCheckerService,
         protected analyticsService: AnalyticsService,
-        protected dynamicPopupService: DynamicPopupService
+        protected dynamicPopupService: DynamicPopupService,
+        private componentFactoryResolver: ComponentFactoryResolver,
+        private injector: Injector
     ) {}
 
     protected initI18nText(): void {
@@ -67,7 +69,6 @@ export abstract class InspectorChartContainer {
 
                 this.chartConfig = {...this.chartConfig};
                 this.chartConfig.dataConfig.labels = this.getNewFormattedLabels(xDataArr);
-                this.changeDetector.detectChanges();
             }
         });
     }
@@ -80,26 +81,19 @@ export abstract class InspectorChartContainer {
 
     protected initChartData(): void {
         merge(
-            this.newUrlStateNotificationService.onUrlStateChange$.pipe(
-                takeUntil(this.unsubscribe),
+            this.storeHelperService.getRange(this.unsubscribe).pipe(
+                filter((range: number[]) => !!range),
                 withLatestFrom(this.storeHelperService.getInspectorTimelineSelectionRange(this.unsubscribe)),
-                map(([, storeState]: [NewUrlStateNotificationService, number[]]) => storeState),
+                map(([urlRange, storeRange]: number[][]) => {
+                    const urlService = this.newUrlStateNotificationService;
+                    const shouldUseInfoFromUrl = urlService.isRealTimeMode() || urlService.isValueChanged(UrlPathId.PERIOD) || urlService.isValueChanged(UrlPathId.END_TIME);
+
+                    return shouldUseInfoFromUrl ? urlRange : storeRange;
+                })
             ),
             this.storeHelperService.getInspectorTimelineSelectionRange(this.unsubscribe).pipe(
                 skip(1),
-                withLatestFrom(this.newUrlStateNotificationService.onUrlStateChange$),
-                filter(([storeState, urlService]: [number[], NewUrlStateNotificationService]) => {
-                    const [from, to] = storeState;
-
-                    return !(from === urlService.getStartTimeToNumber() && to === urlService.getEndTimeToNumber());
-                }),
-                map(([storeState]: [number[], NewUrlStateNotificationService]) => storeState),
-                filter((storeState: number[]) => {
-                    const [f0, t0] = storeState;
-                    const [f1, t1] = this.previousRange;
-
-                    return !(f0 === f1 && t0 === t1);
-                }),
+                filter((_: number[]) => !this.newUrlStateNotificationService.isRealTimeMode())
             )
         ).subscribe((range: number[]) => {
             this.previousRange = range;
@@ -113,7 +107,7 @@ export abstract class InspectorChartContainer {
 
     protected getChartData(range: number[]): void {
         this.chartDataService.getData(range).subscribe((data: IChartDataFromServer | IChartDataFromServer[] | AjaxException) => {
-            if (this.ajaxExceptionCheckerService.isAjaxException(data)) {
+            if (isThatType<AjaxException>(data, 'exception')) {
                 this.setErrObj(data);
             } else {
                 this.chartData = data;
@@ -131,7 +125,6 @@ export abstract class InspectorChartContainer {
             elseConfig: this.makeNormalOption(data),
             isDataEmpty: this.isDataEmpty(data)
         };
-        this.changeDetector.detectChanges();
     }
 
     protected setErrObj(data?: AjaxException): void {
@@ -139,7 +132,6 @@ export abstract class InspectorChartContainer {
             errType: data ? 'EXCEPTION' : 'ELSE',
             errMessage: data ? data.exception.message : null
         };
-        this.changeDetector.detectChanges();
     }
 
     protected isDataEmpty(data: {[key: string]: any} | {[key: string]: any}[]): boolean {
@@ -167,6 +159,9 @@ export abstract class InspectorChartContainer {
                 coordY: top + height / 2
             },
             component: HelpViewerPopupContainerComponent
+        }, {
+            resolver: this.componentFactoryResolver,
+            injector: this.injector
         });
     }
 }

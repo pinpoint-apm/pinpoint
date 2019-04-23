@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.profiler.context.provider;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+import com.navercorp.pinpoint.bootstrap.config.ThriftTransportConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.module.SpanStatClientFactory;
@@ -58,13 +59,14 @@ public class StatDataSenderProvider implements Provider<DataSender> {
 
         this.clientFactoryProvider = Assert.requireNonNull(clientFactoryProvider, "clientFactoryProvider must not be null");
 
-        this.ip = profilerConfig.getCollectorStatServerIp();
-        this.port = profilerConfig.getCollectorStatServerPort();
-        this.writeQueueSize = profilerConfig.getStatDataSenderWriteQueueSize();
-        this.timeout = profilerConfig.getStatDataSenderSocketTimeout();
-        this.sendBufferSize = profilerConfig.getStatDataSenderSocketSendBufferSize();
-        this.ioType = profilerConfig.getStatDataSenderSocketType();
-        this.transportType = profilerConfig.getStatDataSenderTransportType();
+        ThriftTransportConfig thriftTransportConfig = profilerConfig.getThriftTransportConfig();
+        this.ip = thriftTransportConfig.getCollectorStatServerIp();
+        this.port = thriftTransportConfig.getCollectorStatServerPort();
+        this.writeQueueSize = thriftTransportConfig.getStatDataSenderWriteQueueSize();
+        this.timeout = thriftTransportConfig.getStatDataSenderSocketTimeout();
+        this.sendBufferSize = thriftTransportConfig.getStatDataSenderSocketSendBufferSize();
+        this.ioType = thriftTransportConfig.getStatDataSenderSocketType();
+        this.transportType = thriftTransportConfig.getStatDataSenderTransportType();
 
         this.messageConverter = new BypassMessageConverter<TBase<?, ?>>();
     }

@@ -26,18 +26,18 @@ import com.navercorp.pinpoint.common.server.bo.SpanBo;
  * @author netspider
  *
  */
-public class FilterChain implements Filter<SpanBo> {
+public class FilterChain<T> implements Filter<T> {
 
-    private final List<Filter> filterList = new ArrayList<>();
+    private final List<Filter<T>> filterList = new ArrayList<>();
 
     public FilterChain() {
     }
 
-    public FilterChain(List<LinkFilter> linkFilterList) {
+    public FilterChain(List<Filter<T>> linkFilterList) {
         this.filterList.addAll(linkFilterList);
     }
 
-    public void addFilter(Filter filter) {
+    public void addFilter(Filter<T> filter) {
         if (filter == null) {
             throw new NullPointerException("filter must not be null");
         }
@@ -45,7 +45,7 @@ public class FilterChain implements Filter<SpanBo> {
     }
 
     @Override
-    public boolean include(List<SpanBo> transaction) {
+    public boolean include(List<T> transaction) {
         // FIXME how to improve performance without "for loop"
         for (Filter filter : filterList) {
             if (!filter.include(transaction)) {

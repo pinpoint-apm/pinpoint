@@ -7,14 +7,18 @@
         "REQUIRED": "!{0} is required.",
         "REQUIRED_SELECT": "Select !{0}",
         "MAX_SEARCH_PERIOD": "Search duration may not be greater than !{0}days.",
-        "DO_NOT_HAVE_PERMISSION": "Don't have permission."
+        "DO_NOT_HAVE_PERMISSION": "Don't have permission.",
+        "SUBMIT": "Submit",
+        "REMOVE": "Remove",
+        "CANCEL": "Cancel",
+        "SEARCH_INPUT": "Input query",
+        "NO_CONTENT_TO_DISPLAY": "No content to display"
     },
     "MAIN": {
         "SELECT_YOUR_APP": "Select your application",
         "INPUT_APP_NAME_PLACE_HOLDER": "Input application name",
         "FAVORITE_APP_LIST": "Favorite List",
         "APP_LIST": "Application List",
-        "SEARCH_SERVER_MAP_PLACE_HOLDER": "Search",
         "EMPTY_RESULT": "We couldn't find anything"
     },
     "INSPECTOR": {
@@ -41,13 +45,23 @@
     "CONFIGURATION": {
         "GENERAL": {
             "DESC": "* User configuration is stored in browser cache. Server-side storage will be supported in a future release.",
-            "EMPTY": "Favorite list is empty."
+            "EMPTY": "The list is empty."
         },
         "INSTALLATION": {
             "DESC": "* You can check if Application Name and Agent ID are duplicated.",
             "LENGTH_GUIDE": "You can enter up to !{0} characters.",
             "APPLICATION_NAME_PLACEHOLDER": "Input Application Name.",
             "AGENT_ID_PLACEHOLDER": "Input Agent ID."
+        },
+        "USER_GROUP": {
+            "VALIDATION": "You can enter only numbers, alphabets, and '-', '_' characters.(4~30)"
+        },
+        "PINPOINT_USER": {
+            "USER_ID_VALIDATION": "You can enter only numbers, alphabets lowercase, and '-' ,'_' characters.(4~24)",
+            "NAME_VALIDATION": "You can enter only numbers, alphabets, Hangeul, and '-', '_', '.' characters.(3~30)",
+            "DEPARTMENT_VALIDATION": "You can enter only numbers, alphabets, Hangeul, and '-', '_', '.' characters.(3~40)",
+            "PHONE_VALIDATION": "You can enter only numbers.(3~24)",
+            "EMAIL_VALIDATION": "Enter your email."
         },
         "COMMON": {
             "NAME": "Name",

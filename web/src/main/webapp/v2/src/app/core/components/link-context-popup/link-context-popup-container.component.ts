@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Output, EventEmitter, AfterViewInit } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, AfterViewInit, ComponentFactoryResolver, Injector } from '@angular/core';
 
 import {
     UrlRouteManagerService,
@@ -28,6 +28,8 @@ export class LinkContextPopupContainerComponent implements OnInit, AfterViewInit
         private newUrlStateNotificationService: NewUrlStateNotificationService,
         private dynamicPopupService: DynamicPopupService,
         private analyticsService: AnalyticsService,
+        private componentFactoryResolver: ComponentFactoryResolver,
+        private injector: Injector
     ) {}
 
     ngOnInit() {}
@@ -69,6 +71,9 @@ export class LinkContextPopupContainerComponent implements OnInit, AfterViewInit
         this.dynamicPopupService.openPopup({
             data: this.data,
             component: FilterTransactionWizardPopupContainerComponent
+        }, {
+            resolver: this.componentFactoryResolver,
+            injector: this.injector
         });
     }
 

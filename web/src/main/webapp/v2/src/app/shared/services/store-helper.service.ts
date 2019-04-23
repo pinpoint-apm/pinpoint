@@ -23,10 +23,7 @@ export class StoreHelperService {
     ) {
         this.dateFormatList = this.webAppSettingDataService.getDateFormatList();
     }
-    getURLPath(): Observable<string> {
-        return this.getObservable(STORE_KEY.URL_PATH);
-    }
-    getApplicationList(unsubscribe: Subject<void>): Observable<IApplication[]> {
+    getApplicationList(unsubscribe?: Subject<void>): Observable<IApplication[]> {
         return this.getObservable(STORE_KEY.APPLICATION_LIST, unsubscribe);
     }
     getFavoriteApplicationList(unsubscribe: Subject<void>): Observable<IApplication[]> {
@@ -83,16 +80,6 @@ export class StoreHelperService {
     getAgentSelectionForServerList<T>(unsubscribe: Subject<void>): Observable<T> {
         return this.getObservable(STORE_KEY.AGENT_SELECTION_FOR_SERVER_LIST, unsubscribe);
     }
-    getRealTimeScatterChartRange(unsubscribe: Subject<void>): Observable<IScatterXRange> {
-        return this.getObservable(STORE_KEY.REAL_TIME_SCATTER_CHART, unsubscribe).pipe(
-            filter((range: IScatterXRange) => {
-                if (range && range.from && range.to && range.from !== -1 && range.to !== -1) {
-                    return true;
-                }
-                return false;
-            })
-        );
-    }
     getScatterChartData<T>(unsubscribe: Subject<void>): Observable<T> {
         return this.getObservable(STORE_KEY.SCATTER_CHART, unsubscribe);
     }
@@ -113,9 +100,6 @@ export class StoreHelperService {
     }
     getServerListData(unsubscribe: Subject<void>): Observable<any> {
         return this.getObservable(STORE_KEY.SERVER_LIST, unsubscribe);
-    }
-    getAgentInfo(unsubscribe?: Subject<void>): Observable<IServerAndAgentData> {
-        return this.getObservable(STORE_KEY.AGENT_INFO, unsubscribe);
     }
     getLoadChartYMax(unsubscribe: Subject<void>): Observable<number> {
         return this.getObservable(STORE_KEY.LOAD_CHART_Y_MAX, unsubscribe);
@@ -149,6 +133,9 @@ export class StoreHelperService {
             takeUntil(unsubscribe),
             select(selectTimelineSelectedTime),
         );
+    }
+    getRange(unsubscribe: Subject<void>): Observable<number[]> {
+        return this.getObservable(STORE_KEY.RANGE, unsubscribe);
     }
     getObservable(key: string, unsubscribe?: Subject<void>): Observable<any> {
         return iif(

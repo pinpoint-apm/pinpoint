@@ -3,7 +3,7 @@ import { Subject, Observable } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
 import { UrlPathId } from 'app/shared/models';
-import { RouteInfoCollectorService, WebAppSettingDataService, NewUrlStateNotificationService } from 'app/shared/services';
+import { WebAppSettingDataService, NewUrlStateNotificationService } from 'app/shared/services';
 
 @Component({
     selector: 'pp-real-time',
@@ -15,11 +15,12 @@ export class RealTimePageComponent implements OnInit, OnDestroy {
     applicationImgPath: string;
     applicationName: string;
     enableRealTime$: Observable<boolean>;
+
     constructor(
-        private routeInfoCollectorService: RouteInfoCollectorService,
         private newUrlStateNotificationService: NewUrlStateNotificationService,
         private webAppSettingDataService: WebAppSettingDataService
     ) {}
+
     ngOnInit() {
         this.enableRealTime$ = this.webAppSettingDataService.useActiveThreadChart();
         this.newUrlStateNotificationService.onUrlStateChange$.pipe(
@@ -29,6 +30,7 @@ export class RealTimePageComponent implements OnInit, OnDestroy {
             this.applicationImgPath = this.webAppSettingDataService.getIconImagePath() + urlService.getPathValue(UrlPathId.APPLICATION).getServiceType() + this.webAppSettingDataService.getImageExt();
         });
     }
+
     ngOnDestroy() {
         this.unsubscribe.next();
         this.unsubscribe.complete();

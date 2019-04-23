@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, ChangeDetectorRef, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ComponentFactoryResolver, Injector } from '@angular/core';
 import { combineLatest, Subject } from 'rxjs';
 import { takeUntil, filter } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
@@ -10,9 +10,10 @@ import {
     UrlRouteManagerService,
     AnalyticsService,
     TRACKED_EVENT_LIST,
-    DynamicPopupService
+    DynamicPopupService,
+    MessageQueueService,
+    MESSAGE_TO
 } from 'app/shared/services';
-import { Actions } from 'app/shared/store';
 import { UrlPath, UrlPathId } from 'app/shared/models';
 import { ScatterChart } from './class/scatter-chart.class';
 import { ScatterChartInteractionService } from './scatter-chart-interaction.service';
@@ -21,8 +22,7 @@ import { HELP_VIEWER_LIST, HelpViewerPopupContainerComponent } from 'app/core/co
 @Component({
     selector: 'pp-scatter-chart-for-filtered-map-side-bar-container',
     templateUrl: './scatter-chart-for-filtered-map-side-bar-container.component.html',
-    styleUrls: ['./scatter-chart-for-filtered-map-side-bar-container.component.css'],
-    changeDetection: ChangeDetectionStrategy.OnPush
+    styleUrls: ['./scatter-chart-for-filtered-map-side-bar-container.component.css']
 })
 export class ScatterChartForFilteredMapSideBarContainerComponent implements OnInit, OnDestroy {
     private unsubscribe: Subject<null> = new Subject();
@@ -33,15 +33,6 @@ export class ScatterChartForFilteredMapSideBarContainerComponent implements OnIn
     selectedApplication: string;
     hideSettingPopup = true;
     selectedAgent: string;
-    typeInfo = [{
-        name: 'failed',
-        color: '#E95459',
-        order: 10
-    }, {
-        name: 'success',
-        color: '#34B994',
-        order: 20
-    }];
     typeCount: object;
     width = 460;
     height = 230;
@@ -57,7 +48,6 @@ export class ScatterChartForFilteredMapSideBarContainerComponent implements OnIn
     timezone: string;
     dateFormat: string[];
     constructor(
-        private changeDetectorRef: ChangeDetectorRef,
         private storeHelperService: StoreHelperService,
         private translateService: TranslateService,
         private webAppSettingDataService: WebAppSettingDataService,
@@ -65,7 +55,10 @@ export class ScatterChartForFilteredMapSideBarContainerComponent implements OnIn
         private urlRouteManagerService: UrlRouteManagerService,
         private scatterChartInteractionService: ScatterChartInteractionService,
         private analyticsService: AnalyticsService,
-        private dynamicPopupService: DynamicPopupService
+        private dynamicPopupService: DynamicPopupService,
+        private componentFactoryResolver: ComponentFactoryResolver,
+        private injector: Injector,
+        private messageQueueService: MessageQueueService
     ) {}
     ngOnInit() {
         this.setScatterY();
@@ -90,7 +83,6 @@ export class ScatterChartForFilteredMapSideBarContainerComponent implements OnIn
             this.selectedAgent = '';
             this.fromX = urlService.getStartTimeToNumber();
             this.toX = urlService.getEndTimeToNumber();
-            this.changeDetectorRef.detectChanges();
         });
 
     }
@@ -106,11 +98,9 @@ export class ScatterChartForFilteredMapSideBarContainerComponent implements OnIn
     private connectStore(): void {
         this.storeHelperService.getTimezone(this.unsubscribe).subscribe((timezone: string) => {
             this.timezone = timezone;
-            this.changeDetectorRef.detectChanges();
         });
         this.storeHelperService.getDateFormatArray(this.unsubscribe, 3, 4).subscribe((format: string[]) => {
             this.dateFormat = format;
-            this.changeDetectorRef.detectChanges();
         });
         this.storeHelperService.getAgentSelection<string>(this.unsubscribe).subscribe((agent: string) => {
             if (this.selectedAgent !== agent) {
@@ -138,10 +128,9 @@ export class ScatterChartForFilteredMapSideBarContainerComponent implements OnIn
             if (this.isHide() === false) {
                 this.selectedAgent = '';
                 this.selectedApplication = this.selectedTarget.node[0];
-                this.scatterChartInteractionService.reset(this.instanceKey, this.selectedApplication, this.selectedAgent, this.fromX, this.toX, this.scatterChartMode);
+                this.scatterChartInteractionService.reset(this.instanceKey, this.selectedApplication, this.selectedAgent, this.fromX, this.toX, this.scatterChartMode, this.selectedTarget.clickParam);
                 this.getScatterData(0);
             }
-            this.changeDetectorRef.detectChanges();
         });
     }
     getScatterData(startIndex: number): void {
@@ -210,6 +199,9 @@ export class ScatterChartForFilteredMapSideBarContainerComponent implements OnIn
                 coordY: top + height / 2
             },
             component: HelpViewerPopupContainerComponent
+        }, {
+            resolver: this.componentFactoryResolver,
+            injector: this.injector
         });
     }
     onChangedSelectType(params: {instanceKey: string, name: string, checked: boolean}): void {
@@ -220,7 +212,10 @@ export class ScatterChartForFilteredMapSideBarContainerComponent implements OnIn
         this.typeCount = params;
     }
     onChangeRangeX(params: IScatterXRange): void {
-        this.storeHelperService.dispatch(new Actions.UpdateRealTimeScatterChartXRange(params));
+        this.messageQueueService.sendMessage({
+            to: MESSAGE_TO.REAL_TIME_SCATTER_CHART_X_RANGE,
+            param: [params]
+        });
     }
     onSelectArea(params: any): void {
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.OPEN_TRANSACTION_LIST);

@@ -1,9 +1,8 @@
 import { Component, OnInit, Inject, ChangeDetectionStrategy } from '@angular/core';
 import { Subject, Observable } from 'rxjs';
-import { switchMap, map, takeUntil } from 'rxjs/operators';
+import { map, takeUntil, skip } from 'rxjs/operators';
 
-import { UrlPathId } from 'app/shared/models';
-import { NewUrlStateNotificationService, WebAppSettingDataService, TransactionDetailDataService, GutterEventService } from 'app/shared/services';
+import { WebAppSettingDataService, GutterEventService, StoreHelperService } from 'app/shared/services';
 import { ServerMapInteractionService } from './server-map-interaction.service';
 import { ServerMapData } from './class/server-map-data.class';
 import { SERVER_MAP_TYPE, ServerMapType } from './class/server-map-factory';
@@ -16,31 +15,29 @@ import { SERVER_MAP_TYPE, ServerMapType } from './class/server-map-factory';
 })
 export class ServerMapForTransactionViewContainerComponent implements OnInit {
     private unsubscribe: Subject<void> = new Subject<void>();
-    baseApplicationKey = '';
+    baseApplicationKey: string;
     mapData$: Observable<ServerMapData>;
     funcServerMapImagePath: Function;
     showLoading = true;
     constructor(
-        private newUrlStateNotificationService: NewUrlStateNotificationService,
         private webAppSettingDataService: WebAppSettingDataService,
-        private transactionDetailDataService: TransactionDetailDataService,
         private gutterEventService: GutterEventService,
         private serverMapInteractionService: ServerMapInteractionService,
+        private storeHelperService: StoreHelperService,
         @Inject(SERVER_MAP_TYPE) public type: ServerMapType
     ) { }
 
     ngOnInit() {
         this.funcServerMapImagePath = this.webAppSettingDataService.getServerMapIconPathMakeFunc();
         // TODO: ServiceType Empty이슈 체크 #174
-        this.mapData$ = this.newUrlStateNotificationService.onUrlStateChange$.pipe(
-            switchMap((urlService: NewUrlStateNotificationService) => this.transactionDetailDataService.getData(
-                urlService.getPathValue(UrlPathId.AGENT_ID),
-                urlService.getPathValue(UrlPathId.SPAN_ID),
-                urlService.getPathValue(UrlPathId.TRACE_ID),
-                urlService.getPathValue(UrlPathId.FOCUS_TIMESTAMP)
-            )),
-            map((applicationMapData: ITransactionDetailData) => {
-                return new ServerMapData(applicationMapData.applicationMapData.nodeDataArray, applicationMapData.applicationMapData.linkDataArray);
+        this.mapData$ = this.storeHelperService.getTransactionDetailData(this.unsubscribe).pipe(
+            skip(1),
+            map(({ applicationId, applicationMapData: { nodeDataArray, linkDataArray } }: ITransactionDetailData) => {
+                this.baseApplicationKey = (nodeDataArray as INodeInfo[]).find(({ applicationName }: INodeInfo) => {
+                    return applicationId === applicationName;
+                }).key;
+
+                return new ServerMapData(nodeDataArray, linkDataArray);
             })
         );
         this.gutterEventService.onGutterResized$.pipe(

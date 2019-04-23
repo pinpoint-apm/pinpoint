@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, ChangeDetectorRef, OnInit, OnDestroy, ViewChild, ElementRef, Renderer2 } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef, Renderer2, ComponentFactoryResolver, Injector } from '@angular/core';
 import { Observable, Subject, of, combineLatest, Subscription } from 'rxjs';
 import { takeUntil, delay } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
@@ -10,9 +10,10 @@ import {
     UrlRouteManagerService,
     AnalyticsService,
     TRACKED_EVENT_LIST,
-    DynamicPopupService
+    DynamicPopupService,
+    MessageQueueService,
+    MESSAGE_TO
 } from 'app/shared/services';
-import { Actions } from 'app/shared/store';
 import { UrlPath, UrlPathId } from 'app/shared/models';
 import { ScatterChartDataService } from './scatter-chart-data.service';
 import { ScatterChart } from './class/scatter-chart.class';
@@ -22,8 +23,7 @@ import { HELP_VIEWER_LIST, HelpViewerPopupContainerComponent } from 'app/core/co
 @Component({
     selector: 'pp-scatter-chart-for-full-screen-mode-container',
     templateUrl: './scatter-chart-for-full-screen-mode-container.component.html',
-    styleUrls: ['./scatter-chart-for-full-screen-mode-container.component.css'],
-    changeDetection: ChangeDetectionStrategy.OnPush
+    styleUrls: ['./scatter-chart-for-full-screen-mode-container.component.css']
 })
 export class ScatterChartForFullScreenModeContainerComponent implements OnInit, OnDestroy {
     @ViewChild('layerBackground') layerBackground: ElementRef;
@@ -36,15 +36,6 @@ export class ScatterChartForFullScreenModeContainerComponent implements OnInit, 
     scatterDataServiceSubscription: Subscription;
     hideSettingPopup = true;
     selectedAgent: string;
-    typeInfo = [{
-        name: 'failed',
-        color: '#E95459',
-        order: 10
-    }, {
-        name: 'success',
-        color: '#34B994',
-        order: 20
-    }];
     typeCount: object;
     width = 690;
     height = 345;
@@ -59,7 +50,6 @@ export class ScatterChartForFullScreenModeContainerComponent implements OnInit, 
     timezone$: Observable<string>;
     dateFormat: string[];
     constructor(
-        private changeDetectorRef: ChangeDetectorRef,
         private renderer: Renderer2,
         private translateService: TranslateService,
         private storeHelperService: StoreHelperService,
@@ -69,7 +59,10 @@ export class ScatterChartForFullScreenModeContainerComponent implements OnInit, 
         private scatterChartDataService: ScatterChartDataService,
         private scatterChartInteractionService: ScatterChartInteractionService,
         private analyticsService: AnalyticsService,
-        private dynamicPopupService: DynamicPopupService
+        private dynamicPopupService: DynamicPopupService,
+        private componentFactoryResolver: ComponentFactoryResolver,
+        private injector: Injector,
+        private messageQueueService: MessageQueueService
     ) {}
     ngOnInit() {
         this.setScatterY();
@@ -85,7 +78,6 @@ export class ScatterChartForFullScreenModeContainerComponent implements OnInit, 
             of(1).pipe(delay(1)).subscribe((num: number) => {
                 this.scatterChartInteractionService.reset(this.instanceKey, this.selectedApplication, this.selectedAgent, this.fromX, this.toX, this.scatterChartMode);
                 this.getScatterData();
-                this.changeDetectorRef.detectChanges();
             });
         });
         this.scatterChartDataService.outScatterData$.pipe(
@@ -213,6 +205,9 @@ export class ScatterChartForFullScreenModeContainerComponent implements OnInit, 
                 coordY: top + height / 2
             },
             component: HelpViewerPopupContainerComponent
+        }, {
+            resolver: this.componentFactoryResolver,
+            injector: this.injector
         });
     }
     onChangedSelectType(params: {instanceKey: string, name: string, checked: boolean}): void {
@@ -223,7 +218,10 @@ export class ScatterChartForFullScreenModeContainerComponent implements OnInit, 
         this.typeCount = params;
     }
     onChangeRangeX(params: IScatterXRange): void {
-        this.storeHelperService.dispatch(new Actions.UpdateRealTimeScatterChartXRange(params));
+        this.messageQueueService.sendMessage({
+            to: MESSAGE_TO.REAL_TIME_SCATTER_CHART_X_RANGE,
+            param: [params]
+        });
     }
     onSelectArea(params: any): void {
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.OPEN_TRANSACTION_LIST);

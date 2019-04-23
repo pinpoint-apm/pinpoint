@@ -173,12 +173,7 @@ public class SpanMapperV2 implements RowMapper<List<SpanBo>> {
                 int agentLevelCollisionCount = 0;
                 for (SpanBo spanBo : matchedSpanBoList) {
                     if (isChildSpanChunk(spanBo, spanChunkBo)) {
-                        final LocalAsyncIdBo parentAsyncIdBo = spanChunkBo.getLocalAsyncId();
-                        if (parentAsyncIdBo != null) {
-                            spanBo.addAsyncSpanBo(spanChunkBo);
-                        } else {
-                            spanBo.addSpanEventBoList(spanChunkBo.getSpanEventBoList());
-                        }
+                        spanBo.addSpanChunkBo(spanChunkBo);
                         agentLevelCollisionCount++;
                     }
                 }

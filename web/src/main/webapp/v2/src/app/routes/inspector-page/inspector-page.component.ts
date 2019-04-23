@@ -1,12 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ComponentFactoryResolver, Injector, OnDestroy } from '@angular/core';
 import { state, style, animate, transition, trigger } from '@angular/animations';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { Observable, Subject, of, iif, timer } from 'rxjs';
+import { map, takeUntil, switchMap } from 'rxjs/operators';
 
-import { RouteInfoCollectorService, NewUrlStateNotificationService, AnalyticsService, TRACKED_EVENT_LIST, DynamicPopupService } from 'app/shared/services';
-import { EndTime } from 'app/core/models';
-import { UrlPathId } from 'app/shared/models';
+import { NewUrlStateNotificationService, AnalyticsService, TRACKED_EVENT_LIST, DynamicPopupService, StoreHelperService, WebAppSettingDataService } from 'app/shared/services';
+import { UrlPathId, UrlPath } from 'app/shared/models';
 import { HELP_VIEWER_LIST, HelpViewerPopupContainerComponent } from 'app/core/components/help-viewer-popup/help-viewer-popup-container.component';
+import { Actions } from 'app/shared/store';
 
 @Component({
     selector: 'pp-inspector-page',
@@ -31,22 +31,57 @@ import { HELP_VIEWER_LIST, HelpViewerPopupContainerComponent } from 'app/core/co
     templateUrl: './inspector-page.component.html',
     styleUrls: ['./inspector-page.component.css']
 })
-export class InspectorPageComponent implements OnInit {
-    endTime$: Observable<EndTime>;
+export class InspectorPageComponent implements OnInit, OnDestroy {
+    private unsubscribe = new Subject<void>();
+
+    showSideMenu$: Observable<boolean>;
 
     constructor(
-        private routeInfoCollectorService: RouteInfoCollectorService,
+        private storeHelperService: StoreHelperService,
+        private webAppSettingDataService: WebAppSettingDataService,
         private newUrlStateNotificationService: NewUrlStateNotificationService,
         private analyticsService: AnalyticsService,
-        private dynamicPopupService: DynamicPopupService
+        private dynamicPopupService: DynamicPopupService,
+        private componentFactoryResolver: ComponentFactoryResolver,
+        private injector: Injector
     ) {}
+
     ngOnInit() {
-        this.endTime$ = this.newUrlStateNotificationService.onUrlStateChange$.pipe(
+        this.showSideMenu$ = this.newUrlStateNotificationService.onUrlStateChange$.pipe(
             map((urlService: NewUrlStateNotificationService) => {
-                return urlService.getPathValue(UrlPathId.END_TIME);
+                return urlService.isRealTimeMode() || urlService.hasValue(UrlPathId.END_TIME);
             })
         );
+
+        this.newUrlStateNotificationService.onUrlStateChange$.pipe(
+            takeUntil(this.unsubscribe),
+            switchMap((urlService: NewUrlStateNotificationService) => {
+                return iif(() => urlService.isRealTimeMode(),
+                    (() => {
+                        const period = this.webAppSettingDataService.getChartRefreshInterval(UrlPath.INSPECTOR);
+
+                        return timer(0, period).pipe(
+                            map((count: number) => {
+                                const to = urlService.getUrlServerTimeData() + (period * count);
+                                const from = to - this.webAppSettingDataService.getSystemDefaultPeriod().getMiliSeconds();
+
+                                return [from, to];
+                            })
+                        );
+                    })(),
+                    of([urlService.getStartTimeToNumber(), urlService.getEndTimeToNumber()])
+                );
+            })
+        ).subscribe((range: number[]) => {
+            this.storeHelperService.dispatch(new Actions.UpdateRange(range));
+        });
     }
+
+    ngOnDestroy() {
+        this.unsubscribe.next();
+        this.unsubscribe.complete();
+    }
+
     onShowHelp($event: MouseEvent): void {
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.TOGGLE_HELP_VIEWER, HELP_VIEWER_LIST.NAVBAR);
         const {left, top, width, height} = ($event.target as HTMLElement).getBoundingClientRect();
@@ -58,6 +93,9 @@ export class InspectorPageComponent implements OnInit {
                 coordY: top + height / 2
             },
             component: HelpViewerPopupContainerComponent
+        }, {
+            resolver: this.componentFactoryResolver,
+            injector: this.injector
         });
     }
 }

@@ -1,12 +1,15 @@
-interface ShortCutNode {
-    key: string;
-    category: string;
-    serviceType: string;
-    mergedNodes: Array<any>;
-    instanceCount: number;
-    topCountNodes: Array<any>;
-    applicationName: string;
-}
+import { IShortNodeInfo } from './server-map-data.class';
+// interface ShortCutNode {
+//     key: string;
+//     category: string;
+//     serviceType: string;
+//     mergedNodes: any[];
+//     instanceCount: number;
+//     isAuthorized: boolean;
+//     serviceTypeCode: string;
+//     topCountNodes: any[];
+//     applicationName: string;
+// }
 
 const SPECIAL_STR = {
     KEY_SEPERATOR: '^',
@@ -19,16 +22,16 @@ export class NodeGroup {
     applicationName: string;
     groupKey: string;
     groupType: string;
-    nodeData: ShortCutNode;
+    nodeData: IShortNodeInfo;
     static isGroupKey(key: string): boolean {
         return new RegExp(
             '.*' +
-            '\\' + SPECIAL_STR.SEPERATOR +
             SPECIAL_STR.GROUP_POSTFIX +
             '\\' + SPECIAL_STR.KEY_SEPERATOR +
             SPECIAL_STR.NAME_PREFIX +
             '\\' + SPECIAL_STR.SEPERATOR +
-            '\\' + 'd{7}$',
+            '\\' + 'd{7}' +
+            '.*',
             'g'
         ).test(key);
     }
@@ -47,8 +50,11 @@ export class NodeGroup {
             'category': this.groupType,
             'mergedNodes': [],
             'serviceType': this.groupType,
+            'isWas': false,
+            'isAuthorized': true,
             'instanceCount': 0,
             'topCountNodes': [],
+            'serviceTypeCode': '',
             'applicationName': this.applicationName
         };
     }
@@ -72,13 +78,13 @@ export class NodeGroup {
             });
         }
     }
-    addNodeData(node: any): void {
+    addNodeData(node: IShortNodeInfo): void {
         delete node.category;
         this.nodeData['instanceCount'] += node.instanceCount;
         this.nodeData['mergedNodes'].push(node);
     }
     sortNodeData(): NodeGroup {
-        this.nodeData['mergedNodes'].sort((v1, v2) => {
+        this.nodeData['mergedNodes'].sort((v1: IShortNodeInfo, v2: IShortNodeInfo) => {
             return v2.totalCount - v1.totalCount;
         });
         return this;
@@ -92,7 +98,7 @@ export class NodeGroup {
     getGroupServiceType(): string {
         return this.groupType;
     }
-    getNodeGroupData(): ShortCutNode {
+    getNodeGroupData(): IShortNodeInfo {
         this.setTopCountNodes();
         return this.nodeData;
     }

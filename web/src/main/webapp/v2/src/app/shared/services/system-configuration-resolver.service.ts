@@ -10,6 +10,7 @@ export class SystemConfigurationResolverService implements Resolve<ISystemConfig
         private router: Router,
         private systemConfigurationDataService: SystemConfigurationDataService
     ) {}
+
     resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<ISystemConfiguration> {
         return this.systemConfigurationDataService.getConfiguration().pipe(
             catchError((error: any) => {

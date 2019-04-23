@@ -31,7 +31,7 @@ import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperConstants
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperEventWatcher;
 import com.navercorp.pinpoint.common.server.util.concurrent.CommonState;
 import com.navercorp.pinpoint.common.server.util.concurrent.CommonStateContext;
-import com.navercorp.pinpoint.rpc.server.handler.ServerStateChangeEventHandler;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
@@ -172,10 +172,6 @@ public class ZookeeperClusterService extends AbstractClusterService {
     @Override
     public boolean isEnable() {
         return config.isClusterEnable();
-    }
-
-    public ServerStateChangeEventHandler getChannelStateChangeEventHandler() {
-        return profilerClusterManager;
     }
 
     public ZookeeperProfilerClusterManager getProfilerClusterManager() {

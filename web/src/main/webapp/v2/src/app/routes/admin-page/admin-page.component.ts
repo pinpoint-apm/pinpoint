@@ -1,14 +1,11 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-
-import { RouteInfoCollectorService } from 'app/shared/services';
+import { Component, OnInit } from '@angular/core';
 
 @Component({
     selector: 'pp-admin-page',
     templateUrl: './admin-page.component.html',
     styleUrls: ['./admin-page.component.css']
 })
-export class AdminPageComponent implements OnInit, OnDestroy {
-    constructor(private routeInfoCollectorService: RouteInfoCollectorService) {}
+export class AdminPageComponent implements OnInit {
+    constructor() {}
     ngOnInit() {}
-    ngOnDestroy() {}
 }

@@ -2,8 +2,8 @@
     <div class="l-pinpoint-user-title">
         <span>Pinpoint User ({{pinpointUserList.length}})</span>
         <div>
+            <button [hidden]="!allowedUserEdit" class="btn btn-sm btn-blue" (click)="onShowCreateUserPopup()"><i class="fas fa-plus"></i></button>
             <button class="btn btn-sm btn-blue" (click)="onReload()"><i class="fas fa-sync"></i></button> 
-            <button [hidden]="!allowedUserEdit" class="btn btn-sm btn-blue" (click)="onShowCreateUserPopup()">+ Add</button>
         </div>
     </div>
     <div class="l-pinpoint-user-search">
@@ -11,12 +11,14 @@
             ppSearchInput 
             [searchMinLength]="minLength.search"
             [useEnter]="searchUseEnter"
-            (outSearch)="onSearch($event)">
+            (outSearch)="onSearch($event)"
+            #searchInput>
+        <button class="l-search-button" (click)="onSearch(searchInput.value)"><i class="fas fa-search"></i></button>
     </div>
     <div class="l-pinpoint-user-list">
-        <cdk-virtual-scroll-viewport itemSize="28" style="height: 100%;" *ngIf="filteredPinpointUserList.length > 0">
+        <cdk-virtual-scroll-viewport itemSize="28" style="height: 100%;" *ngIf="pinpointUserList.length > 0">
             <pp-pinpoint-user
-                *cdkVirtualFor="let pinpointUser of filteredPinpointUserList; templateCacheSize: 22"
+                *cdkVirtualFor="let pinpointUser of pinpointUserList; templateCacheSize: 22"
                 [pinpointUser]="pinpointUser"
                 [isEnabled]="isUserGroupSelected"
                 [isChecked]="isChecked(pinpointUser.userId)"
@@ -27,10 +29,6 @@
             </pp-pinpoint-user>
         </cdk-virtual-scroll-viewport>
     </div>
-    <div class="l-message" [hidden]="!hasMessage()">
-        <button class="btn btn-black" (click)="onCloseMessage()"><i class="fas fa-times"></i></button>
-        <span>{{message}}</span>
-    </div>
     <pp-pinpoint-user-create-and-update
         [showCreate]="showCreate"
         [i18nLabel]="i18nLabel"
@@ -39,8 +37,14 @@
         [editPinpointUser]="editPinpointUser"
         (outUpdatePinpointUser)="onUpdatePinpointUser($event)"
         (outCreatePinpointUser)="onCreatePinpointUser($event)"
-        (outClose)="onCloseCreateUserPopup()"
-    ></pp-pinpoint-user-create-and-update>
+        (outClose)="onCloseCreateUserPopup()">
+    </pp-pinpoint-user-create-and-update>
+    <ng-container *ngIf="errorMessage">
+        <pp-server-error-message
+            [message]="errorMessage"
+            (outClose)="onCloseErrorMessage()">
+        </pp-server-error-message>
+    </ng-container>
     <pp-film-for-disable *ngIf="useDisable" [zIndex]="9" [marginWidth]="0"></pp-film-for-disable>    
     <pp-loading [showLoading]="showLoading" [zIndex]="20"></pp-loading>
 </div>

@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef, ComponentFactoryResolver, Injector } from '@angular/core';
 import { Subject } from 'rxjs';
 import { filter, takeUntil } from 'rxjs/operators';
 
@@ -36,7 +36,9 @@ export class TransactionDetailMenuContainerComponent implements OnInit, OnDestro
         private transactionViewTypeService: TransactionViewTypeService,
         private transactionDetailDataService: TransactionDetailDataService,
         private analyticsService: AnalyticsService,
-        private dynamicPopupService: DynamicPopupService
+        private dynamicPopupService: DynamicPopupService,
+        private componentFactoryResolver: ComponentFactoryResolver,
+        private injector: Injector
     ) {}
     ngOnInit() {
         this.viewTypeList = this.transactionViewTypeService.getViewTypeList();
@@ -104,6 +106,9 @@ export class TransactionDetailMenuContainerComponent implements OnInit, OnDestro
                     contents: this.partInfo.disableButtonMessage
                 },
                 component: MessagePopupContainerComponent
+            }, {
+                resolver: this.componentFactoryResolver,
+                injector: this.injector
             });
         }
     }

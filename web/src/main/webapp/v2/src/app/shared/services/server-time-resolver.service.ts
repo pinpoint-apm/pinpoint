@@ -6,9 +6,11 @@ import { ServerTimeDataService } from 'app/shared/services/server-time-data.serv
 
 @Injectable()
 export class ServerTimeResolverService implements Resolve<number> {
+    constructor(
+        private serverTimeService: ServerTimeDataService
+    ) {}
 
-    constructor(private serverTimeService: ServerTimeDataService) { }
-    resolve(reoute: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<number> {
+    resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<number> {
         return this.serverTimeService.getServerTime().pipe(
             catchError((error: IServerErrorFormat) => {
                 return of(Date.now());

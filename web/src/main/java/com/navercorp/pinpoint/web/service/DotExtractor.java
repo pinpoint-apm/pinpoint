@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author emeroad
@@ -39,30 +40,27 @@ import java.util.Map;
 public class DotExtractor {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    private final ApplicationFactory applicationFactory;
 
-    private final Map<Application, List<Dot>> dotMap = new HashMap<>();
+    private final Map<Application, List<Dot>> dotMap = new HashMap<>(128);
 
 
-    public DotExtractor(ApplicationFactory applicationFactory) {
-        if (applicationFactory == null) {
-            throw new NullPointerException("applicationFactory must not be null");
-        }
-        this.applicationFactory = applicationFactory;
+    public DotExtractor() {
     }
 
-    public void addDot(SpanBo span) {
-        if (span == null) {
-            throw new NullPointerException("span must not be null");
-        }
+    public void addDot(Application application, Dot dot) {
+        Objects.requireNonNull(application, "application must not be null");
+        Objects.requireNonNull(dot, "dot must not be null");
 
-        Application spanApplication = this.applicationFactory.createApplication(span.getApplicationId(), span.getApplicationServiceType());
-        final List<Dot> dotList = getDotList(spanApplication);
+        final List<Dot> dotList = getDotList(application);
+        dotList.add(dot);
+        logger.trace("Application:{} Dot:{}", application, dot);
+    }
+
+    public Dot newDot(SpanBo span) {
+        Objects.requireNonNull(span, "span must not be null");
 
         final TransactionId transactionId = span.getTransactionId();
-        final Dot dot = new Dot(transactionId, span.getCollectorAcceptTime(), span.getElapsed(), span.getErrCode(), span.getAgentId());
-        dotList.add(dot);
-        logger.trace("Application:{} Dot:{}", spanApplication, dot);
+        return new Dot(transactionId, span.getCollectorAcceptTime(), span.getElapsed(), span.getErrCode(), span.getAgentId());
     }
 
     private List<Dot> getDotList(Application spanApplication) {

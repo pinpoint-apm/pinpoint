@@ -1,6 +1,6 @@
-import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
-import { Subject } from 'rxjs';
-import { switchMap, takeUntil, filter } from 'rxjs/operators';
+import { Component, OnInit, OnDestroy, ComponentFactoryResolver, Injector } from '@angular/core';
+import { Subject, combineLatest } from 'rxjs';
+import { switchMap, takeUntil, filter, tap, map } from 'rxjs/operators';
 
 import {
     NewUrlStateNotificationService,
@@ -9,9 +9,8 @@ import {
     StoreHelperService,
     AnalyticsService,
     DynamicPopupService,
-    TRACKED_EVENT_LIST
+    TRACKED_EVENT_LIST,
 } from 'app/shared/services';
-import { Actions } from 'app/shared/store';
 import { UrlPath, UrlPathId } from 'app/shared/models';
 import { ServerAndAgentListDataService } from './server-and-agent-list-data.service';
 import { ServerErrorPopupContainerComponent } from 'app/core/components/server-error-popup';
@@ -20,7 +19,6 @@ import { ServerErrorPopupContainerComponent } from 'app/core/components/server-e
     selector: 'pp-server-and-agent-list-container',
     templateUrl: './server-and-agent-list-container.component.html',
     styleUrls: ['./server-and-agent-list-container.component.css'],
-    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ServerAndAgentListContainerComponent implements OnInit, OnDestroy {
     private unsubscribe: Subject<void> = new Subject();
@@ -32,7 +30,6 @@ export class ServerAndAgentListContainerComponent implements OnInit, OnDestroy {
     filteredServerKeyList: string[];
     funcImagePath: Function;
     constructor(
-        private changeDetectorRef: ChangeDetectorRef,
         private newUrlStateNotificationService: NewUrlStateNotificationService,
         private urlRouteManagerService: UrlRouteManagerService,
         private webAppSettingDataService: WebAppSettingDataService,
@@ -40,25 +37,53 @@ export class ServerAndAgentListContainerComponent implements OnInit, OnDestroy {
         private serverAndAgentListDataService: ServerAndAgentListDataService,
         private dynamicPopupService: DynamicPopupService,
         private analyticsService: AnalyticsService,
+        private componentFactoryResolver: ComponentFactoryResolver,
+        private injector: Injector
     ) {}
     ngOnInit() {
         this.funcImagePath = this.webAppSettingDataService.getImagePathMakeFunc();
-        this.newUrlStateNotificationService.onUrlStateChange$.pipe(
-            takeUntil(this.unsubscribe),
-            filter((urlService: NewUrlStateNotificationService) => {
-                return urlService.hasValue(UrlPathId.END_TIME);
+
+        combineLatest(
+            this.newUrlStateNotificationService.onUrlStateChange$.pipe(
+                takeUntil(this.unsubscribe),
+                tap((urlService: NewUrlStateNotificationService) => {
+                    this.agentId = urlService.hasValue(UrlPathId.AGENT_ID) ? urlService.getPathValue(UrlPathId.AGENT_ID) : '';
+                }),
+                filter((urlService: NewUrlStateNotificationService) => {
+                    return urlService.isValueChanged(UrlPathId.APPLICATION);
+                }),
+                map((urlService: NewUrlStateNotificationService) => {
+                    return (urlService.getPathValue(UrlPathId.APPLICATION) as IApplication).getApplicationName();
+                })
+            ),
+            this.storeHelperService.getRange(this.unsubscribe).pipe(
+                filter((range: number[]) => !!range)
+            )
+        ).pipe(
+            switchMap(([applicationName, range]: [string, number[]]) => {
+                return this.serverAndAgentListDataService.getData(applicationName, range);
             }),
-            switchMap((urlService: NewUrlStateNotificationService) => {
-                this.agentId = urlService.hasValue(UrlPathId.AGENT_ID) ? urlService.getPathValue(UrlPathId.AGENT_ID) : '';
-                return this.serverAndAgentListDataService.getData();
+            tap((res: {[key: string]: IServerAndAgentData[]}) => {
+                if (this.agentId) {
+                    const filteredList = this.filterServerList(res, this.agentId, ({ agentId }: IServerAndAgentData) => agentId.toLowerCase() === this.agentId.toLowerCase());
+
+                    if (Object.keys(filteredList).length === 0) {
+                        const url = this.newUrlStateNotificationService.isRealTimeMode()
+                            ? [ UrlPath.INSPECTOR, UrlPathId.REAL_TIME, this.newUrlStateNotificationService.getPathValue(UrlPathId.APPLICATION).getUrlStr() ]
+                            : [
+                                UrlPath.INSPECTOR,
+                                this.newUrlStateNotificationService.getPathValue(UrlPathId.APPLICATION).getUrlStr(),
+                                this.newUrlStateNotificationService.getPathValue(UrlPathId.PERIOD).getValueWithTime(),
+                                this.newUrlStateNotificationService.getPathValue(UrlPathId.END_TIME).getEndTime()
+                            ];
+
+                        this.urlRouteManagerService.moveOnPage({ url });
+                    }
+                }
             })
         ).subscribe((res: {[key: string]: IServerAndAgentData[]}) => {
             this.serverKeyList = this.filteredServerKeyList = Object.keys(res).sort();
             this.serverList = this.filteredServerList = res;
-            if (this.agentId) {
-                this.dispatchAgentData();
-            }
-            this.changeDetectorRef.detectChanges();
         }, (error: IServerErrorFormat) => {
             this.dynamicPopupService.openPopup({
                 data: {
@@ -66,60 +91,49 @@ export class ServerAndAgentListContainerComponent implements OnInit, OnDestroy {
                     contents: error
                 },
                 component: ServerErrorPopupContainerComponent
+            }, {
+                resolver: this.componentFactoryResolver,
+                injector: this.injector
             });
         });
-        this.storeHelperService.getServerAndAgentQuery<string>(this.unsubscribe).subscribe((query: string) => {
-            this.filteringServerList(query);
-            this.changeDetectorRef.detectChanges();
-        });
-    }
-    private dispatchAgentData(): void {
-        this.serverKeyList.forEach((key: string) => {
-            this.serverList[key].forEach((agent: IServerAndAgentData) => {
-                if ( this.agentId === agent.agentId ) {
-                    this.storeHelperService.dispatch(new Actions.UpdateAgentInfo(agent));
-                }
-            });
+
+        this.storeHelperService.getServerAndAgentQuery<string>(this.unsubscribe).pipe(
+            filter((query: string) => !!query)
+        ).subscribe((query: string) => {
+            this.filteredServerList = this.filterServerList(this.serverList, query, ({ agentId }: IServerAndAgentData) => agentId.toLowerCase().includes(query.toLowerCase()));
+            this.filteredServerKeyList = Object.keys(this.filteredServerList).sort();
         });
     }
-    private filteringServerList(query: string): void {
-        if ( query === '' ) {
-            this.filteredServerKeyList = this.serverKeyList;
-            this.filteredServerList = this.serverList;
-        } else {
-            const filteredKeyList: string[] = [];
-            const filteredServerList: { [key: string]: IServerAndAgentData[] } = {};
-            this.serverKeyList.forEach((key: string) => {
-                let hasKey = false;
-                this.serverList[key].forEach((agent: IServerAndAgentData) => {
-                    if ( agent.agentId.toLowerCase().indexOf(query.toLowerCase()) !== -1 ) {
-                        if ( hasKey === false ) {
-                            filteredKeyList.push(key);
-                            filteredServerList[key] = [];
-                            hasKey = true;
-                        }
-                        filteredServerList[key].push(agent);
-                    }
-                });
-            });
-            this.filteredServerKeyList = filteredKeyList.sort();
-            this.filteredServerList = filteredServerList;
-        }
+    private filterServerList(serverList: { [key: string]: IServerAndAgentData[] }, query: string, predi: any): { [key: string]: IServerAndAgentData[] } {
+        return query === ''
+            ? serverList
+            : Object.keys(serverList).reduce((acc: { [key: string]: IServerAndAgentData[] }, key: string) => {
+                const matchedList = serverList[key].filter(predi);
+
+                return matchedList.length !== 0 ? { ...acc, [key]: matchedList } : acc;
+            }, {} as { [key: string]: IServerAndAgentData[] });
     }
     ngOnDestroy() {
         this.unsubscribe.next();
         this.unsubscribe.complete();
     }
-    onSelectAgent(agentName: string) {
-        this.analyticsService.trackEvent(TRACKED_EVENT_LIST.GO_TO_AGENT_INSPECTOR);
-        this.urlRouteManagerService.moveOnPage({
-            url: [
+    onSelectAgent(agentId: string) {
+        const url = this.newUrlStateNotificationService.isRealTimeMode() ?
+            [
+                UrlPath.INSPECTOR,
+                UrlPath.REAL_TIME,
+                this.newUrlStateNotificationService.getPathValue(UrlPathId.APPLICATION).getUrlStr(),
+                agentId
+            ] :
+            [
                 UrlPath.INSPECTOR,
                 this.newUrlStateNotificationService.getPathValue(UrlPathId.APPLICATION).getUrlStr(),
                 this.newUrlStateNotificationService.getPathValue(UrlPathId.PERIOD).getValueWithTime(),
                 this.newUrlStateNotificationService.getPathValue(UrlPathId.END_TIME).getEndTime(),
-                agentName
-            ]
-        });
+                agentId
+            ];
+
+        this.urlRouteManagerService.moveOnPage({ url });
+        this.analyticsService.trackEvent(TRACKED_EVENT_LIST.GO_TO_AGENT_INSPECTOR);
     }
 }

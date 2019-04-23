@@ -129,7 +129,7 @@ You need to provide smtp server information and the address of the sender in bat
 pinpoint.url= #pinpoint-web server url
 alarm.mail.server.url= #smtp server address
 alarm.mail.server.port= #smtp server port
-alarm.mail.server.userName= #username for smtp server authentication
+alarm.mail.server.username= #username for smtp server authentication
 alarm.mail.server.password= #password for smtp server authentication
 alarm.mail.sender.address= #sender's email address
 
@@ -137,7 +137,7 @@ ex)
 pinpoint.url=http://pinpoint.com
 alarm.mail.server.url=stmp.server.com
 alarm.mail.server.port=583
-alarm.mail.server.userName=pinpoint
+alarm.mail.server.username=pinpoint
 alarm.mail.server.password=pinpoint
 alarm.mail.sender.address=pinpoint_operator@pinpoint.com
 ```
@@ -284,11 +284,9 @@ TOTAL COUNT TO CALLEE
 
 HEAP USAGE RATE
    heap의 사용률이 임계치를 초과한 경우 알람이 전송된다.
-   설정 화면의 Note 항목에 외부서버의 도메인 이나 주소(ip, port)를 입력해야 합니다.
-
+   
 JVM CPU USAGE RATE
    applicaiton의 CPU 사용률이 임계치를 초과한 경우 알람이 전송된다.
-   설정 화면의 Note 항목에 외부서버의 도메인 이나 주소(ip, port)를 입력해야 합니다.
 
 DATASOURCE CONNECTION USAGE RATE
    applicaiton의 DataSource내의 Connection 사용률이 임계치를 초과한 경우 알람이 전송된다.
@@ -332,7 +330,7 @@ email 전송 기능을 사용하기 위해서 batch.properties파일에 smtp 서
 pinpoint.url= #pinpoint-web 서버의 url 
 alarm.mail.server.url= #smtp 서버 주소  
 alarm.mail.server.port= #smtp 서버 port 
-alarm.mail.server.userName= #smtp 인증을 위한 userName
+alarm.mail.server.username= #smtp 인증을 위한 userName
 alarm.mail.server.password= #smtp 인증을 위한 password
 alarm.mail.sender.address= # 송신자 email
 
@@ -340,7 +338,7 @@ ex)
 pinpoint.url=http://pinpoint.com
 alarm.mail.server.url=stmp.server.com
 alarm.mail.server.port=583
-alarm.mail.server.userName=pinpoint
+alarm.mail.server.username=pinpoint
 alarm.mail.server.password=pinpoint
 alarm.mail.sender.address=pinpoint_operator@pinpoint.com
 ```

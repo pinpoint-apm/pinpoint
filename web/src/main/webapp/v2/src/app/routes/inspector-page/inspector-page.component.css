@@ -1,3 +1,8 @@
+:host {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
 .l-widget-group {
     display: flex;
     flex-flow: row wrap;
@@ -10,6 +15,7 @@
     display: flex;
     flex-flow: row wrap;
     height: calc(100vh - 50px);
+    width: 100%;
     overflow-y: hidden;
 }
 .l-sidemenu-wrap {
@@ -17,7 +23,7 @@
     height: 100%;
 }
 .l-sidemenu-left {
-    width: 260px;
+    width: 250px;
     overflow: visible;
     border-right: 1px solid #E5E8F0;
     background: #FFF;
@@ -28,6 +34,7 @@
     background: #edf2f8;
     position: relative;
     height: 100%;
+    width: calc(100% - 250px);
 }
 .fa-question-circle {
     color: white;
@@ -35,4 +42,7 @@
 }
 button {
     outline: none;
+}
+.l-application-inspector-title-wrapper {
+    border-bottom: 1px solid #e0e7ee;
 }

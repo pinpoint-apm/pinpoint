@@ -16,19 +16,11 @@
 
 package com.navercorp.pinpoint.plugin.kafka;
 
-import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.common.Charsets;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.AnnotationKeyFactory;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
-import com.navercorp.pinpoint.plugin.kafka.field.accessor.RemoteAddressFieldAccessor;
-import com.navercorp.pinpoint.plugin.kafka.interceptor.ConsumerConstructorInterceptor;
-import com.navercorp.pinpoint.plugin.kafka.interceptor.ConsumerMultiRecordEntryPointInterceptor;
-import com.navercorp.pinpoint.plugin.kafka.interceptor.ConsumerPollInterceptor;
-import com.navercorp.pinpoint.plugin.kafka.interceptor.ConsumerRecordEntryPointInterceptor;
-import com.navercorp.pinpoint.plugin.kafka.interceptor.ProducerConstructorInterceptor;
-import com.navercorp.pinpoint.plugin.kafka.interceptor.ProducerSendInterceptor;
 
 import java.nio.charset.Charset;
 

@@ -1,12 +1,17 @@
-<article class="l-target-container-wrapper" *ngIf="isGroup()">
+<article class="l-target-container-wrapper" *ngIf="hasMultiInput()"> 
     <div class="l-target-container">
         <div class="l-search-header">
-            <input type="text" placeholder="검색어를 입력하세요." (keyup)="onKeyUp($event)">
+            <input type="text" placeholder="{{i18nText.PLACE_HOLDER}}"
+                ppSearchInput
+                [searchMinLength]="minLength"
+                [useEnter]="searchUseEnter"
+                (outCancel)="onCancel()"
+                (outSearch)="onSearch($event)">
             <button class="fas fa-search"></button>
         </div>
         <div class="l-target-list">
             <pp-target-list
-                [isLink]="isLink"
+                [isLink]="target?.isLink"
                 [targetList]="targetList"
                 (outSelectTarget)="onSelectTarget($event)"
                 (outOpenFilter)="onOpenFilter($event)"

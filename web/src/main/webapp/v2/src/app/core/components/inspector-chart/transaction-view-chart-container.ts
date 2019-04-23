@@ -1,13 +1,14 @@
-import { ChangeDetectorRef, ElementRef } from '@angular/core';
+import { ElementRef } from '@angular/core';
 import { Subject, Observable, combineLatest } from 'rxjs';
 import { filter, map } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
 import * as moment from 'moment-timezone';
 
 import { II18nText, IChartConfig, IErrObj } from 'app/core/components/inspector-chart/inspector-chart.component';
-import { StoreHelperService, WebAppSettingDataService, NewUrlStateNotificationService, AjaxExceptionCheckerService, GutterEventService } from 'app/shared/services';
+import { StoreHelperService, WebAppSettingDataService, NewUrlStateNotificationService, GutterEventService } from 'app/shared/services';
 import { IChartDataService, IChartDataFromServer } from 'app/core/components/inspector-chart/chart-data.service';
 import { UrlPathId } from 'app/shared/models';
+import { isThatType } from 'app/core/utils/util';
 
 export abstract class TransactionViewChartContainer {
     protected chartData: IChartDataFromServer;
@@ -25,12 +26,10 @@ export abstract class TransactionViewChartContainer {
     constructor(
         protected defaultYMax: number,
         protected storeHelperService: StoreHelperService,
-        protected changeDetector: ChangeDetectorRef,
         protected webAppSettingDataService: WebAppSettingDataService,
         protected newUrlStateNotificationService: NewUrlStateNotificationService,
         protected chartDataService: IChartDataService,
         protected translateService: TranslateService,
-        protected ajaxExceptionCheckerService: AjaxExceptionCheckerService,
         protected gutterEventService: GutterEventService,
         protected el: ElementRef
     ) {}
@@ -64,7 +63,6 @@ export abstract class TransactionViewChartContainer {
 
                 this.chartConfig = {...this.chartConfig};
                 this.chartConfig.dataConfig.labels = this.getNewFormattedLabels(xDataArr);
-                this.changeDetector.detectChanges();
             }
         });
     }
@@ -99,7 +97,7 @@ export abstract class TransactionViewChartContainer {
         this.chartDataService.getData(range)
             .subscribe(
                 (data: IChartDataFromServer | AjaxException) => {
-                    if (this.ajaxExceptionCheckerService.isAjaxException(data)) {
+                    if (isThatType<AjaxException>(data, 'exception')) {
                         this.setErrObj(data);
                     } else {
                         this.xRawData = data.charts.x;
@@ -107,7 +105,7 @@ export abstract class TransactionViewChartContainer {
                         this.setChartConfig(this.makeChartData(data));
                     }
                 },
-                (err) => {
+                () => {
                     this.setErrObj();
                 }
             );
@@ -120,7 +118,6 @@ export abstract class TransactionViewChartContainer {
             elseConfig: this.makeNormalOption(data),
             isDataEmpty: this.isDataEmpty(data)
         };
-        this.changeDetector.detectChanges();
     }
 
     protected setErrObj(data?: AjaxException): void {
@@ -128,7 +125,6 @@ export abstract class TransactionViewChartContainer {
             errType: data ? 'EXCEPTION' : 'ELSE',
             errMessage: data ? data.exception.message : null
         };
-        this.changeDetector.detectChanges();
     }
 
     protected isDataEmpty(data: {[key: string]: any} | {[key: string]: any}[]): boolean {

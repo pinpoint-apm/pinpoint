@@ -39,6 +39,8 @@ public class UndertowConfig {
     private final String realIpEmptyValue;
     private final Filter<String> excludeProfileMethodFilter;
     private final boolean deployServlet;
+    private final Filter<String> httpHandlerClassNameFilter;
+
 
     public UndertowConfig(ProfilerConfig config) {
         if (config == null) {
@@ -67,6 +69,18 @@ public class UndertowConfig {
             this.excludeProfileMethodFilter = new ExcludeMethodFilter(tomcatExcludeProfileMethod);
         } else {
             this.excludeProfileMethodFilter = new SkipFilter<String>();
+        }
+
+        final String httpHandlerClassName = config.readString("profiler.undertow.http-handler.class.name", "");
+        if (!httpHandlerClassName.isEmpty()) {
+            this.httpHandlerClassNameFilter = new ExcludePathFilter(httpHandlerClassName, ".", ",");
+        } else {
+            this.httpHandlerClassNameFilter = new Filter<String>() {
+                @Override
+                public boolean filter(String value) {
+                    return true;
+                }
+            };
         }
     }
 
@@ -104,6 +118,10 @@ public class UndertowConfig {
 
     public Filter<String> getExcludeProfileMethodFilter() {
         return excludeProfileMethodFilter;
+    }
+
+    public Filter<String> getHttpHandlerClassNameFilter() {
+        return httpHandlerClassNameFilter;
     }
 
     @Override
