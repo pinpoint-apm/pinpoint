@@ -31,7 +31,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Objects;
 
 @Service
 public class TraceService {
@@ -78,11 +77,11 @@ public class TraceService {
     private void insertAcceptorHost(SpanEventBo spanEvent, String applicationId, ServiceType serviceType) {
 
         String endPoint = spanEvent.getEndPoint();
-        if(endPoint == null){
+        if (endPoint == null) {
             return;
         }
         String destinationId = spanEvent.getDestinationId();
-        if(destinationId == null){
+        if (destinationId == null) {
             return;
         }
         hostApplicationMapDao.insert(endPoint, destinationId, spanEvent.getServiceType(), applicationId, serviceType.getCode());
@@ -195,6 +194,10 @@ public class TraceService {
         for (SpanEventBo spanEvent : spanEventList) {
             final ServiceType spanEventType = registry.findServiceType(spanEvent.getServiceType());
 
+            if (!serviceTypeValidationCheck(spanEventType)) {
+                continue;
+            }
+
             if (spanEventType.isAlias()) {
                 insertAcceptorHost(spanEvent, applicationId, applicationServiceType);
             }
@@ -219,5 +222,13 @@ public class TraceService {
             // save the information of callee (the span that spanevent called)
             statisticsService.updateCallee(spanEventApplicationName, spanEventType, applicationId, applicationServiceType, endPoint, elapsed, hasException);
         }
+    }
+
+    private boolean serviceTypeValidationCheck(ServiceType spanEventType) {
+        if (spanEventType.isAlias() && spanEventType.isRecordStatistics()) {
+            logger.error("ServiceType with AS_ALIAS should NOT have RECORD_STATISTICS");
+            return false;
+        }
+        return true;
     }
 }

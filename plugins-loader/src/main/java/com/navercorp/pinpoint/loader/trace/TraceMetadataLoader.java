@@ -235,6 +235,15 @@ public class TraceMetadataLoader {
                 // TODO change exception type
                 throw new RuntimeException("ServiceType code of " + serviceTypePairToString(pair) + " is duplicated with " + serviceTypePairToString(prev));
             }
+
+            if(type.isAlias()){
+                if(!type.isRpcClient()){
+                    throw new RuntimeException("ServiceType code of " + serviceTypePairToString(pair) + " should be between range of RPC");
+                }
+                if(type.isRecordStatistics()){
+                    throw new RuntimeException("ServiceType code of " + serviceTypePairToString(pair) + " can't have AS_ALIAS and RECORD_STATISTICS at the same time");
+                }
+            }
         }
 
         private void logResult() {
