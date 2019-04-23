@@ -43,23 +43,23 @@
     "SCATTER": {},
     "CONFIGURATION": {
         "GENERAL": {
-            "DESC": "* 설정 정보는 브라우저 캐쉬에 저장합니다. 서버 측 저장은 추후 지원 할 예정입니다.",
+            "DESC": "* 설정 정보는 브라우저 캐쉬에 저장합니다. 서버 측 저장은 추후 지원할 예정입니다.",
             "EMPTY": "등록된 목록이 없습니다."
         },
         "INSTALLATION": {
-            "DESC": "* Application Name과 Agent ID의 중복 여부를 확인 할 수 있습니다.",
+            "DESC": "* Application Name과 Agent ID의 중복 여부를 확인할 수 있습니다.",
             "LENGTH_GUIDE": "1 ~ !{0} 자의 문자를 입력하세요.",
             "APPLICATION_NAME_PLACEHOLDER": "Application Name을 입력하세요.",
             "AGENT_ID_PLACEHOLDER": "Agent ID를 입력하세요."
         },
         "USER_GROUP": {
-            "VALIDATION": "영문자와 숫자 '-_' 특수 문자를 입력 할 수 있습니다.(4 ~ 30)"
+            "VALIDATION": "영문자와 숫자, '-', '_'를 입력할 수 있습니다.(4~30)"
         },
         "PINPOINT_USER": {
-            "USER_ID_VALIDATION": "영문 소문자와 숫자, '-_' 특수 문자를 입력 할 수 있습니다.(4~24)",
-            "NAME_VALIDATION": "영문자와 한글, 숫자, '_-.' 특수 문자를 입력 할 수 있습니다.(3~30)",
-            "DEPARTMENT_VALIDATION": "영문자와 한글, 숫자, '_-.' 특수 문자를 입력 할 수 있습니다.(3~40)",
-            "PHONE_VALIDATION": "숫자만 입력 할 수 있습니다.(3~24)",
+            "USER_ID_VALIDATION": "영문 소문자와 숫자, '-', '_'만 입력할 수 있습니다.(4~24)",
+            "NAME_VALIDATION": "영문자와 한글, 숫자, '_', '-', '.'만 입력할 수 있습니다.(3~30)",
+            "DEPARTMENT_VALIDATION": "영문자와 한글, 숫자, '_', '-', '.'만 입력할 수 있습니다.(3~40)",
+            "PHONE_VALIDATION": "숫자만 입력할 수 있습니다.(3~24)",
             "EMAIL_VALIDATION": "이메일을 입력하세요."
         },
         "COMMON": {
