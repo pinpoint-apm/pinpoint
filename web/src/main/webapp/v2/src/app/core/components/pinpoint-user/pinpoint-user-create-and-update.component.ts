@@ -1,24 +1,8 @@
 import { Component, OnInit, OnChanges, SimpleChanges, Input, Output, EventEmitter, AfterViewChecked, ViewChild, ElementRef } from '@angular/core';
-import { FormControl, FormGroup, Validators, ValidatorFn, AbstractControl } from '@angular/forms';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 
-function valueValidator(valueRe: RegExp): ValidatorFn {
-    return (control: AbstractControl): {[key: string]: any} | null => {
-        let invalid = false;
-        if (control.value) {
-            invalid = !valueRe.test(control.value.trim());
-        }
-        return invalid ? {'valueRule': {value: control.value}} : null;
-    };
-}
-function valueValidatorWithEmpty(valueRe: RegExp): ValidatorFn {
-    return (control: AbstractControl): {[key: string]: any} | null => {
-        let invalid = false;
-        if (control.value) {
-            invalid = !(control.value === '' || valueRe.test(control.value.trim()));
-        }
-        return invalid ? {'valueRule': {value: control.value}} : null;
-    };
-}
+import { CustomFormValidatorService } from 'app/shared/services/custom-form-validator.service';
+
 export class PinpointUser {
     constructor(
         public userId: string,
@@ -51,22 +35,22 @@ export class PinpointUserCreateAndUpdateComponent implements OnInit, OnChanges, 
         this.pinpointUserForm = new FormGroup({
             'userId': new FormControl(this.newUserModel.userId, [
                 Validators.required,
-                valueValidator(/^[a-z0-9-\_\-]{4,24}$/)
+                CustomFormValidatorService.validate(/^[a-z0-9-\_\-]{4,24}$/)
             ]),
             'name': new FormControl(this.newUserModel.name, [
                 Validators.required,
-                valueValidator(/^[\w\-\.ㄱ-ㅎ|ㅏ-ㅣ|가-힣]{3,30}$/)
+                CustomFormValidatorService.validate(/^[\w\-\.ㄱ-ㅎ|ㅏ-ㅣ|가-힣]{1,30}$/)
             ]),
             'phoneNumber': new FormControl(this.newUserModel.phoneNumber, [
-                valueValidatorWithEmpty(/^[\d]{3,24}$/)
+                CustomFormValidatorService.validate(/^[\d]{3,24}$/)
             ]),
             'email': new FormControl(this.newUserModel.email, [
                 Validators.minLength(3),
                 Validators.maxLength(60),
-                valueValidatorWithEmpty(/^[A-Za-z0-9\.\_\-]+@[A-Za-z0-9\.\-]+\.[A-Za-z]+$/)
+                CustomFormValidatorService.validate(/^[A-Za-z0-9\.\_\-]+@[A-Za-z0-9\.\-]+\.[A-Za-z]+$/)
             ]),
             'department': new FormControl(this.newUserModel.department, [
-                valueValidatorWithEmpty(/^[\w\.\-ㄱ-ㅎ|ㅏ-ㅣ|가-힣]{3,40}$/)
+                CustomFormValidatorService.validate(/^[\w\.\-ㄱ-ㅎ|ㅏ-ㅣ|가-힣]{3,40}$/)
             ])
         });
     }
