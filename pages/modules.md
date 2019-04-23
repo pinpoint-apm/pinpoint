@@ -61,7 +61,7 @@
 | \*[Redis](https://github.com/naver/pinpoint/tree/master/plugins/redis-redisson)   | redisson                   | 3.10.0  | 3.10.4  |                        |
 |                                                                                   |                            |         |         |                        |
 | Apache CXF                                                                        | cxf-rt-rs-client           | 3.0.0   | 3.3.1   |                        | <AG> 
-| Netty                                                                             | netty-all                  | 4.1.0   | 4.1.34  |                        | <AG> 
+| Netty                                                                             | netty-all                  | 4.1.0   | 4.1.35  |                        | <AG> 
 | ActiveMQ                                                                          | activemq-all               | 5.1.0   | 5.15.9  |                        | <AG> 
 | RxJAVA                                                                            | rxjava                     | 1.0.0   | 1.3.8   |                        | <AG> 
 | RabbitMQ                                                                          | amqp-client                | 2.7.0   | 5.7.0   |                        | <AG> 
