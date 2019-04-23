@@ -18,14 +18,13 @@ package com.navercorp.pinpoint.bootstrap.java9.module;
 
 
 import com.navercorp.pinpoint.bootstrap.module.JavaModule;
+import com.navercorp.pinpoint.bootstrap.module.Providers;
 import jdk.internal.module.Modules;
 
 import java.lang.instrument.Instrumentation;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -152,15 +151,25 @@ public class ModuleSupport {
         Class<?> serviceClazz = forName(serviceClassName, classLoader);
         agentModule.addUses(serviceClazz);
 
-        // Add provides
-        final ServiceLoaderClassPathLookupHelper serviceLoaderClassPathLookupHelper = new ServiceLoaderClassPathLookupHelper(classLoader);
-        final Set<String> serviceProviderClassNameSet = serviceLoaderClassPathLookupHelper.lookup(serviceClassName);
-        final List<Class<?>> providerClassList = new ArrayList<>();
-        for (String providerClassName : serviceProviderClassNameSet) {
-            Class<?> providerClazz = forName(providerClassName, classLoader);
-            providerClassList.add(providerClazz);
+        List<Providers> providersList = agentModule.getProviders();
+        for (Providers providers : providersList) {
+//            if (!serviceClassName.equals(providers.getService())) {
+//                // filter unknown service
+//                continue;
+//            }
+            Class<?> serviceClass = forName(providers.getService(), classLoader);
+            List<Class<?>> providerClassList = loadProviderClassList(providers.getProviders(), classLoader);
+            agentModule.addProvides(serviceClass, providerClassList);
         }
-        agentModule.addProvides(serviceClazz, providerClassList);
+    }
+
+    private List<Class<?>> loadProviderClassList(List<String> classNameList, ClassLoader classLoader) {
+        List<Class<?>> providerClassList = new ArrayList<>();
+        for (String providerClassName : classNameList) {
+            Class<?> providerClass = forName(providerClassName, classLoader);
+            providerClassList.add(providerClass);
+        }
+        return providerClassList;
     }
 
     private Class<?> forName(String className, ClassLoader classLoader) {

@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.bootstrap.module;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -29,6 +28,8 @@ public interface JavaModule {
     boolean isNamed();
 
     String getName();
+
+    List<Providers> getProviders();
 
     void addReads(JavaModule target);
 
