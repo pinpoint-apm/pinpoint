@@ -14,9 +14,15 @@
  */
 package com.navercorp.pinpoint.plugin.elasticsearchbboss.interceptor;
 
+import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
+import com.navercorp.pinpoint.bootstrap.context.TraceContext;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * @author yinbp[yin-bp@163.com]
@@ -27,15 +33,18 @@ public class ElasticsearchOperationAsyncInitiatorInterceptorTest  {
     Object[] args = null;
     @Before
     public void setUp(){
-        InterceptorScopeIT interceptorScopeIT = new InterceptorScopeIT("ElasticsearchBBoss_SLICE_SCOPE");
-        elasticsearchExecutorOperationInterceptor = new ElasticsearchOperationAsyncInitiatorInterceptor(new TraceContextIT(), new MethodDescriptorIT(),interceptorScopeIT);
+        InterceptorScope interceptorScopeIT = mock(InterceptorScope.class);
+        when(interceptorScopeIT.getName()).thenReturn("ElasticsearchBBoss_SLICE_SCOPE");
+        elasticsearchExecutorOperationInterceptor = new ElasticsearchOperationAsyncInitiatorInterceptor(mock(TraceContext.class), mock(MethodDescriptor.class),interceptorScopeIT);
         args = new Object[]{"1","2","3","4","5","6"};
     }
 
     @Test
     public void testConstruction(){
-        InterceptorScopeIT interceptorScopeIT = new InterceptorScopeIT("ElasticsearchBBoss_SLICE_SCOPE");
-        ElasticsearchOperationAsyncInitiatorInterceptor elasticsearchExecutorOperationInterceptor = new ElasticsearchOperationAsyncInitiatorInterceptor(new TraceContextIT(), new MethodDescriptorIT(),interceptorScopeIT);
+        InterceptorScope interceptorScopeIT = mock(InterceptorScope.class);
+        when(interceptorScopeIT.getName()).thenReturn("ElasticsearchBBoss_SLICE_SCOPE");
+//        InterceptorScopeIT interceptorScopeIT = new InterceptorScopeIT("ElasticsearchBBoss_SLICE_SCOPE");
+        ElasticsearchOperationAsyncInitiatorInterceptor elasticsearchExecutorOperationInterceptor = new ElasticsearchOperationAsyncInitiatorInterceptor(mock(TraceContext.class), mock(MethodDescriptor.class),interceptorScopeIT);
         Assert.assertNotNull(elasticsearchExecutorOperationInterceptor);
     }
     @Test

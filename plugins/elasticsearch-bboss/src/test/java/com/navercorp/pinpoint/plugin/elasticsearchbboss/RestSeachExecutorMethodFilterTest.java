@@ -19,6 +19,9 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 
 /**
  * @author yinbp[yin-bp@163.com]
@@ -31,8 +34,9 @@ public class RestSeachExecutorMethodFilterTest {
 	}
 	@Test
 	public void testAccept() {
-		InstrumentMethod instrumentMethod = new InstrumentMethodIT( "executeSimpleRequest");
-
+//		InstrumentMethod instrumentMethod = new InstrumentMethodIT( "executeSimpleRequest");
+		InstrumentMethod instrumentMethod = mock(InstrumentMethod.class);
+		when(instrumentMethod.getName()).thenReturn("executeSimpleRequest");
 		Assert.assertTrue(restSeachExecutorMethodFilter.accept(instrumentMethod));
 
 

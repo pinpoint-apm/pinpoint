@@ -16,7 +16,6 @@ package com.navercorp.pinpoint.plugin.elasticsearchbboss.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
-import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.plugin.elasticsearchbboss.ElasticsearchConstants;
@@ -51,20 +50,12 @@ public class ElasticsearchExecutorOperationInterceptor extends ElasticsearchBase
     @Override
     public void before(Object target, Object[] args) {
         super.before(target,args);
-        Trace currentTrace = traceContext.currentTraceObject();
-        if(currentTrace != null ){
 
-            currentTrace.pauseSampled();
-        }
     }
     @Override
     public void after(Object target, Object[] args, Object result, Throwable throwable){
 
-        Trace currentTrace = traceContext.currentRawTraceObject();
-        if(currentTrace != null){
 
-            currentTrace.resumeSampled();
-        }
         super.after(target,args,result,throwable);
     }
 

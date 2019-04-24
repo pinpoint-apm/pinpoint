@@ -14,10 +14,17 @@
  */
 package com.navercorp.pinpoint.plugin.elasticsearchbboss.interceptor;
 
-import com.navercorp.pinpoint.plugin.elasticsearchbboss.AsyncContextIT;
+import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
+import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
+import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
+import com.navercorp.pinpoint.bootstrap.context.TraceContext;
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * @author yinbp[yin-bp@163.com]
@@ -28,14 +35,15 @@ public class SliceWorkerRunInterceptorTest {
     Object[] args = null;
     @Before
     public void setUp(){
-        sliceWorkerRunInterceptor = new SliceWorkerRunInterceptor(new TraceContextIT(), new MethodDescriptorIT());
+        sliceWorkerRunInterceptor = new SliceWorkerRunInterceptor(mock(TraceContext.class), mock(MethodDescriptor.class));
         args = new Object[]{"1","2","3","4","5","6"};
     }
 
     @Test
     public void testConstruction(){
-        InterceptorScopeIT interceptorScopeIT = new InterceptorScopeIT("ElasticsearchBBoss_SLICE_SCOPE");
-        SliceWorkerRunInterceptor sliceWorkerRunInterceptor = new SliceWorkerRunInterceptor(new TraceContextIT(), new MethodDescriptorIT());
+        InterceptorScope interceptorScopeIT = mock(InterceptorScope.class);
+        when(interceptorScopeIT.getName()).thenReturn("ElasticsearchBBoss_SLICE_SCOPE");
+        SliceWorkerRunInterceptor sliceWorkerRunInterceptor = new SliceWorkerRunInterceptor(mock(TraceContext.class), mock(MethodDescriptor.class));
         Assert.assertNotNull(sliceWorkerRunInterceptor);
     }
     @Test
@@ -61,7 +69,7 @@ public class SliceWorkerRunInterceptorTest {
     @Test
     public void doInBeforeTrace() {
         try {
-            sliceWorkerRunInterceptor.doInBeforeTrace(new SpanEventRecorderIT(), new AsyncContextIT(), new Object(),args);
+            sliceWorkerRunInterceptor.doInBeforeTrace(mock( SpanEventRecorder.class), mock(AsyncContext.class), new Object(),args);
         }
         catch (Exception e){
 
@@ -71,7 +79,7 @@ public class SliceWorkerRunInterceptorTest {
     @Test
     public void doInAfterTrace() {
         try {
-            sliceWorkerRunInterceptor.doInAfterTrace(new SpanEventRecorderIT(),  new Object(),args,null,null);
+            sliceWorkerRunInterceptor.doInAfterTrace(mock( SpanEventRecorder.class),  new Object(),args,null,null);
         }
         catch (Exception e){
 

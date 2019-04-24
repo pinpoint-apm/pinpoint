@@ -14,7 +14,10 @@
  */
 package com.navercorp.pinpoint.plugin.elasticsearchbboss;
 
+import com.navercorp.pinpoint.common.trace.TraceMetadataSetupContext;
 import org.junit.Test;
+
+import static org.mockito.Mockito.mock;
 
 
 /**
@@ -25,8 +28,8 @@ public class ElasticsearchMetadataProviderTest{
     @Test
     public void setup() {
         ElasticsearchMetadataProvider elasticsearchMetadataProvider = new ElasticsearchMetadataProvider();
-
-        elasticsearchMetadataProvider.setup(new TraceMetadataSetupContextIT());
+        TraceMetadataSetupContext traceMetadataSetupContext = mock( TraceMetadataSetupContext.class);
+        elasticsearchMetadataProvider.setup(traceMetadataSetupContext);
         
     }
 

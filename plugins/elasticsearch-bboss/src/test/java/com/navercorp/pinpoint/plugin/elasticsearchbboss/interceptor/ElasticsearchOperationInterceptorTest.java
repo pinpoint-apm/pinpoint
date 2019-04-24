@@ -14,9 +14,16 @@
  */
 package com.navercorp.pinpoint.plugin.elasticsearchbboss.interceptor;
 
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
+import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
+import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * @author yinbp[yin-bp@163.com]
@@ -26,12 +33,22 @@ public class ElasticsearchOperationInterceptorTest {
     Object[] args = null;
     @Before
     public void setUp(){
-        elasticsearchExecutorOperationInterceptor = new ElasticsearchOperationInterceptor(new TraceContextIT(), new MethodDescriptorIT());
+        MethodDescriptor methodDescriptor = mock(MethodDescriptor.class);
+        when(methodDescriptor.getClassName()).thenReturn(" ");
+        TraceContext traceContext = mock(TraceContext.class);
+        ProfilerConfig profilerConfig = mock(ProfilerConfig.class);
+        when(traceContext.getProfilerConfig()).thenReturn(profilerConfig);
+        elasticsearchExecutorOperationInterceptor = new ElasticsearchOperationInterceptor(traceContext, methodDescriptor);
         args = new Object[]{"1","2","3","4","5","6"};
     }
     @Test
     public void testConstruction(){
-        ElasticsearchOperationInterceptor elasticsearchExecutorOperationInterceptor = new ElasticsearchOperationInterceptor(new TraceContextIT(), new MethodDescriptorIT());
+        MethodDescriptor methodDescriptor = mock(MethodDescriptor.class);
+        when(methodDescriptor.getClassName()).thenReturn(" ");
+        TraceContext traceContext = mock(TraceContext.class);
+        ProfilerConfig profilerConfig = mock(ProfilerConfig.class);
+        when(traceContext.getProfilerConfig()).thenReturn(profilerConfig);
+        ElasticsearchOperationInterceptor elasticsearchExecutorOperationInterceptor = new ElasticsearchOperationInterceptor(traceContext, methodDescriptor);
     }
     @Test
     public void testBefore(){
@@ -67,7 +84,8 @@ public class ElasticsearchOperationInterceptorTest {
     @Test
     public void doInEventAfterTrace() {
         try {
-            elasticsearchExecutorOperationInterceptor.doInAfterTrace(new SpanEventRecorderIT(),new Object(),args,"aa",null);
+
+            elasticsearchExecutorOperationInterceptor.doInAfterTrace(mock(SpanEventRecorder.class),new Object(),args,"aa",null);
         }
         catch (Exception e){
 

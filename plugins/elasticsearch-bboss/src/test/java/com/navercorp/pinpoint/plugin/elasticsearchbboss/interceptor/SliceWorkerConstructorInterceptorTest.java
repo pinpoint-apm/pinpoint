@@ -14,9 +14,13 @@
  */
 package com.navercorp.pinpoint.plugin.elasticsearchbboss.interceptor;
 
+import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * @author yinbp[yin-bp@163.com]
@@ -27,14 +31,16 @@ public class SliceWorkerConstructorInterceptorTest {
     Object[] args = null;
     @Before
     public void setUp(){
-        InterceptorScopeIT interceptorScopeIT = new InterceptorScopeIT("ElasticsearchBBoss_SLICE_SCOPE");
+        InterceptorScope interceptorScopeIT = mock(InterceptorScope.class);
+        when(interceptorScopeIT.getName()).thenReturn("ElasticsearchBBoss_SLICE_SCOPE");
         sliceWorkerConstructorInterceptor = new SliceWorkerConstructorInterceptor(interceptorScopeIT);
         args = new Object[]{"1","2","3","4","5","6"};
     }
 
     @Test
     public void testConstruction(){
-        InterceptorScopeIT interceptorScopeIT = new InterceptorScopeIT("ElasticsearchBBoss_SLICE_SCOPE");
+        InterceptorScope interceptorScopeIT = mock(InterceptorScope.class);
+        when(interceptorScopeIT.getName()).thenReturn("ElasticsearchBBoss_SLICE_SCOPE");
         SliceWorkerConstructorInterceptor sliceWorkerConstructorInterceptor = new SliceWorkerConstructorInterceptor(interceptorScopeIT);
         Assert.assertNotNull(sliceWorkerConstructorInterceptor);
     }

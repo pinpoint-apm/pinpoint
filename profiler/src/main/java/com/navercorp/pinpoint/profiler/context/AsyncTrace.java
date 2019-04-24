@@ -145,16 +145,6 @@ public class AsyncTrace implements Trace {
     }
 
     @Override
-    public void pauseSampled() {
-        this.trace.pauseSampled();
-    }
-
-    @Override
-    public void resumeSampled() {
-        this.trace.resumeSampled();
-    }
-
-    @Override
     public String toString() {
         return "AsyncTrace{" +
                 "traceRoot=" + traceRoot +
