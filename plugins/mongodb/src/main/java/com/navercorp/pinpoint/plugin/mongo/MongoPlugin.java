@@ -92,7 +92,7 @@ public class MongoPlugin implements ProfilerPlugin, TransformTemplateAware {
 //        addSortsTransformer();
 //        addProjectionTransformer();
 
-        addMongoConnectionTransformer_2Plus();
+        addMongoConnectionTransformer_2_X();
         addConnectionTransformer3_0_X();
         addConnectionTransformer3_7_X();
         addConnectionTransformer3_8_X();
@@ -114,11 +114,11 @@ public class MongoPlugin implements ProfilerPlugin, TransformTemplateAware {
      *
      * This method is supposed to handle both the versions.
      */
-    private void addMongoConnectionTransformer_2Plus() {
-        transformTemplate.transform("com.mongodb.Mongo", MongoConnectionTransformer_2Plus.class);
+    private void addMongoConnectionTransformer_2_X() {
+        transformTemplate.transform("com.mongodb.Mongo", MongoConnectionTransformer_2_X.class);
     }
 
-    public static class MongoConnectionTransformer_2Plus implements TransformCallback {
+    public static class MongoConnectionTransformer_2_X implements TransformCallback {
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className,
                 Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer)
