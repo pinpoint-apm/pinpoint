@@ -106,6 +106,24 @@
     <bean id="collectorMetric" class="com.navercorp.pinpoint.collector.monitor.CollectorMetric">
     </bean>
 
+    <bean id="agentDataPacketCountAggregator" class="com.navercorp.pinpoint.collector.monitor.aggregate.IpPortPacketCountAggregator"/>
+
+    <bean id="agentDataPacketCountAggregateDataSource" class="com.navercorp.pinpoint.collector.monitor.aggregate.IpPortPacketCountAggregateDataSource">
+        <constructor-arg ref="agentDataPacketCountAggregator"/>
+    </bean>
+
+    <bean id="collectorAggregateMonitor" class="com.navercorp.pinpoint.collector.monitor.aggregate.CollectorAggregateMonitor">
+        <constructor-arg>
+            <list>
+                <ref bean="agentDataPacketCountAggregateDataSource"/>
+            </list>
+        </constructor-arg>
+    </bean>
+
+    <bean id="serverRequestPacketCounter" class="com.navercorp.pinpoint.collector.receiver.ServerRequestPacketCounter">
+        <constructor-arg ref="agentDataPacketCountAggregator"/>
+    </bean>
+
     <!-- Manager-related Beans -->
     <bean id="jmxCollectorManager" class="com.navercorp.pinpoint.collector.manage.jmx.JMXCollectorManager">
     </bean>
@@ -131,13 +149,17 @@
         <constructor-arg ref="handlerManager"/>
     </bean>
 
-    <bean id="statDispatchHandler" class="com.navercorp.pinpoint.collector.receiver.thrift.StatDispatchHandler"/>
+    <bean id="statDispatchHandler" class="com.navercorp.pinpoint.collector.receiver.thrift.StatDispatchHandler">
+        <property name="packetCounter" value="#{statReceiverConfig.packetCountMonitorEnable ? serverRequestPacketCounter : null}"/>
+    </bean>
     <bean id="statDispatchHandlerFactoryBean" class="com.navercorp.pinpoint.collector.receiver.thrift.DispatchHandlerFactoryBean">
         <constructor-arg ref="statDispatchHandler"/>
         <constructor-arg ref="handlerManager"/>
     </bean>
 
-    <bean id="spanDispatchHandler" class="com.navercorp.pinpoint.collector.receiver.thrift.SpanDispatchHandler"/>
+    <bean id="spanDispatchHandler" class="com.navercorp.pinpoint.collector.receiver.thrift.SpanDispatchHandler">
+        <property name="packetCounter" value="#{spanReceiverConfig.packetCountMonitorEnable ? serverRequestPacketCounter : null}"/>
+    </bean>
     <bean id="spanDispatchHandlerFactoryBean" class="com.navercorp.pinpoint.collector.receiver.thrift.DispatchHandlerFactoryBean">
         <constructor-arg ref="spanDispatchHandler"/>
         <constructor-arg ref="handlerManager"/>

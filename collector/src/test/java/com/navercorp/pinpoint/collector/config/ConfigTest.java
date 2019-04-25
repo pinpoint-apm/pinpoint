@@ -142,6 +142,7 @@ public class ConfigTest {
         Assert.assertEquals(statReceiverConfig.getWorkerThreadSize(), 2);
         Assert.assertEquals(statReceiverConfig.getWorkerQueueSize(), 3);
         Assert.assertEquals(statReceiverConfig.isWorkerMonitorEnable(), true);
+        Assert.assertEquals(statReceiverConfig.isPacketCountMonitorEnable(), true);
 
         SpanReceiverConfiguration spanReceiverConfig = new SpanReceiverConfiguration(properties, deprecatedConfig);
         Assert.assertEquals(spanReceiverConfig.isUdpEnable(), true);
@@ -154,6 +155,7 @@ public class ConfigTest {
         Assert.assertEquals(spanReceiverConfig.getWorkerThreadSize(), 3);
         Assert.assertEquals(spanReceiverConfig.getWorkerQueueSize(), 4);
         Assert.assertEquals(spanReceiverConfig.isWorkerMonitorEnable(), false);
+        Assert.assertEquals(spanReceiverConfig.isPacketCountMonitorEnable(), false);
     }
 
 }

@@ -18,6 +18,15 @@
         </layout>
     </appender>
 
+    <appender name="aggregate-appender" class="org.apache.log4j.DailyRollingFileAppender">
+        <param name="file" value="${catalina.home}/logs/aggregate.log"/>
+        <param name="Append" value="true"/>
+        <param name="DatePattern" value="'.'yyyy-MM-dd"/>
+        <layout class="org.apache.log4j.EnhancedPatternLayout">
+            <param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss} [%-5p](%-35c{1.}) %m%n"/>
+        </layout>
+    </appender>
+
     <logger name="com.navercorp.pinpoint" additivity="false">
         <level value="DEBUG"/>
         <appender-ref ref="console"/>
@@ -39,9 +48,15 @@
     </logger>
 
     <logger name="com.navercorp.pinpoint.collector.StateReport" additivity="false">
-        <!-- disable : WARN -->
+        <!-- enable : INFO, disable : WARN -->
         <level value="WARN"/>
         <appender-ref ref="stat-appender"/>
+    </logger>
+    <logger name="com.navercorp.pinpoint.collector.AggregateReport" additivity="false">
+        <!-- enable : INFO, disable : WARN -->
+        <level value="WARN"/>
+        <appender-ref ref="aggregate-appender"/>
+        <!--<appender-ref ref="console"/>-->
     </logger>
 
     <root>

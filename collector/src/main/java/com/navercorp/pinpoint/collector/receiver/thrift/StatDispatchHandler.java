@@ -20,6 +20,8 @@ import com.navercorp.pinpoint.collector.handler.thrift.ThriftAgentEventHandler;
 import com.navercorp.pinpoint.collector.handler.thrift.ThriftAgentStatHandlerV2;
 import com.navercorp.pinpoint.collector.handler.SimpleHandler;
 import com.navercorp.pinpoint.collector.handler.SimpleDualHandler;
+import com.navercorp.pinpoint.collector.receiver.PacketCounter;
+import com.navercorp.pinpoint.collector.receiver.ServerRequestPacketCounter;
 import com.navercorp.pinpoint.io.header.Header;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.io.request.ServerResponse;
@@ -38,6 +40,7 @@ public class StatDispatchHandler implements DispatchHandler {
     @Autowired
     private ThriftAgentEventHandler thriftAgentEventHandler;
 
+    private PacketCounter<ServerRequest> packetCounter = ServerRequestPacketCounter.NO_OP;
 
     public StatDispatchHandler() {
 
@@ -56,6 +59,7 @@ public class StatDispatchHandler implements DispatchHandler {
 
     @Override
     public void dispatchSendMessage(ServerRequest serverRequest) {
+        packetCounter.increment(serverRequest);
         SimpleHandler simpleHandler = getSimpleHandler(serverRequest.getHeader());
         simpleHandler.handleSimple(serverRequest);
     }
@@ -65,5 +69,10 @@ public class StatDispatchHandler implements DispatchHandler {
 
     }
 
-
+    public void setPacketCounter(PacketCounter<ServerRequest> packetCounter) {
+        if (packetCounter == null) {
+            packetCounter = ServerRequestPacketCounter.NO_OP;
+        }
+        this.packetCounter = packetCounter;
+    }
 }

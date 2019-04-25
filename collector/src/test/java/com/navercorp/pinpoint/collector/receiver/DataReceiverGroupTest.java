@@ -250,6 +250,7 @@ public class DataReceiverGroupTest {
         when(config.getWorkerThreadSize()).thenReturn(2);
         when(config.getWorkerQueueSize()).thenReturn(10);
         when(config.isWorkerMonitorEnable()).thenReturn(false);
+        when(config.isPacketCountMonitorEnable()).thenReturn(false);
 
         return config;
     }
