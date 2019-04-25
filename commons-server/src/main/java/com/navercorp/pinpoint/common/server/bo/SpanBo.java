@@ -73,28 +73,31 @@ public class SpanBo implements Event, BasicSpan {
     private byte loggingTransactionInfo; //optional
 
 
-
-
     public SpanBo() {
     }
 
+    @Override
     public int getVersion() {
         return version & 0xFF;
     }
-
 
     public byte getRawVersion() {
         return version;
     }
 
     public void setVersion(int version) {
-        if (version < 0 || version > 255) {
-            throw new IllegalArgumentException("out of range (0~255)");
-        }
+        checkVersion(version);
         // check range
         this.version = (byte) (version & 0xFF);
     }
 
+    static void checkVersion(int version) {
+        if (version < 0 || version > 255) {
+            throw new IllegalArgumentException("out of range (0~255)");
+        }
+    }
+
+    @Override
     public TransactionId getTransactionId() {
         return this.transactionId;
     }
@@ -102,27 +105,33 @@ public class SpanBo implements Event, BasicSpan {
     public void setTransactionId(TransactionId transactionId) {
         this.transactionId = transactionId;
     }
-    
+
+    @Override
     public String getAgentId() {
         return agentId;
     }
 
+    @Override
     public void setAgentId(String agentId) {
         this.agentId = agentId;
     }
 
+    @Override
     public String getApplicationId() {
         return applicationId;
     }
 
+    @Override
     public void setApplicationId(String applicationId) {
         this.applicationId = applicationId;
     }
 
+    @Override
     public long getAgentStartTime() {
         return agentStartTime;
     }
 
+    @Override
     public void setAgentStartTime(long agentStartTime) {
         this.agentStartTime = agentStartTime;
     }
@@ -153,11 +162,12 @@ public class SpanBo implements Event, BasicSpan {
         this.rpc = rpc;
     }
 
-
+    @Override
     public long getSpanId() {
         return spanId;
     }
 
+    @Override
     public void setSpanId(long spanId) {
         this.spanId = spanId;
     }

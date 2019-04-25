@@ -17,15 +17,15 @@
 package com.navercorp.pinpoint.profiler.context;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.thrift.dto.TraceConstants;
+import com.navercorp.pinpoint.io.SpanVersion;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
 public enum TraceDataFormatVersion {
 
-    V1(TraceConstants.TRACE_V1),
-    V2(TraceConstants.TRACE_V2);
+    V1(SpanVersion.TRACE_V1),
+    V2(SpanVersion.TRACE_V2);
 
     private static final String THRIFT_TRACE_VERSION_KEY = "profiler.transport.thrift.trace.dataformat.version";
 

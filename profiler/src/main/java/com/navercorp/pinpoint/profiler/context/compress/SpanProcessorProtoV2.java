@@ -45,68 +45,68 @@ public class SpanProcessorProtoV2 implements SpanProcessor<PSpan.Builder, PSpanC
     }
 
     @Override
-    public void preProcess(Span span, PSpan.Builder tSpan) {
-        tSpan.setVersion(V2);
+    public void preProcess(Span span, PSpan.Builder pSpan) {
+        pSpan.setVersion(V2);
 
         final List<SpanEvent> spanEventList = span.getSpanEventList();
         Collections.sort(spanEventList, SEQUENCE_COMPARATOR);
     }
 
     @Override
-    public void preProcess(SpanChunk spanChunk, PSpanChunk.Builder tSpanChunk) {
-        tSpanChunk.setVersion(V2);
+    public void preProcess(SpanChunk spanChunk, PSpanChunk.Builder pSpanChunk) {
+        pSpanChunk.setVersion(V2);
 
         final List<SpanEvent> spanEventList = spanChunk.getSpanEventList();
         Collections.sort(spanEventList, SEQUENCE_COMPARATOR);
     }
 
     @Override
-    public void postProcess(SpanChunk span, PSpanChunk.Builder tSpan) {
-        final List<SpanEvent> spanEventList = span.getSpanEventList();
-        final List<PSpanEvent.Builder> tSpanEventList = tSpan.getSpanEventBuilderList();
+    public void postProcess(SpanChunk spanChunk, PSpanChunk.Builder pSpanChunk) {
+        final List<SpanEvent> spanEventList = spanChunk.getSpanEventList();
+        final List<PSpanEvent.Builder> tSpanEventList = pSpanChunk.getSpanEventBuilderList();
         long keyTime = getKeyTime(spanEventList);
-        tSpan.setKeyTime(keyTime);
+        pSpanChunk.setKeyTime(keyTime);
         postProcess(keyTime, spanEventList, tSpanEventList);
     }
 
     @Override
-    public void postProcess(Span span, PSpan.Builder tSpan) {
+    public void postProcess(Span span, PSpan.Builder pSpan) {
         final List<SpanEvent> spanEventList = span.getSpanEventList();
-        final List<PSpanEvent.Builder> tSpanEventList = tSpan.getSpanEventBuilderList();
-        long keyTime = getKeyTime(spanEventList);
+        final List<PSpanEvent.Builder> tSpanEventList = pSpan.getSpanEventBuilderList();
+        long keyTime = span.getStartTime();
         postProcess(keyTime, spanEventList, tSpanEventList);
     }
 
-    private void postProcess(long keyTime, List<SpanEvent> spanEventList, List<PSpanEvent.Builder> tSpanEventList) {
-        if (!(CollectionUtils.nullSafeSize(spanEventList) == CollectionUtils.nullSafeSize(tSpanEventList))) {
+    private void postProcess(long keyTime, List<SpanEvent> spanEventList, List<PSpanEvent.Builder> pSpanEventList) {
+        if (!(CollectionUtils.nullSafeSize(spanEventList) == CollectionUtils.nullSafeSize(pSpanEventList))) {
             throw new IllegalStateException("list size not same");
         }
 
-        final Iterator<PSpanEvent.Builder> tSpanEventIterator = tSpanEventList.iterator();
+        final Iterator<PSpanEvent.Builder> pSpanEventIterator = pSpanEventList.iterator();
 
         int prevDepth = 0;
         boolean first = true;
         for (SpanEvent spanEvent : spanEventList) {
-            final PSpanEvent.Builder tSpanEvent = tSpanEventIterator.next();
+            final PSpanEvent.Builder pSpanEvent = pSpanEventIterator.next();
 
             final long startTime = spanEvent.getStartTime();
             final long startElapsedTime = startTime - keyTime;
-            tSpanEvent.setStartElapsed((int) startElapsedTime);
+            pSpanEvent.setStartElapsed((int) startElapsedTime);
             keyTime = startTime;
 
             if (first) {
                 first = false;
                 int depth = spanEvent.getDepth();
                 prevDepth = depth;
-                tSpanEvent.setDepth(depth);
+                pSpanEvent.setDepth(depth);
             } else {
                 int currentDepth = spanEvent.getDepth();
 
                 if (currentDepth == prevDepth) {
                     // skip
-                    tSpanEvent.setDepth(0);
+                    pSpanEvent.setDepth(0);
                 } else {
-                    tSpanEvent.setDepth(currentDepth);
+                    pSpanEvent.setDepth(currentDepth);
                 }
                 prevDepth = currentDepth;
             }

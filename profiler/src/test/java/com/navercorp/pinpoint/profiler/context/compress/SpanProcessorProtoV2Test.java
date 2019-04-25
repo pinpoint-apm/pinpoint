@@ -94,7 +94,7 @@ public class SpanProcessorProtoV2Test {
         PSpan pSpan = builder.build();
 
         List<PSpanEvent> spanEventList = pSpan.getSpanEventList();
-        long keyStartTime = span.getSpanEventList().get(0).getStartTime();
+        long keyStartTime = span.getStartTime();
         Iterator<SpanEvent> spanEventIterator = span.getSpanEventList().iterator();
         for (PSpanEvent pSpanEvent : spanEventList) {
             SpanEvent next = spanEventIterator.next();
