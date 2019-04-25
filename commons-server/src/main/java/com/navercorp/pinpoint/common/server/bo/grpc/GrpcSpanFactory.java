@@ -45,6 +45,7 @@ import com.navercorp.pinpoint.grpc.trace.PParentInfo;
 import com.navercorp.pinpoint.grpc.trace.PSpan;
 import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
 import com.navercorp.pinpoint.grpc.trace.PSpanEvent;
+import com.navercorp.pinpoint.io.SpanVersion;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,7 +69,6 @@ public class GrpcSpanFactory {
 
     private static final AnnotationFactory<PAnnotation> annotationFactory = new AnnotationFactory<>(new GrpcAnnotationHandler());
 
-    private static final int TRACEFORMAT_V2 = 1;
     public GrpcSpanFactory() {
     }
 
@@ -98,7 +98,7 @@ public class GrpcSpanFactory {
     }
 
     private void checkVersion(int version) {
-        if (version != TRACEFORMAT_V2) {
+        if (version != SpanVersion.TRACE_V2) {
             throw new IllegalStateException("unsupported version:" + version);
         }
     }
@@ -106,6 +106,7 @@ public class GrpcSpanFactory {
     // for test
     SpanBo newSpanBo(PSpan pSpan, AgentHeaderFactory.Header header) {
         final SpanBo spanBo = new SpanBo();
+        spanBo.setVersion(pSpan.getVersion());
         spanBo.setAgentId(header.getAgentId());
         spanBo.setApplicationId(header.getApplicationName());
         spanBo.setAgentStartTime(header.getAgentStartTime());
@@ -232,6 +233,7 @@ public class GrpcSpanFactory {
     // for test
     SpanChunkBo newSpanChunkBo(PSpanChunk pSpanChunk, AgentHeaderFactory.Header header) {
         final SpanChunkBo spanChunkBo = new SpanChunkBo();
+        spanChunkBo.setVersion(pSpanChunk.getVersion());
         spanChunkBo.setAgentId(header.getAgentId());
         spanChunkBo.setApplicationId(header.getApplicationName());
         spanChunkBo.setAgentStartTime(header.getAgentStartTime());
@@ -241,6 +243,7 @@ public class GrpcSpanFactory {
         TransactionId transactionId = newTransactionId(pSpanChunk.getTransactionId(), spanChunkBo);
         spanChunkBo.setTransactionId(transactionId);
 
+        spanChunkBo.setKeyTime(pSpanChunk.getKeyTime());
 
         spanChunkBo.setSpanId(pSpanChunk.getSpanId());
         spanChunkBo.setEndPoint(pSpanChunk.getEndPoint());

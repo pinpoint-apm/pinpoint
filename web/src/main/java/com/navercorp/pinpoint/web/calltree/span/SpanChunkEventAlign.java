@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.common.server.bo.LocalAsyncIdBo;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
+import com.navercorp.pinpoint.io.SpanVersion;
 
 import java.util.Objects;
 
@@ -44,11 +45,15 @@ public class SpanChunkEventAlign extends SpanEventAlign {
 
     @Override
     public long getStartTime() {
-        final long keyTime = spanChunkBo.getKeyTime();
-        if (keyTime == 0) {
+        final int version = spanChunkBo.getVersion();
+        if (version == SpanVersion.TRACE_V1) {
             return super.getStartTime();
+        } else if (version == SpanVersion.TRACE_V2) {
+            final long keyTime = spanChunkBo.getKeyTime();
+            return keyTime + getSpanEventBo().getStartElapsed();
+        } else {
+            throw new IllegalStateException("unsupported version:" + version);
         }
-        return keyTime + getSpanEventBo().getStartElapsed();
     }
 
     @Override

@@ -46,6 +46,7 @@ import com.navercorp.pinpoint.profiler.context.id.Shared;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.context.id.TransactionIdEncoder;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
+import com.navercorp.pinpoint.io.SpanVersion;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -97,7 +98,7 @@ public class SpanProtoMessageConverter implements MessageConverter<GeneratedMess
     PSpan buildPSpan(Span span) {
         final PSpan.Builder pSpan = PSpan.newBuilder();
 
-//        tSpan.setVersion(span.getVersion());
+        pSpan.setVersion(SpanVersion.TRACE_V2);
 
 //        pSpanBuilder.applicationName(applicationName);
 //        pSpanBuilder.setAgentId(agentId);
@@ -189,6 +190,7 @@ public class SpanProtoMessageConverter implements MessageConverter<GeneratedMess
     @VisibleForTesting
     PSpanChunk buildPSpanChunk(SpanChunk spanChunk) {
         final PSpanChunk.Builder pSpanChunk = PSpanChunk.newBuilder();
+        pSpanChunk.setVersion(SpanVersion.TRACE_V2);
 
 //        tSpanChunk.setApplicationName(applicationName);
 //        tSpanChunk.setAgentId(agentId);

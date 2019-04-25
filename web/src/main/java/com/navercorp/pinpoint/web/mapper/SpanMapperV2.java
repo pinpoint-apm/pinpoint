@@ -34,6 +34,7 @@ import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanDecoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanDecoderV0;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanDecodingContext;
 import com.navercorp.pinpoint.common.util.TransactionId;
+import com.navercorp.pinpoint.io.SpanVersion;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
@@ -137,10 +138,10 @@ public class SpanMapperV2 implements RowMapper<List<SpanBo>> {
 
     private SpanDecoder resolveDecoder(Buffer columnValue) {
         final byte version = columnValue.getByte(0);
-        if (version == 0) {
+        if (SpanVersion.supportedVersionRange(version)) {
             return this.spanDecoder;
         } else {
-            throw new IllegalStateException("unsupported version");
+            throw new IllegalStateException("unsupported version" + version);
         }
     }
 
