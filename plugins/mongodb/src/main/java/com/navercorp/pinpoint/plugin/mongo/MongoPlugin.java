@@ -834,13 +834,11 @@ public class MongoPlugin implements ProfilerPlugin, TransformTemplateAware {
 //                , "watch" ,"aggregate","mapReduce"
         };
         return methodList;
-	}
+    }
 
-	private static String[] getMethodlistR2_x() {
-		return new String[] { "findOneAndUpdate", "findOneAndReplace", "findOneAndDelete", "find", "count", "distinct",
-				"listIndexes", "aggregate", "findOne"
-				// , "watch", "mapReduce"
-		};
+    private static String[] getMethodlistR2_x() {
+        return new String[] { "find", "findOne", "findAndModify", "findAndRemove", "count", "getCount", "getFullName",
+            "distinct", "getIndexInfo", "aggregate" };
 	}
 
     private static String[] getMethodlistCUD3_0_x() {
@@ -850,9 +848,8 @@ public class MongoPlugin implements ProfilerPlugin, TransformTemplateAware {
     }
 
     private static String[] getMethodlistCUD2_x() {
-        return new String[] { "dropIndexes", "dropIndex", "createIndexes", "createIndex", "updateMany", "updateOne",
-                "replaceOne", "deleteMany", "deleteOne", "insertMany", "insertOne", "bulkWrite", "save", "update",
-                "updateMulti" };
+        return new String[] { "drop", "dropIndexes", "dropIndex", "createIndex", "updateMulti", "update",
+            "remove", "insert", "save", "update" };
     }
 
     private static String[] getMethodlistR3_7_x() {
