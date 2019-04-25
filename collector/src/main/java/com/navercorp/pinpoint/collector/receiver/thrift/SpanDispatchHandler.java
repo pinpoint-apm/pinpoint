@@ -19,6 +19,8 @@ package com.navercorp.pinpoint.collector.receiver.thrift;
 import com.navercorp.pinpoint.collector.handler.SimpleHandler;
 import com.navercorp.pinpoint.collector.handler.thrift.ThriftSpanChunkHandler;
 import com.navercorp.pinpoint.collector.handler.thrift.ThriftSpanHandler;
+import com.navercorp.pinpoint.collector.receiver.PacketCounter;
+import com.navercorp.pinpoint.collector.receiver.ServerRequestPacketCounter;
 import com.navercorp.pinpoint.io.header.Header;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.io.request.ServerResponse;
@@ -35,6 +37,8 @@ public class SpanDispatchHandler implements DispatchHandler {
 
     @Autowired()
     private ThriftSpanChunkHandler thriftSpanChunkHandler;
+
+    private PacketCounter<ServerRequest> packetCounter = ServerRequestPacketCounter.NO_OP;
 
     public SpanDispatchHandler() {
     }
@@ -54,6 +58,7 @@ public class SpanDispatchHandler implements DispatchHandler {
 
     @Override
     public void dispatchSendMessage(ServerRequest serverRequest) {
+        packetCounter.increment(serverRequest);
         SimpleHandler simpleHandler = getSimpleHandler(serverRequest.getHeader());
         simpleHandler.handleSimple(serverRequest);
     }
@@ -62,5 +67,12 @@ public class SpanDispatchHandler implements DispatchHandler {
     @Override
     public void dispatchRequestMessage(ServerRequest serverRequest, ServerResponse serverResponse) {
 
+    }
+
+    public void setPacketCounter(PacketCounter<ServerRequest> packetCounter) {
+        if (packetCounter == null) {
+            packetCounter = ServerRequestPacketCounter.NO_OP;
+        }
+        this.packetCounter = packetCounter;
     }
 }

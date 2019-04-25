@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,33 +14,16 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.collector.config;
+package com.navercorp.pinpoint.collector.monitor.aggregate;
+
+import java.util.List;
 
 /**
- * @author Taejin Koo
+ * @author HyunGil Jeong
  */
-public interface DataReceiverGroupConfiguration {
+public interface AggregateDataSource {
 
-    boolean isTcpEnable();
+    String getName();
 
-    String getTcpBindIp();
-
-    int getTcpBindPort();
-
-    boolean isUdpEnable();
-
-    String getUdpBindIp();
-
-    int getUdpBindPort();
-
-    int getUdpReceiveBufferSize();
-
-    int getWorkerThreadSize();
-
-    int getWorkerQueueSize();
-
-    boolean isWorkerMonitorEnable();
-
-    boolean isPacketCountMonitorEnable();
-
+    List<Aggregate> getAggregates();
 }

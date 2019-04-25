@@ -52,6 +52,9 @@ public final class StatReceiverConfiguration implements DataReceiverGroupConfigu
     private static final String WORKER_MONITOR_ENABLE = PREFIX + ".worker.monitor";
     private final boolean workerMonitorEnable;
 
+    private static final String PACKET_COUNT_MONITOR_ENABLE = PREFIX + ".packet.count.enable";
+    private final boolean packetCountMonitorEnable;
+
 
     public StatReceiverConfiguration(Properties properties, DeprecatedConfiguration deprecatedConfiguration) {
         Objects.requireNonNull(properties, "properties must not be null");
@@ -72,6 +75,8 @@ public final class StatReceiverConfiguration implements DataReceiverGroupConfigu
         Assert.isTrue(workerQueueSize > 0, "workerQueueSize must be greater than 0");
 
         this.workerMonitorEnable = isWorkerThreadMonitorEnable(properties, deprecatedConfiguration, false);
+
+        this.packetCountMonitorEnable = CollectorConfiguration.readBoolean(properties, PACKET_COUNT_MONITOR_ENABLE);
 
         validate();
     }
@@ -223,6 +228,11 @@ public final class StatReceiverConfiguration implements DataReceiverGroupConfigu
     }
 
     @Override
+    public boolean isPacketCountMonitorEnable() {
+        return packetCountMonitorEnable;
+    }
+
+    @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("StatReceiverConfig{");
         sb.append("isTcpEnable=").append(isTcpEnable);
@@ -235,6 +245,7 @@ public final class StatReceiverConfiguration implements DataReceiverGroupConfigu
         sb.append(", workerThreadSize=").append(workerThreadSize);
         sb.append(", workerQueueSize=").append(workerQueueSize);
         sb.append(", workerMonitorEnable=").append(workerMonitorEnable);
+        sb.append(", packetCountMonitorEnable=").append(packetCountMonitorEnable);
         sb.append('}');
         return sb.toString();
     }
