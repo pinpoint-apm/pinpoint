@@ -45,6 +45,7 @@ public class AgentBootLoaderTest {
         AgentOption option = new DefaultAgentOption(instrumentation, "testCaseAgent", "testCaseAppName", false, new DefaultProfilerConfig(), Collections.<String>emptyList(), null);
         Agent boot = agentBootLoader.boot(option);
         boot.start();
+        boot.stop();
     }
 
     private String getProjectLibDir() {

@@ -29,4 +29,7 @@ public interface Agent {
      */
     void start();
 
+    void stop();
+
+    void registerStopHandler();
 }

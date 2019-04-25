@@ -127,6 +127,7 @@ class PinpointStarter {
             AgentOption option = createAgentOption(agentId, applicationName, isContainer, profilerConfig, instrumentation, pluginJars, agentDirectory);
             Agent pinpointAgent = agentBootLoader.boot(option);
             pinpointAgent.start();
+            pinpointAgent.registerStopHandler();
 
             logger.info("pinpoint agent started normally.");
         } catch (Exception e) {

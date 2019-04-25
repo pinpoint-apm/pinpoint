@@ -151,11 +151,11 @@ public class DefaultAgent implements Agent {
         }
         logger.info("Starting {} Agent.", ProductInfo.NAME);
         this.applicationContext.start();
-
-        registerStopHandler();
     }
 
-    private void registerStopHandler() {
+    @Override
+    public void registerStopHandler() {
+        logger.info("registerStopHandler", ProductInfo.NAME);
         ShutdownHookRegisterProvider shutdownHookRegisterProvider = new ShutdownHookRegisterProvider(profilerConfig);
         ShutdownHookRegister shutdownHookRegister = shutdownHookRegisterProvider.get();
 
@@ -171,7 +171,8 @@ public class DefaultAgent implements Agent {
         shutdownHookRegister.register(shutdownThread);
     }
 
-    private void stop() {
+    @Override
+    public void stop() {
         synchronized (agentStatusLock) {
             if (this.agentStatus == AgentStatus.RUNNING) {
                 changeStatus(AgentStatus.STOPPED);
