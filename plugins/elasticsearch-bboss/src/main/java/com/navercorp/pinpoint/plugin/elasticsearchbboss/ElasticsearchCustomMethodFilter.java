@@ -31,9 +31,10 @@ public class ElasticsearchCustomMethodFilter implements MethodFilter {
 	@Override
 	public boolean accept(InstrumentMethod method) {
 
-//		if(method.getName().equals("scrollSliceParallel")
-//				|| method.getName().equals("searchAllParallel")){
-		if(method.getName().equals("runSliceTask")){
+
+		if(method.getName().equals("runSliceTask")
+				|| method.getName().equals("runScrollTask")
+				|| method.getName().equals("runSliceScrollTask") ){ //并行处理方法
 			return REJECT;
 		}
 		else

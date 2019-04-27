@@ -24,9 +24,9 @@ import com.navercorp.pinpoint.plugin.elasticsearchbboss.ElasticsearchConstants;
 /**
  * @author yinbp[yin-bp@163.com]
  */
-public class SliceWorkerRunInterceptor extends AsyncContextSpanEventSimpleAroundInterceptor {
+public class ParallelWorkerRunInterceptor extends AsyncContextSpanEventSimpleAroundInterceptor {
 
-	public SliceWorkerRunInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
+	public ParallelWorkerRunInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
 		super(traceContext, methodDescriptor);
 	}
 

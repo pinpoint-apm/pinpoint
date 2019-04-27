@@ -121,7 +121,7 @@ public class ElasticsearchPluginTest {
     }
     @Test
     public void testSliceRunTaskTransformCallback() {
-        ElasticsearchPlugin.SliceRunTaskTransformCallback sliceRunTaskTransformCallback = mock(ElasticsearchPlugin.SliceRunTaskTransformCallback.class);
+        ElasticsearchPlugin.ParallelRunTaskTransformCallback sliceRunTaskTransformCallback = mock(ElasticsearchPlugin.ParallelRunTaskTransformCallback.class);
         Instrumentor instrumentor = mock(Instrumentor.class);
         Class classBeingRedefined = this.getClass();
         byte[] classfileBuffer = new byte[]{};
@@ -129,6 +129,24 @@ public class ElasticsearchPluginTest {
         try {
             sliceRunTaskTransformCallback.doInTransform(  instrumentor, this.getClass().getClassLoader(),
                     "org.frameworkset.elasticsearch.SliceRunTask", classBeingRedefined, protectionDomain,
+                    classfileBuffer) ;
+        }
+        catch (Exception e){
+            e.printStackTrace();
+            Assert.assertNotNull(e);
+        }
+    }
+
+    @Test
+    public void testScrollRunTaskTransformCallback() {
+        ElasticsearchPlugin.ParallelRunTaskTransformCallback sliceRunTaskTransformCallback = mock(ElasticsearchPlugin.ParallelRunTaskTransformCallback.class);
+        Instrumentor instrumentor = mock(Instrumentor.class);
+        Class classBeingRedefined = this.getClass();
+        byte[] classfileBuffer = new byte[]{};
+        ProtectionDomain protectionDomain = mock(ProtectionDomain.class);
+        try {
+            sliceRunTaskTransformCallback.doInTransform(  instrumentor, this.getClass().getClassLoader(),
+                    "org.frameworkset.elasticsearch.scroll.thread.ScrollTask", classBeingRedefined, protectionDomain,
                     classfileBuffer) ;
         }
         catch (Exception e){

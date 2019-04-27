@@ -19,6 +19,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import static com.navercorp.pinpoint.plugin.elasticsearchbboss.ElasticsearchConstants.ELASTICSEARCH_Parallel_SCOPE;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -27,21 +28,21 @@ import static org.mockito.Mockito.when;
  */
 public class SliceWorkerConstructorInterceptorTest {
 
-    SliceWorkerConstructorInterceptor sliceWorkerConstructorInterceptor = null;
+    ParallelWorkerConstructorInterceptor sliceWorkerConstructorInterceptor = null;
     Object[] args = null;
     @Before
     public void setUp(){
         InterceptorScope interceptorScopeIT = mock(InterceptorScope.class);
-        when(interceptorScopeIT.getName()).thenReturn("ElasticsearchBBoss_SLICE_SCOPE");
-        sliceWorkerConstructorInterceptor = new SliceWorkerConstructorInterceptor(interceptorScopeIT);
+        when(interceptorScopeIT.getName()).thenReturn(ELASTICSEARCH_Parallel_SCOPE);
+        sliceWorkerConstructorInterceptor = new ParallelWorkerConstructorInterceptor(interceptorScopeIT);
         args = new Object[]{"1","2","3","4","5","6"};
     }
 
     @Test
     public void testConstruction(){
         InterceptorScope interceptorScopeIT = mock(InterceptorScope.class);
-        when(interceptorScopeIT.getName()).thenReturn("ElasticsearchBBoss_SLICE_SCOPE");
-        SliceWorkerConstructorInterceptor sliceWorkerConstructorInterceptor = new SliceWorkerConstructorInterceptor(interceptorScopeIT);
+        when(interceptorScopeIT.getName()).thenReturn(ELASTICSEARCH_Parallel_SCOPE);
+        ParallelWorkerConstructorInterceptor sliceWorkerConstructorInterceptor = new ParallelWorkerConstructorInterceptor(interceptorScopeIT);
         Assert.assertNotNull(sliceWorkerConstructorInterceptor);
     }
     @Test

@@ -33,7 +33,7 @@ public class ElasticsearchConstants {
 	public static final AnnotationKey ARGS_VERSION_ANNOTATION_KEY = AnnotationKeyFactory.of(976, "es.version", AnnotationKeyProperty.VIEW_IN_RECORD_SET);
 	public static final ServiceType ELASTICSEARCH_EXECUTOR = ServiceTypeFactory.of(9202, "ElasticsearchBBossExecutor", AS_ALIAS);
 	public static final String ELASTICSEARCH_SCOPE = "ElasticsearchBBoss_SCOPE";
-	public static final String ELASTICSEARCH_SLICE_SCOPE = "ElasticsearchBBoss_SLICE_SCOPE";
+	public static final String ELASTICSEARCH_Parallel_SCOPE = "ElasticsearchBBoss_Parallel_SCOPE";
 	public static final String ELASTICSEARCH_EXECUTOR_SCOPE = "ElasticsearchBBossExecutor_SCOPE";
 	public static final String[] clazzInterceptors = new String[]{
 			"org.frameworkset.elasticsearch.client.ConfigRestClientUtil",

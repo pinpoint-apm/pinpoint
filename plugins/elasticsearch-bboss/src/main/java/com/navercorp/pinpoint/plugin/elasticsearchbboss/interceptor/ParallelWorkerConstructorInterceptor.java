@@ -23,10 +23,10 @@ import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 /**
  * @author yinbp[yin-bp@163.com]
  */
-public class SliceWorkerConstructorInterceptor implements AroundInterceptor {
+public class ParallelWorkerConstructorInterceptor implements AroundInterceptor {
 	private final InterceptorScope scope;
 
-	public SliceWorkerConstructorInterceptor(InterceptorScope scope) {
+	public ParallelWorkerConstructorInterceptor(InterceptorScope scope) {
 		this.scope = scope;
 	}
 

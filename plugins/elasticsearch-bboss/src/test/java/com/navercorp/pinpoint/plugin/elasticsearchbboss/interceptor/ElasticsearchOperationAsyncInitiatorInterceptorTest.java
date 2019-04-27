@@ -21,6 +21,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import static com.navercorp.pinpoint.plugin.elasticsearchbboss.ElasticsearchConstants.ELASTICSEARCH_Parallel_SCOPE;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -34,7 +35,7 @@ public class ElasticsearchOperationAsyncInitiatorInterceptorTest  {
     @Before
     public void setUp(){
         InterceptorScope interceptorScopeIT = mock(InterceptorScope.class);
-        when(interceptorScopeIT.getName()).thenReturn("ElasticsearchBBoss_SLICE_SCOPE");
+        when(interceptorScopeIT.getName()).thenReturn(ELASTICSEARCH_Parallel_SCOPE);
         elasticsearchExecutorOperationInterceptor = new ElasticsearchOperationAsyncInitiatorInterceptor(mock(TraceContext.class), mock(MethodDescriptor.class),interceptorScopeIT);
         args = new Object[]{"1","2","3","4","5","6"};
     }
@@ -42,8 +43,8 @@ public class ElasticsearchOperationAsyncInitiatorInterceptorTest  {
     @Test
     public void testConstruction(){
         InterceptorScope interceptorScopeIT = mock(InterceptorScope.class);
-        when(interceptorScopeIT.getName()).thenReturn("ElasticsearchBBoss_SLICE_SCOPE");
-//        InterceptorScopeIT interceptorScopeIT = new InterceptorScopeIT("ElasticsearchBBoss_SLICE_SCOPE");
+        when(interceptorScopeIT.getName()).thenReturn(ELASTICSEARCH_Parallel_SCOPE);
+//        InterceptorScopeIT interceptorScopeIT = new InterceptorScopeIT(ELASTICSEARCH_Parallel_SCOPE);
         ElasticsearchOperationAsyncInitiatorInterceptor elasticsearchExecutorOperationInterceptor = new ElasticsearchOperationAsyncInitiatorInterceptor(mock(TraceContext.class), mock(MethodDescriptor.class),interceptorScopeIT);
         Assert.assertNotNull(elasticsearchExecutorOperationInterceptor);
     }

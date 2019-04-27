@@ -23,6 +23,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import static com.navercorp.pinpoint.plugin.elasticsearchbboss.ElasticsearchConstants.ELASTICSEARCH_Parallel_SCOPE;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -31,19 +32,19 @@ import static org.mockito.Mockito.when;
  */
 public class SliceWorkerRunInterceptorTest {
 
-    SliceWorkerRunInterceptor sliceWorkerRunInterceptor = null;
+    ParallelWorkerRunInterceptor sliceWorkerRunInterceptor = null;
     Object[] args = null;
     @Before
     public void setUp(){
-        sliceWorkerRunInterceptor = new SliceWorkerRunInterceptor(mock(TraceContext.class), mock(MethodDescriptor.class));
+        sliceWorkerRunInterceptor = new ParallelWorkerRunInterceptor(mock(TraceContext.class), mock(MethodDescriptor.class));
         args = new Object[]{"1","2","3","4","5","6"};
     }
 
     @Test
     public void testConstruction(){
         InterceptorScope interceptorScopeIT = mock(InterceptorScope.class);
-        when(interceptorScopeIT.getName()).thenReturn("ElasticsearchBBoss_SLICE_SCOPE");
-        SliceWorkerRunInterceptor sliceWorkerRunInterceptor = new SliceWorkerRunInterceptor(mock(TraceContext.class), mock(MethodDescriptor.class));
+        when(interceptorScopeIT.getName()).thenReturn(ELASTICSEARCH_Parallel_SCOPE );
+        ParallelWorkerRunInterceptor sliceWorkerRunInterceptor = new ParallelWorkerRunInterceptor(mock(TraceContext.class), mock(MethodDescriptor.class));
         Assert.assertNotNull(sliceWorkerRunInterceptor);
     }
     @Test

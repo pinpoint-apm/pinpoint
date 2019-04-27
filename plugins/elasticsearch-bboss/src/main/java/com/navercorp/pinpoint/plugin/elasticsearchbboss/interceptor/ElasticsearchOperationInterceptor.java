@@ -17,19 +17,25 @@ package com.navercorp.pinpoint.plugin.elasticsearchbboss.interceptor;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
+import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.plugin.elasticsearchbboss.ElasticsearchConstants;
 
 /**
  * @author yinbp[yin-bp@163.com]
  */
-public class ElasticsearchOperationInterceptor extends ElasticsearchBaseOperationInterceptor {
+public class ElasticsearchOperationInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
     protected boolean recordResult = false;
     protected boolean recordArgs = false;
     public ElasticsearchOperationInterceptor(TraceContext context, MethodDescriptor descriptor) {
         super(context, descriptor);
         recordResult = this.getTraceContext().getProfilerConfig().readBoolean("profiler.elasticsearchbboss.recordResult",false);
         recordArgs = this.getTraceContext().getProfilerConfig().readBoolean("profiler.elasticsearchbboss.recordArgs",true);
+    }
+
+    @Override
+    protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
+
     }
 
 
