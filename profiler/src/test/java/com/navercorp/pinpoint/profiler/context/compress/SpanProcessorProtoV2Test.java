@@ -24,9 +24,7 @@ import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
 import com.navercorp.pinpoint.profiler.context.id.DefaultTraceId;
 import com.navercorp.pinpoint.profiler.context.id.DefaultTraceRoot;
-import com.navercorp.pinpoint.profiler.context.id.DefaultTransactionIdEncoder;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
-import com.navercorp.pinpoint.profiler.context.id.TransactionIdEncoder;
 import com.navercorp.pinpoint.profiler.context.proto.SpanProtoMessageConverter;
 import org.junit.Assert;
 import org.junit.Test;
@@ -43,10 +41,9 @@ public class SpanProcessorProtoV2Test {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private TransactionIdEncoder transactionIdEncoder = new DefaultTransactionIdEncoder("agentId", 0);
     private SpanProcessor<PSpan.Builder, PSpanChunk.Builder> spanProcessorProtoV2 = new SpanProcessorProtoV2();
 
-    private SpanProtoMessageConverter converter = new SpanProtoMessageConverter((short) 1, transactionIdEncoder, spanProcessorProtoV2);
+    private SpanProtoMessageConverter converter = new SpanProtoMessageConverter("agentId", (short) 1, spanProcessorProtoV2);
 
     @Test
     public void preProcess() {

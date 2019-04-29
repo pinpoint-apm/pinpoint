@@ -12,11 +12,7 @@ package v1;
 message PSpan {
     int32 version = 1;
 
-    // identical to agentId if null
-    //4: optional string traceAgentId
-    //5: i64 traceAgentStartTime;
-    //6: i64 traceTransactionSequence;
-    bytes transactionId = 2;
+    PTransactionId transactionId = 2;
 
     fixed64 spanId = 3;
     fixed64 parentSpanId = 4;
@@ -41,6 +37,13 @@ message PSpan {
 
     int32 applicationServiceType = 15;
     int32 loggingTransactionInfo = 16;
+}
+
+message PTransactionId {
+    // identical to agentId if null
+    string agentId = 1; //nullable
+    int64 agentStartTime = 2;
+    int64 sequence = 3;
 }
 
 message PAcceptEvent {
@@ -95,11 +98,7 @@ message PMessageEvent {
 message PSpanChunk {
     int32 version = 1;
 
-    // identical to agentId if null
-    //5: optional string traceAgentId
-    //6: i64 traceAgentStartTime;
-    //7: i64 traceTransactionSequence;
-    bytes transactionId = 2;
+    PTransactionId transactionId = 2;
 
     fixed64 spanId = 3;
 

@@ -45,6 +45,7 @@ import com.navercorp.pinpoint.grpc.trace.PParentInfo;
 import com.navercorp.pinpoint.grpc.trace.PSpan;
 import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
 import com.navercorp.pinpoint.grpc.trace.PSpanEvent;
+import com.navercorp.pinpoint.grpc.trace.PTransactionId;
 import com.navercorp.pinpoint.io.SpanVersion;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
@@ -111,7 +112,7 @@ public class GrpcSpanFactory {
         spanBo.setApplicationId(header.getApplicationName());
         spanBo.setAgentStartTime(header.getAgentStartTime());
 
-        final TransactionId transactionId = newTransactionId(pSpan.getTransactionId(), spanBo);
+        final TransactionId transactionId = newTransactionId(pSpan.getTransactionId(), spanBo.getAgentId());
         spanBo.setTransactionId(transactionId);
 
         spanBo.setSpanId(pSpan.getSpanId());
@@ -241,7 +242,7 @@ public class GrpcSpanFactory {
 
         spanChunkBo.setApplicationServiceType((short)pSpanChunk.getApplicationServiceType());
 
-        TransactionId transactionId = newTransactionId(pSpanChunk.getTransactionId(), spanChunkBo);
+        TransactionId transactionId = newTransactionId(pSpanChunk.getTransactionId(), spanChunkBo.getAgentId());
         spanChunkBo.setTransactionId(transactionId);
 
         spanChunkBo.setKeyTime(pSpanChunk.getKeyTime());
@@ -251,15 +252,16 @@ public class GrpcSpanFactory {
         return spanChunkBo;
     }
 
-    private TransactionId newTransactionId(ByteString transactionIdByteString, BasicSpan basicSpan) {
-        byte[] transactionIdBytes = transactionIdByteString.toByteArray();
-        final TransactionId transactionId = TransactionIdUtils.parseTransactionId(transactionIdBytes);
-        String transactionAgentId = transactionId.getAgentId();
-        if (transactionAgentId != null) {
-            return transactionId;
+    private TransactionId newTransactionId(PTransactionId pTransactionId, String spanAgentId) {
+        if (pTransactionId == PTransactionId.getDefaultInstance()) {
+            throw new IllegalStateException("PTransactionId is null");
         }
-        String spanAgentId = basicSpan.getAgentId();
-        return new TransactionId(spanAgentId, transactionId.getAgentStartTime(), transactionId.getTransactionSequence());
+        final String transactionAgentId = pTransactionId.getAgentId();
+        if (transactionAgentId != null) {
+            return new TransactionId(transactionAgentId, pTransactionId.getAgentStartTime(), pTransactionId.getSequence());
+        } else {
+            return new TransactionId(spanAgentId, pTransactionId.getAgentStartTime(), pTransactionId.getSequence());
+        }
     }
 
 

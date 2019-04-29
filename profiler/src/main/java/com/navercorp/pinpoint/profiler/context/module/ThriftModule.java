@@ -22,6 +22,7 @@ import com.google.inject.Scopes;
 import com.google.inject.TypeLiteral;
 import com.google.inject.name.Names;
 import com.navercorp.pinpoint.profiler.context.compress.SpanProcessor;
+import com.navercorp.pinpoint.profiler.context.id.TransactionIdEncoder;
 import com.navercorp.pinpoint.profiler.context.provider.CommandDispatcherProvider;
 import com.navercorp.pinpoint.profiler.context.provider.ConnectionFactoryProviderProvider;
 import com.navercorp.pinpoint.profiler.context.provider.HeaderTBaseSerializerProvider;
@@ -32,6 +33,7 @@ import com.navercorp.pinpoint.profiler.context.provider.SpanProcessorProvider;
 import com.navercorp.pinpoint.profiler.context.provider.SpanStatClientFactoryProvider;
 import com.navercorp.pinpoint.profiler.context.provider.StatDataSenderProvider;
 import com.navercorp.pinpoint.profiler.context.provider.TcpDataSenderProvider;
+import com.navercorp.pinpoint.profiler.context.thrift.DefaultTransactionIdEncoder;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
 import com.navercorp.pinpoint.profiler.context.thrift.SpanThriftMessageConverterProvider;
 import com.navercorp.pinpoint.profiler.receiver.CommandDispatcher;
@@ -50,6 +52,8 @@ import org.apache.thrift.TBase;
 public class ThriftModule extends PrivateModule {
     @Override
     protected void configure() {
+        bind(TransactionIdEncoder.class).to(DefaultTransactionIdEncoder.class).in(Scopes.SINGLETON);
+
         Key<CommandDispatcher> commandDispatcher = Key.get(CommandDispatcher.class);
         bind(commandDispatcher).toProvider(CommandDispatcherProvider.class).in(Scopes.SINGLETON);
 //        expose(commandDispatcher);

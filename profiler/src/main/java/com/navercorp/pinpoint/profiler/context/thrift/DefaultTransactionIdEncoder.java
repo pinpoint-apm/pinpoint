@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.context.id;
+package com.navercorp.pinpoint.profiler.context.thrift;
 
 import com.google.inject.Inject;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.common.util.TransactionIdUtils;
+import com.navercorp.pinpoint.profiler.context.id.TransactionIdEncoder;
 import com.navercorp.pinpoint.profiler.context.module.AgentId;
 import com.navercorp.pinpoint.profiler.context.module.AgentStartTime;
 
