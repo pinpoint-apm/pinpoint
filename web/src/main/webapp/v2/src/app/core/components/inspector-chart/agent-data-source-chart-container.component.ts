@@ -115,22 +115,14 @@ export class AgentDataSourceChartContainerComponent extends InspectorChartContai
         return Math.hypot(x1 - x2, y1 - y2);
     }
 
-    protected getChartData(range: number[]): void {
-        this.chartDataService.getData(range)
-            .subscribe(
-                (data: IAgentDataSourceChart[] | AjaxException) => {
-                    if (isThatType<AjaxException>(data, 'exception')) {
-                        this.setErrObj(data);
-                    } else {
-                        this.chartData = data;
-                        this.sourceDataArr = this.makeChartData(data);
-                        this.setChartConfig(this.sourceDataArr);
-                    }
-                },
-                () => {
-                    this.setErrObj();
-                }
-            );
+    chartDataResCallbackFn(data: IAgentDataSourceChart[] | AjaxException | null): void {
+        if (!data || isThatType<AjaxException>(data, 'exception')) {
+            this.setErrObj(data);
+        } else {
+            this.chartData = data;
+            this.sourceDataArr = this.makeChartData(data);
+            this.setChartConfig(this.sourceDataArr);
+        }
     }
 
     onCheckedIdChange(checkedIdSet: Set<number>): void {
