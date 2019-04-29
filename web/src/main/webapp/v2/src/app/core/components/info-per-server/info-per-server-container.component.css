@@ -5,12 +5,12 @@
     position: absolute;
     top: 0px;
     left: 0px;
-    width: 461px;
+    width: 477px;
     border-left: 1px solid #e5e8f0;
     background: #fff;
     height: 100%;
-    overflow-y: auto;
     overflow-x: hidden;
+    overflow-y: hidden;
 }
 .l-title-group2 {
     display: flex;
@@ -55,12 +55,17 @@
     transform:translateY(-50%);
 }
 .l-contents-group {
+    height: calc(100vh - 50px);
     padding: 51px 0px 16px;
     overflow-y: auto;
     overflow-x: hidden;
 }
 .l-chart-group-list {
     flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-right: 16px;
+    height: calc(100vh - 150px);
 }
 
 .l-sidemenu3 {
@@ -71,7 +76,7 @@
     border: none;
     position: absolute;
     height: 100%;
-    overflow-y: auto;
+    overflow-y: hidden;
     overflow-x: hidden;
 }
 .l-title-group3 {
@@ -80,6 +85,7 @@
     align-items: center;
     height: 64px;
     padding: 0 25px;
+    margin-bottom: 37px;
     position: relative;
 }
 .l-title-group3 .fas {
@@ -99,11 +105,14 @@
     font-weight: 600;
     color: #666;
 }
-
+.l-sidemenu3 .l-contents-group {
+    height: calc(100vh - 150px);
+    padding-top: 0px;
+}
 
 .sidemenu {
     top: 0px;
-    left: -461px;
+    left: -477px;
 }
 .title-group2 {
     background-color: #f9fafc;

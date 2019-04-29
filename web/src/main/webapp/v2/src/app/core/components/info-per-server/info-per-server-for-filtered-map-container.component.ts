@@ -24,7 +24,7 @@ import { ServerMapData } from 'app/core/components/server-map/class/server-map-d
                 left: '0px'
             })),
             state('end', style({
-                left: '-809px'
+                left: '-825px'
             })),
             transition('* => *', [
                 animate('0.2s 0.5s ease-out')
@@ -35,7 +35,7 @@ import { ServerMapData } from 'app/core/components/server-map/class/server-map-d
                 left: '0px'
             })),
             state('end', style({
-                left: '-461px'
+                left: '-477px'
             })),
             transition('* => *', [
                 animate('0.2s 0s ease-out')
