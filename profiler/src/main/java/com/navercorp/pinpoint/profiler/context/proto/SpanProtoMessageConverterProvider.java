@@ -22,7 +22,7 @@ import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.grpc.trace.PSpan;
 import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
 import com.navercorp.pinpoint.profiler.context.compress.SpanProcessor;
-import com.navercorp.pinpoint.profiler.context.id.TransactionIdEncoder;
+import com.navercorp.pinpoint.profiler.context.module.AgentId;
 import com.navercorp.pinpoint.profiler.context.module.ApplicationServerType;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
 
@@ -35,21 +35,21 @@ import javax.inject.Provider;
  */
 public class SpanProtoMessageConverterProvider implements Provider<MessageConverter<GeneratedMessageV3>> {
 
-    private final ServiceType applicationServiceType;
-    private final TransactionIdEncoder transactionIdEncoder;
+    private final String agentId;
+    private final short applicationServiceTypeCode;
+
     private final SpanProcessor<PSpan.Builder, PSpanChunk.Builder> spanPostProcessor;
 
     @Inject
-    public SpanProtoMessageConverterProvider(@ApplicationServerType ServiceType applicationServiceType,
-                                             TransactionIdEncoder transactionIdEncoder, SpanProcessor<PSpan.Builder, PSpanChunk.Builder> spanPostProcessor) {
-
-        this.applicationServiceType = Assert.requireNonNull(applicationServiceType, "applicationServiceType must not be null");
-        this.transactionIdEncoder = Assert.requireNonNull(transactionIdEncoder, "transactionIdEncoder must not be null");
+    public SpanProtoMessageConverterProvider(@AgentId String agentId, @ApplicationServerType ServiceType applicationServiceType,
+                                             SpanProcessor<PSpan.Builder, PSpanChunk.Builder> spanPostProcessor) {
+        this.agentId = Assert.requireNonNull(agentId, "agentId must not be null");
+        this.applicationServiceTypeCode = applicationServiceType.getCode();
         this.spanPostProcessor = Assert.requireNonNull(spanPostProcessor, "spanPostProcessor must not be null");
     }
 
     @Override
     public MessageConverter<GeneratedMessageV3> get() {
-        return new SpanProtoMessageConverter(applicationServiceType.getCode(), transactionIdEncoder, spanPostProcessor);
+        return new SpanProtoMessageConverter(agentId, applicationServiceTypeCode, spanPostProcessor);
     }
 }

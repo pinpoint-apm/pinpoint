@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.profiler.context.proto;
 
-import com.google.protobuf.ByteString;
 import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
@@ -34,6 +33,7 @@ import com.navercorp.pinpoint.grpc.trace.PParentInfo;
 import com.navercorp.pinpoint.grpc.trace.PSpan;
 import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
 import com.navercorp.pinpoint.grpc.trace.PSpanEvent;
+import com.navercorp.pinpoint.grpc.trace.PTransactionId;
 import com.navercorp.pinpoint.profiler.context.Annotation;
 import com.navercorp.pinpoint.profiler.context.AsyncId;
 import com.navercorp.pinpoint.profiler.context.AsyncSpanChunk;
@@ -44,11 +44,9 @@ import com.navercorp.pinpoint.profiler.context.SpanEvent;
 import com.navercorp.pinpoint.profiler.context.compress.SpanProcessor;
 import com.navercorp.pinpoint.profiler.context.id.Shared;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
-import com.navercorp.pinpoint.profiler.context.id.TransactionIdEncoder;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
 import com.navercorp.pinpoint.io.SpanVersion;
 
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -58,8 +56,8 @@ import java.util.List;
  */
 public class SpanProtoMessageConverter implements MessageConverter<GeneratedMessageV3> {
 
+    private final String agentId;
     private final short applicationServiceType;
-    private final TransactionIdEncoder transactionIdEncoder;
 
     private final SpanProcessor<PSpan.Builder, PSpanChunk.Builder> spanProcessor;
     // WARNING not thread safe
@@ -69,12 +67,10 @@ public class SpanProtoMessageConverter implements MessageConverter<GeneratedMess
 
     private final PAnnotation.Builder pAnnotationBuilder = PAnnotation.newBuilder();
 
-    public SpanProtoMessageConverter(short applicationServiceType,
-                                      TransactionIdEncoder transactionIdEncoder,
+    public SpanProtoMessageConverter(String agentId, short applicationServiceType,
                                      SpanProcessor<PSpan.Builder, PSpanChunk.Builder> spanProcessor) {
-
+        this.agentId = Assert.requireNonNull(agentId, "agentId must not be null");
         this.applicationServiceType = applicationServiceType;
-        this.transactionIdEncoder = Assert.requireNonNull(transactionIdEncoder, "transactionIdEncoder must not be null");
         this.spanProcessor = Assert.requireNonNull(spanProcessor, "spanProcessor must not be null");
 
     }
@@ -100,15 +96,12 @@ public class SpanProtoMessageConverter implements MessageConverter<GeneratedMess
 
         pSpan.setVersion(SpanVersion.TRACE_V2);
 
-//        pSpanBuilder.applicationName(applicationName);
-//        pSpanBuilder.setAgentId(agentId);
-//        pSpanBuilder.setAgentStartTime(agentStartTime);
         pSpan.setApplicationServiceType(applicationServiceType);
 
         final TraceRoot traceRoot = span.getTraceRoot();
         final TraceId traceId = traceRoot.getTraceId();
-        final ByteBuffer transactionId = transactionIdEncoder.encodeTransactionId(traceId);
-        pSpan.setTransactionId(ByteString.copyFrom(transactionId));
+        final PTransactionId transactionId = newTransactionId(traceId);
+        pSpan.setTransactionId(transactionId);
         pSpan.setSpanId(traceId.getSpanId());
         pSpan.setParentSpanId(traceId.getParentSpanId());
 
@@ -148,6 +141,27 @@ public class SpanProtoMessageConverter implements MessageConverter<GeneratedMess
         this.spanProcessor.postProcess(span, pSpan);
         return pSpan.build();
 
+    }
+
+
+    private PTransactionId newTransactionId(TraceId traceId) {
+        if (isCompressedType(traceId)) {
+            final PTransactionId.Builder builder = PTransactionId.newBuilder();
+            builder.setAgentStartTime(traceId.getAgentStartTime());
+            builder.setSequence(traceId.getTransactionSequence());
+            return builder.build();
+        } else {
+            final PTransactionId.Builder builder = PTransactionId.newBuilder();
+            builder.setAgentId(traceId.getAgentId());
+            builder.setAgentStartTime(traceId.getAgentStartTime());
+            builder.setSequence(traceId.getTransactionSequence());
+            return builder.build();
+        }
+    }
+
+    private boolean isCompressedType(TraceId traceId) {
+        // skip agentId
+        return agentId.equals(traceId.getAgentId());
     }
 
     private PAcceptEvent newAcceptEvent(Span span) {
@@ -199,8 +213,9 @@ public class SpanProtoMessageConverter implements MessageConverter<GeneratedMess
 
         final TraceRoot traceRoot = spanChunk.getTraceRoot();
         final TraceId traceId = traceRoot.getTraceId();
-        final ByteBuffer transactionId = transactionIdEncoder.encodeTransactionId(traceId);
-        pSpanChunk.setTransactionId(ByteString.copyFrom(transactionId));
+
+        final PTransactionId transactionId = newTransactionId(traceId);
+        pSpanChunk.setTransactionId(transactionId);
 
         pSpanChunk.setSpanId(traceId.getSpanId());
 
@@ -351,8 +366,10 @@ public class SpanProtoMessageConverter implements MessageConverter<GeneratedMess
 
     @Override
     public String toString() {
-        return "SpanThriftMessageConverter{" +
+        return "SpanProtoMessageConverter{" +
+                "agentId='" + agentId + '\'' +
                 ", applicationServiceType=" + applicationServiceType +
+                ", spanProcessor=" + spanProcessor +
                 '}';
     }
 }
