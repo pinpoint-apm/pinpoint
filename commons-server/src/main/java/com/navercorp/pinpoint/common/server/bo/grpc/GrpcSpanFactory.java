@@ -188,15 +188,16 @@ public class GrpcSpanFactory {
         final PNextEvent nextEvent = pSpanEvent.getNextEvent();
         if (nextEvent != PNextEvent.getDefaultInstance()) {
             final PNextEvent.FieldCase fieldCase = nextEvent.getFieldCase();
-            if (fieldCase == PNextEvent.FieldCase.ASYNCEVENT) {
-                final int asyncEvent = nextEvent.getAsyncEvent();
-                spanEvent.setNextAsyncId(asyncEvent);
-            } else if (fieldCase == PNextEvent.FieldCase.MESSAGEEVENT) {
+            if (fieldCase == PNextEvent.FieldCase.MESSAGEEVENT) {
                 final PMessageEvent messageEvent = nextEvent.getMessageEvent();
                 spanEvent.setDestinationId(messageEvent.getDestinationId());
                 spanEvent.setEndPoint(messageEvent.getEndPoint());
+            } else {
+                logger.info("unknown nextEvent:{}", nextEvent);
             }
         }
+        int asyncEvent = pSpanEvent.getAsyncEvent();
+        spanEvent.setNextAsyncId(asyncEvent);
 
         List<AnnotationBo> annotationList = buildAnnotationList(pSpanEvent.getAnnotationList());
         spanEvent.setAnnotationBoList(annotationList);

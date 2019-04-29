@@ -77,12 +77,12 @@ message PSpanEvent {
     PIntStringValue exceptionInfo = 11;
 
     PNextEvent nextEvent = 12;
+    int32 asyncEvent = 13;
 }
 
 message PNextEvent {
     oneof field {
-        int32 asyncEvent = 1;
-        PMessageEvent messageEvent = 2;
+        PMessageEvent messageEvent = 1;
     }
 }
 

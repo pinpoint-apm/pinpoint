@@ -259,10 +259,15 @@ public class SpanProtoMessageConverter implements MessageConverter<GeneratedMess
             pSpanEvent.setExceptionInfo(pIntStringValue);
         }
 
-        PNextEvent nextEvent = buildNextEvent(spanEvent, pSpanEvent);
+        final PNextEvent nextEvent = buildNextEvent(spanEvent);
         if (nextEvent != null) {
             pSpanEvent.setNextEvent(nextEvent);
         }
+        final AsyncId asyncIdObject = spanEvent.getAsyncIdObject();
+        if (asyncIdObject != null) {
+            pSpanEvent.setAsyncEvent(asyncIdObject.getAsyncId());
+        }
+
 
         final List<Annotation> annotations = spanEvent.getAnnotations();
         if (CollectionUtils.hasLength(annotations)) {
@@ -273,15 +278,7 @@ public class SpanProtoMessageConverter implements MessageConverter<GeneratedMess
         return pSpanEvent;
     }
 
-    private PNextEvent buildNextEvent(SpanEvent spanEvent, PSpanEvent.Builder pSpanEvent) {
-
-        final AsyncId asyncIdObject = spanEvent.getAsyncIdObject();
-        if (asyncIdObject != null) {
-            PNextEvent.Builder nextEvent = PNextEvent.newBuilder();
-            nextEvent.setAsyncEvent(asyncIdObject.getAsyncId());
-            return nextEvent.build();
-        }
-
+    private PNextEvent buildNextEvent(SpanEvent spanEvent) {
 
         PMessageEvent.Builder messageEventBuilder = null;
         final String endPoint = spanEvent.getEndPoint();
