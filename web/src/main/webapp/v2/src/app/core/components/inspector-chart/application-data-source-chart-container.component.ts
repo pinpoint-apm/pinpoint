@@ -54,22 +54,14 @@ export class ApplicationDataSourceChartContainerComponent extends InspectorChart
         this.unsubscribe.complete();
     }
 
-    protected getChartData(range: number[]): void {
-        this.chartDataService.getData(range)
-            .subscribe(
-                (data: IApplicationDataSourceChart[] | AjaxException) => {
-                    if (isThatType<AjaxException>(data, 'exception')) {
-                        this.setErrObj(data);
-                    } else {
-                        this.chartData = data;
-                        this.sourceDataArr = this.makeChartData(data);
-                        this.setChartConfig(this.sourceDataArr[0]);
-                    }
-                },
-                () => {
-                    this.setErrObj();
-                }
-            );
+    chartDataResCallbackFn(data: IApplicationDataSourceChart[] | AjaxException | null): void {
+        if (!data || isThatType<AjaxException>(data, 'exception')) {
+            this.setErrObj(data);
+        } else {
+            this.chartData = data;
+            this.sourceDataArr = this.makeChartData(data);
+            this.setChartConfig(this.sourceDataArr[0]);
+        }
     }
 
     onSourceDataSelected(index: number): void {
