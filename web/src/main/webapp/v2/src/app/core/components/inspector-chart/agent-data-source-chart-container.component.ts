@@ -16,6 +16,7 @@ import { AgentDataSourceChartDataService, IAgentDataSourceChart } from './agent-
 import { HELP_VIEWER_LIST } from 'app/core/components/help-viewer-popup/help-viewer-popup-container.component';
 import { InspectorChartContainer } from 'app/core/components/inspector-chart/inspector-chart-container';
 import { isThatType } from 'app/core/utils/util';
+import { IChartDataFromServer } from './chart-data.service';
 
 @Component({
     selector: 'pp-agent-data-source-chart-container',
@@ -115,22 +116,14 @@ export class AgentDataSourceChartContainerComponent extends InspectorChartContai
         return Math.hypot(x1 - x2, y1 - y2);
     }
 
-    protected getChartData(range: number[]): void {
-        this.chartDataService.getData(range)
-            .subscribe(
-                (data: IAgentDataSourceChart[] | AjaxException) => {
-                    if (isThatType<AjaxException>(data, 'exception')) {
-                        this.setErrObj(data);
-                    } else {
-                        this.chartData = data;
-                        this.sourceDataArr = this.makeChartData(data);
-                        this.setChartConfig(this.sourceDataArr);
-                    }
-                },
-                () => {
-                    this.setErrObj();
-                }
-            );
+    chartDataResCallbackFn(data: IAgentDataSourceChart[] | AjaxException | null): void {
+        if (!data || isThatType<AjaxException>(data, 'exception')) {
+            this.setErrObj(data);
+        } else {
+            this.chartData = data;
+            this.sourceDataArr = this.makeChartData(data);
+            this.setChartConfig(this.sourceDataArr);
+        }
     }
 
     onCheckedIdChange(checkedIdSet: Set<number>): void {
