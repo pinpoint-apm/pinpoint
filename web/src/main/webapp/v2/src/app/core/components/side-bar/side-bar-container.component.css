@@ -7,7 +7,6 @@
     display: flex;
     flex-flow: column nowrap;
     height: 100%;
-    overflow-y: auto;
     overflow-x: hidden;
 }
 .l-sidemenu {
@@ -28,12 +27,16 @@
     height: 50px;
 }
 .l-contents-group {
-    padding-bottom: 16px;
     overflow-y: auto;
     overflow-x: hidden;
+    height: calc(100vh - 99px);
 }
 .l-chart-group-list {
     flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-right: 16px;
+    height: calc(100vh - 150px);
 }
 hr {
     height: 1px;

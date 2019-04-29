@@ -28,7 +28,7 @@ import { ServerErrorPopupContainerComponent } from 'app/core/components/server-e
                 left: '0px'
             })),
             state('end', style({
-                left: '-809px'
+                left: '-825px'
             })),
             transition('* => *', [
                 animate('0.2s 0s ease-out')
@@ -39,7 +39,7 @@ import { ServerErrorPopupContainerComponent } from 'app/core/components/server-e
                 left: '0px'
             })),
             state('end', style({
-                left: '-461px'
+                left: '-477px'
             })),
             transition('* => *', [
                 animate('0.2s 0s ease-out')

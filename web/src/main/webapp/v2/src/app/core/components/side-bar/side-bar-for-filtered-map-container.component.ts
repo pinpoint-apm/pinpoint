@@ -64,7 +64,7 @@ export class SideBarForFilteredMapContainerComponent implements OnInit, OnDestro
             })
         ).subscribe((target: ISelectedTarget) => {
             this.target = target;
-            this.renderer.setStyle(this.el.nativeElement, 'width', '461px');
+            this.renderer.setStyle(this.el.nativeElement, 'width', '477px');
         });
     }
 
