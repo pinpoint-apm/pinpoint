@@ -25,7 +25,7 @@ import com.navercorp.pinpoint.profiler.context.SpanEvent;
 import com.navercorp.pinpoint.profiler.context.id.DefaultTraceId;
 import com.navercorp.pinpoint.profiler.context.id.DefaultTraceRoot;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
-import com.navercorp.pinpoint.profiler.context.proto.GrpcSpanMessageConverter;
+import com.navercorp.pinpoint.profiler.context.grpc.GrpcSpanMessageConverter;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;

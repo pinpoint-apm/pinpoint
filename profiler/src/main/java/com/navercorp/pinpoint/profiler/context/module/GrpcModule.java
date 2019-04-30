@@ -25,7 +25,7 @@ import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.grpc.trace.PSpan;
 import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
 import com.navercorp.pinpoint.profiler.context.compress.SpanProcessor;
-import com.navercorp.pinpoint.profiler.context.proto.GrpcSpanMessageConverterProvider;
+import com.navercorp.pinpoint.profiler.context.grpc.GrpcSpanMessageConverterProvider;
 import com.navercorp.pinpoint.profiler.context.provider.CommandDispatcherProvider;
 import com.navercorp.pinpoint.profiler.context.provider.ConnectionFactoryProviderProvider;
 import com.navercorp.pinpoint.profiler.context.provider.grpc.DnsExecutorServiceProvider;
