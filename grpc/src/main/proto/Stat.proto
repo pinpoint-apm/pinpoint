@@ -48,7 +48,12 @@ message PJvmInfo {
     PJvmGcType gcType = 3;
 }
 
-message PJvmGcType {
+enum PJvmGcType {
+    JVM_GC_TYPE_UNKNOWN = 0;
+    JVM_GC_TYPE_SERIAL = 1;
+    JVM_GC_TYPE_PARALLEL = 2;
+    JVM_GC_TYPE_CMS = 3;
+    JVM_GC_TYPE_G1 = 4;
 }
 
 message PAgentStat {

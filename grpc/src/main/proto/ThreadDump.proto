@@ -11,13 +11,13 @@ option java_outer_classname = "ThreadDumpProto";
 package v1;
 
 enum PThreadState {
-    NEW = 0;
-    RUNNABLE = 1;
-    BLOCKED = 2;
-    WAITING = 3;
-    TIMED_WAITING = 4;
-    TERMINATED = 5;
-    UNKNOWN = 6;
+    THREAD_STATE_NEW = 0;
+    THREAD_STATE_RUNNABLE = 1;
+    THREAD_STATE_BLOCKED = 2;
+    THREAD_STATE_WAITING = 3;
+    THREAD_STATE_TIMED_WAITING = 4;
+    THREAD_STATE_TERMINATED = 5;
+    THREAD_STATE_UNKNOWN = 6;
 }
 
 message PMonitorInfo {
