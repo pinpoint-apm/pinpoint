@@ -41,16 +41,16 @@ public class AgentGrpcDataSenderProvider implements Provider<EnhancedDataSender<
     private final ProfilerConfig profilerConfig;
     private final MessageConverter<GeneratedMessageV3> messageConverter;
     private final AgentInformation agentInformation;
-    private final Provider<ExecutorService> dnsExecutorService;
+    private final NameResolverProvider nameResolverProvider;
 
     @Inject
     public AgentGrpcDataSenderProvider(ProfilerConfig profilerConfig, AgentInformation agentInformation,
                                        @MetadataConverter MessageConverter<GeneratedMessageV3> messageConverter,
-                                       Provider<ExecutorService> dnsExecutorService) {
+                                       NameResolverProvider nameResolverProvider) {
         this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig must not be null");
-        this.agentInformation = Assert.requireNonNull(agentInformation, "agentInformation must not be null");
-        this.dnsExecutorService = Assert.requireNonNull(dnsExecutorService, "dnsExecutorService must not be null");
         this.messageConverter = Assert.requireNonNull(messageConverter, "messageConverter must not be null");
+        this.agentInformation = Assert.requireNonNull(agentInformation, "agentInformation must not be null");
+        this.nameResolverProvider = Assert.requireNonNull(nameResolverProvider, "nameResolverProvider must not be null");
     }
 
     @Override
@@ -60,8 +60,6 @@ public class AgentGrpcDataSenderProvider implements Provider<EnhancedDataSender<
         int collectorTcpServerPort = grpcTransportConfig.getCollectorAgentServerPort();
         HeaderFactory<AgentHeaderFactory.Header> headerHeaderFactory = newAgentHeaderFactory();
 
-        ExecutorService executorService = dnsExecutorService.get();
-        NameResolverProvider nameResolverProvider = new PinpointDnsNameResolverProvider("pinpoint-dns", executorService);
         return new AgentGrpcDataSender("Default", collectorTcpServerIp, collectorTcpServerPort,  messageConverter, headerHeaderFactory, nameResolverProvider);
     }
 
