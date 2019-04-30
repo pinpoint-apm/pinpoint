@@ -75,13 +75,14 @@ public class TraceService {
     }
 
     private void insertAcceptorHost(SpanEventBo spanEvent, String applicationId, ServiceType serviceType) {
-
-        String endPoint = spanEvent.getEndPoint();
+        final String endPoint = spanEvent.getEndPoint();
         if (endPoint == null) {
+            logger.debug("endPoint is null. spanEvent:{}", spanEvent);
             return;
         }
-        String destinationId = spanEvent.getDestinationId();
+        final String destinationId = spanEvent.getDestinationId();
         if (destinationId == null) {
+            logger.debug("destinationId is null. spanEvent:{}", spanEvent);
             return;
         }
         hostApplicationMapDao.insert(endPoint, destinationId, spanEvent.getServiceType(), applicationId, serviceType.getCode());
@@ -92,6 +93,7 @@ public class TraceService {
         // acceptor host is set at profiler module only when the span is not the kind of root span
         final String acceptorHost = span.getAcceptorHost();
         if (acceptorHost == null) {
+            logger.debug("acceptorHost is null {}", span);
             return;
         }
         final String spanApplicationName = span.getApplicationId();
@@ -181,10 +183,11 @@ public class TraceService {
         if (CollectionUtils.isEmpty(spanEventList)) {
             return;
         }
+        if (logger.isDebugEnabled()) {
+            logger.debug("handle spanEvent size:{}", spanEventList.size());
+        }
 
         final ServiceType applicationServiceType = getApplicationServiceType(span);
-
-        logger.debug("handle spanEvent size:{}", spanEventList.size());
         // TODO need to batch update later.
         insertSpanEventList(spanEventList, applicationServiceType, span.getApplicationId(), span.getAgentId(), span.getEndPoint());
     }
@@ -194,12 +197,9 @@ public class TraceService {
         for (SpanEventBo spanEvent : spanEventList) {
             final ServiceType spanEventType = registry.findServiceType(spanEvent.getServiceType());
 
-            if (!serviceTypeValidationCheck(spanEventType)) {
-                continue;
-            }
-
-            if (spanEventType.isAlias()) {
+            if (isAlias(spanEventType, spanEvent)) {
                 insertAcceptorHost(spanEvent, applicationId, applicationServiceType);
+                continue;
             }
 
             if (!spanEventType.isRecordStatistics()) {
@@ -224,9 +224,12 @@ public class TraceService {
         }
     }
 
-    private boolean serviceTypeValidationCheck(ServiceType spanEventType) {
-        if (spanEventType.isAlias() && spanEventType.isRecordStatistics()) {
-            logger.error("ServiceType with AS_ALIAS should NOT have RECORD_STATISTICS");
+    private boolean isAlias(ServiceType spanEventType, SpanEventBo forDebugEvent) {
+        if (!spanEventType.isAlias()) {
+            return false;
+        }
+        if (spanEventType.isRecordStatistics()) {
+            logger.error("ServiceType with AS_ALIAS should NOT have RECORD_STATISTICS {}", forDebugEvent);
             return false;
         }
         return true;
