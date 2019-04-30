@@ -33,7 +33,7 @@ import javax.inject.Provider;
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class SpanProtoMessageConverterProvider implements Provider<MessageConverter<GeneratedMessageV3>> {
+public class GrpcSpanMessageConverterProvider implements Provider<MessageConverter<GeneratedMessageV3>> {
 
     private final String agentId;
     private final short applicationServiceTypeCode;
@@ -41,8 +41,8 @@ public class SpanProtoMessageConverterProvider implements Provider<MessageConver
     private final SpanProcessor<PSpan.Builder, PSpanChunk.Builder> spanPostProcessor;
 
     @Inject
-    public SpanProtoMessageConverterProvider(@AgentId String agentId, @ApplicationServerType ServiceType applicationServiceType,
-                                             SpanProcessor<PSpan.Builder, PSpanChunk.Builder> spanPostProcessor) {
+    public GrpcSpanMessageConverterProvider(@AgentId String agentId, @ApplicationServerType ServiceType applicationServiceType,
+                                            SpanProcessor<PSpan.Builder, PSpanChunk.Builder> spanPostProcessor) {
         this.agentId = Assert.requireNonNull(agentId, "agentId must not be null");
         this.applicationServiceTypeCode = applicationServiceType.getCode();
         this.spanPostProcessor = Assert.requireNonNull(spanPostProcessor, "spanPostProcessor must not be null");
@@ -50,6 +50,6 @@ public class SpanProtoMessageConverterProvider implements Provider<MessageConver
 
     @Override
     public MessageConverter<GeneratedMessageV3> get() {
-        return new SpanProtoMessageConverter(agentId, applicationServiceTypeCode, spanPostProcessor);
+        return new GrpcSpanMessageConverter(agentId, applicationServiceTypeCode, spanPostProcessor);
     }
 }

@@ -34,14 +34,14 @@ import java.util.List;
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class SpanProcessorProtoV2 implements SpanProcessor<PSpan.Builder, PSpanChunk.Builder> {
+public class GrpcSpanProcessorV2 implements SpanProcessor<PSpan.Builder, PSpanChunk.Builder> {
 
     private static final byte V2 = TraceDataFormatVersion.V2.getVersion();
 
     // TODO refactor injector
     private final static Comparator<SpanEvent> SEQUENCE_COMPARATOR = SpanEventSequenceComparator.INSTANCE;
 
-    public SpanProcessorProtoV2() {
+    public GrpcSpanProcessorV2() {
     }
 
     @Override

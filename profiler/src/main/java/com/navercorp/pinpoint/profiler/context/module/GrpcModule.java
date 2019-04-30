@@ -25,7 +25,7 @@ import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.grpc.trace.PSpan;
 import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
 import com.navercorp.pinpoint.profiler.context.compress.SpanProcessor;
-import com.navercorp.pinpoint.profiler.context.proto.SpanProtoMessageConverterProvider;
+import com.navercorp.pinpoint.profiler.context.proto.GrpcSpanMessageConverterProvider;
 import com.navercorp.pinpoint.profiler.context.provider.CommandDispatcherProvider;
 import com.navercorp.pinpoint.profiler.context.provider.ConnectionFactoryProviderProvider;
 import com.navercorp.pinpoint.profiler.context.provider.grpc.DnsExecutorServiceProvider;
@@ -81,7 +81,7 @@ public class GrpcModule extends PrivateModule {
         TypeLiteral<MessageConverter<GeneratedMessageV3>> protoMessageConverter = new TypeLiteral<MessageConverter<GeneratedMessageV3>>() {};
         Key<MessageConverter<GeneratedMessageV3>> spanMessageConverterKey = Key.get(protoMessageConverter, SpanConverter.class);
         // not singletone
-        bind(spanMessageConverterKey).toProvider(SpanProtoMessageConverterProvider.class);
+        bind(spanMessageConverterKey).toProvider(GrpcSpanMessageConverterProvider.class);
 
         TypeLiteral<MessageConverter<TBase<?, ?>>> thriftMessageConverter = new TypeLiteral<MessageConverter<TBase<?, ?>>>() {};
         Key<MessageConverter<TBase<?, ?>>> metadataMessageConverterKey = Key.get(thriftMessageConverter, MetadataConverter.class);

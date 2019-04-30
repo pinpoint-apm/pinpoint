@@ -35,7 +35,7 @@ import org.apache.thrift.TBase;
  * Not thread safe
  * @author Woonduk Kang(emeroad)
  */
-public class AnnotationValueProtoMapper {
+public class GrpcAnnotationValueMapper {
 
     private final PAnnotationValue.Builder annotationBuilder = PAnnotationValue.newBuilder();
 
