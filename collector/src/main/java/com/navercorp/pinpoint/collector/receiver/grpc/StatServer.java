@@ -23,9 +23,11 @@ import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.grpc.server.MetadataServerTransportFilter;
 import com.navercorp.pinpoint.grpc.server.ServerFactory;
 import com.navercorp.pinpoint.grpc.server.TransportMetadataFactory;
+import com.navercorp.pinpoint.grpc.server.TransportMetadataServerInterceptor;
 import io.grpc.BindableService;
 import com.navercorp.pinpoint.grpc.server.ServerOption;
 import io.grpc.Server;
+import io.grpc.ServerInterceptor;
 import io.grpc.ServerTransportFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,10 +67,16 @@ public class StatServer implements InitializingBean, DisposableBean, BeanNameAwa
         Assert.requireNonNull(this.dispatchHandler, "dispatchHandler must not be null");
         Assert.requireNonNull(this.addressFilter, "addressFilter must not be null");
 
-
         this.serverFactory = new ServerFactory(beanName, this.bindIp, this.bindPort, this.executor);
         ServerTransportFilter permissionServerTransportFilter = new PermissionServerTransportFilter(addressFilter);
         this.serverFactory.addTransportFilter(permissionServerTransportFilter);
+
+        TransportMetadataFactory transportMetadataFactory = new TransportMetadataFactory();
+        final ServerTransportFilter metadataTransportFilter = new MetadataServerTransportFilter(transportMetadataFactory);
+        this.serverFactory.addTransportFilter(metadataTransportFilter);
+
+        ServerInterceptor transportMetadataServerInterceptor = new TransportMetadataServerInterceptor();
+        this.serverFactory.addInterceptor(transportMetadataServerInterceptor);
 
         // Add options
 

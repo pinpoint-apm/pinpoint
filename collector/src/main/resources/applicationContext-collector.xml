@@ -455,7 +455,7 @@
         <property name="bindPort" value="#{baseDataReceiverConfig.grpcBindPort}"/>
         <property name="executor" ref="grpcAgentServerExecutor"/>
         <property name="addressFilter" ref="addressFilter"/>
-        <property name="dispatchHandler" ref="tcpDispatchHandlerFactoryBean"/>
+        <property name="dispatchHandler" ref="grpcDispatchHandlerFactoryBean"/>
         <property name="enable" value="#{baseDataReceiverConfig.isGrpcEnable()}"/>
         <property name="serverOption" ref="grpcAgentServerOption"/>
         <property name="socketIdProvider" ref="socketIdProvider"/>
