@@ -24,7 +24,7 @@ export class ServerAndAgentListContainerComponent implements OnInit, OnDestroy {
     private unsubscribe: Subject<void> = new Subject();
     filterStr: string;
     agentId: string;
-    serverList: { [key: string]: IServerAndAgentData[] } = {};
+    serverList: { [key: string]: IServerAndAgentData[] };
     serverKeyList: string[];
     filteredServerList: { [key: string]: IServerAndAgentData[] };
     filteredServerKeyList: string[];
@@ -50,7 +50,9 @@ export class ServerAndAgentListContainerComponent implements OnInit, OnDestroy {
                     this.agentId = urlService.hasValue(UrlPathId.AGENT_ID) ? urlService.getPathValue(UrlPathId.AGENT_ID) : '';
                 }),
                 filter((urlService: NewUrlStateNotificationService) => {
-                    return urlService.isValueChanged(UrlPathId.APPLICATION);
+                    // TODO: UrlRedirectComponent때문에 isValueChanged(Application) 값이 false가 되어서 임시로 !serverList 조건을 추가해놓음.
+                    // TODO: UrlRedirectComponent를 UrlValidateGuard로 대체한 후에 해당 조건 삭제하기.
+                    return !this.serverList || urlService.isValueChanged(UrlPathId.APPLICATION);
                 }),
                 map((urlService: NewUrlStateNotificationService) => {
                     return (urlService.getPathValue(UrlPathId.APPLICATION) as IApplication).getApplicationName();

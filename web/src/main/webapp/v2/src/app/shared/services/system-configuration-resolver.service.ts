@@ -2,7 +2,9 @@ import { Injectable } from '@angular/core';
 import { Router, Resolve, RouterStateSnapshot, ActivatedRouteSnapshot } from '@angular/router';
 import { Observable, EMPTY } from 'rxjs';
 import { catchError } from 'rxjs/operators';
+
 import { SystemConfigurationDataService } from './system-configuration-data.service';
+import { UrlPath } from 'app/shared/models';
 
 @Injectable()
 export class SystemConfigurationResolverService implements Resolve<ISystemConfiguration> {
@@ -11,10 +13,10 @@ export class SystemConfigurationResolverService implements Resolve<ISystemConfig
         private systemConfigurationDataService: SystemConfigurationDataService
     ) {}
 
-    resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<ISystemConfiguration> {
+    resolve(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Observable<ISystemConfiguration> | Observable<never> {
         return this.systemConfigurationDataService.getConfiguration().pipe(
-            catchError((error: any) => {
-                this.router.navigate(['/error']);
+            catchError(() => {
+                this.router.navigate([`/${UrlPath.ERROR}`]);
                 return EMPTY;
             })
         );
