@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.context.proto;
+package com.navercorp.pinpoint.profiler.context.grpc;
 
 import com.google.protobuf.ByteString;
 import com.navercorp.pinpoint.common.util.IntBooleanIntBooleanValue;
