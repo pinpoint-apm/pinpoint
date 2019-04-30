@@ -28,12 +28,8 @@ import com.navercorp.pinpoint.profiler.AgentInformation;
 import com.navercorp.pinpoint.profiler.context.module.SpanConverter;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
-import com.navercorp.pinpoint.profiler.sender.grpc.GrpcDataSender;
 import com.navercorp.pinpoint.profiler.sender.grpc.SpanGrpcDataSender;
 import io.grpc.NameResolverProvider;
-import io.grpc.internal.PinpointDnsNameResolverProvider;
-
-import java.util.concurrent.ExecutorService;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -42,16 +38,16 @@ public class SpanGrpcDataSenderProvider implements Provider<DataSender<Object>> 
     private final ProfilerConfig profilerConfig;
     private final MessageConverter<GeneratedMessageV3> messageConverter;
     private final AgentInformation agentInformation;
-    private final Provider<ExecutorService> dnsExecutorService;
+    private final NameResolverProvider nameResolverProvider;
 
     @Inject
     public SpanGrpcDataSenderProvider(ProfilerConfig profilerConfig,
                                       @SpanConverter MessageConverter<GeneratedMessageV3> messageConverter, AgentInformation agentInformation,
-                                      Provider<ExecutorService> dnsExecutorService) {
+                                      NameResolverProvider nameResolverProvider) {
         this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig must not be null");
         this.messageConverter = Assert.requireNonNull(messageConverter, "messageConverter must not be null");
         this.agentInformation = Assert.requireNonNull(agentInformation, "agentInformation must not be null");
-        this.dnsExecutorService = Assert.requireNonNull(dnsExecutorService, "dnsExecutorService must not be null");
+        this.nameResolverProvider = Assert.requireNonNull(nameResolverProvider, "nameResolverProvider must not be null");
     }
 
     @Override
@@ -61,8 +57,6 @@ public class SpanGrpcDataSenderProvider implements Provider<DataSender<Object>> 
         int collectorTcpServerPort = grpcTransportConfig.getCollectorSpanServerPort();
         HeaderFactory<AgentHeaderFactory.Header> headerHeaderFactory = newAgentHeaderFactory();
 
-        ExecutorService executorService = dnsExecutorService.get();
-        NameResolverProvider nameResolverProvider = new PinpointDnsNameResolverProvider("pinpoint-dns", executorService);
         return new SpanGrpcDataSender("SpanGrpcDataSender", collectorTcpServerIp, collectorTcpServerPort,  messageConverter, headerHeaderFactory, nameResolverProvider);
     }
 

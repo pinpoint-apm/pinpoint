@@ -30,9 +30,6 @@ import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
 import com.navercorp.pinpoint.profiler.sender.grpc.StatGrpcDataSender;
 import io.grpc.NameResolverProvider;
-import io.grpc.internal.PinpointDnsNameResolverProvider;
-
-import java.util.concurrent.ExecutorService;
 
 /**
  * @author jaehong.kim
@@ -41,17 +38,17 @@ public class StatGrpcDataSenderProvider  implements Provider<DataSender<Object>>
     private final ProfilerConfig profilerConfig;
     private final MessageConverter<GeneratedMessageV3> messageConverter;
     private final AgentInformation agentInformation;
-    private final Provider<ExecutorService> dnsExecutorService;
+    private final NameResolverProvider nameResolverProvider;
 
     @Inject
     public StatGrpcDataSenderProvider(ProfilerConfig profilerConfig,
                                       @StatConverter MessageConverter<GeneratedMessageV3> messageConverter,
                                       AgentInformation agentInformation,
-                                      Provider<ExecutorService> dnsExecutorService) {
+                                      NameResolverProvider nameResolverProvider) {
         this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig must not be null");
         this.messageConverter = Assert.requireNonNull(messageConverter, "messageConverter must not be null");
         this.agentInformation = Assert.requireNonNull(agentInformation, "agentInformation must not be null");
-        this.dnsExecutorService = Assert.requireNonNull(dnsExecutorService, "dnsExecutorService must not be null");
+        this.nameResolverProvider = Assert.requireNonNull(nameResolverProvider, "nameResolverProvider must not be null");
     }
 
     @Override
@@ -61,8 +58,6 @@ public class StatGrpcDataSenderProvider  implements Provider<DataSender<Object>>
         int collectorTcpServerPort = grpcTransportConfig.getCollectorStatServerPort();
         HeaderFactory<AgentHeaderFactory.Header> headerHeaderFactory = newAgentHeaderFactory();
 
-        ExecutorService executorService = dnsExecutorService.get();
-        NameResolverProvider nameResolverProvider = new PinpointDnsNameResolverProvider("pinpoint-dns", executorService);
         return new StatGrpcDataSender("StatGrpcDataSender", collectorTcpServerIp, collectorTcpServerPort,  messageConverter, headerHeaderFactory, nameResolverProvider);
     }
 
