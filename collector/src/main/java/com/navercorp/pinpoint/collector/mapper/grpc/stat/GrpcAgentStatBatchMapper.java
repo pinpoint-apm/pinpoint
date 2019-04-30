@@ -116,14 +116,14 @@ public class GrpcAgentStatBatchMapper {
             if (jvmGc != null) {
                 final JvmGcBo jvmGcBo = this.jvmGcBoMapper.map(jvmGc);
                 setBaseData(jvmGcBo, agentId, startTimestamp, timestamp);
-                agentStatBo.setJvmGcBos(Arrays.asList(jvmGcBo));
+                jvmGcBos.add(jvmGcBo);
 
                 // jvmGcDetailed
                 final PJvmGcDetailed jvmGcDetailed = jvmGc.getJvmGcDetailed();
                 if (jvmGcDetailed != null) {
                     final JvmGcDetailedBo jvmGcDetailedBo = this.jvmGcDetailedBoMapper.map(jvmGcDetailed);
                     setBaseData(jvmGcDetailedBo, agentId, startTimestamp, timestamp);
-                    agentStatBo.setJvmGcDetailedBos(Arrays.asList(jvmGcDetailedBo));
+                    jvmGcDetailedBos.add(jvmGcDetailedBo);
                 }
             }
 
@@ -132,7 +132,7 @@ public class GrpcAgentStatBatchMapper {
             if (cpuLoad != null) {
                 final CpuLoadBo cpuLoadBo = this.cpuLoadBoMapper.map(cpuLoad);
                 setBaseData(cpuLoadBo, agentId, startTimestamp, timestamp);
-                agentStatBo.setCpuLoadBos(Arrays.asList(cpuLoadBo));
+                cpuLoadBos.add(cpuLoadBo);
             }
 
             // transaction
@@ -141,7 +141,7 @@ public class GrpcAgentStatBatchMapper {
                 final TransactionBo transactionBo = this.transactionBoMapper.map(transaction);
                 setBaseData(transactionBo, agentId, startTimestamp, timestamp);
                 transactionBo.setCollectInterval(agentStat.getCollectInterval());
-                agentStatBo.setTransactionBos(Arrays.asList(transactionBo));
+                transactionBos.add(transactionBo);
             }
 
             // activeTrace
@@ -149,7 +149,7 @@ public class GrpcAgentStatBatchMapper {
             if (activeTrace != null && activeTrace.getHistogram() != null) {
                 final ActiveTraceBo activeTraceBo = this.activeTraceBoMapper.map(activeTrace);
                 setBaseData(activeTraceBo, agentId, startTimestamp, timestamp);
-                agentStatBo.setActiveTraceBos(Arrays.asList(activeTraceBo));
+                activeTraceBos.add(activeTraceBo);
             }
 
             // datasource
@@ -162,7 +162,7 @@ public class GrpcAgentStatBatchMapper {
                     setBaseData(dataSourceBo, agentId, startTimestamp, timestamp);
                     dataSourceListBo.add(dataSourceBo);
                 }
-                agentStatBo.setDataSourceListBos(Arrays.asList(dataSourceListBo));
+                dataSourceListBos.add(dataSourceListBo);
             }
 
             // response time
@@ -170,7 +170,7 @@ public class GrpcAgentStatBatchMapper {
             if (responseTime != null) {
                 final ResponseTimeBo responseTimeBo = this.responseTimeBoMapper.map(responseTime);
                 setBaseData(responseTimeBo, agentId, startTimestamp, timestamp);
-                agentStatBo.setResponseTimeBos(Arrays.asList(responseTimeBo));
+                responseTimeBos.add(responseTimeBo);
             }
 
             // deadlock
@@ -178,7 +178,7 @@ public class GrpcAgentStatBatchMapper {
             if (deadlock != null) {
                 final DeadlockThreadCountBo deadlockThreadCountBo = this.deadlockThreadCountBoMapper.map(deadlock);
                 setBaseData(deadlockThreadCountBo, agentId, startTimestamp, timestamp);
-                agentStatBo.setDeadlockThreadCountBos(Arrays.asList(deadlockThreadCountBo));
+                deadlockThreadCountBos.add(deadlockThreadCountBo);
             }
 
             // fileDescriptor
@@ -186,7 +186,7 @@ public class GrpcAgentStatBatchMapper {
             if (fileDescriptor != null) {
                 final FileDescriptorBo fileDescriptorBo = this.fileDescriptorBoMapper.map(fileDescriptor);
                 setBaseData(fileDescriptorBo, agentId, startTimestamp, timestamp);
-                agentStatBo.setFileDescriptorBos(Arrays.asList(fileDescriptorBo));
+                fileDescriptorBos.add(fileDescriptorBo);
             }
 
             // directBuffer
@@ -194,7 +194,7 @@ public class GrpcAgentStatBatchMapper {
             if (directBuffer != null) {
                 final DirectBufferBo directBufferBo = this.directBufferBoMapper.map(directBuffer);
                 setBaseData(directBufferBo, agentId, startTimestamp, timestamp);
-                agentStatBo.setDirectBufferBos(Arrays.asList(directBufferBo));
+                directBufferBos.add(directBufferBo);
             }
         }
 
