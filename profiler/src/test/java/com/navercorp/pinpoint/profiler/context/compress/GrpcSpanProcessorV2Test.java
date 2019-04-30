@@ -25,7 +25,7 @@ import com.navercorp.pinpoint.profiler.context.SpanEvent;
 import com.navercorp.pinpoint.profiler.context.id.DefaultTraceId;
 import com.navercorp.pinpoint.profiler.context.id.DefaultTraceRoot;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
-import com.navercorp.pinpoint.profiler.context.proto.SpanProtoMessageConverter;
+import com.navercorp.pinpoint.profiler.context.proto.GrpcSpanMessageConverter;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -37,13 +37,13 @@ import java.util.List;
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class SpanProcessorProtoV2Test {
+public class GrpcSpanProcessorV2Test {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private SpanProcessor<PSpan.Builder, PSpanChunk.Builder> spanProcessorProtoV2 = new SpanProcessorProtoV2();
+    private SpanProcessor<PSpan.Builder, PSpanChunk.Builder> spanProcessorProtoV2 = new GrpcSpanProcessorV2();
 
-    private SpanProtoMessageConverter converter = new SpanProtoMessageConverter("agentId", (short) 1, spanProcessorProtoV2);
+    private GrpcSpanMessageConverter converter = new GrpcSpanMessageConverter("agentId", (short) 1, spanProcessorProtoV2);
 
     @Test
     public void preProcess() {

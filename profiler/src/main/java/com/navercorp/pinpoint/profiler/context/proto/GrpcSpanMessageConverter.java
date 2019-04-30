@@ -54,21 +54,21 @@ import java.util.List;
  * Not thread safe
  * @author Woonduk Kang(emeroad)
  */
-public class SpanProtoMessageConverter implements MessageConverter<GeneratedMessageV3> {
+public class GrpcSpanMessageConverter implements MessageConverter<GeneratedMessageV3> {
 
     private final String agentId;
     private final short applicationServiceType;
 
     private final SpanProcessor<PSpan.Builder, PSpanChunk.Builder> spanProcessor;
     // WARNING not thread safe
-    private final AnnotationValueProtoMapper annotationValueProtoMapper = new AnnotationValueProtoMapper();
+    private final GrpcAnnotationValueMapper grpcAnnotationValueMapper = new GrpcAnnotationValueMapper();
 
     private final PSpanEvent.Builder pSpanEventBuilder = PSpanEvent.newBuilder();
 
     private final PAnnotation.Builder pAnnotationBuilder = PAnnotation.newBuilder();
 
-    public SpanProtoMessageConverter(String agentId, short applicationServiceType,
-                                     SpanProcessor<PSpan.Builder, PSpanChunk.Builder> spanProcessor) {
+    public GrpcSpanMessageConverter(String agentId, short applicationServiceType,
+                                    SpanProcessor<PSpan.Builder, PSpanChunk.Builder> spanProcessor) {
         this.agentId = Assert.requireNonNull(agentId, "agentId must not be null");
         this.applicationServiceType = applicationServiceType;
         this.spanProcessor = Assert.requireNonNull(spanProcessor, "spanProcessor must not be null");
@@ -344,7 +344,7 @@ public class SpanProtoMessageConverter implements MessageConverter<GeneratedMess
         for (Annotation annotation : annotations) {
             final PAnnotation.Builder builder = getAnnotationBuilder();
             builder.setKey(annotation.getAnnotationKey());
-            final PAnnotationValue pAnnotationValue = annotationValueProtoMapper.buildPAnnotationValue(annotation.getValue());
+            final PAnnotationValue pAnnotationValue = grpcAnnotationValueMapper.buildPAnnotationValue(annotation.getValue());
             if (pAnnotationValue != null) {
                 builder.setValue(pAnnotationValue);
             }
@@ -366,7 +366,7 @@ public class SpanProtoMessageConverter implements MessageConverter<GeneratedMess
 
     @Override
     public String toString() {
-        return "SpanProtoMessageConverter{" +
+        return "GrpcSpanMessageConverter{" +
                 "agentId='" + agentId + '\'' +
                 ", applicationServiceType=" + applicationServiceType +
                 ", spanProcessor=" + spanProcessor +

@@ -23,7 +23,7 @@ import com.navercorp.pinpoint.grpc.trace.PSpan;
 import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
 import com.navercorp.pinpoint.profiler.context.TraceDataFormatVersion;
 import com.navercorp.pinpoint.profiler.context.compress.SpanProcessor;
-import com.navercorp.pinpoint.profiler.context.compress.SpanProcessorProtoV2;
+import com.navercorp.pinpoint.profiler.context.compress.GrpcSpanProcessorV2;
 
 public class GrpcSpanProcessorProvider implements Provider<SpanProcessor<PSpan.Builder, PSpanChunk.Builder>> {
 
@@ -37,7 +37,7 @@ public class GrpcSpanProcessorProvider implements Provider<SpanProcessor<PSpan.B
     @Override
     public SpanProcessor<PSpan.Builder, PSpanChunk.Builder> get() {
         if (version == TraceDataFormatVersion.V2) {
-            return new SpanProcessorProtoV2();
+            return new GrpcSpanProcessorV2();
         }
         throw new UnsupportedOperationException("unknown version :" + version);
     }
