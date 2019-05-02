@@ -41,19 +41,6 @@ tbody > tr {
     padding: 12px 20px;
 }
 
-.l-favorite-application-table {
-    margin-top: 25px;
-    table-layout: fixed;
-}
-.l-favorite-application-table .l-favorite-list {
-    height: 298px;
-}
-
-.l-favorite-application-table td {
-    padding: 0;
-    vertical-align: baseline;
-}
-
 .l-color-blue {
     color: #4b99e3;
 }
