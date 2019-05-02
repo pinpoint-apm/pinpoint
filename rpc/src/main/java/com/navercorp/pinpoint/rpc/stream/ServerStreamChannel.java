@@ -22,6 +22,8 @@ import com.navercorp.pinpoint.rpc.packet.stream.StreamCode;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamCreatePacket;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamCreateSuccessPacket;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamPacket;
+import com.navercorp.pinpoint.rpc.packet.stream.StreamPingPacket;
+import com.navercorp.pinpoint.rpc.packet.stream.StreamPongPacket;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamResponsePacket;
 
 import org.jboss.netty.channel.Channel;
@@ -36,7 +38,7 @@ public class ServerStreamChannel extends AbstractStreamChannel {
     private final Channel channel;
     private final ServerStreamChannelMessageHandler streamChannelMessageHandler;
     private StreamChannelStateChangeEventHandler stateChangeEventHandler = new LoggingStreamChannelStateChangeEventHandler();
-    
+
     public ServerStreamChannel(Channel channel, int streamId, StreamChannelRepository streamChannelRepository, ServerStreamChannelMessageHandler streamChannelMessageHandler) {
         super(streamId, streamChannelRepository);
         this.channel = Assert.requireNonNull(channel, "channel");
@@ -49,13 +51,38 @@ public class ServerStreamChannel extends AbstractStreamChannel {
     }
 
     @Override
-    void write(StreamPacket packet) {
-        write(null, packet);
+    public void sendPing(int requestId) {
+        StreamPingPacket packet = new StreamPingPacket(getStreamId(), requestId);
+        write(StreamChannelStateCode.CONNECTED, packet);
     }
 
     @Override
-    void write(StreamChannelStateCode expectedCode, StreamPacket packet) {
-        state.assertState(expectedCode);
+    public void sendPong(int requestId) {
+        StreamPongPacket packet = new StreamPongPacket(getStreamId(), requestId);
+        write(StreamChannelStateCode.CONNECTED, packet);
+    }
+
+    @Override
+    public void close(StreamCode code) {
+        clearStreamChannelResource();
+        if (!StreamCode.isConnectionError(code)) {
+            try {
+                StreamClosePacket packet = new StreamClosePacket(getStreamId(), code);
+                write(packet);
+            } catch (Exception e) {
+                // do nothing
+            }
+        }
+    }
+
+    private void write(StreamPacket packet) {
+        write(null, packet);
+    }
+
+    private void write(StreamChannelStateCode expectedCode, StreamPacket packet) {
+        if (expectedCode != null) {
+            state.assertState(expectedCode);
+        }
         channel.write(packet);
     }
 

@@ -16,12 +16,7 @@
 
 package com.navercorp.pinpoint.rpc.stream;
 
-import com.navercorp.pinpoint.rpc.packet.stream.StreamClosePacket;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamCode;
-import com.navercorp.pinpoint.rpc.packet.stream.StreamPacket;
-import com.navercorp.pinpoint.rpc.packet.stream.StreamPingPacket;
-import com.navercorp.pinpoint.rpc.packet.stream.StreamPongPacket;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,13 +39,12 @@ public abstract class AbstractStreamChannel implements StreamChannel {
 
     protected final StreamChannelRepository streamChannelRepository;
 
-    abstract void write(StreamPacket packet);
-    abstract void write(StreamChannelStateCode expectedCode, StreamPacket packet);
-
     public AbstractStreamChannel(int streamId, StreamChannelRepository streamChannelRepository) {
         this.streamChannelId = streamId;
         this.streamChannelRepository = streamChannelRepository;
     }
+
+    protected abstract StreamChannelStateChangeEventHandler getStateChangeEventHandler();
 
     @Override
     public void init() throws StreamException {
@@ -95,45 +89,13 @@ public abstract class AbstractStreamChannel implements StreamChannel {
     }
 
     @Override
-    public void sendPing(int requestId) {
-        StreamPingPacket packet = new StreamPingPacket(streamChannelId, requestId);
-        write(StreamChannelStateCode.CONNECTED, packet);
-    }
-
-    @Override
-    public void sendPong(int requestId) {
-        StreamPongPacket packet = new StreamPongPacket(streamChannelId, requestId);
-        write(StreamChannelStateCode.CONNECTED, packet);
-    }
-
     public void close() {
         close(StreamCode.STATE_CLOSED);
     }
 
-    public void close(StreamCode code) {
-        clearStreamChannelResource();
-        if (!StreamCode.isConnectionError(code)) {
-            sendClose(streamChannelId, code);
-        }
-    }
-
-    public void close(StreamPacket streamPacket) {
-        clearStreamChannelResource();
-        write(streamPacket);
-    }
-
-    private void clearStreamChannelResource() {
+    protected void clearStreamChannelResource() {
         streamChannelRepository.unregister(this);
         changeStateClose();
-    }
-
-    private void sendClose(int streamChannelId, StreamCode code) {
-        try {
-            StreamClosePacket packet = new StreamClosePacket(streamChannelId, code);
-            write(packet);
-        } catch (Exception e) {
-            // do nothing
-        }
     }
 
     @Override
@@ -143,7 +105,7 @@ public abstract class AbstractStreamChannel implements StreamChannel {
 
     @Override
     public void disconnect(StreamCode streamCode) {
-        logger.info("{} disconnected. from remote streamChannel:{} caused:{}", this, streamCode);
+        logger.info("disconnect. local => {}(streamId:{}, state:{}) message:{}", getRemoteAddress(), getStreamId(), getCurrentState(), streamCode);
         clearStreamChannelResource();
     }
 
@@ -194,8 +156,6 @@ public abstract class AbstractStreamChannel implements StreamChannel {
     public final Object removeAttribute(String key) {
         return attribute.remove(key);
     }
-
-    abstract StreamChannelStateChangeEventHandler getStateChangeEventHandler();
 
     @Override
     public String toString() {

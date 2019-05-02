@@ -21,6 +21,8 @@ import com.navercorp.pinpoint.rpc.packet.stream.StreamClosePacket;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamCode;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamCreatePacket;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamPacket;
+import com.navercorp.pinpoint.rpc.packet.stream.StreamPingPacket;
+import com.navercorp.pinpoint.rpc.packet.stream.StreamPongPacket;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamResponsePacket;
 
 import org.jboss.netty.channel.Channel;
@@ -39,24 +41,6 @@ public class NettyClientStreamChannel extends AbstractStreamChannel implements C
         super(streamId, streamChannelRepository);
         this.channel = Assert.requireNonNull(channel, "channel must not be null");
         this.streamChannelEventHandler = Assert.requireNonNull(streamChannelEventHandler, "streamChannelEventHandler must not be null");
-    }
-
-    @Override
-    public SocketAddress getRemoteAddress() {
-        return channel.getRemoteAddress();
-    }
-
-    @Override
-    void write(StreamPacket packet) {
-        write(null, packet);
-    }
-
-    @Override
-    void write(StreamChannelStateCode expectedCode, StreamPacket packet) {
-        if (expectedCode != null) {
-            state.assertState(expectedCode);
-        }
-        channel.write(packet);
     }
 
     public void connect(byte[] payload, long timeout) throws StreamException {
@@ -78,6 +62,42 @@ public class NettyClientStreamChannel extends AbstractStreamChannel implements C
     }
 
     @Override
+    public void sendPing(int requestId) {
+        StreamPingPacket packet = new StreamPingPacket(getStreamId(), requestId);
+        write(StreamChannelStateCode.CONNECTED, packet);
+    }
+
+    @Override
+    public void sendPong(int requestId) {
+        StreamPongPacket packet = new StreamPongPacket(getStreamId(), requestId);
+        write(StreamChannelStateCode.CONNECTED, packet);
+    }
+
+    @Override
+    public void close(StreamCode code) {
+        clearStreamChannelResource();
+        if (!StreamCode.isConnectionError(code)) {
+            try {
+                StreamClosePacket packet = new StreamClosePacket(getStreamId(), code);
+                write(packet);
+            } catch (Exception e) {
+                // do nothing
+            }
+        }
+    }
+
+    private void write(StreamPacket packet) {
+        write(null, packet);
+    }
+
+    private void write(StreamChannelStateCode expectedCode, StreamPacket packet) {
+        if (expectedCode != null) {
+            state.assertState(expectedCode);
+        }
+        channel.write(packet);
+    }
+
+    @Override
     public void handleStreamResponsePacket(StreamResponsePacket packet) throws StreamException {
         if (state.checkState(StreamChannelStateCode.CONNECTED)) {
             streamChannelEventHandler.handleStreamResponsePacket(this, packet);
@@ -95,7 +115,12 @@ public class NettyClientStreamChannel extends AbstractStreamChannel implements C
     }
 
     @Override
-    StreamChannelStateChangeEventHandler getStateChangeEventHandler() {
+    public SocketAddress getRemoteAddress() {
+        return channel.getRemoteAddress();
+    }
+
+    @Override
+    protected StreamChannelStateChangeEventHandler getStateChangeEventHandler() {
         return streamChannelEventHandler;
     }
 
