@@ -83,7 +83,7 @@ public class DefaultNodeHistogramAppender implements NodeHistogramAppender {
                     return nodeHistogramFactory.createWasNodeHistogram(wasNode, range);
                 }
             }, executor);
-        } else if (serviceType.isTerminal() || serviceType.isUnknown()) {
+        } else if (serviceType.isTerminal() || serviceType.isUnknown() || serviceType.isAlias()) {
             nodeHistogramFuture = CompletableFuture.completedFuture(nodeHistogramFactory.createTerminalNodeHistogram(application, range, linkList));
         } else if (serviceType.isQueue()) {
             // Virtual queue node - queues with agent installed will be handled above as a WAS node
