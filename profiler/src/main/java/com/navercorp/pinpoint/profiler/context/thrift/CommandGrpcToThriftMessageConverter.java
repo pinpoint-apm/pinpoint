@@ -16,10 +16,13 @@
 
 package com.navercorp.pinpoint.profiler.context.thrift;
 
+import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadCountRes;
 import com.navercorp.pinpoint.grpc.trace.PCmdEchoResponse;
+import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadCountRes;
 import com.navercorp.pinpoint.thrift.dto.command.TCommandEcho;
-
 import org.apache.thrift.TBase;
+
+import java.util.List;
 
 /**
  * @author Taejin Koo
@@ -30,6 +33,8 @@ public class CommandGrpcToThriftMessageConverter implements MessageConverter<TBa
     public TBase toMessage(Object message) {
         if (message instanceof PCmdEchoResponse) {
             return buildTCommandEcho((PCmdEchoResponse) message);
+        } else if (message instanceof PCmdActiveThreadCountRes) {
+            return buildTCmdActiveThreadCountRes((PCmdActiveThreadCountRes) message);
         }
         return null;
     }
@@ -37,6 +42,17 @@ public class CommandGrpcToThriftMessageConverter implements MessageConverter<TBa
     private TCommandEcho buildTCommandEcho(PCmdEchoResponse echoMessage) {
         String message = echoMessage.getMessage();
         return new TCommandEcho(message);
+    }
+
+    private TCmdActiveThreadCountRes buildTCmdActiveThreadCountRes(PCmdActiveThreadCountRes activeThreadCountRes) {
+        int histogramSchemaType = activeThreadCountRes.getHistogramSchemaType();
+        List<Integer> activeThreadCountList = activeThreadCountRes.getActiveThreadCountList();
+        long timeStamp = activeThreadCountRes.getTimeStamp();
+
+        TCmdActiveThreadCountRes result = new TCmdActiveThreadCountRes(histogramSchemaType, activeThreadCountList);
+        result.setTimeStamp(timeStamp);
+
+        return result;
     }
 
 }
