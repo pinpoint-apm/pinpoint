@@ -87,7 +87,7 @@ public class DefaultServerInfoAppender implements ServerInfoAppender {
                     return serverInstanceListFactory.createWasNodeInstanceList(node, to);
                 }
             }, executor);
-        } else if (nodeServiceType.isTerminal()) {
+        } else if (nodeServiceType.isTerminal() || nodeServiceType.isAlias()) {
             // extract information about the terminal node
             serverInstanceListFuture = CompletableFuture.completedFuture(serverInstanceListFactory.createTerminalNodeInstanceList(node, linkDataDuplexMap));
         } else if (nodeServiceType.isQueue()) {
