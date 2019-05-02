@@ -16,33 +16,48 @@
 
 package com.navercorp.pinpoint.profiler.receiver.grpc;
 
+import com.google.protobuf.StringValue;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.grpc.trace.PCmdMessage;
 import com.navercorp.pinpoint.grpc.trace.PCmdRequest;
 import com.navercorp.pinpoint.grpc.trace.PCmdResponse;
 import com.navercorp.pinpoint.grpc.trace.ProfilerCommandServiceGrpc;
+import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
 import com.navercorp.pinpoint.profiler.receiver.ProfilerCommandLocatorBuilder;
+import com.navercorp.pinpoint.profiler.receiver.ProfilerCommandService;
 import com.navercorp.pinpoint.profiler.receiver.ProfilerCommandServiceLocator;
 import com.navercorp.pinpoint.profiler.receiver.ProfilerSimpleCommandService;
 import com.navercorp.pinpoint.thrift.dto.command.TRouteResult;
-
-import com.google.protobuf.StringValue;
 import io.grpc.stub.StreamObserver;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.io.Closeable;
 import java.util.Collection;
+import java.util.Set;
 
 /**
  * @author Taejin Koo
  */
 public class GrpcCommandDispatcher {
 
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     private final ProfilerCommandServiceLocator commandServiceLocator;
 
     public GrpcCommandDispatcher(ProfilerCommandServiceGrpc.ProfilerCommandServiceStub profilerCommandServiceStub) {
+        this(profilerCommandServiceStub, null);
+    }
+
+    public GrpcCommandDispatcher(ProfilerCommandServiceGrpc.ProfilerCommandServiceStub profilerCommandServiceStub, ActiveTraceRepository activeTraceRepository) {
         Assert.requireNonNull(profilerCommandServiceStub, "profilerCommandServiceStub must not be null");
 
         ProfilerCommandLocatorBuilder profilerCommandLocatorBuilder = new ProfilerCommandLocatorBuilder();
         profilerCommandLocatorBuilder.addService(new GrpcEchoService(profilerCommandServiceStub));
+        if (activeTraceRepository != null) {
+            profilerCommandLocatorBuilder.addService(new GrpcActiveThreadCountService(profilerCommandServiceStub, activeTraceRepository));
+        }
+
         this.commandServiceLocator = profilerCommandLocatorBuilder.build();
     }
 
@@ -77,6 +92,24 @@ public class GrpcCommandDispatcher {
 
     public Collection<Short> getSupportCommandServiceIdList() {
         return commandServiceLocator.getCommandServiceCodes();
+    }
+
+    public void close() {
+        logger.info("close() started");
+
+        Set<Short> commandServiceCodes = commandServiceLocator.getCommandServiceCodes();
+        for (Short commandServiceCode : commandServiceCodes) {
+            ProfilerCommandService service = commandServiceLocator.getService(commandServiceCode);
+            if (service instanceof Closeable) {
+                try {
+                    ((Closeable) service).close();
+                } catch (Exception e) {
+                    logger.warn("failed to close for CommandService:{}. message:{}", service, e.getMessage());
+                }
+            }
+        }
+
+        logger.info("close() completed");
     }
 
 }

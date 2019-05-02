@@ -16,7 +16,9 @@
 
 package com.navercorp.pinpoint.profiler.context.thrift;
 
+import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadCount;
 import com.navercorp.pinpoint.grpc.trace.PCmdEcho;
+import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadCount;
 import com.navercorp.pinpoint.thrift.dto.command.TCommandEcho;
 
 import com.google.protobuf.GeneratedMessageV3;
@@ -30,6 +32,8 @@ public class CommandThriftToGrpcMessageConverter implements MessageConverter<Gen
     public GeneratedMessageV3 toMessage(Object message) {
         if (message instanceof TCommandEcho) {
             return buildPCommandEcho((TCommandEcho) message);
+        } else if (message instanceof TCmdActiveThreadCount) {
+            return buildPCmdActiveThreadCount((TCmdActiveThreadCount) message);
         }
         return null;
     }
@@ -37,6 +41,11 @@ public class CommandThriftToGrpcMessageConverter implements MessageConverter<Gen
     private PCmdEcho buildPCommandEcho(TCommandEcho tCommandEcho) {
         PCmdEcho.Builder builder = PCmdEcho.newBuilder();
         builder.setMessage(tCommandEcho.getMessage());
+        return builder.build();
+    }
+
+    private PCmdActiveThreadCount buildPCmdActiveThreadCount(TCmdActiveThreadCount tCmdActiveThreadCount) {
+        PCmdActiveThreadCount.Builder builder = PCmdActiveThreadCount.newBuilder();
         return builder.build();
     }
 

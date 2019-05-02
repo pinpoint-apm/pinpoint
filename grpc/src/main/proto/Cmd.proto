@@ -18,6 +18,7 @@ enum PCommandType {
     PONG = 101;
 
     ECHO = 710;
+    ACTIVE_THREAD_COUNT = 730;
 }
 
 message PCmdMessage {
@@ -38,11 +39,18 @@ message PCmdResponse {
     google.protobuf.StringValue message = 3;
 }
 
+message PCmdStreamResponse {
+    int32 responseId = 1;
+    int32 sequenceId = 2;
+    google.protobuf.StringValue message = 3;
+}
+
 message PCmdRequest {
     int32 requestId = 1;
 
     oneof command {
         PCmdEcho commandEcho = 710;
+        PCmdActiveThreadCount commandActiveThreadCount = 730;
     }
 }
 
@@ -69,7 +77,8 @@ message PCmdActiveThreadCount {
 }
 
 message PCmdActiveThreadCountRes {
-    int32 histogramSchemaType = 1;
-    repeated int32 activeThreadCount = 2;
-    int64 timeStamp = 3;
+    PCmdStreamResponse commonStreamResponse = 1;
+    int32 histogramSchemaType = 2;
+    repeated int32 activeThreadCount = 3;
+    int64 timeStamp = 4;
 }
