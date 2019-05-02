@@ -48,11 +48,11 @@ public class StreamChannelState {
         return isChanged;
     }
 
-    boolean checkState(StreamChannelStateCode expectedCode) {
+    public boolean checkState(StreamChannelStateCode expectedCode) {
         return checkState(getCurrentState(), expectedCode);
     }
 
-    boolean checkState(StreamChannelStateCode currentCode, StreamChannelStateCode expectedCode) {
+    public boolean checkState(StreamChannelStateCode currentCode, StreamChannelStateCode expectedCode) {
         if (currentCode == expectedCode) {
             return true;
         } else {
@@ -60,7 +60,7 @@ public class StreamChannelState {
         }
     }
 
-    void assertState(StreamChannelStateCode stateCode) {
+    public void assertState(StreamChannelStateCode stateCode) {
         final StreamChannelStateCode currentCode = getCurrentState();
         if (!checkState(currentCode, stateCode)) {
             throw new PinpointSocketException("expected:<" + stateCode + "> but was:<" + currentCode + ">;");

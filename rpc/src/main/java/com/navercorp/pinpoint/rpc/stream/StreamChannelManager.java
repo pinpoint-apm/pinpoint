@@ -140,7 +140,10 @@ public class StreamChannelManager {
         try {
             switch (packetType) {
                 case PacketType.APPLICATION_STREAM_CREATE_SUCCESS:
-                    clientStreamChannel.changeStateConnected();
+                    boolean connected = clientStreamChannel.changeStateConnected();
+                    if (!connected) {
+                        clientStreamChannel.close(StreamCode.STATE_NOT_CONNECTED);
+                    }
                     break;
                 case PacketType.APPLICATION_STREAM_CREATE_FAIL:
                     clientStreamChannel.disconnect(((StreamCreateFailPacket) packet).getCode());
@@ -174,7 +177,7 @@ public class StreamChannelManager {
             streamChannel.init();
             streamChannel.handleStreamCreatePacket(packet);
         } catch (StreamException e) {
-            streamChannel.close(new StreamCreateFailPacket(streamChannelId, e.getStreamCode()));
+            streamChannel.close(e.getStreamCode());
         }
     }
 
