@@ -100,7 +100,7 @@ public class GrpcClientStreamChannelTest {
         Assert.assertEquals(1, streamChannelRepository.getStreamIdSet().size());
 
         CountDownLatch connectCompleteLatch = new CountDownLatch(1);
-        connect(grpcClientStreamChannel, connectCompleteLatch);
+        CountDownLatch threadCompleteLatch = connect(grpcClientStreamChannel, connectCompleteLatch);
 
         final AtomicInteger callCompletedCount = new AtomicInteger(0);
         grpcClientStreamChannel.setConnectionObserver(new StreamObserver<Empty>() {
@@ -120,11 +120,13 @@ public class GrpcClientStreamChannelTest {
             }
         });
 
-        connectCompleteLatch.await(1000, TimeUnit.MILLISECONDS);
+        Assert.assertTrue(connectCompleteLatch.await(1000, TimeUnit.MILLISECONDS));
         Assert.assertEquals(StreamChannelStateCode.CONNECT_AWAIT, grpcClientStreamChannel.getCurrentState());
 
         grpcClientStreamChannel.changeStateConnected();
         Assert.assertEquals(StreamChannelStateCode.CONNECTED, grpcClientStreamChannel.getCurrentState());
+
+        Assert.assertTrue(threadCompleteLatch.await(1000, TimeUnit.MILLISECONDS));
 
         String message = "hello";
         grpcClientStreamChannel.handleStreamResponsePacket(new StreamResponsePacket(1, message.getBytes()));
@@ -144,7 +146,9 @@ public class GrpcClientStreamChannelTest {
         Assert.assertEquals(1, callCompletedCount.get());
     }
 
-    private void connect(GrpcClientStreamChannel grpcClientStreamChannel, CountDownLatch connectCompleteLatch) {
+    private CountDownLatch connect(GrpcClientStreamChannel grpcClientStreamChannel, CountDownLatch connectCompleteLatch) {
+        CountDownLatch threadCompleteLatch = new CountDownLatch(1);
+
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -157,11 +161,14 @@ public class GrpcClientStreamChannelTest {
                     }, 1000);
                 } catch (StreamException e) {
                     e.printStackTrace();
+                } finally {
+                    threadCompleteLatch.countDown();
                 }
             }
         });
         thread.setDaemon(true);
         thread.start();
+        return threadCompleteLatch;
     }
 
     private static class RecordClientStreamChannelEventHandler extends ClientStreamChannelEventHandler {
