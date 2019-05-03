@@ -22,10 +22,13 @@ import com.navercorp.pinpoint.bootstrap.config.ThriftTransportConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.module.SpanStatClientFactory;
+import com.navercorp.pinpoint.profiler.context.module.StatConverter;
 import com.navercorp.pinpoint.profiler.context.thrift.BypassMessageConverter;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
+import com.navercorp.pinpoint.profiler.sender.MessageSerializer;
 import com.navercorp.pinpoint.profiler.sender.TcpDataSender;
+import com.navercorp.pinpoint.profiler.sender.ThriftMessageSerializer;
 import com.navercorp.pinpoint.profiler.sender.UdpDataSenderFactory;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 import org.apache.thrift.TBase;
@@ -54,7 +57,7 @@ public class StatDataSenderProvider implements Provider<DataSender> {
     private final MessageConverter<TBase<?, ?>> messageConverter;
 
     @Inject
-    public StatDataSenderProvider(ProfilerConfig profilerConfig, @SpanStatClientFactory Provider<PinpointClientFactory> clientFactoryProvider) {
+    public StatDataSenderProvider(ProfilerConfig profilerConfig, @SpanStatClientFactory Provider<PinpointClientFactory> clientFactoryProvider, @StatConverter MessageConverter<TBase<?, ?>> messageConverter) {
         Assert.requireNonNull(profilerConfig, "profilerConfig must not be null");
 
         this.clientFactoryProvider = Assert.requireNonNull(clientFactoryProvider, "clientFactoryProvider must not be null");
@@ -67,8 +70,7 @@ public class StatDataSenderProvider implements Provider<DataSender> {
         this.sendBufferSize = thriftTransportConfig.getStatDataSenderSocketSendBufferSize();
         this.ioType = thriftTransportConfig.getStatDataSenderSocketType();
         this.transportType = thriftTransportConfig.getStatDataSenderTransportType();
-
-        this.messageConverter = new BypassMessageConverter<TBase<?, ?>>();
+        this.messageConverter = messageConverter;
     }
 
     @Override
@@ -79,7 +81,8 @@ public class StatDataSenderProvider implements Provider<DataSender> {
             }
 
             PinpointClientFactory pinpointClientFactory = clientFactoryProvider.get();
-            return new TcpDataSender("StatDataSender", ip, port, pinpointClientFactory);
+            MessageSerializer<byte[]> messageSerializer = new ThriftMessageSerializer(messageConverter);
+            return new TcpDataSender("StatDataSender", ip, port, pinpointClientFactory, messageSerializer);
         } else {
             UdpDataSenderFactory factory = new UdpDataSenderFactory(ip, port, UDP_EXECUTOR_NAME, writeQueueSize, timeout, sendBufferSize, messageConverter);
             return factory.create(ioType);
