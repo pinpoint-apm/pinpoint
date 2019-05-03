@@ -66,3 +66,9 @@ config.sendUsage=false
 If you'd like to use Hbase 2.x for Pinpoint database, check out [Hbase upgrade guide](https://naver.github.io/pinpoint/plugindevguide.html).
 
 
+### What can I do if I don't wan't to use gojs
+In our next version of Pinpoint-Web, you can choose between visjs or gojs.
+The [source code](https://github.com/naver/pinpoint/blob/master/web/src/main/webapp/v2/src/app/app.module.ts) of this option and
+[the guide](https://naver.github.io/pinpoint/ui_v2.html)
+
+

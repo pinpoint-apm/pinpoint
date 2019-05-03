@@ -29,7 +29,7 @@
 | Httpclient3                                                                       | commons-httpclient         | 3.0     | 3.1     |                        | <AG>
 | Httpclient4                                                                       | httpclient                 | 4.0     | 4.5.4   |                        | <AG>  
 | Thrift                                                                            | libthrift                  | 0.9.1   | 0.12.0  |                        | <AG> 
-| Google HTTP Client                                                                | google-http-client         | 1.19.0  | 1.29.0  |                        | <AG> 
+| Google HTTP Client                                                                | google-http-client         | 1.19.0  | 1.29.1  |                        | <AG> 
 | AsyncHttpClient                                                                   | async-http-client          | 1.7.24  | 1.8.17  |                        | <AG> 
 | OkHttp                                                                            | okhttp                     | 2.0.0   | 3.10.0  |                        | <AG> 
 | Apache HttpAsyncClient                                                            | httpasyncclient            | 4.0     | 4.1.3   |                        | <AG>
@@ -61,7 +61,7 @@
 | \*[Redis](https://github.com/naver/pinpoint/tree/master/plugins/redis-redisson)   | redisson                   | 3.10.0  | 3.10.4  |                        |
 |                                                                                   |                            |         |         |                        |
 | Apache CXF                                                                        | cxf-rt-rs-client           | 3.0.0   | 3.3.1   |                        | <AG> 
-| Netty                                                                             | netty-all                  | 4.1.0   | 4.1.35  |                        | <AG> 
+| Netty                                                                             | netty-all                  | 4.1.0   | 4.1.36  |                        | <AG> 
 | ActiveMQ                                                                          | activemq-all               | 5.1.0   | 5.15.9  |                        | <AG> 
 | RxJAVA                                                                            | rxjava                     | 1.0.0   | 1.3.8   |                        | <AG> 
 | RabbitMQ                                                                          | amqp-client                | 2.7.0   | 5.7.0   |                        | <AG> 
