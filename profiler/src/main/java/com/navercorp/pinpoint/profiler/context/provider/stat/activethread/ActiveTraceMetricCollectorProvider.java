@@ -19,16 +19,16 @@ package com.navercorp.pinpoint.profiler.context.provider.stat.activethread;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHistogram;
 import com.navercorp.pinpoint.profiler.monitor.collector.AgentStatMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.collector.UnsupportedMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.collector.activethread.DefaultActiveTraceMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.metric.activethread.ActiveTraceMetric;
-import com.navercorp.pinpoint.thrift.dto.TActiveTrace;
 
 /**
  * @author HyunGil Jeong
  */
-public class ActiveTraceMetricCollectorProvider implements Provider<AgentStatMetricCollector<TActiveTrace>> {
+public class ActiveTraceMetricCollectorProvider implements Provider<AgentStatMetricCollector<ActiveTraceHistogram>> {
 
     private final ActiveTraceMetric activeTraceMetric;
 
@@ -38,9 +38,9 @@ public class ActiveTraceMetricCollectorProvider implements Provider<AgentStatMet
     }
 
     @Override
-    public AgentStatMetricCollector<TActiveTrace> get() {
+    public AgentStatMetricCollector<ActiveTraceHistogram> get() {
         if (activeTraceMetric == ActiveTraceMetric.UNSUPPORTED_ACTIVE_TRACE_METRIC) {
-            return new UnsupportedMetricCollector<TActiveTrace>();
+            return new UnsupportedMetricCollector<ActiveTraceHistogram>();
         }
         return new DefaultActiveTraceMetricCollector(activeTraceMetric);
     }

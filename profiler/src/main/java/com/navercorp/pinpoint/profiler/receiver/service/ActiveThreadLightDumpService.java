@@ -19,12 +19,16 @@ package com.navercorp.pinpoint.profiler.receiver.service;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.JvmUtils;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceSnapshot;
+import com.navercorp.pinpoint.profiler.context.thrift.ThreadDumpThriftMessageConverter;
+import com.navercorp.pinpoint.profiler.context.thrift.ThreadStateThriftMessageConverter;
+import com.navercorp.pinpoint.profiler.monitor.metric.deadlock.ThreadDumpMetricSnapshot;
 import com.navercorp.pinpoint.profiler.receiver.ProfilerRequestCommandService;
 import com.navercorp.pinpoint.profiler.util.ThreadDumpUtils;
 import com.navercorp.pinpoint.thrift.dto.command.TActiveThreadLightDump;
 import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadLightDump;
 import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadLightDumpRes;
 import com.navercorp.pinpoint.thrift.dto.command.TThreadLightDump;
+import com.navercorp.pinpoint.thrift.dto.command.TThreadState;
 import com.navercorp.pinpoint.thrift.io.TCommandType;
 import org.apache.thrift.TBase;
 
@@ -38,8 +42,8 @@ import java.util.List;
  */
 public class ActiveThreadLightDumpService implements ProfilerRequestCommandService<TBase<?, ?>, TBase<?, ?>> {
 
-
     private final ActiveThreadDumpCoreService activeThreadDump;
+    private final ThreadStateThriftMessageConverter threadStateThriftMessageConverter = new ThreadStateThriftMessageConverter();
 
     public ActiveThreadLightDumpService(ActiveThreadDumpCoreService activeThreadDump) {
         this.activeThreadDump = Assert.requireNonNull(activeThreadDump, "activeThreadDump must not be null");
@@ -87,7 +91,8 @@ public class ActiveThreadLightDumpService implements ProfilerRequestCommandServi
         threadDump.setThreadName(threadInfo.getThreadName());
         threadDump.setThreadId(threadInfo.getThreadId());
 
-        threadDump.setThreadState(ThreadDumpUtils.toTThreadState(threadInfo.getThreadState()));
+        final TThreadState threadState = this.threadStateThriftMessageConverter.toMessage(threadInfo.getThreadState());
+        threadDump.setThreadState(threadState);
         return threadDump;
     }
 

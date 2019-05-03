@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.profiler.receiver.service;
 
 import com.navercorp.pinpoint.common.util.JvmUtils;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceSnapshot;
+import com.navercorp.pinpoint.profiler.context.thrift.ThreadDumpThriftMessageConverter;
+import com.navercorp.pinpoint.profiler.monitor.metric.deadlock.ThreadDumpMetricSnapshot;
 import com.navercorp.pinpoint.profiler.receiver.ProfilerRequestCommandService;
 import com.navercorp.pinpoint.profiler.util.ThreadDumpUtils;
 import com.navercorp.pinpoint.thrift.dto.command.TActiveThreadDump;
@@ -40,6 +42,7 @@ public class ActiveThreadDumpService implements ProfilerRequestCommandService<TB
     static final String JAVA = "JAVA";
 
     private final ActiveThreadDumpCoreService activeThreadDumpCoreService;
+    private final ThreadDumpThriftMessageConverter threadDumpThriftMessageConverter = new ThreadDumpThriftMessageConverter();
 
     public ActiveThreadDumpService(ActiveThreadDumpCoreService activeThreadDumpCoreService) {
         this.activeThreadDumpCoreService = activeThreadDumpCoreService;
@@ -85,7 +88,8 @@ public class ActiveThreadDumpService implements ProfilerRequestCommandService<TB
         final ActiveTraceSnapshot activeTraceInfo = threadDump.getActiveTraceSnapshot();
         final ThreadInfo threadInfo = threadDump.getThreadInfo();
 
-        final TThreadDump tThreadDump = ThreadDumpUtils.createTThreadDump(threadInfo);
+        final ThreadDumpMetricSnapshot threadDumpMetricSnapshot = ThreadDumpUtils.createThreadDump(threadInfo);
+        final TThreadDump tThreadDump = this.threadDumpThriftMessageConverter.toMessage(threadDumpMetricSnapshot);
 
         TActiveThreadDump activeThreadDump = new TActiveThreadDump();
         activeThreadDump.setStartTime(activeTraceInfo.getStartTime());
