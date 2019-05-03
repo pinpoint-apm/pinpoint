@@ -27,7 +27,6 @@ import com.navercorp.pinpoint.flink.receiver.AgentStatHandler;
 import com.navercorp.pinpoint.flink.receiver.TcpDispatchHandler;
 import com.navercorp.pinpoint.flink.receiver.TcpSourceFunction;
 import com.navercorp.pinpoint.flink.vo.RawData;
-import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.environment.LocalStreamEnvironment;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.source.SourceFunction.SourceContext;
@@ -154,7 +153,7 @@ public class Bootstrap {
 
     public void setStatHandlerTcpDispatchHandler(SourceContext<RawData> sourceContext) {
         agentStatHandler.addSourceContext(sourceContext);
-        tcpDispatchHandler.setAgentStatHandler(agentStatHandler);
+        tcpDispatchHandler.setSimpletHandler(agentStatHandler);
     }
 
     public FlinkServerRegister initFlinkServerRegister() {
