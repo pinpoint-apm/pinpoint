@@ -47,13 +47,11 @@ public class HbaseTraceDaoV2 implements TraceDao {
     @Qualifier("traceRowKeyEncoderV2")
     private RowKeyEncoder<TransactionId> rowKeyEncoder;
 
-
     @Override
-    public void insert(final SpanBo spanBo) {
+    public boolean insert(final SpanBo spanBo) {
         if (spanBo == null) {
             throw new NullPointerException("spanBo must not be null");
         }
-
 
         long acceptedTime = spanBo.getCollectorAcceptTime();
 
@@ -67,14 +65,16 @@ public class HbaseTraceDaoV2 implements TraceDao {
         boolean success = hbaseTemplate.asyncPut(traceTableName, put);
         if (!success) {
             hbaseTemplate.put(traceTableName, put);
+            success = true;
         }
 
+        return success;
     }
 
 
 
     @Override
-    public void insertSpanChunk(SpanChunkBo spanChunkBo) {
+    public boolean insertSpanChunk(SpanChunkBo spanChunkBo) {
 
         TransactionId transactionId = spanChunkBo.getTransactionId();
         final byte[] rowKey = this.rowKeyEncoder.encodeRowKey(transactionId);
@@ -84,22 +84,21 @@ public class HbaseTraceDaoV2 implements TraceDao {
 
         final List<SpanEventBo> spanEventBoList = spanChunkBo.getSpanEventBoList();
         if (CollectionUtils.isEmpty(spanEventBoList)) {
-            return;
+            return true;
         }
 
         this.spanChunkSerializer.serialize(spanChunkBo, put, null);
 
+        boolean success = false;
         if (!put.isEmpty()) {
             TableName traceTableName = tableNameProvider.getTableName(TRACE_V2_STR);
-            boolean success = hbaseTemplate.asyncPut(traceTableName, put);
+            success = hbaseTemplate.asyncPut(traceTableName, put);
             if (!success) {
                 hbaseTemplate.put(traceTableName, put);
+                success = true;
             }
         }
+
+        return success;
     }
-
-
-
-
-
 }

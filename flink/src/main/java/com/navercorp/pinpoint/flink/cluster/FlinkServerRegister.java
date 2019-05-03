@@ -19,6 +19,7 @@ import com.navercorp.pinpoint.common.server.cluster.zookeeper.CuratorZookeeperCl
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperClient;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperEventWatcher;
 import com.navercorp.pinpoint.common.util.NetUtils;
+import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.flink.config.FlinkConfiguration;
 import com.navercorp.pinpoint.rpc.util.ClassUtils;
 import com.navercorp.pinpoint.rpc.util.TimerFactory;
@@ -46,7 +47,6 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 public class FlinkServerRegister implements ZookeeperEventWatcher {
 
-    private static final String PINPOINT_FLINK_CLUSTER_PATH = "/pinpoint-cluster/flink";
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final AtomicReference<PushFlinkNodeJob> job = new AtomicReference<>();
@@ -57,17 +57,23 @@ public class FlinkServerRegister implements ZookeeperEventWatcher {
     private final int retryInterval;
     private final boolean clusterEnable;
     private final String zNodeName;
+    private final String pinpointFlinkClusterPath;
 
     private ZookeeperClient client;
     private Timer timer;
 
-    public FlinkServerRegister(FlinkConfiguration flinkConfiguration) {
+    public FlinkServerRegister(FlinkConfiguration flinkConfiguration, String pinpointFlinkClusterPath) {
         Objects.requireNonNull(flinkConfiguration, "flinkConfiguration must not be null");
         this.clusterEnable = flinkConfiguration.isFlinkClusterEnable();
         this.connectAddress = flinkConfiguration.getFlinkClusterZookeeperAddress();
         this.sessionTimeout = flinkConfiguration.getFlinkClusterSessionTimeout();
         this.retryInterval = flinkConfiguration.getFlinkRetryInterval();
-        this.zNodeName = getRepresentationLocalV4Ip() + ":" + flinkConfiguration.getFlinkClusterTcpPort();
+        this.zNodeName = getRepresentationLocalV4Ip() + ":" +  flinkConfiguration.getFlinkClusterTcpPort();
+
+        if (StringUtils.isEmpty(pinpointFlinkClusterPath)) {
+            throw new IllegalArgumentException("pinpointFlinkClusterPath must not be empty");
+        }
+        this.pinpointFlinkClusterPath = pinpointFlinkClusterPath;
     }
 
     @PostConstruct
@@ -119,7 +125,7 @@ public class FlinkServerRegister implements ZookeeperEventWatcher {
     // Retry upon failure (1 min retry period)
     // not too much overhead, just logging
     public boolean registerFlinkNode() {
-        String zNodePath = ZKPaths.makePath(PINPOINT_FLINK_CLUSTER_PATH, zNodeName);
+        String zNodePath = ZKPaths.makePath(pinpointFlinkClusterPath, zNodeName);
 
         logger.info("registerFlinkNode() started. create UniqPath={}.", zNodePath);
 
