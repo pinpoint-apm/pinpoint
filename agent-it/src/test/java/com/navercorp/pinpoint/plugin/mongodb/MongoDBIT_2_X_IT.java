@@ -38,7 +38,7 @@ import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
 @RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
 @JvmVersion(8)
-@Dependency({ "org.mongodb:mongo-java-driver:[2.14.3]", "de.flapdoodle.embed:de.flapdoodle.embed.mongo:1.47.3" })
+@Dependency({ "org.mongodb:mongo-java-driver:[2.10,2.max]", "de.flapdoodle.embed:de.flapdoodle.embed.mongo:1.47.3" })
 public class MongoDBIT_2_X_IT extends MongoDBITBase_2_X {
 
     private Mongo mongo;
