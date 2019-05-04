@@ -851,9 +851,9 @@ public class MongoPlugin implements ProfilerPlugin, TransformTemplateAware {
     }
 
     private static String[] getMethodlistR2_x() {
-        return new String[] { "find", "findOne", "findAndModify", "findAndRemove", "count", "getCount", "getFullName",
-            "distinct", "getIndexInfo", "aggregate" };
-	}
+        return new String[] { "find", "findOne", "findAndModify", "findAndRemove", "count", "getCount",
+            "distinct", "aggregate" };
+    }
 
     private static String[] getMethodlistCUD3_0_x() {
         final String[] methodList = new String[]{"dropIndexes", "dropIndex", "createIndexes", "createIndex"
