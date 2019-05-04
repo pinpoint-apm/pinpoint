@@ -50,12 +50,15 @@ import com.navercorp.pinpoint.plugin.mongo.field.getter.filters.TextSearchOption
 import com.navercorp.pinpoint.plugin.mongo.field.getter.updates.ListValuesGetter;
 import com.navercorp.pinpoint.plugin.mongo.field.getter.updates.PushOptionsGetter;
 import com.navercorp.pinpoint.plugin.mongo.interceptor.MongoCUDSessionInterceptor;
+import com.navercorp.pinpoint.plugin.mongo.interceptor.MongoCUDSessionInterceptor2_X;
+import com.navercorp.pinpoint.plugin.mongo.interceptor.MongoDriverConnectInterceptor2_X;
 import com.navercorp.pinpoint.plugin.mongo.interceptor.MongoDriverConnectInterceptor3_0;
 import com.navercorp.pinpoint.plugin.mongo.interceptor.MongoDriverConnectInterceptor3_7;
 import com.navercorp.pinpoint.plugin.mongo.interceptor.MongoDriverGetCollectionInterceptor;
 import com.navercorp.pinpoint.plugin.mongo.interceptor.MongoDriverGetDatabaseInterceptor;
 import com.navercorp.pinpoint.plugin.mongo.interceptor.MongoInternalOperatorNameInterceptor;
 import com.navercorp.pinpoint.plugin.mongo.interceptor.MongoRSessionInterceptor;
+import com.navercorp.pinpoint.plugin.mongo.interceptor.MongoRSessionInterceptor2_X;
 import com.navercorp.pinpoint.plugin.mongo.interceptor.MongoReadPreferenceInterceptor;
 import com.navercorp.pinpoint.plugin.mongo.interceptor.MongoWriteConcernInterceptor;
 
@@ -93,13 +96,13 @@ public class MongoPlugin implements ProfilerPlugin, TransformTemplateAware {
 //        addProjectionTransformer();
 
         addMongoConnectionTransformer_2_X();
+        addSessionTransformer2_X();
         addConnectionTransformer3_0_X();
         addConnectionTransformer3_7_X();
         addConnectionTransformer3_8_X();
         addConnectionTransformer2_X();
         addSessionTransformer3_0_X();
         addSessionTransformer3_7_X();
-        addSessionTransformer2_X();
     }
 
     private void addConnectionTransformer3_0_X() {
@@ -132,15 +135,19 @@ public class MongoPlugin implements ProfilerPlugin, TransformTemplateAware {
             target.addField(DatabaseInfoAccessor.class);
 
             try {
-                InstrumentMethod connect = InstrumentUtils.findConstructor(target, "com.mongodb.connection.Cluster",
-                        "com.mongodb.MongoClientOptions", "java.util.List");
-                connect.addScopedInterceptor(MongoDriverConnectInterceptor3_0.class, MONGO_SCOPE,
+                InstrumentMethod connect = InstrumentUtils.findConstructor(target, "java.lang.String",
+                        "int");
+                connect.addScopedInterceptor(MongoDriverConnectInterceptor2_X.class, MONGO_SCOPE,
                         ExecutionPolicy.BOUNDARY);
             } catch (NotFoundInstrumentException e) {
-                if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("3.x constructor not found. Ignoring...");
-                }
+                LOGGER.warn("2.x constructor not found. Ignoring...");
             }
+
+            InstrumentMethod getReadPreference = InstrumentUtils.findMethod(target, "setReadPreference", "com.mongodb.ReadPreference");
+            getReadPreference.addScopedInterceptor(MongoDriverConnectInterceptor2_X.class, MONGO_SCOPE, ExecutionPolicy.BOUNDARY);
+
+            InstrumentMethod getWriteConcern = InstrumentUtils.findMethod(target, "setWriteConcern", "com.mongodb.WriteConcern");
+            getWriteConcern.addScopedInterceptor(MongoDriverConnectInterceptor2_X.class, MONGO_SCOPE, ExecutionPolicy.BOUNDARY);
 
             InstrumentMethod close = InstrumentUtils.findMethod(target, "close");
             close.addScopedInterceptor(ConnectionCloseInterceptor.class, MONGO_SCOPE);
@@ -342,6 +349,12 @@ public class MongoPlugin implements ProfilerPlugin, TransformTemplateAware {
             connect.addScopedInterceptor(MongoDriverGetCollectionInterceptor.class,
                     MONGO_SCOPE, ExecutionPolicy.BOUNDARY);
 
+            InstrumentMethod getReadPreference = InstrumentUtils.findMethod(target, "setReadPreference", "com.mongodb.ReadPreference");
+            getReadPreference.addScopedInterceptor(MongoReadPreferenceInterceptor.class, MONGO_SCOPE, ExecutionPolicy.BOUNDARY);
+
+            InstrumentMethod getWriteConcern = InstrumentUtils.findMethod(target, "setWriteConcern", "com.mongodb.WriteConcern");
+            getWriteConcern.addScopedInterceptor(MongoWriteConcernInterceptor.class, MONGO_SCOPE, ExecutionPolicy.BOUNDARY);
+
             return target.toBytecode();
         }
     }
@@ -420,6 +433,7 @@ public class MongoPlugin implements ProfilerPlugin, TransformTemplateAware {
     private void addSessionTransformer2_X() {
         // java driver 2.X
         transformTemplate.transform("com.mongodb.DBCollection", SessionTransformer2_X.class);
+        transformTemplate.transform("com.mongodb.DBCollectionImpl", SessionTransformer2_X.class);
     }
 
     public static class SessionTransformer2_X implements TransformCallback {
@@ -439,14 +453,14 @@ public class MongoPlugin implements ProfilerPlugin, TransformTemplateAware {
 
             for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters
                     .chain(MethodFilters.modifier(Modifier.PUBLIC), MethodFilters.name(getMethodlistR2_x())))) {
-                method.addScopedInterceptor(MongoRSessionInterceptor.class,
+                method.addScopedInterceptor(MongoRSessionInterceptor2_X.class,
                         va(config.isCollectJson(), config.istraceBsonBindValue()), MONGO_SCOPE,
                         ExecutionPolicy.BOUNDARY);
             }
 
             for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters
                     .chain(MethodFilters.modifier(Modifier.PUBLIC), MethodFilters.name(getMethodlistCUD2_x())))) {
-                method.addScopedInterceptor(MongoCUDSessionInterceptor.class,
+                method.addScopedInterceptor(MongoCUDSessionInterceptor2_X.class,
                         va(config.isCollectJson(), config.istraceBsonBindValue()), MONGO_SCOPE,
                         ExecutionPolicy.BOUNDARY);
             }
