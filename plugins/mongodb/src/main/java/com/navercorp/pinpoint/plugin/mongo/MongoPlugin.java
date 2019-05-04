@@ -842,6 +842,16 @@ public class MongoPlugin implements ProfilerPlugin, TransformTemplateAware {
         }
     }
 
+    private static String[] getMethodlistR2_x() {
+        return new String[] { "find", "findOne", "findAndModify", "findAndRemove", "count", "getCount",
+            "distinct", "aggregate" };
+    }
+
+    private static String[] getMethodlistCUD2_x() {
+        return new String[] { "drop", "dropIndexes", "dropIndex", "createIndex", "updateMulti", "update",
+            "remove", "insert", "save", "update" };
+    }
+
     private static String[] getMethodlistR3_0_x() {
 
         final String[] methodList = new String[]{"findOneAndUpdate", "findOneAndReplace", "findOneAndDelete", "find", "count", "distinct", "listIndexes"
@@ -850,20 +860,10 @@ public class MongoPlugin implements ProfilerPlugin, TransformTemplateAware {
         return methodList;
     }
 
-    private static String[] getMethodlistR2_x() {
-        return new String[] { "find", "findOne", "findAndModify", "findAndRemove", "count", "getCount",
-            "distinct", "aggregate" };
-    }
-
     private static String[] getMethodlistCUD3_0_x() {
         final String[] methodList = new String[]{"dropIndexes", "dropIndex", "createIndexes", "createIndex"
                 , "updateMany", "updateOne", "replaceOne", "deleteMany", "deleteOne", "insertMany", "insertOne", "bulkWrite"};
         return methodList;
-    }
-
-    private static String[] getMethodlistCUD2_x() {
-        return new String[] { "drop", "dropIndexes", "dropIndex", "createIndex", "updateMulti", "update",
-            "remove", "insert", "save", "update" };
     }
 
     private static String[] getMethodlistR3_7_x() {
