@@ -102,8 +102,8 @@ public abstract class MongoDBITBase_2_X {
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
         DBCollection collection = database.getCollection("customers");
         DBCollection collection2 = database.getCollection("customers2");
-        String firstCollectionWriteConcern = "REPLICAS_SAFE";
-        String secondCollectionWriteConcern = "SAFE";
+        String firstCollectionWriteConcern = "SAFE";
+        String secondCollectionWriteConcern = firstCollectionWriteConcern;
         try {
             // Class available from 2.7.0
             Class<?> dBCollectionClass = Class.forName("com.mongodb.WriteConcern");
