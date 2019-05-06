@@ -71,6 +71,24 @@ public class AlarmController {
         return result;
     }
 
+    @RequestMapping(value = "/workaround", method = RequestMethod.POST)
+    @ResponseBody
+    public Map<String, String> insertRuleWorkaround(@RequestBody Rule rule) {
+        Map<String, String> result = new HashMap<>();
+
+        if (StringUtils.isEmpty(rule.getApplicationId()) || StringUtils.isEmpty(rule.getCheckerName()) || StringUtils.isEmpty(rule.getUserGroupId()) || StringUtils.isEmpty(rule.getThreshold())) {
+            result.put("errorCode", "500");
+            result.put("errorMessage", "there is not applicationId/checkerName/userGroupId/threashold to insert alarm rule");
+            return result;
+        }
+        
+        String ruleId = alarmService.insertRule(rule);
+
+        result.put("result", "SUCCESS");
+        result.put("ruleId", ruleId);
+        return result;
+    }
+
     @PreAuthorize("hasPermission(#rule.getApplicationId(), null, T(com.navercorp.pinpoint.web.controller.AlarmController).EDIT_ALARM_ONLY_MANAGER)")
     @RequestMapping(method = RequestMethod.DELETE)
     @ResponseBody
