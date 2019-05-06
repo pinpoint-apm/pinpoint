@@ -102,12 +102,12 @@ public abstract class MongoDBITBase_2_X {
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
         DBCollection collection = database.getCollection("customers");
         DBCollection collection2 = database.getCollection("customers2");
-        String firstCollectionWriteConcern = "SAFE";
+        String firstCollectionWriteConcern = WriteConcern.SAFE.getWString();
         String secondCollectionWriteConcern = firstCollectionWriteConcern;
         try {
             // Class available from 2.7.0
             Class<?> dBCollectionClass = Class.forName("com.mongodb.WriteConcern");
-            // Method available from 2.9.0
+            // Field available from 2.10.0
             Field declaredField = dBCollectionClass.getDeclaredField("ACKNOWLEDGED");
             if (declaredField != null) {
                 collection.setWriteConcern(WriteConcern.ACKNOWLEDGED);

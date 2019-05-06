@@ -38,7 +38,7 @@ import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
 @RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
 @JvmVersion(8)
-@Dependency({ "org.mongodb:mongo-java-driver:[2.10,2.max]", "de.flapdoodle.embed:de.flapdoodle.embed.mongo:1.47.3" })
+@Dependency({ "org.mongodb:mongo-java-driver:[2.9,2.max]", "de.flapdoodle.embed:de.flapdoodle.embed.mongo:1.47.3" })
 public class MongoDBIT_2_X_IT extends MongoDBITBase_2_X {
 
     private Mongo mongo;
@@ -76,7 +76,7 @@ public class MongoDBIT_2_X_IT extends MongoDBITBase_2_X {
         try {
             // Class available from 2.7.0
             Class<?> dBCollectionClass = Class.forName("com.mongodb.WriteConcern");
-            // Method available from 2.9.0
+            // Field available from 2.10.0
             Field declaredField = dBCollectionClass.getDeclaredField("ACKNOWLEDGED");
             if (declaredField != null) {
                 database.setWriteConcern(WriteConcern.ACKNOWLEDGED);
