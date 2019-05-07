@@ -17,20 +17,10 @@
 package com.navercorp.pinpoint.profiler.util;
 
 import com.navercorp.pinpoint.bootstrap.context.ServerMetaData;
-import com.navercorp.pinpoint.bootstrap.context.ServiceInfo;
-import com.navercorp.pinpoint.common.Version;
 import com.navercorp.pinpoint.profiler.AgentInformation;
 import com.navercorp.pinpoint.profiler.JvmInformation;
 import com.navercorp.pinpoint.profiler.context.ServerMetaDataRegistryService;
 import com.navercorp.pinpoint.profiler.metadata.AgentInfo;
-import com.navercorp.pinpoint.thrift.dto.TAgentInfo;
-import com.navercorp.pinpoint.thrift.dto.TJvmGcType;
-import com.navercorp.pinpoint.thrift.dto.TJvmInfo;
-import com.navercorp.pinpoint.thrift.dto.TServerMetaData;
-import com.navercorp.pinpoint.thrift.dto.TServiceInfo;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author HyunGil Jeong

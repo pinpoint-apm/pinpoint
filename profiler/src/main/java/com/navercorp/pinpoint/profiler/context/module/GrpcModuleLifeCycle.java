@@ -35,22 +35,14 @@ public class GrpcModuleLifeCycle implements ModuleLifeCycle {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
 
-    private final Provider<CommandDispatcher> commandDispatcherProvider;
-    private final Provider<PinpointClientFactory> clientFactoryProvider;
     private final Provider<EnhancedDataSender<Object>> tcpDataSenderProvider;
-
-    private final Provider<PinpointClientFactory> spanStatClientFactoryProvider;
     private final Provider<DataSender> spanDataSenderProvider;
     private final Provider<DataSender> statDataSenderProvider;
 
     private final Provider<ExecutorService> dnsExecutorServiceProvider;
 
-    private CommandDispatcher commandDispatcher;
-
-    private PinpointClientFactory clientFactory;
     private EnhancedDataSender<Object> tcpDataSender;
 
-    private PinpointClientFactory spanStatClientFactory;
     private DataSender spanDataSender;
     private DataSender statDataSender;
 
@@ -58,41 +50,23 @@ public class GrpcModuleLifeCycle implements ModuleLifeCycle {
 
     @Inject
     public GrpcModuleLifeCycle(
-            Provider<CommandDispatcher> commandDispatcherProvider,
-            @DefaultClientFactory Provider<PinpointClientFactory> clientFactoryProvider,
             Provider<EnhancedDataSender<Object>> tcpDataSenderProvider,
-            @SpanStatClientFactory Provider<PinpointClientFactory> spanStatClientFactoryProvider,
             @SpanDataSender Provider<DataSender> spanDataSenderProvider,
             @StatDataSender Provider<DataSender> statDataSenderProvider,
             Provider<ExecutorService> dnsExecutorServiceProvider
             ) {
-        this.commandDispatcherProvider = Assert.requireNonNull(commandDispatcherProvider, "commandDispatcherProvider must not be null");
-        this.clientFactoryProvider = Assert.requireNonNull(clientFactoryProvider, "clientFactoryProvider must not be null");
         this.tcpDataSenderProvider = Assert.requireNonNull(tcpDataSenderProvider, "tcpDataSenderProvider must not be null");
-
-        this.spanStatClientFactoryProvider = Assert.requireNonNull(spanStatClientFactoryProvider, "spanStatClientFactoryProvider must not be null");
         this.spanDataSenderProvider = Assert.requireNonNull(spanDataSenderProvider, "spanDataSenderProvider must not be null");
         this.statDataSenderProvider = Assert.requireNonNull(statDataSenderProvider, "statDataSenderProvider must not be null");
-
         this.dnsExecutorServiceProvider = Assert.requireNonNull(dnsExecutorServiceProvider, "dnsExecutorServiceProvider must not be null");
-
     }
 
     @Override
     public void start() {
         logger.info("start()");
-        this.commandDispatcher = this.commandDispatcherProvider.get();
-        logger.info("commandDispatcher:{}", commandDispatcher);
-
-        this.clientFactory = clientFactoryProvider.get();
-        logger.info("pinpointClientFactory:{}", clientFactory);
 
         this.tcpDataSender = tcpDataSenderProvider.get();
         logger.info("tcpDataSenderProvider:{}", tcpDataSender);
-
-
-        this.spanStatClientFactory = spanStatClientFactoryProvider.get();
-        logger.info("spanStatClientFactory:{}", spanStatClientFactory);
 
         this.spanDataSender = spanDataSenderProvider.get();
         logger.info("spanDataSenderProvider:{}", spanDataSender);
@@ -113,19 +87,9 @@ public class GrpcModuleLifeCycle implements ModuleLifeCycle {
         if (statDataSender != null) {
             this.statDataSender.stop();
         }
-        if (spanStatClientFactory != null) {
-            this.spanStatClientFactory.release();
-        }
 
         if (tcpDataSender != null) {
             this.tcpDataSender.stop();
-        }
-        if (clientFactory != null) {
-            clientFactory.release();
-        }
-
-        if (commandDispatcher != null) {
-            this.commandDispatcher.close();
         }
 
         if (dnsExecutorService != null) {
@@ -136,10 +100,7 @@ public class GrpcModuleLifeCycle implements ModuleLifeCycle {
     @Override
     public String toString() {
         return "GrpcModuleLifeCycle{" +
-                ", commandDispatcherProvider=" + commandDispatcherProvider +
-                ", clientFactoryProvider=" + clientFactoryProvider +
                 ", tcpDataSenderProvider=" + tcpDataSenderProvider +
-                ", spanStatClientFactoryProvider=" + spanStatClientFactoryProvider +
                 ", spanDataSenderProvider=" + spanDataSenderProvider +
                 ", statDataSenderProvider=" + statDataSenderProvider +
                 '}';
