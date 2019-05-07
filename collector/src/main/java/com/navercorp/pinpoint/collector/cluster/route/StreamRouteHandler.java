@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.collector.cluster.route;
 
 import com.navercorp.pinpoint.collector.cluster.ClusterPoint;
 import com.navercorp.pinpoint.collector.cluster.ClusterPointLocator;
+import com.navercorp.pinpoint.collector.cluster.GrpcAgentConnection;
 import com.navercorp.pinpoint.collector.cluster.ThriftAgentConnection;
 import com.navercorp.pinpoint.collector.cluster.route.filter.RouteFilter;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamClosePacket;
@@ -115,6 +116,15 @@ public class StreamRouteHandler extends AbstractRouteHandler<StreamEvent> {
                 consumerStreamChannel.setAttributeIfAbsent(ATTACHMENT_KEY, routeManager);
 
                 ClientStreamChannel producerStreamChannel = createStreamChannel((ThriftAgentConnection) clusterPoint, event.getDeliveryCommand().getPayload(), routeManager);
+                routeManager.setProducer(producerStreamChannel);
+                return createResponse(TRouteResult.OK);
+            } else if (clusterPoint instanceof GrpcAgentConnection) {
+                StreamRouteManager routeManager = new StreamRouteManager(event);
+
+                ServerStreamChannel consumerStreamChannel = event.getStreamChannel();
+                consumerStreamChannel.setAttributeIfAbsent(ATTACHMENT_KEY, routeManager);
+
+                ClientStreamChannel producerStreamChannel = ((GrpcAgentConnection) clusterPoint).openStream(event.getRequestObject(), routeManager);
                 routeManager.setProducer(producerStreamChannel);
                 return createResponse(TRouteResult.OK);
             } else {
