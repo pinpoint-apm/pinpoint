@@ -29,13 +29,14 @@ import com.navercorp.pinpoint.rpc.util.TimerFactory;
 import com.navercorp.pinpoint.thrift.io.TCommandType;
 
 import com.google.protobuf.StringValue;
-import io.grpc.stub.StreamObserver;
 import org.jboss.netty.util.Timer;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.mockito.Mockito;
 
+import java.net.InetSocketAddress;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -67,7 +68,7 @@ public class PinpointGrpcServerTest {
     public void stateTest() {
         RecordedStreamObserver recordedStreamObserver = new RecordedStreamObserver();
 
-        PinpointGrpcServer pinpointGrpcServer = new PinpointGrpcServer(agentInfo, new RequestManager(testTimer, 300), recordedStreamObserver);
+        PinpointGrpcServer pinpointGrpcServer = new PinpointGrpcServer(Mockito.mock(InetSocketAddress.class), agentInfo, new RequestManager(testTimer, 300), recordedStreamObserver);
         assertCurrentState(SocketStateCode.NONE, pinpointGrpcServer);
         Future<ResponseMessage> future = pinpointGrpcServer.request(request);
         requestOnInvalidState(future, recordedStreamObserver);
@@ -95,9 +96,9 @@ public class PinpointGrpcServerTest {
 
     @Test
     public void requestTest() {
-        RecordedStreamObserver recordedStreamObserver = new RecordedStreamObserver();
+        RecordedStreamObserver<PCmdRequest> recordedStreamObserver = new RecordedStreamObserver<PCmdRequest>();
 
-        PinpointGrpcServer pinpointGrpcServer = new PinpointGrpcServer(agentInfo, new RequestManager(testTimer, 300), recordedStreamObserver);
+        PinpointGrpcServer pinpointGrpcServer = new PinpointGrpcServer(Mockito.mock(InetSocketAddress.class), agentInfo, new RequestManager(testTimer, 300), recordedStreamObserver);
         pinpointGrpcServer.connected();
 
         List<Integer> supportCommandList = Arrays.asList(Short.toUnsignedInt(TCommandType.ECHO.getCode()));
@@ -141,49 +142,5 @@ public class PinpointGrpcServerTest {
         SocketStateCode currentState = pinpointGrpcServer.getState();
         Assert.assertEquals(expectedStateCode, currentState);
     }
-
-    //StreamObserver<PCmdRequest>
-
-    private static class RecordedStreamObserver implements StreamObserver<PCmdRequest> {
-
-        private int requestCount;
-        private PCmdRequest latestRequest;
-        private Throwable latestThrowable;
-        private boolean isCompleted = false;
-
-        @Override
-        public void onNext(PCmdRequest request) {
-            requestCount++;
-            this.latestRequest = request;
-        }
-
-        @Override
-        public void onError(Throwable t) {
-            this.latestThrowable = latestThrowable;
-        }
-
-        @Override
-        public void onCompleted() {
-            this.isCompleted = true;
-        }
-
-        public PCmdRequest getLatestRequest() {
-            return latestRequest;
-        }
-
-        public int getRequestCount() {
-            return requestCount;
-        }
-
-        public Throwable getLatestThrowable() {
-            return latestThrowable;
-        }
-
-        public boolean isCompleted() {
-            return isCompleted;
-        }
-
-    }
-
 
 }

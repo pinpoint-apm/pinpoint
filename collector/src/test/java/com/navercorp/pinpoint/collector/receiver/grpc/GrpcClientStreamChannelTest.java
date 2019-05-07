@@ -97,7 +97,7 @@ public class GrpcClientStreamChannelTest {
 
         grpcClientStreamChannel.init();
         Assert.assertEquals(StreamChannelStateCode.OPEN, grpcClientStreamChannel.getCurrentState());
-        Assert.assertEquals(1, streamChannelRepository.getStreamIdSet().size());
+        Assert.assertEquals(1, streamChannelRepository.size());
 
         CountDownLatch connectCompleteLatch = new CountDownLatch(1);
         CountDownLatch threadCompleteLatch = connect(grpcClientStreamChannel, connectCompleteLatch);
@@ -135,7 +135,7 @@ public class GrpcClientStreamChannelTest {
         Assert.assertEquals(0, callCompletedCount.get());
 
         grpcClientStreamChannel.handleStreamClosePacket(new StreamClosePacket(1, StreamCode.STATE_CLOSED));
-        Assert.assertEquals(0, streamChannelRepository.getStreamIdSet().size());
+        Assert.assertEquals(0, streamChannelRepository.size());
         Assert.assertEquals(StreamChannelStateCode.CLOSED, grpcClientStreamChannel.getCurrentState());
         Assert.assertEquals(1, callCompletedCount.get());
 

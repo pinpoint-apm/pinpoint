@@ -23,6 +23,10 @@ import com.navercorp.pinpoint.rpc.DefaultFuture;
 import com.navercorp.pinpoint.rpc.Future;
 import com.navercorp.pinpoint.rpc.PinpointSocketException;
 import com.navercorp.pinpoint.rpc.ResponseMessage;
+import com.navercorp.pinpoint.rpc.packet.stream.StreamCode;
+import com.navercorp.pinpoint.rpc.stream.ClientStreamChannel;
+import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelEventHandler;
+import com.navercorp.pinpoint.rpc.stream.StreamException;
 import com.navercorp.pinpoint.thrift.dto.command.TRouteResult;
 import com.navercorp.pinpoint.thrift.io.TCommandType;
 
@@ -46,8 +50,8 @@ public class GrpcAgentConnection implements ClusterPoint<TBase> {
 
     public GrpcAgentConnection(PinpointGrpcServer pinpointGrpcServer, List<Integer> supportCommandServiceKeyList) {
         this.pinpointGrpcServer = Assert.requireNonNull(pinpointGrpcServer, "pinpointGrpcServer must not be null");
-        Assert.requireNonNull(supportCommandServiceKeyList, "supportCommandServiceKeyList must not be null");
 
+        Assert.requireNonNull(supportCommandServiceKeyList, "supportCommandServiceKeyList must not be null");
         this.supportCommandList = newSupportCommandList(supportCommandServiceKeyList);
     }
 
@@ -71,6 +75,14 @@ public class GrpcAgentConnection implements ClusterPoint<TBase> {
             return failedFuture;
         }
         return pinpointGrpcServer.request(message);
+    }
+
+    public ClientStreamChannel openStream(TBase request, ClientStreamChannelEventHandler streamChannelEventHandler) throws StreamException {
+        GeneratedMessageV3 message = messageConverter.toMessage(request);
+        if (message == null) {
+            throw new StreamException(StreamCode.TYPE_UNSUPPORT);
+        }
+        return pinpointGrpcServer.openStream(message, streamChannelEventHandler);
     }
 
     @Override

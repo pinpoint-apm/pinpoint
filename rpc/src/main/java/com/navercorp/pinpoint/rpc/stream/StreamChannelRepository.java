@@ -28,13 +28,13 @@ import java.util.concurrent.ConcurrentMap;
  */
 public class StreamChannelRepository {
 
-    private final ConcurrentMap<Integer, StreamChannel> channelMap = new ConcurrentHashMap<Integer, StreamChannel>();
+    private final ConcurrentMap<Integer, StreamChannel> streamChannelMap = new ConcurrentHashMap<Integer, StreamChannel>();
 
     public void registerIfAbsent(StreamChannel streamChannel) throws StreamException {
         Assert.requireNonNull(streamChannel, "streamChannel must not be null");
 
         int streamId = streamChannel.getStreamId();
-        if (channelMap.putIfAbsent(streamId, streamChannel) != null) {
+        if (streamChannelMap.putIfAbsent(streamId, streamChannel) != null) {
             throw new StreamException(StreamCode.ID_DUPLICATED);
         }
     }
@@ -45,15 +45,26 @@ public class StreamChannelRepository {
     }
 
     public StreamChannel unregister(int streamId) {
-        return channelMap.remove(streamId);
+        return streamChannelMap.remove(streamId);
     }
 
     public StreamChannel getStreamChannel(int channelId) {
-        return this.channelMap.get(channelId);
+        return this.streamChannelMap.get(channelId);
     }
 
-    public Set<Integer> getStreamIdSet() {
-        return channelMap.keySet();
+    public int size() {
+        return streamChannelMap.size();
+    }
+
+    public void close(StreamCode closeCode) {
+        Set<Integer> streamIdSet = streamChannelMap.keySet();
+
+        for (Integer streamId : streamIdSet) {
+            StreamChannel unregisteredStreamChannel = unregister(streamId);
+            if (unregisteredStreamChannel != null) {
+                unregisteredStreamChannel.close(closeCode);
+            }
+        }
     }
 
 }

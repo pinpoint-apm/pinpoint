@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.collector.receiver.grpc.service;
+package com.navercorp.pinpoint.collector.receiver.grpc.service.command;
 
 import com.navercorp.pinpoint.collector.cluster.AgentInfo;
 import com.navercorp.pinpoint.collector.cluster.GrpcAgentConnection;
@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.grpc.AgentHeaderFactory;
 import com.navercorp.pinpoint.grpc.server.ServerContext;
 import com.navercorp.pinpoint.grpc.server.TransportMetadata;
+import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadCountRes;
 import com.navercorp.pinpoint.grpc.trace.PCmdEchoResponse;
 import com.navercorp.pinpoint.grpc.trace.PCmdMessage;
 import com.navercorp.pinpoint.grpc.trace.PCmdRequest;
@@ -41,6 +42,7 @@ import org.jboss.netty.util.Timer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.InetSocketAddress;
 import java.util.List;
 
 /**
@@ -55,6 +57,9 @@ public class GrpcCommandService extends ProfilerCommandServiceGrpc.ProfilerComma
     private final ZookeeperProfilerClusterManager zookeeperProfilerClusterManager;
     private final Timer timer;
 
+    private final EchoService echoService = new EchoService();
+    private final ActiveThreadCountService activeThreadCountService = new ActiveThreadCountService();
+
     public GrpcCommandService(ZookeeperProfilerClusterManager zookeeperProfilerClusterManager, Timer timer) {
         this.zookeeperProfilerClusterManager = Assert.requireNonNull(zookeeperProfilerClusterManager, "zookeeperProfilerClusterManager must not be null");
         this.timer = Assert.requireNonNull(timer, "timer must not be null");
@@ -65,10 +70,10 @@ public class GrpcCommandService extends ProfilerCommandServiceGrpc.ProfilerComma
         final long transportId = getTransportId();
         final AgentInfo agentInfo = getAgentInfo();
 
-        logger.debug("handleCommand() agentInfo:{}, transportId:{}", agentInfo, transportId);
+        logger.debug("{} => local. handleCommand(). transportId:{}", agentInfo, transportId);
 
         RequestManager requestManager = new RequestManager(timer, 3000);
-        final PinpointGrpcServer pinpointGrpcServer = new PinpointGrpcServer(agentInfo, requestManager, requestObserver);
+        final PinpointGrpcServer pinpointGrpcServer = new PinpointGrpcServer(getRemoteAddress(), agentInfo, requestManager, requestObserver);
 
         boolean registered = grpcServerRepository.registerIfAbsent(transportId, pinpointGrpcServer);
         if (!registered) {
@@ -80,27 +85,20 @@ public class GrpcCommandService extends ProfilerCommandServiceGrpc.ProfilerComma
         serverCallStreamObserver.setOnReadyHandler(new Runnable() {
             public void run() {
                 if (serverCallStreamObserver.isReady()) {
-                    logger.info("ready() agentInfo:{}, transportId:{}", agentInfo, transportId);
+                    logger.info("{} => local. ready() transportId:{}", agentInfo.getAgentKey(), transportId);
                     pinpointGrpcServer.connected();
                     serverCallStreamObserver.request(1);
                 }
             }
         });
-        serverCallStreamObserver.setOnCancelHandler(new Runnable() {
-            @Override
-            public void run() {
-                if (serverCallStreamObserver.isCancelled()) {
-                    pinpointGrpcServer.disconnected();
-                }
-            }
-        });
 
-        StreamObserver<PCmdMessage> streamObserver = new StreamObserver<PCmdMessage>() {
+        StreamObserver<PCmdMessage> responseObserver = new StreamObserver<PCmdMessage>() {
             @Override
             public void onNext(PCmdMessage value) {
                 try {
                     if (value.hasHandshakeMessage()) {
                         List<Integer> supportCommandServiceKeyList = value.getHandshakeMessage().getSupportCommandServiceKeyList();
+                        logger.info("{} => local. execute handshake:{}", getAgentInfo().getAgentKey(), supportCommandServiceKeyList);
                         boolean handshakeSucceed = pinpointGrpcServer.handleHandshake(supportCommandServiceKeyList);
                         if (handshakeSucceed) {
                             GrpcAgentConnection grpcAgentConnection = new GrpcAgentConnection(pinpointGrpcServer, supportCommandServiceKeyList);
@@ -117,18 +115,18 @@ public class GrpcCommandService extends ProfilerCommandServiceGrpc.ProfilerComma
 
             @Override
             public void onError(Throwable t) {
-                logger.info("onError:{}", t);
+                logger.info("{} => local. onError:{}", getAgentInfo().getAgentKey(), t.getMessage(), t);
                 pinpointGrpcServer.disconnected();
             }
 
             @Override
             public void onCompleted() {
-                logger.info("onCompleted");
-                pinpointGrpcServer.close();
+                logger.info("{} => local. onCompleted", getAgentInfo().getAgentKey());
+                pinpointGrpcServer.disconnected();
             }
 
         };
-        return streamObserver;
+        return responseObserver;
     }
 
     @Override
@@ -136,10 +134,29 @@ public class GrpcCommandService extends ProfilerCommandServiceGrpc.ProfilerComma
         final long transportId = getTransportId();
         PinpointGrpcServer pinpointGrpcServer = grpcServerRepository.get(transportId);
         if (pinpointGrpcServer != null) {
-            pinpointGrpcServer.handleMessage(echoResponse.getCommonResponse().getResponseId(), echoResponse);
+            echoService.handle(pinpointGrpcServer, echoResponse, responseObserver);
         } else {
+            logger.info("{} => local. Can't find PinpointGrpcServer(transportId={})", getAgentInfo().getAgentKey(), transportId);
             responseObserver.onError(new StatusException(Status.NOT_FOUND));
         }
+    }
+
+    @Override
+    public StreamObserver<PCmdActiveThreadCountRes> commandStreamActiveThreadCount(StreamObserver<Empty> streamConnectionManagerObserver) {
+        final long transportId = getTransportId();
+        PinpointGrpcServer pinpointGrpcServer = grpcServerRepository.get(transportId);
+        if (pinpointGrpcServer == null) {
+            logger.info("{} => local. Can't find PinpointGrpcServer(transportId={})", getAgentInfo().getAgentKey(), transportId);
+            streamConnectionManagerObserver.onError(new StatusException(Status.NOT_FOUND));
+            return null;
+        }
+
+        return activeThreadCountService.handle(pinpointGrpcServer, streamConnectionManagerObserver);
+    }
+
+    private InetSocketAddress getRemoteAddress() {
+        TransportMetadata transportMetadata = ServerContext.getTransportMetadata();
+        return transportMetadata.getRemoteAddress();
     }
 
     private AgentInfo getAgentInfo() {
