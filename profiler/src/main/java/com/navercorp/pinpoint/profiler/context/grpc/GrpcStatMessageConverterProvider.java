@@ -14,26 +14,25 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.monitor.metric.gc;
+package com.navercorp.pinpoint.profiler.context.grpc;
+
+import com.google.inject.Inject;
+import com.google.inject.Provider;
+import com.google.protobuf.GeneratedMessageV3;
+import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
 
 /**
- * @author Woonduk Kang(emeroad)
+ * @author jaehong.kim
  */
-public enum JvmGcType {
-    UNKNOWN(0),
-    SERIAL(1),
-    PARALLEL(2),
-    CMS(3),
-    G1(4);
+public class GrpcStatMessageConverterProvider implements Provider<MessageConverter<GeneratedMessageV3>> {
 
-    private final int value;
-
-    private JvmGcType(int value) {
-        this.value = value;
+    @Inject
+    public GrpcStatMessageConverterProvider() {
     }
 
-    public int getValue() {
-        return value;
-    }
 
+    @Override
+    public MessageConverter<GeneratedMessageV3> get() {
+        return new GrpcStatMessageConverter();
+    }
 }

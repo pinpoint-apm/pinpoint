@@ -22,7 +22,7 @@ import com.navercorp.pinpoint.rpc.FutureListener;
 /**
  * @author Woonduk Kang(emeroad)
  */
-final class RequestMessageFactory {
+public final class RequestMessageFactory {
 
     private RequestMessageFactory() {
     }

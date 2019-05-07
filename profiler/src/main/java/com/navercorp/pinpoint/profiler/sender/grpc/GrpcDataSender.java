@@ -46,27 +46,22 @@ import java.util.concurrent.TimeUnit;
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class GrpcDataSender implements DataSender<Object> {
+public abstract class GrpcDataSender implements DataSender<Object> {
+    protected final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
-    private final String name;
-    private final ManagedChannel managedChannel;
-    private final SpanGrpc.SpanStub spanStub;
-
-    private volatile StreamObserver<PSpan> spanStream;
-    private volatile StreamObserver<PSpanChunk> spanChunkStream;
+    protected final String name;
+    protected final ManagedChannel managedChannel;
 
     // not thread safe
-    private final MessageConverter<GeneratedMessageV3> messageConverter;
+    protected final MessageConverter<GeneratedMessageV3> messageConverter;
 
-    private final ThreadPoolExecutor executor;
+    protected final ThreadPoolExecutor executor;
 
-    private final ChannelFactory channelFactory;
+    protected final ChannelFactory channelFactory;
 
-    private volatile boolean shutdown;
+    protected volatile boolean shutdown;
 
-    private static ScheduledExecutorService reconnectScheduler
+    protected static ScheduledExecutorService reconnectScheduler
             = Executors.newScheduledThreadPool(1, new PinpointThreadFactory("pinpoint-reconnect-thread"));
 
     private ThreadPoolExecutor newExecutorService(String name) {
@@ -83,37 +78,6 @@ public class GrpcDataSender implements DataSender<Object> {
 
         this.channelFactory = newChannelFactory(name, headerFactory, nameResolverProvider);
         this.managedChannel = channelFactory.build(name, host, port);
-
-        this.spanStub = SpanGrpc.newStub(managedChannel);
-        this.spanStream = newSpanStream();
-        this.spanChunkStream = newSpanChunkStream();
-    }
-
-    private StreamObserver<PSpanChunk> newSpanChunkStream() {
-        final ResponseStreamObserver responseObserver = new ResponseStreamObserver();
-        final StreamObserver<PSpanChunk> pSpanChunkStreamObserver = spanStub.sendSpanChunk(responseObserver);
-
-        responseObserver.setReconnectAction(new ExponentialBackoffReconnectJob() {
-            @Override
-            public void run() {
-                spanChunkStream = spanStub.sendSpanChunk(responseObserver);
-            }
-        });
-        return pSpanChunkStreamObserver;
-    }
-
-    private StreamObserver<PSpan> newSpanStream() {
-        final ResponseStreamObserver responseObserver = new ResponseStreamObserver();
-        StreamObserver<PSpan> pSpanStreamObserver = spanStub.sendSpan(responseObserver);
-
-        responseObserver.setReconnectAction(new ExponentialBackoffReconnectJob() {
-            @Override
-            public void run() {
-                spanStream = spanStub.sendSpan(responseObserver);
-            }
-        });
-
-        return pSpanStreamObserver;
     }
 
     private ChannelFactory newChannelFactory(String name, HeaderFactory<AgentHeaderFactory.Header> headerFactory, NameResolverProvider nameResolverProvider) {
@@ -141,30 +105,11 @@ public class GrpcDataSender implements DataSender<Object> {
         return true;
     }
 
-    private boolean send0(Object data) {
-        final GeneratedMessageV3 spanMessage = messageConverter.toMessage(data);
-        if (logger.isDebugEnabled()) {
-            logger.debug("message:{}", spanMessage);
-        }
-        if (spanMessage instanceof PSpanChunk) {
-            final PSpanChunk pSpan = (PSpanChunk) spanMessage;
-            spanChunkStream.onNext(pSpan);
-            return true;
-        }
-        if (spanMessage instanceof PSpan) {
-            final  PSpan pSpan = (PSpan) spanMessage;
-            spanStream.onNext(pSpan);
-            return true;
-        }
-        throw new IllegalStateException("unsupported message " + data);
-    }
-
+    public abstract boolean send0(Object data);
 
     @Override
     public void stop() {
         shutdown = true;
-        spanStream.onCompleted();
-        spanChunkStream.onCompleted();
         if (this.managedChannel != null) {
             this.managedChannel.shutdown();
         }
@@ -180,9 +125,7 @@ public class GrpcDataSender implements DataSender<Object> {
         reconnectScheduler.schedule(reconnectAction, reconnectAction.nextBackoffNanos(), TimeUnit.NANOSECONDS);
     }
 
-
-
-    private class ResponseStreamObserver implements StreamObserver<Empty> {
+    public class ResponseStreamObserver implements StreamObserver<Empty> {
         private ReconnectJob runnable;
 
         public ResponseStreamObserver() {

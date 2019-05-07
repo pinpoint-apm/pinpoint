@@ -21,7 +21,7 @@ import com.navercorp.pinpoint.rpc.FutureListener;
 /**
  * @author Woonduk Kang(emeroad)
  */
-interface RequestMessage<M> {
+public interface RequestMessage<M> {
 
     M getMessage();
 

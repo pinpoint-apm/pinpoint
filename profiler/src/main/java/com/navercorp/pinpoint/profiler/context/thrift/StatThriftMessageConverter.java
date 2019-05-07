@@ -29,7 +29,6 @@ import com.navercorp.pinpoint.profiler.monitor.metric.datasource.DataSourceMetri
 import com.navercorp.pinpoint.profiler.monitor.metric.deadlock.DeadlockMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.deadlock.ThreadDumpMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.filedescriptor.FileDescriptorMetricSnapshot;
-import com.navercorp.pinpoint.profiler.monitor.metric.gc.JvmGcType;
 import com.navercorp.pinpoint.profiler.monitor.metric.response.ResponseTimeValue;
 import com.navercorp.pinpoint.profiler.monitor.metric.transaction.TransactionMetricSnapshot;
 import com.navercorp.pinpoint.thrift.dto.TActiveTrace;
@@ -57,6 +56,7 @@ import java.util.List;
  */
 public class StatThriftMessageConverter implements MessageConverter<TBase<?, ?>> {
     private final ThreadDumpThriftMessageConverter threadDumpMessageConverter = new ThreadDumpThriftMessageConverter();
+    private final JvmGcTypeThriftMessageConverter jvmGcTypeMessageConverter = new JvmGcTypeThriftMessageConverter();
 
     @Override
     public TBase<?, ?> toMessage(Object message) {
@@ -154,7 +154,7 @@ public class StatThriftMessageConverter implements MessageConverter<TBase<?, ?>>
         jvmGc.setJvmGcOldCount(jvmGcMetricSnapshot.getJvmGcOldCount());
         jvmGc.setJvmGcOldTime(jvmGcMetricSnapshot.getJvmGcOldTime());
 
-        final TJvmGcType jvmGcType = convertJvmGcType(jvmGcMetricSnapshot.getType());
+        final TJvmGcType jvmGcType = this.jvmGcTypeMessageConverter.toMessage(jvmGcMetricSnapshot.getType());
         jvmGc.setType(jvmGcType);
 
         if (jvmGcMetricSnapshot.getJvmGcDetailed() != null) {
@@ -171,23 +171,6 @@ public class StatThriftMessageConverter implements MessageConverter<TBase<?, ?>>
             jvmGc.setJvmGcDetailed(jvmGcDetailed);
         }
         return jvmGc;
-    }
-
-    private TJvmGcType convertJvmGcType(final JvmGcType jvmGcType) {
-        switch (jvmGcType) {
-            case UNKNOWN:
-                return TJvmGcType.UNKNOWN;
-            case SERIAL:
-                return TJvmGcType.SERIAL;
-            case PARALLEL:
-                return TJvmGcType.PARALLEL;
-            case CMS:
-                return TJvmGcType.CMS;
-            case G1:
-                return TJvmGcType.G1;
-            default:
-                return TJvmGcType.UNKNOWN;
-        }
     }
 
     private TCpuLoad convertCpuLoad(CpuLoadMetricSnapshot cpuLoadMetricSnapshot) {

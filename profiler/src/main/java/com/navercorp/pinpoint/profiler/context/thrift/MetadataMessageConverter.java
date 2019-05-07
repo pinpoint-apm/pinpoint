@@ -47,6 +47,7 @@ public class MetadataMessageConverter implements MessageConverter<TBase<?, ?>> {
     private final String applicationName;
     private final String agentId;
     private final long agentStartTime;
+    private final JvmGcTypeThriftMessageConverter jvmGcTypeMessageConverter = new JvmGcTypeThriftMessageConverter();
 
     public MetadataMessageConverter(String applicationName, String agentId, long agentStartTime) {
         this.applicationName = Assert.requireNonNull(applicationName, "applicationName must not be null");
@@ -118,10 +119,7 @@ public class MetadataMessageConverter implements MessageConverter<TBase<?, ?>> {
     private TJvmInfo convertJvmInfo(final JvmInformation jvmInformation) {
         final TJvmInfo tJvmInfo = new TJvmInfo();
         tJvmInfo.setVmVersion(jvmInformation.getJvmVersion());
-        TJvmGcType gcType = TJvmGcType.findByValue(jvmInformation.getGcTypeCode());
-        if (gcType == null) {
-            gcType = TJvmGcType.UNKNOWN;
-        }
+        TJvmGcType gcType = this.jvmGcTypeMessageConverter.toMessage(jvmInformation.getJvmGcType());
         tJvmInfo.setGcType(gcType);
         return tJvmInfo;
     }

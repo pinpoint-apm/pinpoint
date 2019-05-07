@@ -23,33 +23,62 @@ public class GrpcTransportConfig {
 
     private static final String DEFAULT_IP = "127.0.0.1";
 
-    private String collectorSpanServerIp = DEFAULT_IP;
-    private int collectorSpanServerPort = 9997;
+    private String collectorAgentServerIp = DEFAULT_IP;
+    private int collectorAgentServerPort = 9997;
 
+    private String collectorSpanServerIp = DEFAULT_IP;
+    private int collectorSpanServerPort = 9998;
+
+    private String collectorStatServerIp = DEFAULT_IP;
+    private int collectorStatServerPort = 9999;
 
     public void read(DefaultProfilerConfig profilerConfig) {
         final DefaultProfilerConfig.ValueResolver placeHolderResolver = new DefaultProfilerConfig.PlaceHolderResolver();
-
+        // Agent
+        this.collectorAgentServerIp = profilerConfig.readString("profiler.transport.grpc.collector.agent.ip", DEFAULT_IP, placeHolderResolver);
+        this.collectorAgentServerPort = profilerConfig.readInt("profiler.transport.grpc.collector.agent.port", 9997);
+        // Span
         this.collectorSpanServerIp = profilerConfig.readString("profiler.transport.grpc.collector.span.ip", DEFAULT_IP, placeHolderResolver);
-        this.collectorSpanServerPort = profilerConfig.readInt("profiler.transport.grpc.collector.span.port", 9997);
-
+        this.collectorSpanServerPort = profilerConfig.readInt("profiler.transport.grpc.collector.span.port", 9998);
+        // Stat
+        this.collectorStatServerIp = profilerConfig.readString("profiler.transport.grpc.collector.stat.ip", DEFAULT_IP, placeHolderResolver);
+        this.collectorStatServerPort = profilerConfig.readInt("profiler.transport.grpc.collector.stat.port", 9999);
     }
 
-//    @Override
     public String getCollectorSpanServerIp() {
         return collectorSpanServerIp;
     }
 
-//    @Override
     public int getCollectorSpanServerPort() {
         return collectorSpanServerPort;
     }
 
+    public String getCollectorAgentServerIp() {
+        return collectorAgentServerIp;
+    }
+
+    public int getCollectorAgentServerPort() {
+        return collectorAgentServerPort;
+    }
+
+    public String getCollectorStatServerIp() {
+        return collectorStatServerIp;
+    }
+
+    public int getCollectorStatServerPort() {
+        return collectorStatServerPort;
+    }
+
     @Override
     public String toString() {
-        return "GrpcTransportConfig{" +
-                "collectorSpanServerIp='" + collectorSpanServerIp + '\'' +
-                ", collectorSpanServerPort=" + collectorSpanServerPort +
-                '}';
+        final StringBuilder sb = new StringBuilder("GrpcTransportConfig{");
+        sb.append("collectorAgentServerIp='").append(collectorAgentServerIp).append('\'');
+        sb.append(", collectorAgentServerPort=").append(collectorAgentServerPort);
+        sb.append(", collectorSpanServerIp='").append(collectorSpanServerIp).append('\'');
+        sb.append(", collectorSpanServerPort=").append(collectorSpanServerPort);
+        sb.append(", collectorStatServerIp='").append(collectorStatServerIp).append('\'');
+        sb.append(", collectorStatServerPort=").append(collectorStatServerPort);
+        sb.append('}');
+        return sb.toString();
     }
 }
