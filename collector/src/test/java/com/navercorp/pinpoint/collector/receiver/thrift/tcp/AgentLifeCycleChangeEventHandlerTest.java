@@ -108,8 +108,8 @@ public class AgentLifeCycleChangeEventHandlerTest {
             // when
             this.lifeCycleChangeEventHandler.stateUpdated(this.server, unmanagedState);
             // then
-            verify(this.agentLifeCycleAsyncTaskService, never()).handleLifeCycleEvent(any(Map.class), anyLong(), any(AgentLifeCycleState.class), anyInt());
-            verify(this.agentEventAsyncTaskService, never()).handleEvent(any(Map.class), anyLong(), any(AgentEventType.class));
+            verify(this.agentLifeCycleAsyncTaskService, never()).handleLifeCycleEvent(any(), anyLong(), any(AgentLifeCycleState.class), anyInt());
+            verify(this.agentEventAsyncTaskService, never()).handleEvent(any(), anyLong(), any(AgentEventType.class));
         }
     }
 
@@ -119,8 +119,8 @@ public class AgentLifeCycleChangeEventHandlerTest {
             this.lifeCycleChangeEventHandler.stateUpdated(this.server, socketState);
             testCount++;
             verify(this.agentLifeCycleAsyncTaskService, times(testCount))
-                    .handleLifeCycleEvent(any(Map.class), anyLong(), any(AgentLifeCycleState.class), anyInt());
-            verify(this.agentEventAsyncTaskService, times(testCount)).handleEvent(any(Map.class), anyLong(), any(AgentEventType.class));
+                    .handleLifeCycleEvent(any(), anyLong(), any(AgentLifeCycleState.class), anyInt());
+            verify(this.agentEventAsyncTaskService, times(testCount)).handleEvent(any(), anyLong(), any(AgentEventType.class));
         }
     }
 

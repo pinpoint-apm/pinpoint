@@ -17,16 +17,15 @@
 package com.navercorp.pinpoint.collector.cluster;
 
 import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.rpc.Future;
-import com.navercorp.pinpoint.rpc.packet.HandshakePropertyType;
+import com.navercorp.pinpoint.rpc.server.ChannelProperties;
+import com.navercorp.pinpoint.rpc.server.DefaultChannelProperties;
 import com.navercorp.pinpoint.rpc.server.PinpointServer;
-import com.navercorp.pinpoint.rpc.util.MapUtils;
 import com.navercorp.pinpoint.thrift.io.TCommandType;
 import com.navercorp.pinpoint.thrift.io.TCommandTypeVersion;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.thrift.TBase;
-import org.springframework.util.NumberUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -49,36 +48,30 @@ public class ThriftAgentConnection implements ClusterPoint<byte[]> {
         this.pinpointServer = pinpointServer;
 
         Map<Object, Object> properties = pinpointServer.getChannelProperties();
+        ChannelProperties channelProperties = DefaultChannelProperties.newChannelProperties(properties);
 
-        String applicationName = MapUtils.getString(properties, HandshakePropertyType.APPLICATION_NAME.getName());
-        Assert.isTrue(!StringUtils.isBlank(applicationName), "ApplicationName must not be null or empty.");
+        String applicationName = channelProperties.getApplicationName();
 
-        String  agentId = MapUtils.getString(properties, HandshakePropertyType.AGENT_ID.getName());
-        Assert.isTrue(!StringUtils.isBlank(agentId), "AgentId must not be null or empty.");
+        String agentId = channelProperties.getAgentId();
 
-        long  startTimeStamp = MapUtils.getLong(properties, HandshakePropertyType.START_TIMESTAMP.getName());
-        Assert.isTrue(startTimeStamp > 0, "StartTimeStamp is must greater than zero.");
+        long startTimeStamp = channelProperties.getStartTime();
 
-        String  version = MapUtils.getString(properties, HandshakePropertyType.VERSION.getName());
-        Assert.isTrue(!StringUtils.isBlank(version), "Version must not be null or empty.");
+        String version = channelProperties.getAgentVersion();
 
         this.agentInfo = new AgentInfo(applicationName, agentId, startTimeStamp, version);
-        this.supportCommandList = newSupportCommandList(properties);
+        this.supportCommandList = newSupportCommandList(channelProperties.getSupportCommand());
     }
 
-    private List<TCommandType> newSupportCommandList(Map<Object, Object> properties) {
-        final Object supportCommandCodeList = properties.get(HandshakePropertyType.SUPPORT_COMMAND_LIST.getName());
-        if (!(supportCommandCodeList instanceof List)) {
+    private List<TCommandType> newSupportCommandList(List<Integer> supportCommandList) {
+        if (CollectionUtils.isEmpty(supportCommandList)) {
             return Collections.emptyList();
         }
 
         final List<TCommandType> result = new ArrayList<>();
-        for (Object supportCommandCode : (List)supportCommandCodeList) {
-            if (supportCommandCode instanceof Number) {
-                TCommandType commandType = TCommandType.getType(NumberUtils.convertNumberToTargetClass((Number) supportCommandCode, Short.class));
-                if (commandType != null) {
-                    result.add(commandType);
-                }
+        for (Integer supportCommandCode : supportCommandList) {
+            TCommandType commandType = TCommandType.getType(supportCommandCode.shortValue());
+            if (commandType != null) {
+                result.add(commandType);
             }
         }
         return result;

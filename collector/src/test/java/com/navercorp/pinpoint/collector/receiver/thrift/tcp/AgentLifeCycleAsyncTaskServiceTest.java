@@ -23,6 +23,8 @@ import com.navercorp.pinpoint.collector.util.ManagedAgentLifeCycle;
 import com.navercorp.pinpoint.common.server.bo.AgentLifeCycleBo;
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
 import com.navercorp.pinpoint.rpc.packet.HandshakePropertyType;
+import com.navercorp.pinpoint.rpc.server.ChannelProperties;
+import com.navercorp.pinpoint.rpc.server.DefaultChannelProperties;
 import com.navercorp.pinpoint.rpc.server.PinpointServer;
 import org.junit.Before;
 import org.junit.Test;
@@ -174,7 +176,9 @@ public class AgentLifeCycleAsyncTaskServiceTest {
         ArgumentCaptor<AgentLifeCycleBo> argCaptor = ArgumentCaptor.forClass(AgentLifeCycleBo.class);
 
         // when
-        this.agentLifeCycleAsyncTaskService.handleLifeCycleEvent(this.pinpointServer.getChannelProperties(), TEST_EVENT_TIMESTAMP, expectedLifeCycleState, expectedEventCounter);
+        Map<Object, Object> channelPropertiesMap = this.pinpointServer.getChannelProperties();
+        ChannelProperties channelProperties = DefaultChannelProperties.newChannelProperties(channelPropertiesMap);
+        this.agentLifeCycleAsyncTaskService.handleLifeCycleEvent(channelProperties, TEST_EVENT_TIMESTAMP, expectedLifeCycleState, expectedEventCounter);
         verify(this.agentLifeCycleService, times(1)).insert(argCaptor.capture());
 
         // then

@@ -21,6 +21,8 @@ import com.navercorp.pinpoint.collector.service.AgentEventService;
 import com.navercorp.pinpoint.common.server.bo.event.AgentEventBo;
 import com.navercorp.pinpoint.common.server.util.AgentEventType;
 import com.navercorp.pinpoint.rpc.packet.HandshakePropertyType;
+import com.navercorp.pinpoint.rpc.server.ChannelProperties;
+import com.navercorp.pinpoint.rpc.server.DefaultChannelProperties;
 import com.navercorp.pinpoint.rpc.server.PinpointServer;
 import org.junit.Before;
 import org.junit.Test;
@@ -69,7 +71,9 @@ public class AgentEventAsyncTaskServiceTest {
         final AgentEventType expectedEventType = AgentEventType.AGENT_CONNECTED;
         ArgumentCaptor<AgentEventBo> argCaptor = ArgumentCaptor.forClass(AgentEventBo.class);
         // when
-        this.agentEventAsyncTaskService.handleEvent(this.pinpointServer.getChannelProperties(), TEST_EVENT_TIMESTAMP, expectedEventType);
+        Map<Object, Object> channelPropertiesMap = this.pinpointServer.getChannelProperties();
+        ChannelProperties channelProperties = DefaultChannelProperties.newChannelProperties(channelPropertiesMap);
+        this.agentEventAsyncTaskService.handleEvent(channelProperties, TEST_EVENT_TIMESTAMP, expectedEventType);
         verify(this.agentEventService, times(1)).insert(argCaptor.capture());
         // then
         AgentEventBo actualAgentEventBo = argCaptor.getValue();

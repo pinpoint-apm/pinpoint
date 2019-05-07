@@ -28,6 +28,8 @@ import com.navercorp.pinpoint.rpc.packet.HandshakeResponseType;
 import com.navercorp.pinpoint.rpc.packet.PingPayloadPacket;
 import com.navercorp.pinpoint.rpc.packet.RequestPacket;
 import com.navercorp.pinpoint.rpc.packet.SendPacket;
+import com.navercorp.pinpoint.rpc.server.ChannelProperties;
+import com.navercorp.pinpoint.rpc.server.DefaultChannelProperties;
 import com.navercorp.pinpoint.rpc.server.PinpointServer;
 import com.navercorp.pinpoint.rpc.server.ServerMessageListener;
 import com.navercorp.pinpoint.rpc.server.ServerMessageListenerFactory;
@@ -123,7 +125,8 @@ class AgentBaseDataReceiverServerMessageListenerFactory implements ServerMessage
         public void handlePing(PingPayloadPacket pingPacket, PinpointServer pinpointServer) {
             final int eventCounter = pingPacket.getPingId();
             long pingTimestamp = System.currentTimeMillis();
-            Map<Object, Object> channelProperties = pinpointServer.getChannelProperties();
+            Map<Object, Object> channelPropertiesMap = pinpointServer.getChannelProperties();
+            ChannelProperties channelProperties = DefaultChannelProperties.newChannelProperties(channelPropertiesMap);
             try {
                 if (!(eventCounter < 0)) {
                     agentLifeCycleAsyncTaskService.handleLifeCycleEvent(channelProperties, pingTimestamp, AgentLifeCycleState.RUNNING, eventCounter);

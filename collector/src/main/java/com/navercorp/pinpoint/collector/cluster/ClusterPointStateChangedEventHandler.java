@@ -20,10 +20,10 @@ import com.navercorp.pinpoint.collector.cluster.zookeeper.ZookeeperProfilerClust
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.rpc.common.SocketStateCode;
-import com.navercorp.pinpoint.rpc.packet.HandshakePropertyType;
+import com.navercorp.pinpoint.rpc.server.ChannelProperties;
+import com.navercorp.pinpoint.rpc.server.DefaultChannelProperties;
 import com.navercorp.pinpoint.rpc.server.PinpointServer;
 import com.navercorp.pinpoint.rpc.server.handler.ServerStateChangeEventHandler;
-import com.navercorp.pinpoint.rpc.util.MapUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,9 +47,10 @@ public class ClusterPointStateChangedEventHandler extends ServerStateChangeEvent
     public void stateUpdated(PinpointServer pinpointServer, SocketStateCode updatedStateCode) {
         logger.info("stateUpdated() started. (PinpointServer={}, updatedStateCode={})", pinpointServer, updatedStateCode);
 
-        Map agentProperties = pinpointServer.getChannelProperties();
+        Map<Object, Object> channelPropertiesMap = pinpointServer.getChannelProperties();
+        ChannelProperties channelProperties = DefaultChannelProperties.newChannelProperties(channelPropertiesMap);
         // skip when applicationName and agentId is unknown
-        if (skipAgent(agentProperties)) {
+        if (skipAgent(channelProperties)) {
             return;
         }
 
@@ -62,9 +63,12 @@ public class ClusterPointStateChangedEventHandler extends ServerStateChangeEvent
         }
     }
 
-    private boolean skipAgent(Map<Object, Object> agentProperties) {
-        String applicationName = MapUtils.getString(agentProperties, HandshakePropertyType.APPLICATION_NAME.getName());
-        String agentId = MapUtils.getString(agentProperties, HandshakePropertyType.AGENT_ID.getName());
+    private boolean skipAgent(ChannelProperties channelProperties) {
+        if (channelProperties == null) {
+            return true;
+        }
+        String applicationName = channelProperties.getApplicationName();
+        String agentId = channelProperties.getAgentId();
 
         if (StringUtils.hasText(applicationName) && StringUtils.hasText(agentId)) {
             return false;
