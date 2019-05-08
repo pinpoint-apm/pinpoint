@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.sender.grpc;
 
+import com.navercorp.pinpoint.profiler.receiver.grpc.GrpcCommandService;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 
 import com.google.common.util.concurrent.FutureCallback;
@@ -101,6 +102,8 @@ public class AgentGrpcDataSender implements EnhancedDataSender {
 
     private final AgentGrpc.AgentFutureStub agentStub;
 
+    private final GrpcCommandService grpcCommandService;
+
     public AgentGrpcDataSender(String name, String host, int port, MessageConverter<GeneratedMessageV3> messageConverter, HeaderFactory<AgentHeaderFactory.Header> headerFactory, NameResolverProvider nameResolverProvider) {
         this.name = Assert.requireNonNull(name, "name must not be null");
         this.messageConverter = Assert.requireNonNull(messageConverter, "messageConverter must not be null");
@@ -115,6 +118,9 @@ public class AgentGrpcDataSender implements EnhancedDataSender {
         this.channelFactory = newChannelFactory(name, headerFactory, nameResolverProvider);
         this.managedChannel = channelFactory.build(name, host, port);
         this.agentStub = AgentGrpc.newFutureStub(managedChannel);
+
+        // TODO : insert ActiveTraceRepository object.
+        this.grpcCommandService = new GrpcCommandService(managedChannel, GrpcDataSender.reconnectScheduler, null);
     }
 
     private ThreadPoolExecutor newExecutorService(String name) {
@@ -179,6 +185,10 @@ public class AgentGrpcDataSender implements EnhancedDataSender {
 
     @Override
     public void stop() {
+        if (grpcCommandService != null) {
+            grpcCommandService.stop();
+        }
+
         asyncQueueingExecutor.stop();
 
         Set<Timeout> stop = timer.stop();
