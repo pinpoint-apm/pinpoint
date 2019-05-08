@@ -1,13 +1,12 @@
 import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { Subject, Observable } from 'rxjs';
-import { map, tap, filter, withLatestFrom } from 'rxjs/operators';
+import { takeUntil } from 'rxjs/operators';
 
-import { Actions } from 'app/shared/store';
-import { StoreHelperService, NewUrlStateNotificationService, AnalyticsService, TRACKED_EVENT_LIST, MessageQueueService, MESSAGE_TO } from 'app/shared/services';
-import { Timeline, ITimelineEventSegment, TimelineUIEvent } from './class';
+import { StoreHelperService, AnalyticsService, TRACKED_EVENT_LIST, MessageQueueService, MESSAGE_TO } from 'app/shared/services';
+import { ITimelineEventSegment, TimelineUIEvent } from './class';
 import { TimelineComponent } from './timeline.component';
 import { IAgentTimeline } from './agent-timeline-data.service';
-import { UrlPathId } from 'app/shared/models';
+import { InspectorPageService, ISourceForTimeline } from 'app/routes/inspector-page/inspector-page.service';
 
 @Component({
     selector: 'pp-application-inspector-timeline-container',
@@ -31,9 +30,9 @@ export class ApplicationInspectorTimelineContainerComponent implements OnInit, O
 
     constructor(
         private storeHelperService: StoreHelperService,
-        private newUrlStateNotificationService: NewUrlStateNotificationService,
         private messageQueueService: MessageQueueService,
         private analyticsService: AnalyticsService,
+        private inspectorPageService: InspectorPageService,
     ) {}
 
     ngOnInit() {
@@ -59,34 +58,9 @@ export class ApplicationInspectorTimelineContainerComponent implements OnInit, O
             this.timelineComponent.moveNow();
         });
 
-        this.timelineInfoFromStore$ = this.storeHelperService.getInspectorTimelineData(this.unsubscribe);
-        this.timelineInfoFromUrl$ = this.storeHelperService.getRange(this.unsubscribe).pipe(
-            filter((range: number[]) => !!range),
-            map(([from, to]: number[]) => {
-                return {
-                    range: this.calcuRetrieveTime(from, to),
-                    selectedTime: to,
-                    selectionRange: [from, to]
-                } as ITimelineInfo;
-            }),
-            tap((timelineInfo: ITimelineInfo) => {
-                const urlService = this.newUrlStateNotificationService;
-
-                if (urlService.isRealTimeMode() || urlService.isValueChanged(UrlPathId.PERIOD) || urlService.isValueChanged(UrlPathId.END_TIME)) {
-                    this.storeHelperService.dispatch(new Actions.UpdateTimelineData(timelineInfo));
-                }
-            }),
-        );
-
-        this.timelineInfoFromUrl$.pipe(
-            withLatestFrom(this.timelineInfoFromStore$),
-            map(([timelineInfoFromUrl, timelineInfoFromStore]: ITimelineInfo[]) => {
-                const urlService = this.newUrlStateNotificationService;
-                const shouldUseInfoFromUrl = urlService.isRealTimeMode() || urlService.isValueChanged(UrlPathId.PERIOD) || urlService.isValueChanged(UrlPathId.END_TIME);
-
-                return shouldUseInfoFromUrl ? timelineInfoFromUrl : timelineInfoFromStore;
-            })
-        ).subscribe(({range, selectionRange, selectedTime}: ITimelineInfo) => {
+        this.inspectorPageService.sourceForTimeline$.pipe(
+            takeUntil(this.unsubscribe),
+        ).subscribe(({timelineInfo: {range, selectionRange, selectedTime}}: ISourceForTimeline) => {
             this.timelineStartTime = range[0];
             this.timelineEndTime = range[1];
             this.selectionStartTime = selectionRange[0];
@@ -108,7 +82,6 @@ export class ApplicationInspectorTimelineContainerComponent implements OnInit, O
                 }
             };
         });
-
     }
     ngOnDestroy() {
         this.unsubscribe.next();
@@ -118,18 +91,6 @@ export class ApplicationInspectorTimelineContainerComponent implements OnInit, O
         this.timezone$ = this.storeHelperService.getTimezone(this.unsubscribe);
         this.dateFormat$ = this.storeHelperService.getDateFormatArray(this.unsubscribe, 0, 5, 6);
     }
-    calcuRetrieveTime(startTime: number, endTime: number ): number[] {
-        const allowedMaxRagne = Timeline.MAX_TIME_RANGE;
-        const timeGap = endTime - startTime;
-
-        if (timeGap > allowedMaxRagne) {
-            return [endTime - allowedMaxRagne, endTime];
-        } else {
-            const calcuStart = timeGap * 3;
-
-            return [endTime - (calcuStart > allowedMaxRagne ? allowedMaxRagne : calcuStart), endTime];
-        }
-    }
     onSelectEventStatus($eventObj: ITimelineEventSegment): void {}
     onChangeTimelineUIEvent(event: TimelineUIEvent): void {
         if (event.changedSelectedTime) {
@@ -138,6 +99,6 @@ export class ApplicationInspectorTimelineContainerComponent implements OnInit, O
         if (event.changedSelectionRange) {
             this.analyticsService.trackEvent(TRACKED_EVENT_LIST.CHANGE_SELECTION_RANGE_ON_TIMELINE);
         }
-        this.storeHelperService.dispatch(new Actions.UpdateTimelineData(event.data));
+        this.inspectorPageService.updateTimelineData(event.data);
     }
 }

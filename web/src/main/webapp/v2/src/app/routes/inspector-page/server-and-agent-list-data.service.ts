@@ -3,7 +3,6 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { retry } from 'rxjs/operators';
 
-
 @Injectable()
 export class ServerAndAgentListDataService {
     private url = 'getAgentList.pinpoint';
