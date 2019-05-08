@@ -8,6 +8,7 @@ import { AgentResponseTimeChartDataService } from './agent-response-time-chart-d
 import { HELP_VIEWER_LIST } from 'app/core/components/help-viewer-popup/help-viewer-popup-container.component';
 import { InspectorChartContainer } from 'app/core/components/inspector-chart/inspector-chart-container';
 import { IChartDataFromServer } from 'app/core/components/inspector-chart/chart-data.service';
+import { InspectorPageService } from 'app/routes/inspector-page/inspector-page.service';
 
 @Component({
     selector: 'pp-agent-response-time-chart-container',
@@ -24,7 +25,8 @@ export class AgentResponseTimeChartContainerComponent extends InspectorChartCont
         analyticsService: AnalyticsService,
         dynamicPopupService: DynamicPopupService,
         componentFactoryResolver: ComponentFactoryResolver,
-        injector: Injector
+        injector: Injector,
+        inspectorPageService: InspectorPageService,
     ) {
         super(
             100,
@@ -36,7 +38,8 @@ export class AgentResponseTimeChartContainerComponent extends InspectorChartCont
             analyticsService,
             dynamicPopupService,
             componentFactoryResolver,
-            injector
+            injector,
+            inspectorPageService
         );
     }
 

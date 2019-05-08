@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
@@ -15,7 +15,6 @@ import {
     selector: 'pp-application-inspector-title-container',
     templateUrl: './application-inspector-title-container.component.html',
     styleUrls: ['./application-inspector-title-container.component.css'],
-    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ApplicationInspectorTitleContainerComponent implements OnInit, OnDestroy {
     private unsubscribe: Subject<null> = new Subject();
@@ -24,7 +23,6 @@ export class ApplicationInspectorTitleContainerComponent implements OnInit, OnDe
     applicationServiceType: string;
     applicationName: string;
     constructor(
-        private changeDetectorRef: ChangeDetectorRef,
         private webAppSettingDataService: WebAppSettingDataService,
         private newUrlStateNotificationService: NewUrlStateNotificationService,
         private urlRouteManagerService: UrlRouteManagerService,
@@ -45,7 +43,6 @@ export class ApplicationInspectorTitleContainerComponent implements OnInit, OnDe
             } else {
                 this.agentId = '';
             }
-            this.changeDetectorRef.detectChanges();
         });
     }
 
@@ -57,9 +54,11 @@ export class ApplicationInspectorTitleContainerComponent implements OnInit, OnDe
     isEmptyAgentId(): boolean {
         return this.agentId === '';
     }
+
     getApplicationIcon(): string {
         return this.funcImagePath(this.applicationServiceType);
     }
+
     onSelectApplication() {
         const url = this.newUrlStateNotificationService.isRealTimeMode() ?
             [
