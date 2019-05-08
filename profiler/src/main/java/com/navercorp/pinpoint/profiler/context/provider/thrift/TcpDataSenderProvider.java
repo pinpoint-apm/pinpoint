@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.context.provider;
+package com.navercorp.pinpoint.profiler.context.provider.thrift;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.navercorp.pinpoint.bootstrap.config.ThriftTransportConfig;
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.module.DefaultClientFactory;
 import com.navercorp.pinpoint.profiler.context.module.MetadataConverter;
@@ -36,16 +35,16 @@ import org.apache.thrift.TBase;
  * @author Woonduk Kang(emeroad)
  */
 public class TcpDataSenderProvider implements Provider<EnhancedDataSender<Object>> {
-    private final ProfilerConfig profilerConfig;
+    private final ThriftTransportConfig thriftTransportConfig;
     private final Provider<PinpointClientFactory> clientFactoryProvider;
     private final Provider<HeaderTBaseSerializer> tBaseSerializerProvider;
     private final MessageConverter<TBase<?, ?>> messageConverter;
 
     @Inject
-    public TcpDataSenderProvider(ProfilerConfig profilerConfig, @DefaultClientFactory Provider<PinpointClientFactory> clientFactoryProvider,
+    public TcpDataSenderProvider(ThriftTransportConfig thriftTransportConfig, @DefaultClientFactory Provider<PinpointClientFactory> clientFactoryProvider,
                                  Provider<HeaderTBaseSerializer> tBaseSerializerProvider,
                                  @MetadataConverter MessageConverter<TBase<?, ?>> messageConverter) {
-        this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig must not be null");
+        this.thriftTransportConfig = Assert.requireNonNull(thriftTransportConfig, "thriftTransportConfig must not be null");
         this.clientFactoryProvider = Assert.requireNonNull(clientFactoryProvider, "clientFactoryProvider must not be null");
         this.tBaseSerializerProvider = Assert.requireNonNull(tBaseSerializerProvider, "tBaseSerializerProvider must not be null");
         this.messageConverter = Assert.requireNonNull(messageConverter, "messageConverter must not be null");
@@ -55,7 +54,6 @@ public class TcpDataSenderProvider implements Provider<EnhancedDataSender<Object
     public EnhancedDataSender<Object> get() {
         PinpointClientFactory clientFactory = clientFactoryProvider.get();
 
-        ThriftTransportConfig thriftTransportConfig = profilerConfig.getThriftTransportConfig();
         String collectorTcpServerIp = thriftTransportConfig.getCollectorTcpServerIp();
         int collectorTcpServerPort = thriftTransportConfig.getCollectorTcpServerPort();
         HeaderTBaseSerializer headerTBaseSerializer = tBaseSerializerProvider.get();

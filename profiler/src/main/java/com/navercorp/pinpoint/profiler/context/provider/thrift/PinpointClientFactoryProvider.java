@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,19 +14,18 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.context.provider;
+package com.navercorp.pinpoint.profiler.context.provider.thrift;
 
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.google.inject.Inject;
+import com.google.inject.Provider;
 import com.navercorp.pinpoint.bootstrap.config.ThriftTransportConfig;
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.AgentInformation;
 import com.navercorp.pinpoint.profiler.receiver.CommandDispatcher;
 import com.navercorp.pinpoint.rpc.client.ConnectionFactoryProvider;
 import com.navercorp.pinpoint.rpc.client.DefaultPinpointClientFactory;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 import com.navercorp.pinpoint.rpc.packet.HandshakePropertyType;
-
-import com.google.inject.Inject;
-import com.google.inject.Provider;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -36,34 +35,22 @@ import java.util.Map;
  */
 public class PinpointClientFactoryProvider implements Provider<PinpointClientFactory> {
 
-    private final ProfilerConfig profilerConfig;
+    private final ThriftTransportConfig thriftTransportConfig;
     private final Provider<AgentInformation> agentInformation;
     private final Provider<ConnectionFactoryProvider> connectionFactoryProvider;
     private final CommandDispatcher commandDispatcher;
 
     @Inject
-    public PinpointClientFactoryProvider(ProfilerConfig profilerConfig, Provider<AgentInformation> agentInformation, CommandDispatcher commandDispatcher, Provider<ConnectionFactoryProvider> connectionFactoryProvider) {
-        if (profilerConfig == null) {
-            throw new NullPointerException("profilerConfig must not be null");
-        }
-        if (agentInformation == null) {
-            throw new NullPointerException("agentInformation must not be null");
-        }
-        if (commandDispatcher == null) {
-            throw new NullPointerException("commandDispatcher must not be null");
-        }
-        if (connectionFactoryProvider == null) {
-            throw new NullPointerException("connectionFactoryProvider must not be null");
-        }
-        this.profilerConfig = profilerConfig;
-        this.agentInformation = agentInformation;
-        this.commandDispatcher = commandDispatcher;
-        this.connectionFactoryProvider = connectionFactoryProvider;
+    public PinpointClientFactoryProvider(ThriftTransportConfig thriftTransportConfig, Provider<AgentInformation> agentInformation, CommandDispatcher commandDispatcher, Provider<ConnectionFactoryProvider> connectionFactoryProvider) {
+        this.thriftTransportConfig = Assert.requireNonNull(thriftTransportConfig, "thriftTransportConfig must not be null");
+        this.agentInformation = Assert.requireNonNull(agentInformation, "agentInformation must not be null");
+        this.commandDispatcher = Assert.requireNonNull(commandDispatcher, "commandDispatcher must not be null");
+        this.connectionFactoryProvider = Assert.requireNonNull(connectionFactoryProvider, "connectionFactoryProvider must not be null");
+
     }
 
     public PinpointClientFactory get() {
         PinpointClientFactory pinpointClientFactory = new DefaultPinpointClientFactory(connectionFactoryProvider.get());
-        ThriftTransportConfig thriftTransportConfig = profilerConfig.getThriftTransportConfig();
         pinpointClientFactory.setWriteTimeoutMillis(thriftTransportConfig.getTcpDataSenderPinpointClientWriteTimeout());
         pinpointClientFactory.setRequestTimeoutMillis(thriftTransportConfig.getTcpDataSenderPinpointClientRequestTimeout());
         pinpointClientFactory.setReconnectDelay(thriftTransportConfig.getTcpDataSenderPinpointClientReconnectInterval());

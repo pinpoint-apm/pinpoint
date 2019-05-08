@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,14 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.context.provider;
+package com.navercorp.pinpoint.profiler.context.provider.thrift;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.navercorp.pinpoint.bootstrap.config.ThriftTransportConfig;
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.profiler.context.module.SpanConverter;
 import com.navercorp.pinpoint.profiler.context.module.SpanStatClientFactory;
-import com.navercorp.pinpoint.profiler.context.module.StatConverter;
-import com.navercorp.pinpoint.profiler.context.thrift.BypassMessageConverter;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
 import com.navercorp.pinpoint.profiler.sender.MessageSerializer;
@@ -38,11 +36,11 @@ import org.slf4j.LoggerFactory;
 /**
  * @author Taejin Koo
  */
-public class StatDataSenderProvider implements Provider<DataSender> {
+public class SpanDataSenderProvider  implements Provider<DataSender> {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private static final String UDP_EXECUTOR_NAME = "Pinpoint-UdpStatDataExecutor";
+    private static final String UDP_EXECUTOR_NAME = "Pinpoint-UdpSpanDataExecutor";
 
     private final Provider<PinpointClientFactory> clientFactoryProvider;
 
@@ -53,24 +51,22 @@ public class StatDataSenderProvider implements Provider<DataSender> {
     private final int sendBufferSize;
     private final String ioType;
     private final String transportType;
-
     private final MessageConverter<TBase<?, ?>> messageConverter;
 
     @Inject
-    public StatDataSenderProvider(ProfilerConfig profilerConfig, @SpanStatClientFactory Provider<PinpointClientFactory> clientFactoryProvider, @StatConverter MessageConverter<TBase<?, ?>> messageConverter) {
-        Assert.requireNonNull(profilerConfig, "profilerConfig must not be null");
-
+    public SpanDataSenderProvider(ThriftTransportConfig thriftTransportConfig, @SpanStatClientFactory Provider<PinpointClientFactory> clientFactoryProvider,
+                                  @SpanConverter MessageConverter<TBase<?, ?>> messageConverter) {
+        Assert.requireNonNull(thriftTransportConfig, "thriftTransportConfig must not be null");
         this.clientFactoryProvider = Assert.requireNonNull(clientFactoryProvider, "clientFactoryProvider must not be null");
 
-        ThriftTransportConfig thriftTransportConfig = profilerConfig.getThriftTransportConfig();
-        this.ip = thriftTransportConfig.getCollectorStatServerIp();
-        this.port = thriftTransportConfig.getCollectorStatServerPort();
-        this.writeQueueSize = thriftTransportConfig.getStatDataSenderWriteQueueSize();
-        this.timeout = thriftTransportConfig.getStatDataSenderSocketTimeout();
-        this.sendBufferSize = thriftTransportConfig.getStatDataSenderSocketSendBufferSize();
-        this.ioType = thriftTransportConfig.getStatDataSenderSocketType();
-        this.transportType = thriftTransportConfig.getStatDataSenderTransportType();
-        this.messageConverter = messageConverter;
+        this.ip = thriftTransportConfig.getCollectorSpanServerIp();
+        this.port = thriftTransportConfig.getCollectorSpanServerPort();
+        this.writeQueueSize = thriftTransportConfig.getSpanDataSenderWriteQueueSize();
+        this.timeout = thriftTransportConfig.getSpanDataSenderSocketTimeout();
+        this.sendBufferSize = thriftTransportConfig.getSpanDataSenderSocketSendBufferSize();
+        this.ioType = thriftTransportConfig.getSpanDataSenderSocketType();
+        this.transportType = thriftTransportConfig.getSpanDataSenderTransportType();
+        this.messageConverter = Assert.requireNonNull(messageConverter, "messageConverter must not be null");
     }
 
     @Override
@@ -82,7 +78,7 @@ public class StatDataSenderProvider implements Provider<DataSender> {
 
             PinpointClientFactory pinpointClientFactory = clientFactoryProvider.get();
             MessageSerializer<byte[]> messageSerializer = new ThriftMessageSerializer(messageConverter);
-            return new TcpDataSender("StatDataSender", ip, port, pinpointClientFactory, messageSerializer);
+            return new TcpDataSender("SpanDataSender", ip, port, pinpointClientFactory, messageSerializer);
         } else {
             UdpDataSenderFactory factory = new UdpDataSenderFactory(ip, port, UDP_EXECUTOR_NAME, writeQueueSize, timeout, sendBufferSize, messageConverter);
             return factory.create(ioType);
@@ -91,7 +87,7 @@ public class StatDataSenderProvider implements Provider<DataSender> {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("StatDataSenderProvider{");
+        final StringBuilder sb = new StringBuilder("SpanDataSenderProvider{");
         sb.append("ip='").append(ip).append('\'');
         sb.append(", port=").append(port);
         sb.append(", writeQueueSize=").append(writeQueueSize);
