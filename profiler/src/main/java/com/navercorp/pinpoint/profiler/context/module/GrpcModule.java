@@ -22,6 +22,8 @@ import com.google.inject.Scopes;
 import com.google.inject.TypeLiteral;
 import com.google.inject.name.Names;
 import com.google.protobuf.GeneratedMessageV3;
+import com.navercorp.pinpoint.bootstrap.config.GrpcTransportConfig;
+import com.navercorp.pinpoint.grpc.HeaderFactory;
 import com.navercorp.pinpoint.grpc.trace.PSpan;
 import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
 import com.navercorp.pinpoint.profiler.context.compress.SpanProcessor;
@@ -30,9 +32,11 @@ import com.navercorp.pinpoint.profiler.context.grpc.GrpcMetadataMessageConverter
 import com.navercorp.pinpoint.profiler.context.grpc.GrpcSpanMessageConverterProvider;
 import com.navercorp.pinpoint.profiler.context.grpc.GrpcStatMessageConverterProvider;
 import com.navercorp.pinpoint.profiler.context.provider.grpc.AgentGrpcDataSenderProvider;
+import com.navercorp.pinpoint.profiler.context.provider.grpc.AgentHeaderFactoryProvider;
 import com.navercorp.pinpoint.profiler.context.provider.grpc.DnsExecutorServiceProvider;
 import com.navercorp.pinpoint.profiler.context.provider.grpc.GrpcNameResolverProvider;
 import com.navercorp.pinpoint.profiler.context.provider.grpc.GrpcSpanProcessorProvider;
+import com.navercorp.pinpoint.profiler.context.provider.grpc.GrpcTransportConfigProvider;
 import com.navercorp.pinpoint.profiler.context.provider.grpc.SpanGrpcDataSenderProvider;
 import com.navercorp.pinpoint.profiler.context.provider.grpc.StatGrpcDataSenderProvider;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
@@ -49,9 +53,12 @@ import java.util.concurrent.ExecutorService;
 public class GrpcModule extends PrivateModule {
     @Override
     protected void configure() {
+
+        bind(GrpcTransportConfig.class).toProvider(GrpcTransportConfigProvider.class).in(Scopes.SINGLETON);
         // dns executor
         bind(ExecutorService.class).toProvider(DnsExecutorServiceProvider.class).in(Scopes.SINGLETON);
         bind(NameResolverProvider.class).toProvider(GrpcNameResolverProvider.class).in(Scopes.SINGLETON);
+        bind(HeaderFactory.class).toProvider(AgentHeaderFactoryProvider.class).in(Scopes.SINGLETON);
 
         // Agent
         TypeLiteral<MessageConverter<GeneratedMessageV3>> metadataMessageConverter = new TypeLiteral<MessageConverter<GeneratedMessageV3>>() {};
