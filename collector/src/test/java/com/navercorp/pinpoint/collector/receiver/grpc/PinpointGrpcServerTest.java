@@ -68,7 +68,7 @@ public class PinpointGrpcServerTest {
     public void stateTest() {
         RecordedStreamObserver recordedStreamObserver = new RecordedStreamObserver();
 
-        PinpointGrpcServer pinpointGrpcServer = new PinpointGrpcServer(Mockito.mock(InetSocketAddress.class), agentInfo, new RequestManager(testTimer, 300), recordedStreamObserver);
+        PinpointGrpcServer pinpointGrpcServer = new PinpointGrpcServer(Mockito.mock(InetSocketAddress.class), agentInfo, new RequestManager(testTimer, 3000), recordedStreamObserver);
         assertCurrentState(SocketStateCode.NONE, pinpointGrpcServer);
         Future<ResponseMessage> future = pinpointGrpcServer.request(request);
         requestOnInvalidState(future, recordedStreamObserver);
@@ -98,7 +98,7 @@ public class PinpointGrpcServerTest {
     public void requestTest() {
         RecordedStreamObserver<PCmdRequest> recordedStreamObserver = new RecordedStreamObserver<PCmdRequest>();
 
-        PinpointGrpcServer pinpointGrpcServer = new PinpointGrpcServer(Mockito.mock(InetSocketAddress.class), agentInfo, new RequestManager(testTimer, 300), recordedStreamObserver);
+        PinpointGrpcServer pinpointGrpcServer = new PinpointGrpcServer(Mockito.mock(InetSocketAddress.class), agentInfo, new RequestManager(testTimer, 3000), recordedStreamObserver);
         pinpointGrpcServer.connected();
 
         List<Integer> supportCommandList = Arrays.asList(Short.toUnsignedInt(TCommandType.ECHO.getCode()));
