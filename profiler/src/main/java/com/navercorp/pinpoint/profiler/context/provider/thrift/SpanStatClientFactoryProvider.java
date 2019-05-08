@@ -1,11 +1,11 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.context.provider;
+package com.navercorp.pinpoint.profiler.context.provider.thrift;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.navercorp.pinpoint.bootstrap.config.ThriftTransportConfig;
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.rpc.client.DefaultPinpointClientFactory;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 
@@ -28,21 +28,16 @@ import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
  */
 public class SpanStatClientFactoryProvider implements Provider<PinpointClientFactory> {
 
-    private final ProfilerConfig profilerConfig;
+    private final ThriftTransportConfig thriftTransportConfig;
 
     @Inject
-    public SpanStatClientFactoryProvider(ProfilerConfig profilerConfig) {
-        if (profilerConfig == null) {
-            throw new NullPointerException("profilerConfig must not be null");
-        }
-
-        this.profilerConfig = profilerConfig;
+    public SpanStatClientFactoryProvider(ThriftTransportConfig thriftTransportConfig) {
+        this.thriftTransportConfig = Assert.requireNonNull(thriftTransportConfig, "thriftTransportConfig must not be null");
     }
 
     public PinpointClientFactory get() {
         int workerCount = 0;
 
-        ThriftTransportConfig thriftTransportConfig = profilerConfig.getThriftTransportConfig();
         if ("TCP".equalsIgnoreCase(thriftTransportConfig.getSpanDataSenderTransportType())) {
             workerCount++;
         }

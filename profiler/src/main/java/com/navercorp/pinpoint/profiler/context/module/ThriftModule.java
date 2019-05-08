@@ -21,19 +21,20 @@ import com.google.inject.PrivateModule;
 import com.google.inject.Scopes;
 import com.google.inject.TypeLiteral;
 import com.google.inject.name.Names;
+import com.navercorp.pinpoint.bootstrap.config.ThriftTransportConfig;
 import com.navercorp.pinpoint.profiler.context.compress.SpanProcessor;
 import com.navercorp.pinpoint.profiler.context.id.TransactionIdEncoder;
-import com.navercorp.pinpoint.profiler.context.provider.AgentInfoFactoryProvider;
 import com.navercorp.pinpoint.profiler.context.provider.CommandDispatcherProvider;
-import com.navercorp.pinpoint.profiler.context.provider.ConnectionFactoryProviderProvider;
-import com.navercorp.pinpoint.profiler.context.provider.HeaderTBaseSerializerProvider;
-import com.navercorp.pinpoint.profiler.context.provider.MetadataMessageConverterProvider;
-import com.navercorp.pinpoint.profiler.context.provider.PinpointClientFactoryProvider;
-import com.navercorp.pinpoint.profiler.context.provider.SpanDataSenderProvider;
-import com.navercorp.pinpoint.profiler.context.provider.SpanProcessorProvider;
-import com.navercorp.pinpoint.profiler.context.provider.SpanStatClientFactoryProvider;
-import com.navercorp.pinpoint.profiler.context.provider.StatDataSenderProvider;
-import com.navercorp.pinpoint.profiler.context.provider.TcpDataSenderProvider;
+import com.navercorp.pinpoint.profiler.context.provider.thrift.ConnectionFactoryProviderProvider;
+import com.navercorp.pinpoint.profiler.context.provider.thrift.HeaderTBaseSerializerProvider;
+import com.navercorp.pinpoint.profiler.context.provider.thrift.MetadataMessageConverterProvider;
+import com.navercorp.pinpoint.profiler.context.provider.thrift.PinpointClientFactoryProvider;
+import com.navercorp.pinpoint.profiler.context.provider.thrift.SpanDataSenderProvider;
+import com.navercorp.pinpoint.profiler.context.provider.thrift.SpanProcessorProvider;
+import com.navercorp.pinpoint.profiler.context.provider.thrift.SpanStatClientFactoryProvider;
+import com.navercorp.pinpoint.profiler.context.provider.thrift.StatDataSenderProvider;
+import com.navercorp.pinpoint.profiler.context.provider.thrift.TcpDataSenderProvider;
+import com.navercorp.pinpoint.profiler.context.provider.thrift.ThriftTransportConfigProvider;
 import com.navercorp.pinpoint.profiler.context.thrift.DefaultTransactionIdEncoder;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
 import com.navercorp.pinpoint.profiler.context.thrift.SpanThriftMessageConverterProvider;
@@ -43,7 +44,6 @@ import com.navercorp.pinpoint.profiler.receiver.CommandDispatcher;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 import com.navercorp.pinpoint.profiler.sender.ResultResponse;
-import com.navercorp.pinpoint.profiler.util.AgentInfoFactory;
 import com.navercorp.pinpoint.rpc.client.ConnectionFactoryProvider;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 import com.navercorp.pinpoint.thrift.dto.TSpan;
@@ -57,6 +57,7 @@ import org.apache.thrift.TBase;
 public class ThriftModule extends PrivateModule {
     @Override
     protected void configure() {
+        bind(ThriftTransportConfig.class).toProvider(ThriftTransportConfigProvider.class).in(Scopes.SINGLETON);
         bind(TransactionIdEncoder.class).to(DefaultTransactionIdEncoder.class).in(Scopes.SINGLETON);
 
         Key<CommandDispatcher> commandDispatcher = Key.get(CommandDispatcher.class);

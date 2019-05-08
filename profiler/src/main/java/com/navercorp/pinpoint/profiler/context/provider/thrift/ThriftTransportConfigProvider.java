@@ -14,34 +14,27 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.context.provider.grpc;
+package com.navercorp.pinpoint.profiler.context.provider.thrift;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.navercorp.pinpoint.profiler.context.grpc.GrpcTransportConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.config.ThriftTransportConfig;
 import com.navercorp.pinpoint.common.util.Assert;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class GrpcTransportConfigProvider implements Provider<GrpcTransportConfig> {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+public class ThriftTransportConfigProvider implements Provider<ThriftTransportConfig> {
     private final ProfilerConfig profilerConfig;
 
     @Inject
-    public GrpcTransportConfigProvider(ProfilerConfig profilerConfig) {
+    public ThriftTransportConfigProvider(ProfilerConfig profilerConfig) {
         this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig must not be null");
     }
 
     @Override
-    public GrpcTransportConfig get() {
-        GrpcTransportConfig grpcTransportConfig = new GrpcTransportConfig();
-        grpcTransportConfig.read(profilerConfig);
-        logger.info("{}", grpcTransportConfig);
-        return grpcTransportConfig;
+    public ThriftTransportConfig get() {
+        return profilerConfig.getThriftTransportConfig();
     }
 }

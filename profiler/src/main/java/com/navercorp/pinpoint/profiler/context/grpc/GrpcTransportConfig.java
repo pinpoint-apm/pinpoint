@@ -14,7 +14,10 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap.config;
+package com.navercorp.pinpoint.profiler.context.grpc;
+
+import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -32,8 +35,8 @@ public class GrpcTransportConfig {
     private String collectorStatServerIp = DEFAULT_IP;
     private int collectorStatServerPort = 9999;
 
-    public void read(DefaultProfilerConfig profilerConfig) {
-        final DefaultProfilerConfig.ValueResolver placeHolderResolver = new DefaultProfilerConfig.PlaceHolderResolver();
+    public void read(ProfilerConfig profilerConfig) {
+        final ProfilerConfig.ValueResolver placeHolderResolver = new DefaultProfilerConfig.PlaceHolderResolver();
         // Agent
         this.collectorAgentServerIp = profilerConfig.readString("profiler.transport.grpc.collector.agent.ip", DEFAULT_IP, placeHolderResolver);
         this.collectorAgentServerPort = profilerConfig.readInt("profiler.transport.grpc.collector.agent.port", 9997);
