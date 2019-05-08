@@ -1,12 +1,12 @@
-import { Component, OnInit, OnDestroy, Inject, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, Inject, ChangeDetectionStrategy, ChangeDetectorRef, ComponentFactoryResolver, Injector } from '@angular/core';
 import { Subject } from 'rxjs';
 import { takeUntil, filter } from 'rxjs/operators';
 
 import { UrlPathId } from 'app/shared/models';
-import { StoreHelperService, NewUrlStateNotificationService, WebAppSettingDataService , TransactionViewTypeService, VIEW_TYPE } from 'app/shared/services';
+import { StoreHelperService, NewUrlStateNotificationService, WebAppSettingDataService , TransactionViewTypeService, VIEW_TYPE, DynamicPopupService } from 'app/shared/services';
 import { ServerMapData } from './class/server-map-data.class';
 import { SERVER_MAP_TYPE, ServerMapType } from './class/server-map-factory';
-
+import { ServerMapContextPopupContainerComponent } from 'app/core/components/server-map-context-popup/server-map-context-popup-container.component';
 
 @Component({
     selector: 'pp-server-map-for-transaction-list-container',
@@ -25,9 +25,12 @@ export class ServerMapForTransactionListContainerComponent implements OnInit, On
     funcServerMapImagePath: Function;
     constructor(
         private changeDetectorRef: ChangeDetectorRef,
+        private injector: Injector,
+        private componentFactoryResolver: ComponentFactoryResolver,
         private newUrlStateNotificationService: NewUrlStateNotificationService,
         private storeHelperService: StoreHelperService,
         private webAppSettingDataService: WebAppSettingDataService,
+        private dynamicPopupService: DynamicPopupService,
         private transactionViewTypeService: TransactionViewTypeService,
         @Inject(SERVER_MAP_TYPE) public type: ServerMapType
     ) {
@@ -90,7 +93,16 @@ export class ServerMapForTransactionListContainerComponent implements OnInit, On
     onClickNode($event: any): void {}
     onClickLink($event: any): void {}
     onDoubleClickBackground($event: any): void {}
-    onContextClickBackground($event: any): void {}
+    onContextClickBackground(coord: ICoordinate): void {
+        this.dynamicPopupService.openPopup({
+            data: this.mapData,
+            coord,
+            component: ServerMapContextPopupContainerComponent
+        }, {
+            resolver: this.componentFactoryResolver,
+            injector: this.injector
+        });
+    }
     onContextClickNode($event: any): void {}
     onContextClickLink($param: any): void {}
 }
