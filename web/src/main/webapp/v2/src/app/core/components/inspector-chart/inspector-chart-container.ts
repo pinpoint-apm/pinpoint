@@ -1,15 +1,15 @@
 import { ComponentFactoryResolver, Injector } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import * as moment from 'moment-timezone';
-import { Subject, Observable, combineLatest, merge, of } from 'rxjs';
-import { filter, map, skip, withLatestFrom, exhaustMap, tap, catchError } from 'rxjs/operators';
+import { Subject, Observable, combineLatest, of } from 'rxjs';
+import { filter, map, skip, exhaustMap, tap, catchError, takeUntil } from 'rxjs/operators';
 
 import { II18nText, IChartConfig, IErrObj } from 'app/core/components/inspector-chart/inspector-chart.component';
 import { WebAppSettingDataService, NewUrlStateNotificationService, AnalyticsService, TRACKED_EVENT_LIST, StoreHelperService, DynamicPopupService } from 'app/shared/services';
 import { HELP_VIEWER_LIST, HelpViewerPopupContainerComponent } from 'app/core/components/help-viewer-popup/help-viewer-popup-container.component';
 import { IChartDataService, IChartDataFromServer } from 'app/core/components/inspector-chart/chart-data.service';
 import { isThatType } from 'app/core/utils/util';
-import { UrlPathId } from 'app/shared/models';
+import { InspectorPageService, ISourceForChart } from 'app/routes/inspector-page/inspector-page.service';
 
 export abstract class InspectorChartContainer {
     private previousRange: number[];
@@ -34,7 +34,8 @@ export abstract class InspectorChartContainer {
         protected analyticsService: AnalyticsService,
         protected dynamicPopupService: DynamicPopupService,
         private componentFactoryResolver: ComponentFactoryResolver,
-        private injector: Injector
+        private injector: Injector,
+        private inspectorPageService: InspectorPageService,
     ) {}
 
     protected initI18nText(): void {
@@ -80,24 +81,10 @@ export abstract class InspectorChartContainer {
     }
 
     protected initChartData(): void {
-        merge(
-            this.storeHelperService.getRange(this.unsubscribe).pipe(
-                filter((range: number[]) => !!range),
-                withLatestFrom(this.storeHelperService.getInspectorTimelineSelectionRange(this.unsubscribe)),
-                map(([urlRange, storeRange]: number[][]) => {
-                    const urlService = this.newUrlStateNotificationService;
-                    const shouldUseInfoFromUrl = urlService.isRealTimeMode() || urlService.isValueChanged(UrlPathId.PERIOD) || urlService.isValueChanged(UrlPathId.END_TIME);
-
-                    return shouldUseInfoFromUrl ? urlRange : storeRange;
-                })
-            ),
-            this.storeHelperService.getInspectorTimelineSelectionRange(this.unsubscribe).pipe(
-                skip(1),
-                filter((_: number[]) => !this.newUrlStateNotificationService.isRealTimeMode())
-            )
-        ).pipe(
-            tap((range: number[]) => this.previousRange = range),
-            exhaustMap((range: number[]) => {
+        this.inspectorPageService.sourceForChart$.pipe(
+            takeUntil(this.unsubscribe),
+            tap(({range}: ISourceForChart) => this.previousRange = range),
+            exhaustMap(({range}: ISourceForChart) => {
                 return this.chartDataService.getData(range).pipe(
                     catchError(() => of(null))
                 );
