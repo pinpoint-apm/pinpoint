@@ -16,7 +16,7 @@ interface ICircleData {
 }
 
 go.Shape.defineFigureGenerator('RequestCircle', (shape: go.Shape, w: number, h: number) => {
-    const param1 = shape ? shape.parameter1 : null;
+    const param1 = shape && shape.parameter1 ? shape.parameter1 : null;
     let drawAngle: any = null;
 
     const rad = w / 2;
@@ -53,7 +53,7 @@ function calcuX(value: number, radius: number, base: number): number {
     return Math.cos(deg2rad(correction)) * radius + base;
 }
 function calcuY(value: number, radius: number, base: number): number {
-    const correction = value > 90 ? value - 90 : 90 - value;
+    const correction = value - 90;
     return Math.sin(deg2rad(correction)) * radius + base;
 }
 function calcuCircleData(type: CIRCLE_TYPE, histogram: IResponseTime | IResponseMilliSecondTime, radius: number, baseX: number, baseY: number): ICircleData {
@@ -81,13 +81,14 @@ function calcuCircleData(type: CIRCLE_TYPE, histogram: IResponseTime | IResponse
         sweepAngle: 360
     };
 
-
     switch (type) {
         case CIRCLE_TYPE.GREEN:
-            return CIRCLE;
+            return green === 0 ? null : CIRCLE;
         case CIRCLE_TYPE.ORANGE:
             if (orange === sum) {
                 return CIRCLE;
+            } else if (orange === 0) {
+                return null;
             } else {
                 return {
                     x: calcuX(greenAngle, radius, baseX),
@@ -99,6 +100,8 @@ function calcuCircleData(type: CIRCLE_TYPE, histogram: IResponseTime | IResponse
         case CIRCLE_TYPE.RED:
             if (red === sum) {
                 return CIRCLE;
+            } else if (red === 0) {
+                return null;
             } else {
                 return {
                     x: calcuX(greenAngle + orangeAngle, radius, baseX),
