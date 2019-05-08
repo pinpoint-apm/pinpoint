@@ -68,7 +68,7 @@
 |                                                                                   |                            |         |         |                        |
 | Gson                                                                              | gson                       | 1.1     | 2.8.3   |                        | <AG>
 | Json                                                                              | json-lib                   | 1.0     | 2.2.2   |                        | <AG>
-| FastJson                                                                          | fastjson                   | 1.2.10  | 1.2.57  |                        | <AG>
+| FastJson                                                                          | fastjson                   | 1.2.10  | 1.2.58  |                        | <AG>
 | Dubbo                                                                             | dubbo                      | 2.5.1   | 2.6.6   |                        | <AG>
   
 
