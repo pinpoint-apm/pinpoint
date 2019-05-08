@@ -15,7 +15,8 @@ export class ResponseSummaryChartComponent implements OnInit, OnChanges {
     @Output() outClickColumn: EventEmitter<string> = new EventEmitter();
     chartObj: any;
     constructor() {}
-    ngOnInit() {}
+    ngOnInit() {
+    }
     ngOnChanges(changes: SimpleChanges) {
         if ( changes['chartData'] && changes['chartData']['firstChange'] === false ) {
             this.initChart();

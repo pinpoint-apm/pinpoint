@@ -10,7 +10,6 @@ import {
     TRACKED_EVENT_LIST
 } from 'app/shared/services';
 import { Actions } from 'app/shared/store';
-import { UrlPath, UrlPathId } from 'app/shared/models';
 import { ServerMapData } from 'app/core/components/server-map/class/server-map-data.class';
 
 @Component({
@@ -27,7 +26,7 @@ import { ServerMapData } from 'app/core/components/server-map/class/server-map-d
                 left: '-825px'
             })),
             transition('* => *', [
-                animate('0.2s 0.5s ease-out')
+                animate('0.2s 0s ease-out')
             ])
         ]),
         trigger('chartAnimationTrigger', [
@@ -54,7 +53,6 @@ export class InfoPerServerForFilteredMapContainerComponent implements OnInit, On
     constructor(
         private changeDetector: ChangeDetectorRef,
         private storeHelperService: StoreHelperService,
-        private newUrlStateNotificationService: NewUrlStateNotificationService,
         private urlRouteManagerService: UrlRouteManagerService,
         private analyticsService: AnalyticsService,
     ) {}

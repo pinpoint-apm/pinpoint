@@ -88,7 +88,7 @@ interface IAgent {
 interface IAgentSelection { 
     agent: string;
     responseSummary: IResponseTime | IResponseMilliSecondTime;
-    load: IHistogram;
+    load: IHistogram[];
 }
 interface IInstanceInfo {
     hasInspector: boolean;
