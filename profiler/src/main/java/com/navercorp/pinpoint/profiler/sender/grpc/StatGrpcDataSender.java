@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.profiler.sender.grpc;
 
 import com.google.protobuf.GeneratedMessageV3;
-import com.navercorp.pinpoint.grpc.AgentHeaderFactory;
 import com.navercorp.pinpoint.grpc.HeaderFactory;
 import com.navercorp.pinpoint.grpc.trace.PAgentStat;
 import com.navercorp.pinpoint.grpc.trace.PAgentStatBatch;
@@ -34,7 +33,7 @@ public class StatGrpcDataSender extends GrpcDataSender {
     private volatile StreamObserver<PAgentStat> statStream;
     private volatile StreamObserver<PAgentStatBatch> statBatchStream;
 
-    public StatGrpcDataSender(String name, String host, int port, MessageConverter<GeneratedMessageV3> messageConverter, HeaderFactory<AgentHeaderFactory.Header> headerFactory, NameResolverProvider nameResolverProvider) {
+    public StatGrpcDataSender(String name, String host, int port, MessageConverter<GeneratedMessageV3> messageConverter, HeaderFactory headerFactory, NameResolverProvider nameResolverProvider) {
         super(name, host, port, messageConverter, headerFactory, nameResolverProvider);
 
         this.statStub = StatGrpc.newStub(managedChannel);

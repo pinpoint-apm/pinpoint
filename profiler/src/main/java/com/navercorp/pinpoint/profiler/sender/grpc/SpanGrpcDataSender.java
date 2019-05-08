@@ -34,7 +34,7 @@ public class SpanGrpcDataSender extends GrpcDataSender {
     private volatile StreamObserver<PSpan> spanStream;
     private volatile StreamObserver<PSpanChunk> spanChunkStream;
 
-    public SpanGrpcDataSender(String name, String host, int port, MessageConverter<GeneratedMessageV3> messageConverter, HeaderFactory<AgentHeaderFactory.Header> headerFactory, NameResolverProvider nameResolverProvider) {
+    public SpanGrpcDataSender(String name, String host, int port, MessageConverter<GeneratedMessageV3> messageConverter, HeaderFactory headerFactory, NameResolverProvider nameResolverProvider) {
         super(name, host, port, messageConverter, headerFactory, nameResolverProvider);
 
         this.spanStub = SpanGrpc.newStub(managedChannel);

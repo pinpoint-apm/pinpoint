@@ -20,11 +20,8 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.bootstrap.config.GrpcTransportConfig;
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.common.util.Assert;
-import com.navercorp.pinpoint.grpc.AgentHeaderFactory;
 import com.navercorp.pinpoint.grpc.HeaderFactory;
-import com.navercorp.pinpoint.profiler.AgentInformation;
 import com.navercorp.pinpoint.profiler.context.module.StatConverter;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
@@ -35,34 +32,29 @@ import io.grpc.NameResolverProvider;
  * @author jaehong.kim
  */
 public class StatGrpcDataSenderProvider  implements Provider<DataSender<Object>> {
-    private final ProfilerConfig profilerConfig;
+    private final GrpcTransportConfig grpcTransportConfig;
     private final MessageConverter<GeneratedMessageV3> messageConverter;
-    private final AgentInformation agentInformation;
+    private final HeaderFactory headerFactory;
     private final NameResolverProvider nameResolverProvider;
 
     @Inject
-    public StatGrpcDataSenderProvider(ProfilerConfig profilerConfig,
+    public StatGrpcDataSenderProvider(GrpcTransportConfig grpcTransportConfig,
                                       @StatConverter MessageConverter<GeneratedMessageV3> messageConverter,
-                                      AgentInformation agentInformation,
+                                      HeaderFactory headerFactory,
                                       NameResolverProvider nameResolverProvider) {
-        this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig must not be null");
+        this.grpcTransportConfig = Assert.requireNonNull(grpcTransportConfig, "profilerConfig must not be null");
         this.messageConverter = Assert.requireNonNull(messageConverter, "messageConverter must not be null");
-        this.agentInformation = Assert.requireNonNull(agentInformation, "agentInformation must not be null");
+        this.headerFactory = Assert.requireNonNull(headerFactory, "agentHeaderFactory must not be null");
         this.nameResolverProvider = Assert.requireNonNull(nameResolverProvider, "nameResolverProvider must not be null");
     }
 
     @Override
     public DataSender<Object> get() {
-        GrpcTransportConfig grpcTransportConfig = profilerConfig.getGrpcTransportConfig();
         String collectorTcpServerIp = grpcTransportConfig.getCollectorStatServerIp();
         int collectorTcpServerPort = grpcTransportConfig.getCollectorStatServerPort();
-        HeaderFactory<AgentHeaderFactory.Header> headerHeaderFactory = newAgentHeaderFactory();
 
-        return new StatGrpcDataSender("StatGrpcDataSender", collectorTcpServerIp, collectorTcpServerPort,  messageConverter, headerHeaderFactory, nameResolverProvider);
+        return new StatGrpcDataSender("StatGrpcDataSender", collectorTcpServerIp, collectorTcpServerPort,  messageConverter, headerFactory, nameResolverProvider);
     }
 
-    private HeaderFactory<AgentHeaderFactory.Header> newAgentHeaderFactory() {
-        AgentHeaderFactory.Header header = new AgentHeaderFactory.Header(agentInformation.getAgentId(), agentInformation.getApplicationName(), agentInformation.getStartTime());
-        return new AgentHeaderFactory(header);
-    }
+
 }

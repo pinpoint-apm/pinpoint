@@ -21,13 +21,9 @@ import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.ExecutorFactory;
 import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
-import com.navercorp.pinpoint.grpc.trace.PSpan;
-import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
-import com.navercorp.pinpoint.grpc.AgentHeaderFactory;
 import com.navercorp.pinpoint.grpc.ExecutorUtils;
 import com.navercorp.pinpoint.grpc.client.ChannelFactory;
 import com.navercorp.pinpoint.grpc.HeaderFactory;
-import com.navercorp.pinpoint.grpc.trace.SpanGrpc;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
 import io.grpc.ManagedChannel;
@@ -69,7 +65,7 @@ public abstract class GrpcDataSender implements DataSender<Object> {
         return ExecutorFactory.newFixedThreadPool(1, 1000, threadFactory);
     }
 
-    public GrpcDataSender(String name, String host, int port, MessageConverter<GeneratedMessageV3> messageConverter, HeaderFactory<AgentHeaderFactory.Header> headerFactory,
+    public GrpcDataSender(String name, String host, int port, MessageConverter<GeneratedMessageV3> messageConverter, HeaderFactory headerFactory,
                           NameResolverProvider nameResolverProvider) {
         this.name = Assert.requireNonNull(name, "name must not be null");
         this.messageConverter = Assert.requireNonNull(messageConverter, "messageConverter must not be null");
@@ -80,7 +76,7 @@ public abstract class GrpcDataSender implements DataSender<Object> {
         this.managedChannel = channelFactory.build(name, host, port);
     }
 
-    private ChannelFactory newChannelFactory(String name, HeaderFactory<AgentHeaderFactory.Header> headerFactory, NameResolverProvider nameResolverProvider) {
+    private ChannelFactory newChannelFactory(String name, HeaderFactory headerFactory, NameResolverProvider nameResolverProvider) {
         return new ChannelFactory(name, headerFactory, nameResolverProvider);
     }
 
