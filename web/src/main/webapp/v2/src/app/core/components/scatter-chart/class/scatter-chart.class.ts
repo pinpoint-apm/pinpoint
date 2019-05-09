@@ -111,8 +111,8 @@ export class ScatterChart {
         this.outTransactionCount = new BehaviorSubject(this.getTransactionCount(true));
         this.onChangeTransactionCount$ = this.outTransactionCount.asObservable();
     }
-    private isAllowedAgent(agent: string): boolean {
-        return this.selectedAgent === '' || this.selectedAgent === agent;
+    private isAllowedAgent(selectedAgent: string, agent: string): boolean {
+        return selectedAgent === '' || selectedAgent === agent;
     }
     private getTransactionCount(isInit: boolean) {
         const count: {[key: string]: {count: number, checked: boolean}} = {};
@@ -132,7 +132,7 @@ export class ScatterChart {
                     if (dataBlockXRange.to >= xRange.from) {
                         const agentList = dataBlock.getAgentList();
                         agentList.forEach((agentName: string) => {
-                            if (this.isAllowedAgent(agentName)) {
+                            if (this.isAllowedAgent(this.selectedAgent, agentName)) {
                                 count[typeName].count += dataBlock.getCount(agentName, typeName, xRange.from, xRange.to);
                             }
                         });
@@ -341,12 +341,12 @@ export class ScatterChart {
                 }
                 const transactionData = dataBlock.getDataByIndex(j);
                 const agentName =  dataBlock.getAgentName(transactionData);
-                if (selectedAgent === '' || selectedAgent === agentName) {
+                if (this.isAllowedAgent(selectedAgent, agentName)) {
                     const x = dataBlock.getX(transactionData);
                     const y = dataBlock.getY(transactionData);
 
                     if (this.isInRange(fromX, toX, x)) {
-                        if (this.isInRange(fromY, toY, y) || (y > toY && toY <= yRange.to)) {
+                        if (this.isInRange(fromY, toY, y) || (y > toY && toY >= yRange.to) || (y < fromY && fromY <= yRange.from)) {
                             if (typeChecker[this.typeManager.getNameByIndex(dataBlock.getTypeIndex(transactionData))] === true) {
                                 data.push([dataBlock.getTransactionID(transactionData), x, y]);
                             }
@@ -370,12 +370,12 @@ export class ScatterChart {
             for (let j = 0, len = dataBlock.getTotalCount() ; j < len ; j++) {
                 const transactionData = dataBlock.getDataByIndex(j);
                 const agentName =  dataBlock.getAgentName(transactionData);
-                if (this.isAllowedAgent(agentName)) {
+                if (this.isAllowedAgent(this.selectedAgent, agentName)) {
                     const x = dataBlock.getX(transactionData);
                     const y = dataBlock.getY(transactionData);
                     if (this.isInRange(fromX, toX, x)) {
-                        if (this.typeManager.isCheckedByIndex(dataBlock.getTypeIndex(transactionData))) {
-                            if (this.isInRange(fromY, toY, y) || y > toY && toY <= yRange.to) {
+                        if (this.isInRange(fromY, toY, y) || (y > toY && toY >= yRange.to) || (y < fromY && fromY <= yRange.from)) {
+                            if (this.typeManager.isCheckedByIndex(dataBlock.getTypeIndex(transactionData))) {
                                 return true;
                             }
                         }
