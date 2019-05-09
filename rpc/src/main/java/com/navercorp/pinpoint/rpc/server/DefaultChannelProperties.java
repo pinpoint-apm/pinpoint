@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.rpc.util.MapUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -39,7 +40,9 @@ public class DefaultChannelProperties implements ChannelProperties {
     private final String agentVersion;
     private final int socketId;
 
-    private List<Integer> supportCommand;
+    private final List<Integer> supportCommand;
+
+    private final Map<String, Object> properties = new HashMap<String, Object>();
 
     public static ChannelProperties newChannelProperties(Map<Object, Object> properties) {
         if (com.navercorp.pinpoint.common.util.MapUtils.isEmpty(properties)) {
@@ -134,6 +137,16 @@ public class DefaultChannelProperties implements ChannelProperties {
     }
 
     @Override
+    public Object put(String key, Object value) {
+        return properties.put(key, value);
+    }
+
+    @Override
+    public Object get(String key) {
+        return properties.get(key);
+    }
+
+    @Override
     public String toString() {
         return "DefaultChannelProperties{" +
                 "agentId='" + agentId + '\'' +
@@ -146,6 +159,7 @@ public class DefaultChannelProperties implements ChannelProperties {
                 ", agentVersion='" + agentVersion + '\'' +
                 ", socketId=" + socketId +
                 ", supportCommand=" + supportCommand +
+                ", properties=" + properties +
                 '}';
     }
 }

@@ -36,4 +36,7 @@ public interface ChannelProperties {
     int getSocketId();
 
     List<Integer> getSupportCommand();
+
+    Object put(String key, Object value);
+    Object get(String key);
 }
