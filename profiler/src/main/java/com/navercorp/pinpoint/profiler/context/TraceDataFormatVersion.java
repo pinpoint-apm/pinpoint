@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.io.SpanVersion;
 
 /**
@@ -27,9 +26,9 @@ public enum TraceDataFormatVersion {
     V1(SpanVersion.TRACE_V1),
     V2(SpanVersion.TRACE_V2);
 
-    private static final String THRIFT_TRACE_VERSION_KEY = "profiler.transport.thrift.trace.dataformat.version";
+    public static final String THRIFT_TRACE_VERSION_KEY = "profiler.transport.thrift.trace.dataformat.version";
 
-    private static final String GRPC_TRACE_VERSION_KEY = "profiler.transport.grpc.trace.dataformat.version";
+    public static final String GRPC_TRACE_VERSION_KEY = "profiler.transport.grpc.trace.dataformat.version";
 
     private byte version;
 
@@ -39,30 +38,5 @@ public enum TraceDataFormatVersion {
 
     public byte getVersion() {
         return version;
-    }
-
-    public static TraceDataFormatVersion getTraceDataFormatVersion(ProfilerConfig profilerConfig) {
-        if (profilerConfig == null) {
-            throw new NullPointerException("profilerConfig must not be null");
-        }
-        final String transportModule = profilerConfig.getTransportModule();
-        if ("THRIFT".equalsIgnoreCase(transportModule)) {
-            final String version = profilerConfig.readString(THRIFT_TRACE_VERSION_KEY, "v1");
-            if ("v1".equalsIgnoreCase(version)) {
-                return V1;
-            }
-            throw new UnsupportedOperationException("unknown " + THRIFT_TRACE_VERSION_KEY + ":" + version);
-        }
-
-
-        if ("GRPC".equalsIgnoreCase(transportModule)) {
-            final String version = profilerConfig.readString(GRPC_TRACE_VERSION_KEY, "v2");
-            if ("v2".equalsIgnoreCase(version)) {
-                return V2;
-            }
-            throw new UnsupportedOperationException("unknown " + GRPC_TRACE_VERSION_KEY + ":" + version);
-        }
-
-        throw new UnsupportedOperationException("unknown transportModule:" + transportModule);
     }
 }

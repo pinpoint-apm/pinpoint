@@ -37,6 +37,7 @@ import com.navercorp.pinpoint.profiler.context.module.PluginJars;
 import com.navercorp.pinpoint.profiler.context.provider.AgentStartTimeProvider;
 import com.navercorp.pinpoint.profiler.context.provider.ConfiguredApplicationTypeProvider;
 import com.navercorp.pinpoint.profiler.context.provider.InterceptorRegistryBinderProvider;
+import com.navercorp.pinpoint.profiler.context.provider.TraceDataFormatVersionProvider;
 import com.navercorp.pinpoint.profiler.instrument.classloading.BootstrapCore;
 import com.navercorp.pinpoint.profiler.plugin.PluginJar;
 import com.navercorp.pinpoint.profiler.context.provider.plugin.PluginJarsProvider;
@@ -100,9 +101,7 @@ public class ConfigModule extends AbstractModule {
 
     private void bindConstants(ProfilerConfig profilerConfig) {
 
-        final TraceDataFormatVersion version = TraceDataFormatVersion.getTraceDataFormatVersion(profilerConfig);
-        logger.info("TraceDataFormatVersion:{}", version);
-        bind(TraceDataFormatVersion.class).toInstance(version);
+        bind(TraceDataFormatVersion.class).toProvider(TraceDataFormatVersionProvider.class).in(Scopes.SINGLETON);
 
         Named callstackMaxDepth = Names.named("profiler.callstack.max.depth");
         bindConstant().annotatedWith(callstackMaxDepth).to(profilerConfig.getCallStackMaxDepth());
