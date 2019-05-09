@@ -91,6 +91,7 @@
         <module>hbase</module>
         <module>openwhisk</module>
         <module>redis-redisson</module>
+	    <module>elasticsearch-bboss</module>
     </modules>
 
     <dependencyManagement>
