@@ -98,18 +98,24 @@ public class GrpcCommandService {
         }
 
         @Override
-        public void beforeStart(ClientCallStreamObserver<PCmdMessage> requestStream) {
+        public void beforeStart(final ClientCallStreamObserver<PCmdMessage> requestStream) {
             this.requestStream = requestStream;
 
-            PCmdServiceHandshake.Builder handshakeMessageBuilder = PCmdServiceHandshake.newBuilder();
-            for (Short commandServiceCode : commandDispatcher.getSupportCommandServiceIdList()) {
-                handshakeMessageBuilder.addSupportCommandServiceKey(commandServiceCode);
-            }
+            requestStream.setOnReadyHandler(new Runnable() {
+                @Override
+                public void run() {
+                    PCmdServiceHandshake.Builder handshakeMessageBuilder = PCmdServiceHandshake.newBuilder();
+                    for (Short commandServiceCode : commandDispatcher.getSupportCommandServiceIdList()) {
+                        handshakeMessageBuilder.addSupportCommandServiceKey(commandServiceCode);
+                    }
 
-            PCmdMessage.Builder initialMessage = PCmdMessage.newBuilder();
-            initialMessage.setHandshakeMessage(handshakeMessageBuilder.build());
+                    PCmdMessage.Builder initialMessage = PCmdMessage.newBuilder();
+                    initialMessage.setHandshakeMessage(handshakeMessageBuilder.build());
 
-            requestStream.onNext(initialMessage.build());
+                    requestStream.onNext(initialMessage.build());
+                }
+            });
+
         }
 
         @Override
