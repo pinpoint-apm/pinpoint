@@ -88,15 +88,6 @@ public class ElasticsearchExecutorOperationInterceptorTest {
 		}
 
 	}
-//
-//	@Test
-//	public void doInAfterTrace() {
-//		try {
-//			elasticsearchExecutorOperationInterceptor.doInAfterTrace(new SpanRecorderIT(),new Object(),args,"aa",null);
-//		}
-//		catch (Exception e){
-//
-//		}
-//	}
+
 
 }

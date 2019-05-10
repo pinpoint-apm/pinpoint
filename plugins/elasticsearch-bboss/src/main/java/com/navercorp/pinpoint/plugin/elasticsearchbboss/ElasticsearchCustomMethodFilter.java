@@ -24,8 +24,6 @@ import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
 public class ElasticsearchCustomMethodFilter implements MethodFilter {
 
 	public ElasticsearchCustomMethodFilter( ) {
-
-
 	}
 
 	@Override
@@ -34,7 +32,7 @@ public class ElasticsearchCustomMethodFilter implements MethodFilter {
 
 		if(method.getName().equals("runSliceTask")
 				|| method.getName().equals("runScrollTask")
-				|| method.getName().equals("runSliceScrollTask") ){ //并行处理方法
+				|| method.getName().equals("runSliceScrollTask") ){ //parallel handle method
 			return REJECT;
 		}
 		else

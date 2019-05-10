@@ -29,22 +29,14 @@ public class ElasticsearchMetadataProvider implements TraceMetadataProvider {
         if(context == null)
             return;
         context.addServiceType(ElasticsearchConstants.ELASTICSEARCH);
-//        context.addServiceType(ElasticsearchConstants.ELASTICSEARCH_EVENT);
-        context.addServiceType(ElasticsearchConstants.ELASTICSEARCH_EXECUTOR);//ElasticSearch版本信息，和方法名称在同一行
+        context.addServiceType(ElasticsearchConstants.ELASTICSEARCH_EXECUTOR);
 
-		/**
-		 * ,
-		 *                 AnnotationKeyMatchers.exact(ElasticsearchConstants.ARGS_VERSION_ANNOTATION_KEY)
-		 */
-//        context.addAnnotationKey(AnnotationKeyMatchers.exact(AnnotationKey.ARGS0));
-//        context.addServiceType(ElasticsearchConstants.ELASTICSEARCH_EXECUTOR);
-        //context.addServiceType(ELASTICSEARCH_EXECUTOR, AnnotationKeyMatchers.exact(AnnotationKey.ARGS0));//参数和方法名称在同一行
-        context.addAnnotationKey(ElasticsearchConstants.ARGS_VERSION_ANNOTATION_KEY);//HTTP请求URL参数，在新的一行展示
-        context.addAnnotationKey(ElasticsearchConstants.ARGS_URL_ANNOTATION_KEY);//HTTP请求URL参数，在新的一行展示
-        context.addAnnotationKey(ElasticsearchConstants.ARGS_DSL_ANNOTATION_KEY);//HTTP请求DSL参数，在新的一行展示
-        context.addAnnotationKey(ElasticsearchConstants.ARGS_ACTION_ANNOTATION_KEY);//HTTP请求ACTION参数，在新的一行展示
-        context.addAnnotationKey(ElasticsearchConstants.ARGS_RESPONSEHANDLE_ANNOTATION_KEY);//HTTP请求Response处理器参数，
-        context.addAnnotationKey(ElasticsearchConstants.ARGS_ANNOTATION_KEY);//HTTP请求URL参数，在新的一行展示
+        context.addAnnotationKey(ElasticsearchConstants.ARGS_VERSION_ANNOTATION_KEY);//Elasticsearch version info
+        context.addAnnotationKey(ElasticsearchConstants.ARGS_URL_ANNOTATION_KEY);//HTTP request URL parameters
+        context.addAnnotationKey(ElasticsearchConstants.ARGS_DSL_ANNOTATION_KEY);//HTTP DSL body conent
+        context.addAnnotationKey(ElasticsearchConstants.ARGS_ACTION_ANNOTATION_KEY);//HTTP Elasticsearch restful ACTION method
+        context.addAnnotationKey(ElasticsearchConstants.ARGS_RESPONSEHANDLE_ANNOTATION_KEY);//HTTP Response handler class name，
+        context.addAnnotationKey(ElasticsearchConstants.ARGS_ANNOTATION_KEY);//Elasticsearch client api arguments
 
     }
 

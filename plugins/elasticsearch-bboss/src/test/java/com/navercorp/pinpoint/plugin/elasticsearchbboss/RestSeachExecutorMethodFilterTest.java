@@ -34,7 +34,6 @@ public class RestSeachExecutorMethodFilterTest {
 	}
 	@Test
 	public void testAccept() {
-//		InstrumentMethod instrumentMethod = new InstrumentMethodIT( "executeSimpleRequest");
 		InstrumentMethod instrumentMethod = mock(InstrumentMethod.class);
 		when(instrumentMethod.getName()).thenReturn("executeSimpleRequest");
 		Assert.assertTrue(restSeachExecutorMethodFilter.accept(instrumentMethod));
