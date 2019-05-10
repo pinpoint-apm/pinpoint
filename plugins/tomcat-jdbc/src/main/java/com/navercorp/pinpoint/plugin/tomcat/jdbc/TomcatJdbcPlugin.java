@@ -64,7 +64,7 @@ public class TomcatJdbcPlugin implements ProfilerPlugin, TransformTemplateAware 
                 InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
                 // closeMethod
-                InstrumentMethod closeMethod = InstrumentUtils.findMethod(target, "close");
+                InstrumentMethod closeMethod = InstrumentUtils.findMethod(target, "close", "boolean");
                 closeMethod.addScopedInterceptor(TomcatJdbcConstants.INTERCEPTOR_CLOSE_CONNECTION, TomcatJdbcConstants.SCOPE);
 
                 return target.toBytecode();
@@ -73,7 +73,7 @@ public class TomcatJdbcPlugin implements ProfilerPlugin, TransformTemplateAware 
     }
 
     private void addBasicDataSourceTransformer() {
-        transformTemplate.transform("org.apache.tomcat.jdbc.pool.DataSource", new TransformCallback() {
+        transformTemplate.transform("org.apache.tomcat.jdbc.pool.DataSourceProxy", new TransformCallback() {
             
             @Override
             public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
@@ -89,7 +89,7 @@ public class TomcatJdbcPlugin implements ProfilerPlugin, TransformTemplateAware 
                     System.out.println("\n\n\n2\n\n\n");
 
                     // closeMethod
-                    InstrumentMethod closeMethod = InstrumentUtils.findMethod(target, "close");
+                    InstrumentMethod closeMethod = InstrumentUtils.findMethod(target, "close", "boolean");
                     closeMethod.addScopedInterceptor(TomcatJdbcConstants.INTERCEPTOR_CLOSE, TomcatJdbcConstants.SCOPE);
                     System.out.println("\n\n\n3\n\n\n");
                 }
