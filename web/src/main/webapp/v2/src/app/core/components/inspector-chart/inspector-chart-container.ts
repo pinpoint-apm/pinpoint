@@ -2,7 +2,7 @@ import { ComponentFactoryResolver, Injector } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import * as moment from 'moment-timezone';
 import { Subject, Observable, combineLatest, of } from 'rxjs';
-import { filter, map, skip, exhaustMap, tap, catchError, takeUntil } from 'rxjs/operators';
+import { filter, map, skip, tap, catchError, takeUntil, switchMap } from 'rxjs/operators';
 
 import { II18nText, IChartConfig, IErrObj } from 'app/core/components/inspector-chart/inspector-chart.component';
 import { WebAppSettingDataService, NewUrlStateNotificationService, AnalyticsService, TRACKED_EVENT_LIST, StoreHelperService, DynamicPopupService } from 'app/shared/services';
@@ -84,7 +84,7 @@ export abstract class InspectorChartContainer {
         this.inspectorPageService.sourceForChart$.pipe(
             takeUntil(this.unsubscribe),
             tap(({range}: ISourceForChart) => this.previousRange = range),
-            exhaustMap(({range}: ISourceForChart) => {
+            switchMap(({range}: ISourceForChart) => {
                 return this.chartDataService.getData(range).pipe(
                     catchError(() => of(null))
                 );
