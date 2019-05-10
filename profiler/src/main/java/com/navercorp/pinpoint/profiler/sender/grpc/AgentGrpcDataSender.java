@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.sender.grpc;
 
+import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
 import com.navercorp.pinpoint.profiler.receiver.grpc.GrpcCommandService;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 
@@ -104,7 +105,12 @@ public class AgentGrpcDataSender implements EnhancedDataSender {
 
     private final GrpcCommandService grpcCommandService;
 
+
     public AgentGrpcDataSender(String name, String host, int port, MessageConverter<GeneratedMessageV3> messageConverter, HeaderFactory<AgentHeaderFactory.Header> headerFactory, NameResolverProvider nameResolverProvider) {
+        this(name, host, port, messageConverter, headerFactory, nameResolverProvider, null);
+    }
+
+    public AgentGrpcDataSender(String name, String host, int port, MessageConverter<GeneratedMessageV3> messageConverter, HeaderFactory<AgentHeaderFactory.Header> headerFactory, NameResolverProvider nameResolverProvider, ActiveTraceRepository activeTraceRepository) {
         this.name = Assert.requireNonNull(name, "name must not be null");
         this.messageConverter = Assert.requireNonNull(messageConverter, "messageConverter must not be null");
 
@@ -119,8 +125,7 @@ public class AgentGrpcDataSender implements EnhancedDataSender {
         this.managedChannel = channelFactory.build(name, host, port);
         this.agentStub = AgentGrpc.newFutureStub(managedChannel);
 
-        // TODO : insert ActiveTraceRepository object.
-        this.grpcCommandService = new GrpcCommandService(managedChannel, GrpcDataSender.reconnectScheduler, null);
+        this.grpcCommandService = new GrpcCommandService(managedChannel, GrpcDataSender.reconnectScheduler, activeTraceRepository);
     }
 
     private ThreadPoolExecutor newExecutorService(String name) {
