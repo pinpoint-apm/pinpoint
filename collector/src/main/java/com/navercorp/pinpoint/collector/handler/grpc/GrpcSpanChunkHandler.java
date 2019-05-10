@@ -52,10 +52,10 @@ public class GrpcSpanChunkHandler implements SimpleHandler {
         if (logger.isDebugEnabled()) {
             logger.debug("Handle PSpanChunk={}", pSpanChunk);
         }
-        AgentHeaderFactory.Header agentInfo = ServerContext.getAgentInfo();
-        SpanChunkBo spanChunkBo = spanFactory.buildSpanChunkBo(pSpanChunk, agentInfo);
 
         try {
+            final AgentHeaderFactory.Header agentInfo = ServerContext.getAgentInfo();
+            final SpanChunkBo spanChunkBo = spanFactory.buildSpanChunkBo(pSpanChunk, agentInfo);
             this.traceService.insertSpanChunk(spanChunkBo);
         } catch (Exception e) {
             logger.warn("SpanChunk handle error Caused:{}", e.getMessage(), e);
