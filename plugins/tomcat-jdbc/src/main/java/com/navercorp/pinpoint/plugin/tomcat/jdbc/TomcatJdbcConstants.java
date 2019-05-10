@@ -28,7 +28,7 @@ public final class TomcatJdbcConstants {
 
     public static final String SCOPE = "TOMCATJDBC_SCOPE";
 
-    public static final ServiceType SERVICE_TYPE = ServiceTypeFactory.of(6050, "TOMCATJDBC");
+    public static final ServiceType SERVICE_TYPE = ServiceTypeFactory.of(6051, "TOMCATJDBC");
 
     public static final String ACCESSOR_DATASOURCE_MONITOR = "com.navercorp.pinpoint.plugin.tomcat.jdbc.DataSourceMonitorAccessor";
 
