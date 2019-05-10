@@ -89,6 +89,7 @@
         <module>hbase</module>
         <module>openwhisk</module>
         <module>node-js</module>
+        <module>tomcat-jdbc</module>
     </modules>
 
     <dependencies>
