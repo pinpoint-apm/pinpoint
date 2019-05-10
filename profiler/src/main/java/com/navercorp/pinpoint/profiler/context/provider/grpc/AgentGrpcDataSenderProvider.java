@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.profiler.context.provider.grpc;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.protobuf.GeneratedMessageV3;
+import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
 import com.navercorp.pinpoint.profiler.context.grpc.GrpcTransportConfig;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.grpc.HeaderFactory;
@@ -37,16 +38,19 @@ public class AgentGrpcDataSenderProvider implements Provider<EnhancedDataSender<
     private final MessageConverter<GeneratedMessageV3> messageConverter;
     private final HeaderFactory headerFactory;
     private final NameResolverProvider nameResolverProvider;
+    private final ActiveTraceRepository activeTraceRepository;
 
     @Inject
     public AgentGrpcDataSenderProvider(GrpcTransportConfig grpcTransportConfig,
                                        @MetadataConverter MessageConverter<GeneratedMessageV3> messageConverter,
                                        HeaderFactory headerFactory,
-                                       NameResolverProvider nameResolverProvider) {
+                                       NameResolverProvider nameResolverProvider,
+                                       ActiveTraceRepository activeTraceRepository) {
         this.grpcTransportConfig = Assert.requireNonNull(grpcTransportConfig, "grpcTransportConfig must not be null");
         this.messageConverter = Assert.requireNonNull(messageConverter, "messageConverter must not be null");
         this.headerFactory = Assert.requireNonNull(headerFactory, "headerFactory must not be null");
         this.nameResolverProvider = Assert.requireNonNull(nameResolverProvider, "nameResolverProvider must not be null");
+        this.activeTraceRepository = Assert.requireNonNull(activeTraceRepository, "activeTraceRepository must not be null");
     }
 
     @Override
@@ -54,7 +58,7 @@ public class AgentGrpcDataSenderProvider implements Provider<EnhancedDataSender<
         String collectorTcpServerIp = grpcTransportConfig.getCollectorAgentServerIp();
         int collectorTcpServerPort = grpcTransportConfig.getCollectorAgentServerPort();
 
-        return new AgentGrpcDataSender("Default", collectorTcpServerIp, collectorTcpServerPort,  messageConverter, headerFactory, nameResolverProvider);
+        return new AgentGrpcDataSender("Default", collectorTcpServerIp, collectorTcpServerPort,  messageConverter, headerFactory, nameResolverProvider, activeTraceRepository);
     }
 
 }
