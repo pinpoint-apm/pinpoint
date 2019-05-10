@@ -1,17 +1,22 @@
 import { Injectable } from '@angular/core';
-import { switchMap, map, filter, tap, skip, delay } from 'rxjs/operators';
-import { iif, timer, of, Observable, Subject } from 'rxjs';
+import { map, tap, skip } from 'rxjs/operators';
+import { Observable, Subject, BehaviorSubject } from 'rxjs';
 
-import { NewUrlStateNotificationService, StoreHelperService, WebAppSettingDataService, UrlRouteManagerService } from 'app/shared/services';
+import {
+    NewUrlStateNotificationService,
+    StoreHelperService,
+    WebAppSettingDataService,
+    MessageQueueService,
+    MESSAGE_TO
+} from 'app/shared/services';
 import { UrlPath, UrlPathId } from 'app/shared/models';
 import { Actions } from 'app/shared/store';
-import { ServerAndAgentListDataService } from './server-and-agent-list-data.service';
 import { Timeline } from 'app/core/components/timeline/class';
-import { filterServerList } from 'app/core/components/server-and-agent-list/server-and-agent-list-util';
 
 export interface ISourceForServerAndAgentList {
-    data: {[key: string]: IServerAndAgentData[]};
+    range: number[];
     agentId: string;
+    emitAfter: number;
 }
 
 export interface ISourceForTimeline {
@@ -30,15 +35,13 @@ export interface ISourceForChart {
 
 @Injectable()
 export class InspectorPageService {
-    private sourceForServerAndAgentList = new Subject<ISourceForServerAndAgentList>();
+    private sourceForServerAndAgentList = new BehaviorSubject<ISourceForServerAndAgentList>(null);
     private sourceForTimeline = new Subject<ISourceForTimeline>();
     private sourceForAgentInfo = new Subject<ISourceForAgentInfo>();
     private sourceForChart = new Subject<ISourceForChart>();
 
-    private range: number[];
     private timelineInfo: ITimelineInfo;
     private agentId: string;
-    private prevServerAndAgentList: {[key: string]: IServerAndAgentData[]};
     private isFirstFlow: boolean; // AgentId가 invalid상태일때 redirect가 발생하는걸 detect하기위한 property
 
     sourceForServerAndAgentList$: Observable<ISourceForServerAndAgentList>;
@@ -50,8 +53,7 @@ export class InspectorPageService {
         private newUrlStateNotificationService: NewUrlStateNotificationService,
         private storeHelperService: StoreHelperService,
         private webAppSettingDataService: WebAppSettingDataService,
-        private serverAndAgentListDataService: ServerAndAgentListDataService,
-        private urlRouteManagerService: UrlRouteManagerService,
+        private messageQueueService: MessageQueueService,
     ) {
         this.sourceForServerAndAgentList$ = this.sourceForServerAndAgentList.asObservable();
         this.sourceForTimeline$ = this.sourceForTimeline.asObservable();
@@ -64,68 +66,39 @@ export class InspectorPageService {
             tap((urlService: NewUrlStateNotificationService) => {
                 this.agentId = urlService.getPathValue(UrlPathId.AGENT_ID);
             }),
-            switchMap((urlService: NewUrlStateNotificationService) => {
-                return iif(() => urlService.isRealTimeMode(),
-                    (() => {
-                        const period = this.webAppSettingDataService.getChartRefreshInterval(UrlPath.INSPECTOR);
+            map((urlService: NewUrlStateNotificationService) => {
+                if (urlService.isRealTimeMode()) {
+                    const to = urlService.getUrlServerTimeData();
+                    const from = to - this.webAppSettingDataService.getSystemDefaultPeriod().getMiliSeconds();
 
-                        return timer(0, period).pipe(
-                            map((count: number) => {
-                                const to = urlService.getUrlServerTimeData() + (period * count);
-                                const from = to - this.webAppSettingDataService.getSystemDefaultPeriod().getMiliSeconds();
-
-                                return [from, to];
-                            })
-                        );
-                    })(),
-                    of([urlService.getStartTimeToNumber(), urlService.getEndTimeToNumber()])
-                ).pipe(
-                    tap((range: number[]) => this.range = range),
-                    map((range: number[]) => ({ urlService, range }))
-                );
-            }),
-            switchMap(({urlService, range}: {urlService: NewUrlStateNotificationService, range: number[]}) => {
-                const appName = (urlService.getPathValue(UrlPathId.APPLICATION) as IApplication).getApplicationName();
-
-                return urlService.isValueChanged(UrlPathId.APPLICATION) || this.shouldUpdateRange()
-                    ? this.serverAndAgentListDataService.getData(appName, range)
-                    : of(this.prevServerAndAgentList).pipe(delay(0));
-            }),
-            tap((res: {[key: string]: IServerAndAgentData[]}) => this.prevServerAndAgentList = res),
-            filter((res: {[key: string]: IServerAndAgentData[]}) => {
-                if (this.agentId) {
-                    const filteredList = filterServerList(res, this.agentId, ({ agentId }: IServerAndAgentData) => this.agentId.toLowerCase() === agentId.toLowerCase());
-                    const isAgentIdValid = Object.keys(filteredList).length !== 0;
-
-                    if (isAgentIdValid) {
-                        return true;
-                    } else {
-                        const url = this.newUrlStateNotificationService.isRealTimeMode()
-                            ? [ UrlPath.INSPECTOR, UrlPathId.REAL_TIME, this.newUrlStateNotificationService.getPathValue(UrlPathId.APPLICATION).getUrlStr() ]
-                            : [
-                                UrlPath.INSPECTOR,
-                                this.newUrlStateNotificationService.getPathValue(UrlPathId.APPLICATION).getUrlStr(),
-                                this.newUrlStateNotificationService.getPathValue(UrlPathId.PERIOD).getValueWithTime(),
-                                this.newUrlStateNotificationService.getPathValue(UrlPathId.END_TIME).getEndTime()
-                            ];
-
-                        this.urlRouteManagerService.moveOnPage({ url });
-
-                        return false;
-                    }
+                    return [from, to];
                 } else {
-                    return true;
+                    return [urlService.getStartTimeToNumber(), urlService.getEndTimeToNumber()];
                 }
-            }),
-            tap(() => {
-                this.isFirstFlow = !this.timelineInfo;
+
             })
-        ).subscribe((res: {[key: string]: IServerAndAgentData[]}) => {
-            this.notifyToServerAndAgentList(res);
-            this.notifyToTimeline();
+        ).subscribe((range: number[]) => {
+            this.notifyToServerAndAgentList(range);
+        });
+
+        this.messageQueueService.receiveMessage(unsubscribe, MESSAGE_TO.INSPECTOR_PAGE_VALID).pipe(
+            tap(() => this.isFirstFlow = !this.timelineInfo)
+        ).subscribe(([range, now]: [number[], number]) => {
+            this.notifyToTimeline(range);
             if (!(this.isFirstFlow || this.shouldUpdateRange())) {
                 this.notifyToAgentInfo();
                 this.notifyToChart();
+            }
+
+            if (this.newUrlStateNotificationService.isRealTimeMode()) {
+                const period = this.webAppSettingDataService.getChartRefreshInterval(UrlPath.INSPECTOR);
+                const reservedNextTo = range[1] + period;
+                const isDelayed = now > reservedNextTo;
+                const to = isDelayed ? now : reservedNextTo;
+                const from = to - this.webAppSettingDataService.getSystemDefaultPeriod().getMiliSeconds();
+                const emitAfter = isDelayed ? 0 : reservedNextTo - now;
+
+                this.notifyToServerAndAgentList([from, to], emitAfter);
             }
         });
 
@@ -142,16 +115,16 @@ export class InspectorPageService {
         this.storeHelperService.dispatch(new Actions.UpdateTimelineData(data));
     }
 
-    private calcuRetrieveTime(startTime: number, endTime: number): number[] {
+    private calcuRetrieveTime([from, to]: number[]): number[] {
         const allowedMaxRagne = Timeline.MAX_TIME_RANGE;
-        const timeGap = endTime - startTime;
+        const timeGap = to - from;
 
         if (timeGap > allowedMaxRagne) {
-            return [endTime - allowedMaxRagne, endTime];
+            return [to - allowedMaxRagne, to];
         } else {
             const calcuStart = timeGap * 3;
 
-            return [endTime - (calcuStart > allowedMaxRagne ? allowedMaxRagne : calcuStart), endTime];
+            return [to - (calcuStart > allowedMaxRagne ? allowedMaxRagne : calcuStart), to];
         }
     }
 
@@ -161,14 +134,12 @@ export class InspectorPageService {
             || this.newUrlStateNotificationService.isValueChanged(UrlPathId.END_TIME);
     }
 
-    private notifyToTimeline(): void {
+    private notifyToTimeline(range: number[]): void {
         if (this.isFirstFlow || this.shouldUpdateRange()) {
-            const [from, to] = this.range;
-
             this.updateTimelineData({
-                range: this.calcuRetrieveTime(from, to),
-                selectedTime: to,
-                selectionRange: [from, to]
+                range: this.calcuRetrieveTime(range),
+                selectedTime: range[1],
+                selectionRange: range
             });
         }
 
@@ -178,10 +149,11 @@ export class InspectorPageService {
         });
     }
 
-    private notifyToServerAndAgentList(data: {[key: string]: IServerAndAgentData[]}): void {
+    private notifyToServerAndAgentList(range: number[], emitAfter = 0): void {
         this.sourceForServerAndAgentList.next({
-            data,
-            agentId: this.agentId
+            range,
+            agentId: this.agentId,
+            emitAfter
         });
     }
 
