@@ -83,7 +83,7 @@ public class TomcatJdbcPlugin implements ProfilerPlugin, TransformTemplateAware 
                     target.addField(TomcatJdbcConstants.ACCESSOR_DATASOURCE_MONITOR);
 
                     // default constructor
-                    InstrumentMethod defaultConstructor = InstrumentUtils.findConstructor(target);
+                    InstrumentMethod defaultConstructor = InstrumentUtils.findConstructor(target, "org.apache.tomcat.jdbc.pool.PoolConfiguration");
                     defaultConstructor.addScopedInterceptor(TomcatJdbcConstants.INTERCEPTOR_CONSTRUCTOR, TomcatJdbcConstants.SCOPE);
 
                     // closeMethod

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.plugin.commons.dbcp;
+package com.navercorp.pinpoint.plugin.tomcat.jdbc;
 
 import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
@@ -26,11 +26,11 @@ import java.util.Properties;
 /**
  * @author Taejin Koo
  */
-public class CommonsDbcpConfigTest {
+public class TomcatJdbcConfigTest {
 
     @Test
     public void configTest1() throws Exception {
-        CommonsDbcpConfig commonsDbcpConfig = createCommonsDbcpConfig("false", "false");
+        TomcatJdbcConfig commonsDbcpConfig = createTomcatJdbcConfig("false", "false");
 
         Assert.assertFalse(commonsDbcpConfig.isPluginEnable());
         Assert.assertFalse(commonsDbcpConfig.isProfileClose());
@@ -38,7 +38,7 @@ public class CommonsDbcpConfigTest {
 
     @Test
     public void configTest2() throws Exception {
-        CommonsDbcpConfig commonsDbcpConfig = createCommonsDbcpConfig("false", "true");
+        TomcatJdbcConfig commonsDbcpConfig = createTomcatJdbcConfig("false", "true");
 
         Assert.assertFalse(commonsDbcpConfig.isPluginEnable());
         Assert.assertTrue(commonsDbcpConfig.isProfileClose());
@@ -46,7 +46,7 @@ public class CommonsDbcpConfigTest {
 
     @Test
     public void configTest3() throws Exception {
-        CommonsDbcpConfig commonsDbcpConfig = createCommonsDbcpConfig("true", "false");
+        TomcatJdbcConfig commonsDbcpConfig = createTomcatJdbcConfig("true", "false");
 
         Assert.assertTrue(commonsDbcpConfig.isPluginEnable());
         Assert.assertFalse(commonsDbcpConfig.isProfileClose());
@@ -54,20 +54,20 @@ public class CommonsDbcpConfigTest {
 
     @Test
     public void configTest4() throws Exception {
-        CommonsDbcpConfig commonsDbcpConfig = createCommonsDbcpConfig("true", "true");
+        TomcatJdbcConfig commonsDbcpConfig = createTomcatJdbcConfig("true", "true");
 
         Assert.assertTrue(commonsDbcpConfig.isPluginEnable());
         Assert.assertTrue(commonsDbcpConfig.isProfileClose());
     }
 
-    private CommonsDbcpConfig createCommonsDbcpConfig(String pluginEnable, String profileConnectionCloseEnable) {
+    private TomcatJdbcConfig createTomcatJdbcConfig(String pluginEnable, String profileConnectionCloseEnable) {
         Properties properties = new Properties();
-        properties.put(CommonsDbcpConfig.DBCP_PLUGIN_ENABLE, pluginEnable);
-        properties.put(CommonsDbcpConfig.DBCP_PROFILE_CONNECTIONCLOSE_ENABLE, profileConnectionCloseEnable);
+        properties.put(TomcatJdbcConfig.TOMCATJDBC_PLUGIN_ENABLE, pluginEnable);
+        properties.put(TomcatJdbcConfig.TOMCATJDBC_PROFILE_CONNECTIONCLOSE_ENABLE, profileConnectionCloseEnable);
 
         ProfilerConfig profilerConfig = new DefaultProfilerConfig(properties);
 
-        return new CommonsDbcpConfig(profilerConfig);
+        return new TomcatJdbcConfig(profilerConfig);
     }
 
 }
