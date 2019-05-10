@@ -17,7 +17,6 @@ import { EmptyInspectorContentsModule } from 'app/core/components/empty-inspecto
 import { InspectorPageComponent } from './inspector-page.component';
 import { HelpViewerPopupModule } from 'app/core/components/help-viewer-popup';
 import { InspectorPageService } from './inspector-page.service';
-import { ServerAndAgentListDataService } from './server-and-agent-list-data.service';
 
 @NgModule({
     declarations: [
@@ -42,7 +41,6 @@ import { ServerAndAgentListDataService } from './server-and-agent-list-data.serv
     exports: [],
     providers: [
         InspectorPageService,
-        ServerAndAgentListDataService
     ]
 })
 export class InspectorPageModule {}
