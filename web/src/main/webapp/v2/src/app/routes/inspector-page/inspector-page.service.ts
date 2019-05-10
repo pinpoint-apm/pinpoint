@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { switchMap, map, filter, tap, skip, delay } from 'rxjs/operators';
-import { iif, timer, of, Observable, Subject } from 'rxjs';
+import { switchMap, map, filter, tap, skip, delay, concatMap } from 'rxjs/operators';
+import { iif, of, Observable, Subject, BehaviorSubject } from 'rxjs';
 
 import { NewUrlStateNotificationService, StoreHelperService, WebAppSettingDataService, UrlRouteManagerService } from 'app/shared/services';
 import { UrlPath, UrlPathId } from 'app/shared/models';
@@ -26,6 +26,11 @@ export interface ISourceForAgentInfo {
 
 export interface ISourceForChart {
     range: number[];
+}
+
+interface IRangeIter {
+    emitAfter: number;
+    endTime: number;
 }
 
 @Injectable()
@@ -65,31 +70,52 @@ export class InspectorPageService {
                 this.agentId = urlService.getPathValue(UrlPathId.AGENT_ID);
             }),
             switchMap((urlService: NewUrlStateNotificationService) => {
+                const appName = (urlService.getPathValue(UrlPathId.APPLICATION) as IApplication).getApplicationName();
+
                 return iif(() => urlService.isRealTimeMode(),
                     (() => {
+                        const rangeIter = new BehaviorSubject<IRangeIter>({emitAfter: 0, endTime: urlService.getUrlServerTimeData()});
                         const period = this.webAppSettingDataService.getChartRefreshInterval(UrlPath.INSPECTOR);
 
-                        return timer(0, period).pipe(
-                            map((count: number) => {
-                                const to = urlService.getUrlServerTimeData() + (period * count);
+                        return rangeIter.pipe(
+                            switchMap(({emitAfter, endTime}: IRangeIter) => {
+                                return iif(() => emitAfter === 0,
+                                    of(endTime),
+                                    of(endTime).pipe(delay(emitAfter))
+                                );
+                            }),
+                            map((to: number) => {
                                 const from = to - this.webAppSettingDataService.getSystemDefaultPeriod().getMiliSeconds();
 
                                 return [from, to];
+                            }),
+                            tap((range: number[]) => this.range = range),
+                            concatMap((range: number[]) => {
+                                return urlService.isValueChanged(UrlPathId.APPLICATION) || this.shouldUpdateRange()
+                                    ? this.serverAndAgentListDataService.getData(appName, range).pipe(
+                                        tap(() => {
+                                            const now = Date.now();
+                                            const reservedTo = range[1] + period;
+                                            const isDelayed = now > reservedTo;
+
+                                            rangeIter.next({
+                                                emitAfter: isDelayed ? 0 : reservedTo - now,
+                                                endTime: isDelayed ? now : reservedTo
+                                            });
+                                        })
+                                    )
+                                    : of(this.prevServerAndAgentList).pipe(delay(0));
                             })
                         );
                     })(),
-                    of([urlService.getStartTimeToNumber(), urlService.getEndTimeToNumber()])
-                ).pipe(
-                    tap((range: number[]) => this.range = range),
-                    map((range: number[]) => ({ urlService, range }))
-                );
-            }),
-            switchMap(({urlService, range}: {urlService: NewUrlStateNotificationService, range: number[]}) => {
-                const appName = (urlService.getPathValue(UrlPathId.APPLICATION) as IApplication).getApplicationName();
+                    (() => {
+                        const range = this.range = [urlService.getStartTimeToNumber(), urlService.getEndTimeToNumber()];
 
-                return urlService.isValueChanged(UrlPathId.APPLICATION) || this.shouldUpdateRange()
-                    ? this.serverAndAgentListDataService.getData(appName, range)
-                    : of(this.prevServerAndAgentList).pipe(delay(0));
+                        return urlService.isValueChanged(UrlPathId.APPLICATION) || this.shouldUpdateRange()
+                            ? this.serverAndAgentListDataService.getData(appName, range)
+                            : of(this.prevServerAndAgentList).pipe(delay(0));
+                    })()
+                );
             }),
             tap((res: {[key: string]: IServerAndAgentData[]}) => this.prevServerAndAgentList = res),
             filter((res: {[key: string]: IServerAndAgentData[]}) => {
