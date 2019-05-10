@@ -57,7 +57,7 @@ public class TomcatJdbcPlugin implements ProfilerPlugin, TransformTemplateAware 
     }
 
     private void addPoolGuardConnectionWrapperTransformer() {
-        transformTemplate.transform("org.apache.tomcat.jdbc.ConnectionPool", new TransformCallback() {
+        transformTemplate.transform("org.apache.tomcat.jdbc.pool.ConnectionPool", new TransformCallback() {
 
             @Override
             public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
@@ -73,7 +73,7 @@ public class TomcatJdbcPlugin implements ProfilerPlugin, TransformTemplateAware 
     }
 
     private void addBasicDataSourceTransformer() {
-        transformTemplate.transform("org.apache.tomcat.jdbc.DataSource", new TransformCallback() {
+        transformTemplate.transform("org.apache.tomcat.jdbc.pool.DataSource", new TransformCallback() {
             
             @Override
             public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
