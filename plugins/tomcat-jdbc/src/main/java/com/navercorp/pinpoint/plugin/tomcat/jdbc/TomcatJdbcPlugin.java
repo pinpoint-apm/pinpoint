@@ -80,15 +80,18 @@ public class TomcatJdbcPlugin implements ProfilerPlugin, TransformTemplateAware 
                 InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
                 if (isAvailableDataSourceMonitor(target)) {
+                    System.out.println("\n\n\n1\n\n\n");
                     target.addField(TomcatJdbcConstants.ACCESSOR_DATASOURCE_MONITOR);
 
                     // default constructor
                     InstrumentMethod defaultConstructor = InstrumentUtils.findConstructor(target, "org.apache.tomcat.jdbc.pool.PoolConfiguration");
                     defaultConstructor.addScopedInterceptor(TomcatJdbcConstants.INTERCEPTOR_CONSTRUCTOR, TomcatJdbcConstants.SCOPE);
+                    System.out.println("\n\n\n2\n\n\n");
 
                     // closeMethod
                     InstrumentMethod closeMethod = InstrumentUtils.findMethod(target, "close");
                     closeMethod.addScopedInterceptor(TomcatJdbcConstants.INTERCEPTOR_CLOSE, TomcatJdbcConstants.SCOPE);
+                    System.out.println("\n\n\n3\n\n\n");
                 }
 
                 // getConnectionMethod
@@ -96,6 +99,7 @@ public class TomcatJdbcPlugin implements ProfilerPlugin, TransformTemplateAware 
                 getConnectionMethod.addScopedInterceptor(TomcatJdbcConstants.INTERCEPTOR_GET_CONNECTION, TomcatJdbcConstants.SCOPE);
                 getConnectionMethod = InstrumentUtils.findMethod(target, "getConnection", new String[]{"java.lang.String", "java.lang.String"});
                 getConnectionMethod.addScopedInterceptor(TomcatJdbcConstants.INTERCEPTOR_GET_CONNECTION, TomcatJdbcConstants.SCOPE);
+                System.out.println("\n\n\n4\n\n\n");
 
                 return target.toBytecode();
             }
