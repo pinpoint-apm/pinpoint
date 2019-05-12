@@ -15,8 +15,8 @@
 |                                                                                   |                            |         |         |                        |
 | OpenWhisk                                                                         | whisk.core                 |         |         |                        | 
 |                                                                                   |                            |         |         |                        |
-| SpringMVC Framework                                                               | spring-webmvc              | 3.0.7   | 5.1.6   |                        | <AG>
-| Spring Web                                                                        | spring-web                 | 4.1.2   | 4.3.23  |                        | <AG>
+| SpringMVC Framework                                                               | spring-webmvc              | 3.0.7   | 5.1.7   |                        | <AG>
+| Spring Web                                                                        | spring-web                 | 4.1.2   | 4.3.24  |                        | <AG>
 | Spring RabbitMQ                                                                   | spring-rabbit              | 1.3.3   | 2.1.5   |                        | <AG>
 | Spring IBatis                                                                     | spring-ibatis              | 2.0.7   | 2.0.8   |                        | <AG>
 | Spring MyBatis                                                                    | mybatis-spring             | 1.1.0   | 1.3.2   |                        | <AG>
