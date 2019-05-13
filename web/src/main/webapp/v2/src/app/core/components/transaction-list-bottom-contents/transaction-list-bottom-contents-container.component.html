@@ -11,9 +11,12 @@
     </div>
     <div class="l-component-wrapper">
         <pp-call-tree-container></pp-call-tree-container>
-        <pp-server-map-for-transaction-list-container style="height: calc(100% - 84px)"
-            [hidden]="isSameType('serverMap') === false"
-        ></pp-server-map-for-transaction-list-container>
+        <ng-container *ngIf="isSameType('serverMap')">
+            <pp-server-map-others-container
+                [sourceType]="'TRANSACTION_LIST'"
+                style="height: calc(100% - 84px)"
+            ></pp-server-map-others-container>
+        </ng-container>
         <pp-transaction-timeline-container></pp-transaction-timeline-container>    
     </div>
     <pp-film-for-disable *ngIf="useDisable" [zIndex]="9" [marginWidth]="0"></pp-film-for-disable>    
