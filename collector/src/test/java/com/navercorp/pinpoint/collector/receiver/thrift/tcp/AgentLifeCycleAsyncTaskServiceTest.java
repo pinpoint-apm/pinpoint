@@ -64,6 +64,7 @@ public class AgentLifeCycleAsyncTaskServiceTest {
     @InjectMocks
     private AgentLifeCycleAsyncTaskService agentLifeCycleAsyncTaskService = new AgentLifeCycleAsyncTaskService();
 
+    private static final String TEST_APP_ID = "TEST_APP_ID";
     private static final String TEST_AGENT_ID = "TEST_AGENT";
     private static final long TEST_START_TIMESTAMP = System.currentTimeMillis();
     private static final long TEST_EVENT_TIMESTAMP = TEST_START_TIMESTAMP + 10;
@@ -157,11 +158,12 @@ public class AgentLifeCycleAsyncTaskServiceTest {
     }
 
     private static Map<Object, Object> createTestChannelProperties() {
-        return createChannelProperties(TEST_AGENT_ID, TEST_START_TIMESTAMP, TEST_SOCKET_ID);
+        return createChannelProperties(TEST_APP_ID, TEST_AGENT_ID, TEST_START_TIMESTAMP, TEST_SOCKET_ID);
     }
 
-    private static Map<Object, Object> createChannelProperties(String agentId, long startTimestamp, int socketId) {
+    private static Map<Object, Object> createChannelProperties(String applicationId, String agentId, long startTimestamp, int socketId) {
         Map<Object, Object> map = new HashMap<>();
+        map.put(HandshakePropertyType.APPLICATION_NAME.getName(), applicationId);
         map.put(HandshakePropertyType.AGENT_ID.getName(), agentId);
         map.put(HandshakePropertyType.START_TIMESTAMP.getName(), startTimestamp);
         map.put(AgentLifeCycleAsyncTaskService.SOCKET_ID_KEY, socketId);
