@@ -24,7 +24,6 @@ import com.navercorp.pinpoint.grpc.trace.ProfilerCommandServiceGrpc;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
 import com.navercorp.pinpoint.profiler.sender.grpc.ExponentialBackoffReconnectJob;
 import com.navercorp.pinpoint.profiler.sender.grpc.ReconnectJob;
-
 import io.grpc.ManagedChannel;
 import io.grpc.stub.ClientCallStreamObserver;
 import io.grpc.stub.ClientResponseObserver;
@@ -39,6 +38,9 @@ import java.util.concurrent.TimeUnit;
  */
 public class GrpcCommandService {
 
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final boolean isDebug = logger.isDebugEnabled();
+
     private final ScheduledExecutorService reconnectScheduler;
 
     private final ManagedChannel managedChannel;
@@ -49,7 +51,7 @@ public class GrpcCommandService {
     private volatile GrpcCommandDispatcher commandDispatcher;
     private volatile CommandServiceMainStreamObserver commandServiceMainStreamObserver;
 
-    private final ReconnectJob reconnectAction;
+    private volatile ReconnectJob reconnectAction;
 
     public GrpcCommandService(ManagedChannel managedChannel, ScheduledExecutorService reconnectScheduler, ActiveTraceRepository activeTraceRepository) {
         this.managedChannel = Assert.requireNonNull(managedChannel, "managedChannel");
@@ -58,17 +60,25 @@ public class GrpcCommandService {
         // allow null
         this.activeTraceRepository = activeTraceRepository;
 
-        this.reconnectAction = new ExponentialBackoffReconnectJob() {
-            @Override
-            public void run() {
-                connect();
-            }
-        };
+        initReconnectAction();
 
         connect();
     }
 
+    private void initReconnectAction() {
+        // init : 1s ~ max : 2min
+        this.reconnectAction = new ExponentialBackoffReconnectJob() {
+
+            @Override
+            public void run() {
+                connect();
+            }
+
+        };
+    }
+
     private void connect() {
+        logger.info("Attempt to connect to CommandServiceStream.");
         if (shutdown) {
             return;
         }
@@ -87,9 +97,6 @@ public class GrpcCommandService {
 
     private class CommandServiceMainStreamObserver implements ClientResponseObserver<PCmdMessage, PCmdRequest> {
 
-        private final Logger logger = LoggerFactory.getLogger(this.getClass());
-        private final boolean isDebug = logger.isDebugEnabled();
-
         private final GrpcCommandDispatcher commandDispatcher;
         private ClientCallStreamObserver<PCmdMessage> requestStream;
 
@@ -104,6 +111,10 @@ public class GrpcCommandService {
             requestStream.setOnReadyHandler(new Runnable() {
                 @Override
                 public void run() {
+                    logger.info("Connect to CommandServiceStream completed.");
+
+                    initReconnectAction();
+
                     PCmdServiceHandshake.Builder handshakeMessageBuilder = PCmdServiceHandshake.newBuilder();
                     for (Short commandServiceCode : commandDispatcher.getSupportCommandServiceIdList()) {
                         handshakeMessageBuilder.addSupportCommandServiceKey(commandServiceCode);
