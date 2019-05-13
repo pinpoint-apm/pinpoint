@@ -16,29 +16,29 @@
 
 package com.navercorp.pinpoint.collector.receiver.thrift.tcp;
 
-import com.navercorp.pinpoint.collector.service.async.AgentEventAsyncTaskService;
 import com.navercorp.pinpoint.collector.service.AgentEventService;
+import com.navercorp.pinpoint.collector.service.async.AgentEventAsyncTaskService;
 import com.navercorp.pinpoint.common.server.bo.event.AgentEventBo;
 import com.navercorp.pinpoint.common.server.util.AgentEventType;
 import com.navercorp.pinpoint.rpc.packet.HandshakePropertyType;
 import com.navercorp.pinpoint.rpc.server.ChannelProperties;
 import com.navercorp.pinpoint.rpc.server.DefaultChannelProperties;
 import com.navercorp.pinpoint.rpc.server.PinpointServer;
+
+import static org.junit.Assert.assertEquals;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 /**
  * @author HyunGil Jeong
@@ -54,6 +54,7 @@ public class AgentEventAsyncTaskServiceTest {
     @InjectMocks
     private AgentEventAsyncTaskService agentEventAsyncTaskService = new AgentEventAsyncTaskService();
 
+    private static final String TEST_APP_ID = "TEST_APP_ID";
     private static final String TEST_AGENT_ID = "TEST_AGENT";
     private static final long TEST_START_TIMESTAMP = System.currentTimeMillis();
     private static final long TEST_EVENT_TIMESTAMP = TEST_START_TIMESTAMP + 10;
@@ -85,11 +86,13 @@ public class AgentEventAsyncTaskServiceTest {
     }
 
     private static Map<Object, Object> createTestChannelProperties() {
-        return createChannelProperties(TEST_AGENT_ID, TEST_START_TIMESTAMP);
+        return createChannelProperties(TEST_APP_ID, TEST_AGENT_ID, TEST_START_TIMESTAMP);
     }
 
-    private static Map<Object, Object> createChannelProperties(String agentId, long startTimestamp) {
+    private static Map<Object, Object> createChannelProperties(String applicationId, String agentId, long startTimestamp) {
         Map<Object, Object> map = new HashMap<>();
+
+        map.put(HandshakePropertyType.APPLICATION_NAME.getName(), applicationId);
         map.put(HandshakePropertyType.AGENT_ID.getName(), agentId);
         map.put(HandshakePropertyType.START_TIMESTAMP.getName(), startTimestamp);
         return map;
