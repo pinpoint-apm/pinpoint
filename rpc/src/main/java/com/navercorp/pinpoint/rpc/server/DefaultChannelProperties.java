@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.rpc.server;
 
 import com.navercorp.pinpoint.common.util.IdValidateUtils;
+import com.navercorp.pinpoint.rpc.client.HandshakerFactory;
 import com.navercorp.pinpoint.rpc.packet.HandshakePropertyType;
 import com.navercorp.pinpoint.rpc.util.MapUtils;
 
@@ -63,7 +64,7 @@ public class DefaultChannelProperties implements ChannelProperties {
         final int serviceType = MapUtils.getInteger(properties, HandshakePropertyType.SERVICE_TYPE.getName(), -1);
         final long startTime = MapUtils.getLong(properties, HandshakePropertyType.START_TIMESTAMP.getName(), -1L);
         final String version = MapUtils.getString(properties, HandshakePropertyType.VERSION.getName());
-        final int socketId = MapUtils.getInteger(properties, "socketId", -1);
+        final int socketId = MapUtils.getInteger(properties, HandshakerFactory.SOCKET_ID, -1);
         List<Integer> supportCommandList = (List<Integer>) properties.get(HandshakePropertyType.SUPPORT_COMMAND_LIST.getName());
         if (supportCommandList == null) {
             supportCommandList = Collections.emptyList();

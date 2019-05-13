@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.rpc.client;
 
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.rpc.cluster.ClusterOption;
+import com.navercorp.pinpoint.rpc.packet.ControlHandshakeResponsePacket;
 import org.jboss.netty.util.Timer;
 
 import java.util.HashMap;
@@ -28,6 +29,9 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author Woonduk Kang(emeroad)
  */
 public class HandshakerFactory {
+
+    public static final String SOCKET_ID = "socketId";
+
 
     private static final int DEFAULT_ENABLE_WORKER_PACKET_RETRY_COUNT = Integer.MAX_VALUE;
 
@@ -59,10 +63,10 @@ public class HandshakerFactory {
         Map<String, Object> handshakeData = new HashMap<String, Object>(this.properties);
 
         final int socketId = nextSocketId();
-        handshakeData.put("socketId", socketId);
+        handshakeData.put(SOCKET_ID, socketId);
 
         if (clusterOption.isEnable()) {
-            handshakeData.put("cluster", clusterOption.toMap());
+            handshakeData.put(ControlHandshakeResponsePacket.CLUSTER, clusterOption.toMap());
         }
         return handshakeData;
     }

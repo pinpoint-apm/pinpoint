@@ -42,14 +42,13 @@ public class AgentEventAsyncTaskService {
 
     @Async("agentEventWorker")
     public void handleEvent(final ChannelProperties channelProperties, long eventTimestamp, AgentEventType eventType) {
-        Objects.requireNonNull(channelProperties, "channelProperties must not be null");
-        Objects.requireNonNull(eventType, "pinpointServer must not be null");
-
         if (channelProperties == null) {
             // It can occurs CONNECTED -> RUN_WITHOUT_HANDSHAKE -> CLOSED(UNEXPECTED_CLOSE_BY_CLIENT, ERROR_UNKNOWN)
+            // TODO channelProperties is null
             logger.warn("maybe not yet received the handshake data - pinpointServer:{}", channelProperties);
             return;
         }
+        Objects.requireNonNull(eventType, "eventType must not be null");
 
         final String agentId = channelProperties.getAgentId();
         final long startTimestamp = channelProperties.getStartTime();

@@ -56,12 +56,12 @@ public class AgentLifeCycleChangeEventHandler extends ServerStateChangeEventHand
         } else {
             logger.info("stateUpdated(). pinpointServer:{}, updatedStateCode:{}", pinpointServer, updatedStateCode);
 
-            long eventTimestamp = System.currentTimeMillis();
+            final long eventTimestamp = System.currentTimeMillis();
 
-            Map<Object, Object> channelPropertiesMap = pinpointServer.getChannelProperties();
+            final Map<Object, Object> channelPropertiesMap = pinpointServer.getChannelProperties();
             // nullable
-            ChannelProperties channelProperties = DefaultChannelProperties.newChannelProperties(channelPropertiesMap);
-            AgentLifeCycleState agentLifeCycleState = managedAgentLifeCycle.getMappedState();
+            final ChannelProperties channelProperties = DefaultChannelProperties.newChannelProperties(channelPropertiesMap);
+            final AgentLifeCycleState agentLifeCycleState = managedAgentLifeCycle.getMappedState();
             this.agentLifeCycleAsyncTaskService.handleLifeCycleEvent(channelProperties, eventTimestamp, agentLifeCycleState, managedAgentLifeCycle.getEventCounter());
             AgentEventType agentEventType = managedAgentLifeCycle.getMappedEvent();
             this.agentEventAsyncTaskService.handleEvent(channelProperties, eventTimestamp, agentEventType);

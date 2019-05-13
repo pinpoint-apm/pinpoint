@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.collector.service.AgentLifeCycleService;
 import com.navercorp.pinpoint.collector.util.ManagedAgentLifeCycle;
 import com.navercorp.pinpoint.common.server.bo.AgentLifeCycleBo;
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
+import com.navercorp.pinpoint.rpc.client.HandshakerFactory;
 import com.navercorp.pinpoint.rpc.packet.HandshakePropertyType;
 import com.navercorp.pinpoint.rpc.server.ChannelProperties;
 import com.navercorp.pinpoint.rpc.server.DefaultChannelProperties;
@@ -166,7 +167,7 @@ public class AgentLifeCycleAsyncTaskServiceTest {
         map.put(HandshakePropertyType.APPLICATION_NAME.getName(), applicationId);
         map.put(HandshakePropertyType.AGENT_ID.getName(), agentId);
         map.put(HandshakePropertyType.START_TIMESTAMP.getName(), startTimestamp);
-        map.put(AgentLifeCycleAsyncTaskService.SOCKET_ID_KEY, socketId);
+        map.put(HandshakerFactory.SOCKET_ID, socketId);
         return map;
     }
 
