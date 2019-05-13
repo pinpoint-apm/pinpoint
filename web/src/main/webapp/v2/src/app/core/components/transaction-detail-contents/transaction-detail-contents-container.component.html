@@ -9,7 +9,9 @@
     </div>
     <div class="l-component-wrapper">
         <pp-call-tree-container></pp-call-tree-container>
-        <pp-server-map-for-transaction-list-container></pp-server-map-for-transaction-list-container>
+        <ng-container *ngIf="isSameType('serverMap')">
+            <pp-server-map-others-container [sourceType]="'TRANSACTION_LIST'"></pp-server-map-others-container>
+        </ng-container>
         <pp-transaction-timeline-container></pp-transaction-timeline-container>
     </div>
 </div>
