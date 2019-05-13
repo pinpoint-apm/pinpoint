@@ -4,7 +4,6 @@ import { Subject, combineLatest } from 'rxjs';
 import { takeUntil, filter } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
 
-import { Actions } from 'app/shared/store';
 import {
     StoreHelperService,
     NewUrlStateNotificationService,
@@ -13,6 +12,7 @@ import {
     TRACKED_EVENT_LIST,
     DynamicPopupService
 } from 'app/shared/services';
+import { Actions } from 'app/shared/store';
 import { UrlPathId } from 'app/shared/models';
 import { Filter } from 'app/core/models';
 import { SERVER_MAP_TYPE, ServerMapType, NodeGroup, ServerMapData, MergeServerMapData } from 'app/core/components/server-map/class';
@@ -37,15 +37,17 @@ export class ServerMapForFilteredMapContainerComponent implements OnInit, OnDest
     loadingCompleted = false;
 
     mapData: ServerMapData;
+    funcServerMapImagePath: Function;
     baseApplicationKey: string;
     showOverview = false;
-    useDisable = true;
     showLoading = true;
-    funcServerMapImagePath: Function;
+    useDisable = true;
     endTime: string;
     period: string;
     constructor(
         private router: Router,
+        private injector: Injector,
+        private componentFactoryResolver: ComponentFactoryResolver,
         private storeHelperService: StoreHelperService,
         private translateService: TranslateService,
         private newUrlStateNotificationService: NewUrlStateNotificationService,
@@ -53,8 +55,6 @@ export class ServerMapForFilteredMapContainerComponent implements OnInit, OnDest
         private webAppSettingDataService: WebAppSettingDataService,
         private dynamicPopupService: DynamicPopupService,
         private analyticsService: AnalyticsService,
-        private componentFactoryResolver: ComponentFactoryResolver,
-        private injector: Injector,
         @Inject(SERVER_MAP_TYPE) public type: ServerMapType
     ) {}
     ngOnInit() {
@@ -89,16 +89,6 @@ export class ServerMapForFilteredMapContainerComponent implements OnInit, OnDest
         this.unsubscribe.next();
         this.unsubscribe.complete();
     }
-    private addPageLoadingHandler(): void {
-        this.router.events.pipe(
-            filter((e: RouterEvent) => {
-                return e instanceof NavigationStart;
-            })
-        ).subscribe(() => {
-            this.showLoading = true;
-            this.useDisable = true;
-        });
-    }
     private connectStore(): void {
         this.storeHelperService.getServerMapLoadingState(this.unsubscribe).subscribe((state: string) => {
             switch (state) {
@@ -119,6 +109,16 @@ export class ServerMapForFilteredMapContainerComponent implements OnInit, OnDest
         });
         this.storeHelperService.getServerMapDisableState(this.unsubscribe).subscribe((disabled: boolean) => {
             this.useDisable = disabled;
+        });
+    }
+    private addPageLoadingHandler(): void {
+        this.router.events.pipe(
+            filter((e: RouterEvent) => {
+                return e instanceof NavigationStart;
+            })
+        ).subscribe(() => {
+            this.showLoading = true;
+            this.useDisable = true;
         });
     }
     private getI18NText(): void {
