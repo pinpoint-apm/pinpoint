@@ -124,9 +124,9 @@ class AgentBaseDataReceiverServerMessageListenerFactory implements ServerMessage
         @Override
         public void handlePing(PingPayloadPacket pingPacket, PinpointServer pinpointServer) {
             final int eventCounter = pingPacket.getPingId();
-            long pingTimestamp = System.currentTimeMillis();
-            Map<Object, Object> channelPropertiesMap = pinpointServer.getChannelProperties();
-            ChannelProperties channelProperties = DefaultChannelProperties.newChannelProperties(channelPropertiesMap);
+            final long pingTimestamp = System.currentTimeMillis();
+            final Map<Object, Object> channelPropertiesMap = pinpointServer.getChannelProperties();
+            final ChannelProperties channelProperties = DefaultChannelProperties.newChannelProperties(channelPropertiesMap);
             try {
                 if (!(eventCounter < 0)) {
                     agentLifeCycleAsyncTaskService.handleLifeCycleEvent(channelProperties, pingTimestamp, AgentLifeCycleState.RUNNING, eventCounter);

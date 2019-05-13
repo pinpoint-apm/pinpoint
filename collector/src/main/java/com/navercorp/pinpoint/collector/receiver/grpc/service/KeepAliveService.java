@@ -26,6 +26,7 @@ import com.navercorp.pinpoint.grpc.server.ServerContext;
 import com.navercorp.pinpoint.grpc.server.TransportMetadata;
 import com.navercorp.pinpoint.grpc.trace.KeepAliveGrpc;
 import com.navercorp.pinpoint.grpc.trace.PPing;
+import com.navercorp.pinpoint.rpc.client.HandshakerFactory;
 import com.navercorp.pinpoint.rpc.packet.HandshakePropertyType;
 import com.navercorp.pinpoint.rpc.server.ChannelProperties;
 import com.navercorp.pinpoint.rpc.server.DefaultChannelProperties;
@@ -105,8 +106,8 @@ public class KeepAliveService extends KeepAliveGrpc.KeepAliveImplBase {
 
     private void updateState(final PPing ping) {
         final int eventCounter = ping.getId();
-        long pingTimestamp = System.currentTimeMillis();
-        ChannelProperties channelProperties = DefaultChannelProperties.newChannelProperties(Collections.emptyMap());
+        final long pingTimestamp = System.currentTimeMillis();
+        final ChannelProperties channelProperties = DefaultChannelProperties.newChannelProperties(Collections.emptyMap());
         try {
             if (!(eventCounter < 0)) {
                 agentLifeCycleAsyncTask.handleLifeCycleEvent(channelProperties, pingTimestamp, AgentLifeCycleState.RUNNING, eventCounter);
@@ -134,11 +135,11 @@ public class KeepAliveService extends KeepAliveGrpc.KeepAliveImplBase {
         long eventTimestamp = System.currentTimeMillis();
         Map<Object, Object> properties = new HashMap<>();
         // TODO type miss match  int != long
-        final long socketId = socketIdProvider.getSocketId();
-        properties.put("socketId", socketId);
+        final int socketId = (int) socketIdProvider.getSocketId();
+        properties.put(HandshakerFactory.SOCKET_ID, socketId);
         properties.put(HandshakePropertyType.AGENT_ID.getName(), header.getAgentId());
         properties.put(HandshakePropertyType.START_TIMESTAMP.getName(), header.getAgentStartTime());
-        ChannelProperties channelProperties = DefaultChannelProperties.newChannelProperties(properties);
+        final ChannelProperties channelProperties = DefaultChannelProperties.newChannelProperties(properties);
 
         AgentLifeCycleState agentLifeCycleState = managedAgentLifeCycle.getMappedState();
         AgentEventType agentEventType = managedAgentLifeCycle.getMappedEvent();

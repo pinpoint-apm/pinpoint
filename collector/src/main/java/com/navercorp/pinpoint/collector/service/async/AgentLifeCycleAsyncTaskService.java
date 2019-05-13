@@ -36,8 +36,6 @@ import java.util.Objects;
 @Service
 public class AgentLifeCycleAsyncTaskService {
 
-    public static final String SOCKET_ID_KEY = "socketId";
-
     private static final int INTEGER_BIT_COUNT = BytesUtils.INT_BYTE_LENGTH * 8;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
