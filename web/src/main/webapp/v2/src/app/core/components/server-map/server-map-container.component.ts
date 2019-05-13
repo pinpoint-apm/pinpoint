@@ -32,16 +32,18 @@ export class ServerMapContainerComponent implements OnInit, OnDestroy {
     i18nText: { [key: string]: string } = {
         NO_AGENTS: ''
     };
+    mapData: ServerMapData;
     funcServerMapImagePath: Function;
     baseApplicationKey: string;
     showOverview = false;
     showLoading = true;
     useDisable = true;
-    mapData: ServerMapData;
     endTime: string;
     period: string;
     constructor(
         private router: Router,
+        private injector: Injector,
+        private componentFactoryResolver: ComponentFactoryResolver,
         private storeHelperService: StoreHelperService,
         private translateService: TranslateService,
         private urlRouteManagerService: UrlRouteManagerService,
@@ -50,8 +52,6 @@ export class ServerMapContainerComponent implements OnInit, OnDestroy {
         private webAppSettingDataService: WebAppSettingDataService,
         private dynamicPopupService: DynamicPopupService,
         private analyticsService: AnalyticsService,
-        private componentFactoryResolver: ComponentFactoryResolver,
-        private injector: Injector,
         @Inject(SERVER_MAP_TYPE) public type: ServerMapType
     ) {}
     ngOnInit() {
@@ -70,7 +70,7 @@ export class ServerMapContainerComponent implements OnInit, OnDestroy {
                         period.getValueWithTime(),
                         urlService.getPathValue(UrlPathId.APPLICATION)
                     );
-                    return [endTime - (period.getValue() * 60 * 1000), endTime];
+                    return [endTime - period.getMiliSeconds(), endTime];
                 } else {
                     this.storeHelperService.dispatch(new Actions.UpdateServerMapTargetSelected(null));
                     this.initVarBeforeDataLoad(
@@ -111,13 +111,16 @@ export class ServerMapContainerComponent implements OnInit, OnDestroy {
                 injector: this.injector
             });
         });
-        this.storeHelperService.getServerMapDisableState(this.unsubscribe).subscribe((disabled: boolean) => {
-            this.useDisable = disabled;
-        });
+        this.connectStore();
     }
     ngOnDestroy() {
         this.unsubscribe.next();
         this.unsubscribe.complete();
+    }
+    private connectStore(): void {
+        this.storeHelperService.getServerMapDisableState(this.unsubscribe).subscribe((disabled: boolean) => {
+            this.useDisable = disabled;
+        });
     }
     private addPageLoadingHandler(): void {
         this.router.events.pipe(
