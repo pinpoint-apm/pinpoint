@@ -1,0 +1,13 @@
+<div class="l-chart-container" style="height: 100%;">
+    <mat-grid-list [cols]="column" rowHeight="3:1" gutterSize="15px">
+        <mat-grid-tile *ngFor="let chart of chartList; let i = index;" [colspan]="1" [rowspan]="1">
+            <cdk-drop-list [cdkDropListConnectedTo]="drops" [cdkDropListData]="i">    
+                <mat-card cdkDrag (cdkDragEntered)="entered($event)" [cdkDragData]="i" class="l-chart">
+                    <mat-card-content class="l-chart-content">
+                        <h3><i class="fas fa-chart-area"></i> {{chart}}</h3>
+                    </mat-card-content>
+                </mat-card>
+            </cdk-drop-list>
+        </mat-grid-tile>
+    </mat-grid-list>
+</div>
