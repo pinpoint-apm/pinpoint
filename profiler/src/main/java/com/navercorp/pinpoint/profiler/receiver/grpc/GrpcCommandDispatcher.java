@@ -56,6 +56,7 @@ public class GrpcCommandDispatcher {
         profilerCommandLocatorBuilder.addService(new GrpcEchoService(profilerCommandServiceStub));
         if (activeTraceRepository != null) {
             profilerCommandLocatorBuilder.addService(new GrpcActiveThreadCountService(profilerCommandServiceStub, activeTraceRepository));
+            profilerCommandLocatorBuilder.addService(new GrpcActiveThreadLightDumpService(profilerCommandServiceStub, activeTraceRepository));
         }
 
         this.commandServiceLocator = profilerCommandLocatorBuilder.build();

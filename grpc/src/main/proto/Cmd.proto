@@ -19,6 +19,8 @@ enum PCommandType {
 
     ECHO = 710;
     ACTIVE_THREAD_COUNT = 730;
+
+    ACTIVE_THREAD_LIGHT_DUMP = 750;
 }
 
 message PCmdMessage {
@@ -51,6 +53,7 @@ message PCmdRequest {
     oneof command {
         PCmdEcho commandEcho = 710;
         PCmdActiveThreadCount commandActiveThreadCount = 730;
+        PCmdActiveThreadLightDump commandActiveThreadLightDump = 750;
     }
 }
 
@@ -71,6 +74,20 @@ message PCommandThreadDump {
 
 message PCommandThreadDumpResponse {
     repeated PThreadDump threadDump = 1;
+}
+
+message PCmdActiveThreadLightDump {
+    int32 limit = 1;
+    repeated string threadName = 2;
+    repeated int64 localTraceId = 3;
+}
+
+message PCmdActiveThreadLightDumpRes {
+    PCmdResponse commonResponse = 1;
+    repeated PActiveThreadLightDump threadDump = 2;
+    string type = 3;
+    string subType = 4;
+    string version = 5;
 }
 
 message PCmdActiveThreadCount {
