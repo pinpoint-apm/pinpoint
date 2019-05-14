@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.collector.cluster;
 
 import com.navercorp.pinpoint.collector.receiver.grpc.PinpointGrpcServer;
 import com.navercorp.pinpoint.common.util.Assert;
-import com.navercorp.pinpoint.profiler.context.thrift.CommandThriftToGrpcMessageConverter;
+import com.navercorp.pinpoint.profiler.context.grpc.CommandThriftToGrpcMessageConverter;
 import com.navercorp.pinpoint.rpc.DefaultFuture;
 import com.navercorp.pinpoint.rpc.Future;
 import com.navercorp.pinpoint.rpc.PinpointSocketException;

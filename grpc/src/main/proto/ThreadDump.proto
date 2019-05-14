@@ -78,21 +78,8 @@ message PCmdActiveThreadDump {
     repeated int64 localTraceId = 3;
 }
 
-message PCmdActiveThreadLightDump {
-    int32 limit = 1;
-    repeated string threadName = 2;
-    repeated int64 localTraceId = 3;
-}
-
 message PCmdActiveThreadDumpRes {
     repeated PActiveThreadDump threadDump = 1;
-    string type = 2;
-    string subType = 3;
-    string version = 4;
-}
-
-message PCmdActiveThreadLightDumpRes {
-    repeated PActiveThreadLightDump threadDump = 1;
     string type = 2;
     string subType = 3;
     string version = 4;
