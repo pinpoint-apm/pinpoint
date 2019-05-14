@@ -11,7 +11,7 @@
                 <li class="l-agent" *ngFor="let agent of serverList[serverName]" (click)="onSelectAgent(agent.agentId)" [matTooltip]="agent.agentId">
                     <div class="l-agent-name-wrapper l-name-wrapper" [class.active]="agent.agentId === agentId">
                         <span class="l-name">
-                            <i class="fas fa-hdd"></i> {{ getAgentName(serverName, agent.agentId) }}
+                            <i class="fas fa-hdd"></i> {{agent.agentId}}
                         </span>
                         <span class="l-icon-alert" *ngIf="agent.status.state.code !== 100"><img [src]="getIconPath(agent.status.state.code)"></span>
                     </div>
