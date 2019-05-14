@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.collector.receiver.grpc;
 import com.navercorp.pinpoint.collector.cluster.AgentInfo;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadCount;
+import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadLightDump;
 import com.navercorp.pinpoint.grpc.trace.PCmdEcho;
 import com.navercorp.pinpoint.grpc.trace.PCmdRequest;
 import com.navercorp.pinpoint.grpc.trace.PCmdResponse;
@@ -159,6 +160,9 @@ public class PinpointGrpcServer {
         } else if (message instanceof PCmdActiveThreadCount) {
             requestBuilder.setCommandActiveThreadCount((PCmdActiveThreadCount) message);
             return requestBuilder.build();
+        } else if (message instanceof PCmdActiveThreadLightDump) {
+            requestBuilder.setCommandActiveThreadLightDump((PCmdActiveThreadLightDump) message);
+            return requestBuilder.build();
         } else {
             return null;
         }
@@ -212,7 +216,7 @@ public class PinpointGrpcServer {
 
         GrpcClientStreamChannel streamChannel = (GrpcClientStreamChannel) streamChannelRepository.getStreamChannel(streamId);
         if (streamChannel == null) {
-            throw new StreamException(StreamCode.ID_NOT_FOUND, "Can't find suitable streamChannel.(streamId:" +  streamId + ")");
+            throw new StreamException(StreamCode.ID_NOT_FOUND, "Can't find suitable streamChannel.(streamId:" + streamId + ")");
         }
 
         TBase tBase = messageConverter.toMessage(message);
@@ -226,9 +230,9 @@ public class PinpointGrpcServer {
         try {
             byte[] serialize = SerializationUtils.serialize(tBase, commandHeaderTBaseSerializerFactory);
             streamChannel.handleStreamResponsePacket(new StreamResponsePacket(streamId, serialize));
-        } catch(TException t) {
+        } catch (TException t) {
             throw new StreamException(StreamCode.TYPE_UNKNOWN, "Failed to serialize message.(tBase:" + tBase + ")");
-        } catch(StreamException e) {
+        } catch (StreamException e) {
             throw e;
         }
     }
