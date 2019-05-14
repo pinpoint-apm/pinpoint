@@ -91,6 +91,7 @@ export class UrlPathId {
     static ALARM = 'alarm';
     static INSTALLATION = 'installation';
     static HELP = 'help';
+    static CHART_LAYOUT = 'chartLayout';
 
     constructor() {}
     static getPathIdList(): string[] {
