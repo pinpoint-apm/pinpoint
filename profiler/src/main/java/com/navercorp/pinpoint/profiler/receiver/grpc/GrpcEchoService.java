@@ -25,8 +25,6 @@ import com.navercorp.pinpoint.grpc.trace.PCommandType;
 import com.navercorp.pinpoint.grpc.trace.ProfilerCommandServiceGrpc;
 import com.navercorp.pinpoint.profiler.receiver.ProfilerSimpleCommandService;
 
-import com.google.protobuf.Empty;
-import io.grpc.stub.StreamObserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,29 +53,8 @@ public class GrpcEchoService implements ProfilerSimpleCommandService<PCmdRequest
         PCmdResponse commonResponse = PCmdResponse.newBuilder().setResponseId(request.getRequestId()).build();
         responseBuilder.setCommonResponse(commonResponse);
 
-        profilerCommandServiceStub.commandEcho(responseBuilder.build(), getResponseObserver());
+        profilerCommandServiceStub.commandEcho(responseBuilder.build(), EmptyStreamObserver.create());
     }
-
-    private StreamObserver<Empty> getResponseObserver() {
-        StreamObserver<Empty> responseObserver = new StreamObserver<Empty>() {
-            @Override
-            public void onNext(Empty pResult) {
-                logger.info("Response {}", pResult);
-            }
-
-            @Override
-            public void onError(Throwable throwable) {
-                logger.info("Error ", throwable);
-            }
-
-            @Override
-            public void onCompleted() {
-                logger.info("Completed");
-            }
-        };
-        return responseObserver;
-    }
-
 
     @Override
     public short getCommandServiceCode() {

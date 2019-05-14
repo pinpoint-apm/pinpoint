@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.collector.receiver.grpc.service.command;
 
+import com.google.protobuf.Empty;
 import com.navercorp.pinpoint.collector.cluster.AgentInfo;
 import com.navercorp.pinpoint.collector.cluster.GrpcAgentConnection;
 import com.navercorp.pinpoint.collector.cluster.zookeeper.ZookeeperProfilerClusterManager;
@@ -26,14 +27,13 @@ import com.navercorp.pinpoint.grpc.AgentHeaderFactory;
 import com.navercorp.pinpoint.grpc.server.ServerContext;
 import com.navercorp.pinpoint.grpc.server.TransportMetadata;
 import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadCountRes;
+import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadLightDumpRes;
 import com.navercorp.pinpoint.grpc.trace.PCmdEchoResponse;
 import com.navercorp.pinpoint.grpc.trace.PCmdMessage;
 import com.navercorp.pinpoint.grpc.trace.PCmdRequest;
 import com.navercorp.pinpoint.grpc.trace.PCmdResponse;
 import com.navercorp.pinpoint.grpc.trace.ProfilerCommandServiceGrpc;
 import com.navercorp.pinpoint.rpc.client.RequestManager;
-
-import com.google.protobuf.Empty;
 import io.grpc.Status;
 import io.grpc.StatusException;
 import io.grpc.stub.ServerCallStreamObserver;
@@ -58,6 +58,7 @@ public class GrpcCommandService extends ProfilerCommandServiceGrpc.ProfilerComma
     private final Timer timer;
 
     private final EchoService echoService = new EchoService();
+    private final ActiveThreadLightDumpService activeThreadLightDumpService = new ActiveThreadLightDumpService();
     private final ActiveThreadCountService activeThreadCountService = new ActiveThreadCountService();
 
     public GrpcCommandService(ZookeeperProfilerClusterManager zookeeperProfilerClusterManager, Timer timer) {
@@ -135,6 +136,18 @@ public class GrpcCommandService extends ProfilerCommandServiceGrpc.ProfilerComma
         PinpointGrpcServer pinpointGrpcServer = grpcServerRepository.get(transportId);
         if (pinpointGrpcServer != null) {
             echoService.handle(pinpointGrpcServer, echoResponse, responseObserver);
+        } else {
+            logger.info("{} => local. Can't find PinpointGrpcServer(transportId={})", getAgentInfo().getAgentKey(), transportId);
+            responseObserver.onError(new StatusException(Status.NOT_FOUND));
+        }
+    }
+
+    @Override
+    public void commandActiveThreadLightDump(PCmdActiveThreadLightDumpRes activeThreadLightDumpResponse, StreamObserver<Empty> responseObserver) {
+        final long transportId = getTransportId();
+        PinpointGrpcServer pinpointGrpcServer = grpcServerRepository.get(transportId);
+        if (pinpointGrpcServer != null) {
+            activeThreadLightDumpService.handle(pinpointGrpcServer, activeThreadLightDumpResponse, responseObserver);
         } else {
             logger.info("{} => local. Can't find PinpointGrpcServer(transportId={})", getAgentInfo().getAgentKey(), transportId);
             responseObserver.onError(new StatusException(Status.NOT_FOUND));
