@@ -119,7 +119,7 @@ public class ElasticsearchExecutorOperationInterceptor extends SpanEventSimpleAr
 //        recorder.recordEndPoint(endPoint != null ? endPoint : "Unknown");
 //        recorder.recordDestinationId(HbasePluginConstants.HBASE_DESTINATION_ID);
 //        recorder.recordApi(getMethodDescriptor());
-        recorder.recordDestinationId("Elasticsearch");
+        recorder.recordDestinationId(ElasticsearchConstants.DESTINATION_ID);
 
         recorder.recordEndPoint(getEndPoint( args));
         if(recordESVersion)
