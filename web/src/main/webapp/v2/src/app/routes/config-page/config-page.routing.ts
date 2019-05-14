@@ -5,6 +5,7 @@ import { ConfigPageComponent } from './config-page.component';
 import { UrlPath, UrlPathId } from 'app/shared/models';
 import { ConfigurationGeneralContainerComponent } from 'app/core/components/configuration-general/configuration-general-container.component';
 import { ConfigurationFavoriteContainerComponent } from 'app/core/components/configuration-favorite/configuration-favorite-container.component';
+import { ConfigurationChartLayoutContainerComponent } from 'app/core/components/configuration-chart-layout/configuration-chart-layout-container.component';
 import { ConfigurationUserGroupContainerComponent } from 'app/core/components/configuration-user-group/configuration-user-group-container.component';
 import { ConfigurationAlarmContainerComponent } from 'app/core/components/configuration-alarm/configuration-alarm-container.component';
 import { ConfigurationInstallationContainerComponent } from 'app/core/components/configuration-installation/configuration-installation-container.component';
@@ -22,6 +23,10 @@ const routes: Routes = [
             {
                 path: UrlPathId.FAVORITE,
                 component: ConfigurationFavoriteContainerComponent
+            },
+            {
+                path: UrlPathId.CHART_LAYOUT,
+                component: ConfigurationChartLayoutContainerComponent
             },
             {
                 path: UrlPathId.USER_GROUP,
