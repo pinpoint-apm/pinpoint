@@ -17,7 +17,6 @@ package com.navercorp.pinpoint.plugin.elasticsearchbboss;
 
 import com.navercorp.pinpoint.plugin.AgentPath;
 import com.navercorp.pinpoint.test.plugin.Dependency;
-import com.navercorp.pinpoint.test.plugin.JvmVersion;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
 import org.frameworkset.elasticsearch.ElasticSearchHelper;
@@ -38,7 +37,6 @@ import static java.util.concurrent.TimeUnit.MINUTES;
  */
 @RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
-@JvmVersion(7)
 @Dependency({"com.bbossgroups.plugins:bboss-elasticsearch-rest-jdbc:5.6.9",
 		"pl.allegro.tech:embedded-elasticsearch:2.7.0"})
 public class ElasticsearchExecutorIT {
@@ -50,6 +48,11 @@ public class ElasticsearchExecutorIT {
 
 		// BBoss connect elasticsearch use localhost and http port 9200 default.
 
+//		Here is a bboss web demo base spring boot and elasticsearch 5.x,6.x:
+//		https://github.com/bbossgroups/es_bboss_web
+//
+//		Here is a quickstart tutorial:
+//		https://esdoc.bbossgroups.com/#/quickstart
 		embeddedElastic = EmbeddedElastic.builder()
 				.withElasticVersion( "6.3.0")
 				 .withSetting(PopularProperties.HTTP_PORT, 9200)
@@ -86,10 +89,5 @@ public class ElasticsearchExecutorIT {
 		catch (Exception e){
 			e.printStackTrace();
 		}
-
-//		PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
-//		verifier.printCache();
-//		verifier.verifyTraceCount(1);
-
 	}
 }
