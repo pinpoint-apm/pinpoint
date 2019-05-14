@@ -410,6 +410,12 @@
             <version>5.6.9</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>pl.allegro.tech</groupId>
+            <artifactId>embedded-elasticsearch</artifactId>
+            <version>2.7.0</version>
+            <scope>test</scope>
+        </dependency>
 
     </dependencies>
 

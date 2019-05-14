@@ -1,0 +1,29 @@
+<properties>
+    <property name="createCarIndice">
+        <![CDATA[
+        {
+            "settings": {
+                "number_of_shards": 1,
+                "number_of_replicas": 1,
+                "index.refresh_interval": "5s"
+            },
+            "mappings":
+            {
+              "car": {
+                "properties": {
+                  "manufacturer": {
+                    "type": "text"
+                  },
+                  "model": {
+                    "type": "text"
+                  },
+                  "description": {
+                    "type": "text"
+                  }
+                }
+              }
+            }
+        }
+        ]]>
+    </property>
+</properties>
