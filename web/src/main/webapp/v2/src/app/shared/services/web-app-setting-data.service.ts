@@ -27,7 +27,8 @@ export class WebAppSettingDataService {
         USER_DEFAULT_OUTBOUND: 'userDefaultOutbound',
         USER_DEFAULT_PERIOD: 'userDefaultPeriod',
         TRANSACTION_LIST_GUTTER_POSITION: 'transactionListGutterPosition',
-        CHART_NUM_PER_ROW: 'chartNumPerRow'
+        CHART_NUM_PER_ROW: 'chartNumPerRow',
+        CHART_ORDER_LIST: 'chartOrderList'
     };
     private IMAGE_PATH = './assets/img/';
     private IMAGE_EXT = '.png';
@@ -221,5 +222,11 @@ export class WebAppSettingDataService {
     }
     getSystemDefaultChartRefreshInterval(key: string): number {
         return this.componentDefaultSettingDataService.getSystemDefaultChartRefreshInterval(key);
+    }
+    getChartOrderList(): string[] {
+        return JSON.parse(this.localStorageService.get(WebAppSettingDataService.KEYS.CHART_ORDER_LIST)) || this.componentDefaultSettingDataService.getSystemDefaultChartOrderList();
+    }
+    setChartOrderList(orderList: string[]): void {
+        this.localStorageService.set(WebAppSettingDataService.KEYS.CHART_ORDER_LIST, JSON.stringify(orderList));
     }
 }
