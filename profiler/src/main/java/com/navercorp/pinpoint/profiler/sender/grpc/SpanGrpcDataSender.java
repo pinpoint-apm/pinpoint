@@ -16,13 +16,13 @@
 
 package com.navercorp.pinpoint.profiler.sender.grpc;
 
-import com.google.protobuf.GeneratedMessageV3;
-import com.navercorp.pinpoint.grpc.AgentHeaderFactory;
 import com.navercorp.pinpoint.grpc.HeaderFactory;
 import com.navercorp.pinpoint.grpc.trace.PSpan;
 import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
 import com.navercorp.pinpoint.grpc.trace.SpanGrpc;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
+
+import com.google.protobuf.GeneratedMessageV3;
 import io.grpc.NameResolverProvider;
 import io.grpc.stub.StreamObserver;
 
@@ -31,42 +31,43 @@ import io.grpc.stub.StreamObserver;
  */
 public class SpanGrpcDataSender extends GrpcDataSender {
     private final SpanGrpc.SpanStub spanStub;
+
     private volatile StreamObserver<PSpan> spanStream;
+    private final ReconnectJob spanStreamReconnectAction;
+
     private volatile StreamObserver<PSpanChunk> spanChunkStream;
+    private final ReconnectJob spanChunkReconnectAction;
 
     public SpanGrpcDataSender(String name, String host, int port, MessageConverter<GeneratedMessageV3> messageConverter, HeaderFactory headerFactory, NameResolverProvider nameResolverProvider) {
         super(name, host, port, messageConverter, headerFactory, nameResolverProvider);
 
         this.spanStub = SpanGrpc.newStub(managedChannel);
+
+        spanStreamReconnectAction = new ExponentialBackoffReconnectJob() {
+            @Override
+            public void run() {
+                spanStream = newSpanStream();
+            }
+        };
         this.spanStream = newSpanStream();
+
+        spanChunkReconnectAction = new ExponentialBackoffReconnectJob() {
+            @Override
+            public void run() {
+                spanChunkStream = newSpanChunkStream();
+            }
+        };
         this.spanChunkStream = newSpanChunkStream();
     }
 
-    private StreamObserver<PSpanChunk> newSpanChunkStream() {
-        final ResponseStreamObserver responseObserver = new ResponseStreamObserver();
-        final StreamObserver<PSpanChunk> pSpanChunkStreamObserver = spanStub.sendSpanChunk(responseObserver);
-
-        responseObserver.setReconnectAction(new ExponentialBackoffReconnectJob() {
-            @Override
-            public void run() {
-                spanChunkStream = spanStub.sendSpanChunk(responseObserver);
-            }
-        });
-        return pSpanChunkStreamObserver;
+    private StreamObserver<PSpan> newSpanStream() {
+        ResponseStreamObserver<PSpan> responseStreamObserver = new ResponseStreamObserver(spanStreamReconnectAction);
+        return spanStub.sendSpan(responseStreamObserver);
     }
 
-    private StreamObserver<PSpan> newSpanStream() {
-        final ResponseStreamObserver responseObserver = new ResponseStreamObserver();
-        StreamObserver<PSpan> pSpanStreamObserver = spanStub.sendSpan(responseObserver);
-
-        responseObserver.setReconnectAction(new ExponentialBackoffReconnectJob() {
-            @Override
-            public void run() {
-                spanStream = spanStub.sendSpan(responseObserver);
-            }
-        });
-
-        return pSpanStreamObserver;
+    private StreamObserver<PSpanChunk> newSpanChunkStream() {
+        ResponseStreamObserver<PSpanChunk> responseStreamObserver = new ResponseStreamObserver(spanChunkReconnectAction);
+        return spanStub.sendSpanChunk(responseStreamObserver);
     }
 
     public boolean send0(Object data) {
