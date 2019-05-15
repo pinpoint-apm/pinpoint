@@ -16,19 +16,21 @@
 
 package com.navercorp.pinpoint.profiler.sender.grpc;
 
-import com.google.protobuf.Empty;
-import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.ExecutorFactory;
 import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
 import com.navercorp.pinpoint.grpc.ExecutorUtils;
-import com.navercorp.pinpoint.grpc.client.ChannelFactory;
 import com.navercorp.pinpoint.grpc.HeaderFactory;
+import com.navercorp.pinpoint.grpc.client.ChannelFactory;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
+
+import com.google.protobuf.Empty;
+import com.google.protobuf.GeneratedMessageV3;
 import io.grpc.ManagedChannel;
 import io.grpc.NameResolverProvider;
-import io.grpc.stub.StreamObserver;
+import io.grpc.stub.ClientCallStreamObserver;
+import io.grpc.stub.ClientResponseObserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -121,14 +123,23 @@ public abstract class GrpcDataSender implements DataSender<Object> {
         reconnectScheduler.schedule(reconnectAction, reconnectAction.nextBackoffNanos(), TimeUnit.NANOSECONDS);
     }
 
-    public class ResponseStreamObserver implements StreamObserver<Empty> {
-        private ReconnectJob runnable;
+    public class ResponseStreamObserver<T> implements ClientResponseObserver<T, Empty> {
 
-        public ResponseStreamObserver() {
+        private final ReconnectJob reconnectJob;
+
+        public ResponseStreamObserver(ReconnectJob reconnectJob) {
+            this.reconnectJob = Assert.requireNonNull(reconnectJob, "reconnectJob");
         }
 
-        void setReconnectAction(ReconnectJob runnable) {
-            this.runnable = runnable;
+        @Override
+        public void beforeStart(ClientCallStreamObserver<T> requestStream) {
+            requestStream.setOnReadyHandler(new Runnable() {
+                @Override
+                public void run() {
+                    logger.info("connect to {} completed.", name);
+                    reconnectJob.resetBackoffNanos();
+                }
+            });
         }
 
         @Override
@@ -139,15 +150,13 @@ public abstract class GrpcDataSender implements DataSender<Object> {
         @Override
         public void onError(Throwable t) {
             logger.info("{} onError:{}", name, t);
-            final ReconnectJob copy = this.runnable;
-            if (copy != null) {
-                reconnect(copy);
-            }
+            reconnect(reconnectJob);
         }
 
         @Override
         public void onCompleted() {
             logger.debug("{} onCompleted", name);
         }
-    };
+    }
+
 }
