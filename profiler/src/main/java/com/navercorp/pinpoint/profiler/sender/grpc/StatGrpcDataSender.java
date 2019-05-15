@@ -16,12 +16,13 @@
 
 package com.navercorp.pinpoint.profiler.sender.grpc;
 
-import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.grpc.HeaderFactory;
 import com.navercorp.pinpoint.grpc.trace.PAgentStat;
 import com.navercorp.pinpoint.grpc.trace.PAgentStatBatch;
 import com.navercorp.pinpoint.grpc.trace.StatGrpc;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
+
+import com.google.protobuf.GeneratedMessageV3;
 import io.grpc.NameResolverProvider;
 import io.grpc.stub.StreamObserver;
 
@@ -30,42 +31,43 @@ import io.grpc.stub.StreamObserver;
  */
 public class StatGrpcDataSender extends GrpcDataSender {
     private final StatGrpc.StatStub statStub;
+
     private volatile StreamObserver<PAgentStat> statStream;
+    private final ReconnectJob statStreamReconnectAction;
+
     private volatile StreamObserver<PAgentStatBatch> statBatchStream;
+    private final ReconnectJob statBatchStreamReconnectAction;
 
     public StatGrpcDataSender(String name, String host, int port, MessageConverter<GeneratedMessageV3> messageConverter, HeaderFactory headerFactory, NameResolverProvider nameResolverProvider) {
         super(name, host, port, messageConverter, headerFactory, nameResolverProvider);
 
         this.statStub = StatGrpc.newStub(managedChannel);
+
+        statStreamReconnectAction = new ExponentialBackoffReconnectJob() {
+            @Override
+            public void run() {
+                statStream = newStatStream();
+            }
+        };
         this.statStream = newStatStream();
+
+        statBatchStreamReconnectAction = new ExponentialBackoffReconnectJob() {
+            @Override
+            public void run() {
+                statBatchStream = newStatBatchStream();
+            }
+        };
         this.statBatchStream = newStatBatchStream();
     }
 
     private StreamObserver<PAgentStat> newStatStream() {
-        final ResponseStreamObserver responseObserver = new ResponseStreamObserver();
-        StreamObserver<PAgentStat> streamObserver = statStub.sendAgentStat(responseObserver);
-
-        responseObserver.setReconnectAction(new ExponentialBackoffReconnectJob() {
-            @Override
-            public void run() {
-                statStream = statStub.sendAgentStat(responseObserver);
-            }
-        });
-
-        return streamObserver;
+        final ResponseStreamObserver<PAgentStat> responseObserver = new ResponseStreamObserver(statStreamReconnectAction);
+        return statStub.sendAgentStat(responseObserver);
     }
 
     private StreamObserver<PAgentStatBatch> newStatBatchStream() {
-        final ResponseStreamObserver responseObserver = new ResponseStreamObserver();
-        final StreamObserver<PAgentStatBatch> streamObserver = statStub.sendAgentStatBatch(responseObserver);
-
-        responseObserver.setReconnectAction(new ExponentialBackoffReconnectJob() {
-            @Override
-            public void run() {
-                statBatchStream = statStub.sendAgentStatBatch(responseObserver);
-            }
-        });
-        return streamObserver;
+        final ResponseStreamObserver<PAgentStatBatch> responseObserver = new ResponseStreamObserver(statBatchStreamReconnectAction);
+        return statStub.sendAgentStatBatch(responseObserver);
     }
 
     public boolean send0(Object data) {
