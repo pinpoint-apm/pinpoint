@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.grpc.trace.ProfilerCommandServiceGrpc;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
 import com.navercorp.pinpoint.profiler.sender.grpc.ExponentialBackoffReconnectJob;
 import com.navercorp.pinpoint.profiler.sender.grpc.ReconnectJob;
+
 import io.grpc.ManagedChannel;
 import io.grpc.stub.ClientCallStreamObserver;
 import io.grpc.stub.ClientResponseObserver;
@@ -46,12 +47,12 @@ public class GrpcCommandService {
     private final ManagedChannel managedChannel;
     private final ActiveTraceRepository activeTraceRepository;
 
+    private final ReconnectJob reconnectAction;
+
     private volatile boolean shutdown;
 
     private volatile GrpcCommandDispatcher commandDispatcher;
     private volatile CommandServiceMainStreamObserver commandServiceMainStreamObserver;
-
-    private volatile ReconnectJob reconnectAction;
 
     public GrpcCommandService(ManagedChannel managedChannel, ScheduledExecutorService reconnectScheduler, ActiveTraceRepository activeTraceRepository) {
         this.managedChannel = Assert.requireNonNull(managedChannel, "managedChannel");
@@ -60,21 +61,14 @@ public class GrpcCommandService {
         // allow null
         this.activeTraceRepository = activeTraceRepository;
 
-        initReconnectAction();
-
-        connect();
-    }
-
-    private void initReconnectAction() {
-        // init : 1s ~ max : 2min
         this.reconnectAction = new ExponentialBackoffReconnectJob() {
-
             @Override
             public void run() {
                 connect();
             }
-
         };
+
+        connect();
     }
 
     private void connect() {
@@ -112,8 +106,7 @@ public class GrpcCommandService {
                 @Override
                 public void run() {
                     logger.info("Connect to CommandServiceStream completed.");
-
-                    initReconnectAction();
+                    reconnectAction.resetBackoffNanos();
 
                     PCmdServiceHandshake.Builder handshakeMessageBuilder = PCmdServiceHandshake.newBuilder();
                     for (Short commandServiceCode : commandDispatcher.getSupportCommandServiceIdList()) {
