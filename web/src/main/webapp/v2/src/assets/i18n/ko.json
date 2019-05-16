@@ -46,6 +46,9 @@
             "DESC": "* 설정 정보는 브라우저 캐쉬에 저장합니다. 서버 측 저장은 추후 지원할 예정입니다.",
             "EMPTY": "등록된 목록이 없습니다."
         },
+        "INSPECTOR_MANAGER": {
+            "EMPTY": "화면에 표시 할 차트를 선택하세요."
+        },
         "INSTALLATION": {
             "DESC": "* Application Name과 Agent ID의 중복 여부를 확인할 수 있습니다.",
             "LENGTH_GUIDE": "1 ~ !{0} 자의 문자를 입력하세요.",

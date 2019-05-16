@@ -47,6 +47,9 @@
             "DESC": "* User configuration is stored in browser cache. Server-side storage will be supported in a future release.",
             "EMPTY": "The list is empty."
         },
+        "INSPECTOR_MANAGER": {
+            "EMPTY": "Select charts to display on screen."
+        },
         "INSTALLATION": {
             "DESC": "* You can check if Application Name and Agent ID are duplicated.",
             "LENGTH_GUIDE": "You can enter up to !{0} characters.",

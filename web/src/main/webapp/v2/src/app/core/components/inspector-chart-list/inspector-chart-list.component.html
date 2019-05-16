@@ -1,0 +1,7 @@
+<p *ngIf="isEmpty()" class="l-empty-text">{{emptyText}}</p>
+<div class="l-chart-list-item" *ngFor="let chart of chartList;">
+    <button class="fas fa-plus-circle l-select-button" (click)="onSelectChart(chart)" [ngClass]="{'l-button-disable': chartState[chart]}"></button>
+    <div class="l-chart-name">
+        <i class="fas fa-chart-area" [ngClass]="{'l-button-disable': chartState[chart]}"></i>  {{chart}}
+    </div>
+</div>
