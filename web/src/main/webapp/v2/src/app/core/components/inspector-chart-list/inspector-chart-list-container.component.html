@@ -1,0 +1,12 @@
+<div class="l-chart-wrapper">
+    <div class="l-chart-title">
+        <span>Chart List</span>
+    </div>
+    <div class="l-chart-list">
+        <pp-inspector-chart-list
+            [chartList]="chartList"
+            [chartState]="chartState"
+            (outAddChart)="onAddChart($event)">
+        </pp-inspector-chart-list>
+    </div>
+</div>
