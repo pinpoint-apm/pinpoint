@@ -24,7 +24,6 @@ import com.navercorp.pinpoint.grpc.trace.PCmdEcho;
 import com.navercorp.pinpoint.grpc.trace.PCmdRequest;
 import com.navercorp.pinpoint.grpc.trace.PCmdResponse;
 import com.navercorp.pinpoint.profiler.context.thrift.CommandGrpcToThriftMessageConverter;
-import com.navercorp.pinpoint.profiler.receiver.CommandSerializer;
 import com.navercorp.pinpoint.rpc.DefaultFuture;
 import com.navercorp.pinpoint.rpc.Future;
 import com.navercorp.pinpoint.rpc.PinpointSocketException;
@@ -68,7 +67,7 @@ public class PinpointGrpcServer {
     private final AtomicReference<List<Integer>> supportCommandServiceList = new AtomicReference<>();
 
     private final CommandGrpcToThriftMessageConverter messageConverter = new CommandGrpcToThriftMessageConverter();
-    private final CommandHeaderTBaseSerializerFactory commandHeaderTBaseSerializerFactory = new CommandHeaderTBaseSerializerFactory();
+    private final CommandHeaderTBaseSerializerFactory commandHeaderTBaseSerializerFactory = CommandHeaderTBaseSerializerFactory.getDefaultInstance();
 
     private final StreamChannelRepository streamChannelRepository = new StreamChannelRepository();
 
@@ -178,7 +177,7 @@ public class PinpointGrpcServer {
         TBase tMessage = messageConverter.toMessage(message);
 
         try {
-            byte[] serialize = SerializationUtils.serialize(tMessage, CommandSerializer.SERIALIZER_FACTORY);
+            byte[] serialize = SerializationUtils.serialize(tMessage, commandHeaderTBaseSerializerFactory);
             ResponsePacket responsePacket = new ResponsePacket(responseId, serialize);
             requestManager.messageReceived(responsePacket, agentInfo.toString());
         } catch (TException e) {
