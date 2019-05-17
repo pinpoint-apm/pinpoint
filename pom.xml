@@ -66,6 +66,7 @@
         <module>annotations</module>
         <module>agent</module>
         <module>agent-it</module>
+        <module>agent-it8</module>
         <module>agent-plugins</module>
         <module>bootstrap</module>
         <module>bootstrap-core</module>
