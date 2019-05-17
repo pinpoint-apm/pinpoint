@@ -39,7 +39,7 @@ import static java.util.concurrent.TimeUnit.MINUTES;
 
 @RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
-@Dependency({"com.bbossgroups.plugins:bboss-elasticsearch-rest-jdbc:5.6.9",
+@Dependency({"com.bbossgroups.plugins:bboss-elasticsearch-rest-jdbc:5.7.1",
 		"pl.allegro.tech:embedded-elasticsearch:2.8.0"})
 @JvmVersion(8)
 public class ElasticsearchExecutorIT {
