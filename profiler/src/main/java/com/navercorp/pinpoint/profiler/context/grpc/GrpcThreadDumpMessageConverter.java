@@ -58,9 +58,13 @@ public class GrpcThreadDumpMessageConverter implements MessageConverter<PThreadD
                 threadDumpBuilder.addLockedMonitor(monitorInfoBuilder.build());
             }
 
-            threadDumpBuilder.setLockName(threadDumpMetricSnapshot.getLockName());
+            if (threadDumpMetricSnapshot.getLockName() != null) {
+                threadDumpBuilder.setLockName(threadDumpMetricSnapshot.getLockName());
+            }
             threadDumpBuilder.setLockOwnerId(threadDumpMetricSnapshot.getLockOwnerId());
-            threadDumpBuilder.setLockOwnerName(threadDumpMetricSnapshot.getLockOwnerName());
+            if (threadDumpMetricSnapshot.getLockOwnerName() != null) {
+                threadDumpBuilder.setLockOwnerName(threadDumpMetricSnapshot.getLockOwnerName());
+            }
             for (String lockedSynchronizer : threadDumpMetricSnapshot.getLockedSynchronizers()) {
                 threadDumpBuilder.addLockedSynchronizer(lockedSynchronizer);
             }

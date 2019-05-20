@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.profiler.receiver.service;
 import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
+import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadDump;
 import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadLightDump;
 import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadDump;
 import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadLightDump;
@@ -66,6 +67,17 @@ public class ThreadDumpRequest {
         final List<String> threadNameList = request.getThreadNameList();
 
         return new ThreadDumpRequest(StackTrace.SKIP, limit, localTransactionIdList, threadNameList);
+    }
+
+    public static ThreadDumpRequest create(PCmdActiveThreadDump request) {
+        Assert.requireNonNull(request, "request must not be null");
+
+        int limit = getLimit(request.getLimit());
+
+        final List<Long> localTransactionIdList = request.getLocalTraceIdList();
+        final List<String> threadNameList = request.getThreadNameList();
+
+        return new ThreadDumpRequest(StackTrace.DUMP, limit, localTransactionIdList, threadNameList);
     }
 
     public static ThreadDumpRequest create(PCmdActiveThreadLightDump request) {

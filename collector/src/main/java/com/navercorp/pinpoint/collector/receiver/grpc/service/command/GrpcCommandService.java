@@ -27,6 +27,7 @@ import com.navercorp.pinpoint.grpc.AgentHeaderFactory;
 import com.navercorp.pinpoint.grpc.server.ServerContext;
 import com.navercorp.pinpoint.grpc.server.TransportMetadata;
 import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadCountRes;
+import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadDumpRes;
 import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadLightDumpRes;
 import com.navercorp.pinpoint.grpc.trace.PCmdEchoResponse;
 import com.navercorp.pinpoint.grpc.trace.PCmdMessage;
@@ -58,6 +59,7 @@ public class GrpcCommandService extends ProfilerCommandServiceGrpc.ProfilerComma
     private final Timer timer;
 
     private final EchoService echoService = new EchoService();
+    private final ActiveThreadDumpService activeThreadDumpService = new ActiveThreadDumpService();
     private final ActiveThreadLightDumpService activeThreadLightDumpService = new ActiveThreadLightDumpService();
     private final ActiveThreadCountService activeThreadCountService = new ActiveThreadCountService();
 
@@ -136,6 +138,18 @@ public class GrpcCommandService extends ProfilerCommandServiceGrpc.ProfilerComma
         PinpointGrpcServer pinpointGrpcServer = grpcServerRepository.get(transportId);
         if (pinpointGrpcServer != null) {
             echoService.handle(pinpointGrpcServer, echoResponse, responseObserver);
+        } else {
+            logger.info("{} => local. Can't find PinpointGrpcServer(transportId={})", getAgentInfo().getAgentKey(), transportId);
+            responseObserver.onError(new StatusException(Status.NOT_FOUND));
+        }
+    }
+
+    @Override
+    public void commandActiveThreadDump(PCmdActiveThreadDumpRes activeThreadDumpRes, StreamObserver<Empty> responseObserver) {
+        final long transportId = getTransportId();
+        PinpointGrpcServer pinpointGrpcServer = grpcServerRepository.get(transportId);
+        if (pinpointGrpcServer != null) {
+            activeThreadDumpService.handle(pinpointGrpcServer, activeThreadDumpRes, responseObserver);
         } else {
             logger.info("{} => local. Can't find PinpointGrpcServer(transportId={})", getAgentInfo().getAgentKey(), transportId);
             responseObserver.onError(new StatusException(Status.NOT_FOUND));

@@ -56,6 +56,9 @@ service ProfilerCommandService {
     rpc CommandStreamActiveThreadCount (stream PCmdActiveThreadCountRes) returns (google.protobuf.Empty) {
     }
 
+    rpc CommandActiveThreadDump (PCmdActiveThreadDumpRes) returns (google.protobuf.Empty) {
+    }
+
     rpc CommandActiveThreadLightDump (PCmdActiveThreadLightDumpRes) returns (google.protobuf.Empty) {
     }
 }

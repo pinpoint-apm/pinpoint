@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.collector.receiver.grpc;
 import com.navercorp.pinpoint.collector.cluster.AgentInfo;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadCount;
+import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadDump;
 import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadLightDump;
 import com.navercorp.pinpoint.grpc.trace.PCmdEcho;
 import com.navercorp.pinpoint.grpc.trace.PCmdRequest;
@@ -158,6 +159,9 @@ public class PinpointGrpcServer {
             return requestBuilder.build();
         } else if (message instanceof PCmdActiveThreadCount) {
             requestBuilder.setCommandActiveThreadCount((PCmdActiveThreadCount) message);
+            return requestBuilder.build();
+        } else if (message instanceof PCmdActiveThreadDump) {
+            requestBuilder.setCommandActiveThreadDump((PCmdActiveThreadDump) message);
             return requestBuilder.build();
         } else if (message instanceof PCmdActiveThreadLightDump) {
             requestBuilder.setCommandActiveThreadLightDump((PCmdActiveThreadLightDump) message);

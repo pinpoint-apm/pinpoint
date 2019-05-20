@@ -17,10 +17,12 @@
 package com.navercorp.pinpoint.profiler.context.grpc;
 
 import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadCount;
+import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadDump;
 import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadLightDump;
 import com.navercorp.pinpoint.grpc.trace.PCmdEcho;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
 import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadCount;
+import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadDump;
 import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadLightDump;
 import com.navercorp.pinpoint.thrift.dto.command.TCommandEcho;
 
@@ -37,6 +39,8 @@ public class CommandThriftToGrpcMessageConverter implements MessageConverter<Gen
             return buildPCommandEcho((TCommandEcho) message);
         } else if (message instanceof TCmdActiveThreadCount) {
             return buildPCmdActiveThreadCount((TCmdActiveThreadCount) message);
+        } else if (message instanceof TCmdActiveThreadDump) {
+            return buildPCmdActiveThreadDump((TCmdActiveThreadDump) message);
         } else if (message instanceof TCmdActiveThreadLightDump) {
             return buildPCmdActiveThreadLightDump((TCmdActiveThreadLightDump) message);
         }
@@ -51,6 +55,19 @@ public class CommandThriftToGrpcMessageConverter implements MessageConverter<Gen
 
     private PCmdActiveThreadCount buildPCmdActiveThreadCount(TCmdActiveThreadCount tCmdActiveThreadCount) {
         PCmdActiveThreadCount.Builder builder = PCmdActiveThreadCount.newBuilder();
+        return builder.build();
+    }
+
+    private PCmdActiveThreadDump buildPCmdActiveThreadDump(TCmdActiveThreadDump tCmdActiveThreadDump) {
+        PCmdActiveThreadDump.Builder builder = PCmdActiveThreadDump.newBuilder();
+        builder.setLimit(tCmdActiveThreadDump.getLimit());
+        if (tCmdActiveThreadDump.isSetLocalTraceIdList()) {
+            builder.addAllLocalTraceId(tCmdActiveThreadDump.getLocalTraceIdList());
+        }
+        if (tCmdActiveThreadDump.isSetThreadNameList()) {
+            builder.addAllThreadName(tCmdActiveThreadDump.getThreadNameList());
+        }
+
         return builder.build();
     }
 
