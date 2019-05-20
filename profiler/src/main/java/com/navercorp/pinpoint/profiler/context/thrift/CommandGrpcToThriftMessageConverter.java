@@ -16,18 +16,25 @@
 
 package com.navercorp.pinpoint.profiler.context.thrift;
 
+import com.navercorp.pinpoint.grpc.trace.PActiveThreadDump;
 import com.navercorp.pinpoint.grpc.trace.PActiveThreadLightDump;
 import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadCountRes;
+import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadDumpRes;
 import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadLightDumpRes;
 import com.navercorp.pinpoint.grpc.trace.PCmdEchoResponse;
+import com.navercorp.pinpoint.grpc.trace.PMonitorInfo;
+import com.navercorp.pinpoint.grpc.trace.PThreadDump;
 import com.navercorp.pinpoint.grpc.trace.PThreadLightDump;
+import com.navercorp.pinpoint.thrift.dto.command.TActiveThreadDump;
 import com.navercorp.pinpoint.thrift.dto.command.TActiveThreadLightDump;
 import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadCountRes;
+import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadDumpRes;
 import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadLightDumpRes;
 import com.navercorp.pinpoint.thrift.dto.command.TCommandEcho;
+import com.navercorp.pinpoint.thrift.dto.command.TMonitorInfo;
+import com.navercorp.pinpoint.thrift.dto.command.TThreadDump;
 import com.navercorp.pinpoint.thrift.dto.command.TThreadLightDump;
 import com.navercorp.pinpoint.thrift.dto.command.TThreadState;
-
 import org.apache.thrift.TBase;
 
 import java.util.List;
@@ -43,6 +50,8 @@ public class CommandGrpcToThriftMessageConverter implements MessageConverter<TBa
             return buildTCommandEcho((PCmdEchoResponse) message);
         } else if (message instanceof PCmdActiveThreadCountRes) {
             return buildTCmdActiveThreadCountRes((PCmdActiveThreadCountRes) message);
+        } else if (message instanceof PCmdActiveThreadDumpRes) {
+            return buildTCmdActiveThreadDumpRes((PCmdActiveThreadDumpRes) message);
         } else if (message instanceof PCmdActiveThreadLightDumpRes) {
             return buildTCmdActiveThreadLightDumpRes((PCmdActiveThreadLightDumpRes) message);
         }
@@ -63,6 +72,69 @@ public class CommandGrpcToThriftMessageConverter implements MessageConverter<TBa
         result.setTimeStamp(timeStamp);
 
         return result;
+    }
+
+    private TCmdActiveThreadDumpRes buildTCmdActiveThreadDumpRes(PCmdActiveThreadDumpRes pCmdActiveThreadDumpRes) {
+        TCmdActiveThreadDumpRes tCmdActiveThreadDumpRes = new TCmdActiveThreadDumpRes();
+        tCmdActiveThreadDumpRes.setVersion(pCmdActiveThreadDumpRes.getVersion());
+        tCmdActiveThreadDumpRes.setType(pCmdActiveThreadDumpRes.getType());
+        tCmdActiveThreadDumpRes.setSubType(pCmdActiveThreadDumpRes.getSubType());
+
+        for (PActiveThreadDump pActiveThreadDump : pCmdActiveThreadDumpRes.getThreadDumpList()) {
+            tCmdActiveThreadDumpRes.addToThreadDumps(buildTActiveThreadDump(pActiveThreadDump));
+        }
+
+        return tCmdActiveThreadDumpRes;
+    }
+
+    private TActiveThreadDump buildTActiveThreadDump(PActiveThreadDump pActiveThreadDump) {
+        TActiveThreadDump tActiveThreadDump = new TActiveThreadDump();
+        tActiveThreadDump.setStartTime(pActiveThreadDump.getStartTime());
+        tActiveThreadDump.setSampled(pActiveThreadDump.getSampled());
+
+        if (pActiveThreadDump.getSampled()) {
+            tActiveThreadDump.setLocalTraceId(pActiveThreadDump.getLocalTraceId());
+            tActiveThreadDump.setTransactionId(pActiveThreadDump.getTransactionId());
+            tActiveThreadDump.setEntryPoint(pActiveThreadDump.getEntryPoint());
+        }
+
+        tActiveThreadDump.setThreadDump(buildTThreadDump(pActiveThreadDump.getThreadDump()));
+        return tActiveThreadDump;
+    }
+
+    private TThreadDump buildTThreadDump(PThreadDump pThreadDump) {
+        TThreadDump tThreadDump = new TThreadDump();
+        tThreadDump.setThreadName(pThreadDump.getThreadName());
+        tThreadDump.setThreadId(pThreadDump.getThreadId());
+        tThreadDump.setBlockedTime(pThreadDump.getBlockedTime());
+        tThreadDump.setBlockedCount(pThreadDump.getBlockedCount());
+        tThreadDump.setWaitedTime(pThreadDump.getWaitedTime());
+        tThreadDump.setWaitedCount(pThreadDump.getWaitedCount());
+
+        tThreadDump.setInNative(pThreadDump.getInNative());
+        tThreadDump.setSuspended(pThreadDump.getSuspended());
+        tThreadDump.setThreadState(TThreadState.findByValue(pThreadDump.getThreadStateValue()));
+
+        for (String stackTrace : pThreadDump.getStackTraceList()) {
+            tThreadDump.addToStackTrace(stackTrace);
+        }
+
+        for (PMonitorInfo pMonitorInfo : pThreadDump.getLockedMonitorList()) {
+            final TMonitorInfo tMonitorInfo = new TMonitorInfo();
+            tMonitorInfo.setStackDepth(pMonitorInfo.getStackDepth());
+            tMonitorInfo.setStackFrame(pMonitorInfo.getStackFrame());
+            tThreadDump.addToLockedMonitors(tMonitorInfo);
+        }
+
+
+        tThreadDump.setLockName(pThreadDump.getLockName());
+        tThreadDump.setLockOwnerId(pThreadDump.getLockOwnerId());
+        tThreadDump.setLockOwnerName(pThreadDump.getLockOwnerName());
+        for (String lockedSynchronizer : pThreadDump.getLockedSynchronizerList()) {
+            tThreadDump.addToLockedSynchronizers(lockedSynchronizer);
+        }
+
+        return tThreadDump;
     }
 
     private TCmdActiveThreadLightDumpRes buildTCmdActiveThreadLightDumpRes(PCmdActiveThreadLightDumpRes pCmdActiveThreadLightDumpRes) {

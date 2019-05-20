@@ -56,6 +56,7 @@ public class GrpcCommandDispatcher {
         profilerCommandLocatorBuilder.addService(new GrpcEchoService(profilerCommandServiceStub));
         if (activeTraceRepository != null) {
             profilerCommandLocatorBuilder.addService(new GrpcActiveThreadCountService(profilerCommandServiceStub, activeTraceRepository));
+            profilerCommandLocatorBuilder.addService(new GrpcActiveThreadDumpService(profilerCommandServiceStub, activeTraceRepository));
             profilerCommandLocatorBuilder.addService(new GrpcActiveThreadLightDumpService(profilerCommandServiceStub, activeTraceRepository));
         }
 
@@ -70,6 +71,7 @@ public class GrpcCommandDispatcher {
             try {
                 grpcService.simpleCommandService(commandRequest);
             } catch (Exception e) {
+                logger.warn("Failed to handle commandService. message:{}", e.getMessage(), e);
                 PCmdResponse failMessage = createFailMessage(commandRequest, e.getMessage());
                 if (streamObserver != null) {
                     streamObserver.onNext(PCmdMessage.newBuilder().setFailMessage(failMessage).build());
