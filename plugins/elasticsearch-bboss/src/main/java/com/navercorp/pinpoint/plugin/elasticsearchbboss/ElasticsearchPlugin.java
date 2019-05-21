@@ -51,7 +51,7 @@ public class ElasticsearchPlugin implements ProfilerPlugin, TransformTemplateAwa
 			return;
 		}
 
-		ElasticsearchPluginConfig elasticsearchPluginConfig = new ElasticsearchPluginConfig(context.getConfig());
+		final ElasticsearchPluginConfig elasticsearchPluginConfig = new ElasticsearchPluginConfig(context.getConfig());
 		if (logger.isInfoEnabled()) {
 			logger.info("ElasticsearchPlugin config:{}", elasticsearchPluginConfig);
 		}
@@ -99,7 +99,7 @@ public class ElasticsearchPlugin implements ProfilerPlugin, TransformTemplateAwa
 									byte[] classfileBuffer) throws InstrumentException {
 
 			final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
-
+			target.addField(ClusterVersionAccessor.class);
 			final List<InstrumentMethod> methodsToTrace = target.getDeclaredMethods(restSeachExecutorMethodFilter);
 			for (InstrumentMethod methodToTrace : methodsToTrace) {
 
@@ -191,7 +191,6 @@ public class ElasticsearchPlugin implements ProfilerPlugin, TransformTemplateAwa
 									byte[] classfileBuffer) throws InstrumentException {
 
 			final InstrumentClass target = instrumentor.getInstrumentClass(loader, "org.frameworkset.elasticsearch.client.RestClientUtil", classfileBuffer);
-
 			return toBytecode(target);
 		}
 	}
@@ -203,7 +202,6 @@ public class ElasticsearchPlugin implements ProfilerPlugin, TransformTemplateAwa
 									byte[] classfileBuffer) throws InstrumentException {
 
 			final InstrumentClass target = instrumentor.getInstrumentClass(loader, "org.frameworkset.elasticsearch.client.ConfigRestClientUtil", classfileBuffer);
-
 			return toBytecode(target);
 		}
 	}

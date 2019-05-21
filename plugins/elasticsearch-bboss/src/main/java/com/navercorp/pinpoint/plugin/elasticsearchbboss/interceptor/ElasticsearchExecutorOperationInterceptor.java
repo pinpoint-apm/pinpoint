@@ -19,9 +19,10 @@ import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
+import com.navercorp.pinpoint.plugin.elasticsearchbboss.ClusterVersionAccessor;
 import com.navercorp.pinpoint.plugin.elasticsearchbboss.ElasticsearchConstants;
+import com.navercorp.pinpoint.plugin.elasticsearchbboss.ElasticsearchPluginConfig;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 /**
@@ -34,17 +35,17 @@ public class ElasticsearchExecutorOperationInterceptor extends SpanEventSimpleAr
     private boolean recordResponseHandler = false;
     private boolean recordESVersion = false;
     private Method getClusterVersionInfo;
-
     private int maxDslSize;
 
     public ElasticsearchExecutorOperationInterceptor(TraceContext context, MethodDescriptor descriptor) {
         super(context, descriptor);
-        recordResult = this.getTraceContext().getProfilerConfig().readBoolean("profiler.elasticsearchbboss.recordResult",false);
-        recordArgs = this.getTraceContext().getProfilerConfig().readBoolean("profiler.elasticsearchbboss.recordArgs",true);
-        recordDsl =  this.getTraceContext().getProfilerConfig().readBoolean("profiler.elasticsearchbboss.recordDsl",true);
-        maxDslSize =  this.getTraceContext().getProfilerConfig().readInt("profiler.elasticsearchbboss.maxDslSize",ElasticsearchConstants.maxDslSize);
-        recordResponseHandler =  this.getTraceContext().getProfilerConfig().readBoolean("profiler.elasticsearchbboss.recordResponseHandlerClass",false);
-        recordESVersion = this.getTraceContext().getProfilerConfig().readBoolean("profiler.elasticsearchbboss.recordESVersion",true);
+        final ElasticsearchPluginConfig elasticsearchPluginConfig = new ElasticsearchPluginConfig(context.getProfilerConfig());
+        recordResult = elasticsearchPluginConfig.isRecordResult();
+        recordArgs = elasticsearchPluginConfig.isRecordArgs();
+        recordDsl =  elasticsearchPluginConfig.isRecordDsl();
+        maxDslSize =  elasticsearchPluginConfig.getMaxDslSize();
+        recordResponseHandler =  elasticsearchPluginConfig.isRecordResponseHandler();
+        recordESVersion = elasticsearchPluginConfig.isRecordESVersion();
 
 
     }
@@ -68,25 +69,60 @@ public class ElasticsearchExecutorOperationInterceptor extends SpanEventSimpleAr
     }
 
     private String getClusterVersionInfo(Object target){
-        try {
-            if(getClusterVersionInfo != null)
-                return (String)getClusterVersionInfo.invoke(target);
-            synchronized (this) {
-                if(getClusterVersionInfo == null) {
-                    Method _getClusterVersionInfo = target.getClass().getMethod("getClusterVersionInfo");
-                    getClusterVersionInfo = _getClusterVersionInfo;
+        if(target instanceof ClusterVersionAccessor) {
+            ClusterVersionAccessor clusterVersionAccessor = (ClusterVersionAccessor) target;
+            if (clusterVersionAccessor._$PINPOINT$_getClusterVersion() != null) {
+                return clusterVersionAccessor._$PINPOINT$_getClusterVersion();
+            } else {
+                synchronized (target.getClass()) {
+                    if (clusterVersionAccessor._$PINPOINT$_getClusterVersion() == null) {
+                        try {
+                            Method _getClusterVersionInfo = target.getClass().getMethod("getClusterVersionInfo");
+                            String version = (String) _getClusterVersionInfo.invoke(target);
+                            if (version == null) {
+                                clusterVersionAccessor._$PINPOINT$_setClusterVersion("UNKNOWN_VERSION");
+                            } else {
+                                clusterVersionAccessor._$PINPOINT$_setClusterVersion(version);
+                            }
+
+                        } catch (Exception e) {
+                            clusterVersionAccessor._$PINPOINT$_setClusterVersion("UNKNOWN_VERSION");
+                        }
+                    }
+
+                }
+                return clusterVersionAccessor._$PINPOINT$_getClusterVersion();
+            }
+        }
+        else{
+            if (getClusterVersionInfo == null) {
+                synchronized (target.getClass()) {
+                    if (getClusterVersionInfo == null) {
+                        try {
+                            getClusterVersionInfo = target.getClass().getMethod("getClusterVersionInfo");
+                        } catch (Exception e) {
+
+                        }
+                    }
                 }
             }
-            return (String)getClusterVersionInfo.invoke(target);
-        } catch (NoSuchMethodException e) {
+            if(getClusterVersionInfo != null){
+                try {
+                    String version = (String) getClusterVersionInfo.invoke(target);
+                    if (version == null) {
+                        return "UNKNOWN_VERSION";
+                    } else {
+                        return version;
+                    }
 
-        } catch (IllegalAccessException e) {
-
-        } catch (InvocationTargetException e) {
-
+                } catch (Exception e) {
+                    return "UNKNOWN_VERSION";
+                }
+            }
+            else{
+                return "UNKNOWN_VERSION";
+            }
         }
-        return "";
-
     }
     private String getEndPoint(Object[] args){
         String url = (String)args[0];
@@ -112,15 +148,18 @@ public class ElasticsearchExecutorOperationInterceptor extends SpanEventSimpleAr
     @Override
     protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result,
             Throwable throwable) {
-        String elasticsearchClusterVersionInfo = getClusterVersionInfo( target);
 
 		recorder.recordApi(getMethodDescriptor());
-
         recorder.recordDestinationId("ElasticsearchBBoss");
-
         recorder.recordEndPoint(getEndPoint( args));
-        if(recordESVersion)
-            recorder.recordAttribute(ElasticsearchConstants.ARGS_VERSION_ANNOTATION_KEY,elasticsearchClusterVersionInfo);//record elasticsearch version and cluster name.
+        if(recordESVersion) {
+            // Each target(ClientInstance) has a specific version of Elasticsearch Datasource in one application,
+            // and each Elasticsearch Datasource retains its corresponding Elasticsearch cluster version information
+            // such as Elasticsearch 1.x or 2.x or 5.x or 6.x or 7.x or 8.x and so on.
+            // so we should get elasticsearchClusterVersionInfo in target everytime.
+            String elasticsearchClusterVersionInfo = getClusterVersionInfo( target);
+            recorder.recordAttribute(ElasticsearchConstants.ARGS_VERSION_ANNOTATION_KEY, elasticsearchClusterVersionInfo);//record elasticsearch version and cluster name.
+        }
         recorder.recordException(throwable);
         if (recordArgs && args != null && args.length > 0) {
             recordAttributes(  recorder,   methodDescriptor,  args);

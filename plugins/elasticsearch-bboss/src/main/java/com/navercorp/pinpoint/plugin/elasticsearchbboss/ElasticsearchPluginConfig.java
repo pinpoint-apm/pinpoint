@@ -23,7 +23,13 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 public class ElasticsearchPluginConfig {
 
     private final boolean elasticsearchEnabled;
+	private final boolean recordResult ;
+	private final boolean recordArgs ;
+	private final boolean recordDsl ;
+	private final boolean recordESVersion ;
+	private final boolean recordResponseHandler ;
 
+	private final int maxDslSize;
     public boolean isEnabled() {
 		return elasticsearchEnabled;
 	}
@@ -33,9 +39,23 @@ public class ElasticsearchPluginConfig {
 	public ElasticsearchPluginConfig(ProfilerConfig profilerConfig) {
     	if(profilerConfig != null) {
 			this.elasticsearchEnabled = profilerConfig.readBoolean("profiler.elasticsearchbboss.enabled", true);
+			recordResult = profilerConfig.readBoolean("profiler.elasticsearchbboss.recordResult",false);
+			recordArgs = profilerConfig.readBoolean("profiler.elasticsearchbboss.recordArgs",true);
+			recordDsl =  profilerConfig.readBoolean("profiler.elasticsearchbboss.recordDsl",true);
+			maxDslSize =  profilerConfig.readInt("profiler.elasticsearchbboss.maxDslSize",ElasticsearchConstants.maxDslSize);
+			recordResponseHandler =  profilerConfig.readBoolean("profiler.elasticsearchbboss.recordResponseHandlerClass",false);
+			recordESVersion = profilerConfig.readBoolean("profiler.elasticsearchbboss.recordESVersion",true);
+
 		}
-		else
+		else {
 			this.elasticsearchEnabled = false;
+			recordResult = false;
+			recordArgs = true;
+			recordDsl =  true;
+			maxDslSize =  ElasticsearchConstants.maxDslSize;
+			recordResponseHandler =  false;
+			recordESVersion = true;
+		}
     }
 
      
@@ -44,7 +64,37 @@ public class ElasticsearchPluginConfig {
     public String toString() {
         final StringBuilder sb = new StringBuilder("ElasticsearchBBossPluginConfig{");
         sb.append("elasticsearchBBossEnabled=").append(elasticsearchEnabled);
+		sb.append(",recordResult=").append(recordResult);
+		sb.append(",recordArgs=").append(recordArgs);
+		sb.append(",recordDsl=").append(recordDsl);
+		sb.append(",maxDslSize=").append(maxDslSize);
+		sb.append(",recordResponseHandler=").append(recordResponseHandler);
+		sb.append(",recordESVersion=").append(recordESVersion);
         sb.append('}');
         return sb.toString();
     }
+
+	public boolean isRecordResult() {
+		return recordResult;
+	}
+
+	public boolean isRecordArgs() {
+		return recordArgs;
+	}
+
+	public boolean isRecordDsl() {
+		return recordDsl;
+	}
+
+	public boolean isRecordESVersion() {
+		return recordESVersion;
+	}
+
+	public boolean isRecordResponseHandler() {
+		return recordResponseHandler;
+	}
+
+	public int getMaxDslSize() {
+		return maxDslSize;
+	}
 }
