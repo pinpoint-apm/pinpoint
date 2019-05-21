@@ -44,7 +44,7 @@
 | \*MsSQL (jTDS)                                                                    | jtds                       | 1.2.8   |         |                        | 
 | HikariCP                                                                          | HikariCP-java6             | 2.3.0   | 2.3.13  |                        | <AG>
 | Jackson-mapper-asl                                                                | jackson-mapper-asl         | 1.0.1   | 1.8.11  |                        | <AG>
-| Jackson Databind                                                                  | jackson-databind           | 2.0.6   | 2.9.8   |                        | <AG>
+| Jackson Databind                                                                  | jackson-databind           | 2.0.6   | 2.9.9   |                        | <AG>
 | MariaDB Connector/J                                                               | mariadb-java-client        | 1.3.0   | 2.4.1   |                        | <AG>
 | MongoDB Java Driver                                                               | mongodb-driver             | 3.0.0   | 3.11.0  |                        | <AG>
 | Datastax Java Driver                                                              | cassandra-driver-core      | 2.0.10  | 3.7.1   |                        | <AG>
