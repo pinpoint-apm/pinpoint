@@ -317,6 +317,8 @@
 
     <bean id="networkAvailabilityCheckPacketFilter" class="com.navercorp.pinpoint.collector.receiver.thrift.udp.NetworkAvailabilityCheckPacketFilter"/>
 
+    <bean id="agentEventAsyncTask" class="com.navercorp.pinpoint.collector.service.async.AgentEventAsyncTaskService"/>
+    <bean id="agentLifeCycleAsyncTask" class="com.navercorp.pinpoint.collector.service.async.AgentLifeCycleAsyncTaskService"/>
 
     <!-- span receiver configuration start -->
     <bean id="spanReceiverExecutor" class="com.navercorp.pinpoint.collector.receiver.thrift.ExecutorFactoryBean" parent="abstractReceiverExecutorFactoryBean">
@@ -451,16 +453,31 @@
     </bean>
     <bean id="grpcAgentServerOption" class="com.navercorp.pinpoint.grpc.server.ServerOption" factory-bean="grpcAgentServerOptionBuilder" factory-method="build"/>
 
-    <bean id="grpcAgentReceiver" class="com.navercorp.pinpoint.collector.receiver.grpc.AgentServer">
+    <bean id="agentService" class="com.navercorp.pinpoint.collector.receiver.grpc.service.AgentService">
+        <constructor-arg index="0" ref="grpcDispatchHandlerFactoryBean"/>
+    </bean>
+    <bean id="keepAliveService" class="com.navercorp.pinpoint.collector.receiver.grpc.service.KeepAliveService">
+        <constructor-arg index="0" ref="agentEventAsyncTask"/>
+        <constructor-arg index="1" ref="agentLifeCycleAsyncTask"/>
+        <constructor-arg index="2" ref="socketIdProvider"/>
+    </bean>
+    <bean id="commandService" class="com.navercorp.pinpoint.collector.receiver.grpc.service.command.GrpcCommandService">
+        <constructor-arg index="0" ref="clusterService"/>
+    </bean>
+    <util:list id="agentServiceList" value-type="io.grpc.BindableService">
+        <ref bean="agentService"/>
+        <ref bean="keepAliveService"/>
+        <ref bean="commandService"/>
+    </util:list>
+
+    <bean id="grpcAgentReceiver" class="com.navercorp.pinpoint.collector.receiver.grpc.GrpcReceiver">
         <property name="bindIp" value="#{baseDataReceiverConfig.grpcBindIp}"/>
         <property name="bindPort" value="#{baseDataReceiverConfig.grpcBindPort}"/>
         <property name="executor" ref="grpcAgentServerExecutor"/>
         <property name="addressFilter" ref="addressFilter"/>
-        <property name="clusterService" ref="clusterService"/>
-        <property name="dispatchHandler" ref="grpcDispatchHandlerFactoryBean"/>
+        <property name="bindableServiceList" ref="agentServiceList"/>
         <property name="enable" value="#{baseDataReceiverConfig.isGrpcEnable()}"/>
         <property name="serverOption" ref="grpcAgentServerOption"/>
-        <property name="socketIdProvider" ref="socketIdProvider"/>
     </bean>
 
 
@@ -478,11 +495,18 @@
     </bean>
     <bean id="grpcTraceServerOption" class="com.navercorp.pinpoint.grpc.server.ServerOption" factory-bean="grpcAgentServerOptionBuilder" factory-method="build"/>
 
-    <bean id="grpcTraceReceiver" class="com.navercorp.pinpoint.collector.receiver.grpc.SpanServer">
+    <bean id="spanService" class="com.navercorp.pinpoint.collector.receiver.grpc.service.SpanService">
+        <constructor-arg index="0" ref="grpcSpanDispatchHandlerFactoryBean"/>
+    </bean>
+    <util:list id="spanServiceList" value-type="io.grpc.BindableService">
+        <ref bean="spanService"/>
+    </util:list>
+
+    <bean id="grpcTraceReceiver" class="com.navercorp.pinpoint.collector.receiver.grpc.GrpcReceiver">
         <property name="bindIp" value="#{spanReceiverConfig.grpcBindIp}"/>
         <property name="bindPort" value="#{spanReceiverConfig.grpcBindPort}"/>
         <property name="addressFilter" ref="addressFilter"/>
-        <property name="dispatchHandler" ref="grpcSpanDispatchHandlerFactoryBean"/>
+        <property name="bindableServiceList" ref="spanServiceList"/>
         <property name="executor" ref="grpcTraceServerExecutor"/>
         <property name="enable" value="#{spanReceiverConfig.isGrpcEnable()}"/>
         <property name="serverOption" ref="grpcTraceServerOption"/>
@@ -501,11 +525,18 @@
     </bean>
     <bean id="grpcStatServerOption" class="com.navercorp.pinpoint.grpc.server.ServerOption" factory-bean="grpcAgentServerOptionBuilder" factory-method="build"/>
 
-    <bean id="grpcStatReceiver" class="com.navercorp.pinpoint.collector.receiver.grpc.StatServer">
+    <bean id="statService" class="com.navercorp.pinpoint.collector.receiver.grpc.service.StatService">
+        <constructor-arg index="0" ref="grpcStatDispatchHandlerFactoryBean"/>
+    </bean>
+    <util:list id="statServiceList" value-type="io.grpc.BindableService">
+        <ref bean="statService"/>
+    </util:list>
+
+    <bean id="grpcStatReceiver" class="com.navercorp.pinpoint.collector.receiver.grpc.GrpcReceiver">
         <property name="bindIp" value="#{statReceiverConfig.grpcBindIp}"/>
         <property name="bindPort" value="#{statReceiverConfig.grpcBindPort}"/>
         <property name="addressFilter" ref="addressFilter"/>
-        <property name="dispatchHandler" ref="grpcStatDispatchHandlerFactoryBean"/>
+        <property name="bindableServiceList" ref="statServiceList"/>
         <property name="executor" ref="grpcStatServerExecutor"/>
         <property name="enable" value="#{statReceiverConfig.isGrpcEnable()}"/>
     </bean>
