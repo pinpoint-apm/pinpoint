@@ -46,7 +46,7 @@ import com.navercorp.pinpoint.grpc.trace.PTransaction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.Arrays;
+import java.util.Collections;
 
 @Component
 public class GrpcAgentStatMapper {
@@ -94,49 +94,51 @@ public class GrpcAgentStatMapper {
         agentStatBo.setAgentId(agentId);
 
         // jvmGc
-        final PJvmGc jvmGc = agentStat.getGc();
-        if (jvmGc != null) {
+        if (agentStat.hasGc()) {
+            final PJvmGc jvmGc = agentStat.getGc();
             final JvmGcBo jvmGcBo = this.jvmGcBoMapper.map(jvmGc);
             setBaseData(jvmGcBo, agentId, startTimestamp, timestamp);
-            agentStatBo.setJvmGcBos(Arrays.asList(jvmGcBo));
+            agentStatBo.setJvmGcBos(Collections.singletonList(jvmGcBo));
 
             // jvmGcDetailed
-            final PJvmGcDetailed jvmGcDetailed = jvmGc.getJvmGcDetailed();
-            if (jvmGcDetailed != null) {
+            if (jvmGc.hasJvmGcDetailed()) {
+                final PJvmGcDetailed jvmGcDetailed = jvmGc.getJvmGcDetailed();
                 final JvmGcDetailedBo jvmGcDetailedBo = this.jvmGcDetailedBoMapper.map(jvmGcDetailed);
                 setBaseData(jvmGcDetailedBo, agentId, startTimestamp, timestamp);
-                agentStatBo.setJvmGcDetailedBos(Arrays.asList(jvmGcDetailedBo));
+                agentStatBo.setJvmGcDetailedBos(Collections.singletonList(jvmGcDetailedBo));
             }
         }
 
         // cpuLoad
-        final PCpuLoad cpuLoad = agentStat.getCpuLoad();
-        if (cpuLoad != null) {
+        if (agentStat.hasCpuLoad()) {
+            final PCpuLoad cpuLoad = agentStat.getCpuLoad();
             final CpuLoadBo cpuLoadBo = this.cpuLoadBoMapper.map(cpuLoad);
             setBaseData(cpuLoadBo, agentId, startTimestamp, timestamp);
-            agentStatBo.setCpuLoadBos(Arrays.asList(cpuLoadBo));
+            agentStatBo.setCpuLoadBos(Collections.singletonList(cpuLoadBo));
         }
 
         // transaction
-        final PTransaction transaction = agentStat.getTransaction();
-        if (transaction != null) {
+        if (agentStat.hasTransaction()) {
+            final PTransaction transaction = agentStat.getTransaction();
             final TransactionBo transactionBo = this.transactionBoMapper.map(transaction);
             setBaseData(transactionBo, agentId, startTimestamp, timestamp);
             transactionBo.setCollectInterval(agentStat.getCollectInterval());
-            agentStatBo.setTransactionBos(Arrays.asList(transactionBo));
+            agentStatBo.setTransactionBos(Collections.singletonList(transactionBo));
         }
 
         // activeTrace
-        final PActiveTrace activeTrace = agentStat.getActiveTrace();
-        if (activeTrace != null && activeTrace.getHistogram() != null) {
-            final ActiveTraceBo activeTraceBo = this.activeTraceBoMapper.map(activeTrace);
-            setBaseData(activeTraceBo, agentId, startTimestamp, timestamp);
-            agentStatBo.setActiveTraceBos(Arrays.asList(activeTraceBo));
+        if (agentStat.hasActiveTrace()) {
+            final PActiveTrace activeTrace = agentStat.getActiveTrace();
+            if (activeTrace.hasHistogram()) {
+                final ActiveTraceBo activeTraceBo = this.activeTraceBoMapper.map(activeTrace);
+                setBaseData(activeTraceBo, agentId, startTimestamp, timestamp);
+                agentStatBo.setActiveTraceBos(Collections.singletonList(activeTraceBo));
+            }
         }
 
         // datasource
-        final PDataSourceList dataSourceList = agentStat.getDataSourceList();
-        if (dataSourceList != null) {
+        if (agentStat.hasDataSourceList()) {
+            final PDataSourceList dataSourceList = agentStat.getDataSourceList();
             final DataSourceListBo dataSourceListBo = new DataSourceListBo();
             setBaseData(dataSourceListBo, agentId, startTimestamp, timestamp);
             for (PDataSource dataSource : dataSourceList.getDataSourceList()) {
@@ -144,39 +146,39 @@ public class GrpcAgentStatMapper {
                 setBaseData(dataSourceBo, agentId, startTimestamp, timestamp);
                 dataSourceListBo.add(dataSourceBo);
             }
-            agentStatBo.setDataSourceListBos(Arrays.asList(dataSourceListBo));
+            agentStatBo.setDataSourceListBos(Collections.singletonList(dataSourceListBo));
         }
 
         // response time
-        final PResponseTime responseTime = agentStat.getResponseTime();
-        if (responseTime != null) {
+        if (agentStat.hasResponseTime()) {
+            final PResponseTime responseTime = agentStat.getResponseTime();
             final ResponseTimeBo responseTimeBo = this.responseTimeBoMapper.map(responseTime);
             setBaseData(responseTimeBo, agentId, startTimestamp, timestamp);
-            agentStatBo.setResponseTimeBos(Arrays.asList(responseTimeBo));
+            agentStatBo.setResponseTimeBos(Collections.singletonList(responseTimeBo));
         }
 
         // deadlock
-        final PDeadlock deadlock = agentStat.getDeadlock();
-        if (deadlock != null) {
+        if (agentStat.hasDeadlock()) {
+            final PDeadlock deadlock = agentStat.getDeadlock();
             final DeadlockThreadCountBo deadlockThreadCountBo = this.deadlockThreadCountBoMapper.map(deadlock);
             setBaseData(deadlockThreadCountBo, agentId, startTimestamp, timestamp);
-            agentStatBo.setDeadlockThreadCountBos(Arrays.asList(deadlockThreadCountBo));
+            agentStatBo.setDeadlockThreadCountBos(Collections.singletonList(deadlockThreadCountBo));
         }
 
         // fileDescriptor
-        final PFileDescriptor fileDescriptor = agentStat.getFileDescriptor();
-        if (fileDescriptor != null) {
+        if (agentStat.hasFileDescriptor()) {
+            final PFileDescriptor fileDescriptor = agentStat.getFileDescriptor();
             final FileDescriptorBo fileDescriptorBo = this.fileDescriptorBoMapper.map(fileDescriptor);
             setBaseData(fileDescriptorBo, agentId, startTimestamp, timestamp);
-            agentStatBo.setFileDescriptorBos(Arrays.asList(fileDescriptorBo));
+            agentStatBo.setFileDescriptorBos(Collections.singletonList(fileDescriptorBo));
         }
 
         // directBuffer
-        final PDirectBuffer directBuffer = agentStat.getDirectBuffer();
-        if (directBuffer != null) {
+        if (agentStat.hasDirectBuffer()) {
+            final PDirectBuffer directBuffer = agentStat.getDirectBuffer();
             final DirectBufferBo directBufferBo = this.directBufferBoMapper.map(directBuffer);
             setBaseData(directBufferBo, agentId, startTimestamp, timestamp);
-            agentStatBo.setDirectBufferBos(Arrays.asList(directBufferBo));
+            agentStatBo.setDirectBufferBos(Collections.singletonList(directBufferBo));
         }
 
         return agentStatBo;

@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.common.server.bo.grpc;
 
 
 
-import com.google.protobuf.ByteString;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.AnnotationComparator;
 import com.navercorp.pinpoint.common.server.bo.AnnotationFactory;
@@ -33,7 +32,6 @@ import com.navercorp.pinpoint.common.server.bo.filter.SpanEventFilter;
 import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
 import com.navercorp.pinpoint.common.server.util.EmptyAcceptedTimeService;
 import com.navercorp.pinpoint.common.util.TransactionId;
-import com.navercorp.pinpoint.common.util.TransactionIdUtils;
 import com.navercorp.pinpoint.grpc.AgentHeaderFactory;
 import com.navercorp.pinpoint.grpc.trace.PAcceptEvent;
 import com.navercorp.pinpoint.grpc.trace.PAnnotation;
@@ -133,14 +131,14 @@ public class GrpcSpanFactory {
 
         spanBo.setApplicationServiceType((short) pSpan.getApplicationServiceType());
 
-        final PAcceptEvent acceptEvent = pSpan.getAcceptEvent();
-        if (acceptEvent != PAcceptEvent.getDefaultInstance()) {
+        if (pSpan.hasAcceptEvent()) {
+            final PAcceptEvent acceptEvent = pSpan.getAcceptEvent();
             spanBo.setRpc(acceptEvent.getRpc());
             spanBo.setRemoteAddr(acceptEvent.getRemoteAddr());
             spanBo.setEndPoint(acceptEvent.getEndPoint());
 
-            final PParentInfo parentInfo = acceptEvent.getParentInfo();
-            if (parentInfo != PParentInfo.getDefaultInstance()) {
+            if (acceptEvent.hasParentInfo()) {
+                final PParentInfo parentInfo = acceptEvent.getParentInfo();
                 spanBo.setAcceptorHost(parentInfo.getAcceptorHost());
                 spanBo.setParentApplicationId(parentInfo.getParentApplicationName());
                 spanBo.setParentApplicationServiceType((short) parentInfo.getParentApplicationType());
@@ -149,8 +147,8 @@ public class GrpcSpanFactory {
 
         // FIXME span.errCode contains error of span and spanEvent
         // because exceptionInfo is the error information of span itself, exceptionInfo can be null even if errCode is not 0
-        final PIntStringValue exceptionInfo = pSpan.getExceptionInfo();
-        if (exceptionInfo != PIntStringValue.getDefaultInstance()) {
+        if (pSpan.hasExceptionInfo()) {
+            final PIntStringValue exceptionInfo = pSpan.getExceptionInfo();
             spanBo.setExceptionInfo(exceptionInfo.getIntValue(), exceptionInfo.getStringValue());
         }
 
@@ -186,8 +184,8 @@ public class GrpcSpanFactory {
             spanEvent.setDepth(prevSpanEvent.getDepth());
         }
 
-        final PNextEvent nextEvent = pSpanEvent.getNextEvent();
-        if (nextEvent != PNextEvent.getDefaultInstance()) {
+        if (pSpanEvent.hasNextEvent()) {
+            final PNextEvent nextEvent = pSpanEvent.getNextEvent();
             final PNextEvent.FieldCase fieldCase = nextEvent.getFieldCase();
             if (fieldCase == PNextEvent.FieldCase.MESSAGEEVENT) {
                 final PMessageEvent messageEvent = nextEvent.getMessageEvent();
@@ -203,8 +201,8 @@ public class GrpcSpanFactory {
         List<AnnotationBo> annotationList = buildAnnotationList(pSpanEvent.getAnnotationList());
         spanEvent.setAnnotationBoList(annotationList);
 
-        final PIntStringValue exceptionInfo = pSpanEvent.getExceptionInfo();
-        if (exceptionInfo != PIntStringValue.getDefaultInstance()) {
+        if (pSpanEvent.hasExceptionInfo()) {
+            final PIntStringValue exceptionInfo = pSpanEvent.getExceptionInfo();
             spanEvent.setExceptionInfo(exceptionInfo.getIntValue(), exceptionInfo.getStringValue());
         }
 
@@ -214,8 +212,8 @@ public class GrpcSpanFactory {
         checkVersion(pSpanChunk.getVersion());
 
         final SpanChunkBo spanChunkBo = newSpanChunkBo(pSpanChunk, header);
-        final PLocalAsyncId pLocalAsyncId = pSpanChunk.getLocalAsyncId();
-        if (pLocalAsyncId != PLocalAsyncId.getDefaultInstance()) {
+        if (pSpanChunk.hasLocalAsyncId()) {
+            final PLocalAsyncId pLocalAsyncId = pSpanChunk.getLocalAsyncId();
             LocalAsyncIdBo localAsyncIdBo = new LocalAsyncIdBo(pLocalAsyncId.getAsyncId(), pLocalAsyncId.getSequence());
             spanChunkBo.setLocalAsyncId(localAsyncIdBo);
         }
@@ -242,8 +240,14 @@ public class GrpcSpanFactory {
 
         spanChunkBo.setApplicationServiceType((short)pSpanChunk.getApplicationServiceType());
 
-        TransactionId transactionId = newTransactionId(pSpanChunk.getTransactionId(), spanChunkBo.getAgentId());
-        spanChunkBo.setTransactionId(transactionId);
+        if (pSpanChunk.hasTransactionId()) {
+            PTransactionId pTransactionId = pSpanChunk.getTransactionId();
+            TransactionId transactionId = newTransactionId(pTransactionId, spanChunkBo.getAgentId());
+            spanChunkBo.setTransactionId(transactionId);
+        } else {
+            logger.warn("PTransactionId is not set {}", pSpanChunk);
+            throw new IllegalStateException("PTransactionId is not set");
+        }
 
         spanChunkBo.setKeyTime(pSpanChunk.getKeyTime());
 
@@ -253,9 +257,6 @@ public class GrpcSpanFactory {
     }
 
     private TransactionId newTransactionId(PTransactionId pTransactionId, String spanAgentId) {
-        if (pTransactionId == PTransactionId.getDefaultInstance()) {
-            throw new IllegalStateException("PTransactionId is null");
-        }
         final String transactionAgentId = pTransactionId.getAgentId();
         if (transactionAgentId != null) {
             return new TransactionId(transactionAgentId, pTransactionId.getAgentStartTime(), pTransactionId.getSequence());
@@ -285,7 +286,7 @@ public class GrpcSpanFactory {
     }
 
     private List<AnnotationBo> buildAnnotationList(List<PAnnotation> pAnnotationList) {
-        if (pAnnotationList == null) {
+        if (CollectionUtils.isEmpty(pAnnotationList)) {
             return new ArrayList<>();
         }
         List<AnnotationBo> boList = new ArrayList<>(pAnnotationList.size());
