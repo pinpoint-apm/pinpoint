@@ -17,12 +17,15 @@
 package com.navercorp.pinpoint.collector.receiver.grpc;
 
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
+import com.navercorp.pinpoint.collector.receiver.grpc.service.AgentService;
 import com.navercorp.pinpoint.common.server.util.AddressFilter;
 import com.navercorp.pinpoint.grpc.trace.PResult;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.io.request.ServerResponse;
+import io.grpc.BindableService;
 
 import java.net.InetAddress;
+import java.util.Arrays;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -31,17 +34,19 @@ public class AgentServerTestMain {
     public static final int PORT = 9997;
 
     public void run() throws Exception {
-        AgentServer server = new AgentServer();
-        server.setBeanName("AgentServer");
-        server.setBindPort(PORT);
-        server.setDispatchHandler(new MockDispatchHandler());
-        server.setAddressFilter(new MockAddressFilter());
-        server.setExecutor(Executors.newFixedThreadPool(8));
+        GrpcReceiver grpcReceiver = new GrpcReceiver();
+        grpcReceiver.setBeanName("AgentServer");
+        grpcReceiver.setBindPort(PORT);
 
-        server.afterPropertiesSet();
+        BindableService agentService = new AgentService(new MockDispatchHandler());
+        grpcReceiver.setBindableServiceList(Arrays.asList(agentService));
+        grpcReceiver.setAddressFilter(new MockAddressFilter());
+        grpcReceiver.setExecutor(Executors.newFixedThreadPool(8));
 
-        server.blockUntilShutdown();
-        server.destroy();
+        grpcReceiver.afterPropertiesSet();
+
+        grpcReceiver.blockUntilShutdown();
+        grpcReceiver.destroy();
     }
 
     public static void main(String[] args) throws Exception {

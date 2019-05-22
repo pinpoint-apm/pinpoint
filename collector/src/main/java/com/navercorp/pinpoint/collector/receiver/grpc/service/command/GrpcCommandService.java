@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.collector.receiver.grpc.service.command;
 import com.google.protobuf.Empty;
 import com.navercorp.pinpoint.collector.cluster.AgentInfo;
 import com.navercorp.pinpoint.collector.cluster.GrpcAgentConnection;
+import com.navercorp.pinpoint.collector.cluster.zookeeper.ZookeeperClusterService;
 import com.navercorp.pinpoint.collector.cluster.zookeeper.ZookeeperProfilerClusterManager;
 import com.navercorp.pinpoint.collector.receiver.grpc.PinpointGrpcServer;
 import com.navercorp.pinpoint.collector.receiver.grpc.PinpointGrpcServerRepository;
@@ -35,6 +36,7 @@ import com.navercorp.pinpoint.grpc.trace.PCmdRequest;
 import com.navercorp.pinpoint.grpc.trace.PCmdResponse;
 import com.navercorp.pinpoint.grpc.trace.ProfilerCommandServiceGrpc;
 import com.navercorp.pinpoint.rpc.client.RequestManager;
+import com.navercorp.pinpoint.rpc.util.TimerFactory;
 import io.grpc.Status;
 import io.grpc.StatusException;
 import io.grpc.stub.ServerCallStreamObserver;
@@ -43,13 +45,16 @@ import org.jboss.netty.util.Timer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Taejin Koo
  */
-public class GrpcCommandService extends ProfilerCommandServiceGrpc.ProfilerCommandServiceImplBase {
+public class GrpcCommandService extends ProfilerCommandServiceGrpc.ProfilerCommandServiceImplBase implements Closeable {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -63,9 +68,11 @@ public class GrpcCommandService extends ProfilerCommandServiceGrpc.ProfilerComma
     private final ActiveThreadLightDumpService activeThreadLightDumpService = new ActiveThreadLightDumpService();
     private final ActiveThreadCountService activeThreadCountService = new ActiveThreadCountService();
 
-    public GrpcCommandService(ZookeeperProfilerClusterManager zookeeperProfilerClusterManager, Timer timer) {
-        this.zookeeperProfilerClusterManager = Assert.requireNonNull(zookeeperProfilerClusterManager, "zookeeperProfilerClusterManager must not be null");
-        this.timer = Assert.requireNonNull(timer, "timer must not be null");
+    public GrpcCommandService(ZookeeperClusterService clusterService) {
+        Assert.requireNonNull(clusterService, "clusterService must not be null");
+        this.zookeeperProfilerClusterManager = Assert.requireNonNull(clusterService.getProfilerClusterManager(), "zookeeperProfilerClusterManager must not be null");
+        Assert.requireNonNull(zookeeperProfilerClusterManager, "zookeeperProfilerClusterManager must not be null");
+        this.timer =  TimerFactory.createHashedWheelTimer("GrpcCommandService-Timer", 100, TimeUnit.MILLISECONDS, 512);
     }
 
     @Override
@@ -194,6 +201,14 @@ public class GrpcCommandService extends ProfilerCommandServiceGrpc.ProfilerComma
     private long getTransportId() {
         TransportMetadata transportMetadata = ServerContext.getTransportMetadata();
         return transportMetadata.getTransportId();
+    }
+
+    @Override
+    public void close() throws IOException {
+        logger.info("close() started");
+        if (timer != null) {
+            timer.stop();
+        }
     }
 
     private static class DisabledStreamObserver implements StreamObserver<PCmdMessage> {

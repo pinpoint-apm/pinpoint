@@ -16,8 +16,10 @@
 
 package com.navercorp.pinpoint.collector.receiver.grpc.command;
 
+import com.google.protobuf.Empty;
 import com.navercorp.pinpoint.collector.cluster.ClusterPointRepository;
 import com.navercorp.pinpoint.collector.cluster.zookeeper.InMemoryZookeeperClient;
+import com.navercorp.pinpoint.collector.cluster.zookeeper.ZookeeperClusterService;
 import com.navercorp.pinpoint.collector.cluster.zookeeper.ZookeeperProfilerClusterManager;
 import com.navercorp.pinpoint.collector.receiver.grpc.RecordedStreamObserver;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.command.GrpcCommandService;
@@ -29,24 +31,18 @@ import com.navercorp.pinpoint.grpc.trace.PCmdEchoResponse;
 import com.navercorp.pinpoint.grpc.trace.PCmdMessage;
 import com.navercorp.pinpoint.grpc.trace.PCmdRequest;
 import com.navercorp.pinpoint.grpc.trace.PCmdServiceHandshake;
-import com.navercorp.pinpoint.rpc.util.TimerFactory;
 import com.navercorp.pinpoint.test.utils.TestAwaitTaskUtils;
 import com.navercorp.pinpoint.test.utils.TestAwaitUtils;
 import com.navercorp.pinpoint.thrift.io.TCommandType;
-
-import com.google.protobuf.Empty;
 import io.grpc.Context;
 import io.grpc.stub.ServerCallStreamObserver;
 import io.grpc.stub.StreamObserver;
-import org.jboss.netty.util.HashedWheelTimer;
-import org.junit.AfterClass;
 import org.junit.Assert;
-import org.junit.BeforeClass;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @author Taejin Koo
@@ -55,66 +51,59 @@ public class GrpcCommandServiceTest {
 
     private final TestAwaitUtils awaitUtils = new TestAwaitUtils(100, 1000);
 
-    private static HashedWheelTimer TIMER;
-
-    @BeforeClass
-    public static void setUp() throws Exception {
-        TIMER = TimerFactory.createHashedWheelTimer("TEST-TIMER", 100, TimeUnit.MILLISECONDS, 512);
-        TIMER.start();
-    }
-
-    @AfterClass
-    public static void tearDown() throws Exception {
-        if (TIMER != null) {
-            TIMER.stop();
-        }
-    }
-
     @Test
     public void simpleTest() throws IOException {
         InMemoryZookeeperClient zookeeperClient = new InMemoryZookeeperClient();
         zookeeperClient.connect();
 
+
         ZookeeperProfilerClusterManager manager = new ZookeeperProfilerClusterManager(zookeeperClient, this.getClass().getSimpleName(), new ClusterPointRepository());
         manager.start();
 
-        GrpcCommandService commandService = new GrpcCommandService(manager, TIMER);
+        ZookeeperClusterService mockClusterService = Mockito.mock(ZookeeperClusterService.class);
+        Mockito.when(mockClusterService.getProfilerClusterManager()).thenReturn(manager);
 
-        TransportMetadata transportMetaData = createTransportMetaData(new InetSocketAddress("127.0.0.1", 61613), 10);
-        attachContext(transportMetaData);
-        attachContext(new AgentHeaderFactory.Header("agent", "applicationName", System.currentTimeMillis()));
+        GrpcCommandService commandService = new GrpcCommandService(mockClusterService);
 
-        StreamObserver<PCmdMessage> handleMessageObserver = commandService.handleCommand(new TempServerCallStreamObserver<PCmdRequest>());
+        try {
+            TransportMetadata transportMetaData = createTransportMetaData(new InetSocketAddress("127.0.0.1", 61613), 10);
+            attachContext(transportMetaData);
+            attachContext(new AgentHeaderFactory.Header("agent", "applicationName", System.currentTimeMillis()));
 
-        handleMessageObserver.onNext(createHandshakeMessage());
+            StreamObserver<PCmdMessage> handleMessageObserver = commandService.handleCommand(new TempServerCallStreamObserver<PCmdRequest>());
 
-        awaitUtils.await(new TestAwaitTaskUtils() {
-            @Override
-            public boolean checkCompleted() {
-                return manager.getClusterData().size() == 1;
-            }
-        });
+            handleMessageObserver.onNext(createHandshakeMessage());
 
-        RecordedStreamObserver<Empty> recordedStreamObserver = new RecordedStreamObserver<>();
-        PCmdEchoResponse defaultInstance = PCmdEchoResponse.getDefaultInstance();
-        commandService.commandEcho(defaultInstance, recordedStreamObserver);
-        Assert.assertNull(recordedStreamObserver.getLatestThrowable());
+            awaitUtils.await(new TestAwaitTaskUtils() {
+                @Override
+                public boolean checkCompleted() {
+                    return manager.getClusterData().size() == 1;
+                }
+            });
 
-        attachContext(createTransportMetaData(transportMetaData.getRemoteAddress(), transportMetaData.getTransportId() + 1));
-        commandService.commandEcho(defaultInstance, recordedStreamObserver);
-        Assert.assertNotNull(recordedStreamObserver.getLatestThrowable());
+            RecordedStreamObserver<Empty> recordedStreamObserver = new RecordedStreamObserver<>();
+            PCmdEchoResponse defaultInstance = PCmdEchoResponse.getDefaultInstance();
+            commandService.commandEcho(defaultInstance, recordedStreamObserver);
+            Assert.assertNull(recordedStreamObserver.getLatestThrowable());
 
-        StreamObserver<PCmdActiveThreadCountRes> pCmdActiveThreadCountResStreamObserver = commandService.commandStreamActiveThreadCount(new TempServerCallStreamObserver<Empty>());
-        Assert.assertNull(pCmdActiveThreadCountResStreamObserver);
+            attachContext(createTransportMetaData(transportMetaData.getRemoteAddress(), transportMetaData.getTransportId() + 1));
+            commandService.commandEcho(defaultInstance, recordedStreamObserver);
+            Assert.assertNotNull(recordedStreamObserver.getLatestThrowable());
 
-        attachContext(transportMetaData);
-        TempServerCallStreamObserver<Empty> streamConnectionManagerObserver = new TempServerCallStreamObserver<>();
+            StreamObserver<PCmdActiveThreadCountRes> pCmdActiveThreadCountResStreamObserver = commandService.commandStreamActiveThreadCount(new TempServerCallStreamObserver<Empty>());
+            Assert.assertNull(pCmdActiveThreadCountResStreamObserver);
 
-        pCmdActiveThreadCountResStreamObserver = commandService.commandStreamActiveThreadCount(streamConnectionManagerObserver);
-        Assert.assertNull(streamConnectionManagerObserver.getLatestException());
+            attachContext(transportMetaData);
+            TempServerCallStreamObserver<Empty> streamConnectionManagerObserver = new TempServerCallStreamObserver<>();
 
-        pCmdActiveThreadCountResStreamObserver.onNext(PCmdActiveThreadCountRes.getDefaultInstance());
-        Assert.assertNotNull(streamConnectionManagerObserver.getLatestException());
+            pCmdActiveThreadCountResStreamObserver = commandService.commandStreamActiveThreadCount(streamConnectionManagerObserver);
+            Assert.assertNull(streamConnectionManagerObserver.getLatestException());
+
+            pCmdActiveThreadCountResStreamObserver.onNext(PCmdActiveThreadCountRes.getDefaultInstance());
+            Assert.assertNotNull(streamConnectionManagerObserver.getLatestException());
+        } finally {
+            commandService.close();
+        }
     }
 
     private TransportMetadata createTransportMetaData(InetSocketAddress remoteAddress, long transportId) {

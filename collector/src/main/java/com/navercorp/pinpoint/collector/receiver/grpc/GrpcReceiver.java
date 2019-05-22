@@ -1,11 +1,11 @@
 /*
- * Copyright 2018 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,77 +16,53 @@
 
 package com.navercorp.pinpoint.collector.receiver.grpc;
 
-import com.navercorp.pinpoint.collector.cluster.zookeeper.ZookeeperClusterService;
-import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
-import com.navercorp.pinpoint.collector.receiver.grpc.service.AgentService;
-import com.navercorp.pinpoint.collector.receiver.grpc.service.KeepAliveService;
-import com.navercorp.pinpoint.collector.receiver.grpc.service.SocketIdProvider;
-import com.navercorp.pinpoint.collector.receiver.grpc.service.command.GrpcCommandService;
-import com.navercorp.pinpoint.collector.service.async.AgentEventAsyncTaskService;
-import com.navercorp.pinpoint.collector.service.async.AgentLifeCycleAsyncTaskService;
 import com.navercorp.pinpoint.common.server.util.AddressFilter;
 import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.grpc.server.MetadataServerTransportFilter;
 import com.navercorp.pinpoint.grpc.server.ServerFactory;
 import com.navercorp.pinpoint.grpc.server.ServerOption;
 import com.navercorp.pinpoint.grpc.server.TransportMetadataFactory;
 import com.navercorp.pinpoint.grpc.server.TransportMetadataServerInterceptor;
-import com.navercorp.pinpoint.rpc.server.handler.ServerStateChangeEventHandler;
-import com.navercorp.pinpoint.rpc.util.TimerFactory;
-
 import io.grpc.BindableService;
 import io.grpc.Server;
 import io.grpc.ServerInterceptor;
 import io.grpc.ServerTransportFilter;
-import org.jboss.netty.util.Timer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.annotation.Resource;
-import java.util.Collections;
+import java.io.Closeable;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.Executor;
 
 /**
- * @author jaehong.kim
+ * @author Taejin Koo
  */
-public class AgentServer implements InitializingBean, DisposableBean, BeanNameAware {
+public class GrpcReceiver implements InitializingBean, DisposableBean, BeanNameAware {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    // Bean property
+
     private String beanName;
-    private boolean enable = true;
+    private boolean enable;
 
     private String bindIp;
     private int bindPort;
 
-    private ExecutorService executor;
+    private ServerFactory serverFactory;
+    private Executor executor;
+
+    private List<BindableService> bindableServiceList;
+
     private AddressFilter addressFilter;
     private ServerOption serverOption;
 
-    private ServerFactory serverFactory;
-
     private Server server;
 
-    private Timer timer;
 
-    @Autowired
-    private AgentEventAsyncTaskService agentEventAsyncTask;
 
-    @Autowired
-    private AgentLifeCycleAsyncTaskService agentLifeCycleAsyncTask;
-
-    private DispatchHandler dispatchHandler;
-
-    @Resource(name = "channelStateChangeEventHandlers")
-    private List<ServerStateChangeEventHandler> channelStateChangeEventHandlers = Collections.emptyList();
-    private ZookeeperClusterService clusterService;
-    private SocketIdProvider socketIdProvider;
-
+    @Override
     public void afterPropertiesSet() throws Exception {
         if (Boolean.FALSE == this.enable) {
             return;
@@ -94,13 +70,10 @@ public class AgentServer implements InitializingBean, DisposableBean, BeanNameAw
 
         Assert.requireNonNull(this.beanName, "beanName must not be null");
         Assert.requireNonNull(this.bindIp, "bindIp must not be null");
-        Assert.requireNonNull(this.dispatchHandler, "dispatchHandler must not be null");
         Assert.requireNonNull(this.addressFilter, "addressFilter must not be null");
-        Assert.requireNonNull(this.clusterService, "clusterService must not be null");
+        Assert.isTrue(CollectionUtils.hasLength(this.bindableServiceList), "bindableService must not be empty");
 
-        this.timer = TimerFactory.createHashedWheelTimer("AgentServer-Timer", 100, TimeUnit.MILLISECONDS, 512);
-
-        this.serverFactory = new ServerFactory(beanName, this.bindIp, this.bindPort, executor);
+        this.serverFactory = new ServerFactory(beanName, this.bindIp, this.bindPort, this.executor);
         ServerTransportFilter permissionServerTransportFilter = new PermissionServerTransportFilter(addressFilter);
         this.serverFactory.addTransportFilter(permissionServerTransportFilter);
 
@@ -112,37 +85,35 @@ public class AgentServer implements InitializingBean, DisposableBean, BeanNameAw
         this.serverFactory.addInterceptor(transportMetadataServerInterceptor);
 
         // Add service
-        BindableService agentService = new AgentService(dispatchHandler);
-        this.serverFactory.addService(agentService);
-
-        KeepAliveService keepAliveService = new KeepAliveService(agentEventAsyncTask, agentLifeCycleAsyncTask, socketIdProvider);
-        serverFactory.addService(keepAliveService);
-
-        BindableService commandService = new GrpcCommandService(clusterService.getProfilerClusterManager(), timer);
-        this.serverFactory.addService(commandService);
+        for (BindableService bindableService : bindableServiceList) {
+            this.serverFactory.addService(bindableService);
+        }
 
         this.server = serverFactory.build();
         if (logger.isInfoEnabled()) {
-            logger.info("Start AgentServer {}", this.server);
+            logger.info("Start {} server {}", this.beanName, this.server);
         }
         this.server.start();
     }
 
-
     @Override
     public void destroy() throws Exception {
         if (logger.isInfoEnabled()) {
-            logger.info("Destroy AgentServer {}", this.server);
+            logger.info("Destroy {} server {}", this.beanName, this.server);
         }
 
         if (this.server != null) {
             this.server.shutdown();
         }
+
+        for (BindableService bindableService : bindableServiceList) {
+            if (bindableService instanceof Closeable) {
+                ((Closeable) bindableService).close();
+            }
+        }
+
         if (this.serverFactory != null) {
             this.serverFactory.close();
-        }
-        if (timer != null) {
-            timer.stop();
         }
     }
 
@@ -174,11 +145,7 @@ public class AgentServer implements InitializingBean, DisposableBean, BeanNameAw
         this.addressFilter = addressFilter;
     }
 
-    public void setDispatchHandler(DispatchHandler dispatchHandler) {
-        this.dispatchHandler = dispatchHandler;
-    }
-
-    public void setExecutor(ExecutorService executor) {
+    public void setExecutor(Executor executor) {
         this.executor = executor;
     }
 
@@ -186,11 +153,8 @@ public class AgentServer implements InitializingBean, DisposableBean, BeanNameAw
         this.serverOption = serverOption;
     }
 
-    public void setClusterService(ZookeeperClusterService clusterService) {
-        this.clusterService = clusterService;
+    public void setBindableServiceList(List<BindableService> bindableServiceList) {
+        this.bindableServiceList = bindableServiceList;
     }
 
-    public void setSocketIdProvider(SocketIdProvider socketIdProvider) {
-        this.socketIdProvider = socketIdProvider;
-    }
 }
