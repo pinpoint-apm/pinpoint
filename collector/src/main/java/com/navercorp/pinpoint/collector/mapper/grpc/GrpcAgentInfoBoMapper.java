@@ -66,13 +66,13 @@ public class GrpcAgentInfoBoMapper {
         builder.setEndStatus(endStatus);
         builder.isContainer(container);
 
-        final PServerMetaData serverMetaData = agentInfo.getServerMetaData();
-        if (serverMetaData != null) {
+        if (agentInfo.hasServerMetaData()) {
+            final PServerMetaData serverMetaData = agentInfo.getServerMetaData();
             builder.setServerMetaData(this.serverMetaDataBoMapper.map(serverMetaData));
         }
 
-        final PJvmInfo jvmInfo = agentInfo.getJvmInfo();
-        if (jvmInfo != null) {
+        if (agentInfo.hasJvmInfo()) {
+            final PJvmInfo jvmInfo = agentInfo.getJvmInfo();
             builder.setJvmInfo(this.jvmInfoBoMapper.map(jvmInfo));
         }
 

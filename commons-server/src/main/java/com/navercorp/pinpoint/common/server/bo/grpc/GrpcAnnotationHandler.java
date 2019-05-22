@@ -43,10 +43,10 @@ public class GrpcAnnotationHandler implements AnnotationFactory.AnnotationTypeHa
 
     @Override
     public Object getValue(PAnnotation annotation) {
-        PAnnotationValue value = annotation.getValue();
-        if (value == PAnnotationValue.getDefaultInstance()) {
+        if (!annotation.hasValue()) {
             return null;
         }
+        final PAnnotationValue value = annotation.getValue();
 
         Descriptors.Descriptor descriptorForType = value.getDescriptorForType();
         int number = value.getFieldCase().getNumber();
