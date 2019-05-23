@@ -37,6 +37,9 @@ public class GrpcThreadDumpBoMapper {
     @Autowired
     private GrpcMonitorInfoBoMapper monitorInfoBoMapper;
 
+    @Autowired
+    private GrpcThreadStateMapper threadStateMapper;
+
     public ThreadDumpBo map(final PThreadDump threadDump) {
         final ThreadDumpBo threadDumpBo = new ThreadDumpBo();
         threadDumpBo.setThreadName(threadDump.getThreadName());
@@ -52,7 +55,7 @@ public class GrpcThreadDumpBoMapper {
         threadDumpBo.setSuspended(threadDump.getSuspended());
 
         final PThreadState threadState = threadDump.getThreadState();
-        threadDumpBo.setThreadState(ThreadState.findByValue(threadState.getNumber()));
+        threadDumpBo.setThreadState(this.threadStateMapper.map(threadState));
         threadDumpBo.setStackTraceList(threadDump.getStackTraceList());
 
         if (!CollectionUtils.isEmpty(threadDump.getLockedMonitorList())) {

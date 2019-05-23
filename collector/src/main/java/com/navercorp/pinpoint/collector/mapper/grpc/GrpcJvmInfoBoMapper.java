@@ -16,8 +16,10 @@
 
 package com.navercorp.pinpoint.collector.mapper.grpc;
 
+import com.navercorp.pinpoint.collector.mapper.grpc.stat.GrpcJvmGcTypeMapper;
 import com.navercorp.pinpoint.common.server.bo.JvmInfoBo;
 import com.navercorp.pinpoint.grpc.trace.PJvmInfo;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -26,11 +28,14 @@ import org.springframework.stereotype.Component;
 @Component
 public class GrpcJvmInfoBoMapper {
 
-    public JvmInfoBo map(final PJvmInfo thriftObject) {
-        final short version = (short) thriftObject.getVersion();
-        final String jvmVersion = thriftObject.getVmVersion();
-        final String gcTypeName = thriftObject.getGcType().toString();
-        JvmInfoBo jvmInfoBo = new JvmInfoBo(version);
+    @Autowired
+    private GrpcJvmGcTypeMapper jvmGcTypeMapper;
+
+    public JvmInfoBo map(final PJvmInfo jvmInfo) {
+        final short version = (short) jvmInfo.getVersion();
+        final String jvmVersion = jvmInfo.getVmVersion();
+        final String gcTypeName = this.jvmGcTypeMapper.map(jvmInfo.getGcType()).name();
+        final JvmInfoBo jvmInfoBo = new JvmInfoBo(version);
         jvmInfoBo.setJvmVersion(jvmVersion);
         jvmInfoBo.setGcTypeName(gcTypeName);
         return jvmInfoBo;

@@ -33,18 +33,14 @@ public class GrpcAgentEventMapper {
     @Autowired
     private GrpcDeadlockEventBoMapper deadlockEventBoMapper;
 
-    public AgentEventBo map(final PAgentStat tAgentStat, final AgentHeaderFactory.Header header) {
-        if (tAgentStat == null) {
-            return null;
-        }
-
+    public AgentEventBo map(final PAgentStat agentStat, final AgentHeaderFactory.Header header) {
         final String agentId = header.getAgentId();
         final long startTimestamp = header.getAgentStartTime();
-        final long timestamp = tAgentStat.getTimestamp();
+        final long timestamp = agentStat.getTimestamp();
 
-        final PDeadlock deadlock = tAgentStat.getDeadlock();
-        if (deadlock != null) {
-            if (deadlock != null && CollectionUtils.hasLength(deadlock.getThreadDumpList())) {
+        if (agentStat.hasDeadlock()) {
+            final PDeadlock deadlock = agentStat.getDeadlock();
+            if (CollectionUtils.hasLength(deadlock.getThreadDumpList())) {
                 return deadlockEventBoMapper.map(agentId, startTimestamp, timestamp, deadlock);
             }
         }
