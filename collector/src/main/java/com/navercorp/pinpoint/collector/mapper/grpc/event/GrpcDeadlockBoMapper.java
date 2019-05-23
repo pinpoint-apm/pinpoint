@@ -36,11 +36,11 @@ public class GrpcDeadlockBoMapper {
     @Autowired
     private GrpcThreadDumpBoMapper threadDumpBoMapper;
 
-    public DeadlockBo map(final PDeadlock tDeadlock) {
+    public DeadlockBo map(final PDeadlock deadlock) {
         final DeadlockBo deadlockBo = new DeadlockBo();
-        deadlockBo.setDeadlockedThreadCount(tDeadlock.getCount());
+        deadlockBo.setDeadlockedThreadCount(deadlock.getCount());
 
-        final List<PThreadDump> threadDumpList = tDeadlock.getThreadDumpList();
+        final List<PThreadDump> threadDumpList = deadlock.getThreadDumpList();
         if (CollectionUtils.hasLength(threadDumpList)) {
             final List<ThreadDumpBo> threadDumpBoList = new ArrayList<>();
             for (PThreadDump threadDump : threadDumpList) {

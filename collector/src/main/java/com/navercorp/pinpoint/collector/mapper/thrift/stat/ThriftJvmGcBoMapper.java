@@ -17,9 +17,9 @@
 package com.navercorp.pinpoint.collector.mapper.thrift.stat;
 
 import com.navercorp.pinpoint.collector.mapper.thrift.ThriftBoMapper;
-import com.navercorp.pinpoint.common.server.bo.JvmGcType;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
 import com.navercorp.pinpoint.thrift.dto.TJvmGc;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -28,16 +28,19 @@ import org.springframework.stereotype.Component;
 @Component
 public class ThriftJvmGcBoMapper implements ThriftBoMapper<JvmGcBo, TJvmGc> {
 
+    @Autowired
+    private ThriftJvmGcTypeMapper jvmGcTypeMapper;
+
     @Override
-    public JvmGcBo map(TJvmGc tJvmGc) {
+    public JvmGcBo map(TJvmGc jvmGc) {
         JvmGcBo jvmGcBo = new JvmGcBo();
-        jvmGcBo.setGcType(JvmGcType.valueOf(tJvmGc.getType().name()));
-        jvmGcBo.setHeapUsed(tJvmGc.getJvmMemoryHeapUsed());
-        jvmGcBo.setHeapMax(tJvmGc.getJvmMemoryHeapMax());
-        jvmGcBo.setNonHeapUsed(tJvmGc.getJvmMemoryNonHeapUsed());
-        jvmGcBo.setNonHeapMax(tJvmGc.getJvmMemoryNonHeapMax());
-        jvmGcBo.setGcOldCount(tJvmGc.getJvmGcOldCount());
-        jvmGcBo.setGcOldTime(tJvmGc.getJvmGcOldTime());
+        jvmGcBo.setGcType(this.jvmGcTypeMapper.map(jvmGc.getType()));
+        jvmGcBo.setHeapUsed(jvmGc.getJvmMemoryHeapUsed());
+        jvmGcBo.setHeapMax(jvmGc.getJvmMemoryHeapMax());
+        jvmGcBo.setNonHeapUsed(jvmGc.getJvmMemoryNonHeapUsed());
+        jvmGcBo.setNonHeapMax(jvmGc.getJvmMemoryNonHeapMax());
+        jvmGcBo.setGcOldCount(jvmGc.getJvmGcOldCount());
+        jvmGcBo.setGcOldTime(jvmGc.getJvmGcOldTime());
         return jvmGcBo;
     }
 }

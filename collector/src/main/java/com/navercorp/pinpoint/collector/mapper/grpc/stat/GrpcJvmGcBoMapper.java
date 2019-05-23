@@ -16,10 +16,9 @@
 
 package com.navercorp.pinpoint.collector.mapper.grpc.stat;
 
-import com.navercorp.pinpoint.common.server.bo.JvmGcType;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
 import com.navercorp.pinpoint.grpc.trace.PJvmGc;
-import com.navercorp.pinpoint.grpc.trace.PJvmGcType;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -28,9 +27,12 @@ import org.springframework.stereotype.Component;
 @Component
 public class GrpcJvmGcBoMapper {
 
+    @Autowired
+    private GrpcJvmGcTypeMapper jvmGcTypeMapper;
+
     public JvmGcBo map(final PJvmGc jvmGc) {
         final JvmGcBo jvmGcBo = new JvmGcBo();
-        jvmGcBo.setGcType(toJvmGcType(jvmGc.getType()));
+        jvmGcBo.setGcType(this.jvmGcTypeMapper.map(jvmGc.getType()));
         jvmGcBo.setHeapUsed(jvmGc.getJvmMemoryHeapUsed());
         jvmGcBo.setHeapMax(jvmGc.getJvmMemoryHeapMax());
         jvmGcBo.setNonHeapUsed(jvmGc.getJvmMemoryNonHeapUsed());
@@ -39,22 +41,4 @@ public class GrpcJvmGcBoMapper {
         jvmGcBo.setGcOldTime(jvmGc.getJvmGcOldTime());
         return jvmGcBo;
     }
-
-    private JvmGcType toJvmGcType(final PJvmGcType type) {
-        switch (type) {
-            case JVM_GC_TYPE_UNKNOWN:
-                return JvmGcType.UNKNOWN;
-            case JVM_GC_TYPE_SERIAL:
-                return JvmGcType.SERIAL;
-            case JVM_GC_TYPE_PARALLEL:
-                return JvmGcType.PARALLEL;
-            case JVM_GC_TYPE_CMS:
-                return JvmGcType.CMS;
-            case JVM_GC_TYPE_G1:
-                return JvmGcType.G1;
-            default:
-                return JvmGcType.UNKNOWN;
-        }
-    }
 }
-

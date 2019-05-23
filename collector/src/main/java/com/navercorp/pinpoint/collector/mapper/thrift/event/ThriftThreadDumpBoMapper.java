@@ -38,6 +38,9 @@ public class ThriftThreadDumpBoMapper implements ThriftBoMapper<ThreadDumpBo, TT
     @Autowired
     private ThriftMonitorInfoBoMapper monitorInfoBoMapper;
 
+    @Autowired
+    private ThriftThreadStateMapper threadStateMapper;
+
     public ThreadDumpBo map(final TThreadDump threadDump) {
         final ThreadDumpBo threadDumpBo = new ThreadDumpBo();
         threadDumpBo.setThreadName(threadDump.getThreadName());
@@ -53,7 +56,7 @@ public class ThriftThreadDumpBoMapper implements ThriftBoMapper<ThreadDumpBo, TT
         threadDumpBo.setSuspended(threadDump.isSuspended());
 
         final TThreadState threadState = threadDump.getThreadState();
-        threadDumpBo.setThreadState(ThreadState.findByValue(threadState.getValue()));
+        threadDumpBo.setThreadState(this.threadStateMapper.map(threadState));
         threadDumpBo.setStackTraceList(threadDump.getStackTrace());
 
         if (!CollectionUtils.isEmpty(threadDump.getLockedMonitors())) {
