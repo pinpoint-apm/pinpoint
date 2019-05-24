@@ -43,37 +43,10 @@ public class DefaultChannelProperties implements ChannelProperties {
 
     private final List<Integer> supportCommand;
 
-    private final Map<String, Object> properties = new HashMap<String, Object>();
+    private final Map<Object, Object> properties;
 
-    public static ChannelProperties newChannelProperties(Map<Object, Object> properties) {
-        if (com.navercorp.pinpoint.common.util.MapUtils.isEmpty(properties)) {
-            return null;
-        }
 
-        final String agentId = MapUtils.getString(properties, HandshakePropertyType.AGENT_ID.getName());
-        if (!IdValidateUtils.validateId(agentId)) {
-            throw new IllegalArgumentException("Invalid agentId :" + agentId);
-        }
-        final String applicationName = MapUtils.getString(properties, HandshakePropertyType.APPLICATION_NAME.getName());
-        if (!IdValidateUtils.validateId(applicationName)) {
-            throw new IllegalArgumentException("Invalid applicationName :" + agentId);
-        }
-        final String hostName = MapUtils.getString(properties, HandshakePropertyType.HOSTNAME.getName());
-        final String ip = MapUtils.getString(properties, HandshakePropertyType.IP.getName());
-        final int pid = MapUtils.getInteger(properties, HandshakePropertyType.PID.getName(), -1);
-        final int serviceType = MapUtils.getInteger(properties, HandshakePropertyType.SERVICE_TYPE.getName(), -1);
-        final long startTime = MapUtils.getLong(properties, HandshakePropertyType.START_TIMESTAMP.getName(), -1L);
-        final String version = MapUtils.getString(properties, HandshakePropertyType.VERSION.getName());
-        final int socketId = MapUtils.getInteger(properties, HandshakerFactory.SOCKET_ID, -1);
-        List<Integer> supportCommandList = (List<Integer>) properties.get(HandshakePropertyType.SUPPORT_COMMAND_LIST.getName());
-        if (supportCommandList == null) {
-            supportCommandList = Collections.emptyList();
-        }
-
-        return new DefaultChannelProperties(agentId, applicationName, serviceType, version, hostName, ip, pid, startTime, socketId, supportCommandList);
-    }
-
-    public DefaultChannelProperties(String agentId, String applicationName, int serviceType, String agentVersion, String hostName, String hostIp, int pid, long startTime, int socketId, List<Integer> supportCommandList) {
+    public DefaultChannelProperties(String agentId, String applicationName, int serviceType, String agentVersion, String hostName, String hostIp, int pid, long startTime, int socketId, List<Integer> supportCommandList, Map<Object, Object> customProperty) {
         this.agentId = agentId;
         this.applicationName = applicationName;
         this.hostIp = hostIp;
@@ -84,6 +57,7 @@ public class DefaultChannelProperties implements ChannelProperties {
         this.agentVersion = agentVersion;
         this.socketId = socketId;
         this.supportCommand = new ArrayList<Integer>(supportCommandList);
+        this.properties = new HashMap<Object, Object>(customProperty);
     }
 
     @Override
@@ -137,13 +111,9 @@ public class DefaultChannelProperties implements ChannelProperties {
         return supportCommand;
     }
 
-    @Override
-    public Object put(String key, Object value) {
-        return properties.put(key, value);
-    }
 
     @Override
-    public Object get(String key) {
+    public Object get(Object key) {
         return properties.get(key);
     }
 

@@ -29,6 +29,7 @@ import com.navercorp.pinpoint.grpc.trace.PPing;
 import com.navercorp.pinpoint.rpc.client.HandshakerFactory;
 import com.navercorp.pinpoint.rpc.packet.HandshakePropertyType;
 import com.navercorp.pinpoint.rpc.server.ChannelProperties;
+import com.navercorp.pinpoint.rpc.server.ChannelPropertiesFactory;
 import com.navercorp.pinpoint.rpc.server.DefaultChannelProperties;
 import io.grpc.Context;
 import io.grpc.Status;
@@ -48,11 +49,14 @@ public class KeepAliveService extends KeepAliveGrpc.KeepAliveImplBase {
     private final AgentEventAsyncTaskService agentEventAsyncTask;
     private final AgentLifeCycleAsyncTaskService agentLifeCycleAsyncTask;
     private final SocketIdProvider socketIdProvider;
+    private final ChannelPropertiesFactory channelPropertiesFactory;
 
-    public KeepAliveService(AgentEventAsyncTaskService agentEventAsyncTask, AgentLifeCycleAsyncTaskService agentLifeCycleAsyncTask, SocketIdProvider socketIdProvider) {
+    public KeepAliveService(AgentEventAsyncTaskService agentEventAsyncTask, AgentLifeCycleAsyncTaskService agentLifeCycleAsyncTask,
+                            SocketIdProvider socketIdProvider, ChannelPropertiesFactory channelPropertiesFactory) {
         this.agentEventAsyncTask = Objects.requireNonNull(agentEventAsyncTask, "agentEventAsyncTask must not be null");
         this.agentLifeCycleAsyncTask = Objects.requireNonNull(agentLifeCycleAsyncTask, "agentLifeCycleAsyncTask must not be null");
         this.socketIdProvider = Objects.requireNonNull(socketIdProvider, "socketIdProvider must not be null");
+        this.channelPropertiesFactory = Objects.requireNonNull(channelPropertiesFactory, "channelPropertiesFactory must not be null");
     }
 
     @Override
@@ -107,7 +111,7 @@ public class KeepAliveService extends KeepAliveGrpc.KeepAliveImplBase {
     private void updateState(final PPing ping) {
         final int eventCounter = ping.getId();
         final long pingTimestamp = System.currentTimeMillis();
-        final ChannelProperties channelProperties = DefaultChannelProperties.newChannelProperties(Collections.emptyMap());
+        final ChannelProperties channelProperties = channelPropertiesFactory.newChannelProperties(Collections.emptyMap());
         try {
             if (!(eventCounter < 0)) {
                 agentLifeCycleAsyncTask.handleLifeCycleEvent(channelProperties, pingTimestamp, AgentLifeCycleState.RUNNING, eventCounter);
@@ -139,7 +143,7 @@ public class KeepAliveService extends KeepAliveGrpc.KeepAliveImplBase {
         properties.put(HandshakerFactory.SOCKET_ID, socketId);
         properties.put(HandshakePropertyType.AGENT_ID.getName(), header.getAgentId());
         properties.put(HandshakePropertyType.START_TIMESTAMP.getName(), header.getAgentStartTime());
-        final ChannelProperties channelProperties = DefaultChannelProperties.newChannelProperties(properties);
+        final ChannelProperties channelProperties = channelPropertiesFactory.newChannelProperties(properties);
 
         AgentLifeCycleState agentLifeCycleState = managedAgentLifeCycle.getMappedState();
         AgentEventType agentEventType = managedAgentLifeCycle.getMappedEvent();

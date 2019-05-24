@@ -14,28 +14,13 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.rpc.server;
-
-
-import java.util.List;
+package com.navercorp.pinpoint.collector.service.async;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
-public interface ChannelProperties {
-
+public interface AgentProperty {
     String getAgentId();
-    String getApplicationName();
-    String getHostIp();
-    int getPid();
-    int getServiceType();
-    String getHostName();
     long getStartTime();
-    String getAgentVersion();
-
-    int getSocketId();
-
-    List<Integer> getSupportCommand();
-
-    Object get(Object key);
+    Object get(String key);
 }

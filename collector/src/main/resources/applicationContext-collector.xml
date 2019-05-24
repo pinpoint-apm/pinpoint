@@ -129,6 +129,9 @@
     <bean id="hBaseManager" class="com.navercorp.pinpoint.collector.manage.HBaseManager">
     </bean>
 
+    <bean id="channelPropertiesFactory" class="com.navercorp.pinpoint.rpc.server.ChannelPropertiesFactory">
+        <constructor-arg value="${collector.receiver.channel.properties.key}"/>
+    </bean>
     <!-- DispatchHandler-related Beans -->
     <!-- Thrift -->
     <bean id="tcpDispatchHandler" class="com.navercorp.pinpoint.collector.receiver.TcpDispatchHandler">
@@ -460,6 +463,7 @@
         <constructor-arg index="0" ref="agentEventAsyncTask"/>
         <constructor-arg index="1" ref="agentLifeCycleAsyncTask"/>
         <constructor-arg index="2" ref="socketIdProvider"/>
+        <constructor-arg index="3" ref="channelPropertiesFactory"/>
     </bean>
     <bean id="commandService" class="com.navercorp.pinpoint.collector.receiver.grpc.service.command.GrpcCommandService">
         <constructor-arg index="0" ref="clusterService"/>
