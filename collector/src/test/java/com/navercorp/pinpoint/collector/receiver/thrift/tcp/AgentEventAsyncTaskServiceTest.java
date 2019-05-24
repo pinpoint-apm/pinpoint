@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.common.server.bo.event.AgentEventBo;
 import com.navercorp.pinpoint.common.server.util.AgentEventType;
 import com.navercorp.pinpoint.rpc.packet.HandshakePropertyType;
 import com.navercorp.pinpoint.rpc.server.ChannelProperties;
+import com.navercorp.pinpoint.rpc.server.ChannelPropertiesFactory;
 import com.navercorp.pinpoint.rpc.server.DefaultChannelProperties;
 import com.navercorp.pinpoint.rpc.server.PinpointServer;
 
@@ -45,8 +46,9 @@ import java.util.Map;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class AgentEventAsyncTaskServiceTest {
-    @Mock
-    private PinpointServer pinpointServer;
+
+
+    private ChannelPropertiesFactory channelPropertiesFactory = new ChannelPropertiesFactory();
 
     @Mock
     private AgentEventService agentEventService;
@@ -61,10 +63,7 @@ public class AgentEventAsyncTaskServiceTest {
 
     private static final Map<Object, Object> TEST_CHANNEL_PROPERTIES = createTestChannelProperties();
 
-    @Before
-    public void setUp() {
-        when(this.pinpointServer.getChannelProperties()).thenReturn(TEST_CHANNEL_PROPERTIES);
-    }
+
 
     @Test
     public void handler_should_handle_events_with_empty_message_body() throws Exception {
@@ -72,8 +71,7 @@ public class AgentEventAsyncTaskServiceTest {
         final AgentEventType expectedEventType = AgentEventType.AGENT_CONNECTED;
         ArgumentCaptor<AgentEventBo> argCaptor = ArgumentCaptor.forClass(AgentEventBo.class);
         // when
-        Map<Object, Object> channelPropertiesMap = this.pinpointServer.getChannelProperties();
-        ChannelProperties channelProperties = DefaultChannelProperties.newChannelProperties(channelPropertiesMap);
+        ChannelProperties channelProperties = channelPropertiesFactory.newChannelProperties(TEST_CHANNEL_PROPERTIES);
         this.agentEventAsyncTaskService.handleEvent(channelProperties, TEST_EVENT_TIMESTAMP, expectedEventType);
         verify(this.agentEventService, times(1)).insert(argCaptor.capture());
         // then

@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author koo.taejin
@@ -43,13 +44,19 @@ public class ThriftAgentConnection implements ClusterPoint<byte[]> {
 
     private final List<TCommandType> supportCommandList;
 
-    public ThriftAgentConnection(PinpointServer pinpointServer) {
-        Assert.requireNonNull(pinpointServer, "pinpointServer must not be null.");
-        this.pinpointServer = pinpointServer;
+    public static ClusterPoint<byte[]> newClusterPoint(PinpointServer pinpointServer, ChannelProperties channelProperties) {
+        AgentInfo agentInfo = newAgentInfo(channelProperties);
+        List<TCommandType> supportCommandList = SupportedCommandUtils.newSupportCommandList(channelProperties.getSupportCommand());
+        return new ThriftAgentConnection(pinpointServer, agentInfo, supportCommandList);
+    }
 
-        Map<Object, Object> properties = pinpointServer.getChannelProperties();
-        ChannelProperties channelProperties = DefaultChannelProperties.newChannelProperties(properties);
+    public ThriftAgentConnection(PinpointServer pinpointServer, AgentInfo agentInfo, List<TCommandType> supportCommandList) {
+        this.pinpointServer = Objects.requireNonNull(pinpointServer, "pinpointServer must not be null");
+        this.agentInfo = Objects.requireNonNull(agentInfo, "agentInfo must not be null");
+        this.supportCommandList = Objects.requireNonNull(supportCommandList, "supportCommandList must not be null");
+    }
 
+    private static AgentInfo newAgentInfo(ChannelProperties channelProperties) {
         String applicationName = channelProperties.getApplicationName();
 
         String agentId = channelProperties.getAgentId();
@@ -58,24 +65,7 @@ public class ThriftAgentConnection implements ClusterPoint<byte[]> {
 
         String version = channelProperties.getAgentVersion();
 
-        this.agentInfo = new AgentInfo(applicationName, agentId, startTimeStamp, version);
-        this.supportCommandList = newSupportCommandList(channelProperties.getSupportCommand());
-    }
-
-    private List<TCommandType> newSupportCommandList(List<Integer> supportCommandList) {
-        if (CollectionUtils.isEmpty(supportCommandList)) {
-            return Collections.emptyList();
-        }
-
-        final List<TCommandType> result = new ArrayList<>();
-        for (Integer supportCommandCode : supportCommandList) {
-            TCommandType commandType = TCommandType.getType(supportCommandCode.shortValue());
-            if (commandType != null) {
-                result.add(commandType);
-            }
-        }
-        return result;
-
+        return new AgentInfo(applicationName, agentId, startTimeStamp, version);
     }
 
     @Override

@@ -17,11 +17,10 @@
 package com.navercorp.pinpoint.collector.cluster;
 
 import com.navercorp.pinpoint.collector.cluster.zookeeper.ZookeeperProfilerClusterManager;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.rpc.common.SocketStateCode;
 import com.navercorp.pinpoint.rpc.server.ChannelProperties;
-import com.navercorp.pinpoint.rpc.server.DefaultChannelProperties;
+import com.navercorp.pinpoint.rpc.server.ChannelPropertiesFactory;
 import com.navercorp.pinpoint.rpc.server.PinpointServer;
 import com.navercorp.pinpoint.rpc.server.handler.ServerStateChangeEventHandler;
 
@@ -29,6 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author Taejin Koo
@@ -38,9 +38,11 @@ public class ClusterPointStateChangedEventHandler extends ServerStateChangeEvent
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final ZookeeperProfilerClusterManager zookeeperProfilerClusterManager;
+    private final ChannelPropertiesFactory channelPropertiesFactory;
 
-    public ClusterPointStateChangedEventHandler(ZookeeperProfilerClusterManager zookeeperProfilerClusterManager) {
-        this.zookeeperProfilerClusterManager = Assert.requireNonNull(zookeeperProfilerClusterManager, "zookeeperProfilerClusterManager must not be null");
+    public ClusterPointStateChangedEventHandler(ChannelPropertiesFactory channelPropertiesFactory, ZookeeperProfilerClusterManager zookeeperProfilerClusterManager) {
+        this.channelPropertiesFactory = Objects.requireNonNull(channelPropertiesFactory, "channelPropertiesFactory must not be null");
+        this.zookeeperProfilerClusterManager = Objects.requireNonNull(zookeeperProfilerClusterManager, "zookeeperProfilerClusterManager must not be null");
     }
 
     @Override
@@ -48,19 +50,23 @@ public class ClusterPointStateChangedEventHandler extends ServerStateChangeEvent
         logger.info("stateUpdated() started. (PinpointServer={}, updatedStateCode={})", pinpointServer, updatedStateCode);
 
         Map<Object, Object> channelPropertiesMap = pinpointServer.getChannelProperties();
-        ChannelProperties channelProperties = DefaultChannelProperties.newChannelProperties(channelPropertiesMap);
+        ChannelProperties channelProperties = channelPropertiesFactory.newChannelProperties(channelPropertiesMap);
         // skip when applicationName and agentId is unknown
         if (skipAgent(channelProperties)) {
             return;
         }
 
         if (SocketStateCode.RUN_DUPLEX == updatedStateCode) {
-            ThriftAgentConnection pinpointServerClusterPoint = new ThriftAgentConnection(pinpointServer);
+            ClusterPoint<byte[]> pinpointServerClusterPoint = newClusterPoint(pinpointServer, channelProperties);
             zookeeperProfilerClusterManager.register(pinpointServerClusterPoint);
         } else if (SocketStateCode.isClosed(updatedStateCode)) {
-            ThriftAgentConnection pinpointServerClusterPoint = new ThriftAgentConnection(pinpointServer);
+            ClusterPoint<byte[]> pinpointServerClusterPoint = newClusterPoint(pinpointServer, channelProperties);
             zookeeperProfilerClusterManager.unregister(pinpointServerClusterPoint);
         }
+    }
+
+    private ClusterPoint<byte[]> newClusterPoint(PinpointServer pinpointServer, ChannelProperties channelProperties) {
+        return ThriftAgentConnection.newClusterPoint(pinpointServer, channelProperties);
     }
 
     private boolean skipAgent(ChannelProperties channelProperties) {

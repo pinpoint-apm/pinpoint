@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.common.server.cluster.zookeeper.exception.Pinpoint
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.rpc.common.SocketStateCode;
 import com.navercorp.pinpoint.rpc.packet.HandshakePropertyType;
+import com.navercorp.pinpoint.rpc.server.ChannelPropertiesFactory;
 import com.navercorp.pinpoint.rpc.server.PinpointServer;
 import com.navercorp.pinpoint.test.utils.TestAwaitTaskUtils;
 import com.navercorp.pinpoint.test.utils.TestAwaitUtils;
@@ -56,6 +57,7 @@ public class ZookeeperJobWorkerTest {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final TestAwaitUtils awaitUtils = new TestAwaitUtils(50, 3000);
+    private final ChannelPropertiesFactory channelPropertiesFactory = new ChannelPropertiesFactory();
 
     @Test
     public void test1() throws Exception {
@@ -65,7 +67,7 @@ public class ZookeeperJobWorkerTest {
         ZookeeperProfilerClusterManager manager = new ZookeeperProfilerClusterManager(zookeeperClient, IDENTIFIER, new ClusterPointRepository());
         manager.start();
 
-        ClusterPointStateChangedEventHandler clusterPointStateChangedEventHandler = new ClusterPointStateChangedEventHandler(manager);
+        ClusterPointStateChangedEventHandler clusterPointStateChangedEventHandler = new ClusterPointStateChangedEventHandler(channelPropertiesFactory, manager);
 
         try {
             int random = ThreadLocalRandom.current().nextInt(10, 20);
@@ -89,7 +91,7 @@ public class ZookeeperJobWorkerTest {
         ZookeeperProfilerClusterManager manager = new ZookeeperProfilerClusterManager(zookeeperClient, IDENTIFIER, new ClusterPointRepository());
         manager.start();
 
-        ClusterPointStateChangedEventHandler clusterPointStateChangedEventHandler = new ClusterPointStateChangedEventHandler(manager);
+        ClusterPointStateChangedEventHandler clusterPointStateChangedEventHandler = new ClusterPointStateChangedEventHandler(channelPropertiesFactory, manager);
 
         try {
             PinpointServer mockServer = createMockPinpointServer("app", "agent", System.currentTimeMillis());
@@ -113,7 +115,7 @@ public class ZookeeperJobWorkerTest {
         ZookeeperProfilerClusterManager manager = new ZookeeperProfilerClusterManager(zookeeperClient, IDENTIFIER, new ClusterPointRepository());
         manager.start();
 
-        ClusterPointStateChangedEventHandler clusterPointStateChangedEventHandler = new ClusterPointStateChangedEventHandler(manager);
+        ClusterPointStateChangedEventHandler clusterPointStateChangedEventHandler = new ClusterPointStateChangedEventHandler(channelPropertiesFactory, manager);
 
         try {
             PinpointServer mockServer = createMockPinpointServer("app", "agent", System.currentTimeMillis());
@@ -151,7 +153,7 @@ public class ZookeeperJobWorkerTest {
         ZookeeperProfilerClusterManager manager = new ZookeeperProfilerClusterManager(zookeeperClient, IDENTIFIER, new ClusterPointRepository());
         manager.start();
 
-        ClusterPointStateChangedEventHandler clusterPointStateChangedEventHandler = new ClusterPointStateChangedEventHandler(manager);
+        ClusterPointStateChangedEventHandler clusterPointStateChangedEventHandler = new ClusterPointStateChangedEventHandler(channelPropertiesFactory, manager);
 
         try {
             PinpointServer mockServer1 = createMockPinpointServer("app", "agent", System.currentTimeMillis());

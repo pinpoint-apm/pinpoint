@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.common.server.util.AgentEventType;
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
 import com.navercorp.pinpoint.rpc.common.SocketStateCode;
 import com.navercorp.pinpoint.rpc.server.ChannelProperties;
+import com.navercorp.pinpoint.rpc.server.ChannelPropertiesFactory;
 import com.navercorp.pinpoint.rpc.server.DefaultChannelProperties;
 import com.navercorp.pinpoint.rpc.server.PinpointServer;
 import com.navercorp.pinpoint.rpc.server.handler.ServerStateChangeEventHandler;
@@ -48,6 +49,9 @@ public class AgentLifeCycleChangeEventHandler extends ServerStateChangeEventHand
     @Autowired
     private AgentEventAsyncTaskService agentEventAsyncTaskService;
 
+    @Autowired
+    private ChannelPropertiesFactory channelPropertiesFactory;
+
     @Override
     public void stateUpdated(PinpointServer pinpointServer, SocketStateCode updatedStateCode) {
         ManagedAgentLifeCycle managedAgentLifeCycle = ManagedAgentLifeCycle.getManagedAgentLifeCycleByStateCode(updatedStateCode);
@@ -60,7 +64,7 @@ public class AgentLifeCycleChangeEventHandler extends ServerStateChangeEventHand
 
             final Map<Object, Object> channelPropertiesMap = pinpointServer.getChannelProperties();
             // nullable
-            final ChannelProperties channelProperties = DefaultChannelProperties.newChannelProperties(channelPropertiesMap);
+            final ChannelProperties channelProperties = channelPropertiesFactory.newChannelProperties(channelPropertiesMap);
             final AgentLifeCycleState agentLifeCycleState = managedAgentLifeCycle.getMappedState();
             this.agentLifeCycleAsyncTaskService.handleLifeCycleEvent(channelProperties, eventTimestamp, agentLifeCycleState, managedAgentLifeCycle.getEventCounter());
             AgentEventType agentEventType = managedAgentLifeCycle.getMappedEvent();

@@ -52,18 +52,7 @@ public class GrpcAgentConnection implements ClusterPoint<TBase> {
         this.pinpointGrpcServer = Assert.requireNonNull(pinpointGrpcServer, "pinpointGrpcServer must not be null");
 
         Assert.requireNonNull(supportCommandServiceKeyList, "supportCommandServiceKeyList must not be null");
-        this.supportCommandList = newSupportCommandList(supportCommandServiceKeyList);
-    }
-
-    private List<TCommandType> newSupportCommandList(List<Integer> supportCommandServiceKeyList) {
-        final List<TCommandType> result = new ArrayList<>();
-        for (int supportCommandCode : supportCommandServiceKeyList) {
-            TCommandType commandType = TCommandType.getType(NumberUtils.convertNumberToTargetClass((Number) supportCommandCode, Short.class));
-            if (commandType != null) {
-                result.add(commandType);
-            }
-        }
-        return result;
+        this.supportCommandList = SupportedCommandUtils.newSupportCommandList(supportCommandServiceKeyList);
     }
 
     @Override
