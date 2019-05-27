@@ -17,27 +17,8 @@
 package com.navercorp.pinpoint.web.alarm;
 
 import com.navercorp.pinpoint.web.alarm.DataCollectorFactory.DataCollectorCategory;
-import com.navercorp.pinpoint.web.alarm.checker.AlarmChecker;
-import com.navercorp.pinpoint.web.alarm.checker.DataSourceConnectionUsageRateChecker;
-import com.navercorp.pinpoint.web.alarm.checker.DeadlockChecker;
-import com.navercorp.pinpoint.web.alarm.checker.ErrorCountChecker;
-import com.navercorp.pinpoint.web.alarm.checker.ErrorCountToCalleeChecker;
-import com.navercorp.pinpoint.web.alarm.checker.ErrorRateChecker;
-import com.navercorp.pinpoint.web.alarm.checker.ErrorRateToCalleeChecker;
-import com.navercorp.pinpoint.web.alarm.checker.HeapUsageRateChecker;
-import com.navercorp.pinpoint.web.alarm.checker.JvmCpuUsageRateChecker;
-import com.navercorp.pinpoint.web.alarm.checker.ResponseCountChecker;
-import com.navercorp.pinpoint.web.alarm.checker.SlowCountChecker;
-import com.navercorp.pinpoint.web.alarm.checker.SlowCountToCalleeChecker;
-import com.navercorp.pinpoint.web.alarm.checker.SlowRateChecker;
-import com.navercorp.pinpoint.web.alarm.checker.SlowRateToCalleeChecker;
-import com.navercorp.pinpoint.web.alarm.checker.TotalCountToCalleeChecker;
-import com.navercorp.pinpoint.web.alarm.collector.AgentEventDataCollector;
-import com.navercorp.pinpoint.web.alarm.collector.AgentStatDataCollector;
-import com.navercorp.pinpoint.web.alarm.collector.DataCollector;
-import com.navercorp.pinpoint.web.alarm.collector.DataSourceDataCollector;
-import com.navercorp.pinpoint.web.alarm.collector.MapStatisticsCallerDataCollector;
-import com.navercorp.pinpoint.web.alarm.collector.ResponseTimeDataCollector;
+import com.navercorp.pinpoint.web.alarm.checker.*;
+import com.navercorp.pinpoint.web.alarm.collector.*;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
 
 import java.util.ArrayList;
@@ -151,6 +132,12 @@ public enum CheckerCategory {
         @Override
         public AlarmChecker createChecker(DataCollector dataCollector, Rule rule) {
             return new DeadlockChecker((AgentEventDataCollector) dataCollector, rule);
+        }
+    },
+    FILE_DESCRIPTOR("FILE DESCRIPTOR", DataCollectorCategory.FILE_DESCRIPTOR) {
+        @Override
+        public AlarmChecker createChecker(DataCollector dataCollector, Rule rule) {
+            return new FileDescriptorChecker((FileDescriptorDataCollector) dataCollector, rule);
         }
     };
     private static final Set<CheckerCategory> CHECKER_CATEGORIES = EnumSet.allOf(CheckerCategory.class);
