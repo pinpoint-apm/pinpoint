@@ -31,7 +31,7 @@
 | Thrift                                                                            | libthrift                  | 0.9.1   | 0.12.0  |                        | <AG> 
 | Google HTTP Client                                                                | google-http-client         | 1.19.0  | 1.29.1  |                        | <AG> 
 | AsyncHttpClient                                                                   | async-http-client          | 1.7.24  | 1.8.17  |                        | <AG> 
-| OkHttp                                                                            | okhttp                     | 2.0.0   | 3.10.0  |                        | <AG> 
+| OkHttp                                                                            | okhttp                     | 2.0.0   | 4.0.0   |                        | <AG> 
 | Apache HttpAsyncClient                                                            | httpasyncclient            | 4.0     | 4.1.3   |                        | <AG>
 | \*Akka HTTP                                                                       | akka-http_2.12             | 10.1.0  | 10.1.x  |                        | 
 | \*Kafka                                                                           | kafka-clients              | 0.11.0.1|         |                        |
