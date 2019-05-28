@@ -37,7 +37,7 @@ public class ValueValidator {
     private static final Pattern PASSWORD_PATTERN = Pattern.compile(PASSWORD_PATTERN_EXPRESSION);
 
     private static final int NAME_MAX_LENGTH = 30;
-    private static final int NAME_MIN_LENGTH = 3;
+    private static final int NAME_MIN_LENGTH = 1;
     private static final String NAME_PATTERN_EXPRESSION = "[가-힣A-Za-z0-9\\.\\-_]+";
     private static final Pattern NAME_PATTERN = Pattern.compile(NAME_PATTERN_EXPRESSION);
 

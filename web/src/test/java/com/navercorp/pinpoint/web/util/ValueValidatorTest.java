@@ -79,7 +79,7 @@ public class ValueValidatorTest {
     public void testValidateName() {
         //length test
         assertFalse(ValueValidator.validateName(""));
-        assertFalse(ValueValidator.validateName("na"));
+        assertTrue(ValueValidator.validateName("1"));
         assertFalse(ValueValidator.validateName("1234567890123456789012345678901234"));
         assertTrue(ValueValidator.validateName("123456789012345678901234567890"));
 
