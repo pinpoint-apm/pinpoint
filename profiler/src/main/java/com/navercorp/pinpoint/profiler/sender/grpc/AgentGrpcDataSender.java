@@ -115,7 +115,7 @@ public class AgentGrpcDataSender implements EnhancedDataSender {
         this.messageConverter = Assert.requireNonNull(messageConverter, "messageConverter must not be null");
 
         this.timer = createTimer(name);
-        this.writeFailFutureListener = new WriteFailFutureListener(logger, "io write fail.", "host", -1);
+        this.writeFailFutureListener = new WriteFailFutureListener(logger, "io write fail.", host + ":" + port);
 
         final String executorName = getExecutorName(name);
         this.asyncQueueingExecutor = createAsyncQueueingExecutor(1024 * 5, executorName);

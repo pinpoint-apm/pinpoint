@@ -96,7 +96,8 @@ public class TcpDataSender implements EnhancedDataSender<Object> {
 
         this.messageSerializer = Assert.requireNonNull(messageSerializer, "messageSerializer must not be null");
         this.timer = createTimer(name);
-        this.writeFailFutureListener = new WriteFailFutureListener(logger, "io write fail.", "host", -1);
+
+        this.writeFailFutureListener = new WriteFailFutureListener(logger, "io write fail.", clientProvider.getAddressAsString());
 
         final String executorName = getExecutorName(name);
         this.executor = createAsyncQueueingExecutor(1024 * 5, executorName);
