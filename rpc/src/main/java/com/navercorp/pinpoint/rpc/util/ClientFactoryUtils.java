@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 
 /**
@@ -35,6 +36,8 @@ public final class ClientFactoryUtils {
 
     public interface PinpointClientProvider {
         PinpointClient get();
+
+        String getAddressAsString();
     }
 
     public static PinpointClientProvider newPinpointClientProvider(String host, int port, PinpointClientFactory clientFactory) {
@@ -50,6 +53,11 @@ public final class ClientFactoryUtils {
             this.host = Assert.requireNonNull(host, "host must not be null");
             this.port = port;
             this.clientFactory = Assert.requireNonNull(clientFactory, "clientFactory must not be null");
+        }
+
+        @Override
+        public String getAddressAsString() {
+            return host + ":" + port;
         }
 
         @Override
@@ -89,6 +97,16 @@ public final class ClientFactoryUtils {
         public StaticPinpointClientProvider(InetSocketAddress inetSocketAddress, PinpointClientFactory clientFactory) {
             this.inetSocketAddress = Assert.requireNonNull(inetSocketAddress, "host must not be null");
             this.clientFactory = Assert.requireNonNull(clientFactory, "clientFactory must not be null");
+        }
+
+        @Override
+        public String getAddressAsString() {
+            InetAddress address = inetSocketAddress.getAddress();
+            if (address != null) {
+                return address.getHostAddress() + ":" + inetSocketAddress.getPort();
+            } else {
+                return "unknown:-1";
+            }
         }
 
         @Override
