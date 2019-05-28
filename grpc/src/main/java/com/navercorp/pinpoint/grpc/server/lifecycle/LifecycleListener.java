@@ -14,19 +14,17 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.grpc.server;
+package com.navercorp.pinpoint.grpc.server.lifecycle;
 
-import java.net.InetSocketAddress;
+/**
+ * @author Woonduk Kang(emeroad)
+ */
+public interface LifecycleListener {
 
-public interface TransportMetadata {
+    void connect(Lifecycle lifecycle);
 
-    InetSocketAddress getRemoteAddress();
+    void handshake(Lifecycle lifecycle);
 
-    long getTransportId();
+    void close(Lifecycle lifecycle);
 
-    long getConnectTime();
-
-    long nextEventCount();
-
-    Object getConnectionLock();
 }

@@ -440,8 +440,6 @@
     </bean>
 
 
-    <bean id="socketIdProvider" class="com.navercorp.pinpoint.collector.receiver.grpc.service.CurrentTimeSocketIdProvider"/>
-
     <bean id="grpcAgentServerExecutor" class="com.navercorp.pinpoint.collector.receiver.thrift.ExecutorFactoryBean" parent="abstractReceiverExecutorFactoryBean">
         <property name="corePoolSize" value="#{baseDataReceiverConfig.grpcWorkerThreadSize}"/>
         <property name="maxPoolSize" value="#{baseDataReceiverConfig.grpcWorkerThreadSize}"/>
@@ -456,21 +454,51 @@
     </bean>
     <bean id="grpcAgentServerOption" class="com.navercorp.pinpoint.grpc.server.ServerOption" factory-bean="grpcAgentServerOptionBuilder" factory-method="build"/>
 
-    <bean id="agentService" class="com.navercorp.pinpoint.collector.receiver.grpc.service.AgentService">
-        <constructor-arg index="0" ref="grpcDispatchHandlerFactoryBean"/>
+    <bean id="grpcLifecycleScheduler" class="org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler">
+        <property name="poolSize" value="1"/>
+        <property name="threadNamePrefix" value="Pinpoint-LifecycleFlusher-"/>
+        <property name="daemon" value="true"/>
+        <property name="waitForTasksToCompleteOnShutdown" value="true"/>
+        <property name="awaitTerminationSeconds" value="10"/>
+    </bean>
+    <task:scheduled-tasks scheduler="grpcLifecycleScheduler">
+        <task:scheduled ref="keepAliveService" method="updateState" fixed-rate="5000"/>
+    </task:scheduled-tasks>
+    <bean id="lifecycleRegistry" class="com.navercorp.pinpoint.grpc.server.lifecycle.DefaultLifecycleRegistry"/>
+    <bean id="lifecycleListener" class="com.navercorp.pinpoint.collector.receiver.grpc.service.AgentLifecycleListener">
+        <constructor-arg index="0" ref="keepAliveService"/>
     </bean>
     <bean id="keepAliveService" class="com.navercorp.pinpoint.collector.receiver.grpc.service.KeepAliveService">
         <constructor-arg index="0" ref="agentEventAsyncTask"/>
         <constructor-arg index="1" ref="agentLifeCycleAsyncTask"/>
-        <constructor-arg index="2" ref="socketIdProvider"/>
-        <constructor-arg index="3" ref="channelPropertiesFactory"/>
+        <constructor-arg index="2" ref="lifecycleRegistry"/>
+    </bean>
+    <bean id="lifecycleTransportFilter" class="com.navercorp.pinpoint.grpc.server.lifecycle.LifecycleTransportFilter">
+        <constructor-arg index="0" ref="lifecycleRegistry"/>
+        <constructor-arg index="1" ref="lifecycleListener"/>
+    </bean>
+
+    <bean id="headerHijackingServerInterceptor" class="com.navercorp.pinpoint.grpc.server.lifecycle.HeaderHijackingServerInterceptor">
+        <constructor-arg index="0" ref="lifecycleRegistry"/>
+        <constructor-arg index="1" ref="lifecycleListener"/>
+    </bean>
+    <bean id="agentService" class="com.navercorp.pinpoint.collector.receiver.grpc.service.AgentService">
+        <constructor-arg index="0" ref="grpcDispatchHandlerFactoryBean"/>
     </bean>
     <bean id="commandService" class="com.navercorp.pinpoint.collector.receiver.grpc.service.command.GrpcCommandService">
         <constructor-arg index="0" ref="clusterService"/>
     </bean>
-    <util:list id="agentServiceList" value-type="io.grpc.BindableService">
-        <ref bean="agentService"/>
-        <ref bean="keepAliveService"/>
+
+    <bean id="agentServiceDecorator" class="io.grpc.ServerInterceptors" factory-method="intercept">
+        <constructor-arg index="0" type="io.grpc.BindableService" ref="agentService"/>
+        <constructor-arg index="1">
+            <list value-type="io.grpc.ServerInterceptor">
+                <ref bean="headerHijackingServerInterceptor"/>
+            </list>
+        </constructor-arg>
+    </bean>
+    <util:list id="agentServiceList">
+        <ref bean="agentServiceDecorator"/>
         <ref bean="commandService"/>
     </util:list>
 
@@ -482,6 +510,7 @@
         <property name="bindableServiceList" ref="agentServiceList"/>
         <property name="enable" value="#{baseDataReceiverConfig.isGrpcEnable()}"/>
         <property name="serverOption" ref="grpcAgentServerOption"/>
+        <property name="lifecycleTransportFilter" ref="lifecycleTransportFilter"/>
     </bean>
 
 

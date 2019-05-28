@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.collector.cluster.zookeeper.ZookeeperProfilerClust
 import com.navercorp.pinpoint.collector.receiver.grpc.RecordedStreamObserver;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.command.GrpcCommandService;
 import com.navercorp.pinpoint.grpc.AgentHeaderFactory;
+import com.navercorp.pinpoint.grpc.server.DefaultTransportMetadata;
 import com.navercorp.pinpoint.grpc.server.ServerContext;
 import com.navercorp.pinpoint.grpc.server.TransportMetadata;
 import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadCountRes;
@@ -107,17 +108,7 @@ public class GrpcCommandServiceTest {
     }
 
     private TransportMetadata createTransportMetaData(InetSocketAddress remoteAddress, long transportId) {
-        return new TransportMetadata() {
-            @Override
-            public InetSocketAddress getRemoteAddress() {
-                return remoteAddress;
-            }
-
-            @Override
-            public long getTransportId() {
-                return transportId;
-            }
-        };
+        return new DefaultTransportMetadata(remoteAddress, transportId, System.currentTimeMillis());
     }
 
     private void attachContext(TransportMetadata transportMetadata) {

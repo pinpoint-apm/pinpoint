@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.collector.receiver;
 
 import com.navercorp.pinpoint.collector.service.async.AgentEventAsyncTaskService;
 import com.navercorp.pinpoint.collector.service.async.AgentLifeCycleAsyncTaskService;
+import com.navercorp.pinpoint.collector.service.async.AgentProperty;
+import com.navercorp.pinpoint.collector.service.async.AgentPropertyChannelAdaptor;
 import com.navercorp.pinpoint.collector.util.ManagedAgentLifeCycle;
 import com.navercorp.pinpoint.common.server.util.AgentEventType;
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
@@ -65,10 +67,16 @@ public class AgentLifeCycleChangeEventHandler extends ServerStateChangeEventHand
             final Map<Object, Object> channelPropertiesMap = pinpointServer.getChannelProperties();
             // nullable
             final ChannelProperties channelProperties = channelPropertiesFactory.newChannelProperties(channelPropertiesMap);
+            if (channelProperties == null) {
+                logger.debug("channelProperties is null {}", pinpointServer);
+                return;
+            }
+            final AgentProperty agentProperty = new AgentPropertyChannelAdaptor(channelProperties);
             final AgentLifeCycleState agentLifeCycleState = managedAgentLifeCycle.getMappedState();
-            this.agentLifeCycleAsyncTaskService.handleLifeCycleEvent(channelProperties, eventTimestamp, agentLifeCycleState, managedAgentLifeCycle.getEventCounter());
+            final long eventIdentifier = AgentLifeCycleAsyncTaskService.createEventIdentifier(channelProperties.getSocketId(), managedAgentLifeCycle.getEventCounter());
+            this.agentLifeCycleAsyncTaskService.handleLifeCycleEvent(agentProperty, eventTimestamp, agentLifeCycleState, eventIdentifier);
             AgentEventType agentEventType = managedAgentLifeCycle.getMappedEvent();
-            this.agentEventAsyncTaskService.handleEvent(channelProperties, eventTimestamp, agentEventType);
+            this.agentEventAsyncTaskService.handleEvent(agentProperty, eventTimestamp, agentEventType);
         }
     }
 

@@ -63,7 +63,7 @@ public class ServerFactory {
 
     private final Executor executor;
 
-    private final List<ServerServiceDefinition> bindableServices = new ArrayList<ServerServiceDefinition>();
+    private final List<Object> bindableServices = new ArrayList<Object>();
     private final List<ServerTransportFilter> serverTransportFilters = new ArrayList<ServerTransportFilter>();
     private final List<ServerInterceptor> serverInterceptors = new ArrayList<ServerInterceptor>();
 
@@ -126,13 +126,20 @@ public class ServerFactory {
 
         setupInternal(serverBuilder);
 
-        for (ServerServiceDefinition bindableService : this.bindableServices) {
-            serverBuilder.addService(bindableService);
+        for (Object service : this.bindableServices) {
+            logger.info("addService {}", service);
+            if (service instanceof BindableService) {
+                serverBuilder.addService((BindableService) service);
+            } else if(service instanceof ServerServiceDefinition) {
+                serverBuilder.addService((ServerServiceDefinition) service);
+            }
         }
         for (ServerTransportFilter transportFilter : this.serverTransportFilters) {
+            logger.info("addTransportFilter {}", transportFilter);
             serverBuilder.addTransportFilter(transportFilter);
         }
         for (ServerInterceptor serverInterceptor : this.serverInterceptors) {
+            logger.info("addIntercept {}", serverInterceptor);
             serverBuilder.intercept(serverInterceptor);
         }
 

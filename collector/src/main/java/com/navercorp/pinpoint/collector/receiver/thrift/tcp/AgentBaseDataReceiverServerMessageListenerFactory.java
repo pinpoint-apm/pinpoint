@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.collector.receiver.thrift.tcp;
 
 import com.navercorp.pinpoint.collector.service.async.AgentEventAsyncTaskService;
 import com.navercorp.pinpoint.collector.service.async.AgentLifeCycleAsyncTaskService;
+import com.navercorp.pinpoint.collector.service.async.AgentProperty;
+import com.navercorp.pinpoint.collector.service.async.AgentPropertyChannelAdaptor;
 import com.navercorp.pinpoint.common.server.util.AgentEventType;
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
 import com.navercorp.pinpoint.rpc.PinpointSocket;
@@ -140,11 +142,16 @@ class AgentBaseDataReceiverServerMessageListenerFactory implements ServerMessage
             final long pingTimestamp = System.currentTimeMillis();
             final Map<Object, Object> channelPropertiesMap = pinpointServer.getChannelProperties();
             final ChannelProperties channelProperties = channelPropertiesFactory.newChannelProperties(channelPropertiesMap);
+            if (channelProperties == null) {
+                return;
+            }
             try {
+                long eventIdentifier = AgentLifeCycleAsyncTaskService.createEventIdentifier(channelProperties.getSocketId(), eventCounter);
+                AgentProperty agentProperty = new AgentPropertyChannelAdaptor(channelProperties);
                 if (!(eventCounter < 0)) {
-                    agentLifeCycleAsyncTaskService.handleLifeCycleEvent(channelProperties, pingTimestamp, AgentLifeCycleState.RUNNING, eventCounter);
+                    agentLifeCycleAsyncTaskService.handleLifeCycleEvent(agentProperty, pingTimestamp, AgentLifeCycleState.RUNNING, eventIdentifier);
                 }
-                agentEventAsyncTaskService.handleEvent(channelProperties, pingTimestamp, AgentEventType.AGENT_PING);
+                agentEventAsyncTaskService.handleEvent(agentProperty, pingTimestamp, AgentEventType.AGENT_PING);
             } catch (Exception e) {
                 logger.warn("Error handling ping event", e);
             }

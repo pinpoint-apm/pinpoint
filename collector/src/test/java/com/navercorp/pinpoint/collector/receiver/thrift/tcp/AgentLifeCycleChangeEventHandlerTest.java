@@ -19,10 +19,12 @@ package com.navercorp.pinpoint.collector.receiver.thrift.tcp;
 import com.navercorp.pinpoint.collector.receiver.AgentLifeCycleChangeEventHandler;
 import com.navercorp.pinpoint.collector.service.async.AgentEventAsyncTaskService;
 import com.navercorp.pinpoint.collector.service.async.AgentLifeCycleAsyncTaskService;
+import com.navercorp.pinpoint.collector.service.async.AgentProperty;
 import com.navercorp.pinpoint.collector.util.ManagedAgentLifeCycle;
 import com.navercorp.pinpoint.common.server.util.AgentEventType;
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
 import com.navercorp.pinpoint.rpc.common.SocketStateCode;
+import com.navercorp.pinpoint.rpc.server.ChannelProperties;
 import com.navercorp.pinpoint.rpc.server.ChannelPropertiesFactory;
 import com.navercorp.pinpoint.rpc.server.PinpointServer;
 import org.junit.Before;
@@ -54,8 +56,8 @@ public class AgentLifeCycleChangeEventHandlerTest {
     @Mock
     private PinpointServer server;
 
-    @Spy
-    private ChannelPropertiesFactory channelPropertiesFactory = new ChannelPropertiesFactory();
+    @Mock
+    private ChannelPropertiesFactory channelPropertiesFactory;
 
     @InjectMocks
     private AgentLifeCycleChangeEventHandler lifeCycleChangeEventHandler = new AgentLifeCycleChangeEventHandler();
@@ -63,7 +65,13 @@ public class AgentLifeCycleChangeEventHandlerTest {
     @Before
     public void setUp() throws Exception {
         doReturn("TestPinpointServer").when(this.server).toString();
+        when(channelPropertiesFactory.newChannelProperties(anyMap())).thenReturn(mock(ChannelProperties.class));
     }
+
+//    public ChannelProperties newDefaultChannelProperties() {
+//        return new DefaultChannelProperties("agentId", "appName", ServiceType.STAND_ALONE.getCode(),
+//                Version.VERSION, "localhost", 127.0.0.1, 1, system, socketId, supportCommandList, customProperty);
+//    }
 
     @Test
     public void runningStatesShouldBeHandledCorrectly() throws Exception {
@@ -113,8 +121,8 @@ public class AgentLifeCycleChangeEventHandlerTest {
             // when
             this.lifeCycleChangeEventHandler.stateUpdated(this.server, unmanagedState);
             // then
-            verify(this.agentLifeCycleAsyncTaskService, never()).handleLifeCycleEvent(any(), anyLong(), any(AgentLifeCycleState.class), anyInt());
-            verify(this.agentEventAsyncTaskService, never()).handleEvent(any(), anyLong(), any(AgentEventType.class));
+            verify(this.agentLifeCycleAsyncTaskService, never()).handleLifeCycleEvent(any(), anyLong(), any(AgentLifeCycleState.class), anyLong());
+            verify(this.agentEventAsyncTaskService, never()).handleEvent(any(AgentProperty.class), anyLong(), any(AgentEventType.class));
         }
     }
 
@@ -124,8 +132,8 @@ public class AgentLifeCycleChangeEventHandlerTest {
             this.lifeCycleChangeEventHandler.stateUpdated(this.server, socketState);
             testCount++;
             verify(this.agentLifeCycleAsyncTaskService, times(testCount))
-                    .handleLifeCycleEvent(any(), anyLong(), any(AgentLifeCycleState.class), anyInt());
-            verify(this.agentEventAsyncTaskService, times(testCount)).handleEvent(any(), anyLong(), any(AgentEventType.class));
+                    .handleLifeCycleEvent(any(), anyLong(), any(AgentLifeCycleState.class), anyLong());
+            verify(this.agentEventAsyncTaskService, times(testCount)).handleEvent(any(AgentProperty.class), anyLong(), any(AgentEventType.class));
         }
     }
 

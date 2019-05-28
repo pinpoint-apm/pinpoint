@@ -14,11 +14,19 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.collector.receiver.grpc.service;
+package com.navercorp.pinpoint.grpc.server.lifecycle;
+
+import java.util.Collection;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
-public interface SocketIdProvider {
-    long getSocketId();
+public interface LifecycleRegistry {
+    Lifecycle add(Lifecycle lifecycle);
+
+    Lifecycle get(long transportId);
+
+    Lifecycle remove(long transportId);
+
+    Collection<Lifecycle> values();
 }

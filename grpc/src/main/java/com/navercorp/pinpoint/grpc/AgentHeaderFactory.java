@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.grpc;
 
 import com.navercorp.pinpoint.common.util.Assert;
-import io.grpc.Attributes;
 import io.grpc.Metadata;
 
 /**
@@ -100,6 +99,27 @@ public class AgentHeaderFactory implements HeaderFactory<AgentHeaderFactory.Head
             sb.append(", agentStartTime=").append(agentStartTime);
             sb.append('}');
             return sb.toString();
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof Header)) return false;
+
+            Header header = (Header) o;
+
+            if (agentStartTime != header.agentStartTime) return false;
+            if (agentId != null ? !agentId.equals(header.agentId) : header.agentId != null) return false;
+            return applicationName != null ? applicationName.equals(header.applicationName) : header.applicationName == null;
+
+        }
+
+        @Override
+        public int hashCode() {
+            int result = agentId != null ? agentId.hashCode() : 0;
+            result = 31 * result + (applicationName != null ? applicationName.hashCode() : 0);
+            result = 31 * result + (int) (agentStartTime ^ (agentStartTime >>> 32));
+            return result;
         }
     }
 }

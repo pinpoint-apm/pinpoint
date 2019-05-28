@@ -19,14 +19,12 @@ package com.navercorp.pinpoint.collector.service.async;
 import com.navercorp.pinpoint.collector.service.AgentEventService;
 import com.navercorp.pinpoint.common.server.bo.event.AgentEventBo;
 import com.navercorp.pinpoint.common.server.util.AgentEventType;
-import com.navercorp.pinpoint.rpc.server.ChannelProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -41,17 +39,12 @@ public class AgentEventAsyncTaskService {
     private AgentEventService agentEventService;
 
     @Async("agentEventWorker")
-    public void handleEvent(final ChannelProperties channelProperties, long eventTimestamp, AgentEventType eventType) {
-        if (channelProperties == null) {
-            // It can occurs CONNECTED -> RUN_WITHOUT_HANDSHAKE -> CLOSED(UNEXPECTED_CLOSE_BY_CLIENT, ERROR_UNKNOWN)
-            // TODO channelProperties is null
-            logger.warn("maybe not yet received the handshake data - pinpointServer:{}", channelProperties);
-            return;
-        }
+    public void handleEvent(final AgentProperty agentProperty, long eventTimestamp, AgentEventType eventType) {
+        Objects.requireNonNull(agentProperty, "agentProperty must not be null");
         Objects.requireNonNull(eventType, "eventType must not be null");
 
-        final String agentId = channelProperties.getAgentId();
-        final long startTimestamp = channelProperties.getStartTime();
+        final String agentId = agentProperty.getAgentId();
+        final long startTimestamp = agentProperty.getStartTime();
         final AgentEventBo agentEventBo = newAgentEventBo(agentId, startTimestamp, eventTimestamp, eventType);
         this.agentEventService.insert(agentEventBo);
     }

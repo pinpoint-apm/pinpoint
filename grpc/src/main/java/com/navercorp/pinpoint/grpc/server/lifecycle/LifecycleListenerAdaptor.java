@@ -14,19 +14,29 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.collector.receiver.grpc.service;
+package com.navercorp.pinpoint.grpc.server.lifecycle;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class CurrentTimeSocketIdProvider implements SocketIdProvider {
+public class LifecycleListenerAdaptor implements LifecycleListener {
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     @Override
-    public long getSocketId() {
-        return System.currentTimeMillis();
+    public void connect(Lifecycle lifecycle) {
+        logger.info("connect:{}", lifecycle);
     }
 
     @Override
-    public String toString() {
-        return "CurrentTimeSocketIdProvider{}";
+    public void handshake(Lifecycle lifecycle) {
+        logger.info("handshake {}", lifecycle);
+    }
+
+    @Override
+    public void close(Lifecycle lifecycle) {
+        logger.info("close:{}", lifecycle);
     }
 }
