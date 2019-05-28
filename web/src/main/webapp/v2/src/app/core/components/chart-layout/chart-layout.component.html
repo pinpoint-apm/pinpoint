@@ -1,5 +1,5 @@
 <div class="l-chart-container" cdkDropListGroup *ngIf="!isEmpty()">
-    <div cdkDropList [cdkDropListEnterPredicate]="dropListEnterPredicate" (cdkDropListDropped)="dropListDropped($event)"></div>
+    <div cdkDropList style="display: none;" [cdkDropListEnterPredicate]="dropListEnterPredicate" (cdkDropListDropped)="dropListDropped($event)"></div>
     <div cdkDropList *ngFor="let chartName of chartList"
         [cdkDropListEnterPredicate]="dropListEnterPredicate" (cdkDropListDropped)="dropListDropped($event)">
         <div cdkDrag class="l-chart" (cdkDragMoved)="dragMoved($event)">

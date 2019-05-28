@@ -373,3 +373,12 @@ interface IFormFieldErrorType {
     valueRule?: string;
 }
 
+interface IChartLayoutInfo {
+    chartName: string;
+    index: number;
+    visible: boolean;
+}
+
+interface IChartLayoutInfoResponse {
+    [key: string]: IChartLayoutInfo[];
+}

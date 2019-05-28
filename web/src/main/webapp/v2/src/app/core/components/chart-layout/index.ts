@@ -5,6 +5,7 @@ import { MatGridListModule } from '@angular/material';
 import { SharedModule } from 'app/shared';
 import { ChartLayoutContainerComponent } from './chart-layout-container.component';
 import { ChartLayoutComponent } from './chart-layout.component';
+import { ChartLayoutDataService } from './chart-layout-data.service';
 
 @NgModule({
     imports: [
@@ -19,6 +20,8 @@ import { ChartLayoutComponent } from './chart-layout.component';
         ChartLayoutContainerComponent,
         ChartLayoutComponent
     ],
-    providers: [],
+    providers: [
+        ChartLayoutDataService
+    ],
 })
 export class ChartLayoutModule { }

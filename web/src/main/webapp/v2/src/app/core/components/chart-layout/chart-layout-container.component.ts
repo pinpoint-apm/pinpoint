@@ -1,7 +1,10 @@
-import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, Input, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { WebAppSettingDataService, MessageQueueService, MESSAGE_TO } from 'app/shared/services';
 import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+
 import { TranslateService } from '@ngx-translate/core';
+import { ChartLayoutDataService } from './chart-layout-data.service';
 
 @Component({
     selector: 'pp-chart-layout-container',
@@ -10,6 +13,7 @@ import { TranslateService } from '@ngx-translate/core';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ChartLayoutContainerComponent implements OnInit {
+    @Input() type: string;
     private unsubscribe: Subject<void> = new Subject();
     column: number;
     i18nText = {
@@ -17,20 +21,30 @@ export class ChartLayoutContainerComponent implements OnInit {
     };
     chartList: string[];
     chartState: {[key: string]: boolean};
+    useDisable = true;
+    showLoading = true;
     constructor(
         private changeDetectorRef: ChangeDetectorRef,
         private translateService: TranslateService,
         private messageQueueService: MessageQueueService,
+        private chartLayoutDataService: ChartLayoutDataService,
         private webAppSettingDataService: WebAppSettingDataService
     ) {}
     ngOnInit() {
-        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.INSPECTOR_CHART_MANAGER_ADD).subscribe(([chartName]: string[]) => {
-            this.chartList = this.chartList.concat([chartName]);
-            this.saveChartOrder();
+        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.INSPECTOR_CHART_MANAGER_ADD).subscribe(([type, chartName]: string[]) => {
+            if (this.type === type) {
+                this.chartList = this.chartList.concat([chartName]);
+                this.changeDetectorRef.detectChanges();
+            }
+        });
+        this.chartLayoutDataService.getChartOrderList(this.type).pipe(
+            takeUntil(this.unsubscribe)
+        ).subscribe((list: string[]) => {
+            this.column = this.webAppSettingDataService.getChartLayoutOption();
+            this.chartList = list;
+            this.hideProcessing();
             this.changeDetectorRef.detectChanges();
         });
-        this.column = this.webAppSettingDataService.getChartLayoutOption();
-        this.chartList = this.webAppSettingDataService.getChartOrderList();
         this.getI18nText();
     }
     private getI18nText(): void {
@@ -40,20 +54,27 @@ export class ChartLayoutContainerComponent implements OnInit {
     }
     onUpdateChartOrder(orderList: string[]): void {
         this.chartList = orderList;
-        this.saveChartOrder();
+        this.messageQueueService.sendMessage({
+            to: MESSAGE_TO.INSPECTOR_CHART_MANAGER_CHANGE_ORDER,
+            param: [this.type, [...this.chartList]]
+        });
     }
     onRemoveChart(chartName: string): void {
         this.chartList = this.chartList.filter((name: string) => {
             return name !== chartName;
         });
-        this.saveChartOrder();
-        this.changeDetectorRef.detectChanges();
         this.messageQueueService.sendMessage({
             to: MESSAGE_TO.INSPECTOR_CHART_MANAGER_REMOVE,
-            param: [chartName]
+            param: [this.type, chartName]
         });
+        this.changeDetectorRef.detectChanges();
     }
-    private saveChartOrder(): void {
-        this.webAppSettingDataService.setChartOrderList([...this.chartList]);
+    private showProcessing(): void {
+        this.useDisable = true;
+        this.showLoading = true;
+    }
+    private hideProcessing(): void {
+        this.useDisable = false;
+        this.showLoading = false;
     }
 }

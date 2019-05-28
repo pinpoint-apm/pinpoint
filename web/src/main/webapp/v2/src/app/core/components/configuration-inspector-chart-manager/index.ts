@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 
+import { MatTabsModule } from '@angular/material';
 import { SharedModule } from 'app/shared';
 import { ChartLayoutModule } from 'app/core/components/chart-layout';
 import { InspectorChartListModule } from 'app/core/components/inspector-chart-list';
@@ -10,6 +11,7 @@ import { ConfigurationInspectorChartManagerContainerComponent } from './configur
         ConfigurationInspectorChartManagerContainerComponent
     ],
     imports: [
+        MatTabsModule,
         SharedModule,
         ChartLayoutModule,
         InspectorChartListModule

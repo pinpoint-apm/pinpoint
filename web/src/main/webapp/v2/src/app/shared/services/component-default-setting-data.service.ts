@@ -63,11 +63,25 @@ export class ComponentDefaultSettingDataService {
     private chartRefreshInterval: { [key: string]: number} = {
         inspector: 5000,
     };
-    private chartOrderList = [
+    private applicationChartOrderList = [
         'Heap Usage',
         'Non Heap Usage',
         'JVM CPU Usage',
         'System CPU Usage',
+        'Transactions Per Second',
+        'Active Thread',
+        'Response Time',
+        'Open File Descriptor',
+        'Direct Buffer Count',
+        'Direct Buffer Memory',
+        'Mapped Buffer Count',
+        'Mapped Buffer Memory',
+        'Data Source'
+    ];
+    private agentChartOrderList = [
+        'Heap Usage',
+        'Non Heap Usage',
+        'JVM/System CPU Usage',
         'Transactions Per Second',
         'Active Thread',
         'Response Time',
@@ -118,7 +132,10 @@ export class ComponentDefaultSettingDataService {
     getSystemDefaultChartRefreshInterval(key: string): number {
         return this.chartRefreshInterval[key];
     }
-    getSystemDefaultChartOrderList(): string[] {
-        return this.chartOrderList;
+    getApplicationInspectorDefaultChartOrderList(): string[] {
+        return this.applicationChartOrderList;
+    }
+    getAgentInspectorDefaultChartOrderList(): string[] {
+        return this.agentChartOrderList;
     }
 }

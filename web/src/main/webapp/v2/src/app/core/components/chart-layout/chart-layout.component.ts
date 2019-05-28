@@ -51,7 +51,7 @@ export class ChartLayoutComponent implements OnInit, AfterViewInit {
         if (this.chartList) {
             return this.chartList.length === 0;
         }
-        return true;
+        return false;
     }
     removeChart(chartName: string): void {
         this.outRemoveChart.next(chartName);

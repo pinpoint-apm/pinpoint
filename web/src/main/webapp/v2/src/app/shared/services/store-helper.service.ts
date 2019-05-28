@@ -137,6 +137,12 @@ export class StoreHelperService {
     getRange(unsubscribe: Subject<void>): Observable<number[]> {
         return this.getObservable(STORE_KEY.RANGE, unsubscribe);
     }
+    getApplicationInspectorChartLayoutInfo(unsubscribe: Subject<void>): Observable<IChartLayoutInfoResponse> {
+        return this.getObservable(STORE_KEY.APPLICATION_INSPECTOR_CHART_LAYOUT, unsubscribe);
+    }
+    getAgentInspectorChartLayoutInfo(unsubscribe: Subject<void>): Observable<IChartLayoutInfoResponse> {
+        return this.getObservable(STORE_KEY.AGENT_INSPECTOR_CHART_LAYOUT, unsubscribe);
+    }
     getObservable(key: string, unsubscribe?: Subject<void>): Observable<any> {
         return iif(
             () => !!unsubscribe,
