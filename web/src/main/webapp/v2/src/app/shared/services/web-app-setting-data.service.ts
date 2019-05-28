@@ -28,8 +28,8 @@ export class WebAppSettingDataService {
         USER_DEFAULT_PERIOD: 'userDefaultPeriod',
         TRANSACTION_LIST_GUTTER_POSITION: 'transactionListGutterPosition',
         CHART_NUM_PER_ROW: 'chartNumPerRow',
-        CHART_ORDER_LIST: 'chartOrderList',
-        CHART_VISIBLE_STATE: 'chartVisibleState'
+        APPLICATION_CHART_LAYOUT_INFO: 'applicationChartLayoutInfo',
+        AGENT_CHART_LAYOUT_INFO: 'agentChartLayoutInfo',
     };
     private IMAGE_PATH = './assets/img/';
     private IMAGE_EXT = '.png';
@@ -224,24 +224,26 @@ export class WebAppSettingDataService {
     getSystemDefaultChartRefreshInterval(key: string): number {
         return this.componentDefaultSettingDataService.getSystemDefaultChartRefreshInterval(key);
     }
-    getChartDefaultOrderList(): string[] {
-        return this.componentDefaultSettingDataService.getSystemDefaultChartOrderList();
+    getApplicationInspectorDefaultChartList(): string[] {
+        return this.componentDefaultSettingDataService.getApplicationInspectorDefaultChartOrderList();
     }
-    getChartOrderList(): string[] {
-        return this.localStorageService.get(WebAppSettingDataService.KEYS.CHART_ORDER_LIST) ||
-            this.componentDefaultSettingDataService.getSystemDefaultChartOrderList().concat([]);
+    getAgentInspectorDefaultChartList(): string[] {
+        return this.componentDefaultSettingDataService.getAgentInspectorDefaultChartOrderList();
     }
-    setChartOrderList(orderList: string[]): void {
-        this.localStorageService.set(WebAppSettingDataService.KEYS.CHART_ORDER_LIST, orderList);
+    getApplicationLayoutInfo(): IChartLayoutInfoResponse {
+        return this.localStorageService.get(WebAppSettingDataService.KEYS.APPLICATION_CHART_LAYOUT_INFO) || {
+            applicationInspectorChart: []
+        };
     }
-    getChartVisibleState(): {[key: string]: boolean} {
-        return this.localStorageService.get(WebAppSettingDataService.KEYS.CHART_VISIBLE_STATE) ||
-            this.componentDefaultSettingDataService.getSystemDefaultChartOrderList().reduce((accu: any, currentChart: string) => {
-                accu[currentChart] = true;
-                return accu;
-            }, {});
+    setApplicationLayoutInfo(chartInfo: IChartLayoutInfoResponse): void {
+        this.localStorageService.set(WebAppSettingDataService.KEYS.APPLICATION_CHART_LAYOUT_INFO, chartInfo);
     }
-    setChartVisibleState(chartState: {[key: string]: boolean}): void {
-        this.localStorageService.set(WebAppSettingDataService.KEYS.CHART_VISIBLE_STATE, chartState);
+    getAgentLayoutInfo(): IChartLayoutInfoResponse {
+        return this.localStorageService.get(WebAppSettingDataService.KEYS.AGENT_CHART_LAYOUT_INFO) || {
+            agentInspectorChart: []
+        };
+    }
+    setAgentLayoutInfo(chartInfo: IChartLayoutInfoResponse): void {
+        this.localStorageService.set(WebAppSettingDataService.KEYS.AGENT_CHART_LAYOUT_INFO, chartInfo);
     }
 }

@@ -22,6 +22,7 @@ import * as serverMapSelectedTarget from './server-map-selected-target.reducer';
 import * as serverMapLoadingState from './server-map-loading-state.reducer';
 import * as uiState from './ui-state.reducer';
 import * as range from './range.reducer';
+import * as chartLayout from './inspector-chart-layout-info.reducer';
 
 export interface AppState {
     timeline: ITimelineInfo;
@@ -45,6 +46,8 @@ export interface AppState {
     updateFilterOfServerAndAgentList: string;
     adminAgentList: { [key: string]: IAgent[] };
     uiState: IUIState;
+    applicationInspectorChartLayout: IChartLayoutInfoResponse;
+    agentInspectorChartLayout: IChartLayoutInfoResponse;
 }
 
 export const STORE_KEY = {
@@ -70,7 +73,9 @@ export const STORE_KEY = {
     ADMIN_AGENT_LIST: 'adminAgentList',
     SERVER_AND_AGENT: 'serverAndAgent',
     UI_STATE: 'uiState',
-    RANGE: 'range'
+    RANGE: 'range',
+    APPLICATION_INSPECTOR_CHART_LAYOUT: 'applicationInspectorChartLayout',
+    AGENT_INSPECTOR_CHART_LAYOUT: 'agentInspectorChartLayout',
 };
 
 
@@ -97,7 +102,9 @@ export const reducers: ActionReducerMap<any> = {
     serverAndAgent: serverAndAgent.Reducer,
     uiState: uiState.Reducer,
     timeline: timeline.Reducer,
-    range: range.Reducer
+    range: range.Reducer,
+    applicationInspectorChartLayout: chartLayout.ApplicationInspectorChartLayoutReducer,
+    agentInspectorChartLayout: chartLayout.AgentInspectorChartLayoutReducer
 };
 
 export const Actions = {
@@ -124,7 +131,9 @@ export const Actions = {
     'ChangeServerMapDisableState': uiState.ChangeServerMapDisableState,
     'ChangeInfoPerServerVisibleState': uiState.ChangeInfoPerServerVisibleState,
     'UpdateTimelineData': timeline.UpdateTimelineData,
-    'UpdateRange': range.UpdateRange
+    'UpdateRange': range.UpdateRange,
+    'UpdateApplicationInspectorChartLayout': chartLayout.UpdateApplicationInspectorChartLayoutInfo,
+    'UpdateAgentInspectorChartLayout': chartLayout.UpdateAgentInspectorChartLayoutInfo
 };
 
 const getUI = createFeatureSelector('uiState');

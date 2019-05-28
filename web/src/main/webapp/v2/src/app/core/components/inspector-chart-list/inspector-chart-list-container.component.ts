@@ -1,6 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
 import { Subject } from 'rxjs';
-import { WebAppSettingDataService, MessageQueueService, MESSAGE_TO } from 'app/shared/services';
+import { takeUntil } from 'rxjs/operators';
+
+import { MessageQueueService, MESSAGE_TO } from 'app/shared/services';
+import { InspectorChartListDataService } from './inspector-chart-list-data.service';
 
 @Component({
     selector: 'pp-inspector-chart-list-container',
@@ -8,42 +11,66 @@ import { WebAppSettingDataService, MessageQueueService, MESSAGE_TO } from 'app/s
     styleUrls: ['./inspector-chart-list-container.component.css']
 })
 export class InspectorChartListContainerComponent implements OnInit {
+    @Input() type: string;
     private unsubscribe: Subject<void> = new Subject();
     chartList: string[];
     chartState: {[key: string]: boolean};
+    useDisable = true;
+    showLoading = true;
     constructor(
         private messageQueueService: MessageQueueService,
-        private webAppSettingDataService: WebAppSettingDataService
+        private inspectorChartListDataService: InspectorChartListDataService,
     ) {}
 
     ngOnInit() {
-        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.INSPECTOR_CHART_MANAGER_REMOVE).subscribe(([chartName]: string[]) => {
-            this.chartState = {
-                ...this.chartState,
-                [chartName]: false
-            };
-            this.saveChartState();
+        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.INSPECTOR_CHART_MANAGER_REMOVE).subscribe(([type, chartName]: string[]) => {
+            if (this.type === type) {
+                this.chartState = {
+                    ...this.chartState,
+                    [chartName]: false
+                };
+                this.saveChartState();
+            }
         });
-        this.chartList = this.webAppSettingDataService.getChartDefaultOrderList();
-        this.chartState = this.webAppSettingDataService.getChartVisibleState();
-        this.getI18nText();
+        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.INSPECTOR_CHART_MANAGER_CHANGE_ORDER).subscribe(([type, chartOrder]: [string, string[]]) => {
+            if (this.type === type) {
+                this.saveChartOrder(chartOrder);
+            }
+        });
+        this.inspectorChartListDataService.getChartVisibleState(this.type).pipe(
+            takeUntil(this.unsubscribe)
+        ).subscribe((state: {[key: string]: boolean}) => {
+            this.chartList = this.inspectorChartListDataService.getDefaultChartList(this.type);
+            this.chartState = state;
+            this.hideProcessing();
+        });
     }
-    private getI18nText(): void {
+    private saveChartState(): void {
+        this.inspectorChartListDataService.setChartVisibleState(this.type, {
+            ...this.chartState
+        });
+    }
+    private saveChartOrder(chartOrder: string[]): void {
+        this.inspectorChartListDataService.setChartOrderState(this.type, chartOrder);
     }
     onAddChart(chartName: string): void {
+        this.showProcessing();
         this.chartState = {
             ...this.chartState,
             [chartName]: true
         };
         this.messageQueueService.sendMessage({
             to: MESSAGE_TO.INSPECTOR_CHART_MANAGER_ADD,
-            param: [chartName]
+            param: [this.type, chartName]
         });
         this.saveChartState();
     }
-    private saveChartState(): void {
-        this.webAppSettingDataService.setChartVisibleState({
-            ...this.chartState
-        });
+    private showProcessing(): void {
+        this.useDisable = true;
+        this.showLoading = true;
+    }
+    private hideProcessing(): void {
+        this.useDisable = false;
+        this.showLoading = false;
     }
 }
