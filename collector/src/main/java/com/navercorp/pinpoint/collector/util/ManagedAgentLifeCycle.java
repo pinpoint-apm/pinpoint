@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.collector.util;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumMap;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -28,6 +29,7 @@ import com.navercorp.pinpoint.rpc.common.SocketStateCode;
 
 public enum ManagedAgentLifeCycle {
     RUNNING(0, SocketStateCode.RUN_SIMPLEX, SocketStateCode.RUN_DUPLEX),
+
     CLOSED_BY_CLIENT(Integer.MAX_VALUE, SocketStateCode.CLOSED_BY_CLIENT),
     UNEXPECTED_CLOSE_BY_CLIENT(Integer.MAX_VALUE, SocketStateCode.UNEXPECTED_CLOSE_BY_CLIENT),
     CLOSED_BY_SERVER(Integer.MAX_VALUE, SocketStateCode.CLOSED_BY_SERVER),
@@ -39,6 +41,9 @@ public enum ManagedAgentLifeCycle {
 
     private static final EnumMap<ManagedAgentLifeCycle, AgentEventType> MAPPED_EVENT = new EnumMap<>(
             ManagedAgentLifeCycle.class);
+
+    private static final EnumSet<ManagedAgentLifeCycle> CLOSED_EVENT
+            = EnumSet.of(CLOSED_BY_CLIENT, UNEXPECTED_CLOSE_BY_CLIENT, CLOSED_BY_SERVER, UNEXPECTED_CLOSE_BY_SERVER);
 
     static {
         MAPPED_STATE.put(RUNNING, AgentLifeCycleState.RUNNING);
@@ -85,5 +90,9 @@ public enum ManagedAgentLifeCycle {
             }
         }
         return null;
+    }
+
+    public static boolean isClosedEvent(ManagedAgentLifeCycle managedAgentLifeCycle) {
+        return CLOSED_EVENT.contains(managedAgentLifeCycle);
     }
 }

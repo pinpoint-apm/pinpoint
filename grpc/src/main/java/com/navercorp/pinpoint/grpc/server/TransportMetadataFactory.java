@@ -40,7 +40,8 @@ public class TransportMetadataFactory {
             throw Status.INTERNAL.withDescription("RemoteSocketAddress is null").asRuntimeException();
         }
         final long transportId = idGenerator.getAndIncrement();
-        return new DefaultTransportMetadata(remoteSocketAddress, transportId);
+        final long connectedTime = System.currentTimeMillis();
+        return new DefaultTransportMetadata(remoteSocketAddress, transportId, connectedTime);
     }
 
 

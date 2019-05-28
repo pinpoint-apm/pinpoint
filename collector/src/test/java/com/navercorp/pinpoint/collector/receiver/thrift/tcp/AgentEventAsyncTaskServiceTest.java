@@ -18,13 +18,13 @@ package com.navercorp.pinpoint.collector.receiver.thrift.tcp;
 
 import com.navercorp.pinpoint.collector.service.AgentEventService;
 import com.navercorp.pinpoint.collector.service.async.AgentEventAsyncTaskService;
+import com.navercorp.pinpoint.collector.service.async.AgentProperty;
+import com.navercorp.pinpoint.collector.service.async.AgentPropertyChannelAdaptor;
 import com.navercorp.pinpoint.common.server.bo.event.AgentEventBo;
 import com.navercorp.pinpoint.common.server.util.AgentEventType;
 import com.navercorp.pinpoint.rpc.packet.HandshakePropertyType;
 import com.navercorp.pinpoint.rpc.server.ChannelProperties;
 import com.navercorp.pinpoint.rpc.server.ChannelPropertiesFactory;
-import com.navercorp.pinpoint.rpc.server.DefaultChannelProperties;
-import com.navercorp.pinpoint.rpc.server.PinpointServer;
 
 import static org.junit.Assert.assertEquals;
 import org.junit.Before;
@@ -72,7 +72,8 @@ public class AgentEventAsyncTaskServiceTest {
         ArgumentCaptor<AgentEventBo> argCaptor = ArgumentCaptor.forClass(AgentEventBo.class);
         // when
         ChannelProperties channelProperties = channelPropertiesFactory.newChannelProperties(TEST_CHANNEL_PROPERTIES);
-        this.agentEventAsyncTaskService.handleEvent(channelProperties, TEST_EVENT_TIMESTAMP, expectedEventType);
+        AgentProperty agentProperty = new AgentPropertyChannelAdaptor(channelProperties);
+        this.agentEventAsyncTaskService.handleEvent(agentProperty, TEST_EVENT_TIMESTAMP, expectedEventType);
         verify(this.agentEventService, times(1)).insert(argCaptor.capture());
         // then
         AgentEventBo actualAgentEventBo = argCaptor.getValue();

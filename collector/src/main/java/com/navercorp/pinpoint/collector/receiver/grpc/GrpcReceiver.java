@@ -27,6 +27,7 @@ import com.navercorp.pinpoint.grpc.server.TransportMetadataServerInterceptor;
 import io.grpc.BindableService;
 import io.grpc.Server;
 import io.grpc.ServerInterceptor;
+import io.grpc.ServerServiceDefinition;
 import io.grpc.ServerTransportFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,6 +36,7 @@ import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 
 import java.io.Closeable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
 
@@ -53,9 +55,10 @@ public class GrpcReceiver implements InitializingBean, DisposableBean, BeanNameA
     private ServerFactory serverFactory;
     private Executor executor;
 
-    private List<BindableService> bindableServiceList;
+    private List<Object> serviceList = new ArrayList<>();
 
     private AddressFilter addressFilter;
+    private ServerTransportFilter lifecycleTransportFilter;
     private ServerOption serverOption;
 
     private Server server;
@@ -71,7 +74,7 @@ public class GrpcReceiver implements InitializingBean, DisposableBean, BeanNameA
         Assert.requireNonNull(this.beanName, "beanName must not be null");
         Assert.requireNonNull(this.bindIp, "bindIp must not be null");
         Assert.requireNonNull(this.addressFilter, "addressFilter must not be null");
-        Assert.isTrue(CollectionUtils.hasLength(this.bindableServiceList), "bindableService must not be empty");
+        Assert.isTrue(CollectionUtils.hasLength(this.serviceList), "serviceList must not be empty");
 
         this.serverFactory = new ServerFactory(beanName, this.bindIp, this.bindPort, this.executor);
         ServerTransportFilter permissionServerTransportFilter = new PermissionServerTransportFilter(addressFilter);
@@ -81,12 +84,21 @@ public class GrpcReceiver implements InitializingBean, DisposableBean, BeanNameA
         final ServerTransportFilter metadataTransportFilter = new MetadataServerTransportFilter(transportMetadataFactory);
         this.serverFactory.addTransportFilter(metadataTransportFilter);
 
+        if (lifecycleTransportFilter != null) {
+            this.serverFactory.addTransportFilter(lifecycleTransportFilter);
+        }
         ServerInterceptor transportMetadataServerInterceptor = new TransportMetadataServerInterceptor();
         this.serverFactory.addInterceptor(transportMetadataServerInterceptor);
 
         // Add service
-        for (BindableService bindableService : bindableServiceList) {
-            this.serverFactory.addService(bindableService);
+        for (Object service : serviceList) {
+            if (service instanceof BindableService) {
+                this.serverFactory.addService((BindableService) service);
+            } else if (service instanceof ServerServiceDefinition) {
+                this.serverFactory.addService((ServerServiceDefinition) service);
+            } else {
+                throw new IllegalStateException("unsupported service type " + service);
+            }
         }
 
         this.server = serverFactory.build();
@@ -106,7 +118,7 @@ public class GrpcReceiver implements InitializingBean, DisposableBean, BeanNameA
             this.server.shutdown();
         }
 
-        for (BindableService bindableService : bindableServiceList) {
+        for (Object bindableService : serviceList) {
             if (bindableService instanceof Closeable) {
                 ((Closeable) bindableService).close();
             }
@@ -153,8 +165,21 @@ public class GrpcReceiver implements InitializingBean, DisposableBean, BeanNameA
         this.serverOption = serverOption;
     }
 
-    public void setBindableServiceList(List<BindableService> bindableServiceList) {
-        this.bindableServiceList = bindableServiceList;
+    public void setBindableServiceList(List<Object> serviceList) {
+        for (Object service : serviceList) {
+            if (service instanceof BindableService) {
+                //
+            } else if(service instanceof ServerServiceDefinition) {
+                //
+            } else {
+                throw new IllegalStateException("unsupported type");
+            }
+        }
+
+        this.serviceList = serviceList;
     }
 
+    public void setLifecycleTransportFilter(ServerTransportFilter lifecycleTransportFilter ) {
+        this.lifecycleTransportFilter = lifecycleTransportFilter ;
+    }
 }

@@ -19,6 +19,8 @@ package com.navercorp.pinpoint.collector.receiver.thrift.tcp;
 import com.navercorp.pinpoint.collector.handler.DirectExecutor;
 import com.navercorp.pinpoint.collector.service.async.AgentLifeCycleAsyncTaskService;
 import com.navercorp.pinpoint.collector.service.AgentLifeCycleService;
+import com.navercorp.pinpoint.collector.service.async.AgentProperty;
+import com.navercorp.pinpoint.collector.service.async.AgentPropertyChannelAdaptor;
 import com.navercorp.pinpoint.collector.util.ManagedAgentLifeCycle;
 import com.navercorp.pinpoint.common.server.bo.AgentLifeCycleBo;
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
@@ -26,9 +28,6 @@ import com.navercorp.pinpoint.rpc.client.HandshakerFactory;
 import com.navercorp.pinpoint.rpc.packet.HandshakePropertyType;
 import com.navercorp.pinpoint.rpc.server.ChannelProperties;
 import com.navercorp.pinpoint.rpc.server.ChannelPropertiesFactory;
-import com.navercorp.pinpoint.rpc.server.DefaultChannelProperties;
-import com.navercorp.pinpoint.rpc.server.PinpointServer;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -57,8 +56,6 @@ public class AgentLifeCycleAsyncTaskServiceTest {
     @Spy
     private Executor executor = new DirectExecutor();
 
-    @Mock
-    private PinpointServer pinpointServer;
 
     @Mock
     private AgentLifeCycleService agentLifeCycleService;
@@ -73,10 +70,6 @@ public class AgentLifeCycleAsyncTaskServiceTest {
     private static final int TEST_SOCKET_ID = 999;
     private static final Map<Object, Object> TEST_CHANNEL_PROPERTIES = createTestChannelProperties();
 
-    @Before
-    public void setUp() throws Exception {
-        when(this.pinpointServer.getChannelProperties()).thenReturn(TEST_CHANNEL_PROPERTIES);
-    }
 
     @Test
     public void runningStateShouldBeInserted() {
@@ -180,9 +173,11 @@ public class AgentLifeCycleAsyncTaskServiceTest {
         ArgumentCaptor<AgentLifeCycleBo> argCaptor = ArgumentCaptor.forClass(AgentLifeCycleBo.class);
 
         // when
-        Map<Object, Object> channelPropertiesMap = this.pinpointServer.getChannelProperties();
-        ChannelProperties channelProperties = new ChannelPropertiesFactory().newChannelProperties(channelPropertiesMap);
-        this.agentLifeCycleAsyncTaskService.handleLifeCycleEvent(channelProperties, TEST_EVENT_TIMESTAMP, expectedLifeCycleState, expectedEventCounter);
+        ChannelPropertiesFactory channelPropertiesFactory = new ChannelPropertiesFactory();
+        ChannelProperties channelProperties = channelPropertiesFactory.newChannelProperties(TEST_CHANNEL_PROPERTIES);
+        AgentProperty agentProperty = new AgentPropertyChannelAdaptor(channelProperties);
+        long eventIdentifier = AgentLifeCycleAsyncTaskService.createEventIdentifier(TEST_SOCKET_ID, expectedEventCounter);
+        this.agentLifeCycleAsyncTaskService.handleLifeCycleEvent(agentProperty, TEST_EVENT_TIMESTAMP, expectedLifeCycleState, eventIdentifier);
         verify(this.agentLifeCycleService, times(1)).insert(argCaptor.capture());
 
         // then

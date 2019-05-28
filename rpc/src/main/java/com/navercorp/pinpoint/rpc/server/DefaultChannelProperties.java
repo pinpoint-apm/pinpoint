@@ -16,13 +16,8 @@
 
 package com.navercorp.pinpoint.rpc.server;
 
-import com.navercorp.pinpoint.common.util.IdValidateUtils;
-import com.navercorp.pinpoint.rpc.client.HandshakerFactory;
-import com.navercorp.pinpoint.rpc.packet.HandshakePropertyType;
-import com.navercorp.pinpoint.rpc.util.MapUtils;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
