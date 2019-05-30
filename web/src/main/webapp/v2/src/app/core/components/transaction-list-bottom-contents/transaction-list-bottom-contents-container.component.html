@@ -17,7 +17,9 @@
                 style="height: calc(100% - 84px)"
             ></pp-server-map-others-container>
         </ng-container>
-        <pp-transaction-timeline-container></pp-transaction-timeline-container>    
+        <ng-container *ngIf="isSameType('timeline')">
+            <pp-transaction-timeline-container></pp-transaction-timeline-container>    
+        </ng-container>
     </div>
     <pp-film-for-disable *ngIf="useDisable" [zIndex]="9" [marginWidth]="0"></pp-film-for-disable>    
     <pp-loading [showLoading]="showLoading" [zIndex]="10"></pp-loading>
