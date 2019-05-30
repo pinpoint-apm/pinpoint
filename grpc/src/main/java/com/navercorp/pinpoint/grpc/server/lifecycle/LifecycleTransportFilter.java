@@ -42,7 +42,7 @@ public class LifecycleTransportFilter extends ServerTransportFilter {
         TransportMetadata transportMetadata = getTransportMetadata(transportAttrs);
 
         Lifecycle lifecycle = new Lifecycle(transportMetadata);
-        lifecycleRegistry.add(lifecycle);
+        lifecycleRegistry.add(transportMetadata.getTransportId(), lifecycle);
         lifecycleListener.connect(lifecycle);
 
         return transportAttrs;

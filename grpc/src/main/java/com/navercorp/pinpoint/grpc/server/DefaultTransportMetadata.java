@@ -27,7 +27,7 @@ import java.util.concurrent.atomic.AtomicLong;
 public class DefaultTransportMetadata implements TransportMetadata {
 
     private final InetSocketAddress remoteAddress;
-    private final long transportId;
+    private final Long transportId;
     private final long connectTime;
     private final AtomicLong eventCounter = new AtomicLong();
     private final Object connectionLock = new Object();
@@ -44,7 +44,7 @@ public class DefaultTransportMetadata implements TransportMetadata {
     }
 
     @Override
-    public long getTransportId() {
+    public Long getTransportId() {
         return transportId;
     }
 

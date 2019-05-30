@@ -40,7 +40,7 @@ import io.grpc.stub.StreamObserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.Objects;
 
 /**
@@ -64,7 +64,7 @@ public class AgentService extends AgentGrpc.AgentImplBase {
         }
 
         final Header header = new HeaderV2(Header.SIGNATURE, HeaderV2.VERSION, DefaultTBaseLocator.AGENT_INFO);
-        final HeaderEntity headerEntity = new HeaderEntity(new HashMap<String, String>());
+        final HeaderEntity headerEntity = newEmptyHeaderEntity();
         Message<PAgentInfo> message = new DefaultMessage<PAgentInfo>(header, headerEntity, agentInfo);
 
         request(message, responseObserver);
@@ -77,7 +77,7 @@ public class AgentService extends AgentGrpc.AgentImplBase {
         }
 
         final Header header = new HeaderV2(Header.SIGNATURE, HeaderV2.VERSION, DefaultTBaseLocator.APIMETADATA);
-        final HeaderEntity headerEntity = new HeaderEntity(new HashMap<String, String>());
+        final HeaderEntity headerEntity = newEmptyHeaderEntity();
         Message<PApiMetaData> message = new DefaultMessage<PApiMetaData>(header, headerEntity, apiMetaData);
 
         request(message, responseObserver);
@@ -90,7 +90,7 @@ public class AgentService extends AgentGrpc.AgentImplBase {
         }
 
         final Header header = new HeaderV2(Header.SIGNATURE, HeaderV2.VERSION, DefaultTBaseLocator.SQLMETADATA);
-        final HeaderEntity headerEntity = new HeaderEntity(new HashMap<String, String>());
+        final HeaderEntity headerEntity = newEmptyHeaderEntity();
         Message<PSqlMetaData> message = new DefaultMessage<PSqlMetaData>(header, headerEntity, sqlMetaData);
 
         request(message, responseObserver);
@@ -103,10 +103,14 @@ public class AgentService extends AgentGrpc.AgentImplBase {
         }
 
         final Header header = new HeaderV2(Header.SIGNATURE, HeaderV2.VERSION, DefaultTBaseLocator.STRINGMETADATA);
-        final HeaderEntity headerEntity = new HeaderEntity(new HashMap<String, String>());
+        final HeaderEntity headerEntity = newEmptyHeaderEntity();
         Message<PStringMetaData> message = new DefaultMessage<PStringMetaData>(header, headerEntity, stringMetaData);
 
         request(message, responseObserver);
+    }
+
+    private HeaderEntity newEmptyHeaderEntity() {
+        return new HeaderEntity(Collections.emptyMap());
     }
 
     private void request(Message<?> message, StreamObserver<PResult> responseObserver) {

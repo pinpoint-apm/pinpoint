@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.grpc.server.lifecycle;
 
+import com.navercorp.pinpoint.common.util.Assert;
+
 import java.util.Collection;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -29,17 +31,20 @@ public class DefaultLifecycleRegistry implements LifecycleRegistry {
 
 
     @Override
-    public Lifecycle add(Lifecycle lifecycle) {
-        return map.put(lifecycle.getId(), lifecycle);
+    public Lifecycle add(Long transportId, Lifecycle lifecycle) {
+        Assert.requireNonNull(transportId, "transportId must not be null");
+        return map.put(transportId, lifecycle);
     }
 
     @Override
-    public Lifecycle get(long transportId) {
+    public Lifecycle get(Long transportId) {
+        Assert.requireNonNull(transportId, "transportId must not be null");
         return map.get(transportId);
     }
 
     @Override
-    public Lifecycle remove(long transportId) {
+    public Lifecycle remove(Long transportId) {
+        Assert.requireNonNull(transportId, "transportId must not be null");
         return map.remove(transportId);
     }
 

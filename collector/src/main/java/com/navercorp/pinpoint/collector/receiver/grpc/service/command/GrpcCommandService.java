@@ -77,7 +77,7 @@ public class GrpcCommandService extends ProfilerCommandServiceGrpc.ProfilerComma
 
     @Override
     public StreamObserver<PCmdMessage> handleCommand(StreamObserver<PCmdRequest> requestObserver) {
-        final long transportId = getTransportId();
+        final Long transportId = getTransportId();
         final AgentInfo agentInfo = getAgentInfo();
 
         logger.debug("{} => local. handleCommand(). transportId:{}", agentInfo, transportId);
@@ -141,7 +141,7 @@ public class GrpcCommandService extends ProfilerCommandServiceGrpc.ProfilerComma
 
     @Override
     public void commandEcho(PCmdEchoResponse echoResponse, StreamObserver<Empty> responseObserver) {
-        final long transportId = getTransportId();
+        final Long transportId = getTransportId();
         PinpointGrpcServer pinpointGrpcServer = grpcServerRepository.get(transportId);
         if (pinpointGrpcServer != null) {
             echoService.handle(pinpointGrpcServer, echoResponse, responseObserver);
@@ -153,7 +153,7 @@ public class GrpcCommandService extends ProfilerCommandServiceGrpc.ProfilerComma
 
     @Override
     public void commandActiveThreadDump(PCmdActiveThreadDumpRes activeThreadDumpRes, StreamObserver<Empty> responseObserver) {
-        final long transportId = getTransportId();
+        final Long transportId = getTransportId();
         PinpointGrpcServer pinpointGrpcServer = grpcServerRepository.get(transportId);
         if (pinpointGrpcServer != null) {
             activeThreadDumpService.handle(pinpointGrpcServer, activeThreadDumpRes, responseObserver);
@@ -165,7 +165,7 @@ public class GrpcCommandService extends ProfilerCommandServiceGrpc.ProfilerComma
 
     @Override
     public void commandActiveThreadLightDump(PCmdActiveThreadLightDumpRes activeThreadLightDumpResponse, StreamObserver<Empty> responseObserver) {
-        final long transportId = getTransportId();
+        final Long transportId = getTransportId();
         PinpointGrpcServer pinpointGrpcServer = grpcServerRepository.get(transportId);
         if (pinpointGrpcServer != null) {
             activeThreadLightDumpService.handle(pinpointGrpcServer, activeThreadLightDumpResponse, responseObserver);
@@ -177,7 +177,7 @@ public class GrpcCommandService extends ProfilerCommandServiceGrpc.ProfilerComma
 
     @Override
     public StreamObserver<PCmdActiveThreadCountRes> commandStreamActiveThreadCount(StreamObserver<Empty> streamConnectionManagerObserver) {
-        final long transportId = getTransportId();
+        final Long transportId = getTransportId();
         PinpointGrpcServer pinpointGrpcServer = grpcServerRepository.get(transportId);
         if (pinpointGrpcServer == null) {
             logger.info("{} => local. Can't find PinpointGrpcServer(transportId={})", getAgentInfo().getAgentKey(), transportId);
@@ -204,7 +204,7 @@ public class GrpcCommandService extends ProfilerCommandServiceGrpc.ProfilerComma
         return new AgentInfo(header.getApplicationName(), header.getAgentId(), header.getAgentStartTime());
     }
 
-    private long getTransportId() {
+    private Long getTransportId() {
         TransportMetadata transportMetadata = ServerContext.getTransportMetadata();
         return transportMetadata.getTransportId();
     }
@@ -230,12 +230,12 @@ public class GrpcCommandService extends ProfilerCommandServiceGrpc.ProfilerComma
 
         @Override
         public void onError(Throwable t) {
-            logger.debug("onError:{}", t);
+            logger.debug("onError", t);
         }
 
         @Override
         public void onCompleted() {
-            logger.debug("onCompleted:");
+            logger.debug("onCompleted");
         }
 
     }

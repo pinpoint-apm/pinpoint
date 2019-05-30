@@ -22,7 +22,7 @@ public interface TransportMetadata {
 
     InetSocketAddress getRemoteAddress();
 
-    long getTransportId();
+    Long getTransportId();
 
     long getConnectTime();
 
