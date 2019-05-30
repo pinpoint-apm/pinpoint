@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.collector.receiver.grpc.service;
 
 import com.google.protobuf.Empty;
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
+import com.navercorp.pinpoint.grpc.MessageToStringAdapter;
 import com.navercorp.pinpoint.grpc.trace.PAgentStat;
 import com.navercorp.pinpoint.grpc.trace.PAgentStatBatch;
 import com.navercorp.pinpoint.grpc.trace.StatGrpc;
@@ -28,7 +29,9 @@ import com.navercorp.pinpoint.io.request.DefaultMessage;
 import com.navercorp.pinpoint.io.request.Message;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.thrift.io.DefaultTBaseLocator;
+import io.grpc.Status;
 import io.grpc.StatusException;
+import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,8 +39,12 @@ import org.slf4j.LoggerFactory;
 import java.util.HashMap;
 import java.util.Objects;
 
+/**
+ * @author jaehong.kim
+ */
 public class StatService extends StatGrpc.StatImplBase {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final boolean isDebug = logger.isDebugEnabled();
 
     private final DispatchHandler dispatchHandler;
     private final ServerRequestFactory serverRequestFactory = new ServerRequestFactory();
@@ -51,6 +58,10 @@ public class StatService extends StatGrpc.StatImplBase {
         StreamObserver<PAgentStat> observer = new StreamObserver<PAgentStat>() {
             @Override
             public void onNext(PAgentStat agentStat) {
+                if (isDebug) {
+                    logger.debug("Send PAgentStat={}", MessageToStringAdapter.getInstance(agentStat));
+                }
+
                 final Header header = new HeaderV2(Header.SIGNATURE, HeaderV2.VERSION, DefaultTBaseLocator.AGENT_STAT);
                 final HeaderEntity headerEntity = new HeaderEntity(new HashMap<>());
                 final Message<PAgentStat> message = new DefaultMessage<PAgentStat>(header, headerEntity, agentStat);
@@ -59,7 +70,7 @@ public class StatService extends StatGrpc.StatImplBase {
 
             @Override
             public void onError(Throwable throwable) {
-                logger.warn("Failed to send agent stat", throwable);
+                logger.warn("Error sendAgentStat stream", throwable);
             }
 
             @Override
@@ -77,6 +88,10 @@ public class StatService extends StatGrpc.StatImplBase {
         StreamObserver<PAgentStatBatch> observer = new StreamObserver<PAgentStatBatch>() {
             @Override
             public void onNext(PAgentStatBatch agentStatBatch) {
+                if (isDebug) {
+                    logger.debug("Send PAgentStatBatch={}", MessageToStringAdapter.getInstance(agentStatBatch));
+                }
+
                 final Header header = new HeaderV2(Header.SIGNATURE, HeaderV2.VERSION, DefaultTBaseLocator.AGENT_STAT);
                 final HeaderEntity headerEntity = new HeaderEntity(new HashMap<>());
                 final Message<PAgentStatBatch> message = new DefaultMessage<PAgentStatBatch>(header, headerEntity, agentStatBatch);
@@ -85,7 +100,7 @@ public class StatService extends StatGrpc.StatImplBase {
 
             @Override
             public void onError(Throwable throwable) {
-                throwable.printStackTrace();
+                logger.warn("Error sendAgentStatBatch stream", throwable);
             }
 
             @Override
@@ -99,14 +114,17 @@ public class StatService extends StatGrpc.StatImplBase {
     }
 
     private void send(StreamObserver<Empty> responseObserver, final Message<?> message) {
-        ServerRequest<?> request;
         try {
-            request = serverRequestFactory.newServerRequest(message);
-        } catch (StatusException e) {
-            logger.warn("serverRequest create fail Caused by:" + e.getMessage(), e);
-            responseObserver.onError(e);
-            return;
+            ServerRequest<?> request = serverRequestFactory.newServerRequest(message);
+            this.dispatchHandler.dispatchSendMessage(request);
+        } catch (Exception e) {
+            logger.warn("Failed to request. message={}", message, e);
+            if (e instanceof StatusException || e instanceof StatusRuntimeException) {
+                responseObserver.onError(e);
+            } else {
+                // Avoid detailed exception
+                responseObserver.onError(Status.INTERNAL.withDescription("Bad Request").asException());
+            }
         }
-        this.dispatchHandler.dispatchSendMessage(request);
     }
 }

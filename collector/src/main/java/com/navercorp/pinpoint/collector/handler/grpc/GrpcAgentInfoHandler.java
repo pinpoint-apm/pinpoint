@@ -21,11 +21,13 @@ import com.navercorp.pinpoint.collector.mapper.grpc.GrpcAgentInfoBoMapper;
 import com.navercorp.pinpoint.collector.service.AgentInfoService;
 import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
 import com.navercorp.pinpoint.grpc.AgentHeaderFactory;
+import com.navercorp.pinpoint.grpc.MessageToStringAdapter;
 import com.navercorp.pinpoint.grpc.server.ServerContext;
 import com.navercorp.pinpoint.grpc.trace.PAgentInfo;
 import com.navercorp.pinpoint.grpc.trace.PResult;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.io.request.ServerResponse;
+import io.grpc.Status;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +40,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class GrpcAgentInfoHandler implements SimpleAndRequestResponseHandler {
     private final Logger logger = LoggerFactory.getLogger(this.getClass().getName());
+    private final boolean isDebug = logger.isDebugEnabled();
 
     @Autowired
     private AgentInfoService agentInfoService;
@@ -48,37 +51,31 @@ public class GrpcAgentInfoHandler implements SimpleAndRequestResponseHandler {
     @Override
     public void handleSimple(ServerRequest serverRequest) {
         final Object data = serverRequest.getData();
-        if (logger.isDebugEnabled()) {
-            logger.debug("Handle simple data={}", data);
-        }
-
         if (data instanceof PAgentInfo) {
             handleAgentInfo((PAgentInfo) data);
         } else {
-            throw new UnsupportedOperationException("data is not support type : " + data);
+            logger.warn("Invalid request type. serverRequest={}", serverRequest);
+            throw Status.INTERNAL.withDescription("Bad Request(invalid request type)").asRuntimeException();
         }
     }
-
 
     @Override
     public void handleRequest(ServerRequest serverRequest, ServerResponse serverResponse) {
         final Object data = serverRequest.getData();
-        if (logger.isDebugEnabled()) {
-            logger.debug("Handle request data={}", data);
-        }
-
         if (data instanceof PAgentInfo) {
             final PResult result = handleAgentInfo((PAgentInfo) data);
             serverResponse.write(result);
         } else {
-            logger.warn("invalid serverRequest:{}", serverRequest);
+            logger.warn("Invalid request type. serverRequest={}", serverRequest);
+            throw Status.INTERNAL.withDescription("Bad Request(invalid request type)").asRuntimeException();
         }
     }
 
     private PResult handleAgentInfo(PAgentInfo agentInfo) {
-        if (logger.isDebugEnabled()) {
-            logger.debug("Handle PAgentInfo={}", agentInfo);
+        if (isDebug) {
+            logger.debug("Handle PAgentInfo={}", MessageToStringAdapter.getInstance(agentInfo));
         }
+
         try {
             // agent info
             final AgentHeaderFactory.Header header = ServerContext.getAgentInfo();
@@ -86,8 +83,9 @@ public class GrpcAgentInfoHandler implements SimpleAndRequestResponseHandler {
             this.agentInfoService.insert(agentInfoBo);
             return PResult.newBuilder().setSuccess(true).build();
         } catch (Exception e) {
-            logger.warn("AgentInfo handle error. Caused:{}", e.getMessage(), e);
-            return PResult.newBuilder().setSuccess(false).setMessage(e.getMessage()).build();
+            logger.warn("Failed to handle. agentInfo={}", MessageToStringAdapter.getInstance(agentInfo), e);
+            // Avoid detailed error messages.
+            return PResult.newBuilder().setSuccess(false).setMessage("Internal Server Error").build();
         }
     }
 }

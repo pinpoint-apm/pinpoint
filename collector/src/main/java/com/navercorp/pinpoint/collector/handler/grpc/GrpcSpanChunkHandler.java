@@ -6,9 +6,11 @@ import com.navercorp.pinpoint.collector.service.TraceService;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.grpc.GrpcSpanFactory;
 import com.navercorp.pinpoint.grpc.AgentHeaderFactory;
+import com.navercorp.pinpoint.grpc.MessageToStringAdapter;
 import com.navercorp.pinpoint.grpc.server.ServerContext;
 import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
 import com.navercorp.pinpoint.io.request.ServerRequest;
+import io.grpc.Status;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +25,7 @@ import java.util.Objects;
 public class GrpcSpanChunkHandler implements SimpleHandler {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
+    private final boolean isDebug = logger.isDebugEnabled();
 
     private final TraceService traceService;
 
@@ -37,28 +40,26 @@ public class GrpcSpanChunkHandler implements SimpleHandler {
     @Override
     public void handleSimple(ServerRequest serverRequest) {
         final Object data = serverRequest.getData();
-        if (logger.isDebugEnabled()) {
-            logger.debug("Handle simple data={}", data);
-        }
         if (data instanceof PSpanChunk) {
             handleSpanChunk((PSpanChunk) data);
         } else {
-            throw new UnsupportedOperationException("data is not support type : " + data);
+            logger.warn("Invalid request type. serverRequest={}", serverRequest);
+            throw Status.INTERNAL.withDescription("Bad Request(invalid request type)").asRuntimeException();
         }
     }
 
 
-    private void handleSpanChunk(PSpanChunk pSpanChunk) {
-        if (logger.isDebugEnabled()) {
-            logger.debug("Handle PSpanChunk={}", pSpanChunk);
+    private void handleSpanChunk(PSpanChunk spanChunk) {
+        if (isDebug) {
+            logger.debug("Handle PSpanChunk={}", MessageToStringAdapter.getInstance(spanChunk));
         }
 
         try {
             final AgentHeaderFactory.Header agentInfo = ServerContext.getAgentInfo();
-            final SpanChunkBo spanChunkBo = spanFactory.buildSpanChunkBo(pSpanChunk, agentInfo);
+            final SpanChunkBo spanChunkBo = spanFactory.buildSpanChunkBo(spanChunk, agentInfo);
             this.traceService.insertSpanChunk(spanChunkBo);
         } catch (Exception e) {
-            logger.warn("SpanChunk handle error Caused:{}", e.getMessage(), e);
+            logger.warn("Failed to handle spanChunk={}", MessageToStringAdapter.getInstance(spanChunk), e);
         }
     }
 }

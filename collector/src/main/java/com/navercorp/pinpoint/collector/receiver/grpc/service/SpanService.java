@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.collector.receiver.grpc.service;
 
 import com.google.protobuf.Empty;
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
+import com.navercorp.pinpoint.grpc.MessageToStringAdapter;
 import com.navercorp.pinpoint.grpc.trace.PSpan;
 import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
 import com.navercorp.pinpoint.grpc.trace.SpanGrpc;
@@ -28,7 +29,9 @@ import com.navercorp.pinpoint.io.request.DefaultMessage;
 import com.navercorp.pinpoint.io.request.Message;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.thrift.io.DefaultTBaseLocator;
+import io.grpc.Status;
 import io.grpc.StatusException;
+import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,9 +39,12 @@ import org.slf4j.LoggerFactory;
 import java.util.HashMap;
 import java.util.Objects;
 
+/**
+ * @author jaehong.kim
+ */
 public class SpanService extends SpanGrpc.SpanImplBase {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
+    private final boolean isDebug = logger.isDebugEnabled();
     private final DispatchHandler dispatchHandler;
     private final ServerRequestFactory serverRequestFactory = new ServerRequestFactory();
 
@@ -51,7 +57,10 @@ public class SpanService extends SpanGrpc.SpanImplBase {
         StreamObserver<PSpan> observer = new StreamObserver<PSpan>() {
             @Override
             public void onNext(PSpan pSpan) {
-                logger.debug("Send Span {}", pSpan);
+                if (isDebug) {
+                    logger.debug("Send PSpan={}", MessageToStringAdapter.getInstance(pSpan));
+                }
+
                 final Header header = new HeaderV2(Header.SIGNATURE, HeaderV2.VERSION, DefaultTBaseLocator.SPAN);
                 final HeaderEntity headerEntity = new HeaderEntity(new HashMap<String, String>());
                 final Message<PSpan> message = new DefaultMessage<PSpan>(header, headerEntity, pSpan);
@@ -60,7 +69,7 @@ public class SpanService extends SpanGrpc.SpanImplBase {
 
             @Override
             public void onError(Throwable throwable) {
-                logger.warn("span stream-error ", throwable);
+                logger.warn("Error sendSpan stream", throwable);
             }
 
             @Override
@@ -70,7 +79,6 @@ public class SpanService extends SpanGrpc.SpanImplBase {
                 responseObserver.onCompleted();
             }
         };
-
         return observer;
     }
 
@@ -79,7 +87,10 @@ public class SpanService extends SpanGrpc.SpanImplBase {
         StreamObserver<PSpanChunk> observer = new StreamObserver<PSpanChunk>() {
             @Override
             public void onNext(PSpanChunk pSpanChunk) {
-                logger.debug("Send SpanChunk {}", pSpanChunk);
+                if (isDebug) {
+                    logger.debug("Send PSpanChunk={}", MessageToStringAdapter.getInstance(pSpanChunk));
+                }
+
                 final Header header = new HeaderV2(Header.SIGNATURE, HeaderV2.VERSION, DefaultTBaseLocator.SPANCHUNK);
                 final HeaderEntity headerEntity = new HeaderEntity(new HashMap<>());
                 Message<PSpanChunk> message = new DefaultMessage<>(header, headerEntity, pSpanChunk);
@@ -88,7 +99,7 @@ public class SpanService extends SpanGrpc.SpanImplBase {
 
             @Override
             public void onError(Throwable throwable) {
-                logger.warn("spanChunk stream-error ", throwable);
+                logger.warn("Error sendSpanChunk stream", throwable);
             }
 
             @Override
@@ -106,11 +117,15 @@ public class SpanService extends SpanGrpc.SpanImplBase {
         ServerRequest<?> request;
         try {
             request = serverRequestFactory.newServerRequest(message);
-        } catch (StatusException e) {
-            logger.warn("serverRequest create fail Caused by:" + e.getMessage(), e);
-            responseObserver.onError(e);
-            return;
+            this.dispatchHandler.dispatchSendMessage(request);
+        } catch (Exception e) {
+            logger.warn("Failed to request. message={}", message, e);
+            if (e instanceof StatusException || e instanceof StatusRuntimeException) {
+                responseObserver.onError(e);
+            } else {
+                // Avoid detailed exception
+                responseObserver.onError(Status.INTERNAL.withDescription("Bad Request").asException());
+            }
         }
-        this.dispatchHandler.dispatchSendMessage(request);
     }
 }

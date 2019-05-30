@@ -64,7 +64,6 @@ public class GrpcReceiver implements InitializingBean, DisposableBean, BeanNameA
     private Server server;
 
 
-
     @Override
     public void afterPropertiesSet() throws Exception {
         if (Boolean.FALSE == this.enable) {
@@ -169,7 +168,7 @@ public class GrpcReceiver implements InitializingBean, DisposableBean, BeanNameA
         for (Object service : serviceList) {
             if (service instanceof BindableService) {
                 //
-            } else if(service instanceof ServerServiceDefinition) {
+            } else if (service instanceof ServerServiceDefinition) {
                 //
             } else {
                 throw new IllegalStateException("unsupported type");
@@ -179,7 +178,7 @@ public class GrpcReceiver implements InitializingBean, DisposableBean, BeanNameA
         this.serviceList = serviceList;
     }
 
-    public void setLifecycleTransportFilter(ServerTransportFilter lifecycleTransportFilter ) {
-        this.lifecycleTransportFilter = lifecycleTransportFilter ;
+    public void setLifecycleTransportFilter(ServerTransportFilter lifecycleTransportFilter) {
+        this.lifecycleTransportFilter = lifecycleTransportFilter;
     }
 }
