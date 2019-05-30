@@ -21,9 +21,11 @@ import com.navercorp.pinpoint.collector.service.TraceService;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.grpc.GrpcSpanFactory;
 import com.navercorp.pinpoint.grpc.AgentHeaderFactory;
+import com.navercorp.pinpoint.grpc.MessageToStringAdapter;
 import com.navercorp.pinpoint.grpc.server.ServerContext;
 import com.navercorp.pinpoint.grpc.trace.PSpan;
 import com.navercorp.pinpoint.io.request.ServerRequest;
+import io.grpc.Status;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +41,7 @@ import java.util.Objects;
 public class GrpcSpanHandler implements SimpleHandler {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
+    private final boolean isDebug = logger.isDebugEnabled();
 
     private TraceService traceService;
 
@@ -53,28 +56,25 @@ public class GrpcSpanHandler implements SimpleHandler {
     @Override
     public void handleSimple(ServerRequest serverRequest) {
         final Object data = serverRequest.getData();
-        if (logger.isDebugEnabled()) {
-            logger.debug("Handle simple data={}", data);
-        }
-
         if (data instanceof PSpan) {
             handleSpan((PSpan) data);
         } else {
-            throw new UnsupportedOperationException("data is not support type : " + data);
+            logger.warn("Invalid request type. serverRequest={}", serverRequest);
+            throw Status.INTERNAL.withDescription("Bad Request(invalid request type)").asRuntimeException();
         }
     }
 
-    private void handleSpan(PSpan pSpan) {
-        if (logger.isDebugEnabled()) {
-            logger.debug("Handle PSpan={}", pSpan);
+    private void handleSpan(PSpan span) {
+        if (isDebug) {
+            logger.debug("Handle PSpan={}", MessageToStringAdapter.getInstance(span));
         }
 
         try {
             AgentHeaderFactory.Header agentInfo = ServerContext.getAgentInfo();
-            final SpanBo spanBo = spanFactory.buildSpanBo(pSpan, agentInfo);
+            final SpanBo spanBo = spanFactory.buildSpanBo(span, agentInfo);
             traceService.insertSpan(spanBo);
         } catch (Exception e) {
-            logger.warn("Span handle error. Caused:{}. Span:{}", e.getMessage(), pSpan, e);
+            logger.warn("Failed to handle span={}", MessageToStringAdapter.getInstance(span), e);
         }
     }
 }

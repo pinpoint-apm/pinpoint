@@ -14,27 +14,32 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.collector.receiver.grpc;
+package com.navercorp.pinpoint.grpc;
 
-import java.util.concurrent.TimeUnit;
+import com.google.protobuf.GeneratedMessageV3;
+import com.google.protobuf.TextFormat;
 
 /**
  * @author jaehong.kim
  */
-public class AgentClientTestMain {
-    private static final int MAX = Integer.MAX_VALUE;
+public class MessageToStringAdapter {
 
-    public static void main(String[] args) throws Exception {
-        AgentClientMock clientMock = new AgentClientMock("localhost", 9997, true);
-        clientMock.info(10);
+    public static MessageToStringAdapter getInstance(GeneratedMessageV3 message) {
+        return new MessageToStringAdapter(message);
+    }
 
-        clientMock.apiMetaData(1);
-        clientMock.sqlMetaData(1);
-        clientMock.stringMetaData(1);
+    private GeneratedMessageV3 message;
 
-//        clientMock.pingPoing();
+    private MessageToStringAdapter(final GeneratedMessageV3 message) {
+        this.message = message;
+    }
 
-        TimeUnit.SECONDS.sleep(60 * 60);
-        clientMock.stop();
+    @Override
+    public String toString() {
+        if (this.message == null) {
+            return "null";
+        }
+
+        return TextFormat.shortDebugString(message);
     }
 }

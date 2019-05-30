@@ -26,7 +26,6 @@ import java.util.Objects;
  * @author jaehong.kim
  */
 public class GrpcServerResponse implements ServerResponse<PResult> {
-
     private final StreamObserver<PResult> responseObserver;
 
     public GrpcServerResponse(StreamObserver<PResult> responseObserver) {
@@ -38,8 +37,6 @@ public class GrpcServerResponse implements ServerResponse<PResult> {
         if (message == null) {
             throw new NullPointerException("message must not be null");
         }
-
-        // TODO Handle error
         responseObserver.onNext(message);
         responseObserver.onCompleted();
     }

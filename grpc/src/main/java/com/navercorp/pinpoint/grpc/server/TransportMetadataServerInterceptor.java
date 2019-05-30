@@ -42,7 +42,12 @@ public class TransportMetadataServerInterceptor implements ServerInterceptor {
 
         final TransportMetadata transportMetadata = attributes.get(MetadataServerTransportFilter.TRANSPORT_METADATA_KEY);
         if (transportMetadata == null) {
-            throw Status.INTERNAL.withDescription("transportMetadata is null").asRuntimeException();
+            if (logger.isInfoEnabled()) {
+                logger.info("Close call. cause=transportMetadata is null, headers={}, attributes={}", metadata, serverCall.getAttributes());
+            }
+            serverCall.close(Status.INTERNAL.withDescription("transportMetadata is null"), new Metadata());
+            return new ServerCall.Listener<ReqT>() {
+            };
         }
 
         final Context currentContext = Context.current();
@@ -50,7 +55,7 @@ public class TransportMetadataServerInterceptor implements ServerInterceptor {
         if (logger.isDebugEnabled()) {
             logger.debug("interceptCall(call = [{}], headers = [{}], next = [{}])", serverCall, metadata, serverCallHandler);
         }
-        ServerCall.Listener<ReqT>  listener = Contexts.interceptCall(newContext, serverCall, metadata, serverCallHandler);
+        ServerCall.Listener<ReqT> listener = Contexts.interceptCall(newContext, serverCall, metadata, serverCallHandler);
         return listener;
     }
 }
