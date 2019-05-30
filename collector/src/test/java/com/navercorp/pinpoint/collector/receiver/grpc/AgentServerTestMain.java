@@ -29,13 +29,18 @@ import java.util.Arrays;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * @author jaehong.kim
+ */
 public class AgentServerTestMain {
     public static final String IP = "0.0.0.0";
     public static final int PORT = 9997;
 
     public void run() throws Exception {
         GrpcReceiver grpcReceiver = new GrpcReceiver();
+        grpcReceiver.setEnable(true);
         grpcReceiver.setBeanName("AgentServer");
+        grpcReceiver.setBindIp(IP);
         grpcReceiver.setBindPort(PORT);
 
         BindableService agentService = new AgentService(new MockDispatchHandler());
@@ -51,7 +56,12 @@ public class AgentServerTestMain {
 
     public static void main(String[] args) throws Exception {
         AgentServerTestMain main = new AgentServerTestMain();
-        main.run();
+        try {
+            main.run();
+        } catch (Exception e) {
+            System.out.println("Failed to run");
+            e.printStackTrace();
+        }
     }
 
     private static class MockDispatchHandler implements DispatchHandler {

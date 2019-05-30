@@ -25,10 +25,12 @@ import com.navercorp.pinpoint.common.server.bo.event.DeadlockEventBo;
 import com.navercorp.pinpoint.common.server.util.AgentEventMessageSerializerV1;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.grpc.AgentHeaderFactory;
+import com.navercorp.pinpoint.grpc.MessageToStringAdapter;
 import com.navercorp.pinpoint.grpc.server.ServerContext;
 import com.navercorp.pinpoint.grpc.trace.PAgentStat;
 import com.navercorp.pinpoint.grpc.trace.PAgentStatBatch;
 import com.navercorp.pinpoint.io.request.ServerRequest;
+import io.grpc.Status;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +45,7 @@ import java.util.List;
 @Service
 public class GrpcAgentEventHandler implements SimpleHandler {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final boolean isDebug = logger.isDebugEnabled();
 
     @Autowired
     private GrpcAgentEventMapper agentEventMapper;
@@ -59,22 +62,19 @@ public class GrpcAgentEventHandler implements SimpleHandler {
     @Override
     public void handleSimple(ServerRequest serverRequest) {
         final Object data = serverRequest.getData();
-        if (logger.isDebugEnabled()) {
-            logger.debug("Handle simple={}", data);
-        }
-
         if (data instanceof PAgentStat) {
             handleAgentStat((PAgentStat) data);
         } else if (data instanceof PAgentStatBatch) {
             handleAgentStatBatch((PAgentStatBatch) data);
         } else {
-            throw new UnsupportedOperationException("data is not support type : " + data);
+            logger.warn("Invalid request type. serverRequest={}", serverRequest);
+            throw Status.INTERNAL.withDescription("Bad Request(invalid request type)").asRuntimeException();
         }
     }
 
     private void handleAgentStat(PAgentStat agentStat) {
-        if (logger.isDebugEnabled()) {
-            logger.debug("Handle PAgentStat={}", agentStat);
+        if (isDebug) {
+            logger.debug("Handle PAgentStat={}", MessageToStringAdapter.getInstance(agentStat));
         }
 
         final AgentHeaderFactory.Header header = ServerContext.getAgentInfo();
@@ -86,8 +86,8 @@ public class GrpcAgentEventHandler implements SimpleHandler {
     }
 
     private void handleAgentStatBatch(PAgentStatBatch agentStatBatch) {
-        if (logger.isDebugEnabled()) {
-            logger.debug("Handle PAgentStatBatch={}", agentStatBatch);
+        if (isDebug) {
+            logger.debug("Handle PAgentStatBatch={}", MessageToStringAdapter.getInstance(agentStatBatch));
         }
 
         final AgentHeaderFactory.Header header = ServerContext.getAgentInfo();
@@ -106,11 +106,11 @@ public class GrpcAgentEventHandler implements SimpleHandler {
             final Object eventMessage = getEventMessage(agentEventBo);
             final byte[] eventBody = agentEventMessageSerializerV1.serialize(agentEventBo.getEventType(), eventMessage);
             agentEventBo.setEventBody(eventBody);
+            this.agentEventService.insert(agentEventBo);
         } catch (Exception e) {
-            logger.warn("error handling agent event", e);
+            logger.warn("Failed to insert agentEventBo={}", agentEventBo, e);
             return;
         }
-        this.agentEventService.insert(agentEventBo);
     }
 
     private Object getEventMessage(AgentEventBo agentEventBo) {

@@ -78,7 +78,7 @@ public class ActiveThreadCountService implements GrpcStreamCommandService<PCmdAc
                 pinpointGrpcServer.handleStreamMessage(streamChannelId, response);
                 connectionObserver.request(1);
             } catch (StreamException e) {
-                logger.warn("Faield to handle streamMessage. message:{}", e.getMessage(), e);
+                logger.warn("Failed to handle streamMessage. message:{}", e.getMessage(), e);
                 connectionObserver.onError(new StatusException(Status.INTERNAL.withDescription(e.getMessage())));
             }
         }
@@ -106,7 +106,5 @@ public class ActiveThreadCountService implements GrpcStreamCommandService<PCmdAc
                 connectionObserver.onCompleted();
             }
         }
-
     }
-
 }

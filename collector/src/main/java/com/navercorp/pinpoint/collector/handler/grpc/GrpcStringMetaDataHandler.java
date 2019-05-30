@@ -20,11 +20,13 @@ import com.navercorp.pinpoint.collector.handler.RequestResponseHandler;
 import com.navercorp.pinpoint.collector.service.StringMetaDataService;
 import com.navercorp.pinpoint.common.server.bo.StringMetaDataBo;
 import com.navercorp.pinpoint.grpc.AgentHeaderFactory;
+import com.navercorp.pinpoint.grpc.MessageToStringAdapter;
 import com.navercorp.pinpoint.grpc.server.ServerContext;
 import com.navercorp.pinpoint.grpc.trace.PResult;
 import com.navercorp.pinpoint.grpc.trace.PStringMetaData;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.io.request.ServerResponse;
+import io.grpc.Status;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +38,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class GrpcStringMetaDataHandler implements RequestResponseHandler {
     private final Logger logger = LoggerFactory.getLogger(getClass());
+    private final boolean isDebug = logger.isDebugEnabled();
 
     @Autowired
     private StringMetaDataService stringMetaDataService;
@@ -43,36 +46,32 @@ public class GrpcStringMetaDataHandler implements RequestResponseHandler {
     @Override
     public void handleRequest(ServerRequest serverRequest, ServerResponse serverResponse) {
         final Object data = serverRequest.getData();
-        if (logger.isDebugEnabled()) {
-            logger.debug("Handle request data={}", data);
-        }
-
         if (data instanceof PStringMetaData) {
             Object result = handleStringMetaData((PStringMetaData) data);
             serverResponse.write(result);
         } else {
-            logger.warn("invalid serverRequest:{}", serverRequest);
-            return;
+            logger.warn("Invalid request type. serverRequest={}", serverRequest);
+            throw Status.INTERNAL.withDescription("Bad Request(invalid request type)").asRuntimeException();
         }
     }
 
     private Object handleStringMetaData(final PStringMetaData stringMetaData) {
         if (logger.isDebugEnabled()) {
-            logger.debug("Handle PStringMetaData={}", stringMetaData);
+            logger.debug("Handle PStringMetaData={}", MessageToStringAdapter.getInstance(stringMetaData));
         }
 
         try {
             final AgentHeaderFactory.Header agentInfo = ServerContext.getAgentInfo();
             final String agentId = agentInfo.getAgentId();
             final long agentStartTime = agentInfo.getAgentStartTime();
-
             final StringMetaDataBo stringMetaDataBo = new StringMetaDataBo(agentId, agentStartTime, stringMetaData.getStringId());
             stringMetaDataBo.setStringValue(stringMetaData.getStringValue());
             stringMetaDataService.insert(stringMetaDataBo);
+            return PResult.newBuilder().setSuccess(true).build();
         } catch (Exception e) {
-            logger.warn("{} handler error. Caused:{}", this.getClass(), e.getMessage(), e);
-            return PResult.newBuilder().setSuccess(false).setMessage(e.getMessage()).build();
+            logger.warn("Failed to handle stringMetaData={}", MessageToStringAdapter.getInstance(stringMetaData), e);
+            // Avoid detailed error messages.
+            return PResult.newBuilder().setSuccess(false).setMessage("Internal Server Error").build();
         }
-        return PResult.newBuilder().setSuccess(true).build();
     }
 }

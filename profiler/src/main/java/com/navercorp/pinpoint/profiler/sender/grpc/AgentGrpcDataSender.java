@@ -103,7 +103,7 @@ public class AgentGrpcDataSender implements EnhancedDataSender {
 
     private final AgentGrpc.AgentFutureStub agentStub;
 
-    private final GrpcCommandService grpcCommandService;
+    private GrpcCommandService grpcCommandService;
 
 
     public AgentGrpcDataSender(String name, String host, int port, MessageConverter<GeneratedMessageV3> messageConverter, HeaderFactory<AgentHeaderFactory.Header> headerFactory, NameResolverProvider nameResolverProvider) {

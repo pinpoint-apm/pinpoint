@@ -21,11 +21,13 @@ import com.navercorp.pinpoint.collector.service.ApiMetaDataService;
 import com.navercorp.pinpoint.common.server.bo.ApiMetaDataBo;
 import com.navercorp.pinpoint.common.server.bo.MethodTypeEnum;
 import com.navercorp.pinpoint.grpc.AgentHeaderFactory;
+import com.navercorp.pinpoint.grpc.MessageToStringAdapter;
 import com.navercorp.pinpoint.grpc.server.ServerContext;
 import com.navercorp.pinpoint.grpc.trace.PApiMetaData;
 import com.navercorp.pinpoint.grpc.trace.PResult;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.io.request.ServerResponse;
+import io.grpc.Status;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +40,7 @@ import org.springframework.stereotype.Service;
 public class GrpcApiMetaDataHandler implements RequestResponseHandler {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
+    private final boolean isDebug = logger.isDebugEnabled();
 
     @Autowired
     private ApiMetaDataService apiMetaDataService;
@@ -45,21 +48,18 @@ public class GrpcApiMetaDataHandler implements RequestResponseHandler {
     @Override
     public void handleRequest(ServerRequest serverRequest, ServerResponse serverResponse) {
         final Object data = serverRequest.getData();
-        if (logger.isDebugEnabled()) {
-            logger.debug("Handle request data={}", data);
-        }
-
         if (data instanceof PApiMetaData) {
             Object result = handleApiMetaData((PApiMetaData) data);
             serverResponse.write(result);
         } else {
-            logger.warn("invalid serverRequest:{}", serverRequest);
+            logger.warn("Invalid request type. serverRequest={}", serverRequest);
+            throw Status.INTERNAL.withDescription("Bad Request(invalid request type)").asRuntimeException();
         }
     }
 
     private Object handleApiMetaData(final PApiMetaData apiMetaData) {
-        if (logger.isDebugEnabled()) {
-            logger.debug("Handle PApiMetaData={}", apiMetaData);
+        if (isDebug) {
+            logger.debug("Handle PApiMetaData={}", MessageToStringAdapter.getInstance(apiMetaData));
         }
 
         try {
@@ -81,10 +81,11 @@ public class GrpcApiMetaDataHandler implements RequestResponseHandler {
             }
 
             this.apiMetaDataService.insert(apiMetaDataBo);
+            return PResult.newBuilder().setSuccess(true).build();
         } catch (Exception e) {
-            logger.warn("{} handler error. Caused:{}", this.getClass(), e.getMessage(), e);
-            return PResult.newBuilder().setSuccess(false).setMessage(e.getMessage()).build();
+            logger.warn("Failed to handle apiMetaData={}", MessageToStringAdapter.getInstance(apiMetaData), e);
+            // Avoid detailed error messages.
+            return PResult.newBuilder().setSuccess(false).setMessage("Internal Server Error").build();
         }
-        return PResult.newBuilder().setSuccess(true).build();
     }
 }

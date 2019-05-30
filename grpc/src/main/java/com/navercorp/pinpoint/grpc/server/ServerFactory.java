@@ -94,10 +94,9 @@ public class ServerFactory {
     }
 
     private ExecutorService newExecutor(String name) {
-        ThreadFactory threadFactory = new PinpointThreadFactory(name + "-boss", true);
+        ThreadFactory threadFactory = new PinpointThreadFactory(name + "-executor", true);
         return Executors.newCachedThreadPool(threadFactory);
     }
-
 
     public void addService(BindableService bindableService) {
         Assert.requireNonNull(bindableService, "bindableService must not be null");
@@ -113,6 +112,7 @@ public class ServerFactory {
         Assert.requireNonNull(serverTransportFilter, "serverTransportFilter must not be null");
         this.serverTransportFilters.add(serverTransportFilter);
     }
+
     public void addInterceptor(ServerInterceptor serverInterceptor) {
         Assert.requireNonNull(serverInterceptor, "serverInterceptor must not be null");
         this.serverInterceptors.add(serverInterceptor);
@@ -189,7 +189,6 @@ public class ServerFactory {
     }
 
     public void close() {
-
         final Future<?> workerShutdown = this.workerEventLoopGroup.shutdownGracefully();
         workerShutdown.awaitUninterruptibly();
         ExecutorUtils.shutdownExecutorService(name + "-worker", workerExecutor);

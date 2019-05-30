@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.collector.receiver.grpc.service;
 
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.collector.receiver.grpc.GrpcServerResponse;
+import com.navercorp.pinpoint.grpc.MessageToStringAdapter;
 import com.navercorp.pinpoint.grpc.trace.AgentGrpc;
 import com.navercorp.pinpoint.grpc.trace.PAgentInfo;
 import com.navercorp.pinpoint.grpc.trace.PApiMetaData;
@@ -32,7 +33,9 @@ import com.navercorp.pinpoint.io.request.Message;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.io.request.ServerResponse;
 import com.navercorp.pinpoint.thrift.io.DefaultTBaseLocator;
+import io.grpc.Status;
 import io.grpc.StatusException;
+import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,8 +43,12 @@ import org.slf4j.LoggerFactory;
 import java.util.HashMap;
 import java.util.Objects;
 
+/**
+ * @author jaehong.kim
+ */
 public class AgentService extends AgentGrpc.AgentImplBase {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final boolean isDebug = logger.isDebugEnabled();
 
     private final DispatchHandler dispatchHandler;
     private final ServerRequestFactory serverRequestFactory = new ServerRequestFactory();
@@ -52,7 +59,9 @@ public class AgentService extends AgentGrpc.AgentImplBase {
 
     @Override
     public void requestAgentInfo(PAgentInfo agentInfo, StreamObserver<PResult> responseObserver) {
-        logger.debug("Request AgentInfo {}", agentInfo);
+        if (isDebug) {
+            logger.debug("Request PAgentInfo={}", MessageToStringAdapter.getInstance(agentInfo));
+        }
 
         final Header header = new HeaderV2(Header.SIGNATURE, HeaderV2.VERSION, DefaultTBaseLocator.AGENT_INFO);
         final HeaderEntity headerEntity = new HeaderEntity(new HashMap<String, String>());
@@ -63,7 +72,9 @@ public class AgentService extends AgentGrpc.AgentImplBase {
 
     @Override
     public void requestApiMetaData(PApiMetaData apiMetaData, StreamObserver<PResult> responseObserver) {
-        logger.debug("Request ApiMetaData {}", apiMetaData);
+        if (isDebug) {
+            logger.debug("Request PApiMetaData={}", MessageToStringAdapter.getInstance(apiMetaData));
+        }
 
         final Header header = new HeaderV2(Header.SIGNATURE, HeaderV2.VERSION, DefaultTBaseLocator.APIMETADATA);
         final HeaderEntity headerEntity = new HeaderEntity(new HashMap<String, String>());
@@ -74,7 +85,9 @@ public class AgentService extends AgentGrpc.AgentImplBase {
 
     @Override
     public void requestSqlMetaData(PSqlMetaData sqlMetaData, StreamObserver<PResult> responseObserver) {
-        logger.debug("Request SqlMetaData {}", sqlMetaData);
+        if (isDebug) {
+            logger.debug("Request PSqlMetaData={}", MessageToStringAdapter.getInstance(sqlMetaData));
+        }
 
         final Header header = new HeaderV2(Header.SIGNATURE, HeaderV2.VERSION, DefaultTBaseLocator.SQLMETADATA);
         final HeaderEntity headerEntity = new HeaderEntity(new HashMap<String, String>());
@@ -85,7 +98,9 @@ public class AgentService extends AgentGrpc.AgentImplBase {
 
     @Override
     public void requestStringMetaData(PStringMetaData stringMetaData, StreamObserver<PResult> responseObserver) {
-        logger.debug("Request StringMetaData {}", stringMetaData);
+        if (isDebug) {
+            logger.debug("Request PStringMetaData={}", MessageToStringAdapter.getInstance(stringMetaData));
+        }
 
         final Header header = new HeaderV2(Header.SIGNATURE, HeaderV2.VERSION, DefaultTBaseLocator.STRINGMETADATA);
         final HeaderEntity headerEntity = new HeaderEntity(new HashMap<String, String>());
@@ -95,15 +110,18 @@ public class AgentService extends AgentGrpc.AgentImplBase {
     }
 
     private void request(Message<?> message, StreamObserver<PResult> responseObserver) {
-        ServerRequest<?> request;
         try {
-            request = serverRequestFactory.newServerRequest(message);
-        } catch (StatusException e) {
-            logger.warn("serverRequest create fail Caused by:" + e.getMessage(), e);
-            responseObserver.onError(e);
-            return;
+            final ServerRequest<?> request = serverRequestFactory.newServerRequest(message);
+            final ServerResponse response = new GrpcServerResponse(responseObserver);
+            this.dispatchHandler.dispatchRequestMessage(request, response);
+        } catch (Exception e) {
+            logger.warn("Failed to request. message={}", message, e);
+            if (e instanceof StatusException || e instanceof StatusRuntimeException) {
+                responseObserver.onError(e);
+            } else {
+                // Avoid detailed exception
+                responseObserver.onError(Status.INTERNAL.withDescription("Bad Request").asException());
+            }
         }
-        ServerResponse response = new GrpcServerResponse(responseObserver);
-        this.dispatchHandler.dispatchRequestMessage(request, response);
     }
 }

@@ -72,7 +72,7 @@ public class GrpcCommandService extends ProfilerCommandServiceGrpc.ProfilerComma
         Assert.requireNonNull(clusterService, "clusterService must not be null");
         this.zookeeperProfilerClusterManager = Assert.requireNonNull(clusterService.getProfilerClusterManager(), "zookeeperProfilerClusterManager must not be null");
         Assert.requireNonNull(zookeeperProfilerClusterManager, "zookeeperProfilerClusterManager must not be null");
-        this.timer =  TimerFactory.createHashedWheelTimer("GrpcCommandService-Timer", 100, TimeUnit.MILLISECONDS, 512);
+        this.timer = TimerFactory.createHashedWheelTimer("GrpcCommandService-Timer", 100, TimeUnit.MILLISECONDS, 512);
     }
 
     @Override
@@ -182,10 +182,16 @@ public class GrpcCommandService extends ProfilerCommandServiceGrpc.ProfilerComma
         if (pinpointGrpcServer == null) {
             logger.info("{} => local. Can't find PinpointGrpcServer(transportId={})", getAgentInfo().getAgentKey(), transportId);
             streamConnectionManagerObserver.onError(new StatusException(Status.NOT_FOUND));
-            return null;
+            return DisabledStreamObserver.DISABLED_INSTANCE;
         }
 
-        return activeThreadCountService.handle(pinpointGrpcServer, streamConnectionManagerObserver);
+        try {
+            return activeThreadCountService.handle(pinpointGrpcServer, streamConnectionManagerObserver);
+        } catch (IllegalArgumentException e) {
+            logger.warn("Failed to handle activeThreadCountService. agentKey={}, transportId={}", getAgentInfo().getAgentKey(), transportId, e);
+            streamConnectionManagerObserver.onError(Status.INTERNAL.withDescription("Internal Server Error").asException());
+            return DisabledStreamObserver.DISABLED_INSTANCE;
+        }
     }
 
     private InetSocketAddress getRemoteAddress() {
@@ -211,15 +217,15 @@ public class GrpcCommandService extends ProfilerCommandServiceGrpc.ProfilerComma
         }
     }
 
-    private static class DisabledStreamObserver implements StreamObserver<PCmdMessage> {
+    private static class DisabledStreamObserver<V> implements StreamObserver<V> {
 
         private static final DisabledStreamObserver DISABLED_INSTANCE = new DisabledStreamObserver();
 
         private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
         @Override
-        public void onNext(PCmdMessage value) {
-            logger.debug("onNext:{}", value);
+        public void onNext(V t) {
+            logger.debug("onNext:{}", t);
         }
 
         @Override

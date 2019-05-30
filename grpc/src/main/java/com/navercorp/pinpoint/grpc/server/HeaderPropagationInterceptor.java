@@ -24,6 +24,7 @@ import io.grpc.Metadata;
 import io.grpc.ServerCall;
 import io.grpc.ServerCallHandler;
 import io.grpc.ServerInterceptor;
+import io.grpc.Status;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,15 +43,26 @@ public class HeaderPropagationInterceptor<H> implements ServerInterceptor {
     }
 
     @Override
-    public <ReqT, RespT> ServerCall.Listener<ReqT> interceptCall(ServerCall<ReqT, RespT> call, Metadata headers, ServerCallHandler<ReqT, RespT> next) {
-        final H headerObject = headerFactory.extract(headers);
+    public <ReqT, RespT> ServerCall.Listener<ReqT> interceptCall(final ServerCall<ReqT, RespT> call, Metadata headers, ServerCallHandler<ReqT, RespT> next) {
+        H headerObject;
+        try {
+            headerObject = headerFactory.extract(headers);
+        } catch (Exception e) {
+            if (logger.isInfoEnabled()) {
+                logger.info("Close call. cause={}, headers={}, attributes={}", e.getMessage(), headers, call.getAttributes());
+            }
+            call.close(Status.INVALID_ARGUMENT.withDescription(e.getMessage()), new Metadata());
+            return new ServerCall.Listener<ReqT>() {
+            };
+        }
 
         final Context currentContext = Context.current();
         final Context newContext = currentContext.withValue(contextKey, headerObject);
         if (logger.isDebugEnabled()) {
             logger.debug("interceptCall(call = [{}], headers = [{}], next = [{}])", call, headers, next);
         }
-        ServerCall.Listener<ReqT>  contextPropagateInterceptor = Contexts.interceptCall(newContext, call, headers, next);
+
+        ServerCall.Listener<ReqT> contextPropagateInterceptor = Contexts.interceptCall(newContext, call, headers, next);
         return contextPropagateInterceptor;
     }
 }

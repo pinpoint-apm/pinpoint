@@ -92,7 +92,7 @@ public class GrpcCommandServiceTest {
             Assert.assertNotNull(recordedStreamObserver.getLatestThrowable());
 
             StreamObserver<PCmdActiveThreadCountRes> pCmdActiveThreadCountResStreamObserver = commandService.commandStreamActiveThreadCount(new TempServerCallStreamObserver<Empty>());
-            Assert.assertNull(pCmdActiveThreadCountResStreamObserver);
+            Assert.assertNotNull(pCmdActiveThreadCountResStreamObserver);
 
             attachContext(transportMetaData);
             TempServerCallStreamObserver<Empty> streamConnectionManagerObserver = new TempServerCallStreamObserver<>();
