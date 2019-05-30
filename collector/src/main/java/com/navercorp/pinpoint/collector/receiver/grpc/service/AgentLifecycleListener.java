@@ -19,6 +19,8 @@ package com.navercorp.pinpoint.collector.receiver.grpc.service;
 import com.navercorp.pinpoint.collector.util.ManagedAgentLifeCycle;
 import com.navercorp.pinpoint.grpc.server.lifecycle.Lifecycle;
 import com.navercorp.pinpoint.grpc.server.lifecycle.LifecycleListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Objects;
@@ -27,6 +29,7 @@ import java.util.Objects;
  * @author Woonduk Kang(emeroad)
  */
 public class AgentLifecycleListener implements LifecycleListener {
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final KeepAliveService lifecycleService;
 
     @Autowired
@@ -36,16 +39,18 @@ public class AgentLifecycleListener implements LifecycleListener {
 
     @Override
     public void connect(Lifecycle lifecycle) {
-
+        logger.info("connect:{}", lifecycle);
     }
 
     @Override
     public void handshake(Lifecycle lifecycle) {
+        logger.info("handshake:{}", lifecycle);
         lifecycleService.updateState(lifecycle, ManagedAgentLifeCycle.RUNNING);
     }
 
     @Override
     public void close(Lifecycle lifecycle) {
+        logger.info("close:{}", lifecycle);
         lifecycleService.updateState(lifecycle, ManagedAgentLifeCycle.CLOSED_BY_CLIENT);
     }
 }

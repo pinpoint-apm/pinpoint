@@ -22,11 +22,11 @@ import java.util.Collection;
  * @author Woonduk Kang(emeroad)
  */
 public interface LifecycleRegistry {
-    Lifecycle add(Lifecycle lifecycle);
+    Lifecycle add(Long transportId, Lifecycle lifecycle);
 
-    Lifecycle get(long transportId);
+    Lifecycle get(Long transportId);
 
-    Lifecycle remove(long transportId);
+    Lifecycle remove(Long transportId);
 
     Collection<Lifecycle> values();
 }

@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.collector.receiver.grpc;
 
+import com.navercorp.pinpoint.common.util.Assert;
+
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -26,16 +28,22 @@ public class PinpointGrpcServerRepository {
 
     private final ConcurrentMap<Long, PinpointGrpcServer> grpcServerRepository = new ConcurrentHashMap<>();
 
-    public boolean registerIfAbsent(long transportId, PinpointGrpcServer pinpointGrpcServer) {
+    public boolean registerIfAbsent(Long transportId, PinpointGrpcServer pinpointGrpcServer) {
+        Assert.requireNonNull(transportId, "transportId must not be null");
+
         PinpointGrpcServer old = grpcServerRepository.putIfAbsent(transportId, pinpointGrpcServer);
         return old == null;
     }
 
-    public void unregister(long transportId) {
+    public void unregister(Long transportId) {
+        Assert.requireNonNull(transportId, "transportId must not be null");
+
         grpcServerRepository.remove(transportId);
     }
 
-    public PinpointGrpcServer get(long transportId) {
+    public PinpointGrpcServer get(Long transportId) {
+        Assert.requireNonNull(transportId, "transportId must not be null");
+
         return grpcServerRepository.get(transportId);
     }
 
