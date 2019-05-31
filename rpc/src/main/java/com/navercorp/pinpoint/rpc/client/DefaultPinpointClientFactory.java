@@ -25,7 +25,6 @@ import com.navercorp.pinpoint.rpc.cluster.Role;
 import com.navercorp.pinpoint.rpc.stream.ServerStreamChannelMessageHandler;
 import com.navercorp.pinpoint.rpc.util.LoggerFactorySetup;
 import com.navercorp.pinpoint.rpc.util.TimerFactory;
-
 import org.jboss.netty.channel.ChannelFactory;
 import org.jboss.netty.channel.ChannelFuture;
 import org.jboss.netty.util.HashedWheelTimer;
@@ -54,6 +53,8 @@ public class DefaultPinpointClientFactory implements PinpointClientFactory {
     private final AtomicInteger socketId = new AtomicInteger(1);
 
     private final Closed closed = new Closed();
+
+    private final boolean useExternalResource;
 
     private final ChannelFactory channelFactory;
     private final SocketOption.Builder socketOptionBuilder;
@@ -94,11 +95,25 @@ public class DefaultPinpointClientFactory implements PinpointClientFactory {
             throw new IllegalArgumentException("bossCount is negative: " + bossCount);
         }
 
+        this.useExternalResource = false;
         // create a timer earlier because it is used for connectTimeout
         this.timer = createTimer("Pinpoint-SocketFactory-Timer");
         final ClientChannelFactory channelFactory = new ClientChannelFactory();
         logger.debug("createBootStrap boss:{}, worker:{}", bossCount, workerCount);
         this.channelFactory = channelFactory.createChannelFactory(bossCount, workerCount, timer);
+        this.socketOptionBuilder = new SocketOption.Builder();
+        this.connectionFactoryProvider = Assert.requireNonNull(connectionFactoryProvider, "connectionFactoryProvider must not be null");
+    }
+
+    public DefaultPinpointClientFactory(ChannelFactory channelFactory, Timer timer) {
+        this(channelFactory, timer, new DefaultConnectionFactoryProvider(new ClientCodecPipelineFactory()));
+    }
+
+    public DefaultPinpointClientFactory(ChannelFactory channelFactory, Timer timer, ConnectionFactoryProvider connectionFactoryProvider) {
+        this.channelFactory = Assert.requireNonNull(channelFactory, "channelFactory must not be null");
+        this.timer = Assert.requireNonNull(timer, "timer must not be null");
+
+        this.useExternalResource = true;
         this.socketOptionBuilder = new SocketOption.Builder();
         this.connectionFactoryProvider = Assert.requireNonNull(connectionFactoryProvider, "connectionFactoryProvider must not be null");
     }
@@ -115,6 +130,26 @@ public class DefaultPinpointClientFactory implements PinpointClientFactory {
 
     public int getConnectTimeout() {
         return socketOptionBuilder.getConnectTimeout();
+    }
+
+    @Override
+    public void setWriteBufferHighWaterMark(int writeBufferHighWaterMark) {
+        this.socketOptionBuilder.setWriteBufferHighWaterMark(writeBufferHighWaterMark);
+    }
+
+    @Override
+    public int getWriteBufferHighWaterMark() {
+        return this.socketOptionBuilder.getWriteBufferHighWaterMark();
+    }
+
+    @Override
+    public void setWriteBufferLowWaterMark(int writeBufferLowWaterMark) {
+        this.socketOptionBuilder.setWriteBufferLowWaterMark(writeBufferLowWaterMark);
+    }
+
+    @Override
+    public int getWriteBufferLowWaterMark() {
+        return this.socketOptionBuilder.getWriteBufferLowWaterMark();
     }
 
     public long getReconnectDelay() {
@@ -243,17 +278,18 @@ public class DefaultPinpointClientFactory implements PinpointClientFactory {
             return;
         }
 
+        if (!useExternalResource) {
+            final ChannelFactory channelFactory = this.channelFactory;
+            if (channelFactory != null) {
+                channelFactory.releaseExternalResources();
+            }
+            Set<Timeout> stop = this.timer.stop();
+            if (!stop.isEmpty()) {
+                logger.info("stop Timeout:{}", stop.size());
+            }
 
-        final ChannelFactory channelFactory = this.channelFactory;
-        if (channelFactory != null) {
-            channelFactory.releaseExternalResources();
+            // stop, cancel something?
         }
-        Set<Timeout> stop = this.timer.stop();
-        if (!stop.isEmpty()) {
-            logger.info("stop Timeout:{}", stop.size());
-        }
-
-        // stop, cancel something?
     }
 
     public void setProperties(Map<String, Object> agentProperties) {

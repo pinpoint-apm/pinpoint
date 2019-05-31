@@ -20,6 +20,7 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.navercorp.pinpoint.bootstrap.config.ThriftTransportConfig;
 import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.common.util.ByteSizeUnit;
 import com.navercorp.pinpoint.profiler.AgentInformation;
 import com.navercorp.pinpoint.profiler.receiver.CommandDispatcher;
 import com.navercorp.pinpoint.rpc.client.ConnectionFactoryProvider;
@@ -33,7 +34,7 @@ import java.util.Map;
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class PinpointClientFactoryProvider implements Provider<PinpointClientFactory> {
+public class PinpointClientFactoryProvider extends AbstractClientFactoryProvider implements Provider<PinpointClientFactory> {
 
     private final ThriftTransportConfig thriftTransportConfig;
     private final Provider<AgentInformation> agentInformation;
@@ -57,6 +58,15 @@ public class PinpointClientFactoryProvider implements Provider<PinpointClientFac
         pinpointClientFactory.setPingDelay(thriftTransportConfig.getTcpDataSenderPinpointClientPingInterval());
         pinpointClientFactory.setEnableWorkerPacketDelay(thriftTransportConfig.getTcpDataSenderPinpointClientHandshakeInterval());
 
+        int writeBufferHighWaterMark = getByteSize(thriftTransportConfig.getTcpDataSenderPinpointClientWriteBufferHighWaterMark(), ByteSizeUnit.MEGA_BYTES.toBytesSizeAsInt(32));
+        int writeBufferLowWaterMark = getByteSize(thriftTransportConfig.getTcpDataSenderPinpointClientWriteBufferLowWaterMark(), ByteSizeUnit.MEGA_BYTES.toBytesSizeAsInt(16));
+        if (writeBufferLowWaterMark > writeBufferHighWaterMark) {
+            logger.warn("must be writeBufferHighWaterMark({}) >= writeBufferLowWaterMark({})", writeBufferHighWaterMark, writeBufferLowWaterMark);
+            writeBufferLowWaterMark = writeBufferHighWaterMark;
+        }
+        pinpointClientFactory.setWriteBufferHighWaterMark(writeBufferHighWaterMark);
+        pinpointClientFactory.setWriteBufferLowWaterMark(writeBufferLowWaterMark);
+
         AgentInformation agentInformation = this.agentInformation.get();
         Map<String, Object> properties = toMap(agentInformation);
 
@@ -74,7 +84,6 @@ public class PinpointClientFactoryProvider implements Provider<PinpointClientFac
 
         pinpointClientFactory.setProperties(properties);
         return pinpointClientFactory;
-
     }
 
     private Map<String, Object> toMap(AgentInformation agentInformation) {

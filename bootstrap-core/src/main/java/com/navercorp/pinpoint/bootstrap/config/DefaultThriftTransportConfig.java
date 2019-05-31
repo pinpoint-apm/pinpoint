@@ -36,6 +36,10 @@ public class DefaultThriftTransportConfig implements ThriftTransportConfig {
     private int spanDataSenderSocketSendBufferSize = 1024 * 64 * 16;
     private int spanDataSenderSocketTimeout = 1000 * 3;
     private int spanDataSenderChunkSize = 1024 * 16;
+    private static String DEFAULT_SPAN_DATA_SENDER_WRITE_BUFFER_HIGH_WATER_MAK = "16m";
+    private String spanDataSenderWriteBufferHighWaterMark = DEFAULT_SPAN_DATA_SENDER_WRITE_BUFFER_HIGH_WATER_MAK;
+    private static String DEFAULT_SPAN_DATA_SENDER_WRITE_BUFFER_LOW_WATER_MAK = "8m";
+    private String spanDataSenderWriteBufferLowWaterMark = DEFAULT_SPAN_DATA_SENDER_WRITE_BUFFER_LOW_WATER_MAK;
     private String spanDataSenderTransportType = "UDP";
     private String spanDataSenderSocketType = "OIO";
 
@@ -43,6 +47,10 @@ public class DefaultThriftTransportConfig implements ThriftTransportConfig {
     private int statDataSenderSocketSendBufferSize = 1024 * 64 * 16;
     private int statDataSenderSocketTimeout = 1000 * 3;
     private int statDataSenderChunkSize = 1024 * 16;
+    private static String DEFAULT_STAT_DATA_SENDER_WRITE_BUFFER_HIGH_WATER_MAK = "16m";
+    private String statDataSenderWriteBufferHighWaterMark = DEFAULT_STAT_DATA_SENDER_WRITE_BUFFER_HIGH_WATER_MAK;
+    private static String DEFAULT_STAT_DATA_SENDER_WRITE_BUFFER_LOW_WATER_MAK = "8m";
+    private String statDataSenderWriteBufferLowWaterMark = DEFAULT_STAT_DATA_SENDER_WRITE_BUFFER_LOW_WATER_MAK;
     private String statDataSenderTransportType = "UDP";
     private String statDataSenderSocketType = "OIO";
 
@@ -62,6 +70,10 @@ public class DefaultThriftTransportConfig implements ThriftTransportConfig {
     private long tcpDataSenderPinpointClientPingInterval = DEFAULT_DATA_SENDER_PINPOINT_CLIENT_PING_INTERVAL;
     private static long DEFAULT_DATA_SENDER_PINPOINT_CLIENT_HANDSHAKE_INTERVAL = 60 * 1000 * 1;
     private long tcpDataSenderPinpointClientHandshakeInterval = DEFAULT_DATA_SENDER_PINPOINT_CLIENT_HANDSHAKE_INTERVAL;
+    private static String DEFAULT_DATA_SENDER_PINPOINT_CLIENT_WRITE_BUFFER_HIGH_WATER_MAK = "32m";
+    private String tcpDataSenderPinpointClientWriteBufferHighWaterMark = DEFAULT_DATA_SENDER_PINPOINT_CLIENT_WRITE_BUFFER_HIGH_WATER_MAK;
+    private static String DEFAULT_DATA_SENDER_PINPOINT_CLIENT_WRITE_BUFFER_LOW_WATER_MAK = "16m";
+    private String tcpDataSenderPinpointClientWriteBufferLowWaterMark = DEFAULT_DATA_SENDER_PINPOINT_CLIENT_WRITE_BUFFER_LOW_WATER_MAK;
 
     public DefaultThriftTransportConfig() {
     }
@@ -81,13 +93,17 @@ public class DefaultThriftTransportConfig implements ThriftTransportConfig {
         this.spanDataSenderSocketSendBufferSize = profilerConfig.readInt("profiler.spandatasender.socket.sendbuffersize", 1024 * 64 * 16);
         this.spanDataSenderSocketTimeout = profilerConfig.readInt("profiler.spandatasender.socket.timeout", 1000 * 3);
         this.spanDataSenderChunkSize = profilerConfig.readInt("profiler.spandatasender.chunk.size", 1024 * 16);
-        this.spanDataSenderSocketType = profilerConfig.readString("profiler.spandatasender.socket.type", "OIO");
+        this.spanDataSenderWriteBufferHighWaterMark = profilerConfig.readString("profiler.spandatasender.write.buffer.highwatermark", DEFAULT_SPAN_DATA_SENDER_WRITE_BUFFER_HIGH_WATER_MAK);
+        this.spanDataSenderWriteBufferLowWaterMark = profilerConfig.readString("profiler.spandatasender.write.buffer.lowwatermark", DEFAULT_SPAN_DATA_SENDER_WRITE_BUFFER_LOW_WATER_MAK);
+       this.spanDataSenderSocketType = profilerConfig.readString("profiler.spandatasender.socket.type", "OIO");
         this.spanDataSenderTransportType = profilerConfig.readString("profiler.spandatasender.transport.type", "UDP");
 
         this.statDataSenderWriteQueueSize = profilerConfig.readInt("profiler.statdatasender.write.queue.size", 1024 * 5);
         this.statDataSenderSocketSendBufferSize = profilerConfig.readInt("profiler.statdatasender.socket.sendbuffersize", 1024 * 64 * 16);
         this.statDataSenderSocketTimeout = profilerConfig.readInt("profiler.statdatasender.socket.timeout", 1000 * 3);
         this.statDataSenderChunkSize = profilerConfig.readInt("profiler.statdatasender.chunk.size", 1024 * 16);
+        this.statDataSenderWriteBufferHighWaterMark = profilerConfig.readString("profiler.statdatasender.write.buffer.highwatermark", DEFAULT_STAT_DATA_SENDER_WRITE_BUFFER_HIGH_WATER_MAK);
+        this.statDataSenderWriteBufferLowWaterMark = profilerConfig.readString("profiler.statdatasender.write.buffer.lowwatermark", DEFAULT_STAT_DATA_SENDER_WRITE_BUFFER_LOW_WATER_MAK);
         this.statDataSenderSocketType = profilerConfig.readString("profiler.statdatasender.socket.type", "OIO");
         this.statDataSenderTransportType = profilerConfig.readString("profiler.statdatasender.transport.type", "UDP");
 
@@ -102,6 +118,8 @@ public class DefaultThriftTransportConfig implements ThriftTransportConfig {
         this.tcpDataSenderPinpointClientReconnectInterval = profilerConfig.readLong("profiler.tcpdatasender.client.reconnect.interval", DEFAULT_DATA_SENDER_PINPOINT_CLIENT_RECONNECT_INTERVAL);
         this.tcpDataSenderPinpointClientPingInterval = profilerConfig.readLong("profiler.tcpdatasender.client.ping.interval", DEFAULT_DATA_SENDER_PINPOINT_CLIENT_PING_INTERVAL);
         this.tcpDataSenderPinpointClientHandshakeInterval = profilerConfig.readLong("profiler.tcpdatasender.client.handshake.interval", DEFAULT_DATA_SENDER_PINPOINT_CLIENT_HANDSHAKE_INTERVAL);
+        this.tcpDataSenderPinpointClientWriteBufferHighWaterMark = profilerConfig.readString("profiler.tcpdatasender.client.write.buffer.highwatermark", DEFAULT_DATA_SENDER_PINPOINT_CLIENT_WRITE_BUFFER_HIGH_WATER_MAK);
+        this.tcpDataSenderPinpointClientWriteBufferLowWaterMark = profilerConfig.readString("profiler.tcpdatasender.client.write.buffer.lowwatermark", DEFAULT_DATA_SENDER_PINPOINT_CLIENT_WRITE_BUFFER_LOW_WATER_MAK);
     }
 
     @Override
@@ -147,6 +165,16 @@ public class DefaultThriftTransportConfig implements ThriftTransportConfig {
     @Override
     public int getStatDataSenderSocketTimeout() {
         return statDataSenderSocketTimeout;
+    }
+
+    @Override
+    public String getStatDataSenderWriteBufferHighWaterMark() {
+        return statDataSenderWriteBufferHighWaterMark;
+    }
+
+    @Override
+    public String getStatDataSenderWriteBufferLowWaterMark() {
+        return statDataSenderWriteBufferLowWaterMark;
     }
 
     @Override
@@ -220,6 +248,16 @@ public class DefaultThriftTransportConfig implements ThriftTransportConfig {
     }
 
     @Override
+    public String getTcpDataSenderPinpointClientWriteBufferHighWaterMark() {
+        return tcpDataSenderPinpointClientWriteBufferHighWaterMark;
+    }
+
+    @Override
+    public String getTcpDataSenderPinpointClientWriteBufferLowWaterMark() {
+        return tcpDataSenderPinpointClientWriteBufferLowWaterMark;
+    }
+
+    @Override
     public int getSpanDataSenderSocketTimeout() {
         return spanDataSenderSocketTimeout;
     }
@@ -232,6 +270,16 @@ public class DefaultThriftTransportConfig implements ThriftTransportConfig {
     @Override
     public String getSpanDataSenderTransportType() {
         return spanDataSenderTransportType;
+    }
+
+    @Override
+    public String getSpanDataSenderWriteBufferHighWaterMark() {
+        return spanDataSenderWriteBufferHighWaterMark;
+    }
+
+    @Override
+    public String getSpanDataSenderWriteBufferLowWaterMark() {
+        return spanDataSenderWriteBufferLowWaterMark;
     }
 
     @Override
@@ -257,12 +305,16 @@ public class DefaultThriftTransportConfig implements ThriftTransportConfig {
                 ", spanDataSenderSocketSendBufferSize=" + spanDataSenderSocketSendBufferSize +
                 ", spanDataSenderSocketTimeout=" + spanDataSenderSocketTimeout +
                 ", spanDataSenderChunkSize=" + spanDataSenderChunkSize +
+                ", spanDataSenderWriteBufferHighWaterMark=" + spanDataSenderWriteBufferHighWaterMark +
+                ", spanDataSenderWriteBufferLowWaterMark=" + spanDataSenderWriteBufferLowWaterMark +
                 ", spanDataSenderTransportType='" + spanDataSenderTransportType + '\'' +
                 ", spanDataSenderSocketType='" + spanDataSenderSocketType + '\'' +
                 ", statDataSenderWriteQueueSize=" + statDataSenderWriteQueueSize +
                 ", statDataSenderSocketSendBufferSize=" + statDataSenderSocketSendBufferSize +
                 ", statDataSenderSocketTimeout=" + statDataSenderSocketTimeout +
                 ", statDataSenderChunkSize=" + statDataSenderChunkSize +
+                ", statDataSenderWriteBufferHighWaterMark=" + statDataSenderWriteBufferHighWaterMark +
+                ", statDataSenderWriteBufferLowWaterMark=" + statDataSenderWriteBufferLowWaterMark +
                 ", statDataSenderTransportType='" + statDataSenderTransportType + '\'' +
                 ", statDataSenderSocketType='" + statDataSenderSocketType + '\'' +
                 ", tcpDataSenderCommandAcceptEnable=" + tcpDataSenderCommandAcceptEnable +
@@ -275,6 +327,8 @@ public class DefaultThriftTransportConfig implements ThriftTransportConfig {
                 ", tcpDataSenderPinpointClientReconnectInterval=" + tcpDataSenderPinpointClientReconnectInterval +
                 ", tcpDataSenderPinpointClientPingInterval=" + tcpDataSenderPinpointClientPingInterval +
                 ", tcpDataSenderPinpointClientHandshakeInterval=" + tcpDataSenderPinpointClientHandshakeInterval +
+                ", tcpDataSenderPinpointClientWriteBufferHighWaterMark=" + tcpDataSenderPinpointClientWriteBufferHighWaterMark +
+                ", tcpDataSenderPinpointClientWriteBufferLowWaterMark=" + tcpDataSenderPinpointClientWriteBufferLowWaterMark +
                 '}';
     }
 }
