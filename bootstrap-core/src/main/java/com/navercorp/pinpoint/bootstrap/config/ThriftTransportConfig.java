@@ -43,6 +43,11 @@ public interface ThriftTransportConfig {
 
     String getStatDataSenderTransportType();
 
+    String getStatDataSenderWriteBufferHighWaterMark();
+
+    String getStatDataSenderWriteBufferLowWaterMark();
+
+
     int getSpanDataSenderWriteQueueSize();
 
     int getSpanDataSenderSocketSendBufferSize();
@@ -70,11 +75,19 @@ public interface ThriftTransportConfig {
 
     long getTcpDataSenderPinpointClientHandshakeInterval();
 
+    String getTcpDataSenderPinpointClientWriteBufferHighWaterMark();
+
+    String getTcpDataSenderPinpointClientWriteBufferLowWaterMark();
+
     int getSpanDataSenderSocketTimeout();
 
     String getSpanDataSenderSocketType();
 
     String getSpanDataSenderTransportType();
+
+    String getSpanDataSenderWriteBufferHighWaterMark();
+
+    String getSpanDataSenderWriteBufferLowWaterMark();
 
     int getSpanDataSenderChunkSize();
 

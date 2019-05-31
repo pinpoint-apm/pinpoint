@@ -29,9 +29,12 @@ import com.navercorp.pinpoint.profiler.context.provider.thrift.ConnectionFactory
 import com.navercorp.pinpoint.profiler.context.provider.thrift.HeaderTBaseSerializerProvider;
 import com.navercorp.pinpoint.profiler.context.provider.thrift.MetadataMessageConverterProvider;
 import com.navercorp.pinpoint.profiler.context.provider.thrift.PinpointClientFactoryProvider;
+import com.navercorp.pinpoint.profiler.context.provider.thrift.SpanClientFactoryProvider;
 import com.navercorp.pinpoint.profiler.context.provider.thrift.SpanDataSenderProvider;
 import com.navercorp.pinpoint.profiler.context.provider.thrift.SpanProcessorProvider;
-import com.navercorp.pinpoint.profiler.context.provider.thrift.SpanStatClientFactoryProvider;
+import com.navercorp.pinpoint.profiler.context.provider.thrift.SpanStatChannelFactoryProvider;
+import com.navercorp.pinpoint.profiler.context.provider.thrift.SpanStatConnectTimerProvider;
+import com.navercorp.pinpoint.profiler.context.provider.thrift.StatClientFactoryProvider;
 import com.navercorp.pinpoint.profiler.context.provider.thrift.StatDataSenderProvider;
 import com.navercorp.pinpoint.profiler.context.provider.thrift.TcpDataSenderProvider;
 import com.navercorp.pinpoint.profiler.context.provider.thrift.ThriftTransportConfigProvider;
@@ -50,6 +53,8 @@ import com.navercorp.pinpoint.thrift.dto.TSpan;
 import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializer;
 import org.apache.thrift.TBase;
+import org.jboss.netty.channel.ChannelFactory;
+import org.jboss.netty.util.Timer;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -79,8 +84,17 @@ public class ThriftModule extends PrivateModule {
         bind(dataSenderTypeLiteral).toProvider(TcpDataSenderProvider.class).in(Scopes.SINGLETON);
         expose(dataSenderTypeLiteral);
 
-        Key<PinpointClientFactory> pinpointStatClientFactory = Key.get(PinpointClientFactory.class, SpanStatClientFactory.class);
-        bind(pinpointStatClientFactory).toProvider(SpanStatClientFactoryProvider.class).in(Scopes.SINGLETON);
+        Key<Timer> spanStatConnectTimer = Key.get(Timer.class, SpanStatConnectTimer.class);
+        bind(spanStatConnectTimer).toProvider(SpanStatConnectTimerProvider.class).in(Scopes.SINGLETON);
+
+        Key<ChannelFactory> spanStatChannelFactory = Key.get(ChannelFactory.class, SpanStatChannelFactory.class);
+        bind(spanStatChannelFactory).toProvider(SpanStatChannelFactoryProvider.class).in(Scopes.SINGLETON);
+
+        Key<PinpointClientFactory> spanClientFactory = Key.get(PinpointClientFactory.class, SpanClientFactory.class);
+        bind(spanClientFactory).toProvider(SpanClientFactoryProvider.class).in(Scopes.SINGLETON);
+
+        Key<PinpointClientFactory> statClientFactory = Key.get(PinpointClientFactory.class, StatClientFactory.class);
+        bind(statClientFactory).toProvider(StatClientFactoryProvider.class).in(Scopes.SINGLETON);
 
         TypeLiteral<MessageConverter<TBase<?, ?>>> thriftMessageConverter = new TypeLiteral<MessageConverter<TBase<?, ?>>>() {};
         Key<MessageConverter<TBase<?, ?>>> spanMessageConverterKey = Key.get(thriftMessageConverter, SpanConverter.class);

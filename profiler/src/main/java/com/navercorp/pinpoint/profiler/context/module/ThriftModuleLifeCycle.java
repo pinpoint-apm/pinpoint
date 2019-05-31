@@ -25,6 +25,11 @@ import com.navercorp.pinpoint.profiler.receiver.CommandDispatcher;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
+import org.jboss.netty.channel.ChannelFactory;
+import org.jboss.netty.util.Timeout;
+import org.jboss.netty.util.Timer;
+
+import java.util.Set;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -37,7 +42,12 @@ public class ThriftModuleLifeCycle implements ModuleLifeCycle {
     private final Provider<PinpointClientFactory> clientFactoryProvider;
     private final Provider<EnhancedDataSender<Object>> tcpDataSenderProvider;
 
-    private final Provider<PinpointClientFactory> spanStatClientFactoryProvider;
+    private final Provider<Timer> spanStatConnectTimerProvider;
+    private final Provider<ChannelFactory> spanStatChannelFactoryProvider;
+
+    private final Provider<PinpointClientFactory> spanClientFactoryProvider;
+    private final Provider<PinpointClientFactory> statClientFactoryProvider;
+
     private final Provider<DataSender> spanDataSenderProvider;
     private final Provider<DataSender> statDataSenderProvider;
 
@@ -46,7 +56,12 @@ public class ThriftModuleLifeCycle implements ModuleLifeCycle {
     private PinpointClientFactory clientFactory;
     private EnhancedDataSender<Object> tcpDataSender;
 
-    private PinpointClientFactory spanStatClientFactory;
+    private Timer spanStatConnectTimer;
+    private ChannelFactory spanStatChannelFactory;
+
+    private PinpointClientFactory spanClientFactory;
+    private PinpointClientFactory statClientFactory;
+
     private DataSender spanDataSender;
     private DataSender statDataSender;
 
@@ -55,7 +70,10 @@ public class ThriftModuleLifeCycle implements ModuleLifeCycle {
             Provider<CommandDispatcher> commandDispatcherProvider,
             @DefaultClientFactory Provider<PinpointClientFactory> clientFactoryProvider,
             Provider<EnhancedDataSender<Object>> tcpDataSenderProvider,
-            @SpanStatClientFactory Provider<PinpointClientFactory> spanStatClientFactoryProvider,
+            @SpanStatConnectTimer Provider<Timer> spanStatConnectTimerProvider,
+            @SpanStatChannelFactory Provider<ChannelFactory> spanStatChannelFactoryProvider,
+            @SpanClientFactory Provider<PinpointClientFactory> spanClientFactoryProvider,
+            @StatClientFactory Provider<PinpointClientFactory> statClientFactoryProvider,
             @SpanDataSender Provider<DataSender> spanDataSenderProvider,
             @StatDataSender Provider<DataSender> statDataSenderProvider
             ) {
@@ -63,7 +81,13 @@ public class ThriftModuleLifeCycle implements ModuleLifeCycle {
         this.clientFactoryProvider = Assert.requireNonNull(clientFactoryProvider, "clientFactoryProvider must not be null");
         this.tcpDataSenderProvider = Assert.requireNonNull(tcpDataSenderProvider, "tcpDataSenderProvider must not be null");
 
-        this.spanStatClientFactoryProvider = Assert.requireNonNull(spanStatClientFactoryProvider, "spanStatClientFactoryProvider must not be null");
+        this.spanStatConnectTimerProvider = Assert.requireNonNull(spanStatConnectTimerProvider, "spanStatConnectTimerProvider must not be null");
+
+        this.spanStatChannelFactoryProvider = Assert.requireNonNull(spanStatChannelFactoryProvider, "spanStatChannelFactoryProvider must not be null");
+
+        this.spanClientFactoryProvider = Assert.requireNonNull(spanClientFactoryProvider, "spanClientFactoryProvider must not be null");
+        this.statClientFactoryProvider = Assert.requireNonNull(statClientFactoryProvider, "statClientFactoryProvider must not be null");
+
         this.spanDataSenderProvider = Assert.requireNonNull(spanDataSenderProvider, "spanDataSenderProvider must not be null");
         this.statDataSenderProvider = Assert.requireNonNull(statDataSenderProvider, "statDataSenderProvider must not be null");
     }
@@ -80,16 +104,23 @@ public class ThriftModuleLifeCycle implements ModuleLifeCycle {
         this.tcpDataSender = tcpDataSenderProvider.get();
         logger.info("tcpDataSenderProvider:{}", tcpDataSender);
 
+        this.spanStatConnectTimer = spanStatConnectTimerProvider.get();
+        logger.info("spanStatConnectTimer:{}", spanStatConnectTimer);
 
-        this.spanStatClientFactory = spanStatClientFactoryProvider.get();
-        logger.info("spanStatClientFactory:{}", spanStatClientFactory);
+        this.spanStatChannelFactory = spanStatChannelFactoryProvider.get();
+        logger.info("spanStatChannelFactory:{}", spanStatChannelFactory);
+
+        this.spanClientFactory = spanClientFactoryProvider.get();
+        logger.info("spanClientFactory:{}", spanClientFactory);
+
+        this.statClientFactory = statClientFactoryProvider.get();
+        logger.info("statClientFactory:{}", statClientFactory);
 
         this.spanDataSender = spanDataSenderProvider.get();
         logger.info("spanDataSenderProvider:{}", spanDataSender);
 
         this.statDataSender = this.statDataSenderProvider.get();
         logger.info("statDataSenderProvider:{}", statDataSender);
-
     }
 
     @Override
@@ -101,8 +132,23 @@ public class ThriftModuleLifeCycle implements ModuleLifeCycle {
         if (statDataSender != null) {
             this.statDataSender.stop();
         }
-        if (spanStatClientFactory != null) {
-            this.spanStatClientFactory.release();
+
+        if (spanClientFactory != null) {
+            this.spanClientFactory.release();
+        }
+        if (statClientFactory!= null) {
+            this.statClientFactory.release();
+        }
+
+        if (spanStatChannelFactory != null) {
+            spanStatChannelFactory.releaseExternalResources();
+        }
+
+        if (spanStatConnectTimer != null) {
+            Set<Timeout> stop = spanStatConnectTimer.stop();
+            if (!stop.isEmpty()) {
+                logger.info("stop Timeout:{}", stop.size());
+            }
         }
 
         if (tcpDataSender != null) {
@@ -120,10 +166,13 @@ public class ThriftModuleLifeCycle implements ModuleLifeCycle {
     @Override
     public String toString() {
         return "ThriftModuleLifeCycle{" +
-                ", commandDispatcherProvider=" + commandDispatcherProvider +
+                "commandDispatcherProvider=" + commandDispatcherProvider +
                 ", clientFactoryProvider=" + clientFactoryProvider +
                 ", tcpDataSenderProvider=" + tcpDataSenderProvider +
-                ", spanStatClientFactoryProvider=" + spanStatClientFactoryProvider +
+                ", spanStatConnectTimerProvider=" + spanStatConnectTimerProvider +
+                ", spanStatChannelFactoryProvider=" + spanStatChannelFactoryProvider +
+                ", spanClientFactoryProvider=" + spanClientFactoryProvider +
+                ", statClientFactoryProvider=" + statClientFactoryProvider +
                 ", spanDataSenderProvider=" + spanDataSenderProvider +
                 ", statDataSenderProvider=" + statDataSenderProvider +
                 '}';
