@@ -49,6 +49,7 @@ export class ScatterChartForFullScreenModeContainerComponent implements OnInit, 
     scatterChartMode: string;
     timezone$: Observable<string>;
     dateFormat: string[];
+    showBlockMessagePopup = false;
     constructor(
         private renderer: Renderer2,
         private translateService: TranslateService,
@@ -135,11 +136,13 @@ export class ScatterChartForFullScreenModeContainerComponent implements OnInit, 
     private getI18NText(): void {
         combineLatest(
             this.translateService.get('COMMON.NO_DATA'),
-            this.translateService.get('COMMON.FAILED_TO_FETCH_DATA')
+            this.translateService.get('COMMON.FAILED_TO_FETCH_DATA'),
+            this.translateService.get('COMMON.POPUP_BLOCK_MESSAGE')
         ).subscribe((i18n: string[]) => {
             this.i18nText = {
                 NO_DATA: i18n[0],
-                FAILED_TO_FETCH_DATA: i18n[1]
+                FAILED_TO_FETCH_DATA: i18n[1],
+                POPUP_BLOCK_MESSAGE: i18n[2]
             };
         });
     }
@@ -225,11 +228,17 @@ export class ScatterChartForFullScreenModeContainerComponent implements OnInit, 
     }
     onSelectArea(params: any): void {
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.OPEN_TRANSACTION_LIST);
-        this.urlRouteManagerService.openPage([
+        const returnOpenWindow = this.urlRouteManagerService.openPage([
             UrlPath.TRANSACTION_LIST,
             this.newUrlStateNotificationService.getPathValue(UrlPathId.APPLICATION).getUrlStr(),
             this.newUrlStateNotificationService.getPathValue(UrlPathId.PERIOD).getValueWithTime(),
             this.newUrlStateNotificationService.getPathValue(UrlPathId.END_TIME).getEndTime()
         ], `${this.selectedApplication}|${params.x.from}|${params.x.to}|${params.y.from}|${params.y.to}|${this.selectedAgent}|${params.type.join(',')}`);
+        if (returnOpenWindow === null || returnOpenWindow === undefined) {
+            this.showBlockMessagePopup = true;
+        }
+    }
+    onCloseBlockMessage(): void {
+        this.showBlockMessagePopup = false;
     }
 }

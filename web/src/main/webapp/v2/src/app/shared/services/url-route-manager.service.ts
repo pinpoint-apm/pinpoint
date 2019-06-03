@@ -96,8 +96,8 @@ export class UrlRouteManagerService {
             queryParam
         });
     }
-    openPage(path: string | string[], title?: string): void {
-        this.windowRef.nativeWindow.open(this.getBaseHref() + (path instanceof Array ? path.filter((p: string) => !!p).join('/') : path), title || '');
+    openPage(path: string | string[], title?: string): any {
+        return this.windowRef.nativeWindow.open(this.getBaseHref() + (path instanceof Array ? path.filter((p: string) => !!p).join('/') : path), title || '');
     }
     makeFilterMapUrl(
         { applicationName, serviceType, periodStr, timeStr, filterStr, hintStr, addedFilter, addedHint }:

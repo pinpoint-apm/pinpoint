@@ -47,6 +47,7 @@ export class ScatterChartForFilteredMapSideBarContainerComponent implements OnIn
     scatterChartDataOfAllNode: any[] = [];
     timezone: string;
     dateFormat: string[];
+    showBlockMessagePopup = false;
     constructor(
         private storeHelperService: StoreHelperService,
         private translateService: TranslateService,
@@ -64,11 +65,13 @@ export class ScatterChartForFilteredMapSideBarContainerComponent implements OnIn
         this.setScatterY();
         combineLatest(
             this.translateService.get('COMMON.NO_DATA'),
-            this.translateService.get('COMMON.FAILED_TO_FETCH_DATA')
+            this.translateService.get('COMMON.FAILED_TO_FETCH_DATA'),
+            this.translateService.get('COMMON.POPUP_BLOCK_MESSAGE')
         ).subscribe((i18n: Array<string>) => {
             this.i18nText = {
                 NO_DATA: i18n[0],
-                FAILED_TO_FETCH_DATA: i18n[1]
+                FAILED_TO_FETCH_DATA: i18n[1],
+                POPUP_BLOCK_MESSAGE: i18n[2]
             };
         });
         this.connectStore();
@@ -219,11 +222,17 @@ export class ScatterChartForFilteredMapSideBarContainerComponent implements OnIn
     }
     onSelectArea(params: any): void {
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.OPEN_TRANSACTION_LIST);
-        this.urlRouteManagerService.openPage([
+        const returnOpenWindow = this.urlRouteManagerService.openPage([
             UrlPath.TRANSACTION_LIST,
             this.newUrlStateNotificationService.getPathValue(UrlPathId.APPLICATION).getUrlStr(),
             this.newUrlStateNotificationService.getPathValue(UrlPathId.PERIOD).getValueWithTime(),
             this.newUrlStateNotificationService.getPathValue(UrlPathId.END_TIME).getEndTime()
         ], `${this.selectedApplication}|${params.x.from}|${params.x.to}|${params.y.from}|${params.y.to}|${this.selectedAgent}|${params.type.join(',')}`);
+        if (returnOpenWindow === null || returnOpenWindow === undefined) {
+            this.showBlockMessagePopup = true;
+        }
+    }
+    onCloseBlockMessage(): void {
+        this.showBlockMessagePopup = false;
     }
 }
