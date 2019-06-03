@@ -1,5 +1,6 @@
 {
     "COMMON": {
+        "POPUP_BLOCK_MESSAGE": "Popup blocked.<br>Please check your browser settings.",
         "NO_DATA": "No Data",
         "FAILED_TO_FETCH_DATA": "Failed to fetch the data",
         "NO_AGENTS": "There are no running agents.",

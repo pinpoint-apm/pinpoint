@@ -38,4 +38,8 @@
         (outChanged)="onChangedSelectType($event)"
     ></pp-scatter-chart-state-view>
     <div #layerBackground class="l-layer-background" [style.width.px]="width" [style.height.px]="height + 80"></div>
+    <div class="l-popup-block-message" *ngIf="showBlockMessagePopup">
+        <div class="l-button" (click)="onCloseBlockMessage()"><i class="fas fa-times-circle"></i></div>
+        <div class="l-message" [innerHTML]="i18nText.POPUP_BLOCK_MESSAGE"></div>
+    </div>
 </article>
