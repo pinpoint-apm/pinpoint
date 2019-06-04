@@ -19,10 +19,8 @@ package com.navercorp.pinpoint.collector.receiver.grpc;
 import com.navercorp.pinpoint.grpc.AgentHeaderFactory;
 import com.navercorp.pinpoint.grpc.HeaderFactory;
 import com.navercorp.pinpoint.grpc.trace.AgentGrpc;
-import com.navercorp.pinpoint.grpc.trace.KeepAliveGrpc;
 import com.navercorp.pinpoint.grpc.trace.PAgentInfo;
 import com.navercorp.pinpoint.grpc.trace.PApiMetaData;
-import com.navercorp.pinpoint.grpc.trace.PPing;
 import com.navercorp.pinpoint.grpc.trace.PResult;
 import com.navercorp.pinpoint.grpc.trace.PSqlMetaData;
 import com.navercorp.pinpoint.grpc.trace.PStringMetaData;
@@ -34,12 +32,10 @@ import io.grpc.EquivalentAddressGroup;
 import io.grpc.LoadBalancer;
 import io.grpc.ManagedChannel;
 import io.grpc.Metadata;
-import io.grpc.PickFirstBalancerFactory;
 import io.grpc.Status;
 import io.grpc.netty.NettyChannelBuilder;
 import io.grpc.stub.MetadataUtils;
 import io.grpc.stub.StreamObserver;
-import io.grpc.util.RoundRobinLoadBalancerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,7 +55,6 @@ public class AgentClientMock {
 
     private final ManagedChannel channel;
     private final AgentGrpc.AgentBlockingStub agentStub;
-    private final KeepAliveGrpc.KeepAliveStub keepAliveStub;
 
 
     public AgentClientMock(final String host, final int port, final boolean agentHeader) throws Exception {
@@ -76,7 +71,6 @@ public class AgentClientMock {
 
         channel = builder.build();
         this.agentStub = AgentGrpc.newBlockingStub(channel);
-        this.keepAliveStub = KeepAliveGrpc.newStub(channel);
     }
 
     public void stop() throws InterruptedException {
@@ -134,38 +128,6 @@ public class AgentClientMock {
             StreamObserver<PResult> responseObserver = getResponseObserver();
             PResult result = agentStub.requestStringMetaData(request);
         }
-    }
-
-    StreamObserver<PPing> requestObserver;
-
-    public void pingPoing() {
-        StreamObserver<PPing> responseObserver = new StreamObserver<PPing>() {
-            @Override
-            public void onNext(PPing ping) {
-                logger.info("Response {}", ping);
-                try {
-                    TimeUnit.SECONDS.sleep(10);
-                } catch (InterruptedException e) {
-                }
-                pingPong("ping");
-            }
-
-            @Override
-            public void onError(Throwable throwable) {
-                logger.info("Error ", throwable);
-            }
-
-            @Override
-            public void onCompleted() {
-                logger.info("Completed");
-            }
-        };
-        requestObserver = keepAliveStub.clientKeepAlive(responseObserver);
-        requestObserver.onNext(PPing.newBuilder().build());
-    }
-
-    private void pingPong(final String message) {
-        requestObserver.onNext(PPing.newBuilder().build());
     }
 
 

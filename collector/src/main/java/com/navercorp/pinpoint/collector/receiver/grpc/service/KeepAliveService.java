@@ -24,21 +24,22 @@ import com.navercorp.pinpoint.collector.util.ManagedAgentLifeCycle;
 import com.navercorp.pinpoint.common.server.util.AgentEventType;
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
 import com.navercorp.pinpoint.grpc.AgentHeaderFactory;
+import com.navercorp.pinpoint.grpc.server.LastAccessTime;
 import com.navercorp.pinpoint.grpc.server.TransportMetadata;
 import com.navercorp.pinpoint.grpc.server.lifecycle.Lifecycle;
 import com.navercorp.pinpoint.grpc.server.lifecycle.LifecycleRegistry;
-import com.navercorp.pinpoint.grpc.trace.KeepAliveGrpc;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.annotation.PreDestroy;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Objects;
 
-public class KeepAliveService extends KeepAliveGrpc.KeepAliveImplBase {
+public class KeepAliveService {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    private static final int CLOSE_MASK = 1;
 
     private final AgentEventAsyncTaskService agentEventAsyncTask;
     private final AgentLifeCycleAsyncTaskService agentLifeCycleAsyncTask;
@@ -55,26 +56,12 @@ public class KeepAliveService extends KeepAliveGrpc.KeepAliveImplBase {
 
 
     public void updateState() {
-        Collection<Lifecycle> lifecycles = lifecycleRegistry.values();
+        final Collection<Lifecycle> lifecycles = lifecycleRegistry.values();
         for (Lifecycle lifecycle : lifecycles) {
-            final AgentHeaderFactory.Header header = lifecycle.getRef();
-            if (header != null) {
-                logger.debug("updateState:{}", lifecycle);
-                final TransportMetadata transportMetadata = lifecycle.getTransportMetadata();
-
-                final long connectTime = transportMetadata.getConnectTime();
-                final long pingTimestamp = System.currentTimeMillis();
-                final long eventCount = transportMetadata.nextEventCount();
-                final AgentProperty channelProperties = newChannelProperties(header);
-                try {
-                    if (!(eventCount < 0)) {
-                        agentLifeCycleAsyncTask.handleLifeCycleEvent(channelProperties, pingTimestamp, AgentLifeCycleState.RUNNING, connectTime);
-                    }
-                    agentEventAsyncTask.handleEvent(channelProperties, pingTimestamp, AgentEventType.AGENT_PING);
-                } catch (Exception e) {
-                    logger.warn("Error handling client ping event", e);
-                }
-            }
+            boolean closeState = false;
+            AgentLifeCycleState agentLifeCycleState = AgentLifeCycleState.RUNNING;
+            AgentEventType agentEventType = AgentEventType.AGENT_PING;
+            updateState(lifecycle, closeState, agentLifeCycleState, agentEventType);
         }
     }
 
@@ -86,25 +73,58 @@ public class KeepAliveService extends KeepAliveGrpc.KeepAliveImplBase {
 
     public void updateState(Lifecycle lifecycle, ManagedAgentLifeCycle managedAgentLifeCycle) {
 
+        boolean closeState = managedAgentLifeCycle.isClosedEvent();
+        AgentLifeCycleState agentLifeCycleState = managedAgentLifeCycle.getMappedState();
+        AgentEventType agentEventType = managedAgentLifeCycle.getMappedEvent();
+        updateState(lifecycle, closeState, agentLifeCycleState, agentEventType);
+    }
+
+    public void updateState(Lifecycle lifecycle, boolean closeState, AgentLifeCycleState agentLifeCycleState, AgentEventType agentEventType) {
+
         final AgentHeaderFactory.Header header = lifecycle.getRef();
         if (header == null) {
             logger.warn("Not found request header");
             return;
         }
+
+        logger.debug("updateState:{}", lifecycle);
         final TransportMetadata transportMetadata = lifecycle.getTransportMetadata();
 
         final long pingTimestamp = System.currentTimeMillis();
-        final AgentProperty agentProperty = newChannelProperties(header);
+        final LastAccessTime lastAccessTime = transportMetadata.getLastAccessTime();
 
-        AgentLifeCycleState agentLifeCycleState = managedAgentLifeCycle.getMappedState();
-        AgentEventType agentEventType = managedAgentLifeCycle.getMappedEvent();
-        final long eventIdentifier = getEventIdentifier(managedAgentLifeCycle, transportMetadata);
+
+        final long eventIdentifier = getEventIdentifier(lastAccessTime, pingTimestamp, closeState);
+        if (eventIdentifier == -1) {
+            // skip
+            return;
+        }
+        final AgentProperty agentProperty = newChannelProperties(header);
 
         try {
             this.agentLifeCycleAsyncTask.handleLifeCycleEvent(agentProperty , pingTimestamp, agentLifeCycleState, eventIdentifier);
             this.agentEventAsyncTask.handleEvent(agentProperty, pingTimestamp, agentEventType);
         } catch (Exception e) {
-            logger.warn("Failed to update state. header={}, lifeCycle={}", header, managedAgentLifeCycle);
+            logger.warn("Failed to update state. closeState:{} lifeCycle={} {}/{}", lifecycle, closeState, agentLifeCycleState, agentEventType);
+        }
+    }
+
+    private long getEventIdentifier(LastAccessTime lastAccessTime, long eventTime, boolean closeState) {
+        synchronized (lastAccessTime) {
+            if (closeState) {
+                if (lastAccessTime.expire(eventTime)) {
+                    return eventTime + CLOSE_MASK;
+                } else {
+                    // event runs after expire.
+                    return -1;
+                }
+            } else {
+                if (lastAccessTime.isExpire()) {
+                    return -1;
+                }
+                lastAccessTime.update(eventTime);
+                return eventTime;
+            }
         }
     }
 
@@ -116,11 +136,4 @@ public class KeepAliveService extends KeepAliveGrpc.KeepAliveImplBase {
         }
     }
 
-    private static final int CLOSE_MASK = 1;
-    private long getEventIdentifier(ManagedAgentLifeCycle managedAgentLifeCycle, TransportMetadata transportMetadata) {
-        if (ManagedAgentLifeCycle.isClosedEvent(managedAgentLifeCycle)) {
-            return transportMetadata.getConnectTime() + CLOSE_MASK;
-        }
-        return transportMetadata.getConnectTime();
-    }
 }

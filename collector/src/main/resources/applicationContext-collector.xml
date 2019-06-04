@@ -462,7 +462,7 @@
         <property name="awaitTerminationSeconds" value="10"/>
     </bean>
     <task:scheduled-tasks scheduler="grpcLifecycleScheduler">
-        <task:scheduled ref="keepAliveService" method="updateState" fixed-rate="5000"/>
+        <task:scheduled ref="keepAliveService" method="updateState" fixed-rate="#{ 60 * 1000 * 5 }"/>
     </task:scheduled-tasks>
     <bean id="lifecycleRegistry" class="com.navercorp.pinpoint.grpc.server.lifecycle.DefaultLifecycleRegistry"/>
     <bean id="lifecycleListener" class="com.navercorp.pinpoint.collector.receiver.grpc.service.AgentLifecycleListener">
