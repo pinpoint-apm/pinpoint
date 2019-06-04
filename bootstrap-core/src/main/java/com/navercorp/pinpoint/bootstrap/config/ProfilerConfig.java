@@ -51,6 +51,10 @@ public interface ProfilerConfig {
 
     String getStatDataSenderTransportType();
 
+    String getStatDataSenderWriteBufferHighWaterMark();
+
+    String getStatDataSenderWriteBufferLowWaterMark();
+
     int getSpanDataSenderWriteQueueSize();
 
     int getSpanDataSenderSocketSendBufferSize();
@@ -75,6 +79,10 @@ public interface ProfilerConfig {
 
     long getTcpDataSenderPinpointClientHandshakeInterval();
 
+    String getTcpDataSenderPinpointClientWriteBufferHighWaterMark();
+
+    String getTcpDataSenderPinpointClientWriteBufferLowWaterMark();
+
     boolean isTraceAgentActiveThread();
 
     boolean isTraceAgentDataSource();
@@ -90,6 +98,10 @@ public interface ProfilerConfig {
     String getSpanDataSenderSocketType();
 
     String getSpanDataSenderTransportType();
+
+    String getSpanDataSenderWriteBufferHighWaterMark();
+
+    String getSpanDataSenderWriteBufferLowWaterMark();
 
     int getSpanDataSenderChunkSize();
 

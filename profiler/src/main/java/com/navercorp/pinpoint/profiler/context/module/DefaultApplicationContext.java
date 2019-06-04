@@ -47,12 +47,16 @@ import com.navercorp.pinpoint.profiler.receiver.CommandDispatcher;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
+import org.jboss.netty.channel.ChannelFactory;
+import org.jboss.netty.util.Timeout;
+import org.jboss.netty.util.Timer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.Instrumentation;
 import java.lang.reflect.Constructor;
+import java.util.Set;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -74,7 +78,12 @@ public class DefaultApplicationContext implements ApplicationContext {
     private final PinpointClientFactory clientFactory;
     private final EnhancedDataSender tcpDataSender;
 
-    private final PinpointClientFactory spanStatClientFactory;
+    private final Timer spanStatConnectTimer;
+    private final ChannelFactory spanStatChannelFactory;
+
+    private final PinpointClientFactory spanClientFactory;
+    private final PinpointClientFactory statClientFactory;
+
     private final DataSender spanDataSender;
     private final DataSender statDataSender;
 
@@ -127,8 +136,17 @@ public class DefaultApplicationContext implements ApplicationContext {
         this.commandDispatcher = injector.getInstance(Key.get(CommandDispatcher.class));
         logger.info("commandDispatcher:{}", commandDispatcher);
 
-        this.spanStatClientFactory = injector.getInstance(Key.get(PinpointClientFactory.class, SpanStatClientFactory.class));
-        logger.info("spanStatClientFactory:{}", spanStatClientFactory);
+        this.spanStatConnectTimer = injector.getInstance(Key.get(Timer.class, SpanStatConnectTimer.class));
+        logger.info("spanStatConnectTimer:{}", spanStatConnectTimer);
+
+        this.spanStatChannelFactory = injector.getInstance(Key.get(ChannelFactory.class, SpanStatChannelFactory.class));
+        logger.info("spanStatChannelFactory:{}", spanStatChannelFactory);
+
+        this.spanClientFactory = injector.getInstance(Key.get(PinpointClientFactory.class, SpanClientFactory.class));
+        logger.info("spanClientFactory:{}", spanClientFactory);
+
+        this.statClientFactory = injector.getInstance(Key.get(PinpointClientFactory.class, StatClientFactory.class));
+        logger.info("statClientFactory:{}", statClientFactory);
 
         this.spanDataSender = newUdpSpanDataSender();
         logger.info("spanDataSender:{}", spanDataSender);
@@ -260,8 +278,24 @@ public class DefaultApplicationContext implements ApplicationContext {
         // Need to process stop
         this.spanDataSender.stop();
         this.statDataSender.stop();
-        if (spanStatClientFactory != null) {
-            spanStatClientFactory.release();
+
+        if (spanClientFactory != null) {
+            spanClientFactory.release();
+        }
+
+        if (statClientFactory != null) {
+            statClientFactory.release();
+        }
+
+        if (spanStatChannelFactory != null) {
+            spanStatChannelFactory.releaseExternalResources();
+        }
+
+        if (spanStatConnectTimer != null) {
+            Set<Timeout> stop = spanStatConnectTimer.stop();
+            if (!stop.isEmpty()) {
+                logger.info("stop Timeout:{}", stop.size());
+            }
         }
 
         closeTcpDataSender();

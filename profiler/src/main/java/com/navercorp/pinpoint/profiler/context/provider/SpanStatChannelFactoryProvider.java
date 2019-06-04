@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,26 +19,28 @@ package com.navercorp.pinpoint.profiler.context.provider;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.rpc.client.DefaultPinpointClientFactory;
-import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
+import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.profiler.context.module.SpanStatConnectTimer;
+import com.navercorp.pinpoint.rpc.client.ClientChannelFactory;
+import org.jboss.netty.channel.ChannelFactory;
+import org.jboss.netty.util.Timer;
 
 /**
  * @author Taejin Koo
  */
-public class SpanStatClientFactoryProvider implements Provider<PinpointClientFactory> {
+public class SpanStatChannelFactoryProvider implements Provider<ChannelFactory> {
 
     private final ProfilerConfig profilerConfig;
+    private final Provider<Timer> connectTimerProvider;
 
     @Inject
-    public SpanStatClientFactoryProvider(ProfilerConfig profilerConfig) {
-        if (profilerConfig == null) {
-            throw new NullPointerException("profilerConfig must not be null");
-        }
-
-        this.profilerConfig = profilerConfig;
+    public SpanStatChannelFactoryProvider(ProfilerConfig profilerConfig, @SpanStatConnectTimer Provider<Timer> connectTimerProvider) {
+        this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig must not be null");
+        this.connectTimerProvider = Assert.requireNonNull(connectTimerProvider, "connectTimerProvider must not be null");
     }
 
-    public PinpointClientFactory get() {
+    @Override
+    public ChannelFactory get() {
         int workerCount = 0;
 
         if ("TCP".equalsIgnoreCase(profilerConfig.getSpanDataSenderTransportType())) {
@@ -51,10 +53,10 @@ public class SpanStatClientFactoryProvider implements Provider<PinpointClientFac
         if (workerCount == 0) {
             return null;
         } else {
-            PinpointClientFactory pinpointClientFactory = new DefaultPinpointClientFactory(1, workerCount);
-            pinpointClientFactory.setWriteTimeoutMillis(1000 * 3);
-            pinpointClientFactory.setRequestTimeoutMillis(1000 * 5);
-            return pinpointClientFactory;
+            Timer timer = connectTimerProvider.get();
+
+            final ClientChannelFactory clientChannelFactory = new ClientChannelFactory();
+            return clientChannelFactory.createChannelFactory(1, workerCount, timer);
         }
     }
 

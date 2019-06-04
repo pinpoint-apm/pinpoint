@@ -55,6 +55,8 @@ public class DefaultPinpointClientFactory implements PinpointClientFactory {
 
     private final Closed closed = new Closed();
 
+    private final boolean useExternalResource;
+
     private final ChannelFactory channelFactory;
     private final SocketOption.Builder socketOptionBuilder;
 
@@ -94,6 +96,7 @@ public class DefaultPinpointClientFactory implements PinpointClientFactory {
             throw new IllegalArgumentException("bossCount is negative: " + bossCount);
         }
 
+        this.useExternalResource = false;
         // create a timer earlier because it is used for connectTimeout
         this.timer = createTimer("Pinpoint-SocketFactory-Timer");
         final ClientChannelFactory channelFactory = new ClientChannelFactory();
@@ -109,12 +112,45 @@ public class DefaultPinpointClientFactory implements PinpointClientFactory {
         return timer;
     }
 
+    public DefaultPinpointClientFactory(ChannelFactory channelFactory, Timer timer) {
+        this(channelFactory, timer, new DefaultConnectionFactoryProvider(new ClientCodecPipelineFactory()));
+    }
+
+    public DefaultPinpointClientFactory(ChannelFactory channelFactory, Timer timer, ConnectionFactoryProvider connectionFactoryProvider) {
+        this.channelFactory = Assert.requireNonNull(channelFactory, "channelFactory must not be null");
+        this.timer = Assert.requireNonNull(timer, "timer must not be null");
+
+        this.useExternalResource = true;
+        this.socketOptionBuilder = new SocketOption.Builder();
+        this.connectionFactoryProvider = Assert.requireNonNull(connectionFactoryProvider, "connectionFactoryProvider must not be null");
+    }
+
     public void setConnectTimeout(int connectTimeout) {
         this.socketOptionBuilder.setConnectTimeout(connectTimeout);
     }
 
     public int getConnectTimeout() {
         return socketOptionBuilder.getConnectTimeout();
+    }
+
+    @Override
+    public void setWriteBufferHighWaterMark(int writeBufferHighWaterMark) {
+        this.socketOptionBuilder.setWriteBufferHighWaterMark(writeBufferHighWaterMark);
+    }
+
+    @Override
+    public int getWriteBufferHighWaterMark() {
+        return this.socketOptionBuilder.getWriteBufferHighWaterMark();
+    }
+
+    @Override
+    public void setWriteBufferLowWaterMark(int writeBufferLowWaterMark) {
+        this.socketOptionBuilder.setWriteBufferLowWaterMark(writeBufferLowWaterMark);
+    }
+
+    @Override
+    public int getWriteBufferLowWaterMark() {
+        return this.socketOptionBuilder.getWriteBufferLowWaterMark();
     }
 
     public long getReconnectDelay() {
@@ -243,17 +279,18 @@ public class DefaultPinpointClientFactory implements PinpointClientFactory {
             return;
         }
 
+        if (!useExternalResource) {
+            final ChannelFactory channelFactory = this.channelFactory;
+            if (channelFactory != null) {
+                channelFactory.releaseExternalResources();
+            }
+            Set<Timeout> stop = this.timer.stop();
+            if (!stop.isEmpty()) {
+                logger.info("stop Timeout:{}", stop.size());
+            }
 
-        final ChannelFactory channelFactory = this.channelFactory;
-        if (channelFactory != null) {
-            channelFactory.releaseExternalResources();
+            // stop, cancel something?
         }
-        Set<Timeout> stop = this.timer.stop();
-        if (!stop.isEmpty()) {
-            logger.info("stop Timeout:{}", stop.size());
-        }
-
-        // stop, cancel something?
     }
 
     public void setProperties(Map<String, Object> agentProperties) {
