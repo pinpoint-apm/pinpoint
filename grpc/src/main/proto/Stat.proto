@@ -10,11 +10,6 @@ option java_outer_classname = "StatProto";
 
 package v1;
 
-message PPing {
-    int32 id = 1;
-    // 0: StateCodeVersion, 1: StateCode
-    bytes state = 2;
-}
 
 message PAgentInfo {
     string hostname = 1;

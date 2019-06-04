@@ -26,7 +26,5 @@ public interface TransportMetadata {
 
     long getConnectTime();
 
-    long nextEventCount();
-
-    Object getConnectionLock();
+    LastAccessTime getLastAccessTime();
 }

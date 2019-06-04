@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.grpc.server;
 import com.navercorp.pinpoint.common.util.Assert;
 
 import java.net.InetSocketAddress;
-import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -29,13 +28,14 @@ public class DefaultTransportMetadata implements TransportMetadata {
     private final InetSocketAddress remoteAddress;
     private final Long transportId;
     private final long connectTime;
-    private final AtomicLong eventCounter = new AtomicLong();
-    private final Object connectionLock = new Object();
+
+    private final LastAccessTime lastAccessTime;
 
     public DefaultTransportMetadata(InetSocketAddress remoteAddress, long transportId, long connectTime) {
         this.remoteAddress = Assert.requireNonNull(remoteAddress, "remoteAddress must not be null");
         this.transportId = transportId;
         this.connectTime = connectTime;
+        this.lastAccessTime = new LastAccessTime(connectTime);
     }
 
     @Override
@@ -53,16 +53,12 @@ public class DefaultTransportMetadata implements TransportMetadata {
         return connectTime;
     }
 
-    @Override
-    public long nextEventCount() {
-        return eventCounter.incrementAndGet();
-    }
 
     @Override
-    public Object getConnectionLock() {
-//        return this;
-        return connectionLock;
+    public LastAccessTime getLastAccessTime() {
+        return lastAccessTime;
     }
+
 
     @Override
     public String toString() {
@@ -70,6 +66,7 @@ public class DefaultTransportMetadata implements TransportMetadata {
                 "remoteAddress=" + remoteAddress +
                 ", transportId=" + transportId +
                 ", connectTime=" + connectTime +
+                ", lastAccessTime=" + lastAccessTime +
                 '}';
     }
 }

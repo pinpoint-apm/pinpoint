@@ -41,11 +41,6 @@ service Stat {
     }
 }
 
-service KeepAlive {
-    rpc ClientKeepAlive (stream PPing) returns (stream PPing) {
-    }
-}
-
 service ProfilerCommandService {
     rpc HandleCommand (stream PCmdMessage) returns (stream PCmdRequest) {
     }
