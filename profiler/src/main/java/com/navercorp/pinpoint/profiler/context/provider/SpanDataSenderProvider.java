@@ -21,7 +21,7 @@ import com.google.inject.Provider;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.module.SpanConverter;
-import com.navercorp.pinpoint.profiler.context.module.SpanStatClientFactory;
+import com.navercorp.pinpoint.profiler.context.module.SpanClientFactory;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
 import com.navercorp.pinpoint.profiler.sender.MessageSerializer;
@@ -54,7 +54,7 @@ public class SpanDataSenderProvider  implements Provider<DataSender> {
     private final MessageConverter<TBase<?, ?>> messageConverter;
 
     @Inject
-    public SpanDataSenderProvider(ProfilerConfig profilerConfig, @SpanStatClientFactory Provider<PinpointClientFactory> clientFactoryProvider,
+    public SpanDataSenderProvider(ProfilerConfig profilerConfig, @SpanClientFactory Provider<PinpointClientFactory> clientFactoryProvider,
                                   @SpanConverter MessageConverter<TBase<?, ?>> messageConverter) {
         Assert.requireNonNull(profilerConfig, "profilerConfig must not be null");
         this.clientFactoryProvider = Assert.requireNonNull(clientFactoryProvider, "clientFactoryProvider must not be null");

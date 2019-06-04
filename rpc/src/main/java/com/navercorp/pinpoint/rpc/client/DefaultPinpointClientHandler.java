@@ -46,6 +46,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class DefaultPinpointClientHandler extends SimpleChannelHandler implements PinpointClientHandler {
 
+    private static final String WRITE_BUFFER_FULL_MESSAGE = "write buffer is full";
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final AtomicInteger pingIdGenerator;
@@ -87,7 +89,7 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
                                         ServerStreamChannelMessageListener serverStreamChannelMessageListener,
                                         List<StateChangeEventListener> stateChangeEventListeners) {
 
-        this.connectionFactory = Assert.requireNonNull(connectionFactory,   "clientFactory must not be null");
+        this.connectionFactory = Assert.requireNonNull(connectionFactory, "clientFactory must not be null");
         this.socketAddressProvider = Assert.requireNonNull(socketAddressProvider, "socketAddressProvider must not be null");
 
         this.channelTimer = Assert.requireNonNull(channelTimer, "channelTimer must not be null");
@@ -567,19 +569,22 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
         connectionFactory.reconnect(this.pinpointClient, this.socketAddressProvider);
     }
 
-    private ChannelFuture write0(Object message) {
-        return channel.write(message);
-    }
-
     private ChannelFuture write0(Object message, ChannelFutureListener futureListener) {
         if (futureListener == null) {
             throw new NullPointerException("futureListener must not be null");
         }
-        ChannelFuture future = channel.write(message);
+        ChannelFuture future = write0(message);
         future.addListener(futureListener);
         return future;
     }
 
+    private ChannelFuture write0(Object message) {
+        if (channel.isWritable()) {
+            return channel.write(message);
+        } else {
+            return Channels.failedFuture(channel, new ChannelException(WRITE_BUFFER_FULL_MESSAGE));
+        }
+    }
 
     @Override
     public ConnectFuture getConnectFuture() {

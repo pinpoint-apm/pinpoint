@@ -41,6 +41,14 @@ public interface PinpointClientFactory {
 
     int getConnectTimeout();
 
+    void setWriteBufferHighWaterMark(int writeBufferHighWaterMark);
+
+    int getWriteBufferHighWaterMark();
+
+    void setWriteBufferLowWaterMark(int writeBufferLowWaterMark);
+
+    int getWriteBufferLowWaterMark();
+
     long getReconnectDelay();
 
     void setReconnectDelay(long reconnectDelay);

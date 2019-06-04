@@ -25,11 +25,14 @@ import com.navercorp.pinpoint.profiler.context.provider.ConnectionFactoryProvide
 import com.navercorp.pinpoint.profiler.context.provider.HeaderTBaseSerializerProvider;
 import com.navercorp.pinpoint.profiler.context.provider.MetadataMessageConverterProvider;
 import com.navercorp.pinpoint.profiler.context.provider.PinpointClientFactoryProvider;
+import com.navercorp.pinpoint.profiler.context.provider.SpanClientFactoryProvider;
 import com.navercorp.pinpoint.profiler.context.provider.SpanDataSenderProvider;
-import com.navercorp.pinpoint.profiler.context.provider.SpanStatClientFactoryProvider;
+import com.navercorp.pinpoint.profiler.context.provider.SpanStatChannelFactoryProvider;
+import com.navercorp.pinpoint.profiler.context.provider.SpanStatConnectTimerProvider;
+import com.navercorp.pinpoint.profiler.context.provider.SpanThriftMessageConverterProvider;
+import com.navercorp.pinpoint.profiler.context.provider.StatClientFactoryProvider;
 import com.navercorp.pinpoint.profiler.context.provider.StatDataSenderProvider;
 import com.navercorp.pinpoint.profiler.context.provider.TcpDataSenderProvider;
-import com.navercorp.pinpoint.profiler.context.provider.SpanThriftMessageConverterProvider;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
 import com.navercorp.pinpoint.profiler.receiver.CommandDispatcher;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
@@ -38,6 +41,8 @@ import com.navercorp.pinpoint.rpc.client.ConnectionFactoryProvider;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializer;
 import org.apache.thrift.TBase;
+import org.jboss.netty.channel.ChannelFactory;
+import org.jboss.netty.util.Timer;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -61,10 +66,21 @@ public class RpcModule extends PrivateModule {
         bind(dataSenderTypeLiteral).toProvider(TcpDataSenderProvider.class).in(Scopes.SINGLETON);
         expose(dataSenderTypeLiteral);
 
-        Key<PinpointClientFactory> pinpointStatClientFactory = Key.get(PinpointClientFactory.class, SpanStatClientFactory.class);
-        bind(pinpointStatClientFactory).toProvider(SpanStatClientFactoryProvider.class).in(Scopes.SINGLETON);
-        expose(pinpointStatClientFactory);
+        Key<Timer> spanStatConnectTimer = Key.get(Timer.class, SpanStatConnectTimer.class);
+        bind(spanStatConnectTimer).toProvider(SpanStatConnectTimerProvider.class).in(Scopes.SINGLETON);
+        expose(spanStatConnectTimer);
 
+        Key<ChannelFactory> spanStatChannelFactory = Key.get(ChannelFactory.class, SpanStatChannelFactory.class);
+        bind(spanStatChannelFactory).toProvider(SpanStatChannelFactoryProvider.class).in(Scopes.SINGLETON);
+        expose(spanStatChannelFactory);
+
+        Key<PinpointClientFactory> spanClientFactory = Key.get(PinpointClientFactory.class, SpanClientFactory.class);
+        bind(spanClientFactory).toProvider(SpanClientFactoryProvider.class).in(Scopes.SINGLETON);
+        expose(spanClientFactory);
+
+        Key<PinpointClientFactory> statClientFactory = Key.get(PinpointClientFactory.class, StatClientFactory.class);
+        bind(statClientFactory).toProvider(StatClientFactoryProvider.class).in(Scopes.SINGLETON);
+        expose(statClientFactory);
 
         TypeLiteral<MessageConverter<TBase<?, ?>>> thriftMessageConverter = new TypeLiteral<MessageConverter<TBase<?, ?>>>() {};
         Key<MessageConverter<TBase<?, ?>>> spanMessageConverterKey = Key.get(thriftMessageConverter, SpanConverter.class);
@@ -74,7 +90,6 @@ public class RpcModule extends PrivateModule {
         Key<MessageConverter<TBase<?, ?>>> metadataMessageConverterKey = Key.get(thriftMessageConverter, MetadataConverter.class);
         bind(metadataMessageConverterKey).toProvider(MetadataMessageConverterProvider.class ).in(Scopes.SINGLETON);
         expose(metadataMessageConverterKey);
-
 
         Key<DataSender> spanDataSender = Key.get(DataSender.class, SpanDataSender.class);
         bind(spanDataSender).toProvider(SpanDataSenderProvider.class).in(Scopes.SINGLETON);

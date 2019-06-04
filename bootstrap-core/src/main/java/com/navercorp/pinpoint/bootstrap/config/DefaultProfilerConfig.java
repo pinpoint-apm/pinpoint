@@ -113,6 +113,10 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     private int spanDataSenderSocketSendBufferSize = 1024 * 64 * 16;
     private int spanDataSenderSocketTimeout = 1000 * 3;
     private int spanDataSenderChunkSize = 1024 * 16;
+    private static String DEFAULT_SPAN_DATA_SENDER_WRITE_BUFFER_HIGH_WATER_MAK = "16m";
+    private String spanDataSenderWriteBufferHighWaterMark = DEFAULT_SPAN_DATA_SENDER_WRITE_BUFFER_HIGH_WATER_MAK;
+    private static String DEFAULT_SPAN_DATA_SENDER_WRITE_BUFFER_LOW_WATER_MAK = "8m";
+    private String spanDataSenderWriteBufferLowWaterMark = DEFAULT_SPAN_DATA_SENDER_WRITE_BUFFER_LOW_WATER_MAK;
     private String spanDataSenderTransportType = "UDP";
     private String spanDataSenderSocketType = "OIO";
 
@@ -120,6 +124,10 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     private int statDataSenderSocketSendBufferSize = 1024 * 64 * 16;
     private int statDataSenderSocketTimeout = 1000 * 3;
     private int statDataSenderChunkSize = 1024 * 16;
+    private static String DEFAULT_STAT_DATA_SENDER_WRITE_BUFFER_HIGH_WATER_MAK = "16m";
+    private String statDataSenderWriteBufferHighWaterMark = DEFAULT_STAT_DATA_SENDER_WRITE_BUFFER_HIGH_WATER_MAK;
+    private static String DEFAULT_STAT_DATA_SENDER_WRITE_BUFFER_LOW_WATER_MAK = "8m";
+    private String statDataSenderWriteBufferLowWaterMark = DEFAULT_STAT_DATA_SENDER_WRITE_BUFFER_LOW_WATER_MAK;
     private String statDataSenderTransportType = "UDP";
     private String statDataSenderSocketType = "OIO";
 
@@ -139,6 +147,10 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     private long tcpDataSenderPinpointClientPingInterval = DEFAULT_DATA_SENDER_PINPOINT_CLIENT_PING_INTERVAL;
     private static long DEFAULT_DATA_SENDER_PINPOINT_CLIENT_HANDSHAKE_INTERVAL = 60 * 1000 * 1;
     private long tcpDataSenderPinpointClientHandshakeInterval = DEFAULT_DATA_SENDER_PINPOINT_CLIENT_HANDSHAKE_INTERVAL;
+    private static String DEFAULT_DATA_SENDER_PINPOINT_CLIENT_WRITE_BUFFER_HIGH_WATER_MAK = "32m";
+    private String tcpDataSenderPinpointClientWriteBufferHighWaterMark = DEFAULT_DATA_SENDER_PINPOINT_CLIENT_WRITE_BUFFER_HIGH_WATER_MAK;
+    private static String DEFAULT_DATA_SENDER_PINPOINT_CLIENT_WRITE_BUFFER_LOW_WATER_MAK = "16m";
+    private String tcpDataSenderPinpointClientWriteBufferLowWaterMark = DEFAULT_DATA_SENDER_PINPOINT_CLIENT_WRITE_BUFFER_LOW_WATER_MAK;
 
     private boolean traceAgentActiveThread = true;
 
@@ -250,6 +262,16 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     }
 
     @Override
+    public String getStatDataSenderWriteBufferHighWaterMark() {
+        return statDataSenderWriteBufferHighWaterMark;
+    }
+
+    @Override
+    public String getStatDataSenderWriteBufferLowWaterMark() {
+        return statDataSenderWriteBufferLowWaterMark;
+    }
+
+    @Override
     public String getStatDataSenderSocketType() {
         return statDataSenderSocketType;
     }
@@ -320,6 +342,16 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     }
 
     @Override
+    public String getTcpDataSenderPinpointClientWriteBufferHighWaterMark() {
+        return tcpDataSenderPinpointClientWriteBufferHighWaterMark;
+    }
+
+    @Override
+    public String getTcpDataSenderPinpointClientWriteBufferLowWaterMark() {
+        return tcpDataSenderPinpointClientWriteBufferLowWaterMark;
+    }
+
+    @Override
     public boolean isTraceAgentActiveThread() {
         return traceAgentActiveThread;
     }
@@ -357,6 +389,16 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     @Override
     public String getSpanDataSenderTransportType() {
         return spanDataSenderTransportType;
+    }
+
+    @Override
+    public String getSpanDataSenderWriteBufferHighWaterMark() {
+        return spanDataSenderWriteBufferHighWaterMark;
+    }
+
+    @Override
+    public String getSpanDataSenderWriteBufferLowWaterMark() {
+        return spanDataSenderWriteBufferLowWaterMark;
     }
 
     @Override
@@ -559,6 +601,8 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         this.spanDataSenderSocketSendBufferSize = readInt("profiler.spandatasender.socket.sendbuffersize", 1024 * 64 * 16);
         this.spanDataSenderSocketTimeout = readInt("profiler.spandatasender.socket.timeout", 1000 * 3);
         this.spanDataSenderChunkSize = readInt("profiler.spandatasender.chunk.size", 1024 * 16);
+        this.spanDataSenderWriteBufferHighWaterMark = readString("profiler.spandatasender.write.buffer.highwatermark", DEFAULT_SPAN_DATA_SENDER_WRITE_BUFFER_HIGH_WATER_MAK);
+        this.spanDataSenderWriteBufferLowWaterMark = readString("profiler.spandatasender.write.buffer.lowwatermark", DEFAULT_SPAN_DATA_SENDER_WRITE_BUFFER_LOW_WATER_MAK);
         this.spanDataSenderSocketType = readString("profiler.spandatasender.socket.type", "OIO");
         this.spanDataSenderTransportType = readString("profiler.spandatasender.transport.type", "UDP");
 
@@ -566,6 +610,8 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         this.statDataSenderSocketSendBufferSize = readInt("profiler.statdatasender.socket.sendbuffersize", 1024 * 64 * 16);
         this.statDataSenderSocketTimeout = readInt("profiler.statdatasender.socket.timeout", 1000 * 3);
         this.statDataSenderChunkSize = readInt("profiler.statdatasender.chunk.size", 1024 * 16);
+        this.statDataSenderWriteBufferHighWaterMark = readString("profiler.statdatasender.write.buffer.highwatermark", DEFAULT_STAT_DATA_SENDER_WRITE_BUFFER_HIGH_WATER_MAK);
+        this.statDataSenderWriteBufferLowWaterMark = readString("profiler.statdatasender.write.buffer.lowwatermark", DEFAULT_STAT_DATA_SENDER_WRITE_BUFFER_LOW_WATER_MAK);
         this.statDataSenderSocketType = readString("profiler.statdatasender.socket.type", "OIO");
         this.statDataSenderTransportType = readString("profiler.statdatasender.transport.type", "UDP");
 
@@ -580,6 +626,8 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         this.tcpDataSenderPinpointClientReconnectInterval = readLong("profiler.tcpdatasender.client.reconnect.interval", DEFAULT_DATA_SENDER_PINPOINT_CLIENT_RECONNECT_INTERVAL);
         this.tcpDataSenderPinpointClientPingInterval = readLong("profiler.tcpdatasender.client.ping.interval", DEFAULT_DATA_SENDER_PINPOINT_CLIENT_PING_INTERVAL);
         this.tcpDataSenderPinpointClientHandshakeInterval = readLong("profiler.tcpdatasender.client.handshake.interval", DEFAULT_DATA_SENDER_PINPOINT_CLIENT_HANDSHAKE_INTERVAL);
+        this.tcpDataSenderPinpointClientWriteBufferHighWaterMark = readString("profiler.tcpdatasender.client.write.buffer.highwatermark", DEFAULT_DATA_SENDER_PINPOINT_CLIENT_WRITE_BUFFER_HIGH_WATER_MAK);
+        this.tcpDataSenderPinpointClientWriteBufferLowWaterMark = readString("profiler.tcpdatasender.client.write.buffer.lowwatermark", DEFAULT_DATA_SENDER_PINPOINT_CLIENT_WRITE_BUFFER_LOW_WATER_MAK);
 
         this.traceAgentActiveThread = readBoolean("profiler.pinpoint.activethread", true);
 
@@ -769,12 +817,16 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         sb.append(", spanDataSenderSocketSendBufferSize=").append(spanDataSenderSocketSendBufferSize);
         sb.append(", spanDataSenderSocketTimeout=").append(spanDataSenderSocketTimeout);
         sb.append(", spanDataSenderChunkSize=").append(spanDataSenderChunkSize);
+        sb.append(", spanDataSenderWriteBufferHighWaterMark=").append(spanDataSenderWriteBufferHighWaterMark);
+        sb.append(", spanDataSenderWriteBufferLowWaterMark=").append(spanDataSenderWriteBufferLowWaterMark);
         sb.append(", spanDataSenderTransportType='").append(spanDataSenderTransportType).append('\'');
         sb.append(", spanDataSenderSocketType='").append(spanDataSenderSocketType).append('\'');
         sb.append(", statDataSenderWriteQueueSize=").append(statDataSenderWriteQueueSize);
         sb.append(", statDataSenderSocketSendBufferSize=").append(statDataSenderSocketSendBufferSize);
         sb.append(", statDataSenderSocketTimeout=").append(statDataSenderSocketTimeout);
         sb.append(", statDataSenderChunkSize=").append(statDataSenderChunkSize);
+        sb.append(", statDataSenderWriteBufferHighWaterMark=").append(statDataSenderWriteBufferHighWaterMark);
+        sb.append(", statDataSenderWriteBufferLowWaterMark=").append(statDataSenderWriteBufferLowWaterMark);
         sb.append(", statDataSenderTransportType='").append(statDataSenderTransportType).append('\'');
         sb.append(", statDataSenderSocketType='").append(statDataSenderSocketType).append('\'');
         sb.append(", tcpDataSenderCommandAcceptEnable=").append(tcpDataSenderCommandAcceptEnable);
@@ -787,6 +839,8 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         sb.append(", tcpDataSenderPinpointClientReconnectInterval=").append(tcpDataSenderPinpointClientReconnectInterval);
         sb.append(", tcpDataSenderPinpointClientPingInterval=").append(tcpDataSenderPinpointClientPingInterval);
         sb.append(", tcpDataSenderPinpointClientHandshakeInterval=").append(tcpDataSenderPinpointClientHandshakeInterval);
+        sb.append(", tcpDataSenderPinpointClientWriteBufferHighWaterMark=").append(tcpDataSenderPinpointClientWriteBufferHighWaterMark);
+        sb.append(", tcpDataSenderPinpointClientWriteBufferLowWaterMark=").append(tcpDataSenderPinpointClientWriteBufferLowWaterMark);
         sb.append(", traceAgentActiveThread=").append(traceAgentActiveThread);
         sb.append(", traceAgentDataSource=").append(traceAgentDataSource);
         sb.append(", dataSourceTraceLimitSize=").append(dataSourceTraceLimitSize);

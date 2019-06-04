@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.profiler.context.provider;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.common.util.ByteSizeUnit;
 import com.navercorp.pinpoint.profiler.AgentInformation;
 import com.navercorp.pinpoint.profiler.receiver.CommandDispatcher;
 import com.navercorp.pinpoint.rpc.client.ConnectionFactoryProvider;
@@ -32,7 +33,7 @@ import java.util.Map;
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class PinpointClientFactoryProvider implements Provider<PinpointClientFactory> {
+public class PinpointClientFactoryProvider extends AbstractClientFactoryProvider implements Provider<PinpointClientFactory> {
 
     private final ProfilerConfig profilerConfig;
     private final Provider<AgentInformation> agentInformation;
@@ -66,6 +67,15 @@ public class PinpointClientFactoryProvider implements Provider<PinpointClientFac
         pinpointClientFactory.setReconnectDelay(profilerConfig.getTcpDataSenderPinpointClientReconnectInterval());
         pinpointClientFactory.setPingDelay(profilerConfig.getTcpDataSenderPinpointClientPingInterval());
         pinpointClientFactory.setEnableWorkerPacketDelay(profilerConfig.getTcpDataSenderPinpointClientHandshakeInterval());
+
+        int writeBufferHighWaterMark = getByteSize(profilerConfig.getSpanDataSenderWriteBufferHighWaterMark(), ByteSizeUnit.MEGA_BYTES.toBytesSizeAsInt(16));
+        int writeBufferLowWaterMark = getByteSize(profilerConfig.getSpanDataSenderWriteBufferLowWaterMark(), ByteSizeUnit.MEGA_BYTES.toBytesSizeAsInt(8));
+        if (writeBufferLowWaterMark > writeBufferHighWaterMark) {
+            logger.warn("must be writeBufferHighWaterMark({}) >= writeBufferLowWaterMark({})", writeBufferHighWaterMark, writeBufferLowWaterMark);
+            writeBufferLowWaterMark = writeBufferHighWaterMark;
+        }
+        pinpointClientFactory.setWriteBufferHighWaterMark(writeBufferHighWaterMark);
+        pinpointClientFactory.setWriteBufferLowWaterMark(writeBufferLowWaterMark);
 
         AgentInformation agentInformation = this.agentInformation.get();
         Map<String, Object> properties = toMap(agentInformation);

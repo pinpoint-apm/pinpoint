@@ -30,5 +30,5 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @BindingAnnotation
 @Target(PARAMETER)
 @Retention(RUNTIME)
-public @interface SpanStatClientFactory {
+public @interface SpanClientFactory {
 }
