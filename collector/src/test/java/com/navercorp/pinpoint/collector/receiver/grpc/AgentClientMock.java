@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.collector.receiver.grpc;
 import com.navercorp.pinpoint.grpc.AgentHeaderFactory;
 import com.navercorp.pinpoint.grpc.HeaderFactory;
 import com.navercorp.pinpoint.grpc.trace.AgentGrpc;
+import com.navercorp.pinpoint.grpc.trace.MetadataGrpc;
 import com.navercorp.pinpoint.grpc.trace.PAgentInfo;
 import com.navercorp.pinpoint.grpc.trace.PApiMetaData;
 import com.navercorp.pinpoint.grpc.trace.PResult;
@@ -55,6 +56,7 @@ public class AgentClientMock {
 
     private final ManagedChannel channel;
     private final AgentGrpc.AgentBlockingStub agentStub;
+    private final MetadataGrpc.MetadataBlockingStub metadataStub;
 
 
     public AgentClientMock(final String host, final int port, final boolean agentHeader) throws Exception {
@@ -71,6 +73,7 @@ public class AgentClientMock {
 
         channel = builder.build();
         this.agentStub = AgentGrpc.newBlockingStub(channel);
+        this.metadataStub = MetadataGrpc.newBlockingStub(channel);
     }
 
     public void stop() throws InterruptedException {
@@ -102,7 +105,7 @@ public class AgentClientMock {
         for (int i = 0; i < count; i++) {
             PApiMetaData request = PApiMetaData.newBuilder().build();
             StreamObserver<PResult> responseObserver = getResponseObserver();
-            PResult result = agentStub.requestApiMetaData(request);
+            PResult result = metadataStub.requestApiMetaData(request);
         }
     }
 
@@ -114,7 +117,7 @@ public class AgentClientMock {
         for (int i = 0; i < count; i++) {
             PSqlMetaData request = PSqlMetaData.newBuilder().build();
             StreamObserver<PResult> responseObserver = getResponseObserver();
-            PResult result = agentStub.requestSqlMetaData(request);
+            PResult result = metadataStub.requestSqlMetaData(request);
         }
     }
 
@@ -126,7 +129,7 @@ public class AgentClientMock {
         for (int i = 0; i < count; i++) {
             PStringMetaData request = PStringMetaData.newBuilder().build();
             StreamObserver<PResult> responseObserver = getResponseObserver();
-            PResult result = agentStub.requestStringMetaData(request);
+            PResult result = metadataStub.requestStringMetaData(request);
         }
     }
 

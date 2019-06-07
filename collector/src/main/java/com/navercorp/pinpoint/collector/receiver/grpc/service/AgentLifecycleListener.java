@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.collector.receiver.grpc.service;
 
+import com.navercorp.pinpoint.collector.receiver.grpc.ShutdownEventListener;
 import com.navercorp.pinpoint.collector.util.ManagedAgentLifeCycle;
 import com.navercorp.pinpoint.grpc.server.lifecycle.Lifecycle;
 import com.navercorp.pinpoint.grpc.server.lifecycle.LifecycleListener;
@@ -31,10 +32,12 @@ import java.util.Objects;
 public class AgentLifecycleListener implements LifecycleListener {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final KeepAliveService lifecycleService;
+    private final ShutdownEventListener shutdownEventListener;
 
     @Autowired
-    public AgentLifecycleListener(KeepAliveService lifecycleService) {
+    public AgentLifecycleListener(KeepAliveService lifecycleService, ShutdownEventListener shutdownEventListener) {
         this.lifecycleService = Objects.requireNonNull(lifecycleService, "lifecycleService must not be null");
+        this.shutdownEventListener = Objects.requireNonNull(shutdownEventListener, "shutdownEventListener must not be null");
     }
 
     @Override
@@ -50,7 +53,17 @@ public class AgentLifecycleListener implements LifecycleListener {
 
     @Override
     public void close(Lifecycle lifecycle) {
-        logger.info("close:{}", lifecycle);
-        lifecycleService.updateState(lifecycle, ManagedAgentLifeCycle.CLOSED_BY_CLIENT);
+
+        logger.info("close:{}/{}", lifecycle, shutdownEventListener);
+        ManagedAgentLifeCycle closedByClient = getManagedAgentLifeCycle();
+
+        lifecycleService.updateState(lifecycle, closedByClient);
+    }
+
+    private ManagedAgentLifeCycle getManagedAgentLifeCycle() {
+        if (shutdownEventListener.isShutdown()) {
+            return ManagedAgentLifeCycle.CLOSED_BY_SERVER;
+        }
+        return ManagedAgentLifeCycle.CLOSED_BY_CLIENT;
     }
 }

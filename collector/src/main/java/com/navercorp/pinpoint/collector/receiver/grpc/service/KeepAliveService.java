@@ -37,6 +37,7 @@ import java.util.Collections;
 import java.util.Objects;
 
 public class KeepAliveService {
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private static final int CLOSE_MASK = 1;
@@ -87,7 +88,7 @@ public class KeepAliveService {
             return;
         }
 
-        logger.debug("updateState:{}", lifecycle);
+        logger.debug("updateState:{} {} {}/{}", lifecycle, closeState, agentLifeCycleState, agentEventType);
         final TransportMetadata transportMetadata = lifecycle.getTransportMetadata();
 
         final long pingTimestamp = System.currentTimeMillis();

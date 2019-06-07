@@ -468,6 +468,7 @@
     <bean id="lifecycleListener" class="com.navercorp.pinpoint.collector.receiver.grpc.service.AgentLifecycleListener">
         <constructor-arg index="0" ref="keepAliveService"/>
     </bean>
+    <bean id="shutdownEventListener" class="com.navercorp.pinpoint.collector.receiver.grpc.ShutdownEventListener"></bean>
     <bean id="keepAliveService" class="com.navercorp.pinpoint.collector.receiver.grpc.service.KeepAliveService">
         <constructor-arg index="0" ref="agentEventAsyncTask"/>
         <constructor-arg index="1" ref="agentLifeCycleAsyncTask"/>
@@ -485,6 +486,9 @@
     <bean id="agentService" class="com.navercorp.pinpoint.collector.receiver.grpc.service.AgentService">
         <constructor-arg index="0" ref="grpcDispatchHandlerFactoryBean"/>
     </bean>
+    <bean id="metadataService" class="com.navercorp.pinpoint.collector.receiver.grpc.service.MetadataService">
+        <constructor-arg index="0" ref="grpcDispatchHandlerFactoryBean"/>
+    </bean>
     <bean id="commandService" class="com.navercorp.pinpoint.collector.receiver.grpc.service.command.GrpcCommandService">
         <constructor-arg index="0" ref="clusterService"/>
     </bean>
@@ -499,6 +503,7 @@
     </bean>
     <util:list id="agentServiceList">
         <ref bean="agentServiceDecorator"/>
+        <ref bean="metadataService"/>
         <ref bean="commandService"/>
     </util:list>
 
