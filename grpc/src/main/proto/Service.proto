@@ -26,6 +26,9 @@ service Agent {
     }
     rpc RequestAgentInfo (PAgentInfo) returns (PResult) {
     }
+}
+
+service Metadata {
     rpc RequestSqlMetaData (PSqlMetaData) returns (PResult) {
     }
     rpc RequestApiMetaData (PApiMetaData) returns (PResult) {

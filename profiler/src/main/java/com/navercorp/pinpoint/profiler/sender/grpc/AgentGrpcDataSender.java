@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.sender.grpc;
 
+import com.navercorp.pinpoint.grpc.trace.MetadataGrpc;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
 import com.navercorp.pinpoint.profiler.receiver.grpc.GrpcCommandService;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
@@ -102,6 +103,7 @@ public class AgentGrpcDataSender implements EnhancedDataSender {
     protected final ThreadPoolExecutor executor;
 
     private final AgentGrpc.AgentFutureStub agentStub;
+    private final MetadataGrpc.MetadataFutureStub metadataStub;
 
     private GrpcCommandService grpcCommandService;
 
@@ -124,6 +126,7 @@ public class AgentGrpcDataSender implements EnhancedDataSender {
         this.channelFactory = newChannelFactory(name, headerFactory, nameResolverProvider);
         this.managedChannel = channelFactory.build(name, host, port);
         this.agentStub = AgentGrpc.newFutureStub(managedChannel);
+        this.metadataStub = MetadataGrpc.newFutureStub(managedChannel);
 
         this.grpcCommandService = new GrpcCommandService(managedChannel, GrpcDataSender.reconnectScheduler, activeTraceRepository);
     }
@@ -143,12 +146,12 @@ public class AgentGrpcDataSender implements EnhancedDataSender {
 
     private String getTimerName(String name) {
         name = StringUtils.defaultString(name, "DEFAULT");
-        return String.format("Pinpoint-TcpDataSender(%s)-Timer", name);
+        return String.format("Pinpoint-AgentGrpcDataSender(%s)-Timer", name);
     }
 
     private String getExecutorName(String name) {
         name = StringUtils.defaultString(name, "DEFAULT");
-        return String.format("Pinpoint-TcpDataSender(%s)-Executor", name);
+        return String.format("Pinpoint-AgentGrpcDataSender(%s)-Executor", name);
     }
 
     private AsyncQueueingExecutor<Object> createAsyncQueueingExecutor(int queueSize, String executorName) {
@@ -366,13 +369,13 @@ public class AgentGrpcDataSender implements EnhancedDataSender {
             return this.agentStub.requestAgentInfo(agentInfo);
         } else if (requestPacket instanceof PSqlMetaData) {
             PSqlMetaData sqlMetaData = (PSqlMetaData) requestPacket;
-            return this.agentStub.requestSqlMetaData(sqlMetaData);
+            return this.metadataStub.requestSqlMetaData(sqlMetaData);
         } else if (requestPacket instanceof PApiMetaData) {
             final PApiMetaData apiMetaData = (PApiMetaData) requestPacket;
-            return this.agentStub.requestApiMetaData(apiMetaData);
+            return this.metadataStub.requestApiMetaData(apiMetaData);
         } else if (requestPacket instanceof PStringMetaData) {
             final PStringMetaData stringMetaData = (PStringMetaData) requestPacket;
-            return this.agentStub.requestStringMetaData(stringMetaData);
+            return this.metadataStub.requestStringMetaData(stringMetaData);
         }
 
         return null;
