@@ -12,6 +12,8 @@
         <ng-container *ngIf="isSameType('serverMap')">
             <pp-server-map-others-container [sourceType]="'TRANSACTION_LIST'"></pp-server-map-others-container>
         </ng-container>
-        <pp-transaction-timeline-container></pp-transaction-timeline-container>
+        <ng-container *ngIf="isSameType('timeline')">
+            <pp-transaction-timeline-container></pp-transaction-timeline-container>
+        </ng-container>
     </div>
 </div>
