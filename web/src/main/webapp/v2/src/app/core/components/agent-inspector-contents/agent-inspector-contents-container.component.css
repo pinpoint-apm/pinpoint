@@ -29,6 +29,21 @@
     overflow: auto;
 }
 
+.l-chart-option-area {
+    width: calc(100% - 20px);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 5px 10px 0 15px;
+}
+
+.l-guide-text {
+    font-family: 'Open Sans';
+    color: #333;
+    font-size: 14px;
+    font-style: italic;
+}
+
 .l-chart-group-wrap {
     display: grid;
     width: 100%;

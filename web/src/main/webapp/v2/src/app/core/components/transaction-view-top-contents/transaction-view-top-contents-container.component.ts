@@ -1,22 +1,19 @@
-import { Component, OnInit, OnDestroy, ComponentFactoryResolver, ViewChild, ViewContainerRef, ComponentRef, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ComponentFactoryResolver, ViewChild, ViewContainerRef, ComponentRef, HostBinding } from '@angular/core';
 
-import { TransactionViewJVMHeapChartContainerComponent } from 'app/core/components/inspector-chart/transaction-view-jvm-heap-chart-container.component';
-import { TransactionViewJVMNonHeapChartContainerComponent } from 'app/core/components/inspector-chart/transaction-view-jvm-non-heap-chart-container.component';
-import { TransactionViewCPUChartContainerComponent } from 'app/core/components/inspector-chart/transaction-view-cpu-chart-container.component';
 import { AnalyticsService, TRACKED_EVENT_LIST } from 'app/shared/services';
+import { ChartType } from 'app/core/components/inspector-chart/inspector-chart-container-factory';
+import { TransactionViewChartContainerComponent } from 'app/core/components/inspector-chart/transaction-view-chart-container.component';
 
 @Component({
     selector: 'pp-transaction-view-top-contents-container',
     templateUrl: './transaction-view-top-contents-container.component.html',
     styleUrls: ['./transaction-view-top-contents-container.component.css'],
-    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TransactionViewTopContentsContainerComponent implements OnInit, OnDestroy {
+    @HostBinding('class') hostClass = 'l-transaction-view-top-contents';
     @ViewChild('chartContainer', { read: ViewContainerRef }) chartContainer: ViewContainerRef;
 
     tabList: any[];
-    private componentMap = new Map<string, any>();
-    private chartComponentList = [TransactionViewJVMHeapChartContainerComponent, TransactionViewJVMNonHeapChartContainerComponent, TransactionViewCPUChartContainerComponent];
     private aliveComponentRef: ComponentRef<any>;
 
     constructor(
@@ -26,7 +23,6 @@ export class TransactionViewTopContentsContainerComponent implements OnInit, OnD
 
     ngOnInit() {
         this.initTabList();
-        this.initComponentMap();
         this.loadComponent(this.tabList.find((tab) => tab.isActive).id);
     }
 
@@ -62,15 +58,23 @@ export class TransactionViewTopContentsContainerComponent implements OnInit, OnD
         }];
     }
 
-    private initComponentMap(): void {
-        this.tabList.forEach((value, i) => this.componentMap.set(value.id, this.chartComponentList[i]));
+    private matchChartType(tabId: string): ChartType {
+        switch (tabId) {
+            case 'heap':
+                return ChartType.AGENT_JVM_HEAP;
+            case 'nonHeap':
+                return ChartType.AGENT_JVM_NON_HEAP;
+            case 'cpu':
+                return ChartType.AGENT_CPU;
+        }
     }
 
     private loadComponent(key: string): void {
         this.analyticsService.trackEvent((TRACKED_EVENT_LIST as any)[`CLICK_${key}`]);
-        const componentFactory = this.componentFactoryResolver.resolveComponentFactory(this.componentMap.get(key));
+        const componentFactory = this.componentFactoryResolver.resolveComponentFactory(TransactionViewChartContainerComponent);
 
         this.aliveComponentRef = this.chartContainer.createComponent(componentFactory);
+        this.aliveComponentRef.instance.chartType = this.matchChartType(key);
     }
 
     private setActiveTab(tabName: string): void {

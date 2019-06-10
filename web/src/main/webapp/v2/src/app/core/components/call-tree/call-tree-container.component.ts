@@ -10,7 +10,9 @@ import {
     VIEW_TYPE,
     AnalyticsService,
     TRACKED_EVENT_LIST,
-    DynamicPopupService
+    DynamicPopupService,
+    MessageQueueService,
+    MESSAGE_TO
 } from 'app/shared/services';
 import { UrlPathId } from 'app/shared/models';
 import { TransactionSearchInteractionService, ISearchParam } from 'app/core/components/transaction-search/transaction-search-interaction.service';
@@ -47,7 +49,8 @@ export class CallTreeContainerComponent implements OnInit, OnDestroy, AfterViewI
         private analyticsService: AnalyticsService,
         private dynamicPopupService: DynamicPopupService,
         private componentFactoryResolver: ComponentFactoryResolver,
-        private injector: Injector
+        private injector: Injector,
+        private messageQueueService: MessageQueueService,
     ) {}
     ngOnInit() {
         this.transactionViewTypeService.onChangeViewType$.pipe(
@@ -179,15 +182,19 @@ export class CallTreeContainerComponent implements OnInit, OnDestroy, AfterViewI
             injector: this.injector
         });
     }
-    onRowSelected(rowData: IGridData): void {
-        if (rowData.startTime !== 0) {
-            this.storeHelperService.dispatch(new Actions.ChangeHoverOnInspectorCharts({
-                index: -1,
-                time: rowData.startTime,
-                applicationId: rowData.application,
-                agentId: rowData.agent
-            }));
+    onRowSelected({startTime, application, agent}: IGridData): void {
+        if (startTime === 0) {
+            return;
         }
+
+        this.messageQueueService.sendMessage({
+            to: MESSAGE_TO.CALL_TREE_ROW_SELECT,
+            param: [{
+                time: startTime,
+                applicationId: application,
+                agentId: agent
+            }]
+        });
     }
     onCellDoubleClicked(contents: string): void {
         this.dynamicPopupService.openPopup({

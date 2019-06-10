@@ -269,6 +269,12 @@ interface IHoveredInfo {
     applicationId?: string;
     agentId?: string;
 }
+
+interface ISelectedRowInfo {
+    time: number;
+    applicationId?: string;
+    agentId?: string;
+}
 // @store
 interface IServerAndAgentData {
     agentId: string;

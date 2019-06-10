@@ -35,7 +35,8 @@
                 "For case 1, you should delete the mapping between !{0} and !{1}.",
 				"For case 2, the agent id of the duplicate agent must change."
             ]
-        }
+        },
+        "CHART_INTERACTION_GUIDE_MESSAGE": "* You can zoom in on the chart by dragging the mouse."
     },
     "TRANSACTION_LIST": {
         "SELECT_TRANSACTION": "Select your transaction",

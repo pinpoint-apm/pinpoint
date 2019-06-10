@@ -1,7 +1,7 @@
 :host {
     width: calc(100% - 20px);
     display: block;
-    margin: 20px 10px;
+    margin: 20px 10px 10px;
     border: 1px solid #000;
     position: relative;
 }

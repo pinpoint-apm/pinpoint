@@ -17,14 +17,11 @@ import { style, animate, transition, trigger } from '@angular/animations';
 export class RetryComponent implements OnInit {
     @Input() showRetry: boolean;
     @Input() message: string;
-    @Output() outRetryGetChartData: EventEmitter<any> = new EventEmitter();
-    constructor() { }
+    @Output() outRetry = new EventEmitter<void>();
 
-    ngOnInit() {
+    constructor() {}
+    ngOnInit() {}
+    onRetry(): void {
+        this.outRetry.emit();
     }
-
-    retryGetChartData(): void {
-        this.outRetryGetChartData.emit();
-    }
-
 }

@@ -1,4 +1,10 @@
 :host {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.l-wrapper {
     display: flex;
     flex-flow: column nowrap;
     width: 100%;
@@ -27,6 +33,21 @@
     height: 100%;
     position: relative;
     overflow: auto;
+}
+
+.l-chart-option-area {
+    width: calc(100% - 20px);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 5px 10px 0 15px;
+}
+
+.l-guide-text {
+    font-family: 'Open Sans';
+    color: #333;
+    font-size: 14px;
+    font-style: italic;
 }
 
 .l-chart-group-wrap {

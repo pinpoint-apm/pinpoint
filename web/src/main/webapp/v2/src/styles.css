@@ -62,3 +62,23 @@ header {background:#469ae4;border-bottom:1px solid #4484c3;height:50px;justify-c
         opacity: 1;
     }
 }
+
+.l-transaction-view-top-contents .bb-axis-y-label,
+.l-transaction-view-top-contents .bb-axis-y2-label,
+.l-application-inspector-contents .bb-axis-y-label,
+.l-agent-inspector-contents .bb-axis-y-label,
+.l-agent-inspector-contents .bb-axis-y2-label {
+    text-anchor: middle !important;
+    font-family: 'Open Sans';
+    font-size: 0.75vw;
+    fill: #333;
+    font-weight: bold;
+}
+
+.l-application-inspector-contents .bb-line {
+    stroke-width: 1.5;
+}
+
+.l-application-inspector-contents .bb-line:not(.avg) {
+    stroke-dasharray: 2 2;
+}
