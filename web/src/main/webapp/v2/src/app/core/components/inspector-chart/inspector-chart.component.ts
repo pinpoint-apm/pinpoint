@@ -1,53 +1,70 @@
-import { Component, OnInit, OnChanges, Input, Output, EventEmitter, ViewChild, ElementRef, SimpleChanges, ChangeDetectorRef } from '@angular/core';
-import { Chart } from 'chart.js';
+import { Component, OnInit, OnChanges, Input, Output, EventEmitter, ViewChild, ElementRef, SimpleChanges, Renderer2, OnDestroy } from '@angular/core';
+import bb, { Data, PrimitiveArray } from 'billboard.js';
+import { Subject, merge, fromEvent } from 'rxjs';
+import { filter, map, tap } from 'rxjs/operators';
+
+import { MessageQueueService, MESSAGE_TO, GutterEventService, NewUrlStateNotificationService } from 'app/shared/services';
+import { UrlPath } from 'app/shared/models';
 
 export interface IChartConfig {
-    type: string;
-    dataConfig: {[key: string]: any};
+    dataConfig: Data;
     elseConfig: {[key: string]: any};
-    isDataEmpty: boolean;
-}
-
-export interface II18nText {
-    FAILED_TO_FETCH_DATA: string;
-    NO_DATA_COLLECTED: string;
-}
-
-export interface IErrObj {
-    errType: string; // EXCEPTION or ELSE
-    errMessage: string; // data.exception.message or null
 }
 
 @Component({
     selector: 'pp-inspector-chart',
     templateUrl: './inspector-chart.component.html',
-    styleUrls: ['./inspector-chart.component.css']
+    styleUrls: ['./inspector-chart.component.css'],
 })
-export class InspectorChartComponent implements OnInit, OnChanges {
-    @ViewChild('chartElement') el: ElementRef;
-    @Input() xRawData: number[];
+export class InspectorChartComponent implements OnInit, OnChanges, OnDestroy {
+    @ViewChild('chartHolder') chartHolder: ElementRef;
     @Input() chartConfig: IChartConfig;
-    @Input() i18nText: II18nText;
-    @Input() errObj: IErrObj;
-    @Input() hoveredInfo: IHoveredInfo;
-    @Input() height: string;
-    @Output() outRetryGetChartData: EventEmitter<void> = new EventEmitter();
+    @Output() outRendered = new EventEmitter<void>(true);
 
-    retryMessage: string;
-    chartVisibility = {};
-    chartSectionLayers = {
-        loading: true,
-        chart: false,
-        retry: false
-    };
+    private unsubscribe = new Subject<void>();
+    private chartInstance: any;
+    private readonly inspectorChartRatio = 1.92;
 
-    private chartObj: any;
 
     constructor(
-        private changeDetector: ChangeDetectorRef,
+        private messageQueueService: MessageQueueService,
+        private gutterEventService: GutterEventService,
+        private newUrlStateNotificationService: NewUrlStateNotificationService,
+        private el: ElementRef,
+        private renderer: Renderer2
     ) {}
 
-    ngOnInit() {}
+    ngOnInit() {
+        this.setHeight();
+        merge(
+            fromEvent(window, 'resize'),
+            this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.INSPECTOR_CHART_SET_LAYOUT).pipe(),
+            this.gutterEventService.onGutterResized$.pipe(
+                filter((ratioArr: number[]) => !!ratioArr),
+                map(([upperRatio]: number[]) => upperRatio),
+                filter((ratio: number) => ratio >= 30 && ratio <= 55), // 30, 50: 차트가 포함되어 있는 split-area의 최소, 최대 사이즈(비율)
+            )
+        ).pipe(
+            tap(() => this.setHeight()),
+            filter(() => !!this.chartInstance),
+        ).subscribe(() => {
+            this.chartInstance.resize();
+            this.setViewBox();
+        });
+
+        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.CALL_TREE_ROW_SELECT).subscribe(([{time}]: [ISelectedRowInfo]) => {
+            const closestTime = (Object.values(this.chartInstance.x())[0] as Date[])
+                .map((d: Date) => d.getTime())
+                .find((t: number, i: number, arr: number[]) => {
+                    return time <= t || ((arr[i] < time && time < arr[i + 1]) && (time - arr[i] <= arr[i + 1] - time));
+                });
+
+            this.chartInstance.tooltip.show({
+                x: closestTime
+            });
+        });
+    }
+
     ngOnChanges(changes: SimpleChanges) {
         Object.keys(changes)
             .filter((propName: string) => {
@@ -55,134 +72,73 @@ export class InspectorChartComponent implements OnInit, OnChanges {
             })
             .forEach((propName: string) => {
                 const changedProp = changes[propName];
+
                 switch (propName) {
                     case 'chartConfig':
-                        this.setChartSectionVisibility('loading');
-                        this.initChart();
-                        break;
-                    case 'errObj':
-                        this.setChartSectionVisibility('loading');
-                        this.setRetryMessage(changedProp.currentValue);
-                        this.setChartSectionVisibility('retry');
-                        break;
-                    case 'hoveredInfo':
-                        this.syncHoverOnChart(changedProp.currentValue);
+                        this.chartInstance ? this.updateChart(changedProp) : this.initChart();
                         break;
                 }
             });
     }
 
-    getHeightConfig(): {[key: string]: any} {
-        return {
-            height: this.height,
-            setHeightAuto: this.chartSectionLayers.chart,
-            ratio: 1.92
-        };
+    ngOnDestroy() {
+        this.unsubscribe.next();
+        this.unsubscribe.complete();
     }
 
-    private syncHoverOnChart(hoverInfo: IHoveredInfo): void {
-        let activeElements;
-        if (hoverInfo.index === -1) {
-            if (hoverInfo.time) {
-                activeElements = this.getActiveTooltipElementsByTime(hoverInfo.time);
-            } else {
-                activeElements = [];
-            }
-        } else {
-            activeElements = this.getActiveTooltipElements(hoverInfo.index);
-        }
+    private setHeight(): void {
+        const width = window.getComputedStyle(this.chartHolder.nativeElement).getPropertyValue('width');
+        const height = this.newUrlStateNotificationService.getStartPath() === UrlPath.INSPECTOR
+            ? `${Number(width.replace(/px/, '')) / this.inspectorChartRatio}px`
+            : `${this.el.nativeElement.offsetHeight}px`;
 
-        this.chartObj.tooltip._active = activeElements;
-        this.chartObj.tooltip.update(true);
-        this.chartObj.draw();
-    }
-    getActiveTooltipElementsByTime(time: number): any[] {
-        let index = -1;
-        const len = this.xRawData.length;
-        for (let i = 0 ; i < len ; i++) {
-            const t = this.xRawData[i];
-            if (t === time) {
-                index = i;
-                break;
-            } else if (t > time) {
-                if (i + 1 === len) {
-                    index = i;
-                } else {
-                    if (this.xRawData[i] - time >= this.xRawData[i - 1] - time) {
-                        index = i - 1;
-                    } else {
-                        index = i;
-                    }
-                }
-                break;
-            }
-        }
-        return this.getActiveTooltipElements(index);
-    }
-    getActiveTooltipElements(index: number): any[] {
-        return this.chartObj.data.datasets.map((val: any, i: number) => this.chartObj.getDatasetMeta(i).data[index]);
+        this.renderer.setStyle(this.chartHolder.nativeElement, 'height', height);
     }
 
-    private initChart(): void {
-        if (this.chartObj) {
-            this.chartObj.data = this.chartConfig.dataConfig;
-            this.chartObj.options.tooltips.callbacks.label = this.chartConfig.elseConfig.tooltips.callbacks.label;
-            this.chartObj.options.scales.yAxes[0].ticks.max = this.chartConfig.elseConfig.scales.yAxes[0].ticks.max;
-            this.chartObj.update();
-        } else {
-            this.chartObj = new Chart(this.el.nativeElement.getContext('2d'), {
-                type: this.chartConfig.type,
-                data: this.chartConfig.dataConfig,
-                options: this.chartConfig.elseConfig,
-                plugins: [{
-                    afterRender: (chart, options) => {
-                        this.finishLoading();
-                    }
-                }],
-            });
-        }
-    }
+    private updateChart({previousValue, currentValue}: {previousValue: IChartConfig, currentValue: IChartConfig}): void {
+        const {columns: prevColumns} = previousValue.dataConfig;
+        const {columns: currColumns} = currentValue.dataConfig;
+        const prevKeys = prevColumns.map(([key]: PrimitiveArray) => key);
+        const currKeys = currColumns.map(([key]: PrimitiveArray) => key);
+        const unloadedKeys = prevKeys.filter((key: string) => !currKeys.includes(key));
+        const {axis: {y, y2 = {}}} = currentValue.elseConfig;
 
-    private finishLoading(): void {
-        this.setChartSectionVisibility('chart');
-    }
+        this.chartInstance.load({
+            columns: currColumns,
+            unload: unloadedKeys,
+        });
 
-    private setRetryMessage(errObj: IErrObj): void {
-        this.retryMessage = errObj.errType === 'EXCEPTION' ? errObj.errMessage : this.i18nText['FAILED_TO_FETCH_DATA'];
-    }
-
-    private setChartSectionVisibility(layer: string): void {
-        this.setChartSectionLayerAs(layer);
-        this.setChartVisibility(this.chartSectionLayers['chart'], this.chartObj);
-        this.notifyChanges();
-    }
-
-    private setChartSectionLayerAs(whichLayerToShow: string): void {
-        Object.keys(this.chartSectionLayers).forEach((layer) => {
-            this.chartSectionLayers[layer] = whichLayerToShow === layer;
+        this.chartInstance.axis.max({
+            y: y.max,
+            y2: y2.max
         });
     }
 
-    private setChartVisibility(showChart: boolean, chartObj: Chart): void {
-        this.chartVisibility = {
-            'show-chart': showChart,
-            'shady-chart': !showChart && chartObj !== undefined,
-            'hide-chart': !showChart && chartObj === undefined
-        };
+    private setViewBox(): void {
+        const svg = this.el.nativeElement.querySelector('svg');
+        const width = svg.getAttribute('width');
+        const height = svg.getAttribute('height');
+
+        this.renderer.setStyle(svg, 'width', `${width}px`);
+        this.renderer.setStyle(svg, 'height', `${height}px`);
+        this.renderer.setAttribute(svg, 'viewBox', `0 0 ${width} ${height}`);
+        this.renderer.setAttribute(svg, 'preserveAspectRatio', `none`);
     }
 
-    retryGetChartData(): void {
-        this.setChartSectionVisibility('loading');
-        this.outRetryGetChartData.emit();
+    private initChart(): void {
+        this.chartInstance = bb.generate({
+            bindto: this.chartHolder.nativeElement,
+            data: this.chartConfig.dataConfig,
+            ...this.chartConfig.elseConfig,
+            onrendered: () => this.finishLoading(),
+        });
+
+        const svg = this.el.nativeElement.querySelector('svg');
+
+        this.renderer.setStyle(svg, 'transition', 'all ease 1s');
     }
 
-    showNoData(): boolean {
-        return this.chartSectionLayers.chart && this.chartConfig.isDataEmpty;
-    }
-
-    private notifyChanges(): void {
-        if (!this.changeDetector['destroyed']) {
-            this.changeDetector.detectChanges();
-        }
+    private finishLoading(): void {
+        this.outRendered.emit();
     }
 }

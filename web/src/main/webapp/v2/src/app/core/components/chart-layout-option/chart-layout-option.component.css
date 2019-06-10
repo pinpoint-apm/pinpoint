@@ -1,7 +1,5 @@
 :host {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
+    display: block;
 }
 
 .l-layout-option-button {

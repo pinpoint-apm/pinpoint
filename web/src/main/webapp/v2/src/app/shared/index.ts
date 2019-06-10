@@ -34,7 +34,6 @@ import { FilmForDisableComponent } from './components/film-for-disable';
 import { SimpleProgressSliderComponent } from './components/simple-progress-slider';
 import { FormFieldErrorMessageComponent } from './components/form-field-error-message';
 import { ServerErrorMessageComponent } from './components/server-error-message';
-import { SettingHeightDirective } from './directives/setting-height.directive';
 import { ContextPopupDirective } from './directives/context-popup.directive';
 import { SplitterDirective } from './directives/splitter.directive';
 import { SearchInputDirective } from './directives/search-input.directive';
@@ -60,7 +59,6 @@ import { SafeStylePipe } from './pipes/safe-style.pipe';
         SafeHtmlPipe,
         SafeStylePipe,
         JSONTextParserPipe,
-        SettingHeightDirective,
         ContextPopupDirective,
         SplitterDirective,
         SearchInputDirective
@@ -87,7 +85,6 @@ import { SafeStylePipe } from './pipes/safe-style.pipe';
         SafeHtmlPipe,
         SafeStylePipe,
         JSONTextParserPipe,
-        SettingHeightDirective,
         ContextPopupDirective,
         SplitterDirective,
         SearchInputDirective

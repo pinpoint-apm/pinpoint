@@ -6,8 +6,7 @@ import { Component, OnInit, OnChanges, Input, Output, EventEmitter, SimpleChange
     styleUrls: ['./agent-data-source-chart-select-source.component.css']
 })
 export class AgentDataSourceChartSelectSourceComponent implements OnInit, OnChanges {
-    @Input() isDataEmpty: boolean;
-    @Input() sourceDataArr: { [key: string]: any }[];
+    @Input() data: {databaseName: string, id: number}[];
     @Output() outCheckedIdChange: EventEmitter<Set<number>> = new EventEmitter();
 
     showSourceSelectModal = false;
@@ -18,7 +17,7 @@ export class AgentDataSourceChartSelectSourceComponent implements OnInit, OnChan
     ngOnChanges(changes: SimpleChanges) {
         Object.keys(changes).map((propName: string) => {
             switch (propName) {
-                case 'sourceDataArr':
+                case 'data':
                     this.initCheckedIdSet();
                     break;
             }
@@ -31,6 +30,7 @@ export class AgentDataSourceChartSelectSourceComponent implements OnInit, OnChan
 
     onCheckAllBtnClick(): void {
         this.initCheckedIdSet();
+        this.outCheckedIdChange.emit(this.checkedIdSet);
     }
 
     onSourceCheckboxChange(id: number): void {
@@ -38,8 +38,7 @@ export class AgentDataSourceChartSelectSourceComponent implements OnInit, OnChan
     }
 
     private initCheckedIdSet(): void {
-        this.sourceDataArr.map((data) => this.checkedIdSet.add(data.id));
-        this.outCheckedIdChange.emit(this.checkedIdSet);
+        this.data.map(({id}: {databaseName: string, id: number}) => this.checkedIdSet.add(id));
     }
 
     private toggleCheckedId(id: number): void {
