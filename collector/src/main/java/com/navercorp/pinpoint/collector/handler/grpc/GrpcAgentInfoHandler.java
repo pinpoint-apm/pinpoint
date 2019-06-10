@@ -21,7 +21,7 @@ import com.navercorp.pinpoint.collector.mapper.grpc.GrpcAgentInfoBoMapper;
 import com.navercorp.pinpoint.collector.service.AgentInfoService;
 import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
 import com.navercorp.pinpoint.grpc.AgentHeaderFactory;
-import com.navercorp.pinpoint.grpc.MessageToStringAdapter;
+import com.navercorp.pinpoint.grpc.MessageFormatUtils;
 import com.navercorp.pinpoint.grpc.server.ServerContext;
 import com.navercorp.pinpoint.grpc.trace.PAgentInfo;
 import com.navercorp.pinpoint.grpc.trace.PResult;
@@ -73,7 +73,7 @@ public class GrpcAgentInfoHandler implements SimpleAndRequestResponseHandler {
 
     private PResult handleAgentInfo(PAgentInfo agentInfo) {
         if (isDebug) {
-            logger.debug("Handle PAgentInfo={}", MessageToStringAdapter.getInstance(agentInfo));
+            logger.debug("Handle PAgentInfo={}", MessageFormatUtils.debugLog(agentInfo));
         }
 
         try {
@@ -83,7 +83,7 @@ public class GrpcAgentInfoHandler implements SimpleAndRequestResponseHandler {
             this.agentInfoService.insert(agentInfoBo);
             return PResult.newBuilder().setSuccess(true).build();
         } catch (Exception e) {
-            logger.warn("Failed to handle. agentInfo={}", MessageToStringAdapter.getInstance(agentInfo), e);
+            logger.warn("Failed to handle. agentInfo={}", MessageFormatUtils.debugLog(agentInfo), e);
             // Avoid detailed error messages.
             return PResult.newBuilder().setSuccess(false).setMessage("Internal Server Error").build();
         }

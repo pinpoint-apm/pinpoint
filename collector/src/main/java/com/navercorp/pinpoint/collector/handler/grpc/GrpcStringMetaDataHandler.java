@@ -20,7 +20,7 @@ import com.navercorp.pinpoint.collector.handler.RequestResponseHandler;
 import com.navercorp.pinpoint.collector.service.StringMetaDataService;
 import com.navercorp.pinpoint.common.server.bo.StringMetaDataBo;
 import com.navercorp.pinpoint.grpc.AgentHeaderFactory;
-import com.navercorp.pinpoint.grpc.MessageToStringAdapter;
+import com.navercorp.pinpoint.grpc.MessageFormatUtils;
 import com.navercorp.pinpoint.grpc.server.ServerContext;
 import com.navercorp.pinpoint.grpc.trace.PResult;
 import com.navercorp.pinpoint.grpc.trace.PStringMetaData;
@@ -57,7 +57,7 @@ public class GrpcStringMetaDataHandler implements RequestResponseHandler {
 
     private Object handleStringMetaData(final PStringMetaData stringMetaData) {
         if (logger.isDebugEnabled()) {
-            logger.debug("Handle PStringMetaData={}", MessageToStringAdapter.getInstance(stringMetaData));
+            logger.debug("Handle PStringMetaData={}", MessageFormatUtils.debugLog(stringMetaData));
         }
 
         try {
@@ -69,7 +69,7 @@ public class GrpcStringMetaDataHandler implements RequestResponseHandler {
             stringMetaDataService.insert(stringMetaDataBo);
             return PResult.newBuilder().setSuccess(true).build();
         } catch (Exception e) {
-            logger.warn("Failed to handle stringMetaData={}", MessageToStringAdapter.getInstance(stringMetaData), e);
+            logger.warn("Failed to handle stringMetaData={}", MessageFormatUtils.debugLog(stringMetaData), e);
             // Avoid detailed error messages.
             return PResult.newBuilder().setSuccess(false).setMessage("Internal Server Error").build();
         }

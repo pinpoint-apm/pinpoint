@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.collector.receiver.grpc.service;
 
 import com.google.protobuf.Empty;
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
-import com.navercorp.pinpoint.grpc.MessageToStringAdapter;
+import com.navercorp.pinpoint.grpc.MessageFormatUtils;
 import com.navercorp.pinpoint.grpc.trace.PSpan;
 import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
 import com.navercorp.pinpoint.grpc.trace.SpanGrpc;
@@ -58,7 +58,7 @@ public class SpanService extends SpanGrpc.SpanImplBase {
             @Override
             public void onNext(PSpan pSpan) {
                 if (isDebug) {
-                    logger.debug("Send PSpan={}", MessageToStringAdapter.getInstance(pSpan));
+                    logger.debug("Send PSpan={}", MessageFormatUtils.debugLog(pSpan));
                 }
 
                 final Header header = new HeaderV2(Header.SIGNATURE, HeaderV2.VERSION, DefaultTBaseLocator.SPAN);
@@ -88,7 +88,7 @@ public class SpanService extends SpanGrpc.SpanImplBase {
             @Override
             public void onNext(PSpanChunk pSpanChunk) {
                 if (isDebug) {
-                    logger.debug("Send PSpanChunk={}", MessageToStringAdapter.getInstance(pSpanChunk));
+                    logger.debug("Send PSpanChunk={}", MessageFormatUtils.debugLog(pSpanChunk));
                 }
 
                 final Header header = new HeaderV2(Header.SIGNATURE, HeaderV2.VERSION, DefaultTBaseLocator.SPANCHUNK);
