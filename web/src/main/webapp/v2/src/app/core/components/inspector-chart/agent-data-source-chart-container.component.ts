@@ -170,7 +170,7 @@ export class AgentDataSourceChartContainerComponent implements OnInit, OnDestroy
         };
     }
 
-    isActiveLayer(layer: Layer): boolean {
+    isActiveLayer(layer: string): boolean {
         return this.activeLayer === layer;
     }
 
@@ -263,7 +263,7 @@ export class AgentDataSourceChartContainerComponent implements OnInit, OnDestroy
     private makeElseOption(data: PrimitiveArray[]): {[key: string]: any} {
         return {
             padding: {
-                top: 10,
+                top: 20,
                 bottom: 35,
                 right: 45,
             },

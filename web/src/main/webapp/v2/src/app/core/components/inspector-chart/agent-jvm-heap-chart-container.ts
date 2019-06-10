@@ -70,7 +70,7 @@ export class AgentJVMHeapChartContainer implements IInspectorChartContainer {
     makeElseOption(): {[key: string]: any} {
         return {
             padding: {
-                top: 10,
+                top: 20,
                 bottom: 15,
                 right: 65,
             }

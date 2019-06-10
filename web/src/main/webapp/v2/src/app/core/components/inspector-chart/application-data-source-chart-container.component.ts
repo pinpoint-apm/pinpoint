@@ -117,7 +117,7 @@ export class ApplicationDataSourceChartContainerComponent implements OnInit, OnD
         };
     }
 
-    isActiveLayer(layer: Layer): boolean {
+    isActiveLayer(layer: string): boolean {
         return this.activeLayer === layer;
     }
 
@@ -205,7 +205,7 @@ export class ApplicationDataSourceChartContainerComponent implements OnInit, OnD
                 classes: ['min', 'avg', 'max']
             },
             padding: {
-                top: 10,
+                top: 20,
                 bottom: 15,
                 right: 45,
             },
