@@ -122,6 +122,13 @@ public enum CheckerCategory {
         }
     },
 
+    SYSTEM_CPU_USAGE_RATE("SYSTEM CPU USAGE RATE", DataCollectorCategory.AGENT_STAT) {
+        @Override
+        public AlarmChecker createChecker(DataCollector dataCollector, Rule rule) {
+            return new SystemCpuUsageRateChecker((AgentStatDataCollector)dataCollector, rule);
+        }
+    },
+
     DATASOURCE_CONNECTION_USAGE_RATE("DATASOURCE CONNECTION USAGE RATE", DataCollectorCategory.DATA_SOURCE_STAT) {
         @Override
         public AlarmChecker createChecker(DataCollector dataCollector, Rule rule) {
