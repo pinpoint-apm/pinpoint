@@ -23,5 +23,10 @@ import org.apache.hadoop.hbase.TableName;
  */
 public interface TableNameProvider {
 
+    TableName getTableName(HbaseTable hBaseTable);
+
     TableName getTableName(String tableName);
+
+    boolean hasDefaultNameSpace();
+
 }
