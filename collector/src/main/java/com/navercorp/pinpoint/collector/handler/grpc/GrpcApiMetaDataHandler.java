@@ -21,7 +21,7 @@ import com.navercorp.pinpoint.collector.service.ApiMetaDataService;
 import com.navercorp.pinpoint.common.server.bo.ApiMetaDataBo;
 import com.navercorp.pinpoint.common.server.bo.MethodTypeEnum;
 import com.navercorp.pinpoint.grpc.AgentHeaderFactory;
-import com.navercorp.pinpoint.grpc.MessageToStringAdapter;
+import com.navercorp.pinpoint.grpc.MessageFormatUtils;
 import com.navercorp.pinpoint.grpc.server.ServerContext;
 import com.navercorp.pinpoint.grpc.trace.PApiMetaData;
 import com.navercorp.pinpoint.grpc.trace.PResult;
@@ -59,7 +59,7 @@ public class GrpcApiMetaDataHandler implements RequestResponseHandler {
 
     private Object handleApiMetaData(final PApiMetaData apiMetaData) {
         if (isDebug) {
-            logger.debug("Handle PApiMetaData={}", MessageToStringAdapter.getInstance(apiMetaData));
+            logger.debug("Handle PApiMetaData={}", MessageFormatUtils.debugLog(apiMetaData));
         }
 
         try {
@@ -83,7 +83,7 @@ public class GrpcApiMetaDataHandler implements RequestResponseHandler {
             this.apiMetaDataService.insert(apiMetaDataBo);
             return PResult.newBuilder().setSuccess(true).build();
         } catch (Exception e) {
-            logger.warn("Failed to handle apiMetaData={}", MessageToStringAdapter.getInstance(apiMetaData), e);
+            logger.warn("Failed to handle apiMetaData={}", MessageFormatUtils.debugLog(apiMetaData), e);
             // Avoid detailed error messages.
             return PResult.newBuilder().setSuccess(false).setMessage("Internal Server Error").build();
         }

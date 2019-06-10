@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.collector.receiver.grpc.service;
 
 import com.google.protobuf.Empty;
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
-import com.navercorp.pinpoint.grpc.MessageToStringAdapter;
+import com.navercorp.pinpoint.grpc.MessageFormatUtils;
 import com.navercorp.pinpoint.grpc.trace.PAgentStat;
 import com.navercorp.pinpoint.grpc.trace.PAgentStatBatch;
 import com.navercorp.pinpoint.grpc.trace.StatGrpc;
@@ -59,7 +59,7 @@ public class StatService extends StatGrpc.StatImplBase {
             @Override
             public void onNext(PAgentStat agentStat) {
                 if (isDebug) {
-                    logger.debug("Send PAgentStat={}", MessageToStringAdapter.getInstance(agentStat));
+                    logger.debug("Send PAgentStat={}", MessageFormatUtils.debugLog(agentStat));
                 }
 
                 final Header header = new HeaderV2(Header.SIGNATURE, HeaderV2.VERSION, DefaultTBaseLocator.AGENT_STAT);
@@ -89,7 +89,7 @@ public class StatService extends StatGrpc.StatImplBase {
             @Override
             public void onNext(PAgentStatBatch agentStatBatch) {
                 if (isDebug) {
-                    logger.debug("Send PAgentStatBatch={}", MessageToStringAdapter.getInstance(agentStatBatch));
+                    logger.debug("Send PAgentStatBatch={}", MessageFormatUtils.debugLog(agentStatBatch));
                 }
 
                 final Header header = new HeaderV2(Header.SIGNATURE, HeaderV2.VERSION, DefaultTBaseLocator.AGENT_STAT);

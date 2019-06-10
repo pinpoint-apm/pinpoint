@@ -21,7 +21,7 @@ import com.navercorp.pinpoint.collector.service.TraceService;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.grpc.GrpcSpanFactory;
 import com.navercorp.pinpoint.grpc.AgentHeaderFactory;
-import com.navercorp.pinpoint.grpc.MessageToStringAdapter;
+import com.navercorp.pinpoint.grpc.MessageFormatUtils;
 import com.navercorp.pinpoint.grpc.server.ServerContext;
 import com.navercorp.pinpoint.grpc.trace.PSpan;
 import com.navercorp.pinpoint.io.request.ServerRequest;
@@ -66,7 +66,7 @@ public class GrpcSpanHandler implements SimpleHandler {
 
     private void handleSpan(PSpan span) {
         if (isDebug) {
-            logger.debug("Handle PSpan={}", MessageToStringAdapter.getInstance(span));
+            logger.debug("Handle PSpan={}", MessageFormatUtils.debugLog(span));
         }
 
         try {
@@ -74,7 +74,7 @@ public class GrpcSpanHandler implements SimpleHandler {
             final SpanBo spanBo = spanFactory.buildSpanBo(span, agentInfo);
             traceService.insertSpan(spanBo);
         } catch (Exception e) {
-            logger.warn("Failed to handle span={}", MessageToStringAdapter.getInstance(span), e);
+            logger.warn("Failed to handle span={}", MessageFormatUtils.debugLog(span), e);
         }
     }
 }

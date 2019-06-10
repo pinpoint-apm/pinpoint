@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.collector.receiver.grpc.service;
 
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
-import com.navercorp.pinpoint.grpc.MessageToStringAdapter;
+import com.navercorp.pinpoint.grpc.MessageFormatUtils;
 import com.navercorp.pinpoint.grpc.trace.MetadataGrpc;
 import com.navercorp.pinpoint.grpc.trace.PApiMetaData;
 import com.navercorp.pinpoint.grpc.trace.PResult;
@@ -52,7 +52,7 @@ public class MetadataService extends MetadataGrpc.MetadataImplBase {
     @Override
     public void requestApiMetaData(PApiMetaData apiMetaData, StreamObserver<PResult> responseObserver) {
         if (isDebug) {
-            logger.debug("Request PApiMetaData={}", MessageToStringAdapter.getInstance(apiMetaData));
+            logger.debug("Request PApiMetaData={}", MessageFormatUtils.debugLog(apiMetaData));
         }
 
         final Header header = new HeaderV2(Header.SIGNATURE, HeaderV2.VERSION, DefaultTBaseLocator.APIMETADATA);
@@ -66,7 +66,7 @@ public class MetadataService extends MetadataGrpc.MetadataImplBase {
     @Override
     public void requestStringMetaData(PStringMetaData stringMetaData, StreamObserver<PResult> responseObserver) {
         if (isDebug) {
-            logger.debug("Request PStringMetaData={}", MessageToStringAdapter.getInstance(stringMetaData));
+            logger.debug("Request PStringMetaData={}", MessageFormatUtils.debugLog(stringMetaData));
         }
 
         final Header header = new HeaderV2(Header.SIGNATURE, HeaderV2.VERSION, DefaultTBaseLocator.STRINGMETADATA);
