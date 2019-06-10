@@ -55,7 +55,18 @@ public class HbaseTableNameProvider implements TableNameProvider {
     }
 
     @Override
+    public TableName getTableName(HbaseTable hBaseTable) {
+        return getTableName(hBaseTable.getName());
+    }
+
+    @Override
     public TableName getTableName(String tableName) {
         return CACHE.get(namespace, tableName);
     }
+
+    @Override
+    public boolean hasDefaultNameSpace() {
+        return true;
+    }
+
 }
