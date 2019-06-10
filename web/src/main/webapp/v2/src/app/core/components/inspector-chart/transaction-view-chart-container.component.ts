@@ -12,7 +12,7 @@ import { UrlPathId } from 'app/shared/models';
 import { catchError } from 'rxjs/operators';
 import { isThatType } from 'app/core/utils/util';
 
-export const enum Layer {
+export enum Layer {
     LOADING = 'loading',
     RETRY = 'retry',
     CHART = 'chart'
@@ -107,7 +107,7 @@ export class TransactionViewChartContainerComponent implements OnInit, OnDestroy
         };
     }
 
-    isActiveLayer(layer: Layer): boolean {
+    isActiveLayer(layer: string): boolean {
         return this.activeLayer === layer;
     }
 

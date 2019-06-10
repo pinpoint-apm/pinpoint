@@ -31,9 +31,7 @@ export class ApplicationInspectorContentsContainerComponent implements OnInit, O
     ) {}
 
     ngOnInit() {
-        console.log(this.chartGroupWrapper);
-        // this.isApplicationInspectorActivated$ = this.webAppSettingDataService.isApplicationInspectorActivated();
-        this.isApplicationInspectorActivated$ = of(true);
+        this.isApplicationInspectorActivated$ = this.webAppSettingDataService.isApplicationInspectorActivated();
         this.coverRangeElements$ = this.newUrlStateNotificationService.onUrlStateChange$.pipe(
             map((urlService: NewUrlStateNotificationService) => urlService.isRealTimeMode())
         );

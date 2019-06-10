@@ -21,7 +21,7 @@ import { PrimitiveArray, Data } from 'billboard.js';
 import { IInspectorChartContainer } from './inspector-chart-container-factory';
 import { ChartType, InspectorChartContainerFactory } from './inspector-chart-container-factory';
 
-export const enum Layer {
+export enum Layer {
     LOADING = 'loading',
     RETRY = 'retry',
     CHART = 'chart'
@@ -148,7 +148,7 @@ export class InspectorChartContainerComponent implements OnInit, OnDestroy {
         };
     }
 
-    isActiveLayer(layer: Layer): boolean {
+    isActiveLayer(layer: string): boolean {
         return this.activeLayer === layer;
     }
 
@@ -212,7 +212,7 @@ export class InspectorChartContainerComponent implements OnInit, OnDestroy {
     private makeElseOption(data: PrimitiveArray[]): {[key: string]: any} {
         return {
             padding: {
-                top: 10,
+                top: 20,
                 bottom: 15,
                 right: 45,
             },
