@@ -171,7 +171,7 @@ public class GrpcReceiver implements InitializingBean, DisposableBean, BeanNameA
             } else if (service instanceof ServerServiceDefinition) {
                 //
             } else {
-                throw new IllegalStateException("unsupported type");
+                throw new IllegalStateException("unsupported type " + service);
             }
         }
 

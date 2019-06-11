@@ -26,6 +26,8 @@ import com.google.protobuf.GeneratedMessageV3;
 import io.grpc.NameResolverProvider;
 import io.grpc.stub.StreamObserver;
 
+import static com.navercorp.pinpoint.grpc.MessageFormatUtils.*;
+
 /**
  * @author jaehong.kim
  */
@@ -73,7 +75,7 @@ public class SpanGrpcDataSender extends GrpcDataSender {
     public boolean send0(Object data) {
         final GeneratedMessageV3 spanMessage = messageConverter.toMessage(data);
         if (logger.isDebugEnabled()) {
-            logger.debug("message:{}", spanMessage);
+            logger.debug("message:{}", debugLog(spanMessage));
         }
         if (spanMessage instanceof PSpanChunk) {
             final PSpanChunk pSpan = (PSpanChunk) spanMessage;

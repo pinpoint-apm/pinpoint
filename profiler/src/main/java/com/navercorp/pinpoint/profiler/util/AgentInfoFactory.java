@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.profiler.util;
 
 import com.navercorp.pinpoint.bootstrap.context.ServerMetaData;
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.AgentInformation;
 import com.navercorp.pinpoint.profiler.JvmInformation;
 import com.navercorp.pinpoint.profiler.context.ServerMetaDataRegistryService;
@@ -32,26 +33,14 @@ public class AgentInfoFactory {
     private final JvmInformation jvmInformation;
 
     public AgentInfoFactory(AgentInformation agentInformation, ServerMetaDataRegistryService serverMetaDataRegistryService, JvmInformation jvmInformation) {
-        if (agentInformation == null) {
-            throw new NullPointerException("agentInformation must not be null");
-        }
-        if (serverMetaDataRegistryService == null) {
-            throw new NullPointerException("serverMetaDataRegistryService must not be null");
-        }
-        if (jvmInformation == null) {
-            throw new NullPointerException("jvmInformation must not be null");
-        }
-        this.agentInformation = agentInformation;
-        this.serverMetaDataRegistryService = serverMetaDataRegistryService;
-        this.jvmInformation = jvmInformation;
+        this.agentInformation = Assert.requireNonNull(agentInformation, "agentInformation must not be null");
+        this.serverMetaDataRegistryService = Assert.requireNonNull(serverMetaDataRegistryService, "serverMetaDataRegistryService must not be null");
+        this.jvmInformation = Assert.requireNonNull(jvmInformation, "jvmInformation must not be null");
     }
 
     public AgentInfo createAgentInfo() {
-        final AgentInfo agentInfo = new AgentInfo();
-        agentInfo.setAgentInformation(agentInformation);
         final ServerMetaData serverMetaData = serverMetaDataRegistryService.getServerMetaData();
-        agentInfo.setServerMetaData(serverMetaData);
-        agentInfo.setJvmInfo(jvmInformation);
+        final AgentInfo agentInfo = new AgentInfo(agentInformation, serverMetaData, jvmInformation);
         return agentInfo;
     }
 }

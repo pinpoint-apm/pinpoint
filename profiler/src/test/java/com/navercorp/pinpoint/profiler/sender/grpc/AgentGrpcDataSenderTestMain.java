@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.profiler.sender.grpc;
 
 import com.google.protobuf.GeneratedMessageV3;
+import com.navercorp.pinpoint.bootstrap.context.ServerMetaData;
 import com.navercorp.pinpoint.bootstrap.context.ServiceInfo;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.grpc.AgentHeaderFactory;
@@ -54,14 +55,19 @@ public class AgentGrpcDataSenderTestMain {
 
         AgentGrpcDataSender sender = new AgentGrpcDataSender("TestAgentGrpcDataSender", "localhost", 9997, messageConverter, headerFactory, nameResolverProvider);
 
-        AgentInfo agentInfo = new AgentInfo();
-        agentInfo.setAgentInformation(new DefaultAgentInformation(AGENT_ID, APPLICATION_NAME, true, START_TIME, 99, "", "", ServiceType.TEST_STAND_ALONE, "1.0", "1.0"));
-        agentInfo.setJvmInfo(new JvmInformation("1.0", JvmGcType.G1));
-        agentInfo.setServerMetaData(new DefaultServerMetaData("serverInfo", Collections.<String>emptyList(), Collections.<Integer, String>emptyMap(), Collections.<ServiceInfo>emptyList()));
+        AgentInfo agentInfo = newAgentInfo();
+
         sender.request(agentInfo);
 
         TimeUnit.SECONDS.sleep(60);
         sender.stop();
+    }
+
+    private AgentInfo newAgentInfo() {
+        AgentInformation agentInformation = new DefaultAgentInformation(AGENT_ID, APPLICATION_NAME, true, START_TIME, 99, "", "", ServiceType.TEST_STAND_ALONE, "1.0", "1.0");
+        JvmInformation jvmInformation = new JvmInformation("1.0", JvmGcType.G1);
+        ServerMetaData serverInfo = new DefaultServerMetaData("serverInfo", Collections.<String>emptyList(), Collections.<Integer, String>emptyMap(), Collections.<ServiceInfo>emptyList());
+        return new AgentInfo(agentInformation, serverInfo, jvmInformation);
     }
 
     public static void main(String[] args) {
