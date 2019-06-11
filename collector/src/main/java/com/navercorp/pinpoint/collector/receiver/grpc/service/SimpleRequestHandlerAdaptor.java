@@ -34,13 +34,13 @@ import java.util.Objects;
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class RequestHandlerAdaptor<T> {
+public class SimpleRequestHandlerAdaptor<T> {
     private final Logger logger;
 
     private final DispatchHandler dispatchHandler;
     private final ServerRequestFactory serverRequestFactory = new ServerRequestFactory();
 
-    public RequestHandlerAdaptor(String name, DispatchHandler dispatchHandler) {
+    public SimpleRequestHandlerAdaptor(String name, DispatchHandler dispatchHandler) {
         Objects.requireNonNull(name, "name must not be null");
         this.logger = LoggerFactory.getLogger(name);
         this.dispatchHandler = Assert.requireNonNull(dispatchHandler, "dispatchHandler must not be null");

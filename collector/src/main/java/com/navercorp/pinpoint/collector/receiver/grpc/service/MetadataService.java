@@ -17,10 +17,10 @@
 package com.navercorp.pinpoint.collector.receiver.grpc.service;
 
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
-import com.navercorp.pinpoint.grpc.MessageFormatUtils;
 import com.navercorp.pinpoint.grpc.trace.MetadataGrpc;
 import com.navercorp.pinpoint.grpc.trace.PApiMetaData;
 import com.navercorp.pinpoint.grpc.trace.PResult;
+import com.navercorp.pinpoint.grpc.trace.PSqlMetaData;
 import com.navercorp.pinpoint.grpc.trace.PStringMetaData;
 import com.navercorp.pinpoint.io.header.Header;
 import com.navercorp.pinpoint.io.header.HeaderEntity;
@@ -35,6 +35,8 @@ import org.slf4j.LoggerFactory;
 import java.util.Collections;
 import java.util.Objects;
 
+import static com.navercorp.pinpoint.grpc.MessageFormatUtils.*;
+
 /**
  * @author Woonduk Kang(emeroad)
  */
@@ -42,42 +44,51 @@ public class MetadataService extends MetadataGrpc.MetadataImplBase {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
-    private final RequestHandlerAdaptor<PResult> requestHandlerAdaptor;
+    private final SimpleRequestHandlerAdaptor<PResult> simpleRequestHandlerAdaptor;
 
     public MetadataService(DispatchHandler dispatchHandler) {
         Objects.requireNonNull(dispatchHandler, "dispatchHandler must not be null");
-        this.requestHandlerAdaptor = new RequestHandlerAdaptor<>(this.getClass().getName(), dispatchHandler);
+        this.simpleRequestHandlerAdaptor = new SimpleRequestHandlerAdaptor<>(this.getClass().getName(), dispatchHandler);
     }
 
     @Override
     public void requestApiMetaData(PApiMetaData apiMetaData, StreamObserver<PResult> responseObserver) {
         if (isDebug) {
-            logger.debug("Request PApiMetaData={}", MessageFormatUtils.debugLog(apiMetaData));
+            logger.debug("Request PApiMetaData={}", debugLog(apiMetaData));
         }
 
-        final Header header = new HeaderV2(Header.SIGNATURE, HeaderV2.VERSION, DefaultTBaseLocator.APIMETADATA);
-        final HeaderEntity headerEntity = newEmptyHeaderEntity();
-        Message<PApiMetaData> message = new DefaultMessage<PApiMetaData>(header, headerEntity, apiMetaData);
+        final Message<PApiMetaData> message = newMessage(apiMetaData, DefaultTBaseLocator.APIMETADATA);
 
-        requestHandlerAdaptor.request(message, responseObserver);
+        simpleRequestHandlerAdaptor.request(message, responseObserver);
+    }
+
+    @Override
+    public void requestSqlMetaData(PSqlMetaData sqlMetaData, StreamObserver<PResult> responseObserver) {
+        if (isDebug) {
+            logger.debug("Request PSqlMetaData={}", debugLog(sqlMetaData));
+        }
+
+        final Message<PSqlMetaData> message = newMessage(sqlMetaData, DefaultTBaseLocator.SQLMETADATA);
+
+        simpleRequestHandlerAdaptor.request(message, responseObserver);
     }
 
 
     @Override
     public void requestStringMetaData(PStringMetaData stringMetaData, StreamObserver<PResult> responseObserver) {
         if (isDebug) {
-            logger.debug("Request PStringMetaData={}", MessageFormatUtils.debugLog(stringMetaData));
+            logger.debug("Request PStringMetaData={}", debugLog(stringMetaData));
         }
 
-        final Header header = new HeaderV2(Header.SIGNATURE, HeaderV2.VERSION, DefaultTBaseLocator.STRINGMETADATA);
-        final HeaderEntity headerEntity = newEmptyHeaderEntity();
-        Message<PStringMetaData> message = new DefaultMessage<PStringMetaData>(header, headerEntity, stringMetaData);
+        final Message<PStringMetaData> message = newMessage(stringMetaData, DefaultTBaseLocator.STRINGMETADATA);
 
-        requestHandlerAdaptor.request(message, responseObserver);
+        simpleRequestHandlerAdaptor.request(message, responseObserver);
     }
 
-    private HeaderEntity newEmptyHeaderEntity() {
-        return new HeaderEntity(Collections.emptyMap());
+    private <T> Message<T> newMessage(T requestData, short type) {
+        final Header header = new HeaderV2(Header.SIGNATURE, HeaderV2.VERSION, type);
+        final HeaderEntity headerEntity = new HeaderEntity(Collections.emptyMap());
+        return new DefaultMessage<>(header, headerEntity, requestData);
     }
 
 }
