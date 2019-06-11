@@ -38,7 +38,7 @@ public class ConnectionFactoryBean implements FactoryBean<Connection>, Initializ
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @Autowired
+    @Autowired(required = false)
     private TableNameProvider tableNameProvider;
 
     private final boolean warmUp;
@@ -67,14 +67,16 @@ public class ConnectionFactoryBean implements FactoryBean<Connection>, Initializ
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        if (warmUp && tableNameProvider.hasDefaultNameSpace()) {
-            logger.info("warmup for hbase connection started");
-            for (HbaseTable hBaseTable : HbaseTable.values()) {
-                try {
-                    TableName tableName = tableNameProvider.getTableName(hBaseTable);
-                    connection.getRegionLocator(tableName);
-                } catch (IOException e) {
-                    logger.warn("Failed to warmup for Table:{}. message:{}", hBaseTable.getName(), e.getMessage(), e);
+        if (warmUp) {
+            if (tableNameProvider != null && tableNameProvider.hasDefaultNameSpace()) {
+                logger.info("warmup for hbase connection started");
+                for (HbaseTable hBaseTable : HbaseTable.values()) {
+                    try {
+                        TableName tableName = tableNameProvider.getTableName(hBaseTable);
+                        connection.getRegionLocator(tableName);
+                    } catch (IOException e) {
+                        logger.warn("Failed to warmup for Table:{}. message:{}", hBaseTable.getName(), e.getMessage(), e);
+                    }
                 }
             }
         }
