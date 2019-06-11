@@ -40,10 +40,10 @@ public class AgentService extends AgentGrpc.AgentImplBase {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
-    private final RequestHandlerAdaptor<PResult> requestHandlerAdaptor;
+    private final SimpleRequestHandlerAdaptor<PResult> simpleRequestHandlerAdaptor;
 
     public AgentService(DispatchHandler dispatchHandler) {
-        this.requestHandlerAdaptor = new RequestHandlerAdaptor<PResult>(this.getClass().getName(), dispatchHandler);
+        this.simpleRequestHandlerAdaptor = new SimpleRequestHandlerAdaptor<PResult>(this.getClass().getName(), dispatchHandler);
     }
 
     @Override
@@ -52,16 +52,16 @@ public class AgentService extends AgentGrpc.AgentImplBase {
             logger.debug("Request PAgentInfo={}", MessageFormatUtils.debugLog(agentInfo));
         }
 
-        final Header header = new HeaderV2(Header.SIGNATURE, HeaderV2.VERSION, DefaultTBaseLocator.AGENT_INFO);
-        final HeaderEntity headerEntity = newEmptyHeaderEntity();
-        Message<PAgentInfo> message = new DefaultMessage<PAgentInfo>(header, headerEntity, agentInfo);
+        Message<PAgentInfo> message = newMessage(agentInfo, DefaultTBaseLocator.AGENT_INFO);
 
-        requestHandlerAdaptor.request(message, responseObserver);
+        simpleRequestHandlerAdaptor.request(message, responseObserver);
     }
 
 
-    private HeaderEntity newEmptyHeaderEntity() {
-        return new HeaderEntity(Collections.emptyMap());
+    private <T> Message<T> newMessage(T requestData, short type) {
+        final Header header = new HeaderV2(Header.SIGNATURE, HeaderV2.VERSION, type);
+        final HeaderEntity headerEntity = new HeaderEntity(Collections.emptyMap());
+        return new DefaultMessage<T>(header, headerEntity, requestData);
     }
 
 }
