@@ -141,7 +141,7 @@ public enum CheckerCategory {
             return new DeadlockChecker((AgentEventDataCollector) dataCollector, rule);
         }
     },
-    FILE_DESCRIPTOR("FILE DESCRIPTOR", DataCollectorCategory.FILE_DESCRIPTOR) {
+    FILE_DESCRIPTOR("FILE DESCRIPTOR COUNT", DataCollectorCategory.FILE_DESCRIPTOR) {
         @Override
         public AlarmChecker createChecker(DataCollector dataCollector, Rule rule) {
             return new FileDescriptorChecker((FileDescriptorDataCollector) dataCollector, rule);
