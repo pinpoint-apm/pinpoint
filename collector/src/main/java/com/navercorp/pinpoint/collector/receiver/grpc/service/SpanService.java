@@ -61,9 +61,7 @@ public class SpanService extends SpanGrpc.SpanImplBase {
                     logger.debug("Send PSpan={}", MessageFormatUtils.debugLog(pSpan));
                 }
 
-                final Header header = new HeaderV2(Header.SIGNATURE, HeaderV2.VERSION, DefaultTBaseLocator.SPAN);
-                final HeaderEntity headerEntity = new HeaderEntity(new HashMap<String, String>());
-                final Message<PSpan> message = new DefaultMessage<PSpan>(header, headerEntity, pSpan);
+                final Message<PSpan> message = newMessage(pSpan, DefaultTBaseLocator.SPAN);
                 send(responseObserver, message);
             }
 
@@ -91,9 +89,7 @@ public class SpanService extends SpanGrpc.SpanImplBase {
                     logger.debug("Send PSpanChunk={}", MessageFormatUtils.debugLog(pSpanChunk));
                 }
 
-                final Header header = new HeaderV2(Header.SIGNATURE, HeaderV2.VERSION, DefaultTBaseLocator.SPANCHUNK);
-                final HeaderEntity headerEntity = new HeaderEntity(new HashMap<>());
-                Message<PSpanChunk> message = new DefaultMessage<>(header, headerEntity, pSpanChunk);
+                Message<PSpanChunk> message = newMessage(pSpanChunk, DefaultTBaseLocator.SPANCHUNK);
                 send(responseObserver, message);
             }
 
@@ -111,6 +107,12 @@ public class SpanService extends SpanGrpc.SpanImplBase {
         };
 
         return observer;
+    }
+
+    private <T> Message<T> newMessage(T requestData, short serviceType) {
+        final Header header = new HeaderV2(Header.SIGNATURE, HeaderV2.VERSION, serviceType);
+        final HeaderEntity headerEntity = new HeaderEntity(new HashMap<>());
+        return new DefaultMessage<>(header, headerEntity, requestData);
     }
 
     private void send(StreamObserver<Empty> responseObserver, final Message<?> message) {
