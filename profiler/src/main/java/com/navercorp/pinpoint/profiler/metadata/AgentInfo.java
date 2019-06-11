@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.profiler.metadata;
 
 import com.navercorp.pinpoint.bootstrap.context.ServerMetaData;
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.AgentInformation;
 import com.navercorp.pinpoint.profiler.JvmInformation;
 
@@ -24,31 +25,34 @@ import com.navercorp.pinpoint.profiler.JvmInformation;
  * @author jaehong.kim
  */
 public class AgentInfo {
-    private AgentInformation agentInformation;
-    private ServerMetaData serverMetaData;
-    private JvmInformation jvmInformation;
+    private final AgentInformation agentInformation;
+    private final ServerMetaData serverMetaData;
+    private final JvmInformation jvmInformation;
+
+    public AgentInfo(AgentInformation agentInformation, ServerMetaData serverMetaData, JvmInformation jvmInformation) {
+        this.agentInformation = Assert.requireNonNull(agentInformation, "agentInformation must not be null");
+        this.serverMetaData = Assert.requireNonNull(serverMetaData, "serverMetaData must not be null");
+        this.jvmInformation = Assert.requireNonNull(jvmInformation, "jvmInformation must not be null");
+    }
 
     public AgentInformation getAgentInformation() {
         return agentInformation;
-    }
-
-    public void setAgentInformation(AgentInformation agentInformation) {
-        this.agentInformation = agentInformation;
     }
 
     public ServerMetaData getServerMetaData() {
         return serverMetaData;
     }
 
-    public void setServerMetaData(ServerMetaData serverMetaData) {
-        this.serverMetaData = serverMetaData;
-    }
-
     public JvmInformation getJvmInfo() {
         return jvmInformation;
     }
 
-    public void setJvmInfo(JvmInformation jvmInformation) {
-        this.jvmInformation = jvmInformation;
+    @Override
+    public String toString() {
+        return "AgentInfo{" +
+                "agentInformation=" + agentInformation +
+                ", serverMetaData=" + serverMetaData +
+                ", jvmInformation=" + jvmInformation +
+                '}';
     }
 }

@@ -149,7 +149,7 @@ public abstract class GrpcDataSender implements DataSender<Object> {
 
         @Override
         public void onError(Throwable t) {
-            logger.info("{} onError:{}", name, t);
+            logger.info("{} onError:{}", name, t.getMessage(), t);
             reconnect(reconnectJob);
         }
 
