@@ -62,9 +62,7 @@ public class StatService extends StatGrpc.StatImplBase {
                     logger.debug("Send PAgentStat={}", MessageFormatUtils.debugLog(agentStat));
                 }
 
-                final Header header = new HeaderV2(Header.SIGNATURE, HeaderV2.VERSION, DefaultTBaseLocator.AGENT_STAT);
-                final HeaderEntity headerEntity = new HeaderEntity(new HashMap<>());
-                final Message<PAgentStat> message = new DefaultMessage<PAgentStat>(header, headerEntity, agentStat);
+                final Message<PAgentStat> message = newMessage(agentStat, DefaultTBaseLocator.AGENT_STAT);
                 send(responseObserver, message);
             }
 
@@ -83,6 +81,12 @@ public class StatService extends StatGrpc.StatImplBase {
         return observer;
     }
 
+    private <T> Message<T> newMessage(T requestData, short serviceType) {
+        final Header header = new HeaderV2(Header.SIGNATURE, HeaderV2.VERSION, serviceType);
+        final HeaderEntity headerEntity = new HeaderEntity(new HashMap<>());
+        return new DefaultMessage<>(header, headerEntity, requestData);
+    }
+
     @Override
     public StreamObserver<PAgentStatBatch> sendAgentStatBatch(StreamObserver<Empty> responseObserver) {
         StreamObserver<PAgentStatBatch> observer = new StreamObserver<PAgentStatBatch>() {
@@ -92,9 +96,7 @@ public class StatService extends StatGrpc.StatImplBase {
                     logger.debug("Send PAgentStatBatch={}", MessageFormatUtils.debugLog(agentStatBatch));
                 }
 
-                final Header header = new HeaderV2(Header.SIGNATURE, HeaderV2.VERSION, DefaultTBaseLocator.AGENT_STAT);
-                final HeaderEntity headerEntity = new HeaderEntity(new HashMap<>());
-                final Message<PAgentStatBatch> message = new DefaultMessage<PAgentStatBatch>(header, headerEntity, agentStatBatch);
+                final Message<PAgentStatBatch> message = newMessage(agentStatBatch, DefaultTBaseLocator.AGENT_STAT);
                 send(responseObserver, message);
             }
 
