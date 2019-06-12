@@ -11,12 +11,12 @@
 
 Pinpoint has started to support application written in PHP. [Check-out our php-agent repository](https://github.com/naver/pinpoint-c-agent).
 
-## Latest Release (2019/01/02)
+## Latest Release (2019/03/27)
 
-We're happy to announce the release of Pinpoint v1.8.1.
-Please check the release note at (https://github.com/naver/pinpoint/releases/tag/1.8.1).
+We're happy to announce the release of Pinpoint v1.8.3.
+Please check the release note at (https://github.com/naver/pinpoint/releases/tag/1.8.3).
 
-The current stable version is [v1.8.1](https://github.com/naver/pinpoint/releases/tag/1.8.1).
+The current stable version is [v1.8.3](https://github.com/naver/pinpoint/releases/tag/1.8.3).
 
 ## About Pinpoint
 
@@ -56,8 +56,8 @@ For a more intimate guide, please check out our *[Introduction to Pinpoint](http
 
 ## Supported Modules
 * JDK 6+
-* [Tomcat 6/7/8/9](https://github.com/naver/pinpoint/tree/master/plugins/tomcat), [Jetty 8/9](https://github.com/naver/pinpoint/tree/master/plugins/jetty), [JBoss EAP 6/7](https://github.com/naver/pinpoint/tree/master/plugins/jboss), [Resin 4](https://github.com/naver/pinpoint/tree/master/plugins/resin), [Websphere 6/7/8](https://github.com/naver/pinpoint/tree/master/plugins/websphere), [Vertx 3.3/3.4/3.5](https://github.com/naver/pinpoint/tree/master/plugins/vertx), [Weblogic 10/11g/12c](https://github.com/naver/pinpoint/tree/master/plugins/weblogic), Undertow
-* Spring, Spring Boot (Embedded Tomcat, Jetty), Spring asynchronous communication
+* [Tomcat 6/7/8/9](https://github.com/naver/pinpoint/tree/master/plugins/tomcat), [Jetty 8/9](https://github.com/naver/pinpoint/tree/master/plugins/jetty), [JBoss EAP 6/7](https://github.com/naver/pinpoint/tree/master/plugins/jboss), [Resin 4](https://github.com/naver/pinpoint/tree/master/plugins/resin), [Websphere 6/7/8](https://github.com/naver/pinpoint/tree/master/plugins/websphere), [Vertx 3.3/3.4/3.5](https://github.com/naver/pinpoint/tree/master/plugins/vertx), [Weblogic 10/11g/12c](https://github.com/naver/pinpoint/tree/master/plugins/weblogic), [Undertow](https://github.com/naver/pinpoint/tree/master/plugins/undertow)
+* Spring, Spring Boot (Embedded Tomcat, Jetty, Undertow), Spring asynchronous communication
 * Apache HTTP Client 3.x/4.x, JDK HttpConnector, GoogleHttpClient, OkHttpClient, NingAsyncHttpClient, Akka-http, Apache CXF
 * Thrift Client, Thrift Service, DUBBO PROVIDER, DUBBO CONSUMER, GRPC
 * ActiveMQ, RabbitMQ, Kafka
@@ -106,9 +106,11 @@ Agent Version | Collector 1.0.x | Collector 1.1.x | Collector 1.5.x | Collector 
 
 Flink compatibility table:
 
-Pinpoint Version | flink 1.3.X | flink 1.4.X
----------------- | ----------- | ----------- 
-1.7.x | yes | no |
+Pinpoint Version | flink 1.3.X | flink 1.4.X | flink 1.5.X | flink 1.6.X | flink 1.7.X
+---------------- | ----------- | ----------- | ----------- | ----------- | ----------- 
+1.7.x | yes | yes | no | no | no |
+1.8.x | yes | yes | no | no | no |
+1.9.x | yes | yes | yes | yes | yes |
 
 ## User Group
 For Q/A and discussion [here](https://groups.google.com/forum/#!forum/pinpoint_user).

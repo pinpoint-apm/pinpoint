@@ -26,7 +26,6 @@
         [toY]="toY"
         [application]="application"
         [agent]="selectedAgent"
-        [typeInfo]="typeInfo"
         [timezone]="timezone"
         [dateFormat]="dateFormat"
         [i18nText]="i18nText"
@@ -36,8 +35,11 @@
     ></pp-scatter-chart>
     <pp-scatter-chart-state-view
         [instanceKey]="instanceKey"
-        [typeInfo]="typeInfo"
-        [typeCount]="typeCount"
+        [transactionTypeCount]="typeCount"
         (outChanged)="onChangedSelectType($event)"
     ></pp-scatter-chart-state-view>
+    <div class="l-popup-block-message" *ngIf="showBlockMessagePopup">
+        <div class="l-button" (click)="onCloseBlockMessage()"><i class="fas fa-times-circle"></i></div>
+        <div class="l-message" [innerHTML]="i18nText.POPUP_BLOCK_MESSAGE"></div>
+    </div>    
 </article>

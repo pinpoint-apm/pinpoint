@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef, ComponentFactoryResolver, Injector } from '@angular/core';
 import { trigger, state, style, animate, transition } from '@angular/animations';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -28,10 +28,10 @@ import { ServerErrorPopupContainerComponent } from 'app/core/components/server-e
                 left: '0px'
             })),
             state('end', style({
-                left: '-809px'
+                left: '-825px'
             })),
             transition('* => *', [
-                animate('0.2s 0.5s ease-out')
+                animate('0.2s 0s ease-out')
             ])
         ]),
         trigger('chartAnimationTrigger', [
@@ -39,7 +39,7 @@ import { ServerErrorPopupContainerComponent } from 'app/core/components/server-e
                 left: '0px'
             })),
             state('end', style({
-                left: '-461px'
+                left: '-477px'
             })),
             transition('* => *', [
                 animate('0.2s 0s ease-out')
@@ -63,6 +63,8 @@ export class InfoPerServerContainerComponent implements OnInit, OnDestroy {
         private agentHistogramDataService: AgentHistogramDataService,
         private dynamicPopupService: DynamicPopupService,
         private analyticsService: AnalyticsService,
+        private componentFactoryResolver: ComponentFactoryResolver,
+        private injector: Injector
     ) {}
     ngOnInit() {
         this.connectStore();
@@ -103,6 +105,9 @@ export class InfoPerServerContainerComponent implements OnInit, OnDestroy {
                                 contents: error
                             },
                             component: ServerErrorPopupContainerComponent
+                        }, {
+                            resolver: this.componentFactoryResolver,
+                            injector: this.injector
                         });
                         this.storeHelperService.dispatch(new Actions.ChangeServerMapDisableState(false));
                         this.storeHelperService.dispatch(new Actions.ChangeInfoPerServerVisibleState(false));
@@ -139,12 +144,6 @@ export class InfoPerServerContainerComponent implements OnInit, OnDestroy {
     }
     onOpenInspector(agentName: string): void {
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.OPEN_INSPECTOR_WITH_AGENT);
-        this.urlRouteManagerService.openPage([
-            UrlPath.INSPECTOR,
-            this.newUrlStateNotificationService.getPathValue(UrlPathId.APPLICATION).getUrlStr(),
-            this.newUrlStateNotificationService.getPathValue(UrlPathId.PERIOD).getValueWithTime(),
-            this.newUrlStateNotificationService.getPathValue(UrlPathId.END_TIME).getEndTime(),
-            agentName
-        ]);
+        this.urlRouteManagerService.openInspectorPage(false, agentName);
     }
 }

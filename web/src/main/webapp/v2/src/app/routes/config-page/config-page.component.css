@@ -29,27 +29,45 @@
     margin-bottom: 10px;
 }
 
-.l-link {
+.l-depth-0 .l-link {
     display: inline-block;
     width: 100%;
-    padding: 15px 27px;
+    padding: 15px 15px 15px 27px;
+    font-weight: 600;
+    color: rgba(0,0,0,.85);
 }
 
 .l-link:hover {
     cursor: pointer;
     background-color: #eee;
+    color: #4b99e3 !important;
 }
 
 .l-link.active { 
-    color: #FFF !important;
-    background-color: #4b99e3; 
+    color: #4b99e3 !important;
+}
+
+.l-link-with-arrow {
+    display: flex !important;
+    align-items: center;
+}
+
+.l-link-text {
+    flex: 1;
+}
+
+.l-depth-1 .l-link {
+    margin-left: 15px;
+    font-size: 90%;
+    color: rgba(0,0,0,.65);
+    max-width: calc(100% - 15px);
 }
 
 .l-main-section {
     background: #edf2f8;
     width: calc(100% - 240px);
     height: 100%;
-    padding: 20px 15px 0;
+    padding: 20px 15px;
 }
 
 .l-exit-button {
@@ -57,6 +75,6 @@
     background-color: #4b99e3;
     font-size: 20px;
     height: 100%;
-    margin-right: 15px;
+    margin-right: 17px;
     outline: none;
 }

@@ -207,4 +207,9 @@ public class MemoryUserGroupDao implements UserGroupDao {
             }
         }
     }
+
+    @Override
+    public boolean isExistUserGroup(String userGroupId) {
+        return userGroups.containsKey(userGroupId);
+    }
 }

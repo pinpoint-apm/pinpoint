@@ -33,6 +33,11 @@
         <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
         <sniffer.artifactid>java18</sniffer.artifactid>
         <grunt.build.command>build_release_without_lint</grunt.build.command>
+
+        <plugin.frontend.verison>1.6</plugin.frontend.verison>
+        <plugin.frontend.node.verison>v10.15.0</plugin.frontend.node.verison>
+        <plugin.frontend.npm.verison>6.1.0</plugin.frontend.npm.verison>
+        <plugin.frontend.node.install.dir>${basedir}/node_install/node-${plugin.frontend.node.verison}</plugin.frontend.node.install.dir>
     </properties>
 
     <dependencies>
@@ -58,8 +63,17 @@
         </dependency>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
-            <artifactId>pinpoint-plugins</artifactId>
+            <artifactId>pinpoint-plugins-assembly</artifactId>
             <type>pom</type>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-agent-plugins</artifactId>
+            <type>pom</type>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-grpc</artifactId>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
@@ -262,6 +276,11 @@
             <version>1.11</version>
         </dependency>
 
+        <dependency>
+            <groupId>javax.mail</groupId>
+            <artifactId>mail</artifactId>
+        </dependency>
+
         <!-- Test dependencies -->
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
@@ -355,7 +374,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
-                <version>1.8</version>
                 <executions>
                     <execution>
                         <id>prepare-grunt</id>
@@ -385,11 +403,11 @@
             <plugin>
                 <groupId>com.github.eirslett</groupId>
                 <artifactId>frontend-maven-plugin</artifactId>
-                <version>1.5</version>
+                <version>${plugin.frontend.verison}</version>
                 <configuration>
                     <srcdir>${basedir}/target/main/webapp</srcdir>
                     <outputdir>${basedir}/target/main/webapp</outputdir>
-                    <installDirectory>target</installDirectory>
+                    <installDirectory>${plugin.frontend.node.install.dir}</installDirectory>
                 </configuration>
                 <executions>
                     <execution>
@@ -399,8 +417,8 @@
                             <goal>install-node-and-npm</goal>
                         </goals>
                         <configuration>
-                            <nodeVersion>v5.11.1</nodeVersion>
-                            <npmVersion>3.9.6</npmVersion>
+                            <nodeVersion>${plugin.frontend.node.verison}</nodeVersion>
+                            <npmVersion>${plugin.frontend.npm.verison}</npmVersion>
                             <workingDirectory>${basedir}/target</workingDirectory>
                         </configuration>
                     </execution>
@@ -474,9 +492,9 @@
                     <plugin>
                         <groupId>com.github.eirslett</groupId>
                         <artifactId>frontend-maven-plugin</artifactId>
-                        <version>1.5</version>
+                        <version>${plugin.frontend.verison}</version>
                         <configuration>
-                            <installDirectory>target</installDirectory>
+                            <installDirectory>${plugin.frontend.node.install.dir}</installDirectory>
                         </configuration>
                         <executions>
                             <execution>
@@ -486,8 +504,8 @@
                                     <goal>install-node-and-npm</goal>
                                 </goals>
                                 <configuration>
-                                    <nodeVersion>v10.6.0</nodeVersion>
-                                    <npmVersion>6.1.0</npmVersion>
+                                    <nodeVersion>${plugin.frontend.node.verison}</nodeVersion>
+                                    <npmVersion>${plugin.frontend.npm.verison}</npmVersion>
                                     <workingDirectory>${basedir}/target/main/webapp/v2</workingDirectory>
                                 </configuration>
                             </execution>

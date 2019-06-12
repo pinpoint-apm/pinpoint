@@ -14,16 +14,13 @@ export class ApplicationListForConfigurationComponent implements OnInit {
 
     constructor() {}
     ngOnInit() {}
-
     getIconPath(serviceType: string): string {
         return this.funcImagePath(serviceType);
     }
-
     onSelectApp(app: IApplication): void {
         this.outSelectApp.emit(app);
     }
-
-    isListEmpty(): boolean {
+    isEmpty(): boolean {
         return this.applicationList.length === 0;
     }
 }

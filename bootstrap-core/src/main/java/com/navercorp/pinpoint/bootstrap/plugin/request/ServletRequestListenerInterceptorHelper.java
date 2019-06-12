@@ -25,8 +25,10 @@ import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.plugin.RequestRecorderFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.http.HttpStatusCodeRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.proxy.ProxyHttpHeaderRecorder;
+import com.navercorp.pinpoint.bootstrap.plugin.proxy.ProxyRequestRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.request.method.ServletSyncMethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.ParameterRecorder;
 import com.navercorp.pinpoint.common.trace.ServiceType;
@@ -48,18 +50,30 @@ public class ServletRequestListenerInterceptorHelper<T> {
 
     private final Filter<String> excludeUrlFilter;
     private final RequestTraceReader<T> requestTraceReader;
-    private final ProxyHttpHeaderRecorder<T> proxyHttpHeaderRecorder;
     private final ServerRequestRecorder<T> serverRequestRecorder;
     private final HttpStatusCodeRecorder httpStatusCodeRecorder;
 
     private final ParameterRecorder<T> parameterRecorder;
+    private final RequestRecorderFactory requestRecorderFactory;
+    private final ProxyRequestRecorder proxyRequestRecorder;
 
+    @Deprecated
     public ServletRequestListenerInterceptorHelper(final ServiceType serviceType, final TraceContext traceContext, RequestAdaptor<T> requestAdaptor, final Filter<String> excludeUrlFilter, ParameterRecorder<T> parameterRecorder) {
+        this(serviceType, traceContext, requestAdaptor, excludeUrlFilter, parameterRecorder, null);
+    }
+
+    public ServletRequestListenerInterceptorHelper(final ServiceType serviceType, final TraceContext traceContext, RequestAdaptor<T> requestAdaptor, final Filter<String> excludeUrlFilter, ParameterRecorder<T> parameterRecorder, RequestRecorderFactory<T> requestRecorderFactory) {
         this.serviceType = Assert.requireNonNull(serviceType, "serviceType must not be null");
         this.traceContext = Assert.requireNonNull(traceContext, "traceContext must not be null");
         this.requestAdaptor = Assert.requireNonNull(requestAdaptor, "requestAdaptor must not be null");
         this.requestTraceReader = new RequestTraceReader<T>(traceContext, requestAdaptor, true);
-        this.proxyHttpHeaderRecorder = new ProxyHttpHeaderRecorder<T>(traceContext.getProfilerConfig().isProxyHttpHeaderEnable(), requestAdaptor);
+        this.requestRecorderFactory = requestRecorderFactory;
+        if (this.requestRecorderFactory != null) {
+            proxyRequestRecorder = this.requestRecorderFactory.getProxyRequestRecorder(traceContext.getProfilerConfig().isProxyHttpHeaderEnable(), requestAdaptor);
+        } else {
+            // Compatibility 1.8.1
+            proxyRequestRecorder = new ProxyHttpHeaderRecorder<T>(traceContext.getProfilerConfig().isProxyHttpHeaderEnable(), requestAdaptor);
+        }
         this.excludeUrlFilter = defaultFilter(excludeUrlFilter);
         this.parameterRecorder = Assert.requireNonNull(parameterRecorder, "parameterRecorder must not be null");
         this.serverRequestRecorder = new ServerRequestRecorder<T>(requestAdaptor);
@@ -115,7 +129,7 @@ public class ServletRequestListenerInterceptorHelper<T> {
             recorder.recordApi(SERVLET_SYNC_METHOD_DESCRIPTOR);
             this.serverRequestRecorder.record(recorder, request);
             // record proxy HTTP header.
-            this.proxyHttpHeaderRecorder.record(recorder, request);
+            this.proxyRequestRecorder.record(recorder, request);
         }
         return trace;
     }

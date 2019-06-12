@@ -23,12 +23,12 @@ import com.navercorp.pinpoint.profiler.monitor.collector.AgentStatMetricCollecto
 import com.navercorp.pinpoint.profiler.monitor.collector.UnsupportedMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.collector.deadlock.DefaultDeadlockMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.metric.deadlock.DeadlockMetric;
-import com.navercorp.pinpoint.thrift.dto.TDeadlock;
+import com.navercorp.pinpoint.profiler.monitor.metric.deadlock.DeadlockMetricSnapshot;
 
 /**
  * @author Taejin Koo
  */
-public class DeadlockMetricCollectorProvider implements Provider<AgentStatMetricCollector<TDeadlock>> {
+public class DeadlockMetricCollectorProvider implements Provider<AgentStatMetricCollector<DeadlockMetricSnapshot>> {
 
     private final DeadlockMetric deadlockMetric;
 
@@ -38,9 +38,9 @@ public class DeadlockMetricCollectorProvider implements Provider<AgentStatMetric
     }
 
     @Override
-    public AgentStatMetricCollector<TDeadlock> get() {
+    public AgentStatMetricCollector<DeadlockMetricSnapshot> get() {
         if (deadlockMetric == DeadlockMetric.UNSUPPORTED_DEADLOCK_SOURCE_METRIC) {
-            return new UnsupportedMetricCollector<TDeadlock>();
+            return new UnsupportedMetricCollector<DeadlockMetricSnapshot>();
         }
         return new DefaultDeadlockMetricCollector(deadlockMetric);
     }

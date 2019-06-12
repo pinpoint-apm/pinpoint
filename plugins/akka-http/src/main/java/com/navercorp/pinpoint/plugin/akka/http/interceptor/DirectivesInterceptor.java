@@ -33,7 +33,8 @@ import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.bootstrap.plugin.proxy.ProxyHttpHeaderRecorder;
+import com.navercorp.pinpoint.bootstrap.plugin.RequestRecorderFactory;
+import com.navercorp.pinpoint.bootstrap.plugin.proxy.ProxyRequestRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.request.RequestAdaptor;
 import com.navercorp.pinpoint.bootstrap.sampler.SamplingFlagUtils;
 import com.navercorp.pinpoint.bootstrap.util.NetworkUtils;
@@ -55,14 +56,14 @@ public class DirectivesInterceptor implements AroundInterceptor {
     private final MethodDescriptor descriptor;
     private static final AkkaHttpServerMethodDescriptor AKKA_HTTP_SERVER_METHOD_DESCRIPTOR = new AkkaHttpServerMethodDescriptor();
 
-    private final ProxyHttpHeaderRecorder<HttpRequest> proxyHttpHeaderRecorder;
+    private final ProxyRequestRecorder<HttpRequest> proxyRequestRecorder;
 
     private final RequestAdaptor<HttpRequest> requestAdaptor;
     private final Filter<String> excludeHttpMethodFilter;
     private final Filter<String> excludeUrlFilter;
 
 
-    public DirectivesInterceptor(final TraceContext traceContext, final MethodDescriptor methodDescriptor) {
+    public DirectivesInterceptor(final TraceContext traceContext, final MethodDescriptor methodDescriptor, final RequestRecorderFactory<HttpRequest> requestRecorderFactory) {
         this.traceContext = traceContext;
         this.descriptor = methodDescriptor;
 
@@ -70,8 +71,7 @@ public class DirectivesInterceptor implements AroundInterceptor {
         this.excludeUrlFilter = config.getExcludeUrlFilter();
         this.excludeHttpMethodFilter = config.getExcludeHttpMethodFilter();
         this.requestAdaptor = new HttpRequestAdaptor(config);
-        this.proxyHttpHeaderRecorder = new ProxyHttpHeaderRecorder<HttpRequest>(traceContext.getProfilerConfig().isProxyHttpHeaderEnable(), requestAdaptor);
-
+        this.proxyRequestRecorder = requestRecorderFactory.getProxyRequestRecorder(traceContext.getProfilerConfig().isProxyHttpHeaderEnable(), requestAdaptor);
         traceContext.cacheApi(AKKA_HTTP_SERVER_METHOD_DESCRIPTOR);
     }
 
@@ -220,7 +220,7 @@ public class DirectivesInterceptor implements AroundInterceptor {
             recorder.recordRemoteAddress(remoteAddress);
         }
 
-        this.proxyHttpHeaderRecorder.record(recorder, request);
+        this.proxyRequestRecorder.record(recorder, request);
 
         if (!recorder.isRoot()) {
             recordParentInfo(recorder, request);
@@ -282,8 +282,4 @@ public class DirectivesInterceptor implements AroundInterceptor {
         traceContext.removeTraceObject();
         trace.close();
     }
-
-
-
-
 }

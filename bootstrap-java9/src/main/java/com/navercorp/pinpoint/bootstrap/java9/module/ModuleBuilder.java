@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.bootstrap.java9.module;
 
+import com.navercorp.pinpoint.bootstrap.module.Providers;
 import jdk.internal.loader.BootLoader;
 import jdk.internal.module.Modules;
 
@@ -25,7 +26,11 @@ import java.lang.module.ModuleDescriptor;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.jar.JarFile;
 
@@ -55,11 +60,17 @@ class ModuleBuilder {
         logger.info("defineModule classLoader-unnamedModule: " + unnamedModule);
 
 
-        Set<String> packages = getPackages(urls);
+        List<PackageInfo> packageInfos = parsePackageInfo(urls);
+        Set<String> packages = mergePackageInfo(packageInfos);
         logger.info("packages:" + packages);
+        Map<String, Set<String>> serviceInfoMap = mergeServiceInfo(packageInfos);
+        logger.info("providers:" + serviceInfoMap);
 
         ModuleDescriptor.Builder builder = ModuleDescriptor.newModule(moduleName);
         builder.packages(packages);
+        for (Map.Entry<String, Set<String>> entry : serviceInfoMap.entrySet()) {
+            builder.provides(entry.getKey(), new ArrayList<>(entry.getValue()));
+        }
 
         ModuleDescriptor moduleDescriptor = builder.build();
         URI url = getInformationURI(urls);
@@ -67,6 +78,26 @@ class ModuleBuilder {
         Module module = Modules.defineModule(classLoader, moduleDescriptor , url);
         logger.info("defineModule module:" + module);
         return module;
+    }
+
+    private Map<String, Set<String>> mergeServiceInfo(List<PackageInfo> packageInfos) {
+        Map<String, Set<String>> providesMap = new HashMap<>();
+        for (PackageInfo packageInfo : packageInfos) {
+            List<Providers> serviceLoader = packageInfo.getProviders();
+            for (Providers provides : serviceLoader) {
+                Set<String> providerSet = providesMap.computeIfAbsent(provides.getService(), s -> new HashSet<>());
+                providerSet.addAll(provides.getProviders());
+            }
+        }
+        return providesMap;
+    }
+
+    private Set<String> mergePackageInfo(List<PackageInfo> packageInfos) {
+        Set<String> packageSet = new HashSet<>();
+        for (PackageInfo packageInfo : packageInfos) {
+            packageSet.addAll(packageInfo.getPackage());
+        }
+        return packageSet;
     }
 
     private JarFile newJarFile(URL jarFile) {
@@ -96,9 +127,9 @@ class ModuleBuilder {
         return urls == null || urls.length == 0;
     }
 
-    private Set<String> getPackages(URL[] urls) {
+    private List<PackageInfo> parsePackageInfo(URL[] urls) {
 
-        final Set<String> sum = new HashSet<>();
+        final List<PackageInfo> packageInfoList = new ArrayList<>();
         for (URL url : urls) {
             if (!isJar(url)) {
                 continue;
@@ -106,14 +137,14 @@ class ModuleBuilder {
             JarFile jarFile = null;
             try {
                 jarFile = newJarFile(url);
-                PackageAnalyzer packageAnalyzer = new JarPackageAnalyzer(jarFile);
-                Set<String> newPackage = packageAnalyzer.getPackage();
-                sum.addAll(newPackage);
+                PackageAnalyzer packageAnalyzer = new JarFileAnalyzer(jarFile);
+                PackageInfo packageInfo = packageAnalyzer.analyze();
+                packageInfoList.add(packageInfo);
             } finally {
                 close(jarFile);
             }
         }
-        return sum;
+        return packageInfoList;
     }
 
     private boolean isJar(URL url){

@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.web.dao.hbase;
 
 import static org.mockito.Mockito.*;
 
+import com.navercorp.pinpoint.common.hbase.HbaseTable;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.server.bo.AgentLifeCycleBo;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
@@ -51,9 +52,20 @@ public class HbaseAgentLifeCycleDaoTest {
 
     @Spy
     private TableNameProvider tableNameProvider = new TableNameProvider() {
+
+        @Override
+        public TableName getTableName(HbaseTable hBaseTable) {
+            return getTableName(hBaseTable.getName());
+        }
+
         @Override
         public TableName getTableName(String tableName) {
             return TableName.valueOf(tableName);
+        }
+
+        @Override
+        public boolean hasDefaultNameSpace() {
+            return true;
         }
     };
 

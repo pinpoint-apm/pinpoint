@@ -1,61 +1,66 @@
-
 import { Routes } from '@angular/router';
+
 import { UrlPath, UrlPathId } from 'app/shared/models';
 import { MainContentsContainerComponent } from 'app/core/components/main-contents/main-contents-container.component';
-import { EmptyContentsComponent, NoneComponent } from 'app/shared/components/empty-contents';
+import { EmptyContentsComponent } from 'app/shared/components/empty-contents';
 import { UrlRedirectorComponent } from 'app/shared/components/url-redirector';
-// import { UrlValidateGuard } from 'app/shared/services';
-import { SystemConfigurationResolverService, ApplicationListResolverService, ServerTimeResolverService } from 'app/shared/services';
+import { ServerTimeResolverService } from 'app/shared/services';
 import { MainPageComponent } from './main-page.component';
 
 export const routing: Routes = [
     {
         path: '',
         component: MainPageComponent,
-        resolve: {
-            configuration: SystemConfigurationResolverService,
-            applicationList: ApplicationListResolverService
-        },
         children: [
             {
-                path: '',
-                component: EmptyContentsComponent,
-                data: {
-                    showRealTimeButton: false,
-                    enableRealTimeMode: false
-                },
+                path: UrlPath.REAL_TIME,
+                children: [
+                    {
+                        path: '',
+                        pathMatch: 'full',
+                        redirectTo: '/' + UrlPath.MAIN
+                    },
+                    {
+                        path: ':' + UrlPathId.APPLICATION,
+                        resolve: {
+                            serverTime: ServerTimeResolverService
+                        },
+                        data: {
+                            showRealTimeButton: true,
+                            enableRealTimeMode: true
+                        },
+                        component: MainContentsContainerComponent
+                    }
+                ]
+            },
+            // ! URL 순서 바꾸면서 사용자들이 기존의 url로 접근했을때 redirect해주려고 임시로 추가해둠.
+            {
+                path: ':' + UrlPathId.APPLICATION + '/' + UrlPathId.REAL_TIME,
+                pathMatch: 'full',
+                redirectTo: '/' + UrlPath.MAIN + '/' + UrlPath.REAL_TIME + '/:' + UrlPathId.APPLICATION
             },
             {
                 path: ':' + UrlPathId.APPLICATION,
                 children: [
+                    // {
+                    //     path: UrlPath.REAL_TIME,
+                    //     pathMatch: 'full',
+                    //     redirectTo: '/' + UrlPath.MAIN + '/' + UrlPath.REAL_TIME + '/:' + UrlPathId.APPLICATION
+                    // },
                     {
                         path: '',
+                        pathMatch: 'full',
                         data: {
                             path: UrlPath.MAIN
                         },
                         component: UrlRedirectorComponent
                     },
                     {
-                        path: UrlPath.REAL_TIME,
-                        resolve: {
-                            serverTime: ServerTimeResolverService
-                        },
-                        children: [
-                            {
-                                path: '',
-                                component: MainContentsContainerComponent,
-                                data: {
-                                    showRealTimeButton: true,
-                                    enableRealTimeMode: true
-                                }
-                            }
-                        ]
-                    },
-                    {
                         path: ':' + UrlPathId.PERIOD,
                         children: [
                             {
                                 path: '',
+                                pathMatch: 'full',
                                 data: {
                                     path: UrlPath.MAIN
                                 },
@@ -63,95 +68,21 @@ export const routing: Routes = [
                             },
                             {
                                 path: ':' + UrlPathId.END_TIME,
-                                children: [
-                                    {
-                                        path: '',
-                                        component: MainContentsContainerComponent,
-                                        data: {
-                                            showRealTimeButton: true,
-                                            enableRealTimeMode: false
-                                        }
-                                    }
-                                ]
+                                data: {
+                                    showRealTimeButton: true,
+                                    enableRealTimeMode: false
+                                },
+                                component: MainContentsContainerComponent
                             }
                         ]
                     }
                 ]
+            },
+            {
+                path: '',
+                pathMatch: 'full',
+                component: EmptyContentsComponent
             }
         ]
     }
 ];
-
-// export const routing: Routes = [
-//     {
-//         path: UrlPath.MAIN,
-//         component: MainPageComponent,
-//         canActivate: [ UrlValidateGuard ],
-//         resolve: {
-//             configuration: SystemConfigurationResolverService,
-//             applicationList: ApplicationListResolverService
-//         },
-//         children: [
-//             {
-//                 path: '',
-//                 component: EmptyContentsComponent,
-//                 data: {
-//                     showRealTimeButton: false,
-//                     enableRealTimeMode: false
-//                 },
-//             },
-//             {
-//                 path: ':' + UrlPathId.APPLICATION + '/' + UrlPath.REAL_TIME,
-//                 resolve: {
-//                     serverTime: ServerTimeResolverService
-//                 },
-//                 children: [
-//                     {
-//                         path: '',
-//                         component: MainContentsContainerComponent,
-//                         data: {
-//                             showRealTimeButton: true,
-//                             enableRealTimeMode: true
-//                         }
-//                     },
-//                     {
-//                         path: '',
-//                         component: SideBarContainerComponent,
-//                         outlet: 'sidebar'
-//                     },
-//                     {
-//                         path: '',
-//                         component: RealTimeContainerComponent,
-//                         outlet: 'realtime'
-//                     }
-//                 ]
-//             },
-//             {
-//                 path: ':' + UrlPathId.APPLICATION,
-//                 component: NoneComponent
-//             },
-//             {
-//                 path: ':' + UrlPathId.APPLICATION + '/:' + UrlPathId.PERIOD,
-//                 component: NoneComponent
-//             },
-//             {
-//                 path: ':' + UrlPathId.APPLICATION + '/:' + UrlPathId.PERIOD + '/:' + UrlPathId.END_TIME,
-//                 children: [
-//                     {
-//                         path: '',
-//                         component: MainContentsContainerComponent,
-//                         data: {
-//                             showRealTimeButton: true,
-//                             enableRealTimeMode: false
-//                         }
-//                     },
-//                     {
-//                         path: '',
-//                         component: SideBarContainerComponent,
-//                         outlet: 'sidebar'
-//                     }
-//                 ]
-//             }
-//         ]
-//     }
-// ];

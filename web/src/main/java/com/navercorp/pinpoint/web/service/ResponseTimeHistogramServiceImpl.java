@@ -129,7 +129,7 @@ public class ResponseTimeHistogramServiceImpl implements ResponseTimeHistogramSe
             node.setNodeHistogram(nodeHistogram);
             ServerInstanceList serverInstanceList = serverInstanceListFactory.createWasNodeInstanceList(node, range.getTo());
             return new NodeHistogramSummary(serverInstanceList, nodeHistogram);
-        } else if (applicationServiceType.isTerminal() || applicationServiceType.isUnknown()) {
+        } else if (applicationServiceType.isTerminal() || applicationServiceType.isUnknown() || applicationServiceType.isAlias()) {
             if (sourceApplications.isEmpty()) {
                 return createEmptyNodeHistogramSummary(application, range);
             }
@@ -138,7 +138,7 @@ public class ResponseTimeHistogramServiceImpl implements ResponseTimeHistogramSe
             LinkDataDuplexMap linkDataDuplexMap = linkSelector.select(sourceApplications, range, 1, 0);
 
             ServerInstanceList serverInstanceList = serverInstanceListFactory.createEmptyNodeInstanceList();
-            if (applicationServiceType.isTerminal()) {
+            if (applicationServiceType.isTerminal() || applicationServiceType.isAlias()) {
                 serverInstanceList = serverInstanceListFactory.createTerminalNodeInstanceList(node, linkDataDuplexMap);
             }
 

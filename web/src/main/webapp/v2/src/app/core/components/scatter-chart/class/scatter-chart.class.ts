@@ -58,13 +58,6 @@ export interface IOptions {
     timezone: string;
     dateFormat: string[];
 }
-export interface ITypeInfo {
-    index?: number;
-    name?: string;
-    color: string;
-    order: number;
-    checked?: boolean;
-}
 
 export class ScatterChart {
     static MODE = {
@@ -84,14 +77,14 @@ export class ScatterChart {
 
     private downloadElement: HTMLElement;
 
-    private outTransactionCount: BehaviorSubject<{ [key: string]: number }>;
+    private outTransactionCount: BehaviorSubject<{[key: string]: {count: number, checked: boolean}}>;
     private outSelect: Subject<any> = new Subject();
     private outError: Subject<any> = new Subject();
     private outChangeRangeX: Subject<{from: number, to: number}> = new Subject();
     onSelect$: Observable<any>;
     onError$: Observable<any>;
     onChangeRangeX$: Observable<{from: number, to: number}>;
-    onChangeTransactionCount$: Observable<{ [key: string]: number }>;
+    onChangeTransactionCount$: Observable<{[key: string]: {count: number, checked: boolean}}>;
 
     constructor(
         private mode: string,
@@ -100,7 +93,6 @@ export class ScatterChart {
         private toX: number,
         private fromY: number,
         private toY: number,
-        typeInfos: ITypeInfo[],
         private application: string,
         agent: string,
         private width: number,
@@ -111,7 +103,7 @@ export class ScatterChart {
         this.downloadElement = document.createElement('a');
         this.selectedAgent = agent;
         this.setOptions();
-        this.initManagers(typeInfos);
+        this.initManagers();
 
         this.onSelect$ = this.outSelect.asObservable();
         this.onError$ = this.outError.asObservable();
@@ -119,26 +111,29 @@ export class ScatterChart {
         this.outTransactionCount = new BehaviorSubject(this.getTransactionCount(true));
         this.onChangeTransactionCount$ = this.outTransactionCount.asObservable();
     }
-    private isAllowedAgent(agent: string): boolean {
-        return this.selectedAgent === '' || this.selectedAgent === agent;
+    private isAllowedAgent(selectedAgent: string, agent: string): boolean {
+        return selectedAgent === '' || selectedAgent === agent;
     }
     private getTransactionCount(isInit: boolean) {
-        const count: { [key: string]: number } = { };
+        const count: {[key: string]: {count: number, checked: boolean}} = {};
         const xRange = this.coordinateManager.getX();
-        if (isInit) {
+        // if (isInit) {
             this.typeManager.getTypeNameList().forEach((typeName: string) => {
-                count[typeName] = 0;
+                count[typeName] = {
+                    count: 0,
+                    checked: this.typeManager.isCheckedByName(typeName)
+                };
             });
-        } else {
+        if (isInit === false) {
             this.typeManager.getTypeNameList().forEach((typeName: string) => {
-                count[typeName] = 0;
+                count[typeName].count = 0;
                 this.dataBlocks.forEach((dataBlock: ScatterChartDataBlock) => {
                     const dataBlockXRange = dataBlock.getXRange();
                     if (dataBlockXRange.to >= xRange.from) {
                         const agentList = dataBlock.getAgentList();
                         agentList.forEach((agentName: string) => {
-                            if (this.isAllowedAgent(agentName)) {
-                                count[typeName] += dataBlock.getCount(agentName, typeName, xRange.from, xRange.to);
+                            if (this.isAllowedAgent(this.selectedAgent, agentName)) {
+                                count[typeName].count += dataBlock.getCount(agentName, typeName, xRange.from, xRange.to);
                             }
                         });
                     }
@@ -199,8 +194,8 @@ export class ScatterChart {
             dateFormat: this.dateFormat
         };
     }
-    private initManagers(typeInfos: ITypeInfo[]): void {
-        this.typeManager = new ScatterChartTransactionTypeManager(typeInfos);
+    private initManagers(): void {
+        this.typeManager = new ScatterChartTransactionTypeManager(ScatterChartTransactionTypeManager.getDefaultTransactionTypeInfo());
         this.coordinateManager = new ScatterChartSizeCoordinateManager(this.options);
         this.gridRenderer = new ScatterChartGridRenderer(this.options, this.coordinateManager, this.element);
         this.axisRenderer = new ScatterChartAxisRenderer(this.options, this.coordinateManager, this.element);
@@ -237,12 +232,13 @@ export class ScatterChart {
             this.drawDataBlock(dataBlock);
         });
     }
-    reset(application: string, agent: string, fromX: number, toX: number, mode: string): void {
+    reset(application: string, agent: string, fromX: number, toX: number, mode: string, typeCheck?: any): void {
         this.fromX = fromX;
         this.toX = toX;
         this.options.mode = this.mode = mode;
         this.coordinateManager.resetInitX(fromX);
         this.coordinateManager.setX(fromX, toX);
+        this.typeManager.reset();
         this.application = application;
         this.selectedAgent = agent;
 
@@ -250,6 +246,9 @@ export class ScatterChart {
         this.agentList = [];
         this.axisRenderer.reset();
         this.rendererManager.reset();
+        if (typeCheck) {
+            this.changeShowType(typeCheck);
+        }
         this.outTransactionCount.next(this.getTransactionCount(true));
     }
     addAgent(agentList: string[]): void {
@@ -342,12 +341,12 @@ export class ScatterChart {
                 }
                 const transactionData = dataBlock.getDataByIndex(j);
                 const agentName =  dataBlock.getAgentName(transactionData);
-                if (selectedAgent === '' || selectedAgent === agentName) {
+                if (this.isAllowedAgent(selectedAgent, agentName)) {
                     const x = dataBlock.getX(transactionData);
                     const y = dataBlock.getY(transactionData);
 
                     if (this.isInRange(fromX, toX, x)) {
-                        if (this.isInRange(fromY, toY, y) || (y > toY && toY <= yRange.to)) {
+                        if (this.isInRange(fromY, toY, y) || (y > toY && toY >= yRange.to) || (y < fromY && fromY <= yRange.from)) {
                             if (typeChecker[this.typeManager.getNameByIndex(dataBlock.getTypeIndex(transactionData))] === true) {
                                 data.push([dataBlock.getTransactionID(transactionData), x, y]);
                             }
@@ -371,12 +370,12 @@ export class ScatterChart {
             for (let j = 0, len = dataBlock.getTotalCount() ; j < len ; j++) {
                 const transactionData = dataBlock.getDataByIndex(j);
                 const agentName =  dataBlock.getAgentName(transactionData);
-                if (this.isAllowedAgent(agentName)) {
+                if (this.isAllowedAgent(this.selectedAgent, agentName)) {
                     const x = dataBlock.getX(transactionData);
                     const y = dataBlock.getY(transactionData);
                     if (this.isInRange(fromX, toX, x)) {
-                        if (this.typeManager.isCheckedByIndex(dataBlock.getTypeIndex(transactionData))) {
-                            if (this.isInRange(fromY, toY, y) || y > toY && toY <= yRange.to) {
+                        if (this.isInRange(fromY, toY, y) || (y > toY && toY >= yRange.to) || (y < fromY && fromY <= yRange.from)) {
+                            if (this.typeManager.isCheckedByIndex(dataBlock.getTypeIndex(transactionData))) {
                                 return true;
                             }
                         }

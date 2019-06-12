@@ -22,15 +22,15 @@ package com.navercorp.pinpoint.web.calltree.span;
 public class LinkedCallTree implements CallTree {
     private CallTreeNode root;
 
-    public LinkedCallTree(final SpanAlign spanAlign) {
-        this.root = new CallTreeNode(null, spanAlign);
+    public LinkedCallTree(final Align align) {
+        this.root = new CallTreeNode(null, align);
     }
 
     public void update(final CallTree callTree) {
         final CallTreeNode updateNode = callTree.getRoot();
         this.root.setChild(updateNode.getChild());
         updateNode.setParent(this.root.getParent());
-        this.root.setValue(updateNode.getValue());
+        this.root.setAlign(updateNode.getAlign());
     }
 
     public void remove() {
@@ -84,7 +84,7 @@ public class LinkedCallTree implements CallTree {
 
     @Override
     public boolean isEmpty() {
-        return root.getValue() == null;
+        return root.getAlign() == null;
     }
 
     @Override
@@ -98,7 +98,7 @@ public class LinkedCallTree implements CallTree {
     }
 
     @Override
-    public void add(int depth, SpanAlign spanAlign) {
+    public void add(int depth, Align align) {
         throw new UnsupportedOperationException();
     }
 

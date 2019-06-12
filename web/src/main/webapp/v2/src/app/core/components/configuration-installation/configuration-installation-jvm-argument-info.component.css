@@ -1,15 +1,6 @@
 :host {
     display: block;
-    border: 1px solid #e5e8f0;
-    border-left: 5px solid #4a8fd2;
-    padding: 25px 20px;
     position: relative;
-    background-color: #fff;
-}
-
-h4 {
-    font-weight: 600;
-    margin-bottom: 10px;
 }
 
 .contents-wrapper {
@@ -18,12 +9,23 @@ h4 {
 
 .textarea-wrapper {
     position: relative;
-    width: 60%;
+    width: 100%;
 }
 
 .copied-noti-text-wrapper {
-    width: 40%;
-    position: relative;
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(0,0,0,.7);
+    width: 15%;
+    height: 50%;
+    margin: auto;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 20px;
 }
 
 .jvm-argument-info {
@@ -55,8 +57,7 @@ h4 {
 }
 
 .copied-noti-text {
-    position: absolute;
-    top: 25px;
-    left: 50%;
     font-size: 15px;
+    font-weight: 600;
+    color: #fff;
 }

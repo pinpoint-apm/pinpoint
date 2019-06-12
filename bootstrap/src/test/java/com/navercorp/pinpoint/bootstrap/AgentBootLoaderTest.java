@@ -44,7 +44,7 @@ public class AgentBootLoaderTest {
         Instrumentation instrumentation = mock(Instrumentation.class);
         AgentOption option = new DefaultAgentOption(instrumentation, "testCaseAgent", "testCaseAppName", false, new DefaultProfilerConfig(), Collections.<String>emptyList(), null);
         Agent boot = agentBootLoader.boot(option);
-
+        boot.start();
         boot.stop();
     }
 

@@ -67,6 +67,8 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
  *
  * <tr><td>1130</td><td>GRPC_SERVER</td></tr>
  *
+ * <tr><td>1400</td><td>NODE</td></tr>
+ * <tr><td>1401</td><td>NODE_METHOD</td></tr>
  * <tr><td>1500</td><td>PHP</td></tr>
  * <tr><td>1501</td><td>PHP_METHOD</td></tr>
  * <tr><td>1620</td><td>OPENWHISK_INTERNAL</td></tr>
@@ -122,6 +124,7 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
  * <tr><td>5050</td><td>SPRING</td></tr>
  * <tr><td>5051</td><td>SPRING_MVC</td></tr>
  * <tr><td>5052</td><td>SPRING_ASYNC</td></tr>
+ * <tr><td>5053</td><td>SPRING_WEBFLUX</td></tr>
  * <tr><td>5061</td><td><i>RESERVED</i></td></tr>
  * <tr><td>5071</td><td>SPRING_BEAN</td></tr>
  * <tr><td>5500</td><td>IBATIS</td></tr>
@@ -132,6 +135,10 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
  * <tr><td>6060</td><td>HIKARICP</td></tr>
  * <tr><td>6062</td><td>DRUID</td></tr>
  * <tr><td>6500</td><td>RXJAVA</td></tr>
+ * <tr><td>6600</td><td>EXPRESS</td></tr>
+ * <tr><td>6610</td><td>KOA</td></tr>
+ * <tr><td>6620</td><td>HAPI</td></tr>
+ * <tr><td>6630</td><td>RESTIFY</td></tr>
  * <tr><td>7010</td><td>USER_INCLUDE</td></tr>
  * </table>
  *
@@ -147,6 +154,9 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
  * <tr><td>8103</td><td>ARCUS_INTERNAL</td></tr>
  * <tr><td>8200</td><td>REDIS</td></tr>
  * <tr><td>8201</td><td>REDIS_LETTUCE</td></tr>
+ * <tr><td>8202</td><td>IOREDIS</td></tr>
+ * <tr><td>8203</td><td>REDIS_REDISSON</td></tr>
+ * <tr><td>8204</td><td>REDIS_REDISSON_INTERNAL</td></tr>
  * <tr><td>8250</td><td><i>RESERVED</i></td></tr>
  * <tr><td>8251</td><td><i>RESERVED</i></td></tr>
  * <tr><td>8260</td><td><i>RESERVED</i></td></tr>
@@ -192,6 +202,7 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
  * <tr><td>9150</td><td>NETTY</td></tr>
  * <tr><td>9151</td><td>NETTY_INTERNAL</td></tr>
  * <tr><td>9152</td><td>NETTY_HTTP</td></tr>
+ * <tr><td>9153</td><td>SPRING_WEBFLUX_CLIENT</td></tr>
  * <tr><td>9160</td><td>GRPC</td></tr>
  * <tr><td>9161</td><td>GRPC_INTERNAL</td></tr>
  * <tr><td>9162</td><td>GRPC_SERVER_INTERNAL</td></tr>
@@ -230,9 +241,9 @@ public interface ServiceType {
     // return true when the service type is USER or can not be identified
     boolean isUser();
 
-
-
     boolean isTerminal();
+
+    boolean isAlias();
 
     boolean isQueue();
 

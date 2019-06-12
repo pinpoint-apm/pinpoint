@@ -52,10 +52,9 @@
     <bean id="config" class="com.navercorp.pinpoint.web.config.WebConfig">
     </bean>
     
-    <bean id="commandHeaderTBaseSerializerFactory" class="com.navercorp.pinpoint.thrift.io.CommandHeaderTBaseSerializerFactory">
+    <bean id="commandHeaderTBaseSerializerFactory" class="com.navercorp.pinpoint.thrift.io.CommandHeaderTBaseSerializerFactory" factory-method="getDefaultInstance">
     </bean>
-
-    <bean id="commandHeaderTBaseDeserializerFactory" class="com.navercorp.pinpoint.thrift.io.CommandHeaderTBaseDeserializerFactory">
+    <bean id="commandHeaderTBaseDeserializerFactory" class="com.navercorp.pinpoint.thrift.io.CommandHeaderTBaseDeserializerFactory" factory-method="getDefaultInstance">
     </bean>
     <bean id="agentEventHeaderTBaseDeserializerFactory" class="com.navercorp.pinpoint.thrift.io.AgentEventHeaderTBaseDeserializerFactory">
     </bean>
@@ -90,14 +89,12 @@
         <constructor-arg index="0" ref="slf4jCommonLoggerFactory"/>
     </bean>
 
-    <bean id="serviceTypeRegistryService" class="com.navercorp.pinpoint.common.service.DefaultServiceTypeRegistryService">
+    <bean id="serviceTypeRegistryService" class="com.navercorp.pinpoint.loader.service.DefaultServiceTypeRegistryService">
         <constructor-arg ref="typeLoaderService"/>
-        <constructor-arg ref="slf4jCommonLoggerFactory"/>
     </bean>
 
-    <bean id="annotationKeyRegistryService" class="com.navercorp.pinpoint.common.service.DefaultAnnotationKeyRegistryService">
+    <bean id="annotationKeyRegistryService" class="com.navercorp.pinpoint.loader.service.DefaultAnnotationKeyRegistryService">
         <constructor-arg ref="typeLoaderService"/>
-        <constructor-arg ref="slf4jCommonLoggerFactory"/>
     </bean>
     
     <bean id="spanServiceImpl" class="com.navercorp.pinpoint.web.service.SpanServiceImpl">

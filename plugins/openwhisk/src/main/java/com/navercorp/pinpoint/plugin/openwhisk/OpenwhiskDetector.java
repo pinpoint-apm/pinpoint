@@ -15,41 +15,27 @@
  */
 package com.navercorp.pinpoint.plugin.openwhisk;
 
-import com.navercorp.pinpoint.bootstrap.plugin.ApplicationTypeDetector;
-import com.navercorp.pinpoint.bootstrap.resolver.ConditionProvider;
+import com.navercorp.pinpoint.bootstrap.resolver.condition.ClassResourceCondition;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
 /**
  * @author Seonghyun Oh
  */
-public class OpenwhiskDetector implements ApplicationTypeDetector {
+public class OpenwhiskDetector {
 
-    private static final String CONTROLLER_REQUIRED_CLASS = "whisk.core.controller.Controller";
+    private static final String CONTROLLER_REQUIRED_CLASS = "org.apache.openwhisk.core.controller.Controller";
 
-    private static final String INVOKER_REQUIRED_CLASS = "whisk.core.invoker.Invoker";
+    private static final String INVOKER_REQUIRED_CLASS = "org.apache.openwhisk.core.invoker.Invoker";
 
-    private ServiceType applicationType = OpenwhiskConstants.OPENWHISK_INTERNAL;
-
-    @Override
-    public ServiceType getApplicationType() {
-        return this.applicationType;
-    }
-
-    @Override
-    public boolean detect(ConditionProvider provider) {
-        return setOpenwhiskApplicationType(provider);
-    }
-
-    private boolean setOpenwhiskApplicationType(ConditionProvider provider) {
-        if (provider.checkForClass(CONTROLLER_REQUIRED_CLASS)) {
-            this.applicationType = OpenwhiskConstants.OPENWHISK_CONTROLLER;
-            return true;
-        } else if (provider.checkForClass(INVOKER_REQUIRED_CLASS)) {
-            this.applicationType = OpenwhiskConstants.OPENWHISK_INVOKER;
-            return true;
+    public ServiceType detectApplicationType() {
+        boolean controllerClassPresent = ClassResourceCondition.INSTANCE.check(CONTROLLER_REQUIRED_CLASS);
+        if (controllerClassPresent) {
+            return OpenwhiskConstants.OPENWHISK_CONTROLLER;
         }
-
-        return false;
+        boolean invokerClassPresent = ClassResourceCondition.INSTANCE.check(INVOKER_REQUIRED_CLASS);
+        if (invokerClassPresent) {
+            return OpenwhiskConstants.OPENWHISK_INVOKER;
+        }
+        return ServiceType.UNKNOWN;
     }
-
 }

@@ -1,8 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ComponentFactoryResolver, Injector } from '@angular/core';
 import { Observable } from 'rxjs';
 
-import { DynamicPopupService } from 'app/shared/services';
-import { ApplicationListDataService } from 'app/core/components/application-list/application-list-data.service';
+import { DynamicPopupService, StoreHelperService } from 'app/shared/services';
 import { AgentManagerDataService } from './agent-manager-data.service';
 import { ServerErrorPopupContainerComponent } from 'app/core/components/server-error-popup';
 
@@ -20,12 +19,14 @@ export class AgentManagerContainerComponent implements OnInit {
     } = {};
     canRemoveInactiveAgent = false;
     constructor(
-        private applicationListDataService: ApplicationListDataService,
+        private storeHelperService: StoreHelperService,
         private agentManagerDataService: AgentManagerDataService,
-        private dynamicPopupService: DynamicPopupService
+        private dynamicPopupService: DynamicPopupService,
+        private componentFactoryResolver: ComponentFactoryResolver,
+        private injector: Injector
     ) {}
     ngOnInit() {
-        this.applicationList$ = this.applicationListDataService.getApplicationList();
+        this.applicationList$ = this.storeHelperService.getApplicationList();
     }
     getAgentList(application: IApplication): string[] {
         return this.agentList[application.applicationName];
@@ -49,6 +50,9 @@ export class AgentManagerContainerComponent implements OnInit {
                     contents: error
                 },
                 component: ServerErrorPopupContainerComponent
+            }, {
+                resolver: this.componentFactoryResolver,
+                injector: this.injector
             });
         });
     }
@@ -68,6 +72,9 @@ export class AgentManagerContainerComponent implements OnInit {
                     contents: error
                 },
                 component: ServerErrorPopupContainerComponent
+            }, {
+                resolver: this.componentFactoryResolver,
+                injector: this.injector
             });
         });
     }
@@ -87,6 +94,9 @@ export class AgentManagerContainerComponent implements OnInit {
                     contents: error
                 },
                 component: ServerErrorPopupContainerComponent
+            }, {
+                resolver: this.componentFactoryResolver,
+                injector: this.injector
             });
         });
     }

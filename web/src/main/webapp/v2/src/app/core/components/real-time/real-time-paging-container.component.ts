@@ -2,9 +2,11 @@ import { Component, OnInit, OnDestroy, AfterViewInit } from '@angular/core';
 import { Subject, fromEvent } from 'rxjs';
 import { takeUntil, filter, delay } from 'rxjs/operators';
 
-import { UrlPathId, UrlPath } from 'app/shared/models';
+import { UrlPathId, UrlPath, UrlQuery } from 'app/shared/models';
 import { NewUrlStateNotificationService, UrlRouteManagerService, AnalyticsService, TRACKED_EVENT_LIST } from 'app/shared/services';
 import { RealTimeWebSocketService, IWebSocketResponse, IWebSocketDataResult, IActiveThreadCounts } from 'app/core/components/real-time/real-time-websocket.service';
+import { IParsedATC } from './real-time-chart.component';
+import { getATCforAgent, getTotalResponseCount, getSuccessDataList, getFilteredATC } from './real-time-util';
 
 // TODO: 나중에 공통으로 추출.
 const enum MessageTemplate {
@@ -23,15 +25,14 @@ export class RealTimePagingContainerComponent implements OnInit, AfterViewInit, 
     private unsubscribe = new Subject<null>();
     private applicationName = '';
     private serviceType = '';
-    pagingSize = 30;
-    totalCount: number;
-    firstChartIndex: number;
-    lastChartIndex: number;
-    indexLimit: number;
-    currentPage: number;
+    activeOnly: boolean;
     timeStamp: number;
     activeThreadCounts: { [key: string]: IActiveThreadCounts };
+    atcForAgent: { [key: string]: IParsedATC };
     messageTemplate = MessageTemplate.LOADING;
+    totalCount: number;
+    sum: number[];
+    currentPage: number;
     constructor(
         private newUrlStateNotificationService: NewUrlStateNotificationService,
         private realTimeWebSocketService: RealTimeWebSocketService,
@@ -41,14 +42,13 @@ export class RealTimePagingContainerComponent implements OnInit, AfterViewInit, 
     ngOnInit() {
         this.newUrlStateNotificationService.onUrlStateChange$.pipe(
             takeUntil(this.unsubscribe),
-        ).subscribe(() => {
+        ).subscribe((urlService: NewUrlStateNotificationService) => {
             this.resetState();
+            this.activeOnly = !!urlService.getQueryValue(UrlQuery.ACTIVE_ONLY);
+            this.currentPage = urlService.getPathValue(UrlPathId.PAGE);
             this.messageTemplate = MessageTemplate.LOADING;
-            this.applicationName = this.newUrlStateNotificationService.getPathValue(UrlPathId.APPLICATION).getApplicationName();
-            this.serviceType = this.newUrlStateNotificationService.getPathValue(UrlPathId.APPLICATION).getServiceType();
-            this.currentPage = Number(this.newUrlStateNotificationService.getPathValue(UrlPathId.PAGE));
-            this.firstChartIndex = (this.currentPage - 1) * this.pagingSize;
-            this.indexLimit = this.currentPage * this.pagingSize - 1;
+            this.applicationName = urlService.getPathValue(UrlPathId.APPLICATION).getApplicationName();
+            this.serviceType = urlService.getPathValue(UrlPathId.APPLICATION).getServiceType();
             this.realTimeWebSocketService.isOpened() ? this.startDataRequest() : this.realTimeWebSocketService.connect();
         });
 
@@ -142,14 +142,29 @@ export class RealTimePagingContainerComponent implements OnInit, AfterViewInit, 
             return;
         }
 
-        this.totalCount = Object.keys(activeThreadCounts).length;
-        this.lastChartIndex = this.totalCount - 1 <= this.indexLimit ? this.totalCount - 1 : this.indexLimit;
         this.timeStamp = timeStamp;
+        this.atcForAgent = this.activeOnly ? getFilteredATC(getATCforAgent(this.activeThreadCounts, activeThreadCounts)) : getATCforAgent(this.activeThreadCounts, activeThreadCounts);
+        this.sum = getTotalResponseCount(getSuccessDataList(this.atcForAgent));
+        this.totalCount = Object.keys(this.atcForAgent).length;
         this.activeThreadCounts = activeThreadCounts;
     }
     retryConnection(): void {
         this.messageTemplate = MessageTemplate.LOADING;
         this.realTimeWebSocketService.connect();
+    }
+    onRenderCompleted(): void {
+        this.messageTemplate = MessageTemplate.NOTHING;
+    }
+    onOpenPage(page: number): void {
+        this.urlRouteManagerService.openPage([
+            UrlPath.REAL_TIME,
+            this.newUrlStateNotificationService.getPathValue(UrlPathId.APPLICATION).getUrlStr(),
+            '' + page,
+            `?activeOnly=${this.activeOnly}`
+        ]);
+    }
+    onChangeActiveOnlyToggle(activeOnly: boolean): void {
+        this.activeOnly = activeOnly;
     }
     onOpenThreadDump(agentId: string): void {
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.OPEN_THREAD_DUMP);
@@ -159,8 +174,5 @@ export class RealTimePagingContainerComponent implements OnInit, AfterViewInit, 
             agentId,
             '' + Date.now()
         ]);
-    }
-    onRenderCompleted(): void {
-        this.messageTemplate = MessageTemplate.NOTHING;
     }
 }

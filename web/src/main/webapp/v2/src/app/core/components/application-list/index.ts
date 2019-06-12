@@ -1,16 +1,17 @@
 
 import { NgModule } from '@angular/core';
 import { MatTooltipModule } from '@angular/material';
-import { SharedModule } from 'app/shared';
+import { ScrollingModule } from '@angular/cdk/scrolling';
 
+import { SharedModule } from 'app/shared';
 import { ApplicationListForHeaderContainerComponent } from './application-list-for-header-container.component';
 import { ApplicationListForHeaderComponent } from './application-list-for-header.component';
 import { ApplicationListForConfigurationContainerComponent } from './application-list-for-configuration-container.component';
 import { ApplicationListForConfigurationComponent } from './application-list-for-configuration.component';
 import { FavoriteApplicationListForConfigurationContainerComponent } from './favorite-application-list-for-configuration-container.component';
+import { FavoriteApplicationListForConfigurationComponent } from './favorite-application-list-for-configuration.component';
 import { ApplicationListForConfigurationAlarmContainerComponent } from './application-list-for-configuration-alarm-container.component';
 import { ApplicationListInteractionForConfigurationService } from './application-list-interaction-for-configuration.service';
-import { ApplicationListDataService } from './application-list-data.service';
 
 @NgModule({
     declarations: [
@@ -18,11 +19,13 @@ import { ApplicationListDataService } from './application-list-data.service';
         ApplicationListForHeaderComponent,
         ApplicationListForConfigurationContainerComponent,
         ApplicationListForConfigurationComponent,
+        FavoriteApplicationListForConfigurationComponent,
         FavoriteApplicationListForConfigurationContainerComponent,
         ApplicationListForConfigurationAlarmContainerComponent
     ],
     imports: [
         MatTooltipModule,
+        ScrollingModule,
         SharedModule
     ],
     exports: [
@@ -33,7 +36,6 @@ import { ApplicationListDataService } from './application-list-data.service';
     ],
     providers: [
         ApplicationListInteractionForConfigurationService,
-        ApplicationListDataService
     ]
 })
 export class ApplicationListModule { }

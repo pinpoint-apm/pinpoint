@@ -75,7 +75,7 @@ public class BootstrapConnectInterceptor implements AroundInterceptor {
             recorder.recordApi(descriptor);
             recorder.recordException(throwable);
 
-            if (args.length == 0 || !(args[0] instanceof SocketAddress)) {
+            if (args == null || args.length == 0 || !(args[0] instanceof SocketAddress)) {
                 return;
             }
 

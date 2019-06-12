@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.rpc.client;
 
+import com.navercorp.pinpoint.common.util.Assert;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -34,12 +36,17 @@ public class SocketOption implements Cloneable {
     private final int sendBufferSize;
     private final int receiveBufferSize;
 
-    private SocketOption(int connectTimeout, boolean tcpNoDelay, boolean keepAlive, int sendBufferSize, int receiveBufferSize) {
+    private final int writeBufferHighWaterMark ;
+    private final int writeBufferLowWaterMark;
+
+    private SocketOption(int connectTimeout, boolean tcpNoDelay, boolean keepAlive, int sendBufferSize, int receiveBufferSize, int writeBufferHighWaterMark, int writeBufferLowWaterMark) {
         this.connectTimeout = connectTimeout;
         this.tcpNoDelay = tcpNoDelay;
         this.keepAlive = keepAlive;
         this.sendBufferSize = sendBufferSize;
         this.receiveBufferSize = receiveBufferSize;
+        this.writeBufferHighWaterMark = writeBufferHighWaterMark;
+        this.writeBufferLowWaterMark = writeBufferLowWaterMark;
     }
 
     public int getConnectTimeout() {
@@ -77,16 +84,24 @@ public class SocketOption implements Cloneable {
         // buffer setting
         options.put("sendBufferSize", sendBufferSize);
         options.put("receiveBufferSize", receiveBufferSize);
+
+        options.put("writeBufferHighWaterMark", writeBufferHighWaterMark);
+        options.put("writeBufferLowWaterMark", writeBufferLowWaterMark);
+
         return options;
     }
 
     public static class Builder {
+
         private int connectTimeout = DEFAULT_CONNECT_TIMEOUT;
         private boolean tcpNoDelay = true;
         private boolean keepAlive = true;
 
         private int sendBufferSize = 1024*64;
         private int receiveBufferSize = 1024 * 64;
+
+        private int writeBufferHighWaterMark = 1024 * 1024 * 16;
+        private int writeBufferLowWaterMark = 1024 * 1024 * 8;
 
         public Builder() {
         }
@@ -134,8 +149,26 @@ public class SocketOption implements Cloneable {
             this.receiveBufferSize = receiveBufferSize;
         }
 
+        public int getWriteBufferHighWaterMark() {
+            return writeBufferHighWaterMark;
+        }
+
+        public void setWriteBufferHighWaterMark(int writeBufferHighWaterMark) {
+            Assert.isTrue(writeBufferHighWaterMark > 0, "must be writeBufferHighWaterMark > 0");
+            this.writeBufferHighWaterMark = (int) writeBufferHighWaterMark;
+        }
+
+        public int getWriteBufferLowWaterMark() {
+            return writeBufferLowWaterMark;
+        }
+
+        public void setWriteBufferLowWaterMark(int writeBufferLowWaterMark) {
+            Assert.isTrue(writeBufferLowWaterMark > 0, "must be writeBufferLowWaterMark > 0");
+            this.writeBufferLowWaterMark = (int) writeBufferLowWaterMark;
+        }
+
         public SocketOption build() {
-            return new SocketOption(this.connectTimeout, this.tcpNoDelay, this.keepAlive, this.sendBufferSize, this.receiveBufferSize);
+            return new SocketOption(this.connectTimeout, this.tcpNoDelay, this.keepAlive, this.sendBufferSize, this.receiveBufferSize, writeBufferHighWaterMark, writeBufferLowWaterMark);
         }
     }
 }

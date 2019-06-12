@@ -21,17 +21,13 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.IntStringValue;
 import com.navercorp.pinpoint.profiler.context.Annotation;
 import com.navercorp.pinpoint.profiler.context.DefaultAsyncId;
-import com.navercorp.pinpoint.profiler.context.DefaultLocalAsyncId;
+import com.navercorp.pinpoint.profiler.context.DefaultSpanChunk;
 import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SpanChunk;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
-import com.navercorp.pinpoint.profiler.context.compress.Context;
-import com.navercorp.pinpoint.profiler.context.compress.ContextV1;
-import com.navercorp.pinpoint.profiler.context.compress.SpanPostProcessor;
-import com.navercorp.pinpoint.profiler.context.compress.SpanPostProcessorV1;
+import com.navercorp.pinpoint.profiler.context.compress.SpanProcessorV1;
 import com.navercorp.pinpoint.profiler.context.id.DefaultTraceId;
 import com.navercorp.pinpoint.profiler.context.id.DefaultTraceRoot;
-import com.navercorp.pinpoint.profiler.context.id.DefaultTransactionIdEncoder;
 import com.navercorp.pinpoint.profiler.context.id.Shared;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.context.id.TransactionIdEncoder;
@@ -43,6 +39,7 @@ import org.apache.commons.lang3.RandomUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -57,7 +54,7 @@ public class SpanThriftMessageConverterTest {
 
     private final TransactionIdEncoder transactionIdEncoder = new DefaultTransactionIdEncoder(AGENT_ID, AGENT_START_TIME);
 
-    private SpanPostProcessor<Context> spanPostProcessor = new SpanPostProcessorV1();
+    private SpanProcessorV1 spanPostProcessor = new SpanProcessorV1();
 
     private final SpanThriftMessageConverter messageConverter = new SpanThriftMessageConverter(
             APPLICATION_NAME,
@@ -130,7 +127,7 @@ public class SpanThriftMessageConverterTest {
     private SpanChunk newSpanChunk() {
         final TraceId traceId = new DefaultTraceId(AGENT_ID, AGENT_START_TIME, 1L);
         final TraceRoot traceRoot = new DefaultTraceRoot(traceId, AGENT_ID, AGENT_START_TIME, 100L);
-        return new SpanChunk(traceRoot, Collections.<SpanEvent>emptyList());
+        return new DefaultSpanChunk(traceRoot, Arrays.asList(new SpanEvent()));
     }
 
 
@@ -160,14 +157,11 @@ public class SpanThriftMessageConverterTest {
 
         spanEvent.setAsyncIdObject(new DefaultAsyncId(RandomUtils.nextInt(0, 100)));
 
-        spanEvent.setLocalAsyncId(new DefaultLocalAsyncId(RandomUtils.nextInt(0, 100), (short) RandomUtils.nextInt(0, 100)));
 
         spanEvent.addAnnotation(new Annotation(1));
 
-        Context context = new ContextV1(startTime);
-        TSpanEvent tSpanEvent = messageConverter.buildTSpanEvent(spanEvent, context);
-        spanPostProcessor.postProcess(context, spanEvent, tSpanEvent);
-        context.next();
+        TSpanEvent tSpanEvent = messageConverter.buildTSpanEvent(spanEvent);
+        spanPostProcessor.postEventProcess(Collections.singletonList(spanEvent), Collections.singletonList(tSpanEvent), startTime);
 
         Assert.assertEquals(spanEvent.getDepth(), tSpanEvent.getDepth());
         Assert.assertEquals(spanEvent.getStartTime(), startTime + tSpanEvent.getStartElapsed());
@@ -177,9 +171,6 @@ public class SpanThriftMessageConverterTest {
         Assert.assertEquals(spanEvent.getNextSpanId(), tSpanEvent.getNextSpanId());
 
         Assert.assertEquals(spanEvent.getAsyncIdObject().getAsyncId(), tSpanEvent.getNextAsyncId());
-
-        Assert.assertEquals(spanEvent.getLocalAsyncId().getAsyncId(), tSpanEvent.getAsyncId());
-        Assert.assertEquals(spanEvent.getLocalAsyncId().getSequence(), tSpanEvent.getAsyncSequence());
 
         Assert.assertEquals(spanEvent.getAnnotations().size(), tSpanEvent.getAnnotations().size());
     }

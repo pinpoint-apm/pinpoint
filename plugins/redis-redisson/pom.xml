@@ -1,0 +1,33 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.navercorp.pinpoint</groupId>
+        <artifactId>pinpoint-plugins</artifactId>
+        <version>1.9.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>pinpoint-redis-redisson-plugin</artifactId>
+    <name>pinpoint-redis-redisson-plugin</name>
+    <packaging>jar</packaging>
+
+    <properties>
+        <jdk.home>${env.JAVA_8_HOME}</jdk.home>
+        <test.jdk.home>${env.JAVA_8_HOME}</test.jdk.home>
+        <sniffer.artifactid>java18</sniffer.artifactid>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-bootstrap-core</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.redisson</groupId>
+            <artifactId>redisson</artifactId>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+</project>

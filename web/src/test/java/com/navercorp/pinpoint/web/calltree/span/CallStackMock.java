@@ -15,7 +15,9 @@
  */
 package com.navercorp.pinpoint.web.calltree.span;
 
+import com.navercorp.pinpoint.common.server.bo.LocalAsyncIdBo;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
+import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 
 /**
@@ -62,10 +64,6 @@ public class CallStackMock {
         spanEvent.setStartElapsed(startElapsed);
         spanEvent.setSequence(sequence++);
 
-        if (this.async) {
-            spanEvent.setAsyncId(asyncId);
-        }
-
         checkExtend(index + 1);
         stack[index++] = spanEvent;
         if (this.latestStackIndex != this.index) {
@@ -73,7 +71,17 @@ public class CallStackMock {
             spanEvent.setDepth(this.latestStackIndex);
         }
 
-        callTree.add(spanEvent.getDepth(), new SpanAlign(spanBo, spanEvent));
+        final SpanEventAlign spanEventAlign;
+        if (this.async) {
+            LocalAsyncIdBo localAsyncIdBo = new LocalAsyncIdBo(asyncId, 1);
+            SpanChunkBo spanChunkBo = new SpanChunkBo();
+            spanChunkBo.setLocalAsyncId(localAsyncIdBo);
+            spanEventAlign = new SpanChunkEventAlign(spanBo, spanChunkBo, spanEvent);
+        } else {
+            spanEventAlign = new SpanEventAlign(spanBo, spanEvent);
+        }
+
+        callTree.add(spanEvent.getDepth(), spanEventAlign);
     }
 
     private void checkExtend(final int size) {

@@ -65,6 +65,10 @@ export class ServerMapDiagramWithVisjs extends ServerMapDiagram {
                     size: 18,
                     background: ServerMapTheme.general.link.normal.textBox.fill,
                 },
+                smooth: {
+                    type: 'curvedCW',
+                    roundness: 0.1
+                }
             } as EdgeOptions,
             groups: {
                 main: {

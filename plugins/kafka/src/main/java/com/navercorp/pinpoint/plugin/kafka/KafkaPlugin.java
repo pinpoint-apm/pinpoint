@@ -87,6 +87,13 @@ public class KafkaPlugin implements ProfilerPlugin, TransformTemplateAware {
 
             InstrumentMethod constructor = target.getConstructor("org.apache.kafka.clients.producer.ProducerConfig",
                     "org.apache.kafka.common.serialization.Serializer", "org.apache.kafka.common.serialization.Serializer");
+
+            // Version 2.0.0+ is supported.
+            if (constructor == null) {
+                constructor = target.getConstructor("org.apache.kafka.clients.producer.ProducerConfig",
+                        "org.apache.kafka.common.serialization.Serializer", "org.apache.kafka.common.serialization.Serializer",
+                        "org.apache.kafka.clients.Metadata", "org.apache.kafka.clients.KafkaClient");
+            }
             constructor.addInterceptor(ProducerConstructorInterceptor.class);
 
             InstrumentMethod sendMethod = target.getDeclaredMethod("send", "org.apache.kafka.clients.producer.ProducerRecord", "org.apache.kafka.clients.producer.Callback");
@@ -108,7 +115,12 @@ public class KafkaPlugin implements ProfilerPlugin, TransformTemplateAware {
                     "org.apache.kafka.common.serialization.Deserializer", "org.apache.kafka.common.serialization.Deserializer");
             constructor.addInterceptor(ConsumerConstructorInterceptor.class);
 
-            InstrumentMethod pollMethod = target.getDeclaredMethod("poll", "long");
+            // Version 2.0.0+ is supported.
+            InstrumentMethod pollMethod = target.getDeclaredMethod("poll", "long", "boolean");
+
+            if (pollMethod == null) {
+                pollMethod = target.getDeclaredMethod("poll", "long");
+            }
             pollMethod.addInterceptor(ConsumerPollInterceptor.class);
 
             target.addField(RemoteAddressFieldAccessor.class);

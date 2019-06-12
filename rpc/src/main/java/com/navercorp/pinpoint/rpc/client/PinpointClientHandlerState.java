@@ -132,9 +132,9 @@ public class PinpointClientHandlerState {
     private void executeChangeEventHandler(PinpointSocket pinpointSocket, SocketStateCode nextState) {
         for (StateChangeEventListener eachListener : this.stateChangeEventListeners) {
             try {
-                eachListener.eventPerformed(pinpointSocket, nextState);
+                eachListener.stateUpdated(pinpointSocket, nextState);
             } catch (Exception e) {
-                eachListener.exceptionCaught(pinpointSocket, nextState, e);
+                logger.warn("Please handling exception in stateUpdated method. message:{}", e.getMessage(), e);
             }
         }
     }

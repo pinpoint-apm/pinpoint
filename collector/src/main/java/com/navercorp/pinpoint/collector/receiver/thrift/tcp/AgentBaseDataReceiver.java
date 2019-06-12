@@ -16,11 +16,17 @@
 
 package com.navercorp.pinpoint.collector.receiver.thrift.tcp;
 
+import com.navercorp.pinpoint.collector.cluster.ClusterPointStateChangedEventHandler;
 import com.navercorp.pinpoint.collector.cluster.zookeeper.ZookeeperClusterService;
+import com.navercorp.pinpoint.collector.cluster.zookeeper.ZookeeperProfilerClusterManager;
 import com.navercorp.pinpoint.collector.config.AgentBaseDataReceiverConfiguration;
-import com.navercorp.pinpoint.collector.receiver.thrift.DispatchHandler;
+import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
+import com.navercorp.pinpoint.collector.service.async.AgentEventAsyncTaskService;
+import com.navercorp.pinpoint.collector.service.async.AgentLifeCycleAsyncTaskService;
 import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.rpc.server.ChannelPropertiesFactory;
 import com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor;
+import com.navercorp.pinpoint.rpc.server.ServerMessageListenerFactory;
 import com.navercorp.pinpoint.rpc.server.handler.ServerStateChangeEventHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,10 +61,13 @@ public class AgentBaseDataReceiver {
     private final TCPPacketHandler tcpPacketHandler;
 
     @Autowired
-    private AgentEventHandler agentEventHandler;
+    private AgentEventAsyncTaskService agentEventAsyncTaskService;
 
     @Autowired
-    private AgentLifeCycleEventHandler agentLifeCycleEventHandler;
+    private AgentLifeCycleAsyncTaskService agentLifeCycleAsyncTaskService;
+
+    @Autowired
+    private ChannelPropertiesFactory channelPropertiesFactory;
 
     @Resource(name = "channelStateChangeEventHandlers")
     private List<ServerStateChangeEventHandler> channelStateChangeEventHandlers = Collections.emptyList();
@@ -96,7 +105,11 @@ public class AgentBaseDataReceiver {
 
         // take care when attaching message handlers as events are generated from the IO thread.
         // pass them to a separate queue and handle them in a different thread.
-        acceptor.setMessageListenerFactory(new AgentBaseDataReceiverServerMessageListenerFactory(executor, tcpPacketHandler, agentEventHandler, agentLifeCycleEventHandler));
+        ServerMessageListenerFactory messageListenerFactory = new AgentBaseDataReceiverServerMessageListenerFactory(
+                executor, tcpPacketHandler,
+                agentEventAsyncTaskService, agentLifeCycleAsyncTaskService,
+                channelPropertiesFactory);
+        acceptor.setMessageListenerFactory(messageListenerFactory);
         acceptor.bind(configuration.getBindIp(), configuration.getBindPort());
 
         if (logger.isInfoEnabled()) {
@@ -106,9 +119,11 @@ public class AgentBaseDataReceiver {
 
     private void prepare(PinpointServerAcceptor acceptor) {
         if (clusterService != null && clusterService.isEnable()) {
-            final ServerStateChangeEventHandler channelStateChangeEventHandler = clusterService.getChannelStateChangeEventHandler();
-            logger.info("Add Cluster channel state change event handlers {}", channelStateChangeEventHandler);
-            acceptor.addStateChangeEventHandler(channelStateChangeEventHandler);
+            ZookeeperProfilerClusterManager profilerClusterManager = clusterService.getProfilerClusterManager();
+            final ServerStateChangeEventHandler stateChangeEventHandler = new ClusterPointStateChangedEventHandler(channelPropertiesFactory, profilerClusterManager);
+
+            logger.info("Add Cluster channel state change event handlers {}", stateChangeEventHandler);
+            acceptor.addStateChangeEventHandler(stateChangeEventHandler);
         } else {
             logger.info("clusterService is disabled");
         }

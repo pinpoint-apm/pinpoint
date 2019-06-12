@@ -127,7 +127,8 @@ class PinpointStarter {
             AgentOption option = createAgentOption(agentId, applicationName, isContainer, profilerConfig, instrumentation, pluginJars, agentDirectory);
             Agent pinpointAgent = agentBootLoader.boot(option);
             pinpointAgent.start();
-            registerShutdownHook(pinpointAgent);
+            pinpointAgent.registerStopHandler();
+
             logger.info("pinpoint agent started normally.");
         } catch (Exception e) {
             // unexpected exception that did not be checked above
@@ -179,19 +180,6 @@ class PinpointStarter {
     void setSystemProperty(SimpleProperty systemProperty) {
         this.systemProperty = systemProperty;
     }
-
-    private void registerShutdownHook(final Agent pinpointAgent) {
-        final Runnable stop = new Runnable() {
-            @Override
-            public void run() {
-                pinpointAgent.stop();
-            }
-        };
-        PinpointThreadFactory pinpointThreadFactory = new PinpointThreadFactory("Pinpoint-shutdown-hook", false);
-        Thread thread = pinpointThreadFactory.newThread(stop);
-        Runtime.getRuntime().addShutdownHook(thread);
-    }
-
 
     private void saveLogFilePath(AgentDirectory agentDirectory) {
         String agentLogFilePath = agentDirectory.getAgentLogFilePath();

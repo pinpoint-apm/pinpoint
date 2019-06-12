@@ -49,7 +49,7 @@ public abstract class AsyncContextSpanEventSimpleAroundInterceptor implements Ar
             logger.beforeInterceptor(target, args);
         }
 
-        final AsyncContext asyncContext = getAsyncContext(target);
+        final AsyncContext asyncContext = getAsyncContext(target, args);
         if (asyncContext == null) {
             logger.debug("AsyncContext not found");
             return;
@@ -121,6 +121,10 @@ public abstract class AsyncContextSpanEventSimpleAroundInterceptor implements Ar
     protected abstract void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable);
 
     protected AsyncContext getAsyncContext(Object target) {
+        return getAsyncContext(target, null);
+    }
+
+    protected AsyncContext getAsyncContext(Object target, Object[] args) {
         return AsyncContextAccessorUtils.getAsyncContext(target);
     }
 

@@ -26,9 +26,11 @@ import com.navercorp.pinpoint.rpc.packet.SendPacket;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamClosePacket;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamCode;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamCreatePacket;
-import com.navercorp.pinpoint.rpc.stream.ServerStreamChannelContext;
-import com.navercorp.pinpoint.rpc.stream.ServerStreamChannelMessageListener;
+import com.navercorp.pinpoint.rpc.stream.ServerStreamChannel;
+import com.navercorp.pinpoint.rpc.stream.ServerStreamChannelMessageHandler;
 import com.navercorp.pinpoint.thrift.dto.TResult;
+import com.navercorp.pinpoint.thrift.io.CommandHeaderTBaseDeserializerFactory;
+import com.navercorp.pinpoint.thrift.io.CommandHeaderTBaseSerializerFactory;
 import com.navercorp.pinpoint.thrift.util.SerializationUtils;
 import org.apache.thrift.TBase;
 import org.slf4j.Logger;
@@ -40,11 +42,14 @@ import java.util.Set;
 /**
  * @author Taejin Koo
  */
-public class CommandDispatcher implements MessageListener, ServerStreamChannelMessageListener {
+public class CommandDispatcher extends ServerStreamChannelMessageHandler implements MessageListener {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final ProfilerCommandServiceLocator<TBase<?, ?>, TBase<?, ?>> commandServiceLocator;
+
+    private final CommandHeaderTBaseSerializerFactory commandHeaderTBaseSerializerFactory = CommandHeaderTBaseSerializerFactory.getDefaultInstance();
+    private final CommandHeaderTBaseDeserializerFactory commandHeaderTBaseDeserializerFactory = CommandHeaderTBaseDeserializerFactory.getDefaultInstance();
 
     @Inject
     public CommandDispatcher(ProfilerCommandServiceLocator<TBase<?, ?>, TBase<?, ?>> commandServiceLocator) {
@@ -60,14 +65,14 @@ public class CommandDispatcher implements MessageListener, ServerStreamChannelMe
     public void handleRequest(RequestPacket requestPacket, PinpointSocket pinpointSocket) {
         logger.info("handleRequest packet:{}, remote:{}", requestPacket, pinpointSocket.getRemoteAddress());
 
-        final Message<TBase<?, ?>> message = SerializationUtils.deserialize(requestPacket.getPayload(), CommandSerializer.DESERIALIZER_FACTORY, null);
+        final Message<TBase<?, ?>> message = SerializationUtils.deserialize(requestPacket.getPayload(), commandHeaderTBaseDeserializerFactory, null);
         if (logger.isDebugEnabled()) {
             logger.debug("handleRequest request:{}, remote:{}", message, pinpointSocket.getRemoteAddress());
         }
 
         final TBase response = processRequest(message);
 
-        final byte[] payload = SerializationUtils.serialize(response, CommandSerializer.SERIALIZER_FACTORY, null);
+        final byte[] payload = SerializationUtils.serialize(response, commandHeaderTBaseSerializerFactory, null);
         if (payload != null) {
             pinpointSocket.response(requestPacket.getRequestId(), payload);
         }
@@ -95,12 +100,11 @@ public class CommandDispatcher implements MessageListener, ServerStreamChannelMe
         return tResponse;
     }
 
-
     @Override
-    public StreamCode handleStreamCreate(ServerStreamChannelContext streamChannelContext, StreamCreatePacket packet) {
-        logger.info("MessageReceived handleStreamCreate {} {}", packet, streamChannelContext);
+    public StreamCode handleStreamCreatePacket(ServerStreamChannel streamChannel, StreamCreatePacket packet) {
+        logger.info("handleStreamCreatePacket() streamChannel:{}, packet:{}", streamChannel, packet);
 
-        final Message<TBase<?, ?>> message = SerializationUtils.deserialize(packet.getPayload(), CommandSerializer.DESERIALIZER_FACTORY, null);
+        final Message<TBase<?, ?>> message = SerializationUtils.deserialize(packet.getPayload(), commandHeaderTBaseDeserializerFactory, null);
         if (message == null) {
             return StreamCode.TYPE_UNKNOWN;
         }
@@ -112,11 +116,12 @@ public class CommandDispatcher implements MessageListener, ServerStreamChannelMe
         }
 
         final TBase<?, ?> request = message.getData();
-        return service.streamCommandService(request, streamChannelContext);
+        return service.streamCommandService(request, streamChannel);
     }
 
     @Override
-    public void handleStreamClose(ServerStreamChannelContext streamChannelContext, StreamClosePacket packet) {
+    public void handleStreamClosePacket(ServerStreamChannel streamChannel, StreamClosePacket packet) {
+        logger.info("handleStreamClosePacket() streamChannel:{}, packet:{}", streamChannel, packet);
     }
 
     public Set<Short> getRegisteredCommandServiceCodes() {

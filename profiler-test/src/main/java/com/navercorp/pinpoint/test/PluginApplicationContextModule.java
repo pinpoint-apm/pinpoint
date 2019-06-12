@@ -58,7 +58,6 @@ public class PluginApplicationContextModule extends AbstractModule {
         logger.debug("statDataSender:{}", statDataSender);
         bind(DataSender.class).annotatedWith(StatDataSender.class).toInstance(statDataSender);
 
-        bind(TraceDataFormatVersion.class).toInstance(TraceDataFormatVersion.V1);
         bind(StorageFactory.class).to(TestSpanStorageFactory.class);
 
         bind(PinpointClientFactory.class).toProvider(Providers.of((PinpointClientFactory)null));
@@ -75,12 +74,12 @@ public class PluginApplicationContextModule extends AbstractModule {
 
 
     private DataSender newUdpStatDataSender() {
-        return new ListenableDataSender<TBase<?, ?>>("StatDataSender");
+        return new ListenableDataSender<Object>("StatDataSender");
     }
 
     private DataSender newUdpSpanDataSender() {
 
-        ListenableDataSender<TBase<?, ?>> sender = new ListenableDataSender<TBase<?, ?>>("SpanDataSender");
+        ListenableDataSender<Object> sender = new ListenableDataSender<Object>("SpanDataSender");
         OrderedSpanRecorder orderedSpanRecorder = new OrderedSpanRecorder();
         sender.setListener(orderedSpanRecorder);
         return sender;

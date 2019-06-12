@@ -59,6 +59,39 @@ export class ComponentDefaultSettingDataService {
         ['D MMM YYYY HH:mm:ss', 'D MMM YYYY HH:mm:ss Z', 'D MMM YYYY HH:mm:ss SSS', 'D MMM YYYY', 'HH:mm:ss', 'D MMM', 'HH:mm'],
         ['D MMM YYYY h:mm:ss a', 'D MMM YYYY h:mm:ss a Z', 'D MMM YYYY h:mm:ss SSS a', 'D MMM YYYY', 'h:mm:ss a', 'D MMM', 'h:mm a']
     ];
+    private chartNumPerRow = 3;
+    private chartRefreshInterval: { [key: string]: number} = {
+        inspector: 5000,
+    };
+    private applicationChartOrderList = [
+        'Heap Usage',
+        'Non Heap Usage',
+        'JVM CPU Usage',
+        'System CPU Usage',
+        'Transactions Per Second',
+        'Active Thread',
+        'Response Time',
+        'Open File Descriptor',
+        'Direct Buffer Count',
+        'Direct Buffer Memory',
+        'Mapped Buffer Count',
+        'Mapped Buffer Memory',
+        'Data Source'
+    ];
+    private agentChartOrderList = [
+        'Heap Usage',
+        'Non Heap Usage',
+        'JVM/System CPU Usage',
+        'Transactions Per Second',
+        'Active Thread',
+        'Response Time',
+        'Open File Descriptor',
+        'Direct Buffer Count',
+        'Direct Buffer Memory',
+        'Mapped Buffer Count',
+        'Mapped Buffer Memory',
+        'Data Source'
+    ];
     constructor() {}
     getInboundList(): number[] {
         return this.inboundList;
@@ -92,5 +125,17 @@ export class ComponentDefaultSettingDataService {
     }
     getDefaultDateFormat(): string[] {
         return this.dateFormatList[4];
+    }
+    getSystemDefaultChartLayoutOption(): number {
+        return this.chartNumPerRow;
+    }
+    getSystemDefaultChartRefreshInterval(key: string): number {
+        return this.chartRefreshInterval[key];
+    }
+    getApplicationInspectorDefaultChartOrderList(): string[] {
+        return this.applicationChartOrderList;
+    }
+    getAgentInspectorDefaultChartOrderList(): string[] {
+        return this.agentChartOrderList;
     }
 }

@@ -3,8 +3,7 @@ import { Subject, Observable } from 'rxjs';
 import { takeUntil, filter, switchMap } from 'rxjs/operators';
 
 import { UrlPathId } from 'app/shared/models';
-import { StoreHelperService, NewUrlStateNotificationService} from 'app/shared/services';
-import { ThreadDumpLogInteractionService, IParam } from 'app/core/components/thread-dump-log/thread-dump-log-interaction.service';
+import { StoreHelperService, NewUrlStateNotificationService, MessageQueueService, MESSAGE_TO } from 'app/shared/services';
 import { ActiveThreadDumpListDataService, IActiveThreadDump } from './active-thread-dump-list-data.service';
 import { IThreadDumpData } from './thread-dump-list.component';
 
@@ -30,7 +29,7 @@ export class ThreadDumpListContainerComponent implements OnInit, OnDestroy {
         private storeHelperService: StoreHelperService,
         private newUrlStateNotificationService: NewUrlStateNotificationService,
         private activeThreadDumpListDataService: ActiveThreadDumpListDataService,
-        private threadDumpLogInteractionService: ThreadDumpLogInteractionService
+        private messageQueueService: MessageQueueService
     ) {}
     ngOnInit() {
         this.connectStore();
@@ -87,7 +86,10 @@ export class ThreadDumpListContainerComponent implements OnInit, OnDestroy {
     hasError(): boolean {
         return this.hasErrorResponse;
     }
-    onSelectThread($param: IParam): void {
-        this.threadDumpLogInteractionService.sendParam($param);
+    onSelectThread(param: any): void {
+        this.messageQueueService.sendMessage({
+            to: MESSAGE_TO.THREAD_DUMP_SET_PARAM,
+            param: [param]
+        });
     }
 }

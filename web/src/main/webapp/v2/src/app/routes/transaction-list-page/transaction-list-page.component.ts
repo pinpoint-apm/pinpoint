@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 
-import { WebAppSettingDataService, RouteInfoCollectorService, GutterEventService } from 'app/shared/services';
+import { WebAppSettingDataService, GutterEventService } from 'app/shared/services';
 
 @Component({
     selector: 'pp-transaction-list-page',
@@ -10,14 +10,16 @@ import { WebAppSettingDataService, RouteInfoCollectorService, GutterEventService
 export class TransactionListPageComponent implements OnInit {
     direction = 'vertical';
     handlePosition: number[];
+
     constructor(
-        private routeInfoCollectorService: RouteInfoCollectorService,
         private webAppSettingDataService: WebAppSettingDataService,
         private gutterEventService: GutterEventService,
     ) {}
+
     ngOnInit() {
         this.handlePosition = this.webAppSettingDataService.getListHandlePosition();
     }
+
     onGutterResized({sizes}: {sizes: number[]}): void {
         this.webAppSettingDataService.setListHandlePosition(sizes.map((size: number): number => {
             return Number.parseFloat(size.toFixed(2));

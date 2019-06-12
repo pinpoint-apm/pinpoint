@@ -1,20 +1,17 @@
-import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef, ViewChild } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { Subject, Observable } from 'rxjs';
-import { takeUntil, withLatestFrom, map } from 'rxjs/operators';
+import { takeUntil } from 'rxjs/operators';
 
-import { Actions } from 'app/shared/store';
-import { StoreHelperService, NewUrlStateNotificationService, AnalyticsService, TRACKED_EVENT_LIST } from 'app/shared/services';
-import { Timeline, ITimelineEventSegment, TimelineUIEvent } from './class';
+import { StoreHelperService, AnalyticsService, TRACKED_EVENT_LIST, MessageQueueService, MESSAGE_TO } from 'app/shared/services';
+import { ITimelineEventSegment, TimelineUIEvent } from './class';
 import { TimelineComponent } from './timeline.component';
-import { TimelineInteractionService, ITimelineCommandParam, TimelineCommand } from './timeline-interaction.service';
 import { IAgentTimeline } from './agent-timeline-data.service';
-import { UrlPathId } from 'app/shared/models';
+import { InspectorPageService, ISourceForTimeline } from 'app/routes/inspector-page/inspector-page.service';
 
 @Component({
     selector: 'pp-application-inspector-timeline-container',
     templateUrl: './application-inspector-timeline-container.component.html',
     styleUrls: ['./application-inspector-timeline-container.component.css'],
-    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ApplicationInspectorTimelineContainerComponent implements OnInit, OnDestroy {
     @ViewChild(TimelineComponent)
@@ -28,75 +25,53 @@ export class ApplicationInspectorTimelineContainerComponent implements OnInit, O
     timelineData: IAgentTimeline;
     timezone$: Observable<string>;
     dateFormat$: Observable<string[]>;
+    timelineInfoFromUrl$: Observable<ITimelineInfo>;
+    timelineInfoFromStore$: Observable<ITimelineInfo>;
 
     constructor(
-        private changeDetector: ChangeDetectorRef,
         private storeHelperService: StoreHelperService,
-        private newUrlStateNotificationService: NewUrlStateNotificationService,
-        private timelineInteractionService: TimelineInteractionService,
+        private messageQueueService: MessageQueueService,
         private analyticsService: AnalyticsService,
+        private inspectorPageService: InspectorPageService,
     ) {}
 
     ngOnInit() {
         this.connectStore();
-        this.timelineInteractionService.onCommand$.pipe(
-            takeUntil(this.unsubscribe)
-        ).subscribe((param: ITimelineCommandParam) => {
-            switch (param.command) {
-                case TimelineCommand.zoomIn:
-                    this.analyticsService.trackEvent(TRACKED_EVENT_LIST.ZOOM_IN_TIMELINE);
-                    this.timelineComponent.zoomIn();
-                    break;
-                case TimelineCommand.zoomOut:
-                    this.analyticsService.trackEvent(TRACKED_EVENT_LIST.ZOOM_OUT_TIMELINE);
-                    this.timelineComponent.zoomOut();
-                    break;
-                case TimelineCommand.prev:
-                    this.analyticsService.trackEvent(TRACKED_EVENT_LIST.MOVE_TO_PREV_ON_TIMELINE);
-                    this.timelineComponent.movePrev();
-                    break;
-                case TimelineCommand.next:
-                    this.analyticsService.trackEvent(TRACKED_EVENT_LIST.MOVE_TO_NEXT_ON_TIMELINE);
-                    this.timelineComponent.moveNext();
-                    break;
-                case TimelineCommand.now:
-                    this.analyticsService.trackEvent(TRACKED_EVENT_LIST.MOVE_TO_NOW_ON_TIMELINE);
-                    this.timelineComponent.moveNow();
-                    break;
-            }
+        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.TIMELINE_ZOOM_IN).subscribe(() => {
+            this.analyticsService.trackEvent(TRACKED_EVENT_LIST.ZOOM_IN_TIMELINE);
+            this.timelineComponent.zoomIn();
         });
-        this.newUrlStateNotificationService.onUrlStateChange$.pipe(
-            takeUntil(this.unsubscribe),
-            withLatestFrom(this.storeHelperService.getInspectorTimelineData(this.unsubscribe)),
-            map(([urlService, storeState]: [NewUrlStateNotificationService, ITimelineInfo]) => {
-                if (urlService.isPathChanged(UrlPathId.PERIOD) || urlService.isPathChanged(UrlPathId.END_TIME)) {
-                    const selectionStartTime = urlService.getStartTimeToNumber();
-                    const selectionEndTime = urlService.getEndTimeToNumber();
-                    const [start, end] = this.calcuRetrieveTime(selectionStartTime, selectionEndTime);
-                    const timelineInfo: ITimelineInfo = {
-                        range: [start, end],
-                        selectedTime: selectionEndTime,
-                        selectionRange: [selectionStartTime, selectionEndTime]
-                    };
+        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.TIMELINE_ZOOM_OUT).subscribe(() => {
+            this.analyticsService.trackEvent(TRACKED_EVENT_LIST.ZOOM_OUT_TIMELINE);
+            this.timelineComponent.zoomOut();
+        });
+        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.TIMELINE_MOVE_PREV).subscribe(() => {
+            this.analyticsService.trackEvent(TRACKED_EVENT_LIST.MOVE_TO_PREV_ON_TIMELINE);
+            this.timelineComponent.movePrev();
+        });
+        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.TIMELINE_MOVE_NEXT).subscribe(() => {
+            this.analyticsService.trackEvent(TRACKED_EVENT_LIST.MOVE_TO_PREV_ON_TIMELINE);
+            this.timelineComponent.moveNext();
+        });
+        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.TIMELINE_MOVE_NOW).subscribe(() => {
+            this.analyticsService.trackEvent(TRACKED_EVENT_LIST.MOVE_TO_NOW_ON_TIMELINE);
+            this.timelineComponent.moveNow();
+        });
 
-                    this.storeHelperService.dispatch(new Actions.UpdateTimelineData(timelineInfo));
-                    return timelineInfo;
-                } else {
-                    return storeState;
-                }
-            }),
-        ).subscribe((timelineInfo: ITimelineInfo) => {
-            this.timelineStartTime = timelineInfo.range[0];
-            this.timelineEndTime = timelineInfo.range[1];
-            this.selectionStartTime = timelineInfo.selectionRange[0];
-            this.selectionEndTime = timelineInfo.selectionRange[1];
-            this.pointingTime = timelineInfo.selectedTime;
+        this.inspectorPageService.sourceForTimeline$.pipe(
+            takeUntil(this.unsubscribe),
+        ).subscribe(({timelineInfo: {range, selectionRange, selectedTime}}: ISourceForTimeline) => {
+            this.timelineStartTime = range[0];
+            this.timelineEndTime = range[1];
+            this.selectionStartTime = selectionRange[0];
+            this.selectionEndTime = selectionRange[1];
+            this.pointingTime = selectedTime;
             this.timelineData = {
                 'agentStatusTimeline': {
                     'timelineSegments': [
                         {
-                            'startTimestamp': timelineInfo.range[0],
-                            'endTimestamp': timelineInfo.range[1],
+                            'startTimestamp': range[0],
+                            'endTimestamp': range[1],
                             'value': 'EMPTY'
                         }
                     ],
@@ -106,8 +81,6 @@ export class ApplicationInspectorTimelineContainerComponent implements OnInit, O
                     'timelineSegments': []
                 }
             };
-
-            this.changeDetector.detectChanges();
         });
     }
     ngOnDestroy() {
@@ -118,18 +91,6 @@ export class ApplicationInspectorTimelineContainerComponent implements OnInit, O
         this.timezone$ = this.storeHelperService.getTimezone(this.unsubscribe);
         this.dateFormat$ = this.storeHelperService.getDateFormatArray(this.unsubscribe, 0, 5, 6);
     }
-    calcuRetrieveTime(startTime: number, endTime: number ): number[] {
-        const allowedMaxRagne = Timeline.MAX_TIME_RANGE;
-        const timeGap = endTime - startTime;
-
-        if (timeGap > allowedMaxRagne) {
-            return [endTime - allowedMaxRagne, endTime];
-        } else {
-            const calcuStart = timeGap * 3;
-
-            return [endTime - (calcuStart > allowedMaxRagne ? allowedMaxRagne : calcuStart), endTime];
-        }
-    }
     onSelectEventStatus($eventObj: ITimelineEventSegment): void {}
     onChangeTimelineUIEvent(event: TimelineUIEvent): void {
         if (event.changedSelectedTime) {
@@ -138,6 +99,6 @@ export class ApplicationInspectorTimelineContainerComponent implements OnInit, O
         if (event.changedSelectionRange) {
             this.analyticsService.trackEvent(TRACKED_EVENT_LIST.CHANGE_SELECTION_RANGE_ON_TIMELINE);
         }
-        this.storeHelperService.dispatch(new Actions.UpdateTimelineData(event.data));
+        this.inspectorPageService.updateTimelineData(event.data);
     }
 }

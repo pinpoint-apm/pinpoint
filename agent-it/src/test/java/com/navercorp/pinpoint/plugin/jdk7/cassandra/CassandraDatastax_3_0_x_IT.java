@@ -30,7 +30,7 @@ import org.junit.runner.RunWith;
 @PinpointAgent(AgentPath.PATH)
 @JvmVersion(8)
 @Dependency({
-        "com.datastax.cassandra:cassandra-driver-core:[3.0.0,)",
+        "com.datastax.cassandra:cassandra-driver-core:[3.0.0,4.0.0)",
         "org.scassandra:java-client:1.1.2"})
 public class CassandraDatastax_3_0_x_IT extends CassandraDatastaxITBase {
 }

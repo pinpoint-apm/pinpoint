@@ -1,57 +1,59 @@
-import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ElementRef, Renderer2 } from '@angular/core';
+import { Router, RouterEvent, NavigationStart } from '@angular/router';
 import { Subject } from 'rxjs';
-import { takeUntil, filter } from 'rxjs/operators';
+import { filter } from 'rxjs/operators';
 
-import { UrlPathId } from 'app/shared/models';
-import { StoreHelperService, NewUrlStateNotificationService } from 'app/shared/services';
+import { StoreHelperService } from 'app/shared/services';
+import { ServerMapData } from 'app/core/components/server-map/class';
 
 @Component({
     selector: 'pp-side-bar-container',
     templateUrl: './side-bar-container.component.html',
     styleUrls: ['./side-bar-container.component.css'],
-    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SideBarContainerComponent implements OnInit, OnDestroy {
     private unsubscribe: Subject<null> = new Subject();
-    target: any;
-    sideBarWidth = 0;
+    target: ISelectedTarget;
     useDisable = true;
     showLoading = true;
+
     constructor(
-        private changeDetectorRef: ChangeDetectorRef,
+        private router: Router,
         private storeHelperService: StoreHelperService,
-        private newUrlStateNotificationService: NewUrlStateNotificationService
+        private el: ElementRef,
+        private renderer: Renderer2
     ) {}
+
     ngOnInit() {
-        this.newUrlStateNotificationService.onUrlStateChange$.pipe(
-            takeUntil(this.unsubscribe)
-        ).subscribe((urlService: NewUrlStateNotificationService) => {
-            if (urlService.hasValue(UrlPathId.APPLICATION)) {
-                this.showLoading = true;
-                this.useDisable = true;
-            } else {
-                this.sideBarWidth = 0;
-                this.showLoading = false;
-                this.useDisable = false;
-            }
-            this.changeDetectorRef.detectChanges();
-        });
+        this.addPageLoadingHandler();
         this.connectStore();
     }
+
     ngOnDestroy() {
         this.unsubscribe.next();
         this.unsubscribe.complete();
     }
+
+    private addPageLoadingHandler(): void {
+        this.router.events.pipe(
+            filter((e: RouterEvent) => {
+                return e instanceof NavigationStart;
+            })
+        ).subscribe(() => {
+            this.showLoading = true;
+            this.useDisable = true;
+        });
+    }
+
     private connectStore(): void {
         this.storeHelperService.getServerMapData(this.unsubscribe).pipe(
-            filter((target: any) => {
-                return target.nodeList ? true : false;
+            filter((serverMapData: ServerMapData) => {
+                return !!serverMapData;
             })
-        ).subscribe((target: any) => {
-            if (target.nodeList.length === 0) {
-                this.sideBarWidth = 0;
+        ).subscribe((serverMapData: ServerMapData) => {
+            if (serverMapData.getNodeCount() === 0) {
+                this.renderer.setStyle(this.el.nativeElement, 'width', '0px');
             }
-            this.changeDetectorRef.detectChanges();
         });
         this.storeHelperService.getServerMapTargetSelected(this.unsubscribe).pipe(
             filter((target: ISelectedTarget) => {
@@ -59,16 +61,12 @@ export class SideBarContainerComponent implements OnInit, OnDestroy {
             })
         ).subscribe((target: ISelectedTarget) => {
             this.target = target;
-            if (target.isNode === true || target.isLink === true) {
-                this.sideBarWidth = 461;
-            } else {
-                this.sideBarWidth = 0;
-            }
+            this.renderer.setStyle(this.el.nativeElement, 'width', '477px');
             this.showLoading = false;
             this.useDisable = false;
-            this.changeDetectorRef.detectChanges();
         });
     }
+
     hasTopElement(): boolean {
         return this.target && (this.target.isNode || this.target.isMerged);
     }

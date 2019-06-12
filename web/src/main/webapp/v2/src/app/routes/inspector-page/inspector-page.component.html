@@ -9,11 +9,13 @@
     <pp-configuration-icon-container></pp-configuration-icon-container>
 </header>
 <div class="l-main-container">
-    <section *ngIf="(endTime$ | async) as endTime" class="l-sidemenu-wrap font-opensans">
+    <section *ngIf="(showSideMenu$ | async) as showSideMenu" class="l-sidemenu-wrap font-opensans">
         <div class="l-sidemenu-left">
-            <pp-application-inspector-title-container></pp-application-inspector-title-container>
-            <pp-server-and-agent-list-container></pp-server-and-agent-list-container>            
             <pp-agent-search-input-container></pp-agent-search-input-container>
+            <section class="l-application-inspector-title-wrapper">
+                <pp-application-inspector-title-container></pp-application-inspector-title-container>
+            </section>
+            <pp-server-and-agent-list-container></pp-server-and-agent-list-container>            
         </div>
     </section>
     <section class="l-main-section">

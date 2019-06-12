@@ -50,15 +50,32 @@
             <scope>runtime</scope>
             <type>pom</type>
         </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-grpc</artifactId>
+        </dependency>
 
         <!-- plug-ins -->
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
-            <artifactId>pinpoint-plugins</artifactId>
+            <artifactId>pinpoint-plugins-assembly</artifactId>
+            <type>pom</type>
+            <scope>runtime</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.navercorp.pinpoint</groupId>
+                    <artifactId>pinpoint-external-plugins</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <!-- plug-ins -->
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-agent-plugins</artifactId>
             <type>pom</type>
             <scope>runtime</scope>
         </dependency>
-
 
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
@@ -105,22 +122,35 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
-                <version>${plugin.assembly.version}</version>
                 <configuration>
-                    <descriptors>
-                        <descriptor>src/assembly/distribution.xml</descriptor>
-                    </descriptors>
                     <outputDirectory>${project.build.directory}</outputDirectory>
                     <appendAssemblyId>false</appendAssemblyId>
-                    <!--<attach>true</attach>-->
                 </configuration>
                 <executions>
                     <execution>
-                        <id>create-distribution</id>
+                        <id>make-internal</id>
                         <phase>package</phase>
                         <goals>
                             <goal>single</goal>
                         </goals>
+                        <configuration>
+                            <descriptors>
+                                <descriptor>${basedir}/src/assembly/internal.xml</descriptor>
+                            </descriptors>
+                            <attach>false</attach>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>make-distribution</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <descriptors>
+                                <descriptor>${basedir}/src/assembly/distribution.xml</descriptor>
+                            </descriptors>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>

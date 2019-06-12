@@ -1,8 +1,7 @@
-
 import { Routes } from '@angular/router';
 
 import { UrlPathId } from 'app/shared/models';
-import { SystemConfigurationResolverService, ServerTimeResolverService } from 'app/shared/services';
+import { ServerTimeResolverService } from 'app/shared/services';
 import { AgentStatContentsContainerComponent } from 'app/core/components/agent-stat-contents/agent-stat-contents-container.component';
 import { AgentManagementContentsContainerComponent } from 'app/core/components/agent-management-contents/agent-management-contents-container.component';
 import { AdminPageComponent } from './admin-page.component';
@@ -12,7 +11,6 @@ export const routing: Routes = [
         path: '',
         component: AdminPageComponent,
         resolve: {
-            configuration: SystemConfigurationResolverService,
             serverTime: ServerTimeResolverService
         },
         children: [

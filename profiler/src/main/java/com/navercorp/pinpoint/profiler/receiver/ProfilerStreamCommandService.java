@@ -17,11 +17,10 @@
 package com.navercorp.pinpoint.profiler.receiver;
 
 import com.navercorp.pinpoint.rpc.packet.stream.StreamCode;
-
-import com.navercorp.pinpoint.rpc.stream.ServerStreamChannelContext;
+import com.navercorp.pinpoint.rpc.stream.ServerStreamChannel;
 
 public interface ProfilerStreamCommandService<REQ> extends ProfilerCommandService {
 
-    StreamCode streamCommandService(REQ request, ServerStreamChannelContext streamChannelContext);
+    StreamCode streamCommandService(REQ request, ServerStreamChannel serverStreamChannel);
     
 }

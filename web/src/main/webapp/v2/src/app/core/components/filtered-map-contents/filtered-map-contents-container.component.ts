@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ComponentFactoryResolver, Injector } from '@angular/core';
 
 import { HELP_VIEWER_LIST, HelpViewerPopupContainerComponent } from 'app/core/components/help-viewer-popup/help-viewer-popup-container.component';
 import { AnalyticsService, TRACKED_EVENT_LIST, DynamicPopupService } from 'app/shared/services';
@@ -11,8 +11,11 @@ import { AnalyticsService, TRACKED_EVENT_LIST, DynamicPopupService } from 'app/s
 export class FilteredMapContentsContainerComponent implements OnInit {
     constructor(
         private analyticsService: AnalyticsService,
-        private dynamicPopupService: DynamicPopupService
+        private dynamicPopupService: DynamicPopupService,
+        private componentFactoryResolver: ComponentFactoryResolver,
+        private injector: Injector
     ) {}
+
     ngOnInit() {}
     onShowHelp($event: MouseEvent): void {
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.TOGGLE_HELP_VIEWER, HELP_VIEWER_LIST.SERVER_MAP);
@@ -25,6 +28,9 @@ export class FilteredMapContentsContainerComponent implements OnInit {
                 coordY: top + height / 2
             },
             component: HelpViewerPopupContainerComponent
+        }, {
+            resolver: this.componentFactoryResolver,
+            injector: this.injector
         });
     }
 }

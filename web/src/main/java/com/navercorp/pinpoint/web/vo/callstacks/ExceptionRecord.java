@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.web.vo.callstacks;
 
-import com.navercorp.pinpoint.web.calltree.span.SpanAlign;
+import com.navercorp.pinpoint.web.calltree.span.Align;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -24,7 +24,7 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class ExceptionRecord extends BaseRecord {
 
-    public ExceptionRecord(final int tab, final int id, final int parentId, final SpanAlign align) {
+    public ExceptionRecord(final int tab, final int id, final int parentId, final Align align) {
         this.tab = tab;
         this.id = id;
         this.parentId = parentId;

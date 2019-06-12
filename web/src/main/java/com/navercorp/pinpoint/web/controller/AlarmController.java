@@ -23,6 +23,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -43,13 +44,15 @@ import com.navercorp.pinpoint.web.service.AlarmService;
 @RequestMapping(value={"/alarmRule", "/application/alarmRule"})
 public class AlarmController {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    
+
+    public final static String EDIT_ALARM_ONLY_MANAGER = "permission_alarm_editAlarmOnlyManager";
     public final static String USER_GROUP_ID = "userGroupId";
     public final static String APPLICATION_ID = "applicationId";
 
     @Autowired
     AlarmService alarmService;
-    
+
+    @PreAuthorize("hasPermission(#rule.getApplicationId(), null, T(com.navercorp.pinpoint.web.controller.AlarmController).EDIT_ALARM_ONLY_MANAGER)")
     @RequestMapping(method = RequestMethod.POST)
     @ResponseBody
     public Map<String, String> insertRule(@RequestBody Rule rule) {
@@ -67,7 +70,8 @@ public class AlarmController {
         result.put("ruleId", ruleId);
         return result;
     }
-    
+
+    @PreAuthorize("hasPermission(#rule.getApplicationId(), null, T(com.navercorp.pinpoint.web.controller.AlarmController).EDIT_ALARM_ONLY_MANAGER)")
     @RequestMapping(method = RequestMethod.DELETE)
     @ResponseBody
     public Map<String, String> deleteRule(@RequestBody Rule rule) {
@@ -101,7 +105,8 @@ public class AlarmController {
         
         return alarmService.selectRuleByApplicationId(applicationId);
     }
-    
+
+    @PreAuthorize("hasPermission(#rule.getApplicationId(), null, T(com.navercorp.pinpoint.web.controller.AlarmController).EDIT_ALARM_ONLY_MANAGER)")
     @RequestMapping(method = RequestMethod.PUT)
     @ResponseBody
     public Map<String, String> updateRule(@RequestBody Rule rule) {

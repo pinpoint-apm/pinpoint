@@ -23,19 +23,19 @@ import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.common.util.IntStringValue;
 import com.navercorp.pinpoint.profiler.context.Annotation;
 import com.navercorp.pinpoint.profiler.context.AsyncId;
+import com.navercorp.pinpoint.profiler.context.AsyncSpanChunk;
 import com.navercorp.pinpoint.profiler.context.LocalAsyncId;
 import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SpanChunk;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
-import com.navercorp.pinpoint.profiler.context.compress.SpanPostProcessor;
-import com.navercorp.pinpoint.profiler.context.compress.Context;
+import com.navercorp.pinpoint.profiler.context.compress.SpanProcessor;
 import com.navercorp.pinpoint.profiler.context.id.Shared;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.context.id.TransactionIdEncoder;
-import com.navercorp.pinpoint.profiler.util.AnnotationValueMapper;
 import com.navercorp.pinpoint.thrift.dto.TAnnotation;
 import com.navercorp.pinpoint.thrift.dto.TAnnotationValue;
 import com.navercorp.pinpoint.thrift.dto.TIntStringValue;
+import com.navercorp.pinpoint.thrift.dto.TLocalAsyncId;
 import com.navercorp.pinpoint.thrift.dto.TSpan;
 import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
 import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
@@ -55,10 +55,10 @@ public class SpanThriftMessageConverter implements MessageConverter<TBase<?, ?>>
     private final long agentStartTime;
     private final short applicationServiceType;
     private final TransactionIdEncoder transactionIdEncoder;
-    private final SpanPostProcessor<Context> spanPostProcessor;
+    private final SpanProcessor<TSpan, TSpanChunk> spanPostProcessor;
 
     public SpanThriftMessageConverter(String applicationName, String agentId, long agentStartTime, short applicationServiceType,
-                                      TransactionIdEncoder transactionIdEncoder, SpanPostProcessor<Context> spanPostProcessor) {
+                                      TransactionIdEncoder transactionIdEncoder, SpanProcessor<TSpan, TSpanChunk> spanPostProcessor) {
         this.applicationName = Assert.requireNonNull(applicationName, "applicationName must not be null");
         this.agentId = Assert.requireNonNull(agentId, "agentId must not be null");
         this.agentStartTime = agentStartTime;
@@ -73,12 +73,10 @@ public class SpanThriftMessageConverter implements MessageConverter<TBase<?, ?>>
     public TBase<?, ?> toMessage(Object message) {
         if (message instanceof SpanChunk) {
             final SpanChunk spanChunk = (SpanChunk) message;
-            final TSpanChunk tSpanChunk = buildTSpanChunk(spanChunk);
-            return tSpanChunk;
+            return buildTSpanChunk(spanChunk);
         }
         if (message instanceof Span) {
             final Span span = (Span) message;
-
             return buildTSpan(span);
         }
         return null;
@@ -134,25 +132,22 @@ public class SpanThriftMessageConverter implements MessageConverter<TBase<?, ?>>
             final List<TAnnotation> tAnnotations = buildTAnnotation(annotations);
             tSpan.setAnnotations(tAnnotations);
         }
-
+        spanPostProcessor.preProcess(span, tSpan);
         final List<SpanEvent> spanEventList = span.getSpanEventList();
         if (CollectionUtils.hasLength(spanEventList)) {
-            final Context context = spanPostProcessor.newContext(span, tSpan);
-            final List<TSpanEvent> tSpanEvents = buildTSpanEventList(spanEventList, context);
-            context.finish();
+            final List<TSpanEvent> tSpanEvents = buildTSpanEventList(spanEventList);
             tSpan.setSpanEventList(tSpanEvents);
         }
+        spanPostProcessor.postProcess(span, tSpan);
         return tSpan;
 
     }
 
-    private List<TSpanEvent> buildTSpanEventList(List<SpanEvent> spanEventList, Context context) {
+    private List<TSpanEvent> buildTSpanEventList(List<SpanEvent> spanEventList) {
         final int eventSize = spanEventList.size();
         final List<TSpanEvent> tSpanEventList = new ArrayList<TSpanEvent>(eventSize);
         for (SpanEvent spanEvent : spanEventList) {
-            final TSpanEvent tSpanEvent = buildTSpanEvent(spanEvent, context);
-            this.spanPostProcessor.postProcess(context, spanEvent, tSpanEvent);
-            context.next();
+            final TSpanEvent tSpanEvent = buildTSpanEvent(spanEvent);
             tSpanEventList.add(tSpanEvent);
         }
         return tSpanEventList;
@@ -177,19 +172,26 @@ public class SpanThriftMessageConverter implements MessageConverter<TBase<?, ?>>
         final Shared shared = traceRoot.getShared();
         tSpanChunk.setEndPoint(shared.getEndPoint());
 
+        if (spanChunk instanceof AsyncSpanChunk) {
+            final AsyncSpanChunk asyncSpanChunk = (AsyncSpanChunk) spanChunk;
+            final LocalAsyncId localAsyncId = asyncSpanChunk.getLocalAsyncId();
+            final TLocalAsyncId tLocalAsyncId = new TLocalAsyncId(localAsyncId.getAsyncId(), localAsyncId.getSequence());
+            tSpanChunk.setLocalAsyncId(tLocalAsyncId);
+        }
+
+        spanPostProcessor.preProcess(spanChunk, tSpanChunk);
         final List<SpanEvent> spanEventList = spanChunk.getSpanEventList();
         if (CollectionUtils.hasLength(spanEventList)) {
-            final Context context = spanPostProcessor.newContext(spanChunk, tSpanChunk);
-            final List<TSpanEvent> tSpanEvents = buildTSpanEventList(spanEventList, context);
-            context.finish();
+            final List<TSpanEvent> tSpanEvents = buildTSpanEventList(spanEventList);
             tSpanChunk.setSpanEventList(tSpanEvents);
         }
+        spanPostProcessor.postProcess(spanChunk, tSpanChunk);
 
         return tSpanChunk;
     }
 
     @VisibleForTesting
-    TSpanEvent buildTSpanEvent(SpanEvent spanEvent, Context context) {
+    TSpanEvent buildTSpanEvent(SpanEvent spanEvent) {
         final TSpanEvent tSpanEvent = new TSpanEvent();
 
 //        if (spanEvent.getStartElapsed() != 0) {
@@ -226,11 +228,6 @@ public class SpanThriftMessageConverter implements MessageConverter<TBase<?, ?>>
         if (asyncIdObject != null) {
             tSpanEvent.setNextAsyncId(asyncIdObject.getAsyncId());
         }
-        final LocalAsyncId localAsyncId = spanEvent.getLocalAsyncId();
-        if (localAsyncId != null) {
-            tSpanEvent.setAsyncId(localAsyncId.getAsyncId());
-            tSpanEvent.setAsyncSequence(localAsyncId.getSequence());
-        }
 
         final List<Annotation> annotations = spanEvent.getAnnotations();
         if (CollectionUtils.hasLength(annotations)) {
@@ -255,7 +252,7 @@ public class SpanThriftMessageConverter implements MessageConverter<TBase<?, ?>>
         final List<TAnnotation> tAnnotationList = new ArrayList<TAnnotation>(annotations.size());
         for (Annotation annotation : annotations) {
             final TAnnotation tAnnotation = new TAnnotation(annotation.getAnnotationKey());
-            final TAnnotationValue tAnnotationValue = AnnotationValueMapper.buildTAnnotationValue(annotation.getValue());
+            final TAnnotationValue tAnnotationValue = AnnotationValueThriftMapper.buildTAnnotationValue(annotation.getValue());
             if (tAnnotationValue != null) {
                 tAnnotation.setValue(tAnnotationValue);
             }

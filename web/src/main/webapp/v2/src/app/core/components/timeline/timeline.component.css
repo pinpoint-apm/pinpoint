@@ -2,10 +2,10 @@
     display: block;
     user-select: none;
 }
-svg {
+.l-timeline-svg {
     width: 100%;
 }
-svg text { 
+.l-timeline-svg text { 
     user-select: none;
 }
 .hide {

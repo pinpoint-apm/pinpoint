@@ -3,7 +3,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { Observable, of } from 'rxjs';
 import { map, filter, switchMap, pluck } from 'rxjs/operators';
 
-import { TranslateReplaceService } from 'app/shared/services';
+import { TranslateReplaceService, AnalyticsService, TRACKED_EVENT_LIST } from 'app/shared/services';
 import { ApplicationNameDuplicationCheckDataService, IApplicationAvailable } from './application-name-duplication-check-data.service';
 import { ApplicationNameDuplicationCheckInteractionService } from './application-name-duplication-check-interaction.service';
 
@@ -14,7 +14,6 @@ import { ApplicationNameDuplicationCheckInteractionService } from './application
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ApplicationNameDuplicationCheckContainerComponent implements OnInit {
-    labelText = 'Application Name';
     message: string;
     isValueValid: boolean;
     placeholder$: Observable<string>;
@@ -27,7 +26,8 @@ export class ApplicationNameDuplicationCheckContainerComponent implements OnInit
         private translateService: TranslateService,
         private translateReplaceService: TranslateReplaceService,
         private applicationNameDuplicationCheckDataService: ApplicationNameDuplicationCheckDataService,
-        private applicationNameDuplicationCheckInteractionService: ApplicationNameDuplicationCheckInteractionService
+        private applicationNameDuplicationCheckInteractionService: ApplicationNameDuplicationCheckInteractionService,
+        private analyticsService: AnalyticsService,
     ) {}
 
     ngOnInit() {
@@ -70,6 +70,7 @@ export class ApplicationNameDuplicationCheckContainerComponent implements OnInit
         }, (error: IServerErrorFormat) => {
             this.onCheckFail(error.exception.message);
         });
+        this.analyticsService.trackEvent(TRACKED_EVENT_LIST.CHECK_APPLICATION_NAME_DUPLICATION);
     }
 
     private isLengthValid(length: number): boolean {

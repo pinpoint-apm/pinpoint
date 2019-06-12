@@ -52,9 +52,9 @@ export class AlarmRuleDataService {
             retry(3)
         );
     }
-    remove(ruleId: string): Observable<IAlarmRuleResponse> {
+    remove(applicationId: string, ruleId: string): Observable<IAlarmRuleResponse> {
         return this.http.request<IAlarmRuleResponse>('delete', this.alarmRuleURL, {
-            body: { ruleId }
+            body: { applicationId, ruleId }
         }).pipe(
             retry(3)
         );

@@ -17,15 +17,11 @@
 
 package com.navercorp.pinpoint.test.plugin;
 
-import org.eclipse.aether.resolution.ArtifactResolutionException;
-import org.eclipse.aether.resolution.DependencyResolutionException;
-
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -47,23 +43,30 @@ public class PluginTestClassLoader extends URLClassLoader {
         return super.loadClass(name);
     }
 
-    public static ClassLoader getClassLoader(List<File> fileList) throws MalformedURLException {
-        List<URL> urlList = getUrlList(fileList);
-        return new PluginTestClassLoader(urlList.toArray(new URL[0]));
+    public static ClassLoader getClassLoader(List<File> fileList) {
+        URL[] urlList = getUrlList(fileList);
+        return new PluginTestClassLoader(urlList);
     }
 
-    private static List<URL> getUrlList(List<File> fileList) throws MalformedURLException {
+    private static URL[] getUrlList(List<File> fileList)  {
         if (fileList == null) {
-            return Collections.emptyList();
+            return new URL[0];
         }
 
-        List<URL> urls = new ArrayList<URL>();
+        final List<URL> urls = new ArrayList<URL>();
         for (File file : fileList) {
-            if (file instanceof File) {
-                urls.add(file.toURI().toURL());
-            }
+            final URL url = toURL(file);
+            urls.add(url);
         }
-        return urls;
+        return urls.toArray(new URL[0]);
+    }
+
+    private static URL toURL(File file) {
+        try {
+            return file.toURI().toURL();
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e. getMessage(), e);
+        }
     }
 
 

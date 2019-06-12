@@ -189,7 +189,8 @@
     </bean>
 
     <bean id="flinkServerRegister" class="com.navercorp.pinpoint.flink.cluster.FlinkServerRegister" lazy-init="true">
-        <constructor-arg ref="flinkConfiguration"/>
+        <constructor-arg index="0" ref="flinkConfiguration"/>
+        <constructor-arg index="1" value="/pinpoint-cluster/flink"/>
     </bean>
 
     <!-- TCPReceiver related Beans -->
@@ -235,6 +236,7 @@
         <property name="tcpPacketHandlerFactory" ref="flinkPacketHandlerFactory"/>
     </bean>
 
-
     <bean id="tcpSourceFunction" class="com.navercorp.pinpoint.flink.receiver.TcpSourceFunction"/>
+
+    <bean id="agentStatHandler" class="com.navercorp.pinpoint.flink.receiver.AgentStatHandler"/>
 </beans>

@@ -18,8 +18,7 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.navercorp.pinpoint</groupId>
-        <artifactId>pinpoint</artifactId>
-        <relativePath>../..</relativePath>
+        <artifactId>pinpoint-plugins</artifactId>
         <version>1.9.0-SNAPSHOT</version>
     </parent>
 
@@ -33,18 +32,6 @@
         <sniffer.artifactid>java17</sniffer.artifactid>
     </properties>
 
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>com.navercorp.pinpoint</groupId>
-                <artifactId>pinpoint-plugin-bom</artifactId>
-                <version>${project.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
-
     <dependencies>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
@@ -54,6 +41,7 @@
         <dependency>
             <groupId>org.apache.hbase</groupId>
             <artifactId>hbase-shaded-client</artifactId>
+            <version>1.2.6.1</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

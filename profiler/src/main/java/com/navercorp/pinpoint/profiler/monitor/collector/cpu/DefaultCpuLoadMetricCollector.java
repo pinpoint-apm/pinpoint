@@ -24,7 +24,7 @@ import com.navercorp.pinpoint.thrift.dto.TCpuLoad;
 /**
  * @author HyunGil Jeong
  */
-public class DefaultCpuLoadMetricCollector implements AgentStatMetricCollector<TCpuLoad> {
+public class DefaultCpuLoadMetricCollector implements AgentStatMetricCollector<CpuLoadMetricSnapshot> {
 
     private final CpuLoadMetric cpuLoadMetric;
 
@@ -36,13 +36,9 @@ public class DefaultCpuLoadMetricCollector implements AgentStatMetricCollector<T
     }
 
     @Override
-    public TCpuLoad collect() {
+    public CpuLoadMetricSnapshot collect() {
         final CpuLoadMetricSnapshot snapshot = cpuLoadMetric.getSnapshot();
-
-        final TCpuLoad cpuLoad = new TCpuLoad();
-        cpuLoad.setJvmCpuLoad(snapshot.getJvmCpuUsage());
-        cpuLoad.setSystemCpuLoad(snapshot.getSystemCpuUsage());
-        return cpuLoad;
+        return snapshot;
     }
 
     @Override

@@ -3,7 +3,7 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
 import { UrlPathId } from 'app/shared/models';
-import { RouteInfoCollectorService, NewUrlStateNotificationService, WebAppSettingDataService } from 'app/shared/services';
+import { NewUrlStateNotificationService, WebAppSettingDataService } from 'app/shared/services';
 
 @Component({
     selector: 'pp-scatter-full-screen-mode-page',
@@ -15,11 +15,12 @@ export class ScatterFullScreenModePageComponent implements OnInit, OnDestroy {
     applicationImgPath: string;
     applicationName: string;
     selectedAgent: string;
+
     constructor(
-        private routeInfoCollectorService: RouteInfoCollectorService,
         private newUrlStateNotificationService: NewUrlStateNotificationService,
         private webAppSettingDataService: WebAppSettingDataService,
     ) {}
+
     ngOnInit() {
         this.newUrlStateNotificationService.onUrlStateChange$.pipe(
             takeUntil(this.unsubscribe)
@@ -33,6 +34,7 @@ export class ScatterFullScreenModePageComponent implements OnInit, OnDestroy {
             this.applicationImgPath = this.webAppSettingDataService.getIconImagePath() + urlService.getPathValue(UrlPathId.APPLICATION).getServiceType() + this.webAppSettingDataService.getImageExt();
         });
     }
+
     ngOnDestroy() {
         this.unsubscribe.next();
         this.unsubscribe.complete();

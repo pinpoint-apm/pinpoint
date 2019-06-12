@@ -17,13 +17,18 @@
 package com.navercorp.pinpoint.bootstrap.java9.module;
 
 import com.navercorp.pinpoint.bootstrap.module.JavaModule;
+import com.navercorp.pinpoint.bootstrap.module.Providers;
 
 import java.lang.instrument.Instrumentation;
+import java.lang.module.ModuleDescriptor;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 /**
  * @author Woonduk Kang(emeroad)
+ * @author jaehong.kim - Add addProvides()
  */
 public class Java9Module implements JavaModule {
 
@@ -54,6 +59,19 @@ public class Java9Module implements JavaModule {
     public String getName() {
         return this.module.getName();
 
+    }
+
+    @Override
+    public List<Providers> getProviders() {
+        List<Providers> result = new ArrayList<>();
+        Set<ModuleDescriptor.Provides> providesSet = this.module.getDescriptor().provides();
+        for (ModuleDescriptor.Provides provides : providesSet) {
+            String service = provides.service();
+            List<String> providers = provides.providers();
+            Providers newProviders = new Providers(service, providers);
+            result.add(newProviders);
+        }
+        return result;
     }
 
     @Override
@@ -114,6 +132,22 @@ public class Java9Module implements JavaModule {
     }
 
     @Override
+    public void addProvides(Class<?> service, List<Class<?>> providerList) {
+        if (service == null) {
+            throw new NullPointerException("target must not be null");
+        }
+
+        if (providerList == null) {
+            throw new NullPointerException("list must not be null");
+        }
+
+//        logger.info("addProvides module:" + module.getName() +" service:" + service + " providerList:" + providerList);
+        // for debug
+        final Map<Class<?>, List<Class<?>>> extraProvides = Map.of(service, providerList);
+        RedefineModuleUtils.addProvides(instrumentation, module, extraProvides);
+    }
+
+    @Override
     public boolean isExported(String packageName, JavaModule targetJavaModule) {
         if (packageName == null) {
             throw new NullPointerException("packageName must not be null");
@@ -152,6 +186,4 @@ public class Java9Module implements JavaModule {
     public String toString() {
         return module.toString();
     }
-
-
 }

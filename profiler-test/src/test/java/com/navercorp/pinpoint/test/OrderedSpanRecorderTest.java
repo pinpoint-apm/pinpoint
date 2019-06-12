@@ -26,7 +26,9 @@ import java.util.List;
 
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.profiler.context.DefaultAsyncSpanChunk;
 import com.navercorp.pinpoint.profiler.context.DefaultLocalAsyncId;
+import com.navercorp.pinpoint.profiler.context.DefaultSpanChunk;
 import com.navercorp.pinpoint.profiler.context.LocalAsyncId;
 import com.navercorp.pinpoint.profiler.context.Span;
 import com.navercorp.pinpoint.profiler.context.SpanChunk;
@@ -72,9 +74,9 @@ public class OrderedSpanRecorderTest {
         SpanChunk event = wrapSpanChunk(traceRoot, createSpanEvent(traceRoot, 0, (short) 0));
         SpanChunk event1 = wrapSpanChunk(traceRoot, createSpanEvent(traceRoot, 0, (short) 1));
         SpanChunk event2 = wrapSpanChunk(traceRoot, createSpanEvent(traceRoot, 0, (short) 2));
-        SpanChunk asyncEvent1_1 = wrapSpanChunk(traceRoot, createAsyncSpanEvent(traceRoot, 0, (short) 0, 1, (short) 1));
-        SpanChunk asyncEvent1_2 = wrapSpanChunk(traceRoot, createAsyncSpanEvent(traceRoot, 0, (short) 1, 1, (short) 1));
-        SpanChunk asyncEvent2 = wrapSpanChunk(traceRoot, createAsyncSpanEvent(traceRoot, 0, (short) 0, 2, (short) 1));
+        SpanChunk asyncEvent1_1 = wrapSpanChunk(traceRoot, createAsyncSpanEvent(traceRoot, 0, (short) 0), new DefaultLocalAsyncId(1, (short) 1));
+        SpanChunk asyncEvent1_2 = wrapSpanChunk(traceRoot, createAsyncSpanEvent(traceRoot, 0, (short) 1), new DefaultLocalAsyncId(1, (short) 1));
+        SpanChunk asyncEvent2 = wrapSpanChunk(traceRoot, createAsyncSpanEvent(traceRoot, 0, (short) 0), new DefaultLocalAsyncId(2, (short) 1));
         @SuppressWarnings("unchecked")
         final List<?> expectedOrder = Arrays.asList(
                 span,
@@ -99,8 +101,6 @@ public class OrderedSpanRecorderTest {
         this.recorder.print(new PrintStream(baos));
         this.logger.debug(baos.toString());
         for (Object expectedBase : expectedOrder) {
-            expectedBase = unwrapSpanChunk(expectedBase);
-
             Object actualBase = this.recorder.pop();
             assertSame(expectedBase, actualBase);
         }
@@ -124,13 +124,13 @@ public class OrderedSpanRecorderTest {
 
         Span span = createSpan(traceRoot1, startTime1);
         SpanChunk event1 = wrapSpanChunk(traceRoot1, createSpanEvent(traceRoot1, 0, (short) 0));
-        SpanChunk asyncEvent1_1_1 = wrapSpanChunk(traceRoot1, createAsyncSpanEvent(traceRoot1, 0, (short) 0, 1, (short) 1));
-        SpanChunk asyncEvent1_1_2 = wrapSpanChunk(traceRoot1, createAsyncSpanEvent(traceRoot1, 0, (short) 1, 1, (short) 1));
-        SpanChunk asyncEvent1_2_1 = wrapSpanChunk(traceRoot1, createAsyncSpanEvent(traceRoot1, 0, (short) 0, 1, (short) 2));
+        SpanChunk asyncEvent1_1_1 = wrapSpanChunk(traceRoot1, createAsyncSpanEvent(traceRoot1, 0, (short) 0), new DefaultLocalAsyncId(1, (short) 1));
+        SpanChunk asyncEvent1_1_2 = wrapSpanChunk(traceRoot1, createAsyncSpanEvent(traceRoot1, 0, (short) 1), new DefaultLocalAsyncId(1, (short) 1));
+        SpanChunk asyncEvent1_2_1 = wrapSpanChunk(traceRoot1, createAsyncSpanEvent(traceRoot1, 0, (short) 0), new DefaultLocalAsyncId(1, (short) 2));
 
         SpanChunk event2 = wrapSpanChunk(traceRoot2, createSpanEvent(traceRoot2, 0, (short) 1));
-        SpanChunk asyncEvent2_1 = wrapSpanChunk(traceRoot2, createAsyncSpanEvent(traceRoot2, 0, (short) 0, 2, (short) 1));
-        SpanChunk asyncEvent2_2 = wrapSpanChunk(traceRoot2, createAsyncSpanEvent(traceRoot2, 0, (short) 0, 2, (short) 2));
+        SpanChunk asyncEvent2_1 = wrapSpanChunk(traceRoot2, createAsyncSpanEvent(traceRoot2, 0, (short) 0), new DefaultLocalAsyncId(2, (short) 1));
+        SpanChunk asyncEvent2_2 = wrapSpanChunk(traceRoot2, createAsyncSpanEvent(traceRoot2, 0, (short) 0), new DefaultLocalAsyncId(2, (short) 2));
         @SuppressWarnings("unchecked")
         final List<?> expectedOrder = Arrays.asList(
                 span,
@@ -156,7 +156,6 @@ public class OrderedSpanRecorderTest {
         this.recorder.print(new PrintStream(baos));
         this.logger.debug(baos.toString());
         for (Object expectedBase : expectedOrder) {
-            expectedBase = unwrapSpanChunk(expectedBase);
 
             Object actualBase = this.recorder.pop();
             assertSame(expectedBase, actualBase);
@@ -180,13 +179,13 @@ public class OrderedSpanRecorderTest {
         Span span1 = createSpan(traceRoot1, startTime1);
         SpanChunk event1_0 = wrapSpanChunk(traceRoot1, createSpanEvent(traceRoot1, 1, (short) 0));
         SpanChunk event1_1 = wrapSpanChunk(traceRoot1, createSpanEvent(traceRoot1,2, (short) 1));
-        SpanChunk asyncEvent1_0 = wrapSpanChunk(traceRoot1, createAsyncSpanEvent(traceRoot1,1, (short) 0, 1, (short) 1));
-        SpanChunk asyncEvent1_1 = wrapSpanChunk(traceRoot1, createAsyncSpanEvent(traceRoot1, 2, (short) 1, 1, (short) 1));
+        SpanChunk asyncEvent1_0 = wrapSpanChunk(traceRoot1, createAsyncSpanEvent(traceRoot1, 1, (short) 0), new DefaultLocalAsyncId(1, (short) 1));
+        SpanChunk asyncEvent1_1 = wrapSpanChunk(traceRoot1, createAsyncSpanEvent(traceRoot1, 2, (short) 1), new DefaultLocalAsyncId(1, (short) 1));
 
         Span span2 = createSpan(traceRoot2, startTime2);
         SpanChunk event2_0 = wrapSpanChunk(traceRoot2, createSpanEvent(traceRoot2, 0, (short) 0));
         SpanChunk event2_1 = wrapSpanChunk(traceRoot2, createSpanEvent(traceRoot2, 1, (short) 1));
-        SpanChunk asyncEvent2_0 = wrapSpanChunk(traceRoot2, createAsyncSpanEvent(traceRoot2, 0, (short) 0, 2, (short) 1));
+        SpanChunk asyncEvent2_0 = wrapSpanChunk(traceRoot2, createAsyncSpanEvent(traceRoot2, 0, (short) 0), new DefaultLocalAsyncId(2, (short) 1));
         @SuppressWarnings("unchecked")
         final List<?> expectedOrder = Arrays.asList(
                 span1,
@@ -213,8 +212,6 @@ public class OrderedSpanRecorderTest {
         this.recorder.print(new PrintStream(baos));
         this.logger.debug(baos.toString());
         for (Object expectedBase : expectedOrder) {
-            expectedBase = unwrapSpanChunk(expectedBase);
-
             Object actualBase = this.recorder.pop();
             assertSame(expectedBase, actualBase);
         }
@@ -222,10 +219,10 @@ public class OrderedSpanRecorderTest {
     }
 
     private SpanEvent createSpanEvent(TraceRoot traceRoot1, int startElapsed, short sequence) {
-        return createAsyncSpanEvent(traceRoot1, startElapsed, sequence, UNSET_ASYNC_ID, UNSET_ASYNC_SEQUENCE);
+        return createAsyncSpanEvent(traceRoot1, startElapsed, sequence);
     }
     
-    private SpanEvent createAsyncSpanEvent(TraceRoot traceRoot, int startElapsed, short sequence, int asyncId, short asyncSequence) {
+    private SpanEvent createAsyncSpanEvent(TraceRoot traceRoot, int startElapsed, short sequence) {
         Assert.requireNonNull(traceRoot, "traceRoot must not be null");
         if (startElapsed < 0) {
             throw new IllegalArgumentException("startElapsed cannot be less than 0");
@@ -237,10 +234,6 @@ public class OrderedSpanRecorderTest {
         long startTime = traceRoot.getTraceStartTime() + startElapsed;
         event.setStartTime(startTime);
         event.setSequence(sequence);
-        if (asyncId != UNSET_ASYNC_ID && asyncSequence != UNSET_ASYNC_SEQUENCE) {
-            LocalAsyncId localAsyncId = new DefaultLocalAsyncId(asyncId, asyncSequence);
-            event.setLocalAsyncId(localAsyncId);
-        }
         return event;
     }
 
@@ -257,7 +250,12 @@ public class OrderedSpanRecorderTest {
     }
 
     private SpanChunk wrapSpanChunk(TraceRoot traceRoot, SpanEvent event) {
-        SpanChunk spanChunk = new SpanChunk(traceRoot, Collections.singletonList(event));
+        SpanChunk spanChunk = new DefaultSpanChunk(traceRoot, Collections.singletonList(event));
+        return spanChunk;
+    }
+
+    private SpanChunk wrapSpanChunk(TraceRoot traceRoot, SpanEvent event, LocalAsyncId localAsyncId) {
+        SpanChunk spanChunk = new DefaultAsyncSpanChunk(traceRoot, Collections.singletonList(event), localAsyncId);
         return spanChunk;
     }
 

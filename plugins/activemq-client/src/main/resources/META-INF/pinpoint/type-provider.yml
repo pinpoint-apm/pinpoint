@@ -1,0 +1,24 @@
+serviceTypes:
+    - code: 8310
+      name: 'ACTIVEMQ_CLIENT'
+      property:
+          queue: true
+          recordStatistics: true
+      matcher:
+          type: 'exact'
+          code: 100 # message.queue.url
+    - code: 8311
+      name: 'ACTIVEMQ_CLIENT_INTERNAL'
+      desc: 'ACTIVEMQ_CLIENT'
+      matcher:
+          type: 'args'
+
+annotationKeys:
+    - code: 101
+      name: 'activemq.broker.address'
+      property:
+          viewInRecordSet: true
+    - code: 102
+      name: 'activemq.message'
+      property:
+          viewInRecordSet: true
