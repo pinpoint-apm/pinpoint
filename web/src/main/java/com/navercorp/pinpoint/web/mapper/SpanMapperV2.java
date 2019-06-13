@@ -16,15 +16,11 @@
 
 package com.navercorp.pinpoint.web.mapper;
 
-import com.google.common.collect.LinkedListMultimap;
-import com.google.common.collect.ListMultimap;
-import com.google.common.collect.Lists;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.OffsetFixedBuffer;
-import com.navercorp.pinpoint.common.hbase.HBaseTables;
+import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.server.bo.BasicSpan;
-import com.navercorp.pinpoint.common.server.bo.LocalAsyncIdBo;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
@@ -35,6 +31,10 @@ import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanDecoderV0
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanDecodingContext;
 import com.navercorp.pinpoint.common.util.TransactionId;
 import com.navercorp.pinpoint.io.SpanVersion;
+
+import com.google.common.collect.LinkedListMultimap;
+import com.google.common.collect.ListMultimap;
+import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
@@ -92,7 +92,7 @@ public class SpanMapperV2 implements RowMapper<List<SpanBo>> {
         for (Cell cell : rawCells) {
             SpanDecoder spanDecoder = null;
             // only if family name is "span"
-            if (CellUtil.matchingFamily(cell, HBaseTables.TRACE_V2_CF_SPAN)) {
+            if (CellUtil.matchingFamily(cell, HbaseColumnFamily.TRACE_V2_SPAN.getName())) {
 
                 decodingContext.setCollectorAcceptedTime(cell.getTimestamp());
 

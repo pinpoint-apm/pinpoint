@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.web.mapper.stat;
 
 import com.navercorp.pinpoint.common.buffer.Buffer;
-import com.navercorp.pinpoint.common.hbase.HBaseTables;
+import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.distributor.RangeOneByteSimpleHash;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatCodec;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatDecoder;
@@ -30,6 +30,7 @@ import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatSerializ
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatDataPoint;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatType;
 import com.navercorp.pinpoint.web.mapper.TimestampFilter;
+
 import com.sematext.hbase.wd.AbstractRowKeyDistributor;
 import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
 import org.apache.commons.lang3.RandomUtils;
@@ -41,7 +42,6 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
@@ -97,7 +97,7 @@ public class AgentStatMapperV2Test {
         }
         List<Cell> cellsToPut = new ArrayList<>();
         for (Put put : puts) {
-            List<Cell> cells = put.getFamilyCellMap().get(HBaseTables.AGENT_STAT_CF_STATISTICS);
+            List<Cell> cells = put.getFamilyCellMap().get(HbaseColumnFamily.AGENT_STAT_STATISTICS.getName());
             cellsToPut.addAll(cells);
         }
         Result result = Result.create(cellsToPut);

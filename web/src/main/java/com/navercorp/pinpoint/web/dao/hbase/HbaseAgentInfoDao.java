@@ -16,18 +16,18 @@
 
 package com.navercorp.pinpoint.web.dao.hbase;
 
-import com.navercorp.pinpoint.common.hbase.HBaseTables;
+import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
-import com.navercorp.pinpoint.common.hbase.TableNameProvider;
+import com.navercorp.pinpoint.common.hbase.HbaseTableConstatns;
 import com.navercorp.pinpoint.common.server.util.RowKeyUtils;
 import com.navercorp.pinpoint.common.util.TimeUtils;
 import com.navercorp.pinpoint.web.dao.AgentInfoDao;
-
 import com.navercorp.pinpoint.web.mapper.AgentInfoResultsExtractor;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.hadoop.hbase.TableName;
-import org.apache.hadoop.hbase.client.*;
+import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -41,15 +41,12 @@ import java.util.List;
  * @author HyunGil Jeong
  */
 @Repository
-public class HbaseAgentInfoDao implements AgentInfoDao {
+public class HbaseAgentInfoDao extends AbstractHbaseDao implements AgentInfoDao {
 
     private static final int SCANNER_CACHING = 1;
 
     @Autowired
     private HbaseOperations2 hbaseOperations2;
-
-    @Autowired
-    private TableNameProvider tableNameProvider;
 
     @Autowired
     private AgentInfoResultsExtractor agentInfoResultsExtractor;
@@ -66,7 +63,7 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
         }
         Scan scan = createScanForInitialAgentInfo(agentId);
 
-        TableName agentInfoTableName = tableNameProvider.getTableName(HBaseTables.AGENTINFO_STR);
+        TableName agentInfoTableName = getTableName();
         return this.hbaseOperations2.find(agentInfoTableName, scan, agentInfoResultsExtractor);
     }
 
@@ -80,14 +77,14 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
             scans.add(createScanForInitialAgentInfo(agentId));
         }
 
-        TableName agentInfoTableName = tableNameProvider.getTableName(HBaseTables.AGENTINFO_STR);
+        TableName agentInfoTableName = getTableName();
         return this.hbaseOperations2.find(agentInfoTableName, scans, agentInfoResultsExtractor);
     }
 
     private Scan createScanForInitialAgentInfo(String agentId) {
         Scan scan = new Scan();
         byte[] agentIdBytes = Bytes.toBytes(agentId);
-        byte[] reverseStartKey = RowKeyUtils.concatFixedByteAndLong(agentIdBytes, HBaseTables.AGENT_NAME_MAX_LEN, Long.MAX_VALUE);
+        byte[] reverseStartKey = RowKeyUtils.concatFixedByteAndLong(agentIdBytes, HbaseTableConstatns.AGENT_NAME_MAX_LEN, Long.MAX_VALUE);
         scan.setStartRow(reverseStartKey);
         scan.setReversed(true);
         scan.setMaxVersions(1);
@@ -110,7 +107,7 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
 
         Scan scan = createScan(agentId, timestamp);
 
-        TableName agentInfoTableName = tableNameProvider.getTableName(HBaseTables.AGENTINFO_STR);
+        TableName agentInfoTableName = getTableName();
         return this.hbaseOperations2.find(agentInfoTableName, scan, agentInfoResultsExtractor);
     }
 
@@ -125,7 +122,7 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
             scans.add(createScan(agentId, timestamp));
         }
 
-        TableName agentInfoTableName = tableNameProvider.getTableName(HBaseTables.AGENTINFO_STR);
+        TableName agentInfoTableName = getTableName();
         return this.hbaseOperations2.findParallel(agentInfoTableName, scans, agentInfoResultsExtractor);
     }
 
@@ -134,17 +131,22 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
 
         byte[] agentIdBytes = Bytes.toBytes(agentId);
         long startTime = TimeUtils.reverseTimeMillis(currentTime);
-        byte[] startKeyBytes = RowKeyUtils.concatFixedByteAndLong(agentIdBytes, HBaseTables.AGENT_NAME_MAX_LEN, startTime);
-        byte[] endKeyBytes = RowKeyUtils.concatFixedByteAndLong(agentIdBytes, HBaseTables.AGENT_NAME_MAX_LEN, Long.MAX_VALUE);
+        byte[] startKeyBytes = RowKeyUtils.concatFixedByteAndLong(agentIdBytes, HbaseTableConstatns.AGENT_NAME_MAX_LEN, startTime);
+        byte[] endKeyBytes = RowKeyUtils.concatFixedByteAndLong(agentIdBytes, HbaseTableConstatns.AGENT_NAME_MAX_LEN, Long.MAX_VALUE);
 
         scan.setStartRow(startKeyBytes);
         scan.setStopRow(endKeyBytes);
-        scan.addFamily(HBaseTables.AGENTINFO_CF_INFO);
+        scan.addFamily(getColumnFamilyName());
 
         scan.setMaxVersions(1);
         scan.setCaching(SCANNER_CACHING);
 
         return scan;
+    }
+
+    @Override
+    public HbaseColumnFamily getColumnFamily() {
+        return HbaseColumnFamily.AGENTINFO_INFO;
     }
 
 }
