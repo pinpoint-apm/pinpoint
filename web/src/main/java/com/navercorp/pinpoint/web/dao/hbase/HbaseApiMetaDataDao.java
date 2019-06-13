@@ -16,11 +16,13 @@
 
 package com.navercorp.pinpoint.web.dao.hbase;
 
-import java.util.List;
+import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
+import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
+import com.navercorp.pinpoint.common.hbase.RowMapper;
+import com.navercorp.pinpoint.common.server.bo.ApiMetaDataBo;
+import com.navercorp.pinpoint.web.dao.ApiMetaDataDao;
 
-import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
-
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Get;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,25 +30,18 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Repository;
 
-import com.navercorp.pinpoint.common.server.bo.ApiMetaDataBo;
-import com.navercorp.pinpoint.common.hbase.HBaseTables;
-import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
-import com.navercorp.pinpoint.common.hbase.RowMapper;
-import com.navercorp.pinpoint.web.dao.ApiMetaDataDao;
+import java.util.List;
 
 /**
  * @author emeroad
  * @author jaehong.kim
  */
 @Repository
-public class HbaseApiMetaDataDao implements ApiMetaDataDao {
+public class HbaseApiMetaDataDao extends AbstractHbaseDao implements ApiMetaDataDao {
     static final String SPEL_KEY = "#agentId.toString() + '.' + #time.toString() + '.' + #apiId.toString()";
-    
-    @Autowired
-    private HbaseOperations2 hbaseOperations2;
 
     @Autowired
-    private TableNameProvider tableNameProvider;
+    private HbaseOperations2 hbaseOperations2;
 
     @Autowired
     @Qualifier("apiMetaDataMapper")
@@ -66,13 +61,19 @@ public class HbaseApiMetaDataDao implements ApiMetaDataDao {
         ApiMetaDataBo apiMetaDataBo = new ApiMetaDataBo(agentId, time, apiId);
         byte[] sqlId = getDistributedKey(apiMetaDataBo.toRowKey());
         Get get = new Get(sqlId);
-        get.addFamily(HBaseTables.API_METADATA_CF_API);
+        get.addFamily(getColumnFamilyName());
 
-        TableName apiMetaDataTableName = tableNameProvider.getTableName(HBaseTables.API_METADATA_STR);
+        TableName apiMetaDataTableName = getTableName();
         return hbaseOperations2.get(apiMetaDataTableName, get, apiMetaDataMapper);
     }
 
     private byte[] getDistributedKey(byte[] rowKey) {
         return rowKeyDistributorByHashPrefix.getDistributedKey(rowKey);
     }
+
+    @Override
+    public HbaseColumnFamily getColumnFamily() {
+        return HbaseColumnFamily.API_METADATA_API;
+    }
+
 }

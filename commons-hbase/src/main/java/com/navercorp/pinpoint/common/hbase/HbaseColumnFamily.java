@@ -27,9 +27,9 @@ public class HbaseColumnFamily {
 
     public static final AgentInfo AGENTINFO_INFO = new AgentInfo(HbaseTable.AGENTINFO, Bytes.toBytes("Info"));
     public static class AgentInfo extends HbaseColumnFamily {
-        public static byte[] QUALIFIER_IDENTIFIER = Bytes.toBytes("i");
-        public static byte[] QUALIFIER_SERVER_META_DATA = Bytes.toBytes("m");
-        public static byte[] QUALIFIER_JVM = Bytes.toBytes("j");
+        public static final byte[] QUALIFIER_IDENTIFIER = Bytes.toBytes("i");
+        public static final byte[] QUALIFIER_SERVER_META_DATA = Bytes.toBytes("m");
+        public static final byte[] QUALIFIER_JVM = Bytes.toBytes("j");
 
         public AgentInfo(HbaseTable hBaseTable, byte[] columnFamilyName) {
             super(hBaseTable, columnFamilyName);
@@ -40,18 +40,25 @@ public class HbaseColumnFamily {
 
     public static final AgentLifeCycleStatus AGENT_LIFECYCLE_STATUS = new AgentLifeCycleStatus(HbaseTable.AGENT_LIFECYCLE, Bytes.toBytes("S"));
     public static class AgentLifeCycleStatus extends HbaseColumnFamily {
-        public static byte[] QUALIFIER_STATES = Bytes.toBytes("states");
+        public static final byte[] QUALIFIER_STATES = Bytes.toBytes("states");
 
         public AgentLifeCycleStatus(HbaseTable hBaseTable, byte[] columnFamilyName) {
             super(hBaseTable, columnFamilyName);
         }
     }
 
-    public static final HbaseColumnFamily AGENT_STAT_STATISTICS = HbaseTable.AGENT_STAT_VER2.createColumnFamily(Bytes.toBytes("S"));
+    public static final AgentStatStatistics AGENT_STAT_STATISTICS = new AgentStatStatistics(HbaseTable.AGENT_STAT_VER2, Bytes.toBytes("S"));
+    public static class AgentStatStatistics extends HbaseColumnFamily {
+        public static final int TIMESPAN_MS = 5 * 60 * 1000;
+
+        public AgentStatStatistics(HbaseTable hBaseTable, byte[] columnFamilyName) {
+            super(hBaseTable, columnFamilyName);
+        }
+    }
 
     public static final ApiMetadata API_METADATA_API = new ApiMetadata(HbaseTable.API_METADATA, Bytes.toBytes("Api"));
     public static class ApiMetadata extends HbaseColumnFamily {
-        public static byte[] QUALIFIER_SIGNATURE = Bytes.toBytes("P_api_signature");
+        public static final byte[] QUALIFIER_SIGNATURE = Bytes.toBytes("P_api_signature");
 
         public ApiMetadata(HbaseTable hBaseTable, byte[] columnFamilyName) {
             super(hBaseTable, columnFamilyName);
@@ -60,9 +67,23 @@ public class HbaseColumnFamily {
 
     public static final HbaseColumnFamily APPLICATION_INDEX_AGENTS = HbaseTable.APPLICATION_INDEX.createColumnFamily(Bytes.toBytes("Agents"));
 
-    public static final HbaseColumnFamily APPLICATION_STAT_STATISTICS = HbaseTable.APPLICATION_STAT_AGGRE.createColumnFamily(Bytes.toBytes("S"));
+    public static final ApplicationStatStatistics APPLICATION_STAT_STATISTICS = new ApplicationStatStatistics(HbaseTable.APPLICATION_STAT_AGGRE, Bytes.toBytes("S"));
+    public static class ApplicationStatStatistics extends HbaseColumnFamily {
+        public static final int TIMESPAN_MS = 5 * 60 * 1000;
 
-    public static final HbaseColumnFamily APPLICATION_TRACE_INDEX_TRACE = HbaseTable.APPLICATION_TRACE_INDEX.createColumnFamily(Bytes.toBytes("I"));
+        public ApplicationStatStatistics(HbaseTable hBaseTable, byte[] columnFamilyName) {
+            super(hBaseTable, columnFamilyName);
+        }
+    }
+
+    public static final ApplicationTraceIndexTrace APPLICATION_TRACE_INDEX_TRACE = new ApplicationTraceIndexTrace(HbaseTable.APPLICATION_TRACE_INDEX, Bytes.toBytes("I"));
+    public static class ApplicationTraceIndexTrace extends HbaseColumnFamily {
+        public static final int ROW_DISTRIBUTE_SIZE = 1; // applicationIndex hash size
+
+        public ApplicationTraceIndexTrace(HbaseTable hBaseTable, byte[] columnFamilyName) {
+            super(hBaseTable, columnFamilyName);
+        }
+    }
 
     public static final HbaseColumnFamily HOST_APPLICATION_MAP_VER2_MAP = HbaseTable.HOST_APPLICATION_MAP_VER2.createColumnFamily(Bytes.toBytes("M"));
 
@@ -74,7 +95,7 @@ public class HbaseColumnFamily {
 
     public static final SqlMetadataV2 SQL_METADATA_VER2_SQL = new SqlMetadataV2(HbaseTable.SQL_METADATA_VER2, Bytes.toBytes("Sql"));
     public static class SqlMetadataV2 extends HbaseColumnFamily {
-        public static byte[] QUALIFIER_SQLSTATEMENT = Bytes.toBytes("P_sql_statement");
+        public static final byte[] QUALIFIER_SQLSTATEMENT = Bytes.toBytes("P_sql_statement");
 
         public SqlMetadataV2(HbaseTable hBaseTable, byte[] columnFamilyName) {
             super(hBaseTable, columnFamilyName);
@@ -83,7 +104,7 @@ public class HbaseColumnFamily {
 
     public static final StringMetadataStr STRING_METADATA_STR = new StringMetadataStr(HbaseTable.STRING_METADATA, Bytes.toBytes("Str"));
     public static class StringMetadataStr extends HbaseColumnFamily {
-        public static byte[] QUALIFIER_STRING = Bytes.toBytes("P_string");
+        public static final byte[] QUALIFIER_STRING = Bytes.toBytes("P_string");
 
         public StringMetadataStr(HbaseTable hBaseTable, byte[] columnFamilyName) {
             super(hBaseTable, columnFamilyName);

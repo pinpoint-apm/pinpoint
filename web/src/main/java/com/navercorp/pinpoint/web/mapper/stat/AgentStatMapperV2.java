@@ -18,13 +18,14 @@ package com.navercorp.pinpoint.web.mapper.stat;
 
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.OffsetFixedBuffer;
-import com.navercorp.pinpoint.common.hbase.HBaseTables;
+import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatDecoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatDecodingContext;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatHbaseOperationFactory;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatDataPoint;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatDataPointList;
 import com.navercorp.pinpoint.web.mapper.TimestampFilter;
+
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.client.Result;
@@ -70,7 +71,7 @@ public class AgentStatMapperV2<T extends AgentStatDataPoint> implements AgentSta
         List<T> dataPoints = new ArrayList<>();
 
         for (Cell cell : result.rawCells()) {
-            if (CellUtil.matchingFamily(cell, HBaseTables.AGENT_STAT_CF_STATISTICS)) {
+            if (CellUtil.matchingFamily(cell, HbaseColumnFamily.AGENT_STAT_STATISTICS.getName())) {
                 Buffer qualifierBuffer = new OffsetFixedBuffer(cell.getQualifierArray(), cell.getQualifierOffset(), cell.getQualifierLength());
                 Buffer valueBuffer = new OffsetFixedBuffer(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength());
 

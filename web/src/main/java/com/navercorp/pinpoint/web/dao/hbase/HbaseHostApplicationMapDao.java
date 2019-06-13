@@ -16,15 +16,11 @@
 
 package com.navercorp.pinpoint.web.dao.hbase;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
-import com.navercorp.pinpoint.common.hbase.HBaseTables;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
+import com.navercorp.pinpoint.common.hbase.HbaseTable;
+import com.navercorp.pinpoint.common.hbase.HbaseTableConstatns;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.util.TimeSlot;
@@ -33,8 +29,8 @@ import com.navercorp.pinpoint.web.dao.HostApplicationMapDao;
 import com.navercorp.pinpoint.web.service.map.AcceptApplication;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.Range;
-import com.sematext.hbase.wd.AbstractRowKeyDistributor;
 
+import com.sematext.hbase.wd.AbstractRowKeyDistributor;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Scan;
@@ -43,6 +39,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
+
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * 
@@ -83,7 +84,7 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
         }
         final Scan scan = createScan(fromApplication, range);
 
-        TableName hostApplicationMapTableName = tableNameProvider.getTableName(HBaseTables.HOST_APPLICATION_MAP_VER2_STR);
+        TableName hostApplicationMapTableName = tableNameProvider.getTableName(HbaseTable.HOST_APPLICATION_MAP_VER2);
         final List<List<AcceptApplication>> result = hbaseOperations2.findParallel(hostApplicationMapTableName, scan, acceptApplicationRowKeyDistributor, hostApplicationMapperVer2, HOST_APPLICATION_MAP_VER2_NUM_PARTITIONS);
         if (CollectionUtils.isNotEmpty(result)) {
             final Set<AcceptApplication> resultSet = new HashSet<>();
@@ -127,7 +128,7 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
 
     private byte[] createKey(Application parentApplication, long time) {
         Buffer buffer = new AutomaticBuffer();
-        buffer.putPadString(parentApplication.getName(), HBaseTables.APPLICATION_NAME_MAX_LEN);
+        buffer.putPadString(parentApplication.getName(), HbaseTableConstatns.APPLICATION_NAME_MAX_LEN);
         buffer.putShort(parentApplication.getServiceTypeCode());
         buffer.putLong(time);
         return buffer.getBuffer();
