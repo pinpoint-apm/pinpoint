@@ -68,7 +68,6 @@ public class SpanEncoderV0 implements SpanEncoder {
                 buffer.putVInt(localAsyncId.getSequence());
             }
         } else {
-            logger.info("unexpected state. firstSpanEvent==null basicSpan:{}", basicSpan);
             // simple trace case
 //            buffer.putSVInt((short) -1);
 
