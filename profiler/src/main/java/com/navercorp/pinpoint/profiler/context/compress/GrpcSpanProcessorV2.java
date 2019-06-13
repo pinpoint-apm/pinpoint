@@ -49,7 +49,9 @@ public class GrpcSpanProcessorV2 implements SpanProcessor<PSpan.Builder, PSpanCh
         pSpan.setVersion(V2);
 
         final List<SpanEvent> spanEventList = span.getSpanEventList();
-        Collections.sort(spanEventList, SEQUENCE_COMPARATOR);
+        if (CollectionUtils.hasLength(spanEventList)) {
+            Collections.sort(spanEventList, SEQUENCE_COMPARATOR);
+        }
     }
 
     @Override
@@ -57,7 +59,9 @@ public class GrpcSpanProcessorV2 implements SpanProcessor<PSpan.Builder, PSpanCh
         pSpanChunk.setVersion(V2);
 
         final List<SpanEvent> spanEventList = spanChunk.getSpanEventList();
-        Collections.sort(spanEventList, SEQUENCE_COMPARATOR);
+        if (CollectionUtils.hasLength(spanEventList)) {
+            Collections.sort(spanEventList, SEQUENCE_COMPARATOR);
+        }
     }
 
     @Override
