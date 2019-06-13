@@ -7,7 +7,7 @@ import { IInspectorChartContainer } from './inspector-chart-container-factory';
 
 export class AgentActiveThreadChartContainer implements IInspectorChartContainer {
     private apiUrl = 'getAgentStat/activeTrace/chart.pinpoint';
-    defaultYMax = 10;
+    defaultYMax = 4;
     title = 'Active Thread';
 
     constructor(
@@ -67,12 +67,11 @@ export class AgentActiveThreadChartContainer implements IInspectorChartContainer
                 },
                 min: 0,
                 max: (() => {
-                    const max = Math.max(...data.slice(1).map((d: PrimitiveArray) => d.slice(1)).flat() as number[]);
-                    const quarter = max / 4;
+                    const maxTickValue = getMaxTickValue(data, 1);
 
-                    return max === 0 ? getMaxTickValue(this.defaultYMax) : getMaxTickValue(max + quarter);
+                    return maxTickValue === 0 ? this.defaultYMax : maxTickValue;
                 })(),
-                default: [0, getMaxTickValue(this.defaultYMax)]
+                default: [0, this.defaultYMax]
             }
         };
     }
