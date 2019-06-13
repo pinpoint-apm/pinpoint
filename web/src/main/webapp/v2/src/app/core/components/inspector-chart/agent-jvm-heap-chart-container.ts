@@ -94,12 +94,11 @@ export class AgentJVMHeapChartContainer implements IInspectorChartContainer {
                 },
                 min: 0,
                 max: (() => {
-                    const max = Math.max(...data.slice(1, 3).map((d: PrimitiveArray) => d.slice(1)).flat() as number[]);
-                    const quarter = max / 4;
+                    const maxTickValue = getMaxTickValue(data, 1, 3);
 
-                    return max === 0 ? getMaxTickValue(this.defaultYMax) : getMaxTickValue(max + quarter);
+                    return maxTickValue === 0 ? this.defaultYMax : maxTickValue;
                 })(),
-                default: [0, getMaxTickValue(this.defaultYMax)]
+                default: [0, this.defaultYMax]
             },
             y2: {
                 show: true,
@@ -116,12 +115,11 @@ export class AgentJVMHeapChartContainer implements IInspectorChartContainer {
                 },
                 min: 0,
                 max: (() => {
-                    const max = Math.max(...data.slice(3).map((d: PrimitiveArray) => d.slice(1)).flat() as number[]);
-                    const quarter = max / 4;
+                    const maxTickValue = getMaxTickValue(data, 3);
 
-                    return max === 0 ? getMaxTickValue(this.defaultYMax) : getMaxTickValue(max + quarter);
+                    return maxTickValue === 0 ? this.defaultYMax : maxTickValue;
                 })(),
-                default: [0, getMaxTickValue(this.defaultYMax)]
+                default: [0, this.defaultYMax]
             }
         };
     }

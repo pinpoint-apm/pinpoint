@@ -247,7 +247,7 @@ export class InspectorChartContainerComponent implements OnInit, OnDestroy {
                         const formattedValue = this.chartContainer.convertWithUnit(v);
 
                         return v < 0 ? '-' :
-                            this.isAgentChart() ?  formattedValue : `${formattedValue} ${this.getAgentId(columnId, i)}`;
+                            this.isAgentChart() ? formattedValue : `${formattedValue} ${this.getAgentId(columnId, i)}`;
                     }
                 }
             },

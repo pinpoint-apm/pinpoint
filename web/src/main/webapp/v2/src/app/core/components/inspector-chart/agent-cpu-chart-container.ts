@@ -2,7 +2,7 @@ import { PrimitiveArray, Data } from 'billboard.js';
 import { Observable } from 'rxjs';
 
 import { IInspectorChartContainer } from './inspector-chart-container-factory';
-import { makeYData, makeXData, getMaxTickValue } from './inspector-chart-util';
+import { makeYData, makeXData } from './inspector-chart-util';
 import { IInspectorChartData, InspectorChartDataService } from './inspector-chart-data.service';
 
 export class AgentCPUChartContainer implements IInspectorChartContainer {
@@ -63,8 +63,8 @@ export class AgentCPUChartContainer implements IInspectorChartContainer {
                     bottom: 0
                 },
                 min: 0,
-                max: getMaxTickValue(this.defaultYMax),
-                default: [0, getMaxTickValue(this.defaultYMax)]
+                max: this.defaultYMax,
+                default: [0, this.defaultYMax]
             }
         };
     }

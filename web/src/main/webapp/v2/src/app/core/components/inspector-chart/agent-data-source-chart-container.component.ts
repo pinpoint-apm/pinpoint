@@ -35,7 +35,7 @@ export class AgentDataSourceChartContainerComponent implements OnInit, OnDestroy
     private timezone: string;
     private dateFormat: string[];
     private unsubscribe = new Subject<void>();
-    private defaultYMax = 10;
+    private defaultYMax = 4;
 
     chartConfig: IChartConfig;
     isDataEmpty: boolean;
@@ -294,8 +294,12 @@ export class AgentDataSourceChartContainerComponent implements OnInit, OnDestroy
                         bottom: 0
                     },
                     min: 0,
-                    max: getMaxTickValue(this.defaultYMax),
-                    default: [0, getMaxTickValue(this.defaultYMax)]
+                    max: (() => {
+                        const maxTickValue = getMaxTickValue(data, 1);
+
+                        return maxTickValue === 0 ? this.defaultYMax : maxTickValue;
+                    })(),
+                    default: [0, this.defaultYMax]
                 },
             },
             point: {

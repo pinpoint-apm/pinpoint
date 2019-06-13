@@ -7,7 +7,7 @@ import { IInspectorChartData, InspectorChartDataService } from './inspector-char
 
 export class AgentTPSChartContainer implements IInspectorChartContainer {
     private apiUrl = 'getAgentStat/transaction/chart.pinpoint';
-    defaultYMax = 10;
+    defaultYMax = 4;
     title = 'Transactions Per Second';
 
     constructor(
@@ -70,17 +70,24 @@ export class AgentTPSChartContainer implements IInspectorChartContainer {
                 },
                 min: 0,
                 max: (() => {
-                    const max = Math.max(...data.slice(1).map((d: PrimitiveArray) => d.slice(1)).flat() as number[]);
-                    const quarter = max / 4;
+                    const maxTickValue = getMaxTickValue(data, 1);
 
-                    return max === 0 ? getMaxTickValue(this.defaultYMax) : getMaxTickValue(max + quarter);
+                    return maxTickValue === 0 ? this.defaultYMax : maxTickValue;
                 })(),
-                default: [0, getMaxTickValue(this.defaultYMax)]
+                default: [0, this.defaultYMax]
             }
         };
     }
 
     convertWithUnit(value: number): string {
-        return Number.isInteger(value) ? value.toString() : value.toFixed(1);
+        const unitList = ['', 'K', 'M', 'G'];
+
+        return [...unitList].reduce((acc: string, curr: string, i: number, arr: string[]) => {
+            const v = Number(acc);
+
+            return v >= 1000
+                ? (v / 1000).toString()
+                : (arr.splice(i + 1), `${v}${curr}`);
+        }, value.toString());
     }
 }
