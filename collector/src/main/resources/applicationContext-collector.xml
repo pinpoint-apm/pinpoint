@@ -584,11 +584,10 @@
     <bean id="jsonObjectMapper" class="com.fasterxml.jackson.databind.ObjectMapper">
     </bean>
 
-    <bean id="hTable" class="com.navercorp.pinpoint.common.hbase.HBaseTables">
-    </bean>
-
     <bean id="callerMerge" class="com.navercorp.pinpoint.collector.dao.hbase.statistics.RowKeyMerge">
-        <constructor-arg value="#{hTable.MAP_STATISTICS_CALLEE_VER2_CF_COUNTER}"/>
+        <constructor-arg index="0">
+            <util:constant static-field="com.navercorp.pinpoint.common.hbase.HbaseColumnFamily.MAP_STATISTICS_CALLEE_VER2_COUNTER"/>
+        </constructor-arg>
     </bean>
 
     <bean id="callerBulkIncrementer" class="com.navercorp.pinpoint.collector.dao.hbase.statistics.BulkIncrementer">
@@ -596,7 +595,9 @@
     </bean>
 
     <bean id="calleeMerge" class="com.navercorp.pinpoint.collector.dao.hbase.statistics.RowKeyMerge">
-        <constructor-arg value="#{hTable.MAP_STATISTICS_CALLER_VER2_CF_COUNTER}"/>
+        <constructor-arg index="0">
+            <util:constant static-field="com.navercorp.pinpoint.common.hbase.HbaseColumnFamily.MAP_STATISTICS_CALLER_VER2_COUNTER"/>
+        </constructor-arg>
     </bean>
 
     <bean id="calleeBulkIncrementer" class="com.navercorp.pinpoint.collector.dao.hbase.statistics.BulkIncrementer">
@@ -604,7 +605,9 @@
     </bean>
 
     <bean id="selfMerge" class="com.navercorp.pinpoint.collector.dao.hbase.statistics.RowKeyMerge">
-        <constructor-arg value="#{hTable.MAP_STATISTICS_SELF_VER2_CF_COUNTER}"/>
+        <constructor-arg index="0">
+            <util:constant static-field="com.navercorp.pinpoint.common.hbase.HbaseColumnFamily.MAP_STATISTICS_SELF_VER2_COUNTER"/>
+        </constructor-arg>
     </bean>
 
     <bean id="selfBulkIncrementer" class="com.navercorp.pinpoint.collector.dao.hbase.statistics.BulkIncrementer">
