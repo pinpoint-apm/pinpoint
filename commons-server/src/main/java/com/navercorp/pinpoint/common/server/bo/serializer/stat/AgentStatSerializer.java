@@ -16,11 +16,12 @@
 
 package com.navercorp.pinpoint.common.server.bo.serializer.stat;
 
-import com.navercorp.pinpoint.common.hbase.HBaseTables;
+import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatEncoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.HbaseSerializer;
 import com.navercorp.pinpoint.common.server.bo.serializer.SerializationContext;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatDataPoint;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.hadoop.hbase.HConstants;
 import org.apache.hadoop.hbase.client.Put;
@@ -51,6 +52,6 @@ public abstract class AgentStatSerializer<T extends AgentStatDataPoint> implemen
         long timestampDelta = initialTimestamp - baseTimestamp;
         ByteBuffer qualifierBuffer = this.encoder.encodeQualifier(timestampDelta);
         ByteBuffer valueBuffer = this.encoder.encodeValue(agentStatBos);
-        put.addColumn(HBaseTables.AGENT_STAT_CF_STATISTICS, qualifierBuffer, HConstants.LATEST_TIMESTAMP, valueBuffer);
+        put.addColumn(HbaseColumnFamily.AGENT_STAT_STATISTICS.getName(), qualifierBuffer, HConstants.LATEST_TIMESTAMP, valueBuffer);
     }
 }

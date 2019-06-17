@@ -586,7 +586,7 @@
 
     <bean id="callerMerge" class="com.navercorp.pinpoint.collector.dao.hbase.statistics.RowKeyMerge">
         <constructor-arg index="0">
-            <util:constant static-field="com.navercorp.pinpoint.common.hbase.HbaseColumnFamily.MAP_STATISTICS_CALLEE_VER2_COUNTER"/>
+            <util:constant static-field="com.navercorp.pinpoint.common.hbase.HbaseColumnFamily.MAP_STATISTICS_CALLER_VER2_COUNTER"/>
         </constructor-arg>
     </bean>
 
@@ -596,7 +596,7 @@
 
     <bean id="calleeMerge" class="com.navercorp.pinpoint.collector.dao.hbase.statistics.RowKeyMerge">
         <constructor-arg index="0">
-            <util:constant static-field="com.navercorp.pinpoint.common.hbase.HbaseColumnFamily.MAP_STATISTICS_CALLER_VER2_COUNTER"/>
+            <util:constant static-field="com.navercorp.pinpoint.common.hbase.HbaseColumnFamily.MAP_STATISTICS_CALLEE_VER2_COUNTER"/>
         </constructor-arg>
     </bean>
 
