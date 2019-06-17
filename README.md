@@ -11,12 +11,12 @@
 
 Pinpoint has started to support application written in PHP. [Check-out our php-agent repository](https://github.com/naver/pinpoint-c-agent).
 
-## Latest Release (2019/03/27)
+## Latest Release (2019/06/11)
 
-We're happy to announce the release of Pinpoint v1.8.3.
-Please check the release note at (https://github.com/naver/pinpoint/releases/tag/1.8.3).
+We're happy to announce the release of Pinpoint v1.8.4.
+Please check the release note at (https://github.com/naver/pinpoint/releases/tag/1.8.4).
 
-The current stable version is [v1.8.3](https://github.com/naver/pinpoint/releases/tag/1.8.3).
+The current stable version is [v1.8.4](https://github.com/naver/pinpoint/releases/tag/1.8.4).
 
 ## About Pinpoint
 
