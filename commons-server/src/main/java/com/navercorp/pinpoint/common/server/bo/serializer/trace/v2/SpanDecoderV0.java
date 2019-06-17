@@ -391,12 +391,18 @@ public class SpanDecoderV0 implements SpanDecoder {
         long spanId = buffer.readLong();
         basicSpan.setSpanId(spanId);
 
+        if (!buffer.hasRemaining()) {
+            // spanEventList.size() == 0
+            return new SpanEventBo();
+        }
+
         int firstSpanEventSequence = buffer.readSVInt();
-        if (firstSpanEventSequence == -1) {
+        if (firstSpanEventSequence < 0) {
+            // consume buffer
 //            buffer.readByte();
-            // spanEvent not exist ??
-            logger.warn("firstSpanEvent is null. bug!!!! firstSpanEventSequence:{}", firstSpanEventSequence);
-            throw new IllegalStateException("firstSpanEvent is null");
+//            readQualifierLocalAsyncIdBo(buffer);
+            logger.warn("sequence overflow. firstSpanEventSequence:{} basicSpan:{}", firstSpanEventSequence, basicSpan);
+            throw new IllegalStateException("sequence overflow agentId:" + agentId);
         } else {
             return readQualifierFirstSpanEvent(buffer);
         }
