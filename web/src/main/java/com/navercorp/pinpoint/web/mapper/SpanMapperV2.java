@@ -20,7 +20,7 @@ import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
 import com.navercorp.pinpoint.common.buffer.Buffer;
-import com.navercorp.pinpoint.common.buffer.OffsetFixedBuffer;
+import com.navercorp.pinpoint.common.buffer.FixedBuffer;
 import com.navercorp.pinpoint.common.hbase.HBaseTables;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.server.bo.BasicSpan;
@@ -94,8 +94,8 @@ public class SpanMapperV2 implements RowMapper<List<SpanBo>> {
 
                 decodingContext.setCollectorAcceptedTime(cell.getTimestamp());
 
-                final Buffer qualifier = new OffsetFixedBuffer(cell.getQualifierArray(), cell.getQualifierOffset(), cell.getQualifierLength());
-                final Buffer columnValue = new OffsetFixedBuffer(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength());
+                final Buffer qualifier = new FixedBuffer(CellUtil.cloneQualifier(cell));
+                final Buffer columnValue = new FixedBuffer(CellUtil.cloneValue(cell));
 
                 spanDecoder = resolveDecoder(columnValue);
                 final Object decodeObject = spanDecoder.decode(qualifier, columnValue, decodingContext);
