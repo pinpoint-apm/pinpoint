@@ -1,7 +1,7 @@
 import { Component, OnInit, OnChanges, Input, Output, EventEmitter, ViewChild, ElementRef, SimpleChanges, Renderer2, OnDestroy } from '@angular/core';
 import bb, { Data, PrimitiveArray } from 'billboard.js';
 import { Subject, merge, fromEvent } from 'rxjs';
-import { filter, map, tap } from 'rxjs/operators';
+import { filter, map } from 'rxjs/operators';
 
 import { MessageQueueService, MESSAGE_TO, GutterEventService, NewUrlStateNotificationService } from 'app/shared/services';
 import { UrlPath } from 'app/shared/models';
@@ -25,7 +25,6 @@ export class InspectorChartComponent implements OnInit, OnChanges, OnDestroy {
     private chartInstance: any;
     private readonly inspectorChartRatio = 1.92;
 
-
     constructor(
         private messageQueueService: MessageQueueService,
         private gutterEventService: GutterEventService,
@@ -43,13 +42,14 @@ export class InspectorChartComponent implements OnInit, OnChanges, OnDestroy {
                 filter((ratioArr: number[]) => !!ratioArr),
                 map(([upperRatio]: number[]) => upperRatio),
                 filter((ratio: number) => ratio >= 30 && ratio <= 55), // 30, 50: 차트가 포함되어 있는 split-area의 최소, 최대 사이즈(비율)
+                filter(() => !!this.chartInstance),
             )
         ).pipe(
-            tap(() => this.setHeight()),
-            filter(() => !!this.chartInstance),
+            filter(() => {
+                return this.el.nativeElement.isConnected;
+            }),
         ).subscribe(() => {
-            this.chartInstance.resize();
-            this.setViewBox();
+            this.resize();
         });
 
         this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.CALL_TREE_ROW_SELECT).subscribe(([{time}]: [ISelectedRowInfo]) => {
@@ -84,6 +84,12 @@ export class InspectorChartComponent implements OnInit, OnChanges, OnDestroy {
     ngOnDestroy() {
         this.unsubscribe.next();
         this.unsubscribe.complete();
+    }
+
+    resize(): void {
+        this.setHeight();
+        this.chartInstance.resize();
+        this.setViewBox();
     }
 
     private setHeight(): void {

@@ -240,6 +240,9 @@ export class InspectorChartContainerComponent implements OnInit, OnDestroy {
                     }
                 }
             },
+            resize: {
+                auto: false
+            },
             tooltip: {
                 linked: true,
                 format: {
