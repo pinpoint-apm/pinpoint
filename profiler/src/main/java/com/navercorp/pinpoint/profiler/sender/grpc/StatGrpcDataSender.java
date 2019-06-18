@@ -88,4 +88,13 @@ public class StatGrpcDataSender extends GrpcDataSender {
         }
         throw new IllegalStateException("unsupported message " + message);
     }
+
+    @Override
+    public void stop() {
+        logger.info("statBatchStream.close()");
+        StreamUtils.close(statBatchStream);
+        logger.info("statStream.close()");
+        StreamUtils.close(statStream);
+        super.stop();
+    }
 }
