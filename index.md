@@ -35,6 +35,9 @@ You should definitely check **Pinpoint** out If you want to
 
 ![Pinpoint](images/ss_server-map.png)
 
+## Live Demo
+ * [Demo](http://125.209.240.10:10123) - Here is a Demo, So that you can take a look at Pinpoint right away.
+
 ## Want a quick tour?
  * [Overview](./overview.html)/[History](./history.html)/[Tech Details](./techdetail.html) to get to know more about Pinpoint 
  * [Introduction to Pinpoint(v1.5.0)](https://www.youtube.com/watch?v=U4EwnB34Dus&feature=youtu.be) - a video introducing Pinpoint
