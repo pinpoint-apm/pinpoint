@@ -63,12 +63,12 @@ public class SpanGrpcDataSender extends GrpcDataSender {
     }
 
     private StreamObserver<PSpan> newSpanStream() {
-        ResponseStreamObserver<PSpan> responseStreamObserver = new ResponseStreamObserver(spanStreamReconnectAction);
+        ResponseStreamObserver<PSpan> responseStreamObserver = new ResponseStreamObserver<PSpan>(spanStreamReconnectAction);
         return spanStub.sendSpan(responseStreamObserver);
     }
 
     private StreamObserver<PSpanChunk> newSpanChunkStream() {
-        ResponseStreamObserver<PSpanChunk> responseStreamObserver = new ResponseStreamObserver(spanChunkReconnectAction);
+        ResponseStreamObserver<PSpanChunk> responseStreamObserver = new ResponseStreamObserver<PSpanChunk>(spanChunkReconnectAction);
         return spanStub.sendSpanChunk(responseStreamObserver);
     }
 
@@ -89,4 +89,16 @@ public class SpanGrpcDataSender extends GrpcDataSender {
         }
         throw new IllegalStateException("unsupported message " + data);
     }
+
+    @Override
+    public void stop() {
+        logger.info("spanStream.close()");
+        StreamUtils.close(this.spanStream);
+        logger.info("spanChunkStream.close()");
+        StreamUtils.close(this.spanChunkStream);
+
+        super.stop();
+    }
+
+
 }
