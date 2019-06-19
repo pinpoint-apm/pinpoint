@@ -28,7 +28,8 @@
                         "terminal": { "type": "boolean" },
                         "queue": { "type": "boolean" },
                         "recordStatistics": { "type": "boolean" },
-                        "includeDestinationId": { "type": "boolean" }
+                        "includeDestinationId": { "type": "boolean" },
+                        "asAlias": { "type": "boolean" }
                     }
                 },
                 "matcher": {
