@@ -51,6 +51,7 @@ serviceTypes:
           queue: <boolean>                  # May be omitted, defaulting to false.
           recordStatistics: <boolean>       # May be omitted, defaulting to false.
           includeDestinationId: <boolean>   # May be omitted, defaulting to false.
+          asAlias: <boolean>                # May be omitted, defaulting to false.          
       matcher:         # May be omitted
           type: <String>   # Any one of 'args', 'exact', 'none'
           code: <int>      # Annotation key code - required only if type is 'exact'
