@@ -153,7 +153,7 @@ public class ChannelFactoryTest {
     }
 
     private static void addFilter(ServerFactory serverFactory) {
-        TransportMetadataFactory transportMetadataFactory = new TransportMetadataFactory();
+        TransportMetadataFactory transportMetadataFactory = new TransportMetadataFactory(ChannelFactoryTest.class.getSimpleName());
         final ServerTransportFilter metadataTransportFilter = new MetadataServerTransportFilter(transportMetadataFactory);
         serverFactory.addTransportFilter(metadataTransportFilter);
 
