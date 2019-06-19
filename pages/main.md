@@ -5,9 +5,9 @@ permalink: main.html
 sidebar: mydoc_sidebar
 ---
 
-[Check out updates on lastest stable release](https://naver.github.io/pinpoint/1.8.2/main.html)
+[Check out updates on lastest stable release](https://naver.github.io/pinpoint/1.8.4/main.html)
 
-### Currently Working On
+## Currently Working On
 
 \* **Scheduled for 1.9.0**
 
@@ -21,7 +21,7 @@ sidebar: mydoc_sidebar
  - \*Support Webflux
  - \*Support Redisson
 
-### Upgrade consideration
+## Upgrade consideration
 
 HBase compatibility table:
 
