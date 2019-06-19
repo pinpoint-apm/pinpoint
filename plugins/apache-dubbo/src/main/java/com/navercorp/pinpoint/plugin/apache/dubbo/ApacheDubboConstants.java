@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.plugin.dubbo;
+package com.navercorp.pinpoint.plugin.apache.dubbo;
 
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.AnnotationKeyFactory;
@@ -25,18 +25,19 @@ import static com.navercorp.pinpoint.common.trace.AnnotationKeyProperty.VIEW_IN_
 import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.RECORD_STATISTICS;
 
 /**
- * @author Jinkai.Ma
+ * @author K
+ * @date 2019-06-14-14:00
  */
-public final class DubboConstants {
-    private DubboConstants() {
+public final class ApacheDubboConstants {
+    private ApacheDubboConstants() {
     }
 
-    public static final ServiceType DUBBO_PROVIDER_SERVICE_TYPE = ServiceTypeFactory.of(1110, "DUBBO_PROVIDER", RECORD_STATISTICS);
-    public static final ServiceType DUBBO_CONSUMER_SERVICE_TYPE = ServiceTypeFactory.of(9110, "DUBBO_CONSUMER", RECORD_STATISTICS);
-    public static final ServiceType DUBBO_PROVIDER_SERVICE_NO_STATISTICS_TYPE = ServiceTypeFactory.of(9111, "DUBBO");
-    public static final AnnotationKey DUBBO_ARGS_ANNOTATION_KEY = AnnotationKeyFactory.of(90, "dubbo.args");
-    public static final AnnotationKey DUBBO_RESULT_ANNOTATION_KEY = AnnotationKeyFactory.of(91, "dubbo.result");
-    public static final AnnotationKey DUBBO_RPC_ANNOTATION_KEY = AnnotationKeyFactory.of(92, "dubbo.rpc", VIEW_IN_RECORD_SET);
+    public static final ServiceType DUBBO_PROVIDER_SERVICE_TYPE = ServiceTypeFactory.of(1999, "APACHE_DUBBO_PROVIDER", RECORD_STATISTICS);
+    public static final ServiceType DUBBO_CONSUMER_SERVICE_TYPE = ServiceTypeFactory.of(9997, "APACHE_DUBBO_CONSUMER", RECORD_STATISTICS);
+    public static final ServiceType DUBBO_PROVIDER_SERVICE_NO_STATISTICS_TYPE = ServiceTypeFactory.of(9999, "APACHE_DUBBO");
+    public static final AnnotationKey DUBBO_ARGS_ANNOTATION_KEY = AnnotationKeyFactory.of(997, "apache.dubbo.args");
+    public static final AnnotationKey DUBBO_RESULT_ANNOTATION_KEY = AnnotationKeyFactory.of(998, "apache.dubbo.result");
+    public static final AnnotationKey DUBBO_RPC_ANNOTATION_KEY = AnnotationKeyFactory.of(999, "apache.dubbo.rpc", VIEW_IN_RECORD_SET);
 
     public static final String META_DO_NOT_TRACE = "_DUBBO_DO_NOT_TRACE";
     public static final String META_TRANSACTION_ID = "_DUBBO_TRASACTION_ID";
@@ -46,5 +47,5 @@ public final class DubboConstants {
     public static final String META_PARENT_APPLICATION_TYPE = "_DUBBO_PARENT_APPLICATION_TYPE";
     public static final String META_FLAGS = "_DUBBO_FLAGS";
 
-    public static final String MONITOR_SERVICE_FQCN = "com.alibaba.dubbo.monitor.MonitorService";
+    public static final String MONITOR_SERVICE_FQCN = "org.apache.dubbo.monitor.MonitorService";
 }

@@ -1,1 +1,1 @@
-com.navercorp.pinpoint.plugin.dubbo.DubboTraceMetadataProvider
+com.navercorp.pinpoint.plugin.apache.dubbo.DubboTraceMetadataProvider

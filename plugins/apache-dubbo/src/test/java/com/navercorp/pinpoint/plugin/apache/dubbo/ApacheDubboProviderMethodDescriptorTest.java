@@ -1,21 +1,20 @@
-package com.navercorp.pinpoint.plugin.dubbo;
+package com.navercorp.pinpoint.plugin.apache.dubbo;
 
 import com.navercorp.pinpoint.common.trace.MethodType;
-import com.navercorp.pinpoint.plugin.apache.dubbo.DubboProviderMethodDescriptor;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class DubboProviderMethodDescriptorTest {
+public class ApacheDubboProviderMethodDescriptorTest {
 
     @Test
     public void test() {
 
-        DubboProviderMethodDescriptor descriptor = new DubboProviderMethodDescriptor();
+        ApacheDubboProviderMethodDescriptor descriptor = new ApacheDubboProviderMethodDescriptor();
 
-        Assert.assertEquals(descriptor.getApiDescriptor(), "Dubbo Provider Process");
+        Assert.assertEquals(descriptor.getApiDescriptor(), "Apache Dubbo Provider Process");
         Assert.assertEquals(descriptor.getApiId(), 0);
         Assert.assertNull(descriptor.getClassName());
-        Assert.assertEquals(descriptor.getFullName(), "com.navercorp.pinpoint.plugin.dubbo.DubboProviderMethodDescriptor.invoke()");
+        Assert.assertEquals(descriptor.getFullName(), "com.navercorp.pinpoint.plugin.apache.dubbo.ApacheDubboProviderMethodDescriptor.invoke()");
 
         Assert.assertEquals(descriptor.getLineNumber(), -1);
         Assert.assertNull(descriptor.getMethodName());

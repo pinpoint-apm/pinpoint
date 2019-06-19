@@ -1,5 +1,6 @@
 package com.navercorp.pinpoint.plugin.dubbo;
 
+import com.navercorp.pinpoint.plugin.apache.dubbo.DubboConstants;
 import org.junit.Assert;
 import org.junit.Test;
 
