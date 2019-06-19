@@ -4,12 +4,11 @@
     <parent>
         <groupId>com.navercorp.pinpoint</groupId>
         <artifactId>pinpoint</artifactId>
-        <version>1.8.4</version>
+        <version>1.8.5-SNAPSHOT</version>
     </parent>
 
     <artifactId>pinpoint-apache-dubbo-plugin</artifactId>
     <name>pinpoint-apache-dubbo-plugin</name>
-    <version>1.8.4</version>
     <packaging>jar</packaging>
 
     <properties>
@@ -39,7 +38,6 @@
         <dependency>
             <groupId>org.apache.dubbo</groupId>
             <artifactId>dubbo</artifactId>
-            <version>2.7.0</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
