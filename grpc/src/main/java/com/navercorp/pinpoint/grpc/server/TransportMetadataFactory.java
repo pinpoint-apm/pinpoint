@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.grpc.server;
 
+import com.navercorp.pinpoint.common.util.Assert;
 import io.grpc.Attributes;
 import io.grpc.Grpc;
 import io.grpc.Status;
@@ -29,8 +30,10 @@ import java.util.concurrent.atomic.AtomicLong;
 public class TransportMetadataFactory {
 
     private static final AtomicLong idGenerator = new AtomicLong(0);
+    private final String debugString;
 
-    public TransportMetadataFactory() {
+    public TransportMetadataFactory(String debugString) {
+        this.debugString = Assert.requireNonNull(debugString, "debugString must not be null");
     }
 
     public TransportMetadata build(Attributes attributes) {
@@ -41,7 +44,7 @@ public class TransportMetadataFactory {
         }
         final long transportId = idGenerator.getAndIncrement();
         final long connectedTime = System.currentTimeMillis();
-        return new DefaultTransportMetadata(remoteSocketAddress, transportId, connectedTime);
+        return new DefaultTransportMetadata(debugString, remoteSocketAddress, transportId, connectedTime);
     }
 
 

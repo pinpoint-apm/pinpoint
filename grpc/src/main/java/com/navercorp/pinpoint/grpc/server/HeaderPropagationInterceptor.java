@@ -49,7 +49,8 @@ public class HeaderPropagationInterceptor<H> implements ServerInterceptor {
             headerObject = headerFactory.extract(headers);
         } catch (Exception e) {
             if (logger.isInfoEnabled()) {
-                logger.info("Close call. cause={}, headers={}, attributes={}", e.getMessage(), headers, call.getAttributes());
+                logger.info("Header extract fail cause={}, method={} headers={}, attr={}",
+                        e.getMessage(), call.getMethodDescriptor().getFullMethodName(), headers, call.getAttributes(), e);
             }
             call.close(Status.INVALID_ARGUMENT.withDescription(e.getMessage()), new Metadata());
             return new ServerCall.Listener<ReqT>() {
@@ -59,10 +60,11 @@ public class HeaderPropagationInterceptor<H> implements ServerInterceptor {
         final Context currentContext = Context.current();
         final Context newContext = currentContext.withValue(contextKey, headerObject);
         if (logger.isDebugEnabled()) {
-            logger.debug("interceptCall(call = [{}], headers = [{}], next = [{}])", call, headers, next);
+            logger.debug("headerPropagation method={}, headers={}, attr={}", call.getMethodDescriptor().getFullMethodName(), headers, call.getAttributes());
         }
 
         ServerCall.Listener<ReqT> contextPropagateInterceptor = Contexts.interceptCall(newContext, call, headers, next);
         return contextPropagateInterceptor;
     }
+
 }
