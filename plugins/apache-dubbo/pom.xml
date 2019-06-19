@@ -9,6 +9,7 @@
 
     <artifactId>pinpoint-apache-dubbo-plugin</artifactId>
     <name>pinpoint-apache-dubbo-plugin</name>
+    <version>1.8.4</version>
     <packaging>jar</packaging>
 
     <properties>
