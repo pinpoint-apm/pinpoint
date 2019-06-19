@@ -22,15 +22,15 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
  * @author yinbp[yin-bp@163.com]
  */
 public class ElasticsearchConstants {
-	public static final AnnotationKey ARGS_ANNOTATION_KEY = AnnotationKeyFactory.of(971, "es.args", AnnotationKeyProperty.VIEW_IN_RECORD_SET);
+	public static final AnnotationKey ARGS_ANNOTATION_KEY = AnnotationKeyFactory.of(171, "es.args", AnnotationKeyProperty.VIEW_IN_RECORD_SET);
 	public static int maxDslSize = 50000;
 	public static final ServiceType ELASTICSEARCH = ServiceTypeFactory.of(9201, "ElasticsearchBBoss");
 
-	public static final AnnotationKey ARGS_URL_ANNOTATION_KEY = AnnotationKeyFactory.of(972, "es.url", AnnotationKeyProperty.VIEW_IN_RECORD_SET);
-	public static final AnnotationKey ARGS_DSL_ANNOTATION_KEY = AnnotationKeyFactory.of(973, "es.dsl", AnnotationKeyProperty.VIEW_IN_RECORD_SET);
-	public static final AnnotationKey ARGS_ACTION_ANNOTATION_KEY = AnnotationKeyFactory.of(974, "es.action", AnnotationKeyProperty.VIEW_IN_RECORD_SET);
-	public static final AnnotationKey ARGS_RESPONSEHANDLE_ANNOTATION_KEY = AnnotationKeyFactory.of(975, "es.responseHandle", AnnotationKeyProperty.VIEW_IN_RECORD_SET);
-	public static final AnnotationKey ARGS_VERSION_ANNOTATION_KEY = AnnotationKeyFactory.of(976, "es.version", AnnotationKeyProperty.VIEW_IN_RECORD_SET);
+	public static final AnnotationKey ARGS_URL_ANNOTATION_KEY = AnnotationKeyFactory.of(172, "es.url", AnnotationKeyProperty.VIEW_IN_RECORD_SET);
+	public static final AnnotationKey ARGS_DSL_ANNOTATION_KEY = AnnotationKeyFactory.of(173, "es.dsl", AnnotationKeyProperty.VIEW_IN_RECORD_SET);
+	public static final AnnotationKey ARGS_ACTION_ANNOTATION_KEY = AnnotationKeyFactory.of(174, "es.action", AnnotationKeyProperty.VIEW_IN_RECORD_SET);
+	public static final AnnotationKey ARGS_RESPONSEHANDLE_ANNOTATION_KEY = AnnotationKeyFactory.of(175, "es.responseHandle", AnnotationKeyProperty.VIEW_IN_RECORD_SET);
+	public static final AnnotationKey ARGS_VERSION_ANNOTATION_KEY = AnnotationKeyFactory.of(176, "es.version", AnnotationKeyProperty.VIEW_IN_RECORD_SET);
 	public static final ServiceType ELASTICSEARCH_EXECUTOR = ServiceTypeFactory.of(9202, "ElasticsearchBBossExecutor", AS_ALIAS);
 	public static final String ELASTICSEARCH_SCOPE = "ElasticsearchBBoss_SCOPE";
 	public static final String ELASTICSEARCH_Parallel_SCOPE = "ElasticsearchBBoss_Parallel_SCOPE";

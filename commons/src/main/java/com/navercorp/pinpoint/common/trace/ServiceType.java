@@ -206,7 +206,10 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
  * <tr><td>9160</td><td>GRPC</td></tr>
  * <tr><td>9161</td><td>GRPC_INTERNAL</td></tr>
  * <tr><td>9162</td><td>GRPC_SERVER_INTERNAL</td></tr>
+ * <tr><td>9201</td><td>ElasticsearchBBoss</td></tr>
+ * <tr><td>9202</td><td>ElasticsearchBBossExecutor</td></tr>
  * <tr><td>9622</td><td>OPENWHISK_CLIENT</td></tr>
+ *
  * </table>
  * 
  * <h3>RPC Sandbox (9900 ~ 9999)</h3>
