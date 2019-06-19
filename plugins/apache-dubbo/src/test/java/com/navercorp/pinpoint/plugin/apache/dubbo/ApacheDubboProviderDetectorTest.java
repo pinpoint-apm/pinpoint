@@ -1,7 +1,6 @@
-package com.navercorp.pinpoint.plugin.dubbo;
+package com.navercorp.pinpoint.plugin.apache.dubbo;
 
 import com.navercorp.pinpoint.bootstrap.resolver.ConditionProvider;
-import com.navercorp.pinpoint.plugin.apache.dubbo.DubboProviderDetector;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -9,23 +8,21 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
-public class DubboProviderDetectorTest {
+public class ApacheDubboProviderDetectorTest {
 
     @Mock
     ConditionProvider conditionProvider;
 
     @Test
     public void getApplicationType() {
+        ApacheDubboProviderDetector dubboProviderDetector = new ApacheDubboProviderDetector(null);
 
-        DubboProviderDetector dubboProviderDetector = new DubboProviderDetector(null);
-
-        Assert.assertEquals(dubboProviderDetector.getApplicationType().getCode(), 1110);
+        Assert.assertEquals(dubboProviderDetector.getApplicationType().getCode(), 1999);
     }
 
     @Test
     public void detect() {
-
-        DubboProviderDetector dubboProviderDetector = new DubboProviderDetector(null);
+        ApacheDubboProviderDetector dubboProviderDetector = new ApacheDubboProviderDetector(null);
 
         Assert.assertFalse(dubboProviderDetector.detect(conditionProvider));
     }

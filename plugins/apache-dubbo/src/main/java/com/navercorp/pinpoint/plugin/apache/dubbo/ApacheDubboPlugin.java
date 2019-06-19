@@ -1,4 +1,4 @@
-package com.navercorp.pinpoint.plugin.dubbo;
+package com.navercorp.pinpoint.plugin.apache.dubbo;
 
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
@@ -15,9 +15,10 @@ import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import java.security.ProtectionDomain;
 
 /**
- * @author Jinkai.Ma
+ * @author K
+ * @date 2019-06-14-14:00
  */
-public class DubboPlugin implements ProfilerPlugin, TransformTemplateAware {
+public class ApacheDubboPlugin implements ProfilerPlugin, TransformTemplateAware {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
 
@@ -25,9 +26,9 @@ public class DubboPlugin implements ProfilerPlugin, TransformTemplateAware {
 
     @Override
     public void setup(ProfilerPluginSetupContext context) {
-        DubboConfiguration config = new DubboConfiguration(context.getConfig());
+        ApacheDubboConfiguration config = new ApacheDubboConfiguration(context.getConfig());
         if (!config.isDubboEnabled()) {
-            logger.info("DubboPlugin disabled");
+            logger.info("ApacheDubboPlugin disabled");
             return;
         }
 
@@ -36,24 +37,24 @@ public class DubboPlugin implements ProfilerPlugin, TransformTemplateAware {
     }
 
     private void addTransformers() {
-        transformTemplate.transform("com.alibaba.dubbo.rpc.protocol.AbstractInvoker", new TransformCallback() {
+        transformTemplate.transform("org.apache.dubbo.rpc.protocol.AbstractInvoker", new TransformCallback() {
             @Override
             public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
-                InstrumentMethod invokeMethod = target.getDeclaredMethod("invoke", "com.alibaba.dubbo.rpc.Invocation");
+                InstrumentMethod invokeMethod = target.getDeclaredMethod("invoke", "org.apache.dubbo.rpc.Invocation");
                 if (invokeMethod != null) {
-                    invokeMethod.addInterceptor("com.navercorp.pinpoint.plugin.dubbo.interceptor.DubboConsumerInterceptor");
+                    invokeMethod.addInterceptor("com.navercorp.pinpoint.plugin.apache.dubbo.interceptor.ApacheDubboConsumerInterceptor");
                 }
                 return target.toBytecode();
             }
         });
-        transformTemplate.transform("com.alibaba.dubbo.rpc.proxy.AbstractProxyInvoker", new TransformCallback() {
+        transformTemplate.transform("org.apache.dubbo.rpc.proxy.AbstractProxyInvoker", new TransformCallback() {
             @Override
             public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
                 final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
-                InstrumentMethod invokeMethod = target.getDeclaredMethod("invoke", "com.alibaba.dubbo.rpc.Invocation");
+                InstrumentMethod invokeMethod = target.getDeclaredMethod("invoke", "org.apache.dubbo.rpc.Invocation");
                 if (invokeMethod != null) {
-                    invokeMethod.addInterceptor("com.navercorp.pinpoint.plugin.dubbo.interceptor.DubboProviderInterceptor");
+                    invokeMethod.addInterceptor("com.navercorp.pinpoint.plugin.apache.dubbo.interceptor.ApacheDubboProviderInterceptor");
                 }
                 return target.toBytecode();
             }
@@ -63,8 +64,8 @@ public class DubboPlugin implements ProfilerPlugin, TransformTemplateAware {
     /**
      * Pinpoint profiler agent uses this detector to find out the service type of current application.
      */
-    private void addApplicationTypeDetector(ProfilerPluginSetupContext context, DubboConfiguration config) {
-        context.addApplicationTypeDetector(new DubboProviderDetector(config.getDubboBootstrapMains()));
+    private void addApplicationTypeDetector(ProfilerPluginSetupContext context, ApacheDubboConfiguration config) {
+        context.addApplicationTypeDetector(new ApacheDubboProviderDetector(config.getDubboBootstrapMains()));
     }
 
     @Override

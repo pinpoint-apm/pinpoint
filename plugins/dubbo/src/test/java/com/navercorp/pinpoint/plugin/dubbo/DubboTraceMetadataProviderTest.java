@@ -1,6 +1,8 @@
 package com.navercorp.pinpoint.plugin.dubbo;
 
 import com.navercorp.pinpoint.common.trace.TraceMetadataSetupContext;
+import com.navercorp.pinpoint.plugin.apache.dubbo.DubboConstants;
+import com.navercorp.pinpoint.plugin.apache.dubbo.DubboTraceMetadataProvider;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
