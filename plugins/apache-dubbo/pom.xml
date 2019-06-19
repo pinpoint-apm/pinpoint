@@ -4,7 +4,6 @@
     <parent>
         <groupId>com.navercorp.pinpoint</groupId>
         <artifactId>pinpoint</artifactId>
-        <relativePath>../..</relativePath>
         <version>1.8.4</version>
     </parent>
 
