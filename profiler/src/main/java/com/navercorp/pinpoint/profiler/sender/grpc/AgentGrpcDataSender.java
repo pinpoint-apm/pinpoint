@@ -193,6 +193,8 @@ public class AgentGrpcDataSender implements EnhancedDataSender {
 
     @Override
     public void stop() {
+        logger.info("stop started");
+
         if (grpcCommandService != null) {
             grpcCommandService.stop();
         }

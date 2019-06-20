@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.grpc.trace.ProfilerCommandServiceGrpc;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
 import com.navercorp.pinpoint.profiler.sender.grpc.ExponentialBackoffReconnectJob;
 import com.navercorp.pinpoint.profiler.sender.grpc.ReconnectJob;
+import com.navercorp.pinpoint.profiler.sender.grpc.StreamUtils;
 
 import io.grpc.ManagedChannel;
 import io.grpc.stub.ClientCallStreamObserver;
@@ -51,7 +52,6 @@ public class GrpcCommandService {
 
     private volatile boolean shutdown;
 
-    private volatile GrpcCommandDispatcher commandDispatcher;
     private volatile CommandServiceMainStreamObserver commandServiceMainStreamObserver;
 
     public GrpcCommandService(ManagedChannel managedChannel, ScheduledExecutorService reconnectScheduler, ActiveTraceRepository activeTraceRepository) {
@@ -77,7 +77,7 @@ public class GrpcCommandService {
             return;
         }
         ProfilerCommandServiceGrpc.ProfilerCommandServiceStub profilerCommandServiceStub = ProfilerCommandServiceGrpc.newStub(managedChannel);
-        this.commandDispatcher = new GrpcCommandDispatcher(profilerCommandServiceStub, activeTraceRepository);
+        GrpcCommandDispatcher commandDispatcher = new GrpcCommandDispatcher(profilerCommandServiceStub, activeTraceRepository);
 
         CommandServiceMainStreamObserver commandServiceMainStreamObserver = new CommandServiceMainStreamObserver(commandDispatcher);
         profilerCommandServiceStub.handleCommand(commandServiceMainStreamObserver);
@@ -87,6 +87,19 @@ public class GrpcCommandService {
 
     private void reserveReconnect() {
         reconnectScheduler.schedule(reconnectAction, reconnectAction.nextBackoffNanos(), TimeUnit.NANOSECONDS);
+    }
+
+    public void stop() {
+        logger.info("stop() started");
+        if (!shutdown) {
+            // It's okay to be called multiple times.
+            this.shutdown = true;
+
+            final CommandServiceMainStreamObserver commandServiceMainStreamObserver = this.commandServiceMainStreamObserver;
+            if (commandServiceMainStreamObserver != null) {
+                commandServiceMainStreamObserver.stop();
+            }
+        }
     }
 
     private class CommandServiceMainStreamObserver implements ClientResponseObserver<PCmdMessage, PCmdRequest> {
@@ -147,24 +160,18 @@ public class GrpcCommandService {
         @Override
         public void onCompleted() {
             logger.info("onCompleted");
-            if (requestStream != null) {
-                requestStream.onCompleted();
-            }
+            StreamUtils.close(requestStream);
             commandDispatcher.close();
             // TODO : needs to check whether needs new action
             reserveReconnect();
         }
 
-    }
-
-    public void stop() {
-        if (!shutdown) {
-            // It's okay to be called multiple times.
-            this.shutdown = true;
-            if (commandDispatcher != null) {
-                commandDispatcher.close();
-            }
+        private void stop() {
+            logger.info("stop");
+            StreamUtils.close(requestStream);
+            commandDispatcher.close();
         }
+
     }
 
 }
