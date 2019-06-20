@@ -42,4 +42,12 @@ public class ApacheDubboConfiguration {
     public List<String> getDubboBootstrapMains() {
         return dubboBootstrapMains;
     }
+
+    @Override
+    public String toString() {
+        return "ApacheDubboConfiguration{" +
+                "dubboEnabled=" + dubboEnabled +
+                ", dubboBootstrapMains=" + dubboBootstrapMains +
+                '}';
+    }
 }

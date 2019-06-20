@@ -134,11 +134,6 @@ public class ApacheDubboProviderInterceptor extends SpanRecursiveAroundIntercept
         }
     }
 
-    /**
-     * 查询本机的ip地址
-     *
-     * @return
-     */
     private String getLocalHost() {
         try {
             Enumeration<NetworkInterface> allNetInterfaces = NetworkInterface.getNetworkInterfaces();
@@ -151,7 +146,6 @@ public class ApacheDubboProviderInterceptor extends SpanRecursiveAroundIntercept
                         InetAddress ip = addresses.nextElement();
                         if (ip != null
                                 && ip instanceof Inet4Address
-                                // loopback地址即本机地址，IPv4的loopback范围是127.0.0.0 ~ 127.255.255.255
                                 && !ip.isLoopbackAddress()
                                 && ip.getHostAddress().indexOf(":") == -1) {
                             return ip.getHostAddress();
@@ -160,7 +154,7 @@ public class ApacheDubboProviderInterceptor extends SpanRecursiveAroundIntercept
                 }
             }
         } catch (Exception e) {
-            logger.error("获取IP失败", e);
+            logger.error("failed to get local host", e);
         }
 
         return null;
