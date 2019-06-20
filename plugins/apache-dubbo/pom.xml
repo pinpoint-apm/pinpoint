@@ -9,13 +9,7 @@
 
     <artifactId>pinpoint-apache-dubbo-plugin</artifactId>
     <name>pinpoint-apache-dubbo-plugin</name>
-    <version>1.8.5-SNAPSHOT</version>
     <packaging>jar</packaging>
-
-    <properties>
-        <jdk.version>1.8</jdk.version>
-        <jdk.home>${env.JAVA_HOME}</jdk.home>
-    </properties>
 
     <dependencyManagement>
         <dependencies>
