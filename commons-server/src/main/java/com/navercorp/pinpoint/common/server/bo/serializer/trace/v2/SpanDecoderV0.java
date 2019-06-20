@@ -399,7 +399,7 @@ public class SpanDecoderV0 implements SpanDecoder {
 //            buffer.readByte();
 //            readQualifierLocalAsyncIdBo(buffer);
 
-            logger.warn("sequence overflow. firstSpanEventSequence:{} agentId:{}", firstSpanEventSequence, agentId);
+            logger.warn("sequence overflow. firstSpanEventSequence:{} basicSpan:{}", firstSpanEventSequence, basicSpan);
             throw new IllegalStateException("sequence overflow agentId:" + agentId);
         } else {
             final LocalAsyncIdBo localAsyncIdBo = readQualifierLocalAsyncIdBo(buffer);
