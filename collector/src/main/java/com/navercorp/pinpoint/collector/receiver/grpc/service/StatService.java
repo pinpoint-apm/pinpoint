@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.collector.receiver.grpc.service;
 
 import com.google.protobuf.Empty;
+import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
 import com.navercorp.pinpoint.grpc.trace.PAgentStat;
@@ -115,7 +116,7 @@ public class StatService extends StatGrpc.StatImplBase {
         return observer;
     }
 
-    private void send(StreamObserver<Empty> responseObserver, final Message<?> message) {
+    private void send(StreamObserver<Empty> responseObserver, final Message<? extends GeneratedMessageV3> message) {
         try {
             ServerRequest<?> request = serverRequestFactory.newServerRequest(message);
             this.dispatchHandler.dispatchSendMessage(request);

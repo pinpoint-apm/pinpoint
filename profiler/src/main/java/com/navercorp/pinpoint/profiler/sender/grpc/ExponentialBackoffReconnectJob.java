@@ -55,8 +55,5 @@ public abstract class ExponentialBackoffReconnectJob implements ReconnectJob {
         return Math.min(exponentialBackoffPolicy.nextBackoffNanos(), maxBackOffNanos);
     }
 
-    @Override
-    public void run() {
-
-    }
+    public abstract void run();
 }
