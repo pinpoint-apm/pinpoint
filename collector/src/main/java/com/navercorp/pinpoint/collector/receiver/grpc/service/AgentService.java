@@ -43,7 +43,7 @@ public class AgentService extends AgentGrpc.AgentImplBase {
     private final SimpleRequestHandlerAdaptor<PResult> simpleRequestHandlerAdaptor;
 
     public AgentService(DispatchHandler dispatchHandler) {
-        this.simpleRequestHandlerAdaptor = new SimpleRequestHandlerAdaptor<PResult>(this.getClass().getName(), dispatchHandler);
+        this.simpleRequestHandlerAdaptor = new SimpleRequestHandlerAdaptor<>(this.getClass().getName(), dispatchHandler);
     }
 
     @Override
