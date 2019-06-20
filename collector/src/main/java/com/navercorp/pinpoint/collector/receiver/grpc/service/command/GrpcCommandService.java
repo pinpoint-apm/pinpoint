@@ -145,6 +145,8 @@ public class GrpcCommandService extends ProfilerCommandServiceGrpc.ProfilerComma
         PinpointGrpcServer pinpointGrpcServer = grpcServerRepository.get(transportId);
         if (pinpointGrpcServer != null) {
             echoService.handle(pinpointGrpcServer, echoResponse, responseObserver);
+            responseObserver.onNext(Empty.getDefaultInstance());
+            responseObserver.onCompleted();
         } else {
             logger.info("{} => local. Can't find PinpointGrpcServer(transportId={})", getAgentInfo().getAgentKey(), transportId);
             responseObserver.onError(new StatusException(Status.NOT_FOUND));
@@ -157,6 +159,8 @@ public class GrpcCommandService extends ProfilerCommandServiceGrpc.ProfilerComma
         PinpointGrpcServer pinpointGrpcServer = grpcServerRepository.get(transportId);
         if (pinpointGrpcServer != null) {
             activeThreadDumpService.handle(pinpointGrpcServer, activeThreadDumpRes, responseObserver);
+            responseObserver.onNext(Empty.getDefaultInstance());
+            responseObserver.onCompleted();
         } else {
             logger.info("{} => local. Can't find PinpointGrpcServer(transportId={})", getAgentInfo().getAgentKey(), transportId);
             responseObserver.onError(new StatusException(Status.NOT_FOUND));
@@ -169,6 +173,8 @@ public class GrpcCommandService extends ProfilerCommandServiceGrpc.ProfilerComma
         PinpointGrpcServer pinpointGrpcServer = grpcServerRepository.get(transportId);
         if (pinpointGrpcServer != null) {
             activeThreadLightDumpService.handle(pinpointGrpcServer, activeThreadLightDumpResponse, responseObserver);
+            responseObserver.onNext(Empty.getDefaultInstance());
+            responseObserver.onCompleted();
         } else {
             logger.info("{} => local. Can't find PinpointGrpcServer(transportId={})", getAgentInfo().getAgentKey(), transportId);
             responseObserver.onError(new StatusException(Status.NOT_FOUND));
