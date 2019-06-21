@@ -9,7 +9,7 @@ public class ApacheDubboProviderMethodDescriptorTest {
     @Test
     public void test() {
         ApacheDubboProviderMethodDescriptor descriptor = new ApacheDubboProviderMethodDescriptor();
-        descriptor.setApiId(0);
+
         Assert.assertEquals(descriptor.getApiDescriptor(), "Apache Dubbo Provider Process");
         Assert.assertEquals(descriptor.getApiId(), 0);
         Assert.assertNull(descriptor.getClassName());

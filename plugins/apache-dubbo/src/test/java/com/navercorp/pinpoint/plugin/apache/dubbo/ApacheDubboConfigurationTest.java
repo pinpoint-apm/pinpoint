@@ -16,14 +16,14 @@ public class ApacheDubboConfigurationTest {
     @Test
     public void isDubboEnabled() {
         ApacheDubboConfiguration configuration = new ApacheDubboConfiguration(config);
-        configuration.toString();
+
         Assert.assertFalse(configuration.isDubboEnabled());
     }
 
     @Test
     public void getDubboBootstrapMains() {
         ApacheDubboConfiguration configuration = new ApacheDubboConfiguration(config);
-        configuration.toString();
+
         Assert.assertEquals(configuration.getDubboBootstrapMains().size(),0);
     }
 }
