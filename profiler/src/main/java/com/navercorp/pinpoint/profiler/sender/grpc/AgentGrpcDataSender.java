@@ -16,32 +16,26 @@
 
 package com.navercorp.pinpoint.profiler.sender.grpc;
 
-import com.navercorp.pinpoint.grpc.trace.MetadataGrpc;
-import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
-import com.navercorp.pinpoint.profiler.receiver.grpc.GrpcCommandService;
-import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
-
-import com.google.common.util.concurrent.FutureCallback;
-import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.ListenableFuture;
-import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.ExecutorFactory;
 import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
 import com.navercorp.pinpoint.common.util.StringUtils;
-import com.navercorp.pinpoint.grpc.AgentHeaderFactory;
-import com.navercorp.pinpoint.grpc.HeaderFactory;
 import com.navercorp.pinpoint.grpc.client.ChannelFactory;
+import com.navercorp.pinpoint.grpc.client.ChannelFactoryOption;
 import com.navercorp.pinpoint.grpc.trace.AgentGrpc;
+import com.navercorp.pinpoint.grpc.trace.MetadataGrpc;
 import com.navercorp.pinpoint.grpc.trace.PAgentInfo;
 import com.navercorp.pinpoint.grpc.trace.PApiMetaData;
 import com.navercorp.pinpoint.grpc.trace.PResult;
 import com.navercorp.pinpoint.grpc.trace.PSqlMetaData;
 import com.navercorp.pinpoint.grpc.trace.PStringMetaData;
+import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
+import com.navercorp.pinpoint.profiler.receiver.grpc.GrpcCommandService;
 import com.navercorp.pinpoint.profiler.sender.AsyncQueueingExecutor;
 import com.navercorp.pinpoint.profiler.sender.AsyncQueueingExecutorListener;
 import com.navercorp.pinpoint.profiler.sender.DefaultAsyncQueueingExecutorListener;
+import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 import com.navercorp.pinpoint.profiler.sender.RequestMessage;
 import com.navercorp.pinpoint.profiler.sender.RequestMessageFactory;
 import com.navercorp.pinpoint.profiler.sender.RetryMessage;
@@ -52,8 +46,12 @@ import com.navercorp.pinpoint.rpc.FutureListener;
 import com.navercorp.pinpoint.rpc.ResponseMessage;
 import com.navercorp.pinpoint.rpc.client.PinpointClientReconnectEventListener;
 import com.navercorp.pinpoint.rpc.util.TimerFactory;
+
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.protobuf.GeneratedMessageV3;
 import io.grpc.ManagedChannel;
-import io.grpc.NameResolverProvider;
 import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.util.HashedWheelTimer;
 import org.jboss.netty.util.Timeout;
@@ -106,12 +104,14 @@ public class AgentGrpcDataSender implements EnhancedDataSender {
     private GrpcCommandService grpcCommandService;
 
 
-    public AgentGrpcDataSender(String name, String host, int port, MessageConverter<GeneratedMessageV3> messageConverter, HeaderFactory<AgentHeaderFactory.Header> headerFactory, NameResolverProvider nameResolverProvider) {
-        this(name, host, port, messageConverter, headerFactory, nameResolverProvider, null);
+    public AgentGrpcDataSender(String host, int port, MessageConverter<GeneratedMessageV3> messageConverter, ChannelFactoryOption channelFactoryOption) {
+        this(host, port, messageConverter, channelFactoryOption, null);
     }
 
-    public AgentGrpcDataSender(String name, String host, int port, MessageConverter<GeneratedMessageV3> messageConverter, HeaderFactory<AgentHeaderFactory.Header> headerFactory, NameResolverProvider nameResolverProvider, ActiveTraceRepository activeTraceRepository) {
-        this.name = Assert.requireNonNull(name, "name must not be null");
+    public AgentGrpcDataSender(String host, int port, MessageConverter<GeneratedMessageV3> messageConverter, ChannelFactoryOption channelFactoryOption, ActiveTraceRepository activeTraceRepository) {
+        Assert.requireNonNull(channelFactoryOption, "channelFactoryOption must not be null");
+
+        this.name = Assert.requireNonNull(channelFactoryOption.getName(), "name must not be null");
         this.messageConverter = Assert.requireNonNull(messageConverter, "messageConverter must not be null");
 
         this.timer = createTimer(name);
@@ -120,7 +120,7 @@ public class AgentGrpcDataSender implements EnhancedDataSender {
         this.asyncQueueingExecutor = createAsyncQueueingExecutor(1024 * 5, executorName);
         this.executor = newExecutorService(name);
 
-        this.channelFactory = newChannelFactory(name, headerFactory, nameResolverProvider);
+        this.channelFactory = new ChannelFactory(channelFactoryOption);
         this.managedChannel = channelFactory.build(name, host, port);
         this.agentStub = AgentGrpc.newFutureStub(managedChannel);
 
@@ -161,10 +161,6 @@ public class AgentGrpcDataSender implements EnhancedDataSender {
         };
         final AsyncQueueingExecutor<Object> executor = new AsyncQueueingExecutor<Object>(queueSize, executorName, listener);
         return executor;
-    }
-
-    private ChannelFactory newChannelFactory(String name, HeaderFactory<AgentHeaderFactory.Header> headerFactory, NameResolverProvider nameResolverProvider) {
-        return new ChannelFactory(name, headerFactory, nameResolverProvider);
     }
 
     @Override
