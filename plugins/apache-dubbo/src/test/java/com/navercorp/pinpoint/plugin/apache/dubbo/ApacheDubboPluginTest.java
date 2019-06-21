@@ -23,7 +23,7 @@ public class ApacheDubboPluginTest {
     public void setup() {
         ProfilerPluginSetupContext profilerPluginSetupContext = mock(ProfilerPluginSetupContext.class);
         when(profilerPluginSetupContext.getConfig()).thenReturn(new DefaultProfilerConfig());
-
+        setTransformTemplate();
         plugin.setup(profilerPluginSetupContext);
     }
 }
