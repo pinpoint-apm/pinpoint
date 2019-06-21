@@ -35,6 +35,9 @@ public class GrpcTransportConfig {
     private String collectorStatServerIp = DEFAULT_IP;
     private int collectorStatServerPort = 9999;
 
+    private static final long DEFAULT_CLIENT_REQUEST_TIMEOUT = 6000;
+    private long clientRequestTimeout = DEFAULT_CLIENT_REQUEST_TIMEOUT;
+
     public void read(ProfilerConfig profilerConfig) {
         final ProfilerConfig.ValueResolver placeHolderResolver = new DefaultProfilerConfig.PlaceHolderResolver();
         // Agent
@@ -46,6 +49,8 @@ public class GrpcTransportConfig {
         // Stat
         this.collectorStatServerIp = profilerConfig.readString("profiler.transport.grpc.collector.stat.ip", DEFAULT_IP, placeHolderResolver);
         this.collectorStatServerPort = profilerConfig.readInt("profiler.transport.grpc.collector.stat.port", 9999);
+
+        this.clientRequestTimeout = profilerConfig.readLong("profiler.transport.grpc.client.request.timeout", DEFAULT_CLIENT_REQUEST_TIMEOUT);
     }
 
     public String getCollectorSpanServerIp() {
@@ -72,6 +77,10 @@ public class GrpcTransportConfig {
         return collectorStatServerPort;
     }
 
+    public long getClientRequestTimeout() {
+        return clientRequestTimeout;
+    }
+
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("GrpcTransportConfig{");
@@ -81,6 +90,7 @@ public class GrpcTransportConfig {
         sb.append(", collectorSpanServerPort=").append(collectorSpanServerPort);
         sb.append(", collectorStatServerIp='").append(collectorStatServerIp).append('\'');
         sb.append(", collectorStatServerPort=").append(collectorStatServerPort);
+        sb.append(", clientRequestTimeout=").append(clientRequestTimeout);
         sb.append('}');
         return sb.toString();
     }

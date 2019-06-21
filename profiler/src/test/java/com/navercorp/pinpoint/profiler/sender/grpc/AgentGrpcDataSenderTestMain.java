@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.bootstrap.context.ServiceInfo;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.grpc.AgentHeaderFactory;
 import com.navercorp.pinpoint.grpc.HeaderFactory;
+import com.navercorp.pinpoint.grpc.client.ChannelFactoryOption;
 import com.navercorp.pinpoint.profiler.AgentInformation;
 import com.navercorp.pinpoint.profiler.DefaultAgentInformation;
 import com.navercorp.pinpoint.profiler.JvmInformation;
@@ -53,7 +54,12 @@ public class AgentGrpcDataSenderTestMain {
         GrpcNameResolverProvider grpcNameResolverProvider = new GrpcNameResolverProvider(dnsExecutorServiceProvider);
         NameResolverProvider nameResolverProvider = grpcNameResolverProvider.get();
 
-        AgentGrpcDataSender sender = new AgentGrpcDataSender("TestAgentGrpcDataSender", "localhost", 9997, messageConverter, headerFactory, nameResolverProvider);
+        ChannelFactoryOption.Builder builder = ChannelFactoryOption.newBuilder();
+        builder.setName("TestAgentGrpcDataSender");
+        builder.setHeaderFactory(headerFactory);
+        builder.setNameResolverProvider(nameResolverProvider);
+
+        AgentGrpcDataSender sender = new AgentGrpcDataSender("localhost", 9997, messageConverter, builder.build());
 
         AgentInfo agentInfo = newAgentInfo();
 

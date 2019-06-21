@@ -19,6 +19,9 @@ package com.navercorp.pinpoint.profiler.context.provider.grpc;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.protobuf.GeneratedMessageV3;
+
+import com.navercorp.pinpoint.grpc.client.ChannelFactoryOption;
+import com.navercorp.pinpoint.grpc.client.UnaryCallDeadlineInterceptor;
 import com.navercorp.pinpoint.profiler.context.grpc.GrpcTransportConfig;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.grpc.HeaderFactory;
@@ -52,7 +55,16 @@ public class SpanGrpcDataSenderProvider implements Provider<DataSender<Object>> 
     public DataSender<Object> get() {
         String collectorTcpServerIp = grpcTransportConfig.getCollectorSpanServerIp();
         int collectorTcpServerPort = grpcTransportConfig.getCollectorSpanServerPort();
-        return new SpanGrpcDataSender("SpanGrpcDataSender", collectorTcpServerIp, collectorTcpServerPort,  messageConverter, headerFactory, nameResolverProvider);
+
+        UnaryCallDeadlineInterceptor unaryCallDeadlineInterceptor = new UnaryCallDeadlineInterceptor(grpcTransportConfig.getClientRequestTimeout());
+
+        ChannelFactoryOption.Builder channelFactoryOptionBuilder = ChannelFactoryOption.newBuilder();
+        channelFactoryOptionBuilder.setName("SpanGrpcDataSender");
+        channelFactoryOptionBuilder.setHeaderFactory(headerFactory);
+        channelFactoryOptionBuilder.setNameResolverProvider(nameResolverProvider);
+        channelFactoryOptionBuilder.addClientInterceptor(unaryCallDeadlineInterceptor);
+
+        return new SpanGrpcDataSender(collectorTcpServerIp, collectorTcpServerPort,  messageConverter, channelFactoryOptionBuilder.build());
     }
 
 }

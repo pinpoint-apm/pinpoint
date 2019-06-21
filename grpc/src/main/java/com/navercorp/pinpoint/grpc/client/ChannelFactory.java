@@ -20,12 +20,12 @@ import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
 import com.navercorp.pinpoint.grpc.ExecutorUtils;
 import com.navercorp.pinpoint.grpc.HeaderFactory;
+
 import io.grpc.ClientInterceptor;
 import io.grpc.ConnectivityState;
 import io.grpc.ManagedChannel;
 import io.grpc.Metadata;
 import io.grpc.NameResolverProvider;
-import io.grpc.internal.PinpointDnsNameResolverProvider;
 import io.grpc.netty.InternalNettyChannelBuilder;
 import io.grpc.netty.NettyChannelBuilder;
 import io.grpc.stub.MetadataUtils;
@@ -34,6 +34,7 @@ import io.netty.util.concurrent.Future;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -57,27 +58,26 @@ public class ChannelFactory {
     private final ExecutorService eventLoopExecutor;
 
     private final ExecutorService executorService;
-    private final int executorQueueSize = 1024;
 
     private final NameResolverProvider nameResolverProvider;
 
-    public ChannelFactory(String name, HeaderFactory headerFactory) {
-        this(name, headerFactory, null);
-    }
+    private final List<ClientInterceptor> clientInterceptorList;
 
-    public ChannelFactory(String name, HeaderFactory headerFactory, NameResolverProvider nameResolverProvider) {
-        this.name = Assert.requireNonNull(name, "channelFactoryName must not be null");
+    public ChannelFactory(ChannelFactoryOption option) {
+        this.name = option.getName();
 
-        this.headerFactory = Assert.requireNonNull(headerFactory, "headerFactory must not be null");
+        this.headerFactory = option.getHeaderFactory();
 
         this.eventLoopExecutor = newCachedExecutorService(name + "-eventLoop");
         this.eventLoopGroup = newEventLoopGroup(eventLoopExecutor);
-        this.executorService = newExecutorService(name + "-executor");
+        this.executorService = newExecutorService(name + "-executor", option.getExecutorQueueSize());
 
-        this.nameResolverProvider = nameResolverProvider;
+        this.nameResolverProvider = option.getNameResolverProvider();
+
+        this.clientInterceptorList = Assert.requireNonNull(option.getClientInterceptorList(), "clientInterceptorList");
     }
 
-    private ExecutorService newExecutorService(String name) {
+    private ExecutorService newExecutorService(String name, int executorQueueSize) {
         ThreadFactory threadFactory = new PinpointThreadFactory(name, true);
         BlockingQueue<Runnable> workQueue = new LinkedBlockingQueue<Runnable>(executorQueueSize);
         return new ThreadPoolExecutor(1, 1,
@@ -90,7 +90,6 @@ public class ChannelFactory {
         return Executors.newCachedThreadPool(threadFactory);
     }
 
-
     public ManagedChannel build(String channelName, String host, int port) {
         final NettyChannelBuilder channelBuilder = NettyChannelBuilder.forAddress(host, port);
         channelBuilder.usePlaintext();
@@ -98,6 +97,8 @@ public class ChannelFactory {
         setupInternal(channelBuilder);
 
         addHeader(channelBuilder);
+        addClientInterceptor(channelBuilder);
+
         channelBuilder.executor(executorService);
         if (this.nameResolverProvider != null) {
             logger.info("setNameResolverProvider:{}", this.nameResolverProvider);
@@ -127,6 +128,10 @@ public class ChannelFactory {
         }
         final ClientInterceptor headersInterceptor = MetadataUtils.newAttachHeadersInterceptor(extraHeaders);
         channelBuilder.intercept(headersInterceptor);
+    }
+
+    private void addClientInterceptor(NettyChannelBuilder channelBuilder) {
+        channelBuilder.intercept(clientInterceptorList);
     }
 
     private void setChannelStateNotifier(ManagedChannel channel, final String name) {
@@ -176,7 +181,7 @@ public class ChannelFactory {
         final Future<?> future = eventLoopGroup.shutdownGracefully();
         try {
             logger.debug("shutdown {}-eventLoopGroup", name);
-            future.await(1000*3);
+            future.await(1000 * 3);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
