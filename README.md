@@ -7,6 +7,8 @@
 
 **Visit [our official web site](http://naver.github.io/pinpoint/) for more information and [Latest updates on Pinpoint](https://naver.github.io/pinpoint/news.html)**.
 
+## Live Demo
+
 Take a quick look at Pinpoint with our [demo](http://125.209.240.10:10123).
 
 ## Latest News (2018/08/30)
