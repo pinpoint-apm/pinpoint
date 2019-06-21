@@ -16,19 +16,21 @@
 
 package com.navercorp.pinpoint.profiler.context.provider.grpc;
 
+import com.google.inject.Inject;
+import com.google.inject.Provider;
+import com.google.protobuf.GeneratedMessageV3;
+import com.navercorp.pinpoint.grpc.client.ClientOption;
+import com.navercorp.pinpoint.profiler.context.grpc.GrpcTransportConfig;
+
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.grpc.HeaderFactory;
 import com.navercorp.pinpoint.grpc.client.ChannelFactoryOption;
 import com.navercorp.pinpoint.grpc.client.UnaryCallDeadlineInterceptor;
-import com.navercorp.pinpoint.profiler.context.grpc.GrpcTransportConfig;
 import com.navercorp.pinpoint.profiler.context.module.StatConverter;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
 import com.navercorp.pinpoint.profiler.sender.grpc.StatGrpcDataSender;
 
-import com.google.inject.Inject;
-import com.google.inject.Provider;
-import com.google.protobuf.GeneratedMessageV3;
 import io.grpc.NameResolverProvider;
 
 /**
@@ -55,17 +57,17 @@ public class StatGrpcDataSenderProvider  implements Provider<DataSender<Object>>
     public DataSender<Object> get() {
         String collectorTcpServerIp = grpcTransportConfig.getCollectorStatServerIp();
         int collectorTcpServerPort = grpcTransportConfig.getCollectorStatServerPort();
-
+        int senderExecutorQueueSize = grpcTransportConfig.getStatSenderExecutorQueueSize();
         UnaryCallDeadlineInterceptor unaryCallDeadlineInterceptor = new UnaryCallDeadlineInterceptor(grpcTransportConfig.getClientRequestTimeout());
+        final ClientOption clientOption = grpcTransportConfig.getStatClientOption();
 
         ChannelFactoryOption.Builder channelFactoryOptionBuilder = ChannelFactoryOption.newBuilder();
         channelFactoryOptionBuilder.setName("StatGrpcDataSender");
         channelFactoryOptionBuilder.setHeaderFactory(headerFactory);
         channelFactoryOptionBuilder.setNameResolverProvider(nameResolverProvider);
         channelFactoryOptionBuilder.addClientInterceptor(unaryCallDeadlineInterceptor);
+        channelFactoryOptionBuilder.setClientOption(clientOption);
 
-        return new StatGrpcDataSender(collectorTcpServerIp, collectorTcpServerPort,  messageConverter, channelFactoryOptionBuilder.build());
+        return new StatGrpcDataSender(collectorTcpServerIp, collectorTcpServerPort,  senderExecutorQueueSize, messageConverter, channelFactoryOptionBuilder.build());
     }
-
-
 }

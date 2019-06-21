@@ -16,7 +16,13 @@
 
 package com.navercorp.pinpoint.profiler.sender.grpc;
 
+
 import com.navercorp.pinpoint.grpc.client.ChannelFactoryOption;
+
+import com.google.protobuf.Empty;
+import com.navercorp.pinpoint.grpc.HeaderFactory;
+import com.navercorp.pinpoint.grpc.client.ClientOption;
+
 import com.navercorp.pinpoint.grpc.trace.PAgentStat;
 import com.navercorp.pinpoint.grpc.trace.PAgentStatBatch;
 import com.navercorp.pinpoint.grpc.trace.StatGrpc;
@@ -38,8 +44,9 @@ public class StatGrpcDataSender extends GrpcDataSender {
     private volatile StreamObserver<PAgentStatBatch> statBatchStream;
     private final ReconnectJob statBatchStreamReconnectAction;
 
-    public StatGrpcDataSender(String host, int port, MessageConverter<GeneratedMessageV3> messageConverter, ChannelFactoryOption channelFactoryOption) {
-        super(host, port, messageConverter, channelFactoryOption);
+
+    public StatGrpcDataSender(String host, int port, int senderExecutorQueueSize, MessageConverter<GeneratedMessageV3> messageConverter, ChannelFactoryOption channelFactoryOption) {
+        super(host, port, senderExecutorQueueSize, messageConverter, channelFactoryOption);
 
         this.statStub = StatGrpc.newStub(managedChannel);
 

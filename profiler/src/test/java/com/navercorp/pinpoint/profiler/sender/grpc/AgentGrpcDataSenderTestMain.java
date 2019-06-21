@@ -54,6 +54,7 @@ public class AgentGrpcDataSenderTestMain {
         GrpcNameResolverProvider grpcNameResolverProvider = new GrpcNameResolverProvider(dnsExecutorServiceProvider);
         NameResolverProvider nameResolverProvider = grpcNameResolverProvider.get();
 
+
         ChannelFactoryOption.Builder builder = ChannelFactoryOption.newBuilder();
         builder.setName("TestAgentGrpcDataSender");
         builder.setHeaderFactory(headerFactory);

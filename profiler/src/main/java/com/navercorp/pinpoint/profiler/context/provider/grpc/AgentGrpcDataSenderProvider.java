@@ -16,6 +16,13 @@
 
 package com.navercorp.pinpoint.profiler.context.provider.grpc;
 
+import com.google.inject.Inject;
+import com.google.inject.Provider;
+import com.google.protobuf.GeneratedMessageV3;
+import com.navercorp.pinpoint.grpc.client.ClientOption;
+import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
+import com.navercorp.pinpoint.profiler.context.grpc.GrpcTransportConfig;
+
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.grpc.HeaderFactory;
 import com.navercorp.pinpoint.grpc.client.ChannelFactoryOption;
@@ -60,16 +67,16 @@ public class AgentGrpcDataSenderProvider implements Provider<EnhancedDataSender<
     public EnhancedDataSender get() {
         String collectorTcpServerIp = grpcTransportConfig.getCollectorAgentServerIp();
         int collectorTcpServerPort = grpcTransportConfig.getCollectorAgentServerPort();
-
         UnaryCallDeadlineInterceptor unaryCallDeadlineInterceptor = new UnaryCallDeadlineInterceptor(grpcTransportConfig.getClientRequestTimeout());
+        final ClientOption clientOption = grpcTransportConfig.getAgentClientOption();
 
         ChannelFactoryOption.Builder channelFactoryOptionBuilder = ChannelFactoryOption.newBuilder();
-        channelFactoryOptionBuilder.setName("Default");
+        channelFactoryOptionBuilder.setName("AgentGrpcDataSender");
         channelFactoryOptionBuilder.setHeaderFactory(headerFactory);
         channelFactoryOptionBuilder.setNameResolverProvider(nameResolverProvider);
         channelFactoryOptionBuilder.addClientInterceptor(unaryCallDeadlineInterceptor);
+        channelFactoryOptionBuilder.setClientOption(clientOption);
 
         return new AgentGrpcDataSender(collectorTcpServerIp, collectorTcpServerPort, messageConverter, channelFactoryOptionBuilder.build(), activeTraceRepository);
     }
-
 }

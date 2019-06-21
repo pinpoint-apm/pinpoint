@@ -444,7 +444,7 @@
         <property name="corePoolSize" value="#{baseDataReceiverConfig.grpcWorkerThreadSize}"/>
         <property name="maxPoolSize" value="#{baseDataReceiverConfig.grpcWorkerThreadSize}"/>
         <property name="queueCapacity" value="#{baseDataReceiverConfig.grpcWorkerQueueSize}"/>
-        <property name="threadNamePrefix" value="Pinpoint-AgentServer-Worker"/>
+        <property name="threadNamePrefix" value="Pinpoint-GrpcAgent-Worker-"/>
         <property name="registry" value="#{baseDataReceiverConfig.grpcWorkerMonitorEnable ? metricRegistry : null}"/>
     </bean>
 
@@ -456,7 +456,7 @@
 
     <bean id="grpcLifecycleScheduler" class="org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler">
         <property name="poolSize" value="1"/>
-        <property name="threadNamePrefix" value="Pinpoint-LifecycleFlusher-"/>
+        <property name="threadNamePrefix" value="Pinpoint-GrpcLifecycleFlusher-"/>
         <property name="daemon" value="true"/>
         <property name="waitForTasksToCompleteOnShutdown" value="true"/>
         <property name="awaitTerminationSeconds" value="10"/>
@@ -523,7 +523,7 @@
         <property name="corePoolSize" value="#{spanReceiverConfig.grpcWorkerThreadSize}"/>
         <property name="maxPoolSize" value="#{spanReceiverConfig.grpcWorkerThreadSize}"/>
         <property name="queueCapacity" value="#{spanReceiverConfig.grpcWorkerQueueSize}"/>
-        <property name="threadNamePrefix" value="Pinpoint-TraceServer-Worker-"/>
+        <property name="threadNamePrefix" value="Pinpoint-GrpcSpan-Worker-"/>
         <property name="registry" value="#{spanReceiverConfig.grpcWorkerMonitorEnable ? metricRegistry : null}"/>
     </bean>
 
@@ -554,7 +554,7 @@
         <property name="corePoolSize" value="#{statReceiverConfig.workerThreadSize}"/>
         <property name="maxPoolSize" value="#{statReceiverConfig.workerThreadSize}"/>
         <property name="queueCapacity" value="#{statReceiverConfig.workerQueueSize}"/>
-        <property name="threadNamePrefix" value="Pinpoint-Stat-Worker-"/>
+        <property name="threadNamePrefix" value="Pinpoint-GrpcStat-Worker-"/>
         <property name="registry" value="#{statReceiverConfig.workerMonitorEnable ? metricRegistry : null}"/>
     </bean>
     <bean id="grpcStatServerOptionBuilder" class="com.navercorp.pinpoint.grpc.server.ServerOption.Builder">
@@ -577,6 +577,7 @@
         <property name="bindableServiceList" ref="statServiceList"/>
         <property name="executor" ref="grpcStatServerExecutor"/>
         <property name="enable" value="#{statReceiverConfig.isGrpcEnable()}"/>
+        <property name="serverOption" ref="grpcStatServerOption"/>
     </bean>
 
     <!-- end receiver configuration -->

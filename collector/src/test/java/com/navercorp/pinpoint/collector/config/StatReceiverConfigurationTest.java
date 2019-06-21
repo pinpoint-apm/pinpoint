@@ -27,14 +27,14 @@ public class StatReceiverConfigurationTest {
     @Test
     public void properties() throws Exception {
         Properties properties = new Properties();
-        properties.setProperty("collector.receiver.stat.grpc", "");
-        properties.setProperty("collector.receiver.stat.grpc.ip", "9.9.9.9");
-        properties.setProperty("collector.receiver.stat.grpc.port", "1111");
-        properties.setProperty("collector.receiver.stat.grpc.worker.threadSize", "99");
-        properties.setProperty("collector.receiver.stat.grpc.worker.queueSize", "9999");
-        properties.setProperty("collector.receiver.stat.grpc.worker.monitor", "false");
-        properties.setProperty("collector.receiver.stat.grpc.keepalive.time", "3");
-        properties.setProperty("collector.receiver.stat.grpc.keepalive.timeout", "7");
+        properties.setProperty("collector.receiver.grpc.stat.enable", "");
+        properties.setProperty("collector.receiver.grpc.stat.ip", "9.9.9.9");
+        properties.setProperty("collector.receiver.grpc.stat.port", "1111");
+        properties.setProperty("collector.receiver.grpc.stat.worker.threadSize", "99");
+        properties.setProperty("collector.receiver.grpc.stat.worker.queueSize", "9999");
+        properties.setProperty("collector.receiver.grpc.stat.worker.monitor", "false");
+        properties.setProperty("collector.receiver.grpc.stat.keepalive.time", "3");
+        properties.setProperty("collector.receiver.grpc.stat.keepalive.timeout", "7");
 
         StatReceiverConfiguration configuration = new StatReceiverConfiguration(properties, new DeprecatedConfiguration());
         assertEquals(Boolean.FALSE, configuration.isGrpcEnable());

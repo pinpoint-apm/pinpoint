@@ -41,6 +41,8 @@ public class ChannelFactoryOption {
 
     private final List<ClientInterceptor> clientInterceptorList;
 
+    private final ClientOption clientOption;
+
     public String getName() {
         return name;
     }
@@ -62,7 +64,11 @@ public class ChannelFactoryOption {
         return clientInterceptorList;
     }
 
-    private ChannelFactoryOption(String name, int executorQueueSize, HeaderFactory headerFactory, NameResolverProvider nameResolverProvider, List<ClientInterceptor> clientInterceptorList) {
+    public ClientOption getClientOption() {
+        return clientOption;
+    }
+
+    private ChannelFactoryOption(String name, int executorQueueSize, HeaderFactory headerFactory, NameResolverProvider nameResolverProvider, List<ClientInterceptor> clientInterceptorList, ClientOption clientOption) {
         this.name = Assert.requireNonNull(name, "name must not be null");
 
         Assert.isTrue(executorQueueSize > 0, "must be `executorQueueSize > 0`");
@@ -73,17 +79,20 @@ public class ChannelFactoryOption {
         this.nameResolverProvider = nameResolverProvider;
 
         this.clientInterceptorList = Assert.requireNonNull(clientInterceptorList, "clientInterceptorList must not be null");
+        this.clientOption = Assert.requireNonNull(clientOption, "clientOption must not be null");
     }
 
     @Override
     public String toString() {
-        return "ChannelFactoryOption{" +
-                "name='" + name + '\'' +
-                ", executorQueueSize=" + executorQueueSize +
-                ", headerFactory=" + headerFactory +
-                ", nameResolverProvider=" + nameResolverProvider +
-                ", clientInterceptorList=" + clientInterceptorList +
-                '}';
+        final StringBuilder sb = new StringBuilder("ChannelFactoryOption{");
+        sb.append("name='").append(name).append('\'');
+        sb.append(", executorQueueSize=").append(executorQueueSize);
+        sb.append(", headerFactory=").append(headerFactory);
+        sb.append(", nameResolverProvider=").append(nameResolverProvider);
+        sb.append(", clientInterceptorList=").append(clientInterceptorList);
+        sb.append(", clientOption=").append(clientOption);
+        sb.append('}');
+        return sb.toString();
     }
 
     public static Builder newBuilder() {
@@ -97,9 +106,10 @@ public class ChannelFactoryOption {
         private HeaderFactory headerFactory;
         private NameResolverProvider nameResolverProvider;
         private List<ClientInterceptor> clientInterceptorList = new ArrayList<ClientInterceptor>();
+        private ClientOption clientOption = new ClientOption.Builder().build();
 
         public ChannelFactoryOption build() {
-            final ChannelFactoryOption channelFactoryOption = new ChannelFactoryOption(name, executorQueueSize, headerFactory, nameResolverProvider, clientInterceptorList);
+            final ChannelFactoryOption channelFactoryOption = new ChannelFactoryOption(name, executorQueueSize, headerFactory, nameResolverProvider, clientInterceptorList, clientOption);
             return channelFactoryOption;
         }
 
@@ -124,6 +134,8 @@ public class ChannelFactoryOption {
             this.clientInterceptorList.add(clientInterceptor);
         }
 
+        public void setClientOption(ClientOption clientOption) {
+            this.clientOption = clientOption;
+        }
     }
-
 }

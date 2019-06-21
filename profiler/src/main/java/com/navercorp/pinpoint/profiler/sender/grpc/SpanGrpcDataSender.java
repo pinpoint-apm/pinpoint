@@ -16,13 +16,16 @@
 
 package com.navercorp.pinpoint.profiler.sender.grpc;
 
+
 import com.navercorp.pinpoint.grpc.client.ChannelFactoryOption;
+
+import com.google.protobuf.Empty;
+
 import com.navercorp.pinpoint.grpc.trace.PSpan;
 import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
 import com.navercorp.pinpoint.grpc.trace.SpanGrpc;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
 
-import com.google.protobuf.Empty;
 import com.google.protobuf.GeneratedMessageV3;
 import io.grpc.stub.StreamObserver;
 
@@ -40,8 +43,8 @@ public class SpanGrpcDataSender extends GrpcDataSender {
     private volatile StreamObserver<PSpanChunk> spanChunkStream;
     private final ReconnectJob spanChunkReconnectAction;
 
-    public SpanGrpcDataSender(String host, int port, MessageConverter<GeneratedMessageV3> messageConverter, ChannelFactoryOption channelFactoryOption) {
-        super(host, port, messageConverter, channelFactoryOption);
+    public SpanGrpcDataSender(String host, int port, int executorQueueSize, MessageConverter<GeneratedMessageV3> messageConverter, ChannelFactoryOption channelFactoryOption) {
+        super(host, port, executorQueueSize, messageConverter, channelFactoryOption);
 
         this.spanStub = SpanGrpc.newStub(managedChannel);
 
@@ -83,7 +86,7 @@ public class SpanGrpcDataSender extends GrpcDataSender {
             return true;
         }
         if (spanMessage instanceof PSpan) {
-            final  PSpan pSpan = (PSpan) spanMessage;
+            final PSpan pSpan = (PSpan) spanMessage;
             spanStream.onNext(pSpan);
             return true;
         }
