@@ -22,10 +22,13 @@ public class SpanClientTestMain {
     private static final int MAX = 100000;
 
     public static void main(String[] args) throws Exception {
-        SpanClientMock clientMock = new SpanClientMock("0.0.0.0", 9998);
-        clientMock.span(1);
+        SpanClientMock clientMock = new SpanClientMock("localhost", 9998);
+        TimeUnit.SECONDS.sleep(10);
 
-        clientMock.spanChunk(1);
+        clientMock.span(10);
+        clientMock.span(10);
+        clientMock.spanChunk(10);
+        clientMock.spanChunk(10);
 
         TimeUnit.SECONDS.sleep(60);
         clientMock.stop();

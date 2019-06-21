@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.common.util.ExecutorFactory;
 import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
 import com.navercorp.pinpoint.grpc.ExecutorUtils;
 import com.navercorp.pinpoint.grpc.client.ChannelFactory;
+
 import com.navercorp.pinpoint.grpc.client.ChannelFactoryOption;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
@@ -41,6 +42,9 @@ import java.util.concurrent.TimeUnit;
  * @author Woonduk Kang(emeroad)
  */
 public abstract class GrpcDataSender implements DataSender<Object> {
+    protected static ScheduledExecutorService reconnectScheduler
+            = Executors.newScheduledThreadPool(1, new PinpointThreadFactory("Pinpoint-reconnect-thread"));
+
     protected final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     protected final String name;
@@ -55,9 +59,6 @@ public abstract class GrpcDataSender implements DataSender<Object> {
 
     protected volatile boolean shutdown;
 
-    protected static ScheduledExecutorService reconnectScheduler
-            = Executors.newScheduledThreadPool(1, new PinpointThreadFactory("pinpoint-reconnect-thread"));
-
     protected final Reconnector reconnector = new Reconnector() {
         @Override
         public void reconnect(ReconnectJob reconnectJob) {
@@ -65,21 +66,21 @@ public abstract class GrpcDataSender implements DataSender<Object> {
         }
     };
 
-    private ThreadPoolExecutor newExecutorService(String name) {
-        ThreadFactory threadFactory = new PinpointThreadFactory(name, true);
-        return ExecutorFactory.newFixedThreadPool(1, 1000, threadFactory);
-    }
-
-    public GrpcDataSender(String host, int port, MessageConverter<GeneratedMessageV3> messageConverter, ChannelFactoryOption channelFactoryOption) {
+    public GrpcDataSender(String host, int port, int executorQueueSize, MessageConverter<GeneratedMessageV3> messageConverter, ChannelFactoryOption channelFactoryOption) {
         Assert.requireNonNull(channelFactoryOption, "channelFactoryOption must not be null");
 
         this.name = Assert.requireNonNull(channelFactoryOption.getName(), "name must not be null");
         this.messageConverter = Assert.requireNonNull(messageConverter, "messageConverter must not be null");
 
-        this.executor = newExecutorService(name);
+        this.executor = newExecutorService(name + "-Executor", executorQueueSize);
 
         this.channelFactory = new ChannelFactory(channelFactoryOption);
         this.managedChannel = channelFactory.build(name, host, port);
+    }
+
+    private ThreadPoolExecutor newExecutorService(String name, int senderExecutorQueueSize) {
+        ThreadFactory threadFactory = new PinpointThreadFactory(PinpointThreadFactory.DEFAULT_THREAD_NAME_PREFIX + name, true);
+        return ExecutorFactory.newFixedThreadPool(1, senderExecutorQueueSize, threadFactory);
     }
 
     @Override
@@ -122,6 +123,4 @@ public abstract class GrpcDataSender implements DataSender<Object> {
         logger.info("recreateStream");
         reconnectScheduler.schedule(reconnectAction, reconnectAction.nextBackoffNanos(), TimeUnit.NANOSECONDS);
     }
-
-
 }

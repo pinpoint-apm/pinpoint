@@ -17,11 +17,17 @@
 package com.navercorp.pinpoint.grpc;
 
 import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
+
 import com.navercorp.pinpoint.grpc.client.ChannelFactory;
 import com.navercorp.pinpoint.grpc.client.ChannelFactoryOption;
 import com.navercorp.pinpoint.grpc.server.MetadataServerTransportFilter;
 import com.navercorp.pinpoint.grpc.server.ServerContext;
 import com.navercorp.pinpoint.grpc.server.ServerFactory;
+
+import com.navercorp.pinpoint.grpc.client.ClientOption;
+import com.navercorp.pinpoint.grpc.server.MetadataServerTransportFilter;
+import com.navercorp.pinpoint.grpc.server.ServerOption;
+
 import com.navercorp.pinpoint.grpc.server.TransportMetadataFactory;
 import com.navercorp.pinpoint.grpc.server.TransportMetadataServerInterceptor;
 import com.navercorp.pinpoint.grpc.server.lifecycle.DefaultLifecycleRegistry;
@@ -162,7 +168,7 @@ public class ChannelFactoryTest {
     private static Server serverStart(ExecutorService executorService) throws IOException {
         logger.debug("server start");
 
-        serverFactory = new ServerFactory(ChannelFactoryTest.class.getSimpleName() + "-server", "127.0.0.1", PORT, executorService);
+        serverFactory = new ServerFactory(ChannelFactoryTest.class.getSimpleName() + "-server", "127.0.0.1", PORT, executorService, new ServerOption.Builder().build());
         spanService = new SpanService(1);
 
         serverFactory.addService(spanService);

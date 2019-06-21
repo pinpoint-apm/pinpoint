@@ -19,10 +19,12 @@ package com.navercorp.pinpoint.collector.receiver.grpc;
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.AgentService;
 import com.navercorp.pinpoint.common.server.util.AddressFilter;
+import com.navercorp.pinpoint.grpc.server.ServerOption;
 import com.navercorp.pinpoint.grpc.trace.PResult;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.io.request.ServerResponse;
 import io.grpc.BindableService;
+import io.grpc.Status;
 
 import java.net.InetAddress;
 import java.util.Arrays;
@@ -47,6 +49,7 @@ public class AgentServerTestMain {
         grpcReceiver.setBindableServiceList(Arrays.asList(agentService));
         grpcReceiver.setAddressFilter(new MockAddressFilter());
         grpcReceiver.setExecutor(Executors.newFixedThreadPool(8));
+        grpcReceiver.setServerOption(new ServerOption.Builder().build());
 
         grpcReceiver.afterPropertiesSet();
 
