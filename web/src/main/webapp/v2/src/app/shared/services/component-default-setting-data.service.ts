@@ -52,12 +52,12 @@ export class ComponentDefaultSettingDataService {
     ];
     private dateFormatList = [
         // [default, default + timezone, default + millisecond, year+month+day, time, variation1, variation2]
-        ['YYYY.MM.DD HH:mm:ss', 'YYYY.MM.DD HH:mm:ss Z', 'YYYY.MM.DD HH:mm:ss SSS', 'YYYY.MM.DD', 'HH:mm:ss', 'MM.DD', 'HH:mm'],
-        ['YYYY.MM.DD h:mm:ss a', 'YYYY.MM.DD h:mm:ss a Z', 'YYYY.MM.DD h:mm:ss SSS a ', 'YYYY.MM.DD', 'h:mm:ss a', 'MM.DD', 'h:mm a'],
-        ['MMM D, YYYY HH:mm:ss', 'MMM D, YYYY HH:mm:ss Z', 'MMM D, YYYY HH:mm:ss SSS', 'MMM D, YYYY', 'HH:mm:ss', 'MMM D', 'HH:mm'],
-        ['MMM D, YYYY h:mm:ss a', 'MMM D, YYYY h:mm:ss a Z', 'MMM D, YYYY h:mm:ss SSS a', 'MMM D, YYYY', 'h:mm:ss a', 'MMM D', 'h:mm a'],
-        ['D MMM YYYY HH:mm:ss', 'D MMM YYYY HH:mm:ss Z', 'D MMM YYYY HH:mm:ss SSS', 'D MMM YYYY', 'HH:mm:ss', 'D MMM', 'HH:mm'],
-        ['D MMM YYYY h:mm:ss a', 'D MMM YYYY h:mm:ss a Z', 'D MMM YYYY h:mm:ss SSS a', 'D MMM YYYY', 'h:mm:ss a', 'D MMM', 'h:mm a']
+        ['YYYY.MM.DD HH:mm:ss', 'YYYY.MM.DD HH:mm:ss Z', 'YYYY.MM.DD HH:mm:ss SSS', 'HH:mm:ss SSS', 'YYYY.MM.DD', 'HH:mm:ss', 'MM.DD', 'HH:mm'],
+        ['YYYY.MM.DD h:mm:ss a', 'YYYY.MM.DD h:mm:ss a Z', 'YYYY.MM.DD h:mm:ss SSS a ', 'h:mm:ss SSS a', 'YYYY.MM.DD', 'h:mm:ss a', 'MM.DD', 'h:mm a'],
+        ['MMM D, YYYY HH:mm:ss', 'MMM D, YYYY HH:mm:ss Z', 'MMM D, YYYY HH:mm:ss SSS', 'HH:mm:ss SSS', 'MMM D, YYYY', 'HH:mm:ss', 'MMM D', 'HH:mm'],
+        ['MMM D, YYYY h:mm:ss a', 'MMM D, YYYY h:mm:ss a Z', 'MMM D, YYYY h:mm:ss SSS a', 'h:mm:ss SSS a', 'MMM D, YYYY', 'h:mm:ss a', 'MMM D', 'h:mm a'],
+        ['D MMM YYYY HH:mm:ss', 'D MMM YYYY HH:mm:ss Z', 'D MMM YYYY HH:mm:ss SSS', 'HH:mm:ss SSS', 'D MMM YYYY', 'HH:mm:ss', 'D MMM', 'HH:mm'],
+        ['D MMM YYYY h:mm:ss a', 'D MMM YYYY h:mm:ss a Z', 'D MMM YYYY h:mm:ss SSS a', 'h:mm:ss SSS a', 'D MMM YYYY', 'h:mm:ss a', 'D MMM', 'h:mm a']
     ];
     private chartNumPerRow = 3;
     private chartRefreshInterval: { [key: string]: number} = {
