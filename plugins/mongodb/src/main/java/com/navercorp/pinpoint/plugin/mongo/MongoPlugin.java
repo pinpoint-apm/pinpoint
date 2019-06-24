@@ -144,10 +144,10 @@ public class MongoPlugin implements ProfilerPlugin, TransformTemplateAware {
             }
 
             InstrumentMethod getReadPreference = InstrumentUtils.findMethod(target, "setReadPreference", "com.mongodb.ReadPreference");
-            getReadPreference.addScopedInterceptor(MongoDriverConnectInterceptor2_X.class, MONGO_SCOPE, ExecutionPolicy.BOUNDARY);
+            getReadPreference.addScopedInterceptor(MongoReadPreferenceInterceptor.class, MONGO_SCOPE, ExecutionPolicy.BOUNDARY);
 
             InstrumentMethod getWriteConcern = InstrumentUtils.findMethod(target, "setWriteConcern", "com.mongodb.WriteConcern");
-            getWriteConcern.addScopedInterceptor(MongoDriverConnectInterceptor2_X.class, MONGO_SCOPE, ExecutionPolicy.BOUNDARY);
+            getWriteConcern.addScopedInterceptor(MongoWriteConcernInterceptor.class, MONGO_SCOPE, ExecutionPolicy.BOUNDARY);
 
             InstrumentMethod close = InstrumentUtils.findMethod(target, "close");
             close.addScopedInterceptor(ConnectionCloseInterceptor.class, MONGO_SCOPE);
