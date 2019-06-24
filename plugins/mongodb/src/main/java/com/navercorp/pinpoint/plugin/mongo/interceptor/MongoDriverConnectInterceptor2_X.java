@@ -19,8 +19,6 @@ package com.navercorp.pinpoint.plugin.mongo.interceptor;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.mongodb.ReadPreference;
-import com.mongodb.WriteConcern;
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
@@ -65,24 +63,9 @@ public class MongoDriverConnectInterceptor2_X implements AroundInterceptor {
             }
 
             DatabaseInfo databaseInfo = null;
-            List<String> emptyList = new ArrayList<String>();
             if (args[0] instanceof String) {
                 final List<String> hostList = getHostList(args);
                 databaseInfo = createDatabaseInfo(hostList, "", "");
-            } else if (args[0] instanceof ReadPreference) {
-                DatabaseInfo dbInfo = getDbInfo(target);
-                ReadPreference readPreference = (ReadPreference) args[0];
-                if (dbInfo == null) {
-                    dbInfo = createDatabaseInfo(emptyList, readPreference.getName(), "");
-                }
-                databaseInfo = cloneDatabaseInfoWithReadPreference(dbInfo, readPreference);
-            } else if (args[0] instanceof WriteConcern) {
-                DatabaseInfo dbInfo = getDbInfo(target);
-                WriteConcern writeConcern = (WriteConcern) args[0];
-                if (dbInfo == null) {
-                    dbInfo = createDatabaseInfo(emptyList, "", writeConcern.getWString());
-                }
-                databaseInfo = cloneDatabaseInfoWithWriteConcern(dbInfo, (WriteConcern) args[0]);
             }
 
             if (databaseInfo == null) {
@@ -93,19 +76,6 @@ public class MongoDriverConnectInterceptor2_X implements AroundInterceptor {
                 ((DatabaseInfoAccessor) target)._$PINPOINT$_setDatabaseInfo(databaseInfo);
             }
         }
-    }
-
-    /**
-     * @param target
-     * @param databaseInfo
-     * @return
-     */
-    private DatabaseInfo getDbInfo(Object target) {
-        DatabaseInfo databaseInfo = null;
-        if (target instanceof DatabaseInfoAccessor) {
-            databaseInfo = ((DatabaseInfoAccessor) target)._$PINPOINT$_getDatabaseInfo();
-        }
-        return databaseInfo;
     }
 
     private void logBeforeInterceptor(Object target, Object[] args) {
@@ -120,32 +90,6 @@ public class MongoDriverConnectInterceptor2_X implements AroundInterceptor {
 
         DatabaseInfo databaseInfo = new MongoDatabaseInfo(MongoConstants.MONGODB, MongoConstants.MONGO_EXECUTE_QUERY,
                 null, null, hostList, null, null, readPreference, writeConcern);
-
-        if (isDebug) {
-            logger.debug("parse DatabaseInfo:{}", databaseInfo);
-        }
-
-        return databaseInfo;
-    }
-
-    private DatabaseInfo cloneDatabaseInfoWithReadPreference(DatabaseInfo dbInfo, ReadPreference readPreference) {
-        MongoDatabaseInfo originalMongoDbInfo = (MongoDatabaseInfo) dbInfo;
-        DatabaseInfo databaseInfo = new MongoDatabaseInfo(originalMongoDbInfo.getType(),
-                originalMongoDbInfo.getExecuteQueryType(), null, null, originalMongoDbInfo.getHost(), null, null,
-                readPreference.getName(), originalMongoDbInfo.getWriteConcern());
-
-        if (isDebug) {
-            logger.debug("parse DatabaseInfo:{}", databaseInfo);
-        }
-
-        return databaseInfo;
-    }
-
-    private DatabaseInfo cloneDatabaseInfoWithWriteConcern(DatabaseInfo dbInfo, WriteConcern writeConcern) {
-        MongoDatabaseInfo originalMongoDbInfo = (MongoDatabaseInfo) dbInfo;
-        DatabaseInfo databaseInfo = new MongoDatabaseInfo(originalMongoDbInfo.getType(),
-                originalMongoDbInfo.getExecuteQueryType(), null, null, originalMongoDbInfo.getHost(), null, null,
-                originalMongoDbInfo.getReadPreference(), writeConcern.getWString());
 
         if (isDebug) {
             logger.debug("parse DatabaseInfo:{}", databaseInfo);
