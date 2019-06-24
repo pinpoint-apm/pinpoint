@@ -1,6 +1,6 @@
 import { Component, OnInit, OnChanges, SimpleChanges, Input, Output, EventEmitter, ViewEncapsulation } from '@angular/core';
 import * as moment from 'moment-timezone';
-import { GridOptions } from 'ag-grid';
+import { GridOptions } from 'ag-grid-community';
 
 export interface IGridData {
     id: number;
@@ -60,13 +60,16 @@ export class TransactionTableGridComponent implements OnInit, OnChanges {
     }
     private initGridOptions() {
         this.gridOptions = <GridOptions>{
+            defaultColDef: {
+                resizable: true,
+                sortable: true
+            },
             rowHeight: 30,
             columnDefs: this.makeColumnDefs(),
             animateRows: true,
             rowSelection: 'single',
             headerHeight: 34,
-            enableSorting: true,
-            enableColResize: true,
+            enableCellTextSelection: true,
             getRowClass: (params: any) => {
                 return params.data.exception === 1 ? 'ag-row-exception' : '';
             },
@@ -103,6 +106,9 @@ export class TransactionTableGridComponent implements OnInit, OnChanges {
         });
     }
     onGridSizeChanged(params: GridOptions): void {
+        this.gridOptions.api.sizeColumnsToFit();
+    }
+    onRendered(): void {
         this.gridOptions.api.sizeColumnsToFit();
     }
     private makeColumnDefs(): any {
@@ -164,19 +170,19 @@ export class TransactionTableGridComponent implements OnInit, OnChanges {
             {
                 headerName: 'Agent',
                 field: 'agentId',
-                width: 170,
+                width: 200,
                 tooltipField: 'agentId'
             },
             {
                 headerName: 'Client IP',
                 field: 'clientIp',
-                width: 120
+                width: 150
             },
             {
                 headerName: 'Transaction',
                 field: 'traceId',
                 width: 270,
-                suppressSizeToFit: true,
+                // suppressSizeToFit: true,
                 tooltipField: 'traceId'
             }
         ];
