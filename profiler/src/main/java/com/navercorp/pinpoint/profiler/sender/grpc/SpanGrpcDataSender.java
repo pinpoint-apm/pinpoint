@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.sender.grpc;
 
+import com.google.protobuf.Empty;
 import com.navercorp.pinpoint.grpc.HeaderFactory;
 import com.navercorp.pinpoint.grpc.trace.PSpan;
 import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
@@ -63,12 +64,12 @@ public class SpanGrpcDataSender extends GrpcDataSender {
     }
 
     private StreamObserver<PSpan> newSpanStream() {
-        ResponseStreamObserver<PSpan> responseStreamObserver = new ResponseStreamObserver(spanStreamReconnectAction);
+        ResponseStreamObserver<PSpan, Empty> responseStreamObserver = new ResponseStreamObserver<PSpan, Empty>(name, reconnector, spanStreamReconnectAction);
         return spanStub.sendSpan(responseStreamObserver);
     }
 
     private StreamObserver<PSpanChunk> newSpanChunkStream() {
-        ResponseStreamObserver<PSpanChunk> responseStreamObserver = new ResponseStreamObserver(spanChunkReconnectAction);
+        ResponseStreamObserver<PSpanChunk, Empty> responseStreamObserver = new ResponseStreamObserver<PSpanChunk, Empty>(name, reconnector, spanChunkReconnectAction);
         return spanStub.sendSpanChunk(responseStreamObserver);
     }
 
@@ -89,4 +90,16 @@ public class SpanGrpcDataSender extends GrpcDataSender {
         }
         throw new IllegalStateException("unsupported message " + data);
     }
+
+    @Override
+    public void stop() {
+        logger.info("spanStream.close()");
+        StreamUtils.close(this.spanStream);
+        logger.info("spanChunkStream.close()");
+        StreamUtils.close(this.spanChunkStream);
+
+        super.stop();
+    }
+
+
 }

@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.collector.receiver.grpc.service;
 
 import com.google.protobuf.Empty;
+import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
 import com.navercorp.pinpoint.grpc.trace.PSpan;
@@ -115,8 +116,8 @@ public class SpanService extends SpanGrpc.SpanImplBase {
         return new DefaultMessage<>(header, headerEntity, requestData);
     }
 
-    private void send(StreamObserver<Empty> responseObserver, final Message<?> message) {
-        ServerRequest<?> request;
+    private void send(StreamObserver<Empty> responseObserver, final Message<? extends GeneratedMessageV3> message) {
+        ServerRequest<? extends GeneratedMessageV3> request;
         try {
             request = serverRequestFactory.newServerRequest(message);
             this.dispatchHandler.dispatchSendMessage(request);

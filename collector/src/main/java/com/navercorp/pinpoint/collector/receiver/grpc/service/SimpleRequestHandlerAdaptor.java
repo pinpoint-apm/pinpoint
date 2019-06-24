@@ -49,7 +49,7 @@ public class SimpleRequestHandlerAdaptor<T> {
     public void request(Message<?> message, StreamObserver<T> responseObserver) {
         try {
             final ServerRequest<?> request = serverRequestFactory.newServerRequest(message);
-            final ServerResponse<T> response = new GrpcServerResponse(responseObserver);
+            final ServerResponse<T> response = new GrpcServerResponse<>(responseObserver);
             this.dispatchHandler.dispatchRequestMessage(request, response);
         } catch (Exception e) {
             logger.warn("Failed to request. message={}", message, e);
