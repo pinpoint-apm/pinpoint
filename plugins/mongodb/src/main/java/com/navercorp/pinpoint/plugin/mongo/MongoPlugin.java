@@ -95,12 +95,13 @@ public class MongoPlugin implements ProfilerPlugin, TransformTemplateAware {
 //        addSortsTransformer();
 //        addProjectionTransformer();
 
-        addMongoConnectionTransformer_2_X();
-        addSessionTransformer2_X();
+        addDatabaseConnectionTransformer2_X();
+        addCollectionConnectionTransformer2_X();
         addConnectionTransformer3_0_X();
         addConnectionTransformer3_7_X();
         addConnectionTransformer3_8_X();
-        addConnectionTransformer2_X();
+
+        addSessionTransformer2_X();
         addSessionTransformer3_0_X();
         addSessionTransformer3_7_X();
     }
@@ -117,11 +118,11 @@ public class MongoPlugin implements ProfilerPlugin, TransformTemplateAware {
      *
      * This method is supposed to handle both the versions.
      */
-    private void addMongoConnectionTransformer_2_X() {
-        transformTemplate.transform("com.mongodb.Mongo", MongoConnectionTransformer_2_X.class);
+    private void addDatabaseConnectionTransformer2_X() {
+        transformTemplate.transform("com.mongodb.Mongo", DatabaseConnectionTransform2_X.class);
     }
 
-    public static class MongoConnectionTransformer_2_X implements TransformCallback {
+    public static class DatabaseConnectionTransform2_X implements TransformCallback {
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className,
                 Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer)
@@ -328,11 +329,11 @@ public class MongoPlugin implements ProfilerPlugin, TransformTemplateAware {
         }
     }
 
-    private void addConnectionTransformer2_X() {
-        transformTemplate.transform("com.mongodb.DB", ConnectionTransformer2_X.class);
+    private void addCollectionConnectionTransformer2_X() {
+        transformTemplate.transform("com.mongodb.DB", CollectionConnectionTransform2_X.class);
     }
 
-    public static class ConnectionTransformer2_X implements TransformCallback {
+    public static class CollectionConnectionTransform2_X implements TransformCallback {
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className,
                 Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer)
