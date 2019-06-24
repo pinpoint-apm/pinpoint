@@ -46,7 +46,6 @@ import com.navercorp.pinpoint.profiler.sender.RequestMessage;
 import com.navercorp.pinpoint.profiler.sender.RequestMessageFactory;
 import com.navercorp.pinpoint.profiler.sender.RetryMessage;
 import com.navercorp.pinpoint.profiler.sender.RetryQueue;
-import com.navercorp.pinpoint.profiler.sender.WriteFailFutureListener;
 import com.navercorp.pinpoint.rpc.DefaultFuture;
 import com.navercorp.pinpoint.rpc.Future;
 import com.navercorp.pinpoint.rpc.FutureListener;
@@ -85,8 +84,6 @@ public class AgentGrpcDataSender implements EnhancedDataSender {
 
     private final AtomicBoolean fireState = new AtomicBoolean(false);
 
-    private final WriteFailFutureListener writeFailFutureListener;
-
     private final RetryQueue retryQueue = new RetryQueue();
 
     protected final AsyncQueueingExecutor<Object> asyncQueueingExecutor;
@@ -103,6 +100,7 @@ public class AgentGrpcDataSender implements EnhancedDataSender {
     protected final ThreadPoolExecutor executor;
 
     private final AgentGrpc.AgentFutureStub agentStub;
+
     private final MetadataGrpc.MetadataFutureStub metadataStub;
 
     private GrpcCommandService grpcCommandService;
@@ -117,7 +115,6 @@ public class AgentGrpcDataSender implements EnhancedDataSender {
         this.messageConverter = Assert.requireNonNull(messageConverter, "messageConverter must not be null");
 
         this.timer = createTimer(name);
-        this.writeFailFutureListener = new WriteFailFutureListener(logger, "io write fail.", host + ":" + port);
 
         final String executorName = getExecutorName(name);
         this.asyncQueueingExecutor = createAsyncQueueingExecutor(1024 * 5, executorName);
@@ -126,6 +123,7 @@ public class AgentGrpcDataSender implements EnhancedDataSender {
         this.channelFactory = newChannelFactory(name, headerFactory, nameResolverProvider);
         this.managedChannel = channelFactory.build(name, host, port);
         this.agentStub = AgentGrpc.newFutureStub(managedChannel);
+
         this.metadataStub = MetadataGrpc.newFutureStub(managedChannel);
 
         this.grpcCommandService = new GrpcCommandService(managedChannel, GrpcDataSender.reconnectScheduler, activeTraceRepository);
@@ -193,6 +191,8 @@ public class AgentGrpcDataSender implements EnhancedDataSender {
 
     @Override
     public void stop() {
+        logger.info("stop started");
+
         if (grpcCommandService != null) {
             grpcCommandService.stop();
         }

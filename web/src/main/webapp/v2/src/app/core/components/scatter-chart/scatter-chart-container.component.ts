@@ -72,14 +72,13 @@ export class ScatterChartContainerComponent implements OnInit, OnDestroy {
         combineLatest(
             this.translateService.get('COMMON.NO_DATA'),
             this.translateService.get('COMMON.FAILED_TO_FETCH_DATA'),
-            this.translateService.get('COMMON.POPUP_BLOCK_MESSAGE'),
+            this.translateService.get('COMMON.POPUP_BLOCK_MESSAGE')
         ).subscribe((i18n: string[]) => {
             this.i18nText = {
                 NO_DATA: i18n[0],
                 FAILED_TO_FETCH_DATA: i18n[1],
                 POPUP_BLOCK_MESSAGE: i18n[2]
             };
-            console.log( this.i18nText );
         });
         this.newUrlStateNotificationService.onUrlStateChange$.pipe(
             takeUntil(this.unsubscribe),

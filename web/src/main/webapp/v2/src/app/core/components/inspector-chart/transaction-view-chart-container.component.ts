@@ -1,11 +1,11 @@
-import { Component, OnInit, Input, OnDestroy } from '@angular/core';
+import { Component, OnInit, Input, OnDestroy, ViewChild } from '@angular/core';
 import { Subject, forkJoin, combineLatest, of } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
 import { PrimitiveArray, Data } from 'billboard.js';
 import * as moment from 'moment-timezone';
 
 import { ChartType, InspectorChartContainerFactory, IInspectorChartContainer } from './inspector-chart-container-factory';
-import { IChartConfig } from './inspector-chart.component';
+import { IChartConfig, InspectorChartComponent } from './inspector-chart.component';
 import { StoreHelperService, NewUrlStateNotificationService } from 'app/shared/services';
 import { InspectorChartDataService, IInspectorChartData } from './inspector-chart-data.service';
 import { UrlPathId } from 'app/shared/models';
@@ -24,6 +24,7 @@ export enum Layer {
     styleUrls: ['./transaction-view-chart-container.component.css']
 })
 export class TransactionViewChartContainerComponent implements OnInit, OnDestroy {
+    @ViewChild(InspectorChartComponent) component: InspectorChartComponent;
     @Input()
     set chartType(chartType: ChartType) {
         this._chartType = chartType;
@@ -98,6 +99,10 @@ export class TransactionViewChartContainerComponent implements OnInit, OnDestroy
 
     onRendered(): void {
         this.activeLayer = Layer.CHART;
+    }
+
+    onBackToTheView(): void {
+        this.component.resize();
     }
 
     private setChartVisibility(showChart: boolean): void {
@@ -194,6 +199,9 @@ export class TransactionViewChartContainerComponent implements OnInit, OnDestroy
                         r: 3
                     }
                 }
+            },
+            resize: {
+                auto: false
             },
             tooltip: {
                 linked: true,

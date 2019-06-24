@@ -62,6 +62,13 @@ public abstract class GrpcDataSender implements DataSender<Object> {
     protected static ScheduledExecutorService reconnectScheduler
             = Executors.newScheduledThreadPool(1, new PinpointThreadFactory("pinpoint-reconnect-thread"));
 
+    protected final Reconnector reconnector = new Reconnector() {
+        @Override
+        public void reconnect(ReconnectJob reconnectJob) {
+            GrpcDataSender.this.reconnect(reconnectJob);
+        }
+    };
+
     private ThreadPoolExecutor newExecutorService(String name) {
         ThreadFactory threadFactory = new PinpointThreadFactory(name, true);
         return ExecutorFactory.newFixedThreadPool(1, 1000, threadFactory);
@@ -123,40 +130,5 @@ public abstract class GrpcDataSender implements DataSender<Object> {
         reconnectScheduler.schedule(reconnectAction, reconnectAction.nextBackoffNanos(), TimeUnit.NANOSECONDS);
     }
 
-    public class ResponseStreamObserver<T> implements ClientResponseObserver<T, Empty> {
-
-        private final ReconnectJob reconnectJob;
-
-        public ResponseStreamObserver(ReconnectJob reconnectJob) {
-            this.reconnectJob = Assert.requireNonNull(reconnectJob, "reconnectJob");
-        }
-
-        @Override
-        public void beforeStart(ClientCallStreamObserver<T> requestStream) {
-            requestStream.setOnReadyHandler(new Runnable() {
-                @Override
-                public void run() {
-                    logger.info("connect to {} completed.", name);
-                    reconnectJob.resetBackoffNanos();
-                }
-            });
-        }
-
-        @Override
-        public void onNext(Empty value) {
-            logger.debug("[{}] onNext:{}", name, value);
-        }
-
-        @Override
-        public void onError(Throwable t) {
-            logger.info("{} onError:{}", name, t.getMessage(), t);
-            reconnect(reconnectJob);
-        }
-
-        @Override
-        public void onCompleted() {
-            logger.debug("{} onCompleted", name);
-        }
-    }
 
 }

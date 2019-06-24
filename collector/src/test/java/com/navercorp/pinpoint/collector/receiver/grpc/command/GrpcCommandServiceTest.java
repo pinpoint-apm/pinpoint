@@ -108,7 +108,7 @@ public class GrpcCommandServiceTest {
     }
 
     private TransportMetadata createTransportMetaData(InetSocketAddress remoteAddress, long transportId) {
-        return new DefaultTransportMetadata(remoteAddress, transportId, System.currentTimeMillis());
+        return new DefaultTransportMetadata(this.getClass().getSimpleName(), remoteAddress, transportId, System.currentTimeMillis());
     }
 
     private void attachContext(TransportMetadata transportMetadata) {

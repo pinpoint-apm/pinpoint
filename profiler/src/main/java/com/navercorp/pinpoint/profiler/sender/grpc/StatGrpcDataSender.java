@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.sender.grpc;
 
+import com.google.protobuf.Empty;
 import com.navercorp.pinpoint.grpc.HeaderFactory;
 import com.navercorp.pinpoint.grpc.trace.PAgentStat;
 import com.navercorp.pinpoint.grpc.trace.PAgentStatBatch;
@@ -61,12 +62,12 @@ public class StatGrpcDataSender extends GrpcDataSender {
     }
 
     private StreamObserver<PAgentStat> newStatStream() {
-        final ResponseStreamObserver<PAgentStat> responseObserver = new ResponseStreamObserver(statStreamReconnectAction);
+        final ResponseStreamObserver<PAgentStat, Empty> responseObserver = new ResponseStreamObserver<PAgentStat, Empty>(name, reconnector, statStreamReconnectAction);
         return statStub.sendAgentStat(responseObserver);
     }
 
     private StreamObserver<PAgentStatBatch> newStatBatchStream() {
-        final ResponseStreamObserver<PAgentStatBatch> responseObserver = new ResponseStreamObserver(statBatchStreamReconnectAction);
+        final ResponseStreamObserver<PAgentStatBatch, Empty> responseObserver = new ResponseStreamObserver<PAgentStatBatch, Empty>(name, reconnector, statBatchStreamReconnectAction);
         return statStub.sendAgentStatBatch(responseObserver);
     }
 
@@ -87,5 +88,14 @@ public class StatGrpcDataSender extends GrpcDataSender {
             return true;
         }
         throw new IllegalStateException("unsupported message " + message);
+    }
+
+    @Override
+    public void stop() {
+        logger.info("statBatchStream.close()");
+        StreamUtils.close(statBatchStream);
+        logger.info("statStream.close()");
+        StreamUtils.close(statStream);
+        super.stop();
     }
 }

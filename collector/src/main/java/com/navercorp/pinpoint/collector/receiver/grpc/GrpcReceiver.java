@@ -79,7 +79,7 @@ public class GrpcReceiver implements InitializingBean, DisposableBean, BeanNameA
         ServerTransportFilter permissionServerTransportFilter = new PermissionServerTransportFilter(addressFilter);
         this.serverFactory.addTransportFilter(permissionServerTransportFilter);
 
-        TransportMetadataFactory transportMetadataFactory = new TransportMetadataFactory();
+        TransportMetadataFactory transportMetadataFactory = new TransportMetadataFactory(beanName);
         final ServerTransportFilter metadataTransportFilter = new MetadataServerTransportFilter(transportMetadataFactory);
         this.serverFactory.addTransportFilter(metadataTransportFilter);
 
