@@ -1,6 +1,6 @@
 import { Component, Input, Output, ViewEncapsulation, EventEmitter, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import * as moment from 'moment-timezone';
-import { GridOptions, RowNode } from 'ag-grid';
+import { GridOptions, RowNode } from 'ag-grid-community';
 import { WindowRefService } from 'app/shared/services';
 
 export interface IGridData {
@@ -66,11 +66,14 @@ export class CallTreeComponent implements OnInit, OnChanges {
     }
     private initGridOptions() {
         this.gridOptions = <GridOptions>{
+            defaultColDef: {
+                resizable: true,
+                sortable: false
+            },
             columnDefs : this.makeColumnDefs(),
             headerHeight: 34,
-            enableColResize: true,
-            enableSorting: false,
             animateRows: true,
+            enableCellTextSelection: true,
             rowHeight: 30,
             getRowClass: (params: any) => {
                 if ( params.data.isFocused ) {
@@ -134,8 +137,8 @@ export class CallTreeComponent implements OnInit, OnChanges {
             {
                 headerName: 'Method',
                 field: 'method',
-                width: 350,
-                cellRenderer: 'group',
+                width: 420,
+                cellRenderer: 'agGroupCellRenderer',
                 cellRendererParams: {
                     innerRenderer: this.innerCellRenderer,
                     suppressCount: true
@@ -152,7 +155,8 @@ export class CallTreeComponent implements OnInit, OnChanges {
             {
                 headerName: 'StartTime',
                 field: 'startTime',
-                width: 170,
+                width: 100,
+                suppressSizeToFit: true,
                 valueFormatter: (params: any) => {
                     return params.value === 0 ? '' : moment(params.value).tz(this.timezone).format(this.dateFormat);
                 }
@@ -161,6 +165,7 @@ export class CallTreeComponent implements OnInit, OnChanges {
                 headerName: 'Gap(ms)',
                 field: 'gap',
                 width: 75,
+                suppressSizeToFit: true,
                 cellStyle: this.alignRightCellStyle,
                 valueFormatter: (params: any) => {
                     return params.value === '' ? '' : new Intl.NumberFormat().format(params.value);
@@ -170,6 +175,7 @@ export class CallTreeComponent implements OnInit, OnChanges {
                 headerName: 'Exec(ms)',
                 field: 'exec',
                 width: 78,
+                suppressSizeToFit: true,
                 cellStyle: this.alignRightCellStyle,
                 valueFormatter: (params: any) => {
                     return params.value === '' ? '' : new Intl.NumberFormat().format(params.value);
@@ -213,6 +219,7 @@ export class CallTreeComponent implements OnInit, OnChanges {
                 headerName: 'Self(ms)',
                 field: 'selp',
                 width: 78,
+                suppressSizeToFit: true,
                 cellStyle: this.alignRightCellStyle,
                 valueFormatter: function(params: any) {
                     return params.value === '' ? '' : new Intl.NumberFormat().format(params.value);
@@ -301,6 +308,9 @@ export class CallTreeComponent implements OnInit, OnChanges {
     }
     onCellDoubleClicked(params: any): void {
         this.outCellDoubleClicked.next(params.data[params.colDef.field]);
+    }
+    onRendered(): void {
+        this.gridOptions.api.sizeColumnsToFit();
     }
     searchRow({type, query}: {type: string, query: string | number}): number {
         let resultCount = 0;

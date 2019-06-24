@@ -3,6 +3,7 @@ import { Component, OnInit, Input, Output, EventEmitter, HostBinding, AfterViewC
 import { ClipboardService } from 'ngx-clipboard';
 import { js_beautify } from 'js-beautify';
 import sqlFormatter from 'sql-formatter';
+
 @Component({
     selector: 'pp-syntax-highlight-popup',
     templateUrl: './syntax-highlight-popup.component.html',

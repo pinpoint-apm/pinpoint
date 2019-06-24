@@ -2,7 +2,6 @@ import { Component, Input, OnInit, AfterViewInit, OnDestroy, ViewChild, ChangeDe
 import { Observable, Subject } from 'rxjs';
 import { takeUntil, filter } from 'rxjs/operators';
 
-import { Actions } from 'app/shared/store';
 import {
     StoreHelperService,
     NewUrlStateNotificationService,
@@ -95,7 +94,7 @@ export class CallTreeContainerComponent implements OnInit, OnDestroy, AfterViewI
     }
     private connectStore(): void {
         this.timezone$ = this.storeHelperService.getTimezone();
-        this.dateFormat$ = this.storeHelperService.getDateFormat(this.unsubscribe, 2);
+        this.dateFormat$ = this.storeHelperService.getDateFormat(this.unsubscribe, 3);
         this.storeHelperService.getTransactionDetailData(this.unsubscribe).pipe(
             filter((transactionDetailInfo: ITransactionDetailData) => {
                 return transactionDetailInfo && transactionDetailInfo.transactionId ? true : false;
