@@ -23,7 +23,6 @@ import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
 import com.navercorp.pinpoint.web.dao.HostApplicationMapDao;
 import com.navercorp.pinpoint.web.service.map.AcceptApplication;
 import com.navercorp.pinpoint.web.service.map.VirtualLinkMarker;
-import com.navercorp.pinpoint.web.service.map.processor.RpcCallProcessor;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.LinkKey;
 import com.navercorp.pinpoint.web.vo.Range;
@@ -37,7 +36,7 @@ import java.util.Collections;
 import java.util.Set;
 
 import static com.navercorp.pinpoint.common.trace.ServiceTypeFactory.of;
-import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.AS_ALIAS;
+import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.ALIAS;
 import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.RECORD_STATISTICS;
 import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.TERMINAL;
 import static org.mockito.Mockito.mock;
@@ -227,7 +226,7 @@ public class RpcCallProcessorTest {
     @Test
     public void multipleAcceptApplications_with_AliasAndOriginal() {
 
-        ServiceType AliasServiceType = of(1008, "TEST_ALIAS_CLIENT", AS_ALIAS);
+        ServiceType AliasServiceType = of(1008, "TEST_ALIAS_CLIENT", ALIAS);
         ServiceType ServerServiceType = of(1009, "TEST_ALIAS_SERVER", RECORD_STATISTICS, TERMINAL);
 
         // Given

@@ -229,7 +229,7 @@ public class TraceService {
             return false;
         }
         if (spanEventType.isRecordStatistics()) {
-            logger.error("ServiceType with AS_ALIAS should NOT have RECORD_STATISTICS {}", forDebugEvent);
+            logger.error("ServiceType with ALIAS should NOT have RECORD_STATISTICS {}", forDebugEvent);
             return false;
         }
         return true;

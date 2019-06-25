@@ -28,7 +28,7 @@ public class ServiceTypeBuilder {
     private boolean queue;
     private boolean recordStatistics;
     private boolean includeDestinationId;
-    private boolean setAlias;
+    private boolean alias;
 
     public ServiceTypeBuilder(short code, String name) {
         this(code, name, name);
@@ -60,8 +60,8 @@ public class ServiceTypeBuilder {
         return this;
     }
 
-    public ServiceTypeBuilder setAlias(boolean setAlias) {
-        this.setAlias = setAlias;
+    public ServiceTypeBuilder alias(boolean alias) {
+        this.alias = alias;
         return this;
     }
 
@@ -94,8 +94,8 @@ public class ServiceTypeBuilder {
         return includeDestinationId;
     }
 
-    boolean setAlias() {
-        return setAlias;
+    boolean alias() {
+        return alias;
     }
 
     public ServiceType build() {
