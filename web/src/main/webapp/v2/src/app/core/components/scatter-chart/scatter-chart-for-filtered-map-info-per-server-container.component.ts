@@ -112,7 +112,7 @@ export class ScatterChartForFilteredMapInfoPerServerContainerComponent implement
         this.storeHelperService.getTimezone(this.unsubscribe).subscribe((timezone: string) => {
             this.timezone = timezone;
         });
-        this.storeHelperService.getDateFormatArray(this.unsubscribe, 3, 4).subscribe((format: string[]) => {
+        this.storeHelperService.getDateFormatArray(this.unsubscribe, 4, 5).subscribe((format: string[]) => {
             this.dateFormat = format;
         });
         this.storeHelperService.getAgentSelectionForServerList(this.unsubscribe).pipe(

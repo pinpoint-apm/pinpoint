@@ -51,7 +51,7 @@ export class ComponentDefaultSettingDataService {
         'rgba(233, 84, 89, 0.5)'    // #e95459
     ];
     private dateFormatList = [
-        // [default, default + timezone, default + millisecond, year+month+day, time, variation1, variation2]
+        // [default, default + timezone, default + millisecond, time+millisecond, year+month+day, time, variation1, variation2]
         ['YYYY.MM.DD HH:mm:ss', 'YYYY.MM.DD HH:mm:ss Z', 'YYYY.MM.DD HH:mm:ss SSS', 'HH:mm:ss SSS', 'YYYY.MM.DD', 'HH:mm:ss', 'MM.DD', 'HH:mm'],
         ['YYYY.MM.DD h:mm:ss a', 'YYYY.MM.DD h:mm:ss a Z', 'YYYY.MM.DD h:mm:ss SSS a ', 'h:mm:ss SSS a', 'YYYY.MM.DD', 'h:mm:ss a', 'MM.DD', 'h:mm a'],
         ['MMM D, YYYY HH:mm:ss', 'MMM D, YYYY HH:mm:ss Z', 'MMM D, YYYY HH:mm:ss SSS', 'HH:mm:ss SSS', 'MMM D, YYYY', 'HH:mm:ss', 'MMM D', 'HH:mm'],
@@ -60,7 +60,7 @@ export class ComponentDefaultSettingDataService {
         ['D MMM YYYY h:mm:ss a', 'D MMM YYYY h:mm:ss a Z', 'D MMM YYYY h:mm:ss SSS a', 'h:mm:ss SSS a', 'D MMM YYYY', 'h:mm:ss a', 'D MMM', 'h:mm a']
     ];
     private chartNumPerRow = 3;
-    private chartRefreshInterval: { [key: string]: number} = {
+    private chartRefreshInterval: {[key: string]: number} = {
         inspector: 5000,
     };
     private applicationChartOrderList = [

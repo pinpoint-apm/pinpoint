@@ -50,7 +50,7 @@ export class LoadChartChangeNotificationService {
         this.storeHelperService.getTimezone(this.unsubscribe).subscribe((timezone: string) => {
             this.timezone = timezone;
         });
-        this.storeHelperService.getDateFormatArray(this.unsubscribe, 5, 6).subscribe((dateFormat: string[]) => {
+        this.storeHelperService.getDateFormatArray(this.unsubscribe, 6, 7).subscribe((dateFormat: string[]) => {
             this.dateFormatMonth = dateFormat[0];
             this.dateFormatDay = dateFormat[1];
         });
