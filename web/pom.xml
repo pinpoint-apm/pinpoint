@@ -527,7 +527,7 @@
                                     <goal>npm</goal>
                                 </goals>
                                 <configuration>
-                                    <arguments>run build</arguments>
+                                    <arguments>run build:real</arguments>
                                     <workingDirectory>${basedir}/target/main/webapp/v2</workingDirectory>
                                 </configuration>
                             </execution>
