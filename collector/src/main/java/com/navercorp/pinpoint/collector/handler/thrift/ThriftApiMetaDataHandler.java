@@ -57,10 +57,6 @@ public class ThriftApiMetaDataHandler implements RequestResponseHandler {
     }
 
     private Object handleApiMetaData(TApiMetaData apiMetaData) {
-        if (logger.isDebugEnabled()) {
-            logger.debug("Handle TApiMetaData={}", apiMetaData);
-        }
-
         try {
             final ApiMetaDataBo apiMetaDataBo = new ApiMetaDataBo(apiMetaData.getAgentId(), apiMetaData.getAgentStartTime(), apiMetaData.getApiId());
             apiMetaDataBo.setApiInfo(apiMetaData.getApiInfo());
