@@ -95,7 +95,7 @@ public class MongoPlugin implements ProfilerPlugin, TransformTemplateAware {
 //        addSortsTransformer();
 //        addProjectionTransformer();
 
-        addDatabaseConnectionTransformer2_X();
+        addDatabaseConnectionTransformer();
         addCollectionConnectionTransformer2_X();
         addConnectionTransformer3_0_X();
         addConnectionTransformer3_7_X();
@@ -118,11 +118,11 @@ public class MongoPlugin implements ProfilerPlugin, TransformTemplateAware {
      *
      * This method is supposed to handle both the versions.
      */
-    private void addDatabaseConnectionTransformer2_X() {
-        transformTemplate.transform("com.mongodb.Mongo", DatabaseConnectionTransform2_X.class);
+    private void addDatabaseConnectionTransformer() {
+        transformTemplate.transform("com.mongodb.Mongo", DatabaseConnectionTransform.class);
     }
 
-    public static class DatabaseConnectionTransform2_X implements TransformCallback {
+    public static class DatabaseConnectionTransform implements TransformCallback {
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className,
                 Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer)
@@ -135,13 +135,23 @@ public class MongoPlugin implements ProfilerPlugin, TransformTemplateAware {
 
             target.addField(DatabaseInfoAccessor.class);
 
-            try {
-                InstrumentMethod connect = InstrumentUtils.findConstructor(target, "java.lang.String",
-                        "int");
-                connect.addScopedInterceptor(MongoDriverConnectInterceptor2_X.class, MONGO_SCOPE,
+            InstrumentMethod connectVersion3 = target.getConstructor("com.mongodb.connection.Cluster",
+                    "com.mongodb.MongoClientOptions", "java.util.List");
+            if (connectVersion3 != null) {
+                connectVersion3.addScopedInterceptor(MongoDriverConnectInterceptor3_0.class, MONGO_SCOPE,
                         ExecutionPolicy.BOUNDARY);
-            } catch (NotFoundInstrumentException e) {
-                LOGGER.warn("2.x constructor not found. Ignoring...");
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("Instrumented 3.x constructor to intercept DB info");
+                }
+            } else {
+                InstrumentMethod connectVersion2 = target.getConstructor("java.lang.String", "int");
+                if (connectVersion2 != null) {
+                    connectVersion2.addScopedInterceptor(MongoDriverConnectInterceptor2_X.class, MONGO_SCOPE,
+                            ExecutionPolicy.BOUNDARY);
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("Instrumented 2.x constructor to intercept DB info");
+                    }
+                }
             }
 
             InstrumentMethod getReadPreference = InstrumentUtils.findMethod(target, "setReadPreference", "com.mongodb.ReadPreference");
