@@ -75,9 +75,6 @@ public class ThriftAgentInfoHandler implements SimpleAndRequestResponseHandler {
     }
 
     private Object handleAgentInfo(TAgentInfo agentInfo) {
-        if (logger.isDebugEnabled()) {
-            logger.debug("Handle TAgentInfo={}", agentInfo);
-        }
         try {
             // agent info
             final AgentInfoBo agentInfoBo = this.agentInfoBoMapper.map(agentInfo);

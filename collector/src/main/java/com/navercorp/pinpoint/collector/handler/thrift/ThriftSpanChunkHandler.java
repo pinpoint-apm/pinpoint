@@ -58,10 +58,6 @@ public class ThriftSpanChunkHandler implements SimpleHandler {
     }
 
     private void handleSpanChunk(TSpanChunk tbase) {
-        if (logger.isDebugEnabled()) {
-            logger.debug("Handle TSpanChunk={}", tbase);
-        }
-
         try {
             final SpanChunkBo spanChunkBo = this.spanFactory.buildSpanChunkBo(tbase);
             this.traceService.insertSpanChunk(spanChunkBo);
