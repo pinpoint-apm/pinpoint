@@ -74,7 +74,7 @@ public class ServiceTypeRegistryMockFactory {
                 case INCLUDE_DESTINATION_ID:
                     when(mockServiceType.isIncludeDestinationId()).thenReturn(true);
                     break;
-                case AS_ALIAS:
+                case ALIAS:
                     when(mockServiceType.isAlias()).thenReturn(true);
                     break;
                 default:

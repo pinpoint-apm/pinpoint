@@ -110,8 +110,8 @@ class TraceMetadataVerifier {
 
         for(ServiceType serviceType : serviceTypeList){
             if(serviceType.isAlias()){
-                collector.checkThat("ServiceType's code with AS_ALIAS should be in range of RPC", true, is(serviceType.isRpcClient()));
-                collector.checkThat("ServiceType with AS_ALIAS should NOT have RECORD_STATISTICS", true, is(not(serviceType.isRecordStatistics())));
+                collector.checkThat("ServiceType's code with ALIAS should be in range of RPC", true, is(serviceType.isRpcClient()));
+                collector.checkThat("ServiceType with ALIAS should NOT have RECORD_STATISTICS", true, is(not(serviceType.isRecordStatistics())));
             }
         }
     }
