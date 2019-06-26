@@ -152,25 +152,22 @@ public class MongoPlugin implements ProfilerPlugin, TransformTemplateAware {
                         LOGGER.debug("Instrumented 2.x constructor to intercept DB info");
                     }
                 }
-            }
+                InstrumentMethod getReadPreference = InstrumentUtils.findMethod(target, "setReadPreference",
+                        "com.mongodb.ReadPreference");
+                getReadPreference.addScopedInterceptor(MongoReadPreferenceInterceptor.class, MONGO_SCOPE,
+                        ExecutionPolicy.BOUNDARY);
 
-            InstrumentMethod getReadPreference = InstrumentUtils.findMethod(target, "setReadPreference", "com.mongodb.ReadPreference");
-            getReadPreference.addScopedInterceptor(MongoReadPreferenceInterceptor.class, MONGO_SCOPE, ExecutionPolicy.BOUNDARY);
+                InstrumentMethod getWriteConcern = InstrumentUtils.findMethod(target, "setWriteConcern",
+                        "com.mongodb.WriteConcern");
+                getWriteConcern.addScopedInterceptor(MongoWriteConcernInterceptor.class, MONGO_SCOPE,
+                        ExecutionPolicy.BOUNDARY);
 
-            InstrumentMethod getWriteConcern = InstrumentUtils.findMethod(target, "setWriteConcern", "com.mongodb.WriteConcern");
-            getWriteConcern.addScopedInterceptor(MongoWriteConcernInterceptor.class, MONGO_SCOPE, ExecutionPolicy.BOUNDARY);
+                InstrumentMethod close = InstrumentUtils.findMethod(target, "close");
+                close.addScopedInterceptor(ConnectionCloseInterceptor.class, MONGO_SCOPE);
 
-            InstrumentMethod close = InstrumentUtils.findMethod(target, "close");
-            close.addScopedInterceptor(ConnectionCloseInterceptor.class, MONGO_SCOPE);
-
-            try {
                 InstrumentMethod database = InstrumentUtils.findMethod(target, "getDB", "java.lang.String");
                 database.addScopedInterceptor(MongoDriverGetDatabaseInterceptor.class, MONGO_SCOPE,
                         ExecutionPolicy.BOUNDARY);
-            } catch (NotFoundInstrumentException e) {
-                if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("2.x method getDB not found. Ignoring...");
-                }
             }
 
             return target.toBytecode();
