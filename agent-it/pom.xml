@@ -404,13 +404,6 @@
             <version>4.1.28.Final</version>
             <scope>test</scope>
         </dependency>
-
-        <dependency>
-            <groupId>org.apache.dubbo</groupId>
-            <artifactId>dubbo</artifactId>
-            <scope>test</scope>
-        </dependency>
-
     </dependencies>
 
     <build>
