@@ -45,7 +45,6 @@ public class ApacheDubboConsumerInterceptorTest {
         doReturn(traceId).when(trace).getTraceId();
         doReturn(nextId).when(traceId).getNextTraceId();
         doReturn(spanRecorder).when(trace).traceBlockBegin();
-        doReturn(spanRecorder).when(trace).currentSpanEventRecorder();
 
         ApacheDubboConsumerInterceptor interceptor = new ApacheDubboConsumerInterceptor(traceContext, descriptor);
         RpcInvocation rpcInvocation = new RpcInvocation();
@@ -58,7 +57,6 @@ public class ApacheDubboConsumerInterceptorTest {
     @Test
     public void after() {
         doReturn(trace).when(traceContext).currentTraceObject();
-        doReturn(true).when(trace).canSampled();
         doReturn(spanRecorder).when(trace).currentSpanEventRecorder();
 
         RpcInvocation rpcInvocation = new RpcInvocation();

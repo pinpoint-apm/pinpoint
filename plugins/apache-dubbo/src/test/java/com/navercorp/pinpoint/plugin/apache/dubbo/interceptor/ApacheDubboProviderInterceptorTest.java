@@ -44,7 +44,6 @@ public class ApacheDubboProviderInterceptorTest {
 
     @Test
     public void createTrace() {
-        doReturn(trace).when(traceContext).currentTraceObject();
         doReturn(true).when(trace).canSampled();
         doReturn(spanRecorder).when(trace).getSpanRecorder();
         doReturn(trace).when(traceContext).newTraceObject();
