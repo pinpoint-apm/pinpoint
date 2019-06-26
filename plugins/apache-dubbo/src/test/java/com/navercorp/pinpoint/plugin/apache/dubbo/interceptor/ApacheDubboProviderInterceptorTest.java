@@ -2,6 +2,8 @@ package com.navercorp.pinpoint.plugin.apache.dubbo.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
+import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
+import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.plugin.apache.dubbo.ApacheDubboConstants;
 import org.apache.dubbo.common.URL;
@@ -14,6 +16,8 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.UUID;
+
+import static org.mockito.Mockito.doReturn;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ApacheDubboProviderInterceptorTest {
@@ -28,19 +32,30 @@ public class ApacheDubboProviderInterceptorTest {
     private SpanEventRecorder recorder;
 
     @Mock
+    private Trace trace;
+
+    @Mock
+    private SpanRecorder spanRecorder;
+
+    @Mock
     private RpcInvocation rpcInvocation;
 
     private Object obj = new Object();
 
     @Test
     public void createTrace() {
+        doReturn(trace).when(traceContext).currentTraceObject();
+        doReturn(true).when(trace).canSampled();
+        doReturn(spanRecorder).when(trace).getSpanRecorder();
+        doReturn(trace).when(traceContext).newTraceObject();
+
+        Invoker invoker = new DubboInvoker(Object.class, new URL("http", "127.0.0.1", 8080), null);
         ApacheDubboProviderInterceptor interceptor = new ApacheDubboProviderInterceptor(traceContext, descriptor);
         RpcInvocation rpcInvocation = new RpcInvocation();
-        rpcInvocation.setInvoker(new DubboInvoker(Object.class, new URL("http", "127.0.0.1", 8080), null));
+        rpcInvocation.setInvoker(invoker);
         rpcInvocation.setMethodName("test");
-        rpcInvocation.setAttachment(ApacheDubboConstants.META_TRANSACTION_ID, UUID.randomUUID().toString());
+        rpcInvocation.setAttachment(ApacheDubboConstants.META_PARENT_APPLICATION_NAME, UUID.randomUUID().toString());
         Object[] args = new Object[]{rpcInvocation};
-        Invoker invoker = new DubboInvoker(Object.class, new URL("http", "127.0.0.1", 8080), null);
         interceptor.createTrace(invoker, args);
     }
 
