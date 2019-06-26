@@ -31,7 +31,7 @@ public class ElasticsearchConstants {
 	public static final AnnotationKey ARGS_ACTION_ANNOTATION_KEY = AnnotationKeyFactory.of(174, "es.action", AnnotationKeyProperty.VIEW_IN_RECORD_SET);
 	public static final AnnotationKey ARGS_RESPONSEHANDLE_ANNOTATION_KEY = AnnotationKeyFactory.of(175, "es.responseHandle", AnnotationKeyProperty.VIEW_IN_RECORD_SET);
 	public static final AnnotationKey ARGS_VERSION_ANNOTATION_KEY = AnnotationKeyFactory.of(176, "es.version", AnnotationKeyProperty.VIEW_IN_RECORD_SET);
-	public static final ServiceType ELASTICSEARCH_EXECUTOR = ServiceTypeFactory.of(9202, "ElasticsearchBBossExecutor", AS_ALIAS);
+	public static final ServiceType ELASTICSEARCH_EXECUTOR = ServiceTypeFactory.of(9202, "ElasticsearchBBossExecutor", ALIAS);
 	public static final String ELASTICSEARCH_SCOPE = "ElasticsearchBBoss_SCOPE";
 	public static final String ELASTICSEARCH_Parallel_SCOPE = "ElasticsearchBBoss_Parallel_SCOPE";
 	public static final String ELASTICSEARCH_EXECUTOR_SCOPE = "ElasticsearchBBossExecutor_SCOPE";

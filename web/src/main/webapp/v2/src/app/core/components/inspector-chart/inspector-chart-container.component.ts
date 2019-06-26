@@ -98,7 +98,7 @@ export class InspectorChartContainerComponent implements OnInit, OnDestroy {
     private initTimezoneAndDateFormat(): void {
         combineLatest(
             this.storeHelperService.getTimezone(this.unsubscribe),
-            this.storeHelperService.getDateFormatArray(this.unsubscribe, 3, 4)
+            this.storeHelperService.getDateFormatArray(this.unsubscribe, 4, 5)
         ).subscribe(([timezone, dateFormat]: [string, string[]]) => {
             this.timezone = timezone;
             this.dateFormat = dateFormat;

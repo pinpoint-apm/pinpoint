@@ -27,15 +27,16 @@ import java.util.Properties;
 public final class StatReceiverConfiguration implements DataReceiverGroupConfiguration {
 
     private static final String PREFIX = "collector.receiver.stat";
+    private static final String GRPC_PREFIX = "collector.receiver.grpc.stat";
 
-    private static final String GRPC_ENABLE = PREFIX + ".grpc";
-    private static final String GRPC_BIND_IP = PREFIX + ".grpc.ip";
-    private static final String GRPC_BIND_PORT = PREFIX + ".grpc.port";
-    private static final String GRPC_WORKER_THREAD_SIZE = PREFIX + ".grpc.worker.threadSize";
-    private static final String GRPC_WORKER_QUEUE_SIZE = PREFIX + ".grpc.worker.queueSize";
-    private static final String GRPC_WORKER_MONITOR_ENABLE = PREFIX + ".grpc.worker.monitor";
-    private static final String GRPC_KEEP_ALIVE_TIME = PREFIX + ".grpc.keepalive.time";
-    private static final String GRPC_KEEP_ALIVE_TIMEOUT = PREFIX + ".grpc.keepalive.timeout";
+    private static final String GRPC_ENABLE = GRPC_PREFIX + ".enable";
+    private static final String GRPC_BIND_IP = GRPC_PREFIX + ".ip";
+    private static final String GRPC_BIND_PORT = GRPC_PREFIX + ".port";
+    private static final String GRPC_WORKER_THREAD_SIZE = GRPC_PREFIX + ".worker.threadSize";
+    private static final String GRPC_WORKER_QUEUE_SIZE = GRPC_PREFIX + ".worker.queueSize";
+    private static final String GRPC_WORKER_MONITOR_ENABLE = GRPC_PREFIX + ".worker.monitor";
+    private static final String GRPC_KEEP_ALIVE_TIME = GRPC_PREFIX + ".keepalive.time";
+    private static final String GRPC_KEEP_ALIVE_TIMEOUT = GRPC_PREFIX + ".keepalive.timeout";
 
     private static final String TCP_ENABLE = PREFIX + ".tcp";
     private static final String TCP_BIND_IP = PREFIX + ".tcp.ip";

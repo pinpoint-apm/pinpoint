@@ -51,7 +51,7 @@ export class AgentListComponent implements OnInit, OnDestroy  {
                 headerName: '#',
                 field: 'index',
                 width: 60,
-                suppressFilter: true
+                filter: false
             },
             {
                 headerName: `Application`,

@@ -16,23 +16,36 @@
 
 package com.navercorp.pinpoint.grpc;
 
-import com.google.protobuf.Empty;
 import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
+
+import com.navercorp.pinpoint.grpc.client.ChannelFactory;
+import com.navercorp.pinpoint.grpc.client.ChannelFactoryOption;
 import com.navercorp.pinpoint.grpc.server.MetadataServerTransportFilter;
+import com.navercorp.pinpoint.grpc.server.ServerContext;
+import com.navercorp.pinpoint.grpc.server.ServerFactory;
+
+import com.navercorp.pinpoint.grpc.client.ClientOption;
+import com.navercorp.pinpoint.grpc.server.MetadataServerTransportFilter;
+import com.navercorp.pinpoint.grpc.server.ServerOption;
+
 import com.navercorp.pinpoint.grpc.server.TransportMetadataFactory;
 import com.navercorp.pinpoint.grpc.server.TransportMetadataServerInterceptor;
 import com.navercorp.pinpoint.grpc.server.lifecycle.DefaultLifecycleRegistry;
-import com.navercorp.pinpoint.grpc.server.lifecycle.LifecycleListenerAdaptor;
 import com.navercorp.pinpoint.grpc.server.lifecycle.HeaderHijackingServerInterceptor;
 import com.navercorp.pinpoint.grpc.server.lifecycle.LifecycleListener;
+import com.navercorp.pinpoint.grpc.server.lifecycle.LifecycleListenerAdaptor;
 import com.navercorp.pinpoint.grpc.server.lifecycle.LifecycleRegistry;
 import com.navercorp.pinpoint.grpc.server.lifecycle.LifecycleTransportFilter;
 import com.navercorp.pinpoint.grpc.trace.PSpan;
-import com.navercorp.pinpoint.grpc.client.ChannelFactory;
-import com.navercorp.pinpoint.grpc.server.ServerContext;
-import com.navercorp.pinpoint.grpc.server.ServerFactory;
 import com.navercorp.pinpoint.grpc.trace.SpanGrpc;
+
+import com.google.protobuf.Empty;
+import io.grpc.CallOptions;
+import io.grpc.Channel;
+import io.grpc.ClientCall;
+import io.grpc.ClientInterceptor;
 import io.grpc.ManagedChannel;
+import io.grpc.MethodDescriptor;
 import io.grpc.NameResolverProvider;
 import io.grpc.Server;
 import io.grpc.ServerInterceptor;
@@ -41,6 +54,7 @@ import io.grpc.Status;
 import io.grpc.internal.PinpointDnsNameResolverProvider;
 import io.grpc.stub.StreamObserver;
 import org.junit.AfterClass;
+import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -52,6 +66,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -97,7 +112,16 @@ public class ChannelFactoryTest {
 
         AgentHeaderFactory.Header header = new AgentHeaderFactory.Header("agentId", "appName", System.currentTimeMillis());
         HeaderFactory<AgentHeaderFactory.Header> headerFactory = new AgentHeaderFactory(header);
-        ChannelFactory channelFactory = new ChannelFactory(this.getClass().getSimpleName(), headerFactory, nameResolverProvider);
+
+        CountRecordClientInterceptor countRecordClientInterceptor = new CountRecordClientInterceptor();
+
+        ChannelFactoryOption.Builder builder = ChannelFactoryOption.newBuilder();
+        builder.setName(this.getClass().getSimpleName());
+        builder.setHeaderFactory(headerFactory);
+        builder.setNameResolverProvider(nameResolverProvider);
+        builder.addClientInterceptor(countRecordClientInterceptor);
+
+        ChannelFactory channelFactory = new ChannelFactory(builder.build());
         ManagedChannel managedChannel = channelFactory.build("test-channel", "127.0.0.1", PORT);
         managedChannel.getState(false);
 
@@ -116,6 +140,8 @@ public class ChannelFactoryTest {
         responseObserver.awaitLatch();
         logger.debug("client-onCompleted");
         sendSpan.onCompleted();
+
+        Assert.assertTrue(countRecordClientInterceptor.getExecutedInterceptCallCount() == 1);
 
         logger.debug("state:{}", managedChannel.getState(true));
         spanService.awaitLatch();
@@ -142,7 +168,7 @@ public class ChannelFactoryTest {
     private static Server serverStart(ExecutorService executorService) throws IOException {
         logger.debug("server start");
 
-        serverFactory = new ServerFactory(ChannelFactoryTest.class.getSimpleName() + "-server", "127.0.0.1", PORT, executorService);
+        serverFactory = new ServerFactory(ChannelFactoryTest.class.getSimpleName() + "-server", "127.0.0.1", PORT, executorService, new ServerOption.Builder().build());
         spanService = new SpanService(1);
 
         serverFactory.addService(spanService);
@@ -215,4 +241,21 @@ public class ChannelFactoryTest {
             return false;
         }
     }
+
+    static class CountRecordClientInterceptor implements ClientInterceptor {
+
+        private final AtomicInteger executedInterceptCallCount = new AtomicInteger();
+
+        @Override
+        public <ReqT, RespT> ClientCall<ReqT, RespT> interceptCall(MethodDescriptor<ReqT, RespT> method, CallOptions callOptions, Channel next) {
+            executedInterceptCallCount.incrementAndGet();
+            return next.newCall(method, callOptions);
+        }
+
+        public int getExecutedInterceptCallCount() {
+            return executedInterceptCallCount.get();
+        }
+    }
+
+
 }

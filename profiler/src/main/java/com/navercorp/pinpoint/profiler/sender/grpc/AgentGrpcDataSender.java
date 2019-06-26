@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.sender.grpc;
 
+import com.navercorp.pinpoint.grpc.client.ClientOption;
 import com.navercorp.pinpoint.grpc.trace.MetadataGrpc;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
 import com.navercorp.pinpoint.profiler.receiver.grpc.GrpcCommandService;
@@ -25,13 +26,12 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.protobuf.GeneratedMessageV3;
+
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.ExecutorFactory;
 import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
-import com.navercorp.pinpoint.common.util.StringUtils;
-import com.navercorp.pinpoint.grpc.AgentHeaderFactory;
-import com.navercorp.pinpoint.grpc.HeaderFactory;
 import com.navercorp.pinpoint.grpc.client.ChannelFactory;
+import com.navercorp.pinpoint.grpc.client.ChannelFactoryOption;
 import com.navercorp.pinpoint.grpc.trace.AgentGrpc;
 import com.navercorp.pinpoint.grpc.trace.PAgentInfo;
 import com.navercorp.pinpoint.grpc.trace.PApiMetaData;
@@ -52,8 +52,8 @@ import com.navercorp.pinpoint.rpc.FutureListener;
 import com.navercorp.pinpoint.rpc.ResponseMessage;
 import com.navercorp.pinpoint.rpc.client.PinpointClientReconnectEventListener;
 import com.navercorp.pinpoint.rpc.util.TimerFactory;
+
 import io.grpc.ManagedChannel;
-import io.grpc.NameResolverProvider;
 import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.util.HashedWheelTimer;
 import org.jboss.netty.util.Timeout;
@@ -73,12 +73,14 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @author jaehong.kim
  */
 public class AgentGrpcDataSender implements EnhancedDataSender {
-    protected final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     static {
         // preClassLoad
         ChannelBuffers.buffer(2);
     }
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final boolean isDebug = logger.isDebugEnabled();
 
     private final Timer timer;
 
@@ -104,23 +106,23 @@ public class AgentGrpcDataSender implements EnhancedDataSender {
     private final MetadataGrpc.MetadataFutureStub metadataStub;
 
     private GrpcCommandService grpcCommandService;
+    private ClientOption clientOption;
 
-
-    public AgentGrpcDataSender(String name, String host, int port, MessageConverter<GeneratedMessageV3> messageConverter, HeaderFactory<AgentHeaderFactory.Header> headerFactory, NameResolverProvider nameResolverProvider) {
-        this(name, host, port, messageConverter, headerFactory, nameResolverProvider, null);
+    public AgentGrpcDataSender(String host, int port, MessageConverter<GeneratedMessageV3> messageConverter, ChannelFactoryOption channelFactoryOption) {
+        this(host, port, messageConverter, channelFactoryOption, null);
     }
 
-    public AgentGrpcDataSender(String name, String host, int port, MessageConverter<GeneratedMessageV3> messageConverter, HeaderFactory<AgentHeaderFactory.Header> headerFactory, NameResolverProvider nameResolverProvider, ActiveTraceRepository activeTraceRepository) {
-        this.name = Assert.requireNonNull(name, "name must not be null");
+    public AgentGrpcDataSender(String host, int port, MessageConverter<GeneratedMessageV3> messageConverter, ChannelFactoryOption channelFactoryOption, ActiveTraceRepository activeTraceRepository) {
+        Assert.requireNonNull(channelFactoryOption, "channelFactoryOption must not be null");
+
+        this.name = Assert.requireNonNull(channelFactoryOption.getName(), "name must not be null");
         this.messageConverter = Assert.requireNonNull(messageConverter, "messageConverter must not be null");
 
-        this.timer = createTimer(name);
+        this.timer = createTimer();
+        this.asyncQueueingExecutor = createAsyncQueueingExecutor(1024 * 5);
+        this.executor = newExecutorService();
 
-        final String executorName = getExecutorName(name);
-        this.asyncQueueingExecutor = createAsyncQueueingExecutor(1024 * 5, executorName);
-        this.executor = newExecutorService(name);
-
-        this.channelFactory = newChannelFactory(name, headerFactory, nameResolverProvider);
+        this.channelFactory = new ChannelFactory(channelFactoryOption);
         this.managedChannel = channelFactory.build(name, host, port);
         this.agentStub = AgentGrpc.newFutureStub(managedChannel);
 
@@ -129,42 +131,29 @@ public class AgentGrpcDataSender implements EnhancedDataSender {
         this.grpcCommandService = new GrpcCommandService(managedChannel, GrpcDataSender.reconnectScheduler, activeTraceRepository);
     }
 
-    private ThreadPoolExecutor newExecutorService(String name) {
-        ThreadFactory threadFactory = new PinpointThreadFactory(name, true);
-        return ExecutorFactory.newFixedThreadPool(1, 1000, threadFactory);
-    }
-
-    private Timer createTimer(String name) {
-        final String timerName = getTimerName(name);
-
-        HashedWheelTimer timer = TimerFactory.createHashedWheelTimer(timerName, 100, TimeUnit.MILLISECONDS, 512);
+    private Timer createTimer() {
+        final String threadName = PinpointThreadFactory.DEFAULT_THREAD_NAME_PREFIX + name + "-Timer";
+        HashedWheelTimer timer = TimerFactory.createHashedWheelTimer(threadName, 100, TimeUnit.MILLISECONDS, 512);
         timer.start();
         return timer;
     }
 
-    private String getTimerName(String name) {
-        name = StringUtils.defaultString(name, "DEFAULT");
-        return String.format("Pinpoint-AgentGrpcDataSender(%s)-Timer", name);
+    private ThreadPoolExecutor newExecutorService() {
+        final String threadName = PinpointThreadFactory.DEFAULT_THREAD_NAME_PREFIX + name + "-Result-Executor";
+        ThreadFactory threadFactory = new PinpointThreadFactory(threadName, true);
+        return ExecutorFactory.newFixedThreadPool(1, 1000, threadFactory);
     }
 
-    private String getExecutorName(String name) {
-        name = StringUtils.defaultString(name, "DEFAULT");
-        return String.format("Pinpoint-AgentGrpcDataSender(%s)-Executor", name);
-    }
-
-    private AsyncQueueingExecutor<Object> createAsyncQueueingExecutor(int queueSize, String executorName) {
+    private AsyncQueueingExecutor<Object> createAsyncQueueingExecutor(int queueSize) {
         AsyncQueueingExecutorListener<Object> listener = new DefaultAsyncQueueingExecutorListener() {
             @Override
             public void execute(Object message) {
                 sendPacket(message);
             }
         };
-        final AsyncQueueingExecutor<Object> executor = new AsyncQueueingExecutor<Object>(queueSize, executorName, listener);
+        final String threadName = PinpointThreadFactory.DEFAULT_THREAD_NAME_PREFIX + name + "-Executor";
+        final AsyncQueueingExecutor<Object> executor = new AsyncQueueingExecutor<Object>(queueSize, threadName, listener);
         return executor;
-    }
-
-    private ChannelFactory newChannelFactory(String name, HeaderFactory<AgentHeaderFactory.Header> headerFactory, NameResolverProvider nameResolverProvider) {
-        return new ChannelFactory(name, headerFactory, nameResolverProvider);
     }
 
     @Override
@@ -267,17 +256,19 @@ public class AgentGrpcDataSender implements EnhancedDataSender {
                     try {
                         PResult result = PResult.parseFrom(responseMessage.getMessage());
                         if (result.getSuccess()) {
-                            logger.debug("result success");
+                            if (isDebug) {
+                                logger.debug("Request success. request={}, result={}", targetClass.getClass().getSimpleName(), result.getMessage());
+                            }
                         } else {
-                            logger.info("request fail. request:{} Caused:{}", targetClass, result.getMessage());
+                            logger.info("Request fail. request={}, result={}", targetClass.getClass().getSimpleName(), result.getMessage());
                             RetryMessage retryMessage = new RetryMessage(1, maxRetryCount, requestPacket, targetClass.getClass().getSimpleName());
                             retryRequest(retryMessage);
                         }
                     } catch (Exception e) {
-                        logger.warn("Invalid response:{}", responseMessage);
+                        logger.warn("Invalid response. request={}, result={}", targetClass.getClass().getSimpleName(), responseMessage);
                     }
                 } else {
-                    logger.info("request fail. request:{} Caused:{}", targetClass, future.getCause().getMessage(), future.getCause());
+                    logger.info("Request fail. request={}, caused={}", targetClass.getClass().getSimpleName(), future.getCause().getMessage(), future.getCause());
                     RetryMessage retryMessage = new RetryMessage(1, maxRetryCount, requestPacket, targetClass.getClass().getSimpleName());
                     retryRequest(retryMessage);
                 }
@@ -298,16 +289,18 @@ public class AgentGrpcDataSender implements EnhancedDataSender {
                     try {
                         PResult result = PResult.parseFrom(responseMessage.getMessage());
                         if (result.getSuccess()) {
-                            logger.debug("result success");
+                            if (isDebug) {
+                                logger.debug("Request success. request={}, result={}", retryMessage, result.getMessage());
+                            }
                         } else {
-                            logger.info("request fail. request:{}, Caused:{}", retryMessage, result.getMessage());
+                            logger.info("Request fail. request={}, result={}", retryMessage, result.getMessage());
                             retryRequest(retryMessage);
                         }
                     } catch (Exception e) {
-                        logger.warn("Invalid response:{}", responseMessage);
+                        logger.warn("Invalid response. request={}, result={}", retryMessage, responseMessage);
                     }
                 } else {
-                    logger.info("request fail. request:{}, caused:{}", retryMessage, future.getCause().getMessage(), future.getCause());
+                    logger.info("Request fail. request={}, caused={}", retryMessage, future.getCause().getMessage(), future.getCause());
                     retryRequest(retryMessage);
                 }
             }

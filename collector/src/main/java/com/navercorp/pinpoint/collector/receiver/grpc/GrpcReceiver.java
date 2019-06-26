@@ -74,8 +74,9 @@ public class GrpcReceiver implements InitializingBean, DisposableBean, BeanNameA
         Assert.requireNonNull(this.bindIp, "bindIp must not be null");
         Assert.requireNonNull(this.addressFilter, "addressFilter must not be null");
         Assert.isTrue(CollectionUtils.hasLength(this.serviceList), "serviceList must not be empty");
+        Assert.requireNonNull(this.serverOption, "serverOption must not be null");
 
-        this.serverFactory = new ServerFactory(beanName, this.bindIp, this.bindPort, this.executor);
+        this.serverFactory = new ServerFactory(beanName, this.bindIp, this.bindPort, this.executor, serverOption);
         ServerTransportFilter permissionServerTransportFilter = new PermissionServerTransportFilter(addressFilter);
         this.serverFactory.addTransportFilter(permissionServerTransportFilter);
 

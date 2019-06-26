@@ -57,10 +57,6 @@ public class ThriftSqlMetaDataHandler implements RequestResponseHandler {
     }
 
     private Object handleSqlMetaData(TSqlMetaData sqlMetaData) {
-        if (logger.isDebugEnabled()) {
-            logger.debug("Handle TSqlMetaData={}", sqlMetaData);
-        }
-
         try {
             final SqlMetaDataBo sqlMetaDataBo = new SqlMetaDataBo(sqlMetaData.getAgentId(), sqlMetaData.getAgentStartTime(), sqlMetaData.getSqlId());
             sqlMetaDataBo.setSql(sqlMetaData.getSql());

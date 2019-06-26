@@ -80,9 +80,6 @@ public class ThriftAgentStatHandlerV2 implements SimpleHandler {
     }
 
     private void handleAgentStat(TAgentStat tAgentStat) {
-        if (logger.isDebugEnabled()) {
-            logger.debug("Handle TAgentStat={}", tAgentStat);
-        }
         final AgentStatBo agentStatBo = this.agentStatMapper.map(tAgentStat);
         if (agentStatBo == null) {
             return;
@@ -94,9 +91,6 @@ public class ThriftAgentStatHandlerV2 implements SimpleHandler {
     }
 
     private void handleAgentStatBatch(TAgentStatBatch tAgentStatBatch) {
-        if (logger.isDebugEnabled()) {
-            logger.debug("Handle TAgentStatBatch={}", tAgentStatBatch);
-        }
         final AgentStatBo agentStatBo = this.agentStatBatchMapper.map(tAgentStatBatch);
         if (agentStatBo == null) {
             return;

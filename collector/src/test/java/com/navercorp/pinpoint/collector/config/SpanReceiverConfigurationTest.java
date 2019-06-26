@@ -28,14 +28,14 @@ public class SpanReceiverConfigurationTest {
     @Test
     public void properties() throws Exception {
         Properties properties = new Properties();
-        properties.setProperty("collector.receiver.span.grpc", "");
-        properties.setProperty("collector.receiver.span.grpc.ip", "9.9.9.9");
-        properties.setProperty("collector.receiver.span.grpc.port", "1111");
-        properties.setProperty("collector.receiver.span.grpc.worker.threadSize", "99");
-        properties.setProperty("collector.receiver.span.grpc.worker.queueSize", "9999");
-        properties.setProperty("collector.receiver.span.grpc.worker.monitor", "false");
-        properties.setProperty("collector.receiver.span.grpc.keepalive.time", "3");
-        properties.setProperty("collector.receiver.span.grpc.keepalive.timeout", "7");
+        properties.setProperty("collector.receiver.grpc.span.enable", "");
+        properties.setProperty("collector.receiver.grpc.span.ip", "9.9.9.9");
+        properties.setProperty("collector.receiver.grpc.span.port", "1111");
+        properties.setProperty("collector.receiver.grpc.span.worker.threadSize", "99");
+        properties.setProperty("collector.receiver.grpc.span.worker.queueSize", "9999");
+        properties.setProperty("collector.receiver.grpc.span.worker.monitor", "false");
+        properties.setProperty("collector.receiver.grpc.span.keepalive.time", "3");
+        properties.setProperty("collector.receiver.grpc.span.keepalive.timeout", "7");
 
         SpanReceiverConfiguration configuration = new SpanReceiverConfiguration(properties, new DeprecatedConfiguration());
         assertEquals(Boolean.FALSE, configuration.isGrpcEnable());

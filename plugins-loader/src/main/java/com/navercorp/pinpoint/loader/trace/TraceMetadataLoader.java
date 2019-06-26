@@ -15,13 +15,6 @@
  */
 package com.navercorp.pinpoint.loader.trace;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.AnnotationKeyMatcher;
 import com.navercorp.pinpoint.common.trace.DefaultServiceTypeInfo;
@@ -34,6 +27,13 @@ import com.navercorp.pinpoint.common.util.DisplayArgumentMatcher;
 import com.navercorp.pinpoint.common.util.StaticFieldLookUp;
 import com.navercorp.pinpoint.common.util.logger.CommonLogger;
 import com.navercorp.pinpoint.common.util.logger.CommonLoggerFactory;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Jongho Moon
@@ -241,7 +241,7 @@ public class TraceMetadataLoader {
                     throw new RuntimeException("ServiceType code of " + serviceTypePairToString(pair) + " should be between range of RPC");
                 }
                 if(type.isRecordStatistics()){
-                    throw new RuntimeException("ServiceType code of " + serviceTypePairToString(pair) + " can't have AS_ALIAS and RECORD_STATISTICS at the same time");
+                    throw new RuntimeException("ServiceType code of " + serviceTypePairToString(pair) + " can't have ALIAS and RECORD_STATISTICS at the same time");
                 }
             }
         }

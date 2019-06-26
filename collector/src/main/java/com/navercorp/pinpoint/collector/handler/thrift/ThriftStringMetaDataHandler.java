@@ -56,9 +56,6 @@ public class ThriftStringMetaDataHandler implements RequestResponseHandler {
     }
 
     private Object handleStringMetaData(TStringMetaData stringMetaData) {
-        if (logger.isDebugEnabled()) {
-            logger.debug("Handle TStringMetaData={}", stringMetaData);
-        }
         try {
             final StringMetaDataBo stringMetaDataBo = new StringMetaDataBo(stringMetaData.getAgentId(), stringMetaData.getAgentStartTime(), stringMetaData.getStringId());
             stringMetaDataBo.setStringValue(stringMetaData.getStringValue());
