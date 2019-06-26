@@ -405,6 +405,12 @@
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>org.apache.dubbo</groupId>
+            <artifactId>dubbo</artifactId>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 
     <build>
