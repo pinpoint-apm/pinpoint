@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import * as moment from 'moment-timezone';
 import { Subject, Observable, combineLatest } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { map, filter } from 'rxjs/operators';
 
 import { StoreHelperService } from 'app/shared/services';
 
@@ -27,7 +27,7 @@ export class TimelineCommandGroupContainerComponent implements OnInit, OnDestroy
         this.pointingTime$ = combineLatest(
             this.storeHelperService.getDateFormat(this.unsubscribe, 0),
             this.storeHelperService.getTimezone(this.unsubscribe),
-            this.storeHelperService.getInspectorTimelineSelectedTime(this.unsubscribe)
+            this.storeHelperService.getInspectorTimelineSelectedTime(this.unsubscribe).pipe(filter((time: number) => time !== 0))
         ).pipe(
             map(([dateFormat, timezone, pointingTime]: [string, string, number]) => {
                 return moment(pointingTime).tz(timezone).format(dateFormat);

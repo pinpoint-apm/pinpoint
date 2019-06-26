@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { map, tap, skip } from 'rxjs/operators';
+import { map, tap, filter, takeUntil } from 'rxjs/operators';
 import { Observable, Subject, BehaviorSubject } from 'rxjs';
 
 import {
@@ -63,6 +63,7 @@ export class InspectorPageService {
 
     activate(unsubscribe: Subject<void>): void {
         this.newUrlStateNotificationService.onUrlStateChange$.pipe(
+            takeUntil(unsubscribe),
             tap((urlService: NewUrlStateNotificationService) => {
                 this.agentId = urlService.getPathValue(UrlPathId.AGENT_ID);
             }),
@@ -103,7 +104,7 @@ export class InspectorPageService {
         });
 
         this.storeHelperService.getInspectorTimelineData(unsubscribe).pipe(
-            skip(1),
+            filter(() => !this.isFirstFlow),
             tap((timelineInfo: ITimelineInfo) => this.timelineInfo = timelineInfo),
         ).subscribe(() => {
             this.notifyToAgentInfo();

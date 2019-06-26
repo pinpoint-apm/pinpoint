@@ -6,7 +6,6 @@ import * as agentSelectionForSideBar from './agent-selection-for-side-bar.reduce
 import * as applicationList from './application-list.reducer';
 import * as dateFormat from './date-format.reducer';
 import * as favoriteApplicationList from './favorite-application-list.reducer';
-import * as inspectorChartHover from './inspector-chart-hover.reducer';
 import * as loadChart from './load-chart.reducer';
 import * as responseSummaryChart from './response-summary-chart.reducer';
 import * as scatterChart from './scatter-chart.reducer';
@@ -34,7 +33,6 @@ export interface AppState {
     agentSelectionForServerList: IAgentSelection;
     transactionData: ITransactionMetaData;
     transactionDetailData: ITransactionDetailData;
-    hoverOnInspectorCharts: number;
     applicationList: IApplication[];
     favoriteApplicationList: IApplication[];
     serverList: any;
@@ -61,7 +59,6 @@ export const STORE_KEY = {
     TIMELINE_SELECTION_RANGE: 'timelineSelectionRange',
     TRANSACTION_DATA: 'transactionData',
     TRANSACTION_DETAIL_DATA: 'transactionDetailData',
-    HOVER_ON_INSPECTOR_CHARTS: 'hoverOnInspectorCharts',
     APPLICATION_LIST: 'applicationList',
     FAVORITE_APPLICATION_LIST: 'favoriteApplicationList',
     SERVER_LIST: 'serverList',
@@ -86,7 +83,6 @@ export const reducers: ActionReducerMap<any> = {
     applicationList: applicationList.Reducer,
     favoriteApplicationList: favoriteApplicationList.Reducer,
     dateFormat: dateFormat.Reducer,
-    hoverOnInspectorCharts: inspectorChartHover.Reducer,
     loadChartYMax: loadChart.Reducer,
     responseSummaryChartYMax: responseSummaryChart.Reducer,
     scatterChart: scatterChart.Reducer,
@@ -116,7 +112,6 @@ export const Actions = {
     'ChangeAgentForServerList': agentSelectionForInfoPerServer.ChangeAgentForServerList,
     'UpdateTransactionData': transactionData.UpdateTransactionData,
     'UpdateTransactionDetailData': transactionDetailData.UpdateTransactionDetailData,
-    'ChangeHoverOnInspectorCharts': inspectorChartHover.ChangeHoverOnInspectorCharts,
     'UpdateApplicationList': applicationList.UpdateApplicationList,
     'AddFavoriteApplication': favoriteApplicationList.AddFavoriteApplication,
     'RemoveFavoriteApplication': favoriteApplicationList.RemoveFavoriteApplication,
@@ -159,4 +154,3 @@ export const selectTimelineSelectedTime = createSelector(
     getTimeline,
     (state: ITimelineInfo) => state['selectedTime']
 );
-
