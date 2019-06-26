@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, ComponentFactoryResolver, Injector } from '@angular/core';
 import { Subject, combineLatest, iif, of } from 'rxjs';
-import { tap, concatMap, filter, switchMap, delay } from 'rxjs/operators';
+import { tap, concatMap, filter, switchMap, delay, takeUntil } from 'rxjs/operators';
 
 import {
     NewUrlStateNotificationService,
@@ -50,6 +50,7 @@ export class ServerAndAgentListContainerComponent implements OnInit, OnDestroy {
         this.funcImagePath = this.webAppSettingDataService.getImagePathMakeFunc();
         combineLatest(
             this.inspectorPageService.sourceForServerAndAgentList$.pipe(
+                takeUntil(this.unsubscribe),
                 filter((data: ISourceForServerAndAgentList) => !!data),
                 switchMap((data: ISourceForServerAndAgentList) => {
                     return iif(() => data.emitAfter === 0,

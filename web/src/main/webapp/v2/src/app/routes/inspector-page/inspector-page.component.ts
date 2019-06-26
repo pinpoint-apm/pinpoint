@@ -29,7 +29,8 @@ import { InspectorPageService } from './inspector-page.service';
         ])
     ],
     templateUrl: './inspector-page.component.html',
-    styleUrls: ['./inspector-page.component.css']
+    styleUrls: ['./inspector-page.component.css'],
+    providers: [InspectorPageService]
 })
 export class InspectorPageComponent implements OnInit, OnDestroy {
     private unsubscribe = new Subject<void>();
