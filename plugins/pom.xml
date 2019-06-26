@@ -92,7 +92,6 @@
         <module>openwhisk</module>
         <module>redis-redisson</module>
 	    <module>elasticsearch-bboss</module>
-        <module>apache-dubbo</module>
     </modules>
 
     <dependencyManagement>
