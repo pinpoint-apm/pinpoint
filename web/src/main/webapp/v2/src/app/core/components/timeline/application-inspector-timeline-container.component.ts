@@ -89,7 +89,7 @@ export class ApplicationInspectorTimelineContainerComponent implements OnInit, O
     }
     private connectStore(): void {
         this.timezone$ = this.storeHelperService.getTimezone(this.unsubscribe);
-        this.dateFormat$ = this.storeHelperService.getDateFormatArray(this.unsubscribe, 0, 5, 6);
+        this.dateFormat$ = this.storeHelperService.getDateFormatArray(this.unsubscribe, 0, 6, 7);
     }
     onSelectEventStatus($eventObj: ITimelineEventSegment): void {}
     onChangeTimelineUIEvent(event: TimelineUIEvent): void {

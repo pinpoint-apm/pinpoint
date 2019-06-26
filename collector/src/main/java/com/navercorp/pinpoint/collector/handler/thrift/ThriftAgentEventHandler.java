@@ -58,7 +58,7 @@ public class ThriftAgentEventHandler implements SimpleHandler {
     public void handleSimple(ServerRequest serverRequest) {
         final Object data = serverRequest.getData();
         if (logger.isDebugEnabled()) {
-            logger.debug("Handle simple={}", data);
+            logger.debug("Handle simple data={}", data);
         }
 
         if (data instanceof TAgentStat) {
@@ -71,9 +71,6 @@ public class ThriftAgentEventHandler implements SimpleHandler {
     }
 
     private void handleAgentStat(TAgentStat agentStat) {
-        if (logger.isDebugEnabled()) {
-            logger.debug("Handle TAgentStat={}", agentStat);
-        }
         final AgentEventBo agentEventBo = this.agentEventMapper.map(agentStat);
         if (agentEventBo == null) {
             return;
@@ -82,9 +79,6 @@ public class ThriftAgentEventHandler implements SimpleHandler {
     }
 
     private void handleAgentStatBatch(TAgentStatBatch tAgentStatBatch) {
-        if (logger.isDebugEnabled()) {
-            logger.debug("Handle TAgentStatBatch={}", tAgentStatBatch);
-        }
         final List<AgentEventBo> agentEventBoList = this.agentEventBatchMapper.map(tAgentStatBatch);
         if (CollectionUtils.isEmpty(agentEventBoList)) {
             return;

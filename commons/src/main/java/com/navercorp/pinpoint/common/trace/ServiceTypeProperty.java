@@ -24,5 +24,5 @@ public enum ServiceTypeProperty {
     QUEUE,
     RECORD_STATISTICS,
     INCLUDE_DESTINATION_ID,
-    AS_ALIAS
+    ALIAS
 }

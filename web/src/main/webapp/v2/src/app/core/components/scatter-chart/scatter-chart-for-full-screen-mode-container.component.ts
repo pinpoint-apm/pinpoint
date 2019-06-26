@@ -148,7 +148,7 @@ export class ScatterChartForFullScreenModeContainerComponent implements OnInit, 
     }
     private connectStore(): void {
         this.timezone$ = this.storeHelperService.getTimezone(this.unsubscribe);
-        this.storeHelperService.getDateFormatArray(this.unsubscribe, 3, 4).subscribe((dateFormat: string[]) => {
+        this.storeHelperService.getDateFormatArray(this.unsubscribe, 4, 5).subscribe((dateFormat: string[]) => {
             this.dateFormat = dateFormat;
         });
     }

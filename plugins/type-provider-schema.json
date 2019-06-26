@@ -29,7 +29,7 @@
                         "queue": { "type": "boolean" },
                         "recordStatistics": { "type": "boolean" },
                         "includeDestinationId": { "type": "boolean" },
-                        "asAlias": { "type": "boolean" }
+                        "alias": { "type": "boolean" }
                     }
                 },
                 "matcher": {

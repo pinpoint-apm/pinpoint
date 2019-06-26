@@ -110,7 +110,7 @@ export class AgentInspectorTimelineContainerComponent implements OnInit, OnDestr
     }
     private connectStore(): void {
         this.timezone$ = this.storeHelperService.getTimezone(this.unsubscribe);
-        this.dateFormat$ = this.storeHelperService.getDateFormatArray(this.unsubscribe, 0, 5, 6);
+        this.dateFormat$ = this.storeHelperService.getDateFormatArray(this.unsubscribe, 0, 6, 7);
     }
     updateTimelineData(): void {
         const range = this.timelineComponent.getTimelineRange();

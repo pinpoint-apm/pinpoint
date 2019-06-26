@@ -28,14 +28,14 @@ public class AgentBaseDataReceiverConfigurationTest {
     @Test
     public void properties() throws Exception {
         Properties properties = new Properties();
-        properties.setProperty("collector.receiver.grpc", "");
-        properties.setProperty("collector.receiver.grpc.ip", "9.9.9.9");
-        properties.setProperty("collector.receiver.grpc.port", "1111");
-        properties.setProperty("collector.receiver.grpc.worker.threadSize", "99");
-        properties.setProperty("collector.receiver.grpc.worker.queueSize", "9999");
-        properties.setProperty("collector.receiver.grpc.worker.monitor", "false");
-        properties.setProperty("collector.receiver.grpc.keepalive.time", "3");
-        properties.setProperty("collector.receiver.grpc.keepalive.timeout", "7");
+        properties.setProperty("collector.receiver.grpc.agent", "");
+        properties.setProperty("collector.receiver.grpc.agent.ip", "9.9.9.9");
+        properties.setProperty("collector.receiver.grpc.agent.port", "1111");
+        properties.setProperty("collector.receiver.grpc.agent.worker.threadSize", "99");
+        properties.setProperty("collector.receiver.grpc.agent.worker.queueSize", "9999");
+        properties.setProperty("collector.receiver.grpc.agent.worker.monitor", "false");
+        properties.setProperty("collector.receiver.grpc.agent.keepalive.time", "3");
+        properties.setProperty("collector.receiver.grpc.agent.keepalive.timeout", "7");
 
         AgentBaseDataReceiverConfiguration configuration = new AgentBaseDataReceiverConfiguration(properties, new DeprecatedConfiguration());
         assertEquals(Boolean.FALSE, configuration.isGrpcEnable());

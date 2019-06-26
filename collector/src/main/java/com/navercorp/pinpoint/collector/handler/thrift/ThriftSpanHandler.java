@@ -64,9 +64,6 @@ public class ThriftSpanHandler implements SimpleHandler {
     }
 
     private void handleSpan(TSpan tSpan) {
-        if (logger.isDebugEnabled()) {
-            logger.debug("Handle TSpan={}", tSpan);
-        }
         try {
             final SpanBo spanBo = spanFactory.buildSpanBo(tSpan);
             traceService.insertSpan(spanBo);

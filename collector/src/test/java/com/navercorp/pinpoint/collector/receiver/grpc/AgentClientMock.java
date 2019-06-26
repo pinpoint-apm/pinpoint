@@ -26,6 +26,7 @@ import com.navercorp.pinpoint.grpc.trace.PResult;
 import com.navercorp.pinpoint.grpc.trace.PSqlMetaData;
 import com.navercorp.pinpoint.grpc.trace.PStringMetaData;
 import io.grpc.Attributes;
+import io.grpc.CallOptions;
 import io.grpc.ClientInterceptor;
 import io.grpc.ConnectivityState;
 import io.grpc.ConnectivityStateInfo;
@@ -34,6 +35,7 @@ import io.grpc.LoadBalancer;
 import io.grpc.ManagedChannel;
 import io.grpc.Metadata;
 import io.grpc.Status;
+import io.grpc.netty.InternalNettyChannelBuilder;
 import io.grpc.netty.NettyChannelBuilder;
 import io.grpc.stub.MetadataUtils;
 import io.grpc.stub.StreamObserver;
@@ -70,7 +72,6 @@ public class AgentClientMock {
             builder.intercept(headersInterceptor);
         }
         builder.usePlaintext();
-
         channel = builder.build();
         this.agentStub = AgentGrpc.newBlockingStub(channel);
         this.metadataStub = MetadataGrpc.newBlockingStub(channel);

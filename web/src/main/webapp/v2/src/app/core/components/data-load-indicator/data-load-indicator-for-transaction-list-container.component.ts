@@ -45,7 +45,7 @@ export class DataLoadIndicatorForTransactionListContainerComponent implements On
     }
     private connectStore(): void {
         this.timezone$ = this.storeHelperService.getTimezone(this.unsubscribe);
-        this.dateFormat$ = this.storeHelperService.getDateFormat(this.unsubscribe, 6);
+        this.dateFormat$ = this.storeHelperService.getDateFormat(this.unsubscribe, 7);
     }
     private connectMetaDataService(): void {
         this.transactionMetaDataService.onTransactionDataRange$.pipe(

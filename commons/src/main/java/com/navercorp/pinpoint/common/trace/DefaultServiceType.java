@@ -45,7 +45,7 @@ class DefaultServiceType implements ServiceType {
         this.recordStatistics = builder.recordStatistics();
         this.includeDestinationId = builder.includeDestinationId();
         this.category = ServiceTypeCategory.findCategory(code);
-        this.alias = builder.setAlias();
+        this.alias = builder.alias();
     }
 
     DefaultServiceType(int code, String name, String desc, ServiceTypeProperty... properties) {
@@ -84,7 +84,7 @@ class DefaultServiceType implements ServiceType {
                 includeDestinationId = true;
                 break;
 
-            case AS_ALIAS:
+            case ALIAS:
                 alias = true;
                 break;
 

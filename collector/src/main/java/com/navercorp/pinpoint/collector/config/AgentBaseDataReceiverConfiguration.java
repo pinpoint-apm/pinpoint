@@ -33,7 +33,8 @@ public final class AgentBaseDataReceiverConfiguration {
     private static final String WORKER_QUEUE_SIZE = PREFIX + ".worker.queueSize";
     private static final String WORKER_MONITOR_ENABLE = PREFIX + ".worker.monitor";
 
-    private static final String GRPC_PREFIX = "collector.receiver.grpc";
+    private static final String GRPC_PREFIX = "collector.receiver.grpc.agent";
+    private static final String GRPC_ENABLE = GRPC_PREFIX + ".enable";
     private static final String GRPC_BIND_IP = GRPC_PREFIX + ".ip";
     private static final String GRPC_BIND_PORT = GRPC_PREFIX + ".port";
     private static final String GRPC_WORKER_THREAD_SIZE = GRPC_PREFIX + ".worker.threadSize";
@@ -72,7 +73,7 @@ public final class AgentBaseDataReceiverConfiguration {
         this.workerMonitorEnable = isWorkerThreadMonitorEnable(properties, deprecatedConfiguration);
 
         // gRPC
-        this.grpcEnable = CollectorConfiguration.readBoolean(properties, GRPC_PREFIX);
+        this.grpcEnable = CollectorConfiguration.readBoolean(properties, GRPC_ENABLE);
         this.grpcBindIp = CollectorConfiguration.readString(properties, GRPC_BIND_IP, CollectorConfiguration.DEFAULT_LISTEN_IP);
         Objects.requireNonNull(grpcBindIp);
         this.grpcBindPort = CollectorConfiguration.readInt(properties, GRPC_BIND_PORT, 9997);
