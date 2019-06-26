@@ -45,16 +45,6 @@ public class MongoRSessionInterceptor2_X extends SpanEventSimpleAroundIntercepto
 
     @Override
     protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
-        StringBuilder builder = new StringBuilder();
-        if (args != null)
-            for (Object arg : args) {
-                if (arg == null) {
-                    continue;
-                }
-                builder.append(arg.getClass());
-                builder.append("|");
-            }
-
         DatabaseInfo databaseInfo = DatabaseInfoUtils.getDatabaseInfo(target, UnKnownDatabaseInfo.MONGO_INSTANCE);
 
         recorder.recordServiceType(databaseInfo.getExecuteQueryType());
