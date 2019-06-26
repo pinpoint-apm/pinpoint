@@ -15,9 +15,9 @@
 |                                                                                   |                            |         |         |                        |
 | OpenWhisk                                                                         | whisk.core                 |         |         |                        | 
 |                                                                                   |                            |         |         |                        |
-| SpringMVC Framework                                                               | spring-webmvc              | 3.0.7   | 5.1.7   |                        | <AG>
+| SpringMVC Framework                                                               | spring-webmvc              | 3.0.7   | 5.1.8   |                        | <AG>
 | Spring Web                                                                        | spring-web                 | 4.1.2   | 4.3.24  |                        | <AG>
-| Spring RabbitMQ                                                                   | spring-rabbit              | 1.3.3   | 2.1.6   |                        | <AG>
+| Spring RabbitMQ                                                                   | spring-rabbit              | 1.3.3   | 2.1.7   |                        | <AG>
 | Spring IBatis                                                                     | spring-ibatis              | 2.0.7   | 2.0.8   |                        | <AG>
 | Spring MyBatis                                                                    | mybatis-spring             | 1.1.0   | 1.3.2   |                        | <AG>
 | Spring Boot                                                                       | spring-boot-autoconfigure  |         |         |                        |  
@@ -29,7 +29,7 @@
 | Httpclient3                                                                       | commons-httpclient         | 3.0     | 3.1     |                        | <AG>
 | Httpclient4                                                                       | httpclient                 | 4.0     | 4.5.4   |                        | <AG>  
 | Thrift                                                                            | libthrift                  | 0.9.1   | 0.12.0  |                        | <AG> 
-| Google HTTP Client                                                                | google-http-client         | 1.19.0  | 1.29.1  |                        | <AG> 
+| Google HTTP Client                                                                | google-http-client         | 1.19.0  | 1.30.1  |                        | <AG> 
 | AsyncHttpClient                                                                   | async-http-client          | 1.7.24  | 1.8.17  |                        | <AG> 
 | OkHttp                                                                            | okhttp                     | 2.0.0   | 3.10.0  |                        | <AG> 
 | Apache HttpAsyncClient                                                            | httpasyncclient            | 4.0     | 4.1.3   |                        | <AG>
@@ -45,7 +45,7 @@
 | HikariCP                                                                          | HikariCP-java6             | 2.3.0   | 2.3.13  |                        | <AG>
 | Jackson-mapper-asl                                                                | jackson-mapper-asl         | 1.0.1   | 1.8.11  |                        | <AG>
 | Jackson Databind                                                                  | jackson-databind           | 2.0.6   | 2.9.9   |                        | <AG>
-| MariaDB Connector/J                                                               | mariadb-java-client        | 1.3.0   | 2.4.1   |                        | <AG>
+| MariaDB Connector/J                                                               | mariadb-java-client        | 1.3.0   | 2.4.2   |                        | <AG>
 | MongoDB Java Driver                                                               | mongodb-driver             | 3.0.0   | 3.11.0  |                        | <AG>
 | Datastax Java Driver                                                              | cassandra-driver-core      | 2.0.10  | 3.7.1   |                        | <AG>
 | Druid                                                                             | druid                      | 1.0.0   | 1.1.17  |                        | <AG>
