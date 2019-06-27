@@ -27,16 +27,11 @@ import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.grpc.HeaderFactory;
 import com.navercorp.pinpoint.grpc.client.ChannelFactoryOption;
 import com.navercorp.pinpoint.grpc.client.UnaryCallDeadlineInterceptor;
-import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
-import com.navercorp.pinpoint.profiler.context.grpc.GrpcTransportConfig;
 import com.navercorp.pinpoint.profiler.context.module.MetadataConverter;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 import com.navercorp.pinpoint.profiler.sender.grpc.AgentGrpcDataSender;
 
-import com.google.inject.Inject;
-import com.google.inject.Provider;
-import com.google.protobuf.GeneratedMessageV3;
 import io.grpc.NameResolverProvider;
 
 
@@ -65,9 +60,10 @@ public class AgentGrpcDataSenderProvider implements Provider<EnhancedDataSender<
 
     @Override
     public EnhancedDataSender get() {
-        String collectorTcpServerIp = grpcTransportConfig.getCollectorAgentServerIp();
-        int collectorTcpServerPort = grpcTransportConfig.getCollectorAgentServerPort();
-        UnaryCallDeadlineInterceptor unaryCallDeadlineInterceptor = new UnaryCallDeadlineInterceptor(grpcTransportConfig.getClientRequestTimeout());
+        final String collectorIp = grpcTransportConfig.getAgentCollectorIp();
+        final int collectorPort = grpcTransportConfig.getAgentCollectorPort();
+        final int channelExecutorQueueSize = grpcTransportConfig.getAgentChannelExecutorQueueSize();
+        final UnaryCallDeadlineInterceptor unaryCallDeadlineInterceptor = new UnaryCallDeadlineInterceptor(grpcTransportConfig.getAgentRequestTimeout());
         final ClientOption clientOption = grpcTransportConfig.getAgentClientOption();
 
         ChannelFactoryOption.Builder channelFactoryOptionBuilder = ChannelFactoryOption.newBuilder();
@@ -75,8 +71,9 @@ public class AgentGrpcDataSenderProvider implements Provider<EnhancedDataSender<
         channelFactoryOptionBuilder.setHeaderFactory(headerFactory);
         channelFactoryOptionBuilder.setNameResolverProvider(nameResolverProvider);
         channelFactoryOptionBuilder.addClientInterceptor(unaryCallDeadlineInterceptor);
+        channelFactoryOptionBuilder.setExecutorQueueSize(channelExecutorQueueSize);
         channelFactoryOptionBuilder.setClientOption(clientOption);
 
-        return new AgentGrpcDataSender(collectorTcpServerIp, collectorTcpServerPort, messageConverter, channelFactoryOptionBuilder.build(), activeTraceRepository);
+        return new AgentGrpcDataSender(collectorIp, collectorPort, messageConverter, channelFactoryOptionBuilder.build(), activeTraceRepository);
     }
 }
