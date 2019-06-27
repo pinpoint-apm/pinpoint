@@ -154,7 +154,6 @@ public class ApacheDubboProviderInterceptor extends SpanRecursiveAroundIntercept
         } catch (Exception e) {
             logger.error("failed to get local host", e);
         }
-
         return null;
     }
 }
