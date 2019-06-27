@@ -25,20 +25,19 @@ public class ClientOption {
     public static final long DEFAULT_KEEPALIVE_TIME = TimeUnit.MINUTES.toMillis(5);
     public static final long DEFAULT_KEEPALIVE_TIMEOUT = TimeUnit.MINUTES.toMillis(30);
     public static final long IDLE_TIMEOUT_MILLIS_DISABLE = -1;
-    public static final boolean DEFAULT_KEEPALIVE_WITHOUT_CALLS = Boolean.FALSE;
-    public static final int DEFAULT_MAX_HEADER_LIST_SIZE = 8192;
+    public static final boolean KEEPALIVE_WITHOUT_CALLS_DISABLE = Boolean.FALSE;
+    public static final int DEFAULT_MAX_HEADER_LIST_SIZE = 8 * 1024;
     public static final int DEFAULT_MAX_MESSAGE_SIZE = 4 * 1024 * 1024;
-    public static final int DEFAULT_FLOW_CONTROL_WINDOW = 1048576; // 1MiB
-
+    public static final int DEFAULT_FLOW_CONTROL_WINDOW = 1 * 1024 * 1024; // 1MiB
     public static final int DEFAULT_CONNECT_TIMEOUT = 3000;
-    public static final int DEFAULT_WRITE_BUFFER_HIGH_WATER_MARK = 32 * 1024;
-    public static final int DEFAULT_WRITE_BUFFER_LOW_WATER_MARK = 16 * 1024;
+    public static final int DEFAULT_WRITE_BUFFER_HIGH_WATER_MARK = 32 * 1024 * 1024;
+    public static final int DEFAULT_WRITE_BUFFER_LOW_WATER_MARK = 16 * 1024 * 1024;
 
     private final long keepAliveTime;
     private final long keepAliveTimeout;
     // KeepAliveManager.keepAliveDuringTransportIdle
-    private final boolean keepAliveWithoutCalls;
-    private final long idleTimeoutMillis;
+    private final boolean keepAliveWithoutCalls = KEEPALIVE_WITHOUT_CALLS_DISABLE;
+    private final long idleTimeoutMillis = IDLE_TIMEOUT_MILLIS_DISABLE;
     private final int maxHeaderListSize;
     private final int maxInboundMessageSize;
     private final int flowControlWindow;
@@ -48,13 +47,11 @@ public class ClientOption {
     private final int writeBufferHighWaterMark;
     private final int writeBufferLowWaterMark;
 
-    private ClientOption(long keepAliveTime, long keepAliveTimeout, boolean keepAliveWithoutCalls, long idleTimeoutMillis, int maxHeaderListSize, int maxInboundMessageSize, int flowControlWindow, int connectTimeout, int writeBufferHighWaterMark, int writeBufferLowWaterMark) {
-        this.flowControlWindow = flowControlWindow;
-        this.maxHeaderListSize = maxHeaderListSize;
+    private ClientOption(long keepAliveTime, long keepAliveTimeout, int maxHeaderListSize, int maxInboundMessageSize, int flowControlWindow, int connectTimeout, int writeBufferHighWaterMark, int writeBufferLowWaterMark) {
         this.keepAliveTime = keepAliveTime;
         this.keepAliveTimeout = keepAliveTimeout;
-        this.keepAliveWithoutCalls = keepAliveWithoutCalls;
-        this.idleTimeoutMillis = idleTimeoutMillis;
+        this.flowControlWindow = flowControlWindow;
+        this.maxHeaderListSize = maxHeaderListSize;
         this.maxInboundMessageSize = maxInboundMessageSize;
         this.connectTimeout = connectTimeout;
         this.writeBufferHighWaterMark = writeBufferHighWaterMark;
@@ -123,9 +120,7 @@ public class ClientOption {
         private int maxHeaderListSize = DEFAULT_MAX_HEADER_LIST_SIZE;
         private long keepAliveTime = DEFAULT_KEEPALIVE_TIME;
         private long keepAliveTimeout = DEFAULT_KEEPALIVE_TIMEOUT;
-        private boolean keepAliveWithoutCalls = DEFAULT_KEEPALIVE_WITHOUT_CALLS;
 
-        private long idleTimeoutMillis = IDLE_TIMEOUT_MILLIS_DISABLE;
         private int maxInboundMessageSize = DEFAULT_MAX_MESSAGE_SIZE;
 
         private int connectTimeout = DEFAULT_CONNECT_TIMEOUT;
@@ -133,7 +128,7 @@ public class ClientOption {
         private int writeBufferLowWaterMark = DEFAULT_WRITE_BUFFER_LOW_WATER_MARK;
 
         public ClientOption build() {
-            final ClientOption clientOption = new ClientOption(keepAliveTime, keepAliveTimeout, keepAliveWithoutCalls, idleTimeoutMillis, maxHeaderListSize, maxInboundMessageSize, flowControlWindow, connectTimeout, writeBufferHighWaterMark, writeBufferLowWaterMark);
+            final ClientOption clientOption = new ClientOption(keepAliveTime, keepAliveTimeout, maxHeaderListSize, maxInboundMessageSize, flowControlWindow, connectTimeout, writeBufferHighWaterMark, writeBufferLowWaterMark);
             return clientOption;
         }
 
@@ -151,14 +146,6 @@ public class ClientOption {
 
         public void setKeepAliveTimeout(long keepAliveTimeout) {
             this.keepAliveTimeout = keepAliveTimeout;
-        }
-
-        public void setKeepAliveWithoutCalls(boolean keepAliveWithoutCalls) {
-            this.keepAliveWithoutCalls = keepAliveWithoutCalls;
-        }
-
-        public void setIdleTimeoutMillis(long idleTimeoutMillis) {
-            this.idleTimeoutMillis = idleTimeoutMillis;
         }
 
         public void setMaxInboundMessageSize(int maxInboundMessageSize) {
@@ -184,8 +171,6 @@ public class ClientOption {
             sb.append(", maxHeaderListSize=").append(maxHeaderListSize);
             sb.append(", keepAliveTime=").append(keepAliveTime);
             sb.append(", keepAliveTimeout=").append(keepAliveTimeout);
-            sb.append(", keepAliveWithoutCalls=").append(keepAliveWithoutCalls);
-            sb.append(", idleTimeoutMillis=").append(idleTimeoutMillis);
             sb.append(", maxInboundMessageSize=").append(maxInboundMessageSize);
             sb.append(", connectTimeout=").append(connectTimeout);
             sb.append(", writeBufferHighWaterMark=").append(writeBufferHighWaterMark);

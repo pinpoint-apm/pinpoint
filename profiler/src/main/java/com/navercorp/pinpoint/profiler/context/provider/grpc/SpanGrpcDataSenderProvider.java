@@ -55,10 +55,11 @@ public class SpanGrpcDataSenderProvider implements Provider<DataSender<Object>> 
 
     @Override
     public DataSender<Object> get() {
-        String collectorTcpServerIp = grpcTransportConfig.getCollectorSpanServerIp();
-        int collectorTcpServerPort = grpcTransportConfig.getCollectorSpanServerPort();
+        final String collectorIp = grpcTransportConfig.getSpanCollectorIp();
+        final int collectorPort = grpcTransportConfig.getSpanCollectorPort();
         final int senderExecutorQueueSize = grpcTransportConfig.getSpanSenderExecutorQueueSize();
-        UnaryCallDeadlineInterceptor unaryCallDeadlineInterceptor = new UnaryCallDeadlineInterceptor(grpcTransportConfig.getClientRequestTimeout());
+        final int channelExecutorQueueSize = grpcTransportConfig.getSpanChannelExecutorQueueSize();
+        final UnaryCallDeadlineInterceptor unaryCallDeadlineInterceptor = new UnaryCallDeadlineInterceptor(grpcTransportConfig.getSpanRequestTimeout());
         final ClientOption clientOption = grpcTransportConfig.getSpanClientOption();
 
         ChannelFactoryOption.Builder channelFactoryOptionBuilder = ChannelFactoryOption.newBuilder();
@@ -66,9 +67,10 @@ public class SpanGrpcDataSenderProvider implements Provider<DataSender<Object>> 
         channelFactoryOptionBuilder.setHeaderFactory(headerFactory);
         channelFactoryOptionBuilder.setNameResolverProvider(nameResolverProvider);
         channelFactoryOptionBuilder.addClientInterceptor(unaryCallDeadlineInterceptor);
+        channelFactoryOptionBuilder.setExecutorQueueSize(channelExecutorQueueSize);
         channelFactoryOptionBuilder.setClientOption(clientOption);
 
-        return new SpanGrpcDataSender(collectorTcpServerIp, collectorTcpServerPort, senderExecutorQueueSize, messageConverter, channelFactoryOptionBuilder.build());
+        return new SpanGrpcDataSender(collectorIp, collectorPort, senderExecutorQueueSize, messageConverter, channelFactoryOptionBuilder.build());
     }
 
 }
