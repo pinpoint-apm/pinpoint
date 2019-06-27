@@ -34,6 +34,7 @@
         <cassandra.driver.version>2.1.7.1</cassandra.driver.version>
         <dubbo.version>2.5.3</dubbo.version>
         <mongo.driver.version>3.9.0</mongo.driver.version>
+        <apache.dubbo.version>2.7.0</apache.dubbo.version>
     </properties>
 
     <dependencyManagement>
@@ -330,6 +331,18 @@
                 <groupId>org.redisson</groupId>
                 <artifactId>redisson</artifactId>
                 <version>3.10.4</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.dubbo</groupId>
+                <artifactId>dubbo</artifactId>
+                <version>${apache.dubbo.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.springframework</groupId>
+                        <artifactId>spring</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
         </dependencies>
     </dependencyManagement>
