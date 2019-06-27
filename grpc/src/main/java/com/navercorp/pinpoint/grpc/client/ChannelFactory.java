@@ -142,6 +142,7 @@ public class ChannelFactory {
         channelBuilder.maxInboundMessageSize(clientOption.getMaxInboundMessageSize());
 
         // ChannelOption
+        channelBuilder.withOption(ChannelOption.TCP_NODELAY, true);
         channelBuilder.withOption(ChannelOption.CONNECT_TIMEOUT_MILLIS, clientOption.getConnectTimeout());
         final WriteBufferWaterMark writeBufferWaterMark = new WriteBufferWaterMark(clientOption.getWriteBufferLowWaterMark(), clientOption.getWriteBufferHighWaterMark());
         channelBuilder.withOption(ChannelOption.WRITE_BUFFER_WATER_MARK, writeBufferWaterMark);

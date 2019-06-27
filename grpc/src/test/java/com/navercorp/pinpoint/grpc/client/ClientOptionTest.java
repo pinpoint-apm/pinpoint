@@ -27,9 +27,6 @@ public class ClientOptionTest {
         ClientOption.Builder clientOptionBuilder = new ClientOption.Builder();
         clientOptionBuilder.setKeepAliveTime(1);
         clientOptionBuilder.setKeepAliveTimeout(1);
-        clientOptionBuilder.setKeepAliveWithoutCalls(true);
-
-        clientOptionBuilder.setIdleTimeoutMillis(1);
 
         clientOptionBuilder.setFlowControlWindow(1);
         clientOptionBuilder.setMaxHeaderListSize(1);

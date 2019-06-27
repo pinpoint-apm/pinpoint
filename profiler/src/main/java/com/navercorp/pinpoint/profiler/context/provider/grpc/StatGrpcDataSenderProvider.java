@@ -36,7 +36,7 @@ import io.grpc.NameResolverProvider;
 /**
  * @author jaehong.kim
  */
-public class StatGrpcDataSenderProvider  implements Provider<DataSender<Object>> {
+public class StatGrpcDataSenderProvider implements Provider<DataSender<Object>> {
     private final GrpcTransportConfig grpcTransportConfig;
     private final MessageConverter<GeneratedMessageV3> messageConverter;
     private final HeaderFactory headerFactory;
@@ -55,10 +55,11 @@ public class StatGrpcDataSenderProvider  implements Provider<DataSender<Object>>
 
     @Override
     public DataSender<Object> get() {
-        String collectorTcpServerIp = grpcTransportConfig.getCollectorStatServerIp();
-        int collectorTcpServerPort = grpcTransportConfig.getCollectorStatServerPort();
-        int senderExecutorQueueSize = grpcTransportConfig.getStatSenderExecutorQueueSize();
-        UnaryCallDeadlineInterceptor unaryCallDeadlineInterceptor = new UnaryCallDeadlineInterceptor(grpcTransportConfig.getClientRequestTimeout());
+        final String collectorIp = grpcTransportConfig.getStatCollectorIp();
+        final int collectorPort = grpcTransportConfig.getStatCollectorPort();
+        final int senderExecutorQueueSize = grpcTransportConfig.getStatSenderExecutorQueueSize();
+        final int channelExecutorQueueSize = grpcTransportConfig.getStatChannelExecutorQueueSize();
+        final UnaryCallDeadlineInterceptor unaryCallDeadlineInterceptor = new UnaryCallDeadlineInterceptor(grpcTransportConfig.getStatRequestTimeout());
         final ClientOption clientOption = grpcTransportConfig.getStatClientOption();
 
         ChannelFactoryOption.Builder channelFactoryOptionBuilder = ChannelFactoryOption.newBuilder();
@@ -66,8 +67,9 @@ public class StatGrpcDataSenderProvider  implements Provider<DataSender<Object>>
         channelFactoryOptionBuilder.setHeaderFactory(headerFactory);
         channelFactoryOptionBuilder.setNameResolverProvider(nameResolverProvider);
         channelFactoryOptionBuilder.addClientInterceptor(unaryCallDeadlineInterceptor);
+        channelFactoryOptionBuilder.setExecutorQueueSize(channelExecutorQueueSize);
         channelFactoryOptionBuilder.setClientOption(clientOption);
 
-        return new StatGrpcDataSender(collectorTcpServerIp, collectorTcpServerPort,  senderExecutorQueueSize, messageConverter, channelFactoryOptionBuilder.build());
+        return new StatGrpcDataSender(collectorIp, collectorPort, senderExecutorQueueSize, messageConverter, channelFactoryOptionBuilder.build());
     }
 }
