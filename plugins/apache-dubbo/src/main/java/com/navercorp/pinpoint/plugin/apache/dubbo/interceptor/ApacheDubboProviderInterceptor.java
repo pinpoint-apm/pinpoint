@@ -144,9 +144,7 @@ public class ApacheDubboProviderInterceptor extends SpanRecursiveAroundIntercept
                     Enumeration<InetAddress> addresses = netInterface.getInetAddresses();
                     while (addresses.hasMoreElements()) {
                         InetAddress ip = addresses.nextElement();
-                        if (ip != null
-                                && ip instanceof Inet4Address
-                                && !ip.isLoopbackAddress()
+                        if (ip != null && ip instanceof Inet4Address  && !ip.isLoopbackAddress()
                                 && ip.getHostAddress().indexOf(":") == -1) {
                             return ip.getHostAddress();
                         }
