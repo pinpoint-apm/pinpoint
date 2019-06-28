@@ -21,7 +21,6 @@ import com.navercorp.pinpoint.common.util.ExecutorFactory;
 import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
 import com.navercorp.pinpoint.grpc.ExecutorUtils;
 import com.navercorp.pinpoint.grpc.client.ChannelFactory;
-
 import com.navercorp.pinpoint.grpc.client.ChannelFactoryOption;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
@@ -36,7 +35,6 @@ import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -59,12 +57,6 @@ public abstract class GrpcDataSender implements DataSender<Object> {
 
     protected volatile boolean shutdown;
 
-    protected final Reconnector reconnector = new Reconnector() {
-        @Override
-        public void reconnect(ReconnectJob reconnectJob) {
-            GrpcDataSender.this.reconnect(reconnectJob);
-        }
-    };
 
     public GrpcDataSender(String host, int port, int executorQueueSize, MessageConverter<GeneratedMessageV3> messageConverter, ChannelFactoryOption channelFactoryOption) {
         Assert.requireNonNull(channelFactoryOption, "channelFactoryOption must not be null");
@@ -116,11 +108,5 @@ public abstract class GrpcDataSender implements DataSender<Object> {
         this.channelFactory.close();
     }
 
-    private void reconnect(ReconnectJob reconnectAction) {
-        if (this.shutdown) {
-            return;
-        }
-        logger.info("recreateStream");
-        reconnectScheduler.schedule(reconnectAction, reconnectAction.nextBackoffNanos(), TimeUnit.NANOSECONDS);
-    }
+
 }

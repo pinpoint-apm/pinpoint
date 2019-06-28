@@ -126,9 +126,8 @@ public class ChannelFactoryTest {
         managedChannel.getState(false);
 
         SpanGrpc.SpanStub spanStub = SpanGrpc.newStub(managedChannel);
-//        traceStub.withExecutor()
 
-        final CountdownStreamObserver responseObserver = new CountdownStreamObserver();
+        final QueueingStreamObserver<Empty> responseObserver = new QueueingStreamObserver<Empty>();
 
         logger.debug("sendSpan");
         StreamObserver<PSpan> sendSpan = spanStub.sendSpan(responseObserver);
@@ -137,14 +136,16 @@ public class ChannelFactoryTest {
         logger.debug("client-onNext");
         sendSpan.onNext(pSpan);
         logger.debug("wait for response");
-        responseObserver.awaitLatch();
+        Empty value = responseObserver.getValue();
+        logger.debug("response:{}", value);
+
         logger.debug("client-onCompleted");
         sendSpan.onCompleted();
 
         Assert.assertTrue(countRecordClientInterceptor.getExecutedInterceptCallCount() == 1);
 
         logger.debug("state:{}", managedChannel.getState(true));
-        spanService.awaitLatch();
+        spanService.awaitOnCompleted();
         logger.debug("managedChannel shutdown");
         managedChannel.shutdown();
         managedChannel.awaitTermination(1000, TimeUnit.MILLISECONDS);
@@ -169,7 +170,7 @@ public class ChannelFactoryTest {
         logger.debug("server start");
 
         serverFactory = new ServerFactory(ChannelFactoryTest.class.getSimpleName() + "-server", "127.0.0.1", PORT, executorService, new ServerOption.Builder().build());
-        spanService = new SpanService(1);
+        spanService = new SpanService();
 
         serverFactory.addService(spanService);
 
@@ -198,10 +199,10 @@ public class ChannelFactoryTest {
     static class SpanService extends SpanGrpc.SpanImplBase {
         private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-        private final CountDownLatch latch;
+        private final CountDownLatch onCompletedLatch;
 
-        public SpanService(int count) {
-            this.latch = new CountDownLatch(count);
+        public SpanService() {
+            this.onCompletedLatch = new CountDownLatch(1);
         }
 
         @Override
@@ -227,14 +228,14 @@ public class ChannelFactoryTest {
                 public void onCompleted() {
                     logger.debug("server-onCompleted");
                     responseObserver.onCompleted();
-                    latch.countDown();
+                    onCompletedLatch.countDown();
                 }
             };
         }
 
-        public boolean awaitLatch() {
+        public boolean awaitOnCompleted() {
             try {
-                return latch.await(3, TimeUnit.SECONDS);
+                return onCompletedLatch.await(3, TimeUnit.SECONDS);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }

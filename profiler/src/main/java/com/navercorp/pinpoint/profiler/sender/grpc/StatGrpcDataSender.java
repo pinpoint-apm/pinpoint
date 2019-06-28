@@ -37,43 +37,54 @@ import io.grpc.stub.StreamObserver;
  */
 public class StatGrpcDataSender extends GrpcDataSender {
     private final StatGrpc.StatStub statStub;
+    private final ExecutorAdaptor reconnectExecutor;
 
     private volatile StreamObserver<PAgentStat> statStream;
-    private final ReconnectJob statStreamReconnectAction;
+    private final Reconnector statStreamReconnector;
 
     private volatile StreamObserver<PAgentStatBatch> statBatchStream;
-    private final ReconnectJob statBatchStreamReconnectAction;
+    private final Reconnector statBatchStreamReconnector;
 
 
     public StatGrpcDataSender(String host, int port, int senderExecutorQueueSize, MessageConverter<GeneratedMessageV3> messageConverter, ChannelFactoryOption channelFactoryOption) {
         super(host, port, senderExecutorQueueSize, messageConverter, channelFactoryOption);
 
         this.statStub = StatGrpc.newStub(managedChannel);
+        this.reconnectExecutor = newReconnectExecutor();
+        {
+            final Runnable statStreamReconnectJob = new Runnable() {
+                @Override
+                public void run() {
+                    statStream = newStatStream();
+                }
+            };
 
-        statStreamReconnectAction = new ExponentialBackoffReconnectJob() {
-            @Override
-            public void run() {
-                statStream = newStatStream();
-            }
-        };
-        this.statStream = newStatStream();
+            this.statStreamReconnector = new ReconnectAdaptor(reconnectExecutor, statStreamReconnectJob);
+            this.statStream = newStatStream();
+        }
+        {
+            final Runnable statBatchStreamReconnectJob = new Runnable() {
+                @Override
+                public void run() {
+                    statBatchStream = newStatBatchStream();
+                }
+            };
+            this.statBatchStreamReconnector = new ReconnectAdaptor(reconnectExecutor, statBatchStreamReconnectJob);
+            this.statBatchStream = newStatBatchStream();
+        }
+    }
 
-        statBatchStreamReconnectAction = new ExponentialBackoffReconnectJob() {
-            @Override
-            public void run() {
-                statBatchStream = newStatBatchStream();
-            }
-        };
-        this.statBatchStream = newStatBatchStream();
+    private ExecutorAdaptor newReconnectExecutor() {
+        return new ExecutorAdaptor(GrpcDataSender.reconnectScheduler);
     }
 
     private StreamObserver<PAgentStat> newStatStream() {
-        final ResponseStreamObserver<PAgentStat, Empty> responseObserver = new ResponseStreamObserver<PAgentStat, Empty>(name, reconnector, statStreamReconnectAction);
+        final ResponseStreamObserver<PAgentStat, Empty> responseObserver = new ResponseStreamObserver<PAgentStat, Empty>(name, statStreamReconnector);
         return statStub.sendAgentStat(responseObserver);
     }
 
     private StreamObserver<PAgentStatBatch> newStatBatchStream() {
-        final ResponseStreamObserver<PAgentStatBatch, Empty> responseObserver = new ResponseStreamObserver<PAgentStatBatch, Empty>(name, reconnector, statBatchStreamReconnectAction);
+        final ResponseStreamObserver<PAgentStatBatch, Empty> responseObserver = new ResponseStreamObserver<PAgentStatBatch, Empty>(name, statBatchStreamReconnector);
         return statStub.sendAgentStatBatch(responseObserver);
     }
 
@@ -98,6 +109,9 @@ public class StatGrpcDataSender extends GrpcDataSender {
 
     @Override
     public void stop() {
+        if (this.reconnectExecutor != null) {
+            this.reconnectExecutor.close();
+        }
         logger.info("statBatchStream.close()");
         StreamUtils.close(statBatchStream);
         logger.info("statStream.close()");

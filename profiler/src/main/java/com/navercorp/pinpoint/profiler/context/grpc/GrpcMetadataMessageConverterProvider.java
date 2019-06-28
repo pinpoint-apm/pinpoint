@@ -30,20 +30,19 @@ import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
  */
 public class GrpcMetadataMessageConverterProvider implements Provider<MessageConverter<GeneratedMessageV3>> {
 
-    private final String applicationName;
-    private final String agentId;
-    private final long agentStartTime;
 
     @Inject
-    public GrpcMetadataMessageConverterProvider(@ApplicationName String applicationName, @AgentId String agentId, @AgentStartTime long agentStartTime) {
-        this.applicationName = Assert.requireNonNull(applicationName, "applicationName must not be null");
-        this.agentId = Assert.requireNonNull(agentId, "agentId must not be null");
-        this.agentStartTime = agentStartTime;
+    public GrpcMetadataMessageConverterProvider() {
+
     }
 
     @Override
     public MessageConverter<GeneratedMessageV3> get() {
-        MessageConverter<GeneratedMessageV3> messageConverter = new GrpcMetadataMessageConverter(applicationName, agentId, agentStartTime);
-        return messageConverter;
+        MessageConverter<GeneratedMessageV3> metadataMessageConverter = new GrpcMetadataMessageConverter();
+        MessageConverter<GeneratedMessageV3> agentMessageConverter = new GrpcAgentInfoMessageConverter();
+
+        @SuppressWarnings("unchecked")
+        final MessageConverterGroup<GeneratedMessageV3> group = MessageConverterGroup.wrap(metadataMessageConverter, agentMessageConverter);
+        return group;
     }
 }

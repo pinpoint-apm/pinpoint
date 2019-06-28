@@ -27,6 +27,7 @@ import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.protobuf.GeneratedMessageV3;
 
+import com.google.common.util.concurrent.SettableFuture;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.ExecutorFactory;
 import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
@@ -68,6 +69,7 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author jaehong.kim
@@ -101,12 +103,18 @@ public class AgentGrpcDataSender implements EnhancedDataSender {
     protected volatile boolean shutdown;
     protected final ThreadPoolExecutor executor;
 
-    private final AgentGrpc.AgentFutureStub agentStub;
-
+    private final AgentGrpc.AgentStub agentStub;
     private final MetadataGrpc.MetadataFutureStub metadataStub;
 
     private GrpcCommandService grpcCommandService;
     private ClientOption clientOption;
+
+    private final ExecutorAdaptor reconnectExecutor;
+    private final AtomicReference<PAgentInfo> requestCapture = new AtomicReference<PAgentInfo>();
+    private volatile AgentStreamContext agentStreamContext;
+    private final Reconnector reconnector;
+
+    private final SettableFuture<PResult> agentInfoResultFuture = SettableFuture.create();
 
     public AgentGrpcDataSender(String host, int port, MessageConverter<GeneratedMessageV3> messageConverter, ChannelFactoryOption channelFactoryOption) {
         this(host, port, messageConverter, channelFactoryOption, null);
@@ -124,12 +132,41 @@ public class AgentGrpcDataSender implements EnhancedDataSender {
 
         this.channelFactory = new ChannelFactory(channelFactoryOption);
         this.managedChannel = channelFactory.build(name, host, port);
-        this.agentStub = AgentGrpc.newFutureStub(managedChannel);
 
+        this.agentStub = AgentGrpc.newStub(managedChannel);
         this.metadataStub = MetadataGrpc.newFutureStub(managedChannel);
 
         this.grpcCommandService = new GrpcCommandService(managedChannel, GrpcDataSender.reconnectScheduler, activeTraceRepository);
+
+        reconnectExecutor = newReconnectExecutor();
+
+        {
+            this.reconnector = new ReconnectAdaptor(reconnectExecutor, new Runnable() {
+                @Override
+                public void run() {
+                    agentStreamContext = newAgentStream(agentStub);
+                }
+            });
+            agentStreamContext = newAgentStream(agentStub);
+        }
     }
+
+    private ExecutorAdaptor newReconnectExecutor() {
+        return new ExecutorAdaptor(GrpcDataSender.reconnectScheduler);
+    }
+
+    private AgentStreamContext newAgentStream(AgentGrpc.AgentStub agentStub) {
+        logger.info("newAgentStream");
+        final AgentInfoSupplier agentInfoSupplier = new AgentInfoSupplier() {
+            @Override
+            public PAgentInfo get() {
+                return requestCapture.get();
+            }
+        };
+        return new AgentStreamContext(agentStub, agentInfoSupplier, reconnector);
+    }
+
+
 
     private Timer createTimer() {
         final String threadName = PinpointThreadFactory.DEFAULT_THREAD_NAME_PREFIX + name + "-Timer";
@@ -181,6 +218,11 @@ public class AgentGrpcDataSender implements EnhancedDataSender {
     @Override
     public void stop() {
         logger.info("stop started");
+
+        if (reconnectExecutor != null) {
+            this.reconnectExecutor.close();
+        }
+        agentStreamContext.onCompleted();
 
         if (grpcCommandService != null) {
             grpcCommandService.stop();
@@ -331,9 +373,9 @@ public class AgentGrpcDataSender implements EnhancedDataSender {
     }
 
     private void doRequest(final Object requestPacket, final FutureListener futureListener) {
-        ListenableFuture<PResult> future = toProtocolBuf(requestPacket);
+        final ListenableFuture<PResult> future = doRequest0(requestPacket);
         if (future == null) {
-            logger.debug("Failed to protocol buffers");
+            logger.debug("Failed to protocol buffers {}", future);
             return;
         }
 
@@ -349,6 +391,7 @@ public class AgentGrpcDataSender implements EnhancedDataSender {
 
             @Override
             public void onFailure(Throwable throwable) {
+                logger.debug("onFailure", throwable);
                 DefaultFuture<ResponseMessage> future = new DefaultFuture<ResponseMessage>();
                 future.setFailure(throwable);
                 future.setListener(futureListener);
@@ -356,11 +399,8 @@ public class AgentGrpcDataSender implements EnhancedDataSender {
         }, this.executor);
     }
 
-    private ListenableFuture<PResult> toProtocolBuf(final Object requestPacket) {
-        if (requestPacket instanceof PAgentInfo) {
-            PAgentInfo agentInfo = (PAgentInfo) requestPacket;
-            return this.agentStub.requestAgentInfo(agentInfo);
-        } else if (requestPacket instanceof PSqlMetaData) {
+    private ListenableFuture<PResult> doRequest0(final Object requestPacket) {
+        if (requestPacket instanceof PSqlMetaData) {
             PSqlMetaData sqlMetaData = (PSqlMetaData) requestPacket;
             return this.metadataStub.requestSqlMetaData(sqlMetaData);
         } else if (requestPacket instanceof PApiMetaData) {
@@ -370,8 +410,18 @@ public class AgentGrpcDataSender implements EnhancedDataSender {
             final PStringMetaData stringMetaData = (PStringMetaData) requestPacket;
             return this.metadataStub.requestStringMetaData(stringMetaData);
         }
-
+        if (requestPacket instanceof PAgentInfo) {
+            final PAgentInfo pAgentInfo = (PAgentInfo) requestPacket;
+            requestCapture.set(pAgentInfo);
+            AgentStreamContext agentStreamContext = this.agentStreamContext;
+            agentStreamContext.onNext(pAgentInfo);
+            return withTimeout(agentStreamContext.getResponseFuture());
+        }
         return null;
+    }
+
+    private ListenableFuture<PResult> withTimeout(final ListenableFuture<PResult> listenableFuture) {
+        return Futures.withTimeout(listenableFuture, 3, TimeUnit.SECONDS, GrpcDataSender.reconnectScheduler);
     }
 
     private boolean fireTimeout() {
@@ -386,4 +436,6 @@ public class AgentGrpcDataSender implements EnhancedDataSender {
         logger.debug("fireComplete");
         fireState.compareAndSet(true, false);
     }
+
+
 }

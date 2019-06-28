@@ -61,12 +61,12 @@ public class GrpcCommandService {
         // allow null
         this.activeTraceRepository = activeTraceRepository;
 
-        this.reconnectAction = new ExponentialBackoffReconnectJob() {
+        this.reconnectAction = new ExponentialBackoffReconnectJob(new Runnable() {
             @Override
             public void run() {
                 connect();
             }
-        };
+        });
 
         connect();
     }

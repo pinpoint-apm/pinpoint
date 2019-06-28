@@ -34,9 +34,7 @@ import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
 import com.navercorp.pinpoint.profiler.metadata.AgentInfo;
 import com.navercorp.pinpoint.profiler.monitor.metric.gc.JvmGcType;
 import io.grpc.NameResolverProvider;
-import org.junit.Test;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 
@@ -46,7 +44,7 @@ public class AgentGrpcDataSenderTestMain {
     private static final long START_TIME = System.currentTimeMillis();
 
     public void request() throws Exception {
-        MessageConverter<GeneratedMessageV3> messageConverter = new GrpcMetadataMessageConverter(APPLICATION_NAME, AGENT_ID, START_TIME);
+        MessageConverter<GeneratedMessageV3> messageConverter = new GrpcMetadataMessageConverter();
         AgentHeaderFactory.Header header = new AgentHeaderFactory.Header(AGENT_ID, APPLICATION_NAME, START_TIME);
         HeaderFactory headerFactory = new AgentHeaderFactory(header);
 
