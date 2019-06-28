@@ -30,6 +30,7 @@ import com.navercorp.pinpoint.grpc.server.ServerOption;
 import com.navercorp.pinpoint.grpc.server.TransportMetadataFactory;
 import com.navercorp.pinpoint.grpc.server.TransportMetadataServerInterceptor;
 import com.navercorp.pinpoint.grpc.trace.PSpan;
+import com.navercorp.pinpoint.grpc.trace.PSpanMessage;
 import com.navercorp.pinpoint.grpc.trace.SpanGrpc;
 
 import com.google.protobuf.Empty;
@@ -124,11 +125,13 @@ public class ChannelFactoryTest {
         final QueueingStreamObserver<Empty> responseObserver = new QueueingStreamObserver<Empty>();
 
         logger.debug("sendSpan");
-        StreamObserver<PSpan> sendSpan = spanStub.sendSpan(responseObserver);
+        StreamObserver<PSpanMessage> sendSpan = spanStub.sendSpan(responseObserver);
 
         PSpan pSpan = newSpan();
+        PSpanMessage message = PSpanMessage.newBuilder().setSpan(pSpan).build();
+
         logger.debug("client-onNext");
-        sendSpan.onNext(pSpan);
+        sendSpan.onNext(message);
         logger.debug("wait for response");
         Empty value = responseObserver.getValue();
         logger.debug("response:{}", value);
@@ -193,11 +196,12 @@ public class ChannelFactoryTest {
         }
 
         @Override
-        public StreamObserver<PSpan> sendSpan(final StreamObserver<Empty> responseObserver) {
-            return new StreamObserver<PSpan>() {
+        public StreamObserver<PSpanMessage> sendSpan(final StreamObserver<Empty> responseObserver) {
+            return new StreamObserver<PSpanMessage>() {
                 @Override
-                public void onNext(PSpan value) {
+                public void onNext(PSpanMessage value) {
                     Header header = ServerContext.getAgentInfo();
+
                     logger.debug("server-onNext:{} header:{}" , value, header);
                     logger.debug("server-threadName:{}", Thread.currentThread().getName());
 
@@ -244,6 +248,4 @@ public class ChannelFactoryTest {
             return executedInterceptCallCount.get();
         }
     }
-
-
 }

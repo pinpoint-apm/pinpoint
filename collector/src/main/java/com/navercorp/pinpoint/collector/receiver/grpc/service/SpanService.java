@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
 import com.navercorp.pinpoint.grpc.trace.PSpan;
 import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
+import com.navercorp.pinpoint.grpc.trace.PSpanMessage;
 import com.navercorp.pinpoint.grpc.trace.SpanGrpc;
 import com.navercorp.pinpoint.io.header.Header;
 import com.navercorp.pinpoint.io.header.HeaderEntity;
@@ -54,16 +55,24 @@ public class SpanService extends SpanGrpc.SpanImplBase {
     }
 
     @Override
-    public StreamObserver<PSpan> sendSpan(final StreamObserver<Empty> responseObserver) {
-        StreamObserver<PSpan> observer = new StreamObserver<PSpan>() {
+    public StreamObserver<PSpanMessage> sendSpan(final StreamObserver<Empty> responseObserver) {
+        StreamObserver<PSpanMessage> observer = new StreamObserver<PSpanMessage>() {
             @Override
-            public void onNext(PSpan pSpan) {
+            public void onNext(PSpanMessage spanMessage) {
                 if (isDebug) {
-                    logger.debug("Send PSpan={}", MessageFormatUtils.debugLog(pSpan));
+                    logger.debug("Send PSpan={}", MessageFormatUtils.debugLog(spanMessage));
                 }
-
-                final Message<PSpan> message = newMessage(pSpan, DefaultTBaseLocator.SPAN);
-                send(responseObserver, message);
+                if (spanMessage.hasSpan()) {
+                    final Message<PSpan> message = newMessage(spanMessage.getSpan(), DefaultTBaseLocator.SPAN);
+                    send(responseObserver, message);
+                } else if (spanMessage.hasSpanChunk()) {
+                    final Message<PSpanChunk> message = newMessage(spanMessage.getSpanChunk(), DefaultTBaseLocator.SPANCHUNK);
+                    send(responseObserver, message);
+                } else {
+                    if (isDebug) {
+                        logger.debug("Found empty span message {}", MessageFormatUtils.debugLog(spanMessage));
+                    }
+                }
             }
 
             @Override
@@ -78,35 +87,6 @@ public class SpanService extends SpanGrpc.SpanImplBase {
                 responseObserver.onCompleted();
             }
         };
-        return observer;
-    }
-
-    @Override
-    public StreamObserver<PSpanChunk> sendSpanChunk(StreamObserver<Empty> responseObserver) {
-        StreamObserver<PSpanChunk> observer = new StreamObserver<PSpanChunk>() {
-            @Override
-            public void onNext(PSpanChunk pSpanChunk) {
-                if (isDebug) {
-                    logger.debug("Send PSpanChunk={}", MessageFormatUtils.debugLog(pSpanChunk));
-                }
-
-                Message<PSpanChunk> message = newMessage(pSpanChunk, DefaultTBaseLocator.SPANCHUNK);
-                send(responseObserver, message);
-            }
-
-            @Override
-            public void onError(Throwable throwable) {
-                logger.warn("Error sendSpanChunk stream", throwable);
-            }
-
-            @Override
-            public void onCompleted() {
-                Empty empty = Empty.newBuilder().build();
-                responseObserver.onNext(empty);
-                responseObserver.onCompleted();
-            }
-        };
-
         return observer;
     }
 
