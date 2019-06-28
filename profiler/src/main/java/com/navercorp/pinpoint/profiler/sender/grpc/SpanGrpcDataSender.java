@@ -36,42 +36,52 @@ import static com.navercorp.pinpoint.grpc.MessageFormatUtils.debugLog;
  */
 public class SpanGrpcDataSender extends GrpcDataSender {
     private final SpanGrpc.SpanStub spanStub;
+    private final ExecutorAdaptor reconnectExecutor;
 
     private volatile StreamObserver<PSpan> spanStream;
-    private final ReconnectJob spanStreamReconnectAction;
+    private final Reconnector spanStreamReconnector;
 
     private volatile StreamObserver<PSpanChunk> spanChunkStream;
-    private final ReconnectJob spanChunkReconnectAction;
+    private final Reconnector spanChunkStreamReconnector;
 
     public SpanGrpcDataSender(String host, int port, int executorQueueSize, MessageConverter<GeneratedMessageV3> messageConverter, ChannelFactoryOption channelFactoryOption) {
         super(host, port, executorQueueSize, messageConverter, channelFactoryOption);
 
         this.spanStub = SpanGrpc.newStub(managedChannel);
+        this.reconnectExecutor = newReconnectExecutor();
+        {
+            final Runnable spanStreamReconnectJob = new Runnable() {
+                @Override
+                public void run() {
+                    spanStream = newSpanStream();
+                }
+            };
+            this.spanStreamReconnector = new ReconnectAdaptor(reconnectExecutor, spanStreamReconnectJob);
+            this.spanStream = newSpanStream();
+        }
+        {
+            final Runnable spanChunkReconnectJob = new Runnable() {
+                @Override
+                public void run() {
+                    spanChunkStream = newSpanChunkStream();
+                }
+            };
+            this.spanChunkStreamReconnector = new ReconnectAdaptor(reconnectExecutor, spanChunkReconnectJob);
+            this.spanChunkStream = newSpanChunkStream();
+        }
+    }
 
-        spanStreamReconnectAction = new ExponentialBackoffReconnectJob() {
-            @Override
-            public void run() {
-                spanStream = newSpanStream();
-            }
-        };
-        this.spanStream = newSpanStream();
-
-        spanChunkReconnectAction = new ExponentialBackoffReconnectJob() {
-            @Override
-            public void run() {
-                spanChunkStream = newSpanChunkStream();
-            }
-        };
-        this.spanChunkStream = newSpanChunkStream();
+    private ExecutorAdaptor newReconnectExecutor() {
+        return new ExecutorAdaptor(GrpcDataSender.reconnectScheduler);
     }
 
     private StreamObserver<PSpan> newSpanStream() {
-        ResponseStreamObserver<PSpan, Empty> responseStreamObserver = new ResponseStreamObserver<PSpan, Empty>(name, reconnector, spanStreamReconnectAction);
+        ResponseStreamObserver<PSpan, Empty> responseStreamObserver = new ResponseStreamObserver<PSpan, Empty>(name, spanStreamReconnector);
         return spanStub.sendSpan(responseStreamObserver);
     }
 
     private StreamObserver<PSpanChunk> newSpanChunkStream() {
-        ResponseStreamObserver<PSpanChunk, Empty> responseStreamObserver = new ResponseStreamObserver<PSpanChunk, Empty>(name, reconnector, spanChunkReconnectAction);
+        ResponseStreamObserver<PSpanChunk, Empty> responseStreamObserver = new ResponseStreamObserver<PSpanChunk, Empty>(name, spanChunkStreamReconnector);
         return spanStub.sendSpanChunk(responseStreamObserver);
     }
 
@@ -95,6 +105,9 @@ public class SpanGrpcDataSender extends GrpcDataSender {
 
     @Override
     public void stop() {
+        if (this.reconnectExecutor != null) {
+            this.reconnectExecutor.close();
+        }
         logger.info("spanStream.close()");
         StreamUtils.close(this.spanStream);
         logger.info("spanChunkStream.close()");

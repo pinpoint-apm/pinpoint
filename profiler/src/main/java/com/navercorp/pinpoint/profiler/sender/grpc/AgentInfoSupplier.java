@@ -16,12 +16,11 @@
 
 package com.navercorp.pinpoint.profiler.sender.grpc;
 
+import com.navercorp.pinpoint.grpc.trace.PAgentInfo;
+
 /**
  * @author Woonduk Kang(emeroad)
  */
-public interface Reconnector {
-
-    void reset();
-
-    void reconnect();
+public interface AgentInfoSupplier {
+    PAgentInfo get();
 }

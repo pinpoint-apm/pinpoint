@@ -22,9 +22,7 @@ service Span {
 }
 
 service Agent {
-    rpc SendAgentInfo (stream PAgentInfo) returns (google.protobuf.Empty) {
-    }
-    rpc RequestAgentInfo (PAgentInfo) returns (PResult) {
+    rpc SendAgentInfo (stream PAgentInfo) returns (stream PResult) {
     }
 }
 

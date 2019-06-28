@@ -16,34 +16,30 @@
 
 package com.navercorp.pinpoint.grpc;
 
-import com.google.protobuf.Empty;
 import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class CountdownStreamObserver implements StreamObserver<Empty> {
-    private final CountDownLatch latch;
+public class QueueingStreamObserver<V> implements StreamObserver<V> {
+    private final BlockingQueue<V> queue = new ArrayBlockingQueue<V>(1024);
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    public CountdownStreamObserver() {
-        this(1);
+    public QueueingStreamObserver() {
     }
 
-    public CountdownStreamObserver(int count) {
-        this.latch = new CountDownLatch(count);
-    }
 
     @Override
-    public void onNext(Empty value) {
-        latch.countDown();
-        logger.debug("onNext Empty:{}", value);
+    public void onNext(V value) {
+        logger.debug("onNext value:{}", value);
+        queue.add(value);
     }
 
     @Override
@@ -56,12 +52,12 @@ public class CountdownStreamObserver implements StreamObserver<Empty> {
         logger.debug("onCompleted");
     }
 
-    public boolean awaitLatch() {
+    public V getValue() {
         try {
-            return this.latch.await(3, TimeUnit.SECONDS);
+            return queue.poll(3, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
+            return null;
         }
-        return false;
     }
 };
