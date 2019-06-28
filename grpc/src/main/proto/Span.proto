@@ -9,6 +9,13 @@ option java_outer_classname = "SpanProto";
 
 package v1;
 
+message PSpanMessage {
+    oneof field {
+        PSpan span = 1;
+        PSpanChunk spanChunk =2;
+    }
+}
+
 message PSpan {
     int32 version = 1;
 

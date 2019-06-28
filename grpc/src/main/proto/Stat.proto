@@ -13,6 +13,13 @@ package v1;
 message PPing {
 }
 
+message PStatMessage {
+    oneof field {
+        PAgentStat agentStat = 1;
+        PAgentStatBatch agentStatBatch = 2;
+    }
+}
+
 message PAgentInfo {
     string hostname = 1;
     string ip = 2;

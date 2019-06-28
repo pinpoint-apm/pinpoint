@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
 import com.navercorp.pinpoint.grpc.trace.PAgentStat;
 import com.navercorp.pinpoint.grpc.trace.PAgentStatBatch;
+import com.navercorp.pinpoint.grpc.trace.PStatMessage;
 import com.navercorp.pinpoint.grpc.trace.StatGrpc;
 import com.navercorp.pinpoint.io.header.Header;
 import com.navercorp.pinpoint.io.header.HeaderEntity;
@@ -55,16 +56,25 @@ public class StatService extends StatGrpc.StatImplBase {
     }
 
     @Override
-    public StreamObserver<PAgentStat> sendAgentStat(StreamObserver<Empty> responseObserver) {
-        StreamObserver<PAgentStat> observer = new StreamObserver<PAgentStat>() {
+    public StreamObserver<PStatMessage> sendAgentStat(StreamObserver<Empty> responseObserver) {
+        StreamObserver<PStatMessage> observer = new StreamObserver<PStatMessage>() {
             @Override
-            public void onNext(PAgentStat agentStat) {
+            public void onNext(PStatMessage statMessage) {
                 if (isDebug) {
-                    logger.debug("Send PAgentStat={}", MessageFormatUtils.debugLog(agentStat));
+                    logger.debug("Send PAgentStat={}", MessageFormatUtils.debugLog(statMessage));
                 }
 
-                final Message<PAgentStat> message = newMessage(agentStat, DefaultTBaseLocator.AGENT_STAT);
-                send(responseObserver, message);
+                if (statMessage.hasAgentStat()) {
+                    final Message<PAgentStat> message = newMessage(statMessage.getAgentStat(), DefaultTBaseLocator.AGENT_STAT);
+                    send(responseObserver, message);
+                } else if (statMessage.hasAgentStatBatch()) {
+                    final Message<PAgentStatBatch> message = newMessage(statMessage.getAgentStatBatch(), DefaultTBaseLocator.AGENT_STAT_BATCH);
+                    send(responseObserver, message);
+                } else {
+                    if (isDebug) {
+                        logger.debug("Found empty stat message {}", MessageFormatUtils.debugLog(statMessage));
+                    }
+                }
             }
 
             @Override
@@ -86,34 +96,6 @@ public class StatService extends StatGrpc.StatImplBase {
         final Header header = new HeaderV2(Header.SIGNATURE, HeaderV2.VERSION, serviceType);
         final HeaderEntity headerEntity = new HeaderEntity(new HashMap<>());
         return new DefaultMessage<>(header, headerEntity, requestData);
-    }
-
-    @Override
-    public StreamObserver<PAgentStatBatch> sendAgentStatBatch(StreamObserver<Empty> responseObserver) {
-        StreamObserver<PAgentStatBatch> observer = new StreamObserver<PAgentStatBatch>() {
-            @Override
-            public void onNext(PAgentStatBatch agentStatBatch) {
-                if (isDebug) {
-                    logger.debug("Send PAgentStatBatch={}", MessageFormatUtils.debugLog(agentStatBatch));
-                }
-
-                final Message<PAgentStatBatch> message = newMessage(agentStatBatch, DefaultTBaseLocator.AGENT_STAT);
-                send(responseObserver, message);
-            }
-
-            @Override
-            public void onError(Throwable throwable) {
-                logger.warn("Error sendAgentStatBatch stream", throwable);
-            }
-
-            @Override
-            public void onCompleted() {
-                responseObserver.onNext(Empty.newBuilder().build());
-                responseObserver.onCompleted();
-            }
-        };
-
-        return observer;
     }
 
     private void send(StreamObserver<Empty> responseObserver, final Message<? extends GeneratedMessageV3> message) {

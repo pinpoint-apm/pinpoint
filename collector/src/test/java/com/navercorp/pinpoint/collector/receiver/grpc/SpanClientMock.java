@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.grpc.AgentHeaderFactory;
 import com.navercorp.pinpoint.grpc.client.HeaderFactory;
 import com.navercorp.pinpoint.grpc.trace.PSpan;
 import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
+import com.navercorp.pinpoint.grpc.trace.PSpanMessage;
 import com.navercorp.pinpoint.grpc.trace.SpanGrpc;
 import io.grpc.ClientInterceptor;
 import io.grpc.ManagedChannel;
@@ -74,18 +75,15 @@ public class SpanClientMock {
             public void run() {
                 StreamObserver<Empty> responseObserver = getResponseObserver();
 
-                StreamObserver<PSpan> requestObserver = spanStub.sendSpan(responseObserver);
+                StreamObserver<PSpanMessage> requestObserver = spanStub.sendSpan(responseObserver);
                 for (int i = 0; i < count; i++) {
+                    final PSpan span = PSpan.newBuilder().build();
+                    final PSpanMessage spanMessage = PSpanMessage.newBuilder().setSpan(span).build();
+                    requestObserver.onNext(spanMessage);
                     try {
-                        final PSpan span = PSpan.newBuilder().build();
-                        logger.info("Next {}", span);
-                        requestObserver.onNext(span);
-                        try {
-                            TimeUnit.SECONDS.sleep(3);
+                        TimeUnit.SECONDS.sleep(1);
 
-                        } catch (InterruptedException e) {
-                        }
-                    } catch(Exception e) {
+                    } catch (InterruptedException e) {
                     }
                 }
                 requestObserver.onCompleted();
@@ -104,11 +102,11 @@ public class SpanClientMock {
 
                 StreamObserver<Empty> responseObserver = getResponseObserver();
 
-                StreamObserver<PSpanChunk> requestObserver = spanStub.sendSpanChunk(responseObserver);
+                StreamObserver<PSpanMessage> requestObserver = spanStub.sendSpan(responseObserver);
                 for (int i = 0; i < count; i++) {
                     final PSpanChunk spanChunk = PSpanChunk.newBuilder().build();
-                    logger.info("Next {}", spanChunk);
-                    requestObserver.onNext(spanChunk);
+                    final PSpanMessage spanMessage = PSpanMessage.newBuilder().setSpanChunk(spanChunk).build();
+                    requestObserver.onNext(spanMessage);
                     try {
                         TimeUnit.SECONDS.sleep(1);
                     } catch (InterruptedException e) {
