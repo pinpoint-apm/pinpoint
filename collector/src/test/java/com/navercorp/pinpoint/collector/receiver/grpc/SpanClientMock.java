@@ -81,12 +81,16 @@ public class SpanClientMock {
 
                 StreamObserver<PSpan> requestObserver = spanStub.sendSpan(responseObserver);
                 for (int i = 0; i < count; i++) {
-                    final PSpan span = PSpan.newBuilder().build();
-                    requestObserver.onNext(span);
                     try {
-                        TimeUnit.SECONDS.sleep(1);
+                        final PSpan span = PSpan.newBuilder().build();
+                        logger.info("Next {}", span);
+                        requestObserver.onNext(span);
+                        try {
+                            TimeUnit.SECONDS.sleep(3);
 
-                    } catch (InterruptedException e) {
+                        } catch (InterruptedException e) {
+                        }
+                    } catch(Exception e) {
                     }
                 }
                 requestObserver.onCompleted();
@@ -108,6 +112,7 @@ public class SpanClientMock {
                 StreamObserver<PSpanChunk> requestObserver = spanStub.sendSpanChunk(responseObserver);
                 for (int i = 0; i < count; i++) {
                     final PSpanChunk spanChunk = PSpanChunk.newBuilder().build();
+                    logger.info("Next {}", spanChunk);
                     requestObserver.onNext(spanChunk);
                     try {
                         TimeUnit.SECONDS.sleep(1);
