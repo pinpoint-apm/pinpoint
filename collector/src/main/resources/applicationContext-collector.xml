@@ -448,12 +448,6 @@
         <property name="registry" value="#{baseDataReceiverConfig.grpcWorkerMonitorEnable ? metricRegistry : null}"/>
     </bean>
 
-    <bean id="grpcAgentServerOptionBuilder" class="com.navercorp.pinpoint.grpc.server.ServerOption.Builder">
-        <property name="keepAliveTime" value="#{baseDataReceiverConfig.grpcKeepAliveTime}"/>
-        <property name="keepAliveTimeout" value="#{baseDataReceiverConfig.grpcKeepAliveTimeout}"/>
-    </bean>
-    <bean id="grpcAgentServerOption" class="com.navercorp.pinpoint.grpc.server.ServerOption" factory-bean="grpcAgentServerOptionBuilder" factory-method="build"/>
-
     <bean id="grpcLifecycleScheduler" class="org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler">
         <property name="poolSize" value="1"/>
         <property name="threadNamePrefix" value="Pinpoint-GrpcLifecycleFlusher-"/>
@@ -514,7 +508,7 @@
         <property name="addressFilter" ref="addressFilter"/>
         <property name="bindableServiceList" ref="agentServiceList"/>
         <property name="enable" value="#{baseDataReceiverConfig.isGrpcEnable()}"/>
-        <property name="serverOption" ref="grpcAgentServerOption"/>
+        <property name="serverOption" value="#{baseDataReceiverConfig.getGrpcServerOption()}"/>
         <property name="lifecycleTransportFilter" ref="lifecycleTransportFilter"/>
     </bean>
 
@@ -526,12 +520,6 @@
         <property name="threadNamePrefix" value="Pinpoint-GrpcSpan-Worker-"/>
         <property name="registry" value="#{spanReceiverConfig.grpcWorkerMonitorEnable ? metricRegistry : null}"/>
     </bean>
-
-    <bean id="grpcTraceServerOptionBuilder" class="com.navercorp.pinpoint.grpc.server.ServerOption.Builder">
-        <property name="keepAliveTime" value="#{spanReceiverConfig.grpcKeepAliveTime}"/>
-        <property name="keepAliveTimeout" value="#{spanReceiverConfig.grpcKeepAliveTimeout}"/>
-    </bean>
-    <bean id="grpcTraceServerOption" class="com.navercorp.pinpoint.grpc.server.ServerOption" factory-bean="grpcAgentServerOptionBuilder" factory-method="build"/>
 
     <bean id="spanService" class="com.navercorp.pinpoint.collector.receiver.grpc.service.SpanService">
         <constructor-arg index="0" ref="grpcSpanDispatchHandlerFactoryBean"/>
@@ -547,7 +535,7 @@
         <property name="bindableServiceList" ref="spanServiceList"/>
         <property name="executor" ref="grpcTraceServerExecutor"/>
         <property name="enable" value="#{spanReceiverConfig.isGrpcEnable()}"/>
-        <property name="serverOption" ref="grpcTraceServerOption"/>
+        <property name="serverOption" value="#{spanReceiverConfig.getGrpcServerOption()}"/>
     </bean>
 
     <bean id="grpcStatServerExecutor" class="com.navercorp.pinpoint.collector.receiver.thrift.ExecutorFactoryBean" parent="abstractReceiverExecutorFactoryBean">
@@ -557,11 +545,6 @@
         <property name="threadNamePrefix" value="Pinpoint-GrpcStat-Worker-"/>
         <property name="registry" value="#{statReceiverConfig.workerMonitorEnable ? metricRegistry : null}"/>
     </bean>
-    <bean id="grpcStatServerOptionBuilder" class="com.navercorp.pinpoint.grpc.server.ServerOption.Builder">
-        <property name="keepAliveTime" value="#{statReceiverConfig.grpcKeepAliveTime}"/>
-        <property name="keepAliveTimeout" value="#{statReceiverConfig.grpcKeepAliveTimeout}"/>
-    </bean>
-    <bean id="grpcStatServerOption" class="com.navercorp.pinpoint.grpc.server.ServerOption" factory-bean="grpcAgentServerOptionBuilder" factory-method="build"/>
 
     <bean id="statService" class="com.navercorp.pinpoint.collector.receiver.grpc.service.StatService">
         <constructor-arg index="0" ref="grpcStatDispatchHandlerFactoryBean"/>
@@ -577,7 +560,7 @@
         <property name="bindableServiceList" ref="statServiceList"/>
         <property name="executor" ref="grpcStatServerExecutor"/>
         <property name="enable" value="#{statReceiverConfig.isGrpcEnable()}"/>
-        <property name="serverOption" ref="grpcStatServerOption"/>
+        <property name="serverOption" value="#{statReceiverConfig.getGrpcServerOption()}"/>
     </bean>
 
     <!-- end receiver configuration -->

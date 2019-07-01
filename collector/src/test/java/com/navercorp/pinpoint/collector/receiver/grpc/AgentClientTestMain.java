@@ -26,11 +26,11 @@ public class AgentClientTestMain {
 
     public static void main(String[] args) throws Exception {
         AgentClientMock clientMock = new AgentClientMock("localhost", 9997, true);
-        clientMock.info(10);
+        clientMock.info(999999);
 
-        clientMock.apiMetaData(1);
-        clientMock.sqlMetaData(1);
-        clientMock.stringMetaData(1);
+//        clientMock.apiMetaData(1);
+//        clientMock.sqlMetaData(1);
+//        clientMock.stringMetaData(1);
 
 //        clientMock.pingPoing();
 
