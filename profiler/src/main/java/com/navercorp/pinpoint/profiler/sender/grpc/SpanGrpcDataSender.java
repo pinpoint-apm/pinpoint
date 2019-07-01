@@ -44,6 +44,7 @@ public class SpanGrpcDataSender extends GrpcDataSender {
     private volatile StreamObserver<PSpanChunk> spanChunkStream;
     private final Reconnector spanChunkStreamReconnector;
 
+
     public SpanGrpcDataSender(String host, int port, int executorQueueSize, MessageConverter<GeneratedMessageV3> messageConverter, ChannelFactoryOption channelFactoryOption) {
         super(host, port, executorQueueSize, messageConverter, channelFactoryOption);
 
@@ -76,12 +77,14 @@ public class SpanGrpcDataSender extends GrpcDataSender {
     }
 
     private StreamObserver<PSpan> newSpanStream() {
-        ResponseStreamObserver<PSpan, Empty> responseStreamObserver = new ResponseStreamObserver<PSpan, Empty>(name, spanStreamReconnector);
+        StreamId spanId = StreamId.newStreamId("span");
+        ResponseStreamObserver<PSpan, Empty> responseStreamObserver = new ResponseStreamObserver<PSpan, Empty>(spanId, spanStreamReconnector);
         return spanStub.sendSpan(responseStreamObserver);
     }
 
     private StreamObserver<PSpanChunk> newSpanChunkStream() {
-        ResponseStreamObserver<PSpanChunk, Empty> responseStreamObserver = new ResponseStreamObserver<PSpanChunk, Empty>(name, spanChunkStreamReconnector);
+        StreamId spanChunkId = StreamId.newStreamId("spanChunk");
+        ResponseStreamObserver<PSpanChunk, Empty> responseStreamObserver = new ResponseStreamObserver<PSpanChunk, Empty>(spanChunkId, spanChunkStreamReconnector);
         return spanStub.sendSpanChunk(responseStreamObserver);
     }
 

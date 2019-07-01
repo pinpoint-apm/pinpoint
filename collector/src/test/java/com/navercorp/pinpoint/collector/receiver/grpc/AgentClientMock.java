@@ -16,9 +16,8 @@
 
 package com.navercorp.pinpoint.collector.receiver.grpc;
 
-import com.google.protobuf.Empty;
 import com.navercorp.pinpoint.grpc.AgentHeaderFactory;
-import com.navercorp.pinpoint.grpc.HeaderFactory;
+import com.navercorp.pinpoint.grpc.client.HeaderFactory;
 import com.navercorp.pinpoint.grpc.trace.AgentGrpc;
 import com.navercorp.pinpoint.grpc.trace.MetadataGrpc;
 import com.navercorp.pinpoint.grpc.trace.PAgentInfo;
@@ -27,7 +26,6 @@ import com.navercorp.pinpoint.grpc.trace.PResult;
 import com.navercorp.pinpoint.grpc.trace.PSqlMetaData;
 import com.navercorp.pinpoint.grpc.trace.PStringMetaData;
 import io.grpc.Attributes;
-import io.grpc.CallOptions;
 import io.grpc.ClientInterceptor;
 import io.grpc.ConnectivityState;
 import io.grpc.ConnectivityStateInfo;
@@ -36,7 +34,6 @@ import io.grpc.LoadBalancer;
 import io.grpc.ManagedChannel;
 import io.grpc.Metadata;
 import io.grpc.Status;
-import io.grpc.netty.InternalNettyChannelBuilder;
 import io.grpc.netty.NettyChannelBuilder;
 import io.grpc.stub.MetadataUtils;
 import io.grpc.stub.StreamObserver;
@@ -68,8 +65,7 @@ public class AgentClientMock {
         NettyChannelBuilder builder = NettyChannelBuilder.forAddress(host, port);
 
         if (agentHeader) {
-            AgentHeaderFactory.Header header = new AgentHeaderFactory.Header("mockAgentId", "mockApplicationName", System.currentTimeMillis());
-            HeaderFactory headerFactory = new AgentHeaderFactory(header);
+            HeaderFactory headerFactory = new AgentHeaderFactory("mockAgentId", "mockApplicationName", System.currentTimeMillis());
             final Metadata extraHeaders = headerFactory.newHeader();
             final ClientInterceptor headersInterceptor = MetadataUtils.newAttachHeadersInterceptor(extraHeaders);
             builder.intercept(headersInterceptor);
@@ -92,12 +88,11 @@ public class AgentClientMock {
         info(1);
     }
 
-    public void info(final int count) throws InterruptedException {
+    public void info(final int count) {
         for (int i = 0; i < count; i++) {
             PAgentInfo request = PAgentInfo.newBuilder().build();
             QueueingStreamObserver<PResult> responseObserver = getResponseObserver();
-            StreamObserver<PAgentInfo> pAgentInfoStreamObserver = agentStub.sendAgentInfo(responseObserver);
-            pAgentInfoStreamObserver.onNext(request);
+            agentStub.requestAgentInfo(request, responseObserver);
             PResult value = responseObserver.getValue();
             logger.info("Result {}", value);
         }

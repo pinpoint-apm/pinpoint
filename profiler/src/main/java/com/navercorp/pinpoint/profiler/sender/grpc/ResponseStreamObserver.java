@@ -29,10 +29,10 @@ public class ResponseStreamObserver<ReqT, RespT> implements ClientResponseObserv
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final String name;
+    private final StreamId name;
     private final Reconnector reconnector;
 
-    public ResponseStreamObserver(String name, Reconnector reconnector) {
+    public ResponseStreamObserver(StreamId name, Reconnector reconnector) {
         this.name = Assert.requireNonNull(name, "name must not be null");
         this.reconnector = Assert.requireNonNull(reconnector, "reconnector must not be null");
 

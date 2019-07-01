@@ -21,10 +21,10 @@ package com.navercorp.pinpoint.grpc.server.lifecycle;
  */
 public interface LifecycleListener {
 
-    void connect(Lifecycle lifecycle);
+    void connect(PingSession lifecycle);
 
-    void handshake(Lifecycle lifecycle);
+    void handshake(PingSession lifecycle);
 
-    void close(Lifecycle lifecycle);
+    void close(PingSession lifecycle);
 
 }

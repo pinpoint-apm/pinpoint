@@ -26,7 +26,7 @@ import com.navercorp.pinpoint.grpc.client.ClientOption;
 
 import com.navercorp.pinpoint.profiler.context.grpc.GrpcTransportConfig;
 import com.navercorp.pinpoint.common.util.Assert;
-import com.navercorp.pinpoint.grpc.HeaderFactory;
+import com.navercorp.pinpoint.grpc.client.HeaderFactory;
 import com.navercorp.pinpoint.profiler.context.module.SpanConverter;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
 import com.navercorp.pinpoint.profiler.sender.DataSender;

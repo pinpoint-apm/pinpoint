@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.collector.cluster.zookeeper.ZookeeperProfilerClust
 import com.navercorp.pinpoint.collector.receiver.grpc.RecordedStreamObserver;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.command.GrpcCommandService;
 import com.navercorp.pinpoint.grpc.AgentHeaderFactory;
+import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.server.DefaultTransportMetadata;
 import com.navercorp.pinpoint.grpc.server.ServerContext;
 import com.navercorp.pinpoint.grpc.server.TransportMetadata;
@@ -69,7 +70,7 @@ public class GrpcCommandServiceTest {
         try {
             TransportMetadata transportMetaData = createTransportMetaData(new InetSocketAddress("127.0.0.1", 61613), 10);
             attachContext(transportMetaData);
-            attachContext(new AgentHeaderFactory.Header("agent", "applicationName", System.currentTimeMillis()));
+            attachContext(new Header("agent", "applicationName", System.currentTimeMillis(), Header.SOCKET_ID_NOT_EXIST));
 
             StreamObserver<PCmdMessage> handleMessageObserver = commandService.handleCommand(new TempServerCallStreamObserver<PCmdRequest>());
 
@@ -117,7 +118,7 @@ public class GrpcCommandServiceTest {
         newContext.attach();
     }
 
-    private void attachContext(AgentHeaderFactory.Header header) {
+    private void attachContext(Header header) {
         final Context currentContext = Context.current();
         Context newContext = currentContext.withValue(ServerContext.getAgentInfoKey(), header);
         newContext.attach();

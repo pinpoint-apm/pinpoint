@@ -23,7 +23,7 @@ import com.google.inject.TypeLiteral;
 import com.google.inject.name.Names;
 import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.profiler.context.grpc.GrpcTransportConfig;
-import com.navercorp.pinpoint.grpc.HeaderFactory;
+import com.navercorp.pinpoint.grpc.client.HeaderFactory;
 import com.navercorp.pinpoint.grpc.trace.PSpan;
 import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
 import com.navercorp.pinpoint.profiler.context.compress.SpanProcessor;

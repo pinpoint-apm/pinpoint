@@ -14,19 +14,15 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.grpc.server.lifecycle;
+package com.navercorp.pinpoint.grpc.client;
 
-import java.util.Collection;
+import io.grpc.Metadata;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
-public interface LifecycleRegistry {
-    Lifecycle add(Long transportId, Lifecycle lifecycle);
+public interface HeaderFactory<H> {
 
-    Lifecycle get(Long transportId);
+    Metadata newHeader();
 
-    Lifecycle remove(Long transportId);
-
-    Collection<Lifecycle> values();
 }

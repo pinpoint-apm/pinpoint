@@ -18,25 +18,21 @@ package com.navercorp.pinpoint.collector.receiver.grpc;
 
 import com.google.protobuf.Empty;
 import com.navercorp.pinpoint.grpc.AgentHeaderFactory;
-import com.navercorp.pinpoint.grpc.HeaderFactory;
+import com.navercorp.pinpoint.grpc.client.HeaderFactory;
 import com.navercorp.pinpoint.grpc.trace.PSpan;
 import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
 import com.navercorp.pinpoint.grpc.trace.SpanGrpc;
 import io.grpc.ClientInterceptor;
-import io.grpc.LoadBalancer;
 import io.grpc.ManagedChannel;
 import io.grpc.Metadata;
 import io.grpc.netty.NettyChannelBuilder;
 import io.grpc.stub.MetadataUtils;
 import io.grpc.stub.StreamObserver;
-import io.grpc.util.RoundRobinLoadBalancerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 public class SpanClientMock {
@@ -47,8 +43,7 @@ public class SpanClientMock {
 
     public SpanClientMock(final String host, final int port) throws Exception {
         NettyChannelBuilder builder = NettyChannelBuilder.forAddress(host, port);
-        AgentHeaderFactory.Header header = new AgentHeaderFactory.Header("mockAgentId", "mockApplicationName", System.currentTimeMillis());
-        HeaderFactory headerFactory = new AgentHeaderFactory(header);
+        HeaderFactory headerFactory = new AgentHeaderFactory("mockAgentId", "mockApplicationName", System.currentTimeMillis());
         final Metadata extraHeaders = headerFactory.newHeader();
         final ClientInterceptor headersInterceptor = MetadataUtils.newAttachHeadersInterceptor(extraHeaders);
         builder.intercept(headersInterceptor);

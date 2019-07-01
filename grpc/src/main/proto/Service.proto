@@ -22,8 +22,12 @@ service Span {
 }
 
 service Agent {
-    rpc SendAgentInfo (stream PAgentInfo) returns (stream PResult) {
+
+    rpc RequestAgentInfo (PAgentInfo) returns (PResult) {
     }
+    rpc PingSession (stream PPing) returns (stream PPing) {
+    }
+
 }
 
 service Metadata {

@@ -20,7 +20,7 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.grpc.AgentHeaderFactory;
-import com.navercorp.pinpoint.grpc.HeaderFactory;
+import com.navercorp.pinpoint.grpc.client.HeaderFactory;
 import com.navercorp.pinpoint.profiler.AgentInformation;
 
 /**
@@ -36,7 +36,6 @@ public class AgentHeaderFactoryProvider implements Provider<HeaderFactory> {
 
     @Override
     public HeaderFactory get() {
-        AgentHeaderFactory.Header header = new AgentHeaderFactory.Header(agentInformation.getAgentId(), agentInformation.getApplicationName(), agentInformation.getStartTime());
-        return new AgentHeaderFactory(header);
+        return new AgentHeaderFactory(agentInformation.getAgentId(), agentInformation.getApplicationName(), agentInformation.getStartTime());
     }
 }

@@ -24,7 +24,7 @@ import com.navercorp.pinpoint.common.server.bo.event.AgentEventBo;
 import com.navercorp.pinpoint.common.server.bo.event.DeadlockEventBo;
 import com.navercorp.pinpoint.common.server.util.AgentEventMessageSerializerV1;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
-import com.navercorp.pinpoint.grpc.AgentHeaderFactory;
+import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
 import com.navercorp.pinpoint.grpc.server.ServerContext;
 import com.navercorp.pinpoint.grpc.trace.PAgentStat;
@@ -77,7 +77,7 @@ public class GrpcAgentEventHandler implements SimpleHandler {
             logger.debug("Handle PAgentStat={}", MessageFormatUtils.debugLog(agentStat));
         }
 
-        final AgentHeaderFactory.Header header = ServerContext.getAgentInfo();
+        final Header header = ServerContext.getAgentInfo();
         final AgentEventBo agentEventBo = this.agentEventMapper.map(agentStat, header);
         if (agentEventBo == null) {
             return;
@@ -90,7 +90,7 @@ public class GrpcAgentEventHandler implements SimpleHandler {
             logger.debug("Handle PAgentStatBatch={}", MessageFormatUtils.debugLog(agentStatBatch));
         }
 
-        final AgentHeaderFactory.Header header = ServerContext.getAgentInfo();
+        final Header header = ServerContext.getAgentInfo();
         final List<AgentEventBo> agentEventBoList = this.agentEventBatchMapper.map(agentStatBatch, header);
         if (CollectionUtils.isEmpty(agentEventBoList)) {
             return;

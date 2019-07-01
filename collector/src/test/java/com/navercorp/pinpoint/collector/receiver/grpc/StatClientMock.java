@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.collector.receiver.grpc;
 
 import com.google.protobuf.Empty;
 import com.navercorp.pinpoint.grpc.AgentHeaderFactory;
-import com.navercorp.pinpoint.grpc.HeaderFactory;
+import com.navercorp.pinpoint.grpc.client.HeaderFactory;
 import com.navercorp.pinpoint.grpc.trace.PAgentStat;
 import com.navercorp.pinpoint.grpc.trace.PAgentStatBatch;
 import com.navercorp.pinpoint.grpc.trace.StatGrpc;
@@ -43,8 +43,7 @@ public class StatClientMock {
 
     public StatClientMock(final String host, final int port) {
         NettyChannelBuilder builder = NettyChannelBuilder.forAddress(host, port);
-        AgentHeaderFactory.Header header = new AgentHeaderFactory.Header("mockAgentId", "mockApplicationName", System.currentTimeMillis());
-        HeaderFactory headerFactory = new AgentHeaderFactory(header);
+        HeaderFactory headerFactory = new AgentHeaderFactory("mockAgentId", "mockApplicationName", System.currentTimeMillis());
         final Metadata extraHeaders = headerFactory.newHeader();
         final ClientInterceptor headersInterceptor = MetadataUtils.newAttachHeadersInterceptor(extraHeaders);
         builder.intercept(headersInterceptor);

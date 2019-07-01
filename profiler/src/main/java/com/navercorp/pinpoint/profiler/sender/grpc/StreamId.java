@@ -14,29 +14,32 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.grpc.server.lifecycle;
+package com.navercorp.pinpoint.profiler.sender.grpc;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.navercorp.pinpoint.common.util.Assert;
+
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class LifecycleListenerAdaptor implements LifecycleListener {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+public final class StreamId {
+    private static final AtomicLong idAllocator = new AtomicLong();
 
-    @Override
-    public void connect(PingSession lifecycle) {
-        logger.info("connect:{}", lifecycle);
+    private final String name;
+    private final long id;
+
+    public static StreamId newStreamId(String name) {
+        return new StreamId(name, idAllocator.incrementAndGet());
+    }
+
+    private StreamId(String name, long id) {
+        this.name = Assert.requireNonNull(name, "name must not be null");
+        this.id = id;
     }
 
     @Override
-    public void handshake(PingSession lifecycle) {
-        logger.info("handshake {}", lifecycle);
-    }
-
-    @Override
-    public void close(PingSession lifecycle) {
-        logger.info("close:{}", lifecycle);
+    public String toString() {
+        return name + "-" + id;
     }
 }

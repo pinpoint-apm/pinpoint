@@ -21,7 +21,6 @@ package com.navercorp.pinpoint.common.server.bo.grpc;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.AnnotationComparator;
 import com.navercorp.pinpoint.common.server.bo.AnnotationFactory;
-import com.navercorp.pinpoint.common.server.bo.BasicSpan;
 import com.navercorp.pinpoint.common.server.bo.LocalAsyncIdBo;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
@@ -32,7 +31,7 @@ import com.navercorp.pinpoint.common.server.bo.filter.SpanEventFilter;
 import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
 import com.navercorp.pinpoint.common.server.util.EmptyAcceptedTimeService;
 import com.navercorp.pinpoint.common.util.TransactionId;
-import com.navercorp.pinpoint.grpc.AgentHeaderFactory;
+import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.trace.PAcceptEvent;
 import com.navercorp.pinpoint.grpc.trace.PAnnotation;
 import com.navercorp.pinpoint.grpc.trace.PIntStringValue;
@@ -81,7 +80,7 @@ public class GrpcSpanFactory {
         this.acceptedTimeService = acceptedTimeService;
     }
 
-    public SpanBo buildSpanBo(PSpan pSpan, AgentHeaderFactory.Header header) {
+    public SpanBo buildSpanBo(PSpan pSpan, Header header) {
         checkVersion(pSpan.getVersion());
 
         final SpanBo spanBo = newSpanBo(pSpan, header);
@@ -103,7 +102,7 @@ public class GrpcSpanFactory {
     }
 
     // for test
-    SpanBo newSpanBo(PSpan pSpan, AgentHeaderFactory.Header header) {
+    SpanBo newSpanBo(PSpan pSpan, Header header) {
         final SpanBo spanBo = new SpanBo();
         spanBo.setVersion(pSpan.getVersion());
         spanBo.setAgentId(header.getAgentId());
@@ -208,7 +207,7 @@ public class GrpcSpanFactory {
 
     }
 
-    public SpanChunkBo buildSpanChunkBo(PSpanChunk pSpanChunk, AgentHeaderFactory.Header header) {
+    public SpanChunkBo buildSpanChunkBo(PSpanChunk pSpanChunk, Header header) {
         checkVersion(pSpanChunk.getVersion());
 
         final SpanChunkBo spanChunkBo = newSpanChunkBo(pSpanChunk, header);
@@ -231,7 +230,7 @@ public class GrpcSpanFactory {
 
 
     // for test
-    SpanChunkBo newSpanChunkBo(PSpanChunk pSpanChunk, AgentHeaderFactory.Header header) {
+    SpanChunkBo newSpanChunkBo(PSpanChunk pSpanChunk, Header header) {
         final SpanChunkBo spanChunkBo = new SpanChunkBo();
         spanChunkBo.setVersion(pSpanChunk.getVersion());
         spanChunkBo.setAgentId(header.getAgentId());

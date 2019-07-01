@@ -17,13 +17,11 @@
 package com.navercorp.pinpoint.profiler.sender.grpc;
 
 import com.google.common.util.concurrent.SettableFuture;
-import com.navercorp.pinpoint.common.util.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import static org.junit.Assert.*;
@@ -31,7 +29,7 @@ import static org.junit.Assert.*;
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class AgentStreamContextTest {
+public class PingStreamContextTest {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     @Test
     public void test() throws InterruptedException, ExecutionException, TimeoutException {

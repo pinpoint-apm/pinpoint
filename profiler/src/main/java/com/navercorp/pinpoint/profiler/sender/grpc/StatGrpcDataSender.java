@@ -20,15 +20,12 @@ package com.navercorp.pinpoint.profiler.sender.grpc;
 import com.navercorp.pinpoint.grpc.client.ChannelFactoryOption;
 
 import com.google.protobuf.Empty;
-import com.navercorp.pinpoint.grpc.HeaderFactory;
-import com.navercorp.pinpoint.grpc.client.ClientOption;
 
 import com.navercorp.pinpoint.grpc.trace.PAgentStat;
 import com.navercorp.pinpoint.grpc.trace.PAgentStatBatch;
 import com.navercorp.pinpoint.grpc.trace.StatGrpc;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
 
-import com.google.protobuf.Empty;
 import com.google.protobuf.GeneratedMessageV3;
 import io.grpc.stub.StreamObserver;
 
@@ -79,12 +76,14 @@ public class StatGrpcDataSender extends GrpcDataSender {
     }
 
     private StreamObserver<PAgentStat> newStatStream() {
-        final ResponseStreamObserver<PAgentStat, Empty> responseObserver = new ResponseStreamObserver<PAgentStat, Empty>(name, statStreamReconnector);
+        final StreamId statId = StreamId.newStreamId("stat");
+        final ResponseStreamObserver<PAgentStat, Empty> responseObserver = new ResponseStreamObserver<PAgentStat, Empty>(statId, statStreamReconnector);
         return statStub.sendAgentStat(responseObserver);
     }
 
     private StreamObserver<PAgentStatBatch> newStatBatchStream() {
-        final ResponseStreamObserver<PAgentStatBatch, Empty> responseObserver = new ResponseStreamObserver<PAgentStatBatch, Empty>(name, statBatchStreamReconnector);
+        final StreamId statBatch = StreamId.newStreamId("statBatch");
+        final ResponseStreamObserver<PAgentStatBatch, Empty> responseObserver = new ResponseStreamObserver<PAgentStatBatch, Empty>(statBatch, statBatchStreamReconnector);
         return statStub.sendAgentStatBatch(responseObserver);
     }
 

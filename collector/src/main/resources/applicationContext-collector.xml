@@ -458,7 +458,7 @@
     <task:scheduled-tasks scheduler="grpcLifecycleScheduler">
         <task:scheduled ref="keepAliveService" method="updateState" fixed-rate="#{ 60 * 1000 * 5 }"/>
     </task:scheduled-tasks>
-    <bean id="lifecycleRegistry" class="com.navercorp.pinpoint.grpc.server.lifecycle.DefaultLifecycleRegistry"/>
+    <bean id="pingSessionRegistry" class="com.navercorp.pinpoint.grpc.server.lifecycle.DefaultPingSessionRegistry"/>
     <bean id="lifecycleListener" class="com.navercorp.pinpoint.collector.receiver.grpc.service.AgentLifecycleListener">
         <constructor-arg index="0" ref="keepAliveService"/>
     </bean>
@@ -466,19 +466,17 @@
     <bean id="keepAliveService" class="com.navercorp.pinpoint.collector.receiver.grpc.service.KeepAliveService">
         <constructor-arg index="0" ref="agentEventAsyncTask"/>
         <constructor-arg index="1" ref="agentLifeCycleAsyncTask"/>
-        <constructor-arg index="2" ref="lifecycleRegistry"/>
+        <constructor-arg index="2" ref="pingSessionRegistry"/>
     </bean>
-    <bean id="lifecycleTransportFilter" class="com.navercorp.pinpoint.grpc.server.lifecycle.LifecycleTransportFilter">
-        <constructor-arg index="0" ref="lifecycleRegistry"/>
+
+    <bean id="pingEventHandler" class="com.navercorp.pinpoint.grpc.server.lifecycle.DefaultPingEventHandler">
+        <constructor-arg index="0" ref="pingSessionRegistry"/>
         <constructor-arg index="1" ref="lifecycleListener"/>
     </bean>
 
-    <bean id="headerHijackingServerInterceptor" class="com.navercorp.pinpoint.grpc.server.lifecycle.HeaderHijackingServerInterceptor">
-        <constructor-arg index="0" ref="lifecycleRegistry"/>
-        <constructor-arg index="1" ref="lifecycleListener"/>
-    </bean>
     <bean id="agentService" class="com.navercorp.pinpoint.collector.receiver.grpc.service.AgentService">
         <constructor-arg index="0" ref="grpcDispatchHandlerFactoryBean"/>
+        <constructor-arg index="1" ref="pingEventHandler"/>
     </bean>
     <bean id="metadataService" class="com.navercorp.pinpoint.collector.receiver.grpc.service.MetadataService">
         <constructor-arg index="0" ref="grpcDispatchHandlerFactoryBean"/>
@@ -487,16 +485,8 @@
         <constructor-arg index="0" ref="clusterService"/>
     </bean>
 
-    <bean id="agentServiceDecorator" class="io.grpc.ServerInterceptors" factory-method="intercept">
-        <constructor-arg index="0" type="io.grpc.BindableService" ref="agentService"/>
-        <constructor-arg index="1">
-            <list value-type="io.grpc.ServerInterceptor">
-                <ref bean="headerHijackingServerInterceptor"/>
-            </list>
-        </constructor-arg>
-    </bean>
     <util:list id="agentServiceList">
-        <ref bean="agentServiceDecorator"/>
+        <ref bean="agentService"/>
         <ref bean="metadataService"/>
         <ref bean="commandService"/>
     </util:list>
@@ -509,7 +499,6 @@
         <property name="bindableServiceList" ref="agentServiceList"/>
         <property name="enable" value="#{baseDataReceiverConfig.isGrpcEnable()}"/>
         <property name="serverOption" value="#{baseDataReceiverConfig.getGrpcServerOption()}"/>
-        <property name="lifecycleTransportFilter" ref="lifecycleTransportFilter"/>
     </bean>
 
 

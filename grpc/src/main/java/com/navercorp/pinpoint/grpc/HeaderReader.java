@@ -14,29 +14,13 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.grpc.server.lifecycle;
+package com.navercorp.pinpoint.grpc;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import io.grpc.Metadata;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class LifecycleListenerAdaptor implements LifecycleListener {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
-    @Override
-    public void connect(PingSession lifecycle) {
-        logger.info("connect:{}", lifecycle);
-    }
-
-    @Override
-    public void handshake(PingSession lifecycle) {
-        logger.info("handshake {}", lifecycle);
-    }
-
-    @Override
-    public void close(PingSession lifecycle) {
-        logger.info("close:{}", lifecycle);
-    }
+public interface HeaderReader<H> {
+    H extract(Metadata headers);
 }

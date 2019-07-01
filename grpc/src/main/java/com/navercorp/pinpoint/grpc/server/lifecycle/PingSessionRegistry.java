@@ -14,18 +14,19 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.grpc;
+package com.navercorp.pinpoint.grpc.server.lifecycle;
 
-import io.grpc.Attributes;
-import io.grpc.Metadata;
+import java.util.Collection;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
-public interface HeaderFactory<H> {
+public interface PingSessionRegistry {
+    PingSession add(Long transportId, PingSession lifecycle);
 
-    H extract(Metadata headers);
+    PingSession get(Long transportId);
 
-    Metadata newHeader();
+    PingSession remove(Long transportId);
 
+    Collection<PingSession> values();
 }

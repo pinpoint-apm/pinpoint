@@ -24,7 +24,7 @@ import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
 import com.navercorp.pinpoint.profiler.context.grpc.GrpcTransportConfig;
 
 import com.navercorp.pinpoint.common.util.Assert;
-import com.navercorp.pinpoint.grpc.HeaderFactory;
+import com.navercorp.pinpoint.grpc.client.HeaderFactory;
 import com.navercorp.pinpoint.grpc.client.ChannelFactoryOption;
 import com.navercorp.pinpoint.grpc.client.UnaryCallDeadlineInterceptor;
 import com.navercorp.pinpoint.profiler.context.module.MetadataConverter;

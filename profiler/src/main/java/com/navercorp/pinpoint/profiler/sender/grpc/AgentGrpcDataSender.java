@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.profiler.sender.grpc;
 
 import com.navercorp.pinpoint.grpc.client.ClientOption;
+import com.navercorp.pinpoint.grpc.client.SocketIdClientInterceptor;
 import com.navercorp.pinpoint.grpc.trace.MetadataGrpc;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
 import com.navercorp.pinpoint.profiler.receiver.grpc.GrpcCommandService;
@@ -69,7 +70,6 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author jaehong.kim
@@ -103,18 +103,18 @@ public class AgentGrpcDataSender implements EnhancedDataSender {
     protected volatile boolean shutdown;
     protected final ThreadPoolExecutor executor;
 
-    private final AgentGrpc.AgentStub agentStub;
+    private final AgentGrpc.AgentFutureStub agentFutureStub;
+    private final AgentGrpc.AgentStub agentPingStub;
     private final MetadataGrpc.MetadataFutureStub metadataStub;
 
     private GrpcCommandService grpcCommandService;
     private ClientOption clientOption;
 
     private final ExecutorAdaptor reconnectExecutor;
-    private final AtomicReference<PAgentInfo> requestCapture = new AtomicReference<PAgentInfo>();
-    private volatile AgentStreamContext agentStreamContext;
+
+    private volatile PingStreamContext pingStreamContext;
     private final Reconnector reconnector;
 
-    private final SettableFuture<PResult> agentInfoResultFuture = SettableFuture.create();
 
     public AgentGrpcDataSender(String host, int port, MessageConverter<GeneratedMessageV3> messageConverter, ChannelFactoryOption channelFactoryOption) {
         this(host, port, messageConverter, channelFactoryOption, null);
@@ -133,7 +133,9 @@ public class AgentGrpcDataSender implements EnhancedDataSender {
         this.channelFactory = new ChannelFactory(channelFactoryOption);
         this.managedChannel = channelFactory.build(name, host, port);
 
-        this.agentStub = AgentGrpc.newStub(managedChannel);
+        this.agentFutureStub = AgentGrpc.newFutureStub(managedChannel);
+        this.agentPingStub = newAgentPingStub();
+
         this.metadataStub = MetadataGrpc.newFutureStub(managedChannel);
 
         this.grpcCommandService = new GrpcCommandService(managedChannel, GrpcDataSender.reconnectScheduler, activeTraceRepository);
@@ -144,26 +146,26 @@ public class AgentGrpcDataSender implements EnhancedDataSender {
             this.reconnector = new ReconnectAdaptor(reconnectExecutor, new Runnable() {
                 @Override
                 public void run() {
-                    agentStreamContext = newAgentStream(agentStub);
+                    pingStreamContext = newPingStream(agentPingStub);
                 }
             });
-            agentStreamContext = newAgentStream(agentStub);
+            pingStreamContext = newPingStream(agentPingStub);
         }
+    }
+
+    private AgentGrpc.AgentStub newAgentPingStub() {
+        AgentGrpc.AgentStub agentStub = AgentGrpc.newStub(managedChannel);
+        return agentStub.withInterceptors(new SocketIdClientInterceptor());
     }
 
     private ExecutorAdaptor newReconnectExecutor() {
         return new ExecutorAdaptor(GrpcDataSender.reconnectScheduler);
     }
 
-    private AgentStreamContext newAgentStream(AgentGrpc.AgentStub agentStub) {
-        logger.info("newAgentStream");
-        final AgentInfoSupplier agentInfoSupplier = new AgentInfoSupplier() {
-            @Override
-            public PAgentInfo get() {
-                return requestCapture.get();
-            }
-        };
-        return new AgentStreamContext(agentStub, agentInfoSupplier, reconnector);
+    private PingStreamContext newPingStream(AgentGrpc.AgentStub agentStub) {
+        final PingStreamContext pingStreamContext = new PingStreamContext(agentStub, reconnector);
+        logger.info("newPingStream:{}", pingStreamContext);
+        return pingStreamContext;
     }
 
 
@@ -222,7 +224,7 @@ public class AgentGrpcDataSender implements EnhancedDataSender {
         if (reconnectExecutor != null) {
             this.reconnectExecutor.close();
         }
-        agentStreamContext.onCompleted();
+        this.pingStreamContext.close();
 
         if (grpcCommandService != null) {
             grpcCommandService.stop();
@@ -412,16 +414,9 @@ public class AgentGrpcDataSender implements EnhancedDataSender {
         }
         if (requestPacket instanceof PAgentInfo) {
             final PAgentInfo pAgentInfo = (PAgentInfo) requestPacket;
-            requestCapture.set(pAgentInfo);
-            AgentStreamContext agentStreamContext = this.agentStreamContext;
-            agentStreamContext.onNext(pAgentInfo);
-            return withTimeout(agentStreamContext.getResponseFuture());
+            return this.agentFutureStub.requestAgentInfo(pAgentInfo);
         }
         return null;
-    }
-
-    private ListenableFuture<PResult> withTimeout(final ListenableFuture<PResult> listenableFuture) {
-        return Futures.withTimeout(listenableFuture, 3, TimeUnit.SECONDS, GrpcDataSender.reconnectScheduler);
     }
 
     private boolean fireTimeout() {

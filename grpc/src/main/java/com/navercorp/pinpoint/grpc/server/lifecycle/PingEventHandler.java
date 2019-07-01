@@ -14,13 +14,15 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.sender.grpc;
-
-import com.navercorp.pinpoint.grpc.trace.PAgentInfo;
+package com.navercorp.pinpoint.grpc.server.lifecycle;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
-public interface AgentInfoSupplier {
-    PAgentInfo get();
+public interface PingEventHandler {
+    void connect();
+
+    void ping();
+
+    void close();
 }

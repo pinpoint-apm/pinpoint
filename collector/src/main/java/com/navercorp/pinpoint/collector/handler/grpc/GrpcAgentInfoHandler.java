@@ -20,7 +20,7 @@ import com.navercorp.pinpoint.collector.handler.SimpleAndRequestResponseHandler;
 import com.navercorp.pinpoint.collector.mapper.grpc.GrpcAgentInfoBoMapper;
 import com.navercorp.pinpoint.collector.service.AgentInfoService;
 import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
-import com.navercorp.pinpoint.grpc.AgentHeaderFactory;
+import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
 import com.navercorp.pinpoint.grpc.server.ServerContext;
 import com.navercorp.pinpoint.grpc.trace.PAgentInfo;
@@ -78,7 +78,7 @@ public class GrpcAgentInfoHandler implements SimpleAndRequestResponseHandler {
 
         try {
             // agent info
-            final AgentHeaderFactory.Header header = ServerContext.getAgentInfo();
+            final Header header = ServerContext.getAgentInfo();
             final AgentInfoBo agentInfoBo = this.agentInfoBoMapper.map(agentInfo, header);
             this.agentInfoService.insert(agentInfoBo);
             return PResult.newBuilder().setSuccess(true).build();
