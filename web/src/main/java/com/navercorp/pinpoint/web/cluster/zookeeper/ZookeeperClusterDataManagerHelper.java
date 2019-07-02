@@ -16,10 +16,10 @@
 
 package com.navercorp.pinpoint.web.cluster.zookeeper;
 
-import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperConstatns;
+import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperClient;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.common.util.MapUtils;
-import org.apache.zookeeper.CreateMode;
+import org.apache.curator.utils.ZKPaths;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,9 +38,9 @@ public class ZookeeperClusterDataManagerHelper {
     public ZookeeperClusterDataManagerHelper() {
     }
 
-    Map<String, byte[]> getCollectorData(ZookeeperClient client, String path) {
+    Map<String, byte[]> getCollectorData(ZookeeperClient client, String parentPath) {
         try {
-            List<String> collectorList = client.getChildren(path, true);
+            List<String> collectorList = client.getChildNodeList(parentPath, true);
             if (CollectionUtils.isEmpty(collectorList)) {
                 return Collections.emptyMap();
             }
@@ -48,10 +48,10 @@ public class ZookeeperClusterDataManagerHelper {
             Map<String, byte[]> map = new HashMap<>();
 
             for (String collector : collectorList) {
-                String node = bindingPathAndZNode(path, collector);
+                String fullPath = ZKPaths.makePath(parentPath, collector);
 
-                byte[] data = client.getData(node, true);
-                map.put(node, data);
+                byte[] data = client.getData(fullPath, true);
+                map.put(fullPath, data);
             }
 
             return map;
@@ -60,18 +60,6 @@ public class ZookeeperClusterDataManagerHelper {
         }
 
         return Collections.emptyMap();
-    }
-
-    public String bindingPathAndZNode(String path, String zNodeName) {
-        StringBuilder fullPath = new StringBuilder();
-
-        fullPath.append(path);
-        if (!path.endsWith(ZookeeperConstatns.PATH_SEPARATOR)) {
-            fullPath.append(ZookeeperConstatns.PATH_SEPARATOR);
-        }
-        fullPath.append(zNodeName);
-
-        return fullPath.toString();
     }
 
     String extractCollectorClusterId(String path, String collectorClusterPath) {
@@ -91,17 +79,14 @@ public class ZookeeperClusterDataManagerHelper {
         if (job == null) {
             return false;
         }
-        
+
         String zNodePath = job.getZNodePath();
         byte[] contents = job.getContents();
 
         try {
-            if (!client.exists(zNodePath)) {
-                client.createPath(zNodePath);
-            }
+            client.createPath(zNodePath);
 
-            // ip:port zNode naming scheme
-            String nodeName = client.createNode(zNodePath, contents, CreateMode.EPHEMERAL);
+            String nodeName = client.createOrSetNode(zNodePath, contents);
             logger.info("Register Zookeeper node UniqPath = {}.", zNodePath);
             return true;
         } catch (Exception e) {

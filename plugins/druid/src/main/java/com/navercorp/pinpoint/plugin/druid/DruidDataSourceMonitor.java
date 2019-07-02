@@ -14,12 +14,11 @@
  */
 package com.navercorp.pinpoint.plugin.druid;
 
+import com.alibaba.druid.pool.DruidDataSource;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.monitor.DataSourceMonitor;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-
-import java.lang.reflect.Method;
 
 /**
  * The type Druid data source monitor.
@@ -34,13 +33,7 @@ public class DruidDataSourceMonitor implements DataSourceMonitor {
 
     private volatile boolean closed = false;
 
-    private final Object dataSource;
-
-    private final Method getActiveCountMethod;
-
-    private final Method getMaxActiveMethod;
-
-    private final Method getUrlMethod;
+    private final DruidDataSource dataSource;
 
     /**
      * Instantiates a new Druid data source monitor.
@@ -49,71 +42,12 @@ public class DruidDataSourceMonitor implements DataSourceMonitor {
      */
     public DruidDataSourceMonitor(Object dataSource) {
 
-        this.dataSource = dataSource;
-        try {
-            this.getUrlMethod = getUrlMethod(dataSource);
-            this.getMaxActiveMethod = getMaxActiveMethod(dataSource);
-            this.getActiveCountMethod = getActiveCountMethod(dataSource);
-        } catch (Exception e) {
-            throw new IllegalArgumentException(e.getMessage(), e);
+        if (dataSource instanceof DruidDataSource) {
+            this.dataSource = (DruidDataSource) dataSource;
+        } else {
+            this.dataSource = null;
+            logger.error("DataSource must be instance of DruidDataSource!");
         }
-    }
-
-    private Method getUrlMethod(Object object) throws NoSuchMethodException {
-
-        Method getUrlMethod = object.getClass().getMethod("getUrl");
-
-        if (getUrlMethod == null) {
-
-            throw new IllegalArgumentException("object must has getUrl method");
-        }
-
-        Class<?> returnType = getUrlMethod.getReturnType();
-
-        if (String.class != returnType) {
-
-            throw new IllegalArgumentException("invalid return type. expected:String, actual:" + returnType);
-        }
-
-        return getUrlMethod;
-    }
-
-    private Method getMaxActiveMethod(Object object) throws NoSuchMethodException {
-
-        Method getMaxActiveMethod = object.getClass().getMethod("getMaxActive");
-
-        if (getMaxActiveMethod == null) {
-
-            throw new IllegalArgumentException("object must has getMaxActive method");
-        }
-
-        Class<?> returnType = getMaxActiveMethod.getReturnType();
-
-        if (int.class != returnType) {
-
-            throw new IllegalArgumentException("invalid return type. expected:int, actual:" + returnType);
-        }
-
-        return getMaxActiveMethod;
-    }
-
-    private Method getActiveCountMethod(Object object) throws NoSuchMethodException {
-
-        Method getActiveCountMethod = object.getClass().getMethod("getActiveCount");
-
-        if (getActiveCountMethod == null) {
-
-            throw new IllegalArgumentException("object must has getActiveCount method");
-        }
-
-        Class<?> returnType = getActiveCountMethod.getReturnType();
-
-        if (int.class != returnType) {
-
-            throw new IllegalArgumentException("invalid return type. expected:int, actual:" + returnType);
-        }
-
-        return getActiveCountMethod;
     }
 
     @Override
@@ -123,33 +57,24 @@ public class DruidDataSourceMonitor implements DataSourceMonitor {
 
     @Override
     public String getUrl() {
-        try {
-            Object result = getUrlMethod.invoke(dataSource);
-            return (String) result;
-        } catch (Exception e) {
-            logger.info("failed while executing getUrl()");
+        if (dataSource != null) {
+            return dataSource.getUrl();
         }
         return null;
     }
 
     @Override
     public int getActiveConnectionSize() {
-        try {
-            Object result = getActiveCountMethod.invoke(dataSource);
-            return (Integer) result;
-        } catch (Exception e) {
-            logger.info("failed while executing getActiveCount()");
+        if (dataSource != null) {
+            return dataSource.getActiveCount();
         }
         return -1;
     }
 
     @Override
     public int getMaxConnectionSize() {
-        try {
-            Object result = getMaxActiveMethod.invoke(dataSource);
-            return (Integer) result;
-        } catch (Exception e) {
-            logger.info("failed while executing getMaxActive()");
+        if (dataSource != null) {
+            return dataSource.getMaxActive();
         }
         return -1;
     }

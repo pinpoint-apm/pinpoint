@@ -5,6 +5,7 @@ import { ServerMapTemplateWithGojs } from './server-map-template-with-gojs.class
 import { ServerMapDiagram } from './server-map-diagram.class';
 import { ServerMapData } from './server-map-data.class';
 import { IServerMapOption } from './server-map-factory';
+import { ServerMapNodeClickExtraParam } from './server-map-node-click-extra-param.class';
 
 export class ServerMapDiagramWithGojs extends ServerMapDiagram {
     private diagram: go.Diagram = null;
@@ -34,7 +35,7 @@ export class ServerMapDiagramWithGojs extends ServerMapDiagram {
         this.diagram.nodeTemplate = ServerMapTemplateWithGojs.makeNodeTemplate(this);
     }
     setNodeTemplateMap(): void {
-        this.groupServiceTypeList.forEach((groupType) => {
+        this.groupServiceTypeList.forEach((groupType: string) => {
             this.diagram.nodeTemplateMap.add(groupType, ServerMapTemplateWithGojs.makeNodeGroupTemplate(this));
         });
     }
@@ -227,21 +228,25 @@ export class ServerMapDiagramWithGojs extends ServerMapDiagram {
     clear(): void {
         this.diagram.model = go.Model.fromJson({});
     }
-    onClickNode(event: go.DiagramEvent, obj: go.GraphObject): void {
-        this.updateHighlights(<go.Part>obj);
-        this.outClickNode.emit(obj['data']);
+    onClickNode(event: go.InputEvent, obj: go.GraphObject, clickType?: string): void {
+        const part = obj.part ? obj.part : <go.Part>obj;
+        this.updateHighlights(part);
+        this.outClickNode.emit({
+            ...part['data'],
+            clickParam: new ServerMapNodeClickExtraParam(clickType || '')
+        });
     }
-    onDoubleClickNode(event: go.DiagramEvent, obj: go.GraphObject): void {
-        console.log('onDoubleClick-Node :', event, obj);
+    onDoubleClickNode(event: go.InputEvent, obj: go.GraphObject): void {
+        // console.log('onDoubleClick-Node :', event, obj);
         this.diagram.centerRect(obj.actualBounds);
         this.diagram.scale *= 1.3;
     }
-    onContextClickNode(event: go.DiagramEvent, obj: go.GraphObject): void {
-        console.log('onContextClick-Node :', event, obj);
+    onContextClickNode(event: go.InputEvent, obj: go.GraphObject): void {
+        // console.log('onContextClick-Node :', event, obj);
         this.outContextClickNode.emit(<go.Node>obj);
     }
-    onClickLink(event: go.DiagramEvent, obj: go.GraphObject): void {
-        console.log('onClick-Link :', event, obj);
+    onClickLink(event: go.InputEvent, obj: go.GraphObject): void {
+        // console.log('onClick-Link :', event, obj);
         this.updateHighlights(<go.Part>obj);
         this.outClickLink.emit(<go.Link>obj['data']);
     }

@@ -19,9 +19,10 @@ package com.navercorp.pinpoint.common.server.bo.serializer.stat;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyEncoder;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.common.util.TimeUtils;
+
 import org.springframework.stereotype.Component;
 
-import static com.navercorp.pinpoint.common.hbase.HBaseTables.AGENT_NAME_MAX_LEN;
+import static com.navercorp.pinpoint.common.hbase.HbaseTableConstatns.AGENT_NAME_MAX_LEN;
 
 /**
  * @author HyunGil Jeong

@@ -3,8 +3,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { Observable, Subject } from 'rxjs';
 import { withLatestFrom, map, takeUntil } from 'rxjs/operators';
 
-import { POPUP_CONSTANT } from 'app/core/components/application-name-issue-popup/application-name-issue-popup.component';
-import { DynamicPopup, TranslateReplaceService, NewUrlStateNotificationService } from 'app/shared/services';
+import { DynamicPopup, TranslateReplaceService, NewUrlStateNotificationService, PopupConstant } from 'app/shared/services';
 import { UrlPathId } from 'app/shared/models';
 
 @Component({
@@ -64,7 +63,7 @@ export class ApplicationNameIssuePopupContainerComponent implements OnInit, OnDe
     ngAfterViewInit() {
         this.outCreated.emit({
             coordX: this.coord.coordX - (this.elementRef.nativeElement.offsetWidth / 2),
-            coordY: this.coord.coordY + POPUP_CONSTANT.SPACE_FROM_BUTTON + POPUP_CONSTANT.TOOLTIP_TRIANGLE_HEIGHT
+            coordY: this.coord.coordY + PopupConstant.SPACE_FROM_BUTTON + PopupConstant.TOOLTIP_TRIANGLE_HEIGHT
         });
     }
 

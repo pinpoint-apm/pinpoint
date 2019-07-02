@@ -1,4 +1,5 @@
 :host {
+    display: block;
     z-index: 30;
 }
 .l-thread-chart-wrap {
@@ -32,6 +33,9 @@
     margin: 0 9px 0 0;
     
 }
+.l-title {
+    flex: 1;
+}
 .l-title-group .l-tool-box {
     color: #8F9CAF;
 }
@@ -45,19 +49,17 @@
     display: flex;
     flex-flow: row wrap;
     padding: 20px 10px 20px 25px;
-    max-height: calc(100% - 34px);
+    height: calc(100% - 34px);
 }
-.l-chart-group-wrap > .l-chart-item {
+.l-total-chart {
     width: 277px;
     height: 178px;
     margin-right: 20px;
 }
-.l-chart-group-wrap .l-chart-group-list {
-    display: flex;
-    flex-flow: row wrap;
-    flex: 1;
-    overflow-y: auto;
-    justify-content: space-between;
+.l-agent-chart {
+    width: calc(100% - 297px);
+    height: 100%;
+    outline: none;
 }
 .l-message {
     top: 0px;
@@ -83,35 +85,6 @@
 .l-message.l-no-data h4 span {
     background-color: #000;
     color: #FFF;
-}
-.l-paging {
-    width: 100%;
-    background-color: #74879a;
-    color: #FFF;
-    font-size: 15px;
-    margin: 5px 5px 4px 5px;
-    padding: 11px;
-}
-.l-paging .l-txt {
-    font-weight: lighter;
-}
-.l-paging .l-txt-bold {
-    font-weight: bolder;
-    font-size: 18px;
-}
-.l-paging .l-page {
-    float: right;
-    cursor: pointer;
-    padding: 0px 6px;
-}
-.l-paging .l-page:hover {
-    color: #4b99e3;
-}
-.l-paging .l-page:last-child {
-    color: #000;
-    cursor: initial;
-    text-decoration: initial;
-    background-color: #FFF;
 }
 .fa-chart-area {
     margin-right: 2px;

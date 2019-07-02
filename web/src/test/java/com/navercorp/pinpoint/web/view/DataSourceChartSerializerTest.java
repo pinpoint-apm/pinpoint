@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.web.view;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.common.server.bo.stat.DataSourceBo;
-import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
+import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.DataSourceSampler;
 import com.navercorp.pinpoint.web.test.util.DataSourceTestUtils;

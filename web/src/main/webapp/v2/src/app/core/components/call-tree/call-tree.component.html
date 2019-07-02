@@ -4,5 +4,6 @@
     [gridOptions]="gridOptions"
     [rowData]="rowData"
     (cellClicked)="onCellClick($event)"
+    (firstDataRendered)="onRendered()"
     (cellDoubleClicked)="onCellDoubleClicked($event)">
 </ag-grid-angular>

@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
+import com.navercorp.pinpoint.bootstrap.plugin.RequestRecorderFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.monitor.DataSourceMonitorRegistry;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.monitor.DataSourceMonitorRegistryAdaptor;
@@ -38,12 +39,14 @@ public class ObjectBinderFactory {
     private final DataSourceMonitorRegistry dataSourceMonitorRegistry;
     private final Provider<ApiMetaDataService> apiMetaDataServiceProvider;
     private final ExceptionHandlerFactory exceptionHandlerFactory;
+    private final RequestRecorderFactory requestRecorderFactory;
 
     public ObjectBinderFactory(ProfilerConfig profilerConfig,
                                Provider<TraceContext> traceContextProvider,
                                DataSourceMonitorRegistryService dataSourceMonitorRegistryService,
                                Provider<ApiMetaDataService> apiMetaDataServiceProvider,
-                               ExceptionHandlerFactory exceptionHandlerFactory) {
+                               ExceptionHandlerFactory exceptionHandlerFactory,
+                               RequestRecorderFactory requestRecorderFactory) {
         this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig must not be null");
         this.traceContextProvider = Assert.requireNonNull(traceContextProvider, "traceContextProvider must not be null");
 
@@ -52,8 +55,7 @@ public class ObjectBinderFactory {
 
         this.apiMetaDataServiceProvider = Assert.requireNonNull(apiMetaDataServiceProvider, "apiMetaDataServiceProvider must not be null");
         this.exceptionHandlerFactory = Assert.requireNonNull(exceptionHandlerFactory, "exceptionHandlerFactory must not be null");
-
-
+        this.requestRecorderFactory = Assert.requireNonNull(requestRecorderFactory, "requestRecorderFactory must not be null");
     }
 
     public AutoBindingObjectFactory newAutoBindingObjectFactory(InstrumentContext pluginContext, ClassLoader classLoader, ArgumentProvider... argumentProviders) {
@@ -64,12 +66,12 @@ public class ObjectBinderFactory {
 
     public InterceptorArgumentProvider newInterceptorArgumentProvider(InstrumentClass instrumentClass) {
         ApiMetaDataService apiMetaDataService = this.apiMetaDataServiceProvider.get();
-        return new InterceptorArgumentProvider(dataSourceMonitorRegistry, apiMetaDataService, instrumentClass);
+        return new InterceptorArgumentProvider(dataSourceMonitorRegistry, apiMetaDataService, requestRecorderFactory, instrumentClass);
     }
 
     public AnnotatedInterceptorFactory newAnnotatedInterceptorFactory(InstrumentContext pluginContext) {
         final TraceContext traceContext = this.traceContextProvider.get();
         ApiMetaDataService apiMetaDataService = this.apiMetaDataServiceProvider.get();
-        return new AnnotatedInterceptorFactory(profilerConfig, traceContext, dataSourceMonitorRegistry, apiMetaDataService, pluginContext, exceptionHandlerFactory);
+        return new AnnotatedInterceptorFactory(profilerConfig, traceContext, dataSourceMonitorRegistry, apiMetaDataService, pluginContext, exceptionHandlerFactory, requestRecorderFactory);
     }
 }

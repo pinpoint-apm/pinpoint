@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef, ComponentFactoryResolver, Injector } from '@angular/core';
 import { trigger, state, style, animate, transition } from '@angular/animations';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -8,13 +8,14 @@ import {
     NewUrlStateNotificationService,
     UrlRouteManagerService,
     AgentHistogramDataService,
+    DynamicPopupService,
     AnalyticsService,
     TRACKED_EVENT_LIST
 } from 'app/shared/services';
 import { Actions } from 'app/shared/store';
 import { UrlPath, UrlPathId } from 'app/shared/models';
 import { ServerMapData } from 'app/core/components/server-map/class/server-map-data.class';
-
+import { ServerErrorPopupContainerComponent } from 'app/core/components/server-error-popup';
 
 @Component({
     selector: 'pp-info-per-server-container',
@@ -27,10 +28,10 @@ import { ServerMapData } from 'app/core/components/server-map/class/server-map-d
                 left: '0px'
             })),
             state('end', style({
-                left: '-809px'
+                left: '-825px'
             })),
             transition('* => *', [
-                animate('0.2s 0.5s ease-out')
+                animate('0.2s 0s ease-out')
             ])
         ]),
         trigger('chartAnimationTrigger', [
@@ -38,7 +39,7 @@ import { ServerMapData } from 'app/core/components/server-map/class/server-map-d
                 left: '0px'
             })),
             state('end', style({
-                left: '-461px'
+                left: '-477px'
             })),
             transition('* => *', [
                 animate('0.2s 0s ease-out')
@@ -60,7 +61,10 @@ export class InfoPerServerContainerComponent implements OnInit, OnDestroy {
         private newUrlStateNotificationService: NewUrlStateNotificationService,
         private urlRouteManagerService: UrlRouteManagerService,
         private agentHistogramDataService: AgentHistogramDataService,
+        private dynamicPopupService: DynamicPopupService,
         private analyticsService: AnalyticsService,
+        private componentFactoryResolver: ComponentFactoryResolver,
+        private injector: Injector
     ) {}
     ngOnInit() {
         this.connectStore();
@@ -94,6 +98,19 @@ export class InfoPerServerContainerComponent implements OnInit, OnDestroy {
                         this.storeHelperService.dispatch(new Actions.UpdateServerList(this.agentHistogramData));
                         this.onSelectAgent(this.getFirstAgent());
                         this.storeHelperService.dispatch(new Actions.ChangeInfoPerServerVisibleState(true));
+                    }, (error: IServerErrorFormat) => {
+                        this.dynamicPopupService.openPopup({
+                            data: {
+                                title: 'Error',
+                                contents: error
+                            },
+                            component: ServerErrorPopupContainerComponent
+                        }, {
+                            resolver: this.componentFactoryResolver,
+                            injector: this.injector
+                        });
+                        this.storeHelperService.dispatch(new Actions.ChangeServerMapDisableState(false));
+                        this.storeHelperService.dispatch(new Actions.ChangeInfoPerServerVisibleState(false));
                     });
                 } else {
                     this.hide();
@@ -127,12 +144,6 @@ export class InfoPerServerContainerComponent implements OnInit, OnDestroy {
     }
     onOpenInspector(agentName: string): void {
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.OPEN_INSPECTOR_WITH_AGENT);
-        this.urlRouteManagerService.openPage([
-            UrlPath.INSPECTOR,
-            this.newUrlStateNotificationService.getPathValue(UrlPathId.APPLICATION).getUrlStr(),
-            this.newUrlStateNotificationService.getPathValue(UrlPathId.PERIOD).getValueWithTime(),
-            this.newUrlStateNotificationService.getPathValue(UrlPathId.END_TIME).getEndTime(),
-            agentName
-        ]);
+        this.urlRouteManagerService.openInspectorPage(false, agentName);
     }
 }

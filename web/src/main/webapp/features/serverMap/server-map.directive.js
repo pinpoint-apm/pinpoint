@@ -87,7 +87,8 @@
 
 	                function extractMergeTypeList( serverMapData ) {
 	                	serverMapData.nodeDataArray.forEach( function( o ) {
-	                		if ( o.isWas === false && ( angular.isUndefined( o.isQueue ) || o.isQueue === false ) && o.serviceType !== "USER" ) {
+	                		// if ( o.isWas === false && ( angular.isUndefined( o.isQueue ) || o.isQueue === false ) && o.serviceType !== "USER" ) {
+							if ( o.isWas === false && o.serviceType !== "USER" ) {
 	                			if ( angular.isUndefined( scope.mergeStatus[o.serviceType] ) ) {
 		                			scope.mergeTypeList.push( o.serviceType );
 		                			scope.mergeStatus[o.serviceType] = true;

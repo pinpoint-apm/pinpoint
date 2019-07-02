@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.collector.receiver.thrift;
 
+import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.collector.receiver.thrift.tcp.DefaultTCPPacketHandlerFactory;
 import com.navercorp.pinpoint.collector.receiver.thrift.tcp.TCPPacketHandler;
 import com.navercorp.pinpoint.collector.receiver.thrift.tcp.TCPPacketHandlerFactory;

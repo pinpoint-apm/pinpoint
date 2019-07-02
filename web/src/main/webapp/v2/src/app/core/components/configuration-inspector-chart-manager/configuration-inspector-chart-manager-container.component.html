@@ -1,0 +1,29 @@
+<mat-tab-group style="width: 100%;height: 100%;" dynamicHeight>
+    <mat-tab>
+        <ng-template mat-tab-label>
+            <i class="fas fa-server l-title"></i> Application Inspector Charts
+        </ng-template>
+        <div class="l-inner-wrapper">
+            <div class="l-content-item">
+                <pp-inspector-chart-list-container [type]="'APPLICATION_INSPECTOR'"></pp-inspector-chart-list-container>
+            </div>
+            <div class="l-content-item2">
+                <pp-chart-layout-container [type]="'APPLICATION_INSPECTOR'"></pp-chart-layout-container>
+            </div>        
+        </div>
+    </mat-tab>
+    <mat-tab>
+        <ng-template mat-tab-label>
+            <i class="fas fa-hdd l-title"></i> Agent Inspector Charts
+        </ng-template>
+        <div class="l-inner-wrapper">
+            <div class="l-content-item">
+                <pp-inspector-chart-list-container [type]="'AGENT_INSPECTOR'"></pp-inspector-chart-list-container>
+            </div>
+            <div class="l-content-item2">
+                <pp-chart-layout-container [type]="'AGENT_INSPECTOR'"></pp-chart-layout-container>
+            </div>        
+        </div>
+    </mat-tab>
+</mat-tab-group>
+    

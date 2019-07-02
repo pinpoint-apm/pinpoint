@@ -40,7 +40,7 @@ public class NodeSerializer extends JsonSerializer<Node>  {
     @Override
     public void serialize(Node node, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonProcessingException {
         jgen.writeStartObject();
-//        jgen.writeStringField("id", node.getNodeName());
+//        jgen.writeStringField("id", node.getNodeName());serverInstanceList
         jgen.writeStringField("key", node.getNodeName()); // necessary for go.js
 
         jgen.writeStringField("applicationName", node.getApplicationTextName()); // for go.js
@@ -110,7 +110,7 @@ public class NodeSerializer extends JsonSerializer<Node>  {
         final ServiceType serviceType = node.getServiceType();
         final NodeHistogram nodeHistogram = node.getNodeHistogram();
         // FIXME isn't this all ServiceTypes that can be a node?
-        if (serviceType.isWas() || serviceType.isTerminal() || serviceType.isUnknown() || serviceType.isUser() || serviceType.isQueue()) {
+        if (serviceType.isWas() || serviceType.isTerminal() || serviceType.isUnknown() || serviceType.isUser() || serviceType.isQueue() || serviceType.isAlias()) {
             Histogram applicationHistogram = nodeHistogram.getApplicationHistogram();
             if (applicationHistogram == null) {
                 jgen.writeBooleanField("hasAlert", false);  // for go.js
@@ -148,7 +148,7 @@ public class NodeSerializer extends JsonSerializer<Node>  {
             jgen.writeBooleanField("hasAlert", false);  // for go.js
         }
         // FIXME isn't this all ServiceTypes that can be a node?
-        if (serviceType.isWas() || serviceType.isUser() || serviceType.isTerminal() || serviceType.isUnknown() || serviceType.isQueue()) {
+        if (serviceType.isWas() || serviceType.isUser() || serviceType.isTerminal() || serviceType.isUnknown() || serviceType.isQueue() || serviceType.isAlias()) {
             List<ResponseTimeViewModel> applicationTimeSeriesHistogram = nodeHistogram.getApplicationTimeHistogram();
             if (applicationTimeSeriesHistogram == null) {
                 writeEmptyArray(jgen, "timeSeriesHistogram");

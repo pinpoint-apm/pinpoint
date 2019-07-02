@@ -1,23 +1,28 @@
 {
     "COMMON": {
+        "POPUP_BLOCK_MESSAGE": "팝업이 차단 되었습니다.<br/>브라우저 설정을 확인해 주세요.",
         "NO_DATA": "데이터가 없습니다.",
+        "FAILED_TO_FETCH_DATA": "데이터를 가져오지 못했습니다.",
         "NO_AGENTS": "실행 중인 에이전트가 없습니다.",
         "MIN_LENGTH": "!{0}문자 이상 입력하세요.",
         "REQUIRED": "!{0}를(을) 입력하세요.",
         "REQUIRED_SELECT": "!{0}를(을) 선택하세요.",
         "MAX_SEARCH_PERIOD": "한번에 검색할 수 있는 최대 기간은 !{0}일 입니다.",
-        "DO_NOT_HAVE_PERMISSION": "권한이 없습니다."
+        "DO_NOT_HAVE_PERMISSION": "권한이 없습니다.",
+        "SUBMIT": "저장",
+        "REMOVE": "삭제",
+        "CANCEL": "취소",
+        "SEARCH_INPUT": "검색어를 입력하세요.",
+        "NO_CONTENT_TO_DISPLAY": "표시 할 내용이 없습니다."
     },
     "MAIN": {
         "SELECT_YOUR_APP": "애플리케이션을 선택하세요.",
         "INPUT_APP_NAME_PLACE_HOLDER": "애플리케이션 이름을 입력하세요.",
         "FAVORITE_APP_LIST": "즐겨찾기 목록",
         "APP_LIST": "애플리케이션 목록",
-        "SEARCH_SERVER_MAP_PLACE_HOLDER": "검색어를 입력하세요.",
         "EMPTY_RESULT": "찾을 수 없습니다."
     },
     "INSPECTOR": {
-        "FAILED_TO_FETCH_DATA": "데이터를 가져오지 못했습니다.",
         "NO_DATA_COLLECTED": "데이터가 없습니다.",
         "APPLICATION_INSPECTOR_USAGE_GUIDE_MESSAGE": "[TEXT]:{value=Application Inspector 기능이 활성화 되어 있지 않습니다.<br> Application Inspector 기능을 사용하려면,}|[LINK]:{href=https://github.com/naver/pinpoint/blob/master/doc/application-inspector.md\\target=_blank\\style=color:#428bca\\linkText=링크}|[TEXT]:{value=를 참고하세요.}",
         "APPLICAITION_NAME_ISSUE": {
@@ -30,7 +35,8 @@
                 "1의 경우 !{0}과 !{1}간의 매핑 정보를 삭제해야 합니다.",
 				"2의 경우 중복 등록된 agent의 id를 변경해야 합니다."
             ]
-        }
+        },
+        "CHART_INTERACTION_GUIDE_MESSAGE": "* 마우스 드래그로 차트의 해당 영역을 확대해서 볼 수 있습니다."
     },
     "TRANSACTION_LIST": {
         "SELECT_TRANSACTION": "Transaction을 선택하세요.",
@@ -39,14 +45,27 @@
     "SCATTER": {},
     "CONFIGURATION": {
         "GENERAL": {
-            "DESC": "* 설정 정보는 브라우저 캐쉬에 저장합니다. 서버 측 저장은 추후 지원 할 예정입니다.",
+            "DESC": "* 설정 정보는 브라우저 캐쉬에 저장합니다. 서버 측 저장은 추후 지원할 예정입니다.",
             "EMPTY": "등록된 목록이 없습니다."
         },
+        "INSPECTOR_MANAGER": {
+            "EMPTY": "화면에 표시 할 차트를 선택하세요."
+        },
         "INSTALLATION": {
-            "DESC": "* Application Name과 Agent ID의 중복 여부를 확인 할 수 있습니다.",
+            "DESC": "* Application Name과 Agent ID의 중복 여부를 확인할 수 있습니다.",
             "LENGTH_GUIDE": "1 ~ !{0} 자의 문자를 입력하세요.",
             "APPLICATION_NAME_PLACEHOLDER": "Application Name을 입력하세요.",
             "AGENT_ID_PLACEHOLDER": "Agent ID를 입력하세요."
+        },
+        "USER_GROUP": {
+            "VALIDATION": "영문자와 숫자, '-', '_'를 입력할 수 있습니다.(4~30)"
+        },
+        "PINPOINT_USER": {
+            "USER_ID_VALIDATION": "영문 소문자와 숫자, '-', '_'만 입력할 수 있습니다.(4~24)",
+            "NAME_VALIDATION": "영문자와 한글, 숫자, '_', '-', '.'만 입력할 수 있습니다.(3~30)",
+            "DEPARTMENT_VALIDATION": "영문자와 한글, 숫자, '_', '-', '.'만 입력할 수 있습니다.(3~40)",
+            "PHONE_VALIDATION": "숫자만 입력할 수 있습니다.(3~24)",
+            "EMAIL_VALIDATION": "이메일을 입력하세요."
         },
         "COMMON": {
             "NAME": "이름",
@@ -66,7 +85,7 @@
         "EMPTY_RESULT": "일치하는 결과가 없습니다."
     },
     "SUPPORT": {
-        "RESTRICT_USAGE": "[ICON]:{className=fa-exclamation-triangle}|[TEXT]:{value=사용중인 브라우저(!{0})는 지원하지 않습니다.}|[LINK]:{href=browser-not-supported\\target=_blank\\style=text-decoration:underline;font-weight:600\\linkText=지원 브라우저 확인}",
+        "RESTRICT_USAGE": "[ICON]:{className=fa-exclamation-triangle}|[TEXT]:{value=사용중인 브라우저(!{0})는 지원하지 않습니다.}|[LINK]:{href=browserNotSupported\\target=_blank\\style=text-decoration:underline;font-weight:600\\linkText=지원 브라우저 확인}",
         "INSTALL_GUIDE": "아래의 브라우저들 중 하나를 설치 후 이용해주세요."
     },
     "HELP_VIEWER": {
@@ -360,7 +379,7 @@
             "AGENT_CHART": {
                 "HEAP": [{
                     "TITLE": "Heap",
-                    "DESC": "JVM의 Heap 정보와 Full Garbage Collection 소요 시간",
+                    "DESC": "JVM의 Heap 정보와 Major Garbage Collection 소요 시간",
                     "CATEGORY": [{
                         "TITLE": "범례",
                         "ITEMS": [{
@@ -370,14 +389,14 @@
                             "NAME": "Used",
                             "DESC": "현재 사용 중인 Heap 사이즈"
                         }, {
-                            "NAME": "FGC",
-                            "DESC": "Full Garbage Collection의 총 소요 시간(2번 이상 발생 시, 괄호 안에 발생 횟수 표시)"
+                            "NAME": "Major GC",
+                            "DESC": "Major Garbage Collection의 총 소요 시간(2번 이상 발생 시, 괄호 안에 발생 횟수 표시)"
                         }]
                     }]
                 }],
                 "NON_HEAP": [{
                     "TITLE": "Non-Heap",
-                    "DESC": "JVM의 Non-Heap 정보와 Full Garbage Collection 소요 시간",
+                    "DESC": "JVM의 Non-Heap 정보와 Major Garbage Collection 소요 시간",
                     "CATEGORY": [{
                         "TITLE": "범례",
                         "ITEMS": [{
@@ -387,8 +406,8 @@
                             "NAME": "Used",
                             "DESC": "현재 사용 중인 Non-Heap 사이즈"
                         }, {
-                            "NAME": "FGC",
-                            "DESC": "Full Garbage Collection의 총 소요 시간(2번 이상 발생 시, 괄호 안에 발생 횟수 표시)"
+                            "NAME": "Major GC",
+                            "DESC": "Major Garbage Collection의 총 소요 시간(2번 이상 발생 시, 괄호 안에 발생 횟수 표시)"
                         }]
                     }]
                 }],

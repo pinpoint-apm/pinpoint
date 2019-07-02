@@ -15,7 +15,6 @@
  */
 package com.navercorp.pinpoint.plugin.ning.asynchttpclient;
 
-import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
 
 import java.security.ProtectionDomain;
 
@@ -31,6 +30,8 @@ import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.bootstrap.plugin.util.InstrumentUtils;
+import com.navercorp.pinpoint.plugin.ning.asynchttpclient.interceptor.ExecuteInterceptor;
+import com.navercorp.pinpoint.plugin.ning.asynchttpclient.interceptor.ExecuteRequestInterceptor;
 
 /**
  * @author netspider
@@ -46,15 +47,12 @@ public class NingAsyncHttpClientPlugin implements ProfilerPlugin, TransformTempl
     @Override
     public void setup(ProfilerPluginSetupContext context) {
         final NingAsyncHttpClientPluginConfig config = new NingAsyncHttpClientPluginConfig(context.getConfig());
+
         if (!config.isEnable()) {
-            if (logger.isInfoEnabled()) {
-                logger.info("NingAsyncHttpClientPlugin disabled");
-            }
+            logger.info("{} disabled", this.getClass().getSimpleName());
             return;
         }
-        if (logger.isInfoEnabled()) {
-            logger.info("Add NingAsyncHttpClientPlugin {}", config);
-        }
+        logger.info("{} config:{}", this.getClass().getSimpleName(), config);
 
         // 1.8.x ~ 1.9.x
         logger.debug("Add AsyncHttpClient(1.8.x ~ 1.9.x)");
@@ -66,31 +64,35 @@ public class NingAsyncHttpClientPlugin implements ProfilerPlugin, TransformTempl
     }
 
     private void addAsyncHttpClientTransformer() {
-        transformTemplate.transform("com.ning.http.client.AsyncHttpClient", new TransformCallback() {
+        transformTemplate.transform("com.ning.http.client.AsyncHttpClient", AsyncHttpClientTransform.class);
+    }
 
-            @Override
-            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+    public static class AsyncHttpClientTransform implements TransformCallback {
+
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
             final InstrumentMethod executeRequestMethod = InstrumentUtils.findMethod(target, "executeRequest", "com.ning.http.client.Request", "com.ning.http.client.AsyncHandler");
-            executeRequestMethod.addInterceptor("com.navercorp.pinpoint.plugin.ning.asynchttpclient.interceptor.ExecuteRequestInterceptor");
+            executeRequestMethod.addInterceptor(ExecuteRequestInterceptor.class);
             return target.toBytecode();
-            }
-        });
+        }
     }
 
     private void addDefaultAsyncHttpClientTransformer() {
-        transformTemplate.transform("org.asynchttpclient.DefaultAsyncHttpClient", new TransformCallback() {
+        transformTemplate.transform("org.asynchttpclient.DefaultAsyncHttpClient", DefaultAsyncHttpClientTransform.class);
+    }
 
-            @Override
-            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+    public static class DefaultAsyncHttpClientTransform implements TransformCallback {
 
-                final InstrumentMethod executeRequestMethod = InstrumentUtils.findMethod(target, "execute", "org.asynchttpclient.Request", "org.asynchttpclient.AsyncHandler");
-                executeRequestMethod.addInterceptor("com.navercorp.pinpoint.plugin.ning.asynchttpclient.interceptor.ExecuteInterceptor");
-                return target.toBytecode();
-            }
-        });
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+
+            final InstrumentMethod executeRequestMethod = InstrumentUtils.findMethod(target, "execute", "org.asynchttpclient.Request", "org.asynchttpclient.AsyncHandler");
+            executeRequestMethod.addInterceptor(ExecuteInterceptor.class);
+            return target.toBytecode();
+        }
     }
 
     @Override

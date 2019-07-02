@@ -32,4 +32,11 @@ public class HystrixPluginConfig {
     public boolean isTraceHystrix() {
         return traceHystrix;
     }
+
+    @Override
+    public String toString() {
+        return "HystrixPluginConfig{" +
+                "traceHystrix=" + traceHystrix +
+                '}';
+    }
 }

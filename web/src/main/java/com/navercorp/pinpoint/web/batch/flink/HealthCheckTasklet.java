@@ -15,8 +15,6 @@
  */
 package com.navercorp.pinpoint.web.batch.flink;
 
-import com.navercorp.pinpoint.web.alarm.AlarmMessageSender;
-import com.navercorp.pinpoint.web.alarm.EmptyMessageSender;
 import com.navercorp.pinpoint.web.batch.BatchConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -115,7 +113,7 @@ public class HealthCheckTasklet implements Tasklet {
         List<String> urlList = new ArrayList<>(flinkServerList.size());
 
         for (String flinkServerIp : flinkServerList) {
-            urlList.add(String.format("http://%s:8081/joboverview", flinkServerIp));
+            urlList.add(String.format(URL_FORMAT, flinkServerIp));
         }
 
         return urlList;

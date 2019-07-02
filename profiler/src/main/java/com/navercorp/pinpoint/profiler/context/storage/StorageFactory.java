@@ -16,11 +16,11 @@
 
 package com.navercorp.pinpoint.profiler.context.storage;
 
-import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
+import com.navercorp.pinpoint.profiler.context.SpanChunkFactory;
 
 /**
  * @author emeroad
  */
 public interface StorageFactory {
-    Storage createStorage(TraceRoot traceRoot);
+    Storage createStorage(SpanChunkFactory spanChunkFactory);
 }

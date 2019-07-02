@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, Inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, Inject, ComponentFactoryResolver, Injector } from '@angular/core';
 import { Router, NavigationStart, RouterEvent } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil, filter, map, switchMap } from 'rxjs/operators';
@@ -32,16 +32,18 @@ export class ServerMapContainerComponent implements OnInit, OnDestroy {
     i18nText: { [key: string]: string } = {
         NO_AGENTS: ''
     };
+    mapData: ServerMapData;
     funcServerMapImagePath: Function;
     baseApplicationKey: string;
     showOverview = false;
     showLoading = true;
     useDisable = true;
-    mapData: ServerMapData;
     endTime: string;
     period: string;
     constructor(
         private router: Router,
+        private injector: Injector,
+        private componentFactoryResolver: ComponentFactoryResolver,
         private storeHelperService: StoreHelperService,
         private translateService: TranslateService,
         private urlRouteManagerService: UrlRouteManagerService,
@@ -68,7 +70,7 @@ export class ServerMapContainerComponent implements OnInit, OnDestroy {
                         period.getValueWithTime(),
                         urlService.getPathValue(UrlPathId.APPLICATION)
                     );
-                    return [endTime - (period.getValue() * 60 * 1000), endTime];
+                    return [endTime - period.getMiliSeconds(), endTime];
                 } else {
                     this.storeHelperService.dispatch(new Actions.UpdateServerMapTargetSelected(null));
                     this.initVarBeforeDataLoad(
@@ -86,6 +88,7 @@ export class ServerMapContainerComponent implements OnInit, OnDestroy {
             this.mapData = new ServerMapData(res.applicationMapData.nodeDataArray, res.applicationMapData.linkDataArray);
             this.storeHelperService.dispatch(new Actions.UpdateServerMapData(this.mapData));
             if (this.hasNodeData() === false) {
+                this.showLoading = false;
                 this.storeHelperService.dispatch(new Actions.UpdateServerMapTargetSelected(null));
             }
         }, (error: IServerErrorFormat) => {
@@ -103,22 +106,28 @@ export class ServerMapContainerComponent implements OnInit, OnDestroy {
                         needServerTimeRequest: false
                     });
                 }
+            }, {
+                resolver: this.componentFactoryResolver,
+                injector: this.injector
             });
         });
-        this.storeHelperService.getServerMapDisableState(this.unsubscribe).subscribe((disabled: boolean) => {
-            this.useDisable = disabled;
-        });
+        this.connectStore();
     }
     ngOnDestroy() {
         this.unsubscribe.next();
         this.unsubscribe.complete();
+    }
+    private connectStore(): void {
+        this.storeHelperService.getServerMapDisableState(this.unsubscribe).subscribe((disabled: boolean) => {
+            this.useDisable = disabled;
+        });
     }
     private addPageLoadingHandler(): void {
         this.router.events.pipe(
             filter((e: RouterEvent) => {
                 return e instanceof NavigationStart;
             })
-        ).subscribe((e) => {
+        ).subscribe(() => {
             this.showLoading = true;
             this.useDisable = true;
         });
@@ -135,28 +144,24 @@ export class ServerMapContainerComponent implements OnInit, OnDestroy {
         this.useDisable = true;
         this.baseApplicationKey = application.getKeyStr();
     }
-    private hasNodeData(): boolean {
-        return this.mapData && this.mapData.getNodeCount() !== 0;
-    }
-    showGuide(): boolean {
-        return this.hasNodeData() === false && this.showLoading === false;
+    hasNodeData(): boolean {
+        return this.mapData.getNodeCount() !== 0;
     }
     onRenderCompleted({showOverView}: {showOverView: boolean}): void {
         this.showLoading = false;
         this.useDisable = false;
         this.showOverview = this.hasNodeData() && showOverView;
     }
-    onClickBackground($event: any): void {
-    }
+    onClickBackground($event: any): void {}
     onClickNode(nodeData: any): void {
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.CLICK_NODE);
-        let payload;
+        let payload: any;
         if (NodeGroup.isGroupKey(nodeData.key)) {
             this.analyticsService.trackEvent(TRACKED_EVENT_LIST.SHOW_GROUPED_NODE_VIEW);
             payload = {
                 period: this.period,
                 endTime: this.endTime,
-                isAuthorized: nodeData.isAuthorized,
+                isAuthorized: true,
                 isNode: true,
                 isLink: false,
                 isMerged: true,
@@ -165,8 +170,14 @@ export class ServerMapContainerComponent implements OnInit, OnDestroy {
                     return nodeInfo.key;
                 })
             };
+            if (nodeData.mergedSourceNodes) {
+                payload.groupedNode = nodeData.mergedSourceNodes.map((nodeInfo: any) => {
+                    return nodeInfo.applicationName;
+                });
+            }
         } else {
             payload = {
+                clickParam: nodeData.clickParam,
                 period: this.period,
                 endTime: this.endTime,
                 isAuthorized: nodeData.isAuthorized,
@@ -188,10 +199,11 @@ export class ServerMapContainerComponent implements OnInit, OnDestroy {
             payload = {
                 period: this.period,
                 endTime: this.endTime,
-                isAuthorized: linkData.isAuthorized,
+                isAuthorized: true,
                 isNode: false,
                 isLink: true,
                 isMerged: true,
+                isSourceMerge: NodeGroup.isGroupKey(linkData.from),
                 isWAS: false,
                 node: [linkData.from],
                 link: linkData.targetInfo.map((linkInfo: any) => {
@@ -203,7 +215,7 @@ export class ServerMapContainerComponent implements OnInit, OnDestroy {
             payload = {
                 period: this.period,
                 endTime: this.endTime,
-                isAuthorized: linkData.isAuthorized,
+                isAuthorized: this.mapData.getNodeData(linkData.from).isAuthorized,
                 isNode: false,
                 isLink: true,
                 isMerged: false,
@@ -221,6 +233,9 @@ export class ServerMapContainerComponent implements OnInit, OnDestroy {
             data: this.mapData,
             coord,
             component: ServerMapContextPopupContainerComponent
+        }, {
+            resolver: this.componentFactoryResolver,
+            injector: this.injector
         });
     }
     onContextClickNode($event: any): void {}
@@ -229,6 +244,9 @@ export class ServerMapContainerComponent implements OnInit, OnDestroy {
             data: this.mapData.getLinkData(key),
             coord,
             component: LinkContextPopupContainerComponent
+        }, {
+            resolver: this.componentFactoryResolver,
+            injector: this.injector
         });
     }
 }

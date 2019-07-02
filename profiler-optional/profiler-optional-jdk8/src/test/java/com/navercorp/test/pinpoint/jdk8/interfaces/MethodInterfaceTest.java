@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.profiler.instrument.ASMClassNodeAdapter;
 import com.navercorp.pinpoint.profiler.instrument.ASMClassWriter;
 import com.navercorp.pinpoint.profiler.instrument.ASMFieldNodeAdapter;
 import com.navercorp.pinpoint.profiler.instrument.ASMMethodNodeAdapter;
+import com.navercorp.pinpoint.profiler.instrument.EngineComponent;
 import com.navercorp.pinpoint.profiler.instrument.interceptor.InterceptorDefinition;
 import com.navercorp.pinpoint.profiler.instrument.interceptor.InterceptorDefinitionFactory;
 import com.navercorp.pinpoint.profiler.interceptor.registry.DefaultInterceptorRegistryBinder;
@@ -35,6 +36,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.util.CheckClassAdapter;
@@ -59,9 +61,6 @@ public class MethodInterfaceTest {
     private final static InstrumentContext pluginContext = mock(InstrumentContext.class);
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    private final ApiMetaDataService apiMetaDataService = mock(ApiMetaDataService.class);
-
-    private final ObjectBinderFactory objectBinderFactory = mock(ObjectBinderFactory.class);
 
     @BeforeClass
     public static void beforeClass() {
@@ -144,8 +143,8 @@ public class MethodInterfaceTest {
             @Override
             public void handle(ClassNode classNode) {
                 logger.debug("Add field class={}", classNode.name);
-                ASMClassNodeAdapter classNodeAdapter = new ASMClassNodeAdapter(pluginContext, null, classNode);
-                classNodeAdapter.addField("_$PINPOINT$_" + JavaAssistUtils.javaClassNameToVariableName(accessorClassName), int.class);
+                ASMClassNodeAdapter classNodeAdapter = new ASMClassNodeAdapter(pluginContext, null, null, classNode);
+                classNodeAdapter.addField("_$PINPOINT$_" + JavaAssistUtils.javaClassNameToVariableName(accessorClassName), Type.getDescriptor(int.class));
                 classNodeAdapter.addInterface(accessorClassName);
                 ASMFieldNodeAdapter fieldNodeAdapter = classNodeAdapter.getField("_$PINPOINT$_" + JavaAssistUtils.javaClassNameToVariableName(accessorClassName), null);
                 classNodeAdapter.addGetterMethod("_$PINPOINT$_getTraceInt", fieldNodeAdapter);
@@ -171,7 +170,7 @@ public class MethodInterfaceTest {
             @Override
             public void handle(ClassNode classNode) {
                 logger.debug("Add method class={}", classNode.name);
-                ASMClassNodeAdapter classNodeAdapter = new ASMClassNodeAdapter(pluginContext, null, classNode);
+                ASMClassNodeAdapter classNodeAdapter = new ASMClassNodeAdapter(pluginContext, null, null, classNode);
                 classNodeAdapter.copyMethod(methodNodeAdapter);
             }
         });
@@ -185,7 +184,8 @@ public class MethodInterfaceTest {
     public void isInterceptable() throws Exception {
         ClassNode classNode = TestClassLoader.get("com.navercorp.test.pinpoint.jdk8.interfaces.MethodInterface");
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-        ASMClass clazz = new ASMClass(objectBinderFactory, pluginContext, interceptorRegistryBinder, apiMetaDataService, classLoader, classNode);
+        EngineComponent engineComponent = mock(EngineComponent.class);
+        ASMClass clazz = new ASMClass(engineComponent, pluginContext, classLoader, null, classNode);
         assertTrue(clazz.isInterceptable());
     }
 
@@ -216,7 +216,7 @@ public class MethodInterfaceTest {
         // only use for test.
         public static ClassNode get(final String className) throws Exception {
             ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-            ClassReader cr = new ClassReader(classLoader.getResourceAsStream(JavaAssistUtils.javaNameToJvmName(className) + ".class"));
+            ClassReader cr = new ClassReader(classLoader.getResourceAsStream(JavaAssistUtils.javaClassNameToJvmResourceName(className)));
             ClassNode classNode = new ClassNode();
             cr.accept(classNode, ClassReader.EXPAND_FRAMES);
 

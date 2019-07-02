@@ -1,0 +1,9 @@
+:host {
+    display: block;
+    height: calc(100% - 45px);
+}
+.l-chart-area-wrapper {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}

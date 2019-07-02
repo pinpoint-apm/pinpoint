@@ -21,7 +21,7 @@
         <groupId>com.navercorp.pinpoint</groupId>
         <artifactId>pinpoint</artifactId>
         <relativePath>../..</relativePath>
-        <version>1.8.1-SNAPSHOT</version>
+        <version>1.9.0-SNAPSHOT</version>
     </parent>
 
     <packaging>pom</packaging>
@@ -30,9 +30,10 @@
 
     <properties>
         <jedis.version>2.4.2</jedis.version>
+        <lettuce.version>5.1.2.RELEASE</lettuce.version>
         <cassandra.driver.version>2.1.7.1</cassandra.driver.version>
         <dubbo.version>2.5.3</dubbo.version>
-        <mongo.driver.version>3.7.0</mongo.driver.version>
+        <mongo.driver.version>3.9.0</mongo.driver.version>
     </properties>
 
     <dependencyManagement>
@@ -45,12 +46,7 @@
             <dependency>
                 <groupId>net.sf.ehcache</groupId>
                 <artifactId>ehcache-core</artifactId>
-                <version>2.6.9</version>
-            </dependency>
-            <dependency>
-                <groupId>net.sf.ehcache</groupId>
-                <artifactId>ehcache</artifactId>
-                <version>1.6.2</version>
+                <version>${ehcache.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.datastax.cassandra</groupId>
@@ -127,6 +123,12 @@
             </dependency>
 
             <dependency>
+                <groupId>io.lettuce</groupId>
+                <artifactId>lettuce-core</artifactId>
+                <version>${lettuce.version}</version>
+            </dependency>
+
+            <dependency>
                 <groupId>com.ning</groupId>
                 <artifactId>async-http-client</artifactId>
                 <version>1.8.3</version>
@@ -155,22 +157,22 @@
             <dependency>
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-rt-frontend-jaxrs</artifactId>
-                <version>3.0.0</version>
+                <version>3.0.16</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-rt-frontend-jaxws</artifactId>
-                <version>3.0.0</version>
+                <version>3.0.16</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-rt-transports-http</artifactId>
-                <version>3.0.0</version>
+                <version>3.0.16</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-rt-rs-client</artifactId>
-                <version>3.0.0</version>
+                <version>3.0.16</version>
             </dependency>
 
             <dependency>
@@ -296,6 +298,39 @@
                 <version>2.0.1.Final</version>
             </dependency>
 
+            <dependency>
+                <groupId>org.apache.hbase</groupId>
+                <artifactId>hbase-shaded-client</artifactId>
+                <version>1.2.6.1</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.kafka</groupId>
+                <artifactId>kafka-clients</artifactId>
+                <version>0.11.0.1</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-core</artifactId>
+                <version>${fastxml.jackson-jdk6.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-annotations</artifactId>
+                <version>${fastxml.jackson-jdk6.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+                <version>${fastxml.jackson-jdk6.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.redisson</groupId>
+                <artifactId>redisson</artifactId>
+                <version>3.10.4</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 </project>

@@ -21,31 +21,37 @@ import com.navercorp.pinpoint.flink.vo.RawData;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import org.apache.flink.streaming.api.functions.source.SourceFunction.SourceContext;
 import org.apache.thrift.TBase;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
+
 
 /**
  * @author minwoo.jung
  */
-public class AgentStatHandler implements SimpleHandler {
+public class AgentStatHandler extends SourceContextManager implements SimpleHandler {
 
-    private final SourceContext sourceContext;
-
-    public AgentStatHandler(SourceContext sourceContext) {
-        this.sourceContext = Objects.requireNonNull(sourceContext, "sourceContext must not be null");
-    }
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
     public void handleSimple(ServerRequest serverRequest) {
         if (!(serverRequest.getData() instanceof TBase<?, ?>)) {
             throw new UnsupportedOperationException("data is not support type : " + serverRequest.getData());
         }
+
         final TBase<?, ?> tBase = (TBase<?, ?>) serverRequest.getData();
         final Map<String, String> metaInfo = new HashMap<>(serverRequest.getHeaderEntity().getEntityAll());
+        final RawData rawData = new RawData(tBase, metaInfo);
+        final SourceContext sourceContext = roundRobinSourceContext();
 
-        RawData rawData = new RawData(tBase, metaInfo);
+        if (sourceContext == null) {
+            logger.warn("sourceContext is null.");
+            return;
+        }
+
         sourceContext.collect(rawData);
+
     }
 }

@@ -16,26 +16,26 @@
 
 package com.navercorp.pinpoint.collector.cluster.route;
 
+import com.navercorp.pinpoint.collector.cluster.ClusterPoint;
 import com.navercorp.pinpoint.collector.cluster.ClusterPointLocator;
-import com.navercorp.pinpoint.collector.cluster.PinpointServerClusterPoint;
-import com.navercorp.pinpoint.collector.cluster.TargetClusterPoint;
+import com.navercorp.pinpoint.collector.cluster.GrpcAgentConnection;
+import com.navercorp.pinpoint.collector.cluster.ThriftAgentConnection;
 import com.navercorp.pinpoint.collector.cluster.route.filter.RouteFilter;
-import com.navercorp.pinpoint.rpc.ResponseMessage;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamClosePacket;
+import com.navercorp.pinpoint.rpc.packet.stream.StreamCode;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamResponsePacket;
 import com.navercorp.pinpoint.rpc.server.PinpointServer;
 import com.navercorp.pinpoint.rpc.stream.ClientStreamChannel;
-import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelContext;
-import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelMessageListener;
+import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelEventHandler;
 import com.navercorp.pinpoint.rpc.stream.ServerStreamChannel;
-import com.navercorp.pinpoint.rpc.stream.ServerStreamChannelContext;
-import com.navercorp.pinpoint.rpc.stream.StreamChannelStateChangeEventHandler;
 import com.navercorp.pinpoint.rpc.stream.StreamChannelStateCode;
+import com.navercorp.pinpoint.rpc.stream.StreamException;
 import com.navercorp.pinpoint.thrift.dto.command.TCommandTransferResponse;
 import com.navercorp.pinpoint.thrift.dto.command.TRouteResult;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializer;
 import com.navercorp.pinpoint.thrift.io.SerializerFactory;
 import com.navercorp.pinpoint.thrift.util.SerializationUtils;
+
 import org.apache.thrift.TBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,7 +59,7 @@ public class StreamRouteHandler extends AbstractRouteHandler<StreamEvent> {
     @Qualifier("commandHeaderTBaseSerializerFactory")
     private SerializerFactory<HeaderTBaseSerializer> commandSerializerFactory;
 
-    public StreamRouteHandler(ClusterPointLocator<TargetClusterPoint> targetClusterPointLocator,
+    public StreamRouteHandler(ClusterPointLocator<ClusterPoint> targetClusterPointLocator,
             RouteFilterChain<StreamEvent> streamCreateFilterChain,
             RouteFilterChain<ResponseEvent> responseFilterChain,
             RouteFilterChain<StreamRouteCloseEvent> streamCloseFilterChain) {
@@ -98,7 +98,7 @@ public class StreamRouteHandler extends AbstractRouteHandler<StreamEvent> {
             return createResponse(TRouteResult.EMPTY_REQUEST);
         }
 
-        TargetClusterPoint clusterPoint = findClusterPoint(event.getDeliveryCommand());
+        ClusterPoint clusterPoint = findClusterPoint(event.getDeliveryCommand());
         if (clusterPoint == null) {
             return createResponse(TRouteResult.NOT_FOUND);
         }
@@ -109,21 +109,30 @@ public class StreamRouteHandler extends AbstractRouteHandler<StreamEvent> {
         }
 
         try {
-            if (clusterPoint instanceof PinpointServerClusterPoint) {
+            if (clusterPoint instanceof ThriftAgentConnection) {
                 StreamRouteManager routeManager = new StreamRouteManager(event);
 
-                ServerStreamChannelContext consumerContext = event.getStreamChannelContext();
-                consumerContext.setAttributeIfAbsent(ATTACHMENT_KEY, routeManager);
+                ServerStreamChannel consumerStreamChannel = event.getStreamChannel();
+                consumerStreamChannel.setAttributeIfAbsent(ATTACHMENT_KEY, routeManager);
 
-                ClientStreamChannelContext producerContext = createStreamChannel((PinpointServerClusterPoint) clusterPoint, event.getDeliveryCommand().getPayload(), routeManager);
-                if (producerContext.getCreateFailPacket() == null) {
-                    routeManager.setProducer(producerContext.getStreamChannel());
-                    producerContext.getStreamChannel().addStateChangeEventHandler(routeManager);
-                    return createResponse(TRouteResult.OK);
-                }
+                ClientStreamChannel producerStreamChannel = createStreamChannel((ThriftAgentConnection) clusterPoint, event.getDeliveryCommand().getPayload(), routeManager);
+                routeManager.setProducer(producerStreamChannel);
+                return createResponse(TRouteResult.OK);
+            } else if (clusterPoint instanceof GrpcAgentConnection) {
+                StreamRouteManager routeManager = new StreamRouteManager(event);
+
+                ServerStreamChannel consumerStreamChannel = event.getStreamChannel();
+                consumerStreamChannel.setAttributeIfAbsent(ATTACHMENT_KEY, routeManager);
+
+                ClientStreamChannel producerStreamChannel = ((GrpcAgentConnection) clusterPoint).openStream(event.getRequestObject(), routeManager);
+                routeManager.setProducer(producerStreamChannel);
+                return createResponse(TRouteResult.OK);
             } else {
                 return createResponse(TRouteResult.NOT_SUPPORTED_SERVICE);
             }
+        } catch (StreamException e) {
+            StreamCode streamCode = e.getStreamCode();
+            return createResponse(TRouteResult.STREAM_CREATE_ERROR, streamCode.name());
         } catch (Exception e) {
             if (logger.isWarnEnabled()) {
                 logger.warn("Create StreamChannel failed. target:{}, message:{}", clusterPoint, e.getMessage(), e);
@@ -133,37 +142,25 @@ public class StreamRouteHandler extends AbstractRouteHandler<StreamEvent> {
         return createResponse(TRouteResult.UNKNOWN);
     }
     
-    private ClientStreamChannelContext createStreamChannel(PinpointServerClusterPoint clusterPoint, byte[] payload, ClientStreamChannelMessageListener messageListener) {
+    private ClientStreamChannel createStreamChannel(ThriftAgentConnection clusterPoint, byte[] payload, ClientStreamChannelEventHandler streamChannelEventHandler) throws StreamException {
         PinpointServer pinpointServer = clusterPoint.getPinpointServer();
-        return pinpointServer.openStream(payload, messageListener);
+        return pinpointServer.openStream(payload, streamChannelEventHandler);
     }
     
-    public void close(ServerStreamChannelContext consumerContext) {
-        Object attachmentListener = consumerContext.getAttribute(ATTACHMENT_KEY);
+    public void close(ServerStreamChannel consumerStreamChannel) {
+        Object attachmentListener = consumerStreamChannel.getAttribute(ATTACHMENT_KEY);
         
         if (attachmentListener instanceof StreamRouteManager) {
             ((StreamRouteManager)attachmentListener).close();
         }
     }
 
-    private TCommandTransferResponse createResponse(TRouteResult result) {
-        return createResponse(result, new byte[0]);
-    }
-
-    private TCommandTransferResponse createResponse(TRouteResult result, byte[] payload) {
-        TCommandTransferResponse response = new TCommandTransferResponse();
-        response.setRouteResult(result);
-        response.setPayload(payload);
-        return response;
-    }
-
     private byte[] serialize(TBase<?,?> result) {
         return SerializationUtils.serialize(result, commandSerializerFactory, null);
     }
 
-
     // fix me : StreamRouteManager will change worker thread pattern. 
-    private class StreamRouteManager implements ClientStreamChannelMessageListener, StreamChannelStateChangeEventHandler<ClientStreamChannel> {
+    private class StreamRouteManager extends ClientStreamChannelEventHandler {
 
         private final StreamEvent streamEvent;
         private final ServerStreamChannel consumer;
@@ -172,11 +169,11 @@ public class StreamRouteHandler extends AbstractRouteHandler<StreamEvent> {
 
         public StreamRouteManager(StreamEvent streamEvent) {
             this.streamEvent = streamEvent;
-            this.consumer = streamEvent.getStreamChannelContext().getStreamChannel();
+            this.consumer = streamEvent.getStreamChannel();
         }
 
         @Override
-        public void handleStreamData(ClientStreamChannelContext producerContext, StreamResponsePacket packet) {
+        public void handleStreamResponsePacket(ClientStreamChannel streamChannel, StreamResponsePacket packet) {
             StreamChannelStateCode stateCode = consumer.getCurrentState();
             if (StreamChannelStateCode.CONNECTED == stateCode) {
                 TCommandTransferResponse response = createResponse(TRouteResult.OK, packet.getPayload());
@@ -191,19 +188,16 @@ public class StreamRouteHandler extends AbstractRouteHandler<StreamEvent> {
         }
 
         @Override
-        public void handleStreamClose(ClientStreamChannelContext producerContext, StreamClosePacket packet) {
-            ResponseMessage responseMessage = new ResponseMessage();
-            responseMessage.setMessage(packet.getPayload());
-
-            StreamRouteCloseEvent event = new StreamRouteCloseEvent(streamEvent.getDeliveryCommand(), producerContext, streamEvent.getStreamChannelContext());
+        public void handleStreamClosePacket(ClientStreamChannel streamChannel, StreamClosePacket packet) {
+            StreamRouteCloseEvent event = new StreamRouteCloseEvent(streamEvent.getDeliveryCommand(), streamChannel, streamEvent.getStreamChannel());
             streamCloseFilterChain.doEvent(event);
 
             consumer.close();
         }
 
         @Override
-        public void eventPerformed(ClientStreamChannel streamChannel, StreamChannelStateCode updatedStateCode) throws Exception {
-            logger.info("eventPerformed streamChannel:{}, stateCode:{}", streamChannel, updatedStateCode);
+        public void stateUpdated(ClientStreamChannel streamChannel, StreamChannelStateCode updatedStateCode) {
+            logger.info("stateUpdated() streamChannel:{}, updatedStateCode:{}", streamChannel, updatedStateCode);
 
             switch (updatedStateCode) {
                 case CLOSED:
@@ -215,11 +209,6 @@ public class StreamRouteHandler extends AbstractRouteHandler<StreamEvent> {
                 default:
                     break;
             }
-        }
-
-        @Override
-        public void exceptionCaught(ClientStreamChannel streamChannel, StreamChannelStateCode updatedStateCode, Throwable e) {
-            logger.warn("exceptionCaught message:{}, streamChannel:{}, stateCode:{}", e.getMessage(), streamChannel, updatedStateCode, e);
         }
 
         public void close() {

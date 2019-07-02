@@ -20,7 +20,7 @@
     <parent>
         <groupId>com.navercorp.pinpoint</groupId>
         <artifactId>pinpoint</artifactId>
-        <version>1.8.1-SNAPSHOT</version>
+        <version>1.9.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>pinpoint-commons-server</artifactId>
@@ -42,6 +42,11 @@
         </dependency>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-grpc</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-commons</artifactId>
             <scope>compile</scope>
         </dependency>
@@ -49,6 +54,10 @@
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-commons-hbase</artifactId>
             <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-plugins-loader</artifactId>
         </dependency>
         <dependency>
             <groupId>commons-collections</groupId>
@@ -85,6 +94,10 @@
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.apache.curator</groupId>
+            <artifactId>curator-framework</artifactId>
+        </dependency>
 
         <!-- commons module may be used at agent so there will be problems. you should set optional -->
         <dependency>
@@ -115,6 +128,12 @@
             <artifactId>log4j</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.apache.curator</groupId>
+            <artifactId>curator-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
         <!--<dependency> -->
         <!--<groupId>org.slf4j</groupId> -->
         <!--<artifactId>slf4j-jdk14</artifactId> -->

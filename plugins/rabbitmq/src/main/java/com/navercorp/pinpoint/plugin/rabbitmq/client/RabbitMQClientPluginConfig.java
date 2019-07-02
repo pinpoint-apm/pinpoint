@@ -79,4 +79,15 @@ public class RabbitMQClientPluginConfig {
 
         return false;
     }
+
+    @Override
+    public String toString() {
+        return "RabbitMQClientPluginConfig{" +
+                "traceRabbitMQClient=" + traceRabbitMQClient +
+                ", traceRabbitMQClientProducer=" + traceRabbitMQClientProducer +
+                ", traceRabbitMQClientConsumer=" + traceRabbitMQClientConsumer +
+                ", consumerClasses=" + consumerClasses +
+                ", excludeExchangeFilter=" + excludeExchangeFilter +
+                '}';
+    }
 }

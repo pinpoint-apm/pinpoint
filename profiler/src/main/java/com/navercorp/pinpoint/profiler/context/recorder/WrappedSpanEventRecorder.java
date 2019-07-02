@@ -18,9 +18,12 @@ package com.navercorp.pinpoint.profiler.context.recorder;
 
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.AsyncState;
+import com.navercorp.pinpoint.bootstrap.context.ParsingResult;
+import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
+import com.navercorp.pinpoint.common.trace.AnnotationKey;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.IntStringStringValue;
-import com.navercorp.pinpoint.common.util.StringStringValue;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.profiler.context.Annotation;
 import com.navercorp.pinpoint.profiler.context.AsyncContextFactory;
@@ -28,19 +31,13 @@ import com.navercorp.pinpoint.profiler.context.AsyncId;
 import com.navercorp.pinpoint.profiler.context.DefaultTrace;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
-import com.navercorp.pinpoint.profiler.metadata.JsonMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
-import com.navercorp.pinpoint.common.trace.AnnotationKey;
-import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.bootstrap.context.ParsingResult;
-
 /**
- * 
+ *
  * @author jaehong.kim
  *
  */
@@ -48,20 +45,17 @@ public class WrappedSpanEventRecorder extends AbstractRecorder implements SpanEv
     private static final Logger logger = LoggerFactory.getLogger(DefaultTrace.class.getName());
     private static final boolean isDebug = logger.isDebugEnabled();
 
-    private final TraceRoot traceRoot;
-    private final AsyncContextFactory asyncContextFactory;
-    private final AsyncState asyncState;
+    protected final TraceRoot traceRoot;
+    protected final AsyncContextFactory asyncContextFactory;
 
     private SpanEvent spanEvent;
 
-    public WrappedSpanEventRecorder(TraceRoot traceRoot, AsyncContextFactory asyncContextFactory, final StringMetaDataService stringMetaDataService, final SqlMetaDataService sqlMetaCacheService, final JsonMetaDataService jsonMetaCacheService, AsyncState asyncState) {
-        super(stringMetaDataService, sqlMetaCacheService, jsonMetaCacheService);
+    public WrappedSpanEventRecorder(TraceRoot traceRoot, AsyncContextFactory asyncContextFactory,
+                                    final StringMetaDataService stringMetaDataService, final SqlMetaDataService sqlMetaCacheService) {
+        super(stringMetaDataService, sqlMetaCacheService);
         this.traceRoot = Assert.requireNonNull(traceRoot, "traceRoot must not be null");
 
         this.asyncContextFactory = Assert.requireNonNull(asyncContextFactory, "asyncContextFactory must not be null");
-
-        // @Nullable
-        this.asyncState = asyncState;
     }
 
     public void setWrapped(final SpanEvent spanEvent) {
@@ -117,41 +111,6 @@ public class WrappedSpanEventRecorder extends AbstractRecorder implements SpanEv
     }
 
     @Override
-    public void recordJsonParsingResult(ParsingResult parsingResult) {
-        if (parsingResult == null) {
-            return;
-        }
-        final String output = defaultString2(parsingResult.getOutput(), null);
-        final StringStringValue tJsonValue = new StringStringValue(parsingResult.getSql(), output);
-
-        if (isDebug) {
-            logger.debug("Json parsingResult:{}, parameters in!:{} ", parsingResult.getSql(), output);
-        }
-
-        recordJson(tJsonValue);
-    }
-
-    @Override
-    public void recordMongoCollectionInfo(String collectionName, String readPreferenceOrWriteConcern) {
-
-        if (readPreferenceOrWriteConcern != null) {
-            final StringBuilder input = new StringBuilder(32);
-            input.append(collectionName);
-            input.append(" with ");
-            input.append(readPreferenceOrWriteConcern);
-
-            collectionName = input.toString();
-        }
-        Annotation annotation = new Annotation(AnnotationKey.MONGO_COLLECTIONINFO.getCode(), collectionName);
-        spanEvent.addAnnotation(annotation);
-    }
-
-    private void recordJson(StringStringValue tStringStringValue) {
-        Annotation annotation = new Annotation(AnnotationKey.JSON.getCode(), tStringStringValue);
-        spanEvent.addAnnotation(annotation);
-    }
-
-    @Override
     public void recordDestinationId(String destinationId) {
         spanEvent.setDestinationId(destinationId);
     }
@@ -167,7 +126,6 @@ public class WrappedSpanEventRecorder extends AbstractRecorder implements SpanEv
     @Override
     public AsyncContext recordNextAsyncContext() {
         final TraceRoot traceRoot = this.traceRoot;
-
         final AsyncId asyncIdObject = getNextAsyncId();
         final AsyncContext asyncContext = asyncContextFactory.newAsyncContext(traceRoot, asyncIdObject);
         return asyncContext;
@@ -175,27 +133,8 @@ public class WrappedSpanEventRecorder extends AbstractRecorder implements SpanEv
 
     @Override
     public AsyncContext recordNextAsyncContext(boolean asyncStateSupport) {
-
-        final TraceRoot traceRoot = this.traceRoot;
-        final AsyncId asyncIdObject = getNextAsyncId();
-
-        final AsyncState asyncState = this.asyncState;
-        if (asyncStateSupport && asyncState != null) {
-            asyncState.setup();
-            final AsyncContext asyncContext = asyncContextFactory.newAsyncContext(traceRoot, asyncIdObject, asyncState);
-            return asyncContext;
-        }
-
-        final AsyncContext asyncContext = asyncContextFactory.newAsyncContext(traceRoot, asyncIdObject);
-        return asyncContext;
+        return recordNextAsyncContext();
     }
-
-
-//    @Deprecated
-//    @Override
-//    public void recordNextAsyncId(int nextAsyncId) {
-//        spanEvent.setNextAsyncId(nextAsyncId);
-//    }
 
 
     @Override
@@ -226,10 +165,6 @@ public class WrappedSpanEventRecorder extends AbstractRecorder implements SpanEv
         spanEvent.setServiceType(serviceType.getCode());
     }
 
-    @Override
-    public void recordRpcName(String rpc) {
-        spanEvent.setRpc(rpc);
-    }
 
     @Override
     public void recordEndPoint(String endPoint) {
@@ -264,7 +199,7 @@ public class WrappedSpanEventRecorder extends AbstractRecorder implements SpanEv
         return spanEvent.attachFrameObject(frameObject);
     }
 
-    private AsyncId getNextAsyncId() {
+    protected AsyncId getNextAsyncId() {
         AsyncId nextAsyncId = spanEvent.getAsyncIdObject();
         if (nextAsyncId == null) {
             nextAsyncId = asyncContextFactory.newAsyncId();

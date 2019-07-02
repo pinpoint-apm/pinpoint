@@ -23,6 +23,6 @@ import java.security.ProtectionDomain;
  * @author Woonduk Kang(emeroad)
  */
 public interface ClassFileTransformModuleAdaptor {
-    byte[] transform(Object module, ClassLoader loader, String className, Class<?> classBeingRedefined,
+    byte[] transform(Object transformedModule, ClassLoader loader, String className, Class<?> classBeingRedefined,
                      ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException;
 }

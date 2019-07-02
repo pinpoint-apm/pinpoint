@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.rpc.stream;
 
+import com.navercorp.pinpoint.rpc.PinpointSocketException;
+
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -44,6 +46,25 @@ public class StreamChannelState {
 
         boolean isChanged = currentStateReference.compareAndSet(currentState, nextState);
         return isChanged;
+    }
+
+    public boolean checkState(StreamChannelStateCode expectedCode) {
+        return checkState(getCurrentState(), expectedCode);
+    }
+
+    public boolean checkState(StreamChannelStateCode currentCode, StreamChannelStateCode expectedCode) {
+        if (currentCode == expectedCode) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public void assertState(StreamChannelStateCode stateCode) {
+        final StreamChannelStateCode currentCode = getCurrentState();
+        if (!checkState(currentCode, stateCode)) {
+            throw new PinpointSocketException("expected:<" + stateCode + "> but was:<" + currentCode + ">;");
+        }
     }
 
     @Override

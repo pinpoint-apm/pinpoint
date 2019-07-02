@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.instrument.DynamicTransformTrigger;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.MatchableTransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.MatchableTransformTemplateAware;
+import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginGlobalContext;
 import com.navercorp.pinpoint.profiler.instrument.GuardInstrumentContext;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
 import com.navercorp.pinpoint.profiler.instrument.InstrumentEngine;
@@ -36,34 +37,29 @@ import org.slf4j.LoggerFactory;
 public class DefaultPluginSetup implements PluginSetup {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    private final ProfilerConfig profilerConfig;
     private final InstrumentEngine instrumentEngine;
     private final DynamicTransformTrigger dynamicTransformTrigger;
 
 
-    public DefaultPluginSetup(ProfilerConfig profilerConfig, InstrumentEngine instrumentEngine, DynamicTransformTrigger dynamicTransformTrigger) {
-        if (profilerConfig == null) {
-            throw new NullPointerException("profilerConfig must not be null");
-        }
+    public DefaultPluginSetup(InstrumentEngine instrumentEngine, DynamicTransformTrigger dynamicTransformTrigger) {
         if (instrumentEngine == null) {
             throw new NullPointerException("instrumentEngine must not be null");
         }
         if (dynamicTransformTrigger == null) {
             throw new NullPointerException("dynamicTransformTrigger must not be null");
         }
-        this.profilerConfig = profilerConfig;
         this.instrumentEngine = instrumentEngine;
         this.dynamicTransformTrigger = dynamicTransformTrigger;
     }
 
     @Override
-    public SetupResult setupPlugin(ProfilerPlugin profilerPlugin, ClassInjector classInjector) {
-
+    public PluginSetupResult setupPlugin(ProfilerPluginGlobalContext globalContext, ProfilerPlugin profilerPlugin, ClassInjector classInjector) {
+        final ProfilerConfig profilerConfig = globalContext.getConfig();
         final ClassFileTransformerLoader transformerRegistry = new ClassFileTransformerLoader(profilerConfig, dynamicTransformTrigger);
-        final DefaultProfilerPluginSetupContext setupContext = new DefaultProfilerPluginSetupContext(profilerConfig);
-        final GuardProfilerPluginContext guardSetupContext = new GuardProfilerPluginContext(setupContext);
+        final DefaultProfilerPluginSetupContext setupContext = new DefaultProfilerPluginSetupContext(globalContext);
+        final GuardProfilerPluginSetupContext guardSetupContext = new GuardProfilerPluginSetupContext(setupContext);
 
-        final InstrumentContext instrumentContext = new PluginInstrumentContext(profilerConfig, instrumentEngine, dynamicTransformTrigger, classInjector, transformerRegistry );
+        final InstrumentContext instrumentContext = new PluginInstrumentContext(profilerConfig, instrumentEngine, dynamicTransformTrigger, classInjector, transformerRegistry);
         final GuardInstrumentContext guardInstrumentContext = preparePlugin(profilerPlugin, instrumentContext);
         try {
             // WARN external plugin api
@@ -75,7 +71,7 @@ public class DefaultPluginSetup implements PluginSetup {
             guardSetupContext.close();
             guardInstrumentContext.close();
         }
-        SetupResult setupResult = new SetupResult(setupContext, transformerRegistry);
+        PluginSetupResult setupResult = new PluginSetupResult(setupContext, transformerRegistry);
         return setupResult;
     }
 

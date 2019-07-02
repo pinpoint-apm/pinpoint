@@ -13,8 +13,10 @@
             "node_modules/@types"
         ],
         "lib": [
-            "es2015",
-            "dom"
+            "es2017",
+            "dom",
+            "dom.iterable",
+            "esnext.array"
         ],
         "preserveSymlinks": true,
         "forceConsistentCasingInFileNames": true,

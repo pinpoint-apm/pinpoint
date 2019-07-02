@@ -1,5 +1,5 @@
-<section class="l-sidemenu-wrap sidemenu-wrap font-opensans" [hidden]="sideBarWidth === 0">
-    <div class="l-sidemenu" [style.width.px]="sideBarWidth">
+<section class="l-sidemenu-wrap font-opensans">
+    <div class="l-sidemenu">
         <div class="l-title-group">
             <pp-side-bar-title-container></pp-side-bar-title-container>
         </div>
@@ -9,13 +9,13 @@
                 <pp-scatter-chart-container></pp-scatter-chart-container>
                 <pp-target-list-container></pp-target-list-container>
                 <hr *ngIf="hasTopElement()"/>
-                <pp-response-summary-chart-for-side-bar-container></pp-response-summary-chart-for-side-bar-container>
+                <pp-response-summary-chart-container [sourceType]="'MAIN_SIDEBAR'"></pp-response-summary-chart-container>
                 <hr/>
-                <pp-load-chart-for-side-bar-container></pp-load-chart-for-side-bar-container>
+                <pp-load-chart-container [sourceType]="'MAIN_SIDEBAR'"></pp-load-chart-container>
             </div>
         </div>
     </div>
     <pp-info-per-server-container></pp-info-per-server-container>
 </section>
 <pp-film-for-disable *ngIf="useDisable" [zIndex]="100" [marginWidth]="0"></pp-film-for-disable>
-<pp-loading [showLoading]="showLoading" [zIndex]="101" [hidden]="sideBarWidth === 0"></pp-loading>
+<pp-loading [showLoading]="showLoading" [zIndex]="101"></pp-loading>

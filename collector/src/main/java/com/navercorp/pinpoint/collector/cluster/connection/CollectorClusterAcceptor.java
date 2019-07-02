@@ -29,6 +29,7 @@ import com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor;
 import com.navercorp.pinpoint.rpc.server.ServerOption;
 import com.navercorp.pinpoint.rpc.server.handler.ServerStateChangeEventHandler;
 import com.navercorp.pinpoint.rpc.util.ClassUtils;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,7 +69,7 @@ public class CollectorClusterAcceptor implements CollectorClusterConnectionProvi
 
         PinpointServerAcceptor serverAcceptor = new PinpointServerAcceptor(serverOptionBuilder.build(), ChannelFilter.BYPASS);
         serverAcceptor.setMessageListenerFactory(new ClusterServerMessageListenerFactory(option.getClusterId(), option.getRouteMessageHandler()));
-        serverAcceptor.setServerStreamChannelMessageListener(option.getRouteStreamMessageHandler());
+        serverAcceptor.setServerStreamChannelMessageHandler(option.getRouteStreamMessageHandler());
         serverAcceptor.addStateChangeEventHandler(new WebClusterServerChannelStateChangeHandler());
         serverAcceptor.bind(bindAddress);
 
@@ -88,18 +89,16 @@ public class CollectorClusterAcceptor implements CollectorClusterConnectionProvi
         logger.info("{} destroying completed.", name);
     }
 
-    class WebClusterServerChannelStateChangeHandler implements ServerStateChangeEventHandler {
+    class WebClusterServerChannelStateChangeHandler extends ServerStateChangeEventHandler {
 
         @Override
-        public void eventPerformed(PinpointServer pinpointServer, SocketStateCode stateCode) throws Exception {
-            if (stateCode.isRunDuplex()) {
+        public void stateUpdated(PinpointServer pinpointServer, SocketStateCode updatedStateCode) {
+            if (updatedStateCode.isRunDuplex()) {
                 Address address = getAddress(pinpointServer);
                 clusterSocketRepository.putIfAbsent(address, pinpointServer);
-                return;
-            } else if (stateCode.isClosed()) {
+            } else if (updatedStateCode.isClosed()) {
                 Address address = getAddress(pinpointServer);
                 clusterSocketRepository.remove(address);
-                return;
             }
         }
 
@@ -110,10 +109,6 @@ public class CollectorClusterAcceptor implements CollectorClusterConnectionProvi
             }
             InetSocketAddress inetSocketAddress = (InetSocketAddress) remoteAddress;
             return new DefaultAddress(inetSocketAddress.getHostString(), inetSocketAddress.getPort());
-        }
-
-        @Override
-        public void exceptionCaught(PinpointServer pinpointServer, SocketStateCode stateCode, Throwable e) {
         }
 
     }

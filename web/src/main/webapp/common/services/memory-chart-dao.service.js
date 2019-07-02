@@ -147,7 +147,7 @@
 							},
 							"legendValueText": "[[value]]ms",
 							"lineColor": "#FF6600",
-							"title": "FGC",
+							"title": "Major GC",
 							"valueField": "FGCTime",
 							"type": "column",
 							"fillAlphas": 0.3,

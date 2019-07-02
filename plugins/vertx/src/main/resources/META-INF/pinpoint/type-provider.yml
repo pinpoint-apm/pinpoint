@@ -1,0 +1,30 @@
+serviceTypes:
+    - code: 1050
+      name: 'VERTX'
+      property:
+          recordStatistics: true
+    - code: 1051
+      name: 'VERTX_INTERNAL'
+      desc: 'VERTX'
+
+    - code: 1052
+      name: 'VERTX_HTTP_SERVER'
+      property:
+          recordStatistics: true
+    - code: 1053
+      name: 'VERTX_HTTP_SERVER_INTERNAL'
+      desc: 'VERTX_HTTP_SERVER'
+
+    - code: 9130
+      name: 'VERTX_HTTP_CLIENT'
+      property:
+          recordStatistics: true
+      matcher:
+          type: 'exact'
+          code: 40 # http.url
+    - code: 9131
+      name: 'VERTX_HTTP_CLIENT_INTERNAL'
+      desc: 'VERTX_HTTP_CLIENT'
+      matcher:
+          type: 'exact'
+          code: 48 # http.internal.display

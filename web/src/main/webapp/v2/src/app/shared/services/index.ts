@@ -1,5 +1,4 @@
 export * from './agent-histogram-data.service';
-export * from './ajax-exception-checker.service';
 export * from './analytics.service';
 export * from './application-list-resolver.service';
 export * from './browser-support-check.service';
@@ -21,3 +20,5 @@ export * from './url-validate.guard';
 export * from './web-app-setting-data.service';
 export * from './window-ref.service';
 export * from './dynamic-popup.service';
+export * from './message-queue.service';
+export * from './application-list-data.service';

@@ -16,8 +16,6 @@
 
 package com.navercorp.pinpoint.web.applicationmap.appender.histogram;
 
-import com.navercorp.pinpoint.web.applicationmap.link.Link;
-import com.navercorp.pinpoint.web.applicationmap.link.LinkList;
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.datasource.WasNodeHistogramDataSource;
 import com.navercorp.pinpoint.web.applicationmap.histogram.AgentTimeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.AgentTimeHistogramBuilder;
@@ -25,6 +23,8 @@ import com.navercorp.pinpoint.web.applicationmap.histogram.ApplicationTimeHistog
 import com.navercorp.pinpoint.web.applicationmap.histogram.ApplicationTimeHistogramBuilder;
 import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
+import com.navercorp.pinpoint.web.applicationmap.link.Link;
+import com.navercorp.pinpoint.web.applicationmap.link.LinkList;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogram;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogramList;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkCallDataMap;
@@ -82,7 +82,7 @@ public class DefaultNodeHistogramFactory implements NodeHistogramFactory {
         nodeHistogram.setApplicationTimeHistogram(applicationTimeHistogram);
 
         // for Terminal nodes, create AgentLevel histogram
-        if (terminalApplication.getServiceType().isTerminal()) {
+        if (terminalApplication.getServiceType().isTerminal() || terminalApplication.getServiceType().isAlias()) {
             LinkCallDataMap mergeSource = new LinkCallDataMap();
             final Map<String, Histogram> agentHistogramMap = new HashMap<>();
             for (Link link : toLinkList) {

@@ -19,6 +19,11 @@ export interface DynamicPopup {
     onInputChange?: Function;
 }
 
+export interface IContext {
+    resolver: ComponentFactoryResolver;
+    injector: Injector;
+}
+
 interface IPopupParam {
     data?: any;
     coord?: ICoordinate;
@@ -26,21 +31,30 @@ interface IPopupParam {
     onCloseCallback?: Function;
 }
 
+export const enum PopupConstant {
+    TOOLTIP_TRIANGLE_HEIGHT = 7, // 툴팁 삼각형 높이
+    TOOLTIP_TRIANGLE_WIDTH = 14, // 툴팁 삼각형 넓이
+    SPACE_FROM_BUTTON = 9 // 클릭한 버튼에서 살짝 떨어뜨려줄 길이
+}
+
 @Injectable()
 export class DynamicPopupService {
     private renderer: Renderer2;
     private componentRef: ComponentRef<DynamicPopup>;
+    private injector: Injector;
+    private resolver: ComponentFactoryResolver;
 
     constructor(
-        private componentFactoryResolver: ComponentFactoryResolver,
         private appRef: ApplicationRef,
-        private injector: Injector,
         rendererFactory: RendererFactory2,
     ) {
         this.renderer = rendererFactory.createRenderer(null, null);
     }
 
-    openPopup($param: IPopupParam): void {
+    openPopup($param: IPopupParam, { resolver, injector }: IContext): void {
+        this.injector = injector;
+        this.resolver = resolver;
+
         const {data, coord, component} = $param;
 
         if (!this.componentRef) {
@@ -63,7 +77,7 @@ export class DynamicPopupService {
     }
 
     private initPopup({data, coord, component, onCloseCallback}: IPopupParam): void {
-        this.componentRef = this.componentFactoryResolver.resolveComponentFactory<DynamicPopup>(component).create(this.injector);
+        this.componentRef = this.resolver.resolveComponentFactory<DynamicPopup>(component).create(this.injector);
         const popupComponent = this.componentRef.instance;
         const domElem = (this.componentRef.hostView as EmbeddedViewRef<DynamicPopup>).rootNodes[0] as HTMLElement;
 
@@ -111,6 +125,9 @@ export class DynamicPopupService {
                     data,
                     coord,
                     component
+                }, {
+                    resolver: this.resolver,
+                    injector: this.injector
                 });
             });
         }

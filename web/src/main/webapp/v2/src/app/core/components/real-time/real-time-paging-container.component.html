@@ -1,13 +1,24 @@
 <div class="l-thread-chart-wrap">
     <div class="l-chart-group-wrap font-opensans">
-        <div class="l-chart-group-list">
-            <div class="l-paging" *ngIf="needPaging()">
-                <span class="l-txt">Total Servers : </span>
-                <span class="l-txt-bold">{{totalCount}}</span>
-                <span>[ {{startCount + 1}} ~ {{endCount}} ]</span>
-            </div>
-            <ng-container #agentChartPlaceHolder></ng-container>
-        </div>
+        <ng-container *ngIf="activeThreadCounts">
+            <article class="l-agent-chart">
+                <pp-real-time-chart-header
+                    [activeOnly]="activeOnly"
+                    [totalCount]="totalCount"
+                    [currentPage]="currentPage"
+                    (outOpenPage)="onOpenPage($event)"
+                    (outChangeActiveOnlyToggle)="onChangeActiveOnlyToggle($event)">
+                </pp-real-time-chart-header>
+                <pp-real-time-agent-chart
+                    [timeStamp]="timeStamp"
+                    [activeThreadCounts]="atcForAgent"
+                    [sum]="sum"
+                    [currentPage]="currentPage"
+                    (outOpenThreadDump)="onOpenThreadDump($event)"
+                    (outRenderCompleted)="onRenderCompleted()">
+                </pp-real-time-agent-chart>
+            </article>
+        </ng-container>
         <ng-container [ngSwitch]="messageTemplate">
             <div class="l-message l-waiting" *ngSwitchCase="'LOADING'">
                 <h4><span>Waiting Connection...</span></h4>

@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.test;
 
 import com.google.inject.Inject;
 import com.navercorp.pinpoint.common.util.Assert;
-import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
+import com.navercorp.pinpoint.profiler.context.SpanChunkFactory;
 import com.navercorp.pinpoint.profiler.context.module.SpanDataSender;
 import com.navercorp.pinpoint.profiler.context.storage.BufferedStorage;
 import com.navercorp.pinpoint.profiler.context.storage.Storage;
@@ -40,8 +40,8 @@ public class TestSpanStorageFactory implements StorageFactory {
     }
 
     @Override
-    public Storage createStorage(TraceRoot traceRoot) {
-        return new BufferedStorage(traceRoot, this.dataSender, 1);
+    public Storage createStorage(SpanChunkFactory spanChunkFactory) {
+        return new BufferedStorage(spanChunkFactory, this.dataSender, 1);
     }
 
 }

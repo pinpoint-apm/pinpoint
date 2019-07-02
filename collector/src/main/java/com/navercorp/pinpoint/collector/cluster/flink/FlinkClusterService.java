@@ -15,47 +15,48 @@
  */
 package com.navercorp.pinpoint.collector.cluster.flink;
 
-import com.navercorp.pinpoint.collector.cluster.zookeeper.DefaultZookeeperClient;
-import com.navercorp.pinpoint.collector.cluster.zookeeper.ZookeeperClient;
 import com.navercorp.pinpoint.collector.cluster.zookeeper.ZookeeperClusterManager;
-import com.navercorp.pinpoint.collector.cluster.zookeeper.ZookeeperUtils;
-import com.navercorp.pinpoint.collector.config.CollectorConfiguration;
+import com.navercorp.pinpoint.collector.config.FlinkConfiguration;
+import com.navercorp.pinpoint.common.server.cluster.zookeeper.CuratorZookeeperClient;
+import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperClient;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperEventWatcher;
 import com.navercorp.pinpoint.common.server.util.concurrent.CommonState;
 import com.navercorp.pinpoint.common.server.util.concurrent.CommonStateContext;
 import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.common.util.StringUtils;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher.Event.EventType;
-import org.apache.zookeeper.Watcher.Event.KeeperState;
-import org.apache.zookeeper.proto.WatcherEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.io.IOException;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author minwoo.jung
  */
 public class FlinkClusterService {
 
-    private static final String PINPOINT_FLINK_CLUSTER_PATH = "/pinpoint-cluster/flink";
-
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final CommonStateContext serviceState;
-    private final CollectorConfiguration config;
+    private final FlinkConfiguration config;
     private final FlinkClusterConnectionManager clusterConnectionManager;
+    private final String pinpointFlinkClusterPath;
 
     private ZookeeperClient client;
     private ZookeeperClusterManager zookeeperClusterManager;
 
-    public FlinkClusterService(CollectorConfiguration config, FlinkClusterConnectionManager clusterConnectionManager) {
+    public FlinkClusterService(FlinkConfiguration config, FlinkClusterConnectionManager clusterConnectionManager, String pinpointFlinkClusterPath) {
         this.config = Assert.requireNonNull(config, "config must not be null");
         this.serviceState = new CommonStateContext();
         this.clusterConnectionManager = Assert.requireNonNull(clusterConnectionManager, "clusterConnectionManager must not be null");
+
+        if (StringUtils.isEmpty(pinpointFlinkClusterPath)) {
+            throw new IllegalArgumentException("pinpointFlinkClusterPath must not be empty.");
+        }
+        this.pinpointFlinkClusterPath = pinpointFlinkClusterPath;
     }
 
     @PostConstruct
@@ -70,20 +71,18 @@ public class FlinkClusterService {
                 if (this.serviceState.changeStateInitializing()) {
                     logger.info("{} initialization started.", this.getClass().getSimpleName());
 
-                    ClusterManagerWatcher watcher = new ClusterManagerWatcher();
-                    this.client = new DefaultZookeeperClient(config.getFlinkClusterZookeeperAddress(), config.getFlinkClusterSessionTimeout(), watcher);
+                    ClusterManagerWatcher watcher = new ClusterManagerWatcher(pinpointFlinkClusterPath);
+                    this.client = new CuratorZookeeperClient(config.getFlinkClusterZookeeperAddress(), config.getFlinkClusterSessionTimeout(), watcher);
                     this.client.connect();
 
-                    this.zookeeperClusterManager = new ZookeeperClusterManager(client, PINPOINT_FLINK_CLUSTER_PATH, clusterConnectionManager);
+                    this.zookeeperClusterManager = new ZookeeperClusterManager(client, pinpointFlinkClusterPath, clusterConnectionManager);
                     this.zookeeperClusterManager.start();
 
                     this.serviceState.changeStateStarted();
                     logger.info("{} initialization completed.", this.getClass().getSimpleName());
 
                     if (client.isConnected()) {
-                        WatcherEvent watcherEvent = new WatcherEvent(EventType.None.getIntValue(), KeeperState.SyncConnected.getIntValue(), "");
-                        WatchedEvent event = new WatchedEvent(watcherEvent);
-                        watcher.process(event);
+                        watcher.handleConnected();
                     }
                 }
                 break;
@@ -133,54 +132,47 @@ public class FlinkClusterService {
 
     class ClusterManagerWatcher implements ZookeeperEventWatcher {
 
-        private final AtomicBoolean connected = new AtomicBoolean(false);
+        private final String pinpointFlinkClusterPath;
+
+        public ClusterManagerWatcher(String pinpointFlinkClusterPath) {
+            this.pinpointFlinkClusterPath = pinpointFlinkClusterPath;
+        }
 
         @Override
         public void process(WatchedEvent event) {
             logger.debug("Process Zookeeper Event({})", event);
 
-            KeeperState state = event.getState();
             EventType eventType = event.getType();
 
-            // ephemeral node is removed on disconnect event (leave node management exclusively to zookeeper)
-            if (ZookeeperUtils.isDisconnectedEvent(state, eventType)) {
-                connected.compareAndSet(true, false);
-                if (state == KeeperState.Expired) {
-                    if (client != null) {
-                        client.reconnectWhenSessionExpired();
-                    }
-                }
-                return;
-            }
-
-            // on connect/reconnect event
-            if (ZookeeperUtils.isConnectedEvent(state, eventType)) {
-                // could already be connected (failure to compareAndSet doesn't really matter)
-                boolean changed = connected.compareAndSet(false, true);
-            }
-
-            if (serviceState.isStarted() && connected.get()) {
+            if (serviceState.isStarted() && client.isConnected()) {
                 // duplicate event possible - but the logic does not change
-                if (ZookeeperUtils.isConnectedEvent(state, eventType)) {
-//                    profilerClusterManager.initZookeeperClusterData();
-                    zookeeperClusterManager.handleAndRegisterWatcher(PINPOINT_FLINK_CLUSTER_PATH);
-                } else if (eventType == EventType.NodeChildrenChanged) {
-                    String path = event.getPath();
+                if (eventType == EventType.NodeChildrenChanged) {
+                    String eventPath = event.getPath();
 
-                    if (PINPOINT_FLINK_CLUSTER_PATH.equals(path)) {
-                        zookeeperClusterManager.handleAndRegisterWatcher(path);
+                    if (pinpointFlinkClusterPath.equals(eventPath)) {
+                        zookeeperClusterManager.handleAndRegisterWatcher(eventPath);
                     } else {
-                        logger.warn("Unknown Path ChildrenChanged {}.", path);
+                        logger.warn("Unknown Path ChildrenChanged {}.", eventPath);
                     }
-
                 }
             }
         }
 
         @Override
-        public boolean isConnected() {
-            return connected.get();
+        public boolean handleConnected() {
+            if (serviceState.isStarted()) {
+                zookeeperClusterManager.handleAndRegisterWatcher(pinpointFlinkClusterPath);
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        @Override
+        public boolean handleDisconnected() {
+            return true;
         }
 
     }
+
 }

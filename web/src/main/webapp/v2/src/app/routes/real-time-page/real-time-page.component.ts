@@ -1,9 +1,9 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Subject } from 'rxjs';
-import { filter, takeUntil } from 'rxjs/operators';
+import { Subject, Observable } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 import { UrlPathId } from 'app/shared/models';
-import { RouteInfoCollectorService, WebAppSettingDataService, NewUrlStateNotificationService } from 'app/shared/services';
+import { WebAppSettingDataService, NewUrlStateNotificationService } from 'app/shared/services';
 
 @Component({
     selector: 'pp-real-time',
@@ -14,22 +14,23 @@ export class RealTimePageComponent implements OnInit, OnDestroy {
     private unsubscribe: Subject<null> = new Subject();
     applicationImgPath: string;
     applicationName: string;
+    enableRealTime$: Observable<boolean>;
+
     constructor(
-        private routeInfoCollectorService: RouteInfoCollectorService,
         private newUrlStateNotificationService: NewUrlStateNotificationService,
         private webAppSettingDataService: WebAppSettingDataService
     ) {}
+
     ngOnInit() {
+        this.enableRealTime$ = this.webAppSettingDataService.useActiveThreadChart();
         this.newUrlStateNotificationService.onUrlStateChange$.pipe(
             takeUntil(this.unsubscribe),
-            filter((urlService: NewUrlStateNotificationService) => {
-                return urlService.hasValue(UrlPathId.APPLICATION);
-            }
-        )).subscribe((urlService: NewUrlStateNotificationService) => {
+        ).subscribe((urlService: NewUrlStateNotificationService) => {
             this.applicationName = urlService.getPathValue(UrlPathId.APPLICATION).getApplicationName();
             this.applicationImgPath = this.webAppSettingDataService.getIconImagePath() + urlService.getPathValue(UrlPathId.APPLICATION).getServiceType() + this.webAppSettingDataService.getImageExt();
         });
     }
+
     ngOnDestroy() {
         this.unsubscribe.next();
         this.unsubscribe.complete();

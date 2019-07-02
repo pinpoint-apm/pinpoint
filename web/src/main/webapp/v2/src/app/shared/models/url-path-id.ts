@@ -85,6 +85,13 @@ export class UrlPathId {
     static SEARCH_ID = 'searchId';
     static STAT = 'stat';
     static AGENT = 'agent';
+    static GENERAL = 'general';
+    static FAVORITE = 'favorite';
+    static USER_GROUP = 'userGroup';
+    static ALARM = 'alarm';
+    static INSTALLATION = 'installation';
+    static HELP = 'help';
+    static CHART_MANAGER = 'chartManager';
 
     constructor() {}
     static getPathIdList(): string[] {
@@ -122,7 +129,7 @@ export class UrlPathIdFactory {
             case UrlPathId.END_TIME:
                 return new UrlEndTime(new EndTime(paramValue)) as IUrlPathId<EndTime>;
             case UrlPathId.PAGE:
-                return new UrlGeneral(paramValue || '2') as IUrlPathId<string>;
+                return new UrlGeneral(Number(paramValue)) as IUrlPathId<number>;
             case UrlPathId.FILTER:
             case UrlPathId.HINT:
             case UrlPathId.REAL_TIME:

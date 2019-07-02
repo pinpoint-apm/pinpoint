@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.instrument.classloading;
 
-import com.navercorp.pinpoint.common.plugin.JarPlugin;
+import com.navercorp.pinpoint.profiler.plugin.JarPlugin;
 import com.navercorp.pinpoint.profiler.plugin.ClassNameFilter;
 import com.navercorp.pinpoint.profiler.plugin.PluginConfig;
 import org.junit.Assert;
@@ -24,7 +24,6 @@ import org.junit.Test;
 
 import java.util.jar.JarFile;
 
-import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -37,7 +36,7 @@ public class PlainClassLoaderHandlerTest {
     public void injectClass_bootstrapClass() {
         PluginConfig pluginConfig = newPluginConfig();
 
-        PlainClassLoaderHandler plainClassLoaderHandler = new PlainClassLoaderHandler(pluginConfig);
+        ClassInjector plainClassLoaderHandler = new PlainClassLoaderHandler(pluginConfig);
         try {
             plainClassLoaderHandler.injectClass(this.getClass().getClassLoader(), "com.navercorp.pinpoint.bootstrap.Test");
             Assert.fail();

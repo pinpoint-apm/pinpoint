@@ -16,15 +16,14 @@
 
 package com.navercorp.pinpoint.bootstrap.config;
 
-import java.io.IOException;
-import java.util.Properties;
-
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
-
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.util.Properties;
 
 /**
  * @author emeroad
@@ -60,10 +59,10 @@ public class DefaultProfilerConfigTest {
 
 
         ProfilerConfig profilerConfig = new DefaultProfilerConfig(properties);
-
-        Assert.assertEquals(profilerConfig.getCollectorSpanServerIp(), "placeHolder1");
-        Assert.assertEquals(profilerConfig.getCollectorStatServerIp(), "placeHolder1");
-        Assert.assertEquals(profilerConfig.getCollectorTcpServerIp(), "placeHolder2");
+        ThriftTransportConfig thriftTransportConfig = profilerConfig.getThriftTransportConfig();
+        Assert.assertEquals(thriftTransportConfig.getCollectorSpanServerIp(), "placeHolder1");
+        Assert.assertEquals(thriftTransportConfig.getCollectorStatServerIp(), "placeHolder1");
+        Assert.assertEquals(thriftTransportConfig.getCollectorTcpServerIp(), "placeHolder2");
     }
 
 
@@ -88,25 +87,64 @@ public class DefaultProfilerConfigTest {
         Assert.assertEquals(profilerConfig.isIoBufferingEnable(), true);
         Assert.assertEquals(profilerConfig.getIoBufferingBufferSize(), 10);
     }
-    
+
     @Test
     public void tcpCommandAcceptorConfigTest1() throws IOException {
         String path = DefaultProfilerConfig.class.getResource("/com/navercorp/pinpoint/bootstrap/config/test.property").getPath();
         logger.debug("path:{}", path);
 
         ProfilerConfig profilerConfig = DefaultProfilerConfig.load(path);
-        
-        Assert.assertFalse(profilerConfig.isTcpDataSenderCommandAcceptEnable());
+        ThriftTransportConfig thriftTransportConfig = profilerConfig.getThriftTransportConfig();
+        Assert.assertFalse(thriftTransportConfig.isTcpDataSenderCommandAcceptEnable());
     }
-    
+
     @Test
     public void tcpCommandAcceptorConfigTest2() throws IOException {
         String path = DefaultProfilerConfig.class.getResource("/com/navercorp/pinpoint/bootstrap/config/test2.property").getPath();
         logger.debug("path:{}", path);
 
         ProfilerConfig profilerConfig = DefaultProfilerConfig.load(path);
-        
-        Assert.assertTrue(profilerConfig.isTcpDataSenderCommandAcceptEnable());
+        ThriftTransportConfig thriftTransportConfig = profilerConfig.getThriftTransportConfig();
+        Assert.assertTrue(thriftTransportConfig.isTcpDataSenderCommandAcceptEnable());
+    }
+
+    @Test
+    public void getCallStackMaxDepth() {
+        Properties properties = new Properties();
+        properties.setProperty("profiler.callstack.max.depth", "64");
+
+        // Read
+        ProfilerConfig profilerConfig = new DefaultProfilerConfig(properties);
+        Assert.assertEquals(profilerConfig.getCallStackMaxDepth(), 64);
+
+        // Unlimited
+        properties.setProperty("profiler.callstack.max.depth", "-1");
+        profilerConfig = new DefaultProfilerConfig(properties);
+        Assert.assertEquals(profilerConfig.getCallStackMaxDepth(), -1);
+        // Minimum calibration
+        properties.setProperty("profiler.callstack.max.depth", "0");
+        profilerConfig = new DefaultProfilerConfig(properties);
+        Assert.assertEquals(profilerConfig.getCallStackMaxDepth(), 2);
+    }
+
+    @Test
+    public void waterMarkConfigTest() {
+        Properties properties = new Properties();
+        properties.setProperty("profiler.tcpdatasender.client.write.buffer.highwatermark", "6m");
+        properties.setProperty("profiler.tcpdatasender.client.write.buffer.lowwatermark", "5m");
+        properties.setProperty("profiler.spandatasender.write.buffer.highwatermark", "4m");
+        properties.setProperty("profiler.spandatasender.write.buffer.lowwatermark", "3m");
+        properties.setProperty("profiler.statdatasender.write.buffer.highwatermark", "2m");
+        properties.setProperty("profiler.statdatasender.write.buffer.lowwatermark", "1m");
+
+        ProfilerConfig profilerConfig = new DefaultProfilerConfig(properties);
+        ThriftTransportConfig thriftTransportConfig = profilerConfig.getThriftTransportConfig();
+        Assert.assertEquals("6m", thriftTransportConfig.getTcpDataSenderPinpointClientWriteBufferHighWaterMark());
+        Assert.assertEquals("5m", thriftTransportConfig.getTcpDataSenderPinpointClientWriteBufferLowWaterMark());
+        Assert.assertEquals("4m", thriftTransportConfig.getSpanDataSenderWriteBufferHighWaterMark());
+        Assert.assertEquals("3m", thriftTransportConfig.getSpanDataSenderWriteBufferLowWaterMark());
+        Assert.assertEquals("2m", thriftTransportConfig.getStatDataSenderWriteBufferHighWaterMark());
+        Assert.assertEquals("1m", thriftTransportConfig.getStatDataSenderWriteBufferLowWaterMark());
     }
 
     @Test

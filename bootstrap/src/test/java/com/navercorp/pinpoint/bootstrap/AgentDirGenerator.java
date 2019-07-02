@@ -43,7 +43,7 @@ public class AgentDirGenerator {
     private static final String commons = "pinpoint-commons-" + Version.VERSION + ".jar";
     private static final String bootStrapCoreJar = "pinpoint-bootstrap-core-" + Version.VERSION + ".jar";
     private static final String bootStrapJava9Jar = "pinpoint-bootstrap-java9-" + Version.VERSION + ".jar";
-    private static final String bootStrapCoreOptionalJar = "pinpoint-bootstrap-core-optional-" + Version.VERSION + ".jar";
+    private static final String bootStrapCoreOptionalJar = "pinpoint-java7-" + Version.VERSION + ".jar";
     private static final String annotations = "pinpoint-annotations-" + Version.VERSION + ".jar";
 
     private final String agentDirPath;

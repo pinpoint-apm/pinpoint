@@ -16,11 +16,13 @@
 
 package com.navercorp.pinpoint.plugin.undertow.interceptor;
 
+import com.navercorp.pinpoint.bootstrap.config.Filter;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.plugin.RequestRecorderFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.request.RequestAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ServletRequestListenerInterceptorHelper;
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.ParameterRecorder;
@@ -30,6 +32,7 @@ import com.navercorp.pinpoint.plugin.undertow.ParameterRecorderFactory;
 import com.navercorp.pinpoint.plugin.undertow.UndertowConfig;
 import com.navercorp.pinpoint.plugin.undertow.UndertowConstants;
 import com.navercorp.pinpoint.plugin.undertow.UndertowHttpHeaderFilter;
+import io.undertow.server.HttpHandler;
 import io.undertow.server.HttpServerExchange;
 
 /**
@@ -45,14 +48,14 @@ public class ConnectorsExecuteRootHandlerInterceptor implements AroundIntercepto
     private final UndertowHttpHeaderFilter httpHeaderFilter;
     private final ServletRequestListenerInterceptorHelper<HttpServerExchange> servletRequestListenerInterceptorHelper;
 
-    public ConnectorsExecuteRootHandlerInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
+    public ConnectorsExecuteRootHandlerInterceptor(TraceContext traceContext, MethodDescriptor descriptor, RequestRecorderFactory<HttpServerExchange> requestRecorderFactory) {
         this.methodDescriptor = descriptor;
-        this.argumentValidator = new ConnectorsArgumentValidator();
         final UndertowConfig config = new UndertowConfig(traceContext.getProfilerConfig());
+        this.argumentValidator = new ConnectorsArgumentValidator(config.getHttpHandlerClassNameFilter());
         RequestAdaptor<HttpServerExchange> requestAdaptor = new HttpServerExchangeAdaptor();
         requestAdaptor = RemoteAddressResolverFactory.wrapRealIpSupport(requestAdaptor, config.getRealIpHeader(), config.getRealIpEmptyValue());
         ParameterRecorder<HttpServerExchange> parameterRecorder = ParameterRecorderFactory.newParameterRecorderFactory(config.getExcludeProfileMethodFilter(), config.isTraceRequestParam());
-        this.servletRequestListenerInterceptorHelper = new ServletRequestListenerInterceptorHelper<HttpServerExchange>(UndertowConstants.UNDERTOW, traceContext, requestAdaptor, config.getExcludeUrlFilter(), parameterRecorder);
+        this.servletRequestListenerInterceptorHelper = new ServletRequestListenerInterceptorHelper<HttpServerExchange>(UndertowConstants.UNDERTOW, traceContext, requestAdaptor, config.getExcludeUrlFilter(), parameterRecorder, requestRecorderFactory);
         this.httpHeaderFilter = new UndertowHttpHeaderFilter(config.isHidePinpointHeader());
     }
 
@@ -107,7 +110,13 @@ public class ConnectorsExecuteRootHandlerInterceptor implements AroundIntercepto
         return 0;
     }
 
-    private class ConnectorsArgumentValidator implements ArgumentValidator {
+    private static class ConnectorsArgumentValidator implements ArgumentValidator {
+        private final Filter<String> httpHandlerClassNameFilter;
+
+        public ConnectorsArgumentValidator(final Filter<String> httpHandlerClassNameFilter) {
+            this.httpHandlerClassNameFilter = httpHandlerClassNameFilter;
+        }
+
         @Override
         public boolean validate(Object[] args) {
             if (args == null) {
@@ -115,6 +124,15 @@ public class ConnectorsExecuteRootHandlerInterceptor implements AroundIntercepto
             }
 
             if (args.length < 2) {
+                return false;
+            }
+
+            if (!(args[0] instanceof HttpHandler)) {
+                return false;
+            }
+
+            final String httpHandlerClassName = args[0].getClass().getName();
+            if (!this.httpHandlerClassNameFilter.filter(httpHandlerClassName)) {
                 return false;
             }
 

@@ -14,29 +14,20 @@
     <dependencies>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
-            <artifactId>pinpoint-profiler</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.navercorp.pinpoint</groupId>
-            <artifactId>pinpoint-profiler-optional</artifactId>
-            <version>${project.version}</version>
-            <scope>runtime</scope>
-            <type>pom</type>
-        </dependency>
-        <dependency>
-            <groupId>com.navercorp.pinpoint</groupId>
-            <artifactId>pinpoint-bootstrap-core-optional</artifactId>
-            <version>${project.version}</version>
-            <scope>runtime</scope>
-        </dependency>
-
-        <!-- plug-ins -->
-        <dependency>
-            <groupId>com.navercorp.pinpoint</groupId>
-            <artifactId>pinpoint-plugins</artifactId>
+            <artifactId>pinpoint-agent</artifactId>
             <version>${project.version}</version>
             <type>pom</type>
+            <scope>runtime</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.navercorp.pinpoint</groupId>
+                    <artifactId>pinpoint-profiler-test</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.navercorp.pinpoint</groupId>
+                    <artifactId>pinpoint-tools</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
     </dependencies>
 
@@ -45,7 +36,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
-                <version>2.5.3</version>
+                <version>3.1.1</version>
                 <configuration>
                     <descriptors>
                         <descriptor>src/assembly/distribution.xml</descriptor>
@@ -53,35 +44,15 @@
                     <outputDirectory>${project.build.directory}</outputDirectory>
                     <finalName>pinpoint-agent</finalName>
                     <appendAssemblyId>false</appendAssemblyId>
+                    <attach>false</attach>
                 </configuration>
                 <executions>
                     <execution>
-                        <id>create-distribution</id>
+                        <id>make-agent</id>
                         <phase>package</phase>
                         <goals>
                             <goal>single</goal>
                         </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <version>1.8</version>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                        <configuration>
-                            <target>
-                                <delete>
-                                    <!-- Delete plugins group pom file -->
-                                    <fileset dir="${project.build.directory}/pinpoint-agent/plugin" includes="*.pom" />
-                                </delete>
-                            </target>
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>

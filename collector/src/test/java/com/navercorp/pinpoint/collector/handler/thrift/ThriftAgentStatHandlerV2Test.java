@@ -17,15 +17,15 @@
 package com.navercorp.pinpoint.collector.handler.thrift;
 
 import com.navercorp.pinpoint.collector.dao.AgentStatDaoV2;
-import com.navercorp.pinpoint.collector.mapper.thrift.stat.AgentStatBatchMapper;
-import com.navercorp.pinpoint.collector.mapper.thrift.stat.AgentStatMapper;
+import com.navercorp.pinpoint.collector.mapper.thrift.stat.ThriftAgentStatBatchMapper;
+import com.navercorp.pinpoint.collector.mapper.thrift.stat.ThriftAgentStatMapper;
 import com.navercorp.pinpoint.collector.service.AgentStatService;
 import com.navercorp.pinpoint.collector.service.HBaseAgentStatService;
 import com.navercorp.pinpoint.common.server.bo.stat.ActiveTraceBo;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.CpuLoadBo;
 import com.navercorp.pinpoint.common.server.bo.stat.DataSourceListBo;
-import com.navercorp.pinpoint.common.server.bo.stat.DeadlockBo;
+import com.navercorp.pinpoint.common.server.bo.stat.DeadlockThreadCountBo;
 import com.navercorp.pinpoint.common.server.bo.stat.DirectBufferBo;
 import com.navercorp.pinpoint.common.server.bo.stat.FileDescriptorBo;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
@@ -61,10 +61,10 @@ import static org.mockito.Mockito.*;
 public class ThriftAgentStatHandlerV2Test {
 
     @Mock
-    private AgentStatMapper agentStatMapper;
+    private ThriftAgentStatMapper agentStatMapper;
 
     @Mock
-    private AgentStatBatchMapper agentStatBatchMapper;
+    private ThriftAgentStatBatchMapper agentStatBatchMapper;
 
     @Mock
     private AgentStatDaoV2<JvmGcBo> jvmGcDao;
@@ -88,7 +88,7 @@ public class ThriftAgentStatHandlerV2Test {
     private AgentStatDaoV2<ResponseTimeBo> responseTimeDao;
 
     @Mock
-    private AgentStatDaoV2<DeadlockBo> deadlockDao;
+    private AgentStatDaoV2<DeadlockThreadCountBo> deadlockDao;
 
     @Mock
     private AgentStatDaoV2<FileDescriptorBo> fileDescriptorDao;
@@ -129,7 +129,7 @@ public class ThriftAgentStatHandlerV2Test {
         verify(activeTraceDao).insert(mappedAgentStat.getAgentId(), mappedAgentStat.getActiveTraceBos());
         verify(dataSourceDao).insert(mappedAgentStat.getAgentId(), mappedAgentStat.getDataSourceListBos());
         verify(responseTimeDao).insert(mappedAgentStat.getAgentId(), mappedAgentStat.getResponseTimeBos());
-        verify(deadlockDao).insert(mappedAgentStat.getAgentId(), mappedAgentStat.getDeadlockBos());
+        verify(deadlockDao).insert(mappedAgentStat.getAgentId(), mappedAgentStat.getDeadlockThreadCountBos());
         verify(fileDescriptorDao).insert(mappedAgentStat.getAgentId(), mappedAgentStat.getFileDescriptorBos());
         verify(directBufferDao).insert(mappedAgentStat.getAgentId(), mappedAgentStat.getDirectBufferBos());
 
@@ -154,7 +154,7 @@ public class ThriftAgentStatHandlerV2Test {
         verify(activeTraceDao).insert(mappedAgentStat.getAgentId(), mappedAgentStat.getActiveTraceBos());
         verify(dataSourceDao).insert(mappedAgentStat.getAgentId(), mappedAgentStat.getDataSourceListBos());
         verify(responseTimeDao).insert(mappedAgentStat.getAgentId(), mappedAgentStat.getResponseTimeBos());
-        verify(deadlockDao).insert(mappedAgentStat.getAgentId(), mappedAgentStat.getDeadlockBos());
+        verify(deadlockDao).insert(mappedAgentStat.getAgentId(), mappedAgentStat.getDeadlockThreadCountBos());
         verify(fileDescriptorDao).insert(mappedAgentStat.getAgentId(), mappedAgentStat.getFileDescriptorBos());
         verify(directBufferDao).insert(mappedAgentStat.getAgentId(), mappedAgentStat.getDirectBufferBos());
     }

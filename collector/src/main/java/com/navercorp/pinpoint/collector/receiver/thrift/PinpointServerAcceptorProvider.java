@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.collector.receiver.thrift;
 
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.rpc.PipelineFactory;
-import com.navercorp.pinpoint.rpc.cluster.ClusterOption;
 import com.navercorp.pinpoint.rpc.server.ChannelFilter;
 import com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor;
 import com.navercorp.pinpoint.rpc.server.ServerCodecPipelineFactory;

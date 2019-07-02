@@ -37,7 +37,6 @@ public class CxfPluginTraceMetadataProvider implements TraceMetadataProvider {
         context.addServiceType(CxfPluginConstants.CXF_LOGGING_IN_SERVICE_TYPE);
         context.addServiceType(CxfPluginConstants.CXF_LOGGING_OUT_SERVICE_TYPE);
 
-        context.addAnnotationKey(CxfPluginConstants.CXF_LOG_ID);
         context.addAnnotationKey(CxfPluginConstants.CXF_ADDRESS);
         context.addAnnotationKey(CxfPluginConstants.CXF_RESPONSE_CODE);
         context.addAnnotationKey(CxfPluginConstants.CXF_CONTENT_TYPE);

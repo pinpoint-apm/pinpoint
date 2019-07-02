@@ -40,13 +40,17 @@ public class SpanAsyncStateListenerTest {
     @Mock
     private Span span;
     @Mock
+    private TraceRoot traceRoot;
+    @Mock
     private StorageFactory storageFactory;
     @Mock
     private Storage storage;
 
     @Test
     public void onComplete() throws Exception {
-        when(storageFactory.createStorage(or((TraceRoot)isNull(), (TraceRoot)any()))).thenReturn(storage);
+        when(span.getTraceRoot()).thenReturn(traceRoot);
+        SpanChunkFactory spanChunkFactory = or((SpanChunkFactory) isNull(), (SpanChunkFactory) any());
+        when(storageFactory.createStorage(spanChunkFactory)).thenReturn(storage);
 
 
         ListenableAsyncState.AsyncStateListener listener = new SpanAsyncStateListener(span, storageFactory);
@@ -63,7 +67,9 @@ public class SpanAsyncStateListenerTest {
 
     @Test
     public void onComplete_check_atomicity() throws Exception {
-        when(storageFactory.createStorage(or((TraceRoot)isNull(), (TraceRoot)any()))).thenReturn(storage);
+        when(span.getTraceRoot()).thenReturn(traceRoot);
+        SpanChunkFactory spanChunkFactory = or((SpanChunkFactory) isNull(), (SpanChunkFactory) any());
+        when(storageFactory.createStorage(spanChunkFactory)).thenReturn(storage);
 
         ListenableAsyncState.AsyncStateListener listener = new SpanAsyncStateListener(span, storageFactory);
         listener.finish();

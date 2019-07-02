@@ -7,6 +7,8 @@ import com.navercorp.pinpoint.common.util.TransactionId;
  */
 public interface BasicSpan {
 
+    int getVersion();
+
     String getAgentId();
     void setAgentId(String agentId);
 

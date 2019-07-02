@@ -28,7 +28,11 @@ import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
-import com.navercorp.pinpoint.bootstrap.resolver.ConditionProvider;
+import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.plugin.jboss.interceptor.ContextInvocationInterceptor;
+import com.navercorp.pinpoint.plugin.jboss.interceptor.MethodInvocationHandlerInterceptor;
+import com.navercorp.pinpoint.plugin.jboss.interceptor.RequestStartAsyncInterceptor;
+import com.navercorp.pinpoint.plugin.jboss.interceptor.StandardHostValveInvokeInterceptor;
 
 /**
  * The Class JbossPlugin.
@@ -39,7 +43,6 @@ import com.navercorp.pinpoint.bootstrap.resolver.ConditionProvider;
 public class JbossPlugin implements ProfilerPlugin, TransformTemplateAware {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
-    private final boolean isInfo = logger.isInfoEnabled();
 
     /**
      * The transform template.
@@ -48,42 +51,31 @@ public class JbossPlugin implements ProfilerPlugin, TransformTemplateAware {
 
     @Override
     public void setup(final ProfilerPluginSetupContext context) {
-        final JbossConfig jbossConfig = new JbossConfig(context.getConfig());
-        if (!jbossConfig.isEnable()) {
-            if (isInfo) {
-                logger.info("JBossPlugin disabled");
-            }
+        final JbossConfig config = new JbossConfig(context.getConfig());
+        if (!config.isEnable()) {
+            logger.info("{} disabled", this.getClass().getSimpleName());
             return;
         }
+        logger.info("{} config:{}", this.getClass().getSimpleName(), config);
 
-        if (isInfo) {
-            logger.info("JBossPlugin config:{}", jbossConfig);
-        }
-
-        final JbossDetector jbossDetector = new JbossDetector(jbossConfig.getBootstrapMains());
-        context.addApplicationTypeDetector(jbossDetector);
-
-        if (shouldAddTransformers(jbossConfig)) {
-            if (isInfo) {
-                logger.info("Adding JBoss transformers");
+        ServiceType applicationType = context.getConfiguredApplicationType();
+        if (ServiceType.UNDEFINED.equals(applicationType)) {
+            final JbossDetector jbossDetector = new JbossDetector(config.getBootstrapMains());
+            if (jbossDetector.detect()) {
+                logger.info("Detected application type : {}", JbossConstants.JBOSS);
+                if (context.registerApplicationType(JbossConstants.JBOSS)) {
+                    applicationType = JbossConstants.JBOSS;
+                } else {
+                    logger.info("Application type [{}] already set, skipping [{}] registration.", context.getApplicationType(), JbossConstants.JBOSS);
+                }
             }
-            addTransformers(jbossConfig);
+        }
+        if (JbossConstants.JBOSS.equals(applicationType)) {
+            logger.info("Adding JBoss transformers");
+            addTransformers(config);
         } else {
-            if (isInfo) {
-                logger.info("Not adding JBoss transformers");
-            }
+            logger.info("Not adding JBoss transformers");
         }
-    }
-
-    private boolean shouldAddTransformers(JbossConfig jbossConfig) {
-        // Transform if conditional check is disabled
-        if (!jbossConfig.isConditionalTransformEnable()) {
-            return true;
-        }
-        // Only transform if it's a JBoss application
-        ConditionProvider conditionProvider = ConditionProvider.DEFAULT_CONDITION_PROVIDER;
-        boolean isJbossApplication = conditionProvider.checkMainClass(jbossConfig.getBootstrapMains());
-        return isJbossApplication;
     }
 
     private void addTransformers(JbossConfig jbossConfig) {
@@ -95,109 +87,122 @@ public class JbossPlugin implements ProfilerPlugin, TransformTemplateAware {
             addRequestEditor();
             addContextInvocationEditor();
             // Hide pinpoint headers
-            requestFacade(jbossConfig);
+            requestFacade();
             // Clear bind trace. defense code
             addStandardHostValveEditor();
         }
     }
 
-    private void requestFacade(final JbossConfig jbossConfig) {
-        transformTemplate.transform("org.apache.catalina.connector.RequestFacade", new TransformCallback() {
-            @Override
-            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
-                if (jbossConfig.isHidePinpointHeader()) {
-                    // Hide pinpoint headers
-                    target.weave("com.navercorp.pinpoint.plugin.jboss.aspect.RequestFacadeAspect");
-                }
-                return target.toBytecode();
-            }
-        });
+    private void requestFacade() {
+        transformTemplate.transform("org.apache.catalina.connector.RequestFacade", RequestFacadeTransform.class);
     }
 
-    private void addRequestEditor() {
-        transformTemplate.transform("org.apache.catalina.connector.Request", new TransformCallback() {
+    public static class RequestFacadeTransform implements TransformCallback {
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
 
-            @Override
-            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
-                // Add async listener. Servlet 3.0
-                InstrumentMethod startAsyncMethodEditor = target.getDeclaredMethod("startAsync", "javax.servlet.ServletRequest", "javax.servlet.ServletResponse");
-                if (startAsyncMethodEditor != null) {
-                    startAsyncMethodEditor.addInterceptor("com.navercorp.pinpoint.plugin.jboss.interceptor.RequestStartAsyncInterceptor");
-                }
+            final JbossConfig jbossConfig = new JbossConfig(instrumentor.getProfilerConfig());
 
-                return target.toBytecode();
+            final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+            if (jbossConfig.isHidePinpointHeader()) {
+                // Hide pinpoint headers
+                target.weave("com.navercorp.pinpoint.plugin.jboss.aspect.RequestFacadeAspect");
             }
-        });
+            return target.toBytecode();
+        }
+    };
+
+    private void addRequestEditor() {
+        transformTemplate.transform("org.apache.catalina.connector.Request", RequestTransform.class);
+    }
+
+    public static class RequestTransform implements TransformCallback {
+
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+            // Add async listener. Servlet 3.0
+            InstrumentMethod startAsyncMethodEditor = target.getDeclaredMethod("startAsync", "javax.servlet.ServletRequest", "javax.servlet.ServletResponse");
+            if (startAsyncMethodEditor != null) {
+                startAsyncMethodEditor.addInterceptor(RequestStartAsyncInterceptor.class);
+            }
+
+            return target.toBytecode();
+        }
     }
 
     /**
      * Adds the method invoke message handler editor.
      */
     private void addMethodInvocationMessageHandlerEditor() {
-        transformTemplate.transform("org.jboss.as.ejb3.remote.protocol.versionone.MethodInvocationMessageHandler", new TransformCallback() {
+        transformTemplate.transform("org.jboss.as.ejb3.remote.protocol.versionone.MethodInvocationMessageHandler", MethodInvocationMessageHandlerTransform.class);
 
-            @Override
-            public byte[] doInTransform(final Instrumentor instrumentor, final ClassLoader classLoader, final String className, final Class<?> classBeingRedefined,
-                                        final ProtectionDomain protectionDomain,
-                                        final byte[] classfileBuffer) throws InstrumentException {
-                final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
-                // Support EJB
-                final InstrumentMethod method =
-                        target.getDeclaredMethod("invokeMethod", new String[]{"short", "org.jboss.as.ee.component.ComponentView", "java.lang.reflect.Method", "java.lang.Object[]",
-                                "org.jboss.ejb.client.EJBLocator", "java.util.Map"});
-                if (method != null) {
-                    method.addInterceptor("com.navercorp.pinpoint.plugin.jboss.interceptor.MethodInvocationHandlerInterceptor");
-                }
+    }
 
-                return target.toBytecode();
+    public static class MethodInvocationMessageHandlerTransform implements TransformCallback {
+
+        @Override
+        public byte[] doInTransform(final Instrumentor instrumentor, final ClassLoader classLoader, final String className, final Class<?> classBeingRedefined,
+        final ProtectionDomain protectionDomain,
+        final byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+            // Support EJB
+            final InstrumentMethod method =
+                    target.getDeclaredMethod("invokeMethod", new String[]{"short", "org.jboss.as.ee.component.ComponentView", "java.lang.reflect.Method", "java.lang.Object[]",
+                            "org.jboss.ejb.client.EJBLocator", "java.util.Map"});
+            if (method != null) {
+                method.addInterceptor(MethodInvocationHandlerInterceptor.class);
             }
-        });
 
+            return target.toBytecode();
+        }
     }
 
     /**
      * Adds the context invocation editor.
      */
     private void addContextInvocationEditor() {
-        transformTemplate.transform("org.jboss.as.ejb3.tx.EjbBMTInterceptor", new TransformCallback() {
+        transformTemplate.transform("org.jboss.as.ejb3.tx.EjbBMTInterceptor", EjbBMTInterceptorTransform.class);
+    }
 
-            @Override
-            public byte[] doInTransform(final Instrumentor instrumentor, final ClassLoader classLoader, final String className, final Class<?> classBeingRedefined,
-                                        final ProtectionDomain protectionDomain,
-                                        final byte[] classfileBuffer) throws InstrumentException {
-                final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
-                // EJB
-                final InstrumentMethod method = target.getDeclaredMethod("handleInvocation", "org.jboss.invocation.InterceptorContext");
-                if (method != null) {
-                    method.addInterceptor("com.navercorp.pinpoint.plugin.jboss.interceptor.ContextInvocationInterceptor");
-                }
+    public static class EjbBMTInterceptorTransform implements TransformCallback {
 
-                return target.toBytecode();
+        @Override
+        public byte[] doInTransform(final Instrumentor instrumentor, final ClassLoader classLoader, final String className, final Class<?> classBeingRedefined,
+        final ProtectionDomain protectionDomain,
+        final byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+            // EJB
+            final InstrumentMethod method = target.getDeclaredMethod("handleInvocation", "org.jboss.invocation.InterceptorContext");
+            if (method != null) {
+                method.addInterceptor(ContextInvocationInterceptor.class);
             }
-        });
+
+            return target.toBytecode();
+        }
     }
 
     /**
      * Adds the standard host valve editor.
      */
     private void addStandardHostValveEditor() {
-        transformTemplate.transform("org.apache.catalina.core.StandardHostValve", new TransformCallback() {
+        transformTemplate.transform("org.apache.catalina.core.StandardHostValve", StandardHostValveTransform.class);
+    }
 
-            @Override
-            public byte[] doInTransform(final Instrumentor instrumentor, final ClassLoader classLoader, final String className, final Class<?> classBeingRedefined,
-                                        final ProtectionDomain protectionDomain,
-                                        final byte[] classfileBuffer) throws InstrumentException {
-                final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
-                // Clear bind trace
-                final InstrumentMethod invokeMethod = target.getDeclaredMethod("invoke", "org.apache.catalina.connector.Request", "org.apache.catalina.connector.Response");
-                if (invokeMethod != null) {
-                    invokeMethod.addInterceptor("com.navercorp.pinpoint.plugin.jboss.interceptor.StandardHostValveInvokeInterceptor");
-                }
-                return target.toBytecode();
+    public static class StandardHostValveTransform implements TransformCallback {
+
+        @Override
+        public byte[] doInTransform(final Instrumentor instrumentor, final ClassLoader classLoader, final String className, final Class<?> classBeingRedefined,
+        final ProtectionDomain protectionDomain,
+        final byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+            // Clear bind trace
+            final InstrumentMethod invokeMethod = target.getDeclaredMethod("invoke", "org.apache.catalina.connector.Request", "org.apache.catalina.connector.Response");
+            if (invokeMethod != null) {
+                invokeMethod.addInterceptor(StandardHostValveInvokeInterceptor.class);
             }
-        });
+            return target.toBytecode();
+        }
     }
 
     /*

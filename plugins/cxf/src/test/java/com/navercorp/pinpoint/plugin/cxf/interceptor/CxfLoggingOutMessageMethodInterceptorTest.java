@@ -4,6 +4,7 @@ import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.plugin.cxf.CxfPluginConstants;
+import org.apache.cxf.interceptor.LoggingMessage;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -27,7 +28,7 @@ public class CxfLoggingOutMessageMethodInterceptorTest {
     @Test
     public void doInBeforeTrace() {
 
-        CxfLoggingMessageTest message = new CxfLoggingMessageTest("", "1");
+        LoggingMessage message = new LoggingMessage("", "1");
         message.getEncoding().append("UTF-8");
         message.getContentType().append("application/json");
         message.getResponseCode().append("200");
@@ -42,7 +43,6 @@ public class CxfLoggingOutMessageMethodInterceptorTest {
         outMessageMethodInterceptor.doInBeforeTrace(recorder, target, args);
 
         verify(recorder).recordServiceType(CxfPluginConstants.CXF_LOGGING_OUT_SERVICE_TYPE);
-        verify(recorder).recordAttribute(CxfPluginConstants.CXF_LOG_ID, "1");
         verify(recorder).recordAttribute(CxfPluginConstants.CXF_ENCODING, "UTF-8");
         verify(recorder).recordAttribute(CxfPluginConstants.CXF_RESPONSE_CODE, "200");
         verify(recorder).recordAttribute(CxfPluginConstants.CXF_CONTENT_TYPE, "application/json");
@@ -53,7 +53,7 @@ public class CxfLoggingOutMessageMethodInterceptorTest {
     @Test
     public void doInAfterTrace() {
 
-        CxfLoggingMessageTest message = new CxfLoggingMessageTest("", "1");
+        LoggingMessage message = new LoggingMessage("", "1");
         message.getEncoding().append("UTF-8");
         message.getContentType().append("application/json");
         message.getResponseCode().append("200");
@@ -68,7 +68,6 @@ public class CxfLoggingOutMessageMethodInterceptorTest {
         outMessageMethodInterceptor.doInAfterTrace(recorder, target, args, null, null);
 
         verify(recorder, never()).recordServiceType(CxfPluginConstants.CXF_LOGGING_IN_SERVICE_TYPE);
-        verify(recorder, never()).recordAttribute(CxfPluginConstants.CXF_LOG_ID, "1");
 
         verify(recorder).recordApi(descriptor);
     }

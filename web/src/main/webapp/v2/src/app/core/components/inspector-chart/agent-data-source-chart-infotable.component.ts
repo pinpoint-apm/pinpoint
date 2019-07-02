@@ -6,8 +6,7 @@ import { Component, OnInit, Input } from '@angular/core';
     styleUrls: ['./agent-data-source-chart-infotable.component.css']
 })
 export class AgentDataSourceChartInfotableComponent implements OnInit {
-    @Input() isDataEmpty: boolean;
-    @Input() infoTableObj: { [key: string]: any };
+    @Input() infoTableObj: {[key: string]: any};
 
     constructor() {}
     ngOnInit() {}

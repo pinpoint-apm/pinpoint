@@ -1,4 +1,4 @@
-import { Directive, OnInit, OnChanges, OnDestroy, SimpleChanges, EventEmitter, HostListener, Input, Output } from '@angular/core';
+import { Directive, OnInit, OnChanges, OnDestroy, SimpleChanges, EventEmitter, ElementRef, HostListener, Input, Output } from '@angular/core';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, filter, takeUntil } from 'rxjs/operators';
 
@@ -10,6 +10,7 @@ export class SearchInputDirective implements OnInit, OnChanges, OnDestroy {
     @Input() searchMaxLength = Number.MAX_SAFE_INTEGER;
     @Input() useEnter: boolean;
     @Input() debounceTime = 100;
+    @Output() outCancel: EventEmitter<void> = new EventEmitter();
     @Output() outSearch: EventEmitter<string> = new EventEmitter();
     @Output() outArrowKey: EventEmitter<number> = new EventEmitter();
     private unsubscribe: Subject<void> = new Subject();
@@ -31,6 +32,7 @@ export class SearchInputDirective implements OnInit, OnChanges, OnDestroy {
         }
         if (this.isESC(keyCode)) {
             element.value = '';
+            this.outCancel.next();
             return;
         }
         if (this.useEnter) {
@@ -41,8 +43,9 @@ export class SearchInputDirective implements OnInit, OnChanges, OnDestroy {
             this.userInput.next(value);
         }
     }
-    constructor() {}
-    ngOnInit() {}
+    constructor(private elementRef: ElementRef) {}
+    ngOnInit() {
+    }
     ngOnChanges(changes: SimpleChanges) {
         if (changes['useEnter']) {
             if (this.useEnter) {
@@ -79,5 +82,11 @@ export class SearchInputDirective implements OnInit, OnChanges, OnDestroy {
     }
     private isArrowKey(key: number): boolean {
         return key >= 37 && key <= 40;
+    }
+    clear(): void {
+        this.elementRef.nativeElement.value = '';
+    }
+    setFocus(): void {
+        this.elementRef.nativeElement.focus();
     }
 }

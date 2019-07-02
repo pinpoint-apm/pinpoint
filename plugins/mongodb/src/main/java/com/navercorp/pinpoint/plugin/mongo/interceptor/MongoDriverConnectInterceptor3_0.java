@@ -22,10 +22,7 @@ import com.mongodb.connection.Cluster;
 import com.mongodb.connection.ClusterDescription;
 import com.mongodb.connection.ServerDescription;
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
-import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
-import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
-import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
+import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor;
@@ -34,72 +31,71 @@ import com.navercorp.pinpoint.bootstrap.plugin.jdbc.UnKnownDatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.util.InterceptorUtils;
 import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 import com.navercorp.pinpoint.plugin.mongo.MongoConstants;
+import com.navercorp.pinpoint.plugin.mongo.MongoUtil;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import static com.navercorp.pinpoint.plugin.mongo.interceptor.MongoWriteConcernInterceptor.getWriteConcern0;
-
 /**
  * @author Roy Kim
  */
-public class MongoDriverConnectInterceptor3_0 extends SpanEventSimpleAroundInterceptorForPlugin {
+public class MongoDriverConnectInterceptor3_0 implements AroundInterceptor {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
-    public MongoDriverConnectInterceptor3_0(TraceContext traceContext, MethodDescriptor descriptor) {
-        super(traceContext, descriptor);
+    public MongoDriverConnectInterceptor3_0() {
     }
 
     @Override
-    protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
+    public void before(Object target, Object[] args) {
+        if (isDebug) {
+            logBeforeInterceptor(target, args);
+        }
     }
 
     @Override
-    protected void prepareAfterTrace(Object target, Object[] args, Object result, Throwable throwable) {
-    }
-
-    @Override
-    protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result,
-            Throwable throwable) {
+    public void after(Object target, Object[] args, Object result, Throwable throwable) {
+        if (isDebug) {
+            logAfterInterceptor(target, args, result, throwable);
+        }
 
         final boolean success = InterceptorUtils.isSuccess(throwable);
         // Must not check if current transaction is trace target or not. Connection can be made by other thread.
 
-        if(success) {
-            final List<String> hostList = getHostList(args[0]);
-            String readPreference = getReadPreference(args[1]);
-            String writeConcern = getWriteConcern(args[1]);
-
+        if (success) {
             if (args == null) {
                 return;
             }
 
+            final List<String> hostList = getHostList(args[0]);
+            String readPreference = getReadPreference(args[1]);
+            String writeConcern = getWriteConcern(args[1]);
+
             DatabaseInfo databaseInfo = createDatabaseInfo(hostList, readPreference, writeConcern);
+            if (databaseInfo == null) {
+                databaseInfo = UnKnownDatabaseInfo.MONGO_INSTANCE;
+            }
 
             if (target instanceof DatabaseInfoAccessor) {
                 ((DatabaseInfoAccessor) target)._$PINPOINT$_setDatabaseInfo(databaseInfo);
             }
-
-            if (databaseInfo == null) {
-                databaseInfo = UnKnownDatabaseInfo.INSTANCE;
-            }
-
-            recorder.recordServiceType(databaseInfo.getType());
-            recorder.recordEndPoint(databaseInfo.getMultipleHost());
-            recorder.recordDestinationId(databaseInfo.getDatabaseId());
         }
+    }
 
-        recorder.recordApi(methodDescriptor);
-        recorder.recordException(throwable);
+    private void logBeforeInterceptor(Object target, Object[] args) {
+        logger.beforeInterceptor(target, args);
+    }
+
+    private void logAfterInterceptor(Object target, Object[] args, Object result, Throwable throwable) {
+        logger.afterInterceptor(target, args, result, throwable);
     }
 
     private DatabaseInfo createDatabaseInfo(List<String> hostList, String readPreference, String writeConcern) {
 
-        DatabaseInfo databaseInfo = new MongoDatabaseInfo(MongoConstants.MONGO, MongoConstants.MONGO_EXECUTE_QUERY,
+        DatabaseInfo databaseInfo = new MongoDatabaseInfo(MongoConstants.MONGODB, MongoConstants.MONGO_EXECUTE_QUERY,
                 null, null, hostList, null, null, readPreference, writeConcern);
 
         if (isDebug) {
@@ -127,7 +123,7 @@ public class MongoDriverConnectInterceptor3_0 extends SpanEventSimpleAroundInter
             serverDescriptions = cluster.getDescription().getAll();
         }
 
-        for(ServerDescription serverDescription : serverDescriptions) {
+        for (ServerDescription serverDescription : serverDescriptions) {
 
             ServerAddress serverAddress = serverDescription.getAddress();
             final String hostAddress = HostAndPort.toHostAndPortString(serverAddress.getHost(), serverAddress.getPort());
@@ -136,6 +132,7 @@ public class MongoDriverConnectInterceptor3_0 extends SpanEventSimpleAroundInter
 
         return hostList;
     }
+
     private String getReadPreference(Object arg) {
         if (!(arg instanceof MongoClientOptions)) {
             return null;
@@ -145,6 +142,7 @@ public class MongoDriverConnectInterceptor3_0 extends SpanEventSimpleAroundInter
 
         return mongoClientOptions.getReadPreference().getName();
     }
+
     private String getWriteConcern(Object arg) {
         if (!(arg instanceof MongoClientOptions)) {
             return null;
@@ -152,6 +150,6 @@ public class MongoDriverConnectInterceptor3_0 extends SpanEventSimpleAroundInter
 
         final MongoClientOptions mongoClientOptions = (MongoClientOptions) arg;
 
-        return getWriteConcern0(mongoClientOptions.getWriteConcern());
+        return MongoUtil.getWriteConcern0(mongoClientOptions.getWriteConcern());
     }
 }

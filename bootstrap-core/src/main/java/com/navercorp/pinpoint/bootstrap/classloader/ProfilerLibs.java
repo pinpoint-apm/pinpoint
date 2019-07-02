@@ -33,6 +33,7 @@ public class ProfilerLibs {
                 "com.navercorp.pinpoint.thrift",
                 "com.navercorp.pinpoint.io",
                 "com.navercorp.pinpoint.rpc",
+                "com.navercorp.pinpoint.loader.plugins",
                 /*
                  * @deprecated javassist
                  */
@@ -45,6 +46,8 @@ public class ProfilerLibs {
                 // google guice
                 "com.google.inject",
                 "org.aopalliance",
+                // snakeyaml
+                "org.yaml.snakeyaml",
 
                 "org.apache.commons.lang",
                 "org.apache.log4j",

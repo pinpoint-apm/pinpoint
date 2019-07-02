@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.common.hbase;
 
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.ConnectionFactory;
 import org.apache.hadoop.hbase.shaded.org.apache.directory.shared.kerberos.exceptions.ErrorType;
@@ -27,6 +28,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.util.StringUtils;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
+
 
 import java.io.IOException;
 import java.util.Objects;
@@ -35,11 +39,16 @@ import java.util.concurrent.ExecutorService;
 /**
  * @author HyunGil Jeong
  */
-public class ConnectionFactoryBean implements FactoryBean<Connection>, DisposableBean {
+public class ConnectionFactoryBean implements FactoryBean<Connection>, InitializingBean, DisposableBean {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	private final Connection connection;
+  private final Connection connection;
+  @Autowired(required = false)
+  private TableNameProvider tableNameProvider;
+
+  private final boolean warmUp;
+  private final Connection connection;
 
 	public ConnectionFactoryBean(Configuration configuration) {
 		Objects.requireNonNull(configuration, " must not be null");
@@ -82,6 +91,23 @@ public class ConnectionFactoryBean implements FactoryBean<Connection>, Disposabl
 			throw new HbaseSystemException(e);
 		}
 	}
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        if (warmUp) {
+            if (tableNameProvider != null && tableNameProvider.hasDefaultNameSpace()) {
+                logger.info("warmup for hbase connection started");
+                for (HbaseTable hBaseTable : HbaseTable.values()) {
+                    try {
+                        TableName tableName = tableNameProvider.getTableName(hBaseTable);
+                        connection.getRegionLocator(tableName);
+                    } catch (IOException e) {
+                        logger.warn("Failed to warmup for Table:{}. message:{}", hBaseTable.getName(), e.getMessage(), e);
+                    }
+                }
+            }
+        }
+    }
 
 	@Override public Connection getObject() throws Exception {
 		return connection;

@@ -6,9 +6,8 @@ import { Component, OnInit, OnChanges, Input, Output, EventEmitter, SimpleChange
     styleUrls: ['./application-data-source-chart-soucelist.component.css']
 })
 export class ApplicationDataSourceChartSourcelistComponent implements OnInit, OnChanges {
-    @Input() isDataEmpty: boolean;
-    @Input() sourceDataArr: { [key: string]: any }[];
-    @Output() outSourceDataSelected: EventEmitter<number> = new EventEmitter();
+    @Input() data: {serviceType: string, jdbcUrl: string}[];
+    @Output() outSourceDataSelected = new EventEmitter<number>();
 
     private selectedIndex = 0;
 
@@ -17,7 +16,7 @@ export class ApplicationDataSourceChartSourcelistComponent implements OnInit, On
     ngOnChanges(changes: SimpleChanges) {
         Object.keys(changes).map((propName: string) => {
             switch (propName) {
-                case 'sourceDataArr':
+                case 'data':
                     this.initSelectedIndex();
                     break;
             }

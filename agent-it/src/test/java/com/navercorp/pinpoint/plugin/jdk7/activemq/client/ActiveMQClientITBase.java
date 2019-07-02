@@ -108,7 +108,9 @@ public abstract class ActiveMQClientITBase {
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
         verifier.printCache();
         // Wait till all traces are recorded (consumer traces are recorded from another thread)
-        awaitAndVerifyTraceCount(verifier, 7, 5000L);
+        verifier.awaitTraceCount(7, 100, 5000);
+        verifier.verifyTraceCount(7);
+
 
         verifyProducerSendEvent(verifier, testQueue, producerSession);
         verifyConsumerConsumeEvent(verifier, testQueue, consumerSession);
@@ -166,7 +168,9 @@ public abstract class ActiveMQClientITBase {
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
         verifier.printCache();
         // Wait till all traces are recorded (consumer traces are recorded from another thread)
-        awaitAndVerifyTraceCount(verifier, 4, 5000L);
+        verifier.awaitTraceCount(4, 100, 5000);
+        verifier.verifyTraceCount(4);
+
 
         verifyProducerSendEvent(verifier, testQueue, producerSession);
         verifyConsumerConsumeEvent(verifier, testQueue, consumerSession);
@@ -206,7 +210,8 @@ public abstract class ActiveMQClientITBase {
         verifier.printCache();
 
         // Wait till all traces are recorded (consumer traces are recorded from another thread)
-        awaitAndVerifyTraceCount(verifier, 6, 5000L);
+        verifier.awaitTraceCount(6, 100, 5000);
+        verifier.verifyTraceCount(6);
 
         verifyProducerSendEvent(verifier, testQueue, producerSession);
         verifyConsumerConsumeEvent(verifier, testQueue, consumerSession);
@@ -276,7 +281,8 @@ public abstract class ActiveMQClientITBase {
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
         verifier.printCache();
         // Wait till all traces are recorded (consumer traces are recorded from another thread)
-        awaitAndVerifyTraceCount(verifier, 13, 5000L);
+        verifier.awaitTraceCount(13, 100, 5000);
+        verifier.verifyTraceCount(13);
 
         verifyProducerSendEvent(verifier, testTopic, producerSession);
         verifyConsumerConsumeEvent(verifier, testTopic, consumer1Session);
@@ -344,7 +350,9 @@ public abstract class ActiveMQClientITBase {
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
         verifier.printCache();
         // Wait till all traces are recorded (consumer traces are recorded from another thread)
-        awaitAndVerifyTraceCount(verifier, 7, 5000L);
+        verifier.awaitTraceCount(7, 100, 5000);
+        verifier.verifyTraceCount(7);
+
 
         verifyProducerSendEvent(verifier, testTopic, producerSession);
         verifyConsumerConsumeEvent(verifier, testTopic, consumer1Session);
@@ -396,7 +404,9 @@ public abstract class ActiveMQClientITBase {
         verifier.printCache();
 
         // Wait till all traces are recorded (consumer traces are recorded from another thread)
-        awaitAndVerifyTraceCount(verifier, 11, 5000L);
+        verifier.awaitTraceCount(11, 100, 5000);
+        verifier.verifyTraceCount(11);
+
 
         verifyProducerSendEvent(verifier, testTopic, producerSession);
         verifyConsumerConsumeEvent(verifier, testTopic, consumer1Session);
@@ -472,22 +482,4 @@ public abstract class ActiveMQClientITBase {
         Assert.assertNull("Failed with exception : " + consumerException, consumerException);
     }
 
-    protected final void awaitAndVerifyTraceCount(PluginTestVerifier verifier, int expectedTraceCount, long maxWaitMs) throws InterruptedException {
-        final long waitIntervalMs = 100L;
-        long maxWaitTime = maxWaitMs;
-        if (maxWaitMs < waitIntervalMs) {
-            maxWaitTime = waitIntervalMs;
-        }
-        long startTime = System.currentTimeMillis();
-        while (System.currentTimeMillis() - startTime < maxWaitTime) {
-            try {
-                verifier.verifyTraceCount(expectedTraceCount);
-                return;
-            } catch (AssertionError e) {
-                // ignore and retry
-                Thread.sleep(waitIntervalMs);
-            }
-        }
-        verifier.verifyTraceCount(expectedTraceCount);
-    }
 }

@@ -25,16 +25,16 @@ import com.navercorp.pinpoint.bootstrap.logging.PLoggerBinder;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.util.SocketAddressUtils;
 import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
 import com.navercorp.pinpoint.profiler.context.module.ApplicationContext;
 import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
 import com.navercorp.pinpoint.profiler.context.module.DefaultModuleFactoryResolver;
 import com.navercorp.pinpoint.profiler.context.module.ModuleFactory;
 import com.navercorp.pinpoint.profiler.context.module.ModuleFactoryResolver;
-import com.navercorp.pinpoint.profiler.util.SystemPropertyDumper;
+import com.navercorp.pinpoint.profiler.context.provider.ShutdownHookRegisterProvider;
 import com.navercorp.pinpoint.profiler.logging.Slf4jLoggerBinder;
-
+import com.navercorp.pinpoint.profiler.util.SystemPropertyDumper;
 import com.navercorp.pinpoint.rpc.ClassPreLoader;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -151,7 +151,24 @@ public class DefaultAgent implements Agent {
         }
         logger.info("Starting {} Agent.", ProductInfo.NAME);
         this.applicationContext.start();
+    }
 
+    @Override
+    public void registerStopHandler() {
+        logger.info("registerStopHandler", ProductInfo.NAME);
+        ShutdownHookRegisterProvider shutdownHookRegisterProvider = new ShutdownHookRegisterProvider(profilerConfig);
+        ShutdownHookRegister shutdownHookRegister = shutdownHookRegisterProvider.get();
+
+        PinpointThreadFactory pinpointThreadFactory = new PinpointThreadFactory("Pinpoint-shutdown-hook", false);
+        Thread shutdownThread = pinpointThreadFactory.newThread(new Runnable() {
+            @Override
+            public void run() {
+                logger.info("stop() started. threadName:" + Thread.currentThread().getName());
+                DefaultAgent.this.stop();
+            }
+        });
+
+        shutdownHookRegister.register(shutdownThread);
     }
 
     @Override

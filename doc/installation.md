@@ -157,7 +157,9 @@ pinpoint-agent
 |-- boot
 |   |-- pinpoint-annotations-$VERSION.jar
 |   |-- pinpoint-bootstrap-core-$VERSION.jar
-|   |-- pinpoint-bootstrap-core-optional-$VERSION.jar
+|   |-- pinpoint-bootstrap-java7-$VERSION.jar
+|   |-- pinpoint-bootstrap-java8-$VERSION.jar
+|   |-- pinpoint-bootstrap-java9-$VERSION.jar
 |   |-- pinpoint-commons-$VERSION.jar
 |-- lib
 |   |-- log4j.xml
@@ -230,6 +232,11 @@ Set these values appropriately in *pinpoint.config*:
 You may take a look at the default *pinpoint.config* file [here](https://github.com/naver/pinpoint/blob/master/agent/src/main/resources/pinpoint-real-env-lowoverhead-sample.config "pinpoint.config") along with all the available configuration options.
 
 ## Miscellaneous
+
+### HBase region servers hostname resolution
+Please note that collector/web must be able to resolve the hostnames of HBase region servers. 
+This is because HBase region servers are registered to ZooKeeper by their hostnames, so when the collector/web asks ZooKeeper for a list of region servers to connect to, it receives their hostnames.
+Please ensure that these hostnames are in your DNS server, or add these entries to the collector/web instances' *hosts* file.
 
 ### Routing Web requests to Agents
 

@@ -11,6 +11,7 @@
     float:left;
     padding:0 15px;
     height:100%;
+    outline: none;
 }
 .l-btn-group button.active, .l-btn-group button:hover {
     color:#fff;

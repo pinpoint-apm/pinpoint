@@ -1,10 +1,10 @@
-import { Injectable } from '@angular/core';
+import { Injectable, ComponentFactoryResolver, Injector } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Subject, Observable } from 'rxjs';
 import { map, retry } from 'rxjs/operators';
 
 import { Actions } from 'app/shared/store';
-import { UrlQuery, UrlPathId } from 'app/shared/models';
+import { UrlQuery, UrlPathId, UrlPath } from 'app/shared/models';
 import { WebAppSettingDataService, NewUrlStateNotificationService, StoreHelperService, DynamicPopupService, UrlRouteManagerService } from 'app/shared/services';
 import { ServerErrorPopupContainerComponent } from 'app/core/components/server-error-popup';
 
@@ -26,7 +26,9 @@ export class ServerMapForFilteredMapDataService {
         private webAppSettingDataService: WebAppSettingDataService,
         private urlRouteManagerService: UrlRouteManagerService,
         private newUrlStateNotificationService: NewUrlStateNotificationService,
-        private dynamicPopupService: DynamicPopupService
+        private dynamicPopupService: DynamicPopupService,
+        private componentFactoryResolver: ComponentFactoryResolver,
+        private injector: Injector
     ) {
         this.onServerMapData$ = this.serverMapData.asObservable();
     }
@@ -73,11 +75,14 @@ export class ServerMapForFilteredMapDataService {
                 onCloseCallback: () => {
                     this.urlRouteManagerService.move({
                         url: [
-                            this.newUrlStateNotificationService.getStartPath()
+                            UrlPath.MAIN
                         ],
                         needServerTimeRequest: false
                     });
                 }
+            }, {
+                resolver: this.componentFactoryResolver,
+                injector: this.injector
             });
         });
     }

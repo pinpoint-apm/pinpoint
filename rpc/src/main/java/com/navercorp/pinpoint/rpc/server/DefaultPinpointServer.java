@@ -42,19 +42,17 @@ import com.navercorp.pinpoint.rpc.packet.ResponsePacket;
 import com.navercorp.pinpoint.rpc.packet.SendPacket;
 import com.navercorp.pinpoint.rpc.packet.ServerClosePacket;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamPacket;
-import com.navercorp.pinpoint.rpc.server.handler.DoNothingChannelStateEventHandler;
 import com.navercorp.pinpoint.rpc.server.handler.ServerStateChangeEventHandler;
 import com.navercorp.pinpoint.rpc.stream.ClientStreamChannel;
-import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelContext;
-import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelMessageListener;
-import com.navercorp.pinpoint.rpc.stream.StreamChannelContext;
+import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelEventHandler;
 import com.navercorp.pinpoint.rpc.stream.StreamChannelManager;
-import com.navercorp.pinpoint.rpc.stream.StreamChannelStateChangeEventHandler;
+import com.navercorp.pinpoint.rpc.stream.StreamException;
 import com.navercorp.pinpoint.rpc.util.ClassUtils;
 import com.navercorp.pinpoint.rpc.util.ControlMessageEncodingUtils;
 import com.navercorp.pinpoint.rpc.util.IDGenerator;
 import com.navercorp.pinpoint.rpc.util.ListUtils;
 import com.navercorp.pinpoint.rpc.util.MapUtils;
+
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFuture;
 import org.jboss.netty.channel.ChannelFutureListener;
@@ -114,7 +112,7 @@ public class DefaultPinpointServer implements PinpointServer {
 
         this.messageListener = serverConfig.getMessageListener();
 
-        StreamChannelManager streamChannelManager = new StreamChannelManager(channel, IDGenerator.createEvenIdGenerator(), serverConfig.getStreamMessageListener());
+        StreamChannelManager streamChannelManager = new StreamChannelManager(channel, IDGenerator.createEvenIdGenerator(), serverConfig.getServerStreamMessageHandler());
         this.streamChannelManager = streamChannelManager;
 
         this.stateChangeEventListeners = new ArrayList<ServerStateChangeEventHandler>();
@@ -126,7 +124,7 @@ public class DefaultPinpointServer implements PinpointServer {
         }
         ListUtils.addAllExceptNullValue(this.stateChangeEventListeners, stateChangeEventListeners);
         if (this.stateChangeEventListeners.isEmpty()) {
-            this.stateChangeEventListeners.add(DoNothingChannelStateEventHandler.INSTANCE);
+            this.stateChangeEventListeners.add(ServerStateChangeEventHandler.DISABLED_INSTANCE);
         }
 
         RequestManager requestManager = new RequestManager(serverConfig.getRequestManagerTimer(), serverConfig.getDefaultRequestTimeout());
@@ -235,20 +233,11 @@ public class DefaultPinpointServer implements PinpointServer {
         return future;
     }
 
-    public StreamChannelContext getStreamChannel(int channelId) {
-        return streamChannelManager.findStreamChannel(channelId);
-    }
-
     @Override
-    public ClientStreamChannelContext openStream(byte[] payload, ClientStreamChannelMessageListener messageListener) {
-        return openStream(payload, messageListener, null);
-    }
-
-    @Override
-    public ClientStreamChannelContext openStream(byte[] payload, ClientStreamChannelMessageListener messageListener, StreamChannelStateChangeEventHandler<ClientStreamChannel> stateChangeListener) {
+    public ClientStreamChannel openStream(byte[] payload, ClientStreamChannelEventHandler streamChannelEventHandler) throws StreamException {
         logger.info("{} createStream() started.", objectUniqName);
 
-        ClientStreamChannelContext streamChannel = streamChannelManager.openStream(payload, messageListener, stateChangeListener);
+        ClientStreamChannel streamChannel = streamChannelManager.openStream(payload, streamChannelEventHandler);
 
         logger.info("{} createStream() completed.", objectUniqName);
         return streamChannel;

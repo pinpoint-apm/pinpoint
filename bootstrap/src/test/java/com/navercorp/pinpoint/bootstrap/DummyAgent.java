@@ -32,7 +32,11 @@ public class DummyAgent implements Agent {
 
     @Override
     public void stop() {
+
     }
 
+    @Override
+    public void registerStopHandler() {
 
+    }
 }

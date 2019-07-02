@@ -14,20 +14,10 @@
  */
 package com.navercorp.pinpoint.test.plugin;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-
+import com.navercorp.pinpoint.bootstrap.PinpointBootStrap;
+import com.navercorp.pinpoint.common.util.SimpleProperty;
+import com.navercorp.pinpoint.common.util.SystemProperty;
+import com.navercorp.pinpoint.test.plugin.shared.ArtifactIdUtils;
 import org.apache.maven.repository.internal.MavenRepositorySystemUtils;
 import org.eclipse.aether.DefaultRepositorySystemSession;
 import org.eclipse.aether.RepositorySystem;
@@ -52,7 +42,6 @@ import org.eclipse.aether.resolution.VersionRangeResult;
 import org.eclipse.aether.spi.connector.RepositoryConnectorFactory;
 import org.eclipse.aether.spi.connector.transport.TransporterFactory;
 import org.eclipse.aether.transport.file.FileTransporterFactory;
-import org.eclipse.aether.transport.http.HttpTransporterFactory;
 import org.eclipse.aether.util.artifact.JavaScopes;
 import org.eclipse.aether.util.filter.DependencyFilterUtils;
 import org.eclipse.aether.version.Version;
@@ -60,9 +49,18 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import com.navercorp.pinpoint.bootstrap.PinpointBootStrap;
-import com.navercorp.pinpoint.common.util.SimpleProperty;
-import com.navercorp.pinpoint.common.util.SystemProperty;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * @author Jongho Moon
@@ -79,12 +77,13 @@ public class DependencyResolver {
     private final RepositorySystem system;
     private final RepositorySystemSession session;
 
-    
-    private static RepositorySystem newRepositorySystem() {
+    private static RepositorySystem newRepositorySystem(boolean supportRemote) {
         DefaultServiceLocator locator = MavenRepositorySystemUtils.newServiceLocator();
         locator.addService(RepositoryConnectorFactory.class, BasicRepositoryConnectorFactory.class);
         locator.addService(TransporterFactory.class, FileTransporterFactory.class);
-        locator.addService(TransporterFactory.class, HttpTransporterFactory.class);
+        if (supportRemote) {
+            locator.addService(TransporterFactory.class, org.eclipse.aether.transport.http.HttpTransporterFactory.class);
+        }
 
         locator.setErrorHandler(new DefaultServiceLocator.ErrorHandler() {
             @Override
@@ -165,14 +164,22 @@ public class DependencyResolver {
         return repositories;
     }
     
-    public static DependencyResolver get(String... repositoryUrls) {
-        RepositorySystem system = newRepositorySystem();
+    public static DependencyResolver getLocalResolver(String... repositoryUrls) {
+        RepositorySystem system = newRepositorySystem(false);
         RepositorySystemSession session = newRepositorySystemSession(system);
         List<RemoteRepository> repositories = newRepositories(repositoryUrls);
         
         return new DependencyResolver(system, session, repositories);
     }
-    
+
+    public static DependencyResolver get(String... repositoryUrls) {
+        RepositorySystem system = newRepositorySystem(true);
+        RepositorySystemSession session = newRepositorySystemSession(system);
+        List<RemoteRepository> repositories = newRepositories(repositoryUrls);
+
+        return new DependencyResolver(system, session, repositories);
+    }
+
     public DependencyResolver(RepositorySystem system, RepositorySystemSession session, List<RemoteRepository> repositories) {
         this.system = system;
         this.session = session;
@@ -191,7 +198,21 @@ public class DependencyResolver {
         
         return versions;
     }
-    
+
+    public List<File> resolveArtifactsAndDependencies(String artifactsAsString) throws ArtifactResolutionException, DependencyResolutionException {
+        List<Artifact> artifactList = getArtifactList(artifactsAsString);
+        return resolveArtifactsAndDependencies(artifactList);
+    }
+
+    private static List<Artifact> getArtifactList(String value) {
+        if (value == null) {
+            return Collections.emptyList();
+        }
+
+        String[] artifactNameArray = value.split(ArtifactIdUtils.ARTIFACT_SEPARATOR);
+        return ArtifactIdUtils.toArtifact(artifactNameArray);
+    }
+
     public List<File> resolveArtifactsAndDependencies(List<Artifact> artifacts) throws ArtifactResolutionException, DependencyResolutionException {
         List<Dependency> dependencies = new ArrayList<Dependency>();
 

@@ -1,44 +1,124 @@
 import * as go from 'gojs';
 import ServerMapTheme from './server-map-theme';
+import { ServerMapDiagramWithGojs } from './server-map-diagram-with-gojs.class';
+import { ServerMapNodeClickExtraParam } from './server-map-node-click-extra-param.class';
+
+enum CIRCLE_TYPE {
+    GREEN = 'GREEN',
+    ORANGE = 'ORANGE',
+    RED = 'RED'
+}
+interface ICircleData {
+    x: number;
+    y: number;
+    startAngle: number;
+    sweepAngle: number;
+}
+
+go.Shape.defineFigureGenerator('RequestCircle', (shape: go.Shape, w: number, h: number) => {
+    const param1 = shape && shape.parameter1 ? shape.parameter1 : null;
+    let drawAngle: any = null;
+
+    const rad = w / 2;
+    const geo = new go.Geometry();
+    const defaultStartAngle = -90;
+
+    if (param1 === null) {
+        const fig = new go.PathFigure(rad, 0, false, false);
+        geo.add(fig);
+        fig.add(new go.PathSegment(go.PathSegment.Arc, defaultStartAngle, 0, rad, rad, rad, rad));
+        return geo;
+    } else {
+        drawAngle = param1;
+    }
+    if (drawAngle.startAngle && drawAngle.sweepAngle) {
+        const fig = new go.PathFigure(drawAngle.x, drawAngle.y, false, false);
+        geo.add(fig);
+        fig.add(new go.PathSegment(go.PathSegment.Arc, drawAngle.startAngle, drawAngle.sweepAngle, rad, rad, rad, rad));
+        // geo.spot1 = new go.Spot(0.156, 0.156);
+        // geo.spot2 = new go.Spot(0.844, 0.844);
+    } else {
+        const fig = new go.PathFigure(rad, 0, false, false);
+        geo.add(fig);
+        fig.add(new go.PathSegment(go.PathSegment.Arc, defaultStartAngle, 0, rad, rad, rad, rad));
+    }
+    return geo;
+});
+
+function deg2rad(x: number): number {
+    return Number.parseFloat(((Math.PI / 180) * x).toFixed(5));
+}
+function calcuX(value: number, radius: number, base: number): number {
+    const correction = value > 90 ? value - 90 : 90 - value;
+    return Math.cos(deg2rad(correction)) * radius + base;
+}
+function calcuY(value: number, radius: number, base: number): number {
+    const correction = value - 90;
+    return Math.sin(deg2rad(correction)) * radius + base;
+}
+function calcuCircleData(type: CIRCLE_TYPE, histogram: IResponseTime | IResponseMilliSecondTime, radius: number, baseX: number, baseY: number): ICircleData {
+    const sum = Object.keys(histogram).reduce((prev: number, key: string) => {
+        return prev + histogram[key];
+    }, 0);
+    if (sum === 0) {
+        return {
+            x: 0,
+            y: 0,
+            startAngle: 0,
+            sweepAngle: 0
+        };
+    }
+    const orange = histogram['Slow'];
+    const red = histogram['Error'];
+    const green = sum - orange - red;
+    const greenAngle = green === 0 ? 0 : Math.ceil(360 * green / sum);
+    const orangeAngle = orange === 0 ? 0 : Math.ceil(360 * orange / sum);
+    const redAngle = red === 0 ? 0 : Math.ceil(360 * red / sum);
+    const CIRCLE = {
+        x: radius,
+        y: 0,
+        startAngle: -90,
+        sweepAngle: 360
+    };
+
+    switch (type) {
+        case CIRCLE_TYPE.GREEN:
+            return green === 0 ? null : CIRCLE;
+        case CIRCLE_TYPE.ORANGE:
+            if (orange === sum) {
+                return CIRCLE;
+            } else if (orange === 0) {
+                return null;
+            } else {
+                return {
+                    x: calcuX(greenAngle, radius, baseX),
+                    y: calcuY(greenAngle, radius, baseY),
+                    startAngle: -90 + greenAngle,
+                    sweepAngle: orangeAngle
+                };
+            }
+        case CIRCLE_TYPE.RED:
+            if (red === sum) {
+                return CIRCLE;
+            } else if (red === 0) {
+                return null;
+            } else {
+                return {
+                    x: calcuX(greenAngle + orangeAngle, radius, baseX),
+                    y: calcuY(greenAngle + orangeAngle, radius, baseY),
+                    startAngle: -90 + greenAngle + orangeAngle,
+                    sweepAngle: redAngle
+                };
+            }
+    }
+}
 
 export class ServerMapTemplateWithGojs {
     public static NO_IMAGE_FOUND = 'NO_IMAGE_FOUND';
-    public static circleMaxSize = 360;
-    public static circleMinPercentage = 5;
-    public static calcuResponseSummaryCircleSize(sum: number, value: number) {
-        let size = 0;
-        if (value === 0) {
-            return 0;
-        }
-        const percentage = (value * 100) / sum;
-        if (percentage < ServerMapTemplateWithGojs.circleMinPercentage) {
-            size = Math.floor((ServerMapTemplateWithGojs.circleMaxSize * ServerMapTemplateWithGojs.circleMinPercentage) / 100);
-        } else {
-            size = Math.floor((ServerMapTemplateWithGojs.circleMaxSize * percentage) / 100);
-        }
-        return size;
-    }
-    public static makeNodeTemplate(serverMapComponent: any) {
-        /*
-            template structure
-            Node
-                Panel.Auto
-                Shape
-                    Panel.Table
-                    Shape ( row: 0 ) - background
-                    Picture ( row: 0, col: 0 ) - icon
-                    Shape ( row: 0, col: 0 ) - red circle
-                    Shape( yellow circle )
-                    Shape( green circle)
-                    Shape ( row: 1 ) - background
-                    TextBlock ( applicationName )
-                    Panel.Auto
-                        Shape
-                        TextBlock ( instance count )
-                    Panel.Vertical
-                        Picture ( error.png )
-                        Picture ( filter.png )
-        */
+    public static CIRCLE_WIDTH = 100;
+    public static CIRCLE_HEIGHT = 100;
+    public static CIRCLE_RADIUS = 50;
+    public static makeNodeTemplate(serverMapComponent: ServerMapDiagramWithGojs) {
         const $ = go.GraphObject.make;
         return $(
             go.Node,
@@ -46,13 +126,13 @@ export class ServerMapTemplateWithGojs {
             {
                 position: new go.Point(0, 0),
                 selectionAdorned: false,
-                click: function (event: go.DiagramEvent, obj: go.GraphObject) {
+                click: (event: go.InputEvent, obj: go.GraphObject) => {
                     serverMapComponent.onClickNode(event, obj);
                 },
-                doubleClick: function(event: go.DiagramEvent, obj: go.GraphObject) {
+                doubleClick: (event: go.InputEvent, obj: go.GraphObject) => {
                     serverMapComponent.onDoubleClickNode(event, obj);
                 },
-                contextClick: function(event: go.DiagramEvent, obj: go.GraphObject) {
+                contextClick: (event: go.InputEvent, obj: go.GraphObject) => {
                     serverMapComponent.onContextClickNode(event, obj);
                 }
             },
@@ -60,14 +140,10 @@ export class ServerMapTemplateWithGojs {
             new go.Binding('category', 'serviceType'),
             $(
                 go.Shape,
-                'Rectangle',
                 {
-                    name: 'BORDER_SHAPE',
-                    stroke: '#D0D7DF',
                     strokeWidth: 0,
-                    portId: '',
-                    fromLinkable: true, fromLinkableSelfNode: true, fromLinkableDuplicates: true,
-                    toLinkable: true, toLinkableSelfNode: true, toLinkableDuplicates: true,
+                    figure: 'Rectangle',
+                    fill: null,
                 }
             ),
             $(
@@ -75,31 +151,27 @@ export class ServerMapTemplateWithGojs {
                 go.Panel.Table,
                 {
                     cursor: 'pointer'
-                    // locationSpot: go.Spot.Center,
-                    // selectionAdorned: false,
                 },
-                // new go.Binding('scale', 'isSelected', (isSelected) => {
-                //     return isSelected ? 1.2 : 1.0;
-                // }).ofObject(),
-                $(go.RowColumnDefinition, {column: 0, minimum: 140}),
+                $(go.RowColumnDefinition, {column: 0, minimum: 108}),
                 $(
                     go.Shape,
-                    'Rectangle',
                     {
                         row: 0,
                         column: 0,
-                        height: 95,
-                        stretch: go.GraphObject.Horizontal,
+                        width: 108,
+                        height: 108,
+                        figure: 'Circle',
+                        position: new go.Point(-4, -4)
                     },
-                    new go.Binding('fill', 'key', function(key) {
+                    new go.Binding('fill', 'key', (key) => {
                         const type = serverMapComponent.isBaseApplication(key) ? 'main' : 'normal';
                         return ServerMapTheme.general.node[type].fill.top;
                     }),
-                    new go.Binding('stroke', 'key', function(key, node) {
+                    new go.Binding('stroke', 'key', (key, node) => {
                         const type = serverMapComponent.isBaseApplication(key) ? 'main' : 'normal';
                         return ServerMapTheme.general.node[type].stroke;
                     }),
-                    new go.Binding('strokeWidth', 'key', function(key) {
+                    new go.Binding('strokeWidth', 'key', (key) => {
                         const type = serverMapComponent.isBaseApplication(key) ? 'main' : 'normal';
                         return ServerMapTheme.general.node[type].strokeWidth;
                     })
@@ -109,175 +181,147 @@ export class ServerMapTemplateWithGojs {
                     {
                         row: 0,
                         column: 0,
-                        width: 90,
-                        height: 90,
+                        width: 100,
+                        height: 100,
                         imageStretch: go.GraphObject.Uniform,
-                        errorFunction: function(e: any) {
+                        errorFunction: (e: any) => {
                             e.source = ServerMapTheme.general.common.funcServerMapImagePath(ServerMapTemplateWithGojs.NO_IMAGE_FOUND);
                         }
                     },
-                    new go.Binding('source', 'serviceType', function (type) {
+                    new go.Binding('source', 'serviceType', (type) => {
                         return ServerMapTheme.general.common.funcServerMapImagePath(type);
                     })
                 ),
                 $(
-                    go.Shape, {
-                        row: 0,
-                        column: 0,
-                        stroke: ServerMapTheme.general.circle.bad.stroke,
-                        strokeWidth: ServerMapTheme.general.circle.bad.strokeWidth
-                    },
-                    new go.Binding('visible', '', function (data) {
-                        return data.isAuthorized && data.isWas;
-                    }),
-                    new go.Binding('geometry', 'histogram', function (histogram) {
-                        return go.Geometry.parse('M30 0 B270 360 30 30 30 30');
-                    })
-                ),
-                $(
-                    go.Shape, {
-                        row: 0,
-                        column: 0,
-                        stroke: ServerMapTheme.general.circle.slow.stroke,
-                        strokeWidth: ServerMapTheme.general.circle.slow.strokeWidth
-                    },
-                    new go.Binding('visible', '', function (data) {
-                        return data.isAuthorized && data.isWas;
-                    }),
-                    new go.Binding('geometry', 'histogram', function (histogram) {
-                        if (histogram['Slow'] === 0) {
-                            return go.Geometry.parse('M30 0');
-                        }
-                        const sum = Object.keys(histogram).reduce((prevSum: number, curKey: string) => {
-                            return prevSum + histogram[curKey];
-                        }, 0);
-                        return go.Geometry.parse('M30 0 B270 ' + (ServerMapTemplateWithGojs.circleMaxSize - ServerMapTemplateWithGojs.calcuResponseSummaryCircleSize(sum, histogram['Error'])) + ' 30 30 30 30');
-                    })
-                ),
-                $(
-                    go.Shape, {
-                        row: 0,
-                        column: 0,
-                        stroke: ServerMapTheme.general.circle.good.stroke,
-                        strokeWidth: ServerMapTheme.general.circle.good.strokeWidth
-                    },
-                    new go.Binding('visible', '', function (data) {
-                        return data.isAuthorized && data.isWas;
-                    }),
-                    new go.Binding('geometry', 'histogram', function (histogram) {
-                        const sum = Object.keys(histogram).reduce((prevSum: number, curKey: string) => {
-                            return prevSum + histogram[curKey];
-                        }, 0);
-                        const size = ServerMapTemplateWithGojs.circleMaxSize - ServerMapTemplateWithGojs.calcuResponseSummaryCircleSize(sum, histogram['Slow']) - ServerMapTemplateWithGojs.calcuResponseSummaryCircleSize(sum, histogram['Error']);
-                        if (size >= 180) {
-                            return go.Geometry.parse('M30 0 B270 ' + size + ' 30 30 30 30');
-                        } else {
-                            return go.Geometry.parse('M30 -60 B270 ' + size + ' 30 -30 30 30');
-                        }
-                    })
-                ),
-                $(
                     go.Shape,
-                    'Rectangle',
                     {
-                        row: 1,
+                        row: 0,
                         column: 0,
-                        height: 34,
-                        margin: new go.Margin(-1, 0, 0, 0),
-                        stretch: go.GraphObject.Horizontal,
+                        fill: null,
+                        name: 'BORDER_SHAPE',
+                        width: 108,
+                        height: 108,
+                        figure: 'Circle',
+                        portId: '',
+                        position: new go.Point(-4, -4),
+                        fromLinkable: true, fromLinkableSelfNode: true, fromLinkableDuplicates: true,
+                        toLinkable: true, toLinkableSelfNode: true, toLinkableDuplicates: true
                     },
-                    new go.Binding('fill', 'key', function(key) {
-                        const type = serverMapComponent.isBaseApplication(key) ? 'main' : 'normal';
-                        return ServerMapTheme.general.node[type].fill.bottom;
-                    }),
-                    new go.Binding('stroke', 'key', function(key) {
+                    new go.Binding('stroke', 'key', (key, node) => {
                         const type = serverMapComponent.isBaseApplication(key) ? 'main' : 'normal';
                         return ServerMapTheme.general.node[type].stroke;
                     }),
-                    new go.Binding('strokeWidth', 'key', function(key) {
+                    new go.Binding('strokeWidth', 'key', (key) => {
                         const type = serverMapComponent.isBaseApplication(key) ? 'main' : 'normal';
                         return ServerMapTheme.general.node[type].strokeWidth;
                     })
                 ),
                 $(
+                    go.Shape, 'RequestCircle', {
+                        row: 0,
+                        column: 0,
+                        desiredSize: new go.Size(100, 100),
+                        stroke: ServerMapTheme.general.circle.good.stroke,
+                        strokeWidth: ServerMapTheme.general.circle.good.strokeWidth,
+                        click: (event: go.InputEvent, obj: go.GraphObject) => {
+                            serverMapComponent.onClickNode(event, obj, ServerMapNodeClickExtraParam.REQUEST_GREEN);
+                            event.handled = true;
+                        },
+                    },
+                    new go.Binding('visible', '', (data) => {
+                        return data.isAuthorized && data.isWas;
+                    }),
+                    new go.Binding('parameter1', '', (data) => {
+                        return calcuCircleData(CIRCLE_TYPE.GREEN, data.histogram, 50, 50, 50);
+                    })
+                ),
+                $(
+                    go.Shape, 'RequestCircle', {
+                        row: 0,
+                        column: 0,
+                        desiredSize: new go.Size(100, 100),
+                        stroke: ServerMapTheme.general.circle.slow.stroke,
+                        strokeWidth: ServerMapTheme.general.circle.slow.strokeWidth,
+                        click: (event: go.InputEvent, obj: go.GraphObject) => {
+                            serverMapComponent.onClickNode(event, obj, ServerMapNodeClickExtraParam.REQUEST_GREEN);
+                            event.handled = true;
+                        },
+                    },
+                    new go.Binding('visible', '', (data) => {
+                        return data.isAuthorized && data.isWas;
+                    }),
+                    new go.Binding('parameter1', '', (data) => {
+                        return calcuCircleData(CIRCLE_TYPE.ORANGE, data.histogram, 50, 50, 50);
+                    })
+                ),
+                $(
+                    go.Shape, 'RequestCircle', {
+                        row: 0,
+                        column: 0,
+                        desiredSize: new go.Size(100, 100),
+                        stroke: ServerMapTheme.general.circle.bad.stroke,
+                        strokeWidth: ServerMapTheme.general.circle.bad.strokeWidth,
+                        click: (event: go.InputEvent, obj: go.GraphObject) => {
+                            serverMapComponent.onClickNode(event, obj, ServerMapNodeClickExtraParam.REQUEST_RED);
+                            event.handled = true;
+                        },
+                    },
+                    new go.Binding('visible', '', (data) => {
+                        return data.isAuthorized && data.isWas;
+                    }),
+                    new go.Binding('parameter1', '', (data) => {
+                        return calcuCircleData(CIRCLE_TYPE.RED, data.histogram, 50, 50, 50);
+                    })
+                ),
+                $(
                     go.TextBlock,
                     {
+                        textAlign: 'center',
+                        height: 20,
                         row: 1,
                         column: 0,
-                        margin: new go.Margin(0, 10, 0, 10)
+                        margin: new go.Margin(5, 10, 0, 10)
                     },
-                    new go .Binding('font', '', function() {
-                    return ServerMapTheme.general.common.font.normal;
+                    new go.Binding('font', 'key', (key: string) => {
+                        const type = serverMapComponent.isBaseApplication(key) ? 'big' : 'normal';
+                        return ServerMapTheme.general.common.font[type];
                     }),
-                    new go .Binding('stroke', '', function() {
+                    new go.Binding('stroke', '', () => {
                         return ServerMapTheme.general.node.normal.text.stroke;
                     }),
                     new go.Binding('text', 'applicationName')
                 ),
                 $(
-                    go.Panel,
-                    go.Panel.Auto,
-                    {
-                        minSize: new go.Size(20, 20),
-                        alignment: go.Spot.TopRight
-                    },
-                    new go.Binding('visible', 'instanceCount', function (v) {
-                        return v > 1 ? true : false;
-                    }),
-                    $(
-                        go.Shape,
-                        {
-                            figure: 'Rectangle'
-                        },
-                        new go .Binding('fill', '', function() {
-                            return ServerMapTheme.general.instance.shape.fill;
-                        }),
-                        new go .Binding('stroke', '', function() {
-                            return ServerMapTheme.general.instance.shape.stroke;
-                        }),
-                        new go .Binding('strokeWidth', '', function() {
-                            return ServerMapTheme.general.instance.shape.strokeWidth;
-                        })
-                    ),
+                    go.Panel, 'Auto',
+                    { row: 0, column: 0, alignment: go.Spot.BottomCenter },
                     $(
                         go.TextBlock,
                         {
-                            height: 20,
-                            editable: false,
-                            textAlign: 'center',
-                            verticalAlignment: go.Spot.Center
+                            margin: new go.Margin(0, 0, 10, 0),
+                            click: (event: go.InputEvent, obj: go.GraphObject) => {
+                                serverMapComponent.onClickNode(event, obj, ServerMapNodeClickExtraParam.INSTANCE_COUNT);
+                                event.handled = true;
+                            }
                         },
-                        new go .Binding('font', '', function() {
-                            return ServerMapTheme.general.common.font.small;
+                        new go.Binding('visible', 'instanceCount', (v) => {
+                            return v > 1 ? true : false;
                         }),
-                        new go .Binding('stroke', '', function() {
+                        new go.Binding('font', '', () => {
+                            return ServerMapTheme.general.common.font.normal;
+                        }),
+                        new go.Binding('stroke', '', () => {
                             return ServerMapTheme.general.instance.text.stroke;
                         }),
                         new go.Binding('text', 'instanceCount')
                     )
                 ),
                 $(
-                    go.Panel,
-                    go.Panel.Vertical,
-                    {
-                        margin: new go.Margin(0, 0, 0, 0),
-                        alignment: go.Spot.TopLeft
-                    },
+                    go.Panel, 'Auto',
+                    { row: 0, column: 0, alignment: go.Spot.TopCenter },
                     $(
                         go.Picture,
                         {
-                            width: 20,
-                            height: 20,
-                            source: ServerMapTheme.general.common.funcServerMapImagePath(ServerMapTheme.general.common.icon.error),
-                            imageStretch: go.GraphObject.Uniform
-                        },
-                        new go.Binding('visible', '', function (data) {
-                            return data.isAuthorized && data.hasAlert;
-                        })
-                    ),
-                    $(
-                        go.Picture,
-                        {
+                            margin: new go.Margin(5, 0, 0, 0),
                             width: 28,
                             height: 28,
                             source: ServerMapTheme.general.common.funcServerMapImagePath(ServerMapTheme.general.common.icon.filter),
@@ -287,105 +331,56 @@ export class ServerMapTemplateWithGojs {
                         new go.Binding('visible', 'isFiltered')
                     )
                 )
+            ),
+            $(
+                go.Panel,
+                go.Panel.Auto,
+                {
+                    position: new go.Point(10, 0),
+                    width: 120,
+                    height: 120
+                },
+                $(
+                    go.Picture,
+                    {
+                        width: 20,
+                        height: 20,
+                        source: ServerMapTheme.general.common.funcServerMapImagePath(ServerMapTheme.general.common.icon.error),
+                        imageStretch: go.GraphObject.Uniform
+                    },
+                    new go.Binding('visible', '', (data) => {
+                        return data.isAuthorized && data.hasAlert;
+                    })
+                )
             )
         );
     }
     public static makeNodeGroupTemplate(serverMapComponent: any) {
-        /*
-            template structure
-            Node
-                Panel.Auto
-                Shape
-                    Panel.Table
-                    Shape ( row: 0, col: 0 ) - background
-                    Button
-                    Picture ( row: 1, col: 0 ) - icon
-                    Shape ( row: 1, col: 0 ) - background
-                    Panel.Vertical( row: 1, col: 0 )           : bind>mergedNodes
-                        Panel.Table
-                            Panel.TableRow
-                                Picture ( Error.png )
-                                TextBlock ( index )
-                                TextBlock ( applicationName )
-                                TextBlock ( totalCount )
-
-                    Panel.Vertical( row: 1, col: 0 )            : bind>mergedMultiSourceNodes
-                        Panel.Vertical
-                            TextBlock - applicaitonName
-                            Panel.Table                         : bind>group
-                                Panel.TableRow
-                                    Picture ( Error.png )
-                                    TextBlock ( index )
-                                    TextBlock ( applicationName )
-                                    TextBlock ( totalCount )
-                    Panel
-                        Shape
-                        TextBlock ( instaceCount )
-        */
         const $ = go.GraphObject.make;
-        const groupTableTemplate = $(
-            go.Panel,
-            go.Panel.TableRow,
-            $(
-                go.Picture, {
-                    column: 1,
-                    source: ServerMapTheme.general.common.funcServerMapImagePath(ServerMapTheme.general.common.icon.error),
-                    margin: new go.Margin(1, 2),
-                    visible: false,
-                    desiredSize: new go.Size(10, 10),
-                    imageStretch: go.GraphObject.Uniform
-                },
-                new go.Binding('visible', 'hasAlert')
-            ),
-            $(
-                go.TextBlock, {
-                    name: 'NODE_APPLICATION_NAME',
-                    font: ServerMapTheme.general.common.font.small,
-                    margin: new go.Margin(1, 2),
-                    column: 2,
-                    alignment: go.Spot.Left
-                },
-                new go.Binding('stroke', 'tableHeader', function( tableHeader ) {
-                    return tableHeader === true ? '#1BABF4' : '#000';
-                }),
-                new go.Binding('text', 'applicationName')
-            ),
-            $(
-                go.TextBlock, {
-                    font: ServerMapTheme.general.common.font.small,
-                    margin: new go.Margin(1, 2),
-                    column: 3,
-                    alignment: go.Spot.Right
-                },
-                new go.Binding('text', 'totalCount', function (val) {
-                    return val === '' ? '' : parseInt(val, 10).toLocaleString();
-                })
-            )
-        );
         return $(
             go.Node,
             go.Panel.Auto,
             {
                 position: new go.Point(0, 0),
                 selectionAdorned: false,
-                click: function (event: go.DiagramEvent, obj: go.GraphObject) {
+                click: (event: go.InputEvent, obj: go.GraphObject) => {
                     serverMapComponent.onClickNode(event, obj);
                 },
-                doubleClick: function(event: go.DiagramEvent, obj: go.GraphObject) {
+                doubleClick: (event: go.InputEvent, obj: go.GraphObject) => {
                     serverMapComponent.onDoubleClickNode(event, obj);
                 },
-                contextClick: function(event: go.DiagramEvent, obj: go.GraphObject) {
+                contextClick: (event: go.InputEvent, obj: go.GraphObject) => {
                     serverMapComponent.onContextClickNode(event, obj);
                 }
             },
+            new go.Binding('key', 'key'),
+            new go.Binding('category', 'serviceType'),
             $(
                 go.Shape,
-                'Rectangle',
                 {
-                    name: 'BORDER_SHAPE',
-                    fill: '#FFF',
-                    stroke: '#D0D7DF',
-                    strokeWidth: 0
+                    strokeWidth: 0,
+                    figure: 'Rectangle',
+                    fill: null,
                 }
             ),
             $(
@@ -394,29 +389,26 @@ export class ServerMapTemplateWithGojs {
                 {
                     cursor: 'pointer'
                 },
-                $(go.RowColumnDefinition, {row: 0, column: 0, width: 140, height: 95}),
-                $(go.RowColumnDefinition, {row: 1, minimum: 30, stretch: go.GraphObject.Fill}),
+                $(go.RowColumnDefinition, {column: 0, minimum: 108}),
                 $(
                     go.Shape,
-                    'Rectangle',
                     {
                         row: 0,
-                        name: 'TOP_RECT',
                         column: 0,
-                        height: 95,
-                        strokeWidth: 1,
-                        stretch: go.GraphObject.Horizontal,
-                        stroke: '#D0D7DF'
+                        width: 108,
+                        height: 108,
+                        figure: 'Circle',
+                        position: new go.Point(-4, -4),
                     },
-                    new go.Binding('fill', 'key', function(key) {
+                    new go.Binding('fill', 'key', (key) => {
                         const type = serverMapComponent.isBaseApplication(key) ? 'main' : 'normal';
                         return ServerMapTheme.general.node[type].fill.top;
                     }),
-                    new go.Binding('stroke', 'key', function(key) {
+                    new go.Binding('stroke', 'key', (key, node) => {
                         const type = serverMapComponent.isBaseApplication(key) ? 'main' : 'normal';
                         return ServerMapTheme.general.node[type].stroke;
                     }),
-                    new go.Binding('strokeWidth', 'key', function(key) {
+                    new go.Binding('strokeWidth', 'key', (key) => {
                         const type = serverMapComponent.isBaseApplication(key) ? 'main' : 'normal';
                         return ServerMapTheme.general.node[type].strokeWidth;
                     })
@@ -426,104 +418,81 @@ export class ServerMapTemplateWithGojs {
                     {
                         row: 0,
                         column: 0,
-                        width: 90,
-                        height: 90,
+                        width: 100,
+                        height: 100,
                         imageStretch: go.GraphObject.Uniform,
-                        errorFunction: function(e: any) {
+                        errorFunction: (e: any) => {
                             e.source = ServerMapTheme.general.common.funcServerMapImagePath(ServerMapTemplateWithGojs.NO_IMAGE_FOUND);
                         }
                     },
-                    new go.Binding('source', 'serviceType', function (type) {
+                    new go.Binding('source', 'serviceType', (type) => {
                         return ServerMapTheme.general.common.funcServerMapImagePath(type);
                     })
                 ),
                 $(
                     go.Shape,
-                    'Rectangle',
                     {
-                        row: 1,
-                        name: 'BOTTOM_RECT',
+                        row: 0,
                         column: 0,
-                        margin: new go.Margin(-1, 0, 0, 0),
-                        minSize: new go.Size(140, 30),
-                        stretch: go.GraphObject.Fill
+                        fill: null,
+                        name: 'BORDER_SHAPE',
+                        width: 108,
+                        height: 108,
+                        figure: 'Circle',
+                        portId: '',
+                        position: new go.Point(-4, -4),
+                        fromLinkable: true, fromLinkableSelfNode: true, fromLinkableDuplicates: true,
+                        toLinkable: true, toLinkableSelfNode: true, toLinkableDuplicates: true,
                     },
-                    new go.Binding('fill', 'key', function(key) {
-                        const type = serverMapComponent.isBaseApplication(key) ? 'main' : 'normal';
-                        return ServerMapTheme.general.node[type].fill.bottom;
-                    }),
-                    new go.Binding('stroke', 'key', function(key) {
+                    new go.Binding('stroke', 'key', (key, node) => {
                         const type = serverMapComponent.isBaseApplication(key) ? 'main' : 'normal';
                         return ServerMapTheme.general.node[type].stroke;
                     }),
-                    new go.Binding('strokeWidth', 'key', function(key) {
+                    new go.Binding('strokeWidth', 'key', (key) => {
                         const type = serverMapComponent.isBaseApplication(key) ? 'main' : 'normal';
                         return ServerMapTheme.general.node[type].strokeWidth;
                     })
                 ),
                 $(
-                    go.Panel,
-                    go.Panel.Vertical, {
+                    go.TextBlock,
+                    {
+                        textAlign: 'center',
+                        height: 20,
                         row: 1,
                         column: 0,
-                        margin: new go.Margin(3, 0, 3, 0),
-                        minSize: new go.Size(138, NaN),
-                        alignment: go.Spot.TopLeft,
-                        alignmentFocus: go.Spot.TopLeft
+                        margin: new go.Margin(5, 10, 0, 10)
                     },
-                    $(
-                        go.Panel,
-                        go.Panel.Table, {
-                            padding: 6,
-                            visible: true,
-                            minSize: new go.Size(138, NaN),
-                            itemTemplate: groupTableTemplate,
-                            defaultStretch: go.GraphObject.Horizontal
-                        },
-                        new go.Binding('itemArray', 'topCountNodes')
-                    )
-                ),
-                $(
-                    go.Panel,
-                    go.Panel.Auto,
-                    {
-                        minSize: new go.Size(20, 20),
-                        alignment: go.Spot.TopRight
-                    },
-                    new go.Binding('visible', 'instanceCount', function (v) {
-                        return v > 1 ? true : false;
+                    new go.Binding('font', 'key', (key: string) => {
+                        const type = serverMapComponent.isBaseApplication(key) ? 'big' : 'normal';
+                        return ServerMapTheme.general.common.font[type];
                     }),
-                    $(
-                        go.Shape,
-                        {
-                            figure: 'Rectangle'
-                        },
-                        new go .Binding('fill', '', function() {
-                            return ServerMapTheme.general.instance.shape.fill;
-                        }),
-                        new go .Binding('stroke', '', function() {
-                            return ServerMapTheme.general.instance.shape.stroke;
-                        }),
-                        new go .Binding('strokeWidth', '', function() {
-                            return ServerMapTheme.general.instance.shape.strokeWidth;
-                        })
-                    ),
-                    $(
-                        go.TextBlock,
-                        {
-                            height: 20,
-                            editable: false,
-                            textAlign: 'center',
-                            verticalAlignment: go.Spot.Center
-                        },
-                        new go .Binding('font', '', function() {
-                            return ServerMapTheme.general.common.font.small;
-                        }),
-                        new go .Binding('stroke', '', function() {
-                            return ServerMapTheme.general.instance.text.stroke;
-                        }),
-                        new go.Binding('text', 'instanceCount')
-                    )
+                    new go.Binding('stroke', '', () => {
+                        return ServerMapTheme.general.node.normal.text.stroke;
+                    }),
+                    new go.Binding('text', '', (data) => {
+                        return '[' + data.topCountNodes[0].applicationName.split(' ')[1] + ']' + data.serviceType.replace(/(.*)\_.*/ig, '$1');
+                    })
+                )
+            ),
+            $(
+                go.Panel,
+                go.Panel.Auto,
+                {
+                    position: new go.Point(10, 0),
+                    width: 120,
+                    height: 120
+                },
+                $(
+                    go.Picture,
+                    {
+                        width: 20,
+                        height: 20,
+                        source: ServerMapTheme.general.common.funcServerMapImagePath(ServerMapTheme.general.common.icon.error),
+                        imageStretch: go.GraphObject.Uniform
+                    },
+                    new go.Binding('visible', '', (data) => {
+                        return data.isAuthorized && data.hasAlert;
+                    })
                 )
             )
         );
@@ -538,13 +507,13 @@ export class ServerMapTemplateWithGojs {
                 layerName: 'Foreground',
                 reshapable: false,
                 selectionAdorned: false,
-                click: function (event: go.DiagramEvent, obj: go.GraphObject) {
+                click: (event: go.InputEvent, obj: go.GraphObject) => {
                     serverMapComponent.onClickLink(event, obj);
                 },
-                doubleClick: function(event: go.DiagramEvent, obj: go.GraphObject) {
+                doubleClick: (event: go.InputEvent, obj: go.GraphObject) => {
                     serverMapComponent.onDoubleClickLink(event, obj);
                 },
-                contextClick: function (event: go.DiagramEvent, obj: go.GraphObject) {
+                contextClick: (event: go.InputEvent, obj: go.GraphObject) => {
                     serverMapComponent.onContextClickLink(event, obj);
                 }
             },
@@ -607,11 +576,11 @@ export class ServerMapTemplateWithGojs {
                             margin: new go.Margin(1),
                             textAlign: 'center'
                         },
-                        new go.Binding('text', 'totalCount', function (val) {
+                        new go.Binding('text', 'totalCount', (val) => {
                             return parseInt(val, 10).toLocaleString();
                         }),
-                        new go.Binding('stroke', 'hasAlert', function (hasAlert) {
-                            if ( hasAlert ) {
+                        new go.Binding('stroke', 'hasAlert', (hasAlert) => {
+                            if (hasAlert) {
                                 return ServerMapTheme.general.link.normal.fontColor.alert;
                             } else {
                                 return ServerMapTheme.general.link.normal.fontColor.normal;
@@ -620,12 +589,10 @@ export class ServerMapTemplateWithGojs {
                     )
                 )
             ),
-            new go.Binding('curve', 'curve', function (val) {
-                console.log( 'curve', val );
+            new go.Binding('curve', 'curve', (val) => {
                 return go.Link[val];
             }),
-            new go.Binding('routing', 'routing', function (val) {
-                console.log( 'routing', val );
+            new go.Binding('routing', 'routing', (val) => {
                 return go.Link[val];
             }),
             new go.Binding('curviness', 'curviness')

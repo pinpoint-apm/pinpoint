@@ -22,10 +22,10 @@ export class ServerMapOptionsContainerComponent implements OnInit, OnDestroy {
 
     funcImagePath: Function;
     hiddenComponent: boolean;
-    inboundList: string[];
-    outboundList: string[];
-    selectedInbound: string;
-    selectedOutbound: string;
+    inboundList: number[];
+    outboundList: number[];
+    selectedInbound: number;
+    selectedOutbound: number;
     selectedBidirectional: boolean;
     selectedWasOnly: boolean;
     constructor(
@@ -55,11 +55,11 @@ export class ServerMapOptionsContainerComponent implements OnInit, OnDestroy {
                 return {
                     inbound: urlService.hasValue(UrlQuery.INBOUND) ? urlService.getQueryValue(UrlQuery.INBOUND) : this.webAppSettingDataService.getUserDefaultInbound(),
                     outbound: urlService.hasValue(UrlQuery.OUTBOUND) ? urlService.getQueryValue(UrlQuery.OUTBOUND) : this.webAppSettingDataService.getUserDefaultOutbound(),
-                    bidirectional: urlService.hasValue(UrlQuery.BIDIRECTIONAL) ? urlService.getQueryValue(UrlQuery.BIDIRECTIONAL) === 'true' : false,
-                    wasOnly: urlService.hasValue(UrlQuery.WAS_ONLY) ? urlService.getQueryValue(UrlQuery.WAS_ONLY) === 'true' : false
+                    bidirectional: urlService.hasValue(UrlQuery.BIDIRECTIONAL) ? urlService.getQueryValue(UrlQuery.BIDIRECTIONAL) : false,
+                    wasOnly: urlService.hasValue(UrlQuery.WAS_ONLY) ? urlService.getQueryValue(UrlQuery.WAS_ONLY) : false
                 };
             })
-        ).subscribe(({inbound, outbound, bidirectional, wasOnly}: {inbound: string, outbound: string, bidirectional: boolean, wasOnly: boolean}) => {
+        ).subscribe(({inbound, outbound, bidirectional, wasOnly}: {inbound: number, outbound: number, bidirectional: boolean, wasOnly: boolean}) => {
             this.selectedInbound = inbound;
             this.selectedOutbound = outbound;
             this.selectedBidirectional = bidirectional;
@@ -71,7 +71,7 @@ export class ServerMapOptionsContainerComponent implements OnInit, OnDestroy {
         this.unsubscribe.next();
         this.unsubscribe.complete();
     }
-    onChangeBound(options: { inbound: string, outbound: string, wasOnly: boolean, bidirectional: boolean }): void {
+    onChangeBound(options: { inbound: number, outbound: number, wasOnly: boolean, bidirectional: boolean }): void {
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.SET_SERVER_MAP_OPTION, `inbound: ${options.inbound}, outbound: ${options.outbound}, wasOnly: ${options.wasOnly}, bidirectional: ${options.bidirectional}`);
         this.urlRouteManagerService.moveOnPage({
             url: [

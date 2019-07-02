@@ -110,6 +110,10 @@ public class SocketState {
         return to(nextState);
     }
 
+    public boolean checkState(SocketStateCode expectedState) {
+        return getCurrentState() == expectedState;
+    }
+
     public synchronized SocketStateCode getCurrentState() {
         return currentState;
     }

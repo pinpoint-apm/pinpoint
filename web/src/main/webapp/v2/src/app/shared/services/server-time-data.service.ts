@@ -9,16 +9,15 @@ interface IServerTime {
 
 @Injectable()
 export class ServerTimeDataService {
+    constructor(
+        private http: HttpClient
+    ) {}
 
-    constructor(private http: HttpClient) { }
     getServerTime(): Observable<number> {
         return this.http.get<IServerTime>('serverTime.pinpoint').pipe(
             map(res => {
                 return res.currentServerTime;
             })
         );
-    }
-    getServerTimeToPromise(): Promise<number> {
-        return this.getServerTime().toPromise();
     }
 }

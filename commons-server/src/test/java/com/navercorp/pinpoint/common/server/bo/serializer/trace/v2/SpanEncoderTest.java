@@ -2,12 +2,12 @@ package com.navercorp.pinpoint.common.server.bo.serializer.trace.v2;
 
 import com.google.common.collect.Lists;
 import com.navercorp.pinpoint.common.buffer.Buffer;
-import com.navercorp.pinpoint.common.buffer.OffsetFixedBuffer;
+import com.navercorp.pinpoint.common.buffer.FixedBuffer;
 import com.navercorp.pinpoint.common.server.bo.RandomTSpan;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
-import com.navercorp.pinpoint.common.server.bo.SpanFactory;
+import com.navercorp.pinpoint.common.server.bo.thrift.SpanFactory;
 import com.navercorp.pinpoint.thrift.dto.TSpan;
 import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
 import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
@@ -108,8 +108,10 @@ public class SpanEncoderTest {
         return currentTime - randomSeed;
     }
 
-    private OffsetFixedBuffer wrapBuffer(ByteBuffer byteBuffer) {
-        return new OffsetFixedBuffer(byteBuffer.array(), byteBuffer.arrayOffset(), byteBuffer.remaining());
+    private Buffer wrapBuffer(ByteBuffer byteBuffer) {
+        byte[] buffer = new byte[byteBuffer.remaining()];
+        byteBuffer.get(buffer);
+        return new FixedBuffer(buffer);
     }
 
     private SpanBo randomSpan() {
@@ -176,7 +178,7 @@ public class SpanEncoderTest {
     private void assertSpanChunk(SpanChunkBo spanChunkBo) {
         spanChunkBo.setCollectorAcceptTime(getCollectorAcceptTime());
 
-        SpanEncodingContext<SpanChunkBo> encodingContext = new SpanEncodingContext<SpanChunkBo>(spanChunkBo);
+        SpanEncodingContext<SpanChunkBo> encodingContext = new SpanEncodingContext<>(spanChunkBo);
         Buffer qualifier = wrapBuffer(spanEncoder.encodeSpanChunkQualifier(encodingContext));
         Buffer column = wrapBuffer(spanEncoder.encodeSpanChunkColumnValue(encodingContext));
 
@@ -189,7 +191,7 @@ public class SpanEncoderTest {
         // logger.debug("spanChunk dump \noriginal spanChunkBo:{} \ndecode spanChunkBo:{} ", spanChunkBo, decode);
 
         List<String> notSerializedField = Lists.newArrayList("endPoint", "serviceType", "applicationServiceType");
-        List<String> excludeField = Lists.newArrayList("spanEventBoList");
+        List<String> excludeField = Lists.newArrayList("spanEventBoList", "localAsyncId");
         notSerializedField.addAll(excludeField);
         Assert.assertTrue(EqualsBuilder.reflectionEquals(decode, spanChunkBo, notSerializedField));
 

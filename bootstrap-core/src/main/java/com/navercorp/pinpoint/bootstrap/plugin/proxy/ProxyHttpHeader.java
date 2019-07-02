@@ -21,8 +21,10 @@ import com.navercorp.pinpoint.common.util.LongIntIntByteByteStringValue;
 import com.navercorp.pinpoint.common.util.StringUtils;
 
 /**
+ * @deprecated As of release 1.8.2, replaced by ProxyRequestHeader
  * @author jaehong.kim
  */
+@Deprecated
 public class ProxyHttpHeader {
     public static final int TYPE_APP = 1;
     public static final int TYPE_NGINX = 2;

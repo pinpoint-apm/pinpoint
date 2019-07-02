@@ -26,11 +26,17 @@ import java.lang.instrument.Instrumentation;
  */
 public class DefaultJavaModuleFactory implements JavaModuleFactory {
 
-    public DefaultJavaModuleFactory() {
+    private final Instrumentation instrumentation;
+
+    public DefaultJavaModuleFactory(Instrumentation instrumentation) {
+        if (instrumentation == null) {
+            throw new NullPointerException("instrumentation must not be null");
+        }
+        this.instrumentation = instrumentation;
     }
 
     @Override
-    public JavaModule wrapFromClass(Instrumentation instrumentation, Class clazz) {
+    public JavaModule wrapFromClass(Class<?> clazz) {
         if (clazz == null) {
             throw new NullPointerException("clazz must not be null");
         }
@@ -38,7 +44,7 @@ public class DefaultJavaModuleFactory implements JavaModuleFactory {
     }
 
     @Override
-    public JavaModule wrapFromModule(Instrumentation instrumentation, Object module) {
+    public JavaModule wrapFromModule(Object module) {
         if (!(module instanceof Module)) {
             throw new IllegalArgumentException("module not java.lang.module");
         }
@@ -51,5 +57,21 @@ public class DefaultJavaModuleFactory implements JavaModuleFactory {
             throw new IllegalArgumentException("module not java.lang.module");
         }
         return ((Module) module).isNamed();
+    }
+
+    @Override
+    public Object getUnnamedModule(ClassLoader classLoader) {
+        if (classLoader == null) {
+            throw new NullPointerException("classLoader must not be null");
+        }
+        return classLoader.getUnnamedModule();
+    }
+
+    @Override
+    public Object getModule(Class<?> clazz) {
+        if (clazz == null) {
+            throw new NullPointerException("clazz must not be null");
+        }
+        return clazz.getModule();
     }
 }

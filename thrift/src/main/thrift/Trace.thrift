@@ -57,6 +57,12 @@ struct TAnnotation {
     2: optional TAnnotationValue value
 }
 
+
+struct TLocalAsyncId {
+    1: i32 asyncId;
+    2: i32 sequence;
+}
+
 struct TSpanEvent {
 
     7: optional i64 spanId
@@ -83,9 +89,9 @@ struct TSpanEvent {
     25: optional i32 apiId;
     26: optional TIntStringValue exceptionInfo;
 
-    30: optional i32 asyncId;
+    30: optional i32 asyncId ( deprecated )
     31: optional i32 nextAsyncId;
-    32: optional i16 asyncSequence;
+    32: optional i16 asyncSequence ( deprecated )
 }
 
 struct TSpan {
@@ -159,6 +165,8 @@ struct TSpanChunk {
     12: optional i64 keyTime;
 
     13: optional i8 version = TRACE_V2;
+
+    14: optional TLocalAsyncId localAsyncId;
 }
 
 

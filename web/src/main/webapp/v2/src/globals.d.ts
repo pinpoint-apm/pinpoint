@@ -26,6 +26,7 @@ interface IResponseTime {
     '5s': number;
     'Slow': number;
     'Error': number;
+    [key: string]: number;
 }
 // @store
 interface IHistogram {
@@ -39,6 +40,7 @@ interface IResponseMilliSecondTime {
     '500ms': number;
     'Error': number;
     'Slow': number;
+    [key: string]: number;
 }
 interface IInstanceStatus {
     code: number;
@@ -86,7 +88,7 @@ interface IAgent {
 interface IAgentSelection { 
     agent: string;
     responseSummary: IResponseTime | IResponseMilliSecondTime;
-    load: IHistogram;
+    load: IHistogram[];
 }
 interface IInstanceInfo {
     hasInspector: boolean;
@@ -172,14 +174,17 @@ interface IFilter {
 }
 
 interface ISelectedTarget {
+    clickParam: any;
     endTime: string;
     period: string;
     isNode?: boolean;
     isLink?: boolean;
     isMerged: boolean;
+    isSourceMerge?: boolean;
     isWAS: boolean;
     node?: string[];
     link?: string[];
+    groupedNode?: string[];
     hasServerList?: boolean;
     isAuthorized?: boolean;
 }
@@ -261,6 +266,14 @@ interface IHoveredInfo {
     time?: number;
     offsetX?: number;
     offsetY?: number;
+    applicationId?: string;
+    agentId?: string;
+}
+
+interface ISelectedRowInfo {
+    time: number;
+    applicationId?: string;
+    agentId?: string;
 }
 // @store
 interface IServerAndAgentData {
@@ -339,8 +352,39 @@ interface IServerErrorFormat {
         message: string;
     }
 }
-
 interface IServerErrorShortFormat {
     errorCode: string;
     errorMessage: string;
+}
+interface ISystemConfiguration {
+    editUserInfo: boolean;
+    enableServerMapRealTime: boolean;
+    openSource: boolean;
+    sendUsage: boolean;
+    showActiveThread: boolean;
+    showActiveThreadDump: boolean;
+    showApplicationStat: boolean;
+    version: string;
+    userId?: string;
+    userName?: string;
+    userDepartment?: string;
+}
+
+interface IFormFieldErrorType {
+    required?: string;
+    minlength?: string;
+    maxlength?: string;
+    min?: string;
+    max?: string;
+    valueRule?: string;
+}
+
+interface IChartLayoutInfo {
+    chartName: string;
+    index: number;
+    visible: boolean;
+}
+
+interface IChartLayoutInfoResponse {
+    [key: string]: IChartLayoutInfo[];
 }

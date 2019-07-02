@@ -8,8 +8,8 @@ export default {
             },
             font: {
                 small: '8pt avn55,NanumGothic,ng,dotum,AppleGothic,sans-serif',
-                normal: '10pt avn85,NanumGothic,ng,dotum,AppleGothic,sans-serif',
-                big: 'bold 12pt avn55,NanumGothic,ng,dotum,AppleGothic,sans-serif'
+                normal: '10pt Helvetica, Arial, avn85,NanumGothic,ng,dotum,AppleGothic,sans-serif',
+                big: 'bold 12pt Helvetica, Arial, avn55,NanumGothic,ng,dotum,AppleGothic,sans-serif'
             }
         },
         circle: {
@@ -37,7 +37,7 @@ export default {
                 strokeWidth: 1
             },
             text: {
-                stroke: '#FFF'
+                stroke: '#000'
             }
         },
         node: {
@@ -58,8 +58,8 @@ export default {
             },
             normal: {
                 border: {
-                    stroke: '#FFF',
-                    strokeWidth: 0
+                    stroke: '#DDD',
+                    strokeWidth: 4
                 },
                 stroke: '#D0D7DF',
                 strokeWidth: 1,

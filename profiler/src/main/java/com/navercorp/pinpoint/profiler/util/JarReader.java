@@ -17,11 +17,11 @@
 
 package com.navercorp.pinpoint.profiler.util;
 
+import com.navercorp.pinpoint.common.util.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayOutputStream;
-import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -65,14 +65,13 @@ public class JarReader {
 
         final BufferedContext bufferedContext = new BufferedContext();
 
-        String jarFileName = jarFile.getName();
         Enumeration<JarEntry> entries = jarFile.entries();
         List<FileBinary> fileBinaryList = new ArrayList<FileBinary>();
         while (entries.hasMoreElements()) {
             final JarEntry jarEntry = entries.nextElement();
             if (jarEntryFilter.filter(jarEntry)) {
                 if (logger.isDebugEnabled()) {
-                    logger.debug("filter fileName:{}, JarFile:{}", jarEntry.getName(), jarFileName);
+                    logger.debug("filter fileName:{}, JarFile:{}", jarEntry, jarFile.getName());
                 }
                 FileBinary fileBinary = newFileBinary(bufferedContext, jarEntry);
                 fileBinaryList.add(fileBinary);
@@ -100,38 +99,23 @@ public class JarReader {
             try {
                 inputStream = jarFile.getInputStream(jarEntry);
                 if (inputStream == null) {
-                    logger.warn("jarEntry not found. jarFile:{} jarEntry{}", jarFile, jarEntry);
+                    logger.warn("jarEntry not found. jarFile:{} jarEntry{}", jarFile.getName(), jarEntry);
                     return null;
                 }
                 return read(inputStream);
             } catch (IOException ioe) {
-                logger.warn("jarFile read error jarFile:{} jarEntry{} {}", jarFile, jarEntry, ioe.getMessage(), ioe);
+                logger.warn("jarFile read error jarFile:{} jarEntry{} {}", jarFile.getName(), jarEntry, ioe.getMessage(), ioe);
                 throw ioe;
             } finally {
-                close(inputStream);
+                IOUtils.closeQuietly(inputStream);
             }
         }
 
         public byte[] read(InputStream input) throws IOException {
             this.output.reset();
-            read(input, output);
+            IOUtils.copy(input, output, buffer);
             return output.toByteArray();
         }
 
-        public void read(InputStream input, OutputStream output) throws IOException {
-            int readIndex;
-            while ((readIndex = input.read(buffer)) != -1) {
-                output.write(buffer, 0, readIndex);
-            }
-        }
-
-        private void close(Closeable closeable) {
-            if (closeable != null) {
-                try {
-                    closeable.close();
-                } catch (IOException ignore) {
-                }
-            }
-        }
     }
 }

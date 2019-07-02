@@ -30,6 +30,7 @@
 package com.navercorp.pinpoint.profiler.instrument.classreading;
 
 import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.common.util.IOUtils;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -71,6 +72,7 @@ public class ClassReaderWrapper {
     // classloader and class internal name.
     public ClassReaderWrapper(final ClassLoader classLoader, final String classInternalName, final boolean readAttributes) throws IOException {
         Assert.requireNonNull(classInternalName, "classInternalName must not be null");
+
         ClassLoader cl = classLoader;
         if (cl == null) {
             cl = ClassLoader.getSystemClassLoader();
@@ -80,21 +82,16 @@ public class ClassReaderWrapper {
             }
         }
 
-        final InputStream in = cl.getResourceAsStream(classInternalName + ".class");
+        final String classPath = classInternalName.concat(".class");
+        final InputStream in = cl.getResourceAsStream(classPath);
         if (in == null) {
             throw new IOException("not found class. classLoader=" + cl + ", classInternalName=" + classInternalName);
         }
 
-        try {
-            this.classReader = new ClassReader(in);
-            if (readAttributes) {
-                readAttributes();
-            }
-        } finally {
-            try {
-                in.close();
-            } catch (IOException ignored) {
-            }
+        byte[] bytes = IOUtils.toByteArray(in);
+        this.classReader = new ClassReader(bytes);
+        if (readAttributes) {
+            readAttributes();
         }
     }
 
@@ -248,7 +245,7 @@ public class ClassReaderWrapper {
         StringBuilder sb = new StringBuilder().append("{");
         sb.append("access=").append(classReader.getAccess()).append(", ");
         sb.append("name=").append(classReader.getClassName()).append(", ");
-        sb.append("interfaces=").append(Arrays.asList(classReader.getInterfaces())).append(", ");
+        sb.append("interfaces=").append(Arrays.toString(classReader.getInterfaces())).append(", ");
         sb.append("super=").append(classReader.getSuperName());
         sb.append("}");
         return sb.toString();

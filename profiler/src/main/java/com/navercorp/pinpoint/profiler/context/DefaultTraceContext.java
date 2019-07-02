@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.profiler.context;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.ParsingResult;
 import com.navercorp.pinpoint.bootstrap.context.ServerMetaDataHolder;
@@ -28,10 +27,8 @@ import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcContext;
 import com.navercorp.pinpoint.common.annotations.InterfaceAudience;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.AgentInformation;
-
 import com.navercorp.pinpoint.profiler.context.id.TraceIdFactory;
 import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
-import com.navercorp.pinpoint.profiler.metadata.JsonMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
 import org.slf4j.Logger;
@@ -50,14 +47,11 @@ public class DefaultTraceContext implements TraceContext {
     private final TraceIdFactory traceIdFactory;
     private final TraceFactory traceFactory;
 
-    private final AsyncTraceContext asyncTraceContext;
-
     private final AgentInformation agentInformation;
 
     private final ApiMetaDataService apiMetaDataService;
     private final StringMetaDataService stringMetaDataService;
     private final SqlMetaDataService sqlMetaDataService;
-    private final JsonMetaDataService jsonMetaDataService;
 
     private final ProfilerConfig profilerConfig;
 
@@ -69,13 +63,11 @@ public class DefaultTraceContext implements TraceContext {
                                final AgentInformation agentInformation,
                                final TraceIdFactory traceIdFactory,
                                final TraceFactory traceFactory,
-                               final AsyncTraceContext asyncTraceContext,
                                final ServerMetaDataHolder serverMetaDataHolder,
                                final ApiMetaDataService apiMetaDataService,
                                final StringMetaDataService stringMetaDataService,
                                final SqlMetaDataService sqlMetaDataService,
-                               final JdbcContext jdbcContext,
-                               final JsonMetaDataService jsonMetaDataService
+                               final JdbcContext jdbcContext
     ) {
         this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig must not be null");
         this.agentInformation = Assert.requireNonNull(agentInformation, "agentInformation must not be null");
@@ -83,14 +75,12 @@ public class DefaultTraceContext implements TraceContext {
 
         this.traceIdFactory = Assert.requireNonNull(traceIdFactory, "traceIdFactory must not be null");
         this.traceFactory = Assert.requireNonNull(traceFactory, "traceFactory must not be null");
-        this.asyncTraceContext = Assert.requireNonNull(asyncTraceContext, "asyncTraceContextProvider must not be null");
 
         this.jdbcContext = Assert.requireNonNull(jdbcContext, "jdbcContext must not be null");
 
         this.apiMetaDataService = Assert.requireNonNull(apiMetaDataService, "apiMetaDataService must not be null");
         this.stringMetaDataService = Assert.requireNonNull(stringMetaDataService, "stringMetaDataService must not be null");
         this.sqlMetaDataService = Assert.requireNonNull(sqlMetaDataService, "sqlMetaDataService must not be null");
-        this.jsonMetaDataService = Assert.requireNonNull(jsonMetaDataService, "jsonMetaDataService must not be null");
     }
 
     /**
@@ -153,11 +143,7 @@ public class DefaultTraceContext implements TraceContext {
         return traceFactory.continueAsyncTraceObject(traceId);
     }
 
-    @Override
-    public Trace continueAsyncTraceObject(AsyncTraceId asyncTraceId, int asyncId, long startTime) {
-        final Reference<Trace> traceReference = asyncTraceContext.continueAsyncTraceObject(asyncTraceId, asyncId, startTime);
-        return traceReference.get();
-    }
+
 
 
     @Override
@@ -243,19 +229,10 @@ public class DefaultTraceContext implements TraceContext {
     }
 
     @Override
-    public ParsingResult parseJson(final String json) {
-        return this.jsonMetaDataService.parseJson(json);
-    }
-
-    @Override
     public ServerMetaDataHolder getServerMetaDataHolder() {
         return this.serverMetaDataHolder;
     }
 
-    @Override
-    public int getAsyncId() {
-        return this.asyncTraceContext.nextAsyncId();
-    }
 
     @Override
     public JdbcContext getJdbcContext() {

@@ -15,13 +15,14 @@
  */
 package com.navercorp.pinpoint.flink.dao.hbase;
 
-import com.navercorp.pinpoint.common.hbase.HBaseTables;
+import com.navercorp.pinpoint.common.hbase.HbaseTable;
 import com.navercorp.pinpoint.common.hbase.HbaseTemplate2;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.ApplicationStatHbaseOperationFactory;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.join.MemorySerializer;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.StatType;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Put;
@@ -56,7 +57,7 @@ public class MemoryDao {
         }
         List<Put> memoryPuts = applicationStatHbaseOperationFactory.createPuts(id, joinMemoryBoList, statType, memorySerializer);
         if (!memoryPuts.isEmpty()) {
-            TableName applicationStatAggreTableName = tableNameProvider.getTableName(HBaseTables.APPLICATION_STAT_AGGRE_STR);
+            TableName applicationStatAggreTableName = tableNameProvider.getTableName(HbaseTable.APPLICATION_STAT_AGGRE);
             List<Put> rejectedPuts = hbaseTemplate2.asyncPut(applicationStatAggreTableName, memoryPuts);
             if (CollectionUtils.isNotEmpty(rejectedPuts)) {
                 hbaseTemplate2.put(applicationStatAggreTableName, rejectedPuts);
