@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperClient;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperConstants;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperEventWatcher;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.exception.NoNodeException;
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.MapUtils;
 import com.navercorp.pinpoint.rpc.util.ClassUtils;
 import com.navercorp.pinpoint.rpc.util.TimerFactory;
@@ -28,6 +29,7 @@ import com.navercorp.pinpoint.web.cluster.ClusterDataManager;
 import com.navercorp.pinpoint.web.cluster.CollectorClusterInfoRepository;
 import com.navercorp.pinpoint.web.config.WebConfig;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
+
 import org.apache.curator.utils.ZKPaths;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher.Event.EventType;
@@ -39,6 +41,7 @@ import org.jboss.netty.util.TimerTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -49,7 +52,7 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 public class ZookeeperClusterDataManager implements ClusterDataManager, ZookeeperEventWatcher {
 
-    private static final long SYNC_INTERVAL_TIME_MILLIS = 15 * 1000;
+    private static final long PULL_RETRY_INTERVAL_TIME_MILLIS = 15 * 1000;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -66,14 +69,19 @@ public class ZookeeperClusterDataManager implements ClusterDataManager, Zookeepe
 
     private final CollectorClusterInfoRepository collectorClusterInfo = new CollectorClusterInfoRepository();
 
-    public ZookeeperClusterDataManager(WebConfig config) {
-        this(config.getClusterZookeeperAddress(), config.getClusterZookeeperSessionTimeout(), config.getClusterZookeeperRetryInterval());
-    }
+    @Nullable
+    private final PeriodicSyncTask periodicSyncTask;
 
-    public ZookeeperClusterDataManager(String connectAddress, int sessionTimeout, int retryInterval) {
-        this.connectAddress = connectAddress;
-        this.sessionTimeout = sessionTimeout;
-        this.retryInterval = retryInterval;
+    public ZookeeperClusterDataManager(WebConfig config) {
+        this.connectAddress = config.getClusterZookeeperAddress();
+        this.sessionTimeout = config.getClusterZookeeperSessionTimeout();
+        this.retryInterval = config.getClusterZookeeperRetryInterval();
+
+        if (config.isClusterZookeeperPeriodicSyncEnable()) {
+            this.periodicSyncTask = new PeriodicSyncTask(config.getClusterZookeeperPeriodicSyncInterval());
+        } else {
+            this.periodicSyncTask = null;
+        }
     }
 
     @Override
@@ -81,10 +89,17 @@ public class ZookeeperClusterDataManager implements ClusterDataManager, Zookeepe
         this.timer = createTimer();
         this.client = new CuratorZookeeperClient(connectAddress, sessionTimeout, this);
         this.client.connect();
+        if (periodicSyncTask != null) {
+            this.timer.newTimeout(periodicSyncTask, periodicSyncTask.getIntervalMillis(), TimeUnit.MILLISECONDS);
+        }
     }
 
     @Override
     public void stop() {
+        if (periodicSyncTask != null) {
+            periodicSyncTask.stop();
+        }
+
         if (timer != null) {
             timer.stop();
         }
@@ -156,13 +171,13 @@ public class ZookeeperClusterDataManager implements ClusterDataManager, Zookeepe
         if (job != null) {
             if (!clusterDataManagerHelper.pushZnode(client, job)) {
                 timer.newTimeout(job, job.getRetryInterval(), TimeUnit.MILLISECONDS);
-                return  false;
+                return false;
             }
         }
 
         if (!syncPullCollectorCluster()) {
-            timer.newTimeout(new PullCollectorClusterJob(), SYNC_INTERVAL_TIME_MILLIS, TimeUnit.MILLISECONDS);
-            return  false;
+            timer.newTimeout(new PullCollectorClusterJob(), PULL_RETRY_INTERVAL_TIME_MILLIS, TimeUnit.MILLISECONDS);
+            return false;
         }
         return true;
     }
@@ -178,7 +193,7 @@ public class ZookeeperClusterDataManager implements ClusterDataManager, Zookeepe
             if (syncPullCollectorCluster()) {
                 return true;
             }
-            timer.newTimeout(new PullCollectorClusterJob(), SYNC_INTERVAL_TIME_MILLIS, TimeUnit.MILLISECONDS);
+            timer.newTimeout(new PullCollectorClusterJob(), PULL_RETRY_INTERVAL_TIME_MILLIS, TimeUnit.MILLISECONDS);
         }
 
         return false;
@@ -202,7 +217,7 @@ public class ZookeeperClusterDataManager implements ClusterDataManager, Zookeepe
                 if (pushCollectorClusterData(id)) {
                     return true;
                 }
-                timer.newTimeout(new PullCollectorClusterJob(), SYNC_INTERVAL_TIME_MILLIS, TimeUnit.MILLISECONDS);
+                timer.newTimeout(new PullCollectorClusterJob(), PULL_RETRY_INTERVAL_TIME_MILLIS, TimeUnit.MILLISECONDS);
             }
         }
 
@@ -325,9 +340,45 @@ public class ZookeeperClusterDataManager implements ClusterDataManager, Zookeepe
             }
 
             if (!syncPullCollectorCluster()) {
-                timer.newTimeout(new PullCollectorClusterJob(), SYNC_INTERVAL_TIME_MILLIS, TimeUnit.MILLISECONDS);
+                timer.newTimeout(new PullCollectorClusterJob(), PULL_RETRY_INTERVAL_TIME_MILLIS, TimeUnit.MILLISECONDS);
             }
         }
+    }
+
+    class PeriodicSyncTask implements TimerTask {
+
+        private final long intervalMillis;
+        private volatile boolean isStopped;
+
+        public PeriodicSyncTask(long intervalMillis) {
+            Assert.isTrue(intervalMillis > 0, "must be `intervalMillis > 0`)");
+            this.intervalMillis = intervalMillis;
+        }
+
+        long getIntervalMillis() {
+            return intervalMillis;
+        }
+
+        void stop() {
+            isStopped = true;
+        }
+
+        @Override
+        public void run(Timeout timeout) throws Exception {
+            if (isStopped) {
+                logger.info("PeriodicSyncTask will be discarded. message:already stopped");
+                return;
+            }
+
+            logger.info("PeriodicSyncTask started");
+            try {
+                syncPullCollectorCluster();
+            } catch (Exception e) {
+                logger.warn("Failed to sync data. message:{}", e.getMessage(), e);
+            }
+            timer.newTimeout(this, intervalMillis, TimeUnit.MILLISECONDS);
+        }
+
     }
 
 }
