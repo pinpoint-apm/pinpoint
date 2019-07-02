@@ -59,7 +59,7 @@ public class UserGroupController {
     @RequestMapping(method = RequestMethod.POST)
     @ResponseBody
     public Map<String, String> createUserGroup(@RequestBody UserGroup userGroup) {
-        if (ValueValidator.validateUserGroupId(userGroup.getId())) {
+        if (ValueValidator.validateUserGroupId(userGroup.getId()) == false) {
             return createErrorMessage("500", "usergroupId pattern is invalid to create user group");
         }
 

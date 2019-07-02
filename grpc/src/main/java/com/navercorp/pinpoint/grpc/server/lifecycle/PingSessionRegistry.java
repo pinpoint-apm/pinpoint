@@ -21,12 +21,12 @@ import java.util.Collection;
 /**
  * @author Woonduk Kang(emeroad)
  */
-public interface LifecycleRegistry {
-    Lifecycle add(Long transportId, Lifecycle lifecycle);
+public interface PingSessionRegistry {
+    PingSession add(Long transportId, PingSession lifecycle);
 
-    Lifecycle get(Long transportId);
+    PingSession get(Long transportId);
 
-    Lifecycle remove(Long transportId);
+    PingSession remove(Long transportId);
 
-    Collection<Lifecycle> values();
+    Collection<PingSession> values();
 }

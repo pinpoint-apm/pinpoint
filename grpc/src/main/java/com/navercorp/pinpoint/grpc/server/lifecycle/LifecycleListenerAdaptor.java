@@ -26,17 +26,17 @@ public class LifecycleListenerAdaptor implements LifecycleListener {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
-    public void connect(Lifecycle lifecycle) {
+    public void connect(PingSession lifecycle) {
         logger.info("connect:{}", lifecycle);
     }
 
     @Override
-    public void handshake(Lifecycle lifecycle) {
+    public void handshake(PingSession lifecycle) {
         logger.info("handshake {}", lifecycle);
     }
 
     @Override
-    public void close(Lifecycle lifecycle) {
+    public void close(PingSession lifecycle) {
         logger.info("close:{}", lifecycle);
     }
 }

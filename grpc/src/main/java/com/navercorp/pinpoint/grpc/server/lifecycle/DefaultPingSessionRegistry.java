@@ -25,31 +25,31 @@ import java.util.concurrent.ConcurrentMap;
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class DefaultLifecycleRegistry implements LifecycleRegistry {
+public class DefaultPingSessionRegistry implements PingSessionRegistry {
 
-    private final ConcurrentMap<Long, Lifecycle> map = new ConcurrentHashMap<Long, Lifecycle>();
+    private final ConcurrentMap<Long, PingSession> map = new ConcurrentHashMap<Long, PingSession>();
 
 
     @Override
-    public Lifecycle add(Long transportId, Lifecycle lifecycle) {
+    public PingSession add(Long transportId, PingSession lifecycle) {
         Assert.requireNonNull(transportId, "transportId must not be null");
         return map.put(transportId, lifecycle);
     }
 
     @Override
-    public Lifecycle get(Long transportId) {
+    public PingSession get(Long transportId) {
         Assert.requireNonNull(transportId, "transportId must not be null");
         return map.get(transportId);
     }
 
     @Override
-    public Lifecycle remove(Long transportId) {
+    public PingSession remove(Long transportId) {
         Assert.requireNonNull(transportId, "transportId must not be null");
         return map.remove(transportId);
     }
 
     @Override
-    public Collection<Lifecycle> values() {
+    public Collection<PingSession> values() {
         return map.values();
     }
 }

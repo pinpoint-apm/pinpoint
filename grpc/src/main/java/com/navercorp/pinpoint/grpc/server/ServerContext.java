@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.grpc.server;
 
-import com.navercorp.pinpoint.grpc.AgentHeaderFactory;
+import com.navercorp.pinpoint.grpc.Header;
 import io.grpc.Context;
 
 /**
@@ -24,11 +24,11 @@ import io.grpc.Context;
  */
 public class ServerContext {
 
-    private static final Context.Key<AgentHeaderFactory.Header> AGENT_INFO_KEY = Context.key("agentinfo");
+    private static final Context.Key<Header> AGENT_INFO_KEY = Context.key("agentinfo");
 
     private static final Context.Key<TransportMetadata> TRANSPORT_METADATA_KEY = Context.key("transportmetadata");
 
-    public static Context.Key<AgentHeaderFactory.Header> getAgentInfoKey() {
+    public static Context.Key<Header> getAgentInfoKey() {
         return AGENT_INFO_KEY;
     }
 
@@ -36,12 +36,12 @@ public class ServerContext {
         return TRANSPORT_METADATA_KEY;
     }
 
-    public static AgentHeaderFactory.Header getAgentInfo() {
+    public static Header getAgentInfo() {
         final Context current = Context.current();
         return getAgentInfo(current);
     }
 
-    public static AgentHeaderFactory.Header getAgentInfo(Context context) {
+    public static Header getAgentInfo(Context context) {
         return AGENT_INFO_KEY.get(context);
     }
 

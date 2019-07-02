@@ -28,11 +28,8 @@ public class ServerOptionTest {
         builder.setKeepAliveTime(1);
         builder.setKeepAliveTimeout(1);
         builder.setPermitKeepAliveTimeout(1);
-        builder.setPermitKeepAliveWithoutCalls(true);
 
         builder.setMaxConnectionIdle(1);
-        builder.setMaxConnectionAge(1);
-        builder.setMaxConnectionAgeGrace(1);
 
         builder.setMaxConcurrentCallsPerConnection(1);
         builder.setFlowControlWindow(1);
@@ -52,12 +49,9 @@ public class ServerOptionTest {
         assertEquals(1, serverOption.getKeepAliveTime());
         assertEquals(1, serverOption.getKeepAliveTimeout());
         assertEquals(1, serverOption.getPermitKeepAliveTimeout());
-        assertEquals(true, serverOption.isPermitKeepAliveWithoutCalls());
 
 
         assertEquals(1, serverOption.getMaxConnectionIdle());
-        assertEquals(1, serverOption.getMaxConnectionAge());
-        assertEquals(1, serverOption.getMaxConnectionAgeGrace());
 
         assertEquals(1, serverOption.getMaxConcurrentCallsPerConnection());
         assertEquals(1, serverOption.getFlowControlWindow());

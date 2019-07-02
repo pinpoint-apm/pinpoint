@@ -20,5 +20,8 @@ package com.navercorp.pinpoint.profiler.sender.grpc;
  * @author Woonduk Kang(emeroad)
  */
 public interface Reconnector {
-    void reconnect(ReconnectJob reconnectJob);
+
+    void reset();
+
+    void reconnect();
 }

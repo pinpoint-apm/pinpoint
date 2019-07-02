@@ -26,5 +26,4 @@ public interface TransportMetadata {
 
     long getConnectTime();
 
-    LastAccessTime getLastAccessTime();
 }

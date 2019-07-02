@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.collector.mapper.grpc.stat.GrpcAgentStatMapper;
 import com.navercorp.pinpoint.collector.service.AgentStatService;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
 import com.navercorp.pinpoint.grpc.AgentHeaderFactory;
+import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
 import com.navercorp.pinpoint.grpc.server.ServerContext;
 import com.navercorp.pinpoint.grpc.trace.PAgentStat;
@@ -86,7 +87,7 @@ public class GrpcAgentStatHandlerV2 implements SimpleHandler {
             logger.debug("Handle PAgentStatBatch={}", MessageFormatUtils.debugLog(agentStatBatch));
         }
 
-        AgentHeaderFactory.Header header = ServerContext.getAgentInfo();
+        Header header = ServerContext.getAgentInfo();
         final AgentStatBo agentStatBo = this.agentStatBatchMapper.map(agentStatBatch, header);
         if (agentStatBo == null) {
             return;

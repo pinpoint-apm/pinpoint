@@ -64,9 +64,6 @@ export class StoreHelperService {
             distinctUntilChanged()
         );
     }
-    getHoverInfo(unsubscribe: Subject<void>): Observable<IHoveredInfo> {
-        return this.getObservable(STORE_KEY.HOVER_ON_INSPECTOR_CHARTS, unsubscribe);
-    }
     getServerMapTargetSelectedByList(unsubscribe: Subject<void>): Observable<any> {
         return this.getObservable(STORE_KEY.SERVER_MAP_TARGET_SELECTED_BY_LIST, unsubscribe).pipe(
             filter((target: any) => {

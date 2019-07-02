@@ -30,6 +30,7 @@ import com.navercorp.pinpoint.common.server.bo.stat.JvmGcDetailedBo;
 import com.navercorp.pinpoint.common.server.bo.stat.ResponseTimeBo;
 import com.navercorp.pinpoint.common.server.bo.stat.TransactionBo;
 import com.navercorp.pinpoint.grpc.AgentHeaderFactory;
+import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.server.ServerContext;
 import com.navercorp.pinpoint.grpc.trace.PActiveTrace;
 import com.navercorp.pinpoint.grpc.trace.PAgentStat;
@@ -86,7 +87,7 @@ public class GrpcAgentStatMapper {
             return null;
         }
 
-        final AgentHeaderFactory.Header agentInfo = ServerContext.getAgentInfo();
+        final Header agentInfo = ServerContext.getAgentInfo();
         final String agentId = agentInfo.getAgentId();
         final long startTimestamp = agentInfo.getAgentStartTime();
         final long timestamp = agentStat.getTimestamp();
