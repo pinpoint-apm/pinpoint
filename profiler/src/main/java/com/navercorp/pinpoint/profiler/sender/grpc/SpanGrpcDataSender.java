@@ -30,6 +30,8 @@ import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
 import com.google.protobuf.GeneratedMessageV3;
 import io.grpc.stub.StreamObserver;
 
+import java.util.concurrent.ScheduledExecutorService;
+
 import static com.navercorp.pinpoint.grpc.MessageFormatUtils.debugLog;
 
 /**
@@ -37,16 +39,20 @@ import static com.navercorp.pinpoint.grpc.MessageFormatUtils.debugLog;
  */
 public class SpanGrpcDataSender extends GrpcDataSender {
     private final SpanGrpc.SpanStub spanStub;
-    private final ExecutorAdaptor reconnectExecutor;
+    private final ReconnectExecutor reconnectExecutor;
 
     private volatile StreamObserver<PSpanMessage> spanStream;
     private final Reconnector spanStreamReconnector;
 
-    public SpanGrpcDataSender(String host, int port, int executorQueueSize, MessageConverter<GeneratedMessageV3> messageConverter, ChannelFactoryOption channelFactoryOption) {
+    public SpanGrpcDataSender(String host, int port,
+                              int executorQueueSize,
+                              MessageConverter<GeneratedMessageV3> messageConverter,
+                              ScheduledExecutorService reconnectScheduler,
+                              ChannelFactoryOption channelFactoryOption) {
         super(host, port, executorQueueSize, messageConverter, channelFactoryOption);
 
         this.spanStub = SpanGrpc.newStub(managedChannel);
-        this.reconnectExecutor = newReconnectExecutor();
+        this.reconnectExecutor = newReconnectExecutor(reconnectScheduler);
         {
             final Runnable spanStreamReconnectJob = new Runnable() {
                 @Override
@@ -54,13 +60,13 @@ public class SpanGrpcDataSender extends GrpcDataSender {
                     spanStream = newSpanStream();
                 }
             };
-            this.spanStreamReconnector = new ReconnectAdaptor(reconnectExecutor, spanStreamReconnectJob);
+            this.spanStreamReconnector = reconnectExecutor.newReconnector(spanStreamReconnectJob);
             this.spanStream = newSpanStream();
         }
     }
 
-    private ExecutorAdaptor newReconnectExecutor() {
-        return new ExecutorAdaptor(GrpcDataSender.reconnectScheduler);
+    private ReconnectExecutor newReconnectExecutor(ScheduledExecutorService reconnectScheduler) {
+        return new ReconnectExecutor(reconnectScheduler);
     }
 
     private StreamObserver<PSpanMessage> newSpanStream() {
@@ -91,6 +97,9 @@ public class SpanGrpcDataSender extends GrpcDataSender {
 
     @Override
     public void stop() {
+        if (this.reconnectExecutor != null) {
+            this.reconnectExecutor.close();
+        }
         logger.info("spanStream.close()");
         StreamUtils.close(this.spanStream);
         super.stop();

@@ -38,15 +38,18 @@ import com.navercorp.pinpoint.profiler.context.provider.grpc.GrpcNameResolverPro
 import com.navercorp.pinpoint.profiler.context.provider.grpc.GrpcSpanProcessorProvider;
 import com.navercorp.pinpoint.profiler.context.provider.grpc.GrpcTransportConfigProvider;
 import com.navercorp.pinpoint.profiler.context.provider.grpc.MetadataGrpcDataSenderProvider;
+import com.navercorp.pinpoint.profiler.context.provider.grpc.ReconnectSchedulerProvider;
 import com.navercorp.pinpoint.profiler.context.provider.grpc.SpanGrpcDataSenderProvider;
 import com.navercorp.pinpoint.profiler.context.provider.grpc.StatGrpcDataSenderProvider;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 import com.navercorp.pinpoint.profiler.sender.ResultResponse;
+import com.navercorp.pinpoint.profiler.sender.grpc.ReconnectExecutor;
 import io.grpc.NameResolverProvider;
 
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ScheduledExecutorService;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -60,6 +63,10 @@ public class GrpcModule extends PrivateModule {
         bind(ExecutorService.class).toProvider(DnsExecutorServiceProvider.class).in(Scopes.SINGLETON);
         bind(NameResolverProvider.class).toProvider(GrpcNameResolverProvider.class).in(Scopes.SINGLETON);
         bind(HeaderFactory.class).toProvider(AgentHeaderFactoryProvider.class).in(Scopes.SINGLETON);
+
+        bind(ScheduledExecutorService.class).toProvider(ReconnectSchedulerProvider.class).in(Scopes.SINGLETON);
+        // not singleton
+        bind(ReconnectExecutor.class).toProvider(ReconnectExecutor.class)
 
         // Agent
         TypeLiteral<MessageConverter<GeneratedMessageV3>> metadataMessageConverter = new TypeLiteral<MessageConverter<GeneratedMessageV3>>() {};
@@ -83,7 +90,7 @@ public class GrpcModule extends PrivateModule {
         // Span
         TypeLiteral<MessageConverter<GeneratedMessageV3>> protoMessageConverter = new TypeLiteral<MessageConverter<GeneratedMessageV3>>() {};
         Key<MessageConverter<GeneratedMessageV3>> spanMessageConverterKey = Key.get(protoMessageConverter, SpanConverter.class);
-        // not singletone
+        // not singleton
         bind(spanMessageConverterKey).toProvider(GrpcSpanMessageConverterProvider.class);
 
         TypeLiteral<SpanProcessor<PSpan.Builder, PSpanChunk.Builder>> spanPostProcessorType = new TypeLiteral<SpanProcessor<PSpan.Builder, PSpanChunk.Builder>>() {};
