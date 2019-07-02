@@ -40,8 +40,6 @@ import java.util.concurrent.ThreadPoolExecutor;
  * @author Woonduk Kang(emeroad)
  */
 public abstract class GrpcDataSender implements DataSender<Object> {
-    protected static ScheduledExecutorService reconnectScheduler
-            = Executors.newScheduledThreadPool(1, new PinpointThreadFactory("Pinpoint-reconnect-thread"));
 
     protected final Logger logger = LoggerFactory.getLogger(this.getClass());
     protected final boolean isDebug = logger.isDebugEnabled();
@@ -59,7 +57,10 @@ public abstract class GrpcDataSender implements DataSender<Object> {
     protected volatile boolean shutdown;
 
 
-    public GrpcDataSender(String host, int port, int executorQueueSize, MessageConverter<GeneratedMessageV3> messageConverter, ChannelFactoryOption channelFactoryOption) {
+    public GrpcDataSender(String host, int port,
+                          int executorQueueSize,
+                          MessageConverter<GeneratedMessageV3> messageConverter,
+                          ChannelFactoryOption channelFactoryOption) {
         Assert.requireNonNull(channelFactoryOption, "channelFactoryOption must not be null");
 
         this.name = Assert.requireNonNull(channelFactoryOption.getName(), "name must not be null");

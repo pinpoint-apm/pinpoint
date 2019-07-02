@@ -32,21 +32,27 @@ import io.grpc.stub.StreamObserver;
 
 import static com.navercorp.pinpoint.grpc.MessageFormatUtils.debugLog;
 
+import java.util.concurrent.ScheduledExecutorService;
+
 /**
  * @author jaehong.kim
  */
 public class StatGrpcDataSender extends GrpcDataSender {
     private final StatGrpc.StatStub statStub;
-    private final ExecutorAdaptor reconnectExecutor;
+    private final ReconnectExecutor reconnectExecutor;
 
     private volatile StreamObserver<PStatMessage> statStream;
     private final Reconnector statStreamReconnector;
 
-    public StatGrpcDataSender(String host, int port, int senderExecutorQueueSize, MessageConverter<GeneratedMessageV3> messageConverter, ChannelFactoryOption channelFactoryOption) {
+    public StatGrpcDataSender(String host, int port,
+                              int senderExecutorQueueSize,
+                              MessageConverter<GeneratedMessageV3> messageConverter,
+                              ScheduledExecutorService reconnectScheduler,
+                              ChannelFactoryOption channelFactoryOption) {
         super(host, port, senderExecutorQueueSize, messageConverter, channelFactoryOption);
 
         this.statStub = StatGrpc.newStub(managedChannel);
-        this.reconnectExecutor = newReconnectExecutor();
+        this.reconnectExecutor = newReconnectExecutor(reconnectScheduler);
         {
             final Runnable statStreamReconnectJob = new Runnable() {
                 @Override
@@ -55,13 +61,13 @@ public class StatGrpcDataSender extends GrpcDataSender {
                 }
             };
 
-            this.statStreamReconnector = new ReconnectAdaptor(reconnectExecutor, statStreamReconnectJob);
+            this.statStreamReconnector = reconnectExecutor.newReconnector(statStreamReconnectJob);
             this.statStream = newStatStream();
         }
     }
 
-    private ExecutorAdaptor newReconnectExecutor() {
-        return new ExecutorAdaptor(GrpcDataSender.reconnectScheduler);
+    private ReconnectExecutor newReconnectExecutor(ScheduledExecutorService reconnectScheduler) {
+        return new ReconnectExecutor(reconnectScheduler);
     }
 
     private StreamObserver<PStatMessage> newStatStream() {
