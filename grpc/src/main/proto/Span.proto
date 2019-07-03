@@ -9,13 +9,20 @@ option java_outer_classname = "SpanProto";
 
 package v1;
 
+message PSpanMessage {
+    oneof field {
+        PSpan span = 1;
+        PSpanChunk spanChunk =2;
+    }
+}
+
 message PSpan {
     int32 version = 1;
 
     PTransactionId transactionId = 2;
 
-    fixed64 spanId = 3;
-    fixed64 parentSpanId = 4;
+    sfixed64 spanId = 3;
+    sfixed64 parentSpanId = 4;
 
     // span event's startTimestamp
     int64 startTime = 5;
@@ -90,7 +97,7 @@ message PNextEvent {
 }
 
 message PMessageEvent {
-    fixed64 nextSpanId = 1;
+    sfixed64 nextSpanId = 1;
     string endPoint = 2;
     string destinationId = 3;
 }
@@ -100,7 +107,7 @@ message PSpanChunk {
 
     PTransactionId transactionId = 2;
 
-    fixed64 spanId = 3;
+    sfixed64 spanId = 3;
 
     string endPoint = 4;
 

@@ -108,7 +108,6 @@ public class AgentGrpcDataSender implements EnhancedDataSender {
     private final MetadataGrpc.MetadataFutureStub metadataStub;
 
     private GrpcCommandService grpcCommandService;
-    private ClientOption clientOption;
 
     private final ExecutorAdaptor reconnectExecutor;
 
@@ -431,6 +430,4 @@ public class AgentGrpcDataSender implements EnhancedDataSender {
         logger.debug("fireComplete");
         fireState.compareAndSet(true, false);
     }
-
-
 }
