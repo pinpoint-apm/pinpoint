@@ -82,6 +82,7 @@ export class InfoPerServerContainerComponent implements OnInit, OnDestroy {
     private connectStore(): void {
         this.storeHelperService.getServerMapTargetSelected(this.unsubscribe).subscribe((target: ISelectedTarget) => {
             this.selectedTarget = target;
+            this.selectedAgent = '';
         });
         this.storeHelperService.getServerMapData(this.unsubscribe).subscribe((serverMapData: ServerMapData) => {
             this.serverMapData = serverMapData;
@@ -96,7 +97,7 @@ export class InfoPerServerContainerComponent implements OnInit, OnDestroy {
                         this.agentHistogramData.isWas = node.isWas;
                         this.changeDetector.detectChanges();
                         this.storeHelperService.dispatch(new Actions.UpdateServerList(this.agentHistogramData));
-                        this.onSelectAgent(this.getFirstAgent());
+                        this.onSelectAgent(this.selectedAgent ? this.selectedAgent : this.getFirstAgent());
                         this.storeHelperService.dispatch(new Actions.ChangeInfoPerServerVisibleState(true));
                     }, (error: IServerErrorFormat) => {
                         this.dynamicPopupService.openPopup({

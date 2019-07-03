@@ -66,6 +66,7 @@ export class InfoPerServerForFilteredMapContainerComponent implements OnInit, On
     private connectStore(): void {
         this.storeHelperService.getServerMapTargetSelected(this.unsubscribe).subscribe((target: ISelectedTarget) => {
             this.selectedTarget = target;
+            this.selectedAgent = '';
         });
         this.storeHelperService.getServerMapData(this.unsubscribe).subscribe((serverMapData: ServerMapData) => {
             this.serverMapData = serverMapData;
@@ -83,7 +84,7 @@ export class InfoPerServerForFilteredMapContainerComponent implements OnInit, On
                     };
                     this.changeDetector.detectChanges();
                     this.storeHelperService.dispatch(new Actions.UpdateServerList(this.agentHistogramData));
-                    this.onSelectAgent(this.getFirstAgent());
+                    this.onSelectAgent(this.selectedAgent ? this.selectedAgent : this.getFirstAgent());
                     this.storeHelperService.dispatch(new Actions.ChangeInfoPerServerVisibleState(true));
                 } else {
                     this.hide();
