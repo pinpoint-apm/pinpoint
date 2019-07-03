@@ -16,9 +16,12 @@
 
 package com.navercorp.pinpoint.web.cluster.zookeeper;
 
+import com.navercorp.pinpoint.common.server.cluster.zookeeper.CreateNodeMessage;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperClient;
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.common.util.MapUtils;
+
 import org.apache.curator.utils.ZKPaths;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,19 +78,14 @@ public class ZookeeperClusterDataManagerHelper {
         return null;
     }
 
-    public boolean pushZnode(ZookeeperClient client, PushZnodeJob job) {
-        if (job == null) {
-            return false;
-        }
-
-        String zNodePath = job.getZNodePath();
-        byte[] contents = job.getContents();
+    public boolean pushZnode(ZookeeperClient client, CreateNodeMessage createNodeMessage) {
+        Assert.requireNonNull(createNodeMessage, "createNodeMessage must not be null");
 
         try {
-            client.createPath(zNodePath);
-
-            String nodeName = client.createOrSetNode(zNodePath, contents);
-            logger.info("Register Zookeeper node UniqPath = {}.", zNodePath);
+            String nodePath = createNodeMessage.getNodePath();
+            client.createPath(nodePath);
+            client.createOrSetNode(createNodeMessage);
+            logger.info("Register Zookeeper node UniqPath = {}.", nodePath);
             return true;
         } catch (Exception e) {
             logger.warn(e.getMessage(), e);
