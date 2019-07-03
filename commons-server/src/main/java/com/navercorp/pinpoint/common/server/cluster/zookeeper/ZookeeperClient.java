@@ -30,21 +30,16 @@ public interface ZookeeperClient {
     void connect() throws IOException;
 
     void createPath(String path) throws PinpointZookeeperException, InterruptedException;
-
-    String createNode(String zNodePath, byte[] data) throws PinpointZookeeperException, InterruptedException;
-
-    String createOrSetNode(String path, byte[] payload) throws PinpointZookeeperException, KeeperException, InterruptedException;
+    void createNode(CreateNodeMessage createNodeMessage) throws PinpointZookeeperException, InterruptedException;
+    void createOrSetNode(CreateNodeMessage createNodeMessage) throws PinpointZookeeperException, KeeperException, InterruptedException;
 
     byte[] getData(String path) throws PinpointZookeeperException, InterruptedException;
-
     byte[] getData(String path, boolean watch) throws PinpointZookeeperException, InterruptedException;
-
     List<String> getChildNodeList(String path, boolean watch) throws PinpointZookeeperException, InterruptedException;
 
     void delete(String path) throws PinpointZookeeperException, InterruptedException;
 
     boolean isConnected();
-
 
     void close();
 

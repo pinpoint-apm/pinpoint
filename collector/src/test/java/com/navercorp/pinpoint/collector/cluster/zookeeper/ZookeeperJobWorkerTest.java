@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.collector.cluster.zookeeper;
 import com.navercorp.pinpoint.collector.cluster.ClusterPointRepository;
 import com.navercorp.pinpoint.collector.cluster.ClusterPointStateChangedEventHandler;
 import com.navercorp.pinpoint.common.Version;
+import com.navercorp.pinpoint.common.server.cluster.zookeeper.CreateNodeMessage;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperClient;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.exception.PinpointZookeeperException;
 import com.navercorp.pinpoint.common.util.BytesUtils;
@@ -124,13 +125,14 @@ public class ZookeeperJobWorkerTest {
             Assert.assertEquals(1, manager.getClusterData().size());
 
             zookeeperClient.createPath(PATH);
+            CreateNodeMessage createNodeMessage = new CreateNodeMessage(PATH, new byte[0]);
             try {
-                zookeeperClient.createOrSetNode(PATH, new byte[0]);
+                zookeeperClient.createOrSetNode(createNodeMessage);
             } catch (Exception e) {
             }
 
             try {
-                zookeeperClient.createOrSetNode(PATH, new byte[0]);
+                zookeeperClient.createOrSetNode(createNodeMessage);
             } catch (Exception e) {
             }
 

@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.collector.cluster.zookeeper;
 
 import com.navercorp.pinpoint.collector.cluster.zookeeper.job.ZookeeperJob;
+import com.navercorp.pinpoint.common.server.cluster.zookeeper.CreateNodeMessage;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperClient;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperConstants;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.exception.PinpointZookeeperException;
@@ -149,11 +150,6 @@ public class ZookeeperJobWorker implements Runnable {
             logger.warn("getClusterData failed. message:{}", e.getMessage(), e);
         }
         return StringUtils.EMPTY;
-    }
-
-    private void setClusterData(String value) throws Exception {
-        final byte[] payload = BytesUtils.toBytes(value);
-        zookeeperClient.createOrSetNode(collectorUniqPath, payload);
     }
 
     public void removePinpointServer(String key) {
@@ -324,7 +320,8 @@ public class ZookeeperJobWorker implements Runnable {
             String currentData = getClusterData();
             final String newData = addIfAbsentContents(currentData, addContentCandidateList);
 
-            setClusterData(newData);
+            CreateNodeMessage createNodeMessage = new CreateNodeMessage(collectorUniqPath, BytesUtils.toBytes(newData), true);
+            zookeeperClient.createOrSetNode(createNodeMessage);
             return true;
         } catch (Exception e) {
             logger.warn("handleUpdate failed. caused:{}, jobSize:{}", e.getMessage(), zookeeperJobList.size(), e);
@@ -345,7 +342,8 @@ public class ZookeeperJobWorker implements Runnable {
             final String currentData = getClusterData();
             final String newData = removeIfExistContents(currentData, removeContentCandidateList);
 
-            setClusterData(newData);
+            CreateNodeMessage createNodeMessage = new CreateNodeMessage(collectorUniqPath, BytesUtils.toBytes(newData), true);
+            zookeeperClient.createOrSetNode(createNodeMessage);
             return true;
         } catch (Exception e) {
             logger.warn("handleDelete failed. caused:{}, jobSize:{}", e.getMessage(), zookeeperJobList.size(), e);
@@ -371,8 +369,8 @@ public class ZookeeperJobWorker implements Runnable {
         }
 
         try {
-            zookeeperClient.createPath(collectorUniqPath);
-            zookeeperClient.createOrSetNode(collectorUniqPath, EMPTY_DATA_BYTES);
+            CreateNodeMessage createNodeMessage = new CreateNodeMessage(collectorUniqPath, EMPTY_DATA_BYTES, true);
+            zookeeperClient.createOrSetNode(createNodeMessage);
             return true;
         } catch (Exception e) {
             logger.warn("handleClear failed. caused:{}, jobSize:{}", e.getMessage(), zookeeperJobList.size(), e);
