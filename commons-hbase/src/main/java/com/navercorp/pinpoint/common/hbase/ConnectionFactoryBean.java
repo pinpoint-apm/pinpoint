@@ -20,6 +20,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.ConnectionFactory;
+import org.apache.hadoop.hbase.client.RegionLocator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
@@ -73,7 +74,8 @@ public class ConnectionFactoryBean implements FactoryBean<Connection>, Initializ
                 for (HbaseTable hBaseTable : HbaseTable.values()) {
                     try {
                         TableName tableName = tableNameProvider.getTableName(hBaseTable);
-                        connection.getRegionLocator(tableName);
+                        RegionLocator regionLocator = connection.getRegionLocator(tableName);
+                        regionLocator.getAllRegionLocations();
                     } catch (IOException e) {
                         logger.warn("Failed to warmup for Table:{}. message:{}", hBaseTable.getName(), e.getMessage(), e);
                     }
