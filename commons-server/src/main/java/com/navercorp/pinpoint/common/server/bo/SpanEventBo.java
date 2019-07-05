@@ -254,10 +254,12 @@ public class SpanEventBo implements Event {
         builder.append(nextSpanId);
         builder.append(", hasException=");
         builder.append(hasException);
-        builder.append(", exceptionId=");
-        builder.append(exceptionId);
-        builder.append(", exceptionMessage=");
-        builder.append(exceptionMessage);
+        if (hasException) {
+            builder.append(", exceptionId=");
+            builder.append(exceptionId);
+            builder.append(", exceptionMessage=");
+            builder.append(exceptionMessage);
+        }
         builder.append(", exceptionClass=");
         builder.append(exceptionClass);
         builder.append(", asyncId=");
