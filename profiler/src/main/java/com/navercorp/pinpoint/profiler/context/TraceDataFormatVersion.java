@@ -16,18 +16,19 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.thrift.dto.TraceConstants;
+import com.navercorp.pinpoint.io.SpanVersion;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
 public enum TraceDataFormatVersion {
 
-    V1(TraceConstants.TRACE_V1),
-    V2(TraceConstants.TRACE_V2);
+    V1(SpanVersion.TRACE_V1),
+    V2(SpanVersion.TRACE_V2);
 
-    private static final String TRACE_VERSION_NAME = "profiler.trace.dataformat.version";
+    public static final String THRIFT_TRACE_VERSION_KEY = "profiler.transport.thrift.trace.dataformat.version";
+
+    public static final String GRPC_TRACE_VERSION_KEY = "profiler.transport.grpc.trace.dataformat.version";
 
     private byte version;
 
@@ -37,20 +38,5 @@ public enum TraceDataFormatVersion {
 
     public byte getVersion() {
         return version;
-    }
-
-    public static TraceDataFormatVersion getTraceDataFormatVersion(ProfilerConfig profilerConfig) {
-        if (profilerConfig == null) {
-            throw new NullPointerException("profilerConfig must not be null");
-        }
-
-        final String lowerCaseVersion = profilerConfig.readString(TRACE_VERSION_NAME, "v1").toLowerCase();
-        if ("v2".equals(lowerCaseVersion)) {
-            return V2;
-        }
-        if("v1".equals(lowerCaseVersion)) {
-            return V1;
-        }
-        throw new UnsupportedOperationException("unknown profiler.trace.dataformat.version:" + lowerCaseVersion);
     }
 }

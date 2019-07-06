@@ -1,29 +1,29 @@
 :host {
     display: block;
-    width: calc(50% - 20px);
-    margin: 10px;
-}
-.l-content-item {
-    width: 100%;
-    margin: 0px;
     position: relative;
 }
 .l-title-group {
-    height:34px;
-    font-size:13px;
-    font-weight:600;
-    padding:0 20px;
-    color:#333;
+    height: 34px;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 0 20px;
+    color: #333;
     display: flex;
     align-items: center;
-    justify-content:space-between;
+    justify-content: space-between;
     background: #f6f8fb;
 }
-.l-title-text {
-    flex-basis: 70%;
-}
 .l-title-group .fas {
+    margin-left: 7px;
     font-size: 18px;
-    color:#a8acb5;
-    cursor:pointer;
+    color: #a8acb5;
+    cursor: pointer;
+}
+.l-icon-wrapper {
+    display: flex;
+    align-items: center;
+}
+.l-chart-area-wrapper {
+    position: relative;
+    width: 100%;
 }

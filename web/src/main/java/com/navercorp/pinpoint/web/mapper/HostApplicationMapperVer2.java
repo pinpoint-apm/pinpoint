@@ -64,7 +64,7 @@ public class HostApplicationMapperVer2 implements RowMapper<List<AcceptApplicati
 
 //    private void readRowKey(byte[] rowKey) {
 //        final Buffer rowKeyBuffer= new FixedBuffer(rowKey);
-//        final String parentApplicationName = rowKeyBuffer.readPadStringAndRightTrim(HBaseTables.APPLICATION_NAME_MAX_LEN);
+//        final String parentApplicationName = rowKeyBuffer.readPadStringAndRightTrim(HBaseTableConstants.APPLICATION_NAME_MAX_LEN);
 //        final short parentApplicationServiceType = rowKeyBuffer.readShort();
 //        final long timeSlot = TimeUtils.recoveryTimeMillis(rowKeyBuffer.readLong());
 //

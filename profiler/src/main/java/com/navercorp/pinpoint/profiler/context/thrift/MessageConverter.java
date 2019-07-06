@@ -19,9 +19,9 @@ package com.navercorp.pinpoint.profiler.context.thrift;
 /**
  * @author Woonduk Kang(emeroad)
  */
-public interface MessageConverter<M> {
+public interface MessageConverter<Message> {
 
-    M toMessage(Object message);
+    Message toMessage(Object message);
 
 
 }

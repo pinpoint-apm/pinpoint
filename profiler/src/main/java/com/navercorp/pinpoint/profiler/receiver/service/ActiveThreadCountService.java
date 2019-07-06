@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.profiler.receiver.service;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHistogram;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHistogramUtils;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
-import com.navercorp.pinpoint.profiler.receiver.CommandSerializer;
 import com.navercorp.pinpoint.profiler.receiver.ProfilerRequestCommandService;
 import com.navercorp.pinpoint.profiler.receiver.ProfilerStreamCommandService;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamCode;
@@ -27,6 +26,7 @@ import com.navercorp.pinpoint.rpc.stream.ServerStreamChannel;
 import com.navercorp.pinpoint.rpc.stream.StreamChannelStateChangeEventHandler;
 import com.navercorp.pinpoint.rpc.stream.StreamChannelStateCode;
 import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadCountRes;
+import com.navercorp.pinpoint.thrift.io.CommandHeaderTBaseSerializerFactory;
 import com.navercorp.pinpoint.thrift.io.TCommandType;
 import com.navercorp.pinpoint.thrift.util.SerializationUtils;
 
@@ -60,6 +60,8 @@ public class ActiveThreadCountService implements ProfilerRequestCommandService<T
     private final List<ServerStreamChannel> streamChannelRepository = new CopyOnWriteArrayList<ServerStreamChannel>();
 
     private final ActiveTraceRepository activeTraceRepository;
+
+    private final CommandHeaderTBaseSerializerFactory commandHeaderTBaseSerializerFactory = CommandHeaderTBaseSerializerFactory.getDefaultInstance();
 
     public ActiveThreadCountService(ActiveTraceRepository activeTraceRepository) {
         this(activeTraceRepository, DEFAULT_FLUSH_DELAY);
@@ -170,7 +172,7 @@ public class ActiveThreadCountService implements ProfilerRequestCommandService<T
             try {
                 TCmdActiveThreadCountRes activeThreadCountResponse = getActiveThreadCountResponse();
                 for (ServerStreamChannel serverStreamChannel : streamChannelRepository) {
-                    byte[] payload = SerializationUtils.serialize(activeThreadCountResponse, CommandSerializer.SERIALIZER_FACTORY, null);
+                    byte[] payload = SerializationUtils.serialize(activeThreadCountResponse, commandHeaderTBaseSerializerFactory, null);
                     if (payload != null) {
                         serverStreamChannel.sendData(payload);
                     }

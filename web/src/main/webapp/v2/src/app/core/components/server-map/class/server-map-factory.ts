@@ -10,7 +10,7 @@ export const enum ServerMapType {
     VISJS = 'visjs'
 }
 export interface IServerMapOption {
-    container: HTMLElement;
+    container: HTMLDivElement;
     funcServerMapImagePath: Function;
 }
 

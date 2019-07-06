@@ -1,6 +1,7 @@
 
 import { NgModule } from '@angular/core';
 import { MatTooltipModule } from '@angular/material';
+import { ScrollingModule } from '@angular/cdk/scrolling';
 
 import { SharedModule } from 'app/shared';
 import { ApplicationListForHeaderContainerComponent } from './application-list-for-header-container.component';
@@ -8,6 +9,7 @@ import { ApplicationListForHeaderComponent } from './application-list-for-header
 import { ApplicationListForConfigurationContainerComponent } from './application-list-for-configuration-container.component';
 import { ApplicationListForConfigurationComponent } from './application-list-for-configuration.component';
 import { FavoriteApplicationListForConfigurationContainerComponent } from './favorite-application-list-for-configuration-container.component';
+import { FavoriteApplicationListForConfigurationComponent } from './favorite-application-list-for-configuration.component';
 import { ApplicationListForConfigurationAlarmContainerComponent } from './application-list-for-configuration-alarm-container.component';
 import { ApplicationListInteractionForConfigurationService } from './application-list-interaction-for-configuration.service';
 
@@ -17,11 +19,13 @@ import { ApplicationListInteractionForConfigurationService } from './application
         ApplicationListForHeaderComponent,
         ApplicationListForConfigurationContainerComponent,
         ApplicationListForConfigurationComponent,
+        FavoriteApplicationListForConfigurationComponent,
         FavoriteApplicationListForConfigurationContainerComponent,
         ApplicationListForConfigurationAlarmContainerComponent
     ],
     imports: [
         MatTooltipModule,
+        ScrollingModule,
         SharedModule
     ],
     exports: [

@@ -49,10 +49,12 @@ import com.navercorp.pinpoint.rpc.util.ClassUtils;
 import com.navercorp.pinpoint.rpc.util.IDGenerator;
 
 import org.jboss.netty.channel.Channel;
+import org.jboss.netty.channel.ChannelException;
 import org.jboss.netty.channel.ChannelFuture;
 import org.jboss.netty.channel.ChannelFutureListener;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.ChannelStateEvent;
+import org.jboss.netty.channel.Channels;
 import org.jboss.netty.channel.ExceptionEvent;
 import org.jboss.netty.channel.MessageEvent;
 import org.jboss.netty.channel.SimpleChannelHandler;
@@ -73,6 +75,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author koo.taejin
  */
 public class DefaultPinpointClientHandler extends SimpleChannelHandler implements PinpointClientHandler {
+
+    private static final String WRITE_BUFFER_FULL_MESSAGE = "write buffer is full";
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -115,7 +119,7 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
                                         ServerStreamChannelMessageHandler serverStreamChannelMessageHandler,
                                         List<StateChangeEventListener> stateChangeEventListeners) {
 
-        this.connectionFactory = Assert.requireNonNull(connectionFactory,   "clientFactory must not be null");
+        this.connectionFactory = Assert.requireNonNull(connectionFactory, "clientFactory must not be null");
         this.socketAddressProvider = Assert.requireNonNull(socketAddressProvider, "socketAddressProvider must not be null");
 
         this.channelTimer = Assert.requireNonNull(channelTimer, "channelTimer must not be null");
@@ -526,7 +530,7 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
             return;
         }
 
-        // stream channel clear and send stream close packet 
+        // stream channel clear and send stream close packet
         PinpointClientHandlerContext context = getChannelContext(channel);
         if (context != null) {
             context.closeAllStreamChannel();
@@ -582,19 +586,22 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
         connectionFactory.reconnect(this.pinpointClient, this.socketAddressProvider);
     }
 
-    private ChannelFuture write0(Object message) {
-        return channel.write(message);
-    }
-
     private ChannelFuture write0(Object message, ChannelFutureListener futureListener) {
         if (futureListener == null) {
             throw new NullPointerException("futureListener must not be null");
         }
-        ChannelFuture future = channel.write(message);
+        ChannelFuture future = write0(message);
         future.addListener(futureListener);
         return future;
     }
 
+    private ChannelFuture write0(Object message) {
+        if (channel.isWritable()) {
+            return channel.write(message);
+        } else {
+            return Channels.failedFuture(channel, new ChannelException(WRITE_BUFFER_FULL_MESSAGE));
+        }
+    }
 
     @Override
     public ConnectFuture getConnectFuture() {

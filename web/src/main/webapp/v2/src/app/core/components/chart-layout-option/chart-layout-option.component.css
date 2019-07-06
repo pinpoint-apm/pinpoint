@@ -1,0 +1,21 @@
+:host {
+    display: block;
+}
+
+.l-layout-option-button {
+    color: #495057;
+    padding: 8px;
+    outline: none;
+}
+
+.l-layout-option-button i {
+    font-size: 20px;
+}
+
+.l-layout-option-button:hover {
+    color: #418CD3;
+}
+
+.l-layout-option-button.active {
+    color: #418CD3 !important;
+}

@@ -18,12 +18,18 @@ package com.navercorp.pinpoint.collector.receiver;
 
 import com.navercorp.pinpoint.collector.service.async.AgentEventAsyncTaskService;
 import com.navercorp.pinpoint.collector.service.async.AgentLifeCycleAsyncTaskService;
+import com.navercorp.pinpoint.collector.service.async.AgentProperty;
+import com.navercorp.pinpoint.collector.service.async.AgentPropertyChannelAdaptor;
 import com.navercorp.pinpoint.collector.util.ManagedAgentLifeCycle;
 import com.navercorp.pinpoint.common.server.util.AgentEventType;
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
 import com.navercorp.pinpoint.rpc.common.SocketStateCode;
+import com.navercorp.pinpoint.rpc.server.ChannelProperties;
+import com.navercorp.pinpoint.rpc.server.ChannelPropertiesFactory;
+import com.navercorp.pinpoint.rpc.server.DefaultChannelProperties;
 import com.navercorp.pinpoint.rpc.server.PinpointServer;
 import com.navercorp.pinpoint.rpc.server.handler.ServerStateChangeEventHandler;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +39,7 @@ import java.util.Map;
 /**
  * @author HyunGil Jeong
  */
-public class AgentLifeCycleChangeEventHandler implements ServerStateChangeEventHandler {
+public class AgentLifeCycleChangeEventHandler extends ServerStateChangeEventHandler {
 
     public static final ManagedAgentLifeCycle STATE_NOT_MANAGED = null;
 
@@ -45,26 +51,33 @@ public class AgentLifeCycleChangeEventHandler implements ServerStateChangeEventH
     @Autowired
     private AgentEventAsyncTaskService agentEventAsyncTaskService;
 
+    @Autowired
+    private ChannelPropertiesFactory channelPropertiesFactory;
+
     @Override
-    public void eventPerformed(PinpointServer pinpointServer, SocketStateCode stateCode) throws Exception {
-        ManagedAgentLifeCycle managedAgentLifeCycle = ManagedAgentLifeCycle.getManagedAgentLifeCycleByStateCode(stateCode);
+    public void stateUpdated(PinpointServer pinpointServer, SocketStateCode updatedStateCode) {
+        ManagedAgentLifeCycle managedAgentLifeCycle = ManagedAgentLifeCycle.getManagedAgentLifeCycleByStateCode(updatedStateCode);
         if (managedAgentLifeCycle == STATE_NOT_MANAGED) {
             return;
         } else {
-            logger.info("{} eventPerformed(). pinpointServer:{}, code:{}", this.getClass().getSimpleName(), pinpointServer, stateCode);
+            logger.info("stateUpdated(). pinpointServer:{}, updatedStateCode:{}", pinpointServer, updatedStateCode);
 
-            long eventTimestamp = System.currentTimeMillis();
+            final long eventTimestamp = System.currentTimeMillis();
 
-            Map<Object, Object> channelProperties = pinpointServer.getChannelProperties();
-            AgentLifeCycleState agentLifeCycleState = managedAgentLifeCycle.getMappedState();
-            this.agentLifeCycleAsyncTaskService.handleLifeCycleEvent(channelProperties, eventTimestamp, agentLifeCycleState, managedAgentLifeCycle.getEventCounter());
+            final Map<Object, Object> channelPropertiesMap = pinpointServer.getChannelProperties();
+            // nullable
+            final ChannelProperties channelProperties = channelPropertiesFactory.newChannelProperties(channelPropertiesMap);
+            if (channelProperties == null) {
+                logger.debug("channelProperties is null {}", pinpointServer);
+                return;
+            }
+            final AgentProperty agentProperty = new AgentPropertyChannelAdaptor(channelProperties);
+            final AgentLifeCycleState agentLifeCycleState = managedAgentLifeCycle.getMappedState();
+            final long eventIdentifier = AgentLifeCycleAsyncTaskService.createEventIdentifier(channelProperties.getSocketId(), managedAgentLifeCycle.getEventCounter());
+            this.agentLifeCycleAsyncTaskService.handleLifeCycleEvent(agentProperty, eventTimestamp, agentLifeCycleState, eventIdentifier);
             AgentEventType agentEventType = managedAgentLifeCycle.getMappedEvent();
-            this.agentEventAsyncTaskService.handleEvent(channelProperties, eventTimestamp, agentEventType);
+            this.agentEventAsyncTaskService.handleEvent(agentProperty, eventTimestamp, agentEventType);
         }
     }
 
-    @Override
-    public void exceptionCaught(PinpointServer pinpointServer, SocketStateCode stateCode, Throwable e) {
-        logger.warn("{} exceptionCaught(). pinpointServer:{}, code:{}. error: {}.", this.getClass().getSimpleName(), pinpointServer, stateCode, e.getMessage(), e);
-    }
 }

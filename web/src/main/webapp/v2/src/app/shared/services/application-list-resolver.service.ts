@@ -13,7 +13,7 @@ export class ApplicationListResolverService implements Resolve<IApplication[]> {
         private applicationListDataService: ApplicationListDataService
     ) {}
 
-    resolve(route: ActivatedRouteSnapshot): Observable<IApplication[]> {
+    resolve(route: ActivatedRouteSnapshot): Observable<IApplication[]> | Observable<never> {
         return this.applicationListDataService.getApplicationList().pipe(
             tap((appList: IApplication[]) => {
                 const providedApp = this.getAppKeyStr(route);
@@ -24,7 +24,7 @@ export class ApplicationListResolverService implements Resolve<IApplication[]> {
                 }
             }),
             catchError(() => {
-                this.router.navigate(['/error']);
+                this.router.navigate([`/${UrlPath.ERROR}`]);
                 return EMPTY;
             })
         );

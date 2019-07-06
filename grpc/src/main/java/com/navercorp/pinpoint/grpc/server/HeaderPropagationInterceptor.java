@@ -17,13 +17,14 @@
 package com.navercorp.pinpoint.grpc.server;
 
 import com.navercorp.pinpoint.common.util.Assert;
-import com.navercorp.pinpoint.grpc.HeaderFactory;
+import com.navercorp.pinpoint.grpc.HeaderReader;
 import io.grpc.Context;
 import io.grpc.Contexts;
 import io.grpc.Metadata;
 import io.grpc.ServerCall;
 import io.grpc.ServerCallHandler;
 import io.grpc.ServerInterceptor;
+import io.grpc.Status;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,24 +34,37 @@ import org.slf4j.LoggerFactory;
 public class HeaderPropagationInterceptor<H> implements ServerInterceptor {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final HeaderFactory<H> headerFactory;
+    private final HeaderReader<H> headerReader;
     private final Context.Key<H> contextKey;
 
-    public HeaderPropagationInterceptor(HeaderFactory<H> headerFactory, Context.Key<H> contextKey) {
-        this.headerFactory = Assert.requireNonNull(headerFactory, "headerFactory must not be null");
+    public HeaderPropagationInterceptor(HeaderReader<H> headerReader, Context.Key<H> contextKey) {
+        this.headerReader = Assert.requireNonNull(headerReader, "headerReader must not be null");
         this.contextKey = Assert.requireNonNull(contextKey, "contextKey must not be null");
     }
 
     @Override
-    public <ReqT, RespT> ServerCall.Listener<ReqT> interceptCall(ServerCall<ReqT, RespT> call, Metadata headers, ServerCallHandler<ReqT, RespT> next) {
-        final H headerObject = headerFactory.extract(headers);
+    public <ReqT, RespT> ServerCall.Listener<ReqT> interceptCall(final ServerCall<ReqT, RespT> call, Metadata headers, ServerCallHandler<ReqT, RespT> next) {
+        H headerObject;
+        try {
+            headerObject = headerReader.extract(headers);
+        } catch (Exception e) {
+            if (logger.isInfoEnabled()) {
+                logger.info("Header extract fail cause={}, method={} headers={}, attr={}",
+                        e.getMessage(), call.getMethodDescriptor().getFullMethodName(), headers, call.getAttributes(), e);
+            }
+            call.close(Status.INVALID_ARGUMENT.withDescription(e.getMessage()), new Metadata());
+            return new ServerCall.Listener<ReqT>() {
+            };
+        }
 
         final Context currentContext = Context.current();
         final Context newContext = currentContext.withValue(contextKey, headerObject);
         if (logger.isDebugEnabled()) {
-            logger.debug("interceptCall(call = [{}], headers = [{}], next = [{}])", call, headers, next);
+            logger.debug("headerPropagation method={}, headers={}, attr={}", call.getMethodDescriptor().getFullMethodName(), headers, call.getAttributes());
         }
-        ServerCall.Listener<ReqT>  contextPropagateInterceptor = Contexts.interceptCall(newContext, call, headers, next);
+
+        ServerCall.Listener<ReqT> contextPropagateInterceptor = Contexts.interceptCall(newContext, call, headers, next);
         return contextPropagateInterceptor;
     }
+
 }

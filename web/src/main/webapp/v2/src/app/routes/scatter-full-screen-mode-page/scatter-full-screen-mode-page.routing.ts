@@ -12,50 +12,90 @@ export const routing: Routes = [
         component: ScatterFullScreenModePageComponent,
         children: [
             {
-                path: ':' + UrlPathId.APPLICATION + '/:' + UrlPathId.PERIOD + '/:' + UrlPathId.END_TIME + '/:' + UrlPathId.AGENT_ID,
-                data: {
-                    showRealTimeButton: true,
-                    enableRealTimeMode: false
-                },
-                component: ScatterChartForFullScreenModeContainerComponent
+                path: UrlPath.REAL_TIME,
+                children: [
+                    {
+                        path: '',
+                        pathMatch: 'full',
+                        redirectTo: '/' + UrlPath.MAIN
+                    },
+                    {
+                        path: ':' + UrlPathId.APPLICATION,
+                        resolve: {
+                            serverTime: ServerTimeResolverService
+                        },
+                        data: {
+                            showRealTimeButton: true,
+                            enableRealTimeMode: true
+                        },
+                        children: [
+                            {
+                                path: '',
+                                pathMatch: 'full',
+                                component: ScatterChartForFullScreenModeContainerComponent
+                            },
+                            {
+                                path: ':' + UrlPathId.AGENT_ID,
+                                component: ScatterChartForFullScreenModeContainerComponent
+                            }
+                        ]
+                    }
+                ]
             },
+            // ! URL 순서 바꾸면서 사용자들이 기존의 url로 접근했을때 redirect해주려고 임시로 추가해둠.
             {
                 path: ':' + UrlPathId.APPLICATION + '/' + UrlPathId.REAL_TIME,
-                resolve: {
-                    serverTime: ServerTimeResolverService
-                },
-                data: {
-                    showRealTimeButton: true,
-                    enableRealTimeMode: true
-                },
-                component: ScatterChartForFullScreenModeContainerComponent
-            },
-            {
-                path: ':' + UrlPathId.APPLICATION + '/:' + UrlPathId.PERIOD + '/:' + UrlPathId.END_TIME,
-                data: {
-                    showRealTimeButton: true,
-                    enableRealTimeMode: false
-                },
-                component: ScatterChartForFullScreenModeContainerComponent
-            },
-            {
-                path: ':' + UrlPathId.APPLICATION + '/:' + UrlPathId.PERIOD,
-                data: {
-                    path: UrlPath.SCATTER_FULL_SCREEN_MODE
-                },
-                component: UrlRedirectorComponent
+                pathMatch: 'full',
+                redirectTo: '/' + UrlPath.SCATTER_FULL_SCREEN_MODE + '/' + UrlPath.REAL_TIME + '/:' + UrlPathId.APPLICATION,
             },
             {
                 path: ':' + UrlPathId.APPLICATION,
-                data: {
-                    path: UrlPath.SCATTER_FULL_SCREEN_MODE
-                },
-                component: UrlRedirectorComponent
+                children: [
+                    {
+                        path: '',
+                        pathMatch: 'full',
+                        data: {
+                            path: UrlPath.SCATTER_FULL_SCREEN_MODE
+                        },
+                        component: UrlRedirectorComponent
+                    },
+                    {
+                        path: ':' + UrlPathId.PERIOD,
+                        children: [
+                            {
+                                path: '',
+                                pathMatch: 'full',
+                                data: {
+                                    path: UrlPath.SCATTER_FULL_SCREEN_MODE
+                                },
+                                component: UrlRedirectorComponent
+                            },
+                            {
+                                path: ':' + UrlPathId.END_TIME,
+                                data: {
+                                    showRealTimeButton: true,
+                                    enableRealTimeMode: false
+                                },
+                                children: [
+                                    {
+                                        path: '',
+                                        pathMatch: 'full',
+                                        component: ScatterChartForFullScreenModeContainerComponent
+                                    },
+                                    {
+                                        path: ':' + UrlPathId.AGENT_ID,
+                                        component: ScatterChartForFullScreenModeContainerComponent
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
             },
             {
                 path: '',
-                redirectTo: `/${UrlPath.MAIN}`,
-                pathMatch: 'full'
+                pathMatch: 'full',
+                redirectTo: '/' + UrlPath.MAIN
             }
         ]
     }

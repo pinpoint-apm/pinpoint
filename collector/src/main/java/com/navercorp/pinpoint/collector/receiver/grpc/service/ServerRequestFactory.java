@@ -16,8 +16,7 @@
 
 package com.navercorp.pinpoint.collector.receiver.grpc.service;
 
-import com.google.protobuf.GeneratedMessageV3;
-import com.navercorp.pinpoint.grpc.AgentHeaderFactory;
+import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.server.ServerContext;
 import com.navercorp.pinpoint.grpc.server.TransportMetadata;
 import com.navercorp.pinpoint.io.request.DefaultServerRequest;
@@ -38,9 +37,9 @@ public class ServerRequestFactory {
     public ServerRequestFactory() {
     }
 
-    public ServerRequest<GeneratedMessageV3> newServerRequest(Message<?> message) throws StatusException {
+    public <T> ServerRequest<T> newServerRequest(Message<T> message) throws StatusException {
         final Context current = Context.current();
-        final AgentHeaderFactory.Header header = ServerContext.getAgentInfo(current);
+        final Header header = ServerContext.getAgentInfo(current);
         if (header == null) {
             throw Status.INTERNAL.withDescription("Not found request header").asException();
         }
@@ -51,7 +50,7 @@ public class ServerRequestFactory {
         }
 
         InetSocketAddress inetSocketAddress = transportMetadata.getRemoteAddress();
-        ServerRequest request = new DefaultServerRequest(message, inetSocketAddress.getHostString(), inetSocketAddress.getPort());
+        ServerRequest<T> request = new DefaultServerRequest<>(message, inetSocketAddress.getHostString(), inetSocketAddress.getPort());
         return request;
     }
 }

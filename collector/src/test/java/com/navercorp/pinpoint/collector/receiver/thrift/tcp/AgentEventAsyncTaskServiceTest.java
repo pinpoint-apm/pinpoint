@@ -16,35 +16,39 @@
 
 package com.navercorp.pinpoint.collector.receiver.thrift.tcp;
 
-import com.navercorp.pinpoint.collector.service.async.AgentEventAsyncTaskService;
 import com.navercorp.pinpoint.collector.service.AgentEventService;
+import com.navercorp.pinpoint.collector.service.async.AgentEventAsyncTaskService;
+import com.navercorp.pinpoint.collector.service.async.AgentProperty;
+import com.navercorp.pinpoint.collector.service.async.AgentPropertyChannelAdaptor;
 import com.navercorp.pinpoint.common.server.bo.event.AgentEventBo;
 import com.navercorp.pinpoint.common.server.util.AgentEventType;
 import com.navercorp.pinpoint.rpc.packet.HandshakePropertyType;
-import com.navercorp.pinpoint.rpc.server.PinpointServer;
+import com.navercorp.pinpoint.rpc.server.ChannelProperties;
+import com.navercorp.pinpoint.rpc.server.ChannelPropertiesFactory;
+
+import static org.junit.Assert.assertEquals;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 /**
  * @author HyunGil Jeong
  */
 @RunWith(MockitoJUnitRunner.class)
 public class AgentEventAsyncTaskServiceTest {
-    @Mock
-    private PinpointServer pinpointServer;
+
+
+    private ChannelPropertiesFactory channelPropertiesFactory = new ChannelPropertiesFactory();
 
     @Mock
     private AgentEventService agentEventService;
@@ -52,16 +56,14 @@ public class AgentEventAsyncTaskServiceTest {
     @InjectMocks
     private AgentEventAsyncTaskService agentEventAsyncTaskService = new AgentEventAsyncTaskService();
 
+    private static final String TEST_APP_ID = "TEST_APP_ID";
     private static final String TEST_AGENT_ID = "TEST_AGENT";
     private static final long TEST_START_TIMESTAMP = System.currentTimeMillis();
     private static final long TEST_EVENT_TIMESTAMP = TEST_START_TIMESTAMP + 10;
 
     private static final Map<Object, Object> TEST_CHANNEL_PROPERTIES = createTestChannelProperties();
 
-    @Before
-    public void setUp() {
-        when(this.pinpointServer.getChannelProperties()).thenReturn(TEST_CHANNEL_PROPERTIES);
-    }
+
 
     @Test
     public void handler_should_handle_events_with_empty_message_body() throws Exception {
@@ -69,7 +71,9 @@ public class AgentEventAsyncTaskServiceTest {
         final AgentEventType expectedEventType = AgentEventType.AGENT_CONNECTED;
         ArgumentCaptor<AgentEventBo> argCaptor = ArgumentCaptor.forClass(AgentEventBo.class);
         // when
-        this.agentEventAsyncTaskService.handleEvent(this.pinpointServer.getChannelProperties(), TEST_EVENT_TIMESTAMP, expectedEventType);
+        ChannelProperties channelProperties = channelPropertiesFactory.newChannelProperties(TEST_CHANNEL_PROPERTIES);
+        AgentProperty agentProperty = new AgentPropertyChannelAdaptor(channelProperties);
+        this.agentEventAsyncTaskService.handleEvent(agentProperty, TEST_EVENT_TIMESTAMP, expectedEventType);
         verify(this.agentEventService, times(1)).insert(argCaptor.capture());
         // then
         AgentEventBo actualAgentEventBo = argCaptor.getValue();
@@ -81,11 +85,13 @@ public class AgentEventAsyncTaskServiceTest {
     }
 
     private static Map<Object, Object> createTestChannelProperties() {
-        return createChannelProperties(TEST_AGENT_ID, TEST_START_TIMESTAMP);
+        return createChannelProperties(TEST_APP_ID, TEST_AGENT_ID, TEST_START_TIMESTAMP);
     }
 
-    private static Map<Object, Object> createChannelProperties(String agentId, long startTimestamp) {
+    private static Map<Object, Object> createChannelProperties(String applicationId, String agentId, long startTimestamp) {
         Map<Object, Object> map = new HashMap<>();
+
+        map.put(HandshakePropertyType.APPLICATION_NAME.getName(), applicationId);
         map.put(HandshakePropertyType.AGENT_ID.getName(), agentId);
         map.put(HandshakePropertyType.START_TIMESTAMP.getName(), startTimestamp);
         return map;

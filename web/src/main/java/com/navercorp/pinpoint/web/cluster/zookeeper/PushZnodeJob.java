@@ -15,15 +15,16 @@
  */
 package com.navercorp.pinpoint.web.cluster.zookeeper;
 
+import com.navercorp.pinpoint.common.server.cluster.zookeeper.CreateNodeMessage;
+
 import org.jboss.netty.util.TimerTask;
 
 /**
  * @author minwoo.jung
  */
 public interface PushZnodeJob extends TimerTask {
-    String getZNodePath();
 
-    byte[] getContents();
+    CreateNodeMessage getCreateNodeMessage();
 
     int getRetryInterval();
 }

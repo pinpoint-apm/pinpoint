@@ -17,12 +17,11 @@
 package com.navercorp.pinpoint.collector.dao.hbase;
 
 import com.navercorp.pinpoint.collector.dao.StringMetaDataDao;
-import com.navercorp.pinpoint.common.hbase.TableNameProvider;
-import com.navercorp.pinpoint.common.server.bo.StringMetaDataBo;
-import com.navercorp.pinpoint.common.hbase.HBaseTables;
+import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
-import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
+import com.navercorp.pinpoint.common.server.bo.StringMetaDataBo;
 
+import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
@@ -37,15 +36,12 @@ import org.springframework.stereotype.Repository;
  * @author minwoo.jung
  */
 @Repository
-public class HbaseStringMetaDataDao implements StringMetaDataDao {
+public class HbaseStringMetaDataDao extends AbstractHbaseDao implements StringMetaDataDao {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private HbaseOperations2 hbaseTemplate;
-
-    @Autowired
-    private TableNameProvider tableNameProvider;
 
     @Autowired
     @Qualifier("metadataRowKeyDistributor")
@@ -64,13 +60,19 @@ public class HbaseStringMetaDataDao implements StringMetaDataDao {
         final Put put = new Put(rowKey);
         final String stringValue = stringMetaData.getStringValue();
         final byte[] sqlBytes = Bytes.toBytes(stringValue);
-        put.addColumn(HBaseTables.STRING_METADATA_CF_STR, HBaseTables.STRING_METADATA_CF_STR_QUALI_STRING, sqlBytes);
+        put.addColumn(getColumnFamilyName(), getColumnFamily().QUALIFIER_STRING, sqlBytes);
 
-        final TableName stringMetaDataTableName = tableNameProvider.getTableName(HBaseTables.STRING_METADATA_STR);
+        final TableName stringMetaDataTableName = getTableName();
         hbaseTemplate.put(stringMetaDataTableName, put);
     }
 
     private byte[] getDistributedKey(byte[] rowKey) {
         return rowKeyDistributorByHashPrefix.getDistributedKey(rowKey);
     }
+
+    @Override
+    public HbaseColumnFamily.StringMetadataStr getColumnFamily() {
+        return HbaseColumnFamily.STRING_METADATA_STR;
+    }
+
 }

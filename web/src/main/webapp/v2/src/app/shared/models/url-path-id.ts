@@ -86,10 +86,12 @@ export class UrlPathId {
     static STAT = 'stat';
     static AGENT = 'agent';
     static GENERAL = 'general';
+    static FAVORITE = 'favorite';
     static USER_GROUP = 'userGroup';
     static ALARM = 'alarm';
     static INSTALLATION = 'installation';
     static HELP = 'help';
+    static CHART_MANAGER = 'chartManager';
 
     constructor() {}
     static getPathIdList(): string[] {

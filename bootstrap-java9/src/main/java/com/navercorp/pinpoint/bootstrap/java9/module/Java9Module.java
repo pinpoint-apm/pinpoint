@@ -17,8 +17,11 @@
 package com.navercorp.pinpoint.bootstrap.java9.module;
 
 import com.navercorp.pinpoint.bootstrap.module.JavaModule;
+import com.navercorp.pinpoint.bootstrap.module.Providers;
 
 import java.lang.instrument.Instrumentation;
+import java.lang.module.ModuleDescriptor;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -56,6 +59,19 @@ public class Java9Module implements JavaModule {
     public String getName() {
         return this.module.getName();
 
+    }
+
+    @Override
+    public List<Providers> getProviders() {
+        List<Providers> result = new ArrayList<>();
+        Set<ModuleDescriptor.Provides> providesSet = this.module.getDescriptor().provides();
+        for (ModuleDescriptor.Provides provides : providesSet) {
+            String service = provides.service();
+            List<String> providers = provides.providers();
+            Providers newProviders = new Providers(service, providers);
+            result.add(newProviders);
+        }
+        return result;
     }
 
     @Override

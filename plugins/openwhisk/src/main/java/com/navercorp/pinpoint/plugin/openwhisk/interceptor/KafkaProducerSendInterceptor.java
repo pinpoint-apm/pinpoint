@@ -23,7 +23,8 @@ import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.plugin.openwhisk.OpenwhiskConstants;
 import com.navercorp.pinpoint.plugin.openwhisk.setter.TraceContextSetter;
 import scala.collection.immutable.Map;
-import whisk.core.connector.ActivationMessage;
+import org.apache.openwhisk.core.connector.ActivationMessage;
+
 
 /**
  * @author Seonghyun Oh

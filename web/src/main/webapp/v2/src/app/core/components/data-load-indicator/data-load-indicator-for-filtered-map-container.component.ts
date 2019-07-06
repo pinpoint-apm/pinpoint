@@ -53,6 +53,6 @@ export class DataLoadIndicatorForFilteredMapContainerComponent implements OnInit
     }
     private connectStore(): void {
         this.timezone$ = this.storeHelperService.getTimezone(this.unsubscribe);
-        this.dateFormat$ = this.storeHelperService.getDateFormat(this.unsubscribe, 6);
+        this.dateFormat$ = this.storeHelperService.getDateFormat(this.unsubscribe, 7);
     }
 }

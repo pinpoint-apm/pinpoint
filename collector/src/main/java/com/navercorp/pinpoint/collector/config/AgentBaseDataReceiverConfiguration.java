@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.collector.config;
 
 import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.grpc.server.ServerOption;
 
 import java.util.Objects;
 import java.util.Properties;
@@ -33,14 +34,13 @@ public final class AgentBaseDataReceiverConfiguration {
     private static final String WORKER_QUEUE_SIZE = PREFIX + ".worker.queueSize";
     private static final String WORKER_MONITOR_ENABLE = PREFIX + ".worker.monitor";
 
-    private static final String GRPC_PREFIX = "collector.receiver.grpc";
+    private static final String GRPC_PREFIX = "collector.receiver.grpc.agent";
+    private static final String GRPC_ENABLE = GRPC_PREFIX + ".enable";
     private static final String GRPC_BIND_IP = GRPC_PREFIX + ".ip";
     private static final String GRPC_BIND_PORT = GRPC_PREFIX + ".port";
     private static final String GRPC_WORKER_THREAD_SIZE = GRPC_PREFIX + ".worker.threadSize";
     private static final String GRPC_WORKER_QUEUE_SIZE = GRPC_PREFIX + ".worker.queueSize";
     private static final String GRPC_WORKER_MONITOR_ENABLE = GRPC_PREFIX + ".worker.monitor";
-    private static final String GRPC_KEEP_ALIVE_TIME = GRPC_PREFIX + ".keepalive.time";
-    private static final String GRPC_KEEP_ALIVE_TIMEOUT = GRPC_PREFIX + ".keepalive.timeout";
 
     private final String bindIp;
     private final int bindPort;
@@ -54,8 +54,7 @@ public final class AgentBaseDataReceiverConfiguration {
     private final int grpcWorkerThreadSize;
     private final int grpcWorkerQueueSize;
     private final boolean grpcWorkerMonitorEnable;
-    private final long grpcKeepAliveTime;
-    private final long grpcKeepAliveTimeout;
+    private final ServerOption grpcServerOption;
 
     public AgentBaseDataReceiverConfiguration(Properties properties, DeprecatedConfiguration deprecatedConfiguration) {
         Objects.requireNonNull(properties, "properties must not be null");
@@ -72,7 +71,7 @@ public final class AgentBaseDataReceiverConfiguration {
         this.workerMonitorEnable = isWorkerThreadMonitorEnable(properties, deprecatedConfiguration);
 
         // gRPC
-        this.grpcEnable = CollectorConfiguration.readBoolean(properties, GRPC_PREFIX);
+        this.grpcEnable = CollectorConfiguration.readBoolean(properties, GRPC_ENABLE);
         this.grpcBindIp = CollectorConfiguration.readString(properties, GRPC_BIND_IP, CollectorConfiguration.DEFAULT_LISTEN_IP);
         Objects.requireNonNull(grpcBindIp);
         this.grpcBindPort = CollectorConfiguration.readInt(properties, GRPC_BIND_PORT, 9997);
@@ -82,8 +81,8 @@ public final class AgentBaseDataReceiverConfiguration {
         this.grpcWorkerQueueSize =CollectorConfiguration.readInt(properties, GRPC_WORKER_QUEUE_SIZE, 1024 * 5);
         Assert.isTrue(grpcWorkerQueueSize > 0, "grpcWorkerQueueSize must be greater than 0");
         this.grpcWorkerMonitorEnable = CollectorConfiguration.readBoolean(properties, GRPC_WORKER_MONITOR_ENABLE);
-        this.grpcKeepAliveTime = CollectorConfiguration.readLong(properties, GRPC_KEEP_ALIVE_TIME, 300000L);
-        this.grpcKeepAliveTimeout = CollectorConfiguration.readLong(properties, GRPC_KEEP_ALIVE_TIMEOUT, 1800000L);
+        final ServerOption.Builder serverOptionBuilder = GrpcPropertiesServerOptionBuilder.newBuilder(properties, GRPC_PREFIX);
+        this.grpcServerOption = serverOptionBuilder.build();
     }
 
     private String getBindIp(Properties properties, DeprecatedConfiguration deprecatedConfiguration, String defaultValue) {
@@ -190,12 +189,8 @@ public final class AgentBaseDataReceiverConfiguration {
         return grpcWorkerMonitorEnable;
     }
 
-    public long getGrpcKeepAliveTime() {
-        return grpcKeepAliveTime;
-    }
-
-    public long getGrpcKeepAliveTimeout() {
-        return grpcKeepAliveTimeout;
+    public ServerOption getGrpcServerOption() {
+        return grpcServerOption;
     }
 
     @Override
@@ -212,8 +207,7 @@ public final class AgentBaseDataReceiverConfiguration {
         sb.append(", grpcWorkerThreadSize=").append(grpcWorkerThreadSize);
         sb.append(", grpcWorkerQueueSize=").append(grpcWorkerQueueSize);
         sb.append(", grpcWorkerMonitorEnable=").append(grpcWorkerMonitorEnable);
-        sb.append(", grpcKeepAliveTime=").append(grpcKeepAliveTime);
-        sb.append(", grpcKeepAliveTimeout=").append(grpcKeepAliveTimeout);
+        sb.append(", grpcServerOption=").append(grpcServerOption);
         sb.append('}');
         return sb.toString();
     }

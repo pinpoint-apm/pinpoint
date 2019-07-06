@@ -508,7 +508,7 @@ public class CallTreeIteratorTest {
             buffer.append(", startTime=");
             buffer.append(align.getStartTime());
             buffer.append(", lastTime=");
-            buffer.append(align.getLastTime());
+            buffer.append(align.getEndTime());
             if (!align.isSpan()) {
                 buffer.append(", nextAsyncId=");
                 buffer.append(align.getSpanEventBo().getNextAsyncId());

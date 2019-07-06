@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { Resolve, RouterStateSnapshot, ActivatedRouteSnapshot } from '@angular/router';
 import { Observable, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
+
 import { ServerTimeDataService } from 'app/shared/services/server-time-data.service';
 
 @Injectable()

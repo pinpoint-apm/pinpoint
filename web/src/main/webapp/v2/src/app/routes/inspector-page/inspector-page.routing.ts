@@ -6,6 +6,7 @@ import { AgentInspectorContentsContainerComponent } from 'app/core/components/ag
 import { EmptyInspectorContentsContainerComponent } from 'app/core/components/empty-inspector-contents/empty-inspector-contents-container.component';
 import { UrlRedirectorComponent } from 'app/shared/components/url-redirector/url-redirector.component';
 import { InspectorPageComponent } from './inspector-page.component';
+import { ServerTimeResolverService } from 'app/shared/services';
 
 export const routing: Routes = [
     {
@@ -13,37 +14,89 @@ export const routing: Routes = [
         component: InspectorPageComponent,
         children: [
             {
-                path: ':' + UrlPathId.APPLICATION + '/:' + UrlPathId.PERIOD + '/:' + UrlPathId.END_TIME + '/:' + UrlPathId.AGENT_ID,
-                data: {
-                    showRealTimeButton: false,
-                    enableRealTimeMode: false
-                },
-                component: AgentInspectorContentsContainerComponent
-            },
-            {
-                path: ':' + UrlPathId.APPLICATION + '/:' + UrlPathId.PERIOD + '/:' + UrlPathId.END_TIME,
-                data: {
-                    showRealTimeButton: false,
-                    enableRealTimeMode: false
-                },
-                component: ApplicationInspectorContentsContainerComponent
-            },
-            {
-                path: ':' + UrlPathId.APPLICATION + '/:' + UrlPathId.PERIOD,
-                data: {
-                    path: UrlPath.INSPECTOR
-                },
-                component: UrlRedirectorComponent
+                path: UrlPath.REAL_TIME,
+                children: [
+                    {
+                        path: '',
+                        pathMatch: 'full',
+                        redirectTo: '/' + UrlPath.INSPECTOR
+                    },
+                    {
+                        path: ':' + UrlPathId.APPLICATION,
+                        // resolve: {
+                        //     serverTime: ServerTimeResolverService
+                        // },
+                        data: {
+                            showRealTimeButton: true,
+                            enableRealTimeMode: true
+                        },
+                        children: [
+                            {
+                                path: '',
+                                pathMatch: 'full',
+                                resolve: {
+                                    serverTime: ServerTimeResolverService
+                                },
+                                component: ApplicationInspectorContentsContainerComponent
+                            },
+                            {
+                                path: ':' + UrlPathId.AGENT_ID,
+                                resolve: {
+                                    serverTime: ServerTimeResolverService
+                                },
+                                component: AgentInspectorContentsContainerComponent
+                            }
+                        ]
+                    }
+                ]
             },
             {
                 path: ':' + UrlPathId.APPLICATION,
-                data: {
-                    path: UrlPath.INSPECTOR
-                },
-                component: UrlRedirectorComponent
+                children: [
+                    {
+                        path: '',
+                        pathMatch: 'full',
+                        data: {
+                            path: UrlPath.INSPECTOR
+                        },
+                        component: UrlRedirectorComponent
+                    },
+                    {
+                        path: ':' + UrlPathId.PERIOD,
+                        children: [
+                            {
+                                path: '',
+                                pathMatch: 'full',
+                                data: {
+                                    path: UrlPath.INSPECTOR
+                                },
+                                component: UrlRedirectorComponent
+                            },
+                            {
+                                path: ':' + UrlPathId.END_TIME,
+                                data: {
+                                    showRealTimeButton: true,
+                                    enableRealTimeMode: false
+                                },
+                                children: [
+                                    {
+                                        path: '',
+                                        pathMatch: 'full',
+                                        component: ApplicationInspectorContentsContainerComponent
+                                    },
+                                    {
+                                        path: ':' + UrlPathId.AGENT_ID,
+                                        component: AgentInspectorContentsContainerComponent
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
             },
             {
                 path: '',
+                pathMatch: 'full',
                 component: EmptyInspectorContentsContainerComponent
             }
         ]

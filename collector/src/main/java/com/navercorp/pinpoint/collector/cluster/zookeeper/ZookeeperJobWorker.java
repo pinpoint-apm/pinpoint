@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.collector.cluster.zookeeper;
 
 import com.navercorp.pinpoint.collector.cluster.zookeeper.job.ZookeeperJob;
+import com.navercorp.pinpoint.common.server.cluster.zookeeper.CreateNodeMessage;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperClient;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperConstants;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.exception.PinpointZookeeperException;
@@ -24,11 +25,9 @@ import com.navercorp.pinpoint.common.server.util.concurrent.CommonStateContext;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
-import com.navercorp.pinpoint.rpc.packet.HandshakePropertyType;
-import com.navercorp.pinpoint.rpc.server.PinpointServer;
 import com.navercorp.pinpoint.rpc.util.ClassUtils;
 import com.navercorp.pinpoint.rpc.util.ListUtils;
-import com.navercorp.pinpoint.rpc.util.MapUtils;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.curator.utils.ZKPaths;
 import org.slf4j.Logger;
@@ -38,7 +37,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ThreadFactory;
 
@@ -58,7 +56,6 @@ public class ZookeeperJobWorker implements Runnable {
     private final CommonStateContext workerState;
     private final String collectorUniqPath;
     private final ZookeeperClient zookeeperClient;
-    private final PinpointServerRepository pinpointServerRepository = new PinpointServerRepository();
     private final ConcurrentLinkedDeque<ZookeeperJob> zookeeperJobDeque = new ConcurrentLinkedDeque<>();
     private Thread workerThread;
 
@@ -121,17 +118,13 @@ public class ZookeeperJobWorker implements Runnable {
         logger.info("stop() completed.");
     }
 
-    public void addPinpointServer(PinpointServer pinpointServer) {
+    public void addPinpointServer(String key) {
         if (logger.isDebugEnabled()) {
-            logger.debug("addPinpointServer server:{}, properties:{}", pinpointServer, pinpointServer.getChannelProperties());
+            logger.debug("addPinpointServer key:{}", key);
         }
 
-        String key = getKey(pinpointServer);
         synchronized (lock) {
-            boolean keyCreated = pinpointServerRepository.addAndIsKeyCreated(key, pinpointServer);
-            if (keyCreated) {
-                putZookeeperJob(new ZookeeperJob(ZookeeperJob.Type.ADD, key));
-            }
+            putZookeeperJob(new ZookeeperJob(ZookeeperJob.Type.ADD, key));
         }
     }
 
@@ -159,28 +152,18 @@ public class ZookeeperJobWorker implements Runnable {
         return StringUtils.EMPTY;
     }
 
-    private void setClusterData(String value) throws Exception {
-        final byte[] payload = BytesUtils.toBytes(value);
-        zookeeperClient.createOrSetNode(collectorUniqPath, payload);
-    }
-
-    public void removePinpointServer(PinpointServer pinpointServer) {
+    public void removePinpointServer(String key) {
         if (logger.isDebugEnabled()) {
-            logger.debug("removePinpointServer server:{}, properties:{}", pinpointServer, pinpointServer.getChannelProperties());
+            logger.debug("removePinpointServer key:{}", key);
         }
 
-        String key = getKey(pinpointServer);
         synchronized (lock) {
-            boolean keyRemoved = pinpointServerRepository.removeAndGetIsKeyRemoved(key, pinpointServer);
-            if (keyRemoved) {
-                putZookeeperJob(new ZookeeperJob(ZookeeperJob.Type.REMOVE, key));
-            }
+            putZookeeperJob(new ZookeeperJob(ZookeeperJob.Type.REMOVE, key));
         }
     }
 
     public void clear() {
         synchronized (lock) {
-            pinpointServerRepository.clear();
             zookeeperJobDeque.clear();
             putZookeeperJob(new ZookeeperJob(ZookeeperJob.Type.CLEAR));
         }
@@ -337,7 +320,8 @@ public class ZookeeperJobWorker implements Runnable {
             String currentData = getClusterData();
             final String newData = addIfAbsentContents(currentData, addContentCandidateList);
 
-            setClusterData(newData);
+            CreateNodeMessage createNodeMessage = new CreateNodeMessage(collectorUniqPath, BytesUtils.toBytes(newData), true);
+            zookeeperClient.createOrSetNode(createNodeMessage);
             return true;
         } catch (Exception e) {
             logger.warn("handleUpdate failed. caused:{}, jobSize:{}", e.getMessage(), zookeeperJobList.size(), e);
@@ -358,7 +342,8 @@ public class ZookeeperJobWorker implements Runnable {
             final String currentData = getClusterData();
             final String newData = removeIfExistContents(currentData, removeContentCandidateList);
 
-            setClusterData(newData);
+            CreateNodeMessage createNodeMessage = new CreateNodeMessage(collectorUniqPath, BytesUtils.toBytes(newData), true);
+            zookeeperClient.createOrSetNode(createNodeMessage);
             return true;
         } catch (Exception e) {
             logger.warn("handleDelete failed. caused:{}, jobSize:{}", e.getMessage(), zookeeperJobList.size(), e);
@@ -384,8 +369,8 @@ public class ZookeeperJobWorker implements Runnable {
         }
 
         try {
-            zookeeperClient.createPath(collectorUniqPath);
-            zookeeperClient.createOrSetNode(collectorUniqPath, EMPTY_DATA_BYTES);
+            CreateNodeMessage createNodeMessage = new CreateNodeMessage(collectorUniqPath, EMPTY_DATA_BYTES, true);
+            zookeeperClient.createOrSetNode(createNodeMessage);
             return true;
         } catch (Exception e) {
             logger.warn("handleClear failed. caused:{}, jobSize:{}", e.getMessage(), zookeeperJobList.size(), e);
@@ -451,19 +436,6 @@ public class ZookeeperJobWorker implements Runnable {
 
         final String[] tokenArray = org.springframework.util.StringUtils.tokenizeToStringArray(str, PROFILER_SEPARATOR);
         return Arrays.asList(tokenArray);
-    }
-
-    private String getKey(PinpointServer pinpointServer) {
-        Map<Object, Object> properties = pinpointServer.getChannelProperties();
-        final String applicationName = MapUtils.getString(properties, HandshakePropertyType.APPLICATION_NAME.getName());
-        final String agentId = MapUtils.getString(properties, HandshakePropertyType.AGENT_ID.getName());
-        final Long startTimeStamp = MapUtils.getLong(properties, HandshakePropertyType.START_TIMESTAMP.getName());
-
-        if (StringUtils.isBlank(applicationName) || StringUtils.isBlank(agentId) || startTimeStamp == null || startTimeStamp <= 0) {
-            return StringUtils.EMPTY;
-        }
-
-        return applicationName + ":" + agentId + ":" + startTimeStamp;
     }
 
 }

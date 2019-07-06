@@ -42,7 +42,6 @@ import com.navercorp.pinpoint.rpc.packet.ResponsePacket;
 import com.navercorp.pinpoint.rpc.packet.SendPacket;
 import com.navercorp.pinpoint.rpc.packet.ServerClosePacket;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamPacket;
-import com.navercorp.pinpoint.rpc.server.handler.DoNothingChannelStateEventHandler;
 import com.navercorp.pinpoint.rpc.server.handler.ServerStateChangeEventHandler;
 import com.navercorp.pinpoint.rpc.stream.ClientStreamChannel;
 import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelEventHandler;
@@ -125,7 +124,7 @@ public class DefaultPinpointServer implements PinpointServer {
         }
         ListUtils.addAllExceptNullValue(this.stateChangeEventListeners, stateChangeEventListeners);
         if (this.stateChangeEventListeners.isEmpty()) {
-            this.stateChangeEventListeners.add(DoNothingChannelStateEventHandler.INSTANCE);
+            this.stateChangeEventListeners.add(ServerStateChangeEventHandler.DISABLED_INSTANCE);
         }
 
         RequestManager requestManager = new RequestManager(serverConfig.getRequestManagerTimer(), serverConfig.getDefaultRequestTimeout());

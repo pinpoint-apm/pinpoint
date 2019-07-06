@@ -10,9 +10,9 @@
                 <pp-scatter-chart-for-filtered-map-side-bar-container></pp-scatter-chart-for-filtered-map-side-bar-container>
                 <pp-target-list-container></pp-target-list-container>
                 <hr *ngIf="hasTopElement()"/>
-                <pp-response-summary-chart-for-filtered-map-side-bar-container></pp-response-summary-chart-for-filtered-map-side-bar-container>
+                <pp-response-summary-chart-container [sourceType]="'FILTERED_MAP_SIDEBAR'"></pp-response-summary-chart-container>
                 <hr/>
-                <pp-load-chart-for-filtered-map-side-bar-container></pp-load-chart-for-filtered-map-side-bar-container>
+                <pp-load-chart-container [sourceType]="'FILTERED_MAP_SIDEBAR'"></pp-load-chart-container>
             </div>
         </div>
     </div>

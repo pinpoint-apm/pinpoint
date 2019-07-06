@@ -91,7 +91,7 @@ public class ServiceTypeRegistry implements ServiceTypeLocator {
         final Map<String, List<ServiceType>> table = new HashMap<String, List<ServiceType>>();
 
         for (ServiceType serviceType : serviceTypes) {
-            if (serviceType.isRecordStatistics()) {
+            if (serviceType.isRecordStatistics() || serviceType.isAlias()) {
                 List<ServiceType> serviceTypeList = table.get(serviceType.getDesc());
                 if (serviceTypeList == null) {
                     serviceTypeList = new ArrayList<ServiceType>();

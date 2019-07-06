@@ -26,6 +26,9 @@ export class TransactionDetailContentsContainerComponent implements OnInit {
     isHiddenSearchComponent(): boolean {
         return this.currentViewType !== VIEW_TYPE.CALL_TREE && this.currentViewType !== VIEW_TYPE.TIMELINE;
     }
+    isSameType(type: string): boolean {
+        return this.currentViewType === type;
+    }
     onShowHelp($event: MouseEvent): void {
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.TOGGLE_HELP_VIEWER, HELP_VIEWER_LIST.CALL_TREE);
         const {left, top, width, height} = ($event.target as HTMLElement).getBoundingClientRect();

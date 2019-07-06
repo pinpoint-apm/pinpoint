@@ -23,8 +23,6 @@ import com.navercorp.pinpoint.rpc.common.SocketStateCode;
  */
 public interface StateChangeEventListener<S extends PinpointSocket> {
 
-    void eventPerformed(S pinpointSocket, SocketStateCode stateCode) throws Exception;
-
-    void exceptionCaught(S pinpointSocket, SocketStateCode stateCode, Throwable e);
+    void stateUpdated(S pinpointSocket, SocketStateCode updatedStateCode) throws Exception;
 
 }

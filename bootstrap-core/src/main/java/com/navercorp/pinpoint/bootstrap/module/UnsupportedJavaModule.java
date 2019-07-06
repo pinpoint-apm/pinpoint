@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.bootstrap.module;
 
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -41,6 +41,11 @@ class UnsupportedJavaModule implements JavaModule {
     @Override
     public String getName() {
         return null;
+    }
+
+    @Override
+    public List<Providers> getProviders() {
+        return Collections.emptyList();
     }
 
     @Override

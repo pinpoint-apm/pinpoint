@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, ChangeDetectorRef, OnInit, OnDestroy, ViewChild, ElementRef, Renderer2, ComponentFactoryResolver, Injector } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef, Renderer2, ComponentFactoryResolver, Injector } from '@angular/core';
 import { Observable, Subject, of, combineLatest, Subscription } from 'rxjs';
 import { takeUntil, delay } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
@@ -14,7 +14,6 @@ import {
     MessageQueueService,
     MESSAGE_TO
 } from 'app/shared/services';
-import { Actions } from 'app/shared/store';
 import { UrlPath, UrlPathId } from 'app/shared/models';
 import { ScatterChartDataService } from './scatter-chart-data.service';
 import { ScatterChart } from './class/scatter-chart.class';
@@ -24,8 +23,7 @@ import { HELP_VIEWER_LIST, HelpViewerPopupContainerComponent } from 'app/core/co
 @Component({
     selector: 'pp-scatter-chart-for-full-screen-mode-container',
     templateUrl: './scatter-chart-for-full-screen-mode-container.component.html',
-    styleUrls: ['./scatter-chart-for-full-screen-mode-container.component.css'],
-    changeDetection: ChangeDetectionStrategy.OnPush
+    styleUrls: ['./scatter-chart-for-full-screen-mode-container.component.css']
 })
 export class ScatterChartForFullScreenModeContainerComponent implements OnInit, OnDestroy {
     @ViewChild('layerBackground') layerBackground: ElementRef;
@@ -38,15 +36,6 @@ export class ScatterChartForFullScreenModeContainerComponent implements OnInit, 
     scatterDataServiceSubscription: Subscription;
     hideSettingPopup = true;
     selectedAgent: string;
-    typeInfo = [{
-        name: 'failed',
-        color: '#E95459',
-        order: 10
-    }, {
-        name: 'success',
-        color: '#34B994',
-        order: 20
-    }];
     typeCount: object;
     width = 690;
     height = 345;
@@ -60,8 +49,8 @@ export class ScatterChartForFullScreenModeContainerComponent implements OnInit, 
     scatterChartMode: string;
     timezone$: Observable<string>;
     dateFormat: string[];
+    showBlockMessagePopup = false;
     constructor(
-        private changeDetectorRef: ChangeDetectorRef,
         private renderer: Renderer2,
         private translateService: TranslateService,
         private storeHelperService: StoreHelperService,
@@ -90,7 +79,6 @@ export class ScatterChartForFullScreenModeContainerComponent implements OnInit, 
             of(1).pipe(delay(1)).subscribe((num: number) => {
                 this.scatterChartInteractionService.reset(this.instanceKey, this.selectedApplication, this.selectedAgent, this.fromX, this.toX, this.scatterChartMode);
                 this.getScatterData();
-                this.changeDetectorRef.detectChanges();
             });
         });
         this.scatterChartDataService.outScatterData$.pipe(
@@ -148,17 +136,19 @@ export class ScatterChartForFullScreenModeContainerComponent implements OnInit, 
     private getI18NText(): void {
         combineLatest(
             this.translateService.get('COMMON.NO_DATA'),
-            this.translateService.get('COMMON.FAILED_TO_FETCH_DATA')
+            this.translateService.get('COMMON.FAILED_TO_FETCH_DATA'),
+            this.translateService.get('COMMON.POPUP_BLOCK_MESSAGE')
         ).subscribe((i18n: string[]) => {
             this.i18nText = {
                 NO_DATA: i18n[0],
-                FAILED_TO_FETCH_DATA: i18n[1]
+                FAILED_TO_FETCH_DATA: i18n[1],
+                POPUP_BLOCK_MESSAGE: i18n[2]
             };
         });
     }
     private connectStore(): void {
         this.timezone$ = this.storeHelperService.getTimezone(this.unsubscribe);
-        this.storeHelperService.getDateFormatArray(this.unsubscribe, 3, 4).subscribe((dateFormat: string[]) => {
+        this.storeHelperService.getDateFormatArray(this.unsubscribe, 4, 5).subscribe((dateFormat: string[]) => {
             this.dateFormat = dateFormat;
         });
     }
@@ -238,11 +228,17 @@ export class ScatterChartForFullScreenModeContainerComponent implements OnInit, 
     }
     onSelectArea(params: any): void {
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.OPEN_TRANSACTION_LIST);
-        this.urlRouteManagerService.openPage([
+        const returnOpenWindow = this.urlRouteManagerService.openPage([
             UrlPath.TRANSACTION_LIST,
             this.newUrlStateNotificationService.getPathValue(UrlPathId.APPLICATION).getUrlStr(),
             this.newUrlStateNotificationService.getPathValue(UrlPathId.PERIOD).getValueWithTime(),
             this.newUrlStateNotificationService.getPathValue(UrlPathId.END_TIME).getEndTime()
         ], `${this.selectedApplication}|${params.x.from}|${params.x.to}|${params.y.from}|${params.y.to}|${this.selectedAgent}|${params.type.join(',')}`);
+        if (returnOpenWindow === null || returnOpenWindow === undefined) {
+            this.showBlockMessagePopup = true;
+        }
+    }
+    onCloseBlockMessage(): void {
+        this.showBlockMessagePopup = false;
     }
 }

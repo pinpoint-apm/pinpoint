@@ -28,19 +28,17 @@ public class WriteFailFutureListener implements FutureListener {
 
     private final Logger logger;
     private final String message;
-    private final String host;
-    private final String port;
+    private final String address;
     private final boolean isWarn;
 
 
-    public WriteFailFutureListener(Logger logger, String message, String host, int port) {
+    public WriteFailFutureListener(Logger logger, String message, String address) {
         if (logger == null) {
             throw new NullPointerException("logger must not be null");
         }
         this.logger = logger;
         this.message = message;
-        this.host = host;
-        this.port = String.valueOf(port);
+        this.address = address;
         this.isWarn = logger.isWarnEnabled();
     }
 
@@ -48,7 +46,7 @@ public class WriteFailFutureListener implements FutureListener {
     public void onComplete(Future future) {
         if (!future.isSuccess()) {
             if (isWarn) {
-                logger.warn("{} {}/{}", message, host, port);
+                logger.warn("{} {}", message, address);
             }
         }
     }

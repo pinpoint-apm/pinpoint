@@ -30,19 +30,24 @@ public class SpanChunkBo implements BasicSpan {
     private long collectorAcceptTime;
 
     private LocalAsyncIdBo localAsyncId;
+    private long keyTime;
 
 
     public SpanChunkBo() {
     }
 
-    public byte getVersion() {
-        return version;
+    @Override
+    public int getVersion() {
+        return version & 0xFF;
     }
 
-    public void setVersion(byte version) {
-        this.version = version;
+    public void setVersion(int version) {
+        SpanBo.checkVersion(version);
+        // check range
+        this.version = (byte) (version & 0xFF);
     }
 
+    @Override
     public String getAgentId() {
         return agentId;
     }
@@ -51,6 +56,7 @@ public class SpanChunkBo implements BasicSpan {
         this.agentId = agentId;
     }
 
+    @Override
     public String getApplicationId() {
         return applicationId;
     }
@@ -59,6 +65,7 @@ public class SpanChunkBo implements BasicSpan {
         this.applicationId = applicationId;
     }
 
+    @Override
     public long getAgentStartTime() {
         return agentStartTime;
     }
@@ -76,12 +83,22 @@ public class SpanChunkBo implements BasicSpan {
         this.transactionId = transactionId;
     }
 
+    @Override
     public long getSpanId() {
         return spanId;
     }
 
+    @Override
     public void setSpanId(long spanId) {
         this.spanId = spanId;
+    }
+
+    public long getKeyTime() {
+        return this.keyTime;
+    }
+
+    public void setKeyTime(long keyTime) {
+        this.keyTime = keyTime;
     }
 
     public String getEndPoint() {
@@ -137,6 +154,10 @@ public class SpanChunkBo implements BasicSpan {
         this.spanEventBoList.addAll(spanEventBoList);
     }
 
+    public boolean isAsyncSpanChunk() {
+        return localAsyncId != null;
+    }
+
     public LocalAsyncIdBo getLocalAsyncId() {
         return localAsyncId;
     }
@@ -160,6 +181,7 @@ public class SpanChunkBo implements BasicSpan {
                 ", spanEventBoList=" + spanEventBoList +
                 ", collectorAcceptTime=" + collectorAcceptTime +
                 ", localAsyncId=" + localAsyncId +
+                ", keyTIme=" + keyTime +
                 '}';
     }
 }

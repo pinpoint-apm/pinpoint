@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.collector.receiver.grpc;
 
 import com.navercorp.pinpoint.common.server.util.AddressFilter;
-import com.navercorp.pinpoint.common.util.Assert;
 import io.grpc.Attributes;
 import io.grpc.Grpc;
 import io.grpc.ServerTransportFilter;
@@ -27,6 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.util.Objects;
 
 /**
  * @author jaehong.kim
@@ -37,7 +37,7 @@ public class PermissionServerTransportFilter extends ServerTransportFilter {
     private final AddressFilter addressFilter;
 
     public PermissionServerTransportFilter(final AddressFilter addressFilter) {
-        this.addressFilter = Assert.requireNonNull(addressFilter, "addressFilter must not be null");
+        this.addressFilter = Objects.requireNonNull(addressFilter, "addressFilter must not be null");
     }
 
     @Override
@@ -60,7 +60,7 @@ public class PermissionServerTransportFilter extends ServerTransportFilter {
 
         // Permission denied
         logger.debug("Permission denied transport.");
-        throw Status.PERMISSION_DENIED.asRuntimeException();
+        throw Status.PERMISSION_DENIED.withDescription("invalid IP").asRuntimeException();
     }
 
     @Override

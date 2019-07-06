@@ -96,7 +96,8 @@ public class TcpDataSender implements EnhancedDataSender<Object> {
 
         this.messageSerializer = Assert.requireNonNull(messageSerializer, "messageSerializer must not be null");
         this.timer = createTimer(name);
-        this.writeFailFutureListener = new WriteFailFutureListener(logger, "io write fail.", "host", -1);
+
+        this.writeFailFutureListener = new WriteFailFutureListener(logger, "io write fail.", clientProvider.getAddressAsString());
 
         final String executorName = getExecutorName(name);
         this.executor = createAsyncQueueingExecutor(1024 * 5, executorName);
@@ -197,24 +198,19 @@ public class TcpDataSender implements EnhancedDataSender<Object> {
 
     protected void sendPacket(Object message) {
         try {
-            if (message instanceof TBase<?, ?>) {
-                final byte[] copy = messageSerializer.serializer(message);
-                if (copy == null) {
-                    return;
-                }
-                doSend(copy);
-                return;
-            }
-
             if (message instanceof RequestMessage<?>) {
                 final RequestMessage<?> requestMessage = (RequestMessage<?>) message;
                 if (doRequest(requestMessage)) {
                     return;
                 }
-            } else {
+            }
+
+            final byte[] copy = messageSerializer.serializer(message);
+            if (copy == null) {
                 logger.error("sendPacket fail. invalid dto type:{}", message.getClass());
                 return;
             }
+            doSend(copy);
         } catch (Exception e) {
             logger.warn("tcp send fail. Caused:{}", e.getMessage(), e);
         }

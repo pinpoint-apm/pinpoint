@@ -2,18 +2,17 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
-import { IChartDataService, IChartDataFromServer } from 'app/core/components/inspector-chart/chart-data.service';
 import { NewUrlStateNotificationService } from 'app/shared/services';
 import { UrlPathId } from 'app/shared/models';
-import { getParamForApplicationChartData } from 'app/core/utils/chart-data-param-maker';
+import { IInspectorChartData } from './inspector-chart-data.service';
 
-export interface IApplicationDataSourceChart extends IChartDataFromServer {
+export interface IApplicationDataSourceChart extends IInspectorChartData {
     jdbcUrl: string;
     serviceType: string;
 }
 
 @Injectable()
-export class ApplicationDataSourceChartDataService implements IChartDataService {
+export class ApplicationDataSourceChartDataService {
     private requestURL = 'getApplicationStat/dataSource/chart.pinpoint';
 
     constructor(
@@ -21,9 +20,18 @@ export class ApplicationDataSourceChartDataService implements IChartDataService 
         private newUrlStateNotificationService: NewUrlStateNotificationService,
     ) {}
 
-    getData(range: number[]): Observable<IChartDataFromServer[] | AjaxException> {
-        return this.http.get<IChartDataFromServer[] | AjaxException>(this.requestURL,
-            getParamForApplicationChartData(this.newUrlStateNotificationService.getPathValue(UrlPathId.APPLICATION).getApplicationName(), range)
-        );
+    getData(range: number[]): Observable<IApplicationDataSourceChart[] | AjaxException> {
+        return this.http.get<IApplicationDataSourceChart[] | AjaxException>(this.requestURL, this.getHttpParams(range));
+    }
+
+    private getHttpParams([from, to]: number[]): object {
+        return {
+            params: {
+                applicationId: this.newUrlStateNotificationService.getPathValue(UrlPathId.APPLICATION).getApplicationName(),
+                from,
+                to,
+                sampleRate: 1
+            }
+        };
     }
 }

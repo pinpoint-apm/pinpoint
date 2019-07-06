@@ -40,14 +40,14 @@ public class SpanProcessorV1 implements SpanProcessor<TSpan, TSpanChunk> {
 
     @Override
     public void preProcess(Span span, TSpan tSpan) {
-        if (tSpan.getVersion() == V1) {
+        if (tSpan.getVersion() != V1) {
             tSpan.setVersion(V1);
         }
     }
 
     @Override
     public void preProcess(SpanChunk spanChunk, TSpanChunk tSpanChunk) {
-        if (tSpanChunk.getVersion() == V1) {
+        if (tSpanChunk.getVersion() != V1) {
             tSpanChunk.setVersion(V1);
         }
     }

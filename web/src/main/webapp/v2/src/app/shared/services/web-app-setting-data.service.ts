@@ -26,7 +26,10 @@ export class WebAppSettingDataService {
         USER_DEFAULT_INBOUND: 'userDefaultInbound',
         USER_DEFAULT_OUTBOUND: 'userDefaultOutbound',
         USER_DEFAULT_PERIOD: 'userDefaultPeriod',
-        TRANSACTION_LIST_GUTTER_POSITION: 'transactionListGutterPosition'
+        TRANSACTION_LIST_GUTTER_POSITION: 'transactionListGutterPosition',
+        CHART_NUM_PER_ROW: 'chartNumPerRow',
+        APPLICATION_CHART_LAYOUT_INFO: 'applicationChartLayoutInfo',
+        AGENT_CHART_LAYOUT_INFO: 'agentChartLayoutInfo',
     };
     private IMAGE_PATH = './assets/img/';
     private IMAGE_EXT = '.png';
@@ -90,6 +93,9 @@ export class WebAppSettingDataService {
     }
     getSystemDefaultTransactionViewPeriod(): Period {
         return this.componentDefaultSettingDataService.getSystemDefaultTransactionViewPeriod();
+    }
+    getSystemDefaultChartLayoutOption(): number {
+        return this.componentDefaultSettingDataService.getSystemDefaultChartLayoutOption();
     }
     getInboundList(): number[] {
         return this.componentDefaultSettingDataService.getInboundList();
@@ -205,5 +211,39 @@ export class WebAppSettingDataService {
         return (name: string) => {
             return this.IMAGE_PATH + name + this.IMAGE_EXT;
         };
+    }
+    setChartLayoutOption(chartNumPerRow: number): void {
+        this.localStorageService.set(WebAppSettingDataService.KEYS.CHART_NUM_PER_ROW, chartNumPerRow);
+    }
+    getChartLayoutOption(): number {
+        return this.localStorageService.get<number>(WebAppSettingDataService.KEYS.CHART_NUM_PER_ROW) || this.getSystemDefaultChartLayoutOption();
+    }
+    getChartRefreshInterval(key: string): number {
+        return this.getSystemDefaultChartRefreshInterval(key);
+    }
+    getSystemDefaultChartRefreshInterval(key: string): number {
+        return this.componentDefaultSettingDataService.getSystemDefaultChartRefreshInterval(key);
+    }
+    getApplicationInspectorDefaultChartList(): string[] {
+        return this.componentDefaultSettingDataService.getApplicationInspectorDefaultChartOrderList();
+    }
+    getAgentInspectorDefaultChartList(): string[] {
+        return this.componentDefaultSettingDataService.getAgentInspectorDefaultChartOrderList();
+    }
+    getApplicationLayoutInfo(): IChartLayoutInfoResponse {
+        return this.localStorageService.get(WebAppSettingDataService.KEYS.APPLICATION_CHART_LAYOUT_INFO) || {
+            applicationInspectorChart: []
+        };
+    }
+    setApplicationLayoutInfo(chartInfo: IChartLayoutInfoResponse): void {
+        this.localStorageService.set(WebAppSettingDataService.KEYS.APPLICATION_CHART_LAYOUT_INFO, chartInfo);
+    }
+    getAgentLayoutInfo(): IChartLayoutInfoResponse {
+        return this.localStorageService.get(WebAppSettingDataService.KEYS.AGENT_CHART_LAYOUT_INFO) || {
+            agentInspectorChart: []
+        };
+    }
+    setAgentLayoutInfo(chartInfo: IChartLayoutInfoResponse): void {
+        this.localStorageService.set(WebAppSettingDataService.KEYS.AGENT_CHART_LAYOUT_INFO, chartInfo);
     }
 }

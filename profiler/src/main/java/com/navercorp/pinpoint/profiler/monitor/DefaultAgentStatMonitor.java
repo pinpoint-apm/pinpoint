@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.profiler.context.module.AgentId;
 import com.navercorp.pinpoint.profiler.context.module.AgentStartTime;
 import com.navercorp.pinpoint.profiler.context.module.StatDataSender;
 import com.navercorp.pinpoint.profiler.monitor.collector.AgentStatMetricCollector;
+import com.navercorp.pinpoint.profiler.monitor.metric.AgentStatMetricSnapshot;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
 import com.navercorp.pinpoint.profiler.sender.EmptyDataSender;
 import com.navercorp.pinpoint.thrift.dto.TAgentStat;
@@ -58,14 +59,14 @@ public class DefaultAgentStatMonitor implements AgentStatMonitor {
     @Inject
     public DefaultAgentStatMonitor(@StatDataSender DataSender dataSender,
                                    @AgentId String agentId, @AgentStartTime long agentStartTimestamp,
-                                   @Named("AgentStatCollector") AgentStatMetricCollector<TAgentStat> agentStatCollector,
+                                   @Named("AgentStatCollector") AgentStatMetricCollector<AgentStatMetricSnapshot> agentStatCollector,
                                    ProfilerConfig profilerConfig) {
         this(dataSender, agentId, agentStartTimestamp, agentStatCollector, profilerConfig.getProfileJvmStatCollectIntervalMs(), profilerConfig.getProfileJvmStatBatchSendCount());
     }
 
     public DefaultAgentStatMonitor(DataSender dataSender,
                                    String agentId, long agentStartTimestamp,
-                                   AgentStatMetricCollector<TAgentStat> agentStatCollector,
+                                   AgentStatMetricCollector<AgentStatMetricSnapshot> agentStatCollector,
                                    long collectionIntervalMs, int numCollectionsPerBatch) {
         if (dataSender == null) {
             throw new NullPointerException("dataSender must not be null");
@@ -96,7 +97,7 @@ public class DefaultAgentStatMonitor implements AgentStatMonitor {
     // prevent deadlock for JDK6
     // Single thread execution is more safe than multi thread execution.
     // eg) executor.scheduleAtFixedRate(collectJob, 0(initialDelay is zero), this.collectionIntervalMs, TimeUnit.MILLISECONDS);
-    private void preLoadClass(String agentId, long agentStartTimestamp, AgentStatMetricCollector<TAgentStat> agentStatCollector) {
+    private void preLoadClass(String agentId, long agentStartTimestamp, AgentStatMetricCollector<AgentStatMetricSnapshot> agentStatCollector) {
         logger.debug("pre-load class start");
         CollectJob collectJob = new CollectJob(EmptyDataSender.INSTANCE, agentId, agentStartTimestamp, agentStatCollector, 1);
 

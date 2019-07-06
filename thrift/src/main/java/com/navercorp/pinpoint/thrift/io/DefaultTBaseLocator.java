@@ -16,14 +16,9 @@
 
 package com.navercorp.pinpoint.thrift.io;
 
-import com.navercorp.pinpoint.io.header.Header;
-import com.navercorp.pinpoint.io.header.v1.HeaderV1;
 import com.navercorp.pinpoint.io.util.BodyFactory;
 import com.navercorp.pinpoint.io.util.TypeLocator;
 import com.navercorp.pinpoint.io.util.TypeLocatorBuilder;
-import org.apache.thrift.TBase;
-import org.apache.thrift.TException;
-
 import com.navercorp.pinpoint.thrift.dto.TAgentInfo;
 import com.navercorp.pinpoint.thrift.dto.TAgentStat;
 import com.navercorp.pinpoint.thrift.dto.TAgentStatBatch;
@@ -35,7 +30,7 @@ import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
 import com.navercorp.pinpoint.thrift.dto.TSqlMetaData;
 import com.navercorp.pinpoint.thrift.dto.TStringMetaData;
 
-import java.lang.reflect.Constructor;
+import org.apache.thrift.TBase;
 
 /**
  * @author emeroad
@@ -49,10 +44,12 @@ public class DefaultTBaseLocator {
 
     public static final short NETWORK_CHECK = 10;
 
+    // grpc ping
+    public static final short PING = 12;
+
     public static final short SPAN = 40;
 
     public static final short AGENT_INFO = 50;
-
 
     public static final short AGENT_STAT = 55;
 

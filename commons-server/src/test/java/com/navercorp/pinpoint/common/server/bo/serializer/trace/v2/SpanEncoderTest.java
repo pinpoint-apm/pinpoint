@@ -2,7 +2,7 @@ package com.navercorp.pinpoint.common.server.bo.serializer.trace.v2;
 
 import com.google.common.collect.Lists;
 import com.navercorp.pinpoint.common.buffer.Buffer;
-import com.navercorp.pinpoint.common.buffer.OffsetFixedBuffer;
+import com.navercorp.pinpoint.common.buffer.FixedBuffer;
 import com.navercorp.pinpoint.common.server.bo.RandomTSpan;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
@@ -108,8 +108,10 @@ public class SpanEncoderTest {
         return currentTime - randomSeed;
     }
 
-    private OffsetFixedBuffer wrapBuffer(ByteBuffer byteBuffer) {
-        return new OffsetFixedBuffer(byteBuffer.array(), byteBuffer.arrayOffset(), byteBuffer.remaining());
+    private Buffer wrapBuffer(ByteBuffer byteBuffer) {
+        byte[] buffer = new byte[byteBuffer.remaining()];
+        byteBuffer.get(buffer);
+        return new FixedBuffer(buffer);
     }
 
     private SpanBo randomSpan() {

@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.common.server.cluster.zookeeper.exception.Pinpoint
 import com.navercorp.pinpoint.common.server.util.concurrent.CommonStateContext;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.StringUtils;
+
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.api.CreateBuilder;
 import org.apache.curator.utils.ZKPaths;
@@ -115,37 +116,34 @@ public class CuratorZookeeperClient implements ZookeeperClient {
     }
 
     @Override
-    public String createNode(String path, byte[] payload) throws PinpointZookeeperException {
-        checkState();
-        assertPathHasLength(path);
-
-        logger.debug("createNode() started. path:{}", path);
-
-        try {
-            CuratorFramework client = connectionManager.getZookeeperClient();
-
-            CreateBuilder createBuilder = client.create();
-            createBuilder.withMode(CreateMode.EPHEMERAL).forPath(path, payload);
-            return path;
-        } catch (Exception e) {
-            PinpointZookeeperException exception = ZookeeperExceptionResolver.resolve(e);
-            throw exception;
-        }
+    public void createNode(CreateNodeMessage message) throws PinpointZookeeperException {
+        logger.debug("createNode() started. message:{}", message);
+        createNode0(message, false);
     }
 
     @Override
-    public String createOrSetNode(String path, byte[] payload) throws PinpointZookeeperException {
-        checkState();
-        assertPathHasLength(path);
+    public void createOrSetNode(CreateNodeMessage message) throws PinpointZookeeperException {
+        logger.debug("createOrSetNode() started. message:{}", message);
+        createNode0(message, true);
+    }
 
-        logger.debug("createOrSetNode() started. path:{}", path);
+    private void createNode0(CreateNodeMessage message, boolean orSet) throws PinpointZookeeperException {
+        checkState();
 
         try {
             CuratorFramework client = connectionManager.getZookeeperClient();
 
             CreateBuilder createBuilder = client.create();
-            createBuilder.orSetData().creatingParentsIfNeeded().withMode(CreateMode.EPHEMERAL).forPath(path, payload);
-            return path;
+            if (message.isCreatingParentPathsIfNeeded()) {
+                createBuilder.creatingParentsIfNeeded();
+            }
+            if (orSet) {
+                createBuilder.orSetData();
+            }
+
+            String nodePath = message.getNodePath();
+            byte[] data = message.getData();
+            createBuilder.withMode(CreateMode.EPHEMERAL).forPath(nodePath, data);
         } catch (Exception e) {
             PinpointZookeeperException exception = ZookeeperExceptionResolver.resolve(e);
             throw exception;

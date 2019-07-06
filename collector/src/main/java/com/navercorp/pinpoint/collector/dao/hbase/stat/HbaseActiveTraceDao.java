@@ -17,13 +17,14 @@
 package com.navercorp.pinpoint.collector.dao.hbase.stat;
 
 import com.navercorp.pinpoint.collector.dao.AgentStatDaoV2;
-import com.navercorp.pinpoint.common.hbase.HBaseTables;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
+import com.navercorp.pinpoint.common.hbase.HbaseTable;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.ActiveTraceSerializer;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatHbaseOperationFactory;
 import com.navercorp.pinpoint.common.server.bo.stat.ActiveTraceBo;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatType;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Put;
@@ -60,7 +61,7 @@ public class HbaseActiveTraceDao implements AgentStatDaoV2<ActiveTraceBo> {
         }
         List<Put> activeTracePuts = this.agentStatHbaseOperationFactory.createPuts(agentId, AgentStatType.ACTIVE_TRACE, agentStatDataPoints, this.activeTraceSerializer);
         if (!activeTracePuts.isEmpty()) {
-            TableName agentStatTableName = tableNameProvider.getTableName(HBaseTables.AGENT_STAT_VER2_STR);
+            TableName agentStatTableName = tableNameProvider.getTableName(HbaseTable.AGENT_STAT_VER2);
             List<Put> rejectedPuts = this.hbaseTemplate.asyncPut(agentStatTableName, activeTracePuts);
             if (CollectionUtils.isNotEmpty(rejectedPuts)) {
                 this.hbaseTemplate.put(agentStatTableName, rejectedPuts);

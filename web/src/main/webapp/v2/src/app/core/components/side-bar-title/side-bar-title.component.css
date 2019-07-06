@@ -10,20 +10,6 @@
     align-items: center;
     justify-content: space-between;
 }
-.l-wrapper select {
-    float: right;
-    width: 152px;
-    border: 1px solid #d7dde4;
-    height: 32px;
-    padding: 0 9px;
-    font-size: 13px;
-    border-radius: 2px;
-    color: #666;
-    appearance: none;
-    -webkit-appearance:none;
-    background-color: #FFF;
-    background:url(../../../../assets/img/select-down-arrow.png) no-repeat right 10px center;
-}
 .l-title {
     display: block;
     overflow: hidden;
@@ -36,7 +22,10 @@
     white-space: nowrap;
     text-overflow: ellipsis;
 }
-
+.l-select-agent {
+    width: 150px;
+    font-size: 12px;
+}
 .l-wrapper-grid {
     display: grid;
     grid-template-columns: 48% 4% 48%;

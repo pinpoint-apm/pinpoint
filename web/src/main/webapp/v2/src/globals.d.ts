@@ -88,7 +88,7 @@ interface IAgent {
 interface IAgentSelection { 
     agent: string;
     responseSummary: IResponseTime | IResponseMilliSecondTime;
-    load: IHistogram;
+    load: IHistogram[];
 }
 interface IInstanceInfo {
     hasInspector: boolean;
@@ -174,6 +174,7 @@ interface IFilter {
 }
 
 interface ISelectedTarget {
+    clickParam: any;
     endTime: string;
     period: string;
     isNode?: boolean;
@@ -265,6 +266,14 @@ interface IHoveredInfo {
     time?: number;
     offsetX?: number;
     offsetY?: number;
+    applicationId?: string;
+    agentId?: string;
+}
+
+interface ISelectedRowInfo {
+    time: number;
+    applicationId?: string;
+    agentId?: string;
 }
 // @store
 interface IServerAndAgentData {
@@ -364,7 +373,18 @@ interface ISystemConfiguration {
 interface IFormFieldErrorType {
     required?: string;
     minlength?: string;
+    maxlength?: string;
     min?: string;
     max?: string;
+    valueRule?: string;
 }
 
+interface IChartLayoutInfo {
+    chartName: string;
+    index: number;
+    visible: boolean;
+}
+
+interface IChartLayoutInfoResponse {
+    [key: string]: IChartLayoutInfo[];
+}

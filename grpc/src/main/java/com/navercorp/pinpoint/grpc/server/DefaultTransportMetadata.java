@@ -25,12 +25,17 @@ import java.net.InetSocketAddress;
  */
 public class DefaultTransportMetadata implements TransportMetadata {
 
+    private final String debugString;
     private final InetSocketAddress remoteAddress;
-    private final long transportId;
+    private final Long transportId;
+    private final long connectTime;
 
-    public DefaultTransportMetadata(InetSocketAddress remoteAddress, long transportId) {
+
+    public DefaultTransportMetadata(String debugString, InetSocketAddress remoteAddress, long transportId, long connectTime) {
+        this.debugString = Assert.requireNonNull(debugString, "debugString must not be null");
         this.remoteAddress = Assert.requireNonNull(remoteAddress, "remoteAddress must not be null");
         this.transportId = transportId;
+        this.connectTime = connectTime;
     }
 
     @Override
@@ -39,16 +44,23 @@ public class DefaultTransportMetadata implements TransportMetadata {
     }
 
     @Override
-    public long getTransportId() {
+    public Long getTransportId() {
         return transportId;
+    }
+
+    @Override
+    public long getConnectTime() {
+        return connectTime;
     }
 
 
     @Override
     public String toString() {
         return "DefaultTransportMetadata{" +
+                "debugString='" + debugString + '\'' +
                 ", remoteAddress=" + remoteAddress +
                 ", transportId=" + transportId +
+                ", connectTime=" + connectTime +
                 '}';
     }
 }

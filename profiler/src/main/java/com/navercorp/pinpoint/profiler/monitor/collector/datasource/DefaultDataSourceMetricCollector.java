@@ -20,15 +20,14 @@ import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.profiler.monitor.collector.AgentStatMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.metric.datasource.DataSource;
 import com.navercorp.pinpoint.profiler.monitor.metric.datasource.DataSourceMetric;
-import com.navercorp.pinpoint.thrift.dto.TDataSource;
-import com.navercorp.pinpoint.thrift.dto.TDataSourceList;
+import com.navercorp.pinpoint.profiler.monitor.metric.datasource.DataSourceMetricSnapshot;
 
 import java.util.List;
 
 /**
  * @author HyunGil Jeong
  */
-public class DefaultDataSourceMetricCollector implements AgentStatMetricCollector<TDataSourceList> {
+public class DefaultDataSourceMetricCollector implements AgentStatMetricCollector<DataSourceMetricSnapshot> {
 
     private final DataSourceMetric dataSourceMetric;
 
@@ -40,41 +39,18 @@ public class DefaultDataSourceMetricCollector implements AgentStatMetricCollecto
     }
 
     @Override
-    public TDataSourceList collect() {
+    public DataSourceMetricSnapshot collect() {
         final List<DataSource> dataSources = dataSourceMetric.dataSourceList();
 
         if (CollectionUtils.isEmpty(dataSources)) {
-            return new TDataSourceList();
+            return new DataSourceMetricSnapshot();
         }
 
-
-        TDataSourceList tDataSourceList = new TDataSourceList();
+        final DataSourceMetricSnapshot dataSourceMetricSnapshot = new DataSourceMetricSnapshot();
         for (DataSource dataSource : dataSources) {
-            TDataSource tDataSource = toTDataSource(dataSource);
-            tDataSourceList.addToDataSourceList(tDataSource);
+            dataSourceMetricSnapshot.addDataSourceCollectData(dataSource);
         }
 
-        return tDataSourceList;
-    }
-
-    private TDataSource toTDataSource(DataSource dataSource) {
-        TDataSource tDataSource = new TDataSource(dataSource.getId());
-
-        tDataSource.setServiceTypeCode(dataSource.getServiceTypeCode());
-
-        if (dataSource.getDatabaseName() != null) {
-            tDataSource.setDatabaseName(dataSource.getDatabaseName());
-        }
-
-        if (dataSource.getActiveConnectionSize() != 0) {
-            tDataSource.setActiveConnectionSize(dataSource.getActiveConnectionSize());
-        }
-
-        if (dataSource.getUrl() != null) {
-            tDataSource.setUrl(dataSource.getUrl());
-        }
-
-        tDataSource.setMaxConnectionSize(dataSource.getMaxConnectionSize());
-        return tDataSource;
+        return dataSourceMetricSnapshot;
     }
 }

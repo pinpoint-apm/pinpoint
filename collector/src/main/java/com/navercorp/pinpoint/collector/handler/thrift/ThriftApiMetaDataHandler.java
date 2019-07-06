@@ -20,13 +20,11 @@ import com.navercorp.pinpoint.collector.handler.RequestResponseHandler;
 import com.navercorp.pinpoint.collector.service.ApiMetaDataService;
 import com.navercorp.pinpoint.common.server.bo.ApiMetaDataBo;
 import com.navercorp.pinpoint.common.server.bo.MethodTypeEnum;
-import com.navercorp.pinpoint.grpc.trace.PApiMetaData;
-import com.navercorp.pinpoint.grpc.trace.PResult;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.io.request.ServerResponse;
 import com.navercorp.pinpoint.thrift.dto.TApiMetaData;
 import com.navercorp.pinpoint.thrift.dto.TResult;
-import org.apache.thrift.TBase;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,19 +51,12 @@ public class ThriftApiMetaDataHandler implements RequestResponseHandler {
         if (data instanceof TApiMetaData) {
             Object result = handleApiMetaData((TApiMetaData) data);
             serverResponse.write(result);
-        } else if (data instanceof PApiMetaData) {
-            Object result = handleApiMetaData((PApiMetaData) data);
-            serverResponse.write(result);
         } else {
             logger.warn("invalid serverRequest:{}", serverRequest);
         }
     }
 
     private Object handleApiMetaData(TApiMetaData apiMetaData) {
-        if (logger.isDebugEnabled()) {
-            logger.debug("Handle TApiMetaData={}", apiMetaData);
-        }
-
         try {
             final ApiMetaDataBo apiMetaDataBo = new ApiMetaDataBo(apiMetaData.getAgentId(), apiMetaData.getAgentStartTime(), apiMetaData.getApiId());
             apiMetaDataBo.setApiInfo(apiMetaData.getApiInfo());
@@ -85,12 +76,5 @@ public class ThriftApiMetaDataHandler implements RequestResponseHandler {
             return result;
         }
         return new TResult(true);
-    }
-
-    private Object handleApiMetaData(PApiMetaData apiMetaData) {
-        if (logger.isDebugEnabled()) {
-            logger.debug("Handle PApiMetaData={}", apiMetaData);
-        }
-        return PResult.newBuilder().setSuccess(true).build();
     }
 }

@@ -15,7 +15,8 @@
         "lib": [
             "es2017",
             "dom",
-            "dom.iterable"
+            "dom.iterable",
+            "esnext.array"
         ],
         "preserveSymlinks": true,
         "forceConsistentCasingInFileNames": true,

@@ -5,11 +5,11 @@ import { ServerMapInteractionService } from './server-map-interaction.service';
 import { ServerMapOverviewComponent } from './server-map-overview.component';
 import { ServerMapComponent } from './server-map.component';
 import { ServerMapContainerComponent } from './server-map-container.component';
+import { ServerMapOthersContainerComponent } from './server-map-others-container.component';
 import { ServerMapForFilteredMapContainerComponent } from './server-map-for-filtered-map-container.component';
-import { ServerMapForTransactionListContainerComponent } from './server-map-for-transaction-list-container.component';
-import { ServerMapForTransactionViewContainerComponent } from './server-map-for-transaction-view-container.component';
 import { ServerMapDataService } from './server-map-data.service';
 import { ServerMapForFilteredMapDataService } from './server-map-for-filtered-map-data.service';
+import { ServerMapChangeNotificationService } from './server-map-change-notification.service';
 import { LinkContextPopupModule } from 'app/core/components/link-context-popup';
 import { ServerMapContextPopupModule } from 'app/core/components/server-map-context-popup';
 import { ServerErrorPopupModule } from 'app/core/components/server-error-popup';
@@ -19,9 +19,8 @@ import { ServerErrorPopupModule } from 'app/core/components/server-error-popup';
         ServerMapComponent,
         ServerMapOverviewComponent,
         ServerMapContainerComponent,
-        ServerMapForFilteredMapContainerComponent,
-        ServerMapForTransactionListContainerComponent,
-        ServerMapForTransactionViewContainerComponent
+        ServerMapOthersContainerComponent,
+        ServerMapForFilteredMapContainerComponent
     ],
     imports: [
         SharedModule,
@@ -33,12 +32,12 @@ import { ServerErrorPopupModule } from 'app/core/components/server-error-popup';
         ServerMapComponent,
         ServerMapOverviewComponent,
         ServerMapContainerComponent,
-        ServerMapForFilteredMapContainerComponent,
-        ServerMapForTransactionListContainerComponent,
-        ServerMapForTransactionViewContainerComponent
+        ServerMapOthersContainerComponent,
+        ServerMapForFilteredMapContainerComponent
     ],
     providers: [
         ServerMapInteractionService,
+        ServerMapChangeNotificationService,
         ServerMapDataService,
         ServerMapForFilteredMapDataService
     ]

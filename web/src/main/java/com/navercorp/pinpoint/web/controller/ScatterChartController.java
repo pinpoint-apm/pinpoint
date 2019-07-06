@@ -64,7 +64,7 @@ public class ScatterChartController {
     private FilteredMapService flow;
 
     @Autowired
-    private FilterBuilder filterBuilder;
+    private FilterBuilder<SpanBo> filterBuilder;
 
     private static final String PREFIX_TRANSACTION_ID = "I";
     private static final String PREFIX_TIME = "T";
@@ -209,7 +209,7 @@ public class ScatterChartController {
         boolean requestComplete = transactionIdList.size() < limit;
 
         transactionIdList.sort(TransactionIdComparator.INSTANCE);
-        Filter filter = filterBuilder.build(filterText);
+        Filter<SpanBo> filter = filterBuilder.build(filterText);
 
         ModelAndView mv;
         if (version == 1) {

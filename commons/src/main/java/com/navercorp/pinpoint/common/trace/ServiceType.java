@@ -124,6 +124,7 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
  * <tr><td>5050</td><td>SPRING</td></tr>
  * <tr><td>5051</td><td>SPRING_MVC</td></tr>
  * <tr><td>5052</td><td>SPRING_ASYNC</td></tr>
+ * <tr><td>5053</td><td>SPRING_WEBFLUX</td></tr>
  * <tr><td>5061</td><td><i>RESERVED</i></td></tr>
  * <tr><td>5071</td><td>SPRING_BEAN</td></tr>
  * <tr><td>5500</td><td>IBATIS</td></tr>
@@ -201,10 +202,14 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
  * <tr><td>9150</td><td>NETTY</td></tr>
  * <tr><td>9151</td><td>NETTY_INTERNAL</td></tr>
  * <tr><td>9152</td><td>NETTY_HTTP</td></tr>
+ * <tr><td>9153</td><td>SPRING_WEBFLUX_CLIENT</td></tr>
  * <tr><td>9160</td><td>GRPC</td></tr>
  * <tr><td>9161</td><td>GRPC_INTERNAL</td></tr>
  * <tr><td>9162</td><td>GRPC_SERVER_INTERNAL</td></tr>
+ * <tr><td>9201</td><td>ElasticsearchBBoss</td></tr>
+ * <tr><td>9202</td><td>ElasticsearchBBossExecutor</td></tr>
  * <tr><td>9622</td><td>OPENWHISK_CLIENT</td></tr>
+ *
  * </table>
  * 
  * <h3>RPC Sandbox (9900 ~ 9999)</h3>
@@ -239,9 +244,9 @@ public interface ServiceType {
     // return true when the service type is USER or can not be identified
     boolean isUser();
 
-
-
     boolean isTerminal();
+
+    boolean isAlias();
 
     boolean isQueue();
 

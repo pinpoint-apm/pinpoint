@@ -20,11 +20,14 @@ interface IAppData {
 export class SideBarTitleContainerComponent implements OnInit, OnDestroy {
     @HostBinding('class.flex-container') flexContainerClass = true;
     @HostBinding('class.flex-row') flexRowClass = true;
+    private static AGENT_ALL = 'All';
     isWAS: boolean;
     isNode: boolean;
     fromAppData: IAppData = null;
     toAppData: IAppData = null;
+    selectedAgent = SideBarTitleContainerComponent.AGENT_ALL;
     selectedTarget: ISelectedTarget;
+    originalTargetSelected = true;
     serverMapData: any;
     funcImagePath: Function;
     unsubscribe: Subject<null> = new Subject();
@@ -52,9 +55,18 @@ export class SideBarTitleContainerComponent implements OnInit, OnDestroy {
                 return target && (target.isNode === true || target.isNode === false) ? true : false;
             })
         ).subscribe((target: ISelectedTarget) => {
+            this.selectedAgent = SideBarTitleContainerComponent.AGENT_ALL;
             if ( target.isNode || target.isLink ) {
+                this.originalTargetSelected = true;
                 this.selectedTarget = target;
                 this.makeFromToData();
+                this.changeDetector.detectChanges();
+            }
+        });
+        this.storeHelperService.getServerMapTargetSelectedByList(this.unsubscribe).subscribe((target: any) => {
+            if (this.selectedTarget && this.selectedTarget.isNode && this.selectedTarget.isMerged === false) {
+                this.selectedAgent = SideBarTitleContainerComponent.AGENT_ALL;
+                this.originalTargetSelected = this.selectedTarget.node[0] === target.key;
                 this.changeDetector.detectChanges();
             }
         });
@@ -101,7 +113,7 @@ export class SideBarTitleContainerComponent implements OnInit, OnDestroy {
                 return {
                     applicationName: node.applicationName,
                     serviceType: node.serviceType,
-                    agentList: node.agentIds.sort()
+                    agentList: [SideBarTitleContainerComponent.AGENT_ALL].concat(node.agentIds.sort())
                 };
             }
         } else {
@@ -130,8 +142,8 @@ export class SideBarTitleContainerComponent implements OnInit, OnDestroy {
         }
     }
     onChangeAgent(agentName: string): void {
+        this.selectedAgent = agentName;
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.SELECT_AGENT);
-        agentName = agentName === 'All' ? '' : agentName;
-        this.storeHelperService.dispatch(new Actions.ChangeAgent(agentName));
+        this.storeHelperService.dispatch(new Actions.ChangeAgent(agentName === SideBarTitleContainerComponent.AGENT_ALL ? '' : agentName));
     }
 }

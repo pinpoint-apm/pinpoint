@@ -16,18 +16,14 @@
 
 package com.navercorp.pinpoint.collector.handler.thrift;
 
-import com.navercorp.pinpoint.collector.handler.RequestResponseHandler;
-import com.navercorp.pinpoint.collector.handler.SimpleHandler;
-import com.navercorp.pinpoint.collector.mapper.thrift.AgentInfoBoMapper;
+import com.navercorp.pinpoint.collector.handler.SimpleAndRequestResponseHandler;
+import com.navercorp.pinpoint.collector.mapper.thrift.ThriftAgentInfoBoMapper;
 import com.navercorp.pinpoint.collector.service.AgentInfoService;
 import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
-import com.navercorp.pinpoint.grpc.trace.PAgentInfo;
-import com.navercorp.pinpoint.grpc.trace.PResult;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.io.request.ServerResponse;
 import com.navercorp.pinpoint.thrift.dto.TAgentInfo;
 import com.navercorp.pinpoint.thrift.dto.TResult;
-import org.apache.thrift.TBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +34,7 @@ import org.springframework.stereotype.Service;
  * @author koo.taejin
  */
 @Service
-public class ThriftAgentInfoHandler implements SimpleHandler, RequestResponseHandler {
+public class ThriftAgentInfoHandler implements SimpleAndRequestResponseHandler {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass().getName());
 
@@ -46,7 +42,7 @@ public class ThriftAgentInfoHandler implements SimpleHandler, RequestResponseHan
     private AgentInfoService agentInfoService;
 
     @Autowired
-    private AgentInfoBoMapper agentInfoBoMapper;
+    private ThriftAgentInfoBoMapper agentInfoBoMapper;
 
     @Override
     public void handleSimple(ServerRequest serverRequest) {
@@ -57,8 +53,6 @@ public class ThriftAgentInfoHandler implements SimpleHandler, RequestResponseHan
 
         if (data instanceof TAgentInfo) {
             handleAgentInfo((TAgentInfo) data);
-        } else if (data instanceof PAgentInfo) {
-            handleAgentInfo((PAgentInfo) data);
         } else {
             throw new UnsupportedOperationException("data is not support type : " + data);
         }
@@ -75,18 +69,12 @@ public class ThriftAgentInfoHandler implements SimpleHandler, RequestResponseHan
         if (data instanceof TAgentInfo) {
             final Object result = handleAgentInfo((TAgentInfo) data);
             serverResponse.write(result);
-        } else if (data instanceof PAgentInfo) {
-            final Object result = handleAgentInfo((PAgentInfo) data);
-            serverResponse.write(result);
         } else {
             logger.warn("invalid serverRequest:{}", serverRequest);
         }
     }
 
     private Object handleAgentInfo(TAgentInfo agentInfo) {
-        if (logger.isDebugEnabled()) {
-            logger.debug("Handle TAgentInfo={}", agentInfo);
-        }
         try {
             // agent info
             final AgentInfoBo agentInfoBo = this.agentInfoBoMapper.map(agentInfo);
@@ -97,21 +85,6 @@ public class ThriftAgentInfoHandler implements SimpleHandler, RequestResponseHan
             final TResult result = new TResult(false);
             result.setMessage(e.getMessage());
             return result;
-        }
-    }
-
-    private Object handleAgentInfo(PAgentInfo agentInfo) {
-        if (logger.isDebugEnabled()) {
-            logger.debug("Handle PAgentInfo={}", agentInfo);
-        }
-        try {
-            // agent info
-//            final AgentInfoBo agentInfoBo = this.agentInfoBoMapper.map(agentInfo);
-//            this.agentInfoService.insert(agentInfoBo);
-            return PResult.newBuilder().setSuccess(true).build();
-        } catch (Exception e) {
-            logger.warn("AgentInfo handle error. Caused:{}", e.getMessage(), e);
-            return PResult.newBuilder().setSuccess(false).setMessage(e.getMessage()).build();
         }
     }
 }

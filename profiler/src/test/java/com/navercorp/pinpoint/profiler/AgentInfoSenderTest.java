@@ -25,7 +25,13 @@ import com.navercorp.pinpoint.profiler.context.DefaultServiceInfo;
 import com.navercorp.pinpoint.profiler.context.ServerMetaDataRegistryService;
 import com.navercorp.pinpoint.profiler.context.provider.JvmInformationProvider;
 import com.navercorp.pinpoint.profiler.context.provider.ServerMetaDataRegistryServiceProvider;
+import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
+import com.navercorp.pinpoint.profiler.context.thrift.MetadataMessageConverter;
+import com.navercorp.pinpoint.profiler.context.thrift.ThriftMessageToResultConverter;
+import com.navercorp.pinpoint.profiler.sender.MessageSerializer;
+import com.navercorp.pinpoint.profiler.sender.ResultResponse;
 import com.navercorp.pinpoint.profiler.sender.TcpDataSender;
+import com.navercorp.pinpoint.profiler.sender.ThriftMessageSerializer;
 import com.navercorp.pinpoint.profiler.util.AgentInfoFactory;
 import com.navercorp.pinpoint.rpc.PinpointSocket;
 import com.navercorp.pinpoint.rpc.client.DefaultPinpointClientFactory;
@@ -46,6 +52,7 @@ import com.navercorp.pinpoint.test.utils.TestAwaitUtils;
 import com.navercorp.pinpoint.thrift.dto.TResult;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializer;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializerFactory;
+import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 import org.junit.Assert;
 import org.junit.Before;
@@ -80,6 +87,7 @@ public class AgentInfoSenderTest {
     private ServerMetaDataRegistryService serverMetaDataRegistryService;
     private JvmInformation jvmInformation;
     private AgentInfoFactory agentInfoFactory;
+    private MessageConverter<ResultResponse> resultResponseMessageConverter;
 
     @Before
     public void init() {
@@ -87,10 +95,15 @@ public class AgentInfoSenderTest {
         serverMetaDataRegistryService = new ServerMetaDataRegistryServiceProvider().get();
         jvmInformation = new JvmInformationProvider().get();
         agentInfoFactory = new AgentInfoFactory(agentInformation, serverMetaDataRegistryService, jvmInformation);
+        resultResponseMessageConverter = new ThriftMessageToResultConverter();
+
     }
 
     private TcpDataSender newTcpDataSender(PinpointClientFactory clientFactory, int port) {
-        return new TcpDataSender(this.getClass().getName(), HOST, port, clientFactory);
+        MessageConverter<TBase<?, ?>> messageConverter = new MetadataMessageConverter(agentInformation.getApplicationName(), agentInformation.getAgentId(), agentInformation.getStartTime());
+        MessageSerializer<byte[]> messageSerializer = new ThriftMessageSerializer(messageConverter);
+
+        return new TcpDataSender(this.getClass().getName(), HOST, port, clientFactory, messageSerializer);
     }
 
     @Test
@@ -105,7 +118,7 @@ public class AgentInfoSenderTest {
 
         PinpointClientFactory clientFactory = createPinpointClientFactory();
         TcpDataSender dataSender = newTcpDataSender(clientFactory, bindPort);
-        AgentInfoSender agentInfoSender = new AgentInfoSender.Builder(dataSender, agentInfoFactory).sendInterval(agentInfoSendRetryIntervalMs).build();
+        AgentInfoSender agentInfoSender = new AgentInfoSender.Builder(dataSender, agentInfoFactory).sendInterval(agentInfoSendRetryIntervalMs).setMessageConverter(resultResponseMessageConverter).build();
 
         try {
             agentInfoSender.start();
@@ -135,6 +148,7 @@ public class AgentInfoSenderTest {
         AgentInfoSender agentInfoSender = new AgentInfoSender.Builder(dataSender, agentInfoFactory)
                 .maxTryPerAttempt(maxTryPerAttempt)
                 .sendInterval(agentInfoSendRetryIntervalMs)
+                .setMessageConverter(resultResponseMessageConverter)
                 .build();
 
         try {
@@ -165,6 +179,7 @@ public class AgentInfoSenderTest {
         AgentInfoSender agentInfoSender = new AgentInfoSender.Builder(dataSender, agentInfoFactory)
                 .maxTryPerAttempt(maxTryPerAttempt)
                 .sendInterval(agentInfoSendRetryIntervalMs)
+                .setMessageConverter(resultResponseMessageConverter)
                 .build();
 
         try {
@@ -209,6 +224,7 @@ public class AgentInfoSenderTest {
                 .maxTryPerAttempt(maxTryPerAttempt)
                 .refreshInterval(agentInfoSendRefreshIntervalMs)
                 .sendInterval(agentInfoSendRetryIntervalMs)
+                .setMessageConverter(resultResponseMessageConverter)
                 .build();
 
         final ResponseServerMessageListenerFactory failMessageListenerFactory = new ResponseServerMessageListenerFactory(Integer.MAX_VALUE);
@@ -269,6 +285,7 @@ public class AgentInfoSenderTest {
         AgentInfoSender agentInfoSender = new AgentInfoSender.Builder(dataSender, agentInfoFactory)
                 .sendInterval(agentInfoSendRetryIntervalMs)
                 .maxTryPerAttempt(maxTryPerAttempt)
+                .setMessageConverter(resultResponseMessageConverter)
                 .build();
 
         try {
@@ -313,6 +330,7 @@ public class AgentInfoSenderTest {
         AgentInfoSender agentInfoSender = new AgentInfoSender.Builder(dataSender, agentInfoFactory)
                 .refreshInterval(agentInfoSendRefreshIntervalMs)
                 .sendInterval(agentInfoSendRetryIntervalMs)
+                .setMessageConverter(resultResponseMessageConverter)
                 .build();
 
         try {
@@ -343,7 +361,7 @@ public class AgentInfoSenderTest {
         PinpointClientFactory clientFactory = createPinpointClientFactory();
 
         TcpDataSender dataSender = newTcpDataSender(clientFactory, bindPort);
-        final AgentInfoSender agentInfoSender = new AgentInfoSender.Builder(dataSender, agentInfoFactory).sendInterval(agentInfoSendRetryIntervalMs).build();
+        final AgentInfoSender agentInfoSender = new AgentInfoSender.Builder(dataSender, agentInfoFactory).sendInterval(agentInfoSendRetryIntervalMs).setMessageConverter(resultResponseMessageConverter).build();
         serverMetaDataRegistryService.addListener(new ServerMetaDataRegistryService.OnChangeListener() {
             @Override
             public void onServerMetaDataChange() {
@@ -387,7 +405,7 @@ public class AgentInfoSenderTest {
         PinpointClientFactory clientFactory = createPinpointClientFactory();
 
         TcpDataSender dataSender = newTcpDataSender(clientFactory, bindPort);
-        final AgentInfoSender agentInfoSender = new AgentInfoSender.Builder(dataSender, agentInfoFactory).sendInterval(agentInfoSendRetryIntervalMs).build();
+        final AgentInfoSender agentInfoSender = new AgentInfoSender.Builder(dataSender, agentInfoFactory).sendInterval(agentInfoSendRetryIntervalMs).setMessageConverter(resultResponseMessageConverter).build();
         serverMetaDataRegistryService.addListener(new ServerMetaDataRegistryService.OnChangeListener() {
             @Override
             public void onServerMetaDataChange() {
@@ -450,6 +468,7 @@ public class AgentInfoSenderTest {
         AgentInfoSender agentInfoSender = new AgentInfoSender.Builder(dataSender, agentInfoFactory)
                 .sendInterval(agentInfoSendRetryIntervalMs)
                 .maxTryPerAttempt(maxTryPerAttempt)
+                .setMessageConverter(resultResponseMessageConverter)
                 .build();
 
         long startTime = System.currentTimeMillis();

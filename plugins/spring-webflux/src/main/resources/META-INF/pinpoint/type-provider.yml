@@ -1,0 +1,12 @@
+serviceTypes:
+    - code: 5053
+      name: 'SPRING_WEBFLUX'
+    - code: 9153
+      name: 'SPRING_WEBFLUX_CLIENT'
+      desc: 'SPRING_WEBFLUX'
+      property:
+          recordStatistics: true
+      matcher:
+          type: 'exact'
+          code: 40 # http.url
+

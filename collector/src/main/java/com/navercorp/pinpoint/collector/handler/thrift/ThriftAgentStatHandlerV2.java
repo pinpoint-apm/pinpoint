@@ -17,12 +17,10 @@
 package com.navercorp.pinpoint.collector.handler.thrift;
 
 import com.navercorp.pinpoint.collector.handler.SimpleHandler;
-import com.navercorp.pinpoint.collector.mapper.thrift.stat.AgentStatBatchMapper;
-import com.navercorp.pinpoint.collector.mapper.thrift.stat.AgentStatMapper;
+import com.navercorp.pinpoint.collector.mapper.thrift.stat.ThriftAgentStatBatchMapper;
+import com.navercorp.pinpoint.collector.mapper.thrift.stat.ThriftAgentStatMapper;
 import com.navercorp.pinpoint.collector.service.AgentStatService;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
-import com.navercorp.pinpoint.grpc.trace.PAgentStat;
-import com.navercorp.pinpoint.grpc.trace.PAgentStatBatch;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.thrift.dto.TAgentStat;
 import com.navercorp.pinpoint.thrift.dto.TAgentStatBatch;
@@ -41,14 +39,13 @@ import java.util.List;
  */
 @Service
 public class ThriftAgentStatHandlerV2 implements SimpleHandler {
-
-    private final Logger logger = LoggerFactory.getLogger(ThriftAgentStatHandlerV2.class.getName());
-
-    @Autowired
-    private AgentStatMapper agentStatMapper;
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     @Autowired
-    private AgentStatBatchMapper agentStatBatchMapper;
+    private ThriftAgentStatMapper agentStatMapper;
+
+    @Autowired
+    private ThriftAgentStatBatchMapper agentStatBatchMapper;
 
     @Autowired(required = false)
     private List<AgentStatService> agentStatServiceList = Collections.emptyList();
@@ -64,10 +61,6 @@ public class ThriftAgentStatHandlerV2 implements SimpleHandler {
             handleAgentStat((TAgentStat) data);
         } else if (data instanceof TAgentStatBatch) {
             handleAgentStatBatch((TAgentStatBatch) data);
-        } else if(data instanceof PAgentStat) {
-            handleAgentStat((PAgentStat) data);
-        } else if(data instanceof PAgentStatBatch) {
-            handleAgentStatBatch((PAgentStatBatch) data);
         } else {
             throw new UnsupportedOperationException("data is not support type : " + data);
         }
@@ -87,9 +80,6 @@ public class ThriftAgentStatHandlerV2 implements SimpleHandler {
     }
 
     private void handleAgentStat(TAgentStat tAgentStat) {
-        if (logger.isDebugEnabled()) {
-            logger.debug("Handle TAgentStat={}", tAgentStat);
-        }
         final AgentStatBo agentStatBo = this.agentStatMapper.map(tAgentStat);
         if (agentStatBo == null) {
             return;
@@ -100,24 +90,7 @@ public class ThriftAgentStatHandlerV2 implements SimpleHandler {
         }
     }
 
-    private void handleAgentStat(PAgentStat agentStat) {
-        if (logger.isDebugEnabled()) {
-            logger.debug("Handle PAgentStat={}", agentStat);
-        }
-//        final AgentStatBo agentStatBo = this.agentStatMapper.map(agentStat);
-//        if (agentStatBo == null) {
-//            return;
-//        }
-//
-//        for (AgentStatService agentStatService : agentStatServiceList) {
-//            agentStatService.save(agentStatBo);
-//        }
-    }
-
     private void handleAgentStatBatch(TAgentStatBatch tAgentStatBatch) {
-        if (logger.isDebugEnabled()) {
-            logger.debug("Handle TAgentStatBatch={}", tAgentStatBatch);
-        }
         final AgentStatBo agentStatBo = this.agentStatBatchMapper.map(tAgentStatBatch);
         if (agentStatBo == null) {
             return;
@@ -126,20 +99,5 @@ public class ThriftAgentStatHandlerV2 implements SimpleHandler {
         for (AgentStatService agentStatService : agentStatServiceList) {
             agentStatService.save(agentStatBo);
         }
-    }
-
-    private void handleAgentStatBatch(PAgentStatBatch tAgentStatBatch) {
-        if (logger.isDebugEnabled()) {
-            logger.debug("Handle PAgentStatBatch={}", tAgentStatBatch);
-        }
-
-//        final AgentStatBo agentStatBo = this.agentStatBatchMapper.map(tAgentStatBatch);
-//        if (agentStatBo == null) {
-//            return;
-//        }
-//
-//        for (AgentStatService agentStatService : agentStatServiceList) {
-//            agentStatService.save(agentStatBo);
-//        }
     }
 }

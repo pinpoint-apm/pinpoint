@@ -17,15 +17,13 @@
 package com.navercorp.pinpoint.collector.handler.thrift;
 
 import com.navercorp.pinpoint.collector.handler.SimpleHandler;
-import com.navercorp.pinpoint.collector.mapper.thrift.event.AgentEventBatchMapper;
-import com.navercorp.pinpoint.collector.mapper.thrift.event.AgentEventMapper;
+import com.navercorp.pinpoint.collector.mapper.thrift.event.ThriftAgentEventBatchMapper;
+import com.navercorp.pinpoint.collector.mapper.thrift.event.ThriftAgentEventMapper;
 import com.navercorp.pinpoint.collector.service.AgentEventService;
 import com.navercorp.pinpoint.common.server.bo.event.AgentEventBo;
 import com.navercorp.pinpoint.common.server.bo.event.DeadlockEventBo;
 import com.navercorp.pinpoint.common.server.util.AgentEventMessageSerializerV1;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
-import com.navercorp.pinpoint.grpc.trace.PAgentStat;
-import com.navercorp.pinpoint.grpc.trace.PAgentStatBatch;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.thrift.dto.TAgentStat;
 import com.navercorp.pinpoint.thrift.dto.TAgentStatBatch;
@@ -45,10 +43,10 @@ public class ThriftAgentEventHandler implements SimpleHandler {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    private AgentEventMapper agentEventMapper;
+    private ThriftAgentEventMapper agentEventMapper;
 
     @Autowired
-    private AgentEventBatchMapper agentEventBatchMapper;
+    private ThriftAgentEventBatchMapper agentEventBatchMapper;
 
     @Autowired
     private AgentEventMessageSerializerV1 agentEventMessageSerializerV1;
@@ -60,26 +58,19 @@ public class ThriftAgentEventHandler implements SimpleHandler {
     public void handleSimple(ServerRequest serverRequest) {
         final Object data = serverRequest.getData();
         if (logger.isDebugEnabled()) {
-            logger.debug("Handle simple={}", data);
+            logger.debug("Handle simple data={}", data);
         }
 
         if (data instanceof TAgentStat) {
             handleAgentStat((TAgentStat) data);
         } else if (data instanceof TAgentStatBatch) {
             handleAgentStatBatch((TAgentStatBatch) data);
-        } else if (data instanceof PAgentStat) {
-            handleAgentStat((PAgentStat) data);
-        } else if (data instanceof PAgentStatBatch) {
-            handleAgentStatBatch((PAgentStatBatch) data);
         } else {
             throw new UnsupportedOperationException("data is not support type : " + data);
         }
     }
 
     private void handleAgentStat(TAgentStat agentStat) {
-        if (logger.isDebugEnabled()) {
-            logger.debug("Handle TAgentStat={}", agentStat);
-        }
         final AgentEventBo agentEventBo = this.agentEventMapper.map(agentStat);
         if (agentEventBo == null) {
             return;
@@ -87,22 +78,7 @@ public class ThriftAgentEventHandler implements SimpleHandler {
         insert(agentEventBo);
     }
 
-    private void handleAgentStat(PAgentStat agentStat) {
-        if (logger.isDebugEnabled()) {
-            logger.debug("Handle PAgentStat={}", agentStat);
-        }
-
-//        final AgentEventBo agentEventBo = this.agentEventMapper.map(agentStat);
-//        if (agentEventBo == null) {
-//            return;
-//        }
-//        insert(agentEventBo);
-    }
-
     private void handleAgentStatBatch(TAgentStatBatch tAgentStatBatch) {
-        if (logger.isDebugEnabled()) {
-            logger.debug("Handle TAgentStatBatch={}", tAgentStatBatch);
-        }
         final List<AgentEventBo> agentEventBoList = this.agentEventBatchMapper.map(tAgentStatBatch);
         if (CollectionUtils.isEmpty(agentEventBoList)) {
             return;
@@ -111,20 +87,6 @@ public class ThriftAgentEventHandler implements SimpleHandler {
         for (AgentEventBo agentEventBo : agentEventBoList) {
             insert(agentEventBo);
         }
-    }
-
-    private void handleAgentStatBatch(PAgentStatBatch agentStatBatch) {
-        if (logger.isDebugEnabled()) {
-            logger.debug("Handle PAgentStatBatch={}", agentStatBatch);
-        }
-//        final List<AgentEventBo> agentEventBoList = this.agentEventBatchMapper.map(agentStatBatch);
-//        if (CollectionUtils.isEmpty(agentEventBoList)) {
-//            return;
-//        }
-//
-//        for (AgentEventBo agentEventBo : agentEventBoList) {
-//            insert(agentEventBo);
-//        }
     }
 
     private void insert(final AgentEventBo agentEventBo) {

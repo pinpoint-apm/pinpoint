@@ -74,6 +74,9 @@ public class ServiceTypeRegistryMockFactory {
                 case INCLUDE_DESTINATION_ID:
                     when(mockServiceType.isIncludeDestinationId()).thenReturn(true);
                     break;
+                case ALIAS:
+                    when(mockServiceType.isAlias()).thenReturn(true);
+                    break;
                 default:
                     throw new IllegalArgumentException("Unknown serviceTypeProperty : " + serviceTypeProperty);
             }

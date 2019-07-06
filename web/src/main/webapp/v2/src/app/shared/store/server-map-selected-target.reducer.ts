@@ -14,6 +14,7 @@ export function Reducer(state: ISelectedTarget, action: UpdateServerMapTargetSel
                 return {} as ISelectedTarget;
             } else if (
                 state &&
+                state.clickParam === action.payload.clickParam &&
                 state.endTime === action.payload.endTime &&
                 state.period === action.payload.period &&
                 state.isWAS === action.payload.isWAS &&
