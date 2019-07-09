@@ -1,7 +1,7 @@
 import { PrimitiveArray, Data } from 'billboard.js';
 import { Observable } from 'rxjs';
 
-import { makeYData, makeXData, getMaxTickValue, getStackedData } from './inspector-chart-util';
+import { makeYData, makeXData, getMaxTickValue, getStackedData } from 'app/core/utils/chart-util';
 import { IInspectorChartData, InspectorChartDataService } from './inspector-chart-data.service';
 import { IInspectorChartContainer } from './inspector-chart-container-factory';
 

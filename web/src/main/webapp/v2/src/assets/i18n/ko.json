@@ -24,7 +24,6 @@
         "EMPTY_RESULT": "찾을 수 없습니다."
     },
     "INSPECTOR": {
-        "NO_DATA_COLLECTED": "데이터가 없습니다.",
         "APPLICATION_INSPECTOR_USAGE_GUIDE_MESSAGE": "[TEXT]:{value=Application Inspector 기능이 활성화 되어 있지 않습니다.<br> Application Inspector 기능을 사용하려면,}|[LINK]:{href=https://github.com/naver/pinpoint/blob/master/doc/application-inspector.md\\target=_blank\\style=color:#428bca\\linkText=링크}|[TEXT]:{value=를 참고하세요.}",
         "APPLICAITION_NAME_ISSUE": {
             "ISSUE_MESSAGE": "해당 agent는 !{0}이 아닌 !{1}에 포함되어 있습니다.<br><br> 원인은 다음 중 하나입니다:",

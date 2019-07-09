@@ -96,6 +96,7 @@ header {background:#469ae4;border-bottom:1px solid #4484c3;height:50px;justify-c
     font-size: 12px;    
     font-family: 'Open Sans', sans-serif;
 }
+
 .l-calltree .ag-cell {
     padding: 4px;
     border-right: 1px solid #e6e8ec;
@@ -105,23 +106,28 @@ header {background:#469ae4;border-bottom:1px solid #4484c3;height:50px;justify-c
 .l-calltree .ag-column-moving .ag-cell {
     transition: left 0.2s;
 }
+
 .l-calltree .ag-header-cell-moving .ag-header-cell-label {
     opacity: 0;
     filter: alpha(opacity=0);
 }
+
 .l-calltree .ag-header-cell-moving {
     background-color: #bebebe;
 }
+
 .l-calltree .ag-header-cell-moving-clone {
     border-right: 1px solid #808080;
     border-left: 1px solid #808080;
     background-color: rgba(220,220,220,0.8);
 }
+
 .l-calltree .ag-header {
     background: #f6f8fb;
     border-bottom: 1px solid #e6e8ec;
     line-height: 2;
 }
+
 .l-calltree .ag-header-cell {
     font-size: 12px;
     font-weight: 600;
@@ -130,61 +136,86 @@ header {background:#469ae4;border-bottom:1px solid #4484c3;height:50px;justify-c
     padding-left: 2px;
     padding-right: 2px;
 }
+
 .l-calltree .ag-header-cell:first-child {
     border-right: none;
 }
+
 .l-calltree .ag-header-cell-resize:after {
     border-right: none;
 }
+
 .l-calltree .ag-header-cell-label {
     padding: 4px;
 }
+
 .l-calltree .ag-group-expanded span {
     margin-right: 4px;
 }
+
 .l-calltree .ag-row {
     line-height: 2;
 }
+
 .l-calltree .ag-row-exception {
     background-color: #fff1f1;
 }
+
 .l-calltree .ag-row-focused {
     background-color: #e4f5e3;
 }
+
 .l-calltree .ag-body {
     background-color: #ffffff;
 }
+
 .l-calltree .ag-body-viewport {
     background-color: #ffffff;
 }
+
 .l-calltree .ag-menu {
     background-color: #ffffff;
     border: 1px solid grey;
 }
+
 .l-calltree .fa {
     font-size: 14px;
 }
+
 .l-calltree .ag-row-focused {
     background-color: #e4f5e3;
 }
+
 .l-calltree .ag-row-selected {
     color: #4a8fd2;
     background-color: #e7f5f9;
 }
+
 .l-calltree .div-percent-bar {
     display: inline-block;
     height: 30%;
     position: absolute;
 }
+
 .l-calltree .div-percent-value {
     position: absolute;
     padding-left: 4px;
     font-weight: bold;
     font-size: 13px;
 }
+
 .l-calltree .div-outer-div {
     display: inline-block;
     margin-right: 20px;
     height: 30%;
     width: 92%;
+}
+
+.l-response-summary-chart .bb-grid line {
+    stroke: rgba(0, 0, 0, 0.1);
+    stroke-width: 1.5;
+}
+
+.l-response-summary-chart .bb-ygrid {
+    stroke-dasharray: 0;
 }

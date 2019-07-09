@@ -4,7 +4,6 @@ import { SharedModule } from 'app/shared';
 import { ResponseSummaryChartComponent } from './response-summary-chart.component';
 import { ResponseSummaryChartContainerComponent } from './response-summary-chart-container.component';
 import { HelpViewerPopupModule } from 'app/core/components/help-viewer-popup';
-import { ResponseSummaryChartChangeNotificationService } from './response-summary-chart-change-notification.service';
 
 @NgModule({
     declarations: [
@@ -18,8 +17,6 @@ import { ResponseSummaryChartChangeNotificationService } from './response-summar
     exports: [
         ResponseSummaryChartContainerComponent
     ],
-    providers: [
-        ResponseSummaryChartChangeNotificationService
-    ]
+    providers: []
 })
 export class ResponseSummaryChartModule { }

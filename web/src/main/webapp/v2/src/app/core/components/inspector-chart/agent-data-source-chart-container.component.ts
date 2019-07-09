@@ -18,9 +18,8 @@ import { HELP_VIEWER_LIST, HelpViewerPopupContainerComponent } from 'app/core/co
 import { isThatType } from 'app/core/utils/util';
 import { InspectorPageService, ISourceForChart } from 'app/routes/inspector-page/inspector-page.service';
 import { IInspectorChartData } from './inspector-chart-data.service';
-import { IChartConfig } from './inspector-chart.component';
 import { Layer } from './inspector-chart-container.component';
-import { makeXData, makeYData, getMaxTickValue } from './inspector-chart-util';
+import { makeXData, makeYData, getMaxTickValue } from 'app/core/utils/chart-util';
 
 @Component({
     selector: 'pp-agent-data-source-chart-container',
@@ -80,7 +79,7 @@ export class AgentDataSourceChartContainerComponent implements OnInit, OnDestroy
     private initI18nText(): void {
         forkJoin(
             this.translateService.get('COMMON.FAILED_TO_FETCH_DATA'),
-            this.translateService.get('INSPECTOR.NO_DATA_COLLECTED'),
+            this.translateService.get('COMMON.NO_DATA'),
         ).subscribe(([dataFetchFailedText, dataEmptyText]: string[]) => {
            this.dataFetchFailedText = dataFetchFailedText;
            this.dataEmptyText = dataEmptyText;

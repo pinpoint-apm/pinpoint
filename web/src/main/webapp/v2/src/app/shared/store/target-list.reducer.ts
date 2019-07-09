@@ -9,11 +9,7 @@ export class UpdateServerMapSelectedTargetByList implements Action {
 export function Reducer(state: any, action: UpdateServerMapSelectedTargetByList): any {
     switch (action.type) {
         case UPDATE_SERVER_MAP_SELECTED_TARGET_BY_LIST:
-            if (state && state.key === action.payload.key) {
-                return state;
-            } else {
-                return action.payload;
-            }
+            return {...action.payload};
         default:
             return state;
     }

@@ -37,9 +37,7 @@ export class FilterInformationContainerComponent implements OnInit, OnDestroy {
             this.serverMapData = serverMapData;
         });
         this.storeHelperService.getServerMapTargetSelected(this.unsubscribe).pipe(
-            filter((target: ISelectedTarget) => {
-                return target && (target.isNode === true || target.isNode === false) ? true : false;
-            })
+            filter((target: ISelectedTarget) => !!target)
         ).subscribe((target: ISelectedTarget) => {
             this.filterIndexOfCurrentLink = -1;
             this.selectedTarget = target;

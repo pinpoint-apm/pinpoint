@@ -10,9 +10,7 @@ export class UpdateServerMapTargetSelected implements Action {
 export function Reducer(state: ISelectedTarget, action: UpdateServerMapTargetSelected): ISelectedTarget {
     switch (action.type) {
         case UPDATE_SERVER_MAP_TARGET_SELECTED:
-            if (action.payload === null) {
-                return {} as ISelectedTarget;
-            } else if (
+            if (
                 state &&
                 state.clickParam === action.payload.clickParam &&
                 state.endTime === action.payload.endTime &&

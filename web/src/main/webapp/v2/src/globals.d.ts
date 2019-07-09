@@ -388,3 +388,8 @@ interface IChartLayoutInfo {
 interface IChartLayoutInfoResponse {
     [key: string]: IChartLayoutInfo[];
 }
+
+interface IChartConfig {
+    dataConfig: any;
+    elseConfig: {[key: string]: any};
+}

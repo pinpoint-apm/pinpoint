@@ -127,9 +127,7 @@ export class ScatterChartForFilteredMapInfoPerServerContainerComponent implement
             this.scatterChartDataOfAllNode = scatterChartData;
         });
         this.storeHelperService.getServerMapTargetSelected(this.unsubscribe).pipe(
-            filter((target: ISelectedTarget) => {
-                return target && (target.isNode === true || target.isNode === false) ? true : false;
-            })
+            filter((target: ISelectedTarget) => !!target)
         ).subscribe((target: ISelectedTarget) => {
             this.isChangedTarget = true;
             this.selectedTarget = target;

@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, ElementRef, Renderer2 } from '@angular/core';
 import { Router, RouterEvent, NavigationStart } from '@angular/router';
-import { Subject } from 'rxjs';
-import { filter } from 'rxjs/operators';
+import { Subject, Observable, merge } from 'rxjs';
+import { filter, mapTo, tap, map } from 'rxjs/operators';
 
 import { StoreHelperService } from 'app/shared/services';
 
@@ -11,10 +11,12 @@ import { StoreHelperService } from 'app/shared/services';
     styleUrls: ['./side-bar-for-filtered-map-container.component.css'],
 })
 export class SideBarForFilteredMapContainerComponent implements OnInit, OnDestroy {
-    private unsubscribe: Subject<null> = new Subject();
+    private unsubscribe = new Subject<void>();
+
     target: ISelectedTarget;
     useDisable = true;
     showLoading = true;
+    isTargetMerged$: Observable<boolean>;
 
     constructor(
         private router: Router,
@@ -58,14 +60,18 @@ export class SideBarForFilteredMapContainerComponent implements OnInit, OnDestro
                     break;
             }
         });
-        this.storeHelperService.getServerMapTargetSelected(this.unsubscribe).pipe(
-            filter((target: ISelectedTarget) => {
-                return target && (target.isNode === true || target.isNode === false) ? true : false;
-            })
-        ).subscribe((target: ISelectedTarget) => {
-            this.target = target;
-            this.renderer.setStyle(this.el.nativeElement, 'width', '477px');
-        });
+
+        this.isTargetMerged$ = merge(
+            this.storeHelperService.getServerMapTargetSelectedByList(this.unsubscribe).pipe(mapTo(false)),
+            this.storeHelperService.getServerMapTargetSelected(this.unsubscribe).pipe(
+                filter((target: ISelectedTarget) => !!target),
+                tap((target: ISelectedTarget) => {
+                    this.target = target;
+                    this.renderer.setStyle(this.el.nativeElement, 'width', '477px');
+                }),
+                map(({isMerged}: ISelectedTarget) => isMerged)
+            )
+        );
     }
 
     hasTopElement(): boolean {

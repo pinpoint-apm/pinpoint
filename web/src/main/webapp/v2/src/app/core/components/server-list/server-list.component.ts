@@ -10,26 +10,39 @@ export class ServerListComponent implements OnInit {
     @Input() agentData: any = {};
     @Input() isWas: boolean;
     @Input() funcImagePath: Function;
-    @Output() outSelectAgent: EventEmitter<string> = new EventEmitter();
-    @Output() outOpenInspector: EventEmitter<string> = new EventEmitter();
-    isChanged = false;
+    @Output() outSelectAgent = new EventEmitter<string>();
+    @Output() outOpenInspector = new EventEmitter<string>();
+
+    private selectedAgent: string;
+
     constructor() {}
-    ngOnInit() {}
+    ngOnInit() {
+        this.selectedAgent = this.getAgentKeys(this.getServerKeys()[0])[0];
+    }
+
     getServerKeys(): string[] {
         return Object.keys(this.serverList).sort();
     }
+
     getAgentKeys(serverName: string): string[] {
         return Object.keys(this.serverList[serverName]['instanceList']).sort();
     }
+
     hasError(agentName: string): boolean {
         return this.agentData[agentName] && this.agentData[agentName]['Error'] > 0;
     }
+
     getAlertImgPath(): string {
         return this.funcImagePath('icon-alert');
     }
-    onSelectAgent(agentName: string) {
-        this.outSelectAgent.emit(agentName);
+
+    onSelectAgent(agent: string) {
+        if (this.selectedAgent !== agent) {
+            this.selectedAgent = agent;
+            this.outSelectAgent.emit(agent);
+        }
     }
+
     onOpenInspector(agentName: string): void {
         this.outOpenInspector.emit(agentName);
     }

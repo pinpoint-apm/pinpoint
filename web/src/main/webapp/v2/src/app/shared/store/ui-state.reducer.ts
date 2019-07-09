@@ -20,23 +20,15 @@ export class ChangeServerMapDisableState implements Action {
 export function Reducer(state: IUIState = initState, action: ChangeInfoPerServerVisibleState | ChangeServerMapDisableState): IUIState {
     switch (action.type) {
         case CHANGE_INFO_PER_SERVER_VISIBLE_STATE:
-            if (action.payload === state['infoPerServer']) {
-                return state;
-            } else {
-                return {
-                    ...state,
-                    'infoPerServer': action.payload
-                };
-            }
+            return {
+                ...state,
+                'infoPerServer': action.payload
+            };
         case CHANGE_SERVER_MAP_DISABLE_STATE:
-            if (action.payload === state['serverMap']) {
-                return state;
-            } else {
-                return {
-                    ...state,
-                    'serverMap': action.payload
-                };
-            }
+            return {
+                ...state,
+                'serverMap': action.payload
+            };
         default:
             return state;
     }

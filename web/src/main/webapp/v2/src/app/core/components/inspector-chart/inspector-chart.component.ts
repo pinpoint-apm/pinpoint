@@ -1,15 +1,10 @@
 import { Component, OnInit, OnChanges, Input, Output, EventEmitter, ViewChild, ElementRef, SimpleChanges, Renderer2, OnDestroy } from '@angular/core';
-import bb, { Data, PrimitiveArray } from 'billboard.js';
+import bb, { PrimitiveArray } from 'billboard.js';
 import { Subject, merge, fromEvent } from 'rxjs';
 import { filter, map } from 'rxjs/operators';
 
 import { MessageQueueService, MESSAGE_TO, GutterEventService, NewUrlStateNotificationService } from 'app/shared/services';
 import { UrlPath } from 'app/shared/models';
-
-export interface IChartConfig {
-    dataConfig: Data;
-    elseConfig: {[key: string]: any};
-}
 
 @Component({
     selector: 'pp-inspector-chart',
