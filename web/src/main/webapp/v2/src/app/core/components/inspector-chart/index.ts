@@ -2,7 +2,6 @@
 import { NgModule } from '@angular/core';
 
 import { SharedModule } from 'app/shared';
-import { RetryComponent } from './retry.component';
 import { InspectorChartComponent } from './inspector-chart.component';
 import { AgentDataSourceChartContainerComponent } from './agent-data-source-chart-container.component';
 import { AgentDataSourceChartInfotableComponent } from './agent-data-source-chart-infotable.component';
@@ -18,7 +17,6 @@ import { TransactionViewChartContainerComponent } from './transaction-view-chart
 
 @NgModule({
     declarations: [
-        RetryComponent,
         InspectorChartComponent,
         AgentDataSourceChartContainerComponent,
         ApplicationDataSourceChartContainerComponent,

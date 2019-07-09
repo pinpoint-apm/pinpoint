@@ -1,3 +1,6 @@
+:host {
+    display: block;
+}
 .l-target-container-wrapper {
     margin: 0;
     position: relative;

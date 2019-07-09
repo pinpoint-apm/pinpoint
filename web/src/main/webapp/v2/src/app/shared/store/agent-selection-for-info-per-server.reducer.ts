@@ -8,9 +8,9 @@ export class ChangeAgentForServerList implements Action {
 }
 
 export function Reducer(state: IAgentSelection, action: ChangeAgentForServerList): IAgentSelection {
-    switch ( action.type ) {
+    switch (action.type) {
         case CHANGE_AGENT_FOR_SERVER_LIST:
-            return (state && state.agent === action.payload.agent) ? state : action.payload;
+            return action.payload;
         default:
             return state;
     }

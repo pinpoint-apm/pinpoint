@@ -71,10 +71,10 @@ export class StoreHelperService {
             })
         );
     }
-    getAgentSelection<T>(unsubscribe: Subject<void>): Observable<T> {
+    getAgentSelection(unsubscribe: Subject<void>): Observable<string> {
         return this.getObservable(STORE_KEY.AGENT_SELECTION, unsubscribe);
     }
-    getAgentSelectionForServerList<T>(unsubscribe: Subject<void>): Observable<T> {
+    getAgentSelectionForServerList(unsubscribe: Subject<void>): Observable<IAgentSelection> {
         return this.getObservable(STORE_KEY.AGENT_SELECTION_FOR_SERVER_LIST, unsubscribe);
     }
     getScatterChartData<T>(unsubscribe: Subject<void>): Observable<T> {
@@ -86,7 +86,7 @@ export class StoreHelperService {
     getServerMapLoadingState(unsubscribe: Subject<void>): Observable<string> {
         return this.getObservable(STORE_KEY.SERVER_MAP_LOADING_STATE, unsubscribe);
     }
-    getServerMapTargetSelected<ISelectedTarget>(unsubscribe: Subject<void>): Observable<ISelectedTarget> {
+    getServerMapTargetSelected(unsubscribe: Subject<void>): Observable<ISelectedTarget> {
         return this.getObservable(STORE_KEY.SERVER_MAP_TARGET_SELECTED, unsubscribe);
     }
     getTransactionData(unsubscribe: Subject<void>): Observable<ITransactionMetaData> {
@@ -97,9 +97,6 @@ export class StoreHelperService {
     }
     getServerListData(unsubscribe: Subject<void>): Observable<any> {
         return this.getObservable(STORE_KEY.SERVER_LIST, unsubscribe);
-    }
-    getLoadChartYMax(unsubscribe: Subject<void>): Observable<number> {
-        return this.getObservable(STORE_KEY.LOAD_CHART_Y_MAX, unsubscribe);
     }
     getResponseSummaryChartYMax(unsubscribe: Subject<void>): Observable<number> {
         return this.getObservable(STORE_KEY.RESPONSE_SUMMARY_CHART_Y_MAX, unsubscribe);

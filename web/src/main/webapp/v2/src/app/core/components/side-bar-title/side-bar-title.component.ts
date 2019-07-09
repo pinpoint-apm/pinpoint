@@ -13,27 +13,24 @@ export class SideBarTitleComponent implements OnInit {
     @Input() fromAppData: any;
     @Input() toAppData: any;
     @Input() funcImagePath: Function;
-    @Output() outChangeAgent: EventEmitter<string> = new EventEmitter();
+    @Output() outChangeAgent = new EventEmitter<string>();
+
     constructor() {}
     ngOnInit() {}
     getIconPath(serviceType: string): string {
         return this.funcImagePath(serviceType);
     }
-    onSelectionChange($what: any): void {
-        this.selectedAgent = $what.value;
-        this.outChangeAgent.emit($what.value);
+
+    onSelectionChange(agent: string): void {
+        this.outChangeAgent.emit(agent);
     }
+
     showAgentList(): boolean {
-        if (this.originalTargetSelected === false) {
-            return false;
-        } else {
-            if (this.toAppData) {
-                return this.toAppData.agentList.length > 1;
-            } else {
-                return false;
-            }
-        }
+        return this.originalTargetSelected
+            ? this.toAppData ? this.toAppData.agentList.length > 1 : false
+            : false;
     }
+
     onLoadError(img: HTMLImageElement): void {
         img.src = this.funcImagePath('NO_IMAGE_FOUND');
     }

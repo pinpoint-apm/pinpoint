@@ -79,9 +79,6 @@ export class ServerMapForFilteredMapContainerComponent implements OnInit, OnDest
             this.mergeServerMapData(serverMapAndScatterData);
             this.mapData = new ServerMapData(this.mergedNodeDataList, this.mergedLinkDataList, Filter.instanceFromString(this.newUrlStateNotificationService.hasValue(UrlPathId.FILTER) ? this.newUrlStateNotificationService.getPathValue(UrlPathId.FILTER) : ''));
             this.storeHelperService.dispatch(new Actions.UpdateServerMapData(this.mapData));
-            if (this.hasNodeData() === false) {
-                this.storeHelperService.dispatch(new Actions.UpdateServerMapTargetSelected(null));
-            }
         });
         this.connectStore();
     }
@@ -141,10 +138,8 @@ export class ServerMapForFilteredMapContainerComponent implements OnInit, OnDest
             this.showOverview = this.hasNodeData() && showOverView;
         }
     }
-    onClickBackground($event: any): void {
-    }
-    onClickGroupNode($event: any): void {
-    }
+    onClickBackground($event: any): void {}
+    onClickGroupNode($event: any): void {}
     onClickNode(nodeData: any): void {
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.CLICK_NODE);
         let payload;

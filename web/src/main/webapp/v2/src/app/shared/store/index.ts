@@ -6,8 +6,6 @@ import * as agentSelectionForSideBar from './agent-selection-for-side-bar.reduce
 import * as applicationList from './application-list.reducer';
 import * as dateFormat from './date-format.reducer';
 import * as favoriteApplicationList from './favorite-application-list.reducer';
-import * as loadChart from './load-chart.reducer';
-import * as responseSummaryChart from './response-summary-chart.reducer';
 import * as scatterChart from './scatter-chart.reducer';
 import * as serverAndAgent from './server-and-agent.reducer';
 import * as serverList from './server-list.reducer';
@@ -23,13 +21,12 @@ import * as uiState from './ui-state.reducer';
 import * as range from './range.reducer';
 import * as chartLayout from './inspector-chart-layout-info.reducer';
 import * as transactionViewType from './transaction-view-type.reducer';
+import * as chartYMax from './chart-y-max.reducer';
 
 export interface AppState {
     timeline: ITimelineInfo;
     timezone: string;
     dateFormat: number;
-    loadChartYMax: number;
-    responseSummaryChartYMax: number;
     agentSelection: string;
     agentSelectionForServerList: IAgentSelection;
     transactionData: ITransactionMetaData;
@@ -54,8 +51,6 @@ export const STORE_KEY = {
     TIMELINE: 'timeline',
     TIMEZONE: 'timezone',
     DATE_FORMAT: 'dateFormat',
-    LOAD_CHART_Y_MAX: 'loadChartYMax',
-    RESPONSE_SUMMARY_CHART_Y_MAX: 'responseSummaryChartYMax',
     AGENT_SELECTION: 'agentSelection',
     AGENT_SELECTION_FOR_SERVER_LIST: 'agentSelectionForServerList',
     TIMELINE_SELECTION_RANGE: 'timelineSelectionRange',
@@ -75,7 +70,8 @@ export const STORE_KEY = {
     RANGE: 'range',
     APPLICATION_INSPECTOR_CHART_LAYOUT: 'applicationInspectorChartLayout',
     AGENT_INSPECTOR_CHART_LAYOUT: 'agentInspectorChartLayout',
-    TRANSACTION_VIEW_TYPE: 'transactionViewType'
+    TRANSACTION_VIEW_TYPE: 'transactionViewType',
+    RESPONSE_SUMMARY_CHART_Y_MAX: 'responseSummaryChartYMax',
 };
 
 
@@ -86,8 +82,6 @@ export const reducers: ActionReducerMap<any> = {
     applicationList: applicationList.Reducer,
     favoriteApplicationList: favoriteApplicationList.Reducer,
     dateFormat: dateFormat.Reducer,
-    loadChartYMax: loadChart.Reducer,
-    responseSummaryChartYMax: responseSummaryChart.Reducer,
     scatterChart: scatterChart.Reducer,
     serverList: serverList.Reducer,
     serverMapLoadingState: serverMapLoadingState.Reducer,
@@ -104,14 +98,13 @@ export const reducers: ActionReducerMap<any> = {
     range: range.Reducer,
     applicationInspectorChartLayout: chartLayout.ApplicationInspectorChartLayoutReducer,
     agentInspectorChartLayout: chartLayout.AgentInspectorChartLayoutReducer,
-    transactionViewType: transactionViewType.Reducer
+    transactionViewType: transactionViewType.Reducer,
+    responseSummaryChartYMax: chartYMax.ResponseSummaryChartYMaxReducer
 };
 
 export const Actions = {
     'ChangeTimezone': timezone.ChangeTimezone,
     'ChangeDateFormat': dateFormat.ChangeDateFormat,
-    'ChangeResponseSummaryChartYMax': responseSummaryChart.ChangeResponseSummaryChartYMax,
-    'ChangeLoadChartYMax': loadChart.ChangeLoadChartYMax,
     'ChangeAgent': agentSelectionForSideBar.ChangeAgent,
     'ChangeAgentForServerList': agentSelectionForInfoPerServer.ChangeAgentForServerList,
     'UpdateTransactionData': transactionData.UpdateTransactionData,
@@ -133,7 +126,8 @@ export const Actions = {
     'UpdateRange': range.UpdateRange,
     'UpdateApplicationInspectorChartLayout': chartLayout.UpdateApplicationInspectorChartLayoutInfo,
     'UpdateAgentInspectorChartLayout': chartLayout.UpdateAgentInspectorChartLayoutInfo,
-    'ChangeTransactionViewType': transactionViewType.ChangeTransactionViewType
+    'ChangeTransactionViewType': transactionViewType.ChangeTransactionViewType,
+    'UpdateResponseSummaryChartYMax': chartYMax.UpdateResponseSummaryChartYMax
 };
 
 const getUI = createFeatureSelector('uiState');

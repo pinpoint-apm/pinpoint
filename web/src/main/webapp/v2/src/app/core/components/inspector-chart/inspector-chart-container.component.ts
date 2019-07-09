@@ -14,7 +14,6 @@ import {
     MESSAGE_TO
 } from 'app/shared/services';
 import { InspectorPageService, ISourceForChart } from 'app/routes/inspector-page/inspector-page.service';
-import { IChartConfig } from './inspector-chart.component';
 import { isThatType } from 'app/core/utils/util';
 import { HELP_VIEWER_LIST, HelpViewerPopupContainerComponent } from 'app/core/components/help-viewer-popup/help-viewer-popup-container.component';
 import { IInspectorChartData, InspectorChartDataService } from './inspector-chart-data.service';
@@ -86,7 +85,7 @@ export class InspectorChartContainerComponent implements OnInit, OnDestroy {
     private initI18nText(): void {
         forkJoin(
             this.translateService.get('COMMON.FAILED_TO_FETCH_DATA'),
-            this.translateService.get('INSPECTOR.NO_DATA_COLLECTED'),
+            this.translateService.get('COMMON.NO_DATA'),
         ).subscribe(([dataFetchFailedText, dataEmptyText]: string[]) => {
            this.dataFetchFailedText = dataFetchFailedText;
            this.dataEmptyText = dataEmptyText;

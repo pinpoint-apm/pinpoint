@@ -1,92 +1,336 @@
-import { Component, OnInit, OnDestroy, Input, ComponentFactoryResolver, Injector, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
-import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { Component, OnInit, OnDestroy, Input, ComponentFactoryResolver, Injector } from '@angular/core';
+import { Subject, forkJoin, of, merge } from 'rxjs';
+import { filter, tap, switchMap, pluck, map, catchError, withLatestFrom, skip } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
+import { PrimitiveArray, Data, DataItem } from 'billboard.js';
 
-import { WebAppSettingDataService, AnalyticsService, TRACKED_EVENT_LIST, DynamicPopupService } from 'app/shared/services';
+import {
+    WebAppSettingDataService,
+    AnalyticsService,
+    TRACKED_EVENT_LIST,
+    DynamicPopupService,
+    AgentHistogramDataService,
+    StoreHelperService,
+    MessageQueueService,
+    NewUrlStateNotificationService,
+    MESSAGE_TO
+} from 'app/shared/services';
 import { HELP_VIEWER_LIST, HelpViewerPopupContainerComponent } from 'app/core/components/help-viewer-popup/help-viewer-popup-container.component';
-import { ResponseSummaryChartChangeNotificationService, IResponseSummaryChartNotificationData, SOURCE_TYPE } from './response-summary-chart-change-notification.service';
+import { ServerMapData } from 'app/core/components/server-map/class/server-map-data.class';
+import { getMaxTickValue } from 'app/core/utils/chart-util';
+import { Actions } from 'app/shared/store';
+
+export enum SourceType {
+    MAIN = 'MAIN',
+    FILTERED = 'FILTERED',
+    INFO_PER_SERVER = 'INFO_PER_SERVER'
+}
+
+export enum Layer {
+    LOADING = 'loading',
+    RETRY = 'retry',
+    CHART = 'chart'
+}
 
 @Component({
     selector: 'pp-response-summary-chart-container',
     templateUrl: './response-summary-chart-container.component.html',
     styleUrls: ['./response-summary-chart-container.component.css'],
-    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ResponseSummaryChartContainerComponent implements OnInit, OnDestroy {
     @Input() sourceType: string;
-    private unsubscribe: Subject<null> = new Subject();
-    hiddenChart = false;
-    chartData: IResponseTime | IResponseMilliSecondTime;
-    chartColors: string[];
-    i18nText = {
-        NO_DATA: '',
-        FAILED_TO_FETCH_DATA: ''
-    };
-    useDisable = false;
-    showLoading = false;
-    hasRequestError = false;
-    hiddenComponent = false;
+
+    private unsubscribe = new Subject<void>();
+    private serverMapData: ServerMapData;
+    private isOriginalNode: boolean;
+    private selectedTarget: ISelectedTarget;
+    private selectedAgent = '';
+    private chartColors: string[];
+    private defaultYMax = 10;
+
+    dataFetchFailedText: string;
+    dataEmptyText: string;
+    chartConfig: IChartConfig;
+    showLoading: boolean;
+    showRetry: boolean;
+    retryMessage: string;
+    chartVisibility = {};
+    _activeLayer: Layer;
+    previousRange: number[];
+
     constructor(
-        private injector: Injector,
-        private changeDetectorRef: ChangeDetectorRef,
+        private storeHelperService: StoreHelperService,
+        private messageQueueService: MessageQueueService,
+        private agentHistogramDataService: AgentHistogramDataService,
+        private newUrlStateNotificationService: NewUrlStateNotificationService,
         private translateService: TranslateService,
         private webAppSettingDataService: WebAppSettingDataService,
         private analyticsService: AnalyticsService,
         private dynamicPopupService: DynamicPopupService,
+        private injector: Injector,
         private componentFactoryResolver: ComponentFactoryResolver,
-        private responseSummaryChartChangeNotificationService: ResponseSummaryChartChangeNotificationService
     ) {}
+
     ngOnInit() {
-        this.chartColors = this.webAppSettingDataService.getColorByRequest();
-        this.translateService.get([
-            'COMMON.NO_DATA',
-            'COMMON.FAILED_TO_FETCH_DATA'
-        ]).subscribe((text: {[key: string]: string}) => {
-            this.i18nText = {
-                NO_DATA: text['COMMON.NO_DATA'],
-                FAILED_TO_FETCH_DATA: text['COMMON.FAILED_TO_FETCH_DATA']
-            };
-        });
-        this.responseSummaryChartChangeNotificationService.getObservable(this.sourceType).pipe(
-            takeUntil(this.unsubscribe)
-        ).subscribe((notificationData: IResponseSummaryChartNotificationData) => {
-            if (notificationData.hidden) {
-                this.hiddenComponent = true;
-                this.changeDetectorRef.detectChanges();
-            } else {
-                this.hiddenComponent = false;
-                this.passDownChartData(notificationData.chart);
-            }
-        });
+        this.initChartColors();
+        this.initI18nText();
+        this.connectStore();
     }
+
     ngOnDestroy() {
         this.unsubscribe.next();
         this.unsubscribe.complete();
     }
-    private setDisable(disable: boolean): void {
-        this.useDisable = disable;
-        this.showLoading = disable;
+
+    set activeLayer(layer: Layer) {
+        this._activeLayer = layer;
+        this.setChartVisibility(this._activeLayer === Layer.CHART);
     }
-    private passDownChartData(chartData: any): void {
-        if (chartData) {
-            this.hiddenChart = false;
-            this.chartData = chartData;
-        } else {
-            this.hiddenChart = true;
-        }
-        this.hasRequestError = false;
-        this.setDisable(false);
-        this.changeDetectorRef.detectChanges();
+
+    get activeLayer(): Layer {
+        return this._activeLayer;
     }
-    getChartMessage(): string {
-        return this.hasRequestError ? this.i18nText.FAILED_TO_FETCH_DATA : this.i18nText.NO_DATA;
+
+    onRendered(): void {
+        this.activeLayer = Layer.CHART;
     }
-    onNotifyMax(max: number): void {
-        if (this.sourceType !== SOURCE_TYPE.INFO_PER_SERVER) {
-            this.responseSummaryChartChangeNotificationService.setYMax(max);
-        }
+
+    private setChartVisibility(showChart: boolean): void {
+        this.chartVisibility = {
+            'show-chart': showChart,
+            'shady-chart': !showChart && this.chartConfig !== undefined,
+        };
     }
+
+    isActiveLayer(layer: string): boolean {
+        return this.activeLayer === layer;
+    }
+
+    onRetry(): void {
+        this.activeLayer = Layer.LOADING;
+        const {key, applicationName, serviceTypeCode} = this.getTargetInfo();
+
+        this.agentHistogramDataService.getData(key, applicationName, serviceTypeCode, this.serverMapData, this.previousRange).pipe(
+            map((data: any) => this.isAllAgent() ? data['histogram'] : data['agentHistogram'][this.selectedAgent])
+        ).pipe(
+            map((data: IResponseTime | IResponseMilliSecondTime) => this.makeChartData(data)),
+            withLatestFrom(this.storeHelperService.getResponseSummaryChartYMax(this.unsubscribe))
+        ).subscribe(([chartData, yMax]: [PrimitiveArray[], number]) => {
+            this.chartConfig = {
+                dataConfig: this.makeDataOption(chartData),
+                elseConfig: this.makeElseOption(yMax)
+            };
+        });
+    }
+
+    private initChartColors(): void {
+        this.chartColors = this.webAppSettingDataService.getColorByRequest();
+    }
+
+    private initI18nText(): void {
+        forkJoin(
+            this.translateService.get('COMMON.FAILED_TO_FETCH_DATA'),
+            this.translateService.get('COMMON.NO_DATA'),
+        ).subscribe(([dataFetchFailedText, dataEmptyText]: string[]) => {
+           this.dataFetchFailedText = dataFetchFailedText;
+           this.dataEmptyText = dataEmptyText;
+        });
+    }
+
+    private connectStore(): void {
+        this.storeHelperService.getServerMapData(this.unsubscribe).subscribe((serverMapData: ServerMapData) => {
+            this.serverMapData = serverMapData;
+        });
+
+        merge(
+            this.storeHelperService.getServerMapTargetSelected(this.unsubscribe).pipe(
+                filter(() => this.sourceType !== SourceType.INFO_PER_SERVER),
+                filter((target: ISelectedTarget) => !!target),
+                filter((target: ISelectedTarget) => {
+                    this.isOriginalNode = true;
+                    this.selectedAgent = '';
+                    this.selectedTarget = target;
+
+                    return !target.isMerged;
+                }),
+                map(() => this.getTargetInfo().histogram),
+            ),
+            this.storeHelperService.getAgentSelection(this.unsubscribe).pipe(
+                filter(() => this.sourceType !== SourceType.INFO_PER_SERVER),
+                skip(1),
+                tap((agent: string) => this.selectedAgent = agent),
+                filter(() => !!this.selectedTarget),
+                map(() => this.getTargetInfo()),
+                switchMap((target: any) => {
+                    if (this.isAllAgent()) {
+                        return of(target.histogram);
+                    } else {
+                        let data;
+
+                        if (this.sourceType === SourceType.MAIN) {
+                            this.previousRange = [
+                                this.newUrlStateNotificationService.getStartTimeToNumber(),
+                                this.newUrlStateNotificationService.getEndTimeToNumber()
+                            ];
+
+                            data = this.agentHistogramDataService.getData(target.key, target.applicationName, target.serviceTypeCode, this.serverMapData, this.previousRange).pipe(
+                                catchError(() => of(null)),
+                                filter((res: any) => res === null ? (this.activeLayer = Layer.RETRY, false) : true)
+                            );
+                        } else {
+                            data = of(target);
+                        }
+
+                        return data.pipe(
+                            pluck('agentHistogram', this.selectedAgent)
+                        );
+                    }
+                }),
+            ),
+            this.storeHelperService.getServerMapTargetSelectedByList(this.unsubscribe).pipe(
+                filter(() => this.sourceType !== SourceType.INFO_PER_SERVER),
+                tap(() => this.selectedAgent = ''),
+                tap(({key}: any) => this.isOriginalNode = this.selectedTarget.node.includes(key)),
+                map((target: any) => target.histogram)
+            ),
+            this.storeHelperService.getAgentSelectionForServerList(this.unsubscribe).pipe(
+                filter(() => this.sourceType === SourceType.INFO_PER_SERVER),
+                filter((data: IAgentSelection) => !!data),
+                tap(({agent}: IAgentSelection) => this.selectedAgent = agent),
+                pluck('responseSummary'),
+            ),
+            this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.REAL_TIME_SCATTER_CHART_X_RANGE).pipe(
+                filter(() => this.sourceType === SourceType.MAIN),
+                map(([{from, to}]: IScatterXRange[]) => [from, to]),
+                tap((range: number[]) => this.previousRange = range),
+                switchMap((range: number[]) => {
+                    const {key, applicationName, serviceTypeCode} = this.getTargetInfo();
+
+                    return this.agentHistogramDataService.getData(key, applicationName, serviceTypeCode, this.serverMapData, range).pipe(
+                        catchError(() => of(null)),
+                        filter((res: any) => !!res),
+                        map((data: any) => this.isAllAgent() ? data['histogram'] : data['agentHistogram'][this.selectedAgent])
+                    );
+                }),
+            )
+        ).pipe(
+            map((data = {}) => this.makeChartData(data as IResponseTime | IResponseMilliSecondTime)),
+            switchMap((data: PrimitiveArray[]) => {
+                if (this.shouldUpdateYMax()) {
+                    const maxTickValue = getMaxTickValue(data, 1);
+                    const yMax = maxTickValue === 0 ? this.defaultYMax : maxTickValue;
+
+                    this.storeHelperService.dispatch(new Actions.UpdateResponseSummaryChartYMax(yMax));
+
+                    return of([data, yMax]);
+                } else {
+                    return of(data).pipe(
+                        withLatestFrom(this.storeHelperService.getResponseSummaryChartYMax(this.unsubscribe))
+                    );
+                }
+            }),
+        ).subscribe(([chartData, yMax]: [PrimitiveArray[], number]) => {
+            this.chartConfig = {
+                dataConfig: this.makeDataOption(chartData),
+                elseConfig: this.makeElseOption(yMax),
+            };
+        });
+    }
+
+    private shouldUpdateYMax(): boolean {
+        return this.isAllAgent() && this.isOriginalNode;
+    }
+
+    private isAllAgent(): boolean {
+        return this.selectedAgent === '';
+    }
+
+    private getTargetInfo(): any {
+        return this.selectedTarget.isNode
+            ? this.serverMapData.getNodeData(this.selectedTarget.node[0])
+            : this.serverMapData.getLinkData(this.selectedTarget.link[0]);
+    }
+
+    private makeChartData(data: IResponseTime | IResponseMilliSecondTime): PrimitiveArray[] {
+        return [
+            ['x', ...Object.keys(data)],
+            ['rs', ...Object.values(data)]
+        ];
+    }
+
+    private makeDataOption(columns: PrimitiveArray[]): Data {
+        return {
+            x: 'x',
+            columns,
+            empty: {
+                label: {
+                    text: this.dataEmptyText
+                }
+            },
+            type: 'bar',
+            color: (_, {index}: DataItem): string => this.chartColors[index],
+            labels: {
+                colors: '#333',
+                format: {
+                    rs: (v: number) => this.addComma(v.toString())
+                }
+            }
+        };
+    }
+
+    private makeElseOption(yMax: number): {[key: string]: any} {
+        return {
+            padding: {
+                top: 20
+            },
+            legend: {
+                show: false
+            },
+            axis: {
+                x: {
+                    type: 'category'
+                },
+                y: {
+                    tick: {
+                        count: 3,
+                        format: (v: number): string => this.convertWithUnit(v)
+                    },
+                    padding: {
+                        top: 0,
+                        bottom: 0
+                    },
+                    min: 0,
+                    max: yMax,
+                    default: [0, this.defaultYMax]
+                }
+            },
+            grid: {
+                y: {
+                    show: true
+                }
+            },
+            tooltip: {
+                show: false
+            }
+        };
+    }
+
+    addComma(str: string): string {
+        return str.replace(/(\d)(?=(?:\d{3})+(?!\d))/g, '$1,');
+    }
+
+    convertWithUnit(value: number): string {
+        const unitList = ['', 'K', 'M', 'G'];
+
+        return [...unitList].reduce((acc: string, curr: string, i: number, arr: string[]) => {
+            const v = Number(acc);
+
+            return v >= 1000
+                ? (v / 1000).toString()
+                : (arr.splice(i + 1), Number.isInteger(v) ? `${v}${curr}` : `${v.toFixed(2)}${curr}`);
+        }, value.toString());
+    }
+
     onClickColumn(columnName: string): void {
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.CLICK_RESPONSE_GRAPH);
         if (columnName === 'Error') {
@@ -102,6 +346,7 @@ export class ResponseSummaryChartContainerComponent implements OnInit, OnDestroy
         // }
 
     }
+
     onShowHelp($event: MouseEvent): void {
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.TOGGLE_HELP_VIEWER, HELP_VIEWER_LIST.RESPONSE_SUMMARY);
         const {left, top, width, height} = ($event.target as HTMLElement).getBoundingClientRect();

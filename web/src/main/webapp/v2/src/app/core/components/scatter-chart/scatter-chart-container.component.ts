@@ -149,16 +149,14 @@ export class ScatterChartContainerComponent implements OnInit, OnDestroy {
         this.storeHelperService.getDateFormatArray(this.unsubscribe, 4, 5).subscribe((format: string[]) => {
             this.dateFormat = format;
         });
-        this.storeHelperService.getAgentSelection<string>(this.unsubscribe).subscribe((agent: string) => {
+        this.storeHelperService.getAgentSelection(this.unsubscribe).subscribe((agent: string) => {
             if (this.selectedAgent !== agent) {
                 this.selectedAgent = agent;
                 this.scatterChartInteractionService.changeAgent(this.instanceKey, agent);
             }
         });
         this.storeHelperService.getServerMapTargetSelected(this.unsubscribe).pipe(
-            filter((target: ISelectedTarget) => {
-                return target && (target.isNode === true || target.isNode === false) ? true : false;
-            })
+            filter((target: ISelectedTarget) => !!target)
         ).subscribe((target: ISelectedTarget) => {
             this.selectedTarget = target;
             if (this.isHide() === false) {

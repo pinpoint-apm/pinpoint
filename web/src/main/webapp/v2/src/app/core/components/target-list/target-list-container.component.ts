@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef, ComponentFactoryResolver, Injector, ViewChild } from '@angular/core';
+import { Component, OnInit, OnDestroy, ComponentFactoryResolver, Injector, ViewChild } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { Subject } from 'rxjs';
 import { filter } from 'rxjs/operators';
@@ -22,11 +22,12 @@ import { SearchInputDirective } from 'app/shared/directives/search-input.directi
     selector: 'pp-target-list-container',
     templateUrl: './target-list-container.component.html',
     styleUrls: ['./target-list-container.component.css'],
-    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TargetListContainerComponent implements OnInit, OnDestroy {
     @ViewChild(SearchInputDirective) searchInputDirective: SearchInputDirective;
-    unsubscribe: Subject<null> = new Subject();
+
+    private unsubscribe = new Subject<void>();
+
     i18nText: { [key: string]: string } = {};
     query = '';
     target: ISelectedTarget;
@@ -35,9 +36,9 @@ export class TargetListContainerComponent implements OnInit, OnDestroy {
     serverMapData: ServerMapData;
     originalTargetList: any[];
     searchUseEnter = false;
+
     constructor(
         private injector: Injector,
-        private changeDetector: ChangeDetectorRef,
         private componentFactoryResolver: ComponentFactoryResolver,
         private translateService: TranslateService,
         private analyticsService: AnalyticsService,
@@ -46,41 +47,45 @@ export class TargetListContainerComponent implements OnInit, OnDestroy {
         private newUrlStateNotificationService: NewUrlStateNotificationService,
         private dynamicPopupService: DynamicPopupService
     ) {}
+
     ngOnInit() {
         this.getI18NText();
         this.connectStore();
     }
+
     ngOnDestroy() {
         this.unsubscribe.next();
         this.unsubscribe.complete();
     }
+
     private getI18NText() {
         this.translateService.get('COMMON.SEARCH_INPUT').subscribe((txt: string) => {
             this.i18nText.PLACE_HOLDER = txt;
         });
     }
+
     private connectStore(): void {
         this.storeHelperService.getServerMapData(this.unsubscribe).subscribe((serverMapData: ServerMapData) => {
             this.serverMapData = serverMapData;
         });
+
         this.storeHelperService.getServerMapTargetSelected(this.unsubscribe).pipe(
-            filter((target: ISelectedTarget) => {
-                return target && (target.isNode === true || target.isNode === false) ? true : false;
-            })
+            filter((target: ISelectedTarget) => !!target)
         ).subscribe((target: ISelectedTarget) => {
             this.target = target;
             if (this.hasMultiInput()) {
                 this.gatherTargets();
                 this.initSearchInput();
             }
-            this.changeDetector.detectChanges();
         });
     }
+
     private initSearchInput(): void {
         if (this.searchInputDirective) {
             this.searchInputDirective.clear();
         }
     }
+
     hasMultiInput(): boolean {
         if (this.target && this.target.isWAS === false) {
             if (this.target.isMerged) {
@@ -98,6 +103,7 @@ export class TargetListContainerComponent implements OnInit, OnDestroy {
         }
         return false;
     }
+
     gatherTargets(): void {
         const targetList: any[] = [];
         if (this.target.isNode) {
@@ -120,10 +126,12 @@ export class TargetListContainerComponent implements OnInit, OnDestroy {
         }
         this.originalTargetList = this.targetList = targetList;
     }
+
     onSelectTarget(target: any): void {
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.CLICK_NODE_IN_GROUPED_VIEW);
         this.storeHelperService.dispatch(new Actions.UpdateServerMapSelectedTargetByList(target));
     }
+
     onOpenFilter(target: any): void {
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.CLICK_FILTER_TRANSACTION);
         const link = this.serverMapData.getLinkData(target[1]);
@@ -142,11 +150,13 @@ export class TargetListContainerComponent implements OnInit, OnDestroy {
             )}
         ));
     }
+
     getRequestSum(): number  {
         return this.targetList.reduce((acc: number, target: any) => {
             return acc + target[0].totalCount;
         }, 0);
     }
+
     onOpenFilterWizard(target: any): void {
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.OPEN_FILTER_TRANSACTION_WIZARD);
         this.dynamicPopupService.openPopup({
@@ -157,17 +167,20 @@ export class TargetListContainerComponent implements OnInit, OnDestroy {
             injector: this.injector
         });
     }
+
     onCancel(): void {
         this.setFilterQuery('');
     }
+
     onSearch(query: string): void {
         this.setFilterQuery(query);
     }
+
     setFilterQuery(query: string): void {
         this.query = query;
         this.targetList = this.filterList();
-        this.changeDetector.detectChanges();
     }
+
     filterList(): any[] {
         if ( this.query === '' ) {
             return this.originalTargetList;

@@ -7,12 +7,15 @@
             <pp-filter-information-container></pp-filter-information-container>
             <pp-server-status-container></pp-server-status-container>
             <div class="l-chart-group-list">
+                <!-- TODO: 클릭된 노드의 merge 상태에 따라 display하는 여부를 각 컨테이너가 아니라 여기서 잡아주기. -->
                 <pp-scatter-chart-for-filtered-map-side-bar-container></pp-scatter-chart-for-filtered-map-side-bar-container>
                 <pp-target-list-container></pp-target-list-container>
                 <hr *ngIf="hasTopElement()"/>
-                <pp-response-summary-chart-container [sourceType]="'FILTERED_MAP_SIDEBAR'"></pp-response-summary-chart-container>
+                <ng-container *ngIf="!(isTargetMerged$ | async)">
+                    <pp-response-summary-chart-container [sourceType]="'FILTERED'"></pp-response-summary-chart-container>
+                    <!-- <pp-load-chart-container [sourceType]="'FILTERED_MAP_SIDEBAR'"></pp-load-chart-container> -->
+                </ng-container>
                 <hr/>
-                <pp-load-chart-container [sourceType]="'FILTERED_MAP_SIDEBAR'"></pp-load-chart-container>
             </div>
         </div>
     </div>

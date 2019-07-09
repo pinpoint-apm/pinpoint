@@ -1,9 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import * as moment from 'moment-timezone';
-import { Observable, of } from 'rxjs';
+import { Observable } from 'rxjs';
 import { shareReplay } from 'rxjs/operators';
-import { NewUrlStateNotificationService } from 'app/shared/services/new-url-state-notification.service';
 
 @Injectable()
 export class AgentHistogramDataService {
@@ -15,66 +14,75 @@ export class AgentHistogramDataService {
     private previousCode: string;
     private previousKey: string;
     private previousObservable: any;
+
     constructor(
         private http: HttpClient,
-        private newUrlStateNotificationService: NewUrlStateNotificationService
     ) {}
-    getData(key: string, applicationName: string, serviceTypeCode: string, serverMapData: any, from?: number, to?: number): Observable<any> {
-        if (this.isCached(key, applicationName, serviceTypeCode, from, to) === false) {
-            this.previousObservable  = this.http.post(this.url, this.makeBodyData(key, serverMapData), this.makeRequestOptionsArgs(applicationName, serviceTypeCode, from, to)).pipe(
+
+    getData(key: string, applicationName: string, serviceTypeCode: string, serverMapData: any, [from, to]: number[]): Observable<any> {
+        if (!this.isCached(key, applicationName, serviceTypeCode, [from, to])) {
+            this.previousObservable = this.http.post(this.url, this.makeBodyData(key, serverMapData), this.makeRequestOptionsArgs(applicationName, serviceTypeCode, [from, to])).pipe(
                 shareReplay(1)
             );
-            this.previousFrom = from || this.newUrlStateNotificationService.getStartTimeToNumber();
-            this.previousTo = to || this.newUrlStateNotificationService.getEndTimeToNumber();
+            this.previousFrom = from;
+            this.previousTo = to;
             this.previousName = applicationName;
             this.previousCode = serviceTypeCode;
             this.previousKey = key;
         }
+
         return this.previousObservable;
     }
-    isCached(key: string, applicationName: string, serviceTypeCode: string, from?: number, to?: number): boolean {
+
+    private isCached(key: string, applicationName: string, serviceTypeCode: string, [from, to]: number[]): boolean {
         return this.previousCode === serviceTypeCode &&
             this.previousKey === key &&
             this.previousName === applicationName &&
-            this.previousFrom === (from || this.newUrlStateNotificationService.getStartTimeToNumber()) &&
-            this.previousTo === (to || this.newUrlStateNotificationService.getEndTimeToNumber());
+            this.previousFrom === from &&
+            this.previousTo === to;
     }
-    private makeRequestOptionsArgs(applicationName: string, serviceTypeCode: string, from?: number, to?: number): object {
+
+    private makeRequestOptionsArgs(applicationName: string, serviceTypeCode: string, [from, to]: number[]): object {
         return {
             params: {
-                applicationName: applicationName,
-                serviceTypeCode: serviceTypeCode,
-                from: from || this.newUrlStateNotificationService.getStartTimeToNumber(),
-                to: to || this.newUrlStateNotificationService.getEndTimeToNumber()
+                applicationName,
+                serviceTypeCode,
+                from,
+                to
             }
         };
     }
+
     private makeBodyData(nodeKey: string, serverMapData: any): any {
         const linkedNodeData: { [key: string]: any } = {
             from: [],
             to: []
         };
+
         serverMapData.linkList.forEach((link: ILinkInfo) => {
-            if ( link.from === nodeKey ) {
-                if ( link.targetInfo instanceof Array ) {
+            if (link.from === nodeKey) {
+                if (link.targetInfo instanceof Array) {
                     link.targetInfo.forEach((targetLinkInfo: ILinkInfo) => {
                         linkedNodeData.to.push([targetLinkInfo.targetInfo.applicationName, targetLinkInfo.targetInfo.serviceTypeCode]);
                     });
                 } else {
                     linkedNodeData.to.push([link.targetInfo.applicationName, link.targetInfo.serviceTypeCode]);
                 }
-            } else if ( link.to === nodeKey ) {
+            } else if (link.to === nodeKey) {
                 linkedNodeData.from.push([link.sourceInfo.applicationName, link.sourceInfo.serviceTypeCode]);
             }
         });
+
         return linkedNodeData;
     }
+
     makeChartDataForResponseSummary(histogramData: IResponseTime | IResponseMilliSecondTime, yMax?: number): any {
         let newData: {
             keys: string[],
             values: number[],
             max?: number
         };
+
         if (histogramData) {
             newData = {
                 keys: Object.keys(histogramData),
@@ -86,11 +94,14 @@ export class AgentHistogramDataService {
         } else {
             return newData;
         }
+
         if (yMax) {
             newData['max'] = yMax;
         }
+
         return newData;
     }
+
     makeChartDataForLoad(histogramData: IHistogram[], timezone: string, dateFormat: string[], yMax?: number): any {
         let newData: {
             keyValues: {
@@ -100,6 +111,7 @@ export class AgentHistogramDataService {
             labels: string[];
             max?: number;
         };
+
         if (histogramData) {
             newData = {
                 labels: [],
@@ -120,9 +132,11 @@ export class AgentHistogramDataService {
         } else {
             return newData;
         }
+
         if (yMax) {
             newData['max'] = yMax;
         }
+
         return newData;
     }
 }

@@ -8,9 +8,9 @@ export class ChangeAgent implements Action {
 }
 
 export function Reducer(state = '', action: ChangeAgent): string {
-    switch ( action.type ) {
+    switch (action.type) {
         case CHANGE_AGENT:
-            return (state === action.payload) ? state : action.payload;
+            return action.payload;
         default:
             return state;
     }

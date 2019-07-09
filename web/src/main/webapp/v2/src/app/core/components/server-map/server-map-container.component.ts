@@ -65,31 +65,30 @@ export class ServerMapContainerComponent implements OnInit, OnDestroy {
                 if (urlService.isRealTimeMode()) {
                     const endTime = urlService.getUrlServerTimeData();
                     const period = this.webAppSettingDataService.getSystemDefaultPeriod();
+
                     this.initVarBeforeDataLoad(
                         EndTime.formatDate(endTime),
                         period.getValueWithTime(),
                         urlService.getPathValue(UrlPathId.APPLICATION)
                     );
+
                     return [endTime - period.getMiliSeconds(), endTime];
                 } else {
-                    this.storeHelperService.dispatch(new Actions.UpdateServerMapTargetSelected(null));
                     this.initVarBeforeDataLoad(
                         urlService.getPathValue(UrlPathId.END_TIME).getEndTime(),
                         urlService.getPathValue(UrlPathId.PERIOD).getValueWithTime(),
                         urlService.getPathValue(UrlPathId.APPLICATION)
                     );
+
                     return [urlService.getStartTimeToNumber(), urlService.getEndTimeToNumber()];
                 }
             }),
-            switchMap((range: number[]) => {
-                return this.serverMapDataService.getData(range);
-            })
+            switchMap((range: number[]) => this.serverMapDataService.getData(range))
         ).subscribe((res: IServerMapInfo) => {
             this.mapData = new ServerMapData(res.applicationMapData.nodeDataArray, res.applicationMapData.linkDataArray);
             this.storeHelperService.dispatch(new Actions.UpdateServerMapData(this.mapData));
-            if (this.hasNodeData() === false) {
+            if (!this.hasNodeData()) {
                 this.showLoading = false;
-                this.storeHelperService.dispatch(new Actions.UpdateServerMapTargetSelected(null));
             }
         }, (error: IServerErrorFormat) => {
             this.dynamicPopupService.openPopup({

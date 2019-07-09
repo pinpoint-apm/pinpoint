@@ -36,39 +36,39 @@ export class SideBarTitleContainerComponent implements OnInit, OnDestroy {
         private storeHelperService: StoreHelperService,
         private webAppSettingDataService: WebAppSettingDataService,
         private analyticsService: AnalyticsService,
-    ) {
-    }
+    ) {}
+
     ngOnInit() {
         this.funcImagePath = this.webAppSettingDataService.getIconPathMakeFunc();
         this.connectStore();
     }
+
     ngOnDestroy() {
         this.unsubscribe.next();
         this.unsubscribe.complete();
     }
+
     private connectStore(): void {
         this.storeHelperService.getServerMapData(this.unsubscribe).subscribe((serverMapData: IServerMapInfo) => {
             this.serverMapData = serverMapData;
         });
+
         this.storeHelperService.getServerMapTargetSelected(this.unsubscribe).pipe(
-            filter((target: ISelectedTarget) => {
-                return target && (target.isNode === true || target.isNode === false) ? true : false;
-            })
+            filter((target: ISelectedTarget) => !!target)
         ).subscribe((target: ISelectedTarget) => {
             this.selectedAgent = SideBarTitleContainerComponent.AGENT_ALL;
-            if ( target.isNode || target.isLink ) {
-                this.originalTargetSelected = true;
-                this.selectedTarget = target;
-                this.makeFromToData();
-                this.changeDetector.detectChanges();
-            }
+            this.originalTargetSelected = true;
+            this.selectedTarget = target;
+            this.makeFromToData();
+            this.changeDetector.detectChanges();
         });
-        this.storeHelperService.getServerMapTargetSelectedByList(this.unsubscribe).subscribe((target: any) => {
-            if (this.selectedTarget && this.selectedTarget.isNode && this.selectedTarget.isMerged === false) {
-                this.selectedAgent = SideBarTitleContainerComponent.AGENT_ALL;
-                this.originalTargetSelected = this.selectedTarget.node[0] === target.key;
-                this.changeDetector.detectChanges();
-            }
+
+        this.storeHelperService.getServerMapTargetSelectedByList(this.unsubscribe).pipe(
+            filter(() => this.selectedTarget && this.selectedTarget.isNode && !this.selectedTarget.isMerged)
+        ).subscribe((target: any) => {
+            this.selectedAgent = SideBarTitleContainerComponent.AGENT_ALL;
+            this.originalTargetSelected = this.selectedTarget.node[0] === target.key;
+            this.changeDetector.detectChanges();
         });
     }
     makeFromToData() {

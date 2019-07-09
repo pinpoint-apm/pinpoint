@@ -3,7 +3,7 @@
         <img *ngIf="toAppData" height="25px" [src]="getIconPath(toAppData?.serviceType)" (error)="onLoadError($event.target)"> <span>{{toAppData?.applicationName}}</span>
     </div>
     <mat-form-field class="l-select-agent" *ngIf="showAgentList()">
-        <mat-select [(value)]="selectedAgent" (selectionChange)="onSelectionChange($event)">
+        <mat-select [(value)]="selectedAgent" (selectionChange)="onSelectionChange($event.value)">
             <mat-option *ngFor="let agentName of toAppData.agentList" value="{{agentName}}">{{agentName}}</mat-option>
         </mat-select>
     </mat-form-field>
