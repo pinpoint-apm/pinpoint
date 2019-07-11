@@ -38,7 +38,7 @@ public class StatReceiverConfigurationTest {
         assertEquals(Boolean.FALSE, configuration.isGrpcWorkerMonitorEnable());
         assertEquals(2, configuration.getGrpcServerOption().getKeepAliveTime());
         assertEquals(2, configuration.getGrpcServerOption().getKeepAliveTimeout());
-        assertEquals(2, configuration.getGrpcServerOption().getPermitKeepAliveTimeout());
+        assertEquals(2, configuration.getGrpcServerOption().getPermitKeepAliveTime());
         assertEquals(2, configuration.getGrpcServerOption().getMaxConnectionIdle());
         assertEquals(2, configuration.getGrpcServerOption().getMaxConcurrentCallsPerConnection());
         assertEquals(2, configuration.getGrpcServerOption().getMaxInboundMessageSize());
@@ -47,9 +47,5 @@ public class StatReceiverConfigurationTest {
 
         assertEquals(2, configuration.getGrpcServerOption().getHandshakeTimeout());
         assertEquals(2, configuration.getGrpcServerOption().getReceiveBufferSize());
-        assertEquals(2, configuration.getGrpcServerOption().getBacklogQueueSize());
-        assertEquals(2, configuration.getGrpcServerOption().getConnectTimeout());
-        assertEquals(2, configuration.getGrpcServerOption().getWriteBufferHighWaterMark());
-        assertEquals(2, configuration.getGrpcServerOption().getWriteBufferLowWaterMark());
     }
 }
