@@ -28,7 +28,7 @@ public class ClientOptionTest {
         clientOptionBuilder.setKeepAliveTime(1);
         clientOptionBuilder.setKeepAliveTimeout(1);
 
-        clientOptionBuilder.setFlowControlWindow(1);
+        clientOptionBuilder.setFlowControlWindow(65535);
         clientOptionBuilder.setMaxHeaderListSize(1);
 
         clientOptionBuilder.setMaxInboundMessageSize(1);
@@ -42,7 +42,7 @@ public class ClientOptionTest {
         assertEquals(1, clientOption.getKeepAliveTimeout());
         assertEquals(false, clientOption.isKeepAliveWithoutCalls());
         assertEquals(-1, clientOption.getIdleTimeoutMillis());
-        assertEquals(1, clientOption.getFlowControlWindow());
+        assertEquals(65535, clientOption.getFlowControlWindow());
         assertEquals(1, clientOption.getMaxHeaderListSize());
         assertEquals(1, clientOption.getMaxInboundMessageSize());
         assertEquals(1, clientOption.getConnectTimeout());

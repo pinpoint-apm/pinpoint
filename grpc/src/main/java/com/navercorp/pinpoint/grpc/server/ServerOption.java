@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.grpc.server;
 
+import com.navercorp.pinpoint.common.util.Assert;
+
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -25,7 +27,7 @@ public class ServerOption {
     public static final int DEFAULT_FLOW_CONTROL_WINDOW = 1048576; // 1MiB
     public static final long DEFAULT_KEEPALIVE_TIME = TimeUnit.MINUTES.toMillis(5);
     public static final long DEFAULT_KEEPALIVE_TIMEOUT = TimeUnit.MINUTES.toMillis(30);
-    public static final long DEFAULT_PERMIT_KEEPALIVE_TIMEOUT = TimeUnit.MINUTES.toMillis(3);
+    public static final long DEFAULT_PERMIT_KEEPALIVE_TIME = TimeUnit.MINUTES.toMillis(3);
     public static final boolean PERMIT_KEEPALIVE_WITHOUT_CALLS_DISABLE = Boolean.FALSE;
 
     public static final long DEFAULT_MAX_CONNECTION_IDLE = TimeUnit.SECONDS.toMillis(10); // 10s
@@ -38,17 +40,13 @@ public class ServerOption {
 
     public static final long DEFAULT_HANDSHAKE_TIMEOUT = TimeUnit.SECONDS.toMillis(120);
     public static final int DEFAULT_RECEIVE_BUFFER_SIZE = 64 * 1024;
-    public static final int DEFAULT_BACKLOG_QUEUE_SIZE = 200;
-    public static final int DEFAULT_CONNECT_TIMEOUT = 3000;
-    public static final int DEFAULT_WRITE_BUFFER_HIGH_WATER_MARK = 32 * 1024 * 1024;
-    public static final int DEFAULT_WRITE_BUFFER_LOW_WATER_MARK = 16 * 1024 * 1024;
 
     // Sets a custom keepalive time, the delay time for sending next keepalive ping.
     private final long keepAliveTime;
     // Sets a custom keepalive timeout, the timeout for keepalive ping requests.
     private final long keepAliveTimeout;
     // Specify the most aggressive keep-alive time clients are permitted to configure.
-    private final long permitKeepAliveTimeout;
+    private final long permitKeepAliveTime;
     // Sets whether to allow clients to send keep-alive HTTP/2 PINGs even if there are no outstanding RPCs on the connection. Defaults to {@code false}.
     private final boolean permitKeepAliveWithoutCalls = PERMIT_KEEPALIVE_WITHOUT_CALLS_DISABLE;
 
@@ -72,15 +70,11 @@ public class ServerOption {
 
     // ChannelOption
     private final int receiveBufferSize;
-    private final int backlogQueueSize;
-    private final int connectTimeout;
-    private final int writeBufferHighWaterMark;
-    private final int writeBufferLowWaterMark;
 
-    ServerOption(long keepAliveTime, long keepAliveTimeout, long permitKeepAliveTimeout, long maxConnectionIdle, int maxConcurrentCallsPerConnection, int maxInboundMessageSize, int maxHeaderListSize, long handshakeTimeout, int flowControlWindow, int receiveBufferSize, int backlogQueueSize, int connectTimeout, int writeBufferHighWaterMark, int writeBufferLowWaterMark) {
+    ServerOption(long keepAliveTime, long keepAliveTimeout, long permitKeepAliveTime, long maxConnectionIdle, int maxConcurrentCallsPerConnection, int maxInboundMessageSize, int maxHeaderListSize, long handshakeTimeout, int flowControlWindow, int receiveBufferSize) {
         this.keepAliveTime = keepAliveTime;
         this.keepAliveTimeout = keepAliveTimeout;
-        this.permitKeepAliveTimeout = permitKeepAliveTimeout;
+        this.permitKeepAliveTime = permitKeepAliveTime;
         this.maxConnectionIdle = maxConnectionIdle;
         this.maxConcurrentCallsPerConnection = maxConcurrentCallsPerConnection;
         this.maxInboundMessageSize = maxInboundMessageSize;
@@ -88,10 +82,6 @@ public class ServerOption {
         this.handshakeTimeout = handshakeTimeout;
         this.flowControlWindow = flowControlWindow;
         this.receiveBufferSize = receiveBufferSize;
-        this.backlogQueueSize = backlogQueueSize;
-        this.connectTimeout = connectTimeout;
-        this.writeBufferHighWaterMark = writeBufferHighWaterMark;
-        this.writeBufferLowWaterMark = writeBufferLowWaterMark;
     }
 
     public long getKeepAliveTime() {
@@ -102,8 +92,8 @@ public class ServerOption {
         return keepAliveTimeout;
     }
 
-    public long getPermitKeepAliveTimeout() {
-        return permitKeepAliveTimeout;
+    public long getPermitKeepAliveTime() {
+        return permitKeepAliveTime;
     }
 
     public boolean isPermitKeepAliveWithoutCalls() {
@@ -146,28 +136,12 @@ public class ServerOption {
         return receiveBufferSize;
     }
 
-    public int getBacklogQueueSize() {
-        return backlogQueueSize;
-    }
-
-    public int getConnectTimeout() {
-        return connectTimeout;
-    }
-
-    public int getWriteBufferHighWaterMark() {
-        return writeBufferHighWaterMark;
-    }
-
-    public int getWriteBufferLowWaterMark() {
-        return writeBufferLowWaterMark;
-    }
-
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("ServerOption{");
         sb.append("keepAliveTime=").append(keepAliveTime);
         sb.append(", keepAliveTimeout=").append(keepAliveTimeout);
-        sb.append(", permitKeepAliveTimeout=").append(permitKeepAliveTimeout);
+        sb.append(", permitKeepAliveTime=").append(permitKeepAliveTime);
         sb.append(", permitKeepAliveWithoutCalls=").append(permitKeepAliveWithoutCalls);
         sb.append(", maxConnectionIdle=").append(maxConnectionIdle);
         sb.append(", maxConnectionAge=").append(maxConnectionAge);
@@ -178,10 +152,6 @@ public class ServerOption {
         sb.append(", handshakeTimeout=").append(handshakeTimeout);
         sb.append(", flowControlWindow=").append(flowControlWindow);
         sb.append(", receiveBufferSize=").append(receiveBufferSize);
-        sb.append(", backlogQueueSize=").append(backlogQueueSize);
-        sb.append(", connectTimeout=").append(connectTimeout);
-        sb.append(", writeBufferHighWaterMark=").append(writeBufferHighWaterMark);
-        sb.append(", writeBufferLowWaterMark=").append(writeBufferLowWaterMark);
         sb.append('}');
         return sb.toString();
     }
@@ -192,7 +162,7 @@ public class ServerOption {
         // Sets a custom keepalive timeout, the timeout for keepalive ping requests.
         private long keepAliveTimeout = DEFAULT_KEEPALIVE_TIMEOUT;
         // Specify the most aggressive keep-alive time clients are permitted to configure.
-        private long permitKeepAliveTimeout = DEFAULT_PERMIT_KEEPALIVE_TIMEOUT;
+        private long permitKeepAliveTime = DEFAULT_PERMIT_KEEPALIVE_TIME;
 
         // Sets a custom max connection idle time, connection being idle for longer than which will be gracefully terminated.
         private long maxConnectionIdle = DEFAULT_MAX_CONNECTION_IDLE;
@@ -209,70 +179,60 @@ public class ServerOption {
         private int flowControlWindow = DEFAULT_FLOW_CONTROL_WINDOW;
 
         private int receiveBufferSize = DEFAULT_RECEIVE_BUFFER_SIZE;
-        private int backlogQueueSize = DEFAULT_BACKLOG_QUEUE_SIZE;
-        private int connectTimeout = DEFAULT_CONNECT_TIMEOUT;
-        private int writeBufferHighWaterMark = DEFAULT_WRITE_BUFFER_HIGH_WATER_MARK;
-        private int writeBufferLowWaterMark = DEFAULT_WRITE_BUFFER_LOW_WATER_MARK;
 
         public ServerOption build() {
-            final ServerOption serverOption = new ServerOption(keepAliveTime, keepAliveTimeout, permitKeepAliveTimeout, maxConnectionIdle, maxConcurrentCallsPerConnection, maxInboundMessageSize, maxHeaderListSize, handshakeTimeout, flowControlWindow, receiveBufferSize, backlogQueueSize, connectTimeout, writeBufferHighWaterMark, writeBufferLowWaterMark);
+            final ServerOption serverOption = new ServerOption(keepAliveTime, keepAliveTimeout, permitKeepAliveTime, maxConnectionIdle, maxConcurrentCallsPerConnection, maxInboundMessageSize, maxHeaderListSize, handshakeTimeout, flowControlWindow, receiveBufferSize);
             return serverOption;
         }
 
         public void setKeepAliveTime(long keepAliveTime) {
+            Assert.isTrue(keepAliveTime > 0, "keepAliveTime " + keepAliveTime + " must be positive");
             this.keepAliveTime = keepAliveTime;
         }
 
         public void setKeepAliveTimeout(long keepAliveTimeout) {
+            Assert.isTrue(keepAliveTimeout > 0, "keepAliveTimeout " + keepAliveTimeout + " must be positive");
             this.keepAliveTimeout = keepAliveTimeout;
         }
 
-        public void setPermitKeepAliveTimeout(long permitKeepAliveTimeout) {
-            this.permitKeepAliveTimeout = permitKeepAliveTimeout;
+        public void setPermitKeepAliveTime(long permitKeepAliveTime) {
+            Assert.isTrue(permitKeepAliveTime >= 0, "permitKeepAliveTime " + permitKeepAliveTime + " must be non-negative");
+            this.permitKeepAliveTime = permitKeepAliveTime;
         }
 
         public void setMaxConnectionIdle(long maxConnectionIdle) {
+            Assert.isTrue(maxConnectionIdle > 0, "maxConnectionIdle " + maxConnectionIdle + " must be positive");
             this.maxConnectionIdle = maxConnectionIdle;
         }
 
         public void setMaxConcurrentCallsPerConnection(int maxConcurrentCallsPerConnection) {
+            Assert.isTrue(maxConcurrentCallsPerConnection > 0, "maxConcurrentCallsPerConnection " + maxConcurrentCallsPerConnection + " must be positive");
             this.maxConcurrentCallsPerConnection = maxConcurrentCallsPerConnection;
         }
 
         public void setMaxInboundMessageSize(int maxInboundMessageSize) {
+            Assert.isTrue(maxInboundMessageSize > 0, "maxInboundMessageSize " + maxInboundMessageSize + " must be positive");
             this.maxInboundMessageSize = maxInboundMessageSize;
         }
 
         public void setMaxHeaderListSize(int maxHeaderListSize) {
+            Assert.isTrue(maxHeaderListSize > 0, "maxHeaderListSize " + maxHeaderListSize + " must be positive");
             this.maxHeaderListSize = maxHeaderListSize;
         }
 
         public void setHandshakeTimeout(long handshakeTimeout) {
+            Assert.isTrue(handshakeTimeout > 0, "handshakeTimeout " + handshakeTimeout + " must be positive");
             this.handshakeTimeout = handshakeTimeout;
         }
 
         public void setFlowControlWindow(int flowControlWindow) {
+            Assert.isTrue(flowControlWindow > 0, "flowControlWindow " + flowControlWindow + " must be positive");
             this.flowControlWindow = flowControlWindow;
         }
 
         public void setReceiveBufferSize(int receiveBufferSize) {
+            Assert.isTrue(receiveBufferSize > 0, "receiveBufferSize " + receiveBufferSize + " must be positive");
             this.receiveBufferSize = receiveBufferSize;
-        }
-
-        public void setBacklogQueueSize(int backlogQueueSize) {
-            this.backlogQueueSize = backlogQueueSize;
-        }
-
-        public void setConnectTimeout(int connectTimeout) {
-            this.connectTimeout = connectTimeout;
-        }
-
-        public void setWriteBufferHighWaterMark(int writeBufferHighWaterMark) {
-            this.writeBufferHighWaterMark = writeBufferHighWaterMark;
-        }
-
-        public void setWriteBufferLowWaterMark(int writeBufferLowWaterMark) {
-            this.writeBufferLowWaterMark = writeBufferLowWaterMark;
         }
     }
 }
