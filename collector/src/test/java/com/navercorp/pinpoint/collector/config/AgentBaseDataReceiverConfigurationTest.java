@@ -38,7 +38,7 @@ public class AgentBaseDataReceiverConfigurationTest {
         assertEquals(Boolean.FALSE, configuration.isGrpcWorkerMonitorEnable());
         assertEquals(1, configuration.getGrpcServerOption().getKeepAliveTime());
         assertEquals(1, configuration.getGrpcServerOption().getKeepAliveTimeout());
-        assertEquals(1, configuration.getGrpcServerOption().getPermitKeepAliveTimeout());
+        assertEquals(1, configuration.getGrpcServerOption().getPermitKeepAliveTime());
         assertEquals(1, configuration.getGrpcServerOption().getMaxConnectionIdle());
         assertEquals(1, configuration.getGrpcServerOption().getMaxConcurrentCallsPerConnection());
         assertEquals(1, configuration.getGrpcServerOption().getMaxInboundMessageSize());
@@ -47,9 +47,5 @@ public class AgentBaseDataReceiverConfigurationTest {
 
         assertEquals(1, configuration.getGrpcServerOption().getHandshakeTimeout());
         assertEquals(1, configuration.getGrpcServerOption().getReceiveBufferSize());
-        assertEquals(1, configuration.getGrpcServerOption().getBacklogQueueSize());
-        assertEquals(1, configuration.getGrpcServerOption().getConnectTimeout());
-        assertEquals(1, configuration.getGrpcServerOption().getWriteBufferHighWaterMark());
-        assertEquals(1, configuration.getGrpcServerOption().getWriteBufferLowWaterMark());
     }
 }
