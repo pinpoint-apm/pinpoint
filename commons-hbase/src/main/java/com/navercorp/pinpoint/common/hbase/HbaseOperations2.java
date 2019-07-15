@@ -66,6 +66,7 @@ public interface HbaseOperations2 {
     <T> T get(TableName tableName, final byte[] rowName, final byte[] familyName, final byte[] qualifier, final RowMapper<T> mapper);
     <T> T get(TableName tableName, final Get get, final RowMapper<T> mapper);
     <T> List<T> get(TableName tableName, final List<Get> get, final RowMapper<T> mapper);
+    <T> List<T> get(TableName tableName, final List<Get> get, final List<RowMapper<T>> mapper);
 
     void put(TableName tableName, final byte[] rowName, final byte[] familyName, final byte[] qualifier, final byte[] value);
     void put(TableName tableName, final byte[] rowName, final byte[] familyName, final byte[] qualifier, final Long timestamp, final byte[] value);

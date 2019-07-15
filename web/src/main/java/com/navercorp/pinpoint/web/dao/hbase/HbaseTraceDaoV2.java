@@ -4,11 +4,18 @@ import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
+import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyDecoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyEncoder;
+import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanDecoderV0;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanEncoder;
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.TransactionId;
 import com.navercorp.pinpoint.web.dao.TraceDao;
 import com.navercorp.pinpoint.web.mapper.CellTraceMapper;
+import com.navercorp.pinpoint.web.mapper.SpanMapperV2;
+import com.navercorp.pinpoint.web.mapper.TargetSpanDecoder;
+import com.navercorp.pinpoint.web.vo.GetTraceInfo;
+import com.navercorp.pinpoint.web.vo.SpanHint;
 
 import com.google.common.collect.Lists;
 import org.apache.commons.collections.CollectionUtils;
@@ -25,6 +32,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
+import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -44,9 +52,11 @@ public class HbaseTraceDaoV2 extends AbstractHbaseDao implements TraceDao {
     @Qualifier("traceRowKeyEncoderV2")
     private RowKeyEncoder<TransactionId> rowKeyEncoder;
 
+    @Autowired
+    @Qualifier("traceRowKeyDecoderV2")
+    private RowKeyDecoder<TransactionId> rowKeyDecoder;
 
     private RowMapper<List<SpanBo>> spanMapperV2;
-
 
     @Value("#{pinpointWebProps['web.hbase.selectSpans.limit'] ?: 500}")
     private int selectSpansLimit;
@@ -56,15 +66,15 @@ public class HbaseTraceDaoV2 extends AbstractHbaseDao implements TraceDao {
 
     private final Filter spanFilter = createSpanQualifierFilter();
 
-
-    @Autowired
-    @Qualifier("spanMapperV2")
-    public void setSpanMapperV2(RowMapper<List<SpanBo>> spanMapperV2) {
+    @PostConstruct
+    private void setup() {
+        SpanMapperV2 spanMapperV2 = new SpanMapperV2(rowKeyDecoder);
         final Logger logger = LoggerFactory.getLogger(spanMapperV2.getClass());
         if (logger.isDebugEnabled()) {
-            spanMapperV2 = CellTraceMapper.wrap(spanMapperV2);
+            this.spanMapperV2 = CellTraceMapper.wrap(spanMapperV2);
+        } else {
+            this.spanMapperV2 = spanMapperV2;
         }
-        this.spanMapperV2 = spanMapperV2;
     }
 
     @Override
@@ -80,18 +90,17 @@ public class HbaseTraceDaoV2 extends AbstractHbaseDao implements TraceDao {
 
 
     @Override
-    public List<List<SpanBo>> selectSpans(List<TransactionId> transactionIdList) {
-        return selectSpans(transactionIdList, selectSpansLimit);
+    public List<List<SpanBo>> selectSpans(List<GetTraceInfo> getTraceInfoList) {
+        return selectSpans(getTraceInfoList, selectSpansLimit);
     }
 
-    List<List<SpanBo>> selectSpans(List<TransactionId> transactionIdList, int eachPartitionSize) {
-        if (CollectionUtils.isEmpty(transactionIdList)) {
+    List<List<SpanBo>> selectSpans(List<GetTraceInfo> getTraceInfoList, int eachPartitionSize) {
+        if (CollectionUtils.isEmpty(getTraceInfoList)) {
             return Collections.emptyList();
         }
 
-        List<List<TransactionId>> splitTransactionIdList = partition(transactionIdList, eachPartitionSize);
-
-        return partitionSelect(splitTransactionIdList, getColumnFamilyName(), spanFilter);
+        List<List<GetTraceInfo>> partitionGetTraceInfoList = partition(getTraceInfoList, eachPartitionSize);
+        return partitionSelect(partitionGetTraceInfoList, getColumnFamilyName(), spanFilter);
     }
 
     @Override
@@ -104,18 +113,21 @@ public class HbaseTraceDaoV2 extends AbstractHbaseDao implements TraceDao {
             return Collections.emptyList();
         }
 
-        List<List<TransactionId>> partitionTransactionIdList = partition(transactionIdList, eachPartitionSize);
+        List<GetTraceInfo> getTraceInfoList = new ArrayList<>(transactionIdList.size());
+        for (TransactionId transactionId : transactionIdList) {
+            getTraceInfoList.add(new GetTraceInfo(transactionId));
+        }
 
-        return partitionSelect(partitionTransactionIdList, getColumnFamilyName(), null);
+        List<List<GetTraceInfo>> partitionGetTraceInfoList = partition(getTraceInfoList, eachPartitionSize);
+        return partitionSelect(partitionGetTraceInfoList, getColumnFamilyName(), null);
     }
 
-
-    private List<List<TransactionId>> partition(List<TransactionId> transactionIdList, int maxTransactionIdListSize) {
-        return Lists.partition(transactionIdList, maxTransactionIdListSize);
+    private List<List<GetTraceInfo>> partition(List<GetTraceInfo> getTraceInfoList, int maxTransactionIdListSize) {
+        return Lists.partition(getTraceInfoList, maxTransactionIdListSize);
     }
 
-    private List<List<SpanBo>> partitionSelect(List<List<TransactionId>> partitionTransactionIdList, byte[] columnFamily, Filter filter) {
-        if (CollectionUtils.isEmpty(partitionTransactionIdList)) {
+    private List<List<SpanBo>> partitionSelect(List<List<GetTraceInfo>> partitionGetTraceInfoList, byte[] columnFamily, Filter filter) {
+        if (CollectionUtils.isEmpty(partitionGetTraceInfoList)) {
             return Collections.emptyList();
         }
         if (columnFamily == null) {
@@ -123,30 +135,66 @@ public class HbaseTraceDaoV2 extends AbstractHbaseDao implements TraceDao {
         }
 
         List<List<SpanBo>> spanBoList = new ArrayList<>();
-        for (List<TransactionId> transactionIdList : partitionTransactionIdList) {
-            List<List<SpanBo>> partitionSpanList = select0(transactionIdList, columnFamily, filter);
-            spanBoList.addAll(partitionSpanList);
+        for (List<GetTraceInfo> getTraceInfoList : partitionGetTraceInfoList) {
+            List<List<SpanBo>> result = bulkSelect(getTraceInfoList, columnFamily, filter);
+            spanBoList.addAll(result);
         }
         return spanBoList;
     }
 
-    private List<List<SpanBo>> select0(List<TransactionId> transactionIdList, byte[] columnFamily, Filter filter) {
-        if (CollectionUtils.isEmpty(transactionIdList)) {
+    private List<List<SpanBo>> bulkSelect(List<GetTraceInfo> getTraceInfoList, byte[] columnFamily, Filter filter) {
+        if (CollectionUtils.isEmpty(getTraceInfoList)) {
+            return Collections.emptyList();
+        }
+        Assert.requireNonNull(columnFamily, "columnFamily must not be null");
+
+        List<Get> getList = createGetList(getTraceInfoList, columnFamily, filter);
+        List<RowMapper<List<SpanBo>>> spanMapperList = createSpanMapperList(getTraceInfoList);
+        return bulkSelect0(getList, spanMapperList);
+    }
+
+    private List<Get> createGetList(List<GetTraceInfo> getTraceInfoList, byte[] columnFamily, Filter filter) {
+        if (CollectionUtils.isEmpty(getTraceInfoList)) {
             return Collections.emptyList();
         }
 
-        final List<Get> multiGet = new ArrayList<>(transactionIdList.size());
-        for (TransactionId transactionId : transactionIdList) {
-            final Get get = createGet(transactionId, columnFamily, filter);
-            multiGet.add(get);
+        final List<Get> getList = new ArrayList<>(getTraceInfoList.size());
+        for (GetTraceInfo getTraceInfo : getTraceInfoList) {
+            final Get get = createGet(getTraceInfo.getTransactionId(), columnFamily, filter);
+            getList.add(get);
+        }
+        return getList;
+    }
+
+    private List<RowMapper<List<SpanBo>>> createSpanMapperList(List<GetTraceInfo> getTraceInfoList) {
+        if (CollectionUtils.isEmpty(getTraceInfoList)) {
+            return Collections.emptyList();
+        }
+
+        final List<RowMapper<List<SpanBo>>> rowMapperList = new ArrayList<>(getTraceInfoList.size());
+        for (GetTraceInfo getTraceInfo : getTraceInfoList) {
+            SpanHint hint = getTraceInfo.getHint();
+            if (hint.isSet()) {
+                TargetSpanDecoder targetSpanDecoder = new TargetSpanDecoder(new SpanDecoderV0(), getTraceInfo);
+                final SpanMapperV2 spanMapperV2 = new SpanMapperV2(rowKeyDecoder, targetSpanDecoder);
+                rowMapperList.add(spanMapperV2);
+            } else {
+                rowMapperList.add(spanMapperV2);
+            }
+        }
+        return rowMapperList;
+    }
+
+    private List<List<SpanBo>> bulkSelect0(List<Get> multiGet, List<RowMapper<List<SpanBo>>> rowMapperList) {
+        if (CollectionUtils.isEmpty(multiGet)) {
+            return Collections.emptyList();
         }
 
         TableName traceTableName = getTableName();
-        return template2.get(traceTableName, multiGet, spanMapperV2);
+        return template2.get(traceTableName, multiGet, rowMapperList);
     }
 
     private Get createGet(TransactionId transactionId, byte[] columnFamily, Filter filter) {
-
         byte[] transactionIdRowKey = rowKeyEncoder.encodeRowKey(transactionId);
         final Get get = new Get(transactionIdRowKey);
 
@@ -157,10 +205,9 @@ public class HbaseTraceDaoV2 extends AbstractHbaseDao implements TraceDao {
         return get;
     }
 
-
     public QualifierFilter createSpanQualifierFilter() {
         byte indexPrefix = SpanEncoder.TYPE_SPAN;
-        BinaryPrefixComparator prefixComparator = new BinaryPrefixComparator(new byte[] {indexPrefix});
+        BinaryPrefixComparator prefixComparator = new BinaryPrefixComparator(new byte[]{indexPrefix});
         QualifierFilter qualifierPrefixFilter = new QualifierFilter(CompareFilter.CompareOp.EQUAL, prefixComparator);
         return qualifierPrefixFilter;
     }
