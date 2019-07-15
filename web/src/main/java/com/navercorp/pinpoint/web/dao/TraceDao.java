@@ -21,6 +21,7 @@ import java.util.List;
 
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.util.TransactionId;
+import com.navercorp.pinpoint.web.vo.GetTraceInfo;
 
 /**
  * @author emeroad
@@ -29,7 +30,7 @@ public interface TraceDao {
 
     List<SpanBo> selectSpan(TransactionId transactionId);
 
-    List<List<SpanBo>> selectSpans(List<TransactionId> transactionIdList);
+    List<List<SpanBo>> selectSpans(List<GetTraceInfo> getTraceInfoList);
     
     List<List<SpanBo>> selectAllSpans(List<TransactionId> transactionIdList);
 

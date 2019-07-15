@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.common.hbase;
 import com.google.common.collect.Lists;
 import com.navercorp.pinpoint.common.hbase.parallel.ParallelResultScanner;
 import com.navercorp.pinpoint.common.hbase.parallel.ScanTaskException;
+import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.common.util.ExecutorFactory;
 import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
 import com.navercorp.pinpoint.common.util.StopWatch;
@@ -302,6 +303,30 @@ public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, I
                 Result[] result = table.get(getList);
                 List<T> list = new ArrayList<>(result.length);
                 for (int i = 0; i < result.length; i++) {
+                    T t = mapper.mapRow(result[i], i);
+                    list.add(t);
+                }
+                return list;
+            }
+        });
+    }
+
+    @Override
+    public <T> List<T> get(TableName tableName, List<Get> getList, List<RowMapper<T>> mapperList) {
+        assertAccessAvailable();
+
+        int getListSize = CollectionUtils.nullSafeSize(getList);
+        int mapperListSize = CollectionUtils.nullSafeSize(mapperList);
+        com.navercorp.pinpoint.common.util.Assert.isTrue(getListSize > 0, "getListSize must be 'getListSize > 0'");
+        com.navercorp.pinpoint.common.util.Assert.isTrue(getListSize == mapperListSize, "getListSize and mapperListSize must be same");
+
+        return execute(tableName, new TableCallback<List<T>>() {
+            @Override
+            public List<T> doInTable(Table table) throws Throwable {
+                Result[] result = table.get(getList);
+                List<T> list = new ArrayList<>(result.length);
+                for (int i = 0; i < result.length; i++) {
+                    RowMapper<T> mapper = mapperList.get(i);
                     T t = mapper.mapRow(result[i], i);
                     list.add(t);
                 }

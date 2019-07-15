@@ -29,6 +29,7 @@ import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyDecoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanDecoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanDecoderV0;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanDecodingContext;
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.TransactionId;
 import com.navercorp.pinpoint.io.SpanVersion;
 
@@ -42,9 +43,6 @@ import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -53,22 +51,21 @@ import java.util.List;
 /**
  * @author emeroad
  */
-@Component
 public class SpanMapperV2 implements RowMapper<List<SpanBo>> {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final SpanDecoder spanDecoder = new SpanDecoderV0();
+    private final SpanDecoder spanDecoder;
 
     private final RowKeyDecoder<TransactionId> rowKeyDecoder;
 
-    @Autowired
-    public SpanMapperV2(@Qualifier("traceRowKeyDecoderV2") RowKeyDecoder<TransactionId> rowKeyDecoder) {
-        if (rowKeyDecoder == null) {
-            throw new NullPointerException("rowKeyDecoder must not be null");
-        }
+    public SpanMapperV2(RowKeyDecoder<TransactionId> rowKeyDecoder) {
+        this(rowKeyDecoder, new SpanDecoderV0());
+    }
 
-        this.rowKeyDecoder = rowKeyDecoder;
+    public SpanMapperV2(RowKeyDecoder<TransactionId> rowKeyDecoder, SpanDecoder spanDecoder) {
+        this.rowKeyDecoder = Assert.requireNonNull(rowKeyDecoder, "rowKeyDecoder must not be null");
+        this.spanDecoder = Assert.requireNonNull(spanDecoder, "spanDecoder must not be null");
     }
 
     @Override
