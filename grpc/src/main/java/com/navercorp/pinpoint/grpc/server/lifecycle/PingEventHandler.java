@@ -14,18 +14,15 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.grpc;
-
-import io.grpc.Attributes;
-import io.grpc.Metadata;
+package com.navercorp.pinpoint.grpc.server.lifecycle;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
-public interface HeaderFactory<H> {
+public interface PingEventHandler {
+    void connect();
 
-    H extract(Metadata headers);
+    void ping();
 
-    Metadata newHeader();
-
+    void close();
 }

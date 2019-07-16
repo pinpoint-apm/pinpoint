@@ -23,6 +23,7 @@ import com.google.protobuf.Empty;
 
 import com.navercorp.pinpoint.grpc.trace.PSpan;
 import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
+import com.navercorp.pinpoint.grpc.trace.PSpanMessage;
 import com.navercorp.pinpoint.grpc.trace.SpanGrpc;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
 
@@ -36,58 +37,53 @@ import static com.navercorp.pinpoint.grpc.MessageFormatUtils.debugLog;
  */
 public class SpanGrpcDataSender extends GrpcDataSender {
     private final SpanGrpc.SpanStub spanStub;
+    private final ExecutorAdaptor reconnectExecutor;
 
-    private volatile StreamObserver<PSpan> spanStream;
-    private final ReconnectJob spanStreamReconnectAction;
-
-    private volatile StreamObserver<PSpanChunk> spanChunkStream;
-    private final ReconnectJob spanChunkReconnectAction;
+    private volatile StreamObserver<PSpanMessage> spanStream;
+    private final Reconnector spanStreamReconnector;
 
     public SpanGrpcDataSender(String host, int port, int executorQueueSize, MessageConverter<GeneratedMessageV3> messageConverter, ChannelFactoryOption channelFactoryOption) {
         super(host, port, executorQueueSize, messageConverter, channelFactoryOption);
 
         this.spanStub = SpanGrpc.newStub(managedChannel);
-
-        spanStreamReconnectAction = new ExponentialBackoffReconnectJob() {
-            @Override
-            public void run() {
-                spanStream = newSpanStream();
-            }
-        };
-        this.spanStream = newSpanStream();
-
-        spanChunkReconnectAction = new ExponentialBackoffReconnectJob() {
-            @Override
-            public void run() {
-                spanChunkStream = newSpanChunkStream();
-            }
-        };
-        this.spanChunkStream = newSpanChunkStream();
+        this.reconnectExecutor = newReconnectExecutor();
+        {
+            final Runnable spanStreamReconnectJob = new Runnable() {
+                @Override
+                public void run() {
+                    spanStream = newSpanStream();
+                }
+            };
+            this.spanStreamReconnector = new ReconnectAdaptor(reconnectExecutor, spanStreamReconnectJob);
+            this.spanStream = newSpanStream();
+        }
     }
 
-    private StreamObserver<PSpan> newSpanStream() {
-        ResponseStreamObserver<PSpan, Empty> responseStreamObserver = new ResponseStreamObserver<PSpan, Empty>(name, reconnector, spanStreamReconnectAction);
+    private ExecutorAdaptor newReconnectExecutor() {
+        return new ExecutorAdaptor(GrpcDataSender.reconnectScheduler);
+    }
+
+    private StreamObserver<PSpanMessage> newSpanStream() {
+        StreamId spanId = StreamId.newStreamId("span");
+        ResponseStreamObserver<PSpanMessage, Empty> responseStreamObserver = new ResponseStreamObserver<PSpanMessage, Empty>(spanId, spanStreamReconnector);
         return spanStub.sendSpan(responseStreamObserver);
     }
 
-    private StreamObserver<PSpanChunk> newSpanChunkStream() {
-        ResponseStreamObserver<PSpanChunk, Empty> responseStreamObserver = new ResponseStreamObserver<PSpanChunk, Empty>(name, reconnector, spanChunkReconnectAction);
-        return spanStub.sendSpanChunk(responseStreamObserver);
-    }
-
     public boolean send0(Object data) {
-        final GeneratedMessageV3 spanMessage = messageConverter.toMessage(data);
+        final GeneratedMessageV3 message = messageConverter.toMessage(data);
         if (logger.isDebugEnabled()) {
-            logger.debug("message:{}", debugLog(spanMessage));
+            logger.debug("Send message={}", debugLog(message));
         }
-        if (spanMessage instanceof PSpanChunk) {
-            final PSpanChunk pSpan = (PSpanChunk) spanMessage;
-            spanChunkStream.onNext(pSpan);
+        if (message instanceof PSpanChunk) {
+            final PSpanChunk spanChunk = (PSpanChunk) message;
+            final PSpanMessage spanMessage = PSpanMessage.newBuilder().setSpanChunk(spanChunk).build();
+            spanStream.onNext(spanMessage);
             return true;
         }
-        if (spanMessage instanceof PSpan) {
-            final PSpan pSpan = (PSpan) spanMessage;
-            spanStream.onNext(pSpan);
+        if (message instanceof PSpan) {
+            final PSpan pSpan = (PSpan) message;
+            final PSpanMessage spanMessage = PSpanMessage.newBuilder().setSpan(pSpan).build();
+            spanStream.onNext(spanMessage);
             return true;
         }
         throw new IllegalStateException("unsupported message " + data);
@@ -97,11 +93,6 @@ public class SpanGrpcDataSender extends GrpcDataSender {
     public void stop() {
         logger.info("spanStream.close()");
         StreamUtils.close(this.spanStream);
-        logger.info("spanChunkStream.close()");
-        StreamUtils.close(this.spanChunkStream);
-
         super.stop();
     }
-
-
 }

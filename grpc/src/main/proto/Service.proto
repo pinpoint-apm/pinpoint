@@ -14,17 +14,14 @@ option java_outer_classname = "ServiceProto";
 package v1;
 
 service Span {
-    rpc SendSpan (stream PSpan) returns (google.protobuf.Empty) {
-    }
-
-    rpc SendSpanChunk (stream PSpanChunk) returns (google.protobuf.Empty) {
+    rpc SendSpan (stream PSpanMessage) returns (google.protobuf.Empty) {
     }
 }
 
 service Agent {
-    rpc SendAgentInfo (stream PAgentInfo) returns (google.protobuf.Empty) {
-    }
     rpc RequestAgentInfo (PAgentInfo) returns (PResult) {
+    }
+    rpc PingSession (stream PPing) returns (stream PPing) {
     }
 }
 
@@ -38,9 +35,7 @@ service Metadata {
 }
 
 service Stat {
-    rpc SendAgentStat (stream PAgentStat) returns (google.protobuf.Empty) {
-    }
-    rpc SendAgentStatBatch (stream PAgentStatBatch) returns (google.protobuf.Empty) {
+    rpc SendAgentStat (stream PStatMessage) returns (google.protobuf.Empty) {
     }
 }
 

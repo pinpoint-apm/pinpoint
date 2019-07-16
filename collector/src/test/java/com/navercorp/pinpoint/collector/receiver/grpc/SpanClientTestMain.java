@@ -25,10 +25,7 @@ public class SpanClientTestMain {
         SpanClientMock clientMock = new SpanClientMock("localhost", 9998);
         TimeUnit.SECONDS.sleep(10);
 
-        clientMock.span(10);
-        clientMock.span(10);
-        clientMock.spanChunk(10);
-        clientMock.spanChunk(10);
+        clientMock.span(9999999);
 
         TimeUnit.SECONDS.sleep(60);
         clientMock.stop();

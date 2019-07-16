@@ -29,7 +29,7 @@ import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcDetailedBo;
 import com.navercorp.pinpoint.common.server.bo.stat.ResponseTimeBo;
 import com.navercorp.pinpoint.common.server.bo.stat.TransactionBo;
-import com.navercorp.pinpoint.grpc.AgentHeaderFactory;
+import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.trace.PActiveTrace;
 import com.navercorp.pinpoint.grpc.trace.PAgentStat;
 import com.navercorp.pinpoint.grpc.trace.PAgentStatBatch;
@@ -86,7 +86,7 @@ public class GrpcAgentStatBatchMapper {
     @Autowired
     private GrpcDirectBufferBoMapper directBufferBoMapper;
 
-    public AgentStatBo map(final PAgentStatBatch agentStatBatch, final AgentHeaderFactory.Header header) {
+    public AgentStatBo map(final PAgentStatBatch agentStatBatch, final Header header) {
         if (agentStatBatch == null) {
             return null;
         }

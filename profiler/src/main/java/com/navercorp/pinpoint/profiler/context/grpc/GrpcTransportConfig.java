@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.profiler.context.grpc;
 
 import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.common.util.ByteSizeUnit;
 import com.navercorp.pinpoint.grpc.client.ClientOption;
 
 /**
@@ -27,96 +28,117 @@ public class GrpcTransportConfig {
 
     private static final String DEFAULT_IP = "127.0.0.1";
     private static final long DEFAULT_CLIENT_REQUEST_TIMEOUT = 6000;
+    private static final int DEFAULT_SPAN_SENDER_EXECUTOR_QUEUE_SIZE = 1000;
+    private static final int DEFAULT_STAT_SENDER_EXECUTOR_QUEUE_SIZE = 1000;
+    private static final int DEFAULT_AGENT_COLLECTOR_PORT = 9991;
+    private static final int DEFAULT_STAT_COLLECTOR_PORT = 9992;
+    private static final int DEFAULT_SPAN_COLLECTOR_PORT = 9993;
+    private static final int DEFAULT_AGENT_CHANNEL_EXECUTOR_QUEUE_SIZE = 1000;
+    private static final int DEFAULT_STAT_CHANNEL_EXECUTOR_QUEUE_SIZE = 1000;
+    private static final int DEFAULT_SPAN_CHANNEL_EXECUTOR_QUEUE_SIZE = 1000;
 
-    private String collectorAgentServerIp = DEFAULT_IP;
-    private int collectorAgentServerPort = 9991;
+    private String gentCollectorIp = DEFAULT_IP;
+    private int agentCollectorPort = DEFAULT_AGENT_COLLECTOR_PORT;
 
-    private String collectorStatServerIp = DEFAULT_IP;
-    private int collectorStatServerPort = 9992;
+    private String statCollectorIp = DEFAULT_IP;
+    private int statCollectorPort = DEFAULT_STAT_COLLECTOR_PORT;
 
-    private String collectorSpanServerIp = DEFAULT_IP;
-    private int collectorSpanServerPort = 9993;
+    private String spanCollectorIp = DEFAULT_IP;
+    private int spanCollectorPort = DEFAULT_SPAN_COLLECTOR_PORT;
 
     private ClientOption agentClientOption = new ClientOption.Builder().build();
     private ClientOption statClientOption = new ClientOption.Builder().build();
     private ClientOption spanClientOption = new ClientOption.Builder().build();
 
-    private long clientRequestTimeout = DEFAULT_CLIENT_REQUEST_TIMEOUT;
-    private int spanSenderExecutorQueueSize = 1024;
-    private int statSenderExecutorQueueSize = 1024;
+    private int spanSenderExecutorQueueSize = DEFAULT_SPAN_SENDER_EXECUTOR_QUEUE_SIZE;
+    private int statSenderExecutorQueueSize = DEFAULT_STAT_SENDER_EXECUTOR_QUEUE_SIZE;
+
+    private int agentChannelExecutorQueueSize = DEFAULT_AGENT_CHANNEL_EXECUTOR_QUEUE_SIZE;
+    private int statChannelExecutorQueueSize = DEFAULT_STAT_CHANNEL_EXECUTOR_QUEUE_SIZE;
+    private int spanChannelExecutorQueueSize = DEFAULT_SPAN_CHANNEL_EXECUTOR_QUEUE_SIZE;
+
+    private long agentRequestTimeout = DEFAULT_CLIENT_REQUEST_TIMEOUT;
+    private long spanRequestTimeout = DEFAULT_CLIENT_REQUEST_TIMEOUT;
+    private long statRequestTimeout = DEFAULT_CLIENT_REQUEST_TIMEOUT;
 
     public void read(ProfilerConfig profilerConfig) {
         final ProfilerConfig.ValueResolver placeHolderResolver = new DefaultProfilerConfig.PlaceHolderResolver();
-        // Agent Collector
-        this.collectorAgentServerIp = profilerConfig.readString("profiler.transport.grpc.collector.agent.ip", DEFAULT_IP, placeHolderResolver);
-        this.collectorAgentServerPort = profilerConfig.readInt("profiler.transport.grpc.collector.agent.port", 9991);
-        // Stat Collector
-        this.collectorStatServerIp = profilerConfig.readString("profiler.transport.grpc.collector.stat.ip", DEFAULT_IP, placeHolderResolver);
-
-        this.clientRequestTimeout = profilerConfig.readLong("profiler.transport.grpc.client.request.timeout", DEFAULT_CLIENT_REQUEST_TIMEOUT);
-        this.collectorStatServerPort = profilerConfig.readInt("profiler.transport.grpc.collector.stat.port", 9992);
-        // Span Collector
-        this.collectorSpanServerIp = profilerConfig.readString("profiler.transport.grpc.collector.span.ip", DEFAULT_IP, placeHolderResolver);
-        this.collectorSpanServerPort = profilerConfig.readInt("profiler.transport.grpc.collector.span.port", 9993);
-
-        this.statSenderExecutorQueueSize = profilerConfig.readInt("profiler.transport.grpc.stat.sender.executor.queue.size", 1024);
-        this.spanSenderExecutorQueueSize = profilerConfig.readInt("profiler.transport.grpc.span.sender.executor.queue.size", 1024);
-
-        // ClientOption
+        // Agent
+        this.gentCollectorIp = profilerConfig.readString("profiler.transport.grpc.agent.collector.ip", DEFAULT_IP, placeHolderResolver);
+        this.agentCollectorPort = profilerConfig.readInt("profiler.transport.grpc.agent.collector.port", DEFAULT_AGENT_COLLECTOR_PORT);
         this.agentClientOption = readAgentClientOption(profilerConfig);
+        this.agentRequestTimeout = profilerConfig.readLong("profiler.transport.grpc.agent.sender.request.timeout.millis", DEFAULT_CLIENT_REQUEST_TIMEOUT);
+        this.agentChannelExecutorQueueSize = profilerConfig.readInt("profiler.transport.grpc.agent.sender.channel.executor.queue.size", DEFAULT_AGENT_CHANNEL_EXECUTOR_QUEUE_SIZE);
+
+        // Stat
+        this.statCollectorIp = profilerConfig.readString("profiler.transport.grpc.stat.collector.ip", DEFAULT_IP, placeHolderResolver);
+        this.statCollectorPort = profilerConfig.readInt("profiler.transport.grpc.stat.collector.port", DEFAULT_STAT_COLLECTOR_PORT);
         this.statClientOption = readStatClientOption(profilerConfig);
+        this.statRequestTimeout = profilerConfig.readLong("profiler.transport.grpc.stat.sender.request.timeout.millis", DEFAULT_CLIENT_REQUEST_TIMEOUT);
+        this.statSenderExecutorQueueSize = profilerConfig.readInt("profiler.transport.grpc.stat.sender.executor.queue.size", DEFAULT_STAT_SENDER_EXECUTOR_QUEUE_SIZE);
+        this.statChannelExecutorQueueSize = profilerConfig.readInt("profiler.transport.grpc.stat.sender.channel.executor.queue.size", DEFAULT_STAT_CHANNEL_EXECUTOR_QUEUE_SIZE);
+
+        // Span
+        this.spanCollectorIp = profilerConfig.readString("profiler.transport.grpc.span.collector.ip", DEFAULT_IP, placeHolderResolver);
+        this.spanCollectorPort = profilerConfig.readInt("profiler.transport.grpc.span.collector.port", DEFAULT_SPAN_COLLECTOR_PORT);
         this.spanClientOption = readSpanClientOption(profilerConfig);
+        this.spanRequestTimeout = profilerConfig.readLong("profiler.transport.grpc.span.sender.request.timeout.millis", DEFAULT_CLIENT_REQUEST_TIMEOUT);
+        this.spanSenderExecutorQueueSize = profilerConfig.readInt("profiler.transport.grpc.span.sender.executor.queue.size", DEFAULT_SPAN_SENDER_EXECUTOR_QUEUE_SIZE);
+        this.spanChannelExecutorQueueSize = profilerConfig.readInt("profiler.transport.grpc.span.sender.channel.executor.queue.size", DEFAULT_SPAN_CHANNEL_EXECUTOR_QUEUE_SIZE);
     }
 
     private ClientOption readAgentClientOption(final ProfilerConfig profilerConfig) {
-        return readClientOption(profilerConfig, "profiler.transport.grpc.agent");
+        return readClientOption(profilerConfig, "profiler.transport.grpc.agent.sender");
     }
 
     private ClientOption readStatClientOption(final ProfilerConfig profilerConfig) {
-        return readClientOption(profilerConfig, "profiler.transport.grpc.stat");
+        return readClientOption(profilerConfig, "profiler.transport.grpc.stat.sender");
     }
 
     private ClientOption readSpanClientOption(final ProfilerConfig profilerConfig) {
-        return readClientOption(profilerConfig, "profiler.transport.grpc.span");
+        return readClientOption(profilerConfig, "profiler.transport.grpc.span.sender");
     }
 
     private ClientOption readClientOption(final ProfilerConfig profilerConfig, final String transportName) {
         final ClientOption.Builder builder = new ClientOption.Builder();
-        profilerConfig.readLong(transportName + ".keepalive.time", ClientOption.DEFAULT_KEEPALIVE_TIME);
-        profilerConfig.readLong(transportName + ".keepalive.timeout", ClientOption.DEFAULT_KEEPALIVE_TIMEOUT);
-        profilerConfig.readBoolean(transportName + ".keepalive.without-calls", ClientOption.DEFAULT_KEEPALIVE_WITHOUT_CALLS);
-        profilerConfig.readLong(transportName + ".idle.timeout", ClientOption.IDLE_TIMEOUT_MILLIS_DISABLE);
-        profilerConfig.readInt(transportName + ".headers.size.max", ClientOption.DEFAULT_MAX_HEADER_LIST_SIZE);
-        profilerConfig.readInt(transportName + ".message.inbound.size.max", ClientOption.DEFAULT_MAX_MESSAGE_SIZE);
-        profilerConfig.readInt(transportName + ".connect.timeout", ClientOption.DEFAULT_CONNECT_TIMEOUT);
-        profilerConfig.readInt(transportName + ".write.buffer.highwatermark", ClientOption.DEFAULT_WRITE_BUFFER_HIGH_WATER_MARK);
-        profilerConfig.readInt(transportName + ".write.buffer.lowwatermark", ClientOption.DEFAULT_WRITE_BUFFER_LOW_WATER_MARK);
+        builder.setKeepAliveTime(profilerConfig.readLong(transportName + ".keepalive.time.millis", ClientOption.DEFAULT_KEEPALIVE_TIME));
+        builder.setKeepAliveTimeout(profilerConfig.readLong(transportName + ".keepalive.timeout.millis", ClientOption.DEFAULT_KEEPALIVE_TIMEOUT));
+        builder.setConnectTimeout(profilerConfig.readInt(transportName + ".connect.timeout.millis", ClientOption.DEFAULT_CONNECT_TIMEOUT));
+        builder.setMaxHeaderListSize(readByteSize(profilerConfig, transportName + ".headers.size.max", ClientOption.DEFAULT_MAX_HEADER_LIST_SIZE));
+        builder.setMaxInboundMessageSize(readByteSize(profilerConfig, transportName + ".message.inbound.size.max", ClientOption.DEFAULT_MAX_MESSAGE_SIZE));
+        builder.setFlowControlWindow(readByteSize(profilerConfig, transportName + ".flow-control.window.size", ClientOption.DEFAULT_FLOW_CONTROL_WINDOW));
+        builder.setWriteBufferHighWaterMark(readByteSize(profilerConfig, transportName + ".write.buffer.highwatermark", ClientOption.DEFAULT_WRITE_BUFFER_HIGH_WATER_MARK));
+        builder.setWriteBufferLowWaterMark(readByteSize(profilerConfig, transportName + ".write.buffer.lowwatermark", ClientOption.DEFAULT_WRITE_BUFFER_LOW_WATER_MARK));
 
         return builder.build();
     }
 
-    public String getCollectorSpanServerIp() {
-        return collectorSpanServerIp;
+    private int readByteSize(final ProfilerConfig profilerConfig, final String propertyName, final int defaultValue) {
+        return (int) ByteSizeUnit.getByteSize(profilerConfig.readString(propertyName, ""), defaultValue);
     }
 
-    public int getCollectorSpanServerPort() {
-        return collectorSpanServerPort;
+    public String getAgentCollectorIp() {
+        return gentCollectorIp;
     }
 
-    public String getCollectorAgentServerIp() {
-        return collectorAgentServerIp;
+    public int getAgentCollectorPort() {
+        return agentCollectorPort;
     }
 
-    public int getCollectorAgentServerPort() {
-        return collectorAgentServerPort;
+    public String getStatCollectorIp() {
+        return statCollectorIp;
     }
 
-    public String getCollectorStatServerIp() {
-        return collectorStatServerIp;
+    public int getStatCollectorPort() {
+        return statCollectorPort;
     }
 
-    public int getCollectorStatServerPort() {
-        return collectorStatServerPort;
+    public String getSpanCollectorIp() {
+        return spanCollectorIp;
+    }
+
+    public int getSpanCollectorPort() {
+        return spanCollectorPort;
     }
 
     public int getSpanSenderExecutorQueueSize() {
@@ -127,8 +149,16 @@ public class GrpcTransportConfig {
         return statSenderExecutorQueueSize;
     }
 
-    public long getClientRequestTimeout() {
-        return clientRequestTimeout;
+    public long getAgentRequestTimeout() {
+        return agentRequestTimeout;
+    }
+
+    public long getStatRequestTimeout() {
+        return statRequestTimeout;
+    }
+
+    public long getSpanRequestTimeout() {
+        return spanRequestTimeout;
     }
 
     public ClientOption getAgentClientOption() {
@@ -143,21 +173,38 @@ public class GrpcTransportConfig {
         return spanClientOption;
     }
 
+    public int getAgentChannelExecutorQueueSize() {
+        return agentChannelExecutorQueueSize;
+    }
+
+    public int getStatChannelExecutorQueueSize() {
+        return statChannelExecutorQueueSize;
+    }
+
+    public int getSpanChannelExecutorQueueSize() {
+        return spanChannelExecutorQueueSize;
+    }
+
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("GrpcTransportConfig{");
-        sb.append("collectorAgentServerIp='").append(collectorAgentServerIp).append('\'');
-        sb.append(", collectorAgentServerPort=").append(collectorAgentServerPort);
-        sb.append(", collectorStatServerIp='").append(collectorStatServerIp).append('\'');
-        sb.append(", collectorStatServerPort=").append(collectorStatServerPort);
-        sb.append(", collectorSpanServerIp='").append(collectorSpanServerIp).append('\'');
-        sb.append(", collectorSpanServerPort=").append(collectorSpanServerPort);
+        sb.append("gentCollectorIp='").append(gentCollectorIp).append('\'');
+        sb.append(", agentCollectorPort=").append(agentCollectorPort);
+        sb.append(", statCollectorIp='").append(statCollectorIp).append('\'');
+        sb.append(", statCollectorPort=").append(statCollectorPort);
+        sb.append(", spanCollectorIp='").append(spanCollectorIp).append('\'');
+        sb.append(", spanCollectorPort=").append(spanCollectorPort);
         sb.append(", agentClientOption=").append(agentClientOption);
         sb.append(", statClientOption=").append(statClientOption);
         sb.append(", spanClientOption=").append(spanClientOption);
-        sb.append(", clientRequestTimeout=").append(clientRequestTimeout);
         sb.append(", spanSenderExecutorQueueSize=").append(spanSenderExecutorQueueSize);
         sb.append(", statSenderExecutorQueueSize=").append(statSenderExecutorQueueSize);
+        sb.append(", agentChannelExecutorQueueSize=").append(agentChannelExecutorQueueSize);
+        sb.append(", statChannelExecutorQueueSize=").append(statChannelExecutorQueueSize);
+        sb.append(", spanChannelExecutorQueueSize=").append(spanChannelExecutorQueueSize);
+        sb.append(", agentRequestTimeout=").append(agentRequestTimeout);
+        sb.append(", spanRequestTimeout=").append(spanRequestTimeout);
+        sb.append(", statRequestTimeout=").append(statRequestTimeout);
         sb.append('}');
         return sb.toString();
     }

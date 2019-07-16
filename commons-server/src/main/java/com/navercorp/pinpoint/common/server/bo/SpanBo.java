@@ -365,38 +365,41 @@ public class SpanBo implements Event, BasicSpan {
         this.loggingTransactionInfo = loggingTransactionInfo;
     }
 
-
     @Override
     public String toString() {
-        return "SpanBo{" +
-                "version=" + version +
-                ", agentId='" + agentId + '\'' +
-                ", applicationId='" + applicationId + '\'' +
-                ", agentStartTime=" + agentStartTime +
-                ", transactionId=" + transactionId +
-                ", spanId=" + spanId +
-                ", parentSpanId=" + parentSpanId +
-                ", parentApplicationId='" + parentApplicationId + '\'' +
-                ", parentApplicationServiceType=" + parentApplicationServiceType +
-                ", startTime=" + startTime +
-                ", elapsed=" + elapsed +
-                ", rpc='" + rpc + '\'' +
-                ", serviceType=" + serviceType +
-                ", endPoint='" + endPoint + '\'' +
-                ", apiId=" + apiId +
-                ", annotationBoList=" + annotationBoList +
-                ", flag=" + flag +
-                ", errCode=" + errCode +
-                ", spanEventBoList=" + spanEventBoList +
-                ", collectorAcceptTime=" + collectorAcceptTime +
-                ", hasException=" + hasException +
-                ", exceptionId=" + exceptionId +
-                ", exceptionMessage='" + exceptionMessage + '\'' +
-                ", exceptionClass='" + exceptionClass + '\'' +
-                ", applicationServiceType=" + applicationServiceType +
-                ", acceptorHost='" + acceptorHost + '\'' +
-                ", remoteAddr='" + remoteAddr + '\'' +
-                ", loggingTransactionInfo=" + loggingTransactionInfo +
-                '}';
+        final StringBuilder sb = new StringBuilder("SpanBo{");
+        sb.append("version=").append(version);
+        sb.append(", agentId='").append(agentId).append('\'');
+        sb.append(", applicationId='").append(applicationId).append('\'');
+        sb.append(", agentStartTime=").append(agentStartTime);
+        sb.append(", transactionId=").append(transactionId);
+        sb.append(", spanId=").append(spanId);
+        sb.append(", parentSpanId=").append(parentSpanId);
+        sb.append(", parentApplicationId='").append(parentApplicationId).append('\'');
+        sb.append(", parentApplicationServiceType=").append(parentApplicationServiceType);
+        sb.append(", startTime=").append(startTime);
+        sb.append(", elapsed=").append(elapsed);
+        sb.append(", rpc='").append(rpc).append('\'');
+        sb.append(", serviceType=").append(serviceType);
+        sb.append(", endPoint='").append(endPoint).append('\'');
+        sb.append(", apiId=").append(apiId);
+        sb.append(", annotationBoList=").append(annotationBoList);
+        sb.append(", flag=").append(flag);
+        sb.append(", errCode=").append(errCode);
+        sb.append(", spanEventBoList=").append(spanEventBoList);
+        sb.append(", spanChunkBoList=").append(spanChunkBoList);
+        sb.append(", collectorAcceptTime=").append(collectorAcceptTime);
+        sb.append(", hasException=").append(hasException);
+        if (hasException) {
+            sb.append(", exceptionId=").append(exceptionId);
+            sb.append(", exceptionMessage='").append(exceptionMessage).append('\'');
+        }
+        sb.append(", exceptionClass='").append(exceptionClass).append('\'');
+        sb.append(", applicationServiceType=").append(applicationServiceType);
+        sb.append(", acceptorHost='").append(acceptorHost).append('\'');
+        sb.append(", remoteAddr='").append(remoteAddr).append('\'');
+        sb.append(", loggingTransactionInfo=").append(loggingTransactionInfo);
+        sb.append('}');
+        return sb.toString();
     }
 }

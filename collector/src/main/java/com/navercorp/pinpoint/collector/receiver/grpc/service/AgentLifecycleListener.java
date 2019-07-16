@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.collector.receiver.grpc.service;
 
 import com.navercorp.pinpoint.collector.receiver.grpc.ShutdownEventListener;
 import com.navercorp.pinpoint.collector.util.ManagedAgentLifeCycle;
-import com.navercorp.pinpoint.grpc.server.lifecycle.Lifecycle;
+import com.navercorp.pinpoint.grpc.server.lifecycle.PingSession;
 import com.navercorp.pinpoint.grpc.server.lifecycle.LifecycleListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,18 +41,19 @@ public class AgentLifecycleListener implements LifecycleListener {
     }
 
     @Override
-    public void connect(Lifecycle lifecycle) {
+    public void connect(PingSession lifecycle) {
         logger.info("connect:{}", lifecycle);
-    }
-
-    @Override
-    public void handshake(Lifecycle lifecycle) {
-        logger.info("handshake:{}", lifecycle);
         lifecycleService.updateState(lifecycle, ManagedAgentLifeCycle.RUNNING);
     }
 
     @Override
-    public void close(Lifecycle lifecycle) {
+    public void handshake(PingSession lifecycle) {
+        logger.info("handshake:{}", lifecycle);
+
+    }
+
+    @Override
+    public void close(PingSession lifecycle) {
 
         logger.info("close:{}/{}", lifecycle, shutdownEventListener);
         ManagedAgentLifeCycle closedByClient = getManagedAgentLifeCycle();

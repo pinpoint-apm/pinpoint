@@ -17,109 +17,33 @@
 package com.navercorp.pinpoint.grpc;
 
 import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.grpc.client.HeaderFactory;
 import io.grpc.Metadata;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class AgentHeaderFactory implements HeaderFactory<AgentHeaderFactory.Header> {
+public class AgentHeaderFactory implements HeaderFactory<Header> {
 
-    public static final Metadata.Key<String> AGENT_ID_KEY = newStringKey("agentid");
-    public static final Metadata.Key<String> APPLICATION_NAME_KEY = newStringKey("applicationname");
-    public static final Metadata.Key<String> AGENT_START_TIME_KEY = newStringKey("starttime");
+    private final String agentId;
+    private final String applicationName;
+    private final long agentStartTime;
 
-    private final Header header;
 
-    private static Metadata.Key<String> newStringKey(String s) {
-        return Metadata.Key.of(s, Metadata.ASCII_STRING_MARSHALLER);
+    public AgentHeaderFactory(String agentId, String applicationName, long agentStartTime) {
+        this.agentId = Assert.requireNonNull(agentId, "agentId must not be null");
+        this.applicationName = Assert.requireNonNull(applicationName, "applicationName must not be null");
+        this.agentStartTime = agentStartTime;
+
     }
-
-    public AgentHeaderFactory() {
-        this.header = null;
-    }
-
-    public AgentHeaderFactory(Header header) {
-        this.header = Assert.requireNonNull(header, "header must not be null");
-    }
-
-    public Header extract(Metadata headers) {
-        final String agentId = headers.get(AGENT_ID_KEY);
-        final String applicationName = headers.get(APPLICATION_NAME_KEY);
-        final String agentStartTimeStr = headers.get(AGENT_START_TIME_KEY);
-        Assert.requireNonNull(agentStartTimeStr, "agentStartTime must not be null");
-        // check number format
-        final long startTime = Long.parseLong(agentStartTimeStr);
-
-        return new Header(agentId, applicationName, startTime);
-    }
-
 
     public Metadata newHeader() {
         Metadata headers = new Metadata();
-        headers.put(AGENT_ID_KEY, header.getAgentId());
-        headers.put(APPLICATION_NAME_KEY, header.getApplicationName());
-        headers.put(AGENT_START_TIME_KEY, Long.toString(header.getAgentStartTime()));
+        headers.put(Header.AGENT_ID_KEY, agentId);
+        headers.put(Header.APPLICATION_NAME_KEY, applicationName);
+        headers.put(Header.AGENT_START_TIME_KEY, Long.toString(agentStartTime));
         return headers;
     }
 
-    public static class Header {
-        private final String agentId;
-        private final String applicationName;
-        private final long agentStartTime;
 
-        public Header(String agentId, String applicationName, long agentStartTime) {
-            this.agentId = validateId(Assert.requireNonNull(agentId, "agentId must not be null"));
-            this.applicationName = validateId(Assert.requireNonNull(applicationName, "applicationName must not be null"));
-            this.agentStartTime = agentStartTime;
-        }
-
-        private String validateId(String id) {
-            // TODO
-            return id;
-        }
-
-        public String getAgentId() {
-            return agentId;
-        }
-
-        public String getApplicationName() {
-            return applicationName;
-        }
-
-        public long getAgentStartTime() {
-            return agentStartTime;
-        }
-
-
-        @Override
-        public String toString() {
-            final StringBuilder sb = new StringBuilder("Header{");
-            sb.append("agentId='").append(agentId).append('\'');
-            sb.append(", applicationName='").append(applicationName).append('\'');
-            sb.append(", agentStartTime=").append(agentStartTime);
-            sb.append('}');
-            return sb.toString();
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (!(o instanceof Header)) return false;
-
-            Header header = (Header) o;
-
-            if (agentStartTime != header.agentStartTime) return false;
-            if (agentId != null ? !agentId.equals(header.agentId) : header.agentId != null) return false;
-            return applicationName != null ? applicationName.equals(header.applicationName) : header.applicationName == null;
-
-        }
-
-        @Override
-        public int hashCode() {
-            int result = agentId != null ? agentId.hashCode() : 0;
-            result = 31 * result + (applicationName != null ? applicationName.hashCode() : 0);
-            result = 31 * result + (int) (agentStartTime ^ (agentStartTime >>> 32));
-            return result;
-        }
-    }
 }

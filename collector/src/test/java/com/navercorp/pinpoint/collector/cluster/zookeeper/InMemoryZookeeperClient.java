@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.collector.cluster.zookeeper;
 
+import com.navercorp.pinpoint.common.server.cluster.zookeeper.CreateNodeMessage;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperClient;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.exception.BadOperationException;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.exception.PinpointZookeeperException;
@@ -62,22 +63,20 @@ public class InMemoryZookeeperClient implements ZookeeperClient {
     }
 
     @Override
-    public synchronized String createNode(String zNodePath, byte[] data) throws PinpointZookeeperException, InterruptedException {
-        byte[] bytes = contents.putIfAbsent(zNodePath, data);
+    public synchronized void createNode(CreateNodeMessage createNodeMessage) throws PinpointZookeeperException, InterruptedException {
+        byte[] bytes = contents.putIfAbsent(createNodeMessage.getNodePath(), createNodeMessage.getData());
         if (bytes != null) {
             throw new BadOperationException("node already exist");
         }
-        return zNodePath;
     }
 
     @Override
-    public String createOrSetNode(String path, byte[] payload) throws PinpointZookeeperException, KeeperException, InterruptedException {
+    public synchronized void createOrSetNode(CreateNodeMessage createNodeMessage) throws PinpointZookeeperException, KeeperException, InterruptedException {
         if (intAdder.incrementAndGet() % 2 == 1 && throwException) {
             throw new PinpointZookeeperException("exception");
         }
 
-        contents.put(path, payload);
-        return path;
+        contents.put(createNodeMessage.getNodePath(), createNodeMessage.getData());
     }
 
     @Override

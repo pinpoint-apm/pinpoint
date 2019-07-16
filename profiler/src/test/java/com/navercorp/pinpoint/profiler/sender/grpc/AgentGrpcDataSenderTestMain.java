@@ -21,7 +21,7 @@ import com.navercorp.pinpoint.bootstrap.context.ServerMetaData;
 import com.navercorp.pinpoint.bootstrap.context.ServiceInfo;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.grpc.AgentHeaderFactory;
-import com.navercorp.pinpoint.grpc.HeaderFactory;
+import com.navercorp.pinpoint.grpc.client.HeaderFactory;
 import com.navercorp.pinpoint.grpc.client.ChannelFactoryOption;
 import com.navercorp.pinpoint.profiler.AgentInformation;
 import com.navercorp.pinpoint.profiler.DefaultAgentInformation;
@@ -34,9 +34,7 @@ import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
 import com.navercorp.pinpoint.profiler.metadata.AgentInfo;
 import com.navercorp.pinpoint.profiler.monitor.metric.gc.JvmGcType;
 import io.grpc.NameResolverProvider;
-import org.junit.Test;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 
@@ -46,9 +44,8 @@ public class AgentGrpcDataSenderTestMain {
     private static final long START_TIME = System.currentTimeMillis();
 
     public void request() throws Exception {
-        MessageConverter<GeneratedMessageV3> messageConverter = new GrpcMetadataMessageConverter(APPLICATION_NAME, AGENT_ID, START_TIME);
-        AgentHeaderFactory.Header header = new AgentHeaderFactory.Header(AGENT_ID, APPLICATION_NAME, START_TIME);
-        HeaderFactory headerFactory = new AgentHeaderFactory(header);
+        MessageConverter<GeneratedMessageV3> messageConverter = new GrpcMetadataMessageConverter();
+        HeaderFactory headerFactory = new AgentHeaderFactory(AGENT_ID, APPLICATION_NAME, START_TIME);
 
         DnsExecutorServiceProvider dnsExecutorServiceProvider = new DnsExecutorServiceProvider();
         GrpcNameResolverProvider grpcNameResolverProvider = new GrpcNameResolverProvider(dnsExecutorServiceProvider);

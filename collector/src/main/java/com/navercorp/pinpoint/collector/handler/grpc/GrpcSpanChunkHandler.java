@@ -5,7 +5,7 @@ import com.navercorp.pinpoint.collector.handler.SimpleHandler;
 import com.navercorp.pinpoint.collector.service.TraceService;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.grpc.GrpcSpanFactory;
-import com.navercorp.pinpoint.grpc.AgentHeaderFactory;
+import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
 import com.navercorp.pinpoint.grpc.server.ServerContext;
 import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
@@ -55,7 +55,7 @@ public class GrpcSpanChunkHandler implements SimpleHandler {
         }
 
         try {
-            final AgentHeaderFactory.Header agentInfo = ServerContext.getAgentInfo();
+            final Header agentInfo = ServerContext.getAgentInfo();
             final SpanChunkBo spanChunkBo = spanFactory.buildSpanChunkBo(spanChunk, agentInfo);
             this.traceService.insertSpanChunk(spanChunkBo);
         } catch (Exception e) {

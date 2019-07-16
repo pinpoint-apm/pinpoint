@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.collector.handler.RequestResponseHandler;
 import com.navercorp.pinpoint.collector.service.SqlMetaDataService;
 import com.navercorp.pinpoint.common.server.bo.SqlMetaDataBo;
 import com.navercorp.pinpoint.grpc.AgentHeaderFactory;
+import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
 import com.navercorp.pinpoint.grpc.server.ServerContext;
 import com.navercorp.pinpoint.grpc.trace.PResult;
@@ -64,7 +65,7 @@ public class GrpcSqlMetaDataHandler implements RequestResponseHandler {
         }
 
         try {
-            final AgentHeaderFactory.Header agentInfo = ServerContext.getAgentInfo();
+            final Header agentInfo = ServerContext.getAgentInfo();
             final String agentId = agentInfo.getAgentId();
             final long agentStartTime = agentInfo.getAgentStartTime();
 

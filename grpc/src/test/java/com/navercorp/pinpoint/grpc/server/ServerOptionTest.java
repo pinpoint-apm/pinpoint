@@ -27,22 +27,15 @@ public class ServerOptionTest {
         ServerOption.Builder builder = new ServerOption.Builder();
         builder.setKeepAliveTime(1);
         builder.setKeepAliveTimeout(1);
-        builder.setPermitKeepAliveTimeout(1);
-        builder.setPermitKeepAliveWithoutCalls(true);
+        builder.setPermitKeepAliveTime(1);
 
         builder.setMaxConnectionIdle(1);
-        builder.setMaxConnectionAge(1);
-        builder.setMaxConnectionAgeGrace(1);
 
         builder.setMaxConcurrentCallsPerConnection(1);
         builder.setFlowControlWindow(1);
         builder.setMaxHeaderListSize(1);
 
-        builder.setBacklogQueueSize(1);
-        builder.setConnectTimeout(1);
         builder.setReceiveBufferSize(1);
-        builder.setWriteBufferHighWaterMark(1);
-        builder.setWriteBufferLowWaterMark(1);
 
         builder.setHandshakeTimeout(1);
         builder.setMaxInboundMessageSize(1);
@@ -51,23 +44,16 @@ public class ServerOptionTest {
         ServerOption serverOption = builder.build();
         assertEquals(1, serverOption.getKeepAliveTime());
         assertEquals(1, serverOption.getKeepAliveTimeout());
-        assertEquals(1, serverOption.getPermitKeepAliveTimeout());
-        assertEquals(true, serverOption.isPermitKeepAliveWithoutCalls());
+        assertEquals(1, serverOption.getPermitKeepAliveTime());
 
 
         assertEquals(1, serverOption.getMaxConnectionIdle());
-        assertEquals(1, serverOption.getMaxConnectionAge());
-        assertEquals(1, serverOption.getMaxConnectionAgeGrace());
 
         assertEquals(1, serverOption.getMaxConcurrentCallsPerConnection());
         assertEquals(1, serverOption.getFlowControlWindow());
         assertEquals(1, serverOption.getMaxHeaderListSize());
 
-        assertEquals(1, serverOption.getBacklogQueueSize());
-        assertEquals(1, serverOption.getConnectTimeout());
         assertEquals(1, serverOption.getReceiveBufferSize());
-        assertEquals(1, serverOption.getWriteBufferHighWaterMark());
-        assertEquals(1, serverOption.getWriteBufferLowWaterMark());
 
         assertEquals(1, serverOption.getHandshakeTimeout());
         assertEquals(1, serverOption.getMaxInboundMessageSize());

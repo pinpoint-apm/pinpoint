@@ -20,7 +20,7 @@ import com.navercorp.pinpoint.collector.handler.RequestResponseHandler;
 import com.navercorp.pinpoint.collector.service.ApiMetaDataService;
 import com.navercorp.pinpoint.common.server.bo.ApiMetaDataBo;
 import com.navercorp.pinpoint.common.server.bo.MethodTypeEnum;
-import com.navercorp.pinpoint.grpc.AgentHeaderFactory;
+import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
 import com.navercorp.pinpoint.grpc.server.ServerContext;
 import com.navercorp.pinpoint.grpc.trace.PApiMetaData;
@@ -63,7 +63,7 @@ public class GrpcApiMetaDataHandler implements RequestResponseHandler {
         }
 
         try {
-            final AgentHeaderFactory.Header header = ServerContext.getAgentInfo();
+            final Header header = ServerContext.getAgentInfo();
             final String agentId = header.getAgentId();
             final long agentStartTime = header.getAgentStartTime();
 

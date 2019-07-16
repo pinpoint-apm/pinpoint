@@ -23,11 +23,9 @@ import com.navercorp.pinpoint.collector.service.async.DefaultAgentProperty;
 import com.navercorp.pinpoint.collector.util.ManagedAgentLifeCycle;
 import com.navercorp.pinpoint.common.server.util.AgentEventType;
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
-import com.navercorp.pinpoint.grpc.AgentHeaderFactory;
-import com.navercorp.pinpoint.grpc.server.LastAccessTime;
-import com.navercorp.pinpoint.grpc.server.TransportMetadata;
-import com.navercorp.pinpoint.grpc.server.lifecycle.Lifecycle;
-import com.navercorp.pinpoint.grpc.server.lifecycle.LifecycleRegistry;
+import com.navercorp.pinpoint.grpc.Header;
+import com.navercorp.pinpoint.grpc.server.lifecycle.PingSession;
+import com.navercorp.pinpoint.grpc.server.lifecycle.PingSessionRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,25 +38,23 @@ public class KeepAliveService {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private static final int CLOSE_MASK = 1;
-
     private final AgentEventAsyncTaskService agentEventAsyncTask;
     private final AgentLifeCycleAsyncTaskService agentLifeCycleAsyncTask;
-    private final LifecycleRegistry lifecycleRegistry;
+    private final PingSessionRegistry pingSessionRegistry;
 
     @Autowired
     public KeepAliveService(AgentEventAsyncTaskService agentEventAsyncTask,
                             AgentLifeCycleAsyncTaskService agentLifeCycleAsyncTask,
-                            LifecycleRegistry lifecycleRegistry) {
+                            PingSessionRegistry pingSessionRegistry) {
         this.agentEventAsyncTask = Objects.requireNonNull(agentEventAsyncTask, "agentEventAsyncTask must not be null");
         this.agentLifeCycleAsyncTask = Objects.requireNonNull(agentLifeCycleAsyncTask, "agentLifeCycleAsyncTask must not be null");
-        this.lifecycleRegistry = Objects.requireNonNull(lifecycleRegistry, "lifecycleRegistry must not be null");
+        this.pingSessionRegistry = Objects.requireNonNull(pingSessionRegistry, "pingSessionRegistry must not be null");
     }
 
 
     public void updateState() {
-        final Collection<Lifecycle> lifecycles = lifecycleRegistry.values();
-        for (Lifecycle lifecycle : lifecycles) {
+        final Collection<PingSession> lifecycles = pingSessionRegistry.values();
+        for (PingSession lifecycle : lifecycles) {
             boolean closeState = false;
             AgentLifeCycleState agentLifeCycleState = AgentLifeCycleState.RUNNING;
             AgentEventType agentEventType = AgentEventType.AGENT_PING;
@@ -66,13 +62,13 @@ public class KeepAliveService {
         }
     }
 
-    private AgentProperty newChannelProperties(AgentHeaderFactory.Header header) {
+    private AgentProperty newChannelProperties(Header header) {
         final String agentId = header.getAgentId();
         final long agentStartTime = header.getAgentStartTime();
         return new DefaultAgentProperty(agentId, agentStartTime, Collections.emptyMap());
     }
 
-    public void updateState(Lifecycle lifecycle, ManagedAgentLifeCycle managedAgentLifeCycle) {
+    public void updateState(PingSession lifecycle, ManagedAgentLifeCycle managedAgentLifeCycle) {
 
         boolean closeState = managedAgentLifeCycle.isClosedEvent();
         AgentLifeCycleState agentLifeCycleState = managedAgentLifeCycle.getMappedState();
@@ -80,22 +76,19 @@ public class KeepAliveService {
         updateState(lifecycle, closeState, agentLifeCycleState, agentEventType);
     }
 
-    public void updateState(Lifecycle lifecycle, boolean closeState, AgentLifeCycleState agentLifeCycleState, AgentEventType agentEventType) {
+    public void updateState(PingSession lifecycle, boolean closeState, AgentLifeCycleState agentLifeCycleState, AgentEventType agentEventType) {
 
-        final AgentHeaderFactory.Header header = lifecycle.getRef();
+        final Header header = lifecycle.getHeader();
         if (header == null) {
             logger.warn("Not found request header");
             return;
         }
 
         logger.debug("updateState:{} {} {}/{}", lifecycle, closeState, agentLifeCycleState, agentEventType);
-        final TransportMetadata transportMetadata = lifecycle.getTransportMetadata();
 
         final long pingTimestamp = System.currentTimeMillis();
-        final LastAccessTime lastAccessTime = transportMetadata.getLastAccessTime();
 
-
-        final long eventIdentifier = getEventIdentifier(lastAccessTime, pingTimestamp, closeState);
+        final long eventIdentifier = header.getSocketId();
         if (eventIdentifier == -1) {
             // skip
             return;
@@ -110,29 +103,11 @@ public class KeepAliveService {
         }
     }
 
-    private long getEventIdentifier(LastAccessTime lastAccessTime, long eventTime, boolean closeState) {
-        synchronized (lastAccessTime) {
-            if (closeState) {
-                if (lastAccessTime.expire(eventTime)) {
-                    return eventTime + CLOSE_MASK;
-                } else {
-                    // event runs after expire.
-                    return -1;
-                }
-            } else {
-                if (lastAccessTime.isExpire()) {
-                    return -1;
-                }
-                lastAccessTime.update(eventTime);
-                return eventTime;
-            }
-        }
-    }
 
 //    @PreDestroy
     public void destroy() {
-        final Collection<Lifecycle> lifecycles = lifecycleRegistry.values();
-        for (Lifecycle lifecycle : lifecycles) {
+        final Collection<PingSession> lifecycles = pingSessionRegistry.values();
+        for (PingSession lifecycle : lifecycles) {
             updateState(lifecycle, ManagedAgentLifeCycle.CLOSED_BY_SERVER);
         }
     }

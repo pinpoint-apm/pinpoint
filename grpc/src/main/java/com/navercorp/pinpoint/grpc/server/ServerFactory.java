@@ -19,9 +19,9 @@ package com.navercorp.pinpoint.grpc.server;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.CpuUtils;
 import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
-import com.navercorp.pinpoint.grpc.AgentHeaderFactory;
 import com.navercorp.pinpoint.grpc.ExecutorUtils;
-import com.navercorp.pinpoint.grpc.HeaderFactory;
+import com.navercorp.pinpoint.grpc.Header;
+import com.navercorp.pinpoint.grpc.HeaderReader;
 import io.grpc.BindableService;
 import io.grpc.Server;
 import io.grpc.ServerInterceptor;
@@ -143,8 +143,8 @@ public class ServerFactory {
         serverBuilder.executor(executor);
         setupServerOption(serverBuilder);
 
-        HeaderFactory<AgentHeaderFactory.Header> headerFactory = new AgentHeaderFactory();
-        ServerInterceptor headerContext = new HeaderPropagationInterceptor<AgentHeaderFactory.Header>(headerFactory, ServerContext.getAgentInfoKey());
+        HeaderReader<Header> headerReader = new AgentHeaderReader();
+        ServerInterceptor headerContext = new HeaderPropagationInterceptor<Header>(headerReader, ServerContext.getAgentInfoKey());
         serverBuilder.intercept(headerContext);
 
         Server server = serverBuilder.build();
@@ -162,10 +162,8 @@ public class ServerFactory {
         builder.withChildOption(ChannelOption.TCP_NODELAY, true);
         builder.withChildOption(ChannelOption.SO_REUSEADDR, true);
         builder.withChildOption(ChannelOption.SO_RCVBUF, this.serverOption.getReceiveBufferSize());
-        builder.withChildOption(ChannelOption.SO_BACKLOG, this.serverOption.getBacklogQueueSize());
-        builder.withChildOption(ChannelOption.CONNECT_TIMEOUT_MILLIS, this.serverOption.getConnectTimeout());
-        final WriteBufferWaterMark writeBufferWaterMark = new WriteBufferWaterMark(this.serverOption.getWriteBufferLowWaterMark(), this.serverOption.getWriteBufferHighWaterMark());
-        builder.withChildOption(ChannelOption.WRITE_BUFFER_WATER_MARK, writeBufferWaterMark);
+        final WriteBufferWaterMark disabledWriteBufferWaterMark = new WriteBufferWaterMark(0, Integer.MAX_VALUE);
+        builder.withChildOption(ChannelOption.WRITE_BUFFER_WATER_MARK, disabledWriteBufferWaterMark);
 
         builder.handshakeTimeout(this.serverOption.getHandshakeTimeout(), TimeUnit.MILLISECONDS);
         builder.flowControlWindow(this.serverOption.getFlowControlWindow());
@@ -175,7 +173,7 @@ public class ServerFactory {
 
         builder.keepAliveTime(this.serverOption.getKeepAliveTime(), TimeUnit.MILLISECONDS);
         builder.keepAliveTimeout(this.serverOption.getKeepAliveTimeout(), TimeUnit.MILLISECONDS);
-        builder.permitKeepAliveTime(this.serverOption.getPermitKeepAliveTimeout(), TimeUnit.MILLISECONDS);
+        builder.permitKeepAliveTime(this.serverOption.getPermitKeepAliveTime(), TimeUnit.MILLISECONDS);
         builder.permitKeepAliveWithoutCalls(this.serverOption.isPermitKeepAliveWithoutCalls());
 
         builder.maxConnectionIdle(this.serverOption.getMaxConnectionIdle(), TimeUnit.MILLISECONDS);

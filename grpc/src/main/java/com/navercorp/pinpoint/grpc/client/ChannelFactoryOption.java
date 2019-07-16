@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.grpc.client;
 
 import com.navercorp.pinpoint.common.util.Assert;
-import com.navercorp.pinpoint.grpc.HeaderFactory;
 
 import io.grpc.ClientInterceptor;
 import io.grpc.NameResolverProvider;

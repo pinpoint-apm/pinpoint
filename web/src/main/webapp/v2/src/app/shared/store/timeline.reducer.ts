@@ -16,17 +16,7 @@ export class UpdateTimelineData implements Action {
 export function Reducer(state = initState, action: UpdateTimelineData): ITimelineInfo {
     switch (action.type) {
         case UPDATE_TIMELINE_INFO:
-            if (
-                state.range[0] !== action.payload.range[0] ||
-                state.range[1] !== action.payload.range[1] ||
-                state.selectedTime !== action.payload.selectedTime ||
-                state.selectionRange[0] !== action.payload.selectionRange[0] ||
-                state.selectionRange[1] !== action.payload.selectionRange[1]
-            ) {
-                return action.payload;
-            } else {
-                return state;
-            }
+            return action.payload;
         default:
             return state;
     }

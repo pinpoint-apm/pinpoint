@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.collector.config;
 
+import com.navercorp.pinpoint.common.util.PropertyUtils;
 import org.junit.Test;
 
 import java.util.Properties;
@@ -26,24 +27,25 @@ public class StatReceiverConfigurationTest {
 
     @Test
     public void properties() throws Exception {
-        Properties properties = new Properties();
-        properties.setProperty("collector.receiver.grpc.stat.enable", "");
-        properties.setProperty("collector.receiver.grpc.stat.ip", "9.9.9.9");
-        properties.setProperty("collector.receiver.grpc.stat.port", "1111");
-        properties.setProperty("collector.receiver.grpc.stat.worker.threadSize", "99");
-        properties.setProperty("collector.receiver.grpc.stat.worker.queueSize", "9999");
-        properties.setProperty("collector.receiver.grpc.stat.worker.monitor", "false");
-        properties.setProperty("collector.receiver.grpc.stat.keepalive.time", "3");
-        properties.setProperty("collector.receiver.grpc.stat.keepalive.timeout", "7");
-
+        Properties properties = PropertyUtils.loadPropertyFromClassPath("test-pinpoint-collector.properties");
         StatReceiverConfiguration configuration = new StatReceiverConfiguration(properties, new DeprecatedConfiguration());
+
         assertEquals(Boolean.FALSE, configuration.isGrpcEnable());
-        assertEquals("9.9.9.9", configuration.getGrpcBindIp());
-        assertEquals(1111, configuration.getGrpcBindPort());
-        assertEquals(99, configuration.getGrpcWorkerThreadSize());
-        assertEquals(9999, configuration.getGrpcWorkerQueueSize());
+        assertEquals("2.2.2.2", configuration.getGrpcBindIp());
+        assertEquals(2, configuration.getGrpcBindPort());
+        assertEquals(2, configuration.getGrpcWorkerThreadSize());
+        assertEquals(2, configuration.getGrpcWorkerQueueSize());
         assertEquals(Boolean.FALSE, configuration.isGrpcWorkerMonitorEnable());
-        assertEquals(3, configuration.getGrpcKeepAliveTime());
-        assertEquals(7, configuration.getGrpcKeepAliveTimeout());
+        assertEquals(2, configuration.getGrpcServerOption().getKeepAliveTime());
+        assertEquals(2, configuration.getGrpcServerOption().getKeepAliveTimeout());
+        assertEquals(2, configuration.getGrpcServerOption().getPermitKeepAliveTime());
+        assertEquals(2, configuration.getGrpcServerOption().getMaxConnectionIdle());
+        assertEquals(2, configuration.getGrpcServerOption().getMaxConcurrentCallsPerConnection());
+        assertEquals(2, configuration.getGrpcServerOption().getMaxInboundMessageSize());
+        assertEquals(2, configuration.getGrpcServerOption().getMaxHeaderListSize());
+        assertEquals(2, configuration.getGrpcServerOption().getFlowControlWindow());
+
+        assertEquals(2, configuration.getGrpcServerOption().getHandshakeTimeout());
+        assertEquals(2, configuration.getGrpcServerOption().getReceiveBufferSize());
     }
 }

@@ -44,10 +44,12 @@ public class DefaultTBaseLocator {
 
     public static final short NETWORK_CHECK = 10;
 
+    // grpc ping
+    public static final short PING = 12;
+
     public static final short SPAN = 40;
 
     public static final short AGENT_INFO = 50;
-
 
     public static final short AGENT_STAT = 55;
 

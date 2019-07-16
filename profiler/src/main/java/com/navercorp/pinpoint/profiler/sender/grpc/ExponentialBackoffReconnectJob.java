@@ -25,23 +25,29 @@ import java.util.concurrent.TimeUnit;
 /**
  * @author Woonduk Kang(emeroad)
  */
-public abstract class ExponentialBackoffReconnectJob implements ReconnectJob {
+public class ExponentialBackoffReconnectJob implements ReconnectJob {
 
     private final long maxBackOffNanos;
 
     private volatile ExponentialBackoffPolicy exponentialBackoffPolicy = new ExponentialBackoffPolicy();
+    private final Runnable runnable;
 
-    public ExponentialBackoffReconnectJob() {
-        this(TimeUnit.SECONDS.toNanos(30));
+    public ExponentialBackoffReconnectJob(Runnable runnable) {
+        this(runnable, TimeUnit.SECONDS.toNanos(30));
     }
 
-    public ExponentialBackoffReconnectJob(long maxBackOffNanos) {
-        Assert.isTrue(maxBackOffNanos > 0, "maxBackOffNanos > 0");
+    public ExponentialBackoffReconnectJob(Runnable runnable, long maxBackOffNanos) {
+        this.runnable = Assert.requireNonNull(runnable, "runnable must not be null");
 
+        Assert.isTrue(maxBackOffNanos > 0, "maxBackOffNanos > 0");
+        this.maxBackOffNanos = getMaxBackOffNanos(maxBackOffNanos);
+    }
+
+    private long getMaxBackOffNanos(long maxBackOffNanos) {
         if (TimeUnit.SECONDS.toNanos(3) > maxBackOffNanos) {
-            this.maxBackOffNanos = TimeUnit.SECONDS.toNanos(3);
+            return TimeUnit.SECONDS.toNanos(3);
         } else {
-            this.maxBackOffNanos = maxBackOffNanos;
+            return maxBackOffNanos;
         }
     }
 
@@ -55,5 +61,7 @@ public abstract class ExponentialBackoffReconnectJob implements ReconnectJob {
         return Math.min(exponentialBackoffPolicy.nextBackoffNanos(), maxBackOffNanos);
     }
 
-    public abstract void run();
+    public void run() {
+        this.runnable.run();
+    }
 }

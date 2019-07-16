@@ -339,7 +339,7 @@
         <property name="udpBufferSize" value="#{spanReceiverConfig.udpReceiveBufferSize}"/>
         <!-- TCP & UDP share threadpool for span -->
         <property name="executor" ref="spanReceiverExecutor"/>
-        <property name="datagramPoolSize" value="#{ statReceiverConfig.workerQueueSize + statReceiverConfig.workerThreadSize }"/>
+        <property name="datagramPoolSize" value="#{ spanReceiverConfig.workerQueueSize + spanReceiverConfig.workerThreadSize }"/>
         <property name="enable" value="#{spanReceiverConfig.isUdpEnable()}"/>
     </bean>
 
@@ -448,12 +448,6 @@
         <property name="registry" value="#{baseDataReceiverConfig.grpcWorkerMonitorEnable ? metricRegistry : null}"/>
     </bean>
 
-    <bean id="grpcAgentServerOptionBuilder" class="com.navercorp.pinpoint.grpc.server.ServerOption.Builder">
-        <property name="keepAliveTime" value="#{baseDataReceiverConfig.grpcKeepAliveTime}"/>
-        <property name="keepAliveTimeout" value="#{baseDataReceiverConfig.grpcKeepAliveTimeout}"/>
-    </bean>
-    <bean id="grpcAgentServerOption" class="com.navercorp.pinpoint.grpc.server.ServerOption" factory-bean="grpcAgentServerOptionBuilder" factory-method="build"/>
-
     <bean id="grpcLifecycleScheduler" class="org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler">
         <property name="poolSize" value="1"/>
         <property name="threadNamePrefix" value="Pinpoint-GrpcLifecycleFlusher-"/>
@@ -464,7 +458,7 @@
     <task:scheduled-tasks scheduler="grpcLifecycleScheduler">
         <task:scheduled ref="keepAliveService" method="updateState" fixed-rate="#{ 60 * 1000 * 5 }"/>
     </task:scheduled-tasks>
-    <bean id="lifecycleRegistry" class="com.navercorp.pinpoint.grpc.server.lifecycle.DefaultLifecycleRegistry"/>
+    <bean id="pingSessionRegistry" class="com.navercorp.pinpoint.grpc.server.lifecycle.DefaultPingSessionRegistry"/>
     <bean id="lifecycleListener" class="com.navercorp.pinpoint.collector.receiver.grpc.service.AgentLifecycleListener">
         <constructor-arg index="0" ref="keepAliveService"/>
     </bean>
@@ -472,19 +466,17 @@
     <bean id="keepAliveService" class="com.navercorp.pinpoint.collector.receiver.grpc.service.KeepAliveService">
         <constructor-arg index="0" ref="agentEventAsyncTask"/>
         <constructor-arg index="1" ref="agentLifeCycleAsyncTask"/>
-        <constructor-arg index="2" ref="lifecycleRegistry"/>
+        <constructor-arg index="2" ref="pingSessionRegistry"/>
     </bean>
-    <bean id="lifecycleTransportFilter" class="com.navercorp.pinpoint.grpc.server.lifecycle.LifecycleTransportFilter">
-        <constructor-arg index="0" ref="lifecycleRegistry"/>
+
+    <bean id="pingEventHandler" class="com.navercorp.pinpoint.grpc.server.lifecycle.DefaultPingEventHandler">
+        <constructor-arg index="0" ref="pingSessionRegistry"/>
         <constructor-arg index="1" ref="lifecycleListener"/>
     </bean>
 
-    <bean id="headerHijackingServerInterceptor" class="com.navercorp.pinpoint.grpc.server.lifecycle.HeaderHijackingServerInterceptor">
-        <constructor-arg index="0" ref="lifecycleRegistry"/>
-        <constructor-arg index="1" ref="lifecycleListener"/>
-    </bean>
     <bean id="agentService" class="com.navercorp.pinpoint.collector.receiver.grpc.service.AgentService">
         <constructor-arg index="0" ref="grpcDispatchHandlerFactoryBean"/>
+        <constructor-arg index="1" ref="pingEventHandler"/>
     </bean>
     <bean id="metadataService" class="com.navercorp.pinpoint.collector.receiver.grpc.service.MetadataService">
         <constructor-arg index="0" ref="grpcDispatchHandlerFactoryBean"/>
@@ -493,16 +485,8 @@
         <constructor-arg index="0" ref="clusterService"/>
     </bean>
 
-    <bean id="agentServiceDecorator" class="io.grpc.ServerInterceptors" factory-method="intercept">
-        <constructor-arg index="0" type="io.grpc.BindableService" ref="agentService"/>
-        <constructor-arg index="1">
-            <list value-type="io.grpc.ServerInterceptor">
-                <ref bean="headerHijackingServerInterceptor"/>
-            </list>
-        </constructor-arg>
-    </bean>
     <util:list id="agentServiceList">
-        <ref bean="agentServiceDecorator"/>
+        <ref bean="agentService"/>
         <ref bean="metadataService"/>
         <ref bean="commandService"/>
     </util:list>
@@ -514,8 +498,7 @@
         <property name="addressFilter" ref="addressFilter"/>
         <property name="bindableServiceList" ref="agentServiceList"/>
         <property name="enable" value="#{baseDataReceiverConfig.isGrpcEnable()}"/>
-        <property name="serverOption" ref="grpcAgentServerOption"/>
-        <property name="lifecycleTransportFilter" ref="lifecycleTransportFilter"/>
+        <property name="serverOption" value="#{baseDataReceiverConfig.getGrpcServerOption()}"/>
     </bean>
 
 
@@ -526,12 +509,6 @@
         <property name="threadNamePrefix" value="Pinpoint-GrpcSpan-Worker-"/>
         <property name="registry" value="#{spanReceiverConfig.grpcWorkerMonitorEnable ? metricRegistry : null}"/>
     </bean>
-
-    <bean id="grpcTraceServerOptionBuilder" class="com.navercorp.pinpoint.grpc.server.ServerOption.Builder">
-        <property name="keepAliveTime" value="#{spanReceiverConfig.grpcKeepAliveTime}"/>
-        <property name="keepAliveTimeout" value="#{spanReceiverConfig.grpcKeepAliveTimeout}"/>
-    </bean>
-    <bean id="grpcTraceServerOption" class="com.navercorp.pinpoint.grpc.server.ServerOption" factory-bean="grpcAgentServerOptionBuilder" factory-method="build"/>
 
     <bean id="spanService" class="com.navercorp.pinpoint.collector.receiver.grpc.service.SpanService">
         <constructor-arg index="0" ref="grpcSpanDispatchHandlerFactoryBean"/>
@@ -547,7 +524,7 @@
         <property name="bindableServiceList" ref="spanServiceList"/>
         <property name="executor" ref="grpcTraceServerExecutor"/>
         <property name="enable" value="#{spanReceiverConfig.isGrpcEnable()}"/>
-        <property name="serverOption" ref="grpcTraceServerOption"/>
+        <property name="serverOption" value="#{spanReceiverConfig.getGrpcServerOption()}"/>
     </bean>
 
     <bean id="grpcStatServerExecutor" class="com.navercorp.pinpoint.collector.receiver.thrift.ExecutorFactoryBean" parent="abstractReceiverExecutorFactoryBean">
@@ -557,11 +534,6 @@
         <property name="threadNamePrefix" value="Pinpoint-GrpcStat-Worker-"/>
         <property name="registry" value="#{statReceiverConfig.workerMonitorEnable ? metricRegistry : null}"/>
     </bean>
-    <bean id="grpcStatServerOptionBuilder" class="com.navercorp.pinpoint.grpc.server.ServerOption.Builder">
-        <property name="keepAliveTime" value="#{statReceiverConfig.grpcKeepAliveTime}"/>
-        <property name="keepAliveTimeout" value="#{statReceiverConfig.grpcKeepAliveTimeout}"/>
-    </bean>
-    <bean id="grpcStatServerOption" class="com.navercorp.pinpoint.grpc.server.ServerOption" factory-bean="grpcAgentServerOptionBuilder" factory-method="build"/>
 
     <bean id="statService" class="com.navercorp.pinpoint.collector.receiver.grpc.service.StatService">
         <constructor-arg index="0" ref="grpcStatDispatchHandlerFactoryBean"/>
@@ -577,7 +549,7 @@
         <property name="bindableServiceList" ref="statServiceList"/>
         <property name="executor" ref="grpcStatServerExecutor"/>
         <property name="enable" value="#{statReceiverConfig.isGrpcEnable()}"/>
-        <property name="serverOption" ref="grpcStatServerOption"/>
+        <property name="serverOption" value="#{statReceiverConfig.getGrpcServerOption()}"/>
     </bean>
 
     <!-- end receiver configuration -->

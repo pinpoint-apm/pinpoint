@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.profiler.sender.grpc;
 
 import com.navercorp.pinpoint.grpc.client.ClientOption;
+import com.navercorp.pinpoint.grpc.client.SocketIdClientInterceptor;
 import com.navercorp.pinpoint.grpc.trace.MetadataGrpc;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
 import com.navercorp.pinpoint.profiler.receiver.grpc.GrpcCommandService;
@@ -27,6 +28,7 @@ import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.protobuf.GeneratedMessageV3;
 
+import com.google.common.util.concurrent.SettableFuture;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.ExecutorFactory;
 import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
@@ -101,12 +103,17 @@ public class AgentGrpcDataSender implements EnhancedDataSender {
     protected volatile boolean shutdown;
     protected final ThreadPoolExecutor executor;
 
-    private final AgentGrpc.AgentFutureStub agentStub;
-
+    private final AgentGrpc.AgentFutureStub agentFutureStub;
+    private final AgentGrpc.AgentStub agentPingStub;
     private final MetadataGrpc.MetadataFutureStub metadataStub;
 
     private GrpcCommandService grpcCommandService;
-    private ClientOption clientOption;
+
+    private final ExecutorAdaptor reconnectExecutor;
+
+    private volatile PingStreamContext pingStreamContext;
+    private final Reconnector reconnector;
+
 
     public AgentGrpcDataSender(String host, int port, MessageConverter<GeneratedMessageV3> messageConverter, ChannelFactoryOption channelFactoryOption) {
         this(host, port, messageConverter, channelFactoryOption, null);
@@ -124,12 +131,43 @@ public class AgentGrpcDataSender implements EnhancedDataSender {
 
         this.channelFactory = new ChannelFactory(channelFactoryOption);
         this.managedChannel = channelFactory.build(name, host, port);
-        this.agentStub = AgentGrpc.newFutureStub(managedChannel);
+
+        this.agentFutureStub = AgentGrpc.newFutureStub(managedChannel);
+        this.agentPingStub = newAgentPingStub();
 
         this.metadataStub = MetadataGrpc.newFutureStub(managedChannel);
 
         this.grpcCommandService = new GrpcCommandService(managedChannel, GrpcDataSender.reconnectScheduler, activeTraceRepository);
+
+        reconnectExecutor = newReconnectExecutor();
+
+        {
+            this.reconnector = new ReconnectAdaptor(reconnectExecutor, new Runnable() {
+                @Override
+                public void run() {
+                    pingStreamContext = newPingStream(agentPingStub);
+                }
+            });
+            pingStreamContext = newPingStream(agentPingStub);
+        }
     }
+
+    private AgentGrpc.AgentStub newAgentPingStub() {
+        AgentGrpc.AgentStub agentStub = AgentGrpc.newStub(managedChannel);
+        return agentStub.withInterceptors(new SocketIdClientInterceptor());
+    }
+
+    private ExecutorAdaptor newReconnectExecutor() {
+        return new ExecutorAdaptor(GrpcDataSender.reconnectScheduler);
+    }
+
+    private PingStreamContext newPingStream(AgentGrpc.AgentStub agentStub) {
+        final PingStreamContext pingStreamContext = new PingStreamContext(agentStub, reconnector);
+        logger.info("newPingStream:{}", pingStreamContext);
+        return pingStreamContext;
+    }
+
+
 
     private Timer createTimer() {
         final String threadName = PinpointThreadFactory.DEFAULT_THREAD_NAME_PREFIX + name + "-Timer";
@@ -181,6 +219,11 @@ public class AgentGrpcDataSender implements EnhancedDataSender {
     @Override
     public void stop() {
         logger.info("stop started");
+
+        if (reconnectExecutor != null) {
+            this.reconnectExecutor.close();
+        }
+        this.pingStreamContext.close();
 
         if (grpcCommandService != null) {
             grpcCommandService.stop();
@@ -331,9 +374,9 @@ public class AgentGrpcDataSender implements EnhancedDataSender {
     }
 
     private void doRequest(final Object requestPacket, final FutureListener futureListener) {
-        ListenableFuture<PResult> future = toProtocolBuf(requestPacket);
+        final ListenableFuture<PResult> future = doRequest0(requestPacket);
         if (future == null) {
-            logger.debug("Failed to protocol buffers");
+            logger.debug("Failed to protocol buffers {}", future);
             return;
         }
 
@@ -349,6 +392,7 @@ public class AgentGrpcDataSender implements EnhancedDataSender {
 
             @Override
             public void onFailure(Throwable throwable) {
+                logger.debug("onFailure", throwable);
                 DefaultFuture<ResponseMessage> future = new DefaultFuture<ResponseMessage>();
                 future.setFailure(throwable);
                 future.setListener(futureListener);
@@ -356,11 +400,8 @@ public class AgentGrpcDataSender implements EnhancedDataSender {
         }, this.executor);
     }
 
-    private ListenableFuture<PResult> toProtocolBuf(final Object requestPacket) {
-        if (requestPacket instanceof PAgentInfo) {
-            PAgentInfo agentInfo = (PAgentInfo) requestPacket;
-            return this.agentStub.requestAgentInfo(agentInfo);
-        } else if (requestPacket instanceof PSqlMetaData) {
+    private ListenableFuture<PResult> doRequest0(final Object requestPacket) {
+        if (requestPacket instanceof PSqlMetaData) {
             PSqlMetaData sqlMetaData = (PSqlMetaData) requestPacket;
             return this.metadataStub.requestSqlMetaData(sqlMetaData);
         } else if (requestPacket instanceof PApiMetaData) {
@@ -370,7 +411,10 @@ public class AgentGrpcDataSender implements EnhancedDataSender {
             final PStringMetaData stringMetaData = (PStringMetaData) requestPacket;
             return this.metadataStub.requestStringMetaData(stringMetaData);
         }
-
+        if (requestPacket instanceof PAgentInfo) {
+            final PAgentInfo pAgentInfo = (PAgentInfo) requestPacket;
+            return this.agentFutureStub.requestAgentInfo(pAgentInfo);
+        }
         return null;
     }
 

@@ -20,23 +20,17 @@ import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
 
 import com.navercorp.pinpoint.grpc.client.ChannelFactory;
 import com.navercorp.pinpoint.grpc.client.ChannelFactoryOption;
+import com.navercorp.pinpoint.grpc.client.HeaderFactory;
 import com.navercorp.pinpoint.grpc.server.MetadataServerTransportFilter;
 import com.navercorp.pinpoint.grpc.server.ServerContext;
 import com.navercorp.pinpoint.grpc.server.ServerFactory;
 
-import com.navercorp.pinpoint.grpc.client.ClientOption;
-import com.navercorp.pinpoint.grpc.server.MetadataServerTransportFilter;
 import com.navercorp.pinpoint.grpc.server.ServerOption;
 
 import com.navercorp.pinpoint.grpc.server.TransportMetadataFactory;
 import com.navercorp.pinpoint.grpc.server.TransportMetadataServerInterceptor;
-import com.navercorp.pinpoint.grpc.server.lifecycle.DefaultLifecycleRegistry;
-import com.navercorp.pinpoint.grpc.server.lifecycle.HeaderHijackingServerInterceptor;
-import com.navercorp.pinpoint.grpc.server.lifecycle.LifecycleListener;
-import com.navercorp.pinpoint.grpc.server.lifecycle.LifecycleListenerAdaptor;
-import com.navercorp.pinpoint.grpc.server.lifecycle.LifecycleRegistry;
-import com.navercorp.pinpoint.grpc.server.lifecycle.LifecycleTransportFilter;
 import com.navercorp.pinpoint.grpc.trace.PSpan;
+import com.navercorp.pinpoint.grpc.trace.PSpanMessage;
 import com.navercorp.pinpoint.grpc.trace.SpanGrpc;
 
 import com.google.protobuf.Empty;
@@ -67,6 +61,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import static org.mockito.Mockito.mock;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -110,8 +106,7 @@ public class ChannelFactoryTest {
     @Test
     public void build() throws InterruptedException {
 
-        AgentHeaderFactory.Header header = new AgentHeaderFactory.Header("agentId", "appName", System.currentTimeMillis());
-        HeaderFactory<AgentHeaderFactory.Header> headerFactory = new AgentHeaderFactory(header);
+        HeaderFactory<Header> headerFactory = new AgentHeaderFactory("agentId", "appName", System.currentTimeMillis());
 
         CountRecordClientInterceptor countRecordClientInterceptor = new CountRecordClientInterceptor();
 
@@ -126,25 +121,28 @@ public class ChannelFactoryTest {
         managedChannel.getState(false);
 
         SpanGrpc.SpanStub spanStub = SpanGrpc.newStub(managedChannel);
-//        traceStub.withExecutor()
 
-        final CountdownStreamObserver responseObserver = new CountdownStreamObserver();
+        final QueueingStreamObserver<Empty> responseObserver = new QueueingStreamObserver<Empty>();
 
         logger.debug("sendSpan");
-        StreamObserver<PSpan> sendSpan = spanStub.sendSpan(responseObserver);
+        StreamObserver<PSpanMessage> sendSpan = spanStub.sendSpan(responseObserver);
 
         PSpan pSpan = newSpan();
+        PSpanMessage message = PSpanMessage.newBuilder().setSpan(pSpan).build();
+
         logger.debug("client-onNext");
-        sendSpan.onNext(pSpan);
+        sendSpan.onNext(message);
         logger.debug("wait for response");
-        responseObserver.awaitLatch();
+        Empty value = responseObserver.getValue();
+        logger.debug("response:{}", value);
+
         logger.debug("client-onCompleted");
         sendSpan.onCompleted();
 
         Assert.assertTrue(countRecordClientInterceptor.getExecutedInterceptCallCount() == 1);
 
         logger.debug("state:{}", managedChannel.getState(true));
-        spanService.awaitLatch();
+        spanService.awaitOnCompleted();
         logger.debug("managedChannel shutdown");
         managedChannel.shutdown();
         managedChannel.awaitTermination(1000, TimeUnit.MILLISECONDS);
@@ -169,7 +167,7 @@ public class ChannelFactoryTest {
         logger.debug("server start");
 
         serverFactory = new ServerFactory(ChannelFactoryTest.class.getSimpleName() + "-server", "127.0.0.1", PORT, executorService, new ServerOption.Builder().build());
-        spanService = new SpanService(1);
+        spanService = new SpanService();
 
         serverFactory.addService(spanService);
 
@@ -183,13 +181,6 @@ public class ChannelFactoryTest {
         final ServerTransportFilter metadataTransportFilter = new MetadataServerTransportFilter(transportMetadataFactory);
         serverFactory.addTransportFilter(metadataTransportFilter);
 
-        LifecycleListener lifecycleListener = new LifecycleListenerAdaptor();
-        LifecycleRegistry registry = new DefaultLifecycleRegistry();
-        serverFactory.addTransportFilter(new LifecycleTransportFilter(registry, lifecycleListener));
-
-
-        serverFactory.addInterceptor(new HeaderHijackingServerInterceptor(registry, lifecycleListener));
-
         ServerInterceptor transportMetadataServerInterceptor = new TransportMetadataServerInterceptor();
         serverFactory.addInterceptor(transportMetadataServerInterceptor);
 
@@ -198,18 +189,19 @@ public class ChannelFactoryTest {
     static class SpanService extends SpanGrpc.SpanImplBase {
         private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-        private final CountDownLatch latch;
+        private final CountDownLatch onCompletedLatch;
 
-        public SpanService(int count) {
-            this.latch = new CountDownLatch(count);
+        public SpanService() {
+            this.onCompletedLatch = new CountDownLatch(1);
         }
 
         @Override
-        public StreamObserver<PSpan> sendSpan(final StreamObserver<Empty> responseObserver) {
-            return new StreamObserver<PSpan>() {
+        public StreamObserver<PSpanMessage> sendSpan(final StreamObserver<Empty> responseObserver) {
+            return new StreamObserver<PSpanMessage>() {
                 @Override
-                public void onNext(PSpan value) {
-                    AgentHeaderFactory.Header header = ServerContext.getAgentInfo();
+                public void onNext(PSpanMessage value) {
+                    Header header = ServerContext.getAgentInfo();
+
                     logger.debug("server-onNext:{} header:{}" , value, header);
                     logger.debug("server-threadName:{}", Thread.currentThread().getName());
 
@@ -227,14 +219,14 @@ public class ChannelFactoryTest {
                 public void onCompleted() {
                     logger.debug("server-onCompleted");
                     responseObserver.onCompleted();
-                    latch.countDown();
+                    onCompletedLatch.countDown();
                 }
             };
         }
 
-        public boolean awaitLatch() {
+        public boolean awaitOnCompleted() {
             try {
-                return latch.await(3, TimeUnit.SECONDS);
+                return onCompletedLatch.await(3, TimeUnit.SECONDS);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
@@ -256,6 +248,4 @@ public class ChannelFactoryTest {
             return executedInterceptCallCount.get();
         }
     }
-
-
 }

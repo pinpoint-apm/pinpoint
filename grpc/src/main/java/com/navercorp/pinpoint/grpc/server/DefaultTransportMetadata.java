@@ -30,14 +30,12 @@ public class DefaultTransportMetadata implements TransportMetadata {
     private final Long transportId;
     private final long connectTime;
 
-    private final LastAccessTime lastAccessTime;
 
     public DefaultTransportMetadata(String debugString, InetSocketAddress remoteAddress, long transportId, long connectTime) {
         this.debugString = Assert.requireNonNull(debugString, "debugString must not be null");
         this.remoteAddress = Assert.requireNonNull(remoteAddress, "remoteAddress must not be null");
         this.transportId = transportId;
         this.connectTime = connectTime;
-        this.lastAccessTime = new LastAccessTime(connectTime);
     }
 
     @Override
@@ -57,19 +55,12 @@ public class DefaultTransportMetadata implements TransportMetadata {
 
 
     @Override
-    public LastAccessTime getLastAccessTime() {
-        return lastAccessTime;
-    }
-
-
-    @Override
     public String toString() {
         return "DefaultTransportMetadata{" +
                 "debugString='" + debugString + '\'' +
                 ", remoteAddress=" + remoteAddress +
                 ", transportId=" + transportId +
                 ", connectTime=" + connectTime +
-                ", lastAccessTime=" + lastAccessTime +
                 '}';
     }
 }
