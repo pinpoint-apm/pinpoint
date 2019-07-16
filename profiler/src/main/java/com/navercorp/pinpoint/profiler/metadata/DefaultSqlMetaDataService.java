@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.profiler.metadata;
 import com.google.inject.Inject;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.ParsingResult;
+import com.navercorp.pinpoint.profiler.context.module.MetadataDataSender;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,7 +37,7 @@ public class DefaultSqlMetaDataService implements SqlMetaDataService {
     private final EnhancedDataSender<Object> enhancedDataSender;
 
     @Inject
-    public DefaultSqlMetaDataService(ProfilerConfig profilerConfig, EnhancedDataSender<Object> enhancedDataSender) {
+    public DefaultSqlMetaDataService(ProfilerConfig profilerConfig, @MetadataDataSender EnhancedDataSender<Object> enhancedDataSender) {
         this(enhancedDataSender, profilerConfig.getJdbcSqlCacheSize());
     }
 

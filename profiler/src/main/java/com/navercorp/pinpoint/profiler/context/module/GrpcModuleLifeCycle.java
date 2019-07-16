@@ -21,10 +21,8 @@ import com.google.inject.Provider;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.common.util.Assert;
-import com.navercorp.pinpoint.profiler.receiver.CommandDispatcher;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
-import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 
 import java.util.concurrent.ExecutorService;
 
@@ -35,13 +33,15 @@ public class GrpcModuleLifeCycle implements ModuleLifeCycle {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
 
-    private final Provider<EnhancedDataSender<Object>> tcpDataSenderProvider;
+    private final Provider<EnhancedDataSender<Object>> agentDataSenderProvider;
+    private final Provider<EnhancedDataSender<Object>> metadataDataSenderProvider;
     private final Provider<DataSender> spanDataSenderProvider;
     private final Provider<DataSender> statDataSenderProvider;
 
     private final Provider<ExecutorService> dnsExecutorServiceProvider;
 
-    private EnhancedDataSender<Object> tcpDataSender;
+    private EnhancedDataSender<Object> agentDataSender;
+    private EnhancedDataSender<Object> metadataDataSender;
 
     private DataSender spanDataSender;
     private DataSender statDataSender;
@@ -50,12 +50,14 @@ public class GrpcModuleLifeCycle implements ModuleLifeCycle {
 
     @Inject
     public GrpcModuleLifeCycle(
-            Provider<EnhancedDataSender<Object>> tcpDataSenderProvider,
+            @AgentDataSender Provider<EnhancedDataSender<Object>> agentDataSenderProvider,
+            @MetadataDataSender Provider<EnhancedDataSender<Object>> metadataDataSenderProvider,
             @SpanDataSender Provider<DataSender> spanDataSenderProvider,
             @StatDataSender Provider<DataSender> statDataSenderProvider,
             Provider<ExecutorService> dnsExecutorServiceProvider
-            ) {
-        this.tcpDataSenderProvider = Assert.requireNonNull(tcpDataSenderProvider, "tcpDataSenderProvider must not be null");
+    ) {
+        this.agentDataSenderProvider = Assert.requireNonNull(agentDataSenderProvider, "agentDataSenderProvider must not be null");
+        this.metadataDataSenderProvider = Assert.requireNonNull(metadataDataSenderProvider, "metadataDataSenderProvider must not be null");
         this.spanDataSenderProvider = Assert.requireNonNull(spanDataSenderProvider, "spanDataSenderProvider must not be null");
         this.statDataSenderProvider = Assert.requireNonNull(statDataSenderProvider, "statDataSenderProvider must not be null");
         this.dnsExecutorServiceProvider = Assert.requireNonNull(dnsExecutorServiceProvider, "dnsExecutorServiceProvider must not be null");
@@ -65,8 +67,11 @@ public class GrpcModuleLifeCycle implements ModuleLifeCycle {
     public void start() {
         logger.info("start()");
 
-        this.tcpDataSender = tcpDataSenderProvider.get();
-        logger.info("tcpDataSenderProvider:{}", tcpDataSender);
+        this.agentDataSender = agentDataSenderProvider.get();
+        logger.info("agetInfoDataSenderProvider:{}", agentDataSender);
+
+        this.metadataDataSender = metadataDataSenderProvider.get();
+        logger.info("metadataDataSenderProvider:{}", metadataDataSender);
 
         this.spanDataSender = spanDataSenderProvider.get();
         logger.info("spanDataSenderProvider:{}", spanDataSender);
@@ -75,7 +80,6 @@ public class GrpcModuleLifeCycle implements ModuleLifeCycle {
         logger.info("statDataSenderProvider:{}", statDataSender);
 
         this.dnsExecutorService = dnsExecutorServiceProvider.get();
-
     }
 
     @Override
@@ -88,8 +92,12 @@ public class GrpcModuleLifeCycle implements ModuleLifeCycle {
             this.statDataSender.stop();
         }
 
-        if (tcpDataSender != null) {
-            this.tcpDataSender.stop();
+        if (agentDataSender != null) {
+            this.agentDataSender.stop();
+        }
+
+        if (metadataDataSender != null) {
+            this.metadataDataSender.stop();
         }
 
         if (dnsExecutorService != null) {
@@ -99,10 +107,13 @@ public class GrpcModuleLifeCycle implements ModuleLifeCycle {
 
     @Override
     public String toString() {
-        return "GrpcModuleLifeCycle{" +
-                ", tcpDataSenderProvider=" + tcpDataSenderProvider +
-                ", spanDataSenderProvider=" + spanDataSenderProvider +
-                ", statDataSenderProvider=" + statDataSenderProvider +
-                '}';
+        final StringBuilder sb = new StringBuilder("GrpcModuleLifeCycle{");
+        sb.append(", agentDataSender=").append(agentDataSender);
+        sb.append(", metadataDataSender=").append(metadataDataSender);
+        sb.append(", spanDataSender=").append(spanDataSender);
+        sb.append(", statDataSender=").append(statDataSender);
+        sb.append(", dnsExecutorService=").append(dnsExecutorService);
+        sb.append('}');
+        return sb.toString();
     }
 }

@@ -16,9 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.sender.grpc;
 
-import com.navercorp.pinpoint.grpc.client.ClientOption;
 import com.navercorp.pinpoint.grpc.client.SocketIdClientInterceptor;
-import com.navercorp.pinpoint.grpc.trace.MetadataGrpc;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
 import com.navercorp.pinpoint.profiler.receiver.grpc.GrpcCommandService;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
@@ -28,7 +26,6 @@ import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.protobuf.GeneratedMessageV3;
 
-import com.google.common.util.concurrent.SettableFuture;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.ExecutorFactory;
 import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
@@ -36,10 +33,7 @@ import com.navercorp.pinpoint.grpc.client.ChannelFactory;
 import com.navercorp.pinpoint.grpc.client.ChannelFactoryOption;
 import com.navercorp.pinpoint.grpc.trace.AgentGrpc;
 import com.navercorp.pinpoint.grpc.trace.PAgentInfo;
-import com.navercorp.pinpoint.grpc.trace.PApiMetaData;
 import com.navercorp.pinpoint.grpc.trace.PResult;
-import com.navercorp.pinpoint.grpc.trace.PSqlMetaData;
-import com.navercorp.pinpoint.grpc.trace.PStringMetaData;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
 import com.navercorp.pinpoint.profiler.sender.AsyncQueueingExecutor;
 import com.navercorp.pinpoint.profiler.sender.AsyncQueueingExecutorListener;
@@ -105,7 +99,6 @@ public class AgentGrpcDataSender implements EnhancedDataSender {
 
     private final AgentGrpc.AgentFutureStub agentFutureStub;
     private final AgentGrpc.AgentStub agentPingStub;
-    private final MetadataGrpc.MetadataFutureStub metadataStub;
 
     private GrpcCommandService grpcCommandService;
 
@@ -134,8 +127,6 @@ public class AgentGrpcDataSender implements EnhancedDataSender {
 
         this.agentFutureStub = AgentGrpc.newFutureStub(managedChannel);
         this.agentPingStub = newAgentPingStub();
-
-        this.metadataStub = MetadataGrpc.newFutureStub(managedChannel);
 
         this.grpcCommandService = new GrpcCommandService(managedChannel, GrpcDataSender.reconnectScheduler, activeTraceRepository);
 
@@ -166,8 +157,6 @@ public class AgentGrpcDataSender implements EnhancedDataSender {
         logger.info("newPingStream:{}", pingStreamContext);
         return pingStreamContext;
     }
-
-
 
     private Timer createTimer() {
         final String threadName = PinpointThreadFactory.DEFAULT_THREAD_NAME_PREFIX + name + "-Timer";
@@ -401,16 +390,6 @@ public class AgentGrpcDataSender implements EnhancedDataSender {
     }
 
     private ListenableFuture<PResult> doRequest0(final Object requestPacket) {
-        if (requestPacket instanceof PSqlMetaData) {
-            PSqlMetaData sqlMetaData = (PSqlMetaData) requestPacket;
-            return this.metadataStub.requestSqlMetaData(sqlMetaData);
-        } else if (requestPacket instanceof PApiMetaData) {
-            final PApiMetaData apiMetaData = (PApiMetaData) requestPacket;
-            return this.metadataStub.requestApiMetaData(apiMetaData);
-        } else if (requestPacket instanceof PStringMetaData) {
-            final PStringMetaData stringMetaData = (PStringMetaData) requestPacket;
-            return this.metadataStub.requestStringMetaData(stringMetaData);
-        }
         if (requestPacket instanceof PAgentInfo) {
             final PAgentInfo pAgentInfo = (PAgentInfo) requestPacket;
             return this.agentFutureStub.requestAgentInfo(pAgentInfo);
