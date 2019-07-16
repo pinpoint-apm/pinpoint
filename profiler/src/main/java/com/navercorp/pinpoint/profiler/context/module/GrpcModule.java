@@ -37,6 +37,7 @@ import com.navercorp.pinpoint.profiler.context.provider.grpc.DnsExecutorServiceP
 import com.navercorp.pinpoint.profiler.context.provider.grpc.GrpcNameResolverProvider;
 import com.navercorp.pinpoint.profiler.context.provider.grpc.GrpcSpanProcessorProvider;
 import com.navercorp.pinpoint.profiler.context.provider.grpc.GrpcTransportConfigProvider;
+import com.navercorp.pinpoint.profiler.context.provider.grpc.MetadataGrpcDataSenderProvider;
 import com.navercorp.pinpoint.profiler.context.provider.grpc.SpanGrpcDataSenderProvider;
 import com.navercorp.pinpoint.profiler.context.provider.grpc.StatGrpcDataSenderProvider;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
@@ -71,8 +72,13 @@ public class GrpcModule extends PrivateModule {
         expose(resultMessageConverterKey);
 
         TypeLiteral<EnhancedDataSender<Object>> dataSenderTypeLiteral = new TypeLiteral<EnhancedDataSender<Object>>() {};
-        bind(dataSenderTypeLiteral).toProvider(AgentGrpcDataSenderProvider.class).in(Scopes.SINGLETON);
-        expose(dataSenderTypeLiteral);
+        Key<EnhancedDataSender<Object>> agentDataSender = Key.get(dataSenderTypeLiteral, AgentDataSender.class);
+        bind(agentDataSender).toProvider(AgentGrpcDataSenderProvider.class).in(Scopes.SINGLETON);
+        expose(agentDataSender);
+
+        Key<EnhancedDataSender<Object>> metadataDataSender = Key.get(dataSenderTypeLiteral, MetadataDataSender.class);
+        bind(metadataDataSender).toProvider(MetadataGrpcDataSenderProvider.class).in(Scopes.SINGLETON);
+        expose(metadataDataSender);
 
         // Span
         TypeLiteral<MessageConverter<GeneratedMessageV3>> protoMessageConverter = new TypeLiteral<MessageConverter<GeneratedMessageV3>>() {};
