@@ -17,9 +17,10 @@
 package com.navercorp.pinpoint.profiler.sender.grpc;
 
 import com.navercorp.pinpoint.common.util.Assert;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -28,6 +29,8 @@ import java.util.concurrent.TimeUnit;
  * @author Woonduk Kang(emeroad)
  */
 public class ReconnectExecutor {
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     private volatile boolean shutdown;
     private final ScheduledExecutorService scheduledExecutorService;
 
@@ -39,6 +42,7 @@ public class ReconnectExecutor {
         Assert.requireNonNull(command, "command must not be null");
 
         if (shutdown) {
+            logger.debug("already shutdown");
             return;
         }
         if (command instanceof ReconnectJob) {
@@ -54,8 +58,8 @@ public class ReconnectExecutor {
 
     public Reconnector newReconnector(Runnable reconnectJob) {
         Assert.requireNonNull(reconnectJob, "reconnectJob must not be null");
-        if (!(reconnectJob instanceof ReconnectJob)) {
-            throw new UnsupportedOperationException("unsupported runnable");
+        if (logger.isInfoEnabled()) {
+            logger.info("newReconnector(reconnectJob = [{}])", reconnectJob);
         }
 
         final Executor dispatch = new Executor() {
@@ -64,6 +68,12 @@ public class ReconnectExecutor {
                 ReconnectExecutor.this.execute0(command);
             }
         };
-        return new ReconnectAdaptor(dispatch, reconnectJob);
+        final ReconnectJob reconnectJobWrap = wrapReconnectJob(reconnectJob);
+        return new ReconnectAdaptor(dispatch, reconnectJobWrap);
+    }
+
+
+    private ReconnectJob wrapReconnectJob(Runnable runnable) {
+        return new ExponentialBackoffReconnectJob(runnable);
     }
 }

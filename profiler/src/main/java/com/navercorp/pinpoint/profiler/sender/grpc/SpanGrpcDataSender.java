@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.profiler.sender.grpc;
 
 
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.grpc.client.ChannelFactoryOption;
 
 import com.google.protobuf.Empty;
@@ -47,12 +48,12 @@ public class SpanGrpcDataSender extends GrpcDataSender {
     public SpanGrpcDataSender(String host, int port,
                               int executorQueueSize,
                               MessageConverter<GeneratedMessageV3> messageConverter,
-                              ScheduledExecutorService reconnectScheduler,
+                              ReconnectExecutor reconnectExecutor,
                               ChannelFactoryOption channelFactoryOption) {
         super(host, port, executorQueueSize, messageConverter, channelFactoryOption);
 
         this.spanStub = SpanGrpc.newStub(managedChannel);
-        this.reconnectExecutor = newReconnectExecutor(reconnectScheduler);
+        this.reconnectExecutor = Assert.requireNonNull(reconnectExecutor, "reconnectExecutor must not be null");
         {
             final Runnable spanStreamReconnectJob = new Runnable() {
                 @Override
@@ -63,10 +64,6 @@ public class SpanGrpcDataSender extends GrpcDataSender {
             this.spanStreamReconnector = reconnectExecutor.newReconnector(spanStreamReconnectJob);
             this.spanStream = newSpanStream();
         }
-    }
-
-    private ReconnectExecutor newReconnectExecutor(ScheduledExecutorService reconnectScheduler) {
-        return new ReconnectExecutor(reconnectScheduler);
     }
 
     private StreamObserver<PSpanMessage> newSpanStream() {

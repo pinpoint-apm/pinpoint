@@ -36,12 +36,17 @@ import com.navercorp.pinpoint.profiler.monitor.metric.gc.JvmGcType;
 import io.grpc.NameResolverProvider;
 
 import java.util.Collections;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class AgentGrpcDataSenderTestMain {
     private static final String AGENT_ID = "mockAgentId";
     private static final String APPLICATION_NAME = "mockApplicationName";
     private static final long START_TIME = System.currentTimeMillis();
+    private final ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
+    private final ReconnectExecutor reconnectExecutor = new ReconnectExecutor(scheduledExecutorService);
+
 
     public void request() throws Exception {
         MessageConverter<GeneratedMessageV3> messageConverter = new GrpcMetadataMessageConverter();
@@ -57,7 +62,8 @@ public class AgentGrpcDataSenderTestMain {
         builder.setHeaderFactory(headerFactory);
         builder.setNameResolverProvider(nameResolverProvider);
 
-        AgentGrpcDataSender sender = new AgentGrpcDataSender("localhost", 9997, messageConverter, builder.build());
+        AgentGrpcDataSender sender = new AgentGrpcDataSender("localhost", 9997, messageConverter,
+                reconnectExecutor, scheduledExecutorService, builder.build());
 
         AgentInfo agentInfo = newAgentInfo();
 
@@ -80,6 +86,12 @@ public class AgentGrpcDataSenderTestMain {
             main.request();
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            main.close();
         }
+    }
+
+    private void close() {
+        this.scheduledExecutorService.shutdown();
     }
 }
