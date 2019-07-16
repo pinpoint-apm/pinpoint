@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.ExecutorFactory;
 import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
 import com.navercorp.pinpoint.grpc.ExecutorUtils;
+import com.navercorp.pinpoint.grpc.ManagedChannelUtils;
 import com.navercorp.pinpoint.grpc.client.ChannelFactory;
 import com.navercorp.pinpoint.grpc.client.ChannelFactoryOption;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
@@ -35,6 +36,7 @@ import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -104,7 +106,7 @@ public abstract class GrpcDataSender implements DataSender<Object> {
     public void stop() {
         shutdown = true;
         if (this.managedChannel != null) {
-            this.managedChannel.shutdown();
+            ManagedChannelUtils.shutdownManagedChannel(name, managedChannel);
         }
         ExecutorUtils.shutdownExecutorService(name, executor);
         this.channelFactory.close();

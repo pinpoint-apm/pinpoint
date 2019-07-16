@@ -17,25 +17,25 @@
 package com.navercorp.pinpoint.profiler.context.provider.grpc;
 
 import com.google.inject.Inject;
+import com.google.inject.Provider;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.sender.grpc.ReconnectExecutor;
 
-import javax.xml.ws.Provider;
 import java.util.concurrent.ScheduledExecutorService;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class ReconnectorExecutorProvider implements Provider<ReconnectExecutor> {
+public class ReconnectExecutorProvider implements Provider<ReconnectExecutor> {
     private final ScheduledExecutorService scheduledExecutorService;
 
     @Inject
-    public ReconnectorExecutorProvider(ScheduledExecutorService scheduledExecutorService) {
+    public ReconnectExecutorProvider(ScheduledExecutorService scheduledExecutorService) {
         this.scheduledExecutorService = Assert.requireNonNull(scheduledExecutorService, "scheduledExecutorService must not be null");
     }
 
     @Override
-    public ReconnectExecutor invoke(ReconnectExecutor request) {
+    public ReconnectExecutor get() {
         // TODO custom timeout~~
         return new ReconnectExecutor(scheduledExecutorService);
     }

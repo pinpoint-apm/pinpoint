@@ -38,6 +38,7 @@ import com.navercorp.pinpoint.profiler.context.provider.grpc.GrpcNameResolverPro
 import com.navercorp.pinpoint.profiler.context.provider.grpc.GrpcSpanProcessorProvider;
 import com.navercorp.pinpoint.profiler.context.provider.grpc.GrpcTransportConfigProvider;
 import com.navercorp.pinpoint.profiler.context.provider.grpc.MetadataGrpcDataSenderProvider;
+import com.navercorp.pinpoint.profiler.context.provider.grpc.ReconnectExecutorProvider;
 import com.navercorp.pinpoint.profiler.context.provider.grpc.ReconnectSchedulerProvider;
 import com.navercorp.pinpoint.profiler.context.provider.grpc.SpanGrpcDataSenderProvider;
 import com.navercorp.pinpoint.profiler.context.provider.grpc.StatGrpcDataSenderProvider;
@@ -65,8 +66,9 @@ public class GrpcModule extends PrivateModule {
         bind(HeaderFactory.class).toProvider(AgentHeaderFactoryProvider.class).in(Scopes.SINGLETON);
 
         bind(ScheduledExecutorService.class).toProvider(ReconnectSchedulerProvider.class).in(Scopes.SINGLETON);
+
         // not singleton
-        bind(ReconnectExecutor.class).toProvider(ReconnectExecutor.class)
+        bind(ReconnectExecutor.class).toProvider(ReconnectExecutorProvider.class);
 
         // Agent
         TypeLiteral<MessageConverter<GeneratedMessageV3>> metadataMessageConverter = new TypeLiteral<MessageConverter<GeneratedMessageV3>>() {};

@@ -32,7 +32,10 @@ import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 import com.navercorp.pinpoint.profiler.sender.grpc.AgentGrpcDataSender;
 
+import com.navercorp.pinpoint.profiler.sender.grpc.ReconnectExecutor;
 import io.grpc.NameResolverProvider;
+
+import java.util.concurrent.ScheduledExecutorService;
 
 
 /**
@@ -42,6 +45,10 @@ public class AgentGrpcDataSenderProvider implements Provider<EnhancedDataSender<
     private final GrpcTransportConfig grpcTransportConfig;
     private final MessageConverter<GeneratedMessageV3> messageConverter;
     private final HeaderFactory headerFactory;
+
+    private final Provider<ReconnectExecutor> reconnectExecutorProvider;
+    private final ScheduledExecutorService retransmissionExecutor;
+
     private final NameResolverProvider nameResolverProvider;
     private final ActiveTraceRepository activeTraceRepository;
 
@@ -49,11 +56,18 @@ public class AgentGrpcDataSenderProvider implements Provider<EnhancedDataSender<
     public AgentGrpcDataSenderProvider(GrpcTransportConfig grpcTransportConfig,
                                        @MetadataConverter MessageConverter<GeneratedMessageV3> messageConverter,
                                        HeaderFactory headerFactory,
+                                       Provider<ReconnectExecutor> reconnectExecutor,
+                                       ScheduledExecutorService retransmissionExecutor,
                                        NameResolverProvider nameResolverProvider,
                                        ActiveTraceRepository activeTraceRepository) {
         this.grpcTransportConfig = Assert.requireNonNull(grpcTransportConfig, "grpcTransportConfig must not be null");
         this.messageConverter = Assert.requireNonNull(messageConverter, "messageConverter must not be null");
         this.headerFactory = Assert.requireNonNull(headerFactory, "headerFactory must not be null");
+
+        this.reconnectExecutorProvider = Assert.requireNonNull(reconnectExecutor, "reconnectExecutorProvider must not be null");
+        this.retransmissionExecutor = Assert.requireNonNull(retransmissionExecutor, "retransmissionExecutor must not be null");
+
+
         this.nameResolverProvider = Assert.requireNonNull(nameResolverProvider, "nameResolverProvider must not be null");
         this.activeTraceRepository = Assert.requireNonNull(activeTraceRepository, "activeTraceRepository must not be null");
     }
@@ -73,7 +87,9 @@ public class AgentGrpcDataSenderProvider implements Provider<EnhancedDataSender<
         channelFactoryOptionBuilder.addClientInterceptor(unaryCallDeadlineInterceptor);
         channelFactoryOptionBuilder.setExecutorQueueSize(channelExecutorQueueSize);
         channelFactoryOptionBuilder.setClientOption(clientOption);
+        ChannelFactoryOption factoryOption = channelFactoryOptionBuilder.build();
 
-        return new AgentGrpcDataSender(collectorIp, collectorPort, messageConverter, channelFactoryOptionBuilder.build(), activeTraceRepository);
+        final  ReconnectExecutor reconnectExecutor = reconnectExecutorProvider.get();
+        return new AgentGrpcDataSender(collectorIp, collectorPort, messageConverter, reconnectExecutor, retransmissionExecutor, factoryOption, activeTraceRepository);
     }
 }

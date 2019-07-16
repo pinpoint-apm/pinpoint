@@ -16,7 +16,10 @@
 
 package com.navercorp.pinpoint.profiler.sender.grpc;
 
+import com.navercorp.pinpoint.grpc.ManagedChannelUtils;
+import com.navercorp.pinpoint.grpc.client.ClientOption;
 import com.navercorp.pinpoint.grpc.client.SocketIdClientInterceptor;
+import com.navercorp.pinpoint.grpc.trace.MetadataGrpc;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
 import com.navercorp.pinpoint.profiler.receiver.grpc.CommandServiceStubFactory;
 import com.navercorp.pinpoint.profiler.receiver.grpc.GrpcCommandService;
@@ -112,14 +115,17 @@ public class AgentGrpcDataSender implements EnhancedDataSender {
 
     public AgentGrpcDataSender(String host, int port,
                                MessageConverter<GeneratedMessageV3> messageConverter,
+                               ReconnectExecutor reconnectExecutor,
                                ScheduledExecutorService reconnectScheduler,
                                ChannelFactoryOption channelFactoryOption) {
-        this(host, port, messageConverter, channelFactoryOption, reconnectScheduler, null);
+        this(host, port, messageConverter, reconnectExecutor, reconnectScheduler, channelFactoryOption, null);
     }
 
-    public AgentGrpcDataSender(String host, int port, MessageConverter<GeneratedMessageV3> messageConverter,
+    public AgentGrpcDataSender(String host, int port,
+                               MessageConverter<GeneratedMessageV3> messageConverter,
+                               ReconnectExecutor reconnectExecutor,
+                               final ScheduledExecutorService retransmissionExecutor,
                                ChannelFactoryOption channelFactoryOption,
-                               final ScheduledExecutorService reconnectScheduler,
                                ActiveTraceRepository activeTraceRepository) {
         Assert.requireNonNull(channelFactoryOption, "channelFactoryOption must not be null");
 
@@ -136,7 +142,7 @@ public class AgentGrpcDataSender implements EnhancedDataSender {
         this.agentFutureStub = AgentGrpc.newFutureStub(managedChannel);
         this.agentPingStub = newAgentPingStub();
 
-        this.reconnectExecutor = newReconnectExecutor(reconnectScheduler);
+        this.reconnectExecutor = reconnectExecutor;
         CommandServiceStubFactory commandServiceStubFactory = new CommandServiceStubFactory(managedChannel);
         this.grpcCommandService = new GrpcCommandService(commandServiceStubFactory, reconnectExecutor, activeTraceRepository);
 
@@ -144,20 +150,16 @@ public class AgentGrpcDataSender implements EnhancedDataSender {
             this.reconnector = reconnectExecutor.newReconnector(new Runnable() {
                 @Override
                 public void run() {
-                    pingStreamContext = newPingStream(agentPingStub, reconnectScheduler);
+                    pingStreamContext = newPingStream(agentPingStub, retransmissionExecutor);
                 }
             });
-            pingStreamContext = newPingStream(agentPingStub, reconnectScheduler);
+            pingStreamContext = newPingStream(agentPingStub, retransmissionExecutor);
         }
     }
 
     private AgentGrpc.AgentStub newAgentPingStub() {
         AgentGrpc.AgentStub agentStub = AgentGrpc.newStub(managedChannel);
         return agentStub.withInterceptors(new SocketIdClientInterceptor());
-    }
-
-    private ReconnectExecutor newReconnectExecutor(ScheduledExecutorService reconnectScheduler) {
-        return new ReconnectExecutor(reconnectScheduler);
     }
 
     private PingStreamContext newPingStream(AgentGrpc.AgentStub agentStub, ScheduledExecutorService reconnectScheduler) {
@@ -235,7 +237,7 @@ public class AgentGrpcDataSender implements EnhancedDataSender {
 
         shutdown = true;
         if (this.managedChannel != null) {
-            this.managedChannel.shutdown();
+            ManagedChannelUtils.shutdownManagedChannel(name, managedChannel);
         }
         this.channelFactory.close();
     }

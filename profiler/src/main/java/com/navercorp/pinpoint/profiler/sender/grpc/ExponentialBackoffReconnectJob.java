@@ -64,4 +64,13 @@ public class ExponentialBackoffReconnectJob implements ReconnectJob {
     public void run() {
         this.runnable.run();
     }
+
+    @Override
+    public String toString() {
+        return "ExponentialBackoffReconnectJob{" +
+                "maxBackOffNanos=" + maxBackOffNanos +
+                ", exponentialBackoffPolicy=" + exponentialBackoffPolicy +
+                ", runnable=" + runnable +
+                '}';
+    }
 }
