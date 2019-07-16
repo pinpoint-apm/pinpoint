@@ -44,6 +44,7 @@ public abstract class GrpcDataSender implements DataSender<Object> {
             = Executors.newScheduledThreadPool(1, new PinpointThreadFactory("Pinpoint-reconnect-thread"));
 
     protected final Logger logger = LoggerFactory.getLogger(this.getClass());
+    protected final boolean isDebug = logger.isDebugEnabled();
 
     protected final String name;
     protected final ManagedChannel managedChannel;

@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.AgentInfoSender;
 import com.navercorp.pinpoint.profiler.context.ServerMetaDataRegistryService;
+import com.navercorp.pinpoint.profiler.context.module.AgentDataSender;
 import com.navercorp.pinpoint.profiler.context.module.ResultConverter;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
@@ -43,7 +44,7 @@ public class AgentInfoSenderProvider implements Provider<AgentInfoSender> {
     @Inject
     public AgentInfoSenderProvider(
             ProfilerConfig profilerConfig,
-            Provider<EnhancedDataSender<Object>> enhancedDataSenderProvider,
+            @AgentDataSender Provider<EnhancedDataSender<Object>> enhancedDataSenderProvider,
             Provider<AgentInfoFactory> agentInfoFactoryProvider,
             ServerMetaDataRegistryService serverMetaDataRegistryService,
             @ResultConverter MessageConverter<ResultResponse> messageConverter) {

@@ -79,10 +79,18 @@ public class ThriftModule extends PrivateModule {
 //        expose(pinpointClientFactory);
 
         bind(HeaderTBaseSerializer.class).toProvider(HeaderTBaseSerializerProvider.class).in(Scopes.SINGLETON);
-
+        // EnhancedDataSender
         TypeLiteral<EnhancedDataSender<Object>> dataSenderTypeLiteral = new TypeLiteral<EnhancedDataSender<Object>>() {};
         bind(dataSenderTypeLiteral).toProvider(TcpDataSenderProvider.class).in(Scopes.SINGLETON);
         expose(dataSenderTypeLiteral);
+        // Bind AgentDataSender to EnhancedDataSender
+        Key<EnhancedDataSender<Object>> agentDataSender = Key.get(dataSenderTypeLiteral, AgentDataSender.class);
+        bind(agentDataSender).to(dataSenderTypeLiteral).in(Scopes.SINGLETON);
+        expose(agentDataSender);
+        // Bind MetadataDataSender to EnhancedDataSender
+        Key<EnhancedDataSender<Object>> metadataDataSender = Key.get(dataSenderTypeLiteral, MetadataDataSender.class);
+        bind(metadataDataSender).to(dataSenderTypeLiteral).in(Scopes.SINGLETON);
+        expose(metadataDataSender);
 
         Key<Timer> spanStatConnectTimer = Key.get(Timer.class, SpanStatConnectTimer.class);
         bind(spanStatConnectTimer).toProvider(SpanStatConnectTimerProvider.class).in(Scopes.SINGLETON);

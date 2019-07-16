@@ -28,17 +28,25 @@ public class GrpcTransportConfig {
 
     private static final String DEFAULT_IP = "127.0.0.1";
     private static final long DEFAULT_CLIENT_REQUEST_TIMEOUT = 6000;
+    private static final int DEFAULT_AGENT_SENDER_EXECUTOR_QUEUE_SIZE = 1000;
+    private static final int DEFAULT_METADATA_SENDER_EXECUTOR_QUEUE_SIZE = 1000;
     private static final int DEFAULT_SPAN_SENDER_EXECUTOR_QUEUE_SIZE = 1000;
     private static final int DEFAULT_STAT_SENDER_EXECUTOR_QUEUE_SIZE = 1000;
     private static final int DEFAULT_AGENT_COLLECTOR_PORT = 9991;
     private static final int DEFAULT_STAT_COLLECTOR_PORT = 9992;
     private static final int DEFAULT_SPAN_COLLECTOR_PORT = 9993;
     private static final int DEFAULT_AGENT_CHANNEL_EXECUTOR_QUEUE_SIZE = 1000;
+    private static final int DEFAULT_METADATA_CHANNEL_EXECUTOR_QUEUE_SIZE = 1000;
     private static final int DEFAULT_STAT_CHANNEL_EXECUTOR_QUEUE_SIZE = 1000;
     private static final int DEFAULT_SPAN_CHANNEL_EXECUTOR_QUEUE_SIZE = 1000;
+    private static final int DEFAULT_METADATA_RETRY_MAX_COUNT = 3;
+    private static final int DEFAULT_METADATA_RETRY_DELAY_MILLIS = 1000;
 
-    private String gentCollectorIp = DEFAULT_IP;
+    private String agentCollectorIp = DEFAULT_IP;
     private int agentCollectorPort = DEFAULT_AGENT_COLLECTOR_PORT;
+
+    private String metadataCollectorIp = DEFAULT_IP;
+    private int metadataCollectorPort = DEFAULT_AGENT_COLLECTOR_PORT;
 
     private String statCollectorIp = DEFAULT_IP;
     private int statCollectorPort = DEFAULT_STAT_COLLECTOR_PORT;
@@ -47,28 +55,47 @@ public class GrpcTransportConfig {
     private int spanCollectorPort = DEFAULT_SPAN_COLLECTOR_PORT;
 
     private ClientOption agentClientOption = new ClientOption.Builder().build();
+    private ClientOption metadataClientOption = new ClientOption.Builder().build();
     private ClientOption statClientOption = new ClientOption.Builder().build();
     private ClientOption spanClientOption = new ClientOption.Builder().build();
 
+    private int agentSenderExecutorQueueSize = DEFAULT_AGENT_SENDER_EXECUTOR_QUEUE_SIZE;
+    private int metadataSenderExecutorQueueSize = DEFAULT_METADATA_SENDER_EXECUTOR_QUEUE_SIZE;
     private int spanSenderExecutorQueueSize = DEFAULT_SPAN_SENDER_EXECUTOR_QUEUE_SIZE;
     private int statSenderExecutorQueueSize = DEFAULT_STAT_SENDER_EXECUTOR_QUEUE_SIZE;
 
     private int agentChannelExecutorQueueSize = DEFAULT_AGENT_CHANNEL_EXECUTOR_QUEUE_SIZE;
+    private int metadataChannelExecutorQueueSize = DEFAULT_METADATA_CHANNEL_EXECUTOR_QUEUE_SIZE;
     private int statChannelExecutorQueueSize = DEFAULT_STAT_CHANNEL_EXECUTOR_QUEUE_SIZE;
     private int spanChannelExecutorQueueSize = DEFAULT_SPAN_CHANNEL_EXECUTOR_QUEUE_SIZE;
 
     private long agentRequestTimeout = DEFAULT_CLIENT_REQUEST_TIMEOUT;
+    private long metadataRequestTimeout = DEFAULT_CLIENT_REQUEST_TIMEOUT;
     private long spanRequestTimeout = DEFAULT_CLIENT_REQUEST_TIMEOUT;
     private long statRequestTimeout = DEFAULT_CLIENT_REQUEST_TIMEOUT;
+
+    private int metadataRetryMaxCount = DEFAULT_METADATA_RETRY_MAX_COUNT;
+    private int metadataRetryDelayMillis = DEFAULT_METADATA_RETRY_DELAY_MILLIS;
 
     public void read(ProfilerConfig profilerConfig) {
         final ProfilerConfig.ValueResolver placeHolderResolver = new DefaultProfilerConfig.PlaceHolderResolver();
         // Agent
-        this.gentCollectorIp = profilerConfig.readString("profiler.transport.grpc.agent.collector.ip", DEFAULT_IP, placeHolderResolver);
+        this.agentCollectorIp = profilerConfig.readString("profiler.transport.grpc.agent.collector.ip", DEFAULT_IP, placeHolderResolver);
         this.agentCollectorPort = profilerConfig.readInt("profiler.transport.grpc.agent.collector.port", DEFAULT_AGENT_COLLECTOR_PORT);
         this.agentClientOption = readAgentClientOption(profilerConfig);
         this.agentRequestTimeout = profilerConfig.readLong("profiler.transport.grpc.agent.sender.request.timeout.millis", DEFAULT_CLIENT_REQUEST_TIMEOUT);
+        this.agentSenderExecutorQueueSize = profilerConfig.readInt("profiler.transport.grpc.agent.sender.executor.queue.size", DEFAULT_AGENT_SENDER_EXECUTOR_QUEUE_SIZE);
         this.agentChannelExecutorQueueSize = profilerConfig.readInt("profiler.transport.grpc.agent.sender.channel.executor.queue.size", DEFAULT_AGENT_CHANNEL_EXECUTOR_QUEUE_SIZE);
+
+        // Metadata
+        this.metadataCollectorIp = profilerConfig.readString("profiler.transport.grpc.metadata.collector.ip", DEFAULT_IP, placeHolderResolver);
+        this.metadataCollectorPort = profilerConfig.readInt("profiler.transport.grpc.metadata.collector.port", DEFAULT_AGENT_COLLECTOR_PORT);
+        this.metadataClientOption = readMetadataClientOption(profilerConfig);
+        this.metadataRequestTimeout = profilerConfig.readLong("profiler.transport.grpc.metadata.sender.request.timeout.millis", DEFAULT_CLIENT_REQUEST_TIMEOUT);
+        this.metadataSenderExecutorQueueSize = profilerConfig.readInt("profiler.transport.grpc.metadata.sender.executor.queue.size", DEFAULT_METADATA_SENDER_EXECUTOR_QUEUE_SIZE);
+        this.metadataChannelExecutorQueueSize = profilerConfig.readInt("profiler.transport.grpc.metadata.sender.channel.executor.queue.size", DEFAULT_METADATA_CHANNEL_EXECUTOR_QUEUE_SIZE);
+        this.metadataRetryMaxCount = profilerConfig.readInt("profiler.transport.grpc.metadata.sender.retry.max.count", DEFAULT_METADATA_RETRY_MAX_COUNT);
+        this.metadataRetryDelayMillis = profilerConfig.readInt("profiler.transport.grpc.metadata.sender.retry.delay.millis", DEFAULT_METADATA_RETRY_DELAY_MILLIS);
 
         // Stat
         this.statCollectorIp = profilerConfig.readString("profiler.transport.grpc.stat.collector.ip", DEFAULT_IP, placeHolderResolver);
@@ -89,6 +116,10 @@ public class GrpcTransportConfig {
 
     private ClientOption readAgentClientOption(final ProfilerConfig profilerConfig) {
         return readClientOption(profilerConfig, "profiler.transport.grpc.agent.sender");
+    }
+
+    private ClientOption readMetadataClientOption(final ProfilerConfig profilerConfig) {
+        return readClientOption(profilerConfig, "profiler.transport.grpc.metadata.sender");
     }
 
     private ClientOption readStatClientOption(final ProfilerConfig profilerConfig) {
@@ -118,11 +149,19 @@ public class GrpcTransportConfig {
     }
 
     public String getAgentCollectorIp() {
-        return gentCollectorIp;
+        return agentCollectorIp;
     }
 
     public int getAgentCollectorPort() {
         return agentCollectorPort;
+    }
+
+    public String getMetadataCollectorIp() {
+        return metadataCollectorIp;
+    }
+
+    public int getMetadataCollectorPort() {
+        return metadataCollectorPort;
     }
 
     public String getStatCollectorIp() {
@@ -141,6 +180,14 @@ public class GrpcTransportConfig {
         return spanCollectorPort;
     }
 
+    public int getAgentSenderExecutorQueueSize() {
+        return agentSenderExecutorQueueSize;
+    }
+
+    public int getMetadataSenderExecutorQueueSize() {
+        return metadataSenderExecutorQueueSize;
+    }
+
     public int getSpanSenderExecutorQueueSize() {
         return spanSenderExecutorQueueSize;
     }
@@ -151,6 +198,10 @@ public class GrpcTransportConfig {
 
     public long getAgentRequestTimeout() {
         return agentRequestTimeout;
+    }
+
+    public long getMetadataRequestTimeout() {
+        return metadataRequestTimeout;
     }
 
     public long getStatRequestTimeout() {
@@ -165,6 +216,10 @@ public class GrpcTransportConfig {
         return agentClientOption;
     }
 
+    public ClientOption getMetadataClientOption() {
+        return metadataClientOption;
+    }
+
     public ClientOption getStatClientOption() {
         return statClientOption;
     }
@@ -177,6 +232,10 @@ public class GrpcTransportConfig {
         return agentChannelExecutorQueueSize;
     }
 
+    public int getMetadataChannelExecutorQueueSize() {
+        return metadataChannelExecutorQueueSize;
+    }
+
     public int getStatChannelExecutorQueueSize() {
         return statChannelExecutorQueueSize;
     }
@@ -185,24 +244,39 @@ public class GrpcTransportConfig {
         return spanChannelExecutorQueueSize;
     }
 
+    public int getMetadataRetryMaxCount() {
+        return metadataRetryMaxCount;
+    }
+
+    public int getMetadataRetryDelayMillis() {
+        return metadataRetryDelayMillis;
+    }
+
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("GrpcTransportConfig{");
-        sb.append("gentCollectorIp='").append(gentCollectorIp).append('\'');
+        sb.append("agentCollectorIp='").append(agentCollectorIp).append('\'');
         sb.append(", agentCollectorPort=").append(agentCollectorPort);
+        sb.append(", metadataCollectorIp='").append(metadataCollectorIp).append('\'');
+        sb.append(", metadataCollectorPort=").append(metadataCollectorPort);
         sb.append(", statCollectorIp='").append(statCollectorIp).append('\'');
         sb.append(", statCollectorPort=").append(statCollectorPort);
         sb.append(", spanCollectorIp='").append(spanCollectorIp).append('\'');
         sb.append(", spanCollectorPort=").append(spanCollectorPort);
         sb.append(", agentClientOption=").append(agentClientOption);
+        sb.append(", metadataClientOption=").append(metadataClientOption);
         sb.append(", statClientOption=").append(statClientOption);
         sb.append(", spanClientOption=").append(spanClientOption);
+        sb.append(", agentSenderExecutorQueueSize=").append(agentSenderExecutorQueueSize);
+        sb.append(", metadataSenderExecutorQueueSize=").append(metadataSenderExecutorQueueSize);
         sb.append(", spanSenderExecutorQueueSize=").append(spanSenderExecutorQueueSize);
         sb.append(", statSenderExecutorQueueSize=").append(statSenderExecutorQueueSize);
         sb.append(", agentChannelExecutorQueueSize=").append(agentChannelExecutorQueueSize);
+        sb.append(", metadataChannelExecutorQueueSize=").append(metadataChannelExecutorQueueSize);
         sb.append(", statChannelExecutorQueueSize=").append(statChannelExecutorQueueSize);
         sb.append(", spanChannelExecutorQueueSize=").append(spanChannelExecutorQueueSize);
         sb.append(", agentRequestTimeout=").append(agentRequestTimeout);
+        sb.append(", metadataRequestTimeout=").append(metadataRequestTimeout);
         sb.append(", spanRequestTimeout=").append(spanRequestTimeout);
         sb.append(", statRequestTimeout=").append(statRequestTimeout);
         sb.append('}');

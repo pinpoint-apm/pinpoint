@@ -148,6 +148,9 @@ public class ChannelFactory {
         }
     }
 
+    public NioEventLoopGroup getEventLoopGroup() {
+        return eventLoopGroup;
+    }
 
     public void close() {
         final Future<?> future = eventLoopGroup.shutdownGracefully();
