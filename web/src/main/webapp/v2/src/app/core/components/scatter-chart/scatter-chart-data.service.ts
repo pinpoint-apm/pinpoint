@@ -1,7 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, of, Subject, ReplaySubject } from 'rxjs';
-import { switchMap, delay, retry } from 'rxjs/operators';
+import { switchMap, delay, retry, filter } from 'rxjs/operators';
+
+import { isThatType } from 'app/core/utils/util';
 
 interface IScatterRequest {
     application: string;
@@ -48,7 +50,8 @@ export class ScatterChartDataService {
         this.innerDataRequest.pipe(
             switchMap((params: IScatterRequest) => {
                 return this.requestHttp(params).pipe(
-                    retry(3)
+                    retry(3),
+                    filter((d: IScatterData | AjaxException) => !isThatType<AjaxException>(d, 'exception'))
                 );
             })
         ).subscribe((scatterData: IScatterData) => {
