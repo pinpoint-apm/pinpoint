@@ -62,8 +62,9 @@ public class AgentGrpcDataSenderTestMain {
         builder.setHeaderFactory(headerFactory);
         builder.setNameResolverProvider(nameResolverProvider);
 
-        AgentGrpcDataSender sender = new AgentGrpcDataSender("localhost", 9997, messageConverter,
-                reconnectExecutor, scheduledExecutorService, builder.build());
+
+        AgentGrpcDataSender sender = new AgentGrpcDataSender("localhost", 9997, 1, messageConverter,
+                reconnectExecutor, scheduledExecutorService, builder.build(), null);
 
         AgentInfo agentInfo = newAgentInfo();
 

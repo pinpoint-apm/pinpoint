@@ -33,8 +33,6 @@ import io.grpc.stub.StreamObserver;
 
 import static com.navercorp.pinpoint.grpc.MessageFormatUtils.debugLog;
 
-import java.util.concurrent.ScheduledExecutorService;
-
 /**
  * @author jaehong.kim
  */
@@ -66,7 +64,6 @@ public class StatGrpcDataSender extends GrpcDataSender {
             this.statStream = newStatStream();
         }
     }
-
 
     private StreamObserver<PStatMessage> newStatStream() {
         final StreamId statId = StreamId.newStreamId("stat");

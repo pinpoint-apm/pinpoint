@@ -109,10 +109,16 @@ public class AgentInfoSender {
                     schedule(this, maxTryPerAttempt, refreshIntervalMs, sendIntervalMs);
                 }
             };
+            if (logger.isDebugEnabled()) {
+                logger.debug("Start scheduler of agentInfoSender");
+            }
             schedule(successListener, Integer.MAX_VALUE, IMMEDIATE, sendIntervalMs);
         }
 
         public void refresh() {
+            if (logger.isDebugEnabled()) {
+                logger.debug("Refresh scheduler of agentInfoSender");
+            }
             schedule(SuccessListener.NO_OP, maxTryPerAttempt, IMMEDIATE, sendIntervalMs);
         }
 
