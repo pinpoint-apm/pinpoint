@@ -31,18 +31,14 @@ import io.grpc.ManagedChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.Executors;
 import java.util.concurrent.RejectedExecutionException;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
 public abstract class GrpcDataSender implements DataSender<Object> {
-
     protected final Logger logger = LoggerFactory.getLogger(this.getClass());
     protected final boolean isDebug = logger.isDebugEnabled();
 
@@ -111,6 +107,4 @@ public abstract class GrpcDataSender implements DataSender<Object> {
         ExecutorUtils.shutdownExecutorService(name, executor);
         this.channelFactory.close();
     }
-
-
 }

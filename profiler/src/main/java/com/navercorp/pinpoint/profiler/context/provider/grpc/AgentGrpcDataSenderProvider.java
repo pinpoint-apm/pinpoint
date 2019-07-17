@@ -76,6 +76,7 @@ public class AgentGrpcDataSenderProvider implements Provider<EnhancedDataSender<
     public EnhancedDataSender get() {
         final String collectorIp = grpcTransportConfig.getAgentCollectorIp();
         final int collectorPort = grpcTransportConfig.getAgentCollectorPort();
+        final int senderExecutorQueueSize = grpcTransportConfig.getAgentSenderExecutorQueueSize();
         final int channelExecutorQueueSize = grpcTransportConfig.getAgentChannelExecutorQueueSize();
         final UnaryCallDeadlineInterceptor unaryCallDeadlineInterceptor = new UnaryCallDeadlineInterceptor(grpcTransportConfig.getAgentRequestTimeout());
         final ClientOption clientOption = grpcTransportConfig.getAgentClientOption();
@@ -89,7 +90,8 @@ public class AgentGrpcDataSenderProvider implements Provider<EnhancedDataSender<
         channelFactoryOptionBuilder.setClientOption(clientOption);
         ChannelFactoryOption factoryOption = channelFactoryOptionBuilder.build();
 
+
         final  ReconnectExecutor reconnectExecutor = reconnectExecutorProvider.get();
-        return new AgentGrpcDataSender(collectorIp, collectorPort, messageConverter, reconnectExecutor, retransmissionExecutor, factoryOption, activeTraceRepository);
+        return new AgentGrpcDataSender(collectorIp, collectorPort, senderExecutorQueueSize, messageConverter, reconnectExecutor, retransmissionExecutor, factoryOption, activeTraceRepository);
     }
 }

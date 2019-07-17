@@ -57,7 +57,6 @@ public class PingStreamContext {
 
         this.reconnector = Assert.requireNonNull(reconnector, "reconnector must not be null");
         this.retransmissionExecutor = Assert.requireNonNull(retransmissionExecutor, "retransmissionExecutor must not be null");
-
     }
 
     private PPing newPing() {
