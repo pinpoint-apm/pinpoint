@@ -45,25 +45,25 @@ public class TargetSpanDecoder implements SpanDecoder {
 
     @Override
     public Object decode(Buffer qualifier, Buffer columnValue, SpanDecodingContext decodingContext) {
-        Object decodedObject = delegate.decode(qualifier, columnValue, decodingContext);
+        final Object decodedObject = delegate.decode(qualifier, columnValue, decodingContext);
 
         if (decodedObject instanceof SpanBo) {
-            SpanBo spanBo = (SpanBo) decodedObject;
+            final SpanBo spanBo = (SpanBo) decodedObject;
 
             final TransactionId transactionId = spanBo.getTransactionId();
 
-            TransactionId expectedTransactionId = targetTraceInfo.getTransactionId();
+            final TransactionId expectedTransactionId = targetTraceInfo.getTransactionId();
             if (!expectedTransactionId.equals(transactionId)) {
                 return null;
             }
 
-            SpanHint hint = targetTraceInfo.getHint();
-            long collectorAcceptTime = spanBo.getCollectorAcceptTime();
+            final SpanHint hint = targetTraceInfo.getHint();
+            final long collectorAcceptTime = spanBo.getCollectorAcceptTime();
             if (collectorAcceptTime != hint.getCollectorAcceptorTime()) {
                 return null;
             }
 
-            int elapsed = spanBo.getElapsed();
+            final int elapsed = spanBo.getElapsed();
             if (elapsed != hint.getResponseTime()) {
                 return null;
             }

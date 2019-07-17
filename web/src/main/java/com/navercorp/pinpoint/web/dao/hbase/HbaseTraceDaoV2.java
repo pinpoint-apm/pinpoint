@@ -2,10 +2,14 @@ package com.navercorp.pinpoint.web.dao.hbase;
 
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
+import com.navercorp.pinpoint.common.hbase.rowmapper.RequestAwareDynamicRowMapper;
+import com.navercorp.pinpoint.common.hbase.rowmapper.RequestAwareRowMapper;
+import com.navercorp.pinpoint.common.hbase.rowmapper.RequestAwareRowMapperAdaptor;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyDecoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyEncoder;
+import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanDecoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanDecoderV0;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanEncoder;
 import com.navercorp.pinpoint.common.util.Assert;
@@ -149,15 +153,33 @@ public class HbaseTraceDaoV2 extends AbstractHbaseDao implements TraceDao {
         Assert.requireNonNull(columnFamily, "columnFamily must not be null");
 
         List<Get> getList = createGetList(getTraceInfoList, columnFamily, filter);
-        List<RowMapper<List<SpanBo>>> spanMapperList = createSpanMapperList(getTraceInfoList);
-        return bulkSelect0(getList, spanMapperList);
+
+        RowMapper<List<SpanBo>> spanMapperAdaptor = newRowMapper(getTraceInfoList);
+        return bulkSelect0(getList, spanMapperAdaptor);
     }
+
+    private RowMapper<List<SpanBo>> newRowMapper(List<GetTraceInfo> getTraceInfoList) {
+        RequestAwareRowMapper<List<SpanBo>, GetTraceInfo> getTraceInfoRowMapper = new RequestAwareDynamicRowMapper<>(this::getSpanMapper);
+        return new RequestAwareRowMapperAdaptor<List<SpanBo>, GetTraceInfo>(getTraceInfoList, getTraceInfoRowMapper);
+    }
+
+
+    private RowMapper<List<SpanBo>> getSpanMapper(GetTraceInfo getTraceInfo) {
+        final SpanHint hint = getTraceInfo.getHint();
+        if (hint.isSet()) {
+            final SpanDecoder targetSpanDecoder = new TargetSpanDecoder(new SpanDecoderV0(), getTraceInfo);
+            final RowMapper<List<SpanBo>> spanMapper = new SpanMapperV2(rowKeyDecoder, targetSpanDecoder);
+            return spanMapper;
+        } else {
+            return spanMapperV2;
+        }
+    }
+
 
     private List<Get> createGetList(List<GetTraceInfo> getTraceInfoList, byte[] columnFamily, Filter filter) {
         if (CollectionUtils.isEmpty(getTraceInfoList)) {
             return Collections.emptyList();
         }
-
         final List<Get> getList = new ArrayList<>(getTraceInfoList.size());
         for (GetTraceInfo getTraceInfo : getTraceInfoList) {
             final Get get = createGet(getTraceInfo.getTransactionId(), columnFamily, filter);
@@ -166,26 +188,7 @@ public class HbaseTraceDaoV2 extends AbstractHbaseDao implements TraceDao {
         return getList;
     }
 
-    private List<RowMapper<List<SpanBo>>> createSpanMapperList(List<GetTraceInfo> getTraceInfoList) {
-        if (CollectionUtils.isEmpty(getTraceInfoList)) {
-            return Collections.emptyList();
-        }
-
-        final List<RowMapper<List<SpanBo>>> rowMapperList = new ArrayList<>(getTraceInfoList.size());
-        for (GetTraceInfo getTraceInfo : getTraceInfoList) {
-            SpanHint hint = getTraceInfo.getHint();
-            if (hint.isSet()) {
-                TargetSpanDecoder targetSpanDecoder = new TargetSpanDecoder(new SpanDecoderV0(), getTraceInfo);
-                final SpanMapperV2 spanMapperV2 = new SpanMapperV2(rowKeyDecoder, targetSpanDecoder);
-                rowMapperList.add(spanMapperV2);
-            } else {
-                rowMapperList.add(spanMapperV2);
-            }
-        }
-        return rowMapperList;
-    }
-
-    private List<List<SpanBo>> bulkSelect0(List<Get> multiGet, List<RowMapper<List<SpanBo>>> rowMapperList) {
+    private List<List<SpanBo>> bulkSelect0(List<Get> multiGet, RowMapper<List<SpanBo>> rowMapperList) {
         if (CollectionUtils.isEmpty(multiGet)) {
             return Collections.emptyList();
         }
