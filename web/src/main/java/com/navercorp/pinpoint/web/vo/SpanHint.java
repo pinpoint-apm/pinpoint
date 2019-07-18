@@ -37,7 +37,7 @@ public final class SpanHint {
     public SpanHint(long collectorAcceptorTime, int responseTime) {
         Assert.isTrue(collectorAcceptorTime > 0, "collectorAcceptorTime must be 'collectorAcceptorTime > 0'");
         this.collectorAcceptorTime = collectorAcceptorTime;
-        Assert.isTrue(responseTime > 0, "responseTime must be 'responseTime > 0'");
+        Assert.isTrue(responseTime >= 0, "responseTime must be 'responseTime >= 0'");
         this.responseTime = responseTime;
 
         this.isSet = true;
