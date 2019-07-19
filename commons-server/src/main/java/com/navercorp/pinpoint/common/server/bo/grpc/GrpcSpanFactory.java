@@ -213,6 +213,8 @@ public class GrpcSpanFactory {
             if (fieldCase == PNextEvent.FieldCase.MESSAGEEVENT) {
                 final PMessageEvent messageEvent = nextEvent.getMessageEvent();
 
+                spanEvent.setNextSpanId(messageEvent.getNextSpanId());
+
                 final String destinationId = messageEvent.getDestinationId();
                 if (StringUtils.hasLength(destinationId)) {
                     spanEvent.setDestinationId(destinationId);
