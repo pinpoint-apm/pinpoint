@@ -43,6 +43,9 @@ public abstract class GrpcDataSender implements DataSender<Object> {
     protected final boolean isDebug = logger.isDebugEnabled();
 
     protected final String name;
+    protected final String host;
+    protected final int port;
+
     protected final ManagedChannel managedChannel;
 
     // not thread safe
@@ -62,6 +65,9 @@ public abstract class GrpcDataSender implements DataSender<Object> {
         Assert.requireNonNull(channelFactoryOption, "channelFactoryOption must not be null");
 
         this.name = Assert.requireNonNull(channelFactoryOption.getName(), "name must not be null");
+        this.host = Assert.requireNonNull(host, "host must not be null");
+        this.port = port;
+
         this.messageConverter = Assert.requireNonNull(messageConverter, "messageConverter must not be null");
 
         this.executor = newExecutorService(name + "-Executor", executorQueueSize);
