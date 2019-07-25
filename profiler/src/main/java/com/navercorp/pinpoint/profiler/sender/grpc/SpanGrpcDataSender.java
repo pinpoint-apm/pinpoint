@@ -67,11 +67,12 @@ public class SpanGrpcDataSender extends GrpcDataSender {
     }
 
     private StreamObserver<PSpanMessage> newSpanStream() {
-        StreamId spanId = StreamId.newStreamId("span");
+        StreamId spanId = StreamId.newStreamId("SpanStream");
         ResponseStreamObserver<PSpanMessage, Empty> responseStreamObserver = new ResponseStreamObserver<PSpanMessage, Empty>(spanId, spanStreamReconnector);
         return spanStub.sendSpan(responseStreamObserver);
     }
 
+    @Override
     public boolean send0(Object data) {
         final GeneratedMessageV3 message = messageConverter.toMessage(data);
         if (logger.isDebugEnabled()) {
@@ -97,8 +98,17 @@ public class SpanGrpcDataSender extends GrpcDataSender {
         if (this.reconnectExecutor != null) {
             this.reconnectExecutor.close();
         }
-        logger.info("spanStream.close()");
+        logger.info("{} close()", this.spanStream);
         StreamUtils.close(this.spanStream);
         super.stop();
+    }
+
+    @Override
+    public String toString() {
+        return "SpanGrpcDataSender{" +
+                "name='" + name + '\'' +
+                ", host='" + host + '\'' +
+                ", port=" + port +
+                "} " + super.toString();
     }
 }

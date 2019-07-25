@@ -28,6 +28,7 @@ import io.grpc.netty.InternalNettyChannelBuilder;
 import io.grpc.netty.NettyChannelBuilder;
 import io.grpc.stub.MetadataUtils;
 import io.netty.channel.ChannelOption;
+import io.netty.channel.EventLoopGroup;
 import io.netty.channel.WriteBufferWaterMark;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.util.concurrent.Future;
@@ -51,7 +52,7 @@ public class ChannelFactory {
 
     private final String name;
     private final HeaderFactory headerFactory;
-    private final NioEventLoopGroup eventLoopGroup;
+    private final EventLoopGroup eventLoopGroup;
     private final ExecutorService eventLoopExecutor;
     private final ExecutorService executorService;
     private final NameResolverProvider nameResolverProvider;
@@ -79,7 +80,7 @@ public class ChannelFactory {
         return Executors.newCachedThreadPool(threadFactory);
     }
 
-    private NioEventLoopGroup newEventLoopGroup(ExecutorService executorService) {
+    private EventLoopGroup newEventLoopGroup(ExecutorService executorService) {
         return new NioEventLoopGroup(1, executorService);
     }
 
@@ -148,7 +149,7 @@ public class ChannelFactory {
         }
     }
 
-    public NioEventLoopGroup getEventLoopGroup() {
+    public EventLoopGroup getEventLoopGroup() {
         return eventLoopGroup;
     }
 

@@ -66,11 +66,12 @@ public class StatGrpcDataSender extends GrpcDataSender {
     }
 
     private StreamObserver<PStatMessage> newStatStream() {
-        final StreamId statId = StreamId.newStreamId("stat");
+        final StreamId statId = StreamId.newStreamId("StatStream");
         final ResponseStreamObserver<PStatMessage, Empty> responseObserver = new ResponseStreamObserver<PStatMessage, Empty>(statId, statStreamReconnector);
         return statStub.sendAgentStat(responseObserver);
     }
 
+    @Override
     public boolean send0(Object data) {
         final GeneratedMessageV3 message = messageConverter.toMessage(data);
         if (logger.isDebugEnabled()) {
@@ -98,8 +99,17 @@ public class StatGrpcDataSender extends GrpcDataSender {
         if (this.reconnectExecutor != null) {
             this.reconnectExecutor.close();
         }
-        logger.info("statStream.close()");
+        logger.info("{} close()", statStream);
         StreamUtils.close(statStream);
         super.stop();
+    }
+
+    @Override
+    public String toString() {
+        return "StatGrpcDataSender{" +
+                "name='" + name + '\'' +
+                ", host='" + host + '\'' +
+                ", port=" + port +
+                "} " + super.toString();
     }
 }

@@ -50,7 +50,7 @@ public class PingStreamContext {
                              ScheduledExecutorService retransmissionExecutor) {
         Assert.requireNonNull(agentStub, "agentStub must not be null");
 
-        this.streamId = StreamId.newStreamId("pingStream");
+        this.streamId = StreamId.newStreamId("PingStream");
 
         this.responseObserver = new PingClientResponseObserver();
         this.requestObserver = agentStub.pingSession(responseObserver);

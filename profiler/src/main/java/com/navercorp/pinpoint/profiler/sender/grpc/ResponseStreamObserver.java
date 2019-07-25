@@ -64,4 +64,11 @@ public class ResponseStreamObserver<ReqT, RespT> implements ClientResponseObserv
     public void onCompleted() {
         logger.debug("{} onCompleted", name);
     }
+
+    @Override
+    public String toString() {
+        return "ResponseStreamObserver{" +
+                "name=" + name +
+                '}';
+    }
 }
