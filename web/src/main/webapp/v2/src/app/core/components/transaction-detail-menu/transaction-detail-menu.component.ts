@@ -7,52 +7,61 @@ import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 })
 
 export class TransactionDetailMenuComponent implements OnInit {
-    @Input() viewTypeList: object[];
-    @Input() viewType: string;
+    @Input() activeTabKey: string;
     @Input() partInfo: any;
-    @Output() outSelectViewType: EventEmitter<string> = new EventEmitter();
-    @Output() outOpenDetailView: EventEmitter<null> = new EventEmitter();
-    @Output() outOpenExtraView: EventEmitter<any> = new EventEmitter();
+    @Output() outSelectViewType = new EventEmitter<string>();
+    @Output() outOpenDetailView = new EventEmitter<void>();
+    @Output() outOpenExtraView = new EventEmitter<any>();
+
+    tabList = [
+        {
+            key: 'callTree',
+            display: 'Call Tree'
+        }, {
+            key: 'serverMap',
+            display: 'Server Map'
+        }, {
+            key: 'timeline',
+            display: 'Timeline'
+        }
+    ];
+
     constructor() {}
     ngOnInit() {}
-    isCurrentView(viewType: string): boolean {
-        return this.viewType === viewType;
+    isActive(key: string): boolean {
+        return this.activeTabKey === key;
     }
-    onSelectView(viewType: string): void {
-        if ( this.viewType === viewType ) {
+
+    onClickTab(key: string): void {
+        if (this.activeTabKey === key) {
             return;
         }
-        this.outSelectViewType.next(viewType);
+
+        this.outSelectViewType.next(key);
     }
+
     openDetailView(): void {
         this.outOpenDetailView.next();
     }
+
     hasLogView(): boolean {
         return this.partInfo && this.partInfo.logLinkEnable;
     }
+
     openLogView(): void {
-        if  (this.partInfo.loggingTransactionInfo === true ) {
-            this.outOpenExtraView.next({
-                open: true,
-                url: this.partInfo.logPageUrl
-            });
-        } else {
-            this.outOpenExtraView.next({
-                open: false,
-                message: this.partInfo.disableButtonMessage
-            });
-        }
+        this.partInfo.loggingTransactionInfo === true
+            ? this.outOpenExtraView.next({open: true, url: this.partInfo.logPageUrl})
+            : this.outOpenExtraView.next({open: false, message: this.partInfo.disableButtonMessage});
     }
+
     hasInfo(): boolean {
         return this.partInfo && !this.partInfo.loggingTransactionInfo;
     }
+
     getStateClass(): string {
-        if ( this.partInfo ) {
-            return 'l-transaction-' + this.partInfo.completeState.toLowerCase();
-        } else {
-            return '';
-        }
+        return this.partInfo ? `l-transaction-${this.partInfo.completeState.toLowerCase()}` : '';
     }
+
     hasState(): boolean {
         return !!this.partInfo;
     }

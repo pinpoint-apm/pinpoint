@@ -140,6 +140,9 @@ export class StoreHelperService {
     getAgentInspectorChartLayoutInfo(unsubscribe: Subject<void>): Observable<IChartLayoutInfoResponse> {
         return this.getObservable(STORE_KEY.AGENT_INSPECTOR_CHART_LAYOUT, unsubscribe);
     }
+    getTransactionViewType(unsubscribe: Subject<void>): Observable<string> {
+        return this.getObservable(STORE_KEY.TRANSACTION_VIEW_TYPE, unsubscribe);
+    }
     getObservable(key: string, unsubscribe?: Subject<void>): Observable<any> {
         return iif(
             () => !!unsubscribe,

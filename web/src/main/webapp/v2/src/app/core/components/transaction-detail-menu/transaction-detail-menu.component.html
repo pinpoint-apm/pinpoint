@@ -1,7 +1,7 @@
 <div class="l-wrapper">
     <div class="l-btn-group">
-        <button *ngFor="let view of viewTypeList" [class.active]="isCurrentView(view.key)" (click)="onSelectView(view.key)">
-            {{view.display}}
+        <button *ngFor="let tab of tabList" [class.active]="isActive(tab.key)" (click)="onClickTab(tab.key)">
+            {{tab.display}}
         </button>
         <button (click)="openDetailView()">Mixed View <i class="fas fa-external-link-square-alt" aria-hidden="true"></i></button>
         <button class="l-log-info" (click)="openLogView()" [class.disable]="!hasInfo()" *ngIf="hasLogView()">{{partInfo.logButtonName}} <i class="fas fa-external-link-square-alt" aria-hidden="true"></i></button>
