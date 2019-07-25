@@ -21,8 +21,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.Executor;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 
 
 /**
@@ -33,6 +35,7 @@ public class ReconnectExecutor {
 
     private volatile boolean shutdown;
     private final ScheduledExecutorService scheduledExecutorService;
+    private final AtomicLong rejectedCounter = new AtomicLong();
 
     public ReconnectExecutor(ScheduledExecutorService scheduledExecutorService) {
         this.scheduledExecutorService = Assert.requireNonNull(scheduledExecutorService, "scheduledExecutorService must not be null");
@@ -47,7 +50,12 @@ public class ReconnectExecutor {
         }
         if (command instanceof ReconnectJob) {
             ReconnectJob reconnectJob = (ReconnectJob) command;
-            scheduledExecutorService.schedule(reconnectJob, reconnectJob.nextBackoffNanos(), TimeUnit.NANOSECONDS);
+            try {
+                scheduledExecutorService.schedule(reconnectJob, reconnectJob.nextBackoffNanos(), TimeUnit.NANOSECONDS);
+            } catch (RejectedExecutionException e) {
+                final long failCount = rejectedCounter.incrementAndGet();
+                logger.info("{} reconnectJob scheduled fail {}", command, failCount);
+            }
         }
         throw new IllegalArgumentException("unknown command type " + command);
     }
