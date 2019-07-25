@@ -26,6 +26,7 @@ import io.grpc.stub.StreamObserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -94,6 +95,8 @@ public class PingStreamContext {
             final ScheduledFuture<?> pingScheduler = this.pingScheduler;
             if (pingScheduler != null) {
                 pingScheduler.cancel(false);
+            } else {
+                logger.info("pingScheduler is NULL");
             }
         }
 
@@ -120,7 +123,12 @@ public class PingStreamContext {
     };
 
     private ScheduledFuture<?> schedule(Runnable command) {
-        return retransmissionExecutor.scheduleAtFixedRate(command, 0, 1,TimeUnit.MINUTES);
+        try {
+            return retransmissionExecutor.scheduleAtFixedRate(command, 0, 1,TimeUnit.MINUTES);
+        } catch (RejectedExecutionException e) {
+            logger.info("Ping scheduling failed");
+            return null;
+        }
     }
 
     public void close() {
