@@ -7,11 +7,13 @@ import { Component, Renderer2, OnInit, OnChanges, SimpleChanges, Output, Input, 
 })
 export class TransactionSearchComponent implements OnInit, OnChanges {
     @ViewChild('searchType') searchType: ElementRef;
-    @Output() outSearch: EventEmitter<{type: string, query: string}> = new EventEmitter();
     @Input() viewType: string;
     @Input() useArgument: boolean;
-    @Input() resultMessage = '';
+    @Input() resultMessage: string;
+    @Output() outSearch: EventEmitter<{type: string, query: string}> = new EventEmitter();
+
     inputValue: string;
+
     constructor(private renderer: Renderer2) { }
     ngOnInit() {}
     ngOnChanges(changes: SimpleChanges) {
@@ -21,15 +23,20 @@ export class TransactionSearchComponent implements OnInit, OnChanges {
             this.searchType.nativeElement.options[0].selected = true;
         }
     }
+
     onSearch(type: string): void {
         const query = this.inputValue.trim();
-        if (query !== '') {
-            this.outSearch.emit({
-                type: type,
-                query: query
-            });
+
+        if (query === '') {
+            return;
         }
+
+        this.outSearch.emit({
+            type: type,
+            query: query
+        });
     }
+
     onClear() {
         this.inputValue = '';
         this.resultMessage = '';

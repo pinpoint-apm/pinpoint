@@ -25,25 +25,21 @@ import java.util.concurrent.Executor;
  */
 public class ReconnectAdaptor implements Reconnector {
     private final Executor executor;
-    private final ExponentialBackoffReconnectJob reconnectJobWrap;
+    private final ReconnectJob reconnectJob;
 
-    public ReconnectAdaptor(Executor executor, Runnable reconnectJob) {
+    public ReconnectAdaptor(Executor executor, ReconnectJob reconnectJob) {
         this.executor = Assert.requireNonNull(executor, "executor must not be null");
-        Assert.requireNonNull(reconnectJob, "reconnectJob must not be null");
-        reconnectJobWrap = wrapExponentialBackoffReconnectJob(reconnectJob);
+        this.reconnectJob = Assert.requireNonNull(reconnectJob, "reconnectJob must not be null");
     }
 
-    private ExponentialBackoffReconnectJob wrapExponentialBackoffReconnectJob(Runnable runnable) {
-        return new ExponentialBackoffReconnectJob(runnable);
-    }
 
     @Override
     public void reset() {
-        reconnectJobWrap.resetBackoffNanos();
+        reconnectJob.resetBackoffNanos();
     }
 
     @Override
     public void reconnect() {
-        executor.execute(reconnectJobWrap);
+        executor.execute(reconnectJob);
     }
 }

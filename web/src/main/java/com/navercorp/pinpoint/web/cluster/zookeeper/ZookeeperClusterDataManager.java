@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.cluster.zookeeper;
 
+import com.navercorp.pinpoint.common.server.cluster.zookeeper.CreateNodeMessage;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.CuratorZookeeperClient;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperClient;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperConstants;
@@ -113,11 +114,11 @@ public class ZookeeperClusterDataManager implements ClusterDataManager, Zookeepe
     // not too much overhead, just logging
     @Override
     public boolean registerWebCluster(String zNodeName, byte[] contents) {
-        String zNodePath = ZKPaths.makePath(ZookeeperConstants.PINPOINT_WEB_CLUSTER_PATH, zNodeName);
+        String zNodeFullPath = ZKPaths.makePath(ZookeeperConstants.PINPOINT_WEB_CLUSTER_PATH, zNodeName);
 
-        logger.info("registerWebCluster() started. create UniqPath={}.", zNodePath);
-
-        PushWebClusterJob job = new PushWebClusterJob(zNodePath, contents, retryInterval);
+        logger.info("registerWebCluster() started. create UniqPath={}.", zNodeFullPath);
+        CreateNodeMessage createNodeMessage = new CreateNodeMessage(zNodeFullPath, contents);
+        PushWebClusterJob job = new PushWebClusterJob(createNodeMessage, retryInterval);
         if (!this.job.compareAndSet(null, job)) {
             logger.warn("Already Register Web Cluster Node.");
             return false;
@@ -129,7 +130,7 @@ public class ZookeeperClusterDataManager implements ClusterDataManager, Zookeepe
             return true;
         }
 
-        if (!clusterDataManagerHelper.pushZnode(client, job)) {
+        if (!clusterDataManagerHelper.pushZnode(client, job.getCreateNodeMessage())) {
             timer.newTimeout(job, job.getRetryInterval(), TimeUnit.MILLISECONDS);
         }
 
@@ -169,7 +170,7 @@ public class ZookeeperClusterDataManager implements ClusterDataManager, Zookeepe
     public boolean handleConnected() {
         PushWebClusterJob job = this.job.get();
         if (job != null) {
-            if (!clusterDataManagerHelper.pushZnode(client, job)) {
+            if (!clusterDataManagerHelper.pushZnode(client, job.getCreateNodeMessage())) {
                 timer.newTimeout(job, job.getRetryInterval(), TimeUnit.MILLISECONDS);
                 return false;
             }
@@ -284,13 +285,11 @@ public class ZookeeperClusterDataManager implements ClusterDataManager, Zookeepe
     }
 
     class PushWebClusterJob implements PushZnodeJob {
-        private final String zNodeName;
-        private final byte[] contents;
+        private final CreateNodeMessage createNodeMessage;
         private final int retryInterval;
 
-        public PushWebClusterJob(String zNodeName, byte[] contents, int retryInterval) {
-            this.zNodeName = zNodeName;
-            this.contents = contents;
+        public PushWebClusterJob(CreateNodeMessage createNodeMessage, int retryInterval) {
+            this.createNodeMessage = Assert.requireNonNull(createNodeMessage, "createNodeMessage must not be null");
             this.retryInterval = retryInterval;
         }
 
@@ -302,19 +301,14 @@ public class ZookeeperClusterDataManager implements ClusterDataManager, Zookeepe
                 return;
             }
 
-            if (!clusterDataManagerHelper.pushZnode(client, this)) {
+            if (!clusterDataManagerHelper.pushZnode(client, getCreateNodeMessage())) {
                 timer.newTimeout(this, getRetryInterval(), TimeUnit.MILLISECONDS);
             }
         }
 
         @Override
-        public String getZNodePath() {
-            return zNodeName;
-        }
-
-        @Override
-        public byte[] getContents() {
-            return contents;
+        public CreateNodeMessage getCreateNodeMessage() {
+            return createNodeMessage;
         }
 
         @Override
@@ -324,7 +318,7 @@ public class ZookeeperClusterDataManager implements ClusterDataManager, Zookeepe
 
         @Override
         public String toString() {
-            return ClassUtils.simpleClassName(this) + ", ZNode=" + getZNodePath();
+            return ClassUtils.simpleClassName(this) + ", createNodeMessage=" + getCreateNodeMessage();
         }
 
     }

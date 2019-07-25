@@ -162,10 +162,8 @@ public class ServerFactory {
         builder.withChildOption(ChannelOption.TCP_NODELAY, true);
         builder.withChildOption(ChannelOption.SO_REUSEADDR, true);
         builder.withChildOption(ChannelOption.SO_RCVBUF, this.serverOption.getReceiveBufferSize());
-        builder.withChildOption(ChannelOption.SO_BACKLOG, this.serverOption.getBacklogQueueSize());
-        builder.withChildOption(ChannelOption.CONNECT_TIMEOUT_MILLIS, this.serverOption.getConnectTimeout());
-        final WriteBufferWaterMark writeBufferWaterMark = new WriteBufferWaterMark(this.serverOption.getWriteBufferLowWaterMark(), this.serverOption.getWriteBufferHighWaterMark());
-        builder.withChildOption(ChannelOption.WRITE_BUFFER_WATER_MARK, writeBufferWaterMark);
+        final WriteBufferWaterMark disabledWriteBufferWaterMark = new WriteBufferWaterMark(0, Integer.MAX_VALUE);
+        builder.withChildOption(ChannelOption.WRITE_BUFFER_WATER_MARK, disabledWriteBufferWaterMark);
 
         builder.handshakeTimeout(this.serverOption.getHandshakeTimeout(), TimeUnit.MILLISECONDS);
         builder.flowControlWindow(this.serverOption.getFlowControlWindow());
@@ -175,7 +173,7 @@ public class ServerFactory {
 
         builder.keepAliveTime(this.serverOption.getKeepAliveTime(), TimeUnit.MILLISECONDS);
         builder.keepAliveTimeout(this.serverOption.getKeepAliveTimeout(), TimeUnit.MILLISECONDS);
-        builder.permitKeepAliveTime(this.serverOption.getPermitKeepAliveTimeout(), TimeUnit.MILLISECONDS);
+        builder.permitKeepAliveTime(this.serverOption.getPermitKeepAliveTime(), TimeUnit.MILLISECONDS);
         builder.permitKeepAliveWithoutCalls(this.serverOption.isPermitKeepAliveWithoutCalls());
 
         builder.maxConnectionIdle(this.serverOption.getMaxConnectionIdle(), TimeUnit.MILLISECONDS);

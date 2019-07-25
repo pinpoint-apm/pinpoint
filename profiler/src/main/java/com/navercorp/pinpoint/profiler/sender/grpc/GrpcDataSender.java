@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.ExecutorFactory;
 import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
 import com.navercorp.pinpoint.grpc.ExecutorUtils;
+import com.navercorp.pinpoint.grpc.ManagedChannelUtils;
 import com.navercorp.pinpoint.grpc.client.ChannelFactory;
 import com.navercorp.pinpoint.grpc.client.ChannelFactoryOption;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
@@ -30,9 +31,7 @@ import io.grpc.ManagedChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.Executors;
 import java.util.concurrent.RejectedExecutionException;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 
@@ -40,10 +39,8 @@ import java.util.concurrent.ThreadPoolExecutor;
  * @author Woonduk Kang(emeroad)
  */
 public abstract class GrpcDataSender implements DataSender<Object> {
-    protected static ScheduledExecutorService reconnectScheduler
-            = Executors.newScheduledThreadPool(1, new PinpointThreadFactory("Pinpoint-reconnect-thread"));
-
     protected final Logger logger = LoggerFactory.getLogger(this.getClass());
+    protected final boolean isDebug = logger.isDebugEnabled();
 
     protected final String name;
     protected final ManagedChannel managedChannel;
@@ -58,7 +55,10 @@ public abstract class GrpcDataSender implements DataSender<Object> {
     protected volatile boolean shutdown;
 
 
-    public GrpcDataSender(String host, int port, int executorQueueSize, MessageConverter<GeneratedMessageV3> messageConverter, ChannelFactoryOption channelFactoryOption) {
+    public GrpcDataSender(String host, int port,
+                          int executorQueueSize,
+                          MessageConverter<GeneratedMessageV3> messageConverter,
+                          ChannelFactoryOption channelFactoryOption) {
         Assert.requireNonNull(channelFactoryOption, "channelFactoryOption must not be null");
 
         this.name = Assert.requireNonNull(channelFactoryOption.getName(), "name must not be null");
@@ -102,11 +102,9 @@ public abstract class GrpcDataSender implements DataSender<Object> {
     public void stop() {
         shutdown = true;
         if (this.managedChannel != null) {
-            this.managedChannel.shutdown();
+            ManagedChannelUtils.shutdownManagedChannel(name, managedChannel);
         }
         ExecutorUtils.shutdownExecutorService(name, executor);
         this.channelFactory.close();
     }
-
-
 }

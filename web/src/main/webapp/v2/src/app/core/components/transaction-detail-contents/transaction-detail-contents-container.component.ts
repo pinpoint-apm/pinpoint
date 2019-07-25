@@ -1,7 +1,15 @@
-import { Component, OnInit, ComponentFactoryResolver, Injector } from '@angular/core';
+import { Component, OnInit, ComponentFactoryResolver, Injector, ViewChild, ElementRef, Renderer2 } from '@angular/core';
+import { Subject } from 'rxjs';
+import { tap } from 'rxjs/operators';
 
-import { TransactionViewTypeService, VIEW_TYPE, AnalyticsService, TRACKED_EVENT_LIST, DynamicPopupService } from 'app/shared/services';
+import {
+    AnalyticsService,
+    TRACKED_EVENT_LIST,
+    DynamicPopupService,
+    StoreHelperService,
+} from 'app/shared/services';
 import { HELP_VIEWER_LIST, HelpViewerPopupContainerComponent } from 'app/core/components/help-viewer-popup/help-viewer-popup-container.component';
+import { CallTreeContainerComponent } from 'app/core/components/call-tree/call-tree-container.component';
 
 @Component({
     selector: 'pp-transaction-detail-contents-container',
@@ -9,26 +17,34 @@ import { HELP_VIEWER_LIST, HelpViewerPopupContainerComponent } from 'app/core/co
     styleUrls: ['./transaction-detail-contents-container.component.css']
 })
 export class TransactionDetailContentsContainerComponent implements OnInit {
-    private currentViewType: string;
+    @ViewChild(CallTreeContainerComponent, {read: ElementRef}) callTreeComponent: ElementRef;
+    private unsubscribe = new Subject<void>();
+
+    activeView: string;
+
     constructor(
-        private transactionViewTypeService: TransactionViewTypeService,
+        private storeHelperService: StoreHelperService,
         private analyticsService: AnalyticsService,
         private dynamicPopupService: DynamicPopupService,
         private componentFactoryResolver: ComponentFactoryResolver,
-        private injector: Injector
+        private injector: Injector,
+        private renderer: Renderer2
     ) {}
 
     ngOnInit() {
-        this.transactionViewTypeService.onChangeViewType$.subscribe((viewType: string) => {
-            this.currentViewType = viewType;
+        this.storeHelperService.getTransactionViewType(this.unsubscribe).pipe(
+            tap((viewType: string) => {
+                this.renderer.setStyle(this.callTreeComponent.nativeElement, 'display', viewType === 'callTree' ? 'block' : 'none');
+            })
+        ).subscribe((viewType: string) => {
+            this.activeView = viewType;
         });
     }
-    isHiddenSearchComponent(): boolean {
-        return this.currentViewType !== VIEW_TYPE.CALL_TREE && this.currentViewType !== VIEW_TYPE.TIMELINE;
+
+    useSearch(): boolean {
+        return this.activeView === 'callTree' || this.activeView === 'timeline';
     }
-    isSameType(type: string): boolean {
-        return this.currentViewType === type;
-    }
+
     onShowHelp($event: MouseEvent): void {
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.TOGGLE_HELP_VIEWER, HELP_VIEWER_LIST.CALL_TREE);
         const {left, top, width, height} = ($event.target as HTMLElement).getBoundingClientRect();

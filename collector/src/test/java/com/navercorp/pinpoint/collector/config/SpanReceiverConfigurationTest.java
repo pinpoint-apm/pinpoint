@@ -38,7 +38,7 @@ public class SpanReceiverConfigurationTest {
         assertEquals(Boolean.FALSE, configuration.isGrpcWorkerMonitorEnable());
         assertEquals(3, configuration.getGrpcServerOption().getKeepAliveTime());
         assertEquals(3, configuration.getGrpcServerOption().getKeepAliveTimeout());
-        assertEquals(3, configuration.getGrpcServerOption().getPermitKeepAliveTimeout());
+        assertEquals(3, configuration.getGrpcServerOption().getPermitKeepAliveTime());
         assertEquals(3, configuration.getGrpcServerOption().getMaxConnectionIdle());
         assertEquals(3, configuration.getGrpcServerOption().getMaxConcurrentCallsPerConnection());
         assertEquals(3, configuration.getGrpcServerOption().getMaxInboundMessageSize());
@@ -47,9 +47,5 @@ public class SpanReceiverConfigurationTest {
 
         assertEquals(3, configuration.getGrpcServerOption().getHandshakeTimeout());
         assertEquals(3, configuration.getGrpcServerOption().getReceiveBufferSize());
-        assertEquals(3, configuration.getGrpcServerOption().getBacklogQueueSize());
-        assertEquals(3, configuration.getGrpcServerOption().getConnectTimeout());
-        assertEquals(3, configuration.getGrpcServerOption().getWriteBufferHighWaterMark());
-        assertEquals(3, configuration.getGrpcServerOption().getWriteBufferLowWaterMark());
     }
 }

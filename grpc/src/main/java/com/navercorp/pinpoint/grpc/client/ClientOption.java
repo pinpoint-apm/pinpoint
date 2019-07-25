@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.grpc.client;
 
+import com.navercorp.pinpoint.common.util.Assert;
+
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -26,9 +28,12 @@ public class ClientOption {
     public static final long DEFAULT_KEEPALIVE_TIMEOUT = TimeUnit.MINUTES.toMillis(30);
     public static final long IDLE_TIMEOUT_MILLIS_DISABLE = -1;
     public static final boolean KEEPALIVE_WITHOUT_CALLS_DISABLE = Boolean.FALSE;
+    // <a href="https://tools.ietf.org/html/rfc7540#section-6.5.2">
     public static final int DEFAULT_MAX_HEADER_LIST_SIZE = 8 * 1024;
     public static final int DEFAULT_MAX_MESSAGE_SIZE = 4 * 1024 * 1024;
+    // <a href="https://tools.ietf.org/html/rfc7540#section-6.9.2">initial connection flow-control window size</a>
     public static final int DEFAULT_FLOW_CONTROL_WINDOW = 1 * 1024 * 1024; // 1MiB
+    public static final int INITIAL_FLOW_CONTROL_WINDOW = 65535;
     public static final int DEFAULT_CONNECT_TIMEOUT = 3000;
     public static final int DEFAULT_WRITE_BUFFER_HIGH_WATER_MARK = 32 * 1024 * 1024;
     public static final int DEFAULT_WRITE_BUFFER_LOW_WATER_MARK = 16 * 1024 * 1024;
@@ -133,34 +138,42 @@ public class ClientOption {
         }
 
         public void setFlowControlWindow(int flowControlWindow) {
+            Assert.isTrue(flowControlWindow >= INITIAL_FLOW_CONTROL_WINDOW, "flowControlWindow " + flowControlWindow + " expected >= " + INITIAL_FLOW_CONTROL_WINDOW);
             this.flowControlWindow = flowControlWindow;
         }
 
         public void setMaxHeaderListSize(int maxHeaderListSize) {
+            Assert.isTrue(maxHeaderListSize > 0, "maxHeaderListSize " + maxHeaderListSize + " must be positive");
             this.maxHeaderListSize = maxHeaderListSize;
         }
 
         public void setKeepAliveTime(long keepAliveTime) {
+            Assert.isTrue(keepAliveTime > 0, "keepAliveTime " + keepAliveTime + " must be positive");
             this.keepAliveTime = keepAliveTime;
         }
 
         public void setKeepAliveTimeout(long keepAliveTimeout) {
+            Assert.isTrue(keepAliveTimeout > 0, "keepAliveTimeout " + keepAliveTimeout + " must be positive");
             this.keepAliveTimeout = keepAliveTimeout;
         }
 
         public void setMaxInboundMessageSize(int maxInboundMessageSize) {
+            Assert.isTrue(maxInboundMessageSize > 0, "maxInboundMessageSize " + maxInboundMessageSize + " must be positive");
             this.maxInboundMessageSize = maxInboundMessageSize;
         }
 
         public void setConnectTimeout(int connectTimeout) {
+            Assert.isTrue(connectTimeout > 0, "connectTimeout " + connectTimeout + " must be positive");
             this.connectTimeout = connectTimeout;
         }
 
         public void setWriteBufferHighWaterMark(int writeBufferHighWaterMark) {
+            Assert.isTrue(writeBufferHighWaterMark > 0, "writeBufferHighWaterMark " + writeBufferHighWaterMark + " must be positive");
             this.writeBufferHighWaterMark = writeBufferHighWaterMark;
         }
 
         public void setWriteBufferLowWaterMark(int writeBufferLowWaterMark) {
+            Assert.isTrue(writeBufferLowWaterMark > 0, "writeBufferLowWaterMark " + writeBufferLowWaterMark + " must be positive");
             this.writeBufferLowWaterMark = writeBufferLowWaterMark;
         }
 
