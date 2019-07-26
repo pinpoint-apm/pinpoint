@@ -79,10 +79,8 @@ export class UrlPathId {
     static TRACE_ID = 'traceId';
     static FOCUS_TIMESTAMP = 'focusTimestamp';
     static SPAN_ID = 'spanId';
-    static VIEW_TYPE = 'viewType';
     static AGENT_LIST = 'agentList';
     static PAGE = 'page';
-    static SEARCH_ID = 'searchId';
     static STAT = 'stat';
     static AGENT = 'agent';
     static GENERAL = 'general';
@@ -106,11 +104,9 @@ export class UrlPathId {
             UrlPathId.PAGE,
             UrlPathId.PERIOD,
             UrlPathId.REAL_TIME,
-            UrlPathId.SEARCH_ID,
             UrlPathId.SPAN_ID,
             UrlPathId.TRACE_ID,
             UrlPathId.TRANSACTION_INFO,
-            UrlPathId.VIEW_TYPE,
             UrlPathId.STAT,
             UrlPathId.AGENT
         ];
@@ -138,9 +134,7 @@ export class UrlPathIdFactory {
             case UrlPathId.TRACE_ID:
             case UrlPathId.FOCUS_TIMESTAMP:
             case UrlPathId.SPAN_ID:
-            case UrlPathId.VIEW_TYPE:
             case UrlPathId.AGENT_LIST:
-            case UrlPathId.SEARCH_ID:
                 return new UrlGeneral(paramValue) as IUrlPathId<string>;
             default:
                 return new UrlGeneral(paramValue) as IUrlPathId<string>;

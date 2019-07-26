@@ -13,7 +13,6 @@ export * from './store-helper.service';
 export * from './system-configuration-data.service';
 export * from './system-configuration-resolver.service';
 export * from './transaction-detail-data.service';
-export * from './transaction-view-type.service';
 export * from './translate-replace.service';
 export * from './url-route-manager.service';
 export * from './url-validate.guard';

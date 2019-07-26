@@ -16,18 +16,14 @@
 
 package com.navercorp.pinpoint.web.service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.Event;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
-import com.navercorp.pinpoint.loader.service.AnnotationKeyRegistryService;
-import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.trace.AnnotationKeyMatcher;
 import com.navercorp.pinpoint.common.trace.LoggingInfo;
 import com.navercorp.pinpoint.common.util.TransactionId;
+import com.navercorp.pinpoint.loader.service.AnnotationKeyRegistryService;
+import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.calltree.span.Align;
 import com.navercorp.pinpoint.web.calltree.span.CallTreeIterator;
 import com.navercorp.pinpoint.web.calltree.span.CallTreeNode;
@@ -36,6 +32,7 @@ import com.navercorp.pinpoint.web.filter.Filter;
 import com.navercorp.pinpoint.web.security.MetaDataFilter;
 import com.navercorp.pinpoint.web.security.MetaDataFilter.MetaData;
 import com.navercorp.pinpoint.web.vo.BusinessTransactions;
+import com.navercorp.pinpoint.web.vo.GetTraceInfo;
 import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.callstacks.Record;
 import com.navercorp.pinpoint.web.vo.callstacks.RecordFactory;
@@ -47,6 +44,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 /**
  *
@@ -105,7 +106,11 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
         List<List<SpanBo>> traceList;
 
         if (filter == Filter.NONE) {
-            traceList = this.traceDao.selectSpans(transactionIdList);
+            List<GetTraceInfo> getTraceInfoList = new ArrayList<>(transactionIdList.size());
+            for (TransactionId transactionId : transactionIdList) {
+                getTraceInfoList.add(new GetTraceInfo(transactionId));
+            }
+            traceList = this.traceDao.selectSpans(getTraceInfoList);
         } else {
             traceList = this.traceDao.selectAllSpans(transactionIdList);
         }

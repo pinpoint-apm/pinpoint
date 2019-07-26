@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.profiler.metadata;
 
 import com.google.inject.Inject;
+import com.navercorp.pinpoint.profiler.context.module.MetadataDataSender;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 
 /**
@@ -29,7 +30,7 @@ public class DefaultStringMetaDataService implements StringMetaDataService {
     private final EnhancedDataSender<Object> enhancedDataSender;
 
     @Inject
-    public DefaultStringMetaDataService(EnhancedDataSender<Object> enhancedDataSender) {
+    public DefaultStringMetaDataService(@MetadataDataSender EnhancedDataSender<Object> enhancedDataSender) {
         if (enhancedDataSender == null) {
             throw new NullPointerException("enhancedDataSender must not be null");
         }

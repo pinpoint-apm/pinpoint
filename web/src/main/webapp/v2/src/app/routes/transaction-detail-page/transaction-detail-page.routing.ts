@@ -12,14 +12,6 @@ export const routing: Routes = [
         component: TransactionDetailPageComponent,
         children: [
             {
-                path: ':' + UrlPathId.TRACE_ID + '/:' + UrlPathId.FOCUS_TIMESTAMP + '/:' + UrlPathId.AGENT_ID + '/:' + UrlPathId.SPAN_ID + '/:' + UrlPathId.VIEW_TYPE  + '/:' + UrlPathId.SEARCH_ID,
-                component: TransactionDetailContentsContainerComponent,
-            },
-            {
-                path: ':' + UrlPathId.TRACE_ID + '/:' + UrlPathId.FOCUS_TIMESTAMP + '/:' + UrlPathId.AGENT_ID + '/:' + UrlPathId.SPAN_ID + '/:' + UrlPathId.VIEW_TYPE,
-                component: TransactionDetailContentsContainerComponent,
-            },
-            {
                 path: ':' + UrlPathId.TRACE_ID + '/:' + UrlPathId.FOCUS_TIMESTAMP + '/:' + UrlPathId.AGENT_ID + '/:' + UrlPathId.SPAN_ID,
                 component: TransactionDetailContentsContainerComponent,
             },

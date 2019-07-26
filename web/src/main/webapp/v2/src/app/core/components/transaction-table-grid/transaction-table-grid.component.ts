@@ -22,20 +22,22 @@ export interface IGridData {
     encapsulation: ViewEncapsulation.None
 })
 export class TransactionTableGridComponent implements OnInit, OnChanges {
-    gridOptions: GridOptions;
     @Input() rowData: IGridData[];
     @Input() addData: IGridData[];
     @Input() resized: any;
     @Input() currentTraceId: string;
     @Input() timezone: string;
     @Input() dateFormat: string;
-    @Output() outSelectTransaction: EventEmitter<any> = new EventEmitter();
-    @Output() outSelectTransactionView: EventEmitter<any> = new EventEmitter();
+    @Output() outSelectTransaction = new EventEmitter<{[key: string]: any}>();
+    @Output() outSelectTransactionView = new EventEmitter<{[key: string]: any}>();
+
+    gridOptions: GridOptions;
 
     constructor() {}
     ngOnInit() {
         this.initGridOptions();
     }
+
     ngOnChanges(changes: SimpleChanges) {
         if (changes['addData'] && changes['addData']['currentValue']) {
             this.gridOptions.api.updateRowData({
@@ -58,6 +60,7 @@ export class TransactionTableGridComponent implements OnInit, OnChanges {
             });
         }
     }
+
     private initGridOptions() {
         this.gridOptions = <GridOptions>{
             defaultColDef: {
@@ -98,6 +101,7 @@ export class TransactionTableGridComponent implements OnInit, OnChanges {
             }
         };
     }
+
     onGridReady(params: GridOptions): void {
         this.gridOptions.api.forEachNode((node) => {
             if (this.currentTraceId === node.data.traceId) {
@@ -105,12 +109,15 @@ export class TransactionTableGridComponent implements OnInit, OnChanges {
             }
         });
     }
+
     onGridSizeChanged(params: GridOptions): void {
         this.gridOptions.api.sizeColumnsToFit();
     }
+
     onRendered(): void {
         this.gridOptions.api.sizeColumnsToFit();
     }
+
     private makeColumnDefs(): any {
         return [
             {
@@ -187,9 +194,11 @@ export class TransactionTableGridComponent implements OnInit, OnChanges {
             }
         ];
     }
+
     argumentCellStyle(): any {
         return {'text-align': 'left'};
     }
+
     alignRightCellStyle(): any {
         return {'text-align': 'right'};
     }

@@ -30,8 +30,10 @@ import com.navercorp.pinpoint.common.server.bo.filter.EmptySpanEventFilter;
 import com.navercorp.pinpoint.common.server.bo.filter.SpanEventFilter;
 import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
 import com.navercorp.pinpoint.common.server.util.EmptyAcceptedTimeService;
+import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.common.util.TransactionId;
 import com.navercorp.pinpoint.grpc.Header;
+import com.navercorp.pinpoint.grpc.MessageFormatUtils;
 import com.navercorp.pinpoint.grpc.trace.PAcceptEvent;
 import com.navercorp.pinpoint.grpc.trace.PAnnotation;
 import com.navercorp.pinpoint.grpc.trace.PIntStringValue;
@@ -109,6 +111,9 @@ public class GrpcSpanFactory {
         spanBo.setApplicationId(header.getApplicationName());
         spanBo.setAgentStartTime(header.getAgentStartTime());
 
+        if (!pSpan.hasTransactionId()) {
+            throw new IllegalStateException("hasTransactionId() is false " + MessageFormatUtils.debugLog(pSpan));
+        }
         final TransactionId transactionId = newTransactionId(pSpan.getTransactionId(), spanBo.getAgentId());
         spanBo.setTransactionId(transactionId);
 
@@ -132,14 +137,33 @@ public class GrpcSpanFactory {
 
         if (pSpan.hasAcceptEvent()) {
             final PAcceptEvent acceptEvent = pSpan.getAcceptEvent();
-            spanBo.setRpc(acceptEvent.getRpc());
-            spanBo.setRemoteAddr(acceptEvent.getRemoteAddr());
-            spanBo.setEndPoint(acceptEvent.getEndPoint());
+            final String rpc = acceptEvent.getRpc();
+            if (StringUtils.hasLength(rpc)) {
+                spanBo.setRpc(rpc);
+            }
+
+            final String remoteAddr = acceptEvent.getRemoteAddr();
+            if (StringUtils.hasLength(remoteAddr)) {
+                spanBo.setRemoteAddr(remoteAddr);
+            }
+
+            final String endPoint = acceptEvent.getEndPoint();
+            if (StringUtils.hasLength(endPoint)) {
+                spanBo.setEndPoint(endPoint);
+            }
 
             if (acceptEvent.hasParentInfo()) {
                 final PParentInfo parentInfo = acceptEvent.getParentInfo();
-                spanBo.setAcceptorHost(parentInfo.getAcceptorHost());
-                spanBo.setParentApplicationId(parentInfo.getParentApplicationName());
+
+                final String acceptorHost = parentInfo.getAcceptorHost();
+                if (StringUtils.hasLength(acceptorHost)) {
+                    spanBo.setAcceptorHost(acceptorHost);
+                }
+
+                final String parentApplicationName = parentInfo.getParentApplicationName();
+                if (StringUtils.hasLength(parentApplicationName)) {
+                    spanBo.setParentApplicationId(parentApplicationName);
+                }
                 spanBo.setParentApplicationServiceType((short) parentInfo.getParentApplicationType());
             }
         }
@@ -188,13 +212,23 @@ public class GrpcSpanFactory {
             final PNextEvent.FieldCase fieldCase = nextEvent.getFieldCase();
             if (fieldCase == PNextEvent.FieldCase.MESSAGEEVENT) {
                 final PMessageEvent messageEvent = nextEvent.getMessageEvent();
-                spanEvent.setDestinationId(messageEvent.getDestinationId());
-                spanEvent.setEndPoint(messageEvent.getEndPoint());
+
+                spanEvent.setNextSpanId(messageEvent.getNextSpanId());
+
+                final String destinationId = messageEvent.getDestinationId();
+                if (StringUtils.hasLength(destinationId)) {
+                    spanEvent.setDestinationId(destinationId);
+                }
+
+                final String endPoint = messageEvent.getEndPoint();
+                if (StringUtils.hasLength(endPoint)) {
+                    spanEvent.setEndPoint(endPoint);
+                }
             } else {
                 logger.info("unknown nextEvent:{}", nextEvent);
             }
         }
-        int asyncEvent = pSpanEvent.getAsyncEvent();
+        final int asyncEvent = pSpanEvent.getAsyncEvent();
         spanEvent.setNextAsyncId(asyncEvent);
 
         List<AnnotationBo> annotationList = buildAnnotationList(pSpanEvent.getAnnotationList());
@@ -257,7 +291,7 @@ public class GrpcSpanFactory {
 
     private TransactionId newTransactionId(PTransactionId pTransactionId, String spanAgentId) {
         final String transactionAgentId = pTransactionId.getAgentId();
-        if (transactionAgentId != null) {
+        if (StringUtils.hasLength(transactionAgentId)) {
             return new TransactionId(transactionAgentId, pTransactionId.getAgentStartTime(), pTransactionId.getSequence());
         } else {
             return new TransactionId(spanAgentId, pTransactionId.getAgentStartTime(), pTransactionId.getSequence());

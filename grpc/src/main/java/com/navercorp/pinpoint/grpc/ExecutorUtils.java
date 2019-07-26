@@ -34,13 +34,13 @@ public final class ExecutorUtils {
     private ExecutorUtils() {
     }
 
-    public static void shutdownExecutorService(String name, ExecutorService executorService) {
-        shutdownExecutorService(name, executorService, DEFAULT_SHUTDOWN_TIMEOUT, TimeUnit.MILLISECONDS);
+    public static boolean shutdownExecutorService(String name, ExecutorService executorService) {
+        return shutdownExecutorService(name, executorService, DEFAULT_SHUTDOWN_TIMEOUT, TimeUnit.MILLISECONDS);
     }
 
-    public static void shutdownExecutorService(String name, ExecutorService executorService, long timeout, TimeUnit unit) {
+    public static boolean shutdownExecutorService(String name, ExecutorService executorService, long timeout, TimeUnit unit) {
         if (executorService == null) {
-            return;
+            return false;
         }
         logger.debug("shutdown {}", name);
         executorService.shutdown();
@@ -49,8 +49,10 @@ public final class ExecutorUtils {
             if (!success) {
                 logger.warn("shutdown timeout {}", name);
             }
+            return success;
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
+            return false;
         }
     }
 }

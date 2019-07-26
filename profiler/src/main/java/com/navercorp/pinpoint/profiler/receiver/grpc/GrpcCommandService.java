@@ -22,18 +22,14 @@ import com.navercorp.pinpoint.grpc.trace.PCmdRequest;
 import com.navercorp.pinpoint.grpc.trace.PCmdServiceHandshake;
 import com.navercorp.pinpoint.grpc.trace.ProfilerCommandServiceGrpc;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
-import com.navercorp.pinpoint.profiler.sender.grpc.ExponentialBackoffReconnectJob;
-import com.navercorp.pinpoint.profiler.sender.grpc.ReconnectJob;
+import com.navercorp.pinpoint.profiler.sender.grpc.ReconnectExecutor;
+import com.navercorp.pinpoint.profiler.sender.grpc.Reconnector;
 import com.navercorp.pinpoint.profiler.sender.grpc.StreamUtils;
 
-import io.grpc.ManagedChannel;
 import io.grpc.stub.ClientCallStreamObserver;
 import io.grpc.stub.ClientResponseObserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @author Taejin Koo
@@ -43,25 +39,23 @@ public class GrpcCommandService {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
-    private final ScheduledExecutorService reconnectScheduler;
-
-    private final ManagedChannel managedChannel;
+    private final CommandServiceStubFactory commandServiceStubFactory;
     private final ActiveTraceRepository activeTraceRepository;
 
-    private final ReconnectJob reconnectAction;
+    private final Reconnector reconnector;
 
     private volatile boolean shutdown;
 
     private volatile CommandServiceMainStreamObserver commandServiceMainStreamObserver;
 
-    public GrpcCommandService(ManagedChannel managedChannel, ScheduledExecutorService reconnectScheduler, ActiveTraceRepository activeTraceRepository) {
-        this.managedChannel = Assert.requireNonNull(managedChannel, "managedChannel");
-        this.reconnectScheduler = Assert.requireNonNull(reconnectScheduler, "reconnectScheduler");
+    public GrpcCommandService(CommandServiceStubFactory commandServiceStubFactory, ReconnectExecutor reconnectScheduler, ActiveTraceRepository activeTraceRepository) {
+        this.commandServiceStubFactory = Assert.requireNonNull(commandServiceStubFactory, "commandServiceStubFactory");
+        Assert.requireNonNull(reconnectScheduler, "reconnectScheduler");
 
         // allow null
         this.activeTraceRepository = activeTraceRepository;
 
-        this.reconnectAction = new ExponentialBackoffReconnectJob(new Runnable() {
+        this.reconnector = reconnectScheduler.newReconnector(new Runnable() {
             @Override
             public void run() {
                 connect();
@@ -76,7 +70,7 @@ public class GrpcCommandService {
         if (shutdown) {
             return;
         }
-        ProfilerCommandServiceGrpc.ProfilerCommandServiceStub profilerCommandServiceStub = ProfilerCommandServiceGrpc.newStub(managedChannel);
+        ProfilerCommandServiceGrpc.ProfilerCommandServiceStub profilerCommandServiceStub = commandServiceStubFactory.newStub();
         GrpcCommandDispatcher commandDispatcher = new GrpcCommandDispatcher(profilerCommandServiceStub, activeTraceRepository);
 
         CommandServiceMainStreamObserver commandServiceMainStreamObserver = new CommandServiceMainStreamObserver(commandDispatcher);
@@ -86,7 +80,7 @@ public class GrpcCommandService {
     }
 
     private void reserveReconnect() {
-        reconnectScheduler.schedule(reconnectAction, reconnectAction.nextBackoffNanos(), TimeUnit.NANOSECONDS);
+        reconnector.reconnect();
     }
 
     public void stop() {
@@ -119,7 +113,7 @@ public class GrpcCommandService {
                 @Override
                 public void run() {
                     logger.info("Connect to CommandServiceStream completed.");
-                    reconnectAction.resetBackoffNanos();
+                    reconnector.reset();
 
                     PCmdServiceHandshake.Builder handshakeMessageBuilder = PCmdServiceHandshake.newBuilder();
                     for (Short commandServiceCode : commandDispatcher.getSupportCommandServiceIdList()) {

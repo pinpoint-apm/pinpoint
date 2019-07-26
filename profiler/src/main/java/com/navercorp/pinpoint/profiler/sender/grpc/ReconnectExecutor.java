@@ -17,6 +17,8 @@
 package com.navercorp.pinpoint.profiler.sender.grpc;
 
 import com.navercorp.pinpoint.common.util.Assert;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
@@ -26,22 +28,23 @@ import java.util.concurrent.TimeUnit;
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class ExecutorAdaptor implements Executor {
+public class ReconnectExecutor {
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     private volatile boolean shutdown;
     private final ScheduledExecutorService scheduledExecutorService;
 
-    public ExecutorAdaptor(ScheduledExecutorService scheduledExecutorService) {
+    public ReconnectExecutor(ScheduledExecutorService scheduledExecutorService) {
         this.scheduledExecutorService = Assert.requireNonNull(scheduledExecutorService, "scheduledExecutorService must not be null");
     }
 
-    @Override
-    public void execute(Runnable command) {
+    private void execute0(Runnable command) {
         Assert.requireNonNull(command, "command must not be null");
 
         if (shutdown) {
+            logger.debug("already shutdown");
             return;
         }
-
         if (command instanceof ReconnectJob) {
             ReconnectJob reconnectJob = (ReconnectJob) command;
             scheduledExecutorService.schedule(reconnectJob, reconnectJob.nextBackoffNanos(), TimeUnit.NANOSECONDS);
@@ -53,4 +56,24 @@ public class ExecutorAdaptor implements Executor {
         shutdown = true;
     }
 
+    public Reconnector newReconnector(Runnable reconnectJob) {
+        Assert.requireNonNull(reconnectJob, "reconnectJob must not be null");
+        if (logger.isInfoEnabled()) {
+            logger.info("newReconnector(reconnectJob = [{}])", reconnectJob);
+        }
+
+        final Executor dispatch = new Executor() {
+            @Override
+            public void execute(Runnable command) {
+                ReconnectExecutor.this.execute0(command);
+            }
+        };
+        final ReconnectJob reconnectJobWrap = wrapReconnectJob(reconnectJob);
+        return new ReconnectAdaptor(dispatch, reconnectJobWrap);
+    }
+
+
+    private ReconnectJob wrapReconnectJob(Runnable runnable) {
+        return new ExponentialBackoffReconnectJob(runnable);
+    }
 }

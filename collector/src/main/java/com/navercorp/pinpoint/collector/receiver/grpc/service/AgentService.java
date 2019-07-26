@@ -108,7 +108,7 @@ public class AgentService extends AgentGrpc.AgentImplBase {
                 if (isDebug) {
                     logger.debug("PingSession:{} onCompleted()", id);
                 }
-//                responseObserver.onCompleted();
+                responseObserver.onCompleted();
                 disconnect();
             }
 

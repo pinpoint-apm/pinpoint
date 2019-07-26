@@ -8,7 +8,7 @@ export class UpdateTransactionData implements Action {
 }
 
 export function Reducer(state: ITransactionMetaData, action: UpdateTransactionData): ITransactionMetaData {
-    switch ( action.type ) {
+    switch (action.type) {
         case UPDATE_TRANSACTION_DATA:
             if (state && (state.traceId === action.payload.traceId && state.collectorAcceptTime === action.payload.collectorAcceptTime && state.elapsed === action.payload.elapsed)) {
                 return state;

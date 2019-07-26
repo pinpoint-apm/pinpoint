@@ -30,6 +30,7 @@ import com.navercorp.pinpoint.grpc.client.HeaderFactory;
 import com.navercorp.pinpoint.profiler.context.module.SpanConverter;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
+import com.navercorp.pinpoint.profiler.sender.grpc.ReconnectExecutor;
 import com.navercorp.pinpoint.profiler.sender.grpc.SpanGrpcDataSender;
 import io.grpc.NameResolverProvider;
 
@@ -40,16 +41,21 @@ public class SpanGrpcDataSenderProvider implements Provider<DataSender<Object>> 
     private final GrpcTransportConfig grpcTransportConfig;
     private final MessageConverter<GeneratedMessageV3> messageConverter;
     private final HeaderFactory headerFactory;
+    private final Provider<ReconnectExecutor> reconnectExecutor;
     private final NameResolverProvider nameResolverProvider;
 
     @Inject
     public SpanGrpcDataSenderProvider(GrpcTransportConfig grpcTransportConfig,
                                       @SpanConverter MessageConverter<GeneratedMessageV3> messageConverter,
                                       HeaderFactory headerFactory,
+                                      Provider<ReconnectExecutor> reconnectExecutor,
                                       NameResolverProvider nameResolverProvider) {
         this.grpcTransportConfig = Assert.requireNonNull(grpcTransportConfig, "grpcTransportConfig must not be null");
         this.messageConverter = Assert.requireNonNull(messageConverter, "messageConverter must not be null");
         this.headerFactory = Assert.requireNonNull(headerFactory, "headerFactory must not be null");
+
+        this.reconnectExecutor = Assert.requireNonNull(reconnectExecutor, "reconnectExecutor must not be null");
+
         this.nameResolverProvider = Assert.requireNonNull(nameResolverProvider, "nameResolverProvider must not be null");
     }
 
@@ -69,8 +75,10 @@ public class SpanGrpcDataSenderProvider implements Provider<DataSender<Object>> 
         channelFactoryOptionBuilder.addClientInterceptor(unaryCallDeadlineInterceptor);
         channelFactoryOptionBuilder.setExecutorQueueSize(channelExecutorQueueSize);
         channelFactoryOptionBuilder.setClientOption(clientOption);
+        ChannelFactoryOption channelFactoryOption = channelFactoryOptionBuilder.build();
 
-        return new SpanGrpcDataSender(collectorIp, collectorPort, senderExecutorQueueSize, messageConverter, channelFactoryOptionBuilder.build());
+        final ReconnectExecutor reconnectExecutor = this.reconnectExecutor.get();
+        return new SpanGrpcDataSender(collectorIp, collectorPort, senderExecutorQueueSize, messageConverter, reconnectExecutor, channelFactoryOption);
     }
 
 }

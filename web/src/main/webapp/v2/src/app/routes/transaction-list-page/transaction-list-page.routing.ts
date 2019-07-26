@@ -13,10 +13,6 @@ export const routing: Routes = [
         component: TransactionListPageComponent,
         children: [
             {
-                path: ':' + UrlPathId.APPLICATION + '/:' + UrlPathId.PERIOD + '/:' + UrlPathId.END_TIME + '/:' + UrlPathId.TRANSACTION_INFO + '/:' + UrlPathId.VIEW_TYPE,
-                component: TransactionListBottomContentsContainerComponent,
-            },
-            {
                 path: ':' + UrlPathId.APPLICATION + '/:' + UrlPathId.PERIOD + '/:' + UrlPathId.END_TIME + '/:' + UrlPathId.TRANSACTION_INFO,
                 component: TransactionListBottomContentsContainerComponent,
             },
