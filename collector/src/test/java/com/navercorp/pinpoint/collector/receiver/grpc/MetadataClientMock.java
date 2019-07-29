@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.collector.receiver.grpc;
 
+import com.google.common.util.concurrent.Uninterruptibles;
 import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
 import com.navercorp.pinpoint.grpc.AgentHeaderFactory;
@@ -27,15 +28,23 @@ import com.navercorp.pinpoint.grpc.trace.PApiMetaData;
 import com.navercorp.pinpoint.grpc.trace.PResult;
 import com.navercorp.pinpoint.grpc.trace.PSqlMetaData;
 import com.navercorp.pinpoint.grpc.trace.PStringMetaData;
+import com.navercorp.pinpoint.profiler.sender.grpc.RetryResponseStreamObserver;
+import com.navercorp.pinpoint.profiler.sender.grpc.RetryScheduler;
 import io.grpc.ManagedChannel;
 import io.grpc.stub.StreamObserver;
+import io.netty.util.HashedWheelTimer;
+import io.netty.util.Timeout;
+import io.netty.util.Timer;
+import io.netty.util.TimerTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -50,21 +59,35 @@ public class MetadataClientMock {
 
     private final ChannelFactory channelFactory;
     private final ManagedChannel channel;
+    private final Timer retryTimer;
+    private final RetryScheduler<GeneratedMessageV3, PResult> retryScheduler;
 
     private volatile MetadataGrpc.MetadataStub metadataStub;
     private final AtomicInteger requestCounter = new AtomicInteger(0);
     private final AtomicInteger responseCounter = new AtomicInteger(0);
     private final List<String> responseList = new ArrayList<>();
 
-    public MetadataClientMock(final String host, final int port, final boolean agentHeader) throws Exception {
+    public MetadataClientMock(final String host, final int port, final boolean agentHeader) {
         HeaderFactory headerFactory = new AgentHeaderFactory("mockAgentId", "mockApplicationName", System.currentTimeMillis());
         ChannelFactoryOption.Builder builder = ChannelFactoryOption.newBuilder();
         builder.setHeaderFactory(headerFactory);
 
+        this.retryTimer = newTimer(this.getClass().getName());
         this.channelFactory = new ChannelFactory(builder.build());
         this.channel = channelFactory.build("MetadataClientMock", host, port);
 
         this.metadataStub = MetadataGrpc.newStub(channel);
+        this.retryScheduler = new RetryScheduler<GeneratedMessageV3, PResult>() {
+            @Override
+            public boolean isSuccess(PResult response) {
+                return response.getSuccess();
+            }
+
+            @Override
+            public void scheduleNextRetry(GeneratedMessageV3 request, int remainingRetryCount) {
+                MetadataClientMock.this.scheduleNextRetry(request, remainingRetryCount);
+            }
+        };
     }
 
     public void stop() throws InterruptedException {
@@ -73,35 +96,42 @@ public class MetadataClientMock {
 
     public void stop(long await) throws InterruptedException {
         channel.shutdown().awaitTermination(await, TimeUnit.SECONDS);
+        channelFactory.close();
+        retryTimer.stop();
     }
 
-    public void apiMetaData() throws InterruptedException {
+    private Timer newTimer(String name) {
+        ThreadFactory threadFactory = new PinpointThreadFactory(PinpointThreadFactory.DEFAULT_THREAD_NAME_PREFIX + name, true);
+        return new HashedWheelTimer(threadFactory, 100, TimeUnit.MILLISECONDS, 512, false, 100);
+    }
+
+    public void apiMetaData() {
         apiMetaData(1);
     }
 
-    public void apiMetaData(final int count) throws InterruptedException {
+    public void apiMetaData(final int count) {
         for (int i = 0; i < count; i++) {
             PApiMetaData request = PApiMetaData.newBuilder().setApiId(i).build();
             request(request, MAX_TOTAL_ATTEMPTS);
         }
     }
 
-    public void sqlMetaData() throws InterruptedException {
+    public void sqlMetaData() {
         sqlMetaData(1);
     }
 
-    public void sqlMetaData(final int count) throws InterruptedException {
+    public void sqlMetaData(final int count) {
         for (int i = 0; i < count; i++) {
             PSqlMetaData request = PSqlMetaData.newBuilder().build();
             request(request, MAX_TOTAL_ATTEMPTS);
         }
     }
 
-    public void stringMetaData() throws InterruptedException {
+    public void stringMetaData() {
         stringMetaData(1);
     }
 
-    public void stringMetaData(final int count) throws InterruptedException {
+    public void stringMetaData(final int count) {
         for (int i = 0; i < count; i++) {
             PStringMetaData request = PStringMetaData.newBuilder().build();
             request(request, MAX_TOTAL_ATTEMPTS);
@@ -112,7 +142,7 @@ public class MetadataClientMock {
         return responseList;
     }
 
-    private void request(GeneratedMessageV3 message, int retryCount) throws InterruptedException {
+    private void request(GeneratedMessageV3 message, int retryCount) {
         if (retryCount <= 0) {
             logger.warn("Drop message {}", debugLog(message));
             return;
@@ -120,56 +150,48 @@ public class MetadataClientMock {
 
         if (message instanceof PSqlMetaData) {
             PSqlMetaData sqlMetaData = (PSqlMetaData) message;
-            this.metadataStub.requestSqlMetaData(sqlMetaData, new RetryResponseStreamObserver(message, retryCount));
+            StreamObserver<PResult> responseObserver = newResponseObserver(message, retryCount);
+            this.metadataStub.requestSqlMetaData(sqlMetaData, responseObserver);
         } else if (message instanceof PApiMetaData) {
             final PApiMetaData apiMetaData = (PApiMetaData) message;
-            this.metadataStub.requestApiMetaData(apiMetaData, new RetryResponseStreamObserver(message, retryCount));
+            StreamObserver<PResult> responseObserver = newResponseObserver(message, retryCount);
+            this.metadataStub.requestApiMetaData(apiMetaData, responseObserver);
         } else if (message instanceof PStringMetaData) {
             final PStringMetaData stringMetaData = (PStringMetaData) message;
-            this.metadataStub.requestStringMetaData(stringMetaData, new RetryResponseStreamObserver(message, retryCount));
+            StreamObserver<PResult> responseObserver = newResponseObserver(message, retryCount);
+            this.metadataStub.requestStringMetaData(stringMetaData, responseObserver);
         } else {
             logger.warn("Unsupported message {}", debugLog(message));
         }
         int requestCount = requestCounter.getAndIncrement();
         logger.info("Request {} {}", requestCount, message);
-        TimeUnit.SECONDS.sleep(1);
+        Uninterruptibles.sleepUninterruptibly(1, TimeUnit.SECONDS);
     }
 
-    class RetryResponseStreamObserver implements StreamObserver<PResult> {
-        private final Logger logger = LoggerFactory.getLogger(this.getClass());
-        private GeneratedMessageV3 message;
-        private int retryCount;
-
-        public RetryResponseStreamObserver(GeneratedMessageV3 message, int retryCount) {
-            this.message = message;
-            this.retryCount = retryCount;
-        }
-
-        @Override
-        public void onNext(PResult result) {
-            int count = responseCounter.getAndIncrement();
-            logger.info("Response {} {}", count, result);
-            responseList.add(result.getMessage());
-        }
-
-        @Override
-        public void onError(Throwable throwable) {
-            logger.info("Error ", throwable);
-            channelFactory.getEventLoopGroup().schedule(new Runnable() {
-                @Override
-                public void run() {
-                    logger.info("Retry {} {}", retryCount, message);
-                    try {
-                        request(message, retryCount - 1);
-                    } catch (InterruptedException e) {
-                    }
+    private void scheduleNextRetry(GeneratedMessageV3 request, int remainingRetryCount) {
+        final TimerTask timerTask = new TimerTask() {
+            @Override
+            public void run(Timeout timeout) throws Exception {
+                if (timeout.isExpired()) {
+                    return;
                 }
-            }, 1000, TimeUnit.MILLISECONDS);
-        }
+                if (timeout.cancel()) {
+                    return;
+                }
+                logger.info("Retry {} {}", remainingRetryCount, request);
+                request(request, remainingRetryCount - 1);
+            }
+        };
 
-        @Override
-        public void onCompleted() {
-            logger.info("Completed");
+        try {
+            retryTimer.newTimeout(timerTask, 1000, TimeUnit.MILLISECONDS);
+        } catch (RejectedExecutionException e) {
+            logger.debug("retry fail {}", e.getCause(), e);
         }
     }
+
+    private StreamObserver<PResult> newResponseObserver(GeneratedMessageV3 message, int retryCount) {
+        return new RetryResponseStreamObserver<GeneratedMessageV3, PResult>(logger, this.retryScheduler, message, retryCount);
+    }
+
 }
