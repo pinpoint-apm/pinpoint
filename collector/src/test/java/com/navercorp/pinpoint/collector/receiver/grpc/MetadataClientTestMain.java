@@ -16,18 +16,21 @@
 
 package com.navercorp.pinpoint.collector.receiver.grpc;
 
+import com.google.common.util.concurrent.Uninterruptibles;
+
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
+
+import static java.util.concurrent.TimeUnit.SECONDS;
 
 public class MetadataClientTestMain {
 
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
         MetadataClientMock clientMock = new MetadataClientMock("localhost", 9997, true);
         clientMock.apiMetaData(100);
 
-        TimeUnit.SECONDS.sleep(60);
+        Uninterruptibles.sleepUninterruptibly(60, SECONDS.SECONDS);
         List<String> list = clientMock.getResponseList();
         Collections.sort(list, new Comparator<String>() {
             @Override
@@ -41,7 +44,7 @@ public class MetadataClientTestMain {
             System.out.println(response);
         }
 
-        TimeUnit.SECONDS.sleep(60 * 60);
+        Uninterruptibles.sleepUninterruptibly(60, SECONDS.SECONDS);
     }
 
 }

@@ -123,22 +123,27 @@ public class AgentGrpcDataSender extends GrpcDataSender implements EnhancedDataS
     }
 
     @Override
-    public boolean send0(Object data) {
-        throw new UnsupportedOperationException("unsupported operation send0(data)");
-    }
-
-    @Override
     public void stop() {
-        logger.info("Stop {}, channel={}", name, managedChannel);
-        if (reconnectExecutor != null) {
-            this.reconnectExecutor.close();
+        if (shutdown) {
+            return;
         }
-        this.pingStreamContext.close();
+        this.shutdown = true;
 
+        logger.info("Stop {}, channel={}", name, managedChannel);
+        final ReconnectExecutor reconnectExecutor = this.reconnectExecutor;
+        if (reconnectExecutor != null) {
+            reconnectExecutor.close();
+        }
+        final PingStreamContext pingStreamContext = this.pingStreamContext;
+        if (pingStreamContext != null) {
+            pingStreamContext.close();
+        }
+
+        final GrpcCommandService grpcCommandService = this.grpcCommandService;
         if (grpcCommandService != null) {
             grpcCommandService.stop();
         }
-        super.stop();
+        this.release();
     }
 
     @Override

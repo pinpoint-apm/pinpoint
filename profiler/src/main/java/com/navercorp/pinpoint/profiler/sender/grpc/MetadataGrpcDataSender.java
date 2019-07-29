@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.profiler.sender.grpc;
 
 import com.google.protobuf.GeneratedMessageV3;
+import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
 import com.navercorp.pinpoint.grpc.client.ChannelFactoryOption;
 import com.navercorp.pinpoint.grpc.trace.MetadataGrpc;
@@ -30,8 +31,13 @@ import com.navercorp.pinpoint.rpc.FutureListener;
 import com.navercorp.pinpoint.rpc.client.PinpointClientReconnectEventListener;
 
 import io.grpc.stub.StreamObserver;
+import io.netty.util.HashedWheelTimer;
+import io.netty.util.Timeout;
+import io.netty.util.Timer;
+import io.netty.util.TimerTask;
 
 import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 
 import static com.navercorp.pinpoint.grpc.MessageFormatUtils.debugLog;
@@ -44,16 +50,45 @@ public class MetadataGrpcDataSender extends GrpcDataSender implements EnhancedDa
     private final int maxAttempts;
     private final int retryDelayMillis;
 
+    private final Timer retryTimer;
+    private final long maxPendingTimeouts = 1024 * 4;
+
+    private final RetryScheduler<GeneratedMessageV3, PResult> retryScheduler;
+
+    protected volatile boolean shutdown;
+
     public MetadataGrpcDataSender(String host, int port, int executorQueueSize, MessageConverter<GeneratedMessageV3> messageConverter, ChannelFactoryOption channelFactoryOption, int retryMaxCount, int retryDelayMillis) {
         super(host, port, executorQueueSize, messageConverter, channelFactoryOption);
 
-        if (retryMaxCount < 0) {
-            this.maxAttempts = 1;
-        } else {
-            this.maxAttempts = retryMaxCount + 1;
-        }
+        this.maxAttempts = getMaxAttempts(retryMaxCount);
         this.retryDelayMillis = retryDelayMillis;
         this.metadataStub = MetadataGrpc.newStub(managedChannel);
+
+        this.retryTimer = newTimer("metadata-timer");
+
+        this.retryScheduler = new RetryScheduler<GeneratedMessageV3, PResult>() {
+            @Override
+            public boolean isSuccess(PResult response) {
+                return response.getSuccess();
+            }
+
+            @Override
+            public void scheduleNextRetry(GeneratedMessageV3 request, int remainingRetryCount) {
+                MetadataGrpcDataSender.this.scheduleNextRetry(request, remainingRetryCount);
+            }
+        };
+    }
+
+    private int getMaxAttempts(int retryMaxCount) {
+        if (retryMaxCount < 0) {
+            return 0;
+        }
+        return retryMaxCount;
+    }
+
+    private Timer newTimer(String name) {
+        ThreadFactory threadFactory = new PinpointThreadFactory(PinpointThreadFactory.DEFAULT_THREAD_NAME_PREFIX + name, true);
+        return new HashedWheelTimer(threadFactory, 100, TimeUnit.MILLISECONDS, 512, false, maxPendingTimeouts);
     }
 
     // Unsupported Operation
@@ -70,11 +105,6 @@ public class MetadataGrpcDataSender extends GrpcDataSender implements EnhancedDa
     @Override
     public boolean send(Object data) {
         throw new UnsupportedOperationException("unsupported operation send(data)");
-    }
-
-    @Override
-    public boolean send0(Object data) {
-        throw new UnsupportedOperationException("unsupported operation send0(data)");
     }
 
     @Override
@@ -116,73 +146,79 @@ public class MetadataGrpcDataSender extends GrpcDataSender implements EnhancedDa
     // Request
     private void request0(final GeneratedMessageV3 message, final int remainingRetryCount) {
         if (message instanceof PSqlMetaData) {
-            PSqlMetaData sqlMetaData = (PSqlMetaData) message;
-            this.metadataStub.requestSqlMetaData(sqlMetaData, new RetryResponseStreamObserver(message, remainingRetryCount));
+            final PSqlMetaData sqlMetaData = (PSqlMetaData) message;
+            final StreamObserver<PResult> responseObserver = newResponseStream(message, remainingRetryCount);
+            this.metadataStub.requestSqlMetaData(sqlMetaData, responseObserver);
         } else if (message instanceof PApiMetaData) {
             final PApiMetaData apiMetaData = (PApiMetaData) message;
-            this.metadataStub.requestApiMetaData(apiMetaData, new RetryResponseStreamObserver(message, remainingRetryCount));
+            final StreamObserver<PResult> responseObserver = newResponseStream(message, remainingRetryCount);
+            this.metadataStub.requestApiMetaData(apiMetaData, responseObserver);
         } else if (message instanceof PStringMetaData) {
             final PStringMetaData stringMetaData = (PStringMetaData) message;
-            this.metadataStub.requestStringMetaData(stringMetaData, new RetryResponseStreamObserver(message, remainingRetryCount));
+            final StreamObserver<PResult> responseObserver = newResponseStream(message, remainingRetryCount);
+            this.metadataStub.requestStringMetaData(stringMetaData, responseObserver);
         } else {
             logger.warn("Unsupported message {}", debugLog(message));
         }
     }
 
+    private StreamObserver<PResult> newResponseStream(GeneratedMessageV3 message, int remainingRetryCount) {
+        return new RetryResponseStreamObserver<GeneratedMessageV3, PResult>(logger, retryScheduler, message, remainingRetryCount);
+    }
+
     // Retry
     private void scheduleNextRetry(final GeneratedMessageV3 message, final int remainingRetryCount) {
-        if (shutdown || remainingRetryCount <= 0) {
+        if (shutdown) {
             if (isDebug) {
-                logger.debug("Request drop. request={}, remainingRetryCount={}, shutdown={}", MessageFormatUtils.debugLog(message), remainingRetryCount, shutdown);
+                logger.debug("Request drop. Already shutdown request={}", MessageFormatUtils.debugLog(message));
             }
             return;
+        }
+        if (remainingRetryCount <= 0) {
+            if (isDebug) {
+                logger.debug("Request drop. remainingRetryCount={}, request={}", MessageFormatUtils.debugLog(message), remainingRetryCount);
+            }
         }
 
         if (isDebug) {
             logger.debug("Request retry. request={}, remainingRetryCount={}", MessageFormatUtils.debugLog(message), remainingRetryCount);
         }
-        channelFactory.getEventLoopGroup().schedule(new Runnable() {
+        final TimerTask timerTask = new TimerTask() {
             @Override
-            public void run() {
-                if (!shutdown) {
-                    request0(message, remainingRetryCount);
+            public void run(Timeout timeout) throws Exception {
+                if (timeout.isExpired()) {
+                    return;
                 }
+                if (timeout.cancel()) {
+                    return;
+                }
+                if (shutdown) {
+                    return;
+                }
+                request0(message, remainingRetryCount);
             }
-        }, retryDelayMillis, TimeUnit.MILLISECONDS);
+        };
+
+        try {
+            retryTimer.newTimeout(timerTask, retryDelayMillis, TimeUnit.MILLISECONDS);
+        } catch (RejectedExecutionException e) {
+            logger.debug("retry fail {}", e.getCause(), e);
+        }
     }
 
-    private class RetryResponseStreamObserver implements StreamObserver<PResult> {
-        private final GeneratedMessageV3 message;
-        private final int remainingRetryCount;
 
-        public RetryResponseStreamObserver(GeneratedMessageV3 message, int remainingRetryCount) {
-            this.message = message;
-            this.remainingRetryCount = remainingRetryCount - 1;
-        }
 
-        @Override
-        public void onNext(PResult result) {
-            if (result.getSuccess()) {
-                // Success
-                if (isDebug) {
-                    logger.debug("Request success. request={}, result={}", MessageFormatUtils.debugLog(message), result.getMessage());
-                }
-            } else {
-                // Retry
-                logger.info("Request fail. request={}, result={}", MessageFormatUtils.debugLog(message), result.getMessage());
-                scheduleNextRetry(message, remainingRetryCount);
-            }
+    @Override
+    public void stop() {
+        if (shutdown) {
+            return;
         }
+        this.shutdown = true;
 
-        @Override
-        public void onError(Throwable throwable) {
-            // Retry
-            logger.info("Request error. request={}, caused={}", MessageFormatUtils.debugLog(message), throwable, throwable);
-            scheduleNextRetry(message, remainingRetryCount);
+        final Timer retryTimer = this.retryTimer;
+        if (retryTimer != null) {
+            retryTimer.stop();
         }
-
-        @Override
-        public void onCompleted() {
-        }
+        super.release();
     }
 }

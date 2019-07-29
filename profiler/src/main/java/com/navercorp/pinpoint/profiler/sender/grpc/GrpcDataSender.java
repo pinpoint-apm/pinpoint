@@ -31,9 +31,8 @@ import io.grpc.ManagedChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.ThreadPoolExecutor;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -51,7 +50,7 @@ public abstract class GrpcDataSender implements DataSender<Object> {
     // not thread safe
     protected final MessageConverter<GeneratedMessageV3> messageConverter;
 
-    protected final ThreadPoolExecutor executor;
+    protected final ExecutorService executor;
 
     protected final ChannelFactory channelFactory;
 
@@ -76,41 +75,22 @@ public abstract class GrpcDataSender implements DataSender<Object> {
         this.managedChannel = channelFactory.build(name, host, port);
     }
 
-    private ThreadPoolExecutor newExecutorService(String name, int senderExecutorQueueSize) {
+    protected ExecutorService newExecutorService(String name, int senderExecutorQueueSize) {
         ThreadFactory threadFactory = new PinpointThreadFactory(PinpointThreadFactory.DEFAULT_THREAD_NAME_PREFIX + name, true);
         return ExecutorFactory.newFixedThreadPool(1, senderExecutorQueueSize, threadFactory);
     }
 
-    @Override
-    public boolean send(final Object data) {
-        final Runnable command = new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    send0(data);
-                } catch (Exception ex) {
-                    logger.debug("send fail:{}", data, ex);
-                }
-            }
-        };
-        try {
-            executor.execute(command);
-        } catch (RejectedExecutionException reject) {
-            logger.debug("reject:{}", command);
-            return false;
-        }
-        return true;
-    }
 
-    public abstract boolean send0(Object data);
 
-    @Override
-    public void stop() {
-        shutdown = true;
-        if (this.managedChannel != null) {
+    protected void release() {
+        ExecutorUtils.shutdownExecutorService(name, executor);
+        final ManagedChannel managedChannel = this.managedChannel;
+        if (managedChannel != null) {
             ManagedChannelUtils.shutdownManagedChannel(name, managedChannel);
         }
-        ExecutorUtils.shutdownExecutorService(name, executor);
-        this.channelFactory.close();
+        final ChannelFactory channelFactory = this.channelFactory;
+        if (channelFactory != null) {
+            channelFactory.close();
+        }
     }
 }

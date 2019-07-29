@@ -31,6 +31,8 @@ import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
 import com.google.protobuf.GeneratedMessageV3;
 import io.grpc.stub.StreamObserver;
 
+import java.util.concurrent.RejectedExecutionException;
+
 import static com.navercorp.pinpoint.grpc.MessageFormatUtils.debugLog;
 
 /**
@@ -72,7 +74,28 @@ public class StatGrpcDataSender extends GrpcDataSender {
     }
 
     @Override
-    public boolean send0(Object data) {
+    public boolean send(final Object data) {
+        final Runnable command = new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    send0(data);
+                } catch (Exception ex) {
+                    logger.debug("send fail:{}", data, ex);
+                }
+            }
+        };
+        try {
+            executor.execute(command);
+        } catch (RejectedExecutionException reject) {
+            logger.debug("reject:{}", command);
+            return false;
+        }
+        return true;
+    }
+
+
+    private boolean send0(Object data) {
         final GeneratedMessageV3 message = messageConverter.toMessage(data);
         if (logger.isDebugEnabled()) {
             logger.debug("Send message={}", debugLog(message));
@@ -96,12 +119,19 @@ public class StatGrpcDataSender extends GrpcDataSender {
 
     @Override
     public void stop() {
-        if (this.reconnectExecutor != null) {
-            this.reconnectExecutor.close();
+        if (shutdown) {
+            return;
+        }
+        this.shutdown = true;
+
+        logger.info("Stop {}, channel={}", name, managedChannel);
+        final ReconnectExecutor reconnectExecutor = this.reconnectExecutor;
+        if (reconnectExecutor != null) {
+            reconnectExecutor.close();
         }
         logger.info("{} close()", statStream);
         StreamUtils.close(statStream);
-        super.stop();
+        release();
     }
 
     @Override
