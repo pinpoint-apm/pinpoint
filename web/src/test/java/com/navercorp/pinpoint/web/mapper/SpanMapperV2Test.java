@@ -39,7 +39,7 @@ public class SpanMapperV2Test {
         firstSpanEventBo.setEndElapsed(100);
 
         AnnotationBo annotationBo = newAnnotation(200, "annotation");
-        firstSpanEventBo.setAnnotationBoList(Lists.<AnnotationBo>newArrayList(annotationBo));
+        firstSpanEventBo.setAnnotationBoList(Lists.newArrayList(annotationBo));
         firstSpanEventBo.setServiceType((short) 1003);
         firstSpanEventBo.setSequence((short) 0);
 
