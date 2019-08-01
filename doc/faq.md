@@ -55,7 +55,7 @@ Please remember to run the command `mvn clean verify -DskipTests=true` if you've
 ### How to set java runtime option when using atlassian OSGi
 `-Datlassian.org.osgi.framework.bootdelegation=sun.,com.sun.,com.navercorp.*,org.apache.xerces.*`
 
-### Why do I see UI send requests to http://www.google-analytics.com/collect?
+### Why do I see UI send requests to https://www.google-analytics.com/collect?
 Pinpoint Web module has google analytics attached which tracks the number and the order of button clicks in the Server Map, Transaction List, and the Inspector View.  
 This data is used to better understand how users interact with the Web UI which gives us valuable information on improving Pinpoint Web's user experience. To disable this for any reason, set following option to false in pinpoint-web.properties for your web instance.
 ```
