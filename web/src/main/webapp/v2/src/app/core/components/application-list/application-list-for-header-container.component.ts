@@ -115,11 +115,11 @@ export class ApplicationListForHeaderContainerComponent implements OnInit, After
     }
     private initI18nText(): void {
         combineLatest(
-            this.translateService.get('MAIN.INPUT_APP_NAME_PLACE_HOLDER'),
+            this.translateService.get('COMMON.INPUT_APP_NAME_PLACE_HOLDER'),
             this.translateService.get('MAIN.APP_LIST'),
             this.translateService.get('MAIN.FAVORITE_APP_LIST'),
-            this.translateService.get('MAIN.SELECT_YOUR_APP'),
-            this.translateService.get('CONFIGURATION.GENERAL.EMPTY')
+            this.translateService.get('COMMON.SELECT_YOUR_APP'),
+            this.translateService.get('COMMON.EMPTY')
         ).subscribe((i18n: string[]) => {
             this.i18nText.INPUT_APPLICATION_NAME = i18n[0];
             this.i18nText.APPLICATION_LIST_TITLE = i18n[1];
