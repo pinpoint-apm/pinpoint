@@ -45,6 +45,8 @@ public class DefaultBaseTraceFactory implements BaseTraceFactory {
 
     private final StorageFactory storageFactory;
     private final Sampler sampler;
+    private final Sampler newThroughputSampler;
+    private final Sampler continueThroughputSampler;
 
     private final IdGenerator idGenerator;
     private final AsyncContextFactory asyncContextFactory;
@@ -56,15 +58,16 @@ public class DefaultBaseTraceFactory implements BaseTraceFactory {
 
     private final ActiveTraceRepository activeTraceRepository;
 
-
     public DefaultBaseTraceFactory(TraceRootFactory traceRootFactory, CallStackFactory<SpanEvent> callStackFactory, StorageFactory storageFactory,
-                                   Sampler sampler, IdGenerator idGenerator, AsyncContextFactory asyncContextFactory,
+                                   Sampler sampler, Sampler newThroughputSampler, Sampler continueThroughputSampler, IdGenerator idGenerator, AsyncContextFactory asyncContextFactory,
                                    SpanFactory spanFactory, RecorderFactory recorderFactory, ActiveTraceRepository activeTraceRepository) {
 
         this.traceRootFactory = Assert.requireNonNull(traceRootFactory, "traceRootFactory must not be null");
         this.callStackFactory = Assert.requireNonNull(callStackFactory, "callStackFactory must not be null");
         this.storageFactory = Assert.requireNonNull(storageFactory, "storageFactory must not be null");
         this.sampler = Assert.requireNonNull(sampler, "sampler must not be null");
+        this.newThroughputSampler = Assert.requireNonNull(newThroughputSampler, "newThroughputSampler must not be null");
+        this.continueThroughputSampler = Assert.requireNonNull(continueThroughputSampler, "continueThroughputSampler must not be null");
         this.idGenerator = Assert.requireNonNull(idGenerator, "idGenerator must not be null");
         this.asyncContextFactory = Assert.requireNonNull(asyncContextFactory, "asyncContextFactory must not be null");
 
@@ -73,26 +76,31 @@ public class DefaultBaseTraceFactory implements BaseTraceFactory {
         this.activeTraceRepository = Assert.requireNonNull(activeTraceRepository, "activeTraceRepository must not be null");
     }
 
-
     // continue to trace the request that has been determined to be sampled on previous nodes
     @Override
     public Trace continueTraceObject(final TraceId traceId) {
         // TODO need to modify how to bind a datasender
         // always set true because the decision of sampling has been  made on previous nodes
         // TODO need to consider as a target to sample in case Trace object has a sampling flag (true) marked on previous node.
-        final TraceRoot traceRoot = traceRootFactory.continueTraceRoot(traceId);
-        final Span span = spanFactory.newSpan(traceRoot);
+        // Check max throughput(permits per seconds)
+        final boolean throughputSampling = continueThroughputSampler.isSampling();
+        if (throughputSampling) {
+            final TraceRoot traceRoot = traceRootFactory.continueTraceRoot(traceId);
+            final Span span = spanFactory.newSpan(traceRoot);
 
-        final Storage storage = storageFactory.createStorage(traceRoot);
-        final CallStack<SpanEvent> callStack = callStackFactory.newCallStack();
+            final Storage storage = storageFactory.createStorage(traceRoot);
+            final CallStack<SpanEvent> callStack = callStackFactory.newCallStack();
 
-        final boolean samplingEnable = true;
-        final SpanRecorder spanRecorder = recorderFactory.newSpanRecorder(span, traceId.isRoot(), samplingEnable);
-        final WrappedSpanEventRecorder wrappedSpanEventRecorder = recorderFactory.newWrappedSpanEventRecorder(traceRoot);
-        final ActiveTraceHandle handle = registerActiveTrace(traceRoot);
+            final boolean samplingEnable = true;
+            final SpanRecorder spanRecorder = recorderFactory.newSpanRecorder(span, traceId.isRoot(), samplingEnable);
+            final WrappedSpanEventRecorder wrappedSpanEventRecorder = recorderFactory.newWrappedSpanEventRecorder(traceRoot);
+            final ActiveTraceHandle handle = registerActiveTrace(traceRoot);
 
-        final DefaultTrace trace = new DefaultTrace(span, callStack, storage, asyncContextFactory, samplingEnable, spanRecorder, wrappedSpanEventRecorder, handle);
-        return trace;
+            final DefaultTrace trace = new DefaultTrace(span, callStack, storage, asyncContextFactory, samplingEnable, spanRecorder, wrappedSpanEventRecorder, handle);
+            return trace;
+        } else {
+            return newDisableTraceForContinuedSkip();
+        }
     }
 
     private ActiveTraceHandle registerActiveTrace(TraceRoot traceRoot) {
@@ -103,13 +111,18 @@ public class DefaultBaseTraceFactory implements BaseTraceFactory {
         return activeTraceRepository.register(localTransactionId, startTime, threadId);
     }
 
-
-
-
     @Override
     public Trace newTraceObject() {
         // TODO need to modify how to inject a datasender
         final boolean sampling = sampler.isSampling();
+        if (sampling) {
+            // Check max throughput(permits per seconds)
+            final boolean throughputSampling = newThroughputSampler.isSampling();
+            if (throughputSampling == Boolean.FALSE) {
+                return newDisableTraceForNewSkip();
+            }
+        }
+
         if (sampling) {
             final TraceRoot traceRoot = traceRootFactory.newTraceRoot();
             final Span span = spanFactory.newSpan(traceRoot);
@@ -130,11 +143,9 @@ public class DefaultBaseTraceFactory implements BaseTraceFactory {
         }
     }
 
-
     // internal async trace.
     @Override
     public Trace continueAsyncTraceObject(TraceRoot traceRoot, LocalAsyncId localAsyncId) {
-
         final Storage storage = storageFactory.createStorage(traceRoot);
 
         final CallStack<SpanEvent> callStack = callStackFactory.newCallStack();
@@ -161,37 +172,47 @@ public class DefaultBaseTraceFactory implements BaseTraceFactory {
     @InterfaceAudience.LimitedPrivate("vert.x")
     @Override
     public Trace continueAsyncTraceObject(final TraceId traceId) {
+        // Check max throughput(permits per seconds)
+        final boolean throughputSampling = continueThroughputSampler.isSampling();
+        if (throughputSampling) {
+            final boolean sampling = true;
+            final TraceRoot traceRoot = traceRootFactory.continueTraceRoot(traceId);
+            final Span span = spanFactory.newSpan(traceRoot);
+            final Storage storage = storageFactory.createStorage(traceRoot);
+            final CallStack<SpanEvent> callStack = callStackFactory.newCallStack();
 
-        final boolean sampling = true;
+            final ActiveTraceHandle handle = registerActiveTrace(traceRoot);
+            final SpanAsyncStateListener asyncStateListener = new SpanAsyncStateListener(span, storageFactory);
+            final AsyncState asyncState = new ListenableAsyncState(asyncStateListener, handle);
 
-        final TraceRoot traceRoot = traceRootFactory.continueTraceRoot(traceId);
-        final Span span = spanFactory.newSpan(traceRoot);
-        final Storage storage = storageFactory.createStorage(traceRoot);
-        final CallStack<SpanEvent> callStack = callStackFactory.newCallStack();
-
-        final ActiveTraceHandle handle = registerActiveTrace(traceRoot);
-        final SpanAsyncStateListener asyncStateListener = new SpanAsyncStateListener(span, storageFactory);
-        final AsyncState asyncState = new ListenableAsyncState(asyncStateListener, handle);
-
-        final SpanRecorder spanRecorder = recorderFactory.newSpanRecorder(span, traceId.isRoot(), sampling);
-        final WrappedSpanEventRecorder wrappedSpanEventRecorder = recorderFactory.newWrappedSpanEventRecorder(traceRoot, asyncState);
+            final SpanRecorder spanRecorder = recorderFactory.newSpanRecorder(span, traceId.isRoot(), sampling);
+            final WrappedSpanEventRecorder wrappedSpanEventRecorder = recorderFactory.newWrappedSpanEventRecorder(traceRoot, asyncState);
 
 
-        final DefaultTrace trace = new DefaultTrace(span, callStack, storage, asyncContextFactory, sampling, spanRecorder, wrappedSpanEventRecorder, ActiveTraceHandle.EMPTY_HANDLE);
+            final DefaultTrace trace = new DefaultTrace(span, callStack, storage, asyncContextFactory, sampling, spanRecorder, wrappedSpanEventRecorder, ActiveTraceHandle.EMPTY_HANDLE);
 
-        final AsyncTrace asyncTrace = new AsyncTrace(asyncContextFactory, traceRoot, trace, asyncState);
+            final AsyncTrace asyncTrace = new AsyncTrace(asyncContextFactory, traceRoot, trace, asyncState);
 
-        return asyncTrace;
+            return asyncTrace;
+        } else {
+            return newDisableTraceForContinuedSkip();
+        }
     }
 
     // entry point async trace.
     @InterfaceAudience.LimitedPrivate("vert.x")
     @Override
     public Trace newAsyncTraceObject() {
-
         final boolean sampling = sampler.isSampling();
         if (sampling) {
+            // Check max throughput(permits per seconds)
+            final boolean throughputSampling = newThroughputSampler.isSampling();
+            if(throughputSampling == Boolean.FALSE) {
+                return newDisableTraceForNewSkip();
+            }
+        }
 
+        if (sampling) {
             final TraceRoot traceRoot = traceRootFactory.newTraceRoot();
             final Span span = spanFactory.newSpan(traceRoot);
 
@@ -220,7 +241,16 @@ public class DefaultBaseTraceFactory implements BaseTraceFactory {
 
     private Trace newDisableTrace() {
         final long nextDisabledId = this.idGenerator.nextDisabledId();
+        return newDisableTrace0(nextDisabledId);
+    }
 
+    private Trace newDisableTraceForNewSkip() {
+        final long nextDisabledId = this.idGenerator.nextDisabledId(true);
+        return newDisableTrace0(nextDisabledId);
+    }
+
+    private Trace newDisableTraceForContinuedSkip() {
+        final long nextDisabledId = this.idGenerator.nextContinuedDisabledId(true);
         return newDisableTrace0(nextDisabledId);
     }
 
@@ -237,5 +267,4 @@ public class DefaultBaseTraceFactory implements BaseTraceFactory {
         final Trace disableTrace = new DisableTrace(id, traceStartTime, threadId, activeTraceHandle);
         return disableTrace;
     }
-
 }

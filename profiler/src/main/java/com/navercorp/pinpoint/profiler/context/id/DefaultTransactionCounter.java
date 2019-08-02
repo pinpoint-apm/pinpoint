@@ -54,11 +54,23 @@ public class DefaultTransactionCounter implements TransactionCounter {
     }
 
     @Override
+    public long getSkippedNewCount() {
+        return Math.abs(idGenerator.currentDisabledId(true) - AtomicIdGenerator.INITIAL_SKIPPED_ID) / AtomicIdGenerator.DECREMENT_CYCLE;
+    }
+
+    @Override
+    public long getSkippedContinuationCount() {
+        return Math.abs(idGenerator.currentContinuedDisabledId(true) - AtomicIdGenerator.INITIAL_CONTINUED_SKIPPED_ID) / AtomicIdGenerator.DECREMENT_CYCLE;
+    }
+
+    @Override
     public long getTotalTransactionCount() {
         long count = getSampledNewCount();
         count += getSampledContinuationCount();
         count += getUnSampledNewCount();
         count += getUnSampledContinuationCount();
+        count += getSkippedNewCount();
+        count += getSkippedContinuationCount();
         return count;
     }
 }

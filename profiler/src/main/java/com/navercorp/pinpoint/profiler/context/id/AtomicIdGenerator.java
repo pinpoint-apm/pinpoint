@@ -38,8 +38,10 @@ public class AtomicIdGenerator implements IdGenerator {
     public static final long INITIAL_CONTINUED_TRANSACTION_ID = RESERVED_MIN - 1; // -1001
     public static final long INITIAL_DISABLED_ID = RESERVED_MIN - 2; // -1002
     public static final long INITIAL_CONTINUED_DISABLED_ID = RESERVED_MIN - 3; // -1003
+    public static final long INITIAL_SKIPPED_ID = RESERVED_MIN - 4; // -1004
+    public static final long INITIAL_CONTINUED_SKIPPED_ID = RESERVED_MIN - 5; // -1005
 
-    public static final int DECREMENT_CYCLE = 3;
+    public static final int DECREMENT_CYCLE = 5;
     public static final int NEGATIVE_DECREMENT_CYCLE = DECREMENT_CYCLE * -1;
 
     // Unique id for tracing a internal stacktrace and calculating a slow time of activethreadcount
@@ -52,6 +54,10 @@ public class AtomicIdGenerator implements IdGenerator {
     private final AtomicLong disabledId = new AtomicLong(INITIAL_DISABLED_ID);
     // id generator for unsampled continued traces
     private final AtomicLong continuedDisabledId = new AtomicLong(INITIAL_CONTINUED_DISABLED_ID);
+    // id generator for skipped new traces
+    private final AtomicLong skippedId = new AtomicLong(INITIAL_SKIPPED_ID);
+    // id generator for skipped continued traces
+    private final AtomicLong continuedSkippedId = new AtomicLong(INITIAL_CONTINUED_SKIPPED_ID);
 
     @Inject
     public AtomicIdGenerator() {
@@ -69,12 +75,30 @@ public class AtomicIdGenerator implements IdGenerator {
 
     @Override
     public long nextDisabledId() {
-        return this.disabledId.getAndAdd(NEGATIVE_DECREMENT_CYCLE);
+        return nextDisabledId(false);
     }
 
     @Override
     public long nextContinuedDisabledId() {
-        return this.continuedDisabledId.getAndAdd(NEGATIVE_DECREMENT_CYCLE);
+        return nextContinuedDisabledId(false);
+    }
+
+    @Override
+    public long nextDisabledId(final boolean throughputLimit) {
+        if (throughputLimit) {
+            return this.skippedId.getAndAdd(NEGATIVE_DECREMENT_CYCLE);
+        } else {
+            return this.disabledId.getAndAdd(NEGATIVE_DECREMENT_CYCLE);
+        }
+    }
+
+    @Override
+    public long nextContinuedDisabledId(final boolean throughputLimit) {
+        if (throughputLimit) {
+            return this.continuedSkippedId.getAndAdd(NEGATIVE_DECREMENT_CYCLE);
+        } else {
+            return this.continuedDisabledId.getAndAdd(NEGATIVE_DECREMENT_CYCLE);
+        }
     }
 
     @Override
@@ -89,11 +113,29 @@ public class AtomicIdGenerator implements IdGenerator {
 
     @Override
     public long currentDisabledId() {
-        return this.disabledId.get();
+        return currentDisabledId(false);
     }
 
     @Override
     public long currentContinuedDisabledId() {
-        return this.continuedDisabledId.get();
+        return currentContinuedDisabledId(false);
+    }
+
+    @Override
+    public long currentDisabledId(final boolean throughputLimit) {
+        if (throughputLimit) {
+            return this.skippedId.get();
+        } else {
+            return this.disabledId.get();
+        }
+    }
+
+    @Override
+    public long currentContinuedDisabledId(final boolean throughputLimit) {
+        if (throughputLimit) {
+            return this.continuedSkippedId.get();
+        } else {
+            return this.continuedDisabledId.get();
+        }
     }
 }

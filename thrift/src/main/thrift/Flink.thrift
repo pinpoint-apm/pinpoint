@@ -87,6 +87,8 @@ struct TFTransaction {
     3: optional i64     sampledContinuationCount
     4: optional i64     unsampledNewCount
     5: optional i64     unsampledContinuationCount
+    6: optional i64     skippedNewCount
+    7: optional i64     skippedContinuationCount
 }
 
 struct TFActiveTraceHistogram {

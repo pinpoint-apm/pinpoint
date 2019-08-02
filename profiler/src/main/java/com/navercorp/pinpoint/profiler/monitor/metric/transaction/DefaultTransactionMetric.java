@@ -27,6 +27,8 @@ public class DefaultTransactionMetric implements TransactionMetric {
     private final TransactionGauge sampledContinuationGauge;
     private final TransactionGauge unsampledNewGauge;
     private final TransactionGauge unsampledContinuationGauge;
+    private final TransactionGauge skippedNewGauge;
+    private final TransactionGauge skippedContinuationGauge;
 
     public DefaultTransactionMetric(final TransactionCounter transactionCounter) {
         if (transactionCounter == null) {
@@ -56,6 +58,18 @@ public class DefaultTransactionMetric implements TransactionMetric {
                 return transactionCounter.getUnSampledContinuationCount();
             }
         });
+        skippedNewGauge = TransactionGauge.from(new LongCounter() {
+            @Override
+            public long getCount() {
+                return transactionCounter.getSkippedNewCount();
+            }
+        });
+        skippedContinuationGauge = TransactionGauge.from(new LongCounter() {
+            @Override
+            public long getCount() {
+                return transactionCounter.getSkippedContinuationCount();
+            }
+        });
     }
 
     @Override
@@ -64,7 +78,9 @@ public class DefaultTransactionMetric implements TransactionMetric {
         long sampledContinuationCount = sampledContinuationGauge.getTransactionCount();
         long unsampledNewCount = unsampledNewGauge.getTransactionCount();
         long unsampledContinuationCount = unsampledContinuationGauge.getTransactionCount();
-        return new TransactionMetricSnapshot(sampledNewCount, sampledContinuationCount, unsampledNewCount, unsampledContinuationCount);
+        long skippedNewCount = skippedNewGauge.getTransactionCount();
+        long skippedContinuationCount = skippedContinuationGauge.getTransactionCount();
+        return new TransactionMetricSnapshot(sampledNewCount, sampledContinuationCount, unsampledNewCount, unsampledContinuationCount, skippedNewCount, skippedContinuationCount);
     }
 
     @Override

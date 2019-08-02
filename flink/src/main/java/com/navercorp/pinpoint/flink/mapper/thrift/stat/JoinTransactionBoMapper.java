@@ -54,6 +54,8 @@ public class JoinTransactionBoMapper implements ThriftBoMapper<JoinTransactionBo
         totalCount += tFtransaction.getSampledContinuationCount();
         totalCount += tFtransaction.getUnsampledNewCount();
         totalCount += tFtransaction.getUnsampledContinuationCount();
+        totalCount += tFtransaction.getSkippedNewCount();
+        totalCount += tFtransaction.getSkippedContinuationCount();
         return totalCount;
     }
 }
