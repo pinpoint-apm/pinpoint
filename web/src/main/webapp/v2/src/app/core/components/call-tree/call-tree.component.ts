@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges, OnDestroy, AfterViewInit, HostBinding } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges, AfterViewInit, HostBinding } from '@angular/core';
 import * as moment from 'moment-timezone';
 import { GridOptions, RowNode } from 'ag-grid-community';
 

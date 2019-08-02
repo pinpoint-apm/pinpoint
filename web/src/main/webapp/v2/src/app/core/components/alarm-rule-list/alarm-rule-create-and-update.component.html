@@ -1,10 +1,10 @@
-<div [hidden]="!showCreate" class="l-wrapper">
+<div class="l-wrapper">
     <button class="btn btn-black l-close" (click)="onClose(); formDir.resetForm();"><i class="fas fa-times"></i></button>
-    <h1>{{title}}</h1> 
+    <h1>Alarm</h1> 
     <form [formGroup]="alarmForm" #formDir="ngForm" (ngSubmit)="onCreateOrUpdate()">
         <div class="l-form-grid">
             <div>
-                <div>{{i18nLabel.CHECKER_LABEL}}</div>
+                <div class="l-form-label">{{i18nLabel.CHECKER_LABEL}}</div>
                 <select formControlName="checkerName">
                     <option value="">Select rule</option>
                     <option *ngFor="let checker of checkerList" [value]="checker">{{checker}}</option>
@@ -12,11 +12,11 @@
                 <span class="fas fa-angle-down"></span>
                 <pp-form-field-error-message
                     [control]="alarmForm.get('checkerName')"
-                    [errorMessage]="i18nGuide['checkerName']">
+                    [errorMessage]="i18nFormGuide['checkerName']">
                 </pp-form-field-error-message>
             </div>
             <div>
-                <div>{{i18nLabel.USER_GROUP_LABEL}}</div>
+                <div class="l-form-label">{{i18nLabel.USER_GROUP_LABEL}}</div>
                 <select formControlName="userGroupId">
                     <option value="">Select user group</option>
                     <option *ngFor="let userGroup of userGroupList" [value]="userGroup">{{userGroup}}</option>
@@ -24,19 +24,19 @@
                 <span class="fas fa-angle-down"></span>
                 <pp-form-field-error-message
                     [control]="alarmForm.get('userGroupId')"
-                    [errorMessage]="i18nGuide['userGroupId']">
+                    [errorMessage]="i18nFormGuide['userGroupId']">
                 </pp-form-field-error-message>
             </div>
             <div>
-                <div>{{i18nLabel.THRESHOLD_LABEL}}</div>
+                <div class="l-form-label">{{i18nLabel.THRESHOLD_LABEL}}</div>
                 <input type="number" id="threshold" formControlName="threshold">
                 <pp-form-field-error-message
                     [control]="alarmForm.get('threshold')"
-                    [errorMessage]="i18nGuide['threshold']">
+                    [errorMessage]="i18nFormGuide['threshold']">
                 </pp-form-field-error-message>
             </div>
             <div>
-                <div>{{i18nLabel.TYPE_LABEL}}</div>
+                <div class="l-form-label">{{i18nLabel.TYPE_LABEL}}</div>
                 <select formControlName="type">
                     <option value="all">All</option>
                     <option value="email">Email</option>
@@ -46,8 +46,8 @@
                 <span class="fas fa-angle-down"></span>
             </div>
         </div>
-        <div>{{i18nLabel.NOTES_LABEL}}</div>
+        <div class="l-form-label">{{i18nLabel.NOTES_LABEL}}</div>
         <textarea id="notes" formControlName="notes"></textarea>
-        <button type="submit" class="btn btn-blue l-create" [class.btn-gray]="alarmForm.invalid" [disabled]="alarmForm.invalid">OK</button>
+        <button type="submit" class="btn btn-blue l-create" [disabled]="alarmForm.invalid">OK</button>
     </form>
 </div>

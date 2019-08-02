@@ -13,11 +13,12 @@
         "REMOVE": "삭제",
         "CANCEL": "취소",
         "SEARCH_INPUT": "검색어를 입력하세요.",
-        "NO_CONTENT_TO_DISPLAY": "표시 할 내용이 없습니다."
-    },
-    "MAIN": {
+        "NO_CONTENT_TO_DISPLAY": "표시 할 내용이 없습니다.",
         "SELECT_YOUR_APP": "애플리케이션을 선택하세요.",
         "INPUT_APP_NAME_PLACE_HOLDER": "애플리케이션 이름을 입력하세요.",
+        "EMPTY": "등록된 목록이 없습니다."
+    },
+    "MAIN": {
         "FAVORITE_APP_LIST": "즐겨찾기 목록",
         "APP_LIST": "애플리케이션 목록",
         "EMPTY_RESULT": "찾을 수 없습니다."
@@ -45,8 +46,7 @@
     "SCATTER": {},
     "CONFIGURATION": {
         "GENERAL": {
-            "DESC": "* 설정 정보는 브라우저 캐쉬에 저장합니다. 서버 측 저장은 추후 지원할 예정입니다.",
-            "EMPTY": "등록된 목록이 없습니다."
+            "DESC": "* 설정 정보는 브라우저 캐쉬에 저장합니다. 서버 측 저장은 추후 지원할 예정입니다."
         },
         "INSPECTOR_MANAGER": {
             "EMPTY": "화면에 표시 할 차트를 선택하세요."
@@ -78,6 +78,9 @@
             "THRESHOLD": "기준점",
             "TYPE": "알림 형식",
             "NOTES": "메모"
+        },
+        "ALARM": {
+            "EMPTY": "등록된 알람이 없습니다." 
         }
     },
     "TRANSACTION": {

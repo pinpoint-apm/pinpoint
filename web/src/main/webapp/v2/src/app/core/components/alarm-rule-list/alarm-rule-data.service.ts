@@ -27,7 +27,10 @@ export class AlarmRuleDataService {
     private checkerListURL = 'application/alarmRule/checker.pinpoint';
     private cache$: Observable<any>;
 
-    constructor(private http: HttpClient) {}
+    constructor(
+        private http: HttpClient
+    ) {}
+
     getCheckerList(): Observable<string[]> {
         if (!this.cache$) {
             const httpRequest$ = this.http.get<string[]>(this.checkerListURL);
@@ -35,23 +38,28 @@ export class AlarmRuleDataService {
                 shareReplay(1)
             );
         }
+
         return this.cache$;
     }
+
     retrieve(applicationId: string): Observable<IAlarmRule[]> {
         return this.http.get<IAlarmRule[]>(this.alarmRuleURL, this.makeRequestOptionsArgs(applicationId)).pipe(
             retry(3)
         );
     }
-    create(params: IAlarmRule): Observable<IAlarmRuleCreated> {
+
+    create(params: {[key: string]: any}): Observable<IAlarmRuleCreated> {
         return this.http.post<IAlarmRuleCreated>(this.alarmRuleURL, params).pipe(
             retry(3)
         );
     }
+
     update(params: IAlarmRule): Observable<IAlarmRuleResponse> {
         return this.http.put<IAlarmRuleResponse>(this.alarmRuleURL, params).pipe(
             retry(3)
         );
     }
+
     remove(applicationId: string, ruleId: string): Observable<IAlarmRuleResponse> {
         return this.http.request<IAlarmRuleResponse>('delete', this.alarmRuleURL, {
             body: { applicationId, ruleId }
@@ -59,9 +67,10 @@ export class AlarmRuleDataService {
             retry(3)
         );
     }
+
     private makeRequestOptionsArgs(applicationId: string): object {
-        return applicationId ? {
-            params: new HttpParams().set('applicationId', applicationId)
-        } : {};
+        return applicationId
+            ? { params: new HttpParams().set('applicationId', applicationId) }
+            : {};
     }
 }
