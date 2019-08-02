@@ -38,6 +38,9 @@ public class UndertowConfig {
     private final String realIpHeader;
     private final String realIpEmptyValue;
     private final Filter<String> excludeProfileMethodFilter;
+    private final boolean deployServlet;
+    private final Filter<String> httpHandlerClassNameFilter;
+
 
     public UndertowConfig(ProfilerConfig config) {
         if (config == null) {
@@ -46,6 +49,7 @@ public class UndertowConfig {
 
         // plugin
         this.enable = config.readBoolean("profiler.undertow.enable", true);
+        this.deployServlet = config.readBoolean("profiler.undertow.deploy.servlet", true);
         this.bootstrapMains = config.readList("profiler.undertow.bootstrap.main");
         this.hidePinpointHeader = config.readBoolean("profiler.undertow.hidepinpointheader", true);
 
@@ -66,10 +70,26 @@ public class UndertowConfig {
         } else {
             this.excludeProfileMethodFilter = new SkipFilter<String>();
         }
+
+        final String httpHandlerClassName = config.readString("profiler.undertow.http-handler.class.name", "");
+        if (!httpHandlerClassName.isEmpty()) {
+            this.httpHandlerClassNameFilter = new ExcludePathFilter(httpHandlerClassName, ".", ",");
+        } else {
+            this.httpHandlerClassNameFilter = new Filter<String>() {
+                @Override
+                public boolean filter(String value) {
+                    return true;
+                }
+            };
+        }
     }
 
     public boolean isEnable() {
         return enable;
+    }
+
+    public boolean isDeployServlet() {
+        return deployServlet;
     }
 
     public List<String> getBootstrapMains() {
@@ -98,6 +118,10 @@ public class UndertowConfig {
 
     public Filter<String> getExcludeProfileMethodFilter() {
         return excludeProfileMethodFilter;
+    }
+
+    public Filter<String> getHttpHandlerClassNameFilter() {
+        return httpHandlerClassNameFilter;
     }
 
     @Override

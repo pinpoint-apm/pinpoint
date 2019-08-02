@@ -16,15 +16,8 @@
 
 package com.navercorp.pinpoint.plugin.kafka.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.context.Header;
-import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
-import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
-import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
-import com.navercorp.pinpoint.bootstrap.context.Trace;
-import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.context.TraceId;
-import com.navercorp.pinpoint.bootstrap.context.scope.TraceScope;
-import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
+import com.navercorp.pinpoint.bootstrap.context.*;
+import com.navercorp.pinpoint.bootstrap.interceptor.SpanRecursiveAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.sampler.SamplingFlagUtils;
@@ -41,82 +34,64 @@ import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author Taejin Koo
+ * @author Victor.Zxy
  */
-public class ConsumerRecordEntryPointInterceptor implements AroundInterceptor {
+public class ConsumerRecordEntryPointInterceptor extends SpanRecursiveAroundInterceptor {
 
-    private static final String SCOPE_NAME = "##KAFKA_ENTRY_POINT_START_TRACE";
+    protected static final String SCOPE_NAME = "##KAFKA_ENTRY_POINT_START_TRACE";
 
-    private static final EntryPointMethodDescriptor ENTRY_POINT_METHOD_DESCRIPTOR = new EntryPointMethodDescriptor();
-
-    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
-    private final boolean isDebug = logger.isDebugEnabled();
-
-    private final TraceContext traceContext;
-    private final MethodDescriptor descriptor;
+    protected static final EntryPointMethodDescriptor ENTRY_POINT_METHOD_DESCRIPTOR = new EntryPointMethodDescriptor();
 
     private final AtomicReference<TraceFactoryProvider.TraceFactory> tracyFactoryReference = new AtomicReference<TraceFactoryProvider.TraceFactory>();
 
-    public ConsumerRecordEntryPointInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
-        this.traceContext = traceContext;
-        this.descriptor = descriptor;
-        this.traceContext.cacheApi(ENTRY_POINT_METHOD_DESCRIPTOR);
+    protected final int parameterIndex;
+
+    public ConsumerRecordEntryPointInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, int parameterIndex) {
+        super(traceContext, methodDescriptor, SCOPE_NAME);
+        traceContext.cacheApi(ENTRY_POINT_METHOD_DESCRIPTOR);
+        this.parameterIndex = parameterIndex;
     }
 
     @Override
-    public void before(Object target, Object[] args) {
-        if (isDebug) {
-            logger.beforeInterceptor(target, args);
-        }
-
-        ConsumerRecord consumerRecord = getConsumerRecord(args);
-        if (consumerRecord == null) {
-            return;
-        }
-
-        Trace trace = getTrace(consumerRecord);
-        if (trace == null) {
-            return;
-        }
-
-        enterScope(trace);
-        if (!trace.canSampled()) {
-            if (isDebug) {
-                logger.debug("before() canSampled is false - skip trace");
-            }
-            return;
-        }
-
-        SpanEventRecorder recorder = trace.traceBlockBegin();
+    protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
         recorder.recordServiceType(KafkaConstants.KAFKA_CLIENT_INTERNAL);
     }
 
-    private ConsumerRecord getConsumerRecord(Object[] args) {
-        if (args == null) {
+
+    @Override
+    protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
+        recorder.recordApi(methodDescriptor);
+        recorder.recordException(throwable);
+
+    }
+
+    @Override
+    protected Trace createTrace(Object target, Object[] args) {
+        ConsumerRecord consumerRecord = getConsumerRecord(args);
+
+        if (consumerRecord == null) {
             return null;
         }
+        Trace newTrace = createTrace(consumerRecord);
 
-        for (Object arg : args) {
-            if (arg instanceof ConsumerRecord) {
-                return (ConsumerRecord) arg;
-            }
+        return newTrace;
+    }
+
+    private ConsumerRecord getConsumerRecord(Object[] args) {
+        Object consumerRecord = getTargetParameter(args);
+        if (consumerRecord instanceof ConsumerRecord) {
+            return (ConsumerRecord) consumerRecord;
         }
+
         return null;
     }
 
-    private Trace getTrace(ConsumerRecord consumerRecord) {
-        final Trace currentTrace = traceContext.currentRawTraceObject();
-        if (currentTrace == null) {
-            Trace newTrace = createTrace(consumerRecord);
-            if (newTrace != null) {
-                newTrace.addScope(SCOPE_NAME);
-            }
-            return newTrace;
-        } else {
-            if (isDebug) {
-                logger.debug("already has trace()");
-            }
-            return currentTrace;
+    protected Object getTargetParameter(Object[] args) {
+        if (args == null || args.length <= parameterIndex) {
+            return null;
         }
+
+        return args[parameterIndex];
     }
 
     private Trace createTrace(ConsumerRecord consumerRecord) {
@@ -126,107 +101,6 @@ public class ConsumerRecordEntryPointInterceptor implements AroundInterceptor {
             tracyFactoryReference.compareAndSet(null, createTrace);
         }
         return createTrace.createTrace(traceContext, consumerRecord);
-    }
-
-    private void enterScope(final Trace trace) {
-        final TraceScope scope = trace.getScope(SCOPE_NAME);
-        if (scope != null) {
-            scope.tryEnter();
-            if (isDebug) {
-                logger.debug("try enter trace scope={}", scope);
-            }
-        } else {
-            if (isDebug) {
-                logger.debug("can't find scope");
-            }
-        }
-    }
-
-    @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable) {
-        if (isDebug) {
-            logger.afterInterceptor(target, args, result, throwable);
-        }
-
-        ConsumerRecord consumerRecord = getConsumerRecord(args);
-        if (consumerRecord == null) {
-            return;
-        }
-
-        final Trace trace = traceContext.currentRawTraceObject();
-        if (trace == null) {
-            return;
-        }
-
-        leaveScope(trace);
-        if (!trace.canSampled()) {
-            if (isDebug) {
-                logger.debug("after() canSampled is false - skip trace");
-            }
-            if (isCompletedTrace(trace)) {
-                deleteTrace(trace);
-            }
-            return;
-        }
-
-        try {
-            final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
-            recorder.recordApi(descriptor);
-            if (throwable != null) {
-                recorder.recordException(throwable);
-            }
-
-        } catch (Throwable t) {
-            if (logger.isWarnEnabled()) {
-                logger.warn("AFTER. Caused:{}", t.getMessage(), t);
-            }
-        } finally {
-            trace.traceBlockEnd();
-            if (isCompletedTrace(trace)) {
-                deleteTrace(trace);
-            }
-        }
-    }
-
-    private void leaveScope(final Trace trace) {
-        final TraceScope scope = trace.getScope(SCOPE_NAME);
-        if (scope != null) {
-            if (scope.canLeave()) {
-                if (isDebug) {
-                    logger.debug("leave trace scope={}", scope);
-                }
-                scope.leave();
-                return;
-            } else {
-                if (isDebug) {
-                    logger.debug("failed to leave trace scope={}", scope);
-                }
-                return;
-            }
-        } else {
-            if (isDebug) {
-                logger.debug("can't find scope");
-            }
-            return;
-        }
-    }
-
-    private boolean isCompletedTrace(final Trace trace) {
-        TraceScope scope = trace.getScope(SCOPE_NAME);
-        if (scope == null) {
-            return false;
-        }
-
-        return !scope.isActive();
-    }
-
-    private void deleteTrace(final Trace trace) {
-        if (isDebug) {
-            logger.debug("delete trace={}, sampled={}", trace, trace.canSampled());
-        }
-
-        traceContext.removeTraceObject();
-        trace.close();
     }
 
     private static class TraceFactoryProvider {
@@ -292,7 +166,7 @@ public class ConsumerRecordEntryPointInterceptor implements AroundInterceptor {
 
                 String topic = consumerRecord.topic();
                 recorder.recordRpcName(createRpcName(consumerRecord));
-                recorder.recordAcceptorHost("topic:" + topic);
+                recorder.recordAcceptorHost(remoteAddress);
                 recorder.recordAttribute(KafkaConstants.KAFKA_TOPIC_ANNOTATION_KEY, topic);
 
                 recorder.recordAttribute(KafkaConstants.KAFKA_PARTITION_ANNOTATION_KEY, consumerRecord.partition());

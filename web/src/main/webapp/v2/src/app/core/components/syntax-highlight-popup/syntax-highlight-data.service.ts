@@ -10,24 +10,21 @@ enum TYPE {
 
 @Injectable()
 export class SyntaxHighlightDataService {
-    private sqlRequestURL = 'sqlBind.pinpoint';
-    private jsonRequestURL = 'jsonBind.pinpoint';
-    constructor(
-        private http: HttpClient
-    ) { }
+    private url = 'bind.pinpoint';
+    constructor(private http: HttpClient) { }
     getData({type, originalContents, bindValue}: ISyntaxHighlightData): Observable<string> {
-        let requestURL;
+        let requestType;
         switch (type) {
             case TYPE.SQL:
-                requestURL = this.sqlRequestURL;
+                requestType = 'sql';
                 break;
             case TYPE.JSON:
-                requestURL = this.jsonRequestURL;
+                requestType = 'mongoJson';
                 break;
         }
         return this.http.post<string>(
-            requestURL,
-            `${type.toLowerCase()}=${encodeURIComponent(originalContents)}&bind=${encodeURIComponent(bindValue)}`,
+            this.url,
+            `type=${requestType}&metaData=${encodeURIComponent(originalContents)}&bind=${encodeURIComponent(bindValue)}`,
             {
                 headers: new HttpHeaders().set('Content-Type', 'application/x-www-form-urlencoded')
             }

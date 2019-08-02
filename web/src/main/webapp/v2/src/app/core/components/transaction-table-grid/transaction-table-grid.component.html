@@ -4,5 +4,6 @@
     [gridOptions]="gridOptions"
     [rowData]="rowData"
     (gridReady)="onGridReady($event)"
-    (girdSizeChanged)="onGridSizeChanged($event)">
+    (girdSizeChanged)="onGridSizeChanged($event)"
+    (firstDataRendered)="onRendered()">
 </ag-grid-angular>

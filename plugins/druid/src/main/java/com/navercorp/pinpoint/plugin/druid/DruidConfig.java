@@ -56,4 +56,12 @@ public class DruidConfig {
     public boolean isProfileClose() {
         return profileClose;
     }
+
+    @Override
+    public String toString() {
+        return "DruidConfig{" +
+                "pluginEnable=" + pluginEnable +
+                ", profileClose=" + profileClose +
+                '}';
+    }
 }

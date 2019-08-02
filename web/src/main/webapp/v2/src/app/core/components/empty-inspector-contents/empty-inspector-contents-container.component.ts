@@ -16,6 +16,6 @@ export class EmptyInspectorContentsContainerComponent implements OnInit {
     ) { }
 
     ngOnInit() {
-        this.guideText$ = this.translateService.get('MAIN.SELECT_YOUR_APP');
+        this.guideText$ = this.translateService.get('COMMON.SELECT_YOUR_APP');
     }
 }

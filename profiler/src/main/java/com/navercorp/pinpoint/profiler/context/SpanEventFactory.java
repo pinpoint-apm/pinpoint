@@ -31,6 +31,20 @@ public class SpanEventFactory implements CallStack.Factory<SpanEvent> {
     }
 
     @Override
+    public SpanEvent dummyInstance() {
+        final SpanEvent spanEvent = new DummySpanEvent();
+        return spanEvent;
+    }
+
+    @Override
+    public boolean isDummy(SpanEvent element) {
+        if (element instanceof DummySpanEvent) {
+            return true;
+        }
+        return false;
+    }
+
+    @Override
     public void markDepth(SpanEvent element, int index) {
         element.setDepth(index);
     }
@@ -43,5 +57,12 @@ public class SpanEventFactory implements CallStack.Factory<SpanEvent> {
     @Override
     public String toString() {
         return "SpanEventFactory{}";
+    }
+
+    private static class DummySpanEvent extends SpanEvent {
+        @Override
+        public String toString() {
+            return "DummySpanEvent";
+        }
     }
 }

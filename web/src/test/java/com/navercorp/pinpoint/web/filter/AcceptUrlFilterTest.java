@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.web.filter;
 
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
-import org.apache.hadoop.hbase.util.Base64;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -34,7 +33,7 @@ public class AcceptUrlFilterTest {
     @Test
     public void acceptTest_1() {
 
-        AcceptUrlFilter filter = new AcceptUrlFilter(encode("/**/*"));
+        AcceptUrlFilter filter = new AcceptUrlFilter("/**/*");
         SpanBo spanBo = new SpanBo();
         spanBo.setRpc("/test");
         Assert.assertTrue(filter.accept(Arrays.asList(spanBo)));
@@ -44,15 +43,11 @@ public class AcceptUrlFilterTest {
     @Test
     public void acceptTest_2() {
 
-        AcceptUrlFilter filter = new AcceptUrlFilter(encode("/abc/*"));
+        AcceptUrlFilter filter = new AcceptUrlFilter("/abc/*");
         SpanBo spanBo = new SpanBo();
         spanBo.setRpc("/test");
         Assert.assertFalse(filter.accept(Arrays.asList(spanBo)));
 
-    }
-
-    private String encode(String value) {
-        return Base64.encodeBytes(value.getBytes(UTF8));
     }
 
 }

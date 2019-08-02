@@ -1,5 +1,5 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { TimelineInteractionService } from 'app/core/components/timeline/timeline-interaction.service';
+import { MessageQueueService, MESSAGE_TO } from 'app/shared/services';
 
 @Component({
     selector: 'pp-timeline-command-group',
@@ -8,21 +8,38 @@ import { TimelineInteractionService } from 'app/core/components/timeline/timelin
 })
 export class TimelineCommandGroupComponent implements OnInit {
     @Input() pointingTime: string;
-    constructor(private timelineInteractionService: TimelineInteractionService) {}
+    constructor(
+        private messageQueueService: MessageQueueService
+    ) {}
     ngOnInit() {}
     onClickZoomIn(): void {
-        this.timelineInteractionService.setZoomIn();
+        this.messageQueueService.sendMessage({
+            to: MESSAGE_TO.TIMELINE_ZOOM_IN,
+            param: []
+        });
     }
     onClickZoomOut(): void {
-        this.timelineInteractionService.setZoomOut();
+        this.messageQueueService.sendMessage({
+            to: MESSAGE_TO.TIMELINE_ZOOM_OUT,
+            param: []
+        });
     }
     onClickPrev(): void {
-        this.timelineInteractionService.setPrev();
+        this.messageQueueService.sendMessage({
+            to: MESSAGE_TO.TIMELINE_MOVE_PREV,
+            param: []
+        });
     }
     onClickNext(): void {
-        this.timelineInteractionService.setNext();
+        this.messageQueueService.sendMessage({
+            to: MESSAGE_TO.TIMELINE_MOVE_NEXT,
+            param: []
+        });
     }
     onClickNow(): void {
-        this.timelineInteractionService.setNow();
+        this.messageQueueService.sendMessage({
+            to: MESSAGE_TO.TIMELINE_MOVE_NOW,
+            param: []
+        });
     }
 }

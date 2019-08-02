@@ -35,7 +35,7 @@ public final class UdpDataSenderFactory {
     private final int sendBufferSize;
     private final MessageConverter<TBase<?, ?>> messageConverter;
 
-    public UdpDataSenderFactory(String host, int port, String threadName, int queueSize, int timeout, int sendBufferSize, @SpanConverter  MessageConverter<TBase<?, ?>> messageConverter) {
+    public UdpDataSenderFactory(String host, int port, String threadName, int queueSize, int timeout, int sendBufferSize, MessageConverter<TBase<?, ?>> messageConverter) {
         this.host = host;
         this.port = port;
         this.threadName = threadName;

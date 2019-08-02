@@ -16,8 +16,9 @@
 
 package com.navercorp.pinpoint.profiler.instrument.classloading;
 
-import com.navercorp.pinpoint.profiler.instrument.InstrumentEngine;
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.exception.PinpointException;
+import com.navercorp.pinpoint.profiler.instrument.InstrumentEngine;
 import com.navercorp.pinpoint.profiler.plugin.PluginConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,22 +34,14 @@ public class BootstrapClassLoaderHandler implements ClassInjector {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final PluginConfig pluginConfig;
-
-    private final Object lock = new Object();
-    private boolean injectedToRoot = false;
-
     private final InstrumentEngine instrumentEngine;
 
+    private final Object lock = new Object();
+    private volatile boolean injectedToRoot = false;
 
     public BootstrapClassLoaderHandler(PluginConfig pluginConfig, InstrumentEngine instrumentEngine) {
-        if (pluginConfig == null) {
-            throw new NullPointerException("pluginConfig must not be null");
-        }
-        if (instrumentEngine == null) {
-            throw new NullPointerException("instrumentEngine must not be null");
-        }
-        this.pluginConfig = pluginConfig;
-        this.instrumentEngine = instrumentEngine;
+        this.pluginConfig = Assert.requireNonNull(pluginConfig, "pluginConfig must not be null");
+        this.instrumentEngine = Assert.requireNonNull(instrumentEngine, "instrumentEngine must not be null");
     }
 
     @Override
@@ -71,16 +64,22 @@ public class BootstrapClassLoaderHandler implements ClassInjector {
     }
 
     private void appendToBootstrapClassLoaderSearch() {
+        // DCL
+        if (injectedToRoot) {
+            return;
+        }
         synchronized (lock) {
             if (this.injectedToRoot == false) {
-                this.injectedToRoot = true;
                 instrumentEngine.appendToBootstrapClassPath(pluginConfig.getPluginJarFile());
+                // Memory visibility WARNING
+                // Reordering is not recommended.
+                this.injectedToRoot = true;
             }
         }
     }
 
     @Override
-    public InputStream getResourceAsStream(ClassLoader targetClassLoader, String classPath) {
+    public InputStream getResourceAsStream(ClassLoader targetClassLoader, String internalName) {
         try {
             if (targetClassLoader == null) {
                 ClassLoader classLoader = ClassLoader.getSystemClassLoader();
@@ -88,10 +87,10 @@ public class BootstrapClassLoaderHandler implements ClassInjector {
                     return null;
                 }
                 appendToBootstrapClassLoaderSearch();
-                return classLoader.getResourceAsStream(classPath);
+                return classLoader.getResourceAsStream(internalName);
             }
         } catch (Exception e) {
-            logger.warn("Failed to load plugin resource as stream {} with classLoader {}", classPath, targetClassLoader, e);
+            logger.warn("Failed to load plugin resource as stream {} with classLoader {}", internalName, targetClassLoader, e);
             return null;
         }
         logger.warn("Invalid bootstrap class loader. cl={}", targetClassLoader);

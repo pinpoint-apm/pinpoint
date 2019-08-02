@@ -1,0 +1,18 @@
+<div class="l-search">
+    <input type="text" placeholder="{{i18nText.SEARCH_INPUT_GUIDE}}" class="l-search-input" 
+        ppSearchInput 
+        [searchMinLength]="SEARCH_MIN_LENGTH"
+        [useEnter]="searchUseEnter"
+        (outSearch)="onSearch($event)"
+        #searchInput>
+    <button class="l-search-button" (click)="onClearSearch(searchInput)"><i class="fas fa-times-circle"></i></button>
+</div>
+<pp-favorite-application-list-for-configuration
+    [applicationList]="applicationList"
+    [funcImagePath]="funcImagePath"
+    [emptyText]="emptyText"
+    [iconBtnClassName]="iconBtnClassName"
+    (outSelectApp)="onSelectApp($event)">
+</pp-favorite-application-list-for-configuration>
+<pp-film-for-disable *ngIf="useDisable" [zIndex]="9" [marginWidth]="0"></pp-film-for-disable>    
+<pp-loading [showLoading]="showLoading" [zIndex]="20"></pp-loading>

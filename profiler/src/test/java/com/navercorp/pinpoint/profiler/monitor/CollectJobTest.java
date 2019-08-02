@@ -17,9 +17,9 @@
 package com.navercorp.pinpoint.profiler.monitor;
 
 import com.navercorp.pinpoint.profiler.monitor.collector.AgentStatMetricCollector;
+import com.navercorp.pinpoint.profiler.monitor.metric.AgentStatMetricSnapshot;
+import com.navercorp.pinpoint.profiler.monitor.metric.AgentStatMetricSnapshotBatch;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
-import com.navercorp.pinpoint.thrift.dto.TAgentStat;
-import com.navercorp.pinpoint.thrift.dto.TAgentStatBatch;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -33,20 +33,20 @@ public class CollectJobTest {
 
     @Test
     public void run() throws Exception {
-        AgentStatMetricCollector<TAgentStat> agentStatMetricCollector = mockAgentStatMetricCollector();
-        Mockito.when(agentStatMetricCollector.collect()).thenReturn(new TAgentStat());
+        AgentStatMetricCollector<AgentStatMetricSnapshot> agentStatMetricCollector = mockAgentStatMetricCollector();
+        Mockito.when(agentStatMetricCollector.collect()).thenReturn(new AgentStatMetricSnapshot());
 
         DataSender dataSender = mock(DataSender.class);
 
         CollectJob job = new CollectJob(dataSender, "agent", 0, agentStatMetricCollector, 1);
         job.run();
 
-        Mockito.verify(dataSender).send(any(TAgentStatBatch.class));
+        Mockito.verify(dataSender).send(any(AgentStatMetricSnapshotBatch.class));
 
     }
 
     @SuppressWarnings("unchecked")
-    private AgentStatMetricCollector<TAgentStat> mockAgentStatMetricCollector() {
+    private AgentStatMetricCollector<AgentStatMetricSnapshot> mockAgentStatMetricCollector() {
         return Mockito.mock(AgentStatMetricCollector.class);
     }
 

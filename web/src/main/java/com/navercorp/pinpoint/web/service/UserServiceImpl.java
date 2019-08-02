@@ -18,11 +18,16 @@ package com.navercorp.pinpoint.web.service;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.navercorp.pinpoint.web.dao.UserDao;
 import com.navercorp.pinpoint.web.vo.User;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.security.sasl.AuthorizeCallback;
 
 /**
  * @author minwoo.jung
@@ -30,6 +35,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional(rollbackFor = {Exception.class})
 public class UserServiceImpl implements UserService {
+
+    private final String EMPTY = "";
 
     @Autowired
     UserDao userDao;
@@ -40,8 +47,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void deleteUser(User user) {
-        userDao.deleteUser(user);
+    public void deleteUser(String userId) {
+        userDao.deleteUser(userId);
     }
 
 
@@ -75,6 +82,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public boolean isExistUserId(String userId) {
+        return userDao.isExistUserId(userId);
+    }
+
+    @Override
     public void dropAndCreateUserTable() {
         userDao.dropAndCreateUserTable();
     }
@@ -82,6 +95,17 @@ public class UserServiceImpl implements UserService {
     @Override
     public void insertUserList(List<User> users) {
         userDao.insertUserList(users);
+    }
+
+    @Override
+    @Transactional(readOnly = true, propagation = Propagation.SUPPORTS)
+    public String getUserIdFromSecurity() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null) {
+            return (String)authentication.getPrincipal();
+        }
+
+        return EMPTY;
     }
 
 }

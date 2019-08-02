@@ -26,6 +26,7 @@ import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
+import com.navercorp.pinpoint.plugin.jsp.interceptor.HttpJspBaseServiceMethodInterceptor;
 
 import java.security.ProtectionDomain;
 
@@ -65,20 +66,22 @@ public class JspPlugin implements ProfilerPlugin, TransformTemplateAware {
     }
 
     private void addJasper2JspEngine() {
-        transformTemplate.transform("org.apache.jasper.runtime.HttpJspBase", new TransformCallback() {
+        transformTemplate.transform("org.apache.jasper.runtime.HttpJspBase", HttpJspBaseTransform.class);
+    }
 
-            @Override
-            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+    public static class HttpJspBaseTransform implements TransformCallback {
 
-                final InstrumentMethod serviceMethod = target.getDeclaredMethod("service", "javax.servlet.http.HttpServletRequest", "javax.servlet.http.HttpServletResponse");
-                if (serviceMethod != null) {
-                    serviceMethod.addInterceptor("com.navercorp.pinpoint.plugin.jsp.interceptor.HttpJspBaseServiceMethodInterceptor");
-                }
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
 
-                return target.toBytecode();
+            final InstrumentMethod serviceMethod = target.getDeclaredMethod("service", "javax.servlet.http.HttpServletRequest", "javax.servlet.http.HttpServletResponse");
+            if (serviceMethod != null) {
+                serviceMethod.addInterceptor(HttpJspBaseServiceMethodInterceptor.class);
             }
-        });
+
+            return target.toBytecode();
+        }
     }
 
     @Override

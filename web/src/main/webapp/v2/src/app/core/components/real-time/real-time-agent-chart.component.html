@@ -1,15 +1,9 @@
-<dl>
-    <dt><i class="fas fa-external-link-alt" (click)="onOpen()"></i>{{agentName}}</dt>
-    <dd>
-        <div class="l-chart-section">
-            <pp-real-time-chart
-                [style.opacity]="hasError ? 0.5 : 1"
-                [chartData]="chartData"
-                [showAxis]="showAxis">
-            </pp-real-time-chart>
-            <div class="l-error-template" [style.display]="hasError ? 'flex' : 'none'">
-                <p class="l-error-text">{{errorMessage}}</p>
-            </div>
-        </div>
-    </dd>
-</dl>
+<pp-real-time-chart
+    [timeStamp]="timeStamp"
+    [activeThreadCounts]="activeThreadCounts"
+    [sum]="sum"
+    [currentPage]="currentPage"
+    [maxChartNumberPerPage]="maxChartNumberPerPage"
+    [chartOption]="chartOption"
+    (outClick)="onOpenThreadDump($event)">
+</pp-real-time-chart>

@@ -1,9 +1,11 @@
-import { Component, Input, Output, ViewEncapsulation, EventEmitter, OnInit, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges, AfterViewInit, HostBinding } from '@angular/core';
 import * as moment from 'moment-timezone';
-import { GridOptions, RowNode } from 'ag-grid';
+import { GridOptions, RowNode } from 'ag-grid-community';
+
 import { WindowRefService } from 'app/shared/services';
 
 export interface IGridData {
+    id: string;
     index: number;
     method: string;
     argument: string;
@@ -31,45 +33,77 @@ export interface IGridData {
     selector: 'pp-call-tree',
     templateUrl: './call-tree.component.html',
     styleUrls: ['./call-tree.component.css'],
-    encapsulation: ViewEncapsulation.None
 })
-export class CallTreeComponent implements OnInit, OnChanges {
-    gridOptions: GridOptions;
-    previousColor: string;
+export class CallTreeComponent implements OnInit, OnChanges, AfterViewInit {
+    @HostBinding('class') hostClass = 'l-calltree';
     @Input() canSelectRow: boolean;
     @Input() rowSelection: string;
-    @Input() rowData: IGridData[];
+    @Input() selectedRowId: string;
+    @Input()
+    set callTreeData(callTreeData: ITransactionDetailData) {
+        this.originalData = callTreeData;
+        this.ratio = this.calcTimeRatio(callTreeData.callStack[0][callTreeData.callStackIndex.begin], callTreeData.callStack[0][callTreeData.callStackIndex.end]);
+        this.rowData = this.makeGridData(callTreeData.callStack, callTreeData.callStackIndex);
+    }
+
     @Input() timezone: string;
     @Input() dateFormat: string;
-    @Output() outSelectFormatting: EventEmitter<any> = new EventEmitter();
-    @Output() outRowSelected: EventEmitter<IGridData> = new EventEmitter();
-    @Output() outCellDoubleClicked: EventEmitter<string> = new EventEmitter();
+    @Output() outSelectFormatting = new EventEmitter<any>();
+    @Output() outRowSelected = new EventEmitter<IGridData>();
+    @Output() outCellDoubleClicked = new EventEmitter<string>();
 
-    constructor(private windowRefService: WindowRefService) {}
+    private originalData: ITransactionDetailData;
+    private ratio: number;
+
+    gridOptions: GridOptions;
+    previousColor: string;
+    rowData: IGridData[];
+
+    constructor(
+        private windowRefService: WindowRefService
+    ) {}
+
+    ngAfterViewInit() {
+        const rowIndex = this.originalData.callStack.find((cs: any[]) => cs[4] === this.originalData.applicationId)[6];
+
+        this.moveRow(rowIndex);
+    }
+
     ngOnInit() {
         this.initGridOptions();
     }
+
     ngOnChanges(changes: SimpleChanges) {
-        if (changes['timezone'] && changes['timezone'].firstChange === false) {
-            this.gridOptions.api.refreshCells({
-                columns: ['startTime'],
-                force: true
+        Object.keys(changes)
+            .filter((propName: string) => {
+                return changes[propName].currentValue && !changes[propName].isFirstChange();
+            })
+            .forEach((propName: string) => {
+                switch (propName) {
+                    case 'timezone':
+                    case 'dateFormat':
+                        this.gridOptions.api.refreshCells({
+                            columns: ['startTime'],
+                            force: true
+                        });
+                        break;
+                    case 'selectedRowId':
+                        this.moveRow(changes[propName].currentValue);
+                        break;
+                }
             });
-        }
-        if (changes['dateFormat'] && changes['dateFormat'].firstChange === false) {
-            this.gridOptions.api.refreshCells({
-                columns: ['startTime'],
-                force: true
-            });
-        }
     }
+
     private initGridOptions() {
         this.gridOptions = <GridOptions>{
+            defaultColDef: {
+                resizable: true,
+                sortable: false
+            },
             columnDefs : this.makeColumnDefs(),
             headerHeight: 34,
-            enableColResize: true,
-            enableSorting: false,
             animateRows: true,
+            enableCellTextSelection: true,
             rowHeight: 30,
             getRowClass: (params: any) => {
                 if ( params.data.isFocused ) {
@@ -101,6 +135,7 @@ export class CallTreeComponent implements OnInit, OnChanges {
             rowSelection: this.rowSelection
         };
     }
+
     private calcColor(str: string): string {
         if ( str ) {
             let hash = 0;
@@ -115,6 +150,7 @@ export class CallTreeComponent implements OnInit, OnChanges {
         }
         return this.previousColor;
     }
+
     private makeColumnDefs(): any {
         return [
             {
@@ -133,8 +169,8 @@ export class CallTreeComponent implements OnInit, OnChanges {
             {
                 headerName: 'Method',
                 field: 'method',
-                width: 350,
-                cellRenderer: 'group',
+                width: 420,
+                cellRenderer: 'agGroupCellRenderer',
                 cellRendererParams: {
                     innerRenderer: this.innerCellRenderer,
                     suppressCount: true
@@ -151,7 +187,8 @@ export class CallTreeComponent implements OnInit, OnChanges {
             {
                 headerName: 'StartTime',
                 field: 'startTime',
-                width: 170,
+                width: 100,
+                suppressSizeToFit: true,
                 valueFormatter: (params: any) => {
                     return params.value === 0 ? '' : moment(params.value).tz(this.timezone).format(this.dateFormat);
                 }
@@ -160,6 +197,7 @@ export class CallTreeComponent implements OnInit, OnChanges {
                 headerName: 'Gap(ms)',
                 field: 'gap',
                 width: 75,
+                suppressSizeToFit: true,
                 cellStyle: this.alignRightCellStyle,
                 valueFormatter: (params: any) => {
                     return params.value === '' ? '' : new Intl.NumberFormat().format(params.value);
@@ -169,6 +207,7 @@ export class CallTreeComponent implements OnInit, OnChanges {
                 headerName: 'Exec(ms)',
                 field: 'exec',
                 width: 78,
+                suppressSizeToFit: true,
                 cellStyle: this.alignRightCellStyle,
                 valueFormatter: (params: any) => {
                     return params.value === '' ? '' : new Intl.NumberFormat().format(params.value);
@@ -212,6 +251,7 @@ export class CallTreeComponent implements OnInit, OnChanges {
                 headerName: 'Self(ms)',
                 field: 'selp',
                 width: 78,
+                suppressSizeToFit: true,
                 cellStyle: this.alignRightCellStyle,
                 valueFormatter: function(params: any) {
                     return params.value === '' ? '' : new Intl.NumberFormat().format(params.value);
@@ -243,25 +283,33 @@ export class CallTreeComponent implements OnInit, OnChanges {
             }
         ];
     }
+
     argumentCellStyle(): any {
         return {'text-align': 'left'};
     }
+
     alignRightCellStyle(): any {
         return {'text-align': 'right'};
     }
+
     timeFormatter(params: any): string {
         return params.value === 0 ? '' : moment(params.value).tz(this.timezone).format(this.dateFormat);
     }
+
     numberFormatter(params: any): string {
         return params.value === '' ? '' : new Intl.NumberFormat().format(params.value);
     }
+
     innerCellRenderer(params: any) {
         let result = '';
-        if ( params.data.hasException) {
+        if (params.data.hasException) {
             result += '<i class="fa fa-fire" style="color:red"></i>&nbsp;';
         } else if (!params.data.isMethod) {
-            if ( params.data.method === 'SQL' || params.data.method === 'JSON' ) {
+            if (params.data.method === 'SQL') {
                 result += '<button type="button" class="btn btn-blue" style="padding: 0px 2px; height: 20px;"><i class="fa fa-database"></i> ' + params.data.method + '</button>&nbsp;';
+                return '&nbsp;' + result;
+            } else if (params.data.method === 'MONGO-JSON') {
+                result += '<button type="button" class="btn btn-blue" style="padding: 0px 2px; height: 20px;"><i class="fa fa-database"></i> JSON</button>&nbsp;';
                 return '&nbsp;' + result;
             } else {
                 result += '<i class="fa fa-info-circle"></i>&nbsp;';
@@ -282,53 +330,144 @@ export class CallTreeComponent implements OnInit, OnChanges {
         }
         return '&nbsp;' + result + params.data.method;
     }
-    onCellClick(params: any): void {
-        if ( params.colDef.field === 'method' && (params.value === 'SQL' || params.value === 'JSON') ) {
-            this.outSelectFormatting.next({
-                type: params.value,
-                formatText: params.data.argument,
-                index: params.data.index
-            });
+
+    onCellClick({colDef, value, data}: any): void {
+        if (colDef.field === 'method') {
+            if (value === 'SQL' || value === 'MONGO-JSON') {
+                const type = value.split('-').pop();
+                const nextRowData = this.originalData.callStack[data.index + 1];
+                const nextValue = nextRowData[this.originalData.callStackIndex.title];
+                let bindValue;
+
+                if (nextRowData && (nextValue === 'SQL-BindValue' || nextValue === 'MONGO-JSON-BindValue')) {
+                    bindValue = nextRowData[this.originalData.callStackIndex.arguments];
+                }
+
+                this.outSelectFormatting.next({
+                    type,
+                    originalContents: data.argument,
+                    bindValue
+                });
+            }
         }
     }
+
     onCellDoubleClicked(params: any): void {
         this.outCellDoubleClicked.next(params.data[params.colDef.field]);
     }
-    searchRow({type, query}: {type: string, query: string | number}): number {
+
+    onRendered(): void {
+        this.gridOptions.api.sizeColumnsToFit();
+    }
+
+    onRowDataChanged(): void {
+        if (this.gridOptions) {
+            const rowIndex = this.originalData.callStack.find((cs: any[]) => cs[4] === this.originalData.applicationId)[6];
+
+            this.moveRow(rowIndex);
+        }
+    }
+
+    getQueryedRowCount({type, query}: {type: string, query: string | number}): number {
         let resultCount = 0;
         let targetIndex = -1;
-        const fnCompare: { [key: string]: Function } = {
-            'all': (data: any, value: string): boolean => {
-                return (data.method && data.method.indexOf(value) !== -1) ||
-                    (data.argument && data.argument.indexOf(value) !== -1) ||
-                    (data.clazz && data.clazz.indexOf(value) !== -1) ||
-                    (data.api && data.api.indexOf(value) !== -1) ||
-                    (data.agent && data.agent.indexOf(value) !== -1) ||
-                    (data.application && data.application.indexOf(value) !== -1);
-            },
-            'self': (data: any, value: number): boolean => {
-                return +data.selp >= +value;
-            },
-            'argument': (data: any, value: string): boolean => {
-                return data.argument.indexOf(value) !== -1;
-            }
-        };
+
         this.gridOptions.api.forEachNode((rowNode: RowNode) => {
-            if (fnCompare[type](rowNode.data, query)) {
+            if (this.hasValueOnType(type, rowNode.data, query)) {
                 if (resultCount === 0) {
                     targetIndex = rowNode.data.index;
                 }
+
                 resultCount++;
                 rowNode.setSelected(true);
             } else {
                 rowNode.setSelected(false);
             }
         });
+
         if (resultCount > 0) {
             this.gridOptions.api.ensureIndexVisible(targetIndex, 'top');
         }
+
         return resultCount;
     }
+
+    private calcTimeRatio(begin: number, end: number): number {
+        return 100 / (end - begin);
+    }
+
+    private makeGridData(callTreeData: any, oIndex: any): IGridData[] {
+        const newData = [];
+        const parentRef = {};
+
+        for (let i = 0; i < callTreeData.length; i++) {
+            const callTree = callTreeData[i];
+            const oRow = <IGridData>{};
+
+            parentRef[callTree[oIndex.id]] = oRow;
+            this.makeRow(callTree, oIndex, oRow, i);
+            if (callTree[oIndex.parentId]) {
+                const oParentRow = parentRef[callTree[oIndex.parentId]];
+
+                if (oParentRow.children instanceof Array === false) {
+                    oParentRow['folder'] = true;
+                    oParentRow['open'] = true;
+                    oParentRow['children'] = [];
+                }
+
+                oParentRow.children.push(oRow);
+            } else {
+                newData.push(oRow);
+            }
+        }
+        return newData;
+    }
+
+    private makeRow(callTree: any, oIndex: any, oRow: IGridData, index: number): void {
+        oRow['index'] = index;
+        oRow['id'] = callTree[oIndex.id];
+        oRow['method'] = callTree[oIndex.title];
+        oRow['argument'] = callTree[oIndex.arguments];
+        oRow['startTime'] = callTree[oIndex.begin];
+        oRow['gap'] = callTree[oIndex.gap];
+        oRow['exec'] = callTree[oIndex.elapsedTime];
+        oRow['execPer'] =  callTree[oIndex.elapsedTime] ? Math.ceil((callTree[oIndex.end] - callTree[oIndex.begin]) * this.ratio) : '';
+        oRow['selp'] = callTree[oIndex.executionMilliseconds];
+        oRow['selpPer'] = callTree[oIndex.elapsedTime] && callTree[oIndex.executionMilliseconds] ?
+            ( Math.floor( callTree[oIndex.executionMilliseconds].replace(/,/gi, '') ) / Math.floor( callTree[oIndex.elapsedTime].replace(/,/gi, '') ) ) * 100
+            : 0;
+        oRow['clazz'] = callTree[oIndex.simpleClassName];
+        oRow['api'] = callTree[oIndex.apiType];
+        oRow['agent'] = callTree[oIndex.agent];
+        oRow['application'] = callTree[oIndex.applicationName];
+        oRow['isMethod'] = callTree[oIndex.isMethod];
+        oRow['methodType'] = callTree[oIndex.methodType];
+        oRow['hasException'] = callTree[oIndex.hasException];
+        oRow['isAuthorized'] = callTree[oIndex.isAuthorized];
+        oRow['isFocused'] = callTree[oIndex.isFocused];
+        if (callTree[oIndex.hasChild]) {
+            oRow['folder'] = true;
+            oRow['open'] = true;
+            oRow['children'] = [];
+        }
+    }
+
+    private hasValueOnType(type: string, data: any, value: string | number): boolean {
+        switch (type) {
+            case 'all':
+                return (data.method && data.method.indexOf(value) !== -1) ||
+                    (data.argument && data.argument.indexOf(value) !== -1) ||
+                    (data.clazz && data.clazz.indexOf(value) !== -1) ||
+                    (data.api && data.api.indexOf(value) !== -1) ||
+                    (data.agent && data.agent.indexOf(value) !== -1) ||
+                    (data.application && data.application.indexOf(value) !== -1);
+            case 'self':
+                return +data.selp >= +value;
+            case 'argument':
+                return data.argument.indexOf(value) !== -1;
+        }
+    }
+
     moveRow(id: string): void {
         let targetIndex = -1;
         this.gridOptions.api.forEachNode((rowNode: RowNode) => {
@@ -339,6 +478,7 @@ export class CallTreeComponent implements OnInit, OnChanges {
                 rowNode.setSelected(false);
             }
         });
+
         this.gridOptions.api.ensureIndexVisible(targetIndex, 'top');
     }
 }

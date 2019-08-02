@@ -25,10 +25,8 @@ import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.MongoDatabaseInfo;
-import com.navercorp.pinpoint.plugin.mongo.MongoConstants;
-
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.UnKnownDatabaseInfo;
+import com.navercorp.pinpoint.plugin.mongo.MongoUtil;
 
 /**
  * @author Roy Kim
@@ -65,41 +63,21 @@ public class MongoWriteConcernInterceptor implements AroundInterceptor {
             logger.afterInterceptor(target, args, result, throwable);
         }
 
-        DatabaseInfo databaseInfo;
-        if (target instanceof DatabaseInfoAccessor) {
-            databaseInfo = ((DatabaseInfoAccessor) target)._$PINPOINT$_getDatabaseInfo();
-        } else {
-            databaseInfo = null;
+        if (args == null) {
+            return;
         }
 
-        String writeConcernStr = null;
-        if(args != null) {
-            writeConcernStr = getWriteConcern0((WriteConcern)args[0]);
-        }
+        DatabaseInfo databaseInfo = DatabaseInfoUtils.getDatabaseInfo(target, UnKnownDatabaseInfo.MONGO_INSTANCE);
+
+        String writeConcernStr = MongoUtil.getWriteConcern0((WriteConcern) args[0]);
 
         databaseInfo = new MongoDatabaseInfo(databaseInfo.getType(), databaseInfo.getExecuteQueryType()
                 , databaseInfo.getRealUrl(), databaseInfo.getUrl(), databaseInfo.getHost(), databaseInfo.getDatabaseId()
-                , ((MongoDatabaseInfo)databaseInfo).getCollectionName(), ((MongoDatabaseInfo)databaseInfo).getReadPreference(), writeConcernStr);
+                , ((MongoDatabaseInfo) databaseInfo).getCollectionName(), ((MongoDatabaseInfo) databaseInfo).getReadPreference(), writeConcernStr);
 
         if (result instanceof DatabaseInfoAccessor) {
             ((DatabaseInfoAccessor) result)._$PINPOINT$_setDatabaseInfo(databaseInfo);
         }
     }
 
-    public static String getWriteConcern0(WriteConcern writeConcern) {
-
-        for (final Field f : WriteConcern.class.getFields()) {
-            if (Modifier.isStatic(f.getModifiers()) && f.getType().equals(WriteConcern.class)) {
-
-                try {
-                    if(writeConcern.equals(f.get(null))){
-                        return f.getName().toUpperCase();
-                    }
-                } catch (IllegalAccessException e) {
-                    throw new RuntimeException(e);//TODO
-                }
-            }
-        }
-        return null;
-    }
 }

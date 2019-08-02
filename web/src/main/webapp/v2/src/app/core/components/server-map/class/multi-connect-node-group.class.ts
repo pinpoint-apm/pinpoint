@@ -1,18 +1,6 @@
 import { NodeGroup } from './node-group.class';
+import { IShortNodeInfo } from './server-map-data.class';
 
-interface ShortCutNode {
-    key: string;
-    isWas: boolean;
-    category: string;
-    serviceType: string;
-    mergedNodes: Array<any>;
-    isAuthorized: boolean;
-    instanceCount: number;
-    topCountNodes: Array<any>;
-    applicationName: string;
-    mergedSourceNodes: Array<any>;
-
-}
 export class MultiConnectNodeGroup extends NodeGroup {
     // KEY_SEPERATOR: string = '^';
     // SEPERATOR: string = '_';
@@ -23,7 +11,7 @@ export class MultiConnectNodeGroup extends NodeGroup {
     // groupKey: string;
     // groupType: string;
     // nodeData: any;
-    nodeData: ShortCutNode;
+    nodeData: IShortNodeInfo;
     subNodeGroup: Array<any>;
     subNodeGroupMap: any;
     constructor(protected type: string) {
@@ -113,8 +101,8 @@ export class MultiConnectNodeGroup extends NodeGroup {
     //     return this.groupType;
     // }
 
-    // getNodeGroupData(): any {
-    //     this.setTopCountNodes();
-    //     return this.nodeData;
-    // }
+    getNodeGroupData(): IShortNodeInfo {
+        this.nodeData.mergedSourceNodes = this.subNodeGroup;
+        return super.getNodeGroupData();
+    }
 }

@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.web.service.stat;
 
-import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
+import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.rpc.util.ListUtils;
 import com.navercorp.pinpoint.web.dao.stat.SampledDataSourceDao;

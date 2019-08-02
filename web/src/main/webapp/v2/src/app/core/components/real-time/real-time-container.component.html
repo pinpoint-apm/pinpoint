@@ -4,24 +4,36 @@
             <span class="fas fa-chart-area"></span>Realtime Active Thread Chart
         </div>
         <div class="l-tool-box">
-            <button class="fas fa-thumbtack" [class.l-pin-up]="pinUp" (click)="onPinUp()"></button>
+            <button class="fas fa-thumbtack" [class.l-pin-up]="isPinUp" (click)="onPinUp()"></button>
             <button class="fas fa-question-circle" (click)="onShowHelp($event)"></button>
         </div>
     </div>
     <div class="l-chart-group-wrap font-opensans">
-        <article class="l-chart-item">
-            <ng-container #totalChartPlaceHolder></ng-container>
-        </article>
-        <div class="l-chart-group-list">
-            <div class="l-paging" *ngIf="needPaging()">
-                <span class="l-txt">Total Servers : </span>
-                <span class="l-txt-bold">{{totalCount}}</span>
-                <span>[ 1 ~ {{pagingSize}} ]</span>
-                <span class="l-page" *ngFor="let page of getTotalPage()" (click)="openPage(page)">{{page}}</span>
-                <span class="l-page">1</span>
-            </div>
-            <ng-container #agentChartPlaceHolder></ng-container>
-        </div>
+        <ng-container *ngIf="activeThreadCounts">
+            <article class="l-total-chart">
+                <pp-real-time-total-chart
+                    [timeStamp]="timeStamp"
+                    [timezone]="timezone$ | async"
+                    [dateFormat]="dateFormat$ | async"
+                    [sum]="sum"
+                    [activeThreadCounts]="atcForTotal">
+                </pp-real-time-total-chart>
+            </article>
+            <article class="l-agent-chart">
+                <pp-real-time-chart-header
+                    [totalCount]="totalCount"
+                    (outOpenPage)="onOpenPage($event)"
+                    (outChangeActiveOnlyToggle)="onChangeActiveOnlyToggle($event)">
+                </pp-real-time-chart-header>
+                <pp-real-time-agent-chart
+                    [timeStamp]="timeStamp"
+                    [activeThreadCounts]="atcForAgent"
+                    [sum]="sum"
+                    (outOpenThreadDump)="onOpenThreadDump($event)"
+                    (outRenderCompleted)="onRenderCompleted()">
+                </pp-real-time-agent-chart>
+            </article>
+        </ng-container>
         <ng-container [ngSwitch]="messageTemplate">
             <div class="l-message l-waiting" *ngSwitchCase="'LOADING'">
                 <h4><span>Waiting Connection...</span></h4>

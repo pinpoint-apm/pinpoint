@@ -109,4 +109,23 @@ final class RedefineModuleUtils {
         instrumentation.redefineModule(module, extraReads, extraExports, extraOpens, extraUses, extraProvides);
 
     }
+
+    public static void addProvides(Instrumentation instrumentation, Module module, Map<Class<?>, List<Class<?>>> extraProvides) {
+        if (instrumentation == null) {
+            throw new NullPointerException("instrumentation must not be null");
+        }
+        if (module == null) {
+            throw new NullPointerException("module must not be null");
+        }
+        if (extraProvides == null) {
+            throw new NullPointerException("extraProvides must not be null");
+        }
+
+        // for debug
+        final Set<Module> extraReads = Set.of();
+        final Map<String, Set<Module>> extraExports = Map.of();
+        final Map<String, Set<Module>> extraOpens = Map.of();
+        final Set<Class<?>> extraUses = Set.of();
+        instrumentation.redefineModule(module, extraReads, extraExports, extraOpens, extraUses, extraProvides);
+    }
 }

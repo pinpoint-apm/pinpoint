@@ -1,25 +1,18 @@
 :host {
-    z-index: 30;
+    display: block;
+    width: 100%;
+    height: 100%;
 }
 .l-thread-chart-wrap {
-    display: flex;
-    flex-flow: row wrap;
     background:#d3dbe6;
-    border-top:1px solid #ccd5e0;
-    position: absolute;
-    bottom: 0;
-    left: 0;
     width:100%;
     height: 100%;
 }
-.l-chart-group-wrap {
-    display: flex;
-    flex-flow: row wrap;
-}
-.l-chart-group-list {
-    display: flex;
-    flex-flow: row wrap;
+.l-agent-chart {
     width: 100%;
+    max-height: 100%;
+    overflow-y: auto;
+    padding: 5px;
 }
 .l-message {
     top: 0px;
@@ -45,33 +38,4 @@
 .l-message.l-no-data h4 span {
     background-color: #000;
     color: #FFF;
-}
-.l-paging {
-    width: 100%;
-    background-color: #74879a;
-    color: #FFF;
-    font-size: 15px;
-    margin: 5px 5px 4px 5px;
-    padding: 11px;
-}
-.l-paging .l-txt {
-    font-weight: lighter;
-}
-.l-paging .l-txt-bold {
-    font-weight: bolder;
-    font-size: 18px;
-}
-.l-paging .l-page {
-    float: right;
-    cursor: pointer;
-    padding: 0px 6px;
-}
-.l-paging .l-page:hover {
-    color: #4b99e3;
-}
-.l-paging .l-page:last-child {
-    color: #000;
-    cursor: initial;
-    text-decoration: initial;
-    background-color:#FFF;
 }

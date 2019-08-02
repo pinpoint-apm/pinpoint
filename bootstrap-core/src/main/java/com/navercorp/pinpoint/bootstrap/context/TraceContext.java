@@ -57,13 +57,6 @@ public interface TraceContext {
     @InterfaceAudience.LimitedPrivate("vert.x")
     Trace continueAsyncTraceObject(TraceId traceId);
 
-    /**
-     *
-     * @deprecated Since 1.7.0
-     */
-    @Deprecated
-    Trace continueAsyncTraceObject(AsyncTraceId traceId, int asyncId, long startTime);
-
     Trace removeTraceObject();
 
     /**
@@ -95,8 +88,6 @@ public interface TraceContext {
 
     boolean cacheSql(ParsingResult parsingResult);
 
-    ParsingResult parseJson(String json);
-
     TraceId createTraceId(String transactionId, long parentSpanId, long spanId, short flags);
 
     Trace disableSampling();
@@ -104,13 +95,6 @@ public interface TraceContext {
     ProfilerConfig getProfilerConfig();
 
     ServerMetaDataHolder getServerMetaDataHolder();
-
-    /**
-     * internal api
-     * @deprecated Since 1.7.0
-     */
-    @Deprecated
-    int getAsyncId();
 
     JdbcContext getJdbcContext();
 

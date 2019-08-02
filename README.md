@@ -5,18 +5,22 @@
 [![Build Status](https://travis-ci.org/naver/pinpoint.svg?branch=master)](https://travis-ci.org/naver/pinpoint)
 [![codecov](https://codecov.io/gh/naver/pinpoint/branch/master/graph/badge.svg)](https://codecov.io/gh/naver/pinpoint)
 
-**Visit [our official web site](http://naver.github.io/pinpoint/) for more information and [Latest updates on Pinpoint](https://naver.github.io/pinpoint/news.html)**  
+**Visit [our official web site](http://naver.github.io/pinpoint/) for more information and [Latest updates on Pinpoint](https://naver.github.io/pinpoint/news.html)**.
+
+## Live Demo
+
+Take a quick look at Pinpoint with our [demo](http://125.209.240.10:10123).
 
 ## Latest News (2018/08/30)
 
 Pinpoint has started to support application written in PHP. [Check-out our php-agent repository](https://github.com/naver/pinpoint-c-agent).
 
-## Latest Release (2018/09/14)
+## Latest Release (2019/06/11)
 
-We're happy to announce the release of Pinpoint v1.8.0.
-Please check the release note at (https://github.com/naver/pinpoint/releases/tag/1.8.0).
+We're happy to announce the release of Pinpoint v1.8.4.
+Please check the release note at (https://github.com/naver/pinpoint/releases/tag/1.8.4).
 
-The current stable version is [v1.8.0](https://github.com/naver/pinpoint/releases/tag/1.8.0).
+The current stable version is [v1.8.4](https://github.com/naver/pinpoint/releases/tag/1.8.4).
 
 ## About Pinpoint
 
@@ -56,16 +60,16 @@ For a more intimate guide, please check out our *[Introduction to Pinpoint](http
 
 ## Supported Modules
 * JDK 6+
-* Tomcat 6/7/8, [Jetty 8/9](https://github.com/naver/pinpoint/tree/master/plugins/jetty), [JBoss EAP 6](https://github.com/naver/pinpoint/tree/master/plugins/jboss), [Resin 4](https://github.com/naver/pinpoint/tree/master/plugins/resin), [Websphere 6/7/8](https://github.com/naver/pinpoint/tree/master/plugins/websphere), [Vertx 3.3/3.4/3.5](https://github.com/naver/pinpoint/tree/master/plugins/vertx)
-* Spring, Spring Boot (Embedded Tomcat, Jetty)
-* Apache HTTP Client 3.x/4.x, JDK HttpConnector, GoogleHttpClient, OkHttpClient, NingAsyncHttpClient
-* Thrift Client, Thrift Service, DUBBO PROVIDER, DUBBO CONSUMER
-* ActiveMQ, RabbitMQ
-* MySQL, Oracle, MSSQL(jtds), CUBRID,POSTGRESQL, MARIA
-* Arcus, Memcached, Redis, CASSANDRA
+* [Tomcat 6/7/8/9](https://github.com/naver/pinpoint/tree/master/plugins/tomcat), [Jetty 8/9](https://github.com/naver/pinpoint/tree/master/plugins/jetty), [JBoss EAP 6/7](https://github.com/naver/pinpoint/tree/master/plugins/jboss), [Resin 4](https://github.com/naver/pinpoint/tree/master/plugins/resin), [Websphere 6/7/8](https://github.com/naver/pinpoint/tree/master/plugins/websphere), [Vertx 3.3/3.4/3.5](https://github.com/naver/pinpoint/tree/master/plugins/vertx), [Weblogic 10/11g/12c](https://github.com/naver/pinpoint/tree/master/plugins/weblogic), [Undertow](https://github.com/naver/pinpoint/tree/master/plugins/undertow)
+* Spring, Spring Boot (Embedded Tomcat, Jetty, Undertow), Spring asynchronous communication
+* Apache HTTP Client 3.x/4.x, JDK HttpConnector, GoogleHttpClient, OkHttpClient, NingAsyncHttpClient, Akka-http, Apache CXF
+* Thrift Client, Thrift Service, DUBBO PROVIDER, DUBBO CONSUMER, GRPC
+* ActiveMQ, RabbitMQ, Kafka
+* MySQL, Oracle, MSSQL(jtds), CUBRID, POSTGRESQL, MARIA
+* Arcus, Memcached, Redis([Jedis](https://github.com/naver/pinpoint/blob/master/plugins/redis), [Lettuce](https://github.com/naver/pinpoint/tree/master/plugins/redis-lettuce)), CASSANDRA, MongoDB, Hbase
 * iBATIS, MyBatis
-* DBCP, DBCP2, HIKARICP
-* gson, Jackson, Json Lib
+* DBCP, DBCP2, HIKARICP, DRUID
+* gson, Jackson, Json Lib, Fastjson
 * log4j, Logback
 
 ## Compatibility
@@ -79,7 +83,8 @@ Pinpoint Version | Agent | Collector | Web
 1.5.x | 6-8 | 7-8 | 7-8
 1.6.x | 6-8 | 7-8 | 7-8
 1.7.x | 6-8 | 8 | 8
-1.8.x | 6-10 | 8 | 8 
+1.8.0 | 6-10 | 8 | 8 
+1.8.1+ | 6-11 | 8 | 8 
 
 HBase compatibility table:
 
@@ -105,9 +110,11 @@ Agent Version | Collector 1.0.x | Collector 1.1.x | Collector 1.5.x | Collector 
 
 Flink compatibility table:
 
-Pinpoint Version | flink 1.3.X | flink 1.4.X
----------------- | ----------- | ----------- 
-1.7.x | yes | no |
+Pinpoint Version | flink 1.3.X | flink 1.4.X | flink 1.5.X | flink 1.6.X | flink 1.7.X
+---------------- | ----------- | ----------- | ----------- | ----------- | ----------- 
+1.7.x | yes | yes | no | no | no |
+1.8.x | yes | yes | no | no | no |
+1.9.x | yes | yes | yes | yes | yes |
 
 ## User Group
 For Q/A and discussion [here](https://groups.google.com/forum/#!forum/pinpoint_user).

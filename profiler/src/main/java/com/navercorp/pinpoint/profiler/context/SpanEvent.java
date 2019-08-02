@@ -51,7 +51,6 @@ public class SpanEvent extends DefaultFrameAttachment {
     private IntStringValue exceptionInfo; // optional
 
     private AsyncId asyncIdObject;
-    private LocalAsyncId localAsyncId;
 
     public SpanEvent() {
     }
@@ -133,14 +132,6 @@ public class SpanEvent extends DefaultFrameAttachment {
         this.elapsedTime = elapsedTime;
     }
 
-    @Deprecated
-    public String getRpc() {
-        return null;
-    }
-
-    @Deprecated
-    public void setRpc(String rpc) {
-    }
 
     public short getServiceType() {
         return serviceType;
@@ -206,13 +197,11 @@ public class SpanEvent extends DefaultFrameAttachment {
         this.exceptionInfo = exceptionInfo;
     }
 
+    @Deprecated
     public LocalAsyncId getLocalAsyncId() {
-        return localAsyncId;
+        return null;
     }
 
-    public void setLocalAsyncId(LocalAsyncId localAsyncId) {
-        this.localAsyncId = localAsyncId;
-    }
 
     public void setAsyncIdObject(AsyncId asyncIdObject) {
         this.asyncIdObject = asyncIdObject;
@@ -239,7 +228,6 @@ public class SpanEvent extends DefaultFrameAttachment {
                 ", destinationId='" + destinationId + '\'' +
                 ", apiId=" + apiId +
                 ", exceptionInfo=" + exceptionInfo +
-                ", localAsyncId=" + localAsyncId +
                 "} ";
     }
 }

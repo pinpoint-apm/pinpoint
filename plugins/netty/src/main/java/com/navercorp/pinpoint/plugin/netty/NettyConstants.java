@@ -44,17 +44,6 @@ public final class NettyConstants {
     public static final String SCOPE_WRITE = "NETTY_WRITE_SCOPE";
 
 
-    public static final String INTERCEPTOR_BASIC = "com.navercorp.pinpoint.bootstrap.interceptor.BasicMethodInterceptor";
-
-    public static final String INTERCEPTOR_CHANNEL_PIPELINE_WRITE = "com.navercorp.pinpoint.plugin.netty.interceptor.ChannelPipelineWriteInterceptor";
-    public static final String INTERCEPTOR_CHANNEL_PROMISE_ADD_LISTENER = "com.navercorp.pinpoint.plugin.netty.interceptor.ChannelPromiseAddListenerInterceptor";
-    public static final String INTERCEPTOR_CHANNEL_PROMISE_NOTIFY = "com.navercorp.pinpoint.plugin.netty.interceptor.ChannelPromiseNotifyInterceptor";
-
-    public static final String INTERCEPTOR_BOOTSTRAP_CONNECT = "com.navercorp.pinpoint.plugin.netty.interceptor.BootstrapConnectInterceptor";
-
-    public static final String INTERCEPTOR_CODEC_HTTP_ENCODER = "com.navercorp.pinpoint.plugin.netty.interceptor.http.HttpEncoderInterceptor";
-
-
     public static final String UNKNOWN_ADDRESS = "Unknown";
 
 }

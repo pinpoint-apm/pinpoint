@@ -17,13 +17,16 @@
 package com.navercorp.pinpoint.profiler.sender;
 
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.profiler.context.compress.SpanPostProcessor;
-import com.navercorp.pinpoint.profiler.context.compress.SpanPostProcessorV1;
-import com.navercorp.pinpoint.profiler.context.id.DefaultTransactionIdEncoder;
+import com.navercorp.pinpoint.common.util.IOUtils;
+import com.navercorp.pinpoint.profiler.context.compress.SpanProcessor;
+import com.navercorp.pinpoint.profiler.context.compress.SpanProcessorV1;
+import com.navercorp.pinpoint.profiler.context.thrift.DefaultTransactionIdEncoder;
 import com.navercorp.pinpoint.profiler.context.id.TransactionIdEncoder;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
 import com.navercorp.pinpoint.profiler.context.thrift.SpanThriftMessageConverter;
 import com.navercorp.pinpoint.thrift.dto.TAgentInfo;
+import com.navercorp.pinpoint.thrift.dto.TSpan;
+import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.thrift.TBase;
 import org.junit.After;
@@ -61,17 +64,10 @@ public class NioUdpDataSenderTest {
     }
 
     @After
-    public void setDown() throws InterruptedException {
-        close(receiver);
+    public void setDown()  {
+        IOUtils.closeQuietly(receiver);
         // port conflict happens when testcases run continuously so port number is increased.
         PORT = SocketUtils.findAvailableUdpPort(61112);
-    }
-
-    private void close(DatagramSocket socket) {
-        if (socket == null) {
-            return;
-        }
-        socket.close();
     }
 
     @Test
@@ -93,14 +89,14 @@ public class NioUdpDataSenderTest {
 
     private NioUDPDataSender newNioUdpDataSender() {
         TransactionIdEncoder encoder = new DefaultTransactionIdEncoder("agentId", 0);
-        SpanPostProcessor spanPostProcessor = new SpanPostProcessorV1();
+        SpanProcessor<TSpan, TSpanChunk> spanPostProcessor = new SpanProcessorV1();
         MessageConverter<TBase<?, ?>> messageConverter = new SpanThriftMessageConverter("appName", "agentId",
                 0, ServiceType.STAND_ALONE.getCode(), encoder, spanPostProcessor);
         return new NioUDPDataSender("localhost", PORT, "test", 128, 1000, 1024 * 64 * 100, messageConverter);
     }
 
     @Test(expected = IOException.class)
-    public void exceedMessageSendTest() throws InterruptedException, IOException {
+    public void exceedMessageSendTest() throws IOException {
         String random = RandomStringUtils.randomAlphabetic(ThriftUdpMessageSerializer.UDP_MAX_PACKET_LENGTH + 100);
 
         TAgentInfo agentInfo = new TAgentInfo();

@@ -16,20 +16,21 @@
 
 package com.navercorp.pinpoint.web.dao.hbase.stat.v2;
 
-import com.navercorp.pinpoint.common.hbase.HBaseTables;
+import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
 import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
-import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatDecoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatHbaseOperationFactory;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatUtils;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatDataPoint;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatType;
+import com.navercorp.pinpoint.web.dao.hbase.AbstractHbaseDao;
 import com.navercorp.pinpoint.web.mapper.RangeTimestampFilter;
 import com.navercorp.pinpoint.web.mapper.TimestampFilter;
 import com.navercorp.pinpoint.web.mapper.stat.AgentStatMapperV2;
 import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.stat.SampledAgentStatDataPoint;
+
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Scan;
 import org.slf4j.Logger;
@@ -44,7 +45,7 @@ import java.util.List;
  * @author HyunGil Jeong
  */
 @Component
-public class HbaseAgentStatDaoOperationsV2 {
+public class HbaseAgentStatDaoOperationsV2 extends AbstractHbaseDao {
 
     private static final int AGENT_STAT_VER2_NUM_PARTITIONS = 32;
     private static final int MAX_SCAN_CACHE_SIZE = 256;
@@ -53,9 +54,6 @@ public class HbaseAgentStatDaoOperationsV2 {
 
     @Autowired
     private HbaseOperations2 hbaseOperations2;
-
-    @Autowired
-    private TableNameProvider tableNameProvider;
 
     @Autowired
     private AgentStatHbaseOperationFactory operationFactory;
@@ -70,9 +68,9 @@ public class HbaseAgentStatDaoOperationsV2 {
 
         Scan scan = this.createScan(agentStatType, agentId, range);
 
-        TableName agentStatTableName = tableNameProvider.getTableName(HBaseTables.AGENT_STAT_VER2_STR);
+        TableName agentStatTableName = getTableName();
         List<List<T>> intermediate = hbaseOperations2.findParallel(agentStatTableName, scan, this.operationFactory.getRowKeyDistributor(), mapper, AGENT_STAT_VER2_NUM_PARTITIONS);
-        int expectedSize = (int) (range.getRange() / HBaseTables.AGENT_STAT_TIMESPAN_MS);
+        int expectedSize = (int) (range.getRange() / getColumnFamily().TIMESPAN_MS);
         List<T> merged = new ArrayList<>(expectedSize);
         for (List<T> each : intermediate) {
             merged.addAll(each);
@@ -95,7 +93,7 @@ public class HbaseAgentStatDaoOperationsV2 {
         int resultLimit = 20;
         Scan scan = this.createScan(agentStatType, agentId, range, resultLimit);
 
-        TableName agentStatTableName = tableNameProvider.getTableName(HBaseTables.AGENT_STAT_VER2_STR);
+        TableName agentStatTableName = getTableName();
         List<List<T>> result = hbaseOperations2.findParallel(agentStatTableName, scan, this.operationFactory.getRowKeyDistributor(), resultLimit, mapper, AGENT_STAT_VER2_NUM_PARTITIONS);
         if (result.isEmpty()) {
             return false;
@@ -116,7 +114,7 @@ public class HbaseAgentStatDaoOperationsV2 {
         }
         Scan scan = this.createScan(agentStatType, agentId, range);
 
-        TableName agentStatTableName = tableNameProvider.getTableName(HBaseTables.AGENT_STAT_VER2_STR);
+        TableName agentStatTableName = getTableName();
         return hbaseOperations2.findParallel(agentStatTableName, scan, this.operationFactory.getRowKeyDistributor(), resultExtractor, AGENT_STAT_VER2_NUM_PARTITIONS);
     }
 
@@ -127,7 +125,7 @@ public class HbaseAgentStatDaoOperationsV2 {
 
     private Scan createScan(AgentStatType agentStatType, String agentId, Range range) {
         long scanRange = range.getTo() - range.getFrom();
-        long expectedNumRows = ((scanRange - 1) / HBaseTables.AGENT_STAT_TIMESPAN_MS) + 1;
+        long expectedNumRows = ((scanRange - 1) / getColumnFamily().TIMESPAN_MS) + 1;
         if (range.getFrom() != AgentStatUtils.getBaseTimestamp(range.getFrom())) {
             expectedNumRows++;
         }
@@ -143,7 +141,13 @@ public class HbaseAgentStatDaoOperationsV2 {
         Scan scan = this.operationFactory.createScan(agentId, agentStatType, range.getFrom(), range.getTo());
         scan.setCaching(scanCacheSize);
         scan.setId("AgentStat_" + agentStatType);
-        scan.addFamily(HBaseTables.AGENT_STAT_CF_STATISTICS);
+        scan.addFamily(getColumnFamilyName());
         return scan;
     }
+
+    @Override
+    public HbaseColumnFamily.AgentStatStatistics getColumnFamily() {
+        return HbaseColumnFamily.AGENT_STAT_STATISTICS;
+    }
+
 }

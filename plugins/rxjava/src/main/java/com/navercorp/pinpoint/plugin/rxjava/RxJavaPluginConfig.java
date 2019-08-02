@@ -32,4 +32,11 @@ public class RxJavaPluginConfig {
     public boolean isTraceRxJava() {
         return traceRxJava;
     }
+
+    @Override
+    public String toString() {
+        return "RxJavaPluginConfig{" +
+                "traceRxJava=" + traceRxJava +
+                '}';
+    }
 }

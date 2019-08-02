@@ -1,124 +1,63 @@
-import { Component, OnInit, OnDestroy, Input, ViewChild, ViewContainerRef, ComponentFactoryResolver, Output, EventEmitter, HostBinding } from '@angular/core';
-
-import { ConfigurationPopupGeneralContainerComponent } from './configuration-popup-general-container.component';
-import { ConfigurationPopupUsergroupComponent } from './configuration-popup-usergroup.component';
-import { ConfigurationPopupAlarmComponent } from './configuration-popup-alarm.component';
-import { ConfigurationPopupInstallationContainerComponent } from './configuration-popup-installation-container.component';
-import { ConfigurationPopupHelpContainerComponent } from './configuration-popup-help-container.component';
+import { Component, OnInit, HostBinding, Output, EventEmitter, Input } from '@angular/core';
+import { trigger, state, style, animate, transition } from '@angular/animations';
 
 @Component({
     selector: 'pp-configuration-popup',
     templateUrl: './configuration-popup.component.html',
-    styleUrls: ['./configuration-popup.component.css']
+    styleUrls: ['./configuration-popup.component.css'],
+    animations: [
+        trigger('collapseSpread', [
+            state('collapsed', style({
+                maxHeight: 0,
+                overflow: 'hidden'
+            })),
+            state('spreaded', style({
+                maxHeight: '300px'
+            })),
+            transition('collapsed <=> spreaded', [
+                animate('0.3s')
+            ])
+        ]),
+        trigger('rightDown', [
+            state('collapsed', style({
+                transform: 'none'
+            })),
+            state('spreaded', style({
+                transform: 'rotate(90deg)'
+            })),
+            transition('collapsed <=> spreaded', [
+                animate('0.1s')
+            ])
+        ])
+    ]
 })
-export class ConfigurationPopupComponent implements OnInit, OnDestroy {
-    @ViewChild('contentContainer', { read: ViewContainerRef }) contentContainer: ViewContainerRef;
-    @Input() funcImagePath: Function;
-    @Output() outClosePopup = new EventEmitter<void>();
+export class ConfigurationPopupComponent implements OnInit {
     @HostBinding('class.font-opensans') fontFamily = true;
+    @Output() outMenuClick = new EventEmitter<string>();
+    @Output() outOpenLink = new EventEmitter<void>();
+    isSettingCollapsed = false;
 
-    private componentMap = new Map<string, any>();
-    private componentList = [
-        ConfigurationPopupGeneralContainerComponent,
-        ConfigurationPopupUsergroupComponent,
-        ConfigurationPopupAlarmComponent,
-        ConfigurationPopupInstallationContainerComponent,
-        ConfigurationPopupHelpContainerComponent
-    ];
-    tabList: any[];
-
-    constructor(
-        private componentFactoryResolver: ComponentFactoryResolver,
-    ) {}
-
-    ngOnInit() {
-        this.initTabList();
-        this.initComponentMap();
-        this.loadComponent(this.tabList.find((tab) => tab.isActive).id);
+    constructor() {}
+    ngOnInit() {}
+    onMenuClick(type: string): void {
+        this.outMenuClick.emit(type);
     }
 
-    ngOnDestroy() {
-        this.componentMap.forEach((value) => {
-            if (value.componentRef) {
-                value.componentRef.destroy();
-            }
+    onOpenLink(): void {
+        this.outOpenLink.emit();
+    }
+    toggleSettingMenu(): void {
+        this.isSettingCollapsed = !this.isSettingCollapsed;
+    }
+    getSettingCollapsedState(): string {
+        return this.isSettingCollapsed ? 'collapsed' : 'spreaded';
+    }
+
+    isActive(linkElement: HTMLAnchorElement): boolean {
+        const listItem = linkElement.parentElement;
+
+        return Array.from(listItem.nextElementSibling.querySelectorAll('.l-link')).some((element: HTMLElement) => {
+            return element.classList.contains('active');
         });
-    }
-
-    onTabClick(tabName: string): void {
-        this.setActiveTab(tabName);
-        this.contentContainer.detach(0);
-        if (!this.isComponentLoaded(tabName)) {
-            this.loadComponent(tabName);
-        } else {
-            this.contentContainer.insert(this.componentMap.get(tabName).componentRef.hostView);
-        }
-    }
-
-    private initTabList(): void {
-        this.tabList = [{
-            id: 'general',
-            displayText: 'General',
-            isActive: true
-        },
-        {
-            id: 'usergroup',
-            displayText: 'User Group',
-            isActive: false
-        },
-        {
-            id: 'alarm',
-            displayText: 'Alarm',
-            isActive: false
-        },
-        {
-            id: 'installation',
-            displayText: 'Installation',
-            isActive: false
-        },
-        {
-            id: 'help',
-            displayText: 'Help',
-            isActive: false
-        }];
-    }
-
-
-    private initComponentMap(): void {
-        this.tabList.forEach((value, i) => {
-            this.componentMap.set(value.id, {
-                component: this.componentList[i],
-                isLoaded: false,
-                componentRef: undefined
-            });
-        });
-    }
-
-    private loadComponent(key: string): void {
-        const componentObj = this.componentMap.get(key);
-        const componentFactory = this.componentFactoryResolver.resolveComponentFactory(componentObj.component);
-
-        componentObj.componentRef = this.contentContainer.createComponent(componentFactory);
-        componentObj.isLoaded = true;
-    }
-
-    private setActiveTab(tabName: string): void {
-        this.tabList.forEach((tab) => tab.isActive = tabName === tab.id);
-    }
-
-    private isComponentLoaded(key: string): boolean {
-        return this.componentMap.get(key).isLoaded;
-    }
-
-    onClickFilter(): void {
-        this.onClickClose();
-    }
-
-    onClickClose(): void {
-        this.outClosePopup.emit();
-    }
-
-    getIconFullPath(applicationName: string): string {
-        return this.funcImagePath(applicationName);
     }
 }

@@ -118,7 +118,7 @@ function func_start_pinpoint_web
             context_path=""
     fi
     port=$( func_read_properties "$KEY_PORT" )
-    pid=`nohup ${bin}/../../mvnw -f $WEB_DIR/pom.xml clean package tomcat7:run -D$IDENTIFIER -Dmaven.pinpoint.version=$version > $LOGS_DIR/$LOG_FILE 2>&1 & echo $!`
+    pid=`nohup ${bin}/../../mvnw -f $WEB_DIR/pom.xml clean package cargo:run -D$IDENTIFIER -Dmaven.pinpoint.version=$version > $LOGS_DIR/$LOG_FILE 2>&1 & echo $!`
     check_url="http://localhost:$port$context_path/serverTime.pinpoint"
     echo $pid > $PID_DIR/$PID_FILE
 

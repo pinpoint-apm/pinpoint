@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.web.service.stat;
 
-import com.navercorp.pinpoint.common.server.bo.stat.DeadlockBo;
+import com.navercorp.pinpoint.common.server.bo.stat.DeadlockThreadCountBo;
 import com.navercorp.pinpoint.web.dao.stat.DeadlockDao;
 import com.navercorp.pinpoint.web.vo.Range;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +29,7 @@ import java.util.List;
  * @author Taejin Koo
  */
 @Service
-public class DeadlockService implements AgentStatService<DeadlockBo> {
+public class DeadlockService implements AgentStatService<DeadlockThreadCountBo> {
 
     private final DeadlockDao deadlockDao;
 
@@ -39,7 +39,7 @@ public class DeadlockService implements AgentStatService<DeadlockBo> {
     }
 
     @Override
-    public List<DeadlockBo> selectAgentStatList(String agentId, Range range) {
+    public List<DeadlockThreadCountBo> selectAgentStatList(String agentId, Range range) {
         if (agentId == null) {
             throw new NullPointerException("agentId must not be null");
         }

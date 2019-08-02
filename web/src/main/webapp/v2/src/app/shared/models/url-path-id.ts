@@ -79,12 +79,17 @@ export class UrlPathId {
     static TRACE_ID = 'traceId';
     static FOCUS_TIMESTAMP = 'focusTimestamp';
     static SPAN_ID = 'spanId';
-    static VIEW_TYPE = 'viewType';
     static AGENT_LIST = 'agentList';
     static PAGE = 'page';
-    static SEARCH_ID = 'searchId';
     static STAT = 'stat';
     static AGENT = 'agent';
+    static GENERAL = 'general';
+    static FAVORITE = 'favorite';
+    static USER_GROUP = 'userGroup';
+    static ALARM = 'alarm';
+    static INSTALLATION = 'installation';
+    static HELP = 'help';
+    static CHART_MANAGER = 'chartManager';
 
     constructor() {}
     static getPathIdList(): string[] {
@@ -99,11 +104,9 @@ export class UrlPathId {
             UrlPathId.PAGE,
             UrlPathId.PERIOD,
             UrlPathId.REAL_TIME,
-            UrlPathId.SEARCH_ID,
             UrlPathId.SPAN_ID,
             UrlPathId.TRACE_ID,
             UrlPathId.TRANSACTION_INFO,
-            UrlPathId.VIEW_TYPE,
             UrlPathId.STAT,
             UrlPathId.AGENT
         ];
@@ -122,7 +125,7 @@ export class UrlPathIdFactory {
             case UrlPathId.END_TIME:
                 return new UrlEndTime(new EndTime(paramValue)) as IUrlPathId<EndTime>;
             case UrlPathId.PAGE:
-                return new UrlGeneral(paramValue || '2') as IUrlPathId<string>;
+                return new UrlGeneral(Number(paramValue)) as IUrlPathId<number>;
             case UrlPathId.FILTER:
             case UrlPathId.HINT:
             case UrlPathId.REAL_TIME:
@@ -131,9 +134,7 @@ export class UrlPathIdFactory {
             case UrlPathId.TRACE_ID:
             case UrlPathId.FOCUS_TIMESTAMP:
             case UrlPathId.SPAN_ID:
-            case UrlPathId.VIEW_TYPE:
             case UrlPathId.AGENT_LIST:
-            case UrlPathId.SEARCH_ID:
                 return new UrlGeneral(paramValue) as IUrlPathId<string>;
             default:
                 return new UrlGeneral(paramValue) as IUrlPathId<string>;

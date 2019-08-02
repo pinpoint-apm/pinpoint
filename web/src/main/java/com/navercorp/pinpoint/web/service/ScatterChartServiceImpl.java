@@ -22,10 +22,11 @@ import com.navercorp.pinpoint.web.dao.ApplicationTraceIndexDao;
 import com.navercorp.pinpoint.web.dao.TraceDao;
 import com.navercorp.pinpoint.web.filter.Filter;
 import com.navercorp.pinpoint.web.scatter.ScatterData;
+import com.navercorp.pinpoint.web.vo.GetTraceInfo;
 import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.SelectedScatterArea;
-import com.navercorp.pinpoint.web.vo.TransactionMetadataQuery;
 import com.navercorp.pinpoint.web.vo.scatter.Dot;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -99,38 +100,16 @@ public class ScatterChartServiceImpl implements ScatterChartService {
      * Queries for details on dots selected from the scatter chart.
      */
     @Override
-    public List<SpanBo> selectTransactionMetadata(final TransactionMetadataQuery query) {
-        if (query == null) {
+    public List<SpanBo> selectTransactionMetadata(final List<GetTraceInfo> getTraceInfoList) {
+        if (getTraceInfoList == null) {
             throw new NullPointerException("query must not be null");
         }
-        final List<TransactionId> transactionIdList = query.getTransactionIdList();
-        final List<List<SpanBo>> selectedSpans = traceDao.selectSpans(transactionIdList);
+        final List<List<SpanBo>> selectedSpans = traceDao.selectSpans(getTraceInfoList);
 
 
-        final List<SpanBo> result = new ArrayList<>(query.size());
-        int index = 0;
+        final List<SpanBo> result = new ArrayList<>(getTraceInfoList.size());
         for (List<SpanBo> spans : selectedSpans) {
-            if (spans.isEmpty()) {
-                // span data does not exist in storage - skip
-            } else if (spans.size() == 1) {
-                // case with a single unique span data
-                result.add(spans.get(0));
-            } else {
-                // for recursive calls, we need to identify which of the spans was selected.
-                // pick only the spans with the same transactionId, collectorAcceptor, and responseTime
-                for (SpanBo span : spans) {
-
-                    // should find the filtering condition with the correct index
-                    final TransactionMetadataQuery.QueryCondition filterQueryCondition = query.getQueryConditionByIndex(index);
-
-                    final TransactionId transactionId = span.getTransactionId();
-                    final TransactionMetadataQuery.QueryCondition queryConditionKey = new TransactionMetadataQuery.QueryCondition(transactionId, span.getCollectorAcceptTime(), span.getElapsed());
-                    if (queryConditionKey.equals(filterQueryCondition)) {
-                        result.add(span);
-                    }
-                }
-            }
-            index++;
+            result.addAll(spans);
         }
 
         return result;

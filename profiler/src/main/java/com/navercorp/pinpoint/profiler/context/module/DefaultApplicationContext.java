@@ -21,12 +21,13 @@ import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.Module;
 import com.google.inject.Stage;
-import com.google.inject.TypeLiteral;
+import com.google.inject.name.Names;
 import com.navercorp.pinpoint.bootstrap.AgentOption;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.DynamicTransformTrigger;
 import com.navercorp.pinpoint.bootstrap.module.ClassFileTransformModuleAdaptor;
+import com.navercorp.pinpoint.bootstrap.module.JavaModuleFactory;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.JvmUtils;
 import com.navercorp.pinpoint.common.util.JvmVersion;
@@ -34,15 +35,15 @@ import com.navercorp.pinpoint.profiler.AgentInfoSender;
 import com.navercorp.pinpoint.profiler.AgentInformation;
 import com.navercorp.pinpoint.profiler.context.ServerMetaDataRegistryService;
 import com.navercorp.pinpoint.profiler.context.javamodule.ClassFileTransformerModuleHandler;
+import com.navercorp.pinpoint.profiler.context.javamodule.JavaModuleFactoryFinder;
 import com.navercorp.pinpoint.profiler.instrument.ASMBytecodeDumpService;
 import com.navercorp.pinpoint.profiler.instrument.BytecodeDumpTransformer;
 import com.navercorp.pinpoint.profiler.instrument.InstrumentEngine;
+import com.navercorp.pinpoint.profiler.instrument.lambda.LambdaTransformBootloader;
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.monitor.AgentStatMonitor;
 import com.navercorp.pinpoint.profiler.monitor.DeadlockMonitor;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
-import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
-import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,19 +66,13 @@ public class DefaultApplicationContext implements ApplicationContext {
 
     private final TraceContext traceContext;
 
-    private final PinpointClientFactory clientFactory;
-    private final EnhancedDataSender tcpDataSender;
-
-    private final PinpointClientFactory spanStatClientFactory;
-    private final DataSender spanDataSender;
-    private final DataSender statDataSender;
+    private final ModuleLifeCycle rpcModuleLifeCycle;
 
     private final AgentInformation agentInformation;
     private final ServerMetaDataRegistryService serverMetaDataRegistryService;
 
     private final ClassFileTransformer classFileTransformer;
 
-    private final Instrumentation instrumentation;
     private final InstrumentEngine instrumentEngine;
     private final DynamicTransformTrigger dynamicTransformTrigger;
     private final InterceptorRegistryBinder interceptorRegistryBinder;
@@ -89,7 +84,7 @@ public class DefaultApplicationContext implements ApplicationContext {
         Assert.requireNonNull(moduleFactory, "moduleFactory must not be null");
         Assert.requireNonNull(agentOption.getProfilerConfig(), "profilerConfig must not be null");
 
-        this.instrumentation = agentOption.getInstrumentation();
+        final Instrumentation instrumentation = agentOption.getInstrumentation();
         if (logger.isInfoEnabled()) {
             logger.info("DefaultAgent classLoader:{}", this.getClass().getClassLoader());
         }
@@ -108,27 +103,21 @@ public class DefaultApplicationContext implements ApplicationContext {
         ClassFileTransformer classFileTransformer = wrap(this.classFileTransformer);
         final JvmVersion version = JvmUtils.getVersion();
         if (version.onOrAfter(JvmVersion.JAVA_9)) {
-            ClassFileTransformModuleAdaptor classFileTransformModuleAdaptor = new ClassFileTransformerModuleHandler(instrumentation, classFileTransformer);
+            final JavaModuleFactory javaModuleFactory = JavaModuleFactoryFinder.lookup(instrumentation);
+            ClassFileTransformModuleAdaptor classFileTransformModuleAdaptor = new ClassFileTransformerModuleHandler(instrumentation, classFileTransformer, javaModuleFactory);
             classFileTransformer = wrapJava9ClassFileTransformer(classFileTransformModuleAdaptor);
+
+            lambdaFactorySetup(instrumentation, classFileTransformModuleAdaptor, javaModuleFactory);
+
+            instrumentation.addTransformer(classFileTransformer, true);
+        } else {
+            instrumentation.addTransformer(classFileTransformer, true);
         }
-        instrumentation.addTransformer(classFileTransformer, true);
 
-        this.spanStatClientFactory = injector.getInstance(Key.get(PinpointClientFactory.class, SpanStatClientFactory.class));
-        logger.info("spanStatClientFactory:{}", spanStatClientFactory);
 
-        this.spanDataSender = newUdpSpanDataSender();
-        logger.info("spanDataSender:{}", spanDataSender);
-
-        this.statDataSender = newUdpStatDataSender();
-        logger.info("statDataSender:{}", statDataSender);
-
-        this.clientFactory = injector.getInstance(Key.get(PinpointClientFactory.class, DefaultClientFactory.class));
-        logger.info("clientFactory:{}", clientFactory);
-
-        TypeLiteral<EnhancedDataSender<Object>> enhancedDataSenderLiteral = new TypeLiteral<EnhancedDataSender<Object>>(){};
-        Key<EnhancedDataSender<Object>> enhancedDataSenderKey = Key.get(enhancedDataSenderLiteral);
-        this.tcpDataSender = injector.getInstance(enhancedDataSenderKey);
-        logger.info("tcpDataSender:{}", tcpDataSender);
+        this.rpcModuleLifeCycle = injector.getInstance(Key.get(ModuleLifeCycle.class, Names.named("RPC-MODULE")));
+        logger.info("rpcModuleLifeCycle:{}", rpcModuleLifeCycle);
+        this.rpcModuleLifeCycle.start();
 
         this.traceContext = injector.getInstance(TraceContext.class);
 
@@ -139,6 +128,15 @@ public class DefaultApplicationContext implements ApplicationContext {
         this.deadlockMonitor = injector.getInstance(DeadlockMonitor.class);
         this.agentInfoSender = injector.getInstance(AgentInfoSender.class);
         this.agentStatMonitor = injector.getInstance(AgentStatMonitor.class);
+    }
+
+    private void lambdaFactorySetup(Instrumentation instrumentation, ClassFileTransformModuleAdaptor classFileTransformer, JavaModuleFactory javaModuleFactory) {
+        final JvmVersion version = JvmUtils.getVersion();
+//      TODO version.onOrAfter(JvmVersion.JAVA_8)
+        if (version.onOrAfter(JvmVersion.JAVA_9)) {
+            LambdaTransformBootloader lambdaTransformBootloader = new LambdaTransformBootloader();
+            lambdaTransformBootloader.transformLambdaFactory(instrumentation, classFileTransformer, javaModuleFactory);
+        }
     }
 
     private ClassFileTransformer wrapJava9ClassFileTransformer(ClassFileTransformModuleAdaptor classFileTransformer) {
@@ -170,16 +168,6 @@ public class DefaultApplicationContext implements ApplicationContext {
         return classFileTransformer;
     }
 
-    private DataSender newUdpStatDataSender() {
-        Key<DataSender> statDataSenderKey = Key.get(DataSender.class, StatDataSender.class);
-        return injector.getInstance(statDataSenderKey);
-    }
-
-    private DataSender newUdpSpanDataSender() {
-        Key<DataSender> spanDataSenderKey = Key.get(DataSender.class, SpanDataSender.class);
-        return injector.getInstance(spanDataSenderKey);
-    }
-
     public ProfilerConfig getProfilerConfig() {
         return profilerConfig;
     }
@@ -193,7 +181,8 @@ public class DefaultApplicationContext implements ApplicationContext {
     }
 
     public DataSender getSpanDataSender() {
-        return spanDataSender;
+        Key<DataSender> spanDataSenderKey = Key.get(DataSender.class, SpanDataSender.class);
+        return injector.getInstance(spanDataSenderKey);
     }
 
     public InstrumentEngine getInstrumentEngine() {
@@ -235,27 +224,12 @@ public class DefaultApplicationContext implements ApplicationContext {
         this.deadlockMonitor.stop();
 
         // Need to process stop
-        this.spanDataSender.stop();
-        this.statDataSender.stop();
-        if (spanStatClientFactory != null) {
-            spanStatClientFactory.release();
+        if (rpcModuleLifeCycle != null) {
+            this.rpcModuleLifeCycle.shutdown();
         }
-
-        closeTcpDataSender();
 
         if (profilerConfig.getStaticResourceCleanup()) {
             this.interceptorRegistryBinder.unbind();
-        }
-    }
-
-    private void closeTcpDataSender() {
-        final EnhancedDataSender tcpDataSender = this.tcpDataSender;
-        if (tcpDataSender != null) {
-            tcpDataSender.stop();
-        }
-        final PinpointClientFactory clientFactory = this.clientFactory;
-        if (clientFactory != null) {
-            clientFactory.release();
         }
     }
 

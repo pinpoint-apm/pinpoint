@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
 import com.navercorp.pinpoint.profiler.sender.planer.SendDataPlaner;
 import com.navercorp.pinpoint.profiler.sender.planer.SpanChunkStreamSendDataPlaner;
 import com.navercorp.pinpoint.profiler.util.ByteBufferUtils;
+import com.navercorp.pinpoint.common.util.IOUtils;
 import com.navercorp.pinpoint.profiler.util.ObjectPool;
 import com.navercorp.pinpoint.thrift.dto.TSpan;
 import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
@@ -140,16 +141,8 @@ public class SpanStreamUdpSender implements DataSender {
 
             return datagramChannel;
         } catch (IOException e) {
-            if (socket != null) {
-                socket.close();
-            }
-
-            if (datagramChannel != null) {
-                try {
-                    datagramChannel.close();
-                } catch (IOException ignored) {
-                }
-            }
+            IOUtils.closeQuietly(socket);
+            IOUtils.closeQuietly(datagramChannel);
             
             throw new IllegalStateException("DatagramChannel create fail. Cause" + e.getMessage(), e);
         }

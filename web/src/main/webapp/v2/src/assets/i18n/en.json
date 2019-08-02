@@ -1,5 +1,6 @@
 {
     "COMMON": {
+        "POPUP_BLOCK_MESSAGE": "Popup blocked.<br>Please check your browser settings.",
         "NO_DATA": "No Data",
         "FAILED_TO_FETCH_DATA": "Failed to fetch the data",
         "NO_AGENTS": "There are no running agents.",
@@ -7,14 +8,19 @@
         "REQUIRED": "!{0} is required.",
         "REQUIRED_SELECT": "Select !{0}",
         "MAX_SEARCH_PERIOD": "Search duration may not be greater than !{0}days.",
-        "DO_NOT_HAVE_PERMISSION": "Don't have permission."
-    },
-    "MAIN": {
+        "DO_NOT_HAVE_PERMISSION": "Don't have permission.",
+        "SUBMIT": "Submit",
+        "REMOVE": "Remove",
+        "CANCEL": "Cancel",
+        "SEARCH_INPUT": "Input query",
+        "NO_CONTENT_TO_DISPLAY": "No content to display",
         "SELECT_YOUR_APP": "Select your application",
         "INPUT_APP_NAME_PLACE_HOLDER": "Input application name",
+        "EMPTY": "The list is empty."
+    },
+    "MAIN": {
         "FAVORITE_APP_LIST": "Favorite List",
         "APP_LIST": "Application List",
-        "SEARCH_SERVER_MAP_PLACE_HOLDER": "Search",
         "EMPTY_RESULT": "We couldn't find anything"
     },
     "INSPECTOR": {
@@ -30,7 +36,8 @@
                 "For case 1, you should delete the mapping between !{0} and !{1}.",
 				"For case 2, the agent id of the duplicate agent must change."
             ]
-        }
+        },
+        "CHART_INTERACTION_GUIDE_MESSAGE": "* You can zoom in on the chart by dragging the mouse."
     },
     "TRANSACTION_LIST": {
         "SELECT_TRANSACTION": "Select your transaction",
@@ -40,14 +47,26 @@
     },
     "CONFIGURATION": {
         "GENERAL": {
-            "DESC": "* User configuration is stored in browser cache. Server-side storage will be supported in a future release.",
-            "EMPTY": "Favorite list is empty."
+            "DESC": "* User configuration is stored in browser cache. Server-side storage will be supported in a future release."
+        },
+        "INSPECTOR_MANAGER": {
+            "EMPTY": "Select charts to display on screen."
         },
         "INSTALLATION": {
             "DESC": "* You can check if Application Name and Agent ID are duplicated.",
             "LENGTH_GUIDE": "You can enter up to !{0} characters.",
             "APPLICATION_NAME_PLACEHOLDER": "Input Application Name.",
             "AGENT_ID_PLACEHOLDER": "Input Agent ID."
+        },
+        "USER_GROUP": {
+            "VALIDATION": "You can enter only numbers, alphabets, and '-', '_' characters.(4~30)"
+        },
+        "PINPOINT_USER": {
+            "USER_ID_VALIDATION": "You can enter only numbers, alphabets lowercase, and '-' ,'_' characters.(4~24)",
+            "NAME_VALIDATION": "You can enter only numbers, alphabets, Hangeul, and '-', '_', '.' characters.(3~30)",
+            "DEPARTMENT_VALIDATION": "You can enter only numbers, alphabets, Hangeul, and '-', '_', '.' characters.(3~40)",
+            "PHONE_VALIDATION": "You can enter only numbers.(3~24)",
+            "EMAIL_VALIDATION": "Enter your email."
         },
         "COMMON": {
             "NAME": "Name",
@@ -60,6 +79,9 @@
             "THRESHOLD": "Threshold",
             "TYPE": "Type",
             "NOTES": "Notes"
+        },
+        "ALARM": {
+            "EMPTY": "No registered alarm."
         }
     },
     "TRANSACTION": {
@@ -67,7 +89,7 @@
         "EMPTY_RESULT": "No matches found."
     },
     "SUPPORT": {
-        "RESTRICT_USAGE": "[ICON]:{className=fa-exclamation-triangle}|[TEXT]:{value=Your browser(!{0}) is not supported.}|[LINK]:{href=browser-not-supported\\target=blank\\style=text-decoration:underline;font-weight:600\\linkText=Check supported browsers}",
+        "RESTRICT_USAGE": "[ICON]:{className=fa-exclamation-triangle}|[TEXT]:{value=Your browser(!{0}) is not supported.}|[LINK]:{href=browserNotSupported\\target=blank\\style=text-decoration:underline;font-weight:600\\linkText=Check supported browsers}",
         "INSTALL_GUIDE": "Please install one of the following browsers and try again."
     },
     "HELP_VIEWER": {
@@ -361,7 +383,7 @@
             "AGENT_CHART": {
                 "HEAP": [{
                     "TITLE": "Heap",
-                    "DESC": "JVM's heap information and full garbage collection time required",
+                    "DESC": "JVM's heap information and major garbage collection time required",
                     "CATEGORY": [{
                         "TITLE": "Legend",
                         "ITEMS": [{
@@ -371,14 +393,14 @@
                             "NAME": "Used",
                             "DESC": "Heap size currently in use"
                         }, {
-                            "NAME": "FGC",
-                            "DESC": "Time required for full garbage collection (number of FGCs in parenthesis if it occurred more than once)"
+                            "NAME": "Major GC",
+                            "DESC": "Time required for major garbage collection (number of Major GCs in parenthesis if it occurred more than once)"
                         }]
                     }]
                 }],
                 "NON_HEAP": [{
                     "TITLE": "Non-Heap",
-                    "DESC": "JVM's non-heap information and full garbage collection time required",
+                    "DESC": "JVM's non-heap information and major garbage collection time required",
                     "CATEGORY": [{
                         "TITLE": "Legend",
                         "ITEMS": [{
@@ -388,8 +410,8 @@
                             "NAME": "Used",
                             "DESC": "Non-heap size currently in use"
                         }, {
-                            "NAME": "FGC",
-                            "DESC": "Time required for full garbage collection (number of FGCs in parenthesis if it occurred more than once)"
+                            "NAME": "Major ",
+                            "DESC": "Time required for major garbage collection (number of Major GCs in parenthesis if it occurred more than once)"
                         }]
                     }]
                 }],

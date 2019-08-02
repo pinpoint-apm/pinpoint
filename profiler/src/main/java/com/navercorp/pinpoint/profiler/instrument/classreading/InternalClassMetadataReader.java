@@ -24,17 +24,19 @@ public class InternalClassMetadataReader {
     private final InternalClassMetadata classMetadata;
 
     public static InternalClassMetadata readInternalClassMetadata(final byte[] classBinary) {
-        final InternalClassMetadataReader internalClassMetadataReader = new InternalClassMetadataReader(new ClassReaderWrapper(classBinary, true));
+        final ClassReaderWrapper classReader = new ClassReaderWrapper(classBinary, true);
+        final InternalClassMetadataReader internalClassMetadataReader = new InternalClassMetadataReader(classReader);
         return internalClassMetadataReader.getInternalClassMetadata();
     }
 
     public static InternalClassMetadata readInternalClassMetadata(final ClassLoader classLoader, final String classInternalName) throws IOException {
-        final InternalClassMetadataReader internalClassMetadataReader = new InternalClassMetadataReader(new ClassReaderWrapper(classLoader, classInternalName, true));
+        final ClassReaderWrapper classReader = new ClassReaderWrapper(classLoader, classInternalName, true);
+        final InternalClassMetadataReader internalClassMetadataReader = new InternalClassMetadataReader(classReader);
         return internalClassMetadataReader.getInternalClassMetadata();
 
     }
 
-    InternalClassMetadataReader(final ClassReaderWrapper classReader) {
+    private InternalClassMetadataReader(final ClassReaderWrapper classReader) {
         this.classMetadata = new DefaultInternalClassMetadata(classReader.getClassInternalName(), classReader.getSuperClassInternalName(), classReader.getInterfaceInternalNames(), classReader.getAnnotationInternalNames(), classReader.isInterface(), classReader.isAnnotation(), classReader.isSynthetic(), classReader.isInnerClass());
     }
 

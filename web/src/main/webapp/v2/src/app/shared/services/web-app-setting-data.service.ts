@@ -1,15 +1,14 @@
 import { Injectable } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
 import { Observable } from 'rxjs';
 import { Store } from '@ngrx/store';
 import { LocalStorageService } from 'angular-2-local-storage';
 import 'moment-timezone';
 import * as moment from 'moment-timezone';
-import { pluck } from 'rxjs/operators';
 
 import { AppState, Actions } from 'app/shared/store';
 import { ComponentDefaultSettingDataService } from 'app/shared/services/component-default-setting-data.service';
 import { Application, Period } from 'app/core/models';
+import { NewUrlStateNotificationService } from 'app/shared/services/new-url-state-notification.service';
 
 interface IMinMax {
     min: number;
@@ -27,7 +26,10 @@ export class WebAppSettingDataService {
         USER_DEFAULT_INBOUND: 'userDefaultInbound',
         USER_DEFAULT_OUTBOUND: 'userDefaultOutbound',
         USER_DEFAULT_PERIOD: 'userDefaultPeriod',
-        TRANSACTION_LIST_GUTTER_POSITION: 'transactionListGutterPosition'
+        TRANSACTION_LIST_GUTTER_POSITION: 'transactionListGutterPosition',
+        CHART_NUM_PER_ROW: 'chartNumPerRow',
+        APPLICATION_CHART_LAYOUT_INFO: 'applicationChartLayoutInfo',
+        AGENT_CHART_LAYOUT_INFO: 'agentChartLayoutInfo',
     };
     private IMAGE_PATH = './assets/img/';
     private IMAGE_EXT = '.png';
@@ -36,51 +38,34 @@ export class WebAppSettingDataService {
     private LOGO_IMG_NAME = 'logo.png';
     constructor(
         private store: Store<AppState>,
-        private activatedRoute: ActivatedRoute,
         private localStorageService: LocalStorageService,
-        private componentDefaultSettingDataService: ComponentDefaultSettingDataService
+        private componentDefaultSettingDataService: ComponentDefaultSettingDataService,
+        private newUrlStateNotificationService: NewUrlStateNotificationService
     ) {
         this.store.dispatch(new Actions.AddFavoriteApplication(this.getFavoriteApplicationList()));
         this.store.dispatch(new Actions.ChangeTimezone(this.getTimezone()));
         this.store.dispatch(new Actions.ChangeDateFormat(this.getDateFormat()));
     }
-    private getConfigurationData(): Observable<any> {
-        return this.activatedRoute.children[0].children[0].data;
-    }
     useActiveThreadChart(): Observable<boolean> {
-        return this.getConfigurationData().pipe(
-            pluck('configuration', 'showActiveThread')
-        );
+        return this.newUrlStateNotificationService.getConfiguration('showActiveThread');
     }
     getUserId(): Observable<string | undefined> {
-        return this.getConfigurationData().pipe(
-            pluck('configuration', 'userId')
-        );
+        return this.newUrlStateNotificationService.getConfiguration('userId');
     }
     getUserDepartment(): Observable<string | undefined> {
-        return this.getConfigurationData().pipe(
-            pluck('configuration', 'userDepartment')
-        );
+        return this.newUrlStateNotificationService.getConfiguration('userDepartment');
     }
     useUserEdit(): Observable<boolean> {
-        return this.getConfigurationData().pipe(
-            pluck('configuration', 'editUserInfo')
-        );
+        return this.newUrlStateNotificationService.getConfiguration('editUserInfo');
     }
     isDataUsageAllowed(): Observable<boolean> {
-        return this.getConfigurationData().pipe(
-            pluck('configuration', 'sendUsage')
-        );
+        return this.newUrlStateNotificationService.getConfiguration('sendUsage');
     }
     getVersion(): Observable<string> {
-        return this.getConfigurationData().pipe(
-            pluck('configuration', 'version')
-        );
+        return this.newUrlStateNotificationService.getConfiguration('version');
     }
     isApplicationInspectorActivated(): Observable<boolean> {
-        return this.getConfigurationData().pipe(
-            pluck('configuration', 'showApplicationStat')
-        );
+        return this.newUrlStateNotificationService.getConfiguration('showApplicationStat');
     }
     getImagePath(): string {
         return this.IMAGE_PATH;
@@ -97,10 +82,10 @@ export class WebAppSettingDataService {
     getLogoPath(): string {
         return this.getImagePath() + this.LOGO_IMG_NAME;
     }
-    getSystemDefaultInbound(): string {
+    getSystemDefaultInbound(): number {
         return this.componentDefaultSettingDataService.getSystemDefaultInbound();
     }
-    getSystemDefaultOutbound(): string {
+    getSystemDefaultOutbound(): number {
         return this.componentDefaultSettingDataService.getSystemDefaultOutbound();
     }
     getSystemDefaultPeriod(): Period {
@@ -109,10 +94,13 @@ export class WebAppSettingDataService {
     getSystemDefaultTransactionViewPeriod(): Period {
         return this.componentDefaultSettingDataService.getSystemDefaultTransactionViewPeriod();
     }
-    getInboundList(): string[] {
+    getSystemDefaultChartLayoutOption(): number {
+        return this.componentDefaultSettingDataService.getSystemDefaultChartLayoutOption();
+    }
+    getInboundList(): number[] {
         return this.componentDefaultSettingDataService.getInboundList();
     }
-    getOutboundList(): string[] {
+    getOutboundList(): number[] {
         return this.componentDefaultSettingDataService.getOutboundList();
     }
     getPeriodList(path: string): Period[] {
@@ -189,17 +177,17 @@ export class WebAppSettingDataService {
     getLayerHeight(): number {
         return Number.parseInt(this.localStorageService.get(WebAppSettingDataService.KEYS.LAYER_HEIGHT), 10);
     }
-    setUserDefaultInbound(value: string): void {
+    setUserDefaultInbound(value: number): void {
         this.localStorageService.set(WebAppSettingDataService.KEYS.USER_DEFAULT_INBOUND, value);
     }
-    getUserDefaultInbound(): string {
-        return this.localStorageService.get<string>(WebAppSettingDataService.KEYS.USER_DEFAULT_INBOUND) || this.getSystemDefaultInbound();
+    getUserDefaultInbound(): number {
+        return this.localStorageService.get<number>(WebAppSettingDataService.KEYS.USER_DEFAULT_INBOUND) || this.getSystemDefaultInbound();
     }
-    setUserDefaultOutbound(value: string): void {
+    setUserDefaultOutbound(value: number): void {
         this.localStorageService.set(WebAppSettingDataService.KEYS.USER_DEFAULT_OUTBOUND, value);
     }
-    getUserDefaultOutbound(): string {
-        return this.localStorageService.get<string>(WebAppSettingDataService.KEYS.USER_DEFAULT_OUTBOUND) || this.getSystemDefaultOutbound();
+    getUserDefaultOutbound(): number {
+        return this.localStorageService.get<number>(WebAppSettingDataService.KEYS.USER_DEFAULT_OUTBOUND) || this.getSystemDefaultOutbound();
     }
     setUserDefaultPeriod(value: Period): void {
         this.localStorageService.set(WebAppSettingDataService.KEYS.USER_DEFAULT_PERIOD, value.getValue());
@@ -223,5 +211,39 @@ export class WebAppSettingDataService {
         return (name: string) => {
             return this.IMAGE_PATH + name + this.IMAGE_EXT;
         };
+    }
+    setChartLayoutOption(chartNumPerRow: number): void {
+        this.localStorageService.set(WebAppSettingDataService.KEYS.CHART_NUM_PER_ROW, chartNumPerRow);
+    }
+    getChartLayoutOption(): number {
+        return this.localStorageService.get<number>(WebAppSettingDataService.KEYS.CHART_NUM_PER_ROW) || this.getSystemDefaultChartLayoutOption();
+    }
+    getChartRefreshInterval(key: string): number {
+        return this.getSystemDefaultChartRefreshInterval(key);
+    }
+    getSystemDefaultChartRefreshInterval(key: string): number {
+        return this.componentDefaultSettingDataService.getSystemDefaultChartRefreshInterval(key);
+    }
+    getApplicationInspectorDefaultChartList(): string[] {
+        return this.componentDefaultSettingDataService.getApplicationInspectorDefaultChartOrderList();
+    }
+    getAgentInspectorDefaultChartList(): string[] {
+        return this.componentDefaultSettingDataService.getAgentInspectorDefaultChartOrderList();
+    }
+    getApplicationLayoutInfo(): IChartLayoutInfoResponse {
+        return this.localStorageService.get(WebAppSettingDataService.KEYS.APPLICATION_CHART_LAYOUT_INFO) || {
+            applicationInspectorChart: []
+        };
+    }
+    setApplicationLayoutInfo(chartInfo: IChartLayoutInfoResponse): void {
+        this.localStorageService.set(WebAppSettingDataService.KEYS.APPLICATION_CHART_LAYOUT_INFO, chartInfo);
+    }
+    getAgentLayoutInfo(): IChartLayoutInfoResponse {
+        return this.localStorageService.get(WebAppSettingDataService.KEYS.AGENT_CHART_LAYOUT_INFO) || {
+            agentInspectorChart: []
+        };
+    }
+    setAgentLayoutInfo(chartInfo: IChartLayoutInfoResponse): void {
+        this.localStorageService.set(WebAppSettingDataService.KEYS.AGENT_CHART_LAYOUT_INFO, chartInfo);
     }
 }

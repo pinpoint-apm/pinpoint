@@ -18,8 +18,7 @@ package com.navercorp.pinpoint.profiler.context.provider;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.navercorp.pinpoint.profiler.context.module.AgentId;
-import com.navercorp.pinpoint.profiler.context.module.AgentStartTime;
+import com.navercorp.pinpoint.profiler.context.module.MetadataDataSender;
 import com.navercorp.pinpoint.profiler.metadata.DefaultApiMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
@@ -32,7 +31,7 @@ public class ApiMetaDataServiceProvider implements Provider<ApiMetaDataService> 
     private final Provider<EnhancedDataSender<Object>> enhancedDataSenderProvider;
 
     @Inject
-    public ApiMetaDataServiceProvider(Provider<EnhancedDataSender<Object>> enhancedDataSenderProvider) {
+    public ApiMetaDataServiceProvider(@MetadataDataSender Provider<EnhancedDataSender<Object>> enhancedDataSenderProvider) {
         if (enhancedDataSenderProvider == null) {
             throw new NullPointerException("enhancedDataSenderProvider must not be null");
         }

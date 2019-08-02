@@ -20,20 +20,16 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.navercorp.pinpoint.io.request.EmptyMessage;
-import com.navercorp.pinpoint.io.request.Message;
+import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
+import com.navercorp.pinpoint.profiler.metadata.AgentInfo;
+import com.navercorp.pinpoint.profiler.sender.ResultResponse;
 import com.navercorp.pinpoint.profiler.util.AgentInfoFactory;
 import com.navercorp.pinpoint.rpc.DefaultFuture;
 import com.navercorp.pinpoint.rpc.ResponseMessage;
-import com.navercorp.pinpoint.thrift.dto.TResult;
-import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializerFactory;
-import com.navercorp.pinpoint.thrift.util.SerializationUtils;
-import org.apache.thrift.TBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
-import com.navercorp.pinpoint.thrift.dto.TAgentInfo;
 
 /**
  * @author emeroad
@@ -56,6 +52,7 @@ public class AgentInfoSender {
     private final long sendIntervalMs;
     private final int maxTryPerAttempt;
     private final Scheduler scheduler;
+    private final MessageConverter<ResultResponse> messageConverter;
 
     private AgentInfoSender(Builder builder) {
         this.dataSender = builder.dataSender;
@@ -64,6 +61,7 @@ public class AgentInfoSender {
         this.sendIntervalMs = builder.sendIntervalMs;
         this.maxTryPerAttempt = builder.maxTryPerAttempt;
         this.scheduler = new Scheduler();
+        this.messageConverter = builder.messageConverter;
     }
 
     public void start() {
@@ -111,10 +109,16 @@ public class AgentInfoSender {
                     schedule(this, maxTryPerAttempt, refreshIntervalMs, sendIntervalMs);
                 }
             };
+            if (logger.isDebugEnabled()) {
+                logger.debug("Start scheduler of agentInfoSender");
+            }
             schedule(successListener, Integer.MAX_VALUE, IMMEDIATE, sendIntervalMs);
         }
 
         public void refresh() {
+            if (logger.isDebugEnabled()) {
+                logger.debug("Refresh scheduler of agentInfoSender");
+            }
             schedule(SuccessListener.NO_OP, maxTryPerAttempt, IMMEDIATE, sendIntervalMs);
         }
 
@@ -171,7 +175,7 @@ public class AgentInfoSender {
 
         private boolean sendAgentInfo() {
             try {
-                TAgentInfo agentInfo = agentInfoFactory.createAgentInfo();
+                AgentInfo agentInfo = agentInfoFactory.createAgentInfo();
                 final DefaultFuture<ResponseMessage> future = new DefaultFuture<ResponseMessage>();
 
                 logger.info("Sending AgentInfo {}", agentInfo);
@@ -190,31 +194,15 @@ public class AgentInfoSender {
                     logger.warn("result not set.");
                     return false;
                 }
-                return getResult(responseMessage);
+                final ResultResponse result = messageConverter.toMessage(responseMessage);
+                if (!result.isSuccess()) {
+                    logger.warn("request unsuccessful. Cause : {}", result.getMessage());
+                }
+                return result.isSuccess();
             } catch (Exception e) {
                 logger.warn("failed to send agent info.", e);
             }
             return false;
-        }
-
-        private boolean getResult(ResponseMessage responseMessage) {
-            byte[] byteMessage = responseMessage.getMessage();
-            Message<TBase<?, ?>> message = SerializationUtils.deserialize(byteMessage, HeaderTBaseDeserializerFactory.DEFAULT_FACTORY, null);
-            if (message == null) {
-                logger.warn("message is null");
-                return false;
-            }
-            final TBase<?, ?> tbase = message.getData();
-            if (!(tbase instanceof TResult)) {
-                logger.warn("Invalid response : {}", tbase.getClass());
-                return false;
-            }
-            TResult result = (TResult) tbase;
-            if (!result.isSuccess()) {
-                logger.warn("request unsuccessful. Cause : {}", result.getMessage());
-                return false;
-            }
-            return true;
         }
     }
 
@@ -224,6 +212,7 @@ public class AgentInfoSender {
         private long refreshIntervalMs = DEFAULT_AGENT_INFO_REFRESH_INTERVAL_MS;
         private long sendIntervalMs = DEFAULT_AGENT_INFO_SEND_INTERVAL_MS;
         private int maxTryPerAttempt = DEFAULT_MAX_TRY_COUNT_PER_ATTEMPT;
+        private MessageConverter<ResultResponse> messageConverter;
 
         public Builder(EnhancedDataSender dataSender, AgentInfoFactory agentInfoFactory) {
             if (dataSender == null) {
@@ -248,6 +237,11 @@ public class AgentInfoSender {
 
         public Builder maxTryPerAttempt(int maxTryCountPerAttempt) {
             this.maxTryPerAttempt = maxTryCountPerAttempt;
+            return this;
+        }
+
+        public Builder setMessageConverter(MessageConverter<ResultResponse> messageConverter) {
+            this.messageConverter = messageConverter;
             return this;
         }
 

@@ -1,5 +1,6 @@
 import * as moment from 'moment-timezone';
 import { Observable, Subject } from 'rxjs';
+import * as bowser from 'bowser';
 import { IOptions } from './scatter-chart.class';
 import { ScatterChartSizeCoordinateManager } from './scatter-chart-size-coordinate-manager.class';
 
@@ -42,6 +43,7 @@ export class ScatterChartMouseManager {
             cursor: crosshair;
             z-index: 600;
             position: absolute;
+            user-select: none;
             background-color: rgba(0,0,0,0);
         `);
         this.elementAxisWrapper.setAttribute('class', 'overlay');
@@ -59,6 +61,7 @@ export class ScatterChartMouseManager {
             position: absolute;
             text-align: center;
             background: #000;
+            user-select: none;
             font-family: monospace;
             margin-left: ${-(56 / 2)}px;
         ` + this.options.axisLabelStyle);
@@ -108,6 +111,7 @@ export class ScatterChartMouseManager {
     private initDragElement(): void {
         this.elementDragWrapper = document.createElement('div');
         this.elementDragWrapper.setAttribute('style', `
+            touch-action: none;
             top: 0px;
             left: 0px;
             width: ${this.coordinateManager.getWidth()}px;
@@ -147,6 +151,8 @@ export class ScatterChartMouseManager {
         let calculatedOffsetY = 0;
         let previousDragX = -1;
         let previousDragY = -1;
+        let previousClientX = 0;
+        let previousClientY = 0;
         function forceMouseUp(userMouseUp: boolean) {
             startDrag = false;
             this.elementDragArea.style.display = 'none';
@@ -174,53 +180,116 @@ export class ScatterChartMouseManager {
             previousDragX = -1;
             previousDragY = -1;
         }
-        this.elementDragWrapper.addEventListener('mousedown', (event: MouseEvent) => {
-            startDrag = true;
-            dragStartX = calculatedOffsetX = event.offsetX;
-            dragStartY = calculatedOffsetY = event.offsetY;
-            this.elementDragArea.style.display = 'block';
-            this.elementDragArea.style.top = dragStartY + 'px';
-            this.elementDragArea.style.left = dragStartX + 'px';
-            event.preventDefault();
-        });
-        this.elementDragWrapper.addEventListener('mouseup', (event: MouseEvent) => {
-            forceMouseUp.call(this, true);
-            event.preventDefault();
-        });
+        function preventDefault(e: any) {
+            e.preventDefault();
+        }
+        function disableScroll() {
+            document.body.addEventListener('touchmove', preventDefault, { passive: false });
+        }
+        function enableScroll() {
+            document.body.removeEventListener('touchmove', preventDefault);
+        }
 
-        this.elementDragWrapper.addEventListener('mousemove', (event: MouseEvent) => {
-            calculatedOffsetX += event.movementX;
-            calculatedOffsetY += event.movementY;
-            if (startDrag) {
-                this.checkAxisLabel(calculatedOffsetX, calculatedOffsetY, axisArea);
-                if (previousDragX !== calculatedOffsetX) {
-                    if (calculatedOffsetX <= areaWidth) {
-                        if (calculatedOffsetX >= dragStartX) {
-                            this.elementDragArea.style.left = dragStartX + 'px';
-                            this.elementDragArea.style.width = (calculatedOffsetX - dragStartX) + 'px';
-                        } else {
-                            this.elementDragArea.style.left = calculatedOffsetX + 'px';
-                            this.elementDragArea.style.width = (dragStartX - calculatedOffsetX) + 'px';
-                        }
-                        previousDragX = calculatedOffsetX;
-                    }
+        ['mousedown', 'touchstart'].forEach((eventName: string) => {
+            this.elementDragWrapper.addEventListener(eventName, (event: MouseEvent | TouchEvent) => {
+                const isTouch = event.type.startsWith('touch');
+                let x, y;
+                if (isTouch) {
+                    disableScroll();
+                    const touchEvent = event as TouchEvent;
+                    const clientRect = (touchEvent.target as HTMLElement).offsetParent.getBoundingClientRect();
+                    previousClientX = touchEvent.touches[0].clientX;
+                    previousClientY = touchEvent.touches[0].clientY;
+                    x = previousClientX - clientRect.left;
+                    y = previousClientY - clientRect.top;
+                } else if (bowser.safari) {
+                    const mouseEvent = event as MouseEvent;
+                    const clientRect = (mouseEvent.target as HTMLElement).offsetParent.getBoundingClientRect();
+                    x = previousClientX - clientRect.left;
+                    y = previousClientY - clientRect.top;
+                } else {
+                    const mouseEvent = event as MouseEvent;
+                    x = mouseEvent.offsetX;
+                    y = mouseEvent.offsetY;
                 }
-                if (previousDragY !== calculatedOffsetY) {
-                    if (calculatedOffsetY <= areaHeight) {
-                        if (calculatedOffsetY >= dragStartY) {
-                            this.elementDragArea.style.top = dragStartY + 'px';
-                            this.elementDragArea.style.height = (calculatedOffsetY - dragStartY) + 'px';
-                        } else {
-                            this.elementDragArea.style.top = calculatedOffsetY + 'px';
-                            this.elementDragArea.style.height = (dragStartY - calculatedOffsetY) + 'px';
-                        }
-                        previousDragY = calculatedOffsetY;
-                    }
+                startDrag = true;
+                dragStartX = calculatedOffsetX = x;
+                dragStartY = calculatedOffsetY = y;
+                this.elementDragArea.style.display = 'block';
+                this.elementDragArea.style.top = dragStartY + 'px';
+                this.elementDragArea.style.left = dragStartX + 'px';
+                if (isTouch === false) {
+                    event.preventDefault();
                 }
-            } else {
-                this.checkAxisLabel(event.offsetX, event.offsetY, axisArea);
-            }
-            event.preventDefault();
+            });
+        });
+        ['mouseup', 'touchend'].forEach((eventName: string) => {
+            this.elementDragWrapper.addEventListener(eventName, (event: MouseEvent | TouchEvent) => {
+                const isTouch = event.type.startsWith('touch');
+                forceMouseUp.call(this, true);
+                if (isTouch === false) {
+                    event.preventDefault();
+                } else {
+                    enableScroll();
+                }
+            });
+        });
+        ['mousemove', 'touchmove'].forEach((eventName: string) => {
+            this.elementDragWrapper.addEventListener(eventName, (event: MouseEvent | TouchEvent) => {
+                const isTouch = event.type.startsWith('touch');
+                let offsetX, offsetY;
+                if (isTouch) {
+                    const touchEvent = event as TouchEvent;
+                    offsetX = touchEvent.touches[0].clientX - previousClientX;
+                    offsetY = touchEvent.touches[0].clientY - previousClientY;
+                    previousClientX = touchEvent.touches[0].clientX;
+                    previousClientY = touchEvent.touches[0].clientY;
+                } else if (bowser.safari) {
+                    const mouseEvent = event as MouseEvent;
+                    offsetX = mouseEvent.clientX - previousClientX;
+                    offsetY = mouseEvent.clientY - previousClientY;
+                    previousClientX = mouseEvent.clientX;
+                    previousClientY = mouseEvent.clientY;
+                } else {
+                    const mouseEvent = event as MouseEvent;
+                    offsetX = mouseEvent.movementX;
+                    offsetY = mouseEvent.movementY;
+                }
+                calculatedOffsetX += offsetX;
+                calculatedOffsetY += offsetY;
+                if (startDrag) {
+                    this.checkAxisLabel(calculatedOffsetX, calculatedOffsetY, axisArea);
+                    if (previousDragX !== calculatedOffsetX) {
+                        if (calculatedOffsetX <= areaWidth) {
+                            if (calculatedOffsetX >= dragStartX) {
+                                this.elementDragArea.style.left = dragStartX + 'px';
+                                this.elementDragArea.style.width = (calculatedOffsetX - dragStartX) + 'px';
+                            } else {
+                                this.elementDragArea.style.left = calculatedOffsetX + 'px';
+                                this.elementDragArea.style.width = (dragStartX - calculatedOffsetX) + 'px';
+                            }
+                            previousDragX = calculatedOffsetX;
+                        }
+                    }
+                    if (previousDragY !== calculatedOffsetY) {
+                        if (calculatedOffsetY <= areaHeight) {
+                            if (calculatedOffsetY >= dragStartY) {
+                                this.elementDragArea.style.top = dragStartY + 'px';
+                                this.elementDragArea.style.height = (calculatedOffsetY - dragStartY) + 'px';
+                            } else {
+                                this.elementDragArea.style.top = calculatedOffsetY + 'px';
+                                this.elementDragArea.style.height = (dragStartY - calculatedOffsetY) + 'px';
+                            }
+                            previousDragY = calculatedOffsetY;
+                        }
+                    }
+                } else {
+                    this.checkAxisLabel(offsetX, offsetY, axisArea);
+                }
+                if (isTouch === false) {
+                    event.preventDefault();
+                }
+            });
         });
         this.elementDragWrapper.addEventListener('mouseleave', (event: MouseEvent) => {
             forceMouseUp.call(this, false);

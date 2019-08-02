@@ -1,23 +1,22 @@
-import { Component, OnInit, OnDestroy, ComponentFactoryResolver, ViewChild, ViewContainerRef, ComponentRef, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ComponentFactoryResolver, ViewChild, ViewContainerRef, ComponentRef, HostBinding } from '@angular/core';
 
-import { TransactionViewJVMHeapChartContainerComponent } from 'app/core/components/inspector-chart/transaction-view-jvm-heap-chart-container.component';
-import { TransactionViewJVMNonHeapChartContainerComponent } from 'app/core/components/inspector-chart/transaction-view-jvm-non-heap-chart-container.component';
-import { TransactionViewCPUChartContainerComponent } from 'app/core/components/inspector-chart/transaction-view-cpu-chart-container.component';
 import { AnalyticsService, TRACKED_EVENT_LIST } from 'app/shared/services';
+import { ChartType } from 'app/core/components/inspector-chart/inspector-chart-container-factory';
+import { TransactionViewChartContainerComponent } from 'app/core/components/inspector-chart/transaction-view-chart-container.component';
 
 @Component({
     selector: 'pp-transaction-view-top-contents-container',
     templateUrl: './transaction-view-top-contents-container.component.html',
     styleUrls: ['./transaction-view-top-contents-container.component.css'],
-    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TransactionViewTopContentsContainerComponent implements OnInit, OnDestroy {
+    @HostBinding('class') hostClass = 'l-transaction-view-top-contents';
     @ViewChild('chartContainer', { read: ViewContainerRef }) chartContainer: ViewContainerRef;
 
-    tabList: any[];
-    private componentMap = new Map<string, any>();
-    private chartComponentList = [TransactionViewJVMHeapChartContainerComponent, TransactionViewJVMNonHeapChartContainerComponent, TransactionViewCPUChartContainerComponent];
-    private aliveComponentRef: ComponentRef<any>;
+    private componentRefMap = new Map<string, ComponentRef<TransactionViewChartContainerComponent>>();
+
+    tabList: {id: string, display: string}[];
+    activeTab = 'heap';
 
     constructor(
         private componentFactoryResolver: ComponentFactoryResolver,
@@ -26,54 +25,63 @@ export class TransactionViewTopContentsContainerComponent implements OnInit, OnD
 
     ngOnInit() {
         this.initTabList();
-        this.initComponentMap();
-        this.loadComponent(this.tabList.find((tab) => tab.isActive).id);
+        this.loadComponent(this.activeTab);
     }
 
     ngOnDestroy() {
-        this.aliveComponentRef.destroy();
+        this.chartContainer.get(0).destroy();
     }
 
-    onTabClick(tabName: string): void {
-        this.setActiveTab(tabName);
-        this.clearContainer();
-        this.loadComponent(tabName);
-    }
+    onTabClick(tab: string): void {
+        if (tab === this.activeTab) {
+            return;
+        }
 
-    private clearContainer(): void {
-        this.chartContainer.clear();
+        this.activeTab = tab;
+        this.chartContainer.detach(0);
+        this.loadComponent(tab);
     }
 
     private initTabList(): void {
         this.tabList = [{
             id: 'heap',
-            displayText: 'Heap',
-            isActive: true
+            display: 'Heap',
         },
         {
             id: 'nonHeap',
-            displayText: 'Non Heap',
-            isActive: false
+            display: 'Non Heap',
         },
         {
             id: 'cpu',
-            displayText: 'CPU Load',
-            isActive: false
+            display: 'CPU Load',
         }];
     }
 
-    private initComponentMap(): void {
-        this.tabList.forEach((value, i) => this.componentMap.set(value.id, this.chartComponentList[i]));
+    private matchChartType(tabId: string): ChartType {
+        switch (tabId) {
+            case 'heap':
+                return ChartType.AGENT_JVM_HEAP;
+            case 'nonHeap':
+                return ChartType.AGENT_JVM_NON_HEAP;
+            case 'cpu':
+                return ChartType.AGENT_CPU;
+        }
     }
 
     private loadComponent(key: string): void {
         this.analyticsService.trackEvent((TRACKED_EVENT_LIST as any)[`CLICK_${key}`]);
-        const componentFactory = this.componentFactoryResolver.resolveComponentFactory(this.componentMap.get(key));
 
-        this.aliveComponentRef = this.chartContainer.createComponent(componentFactory);
-    }
+        const componentRef = this.componentRefMap.get(key);
 
-    private setActiveTab(tabName: string): void {
-        this.tabList.forEach((tab) => tab.isActive = tabName === tab.id);
+        if (componentRef) {
+            this.chartContainer.insert(componentRef.hostView);
+            componentRef.instance.onBackToTheView();
+        } else {
+            const componentFactory = this.componentFactoryResolver.resolveComponentFactory(TransactionViewChartContainerComponent);
+            const component = this.chartContainer.createComponent(componentFactory);
+
+            this.componentRefMap.set(key, component);
+            component.instance.chartType = this.matchChartType(key);
+        }
     }
 }

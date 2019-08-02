@@ -19,20 +19,17 @@ package com.navercorp.pinpoint.web.filter;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
-import com.navercorp.pinpoint.common.service.AnnotationKeyRegistryService;
-import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
+import com.navercorp.pinpoint.loader.service.AnnotationKeyRegistryService;
+import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.AnnotationKeyFactory;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
 import com.navercorp.pinpoint.common.trace.ServiceTypeProperty;
-import org.apache.hadoop.hbase.util.Base64;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -87,12 +84,17 @@ public class RpcURLPatternFilterTest {
         };
     }
 
+
+    private RpcURLPatternFilter newRpcURLPatternFilter(String urlPattern) {
+        return new RpcURLPatternFilter(urlPattern, serviceTypeRegistryService, annotationKeyRegistryService);
+    }
+
     @Test
     public void emptyPatternShouldReject() {
         // Given
         final String urlPattern = "";
         final String rpcUrl = "http://a.b.c";
-        final RpcURLPatternFilter rpcURLPatternFilter = new RpcURLPatternFilter(encode(urlPattern), serviceTypeRegistryService, annotationKeyRegistryService);
+        final RpcURLPatternFilter rpcURLPatternFilter = newRpcURLPatternFilter(urlPattern);
         // When
         boolean accept = rpcURLPatternFilter.accept(createTestRpcSpans(rpcUrl));
         // Then
@@ -104,7 +106,7 @@ public class RpcURLPatternFilterTest {
         // Given
         final String urlPattern = "/test/**";
         final String rpcUrl = "/test/rpc/path";
-        final RpcURLPatternFilter rpcURLPatternFilter = new RpcURLPatternFilter(encode(urlPattern), serviceTypeRegistryService, annotationKeyRegistryService);
+        final RpcURLPatternFilter rpcURLPatternFilter = newRpcURLPatternFilter(urlPattern);
         // When
         boolean accept = rpcURLPatternFilter.accept(createTestRpcSpans(rpcUrl));
         // Then
@@ -116,7 +118,7 @@ public class RpcURLPatternFilterTest {
         // Given
         final String urlPattern = "/test/**";
         final String rpcUrl = "http://some.test.domain:8080/test/rpc/path";
-        final RpcURLPatternFilter rpcURLPatternFilter = new RpcURLPatternFilter(encode(urlPattern), serviceTypeRegistryService, annotationKeyRegistryService);
+        final RpcURLPatternFilter rpcURLPatternFilter = newRpcURLPatternFilter(urlPattern);
         // When
         boolean accept = rpcURLPatternFilter.accept(createTestRpcSpans(rpcUrl));
         // Then
@@ -128,7 +130,7 @@ public class RpcURLPatternFilterTest {
         // Given
         final String urlPattern = "some.test.domain/test/rpc/**";
         final String rpcUrl = "some.test.domain/test/rpc/test?value=11";
-        final RpcURLPatternFilter rpcURLPatternFilter = new RpcURLPatternFilter(encode(urlPattern), serviceTypeRegistryService, annotationKeyRegistryService);
+        final RpcURLPatternFilter rpcURLPatternFilter = newRpcURLPatternFilter(urlPattern);
         // When
         boolean accept = rpcURLPatternFilter.accept(createTestRpcSpans(rpcUrl));
         // Then
@@ -140,7 +142,7 @@ public class RpcURLPatternFilterTest {
         // Given
         final String urlPattern = "some*";
         final String rpcUrl = "someName";
-        final RpcURLPatternFilter rpcURLPatternFilter = new RpcURLPatternFilter(encode(urlPattern), serviceTypeRegistryService, annotationKeyRegistryService);
+        final RpcURLPatternFilter rpcURLPatternFilter = newRpcURLPatternFilter(urlPattern);
         // When
         boolean accept = rpcURLPatternFilter.accept(createTestRpcSpans(rpcUrl));
         // Then
@@ -152,15 +154,11 @@ public class RpcURLPatternFilterTest {
         // Given
         final String urlPattern = ":/**";
         final String rpcUrl = ":/invalid/uri";
-        final RpcURLPatternFilter rpcURLPatternFilter = new RpcURLPatternFilter(encode(urlPattern), serviceTypeRegistryService, annotationKeyRegistryService);
+        final RpcURLPatternFilter rpcURLPatternFilter = newRpcURLPatternFilter(urlPattern);
         // When
         boolean accept = rpcURLPatternFilter.accept(createTestRpcSpans(rpcUrl));
         // Then
         Assert.assertTrue(accept);
-    }
-
-    private String encode(String value) {
-        return Base64.encodeBytes(value.getBytes(StandardCharsets.UTF_8));
     }
 
     private List<SpanBo> createTestRpcSpans(String... rpcUrls) {
@@ -168,9 +166,7 @@ public class RpcURLPatternFilterTest {
         for (String rpcUrl : rpcUrls) {
             SpanEventBo testRpcSpanEvent = new SpanEventBo();
             testRpcSpanEvent.setServiceType(TEST_RPC_SERVICE_TYPE_CODE);
-            AnnotationBo testRpcAnnotationBo = new AnnotationBo();
-            testRpcAnnotationBo.setKey(TEST_RPC_URL_ANNOTATION_KEY.getCode());
-            testRpcAnnotationBo.setValue(rpcUrl);
+            AnnotationBo testRpcAnnotationBo = new AnnotationBo(TEST_RPC_URL_ANNOTATION_KEY.getCode(), rpcUrl);
             testRpcSpanEvent.setAnnotationBoList(Collections.singletonList(testRpcAnnotationBo));
             SpanBo spanBo = new SpanBo();
             spanBo.addSpanEvent(testRpcSpanEvent);

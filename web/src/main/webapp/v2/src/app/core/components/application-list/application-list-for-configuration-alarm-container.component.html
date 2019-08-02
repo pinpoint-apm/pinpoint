@@ -1,37 +1,22 @@
-<table class="table l-popup-table" (keydown)="onKeyDown($event.keyCode)">
-    <colgroup>
-        <col width="100%">
-    </colgroup>
-    <thead>
-        <tr>
-            <th>Application</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td>
-                <div class="l-widget-group">
-                    <input type="text" placeholder="{{i18nText.INPUT_APPLICATION_NAME}}" value="" #inputQuery class="l-search-input">
-                </div>
-            </td>
-        </tr>
-        <tr>
-            <td class="l-application-list">
-                <div>
-                    <pp-application-list-for-header 
-                        [showTitle]="showTitle"
-                        [title]="i18nText.APPLICATION_LIST_TITLE" 
-                        [restCount]="restCount"
-                        [focusIndex]="focusIndex"
-                        [focusType]="focusType"
-                        [applicationList]="filteredApplicationList" 
-                        [selectedApplication]="selectedApplication"
-                        [funcImagePath]="funcImagePath"
-                        [emptyText]="i18nText.EMPTY_LIST"
-                        (outSelected)="onSelectApplication($event)"
-                        (outFocused)="onFocused($event)"></pp-application-list-for-header>
-                </div>
-            </td>
-        </tr>
-    </tbody>
-</table>
+<div class="l-application-wrapper">
+    <div class="l-application-title">
+        <span>Application</span>
+    </div>
+    <div class="l-application-search">
+        <input type="text" placeholder="{{i18nText.INPUT_APPLICATION_NAME}}" value="" #inputQuery class="l-search-input">
+    </div>
+    <div class="l-application-list">
+        <pp-application-list-for-header 
+            [showTitle]="showTitle"
+            [title]="i18nText.APPLICATION_LIST_TITLE" 
+            [restCount]="restCount"
+            [focusIndex]="focusIndex"
+            [focusType]="focusType"
+            [applicationList]="filteredApplicationList" 
+            [selectedApplication]="selectedApplication"
+            [funcImagePath]="funcImagePath"
+            [emptyText]="i18nText.EMPTY_LIST"
+            (outSelected)="onSelectApplication($event)"
+            (outFocused)="onFocused($event)"></pp-application-list-for-header>
+    </div>
+</div>

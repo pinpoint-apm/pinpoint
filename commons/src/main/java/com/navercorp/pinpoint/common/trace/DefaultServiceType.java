@@ -27,6 +27,7 @@ class DefaultServiceType implements ServiceType {
     private final String desc;
     private final boolean terminal;
     private final boolean queue;
+    private final boolean alias;
 
     // FIXME record statistics of only rpc call currently. so is it all right to chane into isRecordRpc()
     private final boolean recordStatistics;
@@ -35,7 +36,17 @@ class DefaultServiceType implements ServiceType {
     private final boolean includeDestinationId;
     private final ServiceTypeCategory category;
 
-
+    DefaultServiceType(ServiceTypeBuilder builder) {
+        this.code = builder.code();
+        this.name = builder.name();
+        this.desc = builder.desc();
+        this.terminal = builder.terminal();
+        this.queue = builder.queue();
+        this.recordStatistics = builder.recordStatistics();
+        this.includeDestinationId = builder.includeDestinationId();
+        this.category = ServiceTypeCategory.findCategory(code);
+        this.alias = builder.alias();
+    }
 
     DefaultServiceType(int code, String name, String desc, ServiceTypeProperty... properties) {
         // code must be a short value but constructors accept int to make declaring ServiceType values more cleaner by removing casting to short.
@@ -53,6 +64,7 @@ class DefaultServiceType implements ServiceType {
         boolean queue = false;
         boolean recordStatistics = false;
         boolean includeDestinationId = false;
+        boolean alias = false;
         
         for (ServiceTypeProperty property : properties) {
             switch (property) {
@@ -71,6 +83,11 @@ class DefaultServiceType implements ServiceType {
             case INCLUDE_DESTINATION_ID:
                 includeDestinationId = true;
                 break;
+
+            case ALIAS:
+                alias = true;
+                break;
+
             default:
                 throw new IllegalStateException("Unknown ServiceTypeProperty:" + property);
             }
@@ -80,8 +97,8 @@ class DefaultServiceType implements ServiceType {
         this.queue = queue;
         this.recordStatistics = recordStatistics;
         this.includeDestinationId = includeDestinationId;
+        this.alias = alias;
     }
-
 
     @Override
     public boolean isInternalMethod() {
@@ -128,6 +145,11 @@ class DefaultServiceType implements ServiceType {
     @Override
     public boolean isTerminal() {
         return terminal;
+    }
+
+    @Override
+    public boolean isAlias() {
+        return alias;
     }
 
     @Override
@@ -179,6 +201,4 @@ class DefaultServiceType implements ServiceType {
     public static boolean isWas(final short code) {
         return ServiceTypeCategory.SERVER.contains(code);
     }
-
-
 }

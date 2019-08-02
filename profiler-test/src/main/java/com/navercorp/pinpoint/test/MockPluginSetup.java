@@ -22,17 +22,18 @@ import com.navercorp.pinpoint.bootstrap.instrument.DynamicTransformTrigger;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.MatchableTransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.MatchableTransformTemplateAware;
-import com.navercorp.pinpoint.profiler.instrument.InstrumentEngine;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
+import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginGlobalContext;
+import com.navercorp.pinpoint.profiler.instrument.InstrumentEngine;
 import com.navercorp.pinpoint.profiler.instrument.classloading.ClassInjector;
 import com.navercorp.pinpoint.profiler.plugin.ClassFileTransformerLoader;
 import com.navercorp.pinpoint.profiler.plugin.PluginInstrumentContext;
 import com.navercorp.pinpoint.profiler.plugin.DefaultProfilerPluginSetupContext;
-import com.navercorp.pinpoint.profiler.plugin.GuardProfilerPluginContext;
+import com.navercorp.pinpoint.profiler.plugin.GuardProfilerPluginSetupContext;
 import com.navercorp.pinpoint.profiler.plugin.PluginSetup;
-import com.navercorp.pinpoint.profiler.plugin.SetupResult;
+import com.navercorp.pinpoint.profiler.plugin.PluginSetupResult;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -40,31 +41,26 @@ import com.navercorp.pinpoint.profiler.plugin.SetupResult;
 public class MockPluginSetup implements PluginSetup {
 
 
-    private final ProfilerConfig profilerConfig;
     private final InstrumentEngine instrumentEngine;
     private final DynamicTransformTrigger dynamicTransformTrigger;
 
     @Inject
-    public MockPluginSetup(ProfilerConfig profilerConfig, InstrumentEngine instrumentEngine, DynamicTransformTrigger dynamicTransformTrigger) {
-        if (profilerConfig == null) {
-            throw new NullPointerException("profilerConfig must not be null");
-        }
+    public MockPluginSetup(InstrumentEngine instrumentEngine, DynamicTransformTrigger dynamicTransformTrigger) {
         if (instrumentEngine == null) {
             throw new NullPointerException("instrumentEngine must not be null");
         }
         if (dynamicTransformTrigger == null) {
             throw new NullPointerException("dynamicTransformTrigger must not be null");
         }
-        this.profilerConfig = profilerConfig;
         this.instrumentEngine = instrumentEngine;
         this.dynamicTransformTrigger = dynamicTransformTrigger;
     }
 
     @Override
-    public SetupResult setupPlugin(ProfilerPlugin plugin, ClassInjector classInjector) {
-
-        final DefaultProfilerPluginSetupContext pluginSetupContext = new DefaultProfilerPluginSetupContext(profilerConfig);
-        final GuardProfilerPluginContext guardPluginSetupContext = new GuardProfilerPluginContext(pluginSetupContext);
+    public PluginSetupResult setupPlugin(ProfilerPluginGlobalContext globalContext, ProfilerPlugin plugin, ClassInjector classInjector) {
+        final ProfilerConfig profilerConfig = globalContext.getConfig();
+        final DefaultProfilerPluginSetupContext pluginSetupContext = new DefaultProfilerPluginSetupContext(globalContext);
+        final GuardProfilerPluginSetupContext guardPluginSetupContext = new GuardProfilerPluginSetupContext(pluginSetupContext);
 
         ClassFileTransformerLoader classFileTransformerLoader = new ClassFileTransformerLoader(profilerConfig, dynamicTransformTrigger);
         InstrumentContext instrumentContext = new PluginInstrumentContext(profilerConfig, instrumentEngine, dynamicTransformTrigger, classInjector, classFileTransformerLoader);
@@ -74,7 +70,7 @@ public class MockPluginSetup implements PluginSetup {
         } finally {
             guardPluginSetupContext.close();
         }
-        SetupResult setup = new SetupResult(pluginSetupContext, classFileTransformerLoader);
+        PluginSetupResult setup = new PluginSetupResult(pluginSetupContext, classFileTransformerLoader);
         return setup;
     }
 

@@ -40,4 +40,12 @@ public class DubboConfiguration {
     public List<String> getDubboBootstrapMains() {
         return dubboBootstrapMains;
     }
+
+    @Override
+    public String toString() {
+        return "DubboConfiguration{" +
+                "dubboEnabled=" + dubboEnabled +
+                ", dubboBootstrapMains=" + dubboBootstrapMains +
+                '}';
+    }
 }

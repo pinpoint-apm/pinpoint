@@ -3,26 +3,13 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.navercorp.pinpoint</groupId>
-        <artifactId>pinpoint</artifactId>
-        <relativePath>../..</relativePath>
-        <version>1.8.1-SNAPSHOT</version>
+        <artifactId>pinpoint-plugins</artifactId>
+        <version>1.9.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>pinpoint-google-httpclient-plugin</artifactId>
     <name>pinpoint-google-httpclient-plugin</name>
     <packaging>jar</packaging>
-
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>com.navercorp.pinpoint</groupId>
-                <artifactId>pinpoint-plugin-bom</artifactId>
-                <version>${project.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
 
     <dependencies>
         <dependency>

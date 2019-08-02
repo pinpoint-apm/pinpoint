@@ -16,6 +16,7 @@ package com.navercorp.pinpoint.bootstrap.plugin;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParserV2;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 
 /**
  *  Provides attributes and objects to interceptors.
@@ -35,10 +36,42 @@ public interface ProfilerPluginSetupContext {
 
     /**
      * Add a {@link ApplicationTypeDetector} to Pinpoint agent.
-     * 
-     * @param detectors
+     *
+     * @param detectors application type detectors to add
+     *
+     * @deprecated As of 1.9.0, {@code ApplicationTypeDetector} has been deprecated.
+     *             Use {@link #registerApplicationType(ServiceType)} instead.
      */
+    @Deprecated
     void addApplicationTypeDetector(ApplicationTypeDetector... detectors);
+
+    /**
+     * Returns the {@link ServiceType} configured by <tt>profiler.applicationservertype</tt>
+     * in <i>pinpoint.config</i> file.
+     *
+     * @return the configured {@link ServiceType}
+     */
+    ServiceType getConfiguredApplicationType();
+
+    /**
+     * Returns the {@link ServiceType} registered by plugins.
+     *
+     * @return the registered {@link ServiceType}
+     */
+    ServiceType getApplicationType();
+
+    /**
+     * Registers the specified {@link ServiceType} to be the application type of the agent.
+     * Returns <tt>false</tt> if the application type has already been registered, and the
+     * supplied <tt>applicationType</tt> should not be registered.
+     * <p>
+     * The <tt>profiler.plugin.load.order</tt> option in <i>pinpoint.config</i> may be used
+     * to configure the order in which the registration happens.
+     *
+     * @param applicationType the applicationt type to be registered
+     * @return <tt>true</tt> if the application type is registered
+     */
+    boolean registerApplicationType(ServiceType applicationType);
 
     void addJdbcUrlParser(JdbcUrlParserV2 jdbcUrlParserV2);
 

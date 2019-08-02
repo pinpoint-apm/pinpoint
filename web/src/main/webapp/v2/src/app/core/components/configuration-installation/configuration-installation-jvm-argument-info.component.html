@@ -1,0 +1,7 @@
+<div class="textarea-wrapper">
+    <button type="button" class="copy-button" [ngxClipboard]="jvmArgumentInfo" (cbOnSuccess)="onCopySuccess()"><span class="far fa-clone" title="Copy to Clipboard"></span></button>
+    <textarea class="jvm-argument-info" #jvmArgumentInfo readonly>{{getJVMArgumentInfoInView()}}</textarea>
+</div>
+<ng-container *ngIf="showCopiedNoti">
+    <div class="copied-noti-text-wrapper" @showHide><p class="copied-noti-text">Copied!</p></div>
+</ng-container>

@@ -2,7 +2,7 @@
     <pp-transaction-short-info-container></pp-transaction-short-info-container>
     <div class="l-middle-tool-box">
         <pp-transaction-detail-menu-container></pp-transaction-detail-menu-container>
-        <pp-transaction-search-container [hidden]="!isCallTreeView()"></pp-transaction-search-container>
+        <pp-transaction-search-container [hidden]="!useSearch()"></pp-transaction-search-container>
         <div>
             <button class="fas fa-external-link-alt l-middle-tool-box-tip" (click)="onOpenTransactionDetailPage()"></button>
             &nbsp;
@@ -11,10 +11,17 @@
     </div>
     <div class="l-component-wrapper">
         <pp-call-tree-container></pp-call-tree-container>
-        <pp-server-map-for-transaction-list-container style="height: calc(100% - 84px)"
-            [hidden]="isSameType('serverMap') === false"
-        ></pp-server-map-for-transaction-list-container>
-        <pp-transaction-timeline-container></pp-transaction-timeline-container>    
+        <ng-container [ngSwitch]="activeView">
+            <ng-container *ngSwitchCase="'serverMap'">
+                <pp-server-map-others-container
+                    [sourceType]="'TRANSACTION_LIST'"
+                    style="height: calc(100% - 84px)">
+                </pp-server-map-others-container>
+            </ng-container>
+            <ng-container *ngSwitchCase="'timeline'">
+                <pp-transaction-timeline-container></pp-transaction-timeline-container>    
+            </ng-container>
+        </ng-container>
     </div>
     <pp-film-for-disable *ngIf="useDisable" [zIndex]="9" [marginWidth]="0"></pp-film-for-disable>    
     <pp-loading [showLoading]="showLoading" [zIndex]="10"></pp-loading>

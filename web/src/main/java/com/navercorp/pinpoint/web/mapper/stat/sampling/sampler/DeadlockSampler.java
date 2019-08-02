@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.web.mapper.stat.sampling.sampler;
 
-import com.navercorp.pinpoint.common.server.bo.stat.DeadlockBo;
+import com.navercorp.pinpoint.common.server.bo.stat.DeadlockThreadCountBo;
 import com.navercorp.pinpoint.web.vo.stat.SampledDeadlock;
 import com.navercorp.pinpoint.web.vo.stat.chart.DownSampler;
 import com.navercorp.pinpoint.web.vo.stat.chart.DownSamplers;
@@ -30,13 +30,13 @@ import java.util.List;
  * @author Taejin Koo
  */
 @Component
-public class DeadlockSampler implements AgentStatSampler<DeadlockBo, SampledDeadlock> {
+public class DeadlockSampler implements AgentStatSampler<DeadlockThreadCountBo, SampledDeadlock> {
 
     private static final DownSampler<Integer> INTEGER_DOWN_SAMPLER = DownSamplers.getIntegerDownSampler(SampledDeadlock.UNCOLLECTED_COUNT);
 
     @Override
-    public SampledDeadlock sampleDataPoints(int index, long timestamp, List<DeadlockBo> deadlockBoList, DeadlockBo previousDataPoint) {
-        List<Integer> deadlockedThreadCountList = filter(deadlockBoList);
+    public SampledDeadlock sampleDataPoints(int index, long timestamp, List<DeadlockThreadCountBo> deadlockThreadCountBoList, DeadlockThreadCountBo previousDataPoint) {
+        List<Integer> deadlockedThreadCountList = filter(deadlockThreadCountBoList);
 
         AgentStatPoint<Integer> point = createPoint(timestamp, deadlockedThreadCountList);
         SampledDeadlock sampledDeadlock = new SampledDeadlock(point);
@@ -44,11 +44,11 @@ public class DeadlockSampler implements AgentStatSampler<DeadlockBo, SampledDead
         return sampledDeadlock;
     }
 
-    public List<Integer> filter(List<DeadlockBo> deadlockBoList) {
-        List<Integer> deadlockedThreadCountList = new ArrayList<>(deadlockBoList.size());
+    public List<Integer> filter(List<DeadlockThreadCountBo> deadlockThreadCountBoList) {
+        List<Integer> deadlockedThreadCountList = new ArrayList<>(deadlockThreadCountBoList.size());
 
-        for (DeadlockBo deadlockBo : deadlockBoList) {
-            deadlockedThreadCountList.add(deadlockBo.getDeadlockedThreadCount());
+        for (DeadlockThreadCountBo deadlockThreadCountBo : deadlockThreadCountBoList) {
+            deadlockedThreadCountList.add(deadlockThreadCountBo.getDeadlockedThreadCount());
         }
         return deadlockedThreadCountList;
     }

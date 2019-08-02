@@ -21,12 +21,14 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
  */
 public class MongoConfig{
 
-    private boolean enable;
-    private boolean collectJson;
+    private final boolean enable;
+    private final boolean collectJson;
+    private final boolean traceBsonBindValue;
 
     public MongoConfig(ProfilerConfig config) {
         this.enable = config.readBoolean("profiler.mongo", false);
-        this.collectJson = config.readBoolean("profiler.mongo.collectJson", false);
+        this.collectJson = config.readBoolean("profiler.mongo.collectjson", false);
+        this.traceBsonBindValue = config.readBoolean("profiler.mongo.tracebsonbindvalue", false);
     }
 
     public boolean isEnable() {
@@ -37,12 +39,17 @@ public class MongoConfig{
         return collectJson;
     }
 
+    public boolean istraceBsonBindValue() {
+        return traceBsonBindValue;
+    }
+
     @Override
     public String toString() {
         return "MongoConfig{" +
                 "enable=" + enable +
+                ", collectJson=" + collectJson +
+                ", traceBsonBindValue=" + traceBsonBindValue +
                 '}';
     }
-
 }
 

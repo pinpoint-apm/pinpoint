@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.collector.dao.hbase.statistics;
 
+import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
+
 import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Increment;
@@ -36,6 +38,10 @@ import java.util.Map;
 public class RowKeyMerge {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final byte[] family;
+
+    public RowKeyMerge(HbaseColumnFamily columnFamily) {
+        this(columnFamily.getName());
+    }
 
     public RowKeyMerge(byte[] family) {
         if (family == null) {

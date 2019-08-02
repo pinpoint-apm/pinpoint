@@ -55,10 +55,20 @@ Please remember to run the command `mvn clean verify -DskipTests=true` if you've
 ### How to set java runtime option when using atlassian OSGi
 `-Datlassian.org.osgi.framework.bootdelegation=sun.,com.sun.,com.navercorp.*,org.apache.xerces.*`
 
-### Why do I see UI send requests to http://www.google-analytics.com/collect?
+### Why do I see UI send requests to https://www.google-analytics.com/collect?
 Pinpoint Web module has google analytics attached which tracks the number and the order of button clicks in the Server Map, Transaction List, and the Inspector View.  
 This data is used to better understand how users interact with the Web UI which gives us valuable information on improving Pinpoint Web's user experience. To disable this for any reason, set following option to false in pinpoint-web.properties for your web instance.
 ```
 config.sendUsage=false
 ```
+
+### I'd like to use Hbase 2.x for Pinpoint.
+If you'd like to use Hbase 2.x for Pinpoint database, check out [Hbase upgrade guide](https://naver.github.io/pinpoint/plugindevguide.html).
+
+
+### What can I do if I don't wan't to use gojs
+In our next version of Pinpoint-Web, you can choose between visjs or gojs.
+The [source code](https://github.com/naver/pinpoint/blob/master/web/src/main/webapp/v2/src/app/app.module.ts) of this option and
+[the guide](https://naver.github.io/pinpoint/ui_v2.html)
+
 

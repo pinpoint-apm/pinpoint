@@ -40,4 +40,12 @@ public class SpringBootConfiguration {
     public List<String> getSpringBootBootstrapMains() {
         return springBootBootstrapMains;
     }
+
+    @Override
+    public String toString() {
+        return "SpringBootConfiguration{" +
+                "springBootEnabled=" + springBootEnabled +
+                ", springBootBootstrapMains=" + springBootBootstrapMains +
+                '}';
+    }
 }

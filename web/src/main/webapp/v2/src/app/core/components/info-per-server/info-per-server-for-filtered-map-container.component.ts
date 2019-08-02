@@ -10,7 +10,6 @@ import {
     TRACKED_EVENT_LIST
 } from 'app/shared/services';
 import { Actions } from 'app/shared/store';
-import { UrlPath, UrlPathId } from 'app/shared/models';
 import { ServerMapData } from 'app/core/components/server-map/class/server-map-data.class';
 
 @Component({
@@ -24,10 +23,10 @@ import { ServerMapData } from 'app/core/components/server-map/class/server-map-d
                 left: '0px'
             })),
             state('end', style({
-                left: '-809px'
+                left: '-825px'
             })),
             transition('* => *', [
-                animate('0.2s 0.5s ease-out')
+                animate('0.2s 0s ease-out')
             ])
         ]),
         trigger('chartAnimationTrigger', [
@@ -35,7 +34,7 @@ import { ServerMapData } from 'app/core/components/server-map/class/server-map-d
                 left: '0px'
             })),
             state('end', style({
-                left: '-461px'
+                left: '-477px'
             })),
             transition('* => *', [
                 animate('0.2s 0s ease-out')
@@ -54,7 +53,6 @@ export class InfoPerServerForFilteredMapContainerComponent implements OnInit, On
     constructor(
         private changeDetector: ChangeDetectorRef,
         private storeHelperService: StoreHelperService,
-        private newUrlStateNotificationService: NewUrlStateNotificationService,
         private urlRouteManagerService: UrlRouteManagerService,
         private analyticsService: AnalyticsService,
     ) {}
@@ -68,6 +66,7 @@ export class InfoPerServerForFilteredMapContainerComponent implements OnInit, On
     private connectStore(): void {
         this.storeHelperService.getServerMapTargetSelected(this.unsubscribe).subscribe((target: ISelectedTarget) => {
             this.selectedTarget = target;
+            this.selectedAgent = '';
         });
         this.storeHelperService.getServerMapData(this.unsubscribe).subscribe((serverMapData: ServerMapData) => {
             this.serverMapData = serverMapData;
@@ -85,7 +84,7 @@ export class InfoPerServerForFilteredMapContainerComponent implements OnInit, On
                     };
                     this.changeDetector.detectChanges();
                     this.storeHelperService.dispatch(new Actions.UpdateServerList(this.agentHistogramData));
-                    this.onSelectAgent(this.getFirstAgent());
+                    this.onSelectAgent(this.selectedAgent ? this.selectedAgent : this.getFirstAgent());
                     this.storeHelperService.dispatch(new Actions.ChangeInfoPerServerVisibleState(true));
                 } else {
                     this.hide();
@@ -122,12 +121,6 @@ export class InfoPerServerForFilteredMapContainerComponent implements OnInit, On
     }
     onOpenInspector(agentName: string): void {
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.OPEN_INSPECTOR_WITH_AGENT);
-        this.urlRouteManagerService.openPage([
-            UrlPath.INSPECTOR,
-            this.newUrlStateNotificationService.getPathValue(UrlPathId.APPLICATION).getUrlStr(),
-            this.newUrlStateNotificationService.getPathValue(UrlPathId.PERIOD).getValueWithTime(),
-            this.newUrlStateNotificationService.getPathValue(UrlPathId.END_TIME).getEndTime(),
-            agentName
-        ]);
+        this.urlRouteManagerService.openInspectorPage(false, agentName);
     }
 }

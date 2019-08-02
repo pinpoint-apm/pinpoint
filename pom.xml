@@ -23,7 +23,7 @@
     </organization>
     <groupId>com.navercorp.pinpoint</groupId>
     <artifactId>pinpoint</artifactId>
-    <version>1.8.1-SNAPSHOT</version>
+    <version>1.9.0-SNAPSHOT</version>
     <name>pinpoint</name>
     <packaging>pom</packaging>
 
@@ -66,9 +66,12 @@
         <module>annotations</module>
         <module>agent</module>
         <module>agent-it</module>
-        <module>bootstrap-core</module>
-        <module>bootstrap-core-optional</module>
+        <module>agent-it8</module>
+        <module>agent-plugins</module>
         <module>bootstrap</module>
+        <module>bootstrap-core</module>
+        <module>bootstrap-java7</module>
+        <module>bootstrap-java8</module>
         <module>bootstrap-java9</module>
         <module>collector</module>
         <module>commons</module>
@@ -76,6 +79,7 @@
         <module>commons-server</module>
         <module>tools</module>
         <module>plugins</module>
+        <module>plugins-loader</module>
         <module>profiler</module>
         <module>profiler-optional</module>
         <module>profiler-test</module>
@@ -94,20 +98,23 @@
         <jdk.home>${env.JAVA_6_HOME}</jdk.home>
         <test.jdk.home>${jdk.home}</test.jdk.home>
 
+        <!-- hbase -->
+        <hbase.shaded.client.version>1.2.6.1</hbase.shaded.client.version>
+
         <!-- library -->
         <slf4j.version>1.7.21</slf4j.version>
         <metrics.version>3.1.2</metrics.version>
 
         <!-- jdk 6 compatibility version -->
         <fastxml.jackson-jdk6.version>2.6.6</fastxml.jackson-jdk6.version>
-        <fastxml.jackson.version>2.9.7</fastxml.jackson.version>
+        <fastxml.jackson.version>2.9.8</fastxml.jackson.version>
 
         <httpcomponents.version>4.5.6</httpcomponents.version>
         <httpcomponents-core.version>4.4.10</httpcomponents-core.version>
         <spring.version>4.3.20.RELEASE</spring.version>
         <spring.batch.version>3.0.9.RELEASE</spring.batch.version>
         <spring.security.version>4.2.8.RELEASE</spring.security.version>
-        <asm.version>6.2.1</asm.version>
+        <asm.version>7.1</asm.version>
         <thrift.version>0.11.0</thrift.version>
         <ehcache.version>2.6.11</ehcache.version>
 
@@ -117,17 +124,18 @@
         <plugin.surefire.version>2.22.0</plugin.surefire.version>
         <plugin.failsafe.version>2.22.0</plugin.failsafe.version>
         <plugin.shade.version>3.1.1</plugin.shade.version>
-        <plugin.assembly.version>3.1.0</plugin.assembly.version>
+        <plugin.assembly.version>3.1.1</plugin.assembly.version>
         <plugin.war.version>3.2.2</plugin.war.version>
         <plugin.jar.version>3.1.0</plugin.jar.version>
+        <plugin.antrun.version>1.8</plugin.antrun.version>
 
         <!--<plugin.clover.verison>4.3.0</plugin.clover.verison>-->
         <plugin.clover.version>4.2.1</plugin.clover.version>
-        <plugin.spotbugs.version>3.1.7</plugin.spotbugs.version>
-        <plugin.pmd.version>3.9.0</plugin.pmd.version>
+        <plugin.spotbugs.version>3.1.12</plugin.spotbugs.version>
+        <plugin.pmd.version>3.12.0</plugin.pmd.version>
 
         <plugin.enforcer.version>3.0.0-M2</plugin.enforcer.version>
-        <plugin.animal-sniffer.version>1.16</plugin.animal-sniffer.version>
+        <plugin.animal-sniffer.version>1.17</plugin.animal-sniffer.version>
 
         <sniffer.artifactid>java16</sniffer.artifactid>
     </properties>
@@ -189,17 +197,22 @@
             </dependency>
             <dependency>
                 <groupId>com.navercorp.pinpoint</groupId>
+                <artifactId>pinpoint-bootstrap</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.navercorp.pinpoint</groupId>
                 <artifactId>pinpoint-bootstrap-core</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.navercorp.pinpoint</groupId>
-                <artifactId>pinpoint-bootstrap-core-optional</artifactId>
+                <artifactId>pinpoint-bootstrap-java7</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.navercorp.pinpoint</groupId>
-                <artifactId>pinpoint-bootstrap</artifactId>
+                <artifactId>pinpoint-bootstrap-java8</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -225,6 +238,18 @@
             </dependency>
             <dependency>
                 <groupId>com.navercorp.pinpoint</groupId>
+                <artifactId>pinpoint-agent-plugins</artifactId>
+                <type>pom</type>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.navercorp.pinpoint</groupId>
+                <artifactId>pinpoint-agent-plugins</artifactId>
+                <type>zip</type>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.navercorp.pinpoint</groupId>
                 <artifactId>pinpoint-collector</artifactId>
                 <type>war</type>
                 <version>${project.version}</version>
@@ -255,8 +280,13 @@
             </dependency>
             <dependency>
                 <groupId>com.navercorp.pinpoint</groupId>
-                <artifactId>pinpoint-plugins</artifactId>
-                <type>zip</type>
+                <artifactId>pinpoint-plugins-loader</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.navercorp.pinpoint</groupId>
+                <artifactId>pinpoint-plugins-assembly</artifactId>
+                <type>pom</type>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -393,7 +423,7 @@
             <dependency>
                 <groupId>org.apache.hbase</groupId>
                 <artifactId>hbase-shaded-client</artifactId>
-                <version>1.2.7</version>
+                <version>${hbase.shaded.client.version}</version>
             </dependency>
 
             <dependency>
@@ -628,11 +658,27 @@
                 </exclusions>
             </dependency>
 
+            <dependency>
+                <groupId>org.apache.curator</groupId>
+                <artifactId>curator-framework</artifactId>
+                <version>4.0.1</version>
+                <exclusions>
+                    <exclusion>
+                        <artifactId>zookeeper</artifactId>
+                        <groupId>org.apache.zookeeper</groupId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.apache.curator</groupId>
+                        <artifactId>curator-test</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
             <!-- for zookeeper test -->
             <dependency>
                 <groupId>org.apache.curator</groupId>
                 <artifactId>curator-test</artifactId>
-                <version>2.6.0</version>
+                <version>2.12.0</version>
                 <exclusions>
                     <exclusion>
                         <artifactId>zookeeper</artifactId>
@@ -720,6 +766,16 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-jar-plugin</artifactId>
                     <version>${plugin.jar.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-assembly-plugin</artifactId>
+                    <version>${plugin.assembly.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-antrun-plugin</artifactId>
+                    <version>${plugin.antrun.version}</version>
                 </plugin>
             </plugins>
         </pluginManagement>
@@ -856,6 +912,7 @@
                         <exclude>com/navercorp/pinpoint/common/util/apache/**/*.java</exclude>
                         <exclude>com/navercorp/pinpoint/common/util/jsr166/**/*.java</exclude>
                         <exclude>com/navercorp/pinpoint/profiler/util/jdk/**/*.java</exclude>
+                        <exclude>com/navercorp/pinpoint/grpc/trace/**/*.java</exclude>
                     </excludes>
                 </configuration>
             </plugin>
@@ -999,6 +1056,14 @@
     </reporting>
 
     <profiles>
+        <!-- for Hbase2 -->
+        <profile>
+            <id>hbase2</id>
+            <properties>
+                <hbase.shaded.client.version>2.1.1</hbase.shaded.client.version>
+            </properties>
+        </profile>
+
         <!-- for Local (Development) -->
         <profile>
             <id>local</id>

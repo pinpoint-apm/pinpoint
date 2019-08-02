@@ -19,9 +19,8 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.navercorp.pinpoint</groupId>
-        <artifactId>pinpoint</artifactId>
-        <relativePath>../..</relativePath>
-        <version>1.8.1-SNAPSHOT</version>
+        <artifactId>pinpoint-plugins</artifactId>
+        <version>1.9.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>pinpoint-tomcat-plugin</artifactId>
@@ -31,18 +30,6 @@
     <properties>
         <test.jdk.home>${env.JAVA_7_HOME}</test.jdk.home>
     </properties>
-
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>com.navercorp.pinpoint</groupId>
-                <artifactId>pinpoint-plugin-bom</artifactId>
-                <version>${project.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
 
     <dependencies>
         <dependency>
@@ -75,6 +62,12 @@
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-common-servlet</artifactId>
+            <version>${project.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-jboss-plugin</artifactId>
             <version>${project.version}</version>
             <scope>compile</scope>
         </dependency>
@@ -120,6 +113,15 @@
                                 <relocation>
                                     <pattern>com.navercorp.pinpoint.plugin.common.servlet</pattern>
                                     <shadedPattern>com.navercorp.pinpoint.plugin.tomcat.common.servlet</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>com.navercorp.pinpoint.plugin.spring.boot</pattern>
+                                    <shadedPattern>com.navercorp.pinpoint.plugin.tomcat.spring.boot</shadedPattern>
+                                    <includes>
+                                        <include>com.navercorp.pinpoint.plugin.spring.boot.SpringBootConfiguration</include>
+                                        <include>com.navercorp.pinpoint.plugin.spring.boot.SpringBootConstants</include>
+                                        <include>com.navercorp.pinpoint.plugin.spring.boot.SpringBootDetector</include>
+                                    </includes>
                                 </relocation>
                             </relocations>
                             <dependencyReducedPomLocation>

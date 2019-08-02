@@ -17,8 +17,8 @@
 
 package com.navercorp.pinpoint.test.classloader;
 
+import com.navercorp.pinpoint.common.util.IOUtils;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
-import com.navercorp.pinpoint.test.util.BytecodeUtils;
 
 import java.io.InputStream;
 import java.security.ProtectionDomain;
@@ -183,12 +183,12 @@ public class TransformClassLoader extends ClassLoader {
                     return null;
                 }
             } else {
-                String jarname = "/" + JavaAssistUtils.javaNameToJvmName(name) + ".class";
+                String jarname = "/" + JavaAssistUtils.javaClassNameToJvmResourceName(name);
                 InputStream in = this.getClass().getClassLoader().getResourceAsStream(jarname);
                 if (in == null) {
                     return null;
                 }
-                classfile = BytecodeUtils.readClass(in, true);
+                classfile = IOUtils.toByteArray(in);
             }
         } catch (Exception e) {
             throw new ClassNotFoundException("caught an exception while obtaining a class file for " + name, e);

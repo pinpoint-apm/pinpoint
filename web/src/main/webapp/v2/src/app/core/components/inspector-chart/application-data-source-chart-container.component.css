@@ -1,11 +1,5 @@
 :host {
     display: block;
-    width: calc(50% - 20px);
-    margin: 10px;
-}
-.l-content-item {
-    width: 100%;
-    margin: 0px;
 }
 .l-title-group {
     height:34px;
@@ -22,4 +16,8 @@
     font-size: 18px;
     color:#a8acb5;
     cursor:pointer;
+}
+.l-chart-area-wrapper {
+    position: relative;
+    width: 100%;
 }

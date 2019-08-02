@@ -1,6 +1,8 @@
 import { Component, OnInit, OnChanges, SimpleChanges, Input, Output, EventEmitter, AfterViewChecked, ViewChild, ElementRef } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 
+import { CustomFormValidatorService } from 'app/shared/services/custom-form-validator.service';
+
 export class PinpointUser {
     constructor(
         public userId: string,
@@ -10,7 +12,6 @@ export class PinpointUser {
         public department?: string
     ) {}
 }
-
 @Component({
     selector: 'pp-pinpoint-user-create-and-update',
     templateUrl: './pinpoint-user-create-and-update.component.html',
@@ -20,7 +21,7 @@ export class PinpointUserCreateAndUpdateComponent implements OnInit, OnChanges, 
     @ViewChild('newUserGroupName') userGroupInput: ElementRef;
     @Input() showCreate = false;
     @Input() i18nLabel: any;
-    @Input() i18nGuide: any;
+    @Input() i18nGuide: { [key: string]: IFormFieldErrorType };
     @Input() minLength: any;
     @Input() editPinpointUser: PinpointUser = null;
     @Output() outUpdatePinpointUser: EventEmitter<PinpointUser> = new EventEmitter();
@@ -34,21 +35,23 @@ export class PinpointUserCreateAndUpdateComponent implements OnInit, OnChanges, 
         this.pinpointUserForm = new FormGroup({
             'userId': new FormControl(this.newUserModel.userId, [
                 Validators.required,
-                Validators.minLength(this.minLength.userId)
+                CustomFormValidatorService.validate(/^[a-z0-9-\_\-]{4,24}$/)
             ]),
             'name': new FormControl(this.newUserModel.name, [
                 Validators.required,
-                Validators.minLength(this.minLength.name)
+                CustomFormValidatorService.validate(/^[\w\-\.ㄱ-ㅎ|ㅏ-ㅣ|가-힣]{1,30}$/)
             ]),
             'phoneNumber': new FormControl(this.newUserModel.phoneNumber, [
-                Validators.required,
-                Validators.pattern(/\d*/)
+                CustomFormValidatorService.validate(/^[\d]{3,24}$/)
             ]),
             'email': new FormControl(this.newUserModel.email, [
-                Validators.required,
-                Validators.email
+                Validators.minLength(3),
+                Validators.maxLength(60),
+                CustomFormValidatorService.validate(/^[A-Za-z0-9\.\_\-]+@[A-Za-z0-9\.\-]+\.[A-Za-z]+$/)
             ]),
-            'department': new FormControl(this.newUserModel.department, [])
+            'department': new FormControl(this.newUserModel.department, [
+                CustomFormValidatorService.validate(/^[\w\.\-ㄱ-ㅎ|ㅏ-ㅣ|가-힣]{3,40}$/)
+            ])
         });
     }
     ngOnChanges(changes: SimpleChanges) {
@@ -64,11 +67,11 @@ export class PinpointUserCreateAndUpdateComponent implements OnInit, OnChanges, 
     ngAfterViewChecked() {}
     onCreateOrUpdate(): void {
         const pinpointUser = new PinpointUser(
-            this.pinpointUserForm.get('userId').value,
-            this.pinpointUserForm.get('name').value,
-            this.pinpointUserForm.get('phoneNumber').value,
-            this.pinpointUserForm.get('email').value.toString(),
-            this.pinpointUserForm.get('department').value
+            (this.pinpointUserForm.get('userId').value || '').trim(),
+            (this.pinpointUserForm.get('name').value || '').trim(),
+            (this.pinpointUserForm.get('phoneNumber').value || '').trim(),
+            (this.pinpointUserForm.get('email').value || '').trim(),
+            (this.pinpointUserForm.get('department').value || '').trim()
         );
         if (this.editPinpointUser) {
             this.outUpdatePinpointUser.emit(pinpointUser);

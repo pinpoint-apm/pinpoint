@@ -61,7 +61,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.scope.ScopedInterceptor4;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.ScopedInterceptor5;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.ScopedStaticAroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
-import com.navercorp.pinpoint.bootstrap.plugin.ObjectFactory;
+import com.navercorp.pinpoint.bootstrap.plugin.RequestRecorderFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.monitor.DataSourceMonitorRegistry;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.instrument.ScopeInfo;
@@ -80,43 +80,51 @@ public class AnnotatedInterceptorFactory implements InterceptorFactory {
     private final ApiMetaDataService apiMetaDataService;
     private final InstrumentContext pluginContext;
     private final ExceptionHandlerFactory exceptionHandlerFactory;
+    private final RequestRecorderFactory requestRecorderFactory;
 
     public AnnotatedInterceptorFactory(ProfilerConfig profilerConfig,
                                        TraceContext traceContext,
                                        DataSourceMonitorRegistry dataSourceMonitorRegistry,
                                        ApiMetaDataService apiMetaDataService,
                                        InstrumentContext pluginContext,
-                                       ExceptionHandlerFactory exceptionHandlerFactory) {
+                                       ExceptionHandlerFactory exceptionHandlerFactory,
+                                       RequestRecorderFactory requestRecorderFactory) {
         this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig must not be null");
         this.traceContext = Assert.requireNonNull(traceContext, "traceContext must not be null");
         this.dataSourceMonitorRegistry = Assert.requireNonNull(dataSourceMonitorRegistry, "dataSourceMonitorRegistry must not be null");
         this.apiMetaDataService = Assert.requireNonNull(apiMetaDataService, "apiMetaDataService must not be null");
         this.pluginContext = Assert.requireNonNull(pluginContext, "pluginContext must not be null");
         this.exceptionHandlerFactory = Assert.requireNonNull(exceptionHandlerFactory, "exceptionHandlerFactory must not be null");
+        this.requestRecorderFactory = Assert.requireNonNull(requestRecorderFactory, "requestRecorderFactory must not be null");
     }
 
     @Override
-    public Interceptor getInterceptor(ClassLoader classLoader, String interceptorClassName, Object[] providedArguments, ScopeInfo scopeInfo, InstrumentClass target, InstrumentMethod targetMethod) {
+    public Interceptor newInterceptor(Class<?> interceptorClass, Object[] providedArguments, ScopeInfo scopeInfo, InstrumentClass target, InstrumentMethod targetMethod) {
+        Assert.requireNonNull(interceptorClass, "interceptorClass must not be null");
+        Assert.requireNonNull(scopeInfo, "scopeInfo must not be null");
 
-        AutoBindingObjectFactory factory = new AutoBindingObjectFactory(profilerConfig, traceContext, pluginContext, classLoader);
-        ObjectFactory objectFactory = ObjectFactory.byConstructor(interceptorClassName, providedArguments);
         final InterceptorScope interceptorScope = scopeInfo.getInterceptorScope();
-        InterceptorArgumentProvider interceptorArgumentProvider = new InterceptorArgumentProvider(dataSourceMonitorRegistry, apiMetaDataService, scopeInfo.getInterceptorScope(), target, targetMethod);
+        InterceptorArgumentProvider interceptorArgumentProvider = new InterceptorArgumentProvider(dataSourceMonitorRegistry, apiMetaDataService, requestRecorderFactory, interceptorScope, target, targetMethod);
 
-        Interceptor interceptor = (Interceptor) factory.createInstance(objectFactory, interceptorArgumentProvider);
+        AutoBindingObjectFactory factory = new AutoBindingObjectFactory(profilerConfig, traceContext, pluginContext, interceptorClass.getClassLoader());
+        Interceptor interceptor = (Interceptor) factory.createInstance(interceptorClass, providedArguments, interceptorArgumentProvider);
 
+        return wrap(interceptor, scopeInfo, interceptorScope);
+    }
+
+    private Interceptor wrap(Interceptor interceptor, ScopeInfo scopeInfo, InterceptorScope interceptorScope) {
         if (interceptorScope != null) {
+            final ExecutionPolicy executionPolicy = getExecutionPolicy(scopeInfo.getExecutionPolicy());
             if (exceptionHandlerFactory.isHandleException()) {
-                interceptor = wrapByExceptionHandleScope(interceptor, interceptorScope, getExecutionPolicy(scopeInfo.getExecutionPolicy()));
+                return wrapByExceptionHandleScope(interceptor, interceptorScope, executionPolicy);
             } else {
-                interceptor = wrapByScope(interceptor, interceptorScope, getExecutionPolicy(scopeInfo.getExecutionPolicy()));
+                return wrapByScope(interceptor, interceptorScope, executionPolicy);
             }
         } else {
             if (exceptionHandlerFactory.isHandleException()) {
-                interceptor = wrapByExceptionHandle(interceptor);
+                return wrapByExceptionHandle(interceptor);
             }
         }
-
         return interceptor;
     }
 

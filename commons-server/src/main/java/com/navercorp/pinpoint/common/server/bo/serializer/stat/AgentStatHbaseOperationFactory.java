@@ -16,9 +16,11 @@
 
 package com.navercorp.pinpoint.common.server.bo.serializer.stat;
 
+import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.server.bo.serializer.HbaseSerializer;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatDataPoint;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatType;
+
 import com.sematext.hbase.wd.AbstractRowKeyDistributor;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.hadoop.hbase.client.Put;
@@ -33,8 +35,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-
-import static com.navercorp.pinpoint.common.hbase.HBaseTables.AGENT_STAT_TIMESPAN_MS;
 
 /**
  * @author HyunGil Jeong
@@ -84,7 +84,7 @@ public class AgentStatHbaseOperationFactory {
 
     public Scan createScan(String agentId, AgentStatType agentStatType, long startTimestamp, long endTimestamp) {
         final AgentStatRowKeyComponent startRowKeyComponent = new AgentStatRowKeyComponent(agentId, agentStatType, AgentStatUtils.getBaseTimestamp(endTimestamp));
-        final AgentStatRowKeyComponent endRowKeyComponenet = new AgentStatRowKeyComponent(agentId, agentStatType, AgentStatUtils.getBaseTimestamp(startTimestamp) - AGENT_STAT_TIMESPAN_MS);
+        final AgentStatRowKeyComponent endRowKeyComponenet = new AgentStatRowKeyComponent(agentId, agentStatType, AgentStatUtils.getBaseTimestamp(startTimestamp) - HbaseColumnFamily.AGENT_STAT_STATISTICS.TIMESPAN_MS);
         byte[] startRowKey = this.rowKeyEncoder.encodeRowKey(startRowKeyComponent);
         byte[] endRowKey = this.rowKeyEncoder.encodeRowKey(endRowKeyComponenet);
         return new Scan(startRowKey, endRowKey);

@@ -25,27 +25,30 @@ import com.navercorp.pinpoint.common.util.Assert;
  * @author jaehong.kim
  */
 @InterfaceStability.Unstable
-public class MatchableTransformTemplate implements TransformOperations {
-    private final InstrumentContext instrumentContext;
+public class MatchableTransformTemplate extends TransformTemplate {
 
     public MatchableTransformTemplate(InstrumentContext instrumentContext) {
-        if (instrumentContext == null) {
-            throw new NullPointerException("instrumentContext must not be null");
-        }
-        this.instrumentContext = instrumentContext;
+        super(instrumentContext);
     }
 
-    @Override
-    public void transform(String className, TransformCallback transformCallback) {
-        Assert.requireNonNull(className, "className must not be null");
-        Assert.requireNonNull(transformCallback, "transformCallback must not be null");
-        final Matcher matcher = Matchers.newClassNameMatcher(className);
-        this.instrumentContext.addClassFileTransformer(matcher, transformCallback);
-    }
 
     public void transform(final Matcher matcher, TransformCallback transformCallback) {
         Assert.requireNonNull(matcher, "matcher must not be null");
         Assert.requireNonNull(transformCallback, "transformCallback must not be null");
-        this.instrumentContext.addClassFileTransformer(matcher, transformCallback);
+        final InstrumentContext instrumentContext = getInstrumentContext();
+        instrumentContext.addClassFileTransformer(matcher, transformCallback);
     }
+
+    public void transform(final Matcher matcher, Class<? extends TransformCallback> transformCallbackClass) {
+        Assert.requireNonNull(matcher, "matcher must not be null");
+        Assert.requireNonNull(transformCallbackClass, "transformCallbackClass must not be null");
+
+        TransformCallbackChecker.validate(transformCallbackClass);
+
+        // release class reference
+        final String transformCallbackName = transformCallbackClass.getName();
+        final InstrumentContext instrumentContext = getInstrumentContext();
+        instrumentContext.addClassFileTransformer(matcher, transformCallbackName);
+    }
+
 }

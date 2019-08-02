@@ -16,15 +16,17 @@
 
 package com.navercorp.pinpoint.bootstrap.module;
 
-import java.lang.instrument.Instrumentation;
-
 /**
  * @author Woonduk Kang(emeroad)
  */
 public interface JavaModuleFactory {
-    JavaModule wrapFromClass(Instrumentation instrumentation, Class clazz);
+    JavaModule wrapFromClass(Class<?> clazz);
 
-    JavaModule wrapFromModule(Instrumentation instrumentation, Object module);
+    JavaModule wrapFromModule(Object module);
 
     boolean isNamedModule(Object module);
+
+    Object getUnnamedModule(ClassLoader classLoader);
+
+    Object getModule(Class<?> clazz);
 }

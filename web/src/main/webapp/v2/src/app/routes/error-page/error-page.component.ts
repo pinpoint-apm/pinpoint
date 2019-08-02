@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 
-import { SystemConfigurationDataService, ServerTimeDataService, UrlRouteManagerService } from 'app/shared/services';
-import { ApplicationListDataService } from 'app/core/components/application-list/application-list-data.service';
+import { SystemConfigurationDataService, ServerTimeDataService, UrlRouteManagerService, ApplicationListDataService } from 'app/shared/services';
+
 @Component({
     templateUrl: './error-page.component.html',
     styleUrls: ['./error-page.component.css']
@@ -60,7 +60,7 @@ export class ErrorPageComponent implements OnInit {
         });
     }
     private checkApplicationList(type: string): void {
-        this.applicationListDataService.getApplicationList().subscribe((applicatoinList: IApplication[]) => {
+        this.applicationListDataService.getApplicationList().subscribe((applicationList: IApplication[]) => {
             this.setState(type, true, false);
         }, (error: IServerErrorFormat) => {
             this.setState(type, false, false, error.exception.message);

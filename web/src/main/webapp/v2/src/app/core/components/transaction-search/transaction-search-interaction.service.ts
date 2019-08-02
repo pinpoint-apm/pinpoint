@@ -9,24 +9,27 @@ export interface ISearchParam {
 @Injectable()
 export class TransactionSearchInteractionService {
     private search = new Subject<ISearchParam>();
-    private searchResult = new Subject<any>();
+    private searchResultCount = new Subject<number>();
     private moveRow = new Subject<string>();
 
     onSearch$: Observable<ISearchParam>;
-    onSearchResult$: Observable<any>;
+    onSearchResultCount$: Observable<number>;
     onMoveRow$: Observable<string>;
 
     constructor() {
         this.onSearch$ = this.search.asObservable();
-        this.onSearchResult$ = this.searchResult.asObservable();
+        this.onSearchResultCount$ = this.searchResultCount.asObservable();
         this.onMoveRow$ = this.moveRow.asObservable();
     }
+
     setSearchParmas(params: ISearchParam): void {
         this.search.next(params);
     }
-    setSearchResult(result: any): void {
-        this.searchResult.next(result);
+
+    setSearchResultCount(count: number): void {
+        this.searchResultCount.next(count);
     }
+
     setRow(id: string): void {
         this.moveRow.next(id);
     }

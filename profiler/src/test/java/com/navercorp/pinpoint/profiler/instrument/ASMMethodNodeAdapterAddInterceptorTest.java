@@ -306,7 +306,7 @@ public class ASMMethodNodeAdapterAddInterceptorTest {
                 }
             } catch (Throwable t) {
                 if (!throwable) {
-                    throw new RuntimeException(t.getMessage());
+                    throw new RuntimeException(t.getMessage(), t);
                 }
             }
         } else {
@@ -318,8 +318,7 @@ public class ASMMethodNodeAdapterAddInterceptorTest {
                 }
             } catch (Throwable t) {
                 if (!throwable) {
-                    t.printStackTrace();
-                    throw new RuntimeException(t.getMessage());
+                    throw new RuntimeException(t.getMessage(), t);
                 }
             }
         }

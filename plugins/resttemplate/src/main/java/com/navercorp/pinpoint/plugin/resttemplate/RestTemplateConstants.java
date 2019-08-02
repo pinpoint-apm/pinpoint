@@ -32,11 +32,4 @@ public final class RestTemplateConstants {
     public static final ServiceType SERVICE_TYPE = ServiceTypeFactory.of(9140, "REST_TEMPLATE");
 
 
-    public static final String INTERCEPTOR_REST_TEMPLATE = "com.navercorp.pinpoint.bootstrap.interceptor.BasicMethodInterceptor";
-
-    public static final String INTERCEPTOR_HTTP_REQUEST = "com.navercorp.pinpoint.plugin.resttemplate.interceptor.HttpRequestInterceptor";
-    public static final String INTERCEPTOR_ASYNC_HTTP_REQUEST = "com.navercorp.pinpoint.plugin.resttemplate.interceptor.AsyncHttpRequestInterceptor";
-
-    public static final String INTERCEPTOR_LISTENABLE_FUTURE = "com.navercorp.pinpoint.plugin.resttemplate.interceptor.ListenableFutureInterceptor";
-
 }

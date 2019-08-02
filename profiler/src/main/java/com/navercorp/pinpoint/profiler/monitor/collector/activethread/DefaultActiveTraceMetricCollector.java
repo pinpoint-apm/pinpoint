@@ -17,18 +17,13 @@
 package com.navercorp.pinpoint.profiler.monitor.collector.activethread;
 
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHistogram;
-import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHistogramUtils;
 import com.navercorp.pinpoint.profiler.monitor.collector.AgentStatMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.metric.activethread.ActiveTraceMetric;
-import com.navercorp.pinpoint.thrift.dto.TActiveTrace;
-import com.navercorp.pinpoint.thrift.dto.TActiveTraceHistogram;
-
-import java.util.List;
 
 /**
  * @author HyunGil Jeong
  */
-public class DefaultActiveTraceMetricCollector implements AgentStatMetricCollector<TActiveTrace> {
+public class DefaultActiveTraceMetricCollector implements AgentStatMetricCollector<ActiveTraceHistogram> {
 
     private final ActiveTraceMetric activeTraceMetric;
 
@@ -40,20 +35,8 @@ public class DefaultActiveTraceMetricCollector implements AgentStatMetricCollect
     }
 
     @Override
-    public TActiveTrace collect() {
+    public ActiveTraceHistogram collect() {
         final ActiveTraceHistogram histogram = activeTraceMetric.activeTraceHistogram();
-
-        final int histogramSchemaTypeCode = histogram.getHistogramSchema().getTypeCode();
-
-        TActiveTraceHistogram tActiveTraceHistogram = new TActiveTraceHistogram();
-        tActiveTraceHistogram.setHistogramSchemaType(histogramSchemaTypeCode);
-
-        final List<Integer> activeTraceCounts = ActiveTraceHistogramUtils.asList(histogram);
-        tActiveTraceHistogram.setActiveTraceCount(activeTraceCounts);
-
-
-        TActiveTrace activeTrace = new TActiveTrace();
-        activeTrace.setHistogram(tActiveTraceHistogram);
-        return activeTrace;
+        return histogram;
     }
 }

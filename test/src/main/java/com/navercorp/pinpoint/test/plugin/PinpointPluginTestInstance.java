@@ -30,6 +30,6 @@ public interface PinpointPluginTestInstance {
     List<String> getAppArgs();
     File getWorkingDirectory();
     
-    Scanner startTest(Process process) throws Throwable;
-    void endTest(Process process) throws Throwable;
+    Scanner startTest() throws Throwable;
+    void endTest() throws Throwable;
 }

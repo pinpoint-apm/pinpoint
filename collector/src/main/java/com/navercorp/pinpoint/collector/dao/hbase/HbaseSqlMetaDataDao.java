@@ -17,12 +17,11 @@
 package com.navercorp.pinpoint.collector.dao.hbase;
 
 import com.navercorp.pinpoint.collector.dao.SqlMetaDataDao;
-import com.navercorp.pinpoint.common.hbase.TableNameProvider;
-import com.navercorp.pinpoint.common.server.bo.SqlMetaDataBo;
-import com.navercorp.pinpoint.common.hbase.HBaseTables;
+import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
-import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
+import com.navercorp.pinpoint.common.server.bo.SqlMetaDataBo;
 
+import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
@@ -36,15 +35,12 @@ import org.springframework.stereotype.Repository;
  * @author minwoo.jung
  */
 @Repository
-public class HbaseSqlMetaDataDao implements SqlMetaDataDao {
+public class HbaseSqlMetaDataDao extends AbstractHbaseDao implements SqlMetaDataDao {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private HbaseOperations2 hbaseTemplate;
-
-    @Autowired
-    private TableNameProvider tableNameProvider;
 
     @Autowired
     @Qualifier("metadataRowKeyDistributor2")
@@ -63,13 +59,19 @@ public class HbaseSqlMetaDataDao implements SqlMetaDataDao {
         final Put put = new Put(rowKey);
         final String sql = sqlMetaData.getSql();
         final byte[] sqlBytes = Bytes.toBytes(sql);
-        put.addColumn(HBaseTables.SQL_METADATA_VER2_CF_SQL, HBaseTables.SQL_METADATA_VER2_CF_SQL_QUALI_SQLSTATEMENT, sqlBytes);
+        put.addColumn(getColumnFamilyName(), getColumnFamily().QUALIFIER_SQLSTATEMENT, sqlBytes);
 
-        final TableName sqlMetaDataTableName = tableNameProvider.getTableName(HBaseTables.SQL_METADATA_VER2_STR);
+        final TableName sqlMetaDataTableName = getTableName();
         hbaseTemplate.put(sqlMetaDataTableName, put);
     }
 
     private byte[] getDistributedKey(byte[] rowKey) {
         return rowKeyDistributorByHashPrefix.getDistributedKey(rowKey);
     }
+
+    @Override
+    public HbaseColumnFamily.SqlMetadataV2 getColumnFamily() {
+        return HbaseColumnFamily.SQL_METADATA_VER2_SQL;
+    }
+
 }

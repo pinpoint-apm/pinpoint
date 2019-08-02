@@ -7,7 +7,7 @@ import { SharedModule } from 'app/shared';
 import { NoticeModule } from 'app/core/components/notice';
 import { ApplicationListModule } from 'app/core/components/application-list';
 import { PeriodSelectorModule } from 'app/core/components/period-selector';
-import { CommandGroupModule } from 'app/core/components/command-group';
+import { ConfigurationIconModule } from 'app/core/components/configuration-icon';
 import { ApplicationInspectorTitleModule } from 'app/core/components/application-inspector-title';
 import { ServerAndAgentListModule } from 'app/core/components/server-and-agent-list';
 import { AgentSearchInputModule } from 'app/core/components/agent-search-input';
@@ -27,7 +27,7 @@ import { HelpViewerPopupModule } from 'app/core/components/help-viewer-popup';
         NoticeModule,
         ApplicationListModule,
         PeriodSelectorModule,
-        CommandGroupModule,
+        ConfigurationIconModule,
         ApplicationInspectorTitleModule,
         ServerAndAgentListModule,
         ApplicationInspectorContentsModule,

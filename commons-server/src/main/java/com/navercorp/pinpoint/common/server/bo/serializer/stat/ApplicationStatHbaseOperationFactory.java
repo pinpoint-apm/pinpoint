@@ -16,10 +16,11 @@
 
 package com.navercorp.pinpoint.common.server.bo.serializer.stat;
 
-import com.navercorp.pinpoint.common.hbase.HBaseTables;
+import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.join.ApplicationStatSerializer;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.StatType;
+
 import com.sematext.hbase.wd.AbstractRowKeyDistributor;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.hadoop.hbase.client.Put;
@@ -29,7 +30,11 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * @author Minwoo Jung
@@ -80,7 +85,7 @@ public class ApplicationStatHbaseOperationFactory {
 
     public Scan createScan(String applicationId, StatType statType, long startTimestamp, long endTimestamp) {
         final ApplicationStatRowKeyComponent startRowKeyComponent = new ApplicationStatRowKeyComponent(applicationId, statType, AgentStatUtils.getBaseTimestamp(endTimestamp));
-        final ApplicationStatRowKeyComponent endRowKeyComponenet = new ApplicationStatRowKeyComponent(applicationId, statType, AgentStatUtils.getBaseTimestamp(startTimestamp) - HBaseTables.APPLICATION_STAT_TIMESPAN_MS);
+        final ApplicationStatRowKeyComponent endRowKeyComponenet = new ApplicationStatRowKeyComponent(applicationId, statType, AgentStatUtils.getBaseTimestamp(startTimestamp) - HbaseColumnFamily.APPLICATION_STAT_STATISTICS.TIMESPAN_MS);
         byte[] startRowKey = this.rowKeyEncoder.encodeRowKey(startRowKeyComponent);
         byte[] endRowKey = this.rowKeyEncoder.encodeRowKey(endRowKeyComponenet);
         return new Scan(startRowKey, endRowKey);

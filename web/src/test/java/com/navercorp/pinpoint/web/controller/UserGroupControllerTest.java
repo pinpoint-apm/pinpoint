@@ -102,7 +102,7 @@ public class UserGroupControllerTest {
     
     @After
     public void after(){
-        userDao.deleteUser(user);
+        userDao.deleteUser(user.getUserId());
         
         //for selectUserGroupByUserId test
         userGroupDao.deleteMember(new UserGroupMember(TEST_USER_GROUP_ID2, TEST_USER_GROUP_MEMBER_ID2));

@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, ChangeDetectorRef, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ComponentFactoryResolver, Injector } from '@angular/core';
 import { combineLatest, of, Subject } from 'rxjs';
 import { takeUntil, filter, delay } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
@@ -10,9 +10,10 @@ import {
     StoreHelperService,
     AnalyticsService,
     TRACKED_EVENT_LIST,
-    DynamicPopupService
+    DynamicPopupService,
+    MessageQueueService,
+    MESSAGE_TO
 } from 'app/shared/services';
-import { Actions } from 'app/shared/store';
 import { UrlPath, UrlPathId } from 'app/shared/models';
 import { EndTime } from 'app/core/models';
 import { ScatterChartDataService } from './scatter-chart-data.service';
@@ -23,8 +24,7 @@ import { HELP_VIEWER_LIST, HelpViewerPopupContainerComponent } from 'app/core/co
 @Component({
     selector: 'pp-scatter-chart-container',
     templateUrl: './scatter-chart-container.component.html',
-    styleUrls: ['./scatter-chart-container.component.css'],
-    changeDetection: ChangeDetectionStrategy.OnPush
+    styleUrls: ['./scatter-chart-container.component.css']
 })
 export class ScatterChartContainerComponent implements OnInit, OnDestroy {
     instanceKey = 'side-bar';
@@ -39,15 +39,6 @@ export class ScatterChartContainerComponent implements OnInit, OnDestroy {
     unsubscribe: Subject<null> = new Subject();
     hideSettingPopup = true;
     selectedAgent: string;
-    typeInfo = [{
-        name: 'failed',
-        color: '#E95459',
-        order: 10
-    }, {
-        name: 'success',
-        color: '#34B994',
-        order: 20
-    }];
     typeCount: object;
     width = 460;
     height = 230;
@@ -61,8 +52,8 @@ export class ScatterChartContainerComponent implements OnInit, OnDestroy {
     scatterChartMode: string;
     timezone: string;
     dateFormat: string[];
+    showBlockMessagePopup = false;
     constructor(
-        private changeDetectorRef: ChangeDetectorRef,
         private storeHelperService: StoreHelperService,
         private translateService: TranslateService,
         private webAppSettingDataService: WebAppSettingDataService,
@@ -71,17 +62,22 @@ export class ScatterChartContainerComponent implements OnInit, OnDestroy {
         private scatterChartDataService: ScatterChartDataService,
         private scatterChartInteractionService: ScatterChartInteractionService,
         private analyticsService: AnalyticsService,
-        private dynamicPopupService: DynamicPopupService
+        private dynamicPopupService: DynamicPopupService,
+        private componentFactoryResolver: ComponentFactoryResolver,
+        private injector: Injector,
+        private messageQueueService: MessageQueueService
     ) {}
     ngOnInit() {
         this.setScatterY();
         combineLatest(
             this.translateService.get('COMMON.NO_DATA'),
-            this.translateService.get('COMMON.FAILED_TO_FETCH_DATA')
+            this.translateService.get('COMMON.FAILED_TO_FETCH_DATA'),
+            this.translateService.get('COMMON.POPUP_BLOCK_MESSAGE')
         ).subscribe((i18n: string[]) => {
             this.i18nText = {
                 NO_DATA: i18n[0],
-                FAILED_TO_FETCH_DATA: i18n[1]
+                FAILED_TO_FETCH_DATA: i18n[1],
+                POPUP_BLOCK_MESSAGE: i18n[2]
             };
         });
         this.newUrlStateNotificationService.onUrlStateChange$.pipe(
@@ -90,49 +86,50 @@ export class ScatterChartContainerComponent implements OnInit, OnDestroy {
                 return urlService.hasValue(UrlPathId.APPLICATION);
             })
         ).subscribe((urlService: NewUrlStateNotificationService) => {
+            this.scatterChartDataService.stopLoad();
             this.scatterChartMode = urlService.isRealTimeMode() ? ScatterChart.MODE.REALTIME : ScatterChart.MODE.STATIC;
-            this.scatterChartDataService.setCurrentMode(this.scatterChartMode);
             this.application = urlService.getPathValue(UrlPathId.APPLICATION).getKeyStr();
             this.selectedAgent = '';
             this.currentRange.from = this.fromX = urlService.getStartTimeToNumber();
             this.currentRange.to = this.toX = urlService.getEndTimeToNumber();
-            this.changeDetectorRef.detectChanges();
         });
         this.scatterChartDataService.outScatterData$.pipe(
             takeUntil(this.unsubscribe)
         ).subscribe((scatterData: IScatterData) => {
-            switch (this.scatterChartMode) {
-                case ScatterChart.MODE.STATIC:
-                    this.scatterChartInteractionService.addChartData(this.instanceKey, scatterData);
-                    if (scatterData.complete === false) {
-                        this.scatterChartDataService.loadData(
-                            this.selectedApplication.split('^')[0],
-                            this.fromX,
-                            scatterData.resultFrom - 1,
-                            this.getGroupUnitX(),
-                            this.getGroupUnitY(),
-                            false
-                        );
-                    }
-                    break;
-                case ScatterChart.MODE.REALTIME:
-                    if (scatterData.reset === true) {
-                        this.fromX = scatterData.currentServerTime - this.webAppSettingDataService.getSystemDefaultPeriod().getMiliSeconds();
-                        this.toX = scatterData.currentServerTime;
-                        this.scatterChartInteractionService.reset(this.instanceKey, this.selectedApplication, this.selectedAgent, this.fromX, this.toX, this.scatterChartMode);
-                        of(1).pipe(delay(1000)).subscribe((useless: number) => {
-                            this.getScatterData();
-                        });
-                    } else {
-                        this.scatterChartInteractionService.addChartData(this.instanceKey, scatterData);
-                    }
-                    break;
+            if (scatterData.complete === false) {
+                this.scatterChartDataService.loadData(
+                    this.selectedApplication.split('^')[0],
+                    this.fromX,
+                    scatterData.resultFrom - 1,
+                    this.getGroupUnitX(),
+                    this.getGroupUnitY(),
+                    false
+                );
+            }
+            this.scatterChartInteractionService.addChartData(this.instanceKey, scatterData);
+        });
+        this.scatterChartDataService.outRealTimeScatterData$.pipe(
+            takeUntil(this.unsubscribe)
+        ).subscribe((scatterData: IScatterData) => {
+            if (scatterData.reset === true) {
+                this.fromX = scatterData.currentServerTime - this.webAppSettingDataService.getSystemDefaultPeriod().getMiliSeconds();
+                this.toX = scatterData.currentServerTime;
+                this.scatterChartInteractionService.reset(this.instanceKey, this.selectedApplication, this.selectedAgent, this.fromX, this.toX, this.scatterChartMode);
+                of(1).pipe(delay(1000)).subscribe((useless: number) => {
+                    this.getScatterData();
+                });
+            } else {
+                this.scatterChartInteractionService.addChartData(this.instanceKey, scatterData);
             }
         });
         this.scatterChartDataService.outScatterErrorData$.pipe(
             takeUntil(this.unsubscribe)
         ).subscribe((error: IServerErrorFormat) => {
             this.scatterChartInteractionService.setError(error);
+        });
+        this.scatterChartDataService.outRealTimeScatterErrorData$.pipe(
+            takeUntil(this.unsubscribe)
+        ).subscribe((error: IServerErrorFormat) => {
         });
         this.connectStore();
     }
@@ -148,11 +145,9 @@ export class ScatterChartContainerComponent implements OnInit, OnDestroy {
     private connectStore(): void {
         this.storeHelperService.getTimezone(this.unsubscribe).subscribe((timezone: string) => {
             this.timezone = timezone;
-            this.changeDetectorRef.detectChanges();
         });
-        this.storeHelperService.getDateFormatArray(this.unsubscribe, 3, 4).subscribe((format: string[]) => {
+        this.storeHelperService.getDateFormatArray(this.unsubscribe, 4, 5).subscribe((format: string[]) => {
             this.dateFormat = format;
-            this.changeDetectorRef.detectChanges();
         });
         this.storeHelperService.getAgentSelection<string>(this.unsubscribe).subscribe((agent: string) => {
             if (this.selectedAgent !== agent) {
@@ -169,29 +164,21 @@ export class ScatterChartContainerComponent implements OnInit, OnDestroy {
             if (this.isHide() === false) {
                 this.selectedAgent = '';
                 this.selectedApplication = this.selectedTarget.node[0];
-                this.scatterChartInteractionService.reset(this.instanceKey, this.selectedApplication, this.selectedAgent, this.fromX, this.toX, this.scatterChartMode);
+                this.scatterChartInteractionService.reset(this.instanceKey, this.selectedApplication, this.selectedAgent, this.fromX, this.toX, this.scatterChartMode, this.selectedTarget.clickParam);
                 this.getScatterData();
             }
-            this.changeDetectorRef.detectChanges();
         });
     }
     getScatterData(): void {
-        if (this.scatterChartMode === ScatterChart.MODE.STATIC) {
-            this.scatterChartDataService.loadData(
-                this.selectedApplication.split('^')[0],
-                this.fromX,
-                this.toX,
-                this.getGroupUnitX(),
-                this.getGroupUnitY()
-            );
-        } else {
-            this.scatterChartDataService.loadRealTimeData(
-                this.selectedApplication.split('^')[0],
-                this.fromX,
-                this.toX,
-                this.getGroupUnitX(),
-                this.getGroupUnitY()
-            );
+        this.scatterChartDataService.loadData(
+            this.selectedApplication.split('^')[0],
+            this.fromX,
+            this.toX,
+            this.getGroupUnitX(),
+            this.getGroupUnitY()
+        );
+        if (this.scatterChartMode === ScatterChart.MODE.REALTIME) {
+            this.scatterChartDataService.loadRealTimeDataV2(this.toX);
         }
     }
     getGroupUnitX(): number {
@@ -247,8 +234,9 @@ export class ScatterChartContainerComponent implements OnInit, OnDestroy {
         } else {
             this.urlRouteManagerService.openPage([
                 UrlPath.SCATTER_FULL_SCREEN_MODE,
+                UrlPathId.REAL_TIME,
                 this.newUrlStateNotificationService.getPathValue(UrlPathId.APPLICATION).getUrlStr(),
-                UrlPathId.REAL_TIME
+                this.selectedAgent
             ]);
         }
     }
@@ -263,6 +251,9 @@ export class ScatterChartContainerComponent implements OnInit, OnDestroy {
                 coordY: top + height / 2
             },
             component: HelpViewerPopupContainerComponent
+        }, {
+            resolver: this.componentFactoryResolver,
+            injector: this.injector
         });
     }
     onChangedSelectType(params: {instanceKey: string, name: string, checked: boolean}): void {
@@ -275,24 +266,34 @@ export class ScatterChartContainerComponent implements OnInit, OnDestroy {
     onChangeRangeX(params: { from: number, to: number }): void {
         this.currentRange.from = params.from;
         this.currentRange.to = params.to;
-        this.storeHelperService.dispatch(new Actions.UpdateRealTimeScatterChartXRange(params));
+        this.messageQueueService.sendMessage({
+            to: MESSAGE_TO.REAL_TIME_SCATTER_CHART_X_RANGE,
+            param: [params]
+        });
     }
     onSelectArea(params: any): void {
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.OPEN_TRANSACTION_LIST);
+        let returnOpenWindow;
         if (this.newUrlStateNotificationService.isRealTimeMode()) {
-            this.urlRouteManagerService.openPage([
+            returnOpenWindow = this.urlRouteManagerService.openPage([
                 UrlPath.TRANSACTION_LIST,
                 this.newUrlStateNotificationService.getPathValue(UrlPathId.APPLICATION).getUrlStr(),
                 this.webAppSettingDataService.getSystemDefaultPeriod().getValueWithTime(),
                 EndTime.newByNumber(this.currentRange.to).getEndTime(),
             ], `${this.selectedApplication}|${params.x.from}|${params.x.to}|${params.y.from}|${params.y.to}|${this.selectedAgent}|${params.type.join(',')}`);
         } else {
-            this.urlRouteManagerService.openPage([
+            returnOpenWindow = this.urlRouteManagerService.openPage([
                 UrlPath.TRANSACTION_LIST,
                 this.newUrlStateNotificationService.getPathValue(UrlPathId.APPLICATION).getUrlStr(),
                 this.newUrlStateNotificationService.getPathValue(UrlPathId.PERIOD).getValueWithTime(),
                 this.newUrlStateNotificationService.getPathValue(UrlPathId.END_TIME).getEndTime()
             ], `${this.selectedApplication}|${params.x.from}|${params.x.to}|${params.y.from}|${params.y.to}|${this.selectedAgent}|${params.type.join(',')}`);
         }
+        if (returnOpenWindow === null || returnOpenWindow === undefined) {
+            this.showBlockMessagePopup = true;
+        }
+    }
+    onCloseBlockMessage(): void {
+        this.showBlockMessagePopup = false;
     }
 }

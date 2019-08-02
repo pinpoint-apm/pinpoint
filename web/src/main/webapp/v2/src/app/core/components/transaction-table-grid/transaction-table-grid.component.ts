@@ -1,6 +1,6 @@
 import { Component, OnInit, OnChanges, SimpleChanges, Input, Output, EventEmitter, ViewEncapsulation } from '@angular/core';
 import * as moment from 'moment-timezone';
-import { GridOptions } from 'ag-grid';
+import { GridOptions } from 'ag-grid-community';
 
 export interface IGridData {
     id: number;
@@ -22,20 +22,22 @@ export interface IGridData {
     encapsulation: ViewEncapsulation.None
 })
 export class TransactionTableGridComponent implements OnInit, OnChanges {
-    gridOptions: GridOptions;
     @Input() rowData: IGridData[];
     @Input() addData: IGridData[];
     @Input() resized: any;
     @Input() currentTraceId: string;
     @Input() timezone: string;
     @Input() dateFormat: string;
-    @Output() outSelectTransaction: EventEmitter<any> = new EventEmitter();
-    @Output() outSelectTransactionView: EventEmitter<any> = new EventEmitter();
+    @Output() outSelectTransaction = new EventEmitter<{[key: string]: any}>();
+    @Output() outSelectTransactionView = new EventEmitter<{[key: string]: any}>();
+
+    gridOptions: GridOptions;
 
     constructor() {}
     ngOnInit() {
         this.initGridOptions();
     }
+
     ngOnChanges(changes: SimpleChanges) {
         if (changes['addData'] && changes['addData']['currentValue']) {
             this.gridOptions.api.updateRowData({
@@ -58,15 +60,19 @@ export class TransactionTableGridComponent implements OnInit, OnChanges {
             });
         }
     }
+
     private initGridOptions() {
         this.gridOptions = <GridOptions>{
+            defaultColDef: {
+                resizable: true,
+                sortable: true
+            },
             rowHeight: 30,
             columnDefs: this.makeColumnDefs(),
             animateRows: true,
             rowSelection: 'single',
             headerHeight: 34,
-            enableSorting: true,
-            enableColResize: true,
+            enableCellTextSelection: true,
             getRowClass: (params: any) => {
                 return params.data.exception === 1 ? 'ag-row-exception' : '';
             },
@@ -95,6 +101,7 @@ export class TransactionTableGridComponent implements OnInit, OnChanges {
             }
         };
     }
+
     onGridReady(params: GridOptions): void {
         this.gridOptions.api.forEachNode((node) => {
             if (this.currentTraceId === node.data.traceId) {
@@ -102,9 +109,15 @@ export class TransactionTableGridComponent implements OnInit, OnChanges {
             }
         });
     }
+
     onGridSizeChanged(params: GridOptions): void {
         this.gridOptions.api.sizeColumnsToFit();
     }
+
+    onRendered(): void {
+        this.gridOptions.api.sizeColumnsToFit();
+    }
+
     private makeColumnDefs(): any {
         return [
             {
@@ -164,26 +177,28 @@ export class TransactionTableGridComponent implements OnInit, OnChanges {
             {
                 headerName: 'Agent',
                 field: 'agentId',
-                width: 170,
+                width: 200,
                 tooltipField: 'agentId'
             },
             {
                 headerName: 'Client IP',
                 field: 'clientIp',
-                width: 120
+                width: 150
             },
             {
                 headerName: 'Transaction',
                 field: 'traceId',
                 width: 270,
-                suppressSizeToFit: true,
+                // suppressSizeToFit: true,
                 tooltipField: 'traceId'
             }
         ];
     }
+
     argumentCellStyle(): any {
         return {'text-align': 'left'};
     }
+
     alignRightCellStyle(): any {
         return {'text-align': 'right'};
     }

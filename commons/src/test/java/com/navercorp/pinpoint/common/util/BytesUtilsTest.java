@@ -280,6 +280,24 @@ public class BytesUtilsTest {
         Assert.assertEquals(" YeeYee!", BytesUtils.toStringAndRightTrim(testByte2, 10, 10));
     }
 
+    @Test
+    public void toStringAndRightTrim_empty() {
+        assertEquals(BytesUtils.trimRight(""), "");
+        assertEquals(BytesUtils.trimRight(" "), "");
+        assertEquals(BytesUtils.trimRight("  "), "");
+        assertEquals(BytesUtils.trimRight("     "), "");
+    }
+
+    @Test
+    public void toStringAndRightTrim() {
+        assertEquals(BytesUtils.trimRight("1"), "1");
+        assertEquals(BytesUtils.trimRight("2 "), "2");
+        assertEquals(BytesUtils.trimRight("3  "), "3");
+        assertEquals(BytesUtils.trimRight("4     "), "4");
+
+        assertEquals(BytesUtils.trimRight("5 1 "), "5 1");
+    }
+
     /**
      * bound 1->0
      * bound 2->128
@@ -402,6 +420,32 @@ public class BytesUtilsTest {
         assertVar64(-2097152);
         assertVar64(-34359738367L);
         assertVar64(-34359738368L);
+    }
+
+    @Test
+    public void testIntToSVar32() {
+        assertIntToSVar32(Integer.MAX_VALUE);
+        assertIntToSVar32(Integer.MIN_VALUE);
+        assertIntToSVar32(0);
+        assertIntToSVar32(1);
+        assertIntToSVar32(-1);
+    }
+
+    private void assertIntToSVar32(int value) {
+        Assert.assertEquals(BytesUtils.bytesToSVar32(BytesUtils.intToSVar32(value), 0), value);
+    }
+
+    @Test
+    public void testIntToVar32() {
+        assertIntToVar32(Integer.MAX_VALUE);
+        assertIntToVar32(Integer.MIN_VALUE);
+        assertIntToVar32(0);
+        assertIntToVar32(1);
+        assertIntToVar32(-1);
+    }
+
+    private void assertIntToVar32(int value) {
+        Assert.assertEquals(BytesUtils.bytesToVar32(BytesUtils.intToVar32(value), 0), value);
     }
 
     private void assertVar64(long value) {

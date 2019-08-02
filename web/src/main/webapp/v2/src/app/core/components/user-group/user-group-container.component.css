@@ -10,9 +10,9 @@
     font-size: 13px;
     font-family: 'Open Sans', sans-serif;
     font-weight: 600;
+    background-color: #FFF;
     grid-template-columns: auto;
-    grid-template-rows: 48px 53px 416px;
-    
+    grid-template-rows: 48px 53px calc(100% - 101px);
 }
 .l-user-group-title {
     display: flex;
@@ -26,35 +26,34 @@
     margin-left: 2px;
 }
 .l-user-group-search {
+    position: relative;
     padding: 10px 15px;
     border-bottom: 1px solid #e5e8f0;
+    color: #b3b3b4;
 }
 .l-user-group-list {
     overflow-y: auto;
 }
-.l-message {
-    width: 100%;
-    height: 100%;
-    z-index: 15;
-    display: flex;
-    position: absolute;
-    align-items: center;
-    justify-content: center;
-    background-color: rgba(226, 226, 226, 0.8);
-}
-.l-message span {
-    color: #ff8c00;
-    text-align: center;
-}
-.l-message button {
-    top: 0px;
-    right: 0px;
-    position: absolute;
-}
 .l-search-input {
     width: 100%;
     color: #b3b3b4;
-    border: 1px solid #469ae4;
+    border: 1px solid #d7dde4;
     padding: 6px 11px;
     font-size: 13px;
+}
+.l-search-input:focus {
+    border: 1px solid #469ae4;
+    box-shadow: 0 0 1px 0px #469ae4;
+}
+.l-search-button {
+    position: absolute;
+    right: 25px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 18px;
+    /* outline: none; */
+}
+.btn {
+    padding: 0 9px;
+    border-radius: 2px;
 }

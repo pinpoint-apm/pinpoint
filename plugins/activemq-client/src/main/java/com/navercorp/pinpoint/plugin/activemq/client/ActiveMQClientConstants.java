@@ -17,13 +17,9 @@
 package com.navercorp.pinpoint.plugin.activemq.client;
 
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
-import com.navercorp.pinpoint.common.trace.AnnotationKeyFactory;
-import com.navercorp.pinpoint.common.trace.AnnotationKeyProperty;
+import com.navercorp.pinpoint.common.trace.AnnotationKeyProvider;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
-
-import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.QUEUE;
-import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.RECORD_STATISTICS;
+import com.navercorp.pinpoint.common.trace.ServiceTypeProvider;
 
 /**
  * @author HyunGil Jeong
@@ -32,11 +28,11 @@ public final class ActiveMQClientConstants {
     private ActiveMQClientConstants() {
     }
 
-    public static final ServiceType ACTIVEMQ_CLIENT = ServiceTypeFactory.of(8310, "ACTIVEMQ_CLIENT", QUEUE, RECORD_STATISTICS);
-    public static final ServiceType ACTIVEMQ_CLIENT_INTERNAL = ServiceTypeFactory.of(8311, "ACTIVEMQ_CLIENT_INTERNAL", "ACTIVEMQ_CLIENT");
+    public static final ServiceType ACTIVEMQ_CLIENT = ServiceTypeProvider.getByCode(8310);
+    public static final ServiceType ACTIVEMQ_CLIENT_INTERNAL = ServiceTypeProvider.getByName("ACTIVEMQ_CLIENT_INTERNAL");
 
-    public static final AnnotationKey ACTIVEMQ_BROKER_URL = AnnotationKeyFactory.of(101, "activemq.broker.address", AnnotationKeyProperty.VIEW_IN_RECORD_SET);
-    public static final AnnotationKey ACTIVEMQ_MESSAGE = AnnotationKeyFactory.of(102, "activemq.message", AnnotationKeyProperty.VIEW_IN_RECORD_SET);
+    public static final AnnotationKey ACTIVEMQ_BROKER_URL = AnnotationKeyProvider.getByCode(101);
+    public static final AnnotationKey ACTIVEMQ_MESSAGE = AnnotationKeyProvider.getByCode(102);
 
     public static final String UNKNOWN_ADDRESS = "Unknown";
 

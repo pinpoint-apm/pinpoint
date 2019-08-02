@@ -36,6 +36,7 @@ public class SpanEventBitField {
     public static final int SET_NEXT_SPANID = 4;
     public static final int SET_ENDPOINT = 5;
     public static final int SET_DESTINATIONID = 6;
+    @Deprecated
     public static final int SET_RPC = 7;
 //  firstSpan bitField -----------------------------------------------
     public static final int START_ELAPSED_ENCODING_STRATEGY = 8;

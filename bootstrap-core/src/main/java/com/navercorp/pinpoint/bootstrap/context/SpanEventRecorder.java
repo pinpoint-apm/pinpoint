@@ -23,7 +23,7 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 public interface SpanEventRecorder extends FrameAttachment {
 
     void recordTime(boolean time);
-    
+
     void recordException(Throwable throwable);
 
     void recordException(boolean markError, Throwable throwable);
@@ -46,10 +46,6 @@ public interface SpanEventRecorder extends FrameAttachment {
 
     void recordSqlParsingResult(ParsingResult parsingResult, String bindValue);
 
-    void recordJsonParsingResult(ParsingResult parsingResult);
-
-    void recordMongoCollectionInfo(String collectionName, String readOption);
-
     void recordAttribute(AnnotationKey key, String value);
 
     void recordAttribute(AnnotationKey key, int value);
@@ -57,12 +53,6 @@ public interface SpanEventRecorder extends FrameAttachment {
     void recordAttribute(AnnotationKey key, Object value);
 
     void recordServiceType(ServiceType serviceType);
-
-    /**
-     * @since 1.8.1
-     */
-    @Deprecated
-    void recordRpcName(String rpc);
 
     void recordDestinationId(String destinationId);
 

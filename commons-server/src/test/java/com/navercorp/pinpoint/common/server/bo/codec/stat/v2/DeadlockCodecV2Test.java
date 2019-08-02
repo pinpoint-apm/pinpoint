@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.common.server.bo.codec.stat.v2;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatCodec;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatCodecTestBase;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.TestAgentStatFactory;
-import com.navercorp.pinpoint.common.server.bo.stat.DeadlockBo;
+import com.navercorp.pinpoint.common.server.bo.stat.DeadlockThreadCountBo;
 import org.junit.Assert;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,23 +33,23 @@ import java.util.List;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:applicationContext-test.xml")
-public class DeadlockCodecV2Test extends AgentStatCodecTestBase<DeadlockBo> {
+public class DeadlockCodecV2Test extends AgentStatCodecTestBase<DeadlockThreadCountBo> {
 
     @Autowired
     private DeadlockCodecV2 deadlockCodecV2;
 
     @Override
-    protected List<DeadlockBo> createAgentStats(String agentId, long startTimestamp, long initialTimestamp) {
+    protected List<DeadlockThreadCountBo> createAgentStats(String agentId, long startTimestamp, long initialTimestamp) {
         return TestAgentStatFactory.createDeadlockBos(agentId, startTimestamp, initialTimestamp);
     }
 
     @Override
-    protected AgentStatCodec<DeadlockBo> getCodec() {
+    protected AgentStatCodec<DeadlockThreadCountBo> getCodec() {
         return deadlockCodecV2;
     }
 
     @Override
-    protected void verify(DeadlockBo expected, DeadlockBo actual) {
+    protected void verify(DeadlockThreadCountBo expected, DeadlockThreadCountBo actual) {
         Assert.assertEquals("agentId", expected.getAgentId(), actual.getAgentId());
         Assert.assertEquals("startTimestamp", expected.getStartTimestamp(), actual.getStartTimestamp());
         Assert.assertEquals("timestamp", expected.getTimestamp(), actual.getTimestamp());

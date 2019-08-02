@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, ComponentFactoryResolver, Injector } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Subject, Observable } from 'rxjs';
 import { map, retry } from 'rxjs/operators';
@@ -26,7 +26,9 @@ export class ServerMapForFilteredMapDataService {
         private webAppSettingDataService: WebAppSettingDataService,
         private urlRouteManagerService: UrlRouteManagerService,
         private newUrlStateNotificationService: NewUrlStateNotificationService,
-        private dynamicPopupService: DynamicPopupService
+        private dynamicPopupService: DynamicPopupService,
+        private componentFactoryResolver: ComponentFactoryResolver,
+        private injector: Injector
     ) {
         this.onServerMapData$ = this.serverMapData.asObservable();
     }
@@ -78,6 +80,9 @@ export class ServerMapForFilteredMapDataService {
                         needServerTimeRequest: false
                     });
                 }
+            }, {
+                resolver: this.componentFactoryResolver,
+                injector: this.injector
             });
         });
     }

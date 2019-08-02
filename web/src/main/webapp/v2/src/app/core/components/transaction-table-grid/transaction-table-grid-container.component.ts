@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Subject } from 'rxjs';
 import { takeUntil, filter } from 'rxjs/operators';
 
@@ -14,15 +14,14 @@ import { UrlPath, UrlPathId } from 'app/shared/models';
 import { IGridData } from './transaction-table-grid.component';
 import { TransactionMetaDataService } from './transaction-meta-data.service';
 
-
 @Component({
     selector: 'pp-transaction-table-grid-container',
     templateUrl: './transaction-table-grid-container.component.html',
     styleUrls: ['./transaction-table-grid-container.component.css'],
-    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TransactionTableGridContainerComponent implements OnInit, OnDestroy {
-    private unsubscribe: Subject<null> = new Subject();
+    private unsubscribe = new Subject<void>();
+
     areaResized: any;
     selectedTraceId: string;
     transactionData: ITransactionMetaData[] = [];
@@ -31,8 +30,8 @@ export class TransactionTableGridContainerComponent implements OnInit, OnDestroy
     transactionIndex = 1;
     timezone: string;
     dateFormat: string;
+
     constructor(
-        private changeDetectorRef: ChangeDetectorRef,
         private storeHelperService: StoreHelperService,
         private urlRouteManagerService: UrlRouteManagerService,
         private newUrlStateNotificationService: NewUrlStateNotificationService,
@@ -40,6 +39,7 @@ export class TransactionTableGridContainerComponent implements OnInit, OnDestroy
         private gutterEventService: GutterEventService,
         private analyticsService: AnalyticsService
     ) {}
+
     ngOnInit() {
         this.connectStore();
         this.newUrlStateNotificationService.onUrlStateChange$.pipe(
@@ -47,7 +47,6 @@ export class TransactionTableGridContainerComponent implements OnInit, OnDestroy
         ).subscribe((urlService: NewUrlStateNotificationService) => {
             if (urlService.hasValue(UrlPathId.TRANSACTION_INFO)) {
                 this.selectedTraceId = urlService.getPathValue(UrlPathId.TRANSACTION_INFO).replace(/(.*)-\d*-\d*$/, '$1');
-                this.changeDetectorRef.detectChanges();
                 this.dispatchTransaction();
             }
             if (this.transactionData.length === 0) {
@@ -59,48 +58,44 @@ export class TransactionTableGridContainerComponent implements OnInit, OnDestroy
             takeUntil(this.unsubscribe)
         ).subscribe((params: any) => {
             this.areaResized = params;
-            this.changeDetectorRef.detectChanges();
         });
     }
+
     ngOnDestroy() {
         this.unsubscribe.next();
         this.unsubscribe.complete();
     }
+
     private connectStore(): void {
         this.storeHelperService.getTimezone(this.unsubscribe).subscribe((timezone: string) => {
             this.timezone = timezone;
-            this.changeDetectorRef.detectChanges();
         });
         this.storeHelperService.getDateFormat(this.unsubscribe, 2).subscribe((dateFormat: string) => {
             this.dateFormat = dateFormat;
-            this.changeDetectorRef.detectChanges();
         });
     }
+
     private connectMetaDataService(): void {
         this.transactionMetaDataService.onTransactionDataLoad$.pipe(
             takeUntil(this.unsubscribe),
-            filter((responseData: any) => {
-                if ( responseData.length > 0 ) {
-                    return responseData;
-                }
-            })
+            filter((responseData: any) => responseData.length > 0)
         ).subscribe((responseData: ITransactionMetaData[]) => {
-            this.transactionData =  this.transactionData.concat(responseData || []);
-            if ( this.transactionDataForAgGrid ) {
+            this.transactionData = this.transactionData.concat(responseData || []);
+            if (this.transactionDataForAgGrid) {
                 this.transactionAddedDataForAgGrid = this.makeGridData(responseData);
-                this.changeDetectorRef.detectChanges();
             } else {
                 this.transactionDataForAgGrid = this.makeGridData(responseData);
-                this.changeDetectorRef.detectChanges();
                 this.dispatchTransaction();
             }
         });
     }
+
     private makeGridData(transactionData: ITransactionMetaData[]): IGridData[] {
         return transactionData.map((data: ITransactionMetaData) => {
             return this.makeRow(data);
         });
     }
+
     private makeRow(gridData: ITransactionMetaData): IGridData {
         return {
             id: this.transactionIndex++,
@@ -115,22 +110,27 @@ export class TransactionTableGridContainerComponent implements OnInit, OnDestroy
             collectorAcceptTime: gridData.collectorAcceptTime
         } as IGridData;
     }
+
     private findTransaction(traceId: string): ITransactionMetaData {
-        for ( let i = 0 ; i < this.transactionData.length ; i++ ) {
+        for (let i = 0; i < this.transactionData.length; i++) {
             if (this.transactionData[i].traceId === traceId) {
                 return this.transactionData[i];
             }
         }
+
         return null;
     }
+
     private dispatchTransaction(): void {
-        if ( this.selectedTraceId ) {
+        if (this.selectedTraceId) {
             const transaction = this.findTransaction(this.selectedTraceId);
-            if ( transaction ) {
+
+            if (transaction) {
                 this.storeHelperService.dispatch(new Actions.UpdateTransactionData(transaction));
             }
         }
     }
+
     onSelectTransaction(transactionShortInfo: { traceId: string, collectorAcceptTime: number, elapsed: number }): void {
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.SELECT_TRANSACTION);
         this.urlRouteManagerService.moveOnPage({
@@ -143,6 +143,7 @@ export class TransactionTableGridContainerComponent implements OnInit, OnDestroy
             ]
         });
     }
+
     onOpenTransactionView(transactionShortInfo: { agentId: string, traceId: string, collectorAcceptTime: number, spanId: string }): void {
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.OPEN_TRANSACTION_VIEW);
         this.urlRouteManagerService.openPage([

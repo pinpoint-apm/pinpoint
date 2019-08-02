@@ -1,39 +1,31 @@
-<dl class="l-wrapper">
-    <dt>{{applicationName}}</dt>
-    <dd>
-        <div class="l-chart-section">
-            <pp-real-time-chart
-                [style.opacity]="hasError ? 0.5 : 1"
-                [chartData]="chartData"
-                [showAxis]="showAxis"
-                [timezone]="timezone"
-                [dateFormat]="dateFormat">
-            </pp-real-time-chart>
-            <div class="l-error-template" [style.display]="hasError ? 'flex' : 'none'">
-                <p class="l-error-text">{{errorMessage}}</p>
-            </div>
-        </div>
-        <ul class="l-legend">
-            <li>
-                <span class="l-text">Total</span>
-                <span class="l-circle">{{getTotalCount()}}</span>
-            </li>
-            <li>
-                <span class="l-text">Slow</span>
-                <span class="l-circle">{{chartData.responseCount[3]}}</span>
-            </li>
-            <li>
-                <span class="l-text">5s</span>
-                <span class="l-circle">{{chartData.responseCount[2]}}</span>
-            </li>
-            <li>
-                <span class="l-text">3s</span>
-                <span class="l-circle">{{chartData.responseCount[1]}}</span>
-            </li>
-            <li>
-                <span class="l-text">1s</span>
-                <span class="l-circle">{{chartData.responseCount[0]}}</span>
-            </li>
-        </ul>
-    </dd>
-</dl>
+<pp-real-time-chart
+    [timezone]="timezone"
+    [dateFormat]="dateFormat"
+    [timeStamp]="timeStamp"
+    [activeThreadCounts]="activeThreadCounts"
+    [maxChartNumberPerPage]="maxChartNumberPerPage"
+    [sum]="sum"
+    [chartOption]="chartOption">
+</pp-real-time-chart>
+<ul class="l-legend" #legend [ngStyle]="getLegendStyle(legend)">
+    <li>
+        <span class="l-text">Total</span>
+        <span class="l-circle">{{ getTotalCount() }}</span>
+    </li>
+    <li>
+        <span class="l-text">Slow</span>
+        <span class="l-circle">{{sum[3]}}</span>
+    </li>
+    <li>
+        <span class="l-text">5s</span>
+        <span class="l-circle">{{sum[2]}}</span>
+    </li>
+    <li>
+        <span class="l-text">3s</span>
+        <span class="l-circle">{{sum[1]}}</span>
+    </li>
+    <li>
+        <span class="l-text">1s</span>
+        <span class="l-circle">{{sum[0]}}</span>
+    </li>
+</ul>

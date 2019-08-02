@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, Input, Output, EventEmitter, ViewEncapsulation } from '@angular/core';
 import * as moment from 'moment-timezone';
-import { GridOptions } from 'ag-grid';
+import { GridOptions } from 'ag-grid-community';
 
 export interface IThreadDumpData {
     index: number;
@@ -33,13 +33,16 @@ export class ThreadDumpListComponent implements OnInit, OnDestroy {
     }
     private initGridOptions(): void {
         this.gridOptions = <GridOptions>{
+            defaultColDef: {
+                resizable: true,
+                sortable: false
+            },
             rowHeight: 30,
             columnDefs: this.makeColumnDefs(),
             animateRows: true,
             rowSelection: 'single',
             headerHeight: 34,
-            enableSorting: false,
-            enableColResize: true,
+            enableCellTextSelection: true,
             onCellClicked: (params: any) => {
                 if ( params.colDef.field === 'localTraceId' ) {
                     const tag = params.event.target.tagName.toUpperCase();

@@ -32,6 +32,20 @@ import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.common.annotations.InterfaceStability;
+import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.plugin.vertx.interceptor.ContextImplExecuteBlockingInterceptor;
+import com.navercorp.pinpoint.plugin.vertx.interceptor.ContextImplRunOnContextInterceptor;
+import com.navercorp.pinpoint.plugin.vertx.interceptor.HandleExceptionInterceptor;
+import com.navercorp.pinpoint.plugin.vertx.interceptor.HandlerInterceptor;
+import com.navercorp.pinpoint.plugin.vertx.interceptor.HttpClientImplDoRequestInterceptor;
+import com.navercorp.pinpoint.plugin.vertx.interceptor.HttpClientImplInterceptor;
+import com.navercorp.pinpoint.plugin.vertx.interceptor.HttpClientRequestImplDoHandleResponseInterceptor;
+import com.navercorp.pinpoint.plugin.vertx.interceptor.HttpClientRequestImplInterceptor;
+import com.navercorp.pinpoint.plugin.vertx.interceptor.HttpClientResponseImplInterceptor;
+import com.navercorp.pinpoint.plugin.vertx.interceptor.HttpClientStreamInterceptor;
+import com.navercorp.pinpoint.plugin.vertx.interceptor.HttpServerRequestImplHandleEndInterceptor;
+import com.navercorp.pinpoint.plugin.vertx.interceptor.HttpServerResponseImplInterceptor;
+import com.navercorp.pinpoint.plugin.vertx.interceptor.ServerConnectionHandleRequestInterceptor;
 
 import java.security.ProtectionDomain;
 import java.util.ArrayList;
@@ -43,7 +57,6 @@ import java.util.List;
 @InterfaceStability.Unstable
 public class VertxPlugin implements ProfilerPlugin, MatchableTransformTemplateAware {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
-    private final boolean isInfo = logger.isInfoEnabled();
 
     private MatchableTransformTemplate transformTemplate;
 
@@ -51,28 +64,32 @@ public class VertxPlugin implements ProfilerPlugin, MatchableTransformTemplateAw
     public void setup(ProfilerPluginSetupContext context) {
         final VertxConfig config = new VertxConfig(context.getConfig());
         if (!config.isEnable() || (!config.isEnableHttpServer() && !config.isEnableHttpClient())) {
-            if (isInfo) {
-                logger.info("Disable VertxPlugin.");
-            }
+            logger.info("{} disabled", this.getClass().getSimpleName());
             return;
         }
 
-        if (isInfo) {
             // 3.3 <= x <= 3.5
-            logger.info("Enable VertxPlugin. version range=[3.3, 3.5.0]");
-        }
+        logger.info("Enable VertxPlugin. version range=[3.3, 3.5.0]");
+        logger.info("{} config:{}", this.getClass().getSimpleName(), config);
 
         // for vertx.io 3.3.x, 3.4.x
-        final VertxDetector vertxDetector = new VertxDetector(config.getBootstrapMains());
-        context.addApplicationTypeDetector(vertxDetector);
+        if (ServiceType.UNDEFINED.equals(context.getConfiguredApplicationType())) {
+            final VertxDetector vertxDetector = new VertxDetector(config.getBootstrapMains());
+            if (vertxDetector.detect()) {
+                logger.info("Detected application type : {}", VertxConstants.VERTX);
+                if (!context.registerApplicationType(VertxConstants.VERTX)) {
+                    logger.info("Application type [{}] already set, skipping [{}] registration.", context.getApplicationType(), VertxConstants.VERTX);
+                }
+            }
+        }
+
+        logger.info("Adding Vertx transformers");
 
         final List<String> basePackageNames = filterBasePackageNames(config.getHandlerBasePackageNames());
         if (!basePackageNames.isEmpty()) {
             // add async field & interceptor
             addHandlerInterceptor(basePackageNames);
-            if (isInfo) {
-                logger.info("Adding Vertx Handler. base-packages={}.", config.getHandlerBasePackageNames());
-            }
+            logger.info("Adding Vertx Handler. base-packages={}.", config.getHandlerBasePackageNames());
 
             // runOnContext, executeBlocking
             addContextImpl("io.vertx.core.impl.ContextImpl");
@@ -82,9 +99,7 @@ public class VertxPlugin implements ProfilerPlugin, MatchableTransformTemplateAw
         }
 
         if (config.isEnableHttpServer()) {
-            if (isInfo) {
-                logger.info("Adding Vertx HTTP Server.");
-            }
+            logger.info("Adding Vertx HTTP Server.");
             final VertxHttpServerConfig serverConfig = new VertxHttpServerConfig(context.getConfig());
             final String requestHandlerMethodName = serverConfig.getRequestHandlerMethodName();
             if (requestHandlerMethodName == null || requestHandlerMethodName.isEmpty()) {
@@ -93,9 +108,7 @@ public class VertxPlugin implements ProfilerPlugin, MatchableTransformTemplateAw
                 try {
                     final String className = toClassName(requestHandlerMethodName);
                     final String methodName = toMethodName(requestHandlerMethodName);
-                    if (isInfo) {
-                        logger.info("Add request handler method for Vertx HTTP Server. class={}, method={}", className, methodName);
-                    }
+                    logger.info("Add request handler method for Vertx HTTP Server. class={}, method={}", className, methodName);
                     addRequestHandlerMethod(className, methodName);
                 } catch (IllegalArgumentException e) {
                     logger.warn("Invalid 'profiler.vertx.http.server.request-handler.method.name' value={}", requestHandlerMethodName);
@@ -106,9 +119,7 @@ public class VertxPlugin implements ProfilerPlugin, MatchableTransformTemplateAw
         }
 
         if (config.isEnableHttpClient()) {
-            if (isInfo) {
-                logger.info("Adding Vertx HTTP Client.");
-            }
+            logger.info("Adding Vertx HTTP Client.");
             addHttpClientImpl();
             addHttpClientRequestImpl();
             addHttpClientStream();
@@ -157,10 +168,10 @@ public class VertxPlugin implements ProfilerPlugin, MatchableTransformTemplateAw
                     return null;
                 }
 
-                target.addField(AsyncContextAccessor.class.getName());
+                target.addField(AsyncContextAccessor.class);
                 final InstrumentMethod handleMethod = target.getDeclaredMethod("handle", "java.lang.Object");
                 if (handleMethod != null) {
-                    handleMethod.addInterceptor("com.navercorp.pinpoint.plugin.vertx.interceptor.HandlerInterceptor");
+                    handleMethod.addInterceptor(HandlerInterceptor.class);
                 }
 
                 return target.toBytecode();
@@ -169,239 +180,260 @@ public class VertxPlugin implements ProfilerPlugin, MatchableTransformTemplateAw
     }
 
     private void addContextImpl(final String className) {
-        transformTemplate.transform(className, new TransformCallback() {
-            @Override
-            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+        transformTemplate.transform(className, ContextImplTransform.class);
+    }
 
-                final InstrumentMethod runOnContextMethod = target.getDeclaredMethod("runOnContext", "io.vertx.core.Handler");
-                if (runOnContextMethod != null) {
-                    runOnContextMethod.addInterceptor("com.navercorp.pinpoint.plugin.vertx.interceptor.ContextImplRunOnContextInterceptor");
-                }
+    public static class ContextImplTransform implements TransformCallback {
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
 
-                final InstrumentMethod executeBlockingMethod1 = target.getDeclaredMethod("executeBlocking", "io.vertx.core.impl.Action", "io.vertx.core.Handler");
-                if (executeBlockingMethod1 != null) {
-                    executeBlockingMethod1.addInterceptor("com.navercorp.pinpoint.plugin.vertx.interceptor.ContextImplExecuteBlockingInterceptor");
-                }
-
-                final InstrumentMethod executeBlockingMethod2 = target.getDeclaredMethod("executeBlocking", "io.vertx.core.Handler", "boolean", "io.vertx.core.Handler");
-                if (executeBlockingMethod2 != null) {
-                    executeBlockingMethod2.addInterceptor("com.navercorp.pinpoint.plugin.vertx.interceptor.ContextImplExecuteBlockingInterceptor");
-                }
-
-                // internal
-                final InstrumentMethod executeBlockingMethod3 = target.getDeclaredMethod("executeBlocking", "io.vertx.core.Handler", "io.vertx.core.impl.TaskQueue", "io.vertx.core.Handler");
-                if (executeBlockingMethod3 != null) {
-                    executeBlockingMethod3.addInterceptor("com.navercorp.pinpoint.plugin.vertx.interceptor.ContextImplExecuteBlockingInterceptor");
-                }
-
-                // skip executeFromIO()
-                return target.toBytecode();
+            final InstrumentMethod runOnContextMethod = target.getDeclaredMethod("runOnContext", "io.vertx.core.Handler");
+            if (runOnContextMethod != null) {
+                runOnContextMethod.addInterceptor(ContextImplRunOnContextInterceptor.class);
             }
-        });
+
+            final InstrumentMethod executeBlockingMethod1 = target.getDeclaredMethod("executeBlocking", "io.vertx.core.impl.Action", "io.vertx.core.Handler");
+            if (executeBlockingMethod1 != null) {
+                executeBlockingMethod1.addInterceptor(ContextImplExecuteBlockingInterceptor.class);
+            }
+
+            final InstrumentMethod executeBlockingMethod2 = target.getDeclaredMethod("executeBlocking", "io.vertx.core.Handler", "boolean", "io.vertx.core.Handler");
+            if (executeBlockingMethod2 != null) {
+                executeBlockingMethod2.addInterceptor(ContextImplExecuteBlockingInterceptor.class);
+            }
+
+            // internal
+            final InstrumentMethod executeBlockingMethod3 = target.getDeclaredMethod("executeBlocking", "io.vertx.core.Handler", "io.vertx.core.impl.TaskQueue", "io.vertx.core.Handler");
+            if (executeBlockingMethod3 != null) {
+                executeBlockingMethod3.addInterceptor(ContextImplExecuteBlockingInterceptor.class);
+            }
+
+            // skip executeFromIO()
+            return target.toBytecode();
+        }
     }
 
     private void addRequestHandlerMethod(final String className, final String methodName) {
-        transformTemplate.transform(className, new TransformCallback() {
+        transformTemplate.transform(className, RequestHandlerMethodTransform.class, new Object[]{methodName}, new Class[]{String.class});
+    }
 
-            @Override
-            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
-                final InstrumentMethod handleRequestMethod = target.getDeclaredMethod(methodName, "io.vertx.core.http.HttpServerRequest");
-                if (handleRequestMethod != null) {
-                    // entry point & set asynchronous of req, res.
-                    handleRequestMethod.addInterceptor("com.navercorp.pinpoint.plugin.vertx.interceptor.ServerConnectionHandleRequestInterceptor");
-                }
+    public static class RequestHandlerMethodTransform implements TransformCallback {
+        private final String methodName;
 
-                return target.toBytecode();
+        public RequestHandlerMethodTransform(String methodName) {
+            this.methodName = methodName;
+        }
+
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+            final InstrumentMethod handleRequestMethod = target.getDeclaredMethod(methodName, "io.vertx.core.http.HttpServerRequest");
+            if (handleRequestMethod != null) {
+                // entry point & set asynchronous of req, res.
+                handleRequestMethod.addInterceptor(ServerConnectionHandleRequestInterceptor.class);
             }
-        });
+
+            return target.toBytecode();
+        }
     }
 
     private void addHttpServerRequestImpl() {
-        transformTemplate.transform("io.vertx.core.http.impl.HttpServerRequestImpl", new TransformCallback() {
+        transformTemplate.transform("io.vertx.core.http.impl.HttpServerRequestImpl", HttpServerRequestImplTransform.class);
+    }
 
-            @Override
-            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
-                target.addField(AsyncContextAccessor.class.getName());
+    public static class HttpServerRequestImplTransform implements TransformCallback {
 
-                final InstrumentMethod handleExceptionMethod = target.getDeclaredMethod("handleException", "java.lang.Throwable");
-                if (handleExceptionMethod != null) {
-                    handleExceptionMethod.addInterceptor("com.navercorp.pinpoint.plugin.vertx.interceptor.HandleExceptionInterceptor");
-                }
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+            target.addField(AsyncContextAccessor.class);
 
-                final InstrumentMethod handleEndMethod = target.getDeclaredMethod("handleEnd");
-                if (handleEndMethod != null) {
-                    handleEndMethod.addInterceptor("com.navercorp.pinpoint.plugin.vertx.interceptor.HttpServerRequestImplHandleEndInterceptor");
-                }
-
-                return target.toBytecode();
+            final InstrumentMethod handleExceptionMethod = target.getDeclaredMethod("handleException", "java.lang.Throwable");
+            if (handleExceptionMethod != null) {
+                handleExceptionMethod.addInterceptor(HandleExceptionInterceptor.class);
             }
-        });
+
+            final InstrumentMethod handleEndMethod = target.getDeclaredMethod("handleEnd");
+            if (handleEndMethod != null) {
+                handleEndMethod.addInterceptor(HttpServerRequestImplHandleEndInterceptor.class);
+            }
+
+            return target.toBytecode();
+        }
     }
 
     private void addHttpServerResponseImpl() {
-        transformTemplate.transform("io.vertx.core.http.impl.HttpServerResponseImpl", new TransformCallback() {
+        transformTemplate.transform("io.vertx.core.http.impl.HttpServerResponseImpl", HttpServerResponseImplTransform.class);
+    }
 
-            @Override
-            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
-                target.addField(AsyncContextAccessor.class.getName());
+    public static class HttpServerResponseImplTransform implements TransformCallback {
 
-                final InstrumentMethod endMethod = target.getDeclaredMethod("end");
-                if (endMethod != null) {
-                    endMethod.addInterceptor("com.navercorp.pinpoint.plugin.vertx.interceptor.HttpServerResponseImplInterceptor");
-                }
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+            target.addField(AsyncContextAccessor.class);
 
-                final InstrumentMethod endBufferMethod = target.getDeclaredMethod("end", "io.vertx.core.buffer.Buffer");
-                if (endBufferMethod != null) {
-                    endBufferMethod.addInterceptor("com.navercorp.pinpoint.plugin.vertx.interceptor.HttpServerResponseImplInterceptor");
-                }
-
-                final InstrumentMethod closeMethod = target.getDeclaredMethod("close");
-                if (closeMethod != null) {
-                    closeMethod.addInterceptor("com.navercorp.pinpoint.plugin.vertx.interceptor.HttpServerResponseImplInterceptor");
-                }
-
-                for (InstrumentMethod sendFileMethod : target.getDeclaredMethods(MethodFilters.name("sendFile"))) {
-                    if (sendFileMethod != null) {
-                        sendFileMethod.addInterceptor("com.navercorp.pinpoint.plugin.vertx.interceptor.HttpServerResponseImplInterceptor");
-                    }
-                }
-
-                final InstrumentMethod handleDrainedMethod = target.getDeclaredMethod("handleDrained");
-                if (handleDrainedMethod != null) {
-                    handleDrainedMethod.addInterceptor("com.navercorp.pinpoint.plugin.vertx.interceptor.HttpServerResponseImplInterceptor");
-                }
-
-                final InstrumentMethod handleExceptionMethod = target.getDeclaredMethod("handleException", "java.lang.Throwable");
-                if (handleExceptionMethod != null) {
-                    handleExceptionMethod.addInterceptor("com.navercorp.pinpoint.plugin.vertx.interceptor.HandleExceptionInterceptor");
-                }
-
-                final InstrumentMethod handleClosedMethod = target.getDeclaredMethod("handleClosed");
-                if (handleClosedMethod != null) {
-                    handleClosedMethod.addInterceptor("com.navercorp.pinpoint.plugin.vertx.interceptor.HttpServerResponseImplInterceptor");
-                }
-
-                return target.toBytecode();
+            final InstrumentMethod endMethod = target.getDeclaredMethod("end");
+            if (endMethod != null) {
+                endMethod.addInterceptor(HttpServerResponseImplInterceptor.class);
             }
-        });
+
+            final InstrumentMethod endBufferMethod = target.getDeclaredMethod("end", "io.vertx.core.buffer.Buffer");
+            if (endBufferMethod != null) {
+                endBufferMethod.addInterceptor(HttpServerResponseImplInterceptor.class);
+            }
+
+            final InstrumentMethod closeMethod = target.getDeclaredMethod("close");
+            if (closeMethod != null) {
+                closeMethod.addInterceptor(HttpServerResponseImplInterceptor.class);
+            }
+
+            for (InstrumentMethod sendFileMethod : target.getDeclaredMethods(MethodFilters.name("sendFile"))) {
+                if (sendFileMethod != null) {
+                    sendFileMethod.addInterceptor(HttpServerResponseImplInterceptor.class);
+                }
+            }
+
+            final InstrumentMethod handleDrainedMethod = target.getDeclaredMethod("handleDrained");
+            if (handleDrainedMethod != null) {
+                handleDrainedMethod.addInterceptor(HttpServerResponseImplInterceptor.class);
+            }
+
+            final InstrumentMethod handleExceptionMethod = target.getDeclaredMethod("handleException", "java.lang.Throwable");
+            if (handleExceptionMethod != null) {
+                handleExceptionMethod.addInterceptor(HandleExceptionInterceptor.class);
+            }
+
+            final InstrumentMethod handleClosedMethod = target.getDeclaredMethod("handleClosed");
+            if (handleClosedMethod != null) {
+                handleClosedMethod.addInterceptor(HttpServerResponseImplInterceptor.class);
+            }
+
+            return target.toBytecode();
+        }
     }
 
     private void addHttpClientImpl() {
-        transformTemplate.transform("io.vertx.core.http.impl.HttpClientImpl", new TransformCallback() {
-
-            @Override
-            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
-                for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("requestAbs", "request", "get", "getAbs", "getNow", "post", "postAbs", "head", "headAbs", "headNow", "options", "optionsAbs", "optionsNow", "put", "putAbs", "delete", "deleteAbs"))) {
-                    if (method != null) {
-                        method.addScopedInterceptor("com.navercorp.pinpoint.plugin.vertx.interceptor.HttpClientImplInterceptor", VertxConstants.HTTP_CLIENT_REQUEST_SCOPE);
-                    }
-                }
-
-                // 3.3.x
-                final InstrumentMethod doRequestMethod = target.getDeclaredMethod("doRequest", "io.vertx.core.http.HttpMethod", "java.lang.String", "int", "java.lang.String", "io.vertx.core.MultiMap");
-                if (doRequestMethod != null) {
-                    doRequestMethod.addInterceptor("com.navercorp.pinpoint.plugin.vertx.interceptor.HttpClientImplDoRequestInterceptor");
-                }
-
-                // 3.4.0, 3.4.1
-                final InstrumentMethod createRequestMethod1 = target.getDeclaredMethod("createRequest", "io.vertx.core.http.HttpMethod", "java.lang.String", "int", "java.lang.Boolean", "java.lang.String", "io.vertx.core.MultiMap");
-                if (createRequestMethod1 != null) {
-                    createRequestMethod1.addScopedInterceptor("com.navercorp.pinpoint.plugin.vertx.interceptor.HttpClientImplDoRequestInterceptor", VertxConstants.HTTP_CLIENT_CREATE_REQUEST_SCOPE);
-                }
-
-                // 3.4.2
-                final InstrumentMethod createRequestMethod2 = target.getDeclaredMethod("createRequest", "io.vertx.core.http.HttpMethod", "java.lang.String", "java.lang.String", "int", "java.lang.Boolean", "java.lang.String", "io.vertx.core.MultiMap");
-                if (createRequestMethod2 != null) {
-                    createRequestMethod2.addScopedInterceptor("com.navercorp.pinpoint.plugin.vertx.interceptor.HttpClientImplDoRequestInterceptor", VertxConstants.HTTP_CLIENT_CREATE_REQUEST_SCOPE);
-                }
-
-                return target.toBytecode();
-            }
-        });
+        transformTemplate.transform("io.vertx.core.http.impl.HttpClientImpl", HttpClientImplTransform.class);
     }
+
+    public static class HttpClientImplTransform implements TransformCallback {
+
+    @Override
+    public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+        final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+        for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("requestAbs", "request", "get", "getAbs", "getNow", "post", "postAbs", "head", "headAbs", "headNow", "options", "optionsAbs", "optionsNow", "put", "putAbs", "delete", "deleteAbs"))) {
+            if (method != null) {
+                method.addScopedInterceptor(HttpClientImplInterceptor.class, VertxConstants.HTTP_CLIENT_REQUEST_SCOPE);
+            }
+        }
+
+        // 3.3.x
+        final InstrumentMethod doRequestMethod = target.getDeclaredMethod("doRequest", "io.vertx.core.http.HttpMethod", "java.lang.String", "int", "java.lang.String", "io.vertx.core.MultiMap");
+        if (doRequestMethod != null) {
+            doRequestMethod.addInterceptor(HttpClientImplDoRequestInterceptor.class);
+        }
+
+        // 3.4.0, 3.4.1
+        final InstrumentMethod createRequestMethod1 = target.getDeclaredMethod("createRequest", "io.vertx.core.http.HttpMethod", "java.lang.String", "int", "java.lang.Boolean", "java.lang.String", "io.vertx.core.MultiMap");
+        if (createRequestMethod1 != null) {
+            createRequestMethod1.addScopedInterceptor(HttpClientImplDoRequestInterceptor.class, VertxConstants.HTTP_CLIENT_CREATE_REQUEST_SCOPE);
+        }
+
+        // 3.4.2
+        final InstrumentMethod createRequestMethod2 = target.getDeclaredMethod("createRequest", "io.vertx.core.http.HttpMethod", "java.lang.String", "java.lang.String", "int", "java.lang.Boolean", "java.lang.String", "io.vertx.core.MultiMap");
+        if (createRequestMethod2 != null) {
+            createRequestMethod2.addScopedInterceptor(HttpClientImplDoRequestInterceptor.class, VertxConstants.HTTP_CLIENT_CREATE_REQUEST_SCOPE);
+        }
+
+        return target.toBytecode();
+    }
+}
 
     private void addHttpClientRequestImpl() {
-        transformTemplate.transform("io.vertx.core.http.impl.HttpClientRequestImpl", new TransformCallback() {
-
-            @Override
-            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
-                target.addField(AsyncContextAccessor.class.getName());
-
-                // for HttpClientResponseImpl.
-                for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("doHandleResponse"))) {
-                    if (method != null) {
-                        method.addInterceptor("com.navercorp.pinpoint.plugin.vertx.interceptor.HttpClientRequestImplDoHandleResponseInterceptor");
-                    }
-                }
-
-                // for stream.writeHead(), stream.writeHeadWithContent(), headersCompletionHandler.
-                final InstrumentMethod connectedMethod = target.getDeclaredMethod("connected", "io.vertx.core.http.impl.HttpClientStream", "io.vertx.core.Handler");
-                if (connectedMethod != null) {
-                    connectedMethod.addInterceptor("com.navercorp.pinpoint.plugin.vertx.interceptor.HttpClientRequestImplInterceptor");
-                }
-
-                // handle.
-                final InstrumentMethod handleDrainedMethod = target.getDeclaredMethod("handleDrained");
-                if (handleDrainedMethod != null) {
-                    handleDrainedMethod.addInterceptor("com.navercorp.pinpoint.plugin.vertx.interceptor.HttpClientRequestImplInterceptor");
-                }
-
-                final InstrumentMethod handleExceptionMethod = target.getDeclaredMethod("handleException", "java.lang.Throwable");
-                if (handleExceptionMethod != null) {
-                    handleExceptionMethod.addInterceptor("com.navercorp.pinpoint.plugin.vertx.interceptor.HandleExceptionInterceptor");
-                }
-
-                return target.toBytecode();
-            }
-        });
+        transformTemplate.transform("io.vertx.core.http.impl.HttpClientRequestImpl", HttpClientRequestImplTransform.class);
     }
+
+    public static class HttpClientRequestImplTransform implements TransformCallback {
+
+    @Override
+    public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+        final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+        target.addField(AsyncContextAccessor.class);
+
+        // for HttpClientResponseImpl.
+        for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("doHandleResponse"))) {
+            if (method != null) {
+                method.addInterceptor(HttpClientRequestImplDoHandleResponseInterceptor.class);
+            }
+        }
+
+        // for stream.writeHead(), stream.writeHeadWithContent(), headersCompletionHandler.
+        final InstrumentMethod connectedMethod = target.getDeclaredMethod("connected", "io.vertx.core.http.impl.HttpClientStream", "io.vertx.core.Handler");
+        if (connectedMethod != null) {
+            connectedMethod.addInterceptor(HttpClientRequestImplInterceptor.class);
+        }
+
+        // handle.
+        final InstrumentMethod handleDrainedMethod = target.getDeclaredMethod("handleDrained");
+        if (handleDrainedMethod != null) {
+            handleDrainedMethod.addInterceptor(HttpClientRequestImplInterceptor.class);
+        }
+
+        final InstrumentMethod handleExceptionMethod = target.getDeclaredMethod("handleException", "java.lang.Throwable");
+        if (handleExceptionMethod != null) {
+            handleExceptionMethod.addInterceptor(HandleExceptionInterceptor.class);
+        }
+
+        return target.toBytecode();
+    }
+}
 
     private void addHttpClientStream() {
-        transformTemplate.transform("io.vertx.core.http.impl.ClientConnection", new TransformCallback() {
-
-            @Override
-            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
-
-                // add pinpoint headers.
-                final InstrumentMethod prepareHeadersMethod = target.getDeclaredMethod("prepareHeaders", "io.netty.handler.codec.http.HttpRequest", "java.lang.String", "boolean");
-                if (prepareHeadersMethod != null) {
-                    prepareHeadersMethod.addInterceptor("com.navercorp.pinpoint.plugin.vertx.interceptor.HttpClientStreamInterceptor");
-                }
-
-                return target.toBytecode();
-            }
-        });
+        transformTemplate.transform("io.vertx.core.http.impl.ClientConnection", ClientConnectionTransform.class);
     }
+
+    public static class ClientConnectionTransform implements TransformCallback {
+
+    @Override
+    public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+        final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+
+        // add pinpoint headers.
+        final InstrumentMethod prepareHeadersMethod = target.getDeclaredMethod("prepareHeaders", "io.netty.handler.codec.http.HttpRequest", "java.lang.String", "boolean");
+        if (prepareHeadersMethod != null) {
+            prepareHeadersMethod.addInterceptor(HttpClientStreamInterceptor.class);
+        }
+
+        return target.toBytecode();
+    }
+}
 
     private void addHttpClientResponseImpl() {
-        transformTemplate.transform("io.vertx.core.http.impl.HttpClientResponseImpl", new TransformCallback() {
-
-            @Override
-            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
-                target.addField(AsyncContextAccessor.class.getName());
-
-                final InstrumentMethod handleEndMethod = target.getDeclaredMethod("handleEnd", "io.vertx.core.buffer.Buffer", "io.vertx.core.MultiMap");
-                if (handleEndMethod != null) {
-                    handleEndMethod.addInterceptor("com.navercorp.pinpoint.plugin.vertx.interceptor.HttpClientResponseImplInterceptor");
-                }
-
-                final InstrumentMethod handleExceptionMethod = target.getDeclaredMethod("handleException", "java.lang.Throwable");
-                if (handleExceptionMethod != null) {
-                    handleExceptionMethod.addInterceptor("com.navercorp.pinpoint.plugin.vertx.interceptor.HandleExceptionInterceptor");
-                }
-
-                return target.toBytecode();
-            }
-        });
+        transformTemplate.transform("io.vertx.core.http.impl.HttpClientResponseImpl", HttpClientResponseImplTransform.class);
     }
+
+    public static class HttpClientResponseImplTransform implements TransformCallback {
+
+    @Override
+    public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+        final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+        target.addField(AsyncContextAccessor.class);
+
+        final InstrumentMethod handleEndMethod = target.getDeclaredMethod("handleEnd", "io.vertx.core.buffer.Buffer", "io.vertx.core.MultiMap");
+        if (handleEndMethod != null) {
+            handleEndMethod.addInterceptor(HttpClientResponseImplInterceptor.class);
+        }
+
+        final InstrumentMethod handleExceptionMethod = target.getDeclaredMethod("handleException", "java.lang.Throwable");
+        if (handleExceptionMethod != null) {
+            handleExceptionMethod.addInterceptor(HandleExceptionInterceptor.class);
+        }
+
+        return target.toBytecode();
+    }
+}
 
     @Override
     public void setTransformTemplate(MatchableTransformTemplate transformTemplate) {

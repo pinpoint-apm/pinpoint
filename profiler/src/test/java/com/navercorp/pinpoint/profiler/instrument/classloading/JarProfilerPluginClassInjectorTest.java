@@ -17,8 +17,9 @@
 package com.navercorp.pinpoint.profiler.instrument.classloading;
 
 import com.navercorp.pinpoint.bootstrap.classloader.PinpointClassLoaderFactory;
-import com.navercorp.pinpoint.common.plugin.JarPlugin;
-import com.navercorp.pinpoint.common.plugin.Plugin;
+import com.navercorp.pinpoint.profiler.plugin.JarPlugin;
+import com.navercorp.pinpoint.profiler.plugin.Plugin;
+import com.navercorp.pinpoint.profiler.plugin.PluginJar;
 import com.navercorp.pinpoint.common.util.ClassLoaderUtils;
 import com.navercorp.pinpoint.common.util.CodeSourceUtils;
 import com.navercorp.pinpoint.profiler.plugin.PluginConfig;
@@ -33,7 +34,6 @@ import java.lang.reflect.Constructor;
 import java.net.URL;
 import java.util.Collections;
 import java.util.List;
-import java.util.jar.JarFile;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -48,7 +48,7 @@ public class JarProfilerPluginClassInjectorTest {
 
     @Test
     public void testInjectClass() throws Exception {
-        final Plugin plugin = getMockPlugin("org.slf4j.impl.Log4jLoggerAdapter");
+        final Plugin<?> plugin = getMockPlugin("org.slf4j.impl.Log4jLoggerAdapter");
 
         final ClassLoader contextTypeMatchClassLoader = createContextTypeMatchClassLoader(new URL[]{plugin.getURL()});
 
@@ -56,7 +56,7 @@ public class JarProfilerPluginClassInjectorTest {
         PluginConfig pluginConfig = new PluginConfig(plugin, pluginPackageFilter);
         logger.debug("pluginConfig:{}", pluginConfig);
 
-        PlainClassLoaderHandler injector = new PlainClassLoaderHandler(pluginConfig);
+        ClassInjector injector = new PlainClassLoaderHandler(pluginConfig);
         final Class<?> loggerClass = injector.injectClass(contextTypeMatchClassLoader, logger.getClass().getName());
 
         logger.debug("ClassLoader{}", loggerClass.getClassLoader());
@@ -86,7 +86,7 @@ public class JarProfilerPluginClassInjectorTest {
     }
 
 
-    private Plugin getMockPlugin(String className) throws IOException {
+    private Plugin<?> getMockPlugin(String className) throws IOException {
         ClassLoader cl = ClassLoaderUtils.getDefaultClassLoader();
         Class<?> clazz = null;
         try {
@@ -102,8 +102,8 @@ public class JarProfilerPluginClassInjectorTest {
         final URL location = CodeSourceUtils.getCodeLocation(clazz);
 
         logger.debug("url:{}", location);
-        JarFile jarFile = new JarFile(location.getPath());
-        return new JarPlugin<Object>(location, jarFile, Collections.emptyList(), Collections.<String>emptyList());
+        PluginJar pluginJar = PluginJar.fromFilePath(location.getPath());
+        return new JarPlugin<Object>(pluginJar, Collections.emptyList(), Collections.<String>emptyList());
     }
 
 }

@@ -20,8 +20,7 @@ import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
 import com.navercorp.pinpoint.plugin.cxf.CxfPluginConstants;
-
-import java.lang.reflect.InvocationTargetException;
+import org.apache.cxf.interceptor.LoggingMessage;
 
 /**
  * The type Cxf logging message method interceptor.
@@ -43,87 +42,50 @@ public abstract class CxfLoggingMessageMethodInterceptor extends SpanEventSimple
     }
 
     /**
-     * Gets attribute.
-     *
-     * @param object     the object
-     * @param methodName the method name
-     * @return the attribute
-     */
-    protected <T> T getAttribute(Object object, String methodName) {
-
-        T result = null;
-        try {
-            result = (T) object.getClass().getMethod(methodName).invoke(object);
-
-        } catch (NoSuchMethodException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
-        }
-        return result;
-    }
-
-    /**
      * Record attributes.
      *
      * @param recorder       the recorder
      * @param loggingMessage the logging message
      */
-    protected void recordAttributes(SpanEventRecorder recorder, Object loggingMessage) {
+    protected void recordAttributes(SpanEventRecorder recorder, LoggingMessage loggingMessage) {
 
-        String id = getAttribute(loggingMessage, "getId");
-
-        if (id != null) {
-            recorder.recordAttribute(CxfPluginConstants.CXF_LOG_ID, id);
-        }
-
-        StringBuilder address = getAttribute(loggingMessage, "getAddress");
-
-        if (address != null && address.length() > 0) {
+        StringBuilder address = loggingMessage.getAddress();
+        if (address.length() > 0) {
             recorder.recordAttribute(CxfPluginConstants.CXF_ADDRESS, address.toString());
         }
 
-        StringBuilder responseCode = getAttribute(loggingMessage, "getResponseCode");
-
-        if (responseCode != null && responseCode.length() > 0) {
+        StringBuilder responseCode = loggingMessage.getResponseCode();
+        if (responseCode.length() > 0) {
             recorder.recordAttribute(CxfPluginConstants.CXF_RESPONSE_CODE, responseCode.toString());
         }
 
-        StringBuilder encoding = getAttribute(loggingMessage, "getEncoding");
-
-        if (encoding != null && encoding.length() > 0) {
+        StringBuilder encoding = loggingMessage.getEncoding();
+        if (encoding.length() > 0) {
             recorder.recordAttribute(CxfPluginConstants.CXF_ENCODING, encoding.toString());
         }
 
-        StringBuilder httpMethod = getAttribute(loggingMessage, "getHttpMethod");
-
-        if (httpMethod != null && httpMethod.length() > 0) {
+        StringBuilder httpMethod = loggingMessage.getHttpMethod();
+        if (httpMethod.length() > 0) {
             recorder.recordAttribute(CxfPluginConstants.CXF_HTTP_METHOD, httpMethod.toString());
         }
 
-        StringBuilder contentType = getAttribute(loggingMessage, "getContentType");
-
-        if (contentType != null && contentType.length() > 0) {
+        StringBuilder contentType = loggingMessage.getContentType();
+        if (contentType.length() > 0) {
             recorder.recordAttribute(CxfPluginConstants.CXF_CONTENT_TYPE, contentType.toString());
         }
 
-        StringBuilder header = getAttribute(loggingMessage, "getHeader");
-
-        if (header != null && header.length() > 0) {
+        StringBuilder header = loggingMessage.getHeader();
+        if (header.length() > 0) {
             recorder.recordAttribute(CxfPluginConstants.CXF_HEADERS, header.toString());
         }
 
-        StringBuilder message = getAttribute(loggingMessage, "getMessage");
-
-        if (message != null && message.length() > 0) {
+        StringBuilder message = loggingMessage.getMessage();
+        if (message.length() > 0) {
             recorder.recordAttribute(CxfPluginConstants.CXF_MESSAGES, message.toString());
         }
 
-        StringBuilder payload = getAttribute(loggingMessage, "getPayload");
-
-        if (payload != null && payload.length() > 0) {
+        StringBuilder payload = loggingMessage.getPayload();
+        if (payload.length() > 0) {
             recorder.recordAttribute(CxfPluginConstants.CXF_PAYLOAD, payload.toString());
         }
 

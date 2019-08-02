@@ -24,9 +24,9 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
  */
 public class HttpClient3PluginConfig {
 
-    private boolean param = true;
-    private boolean io;
-    private HttpDumpConfig httpDumpConfig;
+    private final boolean param;
+    private final boolean io;
+    private final HttpDumpConfig httpDumpConfig;
 
     public HttpClient3PluginConfig(ProfilerConfig src) {
         this.param = src.readBoolean("profiler.apache.httpclient3.param", true);

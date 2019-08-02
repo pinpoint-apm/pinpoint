@@ -99,7 +99,7 @@ public class DefaultCallStack<T> implements CallStack<T> {
     public T pop() {
         if (isOverflow() && overflowIndex > 0) {
             overflowIndex--;
-            return factory.newInstance();
+            return factory.dummyInstance();
         }
 
         final T spanEvent = peek();
@@ -117,7 +117,7 @@ public class DefaultCallStack<T> implements CallStack<T> {
         }
 
         if (isOverflow() && overflowIndex > 0) {
-            return factory.newInstance();
+            return factory.dummyInstance();
         }
         return stack[index - 1];
     }

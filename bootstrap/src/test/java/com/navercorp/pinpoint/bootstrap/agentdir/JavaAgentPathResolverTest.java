@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.bootstrap.agentdir;
 
+import com.navercorp.pinpoint.common.Version;
 import org.junit.Test;
 
 import java.lang.management.RuntimeMXBean;
@@ -32,7 +33,7 @@ public class JavaAgentPathResolverTest {
 
     @Test
     public void testInputArgument() {
-        String agentPath = "/pinpoint/agent/target/pinpoint-agent-1.8.1-SNAPSHOT/pinpoint-bootstrap-1.8.1-SNAPSHOT.jar";
+        String agentPath = "/pinpoint/agent/target/pinpoint-agent-" + Version.VERSION + "/pinpoint-bootstrap-" + Version.VERSION + ".jar";
         final RuntimeMXBean runtimeMXBean = mock(RuntimeMXBean.class);
         List<String> inputArguments = Collections.singletonList(JavaAgentPathResolver.JAVA_AGENT_OPTION + agentPath);
         when(runtimeMXBean.getInputArguments()).thenReturn(inputArguments);

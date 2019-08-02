@@ -91,4 +91,17 @@ public class User {
 
         return editedPhoneNumberList;
     }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("User{");
+        sb.append("number='").append(number).append('\'');
+        sb.append(", userId='").append(userId).append('\'');
+        sb.append(", name='").append(name).append('\'');
+        sb.append(", department='").append(department).append('\'');
+        sb.append(", phoneNumber='").append(phoneNumber).append('\'');
+        sb.append(", email='").append(email).append('\'');
+        sb.append('}');
+        return sb.toString();
+    }
 }

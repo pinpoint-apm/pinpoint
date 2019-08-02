@@ -42,4 +42,11 @@ public class HikariCpConfig {
         return profileClose;
     }
 
+    @Override
+    public String toString() {
+        return "HikariCpConfig{" +
+                "pluginEnable=" + pluginEnable +
+                ", profileClose=" + profileClose +
+                '}';
+    }
 }

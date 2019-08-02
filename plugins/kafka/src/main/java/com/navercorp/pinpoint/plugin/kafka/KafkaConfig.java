@@ -21,11 +21,15 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 public class KafkaConfig {
 
     static final String PRODUCER_ENABLE = "profiler.kafka.producer.enable";
+
     static final String CONSUMER_ENABLE = "profiler.kafka.consumer.enable";
     static final String CONSUMER_ENTRY_POINT = "profiler.kafka.consumer.entryPoint";
 
+    static final String SPRING_CONSUMER_ENABLE = "profiler.springkafka.consumer.enable";
+
     private final boolean producerEnable;
     private final boolean consumerEnable;
+    private final boolean springConsumerEnable;
     private final String kafkaEntryPoint;
 
     public KafkaConfig(ProfilerConfig config) {
@@ -34,6 +38,7 @@ public class KafkaConfig {
          */
         this.producerEnable = config.readBoolean(PRODUCER_ENABLE, false);
         this.consumerEnable = config.readBoolean(CONSUMER_ENABLE, false);
+        this.springConsumerEnable = config.readBoolean(SPRING_CONSUMER_ENABLE, false);
         this.kafkaEntryPoint = config.readString(CONSUMER_ENTRY_POINT, "");
     }
 
@@ -45,8 +50,21 @@ public class KafkaConfig {
         return consumerEnable;
     }
 
+    public boolean isSpringConsumerEnable() {
+        return springConsumerEnable;
+    }
+
     public String getKafkaEntryPoint() {
         return kafkaEntryPoint;
     }
 
+    @Override
+    public String toString() {
+        return "KafkaConfig{" +
+                "producerEnable=" + producerEnable +
+                ", consumerEnable=" + consumerEnable +
+                ", springConsumerEnable=" + springConsumerEnable +
+                ", kafkaEntryPoint='" + kafkaEntryPoint + '\'' +
+                '}';
+    }
 }

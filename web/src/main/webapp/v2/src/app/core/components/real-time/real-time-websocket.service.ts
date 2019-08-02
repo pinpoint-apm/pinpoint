@@ -12,13 +12,13 @@ interface IWebSocketData {
 }
 
 export interface IWebSocketDataResult {
-    timeStamp?: number;
-    applicationName?: string;
+    timeStamp: number;
+    applicationName: string;
     activeThreadCounts: { [key: string]: IActiveThreadCounts };
 }
 
 export interface IActiveThreadCounts {
-    code: number;
+    code: ResponseCode;
     message: string;
     status?: number[];
 }
@@ -43,21 +43,18 @@ export const enum ResponseCode {
 @Injectable()
 export class RealTimeWebSocketService {
     private url = 'agent/activeThread.pinpointws';
-    private timeoutLimit = 10; // 서버로부터의 timeout response를 무시하는 최대횟수
+    private timeoutLimit = 5; // 서버로부터의 timeout response를 무시하는 최대횟수
     private timeoutCount: { [key: string]: number } = {}; // 각 agent별 timeout된 횟수
-    private delayLimit = 10000; // 서버로부터의 응답을 기다리는 최대시간(ms)
     private prevData: { [key: string]: IActiveThreadCounts } = {}; // Success일때의 데이터({ code, message, status })를 킵
-
+    private delayLimit = 5000; // 서버로부터의 응답을 기다리는 최대시간(ms)
     private retryTimeout = 3000;
     private retryCount = 0;
     private maxRetryCount = 1;
     private connectTime: number;
     private isOpen = false;
-    private pagingSize = 30;
-
     private socket$: WebSocketSubject<any> = null;
-
     private outMessage: Subject<IWebSocketResponse> = new Subject();
+
     onMessage$: Observable<IWebSocketResponse>;
 
     constructor(
@@ -88,9 +85,6 @@ export class RealTimeWebSocketService {
             this.socket$.next(message);
         }
     }
-    getPagingSize(): number {
-        return this.pagingSize;
-    }
     private openWebSocket(): void {
         const location = this.windowRefService.nativeWindow.location;
         const protocol = location.protocol.indexOf('https') === -1 ? 'ws' : 'wss';
@@ -119,12 +113,10 @@ export class RealTimeWebSocketService {
             filter((message: IWebSocketData) => {
                 return message.type === ResponseType.PING ? (this.send({ type: 'PONG' }), false) : true;
             }),
-            map(({result}: {result: IWebSocketDataResult}) => {
-                return this.parseResult(result);
-            }),
+            map(({result}: {result: IWebSocketDataResult}) => this.parseResult(result)),
             // map(({timeStamp, applicationName}) => {
             //     const activeThreadCounts = {};
-            //     for (let i = 0; i < 30; i++) {
+            //     for (let i = 0; i < 60; i++) {
             //         activeThreadCounts[i] = {
             //             code: 0,
             //             message: 'OK',
@@ -150,7 +142,7 @@ export class RealTimeWebSocketService {
         ).subscribe((message: IWebSocketDataResult) => {
             this.outMessage.next({
                 type: 'message',
-                message: message
+                message
             });
         }, (err: any) => {
             console.log(err);
@@ -163,21 +155,19 @@ export class RealTimeWebSocketService {
 
     private parseResult(result: IWebSocketDataResult): IWebSocketDataResult {
         const activeThreadCounts = Object.keys(result.activeThreadCounts).reduce((prev: IWebSocketDataResult, curr: string) => {
-            const responseCode = result.activeThreadCounts[curr].code;
-            let agentData: IActiveThreadCounts;
+            let agentData = result.activeThreadCounts[curr];
+            const responseCode = agentData.code;
 
             switch (responseCode) {
                 case ResponseCode.SUCCESS:
                     this.timeoutCount[curr] = 0;
-                    this.prevData[curr] = result.activeThreadCounts[curr];
-                    agentData = result.activeThreadCounts[curr];
+                    this.prevData[curr] = agentData;
                     break;
                 case ResponseCode.TIMEOUT:
                     this.timeoutCount[curr] = this.timeoutCount[curr] ? this.timeoutCount[curr] + 1 : 1;
-                    agentData = this.prevData[curr] && this.timeoutCount[curr] < this.timeoutLimit ? this.prevData[curr] : result.activeThreadCounts[curr];
+                    agentData = this.prevData[curr] && this.timeoutCount[curr] < this.timeoutLimit ? this.prevData[curr] : agentData;
                     break;
                 default:
-                    agentData = result.activeThreadCounts[curr];
                     break;
             }
             return {
@@ -189,29 +179,11 @@ export class RealTimeWebSocketService {
         return { ...result, ...{ activeThreadCounts } };
     }
 
-    private onTimeout(): Observable<IWebSocketDataResult | null> {
+    // TODO: No Response 메시지 띄워주기
+    private onTimeout(): Observable<null> {
         this.close();
-        return this.getDelayMessage();
-    }
 
-    private getDelayMessage(): Observable<IWebSocketDataResult | null> {
-        const delayObj = {
-            code: ResponseCode.OVER_DELAY,
-            message: 'No Response'
-        };
-
-        if (Object.keys(this.prevData).length !== 0) {
-            return of({
-                activeThreadCounts: Object.keys(this.prevData).reduce((prev: IWebSocketDataResult, curr: string) => {
-                    return {
-                        ...prev,
-                        ...{ [curr]: delayObj }
-                    };
-                }, {})
-            });
-        } else {
-            return of(null);
-        }
+        return of(null);
     }
 
     private closed(): void {

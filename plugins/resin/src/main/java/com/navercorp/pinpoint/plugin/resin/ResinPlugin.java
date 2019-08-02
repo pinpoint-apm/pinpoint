@@ -12,6 +12,10 @@ import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
+import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.plugin.resin.interceptor.HttpServletRequestImplInterceptor;
+import com.navercorp.pinpoint.plugin.resin.interceptor.ServletInvocationServiceInterceptor;
+import com.navercorp.pinpoint.plugin.resin.interceptor.WebAppInterceptor;
 
 import java.security.ProtectionDomain;
 
@@ -29,13 +33,20 @@ public class ResinPlugin implements ProfilerPlugin, TransformTemplateAware {
     public void setup(ProfilerPluginSetupContext context) {
         final ResinConfig config = new ResinConfig(context.getConfig());
         if (!config.isEnable()) {
-            logger.info("ResinPlugin disabled");
+            logger.info("{} disabled", this.getClass().getSimpleName());
             return;
         }
-        logger.info("ResinPlugin config:{}", config);
+        logger.info("{} config:{}", this.getClass().getSimpleName(), config);
 
-        final ResinDetector resinDetector = new ResinDetector(config.getBootstrapMains());
-        context.addApplicationTypeDetector(resinDetector);
+        if (ServiceType.UNDEFINED.equals(context.getConfiguredApplicationType())) {
+            final ResinDetector resinDetector = new ResinDetector(config.getBootstrapMains());
+            if (resinDetector.detect()) {
+                logger.info("Detected application type : {}", ResinConstants.RESIN);
+                if (!context.registerApplicationType(ResinConstants.RESIN)) {
+                    logger.info("Application type [{}] already set, skipping [{}] registration.", context.getApplicationType(), ResinConstants.RESIN);
+                }
+            }
+        }
 
         logger.info("Adding Resin transformers");
         addTransformers(config);
@@ -45,60 +56,67 @@ public class ResinPlugin implements ProfilerPlugin, TransformTemplateAware {
         // Dispatch library & Add servlet request listener. Servlet 2.4
         addWebApp();
         // Add async listener. Servlet 3.0
-        addHttpServletRequestImpl(config);
+        addHttpServletRequestImpl();
         // Record HTTP status code & Close trace
         addServletInvocation();
     }
 
     private void addWebApp() {
-        transformTemplate.transform("com.caucho.server.webapp.WebApp", new TransformCallback() {
-
-            @Override
-            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
-                // Dispatch library & Add servlet request listener. Servlet 2.4
-                final InstrumentMethod initMethodEditorBuilder = target.getDeclaredMethod("init");
-                if (initMethodEditorBuilder != null) {
-                    initMethodEditorBuilder.addInterceptor("com.navercorp.pinpoint.plugin.resin.interceptor.WebAppInterceptor");
-                }
-                return target.toBytecode();
-            }
-        });
+        transformTemplate.transform("com.caucho.server.webapp.WebApp", WebAppTransform.class);
     }
 
-    private void addHttpServletRequestImpl(final ResinConfig config) {
-        transformTemplate.transform("com.caucho.server.http.HttpServletRequestImpl", new TransformCallback() {
+    public static class WebAppTransform implements TransformCallback {
 
-            @Override
-            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
-                if (config.isHidePinpointHeader()) {
-                    // Hide pinpoint headers
-                    target.weave("com.navercorp.pinpoint.plugin.resin.aspect.HttpServletRequestImplAspect");
-                }
-                // Add async listener. Servlet 3.0
-                final InstrumentMethod startAsyncMethodEditor = target.getDeclaredMethod("startAsync", "javax.servlet.ServletRequest", "javax.servlet.ServletResponse");
-                if (startAsyncMethodEditor != null) {
-                    startAsyncMethodEditor.addInterceptor("com.navercorp.pinpoint.plugin.resin.interceptor.HttpServletRequestImplInterceptor");
-                }
-                return target.toBytecode();
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+            // Dispatch library & Add servlet request listener. Servlet 2.4
+            final InstrumentMethod initMethodEditorBuilder = target.getDeclaredMethod("init");
+            if (initMethodEditorBuilder != null) {
+                initMethodEditorBuilder.addInterceptor(WebAppInterceptor.class);
             }
-        });
+            return target.toBytecode();
+        }
+    }
+
+    private void addHttpServletRequestImpl() {
+        transformTemplate.transform("com.caucho.server.http.HttpServletRequestImpl", HttpServletRequestImplTransform.class);
+    }
+
+    public static class HttpServletRequestImplTransform implements TransformCallback {
+
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+            final ResinConfig config = new ResinConfig(instrumentor.getProfilerConfig());
+            if (config.isHidePinpointHeader()) {
+                // Hide pinpoint headers
+                target.weave("com.navercorp.pinpoint.plugin.resin.aspect.HttpServletRequestImplAspect");
+            }
+            // Add async listener. Servlet 3.0
+            final InstrumentMethod startAsyncMethodEditor = target.getDeclaredMethod("startAsync", "javax.servlet.ServletRequest", "javax.servlet.ServletResponse");
+            if (startAsyncMethodEditor != null) {
+                startAsyncMethodEditor.addInterceptor(HttpServletRequestImplInterceptor.class);
+            }
+            return target.toBytecode();
+        }
     }
 
     private void addServletInvocation() {
-        transformTemplate.transform("com.caucho.server.dispatch.ServletInvocation", new TransformCallback() {
-            @Override
-            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
-                // Record HTTP status code & Close trace
-                final InstrumentMethod serviceMethodEditorBuilder = target.getDeclaredMethod("service", "javax.servlet.ServletRequest", "javax.servlet.ServletResponse");
-                if (serviceMethodEditorBuilder != null) {
-                    serviceMethodEditorBuilder.addScopedInterceptor("com.navercorp.pinpoint.plugin.resin.interceptor.ServletInvocationServiceInterceptor", "RESIN_REQUEST", ExecutionPolicy.BOUNDARY);
-                }
-                return target.toBytecode();
+        transformTemplate.transform("com.caucho.server.dispatch.ServletInvocation", ServletInvocationTransform.class);
+    }
+
+    public static class ServletInvocationTransform implements TransformCallback {
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+            // Record HTTP status code & Close trace
+            final InstrumentMethod serviceMethodEditorBuilder = target.getDeclaredMethod("service", "javax.servlet.ServletRequest", "javax.servlet.ServletResponse");
+            if (serviceMethodEditorBuilder != null) {
+                serviceMethodEditorBuilder.addScopedInterceptor(ServletInvocationServiceInterceptor.class, "RESIN_REQUEST", ExecutionPolicy.BOUNDARY);
             }
-        });
+            return target.toBytecode();
+        }
     }
 
     @Override

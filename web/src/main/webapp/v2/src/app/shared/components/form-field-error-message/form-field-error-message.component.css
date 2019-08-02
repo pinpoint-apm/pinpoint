@@ -1,0 +1,11 @@
+:host {
+    display: block;
+    padding-left: 7px;
+    font-size: 13px;
+}
+
+.l-error-message {
+    display: block;
+    margin-top: 7px;
+    color: #a94442;
+}

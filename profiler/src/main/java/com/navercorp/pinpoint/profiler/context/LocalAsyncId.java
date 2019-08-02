@@ -23,5 +23,5 @@ public interface LocalAsyncId {
 //    private int asyncId; // optional
 //    private short asyncSequence; // optional
     int getAsyncId();
-    short getSequence();
+    int getSequence();
 }

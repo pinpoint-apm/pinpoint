@@ -20,32 +20,18 @@ import com.navercorp.pinpoint.plugin.AgentPath;
 import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 
 /**
+ * Integration tests require {@link com.datastax.driver.core.StatementWrapper StatementWrapper}, so we
+ * limit datastax driver version to 2.0.10+.
+ *
  * @author HyunGil Jeong
  */
 @RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
 @Dependency({
-        "com.datastax.cassandra:cassandra-driver-core:[2.0.12,2.0.max]",
-        "org.apache.cassandra:cassandra-all:2.0.17",
-        "com.google.guava:guava:17.0",
-        "org.codehaus.plexus:plexus-utils:3.0.22"})
+        "com.datastax.cassandra:cassandra-driver-core:[2.0.10,2.0.max]",
+        "org.scassandra:java-client:1.1.2"})
 public class CassandraDatastax_2_0_x_IT extends CassandraDatastaxITBase {
-
-    private static final String CASSANDRA_VERSION = "2_0_x";
-
-    @BeforeClass
-    public static void setUpBeforeClass() throws Exception {
-        initializeCluster(CASSANDRA_VERSION);
-    }
-
-    @AfterClass
-    public static void tearDownAfterClass() {
-        cleanUpCluster();
-    }
-
 }
