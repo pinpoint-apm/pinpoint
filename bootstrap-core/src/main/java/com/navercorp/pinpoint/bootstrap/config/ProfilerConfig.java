@@ -119,6 +119,10 @@ public interface ProfilerConfig {
 
     int getSamplingRate();
 
+    int getSamplingNewThroughput();
+
+    int getSamplingContinueThroughput();
+
     boolean isIoBufferingEnable();
 
     int getIoBufferingBufferSize();

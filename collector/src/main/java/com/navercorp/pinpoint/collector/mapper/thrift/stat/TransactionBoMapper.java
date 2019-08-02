@@ -34,6 +34,8 @@ public class TransactionBoMapper implements ThriftBoMapper<TransactionBo, TTrans
         transaction.setSampledContinuationCount(tTransaction.getSampledContinuationCount());
         transaction.setUnsampledNewCount(tTransaction.getUnsampledNewCount());
         transaction.setUnsampledContinuationCount(tTransaction.getUnsampledContinuationCount());
+        transaction.setSkippedNewSkipCount(tTransaction.getSkippedNewCount());
+        transaction.setSkippedContinuationCount(tTransaction.getSkippedContinuationCount());
         return transaction;
     }
 }

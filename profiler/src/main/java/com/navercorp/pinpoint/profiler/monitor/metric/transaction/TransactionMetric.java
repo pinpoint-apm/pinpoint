@@ -25,7 +25,7 @@ public interface TransactionMetric {
 
     TransactionMetric UNSUPPORTED_TRANSACTION_METRIC = new TransactionMetric() {
 
-        private final TransactionMetricSnapshot uncollectedSnaphot = new TransactionMetricSnapshot(UNCOLLECTED, UNCOLLECTED, UNCOLLECTED, UNCOLLECTED);
+        private final TransactionMetricSnapshot uncollectedSnaphot = new TransactionMetricSnapshot(UNCOLLECTED, UNCOLLECTED, UNCOLLECTED, UNCOLLECTED, UNCOLLECTED, UNCOLLECTED);
 
         @Override
         public TransactionMetricSnapshot getSnapshot() {

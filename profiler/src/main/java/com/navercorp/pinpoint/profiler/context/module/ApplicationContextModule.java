@@ -74,6 +74,7 @@ import com.navercorp.pinpoint.profiler.context.provider.AsyncTraceContextProvide
 import com.navercorp.pinpoint.profiler.context.provider.BaseTraceFactoryProvider;
 import com.navercorp.pinpoint.profiler.context.provider.CallStackFactoryProvider;
 import com.navercorp.pinpoint.profiler.context.provider.ClassFileTransformerProvider;
+import com.navercorp.pinpoint.profiler.context.provider.ContinueThroughputSamplerProvider;
 import com.navercorp.pinpoint.profiler.context.provider.DataSourceMonitorRegistryServiceProvider;
 import com.navercorp.pinpoint.profiler.context.provider.DeadlockMonitorProvider;
 import com.navercorp.pinpoint.profiler.context.provider.DeadlockThreadRegistryProvider;
@@ -82,6 +83,7 @@ import com.navercorp.pinpoint.profiler.context.provider.ExceptionHandlerFactoryP
 import com.navercorp.pinpoint.profiler.context.provider.InstrumentEngineProvider;
 import com.navercorp.pinpoint.profiler.context.provider.JdbcUrlParsingServiceProvider;
 import com.navercorp.pinpoint.profiler.context.provider.JvmInformationProvider;
+import com.navercorp.pinpoint.profiler.context.provider.NewThroughputSamplerProvider;
 import com.navercorp.pinpoint.profiler.context.provider.ObjectBinderFactoryProvider;
 import com.navercorp.pinpoint.profiler.context.provider.PluginContextLoadResultProvider;
 import com.navercorp.pinpoint.profiler.context.provider.SamplerProvider;
@@ -144,8 +146,9 @@ public class ApplicationContextModule extends AbstractModule {
         bind(TransactionCounter.class).to(DefaultTransactionCounter.class).in(Scopes.SINGLETON);
         bind(TransactionIdEncoder.class).to(DefaultTransactionIdEncoder.class).in(Scopes.SINGLETON);
 
-        bind(Sampler.class).toProvider(SamplerProvider.class).in(Scopes.SINGLETON);
-
+        bind(Sampler.class).annotatedWith(SamplingSampler.class).toProvider(SamplerProvider.class).in(Scopes.SINGLETON);
+        bind(Sampler.class).annotatedWith(NewThroughputSampler.class).toProvider(NewThroughputSamplerProvider.class).in(Scopes.SINGLETON);
+        bind(Sampler.class).annotatedWith(ContinueThroughputSampler.class).toProvider(ContinueThroughputSamplerProvider.class).in(Scopes.SINGLETON);
 
         final TypeLiteral<Binder<Trace>> binder = new TypeLiteral<Binder<Trace>>() {};
         final TypeLiteral<ThreadLocalBinder<Trace>> threadLocalBinder = new TypeLiteral<ThreadLocalBinder<Trace>>() {};
