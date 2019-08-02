@@ -45,11 +45,13 @@ public class TransactionSampler implements AgentStatSampler<TransactionBo, Sampl
         final AgentStatPoint<Double> sampledContinuation = newAgentStatPoint(timestamp, dataPoints, TransactionBo::getSampledContinuationCount);
         final AgentStatPoint<Double> unsampledNew = newAgentStatPoint(timestamp, dataPoints, TransactionBo::getUnsampledNewCount);
         final AgentStatPoint<Double> unsampledContinuation = newAgentStatPoint(timestamp, dataPoints, TransactionBo::getUnsampledContinuationCount);
+        final AgentStatPoint<Double> skippedNew = newAgentStatPoint(timestamp, dataPoints, TransactionBo::getSkippedNewSkipCount);
+        final AgentStatPoint<Double> skippedContinuation = newAgentStatPoint(timestamp, dataPoints, TransactionBo::getSkippedContinuationCount);
 
         final List<Double> totals = calculateTotalTps(dataPoints);
         AgentStatPoint<Double> total = createPoint(timestamp, totals);
 
-        SampledTransaction sampledTransaction = new SampledTransaction(sampledNew, sampledContinuation, unsampledNew, unsampledContinuation, total);
+        SampledTransaction sampledTransaction = new SampledTransaction(sampledNew, sampledContinuation, unsampledNew, unsampledContinuation, skippedNew, skippedContinuation, total);
         return sampledTransaction;
     }
 
@@ -93,6 +95,16 @@ public class TransactionSampler implements AgentStatSampler<TransactionBo, Sampl
             if (unsampledContinuationCount != TransactionBo.UNCOLLECTED_VALUE) {
                 isTransactionCollected = true;
                 totalCount += unsampledContinuationCount;
+            }
+            final long skippedNewCount = transactionBo.getSkippedNewSkipCount();
+            if (skippedNewCount != TransactionBo.UNCOLLECTED_VALUE) {
+                isTransactionCollected = true;
+                totalCount += skippedNewCount;
+            }
+            final long skippedContinuationCount = transactionBo.getSkippedContinuationCount();
+            if (skippedContinuationCount != TransactionBo.UNCOLLECTED_VALUE) {
+                isTransactionCollected = true;
+                totalCount += skippedContinuationCount;
             }
             if (isTransactionCollected) {
                 return calculateTps(totalCount, collectInterval);

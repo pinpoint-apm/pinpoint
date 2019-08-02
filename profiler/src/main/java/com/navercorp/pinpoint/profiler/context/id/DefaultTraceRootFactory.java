@@ -27,30 +27,24 @@ public class DefaultTraceRootFactory implements TraceRootFactory {
 
     private final String agentId;
     private final TraceIdFactory traceIdFactory;
-    private final IdGenerator idGenerator;
 
     @Inject
-    public DefaultTraceRootFactory(@AgentId String agentId, TraceIdFactory traceIdFactory, IdGenerator idGenerator) {
+    public DefaultTraceRootFactory(@AgentId String agentId, TraceIdFactory traceIdFactory) {
         if (agentId == null) {
-            throw new NullPointerException("agentId must not be null");
+            throw new NullPointerException("agentId");
         }
         if (traceIdFactory == null) {
-            throw new NullPointerException("traceIdFactory must not be null");
-        }
-        if (idGenerator == null) {
-            throw new NullPointerException("idGenerator must not be null");
+            throw new NullPointerException("traceIdFactory");
         }
         this.agentId = agentId;
         this.traceIdFactory = traceIdFactory;
-        this.idGenerator = idGenerator;
     }
 
     @Override
-    public TraceRoot newTraceRoot() {
-        final long localTransactionId = idGenerator.nextTransactionId();
-        final TraceId traceId = traceIdFactory.newTraceId(localTransactionId);
+    public TraceRoot newTraceRoot(long transactionId) {
+        final TraceId traceId = traceIdFactory.newTraceId(transactionId);
         final long startTime = traceStartTime();
-        return new DefaultTraceRoot(traceId, this.agentId, startTime, localTransactionId);
+        return new DefaultTraceRoot(traceId, this.agentId, startTime, transactionId);
     }
 
     private long traceStartTime() {
@@ -59,12 +53,11 @@ public class DefaultTraceRootFactory implements TraceRootFactory {
 
 
     @Override
-    public TraceRoot continueTraceRoot(TraceId traceId) {
+    public TraceRoot continueTraceRoot(TraceId traceId, long transactionId) {
         if (traceId == null) {
             throw new NullPointerException("traceId must not be null");
         }
         final long startTime = traceStartTime();
-        final long continuedTransactionId = this.idGenerator.nextContinuedTransactionId();
-        return new DefaultTraceRoot(traceId, this.agentId, startTime, continuedTransactionId);
+        return new DefaultTraceRoot(traceId, this.agentId, startTime, transactionId);
     }
 }

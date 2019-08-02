@@ -172,13 +172,28 @@ public class DefaultTransactionCounterTest {
     }
 
     @Test
+    public void testMultipleTransaction_SAMPLED_NEW_SKIP() {
+        // Given
+        final long expectedTransactionCount = 99L;
+        // When
+        for (int i = 0; i < expectedTransactionCount; i++) {
+            this.idGenerator.nextSkippedId();
+        }
+        final long actualCount = this.transactionCounter.getSkippedNewCount();
+        // Then
+        assertEquals(expectedTransactionCount, actualCount);
+    }
+
+    @Test
     public void testTotalTransaction() {
         // Given
         final long expectedSampledNewCount = 19L;
         final long expectedSampledContinuationCount = 29L;
         final long expectedUnsampledNewCount = 0L;
         final long expectedUnsampledContinuationCount = 9L;
-        final long expectedTotalCount = expectedSampledNewCount + expectedSampledContinuationCount + expectedUnsampledNewCount + expectedUnsampledContinuationCount;
+        final long expectedSkippedNewCount = 0L;
+        final long expectedSkippedContinuationCount = 9L;
+        final long expectedTotalCount = expectedSampledNewCount + expectedSampledContinuationCount + expectedUnsampledNewCount + expectedUnsampledContinuationCount + expectedSkippedNewCount + expectedSkippedContinuationCount;
         // When
         for (int i = 0; i < expectedSampledNewCount; i++) {
             this.idGenerator.nextTransactionId();
@@ -192,16 +207,26 @@ public class DefaultTransactionCounterTest {
         for (int i = 0; i < expectedUnsampledContinuationCount; i++) {
             this.idGenerator.nextContinuedDisabledId();
         }
+        for(int i = 0; i < expectedSkippedNewCount; i++) {
+            this.idGenerator.nextSkippedId();
+        }
+        for(int i = 0; i < expectedSkippedContinuationCount; i++) {
+            this.idGenerator.nextContinuedSkippedId();
+        }
         final long actualSampledNewCount = this.transactionCounter.getSampledNewCount();
         final long actualSampledContinuationCount = this.transactionCounter.getSampledContinuationCount();
         final long actualUnsampledNewCount = this.transactionCounter.getUnSampledNewCount();
         final long actualUnsampledContinuationCount = this.transactionCounter.getUnSampledContinuationCount();
+        final long actualSkippedNewCount = this.transactionCounter.getSkippedNewCount();
+        final long actualSkippedContinuationCount = this.transactionCounter.getSkippedContinuationCount();
         final long actualTotalCount = this.transactionCounter.getTotalTransactionCount();
         // Then
         assertEquals(expectedSampledNewCount, actualSampledNewCount);
         assertEquals(expectedSampledContinuationCount, actualSampledContinuationCount);
         assertEquals(expectedUnsampledNewCount, actualUnsampledNewCount);
         assertEquals(expectedUnsampledContinuationCount, actualUnsampledContinuationCount);
+        assertEquals(expectedSkippedNewCount, actualSkippedNewCount);
+        assertEquals(expectedSkippedContinuationCount, actualSkippedContinuationCount);
         assertEquals(expectedTotalCount, actualTotalCount);
     }
 

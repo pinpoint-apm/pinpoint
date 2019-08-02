@@ -181,6 +181,8 @@ public class GrpcStatMessageConverter implements MessageConverter<GeneratedMessa
         transactionBuilder.setSampledContinuationCount(transactionMetricSnapshot.getSampledContinuationCount());
         transactionBuilder.setUnsampledNewCount(transactionMetricSnapshot.getUnsampledNewCount());
         transactionBuilder.setUnsampledContinuationCount(transactionMetricSnapshot.getUnsampledContinuationCount());
+        transactionBuilder.setSkippedNewCount(transactionMetricSnapshot.getSkippedNewCount());
+        transactionBuilder.setSkippedContinuationCount(transactionMetricSnapshot.getSkippedContinuationCount());
         return transactionBuilder.build();
     }
 
