@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,24 +14,19 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.context.id;
+package com.navercorp.pinpoint.bootstrap.sampler;
 
 /**
- * @author HyunGil Jeong
+ * @author emeroad
  */
-public interface TransactionCounter {
+public interface TraceSampler {
+    State isNewSampled();
+    State isContinueSampled();
 
-    long getSampledNewCount();
+    State getContinueDisableState();
 
-    long getSampledContinuationCount();
-
-    long getUnSampledNewCount();
-
-    long getUnSampledContinuationCount();
-
-    long getTotalTransactionCount();
-
-    long getSkippedNewCount();
-
-    long getSkippedContinuationCount();
+    interface State {
+        boolean isSampled();
+        long nextId();
+    }
 }

@@ -41,6 +41,8 @@ public class JoinTransactionBoMapperTest {
         tFTransaction.setSampledContinuationCount(20);
         tFTransaction.setUnsampledNewCount(40);
         tFTransaction.setUnsampledContinuationCount(50);
+        tFTransaction.setSkippedNewCount(60);
+        tFTransaction.setSkippedContinuationCount(70);
         tFAgentStat.setTransaction(tFTransaction);
 
         final JoinTransactionBoMapper joinTransactionBoMapper = new JoinTransactionBoMapper();
@@ -50,10 +52,10 @@ public class JoinTransactionBoMapperTest {
         assertEquals(joinTransactionBo.getId(), id);
         assertEquals(joinTransactionBo.getTimestamp(), 1491274138454L);
         assertEquals(joinTransactionBo.getCollectInterval(), 5000);
-        assertEquals(joinTransactionBo.getTotalCount(), 120);
-        assertEquals(joinTransactionBo.getMaxTotalCount(), 120);
+        assertEquals(joinTransactionBo.getTotalCount(), 250);
+        assertEquals(joinTransactionBo.getMaxTotalCount(), 250);
         assertEquals(joinTransactionBo.getMaxTotalCountAgentId(), id);
-        assertEquals(joinTransactionBo.getMinTotalCount(), 120);
+        assertEquals(joinTransactionBo.getMinTotalCount(), 250);
         assertEquals(joinTransactionBo.getMinTotalCountAgentId(), id);
     }
 

@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.profiler.context.provider;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.navercorp.pinpoint.bootstrap.sampler.Sampler;
+import com.navercorp.pinpoint.bootstrap.sampler.TraceSampler;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.BaseTraceFactory;
 import com.navercorp.pinpoint.profiler.context.CallStackFactory;
@@ -27,7 +27,6 @@ import com.navercorp.pinpoint.profiler.context.LoggingBaseTraceFactory;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
 import com.navercorp.pinpoint.profiler.context.SpanFactory;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
-import com.navercorp.pinpoint.profiler.context.id.IdGenerator;
 import com.navercorp.pinpoint.profiler.context.id.TraceRootFactory;
 import com.navercorp.pinpoint.profiler.context.recorder.RecorderFactory;
 import com.navercorp.pinpoint.profiler.context.storage.StorageFactory;
@@ -41,8 +40,7 @@ public class BaseTraceFactoryProvider implements Provider<BaseTraceFactory> {
 
     private final TraceRootFactory traceRootFactory;
     private final StorageFactory storageFactory;
-    private final Sampler sampler;
-    private final IdGenerator idGenerator;
+    private final TraceSampler traceSampler;
 
     private final CallStackFactory<SpanEvent> callStackFactory;
     private final SpanFactory spanFactory;
@@ -51,27 +49,24 @@ public class BaseTraceFactoryProvider implements Provider<BaseTraceFactory> {
     private final ActiveTraceRepository activeTraceRepository;
 
     @Inject
-    public BaseTraceFactoryProvider(TraceRootFactory traceRootFactory, StorageFactory storageFactory, Sampler sampler,
-                                    IdGenerator idGenerator,
-                                    CallStackFactory<SpanEvent> callStackFactory, SpanFactory spanFactory, RecorderFactory recorderFactory,
-                                    ActiveTraceRepository activeTraceRepository) {
-        this.traceRootFactory = Assert.requireNonNull(traceRootFactory, "traceRootFactory must not be null");
+    public BaseTraceFactoryProvider(TraceRootFactory traceRootFactory, StorageFactory storageFactory,
+                                    TraceSampler traceSampler,
+                                    CallStackFactory<SpanEvent> callStackFactory, SpanFactory spanFactory, RecorderFactory recorderFactory, ActiveTraceRepository activeTraceRepository) {
+        this.traceRootFactory = Assert.requireNonNull(traceRootFactory, "traceRootFactory");
 
-        this.callStackFactory = Assert.requireNonNull(callStackFactory, "callStackFactory must not be null");
-        this.storageFactory = Assert.requireNonNull(storageFactory, "storageFactory must not be null");
-        this.sampler = Assert.requireNonNull(sampler, "sampler must not be null");
-        this.idGenerator = Assert.requireNonNull(idGenerator, "idGenerator must not be null");
+        this.callStackFactory = Assert.requireNonNull(callStackFactory, "callStackFactory");
+        this.storageFactory = Assert.requireNonNull(storageFactory, "storageFactory");
+        this.traceSampler = Assert.requireNonNull(traceSampler, "traceSampler");
 
-
-        this.spanFactory = Assert.requireNonNull(spanFactory, "spanFactory must not be null");
-        this.recorderFactory = Assert.requireNonNull(recorderFactory, "recorderFactory must not be null");
-        this.activeTraceRepository = Assert.requireNonNull(activeTraceRepository, "activeTraceRepository must not be null");
+        this.spanFactory = Assert.requireNonNull(spanFactory, "spanFactory");
+        this.recorderFactory = Assert.requireNonNull(recorderFactory, "recorderFactory");
+        this.activeTraceRepository = Assert.requireNonNull(activeTraceRepository, "activeTraceRepository");
 
     }
 
     @Override
     public BaseTraceFactory get() {
-        BaseTraceFactory baseTraceFactory = new DefaultBaseTraceFactory(traceRootFactory, callStackFactory, storageFactory, sampler, idGenerator,
+        BaseTraceFactory baseTraceFactory = new DefaultBaseTraceFactory(traceRootFactory, callStackFactory, storageFactory, traceSampler,
                 spanFactory, recorderFactory, activeTraceRepository);
         if (isDebugEnabled()) {
             baseTraceFactory = LoggingBaseTraceFactory.wrap(baseTraceFactory);

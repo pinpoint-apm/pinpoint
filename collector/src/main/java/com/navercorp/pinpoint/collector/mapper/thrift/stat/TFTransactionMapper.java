@@ -28,6 +28,8 @@ public class TFTransactionMapper {
         tFTransaction.setSampledContinuationCount(transactionBo.getSampledContinuationCount());
         tFTransaction.setUnsampledNewCount(transactionBo.getUnsampledNewCount());
         tFTransaction.setUnsampledContinuationCount(transactionBo.getUnsampledContinuationCount());
+        tFTransaction.setSkippedNewCount(transactionBo.getSkippedNewSkipCount());
+        tFTransaction.setSkippedContinuationCount(transactionBo.getSkippedContinuationCount());
         return tFTransaction;
     }
 }

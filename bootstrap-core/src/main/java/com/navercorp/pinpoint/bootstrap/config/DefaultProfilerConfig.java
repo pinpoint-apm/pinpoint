@@ -118,6 +118,8 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     // Sampling
     private boolean samplingEnable = true;
     private int samplingRate = 1;
+    private int samplingNewThroughput = 0;
+    private int samplingContinueThroughput = 0;
 
     // span buffering
     private boolean ioBufferingEnable;
@@ -483,10 +485,19 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         return samplingEnable;
     }
 
-
     @Override
     public int getSamplingRate() {
         return samplingRate;
+    }
+
+    @Override
+    public int getSamplingNewThroughput() {
+        return samplingNewThroughput;
+    }
+
+    @Override
+    public int getSamplingContinueThroughput() {
+        return samplingContinueThroughput;
     }
 
     @Override
@@ -666,6 +677,9 @@ public class DefaultProfilerConfig implements ProfilerConfig {
 
         this.samplingEnable = readBoolean("profiler.sampling.enable", true);
         this.samplingRate = readInt("profiler.sampling.rate", 1);
+        // Throughput sampling
+        this.samplingNewThroughput = readInt("profiler.sampling.new.throughput", 0);
+        this.samplingContinueThroughput = readInt("profiler.sampling.continue.throughput", 0);
 
         // configuration for sampling and IO buffer 
         this.ioBufferingEnable = readBoolean("profiler.io.buffering.enable", true);
@@ -814,8 +828,8 @@ public class DefaultProfilerConfig implements ProfilerConfig {
             }
         }
 
-        if (logger.isInfoEnabled()) {
-            logger.info(propertyNamePatternRegex + "=" + result);
+        if (logger.isDebugEnabled()) {
+            logger.debug(propertyNamePatternRegex + "=" + result);
         }
 
         return result;
@@ -831,6 +845,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         sb.append(", instrumentMatcherCacheConfig=").append(instrumentMatcherCacheConfig);
         sb.append(", interceptorRegistrySize=").append(interceptorRegistrySize);
         sb.append(", thriftTransportConfig=").append(thriftTransportConfig).append('\'');
+        sb.append(", staticResourceCleanup=").append(staticResourceCleanup);
         sb.append(", traceAgentActiveThread=").append(traceAgentActiveThread);
         sb.append(", traceAgentDataSource=").append(traceAgentDataSource);
         sb.append(", dataSourceTraceLimitSize=").append(dataSourceTraceLimitSize);
@@ -842,15 +857,16 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         sb.append(", maxSqlBindValueSize=").append(maxSqlBindValueSize);
         sb.append(", samplingEnable=").append(samplingEnable);
         sb.append(", samplingRate=").append(samplingRate);
+        sb.append(", samplingNewThroughput=").append(samplingNewThroughput);
+        sb.append(", samplingContinueThroughput=").append(samplingContinueThroughput);
         sb.append(", ioBufferingEnable=").append(ioBufferingEnable);
         sb.append(", ioBufferingBufferSize=").append(ioBufferingBufferSize);
-        sb.append(", profileOsName='").append(profileOsName).append('\'');
         sb.append(", profileJvmVendorName='").append(profileJvmVendorName).append('\'');
+        sb.append(", profileOsName='").append(profileOsName).append('\'');
         sb.append(", profileJvmStatCollectIntervalMs=").append(profileJvmStatCollectIntervalMs);
         sb.append(", profileJvmStatBatchSendCount=").append(profileJvmStatBatchSendCount);
         sb.append(", profilerJvmStatCollectDetailedMetrics=").append(profilerJvmStatCollectDetailedMetrics);
         sb.append(", profilableClassFilter=").append(profilableClassFilter);
-        sb.append(", DEFAULT_AGENT_INFO_SEND_RETRY_INTERVAL=").append(DEFAULT_AGENT_INFO_SEND_RETRY_INTERVAL);
         sb.append(", agentInfoSendRetryInterval=").append(agentInfoSendRetryInterval);
         sb.append(", applicationServerType='").append(applicationServerType).append('\'');
         sb.append(", applicationTypeDetectOrder=").append(applicationTypeDetectOrder);

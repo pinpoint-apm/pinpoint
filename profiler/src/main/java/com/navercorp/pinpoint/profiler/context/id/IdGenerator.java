@@ -21,7 +21,6 @@ package com.navercorp.pinpoint.profiler.context.id;
  */
 public interface IdGenerator {
 
-
     long nextTransactionId();
 
     long nextContinuedTransactionId();
@@ -30,6 +29,10 @@ public interface IdGenerator {
 
     long nextContinuedDisabledId();
 
+    long nextSkippedId();
+
+    long nextContinuedSkippedId();
+
     long currentTransactionId();
 
     long currentContinuedTransactionId();
@@ -37,4 +40,9 @@ public interface IdGenerator {
     long currentDisabledId();
 
     long currentContinuedDisabledId();
+
+    long currentSkippedId();
+
+    long currentContinuedSkippedId();
+
 }
