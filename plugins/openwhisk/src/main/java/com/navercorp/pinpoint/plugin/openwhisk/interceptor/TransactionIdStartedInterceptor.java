@@ -61,15 +61,16 @@ public class TransactionIdStartedInterceptor implements AroundInterceptor {
             logger.beforeInterceptor(target, args);
         }
 
-        AsyncContext asyncContext = AsyncContextAccessorUtils.getAsyncContext(args[0]);
+        final AsyncContext asyncContext = AsyncContextAccessorUtils.getAsyncContext(args[0]);
         if (asyncContext == null) {
             logger.debug("Not found asynchronous invocation metadata {}", (LogMarkerToken)args[2]);
             return;
         }
 
-        Trace trace = asyncContext.continueAsyncTraceObject();
+        final Trace trace = asyncContext.continueAsyncTraceObject();
         if (trace == null) {
             logger.debug("trace object null");
+            return;
         }
 
         try {
