@@ -55,8 +55,6 @@ public class MetadataGrpcDataSender extends GrpcDataSender implements EnhancedDa
 
     private final RetryScheduler<GeneratedMessageV3, PResult> retryScheduler;
 
-    protected volatile boolean shutdown;
-
     public MetadataGrpcDataSender(String host, int port, int executorQueueSize, MessageConverter<GeneratedMessageV3> messageConverter, ChannelFactoryOption channelFactoryOption, int retryMaxCount, int retryDelayMillis) {
         super(host, port, executorQueueSize, messageConverter, channelFactoryOption);
 
