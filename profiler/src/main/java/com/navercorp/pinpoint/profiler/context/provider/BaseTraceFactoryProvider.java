@@ -30,6 +30,9 @@ import com.navercorp.pinpoint.profiler.context.SpanFactory;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
 import com.navercorp.pinpoint.profiler.context.id.IdGenerator;
 import com.navercorp.pinpoint.profiler.context.id.TraceRootFactory;
+import com.navercorp.pinpoint.profiler.context.module.ContinueThroughputSampler;
+import com.navercorp.pinpoint.profiler.context.module.NewThroughputSampler;
+import com.navercorp.pinpoint.profiler.context.module.SamplingSampler;
 import com.navercorp.pinpoint.profiler.context.recorder.RecorderFactory;
 import com.navercorp.pinpoint.profiler.context.storage.StorageFactory;
 import org.slf4j.Logger;
@@ -43,6 +46,8 @@ public class BaseTraceFactoryProvider implements Provider<BaseTraceFactory> {
     private final TraceRootFactory traceRootFactory;
     private final StorageFactory storageFactory;
     private final Sampler sampler;
+    private final Sampler newThroughputSampler;
+    private final Sampler continueThroughputSampler;
     private final IdGenerator idGenerator;
 
     private final Provider<AsyncContextFactory> asyncContextFactoryProvider;
@@ -55,7 +60,9 @@ public class BaseTraceFactoryProvider implements Provider<BaseTraceFactory> {
     private final ActiveTraceRepository activeTraceRepository;
 
     @Inject
-    public BaseTraceFactoryProvider(TraceRootFactory traceRootFactory, StorageFactory storageFactory, Sampler sampler,
+    public BaseTraceFactoryProvider(TraceRootFactory traceRootFactory, StorageFactory storageFactory,
+                                    @SamplingSampler Sampler sampler, @NewThroughputSampler Sampler newThroughputSampler,
+                                    @ContinueThroughputSampler Sampler continueThroughputSampler,
                                     IdGenerator idGenerator, Provider<AsyncContextFactory> asyncContextFactoryProvider,
                                     CallStackFactory<SpanEvent> callStackFactory, SpanFactory spanFactory, RecorderFactory recorderFactory, ActiveTraceRepository activeTraceRepository) {
         this.traceRootFactory = Assert.requireNonNull(traceRootFactory, "traceRootFactory must not be null");
@@ -63,6 +70,8 @@ public class BaseTraceFactoryProvider implements Provider<BaseTraceFactory> {
         this.callStackFactory = Assert.requireNonNull(callStackFactory, "callStackFactory must not be null");
         this.storageFactory = Assert.requireNonNull(storageFactory, "storageFactory must not be null");
         this.sampler = Assert.requireNonNull(sampler, "sampler must not be null");
+        this.newThroughputSampler = Assert.requireNonNull(newThroughputSampler, "newThroughputSampler must not be null");
+        this.continueThroughputSampler = Assert.requireNonNull(continueThroughputSampler, "continueThroughputSampler must not be null");
         this.idGenerator = Assert.requireNonNull(idGenerator, "idGenerator must not be null");
 
         this.asyncContextFactoryProvider = Assert.requireNonNull(asyncContextFactoryProvider, "asyncContextFactory must not be null");
@@ -76,7 +85,7 @@ public class BaseTraceFactoryProvider implements Provider<BaseTraceFactory> {
     @Override
     public BaseTraceFactory get() {
         final AsyncContextFactory asyncContextFactory = asyncContextFactoryProvider.get();
-        BaseTraceFactory baseTraceFactory = new DefaultBaseTraceFactory(traceRootFactory, callStackFactory, storageFactory, sampler, idGenerator,
+        BaseTraceFactory baseTraceFactory = new DefaultBaseTraceFactory(traceRootFactory, callStackFactory, storageFactory, sampler, newThroughputSampler, continueThroughputSampler, idGenerator,
                 asyncContextFactory, spanFactory, recorderFactory, activeTraceRepository);
         if (isDebugEnabled()) {
             baseTraceFactory = LoggingBaseTraceFactory.wrap(baseTraceFactory);

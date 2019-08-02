@@ -169,6 +169,8 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     // Sampling
     private boolean samplingEnable = true;
     private int samplingRate = 1;
+    private int samplingNewThroughput = 0;
+    private int samplingContinueThroughput = 0;
 
     // span buffering
     private boolean ioBufferingEnable;
@@ -436,10 +438,19 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         return samplingEnable;
     }
 
-
     @Override
     public int getSamplingRate() {
         return samplingRate;
+    }
+
+    @Override
+    public int getSamplingNewThroughput() {
+        return samplingNewThroughput;
+    }
+
+    @Override
+    public int getSamplingContinueThroughput() {
+        return samplingContinueThroughput;
     }
 
     @Override
@@ -650,6 +661,9 @@ public class DefaultProfilerConfig implements ProfilerConfig {
 
         this.samplingEnable = readBoolean("profiler.sampling.enable", true);
         this.samplingRate = readInt("profiler.sampling.rate", 1);
+        // Throughput sampling
+        this.samplingNewThroughput = readInt("profiler.sampling.new.throughput", 0);
+        this.samplingContinueThroughput = readInt("profiler.sampling.continue.throughput", 0);
 
         // configuration for sampling and IO buffer 
         this.ioBufferingEnable = readBoolean("profiler.io.buffering.enable", true);
@@ -712,8 +726,8 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         }
         String value = properties.getProperty(propertyName, defaultValue);
         value = valueResolver.resolve(value, properties);
-        if (logger.isInfoEnabled()) {
-            logger.info(propertyName + "=" + value);
+        if (logger.isDebugEnabled()) {
+            logger.debug(propertyName + "=" + value);
         }
         return value;
     }
@@ -722,8 +736,8 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     public int readInt(String propertyName, int defaultValue) {
         String value = properties.getProperty(propertyName);
         int result = NumberUtils.parseInteger(value, defaultValue);
-        if (logger.isInfoEnabled()) {
-            logger.info(propertyName + "=" + result);
+        if (logger.isDebugEnabled()) {
+            logger.debug(propertyName + "=" + result);
         }
         return result;
     }
@@ -741,8 +755,8 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         } catch (IllegalArgumentException e) {
             result = defaultDump;
         }
-        if (logger.isInfoEnabled()) {
-            logger.info(propertyName + "=" + result);
+        if (logger.isDebugEnabled()) {
+            logger.debug(propertyName + "=" + result);
         }
         return result;
     }
@@ -751,8 +765,8 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     public long readLong(String propertyName, long defaultValue) {
         String value = properties.getProperty(propertyName);
         long result = NumberUtils.parseLong(value, defaultValue);
-        if (logger.isInfoEnabled()) {
-            logger.info(propertyName + "=" + result);
+        if (logger.isDebugEnabled()) {
+            logger.debug(propertyName + "=" + result);
         }
         return result;
     }
@@ -770,8 +784,8 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     public boolean readBoolean(String propertyName, boolean defaultValue) {
         String value = properties.getProperty(propertyName, Boolean.toString(defaultValue));
         boolean result = Boolean.parseBoolean(value);
-        if (logger.isInfoEnabled()) {
-            logger.info(propertyName + "=" + result);
+        if (logger.isDebugEnabled()) {
+            logger.debug(propertyName + "=" + result);
         }
         return result;
     }
@@ -790,8 +804,8 @@ public class DefaultProfilerConfig implements ProfilerConfig {
             }
         }
 
-        if (logger.isInfoEnabled()) {
-            logger.info(propertyNamePatternRegex + "=" + result);
+        if (logger.isDebugEnabled()) {
+            logger.debug(propertyNamePatternRegex + "=" + result);
         }
 
         return result;
@@ -807,6 +821,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         sb.append(", instrumentMatcherEnable=").append(instrumentMatcherEnable);
         sb.append(", instrumentMatcherCacheConfig=").append(instrumentMatcherCacheConfig);
         sb.append(", interceptorRegistrySize=").append(interceptorRegistrySize);
+        sb.append(", staticResourceCleanup=").append(staticResourceCleanup);
         sb.append(", collectorSpanServerIp='").append(collectorSpanServerIp).append('\'');
         sb.append(", collectorSpanServerPort=").append(collectorSpanServerPort);
         sb.append(", collectorStatServerIp='").append(collectorStatServerIp).append('\'');
@@ -817,16 +832,16 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         sb.append(", spanDataSenderSocketSendBufferSize=").append(spanDataSenderSocketSendBufferSize);
         sb.append(", spanDataSenderSocketTimeout=").append(spanDataSenderSocketTimeout);
         sb.append(", spanDataSenderChunkSize=").append(spanDataSenderChunkSize);
-        sb.append(", spanDataSenderWriteBufferHighWaterMark=").append(spanDataSenderWriteBufferHighWaterMark);
-        sb.append(", spanDataSenderWriteBufferLowWaterMark=").append(spanDataSenderWriteBufferLowWaterMark);
+        sb.append(", spanDataSenderWriteBufferHighWaterMark='").append(spanDataSenderWriteBufferHighWaterMark).append('\'');
+        sb.append(", spanDataSenderWriteBufferLowWaterMark='").append(spanDataSenderWriteBufferLowWaterMark).append('\'');
         sb.append(", spanDataSenderTransportType='").append(spanDataSenderTransportType).append('\'');
         sb.append(", spanDataSenderSocketType='").append(spanDataSenderSocketType).append('\'');
         sb.append(", statDataSenderWriteQueueSize=").append(statDataSenderWriteQueueSize);
         sb.append(", statDataSenderSocketSendBufferSize=").append(statDataSenderSocketSendBufferSize);
         sb.append(", statDataSenderSocketTimeout=").append(statDataSenderSocketTimeout);
         sb.append(", statDataSenderChunkSize=").append(statDataSenderChunkSize);
-        sb.append(", statDataSenderWriteBufferHighWaterMark=").append(statDataSenderWriteBufferHighWaterMark);
-        sb.append(", statDataSenderWriteBufferLowWaterMark=").append(statDataSenderWriteBufferLowWaterMark);
+        sb.append(", statDataSenderWriteBufferHighWaterMark='").append(statDataSenderWriteBufferHighWaterMark).append('\'');
+        sb.append(", statDataSenderWriteBufferLowWaterMark='").append(statDataSenderWriteBufferLowWaterMark).append('\'');
         sb.append(", statDataSenderTransportType='").append(statDataSenderTransportType).append('\'');
         sb.append(", statDataSenderSocketType='").append(statDataSenderSocketType).append('\'');
         sb.append(", tcpDataSenderCommandAcceptEnable=").append(tcpDataSenderCommandAcceptEnable);
@@ -839,8 +854,8 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         sb.append(", tcpDataSenderPinpointClientReconnectInterval=").append(tcpDataSenderPinpointClientReconnectInterval);
         sb.append(", tcpDataSenderPinpointClientPingInterval=").append(tcpDataSenderPinpointClientPingInterval);
         sb.append(", tcpDataSenderPinpointClientHandshakeInterval=").append(tcpDataSenderPinpointClientHandshakeInterval);
-        sb.append(", tcpDataSenderPinpointClientWriteBufferHighWaterMark=").append(tcpDataSenderPinpointClientWriteBufferHighWaterMark);
-        sb.append(", tcpDataSenderPinpointClientWriteBufferLowWaterMark=").append(tcpDataSenderPinpointClientWriteBufferLowWaterMark);
+        sb.append(", tcpDataSenderPinpointClientWriteBufferHighWaterMark='").append(tcpDataSenderPinpointClientWriteBufferHighWaterMark).append('\'');
+        sb.append(", tcpDataSenderPinpointClientWriteBufferLowWaterMark='").append(tcpDataSenderPinpointClientWriteBufferLowWaterMark).append('\'');
         sb.append(", traceAgentActiveThread=").append(traceAgentActiveThread);
         sb.append(", traceAgentDataSource=").append(traceAgentDataSource);
         sb.append(", dataSourceTraceLimitSize=").append(dataSourceTraceLimitSize);
@@ -852,10 +867,12 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         sb.append(", maxSqlBindValueSize=").append(maxSqlBindValueSize);
         sb.append(", samplingEnable=").append(samplingEnable);
         sb.append(", samplingRate=").append(samplingRate);
+        sb.append(", samplingNewThroughput=").append(samplingNewThroughput);
+        sb.append(", samplingContinueThroughput=").append(samplingContinueThroughput);
         sb.append(", ioBufferingEnable=").append(ioBufferingEnable);
         sb.append(", ioBufferingBufferSize=").append(ioBufferingBufferSize);
-        sb.append(", profileOsName='").append(profileOsName).append('\'');
         sb.append(", profileJvmVendorName='").append(profileJvmVendorName).append('\'');
+        sb.append(", profileOsName='").append(profileOsName).append('\'');
         sb.append(", profileJvmStatCollectIntervalMs=").append(profileJvmStatCollectIntervalMs);
         sb.append(", profileJvmStatBatchSendCount=").append(profileJvmStatBatchSendCount);
         sb.append(", profilerJvmStatCollectDetailedMetrics=").append(profilerJvmStatCollectDetailedMetrics);

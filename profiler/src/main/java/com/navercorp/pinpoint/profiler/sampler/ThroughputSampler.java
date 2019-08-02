@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,26 +16,24 @@
 
 package com.navercorp.pinpoint.profiler.sampler;
 
+import com.google.common.util.concurrent.RateLimiter;
 import com.navercorp.pinpoint.bootstrap.sampler.Sampler;
+import com.navercorp.pinpoint.common.util.Assert;
 
 /**
- * @author emeroad
+ * @author jaehong.kim
  */
-public class SamplerFactory {
-    public Sampler createSampler(boolean sampling, int samplingRate) {
-        if (!sampling || samplingRate <= 0) {
-            return new FalseSampler();
-        }
-        if (samplingRate == 1) {
-            return new TrueSampler();
-        }
-        return new SamplingRateSampler(samplingRate);
+public class ThroughputSampler implements Sampler {
+
+    private final RateLimiter rateLimiter;
+
+    public ThroughputSampler(final int maxThroughput) {
+        Assert.isTrue(maxThroughput > 0, "maxThroughput must be positive");
+        this.rateLimiter = RateLimiter.create(maxThroughput);
     }
 
-    public Sampler createThroughputSampler(int maxThroughput) {
-        if (maxThroughput <= 0) {
-            return new TrueSampler();
-        }
-        return new ThroughputSampler(maxThroughput);
+    @Override
+    public boolean isSampling() {
+        return this.rateLimiter.tryAcquire();
     }
 }
