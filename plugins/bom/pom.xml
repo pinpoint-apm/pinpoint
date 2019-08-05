@@ -326,6 +326,12 @@
                 <version>${fastxml.jackson-jdk6.version}</version>
             </dependency>
 
+            <dependency>
+                <groupId>org.apache.tomcat</groupId>
+                <artifactId>tomcat-jdbc</artifactId>
+                <version>7.0.19</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 </project>
