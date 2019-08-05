@@ -156,7 +156,7 @@ public class AgentGrpcDataSender extends GrpcDataSender implements EnhancedDataS
         throw new UnsupportedOperationException("unsupported operation removeReconnectEventListener(eventListener)");
     }
 
-    private class FutureListenerStreamObserver implements StreamObserver<PResult> {
+    private static class FutureListenerStreamObserver implements StreamObserver<PResult> {
         private final FutureListener listener;
 
         private FutureListenerStreamObserver(FutureListener listener) {

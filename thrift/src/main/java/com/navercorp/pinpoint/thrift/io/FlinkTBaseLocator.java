@@ -35,7 +35,6 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class FlinkTBaseLocator {
 
-    private Logger logger = LoggerFactory.getLogger(this.getClass());
     public static final short AGENT_STAT_BATCH = 1000;
 
     private final byte version;

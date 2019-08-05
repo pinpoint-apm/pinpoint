@@ -51,7 +51,7 @@ public class MetadataGrpcDataSender extends GrpcDataSender implements EnhancedDa
     private final int retryDelayMillis;
 
     private final Timer retryTimer;
-    private final long maxPendingTimeouts = 1024 * 4;
+    private static final long MAX_PENDING_TIMEOUTS = 1024 * 4;
 
     private final RetryScheduler<GeneratedMessageV3, PResult> retryScheduler;
 
@@ -86,7 +86,7 @@ public class MetadataGrpcDataSender extends GrpcDataSender implements EnhancedDa
 
     private Timer newTimer(String name) {
         ThreadFactory threadFactory = new PinpointThreadFactory(PinpointThreadFactory.DEFAULT_THREAD_NAME_PREFIX + name, true);
-        return new HashedWheelTimer(threadFactory, 100, TimeUnit.MILLISECONDS, 512, false, maxPendingTimeouts);
+        return new HashedWheelTimer(threadFactory, 100, TimeUnit.MILLISECONDS, 512, false, MAX_PENDING_TIMEOUTS);
     }
 
     // Unsupported Operation
