@@ -86,9 +86,9 @@ public class ClusterPointRepository<T extends ClusterPoint> implements ClusterPo
         synchronized (this) {
             Set<String> availableAgentKeySet = new HashSet<>(clusterPointRepository.size());
 
-            Set<String> keySet = clusterPointRepository.keySet();
-            for (String key : keySet) {
-                Set<T> clusterPointSet = clusterPointRepository.get(key);
+            for (Map.Entry<String, Set<T>> entry : clusterPointRepository.entrySet()) {
+                final String key = entry.getKey();
+                final Set<T> clusterPointSet = entry.getValue();
                 for (T clusterPoint : clusterPointSet) {
                     if (clusterPoint instanceof ThriftAgentConnection) {
                         PinpointServer pinpointServer = ((ThriftAgentConnection) clusterPoint).getPinpointServer();
@@ -97,7 +97,6 @@ public class ClusterPointRepository<T extends ClusterPoint> implements ClusterPo
                         }
                     }
                 }
-
             }
             return availableAgentKeySet;
         }

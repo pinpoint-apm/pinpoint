@@ -165,7 +165,7 @@ public class DefaultProfilerPluginContextLoader implements ProfilerPluginContext
             return jarPlugins;
         }
 
-        private class JarPluginComponent {
+        private static class JarPluginComponent {
             private final PluginJar pluginJar;
             private final List<ProfilerPlugin> profilerPlugins;
 

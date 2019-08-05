@@ -23,7 +23,7 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
  */
 public class ElasticsearchConstants {
 	public static final AnnotationKey ARGS_ANNOTATION_KEY = AnnotationKeyFactory.of(171, "es.args", AnnotationKeyProperty.VIEW_IN_RECORD_SET);
-	public static int maxDslSize = 50000;
+	public static final int maxDslSize = 50000;
 	public static final ServiceType ELASTICSEARCH = ServiceTypeFactory.of(9201, "ElasticsearchBBoss");
 
 	public static final AnnotationKey ARGS_URL_ANNOTATION_KEY = AnnotationKeyFactory.of(172, "es.url", AnnotationKeyProperty.VIEW_IN_RECORD_SET);
