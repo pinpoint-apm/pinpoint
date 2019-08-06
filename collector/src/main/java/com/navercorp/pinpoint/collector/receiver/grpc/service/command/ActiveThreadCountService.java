@@ -40,7 +40,7 @@ public class ActiveThreadCountService implements GrpcStreamCommandService<PCmdAc
         return new ActiveThreadCountStreamObserver(pinpointGrpcServer, connectionObserver);
     }
 
-    public class ActiveThreadCountStreamObserver implements StreamObserver<PCmdActiveThreadCountRes> {
+    public static class ActiveThreadCountStreamObserver implements StreamObserver<PCmdActiveThreadCountRes> {
 
         private final Logger logger = LoggerFactory.getLogger(this.getClass());
 

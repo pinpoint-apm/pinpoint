@@ -31,7 +31,7 @@ import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
 import com.google.protobuf.GeneratedMessageV3;
 import io.grpc.stub.StreamObserver;
 
-import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.RejectedExecutionException;
 
 import static com.navercorp.pinpoint.grpc.MessageFormatUtils.debugLog;
 
@@ -67,12 +67,33 @@ public class SpanGrpcDataSender extends GrpcDataSender {
     }
 
     private StreamObserver<PSpanMessage> newSpanStream() {
-        StreamId spanId = StreamId.newStreamId("span");
+        StreamId spanId = StreamId.newStreamId("SpanStream");
         ResponseStreamObserver<PSpanMessage, Empty> responseStreamObserver = new ResponseStreamObserver<PSpanMessage, Empty>(spanId, spanStreamReconnector);
         return spanStub.sendSpan(responseStreamObserver);
     }
 
-    public boolean send0(Object data) {
+    @Override
+    public boolean send(final Object data) {
+        final Runnable command = new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    send0(data);
+                } catch (Exception ex) {
+                    logger.debug("send fail:{}", data, ex);
+                }
+            }
+        };
+        try {
+            executor.execute(command);
+        } catch (RejectedExecutionException reject) {
+            logger.debug("reject:{}", command);
+            return false;
+        }
+        return true;
+    }
+
+    private boolean send0(Object data) {
         final GeneratedMessageV3 message = messageConverter.toMessage(data);
         if (logger.isDebugEnabled()) {
             logger.debug("Send message={}", debugLog(message));
@@ -94,11 +115,27 @@ public class SpanGrpcDataSender extends GrpcDataSender {
 
     @Override
     public void stop() {
-        if (this.reconnectExecutor != null) {
-            this.reconnectExecutor.close();
+        if (shutdown) {
+            return;
         }
-        logger.info("spanStream.close()");
+        this.shutdown = true;
+
+        logger.info("Stop {}, channel={}", name, managedChannel);
+        final ReconnectExecutor reconnectExecutor = this.reconnectExecutor;
+        if (reconnectExecutor != null) {
+            reconnectExecutor.close();
+        }
+        logger.info("{} close()", this.spanStream);
         StreamUtils.close(this.spanStream);
-        super.stop();
+        release();
+    }
+
+    @Override
+    public String toString() {
+        return "SpanGrpcDataSender{" +
+                "name='" + name + '\'' +
+                ", host='" + host + '\'' +
+                ", port=" + port +
+                "} " + super.toString();
     }
 }

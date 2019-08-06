@@ -31,6 +31,8 @@ import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
 import com.google.protobuf.GeneratedMessageV3;
 import io.grpc.stub.StreamObserver;
 
+import java.util.concurrent.RejectedExecutionException;
+
 import static com.navercorp.pinpoint.grpc.MessageFormatUtils.debugLog;
 
 /**
@@ -66,12 +68,34 @@ public class StatGrpcDataSender extends GrpcDataSender {
     }
 
     private StreamObserver<PStatMessage> newStatStream() {
-        final StreamId statId = StreamId.newStreamId("stat");
+        final StreamId statId = StreamId.newStreamId("StatStream");
         final ResponseStreamObserver<PStatMessage, Empty> responseObserver = new ResponseStreamObserver<PStatMessage, Empty>(statId, statStreamReconnector);
         return statStub.sendAgentStat(responseObserver);
     }
 
-    public boolean send0(Object data) {
+    @Override
+    public boolean send(final Object data) {
+        final Runnable command = new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    send0(data);
+                } catch (Exception ex) {
+                    logger.debug("send fail:{}", data, ex);
+                }
+            }
+        };
+        try {
+            executor.execute(command);
+        } catch (RejectedExecutionException reject) {
+            logger.debug("reject:{}", command);
+            return false;
+        }
+        return true;
+    }
+
+
+    private boolean send0(Object data) {
         final GeneratedMessageV3 message = messageConverter.toMessage(data);
         if (logger.isDebugEnabled()) {
             logger.debug("Send message={}", debugLog(message));
@@ -95,11 +119,27 @@ public class StatGrpcDataSender extends GrpcDataSender {
 
     @Override
     public void stop() {
-        if (this.reconnectExecutor != null) {
-            this.reconnectExecutor.close();
+        if (shutdown) {
+            return;
         }
-        logger.info("statStream.close()");
+        this.shutdown = true;
+
+        logger.info("Stop {}, channel={}", name, managedChannel);
+        final ReconnectExecutor reconnectExecutor = this.reconnectExecutor;
+        if (reconnectExecutor != null) {
+            reconnectExecutor.close();
+        }
+        logger.info("{} close()", statStream);
         StreamUtils.close(statStream);
-        super.stop();
+        release();
+    }
+
+    @Override
+    public String toString() {
+        return "StatGrpcDataSender{" +
+                "name='" + name + '\'' +
+                ", host='" + host + '\'' +
+                ", port=" + port +
+                "} " + super.toString();
     }
 }

@@ -36,7 +36,7 @@ import javax.security.sasl.AuthorizeCallback;
 @Transactional(rollbackFor = {Exception.class})
 public class UserServiceImpl implements UserService {
 
-    private final String EMPTY = "";
+    private static final String EMPTY = "";
 
     @Autowired
     UserDao userDao;

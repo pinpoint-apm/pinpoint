@@ -17,13 +17,17 @@
 package com.navercorp.pinpoint.web.calltree.span;
 
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
+import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -33,38 +37,44 @@ public class LinkMap {
 
     private static final Logger logger = LoggerFactory.getLogger(LinkMap.class);
 
-    private final Map<LongPair, Node> spanToLinkMap;
+    private final MultiValueMap<LongPair, Node> spanToLinkMap;
 
     private final List<Node> duplicatedNodeList;
 
-    public LinkMap(Map<LongPair, Node> spanToLinkMap, List<Node> duplicatedNodeList) {
+    public LinkMap(MultiValueMap<LongPair, Node> spanToLinkMap, List<Node> duplicatedNodeList) {
         this.spanToLinkMap = spanToLinkMap;
         this.duplicatedNodeList = duplicatedNodeList;
     }
 
-    public static LinkMap buildLinkMap(List<Node> nodeList, TraceState traceState, long collectorAcceptTime) {
-        final Map<LongPair, Node> spanToLinkMap = new HashMap<>();
+    public static LinkMap buildLinkMap(List<Node> nodeList, TraceState traceState, long collectorAcceptTime, ServiceTypeRegistryService serviceTypeRegistryService) {
+        final MultiValueMap<LongPair, Node> spanToLinkMap = new LinkedMultiValueMap<>();
+
         // for performance & remove duplicate span
         final List<Node> duplicatedNodeList = new ArrayList<>();
         for (Node node : nodeList) {
             final SpanBo span = node.getSpanBo();
             final LongPair spanIdPairKey = new LongPair(span.getParentSpanId(), span.getSpanId());
             // check duplicated span
-            final Node existNode = spanToLinkMap.get(spanIdPairKey);
-            if (existNode == null) {
-                spanToLinkMap.put(spanIdPairKey, node);
+            Node firstNode = spanToLinkMap.getFirst(spanIdPairKey);
+            if (firstNode == null) {
+                spanToLinkMap.add(spanIdPairKey, node);
             } else {
-                traceState.progress();
-                // duplicated span, choose focus span
-                if (span.getCollectorAcceptTime() == collectorAcceptTime) {
-                    // replace value
-                    spanToLinkMap.put(spanIdPairKey, node);
-                    duplicatedNodeList.add(existNode);
-                    logger.warn("Duplicated span - choose focus {}", node);
+                ServiceType serviceType = serviceTypeRegistryService.findServiceType(span.getServiceType());
+                if (serviceType.isQueue() && firstNode.getSpanBo().getServiceType() == serviceType.getCode()) {
+                    spanToLinkMap.add(spanIdPairKey, node);
                 } else {
-                    // add remove list
-                    duplicatedNodeList.add(node);
-                    logger.warn("Duplicated span - ignored second {}", node);
+                    traceState.progress();
+                    // duplicated span, choose focus span
+                    if (span.getCollectorAcceptTime() == collectorAcceptTime) {
+                        // replace value
+                        spanToLinkMap.put(spanIdPairKey, Arrays.asList(node));
+                        duplicatedNodeList.add(node);
+                        logger.warn("Duplicated span - choose focus {}", node);
+                    } else {
+                        // add remove list
+                        duplicatedNodeList.add(node);
+                        logger.warn("Duplicated span - ignored second {}", node);
+                    }
                 }
             }
         }
@@ -74,7 +84,7 @@ public class LinkMap {
         return new LinkMap(spanToLinkMap, duplicatedNodeList);
     }
 
-    public Node findNode(Link link) {
+    public List<Node> findNode(Link link) {
         Objects.requireNonNull(link, "link must not be null");
 
         final LongPair key = new LongPair(link.getSpanId(), link.getNextSpanId());

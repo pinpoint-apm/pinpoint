@@ -40,7 +40,7 @@ public abstract class AbstractHttpClientExecuteMethodInterceptor implements Arou
     protected final PLogger logger;
     protected final boolean isDebug;
 
-    private boolean isHasCallbackParam;
+    private final boolean isHasCallbackParam;
     protected final TraceContext traceContext;
     protected final MethodDescriptor descriptor;
     protected final InterceptorScope interceptorScope;

@@ -18,17 +18,13 @@ package com.navercorp.pinpoint.profiler.context.provider.grpc;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.Executors;
-import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -43,27 +39,13 @@ public class ReconnectSchedulerProvider implements Provider<ScheduledExecutorSer
         final PinpointThreadFactory threadFactory = new PinpointThreadFactory("Pinpoint-reconnect-thread");
         final ScheduledThreadPoolExecutor scheduler = (ScheduledThreadPoolExecutor) Executors.newScheduledThreadPool(1, threadFactory);
 
-        LoggingRejectedExecutionHandler reconnectScheduler = new LoggingRejectedExecutionHandler("ReconnectScheduler");
-        scheduler.setRejectedExecutionHandler(reconnectScheduler);
+        // not recommended
+//        LoggingRejectedExecutionHandler reconnectScheduler = new LoggingRejectedExecutionHandler("ReconnectScheduler");
+//        scheduler.setRejectedExecutionHandler(reconnectScheduler);
 
 
         ScheduledExecutorService scheduledExecutorService = Executors.unconfigurableScheduledExecutorService(scheduler);
         return scheduledExecutorService ;
     }
 
-    private static class LoggingRejectedExecutionHandler implements RejectedExecutionHandler {
-        private final Logger logger;
-        private final AtomicLong counter = new AtomicLong();
-
-        public LoggingRejectedExecutionHandler(String name) {
-            Assert.requireNonNull(name, "name must not be null");
-            logger = LoggerFactory.getLogger(name);
-        }
-
-        @Override
-        public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
-            final long reject = counter.incrementAndGet();
-            logger.warn("reconnect job rejected {}", reject);
-        }
-    }
 }

@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.web.calltree.span;
 
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
+import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,12 +44,14 @@ public class SpanAligner {
     private final LinkMap linkMap;
     private final List<Link> linkList = new ArrayList<>();
     private final MetaSpanCallTreeFactory metaSpanCallTreeFactory = new MetaSpanCallTreeFactory();
+    private final ServiceTypeRegistryService serviceTypeRegistryService;
 
-    public SpanAligner(final List<SpanBo> spans, final long collectorAcceptTime) {
+    public SpanAligner(final List<SpanBo> spans, final long collectorAcceptTime, ServiceTypeRegistryService serviceTypeRegistryService) {
         this.nodeList = Node.newNodeList(spans);
-        this.linkMap = LinkMap.buildLinkMap(nodeList, traceState, collectorAcceptTime);
+        this.linkMap = LinkMap.buildLinkMap(nodeList, traceState, collectorAcceptTime, serviceTypeRegistryService);
         removeDuplicateNode();
         this.collectorAcceptTime = collectorAcceptTime;
+        this.serviceTypeRegistryService = serviceTypeRegistryService;
     }
 
     private void removeDuplicateNode() {
@@ -56,7 +60,6 @@ public class SpanAligner {
         nodeList.removeAll(duplicatedNodeList);
         duplicatedNodeList.clear();
     }
-
 
     public TraceState.State getMatchType() {
         return traceState.getState();
@@ -148,20 +151,41 @@ public class SpanAligner {
     private void link() {
         final List<Link> linkedList = new ArrayList<>();
         for (Link link : this.linkList) {
-            final Node node = this.linkMap.findNode(link);
-            if (node != null) {
-                if (isDebug) {
-                    logger.debug("Linked link {} to node {}", link, node);
+            final List<Node> nodeList = this.linkMap.findNode(link);
+
+            if (CollectionUtils.nullSafeSize(nodeList) > 1) {
+                for (Node node : nodeList) {
+                    if (putNodeToLink(link, node, true)) {
+                        linkedList.add(link);
+                    }
                 }
-                // linked
-                node.setLinked(true);
-                link.setLinked(true);
-                link.getLinkedCallTree().update(node.getSpanCallTree());
-                linkedList.add(link);
+            } else if (CollectionUtils.nullSafeSize(nodeList) == 1) {
+                Node node = nodeList.get(0);
+                if (putNodeToLink(link, node, false)) {
+                    linkedList.add(link);
+                }
             }
         }
         // remove linked
         this.linkList.removeAll(linkedList);
+    }
+
+    private boolean putNodeToLink(Link link, Node node, boolean hasMultipleChild) {
+        if (node != null) {
+            if (isDebug) {
+                logger.debug("Linked link {} to node {}", link, node);
+            }
+            // linked
+            node.setLinked(true);
+            link.setLinked(true);
+            if (hasMultipleChild) {
+                link.getLinkedCallTree().updateForMultipleChild(node.getSpanCallTree());
+            } else {
+                link.getLinkedCallTree().update(node.getSpanCallTree());
+            }
+            return true;
+        }
+        return false;
     }
 
     private void fill() {
