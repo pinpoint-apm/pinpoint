@@ -31,11 +31,4 @@ public class SamplerFactory {
         }
         return new SamplingRateSampler(samplingRate);
     }
-
-    public Sampler createThroughputSampler(int maxThroughput) {
-        if (maxThroughput <= 0) {
-            return new TrueSampler();
-        }
-        return new ThroughputSampler(maxThroughput);
-    }
 }

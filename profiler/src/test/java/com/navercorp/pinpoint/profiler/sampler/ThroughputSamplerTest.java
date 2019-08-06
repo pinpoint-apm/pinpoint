@@ -16,19 +16,35 @@
 
 package com.navercorp.pinpoint.profiler.sampler;
 
+import com.navercorp.pinpoint.bootstrap.sampler.Sampler;
+import com.navercorp.pinpoint.bootstrap.sampler.TraceSampler;
+import com.navercorp.pinpoint.profiler.context.id.AtomicIdGenerator;
+import com.navercorp.pinpoint.profiler.context.id.IdGenerator;
 import org.junit.Assert;
 import org.junit.Test;
 
 public class ThroughputSamplerTest {
 
     @Test
-    public void isSampling() throws Exception {
+    public void isSampling_1() {
         // 1 per seconds
-        ThroughputSampler sampler = new ThroughputSampler(1);
-        Assert.assertTrue(sampler.isSampling());
+        TraceSampler sampler = newTraceSampler(1);
+        Assert.assertTrue(sampler.isNewSampled().isSampled());
 
+    }
+
+    @Test
+    public void isSampling_1000() {
         // 1000 per seconds
-        sampler = new ThroughputSampler(1000);
-        Assert.assertTrue(sampler.isSampling());
+        TraceSampler sampler = newTraceSampler(1000);
+        Assert.assertTrue(sampler.isNewSampled().isSampled());
+    }
+
+
+    private TraceSampler newTraceSampler(int throughput) {
+        IdGenerator atomicIdGenerator = new AtomicIdGenerator();
+        Sampler trueSampler = new TrueSampler();
+        TraceSampler basicSampler = new BasicTraceSampler(atomicIdGenerator, trueSampler);
+        return new RateLimitTraceSampler(throughput, 0, atomicIdGenerator, basicSampler);
     }
 }

@@ -29,9 +29,9 @@ public interface IdGenerator {
 
     long nextContinuedDisabledId();
 
-    long nextDisabledId(boolean throughputLimit);
+    long nextSkippedId();
 
-    long nextContinuedDisabledId(boolean throughputLimit);
+    long nextContinuedSkippedId();
 
     long currentTransactionId();
 
@@ -41,7 +41,8 @@ public interface IdGenerator {
 
     long currentContinuedDisabledId();
 
-    long currentDisabledId(boolean throughputLimit);
+    long currentSkippedId();
 
-    long currentContinuedDisabledId(boolean throughputLimit);
+    long currentContinuedSkippedId();
+
 }
