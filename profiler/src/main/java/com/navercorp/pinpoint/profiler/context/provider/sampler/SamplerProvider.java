@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.context.provider;
+package com.navercorp.pinpoint.profiler.context.provider.sampler;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
@@ -23,20 +23,23 @@ import com.navercorp.pinpoint.bootstrap.sampler.Sampler;
 import com.navercorp.pinpoint.profiler.sampler.SamplerFactory;
 
 /**
- * @author jaehong.kim
+ * @author Woonduk Kang(emeroad)
  */
-public class ContinueThroughputSamplerProvider implements Provider<Sampler> {
+public class SamplerProvider implements Provider<Sampler> {
+
     private final ProfilerConfig profilerConfig;
 
     @Inject
-    public ContinueThroughputSamplerProvider(ProfilerConfig profilerConfig) {
+    public SamplerProvider(ProfilerConfig profilerConfig) {
         this.profilerConfig = profilerConfig;
     }
 
     @Override
     public Sampler get() {
-        int throughput = profilerConfig.getSamplingContinueThroughput();
+        boolean samplingEnable = profilerConfig.isSamplingEnable();
+        int samplingRate = profilerConfig.getSamplingRate();
+
         SamplerFactory samplerFactory = new SamplerFactory();
-        return samplerFactory.createThroughputSampler(throughput);
+        return samplerFactory.createSampler(samplingEnable, samplingRate);
     }
 }

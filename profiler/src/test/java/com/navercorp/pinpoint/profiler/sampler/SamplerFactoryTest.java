@@ -41,14 +41,4 @@ public class SamplerFactoryTest {
         boolean sampling = sampler.isSampling();
         Assert.assertFalse(sampling);
     }
-
-    @Test
-    public void createThroughputSampler() {
-        SamplerFactory samplerFactory = new SamplerFactory();
-        Sampler sampler = samplerFactory.createThroughputSampler(1000);
-        Assert.assertTrue(sampler.isSampling());
-
-        sampler = samplerFactory.createThroughputSampler(0);
-        Assert.assertTrue(sampler.isSampling());
-    }
 }

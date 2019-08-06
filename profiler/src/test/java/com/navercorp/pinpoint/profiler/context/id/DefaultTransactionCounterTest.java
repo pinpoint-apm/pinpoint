@@ -177,7 +177,7 @@ public class DefaultTransactionCounterTest {
         final long expectedTransactionCount = 99L;
         // When
         for (int i = 0; i < expectedTransactionCount; i++) {
-            this.idGenerator.nextDisabledId(true);
+            this.idGenerator.nextSkippedId();
         }
         final long actualCount = this.transactionCounter.getSkippedNewCount();
         // Then
@@ -208,10 +208,10 @@ public class DefaultTransactionCounterTest {
             this.idGenerator.nextContinuedDisabledId();
         }
         for(int i = 0; i < expectedSkippedNewCount; i++) {
-            this.idGenerator.nextDisabledId(true);
+            this.idGenerator.nextSkippedId();
         }
         for(int i = 0; i < expectedSkippedContinuationCount; i++) {
-            this.idGenerator.nextContinuedDisabledId(true);
+            this.idGenerator.nextContinuedSkippedId();
         }
         final long actualSampledNewCount = this.transactionCounter.getSampledNewCount();
         final long actualSampledContinuationCount = this.transactionCounter.getSampledContinuationCount();

@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.profiler.context.id;
 
 import com.google.inject.Inject;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -75,30 +76,22 @@ public class AtomicIdGenerator implements IdGenerator {
 
     @Override
     public long nextDisabledId() {
-        return nextDisabledId(false);
+        return this.disabledId.getAndAdd(NEGATIVE_DECREMENT_CYCLE);
     }
 
     @Override
     public long nextContinuedDisabledId() {
-        return nextContinuedDisabledId(false);
+        return this.continuedDisabledId.getAndAdd(NEGATIVE_DECREMENT_CYCLE);
     }
 
     @Override
-    public long nextDisabledId(final boolean throughputLimit) {
-        if (throughputLimit) {
-            return this.skippedId.getAndAdd(NEGATIVE_DECREMENT_CYCLE);
-        } else {
-            return this.disabledId.getAndAdd(NEGATIVE_DECREMENT_CYCLE);
-        }
+    public long nextSkippedId() {
+        return this.skippedId.getAndAdd(NEGATIVE_DECREMENT_CYCLE);
     }
 
     @Override
-    public long nextContinuedDisabledId(final boolean throughputLimit) {
-        if (throughputLimit) {
-            return this.continuedSkippedId.getAndAdd(NEGATIVE_DECREMENT_CYCLE);
-        } else {
-            return this.continuedDisabledId.getAndAdd(NEGATIVE_DECREMENT_CYCLE);
-        }
+    public long nextContinuedSkippedId() {
+        return this.continuedSkippedId.getAndAdd(NEGATIVE_DECREMENT_CYCLE);
     }
 
     @Override
@@ -113,29 +106,22 @@ public class AtomicIdGenerator implements IdGenerator {
 
     @Override
     public long currentDisabledId() {
-        return currentDisabledId(false);
+        return this.disabledId.get();
     }
 
     @Override
     public long currentContinuedDisabledId() {
-        return currentContinuedDisabledId(false);
+        return this.continuedDisabledId.get();
     }
 
     @Override
-    public long currentDisabledId(final boolean throughputLimit) {
-        if (throughputLimit) {
-            return this.skippedId.get();
-        } else {
-            return this.disabledId.get();
-        }
+    public long currentSkippedId() {
+        return this.skippedId.get();
     }
 
     @Override
-    public long currentContinuedDisabledId(final boolean throughputLimit) {
-        if (throughputLimit) {
-            return this.continuedSkippedId.get();
-        } else {
-            return this.continuedDisabledId.get();
-        }
+    public long currentContinuedSkippedId() {
+        return this.continuedSkippedId.get();
     }
+
 }
