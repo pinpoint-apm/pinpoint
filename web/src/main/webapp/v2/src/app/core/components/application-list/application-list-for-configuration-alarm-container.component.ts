@@ -113,14 +113,6 @@ export class ApplicationListForConfigurationAlarmContainerComponent implements O
         return this.funcImagePath(this.selectedApplication.getServiceType());
     }
 
-    getSelectedApplicationName(): string {
-        if (this.selectedApplication) {
-            return this.selectedApplication.getApplicationName();
-        } else {
-            return this.i18nText.SELECTED_APPLICATION_NAME;
-        }
-    }
-
     onSelectApplication(selectedApplication: IApplication): void {
         if (!selectedApplication.equals(this.selectedApplication)) {
             this.selectApplication(selectedApplication);

@@ -84,7 +84,7 @@ export class AlarmRuleListContainerComponent implements OnInit, OnDestroy {
         this.applicationListInteractionForConfigurationService.onSelectApplication$.subscribe((selectedApplication: IApplication) => {
             this.selectedApplication = selectedApplication;
             this.errorMessage = '';
-            this.onCloseCreateAlarmPopup();
+            this.onClosePopup();
             this.getAlarmData();
         });
     }
@@ -193,7 +193,7 @@ export class AlarmRuleListContainerComponent implements OnInit, OnDestroy {
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.SHOW_ALARM_CREATION_POPUP);
     }
 
-    onCloseCreateAlarmPopup(): void {
+    onClosePopup(): void {
         this.showPopup = false;
     }
 
