@@ -17,6 +17,8 @@
 package com.navercorp.pinpoint.profiler.sender.grpc;
 
 import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.grpc.StatusError;
+import com.navercorp.pinpoint.grpc.StatusErrors;
 import io.grpc.stub.ClientCallStreamObserver;
 import io.grpc.stub.ClientResponseObserver;
 import org.slf4j.Logger;
@@ -56,7 +58,12 @@ public class ResponseStreamObserver<ReqT, RespT> implements ClientResponseObserv
 
     @Override
     public void onError(Throwable t) {
-        logger.info("{} onError:{}", name, t.getMessage(), t);
+        final StatusError statusError = StatusErrors.throwable(t);
+        if (statusError.isSimpleError()) {
+            logger.info("Failed to stream, name={}, cause={}", name, statusError.getMessage());
+        } else {
+            logger.warn("Failed to stream, name={}, cause={}", name, statusError.getMessage(), statusError.getThrowable());
+        }
         reconnector.reconnect();
     }
 
