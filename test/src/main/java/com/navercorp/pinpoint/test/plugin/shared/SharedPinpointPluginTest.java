@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.test.plugin.shared;
 
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
+import com.navercorp.pinpoint.test.plugin.util.ArrayUtils;
 import com.navercorp.pinpoint.test.plugin.ForkedPinpointPluginTestRunner;
 import com.navercorp.pinpoint.test.plugin.PluginTestClassLoader;
 import org.junit.runner.Description;
@@ -40,15 +41,27 @@ import static com.navercorp.pinpoint.test.plugin.PinpointPluginTestConstants.JUN
 public class SharedPinpointPluginTest {
 
     public static void main(String[] args) throws Exception {
-        String mavenDependencyResolverClassPaths = System.getProperty(SharedPluginTestConstants.MAVEN_DEPENDENCY_RESOLVER_CLASS_PATHS);
-        String testLocation = System.getProperty(SharedPluginTestConstants.TEST_LOCATION);
-        String testClazzName = System.getProperty(SharedPluginTestConstants.TEST_CLAZZ_NAME);
-        if (mavenDependencyResolverClassPaths == null || testLocation == null || testClazzName == null) {
-            System.out.println("must not be empty required properties");
+        final String mavenDependencyResolverClassPaths = System.getProperty(SharedPluginTestConstants.MAVEN_DEPENDENCY_RESOLVER_CLASS_PATHS);
+        if (mavenDependencyResolverClassPaths == null) {
+            System.out.println("mavenDependencyResolverClassPaths must not be empty");
             return;
         }
-        if (args == null || args.length == 0) {
+
+        final String testLocation = System.getProperty(SharedPluginTestConstants.TEST_LOCATION);
+        if (testLocation == null) {
+            System.out.println("testLocation must not be empty");
+            return;
+        }
+
+        final String testClazzName = System.getProperty(SharedPluginTestConstants.TEST_CLAZZ_NAME);
+        if (testClazzName == null) {
+            System.out.println("testClazzName must not be empty");
+            return;
+        }
+
+        if (ArrayUtils.isEmpty(args)) {
             System.out.println("test must not be empty");
+            return;
         }
 
         List<TestParameter> testParameters = parse(args);

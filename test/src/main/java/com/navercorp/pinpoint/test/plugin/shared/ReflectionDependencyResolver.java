@@ -39,14 +39,12 @@ public class ReflectionDependencyResolver {
             dependencyResolverObject = getLocalResolver.invoke(null, (Object) new String[]{});
         }
 
-        List fileList = null;
         try {
-            fileList = (List) resolveArtifactsAndDependenciesMethod.invoke(dependencyResolverObject, classpath);
+            return (List<File>) resolveArtifactsAndDependenciesMethod.invoke(dependencyResolverObject, classpath);
         } catch (Exception e) {
             e.printStackTrace();
+            throw new RuntimeException("dependency resolve fail Caused by:" + e.getMessage(), e);
         }
-
-        return fileList;
     }
 
 }
