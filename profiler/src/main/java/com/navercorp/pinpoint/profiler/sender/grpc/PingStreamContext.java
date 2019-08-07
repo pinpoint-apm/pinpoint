@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.profiler.sender.grpc;
 
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
+import com.navercorp.pinpoint.grpc.StatusError;
+import com.navercorp.pinpoint.grpc.StatusErrors;
 import com.navercorp.pinpoint.grpc.trace.AgentGrpc;
 import com.navercorp.pinpoint.grpc.trace.PPing;
 import io.grpc.stub.ClientCallStreamObserver;
@@ -78,7 +80,12 @@ public class PingStreamContext {
 
         @Override
         public void onError(Throwable t) {
-            logger.info("{} error Caused by:{}", streamId, t.getMessage(), t);
+            final StatusError statusError = StatusErrors.throwable(t);
+            if (statusError.isSimpleError()) {
+                logger.info("Failed to ping stream, streamId={}, cause={}", streamId, statusError.getMessage());
+            } else {
+                logger.warn("Failed to ping stream, streamId={}, cause={}", streamId, statusError.getMessage(), statusError.getThrowable());
+            }
             cancelPingScheduler();
             reconnector.reconnect();
         }
