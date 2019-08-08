@@ -58,16 +58,13 @@ public class TCPChecker extends AbstractNetworkChecker {
 
     private Socket createSocket(InetSocketAddress socketAddress) throws IOException {
         Socket socket = null;
-        boolean success = false;
         try {
             socket = new Socket();
             socket.setSoTimeout(3000);
             socket.connect(socketAddress);
-            success = true;
-        } finally {
-            if (!success) {
-                IOUtils.closeQuietly(socket);
-            }
+        } catch (IOException ioe){
+            IOUtils.closeQuietly(socket);
+            throw ioe;
         }
         return socket;
     }
