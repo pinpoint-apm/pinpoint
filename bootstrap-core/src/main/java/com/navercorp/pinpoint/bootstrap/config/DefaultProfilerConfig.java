@@ -628,8 +628,6 @@ public class DefaultProfilerConfig implements ProfilerConfig {
 
     // for test
     void readPropertyValues() {
-        // TODO : use Properties' default value instead of using a temp variable.
-        final ValueResolver placeHolderResolver = new PlaceHolderResolver();
 
         this.profileEnable = readBoolean("profiler.enable", true);
         this.profileInstrumentEngine = readString("profiler.instrument.engine", INSTRUMENT_ENGINE_ASM);
