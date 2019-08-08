@@ -333,11 +333,15 @@ public class ASMClassNodeAdapter {
     public ASMFieldNodeAdapter addField(final String fieldName, final String fieldDesc) {
         Assert.requireNonNull(fieldName, "fieldName must not be null");
         Assert.requireNonNull(fieldDesc, "fieldDesc must not be null");
-
-        final FieldNode fieldNode = new FieldNode(Opcodes.ACC_PRIVATE, fieldName, fieldDesc, null, null);
+        final FieldNode fieldNode = new FieldNode(getFieldAccessFlags(), fieldName, fieldDesc, null, null);
         addFieldNode0(fieldNode);
 
         return new ASMFieldNodeAdapter(fieldNode);
+    }
+
+    private int getFieldAccessFlags() {
+        // Field added by pinpoint must not be serialized
+        return Opcodes.ACC_PRIVATE | Opcodes.ACC_TRANSIENT;
     }
 
     private void addFieldNode0(FieldNode fieldNode) {
