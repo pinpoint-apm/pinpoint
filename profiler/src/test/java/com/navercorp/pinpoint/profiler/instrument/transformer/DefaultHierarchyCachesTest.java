@@ -25,11 +25,11 @@ import static org.junit.Assert.*;
 /**
  * @author jaehong.kim
  */
-public class HierarchyCachesTest {
+public class DefaultHierarchyCachesTest {
 
     @Test
     public void get() throws Exception {
-        HierarchyCaches caches = new HierarchyCaches(8, 8);
+        HierarchyCaches caches = new DefaultHierarchyCaches(8, 8);
         assertFalse(caches.get("java/lang/Runnable", "java/lang/Thread"));
         caches.put("java/lang/Runnable", "java/lang/Thread");
         assertTrue(caches.get("java/lang/Runnable", "java/lang/Thread"));
