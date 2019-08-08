@@ -99,15 +99,40 @@ public class ApacheDubboProviderInterceptor extends SpanRecursiveAroundIntercept
             if (parentApplicationName != null) {
                 final short parentApplicationType = NumberUtils.parseShort(invocation.getAttachment(ApacheDubboConstants.META_PARENT_APPLICATION_TYPE), ServiceType.UNDEFINED.getCode());
                 recorder.recordParentApplication(parentApplicationName, parentApplicationType);
-                // Pinpoint finds caller - callee relation by matching caller's end point and callee's acceptor host.
-                // https://github.com/naver/pinpoint/issues/1395
-                String localHost = getLocalHost();
-                if (localHost.equals(rpcContext.getLocalHost())) {
-                    recorder.recordAcceptorHost(rpcContext.getLocalAddressString());
-                } else {
-                    recorder.recordAcceptorHost(localHost + ":" + rpcContext.getLocalPort());
+
+                final String localHost = getLocalHost(rpcContext);
+                if (localHost != null) {
+                    recorder.recordAcceptorHost(localHost);
                 }
             }
+        }
+    }
+
+    private String getLocalHost(RpcContext rpcContext) {
+        // Pinpoint finds caller - callee relation by matching caller's end point and callee's acceptor host.
+        // https://github.com/naver/pinpoint/issues/1395
+        // @Nullable
+        final String localHost = NetworkUtils.getLocalHost();
+        if (localHost == null) {
+            logger.debug("NetworkUtils.getLocalHost() is null");
+        }
+        final String rpcContextLocalhost = rpcContext.getLocalHost();
+        if (rpcContextLocalhost == null) {
+            logger.debug("rpcContext.getLocalHost() is null");
+        }
+        if (localHost == null && rpcContextLocalhost == null) {
+            logger.debug("localHost == null && rpcContextLocalhost == null");
+            return null;
+        }
+        if (localHost == null && rpcContextLocalhost != null) {
+            logger.debug("return rpcContextLocalhost:{}", rpcContextLocalhost);
+            return rpcContextLocalhost;
+        }
+        // TODO I think Dubbo should return the address of the listen socket
+        if (localHost.equals(rpcContextLocalhost)) {
+            return rpcContextLocalhost;
+        } else {
+            return localHost + ":" + rpcContextLocalhost;
         }
     }
 
@@ -134,27 +159,4 @@ public class ApacheDubboProviderInterceptor extends SpanRecursiveAroundIntercept
         }
     }
 
-    private String getLocalHost() {
-        try {
-            Enumeration<NetworkInterface> allNetInterfaces = NetworkInterface.getNetworkInterfaces();
-            while (allNetInterfaces.hasMoreElements()) {
-                NetworkInterface netInterface = allNetInterfaces.nextElement();
-                String name = netInterface.getName();
-                if (!name.contains("docker") && !name.contains("lo")) {
-                    Enumeration<InetAddress> addresses = netInterface.getInetAddresses();
-                    while (addresses.hasMoreElements()) {
-                        InetAddress ip = addresses.nextElement();
-                        if (ip != null && ip instanceof Inet4Address  && !ip.isLoopbackAddress()
-                                && ip.getHostAddress().indexOf(":") == -1) {
-                            return ip.getHostAddress();
-                        }
-                    }
-                }
-            }
-        } catch (Exception e) {
-            logger.error("failed to get local host", e);
-        }
-
-        return null;
-    }
 }
