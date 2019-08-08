@@ -270,13 +270,18 @@ public class ASMClassNodeAdapter {
             throw new IllegalArgumentException("fieldDesc must not be null");
         }
 
-        final FieldNode fieldNode = new FieldNode(Opcodes.ACC_PRIVATE, fieldName, fieldDesc, null, null);
+        final FieldNode fieldNode = new FieldNode(getFieldAccessFlags(), fieldName, fieldDesc, null, null);
         if (this.classNode.fields == null) {
             this.classNode.fields = new ArrayList<FieldNode>();
         }
         this.classNode.fields.add(fieldNode);
 
         return new ASMFieldNodeAdapter(fieldNode);
+    }
+
+    private int getFieldAccessFlags() {
+        // Field added by pinpoint must not be serialized
+        return Opcodes.ACC_PRIVATE | Opcodes.ACC_TRANSIENT;
     }
 
     public ASMMethodNodeAdapter addDelegatorMethod(final ASMMethodNodeAdapter superMethodNode) {
