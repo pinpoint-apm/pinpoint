@@ -17,12 +17,21 @@
 package com.navercorp.pinpoint.profiler.instrument.transformer;
 
 /**
- * @author jaehong.kim
+ * @author Woonduk Kang(emeroad)
  */
-public interface HierarchyCaches {
-    boolean get(String key, String classInternalName);
+public class DisableHierarchyCaches implements HierarchyCaches {
+    @Override
+    public boolean get(String key, String classInternalName) {
+        return false;
+    }
 
-    void put(String key, String classInternalName);
+    @Override
+    public void put(String key, String classInternalName) {
 
-    boolean isActive();
+    }
+
+    @Override
+    public boolean isActive() {
+        return false;
+    }
 }
