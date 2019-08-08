@@ -125,7 +125,7 @@ public class TransactionIdStartedInterceptor implements AroundInterceptor {
                 }
             }
 
-            if (result instanceof AsyncContextAccessor) {
+            if (result instanceof AsyncContextAccessor && result instanceof PinpointTraceAccessor) {
                 ((AsyncContextAccessor) (result))._$PINPOINT$_setAsyncContext(asyncContext);
                 ((PinpointTraceAccessor) (result))._$PINPOINT$_setPinpointTrace(trace);
             }
