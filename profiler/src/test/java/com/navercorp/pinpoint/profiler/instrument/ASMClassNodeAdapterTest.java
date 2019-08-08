@@ -15,8 +15,13 @@
  */
 package com.navercorp.pinpoint.profiler.instrument;
 
+import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
+import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
+import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
 import com.navercorp.pinpoint.bootstrap.instrument.aspect.Aspect;
+import com.navercorp.pinpoint.profiler.instrument.mock.JavaSerializableUtils;
+import com.navercorp.pinpoint.profiler.instrument.mock.accessor.MockAsyncContext;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 import org.junit.Assert;
 import org.junit.Before;
@@ -26,6 +31,8 @@ import org.mockito.stubbing.Answer;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
 import java.lang.reflect.Method;
@@ -42,7 +49,7 @@ import static org.mockito.Mockito.when;
 public class ASMClassNodeAdapterTest {
 
     private final InstrumentContext pluginContext = mock(InstrumentContext.class);
-
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Before
     public void setUp() {
@@ -212,8 +219,40 @@ public class ASMClassNodeAdapterTest {
 
         Method getMethod = clazz.getDeclaredMethod("_$PINPOINT$_getTraceInt");
         int result = (Integer) getMethod.invoke(instance);
-        System.out.println(result);
+        logger.debug("{}", result);
     }
+
+    @Test
+    public void addField_transient() throws Exception {
+        final String baseClassName = "com.navercorp.pinpoint.profiler.instrument.mock.SerializableClass";
+        final Class<AsyncContext> asyncContextClass = AsyncContext.class;
+        final String accessorClassName = asyncContextClass.getName();
+        final ASMClassNodeLoader.TestClassLoader classLoader = ASMClassNodeLoader.getClassLoader();
+        classLoader.setTargetClassName(baseClassName);
+        classLoader.setCallbackHandler(new ASMClassNodeLoader.CallbackHandler() {
+            @Override
+            public void handle(ClassNode classNode) {
+                ASMClassNodeAdapter classNodeAdapter = new ASMClassNodeAdapter(pluginContext, null, getClass().getProtectionDomain(), classNode);
+                classNodeAdapter.addField("_$PINPOINT$_" + JavaAssistUtils.javaClassNameToVariableName(accessorClassName), Type.getDescriptor(asyncContextClass));
+                classNodeAdapter.addInterface(accessorClassName);
+                ASMFieldNodeAdapter fieldNode = classNodeAdapter.getField("_$PINPOINT$_" + JavaAssistUtils.javaClassNameToVariableName(accessorClassName), null);
+                classNodeAdapter.addGetterMethod("_$PINPOINT$_getAsyncContext", fieldNode);
+                classNodeAdapter.addSetterMethod("_$PINPOINT$_setAsyncContext", fieldNode);
+            }
+        });
+        Class<?> baseClazz = classLoader.loadClass(baseClassName);
+        Object instance = baseClazz.newInstance();
+        AsyncContext asyncContext = new MockAsyncContext();
+        Method setMethod = baseClazz.getDeclaredMethod("_$PINPOINT$_setAsyncContext", asyncContextClass);
+        setMethod.invoke(instance, asyncContext);
+
+        Method getMethod = baseClazz.getDeclaredMethod("_$PINPOINT$_getAsyncContext");
+        AsyncContext result = (AsyncContext) getMethod.invoke(instance);
+
+        JavaSerializableUtils.serialize(instance);
+        logger.debug("{}", result);
+    }
+
 
     @Test
     public void hasAnnotation() throws Exception {
