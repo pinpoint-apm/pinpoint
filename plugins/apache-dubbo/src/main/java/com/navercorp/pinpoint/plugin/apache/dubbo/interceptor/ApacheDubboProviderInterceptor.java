@@ -102,7 +102,9 @@ public class ApacheDubboProviderInterceptor extends SpanRecursiveAroundIntercept
                 // Pinpoint finds caller - callee relation by matching caller's end point and callee's acceptor host.
                 // https://github.com/naver/pinpoint/issues/1395
                 String localHost = getLocalHost();
-                if (localHost.equals(rpcContext.getLocalHost())) {
+                if (localHost == null) {
+                    recorder.recordAcceptorHost("Unknown:" + rpcContext.getLocalPort());
+                } else if (localHost.equals(rpcContext.getLocalHost())) {
                     recorder.recordAcceptorHost(rpcContext.getLocalAddressString());
                 } else {
                     recorder.recordAcceptorHost(localHost + ":" + rpcContext.getLocalPort());
@@ -137,22 +139,26 @@ public class ApacheDubboProviderInterceptor extends SpanRecursiveAroundIntercept
     private String getLocalHost() {
         try {
             Enumeration<NetworkInterface> allNetInterfaces = NetworkInterface.getNetworkInterfaces();
-            while (allNetInterfaces.hasMoreElements()) {
-                NetworkInterface netInterface = allNetInterfaces.nextElement();
-                String name = netInterface.getName();
-                if (!name.contains("docker") && !name.contains("lo")) {
-                    Enumeration<InetAddress> addresses = netInterface.getInetAddresses();
-                    while (addresses.hasMoreElements()) {
-                        InetAddress ip = addresses.nextElement();
-                        if (ip != null && ip instanceof Inet4Address  && !ip.isLoopbackAddress()
-                                && ip.getHostAddress().indexOf(":") == -1) {
-                            return ip.getHostAddress();
+            if (allNetInterfaces != null) {
+                while (allNetInterfaces.hasMoreElements()) {
+                    NetworkInterface netInterface = allNetInterfaces.nextElement();
+                    String name = netInterface.getName();
+                    if (name != null && !name.contains("docker") && !name.contains("lo")) {
+                        Enumeration<InetAddress> addresses = netInterface.getInetAddresses();
+                        while (addresses.hasMoreElements()) {
+                            InetAddress ip = addresses.nextElement();
+                            if (ip != null && ip instanceof Inet4Address && !ip.isLoopbackAddress()
+                                    && ip.getHostAddress().indexOf(":") == -1) {
+                                return ip.getHostAddress();
+                            }
                         }
                     }
                 }
             }
         } catch (Exception e) {
-            logger.error("failed to get local host", e);
+            if (logger.isDebugEnabled()) {
+                logger.debug("Failed to get local host", e);
+            }
         }
 
         return null;
