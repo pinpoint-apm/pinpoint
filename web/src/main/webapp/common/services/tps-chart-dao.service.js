@@ -13,13 +13,17 @@
 				var aSampledContinuationData = aChartData.charts.y["TPS_SAMPLED_CONTINUATION"];
 				var aSampledNewData = aChartData.charts.y["TPS_SAMPLED_NEW"];
 				var aUnsampledContinuationData = aChartData.charts.y["TPS_UNSAMPLED_CONTINUATION"];
-				var aUnsampledNewData = aChartData.charts.y["TPS_UNSAMPLED_NEW"];
+                var aUnsampledNewData = aChartData.charts.y["TPS_UNSAMPLED_NEW"];
+                var aSkippedNewData = aChartData.charts.y["TPS_SKIPPED_NEW"];
+				var aSkippedContinuationData = aChartData.charts.y["TPS_SKIPPED_CONTINUATION"];
 				var aTotalData = aChartData.charts.y["TPS_TOTAL"];
 				var xLen = aX.length;
 				var scdLen = aSampledContinuationData.length;
 				var sndLen = aSampledNewData.length;
 				var ucdLen = aUnsampledContinuationData.length;
-				var undLen = aUnsampledNewData.length;
+                var undLen = aUnsampledNewData.length;
+                var ssndLen = aSkippedNewData.length;
+				var sscdLen = aSkippedContinuationData.length;
 				var tdLen = aTotalData.length;
 
 				var refinedChartData = {
@@ -28,7 +32,7 @@
 					forceMax: false,
 					defaultMax: 10
 				};
-				if ( scdLen === 0 && sndLen === 0 && ucdLen === 0 && undLen === 0 && tdLen === 0 ) {
+				if (scdLen === 0 && sndLen === 0 && ucdLen === 0 && undLen === 0 && tdLen === 0 && ssndLen === 0 && sscdLen === 0) {
 					refinedChartData.empty = true;
 				}
 				for ( var i = 0 ; i < xLen ; i++ ) {
@@ -46,6 +50,12 @@
 					}
 					if ( undLen > i ) {
 						thisData["unsampledNewTps"] = getFloatValue(aUnsampledNewData[i][2]);
+                    }
+                    if ( ssndLen > i ) {
+						thisData["skippedNewTps"] = getFloatValue(aSkippedNewData[i][2]);
+					}
+					if ( sscdLen > i ) {
+						thisData["skippedContinuationTps"] = getFloatValue(aSkippedContinuationData[i][2]);
 					}
 					if ( tdLen > i ) {
 						thisData["totalTps"] = getFloatValue(aTotalData[i][2]);
@@ -123,6 +133,24 @@
 							"fillColor": "rgb(160, 153, 255)",
 							"title": "U.N",
 							"valueField": "unsampledNewTps",
+							"fillAlphas": 0.4,
+							"connect": false
+						}, {
+							"balloonText": "Skipped New : [[value]]",
+							"legendValueText": "[[value]]",
+							"lineColor": "rgb(26, 188, 156)",
+							"fillColor": "rgb(26, 188, 156)",
+							"title": "S.S.N",
+							"valueField": "skippedNewTps",
+							"fillAlphas": 0.4,
+							"connect": false
+						}, {
+							"balloonText": "Skipped Continuation : [[value]]",
+							"legendValueText": "[[value]]",
+							"lineColor": "rgb(82, 190, 128)",
+							"fillColor": "rgb(82, 190, 128)",
+							"title": "S.S.C",
+							"valueField": "skippedContinuationTps",
 							"fillAlphas": 0.4,
 							"connect": false
 						}, {

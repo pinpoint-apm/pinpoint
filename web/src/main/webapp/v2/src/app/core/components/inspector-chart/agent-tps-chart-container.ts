@@ -25,6 +25,8 @@ export class AgentTPSChartContainer implements IInspectorChartContainer {
             ['tpsSN', ...makeYData(charts.y['TPS_SAMPLED_NEW'], 2)],
             ['tpsUC', ...makeYData(charts.y['TPS_UNSAMPLED_CONTINUATION'], 2)],
             ['tpsUN', ...makeYData(charts.y['TPS_UNSAMPLED_NEW'], 2)],
+            ['tpsSSN', ...makeYData(charts.y['TPS_SKIPPED_NEW'], 2)],
+            ['tpsSSC', ...makeYData(charts.y['TPS_SKIPPED_CONTINUATION'], 2)],
             ['tpsT', ...makeYData(charts.y['TPS_TOTAL'], 2)],
         ];
     }
@@ -37,6 +39,8 @@ export class AgentTPSChartContainer implements IInspectorChartContainer {
                 tpsSN: 'S.N',
                 tpsUC: 'U.C',
                 tpsUN: 'U.N',
+                tpsSSN: 'S.S.N',
+                tpsSSC: 'S.S.C',
                 tpsT: 'Total'
             },
             colors: {
@@ -44,6 +48,8 @@ export class AgentTPSChartContainer implements IInspectorChartContainer {
                 tpsSN: 'rgba(252, 178, 65, 0.4)',
                 tpsUC: 'rgba(90, 103, 166, 0.4)',
                 tpsUN: 'rgba(160, 153, 255, 0.4)',
+                tpsSSN: 'rgba(26, 188, 156, 0.4)',
+                tpsSSC: 'rgba(82, 190, 128, 0.4)',
                 tpsT: 'rgba(31, 119, 180, 0.4)'
             }
         };

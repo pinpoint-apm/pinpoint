@@ -446,6 +446,12 @@
                             "NAME": "Unsampled New (U.N)",
                             "DESC": "선택된 Agent에서 시작한 샘플링되지 않은 트랜잭션"
                         }, {
+                            "NAME": "Skipped New (S.S.N)",
+                            "DESC": "선택된 Agent에서 시작한 처리량 제한으로 샘플링되지 않은 트랜잭션"
+                        }, {
+                            "NAME": "Skipped Continuation (S.S.C)",
+                            "DESC": "다른 Agent에서 시작한 처리량 제한으로 샘플링되지 않은 트랜잭션"
+                        }, {
                             "NAME": "Total",
                             "DESC": "모든 트랜잭션"
                         }]
