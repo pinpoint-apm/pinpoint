@@ -40,7 +40,7 @@ public interface AlarmDao {
 
     List<CheckerResult> selectBeforeCheckerResultList(String applicationId);
 
-    void deleteCheckerResult(CheckerResult checkerResult);
+    void deleteCheckerResult(String ruleId);
 
     void insertCheckerResult(CheckerResult checkerResult);
 

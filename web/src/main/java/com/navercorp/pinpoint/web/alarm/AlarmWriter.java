@@ -42,10 +42,10 @@ public class AlarmWriter implements ItemWriter<AlarmChecker> {
         Map<String, CheckerResult> beforeCheckerResults = alarmService.selectBeforeCheckerResults(checkers.get(0).getRule().getApplicationId());
 
         for (AlarmChecker checker : checkers) {
-            CheckerResult beforeCheckerResult = beforeCheckerResults.get(checker.getRule().getCheckerName());
+            CheckerResult beforeCheckerResult = beforeCheckerResults.get(checker.getRule().getRuleId());
 
             if (beforeCheckerResult == null) {
-                beforeCheckerResult = new CheckerResult(checker.getRule().getApplicationId(), checker.getRule().getCheckerName(), false, 0, 1);
+                beforeCheckerResult = new CheckerResult(checker.getRule().getRuleId(), checker.getRule().getApplicationId(), checker.getRule().getCheckerName(), false, 0, 1);
             }
 
             if (checker.isDetected()) {
