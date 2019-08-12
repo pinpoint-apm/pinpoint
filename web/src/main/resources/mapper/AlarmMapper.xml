@@ -50,17 +50,17 @@
         FROM alarm_history
         WHERE application_id = #{applicationId}
     </select>
-    
-    <delete id="deleteCheckerResult" parameterType="ChecherResult">
+
+    <delete id="deleteCheckerResult" parameterType="string">
         DELETE
         FROM alarm_history
-        WHERE application_id = #{applicationId} AND checker_name = #{checkerName}
+        WHERE rule_id = #{ruleId}
     </delete>
     
     <insert id="insertCheckerResult" parameterType="ChecherResult">
-        INSERT INTO alarm_history (application_id, checker_name, detected, sequence_count, timing_count)
+        INSERT INTO alarm_history (rule_id, application_id, checker_name, detected, sequence_count, timing_count)
         VALUES
-            (#{applicationId}, #{checkerName}, #{detected}, #{sequenceCount}, #{timingCount})
+            (#{ruleId}, #{applicationId}, #{checkerName}, #{detected}, #{sequenceCount}, #{timingCount})
     </insert>
     
 </mapper>
