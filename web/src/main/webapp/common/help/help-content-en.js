@@ -618,6 +618,12 @@
                         name: "Unsampled Continuation (U.C)",
                         desc: "Unprofiled transactions that started from another agent"
                     },{
+                        name: "Skipped New (S.S.N)",
+                        desc: "Unprofiled transactions that started from the selected agent because of processing limit"
+                    },{
+                        name: "Skipped Continuation (S.S.C)",
+                        desc: "Unprofiled transactions that started from another agent because of processing limit"
+                    },{
                         name: "Total",
                         desc: "All transactions"
                     }]

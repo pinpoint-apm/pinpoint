@@ -63,6 +63,8 @@ export class AgentTPSChartContainerComponent extends InspectorChartContainer imp
         const tpsSNArr = [];
         const tpsUCArr = [];
         const tpsUNArr = [];
+        const tpsSSNArr = [];
+        const tpsSSCArr = [];
         const tpsTArr = [];
 
         const xData = chartData.charts.x;
@@ -70,30 +72,34 @@ export class AgentTPSChartContainerComponent extends InspectorChartContainer imp
         const tpsSN = chartData.charts.y['TPS_SAMPLED_NEW'];
         const tpsUC = chartData.charts.y['TPS_UNSAMPLED_CONTINUATION'];
         const tpsUN = chartData.charts.y['TPS_UNSAMPLED_NEW'];
+        const tpsSSN = chartData.charts.y['TPS_SKIPPED_NEW'];
+        const tpsSSC = chartData.charts.y['TPS_SKIPPED_CONTINUATION'];
         const tpsT = chartData.charts.y['TPS_TOTAL'];
         const dataCount = xData.length;
 
-        for ( let i = 0 ; i < dataCount ; i++ ) {
+        for (let i = 0; i < dataCount; i++) {
             xArr.push(moment(xData[i]).tz(this.timezone).format(this.dateFormat[0]) + '#' + moment(xData[i]).tz(this.timezone).format(this.dateFormat[1]));
-            if ( tpsSC.length === 0 ) {
+            if (tpsSC.length === 0) {
                 continue;
             }
+
             tpsSCArr.push(this.parseData(tpsSC[i][2]));
             tpsSNArr.push(this.parseData(tpsSN[i][2]));
             tpsUCArr.push(this.parseData(tpsUC[i][2]));
             tpsUNArr.push(this.parseData(tpsUN[i][2]));
-            if ( tpsT ) {
-                tpsTArr.push(this.parseData(tpsT[i][2]));
-            } else {
-                tpsTArr.push(this.parseData((tpsSC[i][2] + tpsSN[i][2] + tpsUC[i][2] + tpsUN[i][2])));
-            }
+            tpsSSNArr.push(this.parseData(tpsSSN[i][2]));
+            tpsSSCArr.push(this.parseData(tpsSSC[i][2]));
+            tpsTArr.push(this.parseData(tpsT[i][2]));
         }
+
         return {
             x: xArr,
             tpsSC: tpsSCArr,
             tpsSN: tpsSNArr,
             tpsUC: tpsUCArr,
             tpsUN: tpsUNArr,
+            tpsSSN: tpsSSNArr,
+            tpsSSC: tpsSSCArr,
             tpsT: tpsTArr
         };
     }
@@ -138,14 +144,30 @@ export class AgentTPSChartContainerComponent extends InspectorChartContainer imp
                 pointRadius: 0,
                 pointHoverRadius: 3
             }, {
+                label: 'S.S.N',
+                data: data.tpsSSN,
+                fill: true,
+                borderWidth: 0.5,
+                borderColor: 'rgb(26, 188, 156)',
+                backgroundColor: 'rgba(26, 188, 156, 0.4)',
+                pointRadius: 0,
+                pointHoverRadius: 3
+            }, {
+                label: 'S.S.C',
+                data: data.tpsSSC,
+                fill: true,
+                borderWidth: 0.5,
+                borderColor: 'rgb(82, 190, 128)',
+                backgroundColor: 'rgba(82, 190, 128, 0.4)',
+                pointRadius: 0,
+                pointHoverRadius: 3
+            }, {
                 label: 'Total',
                 data: data.tpsT,
                 fill: false,
                 borderWidth: 0.5,
-                // borderColor: 'rgb(31, 119, 180)',
-                // backgroundColor: 'rgba(31, 119, 180, 0.4)',
                 borderColor: 'rgba(31, 119, 180, 0)',
-                backgroundColor: 'rgba(255, 255, 255, 0)',
+                backgroundColor: 'rgba(31, 119, 180, 0.4)',
                 pointRadius: 0,
                 pointHoverRadius: 3
             }]
