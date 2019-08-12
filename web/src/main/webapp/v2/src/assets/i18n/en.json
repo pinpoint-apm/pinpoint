@@ -425,6 +425,12 @@
                             "NAME": "Unsampled New (U.N)",
                             "DESC": "Unprofiled transactions that started from the selected agent"
                         }, {
+                            "NAME": "Skipped New (S.S.N)",
+                            "DESC": "Unprofiled transactions that started from the selected agent because of processing limit"
+                        }, {
+                            "NAME": "Skipped Continuation (S.S.C)",
+                            "DESC": "Unprofiled transactions that started from another agent because of processing limit"
+                        }, {
                             "NAME": "Total",
                             "DESC": "All transactions"
                         }]
