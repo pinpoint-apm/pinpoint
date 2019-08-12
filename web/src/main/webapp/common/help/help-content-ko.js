@@ -607,6 +607,12 @@
                         name: "Unsampled Continuation (U.C)",
                         desc: "다른 agent에서 시작한 샘플링되지 않은 트랜잭션"
                     },{
+                        name: "Skipped New (S.S.N)",
+                        desc: "선택된 agent에서 시작한 처리량 제한으로 샘플링되지 않은 트랜잭션"
+                    },{
+                        name: "Skipped Continuation (S.S.C)",
+                        desc: "다른 agent에서 시작한 처리량 제한으로 샘플링되지 않은 트랜잭션"
+                    },{
                         name: "Total",
                         desc: "모든 트랜잭션"
                     }]
