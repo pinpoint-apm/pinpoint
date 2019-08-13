@@ -20,6 +20,8 @@ import com.google.protobuf.Empty;
 import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
+import com.navercorp.pinpoint.grpc.StatusError;
+import com.navercorp.pinpoint.grpc.StatusErrors;
 import com.navercorp.pinpoint.grpc.trace.PAgentStat;
 import com.navercorp.pinpoint.grpc.trace.PAgentStatBatch;
 import com.navercorp.pinpoint.grpc.trace.PStatMessage;
@@ -79,7 +81,12 @@ public class StatService extends StatGrpc.StatImplBase {
 
             @Override
             public void onError(Throwable throwable) {
-                logger.warn("Error sendAgentStat stream", throwable);
+                final StatusError statusError = StatusErrors.throwable(throwable);
+                if (statusError.isSimpleError()) {
+                    logger.info("Failed to stat stream, cause={}", statusError.getMessage());
+                } else {
+                    logger.warn("Failed to stat stream, cause={}", statusError.getMessage(), statusError.getThrowable());
+                }
             }
 
             @Override

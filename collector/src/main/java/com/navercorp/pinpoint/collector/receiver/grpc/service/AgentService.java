@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.collector.receiver.grpc.service;
 
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
+import com.navercorp.pinpoint.grpc.StatusError;
+import com.navercorp.pinpoint.grpc.StatusErrors;
 import com.navercorp.pinpoint.grpc.server.lifecycle.PingEventHandler;
 import com.navercorp.pinpoint.grpc.trace.AgentGrpc;
 import com.navercorp.pinpoint.grpc.trace.PAgentInfo;
@@ -46,12 +48,8 @@ public class AgentService extends AgentGrpc.AgentImplBase {
     private static final AtomicLong idAllocator = new AtomicLong();
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
-
-
-
     private final SimpleRequestHandlerAdaptor<PResult> simpleRequestHandlerAdaptor;
     private final PingEventHandler pingEventHandler;
-
 
     public AgentService(DispatchHandler dispatchHandler, PingEventHandler pingEventHandler) {
         this.simpleRequestHandlerAdaptor = new SimpleRequestHandlerAdaptor<PResult>(this.getClass().getName(), dispatchHandler);
@@ -99,7 +97,12 @@ public class AgentService extends AgentGrpc.AgentImplBase {
 
             @Override
             public void onError(Throwable t) {
-                logger.warn("PingSession:{} Error stream", id, t);
+                final StatusError statusError = StatusErrors.throwable(t);
+                if (statusError.isSimpleError()) {
+                    logger.info("Failed to ping stream, id={}, cause={}", id, statusError.getMessage());
+                } else {
+                    logger.warn("Failed to ping stream, id={}, cause={}", id, statusError.getMessage(), statusError.getThrowable());
+                }
                 disconnect();
             }
 
