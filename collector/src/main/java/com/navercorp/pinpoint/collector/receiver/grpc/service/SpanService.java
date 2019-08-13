@@ -20,6 +20,8 @@ import com.google.protobuf.Empty;
 import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
+import com.navercorp.pinpoint.grpc.StatusError;
+import com.navercorp.pinpoint.grpc.StatusErrors;
 import com.navercorp.pinpoint.grpc.trace.PSpan;
 import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
 import com.navercorp.pinpoint.grpc.trace.PSpanMessage;
@@ -77,7 +79,12 @@ public class SpanService extends SpanGrpc.SpanImplBase {
 
             @Override
             public void onError(Throwable throwable) {
-                logger.warn("Error sendSpan stream", throwable);
+                final StatusError statusError = StatusErrors.throwable(throwable);
+                if (statusError.isSimpleError()) {
+                    logger.info("Failed to span stream, cause={}", statusError.getMessage());
+                } else {
+                    logger.warn("Failed to span stream, cause={}", statusError.getMessage(), statusError.getThrowable());
+                }
             }
 
             @Override

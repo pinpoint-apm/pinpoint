@@ -24,6 +24,8 @@ import io.grpc.StatusRuntimeException;
  */
 public class StatusErrors {
     private static final String CONNECTION_REFUSED_MESSAGE = "Connection refused: no further information";
+    private static final String CANCELLED_BEFORE_RECEIVING_HALF_CLOSE = "CANCELLED: cancelled before receiving half close";
+
 
     public static StatusError throwable(final Throwable t) {
         if (t instanceof StatusRuntimeException) {
@@ -33,6 +35,10 @@ public class StatusErrors {
                 if (causeMessage != null) {
                     final String message = exception.getStatus().getDescription() + ": " + causeMessage;
                     return new SimpleStatusError(message, t);
+                }
+            } else if(exception.getStatus().getCode() == Status.CANCELLED.getCode()) {
+                if (exception.getMessage() != null && exception.getMessage().startsWith(CANCELLED_BEFORE_RECEIVING_HALF_CLOSE)) {
+                    return new SimpleStatusError(CANCELLED_BEFORE_RECEIVING_HALF_CLOSE, t);
                 }
             }
         }
