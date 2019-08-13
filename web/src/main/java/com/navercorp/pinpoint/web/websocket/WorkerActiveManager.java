@@ -151,7 +151,9 @@ public class WorkerActiveManager {
 
         @Override
         public void run() {
-            logger.info("AgentCheckTimerTask started.");
+            if(logger.isDebugEnabled()) {
+                logger.debug("AgentCheckTimerTask started.");
+            }
 
             List<AgentInfo> agentInfoList = Collections.emptyList();
             try {

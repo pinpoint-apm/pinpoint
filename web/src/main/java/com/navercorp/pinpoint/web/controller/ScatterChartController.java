@@ -185,7 +185,9 @@ public class ScatterChartController {
 
         watch.stop();
 
-        logger.info("Fetch scatterData time : {}ms", watch.getLastTaskTimeMillis());
+        if (logger.isDebugEnabled()) {
+            logger.debug("Fetch scatterData time : {}ms", watch.getLastTaskTimeMillis());
+        }
 
         return mv;
     }

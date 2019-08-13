@@ -46,7 +46,9 @@ public class AgentLifeCycleAsyncTaskService {
         Objects.requireNonNull(agentProperty, "agentProperty must not be null");
         Objects.requireNonNull(agentLifeCycleState, "agentLifeCycleState must not be null");
 
-        logger.info("Handle lifecycle event - pinpointServer:{}, state:{}", agentProperty, agentLifeCycleState);
+        if (logger.isDebugEnabled()) {
+            logger.debug("Handle lifecycle event - pinpointServer:{}, state:{}", agentProperty, agentLifeCycleState);
+        }
 
         final String agentId = agentProperty.getAgentId();
         final long startTimestamp = agentProperty.getStartTime();
