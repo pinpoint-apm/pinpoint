@@ -139,7 +139,9 @@ public class GrpcCommandService extends ProfilerCommandServiceGrpc.ProfilerComma
 
             @Override
             public void onCompleted() {
-                logger.info("{} => local. onCompleted", getAgentInfo().getAgentKey());
+                if (logger.isDebugEnabled()) {
+                    logger.debug("{} => local. onCompleted", getAgentInfo().getAgentKey());
+                }
                 pinpointGrpcServer.disconnected();
             }
 
