@@ -16,12 +16,14 @@
 
 package com.navercorp.pinpoint.web.applicationmap;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.web.applicationmap.link.Link;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkList;
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.applicationmap.nodes.NodeList;
 import com.navercorp.pinpoint.web.vo.Range;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.Collection;
 
@@ -52,7 +54,28 @@ public class DefaultApplicationMap implements ApplicationMap {
         }
         this.range = range;
         this.nodeList = nodeList;
-        this.linkList = linkList;
+        this.linkList = createNewLinkList(linkList);
+    }
+
+    private LinkList createNewLinkList(LinkList originalLinkList) {
+        Collection<Link> linkList = originalLinkList.getLinkList();
+        if (CollectionUtils.nullSafeSize(linkList) == 0) {
+            return originalLinkList;
+        }
+
+        LinkList newLinkList = new LinkList();
+        for (Link link : linkList) {
+            if (link == null) {
+                continue;
+            }
+            if (link.getHistogram().getTotalCount() == 0) {
+                continue;
+
+            }
+            newLinkList.addLink(link);
+        }
+
+        return newLinkList;
     }
 
     @JsonProperty("nodeDataArray")
