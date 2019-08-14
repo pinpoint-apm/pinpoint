@@ -7,6 +7,7 @@ import { IInspectorChartData, InspectorChartDataService } from './inspector-char
 
 export class AgentOpenFileDescriptorChartContainer implements IInspectorChartContainer {
     private apiUrl = 'getAgentStat/fileDescriptor/chart.pinpoint';
+
     defaultYMax = 100;
     title = 'Open File Descriptor';
 
@@ -69,5 +70,9 @@ export class AgentOpenFileDescriptorChartContainer implements IInspectorChartCon
 
     convertWithUnit(value: number): string {
         return value.toString();
+    }
+
+    getTooltipFormat(v: number, columnId: string, i: number): string {
+        return Number.isInteger(v) ? v.toString() : v.toFixed(2);
     }
 }

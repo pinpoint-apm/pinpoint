@@ -4,9 +4,13 @@ import { Observable } from 'rxjs';
 import { IInspectorChartContainer } from './inspector-chart-container-factory';
 import { makeYData, makeXData, getMaxTickValue } from './inspector-chart-util';
 import { IInspectorChartData, InspectorChartDataService } from './inspector-chart-data.service';
+import { getAgentId } from './inspector-chart-util';
 
 export class ApplicationJVMNonHeapChartContainer implements IInspectorChartContainer {
     private apiUrl = 'getApplicationStat/memory/chart.pinpoint';
+    private minAgentIdList: string[];
+    private maxAgentIdList: string[];
+
     defaultYMax = 100000;
     title = 'Non Heap Usage';
 
@@ -19,6 +23,9 @@ export class ApplicationJVMNonHeapChartContainer implements IInspectorChartConta
     }
 
     makeChartData({charts}: IInspectorChartData): PrimitiveArray[] {
+        this.minAgentIdList = makeYData(charts.y['MEMORY_NON_HEAP'], 1) as string[];
+        this.maxAgentIdList = makeYData(charts.y['MEMORY_NON_HEAP'], 3) as string[];
+
         return [
             ['x', ...makeXData(charts.x)],
             ['min', ...makeYData(charts.y['MEMORY_NON_HEAP'], 0)],
@@ -77,14 +84,6 @@ export class ApplicationJVMNonHeapChartContainer implements IInspectorChartConta
         };
     }
 
-    makeMinAgentIdList({charts}: IInspectorChartData): string[] {
-        return makeYData(charts.y['MEMORY_NON_HEAP'], 1) as string[];
-    }
-
-    makeMaxAgentIdList({charts}: IInspectorChartData): string[] {
-        return makeYData(charts.y['MEMORY_NON_HEAP'], 3) as string[];
-    }
-
     convertWithUnit(value: number): string {
         const unitList = ['', 'K', 'M', 'G'];
 
@@ -95,5 +94,9 @@ export class ApplicationJVMNonHeapChartContainer implements IInspectorChartConta
                 ? (v / 1000).toString()
                 : (arr.splice(i + 1), Number.isInteger(v) ? `${v}${curr}` : `${v.toFixed(2)}${curr}`);
         }, value.toString());
+    }
+
+    getTooltipFormat(v: number, columnId: string, i: number): string {
+        return `${this.convertWithUnit(v)} ${getAgentId(columnId, i, this.minAgentIdList, this.maxAgentIdList)}`;
     }
 }

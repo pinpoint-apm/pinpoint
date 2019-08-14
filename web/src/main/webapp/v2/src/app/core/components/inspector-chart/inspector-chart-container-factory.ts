@@ -36,9 +36,8 @@ export interface IInspectorChartContainer {
     makeDataOption(): Data;
     makeElseOption(): {[key: string]: any};
     makeYAxisOptions(data: PrimitiveArray[]): {[key: string]: any};
-    makeMinAgentIdList?(data: IInspectorChartData): string[];
-    makeMaxAgentIdList?(data: IInspectorChartData): string[];
     convertWithUnit(value: number): string;
+    getTooltipFormat(value: number, columnId: string, i: number): string;
 }
 
 export enum ChartType {

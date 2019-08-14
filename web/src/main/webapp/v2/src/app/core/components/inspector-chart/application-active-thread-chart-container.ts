@@ -4,9 +4,13 @@ import { Observable } from 'rxjs';
 import { IInspectorChartContainer } from './inspector-chart-container-factory';
 import { makeYData, makeXData, getMaxTickValue } from './inspector-chart-util';
 import { IInspectorChartData, InspectorChartDataService } from './inspector-chart-data.service';
+import { getAgentId } from './inspector-chart-util';
 
 export class ApplicationActiveThreadChartContainer implements IInspectorChartContainer {
     private apiUrl = 'getApplicationStat/activeTrace/chart.pinpoint';
+    private minAgentIdList: string[];
+    private maxAgentIdList: string[];
+
     defaultYMax = 4;
     title = 'Active Thread';
 
@@ -19,6 +23,9 @@ export class ApplicationActiveThreadChartContainer implements IInspectorChartCon
     }
 
     makeChartData({charts}: IInspectorChartData): PrimitiveArray[] {
+        this.minAgentIdList = makeYData(charts.y['ACTIVE_TRACE_COUNT'], 1) as string[];
+        this.maxAgentIdList = makeYData(charts.y['ACTIVE_TRACE_COUNT'], 3) as string[];
+
         return [
             ['x', ...makeXData(charts.x)],
             ['min', ...makeYData(charts.y['ACTIVE_TRACE_COUNT'], 0)],
@@ -77,14 +84,6 @@ export class ApplicationActiveThreadChartContainer implements IInspectorChartCon
         };
     }
 
-    makeMinAgentIdList({charts}: IInspectorChartData): string[] {
-        return makeYData(charts.y['ACTIVE_TRACE_COUNT'], 1) as string[];
-    }
-
-    makeMaxAgentIdList({charts}: IInspectorChartData): string[] {
-        return makeYData(charts.y['ACTIVE_TRACE_COUNT'], 3) as string[];
-    }
-
     convertWithUnit(value: number): string {
         const unitList = ['', 'K', 'M', 'G'];
 
@@ -95,5 +94,9 @@ export class ApplicationActiveThreadChartContainer implements IInspectorChartCon
                 ? (v / 1000).toString()
                 : (arr.splice(i + 1), Number.isInteger(v) ? `${v}${curr}` : `${v.toFixed(2)}${curr}`);
         }, value.toString());
+    }
+
+    getTooltipFormat(v: number, columnId: string, i: number): string {
+        return `${this.convertWithUnit(v)} ${getAgentId(columnId, i, this.minAgentIdList, this.maxAgentIdList)}`;
     }
 }

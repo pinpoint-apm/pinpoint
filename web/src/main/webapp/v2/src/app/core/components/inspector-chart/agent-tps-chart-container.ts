@@ -7,6 +7,7 @@ import { IInspectorChartData, InspectorChartDataService } from './inspector-char
 
 export class AgentTPSChartContainer implements IInspectorChartContainer {
     private apiUrl = 'getAgentStat/transaction/chart.pinpoint';
+
     defaultYMax = 4;
     title = 'Transactions Per Second';
 
@@ -95,5 +96,9 @@ export class AgentTPSChartContainer implements IInspectorChartContainer {
                 ? (v / 1000).toString()
                 : (arr.splice(i + 1), `${v}${curr}`);
         }, value.toString());
+    }
+
+    getTooltipFormat(v: number, columnId: string, i: number): string {
+        return this.convertWithUnit(v);
     }
 }

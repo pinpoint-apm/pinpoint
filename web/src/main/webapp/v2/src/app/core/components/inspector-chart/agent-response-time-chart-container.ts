@@ -7,6 +7,7 @@ import { IInspectorChartData, InspectorChartDataService } from './inspector-char
 
 export class AgentResponseTimeChartContainer implements IInspectorChartContainer {
     private apiUrl = 'getAgentStat/responseTime/chart.pinpoint';
+
     defaultYMax = 100;
     title = 'Response Time';
 
@@ -80,5 +81,9 @@ export class AgentResponseTimeChartContainer implements IInspectorChartContainer
                 ? (v / 1000).toString()
                 : (arr.splice(i + 1), Number.isInteger(v) ? `${v}${curr}` : `${v.toFixed(2)}${curr}`);
         }, value.toString());
+    }
+
+    getTooltipFormat(v: number, columnId: string, i: number): string {
+        return this.convertWithUnit(v);
     }
 }

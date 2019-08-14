@@ -4,9 +4,13 @@ import { Observable } from 'rxjs';
 import { IInspectorChartContainer } from './inspector-chart-container-factory';
 import { makeYData, makeXData } from './inspector-chart-util';
 import { IInspectorChartData, InspectorChartDataService } from './inspector-chart-data.service';
+import { getAgentId } from './inspector-chart-util';
 
 export class ApplicationJVMCpuChartContainer implements IInspectorChartContainer {
     private apiUrl = 'getApplicationStat/cpuLoad/chart.pinpoint';
+    private minAgentIdList: string[];
+    private maxAgentIdList: string[];
+
     defaultYMax = 100;
     title = 'JVM CPU Usage';
 
@@ -19,6 +23,9 @@ export class ApplicationJVMCpuChartContainer implements IInspectorChartContainer
     }
 
     makeChartData({charts}: IInspectorChartData): PrimitiveArray[] {
+        this.minAgentIdList = makeYData(charts.y['CPU_LOAD_JVM'], 1) as string[];
+        this.maxAgentIdList = makeYData(charts.y['CPU_LOAD_JVM'], 3) as string[];
+
         return [
             ['x', ...makeXData(charts.x)],
             ['min', ...makeYData(charts.y['CPU_LOAD_JVM'], 0)],
@@ -73,15 +80,11 @@ export class ApplicationJVMCpuChartContainer implements IInspectorChartContainer
         };
     }
 
-    makeMinAgentIdList({charts}: IInspectorChartData): string[] {
-        return makeYData(charts.y['CPU_LOAD_JVM'], 1) as string[];
-    }
-
-    makeMaxAgentIdList({charts}: IInspectorChartData): string[] {
-        return makeYData(charts.y['CPU_LOAD_JVM'], 3) as string[];
-    }
-
     convertWithUnit(value: number): string {
         return `${value}%`;
+    }
+
+    getTooltipFormat(v: number, columnId: string, i: number): string {
+        return `${this.convertWithUnit(v)} ${getAgentId(columnId, i, this.minAgentIdList, this.maxAgentIdList)}`;
     }
 }

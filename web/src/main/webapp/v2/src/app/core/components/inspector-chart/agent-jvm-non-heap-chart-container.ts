@@ -7,6 +7,8 @@ import { IInspectorChartData, InspectorChartDataService } from './inspector-char
 
 export class AgentJVMNonHeapChartContainer implements IInspectorChartContainer {
     private apiUrl = 'getAgentStat/jvmGc/chart.pinpoint';
+    private fgcCount: number[];
+
     defaultYMax = 100;
     title = 'Non Heap Usage';
 
@@ -20,7 +22,7 @@ export class AgentJVMNonHeapChartContainer implements IInspectorChartContainer {
 
     makeChartData({charts}: IInspectorChartData): PrimitiveArray[] {
         const gcOldTime = makeYData(charts.y['JVM_GC_OLD_TIME'], 3) as number[];
-        const gcOldCount = makeYData(charts.y['JVM_GC_OLD_COUNT'], 3) as number[];
+        const gcOldCount = this.fgcCount = makeYData(charts.y['JVM_GC_OLD_COUNT'], 3) as number[];
         let totalSumGCTime = 0;
         const fgcTime = gcOldTime.map((t: number, i: number) => {
             if (i >= 1 && gcOldCount[i - 1] > 0) {
@@ -31,7 +33,7 @@ export class AgentJVMNonHeapChartContainer implements IInspectorChartContainer {
                 totalSumGCTime += t;
             }
 
-            return gcOldCount[i] > 0 ? totalSumGCTime : 0;
+            return gcOldCount[i] > 0 ? totalSumGCTime : null;
         });
 
         return [
@@ -108,6 +110,7 @@ export class AgentJVMNonHeapChartContainer implements IInspectorChartContainer {
                 },
                 tick: {
                     count: 5,
+                    format: (v: number): string => this.convertWithUnit(v)
                 },
                 padding: {
                     top: 0,
@@ -134,5 +137,9 @@ export class AgentJVMNonHeapChartContainer implements IInspectorChartContainer {
                 ? (v / 1000).toString()
                 : (arr.splice(i + 1), Number.isInteger(v) ? `${v}${curr}` : `${v.toFixed(2)}${curr}`);
         }, value.toString());
+    }
+
+    getTooltipFormat(v: number, columnId: string, i: number): string {
+        return columnId === 'fgcTime' ? `${v}ms ${this.fgcCount[i] > 1 ? '(' + this.fgcCount[i] + ')' : ''}` : this.convertWithUnit(v);
     }
 }

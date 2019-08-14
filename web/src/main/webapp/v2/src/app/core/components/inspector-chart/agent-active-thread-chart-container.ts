@@ -7,6 +7,7 @@ import { IInspectorChartContainer } from './inspector-chart-container-factory';
 
 export class AgentActiveThreadChartContainer implements IInspectorChartContainer {
     private apiUrl = 'getAgentStat/activeTrace/chart.pinpoint';
+
     defaultYMax = 4;
     title = 'Active Thread';
 
@@ -86,5 +87,9 @@ export class AgentActiveThreadChartContainer implements IInspectorChartContainer
                 ? (v / 1000).toString()
                 : (arr.splice(i + 1), Number.isInteger(v) ? `${v}${curr}` : `${v.toFixed(2)}${curr}`);
         }, value.toString());
+    }
+
+    getTooltipFormat(v: number, columnId: string, i: number): string {
+        return this.convertWithUnit(v);
     }
 }
