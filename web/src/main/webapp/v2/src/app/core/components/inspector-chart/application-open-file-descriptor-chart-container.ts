@@ -4,9 +4,13 @@ import { Observable } from 'rxjs';
 import { IInspectorChartContainer } from './inspector-chart-container-factory';
 import { makeYData, makeXData, getMaxTickValue } from './inspector-chart-util';
 import { IInspectorChartData, InspectorChartDataService } from './inspector-chart-data.service';
+import { getAgentId } from './inspector-chart-util';
 
 export class ApplicationOpenFileDescriptorChartContainer implements IInspectorChartContainer {
     private apiUrl = 'getApplicationStat/fileDescriptor/chart.pinpoint';
+    private minAgentIdList: string[];
+    private maxAgentIdList: string[];
+
     defaultYMax = 100;
     title = 'Open File Descriptor';
 
@@ -19,6 +23,9 @@ export class ApplicationOpenFileDescriptorChartContainer implements IInspectorCh
     }
 
     makeChartData({charts}: IInspectorChartData): PrimitiveArray[] {
+        this.minAgentIdList = makeYData(charts.y['OPEN_FILE_DESCRIPTOR_COUNT'], 1) as string[];
+        this.maxAgentIdList = makeYData(charts.y['OPEN_FILE_DESCRIPTOR_COUNT'], 3) as string[];
+
         return [
             ['x', ...makeXData(charts.x)],
             ['min', ...makeYData(charts.y['OPEN_FILE_DESCRIPTOR_COUNT'], 0)],
@@ -77,15 +84,11 @@ export class ApplicationOpenFileDescriptorChartContainer implements IInspectorCh
         };
     }
 
-    makeMinAgentIdList({charts}: IInspectorChartData): string[] {
-        return makeYData(charts.y['OPEN_FILE_DESCRIPTOR_COUNT'], 1) as string[];
-    }
-
-    makeMaxAgentIdList({charts}: IInspectorChartData): string[] {
-        return makeYData(charts.y['OPEN_FILE_DESCRIPTOR_COUNT'], 3) as string[];
-    }
-
     convertWithUnit(value: number): string {
         return value.toString();
+    }
+
+    getTooltipFormat(v: number, columnId: string, i: number): string {
+        return `${this.convertWithUnit(v)} ${getAgentId(columnId, i, this.minAgentIdList, this.maxAgentIdList)}`;
     }
 }

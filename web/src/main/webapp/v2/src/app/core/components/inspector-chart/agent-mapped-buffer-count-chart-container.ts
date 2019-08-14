@@ -7,6 +7,7 @@ import { IInspectorChartData, InspectorChartDataService } from './inspector-char
 
 export class AgentMappedBufferCountChartContainer implements IInspectorChartContainer {
     private apiUrl = 'getAgentStat/directBuffer/chart.pinpoint';
+
     defaultYMax = 100;
     title = 'Mapped Buffer Count';
 
@@ -69,5 +70,9 @@ export class AgentMappedBufferCountChartContainer implements IInspectorChartCont
 
     convertWithUnit(value: number): string {
         return value.toString();
+    }
+
+    getTooltipFormat(v: number, columnId: string, i: number): string {
+        return Number.isInteger(v) ? v.toString() : v.toFixed(2);
     }
 }
