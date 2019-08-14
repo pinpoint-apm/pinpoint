@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.bootstrap.instrument.MethodFilters;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
+import com.navercorp.pinpoint.bootstrap.interceptor.BasicMethodInterceptor;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
@@ -58,8 +59,8 @@ public class KafkaPlugin implements ProfilerPlugin, TransformTemplateAware {
 
         if (config.isProducerEnable()) {
             transformTemplate.transform("org.apache.kafka.clients.producer.KafkaProducer", KafkaProducerTransform.class);
+            transformTemplate.transform("org.apache.kafka.clients.producer.internals.TransactionManager", TransactionManagerTransform.class);
         }
-
 
         if (enableConsumerTransform(config)) {
             transformTemplate.transform("org.apache.kafka.clients.consumer.KafkaConsumer", KafkaConsumerTransform.class);
@@ -100,6 +101,32 @@ public class KafkaPlugin implements ProfilerPlugin, TransformTemplateAware {
             sendMethod.addInterceptor(ProducerSendInterceptor.class);
 
             target.addField(RemoteAddressFieldAccessor.class);
+            return target.toBytecode();
+        }
+
+    }
+
+    public static class TransactionManagerTransform implements TransformCallback {
+
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+
+            InstrumentMethod beginTransactionMethod = target.getDeclaredMethod("beginTransaction");
+            if (beginTransactionMethod != null) {
+                beginTransactionMethod.addInterceptor(BasicMethodInterceptor.class, va(KafkaConstants.KAFKA_CLIENT_INTERNAL));
+            }
+
+            InstrumentMethod beginCommitMethod = target.getDeclaredMethod("beginCommit");
+            if (beginCommitMethod != null) {
+                beginCommitMethod.addInterceptor(BasicMethodInterceptor.class, va(KafkaConstants.KAFKA_CLIENT_INTERNAL));
+            }
+
+            InstrumentMethod beginAbortMethod = target.getDeclaredMethod("beginAbort");
+            if (beginAbortMethod != null) {
+                beginAbortMethod.addInterceptor(BasicMethodInterceptor.class, va(KafkaConstants.KAFKA_CLIENT_INTERNAL));
+            }
+
             return target.toBytecode();
         }
 
