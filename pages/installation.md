@@ -92,6 +92,8 @@ There are two options:
 	The default agent built this way will have log level set to DEBUG by default. If you're building an agent for release and need a higher log level, you can set maven profile to *release* when building :  
 	`./mvnw install -Prelease -DskipTests=true`
 	
+	Note that having multibyte characters in maven local repository path, or any class paths may cause the build to fail.
+	
 	The guide will refer to the full path of the pinpoint home directory as `$PINPOINT_PATH`.
 
 	
