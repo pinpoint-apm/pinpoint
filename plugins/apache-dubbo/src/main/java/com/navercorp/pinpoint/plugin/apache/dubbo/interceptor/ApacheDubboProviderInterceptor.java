@@ -100,9 +100,15 @@ public class ApacheDubboProviderInterceptor extends SpanRecursiveAroundIntercept
                 final short parentApplicationType = NumberUtils.parseShort(invocation.getAttachment(ApacheDubboConstants.META_PARENT_APPLICATION_TYPE), ServiceType.UNDEFINED.getCode());
                 recorder.recordParentApplication(parentApplicationName, parentApplicationType);
 
-                final String localHost = getLocalHost(rpcContext);
-                if (localHost != null) {
-                    recorder.recordAcceptorHost(localHost);
+                final String host = invocation.getAttachment(ApacheDubboConstants.META_HOST);
+                if (host != null) {
+                    recorder.recordAcceptorHost(host);
+                } else {
+                    // old version fallback
+                    final String estimatedLocalHost = getLocalHost(rpcContext);
+                    if (estimatedLocalHost != null) {
+                        recorder.recordAcceptorHost(estimatedLocalHost);
+                    }
                 }
             }
         }
