@@ -47,5 +47,7 @@ public final class ApacheDubboConstants {
     public static final String META_PARENT_APPLICATION_TYPE = "_DUBBO_PARENT_APPLICATION_TYPE";
     public static final String META_FLAGS = "_DUBBO_FLAGS";
 
+    public static final String META_HOST = "_DUBBO_HOST";
+
     public static final String MONITOR_SERVICE_FQCN = "org.apache.dubbo.monitor.MonitorService";
 }
