@@ -86,11 +86,25 @@ public class DubboProviderInterceptor extends SpanRecursiveAroundInterceptor {
             if (parentApplicationName != null) {
                 final short parentApplicationType = NumberUtils.parseShort(invocation.getAttachment(DubboConstants.META_PARENT_APPLICATION_TYPE), ServiceType.UNDEFINED.getCode());
                 recorder.recordParentApplication(parentApplicationName, parentApplicationType);
-                // Pinpoint finds caller - callee relation by matching caller's end point and callee's acceptor host.
-                // https://github.com/naver/pinpoint/issues/1395
-                recorder.recordAcceptorHost(rpcContext.getLocalAddressString());
+
+                final String host = invocation.getAttachment(DubboConstants.META_HOST);
+                if (host != null) {
+                    recorder.recordAcceptorHost(host);
+                } else {
+                    // old version fallback
+                    final String estimatedLocalHost = getLocalHost(rpcContext);
+                    if (estimatedLocalHost != null) {
+                        recorder.recordAcceptorHost(estimatedLocalHost);
+                    }
+                }
             }
         }
+    }
+
+    private String getLocalHost(RpcContext rpcContext) {
+        // Pinpoint finds caller - callee relation by matching caller's end point and callee's acceptor host.
+        // https://github.com/naver/pinpoint/issues/1395
+        return rpcContext.getLocalAddressString();
     }
 
     @Override
