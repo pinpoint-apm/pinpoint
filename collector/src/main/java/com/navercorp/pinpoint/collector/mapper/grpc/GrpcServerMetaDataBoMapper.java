@@ -50,7 +50,7 @@ public class GrpcServerMetaDataBoMapper {
             builder.serviceInfos(serviceInfoBoList);
             return builder.build();
         } else {
-            builder.serviceInfos(Collections.<ServiceInfoBo>emptyList());
+            builder.serviceInfos(Collections.emptyList());
             return builder.build();
         }
     }

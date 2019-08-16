@@ -102,7 +102,7 @@ public class ConcurrentCounterMap<T> {
 
 
     public static class LongAdder {
-        private long value = 0;
+        private long value;
 
         public LongAdder(long increase) {
             this.value = increase;

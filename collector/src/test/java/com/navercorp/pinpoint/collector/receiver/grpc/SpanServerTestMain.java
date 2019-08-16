@@ -23,22 +23,12 @@ import com.navercorp.pinpoint.grpc.server.ServerOption;
 import com.navercorp.pinpoint.grpc.trace.PResult;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.io.request.ServerResponse;
-import io.grpc.Attributes;
 import io.grpc.BindableService;
-import io.grpc.ConnectivityStateInfo;
-import io.grpc.EquivalentAddressGroup;
-import io.grpc.LoadBalancer;
-import io.grpc.PickFirstBalancerFactory;
-import io.grpc.Status;
 
 import java.net.InetAddress;
 import java.util.Arrays;
-import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import static com.google.common.base.Preconditions.checkNotNull;
-import static io.grpc.ConnectivityState.CONNECTING;
 
 /**
  * @author jaehong.kim
@@ -71,7 +61,7 @@ public class SpanServerTestMain {
     }
 
     private static class MockDispatchHandler implements DispatchHandler {
-        private static AtomicInteger counter = new AtomicInteger(0);
+        private static final AtomicInteger counter = new AtomicInteger(0);
 
         @Override
         public void dispatchSendMessage(ServerRequest serverRequest) {

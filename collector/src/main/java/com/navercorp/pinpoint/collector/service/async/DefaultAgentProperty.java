@@ -30,7 +30,7 @@ public class DefaultAgentProperty implements AgentProperty {
 
     public DefaultAgentProperty(String agentId, long agentStartTime, Map<String, Object> properties) {
         this.agentId = Assert.requireNonNull(agentId, "agentId must not be null");
-        this.agentStartTime = Assert.requireNonNull(agentStartTime, "agentStartTime must not be null");
+        this.agentStartTime = agentStartTime;
         this.properties = Assert.requireNonNull(properties, "properties must not be null");
     }
 

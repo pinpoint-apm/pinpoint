@@ -21,5 +21,5 @@ import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
  * @author minwoo.jung
  */
 public interface AgentStatService {
-    public void save(AgentStatBo agentStatBo);
+    void save(AgentStatBo agentStatBo);
 }

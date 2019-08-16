@@ -142,7 +142,7 @@ public class UDPReceiver {
             if (!state.get()) {
                 // shutdown
             } else {
-                logger.error("IoError, Caused:", e.getMessage(), e);
+                logger.error("IoError, Caused by:{}", e.getMessage(), e);
             }
             return null;
         } finally {

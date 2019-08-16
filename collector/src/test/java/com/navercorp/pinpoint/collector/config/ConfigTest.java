@@ -73,7 +73,7 @@ public class ConfigTest {
 
         Assert.assertFalse(statReceiverConfig.isTcpEnable());
         Assert.assertEquals(CollectorConfiguration.DEFAULT_LISTEN_IP, statReceiverConfig.getTcpBindIp());
-        Assert.assertTrue(statReceiverConfig.getTcpBindPort() == -1);
+        Assert.assertEquals(statReceiverConfig.getTcpBindPort(), -1);
 
 
         SpanReceiverConfiguration spanReceiverConfig = new SpanReceiverConfiguration(properties, deprecatedConfig);
@@ -98,7 +98,7 @@ public class ConfigTest {
 
         Assert.assertFalse(spanReceiverConfig.isTcpEnable());
         Assert.assertEquals(CollectorConfiguration.DEFAULT_LISTEN_IP, spanReceiverConfig.getTcpBindIp());
-        Assert.assertTrue(spanReceiverConfig.getTcpBindPort() == -1);
+        Assert.assertEquals(spanReceiverConfig.getTcpBindPort(), -1);
     }
 
     @Test
@@ -129,31 +129,31 @@ public class ConfigTest {
         Assert.assertEquals(agentBaseDataReceiverConfig.getBindPort(), 39994);
         Assert.assertEquals(agentBaseDataReceiverConfig.getWorkerThreadSize(), 33);
         Assert.assertEquals(agentBaseDataReceiverConfig.getWorkerQueueSize(), 29);
-        Assert.assertEquals(agentBaseDataReceiverConfig.isWorkerMonitorEnable(), true);
+        Assert.assertTrue(agentBaseDataReceiverConfig.isWorkerMonitorEnable());
 
         StatReceiverConfiguration statReceiverConfig = new StatReceiverConfiguration(properties, deprecatedConfig);
-        Assert.assertEquals(statReceiverConfig.isUdpEnable(), false);
+        Assert.assertFalse(statReceiverConfig.isUdpEnable());
         Assert.assertEquals(statReceiverConfig.getUdpBindIp(), "0.0.0.1");
         Assert.assertEquals(statReceiverConfig.getUdpBindPort(), 39995);
         Assert.assertEquals(statReceiverConfig.getUdpReceiveBufferSize(), 419);
-        Assert.assertEquals(statReceiverConfig.isTcpEnable(), true);
+        Assert.assertTrue(statReceiverConfig.isTcpEnable());
         Assert.assertEquals(statReceiverConfig.getTcpBindIp(), "0.0.0.2");
         Assert.assertEquals(statReceiverConfig.getTcpBindPort(), 39996);
         Assert.assertEquals(statReceiverConfig.getWorkerThreadSize(), 2);
         Assert.assertEquals(statReceiverConfig.getWorkerQueueSize(), 3);
-        Assert.assertEquals(statReceiverConfig.isWorkerMonitorEnable(), true);
+        Assert.assertTrue(statReceiverConfig.isWorkerMonitorEnable());
 
         SpanReceiverConfiguration spanReceiverConfig = new SpanReceiverConfiguration(properties, deprecatedConfig);
-        Assert.assertEquals(spanReceiverConfig.isUdpEnable(), true);
+        Assert.assertTrue(spanReceiverConfig.isUdpEnable());
         Assert.assertEquals(spanReceiverConfig.getUdpBindIp(), "0.0.0.3");
         Assert.assertEquals(spanReceiverConfig.getUdpBindPort(), 39997);
         Assert.assertEquals(spanReceiverConfig.getUdpReceiveBufferSize(), 568);
-        Assert.assertEquals(spanReceiverConfig.isTcpEnable(), false);
+        Assert.assertFalse(spanReceiverConfig.isTcpEnable());
         Assert.assertEquals(spanReceiverConfig.getTcpBindIp(), "0.0.0.4");
         Assert.assertEquals(spanReceiverConfig.getTcpBindPort(), 39998);
         Assert.assertEquals(spanReceiverConfig.getWorkerThreadSize(), 3);
         Assert.assertEquals(spanReceiverConfig.getWorkerQueueSize(), 4);
-        Assert.assertEquals(spanReceiverConfig.isWorkerMonitorEnable(), false);
+        Assert.assertFalse(spanReceiverConfig.isWorkerMonitorEnable());
     }
 
 }

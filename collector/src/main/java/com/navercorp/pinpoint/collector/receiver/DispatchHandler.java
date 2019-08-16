@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.collector.receiver;
 
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.io.request.ServerResponse;
-import org.apache.thrift.TBase;
 
 /**
  * @author emeroad

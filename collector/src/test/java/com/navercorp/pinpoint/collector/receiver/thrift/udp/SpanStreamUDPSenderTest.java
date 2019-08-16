@@ -69,10 +69,10 @@ import static org.mockito.Mockito.mock;
  */
 public class SpanStreamUDPSenderTest {
 
-    private String applicationName = "appName";
-    private String agentId = "agentId";
-    private long agentStartTime = 0;
-    private ServiceType applicationServiceType = ServiceType.STAND_ALONE;
+    private final String applicationName = "appName";
+    private final String agentId = "agentId";
+    private final long agentStartTime = 0;
+    private final ServiceType applicationServiceType = ServiceType.STAND_ALONE;
 
     private static MessageHolderDispatchHandler messageHolder;
     private static UDPReceiver receiver = null;
@@ -284,7 +284,7 @@ public class SpanStreamUDPSenderTest {
 
         private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-        private List<ServerRequest> messageHolder = new ArrayList<>();
+        private final List<ServerRequest> messageHolder = new ArrayList<>();
 
 
         @Override
