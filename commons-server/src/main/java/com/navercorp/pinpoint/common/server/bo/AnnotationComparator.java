@@ -13,7 +13,7 @@ public class AnnotationComparator implements Comparator<AnnotationBo> {
 
     @Override
     public int compare(AnnotationBo o1, AnnotationBo o2) {
-        return IntegerUtils.compare(o1.getKey(), o2.getKey());
+        return Integer.compare(o1.getKey(), o2.getKey());
     }
 
 }

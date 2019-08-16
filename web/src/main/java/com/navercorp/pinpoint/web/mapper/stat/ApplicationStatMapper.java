@@ -44,7 +44,7 @@ public class ApplicationStatMapper implements RowMapper<List<JoinStatBo>> {
         public int compare(JoinStatBo o1, JoinStatBo o2) {
             long x = o2.getTimestamp();
             long y = o1.getTimestamp();
-            return (x < y) ? -1 : ((x == y) ? 0 : 1);
+            return Long.compare(x, y);
         }
     };
 

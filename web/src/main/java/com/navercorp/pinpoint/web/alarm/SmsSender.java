@@ -16,12 +16,10 @@
 package com.navercorp.pinpoint.web.alarm;
 
 import com.navercorp.pinpoint.web.alarm.checker.AlarmChecker;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author minwoo.jung
  */
 public interface SmsSender {
-    public void sendSms(AlarmChecker checker, int sequenceCount);
+    void sendSms(AlarmChecker checker, int sequenceCount);
 }

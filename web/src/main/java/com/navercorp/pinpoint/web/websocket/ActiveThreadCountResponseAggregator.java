@@ -132,7 +132,7 @@ public class ActiveThreadCountResponseAggregator implements PinpointWebSocketRes
                 }
             }
 
-            boolean added = webSocketSessions.add(webSocketSession);
+            final boolean added = webSocketSessions.add(webSocketSession);
             if (added && webSocketSessions.size() == 1) {
                 workerActiveManager.startAgentCheckJob();
             }
@@ -250,7 +250,7 @@ public class ActiveThreadCountResponseAggregator implements PinpointWebSocketRes
     }
 
     private TextMessage createWebSocketTextMessage(AgentActiveThreadCountList activeThreadCountList) {
-        Map resultMap = createResultMap(activeThreadCountList, System.currentTimeMillis());
+        Map<String, Object> resultMap = createResultMap(activeThreadCountList, System.currentTimeMillis());
         try {
             String response = messageConverter.getResponseTextMessage(ActiveThreadCountHandler.API_ACTIVE_THREAD_COUNT, resultMap);
             TextMessage responseTextMessage = new TextMessage(response);

@@ -249,7 +249,7 @@ public class TBaseFlatMapperTest {
     }
 
     private RawData newRawData(TFAgentStatBatch tfAgentStatBatch) {
-        return new RawData(tfAgentStatBatch, Collections.EMPTY_MAP);
+        return new RawData(tfAgentStatBatch, Collections.emptyMap());
     }
 
     private void assertJoinTransactionBo(List<JoinTransactionBo> joinTransactionBoList) {

@@ -15,19 +15,16 @@
  */
 package com.navercorp.pinpoint.web.service;
 
-import java.util.List;
-
+import com.navercorp.pinpoint.web.dao.UserDao;
+import com.navercorp.pinpoint.web.vo.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-
-import com.navercorp.pinpoint.web.dao.UserDao;
-import com.navercorp.pinpoint.web.vo.User;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.security.sasl.AuthorizeCallback;
+import java.util.List;
 
 /**
  * @author minwoo.jung

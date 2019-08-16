@@ -72,17 +72,17 @@ public class WebConfig {
         logger.info("{}", toString());
     }
 
-    private boolean assertPort(int port) {
+    private int assertPort(int port) {
         if (port > 0 && 65535 > port) {
-            return true;
+            return port;
         }
 
         throw new IllegalArgumentException("Invalid Port =" + port);
     }
 
-    private boolean assertPositiveNumber(int number) {
+    private int assertPositiveNumber(int number) {
         if (number >= 0) {
-            return true;
+            return number;
         }
 
         throw new IllegalArgumentException("Invalid Positive Number =" + number);

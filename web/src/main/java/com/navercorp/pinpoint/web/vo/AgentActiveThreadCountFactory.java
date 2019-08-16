@@ -85,14 +85,14 @@ public class AgentActiveThreadCountFactory {
         AgentActiveThreadCount.Builder builder = new AgentActiveThreadCount.Builder();
         builder.setAgentId(agentId);
         builder.setActiveThreadCountList(activeThreadCountList);
-        builder.setStatus(builder.SUCCESS_STATUS);
+        builder.setStatus(AgentActiveThreadCount.Builder.SUCCESS_STATUS);
         return builder.build();
     }
 
     private AgentActiveThreadCount createFail0(short code, String codeMessage) {
         AgentActiveThreadCount.Builder builder = new AgentActiveThreadCount.Builder();
         builder.setAgentId(agentId);
-        builder.setActiveThreadCountList(Collections.EMPTY_LIST);
+        builder.setActiveThreadCountList(Collections.emptyList());
         builder.setStatus(code, codeMessage);
         return builder.build();
     }

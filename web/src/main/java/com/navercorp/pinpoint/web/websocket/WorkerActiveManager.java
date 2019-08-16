@@ -177,6 +177,7 @@ public class WorkerActiveManager {
                     }
                 }
             } finally {
+                final Timer timer = WorkerActiveManager.this.timer;
                 if (timer != null && onAgentCheckTimerTask.get() && !isStopped.get()) {
                     TimerTask agentCheckTimerTask = timerTaskDecorator.decorate(new AgentCheckTimerTask());
                     timer.schedule(agentCheckTimerTask, DEFAULT_AGENT_CHECK_DELAY);

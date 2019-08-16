@@ -312,7 +312,7 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
         private final long startTimeMillis;
         private final long delay;
 
-        private int times = 0;
+        private int times;
 
         public ActiveThreadTimerTask(long delay) {
             this(System.currentTimeMillis(), delay, 0);

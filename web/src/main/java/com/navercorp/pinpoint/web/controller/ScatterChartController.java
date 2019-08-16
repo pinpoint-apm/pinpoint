@@ -170,7 +170,7 @@ public class ScatterChartController {
         final Range range = Range.createUncheckedRange(from, to);
         logger.debug("fetch scatter data. RANGE={}, X-Group-Unit:{}, Y-Group-Unit:{}, LIMIT={}, BACKWARD_DIRECTION:{}, FILTER:{}", range, xGroupUnit, yGroupUnit, limit, backwardDirection, filterText);
 
-        ModelAndView mv = null;
+        ModelAndView mv;
         if (StringUtils.isEmpty(filterText)) {
             mv = selectScatterData(applicationName, range, xGroupUnit, Math.max(yGroupUnit, 1), limit, backwardDirection, version);
         } else {

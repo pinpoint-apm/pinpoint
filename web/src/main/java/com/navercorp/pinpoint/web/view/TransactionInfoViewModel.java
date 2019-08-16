@@ -166,15 +166,11 @@ public class TransactionInfoViewModel {
     @JsonProperty("applicationMapData")
     public Map<String, List<Object>> getApplicationMapData() {
         Map<String, List<Object>> result = new HashMap<String, List<Object>>();
-        List<Object> nodeDataArray = new ArrayList<Object>();
-        for(Node node : nodes) {
-            nodeDataArray.add(node);
-        }
+
+        List<Object> nodeDataArray = new ArrayList<>(nodes);
         result.put("nodeDataArray", nodeDataArray);
-        List<Object> linkDataArray = new ArrayList<Object>();
-        for(Link link : links) {
-            linkDataArray.add(link);
-        }
+
+        List<Object> linkDataArray = new ArrayList<>(links);
         result.put("linkDataArray", linkDataArray);
 
         return result;

@@ -394,7 +394,7 @@ public class DefaultPinpointServer implements PinpointServer {
     }
 
     private ClusterOption getClusterOption(Map handshakeResponse) {
-        if (handshakeResponse == Collections.EMPTY_MAP) {
+        if (handshakeResponse == Collections.emptyMap()) {
             return ClusterOption.DISABLE_CLUSTER_OPTION;
         }
 

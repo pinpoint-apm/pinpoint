@@ -58,7 +58,7 @@ public class DefaultFilterBuilder implements FilterBuilder<SpanBo> {
     @Override
     public Filter<SpanBo> build(String filterText) {
         if (StringUtils.isEmpty(filterText)) {
-            return Filter.NONE;
+            return Filter.acceptAllFilter();
         }
 
         filterText = decode(filterText);
@@ -71,7 +71,7 @@ public class DefaultFilterBuilder implements FilterBuilder<SpanBo> {
     @Override
     public Filter<SpanBo> build(String filterText, String filterHint) {
         if (StringUtils.isEmpty(filterText)) {
-            return Filter.NONE;
+            return Filter.acceptAllFilter();
         }
 
         filterText = decode(filterText);

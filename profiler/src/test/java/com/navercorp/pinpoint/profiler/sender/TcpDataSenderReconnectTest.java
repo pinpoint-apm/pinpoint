@@ -72,7 +72,7 @@ public class TcpDataSenderReconnectTest {
         PinpointClientFactory clientFactory = new DefaultPinpointClientFactory();
         clientFactory.setWriteTimeoutMillis(1000 * 3);
         clientFactory.setRequestTimeoutMillis(1000 * 5);
-        clientFactory.setProperties(Collections.EMPTY_MAP);
+        clientFactory.setProperties(Collections.<String, Object>emptyMap());
 
         return clientFactory;
     }
