@@ -84,7 +84,7 @@ public class WriteJsonStringInterceptor implements AroundInterceptor {
             recorder.recordApi(descriptor);
             recorder.recordException(throwable);
 
-            if (result != null && result instanceof Integer) {
+            if (result instanceof Integer) {
                 recorder.recordAttribute(FastjsonConstants.ANNOTATION_KEY_JSON_LENGTH, ((Integer) result).intValue());
             }
         } finally {

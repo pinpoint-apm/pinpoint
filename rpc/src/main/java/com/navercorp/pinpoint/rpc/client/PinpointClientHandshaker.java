@@ -181,7 +181,7 @@ public class PinpointClientHandshaker {
     private Map decode(ControlHandshakeResponsePacket message) {
         byte[] payload = message.getPayload();
         if (payload == null) {
-            return Collections.EMPTY_MAP;
+            return Collections.emptyMap();
         }
 
         try {
@@ -191,11 +191,11 @@ public class PinpointClientHandshaker {
 
         }
 
-        return Collections.EMPTY_MAP;
+        return Collections.emptyMap();
     }
 
     private HandshakeResponseCode getResponseCode(Map handshakeResponse) {
-        if (handshakeResponse == Collections.EMPTY_MAP) {
+        if (handshakeResponse == Collections.emptyMap()) {
             return HandshakeResponseCode.PROTOCOL_ERROR;
         }
 
@@ -206,7 +206,7 @@ public class PinpointClientHandshaker {
     }
 
     private ClusterOption getClusterOption(Map handshakeResponse) {
-        if (handshakeResponse == Collections.EMPTY_MAP) {
+        if (handshakeResponse == Collections.emptyMap()) {
             return ClusterOption.DISABLE_CLUSTER_OPTION;
         }
 

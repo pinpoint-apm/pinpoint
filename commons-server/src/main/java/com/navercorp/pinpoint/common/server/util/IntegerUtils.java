@@ -21,7 +21,7 @@ package com.navercorp.pinpoint.common.server.util;
  * @author Woonduk Kang(emeroad)
  */
 public final class IntegerUtils {
-
+    @Deprecated
     public static int compare(int x, int y) {
         return (x < y) ? -1 : ((x == y) ? 0 : 1);
     }

@@ -14,27 +14,13 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.web.filter.visitor;
-
-import com.navercorp.pinpoint.common.server.bo.SpanBo;
-import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
-import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
+package com.navercorp.pinpoint.test.util;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
-public interface SpanVisitor {
-
-    boolean ACCEPT = true;
-    boolean REJECT = false;
-
-    boolean visit(SpanBo spanBo);
-
-    boolean visit(SpanChunkBo spanChunkBo);
-
-    /**
-     * visit synchronous and asynchronous SpanEventBo
-     */
-    boolean visit(SpanEventBo spanEventBo);
-
+public class IntegerUtils {
+    public static int compare(int x, int y) {
+        return (x < y) ? -1 : ((x == y) ? 0 : 1);
+    }
 }

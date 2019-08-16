@@ -45,7 +45,7 @@ public class AgentStatMapperV2<T extends AgentStatDataPoint> implements AgentSta
         public int compare(AgentStatDataPoint o1, AgentStatDataPoint o2) {
             long x = o2.getTimestamp();
             long y = o1.getTimestamp();
-            return (x < y) ? -1 : ((x == y) ? 0 : 1);
+            return Long.compare(x, y);
         }
     };
 
@@ -97,7 +97,8 @@ public class AgentStatMapperV2<T extends AgentStatDataPoint> implements AgentSta
 
     private boolean filter(T candidate) {
         if (candidate instanceof AgentStatDataPointList) {
-            List<AgentStatDataPointList> list = ((AgentStatDataPointList) candidate).getList();
+            AgentStatDataPointList<AgentStatDataPoint> agentStatDataPointList = (AgentStatDataPointList) candidate;
+            List<AgentStatDataPoint> list = agentStatDataPointList.getList();
             for (AgentStatDataPoint agentStatDataPoint : list) {
                 long timestamp = agentStatDataPoint.getTimestamp();
                 if (!this.filter.filter(timestamp)) {

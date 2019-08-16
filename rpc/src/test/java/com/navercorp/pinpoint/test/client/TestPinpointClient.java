@@ -40,7 +40,7 @@ public class TestPinpointClient {
     private PinpointClient pinpointClient;
 
     public TestPinpointClient() {
-        this(Collections.EMPTY_MAP);
+        this(Collections.<String, Object>emptyMap());
     }
 
     public TestPinpointClient(Map<String, Object> param) {
@@ -52,7 +52,7 @@ public class TestPinpointClient {
     }
 
     public TestPinpointClient(MessageListener messageListener, ServerStreamChannelMessageHandler serverStreamChannelMessageHandler) {
-        this(messageListener, serverStreamChannelMessageHandler, Collections.EMPTY_MAP);
+        this(messageListener, serverStreamChannelMessageHandler, Collections.<String, Object>emptyMap());
     }
 
     public TestPinpointClient(MessageListener messageListener, Map<String, Object> param) {

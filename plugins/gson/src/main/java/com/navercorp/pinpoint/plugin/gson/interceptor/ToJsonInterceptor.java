@@ -71,7 +71,7 @@ public class ToJsonInterceptor implements AroundInterceptor0 {
             recorder.recordApi(descriptor);
             recorder.recordException(throwable);
 
-            if (result != null && result instanceof String) {
+            if (result instanceof String) {
                 recorder.recordAttribute(GsonConstants.GSON_ANNOTATION_KEY_JSON_LENGTH, ((String) result).length());
             }
         } finally {

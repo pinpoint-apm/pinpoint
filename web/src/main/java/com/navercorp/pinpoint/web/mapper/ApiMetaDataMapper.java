@@ -65,15 +65,9 @@ public class ApiMetaDataMapper implements RowMapper<List<ApiMetaDataBo>> {
             ApiMetaDataBo apiMetaDataBo = new ApiMetaDataBo();
             apiMetaDataBo.readRowKey(rowKey);
 
-            byte[] qualifier = CellUtil.cloneQualifier(cell);
-            byte[] value = null;
-            
-            if (API_METADATA_CF_API_QUALI_SIGNATURE.equals(Bytes.toString(qualifier))) {
-                value = CellUtil.cloneValue(cell);
-            } else {
-                value = qualifier;
-            }
-            
+            final byte[] qualifier = CellUtil.cloneQualifier(cell);
+            final byte[] value = getValue(cell, qualifier);
+
             Buffer buffer = new FixedBuffer(value);
             String apiInfo = buffer.readPrefixedString();
             int lineNumber = buffer.readInt();
@@ -90,6 +84,14 @@ public class ApiMetaDataMapper implements RowMapper<List<ApiMetaDataBo>> {
             }
         }
         return apiMetaDataList;
+    }
+
+    private byte[] getValue(Cell cell, byte[] qualifier) {
+        if (API_METADATA_CF_API_QUALI_SIGNATURE.equals(Bytes.toString(qualifier))) {
+            return CellUtil.cloneValue(cell);
+        } else {
+            return qualifier;
+        }
     }
 
     private byte[] getOriginalKey(byte[] rowKey) {

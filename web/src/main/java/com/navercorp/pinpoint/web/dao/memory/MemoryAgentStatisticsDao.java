@@ -23,7 +23,6 @@ import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -49,10 +48,7 @@ public class MemoryAgentStatisticsDao implements AgentStatisticsDao {
 
         List<AgentCountStatistics> result = new ArrayList<>();
 
-        Iterator<Map.Entry<Long, Integer>> iterator = agentCountPerTime.entrySet().iterator();
-        while (iterator.hasNext()) {
-            Map.Entry<Long, Integer> next = iterator.next();
-
+        for (Map.Entry<Long, Integer> next : agentCountPerTime.entrySet()) {
             Long key = next.getKey();
             if (key > to) {
                 continue;

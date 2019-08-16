@@ -210,7 +210,7 @@ public class FilteredMapServiceImpl implements FilteredMapService {
         // FIXME from,to -1
         Range range = new Range(-1, -1);
 
-        final List<List<SpanBo>> filterList = selectFilteredSpan(transactionIdList, Filter.NONE);
+        final List<List<SpanBo>> filterList = selectFilteredSpan(transactionIdList, Filter.acceptAllFilter());
         FilteredMapBuilder filteredMapBuilder = new FilteredMapBuilder(applicationFactory, registry, range, version);
         filteredMapBuilder.serverMapDataFilter(serverMapDataFilter);
         filteredMapBuilder.addTransactions(filterList);

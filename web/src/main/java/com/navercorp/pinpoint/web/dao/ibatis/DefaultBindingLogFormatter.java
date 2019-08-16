@@ -52,7 +52,7 @@ public class DefaultBindingLogFormatter implements BindLogFormatter {
 
         for (int i = 0; i < query.length(); ) {
             if (parameters != null && query.charAt(i) == '?') {
-                builder.append(query.substring(queryPrev, i));
+                builder.append(query, queryPrev, i);
                 builder.append(parameters.size() > index ? convert(parameters.get(index)) : null);
                 queryPrev = ++i;
                 index++;

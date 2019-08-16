@@ -209,7 +209,7 @@ public class HttpRequestExecutorExecuteMethodInterceptor implements AroundInterc
     }
 
     Integer getStatusCodeFromResponse(Object result) {
-        if (result != null && result instanceof HttpResponse) {
+        if (result instanceof HttpResponse) {
             HttpResponse response = (HttpResponse) result;
 
             final StatusLine statusLine = response.getStatusLine();

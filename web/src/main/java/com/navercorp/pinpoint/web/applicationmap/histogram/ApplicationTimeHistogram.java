@@ -41,7 +41,7 @@ public class ApplicationTimeHistogram {
     private List<TimeHistogram> histogramList;
 
     public ApplicationTimeHistogram(Application application, Range range) {
-        this(application, range, Collections.<TimeHistogram>emptyList());
+        this(application, range, Collections.emptyList());
     }
 
     public ApplicationTimeHistogram(Application application, Range range, List<TimeHistogram> histogramList) {

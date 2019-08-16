@@ -84,7 +84,7 @@ public class ToJsonInterceptor implements AroundInterceptor {
             recorder.recordApi(descriptor);
             recorder.recordException(throwable);
 
-            if (result != null && result instanceof Object) {
+            if (result instanceof Object) {
                 recorder.recordAttribute(FastjsonConstants.ANNOTATION_KEY_JSON_LENGTH, result.hashCode());
             }
         } finally {

@@ -105,7 +105,7 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
 
         List<List<SpanBo>> traceList;
 
-        if (filter == Filter.NONE) {
+        if (filter == Filter.acceptAllFilter()) {
             List<GetTraceInfo> getTraceInfoList = new ArrayList<>(transactionIdList.size());
             for (TransactionId transactionId : transactionIdList) {
                 getTraceInfoList.add(new GetTraceInfo(transactionId));

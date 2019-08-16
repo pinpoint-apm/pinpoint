@@ -84,7 +84,7 @@ public class ToJsonBytesInterceptor implements AroundInterceptor {
             recorder.recordApi(descriptor);
             recorder.recordException(throwable);
 
-            if (result != null && result instanceof byte[]) {
+            if (result instanceof byte[]) {
                 recorder.recordAttribute(FastjsonConstants.ANNOTATION_KEY_JSON_LENGTH, ((byte[]) result).length);
             }
         } finally {

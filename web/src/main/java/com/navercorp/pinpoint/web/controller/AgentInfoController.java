@@ -180,7 +180,7 @@ public class AgentInfoController {
             @RequestParam("from") long from,
             @RequestParam("to") long to) {
         Range range = new Range(from, to);
-        return agentInfoService.getAgentStatusTimeline(agentId, range, null);
+        return agentInfoService.getAgentStatusTimeline(agentId, range);
     }
 
     @PreAuthorize("hasPermission(new com.navercorp.pinpoint.web.vo.AgentParam(#agentId, #to), 'agentParam', 'inspector')")

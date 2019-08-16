@@ -71,7 +71,7 @@ public class FromJsonInterceptor implements AroundInterceptor2 {
             recorder.recordApi(descriptor);
             recorder.recordException(throwable);
 
-            if (arg0 != null && arg0 instanceof String) {
+            if (arg0 instanceof String) {
                 recorder.recordAttribute(GsonConstants.GSON_ANNOTATION_KEY_JSON_LENGTH, ((String) arg0).length());
             }
         } finally {

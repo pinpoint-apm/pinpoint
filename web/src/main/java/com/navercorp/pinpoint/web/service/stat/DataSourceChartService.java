@@ -59,7 +59,7 @@ public class DataSourceChartService implements AgentStatChartService {
 
         List<SampledDataSourceList> sampledAgentStatList = this.sampledDataSourceDao.getSampledAgentStatList(agentId, timeWindow);
         if (CollectionUtils.isEmpty(sampledAgentStatList)) {
-            return new DataSourceChart(timeWindow, Collections.<SampledDataSource>emptyList(), serviceTypeRegistryService);
+            return new DataSourceChart(timeWindow, Collections.emptyList(), serviceTypeRegistryService);
         } else {
             return new DataSourceChart(timeWindow, ListUtils.getFirst(sampledAgentStatList).getSampledDataSourceList(), serviceTypeRegistryService);
         }
@@ -77,7 +77,7 @@ public class DataSourceChartService implements AgentStatChartService {
         List<SampledDataSourceList> sampledAgentStatList = this.sampledDataSourceDao.getSampledAgentStatList(agentId, timeWindow);
         if (CollectionUtils.isEmpty(sampledAgentStatList)) {
             List<StatChart> result = new ArrayList<>(1);
-            result.add(new DataSourceChart(timeWindow, Collections.<SampledDataSource>emptyList(), serviceTypeRegistryService));
+            result.add(new DataSourceChart(timeWindow, Collections.emptyList(), serviceTypeRegistryService));
             return result;
         } else {
             List<StatChart> result = new ArrayList<>(sampledAgentStatList.size());
