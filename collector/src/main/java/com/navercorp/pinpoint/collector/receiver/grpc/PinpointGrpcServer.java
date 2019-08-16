@@ -299,7 +299,7 @@ public class PinpointGrpcServer {
                     logger.warn("stop(). Socket has closed state({}).", currentStateCode);
                 } else {
                     toState(SocketStateCode.ERROR_ILLEGAL_STATE_CHANGE);
-                    logger.warn("stop(). Socket has unexpected state.", currentStateCode);
+                    logger.warn("stop(). Socket has unexpected state({})", currentStateCode);
                 }
             } finally {
                 logger.info("{} <=> local all streamChannels will be close.", agentInfo.getAgentKey());

@@ -80,7 +80,7 @@ public class ChunkedUDPPacketHandlerFactory<T extends DatagramPacket> implements
                     if (filter.filter(localSocket, message.getData(), remoteAddress) == TBaseFilter.BREAK) {
                         return;
                     }
-                    ServerRequest<TBase<?, ?>> request = newServerRequest(message, remoteAddress);;
+                    ServerRequest<TBase<?, ?>> request = newServerRequest(message, remoteAddress);
                     // dispatch signifies business logic execution
                     dispatchHandler.dispatchSendMessage(request);
                 }

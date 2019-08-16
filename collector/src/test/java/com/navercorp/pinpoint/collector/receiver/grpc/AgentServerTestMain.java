@@ -27,7 +27,6 @@ import com.navercorp.pinpoint.grpc.trace.PResult;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.io.request.ServerResponse;
 import io.grpc.BindableService;
-import io.grpc.Status;
 
 import java.net.InetAddress;
 import java.util.Arrays;
@@ -74,7 +73,7 @@ public class AgentServerTestMain {
     }
 
     private static class MockDispatchHandler implements DispatchHandler {
-        private static AtomicInteger counter = new AtomicInteger(0);
+        private static final AtomicInteger counter = new AtomicInteger(0);
 
         @Override
         public void dispatchSendMessage(ServerRequest serverRequest) {

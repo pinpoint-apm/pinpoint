@@ -32,9 +32,7 @@ import com.navercorp.pinpoint.thrift.io.TCommandType;
 
 import com.google.protobuf.GeneratedMessageV3;
 import org.apache.thrift.TBase;
-import org.springframework.util.NumberUtils;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**

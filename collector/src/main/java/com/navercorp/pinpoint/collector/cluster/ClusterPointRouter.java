@@ -154,7 +154,7 @@ public class ClusterPointRouter extends ServerStreamChannelMessageHandler implem
             return StreamCode.TYPE_UNKNOWN;
         }
 
-        TCommandTransferResponse response = streamRouteHandler.onRoute(new StreamEvent((TCommandTransfer) request, serverStreamChannel, command));
+        TCommandTransferResponse response = streamRouteHandler.onRoute(new StreamEvent(request, serverStreamChannel, command));
         TRouteResult routeResult = response.getRouteResult();
         if (routeResult != TRouteResult.OK) {
             logger.warn("handleStreamRouteCreate failed. command:{}, routeResult:{}", command, routeResult);

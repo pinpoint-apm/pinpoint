@@ -33,7 +33,7 @@ import java.util.Objects;
 public class DelegateDispatchHandler implements DispatchHandler {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private AcceptedTimeService acceptedTimeService;
+    private final AcceptedTimeService acceptedTimeService;
     private final DispatchHandler delegate;
 
     private final HandlerManager handlerManager;

@@ -29,6 +29,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -40,7 +41,7 @@ public class GrpcAgentConnectionTest {
     public void requestTest() {
         PinpointGrpcServer mockGrpcServer = Mockito.mock(PinpointGrpcServer.class);
 
-        List<Integer> supportCommandList = Arrays.asList(Short.toUnsignedInt(TCommandType.ECHO.getCode()));
+        List<Integer> supportCommandList = Collections.singletonList(Short.toUnsignedInt(TCommandType.ECHO.getCode()));
         GrpcAgentConnection grpcAgentConnection = new GrpcAgentConnection(mockGrpcServer, supportCommandList);
 
         boolean supportCommand = grpcAgentConnection.isSupportCommand(TCommandType.TRANSFER.getBodyFactory().getObject());
@@ -66,14 +67,14 @@ public class GrpcAgentConnectionTest {
     public void equalsTest() {
         PinpointGrpcServer mockGrpcServer1 = Mockito.mock(PinpointGrpcServer.class);
 
-        List<Integer> supportCommandList = Arrays.asList(Short.toUnsignedInt(TCommandType.ECHO.getCode()));
+        List<Integer> supportCommandList = Collections.singletonList(Short.toUnsignedInt(TCommandType.ECHO.getCode()));
         GrpcAgentConnection grpcAgentConnection = new GrpcAgentConnection(mockGrpcServer1, supportCommandList);
 
-        Assert.assertTrue(grpcAgentConnection.equals(grpcAgentConnection));
-        Assert.assertTrue(grpcAgentConnection.equals(new GrpcAgentConnection(mockGrpcServer1, supportCommandList)));
+        Assert.assertEquals(grpcAgentConnection, grpcAgentConnection);
+        Assert.assertEquals(grpcAgentConnection, new GrpcAgentConnection(mockGrpcServer1, supportCommandList));
 
         PinpointGrpcServer mockGrpcServer2 = Mockito.mock(PinpointGrpcServer.class);
-        Assert.assertFalse(grpcAgentConnection.equals(new GrpcAgentConnection(mockGrpcServer2, supportCommandList)));
+        Assert.assertNotEquals(grpcAgentConnection, new GrpcAgentConnection(mockGrpcServer2, supportCommandList));
     }
 
 }

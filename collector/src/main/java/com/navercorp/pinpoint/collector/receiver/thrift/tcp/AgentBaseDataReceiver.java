@@ -48,7 +48,7 @@ public class AgentBaseDataReceiver {
 
     private final Logger logger = LoggerFactory.getLogger(AgentBaseDataReceiver.class);
 
-    private PinpointServerAcceptor acceptor;
+    private final PinpointServerAcceptor acceptor;
 
     private final AgentBaseDataReceiverConfiguration configuration;
 

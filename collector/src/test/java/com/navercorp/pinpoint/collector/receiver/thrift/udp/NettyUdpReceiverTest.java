@@ -42,7 +42,7 @@ public class NettyUdpReceiverTest {
     public static final int PORT = SocketUtils.findAvailableUdpPort(30011);
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    CountDownLatch latch = new CountDownLatch(1);
+    private final CountDownLatch latch = new CountDownLatch(1);
     /*
     * netty io thread is single-threaded even for udp.
     * this is for running multiple workers.

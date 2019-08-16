@@ -73,7 +73,7 @@ public class SpanStreamUDPPacketHandlerFactory<T extends DatagramPacket> impleme
 
     // stateless
     private class DispatchPacket implements PacketHandler<T> {
-        private ServerResponse fake = new ServerResponse() {
+        private final ServerResponse fake = new ServerResponse() {
             @Override
             public void write(Object data) {
 

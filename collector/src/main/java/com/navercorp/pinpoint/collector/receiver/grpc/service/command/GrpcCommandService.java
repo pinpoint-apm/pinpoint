@@ -24,7 +24,6 @@ import com.navercorp.pinpoint.collector.cluster.zookeeper.ZookeeperProfilerClust
 import com.navercorp.pinpoint.collector.receiver.grpc.PinpointGrpcServer;
 import com.navercorp.pinpoint.collector.receiver.grpc.PinpointGrpcServerRepository;
 import com.navercorp.pinpoint.common.util.Assert;
-import com.navercorp.pinpoint.grpc.AgentHeaderFactory;
 import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.StatusError;
 import com.navercorp.pinpoint.grpc.StatusErrors;

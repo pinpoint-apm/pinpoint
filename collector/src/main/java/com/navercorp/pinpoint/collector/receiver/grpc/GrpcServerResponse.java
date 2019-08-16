@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.collector.receiver.grpc;
 
-import com.navercorp.pinpoint.grpc.trace.PResult;
 import com.navercorp.pinpoint.io.request.ServerResponse;
 import io.grpc.stub.StreamObserver;
 

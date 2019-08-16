@@ -22,7 +22,7 @@ import com.navercorp.pinpoint.common.util.Assert;
  * @author minwoo.jung
  */
 public class SenderContext {
-    private FlinkTcpDataSender flinkTcpDataSender;
+    private final FlinkTcpDataSender flinkTcpDataSender;
 
     public SenderContext(FlinkTcpDataSender tcpDataSender) {
         this.flinkTcpDataSender = Assert.requireNonNull(tcpDataSender, "flinkTcpDataSender must not be null");

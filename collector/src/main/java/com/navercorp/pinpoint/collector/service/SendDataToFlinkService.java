@@ -31,7 +31,7 @@ public abstract class SendDataToFlinkService {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private volatile List<FlinkTcpDataSender> flinkTcpDataSenderList = new CopyOnWriteArrayList<>();
-    private AtomicInteger callCount = new AtomicInteger(1);
+    private final AtomicInteger callCount = new AtomicInteger(1);
 
     protected void sendData(TBase<?, ?> data) {
         FlinkTcpDataSender tcpDataSender = roundRobinTcpDataSender();

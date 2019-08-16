@@ -17,10 +17,8 @@ package com.navercorp.pinpoint.collector.sender;
 
 import com.navercorp.pinpoint.io.header.HeaderEntity;
 import com.navercorp.pinpoint.io.request.FlinkRequest;
-
 import org.apache.thrift.TBase;
 
-import java.util.HashMap;
 import java.util.Map;
 
 /**
