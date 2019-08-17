@@ -68,10 +68,11 @@ public class KafkaPlugin implements ProfilerPlugin, TransformTemplateAware {
             transformTemplate.transform("org.apache.kafka.clients.consumer.ConsumerRecord", ConsumerRecordTransform.class);
 
             if (config.isSpringConsumerEnable()) {
-                transformTemplate.transform("org.springframework.kafka.listener.adapter.RecordMessagingMessageListenerAdapterTransform", RecordMessagingMessageListenerAdapterTransform.class);
-
+                transformTemplate.transform("org.springframework.kafka.listener.adapter.RecordMessagingMessageListenerAdapter", AcknowledgingConsumerAwareMessageListenerTransform.class);
                 transformTemplate.transform("org.springframework.kafka.listener.adapter.BatchMessagingMessageListenerAdapter", BatchMessagingMessageListenerAdapterTransform.class);
 
+                // Spring Cloud Starter Stream Kafka 2.2.x is supported
+                transformTemplate.transform("org.springframework.kafka.listener.adapter.RetryingMessageListenerAdapter", AcknowledgingConsumerAwareMessageListenerTransform.class);
             }
 
             if (StringUtils.hasText(config.getKafkaEntryPoint())) {
@@ -168,7 +169,7 @@ public class KafkaPlugin implements ProfilerPlugin, TransformTemplateAware {
 
     }
 
-    public static class RecordMessagingMessageListenerAdapterTransform implements TransformCallback {
+    public static class AcknowledgingConsumerAwareMessageListenerTransform implements TransformCallback {
 
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
