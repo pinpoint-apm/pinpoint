@@ -55,11 +55,15 @@ public abstract class GrpcITBase {
 
             assertTrace(server, verifier);
 
-            verifier.awaitTraceCount(8, 20, 3000);
-            verifier.verifyTraceCount(8);
+            verifier.awaitTraceCount(getExpectedRequestResponseTestTraceCount(), 20, 3000);
+            verifier.verifyTraceCount(getExpectedRequestResponseTestTraceCount());
         } finally {
             clearResources(client, server);
         }
+    }
+
+    protected int getExpectedRequestResponseTestTraceCount() {
+        return 8;
     }
 
     @Test
