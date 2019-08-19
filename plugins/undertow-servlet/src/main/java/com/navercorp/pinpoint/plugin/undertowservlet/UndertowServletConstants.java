@@ -18,8 +18,6 @@ package com.navercorp.pinpoint.plugin.undertowservlet;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
 
-import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.RECORD_STATISTICS;
-
 /**
  * @author jaehong.kim
  *

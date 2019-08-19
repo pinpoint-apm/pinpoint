@@ -22,8 +22,6 @@ import com.navercorp.pinpoint.profiler.monitor.metric.deadlock.DeadlockMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.deadlock.DeadlockMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.deadlock.ThreadDumpMetricSnapshot;
 import com.navercorp.pinpoint.profiler.util.ThreadDumpUtils;
-import com.navercorp.pinpoint.thrift.dto.TDeadlock;
-import com.navercorp.pinpoint.thrift.dto.command.TThreadDump;
 
 import java.util.HashSet;
 import java.util.Set;

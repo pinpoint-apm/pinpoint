@@ -16,8 +16,6 @@
 
 package com.navercorp.pinpoint.test;
 
-import org.apache.thrift.TBase;
-
 /**
  * @author emeroad
  */

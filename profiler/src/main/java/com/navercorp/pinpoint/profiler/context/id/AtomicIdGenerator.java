@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.profiler.context.id;
 
 import com.google.inject.Inject;
-import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.atomic.AtomicLong;
 

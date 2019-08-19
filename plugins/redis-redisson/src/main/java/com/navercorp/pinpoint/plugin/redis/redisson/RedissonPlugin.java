@@ -30,7 +30,6 @@ import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.plugin.redis.redisson.interceptor.CommandAsyncServiceMethodInterceptor;
 import com.navercorp.pinpoint.plugin.redis.redisson.interceptor.RedissonMethodInterceptor;
-import org.redisson.reactive.RedissonBatchReactive;
 
 import java.security.ProtectionDomain;
 

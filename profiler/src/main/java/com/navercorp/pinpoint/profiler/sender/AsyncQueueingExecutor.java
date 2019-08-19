@@ -16,18 +16,16 @@
 
 package com.navercorp.pinpoint.profiler.sender;
 
+import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.Collection;
-import java.util.concurrent.Executor;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import com.navercorp.pinpoint.common.util.Assert;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
 
 /**
  * @author emeroad

@@ -24,11 +24,6 @@ import com.navercorp.pinpoint.io.util.TypeLocator;
 import com.navercorp.pinpoint.io.util.TypeLocatorBuilder;
 import com.navercorp.pinpoint.thrift.dto.flink.TFAgentStatBatch;
 import org.apache.thrift.TBase;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.Collections;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author minwoo.jung

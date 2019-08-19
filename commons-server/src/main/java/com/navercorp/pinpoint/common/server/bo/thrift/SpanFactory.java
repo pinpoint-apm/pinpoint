@@ -17,12 +17,10 @@
 package com.navercorp.pinpoint.common.server.bo.thrift;
 
 
-
 import com.google.common.annotations.VisibleForTesting;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.AnnotationComparator;
 import com.navercorp.pinpoint.common.server.bo.AnnotationFactory;
-import com.navercorp.pinpoint.common.server.bo.BasicSpan;
 import com.navercorp.pinpoint.common.server.bo.LocalAsyncIdBo;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;

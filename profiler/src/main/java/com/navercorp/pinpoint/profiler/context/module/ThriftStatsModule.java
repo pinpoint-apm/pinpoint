@@ -41,16 +41,6 @@ import com.navercorp.pinpoint.profiler.monitor.metric.deadlock.DeadlockMetricSna
 import com.navercorp.pinpoint.profiler.monitor.metric.filedescriptor.FileDescriptorMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.response.ResponseTimeValue;
 import com.navercorp.pinpoint.profiler.monitor.metric.transaction.TransactionMetricSnapshot;
-import com.navercorp.pinpoint.thrift.dto.TActiveTrace;
-import com.navercorp.pinpoint.thrift.dto.TAgentStat;
-import com.navercorp.pinpoint.thrift.dto.TCpuLoad;
-import com.navercorp.pinpoint.thrift.dto.TDataSourceList;
-import com.navercorp.pinpoint.thrift.dto.TDeadlock;
-import com.navercorp.pinpoint.thrift.dto.TDirectBuffer;
-import com.navercorp.pinpoint.thrift.dto.TFileDescriptor;
-import com.navercorp.pinpoint.thrift.dto.TJvmGc;
-import com.navercorp.pinpoint.thrift.dto.TResponseTime;
-import com.navercorp.pinpoint.thrift.dto.TTransaction;
 
 /**
  * @author Woonduk Kang(emeroad)

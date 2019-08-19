@@ -16,14 +16,11 @@
 
 package com.navercorp.pinpoint.thrift.io;
 
-import com.navercorp.pinpoint.io.header.Header;
-import com.navercorp.pinpoint.io.header.v1.HeaderV1;
 import com.navercorp.pinpoint.io.util.BodyFactory;
 import com.navercorp.pinpoint.io.util.TypeLocator;
 import com.navercorp.pinpoint.io.util.TypeLocatorBuilder;
 import com.navercorp.pinpoint.thrift.dto.TDeadlock;
 import org.apache.thrift.TBase;
-import org.apache.thrift.TException;
 
 /**
  * @author Taejin Koo

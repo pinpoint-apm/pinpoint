@@ -28,7 +28,6 @@ import com.navercorp.pinpoint.profiler.monitor.collector.AgentStatMetricCollecto
 import com.navercorp.pinpoint.profiler.monitor.metric.AgentStatMetricSnapshot;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
 import com.navercorp.pinpoint.profiler.sender.EmptyDataSender;
-import com.navercorp.pinpoint.thrift.dto.TAgentStat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

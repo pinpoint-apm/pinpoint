@@ -19,10 +19,6 @@ package com.navercorp.pinpoint.profiler.context.grpc;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.protobuf.GeneratedMessageV3;
-import com.navercorp.pinpoint.common.util.Assert;
-import com.navercorp.pinpoint.profiler.context.module.AgentId;
-import com.navercorp.pinpoint.profiler.context.module.AgentStartTime;
-import com.navercorp.pinpoint.profiler.context.module.ApplicationName;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
 
 /**

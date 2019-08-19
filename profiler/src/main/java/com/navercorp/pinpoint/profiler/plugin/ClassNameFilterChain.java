@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.profiler.plugin;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**

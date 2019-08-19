@@ -1,7 +1,5 @@
 package com.navercorp.pinpoint.common.server.bo;
 
-import com.navercorp.pinpoint.common.server.util.IntegerUtils;
-
 import java.util.Comparator;
 
 /**

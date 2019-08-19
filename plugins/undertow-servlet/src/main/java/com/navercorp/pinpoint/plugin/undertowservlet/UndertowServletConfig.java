@@ -16,13 +16,7 @@
 
 package com.navercorp.pinpoint.plugin.undertowservlet;
 
-import com.navercorp.pinpoint.bootstrap.config.ExcludeMethodFilter;
-import com.navercorp.pinpoint.bootstrap.config.ExcludePathFilter;
-import com.navercorp.pinpoint.bootstrap.config.Filter;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.bootstrap.config.SkipFilter;
-
-import java.util.List;
 
 /**
  * @author jaehong.kim

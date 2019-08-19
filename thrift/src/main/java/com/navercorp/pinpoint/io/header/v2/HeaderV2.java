@@ -17,8 +17,6 @@ package com.navercorp.pinpoint.io.header.v2;
 
 import com.navercorp.pinpoint.io.header.Header;
 
-import java.util.Map;
-
 /**
  * The type Header.
  *

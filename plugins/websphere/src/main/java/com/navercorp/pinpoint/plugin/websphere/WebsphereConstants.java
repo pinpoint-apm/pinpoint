@@ -14,11 +14,10 @@
  */
 package com.navercorp.pinpoint.plugin.websphere;
 
-import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
-
-import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
+
+import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.RECORD_STATISTICS;
 
 /**
  * @author sjmittal

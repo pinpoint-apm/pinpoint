@@ -23,8 +23,6 @@ import com.navercorp.pinpoint.profiler.monitor.metric.gc.DetailedGarbageCollecto
 import com.navercorp.pinpoint.profiler.monitor.metric.gc.DetailedGarbageCollectorMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.memory.DetailedMemoryMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.memory.DetailedMemoryMetricSnapshot;
-import com.navercorp.pinpoint.thrift.dto.TJvmGc;
-import com.navercorp.pinpoint.thrift.dto.TJvmGcDetailed;
 
 /**
  * @author dawidmalina

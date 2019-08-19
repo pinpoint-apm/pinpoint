@@ -18,9 +18,6 @@ package com.navercorp.pinpoint.grpc.server.lifecycle;
 
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.grpc.Header;
-import com.navercorp.pinpoint.grpc.server.TransportMetadata;
-
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author Woonduk Kang(emeroad)

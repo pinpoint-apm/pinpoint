@@ -18,9 +18,6 @@ package com.navercorp.pinpoint.io.header.v1;
 import com.navercorp.pinpoint.io.header.Header;
 import com.navercorp.pinpoint.io.header.InvalidHeaderException;
 
-import java.util.Collections;
-import java.util.Map;
-
 /**
  * @author minwoo.jung
  */
