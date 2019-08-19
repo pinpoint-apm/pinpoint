@@ -65,13 +65,11 @@ public class TBaseFlatMapper extends RichFlatMapFunction<RawData, Tuple3<String,
 
     @Override
     public void flatMap(RawData rawData, Collector<Tuple3<String, JoinStatBo, Long>> out) throws Exception {
-        final Object data = rawData.getData();
-        if (!(data instanceof TBase)) {
-            logger.error("data is not TBase type {}", data);
+        final TBase<?, ?> tBase = rawData.getData();
+        if (tBase == null) {
+            logger.error("tBase is null");
             return;
         }
-
-        TBase tBase = (TBase) data;
 
         tBaseFlatMapperInterceptor.before(rawData);
 

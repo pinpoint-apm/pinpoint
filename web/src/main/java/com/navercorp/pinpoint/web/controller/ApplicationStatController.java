@@ -115,12 +115,12 @@ public class ApplicationStatController {
     @RequestMapping("/getApplicationStat/dataSource/chart")
     public static class ApplicationDataSourceController {
 
-        private final Logger logger = LoggerFactory.getLogger(ApplicationDataSourceController.this.getClass());
+        private final Logger logger = LoggerFactory.getLogger(this.getClass());
         private ApplicationDataSourceService applicationDataSourceService;
 
         @Autowired
         public ApplicationDataSourceController(ApplicationDataSourceService applicationDataSourceService) {
-            ApplicationDataSourceController.this.applicationDataSourceService = applicationDataSourceService;
+            this.applicationDataSourceService = applicationDataSourceService;
         }
 
         @RequestMapping(method = RequestMethod.GET)

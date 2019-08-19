@@ -40,7 +40,7 @@ public enum HbaseTable {
 
     private final String name;
 
-    private HbaseTable(String name) {
+    HbaseTable(String name) {
         this.name = name;
     }
 

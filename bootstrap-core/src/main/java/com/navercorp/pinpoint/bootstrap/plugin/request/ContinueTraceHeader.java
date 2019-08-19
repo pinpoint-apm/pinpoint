@@ -16,8 +16,6 @@
 
 package com.navercorp.pinpoint.bootstrap.plugin.request;
 
-import com.navercorp.pinpoint.bootstrap.plugin.request.TraceHeader;
-import com.navercorp.pinpoint.bootstrap.plugin.request.TraceHeaderState;
 import com.navercorp.pinpoint.common.util.Assert;
 
 /**

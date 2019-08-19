@@ -31,7 +31,7 @@ public enum ThreadState {
 
     private final int value;
 
-    private ThreadState(int value) {
+    ThreadState(int value) {
         this.value = value;
     }
 
