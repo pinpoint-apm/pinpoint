@@ -45,7 +45,9 @@ import java.util.List;
 
 import static com.navercorp.pinpoint.common.util.VarArgs.va;
 
-
+/**
+ * @author Harris Gwag (gwagdalf)
+ */
 public class KafkaPlugin implements ProfilerPlugin, TransformTemplateAware {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
