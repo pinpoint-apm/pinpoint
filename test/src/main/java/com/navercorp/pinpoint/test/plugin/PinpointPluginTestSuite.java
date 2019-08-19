@@ -143,11 +143,10 @@ public class PinpointPluginTestSuite extends AbstractPinpointPluginTestSuite {
 
         Map<String, List<Artifact>> dependencyMap = resolver.resolveDependencySets(dependencies);
 
-        Set<String> testKeySet = dependencyMap.keySet();
-
         SharedProcessManager sharedProcessManager = new SharedProcessManager(context);
-        for (String testKey : testKeySet) {
-            List<Artifact> artifacts = dependencyMap.get(testKey);
+        for (Map.Entry<String, List<Artifact>> artifactEntry : dependencyMap.entrySet()) {
+            final String testKey = artifactEntry.getKey();
+            final List<Artifact> artifacts = artifactEntry.getValue();
 
             List<String> libs = new ArrayList<String>();
             for (File lib : resolver.resolveArtifactsAndDependencies(artifacts)) {

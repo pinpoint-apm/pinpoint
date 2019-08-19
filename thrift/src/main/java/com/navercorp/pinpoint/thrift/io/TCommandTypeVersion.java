@@ -81,7 +81,7 @@ public enum TCommandTypeVersion {
     private final String versionName;
     private final List<TCommandType> supportCommandList = new ArrayList<TCommandType>();
 
-    private TCommandTypeVersion(String versionName, TCommandTypeVersion version, TCommandType... supportCommandArray) {
+    TCommandTypeVersion(String versionName, TCommandTypeVersion version, TCommandType... supportCommandArray) {
         this.versionName = versionName;
 
         for (TCommandType supportCommand : version.getSupportCommandList()) {
@@ -93,7 +93,7 @@ public enum TCommandTypeVersion {
         }
     }
 
-    private TCommandTypeVersion(String versionName, TCommandType... supportCommandArray) {
+    TCommandTypeVersion(String versionName, TCommandType... supportCommandArray) {
         this.versionName = versionName;
 
         for (TCommandType supportCommand : supportCommandArray) {

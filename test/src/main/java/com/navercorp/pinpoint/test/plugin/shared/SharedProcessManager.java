@@ -205,7 +205,7 @@ public class SharedProcessManager implements ProcessManager {
     private String addTest(String testId, List<Artifact> artifactList) {
         StringBuilder mavenDependencyInfo = new StringBuilder();
         mavenDependencyInfo.append(testId);
-        mavenDependencyInfo.append("=");
+        mavenDependencyInfo.append('=');
 
         for (Artifact artifact : artifactList) {
             String str = ArtifactIdUtils.artifactToString(artifact);

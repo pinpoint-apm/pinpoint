@@ -913,6 +913,8 @@
                         <exclude>com/navercorp/pinpoint/common/util/jsr166/**/*.java</exclude>
                         <exclude>com/navercorp/pinpoint/profiler/util/jdk/**/*.java</exclude>
                         <exclude>com/navercorp/pinpoint/grpc/trace/**/*.java</exclude>
+
+                        <exclude>com/navercorp/pinpoint/bootstrap/util/jdk/ThreadLocalRandom.java</exclude>
                     </excludes>
                 </configuration>
             </plugin>

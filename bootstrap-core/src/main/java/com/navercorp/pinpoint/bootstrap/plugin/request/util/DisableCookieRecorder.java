@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.bootstrap.plugin.request.util;
 
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
-import com.navercorp.pinpoint.bootstrap.plugin.request.util.CookieRecorder;
 
 /**
  * @author Woonduk Kang(emeroad)

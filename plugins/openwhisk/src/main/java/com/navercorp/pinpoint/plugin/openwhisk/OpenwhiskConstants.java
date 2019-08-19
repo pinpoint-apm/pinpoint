@@ -15,9 +15,10 @@
  */
 package com.navercorp.pinpoint.plugin.openwhisk;
 
+import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.AnnotationKeyProvider;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeProvider;
-import com.navercorp.pinpoint.common.trace.*;
 
 /**
  * @author Seonghyun Oh
