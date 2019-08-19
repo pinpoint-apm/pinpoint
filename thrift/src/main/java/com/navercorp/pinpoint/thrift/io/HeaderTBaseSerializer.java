@@ -17,9 +17,6 @@
 package com.navercorp.pinpoint.thrift.io;
 
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-
 import com.navercorp.pinpoint.io.header.ByteArrayHeaderWriter;
 import com.navercorp.pinpoint.io.header.Header;
 import com.navercorp.pinpoint.io.header.HeaderEntity;
@@ -31,6 +28,8 @@ import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.protocol.TProtocolFactory;
 import org.apache.thrift.transport.TIOStreamTransport;
+
+import java.io.UnsupportedEncodingException;
 
 /**
  * Generic utility for easily serializing objects into a byte array or Java

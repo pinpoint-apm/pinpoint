@@ -16,9 +16,7 @@
 
 package com.navercorp.pinpoint.common.server.bo.serializer.stat;
 
-import com.navercorp.pinpoint.common.server.bo.codec.stat.CpuLoadEncoder;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.FileDescriptorEncoder;
-import com.navercorp.pinpoint.common.server.bo.stat.CpuLoadBo;
 import com.navercorp.pinpoint.common.server.bo.stat.FileDescriptorBo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

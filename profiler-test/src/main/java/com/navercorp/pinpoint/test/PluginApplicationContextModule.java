@@ -22,7 +22,6 @@ import com.google.inject.TypeLiteral;
 import com.google.inject.util.Providers;
 import com.navercorp.pinpoint.profiler.context.DefaultServerMetaDataRegistryService;
 import com.navercorp.pinpoint.profiler.context.ServerMetaDataRegistryService;
-import com.navercorp.pinpoint.profiler.context.TraceDataFormatVersion;
 import com.navercorp.pinpoint.profiler.context.module.SpanDataSender;
 import com.navercorp.pinpoint.profiler.context.module.StatDataSender;
 import com.navercorp.pinpoint.profiler.context.storage.StorageFactory;
@@ -31,7 +30,6 @@ import com.navercorp.pinpoint.profiler.sender.DataSender;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 import com.navercorp.pinpoint.profiler.util.RuntimeMXBeanUtils;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
-import org.apache.thrift.TBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

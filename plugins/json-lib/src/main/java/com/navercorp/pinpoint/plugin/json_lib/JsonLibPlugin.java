@@ -30,7 +30,6 @@ import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.plugin.json_lib.interceptor.ParsingInterceptor;
 import com.navercorp.pinpoint.plugin.json_lib.interceptor.ToStringInterceptor;
 
-import java.lang.reflect.Modifier;
 import java.security.ProtectionDomain;
 
 /**

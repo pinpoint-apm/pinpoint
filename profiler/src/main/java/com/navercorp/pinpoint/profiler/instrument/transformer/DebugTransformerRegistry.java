@@ -26,8 +26,6 @@ import com.navercorp.pinpoint.profiler.instrument.classloading.DebugTransformerC
 import com.navercorp.pinpoint.profiler.instrument.classreading.InternalClassMetadata;
 import com.navercorp.pinpoint.profiler.plugin.ClassFileTransformerLoader;
 import com.navercorp.pinpoint.profiler.plugin.PluginInstrumentContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.lang.instrument.ClassFileTransformer;
 

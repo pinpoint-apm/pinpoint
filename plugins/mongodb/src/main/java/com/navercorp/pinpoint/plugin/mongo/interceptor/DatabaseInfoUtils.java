@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.plugin.mongo.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor;
-import com.navercorp.pinpoint.bootstrap.plugin.jdbc.UnKnownDatabaseInfo;
 
 /**
  * @author Woonduk Kang(emeroad)

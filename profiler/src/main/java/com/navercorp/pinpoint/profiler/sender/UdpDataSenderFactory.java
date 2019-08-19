@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.profiler.sender;
 
 import com.navercorp.pinpoint.common.util.Assert;
-import com.navercorp.pinpoint.profiler.context.module.SpanConverter;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
 import org.apache.thrift.TBase;
 

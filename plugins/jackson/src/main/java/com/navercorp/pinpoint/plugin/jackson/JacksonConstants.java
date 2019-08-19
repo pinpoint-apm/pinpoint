@@ -16,15 +16,10 @@
  */
 package com.navercorp.pinpoint.plugin.jackson;
 
-import com.navercorp.pinpoint.bootstrap.interceptor.BasicMethodInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.AnnotationKeyFactory;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
-import com.navercorp.pinpoint.plugin.jackson.interceptor.ReadValueInterceptor;
-import com.navercorp.pinpoint.plugin.jackson.interceptor.WriteValueAsBytesInterceptor;
-import com.navercorp.pinpoint.plugin.jackson.interceptor.WriteValueAsStringInterceptor;
 
 /**
  *  * @author Sungkook Kim

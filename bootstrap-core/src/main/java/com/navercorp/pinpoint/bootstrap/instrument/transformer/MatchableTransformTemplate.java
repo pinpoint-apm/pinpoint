@@ -17,7 +17,6 @@ package com.navercorp.pinpoint.bootstrap.instrument.transformer;
 
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
 import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
-import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matchers;
 import com.navercorp.pinpoint.common.annotations.InterfaceStability;
 import com.navercorp.pinpoint.common.util.Assert;
 

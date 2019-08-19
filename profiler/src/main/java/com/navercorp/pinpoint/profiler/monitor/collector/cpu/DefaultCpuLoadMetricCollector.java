@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.profiler.monitor.collector.cpu;
 import com.navercorp.pinpoint.profiler.monitor.collector.AgentStatMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.metric.cpu.CpuLoadMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.cpu.CpuLoadMetricSnapshot;
-import com.navercorp.pinpoint.thrift.dto.TCpuLoad;
 
 /**
  * @author HyunGil Jeong

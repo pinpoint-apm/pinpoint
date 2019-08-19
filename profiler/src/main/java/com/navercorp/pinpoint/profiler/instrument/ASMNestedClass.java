@@ -26,7 +26,6 @@ import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import com.navercorp.pinpoint.common.util.Assert;
 
-import java.security.ProtectionDomain;
 import java.util.Collections;
 import java.util.List;
 

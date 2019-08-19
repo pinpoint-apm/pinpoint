@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.profiler.receiver.grpc;
 
 import com.navercorp.pinpoint.common.util.Assert;
-import com.navercorp.pinpoint.grpc.MessageFormatUtils;
 import com.navercorp.pinpoint.grpc.StatusError;
 import com.navercorp.pinpoint.grpc.StatusErrors;
 import com.navercorp.pinpoint.grpc.trace.PCmdMessage;
@@ -28,7 +27,6 @@ import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
 import com.navercorp.pinpoint.profiler.sender.grpc.ReconnectExecutor;
 import com.navercorp.pinpoint.profiler.sender.grpc.Reconnector;
 import com.navercorp.pinpoint.profiler.sender.grpc.StreamUtils;
-
 import io.grpc.stub.ClientCallStreamObserver;
 import io.grpc.stub.ClientResponseObserver;
 import org.slf4j.Logger;

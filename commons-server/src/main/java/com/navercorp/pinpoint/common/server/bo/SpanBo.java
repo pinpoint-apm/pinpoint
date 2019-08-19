@@ -16,11 +16,10 @@
 
 package com.navercorp.pinpoint.common.server.bo;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import com.navercorp.pinpoint.common.util.TransactionId;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author emeroad

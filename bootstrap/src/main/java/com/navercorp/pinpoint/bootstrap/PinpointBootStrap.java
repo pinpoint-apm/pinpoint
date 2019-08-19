@@ -16,18 +16,17 @@
 
 package com.navercorp.pinpoint.bootstrap;
 
-import java.lang.instrument.Instrumentation;
-import java.net.URL;
-import java.util.List;
-import java.util.Map;
-import java.util.jar.JarFile;
-
 import com.navercorp.pinpoint.ProductInfo;
 import com.navercorp.pinpoint.bootstrap.agentdir.AgentDirBaseClassPathResolver;
 import com.navercorp.pinpoint.bootstrap.agentdir.AgentDirectory;
 import com.navercorp.pinpoint.bootstrap.agentdir.BootDir;
 import com.navercorp.pinpoint.bootstrap.agentdir.ClassPathResolver;
 import com.navercorp.pinpoint.bootstrap.agentdir.JavaAgentPathResolver;
+
+import java.lang.instrument.Instrumentation;
+import java.util.List;
+import java.util.Map;
+import java.util.jar.JarFile;
 
 /**
  * @author emeroad

@@ -23,7 +23,6 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.SkipFilter;
 import com.navercorp.pinpoint.common.util.Assert;
 
-import java.util.Arrays;
 import java.util.List;
 
 /**

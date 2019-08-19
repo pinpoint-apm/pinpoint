@@ -55,7 +55,6 @@ import com.navercorp.pinpoint.profiler.context.id.IdGenerator;
 import com.navercorp.pinpoint.profiler.context.id.TraceIdFactory;
 import com.navercorp.pinpoint.profiler.context.id.TraceRootFactory;
 import com.navercorp.pinpoint.profiler.context.id.TransactionCounter;
-import com.navercorp.pinpoint.profiler.context.id.TransactionIdEncoder;
 import com.navercorp.pinpoint.profiler.context.method.DefaultPredefinedMethodDescriptorRegistry;
 import com.navercorp.pinpoint.profiler.context.method.PredefinedMethodDescriptorRegistry;
 import com.navercorp.pinpoint.profiler.context.monitor.DataSourceMonitorRegistryService;
@@ -82,17 +81,16 @@ import com.navercorp.pinpoint.profiler.context.provider.JdbcUrlParsingServicePro
 import com.navercorp.pinpoint.profiler.context.provider.JvmInformationProvider;
 import com.navercorp.pinpoint.profiler.context.provider.ObjectBinderFactoryProvider;
 import com.navercorp.pinpoint.profiler.context.provider.PluginContextLoadResultProvider;
-import com.navercorp.pinpoint.profiler.context.provider.sampler.SamplerProvider;
 import com.navercorp.pinpoint.profiler.context.provider.ServerMetaDataHolderProvider;
 import com.navercorp.pinpoint.profiler.context.provider.ServerMetaDataRegistryServiceProvider;
 import com.navercorp.pinpoint.profiler.context.provider.StorageFactoryProvider;
 import com.navercorp.pinpoint.profiler.context.provider.TraceContextProvider;
 import com.navercorp.pinpoint.profiler.context.provider.TraceFactoryProvider;
-
 import com.navercorp.pinpoint.profiler.context.provider.plugin.PluginClassLoaderProvider;
 import com.navercorp.pinpoint.profiler.context.provider.plugin.PluginSetupProvider;
 import com.navercorp.pinpoint.profiler.context.provider.plugin.ProfilerPluginContextLoaderProvider;
 import com.navercorp.pinpoint.profiler.context.provider.plugin.ProxyRequestParserLoaderServiceProvider;
+import com.navercorp.pinpoint.profiler.context.provider.sampler.SamplerProvider;
 import com.navercorp.pinpoint.profiler.context.provider.sampler.TraceSamplerProvider;
 import com.navercorp.pinpoint.profiler.context.recorder.DefaultRecorderFactory;
 import com.navercorp.pinpoint.profiler.context.recorder.DefaultRequestRecorderFactory;

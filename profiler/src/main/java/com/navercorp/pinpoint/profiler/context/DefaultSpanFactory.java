@@ -20,9 +20,6 @@ import com.google.inject.Inject;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 
-
-import java.nio.ByteBuffer;
-
 /**
  * @author Woonduk Kang(emeroad)
  */
