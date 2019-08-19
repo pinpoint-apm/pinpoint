@@ -41,11 +41,15 @@ public class StatReceiverConfigurationTest {
         assertEquals(2, configuration.getGrpcServerOption().getPermitKeepAliveTime());
         assertEquals(2, configuration.getGrpcServerOption().getMaxConnectionIdle());
         assertEquals(2, configuration.getGrpcServerOption().getMaxConcurrentCallsPerConnection());
-        assertEquals(2, configuration.getGrpcServerOption().getMaxInboundMessageSize());
-        assertEquals(2, configuration.getGrpcServerOption().getMaxHeaderListSize());
-        assertEquals(2, configuration.getGrpcServerOption().getFlowControlWindow());
+        // 2M
+        assertEquals(2 * 1024 * 1024, configuration.getGrpcServerOption().getMaxInboundMessageSize());
+        // 2K
+        assertEquals(2 * 1024, configuration.getGrpcServerOption().getMaxHeaderListSize());
+        // 2M
+        assertEquals(2 * 1024 * 1024, configuration.getGrpcServerOption().getFlowControlWindow());
 
         assertEquals(2, configuration.getGrpcServerOption().getHandshakeTimeout());
-        assertEquals(2, configuration.getGrpcServerOption().getReceiveBufferSize());
+        // 2M
+        assertEquals(2 * 1024 * 1024, configuration.getGrpcServerOption().getReceiveBufferSize());
     }
 }

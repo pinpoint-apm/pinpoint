@@ -74,11 +74,11 @@ public final class AgentBaseDataReceiverConfiguration {
         this.grpcEnable = CollectorConfiguration.readBoolean(properties, GRPC_ENABLE);
         this.grpcBindIp = CollectorConfiguration.readString(properties, GRPC_BIND_IP, CollectorConfiguration.DEFAULT_LISTEN_IP);
         Objects.requireNonNull(grpcBindIp);
-        this.grpcBindPort = CollectorConfiguration.readInt(properties, GRPC_BIND_PORT, 9997);
+        this.grpcBindPort = CollectorConfiguration.readInt(properties, GRPC_BIND_PORT, 9991);
         Assert.isTrue(grpcBindPort > 0, "grpcBindPort must be greater than 0");
-        this.grpcWorkerThreadSize =CollectorConfiguration.readInt(properties, GRPC_WORKER_THREAD_SIZE, 128);
+        this.grpcWorkerThreadSize = CollectorConfiguration.readInt(properties, GRPC_WORKER_THREAD_SIZE, 128);
         Assert.isTrue(grpcWorkerThreadSize > 0, "grpcWorkerThreadSize must be greater than 0");
-        this.grpcWorkerQueueSize =CollectorConfiguration.readInt(properties, GRPC_WORKER_QUEUE_SIZE, 1024 * 5);
+        this.grpcWorkerQueueSize = CollectorConfiguration.readInt(properties, GRPC_WORKER_QUEUE_SIZE, 1024 * 5);
         Assert.isTrue(grpcWorkerQueueSize > 0, "grpcWorkerQueueSize must be greater than 0");
         this.grpcWorkerMonitorEnable = CollectorConfiguration.readBoolean(properties, GRPC_WORKER_MONITOR_ENABLE);
         final ServerOption.Builder serverOptionBuilder = GrpcPropertiesServerOptionBuilder.newBuilder(properties, GRPC_PREFIX);

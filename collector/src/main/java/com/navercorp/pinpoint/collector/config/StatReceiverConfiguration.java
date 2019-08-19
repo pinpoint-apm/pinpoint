@@ -87,7 +87,7 @@ public final class StatReceiverConfiguration implements DataReceiverGroupConfigu
         // gRPC
         this.isGrpcEnable = CollectorConfiguration.readBoolean(properties, GRPC_ENABLE);
         this.grpcBindIp = CollectorConfiguration.readString(properties, GRPC_BIND_IP, CollectorConfiguration.DEFAULT_LISTEN_IP);
-        this.grpcBindPort = CollectorConfiguration.readInt(properties, GRPC_BIND_PORT, 9999);
+        this.grpcBindPort = CollectorConfiguration.readInt(properties, GRPC_BIND_PORT, 9992);
         this.grpcWorkerThreadSize = CollectorConfiguration.readInt(properties, GRPC_WORKER_THREAD_SIZE, 128);
         Assert.isTrue(grpcWorkerThreadSize > 0, "grpcWorkerThreadSize must be greater than 0");
         this.grpcWorkerQueueSize = CollectorConfiguration.readInt(properties, GRPC_WORKER_QUEUE_SIZE, 1024 * 5);

@@ -41,11 +41,15 @@ public class AgentBaseDataReceiverConfigurationTest {
         assertEquals(1, configuration.getGrpcServerOption().getPermitKeepAliveTime());
         assertEquals(1, configuration.getGrpcServerOption().getMaxConnectionIdle());
         assertEquals(1, configuration.getGrpcServerOption().getMaxConcurrentCallsPerConnection());
-        assertEquals(1, configuration.getGrpcServerOption().getMaxInboundMessageSize());
-        assertEquals(1, configuration.getGrpcServerOption().getMaxHeaderListSize());
-        assertEquals(1, configuration.getGrpcServerOption().getFlowControlWindow());
+        // 1M
+        assertEquals(1024 * 1024, configuration.getGrpcServerOption().getMaxInboundMessageSize());
+        // 1K
+        assertEquals(1024, configuration.getGrpcServerOption().getMaxHeaderListSize());
+        // 1M
+        assertEquals(1024 * 1024, configuration.getGrpcServerOption().getFlowControlWindow());
 
         assertEquals(1, configuration.getGrpcServerOption().getHandshakeTimeout());
-        assertEquals(1, configuration.getGrpcServerOption().getReceiveBufferSize());
+        // 1M
+        assertEquals(1024 * 1024, configuration.getGrpcServerOption().getReceiveBufferSize());
     }
 }
