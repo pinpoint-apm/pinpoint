@@ -234,5 +234,22 @@ public class ServerOption {
             Assert.isTrue(receiveBufferSize > 0, "receiveBufferSize " + receiveBufferSize + " must be positive");
             this.receiveBufferSize = receiveBufferSize;
         }
+
+        @Override
+        public String toString() {
+            final StringBuilder sb = new StringBuilder("Builder{");
+            sb.append("keepAliveTime=").append(keepAliveTime);
+            sb.append(", keepAliveTimeout=").append(keepAliveTimeout);
+            sb.append(", permitKeepAliveTime=").append(permitKeepAliveTime);
+            sb.append(", maxConnectionIdle=").append(maxConnectionIdle);
+            sb.append(", maxConcurrentCallsPerConnection=").append(maxConcurrentCallsPerConnection);
+            sb.append(", maxInboundMessageSize=").append(maxInboundMessageSize);
+            sb.append(", maxHeaderListSize=").append(maxHeaderListSize);
+            sb.append(", handshakeTimeout=").append(handshakeTimeout);
+            sb.append(", flowControlWindow=").append(flowControlWindow);
+            sb.append(", receiveBufferSize=").append(receiveBufferSize);
+            sb.append('}');
+            return sb.toString();
+        }
     }
 }

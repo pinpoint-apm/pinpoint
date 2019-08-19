@@ -41,11 +41,15 @@ public class SpanReceiverConfigurationTest {
         assertEquals(3, configuration.getGrpcServerOption().getPermitKeepAliveTime());
         assertEquals(3, configuration.getGrpcServerOption().getMaxConnectionIdle());
         assertEquals(3, configuration.getGrpcServerOption().getMaxConcurrentCallsPerConnection());
-        assertEquals(3, configuration.getGrpcServerOption().getMaxInboundMessageSize());
-        assertEquals(3, configuration.getGrpcServerOption().getMaxHeaderListSize());
-        assertEquals(3, configuration.getGrpcServerOption().getFlowControlWindow());
+        // 3M
+        assertEquals(3 * 1024 * 1024, configuration.getGrpcServerOption().getMaxInboundMessageSize());
+        // 3K
+        assertEquals(3 * 1024, configuration.getGrpcServerOption().getMaxHeaderListSize());
+        // 3M
+        assertEquals(3 * 1024 * 1024, configuration.getGrpcServerOption().getFlowControlWindow());
 
         assertEquals(3, configuration.getGrpcServerOption().getHandshakeTimeout());
-        assertEquals(3, configuration.getGrpcServerOption().getReceiveBufferSize());
+        // 3M
+        assertEquals(3 * 1024 * 1024, configuration.getGrpcServerOption().getReceiveBufferSize());
     }
 }
