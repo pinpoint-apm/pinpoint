@@ -23,6 +23,15 @@ export function getMaxTickValue(data: PrimitiveArray[], startIndex: number, endI
     return maxTick;
 }
 
+export function getStackedData(data: PrimitiveArray[]): PrimitiveArray[] {
+    return [
+        data[0],
+        ['rs', ...data.slice(1).map((d: PrimitiveArray) => d.slice(1)).reduce((acc: number[], curr: number[]) => {
+            return acc.map((v: number, i: number) => v + curr[i]);
+        }, Array(data[0].length - 1).fill(0))]
+    ];
+}
+
 function getNearestNiceNumber(v: number): number {
     /**
      * ex: v = 10.2345

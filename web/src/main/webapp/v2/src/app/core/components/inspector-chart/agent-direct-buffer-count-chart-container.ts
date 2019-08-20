@@ -28,7 +28,7 @@ export class AgentDirectBufferCountChartContainer implements IInspectorChartCont
 
     makeDataOption(): Data {
         return {
-            type: 'area-spline',
+            type: 'spline',
             names: {
                 directCount: 'Direct Buffer Count',
             },

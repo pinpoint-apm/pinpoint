@@ -9,11 +9,10 @@
 .l-source-info-table {
     border: 1px solid #ddd;
     width: 100%;
-    table-layout: fixed;
 }
 
 .l-source-info-table thead th {
-    padding: 8px 10px;
+    padding: 10px;
     font-size: 13px;
     text-align: left;
     background-color: #f6f8fb;
@@ -27,5 +26,5 @@
 }
 
 .l-source-info-table tbody th {
-    width: 20%;
+    width: 120px;
 }

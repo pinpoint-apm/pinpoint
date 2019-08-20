@@ -79,6 +79,10 @@ header {background:#469ae4;border-bottom:1px solid #4484c3;height:50px;justify-c
     font-weight: bold;
 }
 
+.l-agent-inspector-contents .bb-target-tpsT {
+    display: none;
+}
+
 .l-application-inspector-contents .bb-line {
     stroke-width: 1.5;
 }

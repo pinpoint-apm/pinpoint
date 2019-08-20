@@ -28,7 +28,7 @@ export class AgentMappedBufferCountChartContainer implements IInspectorChartCont
 
     makeDataOption(): Data {
         return {
-            type: 'area-spline',
+            type: 'spline',
             names: {
                 mappedCount: 'Mapped Buffer Count',
             },
