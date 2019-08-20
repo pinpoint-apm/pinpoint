@@ -174,7 +174,7 @@
     <!-- Agent Event/Lifecycle related Beans -->
     <task:annotation-driven />
 
-    <bean id="agentEventWorker" class="com.navercorp.pinpoint.common.server.util.ThreadPoolExecutorFactoryBean" >
+    <bean id="agentEventWorker" class="com.navercorp.pinpoint.common.server.util.PinpointThreadPoolExecutorFactoryBean" >
         <property name="corePoolSize" value="#{collectorConfiguration.agentEventWorkerThreadSize}"/>
         <property name="maxPoolSize" value="#{collectorConfiguration.agentEventWorkerThreadSize}"/>
         <property name="queueCapacity" value="#{collectorConfiguration.agentEventWorkerQueueSize}"/>
