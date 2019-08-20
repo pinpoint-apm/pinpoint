@@ -125,15 +125,14 @@ public class ApacheDubboProviderInterceptor extends SpanRecursiveAroundIntercept
             logger.debug("localHost == null && rpcContextLocalhost == null");
             return null;
         }
-        if (localHost == null && rpcContextLocalhost != null) {
+        if (localHost == null) {
             logger.debug("return rpcContextLocalhost:{}", rpcContextLocalhost);
             return rpcContextLocalhost;
         }
-        // TODO I think Dubbo should return the address of the listen socket
         if (localHost.equals(rpcContextLocalhost)) {
-            return rpcContextLocalhost;
+            return rpcContext.getLocalAddressString();
         } else {
-            return localHost + ":" + rpcContextLocalhost;
+            return localHost + ":" + rpcContext.getLocalPort();
         }
     }
 
