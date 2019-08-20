@@ -28,7 +28,7 @@ export class AgentMappedBufferMemoryChartContainer implements IInspectorChartCon
 
     makeDataOption(): Data {
         return {
-            type: 'area-spline',
+            type: 'spline',
             names: {
                 mappedMemoryUsed: 'Mapped Buffer Memory'
             },

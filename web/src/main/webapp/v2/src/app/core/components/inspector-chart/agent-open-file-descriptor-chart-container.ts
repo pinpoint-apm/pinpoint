@@ -28,7 +28,7 @@ export class AgentOpenFileDescriptorChartContainer implements IInspectorChartCon
 
     makeDataOption(): Data {
         return {
-            type: 'area-spline',
+            type: 'spline',
             names: {
                 openFileDescriptorCount: 'Open File Descriptor'
             },

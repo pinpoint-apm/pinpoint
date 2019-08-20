@@ -29,7 +29,10 @@ export class AgentResponseTimeChartContainer implements IInspectorChartContainer
 
     makeDataOption(): Data {
         return {
-            type: 'area-spline',
+            types: {
+                avg: 'area-spline',
+                max: 'spline'
+            },
             names: {
                 avg: 'Avg',
                 max: 'Max'

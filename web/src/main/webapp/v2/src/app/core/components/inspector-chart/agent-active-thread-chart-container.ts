@@ -1,7 +1,7 @@
 import { PrimitiveArray, Data } from 'billboard.js';
 import { Observable } from 'rxjs';
 
-import { makeYData, makeXData, getMaxTickValue } from './inspector-chart-util';
+import { makeYData, makeXData, getMaxTickValue, getStackedData } from './inspector-chart-util';
 import { IInspectorChartData, InspectorChartDataService } from './inspector-chart-data.service';
 import { IInspectorChartContainer } from './inspector-chart-container-factory';
 
@@ -43,7 +43,9 @@ export class AgentActiveThreadChartContainer implements IInspectorChartContainer
                 normal: 'rgba(60, 129, 250, 0.4)',
                 slow: 'rgba(248, 199, 49, 0.4)',
                 verySlow: 'rgba(246, 145, 36, 0.4)'
-            }
+            },
+            groups: [['fast', 'normal', 'slow', 'verySlow']],
+            order: null
         };
     }
 
@@ -68,7 +70,7 @@ export class AgentActiveThreadChartContainer implements IInspectorChartContainer
                 },
                 min: 0,
                 max: (() => {
-                    const maxTickValue = getMaxTickValue(data, 1);
+                    const maxTickValue = getMaxTickValue(getStackedData(data), 1);
 
                     return maxTickValue === 0 ? this.defaultYMax : maxTickValue;
                 })(),

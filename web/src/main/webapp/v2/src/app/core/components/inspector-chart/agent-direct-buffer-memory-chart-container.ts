@@ -28,7 +28,7 @@ export class AgentDirectBufferMemoryChartContainer implements IInspectorChartCon
 
     makeDataOption(): Data {
         return {
-            type: 'area-spline',
+            type: 'spline',
             names: {
                 directMemoryUsed: 'Direct Buffer Memory'
             },

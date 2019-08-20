@@ -2,7 +2,7 @@ import { PrimitiveArray, Data } from 'billboard.js';
 import { Observable } from 'rxjs';
 
 import { IInspectorChartContainer } from './inspector-chart-container-factory';
-import { makeYData, makeXData, getMaxTickValue } from './inspector-chart-util';
+import { makeYData, makeXData, getMaxTickValue, getStackedData } from './inspector-chart-util';
 import { IInspectorChartData, InspectorChartDataService } from './inspector-chart-data.service';
 
 export class AgentTPSChartContainer implements IInspectorChartContainer {
@@ -51,8 +51,12 @@ export class AgentTPSChartContainer implements IInspectorChartContainer {
                 tpsUN: 'rgba(160, 153, 255, 0.4)',
                 tpsSSN: 'rgba(26, 188, 156, 0.4)',
                 tpsSSC: 'rgba(82, 190, 128, 0.4)',
-                tpsT: 'rgba(31, 119, 180, 0.4)'
-            }
+                tpsT: 'rgb(255, 255, 255)'
+            },
+            groups: [
+                ['tpsSC', 'tpsSN', 'tpsUC', 'tpsUN', 'tpsSSN', 'tpsSSC', 'tpsT']
+            ],
+            order: null
         };
     }
 
@@ -77,7 +81,7 @@ export class AgentTPSChartContainer implements IInspectorChartContainer {
                 },
                 min: 0,
                 max: (() => {
-                    const maxTickValue = getMaxTickValue(data, 1);
+                    const maxTickValue = getMaxTickValue(getStackedData(data.slice(0, -1)), 1);
 
                     return maxTickValue === 0 ? this.defaultYMax : maxTickValue;
                 })(),

@@ -241,7 +241,8 @@ export class InspectorChartContainerComponent implements OnInit, OnDestroy {
 
                         return v < 0 ? '-' : formattedValue;
                     }
-                }
+                },
+                order: ''
             },
             transition: {
                 duration: 0
