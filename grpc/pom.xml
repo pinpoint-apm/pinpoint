@@ -40,6 +40,21 @@
         </dependency>
         <dependency>
             <groupId>io.grpc</groupId>
+            <artifactId>grpc-core</artifactId>
+            <version>${grpc.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>io.opencensus</groupId>
+                    <artifactId>opencensus-api</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>io.opencensus</groupId>
+                    <artifactId>opencensus-contrib-grpc-metrics</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>io.grpc</groupId>
             <artifactId>grpc-netty</artifactId>
             <version>${grpc.version}</version>
         </dependency>
