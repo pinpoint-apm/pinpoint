@@ -66,13 +66,15 @@ final class LauncherBootLoader implements BootLoader {
         throw new IllegalStateException("ClassLoader.findBootstrapClassOrNull api not found", rootException);
     }
 
+    static {
+        // preload
+        new URLEnumeration(null);
+    }
+
     LauncherBootLoader() {
     }
 
     private static URLClassPath getBootstrapClassPath() {
-        // pre classload
-        @SuppressWarnings("unused")
-        Enumeration urlEnumeration = new URLEnumeration(null);
         return Launcher.getBootstrapClassPath();
     }
 

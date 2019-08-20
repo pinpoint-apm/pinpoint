@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.common.server.util;
 
+import org.springframework.scheduling.concurrent.ThreadPoolExecutorFactoryBean;
+
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ThreadFactory;
@@ -26,7 +28,7 @@ import java.util.concurrent.TimeUnit;
  * Add prestartAllCoreThreads() feature
  * @author Woonduk Kang(emeroad)
  */
-public class ThreadPoolExecutorFactoryBean extends org.springframework.scheduling.concurrent.ThreadPoolExecutorFactoryBean {
+public class PinpointThreadPoolExecutorFactoryBean extends ThreadPoolExecutorFactoryBean {
 
     private boolean preStartAllCoreThreads = false;
 
