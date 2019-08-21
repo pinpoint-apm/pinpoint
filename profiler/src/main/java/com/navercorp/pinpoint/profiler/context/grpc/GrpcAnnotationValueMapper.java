@@ -149,7 +149,7 @@ public class GrpcAnnotationValueMapper {
     private static PLongIntIntByteByteStringValue newLongIntIntByteByteStringValue(LongIntIntByteByteStringValue v) {
         final PLongIntIntByteByteStringValue.Builder builder = PLongIntIntByteByteStringValue.newBuilder();
         builder.setLongValue(v.getLongValue());
-        builder.setLongValue(v.getIntValue1());
+        builder.setIntValue1(v.getIntValue1());
         if (v.getIntValue2() != -1) {
             builder.setIntValue2(v.getIntValue2());
         }
