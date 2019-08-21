@@ -31,9 +31,3 @@
     padding: 0 25px;
     height: calc(100% - 36px);
 }
-
-.l-no-data {
-    padding-top: 60px;
-    text-align: center;
-    font-weight: 600;
-}

@@ -8,7 +8,7 @@
                     <button class="l-text-box fas fa-chart-line" (click)="onOpenInspector(agentName)" *ngIf="isWas"></button>
                 </div>
                 <label for="step3-category-{{outerIndex}}-{{innerIndex}}" [matTooltip]="agentName">
-                    <input type="radio" id="step3-category-{{outerIndex}}-{{innerIndex}}" name="main-server-list-selected-agent" (click)="onSelectAgent(agentName)" [checked]="outerIndex === 0 && innerIndex === 0">
+                    <input type="radio" id="step3-category-{{outerIndex}}-{{innerIndex}}" name="main-server-list-selected-agent" (click)="onSelectAgent(agentName)" [checked]="isSelectedAgent(agentName)">
                     {{ agentName }}
                 </label>
             </li>

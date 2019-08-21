@@ -17,6 +17,7 @@ export class ServerListContainerComponent implements OnInit {
         }
     }
 
+    @Input() selectedAgent: string;
     @Output() outSelectAgent = new EventEmitter<string>();
     @Output() outOpenInspector = new EventEmitter<string>();
 
@@ -33,8 +34,9 @@ export class ServerListContainerComponent implements OnInit {
         this.funcImagePath = this.webAppSettingDataService.getImagePathMakeFunc();
     }
 
-    onSelectAgent(agentName: string) {
-        this.outSelectAgent.emit(agentName);
+    onSelectAgent(agent: string) {
+        this.selectedAgent = agent;
+        this.outSelectAgent.emit(agent);
     }
 
     onOpenInspector(agentName: string) {

@@ -18,20 +18,15 @@ export class TargetListComponent implements OnInit, OnChanges {
     ngOnInit() {}
     ngOnChanges(changes: SimpleChanges) {
         if (this.targetList && this.targetList.length === 1) {
-            if (this.isLink === false) {
-                this.onSelectTarget(this.targetList[0]);
+            if (!this.isLink) {
+                this.setSelectedAppName(this.targetList[0][0]);
             }
         }
     }
 
     onSelectTarget(target: any): void {
-        const sendTarget = target[0];
-        if (sendTarget.applicationName) {
-            this.selectedAppName = sendTarget.applicationName;
-        } else {
-            this.selectedAppName = sendTarget.sourceInfo.applicationName + '-' + sendTarget.targetInfo.applicationName;
-        }
-        this.outSelectTarget.emit(sendTarget);
+        this.setSelectedAppName(target[0]);
+        this.outSelectTarget.emit(target[0]);
     }
 
     onOpenFilter($event: any, target: any): void {
@@ -56,5 +51,11 @@ export class TargetListComponent implements OnInit, OnChanges {
         } else {
             return target[0].applicationName;
         }
+    }
+
+    private setSelectedAppName(target: any): void {
+        const {applicationName, sourceInfo, targetInfo} = target;
+
+        this.selectedAppName = applicationName ? applicationName : `${sourceInfo.applicationName}-${targetInfo.applicationName}`;
     }
 }

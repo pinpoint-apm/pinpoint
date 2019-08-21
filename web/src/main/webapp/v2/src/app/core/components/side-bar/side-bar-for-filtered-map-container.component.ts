@@ -75,6 +75,12 @@ export class SideBarForFilteredMapContainerComponent implements OnInit, OnDestro
     }
 
     hasTopElement(): boolean {
-        return this.target && (this.target.isNode || this.target.isMerged);
+        if (!this.target) {
+            return false;
+        }
+
+        const {isNode, isWAS, isMerged} = this.target;
+
+        return isNode && isWAS && !isMerged;
     }
 }

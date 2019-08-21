@@ -1,140 +1,81 @@
-import { Component, OnInit, OnChanges, ViewChild, ElementRef, SimpleChanges, Input, Output, EventEmitter } from '@angular/core';
-import { Chart } from 'chart.js';
+import { Component, OnInit, OnChanges, ViewChild, ElementRef, SimpleChanges, Input, Output, EventEmitter, HostBinding } from '@angular/core';
+import bb, { PrimitiveArray } from 'billboard.js';
 
-// @TODO Loading 전 화면 처리
 @Component({
     selector: 'pp-load-chart',
     templateUrl: './load-chart.component.html',
     styleUrls: ['./load-chart.component.css']
 })
 export class LoadChartComponent implements OnInit, OnChanges {
-    @ViewChild('loadChart') el: ElementRef;
-    @Input() chartData: any;
-    @Input() chartColors: string[];
-    @Output() outNotifyMax: EventEmitter<number> = new EventEmitter();
-    @Output() outClickColumn: EventEmitter<string> = new EventEmitter();
-    chartObj: any;
+    @HostBinding('class') hostClass = 'l-load-chart';
+    @ViewChild('chartHolder') chartHolder: ElementRef;
+    @Input() chartConfig: IChartConfig;
+    @Output() outRendered = new EventEmitter<void>(true);
+
+    private chartInstance: any;
+
     constructor() {}
     ngOnInit() {}
     ngOnChanges(changes: SimpleChanges) {
-        if (changes['chartData'] && changes['chartData']['firstChange'] === false) {
-            this.initChart();
-        }
-    }
-    private initChart(): void {
-        if (this.chartObj) {
-            if (this.chartData.max) {
-                this.chartObj.config.options.scales.yAxes[0].ticks.max = this.chartData.max;
-            } else {
-                delete(this.chartObj.config.options.scales.yAxes[0].ticks.max);
-            }
-            this.chartObj.data.labels = this.chartData.labels;
-            this.chartData.keyValues.forEach((keyValues: any, index: number) => {
-                this.chartObj.data.datasets[index].data = keyValues.values;
-                this.chartObj.data.datasets[index].label = keyValues.key;
-            });
-            this.chartObj.update();
-        } else {
-            this.chartObj = new Chart(this.el.nativeElement.getContext('2d'), {
-                type: 'bar',
-                data: this.makeDataOption(),
-                options: this.makeNormalOption()
-            });
-        }
-        this.outNotifyMax.emit(this.chartObj.scales['y-axis-0'].max);
-    }
-    private makeDataOption(): any {
-        const dataOption = {
-            labels: this.chartData.labels,
-            borderWidth: 0,
-            datasets: []
-        };
+        Object.keys(changes)
+            .filter((propName: string) => {
+                return changes[propName].currentValue;
+            })
+            .forEach((propName: string) => {
+                const changedProp = changes[propName];
 
-        this.chartData.keyValues.forEach((keyValues: any, index: number) => {
-            dataOption.datasets.push({
-                label: keyValues.key,
-                data: keyValues.values,
-                backgroundColor: this.chartColors[index],
-                borderColor: 'rgba(120, 119, 121, 0.8)',
-                borderWidth: 0
-            });
-        });
-        return dataOption;
-    }
-    private makeNormalOption(): any {
-        return {
-            onClick: (event: any, aChartEl: any[]) => {
-                if ( aChartEl.length > 0 ) {
-                    this.outClickColumn.emit(aChartEl[0]._view.label);
+                switch (propName) {
+                    case 'chartConfig':
+                        this.chartInstance ? this.updateChart(changedProp) : this.initChart();
+                        break;
                 }
-                event.preventDefault();
-                // AnalyticsService.send(AnalyticsService.CONST.MAIN, AnalyticsService.CONST.CLK_LOAD_GRAPH);
-            },
-            maintainAspectRatio: false,
-            tooltips: {
-                mode: 'label',
-                bodySpacing: 6
-            },
-            scales: {
-                yAxes: [{
-                    gridLines: {
-                        display: true,
-                        drawBorder: false,
-                        zeroLineWidth: 1.5,
-                        zeroLineColor: 'rgb(0, 0, 0)'
-                    },
-                    ticks: {
-                        beginAtZero: true,
-                        maxTicksLimit: 4,
-                        callback: (label: number) => {
-                            return '   ' + (label >= 1000 ? `${label / 1000}k` : label) + '  ';
-                        },
-                        fontColor: 'rgba(162, 162, 162, 1)',
-                        fontSize: 11,
-                        max: this.chartData.max
-                    },
-                    stacked: true
-                }],
-                xAxes: [{
-                    gridLines: {
-                        display: false,
-                        drawBorder: false
-                    },
-                    ticks: {
-                        maxTicksLimit: 6,
-                        callback: (label: string): string[] => {
-                            return label.split('#');
-                        },
-                        autoSkip: true,
-                        fontColor: 'rgba(162, 162, 162, 1)',
-                        fontSize: 11,
-                        max: this.chartData.max
-                    },
-                    categoryPercentage: 1.0,
-                    barPercentage: 1.0,
-                    stacked: true,
-                    display: true
-                }]
-            },
-            animation: {
-                duration: 0
-            },
-            legend: {
-                display: true,
-                labels: {
-                    boxWidth: 30,
-                    padding: 10
-                },
-                position: 'bottom'
-            }
-        };
+            });
     }
-    getPreSpace(str: string) {
-        const space = '       '; // 7 is max space
-        if (str.length > space.length) {
-            return str;
-        } else {
-            return space.substr(0, space.length - str.length);
-        }
+
+    private initChart(): void {
+        this.chartInstance = bb.generate({
+            bindto: this.chartHolder.nativeElement,
+            data: this.chartConfig.dataConfig,
+            ...this.chartConfig.elseConfig,
+            onrendered: () => this.finishLoading(),
+        });
+    }
+
+    private updateChart({previousValue, currentValue}: {previousValue: IChartConfig, currentValue: IChartConfig}): void {
+        const {columns: prevColumns} = previousValue.dataConfig;
+        const {columns: currColumns, colors} = currentValue.dataConfig;
+        const prevKeys = prevColumns.map(([key]: PrimitiveArray) => key);
+        const currKeys = currColumns.map(([key]: PrimitiveArray) => key);
+        const removedKeys = prevKeys.filter((key: string) => !currKeys.includes(key));
+        const {axis: {y, y2 = {}}} = currentValue.elseConfig;
+        /**
+         * About determining "unload":
+         * 1. If there was no data before => nothing to unload
+         * 2. If something has changed in keys => unload all
+         * 3. If there is no change in keys => determine it with "getEmptyDataKeys" method
+         */
+        const unload = prevKeys.length === 0 ? false
+            : removedKeys.length !== 0 ? true
+            : this.getEmptyDataKeys(currColumns);
+
+        this.chartInstance.config('data.groups', [currKeys.slice(1)]);
+        this.chartInstance.load({
+            columns: currColumns,
+            colors,
+            unload
+        });
+
+        this.chartInstance.axis.max({
+            y: y.max,
+            y2: y2.max
+        });
+    }
+
+    private getEmptyDataKeys(data: PrimitiveArray[]): string[] {
+        return data.slice(1).filter((d: PrimitiveArray) => d.length === 1).map(([key]: PrimitiveArray) => key as string);
+    }
+
+    private finishLoading(): void {
+        this.outRendered.emit();
     }
 }

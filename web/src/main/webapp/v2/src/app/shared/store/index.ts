@@ -72,6 +72,7 @@ export const STORE_KEY = {
     AGENT_INSPECTOR_CHART_LAYOUT: 'agentInspectorChartLayout',
     TRANSACTION_VIEW_TYPE: 'transactionViewType',
     RESPONSE_SUMMARY_CHART_Y_MAX: 'responseSummaryChartYMax',
+    LOAD_CHART_Y_MAX: 'loadChartYMax',
 };
 
 
@@ -99,7 +100,8 @@ export const reducers: ActionReducerMap<any> = {
     applicationInspectorChartLayout: chartLayout.ApplicationInspectorChartLayoutReducer,
     agentInspectorChartLayout: chartLayout.AgentInspectorChartLayoutReducer,
     transactionViewType: transactionViewType.Reducer,
-    responseSummaryChartYMax: chartYMax.ResponseSummaryChartYMaxReducer
+    responseSummaryChartYMax: chartYMax.ResponseSummaryChartYMaxReducer,
+    loadChartYMax: chartYMax.LoadChartYMaxReducer
 };
 
 export const Actions = {
@@ -127,7 +129,8 @@ export const Actions = {
     'UpdateApplicationInspectorChartLayout': chartLayout.UpdateApplicationInspectorChartLayoutInfo,
     'UpdateAgentInspectorChartLayout': chartLayout.UpdateAgentInspectorChartLayoutInfo,
     'ChangeTransactionViewType': transactionViewType.ChangeTransactionViewType,
-    'UpdateResponseSummaryChartYMax': chartYMax.UpdateResponseSummaryChartYMax
+    'UpdateResponseSummaryChartYMax': chartYMax.UpdateResponseSummaryChartYMax,
+    'UpdateLoadChartYMax': chartYMax.UpdateLoadChartYMax
 };
 
 const getUI = createFeatureSelector('uiState');

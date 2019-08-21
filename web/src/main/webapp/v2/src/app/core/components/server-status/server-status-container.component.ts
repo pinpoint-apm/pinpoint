@@ -69,7 +69,7 @@ export class ServerStatusContainerComponent implements OnInit, OnDestroy {
 
     hasServerList(): boolean {
         if (this.selectedTarget) {
-            if (this.selectedTarget.isNode && this.selectedTarget.isMerged === false) {
+            if (this.selectedTarget.isNode && !this.selectedTarget.isMerged) {
                 return this.selectedTarget.hasServerList;
             }
         }

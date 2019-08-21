@@ -214,7 +214,7 @@ export class ResponseSummaryChartContainerComponent implements OnInit, OnDestroy
                 }),
             )
         ).pipe(
-            map((data = {}) => this.makeChartData(data as IResponseTime | IResponseMilliSecondTime)),
+            map((data) => this.makeChartData(data)),
             switchMap((data: PrimitiveArray[]) => {
                 if (this.shouldUpdateYMax()) {
                     const maxTickValue = getMaxTickValue(data, 1);
@@ -252,10 +252,9 @@ export class ResponseSummaryChartContainerComponent implements OnInit, OnDestroy
     }
 
     private makeChartData(data: IResponseTime | IResponseMilliSecondTime): PrimitiveArray[] {
-        return [
-            ['x', ...Object.keys(data)],
-            ['rs', ...Object.values(data)]
-        ];
+        return data
+            ? [['x', ...Object.keys(data)], ['rs', ...Object.values(data)]]
+            : [['x'], ['rs']];
     }
 
     private makeDataOption(columns: PrimitiveArray[]): Data {

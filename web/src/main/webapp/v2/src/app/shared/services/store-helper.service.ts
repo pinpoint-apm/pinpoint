@@ -101,6 +101,9 @@ export class StoreHelperService {
     getResponseSummaryChartYMax(unsubscribe: Subject<void>): Observable<number> {
         return this.getObservable(STORE_KEY.RESPONSE_SUMMARY_CHART_Y_MAX, unsubscribe);
     }
+    getLoadChartYMax(unsubscribe: Subject<void>): Observable<number> {
+        return this.getObservable(STORE_KEY.LOAD_CHART_Y_MAX, unsubscribe);
+    }
     getServerMapDisableState(unsubscribe: Subject<void>): Observable<boolean> {
         return this.store.pipe(
             select(selectServerMapDisableState),

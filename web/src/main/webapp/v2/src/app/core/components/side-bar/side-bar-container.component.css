@@ -25,6 +25,7 @@
     padding: 0 12px;
     background: #F9FAFC;
     height: 50px;
+    border-bottom: 1px solid #e5e8f0;
 }
 .l-contents-group {
     overflow-y: auto;
@@ -35,7 +36,6 @@
     flex: 1;
     overflow-y: auto;
     overflow-x: hidden;
-    padding-right: 16px;
     height: calc(100vh - 150px);
 }
 hr {

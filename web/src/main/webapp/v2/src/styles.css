@@ -211,11 +211,21 @@ header {background:#469ae4;border-bottom:1px solid #4484c3;height:50px;justify-c
     width: 92%;
 }
 
-.l-response-summary-chart .bb-grid line {
+.l-response-summary-chart .bb-grid line,
+.l-load-chart .bb-grid line {
     stroke: rgba(0, 0, 0, 0.1);
     stroke-width: 1.5;
 }
 
-.l-response-summary-chart .bb-ygrid {
+.l-response-summary-chart .bb-ygrid,
+.l-load-chart .bb-ygrid {
     stroke-dasharray: 0;
+}
+
+.bb-area {
+    opacity: 1 !important;
+}
+
+.l-load-chart .bb-line {
+    stroke-width: 0;
 }

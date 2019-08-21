@@ -6,14 +6,13 @@
         <div class="l-contents-group">
             <pp-server-status-container></pp-server-status-container>
             <div class="l-chart-group-list">
-                <!-- TODO: 클릭된 노드의 merge 상태에 따라 display하는 여부를 각 컨테이너가 아니라 여기서 잡아주기. -->
                 <pp-scatter-chart-container></pp-scatter-chart-container>
                 <pp-target-list-container></pp-target-list-container>
                 <hr *ngIf="hasTopElement()"/>
                 <ng-container *ngIf="!(isTargetMerged$ | async)">
                     <pp-response-summary-chart-container [sourceType]="'MAIN'"></pp-response-summary-chart-container>
                     <hr/>
-                    <!-- <pp-load-chart-container [sourceType]="'MAIN_SIDEBAR'"></pp-load-chart-container> -->
+                    <pp-load-chart-container [sourceType]="'MAIN'"></pp-load-chart-container>
                 </ng-container>
             </div>
         </div>
