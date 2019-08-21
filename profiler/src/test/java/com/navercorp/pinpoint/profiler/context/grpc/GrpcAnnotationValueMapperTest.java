@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,16 +23,25 @@ import com.navercorp.pinpoint.common.util.IntStringValue;
 import com.navercorp.pinpoint.common.util.LongIntIntByteByteStringValue;
 import com.navercorp.pinpoint.common.util.StringStringValue;
 import com.navercorp.pinpoint.grpc.trace.PAnnotationValue;
+import com.navercorp.pinpoint.grpc.trace.PIntBooleanIntBooleanValue;
+import com.navercorp.pinpoint.grpc.trace.PIntStringStringValue;
+import com.navercorp.pinpoint.grpc.trace.PIntStringValue;
+import com.navercorp.pinpoint.grpc.trace.PLongIntIntByteByteStringValue;
+import com.navercorp.pinpoint.grpc.trace.PStringStringValue;
+import org.junit.Assert;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
 
+/**
+ * @author Woonduk Kang(emeroad)
+ */
 public class GrpcAnnotationValueMapperTest {
 
-    @Test
-    public void buildPAnnotationValue() throws Exception {
-        GrpcAnnotationValueMapper mapper = new GrpcAnnotationValueMapper();
+    private final GrpcAnnotationValueMapper mapper = new GrpcAnnotationValueMapper();
 
+    @Test
+    public void buildPAnnotationValue_primitive() throws Exception {
         PAnnotationValue value = mapper.buildPAnnotationValue("foo");
         assertEquals("foo", value.getStringValue());
 
@@ -59,37 +68,71 @@ public class GrpcAnnotationValueMapperTest {
 
         value = mapper.buildPAnnotationValue(Short.MAX_VALUE);
         assertEquals(Short.MAX_VALUE, value.getShortValue());
+    }
 
-        IntStringValue intStringValue = new IntStringValue(1, "string");
-        value = mapper.buildPAnnotationValue(intStringValue);
-        assertEquals(intStringValue.getIntValue(), value.getIntStringValue().getIntValue());
-        assertEquals(intStringValue.getStringValue(), value.getIntStringValue().getStringValue());
+    @Test
+    public void buildPAnnotationValue_IntString() {
+        IntStringValue intStringValue = new IntStringValue(1,"2");
 
-        StringStringValue stringStringValue = new StringStringValue("string1", "string2");
-        value = mapper.buildPAnnotationValue(stringStringValue);
-        assertEquals(stringStringValue.getStringValue1(), value.getStringStringValue().getStringValue1());
-        assertEquals(stringStringValue.getStringValue2(), value.getStringStringValue().getStringValue2());
+        PAnnotationValue container = mapper.buildPAnnotationValue(intStringValue);
+        PIntStringValue pAnnotation = container.getIntStringValue();
 
-        IntStringStringValue intStringStringValue = new IntStringStringValue(1, "string1", "string2");
-        value = mapper.buildPAnnotationValue(intStringStringValue);
-        assertEquals(intStringStringValue.getIntValue(), value.getIntStringStringValue().getIntValue());
-        assertEquals(intStringStringValue.getStringValue1(), value.getIntStringStringValue().getStringValue1());
-        assertEquals(intStringStringValue.getStringValue2(), value.getIntStringStringValue().getStringValue2());
+        Assert.assertEquals(pAnnotation.getIntValue(), 1);
+        Assert.assertEquals(pAnnotation.getStringValue().getValue(), "2");
+    }
 
-        LongIntIntByteByteStringValue longIntIntByteByteStringValue = new LongIntIntByteByteStringValue(1, 1, 1, (byte)1, (byte)1, "string");
-        value = mapper.buildPAnnotationValue(longIntIntByteByteStringValue);
-        assertEquals(longIntIntByteByteStringValue.getLongValue(), value.getLongIntIntByteByteStringValue().getLongValue());
-        assertEquals(longIntIntByteByteStringValue.getIntValue1(), value.getLongIntIntByteByteStringValue().getIntValue1());
-        assertEquals(longIntIntByteByteStringValue.getIntValue2(), value.getLongIntIntByteByteStringValue().getIntValue2());
-        assertEquals(longIntIntByteByteStringValue.getByteValue1(), value.getLongIntIntByteByteStringValue().getByteValue1());
-        assertEquals(longIntIntByteByteStringValue.getByteValue2(), value.getLongIntIntByteByteStringValue().getByteValue2());
-        assertEquals(longIntIntByteByteStringValue.getStringValue(), value.getLongIntIntByteByteStringValue().getStringValue());
 
-        IntBooleanIntBooleanValue intBooleanIntBooleanValue = new IntBooleanIntBooleanValue(1,Boolean.TRUE, 1, Boolean.TRUE);
-        value = mapper.buildPAnnotationValue(intBooleanIntBooleanValue);
-        assertEquals(intBooleanIntBooleanValue.getIntValue1(), value.getIntBooleanIntBooleanValue().getIntValue1());
-        assertEquals(intBooleanIntBooleanValue.isBooleanValue1(), value.getIntBooleanIntBooleanValue().getBoolValue1());
-        assertEquals(intBooleanIntBooleanValue.getIntValue2(), value.getIntBooleanIntBooleanValue().getIntValue2());
-        assertEquals(intBooleanIntBooleanValue.isBooleanValue2(), value.getIntBooleanIntBooleanValue().getBoolValue2());
+    @Test
+    public void buildPAnnotationValue_StringString() {
+        StringStringValue intStringValue = new StringStringValue("1","2");
+
+        PAnnotationValue container = mapper.buildPAnnotationValue(intStringValue);
+        PStringStringValue pAnnotation = container.getStringStringValue();
+
+        Assert.assertEquals(pAnnotation.getStringValue1().getValue(), "1");
+        Assert.assertEquals(pAnnotation.getStringValue2().getValue(), "2");
+    }
+
+
+    @Test
+    public void buildPAnnotationValue_IntStringStringValue() {
+        IntStringStringValue intStringValue = new IntStringStringValue(1,"2", "3");
+
+        PAnnotationValue container = mapper.buildPAnnotationValue(intStringValue);
+        PIntStringStringValue pAnnotation = container.getIntStringStringValue();
+
+        Assert.assertEquals(pAnnotation.getIntValue(), 1);
+        Assert.assertEquals(pAnnotation.getStringValue1().getValue(), "2");
+        Assert.assertEquals(pAnnotation.getStringValue2().getValue(), "3");
+    }
+
+    @Test
+    public void buildPAnnotationValue_LongIntIntByteByteStringValue() {
+        LongIntIntByteByteStringValue intStringValue = new LongIntIntByteByteStringValue(
+                1L,2, 3, (byte)4, (byte)5, "6");
+
+        PAnnotationValue container = mapper.buildPAnnotationValue(intStringValue);
+        PLongIntIntByteByteStringValue pAnnotation = container.getLongIntIntByteByteStringValue();
+
+        Assert.assertEquals(pAnnotation.getLongValue(), 1);
+        Assert.assertEquals(pAnnotation.getIntValue1(), 2);
+        Assert.assertEquals(pAnnotation.getIntValue2(), 3);
+        Assert.assertEquals(pAnnotation.getByteValue1(), 4);
+        Assert.assertEquals(pAnnotation.getByteValue2(), 5);
+        Assert.assertEquals(pAnnotation.getStringValue().getValue(), "6");
+    }
+
+    @Test
+    public void buildPAnnotationValue_IntBooleanIntBooleanValue() {
+        IntBooleanIntBooleanValue intStringValue = new IntBooleanIntBooleanValue(
+                1,true, 3, false);
+
+        PAnnotationValue container = mapper.buildPAnnotationValue(intStringValue);
+        PIntBooleanIntBooleanValue pAnnotation = container.getIntBooleanIntBooleanValue();
+
+        Assert.assertEquals(pAnnotation.getIntValue1(), 1);
+        Assert.assertEquals(pAnnotation.getBoolValue1(), true);
+        Assert.assertEquals(pAnnotation.getIntValue2(), 3);
+        Assert.assertEquals(pAnnotation.getBoolValue2(), false);
     }
 }

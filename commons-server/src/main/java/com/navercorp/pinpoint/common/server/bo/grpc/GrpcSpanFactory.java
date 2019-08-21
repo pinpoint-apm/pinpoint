@@ -172,13 +172,20 @@ public class GrpcSpanFactory {
         // because exceptionInfo is the error information of span itself, exceptionInfo can be null even if errCode is not 0
         if (pSpan.hasExceptionInfo()) {
             final PIntStringValue exceptionInfo = pSpan.getExceptionInfo();
-            spanBo.setExceptionInfo(exceptionInfo.getIntValue(), exceptionInfo.getStringValue());
+            spanBo.setExceptionInfo(exceptionInfo.getIntValue(), getExceptionMessage(exceptionInfo));
         }
 
         List<AnnotationBo> annotationBoList = buildAnnotationList(pSpan.getAnnotationList());
         spanBo.setAnnotationBoList(annotationBoList);
 
         return spanBo;
+    }
+
+    private String getExceptionMessage(PIntStringValue exceptionInfo) {
+        if (exceptionInfo.hasStringValue()) {
+            return exceptionInfo.getStringValue().getValue();
+        }
+        return null;
     }
 
 
@@ -236,7 +243,7 @@ public class GrpcSpanFactory {
 
         if (pSpanEvent.hasExceptionInfo()) {
             final PIntStringValue exceptionInfo = pSpanEvent.getExceptionInfo();
-            spanEvent.setExceptionInfo(exceptionInfo.getIntValue(), exceptionInfo.getStringValue());
+            spanEvent.setExceptionInfo(exceptionInfo.getIntValue(), getExceptionMessage(exceptionInfo));
         }
 
     }
