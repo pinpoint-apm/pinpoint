@@ -52,7 +52,3 @@ function getNearestNiceNumber(v: number): number {
             return Math.ceil(v / 100) * 100;
     }
 }
-
-export function getAgentId(columnId: string, i: number, minAgentIdList: string[], maxAgentIdList: string[]): string {
-    return columnId === 'avg' ? '' : `(${columnId === 'min' ? minAgentIdList[i] : maxAgentIdList[i]})`;
-}

@@ -1,20 +1,15 @@
-<article class="l-chart-item" [hidden]="hiddenComponent">
+<article class="l-chart-item">
     <div class="l-tool-box">
         <p class="l-title">Load</p>
         <button class="fas fa-question-circle" (click)="onShowHelp($event)"></button>
     </div>
     <div class="l-content-section">
+        <pp-loading [showLoading]="isActiveLayer('loading')" [zIndex]="10"></pp-loading>
+        <pp-retry [showRetry]="isActiveLayer('retry')" [message]="dataFetchFailedText" (outRetry)="onRetry()"></pp-retry>
         <pp-load-chart
-            [hidden]="hiddenChart"
-            [chartData]="chartData"
-            [chartColors]="chartColors"
-            (outNotifyMax)="onNotifyMax($event)"
-            (outClickColumn)="onClickColumn($event)">
+            [ngClass]="chartVisibility"
+            [chartConfig]="chartConfig"
+            (outRendered)="onRendered()">
         </pp-load-chart>
-        <div class="l-no-data" [hidden]="!hiddenChart">
-            <span>{{getChartMessage()}}</span>
-        </div>
     </div>
 </article>
-<pp-film-for-disable *ngIf="useDisable" [zIndex]="9" [marginWidth]="0"></pp-film-for-disable>    
-<pp-loading [showLoading]="showLoading" [zIndex]="10"></pp-loading>

@@ -1,7 +1,7 @@
 import { Component, Input, Output, EventEmitter, OnInit, OnChanges, OnDestroy, AfterViewInit, SimpleChanges, ElementRef, ViewChild } from '@angular/core';
 import * as go from 'gojs';
 import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { takeUntil, filter, tap } from 'rxjs/operators';
 
 import { ServerMapData } from './class/server-map-data.class';
 import { ServerMapInteractionService } from './server-map-interaction.service';
@@ -34,6 +34,8 @@ export class ServerMapComponent implements OnInit, OnChanges, OnDestroy, AfterVi
 
     private hasRenderData = false;
     private serverMapDiagram: ServerMapDiagram;
+    private clickedKey: string;
+    private hasDataUpdated = false;
     private unsubscribe: Subject<null> = new Subject();
 
     constructor(
@@ -42,6 +44,7 @@ export class ServerMapComponent implements OnInit, OnChanges, OnDestroy, AfterVi
     ) {}
     ngOnChanges(changes: SimpleChanges) {
         if (changes['mapData'] && changes['mapData']['currentValue']) {
+            this.hasDataUpdated = true;
             if (this.serverMapDiagram) {
                 this.serverMapDiagram.setMapData(this.mapData, this.baseApplicationKey);
                 this.hasRenderData = false;
@@ -98,7 +101,13 @@ export class ServerMapComponent implements OnInit, OnChanges, OnDestroy, AfterVi
                 showOverView: !!diagram
             });
         });
-        this.serverMapDiagram.outClickNode.subscribe((nodeData: any) => {
+        this.serverMapDiagram.outClickNode.pipe(
+            filter(({key}: any) => this.hasDataUpdated || this.clickedKey !== key),
+            tap(({key}: any) => {
+                this.clickedKey = key;
+                this.hasDataUpdated = false;
+            })
+        ).subscribe((nodeData: any) => {
             this.outClickNode.emit(nodeData);
         });
         this.serverMapDiagram.outClickGroupNode.subscribe((nodeData: any) => {
@@ -107,7 +116,13 @@ export class ServerMapComponent implements OnInit, OnChanges, OnDestroy, AfterVi
         this.serverMapDiagram.outContextClickNode.subscribe((node: any) => {
             this.outContextClickNode.emit(node);
         });
-        this.serverMapDiagram.outClickLink.subscribe((linkData: any) => {
+        this.serverMapDiagram.outClickLink.pipe(
+            filter(({key}: any) => this.hasDataUpdated || this.clickedKey !== key),
+            tap(({key}: any) => {
+                this.clickedKey = key;
+                this.hasDataUpdated = false;
+            })
+        ).subscribe((linkData: any) => {
             this.outClickLink.emit(linkData);
         });
         this.serverMapDiagram.outContextClickLink.subscribe((linkObj: any) => {

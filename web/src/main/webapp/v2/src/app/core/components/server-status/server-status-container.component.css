@@ -1,3 +1,7 @@
+:host {
+    display: block;
+    width: 100%;
+}
 .l-status {
     padding: 10px 12px 10px 12px;
 }

@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import * as moment from 'moment-timezone';
 import { Observable } from 'rxjs';
 import { shareReplay } from 'rxjs/operators';
 
@@ -74,69 +73,5 @@ export class AgentHistogramDataService {
         });
 
         return linkedNodeData;
-    }
-
-    makeChartDataForResponseSummary(histogramData: IResponseTime | IResponseMilliSecondTime, yMax?: number): any {
-        let newData: {
-            keys: string[],
-            values: number[],
-            max?: number
-        };
-
-        if (histogramData) {
-            newData = {
-                keys: Object.keys(histogramData),
-                values: []
-            };
-            newData.keys.forEach((key: string, index: number) => {
-                newData['values'][index] = histogramData[key];
-            });
-        } else {
-            return newData;
-        }
-
-        if (yMax) {
-            newData['max'] = yMax;
-        }
-
-        return newData;
-    }
-
-    makeChartDataForLoad(histogramData: IHistogram[], timezone: string, dateFormat: string[], yMax?: number): any {
-        let newData: {
-            keyValues: {
-                key: string;
-                values: number[];
-            }[];
-            labels: string[];
-            max?: number;
-        };
-
-        if (histogramData) {
-            newData = {
-                labels: [],
-                keyValues: []
-            };
-            histogramData.forEach((histogram: IHistogram, index: number) => {
-                newData.keyValues[index] = {
-                    key: histogram.key,
-                    values: []
-                };
-                histogram.values.forEach((aValue: number[]) => {
-                    newData.keyValues[index].values.push(aValue[1]);
-                    if (index === 0) {
-                        newData.labels.push(moment(aValue[0]).tz(timezone).format(dateFormat[0]) + '#' + moment(aValue[0]).tz(timezone).format(dateFormat[1]));
-                    }
-                });
-            });
-        } else {
-            return newData;
-        }
-
-        if (yMax) {
-            newData['max'] = yMax;
-        }
-
-        return newData;
     }
 }

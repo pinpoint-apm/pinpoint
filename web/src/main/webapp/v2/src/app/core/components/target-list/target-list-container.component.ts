@@ -87,7 +87,7 @@ export class TargetListContainerComponent implements OnInit, OnDestroy {
     }
 
     hasMultiInput(): boolean {
-        if (this.target && this.target.isWAS === false) {
+        if (this.target && !this.target.isWAS) {
             if (this.target.isMerged) {
                 return true;
             } else {
@@ -101,6 +101,7 @@ export class TargetListContainerComponent implements OnInit, OnDestroy {
                 }
             }
         }
+
         return false;
     }
 

@@ -60,7 +60,6 @@
     flex: 1;
     overflow-y: auto;
     overflow-x: hidden;
-    padding-right: 16px;
     height: calc(100vh - 150px);
 }
 

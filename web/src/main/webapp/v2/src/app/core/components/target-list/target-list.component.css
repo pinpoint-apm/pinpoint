@@ -6,7 +6,7 @@
 }
 .l-target-item, .l-target-sub-item {
     display: flex;
-    padding: 4px 10px 4px 4px;
+    padding: 6px 10px 6px 4px;
     cursor: pointer;
     flex-wrap: nowrap;
     align-items: center;

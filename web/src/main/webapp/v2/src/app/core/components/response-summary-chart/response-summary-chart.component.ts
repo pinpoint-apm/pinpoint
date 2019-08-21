@@ -47,12 +47,14 @@ export class ResponseSummaryChartComponent implements OnInit, OnChanges {
         const prevKeys = prevColumns.map(([key]: PrimitiveArray) => key);
         const currKeys = currColumns.map(([key]: PrimitiveArray) => key);
         const removedKeys = prevKeys.filter((key: string) => !currKeys.includes(key));
-        const unloadKeys = [...this.getEmptyDataKeys(currColumns), ...removedKeys];
         const {axis: {y, y2 = {}}} = currentValue.elseConfig;
+        const unload = prevKeys.length === 0 ? false
+            : removedKeys.length !== 0 ? true
+            : this.getEmptyDataKeys(currColumns);
 
         this.chartInstance.load({
             columns: currColumns,
-            unload: unloadKeys,
+            unload
         });
 
         this.chartInstance.axis.max({

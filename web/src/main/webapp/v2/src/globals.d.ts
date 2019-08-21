@@ -31,7 +31,7 @@ interface IResponseTime {
 // @store
 interface IHistogram {
     key: string;
-    values: Array<Array<number>>;
+    values: number[][];
 }
 // @store
 interface IResponseMilliSecondTime {
@@ -174,7 +174,7 @@ interface IFilter {
 }
 
 interface ISelectedTarget {
-    clickParam: any;
+    clickParam?: any;
     endTime: string;
     period: string;
     isNode?: boolean;
