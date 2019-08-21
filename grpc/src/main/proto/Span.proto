@@ -1,6 +1,8 @@
 syntax = "proto3";
 
 import "google/protobuf/empty.proto";
+import "Annotation.proto";
+
 
 option java_multiple_files = true;
 option java_package = "com.navercorp.pinpoint.grpc.trace";
@@ -126,62 +128,7 @@ message PSpanChunk {
 //const i8 TRACE_V1 = 0;
 //const i8 TRACE_V2 = 1;
 //
-message PIntStringValue {
-    int32 intValue = 1;
-    string stringValue = 2;
-}
 
-message PIntStringStringValue {
-    int32 intValue = 1;
-    string stringValue1 = 2;
-    string stringValue2 = 3;
-}
-
-message PLongIntIntByteByteStringValue {
-    int64 longValue = 1;
-    int32 intValue1 = 2;
-    int32 intValue2 = 3;
-    sint32 byteValue1 = 4;
-    sint32 byteValue2 = 5;
-    string stringValue = 6;
-}
-
-message PIntBooleanIntBooleanValue {
-    int32 intValue1 = 1;
-    bool boolValue1 = 2;
-    int32 intValue2 = 3;
-    bool boolValue2 = 4;
-}
-
-message PStringStringValue {
-    string stringValue1 = 1;
-    string stringValue2 = 2;
-}
-
-message PAnnotationValue {
-    oneof field {
-        string stringValue = 1;
-        bool boolValue = 2;
-        int32 intValue = 3;
-        int64 longValue = 4;
-        // for compatibility
-        sint32 shortValue = 5;
-        double doubleValue = 6;
-        bytes binaryValue = 7;
-        // for compatibility
-        sint32 byteValue = 8;
-        PIntStringValue intStringValue = 9;
-        PStringStringValue stringStringValue = 10;
-        PIntStringStringValue intStringStringValue = 11;
-        PLongIntIntByteByteStringValue longIntIntByteByteStringValue = 12;
-        PIntBooleanIntBooleanValue intBooleanIntBooleanValue = 13;
-    }
-}
-
-message PAnnotation {
-    int32 key = 1;
-    PAnnotationValue value = 2;
-}
 
 message PResult {
     bool success = 1;

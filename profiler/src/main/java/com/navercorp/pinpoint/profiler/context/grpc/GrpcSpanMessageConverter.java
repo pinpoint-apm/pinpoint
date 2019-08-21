@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.profiler.context.grpc;
 
 import com.google.protobuf.GeneratedMessageV3;
+import com.google.protobuf.StringValue;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
 import com.navercorp.pinpoint.common.util.Assert;
@@ -331,8 +332,8 @@ public class GrpcSpanMessageConverter implements MessageConverter<GeneratedMessa
     private PIntStringValue buildPIntStringValue(IntStringValue exceptionInfo) {
         PIntStringValue.Builder builder = PIntStringValue.newBuilder();
         builder.setIntValue(exceptionInfo.getIntValue());
-        final String stringValue = exceptionInfo.getStringValue();
-        if (stringValue != null) {
+        if (exceptionInfo.getStringValue() != null) {
+            final StringValue stringValue = StringValue.of(exceptionInfo.getStringValue());
             builder.setStringValue(stringValue);
         }
         return builder.build();
