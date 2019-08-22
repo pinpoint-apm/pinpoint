@@ -33,7 +33,7 @@
     "ag-grid-angular": "^21.0.1",
     "ag-grid-community": "^21.0.1",
     "angular-2-local-storage": "^2.0.0",
-    "billboard.js": "^1.9.0",
+    "billboard.js": "^1.10.2",
     "bowser": "^1.9.4",
     "chart.js": "git+https://github.com/chartjs/Chart.js.git#48fefd92b6dc61345021c6508b23698830ff392f",
     "core-js": "^2.5.4",

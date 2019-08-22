@@ -2,7 +2,7 @@
     display: block;
 }
 .l-servers-list {
-    padding: 0 10px;
+    padding: 0 13px 0 25px;
 }
 .l-server-name {
     display: block;
@@ -40,7 +40,7 @@
     font-weight: 600;
 }
 .l-servers-list li ul {
-    margin: 14px 0 0 27px;
+    margin: 13px 0 0 20px;
 }
 .l-servers-list li ul li {
     font-size: 12px;
