@@ -66,6 +66,7 @@ public class DubboConsumerIT {
         abstractClusterInvoker = new MockInvoker<Demo>(Demo.class, url);
         try {
             abstractClusterInvoker.invoke(rpcInvocation);
+            when(rpcInvocation.getInvoker()).thenReturn(abstractClusterInvoker);
         } catch (RpcException e) {
         }
 
@@ -79,6 +80,7 @@ public class DubboConsumerIT {
     @Test
     public void testConsumerMonitor() {
         abstractClusterInvoker = mock(AbstractInvoker.class);
+        when(rpcInvocation.getInvoker()).thenReturn(abstractClusterInvoker);
         when(abstractClusterInvoker.getInterface()).thenReturn(MonitorService.class);
         try {
             abstractClusterInvoker.invoke(rpcInvocation);

@@ -1,5 +1,6 @@
 package com.navercorp.pinpoint.plugin.dubbo.interceptor;
 
+import com.alibaba.dubbo.common.URL;
 import com.alibaba.dubbo.rpc.Invoker;
 import com.alibaba.dubbo.rpc.RpcContext;
 import com.alibaba.dubbo.rpc.RpcInvocation;
@@ -7,6 +8,7 @@ import com.navercorp.pinpoint.bootstrap.context.*;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 import com.navercorp.pinpoint.plugin.dubbo.DubboConstants;
 
 /**
@@ -63,10 +65,17 @@ public class DubboConsumerInterceptor implements AroundInterceptor {
             setAttachment(invocation, DubboConstants.META_PARENT_APPLICATION_TYPE, Short.toString(traceContext.getServerTypeCode()));
             setAttachment(invocation, DubboConstants.META_PARENT_APPLICATION_NAME, traceContext.getApplicationName());
             setAttachment(invocation, DubboConstants.META_FLAGS, Short.toString(nextId.getFlags()));
+
+            setAttachment(invocation, DubboConstants.META_HOST, getHostAddress(invocation));
         } else {
             // If sampling this transaction is disabled, pass only that infomation to the server.
             setAttachment(invocation, DubboConstants.META_DO_NOT_TRACE, "1");
         }
+    }
+
+    private String getHostAddress(RpcInvocation invocation) {
+        final URL url = invocation.getInvoker().getUrl();
+        return HostAndPort.toHostAndPortString(url.getHost(), url.getPort());
     }
 
     private void setAttachment(RpcInvocation invocation, String name, String value) {
