@@ -16,18 +16,23 @@ package com.navercorp.pinpoint.plugin.mongo;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import org.bson.BsonType;
 
 import com.mongodb.DBObject;
 import com.mongodb.WriteConcern;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
+import com.navercorp.pinpoint.bootstrap.logging.PLogger;
+import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.common.util.StringStringValue;
 
 /**
  * @author Roy Kim
  */
 public final class MongoUtil {
+
+	private static final PLogger LOGGER = PLoggerFactory.getLogger(MongoUtil.class);
 
     public static final String SEPARATOR = ",";
     private static final MongoWriteConcernMapper mongoWriteConcernMapper = new MongoWriteConcernMapper();
@@ -106,18 +111,16 @@ public final class MongoUtil {
                 for (DBObject object : objects) {
                     extractFromDbObject(parsedJsonBuilder, jsonParamBuilder, object);
                 }
-                adjustJson(parsedJsonBuilder, jsonParamBuilder);
             } else if (arg instanceof DBObject) {
                 extractFromDbObject(parsedJsonBuilder, jsonParamBuilder, (DBObject) arg);
-                adjustJson(parsedJsonBuilder, jsonParamBuilder);
             } else {
-                System.err.println("Not a DBObject; it's a(n) " + arg.getClass());
+                LOGGER.error("Not a DBObject; it's a(n) " + arg.getClass());
             }
         }
 
         String parsedJsonString = parsedJsonBuilder.toString();
         String jsonParameterString = jsonParamBuilder.toString();
-        System.out.println("parsedJsonString - " + parsedJsonString + "; jsonParameterString - " + jsonParameterString);
+        LOGGER.info("parsedJsonString - " + parsedJsonString + "; jsonParameterString - " + jsonParameterString);
         return new NormalizedBson(parsedJsonString, jsonParameterString);
     }
 
@@ -128,7 +131,10 @@ public final class MongoUtil {
      */
     private static void extractFromDbObject(StringBuilder parsedJsonBuilder, StringBuilder jsonParamBuilder,
             DBObject object) {
-        for (String key : object.keySet()) {
+        Set<String> keySet = object.keySet();
+        int size = keySet.size();
+        int counter = 0;
+        for (String key : keySet) {
             if (key.equals("_id")) {
                 continue;
             }
@@ -142,19 +148,13 @@ public final class MongoUtil {
             jsonParamBuilder.append(object.get(key));
             parsedJsonBuilder.append("\"");
             jsonParamBuilder.append("\"");
-            parsedJsonBuilder.append(",");
-            jsonParamBuilder.append(",");
-        }
-    }
 
-    /**
-     * @param parsedJsonBuilder
-     * @param jsonParamBuilder
-     */
-    private static void adjustJson(StringBuilder parsedJsonBuilder, StringBuilder jsonParamBuilder) {
-        parsedJsonBuilder.deleteCharAt(parsedJsonBuilder.length() - 1); // Remove the trailing comma
-        jsonParamBuilder.deleteCharAt(jsonParamBuilder.length() - 1); // Remove the trailing comma
-        parsedJsonBuilder.append("}");
+            if (counter != (size - 1)) {
+                parsedJsonBuilder.append(",");
+                jsonParamBuilder.append(",");
+            }
+            counter++;
+        }
     }
 }
 

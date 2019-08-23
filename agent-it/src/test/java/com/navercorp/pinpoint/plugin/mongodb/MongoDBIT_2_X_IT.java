@@ -26,6 +26,8 @@ import org.junit.runner.RunWith;
 import com.mongodb.Mongo;
 import com.mongodb.ReadPreference;
 import com.mongodb.WriteConcern;
+import com.navercorp.pinpoint.bootstrap.logging.PLogger;
+import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.plugin.AgentPath;
 import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.JvmVersion;
@@ -40,6 +42,8 @@ import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
 @JvmVersion(8)
 @Dependency({ "org.mongodb:mongo-java-driver:[2.9,2.max]", "de.flapdoodle.embed:de.flapdoodle.embed.mongo:1.47.3" })
 public class MongoDBIT_2_X_IT extends MongoDBITBase_2_X {
+
+    private static final PLogger LOGGER = PLoggerFactory.getLogger(MongoDBIT_2_X_IT.class);
 
     private Mongo mongo;
 
@@ -66,11 +70,11 @@ public class MongoDBIT_2_X_IT extends MongoDBITBase_2_X {
                 mongo.setReadPreference(ReadPreference.secondaryPreferred());
             }
         } catch (ClassNotFoundException e) {
-            System.err.println("Read preference is not supported by the driver.");
+            LOGGER.warn("Read preference is not supported by the driver.");
         } catch (NoSuchMethodException e) {
-            System.err.println("Read preference is not supported by the driver.");
+            LOGGER.warn("Read preference is not supported by the driver.");
         } catch (SecurityException e) {
-            System.err.println("Error while inspecting com.mongodb.ReadPreference; Cause - ");
+            LOGGER.warn("Error while inspecting com.mongodb.ReadPreference; Cause - ");
         }
 
         try {
@@ -83,9 +87,9 @@ public class MongoDBIT_2_X_IT extends MongoDBITBase_2_X {
                 mongo.setWriteConcern(WriteConcern.ACKNOWLEDGED);
             }
         } catch (ClassNotFoundException e) {
-            System.err.println("WriteConcern is not supported by the driver.");
+            LOGGER.warn("WriteConcern is not supported by the driver.");
         } catch (NoSuchFieldException e) {
-            System.err.println(
+            LOGGER.warn(
                     "WriteConcern of type ACKNOWLEDGED is not supported by the driver. Falling back to the type SAFE");
             database.setWriteConcern(WriteConcern.SAFE);
             mongo.setWriteConcern(WriteConcern.SAFE);
