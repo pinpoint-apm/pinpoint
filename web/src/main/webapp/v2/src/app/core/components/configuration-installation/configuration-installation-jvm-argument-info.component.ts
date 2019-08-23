@@ -1,6 +1,8 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { trigger, style, animate, transition } from '@angular/animations';
 
+import { AnalyticsService, TRACKED_EVENT_LIST } from 'app/shared/services';
+
 @Component({
     selector: 'pp-configuration-installation-jvm-argument-info',
     templateUrl: './configuration-installation-jvm-argument-info.component.html',
@@ -23,7 +25,9 @@ export class ConfigurationInstallationJVMArgumentInfoComponent implements OnInit
 
     showCopiedNoti = false;
 
-    constructor() {}
+    constructor(
+        private analyticsService: AnalyticsService,
+    ) {}
     ngOnInit() {}
     getJVMArgumentInfoInView(): string {
         const [applicationName, agentId] = this.jvmArgument;
@@ -36,5 +40,6 @@ export class ConfigurationInstallationJVMArgumentInfoComponent implements OnInit
         setTimeout(() => {
             this.showCopiedNoti = false;
         }, 2000);
+        this.analyticsService.trackEvent(TRACKED_EVENT_LIST.COPY_JVM_ARGUMENT_INFO);
     }
 }

@@ -9,9 +9,9 @@
         <div class="l-chart-group-list">
             <pp-scatter-chart-for-filtered-map-info-per-server-container *ngIf="selectedTarget?.isWAS"></pp-scatter-chart-for-filtered-map-info-per-server-container>
             <hr/>
-            <pp-response-summary-chart-for-info-per-server-container></pp-response-summary-chart-for-info-per-server-container>
+            <pp-response-summary-chart-container [sourceType]="'INFO_PER_SERVER'"></pp-response-summary-chart-container>
             <hr/>
-            <pp-load-chart-for-info-per-server-container></pp-load-chart-for-info-per-server-container>
+            <pp-load-chart-container [sourceType]="'INFO_PER_SERVER'"></pp-load-chart-container>
         </div>
     </div>
 </div>

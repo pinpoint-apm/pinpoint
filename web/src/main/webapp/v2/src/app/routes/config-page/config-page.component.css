@@ -47,11 +47,27 @@
     color: #4b99e3 !important;
 }
 
+.l-link-with-arrow {
+    display: flex !important;
+    align-items: center;
+}
+
+.l-link-text {
+    flex: 1;
+}
+
+.l-depth-1 .l-link {
+    margin-left: 15px;
+    font-size: 90%;
+    color: rgba(0,0,0,.65);
+    max-width: calc(100% - 15px);
+}
+
 .l-main-section {
     background: #edf2f8;
     width: calc(100% - 240px);
     height: 100%;
-    padding: 20px 15px 0;
+    padding: 20px 15px;
 }
 
 .l-exit-button {

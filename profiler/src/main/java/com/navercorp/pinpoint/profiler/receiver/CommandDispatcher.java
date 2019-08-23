@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.receiver;
 
+import com.google.inject.Inject;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.io.request.Message;
 import com.navercorp.pinpoint.rpc.MessageListener;
@@ -28,9 +29,9 @@ import com.navercorp.pinpoint.rpc.packet.stream.StreamCreatePacket;
 import com.navercorp.pinpoint.rpc.stream.ServerStreamChannel;
 import com.navercorp.pinpoint.rpc.stream.ServerStreamChannelMessageHandler;
 import com.navercorp.pinpoint.thrift.dto.TResult;
+import com.navercorp.pinpoint.thrift.io.CommandHeaderTBaseDeserializerFactory;
+import com.navercorp.pinpoint.thrift.io.CommandHeaderTBaseSerializerFactory;
 import com.navercorp.pinpoint.thrift.util.SerializationUtils;
-
-import com.google.inject.Inject;
 import org.apache.thrift.TBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,6 +48,9 @@ public class CommandDispatcher extends ServerStreamChannelMessageHandler impleme
 
     private final ProfilerCommandServiceLocator<TBase<?, ?>, TBase<?, ?>> commandServiceLocator;
 
+    private final CommandHeaderTBaseSerializerFactory commandHeaderTBaseSerializerFactory = CommandHeaderTBaseSerializerFactory.getDefaultInstance();
+    private final CommandHeaderTBaseDeserializerFactory commandHeaderTBaseDeserializerFactory = CommandHeaderTBaseDeserializerFactory.getDefaultInstance();
+
     @Inject
     public CommandDispatcher(ProfilerCommandServiceLocator<TBase<?, ?>, TBase<?, ?>> commandServiceLocator) {
         this.commandServiceLocator = Assert.requireNonNull(commandServiceLocator, "commandServiceLocator must not be null");
@@ -61,14 +65,14 @@ public class CommandDispatcher extends ServerStreamChannelMessageHandler impleme
     public void handleRequest(RequestPacket requestPacket, PinpointSocket pinpointSocket) {
         logger.info("handleRequest packet:{}, remote:{}", requestPacket, pinpointSocket.getRemoteAddress());
 
-        final Message<TBase<?, ?>> message = SerializationUtils.deserialize(requestPacket.getPayload(), CommandSerializer.DESERIALIZER_FACTORY, null);
+        final Message<TBase<?, ?>> message = SerializationUtils.deserialize(requestPacket.getPayload(), commandHeaderTBaseDeserializerFactory, null);
         if (logger.isDebugEnabled()) {
             logger.debug("handleRequest request:{}, remote:{}", message, pinpointSocket.getRemoteAddress());
         }
 
         final TBase response = processRequest(message);
 
-        final byte[] payload = SerializationUtils.serialize(response, CommandSerializer.SERIALIZER_FACTORY, null);
+        final byte[] payload = SerializationUtils.serialize(response, commandHeaderTBaseSerializerFactory, null);
         if (payload != null) {
             pinpointSocket.response(requestPacket.getRequestId(), payload);
         }
@@ -100,7 +104,7 @@ public class CommandDispatcher extends ServerStreamChannelMessageHandler impleme
     public StreamCode handleStreamCreatePacket(ServerStreamChannel streamChannel, StreamCreatePacket packet) {
         logger.info("handleStreamCreatePacket() streamChannel:{}, packet:{}", streamChannel, packet);
 
-        final Message<TBase<?, ?>> message = SerializationUtils.deserialize(packet.getPayload(), CommandSerializer.DESERIALIZER_FACTORY, null);
+        final Message<TBase<?, ?>> message = SerializationUtils.deserialize(packet.getPayload(), commandHeaderTBaseDeserializerFactory, null);
         if (message == null) {
             return StreamCode.TYPE_UNKNOWN;
         }

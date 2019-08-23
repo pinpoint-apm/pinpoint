@@ -19,8 +19,6 @@ package com.navercorp.pinpoint.collector.handler.thrift;
 import com.navercorp.pinpoint.collector.handler.RequestResponseHandler;
 import com.navercorp.pinpoint.collector.service.StringMetaDataService;
 import com.navercorp.pinpoint.common.server.bo.StringMetaDataBo;
-import com.navercorp.pinpoint.grpc.trace.PResult;
-import com.navercorp.pinpoint.grpc.trace.PStringMetaData;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.io.request.ServerResponse;
 import com.navercorp.pinpoint.thrift.dto.TResult;
@@ -51,9 +49,6 @@ public class ThriftStringMetaDataHandler implements RequestResponseHandler {
         if (data instanceof TStringMetaData) {
             Object result = handleStringMetaData((TStringMetaData) data);
             serverResponse.write(result);
-        } else if (data instanceof PStringMetaData) {
-            Object result = handleStringMetaData((PStringMetaData) data);
-            serverResponse.write(result);
         } else {
             logger.warn("invalid serverRequest:{}", serverRequest);
             return;
@@ -61,9 +56,6 @@ public class ThriftStringMetaDataHandler implements RequestResponseHandler {
     }
 
     private Object handleStringMetaData(TStringMetaData stringMetaData) {
-        if (logger.isDebugEnabled()) {
-            logger.debug("Handle TStringMetaData={}", stringMetaData);
-        }
         try {
             final StringMetaDataBo stringMetaDataBo = new StringMetaDataBo(stringMetaData.getAgentId(), stringMetaData.getAgentStartTime(), stringMetaData.getStringId());
             stringMetaDataBo.setStringValue(stringMetaData.getStringValue());
@@ -75,12 +67,5 @@ public class ThriftStringMetaDataHandler implements RequestResponseHandler {
             return result;
         }
         return new TResult(true);
-    }
-
-    private Object handleStringMetaData(PStringMetaData stringMetaData) {
-        if (logger.isDebugEnabled()) {
-            logger.debug("Handle PStringMetaData={}", stringMetaData);
-        }
-        return PResult.newBuilder().setSuccess(true).build();
     }
 }

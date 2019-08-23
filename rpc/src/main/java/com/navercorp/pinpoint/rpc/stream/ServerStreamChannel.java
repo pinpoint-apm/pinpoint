@@ -21,40 +21,83 @@ import com.navercorp.pinpoint.rpc.packet.stream.StreamClosePacket;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamCode;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamCreatePacket;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamCreateSuccessPacket;
+import com.navercorp.pinpoint.rpc.packet.stream.StreamPacket;
+import com.navercorp.pinpoint.rpc.packet.stream.StreamPingPacket;
+import com.navercorp.pinpoint.rpc.packet.stream.StreamPongPacket;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamResponsePacket;
 
 import org.jboss.netty.channel.Channel;
-import org.jboss.netty.channel.ChannelFuture;
+
+import java.net.SocketAddress;
 
 /**
  * @author koo.taejin
  */
-public class ServerStreamChannel extends StreamChannel {
+public class ServerStreamChannel extends AbstractStreamChannel {
 
+    private final Channel channel;
     private final ServerStreamChannelMessageHandler streamChannelMessageHandler;
     private StreamChannelStateChangeEventHandler stateChangeEventHandler = new LoggingStreamChannelStateChangeEventHandler();
-    
+
     public ServerStreamChannel(Channel channel, int streamId, StreamChannelRepository streamChannelRepository, ServerStreamChannelMessageHandler streamChannelMessageHandler) {
-        super(channel, streamId, streamChannelRepository);
+        super(streamId, streamChannelRepository);
+        this.channel = Assert.requireNonNull(channel, "channel");
         this.streamChannelMessageHandler = Assert.requireNonNull(streamChannelMessageHandler, "streamChannelMessageHandler must not be null");
+    }
+
+    @Override
+    public SocketAddress getRemoteAddress() {
+        return channel.getRemoteAddress();
+    }
+
+    @Override
+    public void sendPing(int requestId) {
+        StreamPingPacket packet = new StreamPingPacket(getStreamId(), requestId);
+        write(StreamChannelStateCode.CONNECTED, packet);
+    }
+
+    @Override
+    public void sendPong(int requestId) {
+        StreamPongPacket packet = new StreamPongPacket(getStreamId(), requestId);
+        write(StreamChannelStateCode.CONNECTED, packet);
+    }
+
+    @Override
+    public void close(StreamCode code) {
+        clearStreamChannelResource();
+        if (!StreamCode.isConnectionError(code)) {
+            try {
+                StreamClosePacket packet = new StreamClosePacket(getStreamId(), code);
+                write(packet);
+            } catch (Exception e) {
+                // do nothing
+            }
+        }
+    }
+
+    private void write(StreamPacket packet) {
+        write(null, packet);
+    }
+
+    private void write(StreamChannelStateCode expectedCode, StreamPacket packet) {
+        if (expectedCode != null) {
+            state.assertState(expectedCode);
+        }
+        channel.write(packet);
     }
 
     public void setStateChangeEventHandler(StreamChannelStateChangeEventHandler stateChangeEventHandler) {
         this.stateChangeEventHandler = Assert.requireNonNull(stateChangeEventHandler, "stateChangeEventHandler must not be null");
     }
 
-    public ChannelFuture sendData(byte[] payload) {
-        state.assertState(StreamChannelStateCode.CONNECTED);
-
-        StreamResponsePacket dataPacket = new StreamResponsePacket(getStreamId(), payload);
-        return channel.write(dataPacket);
+    public void sendData(byte[] payload) {
+        StreamResponsePacket packet = new StreamResponsePacket(getStreamId(), payload);
+        write(StreamChannelStateCode.CONNECTED, packet);
     }
 
-    public ChannelFuture sendCreateSuccess() {
-        state.assertState(StreamChannelStateCode.CONNECTED);
-
+    public void sendCreateSuccess() {
         StreamCreateSuccessPacket packet = new StreamCreateSuccessPacket(getStreamId());
-        return channel.write(packet);
+        write(StreamChannelStateCode.CONNECTED, packet);
     }
 
     public void handleStreamCreatePacket(StreamCreatePacket packet) throws StreamException {
@@ -76,15 +119,6 @@ public class ServerStreamChannel extends StreamChannel {
     @Override
     public StreamChannelStateChangeEventHandler getStateChangeEventHandler() {
         return stateChangeEventHandler;
-    }
-
-    @Override
-    public String toString() {
-        return "ServerStreamChannel{" +
-                "remoteAddress=" + getRemoteAddress() +
-                ", streamId=" + getStreamId() +
-                ", state=" + state +
-                '}';
     }
 
 }

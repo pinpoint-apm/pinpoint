@@ -19,12 +19,15 @@ package com.navercorp.pinpoint.collector.receiver.thrift.tcp;
 import com.navercorp.pinpoint.collector.handler.DirectExecutor;
 import com.navercorp.pinpoint.collector.service.async.AgentLifeCycleAsyncTaskService;
 import com.navercorp.pinpoint.collector.service.AgentLifeCycleService;
+import com.navercorp.pinpoint.collector.service.async.AgentProperty;
+import com.navercorp.pinpoint.collector.service.async.AgentPropertyChannelAdaptor;
 import com.navercorp.pinpoint.collector.util.ManagedAgentLifeCycle;
 import com.navercorp.pinpoint.common.server.bo.AgentLifeCycleBo;
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
+import com.navercorp.pinpoint.rpc.client.HandshakerFactory;
 import com.navercorp.pinpoint.rpc.packet.HandshakePropertyType;
-import com.navercorp.pinpoint.rpc.server.PinpointServer;
-import org.junit.Before;
+import com.navercorp.pinpoint.rpc.server.ChannelProperties;
+import com.navercorp.pinpoint.rpc.server.ChannelPropertiesFactory;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -53,8 +56,6 @@ public class AgentLifeCycleAsyncTaskServiceTest {
     @Spy
     private Executor executor = new DirectExecutor();
 
-    @Mock
-    private PinpointServer pinpointServer;
 
     @Mock
     private AgentLifeCycleService agentLifeCycleService;
@@ -62,16 +63,13 @@ public class AgentLifeCycleAsyncTaskServiceTest {
     @InjectMocks
     private AgentLifeCycleAsyncTaskService agentLifeCycleAsyncTaskService = new AgentLifeCycleAsyncTaskService();
 
+    private static final String TEST_APP_ID = "TEST_APP_ID";
     private static final String TEST_AGENT_ID = "TEST_AGENT";
     private static final long TEST_START_TIMESTAMP = System.currentTimeMillis();
     private static final long TEST_EVENT_TIMESTAMP = TEST_START_TIMESTAMP + 10;
     private static final int TEST_SOCKET_ID = 999;
     private static final Map<Object, Object> TEST_CHANNEL_PROPERTIES = createTestChannelProperties();
 
-    @Before
-    public void setUp() throws Exception {
-        when(this.pinpointServer.getChannelProperties()).thenReturn(TEST_CHANNEL_PROPERTIES);
-    }
 
     @Test
     public void runningStateShouldBeInserted() {
@@ -155,14 +153,15 @@ public class AgentLifeCycleAsyncTaskServiceTest {
     }
 
     private static Map<Object, Object> createTestChannelProperties() {
-        return createChannelProperties(TEST_AGENT_ID, TEST_START_TIMESTAMP, TEST_SOCKET_ID);
+        return createChannelProperties(TEST_APP_ID, TEST_AGENT_ID, TEST_START_TIMESTAMP, TEST_SOCKET_ID);
     }
 
-    private static Map<Object, Object> createChannelProperties(String agentId, long startTimestamp, int socketId) {
+    private static Map<Object, Object> createChannelProperties(String applicationId, String agentId, long startTimestamp, int socketId) {
         Map<Object, Object> map = new HashMap<>();
+        map.put(HandshakePropertyType.APPLICATION_NAME.getName(), applicationId);
         map.put(HandshakePropertyType.AGENT_ID.getName(), agentId);
         map.put(HandshakePropertyType.START_TIMESTAMP.getName(), startTimestamp);
-        map.put(AgentLifeCycleAsyncTaskService.SOCKET_ID_KEY, socketId);
+        map.put(HandshakerFactory.SOCKET_ID, socketId);
         return map;
     }
 
@@ -174,7 +173,11 @@ public class AgentLifeCycleAsyncTaskServiceTest {
         ArgumentCaptor<AgentLifeCycleBo> argCaptor = ArgumentCaptor.forClass(AgentLifeCycleBo.class);
 
         // when
-        this.agentLifeCycleAsyncTaskService.handleLifeCycleEvent(this.pinpointServer.getChannelProperties(), TEST_EVENT_TIMESTAMP, expectedLifeCycleState, expectedEventCounter);
+        ChannelPropertiesFactory channelPropertiesFactory = new ChannelPropertiesFactory();
+        ChannelProperties channelProperties = channelPropertiesFactory.newChannelProperties(TEST_CHANNEL_PROPERTIES);
+        AgentProperty agentProperty = new AgentPropertyChannelAdaptor(channelProperties);
+        long eventIdentifier = AgentLifeCycleAsyncTaskService.createEventIdentifier(TEST_SOCKET_ID, expectedEventCounter);
+        this.agentLifeCycleAsyncTaskService.handleLifeCycleEvent(agentProperty, TEST_EVENT_TIMESTAMP, expectedLifeCycleState, eventIdentifier);
         verify(this.agentLifeCycleService, times(1)).insert(argCaptor.capture());
 
         // then

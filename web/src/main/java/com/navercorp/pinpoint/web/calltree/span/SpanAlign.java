@@ -21,6 +21,7 @@ import java.util.Objects;
 
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
+import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import com.navercorp.pinpoint.common.util.TransactionIdUtils;
 import org.apache.commons.collections.CollectionUtils;
@@ -50,8 +51,17 @@ public class SpanAlign implements Align {
     }
 
     private boolean hasChild0() {
-        List<SpanEventBo> spanEvents = this.spanBo.getSpanEventBoList();
-        return CollectionUtils.isNotEmpty(spanEvents);
+        final List<SpanEventBo> spanEvents = this.spanBo.getSpanEventBoList();
+        if (CollectionUtils.isNotEmpty(spanEvents)) {
+            return true;
+        }
+
+        final List<SpanChunkBo> spanChunkBoList = spanBo.getSpanChunkBoList();
+        if (CollectionUtils.isNotEmpty(spanChunkBoList)) {
+            return true;
+        }
+
+        return false;
     }
 
     @Override
@@ -141,7 +151,7 @@ public class SpanAlign implements Align {
     }
 
     @Override
-    public long getLastTime() {
+    public long getEndTime() {
         return spanBo.getStartTime() + spanBo.getElapsed();
     }
 

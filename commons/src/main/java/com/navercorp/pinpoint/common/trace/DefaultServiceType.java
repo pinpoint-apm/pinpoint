@@ -27,6 +27,7 @@ class DefaultServiceType implements ServiceType {
     private final String desc;
     private final boolean terminal;
     private final boolean queue;
+    private final boolean alias;
 
     // FIXME record statistics of only rpc call currently. so is it all right to chane into isRecordRpc()
     private final boolean recordStatistics;
@@ -44,6 +45,7 @@ class DefaultServiceType implements ServiceType {
         this.recordStatistics = builder.recordStatistics();
         this.includeDestinationId = builder.includeDestinationId();
         this.category = ServiceTypeCategory.findCategory(code);
+        this.alias = builder.alias();
     }
 
     DefaultServiceType(int code, String name, String desc, ServiceTypeProperty... properties) {
@@ -62,6 +64,7 @@ class DefaultServiceType implements ServiceType {
         boolean queue = false;
         boolean recordStatistics = false;
         boolean includeDestinationId = false;
+        boolean alias = false;
         
         for (ServiceTypeProperty property : properties) {
             switch (property) {
@@ -80,6 +83,11 @@ class DefaultServiceType implements ServiceType {
             case INCLUDE_DESTINATION_ID:
                 includeDestinationId = true;
                 break;
+
+            case ALIAS:
+                alias = true;
+                break;
+
             default:
                 throw new IllegalStateException("Unknown ServiceTypeProperty:" + property);
             }
@@ -89,6 +97,7 @@ class DefaultServiceType implements ServiceType {
         this.queue = queue;
         this.recordStatistics = recordStatistics;
         this.includeDestinationId = includeDestinationId;
+        this.alias = alias;
     }
 
     @Override
@@ -136,6 +145,11 @@ class DefaultServiceType implements ServiceType {
     @Override
     public boolean isTerminal() {
         return terminal;
+    }
+
+    @Override
+    public boolean isAlias() {
+        return alias;
     }
 
     @Override

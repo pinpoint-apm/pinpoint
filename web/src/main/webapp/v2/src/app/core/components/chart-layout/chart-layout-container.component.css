@@ -1,0 +1,25 @@
+:host {
+    position: relative;
+}
+.l-chart-wrapper {
+    color: #333;
+    height: 100%;
+    display: grid;
+    position: relative;
+    font-size: 13px;
+    font-family: 'Open Sans', sans-serif;
+    grid-template-columns: auto;
+    grid-template-rows: 48px calc(100% - 48px);
+}
+.l-chart-title {
+    display: flex;
+    padding: 0px 15px;
+    align-items: center;
+    font-weight: 600;
+    border: 1px solid #e5e8f0;
+    justify-content: space-between;
+    background-color: #f6f8fb;
+}
+.l-chart-list {
+    /* overflow-y: auto; */
+}

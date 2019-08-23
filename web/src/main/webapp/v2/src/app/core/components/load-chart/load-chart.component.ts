@@ -25,6 +25,8 @@ export class LoadChartComponent implements OnInit, OnChanges {
         if (this.chartObj) {
             if (this.chartData.max) {
                 this.chartObj.config.options.scales.yAxes[0].ticks.max = this.chartData.max;
+            } else {
+                delete(this.chartObj.config.options.scales.yAxes[0].ticks.max);
             }
             this.chartObj.data.labels = this.chartData.labels;
             this.chartData.keyValues.forEach((keyValues: any, index: number) => {

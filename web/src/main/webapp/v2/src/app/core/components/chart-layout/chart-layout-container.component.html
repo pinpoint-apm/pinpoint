@@ -1,0 +1,16 @@
+<div class="l-chart-wrapper">
+    <div class="l-chart-title">
+        <span>Chart Order</span>
+    </div>
+    <div class="l-chart-list">
+        <pp-chart-layout
+            [emptyText]="i18nText.empty"
+            [column]="column"
+            [chartList]="chartList"
+            (outUpdateChartOrder)="onUpdateChartOrder($event)"
+            (outRemoveChart)="onRemoveChart($event)"
+        ></pp-chart-layout>
+    </div>
+    <pp-film-for-disable *ngIf="useDisable" [zIndex]="9" [marginWidth]="0"></pp-film-for-disable>    
+    <pp-loading [showLoading]="showLoading" [zIndex]="20"></pp-loading>
+</div>

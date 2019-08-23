@@ -123,14 +123,14 @@ export class ServerMapData {
     }
     // list 데이터를 기반으로 map 정보를 구성함.
     private convertToMap(): void {
-        console.time('convertTimeToMapFromList');
+        // console.time('convertTimeToMapFromList');
         this.originalNodeList.forEach((value: INodeInfo) => {
             this.originalNodeMap[value.key] = value;
         });
         this.originalLinkList.forEach((value: ILinkInfo) => {
             this.originalLinkMap[value.key] = value;
         });
-        console.timeEnd('convertTimeToMapFromList');
+        // console.timeEnd('convertTimeToMapFromList');
     }
     // 원본 노드 데이터로 부터 server-map 을 그릴 때 필요 한 정보들로 구성 된 새로운 node list를 만들어 둠.
     private extractNodeData(): void {
@@ -204,7 +204,7 @@ export class ServerMapData {
         return (this.countMap[key].outCount - this.countMap[key].loopCount) === 0;
     }
     private mergeNodes(): void {
-        console.time('mergeGroup()');
+        // console.time('mergeGroup()');
         const collectMergeLink: {[key: string]: any} = {};
         const removeNodeKeys: IStateCheckMap = {};
         const removeLinkKeys: IStateCheckMap = {};
@@ -271,7 +271,7 @@ export class ServerMapData {
         // 병합처리된 노드, 링크를 삭제
         this.removeByKey(this.nodeList, this.nodeMap, removeNodeKeys);
         this.removeByKey(this.linkList, this.linkMap, removeLinkKeys);
-        console.timeEnd('mergeGroup()');
+        // console.timeEnd('mergeGroup()');
     }
     private hasMergeableNode(link: any): boolean {
         if (this.mergeableServiceType[link.targetInfo.serviceType] !== true) {
@@ -322,14 +322,14 @@ export class ServerMapData {
         }
     }
     mergeMultiLinkNodes(): void {
-        console.time('mergeMultiLinkGroup()');
+        // console.time('mergeMultiLinkGroup()');
         // [1] 일단 두번째 병합 조건에 해당하는 노드들을 추림
         const targetNodeList = this.getMergeTargetNodes();
         const checkedNodes: IStateCheckMap = {};
         const removeNodeKeys: IStateCheckMap = {};
         const removeLinkKeys: IStateCheckMap = {};
         if (targetNodeList.length <= 1) {
-            console.timeEnd('mergeMultiLinkGroup()');
+            // console.timeEnd('mergeMultiLinkGroup()');
             return;
         }
 
@@ -409,7 +409,7 @@ export class ServerMapData {
         });
         this.removeByKey(this.nodeList, this.nodeMap, removeNodeKeys);
         this.removeByKey(this.linkList, this.linkMap, removeLinkKeys);
-        console.timeEnd('mergeMultiLinkGroup()');
+        // console.timeEnd('mergeMultiLinkGroup()');
     }
     private extractConnectLink(mergeTargetLinks: {[key: string]: IShortLinkInfo[] }, mergeTargetLoopLinks: {[key: string]: IShortLinkInfo[] }, fromKeys: string[], toKey: string): void {
         fromKeys.forEach((fromKey: string) => {
@@ -473,16 +473,36 @@ export class ServerMapData {
         return types;
     }
     getMergeState(): any {
-        return Object.keys(this.mergeStateMap).reduce((accumulator, key) => {
+        return Object.keys(this.mergeStateMap).reduce((accumulator: IStateCheckMap, key: string) => {
             accumulator[key] = this.mergeStateMap[key];
             return accumulator;
         }, {});
     }
-    getMergedNodeData(key: string): any {
-        return this.nodeList.find((node: {[key: string]: any}) => node.key === key);
+    getLinkListByFrom(from: string): ILinkInfo[] {
+        const linkList: ILinkInfo[] = [];
+        Object.keys(this.originalLinkMap).forEach((key: string) => {
+            const link = this.originalLinkMap[key];
+            if (link.from === from) {
+                linkList.push(link);
+            }
+        });
+        return linkList;
     }
-    getMergedLinkData(key: string): any {
-        return this.linkList.find((link: {[key: string]: any}) => link.key === key);
+    getLinkListByTo(to: string): ILinkInfo[] {
+        const linkList: ILinkInfo[] = [];
+        Object.keys(this.originalLinkMap).forEach((key: string) => {
+            const link = this.originalLinkMap[key];
+            if (link.to === to) {
+                linkList.push(link);
+            }
+        });
+        return linkList;
+    }
+    getMergedNodeData(key: string): IShortNodeInfo {
+        return this.nodeList.find((node: IShortNodeInfo) => node.key === key);
+    }
+    getMergedLinkData(key: string): IShortLinkInfo {
+        return this.linkList.find((link: IShortLinkInfo) => link.key === key);
     }
     getNodeData(key: string): INodeInfo | IShortNodeInfo {
         return this.originalNodeMap[key] || this.nodeMap[key];

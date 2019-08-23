@@ -23,12 +23,12 @@ import com.navercorp.pinpoint.profiler.monitor.collector.AgentStatMetricCollecto
 import com.navercorp.pinpoint.profiler.monitor.collector.UnsupportedMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.collector.transaction.DefaultTransactionMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.metric.transaction.TransactionMetric;
-import com.navercorp.pinpoint.thrift.dto.TTransaction;
+import com.navercorp.pinpoint.profiler.monitor.metric.transaction.TransactionMetricSnapshot;
 
 /**
  * @author HyunGil Jeong
  */
-public class TransactionMetricCollectorProvider implements Provider<AgentStatMetricCollector<TTransaction>> {
+public class TransactionMetricCollectorProvider implements Provider<AgentStatMetricCollector<TransactionMetricSnapshot>> {
 
     private final TransactionMetric transactionMetric;
 
@@ -38,9 +38,9 @@ public class TransactionMetricCollectorProvider implements Provider<AgentStatMet
     }
 
     @Override
-    public AgentStatMetricCollector<TTransaction> get() {
+    public AgentStatMetricCollector<TransactionMetricSnapshot> get() {
         if (transactionMetric == TransactionMetric.UNSUPPORTED_TRANSACTION_METRIC) {
-            return new UnsupportedMetricCollector<TTransaction>();
+            return new UnsupportedMetricCollector<TransactionMetricSnapshot>();
         }
         return new DefaultTransactionMetricCollector(transactionMetric);
     }

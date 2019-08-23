@@ -18,18 +18,21 @@ package com.navercorp.pinpoint.collector.receiver.grpc;
 
 import java.util.concurrent.TimeUnit;
 
+/**
+ * @author jaehong.kim
+ */
 public class AgentClientTestMain {
     private static final int MAX = Integer.MAX_VALUE;
 
     public static void main(String[] args) throws Exception {
-        AgentClientMock clientMock = new AgentClientMock("127.0.0.1", 9997);
-        clientMock.info(10);
+        AgentClientMock clientMock = new AgentClientMock("localhost", 9997, true);
+        clientMock.info(999999);
 
-        clientMock.apiMetaData(1);
-        clientMock.sqlMetaData(1);
-        clientMock.stringMetaData(1);
+//        clientMock.apiMetaData(1);
+//        clientMock.sqlMetaData(1);
+//        clientMock.stringMetaData(1);
 
-        clientMock.pingPoing();
+//        clientMock.pingPoing();
 
         TimeUnit.SECONDS.sleep(60 * 60);
         clientMock.stop();

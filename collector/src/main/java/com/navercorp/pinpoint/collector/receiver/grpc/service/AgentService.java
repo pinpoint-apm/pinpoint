@@ -16,102 +16,118 @@
 
 package com.navercorp.pinpoint.collector.receiver.grpc.service;
 
-import com.google.protobuf.Empty;
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
-import com.navercorp.pinpoint.collector.receiver.grpc.GrpcServerResponse;
-import com.navercorp.pinpoint.grpc.AgentHeaderFactory;
-import com.navercorp.pinpoint.grpc.server.ServerContext;
-import com.navercorp.pinpoint.grpc.server.TransportMetadata;
+import com.navercorp.pinpoint.grpc.MessageFormatUtils;
+import com.navercorp.pinpoint.grpc.server.lifecycle.PingEventHandler;
 import com.navercorp.pinpoint.grpc.trace.AgentGrpc;
 import com.navercorp.pinpoint.grpc.trace.PAgentInfo;
-import com.navercorp.pinpoint.grpc.trace.PApiMetaData;
+import com.navercorp.pinpoint.grpc.trace.PPing;
 import com.navercorp.pinpoint.grpc.trace.PResult;
-import com.navercorp.pinpoint.grpc.trace.PSqlMetaData;
-import com.navercorp.pinpoint.grpc.trace.PStringMetaData;
 import com.navercorp.pinpoint.io.header.Header;
 import com.navercorp.pinpoint.io.header.HeaderEntity;
 import com.navercorp.pinpoint.io.header.v2.HeaderV2;
 import com.navercorp.pinpoint.io.request.DefaultMessage;
-import com.navercorp.pinpoint.io.request.DefaultServerRequest;
 import com.navercorp.pinpoint.io.request.Message;
-import com.navercorp.pinpoint.io.request.ServerRequest;
-import com.navercorp.pinpoint.io.request.ServerResponse;
 import com.navercorp.pinpoint.thrift.io.DefaultTBaseLocator;
-import io.grpc.Context;
-import io.grpc.Status;
-import io.grpc.StatusException;
 import io.grpc.stub.StreamObserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.InetSocketAddress;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 
+/**
+ * @author jaehong.kim
+ */
 public class AgentService extends AgentGrpc.AgentImplBase {
+
+    private static final AtomicLong idAllocator = new AtomicLong();
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final boolean isDebug = logger.isDebugEnabled();
 
-    private final DispatchHandler dispatchHandler;
-    private final ServerRequestFactory serverRequestFactory = new ServerRequestFactory();
 
-    public AgentService(DispatchHandler dispatchHandler) {
-        this.dispatchHandler = Objects.requireNonNull(dispatchHandler, "dispatchHandler must not be null");
+
+    private final SimpleRequestHandlerAdaptor<PResult> simpleRequestHandlerAdaptor;
+    private final PingEventHandler pingEventHandler;
+
+
+    public AgentService(DispatchHandler dispatchHandler, PingEventHandler pingEventHandler) {
+        this.simpleRequestHandlerAdaptor = new SimpleRequestHandlerAdaptor<PResult>(this.getClass().getName(), dispatchHandler);
+        this.pingEventHandler = Objects.requireNonNull(pingEventHandler, "pingEventHandler must not be null");
+
     }
 
     @Override
     public void requestAgentInfo(PAgentInfo agentInfo, StreamObserver<PResult> responseObserver) {
-        logger.debug("Request AgentInfo {}", agentInfo);
-
-        final Header header = new HeaderV2(Header.SIGNATURE, HeaderV2.VERSION, DefaultTBaseLocator.AGENT_INFO);
-        final HeaderEntity headerEntity = new HeaderEntity(new HashMap<String, String>());
-        Message<PAgentInfo> message = new DefaultMessage<PAgentInfo>(header, headerEntity, agentInfo);
-
-        request(message, responseObserver);
-    }
-
-    @Override
-    public void requestApiMetaData(PApiMetaData apiMetaData, StreamObserver<PResult> responseObserver) {
-        logger.debug("Request ApiMetaData {}", apiMetaData);
-
-        final Header header = new HeaderV2(Header.SIGNATURE, HeaderV2.VERSION, DefaultTBaseLocator.APIMETADATA);
-        final HeaderEntity headerEntity = new HeaderEntity(new HashMap<String, String>());
-        Message<PApiMetaData> message = new DefaultMessage<PApiMetaData>(header, headerEntity, apiMetaData);
-
-        request(message, responseObserver);
-    }
-
-    @Override
-    public void requestSqlMetaData(PSqlMetaData sqlMetaData, StreamObserver<PResult> responseObserver) {
-        logger.debug("Request SqlMetaData {}", sqlMetaData);
-
-        final Header header = new HeaderV2(Header.SIGNATURE, HeaderV2.VERSION, DefaultTBaseLocator.SQLMETADATA);
-        final HeaderEntity headerEntity = new HeaderEntity(new HashMap<String, String>());
-        Message<PSqlMetaData> message = new DefaultMessage<PSqlMetaData>(header, headerEntity, sqlMetaData);
-
-        request(message, responseObserver);
-    }
-
-    @Override
-    public void requestStringMetaData(PStringMetaData stringMetaData, StreamObserver<PResult> responseObserver) {
-        logger.debug("Request StringMetaData {}", stringMetaData);
-
-        final Header header = new HeaderV2(Header.SIGNATURE, HeaderV2.VERSION, DefaultTBaseLocator.STRINGMETADATA);
-        final HeaderEntity headerEntity = new HeaderEntity(new HashMap<String, String>());
-        Message<PStringMetaData> message = new DefaultMessage<PStringMetaData>(header, headerEntity, stringMetaData);
-
-        request(message, responseObserver);
-    }
-
-    private void request(Message<?> message, StreamObserver<PResult> responseObserver) {
-        ServerRequest<?> request;
-        try {
-            request = serverRequestFactory.newServerRequest(message);
-        } catch (StatusException e) {
-            logger.warn("serverRequest create fail Caused by:" + e.getMessage(), e);
-            responseObserver.onError(e);
-            return;
+        if (isDebug) {
+            logger.debug("Request PAgentInfo={}", MessageFormatUtils.debugLog(agentInfo));
         }
-        ServerResponse response = new GrpcServerResponse(responseObserver);
-        this.dispatchHandler.dispatchRequestMessage(request, response);
+
+        Message<PAgentInfo> message = newMessage(agentInfo, DefaultTBaseLocator.AGENT_INFO);
+
+        simpleRequestHandlerAdaptor.request(message, responseObserver);
     }
+
+
+    @Override
+    public StreamObserver<PPing> pingSession(final StreamObserver<PPing> responseObserver) {
+        final StreamObserver<PPing> request = new StreamObserver<PPing>() {
+            private final AtomicBoolean first = new AtomicBoolean(false);
+            private final long id = nextSessionId();
+            @Override
+            public void onNext(PPing ping) {
+                if (first.compareAndSet(false, true)) {
+                    if (isDebug) {
+                        logger.debug("PingSession:{} start:{}", id, MessageFormatUtils.debugLog(ping));
+                    }
+                    AgentService.this.pingEventHandler.connect();
+                }
+                if (isDebug) {
+                    logger.debug("PingSession:{} onNext:{}", id, MessageFormatUtils.debugLog(ping));
+                }
+                PPing replay = newPing();
+                responseObserver.onNext(replay);
+                AgentService.this.pingEventHandler.ping();
+            }
+
+            private PPing newPing() {
+                PPing.Builder builder = PPing.newBuilder();
+                return builder.build();
+            }
+
+            @Override
+            public void onError(Throwable t) {
+                logger.warn("PingSession:{} Error stream", id, t);
+                disconnect();
+            }
+
+            @Override
+            public void onCompleted() {
+                if (isDebug) {
+                    logger.debug("PingSession:{} onCompleted()", id);
+                }
+//                responseObserver.onCompleted();
+                disconnect();
+            }
+
+            private void disconnect() {
+                AgentService.this.pingEventHandler.close();
+            }
+
+        };
+        return request;
+    }
+
+    private long nextSessionId() {
+        return idAllocator.getAndIncrement();
+    }
+
+    private <T> Message<T> newMessage(T requestData, short type) {
+        final Header header = new HeaderV2(Header.SIGNATURE, HeaderV2.VERSION, type);
+        final HeaderEntity headerEntity = new HeaderEntity(Collections.emptyMap());
+        return new DefaultMessage<T>(header, headerEntity, requestData);
+    }
+
 }

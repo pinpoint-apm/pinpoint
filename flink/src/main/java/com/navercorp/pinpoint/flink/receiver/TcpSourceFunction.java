@@ -17,7 +17,6 @@ package com.navercorp.pinpoint.flink.receiver;
 
 import com.navercorp.pinpoint.flink.Bootstrap;
 import com.navercorp.pinpoint.flink.vo.RawData;
-import com.navercorp.pinpoint.io.request.ServerRequest;
 import org.apache.flink.streaming.api.functions.source.ParallelSourceFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

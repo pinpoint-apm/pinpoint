@@ -14,7 +14,6 @@ import { UrlPath, UrlPathId } from 'app/shared/models';
 import { IGridData } from './transaction-table-grid.component';
 import { TransactionMetaDataService } from './transaction-meta-data.service';
 
-
 @Component({
     selector: 'pp-transaction-table-grid-container',
     templateUrl: './transaction-table-grid-container.component.html',

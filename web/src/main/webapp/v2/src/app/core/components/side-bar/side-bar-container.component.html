@@ -9,9 +9,9 @@
                 <pp-scatter-chart-container></pp-scatter-chart-container>
                 <pp-target-list-container></pp-target-list-container>
                 <hr *ngIf="hasTopElement()"/>
-                <pp-response-summary-chart-for-side-bar-container></pp-response-summary-chart-for-side-bar-container>
+                <pp-response-summary-chart-container [sourceType]="'MAIN_SIDEBAR'"></pp-response-summary-chart-container>
                 <hr/>
-                <pp-load-chart-for-side-bar-container></pp-load-chart-for-side-bar-container>
+                <pp-load-chart-container [sourceType]="'MAIN_SIDEBAR'"></pp-load-chart-container>
             </div>
         </div>
     </div>

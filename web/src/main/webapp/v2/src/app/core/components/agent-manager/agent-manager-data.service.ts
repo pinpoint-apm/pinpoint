@@ -20,7 +20,7 @@ export class AgentManagerDataService {
         );
     }
     removeAgentId(appName: string, agentId: string): Observable<string> {
-        return this.http.post<string>(this.removeUrl, {
+        return this.http.get<string>(this.removeUrl, {
             params: new HttpParams().set('applicationName', appName).set('agentId', agentId)
         }).pipe(
             retry(3)

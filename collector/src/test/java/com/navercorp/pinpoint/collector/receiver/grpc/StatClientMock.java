@@ -18,9 +18,10 @@ package com.navercorp.pinpoint.collector.receiver.grpc;
 
 import com.google.protobuf.Empty;
 import com.navercorp.pinpoint.grpc.AgentHeaderFactory;
-import com.navercorp.pinpoint.grpc.HeaderFactory;
+import com.navercorp.pinpoint.grpc.client.HeaderFactory;
 import com.navercorp.pinpoint.grpc.trace.PAgentStat;
 import com.navercorp.pinpoint.grpc.trace.PAgentStatBatch;
+import com.navercorp.pinpoint.grpc.trace.PStatMessage;
 import com.navercorp.pinpoint.grpc.trace.StatGrpc;
 import io.grpc.ClientInterceptor;
 import io.grpc.ManagedChannel;
@@ -34,17 +35,14 @@ import org.slf4j.LoggerFactory;
 import java.util.concurrent.TimeUnit;
 
 public class StatClientMock {
-
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final ManagedChannel channel;
     private final StatGrpc.StatStub statStub;
 
-
     public StatClientMock(final String host, final int port) {
         NettyChannelBuilder builder = NettyChannelBuilder.forAddress(host, port);
-        AgentHeaderFactory.Header header = new AgentHeaderFactory.Header("mockAgentId", "mockApplicationName", System.currentTimeMillis());
-        HeaderFactory headerFactory = new AgentHeaderFactory(header);
+        HeaderFactory headerFactory = new AgentHeaderFactory("mockAgentId", "mockApplicationName", System.currentTimeMillis());
         final Metadata extraHeaders = headerFactory.newHeader();
         final ClientInterceptor headersInterceptor = MetadataUtils.newAttachHeadersInterceptor(extraHeaders);
         builder.intercept(headersInterceptor);
@@ -69,10 +67,11 @@ public class StatClientMock {
     public void agentStat(final int count) {
         StreamObserver<Empty> responseObserver = getResponseObserver();
 
-        StreamObserver<PAgentStat> requestObserver = statStub.sendAgentStat(responseObserver);
+        StreamObserver<PStatMessage> requestObserver = statStub.sendAgentStat(responseObserver);
         for (int i = 0; i < count; i++) {
-            final PAgentStat agentStat = PAgentStat.newBuilder().setAgentId("AgentStat(" + i + ")").build();
-            requestObserver.onNext(agentStat);
+            final PAgentStat agentStat = PAgentStat.newBuilder().build();
+            final PStatMessage statMessage = PStatMessage.newBuilder().setAgentStat(agentStat).build();
+            requestObserver.onNext(statMessage);
         }
         requestObserver.onCompleted();
     }
@@ -84,10 +83,11 @@ public class StatClientMock {
     public void agentStatBatch(final int count) {
         StreamObserver<Empty> responseObserver = getResponseObserver();
 
-        StreamObserver<PAgentStatBatch> requestObserver = statStub.sendAgentStatBatch(responseObserver);
+        StreamObserver<PStatMessage> requestObserver = statStub.sendAgentStat(responseObserver);
         for (int i = 0; i < count; i++) {
-            final PAgentStatBatch agentStatBatch = PAgentStatBatch.newBuilder().setAgentId("AgentStatBatch(" + i + ")").build();
-            requestObserver.onNext(agentStatBatch);
+            final PAgentStatBatch agentStatBatch = PAgentStatBatch.newBuilder().build();
+            final PStatMessage statMessage = PStatMessage.newBuilder().setAgentStatBatch(agentStatBatch).build();
+            requestObserver.onNext(statMessage);
         }
         requestObserver.onCompleted();
     }

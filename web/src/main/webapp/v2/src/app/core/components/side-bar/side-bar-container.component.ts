@@ -61,7 +61,7 @@ export class SideBarContainerComponent implements OnInit, OnDestroy {
             })
         ).subscribe((target: ISelectedTarget) => {
             this.target = target;
-            this.renderer.setStyle(this.el.nativeElement, 'width', '461px');
+            this.renderer.setStyle(this.el.nativeElement, 'width', '477px');
             this.showLoading = false;
             this.useDisable = false;
         });

@@ -16,11 +16,9 @@
 
 package com.navercorp.pinpoint.collector.dao.hbase;
 
-import static com.navercorp.pinpoint.common.hbase.HBaseTables.*;
-
 import com.navercorp.pinpoint.collector.dao.ApplicationIndexDao;
+import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
-import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
 
 import org.apache.hadoop.hbase.TableName;
@@ -38,15 +36,12 @@ import org.springframework.stereotype.Repository;
  * @author emeroad
  */
 @Repository
-public class HbaseApplicationIndexDao implements ApplicationIndexDao {
+public class HbaseApplicationIndexDao extends AbstractHbaseDao implements ApplicationIndexDao {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private HbaseOperations2 hbaseTemplate;
-
-    @Autowired
-    private TableNameProvider tableNameProvider;
 
     @Override
     public void insert(final AgentInfoBo agentInfo) {
@@ -57,11 +52,17 @@ public class HbaseApplicationIndexDao implements ApplicationIndexDao {
         final Put put = new Put(Bytes.toBytes(agentInfo.getApplicationName()));
         final byte[] qualifier = Bytes.toBytes(agentInfo.getAgentId());
         final byte[] value = Bytes.toBytes(agentInfo.getServiceTypeCode());
-        put.addColumn(APPLICATION_INDEX_CF_AGENTS, qualifier, value);
+        put.addColumn(getColumnFamilyName(), qualifier, value);
 
-        final TableName applicationIndexTableName = tableNameProvider.getTableName(APPLICATION_INDEX_STR);
+        final TableName applicationIndexTableName = getTableName();
         hbaseTemplate.put(applicationIndexTableName, put);
 
         logger.debug("Insert agentInfo. {}", agentInfo);
     }
+
+    @Override
+    public HbaseColumnFamily getColumnFamily() {
+        return HbaseColumnFamily.APPLICATION_INDEX_AGENTS;
+    }
+
 }

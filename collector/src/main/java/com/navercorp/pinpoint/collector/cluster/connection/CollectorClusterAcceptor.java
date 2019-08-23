@@ -89,18 +89,16 @@ public class CollectorClusterAcceptor implements CollectorClusterConnectionProvi
         logger.info("{} destroying completed.", name);
     }
 
-    class WebClusterServerChannelStateChangeHandler implements ServerStateChangeEventHandler {
+    class WebClusterServerChannelStateChangeHandler extends ServerStateChangeEventHandler {
 
         @Override
-        public void eventPerformed(PinpointServer pinpointServer, SocketStateCode stateCode) throws Exception {
-            if (stateCode.isRunDuplex()) {
+        public void stateUpdated(PinpointServer pinpointServer, SocketStateCode updatedStateCode) {
+            if (updatedStateCode.isRunDuplex()) {
                 Address address = getAddress(pinpointServer);
                 clusterSocketRepository.putIfAbsent(address, pinpointServer);
-                return;
-            } else if (stateCode.isClosed()) {
+            } else if (updatedStateCode.isClosed()) {
                 Address address = getAddress(pinpointServer);
                 clusterSocketRepository.remove(address);
-                return;
             }
         }
 
@@ -111,10 +109,6 @@ public class CollectorClusterAcceptor implements CollectorClusterConnectionProvi
             }
             InetSocketAddress inetSocketAddress = (InetSocketAddress) remoteAddress;
             return new DefaultAddress(inetSocketAddress.getHostString(), inetSocketAddress.getPort());
-        }
-
-        @Override
-        public void exceptionCaught(PinpointServer pinpointServer, SocketStateCode stateCode, Throwable e) {
         }
 
     }

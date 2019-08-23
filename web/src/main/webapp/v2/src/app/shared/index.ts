@@ -34,7 +34,6 @@ import { FilmForDisableComponent } from './components/film-for-disable';
 import { SimpleProgressSliderComponent } from './components/simple-progress-slider';
 import { FormFieldErrorMessageComponent } from './components/form-field-error-message';
 import { ServerErrorMessageComponent } from './components/server-error-message';
-import { SettingHeightDirective } from './directives/setting-height.directive';
 import { ContextPopupDirective } from './directives/context-popup.directive';
 import { SplitterDirective } from './directives/splitter.directive';
 import { SearchInputDirective } from './directives/search-input.directive';
@@ -44,6 +43,7 @@ import { DynamicPopupService } from './services/dynamic-popup.service';
 import { MessageQueueService } from './services/message-queue.service';
 import { WindowRefService } from './services/window-ref.service';
 import { ApplicationListDataService } from './services/application-list-data.service';
+import { SafeStylePipe } from './pipes/safe-style.pipe';
 
 @NgModule({
     declarations: [
@@ -57,8 +57,8 @@ import { ApplicationListDataService } from './services/application-list-data.ser
         FormFieldErrorMessageComponent,
         ServerErrorMessageComponent,
         SafeHtmlPipe,
+        SafeStylePipe,
         JSONTextParserPipe,
-        SettingHeightDirective,
         ContextPopupDirective,
         SplitterDirective,
         SearchInputDirective
@@ -83,8 +83,8 @@ import { ApplicationListDataService } from './services/application-list-data.ser
         FormFieldErrorMessageComponent,
         ServerErrorMessageComponent,
         SafeHtmlPipe,
+        SafeStylePipe,
         JSONTextParserPipe,
-        SettingHeightDirective,
         ContextPopupDirective,
         SplitterDirective,
         SearchInputDirective

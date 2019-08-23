@@ -16,16 +16,12 @@
 
 package com.navercorp.pinpoint.collector.receiver;
 
-import com.navercorp.pinpoint.collector.handler.thrift.ThriftAgentEventHandler;
-import com.navercorp.pinpoint.collector.handler.thrift.ThriftAgentStatHandlerV2;
 import com.navercorp.pinpoint.collector.handler.SimpleHandler;
 import com.navercorp.pinpoint.collector.handler.SimpleDualHandler;
-import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.io.header.Header;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.io.request.ServerResponse;
 import com.navercorp.pinpoint.thrift.io.DefaultTBaseLocator;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author emeroad
@@ -33,15 +29,14 @@ import org.springframework.beans.factory.annotation.Autowired;
  */
 public class StatDispatchHandler implements DispatchHandler {
 
-    @Autowired
-    private ThriftAgentStatHandlerV2 thriftAgentStatHandler;
+    private SimpleHandler agentStatHandler;
 
-    @Autowired
-    private ThriftAgentEventHandler thriftAgentEventHandler;
+    private SimpleHandler agentEventHandler;
 
 
-    public StatDispatchHandler() {
-
+    public StatDispatchHandler(SimpleHandler agentStatHandler, SimpleHandler agentEventHandler) {
+        this.agentStatHandler = agentStatHandler;
+        this.agentEventHandler = agentEventHandler;
     }
 
     private SimpleHandler getSimpleHandler(Header header) {
@@ -49,7 +44,7 @@ public class StatDispatchHandler implements DispatchHandler {
         // FIXME (2014.08) Legacy - TAgentStats should not be sent over the wire.
         final short type = header.getType();
         if (type == DefaultTBaseLocator.AGENT_STAT || type == DefaultTBaseLocator.AGENT_STAT_BATCH) {
-            return new SimpleDualHandler(thriftAgentStatHandler, thriftAgentEventHandler);
+            return new SimpleDualHandler(agentStatHandler, agentEventHandler);
         }
 
         throw new UnsupportedOperationException("unsupported header:" + header);

@@ -5,18 +5,22 @@
 [![Build Status](https://travis-ci.org/naver/pinpoint.svg?branch=master)](https://travis-ci.org/naver/pinpoint)
 [![codecov](https://codecov.io/gh/naver/pinpoint/branch/master/graph/badge.svg)](https://codecov.io/gh/naver/pinpoint)
 
-**Visit [our official web site](http://naver.github.io/pinpoint/) for more information and [Latest updates on Pinpoint](https://naver.github.io/pinpoint/news.html)**  
+**Visit [our official web site](http://naver.github.io/pinpoint/) for more information and [Latest updates on Pinpoint](https://naver.github.io/pinpoint/news.html)**.
+
+## Live Demo
+
+Take a quick look at Pinpoint with our [demo](http://125.209.240.10:10123).
 
 ## Latest News (2018/08/30)
 
 Pinpoint has started to support application written in PHP. [Check-out our php-agent repository](https://github.com/naver/pinpoint-c-agent).
 
-## Latest Release (2019/02/12)
+## Latest Release (2019/06/11)
 
-We're happy to announce the release of Pinpoint v1.8.2.
-Please check the release note at (https://github.com/naver/pinpoint/releases/tag/1.8.2).
+We're happy to announce the release of Pinpoint v1.8.4.
+Please check the release note at (https://github.com/naver/pinpoint/releases/tag/1.8.4).
 
-The current stable version is [v1.8.2](https://github.com/naver/pinpoint/releases/tag/1.8.2).
+The current stable version is [v1.8.4](https://github.com/naver/pinpoint/releases/tag/1.8.4).
 
 ## About Pinpoint
 

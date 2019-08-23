@@ -1,5 +1,6 @@
 import { Injectable, Inject } from '@angular/core';
 import { Router } from '@angular/router';
+
 import { WindowRefService } from 'app/shared/services/window-ref.service';
 import { ServerTimeDataService } from 'app/shared/services/server-time-data.service';
 import { FilterParamMaker } from 'app/core/utils/filter-param-maker';
@@ -13,7 +14,6 @@ import { APP_BASE_HREF } from '@angular/common';
 
 @Injectable()
 export class UrlRouteManagerService {
-
     constructor(
         private windowRef: WindowRefService,
         private router: Router,
@@ -41,11 +41,13 @@ export class UrlRouteManagerService {
         }
     }
     moveToRealTime(applicationUrlStr?: string): void {
-        this.router.navigate([
-            this.newUrlStateNotificationService.getStartPath(),
-            (applicationUrlStr || this.newUrlStateNotificationService.getPathValue(UrlPathId.APPLICATION).getUrlStr()),
-            UrlPath.REAL_TIME
-        ]);
+        const startPath = this.newUrlStateNotificationService.getStartPath();
+        const realTimePath = UrlPath.REAL_TIME;
+        const applicationPath = applicationUrlStr || this.newUrlStateNotificationService.getPathValue(UrlPathId.APPLICATION).getUrlStr();
+        const baseUrl = [startPath, realTimePath, applicationPath];
+        const finalUrl = this.newUrlStateNotificationService.hasValue(UrlPathId.AGENT_ID) ? [...baseUrl, this.newUrlStateNotificationService.getPathValue(UrlPathId.AGENT_ID)] : baseUrl;
+
+        this.router.navigate(finalUrl);
     }
     moveToConfigPage(type: string): void {
         this.router.navigate([
@@ -94,8 +96,8 @@ export class UrlRouteManagerService {
             queryParam
         });
     }
-    openPage(path: string | string[], title?: string): void {
-        this.windowRef.nativeWindow.open(this.getBaseHref() + (path instanceof Array ? path.join('/') : path), title || '');
+    openPage(path: string | string[], title?: string): any {
+        return this.windowRef.nativeWindow.open(this.getBaseHref() + (path instanceof Array ? path.filter((p: string) => !!p).join('/') : path), title || '');
     }
     makeFilterMapUrl(
         { applicationName, serviceType, periodStr, timeStr, filterStr, hintStr, addedFilter, addedHint }:
@@ -105,24 +107,21 @@ export class UrlRouteManagerService {
             FilterParamMaker.makeParam(filterStr, addedFilter) +
             HintParamMaker.makeParam(hintStr, addedHint);
     }
-    openInspectorPage(realTimeMode: boolean): void {
-        if (realTimeMode) {
-            this.serverTimeDataService.getServerTime().subscribe(time => {
-                this.windowRef.nativeWindow.open([
-                    this.getBaseHref() + UrlPath.INSPECTOR,
-                    this.newUrlStateNotificationService.getPathValue(UrlPathId.APPLICATION).getUrlStr(),
-                    this.webAppSettingDataService.getSystemDefaultPeriod().getValueWithTime(),
-                    EndTime.newByNumber(time).getEndTime()
-                ].join('/'));
-            });
-        } else {
-            this.windowRef.nativeWindow.open([
-                this.getBaseHref() + UrlPath.INSPECTOR,
+    openInspectorPage(isRealTimeMode: boolean, selectedAgent: string): void {
+        isRealTimeMode ?
+            this.openPage([
+                UrlPath.INSPECTOR,
+                UrlPath.REAL_TIME,
+                this.newUrlStateNotificationService.getPathValue(UrlPathId.APPLICATION).getUrlStr(),
+                selectedAgent
+            ]) :
+            this.openPage([
+                UrlPath.INSPECTOR,
                 this.newUrlStateNotificationService.getPathValue(UrlPathId.APPLICATION).getUrlStr(),
                 this.newUrlStateNotificationService.getPathValue(UrlPathId.PERIOD).getValueWithTime(),
-                this.newUrlStateNotificationService.getPathValue(UrlPathId.END_TIME).getEndTime()
-            ].join('/'));
-        }
+                this.newUrlStateNotificationService.getPathValue(UrlPathId.END_TIME).getEndTime(),
+                selectedAgent
+            ]);
     }
     openMainPage(): void {
         this.windowRef.nativeWindow.open([
@@ -138,7 +137,7 @@ export class UrlRouteManagerService {
     back(): void {
         this.windowRef.nativeWindow.history.back();
     }
-    private getBaseHref(): string {
+    getBaseHref(): string {
         if (this.baseHref === '/') {
             return '';
         } else {

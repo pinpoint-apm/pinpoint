@@ -150,9 +150,7 @@ export class NewUrlStateNotificationService {
         return this.innerRouteData['serverTime'];
     }
     hasValue(...names: string[]): boolean {
-        return names.reduce((previous: boolean, name: string) => {
-            return previous && (this.urlState[name].curr === null ? false : true);
-        }, true);
+        return names.every((name: string) => this.urlState[name].curr !== null);
     }
     getStartPath(): string {
         return this.startPath || UrlPath.MAIN;

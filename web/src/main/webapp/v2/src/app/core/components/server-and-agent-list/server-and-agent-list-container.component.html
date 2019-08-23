@@ -1,7 +1,9 @@
-<pp-server-and-agent-list
-    [funcImagePath]="funcImagePath"
-    [serverKeyList]="filteredServerKeyList"
-    [serverList]="filteredServerList"
-    [agentId]="agentId"
-    (outSelectAgent)="onSelectAgent($event)">
-</pp-server-and-agent-list>
+<ng-container *ngIf="filteredServerList">
+    <pp-server-and-agent-list
+        [funcImagePath]="funcImagePath"
+        [serverKeyList]="filteredServerKeyList"
+        [serverList]="filteredServerList"
+        [agentId]="agentId"
+        (outSelectAgent)="onSelectAgent($event)">
+    </pp-server-and-agent-list>
+</ng-container>

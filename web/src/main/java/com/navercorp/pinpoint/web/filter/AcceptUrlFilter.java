@@ -17,14 +17,12 @@
 package com.navercorp.pinpoint.web.filter;
 
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
-import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.AntPathMatcher;
 
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * There are two kinds of URL. ( URL requested by user, URL requesting a backend server)
@@ -34,8 +32,6 @@ import java.util.List;
  */
 public class AcceptUrlFilter implements URLPatternFilter {
 
-    private static final Charset UTF8 = StandardCharsets.UTF_8;
-
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final String urlPattern;
     private final AntPathMatcher matcher = new AntPathMatcher();
@@ -43,11 +39,7 @@ public class AcceptUrlFilter implements URLPatternFilter {
 
 
     public AcceptUrlFilter(String urlPattern) {
-        if (urlPattern == null) {
-            throw new NullPointerException("urlPattern must not be null");
-        }
-        // TODO remove decode
-        this.urlPattern = new String(Base64.decodeBase64(urlPattern), UTF8);
+        this.urlPattern = Objects.requireNonNull(urlPattern, "urlPattern must not be null");
     }
 
     @Override

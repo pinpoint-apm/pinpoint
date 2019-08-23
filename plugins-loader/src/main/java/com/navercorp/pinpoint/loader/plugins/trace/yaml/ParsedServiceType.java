@@ -92,6 +92,7 @@ public class ParsedServiceType {
             builder.queue(property.isQueue());
             builder.recordStatistics(property.isRecordStatistics());
             builder.includeDestinationId(property.isIncludeDestinationId());
+            builder.alias(property.isAlias());
         }
         ServiceType serviceType = builder.build();
 

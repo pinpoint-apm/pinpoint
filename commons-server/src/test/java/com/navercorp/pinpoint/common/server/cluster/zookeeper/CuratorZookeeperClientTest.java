@@ -110,7 +110,7 @@ public class CuratorZookeeperClientTest {
             String testNodePath = createTestNodePath();
 
             curatorZookeeperClient.createPath(testNodePath);
-            curatorZookeeperClient.createNode(testNodePath, message.getBytes());
+            curatorZookeeperClient.createNode(new CreateNodeMessage(testNodePath, message.getBytes()));
 
             byte[] result = curatorZookeeperClient.getData(testNodePath);
             Assert.assertEquals(message, new String(result));
@@ -125,6 +125,43 @@ public class CuratorZookeeperClientTest {
         }
     }
 
+    @Test
+    public void createOrSetNodeTest() throws Exception {
+        ZooKeeper zooKeeper = createZookeeper();
+
+        try {
+            String message = createTestMessage();
+            String testNodePath = createTestNodePath() + "/temp";
+
+            ZKPaths.PathAndNode pathAndNode = ZKPaths.getPathAndNode(testNodePath);
+            String path = pathAndNode.getPath();
+            String node = pathAndNode.getNode();
+
+            try {
+                curatorZookeeperClient.createOrSetNode(new CreateNodeMessage(testNodePath, message.getBytes()));
+                Assert.fail();
+            } catch (Exception e) {
+            }
+
+            boolean existNode = isExistNode(zooKeeper, path);
+            Assert.assertFalse(existNode);
+
+            existNode = isExistNode(zooKeeper, testNodePath);
+            Assert.assertFalse(existNode);
+
+            curatorZookeeperClient.createOrSetNode(new CreateNodeMessage(testNodePath, message.getBytes(), true));
+
+            existNode = isExistNode(zooKeeper, testNodePath);
+            Assert.assertTrue(existNode);
+
+            curatorZookeeperClient.delete(testNodePath);
+        } finally {
+            if (zooKeeper != null) {
+                zooKeeper.close();
+            }
+        }
+    }
+
     @Test(expected = BadOperationException.class)
     public void alreadyExistNodeCreateTest() throws Exception {
         ZooKeeper zooKeeper = createZookeeper();
@@ -132,10 +169,10 @@ public class CuratorZookeeperClientTest {
             String message = createTestMessage();
             String testNodePath = createTestNodePath();
 
-            curatorZookeeperClient.createNode(testNodePath, message.getBytes());
+            curatorZookeeperClient.createNode(new CreateNodeMessage(testNodePath, message.getBytes()));
             Assert.assertTrue(isExistNode(zooKeeper, testNodePath));
 
-            curatorZookeeperClient.createNode(testNodePath, "test".getBytes());
+            curatorZookeeperClient.createNode(new CreateNodeMessage(testNodePath, "test".getBytes()));
         } finally {
             if (zooKeeper != null) {
                 zooKeeper.close();
@@ -149,7 +186,7 @@ public class CuratorZookeeperClientTest {
         try {
             String testNodePath = createTestNodePath();
 
-            curatorZookeeperClient.createNode(testNodePath, "".getBytes());
+            curatorZookeeperClient.createNode(new CreateNodeMessage(testNodePath, "".getBytes()));
             Assert.assertTrue(isExistNode(zooKeeper, testNodePath));
 
             curatorZookeeperClient.getData(testNodePath, true);
@@ -159,7 +196,7 @@ public class CuratorZookeeperClientTest {
             assertGetWatchedEvent(testNodePath, message);
 
             message = createTestMessage();
-            curatorZookeeperClient.createOrSetNode(testNodePath, message.getBytes());
+            curatorZookeeperClient.createOrSetNode(new CreateNodeMessage(testNodePath, message.getBytes(), true));
             assertGetWatchedEvent(testNodePath, message);
         } finally {
             if (zooKeeper != null) {
@@ -188,7 +225,6 @@ public class CuratorZookeeperClientTest {
     public void getChildrenTest() throws Exception {
         ZooKeeper zooKeeper = createZookeeper();
         try {
-            String message = createTestMessage();
             String testNodePath = createTestNodePath();
 
             ZKPaths.PathAndNode pathAndNode = ZKPaths.getPathAndNode(testNodePath);

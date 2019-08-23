@@ -23,7 +23,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author emeroad
  */
 public class PinpointThreadFactory implements ThreadFactory {
-
+    public static final String DEFAULT_THREAD_NAME_PREFIX = "Pinpoint-";
     private final static AtomicInteger FACTORY_NUMBER = new AtomicInteger(0);
     private final AtomicInteger threadNumber = new AtomicInteger(0);
 

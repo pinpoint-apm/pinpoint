@@ -25,21 +25,18 @@ import java.util.Objects;
 /**
  * @author jaehong.kim
  */
-public class GrpcServerResponse implements ServerResponse<PResult> {
+public class GrpcServerResponse<T> implements ServerResponse<T> {
+    private final StreamObserver<T> responseObserver;
 
-    private final StreamObserver<PResult> responseObserver;
-
-    public GrpcServerResponse(StreamObserver<PResult> responseObserver) {
+    public GrpcServerResponse(StreamObserver<T> responseObserver) {
         this.responseObserver = Objects.requireNonNull(responseObserver, "responseObserver must not be null");
     }
 
     @Override
-    public void write(final PResult message) {
+    public void write(final T message) {
         if (message == null) {
             throw new NullPointerException("message must not be null");
         }
-
-        // TODO Handle error
         responseObserver.onNext(message);
         responseObserver.onCompleted();
     }

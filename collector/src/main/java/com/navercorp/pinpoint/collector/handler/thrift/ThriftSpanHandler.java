@@ -24,11 +24,12 @@ import com.navercorp.pinpoint.common.server.bo.thrift.SpanFactory;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import com.navercorp.pinpoint.thrift.dto.TSpan;
 
 import org.springframework.stereotype.Service;
+
+import java.util.Objects;
 
 /**
  * @author emeroad
@@ -39,11 +40,14 @@ public class ThriftSpanHandler implements SimpleHandler {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    @Autowired
-    private TraceService traceService;
+    private final TraceService traceService;
 
-    @Autowired
-    private SpanFactory spanFactory;
+    private final SpanFactory spanFactory;
+
+    public ThriftSpanHandler(TraceService traceService, SpanFactory spanFactory) {
+        this.traceService = Objects.requireNonNull(traceService, "traceService must not be null");
+        this.spanFactory = Objects.requireNonNull(spanFactory, "spanFactory must not be null");
+    }
 
     @Override
     public void handleSimple(ServerRequest serverRequest) {
@@ -60,9 +64,6 @@ public class ThriftSpanHandler implements SimpleHandler {
     }
 
     private void handleSpan(TSpan tSpan) {
-        if (logger.isDebugEnabled()) {
-            logger.debug("Handle TSpan={}", tSpan);
-        }
         try {
             final SpanBo spanBo = spanFactory.buildSpanBo(tSpan);
             traceService.insertSpan(spanBo);
@@ -70,5 +71,4 @@ public class ThriftSpanHandler implements SimpleHandler {
             logger.warn("Span handle error. Caused:{}. Span:{}", e.getMessage(), tSpan, e);
         }
     }
-
 }

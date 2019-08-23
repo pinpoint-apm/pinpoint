@@ -110,7 +110,7 @@ public class SpanFactory {
         spanBo.setApplicationId(tSpan.getApplicationName());
         spanBo.setAgentStartTime(tSpan.getAgentStartTime());
 
-        final TransactionId transactionId = newTransactionId(tSpan.getTransactionId(), spanBo);
+        final TransactionId transactionId = newTransactionId(tSpan.getTransactionId(), spanBo.getAgentId());
         spanBo.setTransactionId(transactionId);
 
         spanBo.setSpanId(tSpan.getSpanId());
@@ -321,7 +321,7 @@ public class SpanFactory {
             spanChunkBo.setApplicationServiceType(tSpanChunk.getServiceType());
         }
 
-        TransactionId transactionId = newTransactionId(tSpanChunk.getTransactionId(), spanChunkBo);
+        TransactionId transactionId = newTransactionId(tSpanChunk.getTransactionId(), spanChunkBo.getAgentId());
         spanChunkBo.setTransactionId(transactionId);
 
 
@@ -330,13 +330,12 @@ public class SpanFactory {
         return spanChunkBo;
     }
 
-    private TransactionId newTransactionId(byte[] transactionIdBytes, BasicSpan basicSpan) {
+    private TransactionId newTransactionId(byte[] transactionIdBytes, String spanAgentId) {
         final TransactionId transactionId = TransactionIdUtils.parseTransactionId(transactionIdBytes);
         String transactionAgentId = transactionId.getAgentId();
         if (transactionAgentId != null) {
             return transactionId;
         }
-        String spanAgentId = basicSpan.getAgentId();
         return new TransactionId(spanAgentId, transactionId.getAgentStartTime(), transactionId.getTransactionSequence());
     }
 

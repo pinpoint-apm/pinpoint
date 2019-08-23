@@ -25,6 +25,8 @@
                 <!-- socket write timeout. hbase default: 600000-->
                 <prop key="hbase.ipc.client.socket.timeout.write">${hbase.ipc.client.socket.timeout.write}</prop>
 
+                <prop key="hbase.client.warmup.enable">${hbase.client.warmup.enable:false}</prop>
+
                 <!-- hbase async put operation. -->
                 <prop key="hbase.client.async.enable">${hbase.client.async.enable:false}</prop>
                 <prop key="hbase.client.async.in.queuesize">${hbase.client.async.in.queuesize:10000}</prop>

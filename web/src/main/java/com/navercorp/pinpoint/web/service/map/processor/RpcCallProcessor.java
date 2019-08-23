@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.util.CollectionUtils;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -109,6 +110,29 @@ public class RpcCallProcessor implements LinkDataMapProcessor {
         return Collections.singletonList(linkData);
     }
 
+    private Set<AcceptApplication> filterAlias(Set<AcceptApplication> acceptApplicationList) {
+
+        if (acceptApplicationList.size() < 2) {
+            return acceptApplicationList;
+        }
+
+        final Set<AcceptApplication> resultSet = new HashSet<>();
+
+        for (AcceptApplication acceptApplication : acceptApplicationList) {
+            if (!acceptApplication.getApplication().getServiceType().isAlias()) {
+                resultSet.add(acceptApplication);
+            } else {
+                logger.debug("deduct alias application {}", acceptApplication);
+            }
+        }
+
+        if (resultSet.isEmpty()) {
+            return acceptApplicationList;
+        } else {
+            return resultSet;
+        }
+    }
+
     private Set<AcceptApplication> findAcceptApplications(Application fromApplication, String host, Range range) {
         logger.debug("findAcceptApplication {} {}", fromApplication, host);
 
@@ -130,11 +154,15 @@ public class RpcCallProcessor implements LinkDataMapProcessor {
         AcceptApplicationCacheKey cacheKey = new AcceptApplicationCacheKey(fromApplication, range);
         Set<AcceptApplication> cachedAcceptApplications = acceptApplicationCache.get(cacheKey);
         if (cachedAcceptApplications == null) {
-            logger.debug("acceptApplicationCache hit {}", fromApplication);
+            logger.debug("acceptApplicationCache miss {}", fromApplication);
             Set<AcceptApplication> queriedAcceptApplications = hostApplicationMapDao.findAcceptApplicationName(fromApplication, range);
+
+            final Set<AcceptApplication> filteredApplicationList = filterAlias(queriedAcceptApplications);
+            logger.debug("filteredApplicationList" + filteredApplicationList);
+
             Set<AcceptApplication> acceptApplications = Sets.newConcurrentHashSet();
-            if (!CollectionUtils.isEmpty(queriedAcceptApplications)) {
-                acceptApplications.addAll(queriedAcceptApplications);
+            if (!CollectionUtils.isEmpty(filteredApplicationList)) {
+                acceptApplications.addAll(filteredApplicationList);
             }
             cachedAcceptApplications = acceptApplicationCache.putIfAbsent(cacheKey, acceptApplications);
             if (cachedAcceptApplications == null) {

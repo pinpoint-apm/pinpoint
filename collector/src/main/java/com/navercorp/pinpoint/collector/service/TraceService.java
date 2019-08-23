@@ -22,8 +22,8 @@ import com.navercorp.pinpoint.collector.dao.TraceDao;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
-import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,11 +74,26 @@ public class TraceService {
         insertSpanEventStat(spanBo);
     }
 
+    private void insertAcceptorHost(SpanEventBo spanEvent, String applicationId, ServiceType serviceType) {
+        final String endPoint = spanEvent.getEndPoint();
+        if (endPoint == null) {
+            logger.debug("endPoint is null. spanEvent:{}", spanEvent);
+            return;
+        }
+        final String destinationId = spanEvent.getDestinationId();
+        if (destinationId == null) {
+            logger.debug("destinationId is null. spanEvent:{}", spanEvent);
+            return;
+        }
+        hostApplicationMapDao.insert(endPoint, destinationId, spanEvent.getServiceType(), applicationId, serviceType.getCode());
+    }
+
     private void insertAcceptorHost(SpanBo span) {
         // save host application map
         // acceptor host is set at profiler module only when the span is not the kind of root span
         final String acceptorHost = span.getAcceptorHost();
         if (acceptorHost == null) {
+            logger.debug("acceptorHost is null {}", span);
             return;
         }
         final String spanApplicationName = span.getApplicationId();
@@ -168,20 +183,31 @@ public class TraceService {
         if (CollectionUtils.isEmpty(spanEventList)) {
             return;
         }
+        if (logger.isDebugEnabled()) {
+            logger.debug("handle spanEvent size:{}", spanEventList.size());
+        }
 
         final ServiceType applicationServiceType = getApplicationServiceType(span);
-
-        logger.debug("handle spanEvent size:{}", spanEventList.size());
         // TODO need to batch update later.
         insertSpanEventList(spanEventList, applicationServiceType, span.getApplicationId(), span.getAgentId(), span.getEndPoint());
     }
 
     private void insertSpanEventList(List<SpanEventBo> spanEventList, ServiceType applicationServiceType, String applicationId, String agentId, String endPoint) {
+
         for (SpanEventBo spanEvent : spanEventList) {
             final ServiceType spanEventType = registry.findServiceType(spanEvent.getServiceType());
+
+            if (isAlias(spanEventType, spanEvent)) {
+                insertAcceptorHost(spanEvent, applicationId, applicationServiceType);
+                continue;
+            }
+
             if (!spanEventType.isRecordStatistics()) {
                 continue;
             }
+
+            final String spanEventApplicationName = spanEvent.getDestinationId();
+            final String spanEventEndPoint = spanEvent.getEndPoint();
 
             // if terminal update statistics
             final int elapsed = spanEvent.getEndElapsed();
@@ -191,10 +217,21 @@ public class TraceService {
              * save information to draw a server map based on statistics
              */
             // save the information of caller (the spanevent that called span)
-            statisticsService.updateCaller(applicationId, applicationServiceType, agentId, spanEvent.getDestinationId(), spanEventType, spanEvent.getEndPoint(), elapsed, hasException);
+            statisticsService.updateCaller(applicationId, applicationServiceType, agentId, spanEventApplicationName, spanEventType, spanEventEndPoint, elapsed, hasException);
 
             // save the information of callee (the span that spanevent called)
-            statisticsService.updateCallee(spanEvent.getDestinationId(), spanEventType, applicationId, applicationServiceType, endPoint, elapsed, hasException);
+            statisticsService.updateCallee(spanEventApplicationName, spanEventType, applicationId, applicationServiceType, endPoint, elapsed, hasException);
         }
+    }
+
+    private boolean isAlias(ServiceType spanEventType, SpanEventBo forDebugEvent) {
+        if (!spanEventType.isAlias()) {
+            return false;
+        }
+        if (spanEventType.isRecordStatistics()) {
+            logger.error("ServiceType with ALIAS should NOT have RECORD_STATISTICS {}", forDebugEvent);
+            return false;
+        }
+        return true;
     }
 }

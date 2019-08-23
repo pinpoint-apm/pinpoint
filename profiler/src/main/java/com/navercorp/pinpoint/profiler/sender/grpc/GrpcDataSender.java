@@ -16,73 +16,63 @@
 
 package com.navercorp.pinpoint.profiler.sender.grpc;
 
-import com.google.protobuf.Empty;
-import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.ExecutorFactory;
 import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
-import com.navercorp.pinpoint.grpc.trace.PSpan;
-import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
-import com.navercorp.pinpoint.grpc.trace.TraceGrpc;
-import com.navercorp.pinpoint.grpc.AgentHeaderFactory;
 import com.navercorp.pinpoint.grpc.ExecutorUtils;
 import com.navercorp.pinpoint.grpc.client.ChannelFactory;
-import com.navercorp.pinpoint.grpc.HeaderFactory;
+import com.navercorp.pinpoint.grpc.client.ChannelFactoryOption;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
+
+import com.google.protobuf.GeneratedMessageV3;
 import io.grpc.ManagedChannel;
-import io.grpc.NameResolverProvider;
-import io.grpc.stub.StreamObserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.concurrent.Executors;
 import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class GrpcDataSender implements DataSender<Object> {
+public abstract class GrpcDataSender implements DataSender<Object> {
+    protected static ScheduledExecutorService reconnectScheduler
+            = Executors.newScheduledThreadPool(1, new PinpointThreadFactory("Pinpoint-reconnect-thread"));
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    protected final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final String name;
-    private final ManagedChannel managedChannel;
-    private final TraceGrpc.TraceStub traceStub;
-
-    private final StreamObserver<PSpan> spanStream;
-    private final StreamObserver<PSpanChunk> spanChunkStream;
+    protected final String name;
+    protected final ManagedChannel managedChannel;
 
     // not thread safe
-    private final MessageConverter<GeneratedMessageV3> messageConverter;
+    protected final MessageConverter<GeneratedMessageV3> messageConverter;
 
-    private final ThreadPoolExecutor executor;
+    protected final ThreadPoolExecutor executor;
 
-    private final ChannelFactory channelFactory;
+    protected final ChannelFactory channelFactory;
 
-    private ThreadPoolExecutor newExecutorService(String name) {
-        ThreadFactory threadFactory = new PinpointThreadFactory(name, true);
-        return ExecutorFactory.newFixedThreadPool(1, 1000, threadFactory);
-    }
+    protected volatile boolean shutdown;
 
-    public GrpcDataSender(String name, String host, int port, MessageConverter<GeneratedMessageV3> messageConverter, HeaderFactory<AgentHeaderFactory.Header> headerFactory,
-                          NameResolverProvider nameResolverProvider) {
-        this.name = Assert.requireNonNull(name, "name must not be null");
+
+    public GrpcDataSender(String host, int port, int executorQueueSize, MessageConverter<GeneratedMessageV3> messageConverter, ChannelFactoryOption channelFactoryOption) {
+        Assert.requireNonNull(channelFactoryOption, "channelFactoryOption must not be null");
+
+        this.name = Assert.requireNonNull(channelFactoryOption.getName(), "name must not be null");
         this.messageConverter = Assert.requireNonNull(messageConverter, "messageConverter must not be null");
 
-        this.executor = newExecutorService(name);
+        this.executor = newExecutorService(name + "-Executor", executorQueueSize);
 
-        this.channelFactory = newChannelFactory(name, headerFactory, nameResolverProvider);
+        this.channelFactory = new ChannelFactory(channelFactoryOption);
         this.managedChannel = channelFactory.build(name, host, port);
-
-        this.traceStub = TraceGrpc.newStub(managedChannel);
-        this.spanStream = traceStub.sendSpan(response);
-        this.spanChunkStream = traceStub.sendSpanChunk(response);
     }
 
-    private ChannelFactory newChannelFactory(String name, HeaderFactory<AgentHeaderFactory.Header> headerFactory, NameResolverProvider nameResolverProvider) {
-        return new ChannelFactory(name, headerFactory, nameResolverProvider);
+    private ThreadPoolExecutor newExecutorService(String name, int senderExecutorQueueSize) {
+        ThreadFactory threadFactory = new PinpointThreadFactory(PinpointThreadFactory.DEFAULT_THREAD_NAME_PREFIX + name, true);
+        return ExecutorFactory.newFixedThreadPool(1, senderExecutorQueueSize, threadFactory);
     }
 
     @Override
@@ -90,7 +80,11 @@ public class GrpcDataSender implements DataSender<Object> {
         final Runnable command = new Runnable() {
             @Override
             public void run() {
-                send0(data);
+                try {
+                    send0(data);
+                } catch (Exception ex) {
+                    logger.debug("send fail:{}", data, ex);
+                }
             }
         };
         try {
@@ -102,27 +96,11 @@ public class GrpcDataSender implements DataSender<Object> {
         return true;
     }
 
-    private boolean send0(Object data) {
-        final GeneratedMessageV3 spanMessage = messageConverter.toMessage(data);
-        if (spanMessage instanceof PSpanChunk) {
-            final PSpanChunk pSpan = (PSpanChunk) spanMessage;
-            spanChunkStream.onNext(pSpan);
-            return true;
-        }
-        if (spanMessage instanceof PSpan) {
-            final  PSpan pSpan = (PSpan) spanMessage;
-            spanStream.onNext(pSpan);
-            return true;
-        }
-        throw new IllegalStateException("unsupported message " + data);
-    }
-
+    public abstract boolean send0(Object data);
 
     @Override
     public void stop() {
-
-        spanStream.onCompleted();
-        spanChunkStream.onCompleted();
+        shutdown = true;
         if (this.managedChannel != null) {
             this.managedChannel.shutdown();
         }
@@ -131,20 +109,4 @@ public class GrpcDataSender implements DataSender<Object> {
     }
 
 
-    public StreamObserver<Empty> response = new StreamObserver<Empty>() {
-        @Override
-        public void onNext(Empty value) {
-            logger.debug("[{}] onNext:{}", name, value);
-        }
-
-        @Override
-        public void onError(Throwable t) {
-            logger.info("{} onError:{}", name, t);
-        }
-
-        @Override
-        public void onCompleted() {
-            logger.debug("{} onCompleted", name);
-        }
-    };
 }

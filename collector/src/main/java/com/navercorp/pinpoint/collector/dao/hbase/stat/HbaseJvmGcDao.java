@@ -17,13 +17,14 @@
 package com.navercorp.pinpoint.collector.dao.hbase.stat;
 
 import com.navercorp.pinpoint.collector.dao.AgentStatDaoV2;
-import com.navercorp.pinpoint.common.hbase.HBaseTables;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
+import com.navercorp.pinpoint.common.hbase.HbaseTable;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatHbaseOperationFactory;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.JvmGcSerializer;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatType;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Put;
@@ -60,7 +61,7 @@ public class HbaseJvmGcDao implements AgentStatDaoV2<JvmGcBo> {
         }
         List<Put> jvmGcBoPuts = this.agentStatHbaseOperationFactory.createPuts(agentId, AgentStatType.JVM_GC, jvmGcBos, this.jvmGcSerializer);
         if (!jvmGcBoPuts.isEmpty()) {
-            TableName agentStatTableName = tableNameProvider.getTableName(HBaseTables.AGENT_STAT_VER2_STR);
+            TableName agentStatTableName = tableNameProvider.getTableName(HbaseTable.AGENT_STAT_VER2);
             List<Put> rejectedPuts = this.hbaseTemplate.asyncPut(agentStatTableName, jvmGcBoPuts);
             if (CollectionUtils.isNotEmpty(rejectedPuts)) {
                 this.hbaseTemplate.put(agentStatTableName, rejectedPuts);

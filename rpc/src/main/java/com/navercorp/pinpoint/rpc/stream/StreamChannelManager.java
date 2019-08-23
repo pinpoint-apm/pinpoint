@@ -32,8 +32,6 @@ import org.jboss.netty.channel.Channel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Set;
-
 /**
  * @author koo.taejin
  */
@@ -55,23 +53,12 @@ public class StreamChannelManager {
         this.streamChannelMessageHandler = Assert.requireNonNull(streamChannelMessageHandler, "streamChannelMessageHandler must not be null.");
     }
 
-    public void close() {
-        Set<Integer> keySet = streamChannelRepository.getStreamIdSet();
-
-        for (Integer key : keySet) {
-            StreamChannel unregister = streamChannelRepository.unregister(key);
-            if (unregister != null) {
-                unregister.close(StreamCode.STATE_CLOSED);
-            }
-        }
-    }
-
     public ClientStreamChannel openStream(byte[] payload, ClientStreamChannelEventHandler streamChannelEventHandler) throws StreamException {
         logger.info("Open streamChannel initialization started. Channel:{} ", channel);
 
         final int streamChannelId = idGenerator.generate();
 
-        ClientStreamChannel newStreamChannel = new ClientStreamChannel(channel, streamChannelId, streamChannelRepository, streamChannelEventHandler);
+        NettyClientStreamChannel newStreamChannel = new NettyClientStreamChannel(channel, streamChannelId, streamChannelRepository, streamChannelEventHandler);
         try {
             newStreamChannel.init();
             newStreamChannel.connect(payload, 3000);
@@ -96,7 +83,7 @@ public class StreamChannelManager {
         StreamChannel streamChannel = streamChannelRepository.getStreamChannel(streamChannelId);
         if (streamChannel == null) {
             if (!(PacketType.APPLICATION_STREAM_CLOSE == packetType)) {
-                streamChannel.close(StreamCode.ID_NOT_FOUND);
+                write(new StreamClosePacket(streamChannelId, StreamCode.ID_NOT_FOUND));
             }
         } else {
             if (streamChannel instanceof ServerStreamChannel) {
@@ -106,6 +93,12 @@ public class StreamChannelManager {
             } else {
                 streamChannel.close(StreamCode.UNKNWON_ERROR);
             }
+        }
+    }
+
+    private void write(StreamPacket streamPacket) {
+        if (channel.isConnected()) {
+            channel.write(streamPacket);
         }
     }
 
@@ -134,7 +127,10 @@ public class StreamChannelManager {
         try {
             switch (packetType) {
                 case PacketType.APPLICATION_STREAM_CREATE_SUCCESS:
-                    clientStreamChannel.changeStateConnected();
+                    boolean connected = clientStreamChannel.changeStateConnected();
+                    if (!connected) {
+                        clientStreamChannel.close(StreamCode.STATE_NOT_CONNECTED);
+                    }
                     break;
                 case PacketType.APPLICATION_STREAM_CREATE_FAIL:
                     clientStreamChannel.disconnect(((StreamCreateFailPacket) packet).getCode());
@@ -168,7 +164,7 @@ public class StreamChannelManager {
             streamChannel.init();
             streamChannel.handleStreamCreatePacket(packet);
         } catch (StreamException e) {
-            streamChannel.close(new StreamCreateFailPacket(streamChannelId, e.getStreamCode()));
+            streamChannel.close(e.getStreamCode());
         }
     }
 
@@ -178,6 +174,10 @@ public class StreamChannelManager {
         } catch (PinpointSocketException e) {
             streamChannel.close(StreamCode.STATE_NOT_CONNECTED);
         }
+    }
+
+    public void close() {
+        streamChannelRepository.close(StreamCode.STATE_CLOSED);
     }
 
 }

@@ -56,7 +56,7 @@ public class ClusterPointRouter extends ServerStreamChannelMessageHandler implem
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final ClusterPointRepository<TargetClusterPoint> targetClusterPointRepository;
+    private final ClusterPointRepository<ClusterPoint> targetClusterPointRepository;
 
     private final DefaultRouteHandler routeHandler;
     private final StreamRouteHandler streamRouteHandler;
@@ -69,7 +69,7 @@ public class ClusterPointRouter extends ServerStreamChannelMessageHandler implem
     @Qualifier("commandHeaderTBaseDeserializerFactory")
     private DeserializerFactory<HeaderTBaseDeserializer> commandDeserializerFactory;
 
-    public ClusterPointRouter(ClusterPointRepository<TargetClusterPoint> targetClusterPointRepository,
+    public ClusterPointRouter(ClusterPointRepository<ClusterPoint> targetClusterPointRepository,
             DefaultRouteHandler defaultRouteHandler, StreamRouteHandler streamRouteHandler) {
         if (targetClusterPointRepository == null) {
             throw new NullPointerException("targetClusterPointRepository must not be null");
@@ -164,7 +164,7 @@ public class ClusterPointRouter extends ServerStreamChannelMessageHandler implem
         return StreamCode.OK;
     }
 
-    public ClusterPointRepository<TargetClusterPoint> getTargetClusterPointRepository() {
+    public ClusterPointRepository<ClusterPoint> getTargetClusterPointRepository() {
         return targetClusterPointRepository;
     }
 

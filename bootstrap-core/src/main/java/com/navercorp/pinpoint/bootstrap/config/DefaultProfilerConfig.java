@@ -44,13 +44,10 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     private final Properties properties;
 
     public static final String INSTRUMENT_ENGINE_ASM = "ASM";
+    private static final String DEFAULT_TRANSPORT_MODULE = "THRIFT";
 
     public static final int DEFAULT_AGENT_STAT_COLLECTION_INTERVAL_MS = 5 * 1000;
     public static final int DEFAULT_NUM_AGENT_STAT_BATCH_SEND = 6;
-
-    public interface ValueResolver {
-        String resolve(String value, Properties properties);
-    }
 
     private static class BypassResolver implements ValueResolver {
         public static final ValueResolver RESOLVER = new BypassResolver();
@@ -61,7 +58,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         }
     }
 
-    static class PlaceHolderResolver implements ValueResolver {
+    public static class PlaceHolderResolver implements ValueResolver {
         @Override
         public String resolve(String value, Properties properties) {
             if (value == null) {
@@ -100,11 +97,9 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     @VisibleForTesting
     private boolean staticResourceCleanup = false;
 
-    private String transportModule;
+    private String transportModule = DEFAULT_TRANSPORT_MODULE;
 
     private ThriftTransportConfig thriftTransportConfig;
-    private GrpcTransportConfig grpcTransportConfig;
-
 
     private boolean traceAgentActiveThread = true;
 
@@ -157,8 +152,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
 
     public DefaultProfilerConfig() {
         this.properties = new Properties();
-        this.thriftTransportConfig = readThriftTransportConfig(this);
-        this.grpcTransportConfig = readGrpcTransportConfig(this);
+        this.thriftTransportConfig = new DefaultThriftTransportConfig();
     }
 
     public DefaultProfilerConfig(Properties properties) {
@@ -187,12 +181,8 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         return thriftTransportConfig;
     }
 
-    public GrpcTransportConfig getGrpcTransportConfig() {
-        return grpcTransportConfig;
-    }
-
     /**
-     * @deprecated Use {@link #getThriftTransportConfig()} (int)} instead.
+     * @deprecated Use {@link #getThriftTransportConfig()} instead.
      */
     @Deprecated
     @Override
@@ -201,7 +191,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     }
 
     /**
-     * @deprecated Use {@link #getThriftTransportConfig()} (int)} instead.
+     * @deprecated Use {@link #getThriftTransportConfig()} instead.
      */
     @Deprecated
     @Override
@@ -210,7 +200,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     }
 
     /**
-     * @deprecated Use {@link #getThriftTransportConfig()} (int)} instead.
+     * @deprecated Use {@link #getThriftTransportConfig()} instead.
      */
     @Deprecated
     @Override
@@ -219,7 +209,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     }
 
     /**
-     * @deprecated Use {@link #getThriftTransportConfig()} (int)} instead.
+     * @deprecated Use {@link #getThriftTransportConfig()} instead.
      */
     @Deprecated
     @Override
@@ -228,7 +218,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     }
 
     /**
-     * @deprecated Use {@link #getThriftTransportConfig()} (int)} instead.
+     * @deprecated Use {@link #getThriftTransportConfig()} instead.
      */
     @Deprecated
     @Override
@@ -237,7 +227,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     }
 
     /**
-     * @deprecated Use {@link #getThriftTransportConfig()} (int)} instead.
+     * @deprecated Use {@link #getThriftTransportConfig()} instead.
      */
     @Deprecated
     @Override
@@ -246,7 +236,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     }
 
     /**
-     * @deprecated Use {@link #getThriftTransportConfig()} (int)} instead.
+     * @deprecated Use {@link #getThriftTransportConfig()} instead.
      */
     @Deprecated
     @Override
@@ -255,7 +245,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     }
 
     /**
-     * @deprecated Use {@link #getThriftTransportConfig()} (int)} instead.
+     * @deprecated Use {@link #getThriftTransportConfig()} instead.
      */
     @Deprecated
     @Override
@@ -264,7 +254,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     }
 
     /**
-     * @deprecated Use {@link #getThriftTransportConfig()} (int)} instead.
+     * @deprecated Use {@link #getThriftTransportConfig()} instead.
      */
     @Deprecated
     @Override
@@ -273,7 +263,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     }
 
     /**
-     * @deprecated Use {@link #getThriftTransportConfig()} (int)} instead.
+     * @deprecated Use {@link #getThriftTransportConfig()} instead.
      */
     @Deprecated
     @Override
@@ -282,7 +272,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     }
 
     /**
-     * @deprecated Use {@link #getThriftTransportConfig()} (int)} instead.
+     * @deprecated Use {@link #getThriftTransportConfig()} instead.
      */
     @Deprecated
     @Override
@@ -291,7 +281,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     }
 
     /**
-     * @deprecated Use {@link #getThriftTransportConfig()} (int)} instead.
+     * @deprecated Use {@link #getThriftTransportConfig()} instead.
      */
     @Deprecated
     @Override
@@ -300,7 +290,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     }
 
     /**
-     * @deprecated Use {@link #getThriftTransportConfig()} (int)} instead.
+     * @deprecated Use {@link #getThriftTransportConfig()} instead.
      */
     @Deprecated
     @Override
@@ -309,7 +299,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     }
 
     /**
-     * @deprecated Use {@link #getThriftTransportConfig()} (int)} instead.
+     * @deprecated Use {@link #getThriftTransportConfig()} instead.
      */
     @Deprecated
     @Override
@@ -318,7 +308,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     }
 
     /**
-     * @deprecated Use {@link #getThriftTransportConfig()} (int)} instead.
+     * @deprecated Use {@link #getThriftTransportConfig()} instead.
      */
     @Deprecated
     @Override
@@ -327,7 +317,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     }
 
     /**
-     * @deprecated Use {@link #getThriftTransportConfig()} (int)} instead.
+     * @deprecated Use {@link #getThriftTransportConfig()} instead.
      */
     @Deprecated
     @Override
@@ -336,7 +326,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     }
 
     /**
-     * @deprecated Use {@link #getThriftTransportConfig()} (int)} instead.
+     * @deprecated Use {@link #getThriftTransportConfig()} instead.
      */
     @Deprecated
     @Override
@@ -345,7 +335,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     }
 
     /**
-     * @deprecated Use {@link #getThriftTransportConfig()} (int)} instead.
+     * @deprecated Use {@link #getThriftTransportConfig()} instead.
      */
     @Deprecated
     @Override
@@ -354,7 +344,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     }
 
     /**
-     * @deprecated Use {@link #getThriftTransportConfig()} (int)} instead.
+     * @deprecated Use {@link #getThriftTransportConfig()} instead.
      */
     @Deprecated
     @Override
@@ -363,7 +353,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     }
 
     /**
-     * @deprecated Use {@link #getThriftTransportConfig()} (int)} instead.
+     * @deprecated Use {@link #getThriftTransportConfig()} instead.
      */
     @Deprecated
     @Override
@@ -372,7 +362,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     }
 
     /**
-     * @deprecated Use {@link #getThriftTransportConfig()} (int)} instead.
+     * @deprecated Use {@link #getThriftTransportConfig()} instead.
      */
     @Deprecated
     @Override
@@ -381,7 +371,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     }
 
     /**
-     * @deprecated Use {@link #getThriftTransportConfig()} (int)} instead.
+     * @deprecated Use {@link #getThriftTransportConfig()} instead.
      */
     @Deprecated
     @Override
@@ -390,7 +380,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     }
 
     /**
-     * @deprecated Use {@link #getThriftTransportConfig()} (int)} instead.
+     * @deprecated Use {@link #getThriftTransportConfig()} instead.
      */
     @Deprecated
     @Override
@@ -399,7 +389,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     }
 
     /**
-     * @deprecated Use {@link #getThriftTransportConfig()} (int)} instead.
+     * @deprecated Use {@link #getThriftTransportConfig()} instead.
      */
     @Deprecated
     @Override
@@ -408,7 +398,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     }
 
     /**
-     * @deprecated Use {@link #getThriftTransportConfig()} (int)} instead.
+     * @deprecated Use {@link #getThriftTransportConfig()} instead.
      */
     @Deprecated
     @Override
@@ -417,7 +407,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     }
 
     /**
-     * @deprecated Use {@link #getThriftTransportConfig()} (int)} instead.
+     * @deprecated Use {@link #getThriftTransportConfig()} instead.
      */
     @Deprecated
     @Override
@@ -426,7 +416,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     }
 
     /**
-     * @deprecated Use {@link #getThriftTransportConfig()} (int)} instead.
+     * @deprecated Use {@link #getThriftTransportConfig()} instead.
      */
     @Deprecated
     @Override
@@ -435,7 +425,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     }
 
     /**
-     * @deprecated Use {@link #getThriftTransportConfig()} (int)} instead.
+     * @deprecated Use {@link #getThriftTransportConfig()} instead.
      */
     @Deprecated
     @Override
@@ -656,8 +646,6 @@ public class DefaultProfilerConfig implements ProfilerConfig {
 
         this.transportModule = readString("profiler.transport.module", "THRIFT");
         this.thriftTransportConfig = readThriftTransportConfig(this);
-        this.grpcTransportConfig = readGrpcTransportConfig(this);
-
 
         this.traceAgentActiveThread = readBoolean("profiler.pinpoint.activethread", true);
 
@@ -732,13 +720,6 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         logger.info("configuration loaded successfully.");
     }
 
-    private GrpcTransportConfig readGrpcTransportConfig(DefaultProfilerConfig profilerConfig) {
-
-        GrpcTransportConfig grpcTransportConfig = new GrpcTransportConfig();
-        grpcTransportConfig.read(profilerConfig);
-        return grpcTransportConfig;
-    }
-
     private ThriftTransportConfig readThriftTransportConfig(DefaultProfilerConfig profilerConfig) {
         DefaultThriftTransportConfig binaryTransportConfig = new DefaultThriftTransportConfig();
         binaryTransportConfig.read(profilerConfig);
@@ -751,7 +732,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         return readString(propertyName, defaultValue, BypassResolver.RESOLVER);
     }
 
-    String readString(String propertyName, String defaultValue, ValueResolver valueResolver) {
+    public String readString(String propertyName, String defaultValue, ValueResolver valueResolver) {
         if (valueResolver == null) {
             throw new NullPointerException("valueResolver must not be null");
         }
@@ -852,7 +833,6 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         sb.append(", instrumentMatcherCacheConfig=").append(instrumentMatcherCacheConfig);
         sb.append(", interceptorRegistrySize=").append(interceptorRegistrySize);
         sb.append(", thriftTransportConfig=").append(thriftTransportConfig).append('\'');
-        sb.append(", grpcTransportConfig=").append(grpcTransportConfig).append('\'');
         sb.append(", traceAgentActiveThread=").append(traceAgentActiveThread);
         sb.append(", traceAgentDataSource=").append(traceAgentDataSource);
         sb.append(", dataSourceTraceLimitSize=").append(dataSourceTraceLimitSize);

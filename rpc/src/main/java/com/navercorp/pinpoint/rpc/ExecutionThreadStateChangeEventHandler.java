@@ -16,12 +16,12 @@
 
 package com.navercorp.pinpoint.rpc;
 
-import java.util.concurrent.Executor;
+import com.navercorp.pinpoint.rpc.common.SocketStateCode;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.navercorp.pinpoint.rpc.common.SocketStateCode;
+import java.util.concurrent.Executor;
 
 /**
  * @author koo.taejin
@@ -37,13 +37,13 @@ public abstract class ExecutionThreadStateChangeEventHandler<S extends PinpointS
         this.handler = handler;
         this.executor = executor;
     }
-    
+
     @Override
-    public void eventPerformed(S pinpointSocket, SocketStateCode stateCode) {
-        Execution execution = new Execution(pinpointSocket, stateCode);
+    public void stateUpdated(S pinpointSocket, SocketStateCode updatedStateCode) {
+        Execution execution = new Execution(pinpointSocket, updatedStateCode);
         this.executor.execute(execution);
     }
-    
+
     private class Execution implements Runnable {
         private final S pinpointSocket;
         private final SocketStateCode stateCode;
@@ -56,9 +56,9 @@ public abstract class ExecutionThreadStateChangeEventHandler<S extends PinpointS
         @Override
         public void run() {
             try {
-                handler.eventPerformed(pinpointSocket, stateCode);
+                handler.stateUpdated(pinpointSocket, stateCode);
             } catch (Exception e) {
-                handler.exceptionCaught(pinpointSocket, stateCode, e);
+                logger.warn("Please handling exception in stateUpdated method. message:{}", e.getMessage(), e);
             }
         }
     }

@@ -28,23 +28,25 @@ public class SpanCallTree implements CallTree {
     private static final int LEVEL_DEPTH = -1;
     private static final int ROOT_DEPTH = 0;
 
-    private final SpanBo span;
     private final CallTreeNode root;
     private CallTreeNode cursor;
 
     public SpanCallTree(final Align align) {
-        this.span = align.getSpanBo();
         this.root = new CallTreeNode(null, align);
         this.cursor = this.root;
     }
 
+    private SpanBo getSpanBo() {
+        return this.root.getAlign().getSpanBo();
+    }
+
     public boolean isRootSpan() {
-        return this.span.isRoot();
+        return this.getSpanBo().isRoot();
     }
 
     public boolean hasFocusSpan(final long collectorAcceptTime) {
         travel(collectorAcceptTime, root);
-        return this.span.getCollectorAcceptTime() == collectorAcceptTime;
+        return this.getSpanBo().getCollectorAcceptTime() == collectorAcceptTime;
     }
 
     boolean travel(final long collectorAcceptTime, CallTreeNode node) {
@@ -164,6 +166,13 @@ public class SpanCallTree implements CallTree {
         sibling.setSibling(node);
     }
 
+    public void add(final Align align) {
+        Objects.requireNonNull(align, "align must not be null");
+
+        final int depth = align.getSpanEventBo().getDepth();
+        add(depth, align);
+    }
+
     public void add(final int depth, final Align align) {
 
         if (hasCorrupted(align)) {
@@ -220,7 +229,9 @@ public class SpanCallTree implements CallTree {
             return align.getSpanEventBo().getSequence() != 0;
         }
 
-        return cursor.getAlign().getSpanEventBo().getSequence() + 1 != align.getSpanEventBo().getSequence();
+        int cursorSequence = cursor.getAlign().getSpanEventBo().getSequence() + 1;
+        short spanEventSequence = align.getSpanEventBo().getSequence();
+        return cursorSequence != spanEventSequence;
     }
 
     CallTreeNode findUpperLevelLastSibling(final int level, final CallTreeNode node) {
@@ -334,11 +345,13 @@ public class SpanCallTree implements CallTree {
 
     @Override
     public String toString() {
+        final SpanBo spanBo = getSpanBo();
+
         final StringBuilder sb = new StringBuilder("{");
-        sb.append("parentSpanId=").append(span.getParentSpanId());
-        sb.append(", spanId=").append(span.getSpanId());
-        sb.append(", startTime=").append(span.getStartTime());
-        sb.append(", elapsed=").append(span.getElapsed());
+        sb.append("parentSpanId=").append(spanBo.getParentSpanId());
+        sb.append(", spanId=").append(spanBo.getSpanId());
+        sb.append(", startTime=").append(spanBo.getStartTime());
+        sb.append(", elapsed=").append(spanBo.getElapsed());
         sb.append('}');
         return sb.toString();
     }

@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, Output, EventEmitter, AfterViewInit } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import { filter, map } from 'rxjs/operators';
 
 import {
@@ -76,8 +76,8 @@ export class FilterTransactionWizardPopupContainerComponent implements OnInit, A
         const isBothWas = param.from.isWas && param.to.isWas;
         this.urlRouteManagerService.openPage(
             this.urlRouteManagerService.makeFilterMapUrl({
-                applicationName: param.from.applicationName,
-                serviceType: param.from.serviceType,
+                applicationName: this.data.filterApplicationName,
+                serviceType: this.data.filterApplicationServiceTypeName,
                 periodStr: this.newUrlStateNotificationService.getPathValue(UrlPathId.PERIOD).getValueWithAddedWords(),
                 timeStr: this.newUrlStateNotificationService.getPathValue(UrlPathId.END_TIME).getEndTime(),
                 filterStr: this.newUrlStateNotificationService.hasValue(UrlPathId.FILTER) ? this.newUrlStateNotificationService.getPathValue(UrlPathId.FILTER) : '',

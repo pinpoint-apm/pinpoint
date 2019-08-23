@@ -1,24 +1,60 @@
-import { ITypeInfo } from './scatter-chart.class';
+export interface ITransactionTypeInfo {
+    name: string;
+    order: number;
+    color: string;
+    dataIndex: number;
+    checked: boolean;
+}
 
 export class ScatterChartTransactionTypeManager {
-    private dataByIndex: { [key: number]: ITypeInfo } = {};
-    private dataByName: { [key: string]: ITypeInfo } = {};
+    private dataByIndex: { [key: number]: ITransactionTypeInfo } = {};
+    private dataByName: { [key: string]: ITransactionTypeInfo } = {};
 
-    constructor(typeInfos: ITypeInfo[]) {
-        this.initData(typeInfos);
-    }
-    private initData(typeInfos: ITypeInfo[]): void {
-        typeInfos.forEach((typeInfo: ITypeInfo, index: number) => {
-            const newTypeInfo = {
-                name: typeInfo.name,
-                color: typeInfo.color,
-                order: typeInfo.order,
-                index: index,
-                checked: true
+    static getTypeCheckValue(onlyFailed: boolean, onlySuccess: boolean): any {
+        if (onlyFailed) {
+            return {
+                name: 'success',
+                checked: false
             };
-            this.dataByName[typeInfo.name] = newTypeInfo;
-            this.dataByIndex[index] = newTypeInfo;
+        } else if (onlySuccess) {
+            return {
+                name: 'failed',
+                checked: false
+            };
+        }
+    }
+    static getDefaultTransactionTypeInfo(): {[key: string]: ITransactionTypeInfo} {
+        return {
+            success: {
+                name: 'success',
+                order: 10,
+                color: '#34B994',
+                checked: true,
+                dataIndex: 1
+            },
+            failed: {
+                name: 'failed',
+                order: 20,
+                color: '#E95459',
+                checked: true,
+                dataIndex: 0
+            }
+        };
+    }
+    constructor(private transactionTypeInfo: {[key: string]: ITransactionTypeInfo}) {
+        this.initData();
+    }
+    private initData(): void {
+        Object.keys(this.transactionTypeInfo).forEach((key: string) => {
+            const obj = {
+                ...this.transactionTypeInfo[key]
+            };
+            this.dataByName[key] = obj;
+            this.dataByIndex[obj.dataIndex] = obj;
         });
+    }
+    reset(): void {
+        this.initData();
     }
     getTypeNameList(): string[] {
         return Object.keys(this.dataByName);
@@ -42,7 +78,7 @@ export class ScatterChartTransactionTypeManager {
         return this.dataByIndex[index].name;
     }
     getCheckedTypeNameList(): string[] {
-        const list = [];
+        const list: string[] = [];
         Object.keys(this.dataByName).forEach((name: string) => {
             if (this.dataByName[name].checked) {
                 list.push(name);

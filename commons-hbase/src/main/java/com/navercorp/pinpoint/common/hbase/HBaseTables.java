@@ -24,7 +24,7 @@ import org.apache.hadoop.hbase.util.Bytes;
 /**
  * @author emeroad
  */
-public final class HBaseTables {
+final class HBaseTables {
 
     public static final int APPLICATION_NAME_MAX_LEN = PinpointConstants.APPLICATION_NAME_MAX_LEN;
     public static final int AGENT_NAME_MAX_LEN = PinpointConstants.AGENT_NAME_MAX_LEN;

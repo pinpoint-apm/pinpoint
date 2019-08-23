@@ -1,0 +1,75 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/wrappers.proto";
+
+option java_multiple_files = true;
+option java_package = "com.navercorp.pinpoint.grpc.trace";
+option java_outer_classname = "ThreadDumpProto";
+//option objc_class_prefix = "PIN";
+
+package v1;
+
+enum PThreadState {
+    THREAD_STATE_NEW = 0;
+    THREAD_STATE_RUNNABLE = 1;
+    THREAD_STATE_BLOCKED = 2;
+    THREAD_STATE_WAITING = 3;
+    THREAD_STATE_TIMED_WAITING = 4;
+    THREAD_STATE_TERMINATED = 5;
+    THREAD_STATE_UNKNOWN = 6;
+}
+
+message PMonitorInfo {
+    int32 stackDepth = 1;
+    string stackFrame = 2;
+}
+
+message PThreadDump {
+    string threadName = 1;
+    int64 threadId = 2;
+    int64 blockedTime = 3;
+    int64 blockedCount = 4;
+    int64 waitedTime = 5;
+    int64 waitedCount = 6;
+    string lockName = 7;
+    int64 lockOwnerId = 8;
+    string lockOwnerName = 9;
+    bool inNative = 10;
+    bool suspended = 11;
+    PThreadState threadState = 12;
+    repeated string stackTrace = 13;
+    repeated PMonitorInfo lockedMonitor = 14;
+    repeated string lockedSynchronizer = 15;
+}
+
+message PThreadLightDump {
+    string threadName = 1;
+    int64 threadId = 2;
+    PThreadState threadState = 3;
+}
+
+enum PThreadDumpType {
+    TARGET = 0;
+    PENDING = 1;
+}
+
+message PActiveThreadDump {
+    int64 startTime = 1;
+    int64 localTraceId = 2;
+    PThreadDump threadDump = 3;
+    bool sampled = 4;
+    string transactionId = 5;
+    string entryPoint = 6;
+}
+
+message PActiveThreadLightDump {
+    int64 startTime = 1;
+    int64 localTraceId = 2;
+    PThreadLightDump threadDump = 3;
+    bool sampled = 4;
+    string transactionId = 5;
+    string entryPoint = 6;
+}
+
+

@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewEncapsulation, ChangeDetectionStrategy, OnChanges, OnDestroy, SimpleChanges, Input, Output, EventEmitter, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, ViewEncapsulation, OnChanges, OnDestroy, SimpleChanges, Input, Output, EventEmitter, ViewChild, ElementRef, Renderer2 } from '@angular/core';
 import { Timeline, ITimelineData, ITimelineEventSegment, TimelineUIEvent } from './class';
 
 @Component({
@@ -6,7 +6,6 @@ import { Timeline, ITimelineData, ITimelineEventSegment, TimelineUIEvent } from 
     templateUrl: './timeline.component.html',
     styleUrls: ['./timeline.component.css'],
     encapsulation: ViewEncapsulation.None,
-    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TimelineComponent implements OnInit, OnChanges, OnDestroy {
     @ViewChild('timeline') el: ElementRef;
@@ -25,8 +24,13 @@ export class TimelineComponent implements OnInit, OnChanges, OnDestroy {
     @Output() outSelectEventStatus: EventEmitter<ITimelineEventSegment> = new EventEmitter();
 
     timeline: Timeline;
-    constructor(private hostElRef: ElementRef) {}
-    ngOnInit() {}
+    constructor(
+        private hostElRef: ElementRef,
+        private renderer: Renderer2
+    ) {}
+    ngOnInit() {
+        this.renderer.setStyle(this.hostElRef.nativeElement, 'display', 'block');
+    }
     ngOnChanges(changes: SimpleChanges) {
         if (changes['data'] && changes['data'].currentValue) {
             this.initTimeline();

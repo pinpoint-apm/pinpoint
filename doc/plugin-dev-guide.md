@@ -51,6 +51,7 @@ serviceTypes:
           queue: <boolean>                  # May be omitted, defaulting to false.
           recordStatistics: <boolean>       # May be omitted, defaulting to false.
           includeDestinationId: <boolean>   # May be omitted, defaulting to false.
+          alias: <boolean>                  # May be omitted, defaulting to false.          
       matcher:         # May be omitted
           type: <String>   # Any one of 'args', 'exact', 'none'
           code: <int>      # Annotation key code - required only if type is 'exact'
@@ -115,6 +116,7 @@ TERMINAL | This `Span` or `SpanEvent` invokes a remote node but the target node 
 QUEUE | This `Span` or `SpanEvent` consumes/produces a message from/to a message queue.
 INCLUDE_DESTINATION_ID | This `Span` or `SpanEvent` records a `destination id` and remote server is not a traceable type.
 RECORD_STATISTICS | Pinpoint Collector should collect execution time statistics of this `Span` or `SpanEvent`
+ALIAS | The service may or may not have Pinpoint-Agent attached at the following service but regardlessly have knowledge what will follow. (Ex. Elasticsearch client)
 
 
 #### 1.2 AnnotationKey

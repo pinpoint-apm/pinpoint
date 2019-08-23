@@ -1,9 +1,13 @@
-.l-retry {
-    width: 92%;
+:host {
+    width: 100%;
     position: absolute;
-    top:40%;
+    top: 50%;
+    left: 0;
+    transform: translateY(-50%);
     text-align: center;
+    z-index: 1;
 }
+
 .l-retry-message {
     margin-bottom: 10px;
 }

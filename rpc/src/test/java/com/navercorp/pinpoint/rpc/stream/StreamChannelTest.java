@@ -30,7 +30,8 @@ public class StreamChannelTest {
 
     @Test
     public void stateChangeTest() throws Exception {
-        ClientStreamChannel sc = new ClientStreamChannel(null, 1, new StreamChannelRepository(), new RecordedStreamChannelMessageListener(0));
+        Channel mockChannel = Mockito.mock(Channel.class);
+        NettyClientStreamChannel sc = new NettyClientStreamChannel(mockChannel, 1, new StreamChannelRepository(), new RecordedStreamChannelMessageListener(0));
 
         sc.init();
         Assert.assertEquals(StreamChannelStateCode.OPEN, sc.getCurrentState());
@@ -47,7 +48,7 @@ public class StreamChannelTest {
 
         RecordedStreamChannelMessageListener recordEventHandler = new RecordedStreamChannelMessageListener(0);
 
-        ClientStreamChannel sc = new ClientStreamChannel(mockChannel, 1, new StreamChannelRepository(), recordEventHandler);
+        NettyClientStreamChannel sc = new NettyClientStreamChannel(mockChannel, 1, new StreamChannelRepository(), recordEventHandler);
 
         sc.init();
         Assert.assertEquals(StreamChannelStateCode.OPEN, recordEventHandler.getCurrentState());

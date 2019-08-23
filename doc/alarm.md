@@ -78,15 +78,20 @@ TOTAL COUNT TO CALLEE
    You must specify the domain or the address(ip, port) in the configuration UI's "Note..." box 
    ex) www.naver.com, 127.0.0.1:8080
 
-
 HEAP USAGE RATE
    Triggered when the application's heap usage(%) exceeds the configured threshold.
 
 JVM CPU USAGE RATE
    Triggered when the application's CPU usage(%) exceeds the configured threshold.
 
+SYSTEM CPU USAGE RATE
+   Sends an alarm when the application's CPU usage(%) exceeds the configured threshold.
+
 DATASOURCE CONNECTION USAGE RATE
    Triggered when the application's DataSource connection usage(%) exceeds the configured threshold.
+   
+FILE DESCRIPTOR COUNT
+   Sends an alarm when the number of open file descriptors exceeds the configured threshold.
 ```
 
 
@@ -284,14 +289,18 @@ TOTAL COUNT TO CALLEE
 
 HEAP USAGE RATE
    heap의 사용률이 임계치를 초과한 경우 알람이 전송된다.
-   설정 화면의 Note 항목에 외부서버의 도메인 이나 주소(ip, port)를 입력해야 합니다.
-
+   
 JVM CPU USAGE RATE
    applicaiton의 CPU 사용률이 임계치를 초과한 경우 알람이 전송된다.
-   설정 화면의 Note 항목에 외부서버의 도메인 이나 주소(ip, port)를 입력해야 합니다.
+   
+SYSTEM CPU USAGE RATE
+   서버의 CPU 사용률이 임계치를 초과한 경우 알람이 전송된다.
 
 DATASOURCE CONNECTION USAGE RATE
    applicaiton의 DataSource내의 Connection 사용률이 임계치를 초과한 경우 알람이 전송된다.
+   
+FILE DESCRIPTOR COUNT
+   열려있는 File Descriptor 개수가 임계치를 초가한 경우 알람이 전송된다.
 ```
 
 

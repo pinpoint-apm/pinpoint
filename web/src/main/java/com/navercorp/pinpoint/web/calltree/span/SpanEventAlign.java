@@ -129,9 +129,8 @@ public class SpanEventAlign implements Align {
     }
 
     @Override
-    public long getLastTime() {
-
-        return spanBo.getStartTime() + spanEventBo.getStartElapsed() + spanEventBo.getEndElapsed();
+    public long getEndTime() {
+        return getStartTime() + spanEventBo.getEndElapsed();
     }
 
     @Override

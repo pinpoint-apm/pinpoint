@@ -8,3 +8,4 @@ export * from './server-map-factory';
 export * from './server-map-template-with-gojs.class';
 export * from './server-map-template';
 export * from './server-map-theme';
+export * from './server-map-node-click-extra-param.class';

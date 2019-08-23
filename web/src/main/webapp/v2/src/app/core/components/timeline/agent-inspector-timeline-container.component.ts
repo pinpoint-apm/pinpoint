@@ -1,26 +1,24 @@
-import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef, ViewChild, ComponentFactoryResolver, Injector } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ComponentFactoryResolver, Injector } from '@angular/core';
 import { Subject, Observable } from 'rxjs';
-import { takeUntil, map, switchMap, tap, withLatestFrom } from 'rxjs/operators';
+import { map, switchMap, takeUntil } from 'rxjs/operators';
 
-import { Actions } from 'app/shared/store';
 import { StoreHelperService, NewUrlStateNotificationService, UrlRouteManagerService, AnalyticsService, DynamicPopupService, TRACKED_EVENT_LIST, MessageQueueService, MESSAGE_TO } from 'app/shared/services';
-import { Timeline, ITimelineEventSegment, TimelineUIEvent } from './class';
+import { ITimelineEventSegment, TimelineUIEvent } from './class';
 import { TimelineComponent } from './timeline.component';
 import { AgentTimelineDataService, IAgentTimeline } from './agent-timeline-data.service';
 import { ServerErrorPopupContainerComponent } from 'app/core/components/server-error-popup';
 import { UrlPathId } from 'app/shared/models';
+import { InspectorPageService, ISourceForTimeline } from 'app/routes/inspector-page/inspector-page.service';
 
 @Component({
     selector: 'pp-agent-inspector-timeline-container',
     templateUrl: './agent-inspector-timeline-container.component.html',
     styleUrls: ['./agent-inspector-timeline-container.component.css'],
-    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AgentInspectorTimelineContainerComponent implements OnInit, OnDestroy {
     @ViewChild(TimelineComponent)
     private timelineComponent: TimelineComponent;
     private unsubscribe: Subject<void> = new Subject();
-    private agentId: string;
 
     timelineStartTime: number;
     timelineEndTime: number;
@@ -32,7 +30,6 @@ export class AgentInspectorTimelineContainerComponent implements OnInit, OnDestr
     dateFormat$: Observable<string[]>;
 
     constructor(
-        private changeDetector: ChangeDetectorRef,
         private storeHelperService: StoreHelperService,
         private newUrlStateNotificationService: NewUrlStateNotificationService,
         private urlRouteManagerService: UrlRouteManagerService,
@@ -41,7 +38,8 @@ export class AgentInspectorTimelineContainerComponent implements OnInit, OnDestr
         private dynamicPopupService: DynamicPopupService,
         private analyticsService: AnalyticsService,
         private componentFactoryResolver: ComponentFactoryResolver,
-        private injector: Injector
+        private injector: Injector,
+        private inspectorPageService: InspectorPageService,
     ) {}
 
     ngOnInit() {
@@ -71,44 +69,25 @@ export class AgentInspectorTimelineContainerComponent implements OnInit, OnDestr
             this.timelineComponent.moveNow();
             this.updateTimelineData();
         });
-        this.newUrlStateNotificationService.onUrlStateChange$.pipe(
-            takeUntil(this.unsubscribe),
-            tap((urlService: NewUrlStateNotificationService) => {
-                if (urlService.isValueChanged(UrlPathId.AGENT_ID)) {
-                    this.agentId = urlService.getPathValue(UrlPathId.AGENT_ID);
-                }
-            }),
-            withLatestFrom(this.storeHelperService.getInspectorTimelineData(this.unsubscribe)),
-            map(([urlService, storeState]: [NewUrlStateNotificationService, ITimelineInfo]) => {
-                if ((urlService.isValueChanged(UrlPathId.PERIOD) || urlService.isValueChanged(UrlPathId.END_TIME)) || storeState.selectedTime === 0) {
-                    const selectionStartTime = urlService.getStartTimeToNumber();
-                    const selectionEndTime = urlService.getEndTimeToNumber();
-                    const [start, end] = this.calcuRetrieveTime(selectionStartTime, selectionEndTime);
-                    const timelineInfo: ITimelineInfo = {
-                        range: [start, end],
-                        selectedTime: selectionEndTime,
-                        selectionRange: [selectionStartTime, selectionEndTime]
-                    };
 
-                    this.storeHelperService.dispatch(new Actions.UpdateTimelineData(timelineInfo));
-                    return timelineInfo;
-                } else {
-                    return storeState;
-                }
+        this.inspectorPageService.sourceForTimeline$.pipe(
+            takeUntil(this.unsubscribe),
+            map(({timelineInfo, agentId}: ISourceForTimeline) => {
+                const {range, selectionRange, selectedTime} = timelineInfo;
+
+                this.timelineStartTime = range[0];
+                this.timelineEndTime = range[1];
+                this.selectionStartTime = selectionRange[0];
+                this.selectionEndTime = selectionRange[1];
+                this.pointingTime = selectedTime;
+
+                return {range, agentId};
             }),
-            tap((timelineInfo: ITimelineInfo) => {
-                this.timelineStartTime = timelineInfo.range[0];
-                this.timelineEndTime = timelineInfo.range[1];
-                this.selectionStartTime = timelineInfo.selectionRange[0];
-                this.selectionEndTime = timelineInfo.selectionRange[1];
-                this.pointingTime = timelineInfo.selectedTime;
-            }),
-            switchMap(({range}: {range: number[]}) => {
-                return this.agentTimelineDataService.getData(this.agentId, range);
+            switchMap(({range, agentId}: {range: number[], agentId: string}) => {
+                return this.agentTimelineDataService.getData(agentId, range);
             })
         ).subscribe((response: IAgentTimeline) => {
             this.timelineData = response;
-            this.changeDetector.detectChanges();
         }, (error: IServerErrorFormat) => {
             this.dynamicPopupService.openPopup({
                 data: {
@@ -131,24 +110,13 @@ export class AgentInspectorTimelineContainerComponent implements OnInit, OnDestr
     }
     private connectStore(): void {
         this.timezone$ = this.storeHelperService.getTimezone(this.unsubscribe);
-        this.dateFormat$ = this.storeHelperService.getDateFormatArray(this.unsubscribe, 0, 5, 6);
-    }
-    calcuRetrieveTime(startTime: number, endTime: number ): number[] {
-        const allowedMaxRagne = Timeline.MAX_TIME_RANGE;
-        const timeGap = endTime - startTime;
-
-        if (timeGap > allowedMaxRagne) {
-            return [endTime - allowedMaxRagne, endTime];
-        } else {
-            const calcuStart = timeGap * 3;
-
-            return [endTime - (calcuStart > allowedMaxRagne ? allowedMaxRagne : calcuStart), endTime];
-        }
+        this.dateFormat$ = this.storeHelperService.getDateFormatArray(this.unsubscribe, 0, 6, 7);
     }
     updateTimelineData(): void {
         const range = this.timelineComponent.getTimelineRange();
+        const agentId = this.newUrlStateNotificationService.getPathValue(UrlPathId.AGENT_ID);
 
-        this.agentTimelineDataService.getData(this.agentId, range).subscribe((response: IAgentTimeline) => {
+        this.agentTimelineDataService.getData(agentId, range).subscribe((response: IAgentTimeline) => {
             this.timelineComponent.updateData(response);
         });
     }
@@ -165,6 +133,6 @@ export class AgentInspectorTimelineContainerComponent implements OnInit, OnDestr
         if (event.changedSelectionRange) {
             this.analyticsService.trackEvent(TRACKED_EVENT_LIST.CHANGE_SELECTION_RANGE_ON_TIMELINE);
         }
-        this.storeHelperService.dispatch(new Actions.UpdateTimelineData(event.data));
+        this.inspectorPageService.updateTimelineData(event.data);
     }
 }

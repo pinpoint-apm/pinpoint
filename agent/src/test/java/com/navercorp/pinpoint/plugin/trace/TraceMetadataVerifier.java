@@ -40,6 +40,7 @@ class TraceMetadataVerifier {
 
     private final Map<Short, List<String>> serviceTypeNamesByCode = new TreeMap<Short, List<String>>();
     private final Map<String, List<Short>> serviceTypeCodesByName = new TreeMap<String, List<Short>>();
+    private final List<ServiceType> serviceTypeList = new ArrayList<ServiceType>();
     private final Map<Integer, List<String>> annotationKeyNamesByCode = new TreeMap<Integer, List<String>>();
 
     private final TraceMetadataVerifierSetupContext traceMetadataSetupContext;
@@ -57,6 +58,8 @@ class TraceMetadataVerifier {
     }
 
     private void addServiceType(ServiceType serviceType) {
+
+        serviceTypeList.add(serviceType);
         Short serviceTypeCode = serviceType.getCode();
         String serviceTypeName = serviceType.getName();
 
@@ -103,6 +106,13 @@ class TraceMetadataVerifier {
             List<Short> serviceTypeCodes = e.getValue();
             collector.checkThat("Duplicate ServiceType codes. Name : " + serviceTypeName + ", codes : " + serviceTypeCodes,
                     serviceTypeCodes, hasSize(1));
+        }
+
+        for(ServiceType serviceType : serviceTypeList){
+            if(serviceType.isAlias()){
+                collector.checkThat("ServiceType's code with ALIAS should be in range of RPC", true, is(serviceType.isRpcClient()));
+                collector.checkThat("ServiceType with ALIAS should NOT have RECORD_STATISTICS", true, is(not(serviceType.isRecordStatistics())));
+            }
         }
     }
 

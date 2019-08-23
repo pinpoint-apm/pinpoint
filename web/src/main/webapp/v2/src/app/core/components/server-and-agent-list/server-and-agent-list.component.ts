@@ -1,7 +1,5 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { trigger, state, style, animate, transition } from '@angular/animations';
-import * as md5 from 'blueimp-md5';
-
 @Component({
     selector: 'pp-server-and-agent-list',
     templateUrl: './server-and-agent-list.component.html',
@@ -9,11 +7,11 @@ import * as md5 from 'blueimp-md5';
     animations: [
         trigger('collapseSpread', [
             state('collapsed', style({
-                maxHeight: 0,
+                height: 0,
                 overflow: 'hidden'
             })),
             state('spreaded', style({
-                maxHeight: '300px'
+                height: 'auto'
             })),
             transition('collapsed <=> spreaded', [
                 animate('0.5s')
@@ -75,11 +73,6 @@ export class ServerAndAgentListComponent implements OnInit {
         }
         return this.funcImagePath(iconName);
     }
-
-    getAgentName(serverName: string, agentId: string): string {
-        return serverName === 'Container' ? (md5(agentId) as string).substr(0, 5) : agentId;
-    }
-
     onSelectAgent(agentName: string) {
         this.outSelectAgent.emit(agentName);
     }

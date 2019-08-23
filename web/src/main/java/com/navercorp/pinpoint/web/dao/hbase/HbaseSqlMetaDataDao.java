@@ -16,33 +16,28 @@
 
 package com.navercorp.pinpoint.web.dao.hbase;
 
-import java.util.List;
+import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
+import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
+import com.navercorp.pinpoint.common.hbase.RowMapper;
+import com.navercorp.pinpoint.common.server.bo.SqlMetaDataBo;
+import com.navercorp.pinpoint.web.dao.SqlMetaDataDao;
 
-import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
-
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Get;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.navercorp.pinpoint.common.server.bo.SqlMetaDataBo;
-import com.navercorp.pinpoint.common.hbase.HBaseTables;
-import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
-import com.navercorp.pinpoint.common.hbase.RowMapper;
-import com.navercorp.pinpoint.web.dao.SqlMetaDataDao;
+import java.util.List;
 
 /**
  * @author emeroad
  * @author minwoo.jung
  */
 //@Repository
-public class HbaseSqlMetaDataDao implements SqlMetaDataDao {
+public class HbaseSqlMetaDataDao extends AbstractHbaseDao implements SqlMetaDataDao {
 
     @Autowired
     private HbaseOperations2 hbaseOperations2;
-
-    @Autowired
-    private TableNameProvider tableNameProvider;
 
 //    @Autowired
 //    @Qualifier("sqlMetaDataMapper")
@@ -62,9 +57,9 @@ public class HbaseSqlMetaDataDao implements SqlMetaDataDao {
         byte[] rowKey = getDistributedKey(sqlMetaData.toRowKey());
 
         Get get = new Get(rowKey);
-        get.addFamily(HBaseTables.SQL_METADATA_VER2_CF_SQL);
+        get.addFamily(getColumnFamilyName());
 
-        TableName sqlMetaDataTableName = tableNameProvider.getTableName(HBaseTables.SQL_METADATA_VER2_STR);
+        TableName sqlMetaDataTableName = getTableName();
         return hbaseOperations2.get(sqlMetaDataTableName, get, sqlMetaDataMapper);
     }
 
@@ -79,4 +74,10 @@ public class HbaseSqlMetaDataDao implements SqlMetaDataDao {
     public void setRowKeyDistributorByHashPrefix(RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix) {
         this.rowKeyDistributorByHashPrefix = rowKeyDistributorByHashPrefix;
     }
+
+    @Override
+    public HbaseColumnFamily getColumnFamily() {
+        return HbaseColumnFamily.SQL_METADATA_VER2_SQL;
+    }
+
 }

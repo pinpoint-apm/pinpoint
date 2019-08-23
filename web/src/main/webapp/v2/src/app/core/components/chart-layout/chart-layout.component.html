@@ -1,0 +1,14 @@
+<div class="l-chart-container" cdkDropListGroup *ngIf="!isEmpty()">
+    <div cdkDropList style="display: none;" [cdkDropListEnterPredicate]="dropListEnterPredicate" (cdkDropListDropped)="dropListDropped($event)"></div>
+    <div cdkDropList *ngFor="let chartName of chartList"
+        [cdkDropListEnterPredicate]="dropListEnterPredicate" (cdkDropListDropped)="dropListDropped($event)">
+        <div cdkDrag class="l-chart" (cdkDragMoved)="dragMoved($event)">
+            <div class="l-chart-actions">
+                <i class="fas fa-chart-area l-chart-logo"></i>
+                <i class="fas fa-times-circle l-chart-action-remove" (click)="removeChart(chartName)"></i>
+            </div>
+            <div class="l-chart-content"> {{chartName}}</div>
+        </div>
+    </div>
+</div>
+<div class="l-chart-container l-empty-text" *ngIf="isEmpty()">{{emptyText}}</div>

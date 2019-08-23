@@ -1,6 +1,8 @@
 import { Component, OnInit, AfterViewChecked, Input, Output, EventEmitter } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 
+import { CustomFormValidatorService } from 'app/shared/services/custom-form-validator.service';
+
 @Component({
     selector: 'pp-user-group-create-and-update',
     templateUrl: './user-group-create-and-update.component.html',
@@ -21,7 +23,7 @@ export class UserGroupCreateAndUpdateComponent implements OnInit, AfterViewCheck
         this.userGroupForm = new FormGroup({
             'userGroupName': new FormControl(this.newUserGroupModel, [
                 Validators.required,
-                Validators.minLength(this.minLength)
+                CustomFormValidatorService.validate(/^[\w\-]{4,30}$/)
             ])
         });
     }

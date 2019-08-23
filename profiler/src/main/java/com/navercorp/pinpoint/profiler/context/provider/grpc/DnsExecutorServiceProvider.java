@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.context.provider.grpc;
 
+import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
 
@@ -27,6 +28,10 @@ import java.util.concurrent.ThreadFactory;
  * @author Woonduk Kang(emeroad)
  */
 public class DnsExecutorServiceProvider implements Provider<ExecutorService> {
+    @Inject
+    public DnsExecutorServiceProvider() {
+    }
+
     @Override
     public ExecutorService get() {
         ThreadFactory threadFactory = new PinpointThreadFactory("pinpoint-dns", true);

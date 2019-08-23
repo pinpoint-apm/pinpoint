@@ -6,6 +6,8 @@ import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
     styleUrls: ['./side-bar-title.component.css']
 })
 export class SideBarTitleComponent implements OnInit {
+    @Input() originalTargetSelected: boolean;
+    @Input() selectedAgent: string;
     @Input() isWAS: boolean;
     @Input() isNode: boolean;
     @Input() fromAppData: any;
@@ -17,14 +19,19 @@ export class SideBarTitleComponent implements OnInit {
     getIconPath(serviceType: string): string {
         return this.funcImagePath(serviceType);
     }
-    onChangeAgent($agent: string): void {
-        this.outChangeAgent.emit($agent);
+    onSelectionChange($what: any): void {
+        this.selectedAgent = $what.value;
+        this.outChangeAgent.emit($what.value);
     }
     showAgentList(): boolean {
-        if (this.toAppData) {
-            return this.toAppData.agentList.length > 0;
-        } else {
+        if (this.originalTargetSelected === false) {
             return false;
+        } else {
+            if (this.toAppData) {
+                return this.toAppData.agentList.length > 1;
+            } else {
+                return false;
+            }
         }
     }
     onLoadError(img: HTMLImageElement): void {
