@@ -38,6 +38,8 @@ import java.util.regex.Pattern;
  * @author netspider
  */
 public class DefaultProfilerConfig implements ProfilerConfig {
+    public static final String PROFILER_INTERCEPTOR_EXCEPTION_PROPAGATE = "profiler.interceptor.exception.propagate";
+
     private static final CommonLogger logger = StdoutCommonLoggerFactory.INSTANCE.getLogger(DefaultProfilerConfig.class.getName());
 
 
@@ -70,9 +72,13 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     }
 
     public static ProfilerConfig load(String pinpointConfigFileName) throws IOException {
+        final Properties properties = loadProperties(pinpointConfigFileName);
+        return new DefaultProfilerConfig(properties);
+    }
+
+    private static Properties loadProperties(String pinpointConfigFileName) throws IOException {
         try {
-            Properties properties = PropertyUtils.loadProperty(pinpointConfigFileName);
-            return new DefaultProfilerConfig(properties);
+            return PropertyUtils.loadProperty(pinpointConfigFileName);
         } catch (FileNotFoundException fe) {
             if (logger.isWarnEnabled()) {
                 logger.warn(pinpointConfigFileName + " file does not exist. Please check your configuration.");
@@ -717,7 +723,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
             this.profilableClassFilter = new ProfilableClassFilter(profilableClass);
         }
 
-        this.propagateInterceptorException = readBoolean("profiler.interceptor.exception.propagate", false);
+        this.propagateInterceptorException = readBoolean(PROFILER_INTERCEPTOR_EXCEPTION_PROPAGATE, false);
         this.supportLambdaExpressions = readBoolean("profiler.lambda.expressions.support", true);
 
         // proxy http header names
