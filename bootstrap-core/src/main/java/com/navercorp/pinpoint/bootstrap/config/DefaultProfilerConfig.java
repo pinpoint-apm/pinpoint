@@ -176,6 +176,10 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         return transportModule;
     }
 
+    public void setTransportModule(String transportModule) {
+        this.transportModule = transportModule;
+    }
+
     @Override
     public int getInterceptorRegistrySize() {
         return interceptorRegistrySize;
@@ -551,6 +555,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         return staticResourceCleanup;
     }
 
+    @Deprecated
     public void setStaticResourceCleanup(boolean staticResourceCleanup) {
         this.staticResourceCleanup = staticResourceCleanup;
     }
@@ -594,6 +599,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         return callStackMaxDepth;
     }
 
+    @Deprecated
     public void setCallStackMaxDepth(int callStackMaxDepth) {
         this.callStackMaxDepth = callStackMaxDepth;
     }
