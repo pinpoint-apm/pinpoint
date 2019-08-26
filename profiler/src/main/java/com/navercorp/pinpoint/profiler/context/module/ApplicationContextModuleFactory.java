@@ -28,6 +28,10 @@ import org.slf4j.LoggerFactory;
  */
 public class ApplicationContextModuleFactory implements ModuleFactory {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    public static final String GRPC_MODULE = "GRPC";
+    public static final String THRIFT_MODULE = "THRIFT";
+
     @Override
     public Module newModule(AgentOption agentOption) {
         final Module config = new ConfigModule(agentOption);
@@ -42,11 +46,11 @@ public class ApplicationContextModuleFactory implements ModuleFactory {
 
     private Module newRpcModule(AgentOption agentOption) {
         final String transportModule = agentOption.getProfilerConfig().getTransportModule();
-        if ("GRPC".equalsIgnoreCase(transportModule)) {
+        if (GRPC_MODULE.equalsIgnoreCase(transportModule)) {
             logger.info("load GrpcModule");
             return new GrpcModule();
         }
-        if ("THRIFT".equalsIgnoreCase(transportModule)) {
+        if (THRIFT_MODULE.equalsIgnoreCase(transportModule)) {
             logger.info("load ThriftModule");
             return new ThriftModule();
         }

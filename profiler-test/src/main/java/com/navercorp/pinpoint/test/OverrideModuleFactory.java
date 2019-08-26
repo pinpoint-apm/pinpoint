@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.test;
 import com.google.inject.Module;
 import com.google.inject.util.Modules;
 import com.navercorp.pinpoint.bootstrap.AgentOption;
+import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.module.ApplicationContextModuleFactory;
 import com.navercorp.pinpoint.profiler.context.module.ModuleFactory;
@@ -35,6 +36,10 @@ public class OverrideModuleFactory implements ModuleFactory {
 
     @Override
     public Module newModule(AgentOption agentOption) {
+
+        DefaultProfilerConfig profilerConfig = (DefaultProfilerConfig) agentOption.getProfilerConfig();
+        profilerConfig.setTransportModule(ApplicationContextModuleFactory.THRIFT_MODULE);
+
         ModuleFactory moduleFactory = new ApplicationContextModuleFactory();
         Module module = moduleFactory.newModule(agentOption);
         return Modules.override(module).with(overrideModule);
