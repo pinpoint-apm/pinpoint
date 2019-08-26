@@ -48,6 +48,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -77,6 +78,9 @@ public class SpanServiceImpl implements SpanService {
 
     @Autowired
     private StringMetaDataDao stringMetaDataDao;
+
+    @Autowired
+    private ServiceTypeRegistryService serviceTypeRegistryService;
 
     private final SqlParser sqlParser = new DefaultSqlParser();
     private final OutputParameterParser outputParameterParser = new OutputParameterParser();
@@ -452,7 +456,7 @@ public class SpanServiceImpl implements SpanService {
     }
 
     private SpanResult order(List<SpanBo> spans, long selectedSpanHint) {
-        SpanAligner spanAligner = new SpanAligner(spans, selectedSpanHint);
+        SpanAligner spanAligner = new SpanAligner(spans, selectedSpanHint, serviceTypeRegistryService);
         final CallTree callTree = spanAligner.align();
 
         return new SpanResult(spanAligner.getMatchType(), callTree.iterator());
