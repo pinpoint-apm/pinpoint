@@ -91,7 +91,7 @@ public class SpanAligner {
             if (existNode == null) {
                 this.spanToLinkMap.put(key, node);
             } else {
-                //针对消息中间件，多客户端情况不进行去重处理
+                //when message oriented middleware, have Multi-client, don't exclude repetition
                 ServiceType type = null;
                 if(null != serviceTypeRegistryService){
                     type = serviceTypeRegistryService.findServiceType(span.getServiceType());
@@ -233,6 +233,7 @@ public class SpanAligner {
         final List<Link> linkedList = new ArrayList<>();
         for (Link link : this.linkList) {
             final String key = link.spanId + "." + link.nextSpanId;
+            //link Multi-client node
             for(String linkeKey : this.spanToLinkMap.keySet()){
                 if(linkeKey.startsWith(key)){
                     final Node node = this.spanToLinkMap.get(linkeKey);
