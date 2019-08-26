@@ -26,11 +26,24 @@ public class LinkedCallTree implements CallTree {
         this.root = new CallTreeNode(null, spanAlign);
     }
 
-    public void update(final CallTree callTree) {
+     public void update(final CallTree callTree) {
         final CallTreeNode updateNode = callTree.getRoot();
-        this.root.setChild(updateNode.getChild());
-        updateNode.setParent(this.root.getParent());
-        this.root.setValue(updateNode.getValue());
+        //kafka have multi-client,set child and sibling.
+        //have child, set sibling.
+        if(this.root.hasChild()){
+            CallTreeNode lastSibling = this.root;
+           //find last sibling,append.
+            while (lastSibling.getSibling() != null) {
+                lastSibling = lastSibling.getSibling();
+            }
+            updateNode.setParent(this.root.getParent());
+            lastSibling.setSibling(updateNode);
+        }else{
+            //add child
+            this.root.setChild(updateNode.getChild());
+            updateNode.setParent(this.root.getParent());
+            this.root.setValue(updateNode.getValue());
+        }
     }
 
     public void remove() {
