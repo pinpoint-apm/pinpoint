@@ -18,17 +18,13 @@ package com.navercorp.pinpoint.web.calltree.span;
 
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
+import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author netspider
@@ -39,7 +35,6 @@ public class SpanAligner {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
     private final boolean isInfo = logger.isInfoEnabled();
-
     public static final int INIT_MATCH = -1;
     // not matched
     public static final int ERROR_MATCH = 0;
@@ -61,6 +56,21 @@ public class SpanAligner {
             final Node node = new Node(span, new SpanCallTree(new SpanAlign(span)));
             this.sortedNodeList.add(node);
         }
+        removeDuplicatedNodes(collectorAcceptTime, null);
+        this.collectorAcceptTime = collectorAcceptTime;
+    }
+
+    public SpanAligner(final List<SpanBo> spans, final long collectorAcceptTime, ServiceTypeRegistryService serviceTypeRegistryService) {
+        // init sorted node list
+        for (SpanBo span : spans) {
+            final Node node = new Node(span, new SpanCallTree(new SpanAlign(span)));
+            this.sortedNodeList.add(node);
+        }
+        removeDuplicatedNodes(collectorAcceptTime, serviceTypeRegistryService);
+        this.collectorAcceptTime = collectorAcceptTime;
+    }
+
+    private void removeDuplicatedNodes(final long collectorAcceptTime, ServiceTypeRegistryService serviceTypeRegistryService) {
 
         // sort
         this.sortedNodeList.sort(new Comparator<Node>() {
@@ -72,30 +82,41 @@ public class SpanAligner {
 
         // for performance & remove duplicate span
         final List<Node> duplicatedNodeList = new ArrayList<>();
+        int i = 0;
         for (Node node : this.sortedNodeList) {
-            final String key = node.span.getParentSpanId() + "." + node.span.getSpanId();
+            SpanBo span = node.span;
+            String key = span.getParentSpanId() + "." + span.getSpanId();
             // check duplicated span
-            final Node value = this.spanToLinkMap.get(key);
-            if (value == null) {
+            final Node existNode = this.spanToLinkMap.get(key);
+            if (existNode == null) {
                 this.spanToLinkMap.put(key, node);
             } else {
-                updateMatchType(PROGRESS_MATCH);
-                // duplicated span, choose focus span
-                if (node.span.getCollectorAcceptTime() == collectorAcceptTime) {
-                    // replace value
+                //针对消息中间件，多客户端情况不进行去重处理
+                ServiceType type = null;
+                if(null != serviceTypeRegistryService){
+                    type = serviceTypeRegistryService.findServiceType(span.getServiceType());
+                }
+                if (type != null && type.isQueue() && existNode.span.getServiceType() == type.getCode()) {
+                    key += ("." + ++i);
                     this.spanToLinkMap.put(key, node);
-                    duplicatedNodeList.add(value);
-                    logger.warn("Duplicated span - choose focus {}", node);
                 } else {
-                    // add remove list
-                    duplicatedNodeList.add(node);
-                    logger.warn("Duplicated span - ignored second {}", node);
+                    updateMatchType(PROGRESS_MATCH);
+                    // duplicated span, choose focus span
+                    if (node.span.getCollectorAcceptTime() == collectorAcceptTime) {
+                        // replace value
+                        this.spanToLinkMap.put(key, node);
+                        duplicatedNodeList.add(existNode);
+                        logger.warn("Duplicated span - choose focus {}", node);
+                    } else {
+                        // add remove list
+                        duplicatedNodeList.add(node);
+                        logger.warn("Duplicated span - ignored second {}", node);
+                    }
                 }
             }
         }
         // clean duplicated node
         this.sortedNodeList.removeAll(duplicatedNodeList);
-        this.collectorAcceptTime = collectorAcceptTime;
     }
 
     private void updateMatchType(final int matchType) {
@@ -212,17 +233,23 @@ public class SpanAligner {
         final List<Link> linkedList = new ArrayList<>();
         for (Link link : this.linkList) {
             final String key = link.spanId + "." + link.nextSpanId;
-            final Node node = this.spanToLinkMap.get(key);
-            if (node != null) {
-                if (isDebug) {
-                    logger.debug("Linked link {} to node {}", link, node);
+            for(String linkeKey : this.spanToLinkMap.keySet()){
+                if(linkeKey.startsWith(key)){
+                    final Node node = this.spanToLinkMap.get(linkeKey);
+                    if (isDebug) {
+                        logger.debug("Linked link {} to node {}", link, node);
+                    }
+                    // linked
+                    node.linked = true;
+                    link.linked = true;
+                    link.linkedCallTree.update(node.spanCallTree);
+                    linkedList.add(link);
                 }
-                // linked
-                node.linked = true;
-                link.linked = true;
-                link.linkedCallTree.update(node.spanCallTree);
-                linkedList.add(link);
             }
+            /*final Node node = this.spanToLinkMap.get(key);
+            if (node != null) {
+
+            }*/
         }
         // remove linked
         this.linkList.removeAll(linkedList);
