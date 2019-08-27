@@ -1,0 +1,399 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hbaseSchema xmlns="com.navercorp.pinpoint.hbase.schema.definition">
+
+    <changeSet id="pinpoint-1.9.0_1">
+
+        <createTable name="AgentInfo">
+            <createColumnFamily name="Info">
+                <configuration>
+                    <timeToLive>31536000</timeToLive>
+                    <dataBlockEncoding>PREFIX</dataBlockEncoding>
+                </configuration>
+            </createColumnFamily>
+        </createTable>
+
+        <createTable name="AgentStatV2">
+            <createColumnFamily name="S">
+                <configuration>
+                    <timeToLive>5184000</timeToLive>
+                    <dataBlockEncoding>PREFIX</dataBlockEncoding>
+                </configuration>
+            </createColumnFamily>
+            <split>
+                <splitKeys>
+                    <splitKey>\x01</splitKey>
+                    <splitKey>\x02</splitKey>
+                    <splitKey>\x03</splitKey>
+                    <splitKey>\x04</splitKey>
+                    <splitKey>\x05</splitKey>
+                    <splitKey>\x06</splitKey>
+                    <splitKey>\x07</splitKey>
+                    <splitKey>\x08</splitKey>
+                    <splitKey>\x09</splitKey>
+                    <splitKey>\x0a</splitKey>
+                    <splitKey>\x0b</splitKey>
+                    <splitKey>\x0c</splitKey>
+                    <splitKey>\x0d</splitKey>
+                    <splitKey>\x0e</splitKey>
+                    <splitKey>\x0f</splitKey>
+                    <splitKey>\x10</splitKey>
+                    <splitKey>\x11</splitKey>
+                    <splitKey>\x12</splitKey>
+                    <splitKey>\x13</splitKey>
+                    <splitKey>\x14</splitKey>
+                    <splitKey>\x15</splitKey>
+                    <splitKey>\x16</splitKey>
+                    <splitKey>\x17</splitKey>
+                    <splitKey>\x18</splitKey>
+                    <splitKey>\x19</splitKey>
+                    <splitKey>\x1a</splitKey>
+                    <splitKey>\x1b</splitKey>
+                    <splitKey>\x1c</splitKey>
+                    <splitKey>\x1d</splitKey>
+                    <splitKey>\x1e</splitKey>
+                    <splitKey>\x1f</splitKey>
+                    <splitKey>\x20</splitKey>
+                    <splitKey>\x21</splitKey>
+                    <splitKey>\x22</splitKey>
+                    <splitKey>\x23</splitKey>
+                    <splitKey>\x24</splitKey>
+                    <splitKey>\x25</splitKey>
+                    <splitKey>\x26</splitKey>
+                    <splitKey>\x27</splitKey>
+                    <splitKey>\x28</splitKey>
+                    <splitKey>\x29</splitKey>
+                    <splitKey>\x2a</splitKey>
+                    <splitKey>\x2b</splitKey>
+                    <splitKey>\x2c</splitKey>
+                    <splitKey>\x2d</splitKey>
+                    <splitKey>\x2e</splitKey>
+                    <splitKey>\x2f</splitKey>
+                    <splitKey>\x30</splitKey>
+                    <splitKey>\x31</splitKey>
+                    <splitKey>\x32</splitKey>
+                    <splitKey>\x33</splitKey>
+                    <splitKey>\x34</splitKey>
+                    <splitKey>\x35</splitKey>
+                    <splitKey>\x36</splitKey>
+                    <splitKey>\x37</splitKey>
+                    <splitKey>\x38</splitKey>
+                    <splitKey>\x39</splitKey>
+                    <splitKey>\x3a</splitKey>
+                    <splitKey>\x3b</splitKey>
+                    <splitKey>\x3c</splitKey>
+                    <splitKey>\x3d</splitKey>
+                    <splitKey>\x3e</splitKey>
+                    <splitKey>\x3f</splitKey>
+                </splitKeys>
+            </split>
+        </createTable>
+
+        <createTable name="ApplicationStatAggre">
+            <createColumnFamily name="S">
+                <configuration>
+                    <timeToLive>5184000</timeToLive>
+                    <dataBlockEncoding>PREFIX</dataBlockEncoding>
+                </configuration>
+            </createColumnFamily>
+            <split>
+                <splitKeys>
+                    <splitKey>\x01</splitKey>
+                    <splitKey>\x02</splitKey>
+                    <splitKey>\x03</splitKey>
+                    <splitKey>\x04</splitKey>
+                    <splitKey>\x05</splitKey>
+                    <splitKey>\x06</splitKey>
+                    <splitKey>\x07</splitKey>
+                    <splitKey>\x08</splitKey>
+                    <splitKey>\x09</splitKey>
+                    <splitKey>\x0a</splitKey>
+                    <splitKey>\x0b</splitKey>
+                    <splitKey>\x0c</splitKey>
+                    <splitKey>\x0d</splitKey>
+                    <splitKey>\x0e</splitKey>
+                    <splitKey>\x0f</splitKey>
+                    <splitKey>\x10</splitKey>
+                    <splitKey>\x11</splitKey>
+                    <splitKey>\x12</splitKey>
+                    <splitKey>\x13</splitKey>
+                    <splitKey>\x14</splitKey>
+                    <splitKey>\x15</splitKey>
+                    <splitKey>\x16</splitKey>
+                    <splitKey>\x17</splitKey>
+                    <splitKey>\x18</splitKey>
+                    <splitKey>\x19</splitKey>
+                    <splitKey>\x1a</splitKey>
+                    <splitKey>\x1b</splitKey>
+                    <splitKey>\x1c</splitKey>
+                    <splitKey>\x1d</splitKey>
+                    <splitKey>\x1e</splitKey>
+                    <splitKey>\x1f</splitKey>
+                    <splitKey>\x20</splitKey>
+                    <splitKey>\x21</splitKey>
+                    <splitKey>\x22</splitKey>
+                    <splitKey>\x23</splitKey>
+                    <splitKey>\x24</splitKey>
+                    <splitKey>\x25</splitKey>
+                    <splitKey>\x26</splitKey>
+                    <splitKey>\x27</splitKey>
+                    <splitKey>\x28</splitKey>
+                    <splitKey>\x29</splitKey>
+                    <splitKey>\x2a</splitKey>
+                    <splitKey>\x2b</splitKey>
+                    <splitKey>\x2c</splitKey>
+                    <splitKey>\x2d</splitKey>
+                    <splitKey>\x2e</splitKey>
+                    <splitKey>\x2f</splitKey>
+                    <splitKey>\x30</splitKey>
+                    <splitKey>\x31</splitKey>
+                    <splitKey>\x32</splitKey>
+                    <splitKey>\x33</splitKey>
+                    <splitKey>\x34</splitKey>
+                    <splitKey>\x35</splitKey>
+                    <splitKey>\x36</splitKey>
+                    <splitKey>\x37</splitKey>
+                    <splitKey>\x38</splitKey>
+                    <splitKey>\x39</splitKey>
+                    <splitKey>\x3a</splitKey>
+                    <splitKey>\x3b</splitKey>
+                    <splitKey>\x3c</splitKey>
+                    <splitKey>\x3d</splitKey>
+                    <splitKey>\x3e</splitKey>
+                    <splitKey>\x3f</splitKey>
+                </splitKeys>
+            </split>
+        </createTable>
+
+        <createTable name="ApplicationIndex">
+            <createColumnFamily name="Agents">
+                <configuration>
+                    <timeToLive>31536000</timeToLive>
+                    <dataBlockEncoding>PREFIX</dataBlockEncoding>
+                </configuration>
+            </createColumnFamily>
+        </createTable>
+
+        <createTable name="AgentLifeCycle">
+            <createColumnFamily name="S">
+                <configuration>
+                    <timeToLive>5184000</timeToLive>
+                    <dataBlockEncoding>PREFIX</dataBlockEncoding>
+                </configuration>
+            </createColumnFamily>
+        </createTable>
+
+        <createTable name="AgentEvent">
+            <createColumnFamily name="E">
+                <configuration>
+                    <timeToLive>5184000</timeToLive>
+                    <dataBlockEncoding>PREFIX</dataBlockEncoding>
+                </configuration>
+            </createColumnFamily>
+        </createTable>
+
+        <createTable name="StringMetaData">
+            <createColumnFamily name="Str">
+                <configuration>
+                    <timeToLive>15552000</timeToLive>
+                    <dataBlockEncoding>PREFIX</dataBlockEncoding>
+                </configuration>
+            </createColumnFamily>
+            <split>
+                <splitKeys>
+                    <splitKey>\x01</splitKey>
+                    <splitKey>\x02</splitKey>
+                    <splitKey>\x03</splitKey>
+                    <splitKey>\x04</splitKey>
+                    <splitKey>\x05</splitKey>
+                    <splitKey>\x06</splitKey>
+                    <splitKey>\x07</splitKey>
+                </splitKeys>
+            </split>
+        </createTable>
+
+        <createTable name="ApiMetaData">
+            <createColumnFamily name="Api">
+                <configuration>
+                    <timeToLive>31536000</timeToLive>
+                    <dataBlockEncoding>PREFIX</dataBlockEncoding>
+                </configuration>
+            </createColumnFamily>
+            <split>
+                <splitKeys>
+                    <splitKey>\x01</splitKey>
+                    <splitKey>\x02</splitKey>
+                    <splitKey>\x03</splitKey>
+                    <splitKey>\x04</splitKey>
+                    <splitKey>\x05</splitKey>
+                    <splitKey>\x06</splitKey>
+                    <splitKey>\x07</splitKey>
+                </splitKeys>
+            </split>
+        </createTable>
+
+        <createTable name="SqlMetaData_Ver2">
+            <createColumnFamily name="Sql">
+                <configuration>
+                    <timeToLive>15552000</timeToLive>
+                    <dataBlockEncoding>PREFIX</dataBlockEncoding>
+                </configuration>
+            </createColumnFamily>
+            <split>
+                <splitKeys>
+                    <splitKey>\x02</splitKey>
+                    <splitKey>\x04</splitKey>
+                    <splitKey>\x06</splitKey>
+                    <splitKey>\x08</splitKey>
+                    <splitKey>\x0a</splitKey>
+                    <splitKey>\x0c</splitKey>
+                    <splitKey>\x0e</splitKey>
+                    <splitKey>\x10</splitKey>
+                    <splitKey>\x12</splitKey>
+                    <splitKey>\x14</splitKey>
+                    <splitKey>\x16</splitKey>
+                    <splitKey>\x18</splitKey>
+                    <splitKey>\x1a</splitKey>
+                    <splitKey>\x1c</splitKey>
+                    <splitKey>\x1e</splitKey>
+                </splitKeys>
+            </split>
+        </createTable>
+
+        <createTable name="TraceV2">
+            <createColumnFamily name="S">
+                <configuration>
+                    <timeToLive>5184000</timeToLive>
+                    <dataBlockEncoding>PREFIX</dataBlockEncoding>
+                </configuration>
+            </createColumnFamily>
+            <split>
+                <auto numRegions="256"/>
+            </split>
+        </createTable>
+
+        <createTable name="ApplicationTraceIndex">
+            <createColumnFamily name="I">
+                <configuration>
+                    <timeToLive>5184000</timeToLive>
+                    <dataBlockEncoding>PREFIX</dataBlockEncoding>
+                </configuration>
+            </createColumnFamily>
+            <split>
+                <splitKeys>
+                    <splitKey>\x02</splitKey>
+                    <splitKey>\x04</splitKey>
+                    <splitKey>\x06</splitKey>
+                    <splitKey>\x08</splitKey>
+                    <splitKey>\x0a</splitKey>
+                    <splitKey>\x0c</splitKey>
+                    <splitKey>\x0e</splitKey>
+                    <splitKey>\x10</splitKey>
+                    <splitKey>\x12</splitKey>
+                    <splitKey>\x14</splitKey>
+                    <splitKey>\x16</splitKey>
+                    <splitKey>\x18</splitKey>
+                    <splitKey>\x1a</splitKey>
+                    <splitKey>\x1c</splitKey>
+                    <splitKey>\x1e</splitKey>
+                </splitKeys>
+            </split>
+        </createTable>
+
+        <createTable name="ApplicationMapStatisticsCaller_Ver2">
+            <createColumnFamily name="C">
+                <configuration>
+                    <timeToLive>5184000</timeToLive>
+                    <maxVersions>1</maxVersions>
+                    <dataBlockEncoding>PREFIX</dataBlockEncoding>
+                </configuration>
+            </createColumnFamily>
+            <split>
+                <splitKeys>
+                    <splitKey>\x02</splitKey>
+                    <splitKey>\x04</splitKey>
+                    <splitKey>\x06</splitKey>
+                    <splitKey>\x08</splitKey>
+                    <splitKey>\x0a</splitKey>
+                    <splitKey>\x0c</splitKey>
+                    <splitKey>\x0e</splitKey>
+                    <splitKey>\x10</splitKey>
+                    <splitKey>\x12</splitKey>
+                    <splitKey>\x14</splitKey>
+                    <splitKey>\x16</splitKey>
+                    <splitKey>\x18</splitKey>
+                    <splitKey>\x1a</splitKey>
+                    <splitKey>\x1c</splitKey>
+                    <splitKey>\x1e</splitKey>
+                </splitKeys>
+            </split>
+        </createTable>
+
+        <createTable name="ApplicationMapStatisticsCallee_Ver2">
+            <createColumnFamily name="C">
+                <configuration>
+                    <timeToLive>5184000</timeToLive>
+                    <maxVersions>1</maxVersions>
+                    <dataBlockEncoding>PREFIX</dataBlockEncoding>
+                </configuration>
+            </createColumnFamily>
+            <split>
+                <splitKeys>
+                    <splitKey>\x02</splitKey>
+                    <splitKey>\x04</splitKey>
+                    <splitKey>\x06</splitKey>
+                    <splitKey>\x08</splitKey>
+                    <splitKey>\x0a</splitKey>
+                    <splitKey>\x0c</splitKey>
+                    <splitKey>\x0e</splitKey>
+                    <splitKey>\x10</splitKey>
+                    <splitKey>\x12</splitKey>
+                    <splitKey>\x14</splitKey>
+                    <splitKey>\x16</splitKey>
+                    <splitKey>\x18</splitKey>
+                    <splitKey>\x1a</splitKey>
+                    <splitKey>\x1c</splitKey>
+                    <splitKey>\x1e</splitKey>
+                </splitKeys>
+            </split>
+        </createTable>
+
+        <createTable name="ApplicationMapStatisticsSelf_Ver2">
+            <createColumnFamily name="C">
+                <configuration>
+                    <timeToLive>5184000</timeToLive>
+                    <maxVersions>1</maxVersions>
+                    <dataBlockEncoding>PREFIX</dataBlockEncoding>
+                </configuration>
+            </createColumnFamily>
+            <split>
+                <splitKeys>
+                    <splitKey>\x01</splitKey>
+                    <splitKey>\x02</splitKey>
+                    <splitKey>\x03</splitKey>
+                    <splitKey>\x04</splitKey>
+                    <splitKey>\x05</splitKey>
+                    <splitKey>\x06</splitKey>
+                    <splitKey>\x07</splitKey>
+                </splitKeys>
+            </split>
+        </createTable>
+
+        <createTable name="HostApplicationMap_Ver2">
+            <createColumnFamily name="M">
+                <configuration>
+                    <timeToLive>5184000</timeToLive>
+                    <maxVersions>1</maxVersions>
+                    <dataBlockEncoding>PREFIX</dataBlockEncoding>
+                </configuration>
+            </createColumnFamily>
+            <split>
+                <splitKeys>
+                    <splitKey>\x01</splitKey>
+                    <splitKey>\x02</splitKey>
+                    <splitKey>\x03</splitKey>
+                </splitKeys>
+            </split>
+        </createTable>
+    </changeSet>
+
+</hbaseSchema>

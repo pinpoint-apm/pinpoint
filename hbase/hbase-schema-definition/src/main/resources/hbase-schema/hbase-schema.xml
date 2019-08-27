@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hbaseSchema xmlns="com.navercorp.pinpoint.hbase.schema.definition">
+
+    <include file="hbase-schema-1.9.0.xml"/>
+
+</hbaseSchema>

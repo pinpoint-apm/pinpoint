@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hbaseSchema xmlns="com.navercorp.pinpoint.hbase.schema.definition">
+
+    <include file="test-hbase-schema-include.xml"/>
+
+    <changeSet id="id-1">
+        <createTable name="Table1">
+            <createColumnFamily name="CF1">
+                <configuration>
+                    <timeToLive>86400</timeToLive>
+                    <dataBlockEncoding>NONE</dataBlockEncoding>
+                </configuration>
+            </createColumnFamily>
+            <createColumnFamily name="CF2"/>
+            <configuration>
+                <durability>ASYNC_WAL</durability>
+            </configuration>
+            <split>
+                <auto numRegions="16"/>
+            </split>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="id-2">
+        <modifyTable name="Table1">
+            <createColumnFamily name="CF3"/>
+        </modifyTable>
+    </changeSet>
+
+</hbaseSchema>
