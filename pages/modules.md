@@ -60,8 +60,8 @@
 | \*[Redis](https://github.com/naver/pinpoint/tree/master/plugins/redis-lettuce)    | lettuce-core               | 5.0.0   | 5.1.2   |                        |
 | \*[Redis](https://github.com/naver/pinpoint/tree/master/plugins/redis-redisson)   | redisson                   | 3.10.0  | 3.10.4  |                        |
 |                                                                                   |                            |         |         |                        |
-| Apache CXF                                                                        | cxf-rt-rs-client           | 3.0.0   | 3.3.2   |                        | <AG> 
-| Netty                                                                             | netty-all                  | 4.1.0   | 4.1.38  |                        | <AG> 
+| Apache CXF                                                                        | cxf-rt-rs-client           | 3.0.0   | 3.3.3   |                        | <AG> 
+| Netty                                                                             | netty-all                  | 4.1.0   | 4.1.39  |                        | <AG> 
 | ActiveMQ                                                                          | activemq-all               | 5.1.0   | 5.15.9  |                        | <AG> 
 | RxJAVA                                                                            | rxjava                     | 1.0.0   | 1.3.8   |                        | <AG> 
 | RabbitMQ                                                                          | amqp-client                | 2.7.0   | 5.7.3   |                        | <AG> 
