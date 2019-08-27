@@ -46,7 +46,7 @@ public class ConnectionFactoryBean implements FactoryBean<Connection>, Initializ
     private final Connection connection;
 
     public ConnectionFactoryBean(Configuration configuration) {
-        Objects.requireNonNull(configuration, " must not be null");
+        Objects.requireNonNull(configuration, "configuration must not be null");
         try {
             warmUp = configuration.getBoolean("hbase.client.warmup.enable", false);
             connection = ConnectionFactory.createConnection(configuration);
