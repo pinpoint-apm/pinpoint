@@ -40,7 +40,7 @@ You should definitely check **Pinpoint** out If you want to
 
 ## Want a quick tour?
  * [Overview](./overview.html)/[History](./history.html)/[Tech Details](./techdetail.html) to get to know more about Pinpoint 
- * [Introduction to Pinpoint(v1.5.0)](https://www.youtube.com/watch?v=U4EwnB34Dus&feature=youtu.be) - a video introducing Pinpoint
+ * [Videos](./videos.html) - Checkout our videos on Pinpoint
 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/U4EwnB34Dus" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
 
