@@ -121,6 +121,10 @@ entries:
       external_url: https://github.com/naver/pinpoint/labels/proposal
       output: web, pdf
 
+  - title: Videos
+    url: /videos.html
+    output: link
+
   - title: Live Demo
     external_url: http://125.209.240.10:10123
     output: link
