@@ -25,7 +25,7 @@ import java.util.List;
  */
 public class CallTreeIterator implements Iterator<CallTreeNode> {
 
-    private List<CallTreeNode> nodes;
+    private List<CallTreeNode> nodes = new ArrayList<CallTreeNode>();
     private int index = -1;
 
     public CallTreeIterator(final CallTreeNode root) {
@@ -248,10 +248,11 @@ public class CallTreeIterator implements Iterator<CallTreeNode> {
 
     public List<SpanAlign> values() {
         List<SpanAlign> values = new ArrayList<>();
-        for (CallTreeNode node : nodes) {
-            values.add(node.getValue());
+        if(!isEmpty()){
+            for (CallTreeNode node : nodes) {
+                values.add(node.getValue());
+            }
         }
-
         return values;
     }
 
@@ -265,12 +266,14 @@ public class CallTreeIterator implements Iterator<CallTreeNode> {
 
     public String toString() {
         final StringBuilder sb = new StringBuilder();
-        for (CallTreeNode node : nodes) {
-            for (int i = 0; i <= node.getDepth(); i++) {
-                sb.append("#");
+        if(!isEmpty()){
+            for (CallTreeNode node : nodes) {
+                for (int i = 0; i <= node.getDepth(); i++) {
+                    sb.append("#");
+                }
+                sb.append(" : ").append(node);
+                sb.append("\n");
             }
-            sb.append(" : ").append(node);
-            sb.append("\n");
         }
         return sb.toString();
     }
