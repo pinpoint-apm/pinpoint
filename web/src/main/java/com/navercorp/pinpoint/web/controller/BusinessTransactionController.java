@@ -102,6 +102,9 @@ public class BusinessTransactionController {
         // select spans
         final SpanResult spanResult = this.spanService.selectSpan(transactionId, focusTimestamp);
         final CallTreeIterator callTreeIterator = spanResult.getCallTree();
+         if(null == callTreeIterator || callTreeIterator.values().isEmpty()){
+            throw new RuntimeException("don't find the record,transactionId is :" +  traceIdParam);
+        }
 
         // application map
         ApplicationMap map = filteredMapService.selectApplicationMap(transactionId, viewVersion);
