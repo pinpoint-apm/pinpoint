@@ -76,30 +76,32 @@ public class KeepAliveService {
         updateState(lifecycle, closeState, agentLifeCycleState, agentEventType);
     }
 
-    public void updateState(PingSession lifecycle, boolean closeState, AgentLifeCycleState agentLifeCycleState, AgentEventType agentEventType) {
+    public void updateState(PingSession pingSession, boolean closeState, AgentLifeCycleState agentLifeCycleState, AgentEventType agentEventType) {
 
-        final Header header = lifecycle.getHeader();
+        final Header header = pingSession.getHeader();
         if (header == null) {
             logger.warn("Not found request header");
             return;
         }
 
-        logger.debug("updateState:{} {} {}/{}", lifecycle, closeState, agentLifeCycleState, agentEventType);
+        logger.debug("updateState:{} {} {}/{}", pingSession, closeState, agentLifeCycleState, agentEventType);
 
         final long pingTimestamp = System.currentTimeMillis();
 
-        final long eventIdentifier = header.getSocketId();
-        if (eventIdentifier == -1) {
+        final long socketId = header.getSocketId();
+        if (socketId == -1) {
+            logger.info("socketId not exist:{}", header);
             // skip
             return;
         }
         final AgentProperty agentProperty = newChannelProperties(header);
 
         try {
+            long eventIdentifier = AgentLifeCycleAsyncTaskService.createEventIdentifier((int)socketId, (int) pingSession.nextEventIdAllocator());
             this.agentLifeCycleAsyncTask.handleLifeCycleEvent(agentProperty , pingTimestamp, agentLifeCycleState, eventIdentifier);
             this.agentEventAsyncTask.handleEvent(agentProperty, pingTimestamp, agentEventType);
         } catch (Exception e) {
-            logger.warn("Failed to update state. closeState:{} lifeCycle={} {}/{}", lifecycle, closeState, agentLifeCycleState, agentEventType);
+            logger.warn("Failed to update state. closeState:{} lifeCycle={} {}/{}", pingSession, closeState, agentLifeCycleState, agentEventType);
         }
     }
 

@@ -19,17 +19,21 @@ package com.navercorp.pinpoint.grpc.server.lifecycle;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.grpc.Header;
 
+import java.util.concurrent.atomic.AtomicLong;
+
 /**
  * @author Woonduk Kang(emeroad)
  */
 public class PingSession {
     private final Long id;
     private final Header header;
+    private final AtomicLong eventIdAllocator;
 
     public PingSession(Long id, Header header) {
         this.id = Assert.requireNonNull(id, "transportMetadata must not be null");
         this.header = Assert.requireNonNull(header, "header must not be null");
 
+        this.eventIdAllocator = new AtomicLong();
     }
 
     public Header getHeader() {
@@ -40,11 +44,16 @@ public class PingSession {
         return id;
     }
 
+    public long nextEventIdAllocator() {
+        return eventIdAllocator.incrementAndGet();
+    }
+
     @Override
     public String toString() {
         return "PingSession{" +
                 "id=" + id +
                 ", header=" + header +
+                ", eventIdAllocator=" + eventIdAllocator +
                 '}';
     }
 }
