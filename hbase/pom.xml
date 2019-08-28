@@ -21,6 +21,7 @@
 
     <modules>
         <module>hbase-schema</module>
+        <module>hbase-schema-manager</module>
         <module>hbase-schema-definition</module>
     </modules>
 

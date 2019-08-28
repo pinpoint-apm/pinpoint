@@ -1,0 +1,6 @@
+/.settings/
+/*.iml
+/target/
+/.classpath
+/.project
+/manager-log/
