@@ -104,7 +104,7 @@ public abstract class GrpcITBase {
 
     private void assertTrace(HelloWorldServer server, PluginTestVerifier verifier) {
         verifier.verifyTrace(clientCallStartEvent(server));
-        verifier.verifyTrace(event("gRPC_INTERNAL", "gRPC client listener Result Invocation"));
+        verifier.verifyTrace(event("gRPC_INTERNAL", "io.grpc.internal.ClientCallImpl$ClientStreamListenerImpl()"));
 
         verifier.verifyTrace(createServerRootTrace(server));
 
