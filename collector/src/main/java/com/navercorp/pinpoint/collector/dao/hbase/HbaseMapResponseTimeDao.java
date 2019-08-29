@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.collector.dao.hbase.statistics.ResponseColumnName;
 import com.navercorp.pinpoint.collector.dao.hbase.statistics.RowKey;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
+import com.navercorp.pinpoint.common.hbase.TableDescriptor;
 import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.ApplicationMapStatisticsUtils;
@@ -50,7 +51,7 @@ import java.util.Map;
  * @author HyunGil Jeong
  */
 @Repository
-public class HbaseMapResponseTimeDao extends AbstractHbaseDao implements MapResponseTimeDao {
+public class HbaseMapResponseTimeDao implements MapResponseTimeDao {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -72,6 +73,9 @@ public class HbaseMapResponseTimeDao extends AbstractHbaseDao implements MapResp
     private RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
 
     private final boolean useBulk;
+
+    @Autowired
+    private TableDescriptor<HbaseColumnFamily.SelfStatMap> descriptor;
 
     public HbaseMapResponseTimeDao() {
         this(true);
@@ -102,7 +106,7 @@ public class HbaseMapResponseTimeDao extends AbstractHbaseDao implements MapResp
         final short slotNumber = ApplicationMapStatisticsUtils.getSlotNumber(applicationServiceType, elapsed, isError);
         final ColumnName selfColumnName = new ResponseColumnName(agentId, slotNumber);
         if (useBulk) {
-            TableName mapStatisticsSelfTableName = getTableName();
+            TableName mapStatisticsSelfTableName = descriptor.getTableName();
             bulkIncrementer.increment(mapStatisticsSelfTableName, selfRowKey, selfColumnName);
         } else {
             final byte[] rowKey = getDistributedKey(selfRowKey.getRowKey());
@@ -119,8 +123,8 @@ public class HbaseMapResponseTimeDao extends AbstractHbaseDao implements MapResp
         if (columnName == null) {
             throw new NullPointerException("columnName must not be null");
         }
-        TableName mapStatisticsSelfTableName = getTableName();
-        hbaseTemplate.incrementColumnValue(mapStatisticsSelfTableName, rowKey, getColumnFamilyName(), columnName, increment);
+        TableName mapStatisticsSelfTableName = descriptor.getTableName();
+        hbaseTemplate.incrementColumnValue(mapStatisticsSelfTableName, rowKey, descriptor.getColumnFamilyName(), columnName, increment);
     }
 
 
@@ -143,11 +147,6 @@ public class HbaseMapResponseTimeDao extends AbstractHbaseDao implements MapResp
 
     private byte[] getDistributedKey(byte[] rowKey) {
         return rowKeyDistributorByHashPrefix.getDistributedKey(rowKey);
-    }
-
-    @Override
-    public HbaseColumnFamily getColumnFamily() {
-        return HbaseColumnFamily.MAP_STATISTICS_SELF_VER2_COUNTER;
     }
 
 }

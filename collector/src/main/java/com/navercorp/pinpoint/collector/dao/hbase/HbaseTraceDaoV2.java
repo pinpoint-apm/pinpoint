@@ -1,9 +1,9 @@
 package com.navercorp.pinpoint.collector.dao.hbase;
 
 import com.navercorp.pinpoint.collector.dao.TraceDao;
+import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
-import com.navercorp.pinpoint.common.hbase.HbaseTable;
-import com.navercorp.pinpoint.common.hbase.TableNameProvider;
+import com.navercorp.pinpoint.common.hbase.TableDescriptor;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
@@ -35,9 +35,6 @@ public class HbaseTraceDaoV2 implements TraceDao {
     private HbaseOperations2 hbaseTemplate;
 
     @Autowired
-    private TableNameProvider tableNameProvider;
-
-    @Autowired
     private SpanSerializerV2 spanSerializer;
 
     @Autowired
@@ -46,6 +43,9 @@ public class HbaseTraceDaoV2 implements TraceDao {
     @Autowired
     @Qualifier("traceRowKeyEncoderV2")
     private RowKeyEncoder<TransactionId> rowKeyEncoder;
+
+    @Autowired
+    private TableDescriptor<HbaseColumnFamily.Trace> descriptor;
 
     @Override
     public boolean insert(final SpanBo spanBo) {
@@ -61,7 +61,7 @@ public class HbaseTraceDaoV2 implements TraceDao {
 
         this.spanSerializer.serialize(spanBo, put, null);
 
-        TableName traceTableName = tableNameProvider.getTableName(HbaseTable.TRACE_V2);
+        TableName traceTableName = descriptor.getTableName();
         boolean success = hbaseTemplate.asyncPut(traceTableName, put);
         if (!success) {
             hbaseTemplate.put(traceTableName, put);
@@ -91,7 +91,7 @@ public class HbaseTraceDaoV2 implements TraceDao {
 
         boolean success = false;
         if (!put.isEmpty()) {
-            TableName traceTableName = tableNameProvider.getTableName(HbaseTable.TRACE_V2);
+            TableName traceTableName = descriptor.getTableName();
             success = hbaseTemplate.asyncPut(traceTableName, put);
             if (!success) {
                 hbaseTemplate.put(traceTableName, put);

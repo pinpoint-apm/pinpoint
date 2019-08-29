@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.collector.dao.hbase.statistics.ColumnName;
 import com.navercorp.pinpoint.collector.dao.hbase.statistics.RowKey;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
+import com.navercorp.pinpoint.common.hbase.TableDescriptor;
 import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.ApplicationMapStatisticsUtils;
@@ -50,7 +51,7 @@ import java.util.Map;
  * @author HyunGil Jeong
  */
 @Repository
-public class HbaseMapStatisticsCallerDao extends AbstractHbaseDao implements MapStatisticsCallerDao {
+public class HbaseMapStatisticsCallerDao implements MapStatisticsCallerDao {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -72,6 +73,9 @@ public class HbaseMapStatisticsCallerDao extends AbstractHbaseDao implements Map
     private RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
 
     private final boolean useBulk;
+
+    @Autowired
+    private TableDescriptor<HbaseColumnFamily.CalleeStatMap> descriptor;
 
     public HbaseMapStatisticsCallerDao() {
         this(true);
@@ -106,7 +110,7 @@ public class HbaseMapStatisticsCallerDao extends AbstractHbaseDao implements Map
         final short calleeSlotNumber = ApplicationMapStatisticsUtils.getSlotNumber(calleeServiceType, elapsed, isError);
         final ColumnName calleeColumnName = new CalleeColumnName(callerAgentid, calleeServiceType.getCode(), calleeApplicationName, calleeHost, calleeSlotNumber);
         if (useBulk) {
-            TableName mapStatisticsCalleeTableName = getTableName();
+            TableName mapStatisticsCalleeTableName = descriptor.getTableName();
             bulkIncrementer.increment(mapStatisticsCalleeTableName, callerRowKey, calleeColumnName);
         } else {
             final byte[] rowKey = getDistributedKey(callerRowKey.getRowKey());
@@ -123,8 +127,8 @@ public class HbaseMapStatisticsCallerDao extends AbstractHbaseDao implements Map
         if (columnName == null) {
             throw new NullPointerException("columnName must not be null");
         }
-        TableName mapStatisticsCalleeTableName = getTableName();
-        hbaseTemplate.incrementColumnValue(mapStatisticsCalleeTableName, rowKey, getColumnFamilyName(), columnName, increment);
+        TableName mapStatisticsCalleeTableName = descriptor.getTableName();
+        hbaseTemplate.incrementColumnValue(mapStatisticsCalleeTableName, rowKey, descriptor.getColumnFamilyName(), columnName, increment);
     }
 
     @Override
@@ -149,9 +153,5 @@ public class HbaseMapStatisticsCallerDao extends AbstractHbaseDao implements Map
         return rowKeyDistributorByHashPrefix.getDistributedKey(rowKey);
     }
 
-    @Override
-    public HbaseColumnFamily getColumnFamily() {
-        return HbaseColumnFamily.MAP_STATISTICS_CALLEE_VER2_COUNTER;
-    }
 
 }

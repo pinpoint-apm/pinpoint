@@ -48,8 +48,4 @@ public enum HbaseTable {
         return name;
     }
 
-    HbaseColumnFamily createColumnFamily(byte[] columnFamilyName) {
-        return new HbaseColumnFamily(this, columnFamilyName);
-    }
-
 }

@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
+import com.navercorp.pinpoint.common.hbase.TableDescriptor;
 import com.navercorp.pinpoint.common.server.bo.ApiMetaDataBo;
 
 import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
@@ -37,7 +38,7 @@ import org.springframework.stereotype.Repository;
  * @author minwoo.jung
  */
 @Repository
-public class HbaseApiMetaDataDao extends AbstractHbaseDao implements ApiMetaDataDao {
+public class HbaseApiMetaDataDao implements ApiMetaDataDao {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -47,6 +48,9 @@ public class HbaseApiMetaDataDao extends AbstractHbaseDao implements ApiMetaData
     @Autowired
     @Qualifier("metadataRowKeyDistributor")
     private RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
+
+    @Autowired
+    private TableDescriptor<HbaseColumnFamily.ApiMetadata> description;
 
     @Override
     public void insert(ApiMetaDataBo apiMetaData) {
@@ -63,9 +67,9 @@ public class HbaseApiMetaDataDao extends AbstractHbaseDao implements ApiMetaData
         buffer.putInt(apiMetaData.getMethodTypeEnum().getCode());
 
         final byte[] apiMetaDataBytes = buffer.getBuffer();
-        put.addColumn(getColumnFamilyName(), getColumnFamily().QUALIFIER_SIGNATURE, apiMetaDataBytes);
+        put.addColumn(description.getColumnFamilyName(), description.getColumnFamily().QUALIFIER_SIGNATURE, apiMetaDataBytes);
 
-        final TableName apiMetaDataTableName = getTableName();
+        final TableName apiMetaDataTableName = description.getTableName();
         hbaseTemplate.put(apiMetaDataTableName, put);
     }
 
@@ -73,9 +77,5 @@ public class HbaseApiMetaDataDao extends AbstractHbaseDao implements ApiMetaData
         return rowKeyDistributorByHashPrefix.getDistributedKey(rowKey);
     }
 
-    @Override
-    public HbaseColumnFamily.ApiMetadata getColumnFamily() {
-        return HbaseColumnFamily.API_METADATA_API;
-    }
 
 }

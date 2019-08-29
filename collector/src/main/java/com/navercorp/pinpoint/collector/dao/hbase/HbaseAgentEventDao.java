@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.collector.dao.hbase.mapper.AgentEventValueMapper;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
 import com.navercorp.pinpoint.common.hbase.HbaseTableConstatns;
+import com.navercorp.pinpoint.common.hbase.TableDescriptor;
 import com.navercorp.pinpoint.common.server.bo.event.AgentEventBo;
 import com.navercorp.pinpoint.common.server.util.AgentEventType;
 import com.navercorp.pinpoint.common.server.util.RowKeyUtils;
@@ -38,7 +39,7 @@ import org.springframework.stereotype.Repository;
  * @author HyunGil Jeong
  */
 @Repository
-public class HbaseAgentEventDao extends AbstractHbaseDao implements AgentEventDao {
+public class HbaseAgentEventDao implements AgentEventDao {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -47,6 +48,9 @@ public class HbaseAgentEventDao extends AbstractHbaseDao implements AgentEventDa
 
     @Autowired
     private AgentEventValueMapper valueMapper;
+
+    @Autowired
+    private TableDescriptor<HbaseColumnFamily.AgentEvent> descriptor;
 
     @Override
     public void insert(AgentEventBo agentEventBo) {
@@ -66,8 +70,8 @@ public class HbaseAgentEventDao extends AbstractHbaseDao implements AgentEventDa
         final AgentEventType eventType = agentEventBo.getEventType();
         byte[] qualifier = Bytes.toBytes(eventType.getCode());
 
-        TableName agentEventTableName = getTableName();
-        this.hbaseTemplate.put(agentEventTableName, rowKey, getColumnFamilyName(), qualifier, agentEventBo, this.valueMapper);
+        TableName agentEventTableName = descriptor.getTableName();
+        this.hbaseTemplate.put(agentEventTableName, rowKey, descriptor.getColumnFamilyName(), qualifier, agentEventBo, this.valueMapper);
     }
 
     byte[] createRowKey(String agentId, long eventTimestamp) {
@@ -76,8 +80,4 @@ public class HbaseAgentEventDao extends AbstractHbaseDao implements AgentEventDa
         return RowKeyUtils.concatFixedByteAndLong(agentIdKey, HbaseTableConstatns.AGENT_NAME_MAX_LEN, reverseStartTimestamp);
     }
 
-    @Override
-    public HbaseColumnFamily getColumnFamily() {
-        return HbaseColumnFamily.AGENT_EVENT_EVENTS;
-    }
 }
