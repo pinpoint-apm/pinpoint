@@ -16,11 +16,12 @@
 package com.navercorp.pinpoint.web.dao.hbase;
 
 import com.navercorp.pinpoint.common.server.bo.codec.stat.join.CpuLoadDecoder;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinCpuLoadBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.StatType;
 import com.navercorp.pinpoint.web.dao.ApplicationCpuLoadDao;
 import com.navercorp.pinpoint.web.mapper.stat.ApplicationStatMapper;
 import com.navercorp.pinpoint.web.mapper.stat.SampledApplicationStatResultExtractor;
-import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.JoinCpuLoadSampler;
+import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.ApplicationStatSampler;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinCpuLoadBo;
@@ -41,7 +42,7 @@ public class HbaseApplicationCpuLoadDao implements ApplicationCpuLoadDao {
     private CpuLoadDecoder cpuLoadDecoder;
 
     @Autowired
-    private JoinCpuLoadSampler cpuLoadSampler;
+    private ApplicationStatSampler<JoinCpuLoadBo> cpuLoadSampler;
 
     @Autowired
     private HbaseApplicationStatDaoOperations operations;

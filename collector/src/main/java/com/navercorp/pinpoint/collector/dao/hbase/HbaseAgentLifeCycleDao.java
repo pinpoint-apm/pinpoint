@@ -17,11 +17,11 @@
 package com.navercorp.pinpoint.collector.dao.hbase;
 
 import com.navercorp.pinpoint.collector.dao.AgentLifeCycleDao;
-import com.navercorp.pinpoint.collector.dao.hbase.mapper.AgentLifeCycleValueMapper;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
 import com.navercorp.pinpoint.common.hbase.HbaseTableConstatns;
 import com.navercorp.pinpoint.common.hbase.TableDescriptor;
+import com.navercorp.pinpoint.common.hbase.ValueMapper;
 import com.navercorp.pinpoint.common.server.bo.AgentLifeCycleBo;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.common.util.TimeUtils;
@@ -45,7 +45,7 @@ public class HbaseAgentLifeCycleDao implements AgentLifeCycleDao {
     private HbaseOperations2 hbaseTemplate;
 
     @Autowired
-    private AgentLifeCycleValueMapper valueMapper;
+    private ValueMapper<AgentLifeCycleBo> valueMapper;
 
     @Autowired
     private TableDescriptor<HbaseColumnFamily.AgentLifeCycleStatus> descriptor;

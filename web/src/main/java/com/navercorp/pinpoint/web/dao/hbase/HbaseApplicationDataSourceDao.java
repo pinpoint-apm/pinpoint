@@ -16,11 +16,12 @@
 package com.navercorp.pinpoint.web.dao.hbase;
 
 import com.navercorp.pinpoint.common.server.bo.codec.stat.join.DataSourceDecoder;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinDataSourceListBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.StatType;
 import com.navercorp.pinpoint.web.dao.ApplicationDataSourceDao;
 import com.navercorp.pinpoint.web.mapper.stat.ApplicationStatMapper;
 import com.navercorp.pinpoint.web.mapper.stat.SampledApplicationStatResultExtractor;
-import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.JoinDataSourceSampler;
+import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.ApplicationStatSampler;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinDataSourceListBo;
@@ -41,7 +42,7 @@ public class HbaseApplicationDataSourceDao implements ApplicationDataSourceDao {
     private DataSourceDecoder dataSourceDecoder;
 
     @Autowired
-    private JoinDataSourceSampler dataSourceSampler;
+    private ApplicationStatSampler<JoinDataSourceListBo> dataSourceSampler;
 
     @Autowired
     private HbaseApplicationStatDaoOperations operations;

@@ -19,11 +19,11 @@ package com.navercorp.pinpoint.web.dao.hbase;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
 import com.navercorp.pinpoint.common.hbase.HbaseTableConstatns;
+import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
 import com.navercorp.pinpoint.common.hbase.TableDescriptor;
 import com.navercorp.pinpoint.common.server.util.RowKeyUtils;
 import com.navercorp.pinpoint.common.util.TimeUtils;
 import com.navercorp.pinpoint.web.dao.AgentInfoDao;
-import com.navercorp.pinpoint.web.mapper.AgentInfoResultsExtractor;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -50,7 +50,7 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
     private HbaseOperations2 hbaseOperations2;
 
     @Autowired
-    private AgentInfoResultsExtractor agentInfoResultsExtractor;
+    private ResultsExtractor<AgentInfo> agentInfoResultsExtractor;
 
     @Autowired
     private TableDescriptor<HbaseColumnFamily.AgentInfo> descriptor;
