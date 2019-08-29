@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.grpc.server;
 
 import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.common.util.IdValidateUtils;
 import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.HeaderReader;
 import io.grpc.Metadata;
@@ -31,8 +32,8 @@ public class AgentHeaderReader implements HeaderReader<Header> {
 
     @Override
     public Header extract(Metadata headers) {
-        final String agentId = headers.get(Header.AGENT_ID_KEY);
-        final String applicationName = headers.get(Header.APPLICATION_NAME_KEY);
+        String agentId = headers.get(Header.AGENT_ID_KEY);
+        String applicationName = headers.get(Header.APPLICATION_NAME_KEY);
         final String agentStartTimeStr = headers.get(Header.AGENT_START_TIME_KEY);
         Assert.requireNonNull(agentStartTimeStr, "agentStartTime must not be null");
         // check number format
@@ -40,6 +41,8 @@ public class AgentHeaderReader implements HeaderReader<Header> {
 
         final long socketId = getSocketId(headers);
 
+        agentId = validateId(agentId, "invalid agentId");
+        applicationName = validateId(applicationName, "invalid applicationName");
         return new Header(agentId, applicationName, startTime, socketId);
     }
 
@@ -53,6 +56,13 @@ public class AgentHeaderReader implements HeaderReader<Header> {
         } catch (NumberFormatException e) {
             return Header.SOCKET_ID_NOT_EXIST;
         }
+    }
+
+    private String validateId(String id, String errorMessage) {
+        if (!IdValidateUtils.validateId(id)) {
+            throw new IllegalArgumentException(errorMessage);
+        }
+        return id;
     }
 
 
