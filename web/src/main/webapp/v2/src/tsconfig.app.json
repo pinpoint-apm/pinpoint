@@ -1,18 +1,19 @@
 {
     "compilerOptions": {
+    "downlevelIteration": true,
         "sourceMap": true,
         "declaration": false,
         "moduleResolution": "node",
         "emitDecoratorMetadata": true,
         "experimentalDecorators": true,
-        "target": "es2016",
+        "target": "es2015",
         "lib": [
             "es2017",
             "dom",
             "esnext.array"
         ],
         "outDir": "../out-tsc/app",
-        "module": "es2015",
+        "module": "esnext",
         "baseUrl": "",
         "types": []
     },

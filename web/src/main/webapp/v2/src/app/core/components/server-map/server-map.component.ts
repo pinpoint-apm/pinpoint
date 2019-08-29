@@ -16,7 +16,7 @@ import { ServerMapFactory, ServerMapType } from './class/server-map-factory';
 })
 
 export class ServerMapComponent implements OnInit, OnChanges, OnDestroy, AfterViewInit {
-    @ViewChild('serverMap') el: ElementRef;
+    @ViewChild('serverMap', { static: true }) el: ElementRef;
     @Input() mapData: ServerMapData;
     @Input() baseApplicationKey: string;
     @Input() funcImagePath: Function;

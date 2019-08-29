@@ -11,7 +11,7 @@ import { TransactionViewChartContainerComponent } from 'app/core/components/insp
 })
 export class TransactionViewTopContentsContainerComponent implements OnInit, OnDestroy {
     @HostBinding('class') hostClass = 'l-transaction-view-top-contents';
-    @ViewChild('chartContainer', { read: ViewContainerRef }) chartContainer: ViewContainerRef;
+    @ViewChild('chartContainer', { read: ViewContainerRef, static: true }) chartContainer: ViewContainerRef;
 
     private componentRefMap = new Map<string, ComponentRef<TransactionViewChartContainerComponent>>();
 

@@ -1,10 +1,12 @@
 import * as moment from 'moment-timezone';
 import { Observable, Subject } from 'rxjs';
-import * as bowser from 'bowser';
+import agent from '@egjs/agent';
+
 import { IOptions } from './scatter-chart.class';
 import { ScatterChartSizeCoordinateManager } from './scatter-chart-size-coordinate-manager.class';
 
 export class ScatterChartMouseManager {
+    private browserName: string;
     elementAxisWrapper: HTMLElement;
     elementXAxisLabelWrapper: HTMLElement;
     elementXAxisLabel: HTMLElement;
@@ -19,6 +21,7 @@ export class ScatterChartMouseManager {
         private coordinateManager: ScatterChartSizeCoordinateManager,
         private elementContainer: HTMLElement
     ) {
+        this.browserName = agent().browser.name;
         this.outDragArea = new Subject();
         this.onDragArea$ = this.outDragArea.asObservable();
 
@@ -202,7 +205,7 @@ export class ScatterChartMouseManager {
                     previousClientY = touchEvent.touches[0].clientY;
                     x = previousClientX - clientRect.left;
                     y = previousClientY - clientRect.top;
-                } else if (bowser.safari) {
+                } else if (this.browserName === 'safari') {
                     const mouseEvent = event as MouseEvent;
                     const clientRect = (mouseEvent.target as HTMLElement).offsetParent.getBoundingClientRect();
                     x = previousClientX - clientRect.left;
@@ -244,7 +247,7 @@ export class ScatterChartMouseManager {
                     offsetY = touchEvent.touches[0].clientY - previousClientY;
                     previousClientX = touchEvent.touches[0].clientX;
                     previousClientY = touchEvent.touches[0].clientY;
-                } else if (bowser.safari) {
+                } else if (this.browserName === 'safari') {
                     const mouseEvent = event as MouseEvent;
                     offsetX = mouseEvent.clientX - previousClientX;
                     offsetY = mouseEvent.clientY - previousClientY;

@@ -11,7 +11,7 @@ export enum FOCUS_TYPE {
     styleUrls: ['./application-list-for-header.component.css']
 })
 export class ApplicationListForHeaderComponent implements OnInit, OnChanges {
-    @ViewChild('appList') ele: ElementRef;
+    @ViewChild('appList', { static: true }) ele: ElementRef;
     @Input() showTitle: boolean;
     @Input() title: string;
     @Input() restCount: number;

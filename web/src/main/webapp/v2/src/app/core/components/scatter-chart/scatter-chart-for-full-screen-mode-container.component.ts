@@ -26,7 +26,7 @@ import { HELP_VIEWER_LIST, HelpViewerPopupContainerComponent } from 'app/core/co
     styleUrls: ['./scatter-chart-for-full-screen-mode-container.component.css']
 })
 export class ScatterChartForFullScreenModeContainerComponent implements OnInit, OnDestroy {
-    @ViewChild('layerBackground') layerBackground: ElementRef;
+    @ViewChild('layerBackground', { static: true }) layerBackground: ElementRef;
     private unsubscribe: Subject<null> = new Subject();
     instanceKey = 'full-screen-mode';
     addWindow = true;

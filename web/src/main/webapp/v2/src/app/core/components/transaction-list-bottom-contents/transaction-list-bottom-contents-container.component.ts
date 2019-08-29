@@ -22,7 +22,7 @@ import { CallTreeContainerComponent } from 'app/core/components/call-tree/call-t
     styleUrls: ['./transaction-list-bottom-contents-container.component.css']
 })
 export class TransactionListBottomContentsContainerComponent implements OnInit, OnDestroy {
-    @ViewChild(CallTreeContainerComponent, {read: ElementRef}) callTreeComponent: ElementRef;
+    @ViewChild(CallTreeContainerComponent, { read: ElementRef, static: true }) callTreeComponent: ElementRef;
     private unsubscribe = new Subject<void>();
 
     activeView: string;

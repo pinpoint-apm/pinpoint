@@ -1,6 +1,9 @@
 {
     "compileOnSave": false,
     "compilerOptions": {
+        "downlevelIteration": true,
+        "importHelpers": true,
+        "module": "esnext",
         "outDir": "./dist/out-tsc",
         "baseUrl": "src",
         "sourceMap": true,

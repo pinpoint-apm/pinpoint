@@ -10,8 +10,8 @@ import { ViewportRuler } from '@angular/cdk/overlay';
     styleUrls: ['./chart-layout.component.css']
 })
 export class ChartLayoutComponent implements OnInit, AfterViewInit {
-    @ViewChild(CdkDropListGroup) listGroup: CdkDropListGroup<CdkDropList>;
-    @ViewChild(CdkDropList) placeholder: CdkDropList;
+    @ViewChild(CdkDropListGroup, { static: false }) listGroup: CdkDropListGroup<CdkDropList>;
+    @ViewChild(CdkDropList, { static: false }) placeholder: CdkDropList;
     @Input() emptyText: string;
     @Input() column: number;
     @Input() chartList: string[];

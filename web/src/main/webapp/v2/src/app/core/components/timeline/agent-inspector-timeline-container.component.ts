@@ -16,7 +16,7 @@ import { InspectorPageService, ISourceForTimeline } from 'app/routes/inspector-p
     styleUrls: ['./agent-inspector-timeline-container.component.css'],
 })
 export class AgentInspectorTimelineContainerComponent implements OnInit, OnDestroy {
-    @ViewChild(TimelineComponent)
+    @ViewChild(TimelineComponent, { static: true })
     private timelineComponent: TimelineComponent;
     private unsubscribe: Subject<void> = new Subject();
 

@@ -12,7 +12,7 @@ import { UrlPath } from 'app/shared/models';
     styleUrls: ['./inspector-chart.component.css'],
 })
 export class InspectorChartComponent implements OnInit, OnChanges, OnDestroy {
-    @ViewChild('chartHolder') chartHolder: ElementRef;
+    @ViewChild('chartHolder', { static: true }) chartHolder: ElementRef;
     @Input() chartConfig: IChartConfig;
     @Output() outRendered = new EventEmitter<void>(true);
 

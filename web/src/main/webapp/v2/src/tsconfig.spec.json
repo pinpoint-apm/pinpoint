@@ -1,5 +1,6 @@
 {
     "compilerOptions": {
+    "downlevelIteration": true,
         "sourceMap": true,
         "declaration": false,
         "moduleResolution": "node",
@@ -10,8 +11,8 @@
             "dom"
         ],
         "outDir": "../out-tsc/spec",
-        "module": "commonjs",
-        "target": "es2016",
+        "module": "esnext",
+        "target": "es2015",
         "baseUrl": "",
         "types": [
             "jasmine",

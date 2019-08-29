@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { DragDropModule } from '@angular/cdk/drag-drop';
-import { MatGridListModule } from '@angular/material';
+import { MatGridListModule } from '@angular/material/grid-list';
 
 import { SharedModule } from 'app/shared';
 import { ChartLayoutContainerComponent } from './chart-layout-container.component';

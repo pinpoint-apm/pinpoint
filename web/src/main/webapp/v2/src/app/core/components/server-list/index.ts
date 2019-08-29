@@ -2,7 +2,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 // import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { MatTooltipModule } from '@angular/material';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { ServerListComponent } from './server-list.component';
 import { ServerListContainerComponent } from './server-list-container.component';
 

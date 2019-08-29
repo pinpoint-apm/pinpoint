@@ -23,57 +23,57 @@ const appRoutes: Routes = [
                 children: [
                     {
                         path: UrlPath.CONFIG,
-                        loadChildren: './routes/config-page/index#ConfigPageModule'
+                        loadChildren: () => import('./routes/config-page/index').then(m => m.ConfigPageModule)
                     },
                     {
                         path: UrlPath.ADMIN,
-                        loadChildren: './routes/admin-page/index#AdminPageModule'
+                        loadChildren: () => import('./routes/admin-page/index').then(m => m.AdminPageModule)
                     },
                     {
                         path: UrlPath.BROWSER_NOT_SUPPORT,
-                        loadChildren: './routes/browser-support-page/index#BrowserSupportPageModule'
+                        loadChildren: () => import('./routes/browser-support-page/index').then(m => m.BrowserSupportPageModule)
                     },
                     {
                         path: UrlPath.SCATTER_FULL_SCREEN_MODE,
-                        loadChildren: './routes/scatter-full-screen-mode-page/index#ScatterFullScreenModePageModule'
+                        loadChildren: () => import('./routes/scatter-full-screen-mode-page/index').then(m => m.ScatterFullScreenModePageModule)
                     },
                     {
                         path: UrlPath.THREAD_DUMP,
-                        loadChildren: './routes/thread-dump-page/index#ThreadDumpPageModule'
+                        loadChildren: () => import('./routes/thread-dump-page/index').then(m => m.ThreadDumpPageModule)
                     },
                     {
                         path: UrlPath.REAL_TIME,
-                        loadChildren: './routes/real-time-page/index#RealTimePageModule'
+                        loadChildren: () => import('./routes/real-time-page/index').then(m => m.RealTimePageModule)
                     },
                     {
                         path: UrlPath.TRANSACTION_VIEW,
-                        loadChildren: './routes/transaction-view-page/index#TransactionViewPageModule'
+                        loadChildren: () => import('./routes/transaction-view-page/index').then(m => m.TransactionViewPageModule)
                     },
                     {
                         path: UrlPath.TRANSACTION_DETAIL,
-                        loadChildren: './routes/transaction-detail-page/index#TransactionDetailPageModule'
+                        loadChildren: () => import('./routes/transaction-detail-page/index').then(m => m.TransactionDetailPageModule)
                     },
                     {
                         path: UrlPath.TRANSACTION_LIST,
-                        loadChildren: './routes/transaction-list-page/index#TransactionListPageModule'
+                        loadChildren: () => import('./routes/transaction-list-page/index').then(m => m.TransactionListPageModule)
                     },
                     {
                         path: UrlPath.INSPECTOR,
-                        loadChildren: './routes/inspector-page/index#InspectorPageModule'
+                        loadChildren: () => import('./routes/inspector-page/index').then(m => m.InspectorPageModule)
                     },
                     {
                         path: UrlPath.FILTERED_MAP,
-                        loadChildren: './routes/filtered-map-page/index#FilteredMapPageModule'
+                        loadChildren: () => import('./routes/filtered-map-page/index').then(m => m.FilteredMapPageModule)
                     },
                     {
                         path: UrlPath.MAIN,
-                        loadChildren: './routes/main-page/index#MainPageModule'
+                        loadChildren: () => import('./routes/main-page/index').then(m => m.MainPageModule)
                     },
                 ]
             },
             {
                 path: UrlPath.ERROR,
-                loadChildren: './routes/error-page/index#ErrorPageModule'
+                loadChildren: () => import('./routes/error-page/index').then(m => m.ErrorPageModule)
             },
             {
                 path: '**',

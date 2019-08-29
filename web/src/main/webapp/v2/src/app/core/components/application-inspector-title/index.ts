@@ -1,6 +1,6 @@
 
 import { NgModule } from '@angular/core';
-import { MatTooltipModule } from '@angular/material';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { SharedModule } from 'app/shared';
 import { ApplicationInspectorTitleContainerComponent } from './application-inspector-title-container.component';
 

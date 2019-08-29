@@ -24,7 +24,7 @@ import { SearchInputDirective } from 'app/shared/directives/search-input.directi
     styleUrls: ['./target-list-container.component.css'],
 })
 export class TargetListContainerComponent implements OnInit, OnDestroy {
-    @ViewChild(SearchInputDirective) searchInputDirective: SearchInputDirective;
+    @ViewChild(SearchInputDirective, { static: true }) searchInputDirective: SearchInputDirective;
 
     private unsubscribe = new Subject<void>();
 

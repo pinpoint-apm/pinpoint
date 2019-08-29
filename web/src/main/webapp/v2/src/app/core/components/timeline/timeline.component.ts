@@ -8,7 +8,7 @@ import { Timeline, ITimelineData, ITimelineEventSegment, TimelineUIEvent } from 
     encapsulation: ViewEncapsulation.None,
 })
 export class TimelineComponent implements OnInit, OnChanges, OnDestroy {
-    @ViewChild('timeline') el: ElementRef;
+    @ViewChild('timeline', { static: true }) el: ElementRef;
 
     @Input() data: any;
     @Input() height: number;

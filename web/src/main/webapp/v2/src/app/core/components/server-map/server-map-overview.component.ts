@@ -11,7 +11,7 @@ import { ServerMapInteractionService } from './server-map-interaction.service';
     styleUrls: ['./server-map-overview.component.css']
 })
 export class ServerMapOverviewComponent implements OnInit, OnDestroy {
-    @ViewChild('wrapper') overviewWrapper: ElementRef;
+    @ViewChild('wrapper', { static: true }) overviewWrapper: ElementRef;
     @Input() showOverview = false;
     overview: go.Overview;
     initialized = false;
