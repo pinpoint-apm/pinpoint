@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.web.dao.hbase;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
+import com.navercorp.pinpoint.common.hbase.TableDescriptor;
 import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
 import com.navercorp.pinpoint.web.vo.Application;
 
@@ -43,7 +44,7 @@ import java.util.Map;
  * @author emeroad
  */
 @Repository
-public class HbaseApplicationIndexDao extends AbstractHbaseDao implements ApplicationIndexDao {
+public class HbaseApplicationIndexDao implements ApplicationIndexDao {
 
     @Autowired
     private HbaseOperations2 hbaseOperations2;
@@ -56,12 +57,15 @@ public class HbaseApplicationIndexDao extends AbstractHbaseDao implements Applic
     @Qualifier("agentIdMapper")
     private RowMapper<List<String>> agentIdMapper;
 
+    @Autowired
+    private TableDescriptor<HbaseColumnFamily.ApplicationIndex> descriptor;
+
     @Override
     public List<Application> selectAllApplicationNames() {
         Scan scan = new Scan();
         scan.setCaching(30);
 
-        TableName applicationIndexTableName = getTableName();
+        TableName applicationIndexTableName = descriptor.getTableName();
         List<List<Application>> results = hbaseOperations2.find(applicationIndexTableName, scan, applicationNameMapper);
         List<Application> applications = new ArrayList<>();
         for (List<Application> result : results) {
@@ -78,9 +82,9 @@ public class HbaseApplicationIndexDao extends AbstractHbaseDao implements Applic
         byte[] rowKey = Bytes.toBytes(applicationName);
 
         Get get = new Get(rowKey);
-        get.addFamily(getColumnFamilyName());
+        get.addFamily(descriptor.getColumnFamilyName());
 
-        TableName applicationIndexTableName = getTableName();
+        TableName applicationIndexTableName = descriptor.getTableName();
         return hbaseOperations2.get(applicationIndexTableName, get, agentIdMapper);
     }
 
@@ -89,7 +93,7 @@ public class HbaseApplicationIndexDao extends AbstractHbaseDao implements Applic
         byte[] rowKey = Bytes.toBytes(applicationName);
         Delete delete = new Delete(rowKey);
 
-        TableName applicationIndexTableName = getTableName();
+        TableName applicationIndexTableName = descriptor.getTableName();
         hbaseOperations2.delete(applicationIndexTableName, delete);
     }
 
@@ -110,7 +114,7 @@ public class HbaseApplicationIndexDao extends AbstractHbaseDao implements Applic
             Delete delete = new Delete(Bytes.toBytes(applicationName));
             for (String agentId : agentIds) {
                 if (!StringUtils.isEmpty(agentId)) {
-                    delete.addColumns(getColumnFamilyName(), Bytes.toBytes(agentId));
+                    delete.addColumns(descriptor.getColumnFamilyName(), Bytes.toBytes(agentId));
                 }
             }
             // don't delete if nothing has been specified except row
@@ -119,7 +123,7 @@ public class HbaseApplicationIndexDao extends AbstractHbaseDao implements Applic
             }
         }
 
-        TableName applicationIndexTableName = getTableName();
+        TableName applicationIndexTableName = descriptor.getTableName();
         hbaseOperations2.delete(applicationIndexTableName, deletes);
     }
 
@@ -134,14 +138,10 @@ public class HbaseApplicationIndexDao extends AbstractHbaseDao implements Applic
         byte[] rowKey = Bytes.toBytes(applicationName);
         Delete delete = new Delete(rowKey);
         byte[] qualifier = Bytes.toBytes(agentId);
-        delete.addColumns(getColumnFamilyName(), qualifier);
+        delete.addColumns(descriptor.getColumnFamilyName(), qualifier);
 
-        TableName applicationIndexTableName = getTableName();
+        TableName applicationIndexTableName = descriptor.getTableName();
         hbaseOperations2.delete(applicationIndexTableName, delete);
     }
 
-    @Override
-    public HbaseColumnFamily getColumnFamily() {
-        return HbaseColumnFamily.APPLICATION_INDEX_AGENTS;
-    }
 }

@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.collector.dao.hbase.mapper.AgentLifeCycleValueMapp
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
 import com.navercorp.pinpoint.common.hbase.HbaseTableConstatns;
+import com.navercorp.pinpoint.common.hbase.TableDescriptor;
 import com.navercorp.pinpoint.common.server.bo.AgentLifeCycleBo;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.common.util.TimeUtils;
@@ -36,7 +37,7 @@ import org.springframework.stereotype.Repository;
  * @author HyunGil Jeong
  */
 @Repository
-public class HbaseAgentLifeCycleDao extends AbstractHbaseDao implements AgentLifeCycleDao {
+public class HbaseAgentLifeCycleDao implements AgentLifeCycleDao {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -45,6 +46,9 @@ public class HbaseAgentLifeCycleDao extends AbstractHbaseDao implements AgentLif
 
     @Autowired
     private AgentLifeCycleValueMapper valueMapper;
+
+    @Autowired
+    private TableDescriptor<HbaseColumnFamily.AgentLifeCycleStatus> descriptor;
 
     @Override
     public void insert(AgentLifeCycleBo agentLifeCycleBo) {
@@ -62,8 +66,8 @@ public class HbaseAgentLifeCycleDao extends AbstractHbaseDao implements AgentLif
 
         byte[] rowKey = createRowKey(agentId, startTimestamp, eventIdentifier);
 
-        TableName agentLifeCycleTableName = getTableName();
-        this.hbaseTemplate.put(agentLifeCycleTableName, rowKey, getColumnFamilyName(), getColumnFamily().QUALIFIER_STATES,
+        TableName agentLifeCycleTableName = descriptor.getTableName();
+        this.hbaseTemplate.put(agentLifeCycleTableName, rowKey, descriptor.getColumnFamilyName(), descriptor.getColumnFamily().QUALIFIER_STATES,
                 agentLifeCycleBo, this.valueMapper);
     }
 
@@ -82,8 +86,4 @@ public class HbaseAgentLifeCycleDao extends AbstractHbaseDao implements AgentLif
         return rowKey;
     }
 
-    @Override
-    public HbaseColumnFamily.AgentLifeCycleStatus getColumnFamily() {
-        return HbaseColumnFamily.AGENT_LIFECYCLE_STATUS;
-    }
 }

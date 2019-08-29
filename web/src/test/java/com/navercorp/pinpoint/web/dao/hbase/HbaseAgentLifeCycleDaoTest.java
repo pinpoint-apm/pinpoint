@@ -18,7 +18,9 @@ package com.navercorp.pinpoint.web.dao.hbase;
 
 import static org.mockito.Mockito.*;
 
+import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseTable;
+import com.navercorp.pinpoint.common.hbase.TableDescriptor;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.server.bo.AgentLifeCycleBo;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
@@ -72,12 +74,15 @@ public class HbaseAgentLifeCycleDaoTest {
     @Mock
     private RowMapper<AgentLifeCycleBo> agentLifeCycleMapper;
 
-    @InjectMocks
-    private AgentLifeCycleDao agentLifeCycleDao = new HbaseAgentLifeCycleDao();
+
+    private AgentLifeCycleDao agentLifeCycleDao;
 
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
+        TableDescriptorConfig tableDescriptorConfig = new TableDescriptorConfig(tableNameProvider);
+        TableDescriptor<HbaseColumnFamily.AgentLifeCycleStatus> descriptor = tableDescriptorConfig.getAgentLifeCycleStatus();
+        this.agentLifeCycleDao = new HbaseAgentLifeCycleDao(descriptor, hbaseOperations2, agentLifeCycleMapper);
     }
 
     @Test

@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
 import com.navercorp.pinpoint.common.hbase.HbaseTableConstatns;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
+import com.navercorp.pinpoint.common.hbase.TableDescriptor;
 import com.navercorp.pinpoint.common.server.bo.event.AgentEventBo;
 import com.navercorp.pinpoint.common.server.util.AgentEventType;
 import com.navercorp.pinpoint.common.server.util.RowKeyUtils;
@@ -50,7 +51,7 @@ import java.util.Set;
  * @author HyunGil Jeong
  */
 @Repository
-public class HbaseAgentEventDao extends AbstractHbaseDao implements AgentEventDao {
+public class HbaseAgentEventDao implements AgentEventDao {
 
     private static final int SCANNER_CACHE_SIZE = 20;
 
@@ -65,6 +66,9 @@ public class HbaseAgentEventDao extends AbstractHbaseDao implements AgentEventDa
 
     @Autowired
     private AgentEventResultsExtractor agentEventResultsExtractor;
+
+    @Autowired
+    private TableDescriptor<HbaseColumnFamily.Trace> descriptor;
 
     @Override
     public List<AgentEventBo> getAgentEvents(String agentId, Range range, Set<AgentEventType> excludeEventTypes) {
@@ -81,7 +85,7 @@ public class HbaseAgentEventDao extends AbstractHbaseDao implements AgentEventDa
 
         scan.setStartRow(createRowKey(agentId, range.getTo()));
         scan.setStopRow(createRowKey(agentId, range.getFrom()));
-        scan.addFamily(getColumnFamilyName());
+        scan.addFamily(descriptor.getColumnFamilyName());
 
         if (!CollectionUtils.isEmpty(excludeEventTypes)) {
             FilterList filterList = new FilterList(FilterList.Operator.MUST_PASS_ALL);
@@ -92,7 +96,7 @@ public class HbaseAgentEventDao extends AbstractHbaseDao implements AgentEventDa
             scan.setFilter(filterList);
         }
 
-        TableName agentEventTableName = getTableName();
+        TableName agentEventTableName = descriptor.getTableName();
         List<AgentEventBo> agentEvents = this.hbaseOperations2.find(agentEventTableName, scan, agentEventResultsExtractor);
         logger.debug("agentEvents found. {}", agentEvents);
         return agentEvents;
@@ -113,9 +117,9 @@ public class HbaseAgentEventDao extends AbstractHbaseDao implements AgentEventDa
         final byte[] rowKey = createRowKey(agentId, eventTimestamp);
         byte[] qualifier = Bytes.toBytes(eventType.getCode());
 
-        TableName agentEventTableName = getTableName();
+        TableName agentEventTableName = descriptor.getTableName();
         List<AgentEventBo> events = this.hbaseOperations2.get(agentEventTableName, rowKey,
-                getColumnFamilyName(), qualifier, this.agentEventMapper);
+                descriptor.getColumnFamilyName(), qualifier, this.agentEventMapper);
         if (CollectionUtils.isEmpty(events)) {
             return null;
         }
@@ -128,9 +132,5 @@ public class HbaseAgentEventDao extends AbstractHbaseDao implements AgentEventDa
         return RowKeyUtils.concatFixedByteAndLong(agentIdKey, HbaseTableConstatns.AGENT_NAME_MAX_LEN, reverseTimestamp);
     }
 
-    @Override
-    public HbaseColumnFamily getColumnFamily() {
-        return HbaseColumnFamily.AGENT_EVENT_EVENTS;
-    }
 
 }

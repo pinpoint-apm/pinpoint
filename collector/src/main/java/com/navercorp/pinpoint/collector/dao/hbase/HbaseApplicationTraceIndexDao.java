@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
 import com.navercorp.pinpoint.common.hbase.HbaseTableConstatns;
+import com.navercorp.pinpoint.common.hbase.TableDescriptor;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
 import com.navercorp.pinpoint.common.server.util.SpanUtils;
@@ -40,7 +41,7 @@ import org.springframework.stereotype.Repository;
  * @author emeroad
  */
 @Repository
-public class HbaseApplicationTraceIndexDao extends AbstractHbaseDao implements ApplicationTraceIndexDao {
+public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 
     @Autowired
     private HbaseOperations2 hbaseTemplate;
@@ -51,6 +52,9 @@ public class HbaseApplicationTraceIndexDao extends AbstractHbaseDao implements A
     @Autowired
     @Qualifier("applicationTraceIndexDistributor")
     private AbstractRowKeyDistributor rowKeyDistributor;
+
+    @Autowired
+    private TableDescriptor<HbaseColumnFamily.ApplicationIndex> descriptor;
 
     @Override
     public void insert(final SpanBo span) {
@@ -68,9 +72,9 @@ public class HbaseApplicationTraceIndexDao extends AbstractHbaseDao implements A
         final byte[] distributedKey = createRowKey(span, acceptedTime);
         final Put put = new Put(distributedKey);
 
-        put.addColumn(getColumnFamilyName(), makeQualifier(span) , acceptedTime, value);
+        put.addColumn(descriptor.getColumnFamilyName(), makeQualifier(span) , acceptedTime, value);
 
-        final TableName applicationTraceIndexTableName = getTableName();
+        final TableName applicationTraceIndexTableName = descriptor.getTableName();
         boolean success = hbaseTemplate.asyncPut(applicationTraceIndexTableName, put);
         if (!success) {
             hbaseTemplate.put(applicationTraceIndexTableName, put);
@@ -86,11 +90,6 @@ public class HbaseApplicationTraceIndexDao extends AbstractHbaseDao implements A
         // distribute key evenly
         final byte[] applicationTraceIndexRowKey = SpanUtils.getApplicationTraceIndexRowKey(span.getApplicationId(), acceptedTime);
         return rowKeyDistributor.getDistributedKey(applicationTraceIndexRowKey);
-    }
-
-    @Override
-    public HbaseColumnFamily getColumnFamily() {
-        return HbaseColumnFamily.APPLICATION_TRACE_INDEX_TRACE;
     }
 
 }

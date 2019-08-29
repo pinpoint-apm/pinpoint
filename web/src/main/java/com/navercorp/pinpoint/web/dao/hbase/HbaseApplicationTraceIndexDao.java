@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
 import com.navercorp.pinpoint.common.hbase.LimitEventHandler;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
+import com.navercorp.pinpoint.common.hbase.TableDescriptor;
 import com.navercorp.pinpoint.common.server.util.SpanUtils;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.common.util.DateUtils;
@@ -67,7 +68,7 @@ import java.util.List;
  * @author netspider
  */
 @Repository
-public class HbaseApplicationTraceIndexDao extends AbstractHbaseDao implements ApplicationTraceIndexDao {
+public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 
     private static final int APPLICATION_TRACE_INDEX_NUM_PARTITIONS = 32;
 
@@ -94,6 +95,9 @@ public class HbaseApplicationTraceIndexDao extends AbstractHbaseDao implements A
         this.scanCacheSize = scanCacheSize;
     }
 
+    @Autowired
+    private TableDescriptor<HbaseColumnFamily.ApplicationTraceIndexTrace> descriptor;
+
     @Override
     public LimitedScanResult<List<TransactionId>> scanTraceIndex(final String applicationName, Range range, int limit, boolean scanBackward) {
         if (applicationName == null) {
@@ -111,7 +115,7 @@ public class HbaseApplicationTraceIndexDao extends AbstractHbaseDao implements A
         final LimitedScanResult<List<TransactionId>> limitedScanResult = new LimitedScanResult<>();
         LastRowAccessor lastRowAccessor = new LastRowAccessor();
 
-        TableName applicationTraceIndexTableName = getTableName();
+        TableName applicationTraceIndexTableName = descriptor.getTableName();
         List<List<TransactionId>> traceIndexList = hbaseOperations2.findParallel(applicationTraceIndexTableName,
                 scan, traceIdRowKeyDistributor, limit, traceIndexMapper, lastRowAccessor, APPLICATION_TRACE_INDEX_NUM_PARTITIONS);
 
@@ -154,7 +158,7 @@ public class HbaseApplicationTraceIndexDao extends AbstractHbaseDao implements A
         final LimitedScanResult<List<TransactionId>> limitedScanResult = new LimitedScanResult<>();
         LastRowAccessor lastRowAccessor = new LastRowAccessor();
 
-        TableName applicationTraceIndexTableName = getTableName();
+        TableName applicationTraceIndexTableName = descriptor.getTableName();
         List<List<TransactionId>> traceIndexList = hbaseOperations2.findParallel(applicationTraceIndexTableName,
                 scan, traceIdRowKeyDistributor, limit, traceIndexMapper, lastRowAccessor, APPLICATION_TRACE_INDEX_NUM_PARTITIONS);
 
@@ -242,7 +246,7 @@ public class HbaseApplicationTraceIndexDao extends AbstractHbaseDao implements A
             scan.setStopRow(traceIndexEndKey);
         }
 
-        scan.addFamily(getColumnFamilyName());
+        scan.addFamily(descriptor.getColumnFamilyName());
         scan.setId("ApplicationTraceIndexScan");
 
         // toString() method of Scan converts a message to json format so it is slow for the first time.
@@ -275,7 +279,7 @@ public class HbaseApplicationTraceIndexDao extends AbstractHbaseDao implements A
         ResponseTimeRange responseTimeRange = area.getResponseTimeRange();
         TraceIndexScatterMapper2 mapper = new TraceIndexScatterMapper2(responseTimeRange.getFrom(), responseTimeRange.getTo());
 
-        TableName applicationTraceIndexTableName = getTableName();
+        TableName applicationTraceIndexTableName = descriptor.getTableName();
         List<List<Dot>> dotListList = hbaseOperations2.findParallel(applicationTraceIndexTableName, scan, traceIdRowKeyDistributor, limit, mapper, APPLICATION_TRACE_INDEX_NUM_PARTITIONS);
 
         List<Dot> result = new ArrayList<>();
@@ -302,7 +306,7 @@ public class HbaseApplicationTraceIndexDao extends AbstractHbaseDao implements A
 
         TraceIndexScatterMapper3 mapper = new TraceIndexScatterMapper3(range.getFrom(), range.getTo(), xGroupUnit, yGroupUnit);
 
-        TableName applicationTraceIndexTableName = getTableName();
+        TableName applicationTraceIndexTableName = descriptor.getTableName();
         List<ScatterData> dotGroupList = hbaseOperations2.findParallel(applicationTraceIndexTableName, scan, traceIdRowKeyDistributor, limit, mapper, APPLICATION_TRACE_INDEX_NUM_PARTITIONS);
 
         if (CollectionUtils.isEmpty(dotGroupList)) {
@@ -349,9 +353,5 @@ public class HbaseApplicationTraceIndexDao extends AbstractHbaseDao implements A
         return filterList;
     }
 
-    @Override
-    public HbaseColumnFamily getColumnFamily() {
-        return HbaseColumnFamily.APPLICATION_TRACE_INDEX_TRACE;
-    }
 
 }

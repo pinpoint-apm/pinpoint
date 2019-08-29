@@ -42,7 +42,7 @@ public class AgentLifeCycleMapper implements RowMapper<AgentLifeCycleBo> {
             return null;
         }
 
-        Cell valueCell = result.getColumnLatestCell(AGENT_LIFECYCLE_STATUS.getName(), HbaseColumnFamily.AgentLifeCycleStatus.QUALIFIER_STATES);
+        Cell valueCell = result.getColumnLatestCell(AGENT_LIFECYCLE_STATUS.getName(), HbaseColumnFamily.AGENT_LIFECYCLE_STATUS.QUALIFIER_STATES);
         
         return createAgentLifeCycleBo(valueCell);
     }

@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
 import com.navercorp.pinpoint.common.hbase.HbaseTableConstatns;
+import com.navercorp.pinpoint.common.hbase.TableDescriptor;
 import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
 import com.navercorp.pinpoint.common.util.TimeSlot;
 import com.navercorp.pinpoint.common.util.TimeUtils;
@@ -41,7 +42,7 @@ import org.springframework.stereotype.Repository;
  * @author emeroad
  */
 @Repository
-public class HbaseHostApplicationMapDao extends AbstractHbaseDao implements HostApplicationMapDao {
+public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -60,6 +61,9 @@ public class HbaseHostApplicationMapDao extends AbstractHbaseDao implements Host
 
     // FIXME should modify to save a cachekey at each 30~50 seconds instead of saving at each time
     private final AtomicLongUpdateMap<CacheKey> updater = new AtomicLongUpdateMap<>();
+
+    @Autowired
+    private TableDescriptor<HbaseColumnFamily.HostStatMap> descriptor;
 
 
     @Override
@@ -101,12 +105,12 @@ public class HbaseHostApplicationMapDao extends AbstractHbaseDao implements Host
 
         byte[] columnName = createColumnName(host, bindApplicationName, bindServiceType);
 
-        TableName hostApplicationMapTableName = getTableName();
+        TableName hostApplicationMapTableName = descriptor.getTableName();
         try {
-            hbaseTemplate.put(hostApplicationMapTableName, rowKey, getColumnFamilyName(), columnName, null);
+            hbaseTemplate.put(hostApplicationMapTableName, rowKey, descriptor.getColumnFamilyName(), columnName, null);
         } catch (Exception ex) {
             logger.warn("retry one. Caused:{}", ex.getCause(), ex);
-            hbaseTemplate.put(hostApplicationMapTableName, rowKey, getColumnFamilyName(), columnName, null);
+            hbaseTemplate.put(hostApplicationMapTableName, rowKey, descriptor.getColumnFamilyName(), columnName, null);
         }
     }
 
@@ -136,11 +140,6 @@ public class HbaseHostApplicationMapDao extends AbstractHbaseDao implements Host
         // there is no parentAgentId for now.  if it added later, need to comment out below code for compatibility.
 //        rowKeyBuffer.putPadString(parentAgentId, HbaseTableConstatns.AGENT_NAME_MAX_LEN);
         return rowKeyBuffer.getBuffer();
-    }
-
-    @Override
-    public HbaseColumnFamily getColumnFamily() {
-        return HbaseColumnFamily.HOST_APPLICATION_MAP_VER2_MAP;
     }
 
     private static final class CacheKey {

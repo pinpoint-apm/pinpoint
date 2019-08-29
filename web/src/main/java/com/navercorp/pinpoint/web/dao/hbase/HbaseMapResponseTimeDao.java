@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.web.dao.hbase;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
+import com.navercorp.pinpoint.common.hbase.TableDescriptor;
 import com.navercorp.pinpoint.common.util.ApplicationMapStatisticsUtils;
 import com.navercorp.pinpoint.web.dao.MapResponseDao;
 import com.navercorp.pinpoint.web.vo.Application;
@@ -43,7 +44,7 @@ import java.util.List;
  * @author emeroad
  */
 @Repository
-public class HbaseMapResponseTimeDao extends AbstractHbaseDao implements MapResponseDao {
+public class HbaseMapResponseTimeDao implements MapResponseDao {
 
     private static final int MAP_STATISTICS_SELF_VER2_NUM_PARTITIONS = 8;
 
@@ -66,6 +67,9 @@ public class HbaseMapResponseTimeDao extends AbstractHbaseDao implements MapResp
     @Qualifier("statisticsSelfRowKeyDistributor")
     private RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
 
+    @Autowired
+    private TableDescriptor<HbaseColumnFamily.SelfStatMap> descriptor;
+
 
     @Override
     public List<ResponseTime> selectResponseTime(Application application, Range range) {
@@ -76,9 +80,9 @@ public class HbaseMapResponseTimeDao extends AbstractHbaseDao implements MapResp
             logger.debug("selectResponseTime applicationName:{}, {}", application, range);
         }
 
-        Scan scan = createScan(application, range, getColumnFamilyName());
+        Scan scan = createScan(application, range, descriptor.getColumnFamilyName());
 
-        TableName mapStatisticsSelfTableName = getTableName();
+        TableName mapStatisticsSelfTableName = descriptor.getTableName();
         List<ResponseTime> responseTimeList = hbaseOperations2.findParallel(mapStatisticsSelfTableName, scan, rowKeyDistributorByHashPrefix, responseTimeMapper, MAP_STATISTICS_SELF_VER2_NUM_PARTITIONS);
         if (logger.isDebugEnabled()) {
             logger.debug("Self data {}", responseTimeList);
@@ -109,11 +113,6 @@ public class HbaseMapResponseTimeDao extends AbstractHbaseDao implements MapResp
         scan.setId("ApplicationSelfScan");
 
         return scan;
-    }
-
-    @Override
-    public HbaseColumnFamily getColumnFamily() {
-        return HbaseColumnFamily.MAP_STATISTICS_SELF_VER2_COUNTER;
     }
 
 }
