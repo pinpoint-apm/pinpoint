@@ -13,8 +13,8 @@
     <packaging>jar</packaging>
 
     <properties>
-        <jdk.home>${env.JAVA_7_HOME}</jdk.home>
-        <sniffer.artifactid>java17</sniffer.artifactid>
+        <jdk.home>${env.JAVA_8_HOME}</jdk.home>
+        <sniffer.artifactid>java18</sniffer.artifactid>
     </properties>
 
     <dependencies>
