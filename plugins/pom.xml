@@ -93,6 +93,7 @@
         <module>redis-redisson</module>
 	    <module>elasticsearch-bboss</module>
 	    <module>apache-dubbo</module>
+        <module>elasticsearch</module>
     </modules>
 
     <dependencyManagement>
