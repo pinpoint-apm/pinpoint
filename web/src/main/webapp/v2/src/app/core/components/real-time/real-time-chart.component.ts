@@ -22,7 +22,7 @@ export interface IParsedATC extends IActiveThreadCounts {
     styleUrls: ['./real-time-chart.component.css']
 })
 export class RealTimeChartComponent implements OnInit, AfterViewInit, OnDestroy, OnChanges {
-    @ViewChild('realTime') canvasRef: ElementRef;
+    @ViewChild('realTime', { static: true }) canvasRef: ElementRef;
     @Input() timezone: string;
     @Input() dateFormat: string;
     @Input() timeStamp: number;

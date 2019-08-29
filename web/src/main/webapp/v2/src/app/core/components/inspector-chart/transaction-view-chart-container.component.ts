@@ -24,7 +24,7 @@ export enum Layer {
     styleUrls: ['./transaction-view-chart-container.component.css']
 })
 export class TransactionViewChartContainerComponent implements OnInit, OnDestroy {
-    @ViewChild(InspectorChartComponent) component: InspectorChartComponent;
+    @ViewChild(InspectorChartComponent, { static: true }) component: InspectorChartComponent;
     @Input()
     set chartType(chartType: ChartType) {
         this._chartType = chartType;

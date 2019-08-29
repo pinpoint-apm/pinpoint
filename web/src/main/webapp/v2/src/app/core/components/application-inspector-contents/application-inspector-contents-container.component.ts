@@ -13,7 +13,7 @@ import { TranslateService } from '@ngx-translate/core';
 })
 export class ApplicationInspectorContentsContainerComponent implements OnInit, OnDestroy {
     @HostBinding('class') hostClass = 'l-application-inspector-contents';
-    @ViewChild('chartGroupWrapper') chartGroupWrapper: ElementRef;
+    @ViewChild('chartGroupWrapper', { static: true }) chartGroupWrapper: ElementRef;
     private unsubscribe = new Subject<void>();
 
     isApplicationInspectorActivated$: Observable<boolean>;

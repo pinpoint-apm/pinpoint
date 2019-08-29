@@ -11,7 +11,7 @@ header {
     font-size: 14px;
     font-family: monospace;
     align-items: flex-end;
-    justify-content: start;
+    justify-content: flex-start;
 }
 .l-widget-group a {
     padding: 6px 20px;

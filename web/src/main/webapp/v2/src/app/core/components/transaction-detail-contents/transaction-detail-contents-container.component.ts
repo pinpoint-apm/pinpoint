@@ -17,7 +17,7 @@ import { CallTreeContainerComponent } from 'app/core/components/call-tree/call-t
     styleUrls: ['./transaction-detail-contents-container.component.css']
 })
 export class TransactionDetailContentsContainerComponent implements OnInit {
-    @ViewChild(CallTreeContainerComponent, {read: ElementRef}) callTreeComponent: ElementRef;
+    @ViewChild(CallTreeContainerComponent, { read: ElementRef, static: true }) callTreeComponent: ElementRef;
     private unsubscribe = new Subject<void>();
 
     activeView: string;

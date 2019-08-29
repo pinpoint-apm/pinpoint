@@ -1,5 +1,5 @@
 import { NgModule } from '@angular/core';
-import { MatSlideToggleModule } from '@angular/material';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 
 import { SharedModule } from 'app/shared';
 import { HelpViewerPopupModule } from 'app/core/components/help-viewer-popup';

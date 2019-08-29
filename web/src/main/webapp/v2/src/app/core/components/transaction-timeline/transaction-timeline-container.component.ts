@@ -20,7 +20,7 @@ import { Actions } from 'app/shared/store';
 })
 
 export class TransactionTimelineContainerComponent implements OnInit, OnDestroy {
-    @ViewChild(TransactionTimelineComponent) transactionTimelineComponent: TransactionTimelineComponent;
+    @ViewChild(TransactionTimelineComponent, { static: true }) transactionTimelineComponent: TransactionTimelineComponent;
 
     private unsubscribe = new Subject<void>();
 

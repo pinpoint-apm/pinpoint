@@ -8,7 +8,7 @@ import bb, { PrimitiveArray } from 'billboard.js';
 })
 export class LoadChartComponent implements OnInit, OnChanges {
     @HostBinding('class') hostClass = 'l-load-chart';
-    @ViewChild('chartHolder') chartHolder: ElementRef;
+    @ViewChild('chartHolder', { static: true }) chartHolder: ElementRef;
     @Input() chartConfig: IChartConfig;
     @Output() outRendered = new EventEmitter<void>(true);
 

@@ -1,7 +1,7 @@
 
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatTooltipModule } from '@angular/material';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { ServerAndAgentListComponent } from './server-and-agent-list.component';
 import { ServerAndAgentListContainerComponent } from './server-and-agent-list-container.component';

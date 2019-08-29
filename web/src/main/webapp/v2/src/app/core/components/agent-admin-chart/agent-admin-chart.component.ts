@@ -7,7 +7,7 @@ import { Chart } from 'chart.js';
     styleUrls: ['./agent-admin-chart.component.css']
 })
 export class AgentAdminChartComponent implements OnInit, OnDestroy  {
-    @ViewChild('agentChart') el: ElementRef;
+    @ViewChild('agentChart', { static: true }) el: ElementRef;
     _chartData: any;
     chartObj: Chart;
     @Input() type: string;

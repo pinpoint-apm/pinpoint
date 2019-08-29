@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { Observable } from 'rxjs';
-import * as bowser from 'bowser';
+import agent from '@egjs/agent';
 
 import { WebAppSettingDataService } from 'app/shared/services';
 
@@ -18,6 +18,8 @@ interface IBrowserInfo {
 })
 export class BrowserSupportPageComponent implements OnInit {
     private browserInfoList: IBrowserInfo[];
+    private userAgentInfo: {[key: string]: any};
+
     funcImagePath: Function;
     i18nText$: Observable<string>;
 
@@ -28,6 +30,7 @@ export class BrowserSupportPageComponent implements OnInit {
 
     ngOnInit() {
         this.funcImagePath = this.webAppSettingDataService.getImagePathMakeFunc();
+        this.userAgentInfo = agent();
         this.browserInfoList = [
             {
                 downloadLink: 'https://www.google.com/chrome',
@@ -55,13 +58,13 @@ export class BrowserSupportPageComponent implements OnInit {
     }
 
     getFilteredBrowserInfoList(): IBrowserInfo[] {
-        const userOSName = bowser.osname;
+        const userOSName = this.userAgentInfo.os.name;
 
         return this.browserInfoList.filter((browserInfo: IBrowserInfo) => {
             switch (userOSName) {
-                case 'Windows':
+                case 'window':
                     return browserInfo.name !== 'safari';
-                case 'macOS':
+                case 'mac':
                     return browserInfo.name !== 'edge';
                 default:
                     return browserInfo.name === 'chrome' || browserInfo.name === 'firefox';

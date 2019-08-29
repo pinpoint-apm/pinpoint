@@ -1,4 +1,4 @@
-import { Component, OnInit, OnChanges, SimpleChanges, Input, Output, EventEmitter, AfterViewChecked, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, OnChanges, SimpleChanges, Input, Output, EventEmitter, AfterViewChecked } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 
 import { CustomFormValidatorService } from 'app/shared/services/custom-form-validator.service';
@@ -18,7 +18,6 @@ export class PinpointUser {
     styleUrls: ['./pinpoint-user-create-and-update.component.css']
 })
 export class PinpointUserCreateAndUpdateComponent implements OnInit, OnChanges, AfterViewChecked {
-    @ViewChild('newUserGroupName') userGroupInput: ElementRef;
     @Input() showCreate = false;
     @Input() i18nLabel: any;
     @Input() i18nGuide: { [key: string]: IFormFieldErrorType };

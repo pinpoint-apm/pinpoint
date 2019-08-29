@@ -1,6 +1,7 @@
 
 import { NgModule } from '@angular/core';
-import { MatTooltipModule, MatSlideToggleModule } from '@angular/material';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { SharedModule } from 'app/shared';
 import { AgentManagerContainerComponent } from './agent-manager-container.component';
 import { AgentManagerComponent } from './agent-manager.component';

@@ -12,7 +12,7 @@ import { ActiveThreadDumpDetailInfoDataService } from './active-thread-dump-deta
     styleUrls: ['./thread-dump-log-container.component.css'],
 })
 export class ThreadDumpLogContainerComponent implements OnInit, OnDestroy {
-    @ViewChild('logDisplay') target: ElementRef;
+    @ViewChild('logDisplay', { static: true }) target: ElementRef;
     private unsubscribe: Subject<null> = new Subject();
     private applicationName: string;
     private agentId: string;

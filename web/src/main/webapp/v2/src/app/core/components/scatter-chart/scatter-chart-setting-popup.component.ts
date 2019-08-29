@@ -6,8 +6,8 @@ import { Component, OnInit, Input, Output, ViewChild, ElementRef, EventEmitter }
     styleUrls: ['./scatter-chart-setting-popup.component.css']
 })
 export class ScatterChartSettingPopupComponent implements OnInit {
-    @ViewChild('minInput') minInput: ElementRef;
-    @ViewChild('maxInput') maxInput: ElementRef;
+    @ViewChild('minInput', { static: true }) minInput: ElementRef;
+    @ViewChild('maxInput', { static: true }) maxInput: ElementRef;
     @Input() instanceKey: string;
     @Input() min: number;
     @Input() max: number;

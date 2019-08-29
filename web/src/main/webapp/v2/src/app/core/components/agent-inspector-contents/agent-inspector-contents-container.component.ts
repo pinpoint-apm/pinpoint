@@ -13,7 +13,7 @@ import { ChartType } from 'app/core/components/inspector-chart/inspector-chart-c
 })
 export class AgentInspectorContentsContainerComponent implements OnInit, OnDestroy {
     @HostBinding('class') hostClass = 'l-agent-inspector-contents';
-    @ViewChild('chartGroupWrapper') chartGroupWrapper: ElementRef;
+    @ViewChild('chartGroupWrapper', { static: true }) chartGroupWrapper: ElementRef;
     private unsubscribe = new Subject<void>();
 
     guideMessage$: Observable<string>;

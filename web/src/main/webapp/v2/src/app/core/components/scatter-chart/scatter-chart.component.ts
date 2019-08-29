@@ -12,7 +12,7 @@ import { ScatterChartTransactionTypeManager } from './class/scatter-chart-transa
     styleUrls: ['./scatter-chart.component.css']
 })
 export class ScatterChartComponent implements OnInit, OnDestroy, OnChanges {
-    @ViewChild('scatter') elementScatter: ElementRef;
+    @ViewChild('scatter', { static: true }) elementScatter: ElementRef;
     @Input() instanceKey: string;
     @Input() addWindow: boolean;
     @Input() width: number;

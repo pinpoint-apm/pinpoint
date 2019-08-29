@@ -6,7 +6,7 @@ import { Component, Renderer2, OnInit, OnChanges, SimpleChanges, Output, Input, 
     styleUrls: ['./transaction-search.component.css']
 })
 export class TransactionSearchComponent implements OnInit, OnChanges {
-    @ViewChild('searchType') searchType: ElementRef;
+    @ViewChild('searchType', { static: true }) searchType: ElementRef;
     @Input() viewType: string;
     @Input() useArgument: boolean;
     @Input() resultMessage: string;

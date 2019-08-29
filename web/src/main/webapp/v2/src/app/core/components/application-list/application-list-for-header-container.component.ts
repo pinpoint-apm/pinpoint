@@ -22,7 +22,7 @@ import { FOCUS_TYPE } from './application-list-for-header.component';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ApplicationListForHeaderContainerComponent implements OnInit, AfterViewInit, OnDestroy {
-    @ViewChild('inputQuery') inputQuery: ElementRef;
+    @ViewChild('inputQuery', { static: true }) inputQuery: ElementRef;
     private unsubscribe: Subject<null> = new Subject();
     private maxIndex: number;
     private minLength = 3;
