@@ -22,7 +22,6 @@ import com.navercorp.pinpoint.web.dao.ApplicationDirectBufferDao;
 import com.navercorp.pinpoint.web.mapper.stat.ApplicationStatMapper;
 import com.navercorp.pinpoint.web.mapper.stat.SampledApplicationStatResultExtractor;
 import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.ApplicationStatSampler;
-import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.JoinDirectBufferSampler;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinDirectBufferBo;

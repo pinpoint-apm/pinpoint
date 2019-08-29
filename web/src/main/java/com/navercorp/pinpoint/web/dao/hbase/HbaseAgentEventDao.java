@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.web.dao.hbase;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
 import com.navercorp.pinpoint.common.hbase.HbaseTableConstatns;
+import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.TableDescriptor;
 import com.navercorp.pinpoint.common.server.bo.event.AgentEventBo;
@@ -27,7 +28,6 @@ import com.navercorp.pinpoint.common.server.util.RowKeyUtils;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.common.util.TimeUtils;
 import com.navercorp.pinpoint.web.dao.AgentEventDao;
-import com.navercorp.pinpoint.web.mapper.AgentEventResultsExtractor;
 import com.navercorp.pinpoint.web.vo.Range;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -65,7 +65,7 @@ public class HbaseAgentEventDao implements AgentEventDao {
     private RowMapper<List<AgentEventBo>> agentEventMapper;
 
     @Autowired
-    private AgentEventResultsExtractor agentEventResultsExtractor;
+    private ResultsExtractor<List<AgentEventBo>> agentEventResultsExtractor;
 
     @Autowired
     private TableDescriptor<HbaseColumnFamily.Trace> descriptor;
