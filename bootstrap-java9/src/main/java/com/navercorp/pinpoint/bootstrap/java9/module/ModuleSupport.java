@@ -121,6 +121,9 @@ public class ModuleSupport {
         // at pinpoint.agent/pinpoint.agent/com.navercorp.pinpoint.profiler.instrument.classloading.URLClassLoaderHandler.<clinit>(URLClassLoaderHandler.java:44)
         JavaModule baseModule = getJavaBaseModule();
         baseModule.addOpens("java.net", agentModule);
+        // java.lang.reflect.InaccessibleObjectException: Unable to make private java.nio.DirectByteBuffer(long,int) accessible: module java.base does not "opens java.nio" to module pinpoint.agent
+        //   at java.base/java.lang.reflect.AccessibleObject.checkCanSetAccessible(AccessibleObject.java:337)
+        baseModule.addOpens("java.nio", agentModule);
 
         // for Java9DefineClass
         baseModule.addExports("jdk.internal.misc", agentModule);
@@ -134,6 +137,10 @@ public class ModuleSupport {
         // DefaultCpuLoadMetric : com.sun.management.OperatingSystemMXBean
         final JavaModule jdkManagement = loadModule("jdk.management");
         agentModule.addReads(jdkManagement);
+
+        // for grpc's NameResolverProvider
+        final JavaModule jdkUnsupported = loadModule("jdk.unsupported");
+        agentModule.addReads(jdkUnsupported);
 
 //        LongAdder
 //        final Module unsupportedModule = loadModule("jdk.unsupported");
@@ -150,6 +157,10 @@ public class ModuleSupport {
         final String serviceClassName = "com.navercorp.pinpoint.profiler.context.recorder.proxy.ProxyRequestParserProvider";
         Class<?> serviceClazz = forName(serviceClassName, classLoader);
         agentModule.addUses(serviceClazz);
+
+        final String nameResolverProviderName = "io.grpc.NameResolverProvider";
+        Class<?> nameResolverProviderClazz = forName(nameResolverProviderName, classLoader);
+        agentModule.addUses(nameResolverProviderClazz);
 
         List<Providers> providersList = agentModule.getProviders();
         for (Providers providers : providersList) {
