@@ -54,7 +54,7 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
     private AbstractRowKeyDistributor rowKeyDistributor;
 
     @Autowired
-    private TableDescriptor<HbaseColumnFamily.ApplicationIndex> descriptor;
+    private TableDescriptor<HbaseColumnFamily.ApplicationTraceIndexTrace> descriptor;
 
     @Override
     public void insert(final SpanBo span) {
