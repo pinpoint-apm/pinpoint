@@ -64,6 +64,7 @@ public class HbaseApplicationIndexDao implements ApplicationIndexDao {
     public List<Application> selectAllApplicationNames() {
         Scan scan = new Scan();
         scan.setCaching(30);
+        scan.addFamily(descriptor.getColumnFamilyName());
 
         TableName applicationIndexTableName = descriptor.getTableName();
         List<List<Application>> results = hbaseOperations2.find(applicationIndexTableName, scan, applicationNameMapper);
