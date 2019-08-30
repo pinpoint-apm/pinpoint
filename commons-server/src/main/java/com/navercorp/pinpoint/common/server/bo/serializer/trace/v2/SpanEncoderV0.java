@@ -9,12 +9,16 @@ import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.bitfield.SpanBitFiled;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.bitfield.SpanEventBitField;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.bitfield.SpanEventQualifierBitField;
+import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.io.util.AnnotationTranscoder;
 import org.apache.commons.collections.CollectionUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.nio.ByteBuffer;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -24,13 +28,16 @@ public class SpanEncoderV0 implements SpanEncoder {
 
     private static final AnnotationTranscoder transcoder = new AnnotationTranscoder();
 
+    @Autowired
+    private ServiceTypeRegistryService serviceTypeRegistryService;
+
     @Override
     public ByteBuffer encodeSpanQualifier(SpanEncodingContext<SpanBo> encodingContext) {
         final SpanBo spanBo = encodingContext.getValue();
         final List<SpanEventBo> spanEventBoList = spanBo.getSpanEventBoList();
         final SpanEventBo firstEvent = getFirstSpanEvent(spanEventBoList);
-
-        return encodeQualifier(TYPE_SPAN, spanBo.getApplicationId(), spanBo.getAgentId(), spanBo.getAgentStartTime(), spanBo.getSpanId(), firstEvent);
+        return encodeQualifier(TYPE_SPAN, spanBo.getApplicationId(), spanBo.getAgentId(), spanBo.getAgentStartTime(),
+                spanBo.getSpanId(), spanBo.getServiceType(), firstEvent);
     }
 
     @Override
@@ -40,17 +47,17 @@ public class SpanEncoderV0 implements SpanEncoder {
         final List<SpanEventBo> spanEventBoList = spanChunkBo.getSpanEventBoList();
         final SpanEventBo firstEvent = getFirstSpanEvent(spanEventBoList);
 
-        return encodeQualifier(TYPE_SPAN_CHUNK, spanChunkBo.getApplicationId(), spanChunkBo.getAgentId(), spanChunkBo.getAgentStartTime(), spanChunkBo.getSpanId(), firstEvent);
+        return encodeQualifier(TYPE_SPAN_CHUNK, spanChunkBo.getApplicationId(), spanChunkBo.getAgentId(),
+                spanChunkBo.getAgentStartTime(), spanChunkBo.getSpanId(), spanChunkBo.getApplicationServiceType(), firstEvent);
     }
 
-    private ByteBuffer encodeQualifier(byte type, String applicationId, String agentId, long agentStartTime, long spanId, SpanEventBo firstEvent) {
+    private ByteBuffer encodeQualifier(byte type, String applicationId, String agentId, long agentStartTime, long spanId, short serviceTyep, SpanEventBo firstEvent) {
         final Buffer buffer = new AutomaticBuffer(128);
         buffer.putByte(type);
         buffer.putPrefixedString(applicationId);
         buffer.putPrefixedString(agentId);
         buffer.putVLong(agentStartTime);
         buffer.putLong(spanId);
-
         if (firstEvent != null) {
             buffer.putSVInt(firstEvent.getSequence());
 
@@ -61,6 +68,7 @@ public class SpanEncoderV0 implements SpanEncoder {
                 buffer.putInt(firstEvent.getAsyncId());
                 buffer.putVInt(firstEvent.getAsyncSequence());
             }
+
         } else {
             // simple trace case
 //            buffer.putSVInt((short) -1);
@@ -68,11 +76,12 @@ public class SpanEncoderV0 implements SpanEncoder {
 //            byte cfBitField = SpanEventQualifierBitField.setAsync((byte) 0, false);
 //            buffer.putByte(cfBitField);
         }
-
+        ServiceType serviceType = serviceTypeRegistryService.findServiceType(serviceTyep);
+        if (null != serviceType && serviceType.isQueue()) {
+            buffer.putVInt(ThreadLocalRandom.current().nextInt(65536));
+        }
         return buffer.wrapByteBuffer();
     }
-
-
 
     private SpanEventBo getFirstSpanEvent(List<SpanEventBo> spanEventBoList) {
         if (CollectionUtils.isEmpty(spanEventBoList)) {
