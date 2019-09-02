@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.profiler.context.module;
 import com.google.inject.Module;
 import com.google.inject.util.Modules;
 import com.navercorp.pinpoint.bootstrap.AgentOption;
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.profiler.context.module.config.ConfigModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,10 +46,11 @@ public class ApplicationContextModuleFactory implements ModuleFactory {
     }
 
     private Module newRpcModule(AgentOption agentOption) {
-        final String transportModule = agentOption.getProfilerConfig().getTransportModule();
+        ProfilerConfig profilerConfig = agentOption.getProfilerConfig();
+        final String transportModule = profilerConfig.getTransportModule();
         if (GRPC_MODULE.equalsIgnoreCase(transportModule)) {
             logger.info("load GrpcModule");
-            return new GrpcModule();
+            return new GrpcModule(profilerConfig);
         }
         if (THRIFT_MODULE.equalsIgnoreCase(transportModule)) {
             logger.info("load ThriftModule");
