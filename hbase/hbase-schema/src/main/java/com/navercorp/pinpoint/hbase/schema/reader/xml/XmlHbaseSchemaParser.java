@@ -31,6 +31,7 @@ import javax.xml.bind.Unmarshaller;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
+import java.io.IOException;
 import java.io.InputStream;
 
 /**
@@ -57,16 +58,20 @@ class XmlHbaseSchemaParser {
     }
 
     private static Schema createSchema() {
-        InputStream xsdInputStream = XmlHbaseSchemaParser.class.getResourceAsStream(XmlHbaseSchemaParser.XSD_FILE);
-        if (xsdInputStream == null) {
-            LOGGER.warn("Unabled to find: {}, skipping validation", XmlHbaseSchemaParser.XSD_FILE);
-            return null;
-        }
-        try {
-            SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-            return schemaFactory.newSchema(new StreamSource(xsdInputStream));
-        } catch (SAXException e) {
-            LOGGER.warn("Unable to parse: {}, skipping validation", XmlHbaseSchemaParser.XSD_FILE);
+        try (InputStream xsdInputStream = XmlHbaseSchemaParser.class.getResourceAsStream(XSD_FILE)) {
+            if (xsdInputStream == null) {
+                LOGGER.warn("Unabled to find: {}, skipping validation", XSD_FILE);
+                return null;
+            }
+            try {
+                SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+                return schemaFactory.newSchema(new StreamSource(xsdInputStream));
+            } catch (SAXException e) {
+                LOGGER.warn("Unable to parse: {}, skipping validation", XSD_FILE);
+                return null;
+            }
+        } catch (IOException e) {
+            LOGGER.error("{} file I/O error, skipping validation. Error:{}", XSD_FILE, e.getMessage(), e);
             return null;
         }
     }
