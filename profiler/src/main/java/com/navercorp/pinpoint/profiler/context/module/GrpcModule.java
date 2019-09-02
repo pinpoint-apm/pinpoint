@@ -16,12 +16,20 @@
 
 package com.navercorp.pinpoint.profiler.context.module;
 
+import com.google.inject.Binding;
 import com.google.inject.Key;
 import com.google.inject.PrivateModule;
 import com.google.inject.Scopes;
 import com.google.inject.TypeLiteral;
+import com.google.inject.matcher.AbstractMatcher;
 import com.google.inject.name.Names;
+import com.google.inject.spi.ProvisionListener;
 import com.google.protobuf.GeneratedMessageV3;
+
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.common.util.JvmUtils;
+import com.navercorp.pinpoint.common.util.JvmVersion;
 import com.navercorp.pinpoint.profiler.context.grpc.GrpcTransportConfig;
 import com.navercorp.pinpoint.grpc.client.HeaderFactory;
 import com.navercorp.pinpoint.grpc.trace.PSpan;
@@ -49,6 +57,7 @@ import com.navercorp.pinpoint.profiler.sender.ResultResponse;
 import com.navercorp.pinpoint.profiler.sender.grpc.ReconnectExecutor;
 import io.grpc.NameResolverProvider;
 
+import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -56,9 +65,15 @@ import java.util.concurrent.ScheduledExecutorService;
  * @author Woonduk Kang(emeroad)
  */
 public class GrpcModule extends PrivateModule {
+
+    private final ProfilerConfig profilerConfig;
+
+    public GrpcModule(ProfilerConfig profilerConfig) {
+        this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig must not be null");
+    }
+
     @Override
     protected void configure() {
-
         bind(GrpcTransportConfig.class).toProvider(GrpcTransportConfigProvider.class).in(Scopes.SINGLETON);
         // dns executor
         bind(ExecutorService.class).toProvider(DnsExecutorServiceProvider.class).in(Scopes.SINGLETON);
@@ -114,5 +129,51 @@ public class GrpcModule extends PrivateModule {
         Key<ModuleLifeCycle> rpcModuleLifeCycleKey = Key.get(ModuleLifeCycle.class, Names.named("RPC-MODULE"));
         bind(rpcModuleLifeCycleKey).to(GrpcModuleLifeCycle.class).in(Scopes.SINGLETON);
         expose(rpcModuleLifeCycleKey);
+
+        setNettyReflectionSetAccessible();
     }
+
+    private void setNettyReflectionSetAccessible() {
+        boolean tryReflectionSetAccessible = profilerConfig.readBoolean(GrpcTransportConfig.KEY_PROFILER_CONFIG_NETTY_TRY_REFLECTION_SET_ACCESSIBLE, GrpcTransportConfig.DEFAULT_NETTY_SYSTEM_PROPERTY_TRY_REFLECTIVE_SET_ACCESSIBLE);
+        if (!tryReflectionSetAccessible) {
+            return;
+        }
+        if (!JvmUtils.getVersion().onOrAfter(JvmVersion.JAVA_9)) {
+            return;
+        }
+
+        // profiler.system.property.io.netty.tryReflectionSetAccessible=true
+        final Properties properties = System.getProperties();
+        final boolean hasValue = properties.containsKey(GrpcTransportConfig.SYSTEM_PROPERTY_NETTY_TRY_REFLECTION_SET_ACCESSIBLE);
+
+        final String originalTryReflectionSetAccessible = properties.getProperty(GrpcTransportConfig.SYSTEM_PROPERTY_NETTY_TRY_REFLECTION_SET_ACCESSIBLE, null);
+
+        properties.put(GrpcTransportConfig.SYSTEM_PROPERTY_NETTY_TRY_REFLECTION_SET_ACCESSIBLE, "true");
+
+        bindListener(new GrpcModuleLifeCycleMatcher(), new ProvisionListener() {
+            @Override
+            public <T> void onProvision(ProvisionListener.ProvisionInvocation<T> provision) {
+                if (!hasValue) {
+                    properties.remove(GrpcTransportConfig.SYSTEM_PROPERTY_NETTY_TRY_REFLECTION_SET_ACCESSIBLE);
+                } else {
+                    properties.put(GrpcTransportConfig.SYSTEM_PROPERTY_NETTY_TRY_REFLECTION_SET_ACCESSIBLE, originalTryReflectionSetAccessible);
+                }
+            }
+        });
+    }
+
+    private class GrpcModuleLifeCycleMatcher extends AbstractMatcher<Binding> {
+
+        @Override
+        public boolean matches(Binding binding) {
+            Key key = binding.getKey();
+
+            if (GrpcModuleLifeCycle.class.getName().equals(key.getTypeLiteral().getRawType().getName())) {
+                return true;
+            }
+            return false;
+        }
+
+    }
+
 }
