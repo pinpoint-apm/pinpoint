@@ -191,7 +191,7 @@ export class ResponseSummaryChartContainerComponent implements OnInit, OnDestroy
                 filter(() => this.sourceType !== SourceType.INFO_PER_SERVER),
                 tap(() => this.selectedAgent = ''),
                 tap(({key}: any) => this.isOriginalNode = this.selectedTarget.node.includes(key)),
-                map((target: any) => target.histogram)
+                map((target: any) => target.histogram),
             ),
             this.storeHelperService.getAgentSelectionForServerList(this.unsubscribe).pipe(
                 filter(() => this.sourceType === SourceType.INFO_PER_SERVER),
@@ -254,7 +254,7 @@ export class ResponseSummaryChartContainerComponent implements OnInit, OnDestroy
     private makeChartData(data: IResponseTime | IResponseMilliSecondTime): PrimitiveArray[] {
         return data
             ? [['x', ...Object.keys(data)], ['rs', ...Object.values(data)]]
-            : [['x'], ['rs']];
+            : [];
     }
 
     private makeDataOption(columns: PrimitiveArray[]): Data {

@@ -8,24 +8,30 @@ import { Component, OnInit, Input, Output, EventEmitter, OnChanges, SimpleChange
 export class TargetListComponent implements OnInit, OnChanges {
     @Input() isLink: boolean;
     @Input() targetList: any[];
-    @Output() outSelectTarget: EventEmitter<any> = new EventEmitter();
-    @Output() outOpenFilter: EventEmitter<any> = new EventEmitter();
-    @Output() outOpenFilterWizard: EventEmitter<any> = new EventEmitter();
+    @Output() outSelectTarget = new EventEmitter<any>();
+    @Output() outOpenFilter = new EventEmitter<any>();
+    @Output() outOpenFilterWizard = new EventEmitter<any>();
 
     selectedAppName = '';
 
     constructor() {}
     ngOnInit() {}
-    ngOnChanges(changes: SimpleChanges) {
+    ngOnChanges(_: SimpleChanges) {
         if (this.targetList && this.targetList.length === 1) {
             if (!this.isLink) {
-                this.setSelectedAppName(this.targetList[0][0]);
+                this.selectedAppName = this.getSelectedAppName(this.targetList[0][0]);
             }
         }
     }
 
     onSelectTarget(target: any): void {
-        this.setSelectedAppName(target[0]);
+        const targetAppName = this.getSelectedAppName(target[0]);
+
+        if (this.selectedAppName === targetAppName) {
+            return;
+        }
+
+        this.selectedAppName = targetAppName;
         this.outSelectTarget.emit(target[0]);
     }
 
@@ -53,9 +59,9 @@ export class TargetListComponent implements OnInit, OnChanges {
         }
     }
 
-    private setSelectedAppName(target: any): void {
+    private getSelectedAppName(target: any): string {
         const {applicationName, sourceInfo, targetInfo} = target;
 
-        this.selectedAppName = applicationName ? applicationName : `${sourceInfo.applicationName}-${targetInfo.applicationName}`;
+        return applicationName ? applicationName : `${sourceInfo.applicationName}-${targetInfo.applicationName}`;
     }
 }

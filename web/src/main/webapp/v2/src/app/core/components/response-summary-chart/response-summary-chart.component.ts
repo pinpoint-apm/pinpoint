@@ -44,22 +44,19 @@ export class ResponseSummaryChartComponent implements OnInit, OnChanges {
     private updateChart({previousValue, currentValue}: {previousValue: IChartConfig, currentValue: IChartConfig}): void {
         const {columns: prevColumns} = previousValue.dataConfig;
         const {columns: currColumns} = currentValue.dataConfig;
+
         const prevKeys = prevColumns.map(([key]: PrimitiveArray) => key);
         const currKeys = currColumns.map(([key]: PrimitiveArray) => key);
         const removedKeys = prevKeys.filter((key: string) => !currKeys.includes(key));
-        const {axis: {y, y2 = {}}} = currentValue.elseConfig;
+        const {axis: {y}} = currentValue.elseConfig;
         const unload = prevKeys.length === 0 ? false
             : removedKeys.length !== 0 ? true
             : this.getEmptyDataKeys(currColumns);
 
+        this.chartInstance.config('axis.y.max', y.max);
         this.chartInstance.load({
             columns: currColumns,
-            unload
-        });
-
-        this.chartInstance.axis.max({
-            y: y.max,
-            y2: y2.max
+            unload,
         });
     }
 

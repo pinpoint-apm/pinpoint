@@ -47,7 +47,7 @@ export class LoadChartComponent implements OnInit, OnChanges {
         const prevKeys = prevColumns.map(([key]: PrimitiveArray) => key);
         const currKeys = currColumns.map(([key]: PrimitiveArray) => key);
         const removedKeys = prevKeys.filter((key: string) => !currKeys.includes(key));
-        const {axis: {y, y2 = {}}} = currentValue.elseConfig;
+        const {axis: {y}} = currentValue.elseConfig;
         /**
          * About determining "unload":
          * 1. If there was no data before => nothing to unload
@@ -59,15 +59,11 @@ export class LoadChartComponent implements OnInit, OnChanges {
             : this.getEmptyDataKeys(currColumns);
 
         this.chartInstance.config('data.groups', [currKeys.slice(1)]);
+        this.chartInstance.config('axis.y.max', y.max);
         this.chartInstance.load({
             columns: currColumns,
             colors,
             unload
-        });
-
-        this.chartInstance.axis.max({
-            y: y.max,
-            y2: y2.max
         });
     }
 
