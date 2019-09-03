@@ -54,9 +54,9 @@
 					<li class="divider-vertical"></li>
                     <li class="for-datetimepicker" id="navbar_period">
                         <div ng-show="periodType != 'range'">
-                            <div class="btn-group btn-group-sm" style="margin-top:0px;width:342px;float:left;">
+                            <div class="btn-group btn-group-sm" style="margin-top:0px;float:left;height:30px">
                                 <button type="button" class="btn btn-success" ng-click="togglePeriod('range')"><span class="glyphicon glyphicon-th-list"></span></button>
-								<button type="button" class="btn btn-default" ng-click="setRealtime()" ng-hide="bIsInspector" ng-disabled="periodDelay" ng-class="isRealtime() ? 'btn-info' : ''" style="padding-top:3px;padding-bottom:3px;line-height:1.1;font-size:10px">REAL<br/>TIME</button>
+								<button type="button" class="btn btn-default" ng-click="setRealtime()" ng-hide="bIsInspector" ng-disabled="periodDelay" ng-class="isRealtime() ? 'btn-info' : ''" style="height:100%;font-size:10px">REAL TIME</button>
                                 <button type="button" class="btn btn-default" ng-repeat="period in aReadablePeriodList" ng-class="getPeriodClass( period )" ng-click="setPeriod(period)" ng-disabled="periodDelay">{{period == "5m" ? "Last " + period : period}}</button>
                             </div>
                             <div class="btn-group btn-group-sm input-group input-group-sm" style="float:left;margin-top:0px;padding-left:6px;width:146px;float:left;" ng-show="showUpdate()">
