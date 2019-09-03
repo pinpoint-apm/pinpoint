@@ -193,7 +193,9 @@ export class LoadChartContainerComponent implements OnInit, OnDestroy {
             this.storeHelperService.getServerMapTargetSelectedByList(this.unsubscribe).pipe(
                 filter(() => this.sourceType !== SourceType.INFO_PER_SERVER),
                 tap(() => this.selectedAgent = ''),
-                tap(({key}: any) => this.isOriginalNode = this.selectedTarget.node.includes(key)),
+                tap(({key}: any) => {
+                    this.isOriginalNode = this.selectedTarget.isNode ? this.selectedTarget.node.includes(key) : this.selectedTarget.link.includes(key);
+                }),
                 map((target: any) => target.timeSeriesHistogram)
             ),
             this.storeHelperService.getAgentSelectionForServerList(this.unsubscribe).pipe(
