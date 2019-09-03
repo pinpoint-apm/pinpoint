@@ -17,11 +17,12 @@
 
 package com.navercorp.pinpoint.test.plugin;
 
+import com.navercorp.pinpoint.test.plugin.util.FileUtils;
+
 import java.io.File;
-import java.net.MalformedURLException;
+import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -52,22 +53,12 @@ public class PluginTestClassLoader extends URLClassLoader {
         if (fileList == null) {
             return new URL[0];
         }
-
-        final List<URL> urls = new ArrayList<URL>();
-        for (File file : fileList) {
-            final URL url = toURL(file);
-            urls.add(url);
-        }
-        return urls.toArray(new URL[0]);
-    }
-
-    private static URL toURL(File file) {
         try {
-            return file.toURI().toURL();
-        } catch (MalformedURLException e) {
+            final File[] files = fileList.toArray(new File[0]);
+            return FileUtils.toURLs(files);
+        } catch (IOException e) {
             throw new RuntimeException(e. getMessage(), e);
         }
     }
-
 
 }

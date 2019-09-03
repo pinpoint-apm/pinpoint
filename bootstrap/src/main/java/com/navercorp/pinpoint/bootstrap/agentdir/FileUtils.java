@@ -17,11 +17,10 @@
 package com.navercorp.pinpoint.bootstrap.agentdir;
 
 import com.navercorp.pinpoint.bootstrap.BootLogger;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.io.IOException;
-
 import java.util.List;
 
 
@@ -35,30 +34,21 @@ final class FileUtils {
     private FileUtils() {
     }
 
+    /**
+     * @deprecated  Use {@link com.navercorp.pinpoint.common.util.FileUtils#listFiles(File, String[])} instead.
+     */
+    @Deprecated
     public static File[] listFiles(final File path, final List<String> fileExtensionList) {
-        if (path == null) {
-            throw new NullPointerException("path must not be null");
-        }
-        if (fileExtensionList == null) {
-            throw new NullPointerException("fileExtensionList must not be null");
-        }
-        return path.listFiles(new FileFilter() {
-            @Override
-            public boolean accept(File pathname) {
-                String path = pathname.getName();
-                for (String extension : fileExtensionList) {
-                    if (path.lastIndexOf(extension) != -1) {
-                        return true;
-                    }
-                }
-                return false;
-            }
-        });
+        final String[] fileExtensions = fileExtensionList.toArray(new String[0]);
+        return com.navercorp.pinpoint.common.util.FileUtils.listFiles(path, fileExtensions);
     }
 
-
+    /**
+     * @deprecated  Use {@link ArrayUtils#isEmpty(Object[])} instead.
+     */
+    @Deprecated
     public static boolean isEmpty(File[] files) {
-        return files == null || files.length == 0;
+        return ArrayUtils.isEmpty(files);
     }
 
 

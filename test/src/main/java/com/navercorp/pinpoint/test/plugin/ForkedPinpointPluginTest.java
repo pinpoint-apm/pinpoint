@@ -16,13 +16,8 @@
 
 package com.navercorp.pinpoint.test.plugin;
 
-import java.io.File;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.Callable;
-
+import com.navercorp.pinpoint.test.plugin.util.ArrayUtils;
+import com.navercorp.pinpoint.test.plugin.util.FileUtils;
 import org.junit.runner.Description;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
@@ -31,7 +26,14 @@ import org.junit.runner.notification.Failure;
 import org.junit.runner.notification.RunListener;
 import org.junit.runners.model.InitializationError;
 
-import static com.navercorp.pinpoint.test.plugin.PinpointPluginTestConstants.*;
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.util.concurrent.Callable;
+
+import static com.navercorp.pinpoint.test.plugin.PinpointPluginTestConstants.CHILD_CLASS_PATH_PREFIX;
+import static com.navercorp.pinpoint.test.plugin.PinpointPluginTestConstants.JUNIT_OUTPUT_DELIMITER;
+import static com.navercorp.pinpoint.test.plugin.PinpointPluginTestConstants.PINPOINT_TEST_ID;
 
 public class ForkedPinpointPluginTest {
     private static boolean forked = false;
@@ -94,16 +96,16 @@ public class ForkedPinpointPluginTest {
         return result.getFailureCount();
     }
 
-    private static ClassLoader getClassLoader(String agentType) throws MalformedURLException {
+    private static ClassLoader getClassLoader(String agentType) throws IOException {
         if (agentType.startsWith(CHILD_CLASS_PATH_PREFIX)) {
             String jars = agentType.substring(CHILD_CLASS_PATH_PREFIX.length());
-            List<URL> urls = getJarUrls(jars);
+            final URL[] urls = getJarUrls(jars);
             for (URL url : urls) {
                 if (logger.isDebugEnabled()) {
                     logger.debug("child-runner lib:" + url);
                 }
             }
-            return new PluginTestClassLoader(urls.toArray(new URL[0]), ClassLoader.getSystemClassLoader());
+            return new PluginTestClassLoader(urls, ClassLoader.getSystemClassLoader());
         }
         return ClassLoader.getSystemClassLoader();
     }
@@ -131,15 +133,13 @@ public class ForkedPinpointPluginTest {
     }
 
 
-    private static List<URL> getJarUrls(String jars) throws MalformedURLException {
+    private static URL[] getJarUrls(String jars) throws IOException {
         String[] tokens = jars.split(File.pathSeparator);
-        
-        List<URL> urls = new ArrayList<URL>(tokens.length);
-        for (String token : tokens) {
-            File file = new File(token);
-            urls.add(file.toURI().toURL());
+        if (ArrayUtils.isEmpty(tokens)) {
+            return new URL[0];
         }
-        return urls;
+
+        return FileUtils.toURLs(tokens);
     }
 
     private static class PrintListener extends RunListener {
