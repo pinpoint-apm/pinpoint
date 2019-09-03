@@ -104,14 +104,11 @@ export class InspectorChartComponent implements OnInit, OnChanges, OnDestroy {
         const unloadKeys = [...this.getEmptyDataKeys(currColumns), ...removedKeys];
         const {axis: {y, y2 = {}}} = currentValue.elseConfig;
 
+        this.chartInstance.config('axis.y.max', y.max);
+        this.chartInstance.config('axis.y2.max', y2.max);
         this.chartInstance.load({
             columns: currColumns,
             unload: unloadKeys,
-        });
-
-        this.chartInstance.axis.max({
-            y: y.max,
-            y2: y2.max
         });
     }
 
