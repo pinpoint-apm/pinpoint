@@ -139,7 +139,7 @@ public class ZookeeperJobWorkerTest {
             waitZookeeperServerData(0, zookeeperClient);
             Assert.assertEquals(0, manager.getClusterData().size());
 
-            manager.initZookeeperClusterData();
+            manager.refresh();
             waitZookeeperServerData(1, zookeeperClient);
             Assert.assertEquals(1, manager.getClusterData().size());
         } finally {
