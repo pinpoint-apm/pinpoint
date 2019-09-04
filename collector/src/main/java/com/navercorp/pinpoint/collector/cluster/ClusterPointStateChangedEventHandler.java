@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.collector.cluster;
 
-import com.navercorp.pinpoint.collector.cluster.zookeeper.ZookeeperProfilerClusterManager;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.rpc.common.SocketStateCode;
 import com.navercorp.pinpoint.rpc.server.ChannelProperties;
@@ -37,12 +36,12 @@ public class ClusterPointStateChangedEventHandler extends ServerStateChangeEvent
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final ZookeeperProfilerClusterManager zookeeperProfilerClusterManager;
+    private final ProfilerClusterManager profilerClusterManager;
     private final ChannelPropertiesFactory channelPropertiesFactory;
 
-    public ClusterPointStateChangedEventHandler(ChannelPropertiesFactory channelPropertiesFactory, ZookeeperProfilerClusterManager zookeeperProfilerClusterManager) {
+    public ClusterPointStateChangedEventHandler(ChannelPropertiesFactory channelPropertiesFactory, ProfilerClusterManager profilerClusterManager) {
         this.channelPropertiesFactory = Objects.requireNonNull(channelPropertiesFactory, "channelPropertiesFactory must not be null");
-        this.zookeeperProfilerClusterManager = Objects.requireNonNull(zookeeperProfilerClusterManager, "zookeeperProfilerClusterManager must not be null");
+        this.profilerClusterManager = Objects.requireNonNull(profilerClusterManager, "profilerClusterManager must not be null");
     }
 
     @Override
@@ -58,10 +57,10 @@ public class ClusterPointStateChangedEventHandler extends ServerStateChangeEvent
 
         if (SocketStateCode.RUN_DUPLEX == updatedStateCode) {
             ClusterPoint<byte[]> pinpointServerClusterPoint = newClusterPoint(pinpointServer, channelProperties);
-            zookeeperProfilerClusterManager.register(pinpointServerClusterPoint);
+            profilerClusterManager.register(pinpointServerClusterPoint);
         } else if (SocketStateCode.isClosed(updatedStateCode)) {
             ClusterPoint<byte[]> pinpointServerClusterPoint = newClusterPoint(pinpointServer, channelProperties);
-            zookeeperProfilerClusterManager.unregister(pinpointServerClusterPoint);
+            profilerClusterManager.unregister(pinpointServerClusterPoint);
         }
     }
 

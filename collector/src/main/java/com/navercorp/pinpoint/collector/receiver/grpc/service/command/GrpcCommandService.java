@@ -16,11 +16,10 @@
 
 package com.navercorp.pinpoint.collector.receiver.grpc.service.command;
 
-import com.google.protobuf.Empty;
 import com.navercorp.pinpoint.collector.cluster.AgentInfo;
 import com.navercorp.pinpoint.collector.cluster.GrpcAgentConnection;
+import com.navercorp.pinpoint.collector.cluster.ProfilerClusterManager;
 import com.navercorp.pinpoint.collector.cluster.zookeeper.ZookeeperClusterService;
-import com.navercorp.pinpoint.collector.cluster.zookeeper.ZookeeperProfilerClusterManager;
 import com.navercorp.pinpoint.collector.receiver.grpc.PinpointGrpcServer;
 import com.navercorp.pinpoint.collector.receiver.grpc.PinpointGrpcServerRepository;
 import com.navercorp.pinpoint.common.util.Assert;
@@ -39,6 +38,8 @@ import com.navercorp.pinpoint.grpc.trace.PCmdResponse;
 import com.navercorp.pinpoint.grpc.trace.ProfilerCommandServiceGrpc;
 import com.navercorp.pinpoint.rpc.client.RequestManager;
 import com.navercorp.pinpoint.rpc.util.TimerFactory;
+
+import com.google.protobuf.Empty;
 import io.grpc.Status;
 import io.grpc.StatusException;
 import io.grpc.stub.ServerCallStreamObserver;
@@ -62,7 +63,7 @@ public class GrpcCommandService extends ProfilerCommandServiceGrpc.ProfilerComma
 
     private final PinpointGrpcServerRepository grpcServerRepository = new PinpointGrpcServerRepository();
 
-    private final ZookeeperProfilerClusterManager zookeeperProfilerClusterManager;
+    private final ProfilerClusterManager profilerClusterManager;
     private final Timer timer;
 
     private final EchoService echoService = new EchoService();
@@ -72,8 +73,7 @@ public class GrpcCommandService extends ProfilerCommandServiceGrpc.ProfilerComma
 
     public GrpcCommandService(ZookeeperClusterService clusterService) {
         Assert.requireNonNull(clusterService, "clusterService must not be null");
-        this.zookeeperProfilerClusterManager = Assert.requireNonNull(clusterService.getProfilerClusterManager(), "zookeeperProfilerClusterManager must not be null");
-        Assert.requireNonNull(zookeeperProfilerClusterManager, "zookeeperProfilerClusterManager must not be null");
+        this.profilerClusterManager = Assert.requireNonNull(clusterService.getProfilerClusterManager(), "profilerClusterManager must not be null");
         this.timer = TimerFactory.createHashedWheelTimer("GrpcCommandService-Timer", 100, TimeUnit.MILLISECONDS, 512);
     }
 
@@ -114,7 +114,7 @@ public class GrpcCommandService extends ProfilerCommandServiceGrpc.ProfilerComma
                         boolean handshakeSucceed = pinpointGrpcServer.handleHandshake(supportCommandServiceKeyList);
                         if (handshakeSucceed) {
                             GrpcAgentConnection grpcAgentConnection = new GrpcAgentConnection(pinpointGrpcServer, supportCommandServiceKeyList);
-                            zookeeperProfilerClusterManager.register(grpcAgentConnection);
+                            profilerClusterManager.register(grpcAgentConnection);
                         }
                     } else if (value.hasFailMessage()) {
                         PCmdResponse failMessage = value.getFailMessage();

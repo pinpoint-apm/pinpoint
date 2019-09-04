@@ -17,8 +17,8 @@
 package com.navercorp.pinpoint.collector.receiver.thrift.tcp;
 
 import com.navercorp.pinpoint.collector.cluster.ClusterPointStateChangedEventHandler;
+import com.navercorp.pinpoint.collector.cluster.ProfilerClusterManager;
 import com.navercorp.pinpoint.collector.cluster.zookeeper.ZookeeperClusterService;
-import com.navercorp.pinpoint.collector.cluster.zookeeper.ZookeeperProfilerClusterManager;
 import com.navercorp.pinpoint.collector.config.AgentBaseDataReceiverConfiguration;
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.collector.service.async.AgentEventAsyncTaskService;
@@ -28,6 +28,7 @@ import com.navercorp.pinpoint.rpc.server.ChannelPropertiesFactory;
 import com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor;
 import com.navercorp.pinpoint.rpc.server.ServerMessageListenerFactory;
 import com.navercorp.pinpoint.rpc.server.handler.ServerStateChangeEventHandler;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -119,7 +120,7 @@ public class AgentBaseDataReceiver {
 
     private void prepare(PinpointServerAcceptor acceptor) {
         if (clusterService != null && clusterService.isEnable()) {
-            ZookeeperProfilerClusterManager profilerClusterManager = clusterService.getProfilerClusterManager();
+            ProfilerClusterManager profilerClusterManager = clusterService.getProfilerClusterManager();
             final ServerStateChangeEventHandler stateChangeEventHandler = new ClusterPointStateChangedEventHandler(channelPropertiesFactory, profilerClusterManager);
 
             logger.info("Add Cluster channel state change event handlers {}", stateChangeEventHandler);
