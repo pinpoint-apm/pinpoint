@@ -19,7 +19,10 @@ package com.navercorp.pinpoint.test.plugin.util;
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class ArrayUtils {
+public final class ArrayUtils {
+    private ArrayUtils() {
+    }
+
     public static <T> boolean isEmpty(final T[] array) {
         return array == null || array.length == 0;
     }
