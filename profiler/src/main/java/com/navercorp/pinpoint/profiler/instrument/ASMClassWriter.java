@@ -15,7 +15,7 @@
  */
 package com.navercorp.pinpoint.profiler.instrument;
 
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
+import com.navercorp.pinpoint.bootstrap.instrument.ClassInputStreamProvider;
 import com.navercorp.pinpoint.common.util.IOUtils;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
@@ -36,12 +36,12 @@ public final class ASMClassWriter extends ClassWriter {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final InstrumentContext pluginContext;
+    private final ClassInputStreamProvider pluginInputStreamProvider;
     private ClassLoader classLoader;
 
-    public ASMClassWriter(final InstrumentContext pluginContext, final int flags, final ClassLoader classLoader) {
+    public ASMClassWriter(final ClassInputStreamProvider pluginInputStreamProvider, final int flags, final ClassLoader classLoader) {
         super(flags);
-        this.pluginContext = pluginContext;
+        this.pluginInputStreamProvider = pluginInputStreamProvider;
         this.classLoader = classLoader;
     }
 
@@ -214,7 +214,7 @@ public final class ASMClassWriter extends ClassWriter {
         }
 
         final String classFileName = classInternalName.concat(".class");
-        final InputStream in = pluginContext.getResourceAsStream(this.classLoader, classFileName);
+        final InputStream in = pluginInputStreamProvider.getResourceAsStream(this.classLoader, classFileName);
         if (in == null) {
             return null;
         }
