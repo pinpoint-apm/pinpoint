@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.bootstrap.agentdir;
 
 import com.navercorp.pinpoint.bootstrap.BootLogger;
-import com.navercorp.pinpoint.common.util.ArrayUtils;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -49,8 +48,8 @@ public class BootDir {
 
     private List<String> verify(File baseDirFile, List<JarDescription> jarDescriptions) {
         final String[] jarExtensions = {".jar"};
-        final File[] jarFiles = com.navercorp.pinpoint.common.util.FileUtils.listFiles(baseDirFile, jarExtensions);
-        if (ArrayUtils.isEmpty(jarFiles)) {
+        final File[] jarFiles = FileUtils.listFiles(baseDirFile, jarExtensions);
+        if (FileUtils.isEmpty(jarFiles)) {
             logger.info(baseDirFile.getName() + " is empty");
             return null;
         }
