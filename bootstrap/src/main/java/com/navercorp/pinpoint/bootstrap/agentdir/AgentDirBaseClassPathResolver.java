@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.bootstrap.agentdir;
 
 
 import com.navercorp.pinpoint.bootstrap.BootLogger;
-import com.navercorp.pinpoint.common.util.ArrayUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -169,12 +168,12 @@ public class AgentDirBaseClassPathResolver implements ClassPathResolver {
     }
 
     private File[] listFiles(File libDir, String[] p) {
-        return com.navercorp.pinpoint.common.util.FileUtils.listFiles(libDir, p);
+        return FileUtils.listFiles(libDir, p);
     }
 
     private List<URL> toURLs(File[] jarFileList) {
         try {
-            URL[] jarURLArray = com.navercorp.pinpoint.common.util.FileUtils.toURLs(jarFileList);
+            URL[] jarURLArray = FileUtils.toURLs(jarFileList);
             return Arrays.asList(jarURLArray);
         } catch (IOException e) {
             throw new RuntimeException(e.getMessage(), e);
@@ -191,7 +190,7 @@ public class AgentDirBaseClassPathResolver implements ClassPathResolver {
 
         final String[] jarExtensions = {".jar"};
         final File[] jars = listFiles(directory, jarExtensions);
-        if (ArrayUtils.isEmpty(jars)) {
+        if (FileUtils.isEmpty(jars)) {
             return Collections.emptyList();
         }
 
@@ -229,7 +228,7 @@ public class AgentDirBaseClassPathResolver implements ClassPathResolver {
 
     private URL toURL(File file) {
         try {
-            return com.navercorp.pinpoint.common.util.FileUtils.toURL(file);
+            return FileUtils.toURL(file);
         } catch (IOException e) {
             logger.warn(file.getName() + ".toURL() failed.", e);
             throw new RuntimeException(file.getName() + ".toURL() failed.", e);
