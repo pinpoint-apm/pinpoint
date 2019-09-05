@@ -40,6 +40,8 @@ public class Log4j2Plugin implements ProfilerPlugin, TransformTemplateAware {
         }
 
         transformLogEvent();
+
+        transformAsyncLogger();
     }
 
     private void transformLogEvent() {
@@ -104,6 +106,46 @@ public class Log4j2Plugin implements ProfilerPlugin, TransformTemplateAware {
                 InstrumentMethod constructor = InstrumentUtils.findConstructor(target, parameterTypes);
                 if (constructor != null) {
                     constructor.addInterceptor(interceptorClassName);
+                }
+            }
+        });
+    }
+
+    private void transformAsyncLogger() {
+        final String clazz = "org.apache.logging.log4j.core.async.AsyncLogger";
+        transformTemplate.transform(clazz, new TransformCallback() {
+
+            @Override
+            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?>
+                    classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+
+                if (haveMDCError(instrumentor, loader)) {
+                    return null;
+                }
+                String version = getVersion(loader);
+                if (version == null) {
+                    return null;
+                }
+                final int majorVersion = getVersionSection(version, 0);
+                final int majorVersionConstraint = 2;
+                if (majorVersion != majorVersionConstraint) {
+                    return null;
+                }
+
+                InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+                final String interceptorClassName = LoggingEventOfLog4j2Interceptor.class.getName();
+
+                //intercept logMessage(final String fqcn, final Level level, final Marker marker, final Message message, final Throwable thrown)
+                addLogMethodInterceptor(target, new String[]{"java.lang.String", "org.apache.logging.log4j.Level", "org.apache.logging.log4j.Marker",
+                        "org.apache.logging.log4j.message.Message", "java.lang.Throwable"}, interceptorClassName);
+
+                return target.toBytecode();
+            }
+
+            private void addLogMethodInterceptor(InstrumentClass target, String[] parameterTypes, String interceptorClassName) throws InstrumentException {
+                InstrumentMethod instrumentMethod = InstrumentUtils.findMethod(target, "logMessage", parameterTypes);
+                if (instrumentMethod != null) {
+                    instrumentMethod.addInterceptor(interceptorClassName);
                 }
             }
         });
