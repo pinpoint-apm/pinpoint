@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,6 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.RECORD_STA
 
 /**
  * @author K
- * @date 2019-06-14-14:00
  */
 public final class ApacheDubboConstants {
     private ApacheDubboConstants() {
