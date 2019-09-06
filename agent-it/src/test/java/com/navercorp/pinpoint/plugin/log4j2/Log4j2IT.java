@@ -20,25 +20,25 @@ import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointConfig;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.slf4j.MDC;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.ThreadContext;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
-@Dependency({"org.apache.logging.log4j:log4j-core:[2.0,)"})
 @PinpointConfig("pinpoint-spring-bean-test.config")
+@Dependency({"org.apache.logging.log4j:log4j-core:[2.0][2.1][2.2][2.3][2.4]"})
 public class Log4j2IT {
 
     @Test
     public void test() {
-        Logger logger = LoggerFactory.getLogger(getClass());
-        logger.error("log4j2");
+        Logger logger = LogManager.getLogger();
+        logger.error("for log4j2 plugin test");
 
-        Assert.assertNotNull(MDC.get("PtxId"));
-        Assert.assertNotNull(MDC.get("PspanId"));
+        Assert.assertNotNull(ThreadContext.get("PtxId"));
+        Assert.assertNotNull(ThreadContext.get("PspanId"));
     }
 }
