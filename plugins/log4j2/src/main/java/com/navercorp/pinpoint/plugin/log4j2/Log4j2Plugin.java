@@ -26,11 +26,13 @@ public class Log4j2Plugin implements ProfilerPlugin, TransformTemplateAware {
 
     private TransformTemplate transformTemplate;
 
+    private Log4j2Config config;
+
 
     @Override
     public void setup(ProfilerPluginSetupContext context) {
 
-        final Log4j2Config config = new Log4j2Config(context.getConfig());
+        config = new Log4j2Config(context.getConfig());
         if (logger.isInfoEnabled()) {
             logger.info("Log4j2Plugin config:{}", config);
         }
@@ -112,7 +114,10 @@ public class Log4j2Plugin implements ProfilerPlugin, TransformTemplateAware {
     }
 
     private void transformAsyncLogger() {
-        final String clazz = "org.apache.logging.log4j.core.async.AsyncLogger";
+        final String clazz = config.getAsyncLoggerTransformClass();
+        if (clazz == null || clazz.isEmpty()) {
+            return;
+        }
         transformTemplate.transform(clazz, new TransformCallback() {
 
             @Override
