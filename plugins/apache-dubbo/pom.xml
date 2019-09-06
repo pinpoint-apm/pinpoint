@@ -14,7 +14,7 @@
     <properties>
         <jdk.version>1.6</jdk.version>
         <jdk.home>${env.JAVA_8_HOME}</jdk.home>
-        <sniffer.artifactid>java18</sniffer.artifactid>
+        <sniffer.artifactid>java16</sniffer.artifactid>
     </properties>
 
     <dependencyManagement>
