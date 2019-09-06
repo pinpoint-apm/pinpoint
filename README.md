@@ -9,7 +9,7 @@
 
 ## Live Demo
 
-Take a quick look at Pinpoint with our [demo](http://125.209.240.10:10123).
+Take a quick look at Pinpoint with our [demo](http://125.209.240.10:10123), and even try out our [v2 UI](http://125.209.240.10:10123/v2)!
 
 ## Latest News (2018/08/30)
 
