@@ -54,7 +54,7 @@ public class ElasticsearchExecutorInterceptor extends SpanEventSimpleAroundInter
                                   Throwable throwable) {
 
         recorder.recordApi(getMethodDescriptor());
-        recorder.recordDestinationId("Elasticsearch");
+        recorder.recordDestinationId("ElasticSearch");
 
         if (target instanceof EndPointAccessor) {
             String endPoint = ((EndPointAccessor) target)._$PINPOINT$_getEndPoint();
