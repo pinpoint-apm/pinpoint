@@ -28,12 +28,12 @@ public class ElasticsearchPluginConfig {
     public ElasticsearchPluginConfig(ProfilerConfig profilerConfig) {
         if (profilerConfig != null) {
             this.elasticsearchEnabled = profilerConfig.readBoolean("profiler.elasticsearch.enabled", true);
-            this.recordDsl = profilerConfig.readBoolean("profiler.elasticsearchbboss.recordDsl", true);
-            this.recordESVersion = profilerConfig.readBoolean("profiler.elasticsearchbboss.recordESVersion", true);
+            this.recordDsl = profilerConfig.readBoolean("profiler.elasticsearch.recordDsl", true);
+            this.recordESVersion = profilerConfig.readBoolean("profiler.elasticsearch.recordESVersion", false);
         } else {
             this.elasticsearchEnabled = true;
             this.recordDsl = true;
-            this.recordESVersion = true;
+            this.recordESVersion = false;
         }
     }
 
@@ -43,8 +43,8 @@ public class ElasticsearchPluginConfig {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("ElasticsearchBBossPluginConfig{");
-        sb.append("elasticsearchBBossEnabled=").append(elasticsearchEnabled);
+        final StringBuilder sb = new StringBuilder("ElasticsearchPluginConfig{");
+        sb.append("ElasticsearchEnabled=").append(elasticsearchEnabled);
         sb.append(",recordDsl=").append(recordDsl);
         sb.append(",recordESVersion=").append(recordESVersion);
         sb.append('}');
