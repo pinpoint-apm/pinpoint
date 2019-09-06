@@ -26,13 +26,10 @@ public class Log4j2Plugin implements ProfilerPlugin, TransformTemplateAware {
 
     private TransformTemplate transformTemplate;
 
-    private Log4j2Config config;
-
-
     @Override
     public void setup(ProfilerPluginSetupContext context) {
 
-        config = new Log4j2Config(context.getConfig());
+        final Log4j2Config config = new Log4j2Config(context.getConfig());
         if (logger.isInfoEnabled()) {
             logger.info("Log4j2Plugin config:{}", config);
         }
@@ -41,83 +38,21 @@ public class Log4j2Plugin implements ProfilerPlugin, TransformTemplateAware {
             return;
         }
 
-        transformLogEvent();
-
-        transformAsyncLogger();
-    }
-
-    private void transformLogEvent() {
-
-        transformTemplate.transform("org.apache.logging.log4j.core.impl.Log4jLogEvent", new TransformCallback() {
-
-            @Override
-            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?>
-                    classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-
-                if (haveMDCError(instrumentor, loader)) {
-                    return null;
-                }
-
-                InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
-                final String interceptorClassName = LoggingEventOfLog4j2Interceptor.class.getName();
-
-                addConstructorInterceptor(target, new String[0], interceptorClassName);
-                addConstructorInterceptor(target, new String[]{"long"}, interceptorClassName);
-                addConstructorInterceptor(target, new String[]{"java.lang.String", "org.apache.logging.log4j.Marker", "java.lang.String", "org.apache.logging.log4j.Level", "org.apache.logging.log4j.message.Message",
-                        "java.lang.Throwable"}, interceptorClassName);
-                addConstructorInterceptor(target, new String[]{"java.lang.String", "org.apache.logging.log4j.Marker", "java.lang.String", "org.apache.logging.log4j.Level", "org.apache.logging.log4j.message.Message",
-                        "java.util.List", "java.lang.Throwable"}, interceptorClassName);
-                addConstructorInterceptor(target, new String[]{"java.lang.String", "org.apache.logging.log4j.Marker", "java.lang.String", "org.apache.logging.log4j.Level", "org.apache.logging.log4j.message.Message",
-                        "java.lang.Throwable", "java.util.Map", "org.apache.logging.log4j.ThreadContext$ContextStack", "java.lang.String", "java.lang.StackTraceElement", "long"}, interceptorClassName);
-
-                int majorVersion = 0;
-                int minorVersion = 0;
-                int patchVersion = 0;
-                boolean gotCheckError = false;
-                String version = getVersion(loader);
-                if (version == null) {
-                    gotCheckError = true;
-                } else {
-                    majorVersion = getVersionSection(version, 0);
-                    minorVersion = getVersionSection(version, 1);
-                    patchVersion = getVersionSection(version, 2);
-                }
-
-                final int majorVersionConstraint = 2;
-                if (majorVersion != majorVersionConstraint) {
-                    gotCheckError = true;
-                }
-                if (gotCheckError) {
-                    return target.toBytecode();
-                }
-                /*
-                  for log4j2 >=2.12.1 Constructor
-                 */
-                int minorVersionCheck = 12;
-                int patchVersionCheck = 1;
-                boolean extraConstructor = (minorVersion == minorVersionCheck && patchVersion >= patchVersionCheck) || (minorVersion > minorVersionCheck);
-                if (extraConstructor) {
-                    addConstructorInterceptor(target, new String[]{"java.lang.String", "org.apache.logging.log4j.Marker", "java.lang.String",
-                            "java.lang.StackTraceElement", "org.apache.logging.log4j.Level", "org.apache.logging.log4j.message.Message", "java.util.List", "java.lang.Throwable"}, interceptorClassName);
-                }
-
-                return target.toBytecode();
-            }
-
-            private void addConstructorInterceptor(InstrumentClass target, String[] parameterTypes, String interceptorClassName) throws InstrumentException {
-                InstrumentMethod constructor = InstrumentUtils.findConstructor(target, parameterTypes);
-                if (constructor != null) {
-                    constructor.addInterceptor(interceptorClassName);
-                }
-            }
-        });
-    }
-
-    private void transformAsyncLogger() {
-        final String clazz = config.getAsyncLoggerTransformClass();
-        if (clazz == null || clazz.isEmpty()) {
+        final String implListStr = config.getExtendedLoggerImplementationClass();
+        if (implListStr == null || implListStr.isEmpty()) {
             return;
         }
+        String[] implList = implListStr.trim().split(",");
+        for (String implClass : implList) {
+            implClass = implClass.trim();
+            if (!implClass.isEmpty()) {
+                transformLogMessage(implClass);
+            }
+        }
+    }
+
+    private void transformLogMessage(String clazz) {
+
         transformTemplate.transform(clazz, new TransformCallback() {
 
             @Override
@@ -125,15 +60,6 @@ public class Log4j2Plugin implements ProfilerPlugin, TransformTemplateAware {
                     classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
 
                 if (haveMDCError(instrumentor, loader)) {
-                    return null;
-                }
-                String version = getVersion(loader);
-                if (version == null) {
-                    return null;
-                }
-                final int majorVersion = getVersionSection(version, 0);
-                final int majorVersionConstraint = 2;
-                if (majorVersion != majorVersionConstraint) {
                     return null;
                 }
 
@@ -154,25 +80,6 @@ public class Log4j2Plugin implements ProfilerPlugin, TransformTemplateAware {
                 }
             }
         });
-    }
-
-    private String getVersion(ClassLoader loader) {
-        try {
-            String versionCheckClass = "org.apache.logging.log4j.core.LogEvent";
-            Class<?> transformClazz = Class.forName(versionCheckClass, false, loader);
-            return transformClazz.getPackage().getImplementationVersion();
-        } catch (ClassNotFoundException e) {
-            return null;
-        }
-    }
-
-    private int getVersionSection(String version, int index) {
-        try {
-            String[] versionsString = version.split("\\.");
-            return index < versionsString.length ? Integer.parseInt(versionsString[index]) : -1;
-        } catch (NumberFormatException e) {
-            return -2;
-        }
     }
 
     private boolean haveMDCError(Instrumentor instrumentor, ClassLoader loader) {
