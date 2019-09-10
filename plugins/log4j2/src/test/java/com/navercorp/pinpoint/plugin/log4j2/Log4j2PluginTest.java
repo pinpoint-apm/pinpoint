@@ -25,7 +25,7 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.common.util.StringUtils;
-import com.navercorp.pinpoint.plugin.log4j2.interceptor.LoggingEventOfLog4j2Interceptor;
+import com.navercorp.pinpoint.plugin.log4j2.interceptor.LogEventFactoryInterceptor;
 import org.apache.logging.log4j.ThreadContext;
 import org.junit.Assert;
 import org.junit.Test;
@@ -46,42 +46,6 @@ public class Log4j2PluginTest {
     public void setTransformTemplate() {
         InstrumentContext instrumentContext = mock(InstrumentContext.class);
         plugin.setTransformTemplate(new TransformTemplate(instrumentContext));
-    }
-
-    private static final String TRANSACTION_ID = "PtxId";
-
-    @Test
-    public void testLoggingEventOfLog4j2Interceptor() {
-        TraceContext traceContext = mock(TraceContext.class);
-        LoggingEventOfLog4j2Interceptor interceptor = new LoggingEventOfLog4j2Interceptor(traceContext);
-        interceptor.before(null);
-        interceptor.after(null, null, null);
-        Assert.assertTrue(ThreadContext.get(TRANSACTION_ID) == null);
-    }
-
-    @Test
-    public void testLoggingEventOfLog4j2Interceptor2() {
-        TraceContext traceContext = spy(TraceContext.class);
-        Trace trace = mock(Trace.class);
-        TraceId traceId = spy(TraceId.class);
-        when(traceContext.currentTraceObject()).thenReturn(trace);
-        when(traceContext.currentRawTraceObject()).thenReturn(trace);
-        when(traceContext.currentRawTraceObject().getTraceId()).thenReturn(traceId);
-        when(traceContext.currentRawTraceObject().getTraceId().getTransactionId()).thenReturn("aaa");
-        when(traceContext.currentRawTraceObject().getTraceId().getSpanId()).thenReturn(112343l);
-        LoggingEventOfLog4j2Interceptor interceptor = spy(new LoggingEventOfLog4j2Interceptor(traceContext));
-        interceptor.before(null);
-        interceptor.after(null, null, null);
-        Assert.assertTrue(ThreadContext.get(TRANSACTION_ID) != null);
-    }
-
-    @Test
-    public void testLog4j2Config() {
-        ProfilerConfig profilerConfig = mock(ProfilerConfig.class);
-        Log4j2Config log4j2Config = new Log4j2Config(profilerConfig);
-        Assert.assertTrue(!StringUtils.isEmpty(log4j2Config.toString()));
-        Assert.assertTrue(!log4j2Config.isLog4j2LoggingTransactionInfo());
-
     }
 
     @Test

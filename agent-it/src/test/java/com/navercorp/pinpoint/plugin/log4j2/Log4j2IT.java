@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointConfig;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
+import org.junit.Ignore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -31,6 +32,7 @@ import org.junit.runner.RunWith;
 @PinpointAgent(AgentPath.PATH)
 @Dependency({"org.apache.logging.log4j:log4j-core:[2.1,)"})
 @PinpointConfig("pinpoint-spring-bean-test.config")
+@Ignore
 public class Log4j2IT {
 
     @Test

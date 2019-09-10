@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
  */
 public class Log4j2Config {
     public static final String LOG4J2_LOGGING_TRANSACTION_INFO = "profiler.log4j2.logging.transactioninfo";
+    public static final String REUSABLELOGEVENTFACTORY_SCOPE = "reusableLogEventFactoryScope";
 
     private final boolean log4j2LoggingTransactionInfo;
 
@@ -37,7 +38,7 @@ public class Log4j2Config {
 
     @Override
     public String toString() {
-        return "Log4jConfig [ log4j2LoggingTransactionInfo=" + log4j2LoggingTransactionInfo + "]";
+        return "Log4j2Config [ log4j2LoggingTransactionInfo=" + log4j2LoggingTransactionInfo + "]";
     }
 
 }
