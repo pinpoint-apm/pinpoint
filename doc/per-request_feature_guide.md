@@ -172,14 +172,14 @@ After
 
 ex) log4j2 - log4j2.xml
 ```xml
-변경 전
+Before
 <appender>
      <console name="STDOUT" target="SYSTEM_OUT">
           <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} [%-5p](%-30c{1}) %m%n""/>
      </console>
 <appender>
 
-변경 후
+After
 <appender>
      <console name="STDOUT" target="SYSTEM_OUT">
           <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} [%-5p](%-30c{1}) [TxId : %X{PtxId} , SpanId : %X{PspanId}] %m%n""/>
