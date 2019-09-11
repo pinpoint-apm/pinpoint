@@ -42,6 +42,7 @@ import org.apache.commons.lang3.StringUtils;
 public class TransactionInfoViewModel {
 
     private TransactionId transactionId;
+    private long spanId;
     private Collection<Node> nodes;
     private Collection<Link> links;
     private RecordSet recordSet;
@@ -50,9 +51,11 @@ public class TransactionInfoViewModel {
     private String logButtonName;
     private String logPageUrl;
     private String disableButtonMessage;
+    private boolean logPageNewWindow;
 
-    public TransactionInfoViewModel(TransactionId transactionId, Collection<Node> nodes, Collection<Link> links, RecordSet recordSet, TraceState.State state, boolean logLinkEnable, String logButtonName, String logPageUrl, String disableButtonMessage) {
+    public TransactionInfoViewModel(TransactionId transactionId, long spanId, Collection<Node> nodes, Collection<Link> links, RecordSet recordSet, TraceState.State state, boolean logLinkEnable, String logButtonName, String logPageUrl, String disableButtonMessage, boolean logPageNewWindow) {
         this.transactionId = transactionId;
+        this.spanId = spanId;
         this.nodes = nodes;
         this.links = links;
         this.recordSet = recordSet;
@@ -61,6 +64,7 @@ public class TransactionInfoViewModel {
         this.logButtonName = logButtonName;
         this.logPageUrl = logPageUrl;
         this.disableButtonMessage = disableButtonMessage;
+        this.logPageNewWindow = logPageNewWindow;
     }
 
     @JsonProperty("applicationName")
@@ -71,6 +75,16 @@ public class TransactionInfoViewModel {
     @JsonProperty("transactionId")
     public String getTransactionId() {
         return TransactionIdUtils.formatString(transactionId);
+    }
+
+    @JsonProperty("spanId")
+    public long getSpanId() {
+        return spanId;
+    }
+
+    @JsonProperty("logPageNewWindow")
+    public boolean isLogPageNewWindow() {
+        return logPageNewWindow;
     }
 
     @JsonProperty("agentId")
@@ -118,6 +132,8 @@ public class TransactionInfoViewModel {
         if (StringUtils.isNotEmpty(logPageUrl)) {
             StringBuilder sb = new StringBuilder();
             sb.append("transactionId=").append(getTransactionId());
+            sb.append("&spanId=").append(spanId);
+            sb.append("&applicationName=").append(getApplicationId());
             sb.append("&time=").append(recordSet.getStartTime());
             return logPageUrl + "?" + sb.toString();
         }

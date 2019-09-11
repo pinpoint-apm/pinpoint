@@ -247,6 +247,22 @@ log.enable= true
 log.page.url=XXXX.pinpoint
 log.button.name= log
 ```
+The log page url would be /XXXX.pinpoint?transactionId=XXX&spanId=xxx&applicationName=xxx&time=xxx .
+If you want to integrate with external log system, you may add the following configuration and configure Nginx to relocate to the system url.
+```properties
+# enable log button regardless of the data.
+log.transaction.info.always.logged = true
+# open the log.page.url in a new page.
+log.page.new.window = true
+```
+
+```
+	location = /XXXX.pinpoint {
+	    # change the url as necessary
+		return 301 https://elk.example.com/query?app=$arg_applicationname&txId=$arg_transactionid&spanid=$arg_spanid&ts=$arg_time;
+	}
+```
+
 
 **step 3**
 Pinpoint 1.5.0 or later, we improve button to decided enable/disable depending on whether or not being logged.

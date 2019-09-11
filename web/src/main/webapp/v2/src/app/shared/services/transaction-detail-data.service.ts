@@ -9,6 +9,7 @@ export interface ITransactionDetailPartInfo {
     logPageUrl: string;
     logButtonName: string;
     logLinkEnable: boolean;
+    logPageNewWindow: boolean;
     disableButtonMessage: string;
     loggingTransactionInfo: boolean;
 }
@@ -37,6 +38,7 @@ export class TransactionDetailDataService {
                     this.partInfo.next({
                         logButtonName: transactionInfo.logButtonName,
                         logLinkEnable: transactionInfo.logLinkEnable,
+                        logPageNewWindow: transactionInfo.logPageNewWindow,
                         logPageUrl: transactionInfo.logPageUrl,
                         loggingTransactionInfo: transactionInfo.loggingTransactionInfo,
                         disableButtonMessage: transactionInfo.disableButtonMessage,

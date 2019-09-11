@@ -63,6 +63,12 @@ public class BusinessTransactionController {
     @Autowired
     private FilteredMapService filteredMapService;
 
+    @Value("#{pinpointWebProps['log.transaction.info.always.logged'] ?: false}")
+    private boolean logTransactionInfoAlwaysLogged;
+
+    @Value("#{pinpointWebProps['log.page.new.window'] ?: false}")
+    private boolean logPageNewWindow;
+
     @Value("#{pinpointWebProps['log.enable'] ?: false}")
     private boolean logLinkEnable;
 
@@ -107,7 +113,11 @@ public class BusinessTransactionController {
         ApplicationMap map = filteredMapService.selectApplicationMap(transactionId, viewVersion);
         RecordSet recordSet = this.transactionInfoService.createRecordSet(callTreeIterator, focusTimestamp, agentId, spanId);
 
-        TransactionInfoViewModel result = new TransactionInfoViewModel(transactionId, map.getNodes(), map.getLinks(), recordSet, spanResult.getTraceState(), logLinkEnable, logButtonName, logPageUrl, disableButtonMessage);
+        TransactionInfoViewModel result = new TransactionInfoViewModel(transactionId, spanId, map.getNodes(), map.getLinks(), recordSet, spanResult.getTraceState(), logLinkEnable, logButtonName, logPageUrl, disableButtonMessage, logPageNewWindow);
+        if (logTransactionInfoAlwaysLogged) {
+            recordSet.setLoggingTransactionInfo(true);
+        }
+
         return result;
     }
 
