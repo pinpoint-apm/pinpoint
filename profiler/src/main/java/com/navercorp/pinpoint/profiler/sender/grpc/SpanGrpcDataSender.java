@@ -60,29 +60,7 @@ public class SpanGrpcDataSender extends GrpcDataSender {
                               ChannelFactoryOption channelFactoryOption) {
         super(host, port, executorQueueSize, messageConverter, channelFactoryOption);
 
-        this.spanStub = SpanGrpc.newStub(managedChannel);
-        this.spanStub.withInterceptors(new ClientInterceptor() {
-            @Override
-            public <ReqT, RespT> ClientCall<ReqT, RespT> interceptCall(MethodDescriptor<ReqT, RespT> method, CallOptions callOptions, Channel next) {
-                return new ForwardingClientCall.SimpleForwardingClientCall<ReqT, RespT>(next.newCall(method, callOptions)) {
-                    @Override
-                    public void sendMessage(ReqT message) {
-                        if (isReady()) {
-                            super.sendMessage(message);
-                        } else {
-                            logger.info("Drop span message, stream not ready.");
-                        }
-                    }
-
-                    @Override
-                    public void cancel(@Nullable String message, @Nullable Throwable cause) {
-                        logger.info("Cancel message. message={}, cause={}", message, cause.getMessage(), cause);
-                        super.cancel(message, cause);
-                    }
-                };
-            }
-        });
-
+        this.spanStub = SpanGrpc.newStub(managedChannel).withInterceptors(new CheckReadyClientInterceptor());
         this.reconnectExecutor = Assert.requireNonNull(reconnectExecutor, "reconnectExecutor must not be null");
         {
             final Runnable spanStreamReconnectJob = new Runnable() {
@@ -167,5 +145,27 @@ public class SpanGrpcDataSender extends GrpcDataSender {
                 ", host='" + host + '\'' +
                 ", port=" + port +
                 "} " + super.toString();
+    }
+
+    private class CheckReadyClientInterceptor implements ClientInterceptor {
+        @Override
+        public <ReqT, RespT> ClientCall<ReqT, RespT> interceptCall(MethodDescriptor<ReqT, RespT> method, CallOptions callOptions, Channel next) {
+            return new ForwardingClientCall.SimpleForwardingClientCall<ReqT, RespT>(next.newCall(method, callOptions)) {
+                @Override
+                public void sendMessage(ReqT message) {
+                    if (isReady()) {
+                        super.sendMessage(message);
+                    } else {
+                        logger.info("Drop span message, stream not ready.");
+                    }
+                }
+
+                @Override
+                public void cancel(@Nullable String message, @Nullable Throwable cause) {
+                    logger.info("Cancel message. message={}, cause={}", message, cause.getMessage(), cause);
+                    super.cancel(message, cause);
+                }
+            };
+        }
     }
 }
