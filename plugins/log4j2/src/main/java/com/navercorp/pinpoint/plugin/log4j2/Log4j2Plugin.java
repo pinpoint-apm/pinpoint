@@ -53,8 +53,14 @@ public class Log4j2Plugin implements ProfilerPlugin, TransformTemplateAware {
             logger.info("Log4j2 plugin is not executed because log4j2 transform enable config value is false.");
             return;
         }
+
+        //for case : use SyncAppdender, use AsyncAppender, use Mixing Synchronous and Asynchronous Loggers
         transformTemplate.transform("org.apache.logging.log4j.core.impl.DefaultLogEventFactory", DefaultLogEventFactoryTransform.class);
         transformTemplate.transform("org.apache.logging.log4j.core.impl.ReusableLogEventFactory", ReusableLogEventFactoryTransform.class);
+
+        //for case : Making All Loggers Asynchronous
+        transformTemplate.transform("org.apache.logging.log4j.core.async.RingBufferLogEventTranslator", RingBufferLogEventTranslatorTransform.class);
+
     }
 
     public static class DefaultLogEventFactoryTransform extends LogEventFactoryTransform {
@@ -101,6 +107,29 @@ public class Log4j2Plugin implements ProfilerPlugin, TransformTemplateAware {
             InstrumentMethod method = target.getDeclaredMethod(methodName, parameterTypes);
             if (method != null) {
                 method.addScopedInterceptor(interceptorClassName, Log4j2Config.REUSABLELOGEVENTFACTORY_SCOPE, ExecutionPolicy.BOUNDARY);
+            }
+        }
+    }
+
+    public static class RingBufferLogEventTranslatorTransform extends LogEventFactoryTransform {
+
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            if (valicateThreadContextMethod(instrumentor, loader) == false) {
+                return null;
+            }
+
+            InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+            final Class<? extends Interceptor> interceptorClassName = LogEventFactoryInterceptor.class;
+
+            addInterceptor(target, "translateTo", new String[]{"org.apache.logging.log4j.core.async.RingBufferLogEvent", "long"}, interceptorClassName);
+            return target.toBytecode();
+        }
+
+        private void addInterceptor(InstrumentClass target, String methodName, String[] parameterTypes, Class<? extends Interceptor> interceptorClassName) throws InstrumentException {
+            InstrumentMethod method = target.getDeclaredMethod(methodName, parameterTypes);
+            if (method != null) {
+                method.addInterceptor(interceptorClassName);
             }
         }
     }
