@@ -16,11 +16,7 @@
 package com.navercorp.pinpoint.plugin.log4j2;
 
 import com.navercorp.pinpoint.plugin.AgentPath;
-import com.navercorp.pinpoint.test.plugin.Dependency;
-import com.navercorp.pinpoint.test.plugin.JvmArgument;
-import com.navercorp.pinpoint.test.plugin.PinpointAgent;
-import com.navercorp.pinpoint.test.plugin.PinpointConfig;
-import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
+import com.navercorp.pinpoint.test.plugin.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.ThreadContext;
@@ -32,6 +28,7 @@ import org.junit.runner.RunWith;
 @PinpointAgent(AgentPath.PATH)
 @PinpointConfig("pinpoint-spring-bean-test.config")
 @JvmArgument("-Dlog4j2.contextSelector=org.apache.logging.log4j.core.async.AsyncLoggerContextSelector")
+@JvmVersion(7)
 @Dependency({"org.apache.logging.log4j:log4j-core:[2.0,)", "com.lmax:disruptor:[3.4.2]"})
 public class Log4j2ForAsyncLoggerIT {
 
