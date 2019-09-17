@@ -87,6 +87,7 @@
         <module>fastjson</module>
         <module>druid</module>
         <module>hbase</module>
+        <module>log4j2</module>
         <module>openwhisk</module>
         <module>node-js</module>
     </modules>
@@ -265,6 +266,11 @@
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-log4j-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-log4j2-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
