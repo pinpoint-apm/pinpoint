@@ -61,7 +61,7 @@ public class HbaseApplicationIndexDao implements ApplicationIndexDao {
         final TableName applicationIndexTableName = descriptor.getTableName();
         hbaseTemplate.put(applicationIndexTableName, put);
 
-        logger.debug("Insert agentInfo. {}", agentInfo);
+        logger.debug("Insert ApplicationIndex: {}", agentInfo);
     }
 
 
