@@ -30,6 +30,8 @@ import com.navercorp.pinpoint.common.server.util.SpanUtils;
 import com.sematext.hbase.wd.AbstractRowKeyDistributor;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Put;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
@@ -42,6 +44,8 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private HbaseOperations2 hbaseTemplate;
@@ -60,6 +64,9 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
     public void insert(final SpanBo span) {
         if (span == null) {
             throw new NullPointerException("span must not be null");
+        }
+        if (logger.isDebugEnabled()) {
+            logger.debug("insert ApplicationTraceIndex: {}", span);
         }
 
         final Buffer buffer = new AutomaticBuffer(10 + HbaseTableConstatns.AGENT_NAME_MAX_LEN);

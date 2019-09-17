@@ -59,7 +59,7 @@ public class HbaseAgentEventDao implements AgentEventDao {
         }
 
         if (logger.isDebugEnabled()) {
-            logger.debug("insert event. {}", agentEventBo.toString());
+            logger.debug("insert agent event: {}", agentEventBo.toString());
         }
 
         final String agentId = agentEventBo.getAgentId();

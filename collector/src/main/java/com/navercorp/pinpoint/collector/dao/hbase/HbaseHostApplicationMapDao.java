@@ -74,6 +74,9 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
         if (bindApplicationName == null) {
             throw new NullPointerException("bindApplicationName must not be null");
         }
+        if (logger.isDebugEnabled()) {
+            logger.debug("insert HostApplicationMap, host:{}, app:{},SType:{},parentApp:{},parentAppSType{}", host, bindApplicationName, bindServiceType, parentApplicationName, parentServiceType);
+        }
 
         final long statisticsRowSlot = getSlotTime();
 

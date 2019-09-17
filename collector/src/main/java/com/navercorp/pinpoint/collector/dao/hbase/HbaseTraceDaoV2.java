@@ -52,6 +52,9 @@ public class HbaseTraceDaoV2 implements TraceDao {
         if (spanBo == null) {
             throw new NullPointerException("spanBo must not be null");
         }
+        if (logger.isDebugEnabled()) {
+            logger.debug("insert trace: {}", spanBo);
+        }
 
         long acceptedTime = spanBo.getCollectorAcceptTime();
 
