@@ -26,7 +26,7 @@ import java.util.concurrent.TimeUnit;
 public class ClientOption {
     public static final long DEFAULT_KEEPALIVE_TIME = TimeUnit.MINUTES.toMillis(5);
     public static final long DEFAULT_KEEPALIVE_TIMEOUT = TimeUnit.MINUTES.toMillis(30);
-    public static final long IDLE_TIMEOUT_MILLIS_DISABLE = -1;
+    public static final long IDLE_TIMEOUT_MILLIS_DISABLE = TimeUnit.DAYS.toMillis(30);
     public static final boolean KEEPALIVE_WITHOUT_CALLS_DISABLE = Boolean.FALSE;
     // <a href="https://tools.ietf.org/html/rfc7540#section-6.5.2">
     public static final int DEFAULT_MAX_HEADER_LIST_SIZE = 8 * 1024;
