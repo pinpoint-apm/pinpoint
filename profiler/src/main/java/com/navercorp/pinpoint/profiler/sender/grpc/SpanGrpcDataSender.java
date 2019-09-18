@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -29,16 +29,9 @@ import com.navercorp.pinpoint.grpc.trace.SpanGrpc;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
 
 import com.google.protobuf.GeneratedMessageV3;
-import io.grpc.CallOptions;
-import io.grpc.Channel;
-import io.grpc.ClientCall;
 import io.grpc.ClientInterceptor;
-import io.grpc.ForwardingClientCall;
-import io.grpc.MethodDescriptor;
-import io.grpc.stub.CallStreamObserver;
 import io.grpc.stub.StreamObserver;
 
-import javax.annotation.Nullable;
 import java.util.concurrent.RejectedExecutionException;
 
 import static com.navercorp.pinpoint.grpc.MessageFormatUtils.debugLog;
@@ -60,8 +53,8 @@ public class SpanGrpcDataSender extends GrpcDataSender {
                               ChannelFactoryOption channelFactoryOption) {
         super(host, port, executorQueueSize, messageConverter, channelFactoryOption);
 
-        this.spanStub = SpanGrpc.newStub(managedChannel).withInterceptors(new CheckReadyClientInterceptor());
-        this.reconnectExecutor = Assert.requireNonNull(reconnectExecutor, "reconnectExecutor must not be null");
+        this.spanStub = newSpanStub();
+        this.reconnectExecutor = Assert.requireNonNull(reconnectExecutor, "reconnectExecutor");
         {
             final Runnable spanStreamReconnectJob = new Runnable() {
                 @Override
@@ -72,6 +65,15 @@ public class SpanGrpcDataSender extends GrpcDataSender {
             this.spanStreamReconnector = reconnectExecutor.newReconnector(spanStreamReconnectJob);
             this.spanStream = newSpanStream();
         }
+    }
+
+    private SpanGrpc.SpanStub newSpanStub() {
+        final int rateLimitCount = 100;
+        ClientInterceptor discardClientInterceptor = new DiscardClientInterceptor(logger, rateLimitCount, 1024);
+
+        SpanGrpc.SpanStub spanStub = SpanGrpc.newStub(managedChannel);
+        spanStub = spanStub.withInterceptors(discardClientInterceptor);
+        return spanStub;
     }
 
     private StreamObserver<PSpanMessage> newSpanStream() {
@@ -147,25 +149,4 @@ public class SpanGrpcDataSender extends GrpcDataSender {
                 "} " + super.toString();
     }
 
-    private class CheckReadyClientInterceptor implements ClientInterceptor {
-        @Override
-        public <ReqT, RespT> ClientCall<ReqT, RespT> interceptCall(MethodDescriptor<ReqT, RespT> method, CallOptions callOptions, Channel next) {
-            return new ForwardingClientCall.SimpleForwardingClientCall<ReqT, RespT>(next.newCall(method, callOptions)) {
-                @Override
-                public void sendMessage(ReqT message) {
-                    if (isReady()) {
-                        super.sendMessage(message);
-                    } else {
-                        logger.info("Drop span message, stream not ready.");
-                    }
-                }
-
-                @Override
-                public void cancel(@Nullable String message, @Nullable Throwable cause) {
-                    logger.info("Cancel message. message={}, cause={}", message, cause.getMessage(), cause);
-                    super.cancel(message, cause);
-                }
-            };
-        }
-    }
 }
