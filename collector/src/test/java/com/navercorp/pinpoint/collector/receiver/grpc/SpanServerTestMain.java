@@ -42,7 +42,7 @@ public class SpanServerTestMain {
         grpcReceiver.setBeanName("TraceServer");
         grpcReceiver.setBindIp(IP);
         grpcReceiver.setBindPort(PORT);
-        BindableService bindableService = new SpanService(new MockDispatchHandler());
+        BindableService bindableService = new SpanService(new MockDispatchHandler(), Executors.newFixedThreadPool(8));
         grpcReceiver.setBindableServiceList(Arrays.asList(bindableService));
         grpcReceiver.setAddressFilter(new MockAddressFilter());
         grpcReceiver.setExecutor(Executors.newFixedThreadPool(8));

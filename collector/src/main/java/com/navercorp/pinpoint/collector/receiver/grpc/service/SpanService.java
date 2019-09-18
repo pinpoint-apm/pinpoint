@@ -33,6 +33,7 @@ import com.navercorp.pinpoint.io.request.DefaultMessage;
 import com.navercorp.pinpoint.io.request.Message;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.thrift.io.DefaultTBaseLocator;
+import io.grpc.Context;
 import io.grpc.Status;
 import io.grpc.StatusException;
 import io.grpc.StatusRuntimeException;
@@ -42,6 +43,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Objects;
+import java.util.concurrent.Executor;
+import java.util.concurrent.RejectedExecutionException;
 
 /**
  * @author jaehong.kim
@@ -51,9 +54,11 @@ public class SpanService extends SpanGrpc.SpanImplBase {
     private final boolean isDebug = logger.isDebugEnabled();
     private final DispatchHandler dispatchHandler;
     private final ServerRequestFactory serverRequestFactory = new ServerRequestFactory();
+    private Executor executor;
 
-    public SpanService(DispatchHandler dispatchHandler) {
+    public SpanService(DispatchHandler dispatchHandler, Executor executor) {
         this.dispatchHandler = Objects.requireNonNull(dispatchHandler, "dispatchHandler must not be null");
+        this.executor = Context.currentContextExecutor(executor);
     }
 
     @Override
@@ -61,19 +66,32 @@ public class SpanService extends SpanGrpc.SpanImplBase {
         StreamObserver<PSpanMessage> observer = new StreamObserver<PSpanMessage>() {
             @Override
             public void onNext(PSpanMessage spanMessage) {
-                if (isDebug) {
-                    logger.debug("Send PSpan={}", MessageFormatUtils.debugLog(spanMessage));
-                }
-                if (spanMessage.hasSpan()) {
-                    final Message<PSpan> message = newMessage(spanMessage.getSpan(), DefaultTBaseLocator.SPAN);
-                    send(responseObserver, message);
-                } else if (spanMessage.hasSpanChunk()) {
-                    final Message<PSpanChunk> message = newMessage(spanMessage.getSpanChunk(), DefaultTBaseLocator.SPANCHUNK);
-                    send(responseObserver, message);
-                } else {
-                    if (isDebug) {
-                        logger.debug("Found empty span message {}", MessageFormatUtils.debugLog(spanMessage));
+                final Runnable spanMessageHandler = new Runnable() {
+                    @Override
+                    public void run() {
+                        if (isDebug) {
+                            logger.debug("Send PSpan={}", MessageFormatUtils.debugLog(spanMessage));
+                        }
+                        if (spanMessage.hasSpan()) {
+                            final Message<PSpan> message = newMessage(spanMessage.getSpan(), DefaultTBaseLocator.SPAN);
+                            send(responseObserver, message);
+                        } else if (spanMessage.hasSpanChunk()) {
+                            final Message<PSpanChunk> message = newMessage(spanMessage.getSpanChunk(), DefaultTBaseLocator.SPANCHUNK);
+                            send(responseObserver, message);
+                        } else {
+                            if (isDebug) {
+                                logger.debug("Found empty span message {}", MessageFormatUtils.debugLog(spanMessage));
+                            }
+                        }
                     }
+                };
+
+                try {
+                    executor.execute(spanMessageHandler);
+                } catch (RejectedExecutionException ree) {
+                    logger.warn("Failed to request. message={}", MessageFormatUtils.debugLog(spanMessage), ree);
+                    // Avoid detailed exception
+                    responseObserver.onError(Status.INTERNAL.withDescription("Rejected Execution").asException());
                 }
             }
 
@@ -96,6 +114,7 @@ public class SpanService extends SpanGrpc.SpanImplBase {
         };
         return observer;
     }
+
 
     private <T> Message<T> newMessage(T requestData, short serviceType) {
         final Header header = new HeaderV2(Header.SIGNATURE, HeaderV2.VERSION, serviceType);

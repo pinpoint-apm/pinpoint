@@ -512,6 +512,7 @@
 
     <bean id="spanService" class="com.navercorp.pinpoint.collector.receiver.grpc.service.SpanService">
         <constructor-arg index="0" ref="grpcSpanDispatchHandlerFactoryBean"/>
+        <constructor-arg index="1" ref="grpcTraceServerExecutor"/>
     </bean>
     <util:list id="spanServiceList" value-type="io.grpc.BindableService">
         <ref bean="spanService"/>
