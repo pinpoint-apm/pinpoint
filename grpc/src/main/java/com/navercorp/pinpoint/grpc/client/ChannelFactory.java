@@ -138,10 +138,13 @@ public class ChannelFactory {
         channelBuilder.keepAliveWithoutCalls(clientOption.isKeepAliveWithoutCalls());
         channelBuilder.maxHeaderListSize(clientOption.getMaxHeaderListSize());
         channelBuilder.maxInboundMessageSize(clientOption.getMaxInboundMessageSize());
+        channelBuilder.flowControlWindow(clientOption.getFlowControlWindow());
+        channelBuilder.idleTimeout(clientOption.getIdleTimeoutMillis(), TimeUnit.MILLISECONDS);
 
         // ChannelOption
         channelBuilder.withOption(ChannelOption.TCP_NODELAY, true);
         channelBuilder.withOption(ChannelOption.CONNECT_TIMEOUT_MILLIS, clientOption.getConnectTimeout());
+
         final WriteBufferWaterMark writeBufferWaterMark = new WriteBufferWaterMark(clientOption.getWriteBufferLowWaterMark(), clientOption.getWriteBufferHighWaterMark());
         channelBuilder.withOption(ChannelOption.WRITE_BUFFER_WATER_MARK, writeBufferWaterMark);
         if (logger.isInfoEnabled()) {

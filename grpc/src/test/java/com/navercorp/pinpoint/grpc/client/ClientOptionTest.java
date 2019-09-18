@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.grpc.client;
 
 import org.junit.Test;
 
+import java.util.concurrent.TimeUnit;
+
 import static org.junit.Assert.*;
 
 public class ClientOptionTest {
@@ -41,7 +43,7 @@ public class ClientOptionTest {
         assertEquals(1, clientOption.getKeepAliveTime());
         assertEquals(1, clientOption.getKeepAliveTimeout());
         assertEquals(false, clientOption.isKeepAliveWithoutCalls());
-        assertEquals(-1, clientOption.getIdleTimeoutMillis());
+        assertEquals(TimeUnit.DAYS.toMillis(30), clientOption.getIdleTimeoutMillis());
         assertEquals(65535, clientOption.getFlowControlWindow());
         assertEquals(1, clientOption.getMaxHeaderListSize());
         assertEquals(1, clientOption.getMaxInboundMessageSize());
