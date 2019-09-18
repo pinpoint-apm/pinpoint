@@ -5,7 +5,7 @@
         <groupId>com.navercorp.pinpoint</groupId>
         <artifactId>pinpoint</artifactId>
         <relativePath>../..</relativePath>
-        <version>1.8.5</version>
+        <version>1.8.6-SNAPSHOT</version>
     </parent>
 
     <artifactId>pinpoint-mariadb-jdbc-driver-plugin</artifactId>
