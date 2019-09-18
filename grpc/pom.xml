@@ -20,7 +20,7 @@
     <parent>
         <groupId>com.navercorp.pinpoint</groupId>
         <artifactId>pinpoint</artifactId>
-        <version>1.8.5-SNAPSHOT</version>
+        <version>1.8.5</version>
     </parent>
 
     <artifactId>pinpoint-grpc</artifactId>
