@@ -59,7 +59,10 @@ public class GrpcReceiver implements InitializingBean, DisposableBean, BeanNameA
     private List<Object> serviceList = new ArrayList<>();
 
     private AddressFilter addressFilter;
+
+    private List<ServerInterceptor> serverInterceptorList;
     private List<ServerTransportFilter> transportFilterList;
+
     private ServerOption serverOption;
 
     private Server server;
@@ -82,6 +85,7 @@ public class GrpcReceiver implements InitializingBean, DisposableBean, BeanNameA
         this.serverFactory.addTransportFilter(permissionServerTransportFilter);
 
         TransportMetadataFactory transportMetadataFactory = new TransportMetadataFactory(beanName);
+        // Mandatory interceptor
         final ServerTransportFilter metadataTransportFilter = new MetadataServerTransportFilter(transportMetadataFactory);
         this.serverFactory.addTransportFilter(metadataTransportFilter);
 
@@ -91,8 +95,15 @@ public class GrpcReceiver implements InitializingBean, DisposableBean, BeanNameA
             }
         }
 
+        // Mandatory interceptor
         ServerInterceptor transportMetadataServerInterceptor = new TransportMetadataServerInterceptor();
         this.serverFactory.addInterceptor(transportMetadataServerInterceptor);
+
+        if (CollectionUtils.hasLength(serverInterceptorList)) {
+            for (ServerInterceptor serverInterceptor : serverInterceptorList) {
+                this.serverFactory.addInterceptor(serverInterceptor);
+            }
+        }
 
         // Add service
         for (Object service : serviceList) {
@@ -185,6 +196,10 @@ public class GrpcReceiver implements InitializingBean, DisposableBean, BeanNameA
 
     public void setTransportFilterList(List<ServerTransportFilter> transportFilterList) {
         this.transportFilterList = transportFilterList;
+    }
+
+    public void setServerInterceptorList(List<ServerInterceptor> serverInterceptorList) {
+        this.serverInterceptorList = serverInterceptorList;
     }
 
 }
