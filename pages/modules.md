@@ -39,6 +39,7 @@
 |                                                                                   |                            |         |         |                        | 
 | Log4j                                                                             | log4j                      | 1.2.16  | 1.2.17  |                        | <AG> 
 | Logback                                                                           | logback-classic            | 1.0.13  | 1.2.3   |                        | <AG> 
+| log4j-core                                                                        | log4j-core                 | 2.0     | 2.12.1  |                        | <AG>
 |                                                                                   |                            |         |         |                        |
 | \*Arcus                                                                           | arcus-java-client          | 1.7.0   | 1.11.4  |                        | 
 | \*MsSQL (jTDS)                                                                    | jtds                       | 1.2.8   |         |                        | 
@@ -47,6 +48,8 @@
 | Jackson Databind                                                                  | jackson-databind           | 2.0.6   | 2.10.0  |                        | <AG>
 | MariaDB Connector/J                                                               | mariadb-java-client        | 1.3.0   | 2.4.4   |                        | <AG>
 | MongoDB Java Driver                                                               | mongodb-driver             | 3.0.0   | 3.11.0  |                        | <AG>
+| Elasticsearch                                                                     | bboss-elasticsearch-rest-jdbc | 0.0.0   | 0.0.0   |                        | <AG>
+| Elasticsearch                                                                     | elasticsearch-rest-high-level-client | 6.0.0   | 7.3.2   |                        | <AG>
 | Datastax Java Driver                                                              | cassandra-driver-core      | 2.0.10  | 3.7.2   |                        | <AG>
 | Druid                                                                             | druid                      | 1.0.0   | 1.1.20  |                        | <AG>
 | \*Cubrid                                                                          | cubrid-jdbc-driver         | 8.4.1   | 10.0.0  |                        | 
@@ -69,8 +72,5 @@
 | Gson                                                                              | gson                       | 1.1     | 2.8.3   |                        | <AG>
 | Json                                                                              | json-lib                   | 1.0     | 2.2.2   |                        | <AG>
 | FastJson                                                                          | fastjson                   | 1.2.10  | 1.2.60  |                        | <AG>
-| Dubbo                                                                             | dubbo                      | 2.5.1   | 2.6.7   |                        | <AG>
-  
-
-| elasticsearch-rest-high-level-client                                              | elasticsearch-rest-high-level-client | 6.0.0   | 7.3.2   |                        | <AG> 
-| log4j-core                                                                        | log4j-core                 | 2.0     | 2.12.1  |                        | <AG> 
+| Dubbo                                                                             | dubbo                      | 2.5.1   | 2.6.7   |                        | <AG> 
+ 
