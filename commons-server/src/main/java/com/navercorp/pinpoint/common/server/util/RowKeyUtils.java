@@ -35,7 +35,7 @@ public final class RowKeyUtils {
         if (fixedBytes == null) {
             throw new NullPointerException("fixedBytes must not null");
         }
-        if (fixedBytes.length > maxFixedLength) {
+        if (fixedBytes.length > 100) {
             throw new IndexOutOfBoundsException("fixedBytes.length too big. length:" + fixedBytes.length);
         }
         byte[] rowKey = new byte[maxFixedLength + LONG_BYTE_LENGTH];
