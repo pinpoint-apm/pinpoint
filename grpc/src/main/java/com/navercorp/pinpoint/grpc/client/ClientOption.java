@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -138,42 +138,44 @@ public class ClientOption {
         }
 
         public void setFlowControlWindow(int flowControlWindow) {
-            Assert.isTrue(flowControlWindow >= INITIAL_FLOW_CONTROL_WINDOW, "flowControlWindow " + flowControlWindow + " expected >= " + INITIAL_FLOW_CONTROL_WINDOW);
+            if (!(flowControlWindow >= INITIAL_FLOW_CONTROL_WINDOW)) {
+                throw new IllegalArgumentException("flowControlWindow expected >= " + INITIAL_FLOW_CONTROL_WINDOW);
+            }
             this.flowControlWindow = flowControlWindow;
         }
 
         public void setMaxHeaderListSize(int maxHeaderListSize) {
-            Assert.isTrue(maxHeaderListSize > 0, "maxHeaderListSize " + maxHeaderListSize + " must be positive");
+            Assert.isTrue(maxHeaderListSize > 0, "maxHeaderListSize must be positive");
             this.maxHeaderListSize = maxHeaderListSize;
         }
 
         public void setKeepAliveTime(long keepAliveTime) {
-            Assert.isTrue(keepAliveTime > 0, "keepAliveTime " + keepAliveTime + " must be positive");
+            Assert.isTrue(keepAliveTime > 0, "keepAliveTime must be positive");
             this.keepAliveTime = keepAliveTime;
         }
 
         public void setKeepAliveTimeout(long keepAliveTimeout) {
-            Assert.isTrue(keepAliveTimeout > 0, "keepAliveTimeout " + keepAliveTimeout + " must be positive");
+            Assert.isTrue(keepAliveTimeout > 0, "keepAliveTimeout must be positive");
             this.keepAliveTimeout = keepAliveTimeout;
         }
 
         public void setMaxInboundMessageSize(int maxInboundMessageSize) {
-            Assert.isTrue(maxInboundMessageSize > 0, "maxInboundMessageSize " + maxInboundMessageSize + " must be positive");
+            Assert.isTrue(maxInboundMessageSize > 0, "maxInboundMessageSize must be positive");
             this.maxInboundMessageSize = maxInboundMessageSize;
         }
 
         public void setConnectTimeout(int connectTimeout) {
-            Assert.isTrue(connectTimeout > 0, "connectTimeout " + connectTimeout + " must be positive");
+            Assert.isTrue(connectTimeout > 0, "connectTimeout must be positive");
             this.connectTimeout = connectTimeout;
         }
 
         public void setWriteBufferHighWaterMark(int writeBufferHighWaterMark) {
-            Assert.isTrue(writeBufferHighWaterMark > 0, "writeBufferHighWaterMark " + writeBufferHighWaterMark + " must be positive");
+            Assert.isTrue(writeBufferHighWaterMark > 0, "writeBufferHighWaterMark must be positive");
             this.writeBufferHighWaterMark = writeBufferHighWaterMark;
         }
 
         public void setWriteBufferLowWaterMark(int writeBufferLowWaterMark) {
-            Assert.isTrue(writeBufferLowWaterMark > 0, "writeBufferLowWaterMark " + writeBufferLowWaterMark + " must be positive");
+            Assert.isTrue(writeBufferLowWaterMark > 0, "writeBufferLowWaterMark must be positive");
             this.writeBufferLowWaterMark = writeBufferLowWaterMark;
         }
 
