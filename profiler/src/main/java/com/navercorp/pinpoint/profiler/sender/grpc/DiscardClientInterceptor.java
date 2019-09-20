@@ -26,7 +26,6 @@ import io.grpc.ForwardingClientCall;
 import io.grpc.ForwardingClientCallListener;
 import io.grpc.Metadata;
 import io.grpc.MethodDescriptor;
-import org.slf4j.Logger;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
@@ -36,31 +35,30 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class DiscardClientInterceptor implements ClientInterceptor {
 
-    private final Logger logger;
-    private final long rateLimitCount;
+    private final DiscardEventListener listener;
     private final long maxPendingThreshold;
 
-    public DiscardClientInterceptor(Logger logger, long rateLimitCount, long maxPendingThreshold) {
-        this.logger = Assert.requireNonNull(logger, "logger");
-        this.rateLimitCount = rateLimitCount;
+    public DiscardClientInterceptor(DiscardEventListener listener, long maxPendingThreshold) {
+        this.listener = Assert.requireNonNull(listener, "listener");
         this.maxPendingThreshold = maxPendingThreshold;
     }
 
     @Override
     public <ReqT, RespT> ClientCall<ReqT, RespT> interceptCall(MethodDescriptor<ReqT, RespT> method, CallOptions callOptions, Channel next) {
         final ClientCall<ReqT, RespT> newCall = next.newCall(method, callOptions);
-        return new DiscardClientCall<ReqT, RespT>(newCall, maxPendingThreshold);
+        return new DiscardClientCall<ReqT, RespT>(newCall, this.listener, maxPendingThreshold);
     }
 
-    public class DiscardClientCall<ReqT, RespT> extends ForwardingClientCall.SimpleForwardingClientCall<ReqT, RespT> {
+    static class DiscardClientCall<ReqT, RespT> extends ForwardingClientCall.SimpleForwardingClientCall<ReqT, RespT> {
 
         private final AtomicBoolean onReadyState = new AtomicBoolean(false);
         private final AtomicLong pendingCounter = new AtomicLong();
         private final long maxPendingThreshold;
-        private final AtomicLong discardCounter = new AtomicLong();
+        private final DiscardEventListener listener;
 
-        public DiscardClientCall(io.grpc.ClientCall<ReqT, RespT> delegate, long maxPendingThreshold) {
+        public DiscardClientCall(io.grpc.ClientCall<ReqT, RespT> delegate, DiscardEventListener listener, long maxPendingThreshold) {
             super(delegate);
+            this.listener = Assert.requireNonNull(listener, "listener");
             this.maxPendingThreshold = maxPendingThreshold;
         }
 
@@ -69,11 +67,16 @@ public class DiscardClientInterceptor implements ClientInterceptor {
             ClientCall.Listener<RespT> onReadyListener = new ForwardingClientCallListener.SimpleForwardingClientCallListener<RespT>(responseListener) {
                 @Override
                 public void onReady() {
-                    DiscardClientCall.this.onReadyState.compareAndSet(false, true);
+                    DiscardClientCall.this.reset();
                     super.onReady();
                 }
             };
             super.start(onReadyListener, headers);
+        }
+
+        private void reset() {
+            this.onReadyState.compareAndSet(false, true);
+            this.pendingCounter.set(0);
         }
 
         @Override
@@ -86,22 +89,9 @@ public class DiscardClientInterceptor implements ClientInterceptor {
         }
 
         private void discardMessage(ReqT message) {
-            final long beforeDiscardCount = this.discardCounter.getAndIncrement();
-            if ((beforeDiscardCount % DiscardClientInterceptor.this.rateLimitCount) == 0) {
-                discardLog(message, beforeDiscardCount + 1);
-            }
+            this.listener.onDiscard(message);
         }
 
-        private void discardLog(ReqT message, long discardCount) {
-            logger.info("Discard {} message, stream not ready. discardCount:{}", getMessageType(message), discardCount);
-        }
-
-        private String getMessageType(ReqT message) {
-            if (message == null) {
-                return "null";
-            }
-            return message.getClass().getSimpleName();
-        }
 
         private boolean readyState() {
             // skip pending queue state : DelayedStream
@@ -117,7 +107,7 @@ public class DiscardClientInterceptor implements ClientInterceptor {
 
         @Override
         public void cancel(String message, Throwable cause) {
-            logger.info("Cancel message. message={}, cause={}", message, cause.getMessage(), cause);
+            this.listener.onCancel(message, cause);
             super.cancel(message, cause);
         }
 
@@ -126,11 +116,6 @@ public class DiscardClientInterceptor implements ClientInterceptor {
             return onReadyState.get();
         }
 
-
-        @VisibleForTesting
-        long getDiscardCounter() {
-            return discardCounter.get();
-        }
 
         @VisibleForTesting
         public long getPendingCount() {

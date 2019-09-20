@@ -40,6 +40,7 @@ import static com.navercorp.pinpoint.grpc.MessageFormatUtils.debugLog;
  * @author jaehong.kim
  */
 public class SpanGrpcDataSender extends GrpcDataSender {
+
     private final SpanGrpc.SpanStub spanStub;
     private final ReconnectExecutor reconnectExecutor;
 
@@ -50,10 +51,10 @@ public class SpanGrpcDataSender extends GrpcDataSender {
                               int executorQueueSize,
                               MessageConverter<GeneratedMessageV3> messageConverter,
                               ReconnectExecutor reconnectExecutor,
-                              ChannelFactoryOption channelFactoryOption) {
+                              ChannelFactoryOption channelFactoryOption, ClientInterceptor clientInterceptor) {
         super(host, port, executorQueueSize, messageConverter, channelFactoryOption);
 
-        this.spanStub = newSpanStub();
+        this.spanStub = newSpanStub(clientInterceptor);
         this.reconnectExecutor = Assert.requireNonNull(reconnectExecutor, "reconnectExecutor");
         {
             final Runnable spanStreamReconnectJob = new Runnable() {
@@ -63,16 +64,17 @@ public class SpanGrpcDataSender extends GrpcDataSender {
                 }
             };
             this.spanStreamReconnector = reconnectExecutor.newReconnector(spanStreamReconnectJob);
-            this.spanStream = newSpanStream();
+            spanStreamReconnectJob.run();
         }
+
     }
 
-    private SpanGrpc.SpanStub newSpanStub() {
-        final int rateLimitCount = 100;
-        ClientInterceptor discardClientInterceptor = new DiscardClientInterceptor(logger, rateLimitCount, 1024);
+    private SpanGrpc.SpanStub newSpanStub(ClientInterceptor clientInterceptor) {
 
         SpanGrpc.SpanStub spanStub = SpanGrpc.newStub(managedChannel);
-        spanStub = spanStub.withInterceptors(discardClientInterceptor);
+        if (clientInterceptor != null) {
+            spanStub = spanStub.withInterceptors(clientInterceptor);
+        }
         return spanStub;
     }
 

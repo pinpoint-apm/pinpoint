@@ -42,6 +42,10 @@ public class GrpcTransportConfig {
     private static final int DEFAULT_METADATA_CHANNEL_EXECUTOR_QUEUE_SIZE = 1000;
     private static final int DEFAULT_STAT_CHANNEL_EXECUTOR_QUEUE_SIZE = 1000;
     private static final int DEFAULT_SPAN_CHANNEL_EXECUTOR_QUEUE_SIZE = 1000;
+
+    private static final int DEFAULT_DISCARD_LOG_RATE_LIMIT = 1024;
+    private static final long DEFAULT_DISCARD_MAX_PENDING_THRESHOLD = 1000;
+
     private static final int DEFAULT_METADATA_RETRY_MAX_COUNT = 3;
     private static final int DEFAULT_METADATA_RETRY_DELAY_MILLIS = 1000;
     public static final boolean DEFAULT_NETTY_SYSTEM_PROPERTY_TRY_REFLECTIVE_SET_ACCESSIBLE = true;
@@ -83,6 +87,9 @@ public class GrpcTransportConfig {
 
     private boolean nettySystemPropertyTryReflectiveSetAccessible = DEFAULT_NETTY_SYSTEM_PROPERTY_TRY_REFLECTIVE_SET_ACCESSIBLE;
 
+    private int spanDiscardLogRateLimit = DEFAULT_DISCARD_LOG_RATE_LIMIT;
+    private long spanDiscardMaxPendingThreshold = DEFAULT_DISCARD_MAX_PENDING_THRESHOLD;
+
     public void read(ProfilerConfig profilerConfig) {
         final ProfilerConfig.ValueResolver placeHolderResolver = new DefaultProfilerConfig.PlaceHolderResolver();
         // Agent
@@ -118,6 +125,8 @@ public class GrpcTransportConfig {
         this.spanRequestTimeout = profilerConfig.readLong("profiler.transport.grpc.span.sender.request.timeout.millis", DEFAULT_CLIENT_REQUEST_TIMEOUT);
         this.spanSenderExecutorQueueSize = profilerConfig.readInt("profiler.transport.grpc.span.sender.executor.queue.size", DEFAULT_SPAN_SENDER_EXECUTOR_QUEUE_SIZE);
         this.spanChannelExecutorQueueSize = profilerConfig.readInt("profiler.transport.grpc.span.sender.channel.executor.queue.size", DEFAULT_SPAN_CHANNEL_EXECUTOR_QUEUE_SIZE);
+        this.spanDiscardLogRateLimit = profilerConfig.readInt("profiler.transport.grpc.span.sender.discardpolicy.logger.discard.ratelimit", DEFAULT_DISCARD_LOG_RATE_LIMIT);
+        this.spanDiscardMaxPendingThreshold = profilerConfig.readLong("profiler.transport.grpc.span.sender.discardpolicy.maxpendingthreshold", DEFAULT_DISCARD_MAX_PENDING_THRESHOLD);
 
         // Netty
         this.nettySystemPropertyTryReflectiveSetAccessible = profilerConfig.readBoolean(KEY_PROFILER_CONFIG_NETTY_TRY_REFLECTION_SET_ACCESSIBLE, DEFAULT_NETTY_SYSTEM_PROPERTY_TRY_REFLECTIVE_SET_ACCESSIBLE);
@@ -203,6 +212,14 @@ public class GrpcTransportConfig {
 
     public int getStatSenderExecutorQueueSize() {
         return statSenderExecutorQueueSize;
+    }
+
+    public int getSpanDiscardLogRateLimit() {
+        return spanDiscardLogRateLimit;
+    }
+
+    public long getSpanDiscardMaxPendingThreshold() {
+        return spanDiscardMaxPendingThreshold;
     }
 
     public long getAgentRequestTimeout() {
@@ -292,7 +309,11 @@ public class GrpcTransportConfig {
         sb.append(", metadataRequestTimeout=").append(metadataRequestTimeout);
         sb.append(", spanRequestTimeout=").append(spanRequestTimeout);
         sb.append(", statRequestTimeout=").append(statRequestTimeout);
+        sb.append(", metadataRetryMaxCount=").append(metadataRetryMaxCount);
+        sb.append(", metadataRetryDelayMillis=").append(metadataRetryDelayMillis);
         sb.append(", nettySystemPropertyTryReflectiveSetAccessible=").append(nettySystemPropertyTryReflectiveSetAccessible);
+        sb.append(", spanDiscardLogRateLimit=").append(spanDiscardLogRateLimit);
+        sb.append(", spanDiscardMaxPendingThreshold=").append(spanDiscardMaxPendingThreshold);
         sb.append('}');
         return sb.toString();
     }

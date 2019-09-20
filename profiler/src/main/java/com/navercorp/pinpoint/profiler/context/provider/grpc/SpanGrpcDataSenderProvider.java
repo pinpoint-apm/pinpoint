@@ -30,8 +30,12 @@ import com.navercorp.pinpoint.grpc.client.HeaderFactory;
 import com.navercorp.pinpoint.profiler.context.module.SpanConverter;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
+import com.navercorp.pinpoint.profiler.sender.grpc.DiscardClientInterceptor;
+import com.navercorp.pinpoint.profiler.sender.grpc.DiscardEventListener;
+import com.navercorp.pinpoint.profiler.sender.grpc.LoggingDiscardEventListener;
 import com.navercorp.pinpoint.profiler.sender.grpc.ReconnectExecutor;
 import com.navercorp.pinpoint.profiler.sender.grpc.SpanGrpcDataSender;
+import io.grpc.ClientInterceptor;
 import io.grpc.NameResolverProvider;
 
 /**
@@ -77,8 +81,17 @@ public class SpanGrpcDataSenderProvider implements Provider<DataSender<Object>> 
         channelFactoryOptionBuilder.setClientOption(clientOption);
         ChannelFactoryOption channelFactoryOption = channelFactoryOptionBuilder.build();
 
+        final ClientInterceptor clientInterceptor = newClientInterceptor();
+
         final ReconnectExecutor reconnectExecutor = this.reconnectExecutor.get();
-        return new SpanGrpcDataSender(collectorIp, collectorPort, senderExecutorQueueSize, messageConverter, reconnectExecutor, channelFactoryOption);
+        return new SpanGrpcDataSender(collectorIp, collectorPort, senderExecutorQueueSize, messageConverter, reconnectExecutor, channelFactoryOption, clientInterceptor);
+    }
+
+    private ClientInterceptor newClientInterceptor() {
+        final int spanDiscardLogRateLimit = grpcTransportConfig.getSpanDiscardLogRateLimit();
+        final long spanDiscardMaxPendingThreshold = grpcTransportConfig.getSpanDiscardMaxPendingThreshold();
+        final DiscardEventListener<?> discardEventListener = new LoggingDiscardEventListener(SpanGrpcDataSender.class.getName(), spanDiscardLogRateLimit);
+        return new DiscardClientInterceptor(discardEventListener, spanDiscardMaxPendingThreshold);
     }
 
 }
