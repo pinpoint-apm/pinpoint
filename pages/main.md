@@ -5,7 +5,7 @@ permalink: main.html
 sidebar: mydoc_sidebar
 ---
 
-[Check out updates on lastest stable release](https://naver.github.io/pinpoint/1.8.4/main.html)
+[Check out updates on lastest stable release](https://naver.github.io/pinpoint/1.8.5/main.html)
 
 ## Currently Working On
 
