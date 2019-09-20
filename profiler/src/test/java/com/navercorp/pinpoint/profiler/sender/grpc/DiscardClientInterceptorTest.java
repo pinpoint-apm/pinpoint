@@ -32,6 +32,10 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
@@ -54,6 +58,9 @@ public class DiscardClientInterceptorTest {
 
     @Mock
     private Channel channel;
+
+    private DiscardEventListener<String> discardEventListener;
+
     @Mock
     private ClientCall.Listener<Integer> listener;
 
@@ -72,7 +79,9 @@ public class DiscardClientInterceptorTest {
         this.callOptions = CallOptions.DEFAULT;
         this.clientCall = new ClientCallRecorder();
         when(channel.newCall(descriptor, callOptions)).thenReturn(clientCall);
-        this.interceptor = new DiscardClientInterceptor(logger, 1, 1);
+
+        discardEventListener = spy(new LoggingDiscardEventListener<String>(DiscardClientInterceptorTest.class.getName(), 1));
+        this.interceptor = new DiscardClientInterceptor(discardEventListener, 1);
 
         this.call = (DiscardClientInterceptor.DiscardClientCall<String, Integer>) interceptor.interceptCall(descriptor, callOptions, channel);
     }
@@ -85,7 +94,7 @@ public class DiscardClientInterceptorTest {
 
         call.sendMessage("test");
         Assert.assertTrue(call.getOnReadyState());
-        Assert.assertEquals(call.getDiscardCounter(), 0);
+        verify(discardEventListener, never()).onDiscard(anyString());
     }
 
     @Test
@@ -98,7 +107,7 @@ public class DiscardClientInterceptorTest {
         call.sendMessage("test");
 
         Assert.assertTrue(call.getOnReadyState());
-        Assert.assertEquals(call.getDiscardCounter(), 1);
+        verify(discardEventListener).onDiscard(anyString());
     }
 
     @Test
@@ -106,7 +115,7 @@ public class DiscardClientInterceptorTest {
 
         call.sendMessage("test");
         Assert.assertFalse(call.getOnReadyState());
-        Assert.assertEquals(call.getDiscardCounter(), 0);
+        verify(discardEventListener, never()).onDiscard(anyString());
         Assert.assertEquals(call.getPendingCount(), 1);
     }
 
@@ -117,7 +126,7 @@ public class DiscardClientInterceptorTest {
         call.sendMessage("test");
 
         Assert.assertFalse(call.getOnReadyState());
-        Assert.assertEquals(call.getDiscardCounter(), 1);
+        verify(discardEventListener).onDiscard(anyString());
         Assert.assertEquals(call.getPendingCount(), 2);
     }
 
@@ -164,4 +173,5 @@ public class DiscardClientInterceptorTest {
 
         }
     }
+
 }

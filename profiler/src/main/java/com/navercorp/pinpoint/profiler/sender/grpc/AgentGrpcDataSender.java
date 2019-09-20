@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -72,13 +72,14 @@ public class AgentGrpcDataSender extends GrpcDataSender implements EnhancedDataS
         CommandServiceStubFactory commandServiceStubFactory = new CommandServiceStubFactory(managedChannel);
         this.grpcCommandService = new GrpcCommandService(commandServiceStubFactory, reconnectExecutor, activeTraceRepository);
         {
-            this.reconnector = reconnectExecutor.newReconnector(new Runnable() {
+            final Runnable reconnectJob = new Runnable() {
                 @Override
                 public void run() {
                     pingStreamContext = newPingStream(agentPingStub, retransmissionExecutor);
                 }
-            });
-            pingStreamContext = newPingStream(agentPingStub, retransmissionExecutor);
+            };
+            this.reconnector = reconnectExecutor.newReconnector(reconnectJob);
+            reconnectJob.run();
         }
     }
 
