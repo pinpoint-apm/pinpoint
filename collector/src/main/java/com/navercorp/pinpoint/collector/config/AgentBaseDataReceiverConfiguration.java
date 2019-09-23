@@ -38,9 +38,13 @@ public final class AgentBaseDataReceiverConfiguration {
     private static final String GRPC_ENABLE = GRPC_PREFIX + ".enable";
     private static final String GRPC_BIND_IP = GRPC_PREFIX + ".ip";
     private static final String GRPC_BIND_PORT = GRPC_PREFIX + ".port";
-    private static final String GRPC_WORKER_THREAD_SIZE = GRPC_PREFIX + ".worker.threadSize";
-    private static final String GRPC_WORKER_QUEUE_SIZE = GRPC_PREFIX + ".worker.queueSize";
-    private static final String GRPC_WORKER_MONITOR_ENABLE = GRPC_PREFIX + ".worker.monitor";
+    private static final String GRPC_SERVER_EXECUTOR_THREAD_SIZE = GRPC_PREFIX + ".server.executor.thread.size";
+    private static final String GRPC_SERVER_EXECUTOR_QUEUE_SIZE = GRPC_PREFIX + ".server.executor.queue.size";
+    private static final String GRPC_SERVER_EXECUTOR_MONITOR_ENABLE = GRPC_PREFIX + ".server.executor.monitor.enable";
+
+    private static final String GRPC_WORKER_EXECUTOR_THREAD_SIZE = GRPC_PREFIX + ".worker.executor.thread.size";
+    private static final String GRPC_WORKER_EXECUTOR_QUEUE_SIZE = GRPC_PREFIX + ".worker.executor.queue.size";
+    private static final String GRPC_WORKER_EXECUTOR_MONITOR_ENABLE = GRPC_PREFIX + ".worker.executor.monitor.enable";
 
     private final String bindIp;
     private final int bindPort;
@@ -51,9 +55,12 @@ public final class AgentBaseDataReceiverConfiguration {
     private final boolean grpcEnable;
     private final String grpcBindIp;
     private final int grpcBindPort;
-    private final int grpcWorkerThreadSize;
-    private final int grpcWorkerQueueSize;
-    private final boolean grpcWorkerMonitorEnable;
+    private final int grpcServerExecutorThreadSize;
+    private final int grpcServerExecutorQueueSize;
+    private final boolean grpcServerExecutorMonitorEnable;
+    private final int grpcWorkerExecutorThreadSize;
+    private final int grpcWorkerExecutorQueueSize;
+    private final boolean grpcWorkerExecutorMonitorEnable;
     private final ServerOption grpcServerOption;
 
     public AgentBaseDataReceiverConfiguration(Properties properties, DeprecatedConfiguration deprecatedConfiguration) {
@@ -76,11 +83,22 @@ public final class AgentBaseDataReceiverConfiguration {
         Objects.requireNonNull(grpcBindIp);
         this.grpcBindPort = CollectorConfiguration.readInt(properties, GRPC_BIND_PORT, 9991);
         Assert.isTrue(grpcBindPort > 0, "grpcBindPort must be greater than 0");
-        this.grpcWorkerThreadSize = CollectorConfiguration.readInt(properties, GRPC_WORKER_THREAD_SIZE, 128);
-        Assert.isTrue(grpcWorkerThreadSize > 0, "grpcWorkerThreadSize must be greater than 0");
-        this.grpcWorkerQueueSize = CollectorConfiguration.readInt(properties, GRPC_WORKER_QUEUE_SIZE, 1024 * 5);
-        Assert.isTrue(grpcWorkerQueueSize > 0, "grpcWorkerQueueSize must be greater than 0");
-        this.grpcWorkerMonitorEnable = CollectorConfiguration.readBoolean(properties, GRPC_WORKER_MONITOR_ENABLE);
+
+        // Server executor
+        this.grpcServerExecutorThreadSize = CollectorConfiguration.readInt(properties, GRPC_SERVER_EXECUTOR_THREAD_SIZE, 128);
+        Assert.isTrue(grpcServerExecutorThreadSize > 0, "grpcServerExecutorThreadSize must be greater than 0");
+        this.grpcServerExecutorQueueSize = CollectorConfiguration.readInt(properties, GRPC_SERVER_EXECUTOR_QUEUE_SIZE, 1024 * 5);
+        Assert.isTrue(grpcServerExecutorQueueSize > 0, "grpcServerExecutorQueueSize must be greater than 0");
+        this.grpcServerExecutorMonitorEnable = CollectorConfiguration.readBoolean(properties, GRPC_SERVER_EXECUTOR_MONITOR_ENABLE);
+
+        // Work executor
+        this.grpcWorkerExecutorThreadSize = CollectorConfiguration.readInt(properties, GRPC_WORKER_EXECUTOR_THREAD_SIZE, 128);
+        Assert.isTrue(grpcWorkerExecutorThreadSize > 0, "grpcWorkerExecutorThreadSize must be greater than 0");
+        this.grpcWorkerExecutorQueueSize = CollectorConfiguration.readInt(properties, GRPC_WORKER_EXECUTOR_QUEUE_SIZE, 1024 * 5);
+        Assert.isTrue(grpcWorkerExecutorQueueSize > 0, "grpcWorkerExecutorQueueSize must be greater than 0");
+        this.grpcWorkerExecutorMonitorEnable = CollectorConfiguration.readBoolean(properties, GRPC_WORKER_EXECUTOR_MONITOR_ENABLE);
+
+        // Server option
         final ServerOption.Builder serverOptionBuilder = GrpcPropertiesServerOptionBuilder.newBuilder(properties, GRPC_PREFIX);
         this.grpcServerOption = serverOptionBuilder.build();
     }
@@ -177,16 +195,28 @@ public final class AgentBaseDataReceiverConfiguration {
         return grpcEnable;
     }
 
-    public int getGrpcWorkerThreadSize() {
-        return grpcWorkerThreadSize;
+    public int getGrpcServerExecutorThreadSize() {
+        return grpcServerExecutorThreadSize;
     }
 
-    public int getGrpcWorkerQueueSize() {
-        return grpcWorkerQueueSize;
+    public int getGrpcServerExecutorQueueSize() {
+        return grpcServerExecutorQueueSize;
     }
 
-    public boolean isGrpcWorkerMonitorEnable() {
-        return grpcWorkerMonitorEnable;
+    public boolean isGrpcServerExecutorMonitorEnable() {
+        return grpcServerExecutorMonitorEnable;
+    }
+
+    public int getGrpcWorkerExecutorThreadSize() {
+        return grpcWorkerExecutorThreadSize;
+    }
+
+    public int getGrpcWorkerExecutorQueueSize() {
+        return grpcWorkerExecutorQueueSize;
+    }
+
+    public boolean isGrpcWorkerExecutorMonitorEnable() {
+        return grpcWorkerExecutorMonitorEnable;
     }
 
     public ServerOption getGrpcServerOption() {
@@ -204,9 +234,12 @@ public final class AgentBaseDataReceiverConfiguration {
         sb.append(", grpcEnable=").append(grpcEnable);
         sb.append(", grpcBindIp='").append(grpcBindIp).append('\'');
         sb.append(", grpcBindPort=").append(grpcBindPort);
-        sb.append(", grpcWorkerThreadSize=").append(grpcWorkerThreadSize);
-        sb.append(", grpcWorkerQueueSize=").append(grpcWorkerQueueSize);
-        sb.append(", grpcWorkerMonitorEnable=").append(grpcWorkerMonitorEnable);
+        sb.append(", grpcServerExecutorThreadSize=").append(grpcServerExecutorThreadSize);
+        sb.append(", grpcServerExecutorQueueSize=").append(grpcServerExecutorQueueSize);
+        sb.append(", grpcServerExecutorMonitorEnable=").append(grpcServerExecutorMonitorEnable);
+        sb.append(", grpcWorkerExecutorThreadSize=").append(grpcWorkerExecutorThreadSize);
+        sb.append(", grpcWorkerExecutorQueueSize=").append(grpcWorkerExecutorQueueSize);
+        sb.append(", grpcWorkerExecutorMonitorEnable=").append(grpcWorkerExecutorMonitorEnable);
         sb.append(", grpcServerOption=").append(grpcServerOption);
         sb.append('}');
         return sb.toString();

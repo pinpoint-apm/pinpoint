@@ -33,9 +33,9 @@ public class AgentBaseDataReceiverConfigurationTest {
         assertEquals(Boolean.FALSE, configuration.isGrpcEnable());
         assertEquals("1.1.1.1", configuration.getGrpcBindIp());
         assertEquals(1, configuration.getGrpcBindPort());
-        assertEquals(1, configuration.getGrpcWorkerThreadSize());
-        assertEquals(1, configuration.getGrpcWorkerQueueSize());
-        assertEquals(Boolean.FALSE, configuration.isGrpcWorkerMonitorEnable());
+        assertEquals(1, configuration.getGrpcWorkerExecutorThreadSize());
+        assertEquals(1, configuration.getGrpcWorkerExecutorQueueSize());
+        assertEquals(Boolean.FALSE, configuration.isGrpcWorkerExecutorMonitorEnable());
         assertEquals(1, configuration.getGrpcServerOption().getKeepAliveTime());
         assertEquals(1, configuration.getGrpcServerOption().getKeepAliveTimeout());
         assertEquals(1, configuration.getGrpcServerOption().getPermitKeepAliveTime());

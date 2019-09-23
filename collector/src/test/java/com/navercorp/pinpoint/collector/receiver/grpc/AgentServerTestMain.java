@@ -50,8 +50,8 @@ public class AgentServerTestMain {
         grpcReceiver.setBindPort(PORT);
 
         PingEventHandler pingEventHandler = mock(PingEventHandler.class);
-        BindableService agentService = new AgentService(new MockDispatchHandler(), pingEventHandler);
-        grpcReceiver.setBindableServiceList(Arrays.asList(agentService, new MetadataService(new MockDispatchHandler())));
+        BindableService agentService = new AgentService(new MockDispatchHandler(), pingEventHandler, Executors.newFixedThreadPool(8));
+        grpcReceiver.setBindableServiceList(Arrays.asList(agentService, new MetadataService(new MockDispatchHandler(), Executors.newFixedThreadPool(8))));
         grpcReceiver.setAddressFilter(new MockAddressFilter());
         grpcReceiver.setExecutor(Executors.newFixedThreadPool(8));
         grpcReceiver.setServerOption(new ServerOption.Builder().build());

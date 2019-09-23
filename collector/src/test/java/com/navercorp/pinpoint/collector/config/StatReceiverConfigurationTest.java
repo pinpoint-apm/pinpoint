@@ -33,9 +33,9 @@ public class StatReceiverConfigurationTest {
         assertEquals(Boolean.FALSE, configuration.isGrpcEnable());
         assertEquals("2.2.2.2", configuration.getGrpcBindIp());
         assertEquals(2, configuration.getGrpcBindPort());
-        assertEquals(2, configuration.getGrpcWorkerThreadSize());
-        assertEquals(2, configuration.getGrpcWorkerQueueSize());
-        assertEquals(Boolean.FALSE, configuration.isGrpcWorkerMonitorEnable());
+        assertEquals(2, configuration.getGrpcWorkerExecutorThreadSize());
+        assertEquals(2, configuration.getGrpcWorkerExecutorQueueSize());
+        assertEquals(Boolean.FALSE, configuration.isGrpcWorkerExecutorMonitorEnable());
         assertEquals(2, configuration.getGrpcServerOption().getKeepAliveTime());
         assertEquals(2, configuration.getGrpcServerOption().getKeepAliveTimeout());
         assertEquals(2, configuration.getGrpcServerOption().getPermitKeepAliveTime());

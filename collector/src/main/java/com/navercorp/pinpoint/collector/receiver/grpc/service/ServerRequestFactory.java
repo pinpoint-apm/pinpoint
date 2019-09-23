@@ -33,7 +33,6 @@ import java.net.InetSocketAddress;
  */
 public class ServerRequestFactory {
 
-
     public ServerRequestFactory() {
     }
 
