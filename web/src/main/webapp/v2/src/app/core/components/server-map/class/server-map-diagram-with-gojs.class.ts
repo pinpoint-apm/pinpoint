@@ -239,7 +239,7 @@ export class ServerMapDiagramWithGojs extends ServerMapDiagram {
     onDoubleClickNode(event: go.InputEvent, obj: go.GraphObject): void {
         // console.log('onDoubleClick-Node :', event, obj);
         this.diagram.centerRect(obj.actualBounds);
-        this.diagram.scale *= 1.3;
+        this.diagram.scale *= 2;
     }
     onContextClickNode(event: go.InputEvent, obj: go.GraphObject): void {
         // console.log('onContextClick-Node :', event, obj);
