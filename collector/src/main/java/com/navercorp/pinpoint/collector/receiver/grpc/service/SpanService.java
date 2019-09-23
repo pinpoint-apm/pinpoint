@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.collector.receiver.grpc.service;
 import com.google.protobuf.Empty;
 import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
+import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
 import com.navercorp.pinpoint.grpc.StatusError;
 import com.navercorp.pinpoint.grpc.StatusErrors;
@@ -54,10 +55,11 @@ public class SpanService extends SpanGrpc.SpanImplBase {
     private final boolean isDebug = logger.isDebugEnabled();
     private final DispatchHandler dispatchHandler;
     private final ServerRequestFactory serverRequestFactory = new ServerRequestFactory();
-    private Executor executor;
+    private final Executor executor;
 
     public SpanService(DispatchHandler dispatchHandler, Executor executor) {
         this.dispatchHandler = Objects.requireNonNull(dispatchHandler, "dispatchHandler must not be null");
+        Objects.requireNonNull(executor, "executor must not be null");
         this.executor = Context.currentContextExecutor(executor);
     }
 
@@ -66,32 +68,20 @@ public class SpanService extends SpanGrpc.SpanImplBase {
         StreamObserver<PSpanMessage> observer = new StreamObserver<PSpanMessage>() {
             @Override
             public void onNext(PSpanMessage spanMessage) {
-                final Runnable spanMessageHandler = new Runnable() {
-                    @Override
-                    public void run() {
-                        if (isDebug) {
-                            logger.debug("Send PSpan={}", MessageFormatUtils.debugLog(spanMessage));
-                        }
-                        if (spanMessage.hasSpan()) {
-                            final Message<PSpan> message = newMessage(spanMessage.getSpan(), DefaultTBaseLocator.SPAN);
-                            send(responseObserver, message);
-                        } else if (spanMessage.hasSpanChunk()) {
-                            final Message<PSpanChunk> message = newMessage(spanMessage.getSpanChunk(), DefaultTBaseLocator.SPANCHUNK);
-                            send(responseObserver, message);
-                        } else {
-                            if (isDebug) {
-                                logger.debug("Found empty span message {}", MessageFormatUtils.debugLog(spanMessage));
-                            }
-                        }
-                    }
-                };
+                if (isDebug) {
+                    logger.debug("Send PSpan={}", MessageFormatUtils.debugLog(spanMessage));
+                }
 
-                try {
-                    executor.execute(spanMessageHandler);
-                } catch (RejectedExecutionException ree) {
-                    logger.warn("Failed to request. message={}", MessageFormatUtils.debugLog(spanMessage), ree);
-                    // Avoid detailed exception
-                    responseObserver.onError(Status.INTERNAL.withDescription("Rejected Execution").asException());
+                if (spanMessage.hasSpan()) {
+                    final Message<PSpan> message = newMessage(spanMessage.getSpan(), DefaultTBaseLocator.SPAN);
+                    doExecute(message, responseObserver);
+                } else if (spanMessage.hasSpanChunk()) {
+                    final Message<PSpanChunk> message = newMessage(spanMessage.getSpanChunk(), DefaultTBaseLocator.SPANCHUNK);
+                    doExecute(message, responseObserver);
+                } else {
+                    if (isDebug) {
+                        logger.debug("Found empty span message {}", MessageFormatUtils.debugLog(spanMessage));
+                    }
                 }
             }
 
@@ -115,17 +105,30 @@ public class SpanService extends SpanGrpc.SpanImplBase {
         return observer;
     }
 
-
     private <T> Message<T> newMessage(T requestData, short serviceType) {
         final Header header = new HeaderV2(Header.SIGNATURE, HeaderV2.VERSION, serviceType);
         final HeaderEntity headerEntity = new HeaderEntity(new HashMap<>());
         return new DefaultMessage<>(header, headerEntity, requestData);
     }
 
-    private void send(StreamObserver<Empty> responseObserver, final Message<? extends GeneratedMessageV3> message) {
-        ServerRequest<? extends GeneratedMessageV3> request;
+    @VisibleForTesting
+    void doExecute(final Message<? extends GeneratedMessageV3> message, StreamObserver<Empty> responseObserver) {
         try {
-            request = serverRequestFactory.newServerRequest(message);
+            executor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    send(message, responseObserver);
+                }
+            });
+        } catch (RejectedExecutionException ree) {
+            // Defense code
+            logger.warn("Failed to request. Rejected execution, executor={}", executor);
+        }
+    }
+
+    private void send(final Message<? extends GeneratedMessageV3> message, StreamObserver<Empty> responseObserver) {
+        try {
+            ServerRequest<? extends GeneratedMessageV3> request = serverRequestFactory.newServerRequest(message);
             this.dispatchHandler.dispatchSendMessage(request);
         } catch (Exception e) {
             logger.warn("Failed to request. message={}", message, e);

@@ -31,12 +31,15 @@ import com.navercorp.pinpoint.io.header.v2.HeaderV2;
 import com.navercorp.pinpoint.io.request.DefaultMessage;
 import com.navercorp.pinpoint.io.request.Message;
 import com.navercorp.pinpoint.thrift.io.DefaultTBaseLocator;
+import io.grpc.Context;
 import io.grpc.stub.StreamObserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
 import java.util.Objects;
+import java.util.concurrent.Executor;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -50,11 +53,13 @@ public class AgentService extends AgentGrpc.AgentImplBase {
     private final boolean isDebug = logger.isDebugEnabled();
     private final SimpleRequestHandlerAdaptor<PResult> simpleRequestHandlerAdaptor;
     private final PingEventHandler pingEventHandler;
+    private final Executor executor;
 
-    public AgentService(DispatchHandler dispatchHandler, PingEventHandler pingEventHandler) {
+    public AgentService(DispatchHandler dispatchHandler, PingEventHandler pingEventHandler, Executor executor) {
         this.simpleRequestHandlerAdaptor = new SimpleRequestHandlerAdaptor<PResult>(this.getClass().getName(), dispatchHandler);
         this.pingEventHandler = Objects.requireNonNull(pingEventHandler, "pingEventHandler must not be null");
-
+        Objects.requireNonNull(executor, "executor must not be null");
+        this.executor = Context.currentContextExecutor(executor);
     }
 
     @Override
@@ -64,10 +69,22 @@ public class AgentService extends AgentGrpc.AgentImplBase {
         }
 
         Message<PAgentInfo> message = newMessage(agentInfo, DefaultTBaseLocator.AGENT_INFO);
-
-        simpleRequestHandlerAdaptor.request(message, responseObserver);
+        doExecutor(message, responseObserver);
     }
 
+    void doExecutor(final Message message, final StreamObserver<PResult> responseObserver) {
+        try {
+            executor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    simpleRequestHandlerAdaptor.request(message, responseObserver);
+                }
+            });
+        } catch (RejectedExecutionException ree) {
+            // Defense code
+            logger.warn("Failed to request. Rejected execution, executor={}", executor);
+        }
+    }
 
     @Override
     public StreamObserver<PPing> pingSession(final StreamObserver<PPing> responseObserver) {
@@ -132,5 +149,4 @@ public class AgentService extends AgentGrpc.AgentImplBase {
         final HeaderEntity headerEntity = new HeaderEntity(Collections.emptyMap());
         return new DefaultMessage<T>(header, headerEntity, requestData);
     }
-
 }

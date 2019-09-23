@@ -28,12 +28,15 @@ import com.navercorp.pinpoint.io.header.v2.HeaderV2;
 import com.navercorp.pinpoint.io.request.DefaultMessage;
 import com.navercorp.pinpoint.io.request.Message;
 import com.navercorp.pinpoint.thrift.io.DefaultTBaseLocator;
+import io.grpc.Context;
 import io.grpc.stub.StreamObserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
 import java.util.Objects;
+import java.util.concurrent.Executor;
+import java.util.concurrent.RejectedExecutionException;
 
 import static com.navercorp.pinpoint.grpc.MessageFormatUtils.*;
 
@@ -45,9 +48,12 @@ public class MetadataService extends MetadataGrpc.MetadataImplBase {
     private final boolean isDebug = logger.isDebugEnabled();
 
     private final SimpleRequestHandlerAdaptor<PResult> simpleRequestHandlerAdaptor;
+    private final Executor executor;
 
-    public MetadataService(DispatchHandler dispatchHandler) {
+    public MetadataService(DispatchHandler dispatchHandler, Executor executor) {
         Objects.requireNonNull(dispatchHandler, "dispatchHandler must not be null");
+        Objects.requireNonNull(executor, "executor must not be null");
+        this.executor = Context.currentContextExecutor(executor);
         this.simpleRequestHandlerAdaptor = new SimpleRequestHandlerAdaptor<>(this.getClass().getName(), dispatchHandler);
     }
 
@@ -58,8 +64,7 @@ public class MetadataService extends MetadataGrpc.MetadataImplBase {
         }
 
         final Message<PApiMetaData> message = newMessage(apiMetaData, DefaultTBaseLocator.APIMETADATA);
-
-        simpleRequestHandlerAdaptor.request(message, responseObserver);
+        doExecutor(message, responseObserver);
     }
 
     @Override
@@ -69,10 +74,8 @@ public class MetadataService extends MetadataGrpc.MetadataImplBase {
         }
 
         final Message<PSqlMetaData> message = newMessage(sqlMetaData, DefaultTBaseLocator.SQLMETADATA);
-
-        simpleRequestHandlerAdaptor.request(message, responseObserver);
+        doExecutor(message, responseObserver);
     }
-
 
     @Override
     public void requestStringMetaData(PStringMetaData stringMetaData, StreamObserver<PResult> responseObserver) {
@@ -81,8 +84,7 @@ public class MetadataService extends MetadataGrpc.MetadataImplBase {
         }
 
         final Message<PStringMetaData> message = newMessage(stringMetaData, DefaultTBaseLocator.STRINGMETADATA);
-
-        simpleRequestHandlerAdaptor.request(message, responseObserver);
+        doExecutor(message, responseObserver);
     }
 
     private <T> Message<T> newMessage(T requestData, short type) {
@@ -91,4 +93,17 @@ public class MetadataService extends MetadataGrpc.MetadataImplBase {
         return new DefaultMessage<>(header, headerEntity, requestData);
     }
 
+    void doExecutor(final Message message, final StreamObserver<PResult> responseObserver) {
+        try {
+            executor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    simpleRequestHandlerAdaptor.request(message, responseObserver);
+                }
+            });
+        } catch (RejectedExecutionException ree) {
+            // Defense code
+            logger.warn("Failed to request. Rejected execution, executor={}", executor);
+        }
+    }
 }

@@ -39,7 +39,7 @@ public class StatServerTestMain {
         grpcReceiver.setBeanName("StatServer");
         grpcReceiver.setBindPort(PORT);
 
-        BindableService bindableService = new StatService(new MockDispatchHandler());
+        BindableService bindableService = new StatService(new MockDispatchHandler(), Executors.newFixedThreadPool(8));
         grpcReceiver.setBindableServiceList(Arrays.asList(bindableService));
         grpcReceiver.setAddressFilter(new MockAddressFilter());
         grpcReceiver.setExecutor(Executors.newFixedThreadPool(8));

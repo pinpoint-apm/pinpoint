@@ -33,9 +33,9 @@ public class SpanReceiverConfigurationTest {
         assertEquals(Boolean.FALSE, configuration.isGrpcEnable());
         assertEquals("3.3.3.3", configuration.getGrpcBindIp());
         assertEquals(3, configuration.getGrpcBindPort());
-        assertEquals(3, configuration.getGrpcWorkerThreadSize());
-        assertEquals(3, configuration.getGrpcWorkerQueueSize());
-        assertEquals(Boolean.FALSE, configuration.isGrpcWorkerMonitorEnable());
+        assertEquals(3, configuration.getGrpcWorkerExecutorThreadSize());
+        assertEquals(3, configuration.getGrpcWorkerExecutorQueueSize());
+        assertEquals(Boolean.FALSE, configuration.isGrpcWorkerExecutorMonitorEnable());
         assertEquals(3, configuration.getGrpcServerOption().getKeepAliveTime());
         assertEquals(3, configuration.getGrpcServerOption().getKeepAliveTimeout());
         assertEquals(3, configuration.getGrpcServerOption().getPermitKeepAliveTime());
