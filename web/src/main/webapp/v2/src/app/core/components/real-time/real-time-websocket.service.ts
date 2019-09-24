@@ -14,7 +14,7 @@ interface IWebSocketData {
 export interface IWebSocketDataResult {
     timeStamp: number;
     applicationName: string;
-    activeThreadCounts: { [key: string]: IActiveThreadCounts };
+    activeThreadCounts: {[key: string]: IActiveThreadCounts};
 }
 
 export interface IActiveThreadCounts {
@@ -154,8 +154,9 @@ export class RealTimeWebSocketService {
     }
 
     private parseResult(result: IWebSocketDataResult): IWebSocketDataResult {
-        const activeThreadCounts = Object.keys(result.activeThreadCounts).reduce((prev: IWebSocketDataResult, curr: string) => {
-            let agentData = result.activeThreadCounts[curr];
+        const {timeStamp, applicationName, activeThreadCounts} = result;
+        const parsedATC = Object.keys(activeThreadCounts).reduce((prev: {[key: string]: IActiveThreadCounts}, curr: string) => {
+            let agentData = activeThreadCounts[curr];
             const responseCode = agentData.code;
 
             switch (responseCode) {
@@ -170,13 +171,14 @@ export class RealTimeWebSocketService {
                 default:
                     break;
             }
+
             return {
                 ...prev,
-                ...{ [curr]: agentData }
+                [curr]: agentData
             };
-        }, {});
+        }, {} as {[key: string]: IActiveThreadCounts});
 
-        return { ...result, ...{ activeThreadCounts } };
+        return {timeStamp, applicationName, activeThreadCounts: parsedATC};
     }
 
     // TODO: No Response 메시지 띄워주기
