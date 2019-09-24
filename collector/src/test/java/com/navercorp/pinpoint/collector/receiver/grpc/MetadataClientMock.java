@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,7 +21,9 @@ import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
 import com.navercorp.pinpoint.grpc.AgentHeaderFactory;
 import com.navercorp.pinpoint.grpc.client.ChannelFactory;
-import com.navercorp.pinpoint.grpc.client.ChannelFactoryOption;
+import com.navercorp.pinpoint.grpc.client.ChannelFactoryBuilder;
+import com.navercorp.pinpoint.grpc.client.ClientOption;
+import com.navercorp.pinpoint.grpc.client.DefaultChannelFactoryBuilder;
 import com.navercorp.pinpoint.grpc.client.HeaderFactory;
 import com.navercorp.pinpoint.grpc.trace.MetadataGrpc;
 import com.navercorp.pinpoint.grpc.trace.PApiMetaData;
@@ -68,13 +70,11 @@ public class MetadataClientMock {
     private final List<String> responseList = new ArrayList<>();
 
     public MetadataClientMock(final String host, final int port, final boolean agentHeader) {
-        HeaderFactory headerFactory = new AgentHeaderFactory("mockAgentId", "mockApplicationName", System.currentTimeMillis());
-        ChannelFactoryOption.Builder builder = ChannelFactoryOption.newBuilder();
-        builder.setHeaderFactory(headerFactory);
+
 
         this.retryTimer = newTimer(this.getClass().getName());
-        this.channelFactory = new ChannelFactory(builder.build());
-        this.channel = channelFactory.build("MetadataClientMock", host, port);
+        this.channelFactory = newChannelFactory();
+        this.channel = channelFactory.build(host, port);
 
         this.metadataStub = MetadataGrpc.newStub(channel);
         this.retryScheduler = new RetryScheduler<GeneratedMessageV3, PResult>() {
@@ -88,6 +88,14 @@ public class MetadataClientMock {
                 MetadataClientMock.this.scheduleNextRetry(request, remainingRetryCount);
             }
         };
+    }
+
+    private ChannelFactory newChannelFactory() {
+        HeaderFactory headerFactory = new AgentHeaderFactory("mockAgentId", "mockApplicationName", System.currentTimeMillis());
+        ChannelFactoryBuilder channelFactoryBuilder = new DefaultChannelFactoryBuilder("MetadataClientMock");
+        channelFactoryBuilder.setHeaderFactory(headerFactory);
+        channelFactoryBuilder.setClientOption(new ClientOption.Builder().build());
+        return channelFactoryBuilder.build();
     }
 
     public void stop() throws InterruptedException {

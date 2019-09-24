@@ -16,24 +16,22 @@
 
 package com.navercorp.pinpoint.grpc;
 
+import com.google.protobuf.Empty;
 import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
-
 import com.navercorp.pinpoint.grpc.client.ChannelFactory;
-import com.navercorp.pinpoint.grpc.client.ChannelFactoryOption;
+import com.navercorp.pinpoint.grpc.client.ChannelFactoryBuilder;
+import com.navercorp.pinpoint.grpc.client.ClientOption;
+import com.navercorp.pinpoint.grpc.client.DefaultChannelFactoryBuilder;
 import com.navercorp.pinpoint.grpc.client.HeaderFactory;
 import com.navercorp.pinpoint.grpc.server.MetadataServerTransportFilter;
 import com.navercorp.pinpoint.grpc.server.ServerContext;
 import com.navercorp.pinpoint.grpc.server.ServerFactory;
-
 import com.navercorp.pinpoint.grpc.server.ServerOption;
-
 import com.navercorp.pinpoint.grpc.server.TransportMetadataFactory;
 import com.navercorp.pinpoint.grpc.server.TransportMetadataServerInterceptor;
 import com.navercorp.pinpoint.grpc.trace.PSpan;
 import com.navercorp.pinpoint.grpc.trace.PSpanMessage;
 import com.navercorp.pinpoint.grpc.trace.SpanGrpc;
-
-import com.google.protobuf.Empty;
 import io.grpc.CallOptions;
 import io.grpc.Channel;
 import io.grpc.ClientCall;
@@ -62,7 +60,6 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.mockito.Mockito.mock;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -110,14 +107,14 @@ public class ChannelFactoryTest {
 
         CountRecordClientInterceptor countRecordClientInterceptor = new CountRecordClientInterceptor();
 
-        ChannelFactoryOption.Builder builder = ChannelFactoryOption.newBuilder();
-        builder.setName(this.getClass().getSimpleName());
-        builder.setHeaderFactory(headerFactory);
-        builder.setNameResolverProvider(nameResolverProvider);
-        builder.addClientInterceptor(countRecordClientInterceptor);
+        ChannelFactoryBuilder channelFactoryBuilder = new DefaultChannelFactoryBuilder(this.getClass().getSimpleName());
+        channelFactoryBuilder.setHeaderFactory(headerFactory);
+        channelFactoryBuilder.setNameResolverProvider(nameResolverProvider);
+        channelFactoryBuilder.addClientInterceptor(countRecordClientInterceptor);
+        channelFactoryBuilder.setClientOption(new ClientOption.Builder().build());
+        ChannelFactory channelFactory = channelFactoryBuilder.build();
 
-        ChannelFactory channelFactory = new ChannelFactory(builder.build());
-        ManagedChannel managedChannel = channelFactory.build("test-channel", "127.0.0.1", PORT);
+        ManagedChannel managedChannel = channelFactory.build("127.0.0.1", PORT);
         managedChannel.getState(false);
 
         SpanGrpc.SpanStub spanStub = SpanGrpc.newStub(managedChannel);

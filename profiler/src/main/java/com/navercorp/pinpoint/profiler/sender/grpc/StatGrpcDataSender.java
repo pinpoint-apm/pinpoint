@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.profiler.sender.grpc;
 
 
 import com.navercorp.pinpoint.common.util.Assert;
-import com.navercorp.pinpoint.grpc.client.ChannelFactoryOption;
+import com.navercorp.pinpoint.grpc.client.ChannelFactory;
 
 import com.google.protobuf.Empty;
 
@@ -49,8 +49,8 @@ public class StatGrpcDataSender extends GrpcDataSender {
                               int senderExecutorQueueSize,
                               MessageConverter<GeneratedMessageV3> messageConverter,
                               ReconnectExecutor reconnectExecutor,
-                              ChannelFactoryOption channelFactoryOption) {
-        super(host, port, senderExecutorQueueSize, messageConverter, channelFactoryOption);
+                              ChannelFactory channelFactory) {
+        super(host, port, senderExecutorQueueSize, messageConverter, channelFactory);
 
         this.statStub = StatGrpc.newStub(managedChannel);
         this.reconnectExecutor = Assert.requireNonNull(reconnectExecutor, "reconnectExecutor must not be null");

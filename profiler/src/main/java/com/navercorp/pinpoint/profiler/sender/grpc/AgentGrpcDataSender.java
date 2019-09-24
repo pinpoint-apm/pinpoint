@@ -16,12 +16,12 @@
 
 package com.navercorp.pinpoint.profiler.sender.grpc;
 
+import com.navercorp.pinpoint.grpc.client.ChannelFactory;
 import com.navercorp.pinpoint.grpc.client.SocketIdClientInterceptor;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
 import com.navercorp.pinpoint.profiler.receiver.grpc.CommandServiceStubFactory;
 import com.navercorp.pinpoint.profiler.receiver.grpc.GrpcCommandService;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
-import com.navercorp.pinpoint.grpc.client.ChannelFactoryOption;
 import com.navercorp.pinpoint.grpc.trace.AgentGrpc;
 import com.navercorp.pinpoint.grpc.trace.PAgentInfo;
 import com.navercorp.pinpoint.grpc.trace.PResult;
@@ -61,9 +61,9 @@ public class AgentGrpcDataSender extends GrpcDataSender implements EnhancedDataS
                                MessageConverter<GeneratedMessageV3> messageConverter,
                                ReconnectExecutor reconnectExecutor,
                                final ScheduledExecutorService retransmissionExecutor,
-                               ChannelFactoryOption channelFactoryOption,
+                               ChannelFactory channelFactory,
                                ActiveTraceRepository activeTraceRepository) {
-        super(host, port, executorQueueSize, messageConverter, channelFactoryOption);
+        super(host, port, executorQueueSize, messageConverter, channelFactory);
 
         this.agentInfoStub = AgentGrpc.newStub(managedChannel);
         this.agentPingStub = newAgentPingStub();

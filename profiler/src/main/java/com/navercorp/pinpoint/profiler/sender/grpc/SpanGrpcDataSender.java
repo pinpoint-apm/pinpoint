@@ -17,18 +17,15 @@
 package com.navercorp.pinpoint.profiler.sender.grpc;
 
 
-import com.navercorp.pinpoint.common.util.Assert;
-import com.navercorp.pinpoint.grpc.client.ChannelFactoryOption;
-
 import com.google.protobuf.Empty;
-
+import com.google.protobuf.GeneratedMessageV3;
+import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.grpc.client.ChannelFactory;
 import com.navercorp.pinpoint.grpc.trace.PSpan;
 import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
 import com.navercorp.pinpoint.grpc.trace.PSpanMessage;
 import com.navercorp.pinpoint.grpc.trace.SpanGrpc;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
-
-import com.google.protobuf.GeneratedMessageV3;
 import io.grpc.ClientInterceptor;
 import io.grpc.stub.StreamObserver;
 
@@ -51,8 +48,8 @@ public class SpanGrpcDataSender extends GrpcDataSender {
                               int executorQueueSize,
                               MessageConverter<GeneratedMessageV3> messageConverter,
                               ReconnectExecutor reconnectExecutor,
-                              ChannelFactoryOption channelFactoryOption, ClientInterceptor clientInterceptor) {
-        super(host, port, executorQueueSize, messageConverter, channelFactoryOption);
+                              ChannelFactory channelFactory, ClientInterceptor clientInterceptor) {
+        super(host, port, executorQueueSize, messageConverter, channelFactory);
 
         this.spanStub = newSpanStub(clientInterceptor);
         this.reconnectExecutor = Assert.requireNonNull(reconnectExecutor, "reconnectExecutor");
