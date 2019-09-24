@@ -43,8 +43,8 @@ public class GrpcTransportConfig {
     private static final int DEFAULT_STAT_CHANNEL_EXECUTOR_QUEUE_SIZE = 1000;
     private static final int DEFAULT_SPAN_CHANNEL_EXECUTOR_QUEUE_SIZE = 1000;
 
-    private static final int DEFAULT_DISCARD_LOG_RATE_LIMIT = 1024;
-    private static final long DEFAULT_DISCARD_MAX_PENDING_THRESHOLD = 1000;
+    private static final int DEFAULT_DISCARD_LOG_RATE_LIMIT = 100;
+    private static final long DEFAULT_DISCARD_MAX_PENDING_THRESHOLD = 1024;
 
     private static final int DEFAULT_METADATA_RETRY_MAX_COUNT = 3;
     private static final int DEFAULT_METADATA_RETRY_DELAY_MILLIS = 1000;
