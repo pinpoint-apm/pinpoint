@@ -30,8 +30,6 @@ import org.mockito.Mock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nullable;
-
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
@@ -159,7 +157,7 @@ public class DiscardClientInterceptorTest {
         }
 
         @Override
-        public void cancel(@Nullable String message, @Nullable Throwable cause) {
+        public void cancel(String message, Throwable cause) {
 
         }
 
