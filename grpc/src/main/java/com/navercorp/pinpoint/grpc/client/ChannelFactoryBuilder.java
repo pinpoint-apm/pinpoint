@@ -16,18 +16,28 @@
 
 package com.navercorp.pinpoint.grpc.client;
 
-import io.grpc.ManagedChannel;
+import io.grpc.ClientInterceptor;
+import io.grpc.NameResolverProvider;
+
 
 /**
  * @author Woonduk Kang(emeroad)
  */
-public interface ChannelFactory {
+public interface ChannelFactoryBuilder {
 
-    String getFactoryName();
 
-    ManagedChannel build(String channelName, String host, int port);
+    void setExecutorQueueSize(int executorQueueSize);
 
-    ManagedChannel build(String host, int port);
+    void setHeaderFactory(HeaderFactory headerFactory);
 
-    void close();
+    void addFirstClientInterceptor(ClientInterceptor clientInterceptor);
+
+    void addClientInterceptor(ClientInterceptor clientInterceptor);
+
+    void setClientOption(ClientOption clientOption);
+
+    void setNameResolverProvider(NameResolverProvider nameResolverProvider);
+
+    ChannelFactory build();
+
 }

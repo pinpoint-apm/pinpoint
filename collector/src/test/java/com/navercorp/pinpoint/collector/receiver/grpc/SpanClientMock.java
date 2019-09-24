@@ -20,7 +20,9 @@ import com.google.protobuf.ByteString;
 import com.google.protobuf.Empty;
 import com.navercorp.pinpoint.grpc.AgentHeaderFactory;
 import com.navercorp.pinpoint.grpc.client.ChannelFactory;
-import com.navercorp.pinpoint.grpc.client.ChannelFactoryOption;
+import com.navercorp.pinpoint.grpc.client.ChannelFactoryBuilder;
+import com.navercorp.pinpoint.grpc.client.ClientOption;
+import com.navercorp.pinpoint.grpc.client.DefaultChannelFactoryBuilder;
 import com.navercorp.pinpoint.grpc.client.HeaderFactory;
 import com.navercorp.pinpoint.grpc.trace.PAnnotation;
 import com.navercorp.pinpoint.grpc.trace.PAnnotationValue;
@@ -54,12 +56,7 @@ public class SpanClientMock {
     private final AtomicLong total = new AtomicLong(0);
 
     public SpanClientMock(final String host, final int port) throws Exception {
-        HeaderFactory headerFactory = new AgentHeaderFactory("mockAgentId", "mockApplicationName", System.currentTimeMillis());
-        ChannelFactoryOption.Builder builder = ChannelFactoryOption.newBuilder();
-        builder.setHeaderFactory(headerFactory);
-        builder.setName("SpanClientMock");
-
-        this.channelFactory = new ChannelFactory(builder.build());
+        channelFactory = newChannelFactory();
         this.channel = channelFactory.build("SpanClientMock", host, port);
         this.spanStub = SpanGrpc.newStub(channel).withInterceptors(new ClientInterceptor() {
             @Override
@@ -85,6 +82,16 @@ public class SpanClientMock {
             }
         });
         logger.info("CallOptions={}, channel={}", spanStub.getCallOptions(), spanStub.getChannel());
+    }
+
+    private ChannelFactory newChannelFactory() {
+        HeaderFactory headerFactory = new AgentHeaderFactory("mockAgentId", "mockApplicationName", System.currentTimeMillis());
+
+        ChannelFactoryBuilder channelFactoryBuilder = new DefaultChannelFactoryBuilder("SpanClientMock");
+        channelFactoryBuilder.setHeaderFactory(headerFactory);
+        channelFactoryBuilder.setClientOption(new ClientOption.Builder().build());
+
+        return channelFactoryBuilder.build();
     }
 
     public void stop() throws InterruptedException {
