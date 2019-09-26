@@ -48,10 +48,10 @@ public class SpanGrpcDataSender extends GrpcDataSender {
                               int executorQueueSize,
                               MessageConverter<GeneratedMessageV3> messageConverter,
                               ReconnectExecutor reconnectExecutor,
-                              ChannelFactory channelFactory, ClientInterceptor clientInterceptor) {
+                              ChannelFactory channelFactory) {
         super(host, port, executorQueueSize, messageConverter, channelFactory);
 
-        this.spanStub = newSpanStub(clientInterceptor);
+        this.spanStub = newSpanStub();
         this.reconnectExecutor = Assert.requireNonNull(reconnectExecutor, "reconnectExecutor");
         {
             final Runnable spanStreamReconnectJob = new Runnable() {
@@ -66,12 +66,8 @@ public class SpanGrpcDataSender extends GrpcDataSender {
 
     }
 
-    private SpanGrpc.SpanStub newSpanStub(ClientInterceptor clientInterceptor) {
-
+    private SpanGrpc.SpanStub newSpanStub() {
         SpanGrpc.SpanStub spanStub = SpanGrpc.newStub(managedChannel);
-        if (clientInterceptor != null) {
-            spanStub = spanStub.withInterceptors(clientInterceptor);
-        }
         return spanStub;
     }
 

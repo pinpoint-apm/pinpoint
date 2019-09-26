@@ -73,27 +73,29 @@ public class SpanGrpcDataSenderProvider implements Provider<DataSender<Object>> 
         final ChannelFactoryBuilder channelFactoryBuilder = newChannelFactoryBuilder();
         final ChannelFactory channelFactory = channelFactoryBuilder.build();
 
-        final ClientInterceptor clientInterceptor = newClientInterceptor();
-
         final ReconnectExecutor reconnectExecutor = this.reconnectExecutor.get();
-        return new SpanGrpcDataSender(collectorIp, collectorPort, senderExecutorQueueSize, messageConverter, reconnectExecutor, channelFactory, clientInterceptor);
+        return new SpanGrpcDataSender(collectorIp, collectorPort, senderExecutorQueueSize, messageConverter, reconnectExecutor, channelFactory);
     }
 
     protected ChannelFactoryBuilder newChannelFactoryBuilder() {
         final int channelExecutorQueueSize = grpcTransportConfig.getSpanChannelExecutorQueueSize();
-        final UnaryCallDeadlineInterceptor unaryCallDeadlineInterceptor = new UnaryCallDeadlineInterceptor(grpcTransportConfig.getSpanRequestTimeout());
         final ClientOption clientOption = grpcTransportConfig.getSpanClientOption();
 
         ChannelFactoryBuilder channelFactoryBuilder = new DefaultChannelFactoryBuilder("SpanGrpcDataSender");
         channelFactoryBuilder.setHeaderFactory(headerFactory);
         channelFactoryBuilder.setNameResolverProvider(nameResolverProvider);
+
+        final ClientInterceptor unaryCallDeadlineInterceptor = new UnaryCallDeadlineInterceptor(grpcTransportConfig.getSpanRequestTimeout());
         channelFactoryBuilder.addClientInterceptor(unaryCallDeadlineInterceptor);
+        final ClientInterceptor discardClientInterceptor = newDiscardClientInterceptor();
+        channelFactoryBuilder.addClientInterceptor(discardClientInterceptor);
+
         channelFactoryBuilder.setExecutorQueueSize(channelExecutorQueueSize);
         channelFactoryBuilder.setClientOption(clientOption);
         return channelFactoryBuilder;
     }
 
-    private ClientInterceptor newClientInterceptor() {
+    private ClientInterceptor newDiscardClientInterceptor() {
         final int spanDiscardLogRateLimit = grpcTransportConfig.getSpanDiscardLogRateLimit();
         final long spanDiscardMaxPendingThreshold = grpcTransportConfig.getSpanDiscardMaxPendingThreshold();
         final DiscardEventListener<?> discardEventListener = new LoggingDiscardEventListener(SpanGrpcDataSender.class.getName(), spanDiscardLogRateLimit);

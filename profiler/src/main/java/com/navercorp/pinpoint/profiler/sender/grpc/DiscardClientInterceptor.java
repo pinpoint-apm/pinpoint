@@ -26,6 +26,8 @@ import io.grpc.ForwardingClientCall;
 import io.grpc.ForwardingClientCallListener;
 import io.grpc.Metadata;
 import io.grpc.MethodDescriptor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
@@ -34,6 +36,8 @@ import java.util.concurrent.atomic.AtomicLong;
  * @author Woonduk Kang(emeroad)
  */
 public class DiscardClientInterceptor implements ClientInterceptor {
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final DiscardEventListener listener;
     private final long maxPendingThreshold;
@@ -45,8 +49,15 @@ public class DiscardClientInterceptor implements ClientInterceptor {
 
     @Override
     public <ReqT, RespT> ClientCall<ReqT, RespT> interceptCall(MethodDescriptor<ReqT, RespT> method, CallOptions callOptions, Channel next) {
-        final ClientCall<ReqT, RespT> newCall = next.newCall(method, callOptions);
-        return new DiscardClientCall<ReqT, RespT>(newCall, this.listener, maxPendingThreshold);
+        if (MethodDescriptor.MethodType.CLIENT_STREAMING == method.getType()) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("interceptCall {}", method.getFullMethodName());
+            }
+            final ClientCall<ReqT, RespT> newCall = next.newCall(method, callOptions);
+            return new DiscardClientCall<ReqT, RespT>(newCall, this.listener, maxPendingThreshold);
+        } else {
+            return next.newCall(method, callOptions);
+        }
     }
 
     static class DiscardClientCall<ReqT, RespT> extends ForwardingClientCall.SimpleForwardingClientCall<ReqT, RespT> {
