@@ -69,7 +69,7 @@ public class DiscardClientInterceptorTest {
     @Before
     public void setUp() throws Exception {
         this.descriptor = MethodDescriptor.<String, Integer>newBuilder()
-                .setType(MethodDescriptor.MethodType.UNKNOWN)
+                .setType(MethodDescriptor.MethodType.CLIENT_STREAMING)
                 .setFullMethodName("a.service/method")
                 .setRequestMarshaller(stringMarshaller)
                 .setResponseMarshaller(intMarshaller)
