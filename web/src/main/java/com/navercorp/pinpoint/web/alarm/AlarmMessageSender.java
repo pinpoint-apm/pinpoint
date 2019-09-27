@@ -17,11 +17,12 @@
 package com.navercorp.pinpoint.web.alarm;
 
 import com.navercorp.pinpoint.web.alarm.checker.AlarmChecker;
+import org.springframework.batch.core.StepExecution;
 
 /**
  * @author minwoo.jung
  */
 public interface AlarmMessageSender {
-    void sendSms(AlarmChecker checker, int sequenceCount);
-    void sendEmail(AlarmChecker checker, int sequenceCount);
+    void sendSms(AlarmChecker checker, int sequenceCount, StepExecution stepExecution);
+    void sendEmail(AlarmChecker checker, int sequenceCount, StepExecution stepExecution);
 }
