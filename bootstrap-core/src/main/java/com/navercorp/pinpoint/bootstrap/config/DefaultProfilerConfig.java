@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -46,7 +46,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     private final Properties properties;
 
     public static final String INSTRUMENT_ENGINE_ASM = "ASM";
-    private static final String DEFAULT_TRANSPORT_MODULE = "THRIFT";
+    private static final TransportModule DEFAULT_TRANSPORT_MODULE = TransportModule.THRIFT;
 
     public static final int DEFAULT_AGENT_STAT_COLLECTION_INTERVAL_MS = 5 * 1000;
     public static final int DEFAULT_NUM_AGENT_STAT_BATCH_SEND = 6;
@@ -103,7 +103,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     @VisibleForTesting
     private boolean staticResourceCleanup = false;
 
-    private String transportModule = DEFAULT_TRANSPORT_MODULE;
+    private TransportModule transportModule = DEFAULT_TRANSPORT_MODULE;
 
     private ThriftTransportConfig thriftTransportConfig;
 
@@ -172,11 +172,11 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     }
 
     @Override
-    public String getTransportModule() {
+    public TransportModule getTransportModule() {
         return transportModule;
     }
 
-    public void setTransportModule(String transportModule) {
+    public void setTransportModule(TransportModule transportModule) {
         this.transportModule = transportModule;
     }
 
@@ -665,7 +665,8 @@ public class DefaultProfilerConfig implements ProfilerConfig {
 
         this.interceptorRegistrySize = readInt("profiler.interceptorregistry.size", 1024 * 8);
 
-        this.transportModule = readString("profiler.transport.module", "THRIFT");
+        final String transportModuleString = readString("profiler.transport.module", DEFAULT_TRANSPORT_MODULE.name());
+        this.transportModule = TransportModule.parse(transportModuleString, DEFAULT_TRANSPORT_MODULE);
         this.thriftTransportConfig = readThriftTransportConfig(this);
 
         this.traceAgentActiveThread = readBoolean("profiler.pinpoint.activethread", true);
