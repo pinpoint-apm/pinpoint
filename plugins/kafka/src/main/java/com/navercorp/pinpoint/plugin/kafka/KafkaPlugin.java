@@ -75,6 +75,13 @@ public class KafkaPlugin implements ProfilerPlugin, TransformTemplateAware {
 
                 // Spring Cloud Starter Stream Kafka 2.2.x is supported
                 transformTemplate.transform("org.springframework.kafka.listener.adapter.RetryingMessageListenerAdapter", AcknowledgingConsumerAwareMessageListenerTransform.class);
+
+                // for MessagingGatewaySupport in spring-integration-kafka
+                transformTemplate.transform("org.springframework.integration.kafka.inbound.KafkaInboundGateway$IntegrationRecordMessageListener", AcknowledgingConsumerAwareMessageListenerTransform.class);
+
+                // for MessageProducerSupport in spring-integration-kafka
+                transformTemplate.transform("org.springframework.integration.kafka.inbound.KafkaMessageDrivenChannelAdapter$IntegrationRecordMessageListener", AcknowledgingConsumerAwareMessageListenerTransform.class);
+                transformTemplate.transform("org.springframework.integration.kafka.inbound.KafkaMessageDrivenChannelAdapter$IntegrationBatchMessageListener", BatchMessagingMessageListenerAdapterTransform.class);
             }
 
             if (StringUtils.hasText(config.getKafkaEntryPoint())) {
