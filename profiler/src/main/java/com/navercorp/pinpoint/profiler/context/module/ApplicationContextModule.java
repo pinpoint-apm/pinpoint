@@ -64,7 +64,7 @@ import com.navercorp.pinpoint.profiler.context.provider.ActiveTraceRepositoryPro
 import com.navercorp.pinpoint.profiler.context.provider.AgentInfoFactoryProvider;
 import com.navercorp.pinpoint.profiler.context.provider.AgentInfoSenderProvider;
 import com.navercorp.pinpoint.profiler.context.provider.AgentInformationProvider;
-import com.navercorp.pinpoint.profiler.context.provider.ApiMetaDataServiceProvider;
+import com.navercorp.pinpoint.profiler.context.provider.metadata.ApiMetaDataServiceProvider;
 import com.navercorp.pinpoint.profiler.context.provider.ApplicationServerTypeProvider;
 import com.navercorp.pinpoint.profiler.context.provider.AsyncContextFactoryProvider;
 import com.navercorp.pinpoint.profiler.context.provider.AsyncTraceContextProvider;
@@ -86,6 +86,10 @@ import com.navercorp.pinpoint.profiler.context.provider.ServerMetaDataRegistrySe
 import com.navercorp.pinpoint.profiler.context.provider.StorageFactoryProvider;
 import com.navercorp.pinpoint.profiler.context.provider.TraceContextProvider;
 import com.navercorp.pinpoint.profiler.context.provider.TraceFactoryProvider;
+import com.navercorp.pinpoint.profiler.context.provider.metadata.SimpleCacheFactory;
+import com.navercorp.pinpoint.profiler.context.provider.metadata.SimpleCacheFactoryProvider;
+import com.navercorp.pinpoint.profiler.context.provider.metadata.SqlMetadataServiceProvider;
+import com.navercorp.pinpoint.profiler.context.provider.metadata.StringMetadataServiceProvider;
 import com.navercorp.pinpoint.profiler.context.provider.plugin.PluginClassLoaderProvider;
 import com.navercorp.pinpoint.profiler.context.provider.plugin.PluginSetupProvider;
 import com.navercorp.pinpoint.profiler.context.provider.plugin.ProfilerPluginContextLoaderProvider;
@@ -100,8 +104,6 @@ import com.navercorp.pinpoint.profiler.context.storage.StorageFactory;
 import com.navercorp.pinpoint.profiler.instrument.InstrumentEngine;
 import com.navercorp.pinpoint.profiler.interceptor.factory.ExceptionHandlerFactory;
 import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
-import com.navercorp.pinpoint.profiler.metadata.DefaultSqlMetaDataService;
-import com.navercorp.pinpoint.profiler.metadata.DefaultStringMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
 import com.navercorp.pinpoint.profiler.monitor.AgentStatMonitor;
@@ -216,9 +218,10 @@ public class ApplicationContextModule extends AbstractModule {
 
 
     private void bindServiceComponent() {
-        bind(StringMetaDataService.class).to(DefaultStringMetaDataService.class).in(Scopes.SINGLETON);
+        bind(SimpleCacheFactory.class).toProvider(SimpleCacheFactoryProvider.class).in(Scopes.SINGLETON);
+        bind(StringMetaDataService.class).toProvider(StringMetadataServiceProvider.class).in(Scopes.SINGLETON);
         bind(ApiMetaDataService.class).toProvider(ApiMetaDataServiceProvider.class).in(Scopes.SINGLETON);
-        bind(SqlMetaDataService.class).to(DefaultSqlMetaDataService.class).in(Scopes.SINGLETON);
+        bind(SqlMetaDataService.class).toProvider(SqlMetadataServiceProvider.class).in(Scopes.SINGLETON);
         bind(PredefinedMethodDescriptorRegistry.class).to(DefaultPredefinedMethodDescriptorRegistry.class).in(Scopes.SINGLETON);
     }
 

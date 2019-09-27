@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,15 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.profiler.context.provider;
+package com.navercorp.pinpoint.profiler.context.provider.metadata;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.module.MetadataDataSender;
 import com.navercorp.pinpoint.profiler.metadata.DefaultApiMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
+import com.navercorp.pinpoint.profiler.metadata.SimpleCache;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 
 /**
@@ -29,18 +31,19 @@ import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 public class ApiMetaDataServiceProvider implements Provider<ApiMetaDataService> {
 
     private final Provider<EnhancedDataSender<Object>> enhancedDataSenderProvider;
+    private final SimpleCacheFactory simpleCacheFactory;
 
     @Inject
-    public ApiMetaDataServiceProvider(@MetadataDataSender Provider<EnhancedDataSender<Object>> enhancedDataSenderProvider) {
-        if (enhancedDataSenderProvider == null) {
-            throw new NullPointerException("enhancedDataSenderProvider must not be null");
-        }
-        this.enhancedDataSenderProvider = enhancedDataSenderProvider;
+    public ApiMetaDataServiceProvider(@MetadataDataSender Provider<EnhancedDataSender<Object>> enhancedDataSenderProvider, SimpleCacheFactory simpleCacheFactory) {
+        this.enhancedDataSenderProvider = Assert.requireNonNull(enhancedDataSenderProvider, "enhancedDataSenderProvider");
+        this.simpleCacheFactory = Assert.requireNonNull(simpleCacheFactory, "simpleCacheFactory");
+
     }
 
     @Override
     public ApiMetaDataService get() {
         final EnhancedDataSender<Object> enhancedDataSender = this.enhancedDataSenderProvider.get();
-        return new DefaultApiMetaDataService(enhancedDataSender);
+        final SimpleCache<String> simpleCache = simpleCacheFactory.newSimpleCache();
+        return new DefaultApiMetaDataService(enhancedDataSender, simpleCache);
     }
 }

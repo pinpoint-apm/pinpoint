@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.profiler.metadata;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.profiler.context.DefaultMethodDescriptor;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
-import org.apache.thrift.TBase;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -33,7 +32,8 @@ public class DefaultApiMetaDataServiceTest {
     @Test
     public void cacheApi() throws Exception {
         EnhancedDataSender<Object> dataSender = mock(EnhancedDataSender.class);
-        ApiMetaDataService apiMetaDataService = new DefaultApiMetaDataService(dataSender);
+        SimpleCache<String> cache = new SimpleCache<String>(new SimpleCache.ZigZagTransformer());
+        ApiMetaDataService apiMetaDataService = new DefaultApiMetaDataService(dataSender, cache);
 
         MethodDescriptor methodDescriptor = new DefaultMethodDescriptor("clazz", "method", null, null);
 
