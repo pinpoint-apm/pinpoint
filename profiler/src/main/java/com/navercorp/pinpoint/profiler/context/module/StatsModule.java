@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,14 +42,19 @@ import com.navercorp.pinpoint.profiler.monitor.metric.memory.DetailedMemoryMetri
 import com.navercorp.pinpoint.profiler.monitor.metric.memory.MemoryMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.response.ResponseTimeMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.transaction.TransactionMetric;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
 public class StatsModule extends AbstractModule {
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
     protected void configure() {
+        logger.info("configure {}", this.getClass().getSimpleName());
+
         binder().requireExplicitBindings();
         binder().requireAtInjectOnConstructors();
         binder().disableCircularProxies();

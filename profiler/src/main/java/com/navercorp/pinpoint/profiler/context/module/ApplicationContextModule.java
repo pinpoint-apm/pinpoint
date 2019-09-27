@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -115,6 +115,8 @@ import com.navercorp.pinpoint.profiler.plugin.PluginContextLoadResult;
 import com.navercorp.pinpoint.profiler.plugin.PluginSetup;
 import com.navercorp.pinpoint.profiler.plugin.ProfilerPluginContextLoader;
 import com.navercorp.pinpoint.profiler.util.AgentInfoFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.instrument.ClassFileTransformer;
 
@@ -124,12 +126,15 @@ import java.lang.instrument.ClassFileTransformer;
  * @author jaehong.kim - Add bindRequestRecorder()
  */
 public class ApplicationContextModule extends AbstractModule {
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public ApplicationContextModule() {
     }
 
     @Override
     protected void configure() {
+        logger.info("configure {}", this.getClass().getSimpleName());
+
         binder().requireExplicitBindings();
         binder().requireAtInjectOnConstructors();
         binder().disableCircularProxies();

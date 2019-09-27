@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -29,7 +29,8 @@ import com.navercorp.pinpoint.profiler.sender.LoggingDataSender;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -51,8 +52,11 @@ public class MockTraceContextFactory {
     }
 
     public static class LoggingModule extends AbstractModule {
+        private final Logger logger = LoggerFactory.getLogger(this.getClass());
         @Override
         protected void configure() {
+            logger.info("configure {}", this.getClass().getSimpleName());
+
             bind(AgentInformation.class).toInstance(new TestAgentInformation());
             bind(StorageFactory.class).toInstance(new LogStorageFactory());
             bind(EnhancedDataSender.class).toInstance(new LoggingDataSender());
