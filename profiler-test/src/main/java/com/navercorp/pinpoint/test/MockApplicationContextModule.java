@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,6 +54,7 @@ public class MockApplicationContextModule extends AbstractModule {
 
     @Override
     protected void configure() {
+        logger.info("configure {}", this.getClass().getSimpleName());
 
         final DataSender spanDataSender = new ListenableDataSender<TBase<?, ?>>("SpanDataSender");
         logger.debug("spanDataSender:{}", spanDataSender);

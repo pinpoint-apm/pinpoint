@@ -54,6 +54,8 @@ import com.navercorp.pinpoint.profiler.sender.ResultResponse;
 import com.navercorp.pinpoint.profiler.sender.grpc.ReconnectExecutor;
 import io.grpc.NameResolverProvider;
 import io.netty.util.internal.PlatformDependent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Properties;
 import java.util.concurrent.ExecutorService;
@@ -64,6 +66,8 @@ import java.util.concurrent.ScheduledExecutorService;
  */
 public class GrpcModule extends PrivateModule {
 
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     private final ProfilerConfig profilerConfig;
 
     public GrpcModule(ProfilerConfig profilerConfig) {
@@ -72,6 +76,8 @@ public class GrpcModule extends PrivateModule {
 
     @Override
     protected void configure() {
+        logger.info("configure {}", this.getClass().getSimpleName());
+
         bind(GrpcTransportConfig.class).toProvider(GrpcTransportConfigProvider.class).in(Scopes.SINGLETON);
         // dns executor
         bind(ExecutorService.class).toProvider(DnsExecutorServiceProvider.class).in(Scopes.SINGLETON);

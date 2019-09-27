@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,14 +41,18 @@ import com.navercorp.pinpoint.profiler.monitor.metric.deadlock.DeadlockMetricSna
 import com.navercorp.pinpoint.profiler.monitor.metric.filedescriptor.FileDescriptorMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.response.ResponseTimeValue;
 import com.navercorp.pinpoint.profiler.monitor.metric.transaction.TransactionMetricSnapshot;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
 public class ThriftStatsModule extends AbstractModule {
-
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
     @Override
     protected void configure() {
+        logger.info("configure {}", this.getClass().getSimpleName());
+
         binder().requireExplicitBindings();
         binder().requireAtInjectOnConstructors();
         binder().disableCircularProxies();

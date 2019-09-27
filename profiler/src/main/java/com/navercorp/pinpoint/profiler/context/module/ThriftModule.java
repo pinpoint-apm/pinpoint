@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,13 +55,19 @@ import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializer;
 import org.apache.thrift.TBase;
 import org.jboss.netty.channel.ChannelFactory;
 import org.jboss.netty.util.Timer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
 public class ThriftModule extends PrivateModule {
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     @Override
     protected void configure() {
+        logger.info("configure {}", this.getClass().getSimpleName());
+
         bind(ThriftTransportConfig.class).toProvider(ThriftTransportConfigProvider.class).in(Scopes.SINGLETON);
         bind(TransactionIdEncoder.class).to(DefaultTransactionIdEncoder.class).in(Scopes.SINGLETON);
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import com.google.inject.name.Named;
 import com.google.inject.name.Names;
 import com.navercorp.pinpoint.bootstrap.AgentOption;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.config.TransportModule;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.TraceDataFormatVersion;
@@ -63,6 +64,7 @@ public class ConfigModule extends AbstractModule {
 
     @Override
     protected void configure() {
+        logger.info("configure {}", this.getClass().getSimpleName());
         binder().requireExplicitBindings();
         binder().requireAtInjectOnConstructors();
         binder().disableCircularProxies();
@@ -70,6 +72,7 @@ public class ConfigModule extends AbstractModule {
         ProfilerConfig profilerConfig = agentOption.getProfilerConfig();
 
         bind(ProfilerConfig.class).toInstance(profilerConfig);
+        bind(TransportModule.class).toInstance(profilerConfig.getTransportModule());
 
         bindConstants(profilerConfig);
 
