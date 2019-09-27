@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -28,24 +28,25 @@ import com.navercorp.pinpoint.profiler.metadata.SimpleCache;
  */
 public class SimpleCacheTest {
 
+    private SimpleCache.IdTransformer idTransformer = new SimpleCache.ZigZagTransformer();
 
     @Test
     public void startKey0() {
-        SimpleCache<String> cache = new SimpleCache<String>(1024, 0);
+        SimpleCache<String> cache = new SimpleCache<String>(idTransformer, 1024, 0);
         Result test = cache.put("test");
         Assert.assertEquals(0, test.getId());
     }
 
     @Test
     public void startKey1() {
-        SimpleCache<String> cache = new SimpleCache<String>(1);
+        SimpleCache<String> cache = new SimpleCache<String>(idTransformer, 1);
         Result test = cache.put("test");
         Assert.assertEquals(-1, test.getId());
     }
 
     @Test
     public void put() {
-        SimpleCache<String> cache = new SimpleCache<String>();
+        SimpleCache<String> cache = new SimpleCache<String>(idTransformer);
         Result test = cache.put("test");
         Assert.assertEquals(-1, test.getId());
         Assert.assertTrue(test.isNewValue());
