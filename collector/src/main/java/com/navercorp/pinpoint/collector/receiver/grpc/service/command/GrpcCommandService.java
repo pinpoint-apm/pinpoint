@@ -99,7 +99,6 @@ public class GrpcCommandService extends ProfilerCommandServiceGrpc.ProfilerComma
                 if (serverCallStreamObserver.isReady()) {
                     logger.info("{} => local. ready() transportId:{}", agentInfo.getAgentKey(), transportId);
                     pinpointGrpcServer.connected();
-                    serverCallStreamObserver.request(1);
                 }
             }
         });
@@ -107,21 +106,17 @@ public class GrpcCommandService extends ProfilerCommandServiceGrpc.ProfilerComma
         StreamObserver<PCmdMessage> responseObserver = new StreamObserver<PCmdMessage>() {
             @Override
             public void onNext(PCmdMessage value) {
-                try {
-                    if (value.hasHandshakeMessage()) {
-                        List<Integer> supportCommandServiceKeyList = value.getHandshakeMessage().getSupportCommandServiceKeyList();
-                        logger.info("{} => local. execute handshake:{}", getAgentInfo().getAgentKey(), supportCommandServiceKeyList);
-                        boolean handshakeSucceed = pinpointGrpcServer.handleHandshake(supportCommandServiceKeyList);
-                        if (handshakeSucceed) {
-                            GrpcAgentConnection grpcAgentConnection = new GrpcAgentConnection(pinpointGrpcServer, supportCommandServiceKeyList);
-                            profilerClusterManager.register(grpcAgentConnection);
-                        }
-                    } else if (value.hasFailMessage()) {
-                        PCmdResponse failMessage = value.getFailMessage();
-                        pinpointGrpcServer.handleFail(failMessage);
+                if (value.hasHandshakeMessage()) {
+                    List<Integer> supportCommandServiceKeyList = value.getHandshakeMessage().getSupportCommandServiceKeyList();
+                    logger.info("{} => local. execute handshake:{}", getAgentInfo().getAgentKey(), supportCommandServiceKeyList);
+                    boolean handshakeSucceed = pinpointGrpcServer.handleHandshake(supportCommandServiceKeyList);
+                    if (handshakeSucceed) {
+                        GrpcAgentConnection grpcAgentConnection = new GrpcAgentConnection(pinpointGrpcServer, supportCommandServiceKeyList);
+                        profilerClusterManager.register(grpcAgentConnection);
                     }
-                } finally {
-                    serverCallStreamObserver.request(1);
+                } else if (value.hasFailMessage()) {
+                    PCmdResponse failMessage = value.getFailMessage();
+                    pinpointGrpcServer.handleFail(failMessage);
                 }
             }
 
