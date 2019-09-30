@@ -20,6 +20,7 @@
 	<task:scheduler id="scheduler" pool-size="1"/>
     
     <import resource="classpath:batch/applicationContext-batch.xml" />
+    <import resource="classpath:batch/applicationContext-batch-sender.xml" />
     <import resource="classpath:batch/applicationContext-alarmJob.xml" />
     <import resource="classpath:batch/applicationContext-agentCountJob.xml" />
 	<import resource="classpath:batch/applicationContext-flinkCheckJob.xml" />

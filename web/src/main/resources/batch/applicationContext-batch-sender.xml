@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="mailSender" class="com.navercorp.pinpoint.web.alarm.SpringSmtpMailSender">
+        <constructor-arg ref="batchConfiguration"/>
+        <constructor-arg ref="userGroupServiceImpl"/>
+        <constructor-arg ref="javaMailSenderImpl"/>
+    </bean>
+
+    <bean id="javaMailSenderImpl" class="org.springframework.mail.javamail.JavaMailSenderImpl">
+        <property name="host" value="#{batchProps['alarm.mail.server.url'] ?: ''}" />
+        <property name="port" value="#{batchProps['alarm.mail.server.port'] ?: 583}" />
+        <property name="username" value="#{batchProps['alarm.mail.server.username'] ?: ''}" />
+        <property name="password" value="#{batchProps['alarm.mail.server.password'] ?: ''}" />
+        <property name="javaMailProperties">
+            <props>
+                <prop key="mail.smtp.from">#{batchProps['alarm.mail.sender.address'] ?: ''}</prop>
+            </props>
+        </property>
+    </bean>
+
+</beans>
