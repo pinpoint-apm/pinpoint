@@ -29,6 +29,9 @@ public class GrpcTransportConfig {
     public static final String SYSTEM_PROPERTY_NETTY_TRY_REFLECTION_SET_ACCESSIBLE = "io.netty.tryReflectionSetAccessible";
     public static final String KEY_PROFILER_CONFIG_NETTY_TRY_REFLECTION_SET_ACCESSIBLE = "profiler.system.property." + SYSTEM_PROPERTY_NETTY_TRY_REFLECTION_SET_ACCESSIBLE;
 
+    public static final String SYSTEM_PROPERTY_NETTY_NOPREFERDIRECT = "io.netty.noPreferDirect";
+    public static final String KEY_PROFILER_CONFIG_NETTY_NOPREFERDIRECT = "profiler.system.property." + SYSTEM_PROPERTY_NETTY_NOPREFERDIRECT;
+
     private static final String DEFAULT_IP = "127.0.0.1";
     private static final long DEFAULT_CLIENT_REQUEST_TIMEOUT = 6000;
     private static final int DEFAULT_AGENT_SENDER_EXECUTOR_QUEUE_SIZE = 1000;
