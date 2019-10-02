@@ -28,6 +28,7 @@ import com.navercorp.pinpoint.test.plugin.JvmVersion;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointConfig;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
+
 import com.navercorp.test.pinpoint.plugin.rabbitmq.PropagationMarker;
 import com.navercorp.test.pinpoint.plugin.rabbitmq.spring.config.CommonConfig;
 import com.navercorp.test.pinpoint.plugin.rabbitmq.spring.config.MessageListenerConfig_Post_1_4_0;
@@ -45,6 +46,8 @@ import org.springframework.amqp.core.Message;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Spring-amqp rabbit 2.1.0 removed previously added <tt>BlockingQueueConsumer$ConsumerDecorator</tt>.
@@ -56,7 +59,7 @@ import java.lang.reflect.Method;
 @RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
 @PinpointConfig("rabbitmq/client/pinpoint-rabbitmq.config")
-@Dependency({"org.springframework.amqp:spring-rabbit:[2.1.0.RELEASE,2.1.1.RELEASE),(2.1.1.RELEASE,)", "com.fasterxml.jackson.core:jackson-core:2.8.11", "org.apache.qpid:qpid-broker:6.1.1"})
+@Dependency({"org.springframework.amqp:spring-rabbit:[2.1.0.RELEASE,2.1.1.RELEASE),(2.1.1.RELEASE,2.1.8.RELEASE),(2.1.10.RELEASE,)", "com.fasterxml.jackson.core:jackson-core:2.8.11", "org.apache.qpid:qpid-broker:6.1.1"})
 @JvmVersion(8)
 public class SpringAmqpRabbit_2_1_x_to_2_x_IT {
 
@@ -125,11 +128,14 @@ public class SpringAmqpRabbit_2_1_x_to_2_x_IT {
         ExpectedTrace deliveryConstructorTrace = Expectations.event(
                 RabbitMQTestConstants.RABBITMQ_CLIENT_INTERNAL, // serviceType
                 deliveryConstructor);
+
         Class<?> abstractMessageListenerContainerClass = Class.forName("org.springframework.amqp.rabbit.listener.AbstractMessageListenerContainer");
-        Method abstractMessageListenerContainerExecuteListener = abstractMessageListenerContainerClass.getDeclaredMethod("executeListener", Channel.class, Message.class);
+        Method abstractMessageListenerContainerExecuteListener = getExecuteListenerMethod(abstractMessageListenerContainerClass);
+
         ExpectedTrace abstractMessageListenerContainerExecuteListenerTrace = Expectations.event(
-                ServiceType.INTERNAL_METHOD.getName(),
-                abstractMessageListenerContainerExecuteListener);
+                    ServiceType.INTERNAL_METHOD.getName(),
+                    abstractMessageListenerContainerExecuteListener);
+
         Class<?> propagationMarkerClass = PropagationMarker.class;
         Method propagationMarkerMark = propagationMarkerClass.getDeclaredMethod("mark");
         ExpectedTrace markTrace = Expectations.event(
@@ -157,6 +163,42 @@ public class SpringAmqpRabbit_2_1_x_to_2_x_IT {
         verifier.verifyDiscreteTrace(producerTraces);
         verifier.verifyDiscreteTrace(consumerTraces);
         verifier.verifyTraceCount(0);
+    }
+
+    private Method getExecuteListenerMethod(Class<?> abstractMessageListenerContainerClass) throws NoSuchMethodException {
+        Method abstractMessageListenerContainerExecuteListener = getExecuteListenerMethod0(abstractMessageListenerContainerClass);
+
+        Class<?>[] parameterTypes = abstractMessageListenerContainerExecuteListener.getParameterTypes();
+
+        if (parameterTypes.length == 2) {
+            if (!parameterTypes[0].equals(Channel.class)) {
+                throw new NoSuchMethodException("executeListener");
+            }
+
+            if (parameterTypes[1].equals(Message.class) || parameterTypes[1].equals(Object.class)) {
+                return abstractMessageListenerContainerExecuteListener;
+            }
+        }
+        throw new NoSuchMethodException("executeListener");
+    }
+
+    private Method getExecuteListenerMethod0(Class<?> abstractMessageListenerContainerClass) throws NoSuchMethodException {
+        List<Method> availableMethodList = new ArrayList<Method>();
+
+        Method[] declaredMethods = abstractMessageListenerContainerClass.getDeclaredMethods();
+        for (Method declaredMethod : declaredMethods) {
+            if (declaredMethod.getName().equals("executeListener")) {
+                availableMethodList.add(declaredMethod);
+            }
+        }
+
+        if (availableMethodList.size() == 0) {
+            throw new NoSuchMethodException("executeListener");
+        } else if (availableMethodList.size() == 1) {
+            return availableMethodList.get(0);
+        } else {
+            throw new IllegalArgumentException(abstractMessageListenerContainerClass.getClass() + " has multiple executeListener()");
+        }
     }
 
     @Test
