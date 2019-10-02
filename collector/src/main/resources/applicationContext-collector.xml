@@ -284,6 +284,7 @@
         <constructor-arg ref="channelFilter"/>
     </bean>
 
+    <bean id="abortPolicy" class="java.util.concurrent.ThreadPoolExecutor.AbortPolicy"/>
     <bean id="discardPolicy" class="java.util.concurrent.ThreadPoolExecutor.DiscardPolicy"/>
     <bean id="abstractReceiverExecutorFactoryBean" class="com.navercorp.pinpoint.collector.receiver.thrift.ExecutorFactoryBean" abstract="true">
         <property name="rejectedExecutionHandler" ref="discardPolicy"/>
@@ -512,7 +513,16 @@
         <property name="serverOption" value="#{baseDataReceiverConfig.getGrpcServerOption()}"/>
     </bean>
 
+    <bean id="grpcSpanStreamScheduler" class="org.springframework.scheduling.concurrent.ScheduledExecutorFactoryBean">
+        <property name="poolSize" value="#{spanReceiverConfig.grpcStreamSchedulerThreadSize}"/>
+        <property name="threadNamePrefix" value="Pinpoint-GrpcSpan-StreamExecutor-Scheduler-"/>
+        <property name="daemon" value="true"/>
+        <property name="waitForTasksToCompleteOnShutdown" value="true"/>
+        <property name="awaitTerminationSeconds" value="10"/>
+    </bean>
+
     <bean id="grpcSpanWorkerExecutor" class="com.navercorp.pinpoint.collector.receiver.thrift.ExecutorFactoryBean" parent="abstractReceiverExecutorFactoryBean">
+        <property name="rejectedExecutionHandler" ref="abortPolicy"/>
         <property name="corePoolSize" value="#{spanReceiverConfig.grpcWorkerExecutorThreadSize}"/>
         <property name="maxPoolSize" value="#{spanReceiverConfig.grpcWorkerExecutorThreadSize}"/>
         <property name="queueCapacity" value="#{spanReceiverConfig.grpcWorkerExecutorQueueSize}"/>
@@ -523,6 +533,9 @@
     <bean id="spanService" class="com.navercorp.pinpoint.collector.receiver.grpc.service.SpanService">
         <constructor-arg index="0" ref="grpcSpanDispatchHandlerFactoryBean"/>
         <constructor-arg index="1" ref="grpcSpanWorkerExecutor"/>
+        <constructor-arg index="2" value="#{spanReceiverConfig.grpcStreamCallInitRequestCount}"/>
+        <constructor-arg index="3" ref="grpcSpanStreamScheduler"/>
+        <constructor-arg index="4" value="#{spanReceiverConfig.grpcStreamSchedulerPeriodMillis}"/>
     </bean>
 
     <util:list id="spanServiceList" value-type="io.grpc.BindableService">
@@ -547,6 +560,14 @@
         <property name="serverOption" value="#{spanReceiverConfig.getGrpcServerOption()}"/>
     </bean>
 
+    <bean id="grpcStatStreamScheduler" class="org.springframework.scheduling.concurrent.ScheduledExecutorFactoryBean">
+        <property name="poolSize" value="#{statReceiverConfig.grpcStreamSchedulerThreadSize}"/>
+        <property name="threadNamePrefix" value="Pinpoint-GrpcStat-StreamExecutor-Scheduler-"/>
+        <property name="daemon" value="true"/>
+        <property name="waitForTasksToCompleteOnShutdown" value="true"/>
+        <property name="awaitTerminationSeconds" value="10"/>
+    </bean>
+
     <bean id="grpcStatWorkerExecutor" class="com.navercorp.pinpoint.collector.receiver.thrift.ExecutorFactoryBean" parent="abstractReceiverExecutorFactoryBean">
         <property name="corePoolSize" value="#{statReceiverConfig.grpcWorkerExecutorThreadSize}"/>
         <property name="maxPoolSize" value="#{statReceiverConfig.grpcWorkerExecutorThreadSize}"/>
@@ -558,7 +579,11 @@
     <bean id="statService" class="com.navercorp.pinpoint.collector.receiver.grpc.service.StatService">
         <constructor-arg index="0" ref="grpcStatDispatchHandlerFactoryBean"/>
         <constructor-arg index="1" ref="grpcStatWorkerExecutor"/>
+        <constructor-arg index="2" value="#{statReceiverConfig.grpcStreamCallInitRequestCount}"/>
+        <constructor-arg index="3" ref="grpcStatStreamScheduler"/>
+        <constructor-arg index="4" value="#{statReceiverConfig.grpcStreamSchedulerPeriodMillis}"/>
     </bean>
+
     <util:list id="statServiceList" value-type="io.grpc.BindableService">
         <ref bean="statService"/>
     </util:list>

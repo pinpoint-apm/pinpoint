@@ -14,21 +14,11 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.collector.receiver.grpc;
+package com.navercorp.pinpoint.grpc.server;
 
-import java.util.concurrent.TimeUnit;
 
-public class SpanClientTestMain {
-    private static final int MAX = 100000;
+public interface StreamExecutorService {
 
-    public static void main(String[] args) throws Exception {
-        SpanClientMock clientMock = new SpanClientMock("localhost", 9998);
-        TimeUnit.SECONDS.sleep(5);
+    StreamExecutorServerInterceptor getStreamExecutorServerInterceptor();
 
-        long startTime = System.currentTimeMillis();
-        clientMock.span(1000);
-
-        TimeUnit.SECONDS.sleep(60);
-        clientMock.stop();
-    }
 }

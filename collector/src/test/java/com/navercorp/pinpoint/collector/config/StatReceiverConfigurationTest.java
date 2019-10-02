@@ -36,6 +36,10 @@ public class StatReceiverConfigurationTest {
         assertEquals(2, configuration.getGrpcWorkerExecutorThreadSize());
         assertEquals(2, configuration.getGrpcWorkerExecutorQueueSize());
         assertEquals(Boolean.FALSE, configuration.isGrpcWorkerExecutorMonitorEnable());
+        assertEquals(2, configuration.getGrpcStreamSchedulerThreadSize());
+        assertEquals(2, configuration.getGrpcStreamSchedulerPeriodMillis());
+        assertEquals(2, configuration.getGrpcStreamCallInitRequestCount());
+
         assertEquals(2, configuration.getGrpcServerOption().getKeepAliveTime());
         assertEquals(2, configuration.getGrpcServerOption().getKeepAliveTimeout());
         assertEquals(2, configuration.getGrpcServerOption().getPermitKeepAliveTime());

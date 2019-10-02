@@ -19,10 +19,11 @@ package com.navercorp.pinpoint.collector.receiver.grpc.service;
 import com.google.protobuf.Empty;
 import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
-import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
 import com.navercorp.pinpoint.grpc.StatusError;
 import com.navercorp.pinpoint.grpc.StatusErrors;
+import com.navercorp.pinpoint.grpc.server.StreamExecutorServerInterceptor;
+import com.navercorp.pinpoint.grpc.server.StreamExecutorService;
 import com.navercorp.pinpoint.grpc.trace.PSpan;
 import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
 import com.navercorp.pinpoint.grpc.trace.PSpanMessage;
@@ -34,7 +35,6 @@ import com.navercorp.pinpoint.io.request.DefaultMessage;
 import com.navercorp.pinpoint.io.request.Message;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.thrift.io.DefaultTBaseLocator;
-import io.grpc.Context;
 import io.grpc.Status;
 import io.grpc.StatusException;
 import io.grpc.StatusRuntimeException;
@@ -45,22 +45,27 @@ import org.slf4j.LoggerFactory;
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.concurrent.Executor;
-import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.ScheduledExecutorService;
 
 /**
  * @author jaehong.kim
  */
-public class SpanService extends SpanGrpc.SpanImplBase {
+public class SpanService extends SpanGrpc.SpanImplBase implements StreamExecutorService {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
     private final DispatchHandler dispatchHandler;
     private final ServerRequestFactory serverRequestFactory = new ServerRequestFactory();
     private final Executor executor;
+    private final int initRequestCount;
+    private final ScheduledExecutorService scheduledExecutorService;
+    private final int periodMillis;
 
-    public SpanService(DispatchHandler dispatchHandler, Executor executor) {
+    public SpanService(DispatchHandler dispatchHandler, Executor executor, final int initRequestCount, final ScheduledExecutorService scheduledExecutorService, final int periodMillis) {
         this.dispatchHandler = Objects.requireNonNull(dispatchHandler, "dispatchHandler must not be null");
-        Objects.requireNonNull(executor, "executor must not be null");
-        this.executor = Context.currentContextExecutor(executor);
+        this.executor = Objects.requireNonNull(executor, "executor must not be null");
+        this.initRequestCount = initRequestCount;
+        this.scheduledExecutorService = Objects.requireNonNull(scheduledExecutorService, "scheduledExecutorService must not be null");
+        this.periodMillis = periodMillis;
     }
 
     @Override
@@ -74,10 +79,10 @@ public class SpanService extends SpanGrpc.SpanImplBase {
 
                 if (spanMessage.hasSpan()) {
                     final Message<PSpan> message = newMessage(spanMessage.getSpan(), DefaultTBaseLocator.SPAN);
-                    doExecute(message, responseObserver);
+                    send(message, responseObserver);
                 } else if (spanMessage.hasSpanChunk()) {
                     final Message<PSpanChunk> message = newMessage(spanMessage.getSpanChunk(), DefaultTBaseLocator.SPANCHUNK);
-                    doExecute(message, responseObserver);
+                    send(message, responseObserver);
                 } else {
                     if (isDebug) {
                         logger.debug("Found empty span message {}", MessageFormatUtils.debugLog(spanMessage));
@@ -111,21 +116,6 @@ public class SpanService extends SpanGrpc.SpanImplBase {
         return new DefaultMessage<>(header, headerEntity, requestData);
     }
 
-    @VisibleForTesting
-    void doExecute(final Message<? extends GeneratedMessageV3> message, StreamObserver<Empty> responseObserver) {
-        try {
-            executor.execute(new Runnable() {
-                @Override
-                public void run() {
-                    send(message, responseObserver);
-                }
-            });
-        } catch (RejectedExecutionException ree) {
-            // Defense code
-            logger.warn("Failed to request. Rejected execution, executor={}", executor);
-        }
-    }
-
     private void send(final Message<? extends GeneratedMessageV3> message, StreamObserver<Empty> responseObserver) {
         try {
             ServerRequest<? extends GeneratedMessageV3> request = serverRequestFactory.newServerRequest(message);
@@ -139,5 +129,11 @@ public class SpanService extends SpanGrpc.SpanImplBase {
                 responseObserver.onError(Status.INTERNAL.withDescription("Bad Request").asException());
             }
         }
+    }
+
+    @Override
+    public StreamExecutorServerInterceptor getStreamExecutorServerInterceptor() {
+        final StreamExecutorServerInterceptor interceptor = new StreamExecutorServerInterceptor(this.executor, initRequestCount, this.scheduledExecutorService, this.periodMillis);
+        return interceptor;
     }
 }

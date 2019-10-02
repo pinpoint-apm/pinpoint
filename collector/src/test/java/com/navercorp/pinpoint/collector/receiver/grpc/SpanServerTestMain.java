@@ -27,7 +27,13 @@ import io.grpc.BindableService;
 
 import java.net.InetAddress;
 import java.util.Arrays;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -42,7 +48,10 @@ public class SpanServerTestMain {
         grpcReceiver.setBeanName("TraceServer");
         grpcReceiver.setBindIp(IP);
         grpcReceiver.setBindPort(PORT);
-        BindableService bindableService = new SpanService(new MockDispatchHandler(), Executors.newFixedThreadPool(8));
+
+        Executor executor = newWorkerExecutor(8);
+
+        BindableService bindableService = new SpanService(new MockDispatchHandler(), executor, 100, Executors.newSingleThreadScheduledExecutor(), 1000);
         grpcReceiver.setBindableServiceList(Arrays.asList(bindableService));
         grpcReceiver.setAddressFilter(new MockAddressFilter());
         grpcReceiver.setExecutor(Executors.newFixedThreadPool(8));
@@ -55,6 +64,12 @@ public class SpanServerTestMain {
         grpcReceiver.destroy();
     }
 
+    private ExecutorService newWorkerExecutor(int thread) {
+        return new ThreadPoolExecutor(thread, thread,
+                0L, TimeUnit.MILLISECONDS,
+                new LinkedBlockingQueue<Runnable>(thread * 2));
+    }
+
     public static void main(String[] args) throws Exception {
         SpanServerTestMain main = new SpanServerTestMain();
         main.run();
@@ -65,7 +80,12 @@ public class SpanServerTestMain {
 
         @Override
         public void dispatchSendMessage(ServerRequest serverRequest) {
-            System.out.println("Dispatch send message " + serverRequest);
+            try {
+                TimeUnit.SECONDS.sleep(1);
+            } catch (Exception e) {
+            }
+
+//            System.out.println("Dispatch send message " + serverRequest);
         }
 
         @Override
