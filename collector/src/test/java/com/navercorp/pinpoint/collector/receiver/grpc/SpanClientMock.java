@@ -109,7 +109,7 @@ public class SpanClientMock {
     ExecutorService service = Executors.newFixedThreadPool(1);
 
     public void span(int count) {
-        final int size = 1024;
+        final int size = 10;
         final byte[] bytes = new byte[size];
         for(int i = 0; i < size; i++) {
             bytes[i] = (byte) i;
@@ -125,7 +125,7 @@ public class SpanClientMock {
                 StreamObserver<Empty> responseObserver = getResponseObserver();
                 StreamObserver<PSpanMessage> requestObserver = spanStub.sendSpan(responseObserver);
                 try {
-                    TimeUnit.SECONDS.sleep(10);
+                    TimeUnit.SECONDS.sleep(3);
                 } catch (InterruptedException e) {
                 }
 
@@ -133,6 +133,11 @@ public class SpanClientMock {
                     final PSpan span = PSpan.newBuilder().addSpanEvent(spanEvent).build();
                     final PSpanMessage spanMessage = PSpanMessage.newBuilder().setSpan(span).build();
                     requestObserver.onNext(spanMessage);
+                    try {
+                        TimeUnit.MILLISECONDS.sleep(10);
+                    } catch (InterruptedException e) {
+                    }
+
                 }
                 requestObserver.onCompleted();
             }

@@ -62,7 +62,7 @@ public class ServerFactory {
     private final ExecutorService workerExecutor;
     private final EventLoopGroup workerEventLoopGroup;
 
-    private final Executor executor;
+    private final Executor serverExecutor;
 
     private final List<Object> bindableServices = new ArrayList<Object>();
     private final List<ServerTransportFilter> serverTransportFilters = new ArrayList<ServerTransportFilter>();
@@ -70,7 +70,7 @@ public class ServerFactory {
 
     private ServerOption serverOption;
 
-    public ServerFactory(String name, String hostname, int port, Executor executor, ServerOption serverOption) {
+    public ServerFactory(String name, String hostname, int port, Executor serverExecutor, ServerOption serverOption) {
         this.name = Assert.requireNonNull(name, "name must not be null");
         this.hostname = Assert.requireNonNull(hostname, "hostname must not be null");
         this.serverOption = Assert.requireNonNull(serverOption, "serverOption must not be null");
@@ -81,7 +81,7 @@ public class ServerFactory {
         this.workerExecutor = newExecutor(name + "-Channel-Worker");
         this.workerEventLoopGroup = newEventLoopGroup(CpuUtils.workerCount(), workerExecutor);
 
-        this.executor = Assert.requireNonNull(executor, "executor must not be null");
+        this.serverExecutor = Assert.requireNonNull(serverExecutor, "executor must not be null");
     }
 
     private ExecutorService newExecutor(String name) {
@@ -140,7 +140,7 @@ public class ServerFactory {
             serverBuilder.intercept(serverInterceptor);
         }
 
-        serverBuilder.executor(executor);
+        serverBuilder.executor(serverExecutor);
         setupServerOption(serverBuilder);
 
         HeaderReader<Header> headerReader = new AgentHeaderReader();

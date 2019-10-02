@@ -42,6 +42,10 @@ public final class SpanReceiverConfiguration implements DataReceiverGroupConfigu
     private static final String GRPC_WORKER_EXECUTOR_QUEUE_SIZE = GRPC_PREFIX + ".worker.executor.queue.size";
     private static final String GRPC_WORKER_EXECUTOR_MONITOR_ENABLE = GRPC_PREFIX + ".worker.executor.monitor.enable";
 
+    private static final String GRPC_STREAM_SCHEDULER_THREAD_SIZE = GRPC_PREFIX + ".stream.scheduler.thread.size";
+    private static final String GRPC_CALL_INIT_REQUEST_COUNT = GRPC_PREFIX + ".stream.call.init.request.count";
+    private static final String GRPC_STREAM_SCHEDULER_PERIOD_MILLIS = GRPC_PREFIX + ".stream.scheduler.period.millis";
+
     private static final String TCP_ENABLE = PREFIX + ".tcp";
     private static final String TCP_BIND_IP = PREFIX + ".tcp.ip";
     private static final String TCP_BIND_PORT = PREFIX + ".tcp.port";
@@ -73,6 +77,9 @@ public final class SpanReceiverConfiguration implements DataReceiverGroupConfigu
     private final int grpcWorkerExecutorThreadSize;
     private final int grpcWorkerExecutorQueueSize;
     private final boolean grpcWorkerExecutorMonitorEnable;
+    private final int grpcStreamSchedulerThreadSize;
+    private final int grpcStreamCallInitRequestCount;
+    private final int grpcStreamSchedulerPeriodMillis;
     private final ServerOption grpcServerOption;
 
     public SpanReceiverConfiguration(Properties properties, DeprecatedConfiguration deprecatedConfiguration) {
@@ -111,6 +118,10 @@ public final class SpanReceiverConfiguration implements DataReceiverGroupConfigu
         this.grpcWorkerExecutorQueueSize = CollectorConfiguration.readInt(properties, GRPC_WORKER_EXECUTOR_QUEUE_SIZE, 1024 * 5);
         Assert.isTrue(grpcWorkerExecutorQueueSize > 0, "grpcWorkerExecutorQueueSize must be greater than 0");
         this.grpcWorkerExecutorMonitorEnable = CollectorConfiguration.readBoolean(properties, GRPC_WORKER_EXECUTOR_MONITOR_ENABLE);
+        this.grpcStreamSchedulerThreadSize = CollectorConfiguration.readInt(properties, GRPC_STREAM_SCHEDULER_THREAD_SIZE, 1);
+        Assert.isTrue(grpcStreamSchedulerThreadSize > 0, "grpcStreamSchedulerThreadSize must be greater than 0");
+        this.grpcStreamSchedulerPeriodMillis = CollectorConfiguration.readInt(properties, GRPC_STREAM_SCHEDULER_PERIOD_MILLIS, 1000);
+        this.grpcStreamCallInitRequestCount = CollectorConfiguration.readInt(properties, GRPC_CALL_INIT_REQUEST_COUNT, 64);
 
         // Server option
         final ServerOption.Builder serverOptionBuilder = GrpcPropertiesServerOptionBuilder.newBuilder(properties, GRPC_PREFIX);
@@ -304,6 +315,18 @@ public final class SpanReceiverConfiguration implements DataReceiverGroupConfigu
         return grpcWorkerExecutorMonitorEnable;
     }
 
+    public int getGrpcStreamSchedulerThreadSize() {
+        return grpcStreamSchedulerThreadSize;
+    }
+
+    public int getGrpcStreamCallInitRequestCount() {
+        return grpcStreamCallInitRequestCount;
+    }
+
+    public int getGrpcStreamSchedulerPeriodMillis() {
+        return grpcStreamSchedulerPeriodMillis;
+    }
+
     public ServerOption getGrpcServerOption() {
         return grpcServerOption;
     }
@@ -330,6 +353,9 @@ public final class SpanReceiverConfiguration implements DataReceiverGroupConfigu
         sb.append(", grpcWorkerExecutorThreadSize=").append(grpcWorkerExecutorThreadSize);
         sb.append(", grpcWorkerExecutorQueueSize=").append(grpcWorkerExecutorQueueSize);
         sb.append(", grpcWorkerExecutorMonitorEnable=").append(grpcWorkerExecutorMonitorEnable);
+        sb.append(", grpcStreamSchedulerThreadSize=").append(grpcStreamSchedulerThreadSize);
+        sb.append(", grpcStreamCallInitRequestCount=").append(grpcStreamCallInitRequestCount);
+        sb.append(", grpcStreamSchedulerPeriodMillis=").append(grpcStreamSchedulerPeriodMillis);
         sb.append(", grpcServerOption=").append(grpcServerOption);
         sb.append('}');
         return sb.toString();
