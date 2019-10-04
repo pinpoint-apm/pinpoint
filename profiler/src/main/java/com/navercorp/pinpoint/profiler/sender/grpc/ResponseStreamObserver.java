@@ -44,7 +44,7 @@ public class ResponseStreamObserver<ReqT, RespT> implements ClientResponseObserv
 
     @Override
     public void beforeStart(ClientCallStreamObserver<ReqT> requestStream) {
-        logger.info("beforeStart:{} .", name);
+        logger.info("beforeStart:{}", name);
         requestStream.setOnReadyHandler(new Runnable() {
             private final AtomicInteger counter = new AtomicInteger();
             @Override

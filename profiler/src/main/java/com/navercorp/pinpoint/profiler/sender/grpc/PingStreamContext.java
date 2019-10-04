@@ -112,7 +112,7 @@ public class PingStreamContext {
             requestStream.setOnReadyHandler(new Runnable() {
                 @Override
                 public void run() {
-                    logger.info("{} ready", streamId);
+                    logger.info("{} onReady", streamId);
                     reconnector.reset();
 
                     final Runnable pingRunnable = new Runnable() {
