@@ -103,7 +103,7 @@ public class ChannelFactoryTest {
     @Test
     public void build() throws InterruptedException {
 
-        HeaderFactory<Header> headerFactory = new AgentHeaderFactory("agentId", "appName", System.currentTimeMillis());
+        HeaderFactory headerFactory = new AgentHeaderFactory("agentId", "appName", System.currentTimeMillis());
 
         CountRecordClientInterceptor countRecordClientInterceptor = new CountRecordClientInterceptor();
 

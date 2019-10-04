@@ -21,7 +21,7 @@ import io.grpc.Metadata;
 /**
  * @author Woonduk Kang(emeroad)
  */
-public interface HeaderFactory<H> {
+public interface HeaderFactory {
 
     Metadata newHeader();
 

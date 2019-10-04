@@ -23,7 +23,7 @@ import io.grpc.Channel;
 import io.grpc.ClientCall;
 import io.grpc.ClientInterceptor;
 import io.grpc.ForwardingClientCall;
-import io.grpc.ForwardingClientCallListener;
+import io.grpc.ForwardingClientCallListener.SimpleForwardingClientCallListener;
 import io.grpc.Metadata;
 import io.grpc.MethodDescriptor;
 import org.slf4j.Logger;
@@ -75,7 +75,7 @@ public class DiscardClientInterceptor implements ClientInterceptor {
 
         @Override
         public void start(Listener<RespT> responseListener, Metadata headers) {
-            ClientCall.Listener<RespT> onReadyListener = new ForwardingClientCallListener.SimpleForwardingClientCallListener<RespT>(responseListener) {
+            ClientCall.Listener<RespT> onReadyListener = new SimpleForwardingClientCallListener<RespT>(responseListener) {
                 @Override
                 public void onReady() {
                     DiscardClientCall.this.reset();
