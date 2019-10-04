@@ -40,7 +40,8 @@ To try out a simple quickstart project, please refer to the [quick-start guide](
 5. Pinpoint Agent ([details](#5-pinpoint-agent))
 	1. Extract/move *pinpoint-agent/* to a convenient location (`$AGENT_PATH`).
 	2. Set `-javaagent:$AGENT_PATH/pinpoint-bootstrap-$VERSION.jar` JVM argument to attach the agent to a java application.
-	3. Set `-Dpinpoint.agentId` and `-Dpinpoint.applicationName` command-line arguments.
+	3. Set `-Dpinpoint.agentId` and `-Dpinpoint.applicationName` command-line arguments.  
+		a) If you're launching an agent in a containerized environment with dynamically changing *agent id*, consider adding `-Dpinpoint.container` command-line argument.
 	4. Launch java application with the options above.
 
 ## 1. HBase
@@ -200,6 +201,8 @@ Additionally, Pinpoint Agent requires 2 command-line arguments in order to ident
 * `-Dpinpoint.applicationName` - groups a number of identical application instances as a single service
 
 Note that *pinpoint.agentId* must be globally unique to identify an application instance, and all applications that share the same *pinpoint.applicationName* are treated as multiple instances of a single service.
+
+If you're launching the agent in a containerized environment, you might have set your *agent id* to be auto-generated every time the container is launched. With frequent deployment and auto-scaling, this will lead to the Web UI being cluttered with all the list of agents that were launched and destroyed previously. For such cases, you might want to add `-Dpinpoint.container` in addition to the 2 required command-line arguments above when launching the agent.
 
 **Tomcat Example**
 
