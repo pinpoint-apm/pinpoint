@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -43,7 +43,7 @@ public class PinpointClientStateTest {
 
     @Test
     public void connectFailedStateTest() throws InterruptedException {
-        PinpointClientFactory clientFactory = null;
+        DefaultPinpointClientFactory clientFactory = null;
         DefaultPinpointClientHandler handler = null;
         try {
             int availableTcpPort = SocketUtils.findAvailableTcpPort(47000);
@@ -63,7 +63,7 @@ public class PinpointClientStateTest {
         TestPinpointServerAcceptor testPinpointServerAcceptor = new TestPinpointServerAcceptor(testServerMessageListenerFactory);
         int bindPort = testPinpointServerAcceptor.bind();
 
-        PinpointClientFactory clientSocketFactory = null;
+        DefaultPinpointClientFactory clientSocketFactory = null;
         DefaultPinpointClientHandler handler = null;
         try {
             clientSocketFactory = PinpointRPCTestUtils.createClientFactory(PinpointRPCTestUtils.getParams(), testServerMessageListenerFactory.create());
@@ -84,7 +84,7 @@ public class PinpointClientStateTest {
         TestPinpointServerAcceptor testPinpointServerAcceptor = new TestPinpointServerAcceptor(testServerMessageListenerFactory);
         int bindPort = testPinpointServerAcceptor.bind();
 
-        PinpointClientFactory clientFactory = null;
+        DefaultPinpointClientFactory clientFactory = null;
         DefaultPinpointClientHandler handler = null;
         try {
             clientFactory = PinpointRPCTestUtils.createClientFactory(PinpointRPCTestUtils.getParams(), testServerMessageListenerFactory.create());
@@ -105,7 +105,7 @@ public class PinpointClientStateTest {
         TestPinpointServerAcceptor testPinpointServerAcceptor = new TestPinpointServerAcceptor(testServerMessageListenerFactory);
         int bindPort = testPinpointServerAcceptor.bind();
 
-        PinpointClientFactory clientFactory = null;
+        DefaultPinpointClientFactory clientFactory = null;
         DefaultPinpointClientHandler handler = null;
         try {
             clientFactory = PinpointRPCTestUtils.createClientFactory(PinpointRPCTestUtils.getParams(), testServerMessageListenerFactory.create());
@@ -126,7 +126,7 @@ public class PinpointClientStateTest {
         TestPinpointServerAcceptor testPinpointServerAcceptor = new TestPinpointServerAcceptor(testServerMessageListenerFactory);
         int bindPort = testPinpointServerAcceptor.bind();
 
-        PinpointClientFactory clientFactory = null;
+        DefaultPinpointClientFactory clientFactory = null;
         DefaultPinpointClientHandler handler = null;
         try {
             clientFactory = PinpointRPCTestUtils.createClientFactory(PinpointRPCTestUtils.getParams(), testServerMessageListenerFactory.create());
@@ -154,7 +154,7 @@ public class PinpointClientStateTest {
         Assert.assertTrue(passed);
     }
 
-    private DefaultPinpointClientHandler connect(PinpointClientFactory factory, int port) {
+    private DefaultPinpointClientHandler connect(DefaultPinpointClientFactory factory, int port) {
         ChannelFuture future = factory.reconnect(new InetSocketAddress("127.0.0.1", port));
         PinpointClientHandler handler = getSocketHandler(future, new InetSocketAddress("127.0.0.1", port));
         return (DefaultPinpointClientHandler) handler;

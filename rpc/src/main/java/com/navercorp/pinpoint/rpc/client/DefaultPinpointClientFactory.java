@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.rpc.client;
 
+import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.rpc.MessageListener;
 import com.navercorp.pinpoint.rpc.PinpointSocketException;
@@ -42,7 +43,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -50,7 +50,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class DefaultPinpointClientFactory implements PinpointClientFactory {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final AtomicInteger socketId = new AtomicInteger(1);
+    private final SocketIdFactory socketIdFactory = new SocketIdFactory();
 
     private final Closed closed = new Closed();
 
@@ -201,12 +201,6 @@ public class DefaultPinpointClientFactory implements PinpointClientFactory {
         return connect(socketAddressProvider);
     }
 
-    @Deprecated
-    public PinpointClient connect(InetSocketAddress connectAddress) throws PinpointSocketException {
-        SocketAddressProvider socketAddressProvider = new StaticSocketAddressProvider(connectAddress);
-        return connect(socketAddressProvider);
-    }
-
     public PinpointClient connect(SocketAddressProvider socketAddressProvider) throws PinpointSocketException {
         Connection connection = connectInternal(socketAddressProvider, false);
         return connection.awaitConnected();
@@ -227,7 +221,7 @@ public class DefaultPinpointClientFactory implements PinpointClientFactory {
         final List<StateChangeEventListener> stateChangeEventListeners = this.getStateChangeEventListeners();
 
         Map<String, Object> copyProperties = new HashMap<String, Object>(this.properties);
-        final HandshakerFactory handshakerFactory = new HandshakerFactory(socketId, copyProperties, clientOption, clusterOption);
+        final HandshakerFactory handshakerFactory = new HandshakerFactory(socketIdFactory, copyProperties, clientOption, clusterOption);
         final ClientHandlerFactory clientHandlerFactory =  new DefaultPinpointClientHandlerFactory(clientOption, clusterOption, handshakerFactory,
                 messageListener, serverStreamChannelMessageHandler, stateChangeEventListeners);
 
@@ -242,11 +236,6 @@ public class DefaultPinpointClientFactory implements PinpointClientFactory {
         return scheduledConnect(socketAddressProvider);
     }
 
-    @Deprecated
-    public PinpointClient scheduledConnect(InetSocketAddress connectAddress) {
-        SocketAddressProvider socketAddressProvider = new StaticSocketAddressProvider(connectAddress);
-        return scheduledConnect(socketAddressProvider);
-    }
 
     @Override
     public PinpointClient scheduledConnect(SocketAddressProvider socketAddressProvider) {
@@ -258,9 +247,8 @@ public class DefaultPinpointClientFactory implements PinpointClientFactory {
         return pinpointClient;
     }
 
-
-    @Deprecated
-    public ChannelFuture reconnect(final SocketAddress remoteAddress) {
+    @VisibleForTesting
+    ChannelFuture reconnect(final SocketAddress remoteAddress) {
         if (!(remoteAddress instanceof InetSocketAddress)) {
             throw new IllegalArgumentException("invalid remoteAddress:" + remoteAddress);
         }
@@ -344,7 +332,4 @@ public class DefaultPinpointClientFactory implements PinpointClientFactory {
         this.stateChangeEventListeners.add(stateChangeEventListener);
     }
 
-    private int nextSocketId() {
-        return socketId.getAndIncrement();
-    }
 }
