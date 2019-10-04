@@ -44,7 +44,7 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
  */
 @RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
-@Dependency({"com.zaxxer:HikariCP-java6:[2.3.0,2.3.4),(2.3.4,2.3.10),(2.3.11,]", "com.h2database:h2:1.4.191"})
+@Dependency({"com.zaxxer:HikariCP-java6:[2.3.0,2.3.4),(2.3.4,2.3.10),(2.3.10,]", "com.h2database:h2:1.4.191"})
 public class HikariCpIT {
 
     private static final String serviceType = "HIKARICP";
