@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,10 +24,6 @@ import com.navercorp.pinpoint.rpc.cluster.ClusterOption;
 import com.navercorp.pinpoint.rpc.cluster.Role;
 import com.navercorp.pinpoint.rpc.stream.ServerStreamChannelMessageHandler;
 
-import org.jboss.netty.channel.ChannelFuture;
-
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 import java.util.List;
 import java.util.Map;
 
@@ -74,28 +70,9 @@ public interface PinpointClientFactory {
 
     PinpointClient connect(SocketAddressProvider socketAddressProvider) throws PinpointSocketException;
 
-    /**
-     * @deprecated Since 1.7.2 Use {@link #connect(String, int)}
-     */
-    @Deprecated
-    PinpointClient connect(InetSocketAddress connectAddress) throws PinpointSocketException;
-
     PinpointClient scheduledConnect(String host, int port);
 
     PinpointClient scheduledConnect(SocketAddressProvider socketAddressProvider);
-
-    /**
-     * @deprecated Since 1.7.2 Use {@link #scheduledConnect(String, int)}
-     */
-    @Deprecated
-    PinpointClient scheduledConnect(InetSocketAddress connectAddress);
-
-    /**
-     * @deprecated Since 1.7.2 Use {@link #scheduledConnect(String, int)}
-     */
-    @Deprecated
-    ChannelFuture reconnect(final SocketAddress remoteAddress);
-
 
     void release();
 
