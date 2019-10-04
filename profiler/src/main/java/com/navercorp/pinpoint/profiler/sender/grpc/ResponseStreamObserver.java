@@ -24,6 +24,8 @@ import io.grpc.stub.ClientResponseObserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 /**
  * @author Woonduk Kang(emeroad)
  */
@@ -42,10 +44,12 @@ public class ResponseStreamObserver<ReqT, RespT> implements ClientResponseObserv
 
     @Override
     public void beforeStart(ClientCallStreamObserver<ReqT> requestStream) {
+        logger.info("beforeStart:{} .", name);
         requestStream.setOnReadyHandler(new Runnable() {
+            private final AtomicInteger counter = new AtomicInteger();
             @Override
             public void run() {
-                logger.info("connect to {} completed.", name);
+                logger.info("onReadyHandler:{} eventNumber:{}", name, counter.getAndIncrement());
                 reconnector.reset();
             }
         });
@@ -53,7 +57,9 @@ public class ResponseStreamObserver<ReqT, RespT> implements ClientResponseObserv
 
     @Override
     public void onNext(RespT value) {
-        logger.debug("{} onNext:{}", name, value);
+        if (logger.isDebugEnabled()) {
+            logger.debug("{} onNext:{}", name, value);
+        }
     }
 
     @Override
