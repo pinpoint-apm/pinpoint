@@ -74,8 +74,8 @@ fi
 echo "INFO: Check Thrift installation environment"
 if [ -f "/etc/os-release" ]; then
     # Get Linux distribution name and version.
-    DIST_ID=`cat /etc/os-release | grep "^ID=" | awk -F "=" '{print $2;}' | tr -d '"'`
-    DIST_VERSION=`cat /etc/os-release | grep "^VERSION_ID=" | awk -F "=" '{print $2;}' | tr -d '"' | awk -F "." '{print $1;}'`
+    DIST_ID=`grep "^ID=" /etc/os-release | awk -F "=" '{print $2;}' | tr -d '"'`
+    DIST_VERSION=`grep "^VERSION_ID=" /etc/os-release | awk -F "=" '{print $2;}' | tr -d '"' | awk -F "." '{print $1;}'`
 
     echo "Linux distribution: ${DIST_ID}"
     echo "Version: ${DIST_VERSION}"
