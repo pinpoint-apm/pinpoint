@@ -543,7 +543,7 @@ export class ServerMapTemplateWithGojs {
                     go.Shape,
                     'Rectangle',
                     {
-                        fill: ServerMapTheme.general.link.normal.textBox.fill,
+                        fill: getComputedStyle(document.querySelector('.server-map-container')).getPropertyValue('--background'),
                         stroke: ServerMapTheme.general.link.normal.textBox.stroke,
                         portId: '',
                         fromLinkable: true,

@@ -7,7 +7,9 @@ body{color:#333; font-family: 'Nanum Gothic', '나눔고딕';}
 table {border-collapse: collapse;border-spacing: 0;background-color: transparent}
 caption {width:0;height:0;overflow:hidden;font-size:0}
 
-
+:root {
+    --background: #fff;
+}
 
 #pinpoint {min-width:1290px;height:100%}
 header {background:#469ae4;border-bottom:1px solid #4484c3;height:50px;justify-content: space-between;position: relative;top: 0;left: 0;z-index: 100;min-width: 1290px;width: 100%}
