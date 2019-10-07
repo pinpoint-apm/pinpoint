@@ -89,8 +89,8 @@ export default {
                     stroke: '#C0C3C8',
                 },
                 textBox: {
-                    fill: '#EDF2F8',
-                    stroke: '#EDF2F8'
+                    fill: '#FFF',
+                    stroke: 'transparent'
                 },
                 fontColor: {
                     normal: '#000',

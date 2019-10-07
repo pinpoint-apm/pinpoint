@@ -16,7 +16,9 @@
     display: flex;
     flex-flow: column nowrap;
     flex: 1;
-    background: #edf2f8;
+    /* background: #edf2f8; */
+    --background: #edf2f8;
+    background: var(--background);
     position: relative;
     height: 100%;
     overflow: hidden;
