@@ -34,7 +34,8 @@ interface IPopupParam {
 export const enum PopupConstant {
     TOOLTIP_TRIANGLE_HEIGHT = 7, // 툴팁 삼각형 높이
     TOOLTIP_TRIANGLE_WIDTH = 14, // 툴팁 삼각형 넓이
-    SPACE_FROM_BUTTON = 9 // 클릭한 버튼에서 살짝 떨어뜨려줄 길이
+    SPACE_FROM_BUTTON = 9, // 클릭한 버튼에서 살짝 떨어뜨려줄 길이
+    SPACE_FROM_LEFT = 20 // 팝업 앞단의 여유
 }
 
 @Injectable()
