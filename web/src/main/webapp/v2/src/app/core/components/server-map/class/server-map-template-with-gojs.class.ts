@@ -179,10 +179,13 @@ export class ServerMapTemplateWithGojs {
                 $(
                     go.Picture,
                     {
-                        row: 0,
-                        column: 0,
-                        width: 100,
-                        height: 100,
+                        // row: 0,
+                        // column: 0,
+                        // width: 100,
+                        // height: 100,
+                        // imageStretch: go.GraphObject.Uniform,
+                        margin: new go.Margin(0, 0, 5, 0),
+                        desiredSize: new go.Size(100, 100),
                         imageStretch: go.GraphObject.Uniform,
                         errorFunction: (e: any) => {
                             e.source = ServerMapTheme.general.common.funcServerMapImagePath(ServerMapTemplateWithGojs.NO_IMAGE_FOUND);
