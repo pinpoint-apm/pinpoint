@@ -31,7 +31,7 @@ import com.navercorp.pinpoint.common.server.bo.filter.SpanEventFilter;
 import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
 import com.navercorp.pinpoint.common.server.util.EmptyAcceptedTimeService;
 import com.navercorp.pinpoint.common.util.StringUtils;
-import com.navercorp.pinpoint.common.util.TransactionId;
+import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
 import com.navercorp.pinpoint.grpc.trace.PAcceptEvent;

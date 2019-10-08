@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.web.calltree.span;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
-import com.navercorp.pinpoint.common.util.TransactionIdUtils;
+import com.navercorp.pinpoint.common.profiler.util.TransactionIdUtils;
 
 import java.util.List;
 import java.util.Objects;

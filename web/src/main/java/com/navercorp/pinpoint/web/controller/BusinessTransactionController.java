@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@ package com.navercorp.pinpoint.web.controller;
 import com.navercorp.pinpoint.common.util.DefaultSqlParser;
 import com.navercorp.pinpoint.common.util.OutputParameterParser;
 import com.navercorp.pinpoint.common.util.SqlParser;
-import com.navercorp.pinpoint.common.util.TransactionId;
-import com.navercorp.pinpoint.common.util.TransactionIdUtils;
+import com.navercorp.pinpoint.common.profiler.util.TransactionId;
+import com.navercorp.pinpoint.common.profiler.util.TransactionIdUtils;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
 import com.navercorp.pinpoint.web.calltree.span.CallTreeIterator;
 import com.navercorp.pinpoint.web.service.FilteredMapService;

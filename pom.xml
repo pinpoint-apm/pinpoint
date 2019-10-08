@@ -1,5 +1,5 @@
 <!--
-  ~ Copyright 2018 NAVER Corp.
+  ~ Copyright 2019 NAVER Corp.
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -75,6 +75,8 @@
         <module>bootstrap-java9</module>
         <module>collector</module>
         <module>commons</module>
+        <module>commons-buffer</module>
+        <module>commons-profiler</module>
         <module>commons-hbase</module>
         <module>commons-server</module>
         <module>tools</module>
@@ -168,6 +170,16 @@
             <dependency>
                 <groupId>com.navercorp.pinpoint</groupId>
                 <artifactId>pinpoint-commons</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.navercorp.pinpoint</groupId>
+                <artifactId>pinpoint-commons-buffer</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.navercorp.pinpoint</groupId>
+                <artifactId>pinpoint-commons-profiler</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
