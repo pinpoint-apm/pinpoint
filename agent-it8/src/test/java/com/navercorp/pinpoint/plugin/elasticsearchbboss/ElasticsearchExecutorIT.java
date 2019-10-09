@@ -17,18 +17,12 @@ package com.navercorp.pinpoint.plugin.elasticsearchbboss;
 
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
-import com.navercorp.pinpoint.plugin.AgentPath;
-import com.navercorp.pinpoint.test.plugin.Dependency;
-import com.navercorp.pinpoint.test.plugin.JvmVersion;
-import com.navercorp.pinpoint.test.plugin.PinpointAgent;
-import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
 import org.frameworkset.elasticsearch.ElasticSearchHelper;
 import org.frameworkset.elasticsearch.client.ClientInterface;
 import org.frameworkset.elasticsearch.entity.ESDatas;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import pl.allegro.tech.embeddedelasticsearch.EmbeddedElastic;
 import pl.allegro.tech.embeddedelasticsearch.PopularProperties;
 
@@ -46,12 +40,8 @@ import static java.util.concurrent.TimeUnit.MINUTES;
  * @author yinbp[yin-bp@163.com]
  */
 
-@RunWith(PinpointPluginTestSuite.class)
-@PinpointAgent(AgentPath.PATH)
-@Dependency({"com.bbossgroups.plugins:bboss-elasticsearch-rest-jdbc:[5.6.9,]",
-		"pl.allegro.tech:embedded-elasticsearch:2.8.0"})
-@JvmVersion(8)
-public class ElasticsearchExecutorIT {
+
+public abstract class ElasticsearchExecutorIT {
 	private static EmbeddedElastic embeddedElastic;
 	private static ClientInterface clientInterface;
 	private static ClientInterface configRestClientInterface ;
