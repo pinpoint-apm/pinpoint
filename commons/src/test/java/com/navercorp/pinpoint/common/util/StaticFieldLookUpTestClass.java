@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,28 +17,10 @@
 package com.navercorp.pinpoint.common.util;
 
 /**
- * @author emeroad
+ * @author Woonduk Kang(emeroad)
  */
-public interface ApiDescription {
-    void setClassName(String className);
+public class StaticFieldLookUpTestClass {
 
-    String getClassName();
-
-    String getSimpleClassName();
-
-    String getPackageNameName();
-
-    void setMethodName(String methodName);
-
-    String getMethodName();
-
-    void setSimpleParameter(String[] simpleParameter);
-
-    String[] getSimpleParameter();
-
-    void setLine(int line);
-
-    String getSimpleMethodDescription();
-
-    String concateLine(String[] stringList, String separator);
+    public static final String string1 = "string1";
+    public static final Integer integer1 = 1;
 }

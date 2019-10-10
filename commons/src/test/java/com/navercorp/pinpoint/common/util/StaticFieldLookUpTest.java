@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -28,7 +28,7 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 public class StaticFieldLookUpTest {
 
     @Test
-    public void testFindServiceType() throws IllegalAccessException {
+    public void testFindServiceType() {
         StaticFieldLookUp<ServiceType> staticFieldLookUp = new StaticFieldLookUp<ServiceType>(ServiceType.class, ServiceType.class);
         List<ServiceType> lookup = staticFieldLookUp.lookup();
 
@@ -37,7 +37,7 @@ public class StaticFieldLookUpTest {
     }
 
     @Test
-    public void testNotFindServiceType() throws IllegalAccessException {
+    public void testNotFindServiceType() {
         StaticFieldLookUp<ServiceType> staticFieldLookUp = new StaticFieldLookUp<ServiceType>(ServiceType.class, ServiceType.class);
         List<ServiceType> lookup = staticFieldLookUp.lookup();
 
@@ -48,21 +48,20 @@ public class StaticFieldLookUpTest {
 
 
     @Test
-    public void testFindDisplayArgumentMatcher() throws IllegalAccessException {
-        StaticFieldLookUp<DisplayArgumentMatcher> staticFieldLookUp = new StaticFieldLookUp<DisplayArgumentMatcher>(DefaultDisplayArgument.class, DisplayArgumentMatcher.class);
-        List<DisplayArgumentMatcher> lookup = staticFieldLookUp.lookup();
+    public void testFindString() {
+        StaticFieldLookUp<String> staticFieldLookUp = new StaticFieldLookUp<String>(StaticFieldLookUpTestClass.class, String.class);
+        List<String> lookup = staticFieldLookUp.lookup();
 
-        Assert.assertTrue(findType(lookup, DefaultDisplayArgument.UNKNOWN_DB_MATCHER));
+        Assert.assertTrue(findType(lookup, StaticFieldLookUpTestClass.string1));
     }
 
 
     @Test
-    public void testNotFindDisplayArgumentMatcher() throws IllegalAccessException {
-        StaticFieldLookUp<DisplayArgumentMatcher> staticFieldLookUp = new StaticFieldLookUp<DisplayArgumentMatcher>(DefaultDisplayArgument.class, DisplayArgumentMatcher.class);
-        List<DisplayArgumentMatcher> lookup = staticFieldLookUp.lookup();
+    public void testNotFindString() {
+        StaticFieldLookUp<String> staticFieldLookUp = new StaticFieldLookUp<String>(StaticFieldLookUpTestClass.class, String.class);
+        List<String> lookup = staticFieldLookUp.lookup();
 
-        DisplayArgumentMatcher notExist = new DisplayArgumentMatcher(ServiceType.UNDEFINED, AnnotationKeyMatchers.NOTHING_MATCHER);
-        Assert.assertFalse(findType(lookup, notExist));
+        Assert.assertFalse(findType(lookup, "notExist"));
     }
 
 

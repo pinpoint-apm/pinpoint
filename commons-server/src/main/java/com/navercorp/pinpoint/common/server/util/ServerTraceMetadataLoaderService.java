@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,11 +19,11 @@ package com.navercorp.pinpoint.common.server.util;
 import com.navercorp.pinpoint.loader.service.TraceMetadataLoaderService;
 import com.navercorp.pinpoint.common.trace.AnnotationKeyMatcherLocator;
 import com.navercorp.pinpoint.common.trace.AnnotationKeyLocator;
-import com.navercorp.pinpoint.loader.trace.AnnotationKeyMatcherRegistry;
-import com.navercorp.pinpoint.loader.trace.AnnotationKeyRegistry;
+import com.navercorp.pinpoint.common.profiler.trace.AnnotationKeyMatcherRegistry;
+import com.navercorp.pinpoint.common.profiler.trace.AnnotationKeyRegistry;
 import com.navercorp.pinpoint.common.trace.ServiceTypeLocator;
-import com.navercorp.pinpoint.loader.trace.ServiceTypeRegistry;
-import com.navercorp.pinpoint.loader.trace.TraceMetadataLoader;
+import com.navercorp.pinpoint.common.profiler.trace.ServiceTypeRegistry;
+import com.navercorp.pinpoint.common.profiler.trace.TraceMetadataLoader;
 import com.navercorp.pinpoint.common.trace.TraceMetadataProvider;
 import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.common.util.Assert;
