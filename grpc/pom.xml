@@ -39,6 +39,10 @@
             <artifactId>pinpoint-commons</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-commons-profiler</artifactId>
+        </dependency>
+        <dependency>
             <groupId>io.grpc</groupId>
             <artifactId>grpc-core</artifactId>
             <version>${grpc.version}</version>

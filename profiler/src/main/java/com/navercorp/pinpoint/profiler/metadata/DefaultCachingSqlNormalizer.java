@@ -18,9 +18,9 @@ package com.navercorp.pinpoint.profiler.metadata;
 
 import com.navercorp.pinpoint.bootstrap.context.ParsingResult;
 import com.navercorp.pinpoint.common.util.Assert;
-import com.navercorp.pinpoint.common.util.DefaultSqlParser;
-import com.navercorp.pinpoint.common.util.NormalizedSql;
-import com.navercorp.pinpoint.common.util.SqlParser;
+import com.navercorp.pinpoint.common.profiler.sql.DefaultSqlParser;
+import com.navercorp.pinpoint.common.profiler.sql.NormalizedSql;
+import com.navercorp.pinpoint.common.profiler.sql.SqlParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

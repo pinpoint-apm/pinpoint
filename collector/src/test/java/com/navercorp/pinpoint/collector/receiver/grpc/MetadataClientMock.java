@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.collector.receiver.grpc;
 
 import com.google.common.util.concurrent.Uninterruptibles;
 import com.google.protobuf.GeneratedMessageV3;
-import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
+import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
 import com.navercorp.pinpoint.grpc.AgentHeaderFactory;
 import com.navercorp.pinpoint.grpc.client.ChannelFactory;
 import com.navercorp.pinpoint.grpc.client.ChannelFactoryBuilder;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.bitfield;
 
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
-import com.navercorp.pinpoint.common.util.BitFieldUtils;
+import com.navercorp.pinpoint.common.profiler.encoding.BitFieldUtils;
 import org.apache.commons.collections.CollectionUtils;
 
 import java.util.List;

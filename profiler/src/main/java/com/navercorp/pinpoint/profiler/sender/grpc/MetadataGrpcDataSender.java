@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.profiler.sender.grpc;
 
 import com.google.protobuf.GeneratedMessageV3;
-import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
+import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
 import com.navercorp.pinpoint.grpc.client.ChannelFactory;
 import com.navercorp.pinpoint.grpc.trace.MetadataGrpc;
