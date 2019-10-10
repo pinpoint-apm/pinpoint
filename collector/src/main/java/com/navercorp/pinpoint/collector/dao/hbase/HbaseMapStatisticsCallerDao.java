@@ -28,7 +28,7 @@ import com.navercorp.pinpoint.common.hbase.TableDescriptor;
 import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.profiler.util.ApplicationMapStatisticsUtils;
-import com.navercorp.pinpoint.common.util.TimeSlot;
+import com.navercorp.pinpoint.common.server.util.TimeSlot;
 
 import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
 import org.apache.commons.lang3.StringUtils;

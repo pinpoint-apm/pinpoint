@@ -16,9 +16,9 @@
 
 package com.navercorp.pinpoint.grpc.server;
 
+import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.CpuUtils;
-import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
 import com.navercorp.pinpoint.grpc.ExecutorUtils;
 import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.HeaderReader;

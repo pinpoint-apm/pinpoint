@@ -16,10 +16,9 @@
 
 package com.navercorp.pinpoint.grpc.client;
 
+import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
 import com.navercorp.pinpoint.common.util.Assert;
-import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
 import com.navercorp.pinpoint.grpc.ExecutorUtils;
-
 import io.grpc.ClientInterceptor;
 import io.grpc.ManagedChannel;
 import io.grpc.Metadata;

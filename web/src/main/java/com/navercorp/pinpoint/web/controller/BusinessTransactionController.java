@@ -16,9 +16,9 @@
 
 package com.navercorp.pinpoint.web.controller;
 
-import com.navercorp.pinpoint.common.util.DefaultSqlParser;
-import com.navercorp.pinpoint.common.util.OutputParameterParser;
-import com.navercorp.pinpoint.common.util.SqlParser;
+import com.navercorp.pinpoint.common.profiler.sql.DefaultSqlParser;
+import com.navercorp.pinpoint.common.profiler.sql.OutputParameterParser;
+import com.navercorp.pinpoint.common.profiler.sql.SqlParser;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.profiler.util.TransactionIdUtils;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;

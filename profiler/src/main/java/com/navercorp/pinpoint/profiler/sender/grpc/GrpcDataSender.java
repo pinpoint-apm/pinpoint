@@ -17,8 +17,8 @@
 package com.navercorp.pinpoint.profiler.sender.grpc;
 
 import com.navercorp.pinpoint.common.util.Assert;
-import com.navercorp.pinpoint.common.util.ExecutorFactory;
-import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
+import com.navercorp.pinpoint.common.profiler.concurrent.ExecutorFactory;
+import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
 import com.navercorp.pinpoint.grpc.ExecutorUtils;
 import com.navercorp.pinpoint.grpc.ManagedChannelUtils;
 import com.navercorp.pinpoint.grpc.client.ChannelFactory;
