@@ -22,9 +22,6 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.navercorp.pinpoint.common.server.util.DefaultTimeSlot;
-import com.navercorp.pinpoint.common.server.util.TimeSlot;
-
 /**
  *
  */

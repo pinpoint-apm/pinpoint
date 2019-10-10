@@ -21,7 +21,7 @@ import com.google.inject.Scopes;
 import com.navercorp.pinpoint.loader.service.AnnotationKeyRegistryService;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.loader.service.TraceMetadataLoaderService;
-import com.navercorp.pinpoint.loader.trace.TraceMetadataLoader;
+import com.navercorp.pinpoint.common.profiler.trace.TraceMetadataLoader;
 import com.navercorp.pinpoint.common.util.logger.CommonLoggerFactory;
 import com.navercorp.pinpoint.profiler.context.provider.plugin.AnnotationKeyRegistryServiceProvider;
 import com.navercorp.pinpoint.profiler.context.provider.plugin.ServiceTypeRegistryServiceProvider;
