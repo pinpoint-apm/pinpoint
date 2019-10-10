@@ -592,13 +592,15 @@ export class ServerMapTemplateWithGojs {
                     )
                 )
             ),
-            new go.Binding('curve', 'curve', (val) => {
-                return go.Link[val];
-            }),
             new go.Binding('routing', 'routing', (val) => {
                 return go.Link[val];
             }),
-            new go.Binding('curviness', 'curviness')
+            new go.Binding('curve', 'curve', (val) => {
+                return go.Link[val];
+            }),
+            new go.Binding('curviness', '', (link) => {
+                return link.fromNode === link.toNode ? -20 : 0;
+            }).ofObject()
         );
     }
 
