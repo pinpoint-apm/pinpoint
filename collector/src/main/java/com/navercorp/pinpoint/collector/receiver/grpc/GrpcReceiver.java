@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,19 +19,15 @@ package com.navercorp.pinpoint.collector.receiver.grpc;
 import com.navercorp.pinpoint.common.server.util.AddressFilter;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
-import com.navercorp.pinpoint.grpc.server.StreamExecutorRejectedExecutionRequestScheduler;
-import com.navercorp.pinpoint.grpc.server.StreamExecutorServerInterceptor;
 import com.navercorp.pinpoint.grpc.server.MetadataServerTransportFilter;
 import com.navercorp.pinpoint.grpc.server.ServerFactory;
 import com.navercorp.pinpoint.grpc.server.ServerOption;
-import com.navercorp.pinpoint.grpc.server.StreamExecutorService;
 import com.navercorp.pinpoint.grpc.server.TransportMetadataFactory;
 import com.navercorp.pinpoint.grpc.server.TransportMetadataServerInterceptor;
 
 import io.grpc.BindableService;
 import io.grpc.Server;
 import io.grpc.ServerInterceptor;
-import io.grpc.ServerInterceptors;
 import io.grpc.ServerServiceDefinition;
 import io.grpc.ServerTransportFilter;
 import org.slf4j.Logger;
@@ -44,7 +40,6 @@ import java.io.Closeable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 
 /**
  * @author Taejin Koo
@@ -121,33 +116,16 @@ public class GrpcReceiver implements InitializingBean, DisposableBean, BeanNameA
     }
 
     private void addService() {
+        // Add service
         for (Object service : serviceList) {
             if (service instanceof BindableService) {
-                final ServerInterceptor interceptor = getStreamExecutorServerInterceptor(service);
-                if (interceptor != null) {
-                    this.serverFactory.addService(ServerInterceptors.intercept((BindableService) service, interceptor));
-                } else {
-                    this.serverFactory.addService((BindableService) service);
-                }
+                this.serverFactory.addService((BindableService) service);
             } else if (service instanceof ServerServiceDefinition) {
-                final ServerInterceptor interceptor = getStreamExecutorServerInterceptor(service);
-                if (interceptor != null) {
-                    this.serverFactory.addService(ServerInterceptors.intercept((ServerServiceDefinition) service, interceptor));
-                } else {
-                    this.serverFactory.addService((ServerServiceDefinition) service);
-                }
+                this.serverFactory.addService((ServerServiceDefinition) service);
             } else {
                 throw new IllegalStateException("unsupported service type " + service);
             }
         }
-    }
-
-    private ServerInterceptor getStreamExecutorServerInterceptor(Object service) {
-        if (service instanceof StreamExecutorService) {
-            final ServerInterceptor interceptor = ((StreamExecutorService) service).getStreamExecutorServerInterceptor();
-            return interceptor;
-        }
-        return null;
     }
 
     @Override

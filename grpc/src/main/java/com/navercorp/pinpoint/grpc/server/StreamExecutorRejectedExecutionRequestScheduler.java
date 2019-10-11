@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,7 +23,7 @@ import io.grpc.ServerCall;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * @author jaehong.kim
@@ -31,10 +31,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class StreamExecutorRejectedExecutionRequestScheduler {
     private final int periodMillis;
     private final ScheduledExecutorService scheduledExecutorService;
+    private final long recoveryMessagesCount;
 
-    public StreamExecutorRejectedExecutionRequestScheduler(final ScheduledExecutorService scheduledExecutorService, final int periodMillis) {
+    public StreamExecutorRejectedExecutionRequestScheduler(final ScheduledExecutorService scheduledExecutorService, final int periodMillis, int recoveryMessagesCount) {
         this.scheduledExecutorService = scheduledExecutorService;
         this.periodMillis = periodMillis;
+        // cast long
+        this.recoveryMessagesCount = recoveryMessagesCount;
     }
 
     public <ReqT, RespT> Listener schedule(final ServerCall<ReqT, RespT> call) {
@@ -44,7 +47,7 @@ public class StreamExecutorRejectedExecutionRequestScheduler {
                 call.request(numMessages);
             }
         };
-        final RejectedExecutionListener rejectedExecutionListener = new RejectedExecutionListener(serverCall);
+        final RejectedExecutionListener rejectedExecutionListener = new RejectedExecutionListener(serverCall, recoveryMessagesCount);
         final ScheduledFuture requestScheduledFuture = scheduledExecutorService.scheduleAtFixedRate(new RequestScheduleJob(rejectedExecutionListener), periodMillis, periodMillis, TimeUnit.MILLISECONDS);
         final Listener listener = new Listener(rejectedExecutionListener, requestScheduledFuture);
         return listener;
@@ -65,11 +68,13 @@ public class StreamExecutorRejectedExecutionRequestScheduler {
 
     @VisibleForTesting
     static class RejectedExecutionListener {
-        private final AtomicInteger rejectedExecutionCounter = new AtomicInteger(0);
+        private final AtomicLong rejectedExecutionCounter = new AtomicLong(0);
         private final ServerCallWrapper serverCall;
+        private final long recoveryMessagesCount;
 
-        public RejectedExecutionListener(ServerCallWrapper serverCall) {
+        public RejectedExecutionListener(ServerCallWrapper serverCall, long recoveryMessagesCount) {
             this.serverCall = serverCall;
+            this.recoveryMessagesCount = recoveryMessagesCount;
         }
 
         public void onRejectedExecution() {
@@ -77,12 +82,15 @@ public class StreamExecutorRejectedExecutionRequestScheduler {
         }
 
         public void onSchedule() {
-            if (this.rejectedExecutionCounter.get() > 0) {
-                serverCall.request(this.rejectedExecutionCounter.getAndSet(0));
+            final long currentRejectCount = this.rejectedExecutionCounter.get();
+            if (currentRejectCount > 0) {
+                final long recovery = Math.min(currentRejectCount, recoveryMessagesCount);
+                this.rejectedExecutionCounter.addAndGet(-recovery);
+                serverCall.request((int) recovery);
             }
         }
 
-        public int getRejectedExecutionCount() {
+        public long getRejectedExecutionCount() {
             return rejectedExecutionCounter.get();
         }
 
@@ -127,7 +135,7 @@ public class StreamExecutorRejectedExecutionRequestScheduler {
             this.requestScheduledFuture.cancel(false);
         }
 
-        public int getRejectedExecutionCount() {
+        public long getRejectedExecutionCount() {
             return this.rejectedExecutionListener.getRejectedExecutionCount();
         }
 

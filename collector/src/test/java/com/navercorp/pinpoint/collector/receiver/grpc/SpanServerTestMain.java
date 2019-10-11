@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,12 +18,17 @@ package com.navercorp.pinpoint.collector.receiver.grpc;
 
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.SpanService;
+import com.navercorp.pinpoint.collector.receiver.grpc.service.StreamExecutorServerInterceptorFactory;
 import com.navercorp.pinpoint.common.server.util.AddressFilter;
 import com.navercorp.pinpoint.grpc.server.ServerOption;
 import com.navercorp.pinpoint.grpc.trace.PResult;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.io.request.ServerResponse;
 import io.grpc.BindableService;
+import io.grpc.ServerInterceptor;
+import io.grpc.ServerInterceptors;
+import io.grpc.ServerServiceDefinition;
+import org.springframework.beans.factory.FactoryBean;
 
 import java.net.InetAddress;
 import java.util.Arrays;
@@ -50,8 +55,7 @@ public class SpanServerTestMain {
         grpcReceiver.setBindPort(PORT);
 
         Executor executor = newWorkerExecutor(8);
-
-        BindableService bindableService = new SpanService(new MockDispatchHandler(), executor, 100, Executors.newSingleThreadScheduledExecutor(), 1000);
+        ServerServiceDefinition bindableService = newSpanBindableService(executor);
         grpcReceiver.setBindableServiceList(Arrays.asList(bindableService));
         grpcReceiver.setAddressFilter(new MockAddressFilter());
         grpcReceiver.setExecutor(Executors.newFixedThreadPool(8));
@@ -62,6 +66,13 @@ public class SpanServerTestMain {
 
         grpcReceiver.blockUntilShutdown();
         grpcReceiver.destroy();
+    }
+
+    private ServerServiceDefinition newSpanBindableService(Executor executor) throws Exception {
+        FactoryBean<ServerInterceptor> interceptorFactory = new StreamExecutorServerInterceptorFactory(executor, 100, Executors.newSingleThreadScheduledExecutor(), 1000, 10);
+        ServerInterceptor interceptor = interceptorFactory.getObject();
+        SpanService spanService = new SpanService(new MockDispatchHandler());
+        return ServerInterceptors.intercept(spanService, interceptor);
     }
 
     private ExecutorService newWorkerExecutor(int thread) {
