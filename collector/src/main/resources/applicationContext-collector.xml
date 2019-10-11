@@ -411,33 +411,33 @@
 
     <!-- gRPC -->
     <bean id="grpcTcpDispatchHandler" class="com.navercorp.pinpoint.collector.receiver.TcpDispatchHandler">
-        <constructor-arg ref="grpcAgentInfoHandler"/>
-        <constructor-arg ref="grpcSqlMetaDataHandler"/>
-        <constructor-arg ref="grpcApiMetaDataHandler"/>
-        <constructor-arg ref="grpcStringMetaDataHandler"/>
+        <constructor-arg index="0" ref="grpcAgentInfoHandler"/>
+        <constructor-arg index="1" ref="grpcSqlMetaDataHandler"/>
+        <constructor-arg index="2" ref="grpcApiMetaDataHandler"/>
+        <constructor-arg index="3" ref="grpcStringMetaDataHandler"/>
     </bean>
 
     <bean id="grpcDispatchHandlerFactoryBean" class="com.navercorp.pinpoint.collector.receiver.thrift.DispatchHandlerFactoryBean">
-        <constructor-arg ref="grpcTcpDispatchHandler"/>
-        <constructor-arg ref="handlerManager"/>
+        <constructor-arg index="0" ref="grpcTcpDispatchHandler"/>
+        <constructor-arg index="1" ref="handlerManager"/>
     </bean>
 
     <bean id="grpcSpanDispatchHandler" class="com.navercorp.pinpoint.collector.receiver.SpanDispatchHandler">
-        <constructor-arg ref="grpcSpanHandler"/>
-        <constructor-arg ref="grpcSpanChunkHandler"/>
+        <constructor-arg index="0" ref="grpcSpanHandler"/>
+        <constructor-arg index="1" ref="grpcSpanChunkHandler"/>
     </bean>
     <bean id="grpcSpanDispatchHandlerFactoryBean" class="com.navercorp.pinpoint.collector.receiver.thrift.DispatchHandlerFactoryBean">
-        <constructor-arg ref="grpcSpanDispatchHandler"/>
-        <constructor-arg ref="handlerManager"/>
+        <constructor-arg index="0" ref="grpcSpanDispatchHandler"/>
+        <constructor-arg index="1" ref="handlerManager"/>
     </bean>
 
     <bean id="grpcStatDispatchHandler" class="com.navercorp.pinpoint.collector.receiver.StatDispatchHandler">
-        <constructor-arg ref="grpcAgentStatHandlerV2"/>
-        <constructor-arg ref="grpcAgentEventHandler"/>
+        <constructor-arg index="0" ref="grpcAgentStatHandlerV2"/>
+        <constructor-arg index="1" ref="grpcAgentEventHandler"/>
     </bean>
     <bean id="grpcStatDispatchHandlerFactoryBean" class="com.navercorp.pinpoint.collector.receiver.thrift.DispatchHandlerFactoryBean">
-        <constructor-arg ref="grpcStatDispatchHandler"/>
-        <constructor-arg ref="handlerManager"/>
+        <constructor-arg index="0" ref="grpcStatDispatchHandler"/>
+        <constructor-arg index="1" ref="handlerManager"/>
     </bean>
 
     <bean id="grpcAgentWorkerExecutor" class="com.navercorp.pinpoint.collector.receiver.thrift.ExecutorFactoryBean" parent="abstractReceiverExecutorFactoryBean">
@@ -462,7 +462,7 @@
     <bean id="lifecycleListener" class="com.navercorp.pinpoint.collector.receiver.grpc.service.AgentLifecycleListener">
         <constructor-arg index="0" ref="keepAliveService"/>
     </bean>
-    <bean id="shutdownEventListener" class="com.navercorp.pinpoint.collector.receiver.grpc.ShutdownEventListener"></bean>
+    <bean id="shutdownEventListener" class="com.navercorp.pinpoint.collector.receiver.grpc.ShutdownEventListener"/>
     <bean id="keepAliveService" class="com.navercorp.pinpoint.collector.receiver.grpc.service.KeepAliveService">
         <constructor-arg index="0" ref="agentEventAsyncTask"/>
         <constructor-arg index="1" ref="agentLifeCycleAsyncTask"/>
@@ -530,16 +530,19 @@
         <property name="registry" value="#{spanReceiverConfig.grpcWorkerExecutorMonitorEnable ? metricRegistry : null}"/>
     </bean>
 
-    <bean id="spanService" class="com.navercorp.pinpoint.collector.receiver.grpc.service.SpanService">
-        <constructor-arg index="0" ref="grpcSpanDispatchHandlerFactoryBean"/>
-        <constructor-arg index="1" ref="grpcSpanWorkerExecutor"/>
-        <constructor-arg index="2" value="#{spanReceiverConfig.grpcStreamCallInitRequestCount}"/>
-        <constructor-arg index="3" ref="grpcSpanStreamScheduler"/>
-        <constructor-arg index="4" value="#{spanReceiverConfig.grpcStreamSchedulerPeriodMillis}"/>
+    <bean id="spanStreamExecutorInterceptor" class="com.navercorp.pinpoint.collector.receiver.grpc.service.StreamExecutorServerInterceptorFactory">
+        <constructor-arg index="0" ref="grpcSpanWorkerExecutor"/>
+        <constructor-arg index="1" value="#{spanReceiverConfig.grpcStreamCallInitRequestCount}"/>
+        <constructor-arg index="2" ref="grpcSpanStreamScheduler"/>
+        <constructor-arg index="3" value="#{spanReceiverConfig.grpcStreamSchedulerPeriodMillis}"/>
+        <constructor-arg index="4" value="#{spanReceiverConfig.grpcStreamSchedulerRecoveryMessageCount}"/>
     </bean>
-
-    <util:list id="spanServiceList" value-type="io.grpc.BindableService">
-        <ref bean="spanService"/>
+    <bean id="spanServiceFactory" class="com.navercorp.pinpoint.collector.receiver.grpc.service.SpanServiceFactory">
+        <property name="dispatchHandler" ref="grpcSpanDispatchHandlerFactoryBean"/>
+        <property name="serverInterceptor" ref="spanStreamExecutorInterceptor"/>
+    </bean>
+    <util:list id="spanServiceList" value-type="io.grpc.ServerServiceDefinition">
+        <ref bean="spanServiceFactory"/>
     </util:list>
 
     <bean id="grpcSpanServerExecutor" class="com.navercorp.pinpoint.collector.receiver.thrift.ExecutorFactoryBean" parent="abstractReceiverExecutorFactoryBean">
@@ -577,16 +580,20 @@
         <property name="registry" value="#{statReceiverConfig.grpcWorkerExecutorMonitorEnable ? metricRegistry : null}"/>
     </bean>
 
-    <bean id="statService" class="com.navercorp.pinpoint.collector.receiver.grpc.service.StatService">
-        <constructor-arg index="0" ref="grpcStatDispatchHandlerFactoryBean"/>
-        <constructor-arg index="1" ref="grpcStatWorkerExecutor"/>
-        <constructor-arg index="2" value="#{statReceiverConfig.grpcStreamCallInitRequestCount}"/>
-        <constructor-arg index="3" ref="grpcStatStreamScheduler"/>
-        <constructor-arg index="4" value="#{statReceiverConfig.grpcStreamSchedulerPeriodMillis}"/>
+    <bean id="statStreamExecutorInterceptor" class="com.navercorp.pinpoint.collector.receiver.grpc.service.StreamExecutorServerInterceptorFactory">
+        <constructor-arg index="0" ref="grpcStatWorkerExecutor"/>
+        <constructor-arg index="1" value="#{statReceiverConfig.grpcStreamCallInitRequestCount}"/>
+        <constructor-arg index="2" ref="grpcStatStreamScheduler"/>
+        <constructor-arg index="3" value="#{statReceiverConfig.grpcStreamSchedulerPeriodMillis}"/>
+        <constructor-arg index="4" value="#{statReceiverConfig.grpcStreamSchedulerRecoveryMessageCount}"/>
+    </bean>
+    <bean id="statServiceFactory" class="com.navercorp.pinpoint.collector.receiver.grpc.service.StatServiceFactory">
+        <property name="dispatchHandler" ref="grpcStatDispatchHandlerFactoryBean"/>
+        <property name="serverInterceptor" ref="statStreamExecutorInterceptor"/>
     </bean>
 
-    <util:list id="statServiceList" value-type="io.grpc.BindableService">
-        <ref bean="statService"/>
+    <util:list id="statServiceList" value-type="io.grpc.ServerServiceDefinition">
+        <ref bean="statServiceFactory"/>
     </util:list>
 
     <bean id="grpcStatServerExecutor" class="com.navercorp.pinpoint.collector.receiver.thrift.ExecutorFactoryBean" parent="abstractReceiverExecutorFactoryBean">

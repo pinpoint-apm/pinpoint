@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,8 +22,6 @@ import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
 import com.navercorp.pinpoint.grpc.StatusError;
 import com.navercorp.pinpoint.grpc.StatusErrors;
-import com.navercorp.pinpoint.grpc.server.StreamExecutorServerInterceptor;
-import com.navercorp.pinpoint.grpc.server.StreamExecutorService;
 import com.navercorp.pinpoint.grpc.trace.PAgentStat;
 import com.navercorp.pinpoint.grpc.trace.PAgentStatBatch;
 import com.navercorp.pinpoint.grpc.trace.PStatMessage;
@@ -44,29 +42,19 @@ import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Objects;
-import java.util.concurrent.Executor;
-import java.util.concurrent.ScheduledExecutorService;
 
 /**
  * @author jaehong.kim
  */
-public class StatService extends StatGrpc.StatImplBase implements StreamExecutorService {
+public class StatService extends StatGrpc.StatImplBase {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
     private final DispatchHandler dispatchHandler;
     private final ServerRequestFactory serverRequestFactory = new ServerRequestFactory();
-    private final Executor executor;
-    private final int initRequestCount;
-    private final ScheduledExecutorService scheduledExecutorService;
-    private final int periodMillis;
 
-    public StatService(DispatchHandler dispatchHandler, Executor executor, final int initRequestCount, final ScheduledExecutorService scheduledExecutorService, final int periodMillis) {
+    public StatService(DispatchHandler dispatchHandler) {
         this.dispatchHandler = Objects.requireNonNull(dispatchHandler, "dispatchHandler must not be null");
-        this.executor = Objects.requireNonNull(executor, "executor must not be null");
-        this.initRequestCount = initRequestCount;
-        this.scheduledExecutorService = Objects.requireNonNull(scheduledExecutorService, "scheduledExecutorService must not be null");
-        this.periodMillis = periodMillis;
     }
 
     @Override
@@ -132,9 +120,4 @@ public class StatService extends StatGrpc.StatImplBase implements StreamExecutor
         }
     }
 
-    @Override
-    public StreamExecutorServerInterceptor getStreamExecutorServerInterceptor() {
-        final StreamExecutorServerInterceptor interceptor = new StreamExecutorServerInterceptor(this.executor, initRequestCount, this.scheduledExecutorService, this.periodMillis);
-        return interceptor;
-    }
 }

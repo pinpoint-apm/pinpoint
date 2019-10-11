@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -36,27 +36,33 @@ import java.util.concurrent.ScheduledExecutorService;
  */
 public class StreamExecutorServerInterceptor implements ServerInterceptor {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
+    private final String name;
     private final Executor executor;
     private final int initNumMessages;
     private final StreamExecutorRejectedExecutionRequestScheduler scheduler;
 
-    public StreamExecutorServerInterceptor(final Executor executor, final int initNumMessages, final ScheduledExecutorService scheduledExecutorService, final int periodMillis) {
-        Assert.requireNonNull(executor, "executor must not be null");
+    public StreamExecutorServerInterceptor(String name, final Executor executor, final int initNumMessages, final ScheduledExecutorService scheduledExecutorService,
+                                           final int periodMillis, int recoveryMessagesCount) {
+        this.name = Assert.requireNonNull(name, "name");
+
+        Assert.requireNonNull(executor, "executor");
         // Context wrapper
         this.executor = Context.currentContextExecutor(executor);
         Assert.isTrue(initNumMessages > 0, "initNumMessages must be positive");
         this.initNumMessages = initNumMessages;
-        Assert.requireNonNull(scheduledExecutorService, "scheduledExecutorService must not be null");
+        Assert.requireNonNull(scheduledExecutorService, "scheduledExecutorService");
         Assert.isTrue(periodMillis > 0, "periodMillis must be positive");
-        this.scheduler = new StreamExecutorRejectedExecutionRequestScheduler(scheduledExecutorService, periodMillis);
+
+        Assert.isTrue(recoveryMessagesCount > 0, "recoveryMessagesCount must be positive");
+        this.scheduler = new StreamExecutorRejectedExecutionRequestScheduler(scheduledExecutorService, periodMillis, recoveryMessagesCount);
     }
 
     @Override
     public <ReqT, RespT> ServerCall.Listener<ReqT> interceptCall(final ServerCall<ReqT, RespT> call, Metadata headers, ServerCallHandler<ReqT, RespT> next) {
         final StreamExecutorRejectedExecutionRequestScheduler.Listener scheduleListener = this.scheduler.schedule(call);
         if (logger.isInfoEnabled()) {
-            logger.info("Initialize schedule listener, executor={}, initNumMessages={}, scheduler={}, listener={}", executor, initNumMessages, scheduler, scheduleListener);
+            logger.info("{} Initialize schedule listener, executor={}, initNumMessages={}, scheduler={}, listener={}",
+                    this.name, executor, initNumMessages, scheduler, scheduleListener);
         }
 
         final ServerCall.Listener<ReqT> listener = next.startCall(call, headers);

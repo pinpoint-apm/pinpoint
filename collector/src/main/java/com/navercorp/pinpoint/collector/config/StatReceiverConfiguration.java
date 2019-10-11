@@ -1,11 +1,11 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -43,6 +43,8 @@ public final class StatReceiverConfiguration implements DataReceiverGroupConfigu
     private static final String GRPC_STREAM_SCHEDULER_THREAD_SIZE = GRPC_PREFIX + ".stream.scheduler.thread.size";
     private static final String GRPC_CALL_INIT_REQUEST_COUNT = GRPC_PREFIX + ".stream.call.init.request.count";
     private static final String GRPC_STREAM_SCHEDULER_PERIOD_MILLIS = GRPC_PREFIX + ".stream.scheduler.period.millis";
+    private static final String GRPC_STREAM_SCHEDULER_RECOVERY_MESSAGE_COUNT = GRPC_PREFIX + ".stream.scheduler.recovery.message.count";
+
 
     private static final String TCP_ENABLE = PREFIX + ".tcp";
     private static final String TCP_BIND_IP = PREFIX + ".tcp.ip";
@@ -78,6 +80,7 @@ public final class StatReceiverConfiguration implements DataReceiverGroupConfigu
     private final int grpcStreamSchedulerThreadSize;
     private final int grpcStreamCallInitRequestCount;
     private final int grpcStreamSchedulerPeriodMillis;
+    private final int grpcStreamSchedulerRecoveryMessageCount;
     private final ServerOption grpcServerOption;
 
     public StatReceiverConfiguration(Properties properties, DeprecatedConfiguration deprecatedConfiguration) {
@@ -119,6 +122,7 @@ public final class StatReceiverConfiguration implements DataReceiverGroupConfigu
         Assert.isTrue(grpcStreamSchedulerThreadSize > 0, "grpcStreamSchedulerThreadSize must be greater than 0");
         this.grpcStreamSchedulerPeriodMillis = CollectorConfiguration.readInt(properties, GRPC_STREAM_SCHEDULER_PERIOD_MILLIS, 1000);
         this.grpcStreamCallInitRequestCount = CollectorConfiguration.readInt(properties, GRPC_CALL_INIT_REQUEST_COUNT, 64);
+        this.grpcStreamSchedulerRecoveryMessageCount = CollectorConfiguration.readInt(properties, GRPC_STREAM_SCHEDULER_RECOVERY_MESSAGE_COUNT, 10);
 
         // Server option
         final ServerOption.Builder serverOptionBuilder = GrpcPropertiesServerOptionBuilder.newBuilder(properties, GRPC_PREFIX);
@@ -324,6 +328,10 @@ public final class StatReceiverConfiguration implements DataReceiverGroupConfigu
         return grpcStreamSchedulerPeriodMillis;
     }
 
+    public int getGrpcStreamSchedulerRecoveryMessageCount() {
+        return grpcStreamSchedulerRecoveryMessageCount;
+    }
+
     public ServerOption getGrpcServerOption() {
         return grpcServerOption;
     }
@@ -353,6 +361,7 @@ public final class StatReceiverConfiguration implements DataReceiverGroupConfigu
         sb.append(", grpcStreamSchedulerThreadSize=").append(grpcStreamSchedulerThreadSize);
         sb.append(", grpcStreamCallInitRequestCount=").append(grpcStreamCallInitRequestCount);
         sb.append(", grpcStreamSchedulerPeriodMillis=").append(grpcStreamSchedulerPeriodMillis);
+        sb.append(", grpcStreamSchedulerRecoveryMessageCount=").append(grpcStreamSchedulerRecoveryMessageCount);
         sb.append(", grpcServerOption=").append(grpcServerOption);
         sb.append('}');
         return sb.toString();
