@@ -569,6 +569,7 @@
     </bean>
 
     <bean id="grpcStatWorkerExecutor" class="com.navercorp.pinpoint.collector.receiver.thrift.ExecutorFactoryBean" parent="abstractReceiverExecutorFactoryBean">
+        <property name="rejectedExecutionHandler" ref="abortPolicy"/>
         <property name="corePoolSize" value="#{statReceiverConfig.grpcWorkerExecutorThreadSize}"/>
         <property name="maxPoolSize" value="#{statReceiverConfig.grpcWorkerExecutorThreadSize}"/>
         <property name="queueCapacity" value="#{statReceiverConfig.grpcWorkerExecutorQueueSize}"/>
