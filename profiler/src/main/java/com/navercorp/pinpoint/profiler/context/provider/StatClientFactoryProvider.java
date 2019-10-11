@@ -52,6 +52,8 @@ public class StatClientFactoryProvider extends AbstractClientFactoryProvider imp
         PinpointClientFactory pinpointClientFactory = new DefaultPinpointClientFactory(channelFactoryProvider.get(), spanStatConnectTimer.get());
         pinpointClientFactory.setWriteTimeoutMillis(1000 * 3);
         pinpointClientFactory.setRequestTimeoutMillis(1000 * 5);
+        pinpointClientFactory.setConnectTimeout(profilerConfig.getStatDataSenderSocketConnectTimeout());
+        pinpointClientFactory.setReconnectDelay(profilerConfig.getStatDataSenderSocketReconnectInterval());
 
         int writeBufferHighWaterMark = getByteSize(profilerConfig.getStatDataSenderWriteBufferHighWaterMark(), ByteSizeUnit.MEGA_BYTES.toBytesSizeAsInt(16));
         int writeBufferLowWaterMark = getByteSize(profilerConfig.getStatDataSenderWriteBufferLowWaterMark(), ByteSizeUnit.MEGA_BYTES.toBytesSizeAsInt(8));

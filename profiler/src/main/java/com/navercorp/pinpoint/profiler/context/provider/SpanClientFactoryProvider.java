@@ -52,6 +52,8 @@ public class SpanClientFactoryProvider extends AbstractClientFactoryProvider imp
         PinpointClientFactory pinpointClientFactory = new DefaultPinpointClientFactory(channelFactoryProvider.get(), spanStatConnectTimer.get());
         pinpointClientFactory.setWriteTimeoutMillis(1000 * 3);
         pinpointClientFactory.setRequestTimeoutMillis(1000 * 5);
+        pinpointClientFactory.setConnectTimeout(profilerConfig.getSpanDataSenderSocketConnectTimeout());
+        pinpointClientFactory.setReconnectDelay(profilerConfig.getSpanDataSenderSocketReconnectInterval());
 
         int writeBufferHighWaterMark = getByteSize(profilerConfig.getSpanDataSenderWriteBufferHighWaterMark(), ByteSizeUnit.MEGA_BYTES.toBytesSizeAsInt(16));
         int writeBufferLowWaterMark = getByteSize(profilerConfig.getSpanDataSenderWriteBufferLowWaterMark(), ByteSizeUnit.MEGA_BYTES.toBytesSizeAsInt(8));

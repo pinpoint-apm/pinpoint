@@ -112,6 +112,8 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     private int spanDataSenderWriteQueueSize = 1024 * 5;
     private int spanDataSenderSocketSendBufferSize = 1024 * 64 * 16;
     private int spanDataSenderSocketTimeout = 1000 * 3;
+    private int spanDataSenderSocketConnectTimeout = 1000 * 3;
+    private int spanDataSenderSocketReconnectInterval = 1000 * 3;
     private int spanDataSenderChunkSize = 1024 * 16;
     private static String DEFAULT_SPAN_DATA_SENDER_WRITE_BUFFER_HIGH_WATER_MAK = "16m";
     private String spanDataSenderWriteBufferHighWaterMark = DEFAULT_SPAN_DATA_SENDER_WRITE_BUFFER_HIGH_WATER_MAK;
@@ -123,6 +125,8 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     private int statDataSenderWriteQueueSize = 1024 * 5;
     private int statDataSenderSocketSendBufferSize = 1024 * 64 * 16;
     private int statDataSenderSocketTimeout = 1000 * 3;
+    private int statDataSenderSocketConnectTimeout = 1000 * 3;
+    private int statDataSenderSocketReconnectInterval = 1000 * 3;
     private int statDataSenderChunkSize = 1024 * 16;
     private static String DEFAULT_STAT_DATA_SENDER_WRITE_BUFFER_HIGH_WATER_MAK = "16m";
     private String statDataSenderWriteBufferHighWaterMark = DEFAULT_STAT_DATA_SENDER_WRITE_BUFFER_HIGH_WATER_MAK;
@@ -137,6 +141,8 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     private boolean tcpDataSenderCommandActiveThreadDumpEnable = false;
     private boolean tcpDataSenderCommandActiveThreadLightDumpEnable = false;
 
+    private static int DEFAULT_DATA_SENDER_PINPOINT_CLIENT_CONNECT_TIMEOUT = 3 * 1000;
+    private int tcpDataSenderPinpointClientConnectTimeout = DEFAULT_DATA_SENDER_PINPOINT_CLIENT_CONNECT_TIMEOUT;
     private static long DEFAULT_DATA_SENDER_PINPOINT_CLIENT_WRITE_TIMEOUT = 3 * 1000;
     private long tcpDataSenderPinpointClientWriteTimeout = DEFAULT_DATA_SENDER_PINPOINT_CLIENT_WRITE_TIMEOUT;
     private static long DEFAULT_DATA_SENDER_PINPOINT_CLIENT_REQUEST_TIMEOUT = 3 * 1000;
@@ -264,6 +270,16 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     }
 
     @Override
+    public int getStatDataSenderSocketConnectTimeout() {
+        return statDataSenderSocketConnectTimeout;
+    }
+
+    @Override
+    public int getStatDataSenderSocketReconnectInterval() {
+        return statDataSenderSocketReconnectInterval;
+    }
+
+    @Override
     public String getStatDataSenderWriteBufferHighWaterMark() {
         return statDataSenderWriteBufferHighWaterMark;
     }
@@ -316,6 +332,11 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     @Override
     public boolean isTcpDataSenderCommandActiveThreadLightDumpEnable() {
         return tcpDataSenderCommandActiveThreadLightDumpEnable;
+    }
+
+    @Override
+    public int getTcpDataSenderPinpointClientConnectTimeout() {
+        return tcpDataSenderPinpointClientConnectTimeout;
     }
 
     @Override
@@ -381,6 +402,16 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     @Override
     public int getSpanDataSenderSocketTimeout() {
         return spanDataSenderSocketTimeout;
+    }
+
+    @Override
+    public int getSpanDataSenderSocketConnectTimeout() {
+        return spanDataSenderSocketConnectTimeout;
+    }
+
+    @Override
+    public int getSpanDataSenderSocketReconnectInterval() {
+        return spanDataSenderSocketReconnectInterval;
     }
 
     @Override
@@ -611,6 +642,8 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         this.spanDataSenderWriteQueueSize = readInt("profiler.spandatasender.write.queue.size", 1024 * 5);
         this.spanDataSenderSocketSendBufferSize = readInt("profiler.spandatasender.socket.sendbuffersize", 1024 * 64 * 16);
         this.spanDataSenderSocketTimeout = readInt("profiler.spandatasender.socket.timeout", 1000 * 3);
+        this.spanDataSenderSocketConnectTimeout = readInt("profiler.spandatasender.socket.connect.timeout", 1000 * 3);
+        this.spanDataSenderSocketReconnectInterval = readInt("profiler.spandatasender.socket.reconnect.interval", 1000 * 3);
         this.spanDataSenderChunkSize = readInt("profiler.spandatasender.chunk.size", 1024 * 16);
         this.spanDataSenderWriteBufferHighWaterMark = readString("profiler.spandatasender.write.buffer.highwatermark", DEFAULT_SPAN_DATA_SENDER_WRITE_BUFFER_HIGH_WATER_MAK);
         this.spanDataSenderWriteBufferLowWaterMark = readString("profiler.spandatasender.write.buffer.lowwatermark", DEFAULT_SPAN_DATA_SENDER_WRITE_BUFFER_LOW_WATER_MAK);
@@ -620,6 +653,8 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         this.statDataSenderWriteQueueSize = readInt("profiler.statdatasender.write.queue.size", 1024 * 5);
         this.statDataSenderSocketSendBufferSize = readInt("profiler.statdatasender.socket.sendbuffersize", 1024 * 64 * 16);
         this.statDataSenderSocketTimeout = readInt("profiler.statdatasender.socket.timeout", 1000 * 3);
+        this.statDataSenderSocketConnectTimeout = readInt("profiler.statdatasender.socket.connect.timeout", 1000 * 3);
+        this.statDataSenderSocketReconnectInterval = readInt("profiler.statdatasender.socket.reconnect.interval", 1000 * 3);
         this.statDataSenderChunkSize = readInt("profiler.statdatasender.chunk.size", 1024 * 16);
         this.statDataSenderWriteBufferHighWaterMark = readString("profiler.statdatasender.write.buffer.highwatermark", DEFAULT_STAT_DATA_SENDER_WRITE_BUFFER_HIGH_WATER_MAK);
         this.statDataSenderWriteBufferLowWaterMark = readString("profiler.statdatasender.write.buffer.lowwatermark", DEFAULT_STAT_DATA_SENDER_WRITE_BUFFER_LOW_WATER_MAK);
@@ -632,6 +667,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         this.tcpDataSenderCommandActiveThreadDumpEnable = readBoolean("profiler.tcpdatasender.command.activethread.threaddump.enable", false);
         this.tcpDataSenderCommandActiveThreadLightDumpEnable = readBoolean("profiler.tcpdatasender.command.activethread.threadlightdump.enable", false);
 
+        this.tcpDataSenderPinpointClientConnectTimeout = readInt("profiler.tcpdatasender.client.connect.timeout", DEFAULT_DATA_SENDER_PINPOINT_CLIENT_CONNECT_TIMEOUT);
         this.tcpDataSenderPinpointClientWriteTimeout = readLong("profiler.tcpdatasender.client.write.timeout", DEFAULT_DATA_SENDER_PINPOINT_CLIENT_WRITE_TIMEOUT);
         this.tcpDataSenderPinpointClientRequestTimeout = readLong("profiler.tcpdatasender.client.request.timeout", DEFAULT_DATA_SENDER_PINPOINT_CLIENT_REQUEST_TIMEOUT);
         this.tcpDataSenderPinpointClientReconnectInterval = readLong("profiler.tcpdatasender.client.reconnect.interval", DEFAULT_DATA_SENDER_PINPOINT_CLIENT_RECONNECT_INTERVAL);
@@ -831,6 +867,8 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         sb.append(", spanDataSenderWriteQueueSize=").append(spanDataSenderWriteQueueSize);
         sb.append(", spanDataSenderSocketSendBufferSize=").append(spanDataSenderSocketSendBufferSize);
         sb.append(", spanDataSenderSocketTimeout=").append(spanDataSenderSocketTimeout);
+        sb.append(", spanDataSenderSocketConnectTimeout=").append(spanDataSenderSocketConnectTimeout);
+        sb.append(", spanDataSenderSocketReconnectInterval=").append(spanDataSenderSocketReconnectInterval);
         sb.append(", spanDataSenderChunkSize=").append(spanDataSenderChunkSize);
         sb.append(", spanDataSenderWriteBufferHighWaterMark='").append(spanDataSenderWriteBufferHighWaterMark).append('\'');
         sb.append(", spanDataSenderWriteBufferLowWaterMark='").append(spanDataSenderWriteBufferLowWaterMark).append('\'');
@@ -839,6 +877,8 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         sb.append(", statDataSenderWriteQueueSize=").append(statDataSenderWriteQueueSize);
         sb.append(", statDataSenderSocketSendBufferSize=").append(statDataSenderSocketSendBufferSize);
         sb.append(", statDataSenderSocketTimeout=").append(statDataSenderSocketTimeout);
+        sb.append(", statDataSenderSocketConnectTimeout=").append(statDataSenderSocketConnectTimeout);
+        sb.append(", statDataSenderSocketReconnectInterval=").append(statDataSenderSocketReconnectInterval);
         sb.append(", statDataSenderChunkSize=").append(statDataSenderChunkSize);
         sb.append(", statDataSenderWriteBufferHighWaterMark='").append(statDataSenderWriteBufferHighWaterMark).append('\'');
         sb.append(", statDataSenderWriteBufferLowWaterMark='").append(statDataSenderWriteBufferLowWaterMark).append('\'');
@@ -849,6 +889,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         sb.append(", tcpDataSenderCommandActiveThreadCountEnable=").append(tcpDataSenderCommandActiveThreadCountEnable);
         sb.append(", tcpDataSenderCommandActiveThreadDumpEnable=").append(tcpDataSenderCommandActiveThreadDumpEnable);
         sb.append(", tcpDataSenderCommandActiveThreadLightDumpEnable=").append(tcpDataSenderCommandActiveThreadLightDumpEnable);
+        sb.append(", tcpDataSenderPinpointClientConnectTimeout=").append(tcpDataSenderPinpointClientConnectTimeout);
         sb.append(", tcpDataSenderPinpointClientWriteTimeout=").append(tcpDataSenderPinpointClientWriteTimeout);
         sb.append(", tcpDataSenderPinpointClientRequestTimeout=").append(tcpDataSenderPinpointClientRequestTimeout);
         sb.append(", tcpDataSenderPinpointClientReconnectInterval=").append(tcpDataSenderPinpointClientReconnectInterval);

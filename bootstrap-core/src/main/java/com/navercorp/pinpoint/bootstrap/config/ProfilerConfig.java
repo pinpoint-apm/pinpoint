@@ -47,6 +47,10 @@ public interface ProfilerConfig {
 
     int getStatDataSenderSocketTimeout();
 
+    int getStatDataSenderSocketConnectTimeout();
+
+    int getStatDataSenderSocketReconnectInterval();
+
     String getStatDataSenderSocketType();
 
     String getStatDataSenderTransportType();
@@ -68,6 +72,8 @@ public interface ProfilerConfig {
     boolean isTcpDataSenderCommandActiveThreadDumpEnable();
 
     boolean isTcpDataSenderCommandActiveThreadLightDumpEnable();
+
+    int getTcpDataSenderPinpointClientConnectTimeout();
 
     long getTcpDataSenderPinpointClientWriteTimeout();
 
@@ -94,6 +100,10 @@ public interface ProfilerConfig {
     long getDeadlockMonitorInterval();
 
     int getSpanDataSenderSocketTimeout();
+
+    int getSpanDataSenderSocketConnectTimeout();
+
+    int getSpanDataSenderSocketReconnectInterval();
 
     String getSpanDataSenderSocketType();
 

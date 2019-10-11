@@ -62,6 +62,7 @@ public class PinpointClientFactoryProvider extends AbstractClientFactoryProvider
 
     public PinpointClientFactory get() {
         PinpointClientFactory pinpointClientFactory = new DefaultPinpointClientFactory(connectionFactoryProvider.get());
+        pinpointClientFactory.setConnectTimeout(profilerConfig.getTcpDataSenderPinpointClientConnectTimeout());
         pinpointClientFactory.setWriteTimeoutMillis(profilerConfig.getTcpDataSenderPinpointClientWriteTimeout());
         pinpointClientFactory.setRequestTimeoutMillis(profilerConfig.getTcpDataSenderPinpointClientRequestTimeout());
         pinpointClientFactory.setReconnectDelay(profilerConfig.getTcpDataSenderPinpointClientReconnectInterval());
