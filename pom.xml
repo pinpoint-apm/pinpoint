@@ -140,6 +140,12 @@
         <plugin.animal-sniffer.version>1.17</plugin.animal-sniffer.version>
 
         <sniffer.artifactid>java16</sniffer.artifactid>
+
+        <!-- frontend-plugin -->
+        <plugin.frontend.version>1.8.0</plugin.frontend.version>
+        <plugin.frontend.node.version>v10.16.3</plugin.frontend.node.version>
+        <plugin.frontend.npm.version>6.9.0</plugin.frontend.npm.version>
+        <plugin.frontend.node.install.dir>/node_install/node-${plugin.frontend.node.version}</plugin.frontend.node.install.dir>
     </properties>
 
     <dependencies>

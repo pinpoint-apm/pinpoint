@@ -1,5 +1,5 @@
 <!--
-  ~ Copyright 2018 NAVER Corp.
+  ~ Copyright 2019 NAVER Corp.
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -33,11 +33,6 @@
         <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
         <sniffer.artifactid>java18</sniffer.artifactid>
         <grunt.build.command>build_release_without_lint</grunt.build.command>
-
-        <plugin.frontend.verison>1.6</plugin.frontend.verison>
-        <plugin.frontend.node.verison>v10.15.0</plugin.frontend.node.verison>
-        <plugin.frontend.npm.verison>6.1.0</plugin.frontend.npm.verison>
-        <plugin.frontend.node.install.dir>${basedir}/node_install/node-${plugin.frontend.node.verison}</plugin.frontend.node.install.dir>
     </properties>
 
     <dependencies>
@@ -403,11 +398,11 @@
             <plugin>
                 <groupId>com.github.eirslett</groupId>
                 <artifactId>frontend-maven-plugin</artifactId>
-                <version>${plugin.frontend.verison}</version>
+                <version>${plugin.frontend.version}</version>
                 <configuration>
                     <srcdir>${basedir}/target/main/webapp</srcdir>
                     <outputdir>${basedir}/target/main/webapp</outputdir>
-                    <installDirectory>${plugin.frontend.node.install.dir}</installDirectory>
+                    <installDirectory>${project.parent.basedir}/${plugin.frontend.node.install.dir}</installDirectory>
                 </configuration>
                 <executions>
                     <execution>
@@ -417,8 +412,8 @@
                             <goal>install-node-and-npm</goal>
                         </goals>
                         <configuration>
-                            <nodeVersion>${plugin.frontend.node.verison}</nodeVersion>
-                            <npmVersion>${plugin.frontend.npm.verison}</npmVersion>
+                            <nodeVersion>${plugin.frontend.node.version}</nodeVersion>
+                            <npmVersion>${plugin.frontend.npm.version}</npmVersion>
                             <workingDirectory>${basedir}/target</workingDirectory>
                         </configuration>
                     </execution>
@@ -492,9 +487,9 @@
                     <plugin>
                         <groupId>com.github.eirslett</groupId>
                         <artifactId>frontend-maven-plugin</artifactId>
-                        <version>${plugin.frontend.verison}</version>
+                        <version>${plugin.frontend.version}</version>
                         <configuration>
-                            <installDirectory>${plugin.frontend.node.install.dir}</installDirectory>
+                            <installDirectory>${project.parent.basedir}/${plugin.frontend.node.install.dir}</installDirectory>
                         </configuration>
                         <executions>
                             <execution>
@@ -504,8 +499,8 @@
                                     <goal>install-node-and-npm</goal>
                                 </goals>
                                 <configuration>
-                                    <nodeVersion>${plugin.frontend.node.verison}</nodeVersion>
-                                    <npmVersion>${plugin.frontend.npm.verison}</npmVersion>
+                                    <nodeVersion>${plugin.frontend.node.version}</nodeVersion>
+                                    <npmVersion>${plugin.frontend.npm.version}</npmVersion>
                                     <workingDirectory>${basedir}/target/main/webapp/v2</workingDirectory>
                                 </configuration>
                             </execution>
