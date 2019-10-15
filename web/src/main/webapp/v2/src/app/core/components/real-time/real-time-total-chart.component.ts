@@ -23,10 +23,10 @@ export class RealTimeTotalChartComponent implements OnInit {
         canvasBottomPadding: 0,
         chartInnerPadding: 15,
         containerWidth: 277,
-        containerHeight: 132,
+        containerHeight: 144,
         chartWidth: 159,
-        chartHeight: 102,
-        titleHeight: 46,
+        chartHeight: 114,
+        titleHeight: 34,
         gapBtnChart: 0,
         chartColors: ['#33b692', '#51afdf', '#fea63e', '#e76f4b'],
         chartLabels: ['1s', '3s', '5s', 'Slow'],
@@ -41,7 +41,7 @@ export class RealTimeTotalChartComponent implements OnInit {
         marginFromYAxis: 5, // Space between y axis and y labels
         marginFromLegend: 10,
         tooltipEnabled: true,
-        titleFontSize: '15px',
+        titleFontSize: '13px',
         errorFontSize: '15px',
         duration: 4000,
     };
@@ -54,7 +54,7 @@ export class RealTimeTotalChartComponent implements OnInit {
 
         return {
             left: `${containerWidth - chartInnerPadding - legendWidth}px`,
-            top: `${titleHeight + chartInnerPadding - 12}px`
+            top: `${titleHeight + chartInnerPadding - 5}px`
         };
     }
 

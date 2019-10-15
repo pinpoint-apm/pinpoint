@@ -48,16 +48,16 @@
 .l-chart-group-wrap {
     display: flex;
     flex-flow: row wrap;
-    padding: 20px 10px 20px 25px;
+    padding: 5px 10px 5px 5px;
     height: calc(100% - 34px);
 }
 .l-total-chart {
     width: 277px;
     height: 178px;
-    margin-right: 20px;
+    margin-right: 5px;
 }
 .l-agent-chart {
-    width: calc(100% - 297px);
+    width: calc(100% - 282px);
     height: 100%;
     outline: none;
 }

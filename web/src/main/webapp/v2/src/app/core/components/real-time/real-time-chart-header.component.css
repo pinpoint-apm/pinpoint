@@ -3,9 +3,9 @@
     width: 100%;
     background-color: #74879a;
     color: #FFF;
-    font-size: 15px;
+    font-size: 14px;
     margin: 0px 0px 5px 0px;
-    padding: 11px;
+    padding: 5px 5px 5px 13px;
     align-items: center;
 }
 
@@ -15,7 +15,7 @@
 
 .l-txt-bold {
     font-weight: bolder;
-    font-size: 18px;
+    font-size: 16px;
     margin-right: 2px;
 }
 
