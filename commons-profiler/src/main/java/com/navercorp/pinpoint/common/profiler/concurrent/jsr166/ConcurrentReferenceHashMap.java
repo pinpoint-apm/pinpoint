@@ -7,8 +7,8 @@
 /* copy from jsr166y
  * http://anonsvn.jboss.org/repos/jbosscache/experimental/jsr166/src/jsr166y/ConcurrentReferenceHashMap.java
  * package jsr166y;
-*/
-package com.navercorp.pinpoint.common.util.jsr166;
+ */
+package com.navercorp.pinpoint.common.profiler.concurrent.jsr166;
 
 import java.io.IOException;
 import java.io.Serializable;

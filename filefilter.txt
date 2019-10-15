@@ -5,6 +5,6 @@
 * default
 - \com\navercorp\pinpoint\thrift\dto
 - \com\navercorp\pinpoint\common\util\apache
-- \com\navercorp\pinpoint\common\util\jsr166
+- \com\navercorp\pinpoint\common\profiler\util\jsr166
 - \com\navercorp\pinpoint\profiler\util\jdk
 - \com\navercorp\pinpoint\bootstrap\util\spring

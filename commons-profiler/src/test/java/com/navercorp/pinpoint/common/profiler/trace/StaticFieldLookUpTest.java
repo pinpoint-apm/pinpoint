@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.common.util;
+package com.navercorp.pinpoint.common.profiler.trace;
 
 import java.util.List;
 
@@ -22,7 +22,6 @@ import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.navercorp.pinpoint.common.trace.AnnotationKeyMatchers;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
 public class StaticFieldLookUpTest {

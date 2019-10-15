@@ -27,7 +27,6 @@ import com.navercorp.pinpoint.common.trace.ServiceTypeInfo;
 import com.navercorp.pinpoint.common.trace.ServiceTypeProperty;
 import com.navercorp.pinpoint.common.trace.TraceMetadataProvider;
 import com.navercorp.pinpoint.common.trace.TraceMetadataSetupContext;
-import com.navercorp.pinpoint.common.util.StaticFieldLookUp;
 import com.navercorp.pinpoint.common.util.logger.CommonLoggerFactory;
 import com.navercorp.pinpoint.common.util.logger.StdoutCommonLoggerFactory;
 import org.junit.Assert;
