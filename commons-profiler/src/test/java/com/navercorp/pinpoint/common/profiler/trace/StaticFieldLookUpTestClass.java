@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.common.util;
+package com.navercorp.pinpoint.common.profiler.trace;
 
 /**
  * @author Woonduk Kang(emeroad)

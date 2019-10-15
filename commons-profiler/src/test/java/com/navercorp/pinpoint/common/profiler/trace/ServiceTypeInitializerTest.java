@@ -21,7 +21,6 @@ import static org.junit.Assert.*;
 import java.util.Arrays;
 import java.util.List;
 
-import com.navercorp.pinpoint.common.profiler.trace.TraceMetadataLoader;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.AnnotationKeyFactory;
 import com.navercorp.pinpoint.common.trace.AnnotationKeyLocator;
@@ -31,7 +30,6 @@ import com.navercorp.pinpoint.common.trace.ServiceTypeLocator;
 import com.navercorp.pinpoint.common.trace.TraceMetadataProvider;
 import com.navercorp.pinpoint.common.trace.TraceMetadataSetupContext;
 import com.navercorp.pinpoint.common.util.logger.CommonLoggerFactory;
-import com.navercorp.pinpoint.common.util.StaticFieldLookUp;
 import com.navercorp.pinpoint.common.util.logger.StdoutCommonLoggerFactory;
 import org.junit.Test;
 
