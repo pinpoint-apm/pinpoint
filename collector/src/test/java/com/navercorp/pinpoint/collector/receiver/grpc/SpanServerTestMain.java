@@ -70,6 +70,8 @@ public class SpanServerTestMain {
 
     private ServerServiceDefinition newSpanBindableService(Executor executor) throws Exception {
         FactoryBean<ServerInterceptor> interceptorFactory = new StreamExecutorServerInterceptorFactory(executor, 100, Executors.newSingleThreadScheduledExecutor(), 1000, 10);
+        ((StreamExecutorServerInterceptorFactory) interceptorFactory).setBeanName("SpanService");
+
         ServerInterceptor interceptor = interceptorFactory.getObject();
         SpanService spanService = new SpanService(new MockDispatchHandler());
         return ServerInterceptors.intercept(spanService, interceptor);
