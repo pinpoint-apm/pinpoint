@@ -57,7 +57,7 @@ public abstract class AbstractServerServiceFactory implements FactoryBean<Server
         // WARNING singleton
         // final ServerInterceptor interceptor = FactoryBean<ServerInterceptor>.getObject();
         final ServerInterceptor interceptor = serverInterceptor;
-        if (interceptor != null) {
+        if (interceptor == null) {
             return newServerServiceDefinition();
         }
         final ServerServiceDefinition spanService = newServerServiceDefinition();
