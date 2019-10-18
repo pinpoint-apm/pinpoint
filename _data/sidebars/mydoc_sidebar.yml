@@ -125,6 +125,10 @@ entries:
     url: /videos.html
     output: link
 
+  - title: Performance Analysis
+    url: /performance.html
+    output: link
+
   - title: Live Demo
     external_url: http://125.209.240.10:10123
     output: link
