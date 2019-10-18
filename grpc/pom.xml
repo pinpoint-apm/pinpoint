@@ -30,7 +30,6 @@
     <properties>
         <grpc.version>1.14.0</grpc.version>
         <protoc.version>3.5.1-1</protoc.version>
-        <netty.version>4.1.42.Final</netty.version>
     </properties>
 
 
@@ -104,14 +103,14 @@
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-handler</artifactId>
-            <version>${netty.version}</version>
+            <version>${netty4.version}</version>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/io.netty/netty-codec-http2 -->
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-codec-http2</artifactId>
-            <version>${netty.version}</version>
+            <version>${netty4.version}</version>
         </dependency>
 
         <dependency>
