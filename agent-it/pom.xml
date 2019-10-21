@@ -401,7 +401,7 @@
             <groupId>io.netty</groupId>
             <artifactId>netty-all</artifactId>
             <!-- Use 'netty-all' for 4.0 or above -->
-            <version>4.1.28.Final</version>
+            <version>${netty4.version}</version>
             <scope>test</scope>
         </dependency>
         <!-- log4j2 -->
