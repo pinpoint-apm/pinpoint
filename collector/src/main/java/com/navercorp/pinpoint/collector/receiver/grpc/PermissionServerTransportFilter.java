@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.collector.receiver.grpc;
 
 import com.navercorp.pinpoint.common.server.util.AddressFilter;
+import com.navercorp.pinpoint.common.util.Assert;
 import io.grpc.Attributes;
 import io.grpc.Grpc;
 import io.grpc.ServerTransportFilter;
@@ -34,10 +35,12 @@ import java.util.Objects;
 public class PermissionServerTransportFilter extends ServerTransportFilter {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    private final String debugString;
     private final AddressFilter addressFilter;
 
-    public PermissionServerTransportFilter(final AddressFilter addressFilter) {
-        this.addressFilter = Objects.requireNonNull(addressFilter, "addressFilter must not be null");
+    public PermissionServerTransportFilter(String debugString, final AddressFilter addressFilter) {
+        this.debugString = Assert.requireNonNull(debugString, "debugString");
+        this.addressFilter = Objects.requireNonNull(addressFilter, "addressFilter");
     }
 
     @Override
@@ -49,7 +52,7 @@ public class PermissionServerTransportFilter extends ServerTransportFilter {
         final InetSocketAddress remoteSocketAddress = (InetSocketAddress) attributes.get(Grpc.TRANSPORT_ATTR_REMOTE_ADDR);
         if (remoteSocketAddress == null) {
             // Unauthenticated
-            logger.debug("Unauthenticated transport. TRANSPORT_ATTR_REMOTE_ADDR must not be null");
+            logger.warn("Unauthenticated transport. TRANSPORT_ATTR_REMOTE_ADDR must not be null");
             throw Status.INTERNAL.withDescription("RemoteAddress is null").asRuntimeException();
         }
 
@@ -68,5 +71,14 @@ public class PermissionServerTransportFilter extends ServerTransportFilter {
         if (logger.isDebugEnabled()) {
             logger.debug("Terminated attributes={}", transportAttrs);
         }
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("PermissionServerTransportFilter{");
+        sb.append("debugString='").append(debugString).append('\'');
+        sb.append(", addressFilter=").append(addressFilter);
+        sb.append('}');
+        return sb.toString();
     }
 }

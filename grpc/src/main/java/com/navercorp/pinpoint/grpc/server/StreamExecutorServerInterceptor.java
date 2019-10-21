@@ -61,8 +61,8 @@ public class StreamExecutorServerInterceptor implements ServerInterceptor {
     public <ReqT, RespT> ServerCall.Listener<ReqT> interceptCall(final ServerCall<ReqT, RespT> call, Metadata headers, ServerCallHandler<ReqT, RespT> next) {
         final StreamExecutorRejectedExecutionRequestScheduler.Listener scheduleListener = this.scheduler.schedule(call);
         if (logger.isInfoEnabled()) {
-            logger.info("{} Initialize schedule listener, executor={}, initNumMessages={}, scheduler={}, listener={}",
-                    this.name, executor, initNumMessages, scheduler, scheduleListener);
+            logger.info("Initialize schedule listener. {} {}, headers={}, initNumMessages={}, scheduler={}, listener={}",
+                    this.name, call.getMethodDescriptor().getFullMethodName(), headers, initNumMessages, scheduler, scheduleListener);
         }
 
         final ServerCall.Listener<ReqT> listener = next.startCall(call, headers);

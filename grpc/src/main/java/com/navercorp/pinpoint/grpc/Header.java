@@ -46,8 +46,8 @@ public class Header {
     private final long socketId;
 
     public Header(String agentId, String applicationName, long agentStartTime, long socketId) {
-        this.agentId = Assert.requireNonNull(agentId, "agentId must not be null");
-        this.applicationName = Assert.requireNonNull(applicationName, "applicationName must not be null");
+        this.agentId = Assert.requireNonNull(agentId, "agentId");
+        this.applicationName = Assert.requireNonNull(applicationName, "applicationName");
         this.agentStartTime = agentStartTime;
         this.socketId = socketId;
     }

@@ -81,7 +81,7 @@ public class GrpcReceiver implements InitializingBean, DisposableBean, BeanNameA
         Assert.requireNonNull(this.serverOption, "serverOption must not be null");
 
         this.serverFactory = new ServerFactory(beanName, this.bindIp, this.bindPort, this.executor, serverOption);
-        ServerTransportFilter permissionServerTransportFilter = new PermissionServerTransportFilter(addressFilter);
+        ServerTransportFilter permissionServerTransportFilter = new PermissionServerTransportFilter(this.beanName, addressFilter);
         this.serverFactory.addTransportFilter(permissionServerTransportFilter);
 
         TransportMetadataFactory transportMetadataFactory = new TransportMetadataFactory(beanName);

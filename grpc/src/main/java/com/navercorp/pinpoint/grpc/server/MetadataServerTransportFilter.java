@@ -30,15 +30,15 @@ public class MetadataServerTransportFilter extends ServerTransportFilter {
     private final TransportMetadataFactory transportMetadataFactory;
 
     public MetadataServerTransportFilter(TransportMetadataFactory transportMetadataFactory) {
-        this.transportMetadataFactory = Assert.requireNonNull(transportMetadataFactory, "transportMetadataFactory must not be null");
+        this.transportMetadataFactory = Assert.requireNonNull(transportMetadataFactory, "transportMetadataFactory");
     }
 
     @Override
     public Attributes transportReady(Attributes attributes) {
-        if (logger.isDebugEnabled()) {
-            logger.debug("transportReady attributes={}", attributes);
-        }
         final TransportMetadata transportMetadata = transportMetadataFactory.build(attributes);
+        if (logger.isDebugEnabled()) {
+            logger.debug("transportReady transportMetadata={}", transportMetadata);
+        }
 
         Attributes.Builder builder = attributes.toBuilder();
         builder.set(TRANSPORT_METADATA_KEY, transportMetadata);
@@ -51,5 +51,13 @@ public class MetadataServerTransportFilter extends ServerTransportFilter {
         if (logger.isDebugEnabled()) {
             logger.debug("transportTerminated attributes={}", transportAttrs);
         }
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("MetadataServerTransportFilter{");
+        sb.append("transportMetadataFactory=").append(transportMetadataFactory);
+        sb.append('}');
+        return sb.toString();
     }
 }
