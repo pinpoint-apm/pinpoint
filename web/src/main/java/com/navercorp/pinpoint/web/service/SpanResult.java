@@ -30,8 +30,8 @@ public class SpanResult {
     private final CallTreeIterator callTreeIterator;
 
     public SpanResult(TraceState.State traceState, CallTreeIterator callTreeIterator) {
-        this.traceState = Objects.requireNonNull(traceState, "traceState must not be null");
-        this.callTreeIterator = Objects.requireNonNull(callTreeIterator, "callTreeIterator must not be null");
+        this.traceState = Objects.requireNonNull(traceState, "traceState");
+        this.callTreeIterator = Objects.requireNonNull(callTreeIterator, "callTreeIterator");
     }
 
     public TraceState.State getTraceState() {

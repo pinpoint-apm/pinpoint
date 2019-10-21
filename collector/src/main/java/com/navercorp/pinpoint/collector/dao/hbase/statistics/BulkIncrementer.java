@@ -36,7 +36,7 @@ public class BulkIncrementer {
     private final AtomicLongMap<RowInfo> counter = AtomicLongMap.create();
 
     public BulkIncrementer(RowKeyMerge rowKeyMerge) {
-        this.rowKeyMerge = Objects.requireNonNull(rowKeyMerge, "rowKeyMerge must not be null");
+        this.rowKeyMerge = Objects.requireNonNull(rowKeyMerge, "rowKeyMerge");
     }
 
     public void increment(TableName tableName, RowKey rowKey, ColumnName columnName) {

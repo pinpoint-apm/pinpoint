@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.collector.receiver.grpc;
 
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamClosePacket;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamCode;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamResponsePacket;
@@ -37,6 +36,7 @@ import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -53,8 +53,8 @@ public class GrpcClientStreamChannel extends AbstractStreamChannel implements Cl
 
     public GrpcClientStreamChannel(InetSocketAddress remoteAddress, int streamId, StreamChannelRepository streamChannelRepository, ClientStreamChannelEventHandler streamChannelEventHandler) {
         super(streamId, streamChannelRepository);
-        this.remoteAddress = Assert.requireNonNull(remoteAddress, "remoteAddress must not be null");
-        this.streamChannelEventHandler = Assert.requireNonNull(streamChannelEventHandler, "streamChannelEventHandler must not be null");
+        this.remoteAddress = Objects.requireNonNull(remoteAddress, "remoteAddress");
+        this.streamChannelEventHandler = Objects.requireNonNull(streamChannelEventHandler, "streamChannelEventHandler");
     }
 
     public void connect(Runnable connectRunnable, long timeout) throws StreamException {

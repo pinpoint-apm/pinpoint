@@ -50,7 +50,7 @@ public class GrpcCommandDispatcher {
     }
 
     public GrpcCommandDispatcher(ProfilerCommandServiceGrpc.ProfilerCommandServiceStub profilerCommandServiceStub, ActiveTraceRepository activeTraceRepository) {
-        Assert.requireNonNull(profilerCommandServiceStub, "profilerCommandServiceStub must not be null");
+        Assert.requireNonNull(profilerCommandServiceStub, "profilerCommandServiceStub");
 
         ProfilerCommandLocatorBuilder profilerCommandLocatorBuilder = new ProfilerCommandLocatorBuilder();
         profilerCommandLocatorBuilder.addService(new GrpcEchoService(profilerCommandServiceStub));

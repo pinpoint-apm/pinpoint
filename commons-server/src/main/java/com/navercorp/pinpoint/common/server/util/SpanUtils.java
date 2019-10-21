@@ -42,14 +42,14 @@ public final class SpanUtils {
 
     public static byte[] getApplicationTraceIndexRowKey(byte[] applicationName, long timestamp) {
         if (applicationName == null) {
-            throw new NullPointerException("applicationName must not be null");
+            throw new NullPointerException("applicationName");
         }
         return RowKeyUtils.concatFixedByteAndLong(applicationName, APPLICATION_NAME_MAX_LEN, TimeUtils.reverseTimeMillis(timestamp));
     }
 
     public static byte[] getVarTransactionId(SpanBo span) {
         if (span == null) {
-            throw new NullPointerException("span must not be null");
+            throw new NullPointerException("span");
         }
 
         final TransactionId transactionId = span.getTransactionId();

@@ -34,7 +34,7 @@ public class SpanProcessorProvider implements Provider<SpanProcessor<TSpan, TSpa
 
     @Inject
     public SpanProcessorProvider(TraceDataFormatVersion version) {
-        this.version = Assert.requireNonNull(version, "version must not be null");
+        this.version = Assert.requireNonNull(version, "version");
     }
 
     @Override

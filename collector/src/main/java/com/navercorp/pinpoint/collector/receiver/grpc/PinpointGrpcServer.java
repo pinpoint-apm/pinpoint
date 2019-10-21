@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.collector.receiver.grpc;
 
 import com.navercorp.pinpoint.collector.cluster.AgentInfo;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
 import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadCount;
 import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadDump;
@@ -56,6 +55,7 @@ import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -80,10 +80,10 @@ public class PinpointGrpcServer {
     private final StreamObserver<PCmdRequest> requestObserver;
 
     public PinpointGrpcServer(InetSocketAddress remoteAddress, AgentInfo agentInfo, RequestManager requestManager, StreamObserver<PCmdRequest> requestObserver) {
-        this.remoteAddress = Assert.requireNonNull(remoteAddress, "remoteAddress");
-        this.agentInfo = Assert.requireNonNull(agentInfo, "agentInfo");
-        this.requestManager = Assert.requireNonNull(requestManager, "requestManager");
-        this.requestObserver = Assert.requireNonNull(requestObserver, "requestObserver");
+        this.remoteAddress = Objects.requireNonNull(remoteAddress, "remoteAddress");
+        this.agentInfo = Objects.requireNonNull(agentInfo, "agentInfo");
+        this.requestManager = Objects.requireNonNull(requestManager, "requestManager");
+        this.requestObserver = Objects.requireNonNull(requestObserver, "requestObserver");
     }
 
     public void connected() {

@@ -55,11 +55,11 @@ public class ClassFileTransformerProvider implements Provider<ClassFileTransform
     @Inject
     public ClassFileTransformerProvider(ProfilerConfig profilerConfig, InstrumentEngine instrumentEngine, PluginContextLoadResult pluginContextLoadResult,
                                         DynamicTransformTrigger dynamicTransformTrigger, DynamicTransformerRegistry dynamicTransformerRegistry) {
-        this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig must not be null");
-        this.instrumentEngine = Assert.requireNonNull(instrumentEngine, "instrumentEngine must not be null");
-        this.pluginContextLoadResult = Assert.requireNonNull(pluginContextLoadResult, "pluginContextLoadResult must not be null");
-        this.dynamicTransformTrigger = Assert.requireNonNull(dynamicTransformTrigger, "dynamicTransformTrigger must not be null");
-        this.dynamicTransformerRegistry = Assert.requireNonNull(dynamicTransformerRegistry, "dynamicTransformerRegistry must not be null");
+        this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig");
+        this.instrumentEngine = Assert.requireNonNull(instrumentEngine, "instrumentEngine");
+        this.pluginContextLoadResult = Assert.requireNonNull(pluginContextLoadResult, "pluginContextLoadResult");
+        this.dynamicTransformTrigger = Assert.requireNonNull(dynamicTransformTrigger, "dynamicTransformTrigger");
+        this.dynamicTransformerRegistry = Assert.requireNonNull(dynamicTransformerRegistry, "dynamicTransformerRegistry");
     }
 
     @Override
@@ -89,8 +89,8 @@ public class ClassFileTransformerProvider implements Provider<ClassFileTransform
     }
 
     private TransformerRegistry setupTransformerRegistry(BaseTransformerRegistry registry, PluginContextLoadResult pluginContexts) {
-        Assert.requireNonNull(registry, "registry must not be null");
-        Assert.requireNonNull(pluginContexts, "pluginContexts must not be null");
+        Assert.requireNonNull(registry, "registry");
+        Assert.requireNonNull(pluginContexts, "pluginContexts");
 
         for (ClassFileTransformer transformer : pluginContexts.getClassFileTransformer()) {
             if (transformer instanceof MatchableClassFileTransformer) {

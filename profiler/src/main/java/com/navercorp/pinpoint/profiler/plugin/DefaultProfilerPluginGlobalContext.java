@@ -31,10 +31,10 @@ public class DefaultProfilerPluginGlobalContext implements ProfilerPluginGlobalC
 
     public DefaultProfilerPluginGlobalContext(ProfilerConfig profilerConfig, ServiceType configuredApplicationType) {
         if (profilerConfig == null) {
-            throw new NullPointerException("profilerConfig must not be null");
+            throw new NullPointerException("profilerConfig");
         }
         if (configuredApplicationType == null) {
-            throw new NullPointerException("configuredApplicationType must not be null");
+            throw new NullPointerException("configuredApplicationType");
         }
         this.profilerConfig = profilerConfig;
         this.configuredApplicationType = configuredApplicationType;
@@ -58,7 +58,7 @@ public class DefaultProfilerPluginGlobalContext implements ProfilerPluginGlobalC
     @Override
     public boolean registerApplicationType(ServiceType applicationType) {
         if (applicationType == null) {
-            throw new NullPointerException("applicationType must not be null");
+            throw new NullPointerException("applicationType");
         }
         if (this.applicationType == null) {
             this.applicationType = applicationType;

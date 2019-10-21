@@ -42,7 +42,7 @@ public class ModuleSupport {
 
     ModuleSupport(Instrumentation instrumentation) {
         if (instrumentation == null) {
-            throw new NullPointerException("instrumentation must not be null");
+            throw new NullPointerException("instrumentation");
         }
         this.instrumentation = instrumentation;
         this.javaBaseModule = wrapJavaModule(Object.class);

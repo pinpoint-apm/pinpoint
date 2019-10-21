@@ -47,15 +47,15 @@ public class DefaultClassFileTransformerDispatcher implements ClassFileTransform
                                                  DynamicTransformerRegistry dynamicTransformerRegistry, LambdaClassFileResolver lambdaClassFileResolver) {
 
         this.baseClassFileTransformer = new BaseClassFileTransformer(this.getClass().getClassLoader());
-        this.debugTransformerRegistry = Assert.requireNonNull(debugTransformerRegistry, "debugTransformerRegistry must not be null");
+        this.debugTransformerRegistry = Assert.requireNonNull(debugTransformerRegistry, "debugTransformerRegistry");
 
         this.classLoaderFilter = new PinpointClassLoaderFilter(this.getClass().getClassLoader());
         this.pinpointClassFilter = new PinpointClassFilter();
         this.unmodifiableFilter = new UnmodifiableClassFilter();
 
-        this.transformerRegistry = Assert.requireNonNull(transformerRegistry, "transformerRegistry must not be null");
-        this.dynamicTransformerRegistry = Assert.requireNonNull(dynamicTransformerRegistry, "dynamicTransformerRegistry must not be null");
-        this.lambdaClassFileResolver = Assert.requireNonNull(lambdaClassFileResolver, "lambdaClassFileResolver must not be null");
+        this.transformerRegistry = Assert.requireNonNull(transformerRegistry, "transformerRegistry");
+        this.dynamicTransformerRegistry = Assert.requireNonNull(dynamicTransformerRegistry, "dynamicTransformerRegistry");
+        this.lambdaClassFileResolver = Assert.requireNonNull(lambdaClassFileResolver, "lambdaClassFileResolver");
     }
 
     @Override

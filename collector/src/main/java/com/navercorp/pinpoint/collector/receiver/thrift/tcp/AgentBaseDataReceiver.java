@@ -23,7 +23,6 @@ import com.navercorp.pinpoint.collector.config.AgentBaseDataReceiverConfiguratio
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.collector.service.async.AgentEventAsyncTaskService;
 import com.navercorp.pinpoint.collector.service.async.AgentLifeCycleAsyncTaskService;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.rpc.server.ChannelPropertiesFactory;
 import com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor;
 import com.navercorp.pinpoint.rpc.server.ServerMessageListenerFactory;
@@ -82,17 +81,17 @@ public class AgentBaseDataReceiver {
     }
 
     public AgentBaseDataReceiver(AgentBaseDataReceiverConfiguration configuration, Executor executor, PinpointServerAcceptor acceptor, TCPPacketHandlerFactory tcpPacketHandlerFactory, DispatchHandler dispatchHandler, ZookeeperClusterService service) {
-        this.configuration = Assert.requireNonNull(configuration, "config must not be null");
-        this.executor = Objects.requireNonNull(executor, "executor must not be null");
-        this.acceptor = Objects.requireNonNull(acceptor, "acceptor must not be null");
+        this.configuration = Objects.requireNonNull(configuration, "config");
+        this.executor = Objects.requireNonNull(executor, "executor");
+        this.acceptor = Objects.requireNonNull(acceptor, "acceptor");
 
-        this.tcpPacketHandlerFactory = Assert.requireNonNull(tcpPacketHandlerFactory, "tcpPacketHandlerFactory must not be null");
+        this.tcpPacketHandlerFactory = Objects.requireNonNull(tcpPacketHandlerFactory, "tcpPacketHandlerFactory");
         this.tcpPacketHandler = wrapDispatchHandler(dispatchHandler);
         this.clusterService = service;
     }
 
     private TCPPacketHandler wrapDispatchHandler(DispatchHandler dispatchHandler) {
-        Objects.requireNonNull(dispatchHandler, "dispatchHandler must not be null");
+        Objects.requireNonNull(dispatchHandler, "dispatchHandler");
         return tcpPacketHandlerFactory.build(dispatchHandler);
     }
 

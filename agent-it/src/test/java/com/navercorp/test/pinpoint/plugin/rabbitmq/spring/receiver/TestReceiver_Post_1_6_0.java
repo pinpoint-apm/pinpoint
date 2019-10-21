@@ -29,7 +29,7 @@ public class TestReceiver_Post_1_6_0 implements TestReceiver {
 
     public TestReceiver_Post_1_6_0(RabbitTemplate rabbitTemplate) {
         if (rabbitTemplate == null) {
-            throw new NullPointerException("rabbitTemplate must not be null");
+            throw new NullPointerException("rabbitTemplate");
         }
         this.rabbitTemplate = rabbitTemplate;
     }

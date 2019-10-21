@@ -32,7 +32,7 @@ public class AtomicLongUpdateMap<T> {
 
     public boolean update(final T cacheKey, final long time) {
         if (cacheKey == null) {
-            throw new NullPointerException("cacheKey must not be null");
+            throw new NullPointerException("cacheKey");
         }
         final AtomicLong hitSlot = cache.get(cacheKey);
         if (hitSlot == null ) {

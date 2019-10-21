@@ -21,6 +21,7 @@ import com.google.inject.Provider;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.plugin.ApplicationTypeDetector;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.module.ConfiguredApplicationType;
 import com.navercorp.pinpoint.profiler.plugin.PluginContextLoadResult;
 import com.navercorp.pinpoint.profiler.util.ApplicationServerTypeResolver;
@@ -44,14 +45,8 @@ public class ApplicationServerTypeProvider implements Provider<ServiceType> {
 
     @Inject
     public ApplicationServerTypeProvider(ProfilerConfig profilerConfig, @ConfiguredApplicationType ServiceType configuredApplicationType, Provider<PluginContextLoadResult> pluginContextLoadResultProvider) {
-        if (profilerConfig == null) {
-            throw new NullPointerException("profilerConfig must not be null");
-        }
-        if (configuredApplicationType == null) {
-            throw new NullPointerException("configuredApplicationType must not be null");
-        }
-        this.profilerConfig = profilerConfig;
-        this.configuredApplicationType = configuredApplicationType;
+        this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig");
+        this.configuredApplicationType = Assert.requireNonNull(configuredApplicationType, "configuredApplicationType");
         this.pluginContextLoadResultProvider = pluginContextLoadResultProvider;
     }
 

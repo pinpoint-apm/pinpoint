@@ -44,10 +44,10 @@ public class ApplicationDataSourceService {
 
     public List<StatChart> selectApplicationChart(String applicationId, TimeWindow timeWindow) {
         if (applicationId == null) {
-            throw new NullPointerException("applicationId must not be null");
+            throw new NullPointerException("applicationId");
         }
         if (timeWindow == null) {
-            throw new NullPointerException("timeWindow must not be null");
+            throw new NullPointerException("timeWindow");
         }
 
         List<StatChart> result = new ArrayList<>();

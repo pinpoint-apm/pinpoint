@@ -37,7 +37,7 @@ public class ClientRequestRecorder<T> {
 
     public ClientRequestRecorder(final boolean param, ClientRequestAdaptor<T> clientRequestAdaptor) {
         this.param = param;
-        this.clientRequestAdaptor = Assert.requireNonNull(clientRequestAdaptor, "clientRequestAdaptor must not be null");
+        this.clientRequestAdaptor = Assert.requireNonNull(clientRequestAdaptor, "clientRequestAdaptor");
     }
 
     // Records the client's request information.

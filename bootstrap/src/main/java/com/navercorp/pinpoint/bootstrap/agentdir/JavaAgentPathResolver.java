@@ -43,7 +43,7 @@ public class JavaAgentPathResolver {
 
     JavaAgentPathResolver(ResolvingType resolvingType) {
         if (resolvingType == null) {
-            throw new NullPointerException("type must not be null");
+            throw new NullPointerException("type");
         }
         this.resolvingType = resolvingType;
     }

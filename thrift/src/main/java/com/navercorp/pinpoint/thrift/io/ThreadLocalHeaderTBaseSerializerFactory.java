@@ -34,7 +34,7 @@ public class ThreadLocalHeaderTBaseSerializerFactory<E> implements SerializerFac
 
     public ThreadLocalHeaderTBaseSerializerFactory(SerializerFactory<E> factory) {
         if (factory == null) {
-            throw new NullPointerException("factory must not be null");
+            throw new NullPointerException("factory");
         }
         this.factory = factory;
     }

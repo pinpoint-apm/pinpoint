@@ -42,7 +42,7 @@ public final class UdpDataSenderFactory {
         this.timeout = timeout;
         this.sendBufferSize = sendBufferSize;
 
-        this.messageConverter = Assert.requireNonNull(messageConverter, "messageConverter must not be null");
+        this.messageConverter = Assert.requireNonNull(messageConverter, "messageConverter");
     }
 
     public DataSender create(String typeName) {

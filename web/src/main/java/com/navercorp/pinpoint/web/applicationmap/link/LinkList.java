@@ -35,7 +35,7 @@ public class LinkList {
 
     public void addLinkList(LinkList linkList) {
         if (linkList == null) {
-            throw new NullPointerException("linkList must not be null");
+            throw new NullPointerException("linkList");
         }
 
         for (Link link : linkList.getLinkList()) {
@@ -50,7 +50,7 @@ public class LinkList {
      */
     public List<Link> findToLink(Application toApplication) {
         if (toApplication == null) {
-            throw new NullPointerException("toApplication must not be null");
+            throw new NullPointerException("toApplication");
         }
 
         List<Link> findList = new ArrayList<>();
@@ -71,7 +71,7 @@ public class LinkList {
      */
     public List<Link> findFromLink(Application fromApplication) {
         if (fromApplication == null) {
-            throw new NullPointerException("fromApplication must not be null");
+            throw new NullPointerException("fromApplication");
         }
 
         List<Link> findList = new ArrayList<>();
@@ -87,7 +87,7 @@ public class LinkList {
 
     public boolean addLink(Link link) {
         if (link == null) {
-            throw new NullPointerException("link must not be null");
+            throw new NullPointerException("link");
         }
 
         final LinkKey linkId = link.getLinkKey();
@@ -104,7 +104,7 @@ public class LinkList {
 
     public boolean containsNode(Link link) {
         if (link == null) {
-            throw new NullPointerException("linkKey must not be null");
+            throw new NullPointerException("linkKey");
         }
         return linkMap.containsKey(link.getLinkKey());
     }

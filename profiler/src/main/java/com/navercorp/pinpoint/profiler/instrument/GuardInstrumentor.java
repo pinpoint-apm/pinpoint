@@ -37,14 +37,8 @@ public class GuardInstrumentor implements Instrumentor {
     private boolean closed = false;
 
     public GuardInstrumentor(ProfilerConfig profilerConfig, InstrumentContext instrumentContext) {
-        if (profilerConfig == null) {
-            throw new NullPointerException("profilerConfig must not be null");
-        }
-        if (instrumentContext == null) {
-            throw new NullPointerException("instrumentContext must not be null");
-        }
-        this.profilerConfig = profilerConfig;
-        this.instrumentContext = instrumentContext;
+        this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig");
+        this.instrumentContext = Assert.requireNonNull(instrumentContext, "instrumentContext");
     }
 
     @Override
@@ -98,7 +92,7 @@ public class GuardInstrumentor implements Instrumentor {
     @Override
     public void transform(ClassLoader classLoader, String targetClassName, Class<? extends TransformCallback> transformCallback) {
         checkOpen();
-        Assert.requireNonNull(transformCallback, "transformCallback must not be null");
+        Assert.requireNonNull(transformCallback, "transformCallback");
         TransformCallbackChecker.validate(transformCallback);
 
         final String transformCallbackClassName = transformCallback.getName();

@@ -46,12 +46,12 @@ public class TypeLocatorBuilder<T> {
     }
 
     public TypeLocatorBuilder(HeaderFactory headerFactory) {
-        this.headerFactory = Assert.requireNonNull(headerFactory, "headerFactory must not be null");
+        this.headerFactory = Assert.requireNonNull(headerFactory, "headerFactory");
     }
 
     public void addBodyFactory(short type, BodyFactory<T> bodyFactory) {
         if (bodyFactory == null) {
-            throw new NullPointerException("bodyFactory must not be null");
+            throw new NullPointerException("bodyFactory");
         }
 
         final BodyFactory<T> old = bodyFactoryMap.put((int) type, bodyFactory);

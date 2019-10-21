@@ -36,16 +36,16 @@ public class ExceptionHandleScopedInterceptor implements AroundInterceptor {
 
     public ExceptionHandleScopedInterceptor(AroundInterceptor interceptor, InterceptorScope scope, ExecutionPolicy policy, ExceptionHandler exceptionHandler) {
         if (interceptor == null) {
-            throw new NullPointerException("interceptor must not be null");
+            throw new NullPointerException("interceptor");
         }
         if (scope == null) {
-            throw new NullPointerException("scope must not be null");
+            throw new NullPointerException("scope");
         }
         if (policy == null) {
-            throw new NullPointerException("policy must not be null");
+            throw new NullPointerException("policy");
         }
         if (exceptionHandler == null) {
-            throw new NullPointerException("exceptionHandler must not be null");
+            throw new NullPointerException("exceptionHandler");
         }
         this.interceptor = interceptor;
         this.scope = scope;

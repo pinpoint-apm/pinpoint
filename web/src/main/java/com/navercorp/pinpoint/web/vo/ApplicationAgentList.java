@@ -28,8 +28,8 @@ public class ApplicationAgentList {
     private final List<AgentInfo> agentInfos;
 
     public ApplicationAgentList(String groupName, List<AgentInfo> agentInfos) {
-        this.groupName = Objects.requireNonNull(groupName, "groupName must not be null");
-        this.agentInfos = Objects.requireNonNull(agentInfos, "agentInfos must not be null");
+        this.groupName = Objects.requireNonNull(groupName, "groupName");
+        this.agentInfos = Objects.requireNonNull(agentInfos, "agentInfos");
     }
 
     public String getGroupName() {

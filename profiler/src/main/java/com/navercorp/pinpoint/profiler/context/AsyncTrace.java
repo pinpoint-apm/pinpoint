@@ -33,9 +33,9 @@ public class AsyncTrace implements Trace {
     private final AsyncState asyncState;
 
     public AsyncTrace(final TraceRoot traceRoot, final DefaultTrace trace, final AsyncState asyncState) {
-        this.traceRoot = Assert.requireNonNull(traceRoot, "traceRoot must not be null");
-        this.trace = Assert.requireNonNull(trace, "trace must not be null");
-        this.asyncState = Assert.requireNonNull(asyncState, "asyncState must not be null");
+        this.traceRoot = Assert.requireNonNull(traceRoot, "traceRoot");
+        this.trace = Assert.requireNonNull(trace, "trace");
+        this.asyncState = Assert.requireNonNull(asyncState, "asyncState");
     }
 
 

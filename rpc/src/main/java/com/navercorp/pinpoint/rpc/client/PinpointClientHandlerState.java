@@ -42,7 +42,7 @@ public class PinpointClientHandlerState {
     private final SocketState state;
 
     public PinpointClientHandlerState(String objectName, DefaultPinpointClientHandler clientHandler, List<StateChangeEventListener> stateChangeEventListeners) {
-        this.objectName = Assert.requireNonNull(objectName, "objectName must not be null");
+        this.objectName = Assert.requireNonNull(objectName, "objectName");
 
         this.clientHandler = clientHandler;
         this.stateChangeEventListeners = stateChangeEventListeners;

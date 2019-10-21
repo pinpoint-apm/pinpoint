@@ -35,7 +35,7 @@ public class DataSourceMetricCollectorProvider implements Provider<AgentStatMetr
 
     @Inject
     public DataSourceMetricCollectorProvider(DataSourceMetric dataSourceMetric) {
-        this.dataSourceMetric = Assert.requireNonNull(dataSourceMetric, "dataSourceMetric must not be null");
+        this.dataSourceMetric = Assert.requireNonNull(dataSourceMetric, "dataSourceMetric");
     }
 
     @Override

@@ -39,8 +39,8 @@ public abstract class TableChange implements Change {
             throw new IllegalArgumentException("name must not be empty");
         }
         this.name = name;
-        this.tableConfiguration = Objects.requireNonNull(tableConfiguration, "tableConfiguration must not be null");
-        this.columnFamilyChanges = Objects.requireNonNull(columnFamilyChanges, "columnFamilyChanges must not be null");
+        this.tableConfiguration = Objects.requireNonNull(tableConfiguration, "tableConfiguration");
+        this.columnFamilyChanges = Objects.requireNonNull(columnFamilyChanges, "columnFamilyChanges");
     }
 
     @Override

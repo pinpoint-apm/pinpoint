@@ -28,7 +28,7 @@ public class ContinueTraceHeader implements TraceHeader {
     private short flags;
 
     public ContinueTraceHeader(String transactionId, long parentSpanId, long spanId, short flags) {
-        this.transactionId = Assert.requireNonNull(transactionId, "transactionId must not be null");
+        this.transactionId = Assert.requireNonNull(transactionId, "transactionId");
         this.parentSpanId = parentSpanId;
         this.spanId = spanId;
         this.flags = flags;

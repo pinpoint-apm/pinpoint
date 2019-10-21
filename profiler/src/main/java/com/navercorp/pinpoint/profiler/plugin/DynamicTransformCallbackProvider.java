@@ -32,13 +32,13 @@ public class DynamicTransformCallbackProvider implements TransformCallbackProvid
     private final Class<?>[] parameterTypes;
 
     public DynamicTransformCallbackProvider(String transformCallbackClassName) {
-        this.transformCallbackClassName = Assert.requireNonNull(transformCallbackClassName, "transformCallbackClassName must not be null");
+        this.transformCallbackClassName = Assert.requireNonNull(transformCallbackClassName, "transformCallbackClassName");
         this.parameters = null;
         this.parameterTypes = null;
     }
 
     public DynamicTransformCallbackProvider(String transformCallbackClassName, Object[] parameters, Class<?>[] parameterTypes) {
-        this.transformCallbackClassName = Assert.requireNonNull(transformCallbackClassName, "transformCallbackClassName must not be null");
+        this.transformCallbackClassName = Assert.requireNonNull(transformCallbackClassName, "transformCallbackClassName");
         this.parameters = parameters;
         this.parameterTypes = parameterTypes;
     }

@@ -30,7 +30,7 @@ public class ResinConfig {
     public ResinConfig(ProfilerConfig config) {
 
         if (config == null) {
-            throw new NullPointerException("config must not be null");
+            throw new NullPointerException("config");
         }
 
         // plugin

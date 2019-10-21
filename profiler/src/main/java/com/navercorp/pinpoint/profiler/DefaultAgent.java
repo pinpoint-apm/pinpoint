@@ -65,13 +65,13 @@ public class DefaultAgent implements Agent {
 
     public DefaultAgent(AgentOption agentOption) {
         if (agentOption == null) {
-            throw new NullPointerException("agentOption must not be null");
+            throw new NullPointerException("agentOption");
         }
         if (agentOption.getInstrumentation() == null) {
-            throw new NullPointerException("instrumentation must not be null");
+            throw new NullPointerException("instrumentation");
         }
         if (agentOption.getProfilerConfig() == null) {
-            throw new NullPointerException("profilerConfig must not be null");
+            throw new NullPointerException("profilerConfig");
         }
 
         logger.info("AgentOption:{}", agentOption);
@@ -93,8 +93,8 @@ public class DefaultAgent implements Agent {
     }
 
     protected ApplicationContext newApplicationContext(AgentOption agentOption) {
-        Assert.requireNonNull(agentOption, "agentOption must not be null");
-        ProfilerConfig profilerConfig = Assert.requireNonNull(agentOption.getProfilerConfig(), "profilerConfig must not be null");
+        Assert.requireNonNull(agentOption, "agentOption");
+        ProfilerConfig profilerConfig = Assert.requireNonNull(agentOption.getProfilerConfig(), "profilerConfig");
 
         ModuleFactoryResolver moduleFactoryResolver = new DefaultModuleFactoryResolver(profilerConfig.getInjectionModuleFactoryClazzName());
         ModuleFactory moduleFactory = moduleFactoryResolver.resolve();

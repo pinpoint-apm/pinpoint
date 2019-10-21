@@ -36,7 +36,7 @@ public class CreateTableChange extends TableChange {
             List<ColumnFamilyChange> columnFamilyChanges,
             SplitOption splitOption) {
         super(name, tableConfiguration, columnFamilyChanges);
-        this.splitOption = Objects.requireNonNull(splitOption, "splitOption must not be null");
+        this.splitOption = Objects.requireNonNull(splitOption, "splitOption");
     }
 
     public interface SplitOption {

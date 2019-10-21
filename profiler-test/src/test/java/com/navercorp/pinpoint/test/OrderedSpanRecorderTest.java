@@ -223,7 +223,7 @@ public class OrderedSpanRecorderTest {
     }
     
     private SpanEvent createAsyncSpanEvent(TraceRoot traceRoot, int startElapsed, short sequence) {
-        Assert.requireNonNull(traceRoot, "traceRoot must not be null");
+        Assert.requireNonNull(traceRoot, "traceRoot");
         if (startElapsed < 0) {
             throw new IllegalArgumentException("startElapsed cannot be less than 0");
         }

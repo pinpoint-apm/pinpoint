@@ -20,6 +20,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
 import com.navercorp.pinpoint.profiler.metadata.AgentInfo;
 import com.navercorp.pinpoint.profiler.sender.ResultResponse;
@@ -150,10 +151,7 @@ public class AgentInfoSender {
         }
 
         private AgentInfoSendTask(SuccessListener taskHandler, int retryCount) {
-            if (taskHandler == null) {
-                throw new NullPointerException("taskHandler must not be null");
-            }
-            this.taskHandler = taskHandler;
+            this.taskHandler = Assert.requireNonNull(taskHandler, "taskHandler");
             this.retryCount = retryCount;
             this.counter = new AtomicInteger(0);
         }
@@ -215,14 +213,8 @@ public class AgentInfoSender {
         private MessageConverter<ResultResponse> messageConverter;
 
         public Builder(EnhancedDataSender dataSender, AgentInfoFactory agentInfoFactory) {
-            if (dataSender == null) {
-                throw new NullPointerException("enhancedDataSender must not be null");
-            }
-            if (agentInfoFactory == null) {
-                throw new NullPointerException("agentInfoFactory must not be null");
-            }
-            this.dataSender = dataSender;
-            this.agentInfoFactory = agentInfoFactory;
+            this.dataSender = Assert.requireNonNull(dataSender, "dataSender");
+            this.agentInfoFactory = Assert.requireNonNull(agentInfoFactory, "agentInfoFactory");
         }
 
         public Builder refreshInterval(long refreshIntervalMs) {

@@ -19,7 +19,6 @@ import com.navercorp.pinpoint.collector.cluster.connection.ClusterConnectionMana
 import com.navercorp.pinpoint.collector.sender.FlinkRequestFactory;
 import com.navercorp.pinpoint.collector.sender.FlinkTcpDataSender;
 import com.navercorp.pinpoint.collector.util.Address;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.rpc.client.DefaultPinpointClientFactory;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 import com.navercorp.pinpoint.thrift.io.FlinkHeaderTBaseSerializer;
@@ -28,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author minwoo.jung
@@ -40,9 +40,9 @@ public class FlinkClusterConnectionManager implements ClusterConnectionManager {
     private final FlinkRequestFactory flinkRequestFactory;
 
     public FlinkClusterConnectionManager(TcpDataSenderRepository tcpDataSenderRepository, FlinkHeaderTBaseSerializerFactory flinkHeaderTBaseSerializerFactory, FlinkRequestFactory flinkRequestFactory) {
-        this.tcpDataSenderRepository = Assert.requireNonNull(tcpDataSenderRepository, "tcpDataSenderRepository must not be null");
-        this.flinkHeaderTBaseSerializerFactory = Assert.requireNonNull(flinkHeaderTBaseSerializerFactory, "flinkHeaderTBaseSerializerFactory must not be null");
-        this.flinkRequestFactory = Assert.requireNonNull(flinkRequestFactory, "flinkRequestFactory must not be null");
+        this.tcpDataSenderRepository = Objects.requireNonNull(tcpDataSenderRepository, "tcpDataSenderRepository");
+        this.flinkHeaderTBaseSerializerFactory = Objects.requireNonNull(flinkHeaderTBaseSerializerFactory, "flinkHeaderTBaseSerializerFactory");
+        this.flinkRequestFactory = Objects.requireNonNull(flinkRequestFactory, "flinkRequestFactory");
         this.pinpointClientFactory = newPointClientFactory();
     }
 

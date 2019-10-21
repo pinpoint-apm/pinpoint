@@ -32,7 +32,7 @@ public class DefaultSpanFactory implements SpanFactory {
 
     @Override
     public Span newSpan(TraceRoot traceRoot) {
-        Assert.requireNonNull(traceRoot, "traceRoot must not be null");
+        Assert.requireNonNull(traceRoot, "traceRoot");
 
         final Span span = new Span(traceRoot);
 

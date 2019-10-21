@@ -29,7 +29,7 @@ public class DefaultSpanChunkFactory implements SpanChunkFactory {
     private final TraceRoot traceRoot;
 
     public DefaultSpanChunkFactory(TraceRoot traceRoot) {
-        this.traceRoot = Assert.requireNonNull(traceRoot, "traceRoot must not be null");
+        this.traceRoot = Assert.requireNonNull(traceRoot, "traceRoot");
     }
 
     @Override

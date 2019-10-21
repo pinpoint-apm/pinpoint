@@ -35,7 +35,7 @@ public class SpanStatConnectTimerProvider implements Provider<Timer> {
 
     @Inject
     public SpanStatConnectTimerProvider(ThriftTransportConfig thriftTransportConfig) {
-        this.thriftTransportConfig = Assert.requireNonNull(thriftTransportConfig, "thriftTransportConfig must not be null");
+        this.thriftTransportConfig = Assert.requireNonNull(thriftTransportConfig, "thriftTransportConfig");
     }
 
     @Override

@@ -36,10 +36,10 @@ final class MethodDescriptionUtils {
 
     public static String toJavaMethodDescriptor(String className, String methodName, String[] parameterType) {
         if (className == null) {
-            throw new NullPointerException("className must not be null");
+            throw new NullPointerException("className");
         }
         if (methodName == null) {
-            throw new NullPointerException("methodName must not be null");
+            throw new NullPointerException("methodName");
         }
         StringBuilder buffer = new StringBuilder(256);
         buffer.append(className);

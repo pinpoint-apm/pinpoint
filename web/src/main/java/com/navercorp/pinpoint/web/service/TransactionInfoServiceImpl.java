@@ -90,17 +90,17 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
     @Override
     public BusinessTransactions selectBusinessTransactions(List<TransactionId> transactionIdList, String applicationName, Range range, Filter filter) {
         if (transactionIdList == null) {
-            throw new NullPointerException("transactionIdList must not be null");
+            throw new NullPointerException("transactionIdList");
         }
         if (applicationName == null) {
-            throw new NullPointerException("applicationName must not be null");
+            throw new NullPointerException("applicationName");
         }
         if (filter == null) {
-            throw new NullPointerException("filter must not be null");
+            throw new NullPointerException("filter");
         }
         if (range == null) {
             // TODO range is not used - check the logic again
-            throw new NullPointerException("range must not be null");
+            throw new NullPointerException("range");
         }
 
         List<List<SpanBo>> traceList;
@@ -135,7 +135,7 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
     @Override
     public RecordSet createRecordSet(CallTreeIterator callTreeIterator, long focusTimestamp, String agentId, long spanId) {
         if (callTreeIterator == null) {
-            throw new NullPointerException("callTreeIterator must not be null");
+            throw new NullPointerException("callTreeIterator");
         }
 
         RecordSet recordSet = new RecordSet();
@@ -341,7 +341,7 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
     private class SpanAlignPopulate {
         private List<Record> populateSpanRecord(CallTreeIterator callTreeIterator) {
             if (callTreeIterator == null) {
-                throw new NullPointerException("callTreeIterator must not be null");
+                throw new NullPointerException("callTreeIterator");
             }
 
             final List<Record> recordList = new ArrayList<>(callTreeIterator.size() * 2);

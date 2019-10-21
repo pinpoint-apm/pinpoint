@@ -50,7 +50,7 @@ public class AgentDirGenerator {
 
     public AgentDirGenerator(String agentDirPath) {
         if (agentDirPath == null) {
-            throw new NullPointerException("agentDirPath must not be null");
+            throw new NullPointerException("agentDirPath");
         }
         this.agentDirPath = agentDirPath;
     }

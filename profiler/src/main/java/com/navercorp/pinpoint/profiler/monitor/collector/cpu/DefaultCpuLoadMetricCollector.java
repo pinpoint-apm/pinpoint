@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.monitor.collector.cpu;
 
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.monitor.collector.AgentStatMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.metric.cpu.CpuLoadMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.cpu.CpuLoadMetricSnapshot;
@@ -28,10 +29,7 @@ public class DefaultCpuLoadMetricCollector implements AgentStatMetricCollector<C
     private final CpuLoadMetric cpuLoadMetric;
 
     public DefaultCpuLoadMetricCollector(CpuLoadMetric cpuLoadMetric) {
-        if (cpuLoadMetric == null) {
-            throw new NullPointerException("cpuLoadMetric must not be null");
-        }
-        this.cpuLoadMetric = cpuLoadMetric;
+        this.cpuLoadMetric = Assert.requireNonNull(cpuLoadMetric, "cpuLoadMetric");
     }
 
     @Override

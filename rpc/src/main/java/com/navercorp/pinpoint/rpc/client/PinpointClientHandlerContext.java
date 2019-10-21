@@ -33,10 +33,10 @@ public class PinpointClientHandlerContext {
 
     public PinpointClientHandlerContext(Channel channel, StreamChannelManager streamChannelManager) {
         if (channel == null) {
-            throw new NullPointerException("channel must not be null");
+            throw new NullPointerException("channel");
         }
         if (streamChannelManager == null) {
-            throw new NullPointerException("streamChannelManager must not be null");
+            throw new NullPointerException("streamChannelManager");
         }
         this.channel = channel;
         this.streamChannelManager = streamChannelManager;

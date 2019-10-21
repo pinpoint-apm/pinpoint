@@ -43,7 +43,7 @@ public class SpanBitFiled {
 
     public static SpanBitFiled build(SpanBo spanBo) {
         if (spanBo == null) {
-            throw new NullPointerException("spanBo must not be null");
+            throw new NullPointerException("spanBo");
         }
         final SpanBitFiled spanBitFiled = new SpanBitFiled();
 

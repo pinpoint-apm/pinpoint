@@ -41,10 +41,10 @@ public class TransactionService implements AgentStatService<TransactionBo> {
     @Override
     public List<TransactionBo> selectAgentStatList(String agentId, Range range) {
         if (agentId == null) {
-            throw new NullPointerException("agentId must not be null");
+            throw new NullPointerException("agentId");
         }
         if (range == null) {
-            throw new NullPointerException("range must not be null");
+            throw new NullPointerException("range");
         }
         return this.transactionDao.getAgentStatList(agentId, range);
     }

@@ -47,6 +47,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
 import javax.annotation.PreDestroy;
+import java.util.Objects;
 
 /**
  * @author koo.taejin
@@ -71,18 +72,9 @@ public class ClusterPointRouter extends ServerStreamChannelMessageHandler implem
 
     public ClusterPointRouter(ClusterPointRepository<ClusterPoint> targetClusterPointRepository,
             DefaultRouteHandler defaultRouteHandler, StreamRouteHandler streamRouteHandler) {
-        if (targetClusterPointRepository == null) {
-            throw new NullPointerException("targetClusterPointRepository must not be null");
-        }
-        if (defaultRouteHandler == null) {
-            throw new NullPointerException("defaultRouteHandler must not be null");
-        }
-        if (streamRouteHandler == null) {
-            throw new NullPointerException("streamRouteHandler must not be null");
-        }
-        this.targetClusterPointRepository = targetClusterPointRepository;
-        this.routeHandler = defaultRouteHandler;
-        this.streamRouteHandler = streamRouteHandler;
+        this.targetClusterPointRepository = Objects.requireNonNull(targetClusterPointRepository, "targetClusterPointRepository");
+        this.routeHandler = Objects.requireNonNull(defaultRouteHandler, "defaultRouteHandler");
+        this.streamRouteHandler = Objects.requireNonNull(streamRouteHandler, "streamRouteHandler");
     }
 
     @PreDestroy

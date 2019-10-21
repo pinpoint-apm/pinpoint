@@ -17,7 +17,8 @@
 package com.navercorp.pinpoint.collector.util;
 
 import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
-import com.navercorp.pinpoint.common.util.Assert;
+
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -27,7 +28,7 @@ public class DefaultAddress implements Address {
     private final int port;
 
     public DefaultAddress(String host, int port) {
-        this.host = Assert.requireNonNull(host, "host must not be null");
+        this.host = Objects.requireNonNull(host, "host");
         if (!HostAndPort.isValidPort(port)) {
             throw new IllegalArgumentException("out of range:" + port);
         }

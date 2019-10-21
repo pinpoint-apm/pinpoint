@@ -38,7 +38,7 @@ public class BootstrapCore {
 
 
     public BootstrapCore(List<String> bootstrapJarPaths) {
-        Assert.requireNonNull(bootstrapJarPaths, "bootstrapJarPaths must not be null");
+        Assert.requireNonNull(bootstrapJarPaths, "bootstrapJarPaths");
 
         this.bootstrapRepository = new JarFileRepository(bootstrapJarPaths);
         this.bootstrapPackage = new BootstrapPackage();

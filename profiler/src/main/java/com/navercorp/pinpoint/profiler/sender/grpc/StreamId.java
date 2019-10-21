@@ -33,7 +33,7 @@ public final class StreamId {
     }
 
     private StreamId(String name, long id) {
-        Assert.requireNonNull(name, "name must not be null");
+        Assert.requireNonNull(name, "name");
         this.name = name + "-" + id;
     }
 

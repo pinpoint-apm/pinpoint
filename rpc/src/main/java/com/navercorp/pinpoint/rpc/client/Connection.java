@@ -48,16 +48,16 @@ public class Connection {
     private ChannelFuture connectFuture;
 
     public Connection(ConnectionFactory connectionFactory, SocketOption socketOption, ChannelFactory channelFactory, ClientHandlerFactory clientHandlerFactory) {
-        this.connectionFactory = Assert.requireNonNull(connectionFactory, "connectionFactory must not be null");
+        this.connectionFactory = Assert.requireNonNull(connectionFactory, "connectionFactory");
 
-        this.socketOption = Assert.requireNonNull(socketOption, "socketOption must not be null");
+        this.socketOption = Assert.requireNonNull(socketOption, "socketOption");
 
-        this.channelFactory = Assert.requireNonNull(channelFactory, "channelFactory must not be null");
-        this.clientHandlerFactory = Assert.requireNonNull(clientHandlerFactory, "clientHandlerFactory must not be null");
+        this.channelFactory = Assert.requireNonNull(channelFactory, "channelFactory");
+        this.clientHandlerFactory = Assert.requireNonNull(clientHandlerFactory, "clientHandlerFactory");
     }
 
     void connect(SocketAddressProvider remoteAddressProvider, boolean reconnect, PipelineFactory pipelineFactory) {
-        Assert.requireNonNull(remoteAddressProvider, "remoteAddress must not be null");
+        Assert.requireNonNull(remoteAddressProvider, "remoteAddress");
 
         final ChannelPipeline pipeline = pipelineFactory.newPipeline();
 

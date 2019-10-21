@@ -34,7 +34,7 @@ public class DefaultRpcMetric implements RpcMetric {
 
     public DefaultRpcMetric(ServiceType serviceType) {
         if (serviceType == null) {
-            throw new NullPointerException("serviceType must not be null");
+            throw new NullPointerException("serviceType");
         }
         this.serviceType = serviceType;
     }
@@ -42,7 +42,7 @@ public class DefaultRpcMetric implements RpcMetric {
     @Override
     public void addResponseTime(String destinationId, int millis, boolean error) {
         if (destinationId == null) {
-            throw new NullPointerException("destinationId must not be null");
+            throw new NullPointerException("destinationId");
         }
         Histogram histogram = getHistogram0(destinationId);
         histogram.addResponseTime(millis, error);

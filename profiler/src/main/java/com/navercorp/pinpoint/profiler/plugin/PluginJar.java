@@ -45,8 +45,8 @@ public class PluginJar {
     private final List<String> pluginPackages;
 
     public PluginJar(URL url, JarFile jarFile) {
-        this.url = Assert.requireNonNull(url, "url must not be null");
-        this.jarFile = Assert.requireNonNull(jarFile, "jarFile must not be null");
+        this.url = Assert.requireNonNull(url, "url");
+        this.jarFile = Assert.requireNonNull(jarFile, "jarFile");
         this.pluginId = JarFileUtils.getManifestValue(jarFile, PINPOINT_PLUGIN_ID, null);
         this.pluginCompilerVersion = JarFileUtils.getManifestValue(jarFile, PINPOINT_PLUGIN_COMPILER_VERSION, null);
         String pluginPackages = JarFileUtils.getManifestValue(jarFile, PINPOINT_PLUGIN_PACKAGE, DEFAULT_PINPOINT_PLUGIN_PACKAGE_NAME);

@@ -106,16 +106,16 @@ public class ResponseTimeHistogramServiceImpl implements ResponseTimeHistogramSe
     @Override
     public NodeHistogramSummary selectNodeHistogramData(Application application, Range range, List<Application> fromApplications, List<Application> toApplications) {
         if (application == null) {
-            throw new NullPointerException("application must not be null");
+            throw new NullPointerException("application");
         }
         if (range == null) {
-            throw new NullPointerException("range must not be null");
+            throw new NullPointerException("range");
         }
         if (fromApplications == null) {
-            throw new NullPointerException("fromApplications must not be null");
+            throw new NullPointerException("fromApplications");
         }
         if (toApplications == null) {
-            throw new NullPointerException("toApplications must not be null");
+            throw new NullPointerException("toApplications");
         }
 
         Node node = new Node(application);
@@ -200,13 +200,13 @@ public class ResponseTimeHistogramServiceImpl implements ResponseTimeHistogramSe
     @Override
     public LinkHistogramSummary selectLinkHistogramData(Application fromApplication, Application toApplication, Range range) {
         if (fromApplication == null) {
-            throw new NullPointerException("fromApplication must not be null");
+            throw new NullPointerException("fromApplication");
         }
         if (toApplication == null) {
-            throw new NullPointerException("toApplication must not be null");
+            throw new NullPointerException("toApplication");
         }
         if (range == null) {
-            throw new NullPointerException("range must not be null");
+            throw new NullPointerException("range");
         }
 
         LinkDataDuplexMap linkDataDuplexMap;

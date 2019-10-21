@@ -67,7 +67,7 @@ public class GrpcModule extends PrivateModule {
     private final ProfilerConfig profilerConfig;
 
     public GrpcModule(ProfilerConfig profilerConfig) {
-        this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig must not be null");
+        this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig");
     }
 
     @Override

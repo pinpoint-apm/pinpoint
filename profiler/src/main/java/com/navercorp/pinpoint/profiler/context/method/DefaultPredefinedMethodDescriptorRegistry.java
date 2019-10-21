@@ -33,7 +33,7 @@ public class DefaultPredefinedMethodDescriptorRegistry implements PredefinedMeth
 
     @Inject
     public DefaultPredefinedMethodDescriptorRegistry(ApiMetaDataService apiMetaDataService) {
-        this.apiMetaDataService = Assert.requireNonNull(apiMetaDataService, "apiMetaDataService must not be null");
+        this.apiMetaDataService = Assert.requireNonNull(apiMetaDataService, "apiMetaDataService");
 
         registryMethodDescriptor();
     }

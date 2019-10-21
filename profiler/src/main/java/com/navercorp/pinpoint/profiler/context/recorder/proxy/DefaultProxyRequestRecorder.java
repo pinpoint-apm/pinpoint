@@ -38,7 +38,7 @@ public class DefaultProxyRequestRecorder<T> implements ProxyRequestRecorder<T> {
 
     public DefaultProxyRequestRecorder(final ProxyRequestParserLoaderService proxyRequestparserLoaderService, final RequestAdaptor<T> requestAdaptor) {
         this.proxyRequestParserLoaderServicer = proxyRequestparserLoaderService;
-        this.requestAdaptor = Assert.requireNonNull(requestAdaptor, "requestAdaptor must not be null");
+        this.requestAdaptor = Assert.requireNonNull(requestAdaptor, "requestAdaptor");
     }
 
     public void record(final SpanRecorder recorder, final T request) {

@@ -28,10 +28,10 @@ public class AcceptApplication {
 
     public AcceptApplication(String host, Application application) {
         if (host == null) {
-            throw new NullPointerException("host must not be null");
+            throw new NullPointerException("host");
         }
         if (application == null) {
-            throw new NullPointerException("application must not be null");
+            throw new NullPointerException("application");
         }
         this.application = application;
         this.host = host;

@@ -43,8 +43,8 @@ public class DefaultNodeHistogramAppender implements NodeHistogramAppender {
     private final Executor executor;
 
     public DefaultNodeHistogramAppender(NodeHistogramFactory nodeHistogramFactory, Executor executor) {
-        this.nodeHistogramFactory = Objects.requireNonNull(nodeHistogramFactory, "nodeHistogramFactory must not be null");
-        this.executor = Objects.requireNonNull(executor, "executor must not be null");
+        this.nodeHistogramFactory = Objects.requireNonNull(nodeHistogramFactory, "nodeHistogramFactory");
+        this.executor = Objects.requireNonNull(executor, "executor");
     }
 
     @Override

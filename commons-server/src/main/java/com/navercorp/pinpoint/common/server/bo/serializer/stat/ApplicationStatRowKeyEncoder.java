@@ -32,7 +32,7 @@ public class ApplicationStatRowKeyEncoder implements RowKeyEncoder<ApplicationSt
     @Override
     public byte[] encodeRowKey(ApplicationStatRowKeyComponent component) {
         if (component == null) {
-            throw new NullPointerException("component must not be null");
+            throw new NullPointerException("component");
         }
         byte[] bApplicationId = BytesUtils.toBytes(component.getApplicationId());
         byte[] bStatType = new byte[]{component.getStatType().getRawTypeCode()};

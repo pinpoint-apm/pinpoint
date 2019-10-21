@@ -83,10 +83,10 @@ public class HbaseMapStatisticsCallerDao implements MapStatisticsCallerDao {
     @Override
     public LinkDataMap selectCaller(Application callerApplication, Range range) {
         if (callerApplication == null) {
-            throw new NullPointerException("callerApplication must not be null");
+            throw new NullPointerException("callerApplication");
         }
         if (range == null) {
-            throw new NullPointerException("range must not be null");
+            throw new NullPointerException("range");
         }
 
         final TimeWindow timeWindow = new TimeWindow(range, TimeWindowDownSampler.SAMPLER);

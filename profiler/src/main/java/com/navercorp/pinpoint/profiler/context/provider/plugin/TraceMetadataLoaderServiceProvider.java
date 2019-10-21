@@ -43,7 +43,7 @@ public class TraceMetadataLoaderServiceProvider implements Provider<TraceMetadat
 
     @Inject
     public TraceMetadataLoaderServiceProvider(TraceMetadataLoader traceMetadataLoader) {
-        Assert.requireNonNull(traceMetadataLoader, "traceMetadataLoader must not be null");
+        Assert.requireNonNull(traceMetadataLoader, "traceMetadataLoader");
         this.serviceTypeRegistry = traceMetadataLoader.createServiceTypeRegistry();
         this.annotationKeyRegistry = traceMetadataLoader.createAnnotationKeyRegistry();
         this.annotationKeyMatcherRegistry = traceMetadataLoader.createAnnotationKeyMatcherRegistry();

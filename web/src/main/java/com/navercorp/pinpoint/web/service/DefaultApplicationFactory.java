@@ -34,7 +34,7 @@ public class DefaultApplicationFactory implements ApplicationFactory {
     @Override
     public Application createApplication(String applicationName, short serviceTypeCode) {
         if (applicationName == null) {
-            throw new NullPointerException("applicationName must not be null");
+            throw new NullPointerException("applicationName");
         }
 
         final ServiceType serviceType = registry.findServiceType(serviceTypeCode);
@@ -49,10 +49,10 @@ public class DefaultApplicationFactory implements ApplicationFactory {
     @Override
     public Application createApplicationByTypeName(String applicationName, String serviceTypeName) {
         if (applicationName == null) {
-            throw new NullPointerException("applicationName must not be null");
+            throw new NullPointerException("applicationName");
         }
         if (serviceTypeName == null) {
-            throw new NullPointerException("serviceTypeName must not be null");
+            throw new NullPointerException("serviceTypeName");
         }
 
         final ServiceType serviceType = registry.findServiceTypeByName(serviceTypeName);

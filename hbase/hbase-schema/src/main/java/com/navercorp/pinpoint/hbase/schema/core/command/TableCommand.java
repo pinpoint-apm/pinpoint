@@ -41,8 +41,8 @@ public abstract class TableCommand implements HbaseSchemaCommand {
     private final Compression.Algorithm compressionAlgorithm;
 
     TableCommand(HTableDescriptor htd, Compression.Algorithm compressionAlgorithm) {
-        this.htd = Objects.requireNonNull(htd, "htd must not be null");
-        this.compressionAlgorithm = Objects.requireNonNull(compressionAlgorithm, "compressionAlgorithm must not be null");
+        this.htd = Objects.requireNonNull(htd, "htd");
+        this.compressionAlgorithm = Objects.requireNonNull(compressionAlgorithm, "compressionAlgorithm");
 
     }
 

@@ -30,7 +30,7 @@ public class HbaseAdminFactory implements AdminFactory {
     private final Connection connection;
 
     public HbaseAdminFactory(Connection connection) {
-        this.connection = Objects.requireNonNull(connection, "connection must not be null");
+        this.connection = Objects.requireNonNull(connection, "connection");
     }
 
     @Override

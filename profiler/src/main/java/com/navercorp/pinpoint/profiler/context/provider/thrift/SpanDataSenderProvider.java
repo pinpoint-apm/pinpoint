@@ -56,8 +56,8 @@ public class SpanDataSenderProvider  implements Provider<DataSender> {
     @Inject
     public SpanDataSenderProvider(ThriftTransportConfig thriftTransportConfig, @SpanClientFactory Provider<PinpointClientFactory> clientFactoryProvider,
                                   @SpanConverter MessageConverter<TBase<?, ?>> messageConverter) {
-        Assert.requireNonNull(thriftTransportConfig, "thriftTransportConfig must not be null");
-        this.clientFactoryProvider = Assert.requireNonNull(clientFactoryProvider, "clientFactoryProvider must not be null");
+        Assert.requireNonNull(thriftTransportConfig, "thriftTransportConfig");
+        this.clientFactoryProvider = Assert.requireNonNull(clientFactoryProvider, "clientFactoryProvider");
 
         this.ip = thriftTransportConfig.getCollectorSpanServerIp();
         this.port = thriftTransportConfig.getCollectorSpanServerPort();
@@ -66,7 +66,7 @@ public class SpanDataSenderProvider  implements Provider<DataSender> {
         this.sendBufferSize = thriftTransportConfig.getSpanDataSenderSocketSendBufferSize();
         this.ioType = thriftTransportConfig.getSpanDataSenderSocketType();
         this.transportType = thriftTransportConfig.getSpanDataSenderTransportType();
-        this.messageConverter = Assert.requireNonNull(messageConverter, "messageConverter must not be null");
+        this.messageConverter = Assert.requireNonNull(messageConverter, "messageConverter");
     }
 
     @Override

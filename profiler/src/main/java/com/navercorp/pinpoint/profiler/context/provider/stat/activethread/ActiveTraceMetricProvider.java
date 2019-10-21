@@ -33,7 +33,7 @@ public class ActiveTraceMetricProvider implements Provider<ActiveTraceMetric> {
     @Inject
     public ActiveTraceMetricProvider(Provider<ActiveTraceRepository> activeTraceRepositoryProvider) {
         if (activeTraceRepositoryProvider == null) {
-            throw new NullPointerException("activeTraceRepositoryProvider must not be null");
+            throw new NullPointerException("activeTraceRepositoryProvider");
         }
         this.activeTraceRepository = activeTraceRepositoryProvider.get();
     }

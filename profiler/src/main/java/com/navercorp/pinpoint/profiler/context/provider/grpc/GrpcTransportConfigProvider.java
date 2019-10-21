@@ -34,7 +34,7 @@ public class GrpcTransportConfigProvider implements Provider<GrpcTransportConfig
 
     @Inject
     public GrpcTransportConfigProvider(ProfilerConfig profilerConfig) {
-        this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig must not be null");
+        this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig");
     }
 
     @Override

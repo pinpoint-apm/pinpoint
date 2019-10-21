@@ -39,7 +39,7 @@ public class Java9Module implements JavaModule {
 
     Java9Module(Instrumentation instrumentation, Module module) {
         if (instrumentation == null) {
-            throw new NullPointerException("instrumentation must not be null");
+            throw new NullPointerException("instrumentation");
         }
         this.instrumentation = instrumentation;
         this.module = module;
@@ -87,7 +87,7 @@ public class Java9Module implements JavaModule {
     @Override
     public void addExports(String packageName, JavaModule targetJavaModule) {
         if (packageName == null) {
-            throw new NullPointerException("packageName must not be null");
+            throw new NullPointerException("packageName");
         }
          final Java9Module target = checkJavaModule(targetJavaModule);
 
@@ -98,7 +98,7 @@ public class Java9Module implements JavaModule {
 
     private Java9Module checkJavaModule(JavaModule targetJavaModule) {
         if (targetJavaModule == null) {
-            throw new NullPointerException("targetJavaModule must not be null");
+            throw new NullPointerException("targetJavaModule");
         }
         if (targetJavaModule instanceof Java9Module) {
             return (Java9Module) targetJavaModule;
@@ -109,7 +109,7 @@ public class Java9Module implements JavaModule {
     @Override
     public void addOpens(String packageName, JavaModule javaModule) {
         if (packageName == null) {
-            throw new NullPointerException("packageName must not be null");
+            throw new NullPointerException("packageName");
         }
         final Java9Module target = checkJavaModule(javaModule);
 
@@ -123,7 +123,7 @@ public class Java9Module implements JavaModule {
     @Override
     public void addUses(Class<?> target) {
         if (target == null) {
-            throw new NullPointerException("target must not be null");
+            throw new NullPointerException("target");
         }
 //        logger.info("addUses module:" + module.getName() +" target:" + target);
         // for debug
@@ -134,11 +134,11 @@ public class Java9Module implements JavaModule {
     @Override
     public void addProvides(Class<?> service, List<Class<?>> providerList) {
         if (service == null) {
-            throw new NullPointerException("target must not be null");
+            throw new NullPointerException("target");
         }
 
         if (providerList == null) {
-            throw new NullPointerException("list must not be null");
+            throw new NullPointerException("list");
         }
 
 //        logger.info("addProvides module:" + module.getName() +" service:" + service + " providerList:" + providerList);
@@ -150,7 +150,7 @@ public class Java9Module implements JavaModule {
     @Override
     public boolean isExported(String packageName, JavaModule targetJavaModule) {
         if (packageName == null) {
-            throw new NullPointerException("packageName must not be null");
+            throw new NullPointerException("packageName");
         }
         final Java9Module target = checkJavaModule(targetJavaModule);
         return module.isExported(packageName, target.module);
@@ -159,7 +159,7 @@ public class Java9Module implements JavaModule {
     @Override
     public boolean isOpen(String packageName, JavaModule targetJavaModule) {
         if (packageName == null) {
-            throw new NullPointerException("packageName must not be null");
+            throw new NullPointerException("packageName");
         }
         final Java9Module target = checkJavaModule(targetJavaModule);
         return module.isOpen(packageName, target.module);

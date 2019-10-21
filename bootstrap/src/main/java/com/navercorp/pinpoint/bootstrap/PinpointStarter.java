@@ -65,16 +65,16 @@ class PinpointStarter {
                            Instrumentation instrumentation, ModuleBootLoader moduleBootLoader) {
         //        null == BootstrapClassLoader
 //        if (bootstrapClassLoader == null) {
-//            throw new NullPointerException("bootstrapClassLoader must not be null");
+//            throw new NullPointerException("bootstrapClassLoader");
 //        }
         if (agentArgs == null) {
-            throw new NullPointerException("agentArgs must not be null");
+            throw new NullPointerException("agentArgs");
         }
         if (agentDirectory == null) {
-            throw new NullPointerException("agentDirectory must not be null");
+            throw new NullPointerException("agentDirectory");
         }
         if (instrumentation == null) {
-            throw new NullPointerException("instrumentation must not be null");
+            throw new NullPointerException("instrumentation");
         }
         this.agentArgs = agentArgs;
         this.parentClassLoader = parentClassLoader;

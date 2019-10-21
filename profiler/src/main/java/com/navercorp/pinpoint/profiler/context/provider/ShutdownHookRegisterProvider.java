@@ -63,7 +63,7 @@ public class ShutdownHookRegisterProvider implements Provider<ShutdownHookRegist
 
     public ShutdownHookRegisterProvider(ProfilerConfig profilerConfig) {
         if (profilerConfig == null) {
-            throw new NullPointerException("profilerConfig must not be null");
+            throw new NullPointerException("profilerConfig");
         }
         vendorName = profilerConfig.getProfilerJvmVendorName();
     }

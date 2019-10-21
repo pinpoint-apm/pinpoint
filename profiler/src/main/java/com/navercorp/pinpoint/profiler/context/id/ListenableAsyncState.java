@@ -34,8 +34,8 @@ public class ListenableAsyncState implements AsyncState {
     private boolean finish = false;
 
     public ListenableAsyncState(AsyncStateListener asyncStateListener, ActiveTraceHandle activeTraceHandle) {
-        this.asyncStateListener = Assert.requireNonNull(asyncStateListener, "asyncStateListener must not be null");
-        this.activeTraceHandle = Assert.requireNonNull(activeTraceHandle, "activeTraceHandle must not be null");
+        this.asyncStateListener = Assert.requireNonNull(asyncStateListener, "asyncStateListener");
+        this.activeTraceHandle = Assert.requireNonNull(activeTraceHandle, "activeTraceHandle");
     }
 
     @Override

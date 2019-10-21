@@ -37,7 +37,7 @@ public class ProfilerCommandLocatorBuilder {
 
     public void addService(ProfilerCommandServiceGroup serviceGroup) {
         if (serviceGroup == null) {
-            throw new NullPointerException("serviceGroup must not be null");
+            throw new NullPointerException("serviceGroup");
         }
 
         for (ProfilerCommandService service : serviceGroup.getCommandServiceList()) {
@@ -47,14 +47,14 @@ public class ProfilerCommandLocatorBuilder {
 
     public boolean addService(ProfilerCommandService service) {
         if (service == null) {
-            throw new NullPointerException("service must not be null");
+            throw new NullPointerException("service");
         }
         return addService(service.getCommandServiceCode(), service);
     }
 
     boolean addService(short commandCode, ProfilerCommandService service) {
         if (service == null) {
-            throw new NullPointerException("service must not be null");
+            throw new NullPointerException("service");
         }
 
         final ProfilerCommandService exist = profilerCommandServiceRepository.get(commandCode);

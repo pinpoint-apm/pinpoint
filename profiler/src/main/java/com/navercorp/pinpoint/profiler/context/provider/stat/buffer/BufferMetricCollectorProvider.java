@@ -34,7 +34,7 @@ public class BufferMetricCollectorProvider implements Provider<AgentStatMetricCo
 
     @Inject
     public BufferMetricCollectorProvider(BufferMetric bufferMetric) {
-        this.bufferMetric = Assert.requireNonNull(bufferMetric, "bufferMetric must not be null");
+        this.bufferMetric = Assert.requireNonNull(bufferMetric, "bufferMetric");
     }
 
     @Override

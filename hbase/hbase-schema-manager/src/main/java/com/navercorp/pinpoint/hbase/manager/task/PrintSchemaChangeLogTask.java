@@ -42,8 +42,8 @@ public class PrintSchemaChangeLogTask implements HbaseSchemaManagerTask {
     public PrintSchemaChangeLogTask(HbaseSchemaService hbaseSchemaService,
                              XmlFormatter xmlFormatter,
                              String namespace) {
-        this.hbaseSchemaService = Objects.requireNonNull(hbaseSchemaService, "hbaseSchemaService must not be null");
-        this.xmlFormatter = Objects.requireNonNull(xmlFormatter, "xmlFormatter must not be null");
+        this.hbaseSchemaService = Objects.requireNonNull(hbaseSchemaService, "hbaseSchemaService");
+        this.xmlFormatter = Objects.requireNonNull(xmlFormatter, "xmlFormatter");
         this.namespace = namespace;
     }
 

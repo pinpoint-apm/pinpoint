@@ -32,7 +32,7 @@ import java.util.Collections;
 public class ThreadDumpUtils {
 
     public static ThreadDumpMetricSnapshot createThreadDump(Thread thread) {
-        Assert.requireNonNull(thread, "thread must not be null");
+        Assert.requireNonNull(thread, "thread");
         final ThreadInfo threadInfo = ThreadMXBeanUtils.getThreadInfo(thread.getId());
         if (threadInfo == null) {
             return null;
@@ -42,7 +42,7 @@ public class ThreadDumpUtils {
     }
 
     public static ThreadDumpMetricSnapshot createThreadDump(Thread thread, int stackTraceMaxDepth) {
-        Assert.requireNonNull(thread, "thread must not be null");
+        Assert.requireNonNull(thread, "thread");
         final ThreadInfo threadInfo = ThreadMXBeanUtils.getThreadInfo(thread.getId(), stackTraceMaxDepth);
         if (threadInfo == null) {
             return null;

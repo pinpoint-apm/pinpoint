@@ -37,7 +37,7 @@ public class NettyClientRequestWrapper implements ClientRequestWrapper {
     private final ChannelHandlerContext channelHandlerContext;
 
     public NettyClientRequestWrapper(final HttpMessage httpMessage, final ChannelHandlerContext channelHandlerContext) {
-        this.httpMessage = Assert.requireNonNull(httpMessage, "httpMessage must not be null");
+        this.httpMessage = Assert.requireNonNull(httpMessage, "httpMessage");
         this.channelHandlerContext = channelHandlerContext;
     }
 

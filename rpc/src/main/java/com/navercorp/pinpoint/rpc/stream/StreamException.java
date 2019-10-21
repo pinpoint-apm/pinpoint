@@ -32,7 +32,7 @@ public class StreamException extends Exception {
 
     public StreamException(StreamCode streamCode, String message) {
         super(message);
-        this.streamCode = Assert.requireNonNull(streamCode, "streamCode must not be null");
+        this.streamCode = Assert.requireNonNull(streamCode, "streamCode");
     }
 
     public StreamCode getStreamCode() {

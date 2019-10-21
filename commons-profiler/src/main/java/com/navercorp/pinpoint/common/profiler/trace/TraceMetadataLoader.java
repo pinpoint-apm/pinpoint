@@ -52,7 +52,7 @@ public class TraceMetadataLoader {
 
     public TraceMetadataLoader(CommonLoggerFactory loggerFactory) {
         if (loggerFactory == null) {
-            throw new NullPointerException("loggerFactory must not be null");
+            throw new NullPointerException("loggerFactory");
         }
         this.logger = loggerFactory.getLogger(TraceMetadataLoader.class.getName());
         this.staticServiceTypes = staticFieldLookUp(ServiceType.class, ServiceType.class);
@@ -67,7 +67,7 @@ public class TraceMetadataLoader {
 
     public void load(List<TraceMetadataProvider> providers) {
         if (providers == null) {
-            throw new NullPointerException("providers must not be null");
+            throw new NullPointerException("providers");
         }
 
         logger.info("Loading TraceMetadataProviders");
@@ -157,7 +157,7 @@ public class TraceMetadataLoader {
         @Override
         public void addServiceType(ServiceType serviceType) {
             if (serviceType == null) {
-                throw new NullPointerException("serviceType must not be null");
+                throw new NullPointerException("serviceType");
             }
             ServiceTypeInfo type = new DefaultServiceTypeInfo(serviceType);
             addType0(type);
@@ -166,10 +166,10 @@ public class TraceMetadataLoader {
         @Override
         public void addServiceType(ServiceType serviceType, AnnotationKeyMatcher annotationKeyMatcher) {
             if (serviceType == null) {
-                throw new NullPointerException("serviceType must not be null");
+                throw new NullPointerException("serviceType");
             }
             if (annotationKeyMatcher == null) {
-                throw new NullPointerException("annotationKeyMatcher must not be null");
+                throw new NullPointerException("annotationKeyMatcher");
             }
             ServiceTypeInfo type = new DefaultServiceTypeInfo(serviceType, annotationKeyMatcher);
             addType0(type);
@@ -177,7 +177,7 @@ public class TraceMetadataLoader {
 
         private void addType0(ServiceTypeInfo type) {
             if (type == null) {
-                throw new NullPointerException("type must not be null");
+                throw new NullPointerException("type");
             }
             // local check
             serviceTypeChecker.check(type.getServiceType(), provider);
@@ -187,7 +187,7 @@ public class TraceMetadataLoader {
         @Override
         public void addAnnotationKey(AnnotationKey annotationKey) {
             if (annotationKey == null) {
-                throw new NullPointerException("annotationKey must not be null");
+                throw new NullPointerException("annotationKey");
             }
             // local check
             annotationKeyChecker.check(annotationKey, provider);

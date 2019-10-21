@@ -21,6 +21,8 @@ import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.common.server.util.RowKeyUtils;
 import com.navercorp.pinpoint.common.util.TimeUtils;
 
+import java.util.Objects;
+
 /**
  * @author emeroad
  * @author jaehong.kim
@@ -39,11 +41,7 @@ public class ApiMetaDataBo {
     }
 
     public ApiMetaDataBo(String agentId, long startTime, int apiId) {
-        if (agentId == null) {
-            throw new NullPointerException("agentId must not be null");
-        }
-
-        this.agentId = agentId;
+        this.agentId = Objects.requireNonNull(agentId, "agentId");
         this.startTime = startTime;
         this.apiId = apiId;
     }
@@ -94,10 +92,7 @@ public class ApiMetaDataBo {
     }
 
     public void setMethodTypeEnum(MethodTypeEnum methodTypeEnum) {
-        if (methodTypeEnum == null) {
-            throw new NullPointerException("methodTypeEnum must not be null");
-        }
-        this.methodTypeEnum = methodTypeEnum;
+        this.methodTypeEnum = Objects.requireNonNull(methodTypeEnum, "methodTypeEnum");
     }
     
     public String getDescription() {

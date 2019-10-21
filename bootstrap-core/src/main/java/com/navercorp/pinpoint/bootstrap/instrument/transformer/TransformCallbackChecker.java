@@ -32,7 +32,7 @@ public final class TransformCallbackChecker {
         validate(transformCallbackClass, null);
     }
     public static void validate(Class<? extends TransformCallback> transformCallbackClass, Class<?>[] parameterTypes) {
-        Assert.requireNonNull(transformCallbackClass, "transformCallbackClass must not be null");
+        Assert.requireNonNull(transformCallbackClass, "transformCallbackClass");
 
         // check inner class
         final Class<?> enclosingClass = transformCallbackClass.getEnclosingClass();

@@ -33,8 +33,8 @@ public class DefaultLambdaBytecodeHandler implements LambdaBytecodeHandler {
     private final ClassFileTransformModuleAdaptor classFileTransformer;
 
     public DefaultLambdaBytecodeHandler(ClassFileTransformModuleAdaptor classFileTransformer, JavaModuleFactory javaModuleFactory) {
-        this.classFileTransformer = Assert.requireNonNull(classFileTransformer, "classFileTransformer must not be null");
-        this.javaModuleFactory = Assert.requireNonNull(javaModuleFactory, "javaModuleFactory must not be null");
+        this.classFileTransformer = Assert.requireNonNull(classFileTransformer, "classFileTransformer");
+        this.javaModuleFactory = Assert.requireNonNull(javaModuleFactory, "javaModuleFactory");
     }
 
     @Override

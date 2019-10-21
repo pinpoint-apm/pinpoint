@@ -59,13 +59,13 @@ public class ApplicationMapBuilder {
 
     public ApplicationMapBuilder(Range range, NodeHistogramAppenderFactory nodeHistogramAppenderFactory, ServerInfoAppenderFactory serverInfoAppenderFactory) {
         if (range == null) {
-            throw new NullPointerException("range must not be null");
+            throw new NullPointerException("range");
         }
         if (nodeHistogramAppenderFactory == null) {
-            throw new NullPointerException("nodeHistogramAppenderFactory must not be null");
+            throw new NullPointerException("nodeHistogramAppenderFactory");
         }
         if (serverInfoAppenderFactory == null) {
-            throw new NullPointerException("serverInfoAppenderFactory must not be null");
+            throw new NullPointerException("serverInfoAppenderFactory");
         }
         this.range = range;
         this.nodeHistogramAppenderFactory = nodeHistogramAppenderFactory;
@@ -124,7 +124,7 @@ public class ApplicationMapBuilder {
 
     public ApplicationMap build(LinkDataDuplexMap linkDataDuplexMap) {
         if (linkDataDuplexMap == null) {
-            throw new NullPointerException("linkDataDuplexMap must not be null");
+            throw new NullPointerException("linkDataDuplexMap");
         }
         logger.info("Building application map");
 

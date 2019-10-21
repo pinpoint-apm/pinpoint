@@ -27,7 +27,7 @@ public class ClassNameFilterChain implements ClassNameFilter {
 
     public ClassNameFilterChain(List<ClassNameFilter> filterChain) {
         if (filterChain == null) {
-            throw new NullPointerException("filterChain must not be null");
+            throw new NullPointerException("filterChain");
         }
         this.filterChain = filterChain.toArray(new ClassNameFilter[0]);
     }

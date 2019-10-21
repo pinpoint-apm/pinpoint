@@ -49,7 +49,7 @@ public class RefreshStrategy implements UdpSocketAddressProvider {
     }
 
     public RefreshStrategy(SocketAddressProvider socketAddressProvider, long normalRefreshDelay, long portUnreachableRefreshDelay) {
-        this.socketAddressProvider = Assert.requireNonNull(socketAddressProvider, "socketAddressProvider must not be null");
+        this.socketAddressProvider = Assert.requireNonNull(socketAddressProvider, "socketAddressProvider");
         this.normalRefreshDelay = normalRefreshDelay;
         this.portUnreachableRefreshDelay = portUnreachableRefreshDelay;
     }

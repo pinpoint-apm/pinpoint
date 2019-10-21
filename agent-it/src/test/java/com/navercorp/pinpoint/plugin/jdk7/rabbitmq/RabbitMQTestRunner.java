@@ -51,7 +51,7 @@ class RabbitMQTestRunner {
 
     RabbitMQTestRunner(ConnectionFactory connectionFactory) {
         if (connectionFactory == null) {
-            throw new NullPointerException("connectionFactory must not be null");
+            throw new NullPointerException("connectionFactory");
         }
         this.connectionFactory = connectionFactory;
     }

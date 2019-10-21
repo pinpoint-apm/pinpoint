@@ -36,6 +36,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
+import java.util.Objects;
+
 /**
  * 
  * @author netspider
@@ -69,10 +71,10 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
     @Override
     public void insert(String host, String bindApplicationName, short bindServiceType, String parentApplicationName, short parentServiceType) {
         if (host == null) {
-            throw new NullPointerException("host must not be null");
+            throw new NullPointerException("host");
         }
         if (bindApplicationName == null) {
-            throw new NullPointerException("bindApplicationName must not be null");
+            throw new NullPointerException("bindApplicationName");
         }
         if (logger.isDebugEnabled()) {
             logger.debug("insert HostApplicationMap, host:{}, app:{},SType:{},parentApp:{},parentAppSType{}", host, bindApplicationName, bindServiceType, parentApplicationName, parentServiceType);
@@ -154,14 +156,8 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
         private final short parentServiceType;
 
         public CacheKey(String host, String applicationName, short serviceType, String parentApplicationName, short parentServiceType) {
-            if (host == null) {
-                throw new NullPointerException("host must not be null");
-            }
-            if (applicationName == null) {
-                throw new NullPointerException("bindApplicationName must not be null");
-            }
-            this.host = host;
-            this.applicationName = applicationName;
+            this.host = Objects.requireNonNull(host, "host");
+            this.applicationName = Objects.requireNonNull(applicationName, "applicationName");
             this.serviceType = serviceType;
 
             // may be null for below two parent values.

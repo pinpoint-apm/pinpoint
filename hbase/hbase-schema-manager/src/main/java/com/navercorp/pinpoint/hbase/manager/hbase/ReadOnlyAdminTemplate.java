@@ -38,7 +38,7 @@ public class ReadOnlyAdminTemplate implements HbaseAdminOperation {
     private final HbaseAdminOperation delegate;
 
     public ReadOnlyAdminTemplate(HbaseAdminOperation delegate) {
-        this.delegate = Objects.requireNonNull(delegate, "delegate must not be null");
+        this.delegate = Objects.requireNonNull(delegate, "delegate");
     }
 
     @Override

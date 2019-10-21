@@ -52,9 +52,9 @@ public class HealthCheckManager {
     private final WriteFailFutureListener writeFailListener = new WriteFailFutureListener(logger, "ping write fail.", "ping write success.");
 
     public HealthCheckManager(Timer timer, long waitTimeMillis, ChannelGroup channelGroup) {
-        Assert.requireNonNull(timer, "timer must not be null");
+        Assert.requireNonNull(timer, "timer");
         Assert.isTrue(waitTimeMillis > 0, "waitTimeMillis is must greater than 0");
-        Assert.requireNonNull(channelGroup, "channelGroup must not be null");
+        Assert.requireNonNull(channelGroup, "channelGroup");
 
         this.timer = timer;
         this.waitTimeMillis = waitTimeMillis;

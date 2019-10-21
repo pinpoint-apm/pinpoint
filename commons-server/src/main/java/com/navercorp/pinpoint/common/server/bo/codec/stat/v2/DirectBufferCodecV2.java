@@ -28,9 +28,9 @@ import com.navercorp.pinpoint.common.server.bo.codec.strategy.EncodingStrategy;
 import com.navercorp.pinpoint.common.server.bo.stat.DirectBufferBo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.util.Assert;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Roy Kim
@@ -49,8 +49,7 @@ public class DirectBufferCodecV2 extends AgentStatCodecV2<DirectBufferBo> {
         private final AgentStatDataPointCodec codec;
 
         private DirectBufferCodecFactory(AgentStatDataPointCodec codec) {
-            Assert.notNull(codec, "codec must not be null");
-            this.codec = codec;
+            this.codec = Objects.requireNonNull(codec, "codec");
         }
 
         @Override
@@ -79,8 +78,7 @@ public class DirectBufferCodecV2 extends AgentStatCodecV2<DirectBufferBo> {
 
 
         public DirectBufferCodecEncoder(AgentStatDataPointCodec codec) {
-            Assert.notNull(codec, "codec must not be null");
-            this.codec = codec;
+            this.codec = Objects.requireNonNull(codec, "codec");
         }
 
         @Override
@@ -127,8 +125,7 @@ public class DirectBufferCodecV2 extends AgentStatCodecV2<DirectBufferBo> {
         private List<Long> mappedMemoryUsed;
 
         public DirectBufferCodecDecoder(AgentStatDataPointCodec codec) {
-            Assert.notNull(codec, "codec must not be null");
-            this.codec = codec;
+            this.codec = Objects.requireNonNull(codec, "codec");
         }
 
         @Override

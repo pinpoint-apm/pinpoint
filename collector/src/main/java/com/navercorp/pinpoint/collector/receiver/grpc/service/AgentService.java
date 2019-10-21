@@ -57,8 +57,8 @@ public class AgentService extends AgentGrpc.AgentImplBase {
 
     public AgentService(DispatchHandler dispatchHandler, PingEventHandler pingEventHandler, Executor executor) {
         this.simpleRequestHandlerAdaptor = new SimpleRequestHandlerAdaptor<PResult>(this.getClass().getName(), dispatchHandler);
-        this.pingEventHandler = Objects.requireNonNull(pingEventHandler, "pingEventHandler must not be null");
-        Objects.requireNonNull(executor, "executor must not be null");
+        this.pingEventHandler = Objects.requireNonNull(pingEventHandler, "pingEventHandler");
+        Objects.requireNonNull(executor, "executor");
         this.executor = Context.currentContextExecutor(executor);
     }
 

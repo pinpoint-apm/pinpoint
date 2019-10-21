@@ -61,7 +61,7 @@ public class AgentEventServiceImpl implements AgentEventService {
     @Override
     public List<AgentEvent> getAgentEvents(String agentId, Range range, int... excludeEventTypeCodes) {
         if (agentId == null) {
-            throw new NullPointerException("agentId must not be null");
+            throw new NullPointerException("agentId");
         }
         Set<AgentEventType> excludeEventTypes = EnumSet.noneOf(AgentEventType.class);
         for (int excludeEventTypeCode : excludeEventTypeCodes) {
@@ -79,7 +79,7 @@ public class AgentEventServiceImpl implements AgentEventService {
     @Override
     public AgentEvent getAgentEvent(String agentId, long eventTimestamp, int eventTypeCode) {
         if (agentId == null) {
-            throw new NullPointerException("agentId must not be null");
+            throw new NullPointerException("agentId");
         }
         if (eventTimestamp < 0) {
             throw new IllegalArgumentException("eventTimeTimestamp must not be less than 0");

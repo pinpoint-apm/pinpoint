@@ -372,7 +372,7 @@ public class SpanFactory {
     // for test
     public SpanEventBo buildSpanEventBo(TSpanEvent tSpanEvent) {
         if (tSpanEvent == null) {
-            throw new NullPointerException("tSpanEvent must not be null");
+            throw new NullPointerException("tSpanEvent");
         }
 
         final SpanEventBo spanEvent = new SpanEventBo();
@@ -382,7 +382,7 @@ public class SpanFactory {
 
     private AnnotationBo newAnnotationBo(TAnnotation tAnnotation) {
         if (tAnnotation == null) {
-            throw new NullPointerException("annotation must not be null");
+            throw new NullPointerException("annotation");
         }
         AnnotationBo annotationBo = annotationFactory.buildAnnotation(tAnnotation);
         return annotationBo;

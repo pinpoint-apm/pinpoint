@@ -40,8 +40,8 @@ public class ClusterPointStateChangedEventHandler extends ServerStateChangeEvent
     private final ChannelPropertiesFactory channelPropertiesFactory;
 
     public ClusterPointStateChangedEventHandler(ChannelPropertiesFactory channelPropertiesFactory, ProfilerClusterManager profilerClusterManager) {
-        this.channelPropertiesFactory = Objects.requireNonNull(channelPropertiesFactory, "channelPropertiesFactory must not be null");
-        this.profilerClusterManager = Objects.requireNonNull(profilerClusterManager, "profilerClusterManager must not be null");
+        this.channelPropertiesFactory = Objects.requireNonNull(channelPropertiesFactory, "channelPropertiesFactory");
+        this.profilerClusterManager = Objects.requireNonNull(profilerClusterManager, "profilerClusterManager");
     }
 
     @Override

@@ -37,8 +37,8 @@ public class TraceMetadataLoaderProvider implements Provider<TraceMetadataLoader
 
     @Inject
     public TraceMetadataLoaderProvider(CommonLoggerFactory commonLoggerFactory, @PluginClassLoader ClassLoader pluginClassLoader) {
-        this.commonLoggerFactory = Assert.requireNonNull(commonLoggerFactory, "commonLogger must not be null");
-        this.pluginClassLoader = Assert.requireNonNull(pluginClassLoader, "pluginClassLoader must not be null");
+        this.commonLoggerFactory = Assert.requireNonNull(commonLoggerFactory, "commonLogger");
+        this.pluginClassLoader = Assert.requireNonNull(pluginClassLoader, "pluginClassLoader");
     }
 
     @Override

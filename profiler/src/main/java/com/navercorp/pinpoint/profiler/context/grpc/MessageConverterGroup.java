@@ -33,7 +33,7 @@ public class MessageConverterGroup<Message> implements MessageConverter<Message>
     }
 
     private MessageConverterGroup(MessageConverter<Message>[] group) {
-        Assert.requireNonNull(group, "list must not be null");
+        Assert.requireNonNull(group, "list");
         this.group = Arrays.copyOf(group, group.length);
     }
 

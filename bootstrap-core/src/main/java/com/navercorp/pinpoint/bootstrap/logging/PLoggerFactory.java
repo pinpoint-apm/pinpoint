@@ -54,7 +54,7 @@ public final class PLoggerFactory {
 
     public static PLogger getLogger(Class clazz) {
         if (clazz == null) {
-            throw new NullPointerException("class must not be null");
+            throw new NullPointerException("class");
         }
         return getLogger(clazz.getName());
     }

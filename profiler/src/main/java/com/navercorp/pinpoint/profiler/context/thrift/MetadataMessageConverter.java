@@ -50,8 +50,8 @@ public class MetadataMessageConverter implements MessageConverter<TBase<?, ?>> {
     private final JvmGcTypeThriftMessageConverter jvmGcTypeMessageConverter = new JvmGcTypeThriftMessageConverter();
 
     public MetadataMessageConverter(String applicationName, String agentId, long agentStartTime) {
-        this.applicationName = Assert.requireNonNull(applicationName, "applicationName must not be null");
-        this.agentId = Assert.requireNonNull(agentId, "agentId must not be null");
+        this.applicationName = Assert.requireNonNull(applicationName, "applicationName");
+        this.agentId = Assert.requireNonNull(agentId, "agentId");
         this.agentStartTime = agentStartTime;
     }
 

@@ -44,9 +44,9 @@ public class ThriftAgentConnection implements ClusterPoint<byte[]> {
     }
 
     public ThriftAgentConnection(PinpointServer pinpointServer, AgentInfo agentInfo, List<TCommandType> supportCommandList) {
-        this.pinpointServer = Objects.requireNonNull(pinpointServer, "pinpointServer must not be null");
-        this.agentInfo = Objects.requireNonNull(agentInfo, "agentInfo must not be null");
-        this.supportCommandList = Objects.requireNonNull(supportCommandList, "supportCommandList must not be null");
+        this.pinpointServer = Objects.requireNonNull(pinpointServer, "pinpointServer");
+        this.agentInfo = Objects.requireNonNull(agentInfo, "agentInfo");
+        this.supportCommandList = Objects.requireNonNull(supportCommandList, "supportCommandList");
     }
 
     private static AgentInfo newAgentInfo(ChannelProperties channelProperties) {

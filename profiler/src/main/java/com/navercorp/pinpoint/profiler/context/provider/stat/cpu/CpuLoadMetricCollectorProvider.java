@@ -34,7 +34,7 @@ public class CpuLoadMetricCollectorProvider implements Provider<AgentStatMetricC
 
     @Inject
     public CpuLoadMetricCollectorProvider(CpuLoadMetric cpuLoadMetric) {
-        this.cpuLoadMetric = Assert.requireNonNull(cpuLoadMetric, "cpuLoadMetric must not be null");
+        this.cpuLoadMetric = Assert.requireNonNull(cpuLoadMetric, "cpuLoadMetric");
     }
 
     @Override

@@ -54,7 +54,7 @@ public class HbaseDirectBufferDao implements AgentStatDaoV2<DirectBufferBo> {
     @Override
     public void insert(String agentId, List<DirectBufferBo> directBufferBos) {
         if (agentId == null) {
-            throw new NullPointerException("agentId must not be null");
+            throw new NullPointerException("agentId");
         }
         if (CollectionUtils.isEmpty(directBufferBos)) {
             return;

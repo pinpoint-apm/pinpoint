@@ -66,7 +66,7 @@ public class HbaseTraceDaoV2 implements TraceDao {
     @Override
     public boolean insert(final SpanBo spanBo) {
         if (spanBo == null) {
-            throw new NullPointerException("spanBo must not be null");
+            throw new NullPointerException("spanBo");
         }
         if (logger.isDebugEnabled()) {
             logger.debug("insert trace: {}", spanBo);

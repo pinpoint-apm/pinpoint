@@ -36,7 +36,7 @@ public class TestBrokerService {
 
     TestBrokerService(List<TestBroker> testBrokers) {
         if (testBrokers == null) {
-            throw new NullPointerException("testBrokers must not be null");
+            throw new NullPointerException("testBrokers");
         }
         if (testBrokers.isEmpty()) {
             throw new IllegalArgumentException("testBrokers must not be empty");

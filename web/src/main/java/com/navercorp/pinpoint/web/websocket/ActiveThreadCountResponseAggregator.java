@@ -74,11 +74,11 @@ public class ActiveThreadCountResponseAggregator implements PinpointWebSocketRes
     private Map<String, AgentActiveThreadCount> activeThreadCountMap = new HashMap<>();
 
     public ActiveThreadCountResponseAggregator(String applicationName, AgentService agentService, Timer timer, TimerTaskDecorator timerTaskDecorator) {
-        this.applicationName = Objects.requireNonNull(applicationName, "applicationName must not be null");
-        this.agentService = Objects.requireNonNull(agentService, "agentService must not be null");
+        this.applicationName = Objects.requireNonNull(applicationName, "applicationName");
+        this.agentService = Objects.requireNonNull(agentService, "agentService");
 
-        this.timer = Objects.requireNonNull(timer, "timer must not be null");
-        this.timerTaskDecorator = Objects.requireNonNull(timerTaskDecorator, "timerTaskDecorator must not be null");
+        this.timer = Objects.requireNonNull(timer, "timer");
+        this.timerTaskDecorator = Objects.requireNonNull(timerTaskDecorator, "timerTaskDecorator");
 
         this.messageConverter = new PinpointWebSocketMessageConverter();
     }

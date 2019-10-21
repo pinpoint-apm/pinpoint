@@ -42,8 +42,8 @@ public class TraceFactoryProvider implements Provider<TraceFactory> {
     @Inject
     public TraceFactoryProvider(Provider<BaseTraceFactory> baseTraceFactoryProvider, Binder<Trace> binder) {
 
-        this.baseTraceFactoryProvider = Assert.requireNonNull(baseTraceFactoryProvider, "baseTraceFactoryProvider must not be null");
-        this.binder = Assert.requireNonNull(binder, "binder must not be null");
+        this.baseTraceFactoryProvider = Assert.requireNonNull(baseTraceFactoryProvider, "baseTraceFactoryProvider");
+        this.binder = Assert.requireNonNull(binder, "binder");
 
     }
 

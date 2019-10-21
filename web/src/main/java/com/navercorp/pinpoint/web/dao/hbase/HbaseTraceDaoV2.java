@@ -29,7 +29,6 @@ import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyEncoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanDecoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanDecoderV0;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanEncoder;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.web.dao.TraceDao;
 import com.navercorp.pinpoint.web.mapper.CellTraceMapper;
@@ -57,6 +56,7 @@ import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -104,7 +104,7 @@ public class HbaseTraceDaoV2 implements TraceDao {
     @Override
     public List<SpanBo> selectSpan(TransactionId transactionId) {
         if (transactionId == null) {
-            throw new NullPointerException("transactionId must not be null");
+            throw new NullPointerException("transactionId");
         }
 
         byte[] transactionIdRowKey = rowKeyEncoder.encodeRowKey(transactionId);
@@ -155,7 +155,7 @@ public class HbaseTraceDaoV2 implements TraceDao {
             return Collections.emptyList();
         }
         if (columnFamily == null) {
-            throw new NullPointerException("columnFamily must not be null.");
+            throw new NullPointerException("columnFamily");
         }
 
         List<List<SpanBo>> spanBoList = new ArrayList<>();
@@ -170,7 +170,7 @@ public class HbaseTraceDaoV2 implements TraceDao {
         if (CollectionUtils.isEmpty(getTraceInfoList)) {
             return Collections.emptyList();
         }
-        Assert.requireNonNull(columnFamily, "columnFamily must not be null");
+        Objects.requireNonNull(columnFamily, "columnFamily");
 
         List<Get> getList = createGetList(getTraceInfoList, columnFamily, filter);
 

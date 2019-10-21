@@ -83,10 +83,10 @@ public class PropertyPlaceholderHelper {
     public PropertyPlaceholderHelper(String placeholderPrefix, String placeholderSuffix,
                                      String valueSeparator, boolean ignoreUnresolvablePlaceholders) {
         if (placeholderPrefix == null) {
-            throw new NullPointerException("placeholderPrefix must not be null");
+            throw new NullPointerException("placeholderPrefix");
         }
         if (placeholderSuffix == null) {
-            throw new NullPointerException("placeholderSuffix must not be null");
+            throw new NullPointerException("placeholderSuffix");
         }
         this.placeholderPrefix = placeholderPrefix;
         this.placeholderSuffix = placeholderSuffix;
@@ -111,7 +111,7 @@ public class PropertyPlaceholderHelper {
      */
     public String replacePlaceholders(String value, final Properties properties) {
         if (properties == null) {
-            throw new NullPointerException("properties must not be null");
+            throw new NullPointerException("properties");
         }
         return replacePlaceholders(value, new PlaceholderResolver() {
             public String resolvePlaceholder(String placeholderName) {
@@ -129,7 +129,7 @@ public class PropertyPlaceholderHelper {
      */
     public String replacePlaceholders(String value, PlaceholderResolver placeholderResolver) {
         if (value == null) {
-            throw new NullPointerException("value must not be null");
+            throw new NullPointerException("value");
         }
         return parseStringValue(value, placeholderResolver, new HashSet<String>());
     }

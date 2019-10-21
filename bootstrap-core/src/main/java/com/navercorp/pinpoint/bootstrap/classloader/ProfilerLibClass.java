@@ -27,7 +27,7 @@ public class ProfilerLibClass implements LibClass {
 
     public ProfilerLibClass(List<String> profilerClass) {
         if (profilerClass == null) {
-            throw new NullPointerException("profilerClass must not be null");
+            throw new NullPointerException("profilerClass");
         }
 
         this.profilerClass = profilerClass.toArray(new String[0]);

@@ -64,8 +64,8 @@ public final class AgentBaseDataReceiverConfiguration {
     private final ServerOption grpcServerOption;
 
     public AgentBaseDataReceiverConfiguration(Properties properties, DeprecatedConfiguration deprecatedConfiguration) {
-        Objects.requireNonNull(properties, "properties must not be null");
-        Objects.requireNonNull(deprecatedConfiguration, "deprecatedConfiguration must not be null");
+        Objects.requireNonNull(properties, "properties");
+        Objects.requireNonNull(deprecatedConfiguration, "deprecatedConfiguration");
 
         this.bindIp = getBindIp(properties, deprecatedConfiguration, CollectorConfiguration.DEFAULT_LISTEN_IP);
         Objects.requireNonNull(bindIp);

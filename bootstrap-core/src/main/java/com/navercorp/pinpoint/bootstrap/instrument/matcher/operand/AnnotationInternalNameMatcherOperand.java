@@ -28,7 +28,7 @@ public class AnnotationInternalNameMatcherOperand extends AbstractMatcherOperand
     private final boolean considerMetaAnnotation;
 
     public AnnotationInternalNameMatcherOperand(final String annotationName, final boolean considerMetaAnnotation) {
-        Assert.requireNonNull(annotationName, "annotationName must not be null");
+        Assert.requireNonNull(annotationName, "annotationName");
         this.annotationInternalName = ClassUtils.toInternalName(annotationName);
         this.considerMetaAnnotation = considerMetaAnnotation;
     }

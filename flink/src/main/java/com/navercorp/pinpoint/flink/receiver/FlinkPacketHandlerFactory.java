@@ -33,8 +33,8 @@ public class FlinkPacketHandlerFactory implements TCPPacketHandlerFactory {
     private final DeserializerFactory<HeaderTBaseDeserializer> cachedDeserializer;
 
     public FlinkPacketHandlerFactory(HeaderTBaseSerializerFactory flinkHeaderTBaseSerializerFactory, FlinkHeaderTBaseDeserializerFactory flinkHeaderTBaseDeserializerFactory) {
-        Objects.requireNonNull(flinkHeaderTBaseSerializerFactory, "flinkHeaderTBaseSerializerFactory must be not null.");
-        Objects.requireNonNull(flinkHeaderTBaseDeserializerFactory, "flinkHeaderTBaseDeserializerFactory must be not null.");
+        Objects.requireNonNull(flinkHeaderTBaseSerializerFactory, "flinkHeaderTBaseSerializerFactory");
+        Objects.requireNonNull(flinkHeaderTBaseDeserializerFactory, "flinkHeaderTBaseDeserializerFactory");
 
         SerializerFactory<HeaderTBaseSerializer> cachedSerializer = new ThreadLocalHeaderTBaseSerializerFactory<>(flinkHeaderTBaseSerializerFactory);
         this.cachedSerializer = cachedSerializer;
@@ -45,7 +45,7 @@ public class FlinkPacketHandlerFactory implements TCPPacketHandlerFactory {
 
     @Override
     public TCPPacketHandler build(DispatchHandler dispatchHandler) {
-        Objects.requireNonNull(dispatchHandler, "dispatchHandler must not be null");
+        Objects.requireNonNull(dispatchHandler, "dispatchHandler");
         return new DefaultTCPPacketHandler(dispatchHandler, cachedSerializer, cachedDeserializer);
     }
 }

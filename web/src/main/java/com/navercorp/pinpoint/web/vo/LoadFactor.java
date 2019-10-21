@@ -62,10 +62,7 @@ public class LoadFactor {
     private final TimeWindow timeWindow;
 
     public LoadFactor(Range range) {
-        if (range == null) {
-            throw new NullPointerException("range must not be null");
-        }
-        this.range = range;
+        this.range = Objects.requireNonNull(range, "range");
         this.timeWindow = new TimeWindow(range);
     }
 

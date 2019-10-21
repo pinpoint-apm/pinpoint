@@ -51,15 +51,15 @@ public class PingStreamContext {
     public PingStreamContext(AgentGrpc.AgentStub agentStub,
                              Reconnector reconnector,
                              ScheduledExecutorService retransmissionExecutor) {
-        Assert.requireNonNull(agentStub, "agentStub must not be null");
+        Assert.requireNonNull(agentStub, "agentStub");
 
         this.streamId = StreamId.newStreamId("PingStream");
 
         this.responseObserver = new PingClientResponseObserver();
         this.requestObserver = agentStub.pingSession(responseObserver);
 
-        this.reconnector = Assert.requireNonNull(reconnector, "reconnector must not be null");
-        this.retransmissionExecutor = Assert.requireNonNull(retransmissionExecutor, "retransmissionExecutor must not be null");
+        this.reconnector = Assert.requireNonNull(reconnector, "reconnector");
+        this.retransmissionExecutor = Assert.requireNonNull(retransmissionExecutor, "retransmissionExecutor");
     }
 
     private PPing newPing() {

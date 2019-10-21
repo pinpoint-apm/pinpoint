@@ -31,7 +31,7 @@ public class MockApiMetaDataServiceProvider implements Provider<ApiMetaDataServi
     @Inject
     public MockApiMetaDataServiceProvider(Provider<EnhancedDataSender<Object>> enhancedDataSenderProvider) {
         if (enhancedDataSenderProvider == null) {
-            throw new NullPointerException("enhancedDataSenderProvider must not be null");
+            throw new NullPointerException("enhancedDataSenderProvider");
         }
         this.enhancedDataSenderProvider = enhancedDataSenderProvider;
     }

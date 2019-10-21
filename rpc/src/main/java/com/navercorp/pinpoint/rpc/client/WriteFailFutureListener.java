@@ -35,7 +35,7 @@ public class WriteFailFutureListener implements ChannelFutureListener {
 
     public WriteFailFutureListener(Logger logger, String failMessage, String successMessage) {
         if (logger == null) {
-            throw new NullPointerException("logger must not be null");
+            throw new NullPointerException("logger");
         }
         this.logger = logger;
         this.failMessage = failMessage;

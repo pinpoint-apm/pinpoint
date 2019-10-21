@@ -37,7 +37,7 @@ public class BusinessTransaction {
 
     public BusinessTransaction(SpanBo span) {
         if (span == null) {
-            throw new NullPointerException("span must not be null");
+            throw new NullPointerException("span");
         }
 
         this.rpc = span.getRpc();
@@ -56,7 +56,7 @@ public class BusinessTransaction {
 
     public void add(SpanBo span) {
         if (span == null) {
-            throw new NullPointerException("span must not be null");
+            throw new NullPointerException("span");
         }
 
         long elapsed = span.getElapsed();

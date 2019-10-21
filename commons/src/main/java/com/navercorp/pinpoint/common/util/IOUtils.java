@@ -45,7 +45,7 @@ public final class IOUtils {
 
     public static byte[] toByteArray(final InputStream inputStream, int bufferSize, boolean close) throws IOException {
         if (inputStream == null) {
-            throw new NullPointerException("inputStream must not be null");
+            throw new NullPointerException("inputStream");
         }
         if (bufferSize < 0) {
             throw new IllegalArgumentException("negative bufferSize");

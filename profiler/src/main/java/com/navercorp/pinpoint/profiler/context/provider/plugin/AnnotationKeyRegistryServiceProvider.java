@@ -32,7 +32,7 @@ public class AnnotationKeyRegistryServiceProvider implements Provider<Annotation
 
     @Inject
     public AnnotationKeyRegistryServiceProvider(TraceMetadataLoaderService traceMetadataLoaderService) {
-        this.traceMetadataLoaderService = Assert.requireNonNull(traceMetadataLoaderService, "traceMetadataLoaderService must not be null");
+        this.traceMetadataLoaderService = Assert.requireNonNull(traceMetadataLoaderService, "traceMetadataLoaderService");
     }
 
     @Override

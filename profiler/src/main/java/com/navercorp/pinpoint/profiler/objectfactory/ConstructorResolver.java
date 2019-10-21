@@ -38,7 +38,7 @@ public class ConstructorResolver {
 
     public ConstructorResolver(Class<?> type, ArgumentsResolver argumentsResolver) {
         if (type == null) {
-            throw new NullPointerException("type must not be null");
+            throw new NullPointerException("type");
         }
         this.type = type;
         this.argumentsResolver = argumentsResolver;

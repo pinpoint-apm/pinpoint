@@ -48,10 +48,10 @@ public class VirtualLinkHandler {
 
     public VirtualLinkHandler(LinkDataMapService linkDataMapService, VirtualLinkMarker virtualLinkMarker) {
         if (linkDataMapService == null) {
-            throw new NullPointerException("linkDataMapService must not be null");
+            throw new NullPointerException("linkDataMapService");
         }
         if (virtualLinkMarker == null) {
-            throw new NullPointerException("virtualLinkMarker must not be null");
+            throw new NullPointerException("virtualLinkMarker");
         }
         this.linkDataMapService = linkDataMapService;
         this.virtualLinkMarker = virtualLinkMarker;

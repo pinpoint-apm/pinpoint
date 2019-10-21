@@ -33,13 +33,13 @@ public class ScopedApiIdAwareAroundInterceptor implements ApiIdAwareAroundInterc
 
     public ScopedApiIdAwareAroundInterceptor(ApiIdAwareAroundInterceptor delegate, InterceptorScope scope, ExecutionPolicy policy) {
         if (delegate == null) {
-            throw new NullPointerException("delegate must not be null");
+            throw new NullPointerException("delegate");
         }
         if (scope == null) {
-            throw new NullPointerException("scope must not be null");
+            throw new NullPointerException("scope");
         }
         if (policy == null) {
-            throw new NullPointerException("policy must not be null");
+            throw new NullPointerException("policy");
         }
         this.delegate = delegate;
         this.scope = scope;

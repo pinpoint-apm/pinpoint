@@ -43,7 +43,7 @@ public class DefaultTraceId implements TraceId {
 
     public DefaultTraceId(String agentId, long agentStartTime, long transactionId, long parentSpanId, long spanId, short flags) {
         if (agentId == null) {
-            throw new NullPointerException("agentId must not be null");
+            throw new NullPointerException("agentId");
         }
         this.agentId = agentId;
         this.agentStartTime = agentStartTime;

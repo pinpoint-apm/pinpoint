@@ -32,7 +32,7 @@ public class DefaultTransactionMetric implements TransactionMetric {
 
     public DefaultTransactionMetric(final TransactionCounter transactionCounter) {
         if (transactionCounter == null) {
-            throw new NullPointerException("transactionCounter must not be null");
+            throw new NullPointerException("transactionCounter");
         }
         sampledNewGauge = TransactionGauge.from(new LongCounter() {
             @Override
@@ -104,7 +104,7 @@ public class DefaultTransactionMetric implements TransactionMetric {
 
         private TransactionGauge(LongCounter longCounter) {
             if (longCounter == null) {
-                throw new NullPointerException("longGauge must not be null");
+                throw new NullPointerException("longGauge");
             }
             this.longCounter = longCounter;
         }

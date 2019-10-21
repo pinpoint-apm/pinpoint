@@ -37,7 +37,7 @@ public class SampledDeadlock implements SampledAgentStatDataPoint {
     private final AgentStatPoint<Integer> deadlockedThreadCount;
 
     public SampledDeadlock(AgentStatPoint<Integer> deadlockedThreadCount) {
-        this.deadlockedThreadCount = Objects.requireNonNull(deadlockedThreadCount, "deadlockedThreadCount must not be null");
+        this.deadlockedThreadCount = Objects.requireNonNull(deadlockedThreadCount, "deadlockedThreadCount");
     }
 
     public AgentStatPoint<Integer> getDeadlockedThreadCount() {

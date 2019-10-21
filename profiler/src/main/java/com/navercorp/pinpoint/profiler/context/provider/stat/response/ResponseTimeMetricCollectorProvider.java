@@ -34,7 +34,7 @@ public class ResponseTimeMetricCollectorProvider implements Provider<AgentStatMe
 
     @Inject
     public ResponseTimeMetricCollectorProvider(ResponseTimeMetric responseTimeMetric) {
-        this.responseTimeMetric = Assert.requireNonNull(responseTimeMetric, "responseTimeMetric must not be null");
+        this.responseTimeMetric = Assert.requireNonNull(responseTimeMetric, "responseTimeMetric");
     }
 
     @Override

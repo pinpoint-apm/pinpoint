@@ -29,7 +29,7 @@ public class DefaultFileDescriptorMetric implements FileDescriptorMetric {
 
     public DefaultFileDescriptorMetric(OperatingSystemMXBean operatingSystemMXBean) {
         if (operatingSystemMXBean == null) {
-            throw new NullPointerException("operatingSystemMXBean must not be null");
+            throw new NullPointerException("operatingSystemMXBean");
         }
         this.unixOperatingSystemMXBean = (com.ibm.lang.management.UnixOperatingSystemMXBean) operatingSystemMXBean;
     }

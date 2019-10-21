@@ -43,7 +43,7 @@ public class HBaseAdminTemplate implements HbaseAdminOperation {
     private final AdminFactory adminFactory;
 
     public HBaseAdminTemplate(AdminFactory adminFactory) {
-        this.adminFactory = Objects.requireNonNull(adminFactory, "adminFactory must not be null");
+        this.adminFactory = Objects.requireNonNull(adminFactory, "adminFactory");
     }
 
     @Override
@@ -186,7 +186,7 @@ public class HBaseAdminTemplate implements HbaseAdminOperation {
 
     @Override
     public final <T> T execute(AdminCallback<T> action) {
-        Objects.requireNonNull(action, "action must not be null");
+        Objects.requireNonNull(action, "action");
         Admin admin = adminFactory.getAdmin();
         try {
             return action.doInAdmin(admin);

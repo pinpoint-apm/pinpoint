@@ -44,10 +44,10 @@ public class FileDescriptorChartService implements AgentStatChartService {
     @Override
     public StatChart selectAgentChart(String agentId, TimeWindow timeWindow) {
         if (agentId == null) {
-            throw new NullPointerException("agentId must not be null");
+            throw new NullPointerException("agentId");
         }
         if (timeWindow == null) {
-            throw new NullPointerException("timeWindow must not be null");
+            throw new NullPointerException("timeWindow");
         }
         List<SampledFileDescriptor> sampledFileDescriptors = this.sampledFileDescriptorDao.getSampledAgentStatList(agentId, timeWindow);
         return new FileDescriptorChart(timeWindow, sampledFileDescriptors);

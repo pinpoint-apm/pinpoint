@@ -38,7 +38,7 @@ public class SecurityContextPropagatingTaskDecorator implements TaskDecorator {
         private final SecurityContext securityContext;
 
         private SecurityContextPropagatingRunnable(Runnable delegate) {
-            this.delegate = Objects.requireNonNull(delegate, "delegate must not be null");
+            this.delegate = Objects.requireNonNull(delegate, "delegate");
             this.securityContext = SecurityContextHolder.getContext();
         }
 

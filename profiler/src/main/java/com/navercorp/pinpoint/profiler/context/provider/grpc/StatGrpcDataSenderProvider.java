@@ -50,11 +50,11 @@ public class StatGrpcDataSenderProvider implements Provider<DataSender<Object>> 
                                       HeaderFactory headerFactory,
                                       Provider<ReconnectExecutor> reconnectExecutor,
                                       NameResolverProvider nameResolverProvider) {
-        this.grpcTransportConfig = Assert.requireNonNull(grpcTransportConfig, "profilerConfig must not be null");
-        this.messageConverter = Assert.requireNonNull(messageConverter, "messageConverter must not be null");
-        this.headerFactory = Assert.requireNonNull(headerFactory, "agentHeaderFactory must not be null");
-        this.reconnectExecutorProvider = Assert.requireNonNull(reconnectExecutor, "reconnectExecutorProvider must not be null");
-        this.nameResolverProvider = Assert.requireNonNull(nameResolverProvider, "nameResolverProvider must not be null");
+        this.grpcTransportConfig = Assert.requireNonNull(grpcTransportConfig, "profilerConfig");
+        this.messageConverter = Assert.requireNonNull(messageConverter, "messageConverter");
+        this.headerFactory = Assert.requireNonNull(headerFactory, "agentHeaderFactory");
+        this.reconnectExecutorProvider = Assert.requireNonNull(reconnectExecutor, "reconnectExecutorProvider");
+        this.nameResolverProvider = Assert.requireNonNull(nameResolverProvider, "nameResolverProvider");
     }
 
     @Override

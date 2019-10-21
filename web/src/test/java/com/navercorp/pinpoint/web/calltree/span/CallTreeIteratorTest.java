@@ -565,7 +565,7 @@ public class CallTreeIteratorTest {
         private final int exec;
 
         public StackEvent(String event, int depth, int gap, int exec) {
-            this.event = Objects.requireNonNull(event, "event must not be null");
+            this.event = Objects.requireNonNull(event, "event");
             this.depth = depth;
             this.gap = gap;
             this.exec = exec;

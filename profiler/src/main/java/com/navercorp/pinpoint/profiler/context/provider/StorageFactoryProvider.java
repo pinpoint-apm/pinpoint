@@ -39,8 +39,8 @@ public class StorageFactoryProvider implements Provider<StorageFactory> {
 
     @Inject
     public StorageFactoryProvider(ProfilerConfig profilerConfig, @SpanDataSender DataSender spanDataSender) {
-        this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig must not be null");
-        this.spanDataSender = Assert.requireNonNull(spanDataSender, "spanDataSender must not be null");
+        this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig");
+        this.spanDataSender = Assert.requireNonNull(spanDataSender, "spanDataSender");
     }
 
     @Override

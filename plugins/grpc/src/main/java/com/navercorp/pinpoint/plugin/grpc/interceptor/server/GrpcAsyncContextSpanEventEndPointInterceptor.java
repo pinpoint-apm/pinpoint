@@ -36,7 +36,7 @@ public abstract class GrpcAsyncContextSpanEventEndPointInterceptor extends Async
 
     public GrpcAsyncContextSpanEventEndPointInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
         super(traceContext, methodDescriptor);
-        this.traceContext = Assert.requireNonNull(traceContext, "traceContext must not be null");
+        this.traceContext = Assert.requireNonNull(traceContext, "traceContext");
     }
 
     @Override

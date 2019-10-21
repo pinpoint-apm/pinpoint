@@ -33,7 +33,7 @@ public class DefaultServerInstanceListFactory implements ServerInstanceListFacto
 
     public DefaultServerInstanceListFactory(ServerInstanceListDataSource serverInstanceListDataSource) {
         if (serverInstanceListDataSource == null) {
-            throw new NullPointerException("serverInstanceListDataSource must not be null");
+            throw new NullPointerException("serverInstanceListDataSource");
         }
         this.serverInstanceListDataSource = serverInstanceListDataSource;
     }

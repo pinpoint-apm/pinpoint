@@ -95,7 +95,7 @@ public class HbaseSchemaCommandManager {
 
     public void applyChangeSet(ChangeSet changeSet) {
         if (changeSet == null) {
-            throw new NullPointerException("changeSet must not be null");
+            throw new NullPointerException("changeSet");
         }
         List<TableChange> tableChanges = changeSet.getTableChanges();
         try {

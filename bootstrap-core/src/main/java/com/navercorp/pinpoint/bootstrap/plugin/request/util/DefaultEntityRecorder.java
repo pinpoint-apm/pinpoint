@@ -38,8 +38,8 @@ public class DefaultEntityRecorder<T> implements EntityRecorder<T> {
     private final EntityExtractor<T> entityExtractor;
 
     public DefaultEntityRecorder(HttpDumpConfig httpDumpConfig, EntityExtractor<T> entityExtractor) {
-        this.httpDumpConfig = Assert.requireNonNull(httpDumpConfig, "httpDumpConfig must not be null");
-        this.entityExtractor = Assert.requireNonNull(entityExtractor, "entityExtractor must not be null");
+        this.httpDumpConfig = Assert.requireNonNull(httpDumpConfig, "httpDumpConfig");
+        this.entityExtractor = Assert.requireNonNull(entityExtractor, "entityExtractor");
     }
 
     @Override

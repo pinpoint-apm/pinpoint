@@ -34,7 +34,7 @@ public class ExpectedTraceField {
 
     public ExpectedTraceField(String expected, ExpectedTraceFieldType expectedType) {
         if (expectedType == null) {
-            throw new NullPointerException("expectedType must not be null");
+            throw new NullPointerException("expectedType");
         }
         this.expected = expected;
         this.expectedType = expectedType;

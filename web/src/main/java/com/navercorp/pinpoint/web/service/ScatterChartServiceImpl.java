@@ -55,10 +55,10 @@ public class ScatterChartServiceImpl implements ScatterChartService {
     @Override
     public List<Dot> selectScatterData(String applicationName, SelectedScatterArea area, TransactionId offsetTransactionId, int offsetTransactionElapsed, int limit) {
         if (applicationName == null) {
-            throw new NullPointerException("applicationName must not be null");
+            throw new NullPointerException("applicationName");
         }
         if (area == null) {
-            throw new NullPointerException("area must not be null");
+            throw new NullPointerException("area");
         }
         return applicationTraceIndexDao.scanTraceScatter(applicationName, area, offsetTransactionId, offsetTransactionElapsed, limit);
     }
@@ -66,13 +66,13 @@ public class ScatterChartServiceImpl implements ScatterChartService {
     @Override
     public List<Dot> selectScatterData(List<TransactionId> transactionIdList, String applicationName, Filter filter) {
         if (transactionIdList == null) {
-            throw new NullPointerException("transactionIdList must not be null");
+            throw new NullPointerException("transactionIdList");
         }
         if (applicationName == null) {
-            throw new NullPointerException("applicationName must not be null");
+            throw new NullPointerException("applicationName");
         }
         if (filter == null) {
-            throw new NullPointerException("filter must not be null");
+            throw new NullPointerException("filter");
         }
 
         final List<List<SpanBo>> traceList = traceDao.selectAllSpans(transactionIdList);
@@ -102,7 +102,7 @@ public class ScatterChartServiceImpl implements ScatterChartService {
     @Override
     public List<SpanBo> selectTransactionMetadata(final List<GetTraceInfo> getTraceInfoList) {
         if (getTraceInfoList == null) {
-            throw new NullPointerException("query must not be null");
+            throw new NullPointerException("query");
         }
         final List<List<SpanBo>> selectedSpans = traceDao.selectSpans(getTraceInfoList);
 
@@ -118,10 +118,10 @@ public class ScatterChartServiceImpl implements ScatterChartService {
     @Override
     public ScatterData selectScatterData(String applicationName, Range range, int xGroupUnit, int yGroupUnit, int limit, boolean backwardDirection) {
         if (applicationName == null) {
-            throw new NullPointerException("applicationName must not be null");
+            throw new NullPointerException("applicationName");
         }
         if (range == null) {
-            throw new NullPointerException("range must not be null");
+            throw new NullPointerException("range");
         }
         return applicationTraceIndexDao.scanTraceScatterData(applicationName, range, xGroupUnit, yGroupUnit, limit, backwardDirection);
     }
@@ -129,13 +129,13 @@ public class ScatterChartServiceImpl implements ScatterChartService {
     @Override
     public ScatterData selectScatterData(List<TransactionId> transactionIdList, String applicationName, Range range, int xGroupUnit, int yGroupUnit, Filter filter) {
         if (transactionIdList == null) {
-            throw new NullPointerException("transactionIdList must not be null");
+            throw new NullPointerException("transactionIdList");
         }
         if (applicationName == null) {
-            throw new NullPointerException("applicationName must not be null");
+            throw new NullPointerException("applicationName");
         }
         if (filter == null) {
-            throw new NullPointerException("filter must not be null");
+            throw new NullPointerException("filter");
         }
 
         final List<List<SpanBo>> traceList = traceDao.selectAllSpans(transactionIdList);

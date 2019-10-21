@@ -34,7 +34,7 @@ public class DeadlockMetricCollectorProvider implements Provider<AgentStatMetric
 
     @Inject
     public DeadlockMetricCollectorProvider(DeadlockMetric deadlockMetric) {
-        this.deadlockMetric = Assert.requireNonNull(deadlockMetric, "deadlockMetric must not be null");
+        this.deadlockMetric = Assert.requireNonNull(deadlockMetric, "deadlockMetric");
     }
 
     @Override

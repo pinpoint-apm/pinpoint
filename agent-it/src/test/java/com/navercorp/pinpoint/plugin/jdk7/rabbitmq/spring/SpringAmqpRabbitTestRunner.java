@@ -43,7 +43,7 @@ public class SpringAmqpRabbitTestRunner {
 
     SpringAmqpRabbitTestRunner(TestApplicationContext context) {
         if (context == null) {
-            throw new NullPointerException("context must not be null");
+            throw new NullPointerException("context");
         }
         this.testSenderService = context.getTestSenderService();
         this.testMessageHolder = context.getTestMessageHolder();

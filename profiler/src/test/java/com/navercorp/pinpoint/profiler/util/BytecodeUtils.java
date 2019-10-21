@@ -34,7 +34,7 @@ public final class BytecodeUtils {
             classLoader = ClassLoader.getSystemClassLoader();
         }
         if (className == null) {
-            throw new NullPointerException("className must not be null");
+            throw new NullPointerException("className");
         }
 
         final String classInternalName = JavaAssistUtils.javaClassNameToJvmResourceName(className);

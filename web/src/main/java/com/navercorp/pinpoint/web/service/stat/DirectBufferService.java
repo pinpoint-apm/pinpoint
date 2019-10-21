@@ -41,10 +41,10 @@ public class DirectBufferService implements AgentStatService<DirectBufferBo> {
     @Override
     public List<DirectBufferBo> selectAgentStatList(String agentId, Range range) {
         if (agentId == null) {
-            throw new NullPointerException("agentId must not be null");
+            throw new NullPointerException("agentId");
         }
         if (range == null) {
-            throw new NullPointerException("range must not be null");
+            throw new NullPointerException("range");
         }
         return this.directBufferDao.getAgentStatList(agentId, range);
     }

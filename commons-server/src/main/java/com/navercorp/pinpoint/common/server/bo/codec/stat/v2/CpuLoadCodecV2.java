@@ -30,9 +30,9 @@ import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatUtils;
 import com.navercorp.pinpoint.common.server.bo.stat.CpuLoadBo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.util.Assert;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author HyunGil Jeong
@@ -51,8 +51,7 @@ public class CpuLoadCodecV2 extends AgentStatCodecV2<CpuLoadBo> {
         private final AgentStatDataPointCodec codec;
 
         private CpuLoadCodecFactory(AgentStatDataPointCodec codec) {
-            Assert.notNull(codec, "codec must not be null");
-            this.codec = codec;
+            this.codec = Objects.requireNonNull(codec, "codec");
         }
 
         @Override
@@ -78,8 +77,7 @@ public class CpuLoadCodecV2 extends AgentStatCodecV2<CpuLoadBo> {
         private final UnsignedLongEncodingStrategy.Analyzer.Builder systemCpuLoadAnalyzerBuilder = new UnsignedLongEncodingStrategy.Analyzer.Builder();
 
         public CpuLoadCodecEncoder(AgentStatDataPointCodec codec) {
-            Assert.notNull(codec, "codec must not be null");
-            this.codec = codec;
+            this.codec = Objects.requireNonNull(codec, "codec");
         }
 
         @Override
@@ -114,8 +112,7 @@ public class CpuLoadCodecV2 extends AgentStatCodecV2<CpuLoadBo> {
         private List<Long> systemCpuLoads;
 
         public CpuLoadCodecDecoder(AgentStatDataPointCodec codec) {
-            Assert.notNull(codec, "codec must not be null");
-            this.codec = codec;
+            this.codec = Objects.requireNonNull(codec, "codec");
         }
 
         @Override

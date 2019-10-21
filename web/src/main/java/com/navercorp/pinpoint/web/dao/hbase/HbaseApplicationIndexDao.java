@@ -78,7 +78,7 @@ public class HbaseApplicationIndexDao implements ApplicationIndexDao {
     @Override
     public List<String> selectAgentIds(String applicationName) {
         if (applicationName == null) {
-            throw new NullPointerException("applicationName must not be null");
+            throw new NullPointerException("applicationName");
         }
         byte[] rowKey = Bytes.toBytes(applicationName);
 

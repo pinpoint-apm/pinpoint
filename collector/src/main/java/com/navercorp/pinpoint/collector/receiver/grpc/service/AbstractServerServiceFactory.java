@@ -17,12 +17,14 @@
 package com.navercorp.pinpoint.collector.receiver.grpc.service;
 
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
-import com.navercorp.pinpoint.common.util.Assert;
+
 import io.grpc.ServerInterceptor;
 import io.grpc.ServerInterceptors;
 import io.grpc.ServerServiceDefinition;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
+
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -49,7 +51,7 @@ public abstract class AbstractServerServiceFactory implements FactoryBean<Server
 
     @Override
     public void afterPropertiesSet() {
-        Assert.requireNonNull(dispatchHandler, "dispatchHandler");
+        Objects.requireNonNull(dispatchHandler, "dispatchHandler");
     }
 
     @Override

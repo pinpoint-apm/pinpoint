@@ -1,5 +1,7 @@
 package com.navercorp.pinpoint.profiler.util;
 
+import com.navercorp.pinpoint.common.util.Assert;
+
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -15,10 +17,7 @@ public class ObjectPool<T> {
     private final ObjectPoolFactory<T> factory;
 
     public ObjectPool(ObjectPoolFactory<T> factory, int size) {
-        if (factory == null) {
-            throw new NullPointerException("factory");
-        }
-        this.factory = factory;
+        this.factory = Assert.requireNonNull(factory, "factory");
         fill(size);
     }
 

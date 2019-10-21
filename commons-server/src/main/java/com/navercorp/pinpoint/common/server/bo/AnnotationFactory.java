@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.common.server.bo;
 
-import com.navercorp.pinpoint.common.util.Assert;
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -26,11 +26,11 @@ public class AnnotationFactory<T> {
     private final AnnotationTypeHandler<T> typeHandler;
 
     public AnnotationFactory(AnnotationTypeHandler<T> typeHandler) {
-        this.typeHandler = Assert.requireNonNull(typeHandler, "typeHandler must not be null");
+        this.typeHandler = Objects.requireNonNull(typeHandler, "typeHandler");
     }
 
     public AnnotationBo buildAnnotation(T annotation) {
-        Assert.requireNonNull(annotation, "annotation must not be null");
+        Objects.requireNonNull(annotation, "annotation");
         int annotationkey = typeHandler.getKey(annotation);
         Object annotationValue = typeHandler.getValue(annotation);
         Object commonType = buildAnnotationValue(annotationValue);

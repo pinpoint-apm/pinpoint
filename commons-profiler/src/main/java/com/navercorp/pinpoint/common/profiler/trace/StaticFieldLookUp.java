@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.common.profiler.trace;
 
+import com.navercorp.pinpoint.common.util.Assert;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -43,10 +45,7 @@ public class StaticFieldLookUp<T> {
         private final T[] excludeTypeList;
 
         public ExcludeFilter(T[] excludeTypeList) {
-            if (excludeTypeList == null) {
-                throw new NullPointerException("excludeTypeList must not be null");
-            }
-             this.excludeTypeList = excludeTypeList;
+            this.excludeTypeList = Assert.requireNonNull(excludeTypeList, "excludeTypeList");
         }
 
         @Override
@@ -64,19 +63,13 @@ public class StaticFieldLookUp<T> {
     private final Class<T> findClazz;
 
     public StaticFieldLookUp(Class<?> targetClazz, Class<T> findClazz) {
-        if (targetClazz == null) {
-            throw new NullPointerException("targetClazz must not be null");
-        }
-        if (findClazz == null) {
-            throw new NullPointerException("findClazz must not be null");
-        }
-        this.targetClazz = targetClazz;
-        this.findClazz = findClazz;
+        this.targetClazz = Assert.requireNonNull(targetClazz, "targetClazz");
+        this.findClazz = Assert.requireNonNull(findClazz, "findClazz");
     }
 
     public List<T> lookup(Filter<T> filter) {
         if (filter == null) {
-            throw new NullPointerException("filter must not be null");
+            throw new NullPointerException("filter");
         }
         final List<T> lookup = new ArrayList<T>();
 

@@ -41,7 +41,7 @@ public class ChangeSetMapper {
     private final TableChangeMapper tableChangeMapper;
 
     public ChangeSetMapper(JAXBContext jaxbContext, Schema schema) {
-        this.jaxbContext = Objects.requireNonNull(jaxbContext, "jaxbContext must not be null");
+        this.jaxbContext = Objects.requireNonNull(jaxbContext, "jaxbContext");
         this.schema = schema;
         this.tableChangeMapper = new TableChangeMapper();
     }

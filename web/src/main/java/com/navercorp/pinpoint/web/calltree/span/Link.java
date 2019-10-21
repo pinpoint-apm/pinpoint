@@ -33,8 +33,8 @@ public class Link {
     private boolean linked;
 
     public static Link newLink(Align align, LinkedCallTree linkedCallTree) {
-        Objects.requireNonNull(align, "align must not be null");
-        Objects.requireNonNull(linkedCallTree, "linkedCallTree must not be null");
+        Objects.requireNonNull(align, "align");
+        Objects.requireNonNull(linkedCallTree, "linkedCallTree");
 
         final SpanBo spanBo = align.getSpanBo();
         final long startTimeMillis = align.getStartTime();
@@ -46,7 +46,7 @@ public class Link {
         this.parentSpanId = parentSpanId;
         this.spanId = spanId;
         this.nextSpanId = nextSpanId;
-        this.linkedCallTree = Objects.requireNonNull(linkedCallTree, "linkedCallTree must not be null");
+        this.linkedCallTree = Objects.requireNonNull(linkedCallTree, "linkedCallTree");
         this.startTimeMillis = startTimeMillis;
     }
 

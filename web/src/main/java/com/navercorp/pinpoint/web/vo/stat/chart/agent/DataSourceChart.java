@@ -47,7 +47,7 @@ public class DataSourceChart implements StatChart {
 
     @VisibleForTesting
     static DataSourceChartGroup newDataSourceChartGroup(TimeWindow timeWindow, List<SampledDataSource> sampledDataSources, ServiceTypeRegistryService serviceTypeRegistryService) {
-        Objects.requireNonNull(timeWindow, "timeWindow must not be null");
+        Objects.requireNonNull(timeWindow, "timeWindow");
 
         Map<StatChartGroup.ChartType, Chart<? extends Point>> chartTypeChartMap = newDatasourceChart(timeWindow, sampledDataSources);
         if (CollectionUtils.isNotEmpty(sampledDataSources)) {
@@ -119,7 +119,7 @@ public class DataSourceChart implements StatChart {
         }
 
         public DataSourceChartGroup(TimeWindow timeWindow, Map<ChartType, Chart<? extends Point>> dataSourceCharts, int id, String serviceTypeName, String databaseName, String jdbcUrl) {
-            this.timeWindow = Objects.requireNonNull(timeWindow, "timeWindow must not be null");
+            this.timeWindow = Objects.requireNonNull(timeWindow, "timeWindow");
             this.dataSourceCharts = dataSourceCharts;
             this.id = id;
             this.serviceTypeName = serviceTypeName;

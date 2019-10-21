@@ -86,12 +86,12 @@ public class SchemaChangeLog {
         }
 
         public Builder checkSum(CheckSum checkSum) {
-            this.checkSum = Objects.requireNonNull(checkSum, "checkSum must not be null");
+            this.checkSum = Objects.requireNonNull(checkSum, "checkSum");
             return this;
         }
 
         public Builder value(String value) {
-            this.value = Objects.requireNonNull(value, "value must not be null");
+            this.value = Objects.requireNonNull(value, "value");
             return this;
         }
 

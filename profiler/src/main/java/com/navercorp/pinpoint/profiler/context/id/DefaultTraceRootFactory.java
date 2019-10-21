@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.profiler.context.id;
 
 import com.google.inject.Inject;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.module.AgentId;
 
 /**
@@ -30,14 +31,8 @@ public class DefaultTraceRootFactory implements TraceRootFactory {
 
     @Inject
     public DefaultTraceRootFactory(@AgentId String agentId, TraceIdFactory traceIdFactory) {
-        if (agentId == null) {
-            throw new NullPointerException("agentId");
-        }
-        if (traceIdFactory == null) {
-            throw new NullPointerException("traceIdFactory");
-        }
-        this.agentId = agentId;
-        this.traceIdFactory = traceIdFactory;
+        this.agentId = Assert.requireNonNull(agentId, "agentId");
+        this.traceIdFactory = Assert.requireNonNull(traceIdFactory, "traceIdFactory");
     }
 
     @Override
@@ -55,7 +50,7 @@ public class DefaultTraceRootFactory implements TraceRootFactory {
     @Override
     public TraceRoot continueTraceRoot(TraceId traceId, long transactionId) {
         if (traceId == null) {
-            throw new NullPointerException("traceId must not be null");
+            throw new NullPointerException("traceId");
         }
         final long startTime = traceStartTime();
         return new DefaultTraceRoot(traceId, this.agentId, startTime, transactionId);

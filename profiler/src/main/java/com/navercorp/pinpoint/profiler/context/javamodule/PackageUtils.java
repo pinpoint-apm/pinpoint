@@ -26,7 +26,7 @@ final class PackageUtils {
 
     static String getPackageNameFromInternalName(String className) {
         if (className == null) {
-            throw new NullPointerException("className must not be null");
+            throw new NullPointerException("className");
         }
         final String jvmPackageName = ClassUtils.getPackageName(className, '/', null);
         if (jvmPackageName == null) {

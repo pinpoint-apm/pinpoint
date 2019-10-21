@@ -52,11 +52,11 @@ public class DefaultProfilerPluginContextLoader implements ProfilerPluginContext
     public DefaultProfilerPluginContextLoader(ProfilerConfig profilerConfig, ServiceType configuredApplicationType,
                                               ClassInjectorFactory classInjectorFactory, PluginSetup pluginSetup,
                                               List<PluginJar> pluginJars) {
-        this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig must not be null");
-        this.configuredApplicationType = Assert.requireNonNull(configuredApplicationType, "configuredApplicationType must not be null");
-        this.classInjectorFactory = Assert.requireNonNull(classInjectorFactory, "classInjectorFactory must not be null");
-        this.pluginSetup = Assert.requireNonNull(pluginSetup, "pluginSetup must not be null");
-        this.pluginJars = Assert.requireNonNull(pluginJars, "pluginJars must not be null");
+        this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig");
+        this.configuredApplicationType = Assert.requireNonNull(configuredApplicationType, "configuredApplicationType");
+        this.classInjectorFactory = Assert.requireNonNull(classInjectorFactory, "classInjectorFactory");
+        this.pluginSetup = Assert.requireNonNull(pluginSetup, "pluginSetup");
+        this.pluginJars = Assert.requireNonNull(pluginJars, "pluginJars");
     }
 
     @Override
@@ -170,7 +170,7 @@ public class DefaultProfilerPluginContextLoader implements ProfilerPluginContext
             private final List<ProfilerPlugin> profilerPlugins;
 
             private JarPluginComponent(PluginJar pluginJar) {
-                this.pluginJar = Assert.requireNonNull(pluginJar, "pluginJar must not be null");
+                this.pluginJar = Assert.requireNonNull(pluginJar, "pluginJar");
                 this.profilerPlugins = new ArrayList<ProfilerPlugin>();
             }
 

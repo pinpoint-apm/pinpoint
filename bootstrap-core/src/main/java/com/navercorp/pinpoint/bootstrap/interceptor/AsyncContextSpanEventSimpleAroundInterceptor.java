@@ -34,10 +34,10 @@ public abstract class AsyncContextSpanEventSimpleAroundInterceptor implements Ar
 
     public AsyncContextSpanEventSimpleAroundInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
         if (traceContext == null) {
-            throw new NullPointerException("traceContext must not be null");
+            throw new NullPointerException("traceContext");
         }
         if (methodDescriptor == null) {
-            throw new NullPointerException("methodDescriptor must not be null");
+            throw new NullPointerException("methodDescriptor");
         }
 
         this.methodDescriptor = methodDescriptor;

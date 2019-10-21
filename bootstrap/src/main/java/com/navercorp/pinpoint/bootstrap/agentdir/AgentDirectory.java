@@ -40,7 +40,7 @@ public class AgentDirectory {
                           BootDir bootDir,
                           List<URL> libs, List<String> plugins) {
         if (bootDir == null) {
-            throw new NullPointerException("bootDir must not be null");
+            throw new NullPointerException("bootDir");
         }
 
         this.agentJarName = agentJarName;

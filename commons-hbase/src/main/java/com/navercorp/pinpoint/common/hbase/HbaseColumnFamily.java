@@ -20,6 +20,8 @@ import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.common.util.Assert;
 import org.apache.hadoop.hbase.util.Bytes;
 
+import java.util.Objects;
+
 /**
  * @author Taejin Koo
  */
@@ -155,7 +157,7 @@ public class HbaseColumnFamily {
     private final byte[] columnFamilyName;
 
     HbaseColumnFamily(HbaseTable hBaseTable, byte[] columnFamilyName) {
-        this.hBaseTable = Assert.requireNonNull(hBaseTable, "hBaseTable must not be null");
+        this.hBaseTable = Objects.requireNonNull(hBaseTable, "hBaseTable");
         Assert.isTrue(ArrayUtils.hasLength(columnFamilyName), "columnFamilyName must not be empty");
         this.columnFamilyName = columnFamilyName;
     }

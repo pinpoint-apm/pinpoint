@@ -45,7 +45,7 @@ public class SpanAlign implements Align {
     }
 
     public SpanAlign(SpanBo spanBo, boolean meta) {
-        this.spanBo = Objects.requireNonNull(spanBo, "spanBo must not be null");
+        this.spanBo = Objects.requireNonNull(spanBo, "spanBo");
         this.hasChild = hasChild0();
         this.meta = meta;
     }

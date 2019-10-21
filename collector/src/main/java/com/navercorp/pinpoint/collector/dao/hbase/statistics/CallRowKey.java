@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.collector.dao.hbase.statistics;
 
 import com.navercorp.pinpoint.common.profiler.util.ApplicationMapStatisticsUtils;
 
+import java.util.Objects;
+
 /**
  * @author emeroad
  */
@@ -30,10 +32,7 @@ public class CallRowKey implements RowKey {
     private int hash;
 
     public CallRowKey(String callApplicationName, short callServiceType, long rowTimeSlot) {
-        if (callApplicationName == null) {
-            throw new NullPointerException("callApplicationName must not be null");
-        }
-        this.callApplicationName = callApplicationName;
+        this.callApplicationName = Objects.requireNonNull(callApplicationName, "callApplicationName");
         this.callServiceType = callServiceType;
         this.rowTimeSlot = rowTimeSlot;
     }

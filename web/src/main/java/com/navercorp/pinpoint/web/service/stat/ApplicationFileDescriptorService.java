@@ -38,10 +38,10 @@ public class ApplicationFileDescriptorService implements ApplicationStatChartSer
     @Override
     public StatChart selectApplicationChart(String applicationId, TimeWindow timeWindow) {
         if (applicationId == null) {
-            throw new NullPointerException("applicationId must not be null");
+            throw new NullPointerException("applicationId");
         }
         if (timeWindow == null) {
-            throw new NullPointerException("timeWindow must not be null");
+            throw new NullPointerException("timeWindow");
         }
         List<AggreJoinFileDescriptorBo> aggreJoinFileDescriptorBoList = this.applicationFileDescriptorDao.getApplicationStatList(applicationId, timeWindow);
         return new ApplicationFileDescriptorChart(timeWindow, aggreJoinFileDescriptorBoList);

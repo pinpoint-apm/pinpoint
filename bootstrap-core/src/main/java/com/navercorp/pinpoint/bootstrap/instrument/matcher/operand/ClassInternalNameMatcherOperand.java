@@ -27,7 +27,7 @@ public class ClassInternalNameMatcherOperand extends AbstractMatcherOperand {
     private final String classInternalName;
 
     public ClassInternalNameMatcherOperand(final String className) {
-        Assert.requireNonNull(className, "className must not be null");
+        Assert.requireNonNull(className, "className");
         this.classInternalName = ClassUtils.toInternalName(className);
     }
 

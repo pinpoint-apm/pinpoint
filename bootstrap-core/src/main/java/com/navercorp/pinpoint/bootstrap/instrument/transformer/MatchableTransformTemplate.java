@@ -32,15 +32,15 @@ public class MatchableTransformTemplate extends TransformTemplate {
 
 
     public void transform(final Matcher matcher, TransformCallback transformCallback) {
-        Assert.requireNonNull(matcher, "matcher must not be null");
-        Assert.requireNonNull(transformCallback, "transformCallback must not be null");
+        Assert.requireNonNull(matcher, "matcher");
+        Assert.requireNonNull(transformCallback, "transformCallback");
         final InstrumentContext instrumentContext = getInstrumentContext();
         instrumentContext.addClassFileTransformer(matcher, transformCallback);
     }
 
     public void transform(final Matcher matcher, Class<? extends TransformCallback> transformCallbackClass) {
-        Assert.requireNonNull(matcher, "matcher must not be null");
-        Assert.requireNonNull(transformCallbackClass, "transformCallbackClass must not be null");
+        Assert.requireNonNull(matcher, "matcher");
+        Assert.requireNonNull(transformCallbackClass, "transformCallbackClass");
 
         TransformCallbackChecker.validate(transformCallbackClass);
 

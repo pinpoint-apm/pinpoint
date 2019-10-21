@@ -36,7 +36,7 @@ public class TestSpanStorageFactory implements StorageFactory {
 
     @Inject
     public TestSpanStorageFactory(@SpanDataSender DataSender dataSender) {
-        this.dataSender = Assert.requireNonNull(dataSender, "dataSender must not be null");
+        this.dataSender = Assert.requireNonNull(dataSender, "dataSender");
     }
 
     @Override

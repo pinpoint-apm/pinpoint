@@ -39,8 +39,8 @@ public class UpdateTask implements HbaseSchemaManagerTask {
     private final String compression;
 
     public UpdateTask(HbaseSchemaService hbaseSchemaService, HbaseSchemaReader hbaseSchemaReader, String namespace, String compression) {
-        this.hbaseSchemaService = Objects.requireNonNull(hbaseSchemaService, "hbaseSchemaService must not be null");
-        this.hbaseSchemaReader = Objects.requireNonNull(hbaseSchemaReader, "hbaseSchemaReader must not be null");
+        this.hbaseSchemaService = Objects.requireNonNull(hbaseSchemaService, "hbaseSchemaService");
+        this.hbaseSchemaReader = Objects.requireNonNull(hbaseSchemaReader, "hbaseSchemaReader");
         this.namespace = namespace;
         this.compression = compression;
     }

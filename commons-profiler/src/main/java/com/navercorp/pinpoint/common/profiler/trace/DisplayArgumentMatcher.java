@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.common.profiler.trace;
 
 import com.navercorp.pinpoint.common.trace.AnnotationKeyMatcher;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.util.Assert;
 
 /**
  * @author emeroad
@@ -27,14 +28,8 @@ public class DisplayArgumentMatcher {
     private final AnnotationKeyMatcher annotationKeyMatcher;
 
     public DisplayArgumentMatcher(ServiceType serviceType, AnnotationKeyMatcher annotationKeyMatcher) {
-        if (serviceType == null) {
-            throw new NullPointerException("serviceType must not be null");
-        }
-        if (annotationKeyMatcher == null) {
-            throw new NullPointerException("annotationKeyMatcher must not be null");
-        }
-        this.serviceType = serviceType;
-        this.annotationKeyMatcher = annotationKeyMatcher;
+        this.serviceType = Assert.requireNonNull(serviceType, "serviceType");
+        this.annotationKeyMatcher = Assert.requireNonNull(annotationKeyMatcher, "annotationKeyMatcher");
     }
 
     public AnnotationKeyMatcher getAnnotationKeyMatcher() {

@@ -35,7 +35,7 @@ public class LinkHistogramSummary {
 
     public LinkHistogramSummary(Link link) {
         if (link == null) {
-            throw new NullPointerException("link must not be null");
+            throw new NullPointerException("link");
         }
         linkName = link.getLinkName();
         histogram = link.getHistogram();

@@ -54,7 +54,7 @@ public class HbaseSqlMetaDataDao implements SqlMetaDataDao {
     @Override
     public List<SqlMetaDataBo> getSqlMetaData(String agentId, long time, int sqlId) {
         if (agentId == null) {
-            throw new NullPointerException("agentId must not be null");
+            throw new NullPointerException("agentId");
         }
 
         SqlMetaDataBo sqlMetaData = new SqlMetaDataBo(agentId, time, sqlId);

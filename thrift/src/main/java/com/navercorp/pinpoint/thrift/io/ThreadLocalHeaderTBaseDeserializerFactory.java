@@ -32,7 +32,7 @@ public class ThreadLocalHeaderTBaseDeserializerFactory<E> implements Deserialize
 
     public ThreadLocalHeaderTBaseDeserializerFactory(DeserializerFactory<E> factory) {
         if (factory == null) {
-            throw new NullPointerException("factory must not be null");
+            throw new NullPointerException("factory");
         }
         this.factory = factory;
     }

@@ -44,10 +44,10 @@ public class LinkData {
     }
     public LinkData(Application fromApplication, Application toApplication, TimeWindow timeWindow) {
         if (fromApplication == null) {
-            throw new NullPointerException("fromApplication must not be null");
+            throw new NullPointerException("fromApplication");
         }
         if (toApplication == null) {
-            throw new NullPointerException("toApplication must not be null");
+            throw new NullPointerException("toApplication");
         }
 
         this.fromApplication = fromApplication;
@@ -66,7 +66,7 @@ public class LinkData {
      */
     public void addLinkData(String callerAgentId, ServiceType callerServiceTypeCode, String hostname, ServiceType serviceTypeCode, long timestamp, short slot, long count) {
         if (hostname == null) {
-            throw new NullPointerException("hostname must not be null");
+            throw new NullPointerException("hostname");
         }
         this.linkCallDataMap.addCallData(callerAgentId, callerServiceTypeCode, hostname, serviceTypeCode, timestamp, slot, count);
     }
@@ -102,7 +102,7 @@ public class LinkData {
 
     public void add(final LinkData linkData) {
         if (linkData == null) {
-            throw new NullPointerException("linkData must not be null");
+            throw new NullPointerException("linkData");
         }
         if (!this.equals(linkData)) {
             throw new IllegalArgumentException("Can't merge with different link.");

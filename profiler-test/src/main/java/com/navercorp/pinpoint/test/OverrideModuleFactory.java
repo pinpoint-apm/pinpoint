@@ -32,7 +32,7 @@ public class OverrideModuleFactory implements ModuleFactory {
     private final Module[] overrideModule;
 
     public OverrideModuleFactory(Module... overrideModule) {
-        this.overrideModule = Assert.requireNonNull(overrideModule, "overrideModule must not be null");
+        this.overrideModule = Assert.requireNonNull(overrideModule, "overrideModule");
     }
 
     @Override

@@ -27,7 +27,7 @@ public class CommandServiceStubFactory {
     private final ManagedChannel managedChannel;
 
     public CommandServiceStubFactory(ManagedChannel managedChannel) {
-        this.managedChannel = Assert.requireNonNull(managedChannel, "managedChannel must not be null");
+        this.managedChannel = Assert.requireNonNull(managedChannel, "managedChannel");
     }
 
     public ProfilerCommandServiceGrpc.ProfilerCommandServiceStub newStub() {

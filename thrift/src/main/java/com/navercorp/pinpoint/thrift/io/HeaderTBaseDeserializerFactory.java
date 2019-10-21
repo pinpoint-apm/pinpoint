@@ -53,10 +53,10 @@ public final class HeaderTBaseDeserializerFactory implements DeserializerFactory
 
     public HeaderTBaseDeserializerFactory(TProtocolFactory protocolFactory, TypeLocator<TBase<?, ?>> locator) {
         if (protocolFactory == null) {
-            throw new NullPointerException("protocolFactory must not be null");
+            throw new NullPointerException("protocolFactory");
         }
         if (locator == null) {
-            throw new NullPointerException("locator must not be null");
+            throw new NullPointerException("locator");
         }
         this.protocolFactory = protocolFactory;
         this.locator = locator;

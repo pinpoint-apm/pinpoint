@@ -77,14 +77,14 @@ public class UDPReceiver {
         this.name = Objects.requireNonNull(name);
         this.logger = LoggerFactory.getLogger(name);
 
-        this.bindAddress = Objects.requireNonNull(bindAddress, "bindAddress must not be null");
-        this.packetHandlerFactory = Objects.requireNonNull(packetHandlerFactory, "packetHandlerFactory must not be null");
-        this.worker = Objects.requireNonNull(worker, "worker must not be null");
+        this.bindAddress = Objects.requireNonNull(bindAddress, "bindAddress");
+        this.packetHandlerFactory = Objects.requireNonNull(packetHandlerFactory, "packetHandlerFactory");
+        this.worker = Objects.requireNonNull(worker, "worker");
 
         Assert.isTrue(receiverBufferSize > 0, "receiverBufferSize must be greater than 0");
         this.socket = createSocket(receiverBufferSize);
 
-        this.datagramPacketPool = Objects.requireNonNull(datagramPacketPool, "datagramPacketPool must not be null");
+        this.datagramPacketPool = Objects.requireNonNull(datagramPacketPool, "datagramPacketPool");
     }
 
 

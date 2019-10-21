@@ -39,8 +39,8 @@ public class NettyClientStreamChannel extends AbstractStreamChannel implements C
 
     public NettyClientStreamChannel(Channel channel, int streamId, StreamChannelRepository streamChannelRepository, ClientStreamChannelEventHandler streamChannelEventHandler) {
         super(streamId, streamChannelRepository);
-        this.channel = Assert.requireNonNull(channel, "channel must not be null");
-        this.streamChannelEventHandler = Assert.requireNonNull(streamChannelEventHandler, "streamChannelEventHandler must not be null");
+        this.channel = Assert.requireNonNull(channel, "channel");
+        this.streamChannelEventHandler = Assert.requireNonNull(streamChannelEventHandler, "streamChannelEventHandler");
     }
 
     public void connect(byte[] payload, long timeout) throws StreamException {

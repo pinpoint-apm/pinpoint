@@ -38,8 +38,8 @@ public class HeaderPropagationInterceptor<H> implements ServerInterceptor {
     private final Context.Key<H> contextKey;
 
     public HeaderPropagationInterceptor(HeaderReader<H> headerReader, Context.Key<H> contextKey) {
-        this.headerReader = Assert.requireNonNull(headerReader, "headerReader must not be null");
-        this.contextKey = Assert.requireNonNull(contextKey, "contextKey must not be null");
+        this.headerReader = Assert.requireNonNull(headerReader, "headerReader");
+        this.contextKey = Assert.requireNonNull(contextKey, "contextKey");
     }
 
     @Override

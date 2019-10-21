@@ -34,7 +34,7 @@ public class ProjectPathResolver {
     // extract interface ????
     public ProjectPath resolvePathFromTestClass(Class testClass) {
         if (testClass == null) {
-            throw new NullPointerException("testClass must not be null");
+            throw new NullPointerException("testClass");
         }
         String testClassDir = getTestClassPath(testClass);
         // /D:/pinpoint_project/pinpoint/profiler/target/test-classes/
@@ -70,7 +70,7 @@ public class ProjectPathResolver {
 
     private String getProjectPath(String modulePath) {
         if (modulePath == null) {
-            throw new NullPointerException("modulePath must not be null");
+            throw new NullPointerException("modulePath");
         }
         // remove last /
         final int projectPathFound = modulePath.lastIndexOf('/');
@@ -94,7 +94,7 @@ public class ProjectPathResolver {
 
     private String getPinpointAgentPath(String projectPath) {
         if (projectPath == null) {
-            throw new NullPointerException("projectPath must not be null");
+            throw new NullPointerException("projectPath");
         }
 
         String pinpointAgentDir = projectPath + "/profiler/target/pinpoint-agent";
@@ -106,7 +106,7 @@ public class ProjectPathResolver {
 
     private String getTargetPath(String testClassDir) {
         if (testClassDir == null) {
-            throw new NullPointerException("testClassDir must not be null");
+            throw new NullPointerException("testClassDir");
         }
         // remove last '/'
         // D:/pinpoint_project/pinpoint/profiler/target/test-classes/ -> D:/pinpoint_project/pinpoint/profiler/target/test-classes

@@ -37,8 +37,8 @@ public class TestWorker implements Runnable {
     }
 
     TestWorker(CountDownLatch completeLatch, Callback callback) {
-        this.completeLatch = Objects.requireNonNull(completeLatch, "completeLatch must not be null");
-        this.callback = Objects.requireNonNull(callback, "onWorkerRun must not be null");
+        this.completeLatch = Objects.requireNonNull(completeLatch, "completeLatch");
+        this.callback = Objects.requireNonNull(callback, "onWorkerRun");
     }
 
     @Override

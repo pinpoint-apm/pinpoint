@@ -167,7 +167,7 @@ public class SpanCallTree implements CallTree {
     }
 
     public void add(final Align align) {
-        Objects.requireNonNull(align, "align must not be null");
+        Objects.requireNonNull(align, "align");
 
         final int depth = align.getSpanEventBo().getDepth();
         add(depth, align);

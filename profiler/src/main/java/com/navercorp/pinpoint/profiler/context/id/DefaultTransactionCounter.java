@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.profiler.context.id;
 
 import com.google.inject.Inject;
+import com.navercorp.pinpoint.common.util.Assert;
 
 /**
  * @author HyunGil Jeong
@@ -27,10 +28,7 @@ public class DefaultTransactionCounter implements TransactionCounter {
 
     @Inject
     public DefaultTransactionCounter(IdGenerator idGenerator) {
-        if (idGenerator == null) {
-            throw new NullPointerException("idGenerator");
-        }
-        this.idGenerator = idGenerator;
+        this.idGenerator = Assert.requireNonNull(idGenerator, "idGenerator");
     }
     
     @Override

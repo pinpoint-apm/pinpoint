@@ -55,7 +55,7 @@ public class HbaseAgentEventDao implements AgentEventDao {
     @Override
     public void insert(AgentEventBo agentEventBo) {
         if (agentEventBo == null) {
-            throw new NullPointerException("agentEventBo must not be null");
+            throw new NullPointerException("agentEventBo");
         }
 
         if (logger.isDebugEnabled()) {

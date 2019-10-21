@@ -102,7 +102,7 @@ public class DefaultPinpointClientFactory implements PinpointClientFactory {
         logger.debug("createBootStrap boss:{}, worker:{}", bossCount, workerCount);
         this.channelFactory = channelFactory.createChannelFactory(bossCount, workerCount, timer);
         this.socketOptionBuilder = new SocketOption.Builder();
-        this.connectionFactoryProvider = Assert.requireNonNull(connectionFactoryProvider, "connectionFactoryProvider must not be null");
+        this.connectionFactoryProvider = Assert.requireNonNull(connectionFactoryProvider, "connectionFactoryProvider");
     }
 
     public DefaultPinpointClientFactory(ChannelFactory channelFactory, Timer timer) {
@@ -110,12 +110,12 @@ public class DefaultPinpointClientFactory implements PinpointClientFactory {
     }
 
     public DefaultPinpointClientFactory(ChannelFactory channelFactory, Timer timer, ConnectionFactoryProvider connectionFactoryProvider) {
-        this.channelFactory = Assert.requireNonNull(channelFactory, "channelFactory must not be null");
-        this.timer = Assert.requireNonNull(timer, "timer must not be null");
+        this.channelFactory = Assert.requireNonNull(channelFactory, "channelFactory");
+        this.timer = Assert.requireNonNull(timer, "timer");
 
         this.useExternalResource = true;
         this.socketOptionBuilder = new SocketOption.Builder();
-        this.connectionFactoryProvider = Assert.requireNonNull(connectionFactoryProvider, "connectionFactoryProvider must not be null");
+        this.connectionFactoryProvider = Assert.requireNonNull(connectionFactoryProvider, "connectionFactoryProvider");
     }
 
     private static Timer createTimer(String timerName) {
@@ -239,7 +239,7 @@ public class DefaultPinpointClientFactory implements PinpointClientFactory {
 
     @Override
     public PinpointClient scheduledConnect(SocketAddressProvider socketAddressProvider) {
-        Assert.requireNonNull(socketAddressProvider, "socketAddressProvider must not be null");
+        Assert.requireNonNull(socketAddressProvider, "socketAddressProvider");
 
         PinpointClient pinpointClient = new DefaultPinpointClient(new ReconnectStateClientHandler());
         ConnectionFactory connectionFactory = createConnectionFactory();
@@ -281,7 +281,7 @@ public class DefaultPinpointClientFactory implements PinpointClientFactory {
     }
 
     public void setProperties(Map<String, Object> agentProperties) {
-        Assert.requireNonNull(properties, "agentProperties must not be null");
+        Assert.requireNonNull(properties, "agentProperties");
 
         this.properties = new HashMap<String, Object>(agentProperties);
     }
@@ -311,7 +311,7 @@ public class DefaultPinpointClientFactory implements PinpointClientFactory {
     }
 
     public void setMessageListener(MessageListener messageListener) {
-        Assert.requireNonNull(messageListener, "messageListener must not be null");
+        Assert.requireNonNull(messageListener, "messageListener");
 
         this.messageListener = messageListener;
     }
@@ -321,7 +321,7 @@ public class DefaultPinpointClientFactory implements PinpointClientFactory {
     }
 
     public void setServerStreamChannelMessageHandler(ServerStreamChannelMessageHandler serverStreamChannelMessageHandler) {
-        this.serverStreamChannelMessageHandler = Assert.requireNonNull(serverStreamChannelMessageHandler, "serverStreamChannelMessageHandler must not be null");
+        this.serverStreamChannelMessageHandler = Assert.requireNonNull(serverStreamChannelMessageHandler, "serverStreamChannelMessageHandler");
     }
 
     public List<StateChangeEventListener> getStateChangeEventListeners() {

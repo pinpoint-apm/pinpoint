@@ -36,7 +36,7 @@ public class DefaultAcceptHistogram implements AcceptHistogram {
     @Override
     public boolean addResponseTime(String parentApplicationName, short serviceTypeCode, int millis, boolean error) {
         if (parentApplicationName == null) {
-            throw new NullPointerException("parentApplicationName must not be null");
+            throw new NullPointerException("parentApplicationName");
         }
         // Cannot compare by ServiceType value because it could be incompatible if new service type is added.  
         if (!ServiceTypeCategory.SERVER.contains(serviceTypeCode)) {
@@ -72,7 +72,7 @@ public class DefaultAcceptHistogram implements AcceptHistogram {
 
         private ResponseKey(String parentApplicationName, short serviceType) {
             if (parentApplicationName == null) {
-                throw new NullPointerException("parentApplicationName must not be null");
+                throw new NullPointerException("parentApplicationName");
             }
 
             this.parentApplicationName = parentApplicationName;

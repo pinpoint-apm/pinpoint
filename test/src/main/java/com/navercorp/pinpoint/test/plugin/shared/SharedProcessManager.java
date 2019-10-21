@@ -47,7 +47,7 @@ public class SharedProcessManager implements ProcessManager {
     private Process process = null;
 
     public SharedProcessManager(PinpointPluginTestContext context) {
-        this.context = Assert.requireNonNull(context, "context must not be null");
+        this.context = Assert.requireNonNull(context, "context");
     }
 
     @Override

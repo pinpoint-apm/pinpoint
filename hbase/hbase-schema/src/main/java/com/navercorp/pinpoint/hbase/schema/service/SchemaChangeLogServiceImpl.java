@@ -40,7 +40,7 @@ public class SchemaChangeLogServiceImpl implements SchemaChangeLogService {
     private final SchemaChangeLogDao schemaChangeLogDao;
 
     public SchemaChangeLogServiceImpl(SchemaChangeLogDao schemaChangeLogDao) {
-        this.schemaChangeLogDao = Objects.requireNonNull(schemaChangeLogDao, "schemaChangeLogDao must not be null");
+        this.schemaChangeLogDao = Objects.requireNonNull(schemaChangeLogDao, "schemaChangeLogDao");
     }
 
     @Override

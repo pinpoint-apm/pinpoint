@@ -32,10 +32,10 @@ import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.util.Assert;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author HyunGil Jeong
@@ -49,8 +49,7 @@ public class JvmGcCodecV2 implements AgentStatCodec<JvmGcBo> {
 
     @Autowired
     public JvmGcCodecV2(AgentStatDataPointCodec codec) {
-        Assert.notNull(codec, "agentStatDataPointCodec must not be null");
-        this.codec = codec;
+        this.codec = Objects.requireNonNull(codec, "agentStatDataPointCodec");
     }
 
     @Override
@@ -68,8 +67,8 @@ public class JvmGcCodecV2 implements AgentStatCodec<JvmGcBo> {
         final int numValues = jvmGcBos.size();
         valueBuffer.putVInt(numValues);
 
-        List<Long> startTimestamps = new ArrayList<Long>(numValues);
-        List<Long> timestamps = new ArrayList<Long>(numValues);
+        List<Long> startTimestamps = new ArrayList<>(numValues);
+        List<Long> timestamps = new ArrayList<>(numValues);
         JvmGcCodecEncoder jvmGcCodecEncoder = new JvmGcCodecEncoder(codec);
         for (JvmGcBo jvmGcBo : jvmGcBos) {
             startTimestamps.add(jvmGcBo.getStartTimestamp());
@@ -101,7 +100,7 @@ public class JvmGcCodecV2 implements AgentStatCodec<JvmGcBo> {
         JvmGcCodecDecoder decoder = new JvmGcCodecDecoder(codec);
         decoder.decode(valueBuffer, headerDecoder, numValues);
 
-        List<JvmGcBo> jvmGcBos = new ArrayList<JvmGcBo>(numValues);
+        List<JvmGcBo> jvmGcBos = new ArrayList<>(numValues);
         for (int i = 0; i < numValues; i++) {
             JvmGcBo jvmGcBo = decoder.getValue(i);
             jvmGcBo.setAgentId(agentId);
@@ -177,8 +176,7 @@ public class JvmGcCodecV2 implements AgentStatCodec<JvmGcBo> {
         private List<Long> gcOldTimes;
 
         public JvmGcCodecDecoder(AgentStatDataPointCodec codec) {
-            Assert.notNull(codec, "codec must not be null");
-            this.codec = codec;
+            this.codec = Objects.requireNonNull(codec, "codec");
         }
 
         @Override

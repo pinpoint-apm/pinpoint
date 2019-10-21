@@ -39,6 +39,7 @@ import org.springframework.beans.factory.InitializingBean;
 import java.io.Closeable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.Executor;
 
 /**
@@ -74,11 +75,11 @@ public class GrpcReceiver implements InitializingBean, DisposableBean, BeanNameA
             return;
         }
 
-        Assert.requireNonNull(this.beanName, "beanName must not be null");
-        Assert.requireNonNull(this.bindIp, "bindIp must not be null");
-        Assert.requireNonNull(this.addressFilter, "addressFilter must not be null");
+        Objects.requireNonNull(this.beanName, "beanName");
+        Objects.requireNonNull(this.bindIp, "bindIp");
+        Objects.requireNonNull(this.addressFilter, "addressFilter");
         Assert.isTrue(CollectionUtils.hasLength(this.serviceList), "serviceList must not be empty");
-        Assert.requireNonNull(this.serverOption, "serverOption must not be null");
+        Objects.requireNonNull(this.serverOption, "serverOption");
 
         this.serverFactory = new ServerFactory(beanName, this.bindIp, this.bindPort, this.executor, serverOption);
         ServerTransportFilter permissionServerTransportFilter = new PermissionServerTransportFilter(this.beanName, addressFilter);

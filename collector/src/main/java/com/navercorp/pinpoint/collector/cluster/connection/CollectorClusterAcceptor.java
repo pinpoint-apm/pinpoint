@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.collector.cluster.connection;
 
 import com.navercorp.pinpoint.collector.util.Address;
 import com.navercorp.pinpoint.collector.util.DefaultAddress;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.rpc.cluster.ClusterOption;
 import com.navercorp.pinpoint.rpc.cluster.Role;
 import com.navercorp.pinpoint.rpc.common.SocketStateCode;
@@ -35,6 +34,7 @@ import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.util.Objects;
 
 /**
  * @author Taejin Koo
@@ -53,9 +53,9 @@ public class CollectorClusterAcceptor implements CollectorClusterConnectionProvi
 
     public CollectorClusterAcceptor(CollectorClusterConnectionOption option, InetSocketAddress bindAddress, CollectorClusterConnectionRepository clusterSocketRepository) {
         this.name = ClassUtils.simpleClassName(this);
-        this.option = Assert.requireNonNull(option, "option must not be null");
-        this.bindAddress = Assert.requireNonNull(bindAddress, "bindAddress must not be null");
-        this.clusterSocketRepository = Assert.requireNonNull(clusterSocketRepository, "clusterSocketRepository must not be null");
+        this.option = Objects.requireNonNull(option, "option");
+        this.bindAddress = Objects.requireNonNull(bindAddress, "bindAddress");
+        this.clusterSocketRepository = Objects.requireNonNull(clusterSocketRepository, "clusterSocketRepository");
     }
 
     @Override

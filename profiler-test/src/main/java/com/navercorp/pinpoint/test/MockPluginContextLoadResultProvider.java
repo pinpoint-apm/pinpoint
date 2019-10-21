@@ -33,8 +33,8 @@ public class MockPluginContextLoadResultProvider implements Provider<PluginConte
 
     @Inject
     public MockPluginContextLoadResultProvider(ProfilerPluginContextLoader profilerPluginContextLoader, @PluginClassLoader ClassLoader pluginClassLoader) {
-        this.profilerPluginContextLoader = Assert.requireNonNull(profilerPluginContextLoader, "profilerPluginContextLoader must not be null");
-        this.pluginClassLoader = Assert.requireNonNull(pluginClassLoader, "pluginLoader must not be null");
+        this.profilerPluginContextLoader = Assert.requireNonNull(profilerPluginContextLoader, "profilerPluginContextLoader");
+        this.pluginClassLoader = Assert.requireNonNull(pluginClassLoader, "pluginLoader");
     }
 
     @Override

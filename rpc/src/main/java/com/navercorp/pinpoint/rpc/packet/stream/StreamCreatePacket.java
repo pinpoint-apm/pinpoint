@@ -35,8 +35,7 @@ public class StreamCreatePacket extends BasicStreamPacket {
     public StreamCreatePacket(int streamChannelId, byte[] payload) {
         super(streamChannelId);
 
-        Assert.requireNonNull(payload, "payload must not be null");
-        this.payload = payload;
+        this.payload = Assert.requireNonNull(payload, "payload");
     }
 
     @Override

@@ -54,7 +54,7 @@ public class HbaseResponseTimeDao implements AgentStatDaoV2<ResponseTimeBo> {
     @Override
     public void insert(String agentId, List<ResponseTimeBo> responseTimeBos) {
         if (agentId == null) {
-            throw new NullPointerException("agentId must not be null");
+            throw new NullPointerException("agentId");
         }
         if (CollectionUtils.isEmpty(responseTimeBos)) {
             return;

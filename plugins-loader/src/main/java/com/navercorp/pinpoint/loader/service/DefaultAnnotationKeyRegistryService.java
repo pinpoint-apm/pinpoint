@@ -29,7 +29,7 @@ public class DefaultAnnotationKeyRegistryService implements AnnotationKeyRegistr
     private final AnnotationKeyLocator annotationKeyLocator;
 
     public DefaultAnnotationKeyRegistryService(TraceMetadataLoaderService typeLoaderService) {
-        Assert.requireNonNull(typeLoaderService, "typeLoaderService must not be null");
+        Assert.requireNonNull(typeLoaderService, "typeLoaderService");
         this.annotationKeyLocator = typeLoaderService.getAnnotationKeyLocator();
     }
 

@@ -41,10 +41,10 @@ public class FlinkHeaderTBaseSerializer {
      * @param protocolFactory
      */
     public FlinkHeaderTBaseSerializer(ResettableByteArrayOutputStream bos, TProtocolFactory protocolFactory, TypeLocator<TBase<?, ?>> locator) {
-        this.baos = Assert.requireNonNull(bos, "ResettableByteArrayOutputStream must not be null.");
-        this.locator = Assert.requireNonNull(locator, "locator must not be null.");
+        this.baos = Assert.requireNonNull(bos, "ResettableByteArrayOutputStream");
+        this.locator = Assert.requireNonNull(locator, "locator");
 
-        Assert.requireNonNull(protocolFactory, "TProtocolFactory must not be null.");
+        Assert.requireNonNull(protocolFactory, "TProtocolFactory");
         TIOStreamTransport transport = new TIOStreamTransport(bos);
         this.protocol = protocolFactory.getProtocol(transport);
 

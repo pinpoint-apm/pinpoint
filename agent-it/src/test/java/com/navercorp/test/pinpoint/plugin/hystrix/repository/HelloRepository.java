@@ -30,7 +30,7 @@ public class HelloRepository {
 
     public String hello(String name, Exception exception) throws Exception {
         if (exception == null) {
-            throw new NullPointerException("exception must not be null");
+            throw new NullPointerException("exception");
         }
         System.out.println("name : " + name + ", with exception : " + exception);
         throw exception;

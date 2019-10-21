@@ -68,13 +68,13 @@ public class DefaultAgentStatMonitor implements AgentStatMonitor {
                                    AgentStatMetricCollector<AgentStatMetricSnapshot> agentStatCollector,
                                    long collectionIntervalMs, int numCollectionsPerBatch) {
         if (dataSender == null) {
-            throw new NullPointerException("dataSender must not be null");
+            throw new NullPointerException("dataSender");
         }
         if (agentId == null) {
-            throw new NullPointerException("agentId must not be null");
+            throw new NullPointerException("agentId");
         }
         if (agentStatCollector == null) {
-            throw new NullPointerException("agentStatCollector must not be null");
+            throw new NullPointerException("agentStatCollector");
         }
         if (collectionIntervalMs < MIN_COLLECTION_INTERVAL_MS) {
             collectionIntervalMs = DEFAULT_COLLECTION_INTERVAL_MS;

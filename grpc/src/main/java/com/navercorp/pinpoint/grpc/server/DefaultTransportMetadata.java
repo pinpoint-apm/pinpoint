@@ -32,8 +32,8 @@ public class DefaultTransportMetadata implements TransportMetadata {
 
 
     public DefaultTransportMetadata(String debugString, InetSocketAddress remoteAddress, long transportId, long connectTime) {
-        this.debugString = Assert.requireNonNull(debugString, "debugString must not be null");
-        this.remoteAddress = Assert.requireNonNull(remoteAddress, "remoteAddress must not be null");
+        this.debugString = Assert.requireNonNull(debugString, "debugString");
+        this.remoteAddress = Assert.requireNonNull(remoteAddress, "remoteAddress");
         this.transportId = transportId;
         this.connectTime = connectTime;
     }

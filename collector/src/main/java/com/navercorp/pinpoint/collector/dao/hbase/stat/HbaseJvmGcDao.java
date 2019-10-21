@@ -54,7 +54,7 @@ public class HbaseJvmGcDao implements AgentStatDaoV2<JvmGcBo> {
     @Override
     public void insert(String agentId, List<JvmGcBo> jvmGcBos) {
         if (agentId == null) {
-            throw new NullPointerException("agentId must not be null");
+            throw new NullPointerException("agentId");
         }
         if (CollectionUtils.isEmpty(jvmGcBos)) {
             return;

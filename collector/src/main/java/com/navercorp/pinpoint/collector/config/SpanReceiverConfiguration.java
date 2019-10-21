@@ -85,8 +85,8 @@ public final class SpanReceiverConfiguration implements DataReceiverGroupConfigu
     private final ServerOption grpcServerOption;
 
     public SpanReceiverConfiguration(Properties properties, DeprecatedConfiguration deprecatedConfiguration) {
-        Objects.requireNonNull(properties, "properties must not be null");
-        Objects.requireNonNull(deprecatedConfiguration, "deprecatedConfiguration must not be null");
+        Objects.requireNonNull(properties, "properties");
+        Objects.requireNonNull(deprecatedConfiguration, "deprecatedConfiguration");
 
         this.isTcpEnable = CollectorConfiguration.readBoolean(properties, TCP_ENABLE);
         this.tcpBindIp = CollectorConfiguration.readString(properties, TCP_BIND_IP, CollectorConfiguration.DEFAULT_LISTEN_IP);
@@ -137,12 +137,12 @@ public final class SpanReceiverConfiguration implements DataReceiverGroupConfigu
         Assert.isTrue(isTcpEnable || isUdpEnable, "spanReceiver does not allow tcp and udp disable");
 
         if (isTcpEnable) {
-            Objects.requireNonNull(tcpBindIp, "tcpBindIp must not be null");
+            Objects.requireNonNull(tcpBindIp, "tcpBindIp");
             Assert.isTrue(tcpBindPort > 0, "tcpBindPort must be greater than 0");
         }
 
         if (isUdpEnable) {
-            Objects.requireNonNull(udpBindIp, "udpBindIp must not be null");
+            Objects.requireNonNull(udpBindIp, "udpBindIp");
             Assert.isTrue(udpBindPort > 0, "udpBindPort must be greater than 0");
             Assert.isTrue(udpReceiveBufferSize > 0, "udpReceiveBufferSize must be greater than 0");
         }

@@ -50,7 +50,7 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
     @Override
     public void insert(AgentInfoBo agentInfo) {
         if (agentInfo == null) {
-            throw new NullPointerException("agentInfo must not be null");
+            throw new NullPointerException("agentInfo");
         }
 
         if (logger.isDebugEnabled()) {

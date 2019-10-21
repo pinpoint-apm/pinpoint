@@ -73,7 +73,7 @@ public class HbaseAgentLifeCycleDao implements AgentLifeCycleDao {
 
     @Override
     public AgentStatus getAgentStatus(String agentId, long timestamp) {
-        Assert.notNull(agentId, "agentId must not be null");
+        Objects.requireNonNull(agentId, "agentId");
         Assert.isTrue(timestamp >= 0, "timestamp must not be less than 0");
 
         Scan scan = createScan(agentId, 0, timestamp);

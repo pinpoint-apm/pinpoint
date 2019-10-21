@@ -129,7 +129,7 @@ public enum TCommandTypeVersion {
 
     public static TCommandTypeVersion getVersion(String version) {
         if (version == null) {
-            throw new NullPointerException("version must not be null.");
+            throw new NullPointerException("version");
         }
 
         for (TCommandTypeVersion versionType : TCommandTypeVersion.values()) {

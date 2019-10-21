@@ -24,7 +24,7 @@ public class DefaultClassNameMatcher implements ClassNameMatcher {
 
     DefaultClassNameMatcher(String className) {
         if (className == null) {
-            throw new NullPointerException("className must not be null");
+            throw new NullPointerException("className");
         }
         this.className = className;
     }

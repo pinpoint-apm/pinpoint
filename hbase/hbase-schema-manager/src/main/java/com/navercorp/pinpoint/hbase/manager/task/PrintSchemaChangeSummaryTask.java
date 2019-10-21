@@ -36,7 +36,7 @@ public class PrintSchemaChangeSummaryTask implements HbaseSchemaManagerTask {
     private final String namespace;
 
     public PrintSchemaChangeSummaryTask(HbaseSchemaService hbaseSchemaService, String namespace) {
-        this.hbaseSchemaService = Objects.requireNonNull(hbaseSchemaService, "hbaseSchemaService must not be null");
+        this.hbaseSchemaService = Objects.requireNonNull(hbaseSchemaService, "hbaseSchemaService");
         this.namespace = namespace;
     }
 

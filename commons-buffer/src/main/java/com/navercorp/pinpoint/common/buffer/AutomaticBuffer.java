@@ -205,7 +205,7 @@ public class AutomaticBuffer extends FixedBuffer {
     @Override
     public void putBytes(final byte[] v) {
         if (v == null) {
-            throw new NullPointerException("v must not be null");
+            throw new NullPointerException("v");
         }
         checkExpand(v.length);
         super.putBytes(v);

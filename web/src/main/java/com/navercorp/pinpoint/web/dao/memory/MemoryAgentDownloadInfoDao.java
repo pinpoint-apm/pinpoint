@@ -31,8 +31,8 @@ public class MemoryAgentDownloadInfoDao implements AgentDownloadInfoDao {
     private final List<AgentDownloadInfo> agentDownloadInfoList;
 
     public MemoryAgentDownloadInfoDao(String version, String downloadUrl) {
-        Objects.requireNonNull(version, "version must not be null");
-        Objects.requireNonNull(downloadUrl, "downloadUrl must not be null");
+        Objects.requireNonNull(version, "version");
+        Objects.requireNonNull(downloadUrl, "downloadUrl");
 
         AgentDownloadInfo agentDownloadInfo = new AgentDownloadInfo(version, downloadUrl);
 

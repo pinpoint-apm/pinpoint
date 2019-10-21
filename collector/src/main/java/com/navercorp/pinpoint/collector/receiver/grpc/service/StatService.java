@@ -54,7 +54,7 @@ public class StatService extends StatGrpc.StatImplBase {
     private final ServerRequestFactory serverRequestFactory = new ServerRequestFactory();
 
     public StatService(DispatchHandler dispatchHandler) {
-        this.dispatchHandler = Objects.requireNonNull(dispatchHandler, "dispatchHandler must not be null");
+        this.dispatchHandler = Objects.requireNonNull(dispatchHandler, "dispatchHandler");
     }
 
     @Override

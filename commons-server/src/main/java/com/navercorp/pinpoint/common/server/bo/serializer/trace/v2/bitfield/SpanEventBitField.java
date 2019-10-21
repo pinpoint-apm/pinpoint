@@ -52,7 +52,7 @@ public class SpanEventBitField {
 
     public static SpanEventBitField buildFirst(SpanEventBo spanEventBo) {
         if (spanEventBo == null) {
-            throw new NullPointerException("spanEventBo must not be null");
+            throw new NullPointerException("spanEventBo");
         }
         final SpanEventBitField bitFiled = new SpanEventBitField();
 
@@ -95,10 +95,10 @@ public class SpanEventBitField {
 
     public static SpanEventBitField build(SpanEventBo spanEventBo, SpanEventBo prevSpanEventBo) {
         if (spanEventBo == null) {
-            throw new NullPointerException("spanEventBo must not be null");
+            throw new NullPointerException("spanEventBo");
         }
         if (prevSpanEventBo == null) {
-            throw new NullPointerException("prevSpanEventBo must not be null");
+            throw new NullPointerException("prevSpanEventBo");
         }
 
         final SpanEventBitField bitFiled = buildFirst(spanEventBo);

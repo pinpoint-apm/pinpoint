@@ -34,7 +34,7 @@ public class GrpcNameResolverProvider implements Provider<NameResolverProvider> 
 
     @Inject
     public GrpcNameResolverProvider(Provider<ExecutorService> dnsExecutorService) {
-        this.dnsExecutorService = Assert.requireNonNull(dnsExecutorService, "dnsExecutorServiceProvider must not be null");
+        this.dnsExecutorService = Assert.requireNonNull(dnsExecutorService, "dnsExecutorServiceProvider");
     }
 
     @Override

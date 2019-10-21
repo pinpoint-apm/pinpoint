@@ -22,7 +22,6 @@ import com.navercorp.pinpoint.collector.cluster.ProfilerClusterManager;
 import com.navercorp.pinpoint.collector.cluster.zookeeper.ZookeeperClusterService;
 import com.navercorp.pinpoint.collector.receiver.grpc.PinpointGrpcServer;
 import com.navercorp.pinpoint.collector.receiver.grpc.PinpointGrpcServerRepository;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.StatusError;
 import com.navercorp.pinpoint.grpc.StatusErrors;
@@ -52,6 +51,7 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -72,8 +72,8 @@ public class GrpcCommandService extends ProfilerCommandServiceGrpc.ProfilerComma
     private final ActiveThreadCountService activeThreadCountService = new ActiveThreadCountService();
 
     public GrpcCommandService(ZookeeperClusterService clusterService) {
-        Assert.requireNonNull(clusterService, "clusterService must not be null");
-        this.profilerClusterManager = Assert.requireNonNull(clusterService.getProfilerClusterManager(), "profilerClusterManager must not be null");
+        Objects.requireNonNull(clusterService, "clusterService");
+        this.profilerClusterManager = Objects.requireNonNull(clusterService.getProfilerClusterManager(), "profilerClusterManager");
         this.timer = TimerFactory.createHashedWheelTimer("GrpcCommandService-Timer", 100, TimeUnit.MILLISECONDS, 512);
     }
 

@@ -79,7 +79,7 @@ public final class DeprecatedConfiguration {
     }
 
     public DeprecatedConfiguration(Properties properties) {
-        Objects.requireNonNull(properties, "properties must not be null");
+        Objects.requireNonNull(properties, "properties");
 
         for (String deprecatedPropertyKey : DEPRECATED_PROPERTY_ARRAY) {
             if (properties.containsKey(deprecatedPropertyKey)) {

@@ -27,7 +27,7 @@ class CodeSourceUtils {
 
     static URL getCodeLocation(Class<?> clazz) {
         if (clazz == null) {
-            throw new NullPointerException("clazz must not be null");
+            throw new NullPointerException("clazz");
         }
 
         final ProtectionDomain protectionDomain = clazz.getProtectionDomain();

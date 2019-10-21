@@ -33,7 +33,7 @@ public abstract class ColumnFamilyChange implements Change {
             throw new IllegalArgumentException("name must not be empty");
         }
         this.name = name;
-        this.columnFamilyConfiguration = Objects.requireNonNull(columnFamilyConfiguration, "columnFamilyConfiguration must not be null");
+        this.columnFamilyConfiguration = Objects.requireNonNull(columnFamilyConfiguration, "columnFamilyConfiguration");
     }
 
     public ColumnFamilyConfiguration getColumnFamilyConfiguration() {

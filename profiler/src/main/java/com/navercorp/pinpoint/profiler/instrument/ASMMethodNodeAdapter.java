@@ -180,7 +180,7 @@ public class ASMMethodNodeAdapter {
 
     public void addDelegator(final String superClassInternalName) {
         if (superClassInternalName == null) {
-            throw new IllegalArgumentException("super class internal name must not be null.");
+            throw new NullPointerException("super class internal name");
         }
 
         final InsnList instructions = this.methodNode.instructions;
@@ -205,7 +205,7 @@ public class ASMMethodNodeAdapter {
 
     public void rename(final String name) {
         if (name == null) {
-            throw new IllegalArgumentException("method name must not be null.");
+            throw new IllegalArgumentException("methodName");
         }
 
         final ASMMethodInsnNodeRemapper.Builder remapBuilder = new ASMMethodInsnNodeRemapper.Builder();

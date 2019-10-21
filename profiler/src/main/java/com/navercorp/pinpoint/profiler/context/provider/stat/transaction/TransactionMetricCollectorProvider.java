@@ -34,7 +34,7 @@ public class TransactionMetricCollectorProvider implements Provider<AgentStatMet
 
     @Inject
     public TransactionMetricCollectorProvider(TransactionMetric transactionMetric) {
-        this.transactionMetric = Assert.requireNonNull(transactionMetric, "transactionMetric must not be null");
+        this.transactionMetric = Assert.requireNonNull(transactionMetric, "transactionMetric");
     }
 
     @Override

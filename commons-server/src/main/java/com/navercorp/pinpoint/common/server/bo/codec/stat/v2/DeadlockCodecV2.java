@@ -29,9 +29,10 @@ import com.navercorp.pinpoint.common.server.bo.codec.strategy.EncodingStrategy;
 import com.navercorp.pinpoint.common.server.bo.stat.DeadlockThreadCountBo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.util.Assert;
+
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Taejin Koo
@@ -50,8 +51,7 @@ public class DeadlockCodecV2 extends AgentStatCodecV2<DeadlockThreadCountBo> {
         private final AgentStatDataPointCodec codec;
 
         private DeadlockCodecFactory(AgentStatDataPointCodec codec) {
-            Assert.notNull(codec, "codec must not be null");
-            this.codec = codec;
+            this.codec = Objects.requireNonNull(codec, "codec");
         }
 
         @Override
@@ -76,8 +76,7 @@ public class DeadlockCodecV2 extends AgentStatCodecV2<DeadlockThreadCountBo> {
         private final UnsignedIntegerEncodingStrategy.Analyzer.Builder deadlockedThreadCountAnalyzerBuilder = new UnsignedIntegerEncodingStrategy.Analyzer.Builder();
 
         private DeadlockCodecEncoder(AgentStatDataPointCodec codec) {
-            Assert.notNull(codec, "codec must not be null");
-            this.codec = codec;
+            this.codec = Objects.requireNonNull(codec, "codec");
         }
 
         @Override
@@ -109,8 +108,7 @@ public class DeadlockCodecV2 extends AgentStatCodecV2<DeadlockThreadCountBo> {
         private List<Integer> deadlockedThreadCountList;
 
         public DeadlockCodecDecoder(AgentStatDataPointCodec codec) {
-            Assert.notNull(codec, "codec must not be null");
-            this.codec = codec;
+            this.codec = Objects.requireNonNull(codec, "codec");
         }
 
         @Override

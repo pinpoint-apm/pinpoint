@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.collector.receiver.thrift.tcp;
 
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.rpc.PinpointSocket;
 import com.navercorp.pinpoint.rpc.packet.HandshakeResponseCode;
 import com.navercorp.pinpoint.rpc.packet.PingPayloadPacket;
@@ -27,6 +26,7 @@ import com.navercorp.pinpoint.rpc.server.ServerMessageListener;
 import com.navercorp.pinpoint.rpc.server.ServerMessageListenerFactory;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.Executor;
 
 /**
@@ -38,8 +38,8 @@ class TCPReceiverServerMessageListenerFactory implements ServerMessageListenerFa
     private final TCPPacketHandler tcpPacketHandler;
 
     TCPReceiverServerMessageListenerFactory(Executor executor, TCPPacketHandler tcpPacketHandler) {
-        this.executor = Assert.requireNonNull(executor, "executor must not be null");
-        this.tcpPacketHandler = Assert.requireNonNull(tcpPacketHandler, "tcpPacketHandler must not be null");
+        this.executor = Objects.requireNonNull(executor, "executor");
+        this.tcpPacketHandler = Objects.requireNonNull(tcpPacketHandler, "tcpPacketHandler");
     }
 
     @Override
@@ -54,8 +54,8 @@ class TCPReceiverServerMessageListenerFactory implements ServerMessageListenerFa
         private final TCPPacketHandler tcpPacketHandler;
 
         public TCPReceiverServerMessageListener(Executor executor, TCPPacketHandler tcpPacketHandler) {
-            this.executor = Assert.requireNonNull(executor, "executor must not be null");
-            this.tcpPacketHandler = Assert.requireNonNull(tcpPacketHandler, "tcpPacketHandler must not be null");
+            this.executor = Objects.requireNonNull(executor, "executor");
+            this.tcpPacketHandler = Objects.requireNonNull(tcpPacketHandler, "tcpPacketHandler");
         }
 
         @Override

@@ -86,13 +86,13 @@ public class Node {
     }
 
     private Align newSpanEventAlign(SpanEventBo spanEventBo) {
-        Objects.requireNonNull(spanEventBo, "spanEventBo must not be null");
+        Objects.requireNonNull(spanEventBo, "spanEventBo");
         return new SpanEventAlign(span, spanEventBo);
     }
 
     private Align newSpanEventAlign(SpanChunkBo spanChunkBo, SpanEventBo spanEventBo) {
-        Objects.requireNonNull(spanChunkBo, "spanChunkBo must not be null");
-        Objects.requireNonNull(spanEventBo, "spanEventBo must not be null");
+        Objects.requireNonNull(spanChunkBo, "spanChunkBo");
+        Objects.requireNonNull(spanEventBo, "spanEventBo");
         return new SpanChunkEventAlign(span, spanChunkBo, spanEventBo);
     }
 
@@ -116,8 +116,8 @@ public class Node {
     }
 
     public static Node build(SpanBo spanBo, SpanCallTree spanCallTree) {
-        Objects.requireNonNull(spanBo, "spanBo must not be null");
-        Objects.requireNonNull(spanCallTree, "spanCallTree must not be null");
+        Objects.requireNonNull(spanBo, "spanBo");
+        Objects.requireNonNull(spanCallTree, "spanCallTree");
 
         Node node = new Node(spanBo, spanCallTree);
 

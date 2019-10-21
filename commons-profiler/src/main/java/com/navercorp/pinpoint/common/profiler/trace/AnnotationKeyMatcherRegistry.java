@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.common.profiler.trace;
 import com.navercorp.pinpoint.common.trace.AnnotationKeyMatcher;
 import com.navercorp.pinpoint.common.trace.AnnotationKeyMatcherLocator;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.apache.IntHashMap;
 import com.navercorp.pinpoint.common.util.apache.IntHashMapUtils;
 
@@ -33,10 +34,7 @@ public class AnnotationKeyMatcherRegistry implements AnnotationKeyMatcherLocator
     private final IntHashMap<AnnotationKeyMatcher> annotationMatcherMap;
 
     private AnnotationKeyMatcherRegistry(IntHashMap<AnnotationKeyMatcher> annotationMatcherMap) {
-        if (annotationMatcherMap == null) {
-            throw new NullPointerException("annotationMatcherMap must not be null");
-        }
-        this.annotationMatcherMap = annotationMatcherMap;
+        this.annotationMatcherMap = Assert.requireNonNull(annotationMatcherMap, "annotationMatcherMap");
     }
 
     public AnnotationKeyMatcher findAnnotationKeyMatcher(short serviceType) {
@@ -49,10 +47,10 @@ public class AnnotationKeyMatcherRegistry implements AnnotationKeyMatcherLocator
 
         AnnotationKeyMatcher addAnnotationKeyMatcher(ServiceType serviceType, AnnotationKeyMatcher annotationKeyMatcher) {
             if (serviceType == null) {
-                throw new NullPointerException("serviceType must not be null");
+                throw new NullPointerException("serviceType");
             }
             if (annotationKeyMatcher == null) {
-                throw new NullPointerException("annotationKeyMatcher must not be null");
+                throw new NullPointerException("annotationKeyMatcher");
             }
             int code = serviceType.getCode();
             return this.buildMap.put(code, annotationKeyMatcher);

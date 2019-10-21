@@ -48,8 +48,8 @@ public class DotExtractor {
     }
 
     public void addDot(Application application, Dot dot) {
-        Objects.requireNonNull(application, "application must not be null");
-        Objects.requireNonNull(dot, "dot must not be null");
+        Objects.requireNonNull(application, "application");
+        Objects.requireNonNull(dot, "dot");
 
         final List<Dot> dotList = getDotList(application);
         dotList.add(dot);
@@ -57,7 +57,7 @@ public class DotExtractor {
     }
 
     public Dot newDot(SpanBo span) {
-        Objects.requireNonNull(span, "span must not be null");
+        Objects.requireNonNull(span, "span");
 
         final TransactionId transactionId = span.getTransactionId();
         return new Dot(transactionId, span.getCollectorAcceptTime(), span.getElapsed(), span.getErrCode(), span.getAgentId());

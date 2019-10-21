@@ -58,8 +58,8 @@ public class ConfigModule extends AbstractModule {
     private final AgentOption agentOption;
 
     public ConfigModule(AgentOption agentOption) {
-        this.agentOption = Assert.requireNonNull(agentOption, "profilerConfig must not be null");
-        Assert.requireNonNull(agentOption.getProfilerConfig(), "profilerConfig must not be null");
+        this.agentOption = Assert.requireNonNull(agentOption, "profilerConfig");
+        Assert.requireNonNull(agentOption.getProfilerConfig(), "profilerConfig");
     }
 
     @Override

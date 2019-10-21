@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.collector.dao.hbase.statistics;
 
 import com.navercorp.pinpoint.common.profiler.util.ApplicationMapStatisticsUtils;
 
+import java.util.Objects;
+
 /**
  * @author emeroad
  */
@@ -32,10 +34,7 @@ public class ResponseColumnName implements ColumnName {
     private long callCount;
 
     public ResponseColumnName(String agentId, short columnSlotNumber) {
-        if (agentId == null) {
-            throw new NullPointerException("agentId must not be null");
-        }
-        this.agentId = agentId;
+        this.agentId = Objects.requireNonNull(agentId, "agentId");
         this.columnSlotNumber = columnSlotNumber;
     }
 

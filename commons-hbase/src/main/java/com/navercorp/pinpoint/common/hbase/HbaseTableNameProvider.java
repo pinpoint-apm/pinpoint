@@ -40,7 +40,7 @@ public class HbaseTableNameProvider implements TableNameProvider {
 
     @VisibleForTesting
     HbaseTableNameProvider(String namespace, NamespaceValidator namespaceValidator) {
-        Objects.requireNonNull(namespaceValidator, "namespaceValidator must not be null");
+        Objects.requireNonNull(namespaceValidator, "namespaceValidator");
         this.namespace = requireValidation(namespace, namespaceValidator);
     }
 

@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.web.vo;
 
+import java.util.Objects;
+
 /**
  * @author emeroad
  */
@@ -28,10 +30,7 @@ public class Trace {
     private final int exceptionCode;
 
     public Trace(String transactionId, long executionTime, long startTime, int exceptionCode) {
-        if (transactionId == null) {
-            throw new NullPointerException("transactionId must not be null");
-        }
-        this.transactionId = transactionId;
+        this.transactionId = Objects.requireNonNull(transactionId, "transactionId");
         this.executionTime = executionTime;
         this.startTime = startTime;
         this.exceptionCode = exceptionCode;

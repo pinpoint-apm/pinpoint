@@ -19,7 +19,6 @@ import com.navercorp.pinpoint.common.server.cluster.zookeeper.CreateNodeMessage;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.CuratorZookeeperClient;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperClient;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperEventWatcher;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.NetUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.flink.config.FlinkConfiguration;
@@ -62,7 +61,7 @@ public class FlinkServerRegister implements ZookeeperEventWatcher {
     private Timer timer;
 
     public FlinkServerRegister(FlinkConfiguration flinkConfiguration, String pinpointFlinkClusterPath) {
-        Objects.requireNonNull(flinkConfiguration, "flinkConfiguration must not be null");
+        Objects.requireNonNull(flinkConfiguration, "flinkConfiguration");
         this.clusterEnable = flinkConfiguration.isFlinkClusterEnable();
         this.connectAddress = flinkConfiguration.getFlinkClusterZookeeperAddress();
         this.sessionTimeout = flinkConfiguration.getFlinkClusterSessionTimeout();
@@ -195,7 +194,7 @@ public class FlinkServerRegister implements ZookeeperEventWatcher {
         private final int retryInterval;
 
         public PushFlinkNodeJob(CreateNodeMessage createNodeMessage, int retryInterval) {
-            this.createNodeMessage = Assert.requireNonNull(createNodeMessage, "createNodeMessage must not be null");
+            this.createNodeMessage = Objects.requireNonNull(createNodeMessage, "createNodeMessage");
             this.retryInterval = retryInterval;
         }
 

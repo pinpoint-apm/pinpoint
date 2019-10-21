@@ -48,11 +48,11 @@ public class AgentInfoSenderProvider implements Provider<AgentInfoSender> {
             Provider<AgentInfoFactory> agentInfoFactoryProvider,
             ServerMetaDataRegistryService serverMetaDataRegistryService,
             @ResultConverter MessageConverter<ResultResponse> messageConverter) {
-        this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig must not be null");
-        this.enhancedDataSenderProvider = Assert.requireNonNull(enhancedDataSenderProvider, "enhancedDataSenderProvider must not be null");
-        this.agentInfoFactoryProvider = Assert.requireNonNull(agentInfoFactoryProvider, "agentInfoFactoryProvider must not be null");
-        this.serverMetaDataRegistryService = Assert.requireNonNull(serverMetaDataRegistryService, "serverMetaDataRegistryService must not be null");
-        this.messageConverter = Assert.requireNonNull(messageConverter, "messageConverter must not be null");
+        this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig");
+        this.enhancedDataSenderProvider = Assert.requireNonNull(enhancedDataSenderProvider, "enhancedDataSenderProvider");
+        this.agentInfoFactoryProvider = Assert.requireNonNull(agentInfoFactoryProvider, "agentInfoFactoryProvider");
+        this.serverMetaDataRegistryService = Assert.requireNonNull(serverMetaDataRegistryService, "serverMetaDataRegistryService");
+        this.messageConverter = Assert.requireNonNull(messageConverter, "messageConverter");
     }
 
     @Override

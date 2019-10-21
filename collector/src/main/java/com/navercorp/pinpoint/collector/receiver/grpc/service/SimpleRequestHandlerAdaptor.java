@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.collector.receiver.grpc.service;
 
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.collector.receiver.grpc.GrpcServerResponse;
-import com.navercorp.pinpoint.common.util.Assert;
+
 import com.navercorp.pinpoint.io.request.Message;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.io.request.ServerResponse;
@@ -41,9 +41,9 @@ public class SimpleRequestHandlerAdaptor<T> {
     private final ServerRequestFactory serverRequestFactory = new ServerRequestFactory();
 
     public SimpleRequestHandlerAdaptor(String name, DispatchHandler dispatchHandler) {
-        Objects.requireNonNull(name, "name must not be null");
+        Objects.requireNonNull(name, "name");
         this.logger = LoggerFactory.getLogger(name);
-        this.dispatchHandler = Assert.requireNonNull(dispatchHandler, "dispatchHandler must not be null");
+        this.dispatchHandler = Objects.requireNonNull(dispatchHandler, "dispatchHandler");
     }
 
     public void request(Message<?> message, StreamObserver<T> responseObserver) {

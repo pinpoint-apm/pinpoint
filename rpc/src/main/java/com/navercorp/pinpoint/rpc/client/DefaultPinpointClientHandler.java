@@ -119,30 +119,30 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
                                         ServerStreamChannelMessageHandler serverStreamChannelMessageHandler,
                                         List<StateChangeEventListener> stateChangeEventListeners) {
 
-        this.connectionFactory = Assert.requireNonNull(connectionFactory, "clientFactory must not be null");
-        this.socketAddressProvider = Assert.requireNonNull(socketAddressProvider, "socketAddressProvider must not be null");
+        this.connectionFactory = Assert.requireNonNull(connectionFactory, "clientFactory");
+        this.socketAddressProvider = Assert.requireNonNull(socketAddressProvider, "socketAddressProvider");
 
-        this.channelTimer = Assert.requireNonNull(channelTimer, "channelTimer must not be null");
+        this.channelTimer = Assert.requireNonNull(channelTimer, "channelTimer");
         this.requestManager = new RequestManager(channelTimer, clientOption.getRequestTimeoutMillis());
-        this.clientOption = Assert.requireNonNull(clientOption, "clientOption must not be null");
+        this.clientOption = Assert.requireNonNull(clientOption, "clientOption");
 
 
-        this.messageListener = Assert.requireNonNull(messageListener, "messageListener must not be null");
-        this.serverStreamChannelMessageHandler = Assert.requireNonNull(serverStreamChannelMessageHandler, "serverStreamChannelMessageHandler must not be null");
+        this.messageListener = Assert.requireNonNull(messageListener, "messageListener");
+        this.serverStreamChannelMessageHandler = Assert.requireNonNull(serverStreamChannelMessageHandler, "serverStreamChannelMessageHandler");
 
         this.objectUniqName = ClassUtils.simpleClassNameAndHashCodeString(this);
-        this.handshaker = Assert.requireNonNull(handshaker, "handshaker must not be null");
+        this.handshaker = Assert.requireNonNull(handshaker, "handshaker");
 
         this.pingIdGenerator = new AtomicInteger(0);
         this.state = new PinpointClientHandlerState(this.objectUniqName, this, stateChangeEventListeners);
 
-        this.localClusterOption = Assert.requireNonNull(localClusterOption, "clusterOption must not be null");
+        this.localClusterOption = Assert.requireNonNull(localClusterOption, "clusterOption");
 
     }
 
     public void setPinpointClient(PinpointClient pinpointClient) {
         if (pinpointClient == null) {
-            throw new NullPointerException("pinpointClient must not be null");
+            throw new NullPointerException("pinpointClient");
         }
         this.pinpointClient = pinpointClient;
     }
@@ -588,7 +588,7 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
 
     private ChannelFuture write0(Object message, ChannelFutureListener futureListener) {
         if (futureListener == null) {
-            throw new NullPointerException("futureListener must not be null");
+            throw new NullPointerException("futureListener");
         }
         ChannelFuture future = write0(message);
         future.addListener(futureListener);
@@ -615,7 +615,7 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
 
     private PinpointClientHandlerContext getChannelContext(Channel channel) {
         if (channel == null) {
-            throw new NullPointerException("channel must not be null");
+            throw new NullPointerException("channel");
         }
         return (PinpointClientHandlerContext) channel.getAttachment();
     }

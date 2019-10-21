@@ -56,13 +56,13 @@ public class SpanGrpcDataSenderProvider implements Provider<DataSender<Object>> 
                                       HeaderFactory headerFactory,
                                       Provider<ReconnectExecutor> reconnectExecutor,
                                       NameResolverProvider nameResolverProvider) {
-        this.grpcTransportConfig = Assert.requireNonNull(grpcTransportConfig, "grpcTransportConfig must not be null");
-        this.messageConverter = Assert.requireNonNull(messageConverter, "messageConverter must not be null");
-        this.headerFactory = Assert.requireNonNull(headerFactory, "headerFactory must not be null");
+        this.grpcTransportConfig = Assert.requireNonNull(grpcTransportConfig, "grpcTransportConfig");
+        this.messageConverter = Assert.requireNonNull(messageConverter, "messageConverter");
+        this.headerFactory = Assert.requireNonNull(headerFactory, "headerFactory");
 
-        this.reconnectExecutor = Assert.requireNonNull(reconnectExecutor, "reconnectExecutor must not be null");
+        this.reconnectExecutor = Assert.requireNonNull(reconnectExecutor, "reconnectExecutor");
 
-        this.nameResolverProvider = Assert.requireNonNull(nameResolverProvider, "nameResolverProvider must not be null");
+        this.nameResolverProvider = Assert.requireNonNull(nameResolverProvider, "nameResolverProvider");
     }
 
     @Override

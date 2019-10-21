@@ -48,10 +48,10 @@ public class UnidirectionalLinkSelector implements LinkSelector {
             VirtualLinkHandler virtualLinkHandler,
             ServerMapDataFilter serverMapDataFilter) {
         if (applicationsMapCreator == null) {
-            throw new NullPointerException("applicationsMapCreator must not be null");
+            throw new NullPointerException("applicationsMapCreator");
         }
         if (virtualLinkHandler == null) {
-            throw new NullPointerException("virtualLinkProcessor must not be null");
+            throw new NullPointerException("virtualLinkProcessor");
         }
         this.applicationsMapCreator = applicationsMapCreator;
         this.virtualLinkHandler = virtualLinkHandler;

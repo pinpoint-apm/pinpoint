@@ -25,7 +25,7 @@ public class DefaultTraceScope implements TraceScope {
     private int depth = 0;
 
     public DefaultTraceScope(String name) {
-        this.name = Assert.requireNonNull(name, "name must not be null");
+        this.name = Assert.requireNonNull(name, "name");
     }
 
     @Override

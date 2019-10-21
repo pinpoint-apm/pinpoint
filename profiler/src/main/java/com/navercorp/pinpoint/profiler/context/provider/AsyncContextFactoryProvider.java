@@ -36,9 +36,9 @@ public class AsyncContextFactoryProvider implements Provider<AsyncContextFactory
 
     @Inject
     public AsyncContextFactoryProvider(Provider<AsyncTraceContext> asyncTraceContextProvider, AsyncIdGenerator asyncIdGenerator, PredefinedMethodDescriptorRegistry predefinedMethodDescriptorRegistry) {
-        this.asyncTraceContextProvider = Assert.requireNonNull(asyncTraceContextProvider, "asyncTraceContextProvider must not be null");
-        this.asyncIdGenerator = Assert.requireNonNull(asyncIdGenerator, "asyncIdGenerator must not be null");
-        this.predefinedMethodDescriptorRegistry = Assert.requireNonNull(predefinedMethodDescriptorRegistry, "predefinedMethodDescriptorRegistry must not be null");
+        this.asyncTraceContextProvider = Assert.requireNonNull(asyncTraceContextProvider, "asyncTraceContextProvider");
+        this.asyncIdGenerator = Assert.requireNonNull(asyncIdGenerator, "asyncIdGenerator");
+        this.predefinedMethodDescriptorRegistry = Assert.requireNonNull(predefinedMethodDescriptorRegistry, "predefinedMethodDescriptorRegistry");
     }
 
 

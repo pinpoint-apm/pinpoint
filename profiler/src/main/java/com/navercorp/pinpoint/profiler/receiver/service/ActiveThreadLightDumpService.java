@@ -43,7 +43,7 @@ public class ActiveThreadLightDumpService implements ProfilerRequestCommandServi
     private final ThreadStateThriftMessageConverter threadStateThriftMessageConverter = new ThreadStateThriftMessageConverter();
 
     public ActiveThreadLightDumpService(ActiveThreadDumpCoreService activeThreadDump) {
-        this.activeThreadDump = Assert.requireNonNull(activeThreadDump, "activeThreadDump must not be null");
+        this.activeThreadDump = Assert.requireNonNull(activeThreadDump, "activeThreadDump");
     }
 
     @Override

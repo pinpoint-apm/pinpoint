@@ -37,13 +37,13 @@ public class FilteredMap {
 
     FilteredMap(LinkDataDuplexMap linkDataDuplexMap, ResponseHistograms responseHistograms, DotExtractor dotExtractor) {
         if (linkDataDuplexMap == null) {
-            throw new NullPointerException("linkDataDuplexMap must not be null");
+            throw new NullPointerException("linkDataDuplexMap");
         }
         if (responseHistograms == null) {
-            throw new NullPointerException("responseHistograms must not be null");
+            throw new NullPointerException("responseHistograms");
         }
         if (dotExtractor == null) {
-            throw new NullPointerException("dotExtractor must not be null");
+            throw new NullPointerException("dotExtractor");
         }
         this.linkDataDuplexMap = linkDataDuplexMap;
         this.responseHistograms = responseHistograms;

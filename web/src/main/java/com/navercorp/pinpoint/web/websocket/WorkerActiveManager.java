@@ -64,11 +64,11 @@ public class WorkerActiveManager {
     private final List<String> defaultAgentIdList = new CopyOnWriteArrayList<>();
 
     public WorkerActiveManager(PinpointWebSocketResponseAggregator responseAggregator, AgentService agentService, Timer timer, TimerTaskDecorator timerTaskDecorator) {
-        this.responseAggregator = Objects.requireNonNull(responseAggregator, "responseAggregator must not be null");
-        this.agentService = Objects.requireNonNull(agentService, "agentService must not be null");
+        this.responseAggregator = Objects.requireNonNull(responseAggregator, "responseAggregator");
+        this.agentService = Objects.requireNonNull(agentService, "agentService");
 
-        this.timer = Objects.requireNonNull(timer, "timer must not be null");
-        this.timerTaskDecorator = Objects.requireNonNull(timerTaskDecorator, "timerTaskDecorator must not be null");
+        this.timer = Objects.requireNonNull(timer, "timer");
+        this.timerTaskDecorator = Objects.requireNonNull(timerTaskDecorator, "timerTaskDecorator");
 
         this.applicationName = this.responseAggregator.getApplicationName();
     }

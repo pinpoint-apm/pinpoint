@@ -33,9 +33,9 @@ public class JarPlugin<T> implements Plugin<T> {
     private final List<String> packageList;
 
     public JarPlugin(PluginJar pluginJar, List<T> instanceList, List<String> packageList) {
-        this.pluginJar = Assert.requireNonNull(pluginJar, "pluginJar must not be null");
-        this.instanceList = Assert.requireNonNull(instanceList, "instanceList must not be null");
-        this.packageList = Assert.requireNonNull(packageList, "packageList must not be null");
+        this.pluginJar = Assert.requireNonNull(pluginJar, "pluginJar");
+        this.instanceList = Assert.requireNonNull(instanceList, "instanceList");
+        this.packageList = Assert.requireNonNull(packageList, "packageList");
     }
 
     @Override

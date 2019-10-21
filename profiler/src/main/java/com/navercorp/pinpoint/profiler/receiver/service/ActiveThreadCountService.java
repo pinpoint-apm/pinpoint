@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.receiver.service;
 
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHistogram;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHistogramUtils;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
@@ -68,10 +69,7 @@ public class ActiveThreadCountService implements ProfilerRequestCommandService<T
     }
 
     public ActiveThreadCountService(ActiveTraceRepository activeTraceRepository, long flushDelay) {
-        if (activeTraceRepository == null) {
-            throw new NullPointerException("activeTraceRepository");
-        }
-        this.activeTraceRepository = activeTraceRepository;
+        this.activeTraceRepository = Assert.requireNonNull(activeTraceRepository, "activeTraceRepository");
         this.flushDelay = flushDelay;
     }
 
@@ -83,7 +81,7 @@ public class ActiveThreadCountService implements ProfilerRequestCommandService<T
     @Override
     public TBase<?, ?> requestCommandService(TBase<?, ?> activeThreadCountObject) {
         if (activeThreadCountObject == null) {
-            throw new NullPointerException("activeThreadCountObject must not be null.");
+            throw new NullPointerException("activeThreadCountObject");
         }
 
         return getActiveThreadCountResponse();

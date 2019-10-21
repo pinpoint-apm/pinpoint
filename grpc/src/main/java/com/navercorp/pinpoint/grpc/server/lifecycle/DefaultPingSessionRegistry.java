@@ -32,19 +32,19 @@ public class DefaultPingSessionRegistry implements PingSessionRegistry {
 
     @Override
     public PingSession add(Long transportId, PingSession lifecycle) {
-        Assert.requireNonNull(transportId, "transportId must not be null");
+        Assert.requireNonNull(transportId, "transportId");
         return map.put(transportId, lifecycle);
     }
 
     @Override
     public PingSession get(Long transportId) {
-        Assert.requireNonNull(transportId, "transportId must not be null");
+        Assert.requireNonNull(transportId, "transportId");
         return map.get(transportId);
     }
 
     @Override
     public PingSession remove(Long transportId) {
-        Assert.requireNonNull(transportId, "transportId must not be null");
+        Assert.requireNonNull(transportId, "transportId");
         return map.remove(transportId);
     }
 

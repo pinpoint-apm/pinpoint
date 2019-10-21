@@ -33,9 +33,9 @@ public class AgentInfoFactory {
     private final JvmInformation jvmInformation;
 
     public AgentInfoFactory(AgentInformation agentInformation, ServerMetaDataRegistryService serverMetaDataRegistryService, JvmInformation jvmInformation) {
-        this.agentInformation = Assert.requireNonNull(agentInformation, "agentInformation must not be null");
-        this.serverMetaDataRegistryService = Assert.requireNonNull(serverMetaDataRegistryService, "serverMetaDataRegistryService must not be null");
-        this.jvmInformation = Assert.requireNonNull(jvmInformation, "jvmInformation must not be null");
+        this.agentInformation = Assert.requireNonNull(agentInformation, "agentInformation");
+        this.serverMetaDataRegistryService = Assert.requireNonNull(serverMetaDataRegistryService, "serverMetaDataRegistryService");
+        this.jvmInformation = Assert.requireNonNull(jvmInformation, "jvmInformation");
     }
 
     public AgentInfo createAgentInfo() {

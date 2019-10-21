@@ -25,6 +25,8 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Objects;
+
 /**
  * class for application in node map
  *
@@ -55,20 +57,12 @@ public class Node {
     }
     
     public Node(NodeType nodeType, Application application) {
-        if (nodeType == null) {
-            throw new NullPointerException("nodeType must not be null");
-        }
-        if (application == null) {
-            throw new NullPointerException("application must not be null");
-        }
-        this.nodeType = nodeType;
-        this.application = application;
+        this.nodeType = Objects.requireNonNull(nodeType, "nodeType");
+        this.application = Objects.requireNonNull(application, "application");
     }
 
     public Node(Node copyNode) {
-        if (copyNode == null) {
-            throw new NullPointerException("copyNode must not be null");
-        }
+        Objects.requireNonNull(copyNode, "copyNode");
         this.nodeType = copyNode.nodeType;
         this.application = copyNode.application;
     }
@@ -88,7 +82,7 @@ public class Node {
     // TODO remove setter
     public void setServerInstanceList(ServerInstanceList serverInstanceList) {
         if (serverInstanceList == null) {
-            throw new NullPointerException("serverInstanceList must not be null");
+            throw new NullPointerException("serverInstanceList");
         }
         this.serverInstanceList = serverInstanceList;
     }

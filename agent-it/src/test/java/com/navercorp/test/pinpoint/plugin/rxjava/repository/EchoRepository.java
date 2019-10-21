@@ -28,7 +28,7 @@ public class EchoRepository {
 
     public String echo(String message, Exception exception) throws Exception {
         if (exception == null) {
-            throw new NullPointerException("exception must not be null");
+            throw new NullPointerException("exception");
         }
         System.out.println("echo : " + message + ", with exception : " + exception);
         throw exception;
@@ -40,7 +40,7 @@ public class EchoRepository {
 
     public void shout(String message, Exception exception) throws Exception {
         if (exception == null) {
-            throw new NullPointerException("exception must not be null");
+            throw new NullPointerException("exception");
         }
         System.out.println("shout : " + message + ", with exception : " + exception);
         throw exception;

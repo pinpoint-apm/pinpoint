@@ -41,10 +41,10 @@ public class ActiveTraceService implements AgentStatService<ActiveTraceBo> {
     @Override
     public List<ActiveTraceBo> selectAgentStatList(String agentId, Range range) {
         if (agentId == null) {
-            throw new NullPointerException("agentId must not be null");
+            throw new NullPointerException("agentId");
         }
         if (range == null) {
-            throw new NullPointerException("range must not be null");
+            throw new NullPointerException("range");
         }
         return this.activeTraceDao.getAgentStatList(agentId, range);
     }

@@ -101,10 +101,10 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
     @Override
     public LimitedScanResult<List<TransactionId>> scanTraceIndex(final String applicationName, Range range, int limit, boolean scanBackward) {
         if (applicationName == null) {
-            throw new NullPointerException("applicationName must not be null");
+            throw new NullPointerException("applicationName");
         }
         if (range == null) {
-            throw new NullPointerException("range must not be null");
+            throw new NullPointerException("range");
         }
         if (limit < 0) {
             throw new IllegalArgumentException("negative limit:" + limit);
@@ -144,10 +144,10 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
     @Override
     public LimitedScanResult<List<TransactionId>> scanTraceIndex(final String applicationName, SelectedScatterArea area, int limit) {
         if (applicationName == null) {
-            throw new NullPointerException("applicationName must not be null");
+            throw new NullPointerException("applicationName");
         }
         if (area == null) {
-            throw new NullPointerException("area must not be null");
+            throw new NullPointerException("area");
         }
         if (limit < 0) {
             throw new IllegalArgumentException("negative limit:" + limit);
@@ -260,10 +260,10 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
     @Override
     public List<Dot> scanTraceScatter(String applicationName, SelectedScatterArea area, TransactionId offsetTransactionId, int offsetTransactionElapsed, int limit) {
         if (applicationName == null) {
-            throw new NullPointerException("applicationName must not be null");
+            throw new NullPointerException("applicationName");
         }
         if (area == null) {
-            throw new NullPointerException("range must not be null");
+            throw new NullPointerException("range");
         }
         if (limit < 0) {
             throw new IllegalArgumentException("negative limit:" + limit);
@@ -293,10 +293,10 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
     @Override
     public ScatterData scanTraceScatterData(String applicationName, Range range, int xGroupUnit, int yGroupUnit, int limit, boolean scanBackward) {
         if (applicationName == null) {
-            throw new NullPointerException("applicationName must not be null");
+            throw new NullPointerException("applicationName");
         }
         if (range == null) {
-            throw new NullPointerException("range must not be null");
+            throw new NullPointerException("range");
         }
         if (limit < 0) {
             throw new IllegalArgumentException("negative limit:" + limit);

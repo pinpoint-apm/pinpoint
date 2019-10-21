@@ -44,7 +44,7 @@ public class TcpDispatchHandler implements DispatchHandler {
     }
 
     public void setSimpletHandler(SimpleHandler simpleHandler) {
-        this.simpleHandler = Objects.requireNonNull(simpleHandler, "agentStatHandler must not be null");
+        this.simpleHandler = Objects.requireNonNull(simpleHandler, "agentStatHandler");
     }
 
     @Override

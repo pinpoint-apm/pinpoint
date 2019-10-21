@@ -94,7 +94,7 @@ public class SpanServiceImpl implements SpanService {
     @Override
     public SpanResult selectSpan(TransactionId transactionId, long selectedSpanHint) {
         if (transactionId == null) {
-            throw new NullPointerException("transactionId must not be null");
+            throw new NullPointerException("transactionId");
         }
 
         final List<SpanBo> spans = traceDao.selectSpan(transactionId);

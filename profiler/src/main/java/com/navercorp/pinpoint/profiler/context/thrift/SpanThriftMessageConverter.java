@@ -59,12 +59,12 @@ public class SpanThriftMessageConverter implements MessageConverter<TBase<?, ?>>
 
     public SpanThriftMessageConverter(String applicationName, String agentId, long agentStartTime, short applicationServiceType,
                                       TransactionIdEncoder transactionIdEncoder, SpanProcessor<TSpan, TSpanChunk> spanPostProcessor) {
-        this.applicationName = Assert.requireNonNull(applicationName, "applicationName must not be null");
-        this.agentId = Assert.requireNonNull(agentId, "agentId must not be null");
+        this.applicationName = Assert.requireNonNull(applicationName, "applicationName");
+        this.agentId = Assert.requireNonNull(agentId, "agentId");
         this.agentStartTime = agentStartTime;
         this.applicationServiceType = applicationServiceType;
-        this.transactionIdEncoder = Assert.requireNonNull(transactionIdEncoder, "transactionIdEncoder must not be null");
-        this.spanPostProcessor = Assert.requireNonNull(spanPostProcessor, "spanPostProcessor must not be null");
+        this.transactionIdEncoder = Assert.requireNonNull(transactionIdEncoder, "transactionIdEncoder");
+        this.spanPostProcessor = Assert.requireNonNull(spanPostProcessor, "spanPostProcessor");
 
     }
 
