@@ -13,7 +13,7 @@ export class InboundOutboundRangeSelectorComponent implements OnInit, OnChanges 
     @Input() selectedOutbound: string;
     @Input() inboundList: string[];
     @Input() outboundList: string[];
-    @Output() outSelected: EventEmitter<string[]> = new EventEmitter();
+    @Output() outSelected = new EventEmitter<string[]>();
 
     constructor() {}
 
@@ -37,6 +37,8 @@ export class InboundOutboundRangeSelectorComponent implements OnInit, OnChanges 
 
     onApply(): void {
         if (!(this.selectedInbound === this.prevSelectedInbound && this.selectedOutbound === this.prevSelectedOutbound)) {
+            this.prevSelectedInbound = this.selectedInbound;
+            this.prevSelectedOutbound = this.selectedOutbound;
             this.outSelected.emit([this.selectedInbound, this.selectedOutbound]);
         }
         this.close();
@@ -53,8 +55,10 @@ export class InboundOutboundRangeSelectorComponent implements OnInit, OnChanges 
     }
 
     onClose(): void {
-        this.onCancel();
-        this.close();
+        if (!this.hideList) {
+            this.onCancel();
+            this.close();
+        }
     }
 
     private close(): void {
