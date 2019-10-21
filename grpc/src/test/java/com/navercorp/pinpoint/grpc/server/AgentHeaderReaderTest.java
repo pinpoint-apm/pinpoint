@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.grpc.server;
 import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.HeaderReader;
 import io.grpc.Metadata;
+import io.grpc.StatusRuntimeException;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -47,14 +48,14 @@ public class AgentHeaderReaderTest {
         Assert.assertEquals(header.getSocketId(), SOCKET_ID);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = StatusRuntimeException.class)
     public void extract_fail_agentId() {
         Metadata metadata = newMetadata();
         metadata.put(Header.AGENT_ID_KEY, "!!agentId");
         reader.extract(metadata);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = StatusRuntimeException.class)
     public void extract_fail_applicationName() {
         Metadata metadata = newMetadata();
         metadata.put(Header.APPLICATION_NAME_KEY, "!!applicationName");

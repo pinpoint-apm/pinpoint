@@ -41,14 +41,10 @@ public class StreamExecutorRejectedExecutionRequestScheduler {
     }
 
     public <ReqT, RespT> Listener schedule(final ServerCall<ReqT, RespT> call) {
-        final ServerCallWrapper serverCall = new ServerCallWrapper() {
-            @Override
-            public void request(int numMessages) {
-                call.request(numMessages);
-            }
-        };
+        final ServerCallWrapper serverCall = new DefaultServerCallWrapper(call);
         final RejectedExecutionListener rejectedExecutionListener = new RejectedExecutionListener(serverCall, recoveryMessagesCount);
-        final ScheduledFuture requestScheduledFuture = scheduledExecutorService.scheduleAtFixedRate(new RequestScheduleJob(rejectedExecutionListener), periodMillis, periodMillis, TimeUnit.MILLISECONDS);
+        final RequestScheduleJob command = new RequestScheduleJob(rejectedExecutionListener);
+        final ScheduledFuture requestScheduledFuture = scheduledExecutorService.scheduleAtFixedRate(command, periodMillis, periodMillis, TimeUnit.MILLISECONDS);
         final Listener listener = new Listener(rejectedExecutionListener, requestScheduledFuture);
         return listener;
     }
@@ -60,10 +56,6 @@ public class StreamExecutorRejectedExecutionRequestScheduler {
         sb.append(", periodMillis=").append(periodMillis);
         sb.append('}');
         return sb.toString();
-    }
-
-    private interface ServerCallWrapper {
-        void request(int numMessages);
     }
 
     @VisibleForTesting
@@ -149,6 +141,32 @@ public class StreamExecutorRejectedExecutionRequestScheduler {
             final StringBuilder sb = new StringBuilder("Listener{");
             sb.append("rejectedExecutionListener=").append(rejectedExecutionListener);
             sb.append(", requestScheduledFuture=").append(requestScheduledFuture);
+            sb.append('}');
+            return sb.toString();
+        }
+    }
+
+
+    private interface ServerCallWrapper<ReqT, ResT> {
+        void request(int numMessages);
+    }
+
+    private class DefaultServerCallWrapper implements ServerCallWrapper {
+        private final ServerCall serverCall;
+
+        public DefaultServerCallWrapper(ServerCall serverCall) {
+            this.serverCall = Assert.requireNonNull(serverCall, "serverCall");
+        }
+
+        @Override
+        public void request(int numMessages) {
+            serverCall.request(numMessages);
+        }
+
+        @Override
+        public String toString() {
+            final StringBuilder sb = new StringBuilder("DefaultServerCallWrapper{");
+            sb.append("serverCall=").append(serverCall);
             sb.append('}');
             return sb.toString();
         }
