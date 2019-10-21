@@ -44,10 +44,10 @@ public class MongoDatabaseInfo implements DatabaseInfo {
 
     public MongoDatabaseInfo(ServiceType type, ServiceType executeQueryType, String realUrl, String normalizedUrl, List<String> host, String databaseId, String collectionName, boolean parsingComplete, String readPreference, String writeConcern) {
         if (type == null) {
-            throw new NullPointerException("type must not be null");
+            throw new NullPointerException("type");
         }
         if (executeQueryType == null) {
-            throw new NullPointerException("executeQueryType must not be null");
+            throw new NullPointerException("executeQueryType");
         }
         this.type = type;
         this.executeQueryType = executeQueryType;

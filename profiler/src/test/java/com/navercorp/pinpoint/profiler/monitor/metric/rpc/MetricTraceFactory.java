@@ -29,10 +29,10 @@ public class MetricTraceFactory implements TraceFactory {
 
     private MetricTraceFactory(TraceFactory traceFactory, ServiceType serviceType) {
         if (traceFactory == null) {
-            throw new NullPointerException("traceFactory must not be null");
+            throw new NullPointerException("traceFactory");
         }
         if (serviceType == null) {
-            throw new NullPointerException("serviceType must not be null");
+            throw new NullPointerException("serviceType");
         }
         this.delegate = traceFactory;
         this.metricRegistry = new MetricRegistry(serviceType);
@@ -94,7 +94,7 @@ public class MetricTraceFactory implements TraceFactory {
 
     public Metric getRpcMetric(ServiceType serviceType) {
         if (serviceType == null) {
-            throw new NullPointerException("serviceType must not be null");
+            throw new NullPointerException("serviceType");
         }
 
         return this.metricRegistry.getRpcMetric(serviceType);

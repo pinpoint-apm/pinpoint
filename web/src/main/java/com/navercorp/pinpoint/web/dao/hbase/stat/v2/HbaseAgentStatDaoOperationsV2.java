@@ -63,10 +63,10 @@ public class HbaseAgentStatDaoOperationsV2 {
 
     <T extends AgentStatDataPoint> List<T> getAgentStatList(AgentStatType agentStatType, AgentStatMapperV2<T> mapper, String agentId, Range range) {
         if (agentId == null) {
-            throw new NullPointerException("agentId must not be null");
+            throw new NullPointerException("agentId");
         }
         if (range == null) {
-            throw new NullPointerException("range must not be null");
+            throw new NullPointerException("range");
         }
 
         Scan scan = this.createScan(agentStatType, agentId, range);
@@ -83,10 +83,10 @@ public class HbaseAgentStatDaoOperationsV2 {
 
     <T extends AgentStatDataPoint> boolean agentStatExists(AgentStatType agentStatType, AgentStatMapperV2<T> mapper, String agentId, Range range) {
         if (agentId == null) {
-            throw new NullPointerException("agentId must not be null");
+            throw new NullPointerException("agentId");
         }
         if (range == null) {
-            throw new NullPointerException("range must not be null");
+            throw new NullPointerException("range");
         }
 
         if (logger.isDebugEnabled()) {
@@ -107,13 +107,13 @@ public class HbaseAgentStatDaoOperationsV2 {
 
     <S extends SampledAgentStatDataPoint> List<S> getSampledAgentStatList(AgentStatType agentStatType, ResultsExtractor<List<S>> resultExtractor, String agentId, Range range) {
         if (agentId == null) {
-            throw new NullPointerException("agentId must not be null");
+            throw new NullPointerException("agentId");
         }
         if (range == null) {
-            throw new NullPointerException("range must not be null");
+            throw new NullPointerException("range");
         }
         if (resultExtractor == null) {
-            throw new NullPointerException("resultExtractor must not be null");
+            throw new NullPointerException("resultExtractor");
         }
         Scan scan = this.createScan(agentStatType, agentId, range);
 

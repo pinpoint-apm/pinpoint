@@ -64,7 +64,7 @@ public class MapStatisticsCallerMapper implements RowMapper<LinkDataMap> {
 
     public MapStatisticsCallerMapper(LinkFilter filter) {
         if (filter == null) {
-            throw new NullPointerException("filter must not be null");
+            throw new NullPointerException("filter");
         }
         this.filter = filter;
     }

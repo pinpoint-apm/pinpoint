@@ -55,7 +55,7 @@ public class ParsedAnnotationKey {
 
     AnnotationKey toAnnotationKey() {
         if (code == null) {
-            throw new IllegalArgumentException("code must not be null");
+            throw new NullPointerException("code");
         }
         if (StringUtils.isEmpty(name)) {
             throw new IllegalArgumentException("annotationKey name must not be empty");

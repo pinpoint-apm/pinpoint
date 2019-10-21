@@ -44,10 +44,10 @@ public class AgentTimeHistogramBuilder {
 
     public AgentTimeHistogramBuilder(Application application, Range range) {
         if (application == null) {
-            throw new NullPointerException("application must not be null");
+            throw new NullPointerException("application");
         }
         if (range == null) {
-            throw new NullPointerException("range must not be null");
+            throw new NullPointerException("range");
         }
         this.application = application;
         this.range = range;
@@ -62,14 +62,14 @@ public class AgentTimeHistogramBuilder {
 
     public AgentTimeHistogram buildSource(LinkCallDataMap linkCallDataMap) {
         if (linkCallDataMap == null) {
-            throw new NullPointerException("linkCallDataMap must not be null");
+            throw new NullPointerException("linkCallDataMap");
         }
         return build(linkCallDataMap.getSourceList());
     }
 
     public AgentTimeHistogram buildTarget(LinkCallDataMap linkCallDataMap) {
         if (linkCallDataMap == null) {
-            throw new NullPointerException("linkCallDataMap must not be null");
+            throw new NullPointerException("linkCallDataMap");
         }
         return build(linkCallDataMap.getTargetList());
     }

@@ -52,9 +52,9 @@ public class WrappedSpanEventRecorder extends AbstractRecorder implements SpanEv
     public WrappedSpanEventRecorder(TraceRoot traceRoot, AsyncContextFactory asyncContextFactory,
                                     final StringMetaDataService stringMetaDataService, final SqlMetaDataService sqlMetaCacheService) {
         super(stringMetaDataService, sqlMetaCacheService);
-        this.traceRoot = Assert.requireNonNull(traceRoot, "traceRoot must not be null");
+        this.traceRoot = Assert.requireNonNull(traceRoot, "traceRoot");
 
-        this.asyncContextFactory = Assert.requireNonNull(asyncContextFactory, "asyncContextFactory must not be null");
+        this.asyncContextFactory = Assert.requireNonNull(asyncContextFactory, "asyncContextFactory");
     }
 
     public void setWrapped(final SpanEvent spanEvent) {

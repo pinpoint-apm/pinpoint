@@ -45,7 +45,7 @@ public class TraceRowKeyDecoderV2 implements RowKeyDecoder<TransactionId> {
     @Override
     public TransactionId decodeRowKey(byte[] rowkey) {
         if (rowkey == null) {
-            throw new NullPointerException("rowkey must not be null");
+            throw new NullPointerException("rowkey");
         }
 
         return readTransactionId(rowkey, distributeHashSize);

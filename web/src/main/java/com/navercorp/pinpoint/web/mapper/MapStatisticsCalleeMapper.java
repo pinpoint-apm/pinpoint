@@ -38,6 +38,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
+import java.util.Objects;
+
 /**
  * 
  * @author netspider
@@ -65,10 +67,7 @@ public class MapStatisticsCalleeMapper implements RowMapper<LinkDataMap> {
     }
 
     public MapStatisticsCalleeMapper(LinkFilter filter) {
-        if (filter == null) {
-            throw new NullPointerException("filter must not be null");
-        }
-        this.filter = filter;
+        this.filter = Objects.requireNonNull(filter, "filter");
     }
 
     @Override

@@ -49,7 +49,7 @@ public class SharedProcessPluginTestCase implements PinpointPluginTestInstance {
         this.testId = testId + ":" + (onSystemClassLoader ? "system" : "child") + ":" + context.getJvmVersion();
         this.libs = libs;
         this.onSystemClassLoader = onSystemClassLoader;
-        this.processManager = Assert.requireNonNull(processManager, "processManager must not be null");
+        this.processManager = Assert.requireNonNull(processManager, "processManager");
     }
 
     @Override

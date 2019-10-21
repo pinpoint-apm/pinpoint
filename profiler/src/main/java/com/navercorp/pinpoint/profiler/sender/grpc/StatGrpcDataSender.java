@@ -53,7 +53,7 @@ public class StatGrpcDataSender extends GrpcDataSender {
         super(host, port, senderExecutorQueueSize, messageConverter, channelFactory);
 
         this.statStub = StatGrpc.newStub(managedChannel);
-        this.reconnectExecutor = Assert.requireNonNull(reconnectExecutor, "reconnectExecutor must not be null");
+        this.reconnectExecutor = Assert.requireNonNull(reconnectExecutor, "reconnectExecutor");
         {
             final Runnable statStreamReconnectJob = new Runnable() {
                 @Override

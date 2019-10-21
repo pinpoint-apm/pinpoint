@@ -30,7 +30,7 @@ public class AgentEventMessageSerializerV1 {
 
     public byte[] serialize(AgentEventType agentEventType, Object eventMessage) {
         if (agentEventType == null) {
-            throw new NullPointerException("agentEventType must not be null");
+            throw new NullPointerException("agentEventType");
         }
 
         if (eventMessage instanceof DeadlockBo) {

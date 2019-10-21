@@ -31,7 +31,7 @@ public class LambdaBytecodeLogger implements LambdaBytecodeHandler {
     private final LambdaBytecodeHandler delegate;
 
     public LambdaBytecodeLogger(LambdaBytecodeHandler delegate) {
-        this.delegate = Assert.requireNonNull(delegate, "delegate must not be null");
+        this.delegate = Assert.requireNonNull(delegate, "delegate");
         this.logger = LoggerFactory.getLogger(delegate.getClass());
     }
 

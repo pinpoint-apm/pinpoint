@@ -91,10 +91,10 @@ public class TcpDataSender implements EnhancedDataSender<Object> {
     private TcpDataSender(String name, ClientFactoryUtils.PinpointClientProvider clientProvider, MessageSerializer<byte[]> messageSerializer) {
         this.logger = newLogger(name);
 
-        Assert.requireNonNull(clientProvider, "clientProvider must not be null");
+        Assert.requireNonNull(clientProvider, "clientProvider");
         this.client = clientProvider.get();
 
-        this.messageSerializer = Assert.requireNonNull(messageSerializer, "messageSerializer must not be null");
+        this.messageSerializer = Assert.requireNonNull(messageSerializer, "messageSerializer");
         this.timer = createTimer(name);
 
         this.writeFailFutureListener = new WriteFailFutureListener(logger, "io write fail.", clientProvider.getAddressAsString());

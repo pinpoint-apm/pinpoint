@@ -63,7 +63,7 @@ public class HbaseDataSourceListDao implements AgentStatDaoV2<DataSourceListBo> 
     @Override
     public void insert(String agentId, List<DataSourceListBo> dataSourceListBos) {
         if (agentId == null) {
-            throw new NullPointerException("agentId must not be null");
+            throw new NullPointerException("agentId");
         }
         if (CollectionUtils.isEmpty(dataSourceListBos)) {
             return;

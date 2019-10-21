@@ -30,7 +30,7 @@ public class ExceptionHandlerFactoryProvider implements Provider<ExceptionHandle
 
     @Inject
     public ExceptionHandlerFactoryProvider(ProfilerConfig profilerConfig) {
-        this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig must not be null");
+        this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig");
     }
 
     @Override

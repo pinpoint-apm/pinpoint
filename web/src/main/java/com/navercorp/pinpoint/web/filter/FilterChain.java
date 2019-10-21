@@ -37,7 +37,7 @@ public class FilterChain<T> implements Filter<T> {
 
     public void addFilter(Filter<T> filter) {
         if (filter == null) {
-            throw new NullPointerException("filter must not be null");
+            throw new NullPointerException("filter");
         }
         this.filterList.add(filter);
     }

@@ -40,7 +40,7 @@ public class AnnotationKeyRegistry implements AnnotationKeyLocator {
 
     private AnnotationKeyRegistry(HashMap<Integer, AnnotationKey> buildMap) {
         if (buildMap == null) {
-            throw new NullPointerException("buildMap must not be null");
+            throw new NullPointerException("buildMap");
         }
         this.codeLookupTable = IntHashMapUtils.copy(buildMap);
         this.nameLookupTable = buildNameTable(buildMap.values());
@@ -102,7 +102,7 @@ public class AnnotationKeyRegistry implements AnnotationKeyLocator {
 
         void addAnnotationKey(AnnotationKey annotationKey) {
             if (annotationKey == null) {
-                throw new NullPointerException("annotationKey must not be null");
+                throw new NullPointerException("annotationKey");
             }
             int code = annotationKey.getCode();
             final AnnotationKey exist = this.buildMap.put(code, annotationKey);

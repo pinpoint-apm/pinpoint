@@ -31,7 +31,7 @@ public class RealIpHeaderResolver<T> implements RemoteAddressResolver<T> {
     private final String realIpHeaderEmptyValue;
 
     public RealIpHeaderResolver(final String realIpHeaderName, final String realIpHeaderEmptyValue) {
-        this.realIpHeaderName = Assert.requireNonNull(realIpHeaderName, "realIpHeaderName must not be null");
+        this.realIpHeaderName = Assert.requireNonNull(realIpHeaderName, "realIpHeaderName");
         this.realIpHeaderEmptyValue = realIpHeaderEmptyValue;
     }
 

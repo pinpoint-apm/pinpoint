@@ -43,7 +43,7 @@ public final class PropertyUtils {
 
     public static Properties loadProperty(final String filePath) throws IOException {
         if (filePath == null) {
-            throw new NullPointerException("filePath must not be null");
+            throw new NullPointerException("filePath");
         }
         final InputStreamFactory inputStreamFactory = new InputStreamFactory() {
             @Override
@@ -56,7 +56,7 @@ public final class PropertyUtils {
 
     public static Properties loadPropertyFromClassPath(final String classPath) throws IOException {
         if (classPath == null) {
-            throw new NullPointerException("classPath must not be null");
+            throw new NullPointerException("classPath");
         }
         final InputStreamFactory inputStreamFactory = new InputStreamFactory() {
             @Override
@@ -69,7 +69,7 @@ public final class PropertyUtils {
 
     public static Properties loadPropertyFromClassLoader(final ClassLoader classLoader, final String classPath) throws IOException {
         if (classLoader == null) {
-            throw new NullPointerException("classLoader must not be null");
+            throw new NullPointerException("classLoader");
         }
         final InputStreamFactory inputStreamFactory = new InputStreamFactory() {
             @Override
@@ -83,13 +83,13 @@ public final class PropertyUtils {
 
     public static Properties loadProperty(Properties properties, InputStreamFactory inputStreamFactory, String encoding) throws IOException {
         if (properties == null) {
-            throw new NullPointerException("properties must not be null");
+            throw new NullPointerException("properties");
         }
         if (inputStreamFactory == null) {
-            throw new NullPointerException("inputStreamFactory must not be null");
+            throw new NullPointerException("inputStreamFactory");
         }
         if (encoding == null) {
-            throw new NullPointerException("encoding must not be null");
+            throw new NullPointerException("encoding");
         }
         InputStream in = null;
         Reader reader = null;

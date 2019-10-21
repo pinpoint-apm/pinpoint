@@ -24,7 +24,7 @@ public class ExceptionHandleAroundInterceptor5 implements AroundInterceptor5 {
 
     public ExceptionHandleAroundInterceptor5(AroundInterceptor5 delegate, ExceptionHandler exceptionHandler) {
         if (delegate == null) {
-            throw new NullPointerException("delegate must not be null");
+            throw new NullPointerException("delegate");
         }
 
         this.delegate = delegate;

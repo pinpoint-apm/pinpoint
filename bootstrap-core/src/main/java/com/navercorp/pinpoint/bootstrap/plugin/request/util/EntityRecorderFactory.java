@@ -25,7 +25,7 @@ import com.navercorp.pinpoint.common.util.Assert;
 public class EntityRecorderFactory {
 
     public static <T> EntityRecorder<T> newEntityRecorder(HttpDumpConfig httpDumpConfig, EntityExtractor<T> extractor) {
-        Assert.requireNonNull(httpDumpConfig, "httpDumpConfig must not be null");
+        Assert.requireNonNull(httpDumpConfig, "httpDumpConfig");
 
         if (!httpDumpConfig.isDumpEntity()) {
             return new DisableEntityRecorder<T>();

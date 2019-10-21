@@ -37,7 +37,7 @@ public class AgentEventMessageDeserializerV1 {
 
     public Object deserialize(AgentEventType agentEventType, byte[] eventBody) throws UnsupportedEncodingException {
         if (agentEventType == null) {
-            throw new NullPointerException("agentEventType must not be null");
+            throw new NullPointerException("agentEventType");
         }
         Class<?> eventMessageType = agentEventType.getMessageType();
         if (eventMessageType == Void.class) {

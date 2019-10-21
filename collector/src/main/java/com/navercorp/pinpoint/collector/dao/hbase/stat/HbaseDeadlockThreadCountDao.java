@@ -54,7 +54,7 @@ public class HbaseDeadlockThreadCountDao implements AgentStatDaoV2<DeadlockThrea
     @Override
     public void insert(String agentId, List<DeadlockThreadCountBo> deadlockThreadCountBos) {
         if (agentId == null) {
-            throw new NullPointerException("agentId must not be null");
+            throw new NullPointerException("agentId");
         }
         if (CollectionUtils.isEmpty(deadlockThreadCountBos)) {
             return;

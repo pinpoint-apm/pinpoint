@@ -35,7 +35,7 @@ public class ReadOnlyHbaseSchemaChangeLogDao implements SchemaChangeLogDao {
     private final HbaseSchemaChangeLogDao hbaseSchemaChangeLogDao;
 
     public ReadOnlyHbaseSchemaChangeLogDao(HbaseSchemaChangeLogDao hbaseSchemaChangeLogDao) {
-        this.hbaseSchemaChangeLogDao = Objects.requireNonNull(hbaseSchemaChangeLogDao, "hbaseSchemaChangeLogDao must not be null");
+        this.hbaseSchemaChangeLogDao = Objects.requireNonNull(hbaseSchemaChangeLogDao, "hbaseSchemaChangeLogDao");
     }
 
     @Override

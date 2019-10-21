@@ -48,9 +48,9 @@ public class RpcURLPatternFilter implements URLPatternFilter {
     private final Set<Integer> rpcEndpointAnnotationCodes;
 
     public RpcURLPatternFilter(String urlPattern, ServiceTypeRegistryService serviceTypeRegistryService, AnnotationKeyRegistryService annotationKeyRegistryService) {
-        this.urlPattern = Objects.requireNonNull(urlPattern, "urlPattern must not be null");
-        this.serviceTypeRegistryService = Objects.requireNonNull(serviceTypeRegistryService, "serviceTypeRegistryService must not be null");
-        this.annotationKeyRegistryService = Objects.requireNonNull(annotationKeyRegistryService, "annotationKeyRegistryService must not be null");
+        this.urlPattern = Objects.requireNonNull(urlPattern, "urlPattern");
+        this.serviceTypeRegistryService = Objects.requireNonNull(serviceTypeRegistryService, "serviceTypeRegistryService");
+        this.annotationKeyRegistryService = Objects.requireNonNull(annotationKeyRegistryService, "annotationKeyRegistryService");
 
         // TODO serviceType rpctype
 

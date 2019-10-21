@@ -61,12 +61,12 @@ public class GrpcModuleLifeCycle implements ModuleLifeCycle {
             Provider<ExecutorService> dnsExecutorServiceProvider,
             Provider<ScheduledExecutorService> reconnectScheduledExecutorProvider
     ) {
-        this.agentDataSenderProvider = Assert.requireNonNull(agentDataSenderProvider, "agentDataSenderProvider must not be null");
-        this.metadataDataSenderProvider = Assert.requireNonNull(metadataDataSenderProvider, "metadataDataSenderProvider must not be null");
-        this.spanDataSenderProvider = Assert.requireNonNull(spanDataSenderProvider, "spanDataSenderProvider must not be null");
-        this.statDataSenderProvider = Assert.requireNonNull(statDataSenderProvider, "statDataSenderProvider must not be null");
-        this.dnsExecutorServiceProvider = Assert.requireNonNull(dnsExecutorServiceProvider, "dnsExecutorServiceProvider must not be null");
-        this.reconnectScheduledExecutorProvider = Assert.requireNonNull(reconnectScheduledExecutorProvider, "reconnectScheduledExecutorProvider must not be null");
+        this.agentDataSenderProvider = Assert.requireNonNull(agentDataSenderProvider, "agentDataSenderProvider");
+        this.metadataDataSenderProvider = Assert.requireNonNull(metadataDataSenderProvider, "metadataDataSenderProvider");
+        this.spanDataSenderProvider = Assert.requireNonNull(spanDataSenderProvider, "spanDataSenderProvider");
+        this.statDataSenderProvider = Assert.requireNonNull(statDataSenderProvider, "statDataSenderProvider");
+        this.dnsExecutorServiceProvider = Assert.requireNonNull(dnsExecutorServiceProvider, "dnsExecutorServiceProvider");
+        this.reconnectScheduledExecutorProvider = Assert.requireNonNull(reconnectScheduledExecutorProvider, "reconnectScheduledExecutorProvider");
     }
 
     @Override

@@ -27,10 +27,10 @@ public class AfterCallbackStatement extends Statement {
 
     public AfterCallbackStatement(Statement statement, Statement after) {
         if (statement == null) {
-            throw new NullPointerException("statement must not be null");
+            throw new NullPointerException("statement");
         }
         if (after == null) {
-            throw new NullPointerException("AFTER must not be null");
+            throw new NullPointerException("AFTER");
         }
         this.statement = statement;
         this.after = after;

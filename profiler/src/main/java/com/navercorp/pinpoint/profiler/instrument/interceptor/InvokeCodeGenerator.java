@@ -34,13 +34,13 @@ public class InvokeCodeGenerator {
 
     public InvokeCodeGenerator(int interceptorId, InterceptorDefinition interceptorDefinition, InstrumentMethod targetMethod, ApiMetaDataService apiMetaDataService) {
         if (interceptorDefinition == null) {
-            throw new NullPointerException("interceptorDefinition must not be null");
+            throw new NullPointerException("interceptorDefinition");
         }
         if (targetMethod == null) {
-            throw new NullPointerException("targetMethod must not be null");
+            throw new NullPointerException("targetMethod");
         }
         if (apiMetaDataService == null) {
-            throw new NullPointerException("apiMetaDataService must not be null");
+            throw new NullPointerException("apiMetaDataService");
         }
 
         this.interceptorDefinition = interceptorDefinition;

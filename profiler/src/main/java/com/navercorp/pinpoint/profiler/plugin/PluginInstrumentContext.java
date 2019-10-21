@@ -55,11 +55,11 @@ public class PluginInstrumentContext implements InstrumentContext {
     private final ClassFileTransformerLoader transformerRegistry;
 
     public PluginInstrumentContext(ProfilerConfig profilerConfig, InstrumentEngine instrumentEngine, DynamicTransformTrigger dynamicTransformTrigger, ClassInjector classInjector, ClassFileTransformerLoader transformerRegistry) {
-        this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig must not be null");
-        this.instrumentEngine = Assert.requireNonNull(instrumentEngine, "instrumentEngine must not be null");
-        this.dynamicTransformTrigger = Assert.requireNonNull(dynamicTransformTrigger, "dynamicTransformTrigger must not be null");
-        this.classInjector = Assert.requireNonNull(classInjector, "classInjector must not be null");
-        this.transformerRegistry = Assert.requireNonNull(transformerRegistry, "transformerRegistry must not be null");
+        this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig");
+        this.instrumentEngine = Assert.requireNonNull(instrumentEngine, "instrumentEngine");
+        this.dynamicTransformTrigger = Assert.requireNonNull(dynamicTransformTrigger, "dynamicTransformTrigger");
+        this.classInjector = Assert.requireNonNull(classInjector, "classInjector");
+        this.transformerRegistry = Assert.requireNonNull(transformerRegistry, "transformerRegistry");
     }
 
 
@@ -67,7 +67,7 @@ public class PluginInstrumentContext implements InstrumentContext {
     @Override
     public InstrumentClass getInstrumentClass(ClassLoader classLoader, String className, ProtectionDomain protectionDomain, byte[] classFileBuffer) {
         if (className == null) {
-            throw new NullPointerException("className must not be null");
+            throw new NullPointerException("className");
         }
         try {
             final InstrumentEngine instrumentEngine = getInstrumentEngine();
@@ -81,7 +81,7 @@ public class PluginInstrumentContext implements InstrumentContext {
     @Override
     public boolean exist(ClassLoader classLoader, String className, ProtectionDomain protectionDomain) {
         if (className == null) {
-            throw new NullPointerException("className must not be null");
+            throw new NullPointerException("className");
         }
 
         final String jvmClassName = JavaAssistUtils.javaClassNameToJvmResourceName(className);
@@ -103,40 +103,40 @@ public class PluginInstrumentContext implements InstrumentContext {
 
     @Override
     public void addClassFileTransformer(final Matcher matcher, final TransformCallback transformCallback) {
-        Assert.requireNonNull(matcher, "matcher must not be null");
-        Assert.requireNonNull(transformCallback, "transformCallback must not be null");
+        Assert.requireNonNull(matcher, "matcher");
+        Assert.requireNonNull(transformCallback, "transformCallback");
         final TransformCallbackProvider transformCallbackProvider = new InstanceTransformCallbackProvider(transformCallback);
         transformerRegistry.addClassFileTransformer(this, matcher, transformCallbackProvider);
     }
 
     @Override
     public void addClassFileTransformer(final Matcher matcher, final String transformCallbackClassName) {
-        Assert.requireNonNull(matcher, "matcher must not be null");
-        Assert.requireNonNull(transformCallbackClassName, "transformCallbackClassName must not be null");
+        Assert.requireNonNull(matcher, "matcher");
+        Assert.requireNonNull(transformCallbackClassName, "transformCallbackClassName");
         final TransformCallbackProvider transformCallbackProvider = new DynamicTransformCallbackProvider(transformCallbackClassName);
         transformerRegistry.addClassFileTransformer(this, matcher, transformCallbackProvider);
     }
 
     @Override
     public void addClassFileTransformer(final Matcher matcher, final String transformCallbackClassName, Object[] parameters, Class<?>[] parameterTypes) {
-        Assert.requireNonNull(matcher, "matcher must not be null");
-        Assert.requireNonNull(transformCallbackClassName, "transformCallbackClassName must not be null");
+        Assert.requireNonNull(matcher, "matcher");
+        Assert.requireNonNull(transformCallbackClassName, "transformCallbackClassName");
         final TransformCallbackProvider transformCallbackProvider = new DynamicTransformCallbackProvider(transformCallbackClassName, parameters, parameterTypes);
         transformerRegistry.addClassFileTransformer(this, matcher, transformCallbackProvider);
     }
 
     @Override
     public void addClassFileTransformer(ClassLoader classLoader, String targetClassName, final TransformCallback transformCallback) {
-        Assert.requireNonNull(targetClassName, "targetClassName must not be null");
-        Assert.requireNonNull(transformCallback, "transformCallback must not be null");
+        Assert.requireNonNull(targetClassName, "targetClassName");
+        Assert.requireNonNull(transformCallback, "transformCallback");
         final TransformCallbackProvider transformCallbackProvider = new InstanceTransformCallbackProvider(transformCallback);
         this.transformerRegistry.addClassFileTransformer(this, classLoader, targetClassName, transformCallbackProvider);
     }
 
     @Override
     public void addClassFileTransformer(ClassLoader classLoader, String targetClassName, final String transformCallbackClassName) {
-        Assert.requireNonNull(targetClassName, "targetClassName must not be null");
-        Assert.requireNonNull(transformCallbackClassName, "transformCallbackClassName must not be null");
+        Assert.requireNonNull(targetClassName, "targetClassName");
+        Assert.requireNonNull(transformCallbackClassName, "transformCallbackClassName");
         final TransformCallbackProvider transformCallbackProvider = new DynamicTransformCallbackProvider(transformCallbackClassName);
         this.transformerRegistry.addClassFileTransformer(this, classLoader, targetClassName, transformCallbackProvider);
     }
@@ -144,8 +144,8 @@ public class PluginInstrumentContext implements InstrumentContext {
 
     @Override
     public void retransform(Class<?> target, final TransformCallback transformCallback) {
-        Assert.requireNonNull(target, "target must not be null");
-        Assert.requireNonNull(transformCallback, "transformCallback must not be null");
+        Assert.requireNonNull(target, "target");
+        Assert.requireNonNull(transformCallback, "transformCallback");
 
         final InstanceTransformCallbackProvider transformCallbackProvider = new InstanceTransformCallbackProvider(transformCallback);
         final ClassFileTransformerDelegate classFileTransformerGuardDelegate = new ClassFileTransformerDelegate(profilerConfig, this, transformCallbackProvider);
@@ -157,7 +157,7 @@ public class PluginInstrumentContext implements InstrumentContext {
     @Override
     public <T> Class<? extends T> injectClass(ClassLoader targetClassLoader, String className) {
         if (className == null) {
-            throw new NullPointerException("className must not be null");
+            throw new NullPointerException("className");
         }
 
         return classInjector.injectClass(targetClassLoader, className);
@@ -176,7 +176,7 @@ public class PluginInstrumentContext implements InstrumentContext {
     @Override
     public InterceptorScope getInterceptorScope(String name) {
         if (name == null) {
-            throw new NullPointerException("name must not be null");
+            throw new NullPointerException("name");
         }
 
         return interceptorScopePool.get(name);

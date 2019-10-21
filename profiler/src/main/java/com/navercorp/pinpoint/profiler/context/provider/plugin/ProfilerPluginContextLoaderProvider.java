@@ -50,13 +50,13 @@ public class ProfilerPluginContextLoaderProvider implements Provider<ProfilerPlu
                                                PluginSetup pluginSetup,
                                                InstrumentEngine instrumentEngine, BootstrapCore bootstrapCore,
                                                @PluginJars List<PluginJar> pluginJars) {
-        this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig must not be null");
-        this.configuredApplicationType = Assert.requireNonNull(configuredApplicationType, "configuredApplicationType must not be null");
-        this.pluginSetup = Assert.requireNonNull(pluginSetup, "pluginSetup must not be null");
-        Assert.requireNonNull(instrumentEngine, "instrumentEngine must not be null");
-        Assert.requireNonNull(bootstrapCore, "bootstrapCore must not be null");
+        this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig");
+        this.configuredApplicationType = Assert.requireNonNull(configuredApplicationType, "configuredApplicationType");
+        this.pluginSetup = Assert.requireNonNull(pluginSetup, "pluginSetup");
+        Assert.requireNonNull(instrumentEngine, "instrumentEngine");
+        Assert.requireNonNull(bootstrapCore, "bootstrapCore");
         this.classInjectorFactory = new ClassInjectorFactory(instrumentEngine, bootstrapCore);
-        this.pluginJars = Assert.requireNonNull(pluginJars, "pluginJars must not be null");
+        this.pluginJars = Assert.requireNonNull(pluginJars, "pluginJars");
     }
 
     @Override

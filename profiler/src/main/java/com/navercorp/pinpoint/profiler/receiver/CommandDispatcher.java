@@ -53,7 +53,7 @@ public class CommandDispatcher extends ServerStreamChannelMessageHandler impleme
 
     @Inject
     public CommandDispatcher(ProfilerCommandServiceLocator<TBase<?, ?>, TBase<?, ?>> commandServiceLocator) {
-        this.commandServiceLocator = Assert.requireNonNull(commandServiceLocator, "commandServiceLocator must not be null");
+        this.commandServiceLocator = Assert.requireNonNull(commandServiceLocator, "commandServiceLocator");
     }
 
     @Override

@@ -31,7 +31,7 @@ public class ApplicationGroup {
 
     public ApplicationGroup(List<Application> applicationList) {
         if (applicationList == null) {
-            throw new NullPointerException("applicationList must not be null");
+            throw new NullPointerException("applicationList");
         }
         this.applicationList = applicationList;
     }

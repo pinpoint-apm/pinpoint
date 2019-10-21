@@ -48,7 +48,7 @@ public class DefaultNodeHistogramFactory implements NodeHistogramFactory {
 
     public DefaultNodeHistogramFactory(WasNodeHistogramDataSource wasNodeHistogramDataSource) {
         if (wasNodeHistogramDataSource == null) {
-            throw new NullPointerException("nodeHistogramDataSource must not be null");
+            throw new NullPointerException("nodeHistogramDataSource");
         }
         this.wasNodeHistogramDataSource = wasNodeHistogramDataSource;
     }

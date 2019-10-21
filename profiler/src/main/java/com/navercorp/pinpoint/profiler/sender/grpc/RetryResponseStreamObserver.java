@@ -34,9 +34,9 @@ public class RetryResponseStreamObserver<ReqT, ResT> implements StreamObserver<R
     private final int remainingRetryCount;
 
     public RetryResponseStreamObserver(Logger logger, RetryScheduler<ReqT, ResT> retryScheduler, ReqT message, int remainingRetryCount) {
-        this.logger = Assert.requireNonNull(logger, "logger must not be null");
-        this.retryScheduler = Assert.requireNonNull(retryScheduler, "retryScheduler must not be null");
-        this.message = Assert.requireNonNull(message, "message must not be null");
+        this.logger = Assert.requireNonNull(logger, "logger");
+        this.retryScheduler = Assert.requireNonNull(retryScheduler, "retryScheduler");
+        this.message = Assert.requireNonNull(message, "message");
         this.remainingRetryCount = remainingRetryCount;
     }
 

@@ -61,17 +61,17 @@ public class AgentStatCollector implements AgentStatMetricCollector<AgentStatMet
             AgentStatMetricCollector<DeadlockMetricSnapshot> deadlockMetricCollector,
             AgentStatMetricCollector<FileDescriptorMetricSnapshot> fileDescriptorMetricCollector,
             AgentStatMetricCollector<BufferMetricSnapshot> bufferMetricCollector) {
-        this.agentId = Assert.requireNonNull(agentId, "agentId must not be null");
+        this.agentId = Assert.requireNonNull(agentId, "agentId");
         this.agentStartTimestamp = agentStartTimestamp;
-        this.jvmGcMetricCollector = Assert.requireNonNull(jvmGcMetricCollector, "jvmGcMetricCollector must not be null");
-        this.cpuLoadMetricCollector = Assert.requireNonNull(cpuLoadMetricCollector, "cpuLoadMetricCollector must not be null");
-        this.transactionMetricCollector = Assert.requireNonNull(transactionMetricCollector, "transactionMetricCollector must not be null");
-        this.activeTraceMetricCollector = Assert.requireNonNull(activeTraceMetricCollector, "activeTraceMetricCollector must not be null");
-        this.dataSourceMetricCollector = Assert.requireNonNull(dataSourceMetricCollector, "dataSourceMetricCollector must not be null");
-        this.responseTimeMetricCollector = Assert.requireNonNull(responseTimeMetricCollector, "responseTimeMetricCollector must not be null");
-        this.deadlockMetricCollector = Assert.requireNonNull(deadlockMetricCollector, "deadlockMetricCollector must not be null");
-        this.fileDescriptorMetricCollector = Assert.requireNonNull(fileDescriptorMetricCollector, "fileDescriptorMetricCollector must not be null");
-        this.bufferMetricCollector = Assert.requireNonNull(bufferMetricCollector, "bufferMetricCollector must not be null");
+        this.jvmGcMetricCollector = Assert.requireNonNull(jvmGcMetricCollector, "jvmGcMetricCollector");
+        this.cpuLoadMetricCollector = Assert.requireNonNull(cpuLoadMetricCollector, "cpuLoadMetricCollector");
+        this.transactionMetricCollector = Assert.requireNonNull(transactionMetricCollector, "transactionMetricCollector");
+        this.activeTraceMetricCollector = Assert.requireNonNull(activeTraceMetricCollector, "activeTraceMetricCollector");
+        this.dataSourceMetricCollector = Assert.requireNonNull(dataSourceMetricCollector, "dataSourceMetricCollector");
+        this.responseTimeMetricCollector = Assert.requireNonNull(responseTimeMetricCollector, "responseTimeMetricCollector");
+        this.deadlockMetricCollector = Assert.requireNonNull(deadlockMetricCollector, "deadlockMetricCollector");
+        this.fileDescriptorMetricCollector = Assert.requireNonNull(fileDescriptorMetricCollector, "fileDescriptorMetricCollector");
+        this.bufferMetricCollector = Assert.requireNonNull(bufferMetricCollector, "bufferMetricCollector");
     }
 
     @Override

@@ -35,7 +35,6 @@ import com.navercorp.pinpoint.web.filter.visitor.SpanReader;
 import com.navercorp.pinpoint.web.filter.visitor.SpanVisitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 /**
@@ -72,10 +71,10 @@ public class LinkFilter implements Filter<SpanBo> {
     private final URLPatternFilter rpcUrlFilter;
 
     public LinkFilter(FilterDescriptor filterDescriptor, FilterHint filterHint, ServiceTypeRegistryService serviceTypeRegistryService, AnnotationKeyRegistryService annotationKeyRegistryService) {
-        Objects.requireNonNull(filterDescriptor, "filterDescriptor must not be null");
-        Objects.requireNonNull(filterHint, "filterHint must not be null");
-        this.serviceTypeRegistryService = Objects.requireNonNull(serviceTypeRegistryService, "serviceTypeRegistryService must not be null");
-        this.annotationKeyRegistryService = Objects.requireNonNull(annotationKeyRegistryService, "annotationKeyRegistryService must not be null");
+        Objects.requireNonNull(filterDescriptor, "filterDescriptor");
+        Objects.requireNonNull(filterHint, "filterHint");
+        this.serviceTypeRegistryService = Objects.requireNonNull(serviceTypeRegistryService, "serviceTypeRegistryService");
+        this.annotationKeyRegistryService = Objects.requireNonNull(annotationKeyRegistryService, "annotationKeyRegistryService");
 
         final String fromServiceType = filterDescriptor.getFromServiceType();
         this.fromServiceDescList = serviceTypeRegistryService.findDesc(fromServiceType);
@@ -84,7 +83,7 @@ public class LinkFilter implements Filter<SpanBo> {
         }
 
         this.fromApplicationName = filterDescriptor.getFromApplicationName();
-        Assert.notNull(this.fromApplicationName, "fromApplicationName must not be null");
+        Objects.requireNonNull(this.fromApplicationName, "fromApplicationName");
 
         final String toServiceType = filterDescriptor.getToServiceType();
         this.toServiceDescList = serviceTypeRegistryService.findDesc(toServiceType);
@@ -93,14 +92,14 @@ public class LinkFilter implements Filter<SpanBo> {
         }
 
         this.toApplicationName = filterDescriptor.getToApplicationName();
-        Assert.notNull(this.toApplicationName, "toApplicationName must not be null");
+        Objects.requireNonNull(this.toApplicationName, "toApplicationName");
 
         this.responseTimeFilter = createResponseTimeFilter(filterDescriptor);
 
         this.executionType = getExecutionType(filterDescriptor);
 
         this.filterHint = filterHint;
-        Assert.notNull(this.filterHint, "filterHint must not be null");
+        Objects.requireNonNull(this.filterHint, "filterHint");
 
         final String fromAgentName = filterDescriptor.getFromAgentName();
         final String toAgentName = filterDescriptor.getToAgentName();

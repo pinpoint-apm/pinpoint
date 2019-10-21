@@ -205,7 +205,7 @@ public class ProducerSendInterceptor implements AroundInterceptor {
         }
 
         private void cleanPinpointHeader(org.apache.kafka.common.header.Headers kafkaHeaders) {
-            Assert.requireNonNull(kafkaHeaders, "kafkaHeaders must not be null");
+            Assert.requireNonNull(kafkaHeaders, "kafkaHeaders");
 
             for (org.apache.kafka.common.header.Header kafkaHeader : kafkaHeaders.toArray()) {
                 String kafkaHeaderKey = kafkaHeader.key();

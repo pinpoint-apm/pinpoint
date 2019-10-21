@@ -39,10 +39,10 @@ public class ApplicationMapStatisticsUtils {
 
     public static byte[] makeColumnName(short serviceType, String applicationName, String destHost, short slotNumber) {
         if (applicationName == null) {
-            throw new NullPointerException("applicationName must not be null");
+            throw new NullPointerException("applicationName");
         }
         if (destHost == null) {
-            // throw new NullPointerException("destHost must not be null");
+            // throw new NullPointerException("destHost");
             destHost = "";
         }
         // approximate size of destHost
@@ -76,7 +76,7 @@ public class ApplicationMapStatisticsUtils {
 
     private static short findResponseHistogramSlotNo(ServiceType serviceType, int elapsed, boolean isError) {
         if (serviceType == null) {
-            throw new NullPointerException("serviceType must not be null");
+            throw new NullPointerException("serviceType");
         }
         final HistogramSchema histogramSchema = serviceType.getHistogramSchema();
         final HistogramSlot histogramSlot = histogramSchema.findHistogramSlot(elapsed, isError);
@@ -130,7 +130,7 @@ public class ApplicationMapStatisticsUtils {
      */
     public static byte[] makeRowKey(String applicationName, short applicationType, long timestamp) {
         if (applicationName == null) {
-            throw new NullPointerException("applicationName must not be null");
+            throw new NullPointerException("applicationName");
         }
         final byte[] applicationNameBytes= BytesUtils.toBytes(applicationName);
 
@@ -146,7 +146,7 @@ public class ApplicationMapStatisticsUtils {
 
     public static String getApplicationNameFromRowKey(byte[] bytes, int offset) {
         if (bytes == null) {
-            throw new NullPointerException("bytes must not be null");
+            throw new NullPointerException("bytes");
         }
         short applicationNameLength = BytesUtils.bytesToShort(bytes, offset);
         return BytesUtils.toString(bytes, offset + 2, applicationNameLength); //.trim();
@@ -162,7 +162,7 @@ public class ApplicationMapStatisticsUtils {
 
     public static short getApplicationTypeFromRowKey(byte[] bytes, int offset) {
         if (bytes == null) {
-            throw new NullPointerException("bytes must not be null");
+            throw new NullPointerException("bytes");
         }
         short applicationNameLength = BytesUtils.bytesToShort(bytes, offset);
         return BytesUtils.bytesToShort(bytes, offset + applicationNameLength + 2);
@@ -170,7 +170,7 @@ public class ApplicationMapStatisticsUtils {
 
     public static long getTimestampFromRowKey(byte[] bytes) {
         if (bytes == null) {
-            throw new NullPointerException("bytes must not be null");
+            throw new NullPointerException("bytes");
         }
         short applicationNameLength = BytesUtils.bytesToShort(bytes, 0);
         return TimeUtils.recoveryTimeMillis(BytesUtils.bytesToLong(bytes, applicationNameLength + 4));

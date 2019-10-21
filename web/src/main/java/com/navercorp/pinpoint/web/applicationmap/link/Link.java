@@ -38,6 +38,7 @@ import com.navercorp.pinpoint.web.vo.Range;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -76,28 +77,11 @@ public class Link {
     }
 
     public Link(LinkType linkType, CreateType createType, Node fromNode, Node toNode, Range range) {
-        if (linkType == null) {
-            throw new NullPointerException("linkType must not be null");
-        }
-        if (createType == null) {
-            throw new NullPointerException("createType must not be null");
-        }
-        if (fromNode == null) {
-            throw new NullPointerException("fromNode must not be null");
-        }
-        if (toNode == null) {
-            throw new NullPointerException("toNode must not be null");
-        }
-        if (range == null) {
-            throw new NullPointerException("range must not be null");
-        }
-        this.linkType = linkType;
-        this.createType = createType;
-
-        this.fromNode = fromNode;
-        this.toNode = toNode;
-
-        this.range = range;
+        this.linkType = Objects.requireNonNull(linkType, "linkType");
+        this.createType = Objects.requireNonNull(createType, "createType");
+        this.fromNode = Objects.requireNonNull(fromNode, "fromNode");
+        this.toNode = Objects.requireNonNull(toNode, "toNode");
+        this.range = Objects.requireNonNull(range, "range");
     }
 
     public Application getFilterApplication() {

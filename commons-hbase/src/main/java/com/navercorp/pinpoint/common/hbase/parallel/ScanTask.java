@@ -49,10 +49,10 @@ public class ScanTask implements Runnable {
 
     public ScanTask(ScanTaskConfig scanTaskConfig, Scan... scans) {
         if (scanTaskConfig == null) {
-            throw new NullPointerException("scanTaskConfig must not be null");
+            throw new NullPointerException("scanTaskConfig");
         }
         if (scans == null) {
-            throw new NullPointerException("scans must not be null");
+            throw new NullPointerException("scans");
         }
         if (scans.length == 0) {
             throw new IllegalArgumentException("scans must not be empty");

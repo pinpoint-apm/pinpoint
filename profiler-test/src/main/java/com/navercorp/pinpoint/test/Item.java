@@ -42,7 +42,7 @@ public class Item implements Comparable<Item> {
     public Item(Object value, long time, TraceRoot traceRoot, int sequence) {
         this.value = value;
         this.time = time;
-        this.traceRoot = Assert.requireNonNull(traceRoot, "traceRoot must not be null");
+        this.traceRoot = Assert.requireNonNull(traceRoot, "traceRoot");
         this.spanId = traceRoot.getTraceId().getSpanId();
         this.sequence = sequence;
         if (value instanceof AsyncSpanChunk) {

@@ -33,7 +33,7 @@ public class OffsetAutomaticBuffer extends AutomaticBuffer {
 
     public OffsetAutomaticBuffer(final byte[] buffer, final int startOffset, int length) {
         if (buffer == null) {
-            throw new NullPointerException("buffer must not be null");
+            throw new NullPointerException("buffer");
         }
         if (startOffset < 0) {
             throw new IndexOutOfBoundsException("negative offset:" + startOffset);

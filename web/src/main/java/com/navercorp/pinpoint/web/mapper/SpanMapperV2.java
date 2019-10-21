@@ -29,7 +29,6 @@ import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyDecoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanDecoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanDecoderV0;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanDecodingContext;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.io.SpanVersion;
 
@@ -47,6 +46,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author emeroad
@@ -64,8 +64,8 @@ public class SpanMapperV2 implements RowMapper<List<SpanBo>> {
     }
 
     public SpanMapperV2(RowKeyDecoder<TransactionId> rowKeyDecoder, SpanDecoder spanDecoder) {
-        this.rowKeyDecoder = Assert.requireNonNull(rowKeyDecoder, "rowKeyDecoder must not be null");
-        this.spanDecoder = Assert.requireNonNull(spanDecoder, "spanDecoder must not be null");
+        this.rowKeyDecoder = Objects.requireNonNull(rowKeyDecoder, "rowKeyDecoder");
+        this.spanDecoder = Objects.requireNonNull(spanDecoder, "spanDecoder");
     }
 
     @Override
@@ -217,10 +217,10 @@ public class SpanMapperV2 implements RowMapper<List<SpanBo>> {
 
         public AgentKey(String applicationId, String agentId, long agentStartTime, long spanId) {
             if (applicationId == null) {
-                throw new NullPointerException("applicationId must not be null");
+                throw new NullPointerException("applicationId");
             }
             if (agentId == null) {
-                throw new NullPointerException("agentId must not be null");
+                throw new NullPointerException("agentId");
             }
             this.applicationId = applicationId;
             this.agentId = agentId;

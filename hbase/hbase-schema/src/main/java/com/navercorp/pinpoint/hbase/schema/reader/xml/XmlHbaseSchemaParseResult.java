@@ -31,8 +31,8 @@ public class XmlHbaseSchemaParseResult {
     private final Collection<ChangeSet> changeSets;
 
     public XmlHbaseSchemaParseResult(Collection<String> includeFiles, Collection<ChangeSet> changeSets) {
-        this.includeFiles = Objects.requireNonNull(includeFiles, "includeFiles must not be null");
-        this.changeSets = Objects.requireNonNull(changeSets, "changeSets must not be null");
+        this.includeFiles = Objects.requireNonNull(includeFiles, "includeFiles");
+        this.changeSets = Objects.requireNonNull(changeSets, "changeSets");
     }
 
     public Collection<String> getIncludeFiles() {

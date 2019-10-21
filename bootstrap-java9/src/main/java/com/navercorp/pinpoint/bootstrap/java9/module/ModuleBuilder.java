@@ -43,10 +43,10 @@ class ModuleBuilder {
 
     Module defineModule(String moduleName, ClassLoader classLoader, URL[] urls) {
         if (moduleName == null) {
-            throw new NullPointerException("moduleName must not be null");
+            throw new NullPointerException("moduleName");
         }
         if (urls == null) {
-            throw new NullPointerException("urls must not be null");
+            throw new NullPointerException("urls");
         }
         if (urls.length == 0) {
             throw new IllegalArgumentException("urls.length is 0");

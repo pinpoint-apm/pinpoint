@@ -48,9 +48,9 @@ public final class ClientFactoryUtils {
         private final int port;
 
         public DnsPinpointClientProvider(String host, int port, PinpointClientFactory clientFactory) {
-            this.host = Assert.requireNonNull(host, "host must not be null");
+            this.host = Assert.requireNonNull(host, "host");
             this.port = port;
-            this.clientFactory = Assert.requireNonNull(clientFactory, "clientFactory must not be null");
+            this.clientFactory = Assert.requireNonNull(clientFactory, "clientFactory");
         }
 
         @Override

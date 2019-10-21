@@ -40,7 +40,7 @@ public class MonitoredRunnableDecorator implements RunnableDecorator {
 
     public MonitoredRunnableDecorator(String executorName, MetricRegistry registry) {
         this.registry = registry;
-        this.executorName = Objects.requireNonNull(executorName, "name must not be null");
+        this.executorName = Objects.requireNonNull(executorName, "name");
 
         this.submitted = registry.meter(MetricRegistry.name(executorName, "submitted"));
 
@@ -51,7 +51,7 @@ public class MonitoredRunnableDecorator implements RunnableDecorator {
     @Override
     public Runnable decorate(Runnable runnable) {
         if (runnable == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("runnable");
         }
         submitted.mark();
         return instrument(runnable);
@@ -65,7 +65,7 @@ public class MonitoredRunnableDecorator implements RunnableDecorator {
     @Override
     public <T> Callable<T> decorate(Callable<T> task) {
         if (task == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("task");
         }
 
         submitted.mark();
@@ -80,7 +80,7 @@ public class MonitoredRunnableDecorator implements RunnableDecorator {
     @Override
     public <T> Collection<? extends Callable<T>> decorate(Collection<? extends Callable<T>> tasks) {
         if (tasks == null) {
-            throw new NullPointerException();
+            throw new NullPointerException("tasks");
         }
         submitted.mark(tasks.size());
         return instrument(tasks);
@@ -100,7 +100,7 @@ public class MonitoredRunnableDecorator implements RunnableDecorator {
         private final Timer.Context dispatchDuration;
 
         InstrumentedRunnable(Runnable runnable) {
-            this.runnable = Objects.requireNonNull(runnable, "runnable must not be null");
+            this.runnable = Objects.requireNonNull(runnable, "runnable");
             this.dispatchDuration = dispatchDurationTimer.time();
         }
 
@@ -128,7 +128,7 @@ public class MonitoredRunnableDecorator implements RunnableDecorator {
         private final Timer.Context dispatchDuration;
 
         InstrumentedCallable(Callable<T> callable) {
-            this.callable = Objects.requireNonNull(callable, "callable must not be null");
+            this.callable = Objects.requireNonNull(callable, "callable");
             this.dispatchDuration = dispatchDurationTimer.time();
         }
 

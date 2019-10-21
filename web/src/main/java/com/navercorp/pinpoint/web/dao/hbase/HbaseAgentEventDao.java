@@ -73,10 +73,10 @@ public class HbaseAgentEventDao implements AgentEventDao {
     @Override
     public List<AgentEventBo> getAgentEvents(String agentId, Range range, Set<AgentEventType> excludeEventTypes) {
         if (agentId == null) {
-            throw new NullPointerException("agentId must not be null");
+            throw new NullPointerException("agentId");
         }
         if (range == null) {
-            throw new NullPointerException("range must not be null");
+            throw new NullPointerException("range");
         }
 
         Scan scan = new Scan();
@@ -105,13 +105,13 @@ public class HbaseAgentEventDao implements AgentEventDao {
     @Override
     public AgentEventBo getAgentEvent(String agentId, long eventTimestamp, AgentEventType eventType) {
         if (agentId == null) {
-            throw new NullPointerException("agentId must not be null");
+            throw new NullPointerException("agentId");
         }
         if (eventTimestamp < 0) {
             throw new IllegalArgumentException("eventTimestamp must not be less than 0");
         }
         if (eventType == null) {
-            throw new NullPointerException("eventType must not be null");
+            throw new NullPointerException("eventType");
         }
 
         final byte[] rowKey = createRowKey(agentId, eventTimestamp);

@@ -44,10 +44,10 @@ public class ResponseTimeChartService implements AgentStatChartService {
     @Override
     public StatChart selectAgentChart(String agentId, TimeWindow timeWindow) {
         if (agentId == null) {
-            throw new NullPointerException("agentId must not be null");
+            throw new NullPointerException("agentId");
         }
         if (timeWindow == null) {
-            throw new NullPointerException("timeWindow must not be null");
+            throw new NullPointerException("timeWindow");
         }
         List<SampledResponseTime> sampledResponseTimes = this.sampledResponseTimeDao.getSampledAgentStatList(agentId, timeWindow);
         return new ResponseTimeChart(timeWindow, sampledResponseTimes);

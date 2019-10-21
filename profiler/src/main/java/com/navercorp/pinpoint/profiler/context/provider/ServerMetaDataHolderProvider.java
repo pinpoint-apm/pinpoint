@@ -32,7 +32,7 @@ public class ServerMetaDataHolderProvider implements Provider<ServerMetaDataHold
 
     @Inject
     public ServerMetaDataHolderProvider(ServerMetaDataRegistryService serverMetaDataRegistryService) {
-        this.serverMetaDataRegistryService = Assert.requireNonNull(serverMetaDataRegistryService, "serverMetaDataRegistryService must not be null");
+        this.serverMetaDataRegistryService = Assert.requireNonNull(serverMetaDataRegistryService, "serverMetaDataRegistryService");
     }
 
     @Override

@@ -77,19 +77,19 @@ public class ThriftModuleLifeCycle implements ModuleLifeCycle {
             @SpanDataSender Provider<DataSender> spanDataSenderProvider,
             @StatDataSender Provider<DataSender> statDataSenderProvider
             ) {
-        this.commandDispatcherProvider = Assert.requireNonNull(commandDispatcherProvider, "commandDispatcherProvider must not be null");
-        this.clientFactoryProvider = Assert.requireNonNull(clientFactoryProvider, "clientFactoryProvider must not be null");
-        this.tcpDataSenderProvider = Assert.requireNonNull(tcpDataSenderProvider, "tcpDataSenderProvider must not be null");
+        this.commandDispatcherProvider = Assert.requireNonNull(commandDispatcherProvider, "commandDispatcherProvider");
+        this.clientFactoryProvider = Assert.requireNonNull(clientFactoryProvider, "clientFactoryProvider");
+        this.tcpDataSenderProvider = Assert.requireNonNull(tcpDataSenderProvider, "tcpDataSenderProvider");
 
-        this.spanStatConnectTimerProvider = Assert.requireNonNull(spanStatConnectTimerProvider, "spanStatConnectTimerProvider must not be null");
+        this.spanStatConnectTimerProvider = Assert.requireNonNull(spanStatConnectTimerProvider, "spanStatConnectTimerProvider");
 
-        this.spanStatChannelFactoryProvider = Assert.requireNonNull(spanStatChannelFactoryProvider, "spanStatChannelFactoryProvider must not be null");
+        this.spanStatChannelFactoryProvider = Assert.requireNonNull(spanStatChannelFactoryProvider, "spanStatChannelFactoryProvider");
 
-        this.spanClientFactoryProvider = Assert.requireNonNull(spanClientFactoryProvider, "spanClientFactoryProvider must not be null");
-        this.statClientFactoryProvider = Assert.requireNonNull(statClientFactoryProvider, "statClientFactoryProvider must not be null");
+        this.spanClientFactoryProvider = Assert.requireNonNull(spanClientFactoryProvider, "spanClientFactoryProvider");
+        this.statClientFactoryProvider = Assert.requireNonNull(statClientFactoryProvider, "statClientFactoryProvider");
 
-        this.spanDataSenderProvider = Assert.requireNonNull(spanDataSenderProvider, "spanDataSenderProvider must not be null");
-        this.statDataSenderProvider = Assert.requireNonNull(statDataSenderProvider, "statDataSenderProvider must not be null");
+        this.spanDataSenderProvider = Assert.requireNonNull(spanDataSenderProvider, "spanDataSenderProvider");
+        this.statDataSenderProvider = Assert.requireNonNull(statDataSenderProvider, "statDataSenderProvider");
     }
 
     @Override

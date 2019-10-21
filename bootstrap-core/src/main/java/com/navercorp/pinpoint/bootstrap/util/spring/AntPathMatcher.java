@@ -87,7 +87,7 @@ public class AntPathMatcher implements PathMatcher {
      */
     public AntPathMatcher(String pathSeparator) {
         if (pathSeparator == null) {
-            throw new NullPointerException("pathSeparator must not be null");
+            throw new NullPointerException("pathSeparator");
         }
 
         this.pathSeparator = pathSeparator;

@@ -26,7 +26,7 @@ public class CookieRecorderFactory {
 
 
     public static <T> CookieRecorder<T> newCookieRecorder(HttpDumpConfig httpDumpConfig, CookieExtractor<T> extractor) {
-        Assert.requireNonNull(httpDumpConfig, "httpDumpConfig must not be null");
+        Assert.requireNonNull(httpDumpConfig, "httpDumpConfig");
 
         if (!httpDumpConfig.isDumpCookie()) {
             return new DisableCookieRecorder<T>();

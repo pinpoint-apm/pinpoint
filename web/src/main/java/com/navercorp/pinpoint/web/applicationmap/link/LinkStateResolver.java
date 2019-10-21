@@ -27,7 +27,7 @@ public class LinkStateResolver {
 
     public String resolve(Link link) {
         if (link == null) {
-            throw new NullPointerException("link must not be null");
+            throw new NullPointerException("link");
         }
         // since Histogram dup gets created, we simply accepts as a parameter
         // XXX need to fix this 
@@ -49,7 +49,7 @@ public class LinkStateResolver {
 
     private long getErrorRate(Histogram histogram) {
         if (histogram == null) {
-            throw new NullPointerException("histogram must not be null");
+            throw new NullPointerException("histogram");
         }
         final long totalCount = histogram.getTotalCount();
         if (totalCount == 0) {

@@ -54,7 +54,7 @@ public class HbaseFileDescriptorDao implements AgentStatDaoV2<FileDescriptorBo> 
     @Override
     public void insert(String agentId, List<FileDescriptorBo> fileDescriptorBos) {
         if (agentId == null) {
-            throw new NullPointerException("agentId must not be null");
+            throw new NullPointerException("agentId");
         }
         if (CollectionUtils.isEmpty(fileDescriptorBos)) {
             return;

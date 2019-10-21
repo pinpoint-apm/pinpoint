@@ -34,7 +34,7 @@ class ModuleBootLoader {
 
     ModuleBootLoader(Instrumentation instrumentation, ClassLoader parentClassLoader) {
         if (instrumentation == null) {
-            throw new NullPointerException("instrumentation must not be null");
+            throw new NullPointerException("instrumentation");
         }
         this.instrumentation = instrumentation;
         this.parentClassLoader = parentClassLoader;

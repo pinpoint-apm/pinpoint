@@ -42,13 +42,13 @@ public class MethodInstReplacer extends ClassVisitor {
                               String targetClassName, String targetMethodName,
                               String delegateClassName, String delegateMethodName) {
         super(ASMVersion.VERSION, classVisitor);
-        this.methodName = Assert.requireNonNull(methodName, "methodName must not be null");
+        this.methodName = Assert.requireNonNull(methodName, "methodName");
 
-        this.targetClassName = Assert.requireNonNull(targetClassName, "targetClassName must not be null");
-        this.targetMethodName = Assert.requireNonNull(targetMethodName, "targetMethodName must not be null");
+        this.targetClassName = Assert.requireNonNull(targetClassName, "targetClassName");
+        this.targetMethodName = Assert.requireNonNull(targetMethodName, "targetMethodName");
 
-        this.delegateClassName = Assert.requireNonNull(delegateClassName, "delegateClassName must not be null");
-        this.delegateMethodName = Assert.requireNonNull(delegateMethodName, "delegateMethodName must not be null");
+        this.delegateClassName = Assert.requireNonNull(delegateClassName, "delegateClassName");
+        this.delegateMethodName = Assert.requireNonNull(delegateMethodName, "delegateMethodName");
     }
 
     @Override

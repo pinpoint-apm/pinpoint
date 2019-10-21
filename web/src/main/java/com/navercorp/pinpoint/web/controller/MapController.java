@@ -204,13 +204,13 @@ public class MapController {
 
     private MapWrap selectApplicationMap(Application application, Range range, SearchOption searchOption, NodeType nodeType, LinkType linkType) {
         if (application == null) {
-            throw new NullPointerException("application must not be null");
+            throw new NullPointerException("application");
         }
         if (range == null) {
-            throw new NullPointerException("range must not be null");
+            throw new NullPointerException("range");
         }
         if (searchOption == null) {
-            throw new NullPointerException("searchOption must not be null");
+            throw new NullPointerException("searchOption");
         }
 
         logger.info("getServerMap() application:{} range:{} searchOption:{}", application, range, searchOption);

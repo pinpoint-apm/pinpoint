@@ -38,13 +38,13 @@ public class ProfilerPluginArgumentProvider implements ArgumentProvider {
 
     public ProfilerPluginArgumentProvider(ProfilerConfig profilerConfig, TraceContext traceContext, InstrumentContext pluginContext) {
         if (profilerConfig == null) {
-            throw new NullPointerException("profilerConfig must not be null");
+            throw new NullPointerException("profilerConfig");
         }
         if (traceContext == null) {
-            throw new NullPointerException("traceContext must not be null");
+            throw new NullPointerException("traceContext");
         }
         if (pluginContext == null) {
-            throw new NullPointerException("pluginContext must not be null");
+            throw new NullPointerException("pluginContext");
         }
         this.profilerConfig = profilerConfig;
         this.traceContext = traceContext;

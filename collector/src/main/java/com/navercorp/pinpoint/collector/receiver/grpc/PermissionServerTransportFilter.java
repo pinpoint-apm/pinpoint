@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.collector.receiver.grpc;
 
 import com.navercorp.pinpoint.common.server.util.AddressFilter;
-import com.navercorp.pinpoint.common.util.Assert;
+
 import io.grpc.Attributes;
 import io.grpc.Grpc;
 import io.grpc.ServerTransportFilter;
@@ -39,7 +39,7 @@ public class PermissionServerTransportFilter extends ServerTransportFilter {
     private final AddressFilter addressFilter;
 
     public PermissionServerTransportFilter(String debugString, final AddressFilter addressFilter) {
-        this.debugString = Assert.requireNonNull(debugString, "debugString");
+        this.debugString = Objects.requireNonNull(debugString, "debugString");
         this.addressFilter = Objects.requireNonNull(addressFilter, "addressFilter");
     }
 

@@ -45,7 +45,7 @@ public class RowKeyMerge {
 
     public RowKeyMerge(byte[] family) {
         if (family == null) {
-            throw new NullPointerException("family must not be null");
+            throw new NullPointerException("family");
         }
         this.family = Arrays.copyOf(family, family.length);
     }

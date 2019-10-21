@@ -41,7 +41,7 @@ public final class LoggerUtils {
 
     public static int getLoggerLevel(Logger logger) {
         if (logger == null) {
-            throw new NullPointerException("logger must not be null");
+            throw new NullPointerException("logger");
         }
         if (logger.isTraceEnabled()) {
             return TRACE_LEVEL;

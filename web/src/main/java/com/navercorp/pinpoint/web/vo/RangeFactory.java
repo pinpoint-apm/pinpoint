@@ -35,7 +35,7 @@ public class RangeFactory {
      */
     public Range createStatisticsRange(Range range) {
         if (range == null) {
-            throw new NullPointerException("range must not be null");
+            throw new NullPointerException("range");
         }
         // HBase scanner does not include endTime when scanning, so 1 is usually added to the endTime.
         // In this case, the Range is reversed, so we instead subtract 1 from the startTime.

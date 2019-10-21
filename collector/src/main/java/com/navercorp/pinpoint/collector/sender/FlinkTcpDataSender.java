@@ -46,11 +46,9 @@ public class FlinkTcpDataSender extends TcpDataSender {
         if (StringUtils.isEmpty(host)) {
             throw new IllegalArgumentException("host must not be empty.");
         }
-        if (Objects.isNull(clientFactory)) {
-            throw new IllegalArgumentException("clientFactory must not be null.");
-        }
-        this.flinkHeaderTBaseSerializer = Objects.requireNonNull(serializer, "serializer must not be null");
-        this.flinkRequestFactory = Objects.requireNonNull(flinkRequestFactory, "clientFactory must not be null");
+        Objects.requireNonNull(clientFactory, "clientFactory");
+        this.flinkHeaderTBaseSerializer = Objects.requireNonNull(serializer, "serializer");
+        this.flinkRequestFactory = Objects.requireNonNull(flinkRequestFactory, "clientFactory");
     }
 
     @Override

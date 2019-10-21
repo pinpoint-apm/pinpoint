@@ -58,11 +58,11 @@ class AgentBaseDataReceiverServerMessageListenerFactory implements ServerMessage
                                                              AgentEventAsyncTaskService agentEventAsyncTaskService,
                                                              AgentLifeCycleAsyncTaskService agentLifeCycleAsyncTaskService,
                                                              ChannelPropertiesFactory channelPropertiesFactory) {
-        this.executor = Objects.requireNonNull(executor, "executor must not be null");
-        this.tcpPacketHandler = Objects.requireNonNull(tcpPacketHandler, "tcpPacketHandler must not be null");
-        this.agentEventAsyncTaskService = Objects.requireNonNull(agentEventAsyncTaskService, "agentEventTask must not be null");
-        this.agentLifeCycleAsyncTaskService = Objects.requireNonNull(agentLifeCycleAsyncTaskService, "agentLifeCycleTask must not be null");
-        this.channelPropertiesFactory = Objects.requireNonNull(channelPropertiesFactory, "channelPropertiesFactory must not be null");
+        this.executor = Objects.requireNonNull(executor, "executor");
+        this.tcpPacketHandler = Objects.requireNonNull(tcpPacketHandler, "tcpPacketHandler");
+        this.agentEventAsyncTaskService = Objects.requireNonNull(agentEventAsyncTaskService, "agentEventTask");
+        this.agentLifeCycleAsyncTaskService = Objects.requireNonNull(agentLifeCycleAsyncTaskService, "agentLifeCycleTask");
+        this.channelPropertiesFactory = Objects.requireNonNull(channelPropertiesFactory, "channelPropertiesFactory");
     }
 
     @Override
@@ -86,11 +86,11 @@ class AgentBaseDataReceiverServerMessageListenerFactory implements ServerMessage
                                                            AgentEventAsyncTaskService agentEventAsyncTaskService,
                                                            AgentLifeCycleAsyncTaskService agentLifeCycleEventHandler,
                                                            ChannelPropertiesFactory channelPropertiesFactory) {
-            this.executor = Objects.requireNonNull(executor, "executor must not be null");
-            this.tcpPacketHandler = Objects.requireNonNull(tcpPacketHandler, "tcpPacketHandler must not be null");
-            this.agentEventAsyncTaskService = Objects.requireNonNull(agentEventAsyncTaskService, "agentEventTask must not be null");
-            this.agentLifeCycleAsyncTaskService = Objects.requireNonNull(agentLifeCycleEventHandler, "agentLifeCycleTask must not be null");
-            this.channelPropertiesFactory = Objects.requireNonNull(channelPropertiesFactory, "channelPropertiesFactory must not be null");
+            this.executor = Objects.requireNonNull(executor, "executor");
+            this.tcpPacketHandler = Objects.requireNonNull(tcpPacketHandler, "tcpPacketHandler");
+            this.agentEventAsyncTaskService = Objects.requireNonNull(agentEventAsyncTaskService, "agentEventTask");
+            this.agentLifeCycleAsyncTaskService = Objects.requireNonNull(agentLifeCycleEventHandler, "agentLifeCycleTask");
+            this.channelPropertiesFactory = Objects.requireNonNull(channelPropertiesFactory, "channelPropertiesFactory");
         }
 
         @Override

@@ -18,13 +18,13 @@ package com.navercorp.pinpoint.common.hbase;
 
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
-import org.springframework.util.Assert;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author emeroad
@@ -60,11 +60,9 @@ public class LimitRowMapperResultsExtractor<T> implements ResultsExtractor<List<
      * @param rowMapper the RowMapper which creates an object for each row
      */
     public LimitRowMapperResultsExtractor(RowMapper<T> rowMapper, int limit, LimitEventHandler eventHandler) {
-        Assert.notNull(rowMapper, "RowMapper is required");
-        Assert.notNull(eventHandler, "LimitEventHandler is required");
-        this.rowMapper = rowMapper;
+        this.rowMapper = Objects.requireNonNull(rowMapper, "RowMapper");
         this.limit = limit;
-        this.eventHandler = eventHandler;
+        this.eventHandler = Objects.requireNonNull(eventHandler, "LimitEventHandler");
     }
 
     public List<T> extractData(ResultScanner results) throws Exception {

@@ -36,7 +36,7 @@ public class AgentEventHeaderTBaseDeserializerFactory implements DeserializerFac
 
     public AgentEventHeaderTBaseDeserializerFactory(TProtocolFactory protocolFactory) {
         if (protocolFactory == null) {
-            throw new NullPointerException("protocolFactory must not be null");
+            throw new NullPointerException("protocolFactory");
         }
         this.protocolFactory = protocolFactory;
     }

@@ -28,12 +28,12 @@ import org.apache.hadoop.hbase.client.Scan;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
-import org.springframework.util.Assert;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.TreeMap;
 
 /**
@@ -53,12 +53,9 @@ public class AgentStatHbaseOperationFactory {
             AgentStatRowKeyEncoder rowKeyEncoder,
             AgentStatRowKeyDecoder rowKeyDecoder,
             @Qualifier("agentStatV2RowKeyDistributor") AbstractRowKeyDistributor rowKeyDistributor) {
-        Assert.notNull(rowKeyEncoder, "rowKeyEncoder must not be null");
-        Assert.notNull(rowKeyDecoder, "rowKeyDecoder must not be null");
-        Assert.notNull(rowKeyDistributor, "rowKeyDistributor must not be null");
-        this.rowKeyEncoder = rowKeyEncoder;
-        this.rowKeyDecoder = rowKeyDecoder;
-        this.rowKeyDistributor = rowKeyDistributor;
+        this.rowKeyEncoder = Objects.requireNonNull(rowKeyEncoder, "rowKeyEncoder");
+        this.rowKeyDecoder = Objects.requireNonNull(rowKeyDecoder, "rowKeyDecoder");
+        this.rowKeyDistributor = Objects.requireNonNull(rowKeyDistributor, "rowKeyDistributor");
     }
 
     public <T extends AgentStatDataPoint> List<Put> createPuts(String agentId, AgentStatType agentStatType, List<T> agentStatDataPoints, HbaseSerializer<List<T>, Put> agentStatSerializer) {

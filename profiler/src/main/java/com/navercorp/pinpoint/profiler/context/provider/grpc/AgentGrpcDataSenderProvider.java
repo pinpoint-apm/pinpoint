@@ -60,16 +60,16 @@ public class AgentGrpcDataSenderProvider implements Provider<EnhancedDataSender<
                                        ScheduledExecutorService retransmissionExecutor,
                                        NameResolverProvider nameResolverProvider,
                                        ActiveTraceRepository activeTraceRepository) {
-        this.grpcTransportConfig = Assert.requireNonNull(grpcTransportConfig, "grpcTransportConfig must not be null");
-        this.messageConverter = Assert.requireNonNull(messageConverter, "messageConverter must not be null");
-        this.headerFactory = Assert.requireNonNull(headerFactory, "headerFactory must not be null");
+        this.grpcTransportConfig = Assert.requireNonNull(grpcTransportConfig, "grpcTransportConfig");
+        this.messageConverter = Assert.requireNonNull(messageConverter, "messageConverter");
+        this.headerFactory = Assert.requireNonNull(headerFactory, "headerFactory");
 
-        this.reconnectExecutorProvider = Assert.requireNonNull(reconnectExecutor, "reconnectExecutorProvider must not be null");
-        this.retransmissionExecutor = Assert.requireNonNull(retransmissionExecutor, "retransmissionExecutor must not be null");
+        this.reconnectExecutorProvider = Assert.requireNonNull(reconnectExecutor, "reconnectExecutorProvider");
+        this.retransmissionExecutor = Assert.requireNonNull(retransmissionExecutor, "retransmissionExecutor");
 
 
-        this.nameResolverProvider = Assert.requireNonNull(nameResolverProvider, "nameResolverProvider must not be null");
-        this.activeTraceRepository = Assert.requireNonNull(activeTraceRepository, "activeTraceRepository must not be null");
+        this.nameResolverProvider = Assert.requireNonNull(nameResolverProvider, "nameResolverProvider");
+        this.activeTraceRepository = Assert.requireNonNull(activeTraceRepository, "activeTraceRepository");
     }
 
     @Override

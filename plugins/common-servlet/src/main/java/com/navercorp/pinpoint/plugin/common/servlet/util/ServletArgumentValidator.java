@@ -38,15 +38,15 @@ public class ServletArgumentValidator implements ArgumentValidator {
     }
 
     public ServletArgumentValidator(PLogger logger, int requestIndex, Class<?> requestClass, int responseIndex, Class<?> responseClass, int minArgsSize) {
-        this.logger = Assert.requireNonNull(logger, "logger must not be null");
+        this.logger = Assert.requireNonNull(logger, "logger");
 
         Assert.isTrue(requestIndex >= 0, "requestIndex must be positive");
         this.requestIndex = requestIndex;
-        this.requestClass = Assert.requireNonNull(requestClass, "requestClass must not be null");
+        this.requestClass = Assert.requireNonNull(requestClass, "requestClass");
 
         Assert.isTrue(responseIndex >= 0, "responseIndex must be positive");
         this.responseIndex = responseIndex;
-        this.responseClass = Assert.requireNonNull(responseClass, "responseClass must not be null");
+        this.responseClass = Assert.requireNonNull(responseClass, "responseClass");
 
         Assert.isTrue(requestIndex != responseIndex, "requestIndex==responseIndex");
         this.minArgsSize = minArgsSize;

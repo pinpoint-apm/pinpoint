@@ -43,9 +43,9 @@ public class DefaultAsyncContext implements AsyncContext {
 
 
     public DefaultAsyncContext(AsyncTraceContext asyncTraceContext, TraceRoot traceRoot, AsyncId asyncId, int asyncMethodApiId) {
-        this.asyncTraceContext = Assert.requireNonNull(asyncTraceContext, "asyncTraceContext must not be null");
-        this.traceRoot = Assert.requireNonNull(traceRoot, "traceRoot must not be null");
-        this.asyncId = Assert.requireNonNull(asyncId, "asyncId must not be null");
+        this.asyncTraceContext = Assert.requireNonNull(asyncTraceContext, "asyncTraceContext");
+        this.traceRoot = Assert.requireNonNull(traceRoot, "traceRoot");
+        this.asyncId = Assert.requireNonNull(asyncId, "asyncId");
 
 
         this.asyncMethodApiId = asyncMethodApiId;

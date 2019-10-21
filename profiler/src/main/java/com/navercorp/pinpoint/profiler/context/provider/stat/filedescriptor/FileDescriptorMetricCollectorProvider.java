@@ -34,7 +34,7 @@ public class FileDescriptorMetricCollectorProvider implements Provider<AgentStat
 
     @Inject
     public FileDescriptorMetricCollectorProvider(FileDescriptorMetric fileDescriptorMetric) {
-        this.fileDescriptorMetric = Assert.requireNonNull(fileDescriptorMetric, "fileDescriptorMetric must not be null");
+        this.fileDescriptorMetric = Assert.requireNonNull(fileDescriptorMetric, "fileDescriptorMetric");
     }
 
     @Override

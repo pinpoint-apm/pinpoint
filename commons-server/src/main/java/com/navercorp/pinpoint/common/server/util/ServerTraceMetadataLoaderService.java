@@ -26,7 +26,6 @@ import com.navercorp.pinpoint.common.profiler.trace.ServiceTypeRegistry;
 import com.navercorp.pinpoint.common.profiler.trace.TraceMetadataLoader;
 import com.navercorp.pinpoint.common.trace.TraceMetadataProvider;
 import com.navercorp.pinpoint.common.util.ArrayUtils;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.logger.CommonLoggerFactory;
 import com.navercorp.pinpoint.loader.plugins.trace.TraceMetadataProviderLoader;
 import org.slf4j.Logger;
@@ -43,6 +42,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -63,9 +63,9 @@ public class ServerTraceMetadataLoaderService implements TraceMetadataLoaderServ
     }
 
     public ServerTraceMetadataLoaderService(ClassLoader classLoader, Collection<String> typeProviderPaths, CommonLoggerFactory commonLoggerFactory) {
-        Assert.requireNonNull(classLoader, "classLoader must not be null");
-        Assert.requireNonNull(typeProviderPaths, "typeProviderPaths must not be null");
-        Assert.requireNonNull(commonLoggerFactory, "commonLoggerFactory must not be null");
+        Objects.requireNonNull(classLoader, "classLoader");
+        Objects.requireNonNull(typeProviderPaths, "typeProviderPaths");
+        Objects.requireNonNull(commonLoggerFactory, "commonLoggerFactory");
 
         logger.info("Loading additional type providers using : {}", typeProviderPaths);
         List<URL> typeProviderUrls = getTypeProviderUrls(classLoader, typeProviderPaths);

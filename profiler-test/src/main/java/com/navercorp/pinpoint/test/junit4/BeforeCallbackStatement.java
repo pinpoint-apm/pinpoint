@@ -28,10 +28,10 @@ public class BeforeCallbackStatement extends Statement {
 
     public BeforeCallbackStatement(Statement statement, Statement before) {
         if (statement == null) {
-            throw new NullPointerException("statement must not be null");
+            throw new NullPointerException("statement");
         }
         if (before == null) {
-            throw new NullPointerException("BEFORE must not be null");
+            throw new NullPointerException("BEFORE");
         }
 
         this.statement = statement;

@@ -44,6 +44,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -287,7 +288,7 @@ public class ZookeeperClusterDataManager implements ClusterDataManager, Zookeepe
         private final int retryInterval;
 
         public PushWebClusterJob(CreateNodeMessage createNodeMessage, int retryInterval) {
-            this.createNodeMessage = Assert.requireNonNull(createNodeMessage, "createNodeMessage must not be null");
+            this.createNodeMessage = Objects.requireNonNull(createNodeMessage, "createNodeMessage");
             this.retryInterval = retryInterval;
         }
 

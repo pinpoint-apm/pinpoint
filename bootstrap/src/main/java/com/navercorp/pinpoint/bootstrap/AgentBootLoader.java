@@ -36,7 +36,7 @@ public class AgentBootLoader {
 
     public AgentBootLoader(String bootClass, URL[] urls, ClassLoader agentClassLoader) {
         if (bootClass == null) {
-            throw new NullPointerException("bootClass must not be null");
+            throw new NullPointerException("bootClass");
         }
         if (urls == null) {
             throw new NullPointerException("urls");

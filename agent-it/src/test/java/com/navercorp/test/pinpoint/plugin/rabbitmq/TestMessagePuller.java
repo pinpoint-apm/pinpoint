@@ -31,7 +31,7 @@ public class TestMessagePuller {
 
     public TestMessagePuller(Channel channel) {
         if (channel == null) {
-            throw new NullPointerException("channel must not be null");
+            throw new NullPointerException("channel");
         }
         this.channel = channel;
     }

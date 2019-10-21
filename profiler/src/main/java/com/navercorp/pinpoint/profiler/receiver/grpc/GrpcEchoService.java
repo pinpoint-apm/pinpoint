@@ -38,7 +38,7 @@ public class GrpcEchoService implements ProfilerSimpleCommandService<PCmdRequest
     private final ProfilerCommandServiceGrpc.ProfilerCommandServiceStub profilerCommandServiceStub;
 
     public GrpcEchoService(ProfilerCommandServiceGrpc.ProfilerCommandServiceStub profilerCommandServiceStub) {
-        this.profilerCommandServiceStub = Assert.requireNonNull(profilerCommandServiceStub, "profilerCommandServiceStub must not be null");
+        this.profilerCommandServiceStub = Assert.requireNonNull(profilerCommandServiceStub, "profilerCommandServiceStub");
     }
 
     @Override

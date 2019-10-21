@@ -41,7 +41,7 @@ public class HttpClient3RequestWrapper implements ClientRequestWrapper {
     private final HttpConnection httpConnection;
 
     public HttpClient3RequestWrapper(final HttpMethod httpMethod, final HttpConnection httpConnection) {
-        this.httpMethod = Assert.requireNonNull(httpMethod, "httpMethod must not be null");
+        this.httpMethod = Assert.requireNonNull(httpMethod, "httpMethod");
         this.httpConnection = httpConnection;
     }
 

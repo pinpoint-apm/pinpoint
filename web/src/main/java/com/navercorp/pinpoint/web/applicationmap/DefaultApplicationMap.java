@@ -26,6 +26,7 @@ import com.navercorp.pinpoint.web.vo.Range;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.Collection;
+import java.util.Objects;
 
 /**
  * Node map
@@ -43,17 +44,10 @@ public class DefaultApplicationMap implements ApplicationMap {
 //    private List<ApplicationScatterScanResult> applicationScatterScanResultList;
 
     public DefaultApplicationMap(Range range, NodeList nodeList, LinkList linkList) {
-        if (range == null) {
-            throw new NullPointerException("range must not be null");
-        }
-        if (nodeList == null) {
-            throw new NullPointerException("nodeList must not be null");
-        }
-        if (linkList == null) {
-            throw new NullPointerException("linkList must not be null");
-        }
-        this.range = range;
-        this.nodeList = nodeList;
+        this.range = Objects.requireNonNull(range, "range");
+        this.nodeList = Objects.requireNonNull(nodeList, "nodeList");
+
+        Objects.requireNonNull(linkList, "linkList");
         this.linkList = createNewLinkList(linkList);
     }
 

@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.common.profiler.util;
 
+import com.navercorp.pinpoint.common.util.Assert;
+
 /**
  * @author emeroad
  */
@@ -26,10 +28,7 @@ public class TransactionId {
     private long transactionSequence;
 
     public TransactionId(String agentId, long agentStartTime, long transactionSequence) {
-        if (agentId == null) {
-            throw new NullPointerException("agentId must not be null");
-        }
-        this.agentId = agentId;
+        this.agentId = Assert.requireNonNull(agentId, "agentId");
         this.agentStartTime = agentStartTime;
         this.transactionSequence = transactionSequence;
     }

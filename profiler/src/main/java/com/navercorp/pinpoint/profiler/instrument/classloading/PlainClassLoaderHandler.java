@@ -55,7 +55,7 @@ public class PlainClassLoaderHandler implements ClassInjector {
     private final PluginConfig pluginConfig;
 
     public PlainClassLoaderHandler(PluginConfig pluginConfig) {
-        this.pluginConfig = Assert.requireNonNull(pluginConfig, "pluginConfig must not be null");
+        this.pluginConfig = Assert.requireNonNull(pluginConfig, "pluginConfig");
 
         this.pluginJarReader = new JarReader(pluginConfig.getPluginJarFile());
     }

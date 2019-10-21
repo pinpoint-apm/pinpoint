@@ -59,9 +59,9 @@ public class HbaseSchemaChangeLogDao implements SchemaChangeLogDao {
     public HbaseSchemaChangeLogDao(HbaseAdminOperation hbaseAdminOperation,
                                    HbaseOperations2 hbaseOperations2,
                                    SchemaChangeLogCodec schemaChangeLogCodec) {
-        this.hbaseAdminOperation = Objects.requireNonNull(hbaseAdminOperation, "hbaseAdminOperation must not be null");
-        this.hbaseOperations2 = Objects.requireNonNull(hbaseOperations2, "hbaseOperations2 must not be null");
-        this.schemaChangeLogCodec = Objects.requireNonNull(schemaChangeLogCodec, "schemaChangeLogCodec must not be null");
+        this.hbaseAdminOperation = Objects.requireNonNull(hbaseAdminOperation, "hbaseAdminOperation");
+        this.hbaseOperations2 = Objects.requireNonNull(hbaseOperations2, "hbaseOperations2");
+        this.schemaChangeLogCodec = Objects.requireNonNull(schemaChangeLogCodec, "schemaChangeLogCodec");
         this.schemaChangeLogRowMapper = new SchemaChangeLogRowMapper(this.schemaChangeLogCodec);
         this.schemaChangeLogResultsExtractor = new SchemaChangeLogResultsExtractor(this.schemaChangeLogRowMapper);
     }
@@ -123,7 +123,7 @@ public class HbaseSchemaChangeLogDao implements SchemaChangeLogDao {
         private final SchemaChangeLogCodec schemaChangeLogCodec;
 
         private SchemaChangeLogRowMapper(SchemaChangeLogCodec schemaChangeLogCodec) {
-            this.schemaChangeLogCodec = Objects.requireNonNull(schemaChangeLogCodec, "schemaChangeLogCodec must not be null");
+            this.schemaChangeLogCodec = Objects.requireNonNull(schemaChangeLogCodec, "schemaChangeLogCodec");
         }
 
         @Override
@@ -141,7 +141,7 @@ public class HbaseSchemaChangeLogDao implements SchemaChangeLogDao {
         private final RowMapper<SchemaChangeLog> schemaChangeLogRowMapper;
 
         private SchemaChangeLogResultsExtractor(RowMapper<SchemaChangeLog> schemaChangeLogRowMapper) {
-            this.schemaChangeLogRowMapper = Objects.requireNonNull(schemaChangeLogRowMapper, "schemaChangeLogRowMapper must not be null");
+            this.schemaChangeLogRowMapper = Objects.requireNonNull(schemaChangeLogRowMapper, "schemaChangeLogRowMapper");
         }
 
         @Override

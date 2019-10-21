@@ -41,13 +41,13 @@ public class DefaultApplicationMapCreator implements ApplicationMapCreator {
 
     public DefaultApplicationMapCreator(LinkDataMapService linkDataMapService, LinkDataMapProcessor callerLinkDataMapProcessor, LinkDataMapProcessor calleeLinkDataMapProcessor) {
         if (linkDataMapService == null) {
-            throw new NullPointerException("linkDataMapService must not be null");
+            throw new NullPointerException("linkDataMapService");
         }
         if (callerLinkDataMapProcessor == null) {
-            throw new NullPointerException("callerLinkDataMapProcessor must not be null");
+            throw new NullPointerException("callerLinkDataMapProcessor");
         }
         if (calleeLinkDataMapProcessor == null) {
-            throw new NullPointerException("calleeLinkDataMapProcessor must not be null");
+            throw new NullPointerException("calleeLinkDataMapProcessor");
         }
         this.linkDataMapService = linkDataMapService;
         this.callerLinkDataMapProcessor = callerLinkDataMapProcessor;

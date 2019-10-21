@@ -40,10 +40,10 @@ public class SampledActiveTrace implements SampledAgentStatDataPoint {
     private final AgentStatPoint<Integer> verySlowCounts;
 
     public SampledActiveTrace(AgentStatPoint<Integer> fastCounts, AgentStatPoint<Integer> normalCounts, AgentStatPoint<Integer> slowCounts, AgentStatPoint<Integer> verySlowCounts) {
-        this.fastCounts = Objects.requireNonNull(fastCounts, "fastCounts must not be null");
-        this.normalCounts = Objects.requireNonNull(normalCounts, "normalCounts must not be null");
-        this.slowCounts = Objects.requireNonNull(slowCounts, "slowCounts must not be null");
-        this.verySlowCounts = Objects.requireNonNull(verySlowCounts, "verySlowCounts must not be null");
+        this.fastCounts = Objects.requireNonNull(fastCounts, "fastCounts");
+        this.normalCounts = Objects.requireNonNull(normalCounts, "normalCounts");
+        this.slowCounts = Objects.requireNonNull(slowCounts, "slowCounts");
+        this.verySlowCounts = Objects.requireNonNull(verySlowCounts, "verySlowCounts");
     }
 
     public AgentStatPoint<Integer> getFastCounts() {

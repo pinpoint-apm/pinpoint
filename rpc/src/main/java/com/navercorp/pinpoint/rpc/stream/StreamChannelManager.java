@@ -48,9 +48,9 @@ public class StreamChannelManager {
     private final StreamChannelRepository streamChannelRepository = new StreamChannelRepository();
 
     public StreamChannelManager(Channel channel, IDGenerator idGenerator, ServerStreamChannelMessageHandler streamChannelMessageHandler) {
-        this.channel = Assert.requireNonNull(channel, "Channel must not be null.");
-        this.idGenerator = Assert.requireNonNull(idGenerator, "IDGenerator must not be null.");
-        this.streamChannelMessageHandler = Assert.requireNonNull(streamChannelMessageHandler, "streamChannelMessageHandler must not be null.");
+        this.channel = Assert.requireNonNull(channel, "Channel");
+        this.idGenerator = Assert.requireNonNull(idGenerator, "IDGenerator");
+        this.streamChannelMessageHandler = Assert.requireNonNull(streamChannelMessageHandler, "streamChannelMessageHandler");
     }
 
     public ClientStreamChannel openStream(byte[] payload, ClientStreamChannelEventHandler streamChannelEventHandler) throws StreamException {

@@ -35,7 +35,7 @@ public class TestMessageListener {
     @Autowired
     public TestMessageListener(TestMessageHolder testMessageHolder) {
         if (testMessageHolder == null) {
-            throw new NullPointerException("testMessageHolder must not be null");
+            throw new NullPointerException("testMessageHolder");
         }
         this.testMessageHolder = testMessageHolder;
     }

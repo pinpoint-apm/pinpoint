@@ -31,7 +31,7 @@ public class JarFileScanner implements Scanner {
     private final JarFile jarFile;
 
     public JarFileScanner(String path) {
-        Assert.requireNonNull(path, "path must not be null");
+        Assert.requireNonNull(path, "path");
         try {
             this.jarFile = new JarFile(path);
         } catch (IOException e) {

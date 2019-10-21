@@ -65,7 +65,7 @@ public class TransactionIdMapper implements RowMapper<List<TransactionId>> {
 
     public static TransactionId parseVarTransactionId(byte[] bytes, int offset, int length) {
         if (bytes == null) {
-            throw new NullPointerException("bytes must not be null");
+            throw new NullPointerException("bytes");
         }
         final Buffer buffer = new OffsetFixedBuffer(bytes, offset, length);
         

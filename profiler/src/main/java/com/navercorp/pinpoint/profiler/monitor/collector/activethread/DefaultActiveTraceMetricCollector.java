@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.monitor.collector.activethread;
 
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHistogram;
 import com.navercorp.pinpoint.profiler.monitor.collector.AgentStatMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.metric.activethread.ActiveTraceMetric;
@@ -28,10 +29,7 @@ public class DefaultActiveTraceMetricCollector implements AgentStatMetricCollect
     private final ActiveTraceMetric activeTraceMetric;
 
     public DefaultActiveTraceMetricCollector(ActiveTraceMetric activeTraceMetric) {
-        if (activeTraceMetric == null) {
-            throw new NullPointerException("activeTraceMetric must not be null");
-        }
-        this.activeTraceMetric = activeTraceMetric;
+        this.activeTraceMetric = Assert.requireNonNull(activeTraceMetric, "activeTraceMetric");
     }
 
     @Override

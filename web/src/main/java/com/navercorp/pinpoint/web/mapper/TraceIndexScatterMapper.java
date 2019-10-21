@@ -77,7 +77,7 @@ public class TraceIndexScatterMapper implements RowMapper<List<Dot>> {
     /*
     public static TransactionId parseVarTransactionId(byte[] bytes, int offset) {
         if (bytes == null) {
-            throw new NullPointerException("bytes must not be null");
+            throw new NullPointerException("bytes");
         }
         final Buffer buffer = new OffsetFixedBuffer(bytes, offset);
 

@@ -30,8 +30,8 @@ public class PingSession {
     private final AtomicLong eventIdAllocator;
 
     public PingSession(Long id, Header header) {
-        this.id = Assert.requireNonNull(id, "transportMetadata must not be null");
-        this.header = Assert.requireNonNull(header, "header must not be null");
+        this.id = Assert.requireNonNull(id, "transportMetadata");
+        this.header = Assert.requireNonNull(header, "header");
 
         this.eventIdAllocator = new AtomicLong();
     }

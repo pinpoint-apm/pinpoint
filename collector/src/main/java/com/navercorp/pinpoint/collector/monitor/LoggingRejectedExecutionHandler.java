@@ -35,7 +35,7 @@ public class LoggingRejectedExecutionHandler implements RejectedExecutionHandler
     private final int logRate;
 
     public LoggingRejectedExecutionHandler(String executorName, int logRate) {
-        Objects.requireNonNull(executorName, "executorName must not be null");
+        Objects.requireNonNull(executorName, "executorName");
 
         this.logger = LoggerFactory.getLogger(executorName);
         this.logRate = logRate;

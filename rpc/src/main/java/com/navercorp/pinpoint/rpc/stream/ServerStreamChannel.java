@@ -42,7 +42,7 @@ public class ServerStreamChannel extends AbstractStreamChannel {
     public ServerStreamChannel(Channel channel, int streamId, StreamChannelRepository streamChannelRepository, ServerStreamChannelMessageHandler streamChannelMessageHandler) {
         super(streamId, streamChannelRepository);
         this.channel = Assert.requireNonNull(channel, "channel");
-        this.streamChannelMessageHandler = Assert.requireNonNull(streamChannelMessageHandler, "streamChannelMessageHandler must not be null");
+        this.streamChannelMessageHandler = Assert.requireNonNull(streamChannelMessageHandler, "streamChannelMessageHandler");
     }
 
     @Override
@@ -87,7 +87,7 @@ public class ServerStreamChannel extends AbstractStreamChannel {
     }
 
     public void setStateChangeEventHandler(StreamChannelStateChangeEventHandler stateChangeEventHandler) {
-        this.stateChangeEventHandler = Assert.requireNonNull(stateChangeEventHandler, "stateChangeEventHandler must not be null");
+        this.stateChangeEventHandler = Assert.requireNonNull(stateChangeEventHandler, "stateChangeEventHandler");
     }
 
     public void sendData(byte[] payload) {

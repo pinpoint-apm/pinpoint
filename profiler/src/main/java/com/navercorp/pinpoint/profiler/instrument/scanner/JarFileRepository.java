@@ -34,7 +34,7 @@ public class JarFileRepository {
     }
 
     private JarFileScanner[] newJarScanner(List<String> jarFilePathList) {
-        Assert.requireNonNull(jarFilePathList, "jarFilePathList must not be null");
+        Assert.requireNonNull(jarFilePathList, "jarFilePathList");
 
         final List<JarFileScanner> jarFileList = new ArrayList<JarFileScanner>(jarFilePathList.size());
         for (String jarFilePath : jarFilePathList) {
@@ -46,7 +46,7 @@ public class JarFileRepository {
 
 
     public InputStream openStream(String resourceName) {
-        Assert.requireNonNull(resourceName, "resourceName must not be null");
+        Assert.requireNonNull(resourceName, "resourceName");
 
         for (Scanner scanner : scanners) {
             final InputStream inputStream = scanner.openStream(resourceName);

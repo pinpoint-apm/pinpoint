@@ -42,7 +42,7 @@ public class ServiceTypeRegistry implements ServiceTypeLocator {
 
     private ServiceTypeRegistry(HashMap<Integer, ServiceType> buildMap) {
         if (buildMap == null) {
-            throw new NullPointerException("codeLookupTable must not be null");
+            throw new NullPointerException("codeLookupTable");
         }
         this.codeLookupTable = IntHashMapUtils.copy(buildMap);
         this.nameLookupTable = buildNameLookupTable(buildMap.values());
@@ -82,7 +82,7 @@ public class ServiceTypeRegistry implements ServiceTypeLocator {
     @Override
     public List<ServiceType> findDesc(String desc) {
         if (desc == null) {
-            throw new NullPointerException("desc must not be null");
+            throw new NullPointerException("desc");
         }
         return descLookupTable.get(desc);
     }
@@ -120,7 +120,7 @@ public class ServiceTypeRegistry implements ServiceTypeLocator {
 
         void addServiceType(ServiceType serviceType) {
             if (serviceType == null) {
-                throw new NullPointerException("serviceType must not be null");
+                throw new NullPointerException("serviceType");
             }
             int code = serviceType.getCode();
             final ServiceType exist = this.buildMap.put(code, serviceType);

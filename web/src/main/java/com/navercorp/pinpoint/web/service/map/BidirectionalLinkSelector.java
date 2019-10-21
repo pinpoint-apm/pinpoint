@@ -52,10 +52,10 @@ public class BidirectionalLinkSelector implements LinkSelector {
             VirtualLinkHandler virtualLinkHandler,
             ServerMapDataFilter serverMapDataFilter) {
         if (applicationsMapCreator == null) {
-            throw new NullPointerException("applicationsMapCreator must not be null");
+            throw new NullPointerException("applicationsMapCreator");
         }
         if (virtualLinkHandler == null) {
-            throw new NullPointerException("virtualLinkHandler must not be null");
+            throw new NullPointerException("virtualLinkHandler");
         }
         this.applicationsMapCreator = applicationsMapCreator;
         this.virtualLinkHandler = virtualLinkHandler;

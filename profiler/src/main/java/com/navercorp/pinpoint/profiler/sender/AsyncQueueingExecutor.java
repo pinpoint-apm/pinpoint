@@ -48,7 +48,7 @@ public class AsyncQueueingExecutor<T> implements Runnable {
 
 
     public AsyncQueueingExecutor(int queueSize, String executorName, AsyncQueueingExecutorListener<T> listener) {
-        Assert.requireNonNull(executorName, "executorName must not be null");
+        Assert.requireNonNull(executorName, "executorName");
 
         this.logger = LoggerFactory.getLogger(this.getClass().getName() + "@" + executorName);
         this.isWarn = logger.isWarnEnabled();
@@ -61,7 +61,7 @@ public class AsyncQueueingExecutor<T> implements Runnable {
         this.executeThread = this.createExecuteThread(executorName);
         this.executorName = executeThread.getName();
 
-        this.listener = Assert.requireNonNull(listener, "listener must not be null");
+        this.listener = Assert.requireNonNull(listener, "listener");
     }
 
     private Thread createExecuteThread(String executorName) {

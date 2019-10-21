@@ -28,7 +28,7 @@ public class SampledActiveTrace implements ActiveTrace {
     private final TraceRoot traceRoot;
 
     public SampledActiveTrace(TraceRoot traceRoot) {
-        this.traceRoot = Assert.requireNonNull(traceRoot, "trace must not be null");
+        this.traceRoot = Assert.requireNonNull(traceRoot, "trace");
     }
 
     @Override

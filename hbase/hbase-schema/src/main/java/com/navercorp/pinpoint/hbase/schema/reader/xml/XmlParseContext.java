@@ -41,7 +41,7 @@ class XmlParseContext {
     private Resource resource;
 
     XmlParseContext(Resource resource) {
-        this.resource = Objects.requireNonNull(resource, "resource must not be null");
+        this.resource = Objects.requireNonNull(resource, "resource");
     }
 
     Resource getResource() {
@@ -49,7 +49,7 @@ class XmlParseContext {
     }
 
     void setResource(Resource resource) {
-        this.resource = Objects.requireNonNull(resource, "resource must not be null");
+        this.resource = Objects.requireNonNull(resource, "resource");
         if (visitedResources.contains(resource)) {
             throw new IllegalStateException("Cyclic include detected for : " + resource);
         }

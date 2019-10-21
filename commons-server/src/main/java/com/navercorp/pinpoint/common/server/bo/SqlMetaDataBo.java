@@ -21,6 +21,8 @@ import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.common.server.util.RowKeyUtils;
 import com.navercorp.pinpoint.common.util.TimeUtils;
 
+import java.util.Objects;
+
 /**
  * @author emeroad
  */
@@ -37,10 +39,7 @@ public class SqlMetaDataBo {
 
 
     public SqlMetaDataBo(String agentId, long startTime, int sqlId) {
-        if (agentId == null) {
-            throw new NullPointerException("agentId must not be null");
-        }
-        this.agentId = agentId;
+        this.agentId = Objects.requireNonNull(agentId, "agentId");
         this.sqlId = sqlId;
         this.startTime = startTime;
     }

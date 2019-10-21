@@ -61,13 +61,13 @@ public class HbaseApplicationStatDaoOperations {
 
     List<AggregationStatData> getSampledStatList(StatType statType, SampledApplicationStatResultExtractor resultExtractor, String applicationId, Range range) {
         if (applicationId == null) {
-            throw new NullPointerException("applicationId must not be null");
+            throw new NullPointerException("applicationId");
         }
         if (range == null) {
-            throw new NullPointerException("range must not be null");
+            throw new NullPointerException("range");
         }
         if (resultExtractor == null) {
-            throw new NullPointerException("resultExtractor must not be null");
+            throw new NullPointerException("resultExtractor");
         }
         Scan scan = this.createScan(statType, applicationId, range);
 

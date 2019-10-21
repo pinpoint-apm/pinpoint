@@ -34,6 +34,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -54,14 +55,8 @@ public class RpcCallProcessor implements LinkDataMapProcessor {
     private final AcceptApplicationLocalCache rpcAcceptApplicationCache = new AcceptApplicationLocalCache();
 
     public RpcCallProcessor(HostApplicationMapDao hostApplicationMapDao, VirtualLinkMarker virtualLinkMarker) {
-        if (hostApplicationMapDao == null) {
-            throw new NullPointerException("hostApplicationMapDao must not be null");
-        }
-        if (virtualLinkMarker == null) {
-            throw new NullPointerException("virtualLinkMarker must not be null");
-        }
-        this.hostApplicationMapDao = hostApplicationMapDao;
-        this.virtualLinkMarker = virtualLinkMarker;
+        this.hostApplicationMapDao = Objects.requireNonNull(hostApplicationMapDao, "hostApplicationMapDao");
+        this.virtualLinkMarker = Objects.requireNonNull(virtualLinkMarker, "virtualLinkMarker");
     }
 
     @Override

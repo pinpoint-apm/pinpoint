@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.collector.cluster;
 
 import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.collector.receiver.grpc.PinpointGrpcServer;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.grpc.CommandThriftToGrpcMessageConverter;
 import com.navercorp.pinpoint.rpc.DefaultFuture;
 import com.navercorp.pinpoint.rpc.Future;
@@ -33,6 +32,7 @@ import com.navercorp.pinpoint.thrift.io.TCommandType;
 import org.apache.thrift.TBase;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Taejin Koo
@@ -46,9 +46,9 @@ public class GrpcAgentConnection implements ClusterPoint<TBase> {
     private final List<TCommandType> supportCommandList;
 
     public GrpcAgentConnection(PinpointGrpcServer pinpointGrpcServer, List<Integer> supportCommandServiceKeyList) {
-        this.pinpointGrpcServer = Assert.requireNonNull(pinpointGrpcServer, "pinpointGrpcServer must not be null");
+        this.pinpointGrpcServer = Objects.requireNonNull(pinpointGrpcServer, "pinpointGrpcServer");
 
-        Assert.requireNonNull(supportCommandServiceKeyList, "supportCommandServiceKeyList must not be null");
+        Objects.requireNonNull(supportCommandServiceKeyList, "supportCommandServiceKeyList");
         this.supportCommandList = SupportedCommandUtils.newSupportCommandList(supportCommandServiceKeyList);
     }
 

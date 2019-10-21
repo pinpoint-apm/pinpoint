@@ -54,7 +54,7 @@ public class SpanService extends SpanGrpc.SpanImplBase {
 
 
     public SpanService(DispatchHandler dispatchHandler) {
-        this.dispatchHandler = Objects.requireNonNull(dispatchHandler, "dispatchHandler must not be null");
+        this.dispatchHandler = Objects.requireNonNull(dispatchHandler, "dispatchHandler");
     }
 
     @Override

@@ -80,9 +80,9 @@ public class DefaultApplicationContext implements ApplicationContext {
     private final Injector injector;
 
     public DefaultApplicationContext(AgentOption agentOption, ModuleFactory moduleFactory) {
-        Assert.requireNonNull(agentOption, "agentOption must not be null");
-        Assert.requireNonNull(moduleFactory, "moduleFactory must not be null");
-        Assert.requireNonNull(agentOption.getProfilerConfig(), "profilerConfig must not be null");
+        Assert.requireNonNull(agentOption, "agentOption");
+        Assert.requireNonNull(moduleFactory, "moduleFactory");
+        Assert.requireNonNull(agentOption.getProfilerConfig(), "profilerConfig");
 
         final Instrumentation instrumentation = agentOption.getInstrumentation();
         if (logger.isInfoEnabled()) {

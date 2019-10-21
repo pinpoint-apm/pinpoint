@@ -43,13 +43,13 @@ public class SampledTransaction implements SampledAgentStatDataPoint {
     private final AgentStatPoint<Double> total;
 
     public SampledTransaction(AgentStatPoint<Double> sampledNew, AgentStatPoint<Double> sampledContinuation, AgentStatPoint<Double> unsampledNew, AgentStatPoint<Double> unsampledContinuation, AgentStatPoint<Double> skippedNew, AgentStatPoint<Double> skippedContinuation, AgentStatPoint<Double> total) {
-        this.sampledNew = Objects.requireNonNull(sampledNew, "sampledNew must not be null");
-        this.sampledContinuation = Objects.requireNonNull(sampledContinuation, "sampledContinuation must not be null");
-        this.unsampledNew = Objects.requireNonNull(unsampledNew, "unsampledNew must not be null");
-        this.unsampledContinuation = Objects.requireNonNull(unsampledContinuation, "unsampledContinuation must not be null");
-        this.skippedNew = Objects.requireNonNull(skippedNew, "skippedNew must not be null");
-        this.skippedContinuation = Objects.requireNonNull(skippedContinuation, "skippedContinuation must not be null");
-        this.total = Objects.requireNonNull(total, "total must not be null");
+        this.sampledNew = Objects.requireNonNull(sampledNew, "sampledNew");
+        this.sampledContinuation = Objects.requireNonNull(sampledContinuation, "sampledContinuation");
+        this.unsampledNew = Objects.requireNonNull(unsampledNew, "unsampledNew");
+        this.unsampledContinuation = Objects.requireNonNull(unsampledContinuation, "unsampledContinuation");
+        this.skippedNew = Objects.requireNonNull(skippedNew, "skippedNew");
+        this.skippedContinuation = Objects.requireNonNull(skippedContinuation, "skippedContinuation");
+        this.total = Objects.requireNonNull(total, "total");
     }
 
     public AgentStatPoint<Double> getSampledNew() {

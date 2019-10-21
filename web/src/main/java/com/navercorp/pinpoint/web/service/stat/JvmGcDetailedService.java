@@ -41,10 +41,10 @@ public class JvmGcDetailedService implements AgentStatService<JvmGcDetailedBo> {
     @Override
     public List<JvmGcDetailedBo> selectAgentStatList(String agentId, Range range) {
         if (agentId == null) {
-            throw new NullPointerException("agentId must not be null");
+            throw new NullPointerException("agentId");
         }
         if (range == null) {
-            throw new NullPointerException("range must not be null");
+            throw new NullPointerException("range");
         }
         return this.jvmGcDetailedDao.getAgentStatList(agentId, range);
     }

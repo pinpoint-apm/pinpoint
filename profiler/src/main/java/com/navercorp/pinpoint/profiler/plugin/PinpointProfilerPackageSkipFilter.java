@@ -36,7 +36,7 @@ public class PinpointProfilerPackageSkipFilter implements ClassNameFilter {
 
     public PinpointProfilerPackageSkipFilter(List<String> packageList) {
         if (packageList == null) {
-            throw new NullPointerException("packageList must not be null");
+            throw new NullPointerException("packageList");
         }
         this.packageList = new ArrayList<String>(packageList);
     }
@@ -46,7 +46,7 @@ public class PinpointProfilerPackageSkipFilter implements ClassNameFilter {
     @Override
     public boolean accept(String className) {
         if (className == null) {
-            throw new NullPointerException("className must not be null");
+            throw new NullPointerException("className");
         }
 
         for (String packageName : packageList) {

@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 
 import java.net.*;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Chunked UDP packet receiver
@@ -48,10 +49,7 @@ public class ChunkedUDPPacketHandlerFactory<T extends DatagramPacket> implements
     private final PacketHandler<T> dispatchPacket = new DispatchPacket();
 
     public ChunkedUDPPacketHandlerFactory(DispatchHandler dispatchHandler, TBaseFilter<T> filter) {
-        if (dispatchHandler == null) {
-            throw new NullPointerException("dispatchHandler must not be null");
-        }
-        this.dispatchHandler = dispatchHandler;
+        this.dispatchHandler = Objects.requireNonNull(dispatchHandler, "dispatchHandler");
         this.filter = filter;
     }
 

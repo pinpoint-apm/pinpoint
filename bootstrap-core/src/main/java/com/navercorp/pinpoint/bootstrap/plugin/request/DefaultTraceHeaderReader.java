@@ -35,13 +35,13 @@ public class DefaultTraceHeaderReader<T> implements TraceHeaderReader<T> {
 
 
     public DefaultTraceHeaderReader(RequestAdaptor<T> requestAdaptor) {
-        this.requestAdaptor = Assert.requireNonNull(requestAdaptor, "requestAdaptor must not be null");
+        this.requestAdaptor = Assert.requireNonNull(requestAdaptor, "requestAdaptor");
     }
 
     // Read the transaction information from the request.
     @Override
     public TraceHeader read(T request) {
-        Assert.requireNonNull(request, "request must not be null");
+        Assert.requireNonNull(request, "request");
 
         // Check sampling flag from client. If the flag is false, do not sample this request.
         final boolean sampling = samplingEnable(request);

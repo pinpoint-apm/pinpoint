@@ -65,7 +65,7 @@ public class DefaultTCPPacketHandlerFactory implements TCPPacketHandlerFactory {
     @Override
     public TCPPacketHandler build(DispatchHandler dispatchHandler) {
 
-        Objects.requireNonNull(dispatchHandler, "dispatchHandler must not be null");
+        Objects.requireNonNull(dispatchHandler, "dispatchHandler");
 
         SerializerFactory<HeaderTBaseSerializer> serializerFactory = this.serializerFactory;
         if (serializerFactory == null) {

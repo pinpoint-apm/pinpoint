@@ -75,7 +75,7 @@ public class AgentUuidUtils {
      */
     public static String encode(String uuidString) {
         if (uuidString == null) {
-            throw new NullPointerException("uuidString must not be null");
+            throw new NullPointerException("uuidString");
         }
         UUID uuid = UUID.fromString(uuidString);
         return encode(uuid);
@@ -94,7 +94,7 @@ public class AgentUuidUtils {
      */
     public static String encode(UUID uuid) {
         if (uuid == null) {
-            throw new NullPointerException("uuid must not be null");
+            throw new NullPointerException("uuid");
         }
         ByteBuffer byteBuffer = ByteBuffer.allocate(16);
         byteBuffer.putLong(uuid.getMostSignificantBits());
@@ -151,7 +151,7 @@ public class AgentUuidUtils {
      */
     public static UUID decode(String src) {
         if (src == null) {
-            throw new NullPointerException("src must not be null");
+            throw new NullPointerException("src");
         }
 
         byte[] decoded = decodeToUuidBytes(src.getBytes(Charsets.US_ASCII));

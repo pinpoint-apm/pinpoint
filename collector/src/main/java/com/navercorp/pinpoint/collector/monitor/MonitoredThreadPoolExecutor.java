@@ -39,7 +39,7 @@ public class MonitoredThreadPoolExecutor extends ThreadPoolExecutor {
     public MonitoredThreadPoolExecutor(int corePoolSize, int maximumPoolSize, long keepAliveTime, TimeUnit unit, BlockingQueue<Runnable> workQueue,
                                        RunnableDecorator runnableDecorator) {
         super(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue);
-        this.runnableDecorator = Objects.requireNonNull(runnableDecorator, "executeListener must not be null");
+        this.runnableDecorator = Objects.requireNonNull(runnableDecorator, "executeListener");
 
     }
 
@@ -47,20 +47,20 @@ public class MonitoredThreadPoolExecutor extends ThreadPoolExecutor {
     public MonitoredThreadPoolExecutor(int corePoolSize, int maximumPoolSize, long keepAliveTime, TimeUnit unit, BlockingQueue<Runnable> workQueue,
                                        ThreadFactory threadFactory, RunnableDecorator runnableDecorator) {
         super(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue, threadFactory);
-        this.runnableDecorator = Objects.requireNonNull(runnableDecorator, "runnableDecorator must not be null");
+        this.runnableDecorator = Objects.requireNonNull(runnableDecorator, "runnableDecorator");
     }
 
     public MonitoredThreadPoolExecutor(int corePoolSize, int maximumPoolSize, long keepAliveTime, TimeUnit unit, BlockingQueue<Runnable> workQueue,
                                        RejectedExecutionHandler handler, RunnableDecorator runnableDecorator) {
         super(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue, handler);
-        this.runnableDecorator = Objects.requireNonNull(runnableDecorator, "runnableDecorator must not be null");
+        this.runnableDecorator = Objects.requireNonNull(runnableDecorator, "runnableDecorator");
 
     }
 
     public MonitoredThreadPoolExecutor(int corePoolSize, int maximumPoolSize, long keepAliveTime, TimeUnit unit, BlockingQueue<Runnable> workQueue,
                                        ThreadFactory threadFactory, RejectedExecutionHandler handler, RunnableDecorator runnableDecorator) {
         super(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue, threadFactory, handler);
-        this.runnableDecorator = Objects.requireNonNull(runnableDecorator, "runnableDecorator must not be null");
+        this.runnableDecorator = Objects.requireNonNull(runnableDecorator, "runnableDecorator");
     }
 
 

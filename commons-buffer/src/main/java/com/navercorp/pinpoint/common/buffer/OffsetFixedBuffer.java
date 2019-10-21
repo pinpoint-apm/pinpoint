@@ -34,7 +34,7 @@ public class OffsetFixedBuffer extends FixedBuffer {
 
     public OffsetFixedBuffer(final byte[] buffer, final int startOffset, final int length) {
         if (buffer == null) {
-            throw new NullPointerException("buffer must not be null");
+            throw new NullPointerException("buffer");
         }
         if (startOffset < 0) {
             throw new IndexOutOfBoundsException("negative startOffset:" + startOffset);

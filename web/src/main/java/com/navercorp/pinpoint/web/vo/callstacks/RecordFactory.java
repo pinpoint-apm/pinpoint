@@ -17,6 +17,7 @@ package com.navercorp.pinpoint.web.vo.callstacks;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.ApiMetaDataBo;
@@ -298,10 +299,7 @@ public class RecordFactory {
         }
 
         public void setMethodTypeEnum(MethodTypeEnum methodTypeEnum) {
-            if (methodTypeEnum == null) {
-                throw new NullPointerException("methodTypeEnum must not be null");
-            }
-            this.methodTypeEnum = methodTypeEnum;
+            this.methodTypeEnum = Objects.requireNonNull(methodTypeEnum, "methodTypeEnum");
         }
     }
 }

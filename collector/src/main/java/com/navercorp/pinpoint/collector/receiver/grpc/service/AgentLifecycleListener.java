@@ -36,8 +36,8 @@ public class AgentLifecycleListener implements LifecycleListener {
 
     @Autowired
     public AgentLifecycleListener(KeepAliveService lifecycleService, ShutdownEventListener shutdownEventListener) {
-        this.lifecycleService = Objects.requireNonNull(lifecycleService, "lifecycleService must not be null");
-        this.shutdownEventListener = Objects.requireNonNull(shutdownEventListener, "shutdownEventListener must not be null");
+        this.lifecycleService = Objects.requireNonNull(lifecycleService, "lifecycleService");
+        this.shutdownEventListener = Objects.requireNonNull(shutdownEventListener, "shutdownEventListener");
     }
 
     @Override

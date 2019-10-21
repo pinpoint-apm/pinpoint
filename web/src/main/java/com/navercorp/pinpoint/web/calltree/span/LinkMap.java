@@ -85,7 +85,7 @@ public class LinkMap {
     }
 
     public List<Node> findNode(Link link) {
-        Objects.requireNonNull(link, "link must not be null");
+        Objects.requireNonNull(link, "link");
 
         final LongPair key = new LongPair(link.getSpanId(), link.getNextSpanId());
         return this.spanToLinkMap.get(key);

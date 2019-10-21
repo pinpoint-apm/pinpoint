@@ -20,6 +20,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author emeroad
@@ -30,14 +31,8 @@ public class ResponseTimeViewModel {
     private final List<TimeCount> columnValue;
 
     public ResponseTimeViewModel(String columnName, List<TimeCount> columnValue) {
-        if (columnName == null) {
-            throw new NullPointerException("columnName must not be null");
-        }
-        if (columnValue == null) {
-            throw new NullPointerException("columnValue must not be null");
-        }
-        this.columnName = columnName;
-        this.columnValue = columnValue;
+        this.columnName = Objects.requireNonNull(columnName, "columnName");
+        this.columnValue = Objects.requireNonNull(columnValue, "columnValue");
     }
 
     @JsonProperty("key")

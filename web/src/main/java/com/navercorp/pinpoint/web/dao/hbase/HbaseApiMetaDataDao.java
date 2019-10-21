@@ -59,7 +59,7 @@ public class HbaseApiMetaDataDao implements ApiMetaDataDao {
     @Cacheable(value="apiMetaData", key=SPEL_KEY)
     public List<ApiMetaDataBo> getApiMetaData(String agentId, long time, int apiId) {
         if (agentId == null) {
-            throw new NullPointerException("agentId must not be null");
+            throw new NullPointerException("agentId");
         }
 
         ApiMetaDataBo apiMetaDataBo = new ApiMetaDataBo(agentId, time, apiId);

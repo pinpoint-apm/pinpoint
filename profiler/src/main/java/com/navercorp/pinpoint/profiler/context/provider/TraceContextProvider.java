@@ -57,17 +57,17 @@ public class TraceContextProvider implements Provider<TraceContext> {
                                 StringMetaDataService stringMetaDataService,
                                 SqlMetaDataService sqlMetaDataService,
                                 JdbcContext jdbcContext) {
-        this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig must not be null");
-        this.agentInformationProvider = Assert.requireNonNull(agentInformationProvider, "agentInformationProvider must not be null");
+        this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig");
+        this.agentInformationProvider = Assert.requireNonNull(agentInformationProvider, "agentInformationProvider");
 
-        this.traceIdFactory = Assert.requireNonNull(traceIdFactory, "traceIdFactory must not be null");
-        this.traceFactory = Assert.requireNonNull(traceFactory, "traceFactory must not be null");
+        this.traceIdFactory = Assert.requireNonNull(traceIdFactory, "traceIdFactory");
+        this.traceFactory = Assert.requireNonNull(traceFactory, "traceFactory");
 
-        this.serverMetaDataHolder = Assert.requireNonNull(serverMetaDataHolder, "serverMetaDataHolder must not be null");
-        this.apiMetaDataService = Assert.requireNonNull(apiMetaDataService, "apiMetaDataService must not be null");
-        this.stringMetaDataService = Assert.requireNonNull(stringMetaDataService, "stringMetaDataService must not be null");
-        this.sqlMetaDataService = Assert.requireNonNull(sqlMetaDataService, "sqlMetaDataService must not be null");
-        this.jdbcContext = Assert.requireNonNull(jdbcContext, "jdbcContext must not be null");
+        this.serverMetaDataHolder = Assert.requireNonNull(serverMetaDataHolder, "serverMetaDataHolder");
+        this.apiMetaDataService = Assert.requireNonNull(apiMetaDataService, "apiMetaDataService");
+        this.stringMetaDataService = Assert.requireNonNull(stringMetaDataService, "stringMetaDataService");
+        this.sqlMetaDataService = Assert.requireNonNull(sqlMetaDataService, "sqlMetaDataService");
+        this.jdbcContext = Assert.requireNonNull(jdbcContext, "jdbcContext");
     }
 
 

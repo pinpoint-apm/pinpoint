@@ -33,10 +33,10 @@ public class AgentResponseTimeViewModel {
 
     public AgentResponseTimeViewModel(Application agentName, List<ResponseTimeViewModel> responseTimeViewModel) {
         if (agentName == null) {
-            throw new NullPointerException("agentName must not be null");
+            throw new NullPointerException("agentName");
         }
         if (responseTimeViewModel == null) {
-            throw new NullPointerException("responseTimeViewModel must not be null");
+            throw new NullPointerException("responseTimeViewModel");
         }
         this.agentName = agentName;
         this.responseTimeViewModel = responseTimeViewModel;

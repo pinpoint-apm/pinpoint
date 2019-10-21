@@ -50,7 +50,7 @@ public class HbaseApplicationIndexDao implements ApplicationIndexDao {
     @Override
     public void insert(final AgentInfoBo agentInfo) {
         if (agentInfo == null) {
-            throw new NullPointerException("agentInfo must not be null");
+            throw new NullPointerException("agentInfo");
         }
 
         final Put put = new Put(Bytes.toBytes(agentInfo.getApplicationName()));

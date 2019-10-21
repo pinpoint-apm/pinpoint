@@ -48,7 +48,7 @@ public class MariaDBJdbcUrlParser implements JdbcUrlParserV2 {
     @Override
     public DatabaseInfo parse(String jdbcUrl) {
         if (jdbcUrl == null) {
-            logger.info("jdbcUrl must not be null");
+            logger.info("jdbcUrl");
             return UnKnownDatabaseInfo.INSTANCE;
         }
 

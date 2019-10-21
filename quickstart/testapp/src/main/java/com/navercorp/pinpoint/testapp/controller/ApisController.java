@@ -87,7 +87,7 @@ public class ApisController {
 
         private RequestMappedUri(String mappedUri, Description description) {
             if (mappedUri == null) {
-                throw new IllegalArgumentException("mappedUri must not be null");
+                throw new IllegalArgumentException("mappedUri");
             }
             this.mappedUri = mappedUri;
             this.description = description == null ? "" : description.value();

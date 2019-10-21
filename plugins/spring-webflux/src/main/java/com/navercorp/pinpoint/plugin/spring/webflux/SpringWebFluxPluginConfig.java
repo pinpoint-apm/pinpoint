@@ -30,7 +30,7 @@ public class SpringWebFluxPluginConfig {
 
     public SpringWebFluxPluginConfig(ProfilerConfig config) {
         if (config == null) {
-            throw new NullPointerException("config must not be null");
+            throw new NullPointerException("config");
         }
 
         this.enable = config.readBoolean("profiler.spring.webflux.enable", true);

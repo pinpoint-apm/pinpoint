@@ -31,7 +31,7 @@ public class JarDescription {
 
     public JarDescription(String prefix, boolean required) {
         if (prefix == null) {
-            throw new NullPointerException("prefix must not be null");
+            throw new NullPointerException("prefix");
         }
         this.prefix = prefix;
         this.required = required;

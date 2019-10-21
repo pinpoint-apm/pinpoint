@@ -29,7 +29,7 @@ public class DefaultConnectionFactoryProvider implements ConnectionFactoryProvid
     private final PipelineFactory pipelineFactory;
 
     public DefaultConnectionFactoryProvider(PipelineFactory pipelineFactory) {
-        this.pipelineFactory = Assert.requireNonNull(pipelineFactory, "pipelineFactory must not be null");
+        this.pipelineFactory = Assert.requireNonNull(pipelineFactory, "pipelineFactory");
     }
 
     @Override

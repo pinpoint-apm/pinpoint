@@ -30,9 +30,9 @@ public class AgentInfo {
     private final JvmInformation jvmInformation;
 
     public AgentInfo(AgentInformation agentInformation, ServerMetaData serverMetaData, JvmInformation jvmInformation) {
-        this.agentInformation = Assert.requireNonNull(agentInformation, "agentInformation must not be null");
-        this.serverMetaData = Assert.requireNonNull(serverMetaData, "serverMetaData must not be null");
-        this.jvmInformation = Assert.requireNonNull(jvmInformation, "jvmInformation must not be null");
+        this.agentInformation = Assert.requireNonNull(agentInformation, "agentInformation");
+        this.serverMetaData = Assert.requireNonNull(serverMetaData, "serverMetaData");
+        this.jvmInformation = Assert.requireNonNull(jvmInformation, "jvmInformation");
     }
 
     public AgentInformation getAgentInformation() {

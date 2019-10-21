@@ -25,12 +25,12 @@ import com.navercorp.pinpoint.common.server.cluster.zookeeper.exception.Connecti
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.exception.PinpointZookeeperException;
 import com.navercorp.pinpoint.common.server.util.concurrent.CommonState;
 import com.navercorp.pinpoint.common.server.util.concurrent.CommonStateContext;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadFactory;
@@ -69,9 +69,9 @@ public class ZookeeperClusterManager {
     // synchronize current status with Zookeeper when an event(job) is triggered.
     // (the number of events does not matter as long as a single event is triggered - subsequent events may be ignored)
     public ZookeeperClusterManager(ZookeeperClient client, String zookeeperClusterPath, ClusterConnectionManager clusterConnectionManager) {
-        this.client = Assert.requireNonNull(client, "client must not be null");
-        Assert.requireNonNull(zookeeperClusterPath, "client must not be null");
-        this.clusterConnectionManager = Assert.requireNonNull(clusterConnectionManager, "clusterConnectionManager must not be null");
+        this.client = Objects.requireNonNull(client, "client");
+        Objects.requireNonNull(zookeeperClusterPath, "zookeeperClusterPath");
+        this.clusterConnectionManager = Objects.requireNonNull(clusterConnectionManager, "clusterConnectionManager");
 
         if (!zookeeperClusterPath.endsWith("/")) {
             this.parentPath = zookeeperClusterPath + ZookeeperConstants.PATH_SEPARATOR;

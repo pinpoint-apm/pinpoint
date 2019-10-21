@@ -34,7 +34,7 @@ public class MockApiMetaDataService implements ApiMetaDataService {
 
     public MockApiMetaDataService(EnhancedDataSender<Object> enhancedDataSender) {
         if (enhancedDataSender == null) {
-            throw new NullPointerException("enhancedDataSender must not be null");
+            throw new NullPointerException("enhancedDataSender");
         }
         this.enhancedDataSender = enhancedDataSender;
     }

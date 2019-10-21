@@ -63,7 +63,7 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
     @Override
     public void insert(final SpanBo span) {
         if (span == null) {
-            throw new NullPointerException("span must not be null");
+            throw new NullPointerException("span");
         }
         if (logger.isDebugEnabled()) {
             logger.debug("insert ApplicationTraceIndex: {}", span);

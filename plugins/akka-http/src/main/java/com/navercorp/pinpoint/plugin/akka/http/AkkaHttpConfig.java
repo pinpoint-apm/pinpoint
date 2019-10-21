@@ -49,7 +49,7 @@ public class AkkaHttpConfig {
     private final List<String> transformParameters;
 
     public AkkaHttpConfig(ProfilerConfig config) {
-        Assert.requireNonNull(config, "config must not be null");
+        Assert.requireNonNull(config, "config");
 
         this.enable = config.readBoolean(KEY_ENABLE, DEFAULT_ENABLE);
 

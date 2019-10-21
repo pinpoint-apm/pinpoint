@@ -38,8 +38,8 @@ public class DefaultCookieRecorder<T> implements CookieRecorder<T> {
     private final CookieExtractor<T> cookieExtractor;
 
     public DefaultCookieRecorder(HttpDumpConfig httpDumpConfig, CookieExtractor<T> cookieExtractor) {
-        this.httpDumpConfig = Assert.requireNonNull(httpDumpConfig, "httpDumpConfig must not be null");
-        this.cookieExtractor = Assert.requireNonNull(cookieExtractor, "cookieExtractor must not be null");
+        this.httpDumpConfig = Assert.requireNonNull(httpDumpConfig, "httpDumpConfig");
+        this.cookieExtractor = Assert.requireNonNull(cookieExtractor, "cookieExtractor");
     }
 
     @Override

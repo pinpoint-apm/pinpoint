@@ -31,9 +31,9 @@ public class Task implements Runnable {
     private final PooledObject<DatagramPacket> pooledObject;
 
     public Task(DatagramSocket localSocket, PacketHandlerFactory<DatagramPacket> packetHandlerFactory, PooledObject<DatagramPacket> pooledObject) {
-        this.localSocket = Objects.requireNonNull(localSocket, "localSocket must not be null");
-        this.packetHandlerFactory = Objects.requireNonNull(packetHandlerFactory, "packetHandlerFactory must not be null");
-        this.pooledObject = Objects.requireNonNull(pooledObject, "pooledObject must not be null");
+        this.localSocket = Objects.requireNonNull(localSocket, "localSocket");
+        this.packetHandlerFactory = Objects.requireNonNull(packetHandlerFactory, "packetHandlerFactory");
+        this.pooledObject = Objects.requireNonNull(pooledObject, "pooledObject");
     }
 
     @Override

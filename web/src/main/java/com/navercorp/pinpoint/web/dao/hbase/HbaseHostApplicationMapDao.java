@@ -80,7 +80,7 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
     @Override
     public Set<AcceptApplication> findAcceptApplicationName(Application fromApplication, Range range) {
         if (fromApplication == null) {
-            throw new NullPointerException("fromApplication must not be null");
+            throw new NullPointerException("fromApplication");
         }
         final Scan scan = createScan(fromApplication, range);
 
@@ -103,7 +103,7 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
 
     private Scan createScan(Application parentApplication, Range range) {
         if (parentApplication == null) {
-            throw new NullPointerException("parentApplication must not be null");
+            throw new NullPointerException("parentApplication");
         }
 
         if (logger.isDebugEnabled()) {

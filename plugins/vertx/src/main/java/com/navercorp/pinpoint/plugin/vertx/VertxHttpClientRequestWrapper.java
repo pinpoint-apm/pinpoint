@@ -34,7 +34,7 @@ public class VertxHttpClientRequestWrapper implements ClientRequestWrapper {
 
 
     public VertxHttpClientRequestWrapper(final HttpRequest httpRequest, final String host) {
-        this.httpRequest = Assert.requireNonNull(httpRequest, "httpRequest must not be null");
+        this.httpRequest = Assert.requireNonNull(httpRequest, "httpRequest");
         this.host = host;
     }
 

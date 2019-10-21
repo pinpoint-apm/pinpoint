@@ -27,7 +27,7 @@ final class JarFileUtils {
 
     public static JarFile openJarFile(String filePath) {
         if (filePath == null) {
-            throw new NullPointerException("filePath must not be null");
+            throw new NullPointerException("filePath");
         }
 
         final File file = new File(filePath);

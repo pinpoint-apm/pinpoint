@@ -37,7 +37,7 @@ public class ContainerResolver {
 
     public ContainerResolver(Properties properties) {
         if (properties == null) {
-            throw new NullPointerException("properties must not be null");
+            throw new NullPointerException("properties");
         }
         this.properties = properties;
     }

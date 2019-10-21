@@ -52,7 +52,7 @@ public class ResponseHistograms {
 
         public Builder(Range range) {
             if (range == null) {
-                throw new NullPointerException("range must not be null");
+                throw new NullPointerException("range");
             }
             // don't sample for now
             this.window = new TimeWindow(range, TimeWindowDownSampler.SAMPLER);

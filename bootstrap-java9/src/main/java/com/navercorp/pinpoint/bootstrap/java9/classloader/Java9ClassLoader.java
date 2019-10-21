@@ -42,7 +42,7 @@ public class Java9ClassLoader extends URLClassLoader {
         this.parent = parent;
 
         if (libClass == null) {
-            throw new NullPointerException("profilerLibClass must not be null");
+            throw new NullPointerException("profilerLibClass");
         }
         this.profilerLibClass = new ProfilerLibClass(libClass);
     }

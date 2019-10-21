@@ -30,7 +30,7 @@ public class DefaultJavaModuleFactory implements JavaModuleFactory {
 
     public DefaultJavaModuleFactory(Instrumentation instrumentation) {
         if (instrumentation == null) {
-            throw new NullPointerException("instrumentation must not be null");
+            throw new NullPointerException("instrumentation");
         }
         this.instrumentation = instrumentation;
     }
@@ -38,7 +38,7 @@ public class DefaultJavaModuleFactory implements JavaModuleFactory {
     @Override
     public JavaModule wrapFromClass(Class<?> clazz) {
         if (clazz == null) {
-            throw new NullPointerException("clazz must not be null");
+            throw new NullPointerException("clazz");
         }
         return new Java9Module(instrumentation, clazz.getModule());
     }
@@ -62,7 +62,7 @@ public class DefaultJavaModuleFactory implements JavaModuleFactory {
     @Override
     public Object getUnnamedModule(ClassLoader classLoader) {
         if (classLoader == null) {
-            throw new NullPointerException("classLoader must not be null");
+            throw new NullPointerException("classLoader");
         }
         return classLoader.getUnnamedModule();
     }
@@ -70,7 +70,7 @@ public class DefaultJavaModuleFactory implements JavaModuleFactory {
     @Override
     public Object getModule(Class<?> clazz) {
         if (clazz == null) {
-            throw new NullPointerException("clazz must not be null");
+            throw new NullPointerException("clazz");
         }
         return clazz.getModule();
     }

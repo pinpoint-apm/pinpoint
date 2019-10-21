@@ -37,8 +37,8 @@ public class CreateTableCommand extends TableCommand {
     private final byte[][] splitKeys;
 
     CreateTableCommand(TableName tableName, Compression.Algorithm compressionAlgorithm, byte[][] splitKeys) {
-        super(new HTableDescriptor(Objects.requireNonNull(tableName, "tableName must not be null")), compressionAlgorithm);
-        this.splitKeys = Objects.requireNonNull(splitKeys, "splitKeys must not be null");
+        super(new HTableDescriptor(Objects.requireNonNull(tableName, "tableName")), compressionAlgorithm);
+        this.splitKeys = Objects.requireNonNull(splitKeys, "splitKeys");
     }
 
     @Override

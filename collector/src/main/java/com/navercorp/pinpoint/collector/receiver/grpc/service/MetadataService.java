@@ -51,8 +51,8 @@ public class MetadataService extends MetadataGrpc.MetadataImplBase {
     private final Executor executor;
 
     public MetadataService(DispatchHandler dispatchHandler, Executor executor) {
-        Objects.requireNonNull(dispatchHandler, "dispatchHandler must not be null");
-        Objects.requireNonNull(executor, "executor must not be null");
+        Objects.requireNonNull(dispatchHandler, "dispatchHandler");
+        Objects.requireNonNull(executor, "executor");
         this.executor = Context.currentContextExecutor(executor);
         this.simpleRequestHandlerAdaptor = new SimpleRequestHandlerAdaptor<>(this.getClass().getName(), dispatchHandler);
     }

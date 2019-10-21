@@ -21,11 +21,11 @@ import com.navercorp.pinpoint.common.server.bo.ApiMetaDataBo;
 import com.navercorp.pinpoint.common.server.bo.MethodTypeEnum;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author jaehong.kim
@@ -66,7 +66,7 @@ public class LinkedCallTree implements CallTree {
     }
 
     private CallTreeNode getLastChild(CallTreeNode rootNode) {
-        Assert.requireNonNull(rootNode, "rootNode must not be null");
+        Objects.requireNonNull(rootNode, "rootNode");
 
         CallTreeNode prevSibling = null;
         CallTreeNode nextSibling = root.getChild();

@@ -41,7 +41,7 @@ public class DisableTrace implements Trace {
     public DisableTrace(long id, long startTime,  ActiveTraceHandle handle) {
         this.id = id;
         this.startTime = startTime;
-        this.handle = Assert.requireNonNull(handle, "handle must not be null");
+        this.handle = Assert.requireNonNull(handle, "handle");
     }
 
     @Override

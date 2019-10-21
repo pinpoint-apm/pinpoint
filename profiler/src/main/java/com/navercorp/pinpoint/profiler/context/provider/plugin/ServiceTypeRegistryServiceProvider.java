@@ -32,7 +32,7 @@ public class ServiceTypeRegistryServiceProvider implements Provider<ServiceTypeR
 
     @Inject
     public ServiceTypeRegistryServiceProvider(TraceMetadataLoaderService traceMetadataLoaderService) {
-        this.traceMetadataLoaderService = Assert.requireNonNull(traceMetadataLoaderService, "traceMetadataLoaderService must not be null");
+        this.traceMetadataLoaderService = Assert.requireNonNull(traceMetadataLoaderService, "traceMetadataLoaderService");
     }
 
     @Override

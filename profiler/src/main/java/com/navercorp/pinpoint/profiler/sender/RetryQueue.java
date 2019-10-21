@@ -48,7 +48,7 @@ public class RetryQueue {
 
     public void add(RetryMessage retryMessage) {
         if (retryMessage == null) {
-            throw new NullPointerException("retryMessage must not be null");
+            throw new NullPointerException("retryMessage");
         }
 
         if (!retryMessage.isRetryAvailable()) {

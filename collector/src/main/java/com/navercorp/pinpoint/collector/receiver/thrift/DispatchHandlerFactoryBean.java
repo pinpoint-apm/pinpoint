@@ -37,8 +37,8 @@ public class DispatchHandlerFactoryBean implements FactoryBean<DispatchHandler> 
     private final HandlerManager handlerManager;
 
     public DispatchHandlerFactoryBean(DispatchHandler delegate, HandlerManager handlerManager) {
-        this.delegate = Objects.requireNonNull(delegate, "delegate must not be null");
-        this.handlerManager = Objects.requireNonNull(handlerManager, "handlerManager must not be null");
+        this.delegate = Objects.requireNonNull(delegate, "delegate");
+        this.handlerManager = Objects.requireNonNull(handlerManager, "handlerManager");
     }
 
 

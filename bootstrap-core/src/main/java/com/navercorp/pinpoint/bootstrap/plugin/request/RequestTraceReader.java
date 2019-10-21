@@ -44,8 +44,8 @@ public class RequestTraceReader<T> {
     }
 
     public RequestTraceReader(final TraceContext traceContext, RequestAdaptor<T> requestAdaptor, final boolean async) {
-        this.traceContext = Assert.requireNonNull(traceContext, "traceContext must not be null");
-        this.requestAdaptor = Assert.requireNonNull(requestAdaptor, "requestAdaptor must not be null");
+        this.traceContext = Assert.requireNonNull(traceContext, "traceContext");
+        this.requestAdaptor = Assert.requireNonNull(requestAdaptor, "requestAdaptor");
          this.traceHeaderReader = new DefaultTraceHeaderReader<T>(requestAdaptor);
         this.async = async;
         String applicationNamespace = traceContext.getProfilerConfig().getApplicationNamespace();
@@ -54,7 +54,7 @@ public class RequestTraceReader<T> {
 
     // Read the transaction information from the request.
     public Trace read(T request) {
-        Assert.requireNonNull(request, "request must not be null");
+        Assert.requireNonNull(request, "request");
 
         final TraceHeader traceHeader = traceHeaderReader.read(request);
         // Check sampling flag from client. If the flag is false, do not sample this request.

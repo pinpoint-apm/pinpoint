@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.common.server.bo.serializer.trace.v2;
 import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyEncoder;
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.sematext.hbase.wd.AbstractRowKeyDistributor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,16 +40,12 @@ public class TraceRowKeyEncoderV2 implements RowKeyEncoder<TransactionId> {
 
     @Autowired
     public TraceRowKeyEncoderV2(@Qualifier("traceV2Distributor") AbstractRowKeyDistributor rowKeyDistributor) {
-        if (rowKeyDistributor == null) {
-            throw new NullPointerException("rowKeyDistributor must not be null");
-        }
-
-        this.rowKeyDistributor = rowKeyDistributor;
+        this.rowKeyDistributor = Assert.requireNonNull(rowKeyDistributor, "rowKeyDistributor");
     }
 
     public byte[] encodeRowKey(TransactionId transactionId) {
         if (transactionId == null) {
-            throw new NullPointerException("basicSpan must not be null");
+            throw new NullPointerException("basicSpan");
         }
 
         byte[] rowKey = BytesUtils.stringLongLongToBytes(transactionId.getAgentId(), AGENT_NAME_MAX_LEN, transactionId.getAgentStartTime(), transactionId.getTransactionSequence());

@@ -31,7 +31,7 @@ public class HttpClient4RequestWrapper implements ClientRequestWrapper {
     private final int port;
 
     public HttpClient4RequestWrapper(final HttpRequest httpRequest, final String hostName, final int port) {
-        this.httpRequest = Assert.requireNonNull(httpRequest, "httpRequest must not be null");
+        this.httpRequest = Assert.requireNonNull(httpRequest, "httpRequest");
         this.hostName = hostName;
         this.port = port;
     }

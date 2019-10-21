@@ -53,9 +53,9 @@ public class HbaseSchemaServiceImpl implements HbaseSchemaService {
     public HbaseSchemaServiceImpl(HbaseAdminOperation hbaseAdminOperation,
                                   SchemaChangeLogService schemaChangeLogService,
                                   HbaseSchemaVerifier<HTableDescriptor> hbaseSchemaVerifier) {
-        this.hbaseAdminOperation = Objects.requireNonNull(hbaseAdminOperation, "hbaseAdminOperation must not be null");
-        this.schemaChangeLogService = Objects.requireNonNull(schemaChangeLogService, "schemaChangeLogService must not be null");
-        this.hbaseSchemaVerifier = Objects.requireNonNull(hbaseSchemaVerifier, "hbaseSchemaVerifier must not be null");
+        this.hbaseAdminOperation = Objects.requireNonNull(hbaseAdminOperation, "hbaseAdminOperation");
+        this.schemaChangeLogService = Objects.requireNonNull(schemaChangeLogService, "schemaChangeLogService");
+        this.hbaseSchemaVerifier = Objects.requireNonNull(hbaseSchemaVerifier, "hbaseSchemaVerifier");
     }
 
     @Override

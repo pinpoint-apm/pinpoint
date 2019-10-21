@@ -29,7 +29,7 @@ public class UnsafeDelegatorJava9 {
 
     public static boolean register(LambdaBytecodeHandler handler) {
         if (handler == null) {
-            throw new NullPointerException("handler must not be null");
+            throw new NullPointerException("handler");
         }
         final LambdaBytecodeHandler localCopy = UnsafeDelegatorJava9.handler;
         if (localCopy == null) {

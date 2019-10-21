@@ -63,7 +63,7 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
     @Override
     public AgentInfo getInitialAgentInfo(final String agentId) {
         if (agentId == null) {
-            throw new NullPointerException("agentId must not be null");
+            throw new NullPointerException("agentId");
         }
         Scan scan = createScanForInitialAgentInfo(agentId);
 
@@ -106,7 +106,7 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
     @Override
     public AgentInfo getAgentInfo(final String agentId, final long timestamp) {
         if (agentId == null) {
-            throw new NullPointerException("agentId must not be null");
+            throw new NullPointerException("agentId");
         }
 
         Scan scan = createScan(agentId, timestamp);

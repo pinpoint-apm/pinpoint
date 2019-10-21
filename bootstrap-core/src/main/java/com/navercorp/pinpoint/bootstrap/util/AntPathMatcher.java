@@ -30,10 +30,10 @@ public class AntPathMatcher implements PathMatcher {
 
     public AntPathMatcher(String pattern, String pathSeparator) {
         if (pattern == null) {
-            throw new NullPointerException("pattern must not be null");
+            throw new NullPointerException("pattern");
         }
         if (pathSeparator == null) {
-            throw new NullPointerException("pathSeparator must not be null");
+            throw new NullPointerException("pathSeparator");
         }
         this.pattern = pattern;
         this.springAntMatcher = new com.navercorp.pinpoint.bootstrap.util.spring.AntPathMatcher(pathSeparator);

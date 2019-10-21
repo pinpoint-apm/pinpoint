@@ -35,8 +35,8 @@ public class SpanStatChannelFactoryProvider implements Provider<ChannelFactory> 
 
     @Inject
     public SpanStatChannelFactoryProvider(ThriftTransportConfig thriftTransportConfig, @SpanStatConnectTimer Provider<Timer> connectTimerProvider) {
-        this.thriftTransportConfig = Assert.requireNonNull(thriftTransportConfig, "thriftTransportConfig must not be null");
-        this.connectTimerProvider = Assert.requireNonNull(connectTimerProvider, "connectTimerProvider must not be null");
+        this.thriftTransportConfig = Assert.requireNonNull(thriftTransportConfig, "thriftTransportConfig");
+        this.connectTimerProvider = Assert.requireNonNull(connectTimerProvider, "connectTimerProvider");
     }
 
     @Override

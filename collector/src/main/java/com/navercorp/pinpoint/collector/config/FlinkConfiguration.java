@@ -61,7 +61,7 @@ public class FlinkConfiguration implements InitializingBean {
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        final Properties properties = Objects.requireNonNull(this.properties, "properties must not be null");
+        final Properties properties = Objects.requireNonNull(this.properties, "properties");
         readPropertyValues(properties);
     }
 

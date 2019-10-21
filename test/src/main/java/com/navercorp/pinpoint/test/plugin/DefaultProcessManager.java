@@ -38,7 +38,7 @@ public class DefaultProcessManager implements ProcessManager {
     private Process process = null;
 
     public DefaultProcessManager(PinpointPluginTestContext context) {
-        this.context = Assert.requireNonNull(context, "context must not be null");
+        this.context = Assert.requireNonNull(context, "context");
     }
 
     @Override

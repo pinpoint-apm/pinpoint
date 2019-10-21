@@ -47,7 +47,7 @@ public class JarFileAnalyzer implements PackageAnalyzer {
 
 
     JarFileAnalyzer(JarFile jarFile) {
-        this.jarFile = Assert.requireNonNull(jarFile, "jarFile must not be null");
+        this.jarFile = Assert.requireNonNull(jarFile, "jarFile");
         this.filter = new PackageFilter();
         this.serviceLoaderEntryFilter = new DefaultServiceLoaderEntryFilter();
     }

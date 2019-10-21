@@ -42,10 +42,10 @@ public class DefaultHttpRequestRetryHandlerRetryRequestMethodInterceptor impleme
 
     public DefaultHttpRequestRetryHandlerRetryRequestMethodInterceptor(TraceContext context, MethodDescriptor methodDescriptor) {
         if (context == null) {
-            throw new NullPointerException("context must not be null");
+            throw new NullPointerException("context");
         }
         if (methodDescriptor == null) {
-            throw new NullPointerException("methodDescriptor must not be null");
+            throw new NullPointerException("methodDescriptor");
         }
         this.traceContext = context;
         this.descriptor = methodDescriptor;

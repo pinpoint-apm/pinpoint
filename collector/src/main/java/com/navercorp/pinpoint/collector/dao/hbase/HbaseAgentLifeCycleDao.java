@@ -53,7 +53,7 @@ public class HbaseAgentLifeCycleDao implements AgentLifeCycleDao {
     @Override
     public void insert(AgentLifeCycleBo agentLifeCycleBo) {
         if (agentLifeCycleBo == null) {
-            throw new NullPointerException("agentLifeCycleBo must not be null");
+            throw new NullPointerException("agentLifeCycleBo");
         }
 
         if (logger.isDebugEnabled()) {

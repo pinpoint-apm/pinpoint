@@ -38,10 +38,10 @@ public class ApplicationDirectBufferService implements ApplicationStatChartServi
     @Override
     public StatChart selectApplicationChart(String applicationId, TimeWindow timeWindow) {
         if (applicationId == null) {
-            throw new NullPointerException("applicationId must not be null");
+            throw new NullPointerException("applicationId");
         }
         if (timeWindow == null) {
-            throw new NullPointerException("timeWindow must not be null");
+            throw new NullPointerException("timeWindow");
         }
         List<AggreJoinDirectBufferBo> aggreJoinDirectBufferBoList = this.applicationDirectBufferDao.getApplicationStatList(applicationId, timeWindow);
         return new ApplicationDirectBufferChart(timeWindow, aggreJoinDirectBufferBoList);

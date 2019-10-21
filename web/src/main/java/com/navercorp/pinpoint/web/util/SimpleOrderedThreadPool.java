@@ -36,7 +36,7 @@ public class SimpleOrderedThreadPool implements Executor {
 
     public SimpleOrderedThreadPool(int threadCount, int workerQueueSize, ThreadFactory threadFactory) {
         if (threadFactory == null) {
-            throw new NullPointerException("threadFactory must not be null");
+            throw new NullPointerException("threadFactory");
         }
         if (threadCount < 0) {
             throw new IllegalArgumentException("threadCount workerQueueSize");

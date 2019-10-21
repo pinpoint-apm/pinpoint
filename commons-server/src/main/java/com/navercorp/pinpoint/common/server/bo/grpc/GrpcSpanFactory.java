@@ -342,7 +342,7 @@ public class GrpcSpanFactory {
     // for test
     public SpanEventBo buildSpanEventBo(PSpanEvent pSpanEvent, SpanEventBo prevSpanEvent) {
         if (pSpanEvent == null) {
-            throw new NullPointerException("pSpanEvent must not be null");
+            throw new NullPointerException("pSpanEvent");
         }
 
         final SpanEventBo spanEvent = new SpanEventBo();
@@ -352,7 +352,7 @@ public class GrpcSpanFactory {
 
     private AnnotationBo newAnnotationBo(PAnnotation pAnnotation) {
         if (pAnnotation == null) {
-            throw new NullPointerException("annotation must not be null");
+            throw new NullPointerException("annotation");
         }
         AnnotationBo annotationBo = annotationFactory.buildAnnotation(pAnnotation);
         return annotationBo;

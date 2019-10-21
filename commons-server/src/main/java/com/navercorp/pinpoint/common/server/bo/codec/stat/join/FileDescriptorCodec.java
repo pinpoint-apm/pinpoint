@@ -32,10 +32,10 @@ import com.navercorp.pinpoint.common.server.bo.stat.join.JoinStatBo;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.util.Assert;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Roy Kim
@@ -49,8 +49,7 @@ public class FileDescriptorCodec implements ApplicationStatCodec {
 
     @Autowired
     public FileDescriptorCodec(AgentStatDataPointCodec codec) {
-        Assert.notNull(codec, "agentStatDataPointCodec must not be null");
-        this.codec = codec;
+        this.codec = Objects.requireNonNull(codec, "agentStatDataPointCodec");
     }
 
     @Override

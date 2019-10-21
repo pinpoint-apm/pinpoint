@@ -39,7 +39,7 @@ public class ActiveTraceRepositoryProvider implements Provider<ActiveTraceReposi
     @Inject
     public ActiveTraceRepositoryProvider(@TraceAgentActiveThread boolean isTraceAgentActiveThread, ResponseTimeCollector responseTimeCollector) {
         this.isTraceAgentActiveThread = isTraceAgentActiveThread;
-        this.responseTimeCollector = Assert.requireNonNull(responseTimeCollector, "responseTimeCollector must not be null");
+        this.responseTimeCollector = Assert.requireNonNull(responseTimeCollector, "responseTimeCollector");
 
     }
 

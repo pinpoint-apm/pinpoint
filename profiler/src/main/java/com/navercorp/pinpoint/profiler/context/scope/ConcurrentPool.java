@@ -17,6 +17,8 @@
 
 package com.navercorp.pinpoint.profiler.context.scope;
 
+import com.navercorp.pinpoint.common.util.Assert;
+
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -30,16 +32,13 @@ public class ConcurrentPool<K, V> implements Pool<K, V> {
     private final PoolObjectFactory<K, V> objectFactory;
 
     public ConcurrentPool(PoolObjectFactory<K, V> objectFactory) {
-        if (objectFactory == null) {
-            throw new NullPointerException("objectFactory must not be null");
-        }
-        this.objectFactory = objectFactory;
+        this.objectFactory = Assert.requireNonNull(objectFactory, "objectFactory");
     }
 
     @Override
     public V get(K key) {
         if (key == null) {
-            throw new IllegalArgumentException("key must not be null");
+            throw new IllegalArgumentException("key");
         }
 
         final V alreadyExist = this.pool.get(key);

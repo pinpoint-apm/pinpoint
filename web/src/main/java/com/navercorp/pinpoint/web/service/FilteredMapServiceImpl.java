@@ -103,10 +103,10 @@ public class FilteredMapServiceImpl implements FilteredMapService {
     @Override
     public LimitedScanResult<List<TransactionId>> selectTraceIdsFromApplicationTraceIndex(String applicationName, Range range, int limit, boolean backwardDirection) {
         if (applicationName == null) {
-            throw new NullPointerException("applicationName must not be null");
+            throw new NullPointerException("applicationName");
         }
         if (range == null) {
-            throw new NullPointerException("range must not be null");
+            throw new NullPointerException("range");
         }
         if (logger.isTraceEnabled()) {
             logger.trace("scan(selectTraceIdsFromApplicationTraceIndex) {}, {}", applicationName, range);
@@ -118,10 +118,10 @@ public class FilteredMapServiceImpl implements FilteredMapService {
     @Override
     public LimitedScanResult<List<TransactionId>> selectTraceIdsFromApplicationTraceIndex(String applicationName, SelectedScatterArea area, int limit) {
         if (applicationName == null) {
-            throw new NullPointerException("applicationName must not be null");
+            throw new NullPointerException("applicationName");
         }
         if (area == null) {
-            throw new NullPointerException("area must not be null");
+            throw new NullPointerException("area");
         }
         if (logger.isTraceEnabled()) {
             logger.trace("scan(selectTraceIdsFromApplicationTraceIndex) {}, {}", applicationName, area);
@@ -134,13 +134,13 @@ public class FilteredMapServiceImpl implements FilteredMapService {
     @Deprecated
     public LoadFactor linkStatistics(Range range, List<TransactionId> traceIdSet, Application sourceApplication, Application destinationApplication, Filter<SpanBo> filter) {
         if (sourceApplication == null) {
-            throw new NullPointerException("sourceApplication must not be null");
+            throw new NullPointerException("sourceApplication");
         }
         if (destinationApplication == null) {
-            throw new NullPointerException("destApplicationName must not be null");
+            throw new NullPointerException("destApplicationName");
         }
         if (filter == null) {
-            throw new NullPointerException("filter must not be null");
+            throw new NullPointerException("filter");
         }
 
         StopWatch watch = new StopWatch();
@@ -204,7 +204,7 @@ public class FilteredMapServiceImpl implements FilteredMapService {
     @Override
     public ApplicationMap selectApplicationMap(TransactionId transactionId, int version) {
         if (transactionId == null) {
-            throw new NullPointerException("transactionId must not be null");
+            throw new NullPointerException("transactionId");
         }
         List<TransactionId> transactionIdList = Collections.singletonList(transactionId);
         // FIXME from,to -1
@@ -223,10 +223,10 @@ public class FilteredMapServiceImpl implements FilteredMapService {
     @Override
     public ApplicationMap selectApplicationMapWithScatterData(List<TransactionId> transactionIdList, Range originalRange, Range scanRange, int xGroupUnit, int yGroupUnit, Filter<SpanBo> filter, int version) {
         if (transactionIdList == null) {
-            throw new NullPointerException("transactionIdList must not be null");
+            throw new NullPointerException("transactionIdList");
         }
         if (filter == null) {
-            throw new NullPointerException("filter must not be null");
+            throw new NullPointerException("filter");
         }
 
         StopWatch watch = new StopWatch();
@@ -282,7 +282,7 @@ public class FilteredMapServiceImpl implements FilteredMapService {
 
     private List<TransactionId> recursiveCallFilter(List<TransactionId> transactionIdList) {
         if (transactionIdList == null) {
-            throw new NullPointerException("transactionIdList must not be null");
+            throw new NullPointerException("transactionIdList");
         }
 
         List<TransactionId> crashKey = new ArrayList<>();

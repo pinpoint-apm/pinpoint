@@ -38,8 +38,8 @@ public class MetadataMessageConverterProvider implements Provider<MessageConvert
 
     @Inject
     public MetadataMessageConverterProvider(@ApplicationName String applicationName, @AgentId String agentId, @AgentStartTime long agentStartTime) {
-        this.applicationName = Assert.requireNonNull(applicationName, "applicationName must not be null");
-        this.agentId = Assert.requireNonNull(agentId, "agentId must not be null");
+        this.applicationName = Assert.requireNonNull(applicationName, "applicationName");
+        this.agentId = Assert.requireNonNull(agentId, "agentId");
         this.agentStartTime = agentStartTime;
     }
 

@@ -40,8 +40,8 @@ public class BootstrapClassLoaderHandler implements ClassInjector {
     private volatile boolean injectedToRoot = false;
 
     public BootstrapClassLoaderHandler(PluginConfig pluginConfig, InstrumentEngine instrumentEngine) {
-        this.pluginConfig = Assert.requireNonNull(pluginConfig, "pluginConfig must not be null");
-        this.instrumentEngine = Assert.requireNonNull(instrumentEngine, "instrumentEngine must not be null");
+        this.pluginConfig = Assert.requireNonNull(pluginConfig, "pluginConfig");
+        this.instrumentEngine = Assert.requireNonNull(instrumentEngine, "instrumentEngine");
     }
 
     @Override

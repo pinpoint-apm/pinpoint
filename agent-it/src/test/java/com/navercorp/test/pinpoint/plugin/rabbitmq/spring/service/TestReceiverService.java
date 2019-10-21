@@ -35,7 +35,7 @@ public class TestReceiverService {
     @Autowired
     public TestReceiverService(TestReceiver testReceiver) {
         if (testReceiver == null) {
-            throw new NullPointerException("testReceiver must not be null");
+            throw new NullPointerException("testReceiver");
         }
         this.testReceiver = testReceiver;
         this.propagationMarker = new PropagationMarker();

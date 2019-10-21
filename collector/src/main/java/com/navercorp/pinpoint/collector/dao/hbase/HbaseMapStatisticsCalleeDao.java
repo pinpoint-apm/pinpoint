@@ -88,10 +88,10 @@ public class HbaseMapStatisticsCalleeDao implements MapStatisticsCalleeDao {
     @Override
     public void update(String calleeApplicationName, ServiceType calleeServiceType, String callerApplicationName, ServiceType callerServiceType, String callerHost, int elapsed, boolean isError) {
         if (callerApplicationName == null) {
-            throw new NullPointerException("callerApplicationName must not be null");
+            throw new NullPointerException("callerApplicationName");
         }
         if (calleeApplicationName == null) {
-            throw new NullPointerException("calleeApplicationName must not be null");
+            throw new NullPointerException("calleeApplicationName");
         }
 
         if (logger.isDebugEnabled()) {
@@ -124,10 +124,10 @@ public class HbaseMapStatisticsCalleeDao implements MapStatisticsCalleeDao {
 
     private void increment(byte[] rowKey, byte[] columnName, long increment) {
         if (rowKey == null) {
-            throw new NullPointerException("rowKey must not be null");
+            throw new NullPointerException("rowKey");
         }
         if (columnName == null) {
-            throw new NullPointerException("columnName must not be null");
+            throw new NullPointerException("columnName");
         }
         TableName mapStatisticsCallerTableName = descriptor.getTableName();
         hbaseTemplate.incrementColumnValue(mapStatisticsCallerTableName, rowKey, descriptor.getColumnFamilyName(), columnName, increment);

@@ -34,6 +34,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Taejin Koo
@@ -49,7 +50,7 @@ public class CuratorZookeeperClient implements ZookeeperClient {
     private final CuratorZookeeperConnectionManager connectionManager;
 
     public CuratorZookeeperClient(String hostPort, int sessionTimeout, ZookeeperEventWatcher zookeeperEventWatcher) {
-        this.zookeeperEventWatcher = Assert.requireNonNull(zookeeperEventWatcher, "zookeeperEventWatcher must not be null");
+        this.zookeeperEventWatcher = Objects.requireNonNull(zookeeperEventWatcher, "zookeeperEventWatcher");
 
         this.connectionManager = new CuratorZookeeperConnectionManager(hostPort, sessionTimeout, zookeeperEventWatcher);
     }

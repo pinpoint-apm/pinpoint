@@ -45,7 +45,7 @@ public class ServerInstance {
 
     public ServerInstance(AgentInfo agentInfo) {
         if (agentInfo == null) {
-            throw new NullPointerException("agentInfo must not be null");
+            throw new NullPointerException("agentInfo");
         }
         this.hostName = agentInfo.getHostName();
         this.ip = agentInfo.getIp();
@@ -62,10 +62,10 @@ public class ServerInstance {
 
     public ServerInstance(String hostName, String physicalName, short serviceTypeCode) {
         if (hostName == null) {
-            throw new NullPointerException("hostName must not be null");
+            throw new NullPointerException("hostName");
         }
         if (physicalName == null) {
-            throw new NullPointerException("logicalName must not be null");
+            throw new NullPointerException("logicalName");
         }
         this.hostName = hostName;
         this.ip = null;

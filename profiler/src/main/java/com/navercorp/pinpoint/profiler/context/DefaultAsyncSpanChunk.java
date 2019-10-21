@@ -30,7 +30,7 @@ public class DefaultAsyncSpanChunk extends DefaultSpanChunk implements AsyncSpan
 
     public DefaultAsyncSpanChunk(TraceRoot traceRoot, List<SpanEvent> spanEventList, LocalAsyncId localAsyncId) {
         super(traceRoot, spanEventList);
-        this.localAsyncId = Assert.requireNonNull(localAsyncId, "localAsyncId must not be null");
+        this.localAsyncId = Assert.requireNonNull(localAsyncId, "localAsyncId");
     }
 
     @Override

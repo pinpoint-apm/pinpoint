@@ -36,8 +36,8 @@ public class ChangeSet {
             throw new IllegalArgumentException("id must not be empty");
         }
         this.id = id;
-        this.value = Objects.requireNonNull(value, "value must not be null");
-        this.tableChanges = Objects.requireNonNull(tableChanges, "tableChanges must not be null");
+        this.value = Objects.requireNonNull(value, "value");
+        this.tableChanges = Objects.requireNonNull(tableChanges, "tableChanges");
     }
 
     public String getId() {

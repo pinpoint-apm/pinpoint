@@ -117,7 +117,7 @@ public class PinpointServerAcceptor implements PinpointServerConfig {
         setOptions(bootstrap);
         this.bootstrap = bootstrap;
 
-        this.serverOption = Assert.requireNonNull(serverOption, "serverOption must not be null");
+        this.serverOption = Assert.requireNonNull(serverOption, "serverOption");
         logger.info("serverOption : {}", serverOption);
 
         this.healthCheckTimer = TimerFactory.createHashedWheelTimer("PinpointServerSocket-HealthCheckTimer", 50, TimeUnit.MILLISECONDS, 512);
@@ -125,9 +125,9 @@ public class PinpointServerAcceptor implements PinpointServerConfig {
 
         this.requestManagerTimer = TimerFactory.createHashedWheelTimer("PinpointServerSocket-RequestManager", 50, TimeUnit.MILLISECONDS, 512);
 
-        this.channelConnectedFilter = Assert.requireNonNull(channelConnectedFilter, "channelConnectedFilter must not be null");
+        this.channelConnectedFilter = Assert.requireNonNull(channelConnectedFilter, "channelConnectedFilter");
 
-        this.pipelineFactory = Assert.requireNonNull(pipelineFactory, "pipelineFactory must not be null");
+        this.pipelineFactory = Assert.requireNonNull(pipelineFactory, "pipelineFactory");
         addPipeline(bootstrap, pipelineFactory);
     }
 
@@ -173,14 +173,14 @@ public class PinpointServerAcceptor implements PinpointServerConfig {
     @VisibleForTesting
     void setPipelineFactory(ChannelPipelineFactory channelPipelineFactory) {
         if (channelPipelineFactory == null) {
-            throw new NullPointerException("channelPipelineFactory must not be null");
+            throw new NullPointerException("channelPipelineFactory");
         }
         bootstrap.setPipelineFactory(channelPipelineFactory);
     }
 
     @VisibleForTesting
     public void setMessageHandler(final ChannelHandler messageHandler) {
-        Assert.requireNonNull(messageHandler, "messageHandler must not be null");
+        Assert.requireNonNull(messageHandler, "messageHandler");
         bootstrap.setPipelineFactory(new ChannelPipelineFactory() {
             @Override
             public ChannelPipeline getPipeline() throws Exception {
@@ -223,7 +223,7 @@ public class PinpointServerAcceptor implements PinpointServerConfig {
     }
 
     public void setMessageListenerFactory(ServerMessageListenerFactory messageListenerFactory) {
-        this.messageListenerFactory = Assert.requireNonNull(messageListenerFactory, "messageListenerFactory must not be null");
+        this.messageListenerFactory = Assert.requireNonNull(messageListenerFactory, "messageListenerFactory");
     }
 
     @Override
@@ -232,7 +232,7 @@ public class PinpointServerAcceptor implements PinpointServerConfig {
     }
 
     public void addStateChangeEventHandler(ServerStateChangeEventHandler stateChangeEventHandler) {
-        Assert.requireNonNull(stateChangeEventHandler, "stateChangeEventHandler must not be null");
+        Assert.requireNonNull(stateChangeEventHandler, "stateChangeEventHandler");
 
         this.stateChangeEventHandler.add(stateChangeEventHandler);
     }
@@ -243,7 +243,7 @@ public class PinpointServerAcceptor implements PinpointServerConfig {
     }
 
     public void setServerStreamChannelMessageHandler(ServerStreamChannelMessageHandler serverStreamChannelMessageHandler) {
-        this.serverStreamChannelMessageHandler = Assert.requireNonNull(serverStreamChannelMessageHandler, "serverStreamChannelMessageHandler must not be null");
+        this.serverStreamChannelMessageHandler = Assert.requireNonNull(serverStreamChannelMessageHandler, "serverStreamChannelMessageHandler");
     }
 
     @Override

@@ -43,9 +43,9 @@ public class GrpcSpanMessageConverterProvider implements Provider<MessageConvert
     @Inject
     public GrpcSpanMessageConverterProvider(@AgentId String agentId, @ApplicationServerType ServiceType applicationServiceType,
                                             SpanProcessor<PSpan.Builder, PSpanChunk.Builder> spanPostProcessor) {
-        this.agentId = Assert.requireNonNull(agentId, "agentId must not be null");
+        this.agentId = Assert.requireNonNull(agentId, "agentId");
         this.applicationServiceTypeCode = applicationServiceType.getCode();
-        this.spanPostProcessor = Assert.requireNonNull(spanPostProcessor, "spanPostProcessor must not be null");
+        this.spanPostProcessor = Assert.requireNonNull(spanPostProcessor, "spanPostProcessor");
     }
 
     @Override

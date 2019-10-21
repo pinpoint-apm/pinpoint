@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.profiler.context;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.common.annotations.InterfaceAudience;
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,17 +35,13 @@ public class LoggingBaseTraceFactory implements BaseTraceFactory {
 
     public static BaseTraceFactory wrap(BaseTraceFactory baseTraceFactory) {
         if (baseTraceFactory == null) {
-            throw new NullPointerException("baseTraceFactory must not be null");
+            throw new NullPointerException("baseTraceFactory");
         }
         return new LoggingBaseTraceFactory(baseTraceFactory);
     }
 
     private LoggingBaseTraceFactory(BaseTraceFactory baseTraceFactory) {
-        if (baseTraceFactory == null) {
-            throw new NullPointerException("baseTraceFactory must not be null");
-        }
-
-        this.baseTraceFactory = baseTraceFactory;
+        this.baseTraceFactory = Assert.requireNonNull(baseTraceFactory, "baseTraceFactory");
     }
 
     @Override

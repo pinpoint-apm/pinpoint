@@ -43,7 +43,7 @@ public class FixedBuffer implements Buffer {
 
     public FixedBuffer(final byte[] buffer) {
         if (buffer == null) {
-            throw new NullPointerException("buffer must not be null");
+            throw new NullPointerException("buffer");
         }
         this.buffer = buffer;
         this.offset = 0;
@@ -228,7 +228,7 @@ public class FixedBuffer implements Buffer {
     @Override
     public void putBytes(final byte[] v) {
         if (v == null) {
-            throw new NullPointerException("v must not be null");
+            throw new NullPointerException("v");
         }
         System.arraycopy(v, 0, buffer, offset, v.length);
         this.offset = offset + v.length;

@@ -38,7 +38,7 @@ public class IdValidator {
 
     public IdValidator(Properties property) {
         if (property == null) {
-            throw new NullPointerException("property must not be null");
+            throw new NullPointerException("property");
         }
         this.property = property;
     }

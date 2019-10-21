@@ -34,14 +34,14 @@ public class DestinationApplicationFilter implements LinkDataMapProcessor {
 
     public DestinationApplicationFilter(Application destinationApplication) {
         if (destinationApplication == null) {
-            throw new NullPointerException("destinationApplication must not be null");
+            throw new NullPointerException("destinationApplication");
         }
         this.destinationApplications = Sets.newHashSet(destinationApplication);
     }
 
     public DestinationApplicationFilter(Collection<Application> destinationApplications) {
         if (destinationApplications == null) {
-            throw new NullPointerException("destinationApplications must not be null");
+            throw new NullPointerException("destinationApplications");
         }
         this.destinationApplications = Sets.newHashSet(destinationApplications);
     }

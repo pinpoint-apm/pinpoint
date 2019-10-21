@@ -40,10 +40,10 @@ public class TimeWindow implements Iterable<Long> {
 
     public TimeWindow(Range range, TimeWindowSampler sampler) {
         if (range == null) {
-            throw new NullPointerException("range must not be null");
+            throw new NullPointerException("range");
         }
         if (sampler == null) {
-            throw new NullPointerException("sampler must not be null");
+            throw new NullPointerException("sampler");
         }
         this.windowSlotSize = sampler.getWindowSize(range);
         this.range = range;

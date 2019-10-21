@@ -39,8 +39,8 @@ public class SpanEventAlign implements Align {
 
 
     public SpanEventAlign(SpanBo spanBo, SpanEventBo spanEventBo) {
-        this.spanBo = Objects.requireNonNull(spanBo, "spanBo must not be null");
-        this.spanEventBo = Objects.requireNonNull(spanEventBo, "spanEventBo must not be null");
+        this.spanBo = Objects.requireNonNull(spanBo, "spanBo");
+        this.spanEventBo = Objects.requireNonNull(spanEventBo, "spanEventBo");
     }
 
     @Override

@@ -53,7 +53,7 @@ public class HbaseSqlMetaDataDao implements SqlMetaDataDao {
     @Override
     public void insert(SqlMetaDataBo sqlMetaData) {
         if (sqlMetaData == null) {
-            throw new NullPointerException("sqlMetaData must not be null");
+            throw new NullPointerException("sqlMetaData");
         }
         if (logger.isDebugEnabled()) {
             logger.debug("insert:{}", sqlMetaData);

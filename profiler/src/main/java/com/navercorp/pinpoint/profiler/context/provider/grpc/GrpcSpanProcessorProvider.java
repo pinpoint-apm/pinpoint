@@ -31,7 +31,7 @@ public class GrpcSpanProcessorProvider implements Provider<SpanProcessor<PSpan.B
 
     @Inject
     public GrpcSpanProcessorProvider(TraceDataFormatVersion version) {
-        this.version = Assert.requireNonNull(version, "version must not be null");
+        this.version = Assert.requireNonNull(version, "version");
     }
 
     @Override

@@ -31,7 +31,7 @@ public class TBaseFilterChain<T> implements TBaseFilter<T> {
 
     public TBaseFilterChain(List<TBaseFilter<T>> tBaseFilter) {
         if (tBaseFilter == null) {
-            throw new NullPointerException("tBaseFilter must not be null");
+            throw new NullPointerException("tBaseFilter");
         }
 
         @SuppressWarnings("unchecked")

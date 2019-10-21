@@ -32,7 +32,7 @@ public class MessageReceiver {
 
     public MessageReceiver(MessageConsumer messageConsumer) {
         if (messageConsumer == null) {
-            throw new NullPointerException("messageConsumer must not be null");
+            throw new NullPointerException("messageConsumer");
         }
         this.messageConsumer = messageConsumer;
     }

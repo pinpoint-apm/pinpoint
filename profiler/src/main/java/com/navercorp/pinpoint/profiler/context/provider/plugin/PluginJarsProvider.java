@@ -46,8 +46,8 @@ public class PluginJarsProvider implements Provider<List<PluginJar>> {
 
     @Inject
     public PluginJarsProvider(@PluginJarPaths List<String> pluginJarPaths, ProfilerConfig profilerConfig) {
-        Assert.requireNonNull(pluginJarPaths, "pluginJarPaths must not be null");
-        Assert.requireNonNull(profilerConfig, "profilerConfig must not be null");
+        Assert.requireNonNull(pluginJarPaths, "pluginJarPaths");
+        Assert.requireNonNull(profilerConfig, "profilerConfig");
         PluginJarFilter pluginJarFilter = createPluginJarFilter(profilerConfig.getDisabledPlugins());
         List<PluginJar> pluginJars = createPluginJars(pluginJarPaths, pluginJarFilter, profilerConfig.getPluginLoadOrder());
         this.pluginJars = Collections.unmodifiableList(pluginJars);
@@ -118,7 +118,7 @@ public class PluginJarsProvider implements Provider<List<PluginJar>> {
         private final List<PluginJarFilter> pluginJarFilters = new ArrayList<PluginJarFilter>();
 
         private PluginJarFilters(PluginJarFilter pluginJarFilter, PluginJarFilter... pluginJarFilters) {
-            Assert.requireNonNull(pluginJarFilter, "pluginJarFilter must not be null");
+            Assert.requireNonNull(pluginJarFilter, "pluginJarFilter");
             this.pluginJarFilters.add(pluginJarFilter);
             if (pluginJarFilters.length > 0) {
                 this.pluginJarFilters.addAll(Arrays.asList(pluginJarFilters));
@@ -172,7 +172,7 @@ public class PluginJarsProvider implements Provider<List<PluginJar>> {
         private final Set<String> disabledPluginIds;
 
         private DisabledPluginFilter(List<String> disabledPluginIds) {
-            Assert.requireNonNull(disabledPluginIds, "disabledPluginIds must not be null");
+            Assert.requireNonNull(disabledPluginIds, "disabledPluginIds");
             this.disabledPluginIds = new HashSet<String>(disabledPluginIds);
         }
 

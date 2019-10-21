@@ -46,8 +46,8 @@ public class BufferedStorage implements Storage {
 
 
     public BufferedStorage(SpanChunkFactory spanChunkFactory, DataSender<Object> dataSender, int bufferSize) {
-        this.spanChunkFactory = Assert.requireNonNull(spanChunkFactory, "spanChunkFactory must not be null");
-        this.dataSender = Assert.requireNonNull(dataSender, "dataSender must not be null");
+        this.spanChunkFactory = Assert.requireNonNull(spanChunkFactory, "spanChunkFactory");
+        this.dataSender = Assert.requireNonNull(dataSender, "dataSender");
         this.bufferSize = bufferSize;
         this.storage = allocateBuffer();
     }

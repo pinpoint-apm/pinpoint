@@ -331,8 +331,8 @@ public class ASMClassNodeAdapter {
     }
 
     public ASMFieldNodeAdapter addField(final String fieldName, final String fieldDesc) {
-        Assert.requireNonNull(fieldName, "fieldName must not be null");
-        Assert.requireNonNull(fieldDesc, "fieldDesc must not be null");
+        Assert.requireNonNull(fieldName, "fieldName");
+        Assert.requireNonNull(fieldDesc, "fieldDesc");
         final FieldNode fieldNode = new FieldNode(getFieldAccessFlags(), fieldName, fieldDesc, null, null);
         addFieldNode0(fieldNode);
 
@@ -352,7 +352,7 @@ public class ASMClassNodeAdapter {
     }
 
     public ASMMethodNodeAdapter addDelegatorMethod(final ASMMethodNodeAdapter superMethodNode) {
-        Assert.requireNonNull(superMethodNode, "superMethodNode must not be null");
+        Assert.requireNonNull(superMethodNode, "superMethodNode");
 
         final String[] exceptions = getSuperMethodExceptions(superMethodNode);
 
@@ -373,8 +373,8 @@ public class ASMClassNodeAdapter {
     }
 
     public void addGetterMethod(final String methodName, final ASMFieldNodeAdapter fieldNode) {
-        Assert.requireNonNull(methodName, "methodName must not be null");
-        Assert.requireNonNull(fieldNode, "fieldNode must not be null");
+        Assert.requireNonNull(methodName, "methodName");
+        Assert.requireNonNull(fieldNode, "fieldNode");
 
 
         // no argument is ().
@@ -400,8 +400,8 @@ public class ASMClassNodeAdapter {
     }
 
     public void addSetterMethod(final String methodName, final ASMFieldNodeAdapter fieldNode) {
-        Assert.requireNonNull(methodName, "methodName must not be null");
-        Assert.requireNonNull(fieldNode, "fieldNode must not be null");
+        Assert.requireNonNull(methodName, "methodName");
+        Assert.requireNonNull(fieldNode, "fieldNode");
 
 
         // void is V.
@@ -428,7 +428,7 @@ public class ASMClassNodeAdapter {
     }
 
     public void addInterface(final String interfaceName) {
-        Assert.requireNonNull(interfaceName, "interfaceName must not be null");
+        Assert.requireNonNull(interfaceName, "interfaceName");
 
         if (this.classNode.interfaces == null) {
             this.classNode.interfaces = new ArrayList<String>();
@@ -437,7 +437,7 @@ public class ASMClassNodeAdapter {
     }
 
     public void copyMethod(final ASMMethodNodeAdapter methodNode) {
-        Assert.requireNonNull(methodNode, "methodNode must not be null");
+        Assert.requireNonNull(methodNode, "methodNode");
 
         // change local call.
         final ASMMethodInsnNodeRemapper.Builder remapBuilder = new ASMMethodInsnNodeRemapper.Builder();

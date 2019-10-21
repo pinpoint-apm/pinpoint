@@ -48,7 +48,7 @@ public class ThreadDumpRequest {
 
 
     public static ThreadDumpRequest create(TCmdActiveThreadDump request) {
-        Assert.requireNonNull(request, "request must not be null");
+        Assert.requireNonNull(request, "request");
 
         final int limit = getLimit(request.getLimit());
 
@@ -59,7 +59,7 @@ public class ThreadDumpRequest {
     }
 
     public static ThreadDumpRequest create(TCmdActiveThreadLightDump request) {
-        Assert.requireNonNull(request, "request must not be null");
+        Assert.requireNonNull(request, "request");
 
         int limit = getLimit(request.getLimit());
 
@@ -70,7 +70,7 @@ public class ThreadDumpRequest {
     }
 
     public static ThreadDumpRequest create(PCmdActiveThreadDump request) {
-        Assert.requireNonNull(request, "request must not be null");
+        Assert.requireNonNull(request, "request");
 
         int limit = getLimit(request.getLimit());
 
@@ -81,7 +81,7 @@ public class ThreadDumpRequest {
     }
 
     public static ThreadDumpRequest create(PCmdActiveThreadLightDump request) {
-        Assert.requireNonNull(request, "request must not be null");
+        Assert.requireNonNull(request, "request");
 
         int limit = getLimit(request.getLimit());
 
@@ -92,7 +92,7 @@ public class ThreadDumpRequest {
     }
 
     ThreadDumpRequest(StackTrace stackTrace, int limit, List<Long> localTransactionIdList, List<String> threadNameList) {
-        this.stackTrace = Assert.requireNonNull(stackTrace, "stackTrace must not be null");
+        this.stackTrace = Assert.requireNonNull(stackTrace, "stackTrace");
         this.limit = limit;
 
         this.localTransactionIdSet = newHashSet(localTransactionIdList);

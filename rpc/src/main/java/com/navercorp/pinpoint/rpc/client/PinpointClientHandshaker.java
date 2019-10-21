@@ -77,8 +77,8 @@ public class PinpointClientHandshaker {
         Assert.isTrue(maxHandshakeCount > 0, "maxHandshakeCount must greater than zero.");
         
         this.state = new AtomicInteger(STATE_INIT);
-        this.handshakerTimer = Assert.requireNonNull(handshakerTimer, "handshakerTimer must not be null.");
-        this.handshakeData = Assert.requireNonNull(handshakeData, "handshakeData must not be null");
+        this.handshakerTimer = Assert.requireNonNull(handshakerTimer, "handshakerTimer");
+        this.handshakeData = Assert.requireNonNull(handshakeData, "handshakeData");
 
         this.retryInterval = retryInterval;
         this.maxHandshakeCount = maxHandshakeCount;

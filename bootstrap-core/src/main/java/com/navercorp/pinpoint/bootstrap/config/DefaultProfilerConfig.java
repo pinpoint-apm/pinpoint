@@ -165,7 +165,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
 
     public DefaultProfilerConfig(Properties properties) {
         if (properties == null) {
-            throw new NullPointerException("properties must not be null");
+            throw new NullPointerException("properties");
         }
         this.properties = properties;
         readPropertyValues();
@@ -759,7 +759,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
 
     public String readString(String propertyName, String defaultValue, ValueResolver valueResolver) {
         if (valueResolver == null) {
-            throw new NullPointerException("valueResolver must not be null");
+            throw new NullPointerException("valueResolver");
         }
         String value = properties.getProperty(propertyName, defaultValue);
         value = valueResolver.resolve(value, properties);

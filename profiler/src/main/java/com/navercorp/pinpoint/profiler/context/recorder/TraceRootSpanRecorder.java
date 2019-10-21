@@ -33,7 +33,7 @@ public class TraceRootSpanRecorder implements SpanRecorder {
     private final boolean sampling;
 
     public TraceRootSpanRecorder(TraceRoot traceRoot, boolean sampling) {
-        this.traceRoot = Assert.requireNonNull(traceRoot, "traceRoot must not be null");
+        this.traceRoot = Assert.requireNonNull(traceRoot, "traceRoot");
 
         this.sampling = sampling;
     }

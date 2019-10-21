@@ -16,11 +16,10 @@
 
 package com.navercorp.pinpoint.common.server.util;
 
-import com.navercorp.pinpoint.common.util.Assert;
-
 import java.net.InetAddress;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -30,7 +29,7 @@ public class IgnoreAddressFilter implements AddressFilter {
     private final InetAddress[] ignoreAddressList;
 
     public IgnoreAddressFilter(List<String> ignoreAddressList) {
-        Assert.requireNonNull(ignoreAddressList, "ignoreAddressList");
+        Objects.requireNonNull(ignoreAddressList, "ignoreAddressList");
 
         this.ignoreAddressList = InetAddressUtils.toInetAddressArray(ignoreAddressList);
     }

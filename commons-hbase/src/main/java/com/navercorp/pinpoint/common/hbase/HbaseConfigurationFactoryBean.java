@@ -16,13 +16,13 @@
 package com.navercorp.pinpoint.common.hbase;
 
 import java.util.Enumeration;
+import java.util.Objects;
 import java.util.Properties;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.util.Assert;
 
 /**
  * Factory for creating HBase specific configuration. By default cleans up any connection associated with the current configuration.
@@ -65,7 +65,7 @@ public class HbaseConfigurationFactoryBean implements InitializingBean, FactoryB
      * @param properties properties to add to the configuration. May be null.
      */
     private void addProperties(Configuration configuration, Properties properties) {
-        Assert.notNull(configuration, "A non-null configuration is required");
+        Objects.requireNonNull(configuration, "A non-null configuration is required");
         if (properties != null) {
             Enumeration<?> props = properties.propertyNames();
             while (props.hasMoreElements()) {

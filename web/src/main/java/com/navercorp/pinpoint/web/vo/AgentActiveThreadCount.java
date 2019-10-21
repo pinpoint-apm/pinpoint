@@ -94,13 +94,13 @@ public class AgentActiveThreadCount {
 
         AgentActiveThreadCount build() {
             if (agentId == null) {
-                throw new NullPointerException("agentId must not be null");
+                throw new NullPointerException("agentId");
             }
             if (activeThreadCountList == null) {
-                throw new NullPointerException("activeThreadCountList must not be null");
+                throw new NullPointerException("activeThreadCountList");
             }
             if (status == null) {
-                throw new NullPointerException("status must not be null");
+                throw new NullPointerException("status");
             }
 
             return new AgentActiveThreadCount(this);

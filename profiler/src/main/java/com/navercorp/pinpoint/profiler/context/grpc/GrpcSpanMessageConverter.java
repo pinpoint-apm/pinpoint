@@ -70,9 +70,9 @@ public class GrpcSpanMessageConverter implements MessageConverter<GeneratedMessa
 
     public GrpcSpanMessageConverter(String agentId, short applicationServiceType,
                                     SpanProcessor<PSpan.Builder, PSpanChunk.Builder> spanProcessor) {
-        this.agentId = Assert.requireNonNull(agentId, "agentId must not be null");
+        this.agentId = Assert.requireNonNull(agentId, "agentId");
         this.applicationServiceType = applicationServiceType;
-        this.spanProcessor = Assert.requireNonNull(spanProcessor, "spanProcessor must not be null");
+        this.spanProcessor = Assert.requireNonNull(spanProcessor, "spanProcessor");
 
     }
 

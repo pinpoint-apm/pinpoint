@@ -40,7 +40,7 @@ public class TestConsumer<T> extends DefaultConsumer {
     public TestConsumer(Channel channel, MessageConverter<T> messageConverter) {
         super(channel);
         if (messageConverter == null) {
-            throw new NullPointerException("messageConverter must not be null");
+            throw new NullPointerException("messageConverter");
         }
         this.messageConverter = messageConverter;
     }

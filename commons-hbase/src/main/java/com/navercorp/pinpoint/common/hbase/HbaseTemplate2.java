@@ -39,12 +39,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.util.Assert;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -97,17 +97,14 @@ public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, I
     }
 
     public void setAsyncOperation(HBaseAsyncOperation asyncOperation) {
-        if (asyncOperation == null) {
-            throw new NullPointerException("asyncOperation");
-        }
-        this.asyncOperation = asyncOperation;
+        this.asyncOperation = Objects.requireNonNull(asyncOperation, "asyncOperation");
     }
 
     @Override
     public void afterPropertiesSet() {
         Configuration configuration = getConfiguration();
-        Assert.notNull(configuration, "configuration is required");
-        Assert.notNull(getTableFactory(), "tableFactory is required");
+        Objects.requireNonNull(configuration, "configuration is required");
+        Objects.requireNonNull(getTableFactory(), "tableFactory is required");
         PinpointThreadFactory parallelScannerThreadFactory = new PinpointThreadFactory("Pinpoint-parallel-scanner", true);
         if (this.maxThreadsPerParallelScan <= 1) {
             this.enableParallelScan = false;
@@ -759,8 +756,8 @@ public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, I
     
     @Override
     public <T> T execute(TableName tableName, TableCallback<T> action) {
-        Assert.notNull(action, "Callback object must not be null");
-        Assert.notNull(tableName, "No table specified");
+        Objects.requireNonNull(tableName, "tableName");
+        Objects.requireNonNull(action, "action");
         assertAccessAvailable();
 
         Table table = getTable(tableName);

@@ -28,7 +28,7 @@ public class OverrideModuleFactory implements ModuleFactory {
     private final Module[] with;
 
     public OverrideModuleFactory(Module... with) {
-        this.with = Assert.requireNonNull(with, "with must not be null");
+        this.with = Assert.requireNonNull(with, "with");
     }
 
     @Override

@@ -40,20 +40,20 @@ public class ProgramCommand {
     }
 
     private ProgramCommand(String command, List<String> commandArgs) {
-        this.command = Objects.requireNonNull(command, "command must not be null");
-        this.commandArgs = Objects.requireNonNull(commandArgs, "commandArgs must not be null");
+        this.command = Objects.requireNonNull(command, "command");
+        this.commandArgs = Objects.requireNonNull(commandArgs, "commandArgs");
     }
 
     public static ProgramCommand parseArgs(String[] args) {
         if (args == null) {
-            throw new NullPointerException("args must not be null");
+            throw new NullPointerException("args");
         }
         return parseArgs(new DefaultApplicationArguments(args));
     }
 
     public static ProgramCommand parseArgs(ApplicationArguments applicationArguments) {
         if (applicationArguments == null) {
-            throw new NullPointerException("applicationArguments must not be null");
+            throw new NullPointerException("applicationArguments");
         }
         List<String> nonOptionArgs = applicationArguments.getNonOptionArgs();
         if (CollectionUtils.isEmpty(nonOptionArgs)) {

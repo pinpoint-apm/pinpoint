@@ -23,7 +23,8 @@ import com.navercorp.pinpoint.common.server.bo.codec.stat.v2.TransactionCodecV2;
 import com.navercorp.pinpoint.common.server.bo.stat.TransactionBo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.util.Assert;
+
+import java.util.Objects;
 
 /**
  * @author HyunGil Jeong
@@ -42,8 +43,7 @@ public class TransactionCodecV1 extends AgentStatCodecV1<TransactionBo> {
         private final AgentStatDataPointCodec codec;
 
         private TransactionCodecFactory(AgentStatDataPointCodec codec) {
-            Assert.notNull(codec, "codec must not be null");
-            this.codec = codec;
+            this.codec = Objects.requireNonNull(codec, "codec");
         }
 
         @Override

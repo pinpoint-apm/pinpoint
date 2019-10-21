@@ -30,8 +30,8 @@ public class ThreadDump {
     private final ThreadInfo threadInfo;
 
     public ThreadDump(ActiveTraceSnapshot activeTraceSnapshot, ThreadInfo threadInfo) {
-        this.activeTraceSnapshot = Assert.requireNonNull(activeTraceSnapshot, "activeTraceSnapshot must not be null");
-        this.threadInfo = Assert.requireNonNull(threadInfo, "threadInfo must not be null");
+        this.activeTraceSnapshot = Assert.requireNonNull(activeTraceSnapshot, "activeTraceSnapshot");
+        this.threadInfo = Assert.requireNonNull(threadInfo, "threadInfo");
     }
 
     public ActiveTraceSnapshot getActiveTraceSnapshot() {

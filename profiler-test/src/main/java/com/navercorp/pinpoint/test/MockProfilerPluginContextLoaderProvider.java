@@ -38,9 +38,9 @@ public class MockProfilerPluginContextLoaderProvider implements Provider<Profile
     public MockProfilerPluginContextLoaderProvider(ProfilerConfig profilerConfig,
                                                    @ApplicationServerType ServiceType configuredApplicationType,
                                                    PluginSetup pluginSetup) {
-        this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig must not be null");
-        this.configuredApplicationType = Assert.requireNonNull(configuredApplicationType, "configuredApplicationType must not be null");
-        this.pluginSetup = Assert.requireNonNull(pluginSetup, "pluginSetup must not be null");
+        this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig");
+        this.configuredApplicationType = Assert.requireNonNull(configuredApplicationType, "configuredApplicationType");
+        this.pluginSetup = Assert.requireNonNull(pluginSetup, "pluginSetup");
     }
 
     @Override

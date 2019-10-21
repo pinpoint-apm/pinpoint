@@ -60,10 +60,10 @@ public class HttpEncoderInterceptor implements AroundInterceptor {
 
     public HttpEncoderInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
         if (traceContext == null) {
-            throw new NullPointerException("traceContext must not be null");
+            throw new NullPointerException("traceContext");
         }
         if (methodDescriptor == null) {
-            throw new NullPointerException("methodDescriptor must not be null");
+            throw new NullPointerException("methodDescriptor");
         }
 
         this.traceContext = traceContext;

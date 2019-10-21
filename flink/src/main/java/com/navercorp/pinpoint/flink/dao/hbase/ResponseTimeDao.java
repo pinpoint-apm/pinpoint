@@ -45,10 +45,10 @@ public class ResponseTimeDao {
     private final TableNameProvider tableNameProvider;
 
     public ResponseTimeDao(HbaseTemplate2 hbaseTemplate2, ApplicationStatHbaseOperationFactory applicationStatHbaseOperationFactory, ResponseTimeSerializer responseTimeSerializer, TableNameProvider tableNameProvider) {
-        this.hbaseTemplate2 = Objects.requireNonNull(hbaseTemplate2, "hbaseTemplate2 must not be null");
-        this.applicationStatHbaseOperationFactory = Objects.requireNonNull(applicationStatHbaseOperationFactory, "applicationStatHbaseOperationFactory must not be null");
-        this.responseTimeSerializer = Objects.requireNonNull(responseTimeSerializer, "responseTimeSerializer must not be null");
-        this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider must not be null");
+        this.hbaseTemplate2 = Objects.requireNonNull(hbaseTemplate2, "hbaseTemplate2");
+        this.applicationStatHbaseOperationFactory = Objects.requireNonNull(applicationStatHbaseOperationFactory, "applicationStatHbaseOperationFactory");
+        this.responseTimeSerializer = Objects.requireNonNull(responseTimeSerializer, "responseTimeSerializer");
+        this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
     }
 
     public void insert(String id, long timestamp, List<JoinStatBo> joinResponseTimeBoList, StatType statType) {

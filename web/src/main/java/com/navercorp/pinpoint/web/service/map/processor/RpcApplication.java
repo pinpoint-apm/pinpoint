@@ -27,10 +27,10 @@ class RpcApplication {
 
     RpcApplication(String rpcUrl, Application sourceApplication) {
         if (rpcUrl == null) {
-            throw new NullPointerException("rpcUrl must not be null");
+            throw new NullPointerException("rpcUrl");
         }
         if (sourceApplication == null) {
-            throw new NullPointerException("sourceApplication must not be null");
+            throw new NullPointerException("sourceApplication");
         }
 
         this.host = rpcUrl;

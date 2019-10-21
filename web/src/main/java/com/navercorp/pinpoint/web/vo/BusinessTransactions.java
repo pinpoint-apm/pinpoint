@@ -34,7 +34,7 @@ public class BusinessTransactions {
 
     public void add(SpanBo span) {
         if (span == null) {
-            throw new NullPointerException("span must not be null");
+            throw new NullPointerException("span");
         }
         totalCallCount++;
 

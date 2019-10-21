@@ -38,7 +38,7 @@ public class CallStackFactoryProvider implements Provider<CallStackFactory<SpanE
     @Inject
     public CallStackFactoryProvider(@Named("profiler.callstack.max.depth") int callStackMaxDepth,
                                     TraceDataFormatVersion version) {
-        this.version = Assert.requireNonNull(version, "version must not be null");
+        this.version = Assert.requireNonNull(version, "version");
         this.callStackMaxDepth = callStackMaxDepth;
     }
 

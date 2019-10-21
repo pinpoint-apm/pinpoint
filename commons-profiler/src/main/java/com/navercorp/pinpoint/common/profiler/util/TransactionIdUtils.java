@@ -41,7 +41,7 @@ public final class TransactionIdUtils {
 
     public static String formatString(String agentId, long agentStartTime, long transactionSequence) {
         if (agentId == null) {
-            throw new NullPointerException("agentId must not be null");
+            throw new NullPointerException("agentId");
         }
         StringBuilder sb = new StringBuilder(64);
         sb.append(agentId);
@@ -96,7 +96,7 @@ public final class TransactionIdUtils {
 
     public static TransactionId parseTransactionId(final byte[] transactionId) {
         if (transactionId == null) {
-            throw new NullPointerException("transactionId must not be null");
+            throw new NullPointerException("transactionId");
         }
         final Buffer buffer = new FixedBuffer(transactionId);
         final byte version = buffer.readByte();
@@ -116,7 +116,7 @@ public final class TransactionIdUtils {
 
     public static TransactionId parseTransactionId(final String transactionId) {
         if (transactionId == null) {
-            throw new NullPointerException("transactionId must not be null");
+            throw new NullPointerException("transactionId");
         }
 
         final int agentIdIndex = nextIndex(transactionId, 0);

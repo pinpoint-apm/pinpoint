@@ -52,7 +52,7 @@ public class TReplaceListProtocol extends TProtocol {
 
     public void addReplaceField(final String fieldName, List<ByteArrayOutput> outputs) {
         if (fieldName == null) {
-            throw new IllegalArgumentException("field name must not be null");
+            throw new IllegalArgumentException("field name");
         }
 
         if (outputs == null || outputs.isEmpty()) {

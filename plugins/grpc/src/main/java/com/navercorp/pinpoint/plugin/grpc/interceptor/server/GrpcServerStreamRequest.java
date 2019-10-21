@@ -68,9 +68,9 @@ public class GrpcServerStreamRequest {
     }
 
     GrpcServerStreamRequest(ServerStream serverStream, String methodName, Metadata metadata) {
-        this.serverStream = Assert.requireNonNull(serverStream, "serverStream must not be null");
-        this.methodName = Assert.requireNonNull(methodName, "methodName must not be null");
-        this.metadata = Assert.requireNonNull(metadata, "metadata must not be null");
+        this.serverStream = Assert.requireNonNull(serverStream, "serverStream");
+        this.methodName = Assert.requireNonNull(methodName, "methodName");
+        this.metadata = Assert.requireNonNull(metadata, "metadata");
     }
 
     public ServerStream getServerStream() {

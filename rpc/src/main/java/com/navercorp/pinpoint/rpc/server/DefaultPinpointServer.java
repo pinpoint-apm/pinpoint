@@ -187,7 +187,7 @@ public class DefaultPinpointServer implements PinpointServer {
 
     @Override
     public void send(byte[] payload) {
-        Assert.requireNonNull(payload, "payload must not be null.");
+        Assert.requireNonNull(payload, "payload");
         if (!isEnableDuplexCommunication()) {
             throw new IllegalStateException("Send fail. Error: Illegal State. pinpointServer:" + toString());
         }
@@ -198,7 +198,7 @@ public class DefaultPinpointServer implements PinpointServer {
 
     @Override
     public Future<ResponseMessage> request(byte[] payload) {
-        Assert.requireNonNull(payload, "payload must not be null.");
+        Assert.requireNonNull(payload, "payload");
         if (!isEnableDuplexCommunication()) {
             throw new IllegalStateException("Request fail. Error: Illegal State. pinpointServer:" + toString());
         }
@@ -212,7 +212,7 @@ public class DefaultPinpointServer implements PinpointServer {
 
     @Override
     public void response(int requestId, byte[] payload) {
-        Assert.requireNonNull(payload, "payload must not be null.");
+        Assert.requireNonNull(payload, "payload");
         if (!isEnableCommunication()) {
             throw new IllegalStateException("Response fail. Error: Illegal State. pinpointServer:" + toString());
         }
