@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.web.vo.scatter.ApplicationScatterScanResult;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author HyunGil Jeong
@@ -36,18 +37,9 @@ public class FilteredMap {
     private DotExtractor dotExtractor;
 
     FilteredMap(LinkDataDuplexMap linkDataDuplexMap, ResponseHistograms responseHistograms, DotExtractor dotExtractor) {
-        if (linkDataDuplexMap == null) {
-            throw new NullPointerException("linkDataDuplexMap");
-        }
-        if (responseHistograms == null) {
-            throw new NullPointerException("responseHistograms");
-        }
-        if (dotExtractor == null) {
-            throw new NullPointerException("dotExtractor");
-        }
-        this.linkDataDuplexMap = linkDataDuplexMap;
-        this.responseHistograms = responseHistograms;
-        this.dotExtractor = dotExtractor;
+        this.linkDataDuplexMap = Objects.requireNonNull(linkDataDuplexMap, "linkDataDuplexMap");
+        this.responseHistograms = Objects.requireNonNull(responseHistograms, "responseHistograms");
+        this.dotExtractor = Objects.requireNonNull(dotExtractor, "dotExtractor");
     }
 
     public LinkDataDuplexMap getLinkDataDuplexMap() {

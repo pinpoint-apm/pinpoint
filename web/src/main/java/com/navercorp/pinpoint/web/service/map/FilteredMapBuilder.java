@@ -77,10 +77,10 @@ public class FilteredMapBuilder {
     public FilteredMapBuilder(ApplicationFactory applicationFactory, ServiceTypeRegistryService registry, Range range, int version) {
         this.applicationFactory = Objects.requireNonNull(applicationFactory, "applicationFactory");
         this.registry = Objects.requireNonNull(registry, "registry");
-        Objects.requireNonNull(range, "range");
 
         this.version = version;
 
+        Objects.requireNonNull(range, "range");
         this.timeWindow = new TimeWindow(range, TimeWindowDownSampler.SAMPLER);
         this.linkDataDuplexMap = new LinkDataDuplexMap();
         this.responseHistogramsBuilder = new ResponseHistograms.Builder(range);

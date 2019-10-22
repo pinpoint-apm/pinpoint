@@ -31,8 +31,8 @@ public class SlowCountToCalleeChecker extends LongValueAlarmChecker {
     
     @Override
     protected Long getDetectedValue() {
-        String calleName = rule.getNotes();
-        return ((MapStatisticsCallerDataCollector)dataCollector).getCount(calleName, DataCategory.SLOW_COUNT);
+        String calleeName = rule.getNotes();
+        return ((MapStatisticsCallerDataCollector)dataCollector).getCount(calleeName, DataCategory.SLOW_COUNT);
     }
     
     @Override
