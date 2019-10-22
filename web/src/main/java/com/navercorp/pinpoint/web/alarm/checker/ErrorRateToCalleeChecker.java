@@ -32,8 +32,8 @@ public class ErrorRateToCalleeChecker extends LongValueAlarmChecker {
 
     @Override
     protected Long getDetectedValue() {
-        String calleName = rule.getNotes();
-        return ((MapStatisticsCallerDataCollector)dataCollector).getCountRate(calleName, DataCategory.ERROR_RATE);
+        String calleeName = rule.getNotes();
+        return ((MapStatisticsCallerDataCollector)dataCollector).getCountRate(calleeName, DataCategory.ERROR_RATE);
     }
     
     @Override

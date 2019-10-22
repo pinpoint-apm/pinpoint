@@ -26,6 +26,8 @@ import com.navercorp.pinpoint.web.vo.Range;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Objects;
+
 /**
  * @author HyunGil Jeong
  */
@@ -40,18 +42,9 @@ public class DefaultApplicationMapCreator implements ApplicationMapCreator {
     private final LinkDataMapProcessor calleeLinkDataMapProcessor;
 
     public DefaultApplicationMapCreator(LinkDataMapService linkDataMapService, LinkDataMapProcessor callerLinkDataMapProcessor, LinkDataMapProcessor calleeLinkDataMapProcessor) {
-        if (linkDataMapService == null) {
-            throw new NullPointerException("linkDataMapService");
-        }
-        if (callerLinkDataMapProcessor == null) {
-            throw new NullPointerException("callerLinkDataMapProcessor");
-        }
-        if (calleeLinkDataMapProcessor == null) {
-            throw new NullPointerException("calleeLinkDataMapProcessor");
-        }
-        this.linkDataMapService = linkDataMapService;
-        this.callerLinkDataMapProcessor = callerLinkDataMapProcessor;
-        this.calleeLinkDataMapProcessor = calleeLinkDataMapProcessor;
+        this.linkDataMapService = Objects.requireNonNull(linkDataMapService, "linkDataMapService");
+        this.callerLinkDataMapProcessor = Objects.requireNonNull(callerLinkDataMapProcessor, "callerLinkDataMapProcessor");
+        this.calleeLinkDataMapProcessor = Objects.requireNonNull(calleeLinkDataMapProcessor, "calleeLinkDataMapProcessor");
     }
 
     @Override
