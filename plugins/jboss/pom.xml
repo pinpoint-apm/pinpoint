@@ -27,6 +27,19 @@
     <name>pinpoint-jboss-plugin</name>
     <packaging>jar</packaging>
 
+    <repositories>
+        <repository>
+            <id>bintray</id>
+            <name>bintray</name>
+            <url>http://jcenter.bintray.com</url>
+        </repository>
+        <repository>
+            <id>jboss-3rd-party-releases</id>
+            <name>Jboss Third Party Repository</name>
+            <url>https://repository.jboss.org/nexus/content/repositories/thirdparty-releases/</url>
+        </repository>
+    </repositories>
+
     <properties>
         <test.jdk.home>${env.JAVA_7_HOME}</test.jdk.home>
     </properties>
