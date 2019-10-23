@@ -29,18 +29,9 @@
 
     <repositories>
         <repository>
-            <id>cloudera</id>
-            <url>https://repository.cloudera.com/artifactory/cloudera-repos/</url>
-        </repository>
-        <repository>
-            <id>spring-maven-repository</id>
-            <name>Spring Framework Maven Release Repository</name>
-            <url>http://maven.springframework.org/release/</url>
-        </repository>
-        <repository>
-            <id>spring-maven-release-remote</id>
-            <name>Spring Framework Maven Release Remote Repository</name>
-            <url>http://repo.spring.io/libs-release-remote/</url>
+            <id>spring-maven-release</id>
+            <name>Spring Framework Maven Release</name>
+            <url>http://repo.spring.io/libs-release</url>
         </repository>
         <repository>
             <id>bintray</id>
@@ -139,7 +130,7 @@
         <plugin.pmd.version>3.12.0</plugin.pmd.version>
 
         <plugin.enforcer.version>3.0.0-M2</plugin.enforcer.version>
-        <plugin.animal-sniffer.version>1.17</plugin.animal-sniffer.version>
+        <plugin.animal-sniffer.version>1.18</plugin.animal-sniffer.version>
 
         <sniffer.artifactid>java16</sniffer.artifactid>
 
@@ -685,7 +676,7 @@
             <dependency>
                 <groupId>org.apache.zookeeper</groupId>
                 <artifactId>zookeeper</artifactId>
-                <version>3.4.5-cdh5.7.5</version>
+                <version>3.4.14</version>
                 <exclusions>
                     <exclusion>
                         <groupId>org.jboss.netty</groupId>
