@@ -9,6 +9,7 @@ addons:
   apt:
     packages:
       - openjdk-6-jdk
+      - oraclejdk9
 
 jdk:
  - oraclejdk8
@@ -18,7 +19,7 @@ env:
    - secure: NZHVmbkzMZGm9M71n5sitb47tyHJE/byA8l6u2zqdhfeEZsrdhZKpgTRYdQYa4btsBHoO/hImziRMz2SuaQgGyK3EiizzZfFqzzqfMvq1WXKeNNI46QtN9RKA60o+/TIptmJADIXfAq5KEjOBOVIyN93Wsf0+4LP13Ve+UDFG38=
    - JAVA_6_HOME=/usr/lib/jvm/java-6-openjdk-amd64
      JAVA_7_HOME=/usr/lib/jvm/java-7-openjdk-amd64
-     JAVA_8_HOME=/usr/lib/jvm/java-8-oracle
+     JAVA_8_HOME=/usr/lib/jvm/java-8-openjdk-amd64
      JAVA_9_HOME=/usr/lib/jvm/java-9-oracle
 
 install:
@@ -42,4 +43,4 @@ after_success:
  - bash ./doc/scripts/deployGitPage.sh
 
 dist:
- - trusty
+ - xenial
