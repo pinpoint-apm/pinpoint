@@ -12,7 +12,7 @@ addons:
       - oraclejdk9
 
 jdk:
- - oraclejdk8
+ - openjdk8
 
 env:
   global:
