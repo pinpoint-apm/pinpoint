@@ -28,11 +28,13 @@
     <packaging>pom</packaging>
 
     <repositories>
+        <!--
         <repository>
             <id>spring-maven-release</id>
             <name>Spring Framework Maven Release</name>
             <url>http://repo.spring.io/libs-release</url>
         </repository>
+        -->
     </repositories>
 
     <pluginRepositories>
