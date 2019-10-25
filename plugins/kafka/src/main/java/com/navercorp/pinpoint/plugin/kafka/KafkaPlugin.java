@@ -16,12 +16,7 @@
 
 package com.navercorp.pinpoint.plugin.kafka;
 
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
-import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
-import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
-import com.navercorp.pinpoint.bootstrap.instrument.MethodFilters;
+import com.navercorp.pinpoint.bootstrap.instrument.*;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
@@ -33,12 +28,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.plugin.kafka.field.accessor.RemoteAddressFieldAccessor;
-import com.navercorp.pinpoint.plugin.kafka.interceptor.ConsumerConstructorInterceptor;
-import com.navercorp.pinpoint.plugin.kafka.interceptor.ConsumerMultiRecordEntryPointInterceptor;
-import com.navercorp.pinpoint.plugin.kafka.interceptor.ConsumerPollInterceptor;
-import com.navercorp.pinpoint.plugin.kafka.interceptor.ConsumerRecordEntryPointInterceptor;
-import com.navercorp.pinpoint.plugin.kafka.interceptor.ProducerConstructorInterceptor;
-import com.navercorp.pinpoint.plugin.kafka.interceptor.ProducerSendInterceptor;
+import com.navercorp.pinpoint.plugin.kafka.interceptor.*;
 
 import java.security.ProtectionDomain;
 import java.util.List;
@@ -96,6 +86,7 @@ public class KafkaPlugin implements ProfilerPlugin, TransformTemplateAware {
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
 
+            KafkaConfig config = new KafkaConfig(instrumentor.getProfilerConfig());
             InstrumentMethod constructor = target.getConstructor("org.apache.kafka.clients.producer.ProducerConfig",
                     "org.apache.kafka.common.serialization.Serializer", "org.apache.kafka.common.serialization.Serializer");
 
@@ -108,7 +99,7 @@ public class KafkaPlugin implements ProfilerPlugin, TransformTemplateAware {
             constructor.addInterceptor(ProducerConstructorInterceptor.class);
 
             InstrumentMethod sendMethod = target.getDeclaredMethod("send", "org.apache.kafka.clients.producer.ProducerRecord", "org.apache.kafka.clients.producer.Callback");
-            sendMethod.addInterceptor(ProducerSendInterceptor.class);
+            sendMethod.addInterceptor(ProducerSendInterceptor.class, va(config.isParamsEnable(), config.isTopicEnable()));
 
             target.addField(RemoteAddressFieldAccessor.class);
             return target.toBytecode();
@@ -184,10 +175,11 @@ public class KafkaPlugin implements ProfilerPlugin, TransformTemplateAware {
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
 
+            KafkaConfig config = new KafkaConfig(instrumentor.getProfilerConfig());
             MethodFilter methodFilter = MethodFilters.chain(MethodFilters.name("onMessage"), MethodFilters.argAt(0, "org.apache.kafka.clients.consumer.ConsumerRecord"));
             List<InstrumentMethod> declaredMethods = target.getDeclaredMethods(methodFilter);
             for (InstrumentMethod declaredMethod : declaredMethods) {
-                declaredMethod.addScopedInterceptor(ConsumerRecordEntryPointInterceptor.class, va(0), KafkaConstants.SCOPE, ExecutionPolicy.BOUNDARY);
+                declaredMethod.addScopedInterceptor(ConsumerRecordEntryPointInterceptor.class, va(0, config.isParamsEnable(), config.isTopicEnable()), KafkaConstants.SCOPE, ExecutionPolicy.BOUNDARY);
             }
 
             return target.toBytecode();
@@ -201,16 +193,17 @@ public class KafkaPlugin implements ProfilerPlugin, TransformTemplateAware {
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
 
+            KafkaConfig config = new KafkaConfig(instrumentor.getProfilerConfig());
             MethodFilter methodFilter = MethodFilters.chain(MethodFilters.name("onMessage"), MethodFilters.argAt(0, "org.apache.kafka.clients.consumer.ConsumerRecords"));
             List<InstrumentMethod> declaredMethods = target.getDeclaredMethods(methodFilter);
             for (InstrumentMethod declaredMethod : declaredMethods) {
-                declaredMethod.addScopedInterceptor(ConsumerMultiRecordEntryPointInterceptor.class, va(0), KafkaConstants.SCOPE, ExecutionPolicy.BOUNDARY);
+                declaredMethod.addScopedInterceptor(ConsumerMultiRecordEntryPointInterceptor.class, va(0, config.isParamsEnable(), config.isTopicEnable()), KafkaConstants.SCOPE, ExecutionPolicy.BOUNDARY);
             }
 
             methodFilter = MethodFilters.chain(MethodFilters.name("onMessage"), MethodFilters.argAt(0, "java.util.List"));
             declaredMethods = target.getDeclaredMethods(methodFilter);
             for (InstrumentMethod declaredMethod : declaredMethods) {
-                declaredMethod.addScopedInterceptor(ConsumerMultiRecordEntryPointInterceptor.class, va(0), KafkaConstants.SCOPE, ExecutionPolicy.BOUNDARY);
+                declaredMethod.addScopedInterceptor(ConsumerMultiRecordEntryPointInterceptor.class, va(0, config.isParamsEnable(), config.isTopicEnable()), KafkaConstants.SCOPE, ExecutionPolicy.BOUNDARY);
             }
 
             return target.toBytecode();
@@ -238,7 +231,9 @@ public class KafkaPlugin implements ProfilerPlugin, TransformTemplateAware {
     }
 
     public static class EntryPointTransform implements TransformCallback {
+
         private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
+
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
@@ -256,10 +251,10 @@ public class KafkaPlugin implements ProfilerPlugin, TransformTemplateAware {
                         String parameterType = parameterTypes[i];
 
                         if (KafkaConstants.CONSUMER_RECORD_CLASS_NAME.equals(parameterType)) {
-                            method.addInterceptor(ConsumerRecordEntryPointInterceptor.class, va(i));
+                            method.addInterceptor(ConsumerRecordEntryPointInterceptor.class, va(i, config.isParamsEnable(), config.isTopicEnable()));
                             break;
                         } else if (KafkaConstants.CONSUMER_MULTI_RECORD_CLASS_NAME.equals(parameterType)) {
-                            method.addInterceptor(ConsumerMultiRecordEntryPointInterceptor.class, va(i));
+                            method.addInterceptor(ConsumerMultiRecordEntryPointInterceptor.class, va(i, config.isParamsEnable(), config.isTopicEnable()));
                             break;
                         }
                     }
@@ -291,7 +286,5 @@ public class KafkaPlugin implements ProfilerPlugin, TransformTemplateAware {
 
         return fullQualifiedMethodName.substring(0, classEndPosition);
     }
-
-
 
 }

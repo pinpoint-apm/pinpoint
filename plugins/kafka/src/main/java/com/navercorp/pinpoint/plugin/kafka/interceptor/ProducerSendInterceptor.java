@@ -16,12 +16,7 @@
 
 package com.navercorp.pinpoint.plugin.kafka.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.context.Header;
-import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
-import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
-import com.navercorp.pinpoint.bootstrap.context.Trace;
-import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.context.TraceId;
+import com.navercorp.pinpoint.bootstrap.context.*;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
@@ -43,12 +38,16 @@ public class ProducerSendInterceptor implements AroundInterceptor {
 
     private final TraceContext traceContext;
     private final MethodDescriptor descriptor;
+    private final boolean paramsProfile;
+    private final boolean topicProfile;
 
     private final AtomicReference<HeaderSetter> headerSetterReference = new AtomicReference<HeaderSetter>();
 
-    public ProducerSendInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
+    public ProducerSendInterceptor(TraceContext traceContext, MethodDescriptor descriptor, boolean paramsProfile, boolean topicProfile) {
         this.traceContext = traceContext;
         this.descriptor = descriptor;
+        this.paramsProfile = paramsProfile;
+        this.topicProfile = topicProfile;
     }
 
     @Override
@@ -125,11 +124,13 @@ public class ProducerSendInterceptor implements AroundInterceptor {
                 recorder.recordException(throwable);
             } else {
                 String remoteAddress = getRemoteAddress(target);
-                recorder.recordEndPoint(remoteAddress);
-
                 String topic = record.topic();
-                recorder.recordDestinationId(remoteAddress);
-                recorder.recordAttribute(KafkaConstants.KAFKA_TOPIC_ANNOTATION_KEY, topic);
+
+                recorder.recordEndPoint(remoteAddress);
+                recorder.recordDestinationId(topicProfile ? topic : remoteAddress);
+                if (paramsProfile) {
+                    recorder.recordAttribute(KafkaConstants.KAFKA_TOPIC_ANNOTATION_KEY, topic);
+                }
             }
         } finally {
             trace.traceBlockEnd();

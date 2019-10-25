@@ -20,13 +20,15 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 
 public class KafkaConfig {
 
+    static final String MONITOR_TOPIC_ENABLE = "profiler.kafka.monitor.topic.enable";
+    static final String PARAMS_ENABLE = "profiler.kafka.params.enable";
     static final String PRODUCER_ENABLE = "profiler.kafka.producer.enable";
-
     static final String CONSUMER_ENABLE = "profiler.kafka.consumer.enable";
     static final String CONSUMER_ENTRY_POINT = "profiler.kafka.consumer.entryPoint";
-
     static final String SPRING_CONSUMER_ENABLE = "profiler.springkafka.consumer.enable";
 
+    private final boolean topicEnable;
+    private final boolean paramsEnable;
     private final boolean producerEnable;
     private final boolean consumerEnable;
     private final boolean springConsumerEnable;
@@ -36,10 +38,20 @@ public class KafkaConfig {
         /*
          * kafka
          */
+        this.topicEnable = config.readBoolean(MONITOR_TOPIC_ENABLE, false);
+        this.paramsEnable = config.readBoolean(PARAMS_ENABLE, false);
         this.producerEnable = config.readBoolean(PRODUCER_ENABLE, false);
         this.consumerEnable = config.readBoolean(CONSUMER_ENABLE, false);
         this.springConsumerEnable = config.readBoolean(SPRING_CONSUMER_ENABLE, false);
         this.kafkaEntryPoint = config.readString(CONSUMER_ENTRY_POINT, "");
+    }
+
+    public boolean isTopicEnable() {
+        return topicEnable;
+    }
+
+    public boolean isParamsEnable() {
+        return paramsEnable;
     }
 
     public boolean isProducerEnable() {
@@ -61,7 +73,9 @@ public class KafkaConfig {
     @Override
     public String toString() {
         return "KafkaConfig{" +
-                "producerEnable=" + producerEnable +
+                "topicEnable=" + topicEnable +
+                ", paramsEnable=" + paramsEnable +
+                ", producerEnable=" + producerEnable +
                 ", consumerEnable=" + consumerEnable +
                 ", springConsumerEnable=" + springConsumerEnable +
                 ", kafkaEntryPoint='" + kafkaEntryPoint + '\'' +

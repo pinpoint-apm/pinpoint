@@ -13,7 +13,6 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import static org.mockito.Mockito.doReturn;
@@ -47,7 +46,7 @@ public class ConsumerMultiRecordEntryPointInterceptorTest {
         doReturn(recorder).when(trace).getSpanRecorder();
         doReturn(consumerRecordList.iterator()).when(consumerRecords).iterator();
 
-        ConsumerMultiRecordEntryPointInterceptor interceptor = new ConsumerMultiRecordEntryPointInterceptor(traceContext, descriptor, 0);
+        ConsumerMultiRecordEntryPointInterceptor interceptor = new ConsumerMultiRecordEntryPointInterceptor(traceContext, descriptor, 0, true, false);
         interceptor.createTrace(new Object(), new Object[]{consumerRecords});
 
         verify(recorder).recordAcceptorHost("Unknown");
@@ -67,7 +66,7 @@ public class ConsumerMultiRecordEntryPointInterceptorTest {
         doReturn(recorder).when(trace).getSpanRecorder();
         doReturn(consumerRecordList.iterator()).when(consumerRecords).iterator();
 
-        ConsumerMultiRecordEntryPointInterceptor interceptor = new ConsumerMultiRecordEntryPointInterceptor(traceContext, descriptor, 0);
+        ConsumerMultiRecordEntryPointInterceptor interceptor = new ConsumerMultiRecordEntryPointInterceptor(traceContext, descriptor, 0, true, false);
         interceptor.createTrace(new Object(), new Object[]{consumerRecords});
 
         verify(recorder).recordAcceptorHost("Unknown");

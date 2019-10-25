@@ -42,8 +42,8 @@ public class ConsumerMultiRecordEntryPointInterceptor extends ConsumerRecordEntr
      * @param traceContext     the trace context
      * @param methodDescriptor the method descriptor
      */
-    public ConsumerMultiRecordEntryPointInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, int parameterIndex) {
-        super(traceContext, methodDescriptor, parameterIndex);
+    public ConsumerMultiRecordEntryPointInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, int parameterIndex, boolean paramsProfile, boolean topicProfile) {
+        super(traceContext, methodDescriptor, parameterIndex, paramsProfile, topicProfile);
     }
 
     @Override
@@ -64,7 +64,7 @@ public class ConsumerMultiRecordEntryPointInterceptor extends ConsumerRecordEntr
     private Trace createTrace(ConsumerRecordsDesc consumerRecordsDesc) {
         TraceFactoryProvider.TraceFactory createTrace = tracyFactoryReference.get();
         if (createTrace == null) {
-            createTrace = TraceFactoryProvider.get();
+            createTrace = TraceFactoryProvider.get(paramsProfile, topicProfile);
             tracyFactoryReference.compareAndSet(null, createTrace);
         }
         return createTrace.createTrace(traceContext, consumerRecordsDesc);
@@ -72,9 +72,9 @@ public class ConsumerMultiRecordEntryPointInterceptor extends ConsumerRecordEntr
 
     private static class TraceFactoryProvider {
 
-        private static TraceFactory get() {
+        private static TraceFactory get(boolean paramsProfile, boolean topicProfile) {
 
-            return new DefaultTraceFactory();
+            return new DefaultTraceFactory(paramsProfile, topicProfile);
         }
 
         private interface TraceFactory {
@@ -91,10 +91,14 @@ public class ConsumerMultiRecordEntryPointInterceptor extends ConsumerRecordEntr
 
         private static class DefaultTraceFactory implements TraceFactory {
 
-            /**
-             * The Logger.
-             */
             final PLogger logger = PLoggerFactory.getLogger(this.getClass());
+            final boolean paramsProfile;
+            final boolean topicProfile;
+
+            public DefaultTraceFactory(boolean paramsProfile, boolean topicProfile) {
+                this.paramsProfile = paramsProfile;
+                this.topicProfile = topicProfile;
+            }
 
             @Override
             public Trace createTrace(TraceContext traceContext, ConsumerRecordsDesc consumerRecordsDesc) {
@@ -119,16 +123,18 @@ public class ConsumerMultiRecordEntryPointInterceptor extends ConsumerRecordEntr
                 recorder.recordApi(ENTRY_POINT_METHOD_DESCRIPTOR);
 
                 int size = consumerRecordsDesc.size();
-
                 String remoteAddress = consumerRecordsDesc.getRemoteAddress();
+                String topic = consumerRecordsDesc.getTopicString();
+
+                recorder.recordRpcName(createRpcName(topic, size));
                 recorder.recordEndPoint(remoteAddress);
                 recorder.recordRemoteAddress(remoteAddress);
-                recorder.recordAcceptorHost(remoteAddress);
+                recorder.recordAcceptorHost(topicProfile ? topic : remoteAddress);
 
-                String topic = consumerRecordsDesc.getTopicString();
-                recorder.recordRpcName(createRpcName(topic, size));
-                recorder.recordAttribute(KafkaConstants.KAFKA_TOPIC_ANNOTATION_KEY, topic);
-                recorder.recordAttribute(KafkaConstants.KAFKA_BATCH_ANNOTATION_KEY, size);
+                if (paramsProfile) {
+                    recorder.recordAttribute(KafkaConstants.KAFKA_TOPIC_ANNOTATION_KEY, topic);
+                    recorder.recordAttribute(KafkaConstants.KAFKA_BATCH_ANNOTATION_KEY, size);
+                }
             }
 
             private String createRpcName(String topic, int count) {
