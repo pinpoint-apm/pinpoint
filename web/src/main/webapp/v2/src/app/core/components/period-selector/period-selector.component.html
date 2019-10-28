@@ -1,9 +1,9 @@
 <div class="l-wrapper font-opensans">
     <ul class="l-type-select">
-        <li [class.inactive]="isReservedType()">
+        <li [class.inactive]="isReservedType">
             <button class="fas fa-clock" (click)="changeToReservedType()"></button>
         </li>
-        <li [class.inactive]="!isReservedType()">
+        <li [class.inactive]="!isReservedType">
             <button class="fas fa-calendar-alt" (click)="changeToCalendarType()"></button>
         </li>
     </ul>
@@ -13,7 +13,7 @@
         [periodList]="periodList" 
         [initPeriod]="selectedPeriod"
         (outChangePeriod)="onChangePeriodTime($event)"
-        [isHidden]="!isReservedType()"></pp-period-selector-using-reserved-time>
+        [isHidden]="!isReservedType"></pp-period-selector-using-reserved-time>
     <pp-period-selector-using-calendar 
         [i18nText]="i18nText"
         [periodList]="periodList"
@@ -23,5 +23,5 @@
         [timezone]="timezone"
         [dateFormat]="dateFormat"
         (outChangePeriod)="onChangeCalendarTime($event)"
-        [isHidden]="isReservedType()"></pp-period-selector-using-calendar>
+        [isHidden]="isReservedType"></pp-period-selector-using-calendar>
 </div>

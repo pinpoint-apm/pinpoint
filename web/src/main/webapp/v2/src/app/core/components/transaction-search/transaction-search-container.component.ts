@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { Subject, forkJoin } from 'rxjs';
 import { takeUntil, map } from 'rxjs/operators';
@@ -15,6 +15,7 @@ import { TransactionSearchInteractionService, ISearchParam } from './transaction
     selector: 'pp-transaction-search-container',
     templateUrl: './transaction-search-container.component.html',
     styleUrls: ['./transaction-search-container.component.css'],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TransactionSearchContainerComponent implements OnInit, OnDestroy {
     private unsubscribe = new Subject<void>();
@@ -33,6 +34,7 @@ export class TransactionSearchContainerComponent implements OnInit, OnDestroy {
         private translateService: TranslateService,
         private translateReplaceService: TranslateReplaceService,
         private analyticsService: AnalyticsService,
+        private cd: ChangeDetectorRef
     ) {}
 
     ngOnInit() {
@@ -42,12 +44,14 @@ export class TransactionSearchContainerComponent implements OnInit, OnDestroy {
             map((count: number) => count === 0 ? this.i18nText.EMPTY_RESULT : this.translateReplaceService.replace(this.i18nText.HAS_RESULTS, count))
         ).subscribe((message: string) => {
             this.resultMessage = message;
+            this.cd.detectChanges();
         });
 
         this.storeHelperService.getTransactionViewType(this.unsubscribe).subscribe((viewType: string) => {
             this.resultMessage = '';
             this.currentViewType = viewType;
             this.useArgument = !(viewType === 'timeline');
+            this.cd.detectChanges();
         });
     }
 

@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, OnChanges, SimpleChanges } from '@angular/core';
 
 import { IParsedATC } from './real-time-chart.component';
 
@@ -7,13 +7,13 @@ import { IParsedATC } from './real-time-chart.component';
     templateUrl: './real-time-total-chart.component.html',
     styleUrls: ['./real-time-total-chart.component.css']
 })
-export class RealTimeTotalChartComponent implements OnInit {
+export class RealTimeTotalChartComponent implements OnChanges, OnInit {
     @Input() timezone: string;
     @Input() dateFormat: string;
     @Input() applicationName: string;
     @Input() timeStamp: number;
     @Input() sum: number[];
-    @Input() activeThreadCounts: { [key: string]: IParsedATC };
+    @Input() activeThreadCounts: {[key: string]: IParsedATC};
 
     maxChartNumberPerPage = 1;
     chartOption = {
@@ -45,20 +45,24 @@ export class RealTimeTotalChartComponent implements OnInit {
         errorFontSize: '15px',
         duration: 4000,
     };
+    legendStyle: {right: string, top: string};
+    totalCount: number;
 
     constructor() {}
-    ngOnInit() {}
-    getLegendStyle(legend: HTMLElement): { [key: string]: string } {
-        const { containerWidth, chartInnerPadding, titleHeight } = this.chartOption;
-        const legendWidth = legend.offsetWidth;
+    ngOnInit() {
+        const {chartInnerPadding, titleHeight} = this.chartOption;
 
-        return {
-            left: `${containerWidth - chartInnerPadding - legendWidth}px`,
+        this.legendStyle = {
+            right: `${chartInnerPadding}px`,
             top: `${titleHeight + chartInnerPadding - 5}px`
         };
     }
 
-    getTotalCount(): number {
-        return this.sum.reduce((acc: number, curr: number) => acc + curr, 0);
+    ngOnChanges(changes: SimpleChanges) {
+        const sumChange = changes['sum'];
+
+        if (sumChange) {
+            this.totalCount = (sumChange.currentValue as number[]).reduce((acc: number, curr: number) => acc + curr, 0);
+        }
     }
 }

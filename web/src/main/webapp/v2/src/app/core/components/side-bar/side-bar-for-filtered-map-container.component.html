@@ -9,7 +9,7 @@
             <div class="l-chart-group-list">
                 <pp-scatter-chart-for-filtered-map-side-bar-container></pp-scatter-chart-for-filtered-map-side-bar-container>
                 <pp-target-list-container></pp-target-list-container>
-                <hr *ngIf="hasTopElement()"/>
+                <hr *ngIf="showDivider"/>
                 <div [hidden]="isTargetMerged$ | async">
                     <pp-response-summary-chart-container [sourceType]="'FILTERED'"></pp-response-summary-chart-container>
                     <hr/>

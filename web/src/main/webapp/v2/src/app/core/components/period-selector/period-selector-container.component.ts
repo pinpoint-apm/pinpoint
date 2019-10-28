@@ -1,5 +1,5 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Subject, Observable, combineLatest } from 'rxjs';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { Subject, Observable } from 'rxjs';
 import { takeUntil, tap } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
 
@@ -19,10 +19,12 @@ import { EndTime } from 'app/core/models/end-time';
 @Component({
     selector: 'pp-period-selector-container',
     templateUrl: './period-selector-container.component.html',
-    styleUrls: ['./period-selector-container.component.css']
+    styleUrls: ['./period-selector-container.component.css'],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class PeriodSelectorContainerComponent implements OnInit, OnDestroy {
-    private unsubscribe: Subject<null> = new Subject();
+    private unsubscribe = new Subject<void>();
+
     i18nText = {
         MAX_PERIOD: '',
     };
@@ -35,6 +37,7 @@ export class PeriodSelectorContainerComponent implements OnInit, OnDestroy {
     showRealTimeButton: boolean;
     timezone$: Observable<string>;
     dateFormat$: Observable<string>;
+
     constructor(
         private webAppSettingDataService: WebAppSettingDataService,
         private storeHelperService: StoreHelperService,
@@ -43,7 +46,9 @@ export class PeriodSelectorContainerComponent implements OnInit, OnDestroy {
         private translateService: TranslateService,
         private translateReplaceService: TranslateReplaceService,
         private analyticsService: AnalyticsService,
+        private cd: ChangeDetectorRef,
     ) {}
+
     ngOnInit() {
         this.periodList = this.webAppSettingDataService.getPeriodList(this.newUrlStateNotificationService.getStartPath());
         this.maxPeriod = this.periodList[this.periodList.length - 1].getValue();
@@ -55,7 +60,7 @@ export class PeriodSelectorContainerComponent implements OnInit, OnDestroy {
                 this.isRealTimeMode = urlService.isRealTimeMode();
             })
         ).subscribe((urlService: NewUrlStateNotificationService) => {
-            if ( this.showRealTimeButton && this.isRealTimeMode ) {
+            if (this.showRealTimeButton && this.isRealTimeMode) {
                 this.hiddenComponent = false;
                 this.selectedPeriod = this.webAppSettingDataService.getSystemDefaultPeriod();
                 this.selectedEndTime = EndTime.newByNumber(urlService.getUrlServerTimeData());
@@ -68,24 +73,28 @@ export class PeriodSelectorContainerComponent implements OnInit, OnDestroy {
                     this.hiddenComponent = true;
                 }
             }
+
+            this.cd.markForCheck();
         });
         this.connectStore();
     }
+
     ngOnDestroy() {
         this.unsubscribe.next();
         this.unsubscribe.complete();
     }
+
     private connectStore(): void {
         this.timezone$ = this.storeHelperService.getTimezone(this.unsubscribe);
         this.dateFormat$ = this.storeHelperService.getDateFormat(this.unsubscribe, 1);
     }
+
     private getI18NText(): void {
-        combineLatest(
-            this.translateService.get('COMMON.MAX_SEARCH_PERIOD')
-        ).subscribe((i18n: string[]) => {
-            this.i18nText.MAX_PERIOD = this.translateReplaceService.replace(i18n[0], this.maxPeriod / 24 / 60);
+        this.translateService.get('COMMON.MAX_SEARCH_PERIOD').subscribe((i18n: string) => {
+            this.i18nText.MAX_PERIOD = this.translateReplaceService.replace(i18n, this.maxPeriod / 24 / 60);
         });
     }
+
     onChangePeriodTime(selectedPeriod: string): void {
         if (this.newUrlStateNotificationService.isRealTimeMode(selectedPeriod)) {
             this.analyticsService.trackEvent(TRACKED_EVENT_LIST.SET_PERIOD_AS_REAL_TIME);
@@ -103,6 +112,7 @@ export class PeriodSelectorContainerComponent implements OnInit, OnDestroy {
             });
         }
     }
+
     onChangeCalendarTime(oChangeTime: any): void {
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.SELECT_PERIOD, oChangeTime.period.getValueWithTime());
         this.urlRouteManagerService.move({

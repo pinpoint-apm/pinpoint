@@ -1,4 +1,4 @@
-import { Component, OnInit, ComponentFactoryResolver, Injector } from '@angular/core';
+import { Component, OnInit, ComponentFactoryResolver, Injector, ChangeDetectionStrategy } from '@angular/core';
 import { Observable, combineLatest } from 'rxjs';
 import { map } from 'rxjs/operators';
 
@@ -9,7 +9,8 @@ import { UrlPathId } from 'app/shared/models';
 @Component({
     selector: 'pp-main-page',
     templateUrl: './main-page.component.html',
-    styleUrls: ['./main-page.component.css']
+    styleUrls: ['./main-page.component.css'],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class MainPageComponent implements OnInit {
     enableRealTime$: Observable<boolean>;

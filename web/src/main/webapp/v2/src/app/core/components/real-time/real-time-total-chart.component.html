@@ -7,10 +7,10 @@
     [sum]="sum"
     [chartOption]="chartOption">
 </pp-real-time-chart>
-<ul class="l-legend" #legend [ngStyle]="getLegendStyle(legend)">
+<ul class="l-legend" [ngStyle]="legendStyle">
     <li>
         <span class="l-text">Total</span>
-        <span class="l-circle">{{ getTotalCount() }}</span>
+        <span class="l-circle">{{totalCount}}</span>
     </li>
     <li>
         <span class="l-text">Slow</span>

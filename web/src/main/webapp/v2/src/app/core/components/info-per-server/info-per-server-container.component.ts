@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ComponentFactoryResolver, Injector } from '@angular/core';
+import { Component, OnInit, OnDestroy, ComponentFactoryResolver, Injector, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { trigger, state, style, animate, transition } from '@angular/animations';
 import { Subject } from 'rxjs';
 import { filter, map, switchMap, tap } from 'rxjs/operators';
@@ -43,7 +43,8 @@ import { ServerErrorPopupContainerComponent } from 'app/core/components/server-e
                 animate('0.2s 0s ease-out')
             ])
         ]),
-    ]
+    ],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class InfoPerServerContainerComponent implements OnInit, OnDestroy {
     private unsubscribe = new Subject<void>();
@@ -63,7 +64,8 @@ export class InfoPerServerContainerComponent implements OnInit, OnDestroy {
         private dynamicPopupService: DynamicPopupService,
         private analyticsService: AnalyticsService,
         private componentFactoryResolver: ComponentFactoryResolver,
-        private injector: Injector
+        private injector: Injector,
+        private cd: ChangeDetectorRef,
     ) {}
 
     ngOnInit() {
@@ -76,7 +78,9 @@ export class InfoPerServerContainerComponent implements OnInit, OnDestroy {
     }
 
     private connectStore(): void {
-        this.storeHelperService.getServerMapData(this.unsubscribe).subscribe((serverMapData: ServerMapData) => {
+        this.storeHelperService.getServerMapData(this.unsubscribe).pipe(
+            filter((serverMapData: ServerMapData) => !!serverMapData),
+        ).subscribe((serverMapData: ServerMapData) => {
             this.serverMapData = serverMapData;
         });
 
@@ -85,11 +89,12 @@ export class InfoPerServerContainerComponent implements OnInit, OnDestroy {
         ).subscribe((target: ISelectedTarget) => {
             this.selectedTarget = target;
             this.selectedAgent = '';
+            this.cd.detectChanges();
         });
 
         this.storeHelperService.getInfoPerServerState(this.unsubscribe).pipe(
             filter(() => this.selectedTarget && this.selectedTarget.isNode),
-            filter((visibleState: boolean) => visibleState ? true : (this.hide(), false)),
+            filter((visibleState: boolean) => visibleState ? true : (this.hide(), this.cd.detectChanges(), false)),
             map(() => this.serverMapData.getNodeData(this.selectedTarget.node[0])),
             switchMap((node: INodeInfo | IShortNodeInfo) => {
                 const range = [
@@ -106,6 +111,7 @@ export class InfoPerServerContainerComponent implements OnInit, OnDestroy {
             })
         ).subscribe(() => {
             this.show();
+            this.cd.detectChanges();
         }, (error: IServerErrorFormat) => {
             this.dynamicPopupService.openPopup({
                 data: {
@@ -118,6 +124,7 @@ export class InfoPerServerContainerComponent implements OnInit, OnDestroy {
                 injector: this.injector
             });
             this.storeHelperService.dispatch(new Actions.ChangeServerMapDisableState(false));
+            this.cd.detectChanges();
         });
     }
 

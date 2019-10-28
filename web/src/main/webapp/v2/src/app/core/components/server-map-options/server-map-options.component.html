@@ -1,7 +1,7 @@
 <div class="l-wrapper" (clickOutside)="onClose()">
     <button type="button" class="l-dropdown-button" (click)="toggleList()">
-        <span class="l-bound-text l-bound-double-text" [class.selected]="isWasOnlySelected()">WAS<br>ONLY</span>
-        <span class="l-bound-text"><img [src]="getBidirectional()" width="18px" height="18px"></span>
+        <span class="l-bound-text l-bound-double-text" [class.selected]="selectedWasOnly">WAS<br>ONLY</span>
+        <span class="l-bound-text"><img [src]="bidirectionalImgSrc" width="18px" height="18px"></span>
         <span>
             <span class="l-bound-text"><span class="fas fa-sign-in-alt"></span> {{selectedInbound}}</span>
             <span class="l-bound-text"><span class="fas fa-sign-out-alt"></span> {{selectedOutbound}}</span>
@@ -20,12 +20,12 @@
         <dl class="l-inbound-list">
             <dt class="l-bound-title">WAS ONLY</dt>
             <dd class="l-was-only-selector" (click)="onChangeWasOnly()">
-                <i class="fas fa-check-square" [class.selected]="isWasOnlySelected()"></i>
+                <i class="fas fa-check-square" [class.selected]="selectedWasOnly"></i>
             </dd>
         </dl>
         <dl class="l-outbound-list">
             <dt class="l-bound-title l-bidirectional-title">Bidirectional</dt>
-            <dd class="l-bidirectional-selector" (click)="onChangeBidirectional()"><img [src]="getBidirectional()" width="22px" height="22px"></dd>
+            <dd class="l-bidirectional-selector" (click)="onChangeBidirectional()"><img [src]="bidirectionalImgSrc" width="22px" height="22px"></dd>
         </dl>
         <div class="l-button-group-wrapper">
             <button class="l-cancel-button" (click)="onCancel()">Cancel</button>

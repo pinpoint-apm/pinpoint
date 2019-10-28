@@ -1,7 +1,7 @@
-import { Component, OnInit, OnDestroy, ElementRef, Renderer2 } from '@angular/core';
+import { Component, OnInit, OnDestroy, ElementRef, Renderer2, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { Router, RouterEvent, NavigationStart } from '@angular/router';
 import { Subject, Observable, merge } from 'rxjs';
-import { filter, mapTo, tap, map } from 'rxjs/operators';
+import { filter, mapTo, tap, map, takeUntil } from 'rxjs/operators';
 
 import { StoreHelperService } from 'app/shared/services';
 
@@ -9,6 +9,7 @@ import { StoreHelperService } from 'app/shared/services';
     selector: 'pp-side-bar-for-filtered-map-container',
     templateUrl: './side-bar-for-filtered-map-container.component.html',
     styleUrls: ['./side-bar-for-filtered-map-container.component.css'],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SideBarForFilteredMapContainerComponent implements OnInit, OnDestroy {
     private unsubscribe = new Subject<void>();
@@ -16,13 +17,15 @@ export class SideBarForFilteredMapContainerComponent implements OnInit, OnDestro
     target: ISelectedTarget;
     useDisable = true;
     showLoading = true;
+    showDivider = false;
     isTargetMerged$: Observable<boolean>;
 
     constructor(
         private router: Router,
         private storeHelperService: StoreHelperService,
         private el: ElementRef,
-        private renderer: Renderer2
+        private renderer: Renderer2,
+        private cd: ChangeDetectorRef,
     ) {}
 
     ngOnInit() {
@@ -37,12 +40,14 @@ export class SideBarForFilteredMapContainerComponent implements OnInit, OnDestro
 
     private addPageLoadingHandler(): void {
         this.router.events.pipe(
+            takeUntil(this.unsubscribe),
             filter((e: RouterEvent) => {
                 return e instanceof NavigationStart;
             })
         ).subscribe(() => {
             this.showLoading = true;
             this.useDisable = true;
+            this.cd.detectChanges();
         });
     }
 
@@ -59,6 +64,8 @@ export class SideBarForFilteredMapContainerComponent implements OnInit, OnDestro
                     this.useDisable = false;
                     break;
             }
+
+            this.cd.detectChanges();
         });
 
         this.isTargetMerged$ = merge(
@@ -67,20 +74,11 @@ export class SideBarForFilteredMapContainerComponent implements OnInit, OnDestro
                 filter((target: ISelectedTarget) => !!target),
                 tap((target: ISelectedTarget) => {
                     this.target = target;
+                    this.showDivider = target.isNode && target.isWAS && !target.isMerged;
                     this.renderer.setStyle(this.el.nativeElement, 'width', '477px');
                 }),
                 map(({isMerged}: ISelectedTarget) => isMerged)
             )
         );
-    }
-
-    hasTopElement(): boolean {
-        if (!this.target) {
-            return false;
-        }
-
-        const {isNode, isWAS, isMerged} = this.target;
-
-        return isNode && isWAS && !isMerged;
     }
 }

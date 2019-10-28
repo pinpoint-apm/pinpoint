@@ -12,7 +12,8 @@ import { StoreHelperService, WebAppSettingDataService, AnalyticsService, TRACKED
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TimezoneSelectContainerComponent implements OnInit {
-    private unsubscribe: Subject<void> = new Subject();
+    private unsubscribe = new Subject<void>();
+
     timezoneList: string[];
     currentTimezone$: Observable<string>;
 

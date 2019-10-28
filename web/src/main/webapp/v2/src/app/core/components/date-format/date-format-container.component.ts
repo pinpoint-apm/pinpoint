@@ -11,10 +11,12 @@ import { StoreHelperService, WebAppSettingDataService, AnalyticsService, TRACKED
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DateFormatContainerComponent implements OnInit, OnDestroy {
-    private unsubscribe: Subject<void> = new Subject();
+    private unsubscribe = new Subject<void>();
+
     timezone$: Observable<string>;
     dateFormatList: string[][];
     currentDateFormatIndex$: Observable<number>;
+
     constructor(
         private storeHelperService: StoreHelperService,
         private webAppSettingDataService: WebAppSettingDataService,
@@ -25,14 +27,17 @@ export class DateFormatContainerComponent implements OnInit, OnDestroy {
         this.dateFormatList = this.webAppSettingDataService.getDateFormatList();
         this.connectStore();
     }
+
     ngOnDestroy() {
         this.unsubscribe.next();
         this.unsubscribe.complete();
     }
+
     private connectStore(): void {
         this.timezone$ = this.storeHelperService.getTimezone(this.unsubscribe);
         this.currentDateFormatIndex$ = this.storeHelperService.getDateFormatIndex(this.unsubscribe);
     }
+
     onChangeDateFormat(dateFormatIndex: number): void {
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.SET_DATE_FORMAT_IN_CONFIGURATION, this.dateFormatList[dateFormatIndex][0]);
         this.webAppSettingDataService.setDateFormat(dateFormatIndex);

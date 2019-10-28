@@ -1,8 +1,8 @@
 <div class="l-wrapper" (clickOutside)="onClose()" [exclude]="'.l-logo-link, .l-exit-button'" (keydown)="onKeyDown($event.keyCode)">
     <div class="l-app-select" (click)="toggleApplicationList()">
         <div>
-            <img [src]="getSelectedApplicationIcon()" width="23px" height="18px" *ngIf="selectedApplication"/>
-            <span>{{getSelectedApplicationName()}}</span>
+            <img [src]="selectedAppIcon" width="23px" height="18px" *ngIf="selectedApplication"/>
+            <span>{{selectedAppName}}</span>
         </div>
         <span><i class="fas fa-angle-down"></i></span>
     </div>

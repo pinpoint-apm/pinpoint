@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { takeUntil, filter } from 'rxjs/operators';
 
 import { UrlPath, UrlPathId } from 'app/shared/models';
 import {
@@ -17,11 +17,14 @@ import {
     styleUrls: ['./application-inspector-title-container.component.css'],
 })
 export class ApplicationInspectorTitleContainerComponent implements OnInit, OnDestroy {
-    private unsubscribe: Subject<null> = new Subject();
+    private unsubscribe = new Subject<void>();
+
     agentId: string;
     funcImagePath: Function;
     applicationServiceType: string;
     applicationName: string;
+    applicationIconImagePath: string;
+
     constructor(
         private webAppSettingDataService: WebAppSettingDataService,
         private newUrlStateNotificationService: NewUrlStateNotificationService,
@@ -32,31 +35,19 @@ export class ApplicationInspectorTitleContainerComponent implements OnInit, OnDe
     ngOnInit() {
         this.funcImagePath = this.webAppSettingDataService.getIconPathMakeFunc();
         this.newUrlStateNotificationService.onUrlStateChange$.pipe(
-            takeUntil(this.unsubscribe)
+            takeUntil(this.unsubscribe),
+            filter((urlService: NewUrlStateNotificationService) => urlService.hasValue(UrlPathId.APPLICATION))
         ).subscribe((urlService: NewUrlStateNotificationService) => {
-            if (urlService.hasValue(UrlPathId.APPLICATION)) {
-                this.applicationName = urlService.getPathValue(UrlPathId.APPLICATION).getApplicationName();
-                this.applicationServiceType = urlService.getPathValue(UrlPathId.APPLICATION).getServiceType();
-            }
-            if (urlService.hasValue(UrlPathId.AGENT_ID)) {
-                this.agentId = urlService.getPathValue(UrlPathId.AGENT_ID);
-            } else {
-                this.agentId = '';
-            }
+            this.applicationName = urlService.getPathValue(UrlPathId.APPLICATION).getApplicationName();
+            this.applicationServiceType = urlService.getPathValue(UrlPathId.APPLICATION).getServiceType();
+            this.applicationIconImagePath = this.funcImagePath(this.applicationServiceType);
+            this.agentId = urlService.hasValue(UrlPathId.AGENT_ID) ? urlService.getPathValue(UrlPathId.AGENT_ID) : '';
         });
     }
 
     ngOnDestroy() {
         this.unsubscribe.next();
         this.unsubscribe.complete();
-    }
-
-    isEmptyAgentId(): boolean {
-        return this.agentId === '';
-    }
-
-    getApplicationIcon(): string {
-        return this.funcImagePath(this.applicationServiceType);
     }
 
     onSelectApplication() {

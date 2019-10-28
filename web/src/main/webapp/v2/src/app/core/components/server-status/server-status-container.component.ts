@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { Subject, combineLatest } from 'rxjs';
 import { takeUntil, filter, map, take } from 'rxjs/operators';
 
@@ -10,22 +10,27 @@ import { ServerMapData } from 'app/core/components/server-map/class/server-map-d
     selector: 'pp-server-status-container',
     templateUrl: './server-status-container.component.html',
     styleUrls: ['./server-status-container.component.css'],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ServerStatusContainerComponent implements OnInit, OnDestroy {
     private unsubscribe = new Subject<void>();
-    private enableRealTime: boolean;
+    private _isInfoPerServerShow: boolean;
 
+    enableRealTime: boolean;
     node: INodeInfo;
-    isInfoPerServerShow = false;
     isLoading = false;
     serverMapData: ServerMapData;
     selectedTarget: ISelectedTarget;
+    hasServerList = false;
+    isWAS: boolean;
+    spreadAngleIndicator: string;
 
     constructor(
         private storeHelperService: StoreHelperService,
         private newUrlStateNotificationService: NewUrlStateNotificationService,
         private urlRouteManagerService: UrlRouteManagerService,
-        private analyticsService: AnalyticsService
+        private analyticsService: AnalyticsService,
+        private cd: ChangeDetectorRef,
     ) {}
 
     ngOnInit() {
@@ -36,6 +41,7 @@ export class ServerStatusContainerComponent implements OnInit, OnDestroy {
             this.isInfoPerServerShow = false;
             this.storeHelperService.dispatch(new Actions.ChangeServerMapDisableState(false));
             this.storeHelperService.dispatch(new Actions.ChangeInfoPerServerVisibleState(false));
+            this.cd.detectChanges();
         });
         this.connectStore();
     }
@@ -46,18 +52,33 @@ export class ServerStatusContainerComponent implements OnInit, OnDestroy {
     }
 
     private connectStore(): void {
-        this.storeHelperService.getServerMapData(this.unsubscribe).subscribe((serverMapData: ServerMapData) => {
+        this.storeHelperService.getServerMapData(this.unsubscribe).pipe(
+            filter((serverMapData: ServerMapData) => !!serverMapData),
+        ).subscribe((serverMapData: ServerMapData) => {
             this.serverMapData = serverMapData;
         });
         this.storeHelperService.getServerMapTargetSelected(this.unsubscribe).pipe(
             filter((target: ISelectedTarget) => !!target)
         ).subscribe((target: ISelectedTarget) => {
             this.selectedTarget = target;
+            this.hasServerList = this.selectedTarget.isNode && !this.selectedTarget.isMerged ? this.selectedTarget.hasServerList : false;
+            this.isWAS = this.selectedTarget.isWAS;
             this.node = (target.isNode === true ? this.serverMapData.getNodeData(target.node[0]) as INodeInfo : null);
             if (target.clickParam && target.clickParam.isInstanceCount()) {
                 this.onClickViewServer();
             }
+
+            this.cd.detectChanges();
         });
+    }
+
+    set isInfoPerServerShow(show: boolean) {
+        this._isInfoPerServerShow = show;
+        this.spreadAngleIndicator = show ? 'right' : 'left';
+    }
+
+    get isInfoPerServerShow(): boolean {
+        return this._isInfoPerServerShow;
     }
 
     onClickViewServer(): void {
@@ -65,20 +86,6 @@ export class ServerStatusContainerComponent implements OnInit, OnDestroy {
         this.isInfoPerServerShow = !this.isInfoPerServerShow;
         this.storeHelperService.dispatch(new Actions.ChangeServerMapDisableState(this.isInfoPerServerShow));
         this.storeHelperService.dispatch(new Actions.ChangeInfoPerServerVisibleState(this.isInfoPerServerShow));
-    }
-
-    hasServerList(): boolean {
-        if (this.selectedTarget) {
-            if (this.selectedTarget.isNode && !this.selectedTarget.isMerged) {
-                return this.selectedTarget.hasServerList;
-            }
-        }
-
-        return false;
-    }
-
-    enableViewServer(): boolean {
-        return !this.enableRealTime;
     }
 
     onClickOpenInspector(): void {
@@ -93,13 +100,5 @@ export class ServerStatusContainerComponent implements OnInit, OnDestroy {
         ).subscribe(([isRealTimeMode, selectedAgent]: [boolean, string]) => {
             this.urlRouteManagerService.openInspectorPage(isRealTimeMode, selectedAgent);
         });
-    }
-
-    getAngle(): string {
-        return this.isInfoPerServerShow ? 'right' : 'left';
-    }
-
-    isWAS(): boolean {
-        return this.selectedTarget.isWAS;
     }
 }

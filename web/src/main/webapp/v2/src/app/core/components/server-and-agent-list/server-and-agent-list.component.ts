@@ -48,7 +48,7 @@ export class ServerAndAgentListComponent implements OnInit {
 
     @Input() serverList: {[key: string]: IServerAndAgentData[]};
     @Input() agentId: string;
-    @Output() outSelectAgent: EventEmitter<string> = new EventEmitter();
+    @Output() outSelectAgent = new EventEmitter<string>();
 
     private _serverKeyList: string[];
     isCollapsed: { [key: string]: boolean };
@@ -73,6 +73,7 @@ export class ServerAndAgentListComponent implements OnInit {
         }
         return this.funcImagePath(iconName);
     }
+
     onSelectAgent(agentName: string) {
         this.outSelectAgent.emit(agentName);
     }

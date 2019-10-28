@@ -16,7 +16,8 @@ import { InspectorPageService, ISourceForTimeline } from 'app/routes/inspector-p
 export class ApplicationInspectorTimelineContainerComponent implements OnInit, OnDestroy {
     @ViewChild(TimelineComponent, { static: true })
     private timelineComponent: TimelineComponent;
-    private unsubscribe: Subject<null> = new Subject();
+    private unsubscribe = new Subject<void>();
+
     timelineStartTime: number;
     timelineEndTime: number;
     selectionStartTime: number;

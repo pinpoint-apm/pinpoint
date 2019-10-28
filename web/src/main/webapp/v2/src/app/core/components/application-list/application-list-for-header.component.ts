@@ -1,4 +1,4 @@
-import { Component, OnInit, OnChanges, SimpleChanges, Input, Output, EventEmitter, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, OnChanges, SimpleChanges, Input, Output, EventEmitter, ViewChild, ElementRef, ChangeDetectionStrategy } from '@angular/core';
 
 export enum FOCUS_TYPE {
     KEYBOARD,
@@ -8,10 +8,11 @@ export enum FOCUS_TYPE {
 @Component({
     selector: 'pp-application-list-for-header',
     templateUrl: './application-list-for-header.component.html',
-    styleUrls: ['./application-list-for-header.component.css']
+    styleUrls: ['./application-list-for-header.component.css'],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ApplicationListForHeaderComponent implements OnInit, OnChanges {
-    @ViewChild('appList', { static: true }) ele: ElementRef;
+    @ViewChild('appList', {static: true}) ele: ElementRef;
     @Input() showTitle: boolean;
     @Input() title: string;
     @Input() restCount: number;
@@ -23,13 +24,23 @@ export class ApplicationListForHeaderComponent implements OnInit, OnChanges {
     @Input() funcImagePath: Function;
     @Output() outSelected: EventEmitter<IApplication> = new EventEmitter();
     @Output() outFocused: EventEmitter<number> = new EventEmitter();
+
     private previousFocusIndex = -1;
+
+    isEmpty: boolean;
 
     constructor() {}
     ngOnInit() {}
     ngOnChanges(changes: SimpleChanges) {
-        if (changes['focusIndex']) {
+        const {applicationList, focusIndex} = changes;
+
+        if (applicationList) {
+            this.isEmpty = (applicationList.currentValue as IApplication[]).length === 0;
+        }
+
+        if (focusIndex) {
             const eleIndex = this.focusIndex - this.restCount;
+
             if (eleIndex >= 0 && eleIndex < this.applicationList.length && this.focusType === FOCUS_TYPE.KEYBOARD) {
                 this.ele.nativeElement.querySelectorAll('dd')[eleIndex].scrollIntoView({
                     block: 'nearest',
@@ -65,9 +76,5 @@ export class ApplicationListForHeaderComponent implements OnInit, OnChanges {
 
     onSelectApplication(app: IApplication): void {
         this.outSelected.emit(app);
-    }
-
-    isListEmpty(): boolean {
-        return this.applicationList.length === 0;
     }
 }

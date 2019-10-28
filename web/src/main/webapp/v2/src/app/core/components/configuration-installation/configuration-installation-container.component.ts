@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { Observable, combineLatest, of } from 'rxjs';
-import { filter, catchError, pluck } from 'rxjs/operators';
+import { filter, catchError, pluck, tap } from 'rxjs/operators';
 
 import { ApplicationNameDuplicationCheckInteractionService } from 'app/core/components/duplication-check/application-name-duplication-check-interaction.service';
 import { AgentIdDuplicationCheckInteractionService } from 'app/core/components/duplication-check/agent-id-duplication-check-interaction.service';
@@ -17,6 +17,7 @@ export class ConfigurationInstallationContainerComponent implements OnInit {
     desc$: Observable<string>;
     installationInfo$: Observable<object>;
     jvmArgument$: Observable<string[]>;
+    showLoading = true;
 
     constructor(
         private translateService: TranslateService,
@@ -45,7 +46,8 @@ export class ConfigurationInstallationContainerComponent implements OnInit {
                 pluck('message'),
                 catchError((err) => {
                     return this.onAjaxError(err);
-                })
+                }),
+                tap(() => this.showLoading = false)
             );
     }
 

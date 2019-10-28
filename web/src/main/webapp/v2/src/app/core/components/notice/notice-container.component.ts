@@ -1,4 +1,4 @@
-import { Component, OnInit, ElementRef, Renderer2 } from '@angular/core';
+import { Component, OnInit, ElementRef, Renderer2, ChangeDetectionStrategy } from '@angular/core';
 import { Observable } from 'rxjs';
 import { tap, filter } from 'rxjs/operators';
 
@@ -7,7 +7,8 @@ import { BrowserSupportCheckService } from 'app/shared/services';
 @Component({
     selector: 'pp-notice-container',
     templateUrl: './notice-container.component.html',
-    styleUrls: ['./notice-container.component.css']
+    styleUrls: ['./notice-container.component.css'],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class NoticeContainerComponent implements OnInit {
     noticeMessage$: Observable<string>;

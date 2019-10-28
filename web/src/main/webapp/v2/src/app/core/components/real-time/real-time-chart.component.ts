@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef, Input, Output, AfterViewInit, OnDestroy, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, Input, Output, AfterViewInit, OnDestroy, EventEmitter, OnChanges, SimpleChanges, NgZone } from '@angular/core';
 import * as moment from 'moment-timezone';
 import { from } from 'rxjs';
 import { tap, filter } from 'rxjs/operators';
@@ -58,7 +58,8 @@ export class RealTimeChartComponent implements OnInit, AfterViewInit, OnDestroy,
     linkIconWidth: number;
 
     constructor(
-        private el: ElementRef
+        private el: ElementRef,
+        private ngZone: NgZone
     ) {}
     ngOnInit() {}
     ngOnChanges(changes: SimpleChanges) {
@@ -101,7 +102,9 @@ export class RealTimeChartComponent implements OnInit, AfterViewInit, OnDestroy,
         this.setCanvasSize();
         this.initVariable();
 
-        this.animationFrameId = requestAnimationFrame((t) => this.draw(t));
+        this.ngZone.runOutsideAngular(() => {
+            this.animationFrameId = requestAnimationFrame((t) => this.draw(t));
+        });
         this.addEventListener();
     }
 

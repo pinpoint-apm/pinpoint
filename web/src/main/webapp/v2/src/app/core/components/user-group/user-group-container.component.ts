@@ -30,6 +30,7 @@ export class UserGroupContainerComponent implements OnInit {
     showCreate = false;
     errorMessage: string;
     selectedUserGroupId = '';
+
     constructor(
         private webAppSettingDataService: WebAppSettingDataService,
         private translateService: TranslateService,
@@ -38,13 +39,15 @@ export class UserGroupContainerComponent implements OnInit {
         private userGroupDataService: UserGroupDataService,
         private analyticsService: AnalyticsService,
     ) {}
+
     ngOnInit() {
         this.getI18NText();
         this.webAppSettingDataService.getUserId().subscribe((userId: string = '') => {
             this.userId = userId;
-            this.getUserGroupList({ userId: this.userId});
+            this.getUserGroupList({userId: this.userId});
         });
     }
+
     private getI18NText(): void {
         forkJoin(
             this.translateService.get('COMMON.MIN_LENGTH'),
@@ -64,6 +67,7 @@ export class UserGroupContainerComponent implements OnInit {
             this.i18nLabel.NAME_LABEL = nameLabel;
         });
     }
+
     private getUserGroupList(params: any): void  {
         this.userGroupDataService.retrieve(params).subscribe((data: IUserGroup[] | IServerErrorShortFormat) => {
             isThatType<IServerErrorShortFormat>(data, 'errorCode', 'errorMessage')
@@ -75,13 +79,11 @@ export class UserGroupContainerComponent implements OnInit {
             this.errorMessage = error.exception.message;
         });
     }
+
     private makeUserGroupQuery(): any {
-        return this.searchQuery === '' ? {
-            userId: this.userId
-        } : {
-            userGroupId: this.searchQuery
-        };
+        return this.searchQuery === '' ? {userId: this.userId} : {userGroupId: this.searchQuery};
     }
+
     onRemoveUserGroup(id: string): void {
         this.showProcessing();
         this.userGroupDataService.remove(id, this.userId).subscribe((response: IUserGroupDeleted | IServerErrorShortFormat) => {
@@ -105,6 +107,7 @@ export class UserGroupContainerComponent implements OnInit {
             this.errorMessage = error.exception.message;
         });
     }
+
     onCreateUserGroup(newUserGroupName: string): void {
         this.showProcessing();
         this.userGroupDataService.create(newUserGroupName, this.userId).subscribe((data: IUserGroupCreated | IServerErrorShortFormat) => {
@@ -123,13 +126,16 @@ export class UserGroupContainerComponent implements OnInit {
             this.errorMessage = error.exception.message;
         });
     }
+
     onCloseCreateUserPopup(): void {
         this.showCreate = false;
     }
+
     onShowCreateUserPopup(): void {
         this.showCreate = true;
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.SHOW_USER_GROUP_CREATION_POPUP);
     }
+
     onSelectUserGroup(userGroupId: string): void {
         this.selectedUserGroupId = userGroupId;
         this.messageQueueService.sendMessage({
@@ -138,24 +144,29 @@ export class UserGroupContainerComponent implements OnInit {
         });
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.SELECT_USER_GROUP);
     }
+
     onCloseErrorMessage(): void {
         this.errorMessage = '';
     }
+
     onReload(): void {
         this.showProcessing();
         this.getUserGroupList(this.makeUserGroupQuery());
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.RELOAD_USER_GROUP_LIST);
     }
+
     onSearch(query: string): void {
         this.showProcessing();
         this.searchQuery = query;
         this.getUserGroupList(this.makeUserGroupQuery());
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.SEARCH_USER_GROUP);
     }
+
     private showProcessing(): void {
         this.useDisable = true;
         this.showLoading = true;
     }
+
     private hideProcessing(): void {
         this.useDisable = false;
         this.showLoading = false;

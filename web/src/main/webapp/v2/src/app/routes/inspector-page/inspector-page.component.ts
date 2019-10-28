@@ -34,6 +34,7 @@ import { InspectorPageService } from './inspector-page.service';
 })
 export class InspectorPageComponent implements OnInit, OnDestroy {
     private unsubscribe = new Subject<void>();
+
     showSideMenu$: Observable<boolean>;
 
     constructor(

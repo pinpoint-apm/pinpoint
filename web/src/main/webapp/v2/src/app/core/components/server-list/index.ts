@@ -1,8 +1,7 @@
 
 import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
-// import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { MatTooltipModule } from '@angular/material/tooltip';
+
+import { SharedModule } from 'app/shared';
 import { ServerListComponent } from './server-list.component';
 import { ServerListContainerComponent } from './server-list-container.component';
 
@@ -12,9 +11,7 @@ import { ServerListContainerComponent } from './server-list-container.component'
         ServerListContainerComponent
     ],
     imports: [
-        CommonModule,
-        // BrowserAnimationsModule,
-        MatTooltipModule
+        SharedModule,
     ],
     exports: [
         ServerListContainerComponent

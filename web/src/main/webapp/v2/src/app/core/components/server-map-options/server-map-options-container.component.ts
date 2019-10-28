@@ -18,7 +18,7 @@ import { UrlQuery, UrlPathId } from 'app/shared/models';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ServerMapOptionsContainerComponent implements OnInit, OnDestroy {
-    private unsubscribe: Subject<null> = new Subject();
+    private unsubscribe = new Subject<void>();
 
     funcImagePath: Function;
     hiddenComponent: boolean;
@@ -28,28 +28,24 @@ export class ServerMapOptionsContainerComponent implements OnInit, OnDestroy {
     selectedOutbound: number;
     selectedBidirectional: boolean;
     selectedWasOnly: boolean;
+
     constructor(
-        private changeDetectorRef: ChangeDetectorRef,
+        private cd: ChangeDetectorRef,
         private webAppSettingDataService: WebAppSettingDataService,
         private newUrlStateNotificationService: NewUrlStateNotificationService,
         private urlRouteManagerService: UrlRouteManagerService,
         private analyticsService: AnalyticsService
-    ) {
-        this.funcImagePath = this.webAppSettingDataService.getImagePathMakeFunc();
-    }
+    ) {}
 
     ngOnInit() {
+        this.funcImagePath = this.webAppSettingDataService.getImagePathMakeFunc();
         this.inboundList = this.webAppSettingDataService.getInboundList();
         this.outboundList = this.webAppSettingDataService.getOutboundList();
 
         this.newUrlStateNotificationService.onUrlStateChange$.pipe(
             takeUntil(this.unsubscribe),
             tap((urlService: NewUrlStateNotificationService) => {
-                if (urlService.hasValue(UrlPathId.APPLICATION, UrlPathId.PERIOD, UrlPathId.END_TIME)) {
-                    this.hiddenComponent = false;
-                } else {
-                    this.hiddenComponent = true;
-                }
+                this.hiddenComponent = !urlService.hasValue(UrlPathId.APPLICATION, UrlPathId.PERIOD, UrlPathId.END_TIME);
             }),
             map((urlService: NewUrlStateNotificationService) => {
                 return {
@@ -64,14 +60,16 @@ export class ServerMapOptionsContainerComponent implements OnInit, OnDestroy {
             this.selectedOutbound = outbound;
             this.selectedBidirectional = bidirectional;
             this.selectedWasOnly = wasOnly;
-            this.changeDetectorRef.detectChanges();
+            this.cd.detectChanges();
         });
     }
+
     ngOnDestroy() {
         this.unsubscribe.next();
         this.unsubscribe.complete();
     }
-    onChangeBound(options: { inbound: number, outbound: number, wasOnly: boolean, bidirectional: boolean }): void {
+
+    onChangeBound(options: {inbound: number, outbound: number, wasOnly: boolean, bidirectional: boolean}): void {
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.SET_SERVER_MAP_OPTION, `inbound: ${options.inbound}, outbound: ${options.outbound}, wasOnly: ${options.wasOnly}, bidirectional: ${options.bidirectional}`);
         this.urlRouteManagerService.moveOnPage({
             url: [

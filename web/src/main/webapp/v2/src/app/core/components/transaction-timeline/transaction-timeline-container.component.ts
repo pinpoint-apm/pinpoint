@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { Subject } from 'rxjs';
 import { takeUntil, filter } from 'rxjs/operators';
 
@@ -17,8 +17,8 @@ import { Actions } from 'app/shared/store';
     selector: 'pp-transaction-timeline-container',
     templateUrl: './transaction-timeline-container.component.html',
     styleUrls: ['./transaction-timeline-container.component.css'],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
-
 export class TransactionTimelineContainerComponent implements OnInit, OnDestroy {
     @ViewChild(TransactionTimelineComponent, { static: true }) transactionTimelineComponent: TransactionTimelineComponent;
 
@@ -34,7 +34,8 @@ export class TransactionTimelineContainerComponent implements OnInit, OnDestroy 
         private storeHelperService: StoreHelperService,
         private transactionSearchInteractionService: TransactionSearchInteractionService,
         private messageQueueService: MessageQueueService,
-        private analyticsService: AnalyticsService
+        private analyticsService: AnalyticsService,
+        private cd: ChangeDetectorRef
     ) {}
 
     ngOnInit() {
@@ -62,7 +63,7 @@ export class TransactionTimelineContainerComponent implements OnInit, OnDestroy 
             this.keyIndex = transactionDetailInfo.callStackIndex;
             this.barRatio = this.getBarRatio(transactionDetailInfo);
             this.filteredData = this.filterCallStack(transactionDetailInfo);
-
+            this.cd.detectChanges();
         });
     }
 

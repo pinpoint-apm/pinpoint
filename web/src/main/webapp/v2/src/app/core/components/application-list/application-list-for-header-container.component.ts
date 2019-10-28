@@ -1,5 +1,5 @@
 import { Component, OnInit, AfterViewInit, ViewChild, ElementRef, ChangeDetectorRef, ChangeDetectionStrategy, OnDestroy, Renderer2 } from '@angular/core';
-import { Subject, combineLatest, fromEvent, of } from 'rxjs';
+import { Subject, combineLatest, fromEvent, of, forkJoin } from 'rxjs';
 import { debounceTime, distinctUntilChanged, filter, takeUntil, pluck, delay } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
 
@@ -22,14 +22,15 @@ import { FOCUS_TYPE } from './application-list-for-header.component';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ApplicationListForHeaderContainerComponent implements OnInit, AfterViewInit, OnDestroy {
-    @ViewChild('inputQuery', { static: true }) inputQuery: ElementRef;
-    private unsubscribe: Subject<null> = new Subject();
+    @ViewChild('inputQuery', {static: true}) inputQuery: ElementRef;
+    private unsubscribe = new Subject<void>();
     private maxIndex: number;
     private minLength = 3;
     private filterStr = '';
     private initApplication: IApplication;
     private applicationList: IApplication[];
     private favoriteApplicationList: IApplication[];
+
     i18nText: { [key: string]: string } = {
         FAVORITE_LIST_TITLE: '',
         APPLICATION_LIST_TITLE: '',
@@ -46,9 +47,11 @@ export class ApplicationListForHeaderContainerComponent implements OnInit, After
     filteredFavoriteApplicationList: IApplication[] = [];
     funcImagePath: Function;
     showLoading = false;
+    selectedAppIcon: string;
+    selectedAppName: string;
 
     constructor(
-        private changeDetector: ChangeDetectorRef,
+        private cd: ChangeDetectorRef,
         private storeHelperService: StoreHelperService,
         private webAppSettingDataService: WebAppSettingDataService,
         private applicationListDataService: ApplicationListDataService,
@@ -72,9 +75,10 @@ export class ApplicationListForHeaderContainerComponent implements OnInit, After
                 this.hiddenComponent = true;
             } else {
                 this.hiddenComponent = false;
-                this.selectedApplication = null;
-                this.changeDetector.detectChanges();
+                this.selectApplication(null);
             }
+
+            this.cd.detectChanges();
         });
         this.connectStore();
     }
@@ -88,6 +92,7 @@ export class ApplicationListForHeaderContainerComponent implements OnInit, After
         this.unsubscribe.next();
         this.unsubscribe.complete();
     }
+
     private connectStore(): void {
         combineLatest(
             this.storeHelperService.getApplicationList(this.unsubscribe),
@@ -95,26 +100,26 @@ export class ApplicationListForHeaderContainerComponent implements OnInit, After
         ).subscribe((responseData: any[]) => {
             this.refreshList(responseData[0], responseData[1]);
             this.showLoading = true;
-            this.changeDetector.detectChanges();
+            this.cd.detectChanges();
         });
     }
+
     private bindUserInputEvent(): void {
         fromEvent(this.inputQuery.nativeElement, 'keyup').pipe(
+            takeUntil(this.unsubscribe),
             debounceTime(300),
             distinctUntilChanged(),
-            filter((event: KeyboardEvent) => {
-                return !this.isArrowKey(event.keyCode);
-            }),
+            filter((event: KeyboardEvent) => !this.isArrowKey(event.keyCode)),
             pluck('target', 'value'),
-            filter((value: string) => {
-                return this.isLengthValid(value.trim().length);
-            })
+            filter((value: string) => this.isLengthValid(value.trim().length))
         ).subscribe((value: string) => {
             this.applyQuery(value);
+            this.cd.detectChanges();
         });
     }
+
     private initI18nText(): void {
-        combineLatest(
+        forkJoin(
             this.translateService.get('COMMON.INPUT_APP_NAME_PLACE_HOLDER'),
             this.translateService.get('MAIN.APP_LIST'),
             this.translateService.get('MAIN.FAVORITE_APP_LIST'),
@@ -138,9 +143,12 @@ export class ApplicationListForHeaderContainerComponent implements OnInit, After
     }
 
     private selectApplication(application: IApplication): void {
-        if (application) {
-            this.selectedApplication = application;
-            this.changeDetector.detectChanges();
+        this.selectedApplication = application;
+        if (this.selectedApplication) {
+            this.selectedAppIcon = this.funcImagePath(this.selectedApplication.getServiceType());
+            this.selectedAppName = this.selectedApplication.getApplicationName();
+        } else {
+            this.selectedAppName = this.i18nText.SELECTED_APPLICATION_NAME;
         }
     }
 
@@ -166,20 +174,8 @@ export class ApplicationListForHeaderContainerComponent implements OnInit, After
         this.filteredApplicationList = this.filterList(this.applicationList);
         this.maxIndex = this.filteredApplicationList.length + this.filteredFavoriteApplicationList.length;
         this.focusIndex = -1;
-        this.changeDetector.detectChanges();
     }
 
-    getSelectedApplicationIcon(): string {
-        return this.funcImagePath(this.selectedApplication.getServiceType());
-    }
-
-    getSelectedApplicationName(): string {
-        if (this.selectedApplication) {
-            return this.selectedApplication.getApplicationName();
-        } else {
-            return this.i18nText.SELECTED_APPLICATION_NAME;
-        }
-    }
 
     toggleApplicationList(): void {
         this.hiddenComponent = !this.hiddenComponent;
@@ -204,7 +200,6 @@ export class ApplicationListForHeaderContainerComponent implements OnInit, After
     onFocused(index: number): void {
         this.focusIndex = index;
         this.focusType = FOCUS_TYPE.MOUSE;
-        this.changeDetector.detectChanges();
     }
 
     onKeyDown(keyCode: number): void {
@@ -214,7 +209,6 @@ export class ApplicationListForHeaderContainerComponent implements OnInit, After
                     this.renderer.setProperty(this.inputQuery.nativeElement, 'value', '');
                     this.applyQuery('');
                     this.hiddenComponent = true;
-                    this.changeDetector.detectChanges();
                     break;
                 case 13: // Enter
                     if (this.focusIndex !== -1) {
@@ -224,21 +218,18 @@ export class ApplicationListForHeaderContainerComponent implements OnInit, After
                         } else {
                             this.onSelectApplication(this.filteredFavoriteApplicationList[this.focusIndex]);
                         }
-                        this.changeDetector.detectChanges();
                     }
                     break;
                 case 38: // ArrowUp
                     if (this.focusIndex - 1 >= 0) {
                         this.focusIndex -= 1;
                         this.focusType = FOCUS_TYPE.KEYBOARD;
-                        this.changeDetector.detectChanges();
                     }
                     break;
                 case 40: // ArrowDown
                     if (this.focusIndex + 1 < this.maxIndex) {
                         this.focusIndex += 1;
                         this.focusType = FOCUS_TYPE.KEYBOARD;
-                        this.changeDetector.detectChanges();
                     }
                     break;
             }
@@ -248,10 +239,9 @@ export class ApplicationListForHeaderContainerComponent implements OnInit, After
     onReload(): void {
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.CLICK_RELOAD_APPLICATION_LIST_BUTTON);
         this.showLoading = false;
-        this.refreshList([], []);
+        // this.refreshList([], []);
         this.applicationListDataService.getApplicationList().subscribe(() => {
             this.showLoading = true;
-            this.changeDetector.detectChanges();
         });
     }
 

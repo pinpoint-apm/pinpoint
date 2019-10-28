@@ -1,6 +1,6 @@
-import { Component, OnInit, OnDestroy, Inject, ComponentFactoryResolver, Injector } from '@angular/core';
+import { Component, OnInit, OnDestroy, Inject, ComponentFactoryResolver, Injector, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 import { Router, NavigationStart, RouterEvent } from '@angular/router';
-import { Subject, combineLatest } from 'rxjs';
+import { Subject } from 'rxjs';
 import { takeUntil, filter } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
 
@@ -23,10 +23,12 @@ import { ServerMapContextPopupContainerComponent } from 'app/core/components/ser
 @Component({
     selector: 'pp-server-map-for-filtered-map-container',
     templateUrl: './server-map-for-filtered-map-container.component.html',
-    styleUrls: ['./server-map-for-filtered-map-container.component.css']
+    styleUrls: ['./server-map-for-filtered-map-container.component.css'],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ServerMapForFilteredMapContainerComponent implements OnInit, OnDestroy {
-    private unsubscribe: Subject<null> = new Subject();
+    private unsubscribe = new Subject<void>();
+
     i18nText: { [key: string]: string } = {
         NO_AGENTS: ''
     };
@@ -35,15 +37,16 @@ export class ServerMapForFilteredMapContainerComponent implements OnInit, OnDest
     mergedServerMapData: any = {};
     mergedScatterData: any;
     loadingCompleted = false;
-
     mapData: ServerMapData;
     funcServerMapImagePath: Function;
     baseApplicationKey: string;
     showOverview = false;
     showLoading = true;
     useDisable = true;
+    isEmpty: boolean;
     endTime: string;
     period: string;
+
     constructor(
         private router: Router,
         private injector: Injector,
@@ -55,8 +58,10 @@ export class ServerMapForFilteredMapContainerComponent implements OnInit, OnDest
         private webAppSettingDataService: WebAppSettingDataService,
         private dynamicPopupService: DynamicPopupService,
         private analyticsService: AnalyticsService,
+        private cd: ChangeDetectorRef,
         @Inject(SERVER_MAP_TYPE) public type: ServerMapType
     ) {}
+
     ngOnInit() {
         this.funcServerMapImagePath = this.webAppSettingDataService.getServerMapIconPathMakeFunc();
         this.addPageLoadingHandler();
@@ -78,14 +83,22 @@ export class ServerMapForFilteredMapContainerComponent implements OnInit, OnDest
             this.storeHelperService.dispatch(new Actions.AddScatterChartData(serverMapAndScatterData.applicationScatterData));
             this.mergeServerMapData(serverMapAndScatterData);
             this.mapData = new ServerMapData(this.mergedNodeDataList, this.mergedLinkDataList, Filter.instanceFromString(this.newUrlStateNotificationService.hasValue(UrlPathId.FILTER) ? this.newUrlStateNotificationService.getPathValue(UrlPathId.FILTER) : ''));
+            this.isEmpty = this.mapData.getNodeCount() === 0;
             this.storeHelperService.dispatch(new Actions.UpdateServerMapData(this.mapData));
+            if (this.isEmpty) {
+                this.showLoading = false;
+            }
+
+            this.cd.detectChanges();
         });
         this.connectStore();
     }
+
     ngOnDestroy() {
         this.unsubscribe.next();
         this.unsubscribe.complete();
     }
+
     private connectStore(): void {
         this.storeHelperService.getServerMapLoadingState(this.unsubscribe).subscribe((state: string) => {
             switch (state) {
@@ -103,41 +116,40 @@ export class ServerMapForFilteredMapContainerComponent implements OnInit, OnDest
                     this.loadingCompleted = true;
                     break;
             }
+
+            this.cd.detectChanges();
         });
+
         this.storeHelperService.getServerMapDisableState(this.unsubscribe).subscribe((disabled: boolean) => {
             this.useDisable = disabled;
+            this.cd.detectChanges();
         });
     }
     private addPageLoadingHandler(): void {
         this.router.events.pipe(
-            filter((e: RouterEvent) => {
-                return e instanceof NavigationStart;
-            })
+            takeUntil(this.unsubscribe),
+            filter((e: RouterEvent) => e instanceof NavigationStart)
         ).subscribe(() => {
             this.showLoading = true;
             this.useDisable = true;
+            this.cd.detectChanges();
         });
     }
+
     private getI18NText(): void {
-        combineLatest(
-            this.translateService.get('COMMON.NO_AGENTS')
-        ).subscribe((i18n: string[]) => {
+        this.translateService.get('COMMON.NO_AGENTS').subscribe((i18n: string[]) => {
             this.i18nText['NO_AGENTS'] = i18n[0];
         });
     }
-    private hasNodeData(): boolean {
-        return this.mapData && this.mapData.getNodeCount() !== 0;
-    }
-    showGuide(): boolean {
-        return this.hasNodeData() === false && this.showLoading === false;
-    }
+
     onRenderCompleted({showOverView}: {showOverView: boolean}): void {
-        if (this.loadingCompleted === true) {
+        if (this.loadingCompleted) {
             this.showLoading = false;
             this.useDisable = false;
-            this.showOverview = this.hasNodeData() && showOverView;
+            this.showOverview = !this.isEmpty && showOverView;
         }
     }
+
     onClickBackground($event: any): void {}
     onClickGroupNode($event: any): void {}
     onClickNode(nodeData: any): void {
@@ -173,6 +185,7 @@ export class ServerMapForFilteredMapContainerComponent implements OnInit, OnDest
         }
         this.storeHelperService.dispatch(new Actions.UpdateServerMapTargetSelected(payload));
     }
+
     onClickLink(linkData: any): void {
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.CLICK_LINK);
         let payload;
@@ -206,6 +219,7 @@ export class ServerMapForFilteredMapContainerComponent implements OnInit, OnDest
         }
         this.storeHelperService.dispatch(new Actions.UpdateServerMapTargetSelected(payload));
     }
+
     onDoubleClickBackground($event: any): void {}
     onContextClickBackground(coord: ICoordinate): void {
         this.dynamicPopupService.openPopup({
@@ -217,6 +231,7 @@ export class ServerMapForFilteredMapContainerComponent implements OnInit, OnDest
             injector: this.injector
         });
     }
+
     onContextClickNode($event: any): void {}
     onContextClickLink({key, coord}: {key: string, coord: ICoordinate}): void {
         this.dynamicPopupService.openPopup({
@@ -228,6 +243,7 @@ export class ServerMapForFilteredMapContainerComponent implements OnInit, OnDest
             injector: this.injector
         });
     }
+
     mergeServerMapData(serverMapAndScatterData: any): void {
         const newNodeDataList = serverMapAndScatterData.applicationMapData.nodeDataArray;
         const newLinkDataList = serverMapAndScatterData.applicationMapData.linkDataArray;
@@ -243,6 +259,7 @@ export class ServerMapForFilteredMapContainerComponent implements OnInit, OnDest
             this.mergeLinkDataList(newLinkDataList);
         }
     }
+
     mergeNodeDataList(newNodeData: INodeInfo[]): void {
         newNodeData.forEach((nodeData: INodeInfo) => {
             if (this.mapData && this.mapData.getNodeData(nodeData.key)) {
@@ -253,6 +270,7 @@ export class ServerMapForFilteredMapContainerComponent implements OnInit, OnDest
             }
         });
     }
+
     mergeLinkDataList(newLinkData: ILinkInfo[]): void {
         newLinkData.forEach((linkData: ILinkInfo) => {
             if (this.mapData && this.mapData.getLinkData(linkData.key)) {

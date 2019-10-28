@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, Inject, ComponentFactoryResolver, Injector } from '@angular/core';
+import { Component, OnInit, OnDestroy, Inject, ComponentFactoryResolver, Injector, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 import { Router, NavigationStart, RouterEvent } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil, filter, map, switchMap } from 'rxjs/operators';
@@ -25,10 +25,12 @@ import { ServerErrorPopupContainerComponent } from 'app/core/components/server-e
 @Component({
     selector: 'pp-server-map-container',
     templateUrl: './server-map-container.component.html',
-    styleUrls: ['./server-map-container.component.css']
+    styleUrls: ['./server-map-container.component.css'],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ServerMapContainerComponent implements OnInit, OnDestroy {
-    private unsubscribe: Subject<null> = new Subject();
+    private unsubscribe = new Subject<void>();
+
     i18nText: { [key: string]: string } = {
         NO_AGENTS: ''
     };
@@ -38,8 +40,10 @@ export class ServerMapContainerComponent implements OnInit, OnDestroy {
     showOverview = false;
     showLoading = true;
     useDisable = true;
+    isEmpty: boolean;
     endTime: string;
     period: string;
+
     constructor(
         private router: Router,
         private injector: Injector,
@@ -52,8 +56,10 @@ export class ServerMapContainerComponent implements OnInit, OnDestroy {
         private webAppSettingDataService: WebAppSettingDataService,
         private dynamicPopupService: DynamicPopupService,
         private analyticsService: AnalyticsService,
+        private cd: ChangeDetectorRef,
         @Inject(SERVER_MAP_TYPE) public type: ServerMapType
     ) {}
+
     ngOnInit() {
         this.funcServerMapImagePath = this.webAppSettingDataService.getServerMapIconPathMakeFunc();
         this.addPageLoadingHandler();
@@ -86,10 +92,13 @@ export class ServerMapContainerComponent implements OnInit, OnDestroy {
             switchMap((range: number[]) => this.serverMapDataService.getData(range))
         ).subscribe((res: IServerMapInfo) => {
             this.mapData = new ServerMapData(res.applicationMapData.nodeDataArray, res.applicationMapData.linkDataArray);
+            this.isEmpty = this.mapData.getNodeCount() === 0;
             this.storeHelperService.dispatch(new Actions.UpdateServerMapData(this.mapData));
-            if (!this.hasNodeData()) {
+            if (this.isEmpty) {
                 this.showLoading = false;
             }
+
+            this.cd.detectChanges();
         }, (error: IServerErrorFormat) => {
             this.dynamicPopupService.openPopup({
                 data: {
@@ -112,30 +121,36 @@ export class ServerMapContainerComponent implements OnInit, OnDestroy {
         });
         this.connectStore();
     }
+
     ngOnDestroy() {
         this.unsubscribe.next();
         this.unsubscribe.complete();
     }
+
     private connectStore(): void {
         this.storeHelperService.getServerMapDisableState(this.unsubscribe).subscribe((disabled: boolean) => {
             this.useDisable = disabled;
+            this.cd.detectChanges();
         });
     }
+
     private addPageLoadingHandler(): void {
         this.router.events.pipe(
-            filter((e: RouterEvent) => {
-                return e instanceof NavigationStart;
-            })
+            takeUntil(this.unsubscribe),
+            filter((e: RouterEvent) => e instanceof NavigationStart)
         ).subscribe(() => {
             this.showLoading = true;
             this.useDisable = true;
+            this.cd.detectChanges();
         });
     }
+
     private getI18NText(): void {
         this.translateService.get('COMMON.NO_AGENTS').subscribe((i18n: string) => {
             this.i18nText['NO_AGENTS'] = i18n;
         });
     }
+
     private initVarBeforeDataLoad(endTime: string, period: string, application: IApplication): void {
         this.endTime = endTime;
         this.period = period;
@@ -143,14 +158,13 @@ export class ServerMapContainerComponent implements OnInit, OnDestroy {
         this.useDisable = true;
         this.baseApplicationKey = application.getKeyStr();
     }
-    hasNodeData(): boolean {
-        return this.mapData.getNodeCount() !== 0;
-    }
+
     onRenderCompleted({showOverView}: {showOverView: boolean}): void {
         this.showLoading = false;
         this.useDisable = false;
-        this.showOverview = this.hasNodeData() && showOverView;
+        this.showOverview = !this.isEmpty && showOverView;
     }
+
     onClickBackground($event: any): void {}
     onClickNode(nodeData: any): void {
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.CLICK_NODE);
@@ -190,6 +204,7 @@ export class ServerMapContainerComponent implements OnInit, OnDestroy {
         }
         this.storeHelperService.dispatch(new Actions.UpdateServerMapTargetSelected(payload));
     }
+
     onClickLink(linkData: any): void {
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.CLICK_LINK);
         let payload;
@@ -226,6 +241,7 @@ export class ServerMapContainerComponent implements OnInit, OnDestroy {
         }
         this.storeHelperService.dispatch(new Actions.UpdateServerMapTargetSelected(payload));
     }
+
     onDoubleClickBackground($event: any): void {}
     onContextClickBackground(coord: ICoordinate): void {
         this.dynamicPopupService.openPopup({
@@ -237,6 +253,7 @@ export class ServerMapContainerComponent implements OnInit, OnDestroy {
             injector: this.injector
         });
     }
+
     onContextClickNode($event: any): void {}
     onContextClickLink({key, coord}: {key: string, coord: ICoordinate}): void {
         this.dynamicPopupService.openPopup({

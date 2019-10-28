@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { Subject } from 'rxjs';
 import { takeUntil, filter } from 'rxjs/operators';
 
@@ -18,6 +18,7 @@ import { TransactionMetaDataService } from './transaction-meta-data.service';
     selector: 'pp-transaction-table-grid-container',
     templateUrl: './transaction-table-grid-container.component.html',
     styleUrls: ['./transaction-table-grid-container.component.css'],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TransactionTableGridContainerComponent implements OnInit, OnDestroy {
     private unsubscribe = new Subject<void>();
@@ -37,7 +38,8 @@ export class TransactionTableGridContainerComponent implements OnInit, OnDestroy
         private newUrlStateNotificationService: NewUrlStateNotificationService,
         private transactionMetaDataService: TransactionMetaDataService,
         private gutterEventService: GutterEventService,
-        private analyticsService: AnalyticsService
+        private analyticsService: AnalyticsService,
+        private cd: ChangeDetectorRef
     ) {}
 
     ngOnInit() {
@@ -87,6 +89,7 @@ export class TransactionTableGridContainerComponent implements OnInit, OnDestroy
                 this.transactionDataForAgGrid = this.makeGridData(responseData);
                 this.dispatchTransaction();
             }
+            this.cd.detectChanges();
         });
     }
 

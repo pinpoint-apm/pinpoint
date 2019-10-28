@@ -1,6 +1,5 @@
 
 import { NgModule } from '@angular/core';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 
 import { SharedModule } from 'app/shared';
@@ -24,7 +23,6 @@ import { ApplicationListInteractionForConfigurationService } from './application
         ApplicationListForConfigurationAlarmContainerComponent
     ],
     imports: [
-        MatTooltipModule,
         ScrollingModule,
         SharedModule
     ],

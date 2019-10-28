@@ -1,5 +1,4 @@
 import { Component, OnInit, ChangeDetectionStrategy, ComponentFactoryResolver, Injector } from '@angular/core';
-import { combineLatest } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
 
 import { Actions } from 'app/shared/store';
@@ -18,6 +17,7 @@ export class AgentSearchInputContainerComponent implements OnInit {
     };
     searchUseEnter = false;
     SEARCH_MIN_LENGTH = 2;
+
     constructor(
         private storeHelperService: StoreHelperService,
         private translateService: TranslateService,
@@ -27,16 +27,17 @@ export class AgentSearchInputContainerComponent implements OnInit {
         private componentFactoryResolver: ComponentFactoryResolver,
         private injector: Injector
     ) {}
+
     ngOnInit() {
         this.getI18NText();
     }
+
     private getI18NText(): void {
-        combineLatest(
-            this.translateService.get('COMMON.MIN_LENGTH')
-        ).subscribe((i18n: string[]) => {
-            this.i18nText.MIN_LENGTH_MSG = this.translateReplaceService.replace(i18n[0], this.SEARCH_MIN_LENGTH);
+        this.translateService.get('COMMON.MIN_LENGTH').subscribe((i18n: string) => {
+            this.i18nText.MIN_LENGTH_MSG = this.translateReplaceService.replace(i18n, this.SEARCH_MIN_LENGTH);
         });
     }
+
     onSearchQuery(query: string): void {
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.SEARCH_AGENT);
         this.storeHelperService.dispatch(new Actions.UpdateFilterOfServerAndAgentList(query));

@@ -21,6 +21,7 @@ export class TransactionDetailContentsContainerComponent implements OnInit {
     private unsubscribe = new Subject<void>();
 
     activeView: string;
+    showSearch: boolean;
 
     constructor(
         private storeHelperService: StoreHelperService,
@@ -38,11 +39,8 @@ export class TransactionDetailContentsContainerComponent implements OnInit {
             })
         ).subscribe((viewType: string) => {
             this.activeView = viewType;
+            this.showSearch = this.activeView === 'callTree' || this.activeView === 'timeline';
         });
-    }
-
-    useSearch(): boolean {
-        return this.activeView === 'callTree' || this.activeView === 'timeline';
     }
 
     onShowHelp($event: MouseEvent): void {

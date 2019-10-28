@@ -1,11 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 
 import { WebAppSettingDataService, GutterEventService } from 'app/shared/services';
 
 @Component({
     selector: 'pp-transaction-list-page',
     templateUrl: './transaction-list-page.component.html',
-    styleUrls: ['./transaction-list-page.component.css']
+    styleUrls: ['./transaction-list-page.component.css'],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TransactionListPageComponent implements OnInit {
     direction = 'vertical';

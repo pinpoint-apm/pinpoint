@@ -1,6 +1,7 @@
 
 import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
+import { SharedModule } from 'app/shared';
 import { StateButtonComponent } from './state-button.component';
 import { StateButtonForFilteredMapContainerComponent } from './state-button-for-filtered-map-container.component';
 import { StateButtonForTransactionListContainerComponent } from './state-button-for-transaction-list-container.component';
@@ -13,7 +14,7 @@ import { TransactionTableGridModule } from 'app/core/components/transaction-tabl
         StateButtonForTransactionListContainerComponent
     ],
     imports: [
-        CommonModule,
+        SharedModule,
         TransactionTableGridModule
     ],
     exports: [

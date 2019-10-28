@@ -1,5 +1,5 @@
 <ng-container *ngIf="mapData">
-    <ng-container *ngIf="hasNodeData(); else noAgentGuide">
+    <ng-container *ngIf="!isEmpty; else noAgentGuide">
         <pp-server-map 
             [baseApplicationKey]="baseApplicationKey"
             [mapData]="mapData"

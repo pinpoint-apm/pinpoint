@@ -1,6 +1,7 @@
 
 import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
+import { SharedModule } from 'app/shared';
 import { ServerErrorPopupComponent } from './server-error-popup.component';
 import { ServerErrorPopupContainerComponent } from './server-error-popup-container.component';
 
@@ -10,7 +11,7 @@ import { ServerErrorPopupContainerComponent } from './server-error-popup-contain
         ServerErrorPopupContainerComponent
     ],
     imports: [
-        CommonModule
+        SharedModule
     ],
     entryComponents: [
         ServerErrorPopupContainerComponent

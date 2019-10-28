@@ -1,8 +1,6 @@
-
 import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { MatTooltipModule } from '@angular/material/tooltip';
 
+import { SharedModule } from 'app/shared';
 import { ServerAndAgentListComponent } from './server-and-agent-list.component';
 import { ServerAndAgentListContainerComponent } from './server-and-agent-list-container.component';
 import { ServerErrorPopupModule } from 'app/core/components/server-error-popup';
@@ -14,9 +12,8 @@ import { ServerAndAgentListDataService } from './server-and-agent-list-data.serv
         ServerAndAgentListContainerComponent
     ],
     imports: [
-        CommonModule,
+        SharedModule,
         ServerErrorPopupModule,
-        MatTooltipModule
     ],
     exports: [
         ServerAndAgentListContainerComponent

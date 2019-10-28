@@ -5,6 +5,7 @@ import { takeUntil, filter } from 'rxjs/operators';
 import { NewUrlStateNotificationService, StoreHelperService } from 'app/shared/services';
 import { UrlPathId } from 'app/shared/models';
 import { Filter } from 'app/core/models';
+import { ServerMapData } from 'app/core/components/server-map/class/server-map-data.class';
 
 @Component({
     selector: 'pp-filter-information-container',
@@ -33,7 +34,9 @@ export class FilterInformationContainerComponent implements OnInit, OnDestroy {
         this.connectStore();
     }
     private connectStore(): void {
-        this.storeHelperService.getServerMapData(this.unsubscribe).subscribe((serverMapData: any) => {
+        this.storeHelperService.getServerMapData(this.unsubscribe).pipe(
+            filter((serverMapData: ServerMapData) => !!serverMapData),
+        ).subscribe((serverMapData: ServerMapData) => {
             this.serverMapData = serverMapData;
         });
         this.storeHelperService.getServerMapTargetSelected(this.unsubscribe).pipe(

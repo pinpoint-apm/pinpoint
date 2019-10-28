@@ -14,6 +14,7 @@ export class PeriodSelectorUsingReservedTimeComponent implements OnInit {
     @Input() periodList: Array<Period>;
     @Input() initPeriod: Period;
     @Output() outChangePeriod = new EventEmitter<Period>();
+
     constructor() {}
     ngOnInit() {}
     onSelectPeriod($event: any): void {
@@ -21,8 +22,8 @@ export class PeriodSelectorUsingReservedTimeComponent implements OnInit {
             this.outChangePeriod.emit($event.target.getAttribute('data-period'));
         }
     }
+
     isSelectedPeriod(period: Period): boolean {
         return this.isRealTimeMode === false && period.equals(this.initPeriod);
     }
-
 }

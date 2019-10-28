@@ -1,6 +1,7 @@
 
 import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
+import { SharedModule } from 'app/shared';
 import { ServerMapSearchResultViewerComponent } from './server-map-search-result-viewer.component';
 import { ServerMapSearchResultViewerContainerComponent } from './server-map-search-result-viewer-container.component';
 
@@ -10,7 +11,7 @@ import { ServerMapSearchResultViewerContainerComponent } from './server-map-sear
         ServerMapSearchResultViewerContainerComponent
     ],
     imports: [
-        CommonModule
+        SharedModule
     ],
     exports: [
         ServerMapSearchResultViewerContainerComponent

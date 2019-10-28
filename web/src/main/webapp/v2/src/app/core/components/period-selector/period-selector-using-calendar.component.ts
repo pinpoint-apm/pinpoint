@@ -1,5 +1,6 @@
 import { Component, Input, Output, OnInit, OnChanges, SimpleChanges, EventEmitter, ViewEncapsulation } from '@angular/core';
 import * as moment from 'moment-timezone';
+
 import { Period } from 'app/core/models/period';
 import { EndTime } from 'app/core/models/end-time';
 
@@ -10,7 +11,6 @@ import { EndTime } from 'app/core/models/end-time';
     encapsulation: ViewEncapsulation.None
 })
 export class PeriodSelectorUsingCalendarComponent implements OnInit, OnChanges {
-
     @Input() isHidden: boolean;
     @Input() i18nText: any;
     @Input() maxPeriod: number;

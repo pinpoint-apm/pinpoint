@@ -2,7 +2,7 @@
     <pp-transaction-short-info-container></pp-transaction-short-info-container>
     <div class="l-middle-tool-box">
         <pp-transaction-detail-menu-container></pp-transaction-detail-menu-container>
-        <pp-transaction-search-container [hidden]="!useSearch()"></pp-transaction-search-container>
+        <pp-transaction-search-container [hidden]="!showSearch"></pp-transaction-search-container>
         <div>
             <button class="fas fa-external-link-alt l-middle-tool-box-tip" (click)="onOpenTransactionDetailPage()"></button>
             &nbsp;

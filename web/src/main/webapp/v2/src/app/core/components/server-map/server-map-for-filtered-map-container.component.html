@@ -16,7 +16,7 @@
 <pp-server-map-overview [showOverview]="showOverview"></pp-server-map-overview>  
 <pp-film-for-disable *ngIf="useDisable" [zIndex]="9" [marginWidth]="0"></pp-film-for-disable>          
 <pp-loading [showLoading]="showLoading" [zIndex]="10"></pp-loading>
-<div class="l-popup-section font-opensans" *ngIf="showGuide()">
+<div class="l-popup-section font-opensans" *ngIf="isEmpty">
     <article>
         <div class="l-contents-group">
             <dl class="l-sql-list">

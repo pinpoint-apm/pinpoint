@@ -11,18 +11,23 @@ import { StoreHelperService } from 'app/shared/services';
     styleUrls: ['./timeline-command-group-container.component.css'],
 })
 export class TimelineCommandGroupContainerComponent implements OnInit, OnDestroy {
-    private unsubscribe: Subject<void> = new Subject();
+    private unsubscribe = new Subject<void>();
+
     pointingTime$: Observable<string>;
+
     constructor(
         private storeHelperService: StoreHelperService,
     ) {}
+
     ngOnInit() {
         this.connectStore();
     }
+
     ngOnDestroy() {
         this.unsubscribe.next();
         this.unsubscribe.complete();
     }
+
     private connectStore(): void {
         this.pointingTime$ = combineLatest(
             this.storeHelperService.getDateFormat(this.unsubscribe, 0),

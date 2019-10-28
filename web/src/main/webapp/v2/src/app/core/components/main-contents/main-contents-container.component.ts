@@ -1,4 +1,4 @@
-import { Component, OnInit, ComponentFactoryResolver, Injector } from '@angular/core';
+import { Component, OnInit, ComponentFactoryResolver, Injector, ChangeDetectionStrategy } from '@angular/core';
 
 import { DynamicPopupService } from 'app/shared/services';
 import { HELP_VIEWER_LIST, HelpViewerPopupContainerComponent } from 'app/core/components/help-viewer-popup/help-viewer-popup-container.component';
@@ -6,7 +6,8 @@ import { HELP_VIEWER_LIST, HelpViewerPopupContainerComponent } from 'app/core/co
 @Component({
     selector: 'pp-main-contents-container',
     templateUrl: './main-contents-container.component.html',
-    styleUrls: ['./main-contents-container.component.css']
+    styleUrls: ['./main-contents-container.component.css'],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class MainContentsContainerComponent implements OnInit {
     constructor(
@@ -14,6 +15,7 @@ export class MainContentsContainerComponent implements OnInit {
         private componentFactoryResolver: ComponentFactoryResolver,
         private injector: Injector
     ) {}
+
     ngOnInit() {}
     onShowHelp($event: MouseEvent): void {
         const {left, top, width, height} = ($event.target as HTMLElement).getBoundingClientRect();

@@ -1,6 +1,5 @@
 
 import { NgModule } from '@angular/core';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 
 import { SharedModule } from 'app/shared';
@@ -14,7 +13,6 @@ import { InspectorChartListDataService } from './inspector-chart-list-data.servi
         InspectorChartListContainerComponent
     ],
     imports: [
-        MatTooltipModule,
         ScrollingModule,
         SharedModule
     ],

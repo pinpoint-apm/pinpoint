@@ -1,6 +1,6 @@
 import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { Subject, combineLatest, Observable } from 'rxjs';
+import { Subject, Observable, forkJoin } from 'rxjs';
 import { distinctUntilChanged, filter, map } from 'rxjs/operators';
 
 import { UrlPathId } from 'app/shared/models';
@@ -16,10 +16,11 @@ import { ServerMapSearchResultViewerComponent } from './server-map-search-result
 })
 export class ServerMapSearchResultViewerContainerComponent implements OnInit {
     private minLength = 3;
+
     i18nText: { [key: string]: string } = {};
     hiddenComponent$: Observable<boolean>;
     searchResultList$: Observable<IApplication[]>;
-    userInput: Subject<string> = new Subject();
+    userInput = new Subject<string>();
 
     constructor(
         private translateService: TranslateService,
@@ -47,7 +48,7 @@ export class ServerMapSearchResultViewerContainerComponent implements OnInit {
     }
 
     private getI18NText() {
-        combineLatest(
+        forkJoin(
             this.translateService.get('COMMON.SEARCH_INPUT'),
             this.translateService.get('MAIN.EMPTY_RESULT')
         ).subscribe((i18n: string[]) => {
@@ -57,10 +58,12 @@ export class ServerMapSearchResultViewerContainerComponent implements OnInit {
             };
         });
     }
+
     onSearch($event: string): void {
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.SEARCH_NODE);
         this.userInput.next($event);
     }
+
     onSelectApplication(app: IApplication): void {
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.SELECT_APPLICATION_IN_SEARCH_RESULT);
         this.serverMapInteractionService.setSelectedApplication(app.getKeyStr());

@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
 
+import { SharedModule } from 'app/shared';
 import { ScatterChartSettingPopupComponent } from './scatter-chart-setting-popup.component';
 import { ScatterChartOptionsComponent } from './scatter-chart-options.component';
 import { ScatterChartStateViewComponent } from './scatter-chart-state-view.component';
@@ -27,8 +27,8 @@ import { HelpViewerPopupModule } from 'app/core/components/help-viewer-popup';
         ScatterChartForFullScreenModeContainerComponent
     ],
     imports: [
-        CommonModule,
-        HelpViewerPopupModule
+        HelpViewerPopupModule,
+        SharedModule
     ],
     exports: [
         ScatterChartContainerComponent,

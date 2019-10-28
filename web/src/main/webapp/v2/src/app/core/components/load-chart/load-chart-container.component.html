@@ -4,8 +4,8 @@
         <button class="fas fa-question-circle" (click)="onShowHelp($event)"></button>
     </div>
     <div class="l-content-section">
-        <pp-loading [showLoading]="isActiveLayer('loading')" [zIndex]="10"></pp-loading>
-        <pp-retry [showRetry]="isActiveLayer('retry')" [message]="dataFetchFailedText" (outRetry)="onRetry()"></pp-retry>
+        <pp-loading [showLoading]="showLoading" [zIndex]="10"></pp-loading>
+        <pp-retry [showRetry]="showRetry" [message]="dataFetchFailedText" (outRetry)="onRetry()"></pp-retry>
         <pp-load-chart
             [ngClass]="chartVisibility"
             [chartConfig]="chartConfig"
