@@ -22,7 +22,7 @@ import { CallTreeContainerComponent } from 'app/core/components/call-tree/call-t
     styleUrls: ['./transaction-list-bottom-contents-container.component.css']
 })
 export class TransactionListBottomContentsContainerComponent implements OnInit, OnDestroy {
-    @ViewChild(CallTreeContainerComponent, { read: ElementRef, static: true }) callTreeComponent: ElementRef;
+    @ViewChild(CallTreeContainerComponent, {read: ElementRef, static: true}) callTreeComponent: ElementRef;
     private unsubscribe = new Subject<void>();
 
     activeView: string;
@@ -30,6 +30,7 @@ export class TransactionListBottomContentsContainerComponent implements OnInit, 
     useDisable = true;
     showLoading = true;
     removeCallTree = false;
+    showSearch: boolean;
 
     constructor(
         private storeHelperService: StoreHelperService,
@@ -58,6 +59,7 @@ export class TransactionListBottomContentsContainerComponent implements OnInit, 
             })
         ).subscribe((viewType: string) => {
             this.activeView = viewType;
+            this.showSearch = this.activeView === 'callTree' || this.activeView === 'timeline';
         });
 
         this.storeHelperService.getTransactionData(this.unsubscribe).pipe(
@@ -91,10 +93,6 @@ export class TransactionListBottomContentsContainerComponent implements OnInit, 
     private setDisplayGuide(state: boolean): void {
         this.showLoading = state;
         this.useDisable = state;
-    }
-
-    useSearch(): boolean {
-        return this.activeView === 'callTree' || this.activeView === 'timeline';
     }
 
     onOpenTransactionDetailPage(): void {

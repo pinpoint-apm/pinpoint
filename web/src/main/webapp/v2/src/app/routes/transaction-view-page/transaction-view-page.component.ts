@@ -17,10 +17,11 @@ import { ServerErrorPopupContainerComponent } from 'app/core/components/server-e
 @Component({
     selector: 'pp-transaction-view-page',
     templateUrl: './transaction-view-page.component.html',
-    styleUrls: ['./transaction-view-page.component.css']
+    styleUrls: ['./transaction-view-page.component.css'],
 })
 export class TransactionViewPageComponent implements OnInit, OnDestroy {
-    private unsubscribe: Subject<null> = new Subject();
+    private unsubscribe = new Subject<void>();
+
     splitSize: number[];
 
     constructor(

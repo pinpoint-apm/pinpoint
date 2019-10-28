@@ -1,4 +1,4 @@
-import { Component, OnInit, Output, EventEmitter, Input } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, Input, ChangeDetectionStrategy } from '@angular/core';
 
 import { WebAppSettingDataService } from 'app/shared/services';
 
@@ -6,6 +6,7 @@ import { WebAppSettingDataService } from 'app/shared/services';
     selector: 'pp-server-list-container',
     templateUrl: './server-list-container.component.html',
     styleUrls: ['./server-list-container.component.css'],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ServerListContainerComponent implements OnInit {
     @Input()

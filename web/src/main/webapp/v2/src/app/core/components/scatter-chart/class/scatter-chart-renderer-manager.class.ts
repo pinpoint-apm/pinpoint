@@ -10,7 +10,12 @@ export class ScatterChartRendererManager {
     private elementScroller: HTMLElement;
     private scrollOrder: number[];
     private requestAnimationFrameRef: any;
-    constructor(private options: IOptions, private coordinateManager: ScatterChartSizeCoordinateManager, private elementContainer: any, private typeManager: ScatterChartTransactionTypeManager) {
+    constructor(
+        private options: IOptions,
+        private coordinateManager: ScatterChartSizeCoordinateManager,
+        private elementContainer: any,
+        private typeManager: ScatterChartTransactionTypeManager,
+    ) {
         this.initVariable();
         this.initCanvasWrapper();
     }

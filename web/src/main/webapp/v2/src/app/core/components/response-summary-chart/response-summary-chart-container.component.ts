@@ -1,6 +1,6 @@
-import { Component, OnInit, OnDestroy, Input, ComponentFactoryResolver, Injector } from '@angular/core';
+import { Component, OnInit, OnDestroy, Input, ComponentFactoryResolver, Injector, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { Subject, forkJoin, of, merge } from 'rxjs';
-import { filter, tap, switchMap, pluck, map, catchError, withLatestFrom, skip } from 'rxjs/operators';
+import { filter, tap, switchMap, pluck, map, catchError, withLatestFrom } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
 import { PrimitiveArray, Data, DataItem } from 'billboard.js';
 
@@ -36,6 +36,7 @@ export enum Layer {
     selector: 'pp-response-summary-chart-container',
     templateUrl: './response-summary-chart-container.component.html',
     styleUrls: ['./response-summary-chart-container.component.css'],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ResponseSummaryChartContainerComponent implements OnInit, OnDestroy {
     @Input() sourceType: string;
@@ -55,7 +56,6 @@ export class ResponseSummaryChartContainerComponent implements OnInit, OnDestroy
     showRetry: boolean;
     retryMessage: string;
     chartVisibility = {};
-    _activeLayer: Layer;
     previousRange: number[];
 
     constructor(
@@ -69,6 +69,7 @@ export class ResponseSummaryChartContainerComponent implements OnInit, OnDestroy
         private dynamicPopupService: DynamicPopupService,
         private injector: Injector,
         private componentFactoryResolver: ComponentFactoryResolver,
+        private cd: ChangeDetectorRef,
     ) {}
 
     ngOnInit() {
@@ -83,12 +84,10 @@ export class ResponseSummaryChartContainerComponent implements OnInit, OnDestroy
     }
 
     set activeLayer(layer: Layer) {
-        this._activeLayer = layer;
-        this.setChartVisibility(this._activeLayer === Layer.CHART);
-    }
-
-    get activeLayer(): Layer {
-        return this._activeLayer;
+        this.showLoading = layer === Layer.LOADING;
+        this.showRetry = layer === Layer.RETRY;
+        this.setChartVisibility(layer === Layer.CHART);
+        this.cd.markForCheck();
     }
 
     onRendered(): void {
@@ -100,10 +99,6 @@ export class ResponseSummaryChartContainerComponent implements OnInit, OnDestroy
             'show-chart': showChart,
             'shady-chart': !showChart && this.chartConfig !== undefined,
         };
-    }
-
-    isActiveLayer(layer: string): boolean {
-        return this.activeLayer === layer;
     }
 
     onRetry(): void {
@@ -120,6 +115,8 @@ export class ResponseSummaryChartContainerComponent implements OnInit, OnDestroy
                 dataConfig: this.makeDataOption(chartData),
                 elseConfig: this.makeElseOption(yMax)
             };
+
+            this.cd.markForCheck();
         });
     }
 
@@ -138,7 +135,9 @@ export class ResponseSummaryChartContainerComponent implements OnInit, OnDestroy
     }
 
     private connectStore(): void {
-        this.storeHelperService.getServerMapData(this.unsubscribe).subscribe((serverMapData: ServerMapData) => {
+        this.storeHelperService.getServerMapData(this.unsubscribe).pipe(
+            filter((serverMapData: ServerMapData) => !!serverMapData),
+        ).subscribe((serverMapData: ServerMapData) => {
             this.serverMapData = serverMapData;
         });
 
@@ -157,7 +156,7 @@ export class ResponseSummaryChartContainerComponent implements OnInit, OnDestroy
             ),
             this.storeHelperService.getAgentSelection(this.unsubscribe).pipe(
                 filter(() => this.sourceType !== SourceType.INFO_PER_SERVER),
-                skip(1),
+                filter((agent: string) => this.selectedAgent !== agent),
                 tap((agent: string) => this.selectedAgent = agent),
                 filter(() => !!this.selectedTarget),
                 map(() => this.getTargetInfo()),
@@ -236,6 +235,8 @@ export class ResponseSummaryChartContainerComponent implements OnInit, OnDestroy
                 dataConfig: this.makeDataOption(chartData),
                 elseConfig: this.makeElseOption(yMax),
             };
+
+            this.cd.markForCheck();
         });
     }
 
@@ -312,15 +313,18 @@ export class ResponseSummaryChartContainerComponent implements OnInit, OnDestroy
             },
             tooltip: {
                 show: false
+            },
+            transition: {
+                duration: 0
             }
         };
     }
 
-    addComma(str: string): string {
+    private addComma(str: string): string {
         return str.replace(/(\d)(?=(?:\d{3})+(?!\d))/g, '$1,');
     }
 
-    convertWithUnit(value: number): string {
+    private convertWithUnit(value: number): string {
         const unitList = ['', 'K', 'M', 'G'];
 
         return [...unitList].reduce((acc: string, curr: string, i: number, arr: string[]) => {

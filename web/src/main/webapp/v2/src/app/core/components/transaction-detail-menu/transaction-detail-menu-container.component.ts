@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ComponentFactoryResolver, Injector } from '@angular/core';
+import { Component, OnInit, OnDestroy, ComponentFactoryResolver, Injector, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { Subject } from 'rxjs';
 import { filter, takeUntil } from 'rxjs/operators';
 
@@ -19,6 +19,7 @@ import { Actions } from 'app/shared/store';
     selector: 'pp-transaction-detail-menu-container',
     templateUrl: './transaction-detail-menu-container.component.html',
     styleUrls: ['./transaction-detail-menu-container.component.css'],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TransactionDetailMenuContainerComponent implements OnInit, OnDestroy {
     private unsubscribe = new Subject<void>();
@@ -34,18 +35,21 @@ export class TransactionDetailMenuContainerComponent implements OnInit, OnDestro
         private analyticsService: AnalyticsService,
         private dynamicPopupService: DynamicPopupService,
         private componentFactoryResolver: ComponentFactoryResolver,
-        private injector: Injector
+        private injector: Injector,
+        private cd: ChangeDetectorRef,
     ) {}
 
     ngOnInit() {
         this.storeHelperService.getTransactionViewType(this.unsubscribe).subscribe((viewType: string) => {
             this.activeTabKey = viewType;
+            this.cd.detectChanges();
         });
 
         this.transactionDetailDataService.partInfo$.pipe(
             takeUntil(this.unsubscribe)
         ).subscribe((partInfo: ITransactionDetailPartInfo) => {
             this.partInfo = partInfo;
+            this.cd.detectChanges();
         });
 
         this.connectStore();
@@ -62,6 +66,7 @@ export class TransactionDetailMenuContainerComponent implements OnInit, OnDestro
             filter(({application, agentId, traceId}: ITransactionMetaData) => !!application && !!agentId && !!traceId)
         ).subscribe((transactionInfo: ITransactionMetaData) => {
             this.transactionInfo = transactionInfo;
+            this.cd.detectChanges();
         });
     }
 

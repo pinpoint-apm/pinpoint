@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { trigger, state, style, animate, transition } from '@angular/animations';
 import { Subject } from 'rxjs';
 import { filter, map, tap } from 'rxjs/operators';
@@ -39,7 +39,8 @@ import { ServerMapData, IShortNodeInfo } from 'app/core/components/server-map/cl
                 animate('0.2s 0s ease-out')
             ])
         ]),
-    ]
+    ],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class InfoPerServerForFilteredMapContainerComponent implements OnInit, OnDestroy {
     private unsubscribe = new Subject<void>();
@@ -55,18 +56,22 @@ export class InfoPerServerForFilteredMapContainerComponent implements OnInit, On
         private storeHelperService: StoreHelperService,
         private urlRouteManagerService: UrlRouteManagerService,
         private analyticsService: AnalyticsService,
+        private cd: ChangeDetectorRef,
     ) {}
 
     ngOnInit() {
         this.connectStore();
     }
+
     ngOnDestroy() {
         this.unsubscribe.next();
         this.unsubscribe.complete();
     }
 
     private connectStore(): void {
-        this.storeHelperService.getServerMapData(this.unsubscribe).subscribe((serverMapData: ServerMapData) => {
+        this.storeHelperService.getServerMapData(this.unsubscribe).pipe(
+            filter((serverMapData: ServerMapData) => !!serverMapData),
+        ).subscribe((serverMapData: ServerMapData) => {
             this.serverMapData = serverMapData;
         });
 
@@ -75,11 +80,12 @@ export class InfoPerServerForFilteredMapContainerComponent implements OnInit, On
         ).subscribe((target: ISelectedTarget) => {
             this.selectedTarget = target;
             this.selectedAgent = '';
+            this.cd.detectChanges();
         });
 
         this.storeHelperService.getInfoPerServerState(this.unsubscribe).pipe(
             filter(() => this.selectedTarget && this.selectedTarget.isNode),
-            filter((visibleState: boolean) => visibleState ? true : (this.hide(), false)),
+            filter((visibleState: boolean) => visibleState ? true : (this.hide(), this.cd.detectChanges(), false)),
             map(() => this.serverMapData.getNodeData(this.selectedTarget.node[0])),
             tap(({serverList, agentHistogram, agentTimeSeriesHistogram, isWas}: INodeInfo | IShortNodeInfo) => {
                 this.agentHistogramData = {
@@ -91,6 +97,7 @@ export class InfoPerServerForFilteredMapContainerComponent implements OnInit, On
             })
         ).subscribe(() => {
             this.show();
+            this.cd.detectChanges();
             this.onSelectAgent(this.selectedAgent ? this.selectedAgent : this.getFirstAgent());
         });
     }

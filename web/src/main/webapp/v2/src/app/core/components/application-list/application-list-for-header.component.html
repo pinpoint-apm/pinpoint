@@ -8,5 +8,5 @@
         <img [src]="getIconPath(app.getServiceType())" width="23px" height="18px" alt="" class="l-icon-img"/>
         <span class="l-text-ellipsis">{{app.getApplicationName()}}</span>
     </dd>
-    <dd class="l-item" *ngIf="isListEmpty()">{{emptyText}}</dd>
+    <dd class="l-item" *ngIf="isEmpty">{{emptyText}}</dd>
 </dl>

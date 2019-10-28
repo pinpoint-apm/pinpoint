@@ -1,5 +1,4 @@
 import { NgModule } from '@angular/core';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
 
 import { routing } from './inspector-page.routing';
@@ -21,7 +20,6 @@ import { HelpViewerPopupModule } from 'app/core/components/help-viewer-popup';
         InspectorPageComponent
     ],
     imports: [
-        MatTooltipModule,
         SharedModule,
         NoticeModule,
         ApplicationListModule,

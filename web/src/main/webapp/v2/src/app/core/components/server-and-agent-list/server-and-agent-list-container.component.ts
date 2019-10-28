@@ -24,7 +24,8 @@ import { ServerAndAgentListDataService } from './server-and-agent-list-data.serv
     styleUrls: ['./server-and-agent-list-container.component.css'],
 })
 export class ServerAndAgentListContainerComponent implements OnInit, OnDestroy {
-    private unsubscribe: Subject<void> = new Subject();
+    private unsubscribe = new Subject<void>();
+
     filterStr: string;
     agentId: string;
     serverList: { [key: string]: IServerAndAgentData[] };

@@ -22,7 +22,7 @@ import { SyntaxHighlightPopupContainerComponent } from 'app/core/components/synt
     styleUrls: ['./call-tree-container.component.css'],
 })
 export class CallTreeContainerComponent implements OnInit, OnDestroy {
-    @ViewChild(CallTreeComponent, { static: false }) private callTreeComponent: CallTreeComponent;
+    @ViewChild(CallTreeComponent, {static: false}) private callTreeComponent: CallTreeComponent;
     @Input() canSelectRow = false;
     @Input() rowSelection = 'multiple';
 

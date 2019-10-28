@@ -1,5 +1,6 @@
-import { Component, OnInit, OnDestroy, Input, ComponentFactoryResolver, Injector } from '@angular/core';
+import { Component, OnInit, OnDestroy, Input, ComponentFactoryResolver, Injector, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { Subject, forkJoin, merge, of } from 'rxjs';
+import { filter, map, tap, switchMap, catchError, pluck, withLatestFrom } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
 import { PrimitiveArray, Data } from 'billboard.js';
 import * as moment from 'moment-timezone';
@@ -7,7 +8,6 @@ import * as moment from 'moment-timezone';
 import { WebAppSettingDataService, AnalyticsService, TRACKED_EVENT_LIST, DynamicPopupService, MESSAGE_TO, StoreHelperService, MessageQueueService, AgentHistogramDataService, NewUrlStateNotificationService } from 'app/shared/services';
 import { HELP_VIEWER_LIST, HelpViewerPopupContainerComponent } from 'app/core/components/help-viewer-popup/help-viewer-popup-container.component';
 import { ServerMapData } from 'app/core/components/server-map/class/server-map-data.class';
-import { filter, map, skip, tap, switchMap, catchError, pluck, withLatestFrom } from 'rxjs/operators';
 import { getMaxTickValue, getStackedData } from 'app/core/utils/chart-util';
 import { Actions } from 'app/shared/store';
 
@@ -27,6 +27,7 @@ export enum Layer {
     selector: 'pp-load-chart-container',
     templateUrl: './load-chart-container.component.html',
     styleUrls: ['./load-chart-container.component.css'],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class LoadChartContainerComponent implements OnInit, OnDestroy {
     @Input() sourceType: string;
@@ -49,7 +50,6 @@ export class LoadChartContainerComponent implements OnInit, OnDestroy {
     showRetry: boolean;
     retryMessage: string;
     chartVisibility = {};
-    _activeLayer: Layer;
     previousRange: number[];
 
     constructor(
@@ -63,6 +63,7 @@ export class LoadChartContainerComponent implements OnInit, OnDestroy {
         private messageQueueService: MessageQueueService,
         private agentHistogramDataService: AgentHistogramDataService,
         private newUrlStateNotificationService: NewUrlStateNotificationService,
+        private cd: ChangeDetectorRef,
     ) {}
 
     ngOnInit() {
@@ -77,12 +78,10 @@ export class LoadChartContainerComponent implements OnInit, OnDestroy {
     }
 
     set activeLayer(layer: Layer) {
-        this._activeLayer = layer;
-        this.setChartVisibility(this._activeLayer === Layer.CHART);
-    }
-
-    get activeLayer(): Layer {
-        return this._activeLayer;
+        this.showLoading = layer === Layer.LOADING;
+        this.showRetry = layer === Layer.RETRY;
+        this.setChartVisibility(layer === Layer.CHART);
+        this.cd.markForCheck();
     }
 
     onRendered(): void {
@@ -94,10 +93,6 @@ export class LoadChartContainerComponent implements OnInit, OnDestroy {
             'show-chart': showChart,
             'shady-chart': !showChart && this.chartConfig !== undefined,
         };
-    }
-
-    isActiveLayer(layer: string): boolean {
-        return this.activeLayer === layer;
     }
 
     onRetry(): void {
@@ -115,6 +110,8 @@ export class LoadChartContainerComponent implements OnInit, OnDestroy {
                 elseConfig: this.makeElseOption(yMax)
             };
         });
+
+        this.cd.markForCheck();
     }
 
     private initChartColors(): void {
@@ -141,7 +138,9 @@ export class LoadChartContainerComponent implements OnInit, OnDestroy {
             this.dateFormatDay = dateFormatDay;
         });
 
-        this.storeHelperService.getServerMapData(this.unsubscribe).subscribe((serverMapData: ServerMapData) => {
+        this.storeHelperService.getServerMapData(this.unsubscribe).pipe(
+            filter((serverMapData: ServerMapData) => !!serverMapData),
+        ).subscribe((serverMapData: ServerMapData) => {
             this.serverMapData = serverMapData;
         });
 
@@ -160,7 +159,7 @@ export class LoadChartContainerComponent implements OnInit, OnDestroy {
             ),
             this.storeHelperService.getAgentSelection(this.unsubscribe).pipe(
                 filter(() => this.sourceType !== SourceType.INFO_PER_SERVER),
-                skip(1),
+                filter((agent: string) => this.selectedAgent !== agent),
                 tap((agent: string) => this.selectedAgent = agent),
                 filter(() => !!this.selectedTarget),
                 map(() => this.getTargetInfo()),
@@ -239,6 +238,8 @@ export class LoadChartContainerComponent implements OnInit, OnDestroy {
                 dataConfig: this.makeDataOption(chartData),
                 elseConfig: this.makeElseOption(yMax),
             };
+
+            this.cd.markForCheck();
         });
     }
 
@@ -331,15 +332,18 @@ export class LoadChartContainerComponent implements OnInit, OnDestroy {
                 format: {
                     value: (v: number) => this.addComma(v.toString())
                 }
+            },
+            transition: {
+                duration: 0
             }
         };
     }
 
-    addComma(str: string): string {
+    private addComma(str: string): string {
         return str.replace(/(\d)(?=(?:\d{3})+(?!\d))/g, '$1,');
     }
 
-    convertWithUnit(value: number): string {
+    private convertWithUnit(value: number): string {
         const unitList = ['', 'K', 'M', 'G'];
 
         return [...unitList].reduce((acc: string, curr: string, i: number, arr: string[]) => {

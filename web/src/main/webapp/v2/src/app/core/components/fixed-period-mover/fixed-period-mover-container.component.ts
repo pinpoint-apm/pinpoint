@@ -19,12 +19,14 @@ import { Period, EndTime } from 'app/core/models';
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class FixedPeriodMoverContainerComponent implements OnInit, OnDestroy {
-    private unsubscribe: Subject<void> = new Subject();
+    private unsubscribe = new Subject<void>();
+
     hiddenComponent = true;
     period: Period;
     endTime: EndTime;
     timezone$: Observable<string>;
     dateFormat$: Observable<string>;
+
     constructor(
         private changeDetectorRef: ChangeDetectorRef,
         private newUrlStateNotificationService: NewUrlStateNotificationService,
@@ -32,6 +34,7 @@ export class FixedPeriodMoverContainerComponent implements OnInit, OnDestroy {
         private analyticsService: AnalyticsService,
         private storeHelperService: StoreHelperService
     ) {}
+
     ngOnInit() {
         this.newUrlStateNotificationService.onUrlStateChange$.pipe(
             takeUntil(this.unsubscribe)
@@ -47,10 +50,17 @@ export class FixedPeriodMoverContainerComponent implements OnInit, OnDestroy {
         });
         this.connectStore();
     }
+
+    ngOnDestroy() {
+        this.unsubscribe.next();
+        this.unsubscribe.complete();
+    }
+
     private connectStore(): void {
         this.timezone$ = this.storeHelperService.getTimezone();
         this.dateFormat$ = this.storeHelperService.getDateFormat(this.unsubscribe, 1);
     }
+
     onMovePeriod(moveTime: string): void {
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.CLICK_FIXED_PERIOD_MOVE_BUTTON);
         this.urlRouteManagerService.moveOnPage({
@@ -61,9 +71,5 @@ export class FixedPeriodMoverContainerComponent implements OnInit, OnDestroy {
                 moveTime
             ]
         });
-    }
-    ngOnDestroy() {
-        this.unsubscribe.next();
-        this.unsubscribe.complete();
     }
 }

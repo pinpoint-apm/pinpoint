@@ -10,7 +10,7 @@
     <div class="l-agent-list" *ngIf="_agentList && _agentList.length > 0">
         <div *ngFor="let agent of _agentList" class="l-wrapper l-agent">
             <button class="btn btn-sm l-remove" (click)="onRemoveAgent(agent.agentId)"><i class="fas fa-trash"></i></button>
-            <i class="fas fa-exclamation-circle l-dup" *ngIf="isDup(agent)" [matTooltip]="agent.applicationName" ></i>
+            <i class="fas fa-exclamation-circle l-dup" *ngIf="isDup(agent)" [attr.title]="agent.applicationName" ></i>
             {{agent.agentId}}
         </div>    
     </div>

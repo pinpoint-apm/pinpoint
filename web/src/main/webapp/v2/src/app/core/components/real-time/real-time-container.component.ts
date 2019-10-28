@@ -1,6 +1,6 @@
-import { Component, OnInit, OnDestroy, AfterViewInit, ComponentFactoryResolver, Injector } from '@angular/core';
+import { Component, OnInit, OnDestroy, AfterViewInit, ComponentFactoryResolver, Injector, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { Subject, Observable, fromEvent } from 'rxjs';
-import { takeUntil, filter, delay } from 'rxjs/operators';
+import { takeUntil, filter, delay, tap } from 'rxjs/operators';
 
 import {
     StoreHelperService,
@@ -16,6 +16,7 @@ import { HELP_VIEWER_LIST, HelpViewerPopupContainerComponent } from 'app/core/co
 import { UrlPathId, UrlPath } from 'app/shared/models';
 import { IParsedATC } from './real-time-chart.component';
 import { getATCforAgent, getATCforTotal, getFilteredATC } from './real-time-util';
+import { ServerMapData } from 'app/core/components/server-map/class/server-map-data.class';
 
 // TODO: 나중에 공통으로 추출.
 const enum MessageTemplate {
@@ -28,11 +29,13 @@ const enum MessageTemplate {
 @Component({
     selector: 'pp-real-time-container',
     templateUrl: './real-time-container.component.html',
-    styleUrls: ['./real-time-container.component.css']
+    styleUrls: ['./real-time-container.component.css'],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class RealTimeContainerComponent implements OnInit, AfterViewInit, OnDestroy {
-    private unsubscribe = new Subject<null>();
+    private unsubscribe = new Subject<void>();
     private serviceType = '';
+
     activeOnly = false;
     isPinUp = true;
     lastHeight: number;
@@ -49,7 +52,7 @@ export class RealTimeContainerComponent implements OnInit, AfterViewInit, OnDest
     sum: number[];
     hiddenComponent = true;
     messageTemplate = MessageTemplate.LOADING;
-    // messageTemplate: MessageTemplate;
+
     constructor(
         private newUrlStateNotificationService: NewUrlStateNotificationService,
         private urlRouteManagerService: UrlRouteManagerService,
@@ -59,8 +62,10 @@ export class RealTimeContainerComponent implements OnInit, AfterViewInit, OnDest
         private analyticsService: AnalyticsService,
         private dynamicPopupService: DynamicPopupService,
         private componentFactoryResolver: ComponentFactoryResolver,
-        private injector: Injector
+        private injector: Injector,
+        private cd: ChangeDetectorRef
     ) {}
+
     ngOnInit() {
         this.lastHeight = this.webAppSettingDataService.getLayerHeight() || this.minHeight;
         this.newUrlStateNotificationService.onUrlStateChange$.pipe(
@@ -69,6 +74,7 @@ export class RealTimeContainerComponent implements OnInit, AfterViewInit, OnDest
             // this.hiddenComponent = true;
             this.resetState();
             this.messageTemplate = MessageTemplate.LOADING;
+            this.cd.markForCheck();
         });
         this.connectStore();
 
@@ -91,24 +97,32 @@ export class RealTimeContainerComponent implements OnInit, AfterViewInit, OnDest
             }
         });
     }
+
     ngAfterViewInit() {
         this.addEventListener();
     }
+
     ngOnDestroy() {
         this.realTimeWebSocketService.close();
         this.unsubscribe.next();
         this.unsubscribe.complete();
     }
+
     private connectStore(): void {
         this.timezone$ = this.storeHelperService.getTimezone(this.unsubscribe);
         this.dateFormat$ = this.storeHelperService.getDateFormat(this.unsubscribe, 0);
+        this.storeHelperService.getServerMapData(this.unsubscribe).pipe(
+            filter((serverMapData: ServerMapData) => !!serverMapData),
+            filter((serverMapData: ServerMapData) => serverMapData.getNodeCount() === 0)
+        ).subscribe(() => {
+            this.hiddenComponent = true;
+            this.cd.markForCheck();
+        });
+
         this.storeHelperService.getServerMapTargetSelected(this.unsubscribe).pipe(
-            filter((target: ISelectedTarget) => {
-                return target && (target.isMerged === true || target.isMerged === false) ? (this.hiddenComponent = false, true) : (this.hiddenComponent = true, false);
-            }),
-            filter(() => {
-                return !(this.isPinUp && this.applicationName !== '');
-            })
+            filter((target: ISelectedTarget) => !!target),
+            tap(() => this.hiddenComponent = false),
+            filter(() => !(this.isPinUp && this.applicationName !== ''))
         ).subscribe((target: ISelectedTarget) => {
             const [applicationName, serviceType] = target.node[0].split('^');
 
@@ -125,54 +139,55 @@ export class RealTimeContainerComponent implements OnInit, AfterViewInit, OnDest
                 this.stopDataRequest();
                 this.hide();
             }
+
+            this.cd.markForCheck();
         });
     }
+
     private addEventListener(): void {
         const visibility$ = fromEvent(document, 'visibilitychange').pipe(takeUntil(this.unsubscribe));
 
         // visible
         visibility$.pipe(
-            filter(() => {
-                return !document.hidden;
-            }),
-            filter(() => {
-                return !this.realTimeWebSocketService.isOpened();
-            })
+            filter(() => !document.hidden),
+            filter(() => !this.realTimeWebSocketService.isOpened())
         ).subscribe(() => {
             this.onRetry();
         });
 
         // hidden
         visibility$.pipe(
-            filter(() => {
-                return document.hidden;
-            }),
+            filter(() => document.hidden),
             delay(60000),
-            filter(() => {
-                return document.hidden;
-            }),
+            filter(() => document.hidden),
         ).subscribe(() => {
             this.realTimeWebSocketService.close();
         });
     }
+
     private resetState() {
         this.applicationName = '';
         this.serviceType = '';
         this.activeThreadCounts = null;
         this.isPinUp = true;
     }
+
     private hide() {
         this.messageTemplate = MessageTemplate.NO_DATA;
     }
+
     private isSameWithCurrentTarget(applicationName: string, serviceType: string): boolean {
         return (this.applicationName === applicationName && this.serviceType === serviceType);
     }
+
     private startDataRequest(): void {
         this.realTimeWebSocketService.send(this.getRequestDataStr(this.applicationName));
     }
+
     private stopDataRequest(): void {
         this.realTimeWebSocketService.send(this.getRequestDataStr(''));
     }
+
     private getRequestDataStr(name: string): object {
         return {
             type: 'REQUEST',
@@ -182,16 +197,22 @@ export class RealTimeContainerComponent implements OnInit, AfterViewInit, OnDest
             }
         };
     }
+
     private onOpen(): void {
         this.startDataRequest();
     }
+
     private onClose(): void {
         this.messageTemplate = MessageTemplate.RETRY;
         this.activeThreadCounts = null;
+        this.cd.markForCheck();
     }
+
     private onRetry(): void {
-        this.retryConnection();
+        this.onRetryConnection();
+        this.cd.markForCheck();
     }
+
     private onMessage(data: IWebSocketDataResult): void {
         // this.messageTemplate = MessageTemplate.NOTHING;
         const { timeStamp, applicationName, activeThreadCounts } = data;
@@ -206,16 +227,19 @@ export class RealTimeContainerComponent implements OnInit, AfterViewInit, OnDest
         this.sum = this.atcForTotal[Object.keys(this.atcForTotal)[0]].status;
         this.totalCount = Object.keys(this.atcForAgent).length;
         this.activeThreadCounts = activeThreadCounts;
+        this.cd.markForCheck();
     }
 
-    retryConnection(): void {
+    onRetryConnection(): void {
         this.messageTemplate = MessageTemplate.LOADING;
         this.realTimeWebSocketService.connect();
     }
+
     onPinUp(): void {
         this.analyticsService.trackEvent(this.isPinUp ? TRACKED_EVENT_LIST.PIN_UP_REAL_TIME_CHART : TRACKED_EVENT_LIST.REMOVE_PIN_ON_REAL_TIME_CHART);
         this.isPinUp = !this.isPinUp;
     }
+
     onOpenPage(page: number): void {
         this.urlRouteManagerService.openPage([
             UrlPath.REAL_TIME,
@@ -224,9 +248,11 @@ export class RealTimeContainerComponent implements OnInit, AfterViewInit, OnDest
             `?activeOnly=${this.activeOnly}`
         ]);
     }
+
     onChangeActiveOnlyToggle(activeOnly: boolean): void {
         this.activeOnly = activeOnly;
     }
+
     onOpenThreadDump(agentId: string): void {
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.OPEN_THREAD_DUMP);
         this.urlRouteManagerService.openPage([
@@ -236,6 +262,7 @@ export class RealTimeContainerComponent implements OnInit, AfterViewInit, OnDest
             '' + Date.now()
         ]);
     }
+
     onShowHelp($event: MouseEvent): void {
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.TOGGLE_HELP_VIEWER, HELP_VIEWER_LIST.REAL_TIME);
         const {left, top, width, height} = ($event.target as HTMLElement).getBoundingClientRect();
@@ -252,6 +279,7 @@ export class RealTimeContainerComponent implements OnInit, AfterViewInit, OnDest
             injector: this.injector
         });
     }
+
     onRenderCompleted(): void {
         this.messageTemplate = MessageTemplate.NOTHING;
     }

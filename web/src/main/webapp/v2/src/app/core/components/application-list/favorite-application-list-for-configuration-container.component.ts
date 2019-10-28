@@ -10,7 +10,7 @@ import { WebAppSettingDataService, StoreHelperService, TranslateReplaceService, 
     styleUrls: ['./favorite-application-list-for-configuration-container.component.css']
 })
 export class FavoriteApplicationListForConfigurationContainerComponent implements OnInit, OnDestroy {
-    private unsubscribe: Subject<void> = new Subject();
+    private unsubscribe = new Subject<void>();
     favoriteApplicationList: IApplication[];
     applicationList: IApplication[];
     emptyText: string;

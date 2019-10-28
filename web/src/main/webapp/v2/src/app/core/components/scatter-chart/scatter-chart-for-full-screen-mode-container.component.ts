@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, ViewChild, ElementRef, Renderer2, ComponentFactoryResolver, Injector } from '@angular/core';
-import { Observable, Subject, of, combineLatest, Subscription } from 'rxjs';
+import { Observable, Subject, of, forkJoin, Subscription } from 'rxjs';
 import { takeUntil, delay } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
 
@@ -134,7 +134,7 @@ export class ScatterChartForFullScreenModeContainerComponent implements OnInit, 
         this.toY = scatterYData.max;
     }
     private getI18NText(): void {
-        combineLatest(
+        forkJoin(
             this.translateService.get('COMMON.NO_DATA'),
             this.translateService.get('COMMON.FAILED_TO_FETCH_DATA'),
             this.translateService.get('COMMON.POPUP_BLOCK_MESSAGE')

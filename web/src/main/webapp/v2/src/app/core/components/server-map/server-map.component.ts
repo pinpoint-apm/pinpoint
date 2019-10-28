@@ -16,32 +16,33 @@ import { ServerMapFactory, ServerMapType } from './class/server-map-factory';
 })
 
 export class ServerMapComponent implements OnInit, OnChanges, OnDestroy, AfterViewInit {
-    @ViewChild('serverMap', { static: true }) el: ElementRef;
+    @ViewChild('serverMap', {static: true}) el: ElementRef;
     @Input() mapData: ServerMapData;
     @Input() baseApplicationKey: string;
     @Input() funcImagePath: Function;
     @Input() funcServerMapImagePath: Function;
     @Input() type: ServerMapType;
-    @Output() outClickNode: EventEmitter<any> = new EventEmitter();
-    @Output() outClickGroupNode: EventEmitter<any> = new EventEmitter();
-    @Output() outContextClickNode: EventEmitter<string> = new EventEmitter();
-    @Output() outClickLink: EventEmitter<any> = new EventEmitter();
-    @Output() outContextClickLink: EventEmitter<string> = new EventEmitter();
+    @Output() outClickNode = new EventEmitter<any>();
+    @Output() outClickGroupNode = new EventEmitter<any>();
+    @Output() outContextClickNode = new EventEmitter<string>();
+    @Output() outClickLink = new EventEmitter<any>();
+    @Output() outContextClickLink = new EventEmitter<string>();
     @Output() outClickBackground: EventEmitter<void> = new EventEmitter();
-    @Output() outDoubleClickBackground: EventEmitter<string> = new EventEmitter();
-    @Output() outContextClickBackground: EventEmitter<ICoordinate> = new EventEmitter();
-    @Output() outRenderCompleted: EventEmitter<{[key: string]: boolean}> = new EventEmitter();
+    @Output() outDoubleClickBackground = new EventEmitter<string>();
+    @Output() outContextClickBackground = new EventEmitter<ICoordinate>();
+    @Output() outRenderCompleted = new EventEmitter<{[key: string]: boolean}>();
 
     private hasRenderData = false;
     private serverMapDiagram: ServerMapDiagram;
     private clickedKey: string;
     private hasDataUpdated = false;
-    private unsubscribe: Subject<null> = new Subject();
+    private unsubscribe = new Subject<void>();
 
     constructor(
         private serverMapInteractionService: ServerMapInteractionService,
         private analyticsService: AnalyticsService,
     ) {}
+
     ngOnChanges(changes: SimpleChanges) {
         if (changes['mapData'] && changes['mapData']['currentValue']) {
             this.hasDataUpdated = true;
@@ -53,6 +54,7 @@ export class ServerMapComponent implements OnInit, OnChanges, OnDestroy, AfterVi
             }
         }
     }
+
     ngOnInit() {
         this.serverMapInteractionService.onSearchWord$.pipe(
             takeUntil(this.unsubscribe)
@@ -78,6 +80,7 @@ export class ServerMapComponent implements OnInit, OnChanges, OnDestroy, AfterVi
             this.serverMapDiagram.resetMergeState();
         });
     }
+
     ngOnDestroy() {
         this.unsubscribe.next();
         this.unsubscribe.complete();
@@ -94,6 +97,7 @@ export class ServerMapComponent implements OnInit, OnChanges, OnDestroy, AfterVi
             this.hasRenderData = false;
         }
     }
+
     addEventHandler(): void {
         this.serverMapDiagram.outRenderCompleted.subscribe((diagram: go.Diagram) => {
             this.serverMapInteractionService.setCurrentDiagram(<go.Diagram>diagram);
@@ -138,6 +142,7 @@ export class ServerMapComponent implements OnInit, OnChanges, OnDestroy, AfterVi
             this.outContextClickBackground.emit(coord);
         });
     }
+
     clear(): void {
         this.serverMapDiagram.clear();
     }

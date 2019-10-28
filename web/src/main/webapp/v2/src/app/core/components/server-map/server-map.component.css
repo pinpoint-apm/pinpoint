@@ -4,12 +4,18 @@ div {
     position: relative;
     overflow: hidden;
 }
+
 .show-map {
     visibility: visible;
     opacity: 1;
     transition: all 1.5s;
 }
+
 .hide-map {
     visibility: hidden;
     opacity: 0;
+}
+
+::ng-deep canvas {
+    outline: none;
 }

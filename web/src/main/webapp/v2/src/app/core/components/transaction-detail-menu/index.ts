@@ -1,7 +1,7 @@
 
 import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
 
+import { SharedModule } from 'app/shared';
 import { TransactionDetailMenuComponent } from './transaction-detail-menu.component';
 import { TransactionDetailMenuContainerComponent } from './transaction-detail-menu-container.component';
 import { TransactionDetailMenuForDetailContainerComponent } from './transaction-detail-menu-for-detail-container.component';
@@ -14,7 +14,7 @@ import { MessagePopupModule } from 'app/core/components/message-popup';
         TransactionDetailMenuForDetailContainerComponent
     ],
     imports: [
-        CommonModule,
+        SharedModule,
         MessagePopupModule
     ],
     exports: [

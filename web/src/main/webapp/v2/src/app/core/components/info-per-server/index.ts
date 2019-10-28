@@ -1,6 +1,5 @@
 
 import { NgModule } from '@angular/core';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { SharedModule } from 'app/shared';
 import { ScatterChartModule } from 'app/core/components/scatter-chart';
 import { ResponseSummaryChartModule } from 'app/core/components/response-summary-chart';
@@ -17,7 +16,6 @@ import { ServerErrorPopupModule } from 'app/core/components/server-error-popup';
     ],
     imports: [
         SharedModule,
-        MatTooltipModule,
         ScatterChartModule,
         ResponseSummaryChartModule,
         LoadChartModule,

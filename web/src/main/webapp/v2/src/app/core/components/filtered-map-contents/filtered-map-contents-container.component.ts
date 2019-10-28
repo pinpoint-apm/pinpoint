@@ -1,4 +1,4 @@
-import { Component, OnInit, ComponentFactoryResolver, Injector } from '@angular/core';
+import { Component, OnInit, ComponentFactoryResolver, Injector, ChangeDetectionStrategy } from '@angular/core';
 
 import { HELP_VIEWER_LIST, HelpViewerPopupContainerComponent } from 'app/core/components/help-viewer-popup/help-viewer-popup-container.component';
 import { AnalyticsService, TRACKED_EVENT_LIST, DynamicPopupService } from 'app/shared/services';
@@ -6,7 +6,8 @@ import { AnalyticsService, TRACKED_EVENT_LIST, DynamicPopupService } from 'app/s
 @Component({
     selector: 'pp-filtered-map-contents-container',
     templateUrl: './filtered-map-contents-container.component.html',
-    styleUrls: ['./filtered-map-contents-container.component.css']
+    styleUrls: ['./filtered-map-contents-container.component.css'],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class FilteredMapContentsContainerComponent implements OnInit {
     constructor(

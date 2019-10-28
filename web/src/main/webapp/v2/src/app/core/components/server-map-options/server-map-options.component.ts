@@ -6,12 +6,6 @@ import { Component, EventEmitter, Input, Output, OnInit, OnChanges, SimpleChange
     styleUrls: ['./server-map-options.component.css']
 })
 export class ServerMapOptionsComponent implements OnInit, OnChanges {
-    hideList = true;
-    prevWasOnly: boolean;
-    prevBidirectional: boolean;
-    prevSelectedInbound: number;
-    prevSelectedOutbound: number;
-    bidirectionalPath: string;
     @Input() funcImagePath: Function;
     @Input() selectedWasOnly: boolean;
     @Input() selectedBidirectional: boolean;
@@ -25,6 +19,13 @@ export class ServerMapOptionsComponent implements OnInit, OnChanges {
         wasOnly: boolean,
         bidirectional: boolean
     }> = new EventEmitter();
+
+    hideList = true;
+    prevWasOnly: boolean;
+    prevBidirectional: boolean;
+    prevSelectedInbound: number;
+    prevSelectedOutbound: number;
+    bidirectionalPath: string;
 
     constructor() {}
     ngOnInit() {}
@@ -42,21 +43,23 @@ export class ServerMapOptionsComponent implements OnInit, OnChanges {
             this.prevSelectedOutbound = this.selectedOutbound = changes['selectedOutbound'].currentValue;
         }
     }
+
     private close(): void {
         this.hideList = true;
     }
-    getBidirectional(): string {
-        return this.funcImagePath('bidirect_' + (this.selectedBidirectional ? 'on' : 'off'));
+
+    get bidirectionalImgSrc(): string {
+        return this.funcImagePath(`bidirect_${this.selectedBidirectional ? 'on' : 'off'}`);
     }
-    isWasOnlySelected(): boolean {
-        return this.selectedWasOnly;
-    }
+
     onChangeWasOnly(): void {
         this.selectedWasOnly = !this.selectedWasOnly;
     }
+
     onChangeBidirectional(): void {
         this.selectedBidirectional = !this.selectedBidirectional;
     }
+
     onSelectInbound(inbound: number): void {
         this.selectedInbound = inbound;
     }
@@ -64,6 +67,7 @@ export class ServerMapOptionsComponent implements OnInit, OnChanges {
     onSelectOutbound(outbound: number): void {
         this.selectedOutbound = outbound;
     }
+
     onApply(): void {
         if (!(this.selectedInbound === this.prevSelectedInbound && this.selectedOutbound === this.prevSelectedOutbound && this.selectedWasOnly === this.prevWasOnly && this.selectedBidirectional === this.prevBidirectional)) {
             this.outSelected.emit({
@@ -83,9 +87,11 @@ export class ServerMapOptionsComponent implements OnInit, OnChanges {
         this.selectedOutbound = this.prevSelectedOutbound;
         this.close();
     }
+
     toggleList(): void {
         this.hideList = !this.hideList;
     }
+
     onClose(): void {
         this.onCancel();
     }

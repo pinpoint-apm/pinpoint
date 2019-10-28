@@ -8,7 +8,7 @@
             <div class="l-chart-group-list">
                 <pp-scatter-chart-container></pp-scatter-chart-container>
                 <pp-target-list-container></pp-target-list-container>
-                <hr *ngIf="hasTopElement()"/>
+                <hr *ngIf="showDivider"/>
                 <div [hidden]="isTargetMerged$ | async">
                     <pp-response-summary-chart-container [sourceType]="'MAIN'"></pp-response-summary-chart-container>
                     <hr/>

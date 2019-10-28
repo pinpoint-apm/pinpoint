@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, ComponentFactoryResolver, Injector } from '@angular/core';
-import { combineLatest, Subject } from 'rxjs';
+import { forkJoin, Subject } from 'rxjs';
 import { takeUntil, filter } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
 
@@ -63,7 +63,7 @@ export class ScatterChartForFilteredMapSideBarContainerComponent implements OnIn
     ) {}
     ngOnInit() {
         this.setScatterY();
-        combineLatest(
+        forkJoin(
             this.translateService.get('COMMON.NO_DATA'),
             this.translateService.get('COMMON.FAILED_TO_FETCH_DATA'),
             this.translateService.get('COMMON.POPUP_BLOCK_MESSAGE')

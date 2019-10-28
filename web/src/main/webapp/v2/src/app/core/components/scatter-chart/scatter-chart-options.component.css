@@ -13,8 +13,8 @@
 
 }
 .l-tool-box button.l-last-child:before {
-    padding-left: 14px;
-    border-left: 1px solid #e9ebec;
+    /* padding-left: 14px;
+    border-left: 1px solid #e9ebec; */
 }
 .fas {
     font-size: 18px;

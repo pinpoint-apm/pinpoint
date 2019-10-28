@@ -1,11 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 
 import { WebAppSettingDataService, AnalyticsService, TRACKED_EVENT_LIST } from 'app/shared/services';
 
 @Component({
     selector: 'pp-inbound-outbound-range-selector-for-configuration-container',
     templateUrl: './inbound-outbound-range-selector-for-configuration-container.component.html',
-    styleUrls: ['./inbound-outbound-range-selector-for-configuration-container.component.css']
+    styleUrls: ['./inbound-outbound-range-selector-for-configuration-container.component.css'],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class InboundOutboundRangeSelectorForConfigurationContainerComponent implements OnInit {
     inboundList: number[];

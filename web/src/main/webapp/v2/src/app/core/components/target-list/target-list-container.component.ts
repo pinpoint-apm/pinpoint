@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ComponentFactoryResolver, Injector, ViewChild } from '@angular/core';
+import { Component, OnInit, OnDestroy, ComponentFactoryResolver, Injector, ViewChild, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { Subject } from 'rxjs';
 import { filter } from 'rxjs/operators';
@@ -22,9 +22,10 @@ import { SearchInputDirective } from 'app/shared/directives/search-input.directi
     selector: 'pp-target-list-container',
     templateUrl: './target-list-container.component.html',
     styleUrls: ['./target-list-container.component.css'],
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TargetListContainerComponent implements OnInit, OnDestroy {
-    @ViewChild(SearchInputDirective, { static: true }) searchInputDirective: SearchInputDirective;
+    @ViewChild(SearchInputDirective, {static: true}) searchInputDirective: SearchInputDirective;
 
     private unsubscribe = new Subject<void>();
 
@@ -36,6 +37,7 @@ export class TargetListContainerComponent implements OnInit, OnDestroy {
     serverMapData: ServerMapData;
     originalTargetList: any[];
     searchUseEnter = false;
+    showList = false;
 
     constructor(
         private injector: Injector,
@@ -45,7 +47,8 @@ export class TargetListContainerComponent implements OnInit, OnDestroy {
         private urlRouteManagerService: UrlRouteManagerService,
         private storeHelperService: StoreHelperService,
         private newUrlStateNotificationService: NewUrlStateNotificationService,
-        private dynamicPopupService: DynamicPopupService
+        private dynamicPopupService: DynamicPopupService,
+        private cd: ChangeDetectorRef,
     ) {}
 
     ngOnInit() {
@@ -65,7 +68,9 @@ export class TargetListContainerComponent implements OnInit, OnDestroy {
     }
 
     private connectStore(): void {
-        this.storeHelperService.getServerMapData(this.unsubscribe).subscribe((serverMapData: ServerMapData) => {
+        this.storeHelperService.getServerMapData(this.unsubscribe).pipe(
+            filter((serverMapData: ServerMapData) => !!serverMapData),
+        ).subscribe((serverMapData: ServerMapData) => {
             this.serverMapData = serverMapData;
         });
 
@@ -73,10 +78,13 @@ export class TargetListContainerComponent implements OnInit, OnDestroy {
             filter((target: ISelectedTarget) => !!target)
         ).subscribe((target: ISelectedTarget) => {
             this.target = target;
-            if (this.hasMultiInput()) {
+            this.showList = this.hasMultiInput(target);
+            if (this.showList) {
                 this.gatherTargets();
                 this.initSearchInput();
             }
+
+            this.cd.detectChanges();
         });
     }
 
@@ -86,26 +94,15 @@ export class TargetListContainerComponent implements OnInit, OnDestroy {
         }
     }
 
-    hasMultiInput(): boolean {
-        if (this.target && !this.target.isWAS) {
-            if (this.target.isMerged) {
-                return true;
-            } else {
-                if (this.target.isLink) {
-                    return false;
-                } else {
-                    const fromList = this.serverMapData.getLinkListByTo(this.target.node[0]);
-                    if (fromList.length > 1) {
-                        return true;
-                    }
-                }
-            }
-        }
-
-        return false;
+    private hasMultiInput(target: ISelectedTarget): boolean {
+        return target.isWAS ? false
+            : target.isMerged ? true
+            : target.isLink ? false
+            : this.serverMapData.getLinkListByTo(target.node[0]).length > 1 ? true
+            : false;
     }
 
-    gatherTargets(): void {
+    private gatherTargets(): void {
         const targetList: any[] = [];
         if (this.target.isNode) {
             this.target.node.forEach((nodeKey: string) => {
@@ -182,16 +179,17 @@ export class TargetListContainerComponent implements OnInit, OnDestroy {
         this.targetList = this.filterList();
     }
 
-    filterList(): any[] {
-        if ( this.query === '' ) {
+    private filterList(): any[] {
+        if (this.query === '') {
             return this.originalTargetList;
         }
         const filteredList: any = [];
         this.originalTargetList.forEach((aTarget: any) => {
-            if ( aTarget[0].applicationName.indexOf(this.query) !== -1 ) {
+            if (aTarget[0].applicationName.indexOf(this.query) !== -1) {
                 filteredList.push(aTarget);
             }
         });
+
         return filteredList;
     }
 }

@@ -1,6 +1,7 @@
 
 import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
+import { SharedModule } from 'app/shared';
 import { TimelineCommandGroupComponent } from './timeline-command-group.component';
 import { TimelineCommandGroupContainerComponent } from './timeline-command-group-container.component';
 
@@ -10,7 +11,7 @@ import { TimelineCommandGroupContainerComponent } from './timeline-command-group
         TimelineCommandGroupContainerComponent
     ],
     imports: [
-        CommonModule
+        SharedModule
     ],
     exports: [
         TimelineCommandGroupContainerComponent

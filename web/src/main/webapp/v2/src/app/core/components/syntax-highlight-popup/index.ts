@@ -1,8 +1,8 @@
 
 import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { ClipboardModule } from 'ngx-clipboard';
 
+import { SharedModule } from 'app/shared';
 import { SyntaxHighlightPopupComponent } from './syntax-highlight-popup.component';
 import { SyntaxHighlightPopupContainerComponent } from './syntax-highlight-popup-container.component';
 import { SyntaxHighlightDataService } from './syntax-highlight-data.service';
@@ -13,7 +13,7 @@ import { SyntaxHighlightDataService } from './syntax-highlight-data.service';
         SyntaxHighlightPopupContainerComponent
     ],
     imports: [
-        CommonModule,
+        SharedModule,
         ClipboardModule,
     ],
     exports: [],

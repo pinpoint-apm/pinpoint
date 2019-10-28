@@ -1,7 +1,6 @@
 
 import { NgModule } from '@angular/core';
 
-import { CommonModule } from '@angular/common';
 import { SharedModule } from 'app/shared';
 import { TargetListComponent } from './target-list.component';
 import { TargetListContainerComponent } from './target-list-container.component';
@@ -13,7 +12,6 @@ import { FilterTransactionWizardPopupModule } from 'app/core/components/filter-t
         TargetListContainerComponent
     ],
     imports: [
-        CommonModule,
         SharedModule,
         FilterTransactionWizardPopupModule
     ],

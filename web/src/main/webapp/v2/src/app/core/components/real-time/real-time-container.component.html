@@ -41,7 +41,7 @@
             </div>
             <div class="l-message l-retry" *ngSwitchCase="'RETRY'">
                 <h4><span>Closed connection</span></h4>
-                <button type="button" class="pinpoint-btn" (click)="retryConnection()"><span><i class="fas fa-redo"></i></span> Retry</button>
+                <button type="button" class="pinpoint-btn" (click)="onRetryConnection()"><span><i class="fas fa-redo"></i></span> Retry</button>
             </div>            
             <div class="l-message l-no-data" *ngSwitchCase="'NO_DATA'">
                 <h4><span>This node is not WAS</span></h4>
