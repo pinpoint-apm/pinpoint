@@ -1,0 +1,169 @@
+Pinpoint
+Copyright 2014 NAVER Corp.
+
+Pinpoint 프로젝트는 별도의 저작권 고지 및 사용권 조건을 가진 하위 구성요소를 포함한다.
+하위 구성요소에 대한 소스 코드의 사용은 다음 라이센스의 약관에 따른다.
+
+=======================================================================
+spring-hadoop (https://github.com/spring-projects/spring-hadoop)
+=======================================================================
+
+/*
+ * Copyright 2014 the original author or authors.
+ * 
+ * License는 Apache License version 2.0에 기반을 둔다
+ * License를 제외하고 이 파일을 사용할 수 없다.
+ * License의 복사복을 얻기 위해서는 
+ * 
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ * 관련 법률에 의해 요구되거나 서면으로 합의되지 않는 한, 소프트웨어는
+ * License에 따라 배포되는 "AS IS" BASIS,
+ * 명시적이거나 묵시적인 모든 KIND의 보증 또는 조건 없음.
+ * 사용 권한 및 제한에 대한 자세한 내용은 사용 권한 아래의 특정
+ * 언어에 대한 License를 참조하십시오.
+ */
+ 
+=======================================================================
+Apache Commons Collections (https://commons.apache.org/proper/commons-collections/)
+=======================================================================
+
+/*
+ * Copyright 2014 the original author or authors.
+ * 
+ * License는 Apache License version 2.0에 기반을 둔다
+ * License를 제외하고 이 파일을 사용할 수 없다.
+ * License의 복사복을 얻기 위해서는 
+ * 
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ * 관련 법률에 의해 요구되거나 서면으로 합의되지 않는 한, 소프트웨어는
+ * License에 따라 배포되는 "AS IS" BASIS,
+ * 명시적이거나 묵시적인 모든 KIND의 보증 또는 조건 없음.
+ * 사용 권한 및 제한에 대한 자세한 내용은 사용 권한 아래의 특정
+ * 언어에 대한 License를 참조하십시오.
+ */
+ 
+=======================================================================
+Apache HttpComponents (http://hc.apache.org/)
+=======================================================================
+
+/*
+ * Copyright 2014 the original author or authors.
+ * 
+ * License는 Apache License version 2.0에 기반을 둔다
+ * License를 제외하고 이 파일을 사용할 수 없다.
+ * License의 복사복을 얻기 위해서는 
+ * 
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ * 관련 법률에 의해 요구되거나 서면으로 합의되지 않는 한, 소프트웨어는
+ * License에 따라 배포되는 "AS IS" BASIS,
+ * 명시적이거나 묵시적인 모든 KIND의 보증 또는 조건 없음.
+ * 사용 권한 및 제한에 대한 자세한 내용은 사용 권한 아래의 특정
+ * 언어에 대한 License를 참조하십시오.
+ */
+ 
+=======================================================================
+JSR166 (http://gee.cs.oswego.edu/cgi-bin/viewcvs.cgi/jsr166/src/jsr166e/)
+=======================================================================
+
+/*
+ * Copyright 2014 the original author or authors.
+ * 
+ * License는 Apache License version 2.0에 기반을 둔다
+ * License를 제외하고 이 파일을 사용할 수 없다.
+ * License의 복사복을 얻기 위해서는 
+ * 
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ * 관련 법률에 의해 요구되거나 서면으로 합의되지 않는 한, 소프트웨어는
+ * License에 따라 배포되는 "AS IS" BASIS,
+ * 명시적이거나 묵시적인 모든 KIND의 보증 또는 조건 없음.
+ * 사용 권한 및 제한에 대한 자세한 내용은 사용 권한 아래의 특정
+ * 언어에 대한 License를 참조하십시오.
+ */
+
+=======================================================================
+Apache Commons Lang (http://commons.apache.org/proper/commons-lang/)
+=======================================================================
+ 
+/*
+ * Copyright 2014 the original author or authors.
+ * 
+ * License는 Apache License version 2.0에 기반을 둔다
+ * License를 제외하고 이 파일을 사용할 수 없다.
+ * License의 복사복을 얻기 위해서는 
+ * 
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ * 관련 법률에 의해 요구되거나 서면으로 합의되지 않는 한, 소프트웨어는
+ * License에 따라 배포되는 "AS IS" BASIS,
+ * 명시적이거나 묵시적인 모든 KIND의 보증 또는 조건 없음.
+ * 사용 권한 및 제한에 대한 자세한 내용은 사용 권한 아래의 특정
+ * 언어에 대한 License를 참조하십시오.
+ */
+ 
+
+=======================================================================
+Apache Thrift (http://thrift.apache.org/)
+=======================================================================
+
+/*
+ * Copyright 2014 the original author or authors.
+ * 
+ * License는 Apache License version 2.0에 기반을 둔다
+ * License를 제외하고 이 파일을 사용할 수 없다.
+ * License의 복사복을 얻기 위해서는 
+ * 
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ * 관련 법률에 의해 요구되거나 서면으로 합의되지 않는 한, 소프트웨어는
+ * License에 따라 배포되는 "AS IS" BASIS,
+ * 명시적이거나 묵시적인 모든 KIND의 보증 또는 조건 없음.
+ * 사용 권한 및 제한에 대한 자세한 내용은 사용 권한 아래의 특정
+ * 언어에 대한 License를 참조하십시오.
+ */
+
+=======================================================================
+amCharts (http://www.amcharts.com/download/)
+=======================================================================
+
+이 AmCharts 소프트웨어는 linkware license로 무료이다.
+
+이것은 당신이 AmCharts에 대한 링크를 제거하거나 숨길 수 없다는 것을 의미한다.
+web site - www.amcharts.com.
+
+링크를 제거하려면 사용 라이센스를 구입하십시오
+
+AmCharts 소프트웨어 저자인 Antanas Mercelionis의 서면 허가없이는 이 프로그램을 재배포, 하위 라이선스 또는 판매할 수 없다.
+
+이 소프트웨어는 보증없이 제공된다.
+*********************************************************************************
+A commercial version (without link) is available at amCharts's website: 
+http://shop.amcharts.com/
+********************************************************************************* 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
