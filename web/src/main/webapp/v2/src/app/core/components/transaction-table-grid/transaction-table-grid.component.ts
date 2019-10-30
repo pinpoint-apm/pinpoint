@@ -143,7 +143,7 @@ export class TransactionTableGridComponent implements OnInit, OnChanges {
                 field: 'path',
                 width: 370,
                 cellRenderer: (params: any) => {
-                    return '&nbsp;<button><i class="fa fa-list-alt" aria-hidden="true"></i></button>&nbsp;' + params.value;
+                    return '<button style="margin-right:3px"><i class="fa fa-list-alt" aria-hidden="true"></i></button>' + params.value;
                 },
                 tooltipField: 'path'
             },

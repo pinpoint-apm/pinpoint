@@ -8,7 +8,7 @@
     font-family: 'Open Sans', sans-serif;
 }
 #transaction-table .ag-cell {
-    padding: 4px;
+    padding: 4px 4px 4px 7px;
     border-right: 1px solid #e6e8ec;
     font-family: 'Open Sans', sans-serif;
 }

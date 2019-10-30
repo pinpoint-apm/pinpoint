@@ -303,32 +303,31 @@ export class CallTreeComponent implements OnInit, OnChanges, AfterViewInit {
     innerCellRenderer(params: any) {
         let result = '';
         if (params.data.hasException) {
-            result += '<i class="fa fa-fire" style="color:red"></i>&nbsp;';
+            result += '<i class="fa fa-fire l-icon-without-btn" style="color:red"></i>';
         } else if (!params.data.isMethod) {
             if (params.data.method === 'SQL') {
-                result += '<button type="button" class="btn btn-blue" style="padding: 0px 2px; height: 20px;"><i class="fa fa-database"></i> ' + params.data.method + '</button>&nbsp;';
-                return '&nbsp;' + result;
+                return '<button type="button" class="btn btn-blue l-btn-inside-method" style="padding:0px 2px;height:20px;"><i class="fa fa-database" class="l-icon-inside-btn"></i>' + params.data.method + '</button>';
             } else if (params.data.method === 'MONGO-JSON') {
-                result += '<button type="button" class="btn btn-blue" style="padding: 0px 2px; height: 20px;"><i class="fa fa-database"></i> JSON</button>&nbsp;';
-                return '&nbsp;' + result;
+                return '<button type="button" class="btn btn-blue l-btn-inside-method" style="padding:0px 2px;height:20px;"><i class="fa fa-database" class="l-icon-inside-btn"></i>JSON</button>';
             } else {
-                result += '<i class="fa fa-info-circle"></i>&nbsp;';
+                result += '<i class="fa fa-info-circle l-icon-without-btn"></i>';
             }
         } else {
             const itemMethodType = +params.data.methodType;
-            switch ( itemMethodType ) {
-            case 100:
-                result += '<i class="fa fa-paper-plane"></i>&nbsp;';
-                break;
-            case 200:
-                result += '<i class="fa fa-exchange"></i>&nbsp;';
-                break;
-            case 900:
-                result += '<i class="fa fa-eclamation-triangle" style="color:#FF6600"></i>&nbsp;';
-                break;
+
+            switch (itemMethodType) {
+                case 100:
+                    result += '<i class="fa fa-paper-plane l-icon-without-btn"></i>';
+                    break;
+                case 200:
+                    result += '<i class="fa fa-exchange l-icon-without-btn"></i>';
+                    break;
+                case 900:
+                    result += '<i class="fa fa-eclamation-triangle l-icon-without-btn" style="color:#FF6600"></i>';
+                    break;
             }
         }
-        return '&nbsp;' + result + params.data.method;
+        return result + params.data.method;
     }
 
     onCellClick({colDef, value, data}: any): void {

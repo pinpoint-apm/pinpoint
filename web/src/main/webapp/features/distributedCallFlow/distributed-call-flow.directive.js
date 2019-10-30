@@ -93,38 +93,38 @@
 	
 	                    if (window.callStacks[idx + 1] && window.callStacks[idx + 1].indent > window.callStacks[idx].indent) {
 	                        if (dataContext._collapsed) {
-	                            html.push(" <span class='toggle expand'></span>&nbsp;");
+	                            html.push(" <span class='toggle expand' style='margin-right:3px'></span>");
 	                        } else {
-	                            html.push(" <span class='toggle collapse'></span>&nbsp;");
+	                            html.push(" <span class='toggle collapse' style='margin-right:3px'></span>");
 	                        }
 	                    } else {
-	                        html.push(" <span class='toggle'></span>&nbsp;");
+	                        html.push(" <span class='toggle' style='margin-right:3px'></span>");
 	                    }
 	
 	                    if (item.hasException) {
-	                        html.push('<span class="glyphicon glyphicon-fire"></span>&nbsp;');
+	                        html.push('<span class="glyphicon glyphicon-fire" style="margin-right:3px"></span>');
 	                    } else if (!item.isMethod) {
 	                    	if( item.method === "SQL" ) {
-								html.push('<button type="button" class="btn btn-default btn-xs btn-success sql" style="padding:0px 2px 0px 2px"><span class="glyphicon glyphicon-eye-open sql"></span></button>&nbsp;');
+								html.push('<button type="button" class="btn btn-default btn-xs btn-success sql" style="padding:0px 2px 0px 2px;margin-right:3px;"><span class="glyphicon glyphicon-eye-open sql"></span></button>');
 							} else if( item.method === "MONGO-JSON" ) {
-	                    		html.push('<button type="button" class="btn btn-default btn-xs btn-success json" style="padding:0px 2px 0px 2px"><span class="glyphicon glyphicon-eye-open json"></span></button>&nbsp;');
+	                    		html.push('<button type="button" class="btn btn-default btn-xs btn-success json" style="padding:0px 2px 0px 2px;margin-right:3px;"><span class="glyphicon glyphicon-eye-open json"></span></button>');
 	                    	} else {
-	                    		html.push('<span class="glyphicon glyphicon-info-sign"></span>&nbsp;');
+	                    		html.push('<span class="glyphicon glyphicon-info-sign" style="margin-right:3px"></span>');
 	                    	}
 	                        
 	                    } else {
 	                    	var itemMethodType = parseInt( item.methodType );
 	                    	switch( itemMethodType ) {
-	                    	case 100:
-	                    			html.push('<i class="xi-shipping"></i>&nbsp;');
-	                    			break;
-	                    	case 200:
-	                    			html.push('<span class="glyphicon glyphicon-transfer"></span>&nbsp;');
-	                    			break;
-	                    	case 900:
-	                    			html.push('<i class="xi-info-triangle" style="color:#FF6600"></i>&nbsp;');
-	                    			break;
-	                    	}
+                                case 100:
+                                    html.push('<i class="xi-shipping" style="margin-right:3px"></i>');
+                                    break;
+                                case 200:
+                                    html.push('<span class="glyphicon glyphicon-transfer" style="margin-right:3px"></span>');
+                                    break;
+                                case 900:
+                                    html.push('<i class="xi-info-triangle" style="color:#FF6600;margin-right:3px"></i>');
+                                    break;
+                            }
 	                    }
 	
 	                    html.push( getAuthorizeView( dataContext.isAuthorized, value ) );
