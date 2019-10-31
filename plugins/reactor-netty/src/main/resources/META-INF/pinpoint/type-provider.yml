@@ -1,0 +1,8 @@
+serviceTypes:
+    - code: 1140
+      name: 'REACTOR_NETTY'
+      property:
+            recordStatistics: true
+    - code: 1141
+      name: 'REACTOR_NETTY_INTERNAL'
+      desc: 'REACTOR_NETTY'

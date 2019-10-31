@@ -64,8 +64,9 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
  * <tr><td>1120</td><td>UNDERTOW</td></tr>
  * <tr><td>1121</td><td>UNDERTOW_METHOD</td></tr>
  * <tr><td>1126</td><td>UNDERTOW_SERVLET_METHOD</td></tr>
- *
  * <tr><td>1130</td><td>GRPC_SERVER</td></tr>
+ * <tr><td>1140</td><td>REACTOR_NETTY</td></tr>
+ * <tr><td>1141</td><td>REACTOR_NETTY_INTERNAL</td></tr>
  *
  * <tr><td>1400</td><td>NODE</td></tr>
  * <tr><td>1401</td><td>NODE_METHOD</td></tr>
@@ -135,6 +136,7 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
  * <tr><td>6060</td><td>HIKARICP</td></tr>
  * <tr><td>6062</td><td>DRUID</td></tr>
  * <tr><td>6500</td><td>RXJAVA</td></tr>
+ * <tr><td>6510</td><td>REACTOR</td></tr>
  * <tr><td>6600</td><td>EXPRESS</td></tr>
  * <tr><td>6610</td><td>KOA</td></tr>
  * <tr><td>6620</td><td>HAPI</td></tr>

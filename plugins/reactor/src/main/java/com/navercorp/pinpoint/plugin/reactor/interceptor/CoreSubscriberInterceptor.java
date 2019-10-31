@@ -14,24 +14,22 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.plugin.spring.webflux.interceptor;
+package com.navercorp.pinpoint.plugin.reactor.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
-import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessorUtils;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AsyncContextSpanEventSimpleAroundInterceptor;
-import com.navercorp.pinpoint.plugin.spring.webflux.SpringWebFluxConstants;
+import com.navercorp.pinpoint.plugin.reactor.ReactorConstants;
 
 /**
  * @author jaehong.kim
  */
-public class DispatchHandlerInvokeHandlerMethodInterceptor extends AsyncContextSpanEventSimpleAroundInterceptor {
+public class CoreSubscriberInterceptor extends AsyncContextSpanEventSimpleAroundInterceptor {
 
-    public DispatchHandlerInvokeHandlerMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
-        super(traceContext, methodDescriptor);
+    public CoreSubscriberInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
+        super(traceContext, descriptor);
     }
 
     @Override
@@ -39,28 +37,9 @@ public class DispatchHandlerInvokeHandlerMethodInterceptor extends AsyncContextS
     }
 
     @Override
-    protected AsyncContext getAsyncContext(Object target, Object[] args) {
-        if (args != null && args.length >= 1) {
-            return AsyncContextAccessorUtils.getAsyncContext(args[0]);
-        }
-        return null;
-    }
-
-    @Override
     protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
         recorder.recordApi(methodDescriptor);
-        recorder.recordServiceType(SpringWebFluxConstants.SPRING_WEBFLUX);
+        recorder.recordServiceType(ReactorConstants.REACTOR_NETTY);
         recorder.recordException(throwable);
-
-        final AsyncContext publisherAsyncContext = getAsyncContext(target, args);
-        if (publisherAsyncContext != null) {
-            // Set AsyncContext to CoreSubscriber
-            if (result instanceof AsyncContextAccessor) {
-                ((AsyncContextAccessor) (result))._$PINPOINT$_setAsyncContext(publisherAsyncContext);
-                if (isDebug) {
-                    logger.debug("Set AsyncContext result={}", result);
-                }
-            }
-        }
     }
 }
