@@ -306,9 +306,9 @@ export class CallTreeComponent implements OnInit, OnChanges, AfterViewInit {
             result += '<i class="fa fa-fire l-icon-without-btn" style="color:red"></i>';
         } else if (!params.data.isMethod) {
             if (params.data.method === 'SQL') {
-                return '<button type="button" class="btn btn-blue l-btn-inside-method" style="padding:0px 2px;height:20px;"><i class="fa fa-database" class="l-icon-inside-btn"></i>' + params.data.method + '</button>';
+                return '<button type="button" class="btn btn-blue l-btn-inside-method" style="padding:0px 2px;height:20px;"><i class="fa fa-database l-icon-inside-btn"></i>' + params.data.method + '</button>';
             } else if (params.data.method === 'MONGO-JSON') {
-                return '<button type="button" class="btn btn-blue l-btn-inside-method" style="padding:0px 2px;height:20px;"><i class="fa fa-database" class="l-icon-inside-btn"></i>JSON</button>';
+                return '<button type="button" class="btn btn-blue l-btn-inside-method" style="padding:0px 2px;height:20px;"><i class="fa fa-database l-icon-inside-btn"></i>JSON</button>';
             } else {
                 result += '<i class="fa fa-info-circle l-icon-without-btn"></i>';
             }
