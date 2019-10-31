@@ -16,49 +16,37 @@
 
 package com.navercorp.pinpoint.plugin.spring.webflux.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
-import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
+import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.plugin.spring.webflux.SpringWebFluxConstants;
+
+import org.springframework.http.client.reactive.ClientHttpResponse;
 
 /**
  * @author jaehong.kim
  */
-public class DispatchHandlerHandleMethodInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
+public class ClientResponseFunctionInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
 
-    public DispatchHandlerHandleMethodInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
+    public ClientResponseFunctionInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
         super(traceContext, descriptor);
     }
 
     @Override
     protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
-        if (isAsync(args)) {
-            // make asynchronous trace-id
-            final AsyncContext asyncContext = recorder.recordNextAsyncContext();
-            ((AsyncContextAccessor) args[0])._$PINPOINT$_setAsyncContext(asyncContext);
-            if (isDebug) {
-                logger.debug("Set closeable-AsyncContext {}", asyncContext);
-            }
-        }
-    }
-
-    private boolean isAsync(Object[] args) {
-        if (args == null || args.length < 1) {
-            return false;
-        }
-        if (!(args[0] instanceof AsyncContextAccessor)) {
-            return false;
-        }
-        return true;
     }
 
     @Override
     protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
-        recorder.recordServiceType(SpringWebFluxConstants.SPRING_WEBFLUX);
-        recorder.recordApi(this.methodDescriptor);
+        recorder.recordApi(methodDescriptor);
         recorder.recordException(throwable);
+        recorder.recordServiceType(SpringWebFluxConstants.SPRING_WEBFLUX);
+
+        if (args[0] instanceof ClientHttpResponse) {
+            ClientHttpResponse response = (ClientHttpResponse) args[0];
+            recorder.recordAttribute(AnnotationKey.HTTP_STATUS_CODE, response.getRawStatusCode());
+        }
     }
 }

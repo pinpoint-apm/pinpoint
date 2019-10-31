@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.plugin.spring.webflux.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
-import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessorUtils;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
@@ -28,47 +27,28 @@ import com.navercorp.pinpoint.plugin.spring.webflux.SpringWebFluxConstants;
 /**
  * @author jaehong.kim
  */
-public class ExchangeFunctionMethodInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
+public class DefaultWebClientExchangeMethodInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
 
-    public ExchangeFunctionMethodInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
+    public DefaultWebClientExchangeMethodInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
         super(traceContext, descriptor);
     }
 
     @Override
-    protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
-        if (isAsync(args)) {
-            // make asynchronous trace-id
-            final AsyncContext asyncContext = recorder.recordNextAsyncContext();
-            ((AsyncContextAccessor) args[0])._$PINPOINT$_setAsyncContext(asyncContext);
-            if (isDebug) {
-                logger.debug("Set closeable-AsyncContext {}", asyncContext);
-            }
-        }
-    }
-
-    private boolean isAsync(Object[] args) {
-        if (args == null || args.length < 1) {
-            return false;
-        }
-        if (!(args[0] instanceof AsyncContextAccessor)) {
-            return false;
-        }
-        return true;
+    public void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
     }
 
     @Override
-    protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
+    public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
         recorder.recordApi(methodDescriptor);
-        recorder.recordServiceType(SpringWebFluxConstants.SPRING_WEBFLUX);
         recorder.recordException(throwable);
+        recorder.recordServiceType(SpringWebFluxConstants.SPRING_WEBFLUX);
 
-        if (isAsync(args) && isAsync(result)) {
-            final AsyncContext asyncContext = AsyncContextAccessorUtils.getAsyncContext(args[0]);
-            if (asyncContext != null) {
-                ((AsyncContextAccessor) result)._$PINPOINT$_setAsyncContext(asyncContext);
-                if (isDebug) {
-                    logger.debug("Set closeable-AsyncContext {}", asyncContext);
-                }
+        if (isAsync(result)) {
+            // make asynchronous trace-id
+            final AsyncContext asyncContext = recorder.recordNextAsyncContext();
+            ((AsyncContextAccessor) result)._$PINPOINT$_setAsyncContext(asyncContext);
+            if (isDebug) {
+                logger.debug("Set closeable-AsyncContext {}", asyncContext);
             }
         }
     }

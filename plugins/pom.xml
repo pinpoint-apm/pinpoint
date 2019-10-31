@@ -95,6 +95,8 @@
 	    <module>elasticsearch-bboss</module>
 	    <module>apache-dubbo</module>
         <module>elasticsearch</module>
+        <module>reactor</module>
+        <module>reactor-netty</module>
     </modules>
 
     <dependencyManagement>

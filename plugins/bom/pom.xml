@@ -349,6 +349,18 @@
                     </exclusion>
                 </exclusions>
             </dependency>
+
+            <dependency>
+                <groupId>io.projectreactor</groupId>
+                <artifactId>reactor-core</artifactId>
+                <version>3.3.0.RELEASE</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.projectreactor.netty</groupId>
+                <artifactId>reactor-netty</artifactId>
+                <version>0.9.1.RELEASE</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 </project>
