@@ -23,13 +23,13 @@ interface IServerFormat {
 export class HintParamMaker {
     static makeParam(currentHint: string, addedHint: IServerFormat): string {
         if (addedHint) {
-            const parsedCurrntHint = JSON.parse(currentHint || '{}');
-            const currentHintKeys = Object.keys(parsedCurrntHint);
+            const parsedCurrentHint = JSON.parse(currentHint || '{}');
+            const currentHintKeys = Object.keys(parsedCurrentHint);
 
             if (currentHintKeys.length === 0) {
                 return '/' + encodeURIComponent(JSON.stringify(HintParamMaker.makeToUrlFormatFromServerFormat(addedHint)));
             } else {
-                const urlFormatOfCurrentHint = HintParamMaker.makeToServerFormatFromUrlFormat(parsedCurrntHint);
+                const urlFormatOfCurrentHint = HintParamMaker.makeToServerFormatFromUrlFormat(parsedCurrentHint);
                 const mergedFormat = HintParamMaker.mergeFormat(urlFormatOfCurrentHint, addedHint);
                 return '/' + encodeURIComponent(JSON.stringify(HintParamMaker.makeToUrlFormatFromServerFormat(mergedFormat)));
             }

@@ -59,9 +59,7 @@ export class LinkContextPopupContainerComponent implements OnInit, AfterViewInit
                     this.data.targetInfo.applicationName,
                     this.data.targetInfo.serviceType
                 ),
-                addedHint: (isBothWas ? {
-                    [this.data.targetInfo.applicationName]: this.data.filterTargetRpcList
-                } : null)
+                addedHint: isBothWas ? {[this.data.targetInfo.applicationName]: this.data.filterTargetRpcList} : null
             })
         );
     }

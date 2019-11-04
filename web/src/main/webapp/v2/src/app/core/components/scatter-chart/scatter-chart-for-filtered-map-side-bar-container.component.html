@@ -1,19 +1,19 @@
-<article class="l-chart-item" [ngClass]="checkClass()" [hidden]="isHide()">
-    <pp-scatter-chart-setting-popup [hidden]="isHideSettingPopup()"
+<article class="l-chart-item" [ngClass]="wrapperClassName" [hidden]="shouldHide">
+    <pp-scatter-chart-setting-popup [hidden]="hideSettingPopup"
         [instanceKey]="instanceKey"
         [min]="fromY"
         [max]="toY"
         (outApply)="onApplySetting($event)"
-        (outCancel)="onCancelSetting()"
-    ></pp-scatter-chart-setting-popup>
+        (outCancel)="onCancelSetting()">
+    </pp-scatter-chart-setting-popup>
     <pp-scatter-chart-options
         [instanceKey]="instanceKey"
         [hiddenOptions]="{ setting: false, download: false, open: false, help: false }"
         (outShowSetting)="onShowSetting()"
         (outDownload)="onDownload()"
         (outOpenScatterPage)="onOpenScatterPage()"
-        (outShowHelp)="onShowHelp($event)"
-    ></pp-scatter-chart-options>
+        (outShowHelp)="onShowHelp($event)">
+    </pp-scatter-chart-options>
     <pp-scatter-chart style="height: 215px"
         [instanceKey]="instanceKey"
         [addWindow]="addWindow"
@@ -31,8 +31,8 @@
         [i18nText]="i18nText"
         (outTransactionCount)="onChangeTransactionCount($event)"
         (outSelectArea)="onSelectArea($event)"
-        (outChangeRangeX)="onChangeRangeX($event)"
-    ></pp-scatter-chart>
+        (outChangeRangeX)="onChangeRangeX($event)">
+    </pp-scatter-chart>
     <pp-scatter-chart-state-view
         [instanceKey]="instanceKey"
         [transactionTypeCount]="typeCount"
