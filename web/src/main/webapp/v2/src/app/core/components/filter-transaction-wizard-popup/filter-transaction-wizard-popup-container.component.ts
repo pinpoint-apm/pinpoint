@@ -83,9 +83,7 @@ export class FilterTransactionWizardPopupContainerComponent implements OnInit, A
                 filterStr: this.newUrlStateNotificationService.hasValue(UrlPathId.FILTER) ? this.newUrlStateNotificationService.getPathValue(UrlPathId.FILTER) : '',
                 hintStr: this.newUrlStateNotificationService.hasValue(UrlPathId.HINT) ? this.newUrlStateNotificationService.getPathValue(UrlPathId.HINT) : '',
                 addedFilter: f,
-                addedHint: (isBothWas ? {
-                    [param.to.applicationName]: param.filterTargetRpcList
-                } : null)
+                addedHint: isBothWas ? {[param.to.applicationName]: param.filterTargetRpcList} : null
             })
         );
     }

@@ -27,14 +27,15 @@ import { HELP_VIEWER_LIST, HelpViewerPopupContainerComponent } from 'app/core/co
 })
 export class ScatterChartForFullScreenModeContainerComponent implements OnInit, OnDestroy {
     @ViewChild('layerBackground', { static: true }) layerBackground: ElementRef;
-    private unsubscribe: Subject<null> = new Subject();
+    private unsubscribe = new Subject<void>();
+    private _hideSettingPopup = true;
+
     instanceKey = 'full-screen-mode';
     addWindow = true;
     i18nText: { [key: string]: string };
     selectedTarget: ISelectedTarget;
     selectedApplication: string;
     scatterDataServiceSubscription: Subscription;
-    hideSettingPopup = true;
     selectedAgent: string;
     typeCount: object;
     width = 690;
@@ -50,6 +51,7 @@ export class ScatterChartForFullScreenModeContainerComponent implements OnInit, 
     timezone$: Observable<string>;
     dateFormat: string[];
     showBlockMessagePopup = false;
+
     constructor(
         private renderer: Renderer2,
         private translateService: TranslateService,
@@ -76,7 +78,7 @@ export class ScatterChartForFullScreenModeContainerComponent implements OnInit, 
             this.selectedAgent = urlService.hasValue(UrlPathId.AGENT_ID) ? urlService.getPathValue(UrlPathId.AGENT_ID) : '';
             this.fromX = urlService.getStartTimeToNumber();
             this.toX = urlService.getEndTimeToNumber();
-            of(1).pipe(delay(1)).subscribe((num: number) => {
+            of(1).pipe(delay(1)).subscribe(() => {
                 this.scatterChartInteractionService.reset(this.instanceKey, this.selectedApplication, this.selectedAgent, this.fromX, this.toX, this.scatterChartMode);
                 this.getScatterData();
             });
@@ -121,6 +123,7 @@ export class ScatterChartForFullScreenModeContainerComponent implements OnInit, 
         });
         this.connectStore();
     }
+
     ngOnDestroy() {
         if (this.scatterDataServiceSubscription) {
             this.scatterDataServiceSubscription.unsubscribe();
@@ -128,11 +131,14 @@ export class ScatterChartForFullScreenModeContainerComponent implements OnInit, 
         this.unsubscribe.next();
         this.unsubscribe.complete();
     }
+
     private setScatterY(): void {
-        const scatterYData = this.webAppSettingDataService.getScatterY(this.instanceKey);
-        this.fromY = scatterYData.min;
-        this.toY = scatterYData.max;
+        const {min, max} = this.webAppSettingDataService.getScatterY(this.instanceKey);
+
+        this.fromY = min;
+        this.toY = max;
     }
+
     private getI18NText(): void {
         forkJoin(
             this.translateService.get('COMMON.NO_DATA'),
@@ -146,12 +152,14 @@ export class ScatterChartForFullScreenModeContainerComponent implements OnInit, 
             };
         });
     }
+
     private connectStore(): void {
         this.timezone$ = this.storeHelperService.getTimezone(this.unsubscribe);
         this.storeHelperService.getDateFormatArray(this.unsubscribe, 4, 5).subscribe((dateFormat: string[]) => {
             this.dateFormat = dateFormat;
         });
     }
+
     getScatterData(): void {
         this.scatterChartDataService.loadData(
             this.selectedApplication.split('^')[0],
@@ -164,15 +172,23 @@ export class ScatterChartForFullScreenModeContainerComponent implements OnInit, 
             this.scatterChartDataService.loadRealTimeDataV2(this.toX);
         }
     }
+
     getGroupUnitX(): number {
         return Math.round((this.toX - this.fromX) / this.width);
     }
+
     getGroupUnitY(): number {
         return Math.round((this.toY - this.fromY) / this.height);
     }
-    isHideSettingPopup(): boolean {
-        return this.hideSettingPopup;
+
+    set hideSettingPopup(hide: boolean) {
+        this._hideSettingPopup = hide;
     }
+
+    get hideSettingPopup(): boolean {
+        return this._hideSettingPopup;
+    }
+
     onApplySetting(params: any): void {
         this.fromY = params.min;
         this.toY = params.max;
@@ -184,19 +200,23 @@ export class ScatterChartForFullScreenModeContainerComponent implements OnInit, 
         this.onHideSetting();
         this.webAppSettingDataService.setScatterY(this.instanceKey, { min: params.min, max: params.max });
     }
+
     onHideSetting(): void {
         this.renderer.setStyle(this.layerBackground.nativeElement, 'display', 'none');
         this.hideSettingPopup = true;
     }
+
     onShowSetting(): void {
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.CLICK_SCATTER_SETTING);
         this.renderer.setStyle(this.layerBackground.nativeElement, 'display', 'block');
         this.hideSettingPopup = false;
     }
+
     onDownload(): void {
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.DOWNLOAD_SCATTER);
         this.scatterChartInteractionService.downloadChart(this.instanceKey);
     }
+
     onShowHelp($event: MouseEvent): void {
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.TOGGLE_HELP_VIEWER, HELP_VIEWER_LIST.SCATTER);
         const {left, top, width, height} = ($event.target as HTMLElement).getBoundingClientRect();
@@ -213,19 +233,23 @@ export class ScatterChartForFullScreenModeContainerComponent implements OnInit, 
             injector: this.injector
         });
     }
+
     onChangedSelectType(params: {instanceKey: string, name: string, checked: boolean}): void {
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.CHANGE_SCATTER_CHART_STATE, `${params.name}: ${params.checked ? `on` : `off`}`);
         this.scatterChartInteractionService.changeViewType(params);
     }
+
     onChangeTransactionCount(params: object): void {
         this.typeCount = params;
     }
+
     onChangeRangeX(params: IScatterXRange): void {
         this.messageQueueService.sendMessage({
             to: MESSAGE_TO.REAL_TIME_SCATTER_CHART_X_RANGE,
             param: [params]
         });
     }
+
     onSelectArea(params: any): void {
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.OPEN_TRANSACTION_LIST);
         const returnOpenWindow = this.urlRouteManagerService.openPage([
@@ -238,6 +262,7 @@ export class ScatterChartForFullScreenModeContainerComponent implements OnInit, 
             this.showBlockMessagePopup = true;
         }
     }
+
     onCloseBlockMessage(): void {
         this.showBlockMessagePopup = false;
     }

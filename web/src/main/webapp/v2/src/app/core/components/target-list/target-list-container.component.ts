@@ -104,6 +104,7 @@ export class TargetListContainerComponent implements OnInit, OnDestroy {
 
     private gatherTargets(): void {
         const targetList: any[] = [];
+
         if (this.target.isNode) {
             this.target.node.forEach((nodeKey: string) => {
                 targetList.push([this.serverMapData.getNodeData(nodeKey), '']);
@@ -130,23 +131,27 @@ export class TargetListContainerComponent implements OnInit, OnDestroy {
         this.storeHelperService.dispatch(new Actions.UpdateServerMapSelectedTargetByList(target));
     }
 
-    onOpenFilter(target: any): void {
+    onOpenFilter([target]: any): void {
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.CLICK_FILTER_TRANSACTION);
-        const link = this.serverMapData.getLinkData(target[1]);
-        this.urlRouteManagerService.openPage(this.urlRouteManagerService.makeFilterMapUrl({
-            applicationName: link.filterApplicationName,
-            serviceType: link.filterApplicationServiceTypeName,
-            periodStr: this.newUrlStateNotificationService.getPathValue(UrlPathId.PERIOD).getValueWithAddedWords(),
-            timeStr: this.newUrlStateNotificationService.getPathValue(UrlPathId.PERIOD).getEndTime(),
-            filterStr: this.newUrlStateNotificationService.getPathValue(UrlPathId.FILTER),
-            hintStr: this.newUrlStateNotificationService.getPathValue(UrlPathId.HINT),
-            addedFilter: new Filter(
-                link.sourceInfo.applicationName,
-                link.sourceInfo.serviceType,
-                link.targetInfo.applicationName,
-                link.targetInfo.serviceType
-            )}
-        ));
+        const isBothWas = target.sourceInfo.isWas && target.targetInfo.isWas;
+
+        this.urlRouteManagerService.openPage(
+            this.urlRouteManagerService.makeFilterMapUrl({
+                applicationName: target.filterApplicationName,
+                serviceType: target.filterApplicationServiceTypeName,
+                periodStr: this.newUrlStateNotificationService.getPathValue(UrlPathId.PERIOD).getValueWithAddedWords(),
+                timeStr: this.newUrlStateNotificationService.getPathValue(UrlPathId.END_TIME).getEndTime(),
+                filterStr: this.newUrlStateNotificationService.hasValue(UrlPathId.FILTER) ? this.newUrlStateNotificationService.getPathValue(UrlPathId.FILTER) : '',
+                hintStr: this.newUrlStateNotificationService.hasValue(UrlPathId.HINT) ? this.newUrlStateNotificationService.getPathValue(UrlPathId.HINT) : '',
+                addedFilter: new Filter(
+                    target.sourceInfo.applicationName,
+                    target.sourceInfo.serviceType,
+                    target.targetInfo.applicationName,
+                    target.targetInfo.serviceType
+                ),
+                addedHint: isBothWas ? {[target.targetInfo.applicationName]: target.filterTargetRpcList} : null
+            })
+        );
     }
 
     getRequestSum(): number  {

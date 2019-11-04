@@ -39,6 +39,7 @@ button {
     border-radius: 10px;
     font-size: 11px;
     padding: 1px 3px 0px 3px;
+    outline: none;
 }
 button:first-of-type {
     color: #4b99e3;
