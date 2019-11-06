@@ -5,7 +5,7 @@ Pinpoint는 공식적으로는 Linux와 OS X를 지원한다. 하지만 Pinpoint
 
 `git clone https://github.com/naver/pinpoint.git`로 Pinpoint를 다운로드 하거나 zip 파일로 프로젝트를 [다운로드](https://github.com/naver/pinpoint/archive/master.zip)하고 압축을 해제한다.
 
-`cd pinpoint`를 하고 `mvn install -Dmaven.test.skip=true`를 실행하여 maven으로 Pinpoint를 설치한다.
+`mvnw.cmd install -DskipTests=true`를 실행하여 Pinpoint를 설치한다.
 
 ### 설치 및 HBase 시작하기
 **[Apache 다운로드 사이트](http://apache.mirror.cdnetworks.com/hbase/)에서 HBase 1.0.x 버전을 다운로드 받는다.
@@ -20,9 +20,9 @@ Pinpoint는 공식적으로는 Linux와 OS X를 지원한다. 하지만 Pinpoint
 
 **Collector** - `quickstart\bin\start-collector.cmd` 실행
 
-**Web UI** - `quickstart\bin\start-web.cmd` 실행
-
 **TestApp** - `quickstart\bin\start-testapp.cmd` 실행
+
+**Web UI** - `quickstart\bin\start-web.cmd` 실행
 
 ### 상태 확인
 HBase와 3개 데몬이 실행한 후 Pinpoint 인스턴스를 테스트하려면 아래 주소로 접속한다.
@@ -34,10 +34,10 @@ TestApp UI를 사용하여 Pinpoint로 추적 데이터를 전송하고, Pinpoin
 
 ## 종료하기
 
-**HBase** - `quickstart\bin\stop-hbase.cmd` 실행
-
-**Collector** - `quickstart\bin\stop-collector.cmd` 실행
-
 **Web UI** - `quickstart\bin\stop-web.cmd` 실행
 
 **TestApp** - `quickstart\bin\stop-testapp.cmd` 실행
+
+**Collector** - `quickstart\bin\stop-collector.cmd` 실행
+
+**HBase** - `quickstart\bin\stop-hbase.cmd` 실행

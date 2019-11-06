@@ -1,0 +1,28 @@
+<article class="l-target-container-wrapper" *ngIf="showList"> 
+    <div class="l-target-container">
+        <div class="l-search-header">
+            <input type="text" placeholder="{{i18nText.PLACE_HOLDER}}"
+                ppSearchInput
+                [searchMinLength]="minLength"
+                [useEnter]="searchUseEnter"
+                (outCancel)="onCancel()"
+                (outSearch)="onSearch($event)">
+            <button class="fas fa-search"></button>
+        </div>
+        <div class="l-target-list">
+            <pp-target-list
+                [isLink]="target?.isLink"
+                [targetList]="targetList"
+                (outSelectTarget)="onSelectTarget($event)"
+                (outOpenFilter)="onOpenFilter($event)"
+                (outOpenFilterWizard)="onOpenFilterWizard($event)">
+            </pp-target-list>
+        </div>
+        <div class="l-summary">
+            <div class="l-target-item">
+                <span class="l-application-sum">{{targetList.length}} application{{targetList.length > 1 ? 's' : ''}}</span>
+                <span class="l-request-sum">{{getRequestSum() | number}}</span>
+            </div>
+        </div>
+    </div>
+</article>          

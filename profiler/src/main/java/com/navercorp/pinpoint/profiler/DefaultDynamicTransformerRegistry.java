@@ -20,7 +20,9 @@ import java.lang.instrument.ClassFileTransformer;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import com.google.inject.Inject;
 import com.navercorp.pinpoint.bootstrap.instrument.RequestHandle;
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,13 +33,17 @@ public class DefaultDynamicTransformerRegistry implements DynamicTransformerRegi
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final ConcurrentMap<TransformerKey, ClassFileTransformer> transformerMap = new ConcurrentHashMap<TransformerKey, ClassFileTransformer>();
 
+    @Inject
+    public DefaultDynamicTransformerRegistry() {
+    }
+
     @Override
     public RequestHandle onRetransformRequest(Class<?> target, final ClassFileTransformer transformer) {
         if (target == null) {
-            throw new NullPointerException("target must not be null");
+            throw new NullPointerException("target");
         }
         if (transformer == null) {
-            throw new NullPointerException("transformer must not be null");
+            throw new NullPointerException("transformer");
         }
 
         final TransformerKey key = createTransformKey(target);
@@ -53,11 +59,7 @@ public class DefaultDynamicTransformerRegistry implements DynamicTransformerRegi
     @Override
     public void onTransformRequest(ClassLoader classLoader, String targetClassName, ClassFileTransformer transformer) {
 
-        // TODO fix classLoader null case
-//        if (classLoader== null) {
-//            boot? ext? system?
-//            classLoader = ClassLoader.getSystemClassLoader();
-//        }
+
         final TransformerKey transformKey = createTransformKey(classLoader, targetClassName);
         add(transformKey, transformer);
 
@@ -75,8 +77,8 @@ public class DefaultDynamicTransformerRegistry implements DynamicTransformerRegi
     }
 
     private TransformerKey createTransformKey(ClassLoader classLoader, String targetClassName) {
-        final String jvmName = JavaAssistUtils.javaNameToJvmName(targetClassName);
-        return new TransformerKey(classLoader, jvmName);
+        final String classInternName = JavaAssistUtils.javaNameToJvmName(targetClassName);
+        return new TransformerKey(classLoader, classInternName);
     }
 
     private TransformerKey createTransformKey(Class<?> targetClass) {
@@ -112,14 +114,11 @@ public class DefaultDynamicTransformerRegistry implements DynamicTransformerRegi
     private static final class TransformerKey {
         // TODO defense classLoader memory leak
         private final ClassLoader classLoader;
-        private final String targetClassName;
+        private final String targetClassInternalName;
         
-        public TransformerKey(ClassLoader classLoader, String targetClassName) {
-            if (targetClassName == null) {
-                throw new NullPointerException("targetClassName must not be null");
-            }
+        public TransformerKey(ClassLoader classLoader, String targetClassInternalName) {
             this.classLoader = classLoader;
-            this.targetClassName = targetClassName;
+            this.targetClassInternalName = Assert.requireNonNull(targetClassInternalName, "targetClassInternalName");
         }
 
         @Override
@@ -130,14 +129,14 @@ public class DefaultDynamicTransformerRegistry implements DynamicTransformerRegi
             TransformerKey that = (TransformerKey) o;
 
             if (classLoader != null ? !classLoader.equals(that.classLoader) : that.classLoader != null) return false;
-            return targetClassName.equals(that.targetClassName);
+            return targetClassInternalName.equals(that.targetClassInternalName);
 
         }
 
         @Override
         public int hashCode() {
             int result = classLoader != null ? classLoader.hashCode() : 0;
-            result = 31 * result + targetClassName.hashCode();
+            result = 31 * result + targetClassInternalName.hashCode();
             return result;
         }
 
@@ -145,7 +144,7 @@ public class DefaultDynamicTransformerRegistry implements DynamicTransformerRegi
         public String toString() {
             return "TransformerKey{" +
                     "classLoader=" + classLoader +
-                    ", targetClassName='" + targetClassName + '\'' +
+                    ", targetClassInternalName='" + targetClassInternalName + '\'' +
                     '}';
         }
     }
@@ -155,7 +154,7 @@ public class DefaultDynamicTransformerRegistry implements DynamicTransformerRegi
 
         public DefaultRequestHandle(TransformerKey key) {
             if (key == null) {
-                throw new NullPointerException("key must not be null");
+                throw new NullPointerException("key");
             }
             this.key = key;
         }

@@ -1,33 +1,39 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright 2019 NAVER Corp.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:context="http://www.springframework.org/schema/context"
-       xmlns:lang="http://www.springframework.org/schema/lang"
-       xmlns:beans="http://www.springframework.org/schema/beans"
-       xmlns:util="http://www.springframework.org/schema/util" xmlns:jdbc="http://www.springframework.org/schema/jdbc"
-       xsi:schemaLocation="http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc.xsd
-        http://www.springframework.org/schema/lang http://www.springframework.org/schema/lang/spring-lang.xsd
+       xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="
         http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
         http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
         http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
     <context:annotation-config/>
-
-        <!--
-    <context:component-scan base-package="com.navercorp.pinpoint.web.dao.hbase,
-                                         com.navercorp.pinpoint.web.dao.mysql,
-                                         com.navercorp.pinpoint.web.service,
-                                         com.navercorp.pinpoint.web.mapper,
-                                         com.navercorp.pinpoint.web.filter" />
-        -->
-
     <context:component-scan base-package="com.navercorp.pinpoint.web.dao.hbase,
                                          com.navercorp.pinpoint.web.service,
                                          com.navercorp.pinpoint.web.mapper,
                                          com.navercorp.pinpoint.web.filter,
                                          com.navercorp.pinpoint.web.config,
                                          com.navercorp.pinpoint.web.view,
-                                         com.navercorp.pinpoint.common.server.bo" />
+                                         com.navercorp.pinpoint.web.applicationmap,
+                                         com.navercorp.pinpoint.common.server.bo,
+                                         com.navercorp.pinpoint.common.server.util" />
 
     <bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
         <property name="locations">
@@ -48,10 +54,7 @@
     <import resource="classpath:applicationContext-dao-config.xml" />
     <import resource="classpath:applicationContext-cache.xml" />
     <import resource="classpath:applicationContext-websocket.xml" />
-
-    <bean id="spanMapper" class="com.navercorp.pinpoint.web.mapper.SpanMapper">
-    </bean>
-
+    <import resource="classpath:applicationContext-web-namespace.xml"/>
 
     <bean id="jsonObjectMapper" class="org.springframework.http.converter.json.Jackson2ObjectMapperFactoryBean">
     </bean>
@@ -59,18 +62,17 @@
     <bean id="rangeFactory" class="com.navercorp.pinpoint.web.vo.RangeFactory">
     </bean>
 
-    <bean id="timeSlot" class="com.navercorp.pinpoint.common.util.DefaultTimeSlot">
+    <bean id="timeSlot" class="com.navercorp.pinpoint.common.server.util.DefaultTimeSlot">
     </bean>
 
     <bean id="config" class="com.navercorp.pinpoint.web.config.WebConfig">
     </bean>
     
-    <bean id="commandHeaderTBaseSerializerFactory" class="com.navercorp.pinpoint.thrift.io.CommandHeaderTBaseSerializerFactory">
-        <constructor-arg value="#{T(com.navercorp.pinpoint.common.Version).VERSION}" />
+    <bean id="commandHeaderTBaseSerializerFactory" class="com.navercorp.pinpoint.thrift.io.CommandHeaderTBaseSerializerFactory" factory-method="getDefaultInstance">
     </bean>
-
-    <bean id="commandHeaderTBaseDeserializerFactory" class="com.navercorp.pinpoint.thrift.io.CommandHeaderTBaseDeserializerFactory">
-        <constructor-arg value="#{T(com.navercorp.pinpoint.common.Version).VERSION}" />
+    <bean id="commandHeaderTBaseDeserializerFactory" class="com.navercorp.pinpoint.thrift.io.CommandHeaderTBaseDeserializerFactory" factory-method="getDefaultInstance">
+    </bean>
+    <bean id="agentEventHeaderTBaseDeserializerFactory" class="com.navercorp.pinpoint.thrift.io.AgentEventHeaderTBaseDeserializerFactory">
     </bean>
 
     <bean id="clusterConnectionManager" class="com.navercorp.pinpoint.web.cluster.connection.ClusterConnectionManager">
@@ -86,15 +88,28 @@
     </bean>
 
     <bean id="agentEventMessageDeserializer" class="com.navercorp.pinpoint.common.server.util.AgentEventMessageDeserializer">
-        <constructor-arg ref="commandHeaderTBaseDeserializerFactory"/>
+        <constructor-arg>
+            <list value-type="com.navercorp.pinpoint.thrift.io.DeserializerFactory">
+                <ref bean="commandHeaderTBaseDeserializerFactory"/>
+                <ref bean="agentEventHeaderTBaseDeserializerFactory"/>
+            </list>
+        </constructor-arg>
     </bean>
 
-    <bean id="typeLoaderService" class="com.navercorp.pinpoint.common.service.DefaultTraceMetadataLoaderService"/>
-    <bean id="serviceTypeRegistryService" class="com.navercorp.pinpoint.common.service.DefaultServiceTypeRegistryService">
+    <bean id="agentEventMessageDeserializerV1" class="com.navercorp.pinpoint.common.server.util.AgentEventMessageDeserializerV1"/>
+
+    <bean id="slf4jCommonLoggerFactory" class="com.navercorp.pinpoint.common.server.util.Slf4jCommonLoggerFactory">
+    </bean>
+
+    <bean id="typeLoaderService" class="com.navercorp.pinpoint.common.server.util.ServerTraceMetadataLoaderService">
+        <constructor-arg index="0" ref="slf4jCommonLoggerFactory"/>
+    </bean>
+
+    <bean id="serviceTypeRegistryService" class="com.navercorp.pinpoint.loader.service.DefaultServiceTypeRegistryService">
         <constructor-arg ref="typeLoaderService"/>
     </bean>
 
-    <bean id="annotationKeyRegistryService" class="com.navercorp.pinpoint.common.service.DefaultAnnotationKeyRegistryService">
+    <bean id="annotationKeyRegistryService" class="com.navercorp.pinpoint.loader.service.DefaultAnnotationKeyRegistryService">
         <constructor-arg ref="typeLoaderService"/>
     </bean>
     
@@ -114,8 +129,84 @@
     <bean id="sqlMetaDataMapper2" class="com.navercorp.pinpoint.web.mapper.SqlMetaDataMapper">
         <property name="rowKeyDistributorByHashPrefix" ref="metadataRowKeyDistributor2"></property>
     </bean>
-    
-    <!-- add to load for batch spring configuration.we need to conditional logic to behave differently base on 'batch.enable' config value -->
-    <bean id="batchConfigruation" class="com.navercorp.pinpoint.web.batch.BatchConfiguration"/>
 
+    <util:properties id="batchProps" location="classpath:batch.properties"/>
+
+    <!-- add to load for batch spring configuration.we need to conditional logic to behave differently base on 'batch.enable' config value -->
+    <bean id="batchConfiguration" class="com.navercorp.pinpoint.web.batch.BatchConfiguration"/>
+
+    <bean id="restTemplate" class="org.springframework.web.client.RestTemplate">
+        <property name="messageConverters">
+            <list>
+                <bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
+                    <property name="objectMapper">
+                        <bean class="com.fasterxml.jackson.databind.ObjectMapper"/>
+                    </property>
+                    <property name="supportedMediaTypes">
+                        <list>
+                            <value>text/json</value>
+                            <value>application/json</value>
+                        </list>
+                    </property>
+                </bean>
+                <bean class="org.springframework.http.converter.FormHttpMessageConverter">
+                    <property name="supportedMediaTypes">
+                        <list>
+                            <value>application/x-www-form-urlencoded</value>
+                        </list>
+                    </property>
+                </bean>
+                <bean class="org.springframework.http.converter.StringHttpMessageConverter">
+                    <property name="supportedMediaTypes">
+                        <list>
+                            <value>text/plain</value>
+                            <value>text/html</value>
+                        </list>
+                    </property>
+                </bean>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="requestContextPropagatingTaskDecorator" class="com.navercorp.pinpoint.web.task.RequestContextPropagatingTaskDecorator"/>
+    <bean id="securityContextPropagatingTaskDecorator" class="com.navercorp.pinpoint.web.task.SecurityContextPropagatingTaskDecorator"/>
+    <bean id="contextPropagatingTaskDecorator" class="com.navercorp.pinpoint.web.task.ChainedTaskDecorator">
+        <constructor-arg>
+            <list>
+                <ref bean="requestContextPropagatingTaskDecorator"/>
+                <ref bean="securityContextPropagatingTaskDecorator"/>
+            </list>
+        </constructor-arg>
+    </bean>
+
+    <bean id="baseTaskExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor" abstract="true">
+        <property name="taskDecorator" ref="contextPropagatingTaskDecorator"/>
+        <property name="daemon" value="true"/>
+        <property name="waitForTasksToCompleteOnShutdown" value="true"/>
+        <property name="awaitTerminationSeconds" value="10"/>
+    </bean>
+
+    <bean id="applicationsMapCreateExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor" parent="baseTaskExecutor">
+        <property name="corePoolSize" value="#{pinpointWebProps['web.servermap.creator.worker.threadSize'] ?: 16}"/>
+        <property name="maxPoolSize" value="#{pinpointWebProps['web.servermap.creator.worker.threadSize'] ?: 16}"/>
+        <property name="queueCapacity" value="#{pinpointWebProps['web.servermap.creator.worker.queueSize'] ?: 1024}"/>
+        <property name="threadNamePrefix" value="Pinpoint-Link-Selector-"/>
+    </bean>
+
+    <bean id="nodeHistogramAppendExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor" parent="baseTaskExecutor">
+        <property name="corePoolSize" value="#{pinpointWebProps['web.servermap.appender.worker.threadSize'] ?: 16}"/>
+        <property name="maxPoolSize" value="#{pinpointWebProps['web.servermap.appender.worker.threadSize'] ?: 16}"/>
+        <property name="queueCapacity" value="#{pinpointWebProps['web.servermap.appender.worker.queueSize'] ?: 1024}"/>
+        <property name="threadNamePrefix" value="Pinpoint-Node-Histogram-Appender-"/>
+    </bean>
+
+    <bean id="serverInfoAppendExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor" parent="baseTaskExecutor">
+        <property name="corePoolSize" value="#{pinpointWebProps['web.servermap.appender.worker.threadSize'] ?: 16}"/>
+        <property name="maxPoolSize" value="#{pinpointWebProps['web.servermap.appender.worker.threadSize'] ?: 16}"/>
+        <property name="queueCapacity" value="#{pinpointWebProps['web.servermap.appender.worker.queueSize'] ?: 1024}"/>
+        <property name="threadNamePrefix" value="Pinpoint-Server-Info-Appender-"/>
+    </bean>
+    <bean id="rewriteFilter" class="com.navercorp.pinpoint.web.servlet.RewriteForV2Filter">
+        <constructor-arg index="0" value="true"/>
+    </bean>
 </beans>

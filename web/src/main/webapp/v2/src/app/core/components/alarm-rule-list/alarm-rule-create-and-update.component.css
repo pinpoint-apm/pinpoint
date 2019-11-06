@@ -1,0 +1,104 @@
+:host {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.l-wrapper {
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 100%;
+    z-index: 15;
+    display: flex;
+    padding: 0px 20px;
+    position: absolute;
+    align-items: center;
+    flex-direction: column;
+    justify-content: center;
+    background-color: rgba(226, 226, 226, 0.8);
+}
+
+.l-wrapper h1 {
+    margin-bottom: 15px;
+}
+
+form { 
+    width: 100%;
+}
+
+.l-form-grid {
+    border: 1px solid #e5e8f0;
+    display: grid;
+    position: relative;
+    grid-template-columns: 50% 50%;
+    grid-template-rows: auto;    
+}
+
+.l-form-grid > div {
+    position: relative;
+    margin-bottom: 10px;
+}
+
+.l-form-grid > div:nth-child(odd) {
+    margin-right: 10px;
+}
+
+.l-wrapper input {
+    width: 100%;
+    border: 1px solid #469ae4;
+    padding: 6px 11px;
+    font-size: 13px;
+    margin-bottom: 2px;
+    background-color: #FFF;
+}
+
+.l-wrapper .l-create {
+    width: 100%;
+    margin-top: 6px;
+}
+
+.l-wrapper .l-close {
+    top: 0px;
+    right: 0px;
+    position: absolute;
+}
+
+select { 
+    width: 100%;
+    appearance: none;
+    -webkit-appearance: none;
+    border-radius: 0px;
+    background-color: #FFF;
+    height: 32px;
+    padding: 0 9px;
+    border:1px solid #4488cb;
+    font-size:13px;
+    color:#666;
+}
+
+textarea { 
+    width: 100%;
+    height: 120px;
+    background-color: #FFF;
+    padding: 6px 11px;
+}
+
+.fa-angle-down {
+    position: absolute;
+    top: 29px;
+    right: 8px;
+    font-size: 15px;
+}
+
+input[disabled] {
+    border: 1px solid #DDD !important;
+}
+
+.l-form-label {
+    color: #333;
+    font-size: 13px;
+    font-family: 'Open Sans', sans-serif;
+    font-weight: 600;
+    margin-bottom: 4px;
+}

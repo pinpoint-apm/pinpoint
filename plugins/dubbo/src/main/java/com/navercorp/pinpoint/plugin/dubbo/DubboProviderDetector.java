@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2014 NAVER Corp.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,21 +14,35 @@
  */
 package com.navercorp.pinpoint.plugin.dubbo;
 
-import com.navercorp.pinpoint.bootstrap.plugin.ApplicationTypeDetector;
-import com.navercorp.pinpoint.bootstrap.resolver.ConditionProvider;
-import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.bootstrap.resolver.condition.MainClassCondition;
+import com.navercorp.pinpoint.common.util.CollectionUtils;
+
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @author Jinkai.Ma
  */
-public final class DubboProviderDetector implements ApplicationTypeDetector {
-    @Override
-    public ServiceType getApplicationType() {
-        return DubboConstants.DUBBO_PROVIDER_SERVICE_TYPE;
+public final class DubboProviderDetector {
+
+    private static final String DEFAULT_EXPECTED_MAIN_CLASS = "com.alibaba.dubbo.container.Main";
+
+    private List<String> expectedMainClasses;
+
+    public DubboProviderDetector(List<String> expectedMainClasses) {
+        if (CollectionUtils.isEmpty(expectedMainClasses)) {
+            this.expectedMainClasses = Collections.singletonList(DEFAULT_EXPECTED_MAIN_CLASS);
+        } else {
+            this.expectedMainClasses = expectedMainClasses;
+        }
     }
 
-    @Override
-    public boolean detect(ConditionProvider provider) {
-        return provider.checkMainClass("com.alibaba.dubbo.container.Main") || provider.checkForClass("com.alibaba.dubbo.rpc.proxy.AbstractProxyInvoker");
+    public boolean detect() {
+        String bootstrapMainClass = MainClassCondition.INSTANCE.getValue();
+        boolean isExpectedMainClass = expectedMainClasses.contains(bootstrapMainClass);
+        if (isExpectedMainClass) {
+            return true;
+        }
+        return false;
     }
 }

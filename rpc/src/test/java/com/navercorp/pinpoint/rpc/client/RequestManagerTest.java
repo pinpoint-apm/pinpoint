@@ -18,11 +18,13 @@ package com.navercorp.pinpoint.rpc.client;
 
 import com.navercorp.pinpoint.rpc.DefaultFuture;
 import com.navercorp.pinpoint.rpc.Future;
-import com.navercorp.pinpoint.rpc.TestAwaitTaskUtils;
-import com.navercorp.pinpoint.rpc.TestAwaitUtils;
-import com.navercorp.pinpoint.rpc.packet.RequestPacket;
+import com.navercorp.pinpoint.test.utils.TestAwaitTaskUtils;
+import com.navercorp.pinpoint.test.utils.TestAwaitUtils;
 import org.jboss.netty.util.HashedWheelTimer;
+import org.jboss.netty.util.Timer;
+import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,13 +38,27 @@ public class RequestManagerTest {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    private Timer timer = getTimer();
+
+    @Before
+    public void setUp() throws Exception {
+        this.timer = getTimer();
+
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        if (this.timer != null) {
+            this.timer.stop();
+        }
+    }
+
     @Test
     public void testRegisterRequest() throws Exception {
-        HashedWheelTimer timer = getTimer();
         RequestManager requestManager = new RequestManager(timer, 3000);
         try {
-            RequestPacket packet = new RequestPacket(new byte[0]);
-            final Future future = requestManager.register(packet, 50);
+            final int requestId = requestManager.nextRequestId();
+            final Future future = requestManager.register(requestId, 50);
 
             TestAwaitUtils.await(new TestAwaitTaskUtils() {
                 @Override
@@ -57,25 +73,23 @@ public class RequestManagerTest {
             logger.debug(future.getCause().getMessage());
         } finally {
             requestManager.close();
-            timer.stop();
         }
     }
 
+
     @Test
     public void testRemoveMessageFuture() throws Exception {
-        HashedWheelTimer timer = getTimer();
         RequestManager requestManager = new RequestManager(timer, 3000);
         try {
-            RequestPacket packet = new RequestPacket(1, new byte[0]);
-            DefaultFuture future = requestManager.register(packet, 2000);
+            int requestId = requestManager.nextRequestId();
 
+            DefaultFuture future = requestManager.register(requestId, 2000);
             future.setFailure(new RuntimeException());
 
-            Future nullFuture = requestManager.removeMessageFuture(packet.getRequestId());
+            Future nullFuture = requestManager.removeMessageFuture(requestId);
             Assert.assertNull(nullFuture);
         } finally {
             requestManager.close();
-            timer.stop();
         }
 
     }
@@ -84,12 +98,7 @@ public class RequestManagerTest {
         return new HashedWheelTimer(10, TimeUnit.MICROSECONDS);
     }
 
-    //    @Test
-    public void testTimerStartTiming() throws InterruptedException {
-        HashedWheelTimer timer = new HashedWheelTimer(1000, TimeUnit.MILLISECONDS);
-        timer.start();
-        timer.stop();
-    }
+
 
     @Test
     public void testClose() throws Exception {

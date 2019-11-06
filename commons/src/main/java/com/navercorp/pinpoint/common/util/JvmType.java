@@ -16,16 +16,22 @@
 
 package com.navercorp.pinpoint.common.util;
 
+import java.util.EnumSet;
+
 /**
  * @author HyunGil Jeong
  */
 public enum JvmType {
     UNKNOWN(null),
-    IBM("IBM"),
+    // ibm-j9 java.vm.name=IBM J9 VM;
+    // openj9 java.vm.name=Eclipse OpenJ9 VM
+    IBM("J9"),
     OPENJDK("OpenJDK"),
     ORACLE("HotSpot");
 
     private final String inclusiveString;
+
+    private static final EnumSet<JvmType> JVM_TYPE = EnumSet.allOf(JvmType.class);
 
     JvmType(String inclusiveString) {
         this.inclusiveString = inclusiveString;
@@ -36,7 +42,7 @@ public enum JvmType {
             return UNKNOWN;
         }
         final String vendorNameTrimmed = vendorName.trim();
-        for (JvmType jvmType : JvmType.values()) {
+        for (JvmType jvmType : JVM_TYPE) {
             if (jvmType.toString().equalsIgnoreCase(vendorNameTrimmed)) {
                 return jvmType;
             }
@@ -48,10 +54,11 @@ public enum JvmType {
         if (vmName == null) {
             return UNKNOWN;
         }
-        for (JvmType jvmType : JvmType.values()) {
+        for (JvmType jvmType : JVM_TYPE) {
             if (jvmType.inclusiveString == null) {
                 continue;
-            } else if (vmName.contains(jvmType.inclusiveString)) {
+            }
+            if (vmName.contains(jvmType.inclusiveString)) {
                 return jvmType;
             }
         }

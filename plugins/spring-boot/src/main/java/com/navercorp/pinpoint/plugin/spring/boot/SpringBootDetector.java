@@ -16,24 +16,36 @@
 
 package com.navercorp.pinpoint.plugin.spring.boot;
 
-import com.navercorp.pinpoint.bootstrap.plugin.ApplicationTypeDetector;
-import com.navercorp.pinpoint.bootstrap.resolver.ConditionProvider;
-import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.bootstrap.resolver.condition.MainClassCondition;
+import com.navercorp.pinpoint.common.util.CollectionUtils;
+
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * @author HyunGil Jeong
  */
-public class SpringBootDetector implements ApplicationTypeDetector {
+public class SpringBootDetector {
 
-    @Override
-    public ServiceType getApplicationType() {
-        return SpringBootConstants.SERVICE_TYPE;
+    private static final String[] DEFAULT_EXPECTED_MAIN_CLASSES = {
+            "org.springframework.boot.loader.JarLauncher",
+            "org.springframework.boot.loader.WarLauncher",
+            "org.springframework.boot.loader.PropertiesLauncher"
+    };
+
+    private final List<String> expectedMainClasses;
+
+    public SpringBootDetector(List<String> expectedMainClasses) {
+        if (CollectionUtils.isEmpty(expectedMainClasses)) {
+            this.expectedMainClasses = Arrays.asList(DEFAULT_EXPECTED_MAIN_CLASSES);
+        } else {
+            this.expectedMainClasses = expectedMainClasses;
+        }
     }
 
-    @Override
-    public boolean detect(ConditionProvider provider) {
-        String bootstrapMainClass = provider.getMainClass();
-        return bootstrapMainClass.startsWith(SpringBootConstants.BOOTSTRAP_MAIN_PREFIX);
-    }
+    public boolean detect() {
+        String bootstrapMainClass = MainClassCondition.INSTANCE.getValue();
+        return expectedMainClasses.contains(bootstrapMainClass);
+}
 
 }

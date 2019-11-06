@@ -1,0 +1,105 @@
+{
+    "title": "JSON schema for pinpoint plugin type-provider.yml files",
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "http://pinpoint.navercorp.com/type-provider.schema",
+    "definitions": {
+        "serviceType": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "minimum": 1000,
+                    "maximum": 9999
+                },
+                "name": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "desc": {
+                    "type": "string",
+                    "minLength": 1
+                },
+                "property": {
+                    "type": "object",
+                    "minProperties": 1,
+                    "additionalProperties": false,
+                    "properties": {
+                        "terminal": { "type": "boolean" },
+                        "queue": { "type": "boolean" },
+                        "recordStatistics": { "type": "boolean" },
+                        "includeDestinationId": { "type": "boolean" },
+                        "alias": { "type": "boolean" }
+                    }
+                },
+                "matcher": {
+                    "minProperties": 1,
+                    "additionalProperties": false,
+                    "oneOf": [
+                        {
+                            "type": "object",
+                            "properties": {
+                                "type": {
+                                    "type": "string",
+                                    "enum": [ "args", "none" ]
+                                }
+                            },
+                            "required": [ "type" ]
+                        },
+                        {
+                            "type": "object",
+                            "properties": {
+                                "type": {
+                                    "type": "string",
+                                    "const": "exact"
+                                },
+                                "code": { "type": "integer" }
+                            },
+                            "required": [ "type", "code" ]
+                        }
+                    ]
+                }
+            },
+            "required": [ "code", "name" ]
+        },
+        "annotationKey": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "code": { "type": "integer" },
+                "name": {
+                    "name": "string",
+                    "minLength": 1
+                },
+                "property": {
+                    "type": "object",
+                    "minProperties": 1,
+                    "additionalProperties": false,
+                    "properties": {
+                        "viewInRecordSet": { "type": "boolean" }
+                    }
+                }
+            },
+            "required": [ "code", "name" ]
+        },
+        "serviceTypes": {
+            "type": "array",
+            "items": { "$ref": "#/definitions/serviceType" }
+        },
+        "annotationKeys": {
+            "type": "array",
+            "items": { "$ref": "#/definitions/annotationKey" }
+        }
+    },
+    "type": "object",
+    "minProperties": 1,
+    "additionalProperties": false,
+    "anyOf": [
+        { "required": [ "serviceTypes" ] },
+        { "required": [ "annotationKeys" ] }
+    ],
+    "properties": {
+        "serviceTypes": { "$ref": "#/definitions/serviceTypes" },
+        "annotationKeys": { "$ref": "#/definitions/annotationKeys" }
+    }
+}

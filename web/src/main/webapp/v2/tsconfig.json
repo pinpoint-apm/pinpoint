@@ -1,0 +1,35 @@
+{
+    "compileOnSave": false,
+    "compilerOptions": {
+        "downlevelIteration": true,
+        "importHelpers": true,
+        "module": "esnext",
+        "outDir": "./dist/out-tsc",
+        "baseUrl": "src",
+        "sourceMap": true,
+        "declaration": false,
+        "moduleResolution": "node",
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true,
+        "target": "es2015",
+        "typeRoots": [
+            "node_modules/@types"
+        ],
+        "lib": [
+            "es2017",
+            "dom",
+            "dom.iterable",
+            "esnext.array"
+        ],
+        "preserveSymlinks": true,
+        "forceConsistentCasingInFileNames": true,
+        "noImplicitAny": true,
+        "noImplicitReturns": true,
+        "strict": false,
+        "noUnusedLocals": true
+    },
+    "angularCompilerOptions": {
+        "fullTemplateTypeCheck": true,
+        "skipMetadataEmit": true
+    }
+}

@@ -1,0 +1,12 @@
+serviceTypes:
+    - code: 9203
+      name: 'ELASTICSEARCH'
+    - code: 9204
+      name: 'ELASTICSEARCH_HIGHLEVEL_CLIENT'
+      desc: 'ELASTICSEARCH'
+      property:
+#          recordStatistics: true
+          alias: true
+#      matcher:
+#          type: 'exact'
+#          code: 40 # http.url

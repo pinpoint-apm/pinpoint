@@ -23,7 +23,6 @@ import java.util.Map;
 
 import org.junit.Test;
 
-import com.navercorp.pinpoint.bootstrap.resolver.condition.MainClassCondition;
 import com.navercorp.pinpoint.common.util.SimpleProperty;
 import com.navercorp.pinpoint.common.util.SystemPropertyKey;
 

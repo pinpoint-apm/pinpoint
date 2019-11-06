@@ -18,22 +18,21 @@
             "changeSelectionZone": []
         };
         this.opt = {
-            "duration": 300,
+            "duration": 0,
             "xAxisTicks": 5,
             "eventZoneHeight": 30,        // 하단 이벤트 영역의 height
             "headerZoneHeight": 20,       // 상단 시간 표시영역의 height
             "stateLineThickness": 4,       // 상태선의 두께
-            "minSliderTimeSeries": 6000,             // 6sec
-            "maxSelectionTimeSeries": 172800000,	// 2day
+            "minSliderTimeSeries": 6000,   // 6sec
+			"maxSelectionTimeSeries": TimeSlider.MAX_TIME_RANGE,	// 7day
             "headerTextTopPadding": 10,   // 상단 상태선과 시간 text의 간격
             "selectionPointRadius": 4
         };
         this.opt.minSliderTimeSeries = ( this.opt.xAxisTicks + 1 ) * 1000;
-        var p;
-        for( p in options ) {
+        for( var p in options ) {
             this.opt[p] = options[p];
         }
-        this.oEventData = new TimeSlider.EventData( this.opt.eventData || [] );
+        this.oTimelineData = new TimeSlider.TimelineData( this.opt.timelineData || {} );
         this._checkOffset();
     };
     TimeSlider.prototype._initControlClass = function() {
@@ -49,10 +48,6 @@
         });
         var contentZoneHeight = this.opt.height - this.opt.headerZoneHeight - this.opt.eventZoneHeight;
 
-        // this.oTimeSeriesSignboard = new TimeSlider.TimeSeriesSignboard( this, this.getGroup("time-series-signboard", TimeSlider.GROUP_TYPE.CONTENT_BASE, TimeSlider.oDrawOrder["time-series-signboard"]), {
-        //     "height": contentZoneHeight,
-        //     "duration": this.opt.duration
-        // });
         this.oLoading = new TimeSlider.LoadingIndicator( this, this.getGroup("loading", TimeSlider.GROUP_TYPE.TOP_BASE, TimeSlider.oDrawOrder["loading"]), {
             "width": this.opt.width,
             "height": this.opt.height,
@@ -83,6 +78,11 @@
             "contentZoneHeight": contentZoneHeight,
             "selectionPointRadius": this.opt.selectionPointRadius
         });
+		this.oFocus = new TimeSlider.Focus( this, this.getGroup("focus", TimeSlider.GROUP_TYPE.TOP_BASE, TimeSlider.oDrawOrder["focus"]), {
+			"y": this.opt.headerZoneHeight,
+			"height": contentZoneHeight,
+			"duration": this.opt.duration
+		});
         this.oXAxis = new TimeSlider.XAxis( this, this.getGroup("x-axis", TimeSlider.GROUP_TYPE.TOP_BASE, TimeSlider.oDrawOrder["x-axis"]), {
             "endY": this.opt.height - this.opt.eventZoneHeight,
             "width": this.opt.width,
@@ -166,9 +166,9 @@
         this._aListener[eventType].push( listener );
         return this;
     };
-    TimeSlider.prototype.addEventData = function( aNewData ) {
+    TimeSlider.prototype.addData = function( oNewData ) {
         this.oLoading.show();
-        var aBoundary = this.oEventData.addData( aNewData );
+        this.oTimelineData.addData( oNewData );
         this.oEvents.changeData();
         this.oStateLine.changeData();
         this.oLoading.hide();
@@ -197,11 +197,12 @@
         this.oPositionManager.zoomOut();
         this.reset();
     };
-	TimeSlider.prototype.resetTimeSeriesAndSelectionZone = function( aSelectionFromTo, aFromTo ) {
+	TimeSlider.prototype.resetTimeSeriesAndSelectionZone = function( aSelectionFromTo, aFromTo, selectedTime ) {
 		this.oPositionManager.setSliderTimeSeries( aFromTo[0], aFromTo[1] );
 		this.oPositionManager.setSelectionStartTime( aSelectionFromTo[0] );
 		this.oPositionManager.setSelectionEndTime( aSelectionFromTo[1] );
-		this.oPositionManager.setSelectTime( aSelectionFromTo[1] );
+		this.oPositionManager.setSelectTime( selectedTime || aSelectionFromTo[1] );
+		this.emptyData();
 		this.reset();
 	};
 	TimeSlider.prototype.movePrev = function() {
@@ -226,7 +227,7 @@
     };
     TimeSlider.prototype.emptyData = function() {
         this.oLoading.show();
-        this.oEventData.emptyData();
+        this.oTimelineData.emptyData();
         this.oEvents.emptyData();
         this.oStateLine.emptyData();
         this.oLoading.hide();
@@ -234,6 +235,15 @@
     TimeSlider.prototype.setSelectTime = function( time ) {
         this.oSelectionManager.setSelectTime( time );
     };
+    TimeSlider.prototype.getSelectTime = function() {
+    	return this.oPositionManager.getSelectTime();
+	};
+	TimeSlider.prototype.showFocus = function( time ) {
+		return this.oFocus.show( this.oPositionManager.getPositionFromTime(time) );
+	};
+	TimeSlider.prototype.hideFocus = function() {
+		return this.oFocus.hide();
+	};
 
     TimeSlider.GROUP_TYPE = {
         TOP_BASE: "top-base",
@@ -252,19 +262,17 @@
         "left-handler": 25,
         "right-handler": 25,
         "guide": 30,
+		"focus": 50,
         "loading": 100
     };
-    TimeSlider.EventColor = {
-        "base": "rgba(187, 187, 187, .3)",
-        "10100": "rgba(0, 158, 0, .4 )",	//"#009E00",         //Agent connected
-        "10199": "rgba(250, 235, 215, .7)",	//"#FAEBD7",         //Agent ping
-        "10200": "rgba(209, 82, 96, .7)",	//"#D15260",         //Agent shutdown
-        "10201": "rgba(233, 92, 99, .7)",	//"#E95C63",         //Agent unexpected shutdown
-        "10300": "rgba(255, 157, 123, .7)", //"#FF9D7B",         //Agent connection closed by server
-        "10301": "rgba(242, 240, 137, .7)",	//"#F2F089",         //Agent connection unexpectedly closed by server
-        "20100": "rgba(0, 0, 255, .5)"		//"#00F"             //thread dump
-    };
-	TimeSlider.GREEN = "10100";
-	TimeSlider.RED = "10200";
+    TimeSlider.StatusColor = {
+    	"BASE": "rgba(187, 187, 187, .3)",
+		"UNKNOWN": "rgba(220, 214, 214, .8)",
+    	"RUNNING": "rgba(0, 158, 0, .4 )",
+		"SHUTDOWN": "rgba(209, 82, 96, .7)",
+		"UNSTABLE_RUNNING": "rgba(255, 102, 0, .4)",
+		"EMPTY": "rgba(165, 219, 245, .7)"
+	};
+	TimeSlider.MAX_TIME_RANGE = 604800000;
     w.TimeSlider = TimeSlider;
 })(window, jQuery);

@@ -17,22 +17,22 @@
 package com.navercorp.pinpoint.plugin.jdbc.jtds;
 
 
+import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
-import com.navercorp.pinpoint.plugin.jdbc.jtds.JtdsConstants;
-import com.navercorp.pinpoint.plugin.jdbc.jtds.JtdsJdbcUrlParser;
-
 public class JtdsJdbcUrlParserTest {
+
+    private final JtdsJdbcUrlParser parser = new JtdsJdbcUrlParser();
 
     @Test
     public void testParse1() throws Exception {
 //        jdbc:jtds:sqlserver://server[:port][/database][;property=value[;...]]
 //        jdbc:jtds:sqlserver://server/db;user=userName;password=password
         String url = "jdbc:jtds:sqlserver://10.xx.xx.xx:1433;DatabaseName=CAFECHAT;sendStringParametersAsUnicode=false;useLOBs=false;loginTimeout=3";
-        JtdsJdbcUrlParser parser = new JtdsJdbcUrlParser();
         DatabaseInfo info = parser.parse(url);
+        Assert.assertTrue(info.isParsingComplete());
 
         Assert.assertEquals(info.getType(), JtdsConstants.MSSQL);
         Assert.assertEquals(info.getMultipleHost(), "10.xx.xx.xx:1433");
@@ -44,8 +44,8 @@ public class JtdsJdbcUrlParserTest {
     @Test
     public void testParse2() throws Exception {
         String url = "jdbc:jtds:sqlserver://10.xx.xx.xx:1433/CAFECHAT;sendStringParametersAsUnicode=false;useLOBs=false;loginTimeout=3";
-        JtdsJdbcUrlParser parser = new JtdsJdbcUrlParser();
         DatabaseInfo info = parser.parse(url);
+        Assert.assertTrue(info.isParsingComplete());
 
         Assert.assertEquals(info.getType(), JtdsConstants.MSSQL);
         Assert.assertEquals(info.getMultipleHost(), "10.xx.xx.xx:1433");
@@ -57,8 +57,8 @@ public class JtdsJdbcUrlParserTest {
     @Test
     public void testParse3() throws Exception {
         String url = "jdbc:jtds:sqlserver://10.xx.xx.xx:1433/CAFECHAT";
-        JtdsJdbcUrlParser parser = new JtdsJdbcUrlParser();
         DatabaseInfo info = parser.parse(url);
+        Assert.assertTrue(info.isParsingComplete());
 
         Assert.assertEquals(info.getType(), JtdsConstants.MSSQL);
         Assert.assertEquals(info.getMultipleHost(), "10.xx.xx.xx:1433");
@@ -69,8 +69,8 @@ public class JtdsJdbcUrlParserTest {
     @Test
     public void testParse4() throws Exception {
         String url = "jdbc:jtds:sqlserver://10.xx.xx.xx:1433";
-        JtdsJdbcUrlParser parser = new JtdsJdbcUrlParser();
         DatabaseInfo info = parser.parse(url);
+        Assert.assertTrue(info.isParsingComplete());
 
         Assert.assertEquals(info.getType(), JtdsConstants.MSSQL);
         Assert.assertEquals(info.getMultipleHost(), "10.xx.xx.xx:1433");
@@ -84,8 +84,8 @@ public class JtdsJdbcUrlParserTest {
 //        jdbc:jtds:sqlserver://server[:port][/database][;property=value[;...]]
 //        jdbc:jtds:sqlserver://server/db;user=userName;password=password
         String url = "jdbc:jtds:sqlserver://10.xx.xx.xx;DatabaseName=CAFECHAT";
-        JtdsJdbcUrlParser parser = new JtdsJdbcUrlParser();
         DatabaseInfo info = parser.parse(url);
+        Assert.assertTrue(info.isParsingComplete());
 
         Assert.assertEquals(info.getType(), JtdsConstants.MSSQL);
         Assert.assertEquals(info.getMultipleHost(), "10.xx.xx.xx");
@@ -99,8 +99,8 @@ public class JtdsJdbcUrlParserTest {
 //        jdbc:jtds:sqlserver://server[:port][/database][;property=value[;...]]
 //        jdbc:jtds:sqlserver://server/db;user=userName;password=password
         String url = "jdbc:jtds:sqlserver://10.xx.xx.xx";
-        JtdsJdbcUrlParser parser = new JtdsJdbcUrlParser();
         DatabaseInfo info = parser.parse(url);
+        Assert.assertTrue(info.isParsingComplete());
 
         Assert.assertEquals(info.getType(), JtdsConstants.MSSQL);
         Assert.assertEquals(info.getMultipleHost(), "10.xx.xx.xx");
@@ -113,12 +113,30 @@ public class JtdsJdbcUrlParserTest {
     @Test
     public void testParse7() throws Exception {
         String url = "jdbc:jtds:sqlserver://10.xx.xx.xx:1433/CAFECHAT;abc=1;bcd=2";
-        JtdsJdbcUrlParser parser = new JtdsJdbcUrlParser();
         DatabaseInfo info = parser.parse(url);
+        Assert.assertTrue(info.isParsingComplete());
 
         Assert.assertEquals(info.getType(), JtdsConstants.MSSQL);
         Assert.assertEquals(info.getMultipleHost(), "10.xx.xx.xx:1433");
         Assert.assertEquals(info.getDatabaseId(), "CAFECHAT");
         Assert.assertEquals(info.getUrl(), "jdbc:jtds:sqlserver://10.xx.xx.xx:1433/CAFECHAT");
     }
+
+    @Test
+    public void parseFailTest1() {
+        DatabaseInfo info = parser.parse(null);
+        Assert.assertFalse(info.isParsingComplete());
+
+        Assert.assertEquals(ServiceType.UNKNOWN_DB, info.getType());
+    }
+
+    @Test
+    public void parseFailTest2() {
+        String url = "jdbc:oracle:sqlserver://10.xx.xx.xx:1433/CAFECHAT;abc=1;bcd=2";
+        DatabaseInfo info = parser.parse(url);
+        Assert.assertFalse(info.isParsingComplete());
+
+        Assert.assertEquals(ServiceType.UNKNOWN_DB, info.getType());
+    }
+
 }

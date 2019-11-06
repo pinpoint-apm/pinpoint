@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2014 NAVER Corp.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,10 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 /**
  * @author Jongho Moon
  *
+ * @deprecated As of 1.9.0, application type detection timing has been changed.
+ *             Set the application's {@code ServiceType} directly during each plugin's setup time.
  */
+@Deprecated
 public interface ApplicationTypeDetector {
     
     /**

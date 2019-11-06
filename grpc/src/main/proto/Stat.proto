@@ -1,0 +1,160 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+import "ThreadDump.proto";
+
+option java_multiple_files = true;
+option java_package = "com.navercorp.pinpoint.grpc.trace";
+option java_outer_classname = "StatProto";
+option objc_class_prefix = "PIN";
+
+package v1;
+
+message PPing {
+}
+
+message PStatMessage {
+    oneof field {
+        PAgentStat agentStat = 1;
+        PAgentStatBatch agentStatBatch = 2;
+    }
+}
+
+message PAgentInfo {
+    string hostname = 1;
+    string ip = 2;
+    string ports = 3;
+    int32 serviceType = 4;
+    int32 pid = 5;
+    string agentVersion = 6;
+    string vmVersion = 7;
+    int64 endTimestamp = 8;
+    int32 endStatus = 9;
+    PServerMetaData serverMetaData = 10;
+    PJvmInfo jvmInfo = 11;
+    bool container = 12;
+}
+
+message PServerMetaData {
+    string serverInfo = 1;
+    repeated string vmArg = 2;
+    repeated PServiceInfo serviceInfo = 3;
+}
+
+message PServiceInfo {
+    string serviceName = 1;
+    repeated string serviceLib = 2;
+}
+
+message PJvmInfo {
+    int32 version = 1;
+    string vmVersion = 2;
+    PJvmGcType gcType = 3;
+}
+
+enum PJvmGcType {
+    JVM_GC_TYPE_UNKNOWN = 0;
+    JVM_GC_TYPE_SERIAL = 1;
+    JVM_GC_TYPE_PARALLEL = 2;
+    JVM_GC_TYPE_CMS = 3;
+    JVM_GC_TYPE_G1 = 4;
+}
+
+message PAgentStat {
+    int64 timestamp = 1;
+    int64 collectInterval =2;
+    PJvmGc gc = 3;
+    PCpuLoad cpuLoad = 4;
+    PTransaction transaction = 5;
+    PActiveTrace activeTrace = 6;
+    PDataSourceList dataSourceList = 7;
+    PResponseTime responseTime = 8;
+    PDeadlock deadlock = 9;
+    PFileDescriptor fileDescriptor = 10;
+    PDirectBuffer directBuffer = 11;
+    string metadata = 12;
+}
+
+message PAgentStatBatch {
+    repeated PAgentStat agentStat = 1;
+}
+
+message PDataSource {
+    int32 id = 1;
+    int32 serviceTypeCode = 2;
+    string databaseName = 3;
+    string url = 4;
+    int32 activeConnectionSize = 5;
+    int32 maxConnectionSize = 6;
+}
+
+message PDataSourceList {
+    repeated PDataSource dataSource = 1;
+}
+
+message PFileDescriptor {
+    int64 openFileDescriptorCount = 1;
+}
+
+message PJvmGc {
+    PJvmGcType type = 1;
+    int64 jvmMemoryHeapUsed = 2;
+    int64 jvmMemoryHeapMax = 3;
+    int64 jvmMemoryNonHeapUsed = 4;
+    int64 jvmMemoryNonHeapMax = 5;
+    int64 jvmGcOldCount = 6;
+    int64 jvmGcOldTime = 7;
+    PJvmGcDetailed jvmGcDetailed = 8;
+}
+
+message PJvmGcDetailed {
+    int64 jvmGcNewCount = 1;
+    int64 jvmGcNewTime = 2;
+    double jvmPoolCodeCacheUsed = 3;
+    double jvmPoolNewGenUsed = 4;
+    double jvmPoolOldGenUsed = 5;
+    double jvmPoolSurvivorSpaceUsed = 6;
+    double jvmPoolPermGenUsed = 7;
+    double jvmPoolMetaspaceUsed = 8;
+}
+
+message PCpuLoad {
+    double jvmCpuLoad = 1;
+    double systemCpuLoad = 2;
+}
+
+message PTransaction {
+    int64 sampledNewCount = 2;
+    int64 sampledContinuationCount = 3;
+    int64 unsampledNewCount = 4;
+    int64 unsampledContinuationCount = 5;
+    int64 skippedNewCount = 6;
+    int64 skippedContinuationCount = 7;
+}
+
+message PActiveTraceHistogram {
+    int32 version = 1;
+    int32 histogramSchemaType = 2;
+    repeated int32 activeTraceCount = 3;
+}
+
+message PActiveTrace {
+    PActiveTraceHistogram histogram = 1;
+}
+
+message PResponseTime {
+    int64 avg = 1;
+    int64 max = 2;
+}
+
+message PDeadlock {
+    int32 count = 1;
+    repeated PThreadDump threadDump = 2;
+}
+
+message PDirectBuffer {
+    int64 directCount = 1;
+    int64 directMemoryUsed = 2;
+    int64 mappedCount = 3;
+    int64 mappedMemoryUsed = 4;
+}

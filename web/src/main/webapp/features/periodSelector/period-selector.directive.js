@@ -18,6 +18,8 @@
 					var $fromPicker = $element.find("#from-picker");
 					var $calendarPopupForRange = $element.find("#ui-datepicker-div");
 					var oPeriodType = PreferenceService.getPeriodType();
+					var guideDateMax = helpContentService.navbar.searchPeriod.guideDateMax.replace(/\{\{day\}\}/, PreferenceService.getMaxPeriod());
+					var guideDateOrder = helpContentService.navbar.searchPeriod.guideDateOrder;
 
 					scope.useRealtime = attrs.useRealtime === "true";
 					scope.useAutoUpdate = attrs.useAutoUpdate === "true";
@@ -30,88 +32,24 @@
 					scope.timeList = PreferenceService.getUpdateTimes();
 					scope.timeCountDown = 10;
 
-					initialize();
-
 					function initialize() {
 						scope.periodType = UrlVoService.getPeriodType(); // getPeriodType();
 						scope.readablePeriod = UrlVoService.getReadablePeriod();// || PreferenceService.getPeriod();
 						scope.periodCalendar = UrlVoService.getReadablePeriod();// || PreferenceService.getPeriod();
 						initializeDateTimePicker();
 					}
-					// function getPeriodType() {
-					// 	if ( UrlVoService.isRealtime() ) {
-					// 		return oPeriodType.REALTIME;
-					// 	}
-					// 	var periodType = oPeriodType.LAST;
-					// 	if ($window.name && webStorage.get($window.name + cfg.periodTypePrefix)) {
-					// 		periodType = webStorage.get($window.name + cfg.periodTypePrefix);
-					// 	} else {
-					// 		periodType = UrlVoService.getApplication() ? oPeriodType.RANGE : oPeriodType.LAST;
-					// 	}
-					//
-					// 	if (UrlVoService.getReadablePeriod() && _.indexOf(scope.aReadablePeriodTime, UrlVoService.getReadablePeriod()) < 0) {
-					// 		periodType = oPeriodType.RANGE;
-					// 	}
-					// 	return periodType;
-					// }
 					function initializeDateTimePicker() {
-						$calendarPopupForRange.find( ".guide" )
-							.html( helpContentService.navbar.searchPeriod.guide.replace(/\{\{day\}\}/, PreferenceService.getMaxPeriod() ) );
+						resetGuideMessage();
 						$calendarPopupForRange.find( "button.ui-datepicker-close" ).on( "click", function() {
-							$calendarPopupForRange.hide();
-						});
-						$fromPicker.datetimepicker({
-							altField: "#from-picker-alt",
-							altFieldTimeOnly: false,
-							dateFormat: "yy-mm-dd",
-							timeFormat: "HH:mm",
-							controlType: "select",
-							showButtonPanel: false,
-							onSelect: function () {
-								var momentFrom = moment( $fromPicker.datetimepicker( "getDate" ) );
-								var momentTo = moment( $toPicker.datetimepicker( "getDate" ) );
-								if ( momentTo.isAfter( moment( $fromPicker.datetimepicker("getDate") ).add( PreferenceService.getMaxPeriod(), "days" ) ) || momentFrom.isAfter( momentTo ) ) {
-									var aPeriodTime = getPeriodForCalendar();
-									setDateTime( $toPicker, momentFrom.add( aPeriodTime[0], aPeriodTime[1] ).format());
-								}
-							},
-							onClose: function( currentTime ) {
-								if ( $toPicker.val() !== "" ) {
-									if ( $fromPicker.datetimepicker( "getDate" ) > $toPicker.datetimepicker( "getDate" ) ) {
-										$toPicker.datetimepicker( "setDate", $fromPicker.datetimepicker( "getDate" ) );
-									}
-								} else {
-									$toPicker.val( currentTime );
-								}
+							if ( validateCalendar() ) {
+								$calendarPopupForRange.hide();
+								resetGuideMessage();
 							}
 						});
+						$fromPicker.datetimepicker( getDatePickerOption( "#from-picker-alt" ) );
 						setDateTime($fromPicker, UrlVoService.getQueryStartTime() || moment().subtract(20, "minute").valueOf() );
 
-						$toPicker.datetimepicker({
-							altField: "#to-picker-alt",
-							altFieldTimeOnly: false,
-							dateFormat: "yy-mm-dd",
-							timeFormat: "HH:mm",
-							controlType: "select",
-							showButtonPanel: false,
-							onSelect: function () {
-								var momentFrom = moment( $fromPicker.datetimepicker( "getDate" ) );
-								var momentTo = moment( $toPicker.datetimepicker( "getDate" ) );
-								if ( momentFrom.isBefore( moment( $toPicker.datetimepicker( "getDate" ) ).subtract( PreferenceService.getMaxPeriod(), "days" ) ) || momentFrom.isAfter( momentTo ) ) {
-									var aPeriodTime = getPeriodForCalendar();
-									setDateTime($fromPicker, momentTo.subtract( aPeriodTime[0], aPeriodTime[1] ).format());
-								}
-							},
-							onClose: function( currentTime ) {
-								if ($fromPicker.val() !== '') {
-									if ( $fromPicker.datetimepicker( "getDate" ) > $toPicker.datetimepicker( "getDate" ) ) {
-										$fromPicker.datetimepicker( "setDate", $toPicker.datetimepicker( "getDate" ) );
-									}
-								} else {
-									$fromPicker.val( currentTime) ;
-								}
-							}
-						});
+						$toPicker.datetimepicker( getDatePickerOption( "#to-picker-alt" ) );
 						setDateTime($toPicker, UrlVoService.getQueryEndTime());
 
 						$("#from-picker-alt").on("click", function() {
@@ -127,18 +65,52 @@
 							}
 						});
 					}
-					function getPeriodForCalendar() {
+					function getDatePickerOption( altId ) {
+						return {
+							altField: altId,
+							altFieldTimeOnly: false,
+							dateFormat: "yy-mm-dd",
+							timeFormat: "HH:mm z",
+							controlType: "select",
+							showButtonPanel: false,
+							timezone: moment().utcOffset(),
+							showTimezone: false,
+							onSelect: function () {},
+							onClose: function (currentTime, oTime) {}
+						};
+					}
+					function getPeriodForCalendar(selectedPeriod) {
 						var a = [];
-						var s = scope.periodCalendar.substring( scope.periodCalendar.length - 1 );
-						a[0] = parseInt( scope.periodCalendar );
+						var s = selectedPeriod.substr(-1);
+						a[0] = parseInt( selectedPeriod );
 						a[1] = s == "d" ? "days" : s == "h" ? "hours" : "minutes";
 						return a;
+					}
+					function resetGuideMessage() {
+						setGuideMessage(guideDateMax, false);
+					}
+					function setGuideMessage(msg, warning) {
+						$calendarPopupForRange.find(".guide").html(msg).css("color", warning === true ? "red" : "");
+					}
+					function validateCalendar() {
+						var momentFrom = moment($fromPicker.datetimepicker('getDate'));
+						var momentTo = moment($toPicker.datetimepicker('getDate'));
+						if ( momentTo.isAfter( moment($fromPicker.datetimepicker('getDate')).add(PreferenceService.getMaxPeriod(), "days") ) ) {
+							setGuideMessage(guideDateMax, true);
+							return false;
+						}
+						if ( momentFrom.isAfter(momentTo) ) {
+							setGuideMessage(guideDateOrder, true);
+							return false;
+						}
+						return true;
 					}
 					function toggleCalendarPopup() {
 						if ( $calendarPopupForRange.is(":visible") ) {
 							$calendarPopupForRange.hide();
 						} else {
 							$calendarPopupForRange.css( "left", $element.offset().left ).show();
+
 						}
 					}
 					function startUpdate() {
@@ -153,7 +125,7 @@
 						}
 					}
 					function setDateTime($picker, time) {
-						$picker.datetimepicker('setDate', time ? new Date(time) : new Date());
+						$picker.datetimepicker("setDate", time ? new Date(time) : new Date());
 					}
 					function broadcast() {
 						UrlVoService.setPeriodType( scope.periodType );
@@ -208,8 +180,12 @@
 						AnalyticsService.send(AnalyticsService.CONST.MAIN, scope.autoUpdate ? AnalyticsService.CONST.TG_UPDATE_OFF : AnalyticsService.CONST.TG_UPDATE_ON );
 					};
 					scope.search = function () {
-						scope.periodType = oPeriodType.RANGE;
-						broadcast();
+						if ( validateCalendar() ) {
+							scope.periodType = oPeriodType.RANGE;
+							broadcast();
+						} else {
+							$calendarPopupForRange.show();
+						}
 					};
 					scope.changePeriodTimeOfLast = function ( readablePeriod ) {
 						AnalyticsService.send( AnalyticsService.CONST.MAIN, AnalyticsService.CONST.CLK_TIME, readablePeriod );
@@ -237,7 +213,9 @@
 						return periodClass;
 					};
 					scope.setPeriodTimeOfCalendar = function(period) {
-						scope.periodCalendar = period;
+						var momentTo = moment($toPicker.datetimepicker('getDate'));
+						var aPeriodTime = getPeriodForCalendar(period);
+						setDateTime($fromPicker, momentTo.subtract(aPeriodTime[0], aPeriodTime[1]).format());
 					};
 					scope.update = function () {
 						var oldAutoUpdate = scope.autoUpdate;
@@ -270,7 +248,7 @@
 						scope.periodType = oPeriodType.LAST;
 					};
 					scope.getRealtimeBtnClass = function() {
-						return UrlVoService.isRealtime() ? "blinkblink btn-info" : "";
+						return UrlVoService.isRealtime() ? "btn-info" : "";
 					};
 					scope.getPeriodLabel = function( period ) {
 						return period === "5m" ? "Last " + period : period;
@@ -281,10 +259,7 @@
 					scope.isNotRangePeriod = function() {
 						return scope.periodType !== oPeriodType.RANGE;
 					};
-					// scope.$on( "down.initialize", function( event, invokerId ) {
-					// 	console.log( "period-selector. down.initialize", invokerId );
-					// 	initialize();
-					// });
+					initialize();
 				}
 			};
 		}

@@ -1,0 +1,14 @@
+<div class="l-title-group">
+    <ng-container *ngIf="chartContainer">{{chartContainer.title}}</ng-container>
+    <button class="fas fa-question-circle" (click)="onShowHelp($event)"></button>
+</div>
+<div class="l-chart-area-wrapper">
+    <pp-loading [showLoading]="isActiveLayer('loading')" [zIndex]="10"></pp-loading>
+    <pp-retry [showRetry]="isActiveLayer('retry')" [message]="retryMessage" (outRetry)="onRetry()"></pp-retry>
+    <pp-inspector-chart
+        [ngClass]="chartVisibility"
+        [chartConfig]="chartConfig"
+        (outRendered)="onRendered()"
+        (mousemove)="onMouseMove($event)">
+    </pp-inspector-chart>
+</div>

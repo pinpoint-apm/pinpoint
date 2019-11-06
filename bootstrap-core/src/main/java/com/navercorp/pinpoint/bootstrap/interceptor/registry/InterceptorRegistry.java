@@ -30,13 +30,13 @@ public final class InterceptorRegistry {
 
     public static void bind(final InterceptorRegistryAdaptor interceptorRegistryAdaptor, final Object lock) {
         if (interceptorRegistryAdaptor == null) {
-            throw new NullPointerException("interceptorRegistryAdaptor must not be null");
+            throw new NullPointerException("interceptorRegistryAdaptor");
         }
         
         if (LOCK.lock(lock)) {
             REGISTRY = interceptorRegistryAdaptor;
         } else {
-            throw new IllegalStateException("bind failed.");
+            throw new IllegalStateException("bind failed. lock=" + lock + " current=" + LOCK.getLock());
         }
     }
 
@@ -44,7 +44,7 @@ public final class InterceptorRegistry {
         if (LOCK.unlock(lock)) {
             REGISTRY = EmptyRegistryAdaptor.EMPTY;
         } else {
-            throw new IllegalStateException("unbind failed.");
+            throw new IllegalStateException("unbind failed. lock=" + lock + " current=" + LOCK.getLock());
         }
     }
 

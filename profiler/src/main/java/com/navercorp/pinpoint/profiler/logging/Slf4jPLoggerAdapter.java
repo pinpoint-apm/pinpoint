@@ -18,14 +18,17 @@ package com.navercorp.pinpoint.profiler.logging;
 
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.SqlModule;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 import org.slf4j.Marker;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URL;
-import java.sql.Time;
-import java.sql.Timestamp;
-import java.util.*;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+import java.util.IdentityHashMap;
+import java.util.Map;
 
 /**
  * @author emeroad
@@ -33,37 +36,53 @@ import java.util.*;
 public class Slf4jPLoggerAdapter implements PLogger {
     public static final int BUFFER_SIZE = 512;
 
-    private static final Map<Class<?>, Class<?>> SIMPLE_TYPE = new IdentityHashMap<Class<?>, Class<?>>();
-    static {
-        SIMPLE_TYPE.put(String.class, String.class);
-        SIMPLE_TYPE.put(Boolean.class, Boolean.class);
-        SIMPLE_TYPE.put(boolean.class, boolean.class);
-        SIMPLE_TYPE.put(Byte.class, Byte.class);
-        SIMPLE_TYPE.put(byte.class, byte.class);
-        SIMPLE_TYPE.put(Short.class, Short.class);
-        SIMPLE_TYPE.put(short.class, short.class);
-        SIMPLE_TYPE.put(Integer.class, Integer.class);
-        SIMPLE_TYPE.put(int.class, int.class);
-        SIMPLE_TYPE.put(Long.class, Long.class);
-        SIMPLE_TYPE.put(long.class, long.class);
-        SIMPLE_TYPE.put(Float.class, Float.class);
-        SIMPLE_TYPE.put(float.class, float.class);
-        SIMPLE_TYPE.put(Double.class, Double.class);
-        SIMPLE_TYPE.put(double.class, double.class);
-        SIMPLE_TYPE.put(Character.class, Character.class);
-        SIMPLE_TYPE.put(char.class, char.class);
-        SIMPLE_TYPE.put(BigDecimal.class, BigDecimal.class);
-        SIMPLE_TYPE.put(StringBuffer.class, StringBuffer.class);
-        SIMPLE_TYPE.put(BigInteger.class, BigInteger.class);
-        SIMPLE_TYPE.put(Class.class, Class.class);
-        SIMPLE_TYPE.put(java.sql.Date.class, java.sql.Date.class);
-        SIMPLE_TYPE.put(java.util.Date.class, java.util.Date.class);
-        SIMPLE_TYPE.put(Time.class, Time.class);
-        SIMPLE_TYPE.put(Timestamp.class, Timestamp.class);
-        SIMPLE_TYPE.put(Calendar.class, Calendar.class);
-        SIMPLE_TYPE.put(GregorianCalendar.class, GregorianCalendar.class);
-        SIMPLE_TYPE.put(URL.class, URL.class);
-        SIMPLE_TYPE.put(Object.class, Object.class);
+    private static Object EXIST = new Object();
+
+    private static final Map<Class<?>, Object> SIMPLE_TYPE = prepare();
+
+    private static Map<Class<?>, Object> prepare() {
+        final Map<Class<?>, Object> map = new IdentityHashMap<Class<?>, Object>(64);
+        put(map , String.class);
+        put(map, Boolean.class);
+        put(map, boolean.class);
+        put(map, Byte.class);
+        put(map, byte.class);
+        put(map, Short.class);
+        put(map, short.class);
+        put(map, Integer.class);
+        put(map, int.class);
+        put(map, Long.class);
+        put(map, long.class);
+        put(map, Float.class);
+        put(map, float.class);
+        put(map, Double.class);
+        put(map, double.class);
+        put(map, Character.class);
+        put(map, char.class);
+        put(map, BigDecimal.class);
+        put(map, StringBuffer.class);
+        put(map, BigInteger.class);
+        put(map, java.util.Date.class);
+        put(map, Class.class);
+        put(map, Calendar.class);
+        put(map, GregorianCalendar.class);
+        put(map, URL.class);
+        put(map, Object.class);
+
+        if (SqlModule.isSqlModuleEnable()) {
+            addSqlModuleSupport(map);
+        }
+        return map;
+    }
+
+    private static void addSqlModuleSupport(Map<Class<?>, Object> map) {
+        put(map, SqlModule.getSqlDate());
+        put(map, SqlModule.getSqlTime());
+        put(map, SqlModule.getSqlTimestamp());
+    }
+
+    private static void put(Map<Class<?>, Object> map, Class<?> key) {
+        map.put(key, EXIST);
     }
 
 
@@ -71,7 +90,7 @@ public class Slf4jPLoggerAdapter implements PLogger {
 
     public Slf4jPLoggerAdapter(org.slf4j.Logger logger) {
         if (logger == null) {
-            throw new NullPointerException("logger must not be null");
+            throw new NullPointerException("logger");
         }
         this.logger = logger;
     }
@@ -178,11 +197,7 @@ public class Slf4jPLoggerAdapter implements PLogger {
     }
 
     private static void appendParameterList(StringBuilder sb, Object[] args) {
-        if (args == null) {
-            sb.append("()");
-            return;
-        }
-        if (args.length == 0) {
+        if (ArrayUtils.isEmpty(args)) {
             sb.append("()");
             return;
         }
@@ -206,17 +221,36 @@ public class Slf4jPLoggerAdapter implements PLogger {
             if (isSimpleType(arg)) {
                 return arg.toString();
             } else {
-                return arg.getClass().getSimpleName();
+                return getSimpleName(arg.getClass());
             }
         }
     }
 
-    private static boolean isSimpleType(Object arg) {
-        Class<?> find = SIMPLE_TYPE.get(arg.getClass());
+    static boolean isSimpleType(Object arg) {
+        final Object find = SIMPLE_TYPE.get(arg.getClass());
         if (find == null) {
             return false;
         }
         return true;
+    }
+
+    static String getSimpleName(final Class<?> clazz) {
+        if (clazz.isArray()) {
+            return getSimpleName(clazz.getComponentType()) + "[]";
+        }
+
+        final String simpleName = clazz.getName();
+        if (simpleName == null) {
+            // Defense
+            return "";
+        }
+
+        final int lastPackagePosition = simpleName.lastIndexOf('.');
+        if (lastPackagePosition != -1) {
+            // Strip the package name
+            return simpleName.substring(lastPackagePosition + 1);
+        }
+        return simpleName;
     }
 
     @Override

@@ -24,7 +24,7 @@ import com.navercorp.pinpoint.web.applicationmap.histogram.AgentTimeHistogramSum
 import java.io.IOException;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public class AgentTimeHistogramSummarySerializer  extends JsonSerializer<AgentTimeHistogramSummary> {
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2017 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,10 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.navercorp.pinpoint.plugin.okhttp.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.async.AsyncTraceIdAccessor;
-import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
+import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
+import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
@@ -27,16 +28,14 @@ import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.plugin.okhttp.OkHttpConstants;
 
 /**
- * 
  * @author jaehong.kim
- *
  */
 public class DispatcherEnqueueMethodInterceptor implements AroundInterceptor {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
-    private TraceContext traceContext;
-    private MethodDescriptor methodDescriptor;
+    private final TraceContext traceContext;
+    private final MethodDescriptor methodDescriptor;
 
     public DispatcherEnqueueMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
         this.traceContext = traceContext;
@@ -54,21 +53,18 @@ public class DispatcherEnqueueMethodInterceptor implements AroundInterceptor {
             return;
         }
 
-        if(!validate(args)) {
+        if (!validate(args)) {
             return;
         }
 
-        SpanEventRecorder recorder = trace.traceBlockBegin();
+        final SpanEventRecorder recorder = trace.traceBlockBegin();
         try {
             // set asynchronous trace
-            final AsyncTraceId asyncTraceId = trace.getAsyncTraceId();
-            recorder.recordNextAsyncId(asyncTraceId.getAsyncId());
-
-            // set async id.
+            final AsyncContext asyncContext = recorder.recordNextAsyncContext();
             // AsyncTraceIdAccessor typeCheck validate();
-            ((AsyncTraceIdAccessor)args[0])._$PINPOINT$_setAsyncTraceId(asyncTraceId);
+            ((AsyncContextAccessor) args[0])._$PINPOINT$_setAsyncContext(asyncContext);
             if (isDebug) {
-                logger.debug("Set asyncTraceId metadata {}", asyncTraceId);
+                logger.debug("Set AsyncContext {}", asyncContext);
             }
         } catch (Throwable t) {
             logger.warn("Failed to before process. {}", t.getMessage(), t);
@@ -76,8 +72,10 @@ public class DispatcherEnqueueMethodInterceptor implements AroundInterceptor {
     }
 
     private boolean validate(Object[] args) {
-        if (args == null || args.length < 1 || args[0] == null || !(args[0] instanceof AsyncTraceIdAccessor)) {
-            logger.debug("Invalid args[0] object {}. Need field accessor({}).", args, AsyncTraceIdAccessor.class.getName());
+        if (args == null || args.length < 1 || !(args[0] instanceof AsyncContextAccessor)) {
+            if (isDebug) {
+                logger.debug("Invalid args[0] object {}. Need field accessor({}).", args, AsyncContextAccessor.class.getName());
+            }
             return false;
         }
 
@@ -95,12 +93,12 @@ public class DispatcherEnqueueMethodInterceptor implements AroundInterceptor {
             return;
         }
 
-        if(!validate(args)) {
+        if (!validate(args)) {
             return;
         }
 
         try {
-            SpanEventRecorder recorder = trace.currentSpanEventRecorder();
+            final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
             recorder.recordApi(methodDescriptor);
             recorder.recordServiceType(OkHttpConstants.OK_HTTP_CLIENT_INTERNAL);
             recorder.recordException(throwable);

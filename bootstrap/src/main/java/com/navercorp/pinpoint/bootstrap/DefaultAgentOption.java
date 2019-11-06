@@ -16,56 +16,54 @@
 
 package com.navercorp.pinpoint.bootstrap;
 
-import java.lang.instrument.Instrumentation;
-import java.net.URL;
-
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.common.service.AnnotationKeyRegistryService;
-import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
+
+import java.lang.instrument.Instrumentation;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @author emeroad
  */
 public class DefaultAgentOption implements AgentOption {
-    private final String agentArgs;
-    private final Instrumentation instrumentation;
-    private final ProfilerConfig profilerConfig;
-    private final URL[] pluginJars;
-    private final String bootStrapJarCorePath;
-    private final ServiceTypeRegistryService serviceTypeRegistryService;
-    private final AnnotationKeyRegistryService annotationKeyRegistryService;
 
-    public DefaultAgentOption(final String agentArgs, final Instrumentation instrumentation, final ProfilerConfig profilerConfig, final URL[] pluginJars, final String bootStrapJarCorePath, final ServiceTypeRegistryService serviceTypeRegistryService, final AnnotationKeyRegistryService annotationKeyRegistryService) {
+    private final Instrumentation instrumentation;
+
+    private final String agentId;
+    private final String applicationName;
+    private final boolean isContainer;
+
+    private final ProfilerConfig profilerConfig;
+    private final List<String> pluginJars;
+    private final List<String> bootstrapJarPaths;
+
+    public DefaultAgentOption(final Instrumentation instrumentation, String agentId, String applicationName, final boolean isContainer, final ProfilerConfig profilerConfig, final List<String> pluginJars, final List<String> bootstrapJarPaths) {
         if (instrumentation == null) {
-            throw new NullPointerException("instrumentation must not be null");
+            throw new NullPointerException("instrumentation");
+        }
+        if (agentId == null) {
+            throw new NullPointerException("agentId");
+        }
+        if (applicationName == null) {
+            throw new NullPointerException("applicationName");
         }
         if (profilerConfig == null) {
-            throw new NullPointerException("profilerConfig must not be null");
+            throw new NullPointerException("profilerConfig");
         }
         if (pluginJars == null) {
-            throw new NullPointerException("pluginJars must not be null");
+            throw new NullPointerException("pluginJars");
         }
-//        if (bootStrapJarCorePath == null) {
-//            throw new NullPointerException("bootStrapJarCorePath must not be null");
-//        }
-        if (annotationKeyRegistryService == null) {
-            throw new NullPointerException("annotationKeyRegistryService must not be null");
-        }
-        if (serviceTypeRegistryService == null) {
-            throw new NullPointerException("serviceTypeRegistryService must not be null");
-        }
-        this.agentArgs = agentArgs;
         this.instrumentation = instrumentation;
+        this.agentId = agentId;
+        this.applicationName = applicationName;
+        this.isContainer = isContainer;
         this.profilerConfig = profilerConfig;
         this.pluginJars = pluginJars;
-        this.bootStrapJarCorePath = bootStrapJarCorePath;
-        this.serviceTypeRegistryService = serviceTypeRegistryService;
-        this.annotationKeyRegistryService = annotationKeyRegistryService;
-    }
-
-    @Override
-    public String getAgentArgs() {
-        return this.agentArgs;
+        if (bootstrapJarPaths == null) {
+            this.bootstrapJarPaths = Collections.emptyList();
+        } else {
+            this.bootstrapJarPaths = bootstrapJarPaths;
+        }
     }
 
     @Override
@@ -74,13 +72,28 @@ public class DefaultAgentOption implements AgentOption {
     }
 
     @Override
-    public URL[] getPluginJars() {
+    public String getAgentId() {
+        return agentId;
+    }
+
+    @Override
+    public String getApplicationName() {
+        return applicationName;
+    }
+
+    @Override
+    public boolean isContainer() {
+        return isContainer;
+    }
+
+    @Override
+    public List<String> getPluginJars() {
         return this.pluginJars;
     }
 
     @Override
-    public String getBootStrapCoreJarPath() {
-        return this.bootStrapJarCorePath;
+    public List<String> getBootstrapJarPaths() {
+        return this.bootstrapJarPaths;
     }
 
     @Override
@@ -89,22 +102,16 @@ public class DefaultAgentOption implements AgentOption {
     }
 
     @Override
-    public ServiceTypeRegistryService getServiceTypeRegistryService() {
-        return this.serviceTypeRegistryService;
-    }
-
-    @Override
-    public AnnotationKeyRegistryService getAnnotationKeyRegistryService() {
-        return this.annotationKeyRegistryService;
-    }
-
-    @Override
     public String toString() {
-        return "DefaultAgentOption{" +
-                "agentArgs='" + agentArgs + '\'' +
-                ", instrumentation=" + instrumentation +
-                ", profilerConfig=" + profilerConfig +
-                ", bootStrapJarCorePath='" + bootStrapJarCorePath +
-                '}';
+        final StringBuilder sb = new StringBuilder("DefaultAgentOption{");
+        sb.append("instrumentation=").append(instrumentation);
+        sb.append(", agentId='").append(agentId).append('\'');
+        sb.append(", applicationName='").append(applicationName).append('\'');
+        sb.append(", isContainer=").append(isContainer);
+        sb.append(", profilerConfig=").append(profilerConfig);
+        sb.append(", pluginJars=").append(pluginJars);
+        sb.append(", bootstrapJarPaths=").append(bootstrapJarPaths);
+        sb.append('}');
+        return sb.toString();
     }
 }

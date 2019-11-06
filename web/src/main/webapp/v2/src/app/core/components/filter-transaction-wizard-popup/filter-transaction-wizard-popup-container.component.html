@@ -1,0 +1,7 @@
+<pp-filter-transaction-wizard-popup
+    [filterInfo]="filterInfo$ | async"
+    [link]="data"
+    [funcImagePath]="funcImagePath"
+    (outRequestFilterOpen)="openFilterMapPage($event)"
+    (outClosePopup)="onClosePopup()">
+</pp-filter-transaction-wizard-popup>

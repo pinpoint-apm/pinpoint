@@ -1,5 +1,10 @@
 package com.navercorp.pinpoint.web.vo;
 
+import com.navercorp.pinpoint.common.util.CollectionUtils;
+
+import java.util.ArrayList;
+import java.util.List;
+
 public class User {
     private String number;
     private String userId;
@@ -67,9 +72,36 @@ public class User {
         this.email = email;
     }
     
-    public void removeHyphenForPhoneNumber() {
-        if (phoneNumber != null && phoneNumber.contains("-")) {
-            phoneNumber = phoneNumber.replace("-", "");
+    public static List<String> removeHyphenForPhoneNumberList(List<String> phoneNumberList) {
+        if (CollectionUtils.isEmpty(phoneNumberList)) {
+            return phoneNumberList;
         }
+
+        List<String> editedPhoneNumberList = new ArrayList<>(phoneNumberList.size());
+
+        for (String phoneNumber : phoneNumberList) {
+            if (phoneNumber == null) {
+                continue;
+            } else if (phoneNumber.contains("-")) {
+                editedPhoneNumberList.add(phoneNumber.replace("-", ""));
+            } else {
+                editedPhoneNumberList.add(phoneNumber);
+            }
+        }
+
+        return editedPhoneNumberList;
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("User{");
+        sb.append("number='").append(number).append('\'');
+        sb.append(", userId='").append(userId).append('\'');
+        sb.append(", name='").append(name).append('\'');
+        sb.append(", department='").append(department).append('\'');
+        sb.append(", phoneNumber='").append(phoneNumber).append('\'');
+        sb.append(", email='").append(email).append('\'');
+        sb.append('}');
+        return sb.toString();
     }
 }

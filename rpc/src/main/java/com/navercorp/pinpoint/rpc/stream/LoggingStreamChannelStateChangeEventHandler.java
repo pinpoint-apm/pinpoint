@@ -20,20 +20,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public class LoggingStreamChannelStateChangeEventHandler implements StreamChannelStateChangeEventHandler {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
-    public void eventPerformed(StreamChannel streamChannel, StreamChannelStateCode updatedStateCode) throws Exception {
-        logger.info("eventPerformed streamChannel:{}, stateCode:{}", streamChannel, updatedStateCode);
-    }
-
-    @Override
-    public void exceptionCaught(StreamChannel streamChannel, StreamChannelStateCode updatedStateCode, Throwable e) {
-        logger.warn("exceptionCaught message:{}, streamChannel:{}, stateCode:{}", e.getMessage(), streamChannel, updatedStateCode, e);
+    public void stateUpdated(StreamChannel streamChannel, StreamChannelStateCode updatedStateCode) {
+        logger.info("stateUpdated() streamChannel:{}, updatedStateCode:{}", streamChannel, updatedStateCode);
     }
 
 }

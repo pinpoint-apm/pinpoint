@@ -18,27 +18,35 @@ package com.navercorp.pinpoint.bootstrap.resolver;
 
 import com.navercorp.pinpoint.bootstrap.resolver.condition.ClassResourceCondition;
 import com.navercorp.pinpoint.bootstrap.resolver.condition.MainClassCondition;
-import com.navercorp.pinpoint.bootstrap.resolver.condition.PropertyCondition;
+import com.navercorp.pinpoint.bootstrap.resolver.condition.SystemPropertyCondition;
+import com.navercorp.pinpoint.common.util.CollectionUtils;
+import com.navercorp.pinpoint.common.util.StringUtils;
+
+import java.util.List;
 
 /**
  * 
  * @author HyunGil Jeong
+ *
+ * @deprecated As of 1.9.0, use {@link MainClassCondition}, {@link SystemPropertyCondition},
+ *             {@link ClassResourceCondition} directly.
  */
+@Deprecated
 public class ConditionProvider {
     
     public static final ConditionProvider DEFAULT_CONDITION_PROVIDER = new ConditionProvider();
     
     private final MainClassCondition mainClassCondition;
     
-    private final PropertyCondition systemPropertyCondition;
+    private final SystemPropertyCondition systemPropertyCondition;
     
     private final ClassResourceCondition classResourceCondition;
     
     private ConditionProvider() {
-        this(new MainClassCondition(), new PropertyCondition(), new ClassResourceCondition());
+        this(MainClassCondition.INSTANCE, SystemPropertyCondition.INSTANCE, ClassResourceCondition.INSTANCE);
     }
     
-    ConditionProvider(MainClassCondition mainClassCondition, PropertyCondition systemPropertyCondition, ClassResourceCondition classResourceCondition) {
+    ConditionProvider(MainClassCondition mainClassCondition, SystemPropertyCondition systemPropertyCondition, ClassResourceCondition classResourceCondition) {
         this.mainClassCondition = mainClassCondition;
         this.systemPropertyCondition = systemPropertyCondition;
         this.classResourceCondition = classResourceCondition;
@@ -55,25 +63,51 @@ public class ConditionProvider {
     }
 
     /**
-     * Checks if the specified value matches the fully qualified class name of the application's main class.
+     * Checks if candidate matches the fully qualified class name of the application's main class.
      * If the main class cannot be resolved, the method return <tt>false</tt>.
-     * 
-     * @param condition the value to check against the application's main class name
-     * @return <tt>true</tt> if the specified value matches the name of the main class; 
+     *
+     * @param candidate the value to check against the application's main class name
+     * @return <tt>true</tt> if candidate matches the name of the main class;
      *         <tt>false</tt> if otherwise, or if the main class cannot be resolved
      * @see MainClassCondition#check(String)
      */
-    public boolean checkMainClass(String mainClass) {
-        return this.mainClassCondition.check(mainClass);
+    public boolean checkMainClass(String candidate) {
+        if (candidate == null) {
+            return false;
+        } else {
+            String trimmedCandidate = candidate.trim();
+            return this.mainClassCondition.check(trimmedCandidate);
+        }
     }
-    
+
+    /**
+     * Checks if any of the candidates match the fully qualified class name of the application's main class.
+     * If the main class cannot be resolved, the method returns <tt>false</tt>.
+     *
+     * @param candidates the values to check against the application's main class name
+     * @return <tt>true</tt> if any of the candidates match the name of the main class;
+     *         <tt>false</tt> if otherwise, or if the main class cannot be resolved
+     * @see MainClassCondition#check(String)
+     */
+    public boolean checkMainClass(List<String> candidates) {
+        if (CollectionUtils.isEmpty(candidates)) {
+            return false;
+        }
+        for (String candidate : candidates) {
+            if (this.checkMainClass(candidate)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     /**
      * Returns the system property value for the specified key.
      * 
      * @return the system property value, or an empty string if the key is null or empty 
      */
     public String getSystemPropertyValue(String systemPropertyKey) {
-        if (systemPropertyKey == null || systemPropertyKey.isEmpty()) {
+        if (StringUtils.isEmpty(systemPropertyKey)) {
             return "";
         }
         return this.systemPropertyCondition.getValue().getProperty(systemPropertyKey);
@@ -82,7 +116,7 @@ public class ConditionProvider {
     /**
      * Checks if the specified value is in the system property.
      * 
-     * @param requiredKey the values to check if they exist in the system property
+     * @param systemPropertyKey the values to check if they exist in the system property
      * @return <tt>true</tt> if the specified key is in the system property; 
      *         <tt>false</tt> if otherwise, or if <tt>null</tt> or empty key is provided
      */

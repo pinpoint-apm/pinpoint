@@ -19,12 +19,15 @@ import java.security.ProtectionDomain;
 
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
+import com.navercorp.pinpoint.bootstrap.plugin.util.InstrumentUtils;
+import com.navercorp.pinpoint.plugin.jdk.http.interceptor.HttpURLConnectionInterceptor;
 
 /**
  * 
@@ -37,23 +40,32 @@ public class JdkHttpPlugin implements ProfilerPlugin, TransformTemplateAware {
 
     @Override
     public void setup(ProfilerPluginSetupContext context) {
-        transformTemplate.transform("sun.net.www.protocol.http.HttpURLConnection", new TransformCallback() {
-            
-            @Override
-            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
-                
-                target.addGetter("com.navercorp.pinpoint.plugin.jdk.http.ConnectedGetter", "connected");
+        transformTemplate.transform("sun.net.www.protocol.http.HttpURLConnection", HttpURLConnectionTransform.class);
+    }
 
-                if (target.hasField("connecting", "boolean")) {
-                    target.addGetter("com.navercorp.pinpoint.plugin.jdk.http.ConnectingGetter", "connecting");
-                }
-                
-                target.addInterceptor("com.navercorp.pinpoint.plugin.jdk.http.interceptor.HttpURLConnectionInterceptor");
-                
-                return target.toBytecode();
+    public static class HttpURLConnectionTransform implements TransformCallback {
+
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+
+            target.addGetter(ConnectedGetter.class, "connected");
+
+            if (target.hasField("connecting", "boolean")) {
+                target.addGetter(ConnectingGetter.class, "connecting");
             }
-        });
+
+            final InstrumentMethod connectMethod = InstrumentUtils.findMethod(target, "connect");
+            connectMethod.addScopedInterceptor(HttpURLConnectionInterceptor.class, "HttpURLConnection");
+
+            final InstrumentMethod getInputStreamMethod = InstrumentUtils.findMethod(target, "getInputStream");
+            getInputStreamMethod.addScopedInterceptor(HttpURLConnectionInterceptor.class, "HttpURLConnection");
+
+            final InstrumentMethod getOutputStreamMethod = InstrumentUtils.findMethod(target, "getOutputStream");
+            getOutputStreamMethod.addScopedInterceptor(HttpURLConnectionInterceptor.class, "HttpURLConnection");
+
+            return target.toBytecode();
+        }
     }
 
     @Override

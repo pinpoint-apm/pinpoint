@@ -1,0 +1,13 @@
+<div class="l-transaction-view-top">
+    <div class="l-left-section">
+        <ul class="font-opensans l-tab-menu-list">
+            <li *ngFor="let tab of tabList" class="l-tab-menu-list-item" [class.active]="tab.id === activeTab">
+                <a (click)="onTabClick(tab.id)">{{tab.display}}</a>
+            </li>
+        </ul>
+        <ng-container #chartContainer></ng-container>
+    </div>
+    <div class="l-right-section">
+        <pp-server-map-others-container [sourceType]="'TRANSACTION_VIEW'"></pp-server-map-others-container>
+    </div>
+</div>

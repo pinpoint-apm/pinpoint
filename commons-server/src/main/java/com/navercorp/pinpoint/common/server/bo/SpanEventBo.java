@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,10 +18,6 @@ package com.navercorp.pinpoint.common.server.bo;
 
 import java.util.List;
 
-import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
-import com.navercorp.pinpoint.common.buffer.Buffer;
-import com.navercorp.pinpoint.common.buffer.OffsetFixedBuffer;
-
 /**
  * @author emeroad
  * @author jaehong.kim
@@ -32,20 +28,12 @@ public class SpanEventBo implements Event {
 
     private byte version = 0;
 
-    private String agentId;
-    private String applicationId;
-    private long agentStartTime;
-
-    private String traceAgentId;
-    private long traceAgentStartTime;
-    private long traceTransactionSequence;
-
     private short sequence;
 
     private int startElapsed;
     private int endElapsed;
 
-    private String rpc;
+//    private String rpc;
     private short serviceType;
 
     private String destinationId;
@@ -64,8 +52,11 @@ public class SpanEventBo implements Event {
     // should get exceptionClass from dao
     private String exceptionClass;
 
-    private int asyncId = -1;
     private int nextAsyncId = -1;
+
+    @Deprecated
+    private int asyncId = -1;
+    @Deprecated
     private short asyncSequence = -1;
     
     public SpanEventBo() {
@@ -79,55 +70,6 @@ public class SpanEventBo implements Event {
     public void setVersion(byte version) {
         this.version = version;
     }
-
-    public String getAgentId() {
-        return agentId;
-    }
-
-    public void setAgentId(String agentId) {
-        this.agentId = agentId;
-    }
-
-    public String getApplicationId() {
-        return applicationId;
-    }
-
-    public void setApplicationId(String applicationId) {
-        this.applicationId = applicationId;
-    }
-
-    public long getAgentStartTime() {
-        return this.agentStartTime;
-    }
-
-    public void setAgentStartTime(long agentStartTime) {
-        this.agentStartTime = agentStartTime;
-    }
-
-    public String getTraceAgentId() {
-        return traceAgentId;
-    }
-
-    public void setTraceAgentId(String traceAgentId) {
-        this.traceAgentId = traceAgentId;
-    }
-
-    public long getTraceAgentStartTime() {
-        return traceAgentStartTime;
-    }
-
-    public void setTraceAgentStartTime(long traceAgentStartTime) {
-        this.traceAgentStartTime = traceAgentStartTime;
-    }
-
-    public long getTraceTransactionSequence() {
-        return traceTransactionSequence;
-    }
-
-    public void setTraceTransactionSequence(long traceTransactionSequence) {
-        this.traceTransactionSequence = traceTransactionSequence;
-    }
-
 
     public short getSequence() {
         return sequence;
@@ -153,12 +95,14 @@ public class SpanEventBo implements Event {
         this.endElapsed = endElapsed;
     }
 
+    @Deprecated
     public String getRpc() {
-        return rpc;
+        return null;
     }
 
+    @Deprecated
     public void setRpc(String rpc) {
-        this.rpc = rpc;
+//        this.rpc = rpc;
     }
 
     public short getServiceType() {
@@ -253,14 +197,6 @@ public class SpanEventBo implements Event {
         this.exceptionClass = exceptionClass;
     }
 
-    public int getAsyncId() {
-        return asyncId;
-    }
-
-    public void setAsyncId(int asyncId) {
-        this.asyncId = asyncId;
-    }
-
     public int getNextAsyncId() {
         return nextAsyncId;
     }
@@ -268,11 +204,24 @@ public class SpanEventBo implements Event {
     public void setNextAsyncId(int nextAsyncId) {
         this.nextAsyncId = nextAsyncId;
     }
-    
+
+
+    @Deprecated
+    public int getAsyncId() {
+        return asyncId;
+    }
+
+    @Deprecated
+    public void setAsyncId(int asyncId) {
+        this.asyncId = asyncId;
+    }
+
+    @Deprecated
     public short getAsyncSequence() {
         return asyncSequence;
     }
 
+    @Deprecated
     public void setAsyncSequence(short asyncSequence) {
         this.asyncSequence = asyncSequence;
     }
@@ -283,26 +232,12 @@ public class SpanEventBo implements Event {
         StringBuilder builder = new StringBuilder();
         builder.append("{version=");
         builder.append(version);
-        builder.append(", agentId=");
-        builder.append(agentId);
-        builder.append(", applicationId=");
-        builder.append(applicationId);
-        builder.append(", agentStartTime=");
-        builder.append(agentStartTime);
-        builder.append(", traceAgentId=");
-        builder.append(traceAgentId);
-        builder.append(", traceAgentStartTime=");
-        builder.append(traceAgentStartTime);
-        builder.append(", traceTransactionSequence=");
-        builder.append(traceTransactionSequence);
         builder.append(", sequence=");
         builder.append(sequence);
         builder.append(", startElapsed=");
         builder.append(startElapsed);
         builder.append(", endElapsed=");
         builder.append(endElapsed);
-        builder.append(", rpc=");
-        builder.append(rpc);
         builder.append(", serviceType=");
         builder.append(serviceType);
         builder.append(", destinationId=");
@@ -319,10 +254,12 @@ public class SpanEventBo implements Event {
         builder.append(nextSpanId);
         builder.append(", hasException=");
         builder.append(hasException);
-        builder.append(", exceptionId=");
-        builder.append(exceptionId);
-        builder.append(", exceptionMessage=");
-        builder.append(exceptionMessage);
+        if (hasException) {
+            builder.append(", exceptionId=");
+            builder.append(exceptionId);
+            builder.append(", exceptionMessage=");
+            builder.append(exceptionMessage);
+        }
         builder.append(", exceptionClass=");
         builder.append(exceptionClass);
         builder.append(", asyncId=");

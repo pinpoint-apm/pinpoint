@@ -39,17 +39,9 @@ public abstract class BasicStreamPacket implements StreamPacket {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder();
-        sb.append(this.getClass().getSimpleName());
-        sb.append("{streamChannelId=").append(streamChannelId);
-        sb.append(", ");
-        if (getPayload() == null || getPayload() == EMPTY_PAYLOAD) {
-            sb.append("payload=null");
-        } else {
-            sb.append("payloadLength=").append(getPayload().length);
-        }
-        sb.append('}');
-        return sb.toString();
+        return "BasicStreamPacket{" +
+                "streamChannelId=" + streamChannelId +
+                '}';
     }
 
 }

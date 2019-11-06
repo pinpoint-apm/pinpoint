@@ -3,7 +3,7 @@ package com.navercorp.pinpoint.test.plugin;
 import java.lang.reflect.Method;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public final class PinpointPluginTestUtils {
 

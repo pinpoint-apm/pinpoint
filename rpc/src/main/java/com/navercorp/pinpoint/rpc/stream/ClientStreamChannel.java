@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,28 +16,13 @@
 
 package com.navercorp.pinpoint.rpc.stream;
 
-import com.navercorp.pinpoint.rpc.packet.stream.StreamCreatePacket;
-import org.jboss.netty.channel.Channel;
-import org.jboss.netty.channel.ChannelFuture;
+import com.navercorp.pinpoint.rpc.packet.stream.StreamResponsePacket;
 
 /**
- * @author koo.taejin
+ * @author Taejin Koo
  */
-public class ClientStreamChannel extends StreamChannel {
+public interface ClientStreamChannel extends StreamChannel {
 
-    public ClientStreamChannel(Channel channel, int streamId, StreamChannelManager streamChannelManager) {
-        super(channel, streamId, streamChannelManager);
-    }
-
-    public ChannelFuture sendCreate(byte[] payload) {
-        assertState(StreamChannelStateCode.CONNECT_AWAIT);
-
-        StreamCreatePacket packet = new StreamCreatePacket(getStreamId(), payload);
-        return this.getChannel().write(packet);
-    }
-
-    boolean changeStateConnectAwait() {
-        return changeStateTo(StreamChannelStateCode.CONNECT_AWAIT);
-    }
+    void handleStreamResponsePacket(StreamResponsePacket packet) throws StreamException;
 
 }

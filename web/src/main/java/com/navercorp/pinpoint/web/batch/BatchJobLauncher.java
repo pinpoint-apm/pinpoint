@@ -26,7 +26,7 @@ import java.util.Date;
  *
  */
 public class BatchJobLauncher extends JobLaunchSupport {
-    
+
     public void alarmJob() {
         JobParameters params = createTimeParameter();
         run("alarmJob", params);
@@ -41,6 +41,10 @@ public class BatchJobLauncher extends JobLaunchSupport {
 
     public void agentCountJob() {
         run("agentCountJob", createTimeParameter());
+    }
+
+    public void flinkCheckJob() {
+        run("flinkCheckJob", createTimeParameter());
     }
 
 }

@@ -1,0 +1,31 @@
+<pp-real-time-chart
+    [timezone]="timezone"
+    [dateFormat]="dateFormat"
+    [timeStamp]="timeStamp"
+    [activeThreadCounts]="activeThreadCounts"
+    [maxChartNumberPerPage]="maxChartNumberPerPage"
+    [sum]="sum"
+    [chartOption]="chartOption">
+</pp-real-time-chart>
+<ul class="l-legend" [ngStyle]="legendStyle">
+    <li>
+        <span class="l-text">Total</span>
+        <span class="l-circle">{{totalCount}}</span>
+    </li>
+    <li>
+        <span class="l-text">Slow</span>
+        <span class="l-circle">{{sum[3]}}</span>
+    </li>
+    <li>
+        <span class="l-text">5s</span>
+        <span class="l-circle">{{sum[2]}}</span>
+    </li>
+    <li>
+        <span class="l-text">3s</span>
+        <span class="l-circle">{{sum[1]}}</span>
+    </li>
+    <li>
+        <span class="l-text">1s</span>
+        <span class="l-circle">{{sum[0]}}</span>
+    </li>
+</ul>

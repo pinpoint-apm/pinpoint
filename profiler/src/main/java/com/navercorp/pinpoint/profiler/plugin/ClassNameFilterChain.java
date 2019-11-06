@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.profiler.plugin;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -24,13 +23,13 @@ import java.util.List;
  */
 public class ClassNameFilterChain implements ClassNameFilter {
 
-    private final List<ClassNameFilter> filterChain;
+    private final ClassNameFilter[] filterChain;
 
     public ClassNameFilterChain(List<ClassNameFilter> filterChain) {
         if (filterChain == null) {
-            throw new NullPointerException("filterChain must not be null");
+            throw new NullPointerException("filterChain");
         }
-        this.filterChain = new ArrayList<ClassNameFilter>(filterChain);
+        this.filterChain = filterChain.toArray(new ClassNameFilter[0]);
     }
 
 

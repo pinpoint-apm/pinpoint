@@ -21,15 +21,17 @@ import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.TargetMethod;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.UnKnownDatabaseInfo;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 
 /**
  * @author netspider
  * @author emeroad
  */
-@TargetMethod(name="executeQuery", paramTypes={ "java.lang.String" })
+// #1375 Workaround java level Deadlock
+// https://oss.navercorp.com/pinpoint/pinpoint-naver/issues/1375
+//@TargetMethod(name="executeQuery", paramTypes={ "java.lang.String" })
 public class StatementExecuteQueryInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
     public StatementExecuteQueryInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
         super(traceContext, descriptor);
@@ -38,7 +40,7 @@ public class StatementExecuteQueryInterceptor extends SpanEventSimpleAroundInter
 
     @Override
     public void doInBeforeTrace(SpanEventRecorder recorder, final Object target, Object[] args) {
-        /**
+        /*
          * If method was not called by request handler, we skip tagging.
          */
         DatabaseInfo databaseInfo = (target instanceof DatabaseInfoAccessor) ? ((DatabaseInfoAccessor)target)._$PINPOINT$_getDatabaseInfo() : null;
@@ -57,7 +59,7 @@ public class StatementExecuteQueryInterceptor extends SpanEventSimpleAroundInter
     @Override
     public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
         recorder.recordApi(methodDescriptor);
-        if (args.length > 0) {
+        if (ArrayUtils.hasLength(args)) {
             Object arg = args[0];
             if (arg instanceof String) {
                 recorder.recordSqlInfo((String) arg);

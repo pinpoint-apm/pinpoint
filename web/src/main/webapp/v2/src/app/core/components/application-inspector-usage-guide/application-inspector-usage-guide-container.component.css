@@ -1,0 +1,31 @@
+:host {
+    display: block;
+    height: 100%;
+}
+
+.l-guide-wrapper {
+    width: 480px;
+    height: 200px;
+    margin: auto;
+    position: relative;
+    top: 35%;
+    background-color: #fff;
+    padding: 15px 20px;
+    border-radius: 3px;
+    line-height: 200%;
+}
+
+.l-guide-title {
+    text-align: center;
+    font-size: 30px;
+    padding: 25px 0;
+}
+
+.l-guide-title > .fas {
+    font-size: 30px;
+    margin-right: 5px;
+}
+
+.l-guide-text {
+    text-align: center;
+}

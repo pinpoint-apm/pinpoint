@@ -13,6 +13,7 @@
 
 	<properties>
 		<encoding>UTF-8</encoding>
+		<quickstart.root.dir>${basedir}/..</quickstart.root.dir>
 	</properties>
 
 	<dependencies>
@@ -54,7 +55,7 @@
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>properties-maven-plugin</artifactId>
-				<version>1.0-alpha-2</version>
+				<version>1.0.0</version>
 				<executions>
 					<execution>
 						<phase>initialize</phase>
@@ -63,21 +64,46 @@
 						</goals>
 						<configuration>
 							<files>
-								<file>${basedir}/../conf/quickstart.properties</file>
+								<file>${quickstart.root.dir}/conf/quickstart.properties</file>
 							</files>
 						</configuration>
 					</execution>
 				</executions>
 			</plugin>
 			<plugin>
-				<groupId>org.apache.tomcat.maven</groupId>
-				<artifactId>tomcat7-maven-plugin</artifactId>
-				<version>2.2</version>
+				<groupId>org.codehaus.cargo</groupId>
+				<artifactId>cargo-maven2-plugin</artifactId>
+				<version>1.4.8</version>
 				<configuration>
-					<path>${quickstart.web.context.path}</path>
-					<port>${quickstart.web.port}</port>
-					<uriEncoding>utf-8</uriEncoding>
-					<warSourceDirectory>${basedir}/target/deploy</warSourceDirectory>
+					<container>
+						<containerId>tomcat8x</containerId>
+						<artifactInstaller>
+							<groupId>org.apache.tomcat</groupId>
+							<artifactId>tomcat</artifactId>
+							<version>8.5.28</version>
+						</artifactInstaller>
+					</container>
+					<configuration>
+						<home>${project.build.directory}/catalina-base</home>
+						<type>standalone</type>
+						<properties>
+							<cargo.servlet.port>${quickstart.web.port}</cargo.servlet.port>
+							<cargo.rmi.port>${quickstart.web.rmi.port}</cargo.rmi.port>
+							<cargo.tomcat.ajp.port>${quickstart.web.ajp.port}</cargo.tomcat.ajp.port>
+							<cargo.jvmargs>
+								-Dmaven.pinpoint.identifier=${maven.pinpoint.identifier}
+							</cargo.jvmargs>
+						</properties>
+					</configuration>
+					<deployables>
+						<deployable>
+							<location>${project.build.directory}/${project.artifactId}-${project.version}.war</location>
+							<type>war</type>
+							<properties>
+								<context>${quickstart.web.context.path}</context>
+							</properties>
+						</deployable>
+					</deployables>
 				</configuration>
 			</plugin>
 		</plugins>

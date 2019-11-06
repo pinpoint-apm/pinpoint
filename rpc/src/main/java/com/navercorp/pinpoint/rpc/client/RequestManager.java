@@ -53,7 +53,7 @@ public class RequestManager {
 
     public RequestManager(Timer timer, long defaultTimeoutMillis) {
         if (timer == null) {
-            throw new NullPointerException("timer must not be null");
+            throw new NullPointerException("timer");
         }
         
         if (defaultTimeoutMillis <= 0) {
@@ -79,8 +79,7 @@ public class RequestManager {
         return failureEventHandler;
     }
 
-
-    private void addTimeoutTask(long timeoutMillis, DefaultFuture future) {
+    private void addTimeoutTask(DefaultFuture future, long timeoutMillis) {
         if (future == null) {
             throw new NullPointerException("future");
         }
@@ -93,7 +92,7 @@ public class RequestManager {
         }
     }
 
-    private int getNextRequestId() {
+    public int nextRequestId() {
         return this.requestId.getAndIncrement();
     }
 
@@ -135,30 +134,54 @@ public class RequestManager {
         logger.error("unexpectedMessage received:{} address:{}", requestPacket, channel.getRemoteAddress());
     }
 
-    public ChannelWriteFailListenableFuture<ResponseMessage> register(RequestPacket requestPacket) {
-        return register(requestPacket, defaultTimeoutMillis);
+    public ChannelWriteFailListenableFuture<ResponseMessage> register(int requestId) {
+        return register(requestId, defaultTimeoutMillis);
     }
 
-    public ChannelWriteFailListenableFuture<ResponseMessage> register(RequestPacket requestPacket, long timeoutMillis) {
+    public ChannelWriteFailListenableFuture<ResponseMessage> register(int requestId, long timeoutMillis) {
         // shutdown check
-        final int requestId = getNextRequestId();
-        requestPacket.setRequestId(requestId);
+        final ChannelWriteFailListenableFuture<ResponseMessage> responseFuture = new ChannelWriteFailListenableFuture<ResponseMessage>(timeoutMillis);
 
-        final ChannelWriteFailListenableFuture<ResponseMessage> future = new ChannelWriteFailListenableFuture<ResponseMessage>(timeoutMillis);
-
-        final DefaultFuture old = this.requestMap.put(requestId, future);
+        final DefaultFuture old = this.requestMap.put(requestId, responseFuture);
         if (old != null) {
             throw new PinpointSocketException("unexpected error. old future exist:" + old + " id:" + requestId);
         }
 
         // when future fails, put a handle in order to remove a failed future in the requestMap.
         FailureEventHandler removeTable = createFailureEventHandler(requestId);
-        future.setFailureEventHandler(removeTable);
+        responseFuture.setFailureEventHandler(removeTable);
 
-        addTimeoutTask(timeoutMillis, future);
-        return future;
+        addTimeoutTask(responseFuture, timeoutMillis);
+        return responseFuture;
     }
 
+//    public ChannelWriteFailListenableFuture<ResponseMessage> register(final int requestId, final long timeoutMillis) {
+//        // shutdown check
+//        final ChannelWriteFailListenableFuture<ResponseMessage> responseFuture = new ChannelWriteFailListenableFuture<ResponseMessage>(timeoutMillis) {
+//            @Override
+//            public void operationComplete(ChannelFuture future) throws Exception {
+//                fireWriteComplete(requestId, future, this, timeoutMillis);
+//            }
+//        };
+//        return responseFuture;
+//    }
+//
+//    private void fireWriteComplete(int requestId, ChannelFuture ioWriteFuture, DefaultFuture<ResponseMessage> responseFuture, long timeoutMillis) {
+//        if (ioWriteFuture.isSuccess()) {
+//            final DefaultFuture old = requestMap.put(requestId, responseFuture);
+//            if (old != null) {
+//                PinpointSocketException pinpointSocketException = new PinpointSocketException("unexpected error. old responseFuture exist:" + old + " id:" + requestId);
+//                responseFuture.setFailure(pinpointSocketException);
+//                return;
+//            } else {
+//                FailureEventHandler removeTable = createFailureEventHandler(requestId);
+//                responseFuture.setFailureEventHandler(removeTable);
+//                addTimeoutTask(responseFuture, timeoutMillis);
+//            }
+//        } else {
+//            responseFuture.setFailure(ioWriteFuture.getCause());
+//        }
+//    }
 
     public void close() {
         logger.debug("close()");
@@ -175,7 +198,7 @@ public class RequestManager {
 //        }
         int requestFailCount = 0;
         for (Map.Entry<Integer, DefaultFuture<ResponseMessage>> entry : requestMap.entrySet()) {
-            if(entry.getValue().setFailure(closed)) {
+            if (entry.getValue().setFailure(closed)) {
                 requestFailCount++;
             }
         }

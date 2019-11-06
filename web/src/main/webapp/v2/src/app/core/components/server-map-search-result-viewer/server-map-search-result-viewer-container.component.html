@@ -1,0 +1,7 @@
+<pp-server-map-search-result-viewer
+    [i18nText]="i18nText"
+    [hiddenComponent]="hiddenComponent$ | async"
+    [applicationResultList]="searchResultList$ | async"
+    (outSearch)="onSearch($event)"
+    (outSelectApplication)="onSelectApplication($event)">
+</pp-server-map-search-result-viewer>

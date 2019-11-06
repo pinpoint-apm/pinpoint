@@ -28,7 +28,9 @@ public interface UserService {
     
     void insertUser(User user);
 
-    void deleteUser(User user);
+    void insertUserList(List<User> users);
+
+    void deleteUser(String userId);
 
     void updateUser(User user);
 
@@ -40,4 +42,7 @@ public interface UserService {
 
     List<User> selectUserByDepartment(String department);
 
+    boolean isExistUserId(String userId);
+
+    String getUserIdFromSecurity();
 }

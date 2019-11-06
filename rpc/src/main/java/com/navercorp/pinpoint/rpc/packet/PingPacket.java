@@ -25,8 +25,14 @@ import com.navercorp.pinpoint.rpc.common.SocketStateCode;
  * @author emeroad
  * @author Taejin Koo
  */
+/**
+ * @deprecated Since 1.7.0. caused :  Two payload types are used in one control packet.
+ * use {@link PingSimplePacket} {@link PingPayloadPacket}
+ */
+@Deprecated
 public class PingPacket extends BasicPacket {
 
+    @Deprecated
     public static final PingPacket PING_PACKET = new PingPacket();
     
     // optional

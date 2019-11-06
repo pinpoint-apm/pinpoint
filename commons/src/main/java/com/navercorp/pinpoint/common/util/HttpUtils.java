@@ -16,12 +16,14 @@
 
 package com.navercorp.pinpoint.common.util;
 
+import com.navercorp.pinpoint.common.Charsets;
+
 /**
  * @author emeroad
  */
 public final class HttpUtils {
 
-    private static final String UTF8 = "UTF-8";
+    private static final String UTF8 = Charsets.UTF_8_NAME;
 
     private static final String CHARSET = "charset=";
 

@@ -1,16 +1,50 @@
+/*
+ * Copyright 2019 NAVER Corp.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.navercorp.pinpoint.web.dao.hbase;
 
-import com.google.common.annotations.Beta;
-import com.google.common.collect.Lists;
-import com.navercorp.pinpoint.common.hbase.HBaseTables;
+import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
+import com.navercorp.pinpoint.common.hbase.TableDescriptor;
+import com.navercorp.pinpoint.common.hbase.rowmapper.RequestAwareDynamicRowMapper;
+import com.navercorp.pinpoint.common.hbase.rowmapper.RequestAwareRowMapper;
+import com.navercorp.pinpoint.common.hbase.rowmapper.RequestAwareRowMapperAdaptor;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
+import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyDecoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyEncoder;
-import com.navercorp.pinpoint.common.util.TransactionId;
+import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanDecoder;
+import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanDecoderV0;
+import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanEncoder;
+import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.web.dao.TraceDao;
 import com.navercorp.pinpoint.web.mapper.CellTraceMapper;
+import com.navercorp.pinpoint.web.mapper.SpanMapperV2;
+import com.navercorp.pinpoint.web.mapper.TargetSpanDecoder;
+import com.navercorp.pinpoint.web.vo.GetTraceInfo;
+import com.navercorp.pinpoint.web.vo.SpanHint;
+
+import com.google.common.collect.Lists;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Get;
+import org.apache.hadoop.hbase.filter.BinaryPrefixComparator;
+import org.apache.hadoop.hbase.filter.CompareFilter;
+import org.apache.hadoop.hbase.filter.Filter;
+import org.apache.hadoop.hbase.filter.QualifierFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,15 +52,15 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
+import javax.annotation.PostConstruct;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
-@Beta
 @Repository
 public class HbaseTraceDaoV2 implements TraceDao {
 
@@ -36,12 +70,14 @@ public class HbaseTraceDaoV2 implements TraceDao {
     private HbaseOperations2 template2;
 
     @Autowired
-    @Qualifier("transactionIdRowKeyEncoderV2")
-    private RowKeyEncoder<TransactionId> transactionIdRowKeyEncoder;
+    @Qualifier("traceRowKeyEncoderV2")
+    private RowKeyEncoder<TransactionId> rowKeyEncoder;
 
+    @Autowired
+    @Qualifier("traceRowKeyDecoderV2")
+    private RowKeyDecoder<TransactionId> rowKeyDecoder;
 
     private RowMapper<List<SpanBo>> spanMapperV2;
-
 
     @Value("#{pinpointWebProps['web.hbase.selectSpans.limit'] ?: 500}")
     private int selectSpansLimit;
@@ -49,122 +85,155 @@ public class HbaseTraceDaoV2 implements TraceDao {
     @Value("#{pinpointWebProps['web.hbase.selectAllSpans.limit'] ?: 500}")
     private int selectAllSpansLimit;
 
+    private final Filter spanFilter = createSpanQualifierFilter();
+
     @Autowired
-    @Qualifier("spanMapperV2")
-    public void setSpanMapperV2(RowMapper<List<SpanBo>> spanMapperV2) {
+    private TableDescriptor<HbaseColumnFamily.Trace> descriptor;
+
+    @PostConstruct
+    private void setup() {
+        SpanMapperV2 spanMapperV2 = new SpanMapperV2(rowKeyDecoder);
         final Logger logger = LoggerFactory.getLogger(spanMapperV2.getClass());
         if (logger.isDebugEnabled()) {
-            spanMapperV2 = CellTraceMapper.wrap(spanMapperV2);
+            this.spanMapperV2 = CellTraceMapper.wrap(spanMapperV2);
+        } else {
+            this.spanMapperV2 = spanMapperV2;
         }
-        this.spanMapperV2 = spanMapperV2;
     }
 
     @Override
     public List<SpanBo> selectSpan(TransactionId transactionId) {
         if (transactionId == null) {
-            throw new NullPointerException("transactionId must not be null");
+            throw new NullPointerException("transactionId");
         }
 
-        byte[] transactionIdRowKey = transactionIdRowKeyEncoder.encodeRowKey(transactionId);
-        return template2.get(HBaseTables.TRACE_V2, transactionIdRowKey, HBaseTables.TRACE_V2_CF_SPAN, spanMapperV2);
-    }
-
-
-    @Deprecated
-    @Override
-    public List<SpanBo> selectSpanAndAnnotation(TransactionId transactionId) {
-        if (transactionId == null) {
-            throw new NullPointerException("transactionId must not be null");
-        }
-
-        return selectSpan(transactionId);
+        byte[] transactionIdRowKey = rowKeyEncoder.encodeRowKey(transactionId);
+        TableName traceTableName = descriptor.getTableName();
+        return template2.get(traceTableName, transactionIdRowKey, descriptor.getColumnFamilyName(), spanMapperV2);
     }
 
 
     @Override
-    public List<List<SpanBo>> selectSpans(List<TransactionId> transactionIdList) {
-        return selectSpans(transactionIdList, selectSpansLimit);
+    public List<List<SpanBo>> selectSpans(List<GetTraceInfo> getTraceInfoList) {
+        return selectSpans(getTraceInfoList, selectSpansLimit);
     }
 
-    public List<List<SpanBo>> selectSpans(List<TransactionId> transactionIdList, int hBaseGetLimitSize) {
-        if (transactionIdList == null) {
-            throw new NullPointerException("transactionIdList must not be null");
+    List<List<SpanBo>> selectSpans(List<GetTraceInfo> getTraceInfoList, int eachPartitionSize) {
+        if (CollectionUtils.isEmpty(getTraceInfoList)) {
+            return Collections.emptyList();
         }
 
-        List<List<TransactionId>> splitTransactionIdList = splitTransactionIdList(transactionIdList, hBaseGetLimitSize);
-
-        return getSpans(splitTransactionIdList, HBaseTables.TRACE_V2_CF_SPAN);
+        List<List<GetTraceInfo>> partitionGetTraceInfoList = partition(getTraceInfoList, eachPartitionSize);
+        return partitionSelect(partitionGetTraceInfoList, descriptor.getColumnFamilyName(), spanFilter);
     }
 
     @Override
-    public List<List<SpanBo>> selectAllSpans(Collection<TransactionId> transactionIdList) {
+    public List<List<SpanBo>> selectAllSpans(List<TransactionId> transactionIdList) {
         return selectAllSpans(transactionIdList, selectAllSpansLimit);
     }
 
-    public List<List<SpanBo>> selectAllSpans(Collection<TransactionId> transactionIdList, int hBaseGetLimitSize) {
-        if (transactionIdList == null) {
-            throw new NullPointerException("transactionIdList must not be null");
-        }
-
-        List<List<TransactionId>> splitTransactionIdList = splitTransactionIdList(Lists.newArrayList(transactionIdList), hBaseGetLimitSize);
-
-
-        return getSpans(splitTransactionIdList, HBaseTables.TRACE_V2_CF_SPAN);
-    }
-
-
-    private List<List<TransactionId>> splitTransactionIdList(List<TransactionId> transactionIdList, int maxTransactionIdListSize) {
-        if (transactionIdList == null || transactionIdList.isEmpty()) {
+    List<List<SpanBo>> selectAllSpans(List<TransactionId> transactionIdList, int eachPartitionSize) {
+        if (CollectionUtils.isEmpty(transactionIdList)) {
             return Collections.emptyList();
         }
 
-        List<List<TransactionId>> splitTransactionIdList = new ArrayList<>();
-
-        int index = 0;
-        int endIndex = transactionIdList.size();
-        while (index < endIndex) {
-            int subListEndIndex = Math.min(index + maxTransactionIdListSize, endIndex);
-            splitTransactionIdList.add(transactionIdList.subList(index, subListEndIndex));
-            index = subListEndIndex;
+        List<GetTraceInfo> getTraceInfoList = new ArrayList<>(transactionIdList.size());
+        for (TransactionId transactionId : transactionIdList) {
+            getTraceInfoList.add(new GetTraceInfo(transactionId));
         }
 
-        return splitTransactionIdList;
+        List<List<GetTraceInfo>> partitionGetTraceInfoList = partition(getTraceInfoList, eachPartitionSize);
+        return partitionSelect(partitionGetTraceInfoList, descriptor.getColumnFamilyName(), null);
     }
 
-    private List<List<SpanBo>> getSpans(List<List<TransactionId>> splitTransactionIdList, byte[] columnFamily) {
-        if (splitTransactionIdList == null || splitTransactionIdList.isEmpty()) {
+    private List<List<GetTraceInfo>> partition(List<GetTraceInfo> getTraceInfoList, int maxTransactionIdListSize) {
+        return Lists.partition(getTraceInfoList, maxTransactionIdListSize);
+    }
+
+    private List<List<SpanBo>> partitionSelect(List<List<GetTraceInfo>> partitionGetTraceInfoList, byte[] columnFamily, Filter filter) {
+        if (CollectionUtils.isEmpty(partitionGetTraceInfoList)) {
             return Collections.emptyList();
+        }
+        if (columnFamily == null) {
+            throw new NullPointerException("columnFamily");
         }
 
         List<List<SpanBo>> spanBoList = new ArrayList<>();
-        for (List<TransactionId> transactionIdList : splitTransactionIdList) {
-            spanBoList.addAll(getSpans0(transactionIdList, columnFamily));
+        for (List<GetTraceInfo> getTraceInfoList : partitionGetTraceInfoList) {
+            List<List<SpanBo>> result = bulkSelect(getTraceInfoList, columnFamily, filter);
+            spanBoList.addAll(result);
         }
         return spanBoList;
     }
 
-    private List<List<SpanBo>> getSpans0(List<TransactionId> transactionIdList, byte[] columnFamily) {
-        if (transactionIdList == null || transactionIdList.isEmpty()) {
+    private List<List<SpanBo>> bulkSelect(List<GetTraceInfo> getTraceInfoList, byte[] columnFamily, Filter filter) {
+        if (CollectionUtils.isEmpty(getTraceInfoList)) {
+            return Collections.emptyList();
+        }
+        Objects.requireNonNull(columnFamily, "columnFamily");
+
+        List<Get> getList = createGetList(getTraceInfoList, columnFamily, filter);
+
+        RowMapper<List<SpanBo>> spanMapperAdaptor = newRowMapper(getTraceInfoList);
+        return bulkSelect0(getList, spanMapperAdaptor);
+    }
+
+    private RowMapper<List<SpanBo>> newRowMapper(List<GetTraceInfo> getTraceInfoList) {
+        RequestAwareRowMapper<List<SpanBo>, GetTraceInfo> getTraceInfoRowMapper = new RequestAwareDynamicRowMapper<>(this::getSpanMapper);
+        return new RequestAwareRowMapperAdaptor<List<SpanBo>, GetTraceInfo>(getTraceInfoList, getTraceInfoRowMapper);
+    }
+
+
+    private RowMapper<List<SpanBo>> getSpanMapper(GetTraceInfo getTraceInfo) {
+        final SpanHint hint = getTraceInfo.getHint();
+        if (hint.isSet()) {
+            final SpanDecoder targetSpanDecoder = new TargetSpanDecoder(new SpanDecoderV0(), getTraceInfo);
+            final RowMapper<List<SpanBo>> spanMapper = new SpanMapperV2(rowKeyDecoder, targetSpanDecoder);
+            return spanMapper;
+        } else {
+            return spanMapperV2;
+        }
+    }
+
+
+    private List<Get> createGetList(List<GetTraceInfo> getTraceInfoList, byte[] columnFamily, Filter filter) {
+        if (CollectionUtils.isEmpty(getTraceInfoList)) {
+            return Collections.emptyList();
+        }
+        final List<Get> getList = new ArrayList<>(getTraceInfoList.size());
+        for (GetTraceInfo getTraceInfo : getTraceInfoList) {
+            final Get get = createGet(getTraceInfo.getTransactionId(), columnFamily, filter);
+            getList.add(get);
+        }
+        return getList;
+    }
+
+    private List<List<SpanBo>> bulkSelect0(List<Get> multiGet, RowMapper<List<SpanBo>> rowMapperList) {
+        if (CollectionUtils.isEmpty(multiGet)) {
             return Collections.emptyList();
         }
 
-        if (columnFamily == null) {
-            throw new NullPointerException("columnFamily may not be null.");
-        }
-
-        final List<Get> getList = new ArrayList<>(transactionIdList.size());
-        for (TransactionId transactionId : transactionIdList) {
-            byte[] transactionIdRowKey = transactionIdRowKeyEncoder.encodeRowKey(transactionId);
-            final Get get = new Get(transactionIdRowKey);
-            get.addFamily(columnFamily);
-
-            getList.add(get);
-        }
-        return template2.get(HBaseTables.TRACE_V2, getList, spanMapperV2);
+        TableName traceTableName = descriptor.getTableName();
+        return template2.get(traceTableName, multiGet, rowMapperList);
     }
 
-    @Override
-    public List<SpanBo> selectSpans(TransactionId transactionId) {
-        return selectSpan(transactionId);
+    private Get createGet(TransactionId transactionId, byte[] columnFamily, Filter filter) {
+        byte[] transactionIdRowKey = rowKeyEncoder.encodeRowKey(transactionId);
+        final Get get = new Get(transactionIdRowKey);
+
+        get.addFamily(columnFamily);
+        if (filter != null) {
+            get.setFilter(filter);
+        }
+        return get;
     }
+
+    public QualifierFilter createSpanQualifierFilter() {
+        byte indexPrefix = SpanEncoder.TYPE_SPAN;
+        BinaryPrefixComparator prefixComparator = new BinaryPrefixComparator(new byte[]{indexPrefix});
+        QualifierFilter qualifierPrefixFilter = new QualifierFilter(CompareFilter.CompareOp.EQUAL, prefixComparator);
+        return qualifierPrefixFilter;
+    }
+
+
 }

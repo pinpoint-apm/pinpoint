@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,7 +16,9 @@
 
 package com.navercorp.pinpoint.collector.dao.hbase.statistics;
 
-import com.navercorp.pinpoint.common.util.ApplicationMapStatisticsUtils;
+import com.navercorp.pinpoint.common.profiler.util.ApplicationMapStatisticsUtils;
+
+import java.util.Objects;
 
 /**
  * @author emeroad
@@ -30,10 +32,7 @@ public class CallRowKey implements RowKey {
     private int hash;
 
     public CallRowKey(String callApplicationName, short callServiceType, long rowTimeSlot) {
-        if (callApplicationName == null) {
-            throw new NullPointerException("callApplicationName must not be null");
-        }
-        this.callApplicationName = callApplicationName;
+        this.callApplicationName = Objects.requireNonNull(callApplicationName, "callApplicationName");
         this.callServiceType = callServiceType;
         this.rowTimeSlot = rowTimeSlot;
     }

@@ -16,17 +16,18 @@
 
 package com.navercorp.pinpoint.web.alarm.collector;
 
+import com.navercorp.pinpoint.common.server.bo.stat.CpuLoadBo;
+import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
+import com.navercorp.pinpoint.web.alarm.DataCollectorFactory.DataCollectorCategory;
+import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
+import com.navercorp.pinpoint.web.dao.stat.AgentStatDao;
+import com.navercorp.pinpoint.web.vo.Application;
+import com.navercorp.pinpoint.web.vo.Range;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import com.navercorp.pinpoint.web.alarm.DataCollectorFactory.DataCollectorCategory;
-import com.navercorp.pinpoint.web.dao.AgentStatDao;
-import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
-import com.navercorp.pinpoint.web.vo.AgentStat;
-import com.navercorp.pinpoint.web.vo.Application;
-import com.navercorp.pinpoint.web.vo.Range;
 
 /**
  * @author minwoo.jung
@@ -34,7 +35,8 @@ import com.navercorp.pinpoint.web.vo.Range;
 public class AgentStatDataCollector extends DataCollector {
 
     private final Application application;
-    private final AgentStatDao agentStatDao;
+    private final AgentStatDao<JvmGcBo> jvmGcDao;
+    private final AgentStatDao<CpuLoadBo> cpuLoadDao;
     private final ApplicationIndexDao applicationIndexDao;
     private final long timeSlotEndTime;
     private final long slotInterval;
@@ -43,11 +45,13 @@ public class AgentStatDataCollector extends DataCollector {
     private final Map<String, Long> agentHeapUsageRate = new HashMap<>();
     private final Map<String, Long> agentGcCount = new HashMap<>();
     private final Map<String, Long> agentJvmCpuUsageRate = new HashMap<>();
+    private final Map<String, Long> agentSystemCpuUsageRate = new HashMap<>();
 
-    public AgentStatDataCollector(DataCollectorCategory category, Application application, AgentStatDao agentStatDao, ApplicationIndexDao applicationIndexDao, long timeSlotEndTime, long slotInterval) {
+    public AgentStatDataCollector(DataCollectorCategory category, Application application, AgentStatDao<JvmGcBo> jvmGcDao, AgentStatDao<CpuLoadBo> cpuLoadDao, ApplicationIndexDao applicationIndexDao, long timeSlotEndTime, long slotInterval) {
         super(category);
         this.application = application;
-        this.agentStatDao = agentStatDao;
+        this.jvmGcDao = jvmGcDao;
+        this.cpuLoadDao = cpuLoadDao;
         this.applicationIndexDao = applicationIndexDao;
         this.timeSlotEndTime = timeSlotEndTime;
         this.slotInterval = slotInterval;
@@ -63,43 +67,42 @@ public class AgentStatDataCollector extends DataCollector {
         List<String> agentIds = applicationIndexDao.selectAgentIds(application.getName());
 
         for(String agentId : agentIds) {
-            List<AgentStat> scanAgentStatList = agentStatDao.getAgentStatList(agentId, range);
-            int listSize = scanAgentStatList.size();
+            List<JvmGcBo> jvmGcBos = jvmGcDao.getAgentStatList(agentId, range);
+            List<CpuLoadBo> cpuLoadBos = cpuLoadDao.getAgentStatList(agentId, range);
             long totalHeapSize = 0;
             long usedHeapSize = 0;
             long jvmCpuUsaged = 0;
+            long systemCpuUsaged = 0;
 
-            for (AgentStat agentStat : scanAgentStatList) {
-                totalHeapSize += agentStat.getHeapMax();
-                usedHeapSize += agentStat.getHeapUsed();
-
-                jvmCpuUsaged += agentStat.getJvmCpuUsage() * 100;
+            for (JvmGcBo jvmGcBo : jvmGcBos) {
+                totalHeapSize += jvmGcBo.getHeapMax();
+                usedHeapSize += jvmGcBo.getHeapUsed();
             }
 
-            if(listSize > 0) {
+            for (CpuLoadBo cpuLoadBo : cpuLoadBos) {
+                jvmCpuUsaged += cpuLoadBo.getJvmCpuLoad() * 100;
+                systemCpuUsaged += cpuLoadBo.getSystemCpuLoad() * 100;
+            }
+
+            if (!jvmGcBos.isEmpty()) {
                 long percent = calculatePercent(usedHeapSize, totalHeapSize);
                 agentHeapUsageRate.put(agentId, percent);
 
-                percent = calculatePercent(jvmCpuUsaged, 100*scanAgentStatList.size());
-                agentJvmCpuUsageRate.put(agentId, percent);
-
-                long accruedLastGCcount = scanAgentStatList.get(0).getGcOldCount();
-                long accruedFirstGCcount= scanAgentStatList.get(listSize - 1).getGcOldCount();
-                agentGcCount.put(agentId, accruedLastGCcount - accruedFirstGCcount);
+                long accruedLastGcCount = jvmGcBos.get(0).getGcOldCount();
+                long accruedFirstGcCount = jvmGcBos.get(jvmGcBos.size() - 1).getGcOldCount();
+                agentGcCount.put(agentId, accruedLastGcCount - accruedFirstGcCount);
+            }
+            if (!cpuLoadBos.isEmpty()) {
+                long jvmCpuUsagedPercent = calculatePercent(jvmCpuUsaged, 100 * cpuLoadBos.size());
+                agentJvmCpuUsageRate.put(agentId, jvmCpuUsagedPercent);
+                long systemCpuUsagedPercent = calculatePercent(systemCpuUsaged, 100 * cpuLoadBos.size());
+                agentSystemCpuUsageRate.put(agentId, systemCpuUsagedPercent);
             }
 
         }
 
         init.set(true);
 
-    }
-
-    private long calculatePercent(long used, long total) {
-        if (total == 0 || used == 0) {
-            return 0;
-        } else {
-            return (used * 100L) / total;
-        }
     }
 
     public Map<String, Long> getHeapUsageRate() {
@@ -114,4 +117,5 @@ public class AgentStatDataCollector extends DataCollector {
         return agentJvmCpuUsageRate;
     }
 
+    public Map<String, Long> getSystemCpuUsageRate() { return agentSystemCpuUsageRate; }
 }

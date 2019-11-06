@@ -16,15 +16,9 @@
 
 package com.navercorp.pinpoint.plugin.thrift.interceptor.server;
 
-import static com.navercorp.pinpoint.plugin.thrift.ThriftScope.THRIFT_SERVER_SCOPE;
 
-import java.net.Socket;
-
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Scope;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import org.apache.thrift.TBaseProcessor;
-import org.apache.thrift.protocol.TProtocol;
-import org.apache.thrift.transport.TTransport;
 
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
@@ -32,15 +26,12 @@ import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Name;
-import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScopeInvocation;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.plugin.thrift.ThriftClientCallContext;
 import com.navercorp.pinpoint.plugin.thrift.ThriftConstants;
 import com.navercorp.pinpoint.plugin.thrift.ThriftUtils;
-import com.navercorp.pinpoint.plugin.thrift.field.accessor.SocketFieldAccessor;
 
 /**
  * Entry/exit point for tracing synchronous processors for Thrift services.
@@ -77,7 +68,6 @@ import com.navercorp.pinpoint.plugin.thrift.field.accessor.SocketFieldAccessor;
  * @see com.navercorp.pinpoint.plugin.thrift.interceptor.tprotocol.server.TProtocolReadTTypeInterceptor TProtocolReadTTypeInterceptor
  * @see com.navercorp.pinpoint.plugin.thrift.interceptor.tprotocol.server.TProtocolReadMessageEndInterceptor TProtocolReadMessageEndInterceptor
  */
-@Scope(value = THRIFT_SERVER_SCOPE, executionPolicy = ExecutionPolicy.BOUNDARY)
 public class TBaseProcessorProcessInterceptor implements AroundInterceptor {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
@@ -87,7 +77,7 @@ public class TBaseProcessorProcessInterceptor implements AroundInterceptor {
     private final MethodDescriptor descriptor;
     private final InterceptorScope scope;
 
-    public TBaseProcessorProcessInterceptor(TraceContext traceContext, MethodDescriptor descriptor, @Name(THRIFT_SERVER_SCOPE) InterceptorScope scope) {
+    public TBaseProcessorProcessInterceptor(TraceContext traceContext, MethodDescriptor descriptor, InterceptorScope scope) {
         this.traceContext = traceContext;
         this.descriptor = descriptor;
         this.scope = scope;
@@ -104,64 +94,60 @@ public class TBaseProcessorProcessInterceptor implements AroundInterceptor {
         if (trace == null) {
             return;
         }
+
+        InterceptorScopeInvocation currentTransaction = this.scope.getCurrentInvocation();
+        Object attachment = currentTransaction.getAttachment();
+        if (!(attachment instanceof ThriftClientCallContext)) {
+            return;
+        }
+
         // logging here as some Thrift servers depend on TTransportException being thrown for normal operations.
         // log only when current transaction is being traced.
         if (isDebug) {
             logger.afterInterceptor(target, args, result, throwable);
         }
-        this.traceContext.removeTraceObject();
+
+        ThriftClientCallContext clientCallContext = (ThriftClientCallContext) attachment;
+        if (clientCallContext.isEntryPoint()) {
+            traceContext.removeTraceObject();
+        }
+
         if (trace.canSampled()) {
-            try {
-                processTraceObject(trace, target, args, throwable);
-            } catch (Throwable t) {
-                logger.warn("Error processing trace object. Cause:{}", t.getMessage(), t);
-            } finally {
-                trace.close();
+            String methodUri = getMethodUri(target);
+            if (clientCallContext.isEntryPoint()) {
+                finalizeSpan(trace, methodUri, throwable);
+            } else {
+                finalizeSpanEvent(trace, methodUri, throwable);
             }
         }
     }
 
-    private void processTraceObject(final Trace trace, Object target, Object[] args, Throwable throwable) {
-        // end spanEvent
+    private void finalizeSpan(final Trace trace, String methodUri, Throwable throwable) {
+        try {
+            finalizeSpanEvent(trace, null, throwable);
+            SpanRecorder recorder = trace.getSpanRecorder();
+            recorder.recordRpcName(methodUri);
+        } catch (Throwable t) {
+            logger.warn("Error processing trace object. Cause:{}", t.getMessage(), t);
+        } finally {
+            trace.close();
+        }
+    }
+
+    private void finalizeSpanEvent(final Trace trace, String methodUri, Throwable throwable) {
         try {
             SpanEventRecorder recorder = trace.currentSpanEventRecorder();
             // TODO Might need a way to collect and record method arguments
             // trace.recordAttribute(...);
             recorder.recordException(throwable);
             recorder.recordApi(this.descriptor);
+            if (methodUri != null) {
+                recorder.recordAttribute(ThriftConstants.THRIFT_URL, methodUri);
+            }
         } catch (Throwable t) {
             logger.warn("Error processing trace object. Cause:{}", t.getMessage(), t);
         } finally {
             trace.traceBlockEnd();
-        }
-
-        // end root span
-        SpanRecorder recorder = trace.getSpanRecorder();
-        String methodUri = getMethodUri(target);
-        recorder.recordRpcName(methodUri);
-        // retrieve connection information
-        String localIpPort = ThriftConstants.UNKNOWN_ADDRESS;
-        String remoteAddress = ThriftConstants.UNKNOWN_ADDRESS;
-        if (args.length == 2 && args[0] instanceof TProtocol) {
-            TProtocol inputProtocol = (TProtocol)args[0];
-            TTransport inputTransport = inputProtocol.getTransport();
-            if (inputTransport instanceof SocketFieldAccessor) {
-                Socket socket = ((SocketFieldAccessor)inputTransport)._$PINPOINT$_getSocket();
-                if (socket != null) {
-                    localIpPort = ThriftUtils.getHostPort(socket.getLocalSocketAddress());
-                    remoteAddress = ThriftUtils.getHost(socket.getRemoteSocketAddress());
-                }
-            } else {
-                if (isDebug) {
-                    logger.debug("Invalid target object. Need field accessor({}).", SocketFieldAccessor.class.getName());
-                }
-            }
-        }
-        if (localIpPort != ThriftConstants.UNKNOWN_ADDRESS) {
-            recorder.recordEndPoint(localIpPort);
-        }
-        if (remoteAddress != ThriftConstants.UNKNOWN_ADDRESS) {
-            recorder.recordRemoteAddress(remoteAddress);
         }
     }
 

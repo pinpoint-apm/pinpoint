@@ -19,34 +19,53 @@ package com.navercorp.pinpoint.bootstrap.instrument;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
+import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallbackChecker;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
+import com.navercorp.pinpoint.common.util.Assert;
+
+import java.security.ProtectionDomain;
 
 /**
  * @author emeroad
  */
 public class InstrumentorDelegate implements Instrumentor {
+    private final ProfilerConfig profilerConfig;
     private final InstrumentContext instrumentContext;
 
-    public InstrumentorDelegate(InstrumentContext instrumentContext) {
-        if (instrumentContext == null) {
-            throw new NullPointerException("instrumentContext must not be null");
+    public InstrumentorDelegate(ProfilerConfig profilerConfig, InstrumentContext instrumentContext) {
+        if (profilerConfig == null) {
+            throw new NullPointerException("profilerConfig");
         }
+        if (instrumentContext == null) {
+            throw new NullPointerException("instrumentContext");
+        }
+        this.profilerConfig = profilerConfig;
         this.instrumentContext = instrumentContext;
     }
 
     @Override
     public ProfilerConfig getProfilerConfig() {
-        return instrumentContext.getTraceContext().getProfilerConfig();
+        return profilerConfig;
+    }
+
+    @Override
+    public InstrumentClass getInstrumentClass(ClassLoader classLoader, String className, ProtectionDomain protectionDomain, byte[] classfileBuffer) {
+        return instrumentContext.getInstrumentClass(classLoader, className, protectionDomain, classfileBuffer);
     }
 
     @Override
     public InstrumentClass getInstrumentClass(ClassLoader classLoader, String className, byte[] classfileBuffer) {
-        return instrumentContext.getInstrumentClass(classLoader, className, classfileBuffer);
+        return instrumentContext.getInstrumentClass(classLoader, className, null, classfileBuffer);
     }
 
     @Override
     public boolean exist(ClassLoader classLoader, String className) {
-        return instrumentContext.exist(classLoader, className);
+        return instrumentContext.exist(classLoader, className, null);
+    }
+
+    @Override
+    public boolean exist(ClassLoader classLoader, String className, ProtectionDomain protectionDomain) {
+        return instrumentContext.exist(classLoader, className, protectionDomain);
     }
 
     @Override
@@ -62,6 +81,15 @@ public class InstrumentorDelegate implements Instrumentor {
     @Override
     public void transform(ClassLoader classLoader, String targetClassName, TransformCallback transformCallback) {
         instrumentContext.addClassFileTransformer(classLoader, targetClassName, transformCallback);
+    }
+
+    @Override
+    public void transform(ClassLoader classLoader, String targetClassName, Class<? extends TransformCallback> transformCallbackClass) {
+        Assert.requireNonNull(transformCallbackClass, "transformCallback");
+        TransformCallbackChecker.validate(transformCallbackClass);
+
+        final String transformCallbackClassName = transformCallbackClass.getName();
+        instrumentContext.addClassFileTransformer(classLoader, targetClassName, transformCallbackClassName);
     }
 
     @Override

@@ -9,11 +9,11 @@
 	 * @class
 	 */	
 	pinpointApp.constant('AlarmAjaxServiceConfig', {
-		group: "/userGroup.pinpoint", //POST, GET, PUT, DELETE
-		groupMember: "/userGroup/member.pinpoint",
-		pinpointUser: "/user.pinpoint",
-		alarmRule: "/application/alarmRule.pinpoint",
-		alarmRuleSet: "/application/alarmRule/checker.pinpoint"
+		group: "userGroup.pinpoint", //POST, GET, PUT, DELETE
+		groupMember: "userGroup/member.pinpoint",
+		pinpointUser: "user.pinpoint",
+		alarmRule: "application/alarmRule.pinpoint",
+		alarmRuleSet: "application/alarmRule/checker.pinpoint"
 	});
 	
 	pinpointApp.service('AlarmAjaxService', [ 'AlarmAjaxServiceConfig', '$http', function ($config, $http) {
@@ -99,7 +99,7 @@
 //			});
 		}
 		function retrieve(url, data, callback) {
-			$http.get( url + "?" + $.param( data ) ).then(function(result) {
+			$http.get( url + "?" + $.param( data || {} ) ).then(function(result) {
 				callback(result.data);
 			}, function(error) {
 				callback(error);

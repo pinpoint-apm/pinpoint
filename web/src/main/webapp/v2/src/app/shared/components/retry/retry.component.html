@@ -1,0 +1,4 @@
+<div *ngIf="showRetry" [@fadeIn]>
+    <p class="l-retry-message">{{message}}</p>
+    <button type="button" (click)="onRetry()"><i class="fas fa-redo fa-2x" aria-hidden="true"></i></button>
+</div>

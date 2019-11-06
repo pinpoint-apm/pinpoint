@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,14 +16,16 @@
 
 package com.navercorp.pinpoint.web.dao.hbase;
 
-import com.navercorp.pinpoint.common.hbase.HBaseTables;
+import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
 import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
-import com.navercorp.pinpoint.common.util.ApplicationMapStatisticsUtils;
+import com.navercorp.pinpoint.common.hbase.TableDescriptor;
+import com.navercorp.pinpoint.common.profiler.util.ApplicationMapStatisticsUtils;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataMap;
 import com.navercorp.pinpoint.web.dao.MapStatisticsCallerDao;
-import com.navercorp.pinpoint.web.mapper.*;
+import com.navercorp.pinpoint.web.mapper.MapStatisticsTimeWindowReducer;
+import com.navercorp.pinpoint.web.mapper.RowMapReduceResultExtractor;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.util.TimeWindowDownSampler;
 import com.navercorp.pinpoint.web.vo.Application;
@@ -31,6 +33,7 @@ import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.RangeFactory;
 
 import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
+import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Scan;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,47 +41,61 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
+import java.util.Objects;
+
 /**
  * @author netspider
  * @author emeroad
+ * @author HyunGil Jeong
  */
 @Repository
 public class HbaseMapStatisticsCallerDao implements MapStatisticsCallerDao {
 
     private static final int MAP_STATISTICS_CALLEE_VER2_NUM_PARTITIONS = 32;
+    private static final int SCAN_CACHE_SIZE = 40;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    private int scanCacheSize = 40;
+
+    private final HbaseOperations2 hbaseTemplate;
+
+    private final RowMapper<LinkDataMap> mapStatisticsCallerMapper;
+
+    private final RangeFactory rangeFactory;
+
+    private final RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
+
+    private TableDescriptor<HbaseColumnFamily.CalleeStatMap> descriptor;
 
     @Autowired
-    private HbaseOperations2 hbaseOperations2;
-
-    @Autowired
-    @Qualifier("mapStatisticsCallerMapper")
-    private RowMapper<LinkDataMap> mapStatisticsCallerMapper;
-
-    @Autowired
-    private RangeFactory rangeFactory;
-
-    @Autowired
-    @Qualifier("statisticsCallerRowKeyDistributor")
-    private RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
-
+    public HbaseMapStatisticsCallerDao(
+            HbaseOperations2 hbaseTemplate,
+            @Qualifier("mapStatisticsCallerMapper") RowMapper<LinkDataMap> mapStatisticsCallerMapper,
+            RangeFactory rangeFactory,
+            @Qualifier("statisticsCallerRowKeyDistributor") RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix,
+            TableDescriptor<HbaseColumnFamily.CalleeStatMap> descriptor) {
+        this.hbaseTemplate = Objects.requireNonNull(hbaseTemplate, "hbaseTemplate");
+        this.mapStatisticsCallerMapper = Objects.requireNonNull(mapStatisticsCallerMapper, "mapStatisticsCallerMapper");
+        this.rangeFactory = Objects.requireNonNull(rangeFactory, "rangeFactory");
+        this.rowKeyDistributorByHashPrefix = Objects.requireNonNull(rowKeyDistributorByHashPrefix, "rowKeyDistributorByHashPrefix");
+        this.descriptor = Objects.requireNonNull(descriptor, "descriptor");
+    }
 
     @Override
     public LinkDataMap selectCaller(Application callerApplication, Range range) {
         if (callerApplication == null) {
-            throw new NullPointerException("callerApplication must not be null");
+            throw new NullPointerException("callerApplication");
         }
         if (range == null) {
-            throw new NullPointerException("range must not be null");
+            throw new NullPointerException("range");
         }
 
         final TimeWindow timeWindow = new TimeWindow(range, TimeWindowDownSampler.SAMPLER);
         // find distributed key.
-        final Scan scan = createScan(callerApplication, range, HBaseTables.MAP_STATISTICS_CALLEE_VER2_CF_COUNTER);
+        final Scan scan = createScan(callerApplication, range, descriptor.getColumnFamilyName());
         ResultsExtractor<LinkDataMap> resultExtractor = new RowMapReduceResultExtractor<>(mapStatisticsCallerMapper, new MapStatisticsTimeWindowReducer(timeWindow));
-        LinkDataMap linkDataMap = hbaseOperations2.findParallel(HBaseTables.MAP_STATISTICS_CALLEE_VER2, scan, rowKeyDistributorByHashPrefix, resultExtractor, MAP_STATISTICS_CALLEE_VER2_NUM_PARTITIONS);
+
+        TableName mapStatisticsCalleeTableName = descriptor.getTableName();
+        LinkDataMap linkDataMap = this.hbaseTemplate.findParallel(mapStatisticsCalleeTableName, scan, rowKeyDistributorByHashPrefix, resultExtractor, MAP_STATISTICS_CALLEE_VER2_NUM_PARTITIONS);
         logger.debug("Caller data. {}, {}", linkDataMap, range);
         if (linkDataMap != null && linkDataMap.size() > 0) {
             return linkDataMap;
@@ -100,7 +117,7 @@ public class HbaseMapStatisticsCallerDao implements MapStatisticsCallerDao {
         byte[] endKey = ApplicationMapStatisticsUtils.makeRowKey(application.getName(), application.getServiceTypeCode(), range.getFrom());
 
         Scan scan = new Scan();
-        scan.setCaching(this.scanCacheSize);
+        scan.setCaching(SCAN_CACHE_SIZE);
         scan.setStartRow(startKey);
         scan.setStopRow(endKey);
         for(byte[] family : familyArgs) {
@@ -110,4 +127,5 @@ public class HbaseMapStatisticsCallerDao implements MapStatisticsCallerDao {
 
         return scan;
     }
+
 }

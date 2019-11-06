@@ -1,0 +1,25 @@
+serviceTypes:
+    # Node.js
+    - code: 1400
+      name: 'NODE'
+      property:
+          recordStatistics: true
+    - code: 1401
+      name: 'NODE_METHOD'
+      desc: 'NODE'
+    # Express - Fast, unopinionated, minimalist web framework for Node.js
+    - code: 6600
+      name: 'EXPRESS'
+    # KOA - Next generation web framework for Node.js
+    - code: 6610
+      name: 'KOA'
+    # HAPI - A rich framework for building applications and services
+    - code: 6620
+      name: 'HAPI'
+    # Restify - The future of Node.js REST development
+    - code: 6630
+      name: 'RESTIFY'
+    # IOREDIS - A robust, performance-focused and full-featured Redis client for Node.js.
+    - code: 8202
+      name: 'IOREDIS'
+      desc: 'REDIS'

@@ -1,10 +1,26 @@
+<!--
+  ~ Copyright 2019 NAVER Corp.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.navercorp.pinpoint</groupId>
         <artifactId>pinpoint</artifactId>
-        <version>1.6.0-SNAPSHOT</version>
+        <version>1.9.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>pinpoint-collector</artifactId>
@@ -12,14 +28,23 @@
     <packaging>war</packaging>
 
     <properties>
-        <jdk.version>1.7</jdk.version>
-        <jdk.home>${env.JAVA_7_HOME}</jdk.home>
+        <jdk.version>1.8</jdk.version>
+        <jdk.home>${env.JAVA_8_HOME}</jdk.home>
+        <sniffer.artifactid>java18</sniffer.artifactid>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-commons</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-commons-buffer</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-commons-profiler</artifactId>
         </dependency>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
@@ -39,25 +64,31 @@
         </dependency>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
-            <artifactId>pinpoint-bootstrap</artifactId>
+            <artifactId>pinpoint-grpc</artifactId>
         </dependency>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
-            <artifactId>pinpoint-plugins</artifactId>
+            <artifactId>pinpoint-bootstrap</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-plugins-assembly</artifactId>
             <type>pom</type>
         </dependency>
-        
-        <!-- for test -->        
+        <dependency>
+            <groupId>org.apache.zookeeper</groupId>
+            <artifactId>zookeeper</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-profiler</artifactId>
-            <scope>test</scope>
         </dependency>
         
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>16.0.1</version>
         </dependency>
         <dependency>
             <groupId>io.netty</groupId>
@@ -169,6 +200,14 @@
             <artifactId>javax.servlet-api</artifactId>
             <scope>provided</scope>
         </dependency>
+
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-rpc</artifactId>
+            <version>${project.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -186,57 +225,6 @@
                 <directory>${basedir}/src/main/resources-${env}</directory>
             </resource>
         </resources>
-
-        <plugins>
-            <plugin>
-                <groupId>com.spotify</groupId>
-                <artifactId>docker-maven-plugin</artifactId>
-                <version>${docker.maven.plugin.version}</version>
-                <configuration>
-                    <skipDockerBuild>false</skipDockerBuild>
-                    <imageName>naver/${project.artifactId}:${project.version}</imageName>
-                    <baseImage>tomcat:8-jre8</baseImage>
-                    <entryPoint>
-                        ["/usr/local/bin/start-collector.sh"]
-                    </entryPoint>
-                    <exposes>
-                        <expose>9994</expose>
-                        <expose>9995</expose>
-                        <expose>9996</expose>
-                    </exposes>
-                    <resources>
-                        <resource>
-                            <targetPath>/assets/</targetPath>
-                            <directory>${project.build.directory}</directory>
-                            <include>${project.artifactId}-${project.version}.war</include>
-                        </resource>
-                        <resource>
-                            <targetPath>/assets/</targetPath>
-                            <directory>${project.build.directory}/deploy/WEB-INF/classes/</directory>
-                            <includes>
-                                <include>pinpoint-collector.properties</include>
-                                <include>hbase.properties</include>
-                            </includes>
-                        </resource>
-                        <resource>
-                            <targetPath>/usr/local/bin/</targetPath>
-                            <directory>${project.basedir}/</directory>
-                            <include>start-collector.sh</include>
-                        </resource>
-                    </resources>
-                    <runs>
-                        <run>chmod a+x /usr/local/bin/start-collector.sh</run>
-                        <run>rm -rf /usr/local/tomcat/webapps/*</run>
-                        <run>sed -i -e 's/8005/9005/' /usr/local/tomcat/conf/server.xml</run>
-                        <run>sed -i -e 's/8080/9080/' /usr/local/tomcat/conf/server.xml</run>
-                        <run>sed -i -e 's/8009/9009/' /usr/local/tomcat/conf/server.xml</run>
-                        <run>sed -i -e 's/8443/9443/' /usr/local/tomcat/conf/server.xml</run>
-                        <run>unzip /assets/${project.artifactId}-${project.version}.war -d /usr/local/tomcat/webapps/ROOT</run>
-                        <run>rm -rf /assets/${project.artifactId}-${project.version}.war</run>
-                    </runs>
-                </configuration>
-            </plugin>
-        </plugins>
     </build>
     <profiles>
         <profile>

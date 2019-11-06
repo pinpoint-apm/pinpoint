@@ -1,0 +1,35 @@
+:host {
+    display: block;
+}
+.l-item-wrapper {
+    margin: 0;
+    color: #333;
+    padding: 6px 17px;
+    font-size: 13px;    
+    display: block;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+.l-item-wrapper:hover {
+    background:#fff0f0;
+}
+.l-item-wrapper.selected {
+    background:#fff0f0;
+}
+
+.l-item-wrapper > div {
+    float: right;
+}
+.l-item-wrapper .fa-trash-alt {
+    color: #b3b6bf;
+    font-size: 14px;
+    margin-left: 4px;
+}
+.l-item-wrapper .fa-check {
+    color: #F00;
+    margin-left: 10px;
+}
+.l-disabled { 
+    color:#DDD;
+}

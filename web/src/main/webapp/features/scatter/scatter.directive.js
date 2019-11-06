@@ -8,8 +8,8 @@
 	 * @class
 	 */
 	pinpointApp.constant("scatterDirectiveConfig", {
-		"scatterDataUrl": "/getScatterData.pinpoint",
-		template: "<div id='scatter' style='padding-top:10px;padding-bottom:20px;'></div>",
+		"scatterDataUrl": "getScatterData.pinpoint",
+		template: "<div id='scatter' style='padding-top:10px;padding-bottom:20px;user-select:none;'></div>",
 		images: {
 			"config": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAOCAYAAAAfSC3RAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyJpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYxIDY0LjE0MDk0OSwgMjAxMC8xMi8wNy0xMDo1NzowMSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNS4xIFdpbmRvd3MiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6QTI2NzMzRDI2QTlGMTFFM0E1RENBRjZGODkwRDBCMEIiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6QTI2NzMzRDM2QTlGMTFFM0E1RENBRjZGODkwRDBCMEIiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDpBMjY3MzNEMDZBOUYxMUUzQTVEQ0FGNkY4OTBEMEIwQiIgc3RSZWY6ZG9jdW1lbnRJRD0ieG1wLmRpZDpBMjY3MzNEMTZBOUYxMUUzQTVEQ0FGNkY4OTBEMEIwQiIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/Pn/ejkcAAAFwSURBVHjanFKxSsNQFE2CFEtaTNsMCbSQ4lA6GSghi2igo/o/GVz6AfmD/EFGJ7cKDiVLO0hFEByzpG1EA5LUxntC80jFKhi4LzfnnnPfzXmPz7KM+9ezT6iq6gnF+T4Nny88/110VK1WbwRB4OM4vgyC4PVXIQlW9JqRwGo2mzm2XC65zWYzplSnBo1CeFDu1Ov1XhaLhVWpVBimKAqXJInVarWmJGQ42xHjybIcQSSK4rNt29cgOI5jR1Gkk5gLw1DC2LkvWGBCu90eDwaDDOF53hXhhwjf908LHByYBo2ArqZpfnY6HbEYw3XdJ5riAzEajR4LHJxut6syhyhq5c6apt1hdER5EnCIKzFzqPM7fUwkSZrhf+r1+lmaphFqjUZuJIeaYRgT4q7ZqFvxmn7+GAQYBDcRyIGhBs6PN4dyjKLP5/OL4XA4RSAHhlpZs3OO1PF+W3ggwxQ6u7d+v3+7s9Nfd3VrQm3fXf0SYADyptv3yy4A0QAAAABJRU5ErkJggg==",
 			"download": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAOCAYAAAAfSC3RAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyJpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYxIDY0LjE0MDk0OSwgMjAxMC8xMi8wNy0xMDo1NzowMSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNS4xIFdpbmRvd3MiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6RUU3MjQyMUQ2QTlGMTFFM0IxRTY4MjI3MUU5MUUyMzMiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6RUU3MjQyMUU2QTlGMTFFM0IxRTY4MjI3MUU5MUUyMzMiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDpFRTcyNDIxQjZBOUYxMUUzQjFFNjgyMjcxRTkxRTIzMyIgc3RSZWY6ZG9jdW1lbnRJRD0ieG1wLmRpZDpFRTcyNDIxQzZBOUYxMUUzQjFFNjgyMjcxRTkxRTIzMyIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/PlnySxAAAADPSURBVHjaxFLBDYMwDLQjMgEf4M8E4Y0YgzHaTTpGFuDfARAdoH3DiwmQSLmqRIZSpPLpSTH4krOjc9g5R0cQIDDzgozj2Ffrum6xOTcKtqolSUJCuNlR0UH8WTiZcpPGzEaB3xVWVXVO0/QhOeTgP1rKOU7/QdM0RZ7nd2OMwxc5eHkeixEm+71aKUVhGJLWmoZhoL7vaRxHX7xtW/ZzlHOTgDiKIirL8oTcWnuZ914dsyzbfXfoCuAmdV3z15ezBgRr8Nuc4ocRXhGeAgwAFHJVgfQ6KdUAAAAASUVORK5CYII=",
@@ -72,6 +72,7 @@
 				},
 				link: function (scope, element, attrs) {
 					var oNavbarVoService = null, htScatterSet = {}, htLastNode = null;
+					var enableRealtime = attrs["enableRealtime"] == "true" ? true : false;
 
 					function makeScatter(target, application, w, h, scatterData) {
 						// var from = oNavbarVoService.getQueryStartTime();
@@ -91,7 +92,7 @@
 						options.maxX = to;
 						options.errorImage = cfg.images.error;
 						// options.realtime = isRealtime();
-						options.realtime = UrlVoService.isRealtime();
+						options.realtime = UrlVoService.isRealtime() && enableRealtime;
 
 						var oScatterChart = new BigScatterChart2(options, getAgentList(scatterData), [
 							new BigScatterChart2.SettingPlugin( cfg.images.config ).addCallback( function( oChart, oValue ) {
@@ -105,7 +106,7 @@
 							}),
 							new BigScatterChart2.WideOpenPlugin( cfg.images.fullscreen ).addCallback( function() {
 								// var partialURL = oNavbarVoService.isRealtime() ? "realtime/" + oNavbarVoService.getQueryEndDateTime() : oNavbarVoService.getPartialURL( false, true );
-								var partialURL = UrlVoService.isRealtime() ? "realtime/" + UrlVoService.getQueryEndDateTime() : UrlVoService.getPartialURL( false, true );
+								var partialURL = UrlVoService.isRealtime() && enableRealtime ? "realtime/" + UrlVoService.getQueryEndDateTime() : UrlVoService.getPartialURL( false, true );
 								$window.open( "#/scatterFullScreenMode/" + htLastNode.applicationName + "@" + htLastNode.serviceType + "/" + partialURL + "/" + getAgentList().join(","), "width=900, height=700, resizable=yes");
 							}),
 							new BigScatterChart2.HelpPlugin( tooltipService )
@@ -117,11 +118,11 @@
 								return webStorage.get( key + scope.namespace );
 							},
 							onSelect: function( oDragAreaPosition, oDragXY ) {
-								if ( arguments.length === 4 ) {
+								if ( arguments.length === 5 ) {
 									// $window.open("#/transactionList/" + oNavbarVoService.getPartialURL(true, false), application + "|" + arguments[0] + "|" + arguments[1] + "|" + arguments[2] + "|" + arguments[3] );
-									$window.open("#/transactionList/" + UrlVoService.getPartialURL(true, false), application + "|" + arguments[0] + "|" + arguments[1] + "|" + arguments[2] + "|" + arguments[3] );
+									$window.open("#/transactionList/" + UrlVoService.getPartialURL(true, false), application + "|" + arguments[0] + "|" + arguments[1] + "|" + arguments[2] + "|" + arguments[3] + "|" + arguments[4]  );
 								} else {
-									var token = application + "|" + oDragXY.fromX + "|" + oDragXY.toX + "|" + oDragXY.fromY + "|" + oDragXY.toY + "|" + arguments[2];
+									var token = application + "|" + oDragXY.fromX + "|" + oDragXY.toX + "|" + oDragXY.fromY + "|" + oDragXY.toY + "|" + arguments[2] + "|" + arguments[3];
 									// $window.open("#/transactionList/" + oNavbarVoService.getPartialURL(true, false), token);
 									$window.open("#/transactionList/" + UrlVoService.getPartialURL(true, false), token);
 								}
@@ -135,7 +136,7 @@
 							if (angular.isUndefined(scatterData)) {
 								oScatterChart.drawWithDataSource( new BigScatterChart2.DataLoadManager( applicationName, filter, {
 									"url": cfg.scatterDataUrl,
-									"realtime": UrlVoService.isRealtime(),
+									"realtime": UrlVoService.isRealtime() && enableRealtime,
 									"realtimeInterval": 2000,
 									"realtimeDefaultTimeGap": 3000,
 									"realtimeResetTimeGap": 20000,
@@ -145,22 +146,24 @@
 								}, function( oChartXRange, nextFrom, nextTo ) {
 									// oNavbarVoService.setQueryEndDateTime( nextFrom );
 									UrlVoService.setQueryEndDateTime( nextFrom );
-									$rootScope.$broadcast( "responseTimeChartDirective.loadRealtime", applicationName, oScatterChart.getCurrentAgent(), oChartXRange.min, oChartXRange.max );
+									$rootScope.$broadcast( "nodeInfoDetailsDirective.loadRealTimeChartData", applicationName, oScatterChart.getCurrentAgent(), oChartXRange.min, oChartXRange.max );
 								}));
 							} else {
 								oScatterChart.addBubbleAndMoveAndDraw( oScatterChart.createDataBlock( scatterData ) );
 							}
-							$window.htoScatter[application] = oScatterChart;
+							if ( attrs["namespace"] === "forMain" || attrs["namespace"] === "forFilteredMap" ) {
+								$window.htoScatter[application] = oScatterChart;
+							}
 						}, 100);
 
 						return oScatterChart;
 					}
-					function showScatter (application, w, h) {
+					function showScatter(application, w, h) {
 						element.children().hide();
 						pauseScatterAll();
 						if ( angular.isDefined(htScatterSet[application]) ) {
 							htScatterSet[application].target.show();
-							if ( UrlVoService.isRealtime() ) {
+							if ( UrlVoService.isRealtime() && enableRealtime ) {
 								commonAjaxService.getServerTime( function( serverTime ) {
 									// serverTime -= 3000;
 									htScatterSet[application].scatter.resume( serverTime - preferenceService.getRealtimeScatterXRange(), serverTime );
@@ -176,9 +179,10 @@
 					}
 					function showScatterWithData(application, w, h, data) {
 						if (angular.isDefined(htScatterSet[application])) {
-							htScatterSet[application].scatter.addBubbleAndMoveAndDraw( htScatterSet[application].scatter.createDataBlocK( data ) );
+							htScatterSet[application].scatter.addBubbleAndMoveAndDraw( htScatterSet[application].scatter.createDataBlock( data ) );
 						} else {
-							makeNewScatter(application, w, h, data).hide();
+							makeNewScatter(application, w, h, data);
+							htScatterSet[application].target.hide();
 						}
 					}
 					function makeNewScatter( application, w, h, data ) {
@@ -189,7 +193,6 @@
 							scatter : oScatter
 						};
 						element.append( target );
-						return target;
 					}
 
 					function showScatterBy(application) {
@@ -213,31 +216,21 @@
 						htScatterSet = {};
 					}
 					function getAgentList( scatterData ) {
-						var aAgentList = [], server;
+						var oDupCheck = {};
+						var aAgentList = [];
 						if ( typeof scatterData !== "undefined" ) {
 							$.each( scatterData.scatter.metadata, function( key, oInfo ) {
-								aAgentList.push( oInfo[0] );
+								if ( typeof oDupCheck[ oInfo[0] ] === "undefined" ) {
+									oDupCheck[ oInfo[0] ] = true;
+									aAgentList.push( oInfo[0] );
+								}
 							});
 							return aAgentList;
 						}
-						if ( htLastNode.agentList ) {
-							return htLastNode.agentList;
+						if ( htLastNode && htLastNode.agentIds ) {
+							return htLastNode.agentIds;
 						}
-
-						if ( htLastNode.serverList ) {
-							for ( server in htLastNode.serverList ) {
-								var oInstanceList = htLastNode.serverList[server].instanceList;
-								for (var agentName in oInstanceList) {
-									aAgentList.push(oInstanceList[agentName].name);
-								}
-							}
-						}
-						return aAgentList;
 					}
-					// function isRealtime() {
-					// 	return oNavbarVoService.getPeriodType() === "realtime";
-					// }
-
 					scope.$on("scatterDirective.initialize." + scope.namespace, function (event, navbarVoService) {
 						// oNavbarVoService = navbarVoService;
 						initScatterHash();
@@ -262,7 +255,7 @@
 						htLastNode = node;
 						showScatterBy(node.key);
 					});
-					scope.$on("responseTimeChartDirective.showErrorTransacitonList." + scope.namespace, function( event, category ) {
+					scope.$on("responseTimeSummaryChartDirective.showErrorTransactionList." + scope.namespace, function( event, category ) {
 						$window.htoScatter[htLastNode.key].selectType( "Failed" ).fireDragEvent({
 							animate: function() {},
 							css : function( name ) {
@@ -277,7 +270,12 @@
 						});
 					});
 					scope.$on("changedCurrentAgent." + scope.namespace, function( event, selectedAgentName ) {
-						htScatterSet[htLastNode.key].scatter.selectAgent( selectedAgentName );
+						if ( htLastNode && htLastNode.key ) {
+							htScatterSet[htLastNode.key].scatter.selectAgent(selectedAgentName);
+						}
+					});
+					scope.$on("scatterDirective.stopRequest." + scope.namespace, function( event ) {
+						pauseScatterAll();
 					});
 				}
 			};

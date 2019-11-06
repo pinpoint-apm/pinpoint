@@ -9,4 +9,6 @@ public interface Locker {
     boolean lock(Object lock);
 
     boolean unlock(Object lock);
+
+    Object getLock();
 }

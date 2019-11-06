@@ -16,24 +16,24 @@
 
 package com.navercorp.pinpoint.web.mapper;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
+import com.navercorp.pinpoint.common.buffer.Buffer;
+import com.navercorp.pinpoint.common.buffer.FixedBuffer;
+import com.navercorp.pinpoint.common.hbase.RowMapper;
+import com.navercorp.pinpoint.common.server.bo.event.AgentEventBo;
+import com.navercorp.pinpoint.common.server.util.AgentEventType;
+import com.navercorp.pinpoint.common.util.BytesUtils;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.client.Result;
 import org.springframework.stereotype.Component;
 
-import com.navercorp.pinpoint.common.server.bo.AgentEventBo;
-import com.navercorp.pinpoint.common.buffer.Buffer;
-import com.navercorp.pinpoint.common.buffer.FixedBuffer;
-import com.navercorp.pinpoint.common.hbase.RowMapper;
-import com.navercorp.pinpoint.common.server.util.AgentEventType;
-import com.navercorp.pinpoint.common.util.BytesUtils;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @author HyunGil Jeong
+ * @author jaehong.kim - Add case for version 1
  */
 @Component
 public class AgentEventMapper implements RowMapper<List<AgentEventBo>> {
@@ -58,6 +58,7 @@ public class AgentEventMapper implements RowMapper<List<AgentEventBo>> {
             final int version = buffer.readInt();
             switch (version) {
                 case 0 :
+                case 1 :
                     final String agentId = buffer.readPrefixedString();
                     final long startTimestamp = buffer.readLong();
                     final long eventTimestamp = buffer.readLong();

@@ -15,13 +15,15 @@
  */
 package com.navercorp.pinpoint.bootstrap.util.spring;
 
+import com.navercorp.pinpoint.common.util.logger.CommonLogger;
+import com.navercorp.pinpoint.common.util.logger.StdoutCommonLoggerFactory;
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
 
 /**
  * Utility class for working with Strings that have placeholder values in them. A placeholder takes the form
@@ -37,7 +39,7 @@ import java.util.logging.Logger;
  */
 public class PropertyPlaceholderHelper {
 
-    private static final Logger logger = Logger.getLogger(PropertyPlaceholderHelper.class.getName());
+    private static final CommonLogger logger = StdoutCommonLoggerFactory.INSTANCE.getLogger(PropertyPlaceholderHelper.class.getName());
 
     private static final Map<String, String> wellKnownSimplePrefixes = new HashMap<String, String>(4);
 
@@ -81,10 +83,10 @@ public class PropertyPlaceholderHelper {
     public PropertyPlaceholderHelper(String placeholderPrefix, String placeholderSuffix,
                                      String valueSeparator, boolean ignoreUnresolvablePlaceholders) {
         if (placeholderPrefix == null) {
-            throw new NullPointerException("placeholderPrefix must not be null");
+            throw new NullPointerException("placeholderPrefix");
         }
         if (placeholderSuffix == null) {
-            throw new NullPointerException("placeholderSuffix must not be null");
+            throw new NullPointerException("placeholderSuffix");
         }
         this.placeholderPrefix = placeholderPrefix;
         this.placeholderSuffix = placeholderSuffix;
@@ -109,7 +111,7 @@ public class PropertyPlaceholderHelper {
      */
     public String replacePlaceholders(String value, final Properties properties) {
         if (properties == null) {
-            throw new NullPointerException("properties must not be null");
+            throw new NullPointerException("properties");
         }
         return replacePlaceholders(value, new PlaceholderResolver() {
             public String resolvePlaceholder(String placeholderName) {
@@ -127,7 +129,7 @@ public class PropertyPlaceholderHelper {
      */
     public String replacePlaceholders(String value, PlaceholderResolver placeholderResolver) {
         if (value == null) {
-            throw new NullPointerException("value must not be null");
+            throw new NullPointerException("value");
         }
         return parseStringValue(value, placeholderResolver, new HashSet<String>());
     }
@@ -167,8 +169,8 @@ public class PropertyPlaceholderHelper {
                     // previously resolved placeholder value.
                     propVal = parseStringValue(propVal, placeholderResolver, visitedPlaceholders);
                     buf.replace(startIndex, endIndex + this.placeholderSuffix.length(), propVal);
-                    if (logger.isLoggable(Level.FINE)) {
-                        logger.fine("Resolved placeholder '" + placeholder + "'");
+                    if (logger.isTraceEnabled()) {
+                        logger.trace("Resolved placeholder '" + placeholder + "'");
                     }
                     startIndex = buf.indexOf(this.placeholderPrefix, startIndex + propVal.length());
                 }

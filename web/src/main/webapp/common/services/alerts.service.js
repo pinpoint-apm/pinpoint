@@ -32,7 +32,11 @@
 	            		this.getElement('.error .header').html(this._transTableFormat(vResult.request.heads));
 	            		this.getElement('.error .parameters').html(this._transTableFormat(vResult.request.parameters));
 	            		this.getElement('.error .url').text(vResult.request.url);
-	            		this.getElement('.error .stacktrace').text(vResult.stacktrace);
+	            		if ( vResult.stacktrace ) {
+							this.getElement('.error .stacktrace').text(vResult.stacktrace).parent().parent().show();
+						} else {
+							this.getElement('.error .stacktrace').parent().parent().hide();
+						}
 	            	}
 	            }.bind(this), 300);
 	        }.bind(this);

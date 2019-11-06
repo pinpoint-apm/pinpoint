@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.profiler.util;
 
+import com.navercorp.pinpoint.common.util.Assert;
+
 import java.lang.reflect.Method;
 
 /**
@@ -23,22 +25,19 @@ import java.lang.reflect.Method;
  */
 public class ExcludeBindVariableFilter implements BindVariableFilter {
 
-    private String[] excludes;
+    private final String[] excludes;
 
     public ExcludeBindVariableFilter(String[] excludes) {
-        if (excludes == null) {
-            throw new NullPointerException("excludes must not be null");
-        }
-        this.excludes = excludes;
+        this.excludes = Assert.requireNonNull(excludes, "excludes");
     }
 
     @Override
     public boolean filter(Method method) {
         if (method == null) {
-            throw new NullPointerException("method must not be null");
+            throw new NullPointerException("method");
         }
         for (String exclude : excludes) {
-            if(method.getName().equals(exclude)) {
+            if (method.getName().equals(exclude)) {
                 return false;
             }
         }

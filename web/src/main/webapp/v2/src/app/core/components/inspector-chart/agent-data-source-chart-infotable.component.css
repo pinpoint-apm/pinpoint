@@ -1,0 +1,30 @@
+:host {
+    display: block;
+    width: 100%;
+    background-color: #fff;
+    font-size: 12px;
+    padding: 0 10px 10px;
+}
+
+.l-source-info-table {
+    border: 1px solid #ddd;
+    width: 100%;
+}
+
+.l-source-info-table thead th {
+    padding: 10px;
+    font-size: 13px;
+    text-align: left;
+    background-color: #f6f8fb;
+}
+
+.l-source-info-table tbody th, tbody td {
+    border: 1px solid #ddd;
+    padding: 4px;
+    text-align: center;
+    word-break: break-all;
+}
+
+.l-source-info-table tbody th {
+    width: 120px;
+}

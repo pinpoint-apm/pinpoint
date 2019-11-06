@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.collector.handler;
 
-import org.apache.thrift.TBase;
+import com.navercorp.pinpoint.io.request.ServerRequest;
 
 /**
  * @author emeroad
@@ -24,6 +24,6 @@ import org.apache.thrift.TBase;
  */
 public interface SimpleHandler {
 
-    void handleSimple(TBase<?, ?> tbase);
+    void handleSimple(ServerRequest serverRequest);
     
 }

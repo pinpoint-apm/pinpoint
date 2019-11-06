@@ -22,9 +22,16 @@ package com.navercorp.pinpoint.bootstrap.instrument.transformer;
 @Plugin
 public interface TransformOperations {
 
+    /**
+     * @deprecated Since 1.9.0 Use {@link #transform(String, Class)} }
+     */
+    @Deprecated
     void transform(String className, TransformCallback transformCallback);
 
-//    void transform(Matcher className, TransformCallback transformCallback);
+    void transform(String className, Class<? extends TransformCallback> transformCallbackClass);
 
+//    void transform(String className, Class<? extends TransformCallback> transformCallbackClass, Object[] parameters);
+
+    void transform(String className, Class<? extends TransformCallback> transformCallbackClass, Object[] parameters, Class<?>[] parameterTypes);
 
 }

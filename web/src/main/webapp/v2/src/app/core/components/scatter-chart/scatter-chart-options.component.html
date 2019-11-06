@@ -1,0 +1,6 @@
+<div class="l-tool-box">
+    <button [hidden]="hiddenOptions.setting" class="fas fa-cog" (click)="outShowSetting.emit()"></button>
+    <button [hidden]="hiddenOptions.download" class="fas fa-download" (click)="outDownload.emit()"></button>
+    <button [hidden]="hiddenOptions.open" class="fas fa-expand-arrows-alt" (click)="outOpenScatterPage.emit()"></button>
+    <button [hidden]="hiddenOptions.help" class="fas fa-question-circle l-last-child" (click)="onShowHelp($event)"></button>
+</div>

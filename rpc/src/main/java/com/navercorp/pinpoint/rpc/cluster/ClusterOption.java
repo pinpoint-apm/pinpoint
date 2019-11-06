@@ -1,20 +1,17 @@
 /*
+ * Copyright 2017 NAVER Corp.
  *
- *  * Copyright 2014 NAVER Corp.
- *  *
- *  * Licensed under the Apache License, Version 2.0 (the "License");
- *  * you may not use this file except in compliance with the License.
- *  * You may obtain a copy of the License at
- *  *
- *  *     http://www.apache.org/licenses/LICENSE-2.0
- *  *
- *  * Unless required by applicable law or agreed to in writing, software
- *  * distributed under the License is distributed on an "AS IS" BASIS,
- *  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  * See the License for the specific language governing permissions and
- *  * limitations under the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package com.navercorp.pinpoint.rpc.cluster;
@@ -22,11 +19,11 @@ package com.navercorp.pinpoint.rpc.cluster;
 import java.util.*;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public class ClusterOption {
 
-    public static final ClusterOption DISABLE_CLUSTER_OPTION = new ClusterOption(false, "", Collections.EMPTY_LIST);
+    public static final ClusterOption DISABLE_CLUSTER_OPTION = new ClusterOption(false, "", Collections.<Role>emptyList());
 
     private final boolean enable;
     private final String id;
@@ -38,6 +35,10 @@ public class ClusterOption {
 
     public ClusterOption(boolean enable, String id, Role role) {
         this(enable, id, Arrays.asList(role));
+    }
+
+    public ClusterOption(ClusterOption clusterOption) {
+        this(clusterOption.enable, clusterOption.id, new ArrayList<Role>(clusterOption.roles));
     }
 
     public ClusterOption(boolean enable, String id, List<Role> roles) {
@@ -58,7 +59,7 @@ public class ClusterOption {
         return roles;
     }
 
-    public Map<String, Object> getProperties() {
+    public Map<String, Object> toMap() {
         if (!enable) {
             return Collections.emptyMap();
         }
@@ -75,4 +76,17 @@ public class ClusterOption {
         return clusterProperties;
     }
 
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("ClusterOption{");
+        sb.append("enable=").append(enable);
+        sb.append(", id='").append(id).append('\'');
+        sb.append(", roles=").append(roles);
+        sb.append('}');
+        return sb.toString();
+    }
+
+    public static ClusterOption copy(ClusterOption clusterOption) {
+        return new ClusterOption(clusterOption.enable, clusterOption.id, clusterOption.roles);
+    }
 }

@@ -16,30 +16,36 @@
 package com.navercorp.pinpoint.plugin.okhttp;
 
 import com.navercorp.pinpoint.bootstrap.config.DumpType;
+import com.navercorp.pinpoint.bootstrap.config.HttpDumpConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 
 /**
- * 
  * @author jaehong.kim
- *
  */
 public class OkHttpPluginConfig {
 
-    private boolean param = false;
-    private boolean cookie = false;
-    private DumpType cookieDumpType = DumpType.EXCEPTION;
-    private int cookieSamplingRate = 1;
-    private boolean statusCode = true;
-
+    private final boolean enable;
+    private final boolean param;
+    private final boolean statusCode;
     private final boolean async;
+    private HttpDumpConfig httpDumpConfig;
 
     public OkHttpPluginConfig(ProfilerConfig src) {
+        this.enable = src.readBoolean("profiler.okhttp.enable", true);
         this.param = src.readBoolean("profiler.okhttp.param", false);
-        this.cookie = src.readBoolean("profiler.okhttp.cookie", false);
-        this.cookieDumpType = src.readDumpType("profiler.okhttp.cookie.dumptype", DumpType.EXCEPTION);
-        this.cookieSamplingRate = src.readInt("profiler.okhttp.cookie.sampling.rate", 1);
+
+        boolean cookie = src.readBoolean("profiler.okhttp.cookie", false);
+        DumpType cookieDumpType = src.readDumpType("profiler.okhttp.cookie.dumptype", DumpType.EXCEPTION);
+        int cookieSamplingRate = src.readInt("profiler.okhttp.cookie.sampling.rate", 1);
+        int cookieDumpSize = src.readInt("profiler.okhttp.cookie.dumpsize", 1024);
+        this.httpDumpConfig = HttpDumpConfig.get(cookie, cookieDumpType, cookieSamplingRate, cookieDumpSize, false, cookieDumpType, 1, 1024);
+
         this.statusCode = src.readBoolean("profiler.okhttp.entity.statuscode", true);
         this.async = src.readBoolean("profiler.okhttp.async", true);
+    }
+
+    public boolean isEnable() {
+        return enable;
     }
 
     public boolean isParam() {
@@ -50,16 +56,8 @@ public class OkHttpPluginConfig {
         return async;
     }
 
-    public DumpType getCookieDumpType() {
-        return cookieDumpType;
-    }
-
-    public boolean isCookie() {
-        return cookie;
-    }
-
-    public int getCookieSamplingRate() {
-        return cookieSamplingRate;
+    public HttpDumpConfig getHttpDumpConfig() {
+        return httpDumpConfig;
     }
 
     public boolean isStatusCode() {
@@ -69,12 +67,11 @@ public class OkHttpPluginConfig {
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("OkHttpPluginConfig{");
-        sb.append("param=").append(param);
-        sb.append(", cookie=").append(cookie);
-        sb.append(", cookieDumpType=").append(cookieDumpType);
-        sb.append(", cookieSamplingRate=").append(cookieSamplingRate);
+        sb.append("enable=").append(enable);
+        sb.append(", param=").append(param);
         sb.append(", statusCode=").append(statusCode);
         sb.append(", async=").append(async);
+        sb.append(", httpDumpConfig=").append(httpDumpConfig);
         sb.append('}');
         return sb.toString();
     }

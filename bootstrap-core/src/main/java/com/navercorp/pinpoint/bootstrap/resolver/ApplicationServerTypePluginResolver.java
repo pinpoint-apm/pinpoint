@@ -24,13 +24,17 @@ import com.navercorp.pinpoint.bootstrap.plugin.ApplicationTypeDetector;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
 /**
- * This class attempts to resolve the current application type through {@link ServerTypeDetector}s.
+ * This class attempts to resolve the current application type through {@link ApplicationTypeDetector}s.
  * The application type is resolved by checking the conditions defined in each of the loaded detector's {@code detect} method.
  * <p>
  * If no match is found, the application type defaults to {@code ServiceType.STAND_ALONE}
  * 
  * @author HyunGil Jeong
+ *
+ * @deprecated As of 1.9.0, application type detection timing has been changed to plugins' setup time.
+ *             {@code ApplicationServerTypePluginResolver} should no longer be needed.
  */
+@Deprecated
 public class ApplicationServerTypePluginResolver {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());

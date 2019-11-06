@@ -49,8 +49,14 @@ public class PacketType {
     public static final short CONTROL_HANDSHAKE_RESPONSE = 151;
 
     // keep stay because of performance in case of ping and pong. others removed.
+    // CONTROL_PING will be deprecated. caused : Two payload types are used in one control packet.
+    // since 1.7.0, use CONTROL_PING_SIMPLE, CONTROL_PING_PAYLOAD
+    @Deprecated
     public static final short CONTROL_PING = 200;
     public static final short CONTROL_PONG = 201;
+
+    public static final short CONTROL_PING_SIMPLE = 210;
+    public static final short CONTROL_PING_PAYLOAD = 211;
 
     public static final short UNKNOWN = 500;
 

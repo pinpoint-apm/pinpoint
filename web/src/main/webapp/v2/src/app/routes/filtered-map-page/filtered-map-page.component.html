@@ -1,0 +1,17 @@
+<pp-notice-container></pp-notice-container>
+<header class="flex-container flex-row">
+    <pp-header-logo></pp-header-logo>
+    <div class="l-widget-group">
+        <pp-data-load-indicator-for-filtered-map-container></pp-data-load-indicator-for-filtered-map-container>
+    </div>
+    <pp-state-button-for-filtered-map-container></pp-state-button-for-filtered-map-container>
+    <pp-configuration-icon-container></pp-configuration-icon-container>
+</header>
+<div class="l-main-container">
+    <section class="l-main-section">
+        <article class="l-main-contents">
+            <router-outlet></router-outlet>
+        </article>
+    </section>
+    <pp-side-bar-for-filtered-map-container></pp-side-bar-for-filtered-map-container>
+</div>

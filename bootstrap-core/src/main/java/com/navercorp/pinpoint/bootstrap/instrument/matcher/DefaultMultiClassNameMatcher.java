@@ -28,7 +28,7 @@ public class DefaultMultiClassNameMatcher implements MultiClassNameMatcher {
 
     DefaultMultiClassNameMatcher(List<String> classNameMatcherList) {
         if (classNameMatcherList == null) {
-            throw new NullPointerException("classNameMatcherList must not be null");
+            throw new NullPointerException("classNameMatcherList");
         }
         this.classNameList = Collections.unmodifiableList(classNameMatcherList);
     }

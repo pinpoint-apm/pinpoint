@@ -17,24 +17,20 @@
 package com.navercorp.pinpoint.collector.dao.hbase;
 
 import com.navercorp.pinpoint.collector.dao.AgentInfoDao;
-import com.navercorp.pinpoint.collector.mapper.thrift.ThriftBoMapper;
-import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
-import com.navercorp.pinpoint.common.server.bo.JvmInfoBo;
-import com.navercorp.pinpoint.common.server.bo.ServerMetaDataBo;
-import com.navercorp.pinpoint.common.hbase.HBaseTables;
+import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
+import com.navercorp.pinpoint.common.hbase.HbaseTableConstatns;
+import com.navercorp.pinpoint.common.hbase.TableDescriptor;
+import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
 import com.navercorp.pinpoint.common.server.util.RowKeyUtils;
 import com.navercorp.pinpoint.common.util.TimeUtils;
-import com.navercorp.pinpoint.thrift.dto.TAgentInfo;
-import com.navercorp.pinpoint.thrift.dto.TJvmInfo;
-import com.navercorp.pinpoint.thrift.dto.TServerMetaData;
 
+import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -49,50 +45,40 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
     private HbaseOperations2 hbaseTemplate;
 
     @Autowired
-    @Qualifier("agentInfoBoMapper")
-    private ThriftBoMapper<AgentInfoBo, TAgentInfo> agentInfoBoMapper;
-
-    @Autowired
-    @Qualifier("serverMetaDataBoMapper")
-    private ThriftBoMapper<ServerMetaDataBo, TServerMetaData> serverMetaDataBoMapper;
-
-    @Autowired
-    @Qualifier("jvmInfoBoMapper")
-    private ThriftBoMapper<JvmInfoBo, TJvmInfo> jvmInfoBoMapper;
+    private TableDescriptor<HbaseColumnFamily.AgentInfo> descriptor;
 
     @Override
-    public void insert(TAgentInfo agentInfo) {
-
+    public void insert(AgentInfoBo agentInfo) {
         if (agentInfo == null) {
-            throw new NullPointerException("agentInfo must not be null");
+            throw new NullPointerException("agentInfo");
         }
 
         if (logger.isDebugEnabled()) {
             logger.debug("insert agent info. {}", agentInfo);
         }
 
-        byte[] agentId = Bytes.toBytes(agentInfo.getAgentId());
-        long reverseKey = TimeUtils.reverseTimeMillis(agentInfo.getStartTimestamp());
-        byte[] rowKey = RowKeyUtils.concatFixedByteAndLong(agentId, HBaseTables.AGENT_NAME_MAX_LEN, reverseKey);
-        Put put = new Put(rowKey);
+        final byte[] agentId = Bytes.toBytes(agentInfo.getAgentId());
+        final long reverseKey = TimeUtils.reverseTimeMillis(agentInfo.getStartTime());
+        final byte[] rowKey = RowKeyUtils.concatFixedByteAndLong(agentId, HbaseTableConstatns.AGENT_NAME_MAX_LEN, reverseKey);
+        final Put put = new Put(rowKey);
 
         // should add additional agent informations. for now added only starttime for sqlMetaData
-        AgentInfoBo agentInfoBo = this.agentInfoBoMapper.map(agentInfo);
-        byte[] agentInfoBoValue = agentInfoBo.writeValue();
-        put.addColumn(HBaseTables.AGENTINFO_CF_INFO, HBaseTables.AGENTINFO_CF_INFO_IDENTIFIER, agentInfoBoValue);
+        final byte[] agentInfoBoValue = agentInfo.writeValue();
+        put.addColumn(descriptor.getColumnFamilyName(), descriptor.getColumnFamily().QUALIFIER_IDENTIFIER, agentInfoBoValue);
 
-        if (agentInfo.isSetServerMetaData()) {
-            ServerMetaDataBo serverMetaDataBo = this.serverMetaDataBoMapper.map(agentInfo.getServerMetaData());
-            byte[] serverMetaDataBoValue = serverMetaDataBo.writeValue();
-            put.addColumn(HBaseTables.AGENTINFO_CF_INFO, HBaseTables.AGENTINFO_CF_INFO_SERVER_META_DATA, serverMetaDataBoValue);
+        if (agentInfo.getServerMetaData() != null) {
+            final byte[] serverMetaDataBoValue = agentInfo.getServerMetaData().writeValue();
+            put.addColumn(descriptor.getColumnFamilyName(), descriptor.getColumnFamily().QUALIFIER_SERVER_META_DATA, serverMetaDataBoValue);
         }
 
-        if (agentInfo.isSetJvmInfo()) {
-            JvmInfoBo jvmInfoBo = this.jvmInfoBoMapper.map(agentInfo.getJvmInfo());
-            byte[] jvmInfoBoValue = jvmInfoBo.writeValue();
-            put.addColumn(HBaseTables.AGENTINFO_CF_INFO, HBaseTables.AGENTINFO_CF_INFO_JVM, jvmInfoBoValue);
+        if (agentInfo.getJvmInfo() != null) {
+            final byte[] jvmInfoBoValue = agentInfo.getJvmInfo().writeValue();
+            put.addColumn(descriptor.getColumnFamilyName(), descriptor.getColumnFamily().QUALIFIER_JVM, jvmInfoBoValue);
         }
 
-        hbaseTemplate.put(HBaseTables.AGENTINFO, put);
+        final TableName agentInfoTableName = descriptor.getTableName();
+        hbaseTemplate.put(agentInfoTableName, put);
     }
+
+
 }

@@ -1,0 +1,56 @@
+:host {
+    display: block;
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+.l-legend {
+    position: absolute;
+    list-style: none;
+    font-size: 11px;
+    width: 62px;
+    /* height: 110px; */
+}
+.l-legend li {
+    margin: 8px 0 0;
+    color: #666;
+}
+.l-legend li:first-child {
+    margin: 0;
+    color: #010101;
+    font-weight: 600;
+}
+.l-legend li span {
+    display: inline-block;
+    vertical-align: middle;
+}
+.l-legend li .l-text {
+    width: 30px;
+    text-align: right;
+    margin: 0 10px 0 0;
+}
+.l-legend li .l-circle {
+    width: 21px;
+    height: 11px;
+    line-height: 11px;
+    color: #fff;
+    border-radius: 10px;
+    text-align: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.l-legend li:nth-child(1) .l-circle {
+    background:#a8acb5
+}
+.l-legend li:nth-child(2) .l-circle {
+    background:#e76f4b
+}
+.l-legend li:nth-child(3) .l-circle {
+    background:#fea63e
+}
+.l-legend li:nth-child(4) .l-circle {
+    background:#51afdf
+}
+.l-legend li:nth-child(5) .l-circle {
+    background:#33b692
+}

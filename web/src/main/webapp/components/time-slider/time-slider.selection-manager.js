@@ -13,7 +13,7 @@
             "left": aHandlerPosition[0],
             "width": aHandlerPosition[1] - aHandlerPosition[0],
             "height": this.opt.contentZoneHeight,
-            "duration": 50//this.opt.duration
+            "duration": this.opt.duration
         });
         this.oSelectionPoint = new TimeSlider.SelectionPoint( this.timeSlider, this.timeSlider.getGroup("selection-point", TimeSlider.GROUP_TYPE.CONTENT_BASE, TimeSlider.oDrawOrder["selection-point"]), {
             "y": this.opt.headerZoneHeight,
@@ -29,16 +29,18 @@
             "zone": [0, aHandlerPosition[1]],
             "height": this.opt.contentZoneHeight,
             "margin": this.opt.margin,
-            "duration": 50,//this.opt.duration
+            "duration": this.opt.duration,
             "handleSrc": this.opt.handleSrc
         }, function( x ) {
+
             self.oLeftTimeSignboard.onDragStart( x );
         }, function( x ) {
+			self.oSelectionZone.onDragXStart(x);
             self.oLeftTimeSignboard.onDrag( x );
         }, function( bIsDraged, x ) {
             self.oLeftTimeSignboard.onDragEnd();
             if ( bIsDraged ) {
-                self.moveLeftHandler( x );
+                self.movedLeftHandler( x );
             }
         });
         this.oRightHandler = new TimeSlider.Handler( this.timeSlider, this.timeSlider.getGroup("right-handler", TimeSlider.GROUP_TYPE.CONTENT_BASE, TimeSlider.oDrawOrder["right-handler"]), {
@@ -46,16 +48,17 @@
             "zone": [ aHandlerPosition[0], this.timeSlider.oPositionManager.getSliderEndPosition() ],
             "height": this.opt.contentZoneHeight,
             "margin": this.opt.margin,
-            "duration": 0,//this.opt.duration
+            "duration": this.opt.duration,
             "handleSrc": this.opt.handleSrc
         }, function( x ) {
             self.oRightTimeSignboard.onDragStart( x );
         }, function( x ) {
+        	self.oSelectionZone.onDragXEnd(x);
             self.oRightTimeSignboard.onDrag( x );
         }, function( bIsDraged, x ) {
             self.oRightTimeSignboard.onDragEnd();
             if ( bIsDraged ) {
-                self.moveRightHandler( x );
+                self.movedRightHandler( x );
             }
         });
         this.oLeftTimeSignboard = new TimeSlider.TimeSignboard( this.timeSlider, this.timeSlider.getGroup("time-left-signboard", TimeSlider.GROUP_TYPE.CONTENT_BASE, TimeSlider.oDrawOrder["time-signboard"]), {
@@ -67,12 +70,18 @@
             "direction": "right"
         });
     };
-    ts.SelectionManager.prototype.moveLeftHandler = function( x ) {
+    ts.SelectionManager.prototype.movedLeftHandler = function( x ) {
         var aCurrentSelectionTimeSeries = this.timeSlider.oPositionManager.getSelectionTimeSeries();
         var newLeftTime = this.timeSlider.oPositionManager.getTimeFromPosition( x );
         if ( this.timeSlider.oPositionManager.isInMaxSelectionTimeSeries( newLeftTime, aCurrentSelectionTimeSeries[1] ) ) {
             this.oRightHandler.setZone( x, this.timeSlider.oPositionManager.getSliderEndPosition() );
             this.timeSlider.oPositionManager.setSelectionStartPosition( x );
+
+			if ( this.timeSlider.oPositionManager.isInSelectionZone() === false ) {
+				this.timeSlider.oPositionManager.setSelectTime( newLeftTime );
+				this.oSelectionPoint.onMouseClick( x );
+				this.timeSlider.fireEvent( "selectTime", newLeftTime );
+			}
         } else {
             var aNewSelectionTimeSeries = this.timeSlider.oPositionManager.getNewSelectionTimeSeriesFromStart( newLeftTime );
             var newRightX = this.timeSlider.oPositionManager.getPositionFromTime( aNewSelectionTimeSeries[1] );
@@ -83,21 +92,28 @@
             this.oLeftHandler.setZone( 0, newRightX );
             this.timeSlider.oPositionManager.setSelectionEndPosition( newRightX );
 
-            if ( this.timeSlider.oPositionManager.isInSelectionZone() === false ) {
-                this.oSelectionPoint.onMouseClick( newRightX );
-                this.timeSlider.fireEvent( "selectTime", aNewSelectionTimeSeries[1] );
-            }
+			if ( this.timeSlider.oPositionManager.isInSelectionZone() === false ) {
+				this.timeSlider.oPositionManager.setSelectTime( aNewSelectionTimeSeries[1] );
+				this.oSelectionPoint.onMouseClick( newRightX );
+				this.timeSlider.fireEvent( "selectTime", aNewSelectionTimeSeries[1] );
+			}
         }
         this.oSelectionZone.redraw();
         this._fireChangeZoneEvent();
 
     };
-    ts.SelectionManager.prototype.moveRightHandler = function( x ) {
+    ts.SelectionManager.prototype.movedRightHandler = function( x ) {
         var aCurrentSelectionTimeSeries = this.timeSlider.oPositionManager.getSelectionTimeSeries();
         var newRightTime = this.timeSlider.oPositionManager.getTimeFromPosition( x );
         if ( this.timeSlider.oPositionManager.isInMaxSelectionTimeSeries( aCurrentSelectionTimeSeries[0], newRightTime ) ) {
             this.oLeftHandler.setZone( 0, x );
             this.timeSlider.oPositionManager.setSelectionEndPosition( x );
+
+			if ( this.timeSlider.oPositionManager.isInSelectionZone() === false ) {
+				this.timeSlider.oPositionManager.setSelectTime( newRightTime );
+				this.oSelectionPoint.onMouseClick( x );
+				this.timeSlider.fireEvent( "selectTime", newRightTime );
+			}
         } else {
             var aNewSelectionTimeSeries = this.timeSlider.oPositionManager.getNewSelectionTimeSeriesFromEnd( newRightTime );
             var newLeftX = this.timeSlider.oPositionManager.getPositionFromTime( aNewSelectionTimeSeries[0] );
@@ -109,6 +125,7 @@
             this.timeSlider.oPositionManager.setSelectionStartPosition( newLeftX );
 
             if ( this.timeSlider.oPositionManager.isInSelectionZone() === false ) {
+				this.timeSlider.oPositionManager.setSelectTime( aNewSelectionTimeSeries[0] );
                 this.oSelectionPoint.onMouseClick( newLeftX );
                 this.timeSlider.fireEvent( "selectTime", aNewSelectionTimeSeries[0] );
             }
@@ -138,6 +155,7 @@
         } else {
             this.timeSlider.oPositionManager.resetBySelectTime( time, bIsNow );
             this.timeSlider.reset();
+			this._fireChangeZoneEvent();
             this.timeSlider.fireEvent( "selectTime", time );
         }
     };

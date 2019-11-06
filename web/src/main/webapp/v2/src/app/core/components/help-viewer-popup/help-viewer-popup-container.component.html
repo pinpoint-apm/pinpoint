@@ -1,0 +1,8 @@
+<ng-container *ngIf="(data$ | async) as data">
+    <pp-help-viewer-popup
+        [data]="data"
+        (clickOutside)="onClickOutside()"
+        [exclude]="'.fa-question-circle'">
+    </pp-help-viewer-popup>
+    <div class="tooltip-triangle" [ngStyle]="tooltipTriangleStyle"></div>
+</ng-container> 

@@ -112,7 +112,7 @@
 	};
 	DataLoadManager.prototype.getRealtimeInterval = function() {
 		return this.option( "realtimeDefaultTimeGap" );
-	}
+	};
 	DataLoadManager.prototype.getUrl = function() {
 		return this.option( "url" );
 	};

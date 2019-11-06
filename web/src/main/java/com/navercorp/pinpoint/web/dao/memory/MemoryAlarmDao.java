@@ -85,7 +85,7 @@ public class MemoryAlarmDao implements AlarmDao {
         
         for (Entry<String, Rule> entry : alarmRule.entrySet()) {
             if (entry.getValue().getApplicationId().equals(applicationId)) {
-                alarmRule.remove(entry.getKey());
+                ruleList.add(entry.getValue());
             }
         }
         
@@ -122,7 +122,7 @@ public class MemoryAlarmDao implements AlarmDao {
     }
 
     @Override
-    public void deleteCheckerResult(CheckerResult checkerResult) {
+    public void deleteCheckerResult(String ruleId) {
     }
 
     @Override

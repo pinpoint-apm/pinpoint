@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.rpc.stream;
 
+import com.navercorp.pinpoint.common.util.ArrayUtils;
+
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -36,10 +38,17 @@ public enum StreamChannelStateCode {
     private final Set<StreamChannelStateCode> validBeforeStateSet;
 
     StreamChannelStateCode(StreamChannelStateCode... validBeforeStates) {
-        this.validBeforeStateSet = new HashSet<StreamChannelStateCode>();
+        validBeforeStateSet = asSet(validBeforeStates);
+    }
 
-        if (validBeforeStates != null) {
-            Collections.addAll(validBeforeStateSet, validBeforeStates);
+    private Set<StreamChannelStateCode> asSet(StreamChannelStateCode[] validBeforeStates) {
+        if (ArrayUtils.isEmpty(validBeforeStates)) {
+            return Collections.emptySet();
+        } else {
+            // Don't use EnumSet, Not initialized StreamStateCode,
+            Set<StreamChannelStateCode> temp = new HashSet<StreamChannelStateCode>();
+            Collections.addAll(temp, validBeforeStates);
+            return temp;
         }
     }
 

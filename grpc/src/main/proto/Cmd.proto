@@ -1,0 +1,106 @@
+syntax = "proto3";
+
+import "google/protobuf/wrappers.proto";
+import "ThreadDump.proto";
+
+option java_multiple_files = true;
+option java_package = "com.navercorp.pinpoint.grpc.trace";
+option java_outer_classname = "CmdProto";
+//option objc_class_prefix = "PIN";
+
+package v1;
+
+enum PCommandType {
+    NONE = 0;
+
+    PING = 100;
+    PONG = 101;
+
+    ECHO = 710;
+
+    ACTIVE_THREAD_COUNT = 730;
+    ACTIVE_THREAD_DUMP = 740;
+    ACTIVE_THREAD_LIGHT_DUMP = 750;
+}
+
+message PCmdMessage {
+    oneof message {
+        PCmdServiceHandshake handshakeMessage = 1;
+        PCmdResponse failMessage = 2;
+    }
+}
+
+message PCmdServiceHandshake {
+    // initial message
+    repeated int32 supportCommandServiceKey = 1;
+}
+
+message PCmdResponse {
+    int32 responseId = 1;
+    int32 status = 2;
+    google.protobuf.StringValue message = 3;
+}
+
+message PCmdStreamResponse {
+    int32 responseId = 1;
+    int32 sequenceId = 2;
+    google.protobuf.StringValue message = 3;
+}
+
+message PCmdRequest {
+    int32 requestId = 1;
+
+    oneof command {
+        PCmdEcho commandEcho = 710;
+        PCmdActiveThreadCount commandActiveThreadCount = 730;
+        PCmdActiveThreadDump commandActiveThreadDump = 740;
+        PCmdActiveThreadLightDump commandActiveThreadLightDump = 750;
+    }
+}
+
+message PCmdEcho {
+    string message = 1;
+}
+
+message PCmdEchoResponse {
+    PCmdResponse commonResponse = 1;
+    string message = 2;
+}
+
+message PCmdActiveThreadDump {
+    int32 limit = 1;
+    repeated string threadName = 2;
+    repeated int64 localTraceId = 3;
+}
+
+message PCmdActiveThreadDumpRes {
+    PCmdResponse commonResponse = 1;
+    repeated PActiveThreadDump threadDump = 2;
+    string type = 3;
+    string subType = 4;
+    string version = 5;
+}
+
+message PCmdActiveThreadLightDump {
+    int32 limit = 1;
+    repeated string threadName = 2;
+    repeated int64 localTraceId = 3;
+}
+
+message PCmdActiveThreadLightDumpRes {
+    PCmdResponse commonResponse = 1;
+    repeated PActiveThreadLightDump threadDump = 2;
+    string type = 3;
+    string subType = 4;
+    string version = 5;
+}
+
+message PCmdActiveThreadCount {
+}
+
+message PCmdActiveThreadCountRes {
+    PCmdStreamResponse commonStreamResponse = 1;
+    int32 histogramSchemaType = 2;
+    repeated int32 activeThreadCount = 3;
+    int64 timeStamp = 4;
+}

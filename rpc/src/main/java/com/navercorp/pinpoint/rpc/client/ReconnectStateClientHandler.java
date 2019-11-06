@@ -23,7 +23,8 @@ import com.navercorp.pinpoint.rpc.ResponseMessage;
 import com.navercorp.pinpoint.rpc.client.ConnectFuture.Result;
 import com.navercorp.pinpoint.rpc.cluster.ClusterOption;
 import com.navercorp.pinpoint.rpc.common.SocketStateCode;
-import com.navercorp.pinpoint.rpc.stream.*;
+import com.navercorp.pinpoint.rpc.stream.ClientStreamChannel;
+import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelEventHandler;
 
 import java.net.SocketAddress;
 
@@ -40,9 +41,6 @@ public class ReconnectStateClientHandler implements PinpointClientHandler {
 
     private volatile SocketStateCode state = SocketStateCode.BEING_CONNECT;
     
-    @Override
-    public void setConnectSocketAddress(SocketAddress connectSocketAddress) {
-    }
 
     @Override
     public void initReconnect() {
@@ -98,20 +96,10 @@ public class ReconnectStateClientHandler implements PinpointClientHandler {
     }
 
     @Override
-    public ClientStreamChannelContext openStream(byte[] payload, ClientStreamChannelMessageListener clientStreamChannelMessageListener) {
+    public ClientStreamChannel openStream(byte[] payload, ClientStreamChannelEventHandler streamChannelEventHandler) {
         throw new UnsupportedOperationException();
     }
 
-    @Override
-    public ClientStreamChannelContext openStream(byte[] payload, ClientStreamChannelMessageListener messageListener, StreamChannelStateChangeEventHandler<ClientStreamChannel> stateChangeListener) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public StreamChannelContext findStreamChannel(int streamChannelId) {
-        throw new UnsupportedOperationException();
-    }
-    
     @Override
     public void sendPing() {
     }
@@ -123,11 +111,6 @@ public class ReconnectStateClientHandler implements PinpointClientHandler {
     
     @Override
     public boolean isConnected() {
-        return false;
-    }
-
-    @Override
-    public boolean isSupportServerMode() {
         return false;
     }
 

@@ -16,9 +16,10 @@
 
 package com.navercorp.pinpoint.web.view;
 
-import com.navercorp.pinpoint.web.applicationmap.Link;
-import com.navercorp.pinpoint.web.applicationmap.Node;
-import com.navercorp.pinpoint.web.applicationmap.ServerInstanceList;
+import com.navercorp.pinpoint.web.applicationmap.link.Link;
+import com.navercorp.pinpoint.web.applicationmap.link.LinkType;
+import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
+import com.navercorp.pinpoint.web.applicationmap.nodes.ServerInstanceList;
 import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogram;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogramList;
@@ -35,8 +36,10 @@ import java.util.List;
 /**
  * @author emeroad
  * @author netspider
+ * @author HyunGil Jeong
  */
 public class LinkSerializer extends JsonSerializer<Link> {
+
     @Override
     public void serialize(Link link, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonProcessingException {
         jgen.writeStartObject();
@@ -66,15 +69,16 @@ public class LinkSerializer extends JsonSerializer<Link> {
         jgen.writeNumberField("errorCount", histogram.getTotalErrorCount());
         jgen.writeNumberField("slowCount", histogram.getSlowCount());
 
+
         jgen.writeObjectField("histogram", histogram);
-
-        // data showing how agents call each of their respective links
-        writeAgentHistogram("sourceHistogram", link.getSourceList(), jgen);
-        writeAgentHistogram("targetHistogram", link.getTargetList(), jgen);
-
         writeTimeSeriesHistogram(link, jgen);
-        writeSourceAgentTimeSeriesHistogram(link, jgen);
 
+        if (LinkType.DETAILED == link.getLinkType()) {
+            // data showing how agents call each of their respective links
+            writeAgentHistogram("sourceHistogram", link.getSourceList(), jgen);
+            writeAgentHistogram("targetHistogram", link.getTargetList(), jgen);
+            writeSourceAgentTimeSeriesHistogram(link, jgen);
+        }
 
 //        String state = link.getLinkState();
 //        jgen.writeStringField("state", state); // for go.js

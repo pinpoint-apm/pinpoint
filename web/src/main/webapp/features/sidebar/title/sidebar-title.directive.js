@@ -7,8 +7,8 @@
 	 * @name sidebarTitleDirective
 	 * @class
 	 */
-	pinpointApp.directive("sidebarTitleDirective", [ "$timeout", "$rootScope", "PreferenceService", "AnalyticsService",
-	    function ( $timeout, $rootScope, preferenceService, analyticsService ) {
+	pinpointApp.directive("sidebarTitleDirective", [ "$timeout", "$rootScope", "$window", "AgentHistogramDaoService", "UrlVoService", "PreferenceService", "AnalyticsService",
+	    function ( $timeout, $rootScope, $window, AgentHistogramDaoService, UrlVoService, PreferenceService, AnalyticsService ) {
 	        return {
 	            restrict: "E",
 	            replace: true,
@@ -16,129 +16,145 @@
 	            scope: {
 	                namespace: "@"
 	            },
-	            link: function poLink(scope, element, attrs) {
-					var htLastNode = null;
+	            link: function poLink(scope) {
+					var htLastTarget = null;
 					var oNavbarVoService = null;
-					var bIsNode = true;
+					var agentHistogramData = null;
+					var oChartYMax = {};
 					scope.agentList = [];
-					scope.showServerListHtml = false;
+					scope.hasServerList = false;
 					scope.serverCount = 0;
 					scope.errorServerCount = 0;
+					scope.isNode = true;
+					scope.isGroup = false;
 
 	                $timeout(function () {
 	                    empty();
 	                });
-
 					function initializeAgentList( node ) {
-						scope.currentAgent = preferenceService.getAgentAllStr();
-						if ( typeof node === "undefined" || node.isAuthorized === false ) {
+						scope.currentAgent = PreferenceService.getAgentAllStr();
+						if ( angular.isUndefined( node ) || node.isAuthorized === false ) {
 							scope.agentList = [];
 							return;
 						}
-						var aAgentList = [];
-						if ( node.serverList ) {
-							for ( var server in node.serverList ) {
-								var oInstanceList = node.serverList[server].instanceList;
-								for (var agentName in oInstanceList) {
-									aAgentList.push(agentName);
-								}
-							}
-						}
-						scope.agentList = aAgentList;
+						scope.agentList = node["agentIds"] ? node["agentIds"].sort() : [];
+					}
+					function getIconUrl( serviceType ) {
+						return PreferenceService.getIconPath() + ( /.*\_GROUP/.test( serviceType ) ? serviceType.replace(/(.*)(\_GROUP)/, "$1") : serviceType ) + ".png";
+					}
+					function getNodeName( applicationName ) {
+						return applicationName.replace( "_", " " );
 					}
 	
-	                function initialize( oSidebarTitleVoService, node, navbarVoService ) {
-						htLastNode = node;
+	                function initialize( target, navbarVoService ) {
 						oNavbarVoService = navbarVoService;
-						scope.isWas = angular.isDefined( node ) ? ( angular.isDefined( node.isWas ) ? node.isWas : false ) : false;
-	                    scope.stImage = oSidebarTitleVoService.getImage();
-	                    scope.stImageShow = oSidebarTitleVoService.getImage() ? true : false;
-	                    scope.stTitle = oSidebarTitleVoService.getTitle();
-	                    scope.stImage2 = oSidebarTitleVoService.getImage2();
-	                    scope.stImage2Show = oSidebarTitleVoService.getImage2() ? true : false;
-	                    scope.stTitle2 = oSidebarTitleVoService.getTitle2();
-	                    $timeout(function () {
-	                        element.find('[data-toggle="tooltip"]').tooltip("destroy").tooltip();
-	                    });
+						agentHistogramData = null;
+						htLastTarget = target;
+
+						if ( angular.isUndefined( target.unknownLinkGroup ) && angular.isUndefined( target.unknownNodeGroup ) ) {
+							scope.isGroup = false;
+						} else {
+							scope.isGroup = true;
+						}
+						if ( target["from"] && target["to"] ) {
+							scope.isNode = false;
+							scope.isWas = false;
+							scope.fromNodeIcon = getIconUrl(target.sourceInfo.serviceType);
+							scope.fromNodeName = getNodeName(target.sourceInfo.applicationName);
+							if ( scope.isGroup ) {
+								scope.toNodeIcon = getIconUrl(target.toNode.serviceType);
+								scope.toNodeName = getNodeName(target.toNode.serviceType);
+							} else {
+								scope.toNodeIcon = getIconUrl(target.targetInfo.serviceType);
+								scope.toNodeName = getNodeName(target.targetInfo.applicationName);
+							}
+						} else {
+							scope.isNode = true;
+							scope.isWas = angular.isDefined( target.isWas ) ? target.isWas : false;
+							scope.fromNodeIcon = getIconUrl(target.serviceType);
+							if ( scope.isGroup ) {
+								scope.fromNodeName = getNodeName(target.serviceType);
+							} else {
+								scope.fromNodeName = getNodeName(target.applicationName);
+							}
+						}
 						checkServerData();
 	                }
 					function checkServerData() {
 						scope.serverCount = 0;
 						scope.errorServerCount = 0;
-						var p, p2;
-						if ( htLastNode.isAuthorized === false ) {
-							scope.showServerListHtml = false;
-						} else {
-							if (htLastNode.sourceHistogram) {
-								// link
-								bIsNode = false;
-								scope.showServerListHtml = ( htLastNode.sourceHistogram && _.isEmpty(htLastNode.sourceHistogram) === false ) ? true : false;
-
-								for (p in htLastNode.sourceHistogram) {
-									scope.serverCount++;
-									if (htLastNode.sourceHistogram[p].Error > 0) {
-										scope.errorServerCount++;
-									}
-								}
+						if ( scope.isNode ) {
+							if (angular.isUndefined(htLastTarget.isAuthorized) || htLastTarget.isAuthorized === false) {
+								scope.hasServerList = false;
 							} else {
-								// node
-								bIsNode = true;
-								scope.showServerListHtml = ( htLastNode.serverList && _.isEmpty(htLastNode.serverList) === false ) ? true : false;
-
-								for (p in htLastNode.serverList) {
-									var instanceList = htLastNode.serverList[p].instanceList;
-									for (p2 in instanceList) {
-										scope.serverCount++;
-										if (( htLastNode.agentHistogram[instanceList[p2].name] ) &&
-											( htLastNode.agentHistogram[instanceList[p2].name].Error > 0 )) {
-											scope.errorServerCount++;
-										}
-									}
-								}
+								scope.hasServerList = ( htLastTarget["agentIds"] && htLastTarget["agentIds"].length > 0 ) ? true : false;
+								scope.serverCount = htLastTarget["instanceCount"];
+								scope.errorServerCount = htLastTarget["instanceErrorCount"];
 							}
+						} else {
+							scope.hasServerList = false;
 						}
 					}
-	
 	                function empty() {
-						scope.currentAgent = preferenceService.getAgentAllStr();
-						scope.showServerListHtml = false;
-	                    scope.stImage = false;
-	                    scope.stImageShow = false;
-	                    scope.stTitle = false;
-	                    scope.stImage2 = false;
-	                    scope.stTitle2 = false;
-	                    scope.stImage2Show = false;
+						scope.currentAgent = PreferenceService.getAgentAllStr();
+						scope.hasServerList = false;
+						scope.fromNodeIcon = "";
+						scope.fromNodeName = "";
+						scope.toNodeIcon = "";
+						scope.toNodeName = "";
 						scope.isWas = false;
+						scope.isGroup = false;
 						scope.agentList = [];
 	                }
+					function loadAgentHistogram( callback ) {
+						if ( agentHistogramData ) {
+							callback( agentHistogramData );
+						} else {
+							AgentHistogramDaoService.loadAgentHistogram(
+								htLastTarget, oNavbarVoService, function(result, data) {
+									if ( result === "success" ) {
+										agentHistogramData = data;
+										callback( data );
+									}
+								}
+							);
+						}
+					}
+					scope.isWasNode = function() {
+						return scope.isNode && scope.isWas;
+					};
 					scope.changeAgent = function() {
-						analyticsService.send( analyticsService.CONST.INSPECTOR, analyticsService.CONST.CLK_CHANGE_AGENT_MAIN );
-						$rootScope.$broadcast("changedCurrentAgent.forMain", scope.currentAgent );
+						AnalyticsService.send( AnalyticsService.CONST.INSPECTOR, AnalyticsService.CONST.CLK_CHANGE_AGENT_MAIN );
+						$rootScope.$broadcast("changedCurrentAgent." + scope.namespace, scope.currentAgent, oChartYMax);
 					};
 					scope.showServerList = function() {
-						analyticsService.send(analyticsService.CONST.MAIN, analyticsService.CONST.CLK_SHOW_SERVER_LIST);
-						$rootScope.$broadcast("serverListDirective.show", bIsNode, htLastNode, oNavbarVoService);
+						AnalyticsService.send( AnalyticsService.CONST.MAIN, AnalyticsService.CONST.CLK_SHOW_SERVER_LIST);
+						loadAgentHistogram(function( histogramData ) {
+							$rootScope.$broadcast("serverListDirective.show", scope.isNode, htLastTarget, histogramData, oChartYMax, oNavbarVoService);
+						});
 					};
-	                /**
-	                 * scope on sidebarTitle.initialize.namespace
-	                 */
-	                scope.$on("sidebarTitleDirective.initialize." + scope.namespace, function (event, oSidebarTitleVoService, node, navbarVoService) {
-	                    initialize( oSidebarTitleVoService, node, navbarVoService );
-						initializeAgentList( node );
+					scope.openApplicationInspector = function() {
+						$window.open( "#/inspector/" + ( htLastTarget.applicationName || htLastTarget.filterApplicationName ) + "@" + htLastTarget.serviceType + "/" + oNavbarVoService.getReadablePeriod() + "/" + oNavbarVoService.getQueryEndDateTime() );
+					};
+	                scope.$on("sidebarTitleDirective.initialize." + scope.namespace, function (event, target, navbarVoService) {
+						initialize(target, navbarVoService);
+						initializeAgentList(target);
 	                });
-	
-	                /**
-	                 * scope on sidebarTitle.empty.namespace
-	                 */
 	                scope.$on("sidebarTitleDirective.empty." + scope.namespace, function (event) {
 	                    empty();
 	                });
-					scope.$on("infoDetail.showDetailInformationClicked", function( event, htQuery, node ) {
-						htLastNode = node;
-						checkServerData();
+					scope.$on("loadChartDirective.saveMax." + scope.namespace, function (event, max ) {
+						if ( scope.currentAgent === PreferenceService.getAgentAllStr() ) {
+							oChartYMax["loadChart"] = max;
+						}
+					});
+					scope.$on("responseTimeSummaryChartDirective.saveMax." + scope.namespace, function (event, max ) {
+						if ( scope.currentAgent === PreferenceService.getAgentAllStr() ) {
+							oChartYMax["responseSummaryChart"] = max;
+						}
 					});
 
-	            }
+				}
 	        };
 	    }]
 	);

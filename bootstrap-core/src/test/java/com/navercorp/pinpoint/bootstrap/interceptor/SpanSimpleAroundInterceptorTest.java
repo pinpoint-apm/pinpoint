@@ -20,6 +20,8 @@ import static org.mockito.Mockito.*;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,9 +37,8 @@ public class SpanSimpleAroundInterceptorTest {
 
     @Test
     public void lifeCycle() throws Exception {
-        MockTraceContext context = new MockTraceContext();
-        MockTrace mockTrace = new MockTrace();
-        context.setTrace(mockTrace);
+        Trace trace = newTrace();
+        TraceContext context = newTraceContext(trace);
 
         TestSpanSimpleAroundInterceptor interceptor = new TestSpanSimpleAroundInterceptor(context);
 
@@ -47,9 +48,8 @@ public class SpanSimpleAroundInterceptorTest {
     @Test
     public void beforeExceptionLifeCycle() throws Exception {
 
-        MockTraceContext context = new MockTraceContext();
-        MockTrace mockTrace = new MockTrace();
-        context.setTrace(mockTrace);
+        Trace trace = newTrace();
+        TraceContext context = newTraceContext(trace);
 
         TestSpanSimpleAroundInterceptor interceptor = new TestSpanSimpleAroundInterceptor(context) {
             @Override
@@ -62,12 +62,43 @@ public class SpanSimpleAroundInterceptorTest {
         checkSpanInterceptor(context, interceptor);
     }
 
+    private Trace newTrace() {
+        Trace trace = mock(Trace.class);
+        when(trace.canSampled()).thenReturn(true);
+
+        return trace;
+    }
+
+    private TraceContext newTraceContext(final Trace trace) {
+        final Answer answer = new Answer() {
+            private boolean stop = false;
+
+            @Override
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+                final String methodName = invocation.getMethod().getName();
+                if (methodName.equals("removeTraceObject")) {
+                    stop = true;
+                }
+                if (stop) {
+                    return null;
+                }
+                return trace;
+            }
+        };
+
+        TraceContext traceContext = mock(TraceContext.class);
+        when(traceContext.currentRawTraceObject()).thenAnswer(answer);
+        when(traceContext.newTraceObject()).thenAnswer(answer);
+        when(traceContext.removeTraceObject()).thenAnswer(answer);
+        return traceContext;
+    }
+
+
     @Test
     public void afterExceptionLifeCycle() throws Exception {
 
-        MockTraceContext context = new MockTraceContext();
-        MockTrace mockTrace = new MockTrace();
-        context.setTrace(mockTrace);
+        Trace trace = newTrace();
+        TraceContext context = newTraceContext(trace);
 
         TestSpanSimpleAroundInterceptor interceptor = new TestSpanSimpleAroundInterceptor(context) {
             @Override
@@ -83,9 +114,8 @@ public class SpanSimpleAroundInterceptorTest {
     @Test
     public void beforeAfterExceptionLifeCycle() throws Exception {
 
-        MockTraceContext context = new MockTraceContext();
-        MockTrace mockTrace = new MockTrace();
-        context.setTrace(mockTrace);
+        Trace trace = newTrace();
+        TraceContext context = newTraceContext(trace);
 
         TestSpanSimpleAroundInterceptor interceptor = new TestSpanSimpleAroundInterceptor(context) {
             @Override
@@ -106,31 +136,28 @@ public class SpanSimpleAroundInterceptorTest {
 
     @Test
     public void traceCreateFail() {
-        MockTraceContext context = mock(MockTraceContext.class);
+        TraceContext context = mock(TraceContext.class);
         when(context.newTraceObject()).thenReturn(null);
-
-        MockTrace mockTrace = new MockTrace();
-        context.setTrace(mockTrace);
 
         TestSpanSimpleAroundInterceptor interceptor = new TestSpanSimpleAroundInterceptor(context);
 
         checkTraceCreateFailInterceptor(context, interceptor);
     }
 
-    private void checkSpanInterceptor(MockTraceContext context, TestSpanSimpleAroundInterceptor interceptor) {
+    private void checkSpanInterceptor(TraceContext context, TestSpanSimpleAroundInterceptor interceptor) {
         Trace createTrace = interceptor.createTrace(null, null);
         interceptor.before(new Object(), null);
-        Assert.assertEquals(interceptor.getBeforeTouchCount(), 1);
+        Assert.assertEquals("beforeTouchCount", interceptor.getBeforeTouchCount(), 1);
         Trace before = context.currentRawTraceObject();
         Assert.assertEquals(createTrace, before);
 
         interceptor.after(new Object(), null, null, null);
-        Assert.assertEquals(interceptor.getAfterTouchCount(), 1);
+        Assert.assertEquals("afterTouchCount", interceptor.getAfterTouchCount(), 1);
         Trace after = context.currentRawTraceObject();
         Assert.assertNull(after);
     }
 
-    private void checkTraceCreateFailInterceptor(MockTraceContext context, TestSpanSimpleAroundInterceptor interceptor) {
+    private void checkTraceCreateFailInterceptor(TraceContext context, TestSpanSimpleAroundInterceptor interceptor) {
         Trace createTrace = interceptor.createTrace(null, null);
         Assert.assertNull(createTrace);
         interceptor.before(new Object(), null);

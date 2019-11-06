@@ -1,0 +1,38 @@
+# Number of days of inactivity before an issue becomes stale
+daysUntilStale: 30
+# Number of days of inactivity before a stale issue is closed
+daysUntilClose: 20
+
+# Issues with these labels will never be considered stale
+exemptLabels:
+  - "proposal"
+  - "module:agent"
+  - "module:collector"
+  - "module:flink"
+  - "module:web"
+  - "module:plugin"
+  - "module:project-common"
+  - "bug"
+
+# Set to true to ignore issues in a milestone (defaults to false)
+exemptMilestones: true
+
+# Limit to only `issues` or `pulls`
+only: issues
+
+# Label to use when marking an issue as stale
+staleLabel: stale
+
+# Comment to post when marking an issue as stale. Set to `false` to disable
+markComment: >
+  This issue/proposal has been automatically marked as stale because it hasn't had any recent activity.
+  It will automatically be closed if no further activity occurs for 20days.
+  If you think this should still be open, or the problem still persists,
+  just pop a reply in the comments and one of the maintainers will (try!) to follow up.
+  Thank you for your interest and contribution to the Pinpoint Community.
+
+# Comment to post when closing a stale issue. Set to `false` to disable
+closeComment: false
+
+# Limit the number of actions per hour, from 1-30. Default is 30
+limitPerRun: 30

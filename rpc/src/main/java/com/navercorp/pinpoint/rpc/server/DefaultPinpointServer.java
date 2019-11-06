@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.rpc.server;
 
+import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.rpc.ChannelWriteFailListenableFuture;
 import com.navercorp.pinpoint.rpc.Future;
 import com.navercorp.pinpoint.rpc.ResponseMessage;
@@ -27,12 +29,30 @@ import com.navercorp.pinpoint.rpc.common.CyclicStateChecker;
 import com.navercorp.pinpoint.rpc.common.SocketStateChangeResult;
 import com.navercorp.pinpoint.rpc.common.SocketStateCode;
 import com.navercorp.pinpoint.rpc.control.ProtocolException;
-import com.navercorp.pinpoint.rpc.packet.*;
+import com.navercorp.pinpoint.rpc.packet.ControlHandshakePacket;
+import com.navercorp.pinpoint.rpc.packet.ControlHandshakeResponsePacket;
+import com.navercorp.pinpoint.rpc.packet.HandshakeResponseCode;
+import com.navercorp.pinpoint.rpc.packet.Packet;
+import com.navercorp.pinpoint.rpc.packet.PacketType;
+import com.navercorp.pinpoint.rpc.packet.PingPacket;
+import com.navercorp.pinpoint.rpc.packet.PingPayloadPacket;
+import com.navercorp.pinpoint.rpc.packet.PongPacket;
+import com.navercorp.pinpoint.rpc.packet.RequestPacket;
+import com.navercorp.pinpoint.rpc.packet.ResponsePacket;
+import com.navercorp.pinpoint.rpc.packet.SendPacket;
+import com.navercorp.pinpoint.rpc.packet.ServerClosePacket;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamPacket;
-import com.navercorp.pinpoint.rpc.server.handler.DoNothingChannelStateEventHandler;
 import com.navercorp.pinpoint.rpc.server.handler.ServerStateChangeEventHandler;
-import com.navercorp.pinpoint.rpc.stream.*;
-import com.navercorp.pinpoint.rpc.util.*;
+import com.navercorp.pinpoint.rpc.stream.ClientStreamChannel;
+import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelEventHandler;
+import com.navercorp.pinpoint.rpc.stream.StreamChannelManager;
+import com.navercorp.pinpoint.rpc.stream.StreamException;
+import com.navercorp.pinpoint.rpc.util.ClassUtils;
+import com.navercorp.pinpoint.rpc.util.ControlMessageEncodingUtils;
+import com.navercorp.pinpoint.rpc.util.IDGenerator;
+import com.navercorp.pinpoint.rpc.util.ListUtils;
+import com.navercorp.pinpoint.rpc.util.MapUtils;
+
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFuture;
 import org.jboss.netty.channel.ChannelFutureListener;
@@ -40,7 +60,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.SocketAddress;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -50,11 +74,15 @@ public class DefaultPinpointServer implements PinpointServer {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    private final long startTimestamp = System.currentTimeMillis();
+
     private final Channel channel;
     private final RequestManager requestManager;
 
     private final DefaultPinpointServerState state;
     private final CyclicStateChecker stateChecker;
+
+    private HealthCheckStateContext healthCheckStateContext = new HealthCheckStateContext();
 
     private final ServerMessageListener messageListener;
 
@@ -71,10 +99,10 @@ public class DefaultPinpointServer implements PinpointServer {
 
     private final ChannelFutureListener serverCloseWriteListener;
     private final ChannelFutureListener responseWriteFailListener;
-    
+
     private final WriteFailFutureListener pongWriteFutureListener = new WriteFailFutureListener(logger, "pong write fail.", "pong write success.");
-    
-    
+
+
     public DefaultPinpointServer(Channel channel, PinpointServerConfig serverConfig) {
         this(channel, serverConfig, null);
     }
@@ -84,7 +112,7 @@ public class DefaultPinpointServer implements PinpointServer {
 
         this.messageListener = serverConfig.getMessageListener();
 
-        StreamChannelManager streamChannelManager = new StreamChannelManager(channel, IDGenerator.createEvenIdGenerator(), serverConfig.getStreamMessageListener());
+        StreamChannelManager streamChannelManager = new StreamChannelManager(channel, IDGenerator.createEvenIdGenerator(), serverConfig.getServerStreamMessageHandler());
         this.streamChannelManager = streamChannelManager;
 
         this.stateChangeEventListeners = new ArrayList<ServerStateChangeEventHandler>();
@@ -96,7 +124,7 @@ public class DefaultPinpointServer implements PinpointServer {
         }
         ListUtils.addAllExceptNullValue(this.stateChangeEventListeners, stateChangeEventListeners);
         if (this.stateChangeEventListeners.isEmpty()) {
-            this.stateChangeEventListeners.add(DoNothingChannelStateEventHandler.INSTANCE);
+            this.stateChangeEventListeners.add(ServerStateChangeEventHandler.DISABLED_INSTANCE);
         }
 
         RequestManager requestManager = new RequestManager(serverConfig.getRequestManagerTimer(), serverConfig.getDefaultRequestTimeout());
@@ -159,7 +187,7 @@ public class DefaultPinpointServer implements PinpointServer {
 
     @Override
     public void send(byte[] payload) {
-        AssertUtils.assertNotNull(payload, "payload may not be null.");
+        Assert.requireNonNull(payload, "payload");
         if (!isEnableDuplexCommunication()) {
             throw new IllegalStateException("Send fail. Error: Illegal State. pinpointServer:" + toString());
         }
@@ -170,25 +198,21 @@ public class DefaultPinpointServer implements PinpointServer {
 
     @Override
     public Future<ResponseMessage> request(byte[] payload) {
-        AssertUtils.assertNotNull(payload, "payload may not be null.");
+        Assert.requireNonNull(payload, "payload");
         if (!isEnableDuplexCommunication()) {
             throw new IllegalStateException("Request fail. Error: Illegal State. pinpointServer:" + toString());
         }
 
-        RequestPacket requestPacket = new RequestPacket(payload);
-        ChannelWriteFailListenableFuture<ResponseMessage> messageFuture = this.requestManager.register(requestPacket);
-        write0(requestPacket, messageFuture);
-        return messageFuture;
-    }
-
-    @Override
-    public void response(RequestPacket requestPacket, byte[] payload) {
-        response(requestPacket.getRequestId(), payload);
+        final int requestId = this.requestManager.nextRequestId();
+        RequestPacket requestPacket = new RequestPacket(requestId, payload);
+        ChannelWriteFailListenableFuture<ResponseMessage> responseFuture = this.requestManager.register(requestPacket.getRequestId());
+        write0(requestPacket, responseFuture);
+        return responseFuture;
     }
 
     @Override
     public void response(int requestId, byte[] payload) {
-        AssertUtils.assertNotNull(payload, "payload may not be null.");
+        Assert.requireNonNull(payload, "payload");
         if (!isEnableCommunication()) {
             throw new IllegalStateException("Response fail. Error: Illegal State. pinpointServer:" + toString());
         }
@@ -209,20 +233,11 @@ public class DefaultPinpointServer implements PinpointServer {
         return future;
     }
 
-    public StreamChannelContext getStreamChannel(int channelId) {
-        return streamChannelManager.findStreamChannel(channelId);
-    }
-
     @Override
-    public ClientStreamChannelContext openStream(byte[] payload, ClientStreamChannelMessageListener messageListener) {
-        return openStream(payload, messageListener, null);
-    }
-
-    @Override
-    public ClientStreamChannelContext openStream(byte[] payload, ClientStreamChannelMessageListener messageListener, StreamChannelStateChangeEventHandler<ClientStreamChannel> stateChangeListener) {
+    public ClientStreamChannel openStream(byte[] payload, ClientStreamChannelEventHandler streamChannelEventHandler) throws StreamException {
         logger.info("{} createStream() started.", objectUniqName);
 
-        ClientStreamChannelContext streamChannel = streamChannelManager.openStream(payload, messageListener, stateChangeListener);
+        ClientStreamChannel streamChannel = streamChannelManager.openStream(payload, streamChannelEventHandler);
 
         logger.info("{} createStream() completed.", objectUniqName);
         return streamChannel;
@@ -260,9 +275,7 @@ public class DefaultPinpointServer implements PinpointServer {
         
         SocketStateChangeResult stateChangeResult = state.toBeingClose();
         if (stateChangeResult.isChange()) {
-            final ChannelFuture writeFuture = this.channel.write(ServerClosePacket.DEFAULT_SERVER_CLOSE_PACKET);
-            writeFuture.addListener(serverCloseWriteListener);
-
+            ChannelFuture writeFuture = write0(ServerClosePacket.DEFAULT_SERVER_CLOSE_PACKET, serverCloseWriteListener);
             logger.info("{} sendClosePacket() completed.", objectUniqName);
             return writeFuture;
         } else {
@@ -311,6 +324,10 @@ public class DefaultPinpointServer implements PinpointServer {
                 handleClosePacket(channel);
                 return;
             }
+            case PacketType.CONTROL_PING_PAYLOAD: {
+                handlePingPacket(channel, (PingPayloadPacket) message);
+                return;
+            }
             case PacketType.CONTROL_PING: {
                 handlePingPacket(channel, (PingPacket) message);
                 return;
@@ -349,32 +366,35 @@ public class DefaultPinpointServer implements PinpointServer {
         streamChannelManager.messageReceived(streamPacket);
     }
 
-    private void handleHandshake(ControlHandshakePacket handshakepacket) {
-        logger.info("{} handleHandshake() started. Packet:{}", objectUniqName, handshakepacket);
-        
-        int requestId = handshakepacket.getRequestId();
-        Map<Object, Object> handshakeData = decodeHandshakePacket(handshakepacket);
+    private void handleHandshake(ControlHandshakePacket handshakePacket) {
+        int requestId = handshakePacket.getRequestId();
+        Map<Object, Object> handshakeData = decodeHandshakePacket(handshakePacket);
+
+        logger.info("{} handleHandshake() started. requestId:{}, data:{}", objectUniqName, requestId, handshakeData);
+
         HandshakeResponseCode responseCode = messageListener.handleHandshake(handshakeData);
-        boolean isFirst = setChannelProperties(handshakeData);
-        if (isFirst) {
-            if (HandshakeResponseCode.DUPLEX_COMMUNICATION == responseCode) {
-                this.remoteClusterOption = getClusterOption(handshakeData);
-                state.toRunDuplex();
-            } else if (HandshakeResponseCode.SIMPLEX_COMMUNICATION == responseCode || HandshakeResponseCode.SUCCESS == responseCode) {
-                state.toRunSimplex();
+        if (responseCode != null) {
+            boolean isFirst = setChannelProperties(handshakeData);
+            if (isFirst) {
+                if (HandshakeResponseCode.DUPLEX_COMMUNICATION == responseCode) {
+                    this.remoteClusterOption = getClusterOption(handshakeData);
+                    state.toRunDuplex();
+                } else if (HandshakeResponseCode.SIMPLEX_COMMUNICATION == responseCode || HandshakeResponseCode.SUCCESS == responseCode) {
+                    state.toRunSimplex();
+                }
             }
+
+            Map<String, Object> responseData = createHandshakeResponse(responseCode, isFirst);
+            sendHandshakeResponse0(requestId, responseData);
+
+            logger.info("{} handleHandshake() completed(isFirst:{}). requestId:{}, responseCode:{}", objectUniqName, isFirst, requestId, responseCode);
+        } else {
+            logger.info("{} to execute handleHandshake() is not ready", objectUniqName);
         }
-
-        logger.info("{} handleHandshake(). ResponseCode:{}", objectUniqName, responseCode);
-
-        Map<String, Object> responseData = createHandshakeResponse(responseCode, isFirst);
-        sendHandshakeResponse0(requestId, responseData);
-        
-        logger.info("{} handleHandshake() completed.", objectUniqName);
     }
 
     private ClusterOption getClusterOption(Map handshakeResponse) {
-        if (handshakeResponse == Collections.EMPTY_MAP) {
+        if (handshakeResponse == Collections.emptyMap()) {
             return ClusterOption.DISABLE_CLUSTER_OPTION;
         }
 
@@ -396,7 +416,7 @@ public class DefaultPinpointServer implements PinpointServer {
     private List<Role> getRoles(List roleNames) {
         List<Role> roles = new ArrayList<Role>();
         for (Object roleName : roleNames) {
-            if (roleName instanceof String && !StringUtils.isEmpty((String) roleName)) {
+            if (roleName instanceof String && StringUtils.hasLength((String) roleName)) {
                 roles.add(Role.getValue((String) roleName));
             }
         }
@@ -415,58 +435,89 @@ public class DefaultPinpointServer implements PinpointServer {
     }
     
     private void handlePingPacket(Channel channel, PingPacket packet) {
+        logger.debug("{} handleLegacyPingPacket() started. packet:{}", objectUniqName, packet);
+
+        if (healthCheckStateContext.getState() == HealthCheckState.WAIT) {
+            healthCheckStateContext.toReceivedLegacy();
+        }
+
+        // packet without status value
+        if (packet == PingPacket.PING_PACKET) {
+            writePong(channel);
+            return;
+        }
+
+        PingPayloadPacket pingPayloadPacket = new PingPayloadPacket(packet.getPingId(), packet.getStateVersion(), packet.getStateCode());
+        handlePingPacket0(channel, pingPayloadPacket);
+    }
+
+    private void handlePingPacket(Channel channel, PingPayloadPacket packet) {
         logger.debug("{} handlePingPacket() started. packet:{}", objectUniqName, packet);
-        
+
+        if (healthCheckStateContext.getState() == HealthCheckState.WAIT) {
+            healthCheckStateContext.toReceived();
+        }
+
+        handlePingPacket0(channel, packet);
+    }
+
+    private void handlePingPacket0(Channel channel, PingPayloadPacket packet) {
         SocketStateCode statusCode = state.getCurrentStateCode();
 
         if (statusCode.getId() == packet.getStateCode()) {
             stateChecker.unmark();
-            
+
             messageListener.handlePing(packet, this);
 
-            PongPacket pongPacket = PongPacket.PONG_PACKET;
-            ChannelFuture write = channel.write(pongPacket);
-            write.addListener(pongWriteFutureListener);
+            writePong(channel);
         } else {
             logger.warn("Session state sync failed. channel:{}, packet:{}, server-state:{}", channel, packet, statusCode);
-            
+
             if (stateChecker.markAndCheckCondition()) {
                 state.toErrorSyncStateSession();
                 stop();
+            } else {
+                writePong(channel);
             }
         }
     }
 
+    private void writePong(Channel channel) {
+        write0(PongPacket.PONG_PACKET, pongWriteFutureListener);
+    }
+
     private Map<String, Object> createHandshakeResponse(HandshakeResponseCode responseCode, boolean isFirst) {
-        HandshakeResponseCode createdCode = null;
-        if (isFirst) {
-            createdCode = responseCode;
-        } else {
-            if (HandshakeResponseCode.DUPLEX_COMMUNICATION == responseCode) {
-                createdCode = HandshakeResponseCode.ALREADY_DUPLEX_COMMUNICATION;
-            } else if (HandshakeResponseCode.SIMPLEX_COMMUNICATION == responseCode) {
-                createdCode = HandshakeResponseCode.ALREADY_SIMPLEX_COMMUNICATION;
-            } else {
-                createdCode = responseCode;
-            }
-        }
+        final HandshakeResponseCode createdCode = getHandshakeResponseCode(responseCode, isFirst);
 
         Map<String, Object> result = new HashMap<String, Object>();
         result.put(ControlHandshakeResponsePacket.CODE, createdCode.getCode());
         result.put(ControlHandshakeResponsePacket.SUB_CODE, createdCode.getSubCode());
         if (localClusterOption.isEnable()) {
-            result.put(ControlHandshakeResponsePacket.CLUSTER, localClusterOption.getProperties());
+            Map<String, Object> clusterOption = localClusterOption.toMap();
+            result.put(ControlHandshakeResponsePacket.CLUSTER, clusterOption);
         }
 
         return result;
+    }
+
+    private HandshakeResponseCode getHandshakeResponseCode(HandshakeResponseCode responseCode, boolean isFirst) {
+        if (isFirst) {
+            return responseCode;
+        }
+        if (HandshakeResponseCode.DUPLEX_COMMUNICATION == responseCode) {
+            return HandshakeResponseCode.ALREADY_DUPLEX_COMMUNICATION;
+        } else if (HandshakeResponseCode.SIMPLEX_COMMUNICATION == responseCode) {
+            return HandshakeResponseCode.ALREADY_SIMPLEX_COMMUNICATION;
+        }
+
+        return responseCode;
     }
 
     private void sendHandshakeResponse0(int requestId, Map<String, Object> data) {
         try {
             byte[] resultPayload = ControlMessageEncodingUtils.encode(data);
             ControlHandshakeResponsePacket packet = new ControlHandshakeResponsePacket(requestId, resultPayload);
-
-            channel.write(packet);
+            write0(packet);
         } catch (ProtocolException e) {
             logger.warn(e.getMessage(), e);
         }
@@ -481,7 +532,7 @@ public class DefaultPinpointServer implements PinpointServer {
             logger.warn(e.getMessage(), e);
         }
 
-        return Collections.EMPTY_MAP;
+        return Collections.emptyMap();
     }
 
     public boolean isEnableCommunication() {
@@ -507,6 +558,16 @@ public class DefaultPinpointServer implements PinpointServer {
     }
 
     @Override
+    public long getStartTimestamp() {
+        return startTimestamp;
+    }
+
+    @Override
+    public HealthCheckState getHealthCheckState() {
+        return healthCheckStateContext.getState();
+    }
+
+    @Override
     public SocketStateCode getCurrentStateCode() {
         return state.getCurrentStateCode();
     }
@@ -525,6 +586,8 @@ public class DefaultPinpointServer implements PinpointServer {
         log.append(getRemoteAddress());
         log.append(", state:");
         log.append(getCurrentStateCode());
+        log.append(", healthCheckState:");
+        log.append(getHealthCheckState());
         log.append(")");
         
         return log.toString();

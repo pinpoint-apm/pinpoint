@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
-import com.navercorp.pinpoint.common.util.TransactionIdUtils;
+import com.navercorp.pinpoint.common.profiler.util.TransactionIdUtils;
 
 /**
  * @author emeroad
@@ -37,7 +37,7 @@ public class BusinessTransaction {
 
     public BusinessTransaction(SpanBo span) {
         if (span == null) {
-            throw new NullPointerException("span must not be null");
+            throw new NullPointerException("span");
         }
 
         this.rpc = span.getRpc();
@@ -45,8 +45,8 @@ public class BusinessTransaction {
         long elapsed = span.getElapsed();
         totalTime = maxTime = minTime = elapsed;
 
-        String traceIdString = TransactionIdUtils.formatString(span.getTraceAgentId(), span.getTraceAgentStartTime(), span.getTraceTransactionSequence());
-        Trace trace = new Trace(traceIdString, elapsed, span.getCollectorAcceptTime(), span.getErrCode());
+        String transactionIdString = TransactionIdUtils.formatString(span.getTransactionId());
+        Trace trace = new Trace(transactionIdString, elapsed, span.getCollectorAcceptTime(), span.getErrCode());
         this.traces.add(trace);
         calls++;
         if(span.getErrCode() > 0) {
@@ -56,7 +56,7 @@ public class BusinessTransaction {
 
     public void add(SpanBo span) {
         if (span == null) {
-            throw new NullPointerException("span must not be null");
+            throw new NullPointerException("span");
         }
 
         long elapsed = span.getElapsed();
@@ -69,8 +69,8 @@ public class BusinessTransaction {
             minTime = elapsed;
         }
 
-        String traceIdString = TransactionIdUtils.formatString(span.getTraceAgentId(), span.getTraceAgentStartTime(), span.getTraceTransactionSequence());
-        Trace trace = new Trace(traceIdString, elapsed, span.getCollectorAcceptTime(), span.getErrCode());
+        String transactionIdString = TransactionIdUtils.formatString(span.getTransactionId());
+        Trace trace = new Trace(transactionIdString, elapsed, span.getCollectorAcceptTime(), span.getErrCode());
         this.traces.add(trace);
 
         if(span.getErrCode() > 0) {

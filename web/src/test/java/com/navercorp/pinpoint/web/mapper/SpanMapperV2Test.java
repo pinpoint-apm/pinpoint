@@ -11,7 +11,6 @@ import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanDecodingC
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanEncoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanEncoderV0;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanEncodingContext;
-import com.navercorp.pinpoint.common.util.AnnotationTranscoder;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -26,7 +25,6 @@ import java.util.List;
 public class SpanMapperV2Test {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final AnnotationTranscoder transcoder = new AnnotationTranscoder();
     private final SpanDecoderV0 decoder = new SpanDecoderV0();
 
     @Test
@@ -41,7 +39,7 @@ public class SpanMapperV2Test {
         firstSpanEventBo.setEndElapsed(100);
 
         AnnotationBo annotationBo = newAnnotation(200, "annotation");
-        firstSpanEventBo.setAnnotationBoList(Lists.<AnnotationBo>newArrayList(annotationBo));
+        firstSpanEventBo.setAnnotationBoList(Lists.newArrayList(annotationBo));
         firstSpanEventBo.setServiceType((short) 1003);
         firstSpanEventBo.setSequence((short) 0);
 
@@ -64,7 +62,7 @@ public class SpanMapperV2Test {
 
         SpanBo readSpan = new SpanBo();
         SpanDecodingContext decodingContext = new SpanDecodingContext();
-        decoder.readSpanValue(buffer, readSpan, new SpanEventBo(), decodingContext);
+        decoder.readSpanValue(buffer, readSpan, decodingContext);
 
         Assert.assertEquals(readSpan.getSpanEventBoList().size(), 2);
 
@@ -94,13 +92,7 @@ public class SpanMapperV2Test {
     }
 
     private AnnotationBo newAnnotation(int key, Object value) {
-        AnnotationBo annotationBo = new AnnotationBo();
-        annotationBo.setKey(key);
-
-        byte typeCode = transcoder.getTypeCode(value);
-        byte[] encode = transcoder.encode(value, typeCode);
-        annotationBo.setValue(value);
-        annotationBo.setByteValue(encode);
+        AnnotationBo annotationBo = new AnnotationBo(key, value);
         return annotationBo;
     }
 

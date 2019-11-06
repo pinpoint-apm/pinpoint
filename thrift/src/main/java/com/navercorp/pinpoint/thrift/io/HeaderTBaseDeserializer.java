@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,6 +19,10 @@ package com.navercorp.pinpoint.thrift.io;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.navercorp.pinpoint.io.header.*;
+import com.navercorp.pinpoint.io.request.Message;
+import com.navercorp.pinpoint.io.request.DefaultMessage;
+import com.navercorp.pinpoint.io.util.TypeLocator;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TProtocol;
@@ -36,7 +40,7 @@ public class HeaderTBaseDeserializer {
 
     private final TProtocol protocol;
     private final TMemoryInputTransport trans;
-    private final TBaseLocator locator;
+    private final TypeLocator<TBase<?, ?>> locator;
 
     /**
      * Create a new TDeserializer. It will use the TProtocol specified by the
@@ -44,7 +48,7 @@ public class HeaderTBaseDeserializer {
      *
      * @param protocolFactory Factory to create a protocol
      */
-    HeaderTBaseDeserializer(TProtocolFactory protocolFactory, TBaseLocator locator) {
+    HeaderTBaseDeserializer(TProtocolFactory protocolFactory, TypeLocator<TBase<?, ?>> locator) {
         this.trans = new TMemoryInputTransport();
         this.protocol = protocolFactory.getProtocol(trans);
         this.locator = locator;
@@ -55,72 +59,75 @@ public class HeaderTBaseDeserializer {
      *
      * @param bytes   The array to read from
      */
-    public TBase<?, ?> deserialize(byte[] bytes) throws TException {
+    public Message<TBase<?, ?>> deserialize(byte[] bytes) throws TException {
+
         try {
-            trans.reset(bytes);
-            Header header = readHeader();
-            final int validate = validate(header);
-            if (validate == HeaderUtils.OK) {
-                TBase<?, ?> base = locator.tBaseLookup(header.getType());
-                base.read(protocol);
-                return base;
-            }
-            throw new IllegalStateException("invalid validate " + validate);
+            trans.reset(bytes, 0, bytes.length);
+            return readInternal();
         } finally {
             trans.clear();
             protocol.reset();
         }
     }
-    
-    public List<TBase<?, ?>> deserializeList(byte[] buffer) throws TException {
-        List<TBase<?, ?>> tBaseList = new ArrayList<TBase<?,?>>();
-        
-        trans.reset(buffer);
+
+    private Message<TBase<?, ?>> readInternal() throws TException {
+        final HeaderReader reader = newHeaderReader();
+        final Header header = readHeader(reader);
+        final HeaderEntity headerEntity = readHeaderEntity(reader, header);
+        skipHeaderOffset(reader);
+
+
+        final TBase<?, ?> base = locator.bodyLookup(header.getType());
+        if (base == null) {
+            throw new TException("base must not be null type:" + header.getType());
+        }
+
+        base.read(protocol);
+
+        return new DefaultMessage<TBase<?, ?>>(header, headerEntity, base);
+    }
+
+    private void skipHeaderOffset(HeaderReader reader) {
+        trans.reset(trans.getBuffer(), reader.getOffset(), reader.getRemaining());
+    }
+
+    private HeaderReader newHeaderReader() {
+        byte[] buffer = trans.getBuffer();
+        int bufferPosition = trans.getBufferPosition();
+        int bytesRemainingInBuffer = trans.getBytesRemainingInBuffer();
+        return new ByteArrayHeaderReader(buffer, bufferPosition, bytesRemainingInBuffer);
+    }
+
+    private Header readHeader(HeaderReader reader) throws TException {
         try {
+            return reader.readHeader();
+        } catch (InvalidHeaderException e) {
+            throw new TException("invalid header Caused by:" + e.getMessage(), e);
+        }
+    }
+
+    private HeaderEntity readHeaderEntity(HeaderReader reader, Header header) throws TException {
+        try {
+            return reader.readHeaderEntity(header);
+        } catch (InvalidHeaderException e) {
+            throw new TException("invalid headerEntity Caused by:" + e.getMessage(), e);
+        }
+    }
+
+    public List<Message<TBase<?, ?>>> deserializeList(byte[] buffer) throws TException {
+        final List<Message<TBase<?, ?>>> tBaseList = new ArrayList<Message<TBase<?, ?>>>();
+
+        try {
+            trans.reset(buffer, 0, buffer.length);
             while (trans.getBytesRemainingInBuffer() > 0) {
-                Header header = readHeader();
-                final int validate = validate(header);
-                if (validate == HeaderUtils.OK) {
-                    TBase<?, ?> base = locator.tBaseLookup(header.getType());
-                    base.read(protocol);
-                    tBaseList.add(base);
-                } else {
-                    throw new IllegalStateException("invalid validate " + validate);
-                }
+                final Message<TBase<?, ?>> tBase = readInternal();
+                tBaseList.add(tBase);
             }
-        } catch (Exception e){
-            logger.warn("failed to deserialize.", e);
-            return new ArrayList<TBase<?,?>>();
         } finally {
             trans.clear();
             protocol.reset();
         }
-        
         return tBaseList;
-    }
-
-    private int validate(Header header) throws TException {
-        final byte signature = header.getSignature();
-        final int result = HeaderUtils.validateSignature(signature);
-        if (result == HeaderUtils.FAIL) {
-            throw new TException("Invalid Signature:" + header);
-        }
-        return result;
-    }
-
-    private Header readHeader() throws TException {
-        final byte signature = protocol.readByte();
-        final byte version = protocol.readByte();
-        
-        // fixed size regardless protocol
-        final byte type1 = protocol.readByte();
-        final byte type2 = protocol.readByte();
-        final short type = bytesToShort(type1, type2);
-        return new Header(signature, version, type);
-    }
-
-    private short bytesToShort(final byte byte1, final byte byte2) {
-        return (short) (((byte1 & 0xff) << 8) | ((byte2 & 0xff)));
     }
 
 }

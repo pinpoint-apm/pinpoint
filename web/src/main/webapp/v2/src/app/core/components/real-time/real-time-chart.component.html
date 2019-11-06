@@ -1,0 +1,18 @@
+<canvas #realTime
+    (mousemove)="onMouseMove($event)"
+    (mouseout)="onMouseOut()"
+    (click)="onClick()"
+    [style.cursor]="getCursorStyle()">
+</canvas>
+<ng-container *ngIf="showTooltip">
+    <dl class="l-tooltip" #tooltip [style.left]="calculateTooltipLeft(tooltip)">
+        <dt class="l-tooltip-title">{{tooltipDataObj.title}}</dt>
+        <dd class="l-tooltip-body" *ngFor="let value of tooltipDataObj.values; let i = index">
+            <dl>
+                <dt><span class="l-tooltip-label" [style.background-color]="chartOption.chartColors[i]"></span>{{chartOption.chartLabels[i]}}:</dt>
+                <dd class="l-tooltip-content">{{value}}</dd>
+            </dl>
+        </dd>
+    </dl>
+    <div class="l-tooltip-caret" #tooltipCaret [style.left]="calculateTooltipCaretLeft(tooltipCaret)"></div>
+</ng-container>

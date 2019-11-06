@@ -16,6 +16,9 @@
 
 package com.navercorp.pinpoint.rpc.packet;
 
+import java.util.EnumSet;
+import java.util.Set;
+
 public enum HandshakeResponseCode {
 
     SUCCESS(0, 0, "Success."), 
@@ -38,6 +41,8 @@ public enum HandshakeResponseCode {
     private final int subCode;
     private final String codeMessage;
 
+    private static final Set<HandshakeResponseCode> RESPONSE_CODES = EnumSet.allOf(HandshakeResponseCode.class);
+
     HandshakeResponseCode(int code, int subCode, String codeMessage) {
         this.code = code;
         this.subCode = subCode;
@@ -57,13 +62,13 @@ public enum HandshakeResponseCode {
     }
 
     public static HandshakeResponseCode getValue(int code, int subCode) {
-        for (HandshakeResponseCode value : HandshakeResponseCode.values()) {
+        for (HandshakeResponseCode value : RESPONSE_CODES) {
             if (code == value.getCode() && subCode == value.getSubCode()) {
                 return value;
             }
         }
         
-        for (HandshakeResponseCode value : HandshakeResponseCode.values()) {
+        for (HandshakeResponseCode value : RESPONSE_CODES) {
             if (code == value.getCode() && 0 == value.getSubCode()) {
                 return value;
             }

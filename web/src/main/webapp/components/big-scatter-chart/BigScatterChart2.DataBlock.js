@@ -38,8 +38,8 @@
 			aValue[0] += self._from;
 			self._oAgentData[ agentName ].push( aValue );
 			self._oCountOfType[agentName][ oTypeInfo[aValue[oPropertyIndex.type] + "" ][0] ]++;
-		});
 
+		});
 		this._minX = this._bLoadComplete ? this._from : this._resultFrom;
 		this._maxX = this._bLoadComplete ? this._to : this._resultTo;
 		this._minY = minY;
@@ -76,17 +76,32 @@
 		}
 	};
 	DataBlock.prototype._getRealtimeCount = function( agentName, type, minX, maxX ) {
-		var self = this;
 		var sum = 0;
-		$.each( this._aAllData, function( index, aValue ) {
-			if ( agentName === self._getAgentName( aValue[self._oPropertyIndex.meta] + "" ) ) {
-				if ( type === self._oTypeInfo[aValue[self._oPropertyIndex.type] + ""][0] ) {
-					if ( aValue[self._oPropertyIndex.x] >= minX && aValue[self._oPropertyIndex.x] <= maxX ) {
+		var metaIndex = this._oPropertyIndex.meta;
+		var typeIndex = this._oPropertyIndex.type;
+		var xIndex = this._oPropertyIndex.x;
+		var length = this._aAllData.length;
+
+		if ( this._from >= maxX || this._to <= minX || length === 0 || typeof this._oCountOfType[agentName] === "undefined" ) {
+			return sum;
+		}
+		if ( this._from >= minX && this._to <= maxX ) {
+			return this._oCountOfType[agentName][type];
+		}
+
+		for( var i = 0; i < length ; i++ ) {
+			var aValue = this._aAllData[i];
+			if ( aValue[ xIndex ] < minX ) {
+				break;
+			}
+			if ( agentName === this._getAgentName( aValue[ metaIndex ] + "" ) ) {
+				if (type === this._oTypeInfo[ aValue[ typeIndex ] + "" ][0]) {
+					if ( aValue[ xIndex ] <= maxX ) {
 						sum++;
 					}
 				}
 			}
-		});
+		}
 		return sum;
 	};
 	DataBlock.prototype.getTransactionID = function( aDataBlock ) {

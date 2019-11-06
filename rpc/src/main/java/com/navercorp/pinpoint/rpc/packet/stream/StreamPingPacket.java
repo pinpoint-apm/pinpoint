@@ -53,7 +53,7 @@ public class StreamPingPacket extends BasicStreamPacket {
     public static StreamPingPacket readBuffer(short packetType, ChannelBuffer buffer) {
         assert packetType == PACKET_TYPE;
 
-        if (buffer.readableBytes() < 4) {
+        if (buffer.readableBytes() < 8) {
             buffer.resetReaderIndex();
             return null;
         }

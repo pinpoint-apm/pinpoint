@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,26 +16,24 @@
 
 package com.navercorp.pinpoint.profiler.sender;
 
+import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.Collection;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
-
 /**
  * @author emeroad
  */
 public class AsyncQueueingExecutor<T> implements Runnable {
 
-    private static final AsyncQueueingExecutorListener EMPTY_LISTENER = new EmptyAsyncQueueingExecutorListener();
-
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    private final boolean isWarn = logger.isWarnEnabled();
+    private final Logger logger;
+    private final boolean isWarn;
 
     private final LinkedBlockingQueue<T> queue;
     private final AtomicBoolean isRun = new AtomicBoolean(true);
@@ -46,17 +44,15 @@ public class AsyncQueueingExecutor<T> implements Runnable {
     // Caution. single thread only. this Collection is simpler than ArrayList.
     private final Collection<T> drain;
 
-    private AsyncQueueingExecutorListener<T> listener = EMPTY_LISTENER;
+    private final AsyncQueueingExecutorListener<T> listener;
 
 
-    public AsyncQueueingExecutor() {
-        this(1024 * 5, "Pinpoint-AsyncQueueingExecutor");
-    }
+    public AsyncQueueingExecutor(int queueSize, String executorName, AsyncQueueingExecutorListener<T> listener) {
+        Assert.requireNonNull(executorName, "executorName");
 
-    public AsyncQueueingExecutor(int queueSize, String executorName) {
-        if (executorName == null) {
-            throw new NullPointerException("executorName must not be null");
-        }
+        this.logger = LoggerFactory.getLogger(this.getClass().getName() + "@" + executorName);
+        this.isWarn = logger.isWarnEnabled();
+
         // BEFORE executeThread start
         this.maxDrainSize = 10;
         this.drain = new UnsafeArrayCollection<T>(maxDrainSize);
@@ -64,6 +60,8 @@ public class AsyncQueueingExecutor<T> implements Runnable {
 
         this.executeThread = this.createExecuteThread(executorName);
         this.executorName = executeThread.getName();
+
+        this.listener = Assert.requireNonNull(listener, "listener");
     }
 
     private Thread createExecuteThread(String executorName) {
@@ -83,15 +81,15 @@ public class AsyncQueueingExecutor<T> implements Runnable {
         drainStartEntry:
         while (isRun()) {
             try {
-                Collection<T> dtoList = getDrainQueue();
-                int drainSize = takeN(dtoList, this.maxDrainSize);
+                final Collection<T> dtoList = getDrainQueue();
+                final int drainSize = takeN(dtoList, this.maxDrainSize);
                 if (drainSize > 0) {
                     doExecute(dtoList);
                     continue;
                 }
 
                 while (isRun()) {
-                    T dto = takeOne();
+                    final T dto = takeOne();
                     if (dto != null) {
                         doExecute(dto);
                         continue drainStartEntry;
@@ -110,7 +108,7 @@ public class AsyncQueueingExecutor<T> implements Runnable {
             logger.debug("Loop is stop.");
         }
         while(true) {
-            Collection<T> dtoList = getDrainQueue();
+            final Collection<T> dtoList = getDrainQueue();
            int drainSize = takeN(dtoList, this.maxDrainSize);
             if (drainSize == 0) {
                 break;
@@ -122,7 +120,7 @@ public class AsyncQueueingExecutor<T> implements Runnable {
         }
     }
 
-    protected T takeOne() {
+    private T takeOne() {
         try {
             return queue.poll(1000 * 2, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
@@ -131,7 +129,7 @@ public class AsyncQueueingExecutor<T> implements Runnable {
         }
     }
 
-    protected int takeN(Collection<T> drain, int maxDrainSize) {
+    private int takeN(Collection<T> drain, int maxDrainSize) {
         return queue.drainTo(drain, maxDrainSize);
     }
 
@@ -157,12 +155,6 @@ public class AsyncQueueingExecutor<T> implements Runnable {
         return offer;
     }
 
-    public void setListener(AsyncQueueingExecutorListener<T> listener) {
-        if (listener == null) {
-            throw new NullPointerException("listener must not be null");
-        }
-        this.listener = listener;
-    }
 
     private void doExecute(Collection<T> dtoList) {
         this.listener.execute(dtoList);

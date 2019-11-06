@@ -1,11 +1,5 @@
 #!/usr/bin/env bash
 
-UNAME=`uname`
-OS_TYPE="linux";
-if [[ "$UNAME" == "Darwin" ]]; then
-        OS_TYPE="mac"
-fi
-
 this="${BASH_SOURCE-$0}"
 while [ -h "$this" ]; do
   ls=`ls -ld "$this"`
@@ -44,6 +38,7 @@ CLOSE_WAIT_TIME=`expr $UNIT_TIME \* $CHECK_COUNT`
 
 PROPERTIES=`cat $CONF_DIR/$CONF_FILE 2>/dev/null`
 KEY_VERSION="quickstart.version"
+KEY_CONTEXT_PATH="quickstart.collector.context.path"
 KEY_PORT="quickstart.collector.port"
 
 function func_read_properties
@@ -118,56 +113,53 @@ function func_init_log
 
 function func_check_running_pinpoint_collector
 {
-	port=$( func_read_properties "$KEY_PORT" )
+    context_path=$( func_read_properties "$KEY_CONTEXT_PATH" )
+    if [ "$context_path" == "/" ]; then
+            context_path=""
+    fi
+    port=$( func_read_properties "$KEY_PORT" )
+    check_url="http://localhost:$port$context_path/serverTime.pinpoint"
 
-        if [[ "$OS_TYPE" == 'mac' ]]; then
-		main_port_num=`lsof -p $pid | grep TCP | grep $port | wc -l `
-                process_tcp_port_num=`lsof -p $pid | grep TCP | wc -l `
-                process_udp_port_num=`lsof -p $pid |  grep UDP | wc -l `
-        else
-		main_port_num=`netstat -anp 2>/dev/null | grep $pid/java | grep tcp | grep $port | wc -l `
-                process_tcp_port_num=`netstat -anp 2>/dev/null | grep $pid/java | grep tcp | wc -l `
-                process_udp_port_num=`netstat -anp 2>/dev/null | grep $pid/java | grep udp | wc -l `
-        fi
-	
-        if [[ $main_port_num -eq 1 && $process_tcp_port_num -ge 2 && $process_udp_port_num -ge 2 ]]; then
-                echo "true"
-        else
-                echo "false"
-        fi
+    process_status=`curl $check_url 2>/dev/null | grep 'currentServerTime'`
+
+    if [ -z $process_status ]; then
+        echo "false"
+    else
+        echo "true"
+    fi
 }
 
 function func_start_pinpoint_collector
 {
-		version=$( func_read_properties "$KEY_VERSION" )
-        pid=`nohup mvn -f $COLLECTOR_DIR/pom.xml clean package tomcat7:run -D$IDENTIFIER -Dmaven.pinpoint.version=$version > $LOGS_DIR/$LOG_FILE 2>&1 & echo $!`
-        echo $pid > $PID_DIR/$PID_FILE
+    version=$( func_read_properties "$KEY_VERSION" )
+    pid=`nohup ${bin}/../../mvnw -f $COLLECTOR_DIR/pom.xml clean package cargo:run -D$IDENTIFIER -Dmaven.pinpoint.version=$version > $LOGS_DIR/$LOG_FILE 2>&1 & echo $!`
+    echo $pid > $PID_DIR/$PID_FILE
 
-        echo "---$COLLECTOR_IDENTIFIER initialization started. pid=$pid.---"
+    echo "---$COLLECTOR_IDENTIFIER initialization started. pid=$pid.---"g
 
-        end_count=0
-	check_running_pinpoint_collector=$( func_check_running_pinpoint_collector )
-        while [ "$check_running_pinpoint_collector" == "false" ]; do
-                wait_time=`expr $end_count \* $UNIT_TIME`
-                echo "starting $COLLECTOR_IDENTIFIER. $wait_time /$CLOSE_WAIT_TIME sec(close wait limit)."
-				
-                if [ $end_count -ge $CHECK_COUNT ]; then
-                        break
-                fi
+    end_count=0
+    check_running_pinpoint_collector=$( func_check_running_pinpoint_collector )
+    while [ "$check_running_pinpoint_collector" == "false" ]; do
+        wait_time=`expr $end_count \* $UNIT_TIME`
+        echo "starting $COLLECTOR_IDENTIFIER. $wait_time /$CLOSE_WAIT_TIME sec(close wait limit)."
 
-                sleep $UNIT_TIME
-                end_count=`expr $end_count + 1`
-				
-               check_running_pinpoint_collector=$( func_check_running_pinpoint_collector )
-        done
-
-        if [[ "$check_running_pinpoint_collector" == "true" ]]; then
-                echo "---$COLLECTOR_IDENTIFIER initialization completed. pid=$pid.---"
-                tail -f  $LOGS_DIR/$LOG_FILE
-        else
-                echo "---$COLLECTOR_IDENTIFIER initialization failed. pid=$pid.---"
-                kill -9 $pid
+        if [ $end_count -ge $CHECK_COUNT ]; then
+            break
         fi
+
+        sleep $UNIT_TIME
+        end_count=`expr $end_count + 1`
+
+        check_running_pinpoint_collector=$( func_check_running_pinpoint_collector )
+    done
+
+    if [[ "$check_running_pinpoint_collector" == "true" ]]; then
+        echo "---$COLLECTOR_IDENTIFIER initialization completed. pid=$pid.---"
+        tail -f  $LOGS_DIR/$LOG_FILE
+    else
+        echo "---$COLLECTOR_IDENTIFIER initialization failed. pid=$pid.---"
+        kill -9 $pid
+    fi
 }
 
 func_check_process

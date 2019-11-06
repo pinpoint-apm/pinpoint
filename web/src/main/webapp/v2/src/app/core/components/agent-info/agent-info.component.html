@@ -1,0 +1,84 @@
+<table class="table l-info-table">
+    <caption>Information</caption>
+    <colgroup>
+        <col width="15%">
+        <col width="35%">
+        <col width="15%">
+        <col width="35%">
+    </colgroup>
+    <tbody>
+        <tr>
+            <th>Application Name</th>
+            <td [class.l-not-same]="!isSameApplication()">{{agentData.applicationName}} <button *ngIf="!isSameApplication()" (click)="onClickNotSameBtn($event)" class="l-not-same-button"><i class="fas fa-comment-alt"></i></button></td>
+            <th>Agent Version</th>
+            <td>{{agentData.agentVersion}}</td>
+        </tr>
+        <tr>
+            <th>Agent Id</th>
+            <td>{{agentData.agentId}}</td>
+            <th>PID</th>
+            <td>{{agentData.pid}}</td>
+        </tr>
+        <tr>
+            <th>Hostname</th>
+            <td>{{agentData.hostName}}</td>
+            <th>JVM (GC Type)</th>
+            <td>{{agentData.jvmInfo?.jvmVersion}} ({{agentData.jvmInfo?.gcTypeName}})</td>
+        </tr>
+        <tr>
+            <th>IP</th>
+            <td>{{agentData.ip}}</td>
+            <th>Start Time</th>
+            <td>{{formatDate(agentData.startTimestamp)}} </td>
+        </tr>
+        <tr>
+            <th>Service Type</th>
+            <td>{{agentData.serviceType}} ({{agentData.serverMetaData?.serverInfo}}) <span class="l-category blue" (click)="toggleDetailInfo()">Detail <span class="fas fa-caret-down"></span></span></td>
+            <th>End Status</th>
+            <td>{{agentData.status?.state?.desc}} (last checked : {{formatDate(agentData.status?.eventTimestamp)}})</td>
+        </tr>
+        <tr [hidden]="isHideDetailInfo">
+            <td colspan="4" class="l-sub-table">
+                <table class="table">
+                    <caption></caption>
+                    <colgroup>
+                        <col width="20%">
+                        <col width="">
+                    </colgroup>
+                    <tbody>
+                    <tr>
+                        <td>Server Info</td>
+                            <td>{{isServiceInfoEmpty() ? "" : agentData.serverMetaData.serverInfo}}</td>
+                        </tr>
+                        <tr>
+                            <td>JVM Arguments</td>
+                            <td>
+                                <div class="l-argument-list">
+                                    <div *ngFor="let vm of agentData.serverMetaData?.vmArgs">{{vm}}</div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr class="l-server-info-list-local">
+                            <td>Services</td>
+                            <td>
+                                <ng-container *ngIf="!isServiceInfoEmpty()">
+                                    <div class="l-server-info-service-list">
+                                        <ul class="l-server-info-list">
+                                            <li *ngFor="let service of agentData.serverMetaData?.serviceInfos; let i = index" [class.active]="i === selectedServiceIndex" (click)="onSelectService(i)">{{service.serviceName}} <span class="fas fa-angle-right"></span>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                    <div class="l-server-info-lib-list">
+                                        <ul>
+                                            <li *ngFor="let lib of getSelectedServiceLib()">{{lib}}</li>
+                                        </ul>
+                                    </div>
+                                </ng-container>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </td>
+        </tr>
+    </tbody>
+</table>

@@ -17,16 +17,16 @@ package com.navercorp.pinpoint.web.scatter;
 
 import com.navercorp.pinpoint.web.vo.scatter.Dot;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public class DotGroup {
 
     private final Coordinates coordinates;
-    private final Set<Dot> dotSet = new HashSet<>();
+    private final List<Dot> dotList = new ArrayList<>();
 
     private Dot dotLeader;
 
@@ -39,7 +39,7 @@ public class DotGroup {
     }
 
     void addDot(Dot dot) {
-        dotSet.add(dot);
+        dotList.add(dot);
 
         if (dotLeader == null) {
             dotLeader = dot;
@@ -51,15 +51,15 @@ public class DotGroup {
             return;
         }
 
-        dotSet.addAll(dotGroup.getDotSet());
+        this.dotList.addAll(dotGroup.getDotList());
     }
 
-    public Set<Dot> getDotSet() {
-        return dotSet;
+    public List<Dot> getDotList() {
+        return dotList;
     }
 
     public int getDotSize() {
-        return dotSet.size();
+        return dotList.size();
     }
 
     public Dot getDotLeader() {
@@ -68,7 +68,7 @@ public class DotGroup {
 
     @Override
     public String toString() {
-        return "DotGroup{" + "coordinates=" + coordinates + ", dotSet=" + dotSet + '}';
+        return "DotGroup{" + "coordinates=" + coordinates + ", dotList=" + dotList + '}';
     }
 
 }

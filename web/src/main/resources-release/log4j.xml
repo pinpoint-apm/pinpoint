@@ -1,10 +1,27 @@
 <?xml version="1.0" encoding="UTF-8" ?>
+<!--
+  ~ Copyright 2018 NAVER Corp.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
 <!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
 <log4j:configuration xmlns:log4j='http://jakarta.apache.org/log4j/'>
 
     <appender name="console" class="org.apache.log4j.ConsoleAppender">
         <layout class="org.apache.log4j.EnhancedPatternLayout">
-            <param name="ConversionPattern" value="%d{HH:mm:ss} %-5p(%-35.35c{1.}:%-3L) %m%n"/>
+            <!-- %L(line number) option is extremely slow. -->
+            <param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss} [%-5p](%-35.35c{1.}) %m%n"/>
         </layout>
     </appender>
 
@@ -12,22 +29,22 @@
         <level value="INFO"/>
         <appender-ref ref="console"/>
     </logger>
-    
+
     <logger name="com.navercorp.pinpoint.web.filter" additivity="false">
         <level value="DEBUG"/>
         <appender-ref ref="console"/>
     </logger>
-    
+
     <logger name="com.navercorp.pinpoint.web.controller" additivity="false">
         <level value="INFO"/>
         <appender-ref ref="console"/>
     </logger>
-    
+
     <logger name="com.navercorp.pinpoint.web.applicationmap" additivity="false">
         <level value="INFO"/>
         <appender-ref ref="console"/>
     </logger>
-    
+
     <logger name="com.navercorp.pinpoint.web.calltree.server" additivity="false">
         <level value="INFO"/>
         <appender-ref ref="console"/>
@@ -37,8 +54,8 @@
         <level value="INFO"/>
         <appender-ref ref="console"/>
     </logger>
-    
-    <logger name="com.INFO.pinpoint.web.service" additivity="false">
+
+    <logger name="com.navercorp.pinpoint.web.service" additivity="false">
         <level value="DEBUG"/>
         <appender-ref ref="console"/>
     </logger>
@@ -48,18 +65,16 @@
         <appender-ref ref="console"/>
     </logger>
 
-    <logger name="com.navercorp.pinpoint.collector.handler.AgentStatHandler" additivity="false">
-        <level value="INFO"/>
-        <appender-ref ref="console"/>
-    </logger>
-
-
     <logger name="com.navercorp.pinpoint.web.mapper.ApiMetaDataMapper" additivity="false">
         <level value="INFO"/>
         <appender-ref ref="console"/>
     </logger>
 
-    <logger name="com.ibatis" additivity="false">
+    <logger name="org.apache.ibatis" additivity="false">
+        <level value="INFO"/>
+        <appender-ref ref="console"/>
+    </logger>
+    <logger name="org.mybatis" additivity="false">
         <level value="INFO"/>
         <appender-ref ref="console"/>
     </logger>
@@ -69,16 +84,7 @@
         <appender-ref ref="console"/>
     </logger>
 
-
     <logger name="org.apache.zookeeper" additivity="false">
-        <level value="INFO"/>
-        <appender-ref ref="console"/>
-    </logger>
-    <logger name="org.apache.zookeeper.ZooKeeper" additivity="false">
-        <level value="INFO"/>
-        <appender-ref ref="console"/>
-    </logger>
-    <logger name="org.apache.zookeeper.ClientCnxn" additivity="false">
         <level value="INFO"/>
         <appender-ref ref="console"/>
     </logger>
@@ -89,15 +95,15 @@
     </logger>
     <logger name="org.apache.hadoop.ipc" additivity="false">
         <level value="INFO"/>
-        <appender-ref ref="console" />
+        <appender-ref ref="console"/>
     </logger>
     <logger name="org.apache.hadoop" additivity="false">
         <level value="INFO"/>
-        <appender-ref ref="console" />
+        <appender-ref ref="console"/>
     </logger>
 
     <root>
         <level value="INFO"/>
-        <appender-ref ref="console" />
+        <appender-ref ref="console"/>
     </root>
 </log4j:configuration>

@@ -1,0 +1,19 @@
+<pp-notice-container></pp-notice-container>
+<header class="flex-container flex-row">
+    <pp-header-logo></pp-header-logo>
+    <div class="l-widget-group">
+        <pp-data-load-indicator-for-transaction-list-container></pp-data-load-indicator-for-transaction-list-container>
+    </div>
+    <pp-state-button-for-transaction-list-container></pp-state-button-for-transaction-list-container>
+    <pp-configuration-icon-container></pp-configuration-icon-container>
+</header>
+<div class="l-main-container">
+    <split [direction]="direction" (dragEnd)="onGutterResized($event)">
+        <split-area [size]="handlePosition[0]">
+            <pp-transaction-table-grid-container></pp-transaction-table-grid-container>
+        </split-area>
+        <split-area [size]="handlePosition[1]">
+            <router-outlet></router-outlet>
+        </split-area>
+    </split>
+</div>

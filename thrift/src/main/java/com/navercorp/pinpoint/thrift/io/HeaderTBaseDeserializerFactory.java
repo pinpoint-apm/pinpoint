@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.thrift.io;
 
+import com.navercorp.pinpoint.io.util.TypeLocator;
+import org.apache.thrift.TBase;
 import org.apache.thrift.protocol.TCompactProtocol;
 import org.apache.thrift.protocol.TProtocolFactory;
 
@@ -24,20 +26,24 @@ import org.apache.thrift.protocol.TProtocolFactory;
  */
 public final class HeaderTBaseDeserializerFactory implements DeserializerFactory<HeaderTBaseDeserializer> {
 
-    private static final TBaseLocator DEFAULT_TBASE_LOCATOR = new DefaultTBaseLocator();
+    private static final TypeLocator<TBase<?, ?>> DEFAULT_TBASE_LOCATOR = DefaultTBaseLocator.getTypeLocator();
 
     private static final TProtocolFactory DEFAULT_PROTOCOL_FACTORY = new TCompactProtocol.Factory();
 
     public static final HeaderTBaseDeserializerFactory DEFAULT_FACTORY = new HeaderTBaseDeserializerFactory();
 
     private final TProtocolFactory protocolFactory;
-    private TBaseLocator locator;
+    private TypeLocator<TBase<?, ?>> locator;
 
     public HeaderTBaseDeserializerFactory() {
         this(DEFAULT_PROTOCOL_FACTORY, DEFAULT_TBASE_LOCATOR);
     }
 
-    public TBaseLocator getLocator() {
+    public HeaderTBaseDeserializerFactory(TypeLocator<TBase<?, ?>> locator) {
+        this(DEFAULT_PROTOCOL_FACTORY, locator);
+    }
+
+    public TypeLocator<TBase<?, ?>> getLocator() {
         return locator;
     }
 
@@ -45,12 +51,12 @@ public final class HeaderTBaseDeserializerFactory implements DeserializerFactory
         return protocolFactory;
     }
 
-    public HeaderTBaseDeserializerFactory(TProtocolFactory protocolFactory, TBaseLocator locator) {
+    public HeaderTBaseDeserializerFactory(TProtocolFactory protocolFactory, TypeLocator<TBase<?, ?>> locator) {
         if (protocolFactory == null) {
-            throw new NullPointerException("protocolFactory must not be null");
+            throw new NullPointerException("protocolFactory");
         }
         if (locator == null) {
-            throw new NullPointerException("locator must not be null");
+            throw new NullPointerException("locator");
         }
         this.protocolFactory = protocolFactory;
         this.locator = locator;

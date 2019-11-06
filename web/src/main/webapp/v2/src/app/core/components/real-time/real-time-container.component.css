@@ -1,0 +1,91 @@
+:host {
+    display: block;
+    z-index: 30;
+}
+.l-thread-chart-wrap {
+    background: #d3dbe6;
+    border-top: 1px solid #ccd5e0;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+}
+.l-title-group {
+    display: flex;
+    flex-flow: row wrap;
+    color: #566370;
+    font-size: 14px;
+    font-weight: 600;
+    height: 34px;
+    padding: 0 10px 0 25px;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #bdc7d5;
+    cursor: ns-resize;
+    background: #f6f8fb;
+}
+.l-title-group .fas {
+    font-size: 18px;
+    color: #a8acb5;
+    cursor: pointer;
+}
+.l-title-group .l-title .fas {
+    margin: 0 9px 0 0;
+    
+}
+.l-title {
+    flex: 1;
+}
+.l-title-group .l-tool-box {
+    color: #8F9CAF;
+}
+.l-tool-box button {
+    margin-left: 10px;
+}
+.l-pin-up {
+    color: #F00 !important;
+}
+.l-chart-group-wrap {
+    display: flex;
+    flex-flow: row wrap;
+    padding: 5px 10px 5px 5px;
+    height: calc(100% - 34px);
+}
+.l-total-chart {
+    width: 277px;
+    height: 178px;
+    margin-right: 5px;
+}
+.l-agent-chart {
+    width: calc(100% - 282px);
+    height: 100%;
+    outline: none;
+}
+.l-message {
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    text-align: center;
+    background-color: rgba(226, 226, 226, 0.5);
+    z-index: 9999;
+}
+.l-message h4 {
+    padding: 80px 0 10px 0;
+    font-weight: 100;
+}
+.l-message h4 span {
+    padding: 8px 40px 6px 40px;
+    background-color: #FFF;
+}
+.l-retry button span {
+    margin-right: 6px;
+}
+.l-message.l-no-data h4 span {
+    background-color: #000;
+    color: #FFF;
+}
+.fa-chart-area {
+    margin-right: 2px;
+}

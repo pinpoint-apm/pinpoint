@@ -15,17 +15,19 @@
 
 package com.navercorp.pinpoint.web.websocket;
 
-import com.navercorp.pinpoint.bootstrap.util.StringUtils;
 import com.navercorp.pinpoint.web.util.SimpleOrderedThreadPool;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
+import java.util.Objects;
+
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public class OrderedWebSocketFlushRunnable implements Runnable, SimpleOrderedThreadPool.HashSelector {
 
@@ -42,16 +44,8 @@ public class OrderedWebSocketFlushRunnable implements Runnable, SimpleOrderedThr
     }
 
     public OrderedWebSocketFlushRunnable(WebSocketSession webSocketSession, TextMessage webSocketMessage, boolean sessionCloseOnError) {
-        if (webSocketSession == null) {
-            throw new NullPointerException("webSocketSession null.");
-        }
-        if (webSocketMessage == null) {
-            throw new NullPointerException("webSocketMessage null.");
-
-        }
-
-        this.webSocketSession = webSocketSession;
-        this.webSocketMessage = webSocketMessage;
+        this.webSocketSession = Objects.requireNonNull(webSocketSession, "webSocketSession");
+        this.webSocketMessage = Objects.requireNonNull(webSocketMessage, "webSocketMessage");
         this.sessionCloseOnError = sessionCloseOnError;
     }
 

@@ -29,7 +29,7 @@ public final class SpanEventUtils {
 
     public static boolean hasException(TSpanEvent spanEvent) {
         if (spanEvent == null) {
-            throw new NullPointerException("spanEvent must not be null");
+            throw new NullPointerException("spanEvent");
         }
         if (spanEvent.isSetExceptionInfo()) {
             return true;

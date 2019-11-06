@@ -16,14 +16,16 @@
 package com.navercorp.pinpoint.web.applicationmap;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
+import com.navercorp.pinpoint.web.applicationmap.link.Link;
+import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.vo.scatter.ApplicationScatterScanResult;
 
 import java.util.Collection;
 import java.util.List;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public class ApplicationMapWithScatterScanResult implements ApplicationMap {
 
@@ -35,18 +37,17 @@ public class ApplicationMapWithScatterScanResult implements ApplicationMap {
         this.applicationScatterScanResultList = applicationScatterScanResultList;
     }
 
-    @JsonProperty("nodeDataArray")
     @Override
     public Collection<Node> getNodes() {
         return applicationMap.getNodes();
     }
 
-    @JsonProperty("linkDataArray")
     @Override
     public Collection<Link> getLinks() {
         return applicationMap.getLinks();
     }
-    
+
+    @JsonValue
     public ApplicationMap getApplicationMap() {
         return applicationMap;
     }

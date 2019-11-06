@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.bootstrap.resolver.condition;
 
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.common.util.StringUtils;
 
 /**
  * @author HyunGil Jeong
@@ -25,9 +26,13 @@ import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
  */
 public class ClassResourceCondition implements Condition<String> {
 
+    public static final ClassResourceCondition INSTANCE = new ClassResourceCondition();
+
     private static final String CLASS_EXTENSION = ".class";
 
-    private final PLogger logger = PLoggerFactory.getLogger(this.getClass().getName()); 
+    private final PLogger logger = PLoggerFactory.getLogger(this.getClass().getName());
+
+    private ClassResourceCondition() {}
 
     private String getClassNameAsResource(String className) {
         String classNameAsResource = className.replace('.', '/');
@@ -43,7 +48,7 @@ public class ClassResourceCondition implements Condition<String> {
      */
     @Override
     public boolean check(String requiredClass) {
-        if (requiredClass == null || requiredClass.isEmpty()) {
+        if (StringUtils.isEmpty(requiredClass)) {
             return false;
         }
         String classNameAsResource = getClassNameAsResource(requiredClass);

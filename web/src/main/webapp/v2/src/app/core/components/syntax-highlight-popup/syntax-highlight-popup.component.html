@@ -1,0 +1,27 @@
+<div class="l-title-group">
+    <dl><dt>{{data.type}}</dt></dl>
+    <button (click)="onClose()"></button>
+</div>
+<div class="l-contents-group">
+    <dl class="l-sql-list" *ngIf="hasBind()">
+        <dt>Binded {{data.type}}</dt>
+        <dd>
+            <pre class="prettyprint" [ngClass]="getClassName()" [textContent]="formatting(data.bindedContents)"></pre>
+            <button class="btn active" (click)="onCopyBindedContents()">Copy</button>
+        </dd>
+    </dl>
+    <dl class="l-sql-list">
+        <dt>Original {{data.type}}</dt>
+        <dd>
+            <pre class="prettyprint" [ngClass]="getClassName()" [textContent]="formatting(data.originalContents)"></pre>
+            <button class="btn active" (click)="onCopyOriginalContents()">Copy</button>
+        </dd>
+    </dl>
+    <dl class="l-sql-list" *ngIf="hasBind()">
+        <dt>{{data.type}} Bind Value</dt>
+        <dd>
+            {{data.bindValue}}
+            <button class="btn active" (click)="onCopyBindValue()">Copy</button>
+        </dd>
+    </dl>
+</div>

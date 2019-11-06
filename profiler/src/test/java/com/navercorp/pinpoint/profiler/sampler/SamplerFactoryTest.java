@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.profiler.sampler;
 
 import com.navercorp.pinpoint.bootstrap.sampler.Sampler;
-import com.navercorp.pinpoint.profiler.sampler.SamplerFactory;
 
 import org.junit.Assert;
 

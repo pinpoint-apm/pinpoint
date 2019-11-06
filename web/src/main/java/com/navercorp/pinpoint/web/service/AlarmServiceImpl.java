@@ -27,11 +27,13 @@ import com.navercorp.pinpoint.web.alarm.vo.CheckerResult;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
 import com.navercorp.pinpoint.web.dao.AlarmDao;
 import com.navercorp.pinpoint.web.vo.UserGroup;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author minwoo.jung
  */
 @Service
+@Transactional(rollbackFor = {Exception.class})
 public class AlarmServiceImpl implements AlarmService {
 
     @Autowired
@@ -46,14 +48,17 @@ public class AlarmServiceImpl implements AlarmService {
     @Override
     public void deleteRule(Rule rule) {
         alarmDao.deleteRule(rule);
+        alarmDao.deleteCheckerResult(rule.getRuleId());
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<Rule> selectRuleByUserGroupId(String userGroupId) {
         return alarmDao.selectRuleByUserGroupId(userGroupId);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<Rule> selectRuleByApplicationId(String applicationId) {
         return alarmDao.selectRuleByApplicationId(applicationId);
     }
@@ -61,16 +66,18 @@ public class AlarmServiceImpl implements AlarmService {
     @Override
     public void updateRule(Rule rule) {
         alarmDao.updateRule(rule);
+        alarmDao.deleteCheckerResult(rule.getRuleId());
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Map<String, CheckerResult> selectBeforeCheckerResults(String applicationId) {
         Map<String, CheckerResult> checkerResults = new HashMap<>();
         List<CheckerResult> CheckerResultList = alarmDao.selectBeforeCheckerResultList(applicationId);
         
         if (!CheckerResultList.isEmpty()) {
             for (CheckerResult checkerResult : CheckerResultList) {
-                checkerResults.put(checkerResult.getCheckerName(), checkerResult);
+                checkerResults.put(checkerResult.getRuleId(), checkerResult);
             }
         }
         
@@ -79,14 +86,14 @@ public class AlarmServiceImpl implements AlarmService {
 
     @Override
     public void updateBeforeCheckerResult(CheckerResult beforeCheckerResult, AlarmChecker checker) {
-        alarmDao.deleteCheckerResult(beforeCheckerResult);
+        alarmDao.deleteCheckerResult(beforeCheckerResult.getRuleId());
         
         if (checker.isDetected()) {
             beforeCheckerResult.setDetected(true);
             beforeCheckerResult.increseCount();
             alarmDao.insertCheckerResult(beforeCheckerResult);
         } else {
-            alarmDao.insertCheckerResult(new CheckerResult(checker.getRule().getApplicationId(), checker.getRule().getCheckerName(), false, 0, 1));
+            alarmDao.insertCheckerResult(new CheckerResult(checker.getRule().getRuleId(), checker.getRule().getApplicationId(), checker.getRule().getCheckerName(), false, 0, 1));
         }
         
          

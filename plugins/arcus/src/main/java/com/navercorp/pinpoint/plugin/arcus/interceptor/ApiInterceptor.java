@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2014 NAVER Corp.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,17 +19,17 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.concurrent.Future;
 
+import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
+import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
+import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 import net.spy.memcached.MemcachedNode;
 import net.spy.memcached.ops.Operation;
 
-import com.navercorp.pinpoint.bootstrap.async.AsyncTraceIdAccessor;
-import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Scope;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.plugin.arcus.ArcusConstants;
@@ -40,7 +40,6 @@ import com.navercorp.pinpoint.plugin.arcus.ServiceCodeAccessor;
  * @author emeroad
  * @author jaehong.kim
  */
-@Scope(ArcusConstants.ARCUS_SCOPE)
 public class ApiInterceptor implements AroundInterceptor {
     protected final PLogger logger = PLoggerFactory.getLogger(getClass());
     protected final boolean isDebug = logger.isDebugEnabled();
@@ -159,13 +158,11 @@ public class ApiInterceptor implements AroundInterceptor {
             try {
                 if (isAsynchronousInvocation(target, args, result, throwable)) {
                     // set asynchronous trace
-                    this.traceContext.getAsyncId();
-                    final AsyncTraceId asyncTraceId = trace.getAsyncTraceId();
-                    recorder.recordNextAsyncId(asyncTraceId.getAsyncId());
+                    final AsyncContext asyncContext = recorder.recordNextAsyncContext();
                     // type check isAsynchronousInvocation
-                    ((AsyncTraceIdAccessor)result)._$PINPOINT$_setAsyncTraceId(asyncTraceId);
+                    ((AsyncContextAccessor)result)._$PINPOINT$_setAsyncContext(asyncContext);
                     if (isDebug) {
-                        logger.debug("Set asyncTraceId metadata {}", asyncTraceId);
+                        logger.debug("Set AsyncContext {}", asyncContext);
                     }
                 }
             } catch (Throwable t) {
@@ -191,7 +188,7 @@ public class ApiInterceptor implements AroundInterceptor {
                 logger.debug("hostAddress is null");
                 return null;
             }
-            return hostAddress + ":" + inetSocketAddress.getPort();
+            return HostAndPort.toHostAndPortString(hostAddress, inetSocketAddress.getPort());
 
         } else {
             if (logger.isDebugEnabled()) {
@@ -219,8 +216,8 @@ public class ApiInterceptor implements AroundInterceptor {
             return false;
         }
 
-        if (!(result instanceof AsyncTraceIdAccessor)) {
-            logger.debug("Invalid result object. Need accessor({}).", AsyncTraceIdAccessor.class.getName());
+        if (!(result instanceof AsyncContextAccessor)) {
+            logger.debug("Invalid result object. Need accessor({}).", AsyncContextAccessor.class.getName());
             return false;
         }
 

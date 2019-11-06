@@ -17,13 +17,13 @@
 package com.navercorp.pinpoint.bootstrap.util;
 
 import org.junit.Assert;
-
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.List;
 
 /**
  * @author emeroad
@@ -39,7 +39,6 @@ public class NetworkUtilsTest {
         logger.debug("InetAddress.getLocalHost().getHostName()={}", localHost.getHostName());
         logger.debug("InetAddress.getLocalHost().getCanonicalHostName()={}", localHost.getCanonicalHostName());
     }
-
 
     public void testGetMachineName2() {
         String machineName = NetworkUtils.getMachineName();
@@ -77,4 +76,23 @@ public class NetworkUtilsTest {
         String emptyUrl = NetworkUtils.getHostFromURL("");
         Assert.assertSame(emptyUrl, null);
     }
+    
+    @Test
+    public void hostIpTest() throws Exception {
+        List<String> hostIpList = NetworkUtils.getHostIpList();
+        for (String hostIp : hostIpList) {
+            Assert.assertFalse(NetworkUtils.isLoopbackAddress(hostIp));
+        }
+        int hostIpListSize = hostIpList.size();
+
+        List<String> hostV4IpList = NetworkUtils.getHostV4IpList();
+        for (String hostV4Ip : hostV4IpList) {
+            Assert.assertFalse(NetworkUtils.isLoopbackAddress(hostV4Ip));
+            Assert.assertTrue(NetworkUtils.validationIpV4FormatAddress(hostV4Ip));
+        }
+        int hostV4IpListSize = hostV4IpList.size();
+
+        Assert.assertTrue(hostIpListSize >= hostV4IpListSize);
+    }
+
 }

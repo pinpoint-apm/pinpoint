@@ -19,6 +19,8 @@ package com.navercorp.pinpoint.web.filter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.navercorp.pinpoint.web.filter.deserializer.RpcTypeJsonDeserializer;
 
+import java.util.Objects;
+
 /**
  * @author emeroad
  */
@@ -28,10 +30,7 @@ public class RpcType {
     private final int spanEventServiceTypeCode;
 
     public RpcType(String address, int spanEventServiceTypeCode) {
-        if (address == null) {
-            throw new NullPointerException("address must not be null");
-        }
-        this.address = address;
+        this.address = Objects.requireNonNull(address, "address");
         this.spanEventServiceTypeCode = spanEventServiceTypeCode;
     }
 

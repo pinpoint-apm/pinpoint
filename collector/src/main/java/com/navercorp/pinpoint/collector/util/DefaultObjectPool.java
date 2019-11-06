@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.collector.util;
 
+import java.util.Objects;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -76,10 +77,7 @@ public class DefaultObjectPool<T> implements ObjectPool<T> {
         private final T value;
 
         public PooledObjectWrapper(T value) {
-            if (value == null) {
-                throw new NullPointerException("value must not be null");
-            }
-            this.value = value;
+            this.value = Objects.requireNonNull(value, "value");
         }
 
         @Override

@@ -52,7 +52,7 @@ public class TBaseStreamTest {
         assertTrue(stream.size() > 0);
 
         stream.clear();
-        assertTrue(stream.size() == 0);
+        assertTrue(stream.isEmpty());
     }
 
     @Test

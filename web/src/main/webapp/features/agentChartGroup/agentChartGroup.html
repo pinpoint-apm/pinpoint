@@ -5,12 +5,12 @@
         <li><a href="#CpuLoad_{{namespace}}">CpuLoad</a></li>
     </ul>
     <div id="Heap_{{namespace}}" class="content">
-        <jvm-memory-chart-directive namespace="forHeap_{{namespace}}"></jvm-memory-chart-directive>
+		<agent-inspector-chart-directive namespace="transaction-heap"></agent-inspector-chart-directive>
     </div>
     <div id="PermGen_{{namespace}}" class="content">
-        <jvm-memory-chart-directive namespace="forNonHeap_{{namespace}}"></jvm-memory-chart-directive>
+		<agent-inspector-chart-directive namespace="transaction-non-heap"></agent-inspector-chart-directive>
     </div>
     <div id="CpuLoad_{{namespace}}" class="content">
-        <cpu-load-chart-directive namespace="forCpuLoad_{{namespace}}"></cpu-load-chart-directive>
+		<agent-inspector-chart-directive namespace="transaction-cpu-load"></agent-inspector-chart-directive>
     </div>
 </div>

@@ -48,6 +48,7 @@ CLOSE_WAIT_TIME=`expr $UNIT_TIME \* $CHECK_COUNT`
 
 PROPERTIES=`cat $CONF_DIR/$CONF_FILE 2>/dev/null`
 KEY_VERSION="quickstart.version"
+KEY_CONTEXT_PATH="quickstart.testapp.context.path"
 KEY_PORT="quickstart.testapp.port"
 
 function func_read_properties
@@ -131,7 +132,7 @@ function func_init_agent
                 exit 1
         fi
 
-        `mvn -f $AGENT_DIR/pom.xml clean package -Dmaven.pinpoint.version=$version > $LOGS_DIR/$LOG_FILE 2>/dev/null`
+        `${bin}/../../mvnw -f $AGENT_DIR/pom.xml clean package -Dmaven.pinpoint.version=$version > $LOGS_DIR/$LOG_FILE 2>&1`
 
         if [ ! -f $AGENT_BOOTSTRAP_DIR/pinpoint-bootstrap-$version.jar ]; then
                 echo "can't find agent file($AGENT_BOOTSTRAP_DIR/pinpoint-bootstrap-$version.jar)."
@@ -141,18 +142,17 @@ function func_init_agent
 
 function func_start_pinpoint_testapp
 {
-		version=$( func_read_properties "$KEY_VERSION" )
-        maven_opt=$MAVEN_OPTS
-		pinpoint_agent=$AGENT_BOOTSTRAP_DIR/pinpoint-bootstrap-$version.jar
-        pinpoint_opt="-javaagent:$pinpoint_agent -Dpinpoint.agentId=test-agent -Dpinpoint.applicationName=TESTAPP"
-        export MAVEN_OPTS=$pinpoint_opt
+        version=$( func_read_properties "$KEY_VERSION" )
 
+        context_path=$( func_read_properties "$KEY_CONTEXT_PATH" )
+        if [ "$context_path" == "/" ]; then
+                context_path=""
+        fi
         port=$( func_read_properties "$KEY_PORT" )
-        check_url="http://localhost:"$port"/getCurrentTimestamp.pinpoint"
+        check_url="http://localhost:$port$context_path/getCurrentTimestamp.pinpoint"
 
-        pid=`nohup mvn -f $TESTAPP_DIR/pom.xml clean package tomcat7:run -D$IDENTIFIER -Dmaven.pinpoint.version=$version >> $LOGS_DIR/$LOG_FILE 2>&1 & echo $!`
+        pid=`nohup ${bin}/../../mvnw -f $TESTAPP_DIR/pom.xml clean package cargo:run -D$IDENTIFIER -Dmaven.pinpoint.version=$version >> $LOGS_DIR/$LOG_FILE 2>&1 & echo $!`
         echo $pid > $PID_DIR/$PID_FILE
-        export MAVEN_OPTS=$maven_opt
 
         echo "---$TESTAPP_IDENTIFIER initialization started. pid=$pid.---"
 

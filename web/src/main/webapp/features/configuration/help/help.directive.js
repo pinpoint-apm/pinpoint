@@ -16,11 +16,11 @@
 					$element[ attr["initState"] ]();
 
 					scope.enHelpList = [
-						{ "title": "Quick start guide", "link": "https://github.com/naver/pinpoint/blob/master/quickstart/README.md" },
-						{ "title": "Technical Overview of Pinpoint", "link": "https://github.com/naver/pinpoint/wiki/Technical-Overview-Of-Pinpoint" },
-						{ "title": "Using Pinpont with Docker", "link": "http://yous.be/2015/05/05/using-pinpoint-with-docker/" },
+						{ "title": "Quick start guide", "link": "https://naver.github.io/pinpoint/quickstart.html" },
+						{ "title": "Technical Overview of Pinpoint", "link": "https://naver.github.io/pinpoint/techdetail.html" },
+						{ "title": "Using Pinpont with Docker", "link": "https://github.com/naver/pinpoint-docker" },
 						{ "title": "Notes on Jetty Plugin for Pinpoint ", "link": "https://github.com/cijung/Docs/blob/master/JettyPluginNotes.md" },
-						{ "title": "About Alarm", "link": "https://github.com/naver/pinpoint/blob/master/doc/alarm.md#alarm" }
+						{ "title": "About Alarm", "link": "https://naver.github.io/pinpoint/alarm.html#alarm" }
 					];
 					scope.koHelpList = [
 						{ "title": "Pinpoint 개발자가 작성한 Pinpoint 기술문서", "link": "http://helloworld.naver.com/helloworld/1194202" },
@@ -29,7 +29,7 @@
 						{ "title": "설치 가이드 동영상 강좌 1", "link": "https://www.youtube.com/watch?v=hrvKaEaDEGs" },
 						{ "title": "설치 가이드 동영상 강좌 2", "link": "https://www.youtube.com/watch?v=fliKPGHGXK4" },
 						{ "title": "AWS Ubuntu 14.04 설치 가이드 ", "link": "http://lky1001.tistory.com/132" },
-						{ "title": "Alarm 가이드", "link": "https://github.com/naver/pinpoint/blob/master/doc/alarm.md#alarm-1" }
+						{ "title": "Alarm 가이드", "link": "https://naver.github.io/pinpoint/alarm.html#alarm-1" }
 					];
 
 					scope.$on( "configuration.selectMenu", function( event, selectedName ) {

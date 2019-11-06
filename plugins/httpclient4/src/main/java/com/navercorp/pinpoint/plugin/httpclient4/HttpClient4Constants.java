@@ -33,7 +33,7 @@ public final class HttpClient4Constants {
     public static final ServiceType HTTP_CLIENT_4 = ServiceTypeFactory.of(9052, "HTTP_CLIENT_4", RECORD_STATISTICS);
     public static final ServiceType HTTP_CLIENT_4_INTERNAL = ServiceTypeFactory.of(9053, "HTTP_CLIENT_4_INTERNAL", "HTTP_CLIENT_4");
 
-    public static final String METADATA_ASYNC_TRACE_ID = "asyncTraceId";
+    public static final String METADATA_ASYNC_CONTEXT = "asyncContext";
     public static final String FIELD_REQUEST_PRODUCER = "requestProducer";
     public static final String FIELD_RESULT_FUTURE = "resultFuture";
     

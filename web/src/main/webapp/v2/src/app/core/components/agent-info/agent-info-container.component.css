@@ -1,0 +1,25 @@
+:host {
+    width: calc(100% - 20px);
+    display: block;
+    margin: 20px 10px 10px;
+    border: 1px solid #000;
+    position: relative;
+}
+
+.l-title-group {
+    height: 34px;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 0 20px;
+    color: #333;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #f6f8fb;
+}
+.l-reload-btn { 
+    color: #f06c6b;
+    float: right;
+}

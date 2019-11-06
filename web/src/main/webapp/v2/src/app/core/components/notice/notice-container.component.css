@@ -1,0 +1,22 @@
+:host {
+    display: none;
+    position: relative;
+    padding: 8px 10px;
+    background-color: #f3e0df;
+    color: #c04e3f;
+}
+
+.l-notice-message {
+    font-size: 13px;
+}
+
+.l-notice-message > .fas {
+    margin-right: 4px;
+}
+
+.l-close-notice-area-button {
+    position: absolute;
+    top: 7px;
+    right: 15px;
+    font-size: 15px;
+}

@@ -23,14 +23,7 @@ import org.jboss.netty.buffer.ChannelBuffers;
  * @author emeroad
  */
 public class ResponsePacket extends BasicPacket {
-    private int requestId;
-
-    public ResponsePacket() {
-    }
-
-    public ResponsePacket(byte[] payload) {
-        super(payload);
-    }
+    private final int requestId;
 
     public ResponsePacket(int requestId, byte[] payload) {
         super(payload);
@@ -39,10 +32,6 @@ public class ResponsePacket extends BasicPacket {
 
     public int getRequestId() {
         return requestId;
-    }
-
-    public void setRequestId(int requestId) {
-        this.requestId = requestId;
     }
 
     @Override
@@ -74,9 +63,7 @@ public class ResponsePacket extends BasicPacket {
         if (payload == null) {
             return null;
         }
-        ResponsePacket responsePacket = new ResponsePacket(payload.array());
-        responsePacket.setRequestId(messageId);
-
+        ResponsePacket responsePacket = new ResponsePacket(messageId, payload.array());
         return responsePacket;
 
     }

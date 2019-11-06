@@ -1,0 +1,51 @@
+:host {
+    display: block;
+    width: 100%;
+}
+
+:host::after {
+    content: '';
+    width: 0;
+    height: 0;
+    position: absolute;
+    border-bottom: 7px solid #f6f8fb;
+    border-right: 7px solid transparent;
+    border-left: 7px solid transparent;
+    bottom: 100%;
+    left: 0;
+    right: 0;
+    margin: auto;
+}
+
+.l-popup-title {
+    background-color: #f6f8fb;
+    border-bottom: 1px solid #e5e8f0;
+    padding:10px;
+    display: flex;
+    justify-content: space-evenly;
+    font-weight: 400;
+}
+
+.l-popup-title span {
+    display: inline-block;
+}
+
+.l-issue-message {
+    padding: 12px 15px 8px 15px;
+    font-size: 13px;
+}
+
+.l-cause-list {
+    padding: 0 12px 12px;
+    font-size: 13px;
+    border-bottom: 1px solid #e5e8f0;
+}
+
+.l-cause-list-item, .l-solution-list-item {
+    padding: 3px;
+}
+
+.l-solution-list {
+    padding: 12px;
+    font-size: 13px;
+}

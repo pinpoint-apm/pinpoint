@@ -7,184 +7,98 @@
 	 * @name agentChartGroupDirective
 	 * @class
 	 */	
-	pinpointApp.constant('agentChartGroupConfig', {
+	pinpointApp.constant("agentChartGroupConfig", {
 	    POINTS_TIMESTAMP: 0,
 	    POINTS_MIN: 1,
 	    POINTS_MAX: 2,
 	    POINTS_AVG: 3
 	});
 	
-	pinpointApp.directive('agentChartGroupDirective', [ 'agentChartGroupConfig', '$timeout', 'AgentDaoService', 'AnalyticsService', 
-	    function (cfg, $timeout, AgentDaoService, analyticsService) {
+	pinpointApp.directive("agentChartGroupDirective", [ "agentChartGroupConfig", "$timeout", "AgentAjaxService", "CPULoadChartDaoService", "MemoryChartDaoService", "AnalyticsService",
+	    function (cfg, $timeout, AgentAjaxService, CPULoadChartDaoService, MemoryChartDaoService, AnalyticsService) {
 	    return {
-	        restrict: 'EA',
+	        restrict: "EA",
 	        replace: true,
-	        templateUrl: 'features/agentChartGroup/agentChartGroup.html?v=' + G_BUILD_TIME,
+	        templateUrl: "features/agentChartGroup/agentChartGroup.html?v=" + G_BUILD_TIME,
 	        scope: {
-	            namespace: '@'
+	            namespace: "@"
 	        },
-	        link: function postLink(scope, element, attrs) {
-	
-	            // define private variables
-	            var htChartCache, htLastAgentStat;
-	
-	            // define private variables of methods
-	            var initialize, showHeapChart, showPermGenChart, showCpuLoadChart, showCursorAt, resize;
-	
-	            // bootstrap
+	        link: function postLink( scope, element ) {
 	            scope.showChartGroup = false;
 	
-	            /**
-	             * initialize
-	             * @param query
-	             */
-	            initialize = function (query) {
-	                htChartCache = {
-	                    'Heap': false,
-	                    'PermGen': false,
-	                    'CpuLoad': false
-	                };
-	                htLastAgentStat = null;
+	            function initialize(query) {
+
 	                scope.showChartGroup = true;
 	
 	                scope.$digest();
-	
-	                AgentDaoService.getAgentStat(query, function (err, result) {
-	                    if (err) {
-	                        console.log('error', err);
-	                        return;
-	                    }
-	                    if (htChartCache.Heap === false) {
-	                        showHeapChart(result);
-	                    }
-	                    htLastAgentStat = result;
-	                });
+
+					AgentAjaxService.getJVMChartData(query, function (result) {
+						showHeapChart(result);
+						showPermGenChart(result);
+					});
+					AgentAjaxService.getCpuLoadChartData( query, function (result) {
+						showCpuLoadChart(result);
+					});
 	                element.tabs({
 	                    activate: function (event, ui) {
 	                        var activatedTabText = ui.newTab.text();
-	                        if (activatedTabText == 'Heap') {
-	                        	analyticsService.send(analyticsService.CONST.MIXEDVIEW, analyticsService.CONST.CLK_HEAP);
-	                            if (htChartCache.Heap === false) {
-	                                showHeapChart(htLastAgentStat);
-	                            } else {
-	                                scope.$broadcast('jvmMemoryChartDirective.resize.forHeap_' + scope.namespace);
-	                            }
-	                            return;
-	                        } else if (activatedTabText == 'PermGen') {
-	                        	analyticsService.send(analyticsService.CONST.MIXEDVIEW, analyticsService.CONST.CLK_PERM_GEN);
-	                            if (htChartCache.PermGen === false) {
-	                                showPermGenChart(htLastAgentStat);
-	                            } else {
-	                                scope.$broadcast('jvmMemoryChartDirective.resize.forNonHeap_' + scope.namespace);
-	                            }
-	                            return;
-	                        } else if (activatedTabText == 'CpuLoad') {
-	                        	analyticsService.send(analyticsService.CONST.MIXEDVIEW, analyticsService.CONST.CLK_CPU_LOAD);
-	                            if (htChartCache.CpuLoad === false) {
-	                                showCpuLoadChart(htLastAgentStat);
-	                            } else {
-	                                scope.$broadcast('cpuLoadChartDirective.resize.forCpuLoad_' + scope.namespace);
-	                            }
-	                            return;
+	                        if (activatedTabText === "Heap") {
+								AnalyticsService.send(AnalyticsService.CONST.MIXEDVIEW, AnalyticsService.CONST.CLK_HEAP);
+								scope.$broadcast("agentInspectorChartDirective.resize.transaction-heap" );
+	                        } else if (activatedTabText === "PermGen") {
+								AnalyticsService.send(AnalyticsService.CONST.MIXEDVIEW, AnalyticsService.CONST.CLK_PERM_GEN);
+								scope.$broadcast("agentInspectorChartDirective.resize.transaction-non-heap" );
+	                        } else if (activatedTabText === "CpuLoad") {
+								AnalyticsService.send(AnalyticsService.CONST.MIXEDVIEW, AnalyticsService.CONST.CLK_CPU_LOAD);
+								scope.$broadcast("agentInspectorChartDirective.resize.transaction-cpu-load" );
 	                        }
 	                    }
 	                });
-	                element.tabs('paging');
-	            };
-	
-	
-	            /**
-	             * show heap chart
-	             * @param agentStat
-	             */
-	            showHeapChart = function (agentStat) {
-	                htChartCache.Heap = true;
-	                var heap = { id: 'heap', title: 'Heap', span: 'span12', line: [
-	                    { id: 'JVM_MEMORY_HEAP_USED', key: 'Used', values: [], isFgc: false },
-	                    { id: 'JVM_MEMORY_HEAP_MAX', key: 'Max', values: [], isFgc: false },
-	                    { id: 'fgc', key: 'FGC', values: [], isFgc: true }
-	                ]};
-	
-	                scope.$broadcast('jvmMemoryChartDirective.initAndRenderWithData.forHeap_' + scope.namespace, AgentDaoService.parseMemoryChartDataForAmcharts(heap, agentStat), '100%', '100%');
-	            };
-	
-	            /**
-	             * show perm gen chart
-	             * @param agentStat
-	             */
-	            showPermGenChart = function (agentStat) {
-	                htChartCache.PermGen = true;
-	                var nonheap = { id: 'nonheap', title: 'PermGen', span: 'span12', line: [
-	                    { id: 'JVM_MEMORY_NON_HEAP_USED', key: 'Used', values: [], isFgc: false },
-	                    { id: 'JVM_MEMORY_NON_HEAP_MAX', key: 'Max', values: [], isFgc: false },
-	                    { id: 'fgc', key: 'FGC', values: [], isFgc: true }
-	                ]};
-	
-	                scope.$broadcast('jvmMemoryChartDirective.initAndRenderWithData.forNonHeap_' + scope.namespace, AgentDaoService.parseMemoryChartDataForAmcharts(nonheap, agentStat), '100%', '100%');
-	            };
-	            
-	            /**
-	             * show cpu load chart
-	             * @param agentStat
-	             */
-	            showCpuLoadChart = function (agentStat) {
-	                htChartCache.CpuLoad = true;
-	                var cpuLoad = { 
-	                    id: 'cpuLoad', title: 'JVM/System Cpu Usage', 
-	                    span: 'span12', isAvailable: false
-	                };
-	                scope.$broadcast('cpuLoadChartDirective.initAndRenderWithData.forCpuLoad_' + scope.namespace, AgentDaoService.parseCpuLoadChartDataForAmcharts(cpuLoad, agentStat), '100%', '100%');
-	            };
-	
-	            /**
-	             * show cursor at
-	             * @param category
-	             */
-	            showCursorAt = function (category) {
-	                if (htChartCache.Heap) {
-	                    scope.$broadcast('jvmMemoryChartDirective.showCursorAt.forHeap_' + scope.namespace, category);
-	                }
-	                if (htChartCache.PermGen) {
-	                    scope.$broadcast('jvmMemoryChartDirective.showCursorAt.forNonHeap_' + scope.namespace, category);
-	                }
-	                if (htChartCache.CpuLoad) {
-	                    scope.$broadcast('cpuLoadChartDirective.showCursorAt.forCpuLoad_' + scope.namespace, category);
-	                }
-	            };
-	
-	            /**
-	             * resize
-	             */
-	            resize = function () {
-	                if (htChartCache.Heap) {
-	                    scope.$broadcast('jvmMemoryChartDirective.resize.forHeap_' + scope.namespace);
-	                }
-	                if (htChartCache.PermGen) {
-	                    scope.$broadcast('jvmMemoryChartDirective.resize.forNonHeap_' + scope.namespace);
-	                }
-	                if (htChartCache.CpuLoad) {
-	                    scope.$broadcast('cpuLoadChartDirective.resize.forCpuLoad_' + scope.namespace);
-	                }
-	            };
-	
-	            /**
-	             * scope event on agentChartGroup.initialize.namespace
-	             */
-	            scope.$on('agentChartGroupDirective.initialize.' + scope.namespace, function (event, query) {
+	                element.tabs("paging");
+	            }
+
+				function showHeapChart( chartData ) {
+					var refinedChartData = MemoryChartDaoService.parseHeapData( chartData );
+					scope.$broadcast(
+						"agentInspectorChartDirective.initAndRenderWithData.transaction-heap",
+						refinedChartData,
+						MemoryChartDaoService.getChartOptions( refinedChartData ),
+						"100%",
+						"100%"
+					);
+				}
+				function showPermGenChart( chartData ) {
+					var refinedChartData2 = MemoryChartDaoService.parseNonHeapData( chartData );
+					scope.$broadcast(
+						"agentInspectorChartDirective.initAndRenderWithData.transaction-non-heap",
+						refinedChartData2,
+						MemoryChartDaoService.getChartOptions( refinedChartData2 ),
+						"100%",
+						"100%"
+					);
+				}
+				function showCpuLoadChart( chartData ) {
+					var refinedChartData = CPULoadChartDaoService.parseData( chartData );
+					scope.$broadcast(
+						"agentInspectorChartDirective.initAndRenderWithData.transaction-cpu-load",
+						refinedChartData,
+						CPULoadChartDaoService.getChartOptions( refinedChartData ),
+						"100%",
+						"100%"
+					);
+				}
+	            function resize() {
+					scope.$broadcast( "agentInspectorChartDirective.resize.transaction-heap" );
+					scope.$broadcast( "agentInspectorChartDirective.resize.transaction-non-heap" );
+					scope.$broadcast( "agentInspectorChartDirective.resize.transaction-cpu-load" );
+	            }
+	            scope.$on("agentChartGroupDirective.initialize." + scope.namespace, function (event, query) {
 	                initialize(query);
 	            });
-	
-	            /**
-	             * scope event on agentChartGroup.showCursorAt.namespace
-	             */
-	            scope.$on('agentChartGroupDirective.showCursorAt.' + scope.namespace, function (event, category) {
-	                showCursorAt(category);
+	            scope.$on("agentChartGroupDirective.showCursorAt." + scope.namespace, function (event, category) {
+					scope.$broadcast( "agentInspectorChartDirective.showCursorAt", "", category );
 	            });
-	
-	            /**
-	             * scope event on agentChartGroup.resize.namespace
-	             */
-	            scope.$on('agentChartGroupDirective.resize.' + scope.namespace, function (event) {
+	            scope.$on("agentChartGroupDirective.resize." + scope.namespace, function () {
 	                resize();
 	            });
 	        }

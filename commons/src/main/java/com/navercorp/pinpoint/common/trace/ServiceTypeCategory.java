@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2014 NAVER Corp.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,9 @@
  * limitations under the License.
  */
 package com.navercorp.pinpoint.common.trace;
+
+import java.util.EnumSet;
+import java.util.Set;
 
 /**
  * @author Jongho Moon <jongho.moon@navercorp.com>
@@ -32,6 +35,8 @@ public enum ServiceTypeCategory {
     private final short maxCode;
     private HistogramSchema histogramSchema;
 
+    private static final Set<ServiceTypeCategory> SERVICE_TYPE_CATEGORIES = EnumSet.allOf(ServiceTypeCategory.class);
+
     ServiceTypeCategory(short minCode, short maxCode) {
         this(minCode, maxCode, BaseHistogramSchema.NORMAL_SCHEMA);
     }
@@ -40,7 +45,7 @@ public enum ServiceTypeCategory {
         this.minCode = minCode;
         this.maxCode = maxCode;
         if (histogramSchema == null) {
-            throw new NullPointerException("histogramSchema must not be null");
+            throw new NullPointerException("histogramSchema");
         }
         this.histogramSchema = histogramSchema;
     }
@@ -58,7 +63,7 @@ public enum ServiceTypeCategory {
     }
 
     public static ServiceTypeCategory findCategory(short code) {
-        for (ServiceTypeCategory serviceTypeCategory : ServiceTypeCategory.values()) {
+        for (ServiceTypeCategory serviceTypeCategory : SERVICE_TYPE_CATEGORIES) {
             if (serviceTypeCategory.contains(code)) {
                 return serviceTypeCategory;
             }

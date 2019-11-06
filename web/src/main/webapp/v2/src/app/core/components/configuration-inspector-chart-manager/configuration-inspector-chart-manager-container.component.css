@@ -1,0 +1,23 @@
+:host {
+    height: 100%;
+    display: flex;
+}
+
+.l-inner-wrapper {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    padding-top: 20px;
+}
+.l-content-item {
+    flex:1;
+    margin-right: 20px;
+}
+
+.l-content-item2 {
+    flex:2;
+}
+.l-title {
+    margin: 4px 6px 0px 0px;
+    font-size: 18px;
+}

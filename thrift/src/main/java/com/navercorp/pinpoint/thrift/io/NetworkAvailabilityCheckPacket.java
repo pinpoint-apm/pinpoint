@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.thrift.io;
 
-import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 import org.apache.thrift.TFieldIdEnum;
 import org.apache.thrift.protocol.TProtocol;
@@ -34,7 +33,7 @@ public class NetworkAvailabilityCheckPacket implements org.apache.thrift.TBase<N
 
     private static byte[] getBytes(String str) {
         if (str == null) {
-            throw new NullPointerException("str must not be null");
+            throw new NullPointerException("str");
         }
         try {
             return str.getBytes("UTF8");
@@ -71,7 +70,7 @@ public class NetworkAvailabilityCheckPacket implements org.apache.thrift.TBase<N
     }
 
     @Override
-    public TBase deepCopy() {
+    public NetworkAvailabilityCheckPacket deepCopy() {
         return null;
     }
 

@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,19 +16,23 @@
 
 package com.navercorp.pinpoint.collector.dao.hbase;
 
-import static com.navercorp.pinpoint.common.hbase.HBaseTables.*;
-
 import com.navercorp.pinpoint.collector.dao.MapStatisticsCallerDao;
-import com.navercorp.pinpoint.collector.dao.hbase.statistics.*;
-import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
-import com.navercorp.pinpoint.collector.util.ConcurrentCounterMap;
+import com.navercorp.pinpoint.collector.dao.hbase.statistics.BulkIncrementer;
+import com.navercorp.pinpoint.collector.dao.hbase.statistics.CallRowKey;
+import com.navercorp.pinpoint.collector.dao.hbase.statistics.CalleeColumnName;
+import com.navercorp.pinpoint.collector.dao.hbase.statistics.ColumnName;
+import com.navercorp.pinpoint.collector.dao.hbase.statistics.RowKey;
+import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
+import com.navercorp.pinpoint.common.hbase.TableDescriptor;
+import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.common.util.ApplicationMapStatisticsUtils;
-import com.navercorp.pinpoint.common.util.TimeSlot;
+import com.navercorp.pinpoint.common.profiler.util.ApplicationMapStatisticsUtils;
+import com.navercorp.pinpoint.common.server.util.TimeSlot;
 
 import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Increment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,6 +48,7 @@ import java.util.Map;
  * 
  * @author netspider
  * @author emeroad
+ * @author HyunGil Jeong
  */
 @Repository
 public class HbaseMapStatisticsCallerDao implements MapStatisticsCallerDao {
@@ -57,19 +62,20 @@ public class HbaseMapStatisticsCallerDao implements MapStatisticsCallerDao {
     private AcceptedTimeService acceptedTimeService;
 
     @Autowired
-    @Qualifier("callerMerge")
-    private RowKeyMerge rowKeyMerge;
+    private TimeSlot timeSlot;
+
+    @Autowired
+    @Qualifier("callerBulkIncrementer")
+    private BulkIncrementer bulkIncrementer;
 
     @Autowired
     @Qualifier("statisticsCallerRowKeyDistributor")
     private RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
 
-    @Autowired
-    private TimeSlot timeSlot;
-
     private final boolean useBulk;
 
-    private final ConcurrentCounterMap<RowInfo> counter = new ConcurrentCounterMap<>();
+    @Autowired
+    private TableDescriptor<HbaseColumnFamily.CalleeStatMap> descriptor;
 
     public HbaseMapStatisticsCallerDao() {
         this(true);
@@ -82,10 +88,10 @@ public class HbaseMapStatisticsCallerDao implements MapStatisticsCallerDao {
     @Override
     public void update(String callerApplicationName, ServiceType callerServiceType, String callerAgentid, String calleeApplicationName, ServiceType calleeServiceType, String calleeHost, int elapsed, boolean isError) {
         if (callerApplicationName == null) {
-            throw new NullPointerException("callerApplicationName must not be null");
+            throw new NullPointerException("callerApplicationName");
         }
         if (calleeApplicationName == null) {
-            throw new NullPointerException("calleeApplicationName must not be null");
+            throw new NullPointerException("calleeApplicationName");
         }
 
         if (logger.isDebugEnabled()) {
@@ -104,8 +110,8 @@ public class HbaseMapStatisticsCallerDao implements MapStatisticsCallerDao {
         final short calleeSlotNumber = ApplicationMapStatisticsUtils.getSlotNumber(calleeServiceType, elapsed, isError);
         final ColumnName calleeColumnName = new CalleeColumnName(callerAgentid, calleeServiceType.getCode(), calleeApplicationName, calleeHost, calleeSlotNumber);
         if (useBulk) {
-            RowInfo rowInfo = new DefaultRowInfo(callerRowKey, calleeColumnName);
-            this.counter.increment(rowInfo, 1L);
+            TableName mapStatisticsCalleeTableName = descriptor.getTableName();
+            bulkIncrementer.increment(mapStatisticsCalleeTableName, callerRowKey, calleeColumnName);
         } else {
             final byte[] rowKey = getDistributedKey(callerRowKey.getRowKey());
             // column name is the name of caller app.
@@ -116,12 +122,13 @@ public class HbaseMapStatisticsCallerDao implements MapStatisticsCallerDao {
 
     private void increment(byte[] rowKey, byte[] columnName, long increment) {
         if (rowKey == null) {
-            throw new NullPointerException("rowKey must not be null");
+            throw new NullPointerException("rowKey");
         }
         if (columnName == null) {
-            throw new NullPointerException("columnName must not be null");
+            throw new NullPointerException("columnName");
         }
-        hbaseTemplate.incrementColumnValue(MAP_STATISTICS_CALLEE_VER2, rowKey, MAP_STATISTICS_CALLEE_VER2_CF_COUNTER, columnName, increment);
+        TableName mapStatisticsCalleeTableName = descriptor.getTableName();
+        hbaseTemplate.incrementColumnValue(mapStatisticsCalleeTableName, rowKey, descriptor.getColumnFamilyName(), columnName, increment);
     }
 
     @Override
@@ -130,17 +137,21 @@ public class HbaseMapStatisticsCallerDao implements MapStatisticsCallerDao {
             throw new IllegalStateException();
         }
         // update statistics by rowkey and column for now. need to update it by rowkey later.
-        Map<RowInfo,ConcurrentCounterMap.LongAdder> remove = this.counter.remove();
-        List<Increment> merge = rowKeyMerge.createBulkIncrement(remove, rowKeyDistributorByHashPrefix);
-        if (!merge.isEmpty()) {
+        Map<TableName, List<Increment>> incrementMap = bulkIncrementer.getIncrements(rowKeyDistributorByHashPrefix);
+
+        for (Map.Entry<TableName, List<Increment>> e : incrementMap.entrySet()) {
+            TableName tableName = e.getKey();
+            List<Increment> increments = e.getValue();
             if (logger.isDebugEnabled()) {
-                logger.debug("flush {} Increment:{}", this.getClass().getSimpleName(), merge.size());
+                logger.debug("flush {} to [{}] Increment:{}", this.getClass().getSimpleName(), tableName.getNameAsString(), increments.size());
             }
-            hbaseTemplate.increment(MAP_STATISTICS_CALLEE_VER2, merge);
+            hbaseTemplate.increment(tableName, increments);
         }
     }
 
     private byte[] getDistributedKey(byte[] rowKey) {
         return rowKeyDistributorByHashPrefix.getDistributedKey(rowKey);
     }
+
+
 }

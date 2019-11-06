@@ -19,79 +19,121 @@ package com.navercorp.pinpoint.bootstrap.plugin.jdbc.bindvalue;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.sql.Time;
-import java.sql.Timestamp;
 
-import com.navercorp.pinpoint.bootstrap.plugin.jdbc.ArrayUtils;
-import com.navercorp.pinpoint.bootstrap.util.StringUtils;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.SqlModule;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
+import com.navercorp.pinpoint.common.util.StringUtils;
 
 /**
  * @author emeroad
  */
 public class ObjectConverter implements Converter {
+    private static final boolean SQL_MODULE;
+    private static final Class<?> SQL_DATE;
+    private static final Class<?> SQL_TIME;
+    private static final Class<?> SQL_TIMESTAMP;
+    private static final Class<?> SQL_CLOB;
+    private static final Class<?> SQL_BLOB;
+
+    static {
+        SQL_MODULE = SqlModule.isSqlModuleEnable();
+        SQL_DATE = SqlModule.getSqlDate();
+        SQL_TIME = SqlModule.getSqlTime();
+        SQL_TIMESTAMP = SqlModule.getSqlTimestamp();
+        SQL_CLOB = SqlModule.getSqlClob();
+        SQL_BLOB = SqlModule.getSqlBlob();
+    }
+
+
     @Override
     public String convert(Object[] args) {
         if (args == null) {
             return "null";
         }
         if (args.length == 2) {
-            Object param = args[1];
+            final Object param = args[1];
             return getParameter(param);
-
-        } else if (args.length == 3) {
-            Object param = args[1];
+        }
+        if (args.length == 3) {
+            final Object param = args[1];
             return getParameter(param);
         }
         return "error";
     }
 
     private String getParameter(Object param) {
-        if(param == null) {
+        if (param == null) {
             return "null";
-        } else {
-            if (param instanceof Byte) {
-                return dropToString(param);
-            } else if (param instanceof String) {
-                return StringUtils.drop((String) param);
-            } else if (param instanceof BigDecimal) {
-                return dropToString(param);
-            } else if (param instanceof Short) {
-                return dropToString(param);
-            } else if (param instanceof Integer) {
-                return dropToString(param);
-            } else if (param instanceof Long) {
-                return dropToString(param);
-            } else if (param instanceof Float) {
-                return dropToString(param);
-            } else if (param instanceof Double) {
-                return dropToString(param);
-            } else if (param instanceof BigInteger) {
-                return dropToString(param);
-            } else if (param instanceof java.sql.Date) {
-                return dropToString(param);
-            } else if (param instanceof Time) {
-                return dropToString(param);
-            } else if (param instanceof Timestamp) {
-                return dropToString(param);
-            } else if (param instanceof Boolean) {
-                return dropToString(param);
-            } else if (param instanceof byte[]) {
-                return ArrayUtils.dropToString((byte[]) param);
-            } else if (param instanceof InputStream) {
+        }
+        if (param instanceof String) {
+            return abbreviate(param);
+        }
+        if (param instanceof Boolean) {
+            return bypass(param);
+        }
+        if (param instanceof Integer) {
+            return bypass(param);
+        }
+        if (param instanceof Long) {
+            return bypass(param);
+        }
+        if (param instanceof Short) {
+            return bypass(param);
+        }
+        if (param instanceof Float) {
+            return bypass(param);
+        }
+        if (param instanceof Double) {
+            return bypass(param);
+        }
+        if (param instanceof Byte) {
+            return bypass(param);
+        }
+
+        if (param instanceof byte[]) {
+            return ArrayUtils.abbreviate((byte[]) param);
+        }
+        if (param instanceof InputStream) {
+            return getClassName(param);
+        }
+
+        if (param instanceof BigDecimal) {
+            return bypass(param);
+        }
+        if (param instanceof BigInteger) {
+            return bypass(param);
+        }
+
+
+
+        if (SQL_MODULE) {
+            if (SQL_DATE.isInstance(param)) {
+                return bypass(param);
+            }
+            if (SQL_TIME.isInstance(param)) {
+                return bypass(param);
+            }
+            if (SQL_TIMESTAMP.isInstance(param)) {
+                return bypass(param);
+            }
+            if (SQL_BLOB.isInstance(param)) {
                 return getClassName(param);
-            } else if (param instanceof java.sql.Blob) {
-                return getClassName(param);
-            } else if (param instanceof java.sql.Clob) {
-                return getClassName(param);
-            } else {
+            }
+            if (SQL_CLOB.isInstance(param)) {
                 return getClassName(param);
             }
         }
+        return getClassName(param);
     }
 
-    private String dropToString(Object param) {
-        return StringUtils.drop(param.toString());
+    private String abbreviate(Object param) {
+        return StringUtils.abbreviate(param.toString());
     }
+
+    private String bypass(Object param) {
+        return param.toString();
+    }
+
 
     private String getClassName(Object param) {
         return param.getClass().getName();

@@ -1,0 +1,19 @@
+<div class="l-title-group">
+    <h4>Data Source</h4>
+    <button class="fas fa-question-circle" (click)="onShowHelp($event)"></button>
+</div>
+<div class="l-chart-area-wrapper">
+    <pp-loading [showLoading]="isActiveLayer('loading')" [zIndex]="10"></pp-loading>
+    <pp-retry [showRetry]="isActiveLayer('retry')" [message]="retryMessage" (outRetry)="onRetry()"></pp-retry>
+    <pp-inspector-chart
+        [ngClass]="chartVisibility"
+        [chartConfig]="chartConfig"
+        (outRendered)="onRendered()">
+    </pp-inspector-chart>
+</div>
+<ng-container *ngIf="chartConfig && !isDataEmpty">
+    <pp-application-data-source-chart-sourcelist
+        [data]="sourceForList"
+        (outSourceDataSelected)="onSourceDataSelected($event)">
+    </pp-application-data-source-chart-sourcelist>
+</ng-container>

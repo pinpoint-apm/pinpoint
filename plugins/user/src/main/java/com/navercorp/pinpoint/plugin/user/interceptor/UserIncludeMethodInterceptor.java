@@ -54,7 +54,7 @@ public class UserIncludeMethodInterceptor implements AroundInterceptor {
         Trace trace = traceContext.currentRawTraceObject();
         if (trace == null) {
             if(isDebug) {
-                logger.debug("Not found trace. Crate user include trace.");
+                logger.debug("Not found trace. Create user include trace.");
             }
 
             // create user include trace for standalone entry point.

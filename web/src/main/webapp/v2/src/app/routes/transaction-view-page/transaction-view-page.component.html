@@ -1,0 +1,18 @@
+<pp-notice-container></pp-notice-container>
+<header class="flex-container flex-row">
+    <pp-header-logo></pp-header-logo>
+    <pp-configuration-icon-container></pp-configuration-icon-container>
+</header>
+<div class="l-main-container">
+    <div class="l-component-wrapper">
+        <pp-transaction-short-info-container></pp-transaction-short-info-container>
+    </div>
+    <split direction="vertical" style="flex-direction: column" ppSplitter>
+        <split-area [size]="splitSize[0]">
+            <router-outlet></router-outlet>        
+        </split-area>
+        <split-area [size]="splitSize[1]">
+            <pp-transaction-view-bottom-contents-container></pp-transaction-view-bottom-contents-container>
+        </split-area>
+    </split>
+</div>

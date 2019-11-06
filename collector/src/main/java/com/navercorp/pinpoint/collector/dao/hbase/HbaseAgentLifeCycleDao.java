@@ -16,19 +16,22 @@
 
 package com.navercorp.pinpoint.collector.dao.hbase;
 
+import com.navercorp.pinpoint.collector.dao.AgentLifeCycleDao;
+import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
+import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
+import com.navercorp.pinpoint.common.hbase.HbaseTableConstatns;
+import com.navercorp.pinpoint.common.hbase.TableDescriptor;
+import com.navercorp.pinpoint.common.hbase.ValueMapper;
+import com.navercorp.pinpoint.common.server.bo.AgentLifeCycleBo;
+import com.navercorp.pinpoint.common.util.BytesUtils;
+import com.navercorp.pinpoint.common.util.TimeUtils;
+
+import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-
-import com.navercorp.pinpoint.collector.dao.AgentLifeCycleDao;
-import com.navercorp.pinpoint.collector.dao.hbase.mapper.AgentLifeCycleValueMapper;
-import com.navercorp.pinpoint.common.server.bo.AgentLifeCycleBo;
-import com.navercorp.pinpoint.common.hbase.HBaseTables;
-import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
-import com.navercorp.pinpoint.common.util.BytesUtils;
-import com.navercorp.pinpoint.common.util.TimeUtils;
 
 /**
  * @author HyunGil Jeong
@@ -42,12 +45,15 @@ public class HbaseAgentLifeCycleDao implements AgentLifeCycleDao {
     private HbaseOperations2 hbaseTemplate;
 
     @Autowired
-    private AgentLifeCycleValueMapper valueMapper;
+    private ValueMapper<AgentLifeCycleBo> valueMapper;
+
+    @Autowired
+    private TableDescriptor<HbaseColumnFamily.AgentLifeCycleStatus> descriptor;
 
     @Override
     public void insert(AgentLifeCycleBo agentLifeCycleBo) {
         if (agentLifeCycleBo == null) {
-            throw new NullPointerException("agentLifeCycleBo must not be null");
+            throw new NullPointerException("agentLifeCycleBo");
         }
 
         if (logger.isDebugEnabled()) {
@@ -60,7 +66,8 @@ public class HbaseAgentLifeCycleDao implements AgentLifeCycleDao {
 
         byte[] rowKey = createRowKey(agentId, startTimestamp, eventIdentifier);
 
-        this.hbaseTemplate.put(HBaseTables.AGENT_LIFECYCLE, rowKey, HBaseTables.AGENT_LIFECYCLE_CF_STATUS, HBaseTables.AGENT_LIFECYCLE_CF_STATUS_QUALI_STATES,
+        TableName agentLifeCycleTableName = descriptor.getTableName();
+        this.hbaseTemplate.put(agentLifeCycleTableName, rowKey, descriptor.getColumnFamilyName(), descriptor.getColumnFamily().QUALIFIER_STATES,
                 agentLifeCycleBo, this.valueMapper);
     }
 
@@ -69,9 +76,9 @@ public class HbaseAgentLifeCycleDao implements AgentLifeCycleDao {
         long reverseStartTimestamp = TimeUtils.reverseTimeMillis(startTimestamp);
         long reverseEventCounter = TimeUtils.reverseTimeMillis(eventIdentifier);
 
-        byte[] rowKey = new byte[HBaseTables.AGENT_NAME_MAX_LEN + BytesUtils.LONG_BYTE_LENGTH + BytesUtils.LONG_BYTE_LENGTH];
+        byte[] rowKey = new byte[HbaseTableConstatns.AGENT_NAME_MAX_LEN + BytesUtils.LONG_BYTE_LENGTH + BytesUtils.LONG_BYTE_LENGTH];
         BytesUtils.writeBytes(rowKey, 0, agentIdKey);
-        int offset = HBaseTables.AGENT_NAME_MAX_LEN;
+        int offset = HbaseTableConstatns.AGENT_NAME_MAX_LEN;
         BytesUtils.writeLong(reverseStartTimestamp, rowKey, offset);
         offset += BytesUtils.LONG_BYTE_LENGTH;
         BytesUtils.writeLong(reverseEventCounter, rowKey, offset);

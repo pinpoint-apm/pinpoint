@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,49 +16,72 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
+import com.navercorp.pinpoint.common.util.IntStringStringValue;
+import com.navercorp.pinpoint.common.util.IntStringValue;
+import com.navercorp.pinpoint.common.util.LongIntIntByteByteStringValue;
+import com.navercorp.pinpoint.common.util.StringStringValue;
 import com.navercorp.pinpoint.profiler.util.AnnotationValueMapper;
-import com.navercorp.pinpoint.thrift.dto.TAnnotation;
-import com.navercorp.pinpoint.thrift.dto.TAnnotationValue;
-import com.navercorp.pinpoint.thrift.dto.TIntStringStringValue;
-import com.navercorp.pinpoint.thrift.dto.TIntStringValue;
 
 /**
  * @author netspider
  * @author emeroad
  */
-public class Annotation extends TAnnotation {
+public class Annotation {
+
+    private int key;
+    private Object value;
 
     public Annotation(int key) {
-        super(key);
+        this.key = key;
     }
 
     public Annotation(int key, Object value) {
-        super(key);
-        AnnotationValueMapper.mappingValue(this, value);
+        this.key = key;
+        this.value = AnnotationValueMapper.checkValueType(value);
     }
 
-    public Annotation(int key, TIntStringValue value) {
-        super(key);
-        this.setValue(TAnnotationValue.intStringValue(value));
+
+    public Annotation(int key, IntStringValue value) {
+        this.key = key;
+        this.value = value;
     }
 
-    public Annotation(int key, TIntStringStringValue value) {
-        super(key);
-        this.setValue(TAnnotationValue.intStringStringValue(value));
+    public Annotation(int key, IntStringStringValue value) {
+        this.key = key;
+        this.value = value;
+    }
+
+    public Annotation(int key, StringStringValue value) {
+        this.key = key;
+        this.value = value;
     }
 
     public Annotation(int key, String value) {
-        super(key);
-        this.setValue(TAnnotationValue.stringValue(value));
+        this.key = key;
+        this.value = value;
     }
 
+
     public Annotation(int key, int value) {
-        super(key);
-        this.setValue(TAnnotationValue.intValue(value));
+        this.key = key;
+        this.value = value;
+    }
+
+    public Annotation(int key, long value) {
+        this.key = key;
+        this.value = value;
+    }
+
+    public Annotation(int key, LongIntIntByteByteStringValue value) {
+        this.key = key;
+        this.value = value;
     }
 
     public int getAnnotationKey() {
-        return this.getKey();
+        return key;
     }
 
+    public Object getValue() {
+        return value;
+    }
 }

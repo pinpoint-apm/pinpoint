@@ -1,0 +1,42 @@
+.l-filter-info {
+    padding: 16px 25px;
+    border-bottom: 1px solid #EAEEF4;
+    background-color: #F9FAFC;
+}
+.l-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 23px;
+}
+.l-info-list {
+    width: 100%;
+    display: grid;
+    font-size: 14px;
+    grid-template-rows: auto;
+    grid-template-columns: 35% 65%;
+}
+.l-info-list div {
+    padding-top: 2px;
+    padding-bottom: 2px;
+}
+.l-info-list div:nth-child(odd) {
+    font-weight: 600;
+}
+.l-info-list div:nth-child(even) {
+    padding-left: 6px;
+    text-align: center;
+}
+.l-agent { 
+    display: grid;
+    grid-template-rows: auto;
+    grid-template-columns: 45% 10% 45%;
+}
+.l-agent i { 
+    padding-top: 3px;
+}
+.l-agent span {
+    display : block;
+    overflow : hidden;
+    white-space : nowrap;
+    text-overflow : ellipsis;
+}

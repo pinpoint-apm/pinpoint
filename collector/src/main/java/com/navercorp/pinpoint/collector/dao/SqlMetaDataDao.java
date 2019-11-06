@@ -16,11 +16,11 @@
 
 package com.navercorp.pinpoint.collector.dao;
 
-import com.navercorp.pinpoint.thrift.dto.TSqlMetaData;
+import com.navercorp.pinpoint.common.server.bo.SqlMetaDataBo;
 
 /**
  * @author emeroad
  */
 public interface SqlMetaDataDao {
-    void insert(TSqlMetaData sqlMetaData);
+    void insert(SqlMetaDataBo sqlMetaData);
 }

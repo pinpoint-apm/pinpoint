@@ -132,11 +132,11 @@
 	            	var resultIndex = searchTime( searchStartIndex, -1, time );
 	            	if ( resultIndex == -1 ) {
 	            		if ( searchStartIndex === 0 ) {
-	            			scope.$emit("transactionDetail.timelineSearchCallResult", "No call took longer than {time}ms." );
+	            			scope.$emit("transactionDetail.searchActionResult", "No call took longer than " + time + "ms." );
 	            		} else {
 		            		resultIndex = searchTime( 0, searchStartIndex, time );
 	                		if ( resultIndex == -1 ) {
-	                			scope.$emit("transactionDetail.timelineSearchCallResult", "No call took longer than {time}ms." );
+	                			scope.$emit("transactionDetail.searchActionResult", "No call took longer than " + time + "ms." );
 	                		} else {
 	                			searchSuccess(resultIndex, "Loop");
 	                		}
@@ -159,7 +159,7 @@
             			this.$wrapper.find("div[data-index=" + newIndex + "]").addClass("timeline-bar-selected");
             		}).moveByRow( resultIndex );
             		searchStartIndex = resultIndex + 1;
-            		scope.$emit("transactionDetail.timelineSearchCallResult", message );
+            		scope.$emit("transactionDetail.searchActionResult", message );
 	            };
 	        }
 	    };

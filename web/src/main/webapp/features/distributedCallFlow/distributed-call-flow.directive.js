@@ -7,34 +7,43 @@
 	 * @name distributedCallFlowDirective
 	 * @class
 	 */	
-	pinpointApp.directive('distributedCallFlowDirective', [ '$filter', '$timeout', 'CommonAjaxService',
-	    function ($filter, $timeout, commonAjaxService) {
+	pinpointApp.directive( "distributedCallFlowDirective", [ "$timeout", "CommonAjaxService", "CommonUtilService", "SystemConfigurationService",
+	    function ( $timeout, CommonAjaxService, CommonUtilService, SystemConfigService ) {
 	        return {
-	            restrict: 'E',
+	            restrict: "E",
 	            replace: true,
-	            templateUrl: 'features/distributedCallFlow/distributedCallFlow.html?v=${buildTime}',
+	            templateUrl: "features/distributedCallFlow/distributedCallFlow.html?v=" + G_BUILD_TIME,
 	            scope : {
-	                namespace : '@' // string value
+	                namespace : "@" // string value
 	            },
 	            link: function postLink(scope, element, attrs) {
 	                // initialize variables
-	            	var grid, dataView, lastAgent;
+	            	var grid, dataView, lastAgent, startRow, securityGuideUrl = "";
 	
 	                // initialize variables of methods
 	                var initialize, treeFormatter, treeFilter, parseData, execTimeFormatter,
-	                    getColorByString, progressBarFormatter, argumentFormatter, linkFormatter, hasChildNode, searchRowByTime, selectRow;
+	                    getColorByString, progressBarFormatter, argumentFormatter, linkFormatter, hasChildNode, searchRowByTime, searchRowByWord, selectRow;
+
+	                SystemConfigService.getConfig().then(function(config) {
+						securityGuideUrl = config["securityGuideUrl"];
+					});
 	
 	                // bootstrap
 	                window.callStacks = []; // Due to Slick.Data.DataView, must use window property to resolve scope-related problems.
 
 					var removeTag = function( text ) {
-						return text.replace( /</g, "&lt;" ).replace( />/g, "$gt;" );
+						if ( text === undefined || text === null ) {
+							return "";
+						} else {
+							return text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+						}
 					};
 					var getAuthorizeView = function( bIsAuthorized, text ) {
+
 						if ( bIsAuthorized ) {
 							return removeTag( text );
 						} else {
-							return "<i style='color:#AAA;'>" + removeTag( text ) + "</i>";
+							return "<i style='color:#AAA;'>" + removeTag( text ) + "</i> <a href='" + securityGuideUrl + "' target='_blank' style='color:#AAA;'><span class='glyphicon glyphicon-share'></span></a>";
 						}
 					};
 	                /**
@@ -84,36 +93,38 @@
 	
 	                    if (window.callStacks[idx + 1] && window.callStacks[idx + 1].indent > window.callStacks[idx].indent) {
 	                        if (dataContext._collapsed) {
-	                            html.push(" <span class='toggle expand'></span>&nbsp;");
+	                            html.push(" <span class='toggle expand' style='margin-right:3px'></span>");
 	                        } else {
-	                            html.push(" <span class='toggle collapse'></span>&nbsp;");
+	                            html.push(" <span class='toggle collapse' style='margin-right:3px'></span>");
 	                        }
 	                    } else {
-	                        html.push(" <span class='toggle'></span>&nbsp;");
+	                        html.push(" <span class='toggle' style='margin-right:3px'></span>");
 	                    }
 	
 	                    if (item.hasException) {
-	                        html.push('<span class="glyphicon glyphicon-fire"></span>&nbsp;');
+	                        html.push('<span class="glyphicon glyphicon-fire" style="margin-right:3px"></span>');
 	                    } else if (!item.isMethod) {
 	                    	if( item.method === "SQL" ) {
-	                    		html.push('<button type="button" class="btn btn-default btn-xs btn-success sql" style="padding:0px 2px 0px 2px"><span class="glyphicon glyphicon-eye-open sql"></span></button>&nbsp;');
+								html.push('<button type="button" class="btn btn-default btn-xs btn-success sql" style="padding:0px 2px 0px 2px;margin-right:3px;"><span class="glyphicon glyphicon-eye-open sql"></span></button>');
+							} else if( item.method === "MONGO-JSON" ) {
+	                    		html.push('<button type="button" class="btn btn-default btn-xs btn-success json" style="padding:0px 2px 0px 2px;margin-right:3px;"><span class="glyphicon glyphicon-eye-open json"></span></button>');
 	                    	} else {
-	                    		html.push('<span class="glyphicon glyphicon-info-sign"></span>&nbsp;');
+	                    		html.push('<span class="glyphicon glyphicon-info-sign" style="margin-right:3px"></span>');
 	                    	}
 	                        
 	                    } else {
 	                    	var itemMethodType = parseInt( item.methodType );
 	                    	switch( itemMethodType ) {
-	                    	case 100:
-	                    			html.push('<i class="xi-shipping"></i>&nbsp;');
-	                    			break;
-	                    	case 200:
-	                    			html.push('<span class="glyphicon glyphicon-transfer"></span>&nbsp;');
-	                    			break;
-	                    	case 900:
-	                    			html.push('<i class="xi-info-triangle" style="color:#FF6600"></i>&nbsp;');
-	                    			break;
-	                    	}
+                                case 100:
+                                    html.push('<i class="xi-shipping" style="margin-right:3px"></i>');
+                                    break;
+                                case 200:
+                                    html.push('<span class="glyphicon glyphicon-transfer" style="margin-right:3px"></span>');
+                                    break;
+                                case 900:
+                                    html.push('<i class="xi-info-triangle" style="color:#FF6600;margin-right:3px"></i>');
+                                    break;
+                            }
 	                    }
 	
 	                    html.push( getAuthorizeView( dataContext.isAuthorized, value ) );
@@ -153,7 +164,7 @@
 	                 */
 	                argumentFormatter = function (row, cell, value, columnDef, dataContext) {
 	                    var html = [];
-	                    html.push('<div class="dcf-popover" data-container=".grid-canvas" data-toggle="popover" data-trigger="manual" data-placement="right" data-content="'+ removeTag( value ) +'">');
+	                    html.push('<div class="dcf-popover" data-container=".grid-canvas" data-toggle="popover" data-trigger="manual" data-placement="right" data-content="'+ encodeURIComponent(value) +'">');
 	                    html.push( getAuthorizeView( dataContext.isAuthorized, value ) );
 	                    html.push('</div>');
 	                    return html.join('');
@@ -191,7 +202,11 @@
 	                 * @returns {*}
 	                 */
 	                execTimeFormatter = function (row, cell, value, columnDef, dataContext) {
-	                    return $filter('date')(value, 'HH:mm:ss sss');
+	                	if ( angular.isUndefined( value ) || value === null ) {
+	                		return "";
+						} else {
+							return CommonUtilService.formatDate(value, "HH:mm:ss SSS");
+						}
 	                };
 	
 	                /**
@@ -231,6 +246,9 @@
 	                        barRatio = 100 / (callStacks[0][index.end] - callStacks[0][index.begin]);
 	                    angular.forEach(callStacks, function (val, key) {
 	                    	var bAuthorized = typeof val[index['isAuthorized']] === "undefined" ? true : val[index['isAuthorized']];
+							if ( val[index['isFocused']] ) {
+	                    		startRow = key;
+							}
 	                        result.push({
 	                            id: 'id_' + key,
 								isAuthorized: bAuthorized,
@@ -320,7 +338,7 @@
 		                    {id: "agent", name: "Agent", field: "agent", width: 130},
 		                    {id: "application-name", name: "Application", field: "applicationName", width: 150}
 	                    ];
-	                    
+
 	                    grid = new Slick.Grid(element.get(0), dataView, columns, options);
 	                    grid.setSelectionModel(new Slick.RowSelectionModel());
 	
@@ -342,12 +360,12 @@
 	                        if ( $(e.target).hasClass("sql") ) {
 	                        	item = dataView.getItem(args.row);
 	                        	var itemNext = dataView.getItem(args.row+1);
-	                        	var data = "sql=" + encodeURIComponent( item.argument );
+	                        	var data = "type=sql&metaData=" + encodeURIComponent( item.argument );
 
 								if ( item.isAuthorized ) {
 									if ( angular.isDefined( itemNext ) && itemNext.method === "SQL-BindValue" ) {
 										data += "&bind=" + encodeURIComponent( itemNext.argument );
-										commonAjaxService.getSQLBind( "/sqlBind.pinpoint", data, function( result ) {
+										CommonAjaxService.getSQLBind( "bind.pinpoint", data, function( result ) {
 											$("#customLogPopup").find("h4").html("SQL").end().find("div.modal-body").html(
 													'<h4>Binded SQL <button class="btn btn-default btn-xs sql">Copy</button></h4>' +
 													'<div style="position:absolute;left:10000px">' + result + '</div>' +
@@ -377,11 +395,54 @@
 									).end().modal("show");
 								}
 	                        }
+							if ( $(e.target).hasClass("json") ) {
+								item = dataView.getItem(args.row);
+								var itemNext = dataView.getItem(args.row+1);
+								var data = "type=mongoJson&metaData=" + encodeURIComponent( item.argument );
+
+								if ( item.isAuthorized ) {
+									if ( angular.isDefined( itemNext ) && itemNext.method === "MONGO-JSON-BindValue" ) {
+										data += "&bind=" + encodeURIComponent( itemNext.argument );
+										CommonAjaxService.getSQLBind( "bind.pinpoint", data, function( result ) {
+											$("#customLogPopup").find("h4").html("JSON").end().find("div.modal-body").html(
+												'<h4>Binded JSON <button class="btn btn-default btn-xs json">Copy</button></h4>' +
+												'<div style="position:absolute;left:10000px">' + result + '</div>' +
+												'<pre class="prettyprint lang-json" style="margin-top:0px">' + result.replace(/\t\t/g, "") + '</pre>' +
+												'<hr>' +
+												'<h4>Original JSON <button class="btn btn-default btn-xs sql">Copy</button></h4>' +
+												'<div style="position:absolute;left:10000px">' + item.argument + '</div>' +
+												'<pre class="prettyprint lang-json" style="margin-top:0px">' + item.argument.replace(/\t\t/g, "") + '</pre>' +
+												'<h4>JSON Bind Value <button class="btn btn-default btn-xs json">Copy</button></h4>' +
+												'<div style="position:absolute;left:10000px">' + itemNext.argument + '</div>' +
+												'<pre class="prettyprint lang-json" style="margin-top:0px">' + itemNext.argument + '</pre>'
+											).end().modal("show");
+											prettyPrint();
+										});
+									} else {
+										$("#customLogPopup").find("h4").html("JSON").end().find("div.modal-body").html(
+											'<h4>Original JSON <button class="btn btn-default btn-xs json">Copy</button></h4>' +
+											'<div style="position:absolute;left:10000px">' + item.argument + '</div>' +
+											'<pre class="prettyprint lang-json" style="margin-top:0px">' + item.argument.replace(/\t\t/g, "") + '</pre>'
+										).end().modal("show");
+										prettyPrint();
+									}
+								} else {
+									$("#customLogPopup").find("h4").html("JSON").end().find("div.modal-body").html(
+										'<h4>Original JSON</h4>' +
+										'<div style="margin-top:0px;padding:6px 10px;border-radius:4px;background-color:#C56A6A;color:#D7FBBA;">' + item.argument.replace(/\t\t/g, "") + '</div>'
+									).end().modal("show");
+								}
+							}
 	
 	                        if (!clickTimeout) {
 	                            clickTimeout = $timeout(function () {
 	                                if (isSingleClick) {
-	                                    element.find('.dcf-popover').popover('hide');
+	                                    element.find(".dcf-popover").each(function() {
+	                                    	var $this = $(this);
+	                                    	if ( $this.data("popover") ) {
+	                                    		$this.popover("hide");
+											}
+										});
 	                                }
 	                                isSingleClick = true;
 	                                clickTimeout = false;
@@ -391,8 +452,13 @@
 	
 	                    grid.onDblClick.subscribe(function (e, args) {
 	                        isSingleClick = false;
-	//                        console.log('isSingleClick = false');
-	                        $(e.target).popover('toggle');
+	                        if ( $(e.target).hasClass("dcf-popover") ) {
+								$(e.target).popover({
+									content: function () {
+										return decodeURIComponent(this.getAttribute("data-content"));
+									}
+								}).popover('toggle');
+							}
 	                    });
 	
 	                    grid.onCellChange.subscribe(function (e, args) {
@@ -455,7 +521,9 @@
 	                        grid.render();
 	                    });
 	                    
-	                    
+	                    $timeout(function() {
+							grid.scrollRowToTop( startRow );
+						});
 	                };
 	                $("#customLogPopup").on("click", "button", function() {
 	                	var range = document.createRange();
@@ -495,15 +563,29 @@
 	                	if ( row == -1 ) {
 	                		if ( index > 0 ) {
 	                			selectRow( searchRowByTime(time, 0) );
-	                			scope.$emit("transactionDetail.calltreeSearchCallResult", "Loop" );
+	                			scope.$emit("transactionDetail.searchActionResult", "Loop" );
 	                		} else {
-	                			scope.$emit("transactionDetail.calltreeSearchCallResult", "No call took longer than {time}ms." );
+	                			scope.$emit("transactionDetail.searchActionResult", "No call took longer than " + time + "ms." );
 	                		}
 	                	} else {
 	                		selectRow(row);
-	                		scope.$emit("transactionDetail.calltreeSearchCallResult", "" );
+	                		scope.$emit("transactionDetail.searchActionResult", "" );
 	                	}
 	            	});
+					scope.$on("distributedCallFlowDirective.searchArgument." + scope.namespace, function( event, word, index ) {
+						var row = searchRowByWord(word, index);
+						if ( row == -1 ) {
+							if ( index > 0 ) {
+								selectRow( searchRowByWord(word, 0) );
+								scope.$emit("transactionDetail.searchActionResult", "Loop" );
+							} else {
+								scope.$emit("transactionDetail.searchActionResult", "There is no result.." );
+							}
+						} else {
+							selectRow(row);
+							scope.$emit("transactionDetail.searchActionResult", "" );
+						}
+					});
 	                searchRowByTime = function( time, index ) {
 	                	var count = 0;
 	                	var row = -1;
@@ -519,13 +601,28 @@
 	                	}
 	                	return row;
 	                };
+					searchRowByWord = function( word, index ) {
+						var count = 0;
+						var row = -1;
+						for( var i = 0 ; i < window.callStacks.length ; i++ ) {
+							if ( window.callStacks[i].argument.indexOf( word ) !== -1 ) {
+								if ( count == index ) {
+									row = i;
+									break;
+								} else {
+									count++;
+								}
+							}
+						}
+						return row;
+					};
 	                selectRow = function(row) {
 	                	grid.setSelectedRows( [row] );
 	                	grid.setActiveCell( row, 0 );
 	                	grid.scrollRowIntoView( row, true );
 	                };
 	            }
-	        };
+	        }
 	    }
 	]);
 })();

@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,69 +16,72 @@
 
 package com.navercorp.pinpoint.collector.receiver;
 
-import com.navercorp.pinpoint.collector.handler.AgentInfoHandler;
+import com.navercorp.pinpoint.collector.handler.SimpleAndRequestResponseHandler;
 import com.navercorp.pinpoint.collector.handler.RequestResponseHandler;
 import com.navercorp.pinpoint.collector.handler.SimpleHandler;
-import com.navercorp.pinpoint.thrift.dto.*;
-
-import org.apache.thrift.TBase;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
+import com.navercorp.pinpoint.io.header.Header;
+import com.navercorp.pinpoint.io.request.ServerRequest;
+import com.navercorp.pinpoint.io.request.ServerResponse;
+import com.navercorp.pinpoint.thrift.io.DefaultTBaseLocator;
 
 /**
  * @author emeroad
  * @author koo.taejin
  */
-public class TcpDispatchHandler extends AbstractDispatchHandler {
+public class TcpDispatchHandler implements DispatchHandler {
 
-    @Autowired()
-    @Qualifier("agentInfoHandler")
-    private AgentInfoHandler agentInfoHandler;
+    private final SimpleAndRequestResponseHandler agentInfoHandler;
 
-    @Autowired()
-    @Qualifier("sqlMetaDataHandler")
-    private RequestResponseHandler sqlMetaDataHandler;
+    private final RequestResponseHandler sqlMetaDataHandler;
 
-    @Autowired()
-    @Qualifier("apiMetaDataHandler")
-    private RequestResponseHandler apiMetaDataHandler;
+    private final RequestResponseHandler apiMetaDataHandler;
 
-    @Autowired()
-    @Qualifier("stringMetaDataHandler")
-    private RequestResponseHandler stringMetaDataHandler;
+    private final RequestResponseHandler stringMetaDataHandler;
 
-
-
-    public TcpDispatchHandler() {
-        this.logger = LoggerFactory.getLogger(this.getClass());
+    public TcpDispatchHandler(final SimpleAndRequestResponseHandler agentInfoHandler, final RequestResponseHandler sqlMetaDataHandler, final RequestResponseHandler apiMetaDataHandler, final RequestResponseHandler stringMetaDataHandler) {
+        this.agentInfoHandler = agentInfoHandler;
+        this.sqlMetaDataHandler = sqlMetaDataHandler;
+        this.apiMetaDataHandler = apiMetaDataHandler;
+        this.stringMetaDataHandler = stringMetaDataHandler;
     }
 
-
-    @Override
-    RequestResponseHandler getRequestResponseHandler(TBase<?, ?> tBase) {
-        if (tBase instanceof TSqlMetaData) {
+    protected RequestResponseHandler getRequestResponseHandler(ServerRequest serverRequest) {
+        final Header header = serverRequest.getHeader();
+        final short type = header.getType();
+        if (type == DefaultTBaseLocator.SQLMETADATA) {
             return sqlMetaDataHandler;
         }
-        if (tBase instanceof TApiMetaData) {
+        if (type == DefaultTBaseLocator.APIMETADATA) {
             return apiMetaDataHandler;
         }
-        if (tBase instanceof TStringMetaData) {
+        if (type == DefaultTBaseLocator.STRINGMETADATA) {
             return stringMetaDataHandler;
         }
-        if (tBase instanceof TAgentInfo) {
+        if (type == DefaultTBaseLocator.AGENT_INFO) {
             return agentInfoHandler;
         }
-        return null;
+        throw new UnsupportedOperationException("unsupported header:" + header);
+    }
+
+    private SimpleHandler getSimpleHandler(Header header) {
+        final short type = header.getType();
+        if (type == DefaultTBaseLocator.AGENT_INFO) {
+            return agentInfoHandler;
+        }
+
+        throw new UnsupportedOperationException("unsupported header:" + header);
     }
 
     @Override
-    SimpleHandler getSimpleHandler(TBase<?, ?> tBase) {
+    public void dispatchSendMessage(ServerRequest serverRequest) {
+        final Header header = serverRequest.getHeader();
+        SimpleHandler simpleHandler = getSimpleHandler(header);
+        simpleHandler.handleSimple(serverRequest);
+    }
 
-        if (tBase instanceof TAgentInfo) {
-            return agentInfoHandler;
-        }
-
-        return null;
+    @Override
+    public void dispatchRequestMessage(ServerRequest serverRequest, ServerResponse serverResponse) {
+        RequestResponseHandler requestResponseHandler = getRequestResponseHandler(serverRequest);
+        requestResponseHandler.handleRequest(serverRequest, serverResponse);
     }
 }

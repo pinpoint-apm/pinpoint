@@ -45,7 +45,7 @@ public class FilterHintListJsonDeserializer extends JsonDeserializer<FilterHint>
         // skip json start
         final JsonToken jsonToken = jp.nextToken();
         if (jsonToken == JsonToken.END_OBJECT) {
-            return new FilterHint(Collections.<RpcHint>emptyList());
+            return new FilterHint(Collections.emptyList());
         }
 
 

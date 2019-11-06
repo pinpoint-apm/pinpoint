@@ -1,0 +1,57 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+import "Span.proto";
+import "Stat.proto";
+import "ThreadDump.proto";
+import "Cmd.proto";
+
+option java_multiple_files = true;
+option java_package = "com.navercorp.pinpoint.grpc.trace";
+option java_outer_classname = "ServiceProto";
+//option objc_class_prefix = "PIN";
+
+package v1;
+
+service Span {
+    rpc SendSpan (stream PSpanMessage) returns (google.protobuf.Empty) {
+    }
+}
+
+service Agent {
+    rpc RequestAgentInfo (PAgentInfo) returns (PResult) {
+    }
+    rpc PingSession (stream PPing) returns (stream PPing) {
+    }
+}
+
+service Metadata {
+    rpc RequestSqlMetaData (PSqlMetaData) returns (PResult) {
+    }
+    rpc RequestApiMetaData (PApiMetaData) returns (PResult) {
+    }
+    rpc RequestStringMetaData (PStringMetaData) returns (PResult) {
+    }
+}
+
+service Stat {
+    rpc SendAgentStat (stream PStatMessage) returns (google.protobuf.Empty) {
+    }
+}
+
+service ProfilerCommandService {
+    rpc HandleCommand (stream PCmdMessage) returns (stream PCmdRequest) {
+    }
+
+    rpc CommandEcho (PCmdEchoResponse) returns (google.protobuf.Empty) {
+    }
+
+    rpc CommandStreamActiveThreadCount (stream PCmdActiveThreadCountRes) returns (google.protobuf.Empty) {
+    }
+
+    rpc CommandActiveThreadDump (PCmdActiveThreadDumpRes) returns (google.protobuf.Empty) {
+    }
+
+    rpc CommandActiveThreadLightDump (PCmdActiveThreadLightDumpRes) returns (google.protobuf.Empty) {
+    }
+}

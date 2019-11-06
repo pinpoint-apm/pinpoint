@@ -21,10 +21,10 @@ public class BytecodeDumpTransformer implements ClassFileTransformer {
 
     private BytecodeDumpTransformer(ClassFileTransformer delegate, ProfilerConfig profilerConfig) {
         if (delegate == null) {
-            throw new NullPointerException("delegate must not be null");
+            throw new NullPointerException("delegate");
         }
         if (profilerConfig == null) {
-            throw new NullPointerException("profilerConfig must not be null");
+            throw new NullPointerException("profilerConfig");
         }
 
         this.delegate = delegate;

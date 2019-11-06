@@ -16,11 +16,12 @@
 
 package com.navercorp.pinpoint.common.trace;
 
-import static com.navercorp.pinpoint.common.trace.AnnotationKeyProperty.*;
+import static com.navercorp.pinpoint.common.trace.AnnotationKeyProperty.ERROR_API_METADATA;
+import static com.navercorp.pinpoint.common.trace.AnnotationKeyProperty.VIEW_IN_RECORD_SET;
 
 /**
  * AnnotationKey sandbox is from 900 to 999. These values will not be assigned to anything.
- * 
+ *
  * <table>
  * <tr><td>-1</td><td>args[0]</td></tr>
  * <tr><td>-2</td><td>args[1]</td></tr>
@@ -48,7 +49,7 @@ import static com.navercorp.pinpoint.common.trace.AnnotationKeyProperty.*;
  * <tr><td>-51</td><td>ExceptionClass</td></tr>
  * <tr><td>-100</td><td>Asynchronous Invocation</td></tr>
  * <tr><td>-9999</td><td>UNKNOWN</td></tr>
- * 
+ *
  * <tr><td>12</td><td>API</td></tr>
  * <tr><td>13</td><td>API_METADATA</td></tr>
  * <tr><td>14</td><td>RETURN_DATA</td></tr>
@@ -81,9 +82,50 @@ import static com.navercorp.pinpoint.common.trace.AnnotationKeyProperty.*;
  * <tr><td>82</td><td>thrift.result</td></tr>
  * <tr><td>90</td><td>dubbo.args</td></tr>
  * <tr><td>91</td><td>dubbo.result</td></tr>
+ * <tr><td>110</td><td></td>hystrix.command</tr>
+ * <tr><td>111</td><td></td>hystrix.command.execution</tr>
+ * <tr><td>112</td><td></td>hystrix.command.fallback.cause</tr>
+ * <tr><td>113</td><td></td>hystrix.command.exception</tr>
+ * <tr><td>115</td><td></td>hystrix.command.key</tr>
+ * <tr><td>116</td><td></td>hystrix.command.group.key</tr>
+ * <tr><td>117</td><td></td>hystrix.thread.pool.key</tr>
+ * <tr><td>118</td><td></td>hystrix.collapser.key</tr>
+ * <tr><td>120</td><td>netty.address</td></tr>
+ * <tr><td>130</td><td>rabbitmq.properties</td></tr>
+ * <tr><td>131</td><td>rabbitmq.body</td></tr>
+ * <tr><td>132</td><td>rabbitmq.properties</td></tr>
+ * <tr><td>133</td><td>rabbitmq.body</td></tr>
+ * <tr><td>150</td><td>mongo.json.data</td></tr>
+ * <tr><td>151</td><td>mongo.collection.info</td></tr>
+ * <tr><td>152</td><td>mongo.collection.option</td></tr>
+ * <tr><td>153</td><td>mongo.json</td></tr>
+ * <tr><td>154</td><td>mongo.json.bindvalue</td></tr>
+ * <tr><td>160</td><td>grpc.status</td></tr>
+ * <tr><td>171</td><td>es.args</td></tr>
+ * <tr><td>172</td><td>es.url</td></tr>
+ * <tr><td>173</td><td>es.dsl</td></tr>
+ * <tr><td>174</td><td>es.action</td></tr>
+ * <tr><td>175</td><td>es.responseHandle</td></tr>
+ * <tr><td>176</td><td>es.version</td></tr>
+ *
+ * <tr><td><s>200</s></td><td><s>cxf.operation</s></td></tr>
+ * <tr><td><s>201</s></td><td><s>cxf.args</s></td></tr>
+ * <tr><td>203</td><td>cxf.address</td></tr>
+ * <tr><td>204</td><td>cxf.response.code</td></tr>
+ * <tr><td>205</td><td>cxf.encoding</td></tr>
+ * <tr><td>206</td><td>cxf.http.method</td></tr>
+ * <tr><td>207</td><td>cxf.content.type</td></tr>
+ * <tr><td>208</td><td>cxf.headers</td></tr>
+ * <tr><td>209</td><td>cxf.messages</td></tr>
+ * <tr><td>210</td><td>cxf.payload</td></tr>
+ * <tr><td>300</td><td>PROXY_HTTP_HEADER</td></tr>
+ * <tr><td>310</td><td>REDIS.IO</td></tr>
+ * <tr><td>320</td><td>hbase.client.params</td></tr>
+ * <tr><td>923</td><td>marker.message</td></tr>
  * <tr><td>9000</td><td>gson.json.length</td></tr>
  * <tr><td>9001</td><td>jackson.json.length</td></tr>
  * <tr><td>9002</td><td>json-lib.json.length</td></tr>
+ * <tr><td>9003</td><td>fastjson.json.length</td></tr>
  * <tr><td>10015</td><td>API-TAG</td></tr>
  * <tr><td>10000010</td><td>API-METADATA-ERROR</td></tr>
  * <tr><td>10000011</td><td>API-METADATA-AGENT-INFO-NOT-FOUND</td></tr>
@@ -91,8 +133,7 @@ import static com.navercorp.pinpoint.common.trace.AnnotationKeyProperty.*;
  * <tr><td>10000013</td><td>API-METADATA-NOT-FOUND</td></tr>
  * <tr><td>10000014</td><td>API-METADATA-DID-COLLSION</td></tr>
  * </table>
- * 
- * 
+ *
  * @author netspider
  * @author emeroad
  * @author Jongho Moon
@@ -103,12 +144,12 @@ public interface AnnotationKey {
     String getName();
 
     int getCode();
-    
+
     boolean isErrorApiMetadata();
 
     boolean isViewInRecordSet();
 
-    
+
     // because of using variable-length encoding,
     // a small number should be used mainly for data contained in network packets and a big number for internal used code.
 
@@ -119,12 +160,12 @@ public interface AnnotationKey {
 //    API_DID(10, "API-DID"),
 //    @Deprecated  // you should remove static API code. Use only API-DID. dump by int
 //    API_ID(11, "API-ID"),
-    // used for developing the annotation that dumps api by string. you also consider to remove it later.
+    // Dump api by string.
     AnnotationKey API = AnnotationKeyFactory.of(12, "API");
     AnnotationKey API_METADATA = AnnotationKeyFactory.of(13, "API-METADATA");
     AnnotationKey RETURN_DATA = AnnotationKeyFactory.of(14, "RETURN_DATA", VIEW_IN_RECORD_SET);
     AnnotationKey API_TAG = AnnotationKeyFactory.of(10015, "API-TAG");
-    
+
     // when you don't know the correct cause of errors.
     AnnotationKey ERROR_API_METADATA_ERROR = AnnotationKeyFactory.of(10000010, "API-METADATA-ERROR", ERROR_API_METADATA);
     // when agentInfo not found
@@ -190,4 +231,6 @@ public interface AnnotationKey {
 
     AnnotationKey ASYNC = AnnotationKeyFactory.of(-100, "Asynchronous Invocation", VIEW_IN_RECORD_SET);
 
+    AnnotationKey PROXY_HTTP_HEADER = AnnotationKeyFactory.of(300, "PROXY_HTTP_HEADER", VIEW_IN_RECORD_SET);
+    AnnotationKey REDIS_IO = AnnotationKeyFactory.of(310, "redis.io");
 }

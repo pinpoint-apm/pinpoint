@@ -21,6 +21,10 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
 import java.util.List;
 
 import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
+import com.navercorp.pinpoint.web.applicationmap.link.CreateType;
+import com.navercorp.pinpoint.web.applicationmap.link.Link;
+import com.navercorp.pinpoint.web.applicationmap.link.LinkList;
+import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import org.junit.Assert;
 import org.junit.Test;
 

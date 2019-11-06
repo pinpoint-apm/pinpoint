@@ -1,0 +1,60 @@
+<table class="table l-alarm-rules-table">
+    <colgroup>
+        <col width="100%">
+    </colgroup>
+    <thead>
+        <tr>
+            <th>
+                <div class="l-table-title">
+                    Alarm
+                    <button class="btn btn-blue btn-sm l-add-button" (click)="onClickAddBtn()" [disabled]="!isApplicationSelected()"><i class="fas fa-plus"></i></button>
+                </div>
+                <div class="l-alarm-rules-th">
+                    <div>Rule Name</div>
+                    <div>User Group</div>
+                    <div>Threshold</div>
+                    <div>Type</div>
+                    <div></div>
+                </div>
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td style="padding: 0;">
+                <div class="l-alarm-rules-tr-wrap">
+                    <ng-container *ngIf="showGuide(); else list">
+                        <p class="l-guide">{{guideMessage}}</p>
+                    </ng-container>
+                    <ng-template #list>
+                        <pp-alarm-rule-list
+                            [alarmRuleList]="alarmRuleList"
+                            (outRemove)="onRemoveAlarm($event)"
+                            (outEdit)="onEditAlarm($event)">
+                        </pp-alarm-rule-list>
+                    </ng-template>
+                </div>
+            </td>
+        </tr>
+    </tbody>
+</table>
+<ng-container *ngIf="showPopup">
+    <pp-alarm-rule-create-and-update
+        [checkerList]="checkerList"
+        [userGroupList]="userGroupList"
+        [editAlarm]="editAlarm"
+        [i18nLabel]="i18nLabel"
+        [i18nFormGuide]="i18nFormGuide"
+        (outUpdateAlarm)="onUpdateAlarm($event)"
+        (outCreateAlarm)="onCreateAlarm($event)"
+        (outClose)="onClosePopup()">
+    </pp-alarm-rule-create-and-update>
+</ng-container>
+<ng-container *ngIf="errorMessage">
+    <pp-server-error-message
+        [message]="errorMessage"
+        (outClose)="onCloseErrorMessage()">
+    </pp-server-error-message>
+</ng-container>
+<pp-film-for-disable *ngIf="useDisable" [zIndex]="9" [marginWidth]="0"></pp-film-for-disable>    
+<pp-loading [showLoading]="showLoading" [zIndex]="20"></pp-loading>                                        

@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.rpc.control;
 
+import com.navercorp.pinpoint.common.Charsets;
+
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -31,7 +33,7 @@ public class ControlMessageDecoder {
     private Charset charset;
 
     public ControlMessageDecoder() {
-        this.charset = Charset.forName("UTF-8");
+        this.charset = Charsets.UTF_8;
     }
 
     public Object decode(byte[] in) throws ProtocolException {

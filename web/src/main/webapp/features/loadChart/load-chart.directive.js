@@ -1,367 +1,224 @@
 (function() {
 	'use strict';
-	/**
-	 * (en)loadChartDirective 
-	 * @ko loadChartDirective
-	 * @group Directive
-	 * @name loadChartDirective
-	 * @class
-	 */	
-	pinpointApp.constant('loadChartDirectiveConfig', {});
-	
-	pinpointApp.directive('loadChartDirective', ['loadChartDirectiveConfig', '$timeout', 'AnalyticsService', 'PreferenceService', function (cfg, $timeout, analyticsService, preferenceService ) {
-		var responseTypeColor = preferenceService.getResponseTypeColor();
+	pinpointApp.constant("loadChartDirectiveConfig", {});
+
+	pinpointApp.directive("loadChartDirective", ["loadChartDirectiveConfig", "$rootScope", "$timeout", "AnalyticsService", "PreferenceService", "CommonUtilService", function (cfg, $rootScope, $timeout, AnalyticsService, PreferenceService, CommonUtilService ) {
+		var responseTypeColor = PreferenceService.getResponseTypeColor();
         return {
-            template: '<div style="text-align:center"></div>',
+			template: "<div style='text-align:center;user-select:none;'><canvas></canvas></div>",
             replace: true,
             restrict: 'EA',
             scope: {
                 namespace: '@' // string value
             },
-            link: function postLink(scope, element, attrs) {
+            link: function postLink(scope, element) {
+                var id, oChart = null;
+                var elCanvas = element.find("canvas");
 
-                // define variables
-                var id, aDynamicKey, oChart;
-
-                // define variables of methods
-                var setIdAutomatically, setWidthHeight, render, parseTimeSeriesHistogramForAmcharts, updateData,
-                    renderSimple, renderEmpty;
-
-                /**
-                 * set id automatically
-                 */
-                setIdAutomatically = function () {
+                function setIdAutomatically() {
                     id = 'loadId-' + scope.namespace;
                     element.attr('id', id);
-                };
+                }
 
-                /**
-                 * set width height
-                 * @param w
-                 * @param h
-                 */
-                setWidthHeight = function (w, h) {
-                    if (w) element.css('width', w);
-                    if (h) element.css('height', h);
-                };
-
-                /**
-                 * render
-                 * @param data
-                 * @param useChartCursor
-                 */
-                render = function (data, useChartCursor) {
-                    $timeout(function () {
-                        var options = {
-                            "type": "serial",
-                            "theme": "light",
-                            "legend": {
-                                "autoMargins": false,
-                                "align" : "right",
-                                "borderAlpha": 0,
-                                "equalWidths": true,
-                                "horizontalGap": 0,
-                                "verticalGap": 0,
-                                "markerSize": 10,
-                                "useGraphSettings": false,
-                                "valueWidth": 0,
-                                "spacing": 0,
-                                "markerType" : "circle", // square, circle, diamond, triangleUp, triangleDown, triangleLeft, triangleDown, bubble, line, none.
-                                "position": "top"
-                            },
-//                            "colors" : responseTypeColor,
-                            "dataProvider": data,
-                            "valueAxes": [{
-                                "stackType": "regular",
-                                "axisAlpha": 1,
-                                "usePrefixes": true,
-                                "gridAlpha": 0.1
-                            }],
-                            "categoryField": "time",
-                            "categoryAxis": {
-//                                "parseDates": true,
-//                                "equalSpacing": true,
-                                "startOnAxis": true,
-                                "gridPosition": "start",
-//                                "dashLength": 1,
-//                                "minorGridEnabled": true,
-//                                "minPeriod": "mm",
-//                                "categoryFunction": function (category, dataItem, categoryAxis) {
-//                                    return category;
-//                                },
-                                "labelFunction": function (valueText, serialDataItem, categoryAxis) {
-                                	//return valueText.substring( valueText.indexOf( " " ) + 1 );
-                                	var dashIndex = valueText.indexOf("-");
-                                	var spaceIndex = valueText.indexOf(" ");
-                                	return valueText.substring( dashIndex + 1, spaceIndex ) + "\n" + valueText.substring( spaceIndex + 1 );
-                                }
-                            },
-                            "balloon": {
-                                "fillAlpha": 1,
-                                "borderThickness": 1
-                            },
-                            "graphs": [{
-                                "balloonText": "[[title]] : <b>[[value]]</b>",
-//                                "balloonColor": "red",
-                                "fillAlphas": 0.2,
-                                "fillColors": responseTypeColor[0],
-//                                "labelText": "[[value]]",
-                                "lineAlpha": 0.8,
-                                "lineColor": "#787779",
-                                "title": aDynamicKey[0],
-                                "type": "step",
-                                "legendColor": responseTypeColor[0],
-                                "valueField": aDynamicKey[0]
-                            }, {
-                                "balloonText": "[[title]] : <b>[[value]]</b>",
-                                "fillAlphas": 0.3,
-                                "fillColors": responseTypeColor[1],
-//                                "labelText": "[[value]]",
-                                "lineAlpha": 0.8,
-                                "lineColor": "#787779",
-                                "title": aDynamicKey[1],
-                                "type": "step",
-                                "legendColor": responseTypeColor[1],
-                                "valueField": aDynamicKey[1]
-                            }, {
-                                "balloonText": "[[title]] : <b>[[value]]</b>",
-                                "fillAlphas": 0.4,
-                                "fillColors": responseTypeColor[2],
-//                                "labelText": "[[value]]",
-                                "lineAlpha": 0.8,
-                                "lineColor": "#787779",
-                                "title": aDynamicKey[2],
-                                "type": "step",
-                                "legendColor": responseTypeColor[2],
-                                "valueField": aDynamicKey[2]
-                            }, {
-                                "balloonText": "[[title]] : <b>[[value]]</b>",
-                                "fillAlphas": 0.6,
-                                "fillColors": responseTypeColor[3],
-//                                "labelText": "[[value]]",
-                                "lineAlpha": 0.8,
-                                "lineColor": "#787779",
-                                "title": aDynamicKey[3],
-                                "type": "step",
-                                "legendColor": responseTypeColor[3],
-                                "valueField": aDynamicKey[3]
-                            }, {
-                                "balloonText": "[[title]] : <b>[[value]]</b>",
-                                "fillAlphas": 0.6,
-                                "fillColors": responseTypeColor[4],
-//                                "labelText": "[[value]]",
-                                "lineAlpha": 0.8,
-                                "lineColor": "#787779",
-                                "title": aDynamicKey[4],
-                                "type": "step",
-                                "legendColor": responseTypeColor[4],
-                                "valueField": aDynamicKey[4]
-                            }]
-                        };
-                        if (useChartCursor) {
-                            options["chartCursor"] = {
-                                "cursorPosition": "mouse",
-                                "categoryBalloonAlpha": 0.7,
-                                "categoryBalloonDateFormat": "H:NN"
-                            };
-                        }
-                        oChart = AmCharts.makeChart(id, options);
-                        oChart.addListener("clickGraph", function(e) {
-                        	analyticsService.send(analyticsService.CONST.MAIN, analyticsService.CONST.CLK_LOAD_GRAPH);
-                        });
-                    });
-                };
-
-                /**
-                 * render simple
-                 * @param data
-                 * @param useChartCursor
-                 */
-                renderSimple = function (data, useChartCursor) {
-                    $timeout(function () {
-                        var options = {
-                            "type": "serial",
-                            "pathToImages": "./components/amcharts/images/",
-                            "theme": "light",
-                            "dataProvider": data,
-                            "valueAxes": [{
-                                "stackType": "regular",
-                                "axisAlpha": 0,
-                                "gridAlpha": 0,
-                                "labelsEnabled": false
-                            }],
-                            "categoryField": "time",
-                            "categoryAxis": {
-                                "startOnAxis": true,
-                                "gridPosition": "start",
-                                "labelFunction": function (valueText, serialDataItem, categoryAxis) {
-                                    return moment(valueText).format("HH:mm");
-                                }
-                            },
-                            "chartScrollbar": {
-                                "graph": "AmGraph-1"
-                            },
-                            "graphs": [{
-                                "id": "AmGraph-1",
-                                "fillAlphas": 0.2,
-                                "fillColors": responseTypeColor[0],
-                                "lineAlpha": 0.8,
-                                "lineColor": "#787779",
-                                "type": "step",
-                                "valueField": aDynamicKey[0]
-                            }, {
-                                "id": "AmGraph-2",
-                                "fillAlphas": 0.3,
-                                "fillColors": responseTypeColor[1],
-                                "lineAlpha": 0.8,
-                                "lineColor": "#787779",
-                                "type": "step",
-                                "valueField": aDynamicKey[1]
-                            }, {
-                                "id": "AmGraph-3",
-                                "fillAlphas": 0.4,
-                                "fillColors": responseTypeColor[2],
-                                "lineAlpha": 0.8,
-                                "lineColor": "#787779",
-                                "type": "step",
-                                "valueField": aDynamicKey[2]
-                            }, {
-                                "id": "AmGraph-4",
-                                "fillAlphas": 0.6,
-                                "fillColors": responseTypeColor[3],
-                                "lineAlpha": 0.8,
-                                "lineColor": "#787779",
-                                "type": "step",
-                                "valueField": aDynamicKey[3]
-                            }, {
-                                "id": "AmGraph-5",
-                                "fillAlphas": 0.6,
-                                "fillColors": responseTypeColor[4],
-                                "lineAlpha": 0.8,
-                                "lineColor": "#787779",
-                                "type": "step",
-                                "valueField": aDynamicKey[4]
-                            }]
-                        };
-                        if (useChartCursor) {
-                            options["chartCursor"] = {
-                                "avoidBalloonOverlapping": false
-                            };
-                        }
-                        oChart = AmCharts.makeChart(id, options);
-
-                        oChart.addListener('changed', function (e) {
-//                            console.log('changed');
-                            // broadcast
-                        });
-                    });
-                };
-                renderEmpty = function() {
-                	element.append("<h4 style='padding-top:25%'>No Data</h4>");
-                };
-
-                /**
-                 * update data
-                 * @param data
-                 */
-                updateData = function (data) {
-//                 	if ( angular.isDefined( oChart ) ) {
-// 	                    oChart.clear();
-//                 	}
-//                     element.empty();
-//                     $timeout(function () {
-//                     	if( data.length === 0 ) {
-//                     		renderEmpty();
-//                     	} else {
-//                     		render(data, true);
-//                     	}
-//                     });
-
+                function setWidthHeight(w, h) {
+					element.css('width', w || '100%');
+					element.css('height', h || '220px');
+                }
+                function renderChart(data, yMax) {
+                	if ( oChart !== null ) {
+                		oChart.destroy();
+					}
+					oChart = new Chart(elCanvas, {
+						type: "bar",
+						data: {
+							labels: data.labels,
+							borderWidth: 0,
+							datasets: [{
+								label: data.keyValues[0].key,
+								data: data.keyValues[0].values,
+								backgroundColor: "rgba(44, 160, 44, 0.2)",
+								borderColor: "rgba(120, 119, 121, 0.8)",
+								borderWidth: 0
+							},{
+								label: data.keyValues[1].key,
+								data: data.keyValues[1].values,
+								backgroundColor: "rgba(60, 129, 250, 0.2)",
+								borderColor: "rgba(120, 119, 121, 0.8)",
+								borderWidth: 0
+							},{
+								label: data.keyValues[2].key,
+								data: data.keyValues[2].values,
+								backgroundColor: "rgba(248, 199, 49, 0.2)",
+								borderColor: "rgba(120, 119, 121, 0.8)",
+								borderWidth: 0
+							},{
+								label: data.keyValues[3].key,
+								data: data.keyValues[3].values,
+								backgroundColor: "rgba(246, 145, 36, 0.2)",
+								borderColor: "rgba(120, 119, 121, 0.8)",
+								borderWidth: 0
+							},{
+								label: data.keyValues[4].key,
+								data: data.keyValues[4].values,
+								backgroundColor: "rgba(245, 48, 52, 0.2)",
+								borderColor: "rgba(120, 119, 121, 0.8)",
+								borderWidth: 0
+							}]
+						},
+						options: {
+							onClick: function() {
+								AnalyticsService.send(AnalyticsService.CONST.MAIN, AnalyticsService.CONST.CLK_LOAD_GRAPH);
+							},
+							maintainAspectRatio: false,
+							tooltips: {
+								mode: "label",
+								bodySpacing: 6
+							},
+							scales: {
+								yAxes: [{
+									gridLines: {
+										zeroLineColor: "rgba(0, 0, 0, 1)",
+										zeroLineWidth: 0.5
+									},
+									ticks: (function() {
+										var ticks = {
+											beginAtZero: true,
+											maxTicksLimit: 5,
+											callback: function (label) {
+												if (label >= 1000) {
+													return "   " + label / 1000 + 'k';
+												} else {
+													if (label % 1 === 0) {
+														return getPreSpace("" + label) + label;
+													}
+												}
+											}
+										};
+										if ( yMax ) {
+											ticks.max = yMax;
+										}
+										return ticks;
+									})(),
+									stacked: true
+								}],
+								xAxes: [{
+									gridLines: {
+										zeroLineColor: "rgba(0, 0, 0, 1)",
+										zeroLineWidth: 0.5
+									},
+									ticks: {
+										autoSkip: true
+									},
+									categoryPercentage: 1.0,
+									barPercentage: 1.0,
+									stacked: true,
+									display:true
+								}]
+							},
+							animation: {
+								duration: 0
+							},
+							legend: {
+								display: true,
+								labels: {
+									boxWidth: 20,
+									padding: 10
+								}
+							}
+						}
+					});
+					$timeout(function() {
+						$rootScope.$broadcast("loadChartDirective.saveMax." + scope.namespace, oChart.scales['y-axis-0'].end );
+					});
+				}
+				function getPreSpace( str ) {
+                	var space = "       "; //7 is max space
+					if ( str.length > space.length ) {
+						return str;
+					} else {
+						return space.substr(0, space.length - str.length);
+					}
+				}
+				function renderEmptyChart() {
+					element.find("canvas").hide();
+					if ( element.find("h4").length === 0 ) {
+						element.append("<h4 style='padding-top:25%;text-align:center;'>No Data</h4>");
+					} else {
+						element.find("h4").show();
+					}
+				}
+				function updateChart(data, yMax) {
 					if ( angular.isUndefined( oChart ) ) {
 						if ( data.length !== 0 ) {
-							render(data, true);
+							renderChart(data, yMax, true);
 						}
 					} else {
-						oChart.dataProvider = data;
-						$timeout(function () {
-							oChart.validateData();
+						if ( data.length === 0 ) {
+							renderEmptyChart();
+						} else {
+							element.find("h4").hide().end().find("canvas").show();
+							if ( yMax ) {
+								oChart.config.options.scales.yAxes[0].ticks.max = yMax;
+							} else {
+								delete oChart.config.options.scales.yAxes[0].ticks.max;
+							}
+							oChart.data.labels = data.labels;
+							oChart.data.datasets[0].data = data.keyValues[0].values;
+							oChart.data.datasets[1].data = data.keyValues[1].values;
+							oChart.data.datasets[2].data = data.keyValues[2].values;
+							oChart.data.datasets[3].data = data.keyValues[3].values;
+							oChart.data.datasets[4].data = data.keyValues[4].values;
+							oChart.data.datasets[0].label = data.keyValues[0].key;
+							oChart.data.datasets[1].label = data.keyValues[1].key;
+							oChart.data.datasets[2].label = data.keyValues[2].key;
+							oChart.data.datasets[3].label = data.keyValues[3].key;
+							oChart.data.datasets[4].label = data.keyValues[4].key;
+							oChart.update();
+						}
+					}
+				}
+                function parseTimeSeriesHistogram(data) {
+					if ( angular.isUndefined(data) )  return [];
+
+					var newData = {
+						labels: [],
+						keyValues: []
+					};
+					var bHasData = false;
+					for( var i = 0 ; i < data.length; i++ ) {
+						var newValues = [];
+						for( var j = 0 ; j < data[i].values.length ; j++ ) {
+							bHasData = true;
+							newValues.push( data[i].values[j][1] );
+							if ( i === 0 ) {
+								newData.labels.push( CommonUtilService.formatDate(data[i].values[j][0], "MM-DD HH:mm") );
+							}
+						}
+						newData.keyValues.push({
+							key : data[i].key,
+							values: newValues
 						});
 					}
-				};
+					return bHasData ? newData : [];
+				}
 
-                /**
-                 * parse time series histogram for amcharts
-                 * @param data
-                 * @returns {Array}
-                 */
-                parseTimeSeriesHistogramForAmcharts = function (data) {
-                	if ( angular.isUndefined( data ) ) return [];
-                	
-                    function getKeyFromNewDataByTime (time) {
-                        for (var key in newData) {
-                            if (moment(time).format("YYYY-MM-DD HH:mm") === newData[key].time) {
-                                return key;
-                            }
-                        }
-                        return -1;
-                    }
-
-                    aDynamicKey = [];
-
-                    var newData = [];
-					for( var i = 0 ; i < data.length ; i++ ) {
-						var oPart = data[i];
-                        aDynamicKey.push( oPart.key );
-						for( var j = 0 ; j < oPart.values.length ; j++ ) {
-							var aInner = oPart.values[j];
-                            var a = getKeyFromNewDataByTime( aInner[0]);
-                            if (a > -1) {
-                                newData[a][ oPart.key ] = aInner[1];
-                            } else {
-                                var b = {
-                                    time: moment( aInner[0]).format('YYYY-MM-DD HH:mm')
-                                };
-                                b[ oPart.key ] = aInner[1];
-                                newData.push(b);
-                            }
-                        }
-                    }
-                    return newData;
-                };
-
-                /**
-                 * scope event on loadChartDirective.initAndRenderWithData.namespace
-                 */
-                scope.$on('loadChartDirective.initAndRenderWithData.' + scope.namespace, function (event, data, w, h, useChartCursor) {
+                scope.$on("loadChartDirective.initAndRenderWithData." + scope.namespace, function (event, data, yMax, w, h, useChartCursor) {
                     setIdAutomatically();
                     setWidthHeight(w, h);
-                    var parsedData = parseTimeSeriesHistogramForAmcharts(data);
+                    var parsedData = parseTimeSeriesHistogram(data);
                     if ( parsedData.length === 0 ) {
-                    	renderEmpty();
+						renderEmptyChart();
                     } else {
-                    	render(parsedData, useChartCursor);
+                    	renderChart( parsedData, yMax, useChartCursor );
                     }
                 });
 
-                /**
-                 * scope event on loadChartDirective.updateData.namespace
-                 */
-                scope.$on('loadChartDirective.updateData.' + scope.namespace, function (event, data) {
-                    updateData(parseTimeSeriesHistogramForAmcharts(data));
-                });
-
-                /**
-                 * scope event on loadChartDirective.initAndSimpleRenderWithData.namespace
-                 */
-                scope.$on('loadChartDirective.initAndSimpleRenderWithData.' + scope.namespace, function (event, data, w, h, useChartCursor) {
-                    setIdAutomatically();
-                    setWidthHeight(w, h);
-                    var parsedData = parseTimeSeriesHistogramForAmcharts(data);
-                    if ( parsedData.length === 0 ) {
-                    	renderEmpty();
-                    } else {
-                    	renderSimple(parsedData, useChartCursor);
-                    }
+                scope.$on("loadChartDirective.updateData." + scope.namespace, function (event, data, yMax) {
+					if ( scope.namespace === "forServerList" ) {
+						updateChart(parseTimeSeriesHistogram(data), yMax);
+					} else {
+						updateChart(parseTimeSeriesHistogram(data));
+					}
                 });
             }
         };

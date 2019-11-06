@@ -1,0 +1,40 @@
+serviceTypes:
+    - code: 1620
+      name: 'OPENWHISK_INTERNAL'
+    - code: 1621
+      name: 'OPENWHISK_CONTROLLER'
+      property:
+          recordStatistics: true
+    - code: 1622
+      name: 'OPENWHISK_INVOKER'
+      property:
+          recordStatistics: true
+    - code: 9622
+      name: 'OPENWHISK_CLIENT'
+      property:
+          recordStatistics: true
+
+    - code: 2700
+      name: 'COUCHDB'
+      property:
+          terminal: true
+          includeDestinationId: true
+      matcher:
+          type: 'exact'
+          code: -1 # args[0]
+    - code: 2701
+      name: 'COUCHDB_EXECUTE_QUERY'
+      desc: 'COUCHDB'
+      property:
+          terminal: true
+          recordStatistics: true
+          includeDestinationId: true
+      matcher:
+          type: 'exact'
+          code: -1 # args[0]
+
+annotationKeys:
+    - code: 923
+      name: 'marker.message'
+      property:
+          viewInRecordSet: true

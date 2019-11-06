@@ -1,3 +1,19 @@
+/*
+ * Copyright 2016 NAVER Corp.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.navercorp.pinpoint.web.controller;
 
 import com.navercorp.pinpoint.common.util.DateUtils;
@@ -11,7 +27,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
@@ -76,12 +91,9 @@ public class AgentStatisticsController {
         Range range = new Range(DateUtils.timestampToMidNight(from), DateUtils.timestampToMidNight(to), true);
         List<AgentCountStatistics> agentCountStatisticsList = agentStatisticsService.selectAgentCount(range);
 
-        Collections.sort(agentCountStatisticsList, new Comparator<AgentCountStatistics>() {
+        agentCountStatisticsList.sort(new Comparator<AgentCountStatistics>() {
             @Override
             public int compare(AgentCountStatistics o1, AgentCountStatistics o2) {
-                o1.getTimestamp();
-                o2.getTimestamp();
-
                 if (o1.getTimestamp() > o2.getTimestamp()) {
                     return -1;
                 } else {

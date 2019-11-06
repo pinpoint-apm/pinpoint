@@ -203,8 +203,27 @@
 	margin-left: 280px;
 	margin-right: 6px;
 }
+div.agent-chart-list .paging {
+    color: #FFF;
+    height: 28px;
+    margin: 1px 0px 4px 4px;
+    padding: 4px 4px;
+    background-color: #6F6F6F;
+    font-family: sans-serif;
+}
+div.agent-chart-list .paging span.page {
+    float: right;
+    color: #FFF;
+    margin: 2px;
+    cursor: pointer;
+    padding: 1px 4px 0px 4px;
+    font-size: 12px;
+    text-decoration: underline;
+}
 .realtime .agent-chart {
 	float: left;
+    position:relative;
+    cursor: pointer;
 	width: 122px;
 	height: 72px;
 	margin: 0px 2px 2px 4px;
@@ -213,7 +232,7 @@
 }
 .realtime .agent-chart > div {
 	color: #000;
-	padding: 1px;
+	padding: 1px 12px 1px 1px;
 	overflow: hidden;
 	font-size: 10px;
 	word-wrap: normal;
@@ -221,6 +240,24 @@
 	white-space: nowrap;
 	text-overflow: ellipsis;
 	background-color: rgba(205, 211, 33, 0.5);
+}
+.realtime .agent-chart > span {
+    /*
+    top: -2px;
+    right: -3px;
+    width: 0px;
+    height: 0px;
+    position: absolute;
+    transform: rotate(45deg);
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-bottom: 5px solid #000;
+    */
+    font-size: 8px;
+    top: 3px;
+    right: 0px;
+    position: absolute;
+    transform: scale(0.8);
 }
 .realtime .agent-sum-chart svg {
 	font: 10px sans-serif;

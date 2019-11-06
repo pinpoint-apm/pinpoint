@@ -21,6 +21,8 @@ import com.navercorp.pinpoint.web.vo.Application;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Objects;
+
 /**
  * @author emeroad
  */
@@ -32,19 +34,13 @@ public class DefaultLinkFilter implements LinkFilter {
     private final Application calleeApplication;
 
     public DefaultLinkFilter(Application callerApplication, Application calleeApplication) {
-        if (callerApplication == null) {
-            throw new NullPointerException("callerApplication must not be null");
-        }
-        if (calleeApplication == null) {
-            throw new NullPointerException("calleeApplication must not be null");
-        }
-        this.callerApplication = callerApplication;
-        this.calleeApplication = calleeApplication;
+        this.callerApplication = Objects.requireNonNull(callerApplication, "callerApplication");
+        this.calleeApplication = Objects.requireNonNull(calleeApplication, "calleeApplication");
     }
 
     public boolean filter(Application foundApplication) {
         if (foundApplication == null) {
-            throw new NullPointerException("foundApplication must not be null");
+            throw new NullPointerException("foundApplication");
         }
         if (this.calleeApplication.getServiceType().isWas() && this.callerApplication.getServiceType().isWas()) {
             logger.debug("check was to was.");

@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,9 +16,9 @@
 
 package com.navercorp.pinpoint.thrift.io;
 
-import org.apache.thrift.TBase;
-import org.apache.thrift.TException;
-
+import com.navercorp.pinpoint.io.util.BodyFactory;
+import com.navercorp.pinpoint.io.util.TypeLocator;
+import com.navercorp.pinpoint.io.util.TypeLocatorBuilder;
 import com.navercorp.pinpoint.thrift.dto.TAgentInfo;
 import com.navercorp.pinpoint.thrift.dto.TAgentStat;
 import com.navercorp.pinpoint.thrift.dto.TAgentStatBatch;
@@ -30,6 +30,8 @@ import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
 import com.navercorp.pinpoint.thrift.dto.TSqlMetaData;
 import com.navercorp.pinpoint.thrift.dto.TStringMetaData;
 
+import org.apache.thrift.TBase;
+
 /**
  * @author emeroad
  * @author koo.taejin
@@ -38,174 +40,137 @@ import com.navercorp.pinpoint.thrift.dto.TStringMetaData;
  * @author jaehong.kim
  *   - add CHUNK_HEADER
  */
-class DefaultTBaseLocator implements TBaseLocator {
+public class DefaultTBaseLocator {
 
-    private static final short NETWORK_CHECK = 10;
-    private static final Header NETWORK_CHECK_HEADER = createHeader(NETWORK_CHECK);
+    public static final short NETWORK_CHECK = 10;
 
-    private static final short SPAN = 40;
-    private static final Header SPAN_HEADER = createHeader(SPAN);
+    // grpc ping
+    public static final short PING = 12;
 
-    private static final short AGENT_INFO = 50;
-    private static final Header AGENT_INFO_HEADER = createHeader(AGENT_INFO);
-    
-    private static final short AGENT_STAT = 55;
-    private static final Header AGENT_STAT_HEADER = createHeader(AGENT_STAT);
-    private static final short AGENT_STAT_BATCH = 56;
-    private static final Header AGENT_STAT_BATCH_HEADER = createHeader(AGENT_STAT_BATCH);
+    public static final short SPAN = 40;
 
-    private static final short SPANCHUNK = 70;
-    private static final Header SPANCHUNK_HEADER = createHeader(SPANCHUNK);
+    public static final short AGENT_INFO = 50;
 
-    private static final short SPANEVENT = 80;
-    private static final Header SPANEVENT_HEADER = createHeader(SPANEVENT);
-    
-    private static final short SQLMETADATA = 300;
-    private static final Header SQLMETADATA_HEADER = createHeader(SQLMETADATA);
+    public static final short AGENT_STAT = 55;
 
-    private static final short APIMETADATA = 310;
-    private static final Header APIMETADATA_HEADER = createHeader(APIMETADATA);
+    public static final short AGENT_STAT_BATCH = 56;
 
-    private static final short RESULT = 320;
-    private static final Header RESULT_HEADER = createHeader(RESULT);
+    public static final short SPANCHUNK = 70;
 
-    private static final short STRINGMETADATA = 330;
-    private static final Header STRINGMETADATA_HEADER = createHeader(STRINGMETADATA);
-    
-    private static final short CHUNK = 400;
-    private static final Header CHUNK_HEADER = createHeader(CHUNK);
-    
-    @Override
-    public TBase<?, ?> tBaseLookup(short type) throws TException {
-        switch (type) {
-            case SPAN:
+    public static final short SPANEVENT = 80;
+
+    public static final short SQLMETADATA = 300;
+
+    public static final short APIMETADATA = 310;
+
+    public static final short RESULT = 320;
+
+    public static final short STRINGMETADATA = 330;
+
+    public static final short CHUNK = 400;
+
+    private static final TypeLocator<TBase<?, ?>> typeLocator = build();
+
+    public static TypeLocator<TBase<?, ?>>build() {
+
+        TypeLocatorBuilder<TBase<?, ?>> builder = new TypeLocatorBuilder<TBase<?, ?>>();
+        addBodyFactory(builder);
+        return builder.build();
+    }
+
+    public static void addBodyFactory(TypeLocatorBuilder<TBase<?, ?>> builder) {
+        builder.addBodyFactory(SPAN, new BodyFactory<TBase<?, ?>>() {
+            @Override
+            public TBase<?, ?> getObject() {
                 return new TSpan();
-            case AGENT_INFO:
+            }
+        });
+
+        builder.addBodyFactory(AGENT_INFO, new BodyFactory<TBase<?, ?>>() {
+            @Override
+            public TBase<?, ?> getObject() {
                 return new TAgentInfo();
-            case AGENT_STAT:
+            }
+        });
+
+        builder.addBodyFactory(AGENT_STAT, new BodyFactory<TBase<?, ?>>() {
+            @Override
+            public TBase<?, ?> getObject() {
                 return new TAgentStat();
-            case AGENT_STAT_BATCH:
+            }
+        });
+
+        builder.addBodyFactory(AGENT_STAT_BATCH, new BodyFactory<TBase<?, ?>>() {
+            @Override
+            public TBase<?, ?> getObject() {
                 return new TAgentStatBatch();
-            case SPANCHUNK:
+            }
+
+        });
+
+        builder.addBodyFactory(SPANCHUNK, new BodyFactory<TBase<?, ?>>() {
+            @Override
+            public TBase<?, ?> getObject() {
                 return new TSpanChunk();
-            case SPANEVENT:
+            }
+
+        });
+
+        builder.addBodyFactory(SPANEVENT, new BodyFactory<TBase<?, ?>>() {
+            @Override
+            public TBase<?, ?> getObject() {
                 return new TSpanEvent();
-            case SQLMETADATA:
+            }
+
+        });
+
+        builder.addBodyFactory(SQLMETADATA, new BodyFactory<TBase<?, ?>>() {
+            @Override
+            public TBase<?, ?> getObject() {
                 return new TSqlMetaData();
-            case APIMETADATA:
+            }
+
+        });
+
+        builder.addBodyFactory(APIMETADATA, new BodyFactory<TBase<?, ?>>() {
+            @Override
+            public TBase<?, ?> getObject() {
                 return new TApiMetaData();
-            case RESULT:
+            }
+        });
+
+
+        builder.addBodyFactory(RESULT, new BodyFactory<TBase<?, ?>>() {
+            @Override
+            public TBase<?, ?> getObject() {
                 return new TResult();
-            case STRINGMETADATA:
+            }
+
+        });
+
+        builder.addBodyFactory(STRINGMETADATA, new BodyFactory<TBase<?, ?>>() {
+            @Override
+            public TBase<?, ?> getObject() {
                 return new TStringMetaData();
-            case NETWORK_CHECK:
+            }
+        });
+
+        builder.addBodyFactory(NETWORK_CHECK, new BodyFactory<TBase<?, ?>>() {
+            @Override
+            public TBase<?, ?> getObject() {
                 return new NetworkAvailabilityCheckPacket();
-        }
-        throw new TException("Unsupported type:" + type);
+            }
+        });
+
+        builder.addBodyFactory(CHUNK, new BodyFactory<TBase<?, ?>>() {
+            @Override
+            public TBase<?, ?> getObject() {
+                return null;
+            }
+        });
     }
 
-    public Header headerLookup(TBase<?, ?> tbase) throws TException {
-        if (tbase == null) {
-            throw new IllegalArgumentException("tbase must not be null");
-        }
-        if (tbase instanceof TSpan) {
-            return SPAN_HEADER;
-        }
-        if (tbase instanceof TSpanChunk) {
-            return SPANCHUNK_HEADER;
-        }
-        if (tbase instanceof TSpanEvent) {
-            return SPANEVENT_HEADER;
-        }
-        if (tbase instanceof TAgentInfo) {
-            return AGENT_INFO_HEADER;
-        }
-        if (tbase instanceof TAgentStat) {
-            return AGENT_STAT_HEADER;
-        }
-        if (tbase instanceof TAgentStatBatch) {
-            return AGENT_STAT_BATCH_HEADER;
-        }
-        if (tbase instanceof TSqlMetaData) {
-            return SQLMETADATA_HEADER;
-        }
-        if (tbase instanceof TApiMetaData) {
-            return APIMETADATA_HEADER;
-        }
-        if (tbase instanceof TResult) {
-            return RESULT_HEADER;
-        }
-        if (tbase instanceof TStringMetaData) {
-            return STRINGMETADATA_HEADER;
-        }
-        if (tbase instanceof NetworkAvailabilityCheckPacket) {
-            return NETWORK_CHECK_HEADER;
-        }
-        
-        throw new TException("Unsupported Type" + tbase.getClass());
-    }
-
-    @Override
-    public boolean isSupport(short type) {
-        try {
-            tBaseLookup(type);
-            return true;
-        } catch (TException ignore) {
-            // skip
-        }
-
-        return false;
-    }
-
-    @Override
-    public boolean isSupport(Class<? extends TBase> clazz) {
-        if (clazz.equals(TSpan.class)) {
-            return true;
-        }
-        if (clazz.equals(TSpanChunk.class)) {
-            return true;
-        }
-        if (clazz.equals(TAgentInfo.class)) {
-            return true;
-        }
-        if (clazz.equals(TAgentStat.class)) {
-            return true;
-        }
-        if (clazz.equals(TAgentStatBatch.class)) {
-            return true;
-        }
-        if (clazz.equals(TSqlMetaData.class)) {
-            return true;
-        }
-        if (clazz.equals(TApiMetaData.class)) {
-            return true;
-        }
-        if (clazz.equals(TResult.class)) {
-            return true;
-        }
-        if (clazz.equals(TStringMetaData.class)) {
-            return true;
-        }
-        if (clazz.equals(NetworkAvailabilityCheckPacket.class)) {
-            return true;
-        }
-
-        return false;
-    }
-    
-    private static Header createHeader(short type) {
-        Header header = new Header();
-        header.setType(type);
-        return header;
-    }
-
-    @Override
-    public Header getChunkHeader() {
-        return CHUNK_HEADER;
-    }
-
-    @Override
-    public boolean isChunkHeader(short type) {
-        return CHUNK == type;
+    public static TypeLocator<TBase<?, ?>> getTypeLocator() {
+        return typeLocator;
     }
 }

@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.profiler.util;
 
+import com.navercorp.pinpoint.common.util.StringUtils;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -36,7 +38,7 @@ public final class QueryStringUtil {
     private static final Pattern MULTI_SPACE_ESCAPE = Pattern.compile(" +");
 
     public static String removeAllMultiSpace(String query) {
-        if (query == null || query.length() == 0) {
+        if (StringUtils.isEmpty(query)) {
             return "";
         }
         Matcher matcher = MULTI_SPACE_ESCAPE.matcher(query);

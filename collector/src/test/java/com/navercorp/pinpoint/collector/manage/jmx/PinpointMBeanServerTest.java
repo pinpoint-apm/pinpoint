@@ -78,7 +78,7 @@ public class PinpointMBeanServerTest {
         mBeanServer.unregisterMBean(aTest);
     }
 
-    private interface ATestMBean {
+    public interface ATestMBean {
 
     }
 

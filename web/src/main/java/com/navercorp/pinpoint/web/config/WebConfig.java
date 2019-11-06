@@ -45,6 +45,12 @@ public class WebConfig {
     @Value("#{pinpointWebProps['cluster.zookeeper.retry.interval'] ?: 60000}")
     private int clusterZookeeperRetryInterval;
 
+    @Value("#{pinpointWebProps['cluster.zookeeper.periodic.sync.enable'] ?: false}")
+    private boolean clusterZookeeperPeriodicSyncEnable;
+
+    @Value("#{pinpointWebProps['cluster.zookeeper.periodic.sync.interval'] ?: 600000}")
+    private int clusterZookeeperPeriodicSyncInterval;
+
     @Value("#{pinpointWebProps['cluster.connect.address'] ?: ''}")
     private String clusterConnectAddress;
 
@@ -52,27 +58,31 @@ public class WebConfig {
     public void validation() {
         if (isClusterEnable()) {
 //            assertPort(clusterTcpPort);
-            if(StringUtils.isEmpty(clusterZookeeperAddress)) {
+            if (StringUtils.isEmpty(clusterZookeeperAddress)) {
                 throw new IllegalArgumentException("clusterZookeeperAddress may not be empty =" + clusterZookeeperAddress);
             }
             assertPositiveNumber(clusterZookeeperSessionTimeout);
             assertPositiveNumber(clusterZookeeperRetryInterval);
+
+            if (clusterZookeeperPeriodicSyncEnable) {
+                assertPositiveNumber(clusterZookeeperPeriodicSyncInterval);
+            }
         }
 
         logger.info("{}", toString());
     }
 
-    private boolean assertPort(int port) {
+    private int assertPort(int port) {
         if (port > 0 && 65535 > port) {
-            return true;
+            return port;
         }
 
         throw new IllegalArgumentException("Invalid Port =" + port);
     }
 
-    private boolean assertPositiveNumber(int number) {
+    private int assertPositiveNumber(int number) {
         if (number >= 0) {
-            return true;
+            return number;
         }
 
         throw new IllegalArgumentException("Invalid Positive Number =" + number);
@@ -94,25 +104,34 @@ public class WebConfig {
         return clusterZookeeperSessionTimeout;
     }
 
+    public int getClusterZookeeperRetryInterval() {
+        return clusterZookeeperRetryInterval;
+    }
+
+    public boolean isClusterZookeeperPeriodicSyncEnable() {
+        return clusterZookeeperPeriodicSyncEnable;
+    }
+
+    public int getClusterZookeeperPeriodicSyncInterval() {
+        return clusterZookeeperPeriodicSyncInterval;
+    }
+
     public String getClusterConnectAddress() {
         return clusterConnectAddress;
     }
 
     @Override
     public String toString() {
-        return "WebConfig [clusterEnable=" + clusterEnable
-                + ", clusterTcpPort=" + clusterTcpPort
-                + ", clusterZookeeperAddress=" + clusterZookeeperAddress
-                + ", clusterZookeeperSessionTimeout=" + clusterZookeeperSessionTimeout
-                + ", clusterConnectAddress=" + clusterConnectAddress + "]";
-    }
-
-    public int getClusterZookeeperRetryInterval() {
-        return clusterZookeeperRetryInterval;
-    }
-
-    public void setClusterZookeeperRetryInterval(int clusterZookeeperRetryInterval) {
-        this.clusterZookeeperRetryInterval = clusterZookeeperRetryInterval;
+        return "WebConfig{" +
+                "clusterEnable=" + clusterEnable +
+                ", clusterTcpPort=" + clusterTcpPort +
+                ", clusterZookeeperAddress='" + clusterZookeeperAddress + '\'' +
+                ", clusterZookeeperSessionTimeout=" + clusterZookeeperSessionTimeout +
+                ", clusterZookeeperRetryInterval=" + clusterZookeeperRetryInterval +
+                ", clusterZookeeperPeriodicSyncEnable=" + clusterZookeeperPeriodicSyncEnable +
+                ", clusterZookeeperPeriodicSyncInterval=" + clusterZookeeperPeriodicSyncInterval +
+                ", clusterConnectAddress='" + clusterConnectAddress + '\'' +
+                '}';
     }
 
 }

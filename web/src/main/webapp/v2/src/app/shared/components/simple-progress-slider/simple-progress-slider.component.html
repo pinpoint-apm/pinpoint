@@ -1,0 +1,19 @@
+<div class="slider-for-progress">
+    <div class="sfp-line">
+        <div class="sfp-background"></div>
+        <div class="sfp-foreground" [@barTrigger]="{value: barTrigger, params: {value: (100 - selectedStartPosition) + '%'}}"></div>
+        <div class="sfp-handle sfp-left-handler" [@handlerTrigger]="{value: handlerTrigger, params: {value: selectedStartPosition + '%'}}" (@handlerTrigger.start)="animationStart($event)" (@handlerTrigger.done)="animationDone($event)"><span></span></div>
+        <div class="sfp-handle sfp-right-handler"><span></span></div>
+        <div class="sfp-label sfp-label-right-arrow" [hidden]="hiddenRightArrowLabel()" [@handlerTrigger]="{value: handlerTrigger, params: {value: selectedStartPosition + '%'}}">
+            <span>{{selectedStartValue}}</span>
+        </div>
+        <div class="sfp-label sfp-label-left-arrow" [hidden]="hiddenLeftArrowLabel()" [@handlerTrigger]="{value: handlerTrigger, params: {value: selectedStartPosition + '%'}}">
+            <span>{{selectedStartValue}}</span>
+        </div>
+    </div>
+    <div class="sfp-value">
+        <span class="first">{{rangeStartValue}}</span>
+        <span *ngFor="let d of gradationValue" [style.left]="d.position + '%'">{{d.value}}</span>
+        <span class="last">{{rangeEndValue}}</span>
+    </div>
+</div>

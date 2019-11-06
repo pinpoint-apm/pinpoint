@@ -21,8 +21,9 @@ package com.navercorp.pinpoint.common.trace;
  */
 public class DefaultServiceTypeFactory extends ServiceTypeFactory {
 
+    static final ServiceTypeFactory INSTANCE = new DefaultServiceTypeFactory();
 
-    DefaultServiceTypeFactory() {
+    private DefaultServiceTypeFactory() {
     }
 
 

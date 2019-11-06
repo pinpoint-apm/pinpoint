@@ -25,7 +25,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class ThreadLocalAcceptedTimeService implements AcceptedTimeService {
 
-    private final ThreadLocal<Long> local = new NamedThreadLocal<>("AcceptedTimeService");
+    private final ThreadLocal<Long> local = new NamedThreadLocal<Long>("AcceptedTimeService");
 
     @Override
     public void accept() {

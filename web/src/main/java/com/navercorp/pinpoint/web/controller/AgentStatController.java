@@ -17,175 +17,233 @@
 package com.navercorp.pinpoint.web.controller;
 
 
-import java.util.List;
-import java.util.concurrent.TimeUnit;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.navercorp.pinpoint.common.server.bo.stat.ActiveTraceBo;
+import com.navercorp.pinpoint.common.server.bo.stat.AgentStatDataPoint;
+import com.navercorp.pinpoint.common.server.bo.stat.CpuLoadBo;
+import com.navercorp.pinpoint.common.server.bo.stat.DataSourceListBo;
+import com.navercorp.pinpoint.common.server.bo.stat.DeadlockThreadCountBo;
+import com.navercorp.pinpoint.common.server.bo.stat.DirectBufferBo;
+import com.navercorp.pinpoint.common.server.bo.stat.FileDescriptorBo;
+import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
+import com.navercorp.pinpoint.common.server.bo.stat.JvmGcDetailedBo;
+import com.navercorp.pinpoint.common.server.bo.stat.ResponseTimeBo;
+import com.navercorp.pinpoint.common.server.bo.stat.TransactionBo;
+import com.navercorp.pinpoint.web.service.stat.ActiveTraceChartService;
+import com.navercorp.pinpoint.web.service.stat.ActiveTraceService;
+import com.navercorp.pinpoint.web.service.stat.AgentStatChartService;
+import com.navercorp.pinpoint.web.service.stat.AgentStatService;
+import com.navercorp.pinpoint.web.service.stat.CpuLoadChartService;
+import com.navercorp.pinpoint.web.service.stat.CpuLoadService;
+import com.navercorp.pinpoint.web.service.stat.DataSourceChartService;
+import com.navercorp.pinpoint.web.service.stat.DataSourceService;
+import com.navercorp.pinpoint.web.service.stat.DeadlockChartService;
+import com.navercorp.pinpoint.web.service.stat.DeadlockService;
+import com.navercorp.pinpoint.web.service.stat.DirectBufferChartService;
+import com.navercorp.pinpoint.web.service.stat.DirectBufferService;
+import com.navercorp.pinpoint.web.service.stat.FileDescriptorChartService;
+import com.navercorp.pinpoint.web.service.stat.FileDescriptorService;
+import com.navercorp.pinpoint.web.service.stat.JvmGcChartService;
+import com.navercorp.pinpoint.web.service.stat.JvmGcDetailedChartService;
+import com.navercorp.pinpoint.web.service.stat.JvmGcDetailedService;
+import com.navercorp.pinpoint.web.service.stat.JvmGcService;
+import com.navercorp.pinpoint.web.service.stat.ResponseTimeChartService;
+import com.navercorp.pinpoint.web.service.stat.ResponseTimeService;
+import com.navercorp.pinpoint.web.service.stat.TransactionChartService;
+import com.navercorp.pinpoint.web.service.stat.TransactionService;
+import com.navercorp.pinpoint.web.util.TimeWindow;
+import com.navercorp.pinpoint.web.util.TimeWindowSampler;
+import com.navercorp.pinpoint.web.util.TimeWindowSlotCentricSampler;
+import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.web.vo.stat.chart.StatChart;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
-import org.springframework.util.StopWatch;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.navercorp.pinpoint.web.service.AgentEventService;
-import com.navercorp.pinpoint.web.service.AgentInfoService;
-import com.navercorp.pinpoint.web.service.AgentStatService;
-import com.navercorp.pinpoint.web.util.TimeWindow;
-import com.navercorp.pinpoint.web.util.TimeWindowSlotCentricSampler;
-import com.navercorp.pinpoint.web.vo.AgentEvent;
-import com.navercorp.pinpoint.web.vo.AgentInfo;
-import com.navercorp.pinpoint.web.vo.AgentStat;
-import com.navercorp.pinpoint.web.vo.AgentStatus;
-import com.navercorp.pinpoint.web.vo.ApplicationAgentList;
-import com.navercorp.pinpoint.web.vo.Range;
-import com.navercorp.pinpoint.web.vo.linechart.agentstat.AgentStatChartGroup;
+import java.util.List;
 
 /**
  * @author emeroad
  * @author minwoo.jung
  * @author HyunGil Jeong
  */
-@Controller
-public class AgentStatController {
-    private static final long USE_AGGREGATED_THRESHOLD = TimeUnit.HOURS.toMillis(24);
-    private static final int MAX_RESPONSE_SIZE = 200;
+public abstract class AgentStatController<T extends AgentStatDataPoint> {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final AgentStatService<T> agentStatService;
 
-    @Autowired
-    private AgentStatService agentStatService;
+    private final AgentStatChartService agentStatChartService;
 
-    @Autowired
-    private AgentInfoService agentInfoService;
+    public AgentStatController(AgentStatService<T> agentStatService, AgentStatChartService agentStatChartService) {
+        this.agentStatService = agentStatService;
+        this.agentStatChartService = agentStatChartService;
+    }
 
-    @Autowired
-    private AgentEventService agentEventService;
-
-    @RequestMapping(value = "/getAgentStat", method = RequestMethod.GET)
+    @PreAuthorize("hasPermission(new com.navercorp.pinpoint.web.vo.AgentParam(#agentId, #to), 'agentParam', 'inspector')")
+    @RequestMapping(method = RequestMethod.GET)
     @ResponseBody
-    public AgentStatChartGroup getAgentStat(
+    public List<T> getAgentStat(
             @RequestParam("agentId") String agentId,
             @RequestParam("from") long from,
-            @RequestParam("to") long to,
-            @RequestParam(value = "sampleRate", required = false) Integer sampleRate) throws Exception {
-        StopWatch watch = new StopWatch();
-        watch.start("agentStatService.selectAgentStatList");
-        
-        Range requestRange = new Range(from, to);
-        boolean useAggregated = requestRange.getRange() > USE_AGGREGATED_THRESHOLD;
-        
-        long interval = useAggregated ? AgentStat.AGGR_SAMPLE_INTERVAL : AgentStat.RAW_SAMPLE_INTERVAL;
-        TimeWindowSlotCentricSampler sampler = new TimeWindowSlotCentricSampler(interval, MAX_RESPONSE_SIZE);
+            @RequestParam("to") long to) {
+        Range rangeToScan = new Range(from, to);
+        return this.agentStatService.selectAgentStatList(agentId, rangeToScan);
+    }
+
+    @PreAuthorize("hasPermission(new com.navercorp.pinpoint.web.vo.AgentParam(#agentId, #to), 'agentParam', 'inspector')")
+    @RequestMapping(value = "/chart", method = RequestMethod.GET)
+    @ResponseBody
+    public StatChart getAgentStatChart(
+            @RequestParam("agentId") String agentId,
+            @RequestParam("from") long from,
+            @RequestParam("to") long to) {
+        TimeWindowSampler sampler = new TimeWindowSlotCentricSampler();
         TimeWindow timeWindow = new TimeWindow(new Range(from, to), sampler);
-        
-        long scanFrom = timeWindow.getWindowRange().getFrom();
-        long scanTo = timeWindow.getWindowRange().getTo() + timeWindow.getWindowSlotSize();
-        Range rangeToScan = new Range(scanFrom, scanTo);
-        
-        
-        List<AgentStat> agentStatList;
-        
-        if (useAggregated) {
-            agentStatList = agentStatService.selectAggregatedAgentStatList(agentId, rangeToScan);
-        } else {
-            agentStatList = agentStatService.selectAgentStatList(agentId, rangeToScan);
-        }
-        watch.stop();
-
-        if (logger.isInfoEnabled()) {
-            logger.info("getAgentStat(agentId={}, from={}, to={}) : {}ms", agentId, from, to, watch.getLastTaskTimeMillis());
-        }
-
-        AgentStatChartGroup chartGroup = new AgentStatChartGroup(timeWindow);
-        chartGroup.addAgentStats(agentStatList);
-        chartGroup.buildCharts();
-
-        return chartGroup;
+        return this.agentStatChartService.selectAgentChart(agentId, timeWindow);
     }
 
-    @RequestMapping(value = "/getAgentList", method = RequestMethod.GET, params = {"!application"})
+    @PreAuthorize("hasPermission(new com.navercorp.pinpoint.web.vo.AgentParam(#agentId, #to), 'agentParam', 'inspector')")
+    @RequestMapping(value = "/chart", method = RequestMethod.GET, params = {"interval"})
     @ResponseBody
-    public ApplicationAgentList getAgentList() {
-        return this.agentInfoService.getApplicationAgentList(ApplicationAgentList.Key.APPLICATION_NAME);
-    }
-
-    @RequestMapping(value = "/getAgentList", method = RequestMethod.GET, params = {"!application", "from", "to"})
-    @ResponseBody
-    public ApplicationAgentList getAgentList(
-            @RequestParam("from") long from,
-            @RequestParam("to") long to) {
-        return this.agentInfoService.getApplicationAgentList(ApplicationAgentList.Key.APPLICATION_NAME, to);
-    }
-
-    @RequestMapping(value = "/getAgentList", method = RequestMethod.GET, params = {"!application", "timestamp"})
-    @ResponseBody
-    public ApplicationAgentList getAgentList(
-            @RequestParam("timestamp") long timestamp) {
-        return this.agentInfoService.getApplicationAgentList(ApplicationAgentList.Key.APPLICATION_NAME, timestamp);
-    }
-
-    @RequestMapping(value = "/getAgentList", method = RequestMethod.GET, params = {"application"})
-    @ResponseBody
-    public ApplicationAgentList getAgentList(
-            @RequestParam("application") String applicationName) {
-        return this.agentInfoService.getApplicationAgentList(ApplicationAgentList.Key.HOST_NAME, applicationName);
-    }
-
-    @PreAuthorize("hasPermission(#applicationName, 'application', 'inspector')")
-    @RequestMapping(value = "/getAgentList", method = RequestMethod.GET, params = {"application", "from", "to"})
-    @ResponseBody
-    public ApplicationAgentList getAgentList(
-            @RequestParam("application") String applicationName,
-            @RequestParam("from") long from,
-            @RequestParam("to") long to) {
-        return this.agentInfoService.getApplicationAgentList(ApplicationAgentList.Key.HOST_NAME, applicationName, to);
-    }
-
-    @RequestMapping(value = "/getAgentList", method = RequestMethod.GET, params = {"application", "timestamp"})
-    @ResponseBody
-    public ApplicationAgentList getAgentList(
-            @RequestParam("application") String applicationName,
-            @RequestParam("timestamp") long timestamp) {
-        return this.agentInfoService.getApplicationAgentList(ApplicationAgentList.Key.HOST_NAME, applicationName, timestamp);
-    }
-
-    @RequestMapping(value = "/getAgentInfo", method = RequestMethod.GET)
-    @ResponseBody
-    public AgentInfo getAgentInfo(
-            @RequestParam("agentId") String agentId,
-            @RequestParam("timestamp") long timestamp) {
-        return this.agentInfoService.getAgentInfo(agentId, timestamp);
-    }
-
-    @RequestMapping(value = "/getAgentStatus", method = RequestMethod.GET)
-    @ResponseBody
-    public AgentStatus getAgentStatus(
-            @RequestParam("agentId") String agentId,
-            @RequestParam("timestamp") long timestamp) {
-        return this.agentInfoService.getAgentStatus(agentId, timestamp);
-    }
-
-    @RequestMapping(value = "/getAgentEvent", method = RequestMethod.GET)
-    @ResponseBody
-    public AgentEvent getAgentEvent(
-            @RequestParam("agentId") String agentId,
-            @RequestParam("eventTimestamp") long eventTimestamp,
-            @RequestParam("eventTypeCode") int eventTypeCode) {
-        return this.agentEventService.getAgentEvent(agentId, eventTimestamp, eventTypeCode);
-    }
-
-    @RequestMapping(value = "/getAgentEvents", method = RequestMethod.GET)
-    @ResponseBody
-    public List<AgentEvent> getAgentEvents(
+    public StatChart getAgentStatChart(
             @RequestParam("agentId") String agentId,
             @RequestParam("from") long from,
             @RequestParam("to") long to,
-            @RequestParam(value = "exclude", defaultValue = "") int[] excludeEventTypeCodes) {
-        Range range = new Range(from, to);
-        return this.agentEventService.getAgentEvents(agentId, range, excludeEventTypeCodes);
+            @RequestParam("interval") Integer interval) {
+        final int minSamplingInterval = 5;
+        final long intervalMs = interval < minSamplingInterval ? minSamplingInterval * 1000L : interval * 1000L;
+        TimeWindowSampler sampler = new TimeWindowSampler() {
+            @Override
+            public long getWindowSize(Range range) {
+                return intervalMs;
+            }
+        };
+        TimeWindow timeWindow = new TimeWindow(new Range(from, to), sampler);
+        return this.agentStatChartService.selectAgentChart(agentId, timeWindow);
+    }
+
+    @PreAuthorize("hasPermission(new com.navercorp.pinpoint.web.vo.AgentParam(#agentId, #to), 'agentParam', 'inspector')")
+    @RequestMapping(value = "/chartList", method = RequestMethod.GET)
+    @ResponseBody
+    public List<StatChart> getAgentStatChartList(
+            @RequestParam("agentId") String agentId,
+            @RequestParam("from") long from,
+            @RequestParam("to") long to) {
+        TimeWindowSampler sampler = new TimeWindowSlotCentricSampler();
+        TimeWindow timeWindow = new TimeWindow(new Range(from, to), sampler);
+        return this.agentStatChartService.selectAgentChartList(agentId, timeWindow);
+    }
+
+    @PreAuthorize("hasPermission(new com.navercorp.pinpoint.web.vo.AgentParam(#agentId, #to), 'agentParam', 'inspector')")
+    @RequestMapping(value = "/chartList", method = RequestMethod.GET, params = {"interval"})
+    @ResponseBody
+    public List<StatChart> getAgentStatChartList(
+            @RequestParam("agentId") String agentId,
+            @RequestParam("from") long from,
+            @RequestParam("to") long to,
+            @RequestParam("interval") Integer interval) {
+        final int minSamplingInterval = 5;
+        final long intervalMs = interval < minSamplingInterval ? minSamplingInterval * 1000L : interval * 1000L;
+        TimeWindowSampler sampler = new TimeWindowSampler() {
+            @Override
+            public long getWindowSize(Range range) {
+                return intervalMs;
+            }
+        };
+        TimeWindow timeWindow = new TimeWindow(new Range(from, to), sampler);
+        return this.agentStatChartService.selectAgentChartList(agentId, timeWindow);
+    }
+
+    @Controller
+    @RequestMapping("/getAgentStat/jvmGc")
+    public static class JvmGcController extends AgentStatController<JvmGcBo> {
+        @Autowired
+        public JvmGcController(JvmGcService jvmGcService, JvmGcChartService jvmGcChartService) {
+            super(jvmGcService, jvmGcChartService);
+        }
+    }
+
+    @Controller
+    @RequestMapping("/getAgentStat/jvmGcDetailed")
+    public static class JvmGcDetailedController extends AgentStatController<JvmGcDetailedBo> {
+        @Autowired
+        public JvmGcDetailedController(JvmGcDetailedService jvmGcDetailedService, JvmGcDetailedChartService jvmGcDetailedChartService) {
+            super(jvmGcDetailedService, jvmGcDetailedChartService);
+        }
+    }
+
+    @Controller
+    @RequestMapping("/getAgentStat/cpuLoad")
+    public static class CpuLoadController extends AgentStatController<CpuLoadBo> {
+        @Autowired
+        public CpuLoadController(CpuLoadService cpuLoadService, CpuLoadChartService cpuLoadChartService) {
+            super(cpuLoadService, cpuLoadChartService);
+        }
+    }
+
+    @Controller
+    @RequestMapping("/getAgentStat/transaction")
+    public static class TransactionController extends AgentStatController<TransactionBo> {
+        @Autowired
+        public TransactionController(TransactionService transactionService, TransactionChartService transactionChartService) {
+            super(transactionService, transactionChartService);
+        }
+    }
+
+    @Controller
+    @RequestMapping("/getAgentStat/activeTrace")
+    public static class ActiveTraceController extends AgentStatController<ActiveTraceBo> {
+        @Autowired
+        public ActiveTraceController(ActiveTraceService activeTraceService, ActiveTraceChartService activeTraceChartService) {
+            super(activeTraceService, activeTraceChartService);
+        }
+    }
+
+    @Controller
+    @RequestMapping("/getAgentStat/dataSource")
+    public static class DataSourceController extends AgentStatController<DataSourceListBo> {
+        @Autowired
+        public DataSourceController(DataSourceService dataSourceService, DataSourceChartService dataSourceChartService) {
+            super(dataSourceService, dataSourceChartService);
+        }
+    }
+
+    @Controller
+    @RequestMapping("/getAgentStat/responseTime")
+    public static class ResponseTimeController extends AgentStatController<ResponseTimeBo> {
+        @Autowired
+        public ResponseTimeController(ResponseTimeService responseTimeService, ResponseTimeChartService responseTimeChartService) {
+            super(responseTimeService, responseTimeChartService);
+        }
+    }
+
+    @Controller
+    @RequestMapping("/getAgentStat/deadlock")
+    public static class DeadlockController extends AgentStatController<DeadlockThreadCountBo> {
+        @Autowired
+        public DeadlockController(DeadlockService deadlockService, DeadlockChartService deadlockChartService) {
+            super(deadlockService, deadlockChartService);
+        }
+    }
+
+    @Controller
+    @RequestMapping("/getAgentStat/fileDescriptor")
+    public static class FileDescriptorController extends AgentStatController<FileDescriptorBo> {
+        @Autowired
+        public FileDescriptorController(FileDescriptorService fileDescriptorService, FileDescriptorChartService fileDescriptorChartService) {
+            super(fileDescriptorService, fileDescriptorChartService);
+        }
+    }
+
+    @Controller
+    @RequestMapping("/getAgentStat/directBuffer")
+    public static class DirectBufferController extends AgentStatController<DirectBufferBo> {
+        @Autowired
+        public DirectBufferController(DirectBufferService directBufferService, DirectBufferChartService directBufferChartService) {
+            super(directBufferService, directBufferChartService);
+        }
     }
 }

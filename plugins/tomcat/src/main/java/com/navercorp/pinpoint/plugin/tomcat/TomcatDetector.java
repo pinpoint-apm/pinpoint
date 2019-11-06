@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2014 NAVER Corp.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,33 +14,52 @@
  */
 package com.navercorp.pinpoint.plugin.tomcat;
 
-import com.navercorp.pinpoint.bootstrap.plugin.ApplicationTypeDetector;
-import com.navercorp.pinpoint.bootstrap.resolver.ConditionProvider;
-import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.bootstrap.resolver.condition.ClassResourceCondition;
+import com.navercorp.pinpoint.bootstrap.resolver.condition.MainClassCondition;
+import com.navercorp.pinpoint.bootstrap.resolver.condition.SystemPropertyCondition;
+import com.navercorp.pinpoint.common.util.CollectionUtils;
+
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @author Jongho Moon
  * @author HyunGil Jeong
  *
  */
-public class TomcatDetector implements ApplicationTypeDetector {
+public class TomcatDetector {
     
-    private static final String REQUIRED_MAIN_CLASS = "org.apache.catalina.startup.Bootstrap";
+    private static final String DEFAULT_EXPECTED_MAIN_CLASS = "org.apache.catalina.startup.Bootstrap";
     
     private static final String REQUIRED_SYSTEM_PROPERTY = "catalina.home";
     
     private static final String REQUIRED_CLASS = "org.apache.catalina.startup.Bootstrap";
-    
-    @Override
-    public ServiceType getApplicationType() {
-        return TomcatConstants.TOMCAT;
+
+    private final List<String> expectedMainClasses;
+
+    public TomcatDetector(List<String> expectedMainClasses) {
+        if (CollectionUtils.isEmpty(expectedMainClasses)) {
+            this.expectedMainClasses = Collections.singletonList(DEFAULT_EXPECTED_MAIN_CLASS);
+        } else {
+            this.expectedMainClasses = expectedMainClasses;
+        }
     }
 
-    @Override
-    public boolean detect(ConditionProvider provider) {
-        return provider.checkMainClass(REQUIRED_MAIN_CLASS) &&
-               provider.checkSystemProperty(REQUIRED_SYSTEM_PROPERTY) &&
-               provider.checkForClass(REQUIRED_CLASS);
+    public boolean detect() {
+        String bootstrapMainClass = MainClassCondition.INSTANCE.getValue();
+        boolean isExpectedMainClass = expectedMainClasses.contains(bootstrapMainClass);
+        if (!isExpectedMainClass) {
+            return false;
+        }
+        boolean hasRequiredSystemProperty = SystemPropertyCondition.INSTANCE.check(REQUIRED_SYSTEM_PROPERTY);
+        if (!hasRequiredSystemProperty) {
+            return false;
+        }
+        boolean hasRequiredClass = ClassResourceCondition.INSTANCE.check(REQUIRED_CLASS);
+        if (!hasRequiredClass) {
+            return false;
+        }
+        return true;
     }
 
 }

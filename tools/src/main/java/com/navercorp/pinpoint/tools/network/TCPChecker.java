@@ -1,5 +1,7 @@
 package com.navercorp.pinpoint.tools.network;
 
+import com.navercorp.pinpoint.tools.utils.IOUtils;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -31,9 +33,7 @@ public class TCPChecker extends AbstractNetworkChecker {
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            if (socket != null) {
-                socket.close();
-            }
+            IOUtils.closeQuietly(socket);
         }
         return false;
     }
@@ -51,17 +51,21 @@ public class TCPChecker extends AbstractNetworkChecker {
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-             if (socket != null) {
-                 socket.close();
-             }
+            IOUtils.closeQuietly(socket);
         }
         return false;
     }
 
     private Socket createSocket(InetSocketAddress socketAddress) throws IOException {
-        Socket socket = new Socket();
-        socket.connect(socketAddress);
-        socket.setSoTimeout(3000);
+        Socket socket = null;
+        try {
+            socket = new Socket();
+            socket.setSoTimeout(3000);
+            socket.connect(socketAddress);
+        } catch (IOException ioe){
+            IOUtils.closeQuietly(socket);
+            throw ioe;
+        }
         return socket;
     }
 
@@ -75,9 +79,13 @@ public class TCPChecker extends AbstractNetworkChecker {
         byte[] buf = new byte[readSize];
 
         InputStream inputStream = socket.getInputStream();
-        inputStream.read(buf);
+        // TODO readFully()
+        int read = inputStream.read(buf);
+        if (read == IOUtils.EOF) {
+            return IOUtils.EMPTY_BYTES;
+        }
 
-        return buf;
+        return Arrays.copyOf(buf, read);
     }
 
 }

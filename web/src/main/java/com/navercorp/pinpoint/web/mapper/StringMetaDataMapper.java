@@ -16,11 +16,11 @@
 
 package com.navercorp.pinpoint.web.mapper;
 
-import com.navercorp.pinpoint.common.server.bo.StringMetaDataBo;
-import com.navercorp.pinpoint.common.hbase.HBaseTables;
+import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
-import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
+import com.navercorp.pinpoint.common.server.bo.StringMetaDataBo;
 
+import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
@@ -43,7 +43,7 @@ public class StringMetaDataMapper implements RowMapper<List<StringMetaDataBo>> {
     @Qualifier("metadataRowKeyDistributor")
     private RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
     
-    private final static String STRING_METADATA_CF_STR_QUALI_STRING = Bytes.toString(HBaseTables.STRING_METADATA_CF_STR_QUALI_STRING);
+    private final static String STRING_METADATA_CF_STR_QUALI_STRING = Bytes.toString(HbaseColumnFamily.STRING_METADATA_STR.QUALIFIER_STRING);
 
     @Override
     public List<StringMetaDataBo> mapRow(Result result, int rowNum) throws Exception {

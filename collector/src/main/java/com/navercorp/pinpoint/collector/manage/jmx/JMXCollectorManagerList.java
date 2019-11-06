@@ -16,19 +16,20 @@
 
 package com.navercorp.pinpoint.collector.manage.jmx;
 
-import com.navercorp.pinpoint.collector.manage.ClusterManager;
-import com.navercorp.pinpoint.collector.manage.CollectorManager;
-import com.navercorp.pinpoint.collector.manage.HBaseManager;
-import com.navercorp.pinpoint.collector.manage.HandlerManager;
-import com.navercorp.pinpoint.rpc.util.ListUtils;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import com.navercorp.pinpoint.collector.manage.ClusterManager;
+import com.navercorp.pinpoint.collector.manage.CollectorManager;
+import com.navercorp.pinpoint.collector.manage.HBaseManager;
+import com.navercorp.pinpoint.collector.manage.HandlerManager;
+import com.navercorp.pinpoint.rpc.util.ListUtils;
 
 /**
  * @author Taejin Koo
@@ -51,7 +52,7 @@ public class JMXCollectorManagerList {
 
     public List<CollectorManager> getSupportList() {
         if (!isActive) {
-            logger.warn("not activing jmx api for admin.");
+            logger.warn("not activating jmx api for admin.");
             return Collections.emptyList();
         }
         

@@ -1,0 +1,13 @@
+<ng-container *ngIf="(callTreeData$ | async) as callTreeData">
+    <pp-call-tree
+        [canSelectRow]="canSelectRow"
+        [rowSelection]="rowSelection"
+        [selectedRowId]="selectedRowId$ | async"
+        [callTreeData]="callTreeData"
+        [timezone]="timezone$ | async"
+        [dateFormat]="dateFormat$ | async"
+        (outSelectFormatting)="onSelectFormatting($event)"
+        (outRowSelected)="onRowSelected($event)"
+        (outCellDoubleClicked)="onCellDoubleClicked($event)">
+    </pp-call-tree>
+</ng-container>

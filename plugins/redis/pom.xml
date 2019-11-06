@@ -3,18 +3,13 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.navercorp.pinpoint</groupId>
-        <artifactId>pinpoint</artifactId>
-        <relativePath>../..</relativePath>
-        <version>1.6.0-SNAPSHOT</version>
+        <artifactId>pinpoint-plugins</artifactId>
+        <version>1.9.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>pinpoint-redis-plugin</artifactId>
     <name>pinpoint-redis-plugin</name>
     <packaging>jar</packaging>
-
-    <properties>
-        <test.jdk.home>${env.JAVA_7_HOME}</test.jdk.home>
-    </properties>
 
     <dependencies>
         <dependency>
@@ -25,6 +20,11 @@
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-profiler</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-profiler-test</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

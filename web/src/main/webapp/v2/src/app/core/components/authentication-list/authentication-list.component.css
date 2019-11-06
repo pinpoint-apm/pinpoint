@@ -1,0 +1,22 @@
+.authentication-rules-tr {
+    display: flex;
+    height: 30px;
+    align-items: center;
+    padding: 0 15px;
+    position:relative;
+}
+.authentication-rules-btn-group {
+    color: #b3b6bf;
+    font-size: 13px;
+    align-items: center;
+    justify-content: flex-end;
+}
+.authentication-rules-btn-group button {
+    margin-left: 11px;
+}
+.authentication-rules-btn-group button.img-icon {
+    line-height: 0;
+}
+.authentication-rules-btn-group button:first-child {
+    margin-left: 0;
+}

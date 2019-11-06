@@ -15,13 +15,6 @@
 
 package com.navercorp.pinpoint.web.scatter;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.navercorp.pinpoint.web.view.ScatterDataSerializer;
-import com.navercorp.pinpoint.web.vo.scatter.Dot;
-import com.navercorp.pinpoint.web.vo.scatter.DotAgentInfo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -29,13 +22,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.navercorp.pinpoint.web.view.ScatterDataSerializer;
+import com.navercorp.pinpoint.web.vo.scatter.Dot;
+import com.navercorp.pinpoint.web.vo.scatter.DotAgentInfo;
+
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 @JsonSerialize(using = ScatterDataSerializer.class)
 public class ScatterData {
-
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final long from;
     private final long to;
@@ -93,11 +89,7 @@ public class ScatterData {
     }
 
     private void addDot(Coordinates coordinates, Dot dot) {
-        DotGroups dotGroups = scatterData.get(coordinates.getX());
-        if (dotGroups == null) {
-            dotGroups = new DotGroups(coordinates.getX());
-            scatterData.put(coordinates.getX(), dotGroups);
-        }
+        DotGroups dotGroups = scatterData.computeIfAbsent(coordinates.getX(), k -> new DotGroups(coordinates.getX()));
 
         dotGroups.addDot(coordinates, dot);
 

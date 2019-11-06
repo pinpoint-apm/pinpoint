@@ -2,7 +2,7 @@
 
 Pinpoint is comprised of 3 main components (Agent, Collector, Web UI), and a HBase storage.
 
-![Pinpoint Architecture](img/pinpoint-architecture.png)
+![Pinpoint Architecture](images/pinpoint-architecture.png)
 
 ## Components
 

@@ -16,17 +16,19 @@
 
 package com.navercorp.pinpoint.web.dao.hbase;
 
-import com.navercorp.pinpoint.common.hbase.HBaseTables;
+import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
+import com.navercorp.pinpoint.common.hbase.HbaseTableConstatns;
 import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
+import com.navercorp.pinpoint.common.hbase.TableDescriptor;
 import com.navercorp.pinpoint.common.server.util.RowKeyUtils;
 import com.navercorp.pinpoint.common.util.TimeUtils;
 import com.navercorp.pinpoint.web.dao.AgentInfoDao;
-
-import com.navercorp.pinpoint.web.mapper.AgentInfoMapper;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
+
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.hadoop.hbase.client.*;
+import org.apache.hadoop.hbase.TableName;
+import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -48,7 +50,10 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
     private HbaseOperations2 hbaseOperations2;
 
     @Autowired
-    private AgentInfoMapper agentInfoMapper;
+    private ResultsExtractor<AgentInfo> agentInfoResultsExtractor;
+
+    @Autowired
+    private TableDescriptor<HbaseColumnFamily.AgentInfo> descriptor;
 
     /**
      * Returns the very first information of the agent
@@ -58,28 +63,32 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
     @Override
     public AgentInfo getInitialAgentInfo(final String agentId) {
         if (agentId == null) {
-            throw new NullPointerException("agentId must not be null");
+            throw new NullPointerException("agentId");
         }
         Scan scan = createScanForInitialAgentInfo(agentId);
-        return this.hbaseOperations2.find(HBaseTables.AGENTINFO, scan, new AgentInfoResultsExtractor());
+
+        TableName agentInfoTableName = descriptor.getTableName();
+        return this.hbaseOperations2.find(agentInfoTableName, scan, agentInfoResultsExtractor);
     }
 
     @Override
     public List<AgentInfo> getInitialAgentInfos(List<String> agentIds) {
-        if (agentIds == null || agentIds.isEmpty()) {
+        if (CollectionUtils.isEmpty(agentIds)) {
             return Collections.emptyList();
         }
         List<Scan> scans = new ArrayList<>(agentIds.size());
         for (String agentId : agentIds) {
             scans.add(createScanForInitialAgentInfo(agentId));
         }
-        return this.hbaseOperations2.find(HBaseTables.AGENTINFO, scans, new AgentInfoResultsExtractor());
+
+        TableName agentInfoTableName = descriptor.getTableName();
+        return this.hbaseOperations2.find(agentInfoTableName, scans, agentInfoResultsExtractor);
     }
 
     private Scan createScanForInitialAgentInfo(String agentId) {
         Scan scan = new Scan();
         byte[] agentIdBytes = Bytes.toBytes(agentId);
-        byte[] reverseStartKey = RowKeyUtils.concatFixedByteAndLong(agentIdBytes, HBaseTables.AGENT_NAME_MAX_LEN, Long.MAX_VALUE);
+        byte[] reverseStartKey = RowKeyUtils.concatFixedByteAndLong(agentIdBytes, HbaseTableConstatns.AGENT_NAME_MAX_LEN, Long.MAX_VALUE);
         scan.setStartRow(reverseStartKey);
         scan.setReversed(true);
         scan.setMaxVersions(1);
@@ -97,12 +106,13 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
     @Override
     public AgentInfo getAgentInfo(final String agentId, final long timestamp) {
         if (agentId == null) {
-            throw new NullPointerException("agentId must not be null");
+            throw new NullPointerException("agentId");
         }
 
         Scan scan = createScan(agentId, timestamp);
 
-        return this.hbaseOperations2.find(HBaseTables.AGENTINFO, scan, new AgentInfoResultsExtractor());
+        TableName agentInfoTableName = descriptor.getTableName();
+        return this.hbaseOperations2.find(agentInfoTableName, scan, agentInfoResultsExtractor);
     }
 
     @Override
@@ -116,7 +126,8 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
             scans.add(createScan(agentId, timestamp));
         }
 
-        return this.hbaseOperations2.findParallel(HBaseTables.AGENTINFO, scans, new AgentInfoResultsExtractor());
+        TableName agentInfoTableName = descriptor.getTableName();
+        return this.hbaseOperations2.findParallel(agentInfoTableName, scans, agentInfoResultsExtractor);
     }
 
     private Scan createScan(String agentId, long currentTime) {
@@ -124,12 +135,12 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
 
         byte[] agentIdBytes = Bytes.toBytes(agentId);
         long startTime = TimeUtils.reverseTimeMillis(currentTime);
-        byte[] startKeyBytes = RowKeyUtils.concatFixedByteAndLong(agentIdBytes, HBaseTables.AGENT_NAME_MAX_LEN, startTime);
-        byte[] endKeyBytes = RowKeyUtils.concatFixedByteAndLong(agentIdBytes, HBaseTables.AGENT_NAME_MAX_LEN, Long.MAX_VALUE);
+        byte[] startKeyBytes = RowKeyUtils.concatFixedByteAndLong(agentIdBytes, HbaseTableConstatns.AGENT_NAME_MAX_LEN, startTime);
+        byte[] endKeyBytes = RowKeyUtils.concatFixedByteAndLong(agentIdBytes, HbaseTableConstatns.AGENT_NAME_MAX_LEN, Long.MAX_VALUE);
 
         scan.setStartRow(startKeyBytes);
         scan.setStopRow(endKeyBytes);
-        scan.addFamily(HBaseTables.AGENTINFO_CF_INFO);
+        scan.addFamily(descriptor.getColumnFamilyName());
 
         scan.setMaxVersions(1);
         scan.setCaching(SCANNER_CACHING);
@@ -137,16 +148,5 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
         return scan;
     }
 
-    private class AgentInfoResultsExtractor implements ResultsExtractor<AgentInfo> {
-
-        @Override
-        public AgentInfo extractData(ResultScanner results) throws Exception {
-            int found = 0;
-            for (Result result : results) {
-                return agentInfoMapper.mapRow(result, found++);
-            }
-            return null;
-        }
-    }
 
 }

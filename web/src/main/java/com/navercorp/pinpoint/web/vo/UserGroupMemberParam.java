@@ -2,7 +2,7 @@ package com.navercorp.pinpoint.web.vo;
 
 public class UserGroupMemberParam extends UserGroupMember {
     private String userId;
-    
+
     public UserGroupMemberParam() {
     }
 

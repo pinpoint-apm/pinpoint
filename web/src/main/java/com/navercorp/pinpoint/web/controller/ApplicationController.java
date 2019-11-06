@@ -15,10 +15,12 @@
 
 package com.navercorp.pinpoint.web.controller;
 
-import com.navercorp.pinpoint.web.service.AgentEventService;
+import com.navercorp.pinpoint.common.PinpointConstants;
+import com.navercorp.pinpoint.common.util.IdValidateUtils;
 import com.navercorp.pinpoint.web.service.AgentInfoService;
-import com.navercorp.pinpoint.web.service.AgentStatService;
+import com.navercorp.pinpoint.web.service.ApplicationService;
 import com.navercorp.pinpoint.web.vo.ApplicationAgentHostList;
+import com.navercorp.pinpoint.web.vo.CodeResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,20 +29,20 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 
 @Controller
 public class ApplicationController {
 
-    @Autowired
-    private AgentStatService agentStatService;
+    private static final int CODE_SUCCESS = 0;
+    private static final int CODE_FAIL = -1;
 
     @Autowired
     private AgentInfoService agentInfoService;
 
     @Autowired
-    private AgentEventService agentEventService;
+    private ApplicationService applicationService;
 
     @RequestMapping(value = "/getApplicationHostInfo", method = RequestMethod.GET)
     @ResponseBody
@@ -48,6 +50,24 @@ public class ApplicationController {
             @RequestParam(value = "offset", required = false, defaultValue = "1") int offset,
             @RequestParam(value = "limit", required = false, defaultValue = "100") int limit) throws Exception {
         return agentInfoService.getApplicationAgentHostList(offset, limit);
+    }
+
+    @RequestMapping(value = "/isAvailableApplicationName")
+    @ResponseBody
+    public CodeResult isAvailableApplicationName(@RequestParam("applicationName") String applicationName) {
+        if (!IdValidateUtils.checkLength(applicationName, PinpointConstants.APPLICATION_NAME_MAX_LEN)) {
+            return new CodeResult(CODE_FAIL, "length range is 1 ~ 24");
+        }
+
+        if (!IdValidateUtils.validateId(applicationName, PinpointConstants.APPLICATION_NAME_MAX_LEN)) {
+            return new CodeResult(CODE_FAIL, "invalid pattern(" + IdValidateUtils.ID_PATTERN_VALUE + ")");
+        }
+
+        if (applicationService.isExistApplicationName(applicationName)) {
+            return new CodeResult(CODE_FAIL, "already exist applicationName");
+        }
+
+        return new CodeResult(CODE_SUCCESS, "OK");
     }
 
 }

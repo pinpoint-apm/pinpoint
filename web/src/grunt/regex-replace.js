@@ -43,7 +43,7 @@ module.exports = function( grunt, options ) {
 			}]
 		},
 		html: {
-			src: [ options.RESOURCE_PATH.INDEX_HTML ],
+			src: [ options.RESOURCE_PATH.INDEX_HTML, options.RESOURCE_PATH.DANGER_HTML, options.RESOURCE_PATH.STAT_HTML ],
 			actions: [{
 				name: 'build.time',
 				search: /\$\{buildTime\}/gm,

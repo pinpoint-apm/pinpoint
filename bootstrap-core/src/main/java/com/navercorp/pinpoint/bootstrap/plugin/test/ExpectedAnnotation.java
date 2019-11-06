@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2014 NAVER Corp.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ public class ExpectedAnnotation {
     public static ExpectedAnnotation sql(String query, String output, Object... bindValues) {
         return new ExpectedSql(query, output, bindValues);
     }
-    
+
     private final String keyName;
     private final Object value;
     

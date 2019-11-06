@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,9 +16,10 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
-import com.navercorp.pinpoint.bootstrap.context.FrameAttachment;
-import com.navercorp.pinpoint.thrift.dto.TIntStringValue;
-import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
+import com.navercorp.pinpoint.common.util.IntStringValue;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Span represent RPC
@@ -26,59 +27,77 @@ import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
  * @author netspider
  * @author emeroad
  */
-public class SpanEvent extends TSpanEvent implements FrameAttachment {
+public class SpanEvent extends DefaultFrameAttachment {
 
-    private final Span span;
-    private int stackId;
     private boolean timeRecording = true;
-    private Object frameObject;
+    private int stackId;
 
-    public SpanEvent(Span span) {
-        if (span == null) {
-            throw new NullPointerException("span must not be null");
-        }
-        this.span = span;
-    }
+    private long startTime;
+    private int elapsedTime;
 
-    public Span getSpan() {
-        return span;
+    private short sequence; // required
+
+//    private String rpc; // optional
+    private short serviceType; // required
+    private String endPoint; // optional
+
+    private List<Annotation> annotations; // optional
+    private int depth = -1; // optional
+
+    private long nextSpanId = -1; // optional
+    private String destinationId; // optional
+
+    private int apiId; // optional
+    private IntStringValue exceptionInfo; // optional
+
+    private AsyncId asyncIdObject;
+
+    public SpanEvent() {
     }
 
     public void addAnnotation(Annotation annotation) {
-        this.addToAnnotations(annotation);
+        if (this.annotations == null) {
+            this.annotations = new ArrayList<Annotation>();
+        }
+        this.annotations.add(annotation);
     }
 
     public void setExceptionInfo(int exceptionClassId, String exceptionMessage) {
-        final TIntStringValue exceptionInfo = new TIntStringValue(exceptionClassId);
-        if (exceptionMessage != null && !exceptionMessage.isEmpty()) {
-            exceptionInfo.setStringValue(exceptionMessage);
-        }
-        super.setExceptionInfo(exceptionInfo);
+        final IntStringValue exceptionInfo = new IntStringValue(exceptionClassId, exceptionMessage);
+        this.exceptionInfo = exceptionInfo;
     }
 
-
     public void markStartTime() {
-//        spanEvent.setStartElapsed((int) (startTime - parentSpanStartTime));
-        final int startElapsed = (int)(System.currentTimeMillis() - span.getStartTime());
-        
-        // If startElapsed is 0, logic without mark is useless. Don't do that.
-        // The first SpanEvent of a Span could result in 0. Not likely afterwards.
-        this.setStartElapsed(startElapsed);
+        setStartTime(System.currentTimeMillis());
+    }
+
+    public void setStartTime(long startTime) {
+        this.startTime = startTime;
     }
 
     public long getStartTime() {
-        return span.getStartTime() + getStartElapsed();
+        return startTime;
     }
 
     public void markAfterTime() {
-        final int endElapsed = (int)(System.currentTimeMillis() - getStartTime());
-        if (endElapsed != 0) {
-            this.setEndElapsed(endElapsed);
+        checkStartTime();
+        setAfterTime(System.currentTimeMillis());
+    }
+
+
+    public void setAfterTime(long afterTime) {
+        checkStartTime();
+        this.elapsedTime = (int) (afterTime - startTime);
+    }
+
+    private void checkStartTime() {
+        if (startTime == 0) {
+            throw new IllegalStateException("startTime not recorded");
         }
     }
 
     public long getAfterTime() {
-        return span.getStartTime() + getStartElapsed() + getEndElapsed();
+        return startTime + elapsedTime;
     }
 
     public int getStackId() {
@@ -97,22 +116,118 @@ public class SpanEvent extends TSpanEvent implements FrameAttachment {
         this.timeRecording = timeRecording;
     }
 
-    @Override
-    public Object attachFrameObject(Object attachObject) {
-        final Object before = this.frameObject;
-        this.frameObject = attachObject;
-        return before;
+    public short getSequence() {
+        return sequence;
+    }
+
+    public void setSequence(short sequence) {
+        this.sequence = sequence;
+    }
+
+    public int getElapsedTime() {
+        return elapsedTime;
+    }
+
+    public void setElapsedTime(int elapsedTime) {
+        this.elapsedTime = elapsedTime;
+    }
+
+
+    public short getServiceType() {
+        return serviceType;
+    }
+
+    public void setServiceType(short serviceType) {
+        this.serviceType = serviceType;
+    }
+
+    public String getEndPoint() {
+        return endPoint;
+    }
+
+    public void setEndPoint(String endPoint) {
+        this.endPoint = endPoint;
+    }
+
+    public List<Annotation> getAnnotations() {
+        return annotations;
+    }
+
+    public void setAnnotations(List<Annotation> annotations) {
+        this.annotations = annotations;
+    }
+
+    public int getDepth() {
+        return depth;
+    }
+
+    public void setDepth(int depth) {
+        this.depth = depth;
+    }
+
+    public long getNextSpanId() {
+        return nextSpanId;
+    }
+
+    public void setNextSpanId(long nextSpanId) {
+        this.nextSpanId = nextSpanId;
+    }
+
+    public String getDestinationId() {
+        return destinationId;
+    }
+
+    public void setDestinationId(String destinationId) {
+        this.destinationId = destinationId;
+    }
+
+    public int getApiId() {
+        return apiId;
+    }
+
+    public void setApiId(int apiId) {
+        this.apiId = apiId;
+    }
+
+    public IntStringValue getExceptionInfo() {
+        return exceptionInfo;
+    }
+
+    public void setExceptionInfo(IntStringValue exceptionInfo) {
+        this.exceptionInfo = exceptionInfo;
+    }
+
+    @Deprecated
+    public LocalAsyncId getLocalAsyncId() {
+        return null;
+    }
+
+
+    public void setAsyncIdObject(AsyncId asyncIdObject) {
+        this.asyncIdObject = asyncIdObject;
+    }
+
+    public AsyncId getAsyncIdObject() {
+        return asyncIdObject;
     }
 
     @Override
-    public Object getFrameObject() {
-        return this.frameObject;
-    }
-
-    @Override
-    public Object detachFrameObject() {
-        final Object delete = this.frameObject;
-        this.frameObject = null;
-        return delete;
+    public String toString() {
+        return "SpanEvent{" +
+                "stackId=" + stackId +
+                ", timeRecording=" + timeRecording +
+                ", startTime=" + startTime +
+                ", elapsedTime=" + elapsedTime +
+                ", asyncIdObject=" + asyncIdObject +
+                ", sequence=" + sequence +
+                ", serviceType=" + serviceType +
+                ", endPoint='" + endPoint + '\'' +
+                ", annotations=" + annotations +
+                ", depth=" + depth +
+                ", nextSpanId=" + nextSpanId +
+                ", destinationId='" + destinationId + '\'' +
+                ", apiId=" + apiId +
+                ", exceptionInfo=" + exceptionInfo +
+                "} ";
     }
 }

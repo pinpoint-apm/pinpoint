@@ -16,18 +16,45 @@
 
 package com.navercorp.pinpoint.collector.cluster.route.filter;
 
-import org.springframework.beans.factory.annotation.Autowired;
-
 import com.navercorp.pinpoint.collector.cluster.route.ResponseEvent;
-import com.navercorp.pinpoint.collector.rpc.handler.AgentEventHandler;
+import com.navercorp.pinpoint.collector.service.AgentEventService;
+import com.navercorp.pinpoint.common.server.bo.event.AgentEventBo;
+import com.navercorp.pinpoint.common.server.util.AgentEventType;
+import com.navercorp.pinpoint.common.server.util.AgentEventTypeCategory;
+import com.navercorp.pinpoint.io.request.Message;
+import com.navercorp.pinpoint.thrift.dto.command.TCommandTransfer;
+import com.navercorp.pinpoint.thrift.dto.command.TCommandTransferResponse;
+import com.navercorp.pinpoint.thrift.dto.command.TRouteResult;
+import com.navercorp.pinpoint.thrift.io.DeserializerFactory;
+import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializer;
+import com.navercorp.pinpoint.thrift.util.SerializationUtils;
+import org.apache.thrift.TBase;
+import org.apache.thrift.TException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Service;
+
+import java.util.Objects;
+import java.util.Set;
 
 /**
  * @author HyunGil Jeong
  */
+@Service
 public class AgentEventHandlingFilter implements RouteFilter<ResponseEvent> {
+    private static final Set<AgentEventType> RESPONSE_EVENT_TYPES = AgentEventType.getTypesByCategory(AgentEventTypeCategory.USER_REQUEST);
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    private AgentEventHandler agentEventHandler;
+    private AgentEventService agentEventService;
+
+    @Autowired
+    @Qualifier("commandHeaderTBaseDeserializerFactory")
+    private DeserializerFactory<HeaderTBaseDeserializer> commandDeserializerFactory;
 
     @Override
     public void doEvent(ResponseEvent event) {
@@ -35,7 +62,56 @@ public class AgentEventHandlingFilter implements RouteFilter<ResponseEvent> {
             return;
         }
         final long eventTimestamp = System.currentTimeMillis();
-        this.agentEventHandler.handleResponseEvent(event, eventTimestamp);
+        handleResponseEvent(event, eventTimestamp);
     }
 
+    @Async("agentEventWorker")
+    public void handleResponseEvent(ResponseEvent responseEvent, long eventTimestamp) {
+        Objects.requireNonNull(responseEvent, "responseEvent");
+        if (logger.isDebugEnabled()) {
+            logger.debug("Handle response event {}", responseEvent);
+        }
+        final TCommandTransferResponse response = responseEvent.getRouteResult();
+        if (response.getRouteResult() != TRouteResult.OK) {
+            return;
+        }
+        insertResponseEvent(responseEvent, eventTimestamp);
+    }
+
+    private void insertResponseEvent(ResponseEvent responseEvent, long eventTimestamp) {
+        final TCommandTransfer command = responseEvent.getDeliveryCommand();
+        final String agentId = command.getAgentId();
+        final long startTimestamp = command.getStartTime();
+
+        final TCommandTransferResponse response = responseEvent.getRouteResult();
+        final byte[] payload = response.getPayload();
+
+        final Class<?> payloadType = readPayload(payload);
+        if (payload == null) {
+            return;
+        }
+
+        for (AgentEventType eventType : RESPONSE_EVENT_TYPES) {
+            if (eventType.getMessageType() == payloadType) {
+                final AgentEventBo agentEventBo = new AgentEventBo(agentId, startTimestamp, eventTimestamp, eventType);
+                agentEventBo.setEventBody(payload);
+                this.agentEventService.insert(agentEventBo);
+            }
+        }
+    }
+
+    private Class<?> readPayload(byte[] payload) {
+        if (payload == null) {
+            return Void.class;
+        }
+
+        try {
+            final Message<TBase<?, ?>> deserialize = SerializationUtils.deserialize(payload, commandDeserializerFactory);
+            final TBase tBase = deserialize.getData();
+            return tBase.getClass();
+        } catch (TException e) {
+            logger.warn("Error deserializing ResponseEvent payload", e);
+        }
+        return null;
+    }
 }

@@ -16,34 +16,21 @@
         <property name="dataSource" ref="dataSource"/>
     </bean>
 
-    <tx:advice id="transactionAdvice" transaction-manager="transactionManager">
-        <tx:attributes>
-            <tx:method name="select*" read-only="true" />
-            <tx:method name="read*" read-only="true" />
-            <tx:method name="get*" read-only="true" />
-            <tx:method name="view*"/>
-            <tx:method name="list*"/>
-            <tx:method name="add*"/>
-            <tx:method name="create*"/>
-            <tx:method name="delete*"/>
-            <tx:method name="update*"/>
-        </tx:attributes>
-    </tx:advice>
+    <bean id="metaDataTransactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="metaDataDataSource"/>
+    </bean>
 
+    <tx:annotation-driven/>
 
     <!-- SqlsessionFactory setup for MyBatis Database Layer -->
     <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
         <property name="dataSource" ref="dataSource"/>
-
         <!-- mybatis basic config -->
         <property name="configLocation" value="classpath:/mybatis-config.xml"/>
-
         <!-- typeAliases -->
-        <property name="typeAliasesPackage" value="com.navercorp.pinpoint.web.vo,com.navercorp.pinpoint.web.alarm.vo" />
-
+        <property name="typeAliasesPackage" value="com.navercorp.pinpoint.web.alarm.vo" />
         <!-- setting the location of mapper -->
         <property name="mapperLocations" value="classpath*:mapper/*Mapper.xml"/>
-
         <!-- set "true" in order to catch the errors of declaration of statement more quickly -->
         <property name="failFast" value="true"/>
 
@@ -74,5 +61,9 @@
         <property name="transactionManager" ref="transactionManager"/>
     </bean>
 
+    <bean id="agentDownloadInfoDao" class="com.navercorp.pinpoint.web.dao.AgentDownloadInfoDaoFactory" factory-method="create">
+        <constructor-arg index="0" value="#{pinpointWebProps['web.installation.pinpointVersion'] ?: ''}"/>
+        <constructor-arg index="1" value="#{pinpointWebProps['web.installation.downloadUrl'] ?: ''}"/>
+    </bean>
 
 </beans>

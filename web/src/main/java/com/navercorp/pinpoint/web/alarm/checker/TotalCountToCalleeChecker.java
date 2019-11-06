@@ -23,15 +23,16 @@ import com.navercorp.pinpoint.web.alarm.vo.Rule;
 /**
  * @author minwoo.jung
  */
-public class TotalCountToCalleeChecker extends AlarmChecker {
+public class TotalCountToCalleeChecker extends LongValueAlarmChecker {
 
     public TotalCountToCalleeChecker(MapStatisticsCallerDataCollector dataCollector, Rule rule) {
         super(rule, "", dataCollector);
     }
 
     @Override
-    protected long getDetectedValue() {
-        String calleName = rule.getNotes();
-        return ((MapStatisticsCallerDataCollector)dataCollector).getCount(calleName, DataCategory.TOTAL_COUNT);
+    protected Long getDetectedValue() {
+        String calleeName = rule.getNotes();
+        return ((MapStatisticsCallerDataCollector)dataCollector).getCount(calleeName, DataCategory.TOTAL_COUNT);
     }
+
 }

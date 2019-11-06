@@ -16,11 +16,13 @@
 package com.navercorp.pinpoint.web.applicationmap;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.navercorp.pinpoint.web.applicationmap.link.Link;
+import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 
 import java.util.Collection;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public interface ApplicationMap {
 

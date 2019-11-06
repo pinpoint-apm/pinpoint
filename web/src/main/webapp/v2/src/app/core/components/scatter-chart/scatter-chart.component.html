@@ -1,0 +1,5 @@
+<div class="l-wrapper">
+    <div class="l-scatter" #scatter></div>
+    <div class="l-message" *ngIf="!dataLoaded"><span>Loading...</span></div>
+    <div class="l-message" *ngIf="!hideNoData()"><span>{{getMessage()}}</span></div>
+</div>

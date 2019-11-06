@@ -18,18 +18,26 @@ package com.navercorp.pinpoint.collector.cluster.zookeeper;
 
 import com.navercorp.pinpoint.collector.cluster.AbstractClusterService;
 import com.navercorp.pinpoint.collector.cluster.ClusterPointRouter;
-import com.navercorp.pinpoint.common.server.util.concurrent.CommonState;
-import com.navercorp.pinpoint.common.server.util.concurrent.CommonStateContext;
-import com.navercorp.pinpoint.collector.cluster.connection.*;
+import com.navercorp.pinpoint.collector.cluster.DisabledProfilerClusterManager;
+import com.navercorp.pinpoint.collector.cluster.ProfilerClusterManager;
+import com.navercorp.pinpoint.collector.cluster.connection.CollectorClusterAcceptor;
+import com.navercorp.pinpoint.collector.cluster.connection.CollectorClusterConnectionFactory;
+import com.navercorp.pinpoint.collector.cluster.connection.CollectorClusterConnectionManager;
+import com.navercorp.pinpoint.collector.cluster.connection.CollectorClusterConnectionRepository;
+import com.navercorp.pinpoint.collector.cluster.connection.CollectorClusterConnector;
 import com.navercorp.pinpoint.collector.config.CollectorConfiguration;
 import com.navercorp.pinpoint.collector.util.CollectorUtils;
-import com.navercorp.pinpoint.rpc.server.handler.ServerStateChangeEventHandler;
-import com.navercorp.pinpoint.rpc.util.StringUtils;
+import com.navercorp.pinpoint.common.server.cluster.zookeeper.CuratorZookeeperClient;
+import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperClient;
+import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperConstants;
+import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperEventWatcher;
+import com.navercorp.pinpoint.common.server.util.concurrent.CommonState;
+import com.navercorp.pinpoint.common.server.util.concurrent.CommonStateContext;
+
+import org.apache.commons.lang3.StringUtils;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher.Event.EventType;
-import org.apache.zookeeper.Watcher.Event.KeeperState;
-import org.apache.zookeeper.proto.WatcherEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,18 +45,11 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author koo.taejin
  */
 public class ZookeeperClusterService extends AbstractClusterService {
-
-    static final long DEFAULT_RECONNECT_DELAY_WHEN_SESSION_EXPIRED = 30000;
-    
-    private static final String PINPOINT_CLUSTER_PATH = "/pinpoint-cluster";
-    private static final String PINPOINT_WEB_CLUSTER_PATH = PINPOINT_CLUSTER_PATH + "/web";
-    private static final String PINPOINT_PROFILER_CLUSTER_PATH = PINPOINT_CLUSTER_PATH + "/profiler";
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -56,29 +57,28 @@ public class ZookeeperClusterService extends AbstractClusterService {
     // shouldn't be too big of a problem, but will change to MAC or IP if it becomes problematic.
     private final String serverIdentifier = CollectorUtils.getServerIdentifier();
 
-    private final CommonStateContext serviceState;
+    private final CommonStateContext serviceState = new CommonStateContext();
 
     private CollectorClusterConnectionManager clusterConnectionManager;
 
     private ZookeeperClient client;
 
     // WebClusterManager checks Zookeeper for the Web data, and manages collector -> web connections.
-    private ZookeeperWebClusterManager webClusterManager;
+    private ZookeeperClusterManager webClusterManager;
 
     // ProfilerClusterManager detects/manages profiler -> collector connections, and saves their information in Zookeeper.
-    private ZookeeperProfilerClusterManager profilerClusterManager;
+    private ProfilerClusterManager profilerClusterManager;
 
     public ZookeeperClusterService(CollectorConfiguration config, ClusterPointRouter clusterPointRouter) {
         super(config, clusterPointRouter);
 
-        this.serviceState = new CommonStateContext();
         if (config.isClusterEnable()) {
             CollectorClusterConnectionRepository clusterRepository = new CollectorClusterConnectionRepository();
             CollectorClusterConnectionFactory clusterConnectionFactory = new CollectorClusterConnectionFactory(serverIdentifier, clusterPointRouter, clusterPointRouter);
             CollectorClusterConnector clusterConnector = clusterConnectionFactory.createConnector();
 
             CollectorClusterAcceptor clusterAcceptor = null;
-            if (!StringUtils.isEmpty(config.getClusterListenIp()) && config.getClusterListenPort() > 0) {
+            if (StringUtils.isNotEmpty(config.getClusterListenIp()) && config.getClusterListenPort() > 0) {
                 InetSocketAddress bindAddress = new InetSocketAddress(config.getClusterListenIp(), config.getClusterListenPort());
                 clusterAcceptor = clusterConnectionFactory.createAcceptor(bindAddress, clusterRepository);
             }
@@ -93,6 +93,7 @@ public class ZookeeperClusterService extends AbstractClusterService {
     public void setUp() throws KeeperException, IOException, InterruptedException {
         if (!config.isClusterEnable()) {
             logger.info("pinpoint-collector cluster disable.");
+            this.profilerClusterManager = new DisabledProfilerClusterManager();
             return;
         }
 
@@ -102,23 +103,20 @@ public class ZookeeperClusterService extends AbstractClusterService {
                     logger.info("{} initialization started.", this.getClass().getSimpleName());
 
                     ClusterManagerWatcher watcher = new ClusterManagerWatcher();
-                    this.client = new DefaultZookeeperClient(config.getClusterAddress(), config.getClusterSessionTimeout(), watcher);
+                    this.client = new CuratorZookeeperClient(config.getClusterAddress(), config.getClusterSessionTimeout(), watcher);
                     this.client.connect();
 
                     this.profilerClusterManager = new ZookeeperProfilerClusterManager(client, serverIdentifier, clusterPointRouter.getTargetClusterPointRepository());
                     this.profilerClusterManager.start();
 
-                    this.webClusterManager = new ZookeeperWebClusterManager(client, PINPOINT_WEB_CLUSTER_PATH, serverIdentifier, clusterConnectionManager);
+                    this.webClusterManager = new ZookeeperClusterManager(client, ZookeeperConstants.PINPOINT_WEB_CLUSTER_PATH, clusterConnectionManager);
                     this.webClusterManager.start();
 
                     this.serviceState.changeStateStarted();
                     logger.info("{} initialization completed.", this.getClass().getSimpleName());
 
                     if (client.isConnected()) {
-                        WatcherEvent watcherEvent = new WatcherEvent(EventType.None.getIntValue(), KeeperState.SyncConnected.getIntValue(), "");
-                        WatchedEvent event = new WatchedEvent(watcherEvent);
-
-                        watcher.process(event);
+                        watcher.handleConnected();
                     }
                 }
                 break;
@@ -179,67 +177,46 @@ public class ZookeeperClusterService extends AbstractClusterService {
         return config.isClusterEnable();
     }
 
-    public ServerStateChangeEventHandler getChannelStateChangeEventHandler() {
+    public ProfilerClusterManager getProfilerClusterManager() {
         return profilerClusterManager;
-    }
-
-    public ZookeeperProfilerClusterManager getProfilerClusterManager() {
-        return profilerClusterManager;
-    }
-
-    public ZookeeperWebClusterManager getWebClusterManager() {
-        return webClusterManager;
     }
 
     class ClusterManagerWatcher implements ZookeeperEventWatcher {
-
-        private final AtomicBoolean connected = new AtomicBoolean(false);
 
         @Override
         public void process(WatchedEvent event) {
             logger.debug("Process Zookeeper Event({})", event);
 
-            KeeperState state = event.getState();
             EventType eventType = event.getType();
-            
-            // ephemeral node is removed on disconnect event (leave node management exclusively to zookeeper)
-            if (ZookeeperUtils.isDisconnectedEvent(state, eventType)) {
-                connected.compareAndSet(true, false);
-                if (state == KeeperState.Expired) {
-                    if (client != null) {
-                        client.reconnectWhenSessionExpired();
-                    }
-                }
-                return;
-            }
 
-            // on connect/reconnect event
-            if (ZookeeperUtils.isConnectedEvent(state, eventType)) {
-                // could already be connected (failure to compareAndSet doesn't really matter)
-                boolean changed = connected.compareAndSet(false, true);
-            }
-
-            if (serviceState.isStarted() && connected.get()) {
+            if (serviceState.isStarted() && client.isConnected()) {
                 // duplicate event possible - but the logic does not change
-                if (ZookeeperUtils.isConnectedEvent(state, eventType)) {
-                    profilerClusterManager.initZookeeperClusterData();
-                    webClusterManager.handleAndRegisterWatcher(PINPOINT_WEB_CLUSTER_PATH);
-                } else if (eventType == EventType.NodeChildrenChanged) {
+                if (eventType == EventType.NodeChildrenChanged) {
                     String path = event.getPath();
 
-                    if (PINPOINT_WEB_CLUSTER_PATH.equals(path)) {
+                    if (ZookeeperConstants.PINPOINT_WEB_CLUSTER_PATH.equals(path)) {
                         webClusterManager.handleAndRegisterWatcher(path);
                     } else {
                         logger.warn("Unknown Path ChildrenChanged {}.", path);
                     }
-
                 }
             }
         }
 
         @Override
-        public boolean isConnected() {
-            return connected.get();
+        public boolean handleConnected() {
+            if (serviceState.isStarted()) {
+                profilerClusterManager.refresh();
+                webClusterManager.handleAndRegisterWatcher(ZookeeperConstants.PINPOINT_WEB_CLUSTER_PATH);
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        @Override
+        public boolean handleDisconnected() {
+            return true;
         }
 
     }

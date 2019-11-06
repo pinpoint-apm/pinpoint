@@ -20,7 +20,7 @@ public class ASMBytecodeDisassembler {
     private final int crFlag;
 
     public ASMBytecodeDisassembler() {
-        this(ClassReader.EXPAND_FRAMES, ClassWriter.COMPUTE_FRAMES);
+        this(0, 0);
     }
 
     public ASMBytecodeDisassembler(int crFlag, int cwFlag) {
@@ -30,7 +30,7 @@ public class ASMBytecodeDisassembler {
 
     public String dumpBytecode(final byte[] bytecode) {
         if (bytecode == null) {
-            throw new NullPointerException("bytecode must not be null");
+            throw new NullPointerException("bytecode");
         }
 
         return writeBytecode(bytecode, new Textifier());
@@ -39,7 +39,7 @@ public class ASMBytecodeDisassembler {
 
     public String dumpASM(byte[] bytecode) {
         if (bytecode == null) {
-            throw new NullPointerException("bytecode must not be null");
+            throw new NullPointerException("bytecode");
         }
 
         return writeBytecode(bytecode, new ASMifier());
@@ -65,10 +65,10 @@ public class ASMBytecodeDisassembler {
 
     public String dumpVerify(byte[] bytecode, ClassLoader classLoader) {
         if (bytecode == null) {
-            throw new NullPointerException("bytecode must not be null");
+            throw new NullPointerException("bytecode");
         }
         if (classLoader == null) {
-            throw new NullPointerException("classLoader must not be null");
+            throw new NullPointerException("classLoader");
         }
 
         final StringWriter out = new StringWriter();

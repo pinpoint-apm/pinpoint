@@ -5,7 +5,7 @@ import java.util.Comparator;
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class SpanEventComparator implements Comparator<SpanEventBo> {
+public final class SpanEventComparator implements Comparator<SpanEventBo> {
 
     public static final SpanEventComparator INSTANCE = new SpanEventComparator();
 

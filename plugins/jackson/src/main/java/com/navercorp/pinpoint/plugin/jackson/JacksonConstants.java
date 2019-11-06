@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2014 NAVER Corp.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,4 +32,8 @@ public final class JacksonConstants {
     public static final ServiceType SERVICE_TYPE = ServiceTypeFactory.of(5011, "JACKSON");
 
     public static final AnnotationKey ANNOTATION_KEY_LENGTH_VALUE = AnnotationKeyFactory.of(9001, "jackson.json.length");
+
+
+    public static final String JACKSON_SCOPE = "JACKSON_OBJECTMAPPER_SCOPE";
+
 }

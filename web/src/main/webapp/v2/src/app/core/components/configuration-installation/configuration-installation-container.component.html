@@ -1,0 +1,67 @@
+<div class="l-desc-text-wrapper">
+    <p class="l-desc-text nanumgothic">{{desc$ | async}}</p>
+</div>
+<ng-container *ngIf="(installationInfo$ | async) as installationInfo">
+    <div class="l-row">
+        <table class="l-section-table">
+            <thead>
+                <tr>
+                    <th>Application Name</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <pp-application-name-duplication-check-container></pp-application-name-duplication-check-container>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="l-section-table">
+            <thead>
+                <tr>
+                    <th>Agent ID</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <pp-agent-id-duplication-check-container></pp-agent-id-duplication-check-container>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="l-row">
+        <table class="l-section-table">
+            <thead>
+                <tr>
+                    <th>JVM Argument Info</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <pp-configuration-installation-jvm-argument-info
+                            [installationArgument]="installationInfo.installationArgument"
+                            [jvmArgument]="jvmArgument$ | async">
+                        </pp-configuration-installation-jvm-argument-info>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="l-section-table">
+            <thead>
+                <tr>
+                    <th>Download Link</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="l-download-link-cell"><a (click)="onLinkClick()" [attr.href]="installationInfo.downloadUrl" class="l-download-link">{{installationInfo.downloadUrl}}</a></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</ng-container>
+<pp-loading [showLoading]="showLoading"></pp-loading>

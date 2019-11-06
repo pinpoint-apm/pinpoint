@@ -20,11 +20,8 @@ import java.util.Arrays;
 
 import com.google.common.primitives.Longs;
 import com.navercorp.pinpoint.common.PinpointConstants;
-import com.navercorp.pinpoint.common.server.bo.SpanBo;
-import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.TraceRowKeyDecoderV2;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.common.util.TimeUtils;
-import com.navercorp.pinpoint.common.util.TransactionId;
 import com.navercorp.pinpoint.thrift.dto.TSpan;
 
 import org.junit.Assert;
@@ -35,74 +32,57 @@ import org.junit.Test;
  */
 public class SpanUtilsTest {
     @Test
-    public void testGetTraceIndexRowKeyWhiteSpace() throws Exception {
-        String agentId = "test test";
+    public void testGetTraceIndexRowKeyWhiteSpace() {
+        String applicationName = "test test";
         long time = System.currentTimeMillis();
-        check(agentId, time);
+        check(applicationName, time);
     }
 
     @Test
-    public void testGetTraceIndexRowKey1() throws Exception {
-        String agentId = "test";
+    public void testGetTraceIndexRowKey1() {
+        String applicationName = "test";
         long time = System.currentTimeMillis();
-        check(agentId, time);
+        check(applicationName, time);
     }
 
     @Test
-    public void testGetTraceIndexRowKey2() throws Exception {
-        String agentId = "";
-        for (int i = 0; i < PinpointConstants.AGENT_NAME_MAX_LEN; i++) {
-            agentId += "1";
+    public void testGetTraceIndexRowKey2() {
+        String applicationName = "";
+        for (int i = 0; i < PinpointConstants.APPLICATION_NAME_MAX_LEN; i++) {
+            applicationName += "1";
         }
 
         long time = System.currentTimeMillis();
-        check(agentId, time);
+        check(applicationName, time);
     }
 
     @Test
-    public void testGetTraceIndexRowKey3() throws Exception {
-        String agentId = "";
-        for (int i = 0; i < PinpointConstants.AGENT_NAME_MAX_LEN + 1; i++) {
-            agentId += "1";
+    public void testGetTraceIndexRowKey3() {
+        String applicationName = "";
+        for (int i = 0; i < PinpointConstants.APPLICATION_NAME_MAX_LEN + 1; i++) {
+            applicationName += "1";
         }
 
         long time = System.currentTimeMillis();
         try {
-            check(agentId, time);
+            check(applicationName, time);
             Assert.fail("error");
         } catch (IndexOutOfBoundsException ignore) {
         }
     }
 
-    private void check(String agentId0, long l1) {
+    private void check(String applicationName, long l1) {
         TSpan span = new TSpan();
-        span.setAgentId(agentId0);
+        span.setApplicationName(applicationName);
         span.setStartTime(l1);
 
-        byte[] traceIndexRowKey = SpanUtils.getAgentIdTraceIndexRowKey(span.getAgentId(), span.getStartTime());
+        byte[] traceIndexRowKey = SpanUtils.getApplicationTraceIndexRowKey(span.getApplicationName(), span.getStartTime());
 
-        String agentId = BytesUtils.toString(traceIndexRowKey, 0, PinpointConstants.AGENT_NAME_MAX_LEN).trim();
-        Assert.assertEquals(agentId0, agentId);
+        String agentId = BytesUtils.toString(traceIndexRowKey, 0, PinpointConstants.APPLICATION_NAME_MAX_LEN).trim();
+        Assert.assertEquals(applicationName, agentId);
 
-        long time = Longs.fromByteArray(Arrays.copyOfRange(traceIndexRowKey, PinpointConstants.AGENT_NAME_MAX_LEN, PinpointConstants.AGENT_NAME_MAX_LEN + 8));
+        long time = Longs.fromByteArray(Arrays.copyOfRange(traceIndexRowKey, PinpointConstants.APPLICATION_NAME_MAX_LEN, PinpointConstants.APPLICATION_NAME_MAX_LEN + 8));
         time = TimeUtils.recoveryTimeMillis(time);
         Assert.assertEquals(time, l1);
-    }
-
-    @Test
-    public void testGetTransactionId_BasicSpan() {
-        SpanBo spanBo = new SpanBo();
-        spanBo.setTraceAgentId("traceAgentId");
-        spanBo.setTraceAgentStartTime(System.currentTimeMillis());
-        spanBo.setTraceTransactionSequence(1111);
-
-        byte[] transactionIdRowkey = SpanUtils.getTransactionId(spanBo);
-
-        TraceRowKeyDecoderV2 decoder = new TraceRowKeyDecoderV2();
-        TransactionId transactionId = decoder.readTransactionId(transactionIdRowkey);
-
-        Assert.assertEquals(transactionId.getAgentId(), spanBo.getTraceAgentId());
-        Assert.assertEquals(transactionId.getAgentStartTime(), spanBo.getTraceAgentStartTime());
-        Assert.assertEquals(transactionId.getTransactionSequence(), spanBo.getTraceTransactionSequence());
     }
 }

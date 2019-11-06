@@ -1,0 +1,43 @@
+<div [hidden]="!showCreate" class="l-wrapper">
+    <button class="btn btn-black l-close" (click)="onClose(); formDir.resetForm();"><i class="fas fa-times"></i></button>
+    <h1>{{title}}</h1> 
+    <form [formGroup]="pinpointUserForm" #formDir="ngForm" (ngSubmit)="onCreateOrUpdate()">
+        <div>
+            <label for="userId">{{i18nLabel.USER_ID_LABEL}}</label>
+            <input type="text" id="userId" formControlName="userId" required>
+            <pp-form-field-error-message
+                [control]="pinpointUserForm.get('userId')"
+                [errorMessage]="i18nGuide['userId']">
+            </pp-form-field-error-message>
+        </div>
+        <div>
+            <label for="name">{{i18nLabel.NAME_LABEL}}</label>
+            <input type="text" id="name" formControlName="name" required>
+            <pp-form-field-error-message
+                [control]="pinpointUserForm.get('name')"
+                [errorMessage]="i18nGuide['name']">
+            </pp-form-field-error-message>
+        </div>
+        <div>
+            <label for="department">{{i18nLabel.DEPARTMENT_LABEL}}</label>
+            <input type="text" id="department" formControlName="department">
+        </div>
+        <div>
+            <label for="phoneNumber">{{i18nLabel.PHONE_LABEL}}</label>
+            <input type="text" id="phoneNumber" formControlName="phoneNumber">
+            <pp-form-field-error-message
+                [control]="pinpointUserForm.get('phoneNumber')"
+                [errorMessage]="i18nGuide['phoneNumber']">
+            </pp-form-field-error-message>
+        </div>
+        <div>
+            <label for="email">{{i18nLabel.EMAIL_LABEL}}</label>
+            <input type="text" id="email" formControlName="email">
+            <pp-form-field-error-message
+                [control]="pinpointUserForm.get('email')"
+                [errorMessage]="i18nGuide['email']">
+            </pp-form-field-error-message>
+        </div>
+        <button type="submit" class="btn btn-blue l-create" [class.btn-gray]="pinpointUserForm.invalid" [disabled]="pinpointUserForm.invalid">OK</button>
+    </form>
+</div>

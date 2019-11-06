@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2014 NAVER Corp.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,6 @@ public interface PinpointPluginTestInstance {
     List<String> getAppArgs();
     File getWorkingDirectory();
     
-    Scanner startTest(Process process) throws Throwable;
-    void endTest(Process process) throws Throwable;
+    Scanner startTest() throws Throwable;
+    void endTest() throws Throwable;
 }

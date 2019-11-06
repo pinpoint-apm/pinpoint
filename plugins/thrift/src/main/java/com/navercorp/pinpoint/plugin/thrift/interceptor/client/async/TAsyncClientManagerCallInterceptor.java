@@ -16,21 +16,16 @@
 
 package com.navercorp.pinpoint.plugin.thrift.interceptor.client.async;
 
-import static com.navercorp.pinpoint.plugin.thrift.ThriftScope.THRIFT_CLIENT_SCOPE;
-
 import java.net.SocketAddress;
 
-import com.navercorp.pinpoint.bootstrap.async.AsyncTraceIdAccessor;
-import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
+import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
+import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Scope;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Name;
-import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScopeInvocation;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
@@ -44,7 +39,6 @@ import org.apache.thrift.async.TAsyncMethodCall;
 /**
  * @author HyunGil Jeong
  */
-@Scope(value = THRIFT_CLIENT_SCOPE, executionPolicy = ExecutionPolicy.BOUNDARY)
 public class TAsyncClientManagerCallInterceptor implements AroundInterceptor {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
@@ -54,7 +48,7 @@ public class TAsyncClientManagerCallInterceptor implements AroundInterceptor {
     private final MethodDescriptor descriptor;
     private final InterceptorScope scope;
 
-    public TAsyncClientManagerCallInterceptor(TraceContext traceContext, MethodDescriptor descriptor, @Name(THRIFT_CLIENT_SCOPE) InterceptorScope scope) {
+    public TAsyncClientManagerCallInterceptor(TraceContext traceContext, MethodDescriptor descriptor, InterceptorScope scope) {
         this.traceContext = traceContext;
         this.descriptor = descriptor;
         this.scope = scope;
@@ -87,12 +81,12 @@ public class TAsyncClientManagerCallInterceptor implements AroundInterceptor {
                 SpanEventRecorder recorder = trace.traceBlockBegin();
                 Object asyncMethodCallObj = args[0];
                 // inject async trace info to AsyncMethodCall object
-                final AsyncTraceId asyncTraceId = injectAsyncTraceId(asyncMethodCallObj, trace);
+                injectAsyncContext(asyncMethodCallObj, recorder);
 
                 // retrieve connection information
                 String remoteAddress = getRemoteAddress(asyncMethodCallObj);
 
-                final TraceId nextId = asyncTraceId.getNextTraceId();
+                final TraceId nextId = trace.getTraceId().getNextTraceId();
 
                 // Inject nextSpanId as the actual sending of data will be handled asynchronously.
                 final long nextSpanId = nextId.getSpanId();
@@ -157,9 +151,9 @@ public class TAsyncClientManagerCallInterceptor implements AroundInterceptor {
             return false;
         }
 
-        if (!(asyncMethodCallObj instanceof AsyncTraceIdAccessor)) {
+        if (!(asyncMethodCallObj instanceof AsyncContextAccessor)) {
             if (isDebug) {
-                logger.debug("Invalid target object. Need field accessor({}).", AsyncTraceIdAccessor.class.getName());
+                logger.debug("Invalid target object. Need field accessor({}).", AsyncContextAccessor.class.getName());
             }
             return false;
         }
@@ -167,15 +161,12 @@ public class TAsyncClientManagerCallInterceptor implements AroundInterceptor {
         return true;
     }
 
-    private AsyncTraceId injectAsyncTraceId(final Object asyncMethodCallObj, final Trace trace) {
-        final AsyncTraceId asyncTraceId = trace.getAsyncTraceId();
-        SpanEventRecorder recorder = trace.currentSpanEventRecorder();
-        recorder.recordNextAsyncId(asyncTraceId.getAsyncId());
-        ((AsyncTraceIdAccessor) asyncMethodCallObj)._$PINPOINT$_setAsyncTraceId(asyncTraceId);
+    private void injectAsyncContext(final Object asyncMethodCallObj, final SpanEventRecorder recorder) {
+        final AsyncContext asyncContext = recorder.recordNextAsyncContext();
+        ((AsyncContextAccessor) asyncMethodCallObj)._$PINPOINT$_setAsyncContext(asyncContext);
         if (isDebug) {
-            logger.debug("Set asyncTraceId metadata {}", asyncTraceId);
+            logger.debug("Set AsyncContext {}", asyncContext);
         }
-        return asyncTraceId;
     }
 
     private String getRemoteAddress(Object asyncMethodCallObj) {

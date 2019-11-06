@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2014 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.plugin.json_lib.JsonLibConstants;
 
 /**
@@ -69,7 +70,7 @@ public class ParsingInterceptor implements AroundInterceptor {
             recorder.recordServiceType(JsonLibConstants.SERVICE_TYPE);
             recorder.recordApi(descriptor);
             recorder.recordException(throwable);
-            if (args != null && args.length > 0 && args[0] instanceof String) {
+            if (ArrayUtils.hasLength(args) && args[0] instanceof String) {
                 recorder.recordAttribute(JsonLibConstants.JSON_LIB_ANNOTATION_KEY_JSON_LENGTH, ((String) args[0]).length());
             }
         } finally {

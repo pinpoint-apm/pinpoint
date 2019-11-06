@@ -1,0 +1,237 @@
+[ {
+  "category": "John",
+  "segments": [ {
+    "start": 7,
+    "duration": 2,
+    "color": "#7B742C",
+    "task": "Task #1"
+  }, {
+    "duration": 2,
+    "color": "#7E585F",
+    "task": "Task #2"
+  }, {
+    "duration": 2,
+    "color": "#CF794A",
+    "task": "Task #3"
+  } ]
+}, {
+  "category": "Smith",
+  "segments": [ {
+    "start": 10,
+    "duration": 2,
+    "color": "#7E585F",
+    "task": "Task #2"
+  }, {
+    "duration": 1,
+    "color": "#CF794A",
+    "task": "Task #3"
+  }, {
+    "duration": 4,
+    "color": "#7B742C",
+    "task": "Task #1"
+  } ]
+}, {
+  "category": "Ben",
+  "segments": [ {
+    "start": 12,
+    "duration": 2,
+    "color": "#7E585F",
+    "task": "Task #2"
+  }, {
+    "start": 16,
+    "duration": 2,
+    "color": "#FFE4C4",
+    "task": "Task #4"
+  } ]
+}, {
+  "category": "Mike",
+  "segments": [ {
+    "start": 9,
+    "duration": 6,
+    "color": "#7B742C",
+    "task": "Task #1"
+  }, {
+    "duration": 4,
+    "color": "#7E585F",
+    "task": "Task #2"
+  } ]
+}, {
+  "category": "Lenny",
+  "segments": [ {
+    "start": 8,
+    "duration": 1,
+    "color": "#CF794A",
+    "task": "Task #3"
+  }, {
+    "duration": 4,
+    "color": "#7B742C",
+    "task": "Task #1"
+  } ]
+}, {
+  "category": "Scott",
+  "segments": [ {
+    "start": 15,
+    "duration": 3,
+    "color": "#7E585F",
+    "task": "Task #2"
+  } ]
+}, {
+  "category": "Julia",
+  "segments": [ {
+    "start": 9,
+    "duration": 2,
+    "color": "#7B742C",
+    "task": "Task #1"
+  }, {
+    "duration": 1,
+    "color": "#7E585F",
+    "task": "Task #2"
+  }, {
+    "duration": 8,
+    "color": "#CF794A",
+    "task": "Task #3"
+  } ]
+}, {
+  "category": "Bob",
+  "segments": [ {
+    "start": 9,
+    "duration": 8,
+    "color": "#7E585F",
+    "task": "Task #2"
+  }, {
+    "duration": 7,
+    "color": "#CF794A",
+    "task": "Task #3"
+  } ]
+}, {
+  "category": "Kendra",
+  "segments": [ {
+    "start": 11,
+    "duration": 8,
+    "color": "#7E585F",
+    "task": "Task #2"
+  }, {
+    "start": 16,
+    "duration": 2,
+    "color": "#FFE4C4",
+    "task": "Task #4"
+  } ]
+}, {
+  "category": "Tom",
+  "segments": [ {
+    "start": 9,
+    "duration": 4,
+    "color": "#7B742C",
+    "task": "Task #1"
+  }, {
+    "duration": 3,
+    "color": "#7E585F",
+    "task": "Task #2"
+  }, {
+    "duration": 5,
+    "color": "#CF794A",
+    "task": "Task #3"
+  } ]
+}, {
+  "category": "Kyle",
+  "segments": [ {
+    "start": 6,
+    "duration": 3,
+    "color": "#7E585F",
+    "task": "Task #2"
+  } ]
+}, {
+  "category": "Anita",
+  "segments": [ {
+    "start": 12,
+    "duration": 2,
+    "color": "#7E585F",
+    "task": "Task #2"
+  }, {
+    "start": 16,
+    "duration": 2,
+    "color": "#FFE4C4",
+    "task": "Task #4"
+  } ]
+}, {
+  "category": "Jack",
+  "segments": [ {
+    "start": 8,
+    "duration": 10,
+    "color": "#7B742C",
+    "task": "Task #1"
+  }, {
+    "duration": 2,
+    "color": "#7E585F",
+    "task": "Task #2"
+  } ]
+}, {
+  "category": "Kim",
+  "segments": [ {
+    "start": 12,
+    "duration": 2,
+    "color": "#7E585F",
+    "task": "Task #2"
+  }, {
+    "duration": 3,
+    "color": "#CF794A",
+    "task": "Task #3"
+  } ]
+}, {
+  "category": "Aaron",
+  "segments": [ {
+    "start": 18,
+    "duration": 2,
+    "color": "#7E585F",
+    "task": "Task #2"
+  }, {
+    "duration": 2,
+    "color": "#FFE4C4",
+    "task": "Task #4"
+  } ]
+}, {
+  "category": "Alan",
+  "segments": [ {
+    "start": 17,
+    "duration": 2,
+    "color": "#7B742C",
+    "task": "Task #1"
+  }, {
+    "duration": 2,
+    "color": "#7E585F",
+    "task": "Task #2"
+  }, {
+    "duration": 2,
+    "color": "#CF794A",
+    "task": "Task #3"
+  } ]
+}, {
+  "category": "Ruth",
+  "segments": [ {
+    "start": 13,
+    "duration": 2,
+    "color": "#7E585F",
+    "task": "Task #2"
+  }, {
+    "duration": 1,
+    "color": "#CF794A",
+    "task": "Task #3"
+  }, {
+    "duration": 4,
+    "color": "#7B742C",
+    "task": "Task #1"
+  } ]
+}, {
+  "category": "Simon",
+  "segments": [ {
+    "start": 10,
+    "duration": 3,
+    "color": "#7E585F",
+    "task": "Task #2"
+  }, {
+    "start": 17,
+    "duration": 4,
+    "color": "#FFE4C4",
+    "task": "Task #4"
+  } ]
+} ]

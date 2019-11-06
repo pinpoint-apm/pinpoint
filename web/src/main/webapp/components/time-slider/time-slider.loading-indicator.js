@@ -12,7 +12,6 @@
         this.show();
     };
     ts.LoadingIndicator.prototype._addElements = function() {
-        var size = 30;
         var halfSize = consts.SIZE / 2;
         var x = this.opt.width / 2 - halfSize;
         var y = this.opt.height / 2 - halfSize;

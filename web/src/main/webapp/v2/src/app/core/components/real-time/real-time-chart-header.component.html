@@ -1,0 +1,23 @@
+<div class="l-chart-count-info">
+    <span class="l-txt">Total Servers : </span>
+    <span class="l-txt-bold">{{totalCount}}</span>
+    <ng-container *ngIf="needPaging()">
+        <ng-container *ngIf="hasChartsOnPage() then indexInfo; else none"></ng-container>
+        <ng-template #indexInfo><span>[ {{firstChartIndex + 1}} ~ {{lastChartIndex + 1}} ]</span></ng-template>
+        <ng-template #none><span>[ - ]</span></ng-template>
+    </ng-container>
+</div>
+<div class="l-active-only-toggle">
+    <mat-slide-toggle
+        [checked]="activeOnly"
+        (change)="onActiveOnlyToggleChange($event)">Active Only</mat-slide-toggle>
+</div>
+<ng-container *ngIf="needPaging() && hasChartsOnPage()">
+    <nav>
+        <ul class="l-pagination">
+            <li class="l-page-item" *ngFor="let page of getTotalPage()">
+                <a class="l-page-link" [class.active]="isActivePage(page)" (click)="openPage(page)">{{page}}</a>
+            </li>
+        </ul>
+    </nav>
+</ng-container>

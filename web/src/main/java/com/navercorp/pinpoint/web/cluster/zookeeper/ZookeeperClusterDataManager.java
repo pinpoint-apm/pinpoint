@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,15 +16,23 @@
 
 package com.navercorp.pinpoint.web.cluster.zookeeper;
 
+import com.navercorp.pinpoint.common.server.cluster.zookeeper.CreateNodeMessage;
+import com.navercorp.pinpoint.common.server.cluster.zookeeper.CuratorZookeeperClient;
+import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperClient;
+import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperConstants;
+import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperEventWatcher;
+import com.navercorp.pinpoint.common.server.cluster.zookeeper.exception.NoNodeException;
+import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.common.util.MapUtils;
 import com.navercorp.pinpoint.rpc.util.ClassUtils;
 import com.navercorp.pinpoint.rpc.util.TimerFactory;
 import com.navercorp.pinpoint.web.cluster.ClusterDataManager;
 import com.navercorp.pinpoint.web.cluster.CollectorClusterInfoRepository;
-import com.navercorp.pinpoint.web.cluster.zookeeper.exception.NoNodeException;
 import com.navercorp.pinpoint.web.config.WebConfig;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
+
+import org.apache.curator.utils.ZKPaths;
 import org.apache.zookeeper.WatchedEvent;
-import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.Watcher.Event.EventType;
 import org.apache.zookeeper.Watcher.Event.KeeperState;
 import org.jboss.netty.util.HashedWheelTimer;
@@ -34,25 +42,18 @@ import org.jboss.netty.util.TimerTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author koo.taejin
  */
-public class ZookeeperClusterDataManager implements ClusterDataManager, Watcher {
+public class ZookeeperClusterDataManager implements ClusterDataManager, ZookeeperEventWatcher {
 
-    static final long DEFAULT_RECONNECT_DELAY_WHEN_SESSION_EXPIRED = 30000;
-
-    private static final String PINPOINT_CLUSTER_PATH = "/pinpoint-cluster";
-    private static final String PINPOINT_WEB_CLUSTER_PATh = PINPOINT_CLUSTER_PATH + "/web";
-    private static final String PINPOINT_COLLECTOR_CLUSTER_PATH = PINPOINT_CLUSTER_PATH + "/collector";
-
-    private static final long SYNC_INTERVAL_TIME_MILLIS = 15 * 1000;
+    private static final long PULL_RETRY_INTERVAL_TIME_MILLIS = 15 * 1000;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -60,7 +61,6 @@ public class ZookeeperClusterDataManager implements ClusterDataManager, Watcher 
     private final int sessionTimeout;
     private final int retryInterval;
 
-    private final AtomicBoolean connected = new AtomicBoolean(false);
     private ZookeeperClient client;
     private final ZookeeperClusterDataManagerHelper clusterDataManagerHelper = new ZookeeperClusterDataManagerHelper();
 
@@ -70,25 +70,36 @@ public class ZookeeperClusterDataManager implements ClusterDataManager, Watcher 
 
     private final CollectorClusterInfoRepository collectorClusterInfo = new CollectorClusterInfoRepository();
 
-    public ZookeeperClusterDataManager(WebConfig config) {
-        this(config.getClusterZookeeperAddress(), config.getClusterZookeeperSessionTimeout(), config.getClusterZookeeperRetryInterval());
-    }
+    private final PeriodicSyncTask periodicSyncTask;
 
-    public ZookeeperClusterDataManager(String connectAddress, int sessionTimeout, int retryInterval) {
-        this.connectAddress = connectAddress;
-        this.sessionTimeout = sessionTimeout;
-        this.retryInterval = retryInterval;
+    public ZookeeperClusterDataManager(WebConfig config) {
+        this.connectAddress = config.getClusterZookeeperAddress();
+        this.sessionTimeout = config.getClusterZookeeperSessionTimeout();
+        this.retryInterval = config.getClusterZookeeperRetryInterval();
+
+        if (config.isClusterZookeeperPeriodicSyncEnable()) {
+            this.periodicSyncTask = new PeriodicSyncTask(config.getClusterZookeeperPeriodicSyncInterval());
+        } else {
+            this.periodicSyncTask = null;
+        }
     }
 
     @Override
     public void start() throws Exception {
         this.timer = createTimer();
-        this.client = new ZookeeperClient(connectAddress, sessionTimeout, this, DEFAULT_RECONNECT_DELAY_WHEN_SESSION_EXPIRED);
+        this.client = new CuratorZookeeperClient(connectAddress, sessionTimeout, this);
         this.client.connect();
+        if (periodicSyncTask != null) {
+            this.timer.newTimeout(periodicSyncTask, periodicSyncTask.getIntervalMillis(), TimeUnit.MILLISECONDS);
+        }
     }
 
     @Override
     public void stop() {
+        if (periodicSyncTask != null) {
+            periodicSyncTask.stop();
+        }
+
         if (timer != null) {
             timer.stop();
         }
@@ -102,11 +113,11 @@ public class ZookeeperClusterDataManager implements ClusterDataManager, Watcher 
     // not too much overhead, just logging
     @Override
     public boolean registerWebCluster(String zNodeName, byte[] contents) {
-        String zNodePath = clusterDataManagerHelper.bindingPathAndZNode(PINPOINT_WEB_CLUSTER_PATh, zNodeName);
+        String zNodeFullPath = ZKPaths.makePath(ZookeeperConstants.PINPOINT_WEB_CLUSTER_PATH, zNodeName);
 
-        logger.info("registerWebCluster() started. create UniqPath={}.", zNodePath);
-
-        PushWebClusterJob job = new PushWebClusterJob(zNodePath, contents, retryInterval);
+        logger.info("registerWebCluster() started. create UniqPath={}.", zNodeFullPath);
+        CreateNodeMessage createNodeMessage = new CreateNodeMessage(zNodeFullPath, contents);
+        PushWebClusterJob job = new PushWebClusterJob(createNodeMessage, retryInterval);
         if (!this.job.compareAndSet(null, job)) {
             logger.warn("Already Register Web Cluster Node.");
             return false;
@@ -118,18 +129,18 @@ public class ZookeeperClusterDataManager implements ClusterDataManager, Watcher 
             return true;
         }
 
-        if (!clusterDataManagerHelper.pushWebClusterResource(client, job)) {
+        if (!clusterDataManagerHelper.pushZnode(client, job.getCreateNodeMessage())) {
             timer.newTimeout(job, job.getRetryInterval(), TimeUnit.MILLISECONDS);
         }
 
         return true;
     }
-    
+
     @SuppressWarnings("deprecation")
     @Override
     public void process(WatchedEvent event) {
         logger.info("Handle Zookeeper Event({}) started.", event);
-        
+
         KeeperState state = event.getState();
         EventType eventType = event.getType();
         String path = event.getPath();
@@ -137,15 +148,8 @@ public class ZookeeperClusterDataManager implements ClusterDataManager, Watcher 
         // when this happens, ephemeral node disappears
         // reconnects automatically, and process gets notified for all events
         boolean result = false;
-        if (ZookeeperUtils.isDisconnectedEvent(event)) {
-            result = handleDisconnected();
-            if (state == KeeperState.Expired) {
-                client.reconnectWhenSessionExpired();
-            }
-        } else if (state == KeeperState.SyncConnected || state == KeeperState.NoSyncConnected) {
-            if (eventType == EventType.None) {
-                result = handleConnected();
-            } else if (eventType == EventType.NodeChildrenChanged) {
+        if (state == KeeperState.SyncConnected || state == KeeperState.NoSyncConnected) {
+            if (eventType == EventType.NodeChildrenChanged) {
                 result = handleNodeChildrenChanged(path);
             } else if (eventType == EventType.NodeDeleted) {
                 result = handleNodeDeleted(path);
@@ -161,43 +165,35 @@ public class ZookeeperClusterDataManager implements ClusterDataManager, Watcher 
         }
     }
 
-    private boolean handleDisconnected() {
-        connected.compareAndSet(true, false);
+    @Override
+    public boolean handleConnected() {
+        PushWebClusterJob job = this.job.get();
+        if (job != null) {
+            if (!clusterDataManagerHelper.pushZnode(client, job.getCreateNodeMessage())) {
+                timer.newTimeout(job, job.getRetryInterval(), TimeUnit.MILLISECONDS);
+                return false;
+            }
+        }
+
+        if (!syncPullCollectorCluster()) {
+            timer.newTimeout(new PullCollectorClusterJob(), PULL_RETRY_INTERVAL_TIME_MILLIS, TimeUnit.MILLISECONDS);
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public boolean handleDisconnected() {
         collectorClusterInfo.clear();
         return true;
     }
 
-    private boolean handleConnected() {
-        boolean result = true;
-
-        // is it ok to keep this since previous condition was possibly RUN
-        boolean changed = connected.compareAndSet(false, true);
-        if (changed) {
-            PushWebClusterJob job = this.job.get();
-            if (job != null) {
-                if (!clusterDataManagerHelper.pushWebClusterResource(client, job)) {
-                    timer.newTimeout(job, job.getRetryInterval(), TimeUnit.MILLISECONDS);
-                    result = false;
-                }
-            }
-
-            if (!syncPullCollectorCluster()) {
-                timer.newTimeout(new PullCollectorClusterJob(), SYNC_INTERVAL_TIME_MILLIS, TimeUnit.MILLISECONDS);
-                result = false;
-            }
-        } else {
-            result = false;
-        }
-
-        return result;
-    }
-
     private boolean handleNodeChildrenChanged(String path) {
-        if (PINPOINT_COLLECTOR_CLUSTER_PATH.equals(path)) {
+        if (ZookeeperConstants.PINPOINT_COLLECTOR_CLUSTER_PATH.equals(path)) {
             if (syncPullCollectorCluster()) {
                 return true;
             }
-            timer.newTimeout(new PullCollectorClusterJob(), SYNC_INTERVAL_TIME_MILLIS, TimeUnit.MILLISECONDS);
+            timer.newTimeout(new PullCollectorClusterJob(), PULL_RETRY_INTERVAL_TIME_MILLIS, TimeUnit.MILLISECONDS);
         }
 
         return false;
@@ -205,7 +201,7 @@ public class ZookeeperClusterDataManager implements ClusterDataManager, Watcher 
 
     private boolean handleNodeDeleted(String path) {
         if (path != null) {
-            String id = clusterDataManagerHelper.extractCollectorClusterId(path, PINPOINT_COLLECTOR_CLUSTER_PATH);
+            String id = clusterDataManagerHelper.extractCollectorClusterId(path, ZookeeperConstants.PINPOINT_COLLECTOR_CLUSTER_PATH);
             if (id != null) {
                 collectorClusterInfo.remove(id);
                 return true;
@@ -216,12 +212,12 @@ public class ZookeeperClusterDataManager implements ClusterDataManager, Watcher 
 
     private boolean handleNodeDataChanged(String path) {
         if (path != null) {
-            String id = clusterDataManagerHelper.extractCollectorClusterId(path, PINPOINT_COLLECTOR_CLUSTER_PATH);
+            String id = clusterDataManagerHelper.extractCollectorClusterId(path, ZookeeperConstants.PINPOINT_COLLECTOR_CLUSTER_PATH);
             if (id != null) {
                 if (pushCollectorClusterData(id)) {
                     return true;
                 }
-                timer.newTimeout(new PullCollectorClusterJob(), SYNC_INTERVAL_TIME_MILLIS, TimeUnit.MILLISECONDS);
+                timer.newTimeout(new PullCollectorClusterJob(), PULL_RETRY_INTERVAL_TIME_MILLIS, TimeUnit.MILLISECONDS);
             }
         }
 
@@ -245,14 +241,14 @@ public class ZookeeperClusterDataManager implements ClusterDataManager, Watcher 
     }
 
     public boolean isConnected() {
-        return connected.get();
+        return client.isConnected();
     }
 
     private boolean syncPullCollectorCluster() {
         logger.info("syncPullCollectorCluster() started.");
         synchronized (this) {
-            Map<String, byte[]> map = clusterDataManagerHelper.syncPullCollectorCluster(client, PINPOINT_COLLECTOR_CLUSTER_PATH);
-            if (Collections.EMPTY_MAP == map) {
+            Map<String, byte[]> map = clusterDataManagerHelper.syncPullCollectorCluster(client, ZookeeperConstants.PINPOINT_COLLECTOR_CLUSTER_PATH);
+            if (MapUtils.isEmpty(map)) {
                 return false;
             }
 
@@ -268,7 +264,7 @@ public class ZookeeperClusterDataManager implements ClusterDataManager, Watcher 
 
     private boolean pushCollectorClusterData(String id) {
         logger.info("pushCollectorClusterData() started.");
-        String path = clusterDataManagerHelper.bindingPathAndZNode(PINPOINT_COLLECTOR_CLUSTER_PATH, id);
+        String path = ZKPaths.makePath(ZookeeperConstants.PINPOINT_COLLECTOR_CLUSTER_PATH, id);
         synchronized (this) {
             try {
                 byte[] data = client.getData(path, true);
@@ -276,7 +272,7 @@ public class ZookeeperClusterDataManager implements ClusterDataManager, Watcher 
                 collectorClusterInfo.put(id, data);
                 logger.info("pushCollectorClusterData() completed.");
                 return true;
-            } catch(NoNodeException e) {
+            } catch (NoNodeException e) {
                 logger.warn("No node path({}).", path);
                 collectorClusterInfo.remove(id);
             } catch (Exception e) {
@@ -287,14 +283,12 @@ public class ZookeeperClusterDataManager implements ClusterDataManager, Watcher 
         }
     }
 
-    class PushWebClusterJob implements TimerTask {
-        private final String zNodeName;
-        private final byte[] contents;
+    class PushWebClusterJob implements PushZnodeJob {
+        private final CreateNodeMessage createNodeMessage;
         private final int retryInterval;
 
-        public PushWebClusterJob(String zNodeName, byte[] contents, int retryInterval) {
-            this.zNodeName = zNodeName;
-            this.contents = contents;
+        public PushWebClusterJob(CreateNodeMessage createNodeMessage, int retryInterval) {
+            this.createNodeMessage = Objects.requireNonNull(createNodeMessage, "createNodeMessage");
             this.retryInterval = retryInterval;
         }
 
@@ -306,26 +300,24 @@ public class ZookeeperClusterDataManager implements ClusterDataManager, Watcher 
                 return;
             }
 
-            if (!clusterDataManagerHelper.pushWebClusterResource(client, this)) {
+            if (!clusterDataManagerHelper.pushZnode(client, getCreateNodeMessage())) {
                 timer.newTimeout(this, getRetryInterval(), TimeUnit.MILLISECONDS);
             }
         }
 
-        public String getZNodePath() {
-            return zNodeName;
+        @Override
+        public CreateNodeMessage getCreateNodeMessage() {
+            return createNodeMessage;
         }
 
-        public byte[] getContents() {
-            return contents;
-        }
-
+        @Override
         public int getRetryInterval() {
             return retryInterval;
         }
 
         @Override
         public String toString() {
-            return ClassUtils.simpleClassName(this) + ", ZNode=" + getZNodePath();
+            return ClassUtils.simpleClassName(this) + ", createNodeMessage=" + getCreateNodeMessage();
         }
 
     }
@@ -341,9 +333,45 @@ public class ZookeeperClusterDataManager implements ClusterDataManager, Watcher 
             }
 
             if (!syncPullCollectorCluster()) {
-                timer.newTimeout(new PullCollectorClusterJob(), SYNC_INTERVAL_TIME_MILLIS, TimeUnit.MILLISECONDS);
+                timer.newTimeout(new PullCollectorClusterJob(), PULL_RETRY_INTERVAL_TIME_MILLIS, TimeUnit.MILLISECONDS);
             }
         }
+    }
+
+    class PeriodicSyncTask implements TimerTask {
+
+        private final long intervalMillis;
+        private volatile boolean isStopped;
+
+        public PeriodicSyncTask(long intervalMillis) {
+            Assert.isTrue(intervalMillis > 0, "must be `intervalMillis > 0`)");
+            this.intervalMillis = intervalMillis;
+        }
+
+        long getIntervalMillis() {
+            return intervalMillis;
+        }
+
+        void stop() {
+            isStopped = true;
+        }
+
+        @Override
+        public void run(Timeout timeout) throws Exception {
+            if (isStopped) {
+                logger.info("PeriodicSyncTask will be discarded. message:already stopped");
+                return;
+            }
+
+            logger.info("PeriodicSyncTask started");
+            try {
+                syncPullCollectorCluster();
+            } catch (Exception e) {
+                logger.warn("Failed to sync data. message:{}", e.getMessage(), e);
+            }
+            timer.newTimeout(this, intervalMillis, TimeUnit.MILLISECONDS);
+        }
+
     }
 
 }

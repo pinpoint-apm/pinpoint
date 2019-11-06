@@ -19,7 +19,9 @@
 
 package com.navercorp.pinpoint.profiler.receiver.service;
 
-import com.navercorp.pinpoint.profiler.context.active.ActiveTraceLocator;
+import com.navercorp.pinpoint.bootstrap.config.ThriftTransportConfig;
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
 import com.navercorp.pinpoint.profiler.receiver.ProfilerCommandService;
 import com.navercorp.pinpoint.profiler.receiver.ProfilerCommandServiceGroup;
 
@@ -27,18 +29,31 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public class ActiveThreadService implements ProfilerCommandServiceGroup {
 
     private final List<ProfilerCommandService> serviceList;
 
-    public ActiveThreadService(ActiveTraceLocator activeTraceLocator) {
+    public ActiveThreadService(ProfilerConfig profilerConfig, ActiveTraceRepository activeTraceRepository) {
         serviceList = new ArrayList<ProfilerCommandService>();
-        serviceList.add(new ActiveThreadCountService(activeTraceLocator));
-        serviceList.add(new ActiveThreadDumpService(activeTraceLocator));
 
-        // will be added ActiveThreadTraceService
+        ThriftTransportConfig thriftTransportConfig = profilerConfig.getThriftTransportConfig();
+        if (!thriftTransportConfig.isTcpDataSenderCommandActiveThreadEnable()) {
+            return;
+        }
+
+        if (thriftTransportConfig.isTcpDataSenderCommandActiveThreadCountEnable()) {
+            serviceList.add(new ActiveThreadCountService(activeTraceRepository));
+        }
+
+        ActiveThreadDumpCoreService activeThreadDump = new ActiveThreadDumpCoreService(activeTraceRepository);
+        if (thriftTransportConfig.isTcpDataSenderCommandActiveThreadLightDumpEnable()) {
+            serviceList.add(new ActiveThreadLightDumpService(activeThreadDump));
+        }
+        if (thriftTransportConfig.isTcpDataSenderCommandActiveThreadDumpEnable()) {
+            serviceList.add(new ActiveThreadDumpService(activeThreadDump));
+        }
     }
 
     @Override

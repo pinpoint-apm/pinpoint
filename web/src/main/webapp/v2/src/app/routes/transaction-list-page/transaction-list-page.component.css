@@ -1,0 +1,17 @@
+.l-widget-group {
+    display: flex;
+    flex-flow: row wrap;
+    flex: 1;
+    padding: 0 15px;
+    height: 100%;
+    align-items: center;
+}
+.l-main-container {
+    display: flex;
+    flex-flow: row wrap;
+    height: calc(100vh - 50px);
+    overflow-y: hidden;
+}
+split-area:first-child {
+    overflow: hidden !important;
+}

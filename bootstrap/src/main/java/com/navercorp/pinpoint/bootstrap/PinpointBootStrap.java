@@ -16,14 +16,17 @@
 
 package com.navercorp.pinpoint.bootstrap;
 
-import java.io.IOException;
-import java.lang.instrument.Instrumentation;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.jar.JarFile;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import com.navercorp.pinpoint.ProductInfo;
+import com.navercorp.pinpoint.bootstrap.agentdir.AgentDirBaseClassPathResolver;
+import com.navercorp.pinpoint.bootstrap.agentdir.AgentDirectory;
+import com.navercorp.pinpoint.bootstrap.agentdir.BootDir;
+import com.navercorp.pinpoint.bootstrap.agentdir.ClassPathResolver;
+import com.navercorp.pinpoint.bootstrap.agentdir.JavaAgentPathResolver;
+
+import java.lang.instrument.Instrumentation;
+import java.util.List;
+import java.util.Map;
+import java.util.jar.JarFile;
 
 /**
  * @author emeroad
@@ -31,76 +34,109 @@ import com.navercorp.pinpoint.ProductInfo;
  */
 public class PinpointBootStrap {
 
-    private static final Logger logger = Logger.getLogger(PinpointBootStrap.class.getName());
+    private static final BootLogger logger = BootLogger.getLogger(PinpointBootStrap.class.getName());
 
-    public static final String BOOT_CLASS = "com.navercorp.pinpoint.profiler.DefaultAgent";
+    private static final LoadState STATE = new LoadState();
 
-    private static final boolean STATE_NONE = false;
-    private static final boolean STATE_STARTED = true;
-    private static final AtomicBoolean LOAD_STATE = new AtomicBoolean(STATE_NONE);
 
     public static void premain(String agentArgs, Instrumentation instrumentation) {
-        if (agentArgs != null) {
-            logger.info(ProductInfo.NAME + " agentArgs:" + agentArgs);
+        final boolean success = STATE.start();
+        if (!success) {
+            logger.warn("pinpoint-bootstrap already started. skipping agent loading.");
+            return;
         }
 
-        final boolean duplicated = checkDuplicateLoadState();
-        if (duplicated) {
+        logger.info(ProductInfo.NAME + " agentArgs:" + agentArgs);
+        logger.info("getClassLoader():" + PinpointBootStrap.class.getClassLoader());
+        logger.info("getContextClassLoader():" + Thread.currentThread().getContextClassLoader());
+
+        JavaAgentPathResolver javaAgentPathResolver = JavaAgentPathResolver.newJavaAgentPathResolver();
+        String agentPath = javaAgentPathResolver.resolveJavaAgentPath();
+        logger.info("JavaAgentPath:" + agentPath);
+
+        if (Object.class.getClassLoader() != PinpointBootStrap.class.getClassLoader()) {
+            // TODO bug : location is null
+            logger.warn("Invalid pinpoint-bootstrap.jar:" + agentArgs);
+            return;
+        }
+
+        final Map<String, String> agentArgsMap = argsToMap(agentArgs);
+
+        final ClassPathResolver classPathResolver = new AgentDirBaseClassPathResolver(agentPath);
+
+        final AgentDirectory agentDirectory = resolveAgentDir(classPathResolver);
+        if (agentDirectory == null) {
+            logger.warn("Agent Directory Verify fail. skipping agent loading.");
             logPinpointAgentLoadFail();
             return;
         }
-        
-        loadBootstrapCoreLib(instrumentation);
+        BootDir bootDir = agentDirectory.getBootDir();
+        appendToBootstrapClassLoader(instrumentation, bootDir);
 
-        PinpointStarter bootStrap = new PinpointStarter(agentArgs, instrumentation);
-        bootStrap.start();
+        ClassLoader parentClassLoader = getParentClassLoader();
+        final ModuleBootLoader moduleBootLoader = loadModuleBootLoader(instrumentation, parentClassLoader);
+        PinpointStarter bootStrap = new PinpointStarter(parentClassLoader, agentArgsMap, agentDirectory, instrumentation, moduleBootLoader);
+        if (!bootStrap.start()) {
+            logPinpointAgentLoadFail();
+        }
 
     }
 
-    private static void loadBootstrapCoreLib(Instrumentation instrumentation) {
-        // 1st find boot-strap.jar
-        final ClassPathResolver classPathResolver = new ClassPathResolver();
-        boolean agentJarNotFound = classPathResolver.findAgentJar();
-        if (!agentJarNotFound) {
-            logger.severe("pinpoint-bootstrap-x.x.x(-SNAPSHOT).jar Fnot found.");
-            logPinpointAgentLoadFail();
-            return;
+    private static ModuleBootLoader loadModuleBootLoader(Instrumentation instrumentation, ClassLoader parentClassLoader) {
+        if (!ModuleUtils.isModuleSupported()) {
+            return null;
         }
-
-        // 2nd find boot-strap-core.jar
-        final String bootStrapCoreJar = classPathResolver.getBootStrapCoreJar();
-        if (bootStrapCoreJar == null) {
-            logger.severe("pinpoint-bootstrap-core-x.x.x(-SNAPSHOT).jar not found");
-            logPinpointAgentLoadFail();
-            return;
-        }
-
-        JarFile bootStrapCoreJarFile = getBootStrapJarFile(bootStrapCoreJar);
-        if (bootStrapCoreJarFile == null) {
-            logger.severe("pinpoint-bootstrap-core-x.x.x(-SNAPSHOT).jar not found");
-            logPinpointAgentLoadFail();
-            return;
-        }
-        logger.info("load pinpoint-bootstrap-core-x.x.x(-SNAPSHOT).jar :" + bootStrapCoreJar);
-        instrumentation.appendToBootstrapClassLoaderSearch(bootStrapCoreJarFile);
+        logger.info("java9 module detected");
+        logger.info("ModuleBootLoader start");
+        ModuleBootLoader moduleBootLoader = new ModuleBootLoader(instrumentation, parentClassLoader);
+        moduleBootLoader.loadModuleSupport();
+        return moduleBootLoader;
     }
 
-    // for test
-    static boolean getLoadState() {
-        return LOAD_STATE.get();
+    private static AgentDirectory resolveAgentDir(ClassPathResolver classPathResolver) {
+        try {
+            AgentDirectory agentDir = classPathResolver.resolve();
+            return agentDir;
+        } catch(Exception e) {
+            logger.warn("AgentDir resolve fail Caused by:" + e.getMessage(), e);
+            return null;
+        }
     }
 
-    private static boolean checkDuplicateLoadState() {
-        final boolean startSuccess = LOAD_STATE.compareAndSet(STATE_NONE, STATE_STARTED);
-        if (startSuccess) {
-            return false;
+
+    private static ClassLoader getParentClassLoader() {
+        final ClassLoader classLoader = getPinpointBootStrapClassLoader();
+        if (classLoader == Object.class.getClassLoader()) {
+            logger.info("parentClassLoader:BootStrapClassLoader:" + classLoader );
         } else {
-            if (logger.isLoggable(Level.SEVERE)) {
-                logger.severe("pinpoint-bootstrap already started. skipping agent loading.");
-            }
-            return true;
+            logger.info("parentClassLoader:" + classLoader);
+        }
+        return classLoader;
+    }
+
+    private static ClassLoader getPinpointBootStrapClassLoader() {
+        return PinpointBootStrap.class.getClassLoader();
+    }
+
+
+    private static Map<String, String> argsToMap(String agentArgs) {
+        ArgsParser argsParser = new ArgsParser();
+        Map<String, String> agentArgsMap = argsParser.parse(agentArgs);
+        if (!agentArgsMap.isEmpty()) {
+            logger.info("agentParameter:" + agentArgs);
+        }
+        return agentArgsMap;
+    }
+
+    private static void appendToBootstrapClassLoader(Instrumentation instrumentation, BootDir bootDir) {
+        List<JarFile> jarFiles = bootDir.openJarFiles();
+        for (JarFile jarFile : jarFiles) {
+            logger.info("appendToBootstrapClassLoader:" + jarFile.getName());
+            instrumentation.appendToBootstrapClassLoaderSearch(jarFile);
         }
     }
+
+
 
     private static void logPinpointAgentLoadFail() {
         final String errorLog =
@@ -110,14 +146,5 @@ public class PinpointBootStrap {
         System.err.println(errorLog);
     }
 
-
-    private static JarFile getBootStrapJarFile(String bootStrapCoreJar) {
-        try {
-            return new JarFile(bootStrapCoreJar);
-        } catch (IOException ioe) {
-            logger.log(Level.SEVERE, bootStrapCoreJar + " file not found.", ioe);
-            return null;
-        }
-    }
 
 }

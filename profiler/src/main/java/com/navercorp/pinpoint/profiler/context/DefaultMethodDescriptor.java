@@ -120,11 +120,11 @@ public class DefaultMethodDescriptor implements MethodDescriptor {
         }
         StringBuilder buffer = new StringBuilder(256);
         buffer.append(className);
-        buffer.append(".");
+        buffer.append('.');
         buffer.append(methodName);
         buffer.append(parameterDescriptor);
         if (lineNumber != -1) {
-            buffer.append(":");
+            buffer.append(':');
             buffer.append(lineNumber);
         }
         fullName = buffer.toString();

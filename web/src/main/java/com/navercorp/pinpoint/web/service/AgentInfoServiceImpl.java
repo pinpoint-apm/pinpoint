@@ -1,3 +1,4 @@
+
 /*
  * Copyright 2014 NAVER Corp.
  *
@@ -17,15 +18,29 @@
 package com.navercorp.pinpoint.web.service;
 
 import com.google.common.collect.Ordering;
+import com.navercorp.pinpoint.common.Version;
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
+import com.navercorp.pinpoint.rpc.util.ListUtils;
+import com.navercorp.pinpoint.web.dao.AgentDownloadInfoDao;
 import com.navercorp.pinpoint.web.dao.AgentInfoDao;
 import com.navercorp.pinpoint.web.dao.AgentLifeCycleDao;
 import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
+import com.navercorp.pinpoint.web.filter.agent.AgentEventFilter;
+import com.navercorp.pinpoint.web.service.stat.AgentWarningStatService;
+import com.navercorp.pinpoint.web.vo.AgentDownloadInfo;
+import com.navercorp.pinpoint.web.vo.AgentEvent;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
 import com.navercorp.pinpoint.web.vo.AgentStatus;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.ApplicationAgentHostList;
-import com.navercorp.pinpoint.web.vo.ApplicationAgentList;
+import com.navercorp.pinpoint.web.vo.ApplicationAgentsList;
+import com.navercorp.pinpoint.web.vo.Range;
+import com.navercorp.pinpoint.web.vo.timeline.inspector.AgentEventTimeline;
+import com.navercorp.pinpoint.web.vo.timeline.inspector.AgentEventTimelineBuilder;
+import com.navercorp.pinpoint.web.vo.timeline.inspector.AgentStatusTimeline;
+import com.navercorp.pinpoint.web.vo.timeline.inspector.AgentStatusTimelineBuilder;
+import com.navercorp.pinpoint.web.vo.timeline.inspector.AgentStatusTimelineSegment;
+import com.navercorp.pinpoint.web.vo.timeline.inspector.InspectorTimeline;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.PredicateUtils;
 import org.slf4j.Logger;
@@ -34,12 +49,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
-import java.util.SortedMap;
-import java.util.TreeMap;
 
 /**
  * @author netspider
@@ -51,6 +67,12 @@ public class AgentInfoServiceImpl implements AgentInfoService {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
+    private AgentEventService agentEventService;
+
+    @Autowired
+    private AgentWarningStatService agentWarningStatService;
+
+    @Autowired
     private ApplicationIndexDao applicationIndexDao;
 
     @Autowired
@@ -59,71 +81,39 @@ public class AgentInfoServiceImpl implements AgentInfoService {
     @Autowired
     private AgentLifeCycleDao agentLifeCycleDao;
 
-    @Override
-    public ApplicationAgentList getApplicationAgentList(ApplicationAgentList.Key key) {
-        return this.getApplicationAgentList(key, System.currentTimeMillis());
-    }
+    @Autowired
+    private AgentDownloadInfoDao agentDownloadInfoDao;
 
     @Override
-    public ApplicationAgentList getApplicationAgentList(ApplicationAgentList.Key key, long timestamp) {
-        ApplicationAgentList applicationAgentList = new ApplicationAgentList();
+    public ApplicationAgentsList getAllApplicationAgentsList(ApplicationAgentsList.Filter filter, long timestamp) {
+        ApplicationAgentsList.GroupBy groupBy = ApplicationAgentsList.GroupBy.APPLICATION_NAME;
+        ApplicationAgentsList applicationAgentList = new ApplicationAgentsList(groupBy, filter);
         List<Application> applications = applicationIndexDao.selectAllApplicationNames();
         for (Application application : applications) {
-            applicationAgentList.merge(this.getApplicationAgentList(key, application.getName(), timestamp));
+            applicationAgentList.merge(getApplicationAgentsList(groupBy, filter, application.getName(), timestamp));
         }
         return applicationAgentList;
     }
 
     @Override
-    public ApplicationAgentList getApplicationAgentList(ApplicationAgentList.Key key, String applicationName) {
-        return this.getApplicationAgentList(key, applicationName, System.currentTimeMillis());
-    }
-
-    @Override
-    public ApplicationAgentList getApplicationAgentList(ApplicationAgentList.Key applicationAgentListKey, String applicationName, long timestamp) {
+    public ApplicationAgentsList getApplicationAgentsList(ApplicationAgentsList.GroupBy groupBy, ApplicationAgentsList.Filter filter, String applicationName, long timestamp) {
         if (applicationName == null) {
-            throw new NullPointerException("applicationName must not be null");
+            throw new NullPointerException("applicationName");
         }
-        if (applicationAgentListKey == null) {
-            throw new NullPointerException("applicationAgentListKey must not be null");
+        if (groupBy == null) {
+            throw new NullPointerException("groupBy");
         }
-        final List<String> agentIdList = this.applicationIndexDao.selectAgentIds(applicationName);
+        ApplicationAgentsList applicationAgentsList = new ApplicationAgentsList(groupBy, filter);
+        Set<AgentInfo> agentInfos = getAgentsByApplicationName(applicationName, timestamp);
+        if (agentInfos.isEmpty()) {
+            logger.warn("agent list is empty for application:{}", applicationName);
+            return applicationAgentsList;
+        }
+        applicationAgentsList.addAll(agentInfos);
         if (logger.isDebugEnabled()) {
-            logger.debug("agentIdList={}", agentIdList);
+            logger.debug("getApplicationAgentsList={}", applicationAgentsList);
         }
-
-        if (CollectionUtils.isEmpty(agentIdList)) {
-            logger.debug("agentIdList is empty. applicationName={}", applicationName);
-            return new ApplicationAgentList(new TreeMap<String, List<AgentInfo>>());
-        }
-
-        // key = hostname
-        // value= list fo agentinfo
-        SortedMap<String, List<AgentInfo>> result = new TreeMap<>();
-
-        List<AgentInfo> agentInfos = this.agentInfoDao.getAgentInfos(agentIdList, timestamp);
-        this.agentLifeCycleDao.populateAgentStatuses(agentInfos, timestamp);
-        for (AgentInfo agentInfo : agentInfos) {
-            if (agentInfo != null) {
-                String hostname = applicationAgentListKey.getKey(agentInfo);
-
-                if (result.containsKey(hostname)) {
-                    result.get(hostname).add(agentInfo);
-                } else {
-                    List<AgentInfo> list = new ArrayList<>();
-                    list.add(agentInfo);
-                    result.put(hostname, list);
-                }
-            }
-        }
-
-        for (List<AgentInfo> agentInfoList : result.values()) {
-            Collections.sort(agentInfoList, AgentInfo.AGENT_NAME_ASC_COMPARATOR);
-        }
-
-        logger.info("getApplicationAgentList={}", result);
-
-        return new ApplicationAgentList(result);
+        return applicationAgentsList;
     }
 
     @Override
@@ -160,7 +150,7 @@ public class AgentInfoServiceImpl implements AgentInfoService {
             }
         }
 
-        Collections.sort(applicationNameList, Ordering.usingToString());
+        applicationNameList.sort(Ordering.usingToString());
         return applicationNameList;
     }
 
@@ -174,7 +164,7 @@ public class AgentInfoServiceImpl implements AgentInfoService {
     @Override
     public Set<AgentInfo> getAgentsByApplicationNameWithoutStatus(String applicationName, long timestamp) {
         if (applicationName == null) {
-            throw new NullPointerException("applicationName must not be null");
+            throw new NullPointerException("applicationName");
         }
         if (timestamp < 0) {
             throw new IllegalArgumentException("timestamp must not be less than 0");
@@ -212,7 +202,7 @@ public class AgentInfoServiceImpl implements AgentInfoService {
     @Override
     public AgentInfo getAgentInfo(String agentId, long timestamp) {
         if (agentId == null) {
-            throw new NullPointerException("agentId must not be null");
+            throw new NullPointerException("agentId");
         }
         if (timestamp < 0) {
             throw new IllegalArgumentException("timestamp must not be less than 0");
@@ -227,11 +217,86 @@ public class AgentInfoServiceImpl implements AgentInfoService {
     @Override
     public AgentStatus getAgentStatus(String agentId, long timestamp) {
         if (agentId == null) {
-            throw new NullPointerException("agentId must not be null");
+            throw new NullPointerException("agentId");
         }
         if (timestamp < 0) {
             throw new IllegalArgumentException("timestamp must not be less than 0");
         }
         return this.agentLifeCycleDao.getAgentStatus(agentId, timestamp);
     }
+
+    @Override
+    public void populateAgentStatuses(Collection<AgentInfo> agentInfos, long timestamp) {
+        this.agentLifeCycleDao.populateAgentStatuses(agentInfos, timestamp);
+    }
+
+    @Override
+    public InspectorTimeline getAgentStatusTimeline(String agentId, Range range, int... excludeAgentEventTypeCodes) {
+        Objects.requireNonNull(agentId, "agentId");
+        Objects.requireNonNull(range, "range");
+
+        AgentStatus initialStatus = getAgentStatus(agentId, range.getFrom());
+        List<AgentEvent> agentEvents = agentEventService.getAgentEvents(agentId, range);
+
+        List<AgentStatusTimelineSegment> warningStatusTimelineSegmentList = agentWarningStatService.select(agentId, range);
+
+        AgentStatusTimelineBuilder agentStatusTimelinebuilder = new AgentStatusTimelineBuilder(range, initialStatus, agentEvents, warningStatusTimelineSegmentList);
+        AgentStatusTimeline agentStatusTimeline = agentStatusTimelinebuilder.build();
+
+        AgentEventTimelineBuilder agentEventTimelineBuilder = new AgentEventTimelineBuilder(range);
+        agentEventTimelineBuilder.from(agentEvents);
+        agentEventTimelineBuilder.addFilter(new AgentEventFilter.ExcludeFilter(excludeAgentEventTypeCodes));
+        AgentEventTimeline agentEventTimeline = agentEventTimelineBuilder.build();
+
+        return new InspectorTimeline(agentStatusTimeline, agentEventTimeline);
+    }
+
+    @Override
+    public boolean isExistAgentId(String agentId) {
+        AgentInfo agentInfo = getAgentInfo(agentId, System.currentTimeMillis());
+        return agentInfo != null;
+    }
+
+    private volatile AgentDownloadInfo cachedAgentDownloadInfo;
+
+    @Override
+    public AgentDownloadInfo getLatestStableAgentDownloadInfo() {
+        if (cachedAgentDownloadInfo != null) {
+            return cachedAgentDownloadInfo;
+        }
+
+        List<AgentDownloadInfo> downloadInfoList = agentDownloadInfoDao.getDownloadInfoList();
+        if (CollectionUtils.isEmpty(downloadInfoList)) {
+            return null;
+        }
+
+        downloadInfoList.sort(new Comparator<AgentDownloadInfo>() {
+            @Override
+            public int compare(AgentDownloadInfo o1, AgentDownloadInfo o2) {
+                return o2.getVersion().compareTo(o1.getVersion());
+            }
+        });
+
+        // 1st. find same
+        for (AgentDownloadInfo downloadInfo : downloadInfoList) {
+            if (Version.VERSION.equals(downloadInfo.getVersion())) {
+                cachedAgentDownloadInfo = downloadInfo;
+                return downloadInfo;
+            }
+        }
+
+        // 2nd. find lower
+        for (AgentDownloadInfo downloadInfo : downloadInfoList) {
+            if (Version.VERSION.compareTo(downloadInfo.getVersion()) > 0) {
+                cachedAgentDownloadInfo = downloadInfo;
+                return downloadInfo;
+            }
+        }
+
+        // 3rd find greater
+        AgentDownloadInfo downloadInfo = ListUtils.getLast(downloadInfoList);
+        cachedAgentDownloadInfo = downloadInfo;
+        return downloadInfo;
+    }
+
 }

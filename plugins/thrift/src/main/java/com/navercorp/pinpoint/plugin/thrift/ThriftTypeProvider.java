@@ -29,8 +29,8 @@ public class ThriftTypeProvider implements TraceMetadataProvider {
     public void setup(TraceMetadataSetupContext context) {
         context.addServiceType(ThriftConstants.THRIFT_SERVER);
         context.addServiceType(ThriftConstants.THRIFT_CLIENT, AnnotationKeyMatchers.exact(ThriftConstants.THRIFT_URL));
-        context.addServiceType(ThriftConstants.THRIFT_SERVER_INTERNAL, AnnotationKeyMatchers.ARGS_MATCHER);
-        context.addServiceType(ThriftConstants.THRIFT_CLIENT_INTERNAL, AnnotationKeyMatchers.ARGS_MATCHER);
+        context.addServiceType(ThriftConstants.THRIFT_SERVER_INTERNAL, AnnotationKeyMatchers.exact(ThriftConstants.THRIFT_URL));
+        context.addServiceType(ThriftConstants.THRIFT_CLIENT_INTERNAL, AnnotationKeyMatchers.exact(ThriftConstants.THRIFT_URL));
         context.addAnnotationKey(ThriftConstants.THRIFT_URL);
         context.addAnnotationKey(ThriftConstants.THRIFT_ARGS);
         context.addAnnotationKey(ThriftConstants.THRIFT_RESULT);

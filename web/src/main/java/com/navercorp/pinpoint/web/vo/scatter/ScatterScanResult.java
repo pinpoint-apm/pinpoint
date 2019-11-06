@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * To be used with @ResponseBody.
@@ -38,12 +39,9 @@ public class ScatterScanResult {
     private List<Dot> scatter = Collections.emptyList();
 
     public ScatterScanResult(long resultFrom, long resultTo, List<Dot> scatterList) {
-        if (scatterList == null) {
-            throw new NullPointerException("resultFrom must not be null");
-        }
         this.resultFrom = resultFrom;
         this.resultTo = resultTo;
-        this.scatter = scatterList;
+        this.scatter = Objects.requireNonNull(scatterList, "scatterList");
     }
 
     public ScatterScanResult() {
@@ -79,12 +77,8 @@ public class ScatterScanResult {
     @JsonProperty("scatter")
     public Map<String, List<Dot>> getScatter() {
         final Map<String, List<Dot>> scatterAgentData = new HashMap<>();
-        for(Dot dot : scatter) {
-            List<Dot> list = scatterAgentData.get(dot.getAgentId());
-            if(list == null) {
-                list = new ArrayList<>();
-                scatterAgentData.put(dot.getAgentId(), list);
-            }
+        for (Dot dot : scatter) {
+            List<Dot> list = scatterAgentData.computeIfAbsent(dot.getAgentId(), k -> new ArrayList<>());
             list.add(dot);
         }
 

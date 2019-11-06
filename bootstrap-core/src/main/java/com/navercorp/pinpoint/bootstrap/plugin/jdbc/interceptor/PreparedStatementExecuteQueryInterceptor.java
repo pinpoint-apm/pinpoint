@@ -26,8 +26,6 @@ import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.TargetMethod;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.TargetMethods;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.BindValueAccessor;
@@ -39,11 +37,13 @@ import com.navercorp.pinpoint.bootstrap.plugin.jdbc.bindvalue.BindValueUtils;
 /**
  * @author emeroad
  */
-@TargetMethods({
-        @TargetMethod(name="execute"),
-        @TargetMethod(name="executeQuery"),
-        @TargetMethod(name="executeUpdate")
-})
+// #1375 Workaround java level Deadlock
+// https://oss.navercorp.com/pinpoint/pinpoint-naver/issues/1375
+//@TargetMethods({
+//        @TargetMethod(name="execute"),
+//        @TargetMethod(name="executeQuery"),
+//        @TargetMethod(name="executeUpdate")
+//})
 public class PreparedStatementExecuteQueryInterceptor implements AroundInterceptor {
 
     private static final int DEFAULT_BIND_VALUE_LENGTH = 1024;

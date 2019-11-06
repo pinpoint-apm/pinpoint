@@ -16,28 +16,15 @@
 
 package com.navercorp.pinpoint.web.alarm;
 
-import java.util.LinkedList;
-import java.util.List;
-
 import com.navercorp.pinpoint.web.alarm.DataCollectorFactory.DataCollectorCategory;
-import com.navercorp.pinpoint.web.alarm.checker.AlarmChecker;
-import com.navercorp.pinpoint.web.alarm.checker.ErrorCountChecker;
-import com.navercorp.pinpoint.web.alarm.checker.ErrorCountToCalleeChecker;
-import com.navercorp.pinpoint.web.alarm.checker.ErrorRateChecker;
-import com.navercorp.pinpoint.web.alarm.checker.ErrorRateToCalleeChecker;
-import com.navercorp.pinpoint.web.alarm.checker.HeapUsageRateChecker;
-import com.navercorp.pinpoint.web.alarm.checker.JvmCpuUsageRateChecker;
-import com.navercorp.pinpoint.web.alarm.checker.ResponseCountChecker;
-import com.navercorp.pinpoint.web.alarm.checker.SlowCountChecker;
-import com.navercorp.pinpoint.web.alarm.checker.SlowCountToCalleeChecker;
-import com.navercorp.pinpoint.web.alarm.checker.SlowRateChecker;
-import com.navercorp.pinpoint.web.alarm.checker.SlowRateToCalleeChecker;
-import com.navercorp.pinpoint.web.alarm.checker.TotalCountToCalleeChecker;
-import com.navercorp.pinpoint.web.alarm.collector.AgentStatDataCollector;
-import com.navercorp.pinpoint.web.alarm.collector.DataCollector;
-import com.navercorp.pinpoint.web.alarm.collector.MapStatisticsCallerDataCollector;
-import com.navercorp.pinpoint.web.alarm.collector.ResponseTimeDataCollector;
+import com.navercorp.pinpoint.web.alarm.checker.*;
+import com.navercorp.pinpoint.web.alarm.collector.*;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
+
+import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * @author minwoo.jung
@@ -89,7 +76,7 @@ public enum CheckerCategory {
     SLOW_RATE_TO_CALLEE("SLOW RATE TO CALLEE", DataCollectorCategory.CALLER_STAT) {
         @Override
         public AlarmChecker createChecker(DataCollector dataCollector, Rule rule) {
-            return new SlowRateToCalleeChecker((MapStatisticsCallerDataCollector)dataCollector, rule);
+            return new SlowRateToCalleeChecker(dataCollector, rule);
         }
     },
     
@@ -103,7 +90,7 @@ public enum CheckerCategory {
     ERROR_RATE_TO_CALLEE("ERROR RATE TO CALLEE", DataCollectorCategory.CALLER_STAT) {
         @Override
         public AlarmChecker createChecker(DataCollector dataCollector, Rule rule) {
-            return new ErrorRateToCalleeChecker((MapStatisticsCallerDataCollector)dataCollector, rule);
+            return new ErrorRateToCalleeChecker(dataCollector, rule);
         }
     },
     
@@ -133,10 +120,38 @@ public enum CheckerCategory {
         public AlarmChecker createChecker(DataCollector dataCollector, Rule rule) {
             return new JvmCpuUsageRateChecker((AgentStatDataCollector)dataCollector, rule);
         }
+    },
+
+    SYSTEM_CPU_USAGE_RATE("SYSTEM CPU USAGE RATE", DataCollectorCategory.AGENT_STAT) {
+        @Override
+        public AlarmChecker createChecker(DataCollector dataCollector, Rule rule) {
+            return new SystemCpuUsageRateChecker((AgentStatDataCollector)dataCollector, rule);
+        }
+    },
+
+    DATASOURCE_CONNECTION_USAGE_RATE("DATASOURCE CONNECTION USAGE RATE", DataCollectorCategory.DATA_SOURCE_STAT) {
+        @Override
+        public AlarmChecker createChecker(DataCollector dataCollector, Rule rule) {
+            return new DataSourceConnectionUsageRateChecker((DataSourceDataCollector) dataCollector, rule);
+        }
+    },
+    DEADLOCK_OCCURRENCE("DEADLOCK OCCURRENCE", DataCollectorCategory.AGENT_EVENT) {
+        @Override
+        public AlarmChecker createChecker(DataCollector dataCollector, Rule rule) {
+            return new DeadlockChecker((AgentEventDataCollector) dataCollector, rule);
+        }
+    },
+    FILE_DESCRIPTOR_COUNT("FILE DESCRIPTOR COUNT", DataCollectorCategory.FILE_DESCRIPTOR) {
+        @Override
+        public AlarmChecker createChecker(DataCollector dataCollector, Rule rule) {
+            return new FileDescriptorChecker((FileDescriptorDataCollector) dataCollector, rule);
+        }
     };
+    private static final Set<CheckerCategory> CHECKER_CATEGORIES = EnumSet.allOf(CheckerCategory.class);
+
     
     public static CheckerCategory getValue(String value) {
-        for (CheckerCategory category : CheckerCategory.values()) {
+        for (CheckerCategory category : CHECKER_CATEGORIES) {
             if (category.getName().equalsIgnoreCase(value)) {
                 return category;
             }
@@ -145,9 +160,9 @@ public enum CheckerCategory {
     }
 
     public static List<String> getNames() {
-        List<String> names = new LinkedList<>();
-        
-        for (CheckerCategory category : CheckerCategory.values()) {
+
+        final List<String> names = new ArrayList<>(CHECKER_CATEGORIES.size());
+        for (CheckerCategory category : CHECKER_CATEGORIES) {
             names.add(category.getName());
         }
         

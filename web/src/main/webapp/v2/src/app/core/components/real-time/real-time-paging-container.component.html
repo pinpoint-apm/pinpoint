@@ -1,0 +1,37 @@
+<div class="l-thread-chart-wrap">
+    <div class="l-chart-group-wrap font-opensans">
+        <ng-container *ngIf="activeThreadCounts">
+            <article class="l-agent-chart">
+                <pp-real-time-chart-header
+                    [activeOnly]="activeOnly"
+                    [totalCount]="totalCount"
+                    [currentPage]="currentPage"
+                    (outOpenPage)="onOpenPage($event)"
+                    (outChangeActiveOnlyToggle)="onChangeActiveOnlyToggle($event)">
+                </pp-real-time-chart-header>
+                <pp-real-time-agent-chart
+                    [timeStamp]="timeStamp"
+                    [activeThreadCounts]="atcForAgent"
+                    [sum]="sum"
+                    [currentPage]="currentPage"
+                    (outOpenThreadDump)="onOpenThreadDump($event)"
+                    (outRenderCompleted)="onRenderCompleted()">
+                </pp-real-time-agent-chart>
+            </article>
+        </ng-container>
+        <ng-container [ngSwitch]="messageTemplate">
+            <div class="l-message l-waiting" *ngSwitchCase="'LOADING'">
+                <h4><span>Waiting Connection...</span></h4>
+                <i class="fas fa-spinner fa-spin fa-2x fa-fw"></i>
+            </div>
+            <div class="l-message l-retry" *ngSwitchCase="'RETRY'">
+                <h4><span>Closed connection</span></h4>
+                <button type="button" class="pinpoint-btn" (click)="retryConnection()"><span><i class="fas fa-redo"></i></span> Retry</button>
+            </div>            
+            <div class="l-message l-no-data" *ngSwitchCase="'NO_DATA'">
+                <h4><span>This node is not WAS</span></h4>
+            </div>
+            <ng-container *ngSwitchDefault></ng-container>
+        </ng-container>
+    </div>
+</div>

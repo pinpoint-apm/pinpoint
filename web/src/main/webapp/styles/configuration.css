@@ -115,9 +115,6 @@
 	background-color: #46BCFD;
 	color: #FFF;
 }
-#pinpoint-configuration .some-list-content li.selected span.remove {
-    display: none;
-}
 #pinpoint-configuration .some-list-content li.selected span.edit {
     display:none;
 }
@@ -303,6 +300,19 @@
     border: 1px solid #E2E2E2;
     background-color: #FFF;
 }
+#application-config .application-group .title {
+    width: 100%;
+    height: 41px;
+    padding: 10px 10px 0px 10px;
+    position: relative;
+    border-bottom: 1px solid #E2E2E2;
+    background-color: #9A9A9A;
+}
+#application-config .application-group .title span {
+    color: #FFF;
+    font-size: 16px;
+}
+
 #application-config .application-group .filtering {
     width: 100%;
     height: 41px;
@@ -313,7 +323,7 @@
 }
 #application-config .application-group .wrapper {
     width: 100%;
-    height: 457px;
+    height: 416px;
     position: relative;
     overflow-y: auto;
 }
@@ -479,7 +489,7 @@
 }
 #config-general .favorite-list-wrapper {
 	overflow: auto;
-	max-height: 280px;
+	max-height: 180px;
 }
 #config-general .favorite-list {
 	list-style:none;
@@ -509,11 +519,24 @@
     animation-iteration-count: 2;
     */
 }
-/*
-@keyframes back-blink {
-    0% {background-color: rgba( 255, 0, 0, 0.2 )}
-    50% {background-color: rgba( 255, 0, 0, 0.5 ) }
-    100% {background-color: rgba( 255, 0, 0, 0.2 ) }
+#config-installation .description {
+    color: #C2C2C2;
+    margin-bottom: 20px;
 }
-*/
-
+#config-installation .title {
+    font-size: 14px;
+    font-weight: bold;
+}
+#config-installation .installation-guide {
+    padding: 16px;
+    margin: 16px 0px;
+    border: 1px solid #EEE;
+    border-left-width: 5px;
+    border-left-color:#1B809E;
+}
+#config-installation textarea {
+    width: 100%;
+    height: 80px;
+    border: 0px solid black;
+    overflow: hidden;
+}

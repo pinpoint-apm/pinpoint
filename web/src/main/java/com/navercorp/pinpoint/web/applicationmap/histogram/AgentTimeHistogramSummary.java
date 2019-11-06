@@ -20,7 +20,7 @@ import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogram;
 import com.navercorp.pinpoint.web.view.AgentTimeHistogramSummarySerializer;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 @JsonSerialize(using = AgentTimeHistogramSummarySerializer.class)
 public class AgentTimeHistogramSummary {

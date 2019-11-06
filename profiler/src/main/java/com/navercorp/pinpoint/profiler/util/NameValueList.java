@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2014 NAVER Corp.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,13 +15,14 @@
 package com.navercorp.pinpoint.profiler.util;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Jongho Moon
  *
  */
 public class NameValueList<T> {
-    private final ArrayList<NameValue<T>> list;
+    private final List<NameValue<T>> list;
     
     public NameValueList() {
         this(0);

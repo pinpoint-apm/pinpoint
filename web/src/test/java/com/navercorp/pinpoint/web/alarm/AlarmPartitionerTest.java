@@ -35,43 +35,8 @@ public class AlarmPartitionerTest {
     
     @Test
     public void partitionTest() {
-        AlarmPartitioner partitioner = new AlarmPartitioner(dao);
+        AlarmPartitioner partitioner = new AlarmPartitioner();
         Map<String, ExecutionContext> partitions = partitioner.partition(0);
-        Assert.assertEquals(8, partitions.size());
+        Assert.assertEquals(1, partitions.size());
     }
-    
-    @BeforeClass
-    public static void beforeClass() {
-        dao = new ApplicationIndexDao() {
-            
-            @Override
-            public List<Application> selectAllApplicationNames() {
-                List<Application> apps = new LinkedList<Application>();
-                
-                for(int i = 0; i <= 37; i++) {
-                    apps.add(new Application("app" + i, ServiceType.STAND_ALONE));
-                }
-                
-                return apps;
-            }
-
-            @Override
-            public List<String> selectAgentIds(String applicationName) {
-                return null;
-            }
-            
-            @Override
-            public void deleteApplicationName(String applicationName) {
-            }
-
-            @Override
-            public void deleteAgentIds(Map<String, List<String>> applicationAgentIdMap) {
-            }
-
-            @Override
-            public void deleteAgentId(String applicationName, String agentId) {
-            }
-        };
-    }
-
 }

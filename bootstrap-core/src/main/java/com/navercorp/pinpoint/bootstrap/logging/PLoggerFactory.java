@@ -16,7 +16,9 @@
 
 package com.navercorp.pinpoint.bootstrap.logging;
 
-import java.util.logging.Logger;
+
+import com.navercorp.pinpoint.common.util.logger.CommonLogger;
+import com.navercorp.pinpoint.common.util.logger.StdoutCommonLoggerFactory;
 
 /**
  * @author emeroad
@@ -29,8 +31,8 @@ public final class PLoggerFactory {
         if (PLoggerFactory.loggerBinder == null) {
             PLoggerFactory.loggerBinder = loggerBinder;
         } else {
-            final Logger logger = Logger.getLogger(PLoggerFactory.class.getName());
-            logger.warning("loggerBinder is not null");
+            final CommonLogger logger = StdoutCommonLoggerFactory.INSTANCE.getLogger(PLoggerFactory.class.getName());
+            logger.warn("loggerBinder is not null");
         }
     }
 
@@ -52,7 +54,7 @@ public final class PLoggerFactory {
 
     public static PLogger getLogger(Class clazz) {
         if (clazz == null) {
-            throw new NullPointerException("class must not be null");
+            throw new NullPointerException("class");
         }
         return getLogger(clazz.getName());
     }

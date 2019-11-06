@@ -16,12 +16,17 @@
 
 package com.navercorp.pinpoint.web.applicationmap;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.navercorp.pinpoint.common.util.CollectionUtils;
+import com.navercorp.pinpoint.web.applicationmap.link.Link;
+import com.navercorp.pinpoint.web.applicationmap.link.LinkList;
+import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
+import com.navercorp.pinpoint.web.applicationmap.nodes.NodeList;
 import com.navercorp.pinpoint.web.vo.Range;
-import com.navercorp.pinpoint.web.vo.scatter.ApplicationScatterScanResult;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.Collection;
-import java.util.List;
+import java.util.Objects;
 
 /**
  * Node map
@@ -38,19 +43,33 @@ public class DefaultApplicationMap implements ApplicationMap {
 
 //    private List<ApplicationScatterScanResult> applicationScatterScanResultList;
 
-    DefaultApplicationMap(Range range, NodeList nodeList, LinkList linkList) {
-        if (range == null) {
-            throw new NullPointerException("range must not be null");
+    public DefaultApplicationMap(Range range, NodeList nodeList, LinkList linkList) {
+        this.range = Objects.requireNonNull(range, "range");
+        this.nodeList = Objects.requireNonNull(nodeList, "nodeList");
+
+        Objects.requireNonNull(linkList, "linkList");
+        this.linkList = createNewLinkList(linkList);
+    }
+
+    private LinkList createNewLinkList(LinkList originalLinkList) {
+        Collection<Link> linkList = originalLinkList.getLinkList();
+        if (CollectionUtils.nullSafeSize(linkList) == 0) {
+            return originalLinkList;
         }
-        if (nodeList == null) {
-            throw new NullPointerException("nodeList must not be null");
+
+        LinkList newLinkList = new LinkList();
+        for (Link link : linkList) {
+            if (link == null) {
+                continue;
+            }
+            if (link.getHistogram().getTotalCount() == 0) {
+                continue;
+
+            }
+            newLinkList.addLink(link);
         }
-        if (linkList == null) {
-            throw new NullPointerException("linkList must not be null");
-        }
-        this.range = range;
-        this.nodeList = nodeList;
-        this.linkList = linkList;
+
+        return newLinkList;
     }
 
     @JsonProperty("nodeDataArray")

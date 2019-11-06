@@ -17,14 +17,15 @@
 package com.navercorp.pinpoint.collector.dao.hbase;
 
 import com.navercorp.pinpoint.collector.dao.ApiMetaDataDao;
-import com.navercorp.pinpoint.common.server.bo.ApiMetaDataBo;
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
-import com.navercorp.pinpoint.common.hbase.HBaseTables;
+import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
-import com.navercorp.pinpoint.thrift.dto.TApiMetaData;
-import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
+import com.navercorp.pinpoint.common.hbase.TableDescriptor;
+import com.navercorp.pinpoint.common.server.bo.ApiMetaDataBo;
 
+import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
+import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Put;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,39 +49,33 @@ public class HbaseApiMetaDataDao implements ApiMetaDataDao {
     @Qualifier("metadataRowKeyDistributor")
     private RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
 
+    @Autowired
+    private TableDescriptor<HbaseColumnFamily.ApiMetadata> description;
+
     @Override
-    public void insert(TApiMetaData apiMetaData) {
+    public void insert(ApiMetaDataBo apiMetaData) {
         if (logger.isDebugEnabled()) {
             logger.debug("insert:{}", apiMetaData);
         }
 
-
-        ApiMetaDataBo apiMetaDataBo = new ApiMetaDataBo(apiMetaData.getAgentId(), apiMetaData.getAgentStartTime(), apiMetaData.getApiId());
-        byte[] rowKey = getDistributedKey(apiMetaDataBo.toRowKey());
-
+        final byte[] rowKey = getDistributedKey(apiMetaData.toRowKey());
         final Put put = new Put(rowKey);
-
         final Buffer buffer = new AutomaticBuffer(64);
-        String api = apiMetaData.getApiInfo();
+        final String api = apiMetaData.getApiInfo();
         buffer.putPrefixedString(api);
-        if (apiMetaData.isSetLine()) {
-            buffer.putInt(apiMetaData.getLine());
-        } else {
-            buffer.putInt(-1);
-        }
-        if(apiMetaData.isSetType()) {
-            buffer.putInt(apiMetaData.getType());
-        } else {
-            buffer.putInt(0);
-        }
-        
-        final byte[] apiMetaDataBytes = buffer.getBuffer();
-        put.addColumn(HBaseTables.API_METADATA_CF_API, HBaseTables.API_METADATA_CF_API_QUALI_SIGNATURE, apiMetaDataBytes);
+        buffer.putInt(apiMetaData.getLineNumber());
+        buffer.putInt(apiMetaData.getMethodTypeEnum().getCode());
 
-        hbaseTemplate.put(HBaseTables.API_METADATA, put);
+        final byte[] apiMetaDataBytes = buffer.getBuffer();
+        put.addColumn(description.getColumnFamilyName(), description.getColumnFamily().QUALIFIER_SIGNATURE, apiMetaDataBytes);
+
+        final TableName apiMetaDataTableName = description.getTableName();
+        hbaseTemplate.put(apiMetaDataTableName, put);
     }
 
     private byte[] getDistributedKey(byte[] rowKey) {
         return rowKeyDistributorByHashPrefix.getDistributedKey(rowKey);
     }
+
+
 }

@@ -16,13 +16,15 @@
 
 package com.navercorp.pinpoint.web.dao.hbase;
 
-import com.navercorp.pinpoint.common.server.bo.StringMetaDataBo;
-import com.navercorp.pinpoint.common.hbase.HBaseTables;
+import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
+import com.navercorp.pinpoint.common.hbase.TableDescriptor;
+import com.navercorp.pinpoint.common.server.bo.StringMetaDataBo;
 import com.navercorp.pinpoint.web.dao.StringMetaDataDao;
-import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
 
+import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
+import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Get;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -47,22 +49,27 @@ public class HbaseStringMetaDataDao implements StringMetaDataDao {
     @Qualifier("metadataRowKeyDistributor")
     private RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
 
+    @Autowired
+    private TableDescriptor<HbaseColumnFamily.StringMetadataStr> descriptor;
+
     @Override
     public List<StringMetaDataBo> getStringMetaData(String agentId, long time, int stringId) {
         if (agentId == null) {
-            throw new NullPointerException("agentId must not be null");
+            throw new NullPointerException("agentId");
         }
 
         StringMetaDataBo stringMetaData = new StringMetaDataBo(agentId, time, stringId);
         byte[] rowKey = getDistributedKey(stringMetaData.toRowKey());
 
         Get get = new Get(rowKey);
-        get.addFamily(HBaseTables.STRING_METADATA_CF_STR);
+        get.addFamily(descriptor.getColumnFamilyName());
 
-        return hbaseOperations2.get(HBaseTables.STRING_METADATA, get, stringMetaDataMapper);
+        TableName stringMetaDataTableName = descriptor.getTableName();
+        return hbaseOperations2.get(stringMetaDataTableName, get, stringMetaDataMapper);
     }
 
     private byte[] getDistributedKey(byte[] rowKey) {
         return rowKeyDistributorByHashPrefix.getDistributedKey(rowKey);
     }
+
 }

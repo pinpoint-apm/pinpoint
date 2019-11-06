@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2014 NAVER Corp.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,4 +39,8 @@ public interface PluginTestVerifier {
     void initialize(boolean initializeTraceObject);
     void cleanUp(boolean detachTraceObject);
     void verifyIsLoggingTransactionInfo(LoggingInfo loggingInfo);
+
+    void awaitTrace(ExpectedTrace expectedTrace, long waitUnitTime, long maxWaitTime);
+    void awaitTraceCount(int expectedTraceCount, long waitUnitTime, long maxWaitTime);
+
 }

@@ -49,9 +49,9 @@ public class DefaultRouteEvent implements RouteEvent {
         final StringBuilder sb = new StringBuilder();
         sb.append(this.getClass().getSimpleName());
         sb.append("{");
-        sb.append("{remoteAddress=").append(remoteAddress).append(",");
-        sb.append("applicationName=").append(deliveryCommand.getApplicationName()).append(",");
-        sb.append("agentId=").append(deliveryCommand.getAgentId()).append(",");
+        sb.append("{remoteAddress=").append(remoteAddress).append(", ");
+        sb.append("applicationName=").append(deliveryCommand.getApplicationName()).append(", ");
+        sb.append("agentId=").append(deliveryCommand.getAgentId()).append(", ");
         sb.append("startTimeStamp=").append(deliveryCommand.getStartTime());
         sb.append('}');
         return sb.toString();

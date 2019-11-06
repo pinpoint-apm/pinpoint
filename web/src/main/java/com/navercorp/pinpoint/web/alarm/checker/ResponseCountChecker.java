@@ -22,14 +22,15 @@ import com.navercorp.pinpoint.web.alarm.vo.Rule;
 /**
  * @author minwoo.jung
  */
-public class ResponseCountChecker extends AlarmChecker {
+public class ResponseCountChecker extends LongValueAlarmChecker {
     
     public ResponseCountChecker(ResponseTimeDataCollector dataCollector, Rule rule) {
         super(rule, "", dataCollector);
     }
 
     @Override
-    protected long getDetectedValue() {
+    protected Long getDetectedValue() {
         return ((ResponseTimeDataCollector)dataCollector).getTotalCount();
     }
+
 }

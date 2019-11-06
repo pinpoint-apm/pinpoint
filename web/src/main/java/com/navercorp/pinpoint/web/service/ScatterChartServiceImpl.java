@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,15 +17,16 @@
 package com.navercorp.pinpoint.web.service;
 
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
-import com.navercorp.pinpoint.common.util.TransactionId;
+import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.web.dao.ApplicationTraceIndexDao;
 import com.navercorp.pinpoint.web.dao.TraceDao;
 import com.navercorp.pinpoint.web.filter.Filter;
 import com.navercorp.pinpoint.web.scatter.ScatterData;
+import com.navercorp.pinpoint.web.vo.GetTraceInfo;
 import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.SelectedScatterArea;
-import com.navercorp.pinpoint.web.vo.TransactionMetadataQuery;
 import com.navercorp.pinpoint.web.vo.scatter.Dot;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +34,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 /**
@@ -55,24 +55,24 @@ public class ScatterChartServiceImpl implements ScatterChartService {
     @Override
     public List<Dot> selectScatterData(String applicationName, SelectedScatterArea area, TransactionId offsetTransactionId, int offsetTransactionElapsed, int limit) {
         if (applicationName == null) {
-            throw new NullPointerException("applicationName must not be null");
+            throw new NullPointerException("applicationName");
         }
         if (area == null) {
-            throw new NullPointerException("area must not be null");
+            throw new NullPointerException("area");
         }
         return applicationTraceIndexDao.scanTraceScatter(applicationName, area, offsetTransactionId, offsetTransactionElapsed, limit);
     }
 
     @Override
-    public List<Dot> selectScatterData(Collection<TransactionId> transactionIdList, String applicationName, Filter filter) {
+    public List<Dot> selectScatterData(List<TransactionId> transactionIdList, String applicationName, Filter filter) {
         if (transactionIdList == null) {
-            throw new NullPointerException("transactionIdList must not be null");
+            throw new NullPointerException("transactionIdList");
         }
         if (applicationName == null) {
-            throw new NullPointerException("applicationName must not be null");
+            throw new NullPointerException("applicationName");
         }
         if (filter == null) {
-            throw new NullPointerException("filter must not be null");
+            throw new NullPointerException("filter");
         }
 
         final List<List<SpanBo>> traceList = traceDao.selectAllSpans(transactionIdList);
@@ -86,7 +86,7 @@ public class ScatterChartServiceImpl implements ScatterChartService {
 
             for (SpanBo span : trace) {
                 if (applicationName.equals(span.getApplicationId())) {
-                    final TransactionId transactionId = new TransactionId(span.getTraceAgentId(), span.getTraceAgentStartTime(), span.getTraceTransactionSequence());
+                    final TransactionId transactionId = span.getTransactionId();
                     final Dot dot = new Dot(transactionId, span.getCollectorAcceptTime(), span.getElapsed(), span.getErrCode(), span.getAgentId());
                     result.add(dot);
                 }
@@ -100,38 +100,16 @@ public class ScatterChartServiceImpl implements ScatterChartService {
      * Queries for details on dots selected from the scatter chart.
      */
     @Override
-    public List<SpanBo> selectTransactionMetadata(final TransactionMetadataQuery query) {
-        if (query == null) {
-            throw new NullPointerException("query must not be null");
+    public List<SpanBo> selectTransactionMetadata(final List<GetTraceInfo> getTraceInfoList) {
+        if (getTraceInfoList == null) {
+            throw new NullPointerException("query");
         }
-        final List<TransactionId> transactionIdList = query.getTransactionIdList();
-        final List<List<SpanBo>> selectedSpans = traceDao.selectSpans(transactionIdList);
+        final List<List<SpanBo>> selectedSpans = traceDao.selectSpans(getTraceInfoList);
 
 
-        final List<SpanBo> result = new ArrayList<>(query.size());
-        int index = 0;
+        final List<SpanBo> result = new ArrayList<>(getTraceInfoList.size());
         for (List<SpanBo> spans : selectedSpans) {
-            if (spans.isEmpty()) {
-                // span data does not exist in storage - skip
-            } else if (spans.size() == 1) {
-                // case with a single unique span data
-                result.add(spans.get(0));
-            } else {
-                // for recursive calls, we need to identify which of the spans was selected.
-                // pick only the spans with the same transactionId, collectorAcceptor, and responseTime
-                for (SpanBo span : spans) {
-
-                    // should find the filtering condition with the correct index
-                    final TransactionMetadataQuery.QueryCondition filterQueryCondition = query.getQueryConditionByIndex(index);
-
-                    final TransactionId transactionId = new TransactionId(span.getTraceAgentId(), span.getTraceAgentStartTime(), span.getTraceTransactionSequence());
-                    final TransactionMetadataQuery.QueryCondition queryConditionKey = new TransactionMetadataQuery.QueryCondition(transactionId, span.getCollectorAcceptTime(), span.getElapsed());
-                    if (queryConditionKey.equals(filterQueryCondition)) {
-                        result.add(span);
-                    }
-                }
-            }
-            index++;
+            result.addAll(spans);
         }
 
         return result;
@@ -140,24 +118,24 @@ public class ScatterChartServiceImpl implements ScatterChartService {
     @Override
     public ScatterData selectScatterData(String applicationName, Range range, int xGroupUnit, int yGroupUnit, int limit, boolean backwardDirection) {
         if (applicationName == null) {
-            throw new NullPointerException("applicationName must not be null");
+            throw new NullPointerException("applicationName");
         }
         if (range == null) {
-            throw new NullPointerException("range must not be null");
+            throw new NullPointerException("range");
         }
         return applicationTraceIndexDao.scanTraceScatterData(applicationName, range, xGroupUnit, yGroupUnit, limit, backwardDirection);
     }
 
     @Override
-    public ScatterData selectScatterData(Collection<TransactionId> transactionIdList, String applicationName, Range range, int xGroupUnit, int yGroupUnit, Filter filter) {
+    public ScatterData selectScatterData(List<TransactionId> transactionIdList, String applicationName, Range range, int xGroupUnit, int yGroupUnit, Filter filter) {
         if (transactionIdList == null) {
-            throw new NullPointerException("transactionIdList must not be null");
+            throw new NullPointerException("transactionIdList");
         }
         if (applicationName == null) {
-            throw new NullPointerException("applicationName must not be null");
+            throw new NullPointerException("applicationName");
         }
         if (filter == null) {
-            throw new NullPointerException("filter must not be null");
+            throw new NullPointerException("filter");
         }
 
         final List<List<SpanBo>> traceList = traceDao.selectAllSpans(transactionIdList);
@@ -170,7 +148,7 @@ public class ScatterChartServiceImpl implements ScatterChartService {
 
             for (SpanBo span : trace) {
                 if (applicationName.equals(span.getApplicationId())) {
-                    final TransactionId transactionId = new TransactionId(span.getTraceAgentId(), span.getTraceAgentStartTime(), span.getTraceTransactionSequence());
+                    final TransactionId transactionId = span.getTransactionId();
                     final Dot dot = new Dot(transactionId, span.getCollectorAcceptTime(), span.getElapsed(), span.getErrCode(), span.getAgentId());
                     scatterData.addDot(dot);
                 }

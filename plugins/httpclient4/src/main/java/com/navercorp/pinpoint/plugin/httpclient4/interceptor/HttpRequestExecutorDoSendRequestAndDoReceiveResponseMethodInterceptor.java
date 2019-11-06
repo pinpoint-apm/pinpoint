@@ -20,19 +20,15 @@ import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Scope;
-import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScopeInvocation;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.plugin.httpclient4.HttpCallContext;
-import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4Constants;
 
 /**
  * @author jaehong.kim
  */
-@Scope(value=HttpClient4Constants.HTTP_CLIENT4_SCOPE, executionPolicy=ExecutionPolicy.ALWAYS)
 public class HttpRequestExecutorDoSendRequestAndDoReceiveResponseMethodInterceptor implements AroundInterceptor {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
@@ -61,9 +57,10 @@ public class HttpRequestExecutorDoSendRequestAndDoReceiveResponseMethodIntercept
         }
 
         final InterceptorScopeInvocation invocation = interceptorScope.getCurrentInvocation();
-        if(invocation != null && invocation.getAttachment() != null && invocation.getAttachment() instanceof HttpCallContext) {
-            HttpCallContext callContext = (HttpCallContext) invocation.getAttachment();
-            if(methodDescriptor.getMethodName().equals("doSendRequest")) {
+        final Object attachment = getAttachment(invocation);
+        if (attachment instanceof HttpCallContext) {
+            HttpCallContext callContext = (HttpCallContext) attachment;
+            if (methodDescriptor.getMethodName().equals("doSendRequest")) {
                 callContext.setWriteBeginTime(System.currentTimeMillis());
             } else {
                 callContext.setReadBeginTime(System.currentTimeMillis());
@@ -86,18 +83,28 @@ public class HttpRequestExecutorDoSendRequestAndDoReceiveResponseMethodIntercept
         }
 
         final InterceptorScopeInvocation invocation = interceptorScope.getCurrentInvocation();
-        if(invocation != null && invocation.getAttachment() != null && invocation.getAttachment() instanceof HttpCallContext) {
-            HttpCallContext callContext = (HttpCallContext) invocation.getAttachment();
-            if(methodDescriptor.getMethodName().equals("doSendRequest")) {
+        final Object attachment = getAttachment(invocation);
+        if (attachment instanceof HttpCallContext) {
+            HttpCallContext callContext = (HttpCallContext) attachment;
+            if (methodDescriptor.getMethodName().equals("doSendRequest")) {
                 callContext.setWriteEndTime(System.currentTimeMillis());
                 callContext.setWriteFail(throwable != null);
             } else {
                 callContext.setReadEndTime(System.currentTimeMillis());
                 callContext.setReadFail(throwable != null);
             }
-            if(isDebug) {
+            if (isDebug) {
                 logger.debug("Set call context {}", callContext);
             }
         }
     }
+
+    private Object getAttachment(InterceptorScopeInvocation invocation) {
+        if (invocation == null) {
+            return null;
+        }
+        return invocation.getAttachment();
+    }
+
+
 }

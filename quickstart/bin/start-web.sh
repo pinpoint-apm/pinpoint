@@ -38,6 +38,7 @@ CLOSE_WAIT_TIME=`expr $UNIT_TIME \* $CHECK_COUNT`
 
 PROPERTIES=`cat $CONF_DIR/$CONF_FILE 2>/dev/null`
 KEY_VERSION="quickstart.version"
+KEY_CONTEXT_PATH="quickstart.web.context.path"
 KEY_PORT="quickstart.web.port"
 
 function func_read_properties
@@ -111,37 +112,41 @@ function func_init_log
 
 function func_start_pinpoint_web
 {
-	version=$( func_read_properties "$KEY_VERSION" )
-	port=$( func_read_properties "$KEY_PORT" ) 
-        pid=`nohup mvn -f $WEB_DIR/pom.xml clean package tomcat7:run -D$IDENTIFIER -Dmaven.pinpoint.version=$version > $LOGS_DIR/$LOG_FILE 2>&1 & echo $!`
-	check_url="http://localhost:"$port"/serverTime.pinpoint"
-        echo $pid > $PID_DIR/$PID_FILE
+    version=$( func_read_properties "$KEY_VERSION" )
+    context_path=$( func_read_properties "$KEY_CONTEXT_PATH" )
+    if [ "$context_path" == "/" ]; then
+            context_path=""
+    fi
+    port=$( func_read_properties "$KEY_PORT" )
+    pid=`nohup ${bin}/../../mvnw -f $WEB_DIR/pom.xml clean package cargo:run -D$IDENTIFIER -Dmaven.pinpoint.version=$version > $LOGS_DIR/$LOG_FILE 2>&1 & echo $!`
+    check_url="http://localhost:$port$context_path/serverTime.pinpoint"
+    echo $pid > $PID_DIR/$PID_FILE
 
-        echo "---$WEB_IDENTIFIER initialization started. pid=$pid.---"
+    echo "---$WEB_IDENTIFIER initialization started. pid=$pid.---"
 
-        process_status=`curl $check_url 2>/dev/null | grep 'currentServerTime'`
-        end_count=0
+    process_status=`curl $check_url 2>/dev/null | grep 'currentServerTime'`
+    end_count=0
 
-        while [ -z $process_status ]; do
-                wait_time=`expr $end_count \* $UNIT_TIME`
-                echo "starting $WEB_IDENTIFIER. $wait_time /$CLOSE_WAIT_TIME sec(close wait limit)."
+    while [ -z $process_status ]; do
+        wait_time=`expr $end_count \* $UNIT_TIME`
+        echo "starting $WEB_IDENTIFIER. $wait_time /$CLOSE_WAIT_TIME sec(close wait limit)."
 
-                if [ $end_count -ge $CHECK_COUNT ]; then
-                        break
-                fi
+        if [ $end_count -ge $CHECK_COUNT ]; then
+            break
+            fi
 
-                sleep $UNIT_TIME
-                end_count=`expr $end_count + 1`
-                process_status=`curl $check_url 2>/dev/null | grep 'currentServerTime'`
-        done
+            sleep $UNIT_TIME
+            end_count=`expr $end_count + 1`
+            process_status=`curl $check_url 2>/dev/null | grep 'currentServerTime'`
+    done
 
-        if [ -z $process_status ]; then
-                echo "---$WEB_IDENTIFIER initialization failed. pid=$pid.---"
-                kill -9 $pid
-        else
-                echo "---$WEB_IDENTIFIER initialization completed. pid=$pid.---"
-                tail -f  $LOGS_DIR/$LOG_FILE
-        fi
+    if [ -z $process_status ]; then
+        echo "---$WEB_IDENTIFIER initialization failed. pid=$pid.---"
+        kill -9 $pid
+    else
+        echo "---$WEB_IDENTIFIER initialization completed. pid=$pid.---"
+        tail -f  $LOGS_DIR/$LOG_FILE
+    fi
 }
 
 func_check_process

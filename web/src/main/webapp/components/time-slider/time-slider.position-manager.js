@@ -80,10 +80,7 @@
         return this._formatDate( new Date(this.getTimeFromPosition(x)) );
     };
     ts.PositionManager.prototype._formatDate = function( d ) {
-        return d.getFullYear() +"." + this._twoChipers( d.getMonth() + 1 ) + "." + this._twoChipers( d.getDate() ) + " " + this._twoChipers( d.getHours() ) + ":" + this._twoChipers( d.getMinutes() ) + ":" + this._twoChipers( d.getSeconds() );
-    };
-    ts.PositionManager.prototype._twoChipers = function( n ) {
-        return n < 10 ? "0" + n : n;
+    	return moment( d ).format( "YYYY.MM.DD HH:mm:ss" );
     };
     ts.PositionManager.prototype.isInSelectionZone = function() {
 		return ( this._selectTime >= this._aSelectionTimeSeries[0] && this._selectTime <= this._aSelectionTimeSeries[1] ) ? true : false;
@@ -107,11 +104,16 @@
         this._selectTime = time;
         this._selectPosition = this.getPositionFromTime( time );
     };
+    ts.PositionManager.prototype.getSelectTime = function() {
+    	return this._selectTime;
+	};
 	ts.PositionManager.prototype.getPrevTime = function() {
-		return this._selectTime - ( this._aSelectionTimeSeries[1] - this._aSelectionTimeSeries[0] ) - 1;
+		var gap = this._aSelectionTimeSeries[1] - this._aSelectionTimeSeries[0];
+		return this._aSelectionTimeSeries[0] - parseInt( gap / 2 ) - 1;
 	};
 	ts.PositionManager.prototype.getNextTime = function() {
-		var nextTime = this._selectTime + ( this._aSelectionTimeSeries[1] - this._aSelectionTimeSeries[0] );
+		var gap = this._aSelectionTimeSeries[1] - this._aSelectionTimeSeries[0];
+		var nextTime = this._aSelectionTimeSeries[1] + parseInt( gap / 2 ) + 1;
 		if ( nextTime > Date.now() ) {
 			return Date.now();
 		} else {
@@ -157,7 +159,7 @@
     ts.PositionManager.prototype.getTimeStr = function( x ) {
         var timeX = parseInt( x * this._timePerPoint ) + this._startTime;
         var d = new Date( timeX );
-        return this._twoChipers(d.getMonth() + 1) + "." + this._twoChipers(d.getDate()) + " " + this._twoChipers( d.getHours() ) + ":" + this._twoChipers( d.getMinutes() );
+		return moment( new Date( timeX ) ).format( "MM.DD HH:mm" );
     };
 	ts.PositionManager.prototype.setSelectionStartTime = function( time ) {
 		this._setSelectionTimeSeries( time, null );

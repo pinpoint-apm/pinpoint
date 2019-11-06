@@ -1,31 +1,29 @@
 /*
+ * Copyright 2018 NAVER Corp.
  *
- *  * Copyright 2014 NAVER Corp.
- *  *
- *  * Licensed under the Apache License, Version 2.0 (the "License");
- *  * you may not use this file except in compliance with the License.
- *  * You may obtain a copy of the License at
- *  *
- *  *     http://www.apache.org/licenses/LICENSE-2.0
- *  *
- *  * Unless required by applicable law or agreed to in writing, software
- *  * distributed under the License is distributed on an "AS IS" BASIS,
- *  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  * See the License for the specific language governing permissions and
- *  * limitations under the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package com.navercorp.pinpoint.web.service;
 
+import com.navercorp.pinpoint.io.request.Message;
 import com.navercorp.pinpoint.rpc.Future;
 import com.navercorp.pinpoint.rpc.PinpointSocket;
 import com.navercorp.pinpoint.rpc.ResponseMessage;
+import com.navercorp.pinpoint.rpc.packet.stream.StreamCode;
 import com.navercorp.pinpoint.rpc.stream.ClientStreamChannel;
-import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelContext;
-import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelMessageListener;
-import com.navercorp.pinpoint.rpc.stream.StreamChannelStateChangeEventHandler;
+import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelEventHandler;
+import com.navercorp.pinpoint.rpc.stream.StreamException;
 import com.navercorp.pinpoint.rpc.util.ListUtils;
 import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadCount;
 import com.navercorp.pinpoint.thrift.dto.command.TCmdActiveThreadCountRes;
@@ -41,29 +39,32 @@ import com.navercorp.pinpoint.web.cluster.DefaultPinpointRouteResponse;
 import com.navercorp.pinpoint.web.cluster.FailedPinpointRouteResponse;
 import com.navercorp.pinpoint.web.cluster.PinpointRouteResponse;
 import com.navercorp.pinpoint.web.vo.AgentActiveThreadCount;
+import com.navercorp.pinpoint.web.vo.AgentActiveThreadCountFactory;
 import com.navercorp.pinpoint.web.vo.AgentActiveThreadCountList;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
+
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 /**
  * @author HyunGil Jeong
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 @Service
 public class AgentServiceImpl implements AgentService {
 
     private static final long DEFAULT_FUTURE_TIMEOUT = 3000;
-
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private long timeDiffMs;
 
@@ -74,9 +75,11 @@ public class AgentServiceImpl implements AgentService {
     private ClusterManager clusterManager;
 
     @Autowired
+    @Qualifier("commandHeaderTBaseSerializerFactory")
     private SerializerFactory<HeaderTBaseSerializer> commandSerializerFactory;
 
     @Autowired
+    @Qualifier("commandHeaderTBaseDeserializerFactory")
     private DeserializerFactory<HeaderTBaseDeserializer> commandDeserializerFactory;
 
     @Value("#{pinpointWebProps['web.activethread.activeAgent.duration.days'] ?: 7}")
@@ -246,32 +249,20 @@ public class AgentServiceImpl implements AgentService {
     }
 
     @Override
-    public ClientStreamChannelContext openStream(AgentInfo agentInfo, TBase<?, ?> tBase, ClientStreamChannelMessageListener messageListener) throws TException {
+    public ClientStreamChannel openStream(AgentInfo agentInfo, TBase<?, ?> tBase, ClientStreamChannelEventHandler streamChannelEventHandler) throws TException, StreamException {
         byte[] payload = serializeRequest(tBase);
-        return openStream(agentInfo, payload, messageListener, null);
+        return openStream(agentInfo, payload, streamChannelEventHandler);
     }
 
     @Override
-    public ClientStreamChannelContext openStream(AgentInfo agentInfo, byte[] payload, ClientStreamChannelMessageListener messageListener) throws TException {
-        return openStream(agentInfo, payload, messageListener, null);
-    }
-
-    @Override
-    public ClientStreamChannelContext openStream(AgentInfo agentInfo, TBase<?, ?> tBase, ClientStreamChannelMessageListener messageListener, StreamChannelStateChangeEventHandler<ClientStreamChannel> stateChangeListener) throws TException {
-        byte[] payload = serializeRequest(tBase);
-        return openStream(agentInfo, payload, messageListener, stateChangeListener);
-    }
-
-    @Override
-    public ClientStreamChannelContext openStream(AgentInfo agentInfo, byte[] payload, ClientStreamChannelMessageListener messageListener, StreamChannelStateChangeEventHandler<ClientStreamChannel> stateChangeListener) throws TException {
+    public ClientStreamChannel openStream(AgentInfo agentInfo, byte[] payload, ClientStreamChannelEventHandler streamChannelEventHandler) throws TException, StreamException {
         TCommandTransfer transferObject = createCommandTransferObject(agentInfo, payload);
         PinpointSocket socket = clusterManager.getSocket(agentInfo);
-
-        if (socket != null) {
-            return socket.openStream(serializeRequest(transferObject), messageListener, stateChangeListener);
+        if (socket == null) {
+            throw new StreamException(StreamCode.CONNECTION_NOT_FOUND);
         }
 
-        return null;
+        return socket.openStream(serializeRequest(transferObject), streamChannelEventHandler);
     }
 
     @Override
@@ -283,24 +274,31 @@ public class AgentServiceImpl implements AgentService {
     @Override
     public AgentActiveThreadCountList getActiveThreadCount(List<AgentInfo> agentInfoList, byte[] payload)
             throws TException {
-        AgentActiveThreadCountList agentActiveThreadStatusList = new AgentActiveThreadCountList(agentInfoList.size());
+        AgentActiveThreadCountList activeThreadCountList = new AgentActiveThreadCountList(agentInfoList.size());
 
         Map<AgentInfo, PinpointRouteResponse> responseList = invoke(agentInfoList, payload);
         for (Map.Entry<AgentInfo, PinpointRouteResponse> entry : responseList.entrySet()) {
             AgentInfo agentInfo = entry.getKey();
             PinpointRouteResponse response = entry.getValue();
 
-            AgentActiveThreadCount agentActiveThreadStatus = new AgentActiveThreadCount(agentInfo.getAgentId());
-            TRouteResult routeResult = response.getRouteResult();
-            if (routeResult == TRouteResult.OK) {
-                agentActiveThreadStatus.setResult(response.getResponse(TCmdActiveThreadCountRes.class, null));
-            } else {
-                agentActiveThreadStatus.setFail(routeResult.name());
-            }
-            agentActiveThreadStatusList.add(agentActiveThreadStatus);
+            AgentActiveThreadCount activeThreadCount = createActiveThreadCount(agentInfo.getAgentId(), response);
+            activeThreadCountList.add(activeThreadCount);
         }
 
-        return agentActiveThreadStatusList;
+        return activeThreadCountList;
+    }
+
+    private AgentActiveThreadCount createActiveThreadCount(String agentId, PinpointRouteResponse response) {
+        TRouteResult routeResult = response.getRouteResult();
+        if (routeResult == TRouteResult.OK) {
+            AgentActiveThreadCountFactory factory = new AgentActiveThreadCountFactory();
+            factory.setAgentId(agentId);
+            return factory.create(response.getResponse(TCmdActiveThreadCountRes.class, null));
+        } else {
+            AgentActiveThreadCountFactory factory = new AgentActiveThreadCountFactory();
+            factory.setAgentId(agentId);
+            return factory.createFail(routeResult.name());
+        }
     }
 
     private TCommandTransfer createCommandTransferObject(AgentInfo agentInfo, byte[] payload) {
@@ -318,7 +316,7 @@ public class AgentServiceImpl implements AgentService {
             return new FailedPinpointRouteResponse(TRouteResult.NOT_FOUND, null);
         }
 
-        boolean completed = future.await(DEFAULT_FUTURE_TIMEOUT);
+        boolean completed = future.await(timeout);
         if (completed) {
             DefaultPinpointRouteResponse response = new DefaultPinpointRouteResponse(future.getResult().getMessage());
             response.parse(commandDeserializerFactory);
@@ -345,12 +343,20 @@ public class AgentServiceImpl implements AgentService {
 
     @Override
     public TBase<?, ?> deserializeResponse(byte[] objectData) throws TException {
-        return SerializationUtils.deserialize(objectData, commandDeserializerFactory);
+        Message<TBase<?, ?>> message = SerializationUtils.deserialize(objectData, commandDeserializerFactory);
+        if (message == null) {
+            return null;
+        }
+        return message.getData();
     }
 
     @Override
-    public TBase<?, ?> deserializeResponse(byte[] objectData, TBase<?, ?> defaultValue) {
-        return SerializationUtils.deserialize(objectData, commandDeserializerFactory, defaultValue);
+    public TBase<?, ?> deserializeResponse(byte[] objectData, Message<TBase<?, ?>> defaultValue) {
+        Message<TBase<?, ?>> message = SerializationUtils.deserialize(objectData, commandDeserializerFactory, defaultValue);
+        if (message == null) {
+            return null;
+        }
+        return message.getData();
     }
 
 }

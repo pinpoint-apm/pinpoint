@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.navercorp.pinpoint.web.vo.Application;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author emeroad
@@ -30,10 +31,7 @@ public class ApplicationGroup {
     private final List<Application> applicationList;
 
     public ApplicationGroup(List<Application> applicationList) {
-        if (applicationList == null) {
-            throw new NullPointerException("applicationList must not be null");
-        }
-        this.applicationList = applicationList;
+        this.applicationList = Objects.requireNonNull(applicationList, "applicationList");
     }
 
     public List<Application> getApplicationList() {

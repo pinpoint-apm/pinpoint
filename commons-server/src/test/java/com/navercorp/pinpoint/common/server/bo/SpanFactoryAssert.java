@@ -1,6 +1,23 @@
+/*
+ * Copyright 2019 NAVER Corp.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.navercorp.pinpoint.common.server.bo;
 
-import com.navercorp.pinpoint.common.util.TransactionIdUtils;
+import com.navercorp.pinpoint.common.profiler.util.TransactionId;
+import com.navercorp.pinpoint.common.profiler.util.TransactionIdUtils;
 import com.navercorp.pinpoint.thrift.dto.TAnnotation;
 import com.navercorp.pinpoint.thrift.dto.TSpan;
 import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
@@ -9,7 +26,9 @@ import org.apache.commons.collections.CollectionUtils;
 import org.junit.Assert;
 
 import java.nio.ByteBuffer;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -21,8 +40,8 @@ public class SpanFactoryAssert {
         Assert.assertEquals(tSpan.getApplicationName(), spanBo.getApplicationId());
         Assert.assertEquals(tSpan.getAgentStartTime(), spanBo.getAgentStartTime());
 
-
-        ByteBuffer byteBuffer = TransactionIdUtils.formatByteBuffer(spanBo.getTraceAgentId(), spanBo.getTraceAgentStartTime(), spanBo.getTraceTransactionSequence());
+        TransactionId transactionId = spanBo.getTransactionId();
+        ByteBuffer byteBuffer = TransactionIdUtils.formatByteBuffer(transactionId.getAgentId(), transactionId.getAgentStartTime(), transactionId.getTransactionSequence());
         Assert.assertEquals(ByteBuffer.wrap(tSpan.getTransactionId()), byteBuffer);
 
         Assert.assertEquals(tSpan.getSpanId(), spanBo.getSpanId());
@@ -47,6 +66,10 @@ public class SpanFactoryAssert {
 
         Assert.assertEquals(tSpan.getApiId(), spanBo.getApiId());
         Assert.assertEquals(tSpan.getApplicationServiceType(), spanBo.getApplicationServiceType());
+
+        List<SpanEventBo> spanEventBoList = spanBo.getSpanEventBoList();
+        List<TSpanEvent> spanEventList = tSpan.getSpanEventList();
+        assertSpanEventList(spanEventBoList, spanEventList);
 
 
         boolean hasException = tSpan.getExceptionInfo() != null;
@@ -103,9 +126,10 @@ public class SpanFactoryAssert {
             Assert.assertEquals(tSpanEvent.getExceptionInfo().getStringValue(), spanEventBo.getExceptionMessage());
         }
 
-        Assert.assertEquals(tSpanEvent.getAsyncId(), spanEventBo.getAsyncId());
         Assert.assertEquals(tSpanEvent.getNextAsyncId(), spanEventBo.getNextAsyncId());
-        Assert.assertEquals(tSpanEvent.getAsyncSequence(), spanEventBo.getAsyncSequence());
+
+        Assert.assertEquals(-1, spanEventBo.getAsyncId());
+        Assert.assertEquals(-1, spanEventBo.getAsyncSequence());
     }
 
 
@@ -115,14 +139,37 @@ public class SpanFactoryAssert {
         Assert.assertEquals(tSpanChunk.getAgentStartTime(), spanChunkBo.getAgentStartTime());
 
 
-        ByteBuffer byteBuffer = TransactionIdUtils.formatByteBuffer(spanChunkBo.getTraceAgentId(), spanChunkBo.getTraceAgentStartTime(), spanChunkBo.getTraceTransactionSequence());
+        TransactionId transactionId = spanChunkBo.getTransactionId();
+        ByteBuffer byteBuffer = TransactionIdUtils.formatByteBuffer(transactionId.getAgentId(), transactionId.getAgentStartTime(), transactionId.getTransactionSequence());
         Assert.assertEquals(ByteBuffer.wrap(tSpanChunk.getTransactionId()), byteBuffer);
 
         Assert.assertEquals(tSpanChunk.getSpanId(), spanChunkBo.getSpanId());
 
-        Assert.assertEquals(tSpanChunk.getServiceType(), spanChunkBo.getServiceType());
         Assert.assertEquals(tSpanChunk.getEndPoint(), spanChunkBo.getEndPoint());
         Assert.assertEquals(tSpanChunk.getApplicationServiceType(), spanChunkBo.getApplicationServiceType());
 
+
+        List<SpanEventBo> spanEventBoList = spanChunkBo.getSpanEventBoList();
+        List<TSpanEvent> spanEventList = tSpanChunk.getSpanEventList();
+        assertSpanEventList(spanEventBoList, spanEventList);
+
+    }
+
+    private void assertSpanEventList(List<SpanEventBo> spanEventBoList, List<TSpanEvent> spanEventList) {
+        Assert.assertEquals(CollectionUtils.isEmpty(spanEventBoList), CollectionUtils.isEmpty(spanEventList));
+        if (CollectionUtils.isNotEmpty(spanEventBoList)) {
+            Map<Integer, SpanEventBo> spanEventBoMap = new HashMap<Integer, SpanEventBo>();
+            for (int i = 0; i < spanEventBoList.size(); i++) {
+                SpanEventBo spanEventBo = spanEventBoList.get(i);
+                spanEventBoMap.put((int)spanEventBo.getSequence(), spanEventBo);
+            }
+
+            for (int i = 0; i < spanEventList.size(); i++) {
+                TSpanEvent tSpanEvent = spanEventList.get(i);
+                SpanEventBo spanEventBo = spanEventBoMap.get((int) tSpanEvent.getSequence());
+                Assert.assertNotNull(spanEventBo);
+                assertSpanEvent(tSpanEvent, spanEventBo);
+            }
+        }
     }
 }

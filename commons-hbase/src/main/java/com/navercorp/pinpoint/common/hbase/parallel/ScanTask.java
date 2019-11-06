@@ -49,10 +49,10 @@ public class ScanTask implements Runnable {
 
     public ScanTask(ScanTaskConfig scanTaskConfig, Scan... scans) {
         if (scanTaskConfig == null) {
-            throw new NullPointerException("scanTaskConfig must not be null");
+            throw new NullPointerException("scanTaskConfig");
         }
         if (scans == null) {
-            throw new NullPointerException("scans must not be null");
+            throw new NullPointerException("scans");
         }
         if (scans.length == 0) {
             throw new IllegalArgumentException("scans must not be empty");
@@ -68,6 +68,7 @@ public class ScanTask implements Runnable {
     public void run() {
         Table table = null;
         try {
+            // TODO Avoid ThreadPool Deadlock : tableFactory.getTable(this.tableName, ParallelScannerThreadPool);
             table = tableFactory.getTable(this.tableName);
             ResultScanner scanner = createResultScanner(table);
             try {
@@ -97,7 +98,7 @@ public class ScanTask implements Runnable {
             return table.getScanner(scan);
         } else {
             ResultScanner[] scanners = new ResultScanner[this.scans.length];
-            for (int i = 0; i < scanners.length; ++i) {
+            for (int i = 0; i < scanners.length; i++) {
                 scanners[i] = table.getScanner(this.scans[i]);
             }
             return new DistributedScanner(this.rowKeyDistributor, scanners);

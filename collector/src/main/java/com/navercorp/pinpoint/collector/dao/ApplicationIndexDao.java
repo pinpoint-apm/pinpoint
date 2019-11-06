@@ -16,11 +16,11 @@
 
 package com.navercorp.pinpoint.collector.dao;
 
-import com.navercorp.pinpoint.thrift.dto.TAgentInfo;
+import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
 
 /**
  * @author emeroad
  */
 public interface ApplicationIndexDao {
-    void insert(final TAgentInfo agentInfo);
+    void insert(final AgentInfoBo agentInfo);
 }

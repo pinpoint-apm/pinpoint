@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,16 +19,16 @@ package com.navercorp.pinpoint.web.dao.hbase;
 import com.navercorp.pinpoint.common.PinpointConstants;
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
-import com.navercorp.pinpoint.common.hbase.HBaseTables;
+import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
 import com.navercorp.pinpoint.common.hbase.LimitEventHandler;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
+import com.navercorp.pinpoint.common.hbase.TableDescriptor;
+import com.navercorp.pinpoint.common.server.util.SpanUtils;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.common.util.DateUtils;
-import com.navercorp.pinpoint.common.server.util.SpanUtils;
 import com.navercorp.pinpoint.common.util.TimeUtils;
-import com.navercorp.pinpoint.common.util.TransactionId;
-import com.navercorp.pinpoint.rpc.util.ListUtils;
+import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.web.dao.ApplicationTraceIndexDao;
 import com.navercorp.pinpoint.web.mapper.TraceIndexScatterMapper2;
 import com.navercorp.pinpoint.web.mapper.TraceIndexScatterMapper3;
@@ -39,9 +39,12 @@ import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.ResponseTimeRange;
 import com.navercorp.pinpoint.web.vo.SelectedScatterArea;
 import com.navercorp.pinpoint.web.vo.scatter.Dot;
+
 import com.sematext.hbase.wd.AbstractRowKeyDistributor;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
+import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.filter.BinaryPrefixComparator;
@@ -92,13 +95,16 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
         this.scanCacheSize = scanCacheSize;
     }
 
+    @Autowired
+    private TableDescriptor<HbaseColumnFamily.ApplicationTraceIndexTrace> descriptor;
+
     @Override
     public LimitedScanResult<List<TransactionId>> scanTraceIndex(final String applicationName, Range range, int limit, boolean scanBackward) {
         if (applicationName == null) {
-            throw new NullPointerException("applicationName must not be null");
+            throw new NullPointerException("applicationName");
         }
         if (range == null) {
-            throw new NullPointerException("range must not be null");
+            throw new NullPointerException("range");
         }
         if (limit < 0) {
             throw new IllegalArgumentException("negative limit:" + limit);
@@ -108,7 +114,9 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 
         final LimitedScanResult<List<TransactionId>> limitedScanResult = new LimitedScanResult<>();
         LastRowAccessor lastRowAccessor = new LastRowAccessor();
-        List<List<TransactionId>> traceIndexList = hbaseOperations2.findParallel(HBaseTables.APPLICATION_TRACE_INDEX,
+
+        TableName applicationTraceIndexTableName = descriptor.getTableName();
+        List<List<TransactionId>> traceIndexList = hbaseOperations2.findParallel(applicationTraceIndexTableName,
                 scan, traceIdRowKeyDistributor, limit, traceIndexMapper, lastRowAccessor, APPLICATION_TRACE_INDEX_NUM_PARTITIONS);
 
         List<TransactionId> transactionIdSum = new ArrayList<>(128);
@@ -136,10 +144,10 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
     @Override
     public LimitedScanResult<List<TransactionId>> scanTraceIndex(final String applicationName, SelectedScatterArea area, int limit) {
         if (applicationName == null) {
-            throw new NullPointerException("applicationName must not be null");
+            throw new NullPointerException("applicationName");
         }
         if (area == null) {
-            throw new NullPointerException("area must not be null");
+            throw new NullPointerException("area");
         }
         if (limit < 0) {
             throw new IllegalArgumentException("negative limit:" + limit);
@@ -149,7 +157,9 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 
         final LimitedScanResult<List<TransactionId>> limitedScanResult = new LimitedScanResult<>();
         LastRowAccessor lastRowAccessor = new LastRowAccessor();
-        List<List<TransactionId>> traceIndexList = hbaseOperations2.findParallel(HBaseTables.APPLICATION_TRACE_INDEX,
+
+        TableName applicationTraceIndexTableName = descriptor.getTableName();
+        List<List<TransactionId>> traceIndexList = hbaseOperations2.findParallel(applicationTraceIndexTableName,
                 scan, traceIdRowKeyDistributor, limit, traceIndexMapper, lastRowAccessor, APPLICATION_TRACE_INDEX_NUM_PARTITIONS);
 
         List<TransactionId> transactionIdSum = new ArrayList<>(128);
@@ -223,8 +233,8 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
         scan.setCaching(this.scanCacheSize);
 
         byte[] bApplicationName = Bytes.toBytes(applicationName);
-        byte[] traceIndexStartKey = SpanUtils.getTraceIndexRowKey(bApplicationName, range.getFrom());
-        byte[] traceIndexEndKey = SpanUtils.getTraceIndexRowKey(bApplicationName, range.getTo());
+        byte[] traceIndexStartKey = SpanUtils.getApplicationTraceIndexRowKey(bApplicationName, range.getFrom());
+        byte[] traceIndexEndKey = SpanUtils.getApplicationTraceIndexRowKey(bApplicationName, range.getTo());
 
         if (scanBackward) {
             // start key is replaced by end key because key has been reversed
@@ -236,7 +246,7 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
             scan.setStopRow(traceIndexEndKey);
         }
 
-        scan.addFamily(HBaseTables.APPLICATION_TRACE_INDEX_CF_TRACE);
+        scan.addFamily(descriptor.getColumnFamilyName());
         scan.setId("ApplicationTraceIndexScan");
 
         // toString() method of Scan converts a message to json format so it is slow for the first time.
@@ -250,10 +260,10 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
     @Override
     public List<Dot> scanTraceScatter(String applicationName, SelectedScatterArea area, TransactionId offsetTransactionId, int offsetTransactionElapsed, int limit) {
         if (applicationName == null) {
-            throw new NullPointerException("applicationName must not be null");
+            throw new NullPointerException("applicationName");
         }
         if (area == null) {
-            throw new NullPointerException("range must not be null");
+            throw new NullPointerException("range");
         }
         if (limit < 0) {
             throw new IllegalArgumentException("negative limit:" + limit);
@@ -269,7 +279,8 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
         ResponseTimeRange responseTimeRange = area.getResponseTimeRange();
         TraceIndexScatterMapper2 mapper = new TraceIndexScatterMapper2(responseTimeRange.getFrom(), responseTimeRange.getTo());
 
-        List<List<Dot>> dotListList = hbaseOperations2.findParallel(HBaseTables.APPLICATION_TRACE_INDEX, scan, traceIdRowKeyDistributor, limit, mapper, APPLICATION_TRACE_INDEX_NUM_PARTITIONS);
+        TableName applicationTraceIndexTableName = descriptor.getTableName();
+        List<List<Dot>> dotListList = hbaseOperations2.findParallel(applicationTraceIndexTableName, scan, traceIdRowKeyDistributor, limit, mapper, APPLICATION_TRACE_INDEX_NUM_PARTITIONS);
 
         List<Dot> result = new ArrayList<>();
         for(List<Dot> dotList : dotListList) {
@@ -282,10 +293,10 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
     @Override
     public ScatterData scanTraceScatterData(String applicationName, Range range, int xGroupUnit, int yGroupUnit, int limit, boolean scanBackward) {
         if (applicationName == null) {
-            throw new NullPointerException("applicationName must not be null");
+            throw new NullPointerException("applicationName");
         }
         if (range == null) {
-            throw new NullPointerException("range must not be null");
+            throw new NullPointerException("range");
         }
         if (limit < 0) {
             throw new IllegalArgumentException("negative limit:" + limit);
@@ -294,9 +305,11 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
         Scan scan = createScan(applicationName, range, scanBackward);
 
         TraceIndexScatterMapper3 mapper = new TraceIndexScatterMapper3(range.getFrom(), range.getTo(), xGroupUnit, yGroupUnit);
-        List<ScatterData> dotGroupList = hbaseOperations2.findParallel(HBaseTables.APPLICATION_TRACE_INDEX, scan, traceIdRowKeyDistributor, limit, mapper, APPLICATION_TRACE_INDEX_NUM_PARTITIONS);
 
-        if (ListUtils.isEmpty(dotGroupList)) {
+        TableName applicationTraceIndexTableName = descriptor.getTableName();
+        List<ScatterData> dotGroupList = hbaseOperations2.findParallel(applicationTraceIndexTableName, scan, traceIdRowKeyDistributor, limit, mapper, APPLICATION_TRACE_INDEX_NUM_PARTITIONS);
+
+        if (CollectionUtils.isEmpty(dotGroupList)) {
             return new ScatterData(range.getFrom(), range.getTo(), xGroupUnit, yGroupUnit);
         } else {
             ScatterData firstScatterData = dotGroupList.get(0);
@@ -339,4 +352,6 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
         }
         return filterList;
     }
+
+
 }

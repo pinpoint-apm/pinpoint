@@ -16,28 +16,39 @@
 
 package com.navercorp.pinpoint.bootstrap.instrument;
 
-import com.navercorp.pinpoint.bootstrap.context.TraceContext;
+import com.navercorp.pinpoint.bootstrap.instrument.matcher.Matcher;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 
+import java.io.InputStream;
+import java.security.ProtectionDomain;
+
 /**
  * @author Woonduk Kang(emeroad)
+ * @author jaehong.kim
  */
-public interface InstrumentContext {
+public interface InstrumentContext extends ClassInputStreamProvider {
 
-    TraceContext getTraceContext();
+    InstrumentClass getInstrumentClass(ClassLoader classLoader, String className, ProtectionDomain protectionDomain, byte[] classfileBuffer);
 
-    InstrumentClass getInstrumentClass(ClassLoader classLoader, String className, byte[] classfileBuffer);
-
-    boolean exist(ClassLoader classLoader, String className);
+    boolean exist(ClassLoader classLoader, String className, ProtectionDomain protectionDomain);
 
     InterceptorScope getInterceptorScope(String name);
 
     <T> Class<? extends T> injectClass(ClassLoader targetClassLoader, String className);
 
+    @Override
+    InputStream getResourceAsStream(ClassLoader targetClassLoader, String classPath);
+
     void addClassFileTransformer(ClassLoader classLoader, String targetClassName, TransformCallback transformCallback);
 
-    void addClassFileTransformer(String targetClassName, TransformCallback transformCallback);
+    void addClassFileTransformer(ClassLoader classLoader, String targetClassName, String transformCallbackClassName);
+
+    void addClassFileTransformer(Matcher matcher, TransformCallback transformCallback);
+
+    void addClassFileTransformer(Matcher matcher, String transformCallbackClassName);
+
+    void addClassFileTransformer(Matcher matcher, String transformCallbackClassName, Object[] parameters, Class<?>[] parameterTypes);
 
     void retransform(Class<?> target, TransformCallback transformCallback);
 

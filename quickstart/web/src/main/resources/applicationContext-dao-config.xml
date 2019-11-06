@@ -11,4 +11,7 @@
 
     <context:component-scan base-package="com.navercorp.pinpoint.web.dao.memory" />
 
+    <bean id="agentDownloadInfoDao" class="com.navercorp.pinpoint.web.dao.rest.GithubAgentDownloadInfoDao">
+    </bean>
+
 </beans>

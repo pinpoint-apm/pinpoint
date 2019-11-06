@@ -52,6 +52,7 @@ public class AgentInfo {
     private ServerMetaDataBo serverMetaData;
     private JvmInfoBo jvmInfo;
     private long initialStartTimestamp;
+    private boolean container;
     private AgentStatus status;
 
     public AgentInfo() {
@@ -70,6 +71,7 @@ public class AgentInfo {
         this.agentVersion = agentInfoBo.getAgentVersion();
         this.serverMetaData = agentInfoBo.getServerMetaData();
         this.jvmInfo = agentInfoBo.getJvmInfo();
+        this.container = agentInfoBo.isContainer();
     }
 
     public String getApplicationName() {
@@ -176,6 +178,14 @@ public class AgentInfo {
         this.initialStartTimestamp = initialStartTimestamp;
     }
 
+    public boolean isContainer() {
+        return container;
+    }
+
+    public void setContainer(boolean container) {
+        this.container = container;
+    }
+
     public AgentStatus getStatus() {
         return status;
     }
@@ -205,11 +215,22 @@ public class AgentInfo {
 
     @Override
     public String toString() {
-        return "AgentInfo [applicationName=" + applicationName + ", agentId=" + agentId + ", startTimestamp="
-                + startTimestamp + ", hostName=" + hostName + ", ip=" + ip + ", ports=" + ports + ", serviceTypeCode="
-                + serviceTypeCode + ", pid=" + pid + ", vmVersion=" + vmVersion + ", agentVersion=" + agentVersion
-                + ", serverMetaData=" + serverMetaData + ", jvmInfo=" + jvmInfo + ", initialStartTimestamp=" + initialStartTimestamp
-                + ", status=" + status + "]";
+        final StringBuilder sb = new StringBuilder("AgentInfo{");
+        sb.append("applicationName='").append(applicationName).append('\'');
+        sb.append(", agentId='").append(agentId).append('\'');
+        sb.append(", startTimestamp=").append(startTimestamp);
+        sb.append(", hostName='").append(hostName).append('\'');
+        sb.append(", ip='").append(ip).append('\'');
+        sb.append(", ports='").append(ports).append('\'');
+        sb.append(", serviceTypeCode=").append(serviceTypeCode);
+        sb.append(", pid=").append(pid);
+        sb.append(", vmVersion='").append(vmVersion).append('\'');
+        sb.append(", agentVersion='").append(agentVersion).append('\'');
+        sb.append(", jvmInfo=").append(jvmInfo);
+        sb.append(", initialStartTimestamp=").append(initialStartTimestamp);
+        sb.append(", container=").append(container);
+        sb.append(", status=").append(status);
+        sb.append('}');
+        return sb.toString();
     }
-
 }

@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.collector.cluster.route.DefaultRouteHandler;
 import com.navercorp.pinpoint.collector.cluster.route.RequestEvent;
 import com.navercorp.pinpoint.collector.cluster.route.StreamEvent;
 import com.navercorp.pinpoint.collector.cluster.route.StreamRouteHandler;
+import com.navercorp.pinpoint.io.request.Message;
 import com.navercorp.pinpoint.rpc.MessageListener;
 import com.navercorp.pinpoint.rpc.PinpointSocket;
 import com.navercorp.pinpoint.rpc.packet.RequestPacket;
@@ -27,8 +28,8 @@ import com.navercorp.pinpoint.rpc.packet.SendPacket;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamClosePacket;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamCode;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamCreatePacket;
-import com.navercorp.pinpoint.rpc.stream.ServerStreamChannelContext;
-import com.navercorp.pinpoint.rpc.stream.ServerStreamChannelMessageListener;
+import com.navercorp.pinpoint.rpc.stream.ServerStreamChannel;
+import com.navercorp.pinpoint.rpc.stream.ServerStreamChannelMessageHandler;
 import com.navercorp.pinpoint.thrift.dto.TResult;
 import com.navercorp.pinpoint.thrift.dto.command.TCommandTransfer;
 import com.navercorp.pinpoint.thrift.dto.command.TCommandTransferResponse;
@@ -38,46 +39,42 @@ import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializer;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializer;
 import com.navercorp.pinpoint.thrift.io.SerializerFactory;
 import com.navercorp.pinpoint.thrift.util.SerializationUtils;
+
 import org.apache.thrift.TBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 import javax.annotation.PreDestroy;
+import java.util.Objects;
 
 /**
  * @author koo.taejin
  * @author HyunGil Jeong
  */
-public class ClusterPointRouter implements MessageListener, ServerStreamChannelMessageListener {
+public class ClusterPointRouter extends ServerStreamChannelMessageHandler implements MessageListener {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final ClusterPointRepository<TargetClusterPoint> targetClusterPointRepository;
+    private final ClusterPointRepository<ClusterPoint> targetClusterPointRepository;
 
     private final DefaultRouteHandler routeHandler;
     private final StreamRouteHandler streamRouteHandler;
 
     @Autowired
+    @Qualifier("commandHeaderTBaseSerializerFactory")
     private SerializerFactory<HeaderTBaseSerializer> commandSerializerFactory;
 
     @Autowired
+    @Qualifier("commandHeaderTBaseDeserializerFactory")
     private DeserializerFactory<HeaderTBaseDeserializer> commandDeserializerFactory;
 
-    public ClusterPointRouter(ClusterPointRepository<TargetClusterPoint> targetClusterPointRepository,
+    public ClusterPointRouter(ClusterPointRepository<ClusterPoint> targetClusterPointRepository,
             DefaultRouteHandler defaultRouteHandler, StreamRouteHandler streamRouteHandler) {
-        if (targetClusterPointRepository == null) {
-            throw new NullPointerException("targetClusterPointRepository may not be null");
-        }
-        if (defaultRouteHandler == null) {
-            throw new NullPointerException("defaultRouteHandler may not be null");
-        }
-        if (streamRouteHandler == null) {
-            throw new NullPointerException("streamRouteHandler may not be null");
-        }
-        this.targetClusterPointRepository = targetClusterPointRepository;
-        this.routeHandler = defaultRouteHandler;
-        this.streamRouteHandler = streamRouteHandler;
+        this.targetClusterPointRepository = Objects.requireNonNull(targetClusterPointRepository, "targetClusterPointRepository");
+        this.routeHandler = Objects.requireNonNull(defaultRouteHandler, "defaultRouteHandler");
+        this.streamRouteHandler = Objects.requireNonNull(streamRouteHandler, "streamRouteHandler");
     }
 
     @PreDestroy
@@ -104,32 +101,33 @@ public class ClusterPointRouter implements MessageListener, ServerStreamChannelM
     }
 
     @Override
-    public StreamCode handleStreamCreate(ServerStreamChannelContext streamChannelContext, StreamCreatePacket packet) {
-        logger.info("handleStreamCreate packet:{}, streamChannel:{}", packet, streamChannelContext);
+    public StreamCode handleStreamCreatePacket(ServerStreamChannel streamChannel, StreamCreatePacket packet) {
+        logger.info("handleStreamCreatePacket() streamChannel:{}, packet:{}", streamChannel, packet);
 
         TBase<?, ?> request = deserialize(packet.getPayload());
         if (request == null) {
             return StreamCode.TYPE_UNKNOWN;
         } else if (request instanceof TCommandTransfer) {
-            return handleStreamRouteCreate((TCommandTransfer)request, packet, streamChannelContext);
+            return handleStreamRouteCreate((TCommandTransfer)request, packet, streamChannel);
         } else {
             return StreamCode.TYPE_UNSUPPORT;
         }
     }
 
     @Override
-    public void handleStreamClose(ServerStreamChannelContext streamChannelContext, StreamClosePacket packet) {
-        logger.info("handleStreamClose packet:{}, streamChannel:{}", packet, streamChannelContext);
+    public void handleStreamClosePacket(ServerStreamChannel streamChannel, StreamClosePacket packet) {
+        logger.info("handleStreamClosePacket() streamChannel:{}, packet:{}", streamChannel, packet);
 
-        streamRouteHandler.close(streamChannelContext);
+        streamRouteHandler.close(streamChannel);
     }
 
     private boolean handleRouteRequest(TCommandTransfer request, RequestPacket requestPacket, PinpointSocket pinpointSocket) {
-        byte[] payload = ((TCommandTransfer)request).getPayload();
+        byte[] payload = request.getPayload();
         TBase<?,?> command = deserialize(payload);
 
-        TCommandTransferResponse response = routeHandler.onRoute(new RequestEvent((TCommandTransfer) request, pinpointSocket.getRemoteAddress(), requestPacket.getRequestId(), command));
-        pinpointSocket.response(requestPacket, serialize(response));
+        RequestEvent event = new RequestEvent(request, pinpointSocket.getRemoteAddress(), requestPacket.getRequestId(), command);
+        TCommandTransferResponse response = routeHandler.onRoute(event);
+        pinpointSocket.response(requestPacket.getRequestId(), serialize(response));
 
         return response.getRouteResult() == TRouteResult.OK;
     }
@@ -138,17 +136,17 @@ public class ClusterPointRouter implements MessageListener, ServerStreamChannelM
         TResult tResult = new TResult(false);
         tResult.setMessage(message);
 
-        pinpointSocket.response(requestPacket, serialize(tResult));
+        pinpointSocket.response(requestPacket.getRequestId(), serialize(tResult));
     }
 
-    private StreamCode handleStreamRouteCreate(TCommandTransfer request, StreamCreatePacket packet, ServerStreamChannelContext streamChannelContext) {
-        byte[] payload = ((TCommandTransfer)request).getPayload();
+    private StreamCode handleStreamRouteCreate(TCommandTransfer request, StreamCreatePacket packet, ServerStreamChannel serverStreamChannel) {
+        byte[] payload = request.getPayload();
         TBase<?,?> command = deserialize(payload);
         if (command == null) {
             return StreamCode.TYPE_UNKNOWN;
         }
 
-        TCommandTransferResponse response = streamRouteHandler.onRoute(new StreamEvent((TCommandTransfer) request, streamChannelContext, command));
+        TCommandTransferResponse response = streamRouteHandler.onRoute(new StreamEvent(request, serverStreamChannel, command));
         TRouteResult routeResult = response.getRouteResult();
         if (routeResult != TRouteResult.OK) {
             logger.warn("handleStreamRouteCreate failed. command:{}, routeResult:{}", command, routeResult);
@@ -158,7 +156,7 @@ public class ClusterPointRouter implements MessageListener, ServerStreamChannelM
         return StreamCode.OK;
     }
 
-    public ClusterPointRepository<TargetClusterPoint> getTargetClusterPointRepository() {
+    public ClusterPointRepository<ClusterPoint> getTargetClusterPointRepository() {
         return targetClusterPointRepository;
     }
 
@@ -167,7 +165,11 @@ public class ClusterPointRouter implements MessageListener, ServerStreamChannelM
     }
 
     private TBase<?,?> deserialize(byte[] objectData) {
-        return SerializationUtils.deserialize(objectData, commandDeserializerFactory, null);
+        final Message<TBase<?, ?>> deserialize = SerializationUtils.deserialize(objectData, commandDeserializerFactory, null);
+        if (deserialize == null) {
+            return null;
+        }
+        return deserialize.getData();
     }
 
     private StreamCode convertToStreamCode(TRouteResult routeResult) {

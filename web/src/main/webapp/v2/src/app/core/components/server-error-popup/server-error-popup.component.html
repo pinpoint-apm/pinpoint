@@ -1,0 +1,54 @@
+<div class="l-title-group">
+    <dl>
+        <dt>Server Error</dt>
+    </dl>
+    <button class="far fa-window-close" (click)="onClose()"></button>
+</div>
+<div class="l-contents-group">
+    <div class="l-contents">
+        <div class="l-row">
+            <div class="l-row-header">Message</div>
+            <div class="l-row-content l-red">{{errorInfo.exception.message}}</div>
+        </div>
+        <div class="l-row">
+            <div class="l-row-header">URL</div>
+            <div class="l-row-content l-red">{{errorInfo.exception.request.url}}</div>
+        </div>
+        <div class="l-row" *ngIf="errorInfo.exception.request.method">
+            <div class="l-row-header">Method</div>
+            <div class="l-row-content l-red">{{errorInfo.exception.request.method}}</div>
+        </div>
+        <div class="l-row" *ngIf="errorInfo.exception.request.heads">
+            <div class="l-row-header">Header</div>
+            <div class="l-row-content">
+                <button class="l-toggle-btn fas fa-lg" [ngClass]="getState(showHeader)" (click)="showHeader = !showHeader"></button>
+                <div class="l-data-table" [hidden]="!showHeader">
+                    <div *ngFor="let header of errorInfo.exception.request.heads | keyvalue">
+                        <div>{{header.key}}</div>
+                        <div>{{header.value.join('')}}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="l-row" *ngIf="errorInfo.exception.request.parameters">
+            <div class="l-row-header">Parameters</div>
+            <div class="l-row-content">
+                <button class="l-toggle-btn fas fa-lg" [ngClass]="getState(showParam)" (click)="showParam = !showParam"></button>
+                <div class="l-data-table" [hidden]="!showParam">
+                    <div *ngFor="let header of errorInfo.exception.request.parameters | keyvalue">
+                        <div>{{header.key}}</div>
+                        <div>{{header.value.join('')}}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="l-row" *ngIf="errorInfo.exception.stacktrace">
+            <div class="l-row-header">StackTrace</div>
+            <div class="l-row-content">
+                <button class="l-toggle-btn fas fa-lg" [ngClass]="getState(showStackTrace)" (click)="showStackTrace = !showStackTrace"></button>
+                <textarea disabled [hidden]="!showStackTrace">{{errorInfo.exception.stacktrace}}</textarea>
+            </div>
+        </div>
+
+    </div>
+</div>

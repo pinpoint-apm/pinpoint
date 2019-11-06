@@ -16,30 +16,37 @@
 
 package com.navercorp.pinpoint.collector.dao.hbase.statistics;
 
+import org.apache.hadoop.hbase.TableName;
+
+import java.util.Objects;
+
 /**
  * @author emeroad
+ * @author HyunGil Jeong
  */
 public class DefaultRowInfo implements RowInfo {
 
-    private RowKey rowKey;
-    private ColumnName columnName;
+    private final TableName tableName;
+    private final RowKey rowKey;
+    private final ColumnName columnName;
 
-    public DefaultRowInfo(RowKey rowKey, ColumnName columnName) {
-        if (rowKey == null) {
-            throw new NullPointerException("rowKey must not be null");
-        }
-        if (columnName == null) {
-            throw new NullPointerException("columnName must not be null");
-        }
-
-        this.rowKey = rowKey;
-        this.columnName = columnName;
+    public DefaultRowInfo(TableName tableName, RowKey rowKey, ColumnName columnName) {
+        this.tableName = Objects.requireNonNull(tableName, "tableName");
+        this.rowKey = Objects.requireNonNull(rowKey, "rowKey");
+        this.columnName = Objects.requireNonNull(columnName, "columnName");
     }
 
+    @Override
+    public TableName getTableName() {
+        return tableName;
+    }
+
+    @Override
     public RowKey getRowKey() {
         return rowKey;
     }
 
+    @Override
     public ColumnName getColumnName() {
         return columnName;
     }
@@ -51,15 +58,15 @@ public class DefaultRowInfo implements RowInfo {
 
         DefaultRowInfo that = (DefaultRowInfo) o;
 
-        if (!columnName.equals(that.columnName)) return false;
+        if (!tableName.equals(that.tableName)) return false;
         if (!rowKey.equals(that.rowKey)) return false;
-
-        return true;
+        return columnName.equals(that.columnName);
     }
 
     @Override
     public int hashCode() {
-        int result = rowKey.hashCode();
+        int result = tableName.hashCode();
+        result = 31 * result + rowKey.hashCode();
         result = 31 * result + columnName.hashCode();
         return result;
     }

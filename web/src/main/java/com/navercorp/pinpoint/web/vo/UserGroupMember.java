@@ -55,4 +55,15 @@ public class UserGroupMember {
     public void setDepartment(String department) {
         this.department = department;
     }
+
+    @Override
+    public String toString() {
+        return "UserGroupMember{" +
+            "number='" + number + '\'' +
+            ", userGroupId='" + userGroupId + '\'' +
+            ", memberId='" + memberId + '\'' +
+            ", name='" + name + '\'' +
+            ", department='" + department + '\'' +
+            '}';
+    }
 }

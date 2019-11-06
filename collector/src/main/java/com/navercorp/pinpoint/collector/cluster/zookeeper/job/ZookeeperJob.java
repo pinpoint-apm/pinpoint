@@ -18,19 +18,22 @@ package com.navercorp.pinpoint.collector.cluster.zookeeper.job;
 
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.Objects;
+
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public class ZookeeperJob {
 
     private final Type type;
     private final String key;
+
     public ZookeeperJob(Type type) {
         this(type, StringUtils.EMPTY);
     }
 
     public ZookeeperJob(Type type, String key) {
-        this.type = type;
+        this.type = Objects.requireNonNull(type, "type");
         this.key = key;
     }
 
@@ -46,6 +49,15 @@ public class ZookeeperJob {
         ADD,
         REMOVE,
         CLEAR
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("ZookeeperJob{");
+        sb.append("type=").append(type);
+        sb.append(", key='").append(key).append('\'');
+        sb.append('}');
+        return sb.toString();
     }
 
 }

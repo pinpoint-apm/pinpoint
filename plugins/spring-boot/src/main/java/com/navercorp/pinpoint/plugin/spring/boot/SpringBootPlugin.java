@@ -23,8 +23,12 @@ import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
+import com.navercorp.pinpoint.bootstrap.logging.PLogger;
+import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
+import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.plugin.spring.boot.interceptor.LauncherLaunchInterceptor;
 
 import java.security.ProtectionDomain;
 
@@ -33,12 +37,30 @@ import java.security.ProtectionDomain;
  */
 public class SpringBootPlugin implements ProfilerPlugin, TransformTemplateAware {
 
+    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
+
     private TransformTemplate transformTemplate;
 
     @Override
     public void setup(ProfilerPluginSetupContext context) {
-        context.addApplicationTypeDetector(new SpringBootDetector());
+        SpringBootConfiguration config = new SpringBootConfiguration(context.getConfig());
+        if (!config.isSpringBootEnabled()) {
+            logger.info("SpringBootPlugin disabled");
+            return;
+        }
+        logger.info("{} config:{}", this.getClass().getSimpleName(), config);
 
+        if (ServiceType.UNDEFINED.equals(context.getConfiguredApplicationType())) {
+            SpringBootDetector springBootDetector = new SpringBootDetector(config.getSpringBootBootstrapMains());
+            if (springBootDetector.detect()) {
+                logger.info("Detected application type : {}", SpringBootConstants.SERVICE_TYPE);
+                if (!context.registerApplicationType(SpringBootConstants.SERVICE_TYPE)) {
+                    logger.info("Application type [{}] already set, skipping [{}] registration.", context.getApplicationType(), SpringBootConstants.SERVICE_TYPE);
+                }
+            }
+        }
+
+        logger.info("Adding SpringBoot transformers");
         addLauncherEditor();
     }
 
@@ -48,22 +70,24 @@ public class SpringBootPlugin implements ProfilerPlugin, TransformTemplateAware 
     }
 
     private void addLauncherEditor() {
-        transformTemplate.transform("org.springframework.boot.loader.Launcher", new TransformCallback() {
+        transformTemplate.transform("org.springframework.boot.loader.Launcher", LauncherTransform.class);
+    }
 
-            @Override
-            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className,
-                                        Class<?> classBeingRedefined, ProtectionDomain protectionDomain,
-                                        byte[] classfileBuffer) throws InstrumentException {
+    public static class LauncherTransform implements TransformCallback {
 
-                InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
-                InstrumentMethod method = target.getDeclaredMethod("launch", "java.lang.String[]", "java.lang.String", "java.lang.ClassLoader");
-                if (method != null) {
-                    method.addInterceptor("com.navercorp.pinpoint.plugin.spring.boot.interceptor.LauncherLaunchInterceptor");
-                }
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className,
+                Class<?> classBeingRedefined, ProtectionDomain protectionDomain,
+        byte[] classfileBuffer) throws InstrumentException {
 
-                return target.toBytecode();
+            InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+            InstrumentMethod method = target.getDeclaredMethod("launch", "java.lang.String[]", "java.lang.String", "java.lang.ClassLoader");
+            if (method != null) {
+                method.addInterceptor(LauncherLaunchInterceptor.class);
             }
 
-        });
+            return target.toBytecode();
+        }
+
     }
 }

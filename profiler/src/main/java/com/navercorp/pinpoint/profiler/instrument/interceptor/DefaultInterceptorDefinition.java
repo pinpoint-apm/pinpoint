@@ -33,16 +33,16 @@ public class DefaultInterceptorDefinition implements InterceptorDefinition {
 
     public DefaultInterceptorDefinition(Class<? extends Interceptor> baseInterceptorClazz, Class<? extends Interceptor> interceptorClazz, InterceptorType interceptorType, CaptureType captureType, Method beforeMethod, Method afterMethod) {
         if (baseInterceptorClazz == null) {
-            throw new NullPointerException("baseInterceptorClazz must not be null");
+            throw new NullPointerException("baseInterceptorClazz");
         }
         if (interceptorClazz == null) {
-            throw new NullPointerException("interceptorClazz must not be null");
+            throw new NullPointerException("interceptorClazz");
         }
         if (interceptorType == null) {
-            throw new NullPointerException("interceptorType must not be null");
+            throw new NullPointerException("interceptorType");
         }
         if (captureType == null) {
-            throw new NullPointerException("captureType must not be null");
+            throw new NullPointerException("captureType");
         }
         this.baseInterceptorClazz = baseInterceptorClazz;
         this.interceptorClazz = interceptorClazz;

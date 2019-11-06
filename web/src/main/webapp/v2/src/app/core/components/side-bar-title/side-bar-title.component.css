@@ -1,0 +1,45 @@
+:host {
+    width: 100%;
+}
+
+.l-wrapper {
+    width: 100%;
+    display:flex;
+    flex-wrap: nowrap;
+    flex-flow: row;
+    align-items: center;
+    justify-content: space-between;
+}
+.l-title {
+    display: block;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+.l-title span {
+    display: block;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+.l-select-agent {
+    width: 150px;
+    font-size: 12px;
+}
+.l-wrapper-grid {
+    display: grid;
+    grid-template-columns: 48% 4% 48%;
+    grid-template-rows: auto;
+}
+
+.l-wrapper .l-title, .l-wrapper-grid .l-title {
+    font-size: 16px;
+    font-weight: 600;
+    padding: 0px;
+}
+.l-wrapper .l-title img, .l-wrapper-grid .l-title img {
+    float: left;
+}
+.l-wrapper .l-title span, .l-wrapper-grid .l-title span {
+    padding-left: 8px;
+}

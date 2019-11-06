@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.rpc.server.handler;
 
-import com.navercorp.pinpoint.rpc.packet.PingPacket;
+import com.navercorp.pinpoint.rpc.packet.PingPayloadPacket;
 import com.navercorp.pinpoint.rpc.server.PinpointServer;
 
 /**
@@ -24,5 +24,10 @@ import com.navercorp.pinpoint.rpc.server.PinpointServer;
  */
 public interface PingHandler {
 
-    void handlePing(PingPacket pingPacket, PinpointServer pinpointServer); 
+    /**
+     * PingPackets with status value is handled.
+     * Method is not called. For a PingPacket without status value, (Pong to the remote channel in the previous step.)
+     */
+    void handlePing(PingPayloadPacket pingPacket, PinpointServer pinpointServer);
+
 }

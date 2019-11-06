@@ -1,0 +1,31 @@
+li {
+    color: #333;
+    /* height: 28px; */
+    margin: 0;
+    cursor: pointer;
+    padding: 6px 17px;
+    font-size: 13px;    
+}
+li:hover {
+    background:#fff0f0;
+}
+li.selected {
+    background:#fff0f0;
+}
+.item-wrapper {
+    display: block;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+.item-wrapper > div {
+    float: right;
+}
+.item-wrapper .fa-trash-alt {
+    color: #b3b6bf;
+    font-size: 14px;
+}
+.item-wrapper .fa-check {
+    color: #F00;
+    margin-left: 10px;
+}

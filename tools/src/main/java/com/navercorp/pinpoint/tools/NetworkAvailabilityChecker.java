@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.tools;
 
+import com.navercorp.pinpoint.bootstrap.config.ThriftTransportConfig;
 import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializer;
@@ -56,26 +57,27 @@ public class NetworkAvailabilityChecker {
             return;
         }
 
+        ThriftTransportConfig thriftTransportConfig = profilerConfig.getThriftTransportConfig();
         try {
-            checkUDPStat(profilerConfig);
+            checkUDPStat(thriftTransportConfig);
         } catch (Exception e) {
             e.printStackTrace();
         }
 
         try {
-            checkUDPSpan(profilerConfig);
+            checkUDPSpan(thriftTransportConfig);
         } catch (Exception e) {
             e.printStackTrace();
         }
 
         try {
-            checkTCP(profilerConfig);
+            checkTCP(thriftTransportConfig);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    private static void checkUDPStat(ProfilerConfig profilerConfig) throws Exception {
+    private static void checkUDPStat(ThriftTransportConfig profilerConfig) throws Exception {
         String ip = profilerConfig.getCollectorStatServerIp();
         int port = profilerConfig.getCollectorStatServerPort();
 
@@ -84,7 +86,7 @@ public class NetworkAvailabilityChecker {
     }
 
 
-    private static void checkUDPSpan(ProfilerConfig profilerConfig) throws Exception {
+    private static void checkUDPSpan(ThriftTransportConfig profilerConfig) throws Exception {
         String ip = profilerConfig.getCollectorSpanServerIp();
         int port = profilerConfig.getCollectorSpanServerPort();
 
@@ -92,7 +94,7 @@ public class NetworkAvailabilityChecker {
         checker.check(getNetworkCheckPayload(), getNetworkCheckResponsePayload());
     }
 
-    private static void checkTCP(ProfilerConfig profilerConfig) throws Exception {
+    private static void checkTCP(ThriftTransportConfig profilerConfig) throws Exception {
         String ip = profilerConfig.getCollectorTcpServerIp();
         int port = profilerConfig.getCollectorTcpServerPort();
 

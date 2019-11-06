@@ -16,8 +16,6 @@
 
 package com.navercorp.pinpoint.plugin.thrift.interceptor.tprotocol.server;
 
-import static com.navercorp.pinpoint.plugin.thrift.ThriftScope.*;
-
 import java.net.Socket;
 
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
@@ -31,9 +29,6 @@ import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Scope;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Name;
-import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScopeInvocation;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
@@ -70,7 +65,6 @@ import com.navercorp.pinpoint.plugin.thrift.field.accessor.SocketFieldAccessor;
  * @see com.navercorp.pinpoint.plugin.thrift.interceptor.tprotocol.server.TProtocolReadFieldBeginInterceptor TProtocolReadFieldBeginInterceptor
  * @see com.navercorp.pinpoint.plugin.thrift.interceptor.tprotocol.server.TProtocolReadTTypeInterceptor TProtocolReadTTypeInterceptor
  */
-@Scope(value = THRIFT_SERVER_SCOPE, executionPolicy = ExecutionPolicy.INTERNAL)
 public class TProtocolReadMessageEndInterceptor implements AroundInterceptor {
 
     private final ThriftServerEntryMethodDescriptor thriftServerEntryMethodDescriptor = new ThriftServerEntryMethodDescriptor();
@@ -81,7 +75,7 @@ public class TProtocolReadMessageEndInterceptor implements AroundInterceptor {
     private final TraceContext traceContext;
     private final InterceptorScope scope;
 
-    public TProtocolReadMessageEndInterceptor(TraceContext traceContext, @Name(THRIFT_SERVER_SCOPE) InterceptorScope scope) {
+    public TProtocolReadMessageEndInterceptor(TraceContext traceContext, InterceptorScope scope) {
         this.traceContext = traceContext;
         this.scope = scope;
         this.traceContext.cacheApi(this.thriftServerEntryMethodDescriptor);
@@ -105,12 +99,9 @@ public class TProtocolReadMessageEndInterceptor implements AroundInterceptor {
             InterceptorScopeInvocation currentTransaction = this.scope.getCurrentInvocation();
             Object attachment = currentTransaction.getAttachment();
             if (attachment instanceof ThriftClientCallContext) {
-                ThriftClientCallContext clientCallContext = (ThriftClientCallContext)attachment;
-                String methodName = clientCallContext.getMethodName();
-                ThriftRequestProperty parentTraceInfo = clientCallContext.getTraceHeader();
+                ThriftClientCallContext clientCallContext = (ThriftClientCallContext) attachment;
                 try {
-                    this.logger.debug("parentTraceInfo : {}", parentTraceInfo);
-                    recordTrace(target, parentTraceInfo, methodName);
+                    recordTrace(target, clientCallContext);
                 } catch (Throwable t) {
                     logger.warn("Error creating trace object. Cause:{}", t.getMessage(), t);
                 }
@@ -138,8 +129,17 @@ public class TProtocolReadMessageEndInterceptor implements AroundInterceptor {
         return true;
     }
 
-    private void recordTrace(Object target, ThriftRequestProperty parentTraceInfo, String methodName) {
-        final Trace trace = createTrace(target, parentTraceInfo, methodName);
+    private void recordTrace(Object target, ThriftClientCallContext clientCallContext) {
+        String methodName = clientCallContext.getMethodName();
+        // Check if there is an active trace first for cases such as TServlet, which one of the WAS plugins would
+        // have created one already.
+        Trace trace = traceContext.currentRawTraceObject();
+        if (trace == null) {
+            ThriftRequestProperty parentTraceInfo = clientCallContext.getTraceHeader();
+            this.logger.debug("parentTraceInfo : {}", parentTraceInfo);
+            trace = createTrace(target, parentTraceInfo, methodName);
+            clientCallContext.setEntryPoint(true);
+        }
         if (trace == null) {
             return;
         }
@@ -256,10 +256,10 @@ public class TProtocolReadMessageEndInterceptor implements AroundInterceptor {
         // retrieve connection information
         String localIpPort = ThriftConstants.UNKNOWN_ADDRESS;
         String remoteAddress = ThriftConstants.UNKNOWN_ADDRESS;
-        Socket socket = ((SocketFieldAccessor)transport)._$PINPOINT$_getSocket();
+        Socket socket = ((SocketFieldAccessor) transport)._$PINPOINT$_getSocket();
         if (socket != null) {
-            localIpPort = ThriftUtils.getHostPort(socket.getLocalSocketAddress());
-            remoteAddress = ThriftUtils.getHost(socket.getRemoteSocketAddress());
+            localIpPort = ThriftUtils.getIpPort(socket.getLocalSocketAddress());
+            remoteAddress = ThriftUtils.getIp(socket.getRemoteSocketAddress());
         }
         if (localIpPort != ThriftConstants.UNKNOWN_ADDRESS) {
             recorder.recordEndPoint(localIpPort);

@@ -1,0 +1,55 @@
+.l-sourcelist-wrapper {
+    background-color: #fff;
+    font-size: 12px;
+    padding: 10px;
+}
+.l-sourcelist-title {
+    background-color: #f6f8fb;
+    border-top: 1px solid #ddd;
+    border-left: 1px solid #ddd;
+    border-right: 1px solid #ddd;
+    padding: 10px;
+}
+.l-source-data-list {
+    border: 1px solid #ddd;
+}
+.l-source-data-list-item {
+    cursor: pointer;
+    color: #ddd;
+    display: flex;
+    align-items: center;
+}
+.l-source-data-list-item:hover {
+    background-color: #ddd;
+    color: #fff;
+}
+.l-selected-item {
+    color: #000;
+    font-weight: 600;
+}
+.l-selected-item:hover {
+    background-color: #fff;
+    color: #000;
+}
+.l-source-data-list-item .fas {
+    width: 7%;
+    text-align: center;
+}
+.l-source-data-wrapper {
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    border-left: 1px solid #ddd;
+    padding: 7px 0 7px 7px;
+    width: 93%;
+}
+.l-service-type-wrapper {
+    display: inline-block;
+    width: 10%;
+    overflow-wrap: break-word;
+}
+.l-jdbc-url-wrapper {
+    display: inline-block;
+    width: 85%;
+    overflow-wrap: break-word;
+}

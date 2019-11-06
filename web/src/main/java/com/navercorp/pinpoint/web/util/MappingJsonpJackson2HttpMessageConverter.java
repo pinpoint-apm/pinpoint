@@ -29,6 +29,7 @@ import org.springframework.http.HttpOutputMessage;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageNotWritableException;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.util.StringUtils;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
@@ -60,7 +61,7 @@ public class MappingJsonpJackson2HttpMessageConverter extends MappingJackson2Htt
         try {
             String callbackParam = getRequestParam(DEFAULT_CALLBACK_PARAMETER);
 
-            if (callbackParam == null || "".equals(callbackParam)) {
+            if (StringUtils.isEmpty(callbackParam)) {
                 callbackParam = DEFAULT_CALLBACK_PARAMETER;
             }
 

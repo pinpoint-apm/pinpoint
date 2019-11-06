@@ -20,6 +20,7 @@ import java.util.List;
 
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
+import org.apache.commons.collections.CollectionUtils;
 
 /**
  * @author emeroad
@@ -29,7 +30,7 @@ public final class AnnotationUtils {
     }
 
     public static String findApiAnnotation(List<AnnotationBo> list) {
-        if (list == null) {
+        if (CollectionUtils.isEmpty(list)) {
             return null;
         }
         AnnotationBo annotationBo = findAnnotationBo(list, AnnotationKey.API);
@@ -40,7 +41,7 @@ public final class AnnotationUtils {
     }
     
     public static String findApiTagAnnotation(List<AnnotationBo> list) {
-        if (list == null) {
+        if (CollectionUtils.isEmpty(list)) {
             return null;
         }
         AnnotationBo annotationBo = findAnnotationBo(list, AnnotationKey.API_TAG);

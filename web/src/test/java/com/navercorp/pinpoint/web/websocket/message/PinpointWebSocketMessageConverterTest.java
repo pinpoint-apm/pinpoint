@@ -1,20 +1,17 @@
 /*
+ * Copyright 2017 NAVER Corp.
  *
- *  * Copyright 2014 NAVER Corp.
- *  *
- *  * Licensed under the Apache License, Version 2.0 (the "License");
- *  * you may not use this file except in compliance with the License.
- *  * You may obtain a copy of the License at
- *  *
- *  *     http://www.apache.org/licenses/LICENSE-2.0
- *  *
- *  * Unless required by applicable law or agreed to in writing, software
- *  * distributed under the License is distributed on an "AS IS" BASIS,
- *  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  * See the License for the specific language governing permissions and
- *  * limitations under the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package com.navercorp.pinpoint.web.websocket.message;
@@ -26,11 +23,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public class PinpointWebSocketMessageConverterTest {
 
-    PinpointWebSocketMessageConverter messageConverter = new PinpointWebSocketMessageConverter();
+    private PinpointWebSocketMessageConverter messageConverter = new PinpointWebSocketMessageConverter();
 
     @Test
     public void requestMessageTest() throws Exception {
@@ -47,7 +44,7 @@ public class PinpointWebSocketMessageConverterTest {
 
         Assert.assertEquals(PinpointWebSocketMessageType.REQUEST, requestMessage.getType());
         Assert.assertEquals(command, requestMessage.getCommand());
-        Assert.assertEquals(parameters, requestMessage.getParams());
+        Assert.assertEquals(parameters, requestMessage.getParameters());
     }
 
     @Test
@@ -83,7 +80,7 @@ public class PinpointWebSocketMessageConverterTest {
 
         Assert.assertEquals(PinpointWebSocketMessageType.SEND, sendMessage.getType());
         Assert.assertEquals(command, sendMessage.getCommand());
-        Assert.assertEquals(parameters, sendMessage.getParams());
+        Assert.assertEquals(parameters, sendMessage.getParameters());
     }
 
     @Test
@@ -106,5 +103,18 @@ public class PinpointWebSocketMessageConverterTest {
         Assert.assertTrue(webSocketMessage instanceof PongMessage);
         Assert.assertEquals(PinpointWebSocketMessageType.PONG, webSocketMessage.getType());
     }
+
+    @Test
+    public void UnknownMessageTest() throws Exception {
+        PinpointWebSocketMessage emptyString = messageConverter.getWebSocketMessage("");
+        Assert.assertSame(emptyString.getClass(), UnknownMessage.class);
+
+        PinpointWebSocketMessage nullValue = messageConverter.getWebSocketMessage(null);
+        Assert.assertSame(nullValue.getClass(), UnknownMessage.class);
+
+        PinpointWebSocketMessage emptyObject = messageConverter.getWebSocketMessage("{}");
+        Assert.assertSame(emptyObject.getClass(), UnknownMessage.class);
+    }
+
 
 }

@@ -16,13 +16,9 @@
 
 package com.navercorp.pinpoint.plugin.activemq.client;
 
+import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
 import com.navercorp.pinpoint.bootstrap.config.Filter;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
-import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
-import com.navercorp.pinpoint.bootstrap.instrument.MethodFilter;
-import com.navercorp.pinpoint.bootstrap.instrument.MethodFilters;
+import com.navercorp.pinpoint.bootstrap.instrument.*;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
@@ -30,6 +26,14 @@ import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
+import com.navercorp.pinpoint.plugin.activemq.client.field.getter.ActiveMQSessionGetter;
+import com.navercorp.pinpoint.plugin.activemq.client.field.getter.SocketGetter;
+import com.navercorp.pinpoint.plugin.activemq.client.field.getter.TransportGetter;
+import com.navercorp.pinpoint.plugin.activemq.client.field.getter.URIGetter;
+import com.navercorp.pinpoint.plugin.activemq.client.interceptor.ActiveMQMessageConsumerCreateActiveMQMessageInterceptor;
+import com.navercorp.pinpoint.plugin.activemq.client.interceptor.ActiveMQMessageConsumerDispatchInterceptor;
+import com.navercorp.pinpoint.plugin.activemq.client.interceptor.ActiveMQMessageConsumerReceiveInterceptor;
+import com.navercorp.pinpoint.plugin.activemq.client.interceptor.ActiveMQMessageProducerSendInterceptor;
 
 import java.security.ProtectionDomain;
 
@@ -48,126 +52,160 @@ public class ActiveMQClientPlugin implements ProfilerPlugin, TransformTemplateAw
     public void setup(ProfilerPluginSetupContext context) {
         ActiveMQClientPluginConfig config = new ActiveMQClientPluginConfig(context.getConfig());
         if (!config.isTraceActiveMQClient()) {
+            logger.info("{} disabled", this.getClass().getSimpleName());
             return;
         }
+        logger.info("{} config:{}", this.getClass().getSimpleName(), config);
+
         if (config.isTraceActiveMQClientConsumer() || config.isTraceActiveMQClientProducer()) {
             this.addTransportEditor();
             this.addConnectionEditor();
-            this.addMessageDispatchChannelEditor();
-            Filter<String> excludeDestinationFilter = config.getExcludeDestinationFilter();
+//            this.addMessageDispatchChannelEditor();
             if (config.isTraceActiveMQClientProducer()) {
-                this.addProducerEditor(excludeDestinationFilter);
+                this.addProducerEditor();
             }
             if (config.isTraceActiveMQClientConsumer()) {
-                this.addConsumerEditor(excludeDestinationFilter);
+                this.addConsumerEditor();
             }
         }
     }
 
     private void addTransportEditor() {
-        transformTemplate.transform(ActiveMQClientConstants.ACTIVEMQ_TCP_TRANSPORT_FQCN, new TransformCallback() {
-            @Override
-            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
-                target.addGetter(ActiveMQClientConstants.FIELD_GETTER_SOCKET, ActiveMQClientConstants.FIELD_TCP_TRANSPORT_SOCKET);
+        transformTemplate.transform("org.apache.activemq.transport.failover.FailoverTransport", FailoverTransportTransform.class);
 
-                return target.toBytecode();
-            }
-        });
+        transformTemplate.transform("org.apache.activemq.transport.tcp.TcpTransport", TcpTransportTransform.class);
+    }
+
+    public static class FailoverTransportTransform implements TransformCallback {
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+
+            target.addGetter(URIGetter.class, "connectedTransportURI");
+
+            return target.toBytecode();
+        }
+    }
+
+    public static class TcpTransportTransform implements TransformCallback {
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+
+            target.addGetter(SocketGetter.class, "socket");
+
+            return target.toBytecode();
+        }
     }
 
     // ActiveMQConnection.getTransport() method has been made public in version 5.1.0.
     // Inject transport field getter to cover for prior versions.
     private void addConnectionEditor() {
-        transformTemplate.transform(ActiveMQClientConstants.ACTIVEMQ_CONNECTION_FQCN, new TransformCallback() {
-            @Override
-            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
-
-                target.addGetter(ActiveMQClientConstants.FIELD_GETTER_TRANSPORT, ActiveMQClientConstants.FIELD_ACTIVEMQ_CONNECTION_TRANSPORT);
-
-                return target.toBytecode();
-            }
-        });
+        transformTemplate.transform("org.apache.activemq.ActiveMQConnection", ActiveMQConnectionTransform.class);
     }
 
-    private void addMessageDispatchChannelEditor() {
-        TransformCallback messageDispatchChannelTransformer = new TransformCallback() {
-            @Override
-            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+    public static class ActiveMQConnectionTransform implements TransformCallback {
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
-                // MessageDispatchChannel is an interface (5.4.0+)
-                if (!target.isInterceptable()) {
-                    return null;
-                }
+            target.addGetter(TransportGetter.class, "transport");
 
-                final InstrumentMethod enqueue = target.getDeclaredMethod("enqueue", "org.apache.activemq.command.MessageDispatch");
-                if (enqueue != null) {
-                    enqueue.addInterceptor(ActiveMQClientConstants.ACTIVEMQ_MESSAGE_DISPATCH_CHANNEL_ENQUEUE_INTERCEPTOR_FQCN);
-                }
-                final InstrumentMethod dequeue = target.getDeclaredMethod("dequeue", "long");
-                if (dequeue != null) {
-                    dequeue.addInterceptor(ActiveMQClientConstants.ACTIVEMQ_MESSAGE_DISPATCH_CHANNEL_DEQUEUE_INTERCEPTOR_FQCN);
-                }
-
-                return target.toBytecode();
-            }
-        };
-        transformTemplate.transform(ActiveMQClientConstants.ACTIVEMQ_MESSAGE_DISPATCH_CHANNEL_FQCN, messageDispatchChannelTransformer);
-        transformTemplate.transform(ActiveMQClientConstants.ACTIVEMQ_MESSAGE_DISPATCH_CHANNEL_FIFO_FQCN, messageDispatchChannelTransformer);
-        transformTemplate.transform(ActiveMQClientConstants.ACTIVEMQ_MESSAGE_DISPATCH_CHANNEL_SIMPLE_PRIORITY_FQCN, messageDispatchChannelTransformer);
+            return target.toBytecode();
+        }
     }
 
-    private void addProducerEditor(final Filter<String> excludeDestinationFilter) {
-        final MethodFilter methodFilter = MethodFilters.chain(
-                MethodFilters.name("send"),
-                MethodFilters.argAt(0, "javax.jms.Destination"),
-                MethodFilters.argAt(1, "javax.jms.Message")
-        );
-        transformTemplate.transform(ActiveMQClientConstants.ACTIVEMQ_MESSAGE_PRODUCER_FQCN, new TransformCallback() {
+    private void addProducerEditor() {
 
-            @Override
-            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+        transformTemplate.transform("org.apache.activemq.ActiveMQMessageProducer", ActiveMQMessageProducerTransform.class);
+    }
 
-                target.addGetter(ActiveMQClientConstants.FIELD_GETTER_ACTIVEMQ_SESSION, ActiveMQClientConstants.FIELD_ACTIVEMQ_MESSAGE_PRODUCER_SESSION);
+    public static class ActiveMQMessageProducerTransform implements TransformCallback {
 
-                for (InstrumentMethod method : target.getDeclaredMethods(methodFilter)) {
-                    try {
-                        method.addInterceptor(ActiveMQClientConstants.ACTIVEMQ_MESSAGE_PRODUCER_SEND_INTERCEPTOR_FQCN, va(excludeDestinationFilter));
-                    } catch (Exception e) {
-                        if (logger.isWarnEnabled()) {
-                            logger.warn("Unsupported method " + method, e);
-                        }
+        private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
+
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+
+            ActiveMQClientPluginConfig config = new ActiveMQClientPluginConfig(instrumentor.getProfilerConfig());
+            Filter<String> excludeDestinationFilter = config.getExcludeDestinationFilter();
+
+            target.addGetter(ActiveMQSessionGetter.class, "session");
+            final MethodFilter methodFilter = MethodFilters.chain(
+                    MethodFilters.name("send"),
+                    MethodFilters.argAt(0, "javax.jms.Destination"),
+                    MethodFilters.argAt(1, "javax.jms.Message")
+            );
+
+            for (InstrumentMethod method : target.getDeclaredMethods(methodFilter)) {
+                try {
+                    method.addScopedInterceptor(ActiveMQMessageProducerSendInterceptor.class, va(excludeDestinationFilter), ActiveMQClientConstants.ACTIVEMQ_CLIENT_SCOPE);
+                } catch (Exception e) {
+                    if (logger.isWarnEnabled()) {
+                        logger.warn("Unsupported method " + method, e);
                     }
                 }
-
-                return target.toBytecode();
             }
-        });
+
+            return target.toBytecode();
+        }
     }
 
-    private void addConsumerEditor(final Filter<String> excludeDestinationFilter) {
-        transformTemplate.transform(ActiveMQClientConstants.ACTIVEMQ_MESSAGE_CONSUMER_FQCN, new TransformCallback() {
+    private void addConsumerEditor() {
+        transformTemplate.transform("org.apache.activemq.ActiveMQMessageConsumer", ActiveMQMessageConsumerTransform.class);
 
-            @Override
-            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+        transformTemplate.transform("org.apache.activemq.command.MessageDispatch", AddAsyncContextAccessorTransform.class);
 
-                target.addGetter(ActiveMQClientConstants.FIELD_GETTER_ACTIVEMQ_SESSION, ActiveMQClientConstants.FIELD_ACTIVEMQ_MESSAGE_CONSUMER_SESSION);
+        transformTemplate.transform("org.apache.activemq.command.ActiveMQMessage", AddAsyncContextAccessorTransform.class);
+    }
 
-                final InstrumentMethod dispatchMethod = target.getDeclaredMethod("dispatch", "org.apache.activemq.command.MessageDispatch");
-                if (dispatchMethod != null) {
-                    dispatchMethod.addInterceptor(ActiveMQClientConstants.ACTIVEMQ_MESSAGE_CONSUMER_DISPATCH_INTERCEPTOR_FQCN, va(excludeDestinationFilter));
-                }
+    public static class ActiveMQMessageConsumerTransform implements TransformCallback {
 
-                target.addInterceptor(ActiveMQClientConstants.ACTIVEMQ_MESSAGE_CONSUMER_RECEIVE_INTERCEPTOR_FQCN);
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+            ActiveMQClientPluginConfig config = new ActiveMQClientPluginConfig(instrumentor.getProfilerConfig());
+            Filter<String> excludeDestinationFilter = config.getExcludeDestinationFilter();
+            boolean traceActiveMQTextMessage = config.isTraceActiveMQTextMessage();
 
-                return target.toBytecode();
+            target.addGetter(ActiveMQSessionGetter.class, "session");
+
+            final InstrumentMethod dispatchMethod = target.getDeclaredMethod("dispatch", "org.apache.activemq.command.MessageDispatch");
+            if (dispatchMethod != null) {
+                dispatchMethod.addScopedInterceptor(ActiveMQMessageConsumerDispatchInterceptor.class, va(excludeDestinationFilter), ActiveMQClientConstants.ACTIVEMQ_CLIENT_SCOPE);
             }
-        });
+
+            InstrumentMethod receive = target.getDeclaredMethod("receive");
+            if (receive != null) {
+                receive.addScopedInterceptor(ActiveMQMessageConsumerReceiveInterceptor.class, va(traceActiveMQTextMessage), ActiveMQClientConstants.ACTIVEMQ_CLIENT_SCOPE);
+            }
+            InstrumentMethod receiveWithParam = target.getDeclaredMethod("receive", "long");
+            if (receiveWithParam != null) {
+                receiveWithParam.addScopedInterceptor(ActiveMQMessageConsumerReceiveInterceptor.class, va(traceActiveMQTextMessage), ActiveMQClientConstants.ACTIVEMQ_CLIENT_SCOPE);
+            }
+            InstrumentMethod receiveNoWait = target.getDeclaredMethod("receiveNoWait");
+            if (receiveNoWait != null) {
+                receiveNoWait.addScopedInterceptor(ActiveMQMessageConsumerReceiveInterceptor.class, va(traceActiveMQTextMessage), ActiveMQClientConstants.ACTIVEMQ_CLIENT_SCOPE);
+            }
+
+            InstrumentMethod createActiveMQMessage = target.getDeclaredMethod("createActiveMQMessage", "org.apache.activemq.command.MessageDispatch");
+            if (createActiveMQMessage != null) {
+                createActiveMQMessage.addInterceptor(ActiveMQMessageConsumerCreateActiveMQMessageInterceptor.class);
+            }
+
+            return target.toBytecode();
+        }
+    }
+
+    public static class AddAsyncContextAccessorTransform implements TransformCallback {
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+            target.addField(AsyncContextAccessor.class);
+            return target.toBytecode();
+        }
     }
 
     @Override

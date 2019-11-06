@@ -28,7 +28,7 @@ public class PluginPackageFilter implements ClassNameFilter {
 
     public PluginPackageFilter(List<String> packageList) {
         if (packageList == null) {
-            throw new NullPointerException("packageList must not be null");
+            throw new NullPointerException("packageList");
         }
         this.packageList = new ArrayList<String>(packageList);
     }
@@ -43,4 +43,10 @@ public class PluginPackageFilter implements ClassNameFilter {
         return REJECT;
     }
 
+    @Override
+    public String toString() {
+        return "PluginPackageFilter{" +
+                "packageList=" + packageList +
+                '}';
+    }
 }

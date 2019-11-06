@@ -1,0 +1,13 @@
+<div class="l-title-group">
+    <dl>
+        <dt>{{data.title}}</dt>
+    </dl>
+    <button (click)="onClose()"></button>
+</div>
+<div class="l-contents-group">
+    <dl class="l-list">
+        <dt></dt>
+        <dd [innerHTML]="data.contents | safeHtml">
+        </dd>
+    </dl>
+</div>

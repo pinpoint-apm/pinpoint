@@ -16,19 +16,10 @@
 
 package com.navercorp.pinpoint.profiler.plugin;
 
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClassPool;
-import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.navercorp.pinpoint.common.util.Assert;
 
-import java.io.File;
-import java.io.IOException;
-import java.lang.instrument.Instrumentation;
-import java.net.URI;
-import java.net.URISyntaxException;
+
 import java.net.URL;
-import java.util.Collections;
-import java.util.List;
 import java.util.jar.JarFile;
 
 /**
@@ -36,89 +27,50 @@ import java.util.jar.JarFile;
  */
 public class PluginConfig {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
-    public static final String PINPOINT_PLUGIN_PACKAGE = "Pinpoint-Plugin-Package";
-    public static final List<String> DEFAULT_PINPOINT_PLUGIN_PACKAGE_NAME = Collections.singletonList("com.navercorp.pinpoint.plugin");
-
-    private final URL pluginJar;
-    private final JarFile pluginJarFile;
-    private String pluginJarURLExternalForm;
-
-    private final ProfilerPlugin plugin;
-
-    private final Instrumentation instrumentation;
-    private final InstrumentClassPool classPool;
-    private final String bootstrapCoreJarPath;
-
+    private final Plugin<?> plugin;
+    private final JarFile pluginJar;
     private final ClassNameFilter pluginPackageFilter;
 
-    public PluginConfig(URL pluginJar, ProfilerPlugin plugin, Instrumentation instrumentation, InstrumentClassPool classPool, String bootstrapCoreJarPath, ClassNameFilter pluginPackageFilter) {
-        if (pluginJar == null) {
-            throw new NullPointerException("pluginJar must not be null");
-        }
-        if (plugin == null) {
-            throw new NullPointerException("plugin must not be null");
-        }
-        this.pluginJar = pluginJar;
-        this.pluginJarFile = createJarFile(pluginJar);
-        this.plugin = plugin;
+    private String pluginJarURLExternalForm;
 
-        this.instrumentation = instrumentation;
-        this.classPool = classPool;
-        this.bootstrapCoreJarPath = bootstrapCoreJarPath;
-
+    public PluginConfig(Plugin<?> plugin, ClassNameFilter pluginPackageFilter) {
+        this.plugin = Assert.requireNonNull(plugin, "plugin");
         this.pluginPackageFilter = pluginPackageFilter;
+        this.pluginJar = getJarFile(plugin);
     }
 
-
-
-
-    public ProfilerPlugin getPlugin() {
-        return plugin;
+    private JarFile getJarFile(Plugin<?> plugin) {
+        if (plugin instanceof JarPlugin) {
+            return ((JarPlugin) plugin).getJarFile();
+        }
+        throw new IllegalArgumentException("unsupported plugin " + plugin);
     }
 
-    public URL getPluginJar() {
-        return pluginJar;
+    public URL getPluginUrl() {
+        return plugin.getURL();
     }
 
     public JarFile getPluginJarFile() {
-        return pluginJarFile;
+        return pluginJar;
     }
 
     public String getPluginJarURLExternalForm() {
         if (this.pluginJarURLExternalForm == null) {
-            this.pluginJarURLExternalForm = pluginJar.toExternalForm();
+            this.pluginJarURLExternalForm = plugin.getURL().toExternalForm();
         }
         return this.pluginJarURLExternalForm;
-    }
-
-    private JarFile createJarFile(URL pluginJar) {
-        try {
-            final URI uri = pluginJar.toURI();
-            return new JarFile(new File(uri));
-        } catch (URISyntaxException e) {
-            throw new RuntimeException("URISyntax error. " + e.getCause(), e);
-        } catch (IOException e) {
-            throw new RuntimeException("IO error. " + e.getCause(), e);
-        }
-    }
-
-    public Instrumentation getInstrumentation() {
-        return instrumentation;
-    }
-
-    public InstrumentClassPool getClassPool() {
-        return classPool;
-    }
-
-    public String getBootstrapCoreJarPath() {
-        return bootstrapCoreJarPath;
     }
 
     public ClassNameFilter getPluginPackageFilter() {
         return pluginPackageFilter;
     }
 
-
+    @Override
+    public String toString() {
+        return "PluginConfig{" +
+                "pluginJar=" + plugin.getURL() +
+                ", pluginJarURLExternalForm='" + pluginJarURLExternalForm + '\'' +
+                ", pluginPackageFilter=" + pluginPackageFilter +
+                '}';
+    }
 }

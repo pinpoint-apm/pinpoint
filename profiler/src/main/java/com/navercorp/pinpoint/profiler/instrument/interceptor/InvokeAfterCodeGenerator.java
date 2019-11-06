@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2014 NAVER Corp.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,9 @@ package com.navercorp.pinpoint.profiler.instrument.interceptor;
 
 import java.lang.reflect.Method;
 
-import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
+import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
 
 /**
  * @author Jongho Moon
@@ -34,8 +34,8 @@ public class InvokeAfterCodeGenerator extends InvokeCodeGenerator {
     private final boolean localVarsInitialized;
     private final boolean catchClause;
 
-    public InvokeAfterCodeGenerator(int interceptorId, InterceptorDefinition interceptorDefinition, InstrumentClass targetClass, InstrumentMethod targetMethod, TraceContext traceContext, boolean localVarsInitialized, boolean catchClause) {
-        super(interceptorId, interceptorDefinition, targetMethod, traceContext);
+    public InvokeAfterCodeGenerator(int interceptorId, InterceptorDefinition interceptorDefinition, InstrumentClass targetClass, InstrumentMethod targetMethod, ApiMetaDataService apiMetaDataService, boolean localVarsInitialized, boolean catchClause) {
+        super(interceptorId, interceptorDefinition, targetMethod, apiMetaDataService);
         this.interceptorDefinition = interceptorDefinition;
         this.interceptorId = interceptorId;
         this.targetClass = targetClass;
@@ -56,8 +56,6 @@ public class InvokeAfterCodeGenerator extends InvokeCodeGenerator {
         //
         // throw e;
 
-        builder.append("try { ");
-
         if (!localVarsInitialized) {
             builder.format("%1$s = %2$s.getInterceptor(%3$d); ", getInterceptorVar(), getInterceptorRegistryClassName(), interceptorId);
         }
@@ -67,8 +65,6 @@ public class InvokeAfterCodeGenerator extends InvokeCodeGenerator {
             appendArguments(builder);
             builder.format(");");
         }
-
-        builder.format("} catch (java.lang.Throwable _$PINPOINT_EXCEPTION$_) { %1$s.handleException(_$PINPOINT_EXCEPTION$_); }", getInterceptorInvokerHelperClassName());
 
         if (catchClause) {
             builder.append(" throw $e;");

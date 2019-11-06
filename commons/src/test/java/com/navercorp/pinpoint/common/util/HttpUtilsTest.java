@@ -16,11 +16,11 @@
 
 package com.navercorp.pinpoint.common.util;
 
+import com.navercorp.pinpoint.common.Charsets;
 import org.junit.Assert;
 
 import org.junit.Test;
 
-import com.navercorp.pinpoint.common.util.HttpUtils;
 
 public class HttpUtilsTest {
     @Test
@@ -28,7 +28,7 @@ public class HttpUtilsTest {
         String test = "text/plain; charset=UTF-8";
 
         String charset = HttpUtils.parseContentTypeCharset(test);
-        Assert.assertEquals("UTF-8", charset);
+        Assert.assertEquals(Charsets.UTF_8.name(), charset);
     }
 
     @Test
@@ -36,7 +36,7 @@ public class HttpUtilsTest {
         String test = "text/plain; charset=UTF-8;";
 
         String charset = HttpUtils.parseContentTypeCharset(test);
-        Assert.assertEquals("UTF-8", charset);
+        Assert.assertEquals(Charsets.UTF_8.name(), charset);
     }
 
     @Test
@@ -44,7 +44,7 @@ public class HttpUtilsTest {
         String test = "text/plain; charset=UTF-8; test=a";
 
         String charset = HttpUtils.parseContentTypeCharset(test);
-        Assert.assertEquals("UTF-8", charset);
+        Assert.assertEquals(Charsets.UTF_8.name(), charset);
     }
 
     @Test
@@ -52,7 +52,7 @@ public class HttpUtilsTest {
         String test = "text/plain; charset= UTF-8 ; test=a";
 
         String charset = HttpUtils.parseContentTypeCharset(test);
-        Assert.assertEquals("UTF-8", charset);
+        Assert.assertEquals(Charsets.UTF_8.name(), charset);
     }
 
 }

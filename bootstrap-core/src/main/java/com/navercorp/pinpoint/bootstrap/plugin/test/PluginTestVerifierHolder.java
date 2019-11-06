@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2014 NAVER Corp.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ package com.navercorp.pinpoint.bootstrap.plugin.test;
  *
  */
 public class PluginTestVerifierHolder {
-    private static PluginTestVerifier instance;
+    private static volatile PluginTestVerifier instance;
     
     public static PluginTestVerifier getInstance() {
         return instance;

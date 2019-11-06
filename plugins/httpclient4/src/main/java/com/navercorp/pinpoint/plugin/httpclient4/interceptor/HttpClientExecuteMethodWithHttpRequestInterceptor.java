@@ -22,9 +22,7 @@ import org.apache.http.HttpRequest;
 
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Scope;
 import com.navercorp.pinpoint.bootstrap.pair.NameIntValuePair;
-import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4Constants;
 
 
 /**
@@ -43,7 +41,6 @@ import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4Constants;
  * @author minwoo.jung
  * @author jaehong.kim
  */
-@Scope(HttpClient4Constants.HTTP_CLIENT4_SCOPE)
 public class HttpClientExecuteMethodWithHttpRequestInterceptor extends AbstractHttpClientExecuteMethodInterceptor {
 
     private static final int HTTP_HOST_INDEX = 0;
@@ -57,7 +54,7 @@ public class HttpClientExecuteMethodWithHttpRequestInterceptor extends AbstractH
     @Override
     protected NameIntValuePair<String> getHost(Object[] args) {
         final Object arg = args[HTTP_HOST_INDEX];
-        if (arg != null && arg instanceof HttpHost) {
+        if (arg instanceof HttpHost) {
             final HttpHost httpHost = (HttpHost) arg;
             return new NameIntValuePair<String>(httpHost.getHostName(), httpHost.getPort());
         }
@@ -67,7 +64,7 @@ public class HttpClientExecuteMethodWithHttpRequestInterceptor extends AbstractH
     @Override
     protected HttpRequest getHttpRequest(Object[] args) {
         final Object arg = args[HTTP_REQUEST_INDEX];
-        if (arg != null && arg instanceof HttpRequest) {
+        if (arg instanceof HttpRequest) {
             return (HttpRequest) arg;
         }
         return null;

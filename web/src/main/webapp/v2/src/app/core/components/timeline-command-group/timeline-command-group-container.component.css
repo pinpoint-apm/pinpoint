@@ -1,0 +1,10 @@
+:host {
+    display: block;
+}
+
+.l-command-group {
+    display: flex;
+    padding: 5px 12px;
+    justify-content: flex-end;
+    background-color: #F5F5F5;
+}

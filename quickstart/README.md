@@ -6,13 +6,13 @@ Pinpoint QuickStart provides a sample TestApp for the Agent to attach itself to,
 ## Requirements
 In order to build Pinpoint, the following requirements must be met:
 
-* JDK 6 installed
-* JDK 7 installed
+* JDK 6 installed ([jdk1.6.0_45](http://www.oracle.com/technetwork/java/javase/downloads/java-archive-downloads-javase6-419409.html#jdk-6u45-oth-JPR) recommended)
+* JDK 7 installed ([jdk1.7.0_80](http://www.oracle.com/technetwork/java/javase/downloads/java-archive-downloads-javase7-521261.html#jdk-7u80-oth-JPR) recommended)
 * JDK 8 installed
-* Maven 3.2.x+ installed
+* JAVA_HOME environment variable set to JDK 8+ home directory.
 * JAVA_6_HOME environment variable set to JDK 6 home directory.
 * JAVA_7_HOME environment variable set to JDK 7 home directory.
-* JAVA_8_HOME environment variable set to JDK 8+ home directory.
+* JAVA_8_HOME environment variable set to JDK 8 home directory.
 
 QuickStart supports Linux, OSX, and Windows.
 
@@ -20,7 +20,7 @@ QuickStart supports Linux, OSX, and Windows.
 ## Starting 
 Download Pinpoint with `git clone https://github.com/naver/pinpoint.git` or [download](https://github.com/naver/pinpoint/archive/master.zip) the project as a zip file and unzip.
 
-Install Pinpoint with maven by `cd pinpoint` and running `mvn install -Dmaven.test.skip=true`
+Install Pinpoint by running `./mvnw install -DskipTests=true`
 
 ### Install & Start HBase
 
@@ -42,17 +42,18 @@ The following script downloads HBase standalone from [Apache download site](http
 
 **Collector** - Run `quickstart/bin/start-collector.sh`
 
+**TestApp** - Run `quickstart/bin/start-testapp.sh`
+
 **Web UI** - Run `quickstart/bin/start-web.sh`
 
-**TestApp** - Run `quickstart/bin/start-testapp.sh`
 
 Once the startup scripts are completed, the last 10 lines of the Tomcat log are tailed to the console:
 
-**Collector** ![Collector quick start successful](../doc/img/ss_quickstart-collector-log.png)
+**Collector** ![Collector quick start successful](../doc/images/ss_quickstart-collector-log.png)
 
-**Web UI** ![Web quick start successful](../doc/img/ss_quickstart-web-log.png)
+**TestApp** ![TestApp quick start successful](../doc/images/ss_quickstart-testapp-log.png)
 
-**TestApp** ![TestApp quick start successful](../doc/img/ss_quickstart-testapp-log.png)
+**Web UI** ![Web quick start successful](../doc/images/ss_quickstart-web-log.png)
 
 ### Check Status
 Once HBase and the 3 daemons are running, you may visit the following addresses to test out your very own Pinpoint instance.
@@ -65,13 +66,13 @@ You can feed trace data to Pinpoint using the TestApp UI, and check them using P
 
 ## Stopping
 
-**HBase** - Run `quickstart/bin/stop-hbase.sh`
-
-**Collector** - Run `quickstart/bin/stop-collector.sh`
-
 **Web UI** - Run `quickstart/bin/stop-web.sh`
 
 **TestApp** - Run `quickstart/bin/stop-testapp.sh`
+
+**Collector** - Run `quickstart/bin/stop-collector.sh`
+
+**HBase** - Run `quickstart/bin/stop-hbase.sh`
 
 ## Extra
 

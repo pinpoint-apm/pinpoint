@@ -7,54 +7,76 @@
 	 * @name ServerMapDaoService
 	 * @class
 	 */
-	pinpointApp.constant('serverMapDaoServiceConfig', {
-	    serverMapDataUrl: '/getServerMapData.pinpoint',
-	    filteredServerMapDataUrl: '/getFilteredServerMapDataMadeOfDotGroup.pinpoint',
-	    filtermapUrl: '/filtermap.pinpoint',
-	    lastTransactionListUrl: '/lastTransactionList.pinpoint',
-	    transactionListUrl: '/transactionList.pinpoint',
-	    FILTER_DELIMETER: "^",
-	    FILTER_ENTRY_DELIMETER: "|",
-	    FILTER_FETCH_LIMIT: 5000
+	pinpointApp.constant("serverMapDaoServiceConfig", {
+	    serverMapDataUrl: "getServerMapDataV2.pinpoint",
+	    filteredServerMapDataUrl: "getFilteredServerMapDataMadeOfDotGroup.pinpoint",
+	    lastTransactionListUrl: "lastTransactionList.pinpoint",
+	    transactionListUrl: "transactionList.pinpoint",
+	    FILTER_FETCH_LIMIT: 5000,
+		MAX_DISPLAY_COUNT_GROUP_LIST: 3
 	});
 	
-	pinpointApp.service('ServerMapDaoService', [ 'serverMapDaoServiceConfig', 'PreferenceService', function ServerMapDao(cfg, preferenceService) {
+	pinpointApp.service("ServerMapDaoService", [ "serverMapDaoServiceConfig", function(cfg) {
 	
 	    var self = this;
+	    var serverMapData;
 	
-	    /**
-	     * get server map data
-	     * @param query
-	     * @param callback
-	     */
-	     this.getServerMapData = function (query, cb) {
+	    this.abort = function() {
+			if ( this._oAjax ) {
+				this._oAjax.abort();
+			}
+		};
+	    this.getFromToData = function( nodeKey ) {
+			var linkedNodeData = {
+				from: [],
+				to: []
+			};
+			for( var i = 0 ; i < serverMapData.applicationMapData.linkDataArray.length ; i++ ) {
+				var link = serverMapData.applicationMapData.linkDataArray[i];
+				if ( link.from === nodeKey ) {
+					linkedNodeData.to.push([link.targetInfo.applicationName, link.targetInfo.serviceTypeCode]);
+				} else if ( link.to === nodeKey ) {
+					linkedNodeData.from.push([link.sourceInfo.applicationName, link.sourceInfo.serviceTypeCode]);
+				}
+			}
+			return linkedNodeData;
+		};
+
+		this.getServerMapData = function (query, cb) {
 	    	var data = {
 	            applicationName: query.applicationName,
 	            from: query.from,
 	            to: query.to,
 	            callerRange: query.callerRange,
-	            calleeRange: query.calleeRange
+	            calleeRange: query.calleeRange,
+				bidirectional: query.bidirectional,
+				wasOnly: query.wasOnly
 	        };
 	    	if ( isNaN( parseInt( query.serviceTypeName ) ) ) {
 	    		data.serviceTypeName = query.serviceTypeName; 
 	    	} else {
 	    		data.serviceTypeCode = query.serviceTypeName;
 	    	}
-	        jQuery.ajax({
-	            type: 'GET',
+	        this._oAjax = jQuery.ajax({
+	            type: "GET",
 	            url: cfg.serverMapDataUrl,
 	            cache: false,
 	            dataType: 'json',
 	            data: data,
 	            success: function (result) {
+	            	serverMapData = result;
 	                if (angular.isFunction(cb)) {
 	                    cb(null, query, result);
 	                }
+	                self._oAjax = null;
 	            },
 	            error: function (xhr, status, error) {
-	                if (angular.isFunction(cb)) {
-	                    cb(error, query, {});
-	                }
+	            	if ( status !== "abort" ) {
+						if (angular.isFunction(cb)) {
+							cb(error, query, {});
+						}
+					}
+					self._oAjax = null;
 	            }
 	        });
 	    };
@@ -145,7 +167,7 @@
 	     */
 	    this.findExistingNodeKeyFromLastMapData = function (applicationMapData, node) {
 	        for (var key in applicationMapData.nodeDataArray) {
-	            if (applicationMapData.nodeDataArray[key].applicationName === node.applicationName && applicationMapData.nodeDataArray[key].serviceTypeCode === node.serviceTypeCode) {
+				if (applicationMapData.nodeDataArray[key].key === node.key) {
 	                return key;
 	            }
 	        }
@@ -175,7 +197,7 @@
 	     */
 	    this.addFilterProperty = function (filters, applicationMapData) {
 	        var parsedFilters = this.parseFilterText(filters, applicationMapData);
-	
+
 	        // node
 	        angular.forEach(applicationMapData.nodeDataArray, function (val) {
 	            if (angular.isDefined(_.findWhere(parsedFilters, {nodeKey: val.key}))) {
@@ -473,9 +495,7 @@
 	     * @returns {*}
 	     */
 	    this.mergeGroup = function (applicationMapData, mergeTypeList) {
-	    //this.mergeGroup = function (mapData, mergeTypeList) {
 	    	var self = this;
-	        //var applicationMapData = angular.copy(mapData);
 	        var nodes = applicationMapData.nodeDataArray;
 	        var links = applicationMapData.linkDataArray;
 	        var inboundCountMap = self._getInboundCountMap( nodes, links );
@@ -488,16 +508,13 @@
 	            var removeNodeIdSet = {};
 	            var removeLinkIdSet = {};
 	            
-		        nodes.forEach(function (node, nodeIndex) {
-	//	            if (node.category === mergeType) {
-	//	                return;
-	//	            }
+		        nodes.forEach(function ( node ) {
 		            var newNode;
 		            var newLink;
 		            var newNodeKey = mergeTypeGroup + "_" + node.key;
 		
 		            var targetNodeCount = 0;
-		            links.forEach(function (link, linkIndex) {
+		            links.forEach(function ( link ) {
 		                if (link.from == node.key && link.targetInfo.serviceType == mergeType && inboundCountMap[link.to] && inboundCountMap[link.to].toCount == 1) {
 		                	targetNodeCount++;
 		                }
@@ -506,7 +523,7 @@
 		                return;
 		            }
 	
-		            links.forEach(function (link, linkIndex) {
+		            links.forEach(function ( link ) {
 		                if (link.targetInfo.serviceType != mergeType) {
 		                    return;
 		                }
@@ -524,14 +541,7 @@
 		                    self._addToSubNode( newNode, self._getNodeByApplicationName(nodes, link.targetInfo.applicationName, mergeType ), function() {} );
 		                    self._mergeLinkData( newLink, link );	
 		                    newLink.unknownLinkGroup.push(link);
-		
-		//                    $.each(link.histogram, function (key, value) {
-		//                        if (newLink.histogram[key]) {
-		//                            newLink.histogram[key] += value;
-		//                        } else {
-		//                            newLink.histogram[key] = value;
-		//                        }
-		//                    });	
+
 		                    removeNodeIdSet[link.to] = null;
 		                    removeLinkIdSet[link.key] = null;
 		                }
@@ -541,6 +551,7 @@
 		                newNode.unknownNodeGroup.sort(function (e1, e2) {
 		                    return e2.totalCount - e1.totalCount;
 		                });
+		                self._addListTopX( newNode );
 		                newNodeList.push(newNode);
 		            }
 		
@@ -673,33 +684,18 @@
 	                	removeLinkIdSet[linkKey] = null;
 	                	var aFrom = /(.*)\^(.*)/.exec( link.from );
 	                	var aTo = /(.*)\^(.*)/.exec( link.to );
-	                	var hasSubGroupNode = false;
-	                	var subGroupItem = null;
-	                	var groupIndex = 0;
-	                	newNode.subGroup.forEach(function( o, index ) {
-	                		if ( o.applicationName === aFrom[1] ) {
-	                			hasSubGroupNode = true;
-	                			subGroupItem = o;
-	                			groupIndex = index;
-	                		}
-	                	});
-	                	if ( hasSubGroupNode === false ) {
-	                		subGroupItem = {
-		                		applicationName: aFrom[1],
-		                		groups: [],
-		                		isLast : false
-		                	};
-		                	newNode.subGroup.push( subGroupItem );
-		                	groupIndex = newNode.subGroup.length - 1; 
-	                	}
-	                	subGroupItem.groups.push({
-	                		applicationName: aTo[1],
-	                		hasAlert: link.hasAlert,
-	                		totalCount: link.totalCount,
-	                		serviceType : aTo[2],
-	                		key : link.to,
-	                		idx : groupIndex
-	                	});
+
+	                	if ( typeof newNode.subGroup[aTo[1]] === "undefined" ) {
+							newNode.subGroup[aTo[1]] = [];
+						}
+
+						newNode.subGroup[aTo[1]].push({
+							applicationName: aFrom[1],
+							hasAlert: link.hasAlert,
+							totalCount: link.totalCount,
+							serviceType : aFrom[2],
+							key : link.from
+						});
 	                } );
 				});
 				
@@ -713,49 +709,42 @@
 						removeLinkIdSet[linkKey] = null;
 						var aFrom = /(.*)\^(.*)/.exec( link.from );
 	                	var aTo = /(.*)\^(.*)/.exec( link.to );
-	                	var hasSubGroupNode = false;
-	                	var subGroupItem = null;
-	                	var groupIndex = 0;
-	                	newNode.subGroup.forEach(function( o, index ) {
-	                		if ( o.applicationName === aFrom[1] ) {
-	                			hasSubGroupNode = true;
-	                			subGroupItem = o;
-	                			groupIndex = index;
-	                		}
-	                	});
-	                	if ( hasSubGroupNode === false ) {
-	                		subGroupItem = {
-		                		applicationName: aFrom[1],
-		                		groups: [],
-		                		isLast: false
-		                	};
-		                	newNode.subGroup.push( subGroupItem );
-		                	groupIndex = newNode.subGroup.length - 1;
-	                	}
-	                	subGroupItem.groups.push({
-	                		applicationName: aTo[1],
-	                		hasAlert: link.hasAlert,
-	                		totalCount: link.totalCount,
-	                		serviceType : aTo[2],
-	                		key: link.to,
-	                		idx : groupIndex
-	                	});
+
+						if ( typeof newNode.subGroup[aTo[1]] === "undefined" ) {
+							newNode.subGroup[aTo[1]] = [];
+						}
+						newNode.subGroup[aTo[1]].push({
+							applicationName: aFrom[1],
+							hasAlert: link.hasAlert,
+							totalCount: link.totalCount,
+							serviceType : aFrom[2],
+							key : link.from
+						});
 					});
 				}
-				if ( newNode && newNode.subGroup ) {
-					newNode.subGroup[ newNode.subGroup.length - 1].isLast = true;
-				}
-				
 				if ( newNode !== null && newLinks !== null ) {
 					newNodeList.push( newNode );
+					newNode.unknownNodeGroup.sort(function (e1, e2) {
+						return e2.totalCount - e1.totalCount;
+					});
+					for( var p in newNode.subGroup ) {
+						newNode.subGroup[p].sort(function(e1, e2) {
+							return e2.totalCount - e1.totalCount;
+						});
+					}
+					self._addListTopX( newNode );
+					newNodeList.push( newNode );
 					newLinks.forEach( function( nlink ) {
+						nlink.unknownLinkGroup.sort(function (e1, e2) {
+							return e2.totalCount - e1.totalCount;
+						});
 						newLinkList.push( nlink );
 					});
 				}
 				newNode = null;
 				newLinks = null;
 			});
-	
+
 	        self._addToOriginal( nodes, newNodeList );
 	        self._addToOriginal( links, newLinkList );
 	
@@ -764,6 +753,22 @@
 	
 	        return applicationMapData;
 	    };
+	    this._addListTopX = function(newNode) {
+			newNode.listTopX.push({
+				"applicationName": "Total : " + newNode.unknownNodeGroup.length,
+				"totalCount": newNode.totalCount,
+				"tableHeader": true
+			});
+			for( var i = 0 ; i < Math.min( newNode.unknownNodeGroup.length , cfg.MAX_DISPLAY_COUNT_GROUP_LIST ) ; i++ ) {
+				newNode.listTopX.push( newNode.unknownNodeGroup[i] );
+			}
+			if ( newNode.unknownNodeGroup.length > cfg.MAX_DISPLAY_COUNT_GROUP_LIST ) {
+				newNode.listTopX.push({
+					"applicationName": "...",
+					"totalCount": ""
+				});
+			}
+		};
 	    this._createNewLink = function( fromKey, toKey ) {
 	    	return {
 	            "key": fromKey + "-" + toKey,
@@ -782,24 +787,28 @@
 	    this._createNewNode = function( key, type ) {
 	    	return {
 	            "key": key,
-	            "unknownNodeGroup": [],
-	            "serviceType": type,
-	            "category": type,
+				"category": type,
+				"nodeCount": 0,
+				"alertCount": 0,
+				"totalCount": 0,
+				"serviceType": type,
 	            "instanceCount": 0,
-	            "isMultiGroup": false,
-	            "isCollapse": true
+				"unknownNodeGroup": [],
+				"listTopX": []
 	        };
 	    };
 	    this._createNewMultiGroupNode = function( key, type ) {
 	    	return {
 	            "key": key,
-	            "unknownNodeGroup": [],
-	            "subGroup": [],
-	            "serviceType": type,
-	            "category": type,
-	            "instanceCount": 0,
-	            "isMultiGroup": true,
-	            "isCollapse": true
+				"category": type,
+				"subGroup": {},
+				"nodeCount": 0,
+				"alertCount": 0,
+				"totalCount": 0,
+				"serviceType": type,
+				"instanceCount": 0,
+				"unknownNodeGroup": [],
+				"listTopX": []
 	        };
 	    };
 	    this._removeByKey = function( nodes, removeIdSet ) {
@@ -814,6 +823,9 @@
 	    this._addToSubNode = function( newNode, subNode, fnCall ) {
 	        delete subNode.category;
 	    	newNode.instanceCount += subNode.instanceCount;
+	    	newNode.nodeCount++;
+	    	newNode.alertCount += subNode.hasAlert ? 1 : 0;
+	    	newNode.totalCount += subNode.totalCount;
 	    	newNode.unknownNodeGroup.push(subNode);
 	        fnCall( subNode.key );
 	    };
@@ -933,7 +945,7 @@
 	     * @returns {*}
 	     */
 	    this.extractDataFromApplicationMapData = function (applicationMapData) {
-	        var nodeProperty = ['applicationName', 'category', 'errorCount', 'hasAlert', 'instanceCount', 'isWas', 'isAuthorized', 'key', 'slowCount', 'serviceType', 'totalCount', 'histogram'],
+	        var nodeProperty = ['applicationName', 'category', 'errorCount', 'hasAlert', 'instanceCount', 'isWas', 'isQueue', 'isAuthorized', 'key', 'slowCount', 'serviceType', 'totalCount', 'histogram'],
 	            linkProperty = ['errorCount', 'from', 'hasAlert', 'key', 'sourceInfo', 'slowCount', 'to', 'targetInfo', 'totalCount'];
 	        var serverMapData = {
 	            nodeDataArray: [],

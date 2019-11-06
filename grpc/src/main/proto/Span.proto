@@ -1,0 +1,153 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+import "Annotation.proto";
+
+
+option java_multiple_files = true;
+option java_package = "com.navercorp.pinpoint.grpc.trace";
+option java_outer_classname = "SpanProto";
+//option objc_class_prefix = "PIN";
+
+package v1;
+
+message PSpanMessage {
+    oneof field {
+        PSpan span = 1;
+        PSpanChunk spanChunk =2;
+    }
+}
+
+message PSpan {
+    int32 version = 1;
+
+    PTransactionId transactionId = 2;
+
+    sfixed64 spanId = 3;
+    sfixed64 parentSpanId = 4;
+
+    // span event's startTimestamp
+    int64 startTime = 5;
+    int32 elapsed = 6;
+    int32 apiId = 7;
+
+    int32 serviceType = 8;
+
+    PAcceptEvent acceptEvent = 9;
+
+    repeated PAnnotation annotation = 10;
+
+    int32 flag = 11;
+    sint32 err = 12;
+
+    repeated PSpanEvent spanEvent = 13;
+
+    PIntStringValue exceptionInfo = 14;
+
+    int32 applicationServiceType = 15;
+    int32 loggingTransactionInfo = 16;
+}
+
+message PTransactionId {
+    // identical to agentId if null
+    string agentId = 1; //nullable
+    int64 agentStartTime = 2;
+    int64 sequence = 3;
+}
+
+message PAcceptEvent {
+    string rpc = 1;
+    string endPoint = 2;
+    string remoteAddr = 3;
+    PParentInfo parentInfo = 4;
+}
+
+message PParentInfo {
+    string parentApplicationName = 1;
+    int32 parentApplicationType = 2;
+    string acceptorHost = 3;
+}
+
+message PLocalAsyncId {
+    int32 asyncId = 1;
+    int32 sequence = 2;
+}
+
+
+message PSpanEvent {
+    int32 sequence = 1;
+    int32 depth = 2;
+
+    int32 startElapsed = 3;
+    int32 endElapsed = 4;
+
+    sint32 serviceType = 5;
+
+    repeated PAnnotation annotation = 6;
+
+    sint32 apiId = 10;
+    PIntStringValue exceptionInfo = 11;
+
+    PNextEvent nextEvent = 12;
+    int32 asyncEvent = 13;
+}
+
+message PNextEvent {
+    oneof field {
+        PMessageEvent messageEvent = 1;
+    }
+}
+
+message PMessageEvent {
+    sfixed64 nextSpanId = 1;
+    string endPoint = 2;
+    string destinationId = 3;
+}
+
+message PSpanChunk {
+    int32 version = 1;
+
+    PTransactionId transactionId = 2;
+
+    sfixed64 spanId = 3;
+
+    string endPoint = 4;
+
+    repeated PSpanEvent spanEvent = 5;
+
+    int32 applicationServiceType = 6;
+
+    int64 keyTime = 7;
+
+    PLocalAsyncId localAsyncId = 8;
+
+}
+
+// 1.6.x- : version = 0;
+// 1.7.x+ : version = 1;
+//const i8 TRACE_V1 = 0;
+//const i8 TRACE_V2 = 1;
+//
+
+
+message PResult {
+    bool success = 1;
+    string message = 2;
+}
+
+message PSqlMetaData {
+    int32 sqlId = 1;
+    string sql = 2;
+}
+
+message PApiMetaData {
+    int32 apiId = 1;
+    string apiInfo = 2;
+    int32 line = 3;
+    int32 type = 4;
+}
+
+message PStringMetaData {
+    int32 stringId = 1;
+    string stringValue = 2;
+}

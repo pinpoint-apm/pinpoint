@@ -37,10 +37,10 @@ public class AgentResponseTimeViewModelList {
 
     public AgentResponseTimeViewModelList(String fieldName, List<AgentResponseTimeViewModel> agentResponseTimeViewModelList) {
         if (fieldName == null) {
-            throw new NullPointerException("fieldName must not be null");
+            throw new NullPointerException("fieldName");
         }
         if (agentResponseTimeViewModelList == null) {
-            throw new NullPointerException("agentResponseTimeViewModelList must not be null");
+            throw new NullPointerException("agentResponseTimeViewModelList");
         }
         this.fieldName = fieldName;
         this.agentResponseTimeViewModelList = agentResponseTimeViewModelList;

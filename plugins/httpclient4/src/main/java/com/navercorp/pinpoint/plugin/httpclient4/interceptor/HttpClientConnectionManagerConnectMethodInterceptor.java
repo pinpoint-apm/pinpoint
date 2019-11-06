@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.plugin.httpclient4.interceptor;
 
+import com.navercorp.pinpoint.plugin.httpclient4.EndPointUtils;
 import org.apache.http.conn.routing.HttpRoute;
 
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
@@ -36,23 +37,10 @@ public class HttpClientConnectionManagerConnectMethodInterceptor extends SpanEve
 
     @Override
     protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
-        if(args != null && args.length >= 2 && args[1] != null && args[1] instanceof HttpRoute) {
+        if (args != null && args.length >= 2 && args[1] instanceof HttpRoute) {
             final HttpRoute route = (HttpRoute) args[1];
-            final StringBuilder sb = new StringBuilder();
-            if(route.getProxyHost() != null) {
-                sb.append(route.getProxyHost().getHostName());
-                if(route.getProxyHost().getPort() > 0) {
-                    sb.append(":").append(route.getProxyHost().getPort());
-                }
-            } else {
-                if(route.getTargetHost() != null) {
-                    sb.append(route.getTargetHost().getHostName());
-                    if(route.getTargetHost().getPort() > 0) {
-                        sb.append(":").append(route.getTargetHost().getPort());
-                    }
-                }
-            }
-            recorder.recordAttribute(AnnotationKey.HTTP_INTERNAL_DISPLAY, sb.toString());
+            final String hostAndPort = EndPointUtils.getHostAndPort(route);
+            recorder.recordAttribute(AnnotationKey.HTTP_INTERNAL_DISPLAY, hostAndPort);
         }
         recorder.recordApi(methodDescriptor);
         recorder.recordServiceType(HttpClient4Constants.HTTP_CLIENT_4_INTERNAL);

@@ -1,5 +1,23 @@
+/*
+ * Copyright 2018 NAVER Corp.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.navercorp.pinpoint.thrift.io;
 
+import com.navercorp.pinpoint.io.header.Header;
+import com.navercorp.pinpoint.io.util.TypeLocator;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TProtocol;
@@ -11,7 +29,7 @@ import java.io.OutputStream;
  *
  * Caution. not thread safe
  *
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public class HeaderTBaseSerializer2 {
 
@@ -19,9 +37,9 @@ public class HeaderTBaseSerializer2 {
 
     private final TOutputStreamTransport tOutputStreamTransport;
     private final TProtocol protocol;
-    private final TBaseLocator tBaseLocator;
+    private final TypeLocator<TBase<?, ?>> tBaseLocator;
 
-    public HeaderTBaseSerializer2(TProtocolFactory protocolFactory, TBaseLocator tBaseLocator) {
+    public HeaderTBaseSerializer2(TProtocolFactory protocolFactory, TypeLocator<TBase<?, ?>> tBaseLocator) {
         this.tOutputStreamTransport = new TOutputStreamTransport();
         this.protocol = protocolFactory.getProtocol(tOutputStreamTransport);
         this.tBaseLocator = tBaseLocator;
@@ -31,20 +49,16 @@ public class HeaderTBaseSerializer2 {
         tOutputStreamTransport.open(outputStream);
         try {
             final Header header = tBaseLocator.headerLookup(base);
-            writeHeader(header);
+            if (header == null) {
+                throw new TException("header must not be null base:" + base);
+            }
+            HeaderUtils.writeHeader(protocol, header);
             base.write(protocol);
         } finally {
             tOutputStreamTransport.close();
         }
     }
 
-    private void writeHeader(Header header) throws TException {
-        protocol.writeByte(header.getSignature());
-        protocol.writeByte(header.getVersion());
-        // fixed size regardless protocol
-        short type = header.getType();
-        protocol.writeByte(BytesUtils.writeShort1(type));
-        protocol.writeByte(BytesUtils.writeShort2(type));
-    }
+
 
 }

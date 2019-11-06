@@ -17,19 +17,13 @@
 package com.navercorp.pinpoint.plugin.activemq.client.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.config.Filter;
-import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
-import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
-import com.navercorp.pinpoint.bootstrap.context.Trace;
-import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.context.TraceId;
+import com.navercorp.pinpoint.bootstrap.context.*;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Scope;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.plugin.activemq.client.ActiveMQClientConstants;
 import com.navercorp.pinpoint.plugin.activemq.client.ActiveMQClientHeader;
-import com.navercorp.pinpoint.plugin.activemq.client.ActiveMQClientUtils;
 import com.navercorp.pinpoint.plugin.activemq.client.field.getter.ActiveMQSessionGetter;
 import com.navercorp.pinpoint.plugin.activemq.client.field.getter.SocketGetter;
 import com.navercorp.pinpoint.plugin.activemq.client.field.getter.TransportGetter;
@@ -39,15 +33,13 @@ import org.apache.activemq.ActiveMQSession;
 import org.apache.activemq.command.ActiveMQDestination;
 import org.apache.activemq.transport.Transport;
 import org.apache.activemq.transport.TransportFilter;
+import org.apache.activemq.transport.failover.FailoverTransport;
 
 import javax.jms.Message;
-import java.net.Socket;
-import java.net.SocketAddress;
 
 /**
  * @author HyunGil Jeong
  */
-@Scope(value = ActiveMQClientConstants.ACTIVEMQ_CLIENT_SCOPE)
 public class ActiveMQMessageProducerSendInterceptor implements AroundInterceptor {
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
@@ -133,9 +125,8 @@ public class ActiveMQMessageProducerSendInterceptor implements AroundInterceptor
                 ActiveMQSession session = ((ActiveMQSessionGetter) target)._$PINPOINT$_getActiveMQSession();
                 ActiveMQConnection connection = session.getConnection();
                 Transport transport = getRootTransport(((TransportGetter) connection)._$PINPOINT$_getTransport());
-                Socket socket = ((SocketGetter) transport)._$PINPOINT$_getSocket();
-                SocketAddress remoteSocketAddress = socket.getRemoteSocketAddress();
-                String remoteAddress = ActiveMQClientUtils.getEndPoint(remoteSocketAddress);
+
+                String remoteAddress = transport.getRemoteAddress();
                 // Producer's endPoint should be the socket address of where the producer is actually connected to.
                 recorder.recordEndPoint(remoteAddress);
                 recorder.recordAttribute(ActiveMQClientConstants.ACTIVEMQ_BROKER_URL, remoteAddress);
@@ -204,6 +195,9 @@ public class ActiveMQMessageProducerSendInterceptor implements AroundInterceptor
         Transport possiblyWrappedTransport = transport;
         while (possiblyWrappedTransport instanceof TransportFilter) {
             possiblyWrappedTransport = ((TransportFilter) possiblyWrappedTransport).getNext();
+            if (possiblyWrappedTransport instanceof FailoverTransport) {
+                possiblyWrappedTransport = ((FailoverTransport) possiblyWrappedTransport).getConnectedTransport();
+            }
         }
         return possiblyWrappedTransport;
     }

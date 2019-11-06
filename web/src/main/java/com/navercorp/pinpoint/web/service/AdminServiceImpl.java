@@ -17,13 +17,14 @@
 package com.navercorp.pinpoint.web.service;
 
 import com.google.common.collect.Ordering;
-import com.navercorp.pinpoint.web.dao.AgentStatDao;
+import com.navercorp.pinpoint.web.dao.stat.JvmGcDao;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.Range;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
@@ -52,7 +53,8 @@ public class AdminServiceImpl implements AdminService {
     private ApplicationIndexDao applicationIndexDao;
 
     @Autowired
-    private AgentStatDao agentStatDao;
+    @Qualifier("jvmGcDaoFactory")
+    private JvmGcDao jvmGcDao;
 
     @Override
     public void removeApplicationName(String applicationName) {
@@ -124,7 +126,7 @@ public class AdminServiceImpl implements AdminService {
     @Override
     public Map<String, List<Application>> getInactiveAgents(String applicationName, int durationDays) {
         if (applicationName == null) {
-            throw new NullPointerException("applicationName must not be null");
+            throw new NullPointerException("applicationName");
         }
         if (durationDays < MIN_DURATION_DAYS_FOR_INACTIVITY) {
             throw new IllegalArgumentException("duration may not be less than " + MIN_DURATION_DAYS_FOR_INACTIVITY + " days");
@@ -154,7 +156,10 @@ public class AdminServiceImpl implements AdminService {
         final long fromTimestamp = cal.getTimeInMillis();
         Range queryRange = new Range(fromTimestamp, toTimestamp);
         for (String agentId : agentIds) {
-            boolean dataExists = this.agentStatDao.agentStatExists(agentId, queryRange);
+            // FIXME This needs to be done with a more accurate information.
+            // If at any time a non-java agent is introduced, or an agent that does not collect jvm data,
+            // this will fail
+            boolean dataExists = this.jvmGcDao.agentStatExists(agentId, queryRange);
             if (!dataExists) {
                 inactiveAgentIds.add(agentId);
             }

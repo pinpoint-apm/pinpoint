@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2014 NAVER Corp.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,5 +41,5 @@ public final class ArcusConstants {
     public static final String MEATDATA_CACHE_NAME = "cacheName";
     public static final String METADATA_CACHE_KEY = "cacheKey";
     public static final String METADATA_OPERATION = "operation";
-    public static final String METADATA_ASYNC_TRACE_ID = "asyncTraceId";
+    public static final String METADATA_ASYNC_CONTEXT = "asyncContext";
 }

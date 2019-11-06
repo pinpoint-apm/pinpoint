@@ -16,12 +16,12 @@
 
 package com.navercorp.pinpoint.web.dao;
 
-import java.util.List;
-import java.util.Set;
-
-import com.navercorp.pinpoint.common.server.bo.AgentEventBo;
+import com.navercorp.pinpoint.common.server.bo.event.AgentEventBo;
 import com.navercorp.pinpoint.common.server.util.AgentEventType;
 import com.navercorp.pinpoint.web.vo.Range;
+
+import java.util.List;
+import java.util.Set;
 
 /**
  * @author HyunGil Jeong

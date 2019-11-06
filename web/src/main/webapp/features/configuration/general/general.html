@@ -53,11 +53,28 @@
 				</td>
 				<td class="col-md-5" colspan="2">
 					<div class="favorite-list-wrapper">
-						<ul class="favorite-list">
-							<li ng-repeat="fav in savedFavoriteList"><img ng-src='/images/icons/{{fav.split("@")[1]}}.png' height="25px"/> {{fav.split('@')[0]}} <button class="btn btn-danger btn-xs" style="float:right" ng-click="removeFavorite(fav)"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button></li>
-						</ul>
+						<ul class="favorite-list" ng-click="removeFavorite($event)"></ul>
 						<div ng-show="savedFavoriteList.length == 0" style="color:#F00" class="favorite-empty"></div>
 					</div>
+				</td>
+			</tr>
+			</tbody>
+		</table>
+		<table class="table table-bordered table-condensed favorite-application">
+			<tbody>
+			<tr>
+				<td class="col-md-10 title" colspan="4">TimeZone</td>
+			</tr>
+			<tr>
+				<td class="col-md-5">
+					<select class="form-control" style="width:310px;height:30px;" ng-model="newUserTimezone">
+						<option ng-repeat="zone in timezone" value="{{zone}}" ng-selected="zone == userTimezone">{{zone}}</option>
+					</select>
+				</td>
+				<td class="col-md-5" colspan="2" style="vertical-align: middle;font-weight:bold;">
+					<span style="display:inline-block;margin-top:6px;">{{userTimezone}}</span>
+					<span ng-show="newUserTimezone !== userTimezone" style="display:inline-block;margin-top:6px;color:#999;">- {{newUserTimezone}}</span>
+					<button ng-click="applyNReload()" ng-show="newUserTimezone !== userTimezone" class="btn btn-success" style="float:right;margin-right:6px;">Apply & Reload</button>
 				</td>
 			</tr>
 			</tbody>

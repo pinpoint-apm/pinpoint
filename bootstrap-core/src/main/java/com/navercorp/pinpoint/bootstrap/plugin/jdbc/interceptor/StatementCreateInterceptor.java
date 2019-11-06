@@ -16,29 +16,38 @@
 
 package com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor;
 
-import java.sql.Connection;
-
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.TargetMethod;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.TargetMethods;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.UnKnownDatabaseInfo;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.SqlModule;
 import com.navercorp.pinpoint.bootstrap.util.InterceptorUtils;
 
 /**
  * @author emeroad
  */
-@TargetMethods({
-        @TargetMethod(name="createStatement"),
-        @TargetMethod(name="createStatement", paramTypes={"int", "int"}),
-        @TargetMethod(name="createStatement", paramTypes={"int", "int", "int"})
-})
+// #1375 Workaround java level Deadlock
+// https://oss.navercorp.com/pinpoint/pinpoint-naver/issues/1375
+//@TargetMethods({
+//        @TargetMethod(name="createStatement"),
+//        @TargetMethod(name="createStatement", paramTypes={"int", "int"}),
+//        @TargetMethod(name="createStatement", paramTypes={"int", "int", "int"})
+//})
 public class StatementCreateInterceptor implements AroundInterceptor {
+
+    private static final Class<?> CONNECTION_CLASS = getConnectionClass();
+
+    private static Class<?> getConnectionClass() {
+        if (!SqlModule.isSqlModuleEnable()) {
+            // If SqlModule does not exist in java9, StatementCreateInterceptor class should not be initialized.
+            throw new IllegalStateException("java.sql.Connection not exist");
+        }
+        return SqlModule.getSqlConnection();
+    }
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
@@ -69,15 +78,22 @@ public class StatementCreateInterceptor implements AroundInterceptor {
         if (trace == null) {
             return;
         }
-        if (target instanceof Connection) {
-            DatabaseInfo databaseInfo = (target instanceof DatabaseInfoAccessor) ? ((DatabaseInfoAccessor)target)._$PINPOINT$_getDatabaseInfo() : null;
-            
-            if (databaseInfo == null) {
-                databaseInfo = UnKnownDatabaseInfo.INSTANCE;
-            }
+        if (CONNECTION_CLASS.isInstance(target)) {
+            final DatabaseInfo databaseInfo = getDatabaseInfo(target);
             if (result instanceof DatabaseInfoAccessor) {
                 ((DatabaseInfoAccessor) result)._$PINPOINT$_setDatabaseInfo(databaseInfo);
             }
         }
+    }
+
+    private DatabaseInfo getDatabaseInfo(Object target) {
+        DatabaseInfo databaseInfo = null;
+        if (target instanceof DatabaseInfoAccessor) {
+            databaseInfo = ((DatabaseInfoAccessor) target)._$PINPOINT$_getDatabaseInfo();
+        }
+        if (databaseInfo == null) {
+            databaseInfo = UnKnownDatabaseInfo.INSTANCE;
+        }
+        return databaseInfo;
     }
 }

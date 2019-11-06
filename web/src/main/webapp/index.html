@@ -31,7 +31,6 @@
 	<link rel="stylesheet" href="styles/inspector.css?v=${buildTime}">
 	<link rel="stylesheet" href="styles/navbar.css?v=${buildTime}">
 	<link rel="stylesheet" href="styles/nodeInfoDetails.css?v=${buildTime}">
-	<link rel="stylesheet" href="styles/linkInfoDetails.css?v=${buildTime}">
 	<link rel="stylesheet" href="styles/transactionTable.css?v=${buildTime}">
 	<link rel="stylesheet" href="styles/callStacks.css?v=${buildTime}">
 	<link rel="stylesheet" href="styles/timeSlider.css?v=${buildTime}">
@@ -47,7 +46,7 @@
 	<link rel="stylesheet" href="styles/xeicon.min.css?v=${buildTime}">
 	<!-- pinpoint.css###-->
 </head>
-<body ng-app="pinpointApp">
+<body ng-app="pinpointApp" style="overflow:hidden;">
 
 <div class="modal"  id="customLogPopup">
 	<div class="modal-dialog modal-lg" style="width:800px;">
@@ -128,7 +127,7 @@
 	</div>
 </script>
 <script id="sidebarLoading" type="text/ng-template">
-    <div class="cg-busy cg-busy-animation ng-hide" ng-show="!!showLoading">
+    <div class="cg-busy cg-busy-animation ng-hide" ng-show="!!showLoading" style="z-index:1000">
         <div class="cg-busy cg-busy-backdrop"></div>
         <div class="cg-busy-default-wrapper" style="position: absolute; top: 0px; left: 0px; right: 0px; bottom: 0px;">
             <div class="cg-busy-default-sign">
@@ -189,6 +188,7 @@
 </div>
 
 <configuration-directive></configuration-directive>
+<thread-dump-info-layer-directive></thread-dump-info-layer-directive>
 
 <!--###base-lib.min.js -->
 <script src="components/jquery/dist/jquery.min.js?v=${buildTime}"></script>
@@ -211,20 +211,12 @@
 <script src="components/angular-timer/dist/angular-timer.min.js?v=${buildTime}"></script>
 <!-- angular-lib.min.js###-->
 
-<!--###draw-lib.min.js -->
-<script src="components/gojs/go.js?v=${buildTime}"></script>
-<script src="components/snap.svg/snap.svg.min.js?v=${buildTime}"></script>
-<script src="components/d3/d3.min.js?v=${buildTime}"></script>
-<script src="components/amcharts/amcharts.js?v=${buildTime}"></script>
-<script src="components/amcharts/serial.js?v=${buildTime}"></script>
-<script src="components/amcharts/themes/light.js?v=${buildTime}"></script>
-<!-- draw-lib.min.js###-->
-
 <!--###util-lib.min.js -->
 <script src="components/bootstrap/dist/js/bootstrap.min.js?v=${buildTime}"></script>
 <script src="components/google-code-prettify/prettify.js?v=${buildTime}"></script>
 <script src="components/google-code-prettify/lang-sql.js?v=${buildTime}"></script>
-<script src="components/moment/moment.js?v=${buildTime}"></script>
+<script src="components/moment/moment-with-locales.min.js?v=${buildTime}"></script>
+<script src="components/moment/moment-timezone-with-data.min.js?v=${buildTime}"></script>
 <script src="components/select2/dist/js/select2.full.min.js?v=${buildTime}"></script>
 <script src="components/jquery-class/jquery.Class.js?v=${buildTime}"></script>
 <script src="components/jquery.layout/dist/jquery.layout-latest.js?v=${buildTime}"></script>
@@ -251,11 +243,21 @@
 <script src="components/bootstrap/js/bootstrap-popover.js?v=${buildTime}"></script>
 <!-- util-lib.min.js###-->
 
+<!--###draw-lib.min.js -->
+<script src="components/gojs/go.js?v=${buildTime}"></script>
+<script src="components/snap.svg/snap.svg.min.js?v=${buildTime}"></script>
+<script src="components/d3/d3.min.js?v=${buildTime}"></script>
+<script src="components/amcharts/amcharts.js?v=${buildTime}"></script>
+<script src="components/amcharts/serial.js?v=${buildTime}"></script>
+<script src="components/amcharts/themes/light.js?v=${buildTime}"></script>
+<script src="components/chartjs/Chart.min.js?v=${buildTime}"></script>
+<!-- draw-lib.min.js###-->
+
 <!--###pinpoint-component.min.js -->
 <script src="components/time-slider/time-slider.js?v=${buildTime}"></script>
 <script src="components/time-slider/time-slider.background.js?v=${buildTime}"></script>
 <script src="components/time-slider/time-slider.configuration.js?v=${buildTime}"></script>
-<script src="components/time-slider/time-slider.event-data.js?v=${buildTime}"></script>
+<script src="components/time-slider/time-slider.timeline-data.js?v=${buildTime}"></script>
 <script src="components/time-slider/time-slider.events.js?v=${buildTime}"></script>
 <script src="components/time-slider/time-slider.handler.js?v=${buildTime}"></script>
 <script src="components/time-slider/time-slider.loading-indicator.js?v=${buildTime}"></script>
@@ -267,6 +269,7 @@
 <script src="components/time-slider/time-slider.time-series-signboard.js?v=${buildTime}"></script>
 <script src="components/time-slider/time-slider.time-signboard.js?v=${buildTime}"></script>
 <script src="components/time-slider/time-slider.x-axis.js?v=${buildTime}"></script>
+<script src="components/time-slider/time-slider.focus.js?v=${buildTime}"></script>
 
 <script src="components/big-scatter-chart/BigScatterChart2.js?v=${buildTime}"></script>
 <script src="components/big-scatter-chart/BigScatterChart2.DataBlock.js?v=${buildTime}"></script>
@@ -292,7 +295,6 @@
 
 <!--###pinpoint.min.js -->
 <script src="common/filters/icon-url.filter.js?v=${buildTime}"></script>
-<script src="common/filters/application-name-to-class-name.filter.js?v=${buildTime}"></script>
 <script src="common/services/time-slider-vo.service.js?v=${buildTime}"></script>
 <script src="common/services/alerts.service.js?v=${buildTime}"></script>
 <script src="common/services/progress-bar.service.js?v=${buildTime}"></script>
@@ -301,13 +303,21 @@
 <script src="common/services/transaction-dao.service.js?v=${buildTime}"></script>
 <script src="common/services/location.service.js?v=${buildTime}"></script>
 <script src="common/services/server-map-dao.service.js?v=${buildTime}"></script>
+<script src="common/services/agent-histogram-dao.service.js?v=${buildTime}"></script>
 <script src="common/services/agent-dao.service.js?v=${buildTime}"></script>
-<script src="common/services/sidebar-title-vo.service.js?v=${buildTime}"></script>
+<script src="common/services/memory-chart-dao.service.js?v=${buildTime}"></script>
+<script src="common/services/cpu-load-chart-dao.service.js?v=${buildTime}"></script>
+<script src="common/services/tps-chart-dao.service.js?v=${buildTime}"></script>
+<script src="common/services/active-thread-chart-dao.service.js?v=${buildTime}"></script>
+<script src="common/services/response-time-chart-dao.service.js?v=${buildTime}"></script>
+<script src="common/services/open-file-descriptor-chart-dao.service.js?v=${buildTime}"></script>
+<script src="common/services/direct-buffer-chart-dao.service.js?v=${buildTime}"></script>
 <script src="common/services/filtered-map-util.service.js?v=${buildTime}"></script>
 <script src="common/services/filter.config.js?v=${buildTime}"></script>
 <script src="common/services/server-map-filter-vo.service.js?v=${buildTime}"></script>
 <script src="common/services/alarm-ajax.service.js?v=${buildTime}"></script>
 <script src="common/services/alarm-util.service.js?v=${buildTime}"></script>
+<script src="common/services/installation-ajax.service.js?v=${buildTime}"></script>
 <script src="common/services/server-map-hint-vo.service.js?v=${buildTime}"></script>
 <script src="common/services/is-visible.service.js?v=${buildTime}"></script>
 <script src="common/services/user-locales.service.js?v=${buildTime}"></script>
@@ -322,6 +332,9 @@
 <script src="common/services/agent-ajax.service.js?v=${buildTime}"></script>
 <script src="common/services/tooltip.service.js?v=${buildTime}"></script>
 <script src="common/services/common-util.service.js?v=${buildTime}"></script>
+<script src="common/services/local-storage-manager.service.js?v=${buildTime}"></script>
+<script src="common/services/system-configuration.service.js?v=${buildTime}"></script>
+<script src="common/services/user-configuration.service.js?v=${buildTime}"></script>
 
 <script src="features/applicationList/application-list.directive.js?v=${buildTime}"></script>
 <script src="features/periodSelector/period-selector.directive.js?v=${buildTime}"></script>
@@ -330,11 +343,12 @@
 <script src="features/serverMap/server-map.directive.js?v=${buildTime}"></script>
 <script src="features/realtimeChart/realtime-chart.directive.js?v=${buildTime}"></script>
 <script src="features/scatter/scatter.directive.js?v=${buildTime}"></script>
+<script src="features/groupedApplicationList/grouped-application-list.directive.js?v=${buildTime}"></script>
 <script src="features/nodeInfoDetails/node-info-details.directive.js?v=${buildTime}"></script>
-<script src="features/linkInfoDetails/link-info-details.directive.js?v=${buildTime}"></script>
 <script src="features/serverList/server-list.directive.js?v=${buildTime}"></script>
 <script src="features/agentList/agent-list.directive.js?v=${buildTime}"></script>
 <script src="features/agentInfo/agent-info.directive.js?v=${buildTime}"></script>
+<script src="features/applicationStatistic/application-statistic.directive.js?v=${buildTime}"></script>
 <script src="features/timeSlider/time-slider.directive.js?v=${buildTime}"></script>
 <script src="features/transactionTable/transaction-table.directive.js?v=${buildTime}"></script>
 <script src="features/timeline/timeline.directive.js?v=${buildTime}"></script>
@@ -342,11 +356,10 @@
 <script src="features/sidebar/title/sidebar-title.directive.js?v=${buildTime}"></script>
 <script src="features/sidebar/filter/filter-information.directive.js?v=${buildTime}"></script>
 <script src="features/distributedCallFlow/distributed-call-flow.directive.js?v=${buildTime}"></script>
-<script src="features/responseTimeChart/response-time-chart.directive.js?v=${buildTime}"></script>
+<script src="features/responseTimeSummaryChart/response-time-summary-chart.directive.js?v=${buildTime}"></script>
 <script src="features/loadChart/load-chart.directive.js?v=${buildTime}"></script>
-<script src="features/jvmMemoryChart/jvm-memory-chart.directive.js?v=${buildTime}"></script>
-<script src="features/cpuLoadChart/cpu-load-chart.directive.js?v=${buildTime}"></script>
-<script src="features/tpsChart/tps-chart.directive.js?v=${buildTime}"></script>
+<script src="features/agentInspectorChart/agent-inspector-chart.directive.js?v=${buildTime}"></script>
+<script src="features/dataSourceChart/data-source-chart.directive.js?v=${buildTime}"></script>
 <script src="features/loading/loading.directive.js?v=${buildTime}"></script>
 <script src="features/configuration/configuration.directive.js?v=${buildTime}"></script>
 <script src="features/configuration/general/general.directive.js?v=${buildTime}"></script>
@@ -358,7 +371,10 @@
 <script src="features/configuration/application/application-group.directive.js?v=${buildTime}"></script>
 <script src="features/configuration/application/alarm-rule.directive.js?v=${buildTime}"></script>
 <script src="features/configuration/help/help.directive.js?v=${buildTime}"></script>
+<script src="features/configuration/installation/installation.directive.js?v=${buildTime}"></script>
+<script src="features/threadDumpInfoLayer/thread-dump-info-layer.directive.js?v=${buildTime}"></script>
 <script src="features/realtimeChart/realtime-chart.controller.js?v=${buildTime}"></script>
+<script src="features/statisticChart/statistic-chart.directive.js?v=${buildTime}"></script>
 
 <script src="pages/main/main.controller.js?v=${buildTime}"></script>
 <script src="pages/inspector/inspector.controller.js?v=${buildTime}"></script>
@@ -367,6 +383,8 @@
 <script src="pages/filteredMap/filtered-map.controller.js?v=${buildTime}"></script>
 <script src="pages/transactionView/transaction-view.controller.js?v=${buildTime}"></script>
 <script src="pages/scatterFullScreenMode/scatter-full-screen-mode.controller.js?v=${buildTime}"></script>
+<script src="pages/threadDump/thread-dump.controller.js?v=${buildTime}"></script>
+<script src="pages/realtime/realtime.controller.js?v=${buildTime}"></script>
 <!-- pinpoint.min.js###-->
 
 <script>

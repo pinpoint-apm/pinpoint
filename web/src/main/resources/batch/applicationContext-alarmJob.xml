@@ -13,27 +13,27 @@
 
     <context:component-scan base-package="com.navercorp.pinpoint.web.alarm" />
                                          
-    <job id="alarmJob" xmlns="http://www.springframework.org/schema/batch" >
-        <step id="alarmPartitionStep">
-            <partition step="alarmStep" partitioner="alarmPartitioner">
-                <handler task-executor="poolTaskExecutorForPartition" />
-            </partition>
-        </step>
-        <listeners>
-        	<listener ref="jobFailListener"/>
-        </listeners>
-    </job>
+    <batch:job id="alarmJob">
+        <batch:step id="alarmPartitionStep">
+            <batch:partition step="alarmStep" partitioner="alarmPartitioner">
+                <batch:handler task-executor="alarmPoolTaskExecutorForPartition" />
+            </batch:partition>
+        </batch:step>
+        <batch:listeners>
+        	<batch:listener ref="jobFailListener"/>
+        </batch:listeners>
+    </batch:job>
 
-    <step id="alarmStep" xmlns="http://www.springframework.org/schema/batch">
-        <tasklet>
-            <chunk reader="reader" processor="processor" writer="writer" commit-interval="1"/>
-        </tasklet>
-    </step>
+    <batch:step id="alarmStep">
+        <batch:tasklet>
+            <batch:chunk reader="reader" processor="processor" writer="writer" commit-interval="1"/>
+        </batch:tasklet>
+    </batch:step>
     
     <bean id="alarmPartitioner" class="com.navercorp.pinpoint.web.alarm.AlarmPartitioner"/>
     <bean id="reader" class="com.navercorp.pinpoint.web.alarm.AlarmReader" scope="step"/>
     <bean id="processor" class="com.navercorp.pinpoint.web.alarm.AlarmProcessor" scope="step"/>
     <bean id="writer" class="com.navercorp.pinpoint.web.alarm.AlarmWriter" scope="step"/>
     
-    <task:executor id="poolTaskExecutorForPartition" pool-size="1" />
+    <task:executor id="alarmPoolTaskExecutorForPartition" pool-size="1" />
 </beans>

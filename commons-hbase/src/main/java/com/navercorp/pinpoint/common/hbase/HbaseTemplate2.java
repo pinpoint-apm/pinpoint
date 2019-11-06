@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,8 +19,8 @@ package com.navercorp.pinpoint.common.hbase;
 import com.google.common.collect.Lists;
 import com.navercorp.pinpoint.common.hbase.parallel.ParallelResultScanner;
 import com.navercorp.pinpoint.common.hbase.parallel.ScanTaskException;
-import com.navercorp.pinpoint.common.util.ExecutorFactory;
-import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
+import com.navercorp.pinpoint.common.profiler.concurrent.ExecutorFactory;
+import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
 import com.navercorp.pinpoint.common.util.StopWatch;
 import com.sematext.hbase.wd.AbstractRowKeyDistributor;
 import com.sematext.hbase.wd.DistributedScanner;
@@ -39,12 +39,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.util.Assert;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -97,18 +97,15 @@ public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, I
     }
 
     public void setAsyncOperation(HBaseAsyncOperation asyncOperation) {
-        if (asyncOperation == null) {
-            throw new NullPointerException("asyncOperation");
-        }
-        this.asyncOperation = asyncOperation;
+        this.asyncOperation = Objects.requireNonNull(asyncOperation, "asyncOperation");
     }
 
     @Override
     public void afterPropertiesSet() {
         Configuration configuration = getConfiguration();
-        Assert.notNull(configuration, "configuration is required");
-        Assert.notNull(getTableFactory(), "tableFactory is required");
-        PinpointThreadFactory parallelScannerThreadFactory = new PinpointThreadFactory("Pinpoint-parallel-scanner");
+        Objects.requireNonNull(configuration, "configuration is required");
+        Objects.requireNonNull(getTableFactory(), "tableFactory is required");
+        PinpointThreadFactory parallelScannerThreadFactory = new PinpointThreadFactory("Pinpoint-parallel-scanner", true);
         if (this.maxThreadsPerParallelScan <= 1) {
             this.enableParallelScan = false;
             this.executor = Executors.newSingleThreadExecutor(parallelScannerThreadFactory);
@@ -145,7 +142,10 @@ public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, I
 
         while (true) {
             Long currentPutOpsCount = asyncOperation.getCurrentOpsCount();
-            logger.warn("count " + currentPutOpsCount);
+            if (logger.isWarnEnabled()) {
+                logger.warn("count {}", currentPutOpsCount);
+            }
+
             if (currentPutOpsCount <= 0L) {
                 return true;
             }
@@ -756,8 +756,8 @@ public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, I
     
     @Override
     public <T> T execute(TableName tableName, TableCallback<T> action) {
-        Assert.notNull(action, "Callback object must not be null");
-        Assert.notNull(tableName, "No table specified");
+        Objects.requireNonNull(tableName, "tableName");
+        Objects.requireNonNull(action, "action");
         assertAccessAvailable();
 
         Table table = getTable(tableName);

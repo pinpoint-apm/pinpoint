@@ -1,31 +1,30 @@
 /*
+ * Copyright 2016 NAVER Corp.
  *
- *  * Copyright 2014 NAVER Corp.
- *  *
- *  * Licensed under the Apache License, Version 2.0 (the "License");
- *  * you may not use this file except in compliance with the License.
- *  * You may obtain a copy of the License at
- *  *
- *  *     http://www.apache.org/licenses/LICENSE-2.0
- *  *
- *  * Unless required by applicable law or agreed to in writing, software
- *  * distributed under the License is distributed on an "AS IS" BASIS,
- *  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  * See the License for the specific language governing permissions and
- *  * limitations under the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  */
 
 package com.navercorp.pinpoint.collector.cluster.connection;
 
 import com.navercorp.pinpoint.rpc.MessageListener;
-import com.navercorp.pinpoint.rpc.stream.ServerStreamChannelMessageListener;
+import com.navercorp.pinpoint.rpc.stream.ServerStreamChannelMessageHandler;
 
 import java.net.InetSocketAddress;
+import java.util.Objects;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public class CollectorClusterConnectionFactory implements CollectorClusterConnectionOption {
 
@@ -33,10 +32,10 @@ public class CollectorClusterConnectionFactory implements CollectorClusterConnec
 
     private final MessageListener routeMessageHandler;
 
-    private final ServerStreamChannelMessageListener routeStreamMessageHandler;
+    private final ServerStreamChannelMessageHandler routeStreamMessageHandler;
 
-    public CollectorClusterConnectionFactory(String clusterId, MessageListener routeMessageHandler, ServerStreamChannelMessageListener routeStreamMessageHandler) {
-        this.clusterId = clusterId;
+    public CollectorClusterConnectionFactory(String clusterId, MessageListener routeMessageHandler, ServerStreamChannelMessageHandler routeStreamMessageHandler) {
+        this.clusterId = Objects.requireNonNull(clusterId, "clusterId");
         this.routeMessageHandler = routeMessageHandler;
         this.routeStreamMessageHandler = routeStreamMessageHandler;
     }
@@ -60,7 +59,7 @@ public class CollectorClusterConnectionFactory implements CollectorClusterConnec
     }
 
     @Override
-    public ServerStreamChannelMessageListener getRouteStreamMessageHandler() {
+    public ServerStreamChannelMessageHandler getRouteStreamMessageHandler() {
         return routeStreamMessageHandler;
     }
 

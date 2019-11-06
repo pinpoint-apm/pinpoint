@@ -81,8 +81,8 @@ public class MysqlAlarmDao implements AlarmDao {
     }
 
     @Override
-    public void deleteCheckerResult(CheckerResult checkerResult) {
-        sqlSessionTemplate.delete(NAMESPACE + "deleteCheckerResult", checkerResult);
+    public void deleteCheckerResult(String ruleId) {
+        sqlSessionTemplate.delete(NAMESPACE + "deleteCheckerResult", ruleId);
     }
 
     @Override

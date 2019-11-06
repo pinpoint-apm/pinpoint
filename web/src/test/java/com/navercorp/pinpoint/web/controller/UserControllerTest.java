@@ -70,9 +70,7 @@ public class UserControllerTest {
     @Before
     public void setup() {
         this.mockMvc = MockMvcBuilders.webAppContextSetup(this.wac).build();
-        User user = new User();
-        user.setUserId(USER_ID);
-        userDao.deleteUser(user);
+        userDao.deleteUser(USER_ID);
     }
     
     @Test

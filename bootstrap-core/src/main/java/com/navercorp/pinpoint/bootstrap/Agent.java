@@ -16,21 +16,20 @@
 
 package com.navercorp.pinpoint.bootstrap;
 
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-
 /**
  * @author emeroad
  * @author hyungil.jeong
  */
 public interface Agent {
 
+    /**
+     * // caution
+     * stop is registered together to run when exit the jvm.
+     * If inherit this method, should implement it to shut down automatically
+     */
     void start();
 
     void stop();
-    
-    TraceContext getTraceContext();
 
-    ProfilerConfig getProfilerConfig();
-
+    void registerStopHandler();
 }

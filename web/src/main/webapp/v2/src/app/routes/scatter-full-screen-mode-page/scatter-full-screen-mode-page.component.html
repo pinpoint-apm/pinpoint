@@ -1,0 +1,15 @@
+<pp-notice-container></pp-notice-container>
+<header class="flex-container flex-row">
+    <pp-header-logo></pp-header-logo>
+    <div class="l-widget-group">
+        <img [src]="applicationImgPath"> <span class="l-title">{{applicationName}} - {{selectedAgent}}</span>
+        <pp-period-selector-container></pp-period-selector-container>
+    </div>
+</header>
+<div class="l-main-container">
+    <section class="l-sidemenu-wrap font-opensans">
+        <div class="l-sidemenu">
+            <router-outlet></router-outlet>
+        </div>
+    </section>
+</div>

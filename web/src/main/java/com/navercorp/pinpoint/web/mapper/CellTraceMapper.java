@@ -20,7 +20,7 @@ public class CellTraceMapper<T> implements RowMapper<T> {
 
     private CellTraceMapper(RowMapper<T> delegate) {
         if (delegate == null) {
-            throw new NullPointerException("delegate must not be null");
+            throw new NullPointerException("delegate");
         }
         this.delegate = delegate;
     }

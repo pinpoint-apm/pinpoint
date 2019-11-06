@@ -16,45 +16,47 @@
 		}
 	});
 	
-	pinpointApp.directive('navbarDirective', [ "navbarDirectiveConfig", "$route", "$rootScope", "$http","$document", "$timeout", "$window",  "webStorage", "helpContentService", "UrlVoService", "AnalyticsService", "PreferenceService", "TooltipService", "CommonAjaxService",
-	    function (cfg, $route, $rootScope, $http, $document, $timeout, $window, webStorage, helpContentService, UrlVoService, analyticsService, preferenceService, tooltipService, commonAjaxService) {
+	pinpointApp.directive('navbarDirective', [ "navbarDirectiveConfig", "$route", "$rootScope", "$http","$document", "$timeout", "$window",  "webStorage", "helpContentService", "UrlVoService", "AnalyticsService", "PreferenceService", "UserConfigurationService", "TooltipService", "CommonAjaxService", "CommonUtilService",
+	    function (cfg, $route, $rootScope, $http, $document, $timeout, $window, webStorage, helpContentService, UrlVoService, AnalyticsService, PreferenceService, UserConfigService, TooltipService, CommonAjaxService, CommonUtilService ) {
 	        return {
 	            restrict: 'EA',
 	            replace: true,
 	            templateUrl: 'features/navbar/navbar.html?v=' + G_BUILD_TIME,
 	            link: function (scope, element) {
 	                // define private variables
-	                var $application, $fromPicker, $toPicker, oNavbarVoService, $fromToCalendarPopup, bIsClickDepthInnerArea = false, bIsClickDepthInnerBtn = false, prevCallee, prevCaller;
+	                var $application, $fromPicker, $toPicker, oNavbarVoService, $fromToCalendarPopup, bIsClickDepthInnerArea = false, bIsClickDepthInnerBtn = false, prevCallee, prevCaller, prevBidirectional, prevWasOnly;
 	
 	                // define private variables of methods
 	                var initialize, initializeDateTimePicker, initializeApplication, setDateTime, getQueryEndTimeFromServer,
 	                    broadcast, getApplicationList, getQueryStartTime, getQueryEndTime, parseApplicationList, emitAsChanged,
 	                    initializeWithStaticApplication, getPeriodType, setPeriodTypeAsCurrent, getDate, startUpdate,
 	                    resetTimeLeft, getMilliSecondByReadablePeriod, movePeriod, selectPeriod,
-						toggleCalendarPopup, getPeriodForCalendar;
+						toggleCalendarPopup;
+	                var guideDateMax = helpContentService.navbar.searchPeriod.guideDateMax.replace(/\{\{day\}\}/, PreferenceService.getMaxPeriod() );
+	                var guideDateOrder = helpContentService.navbar.searchPeriod.guideDateOrder;
 	
 	                var applicationResource;
 
 					scope.bIsInspector = false;
 	                scope.periodDelay = false;
-	                scope.aReadablePeriodList = preferenceService.getPeriodTime();
+	                scope.aReadablePeriodList = PreferenceService.getPeriodTime();
 	                scope.autoUpdate = false;
 	                scope.timeLeft = 10;
 	                scope.timeCountDown = 10;
-	                scope.timeList = preferenceService.getUpdateTimes();
-					scope.callee = prevCallee = preferenceService.getCalleeByApp( scope.application );
-	                scope.caller = prevCaller = preferenceService.getCallerByApp( scope.application );
-	                scope.rangeList = preferenceService.getDepthList();
-	                scope.applications = [
-	                    {
+	                scope.timeList = PreferenceService.getUpdateTimes();
+					scope.callee = prevCallee = PreferenceService.getCalleeByApp( scope.application );
+	                scope.caller = prevCaller = PreferenceService.getCallerByApp( scope.application );
+	                scope.bidirectional = prevBidirectional = PreferenceService.getBidirectionalByApp( scope.application );
+					scope.wasOnly = prevWasOnly = PreferenceService.getWasOnlyByApp( scope.application );
+	                scope.rangeList = PreferenceService.getDepthList();
+	                scope.applications = [{
 	                        text: 'Select an application.',
 	                        value: ''
-	                    }
-	                ];
+					}];
 	                element.bind('selectstart', function (e) {
 	                    return false;
 	                });
-					tooltipService.init( "navbar" );
+					TooltipService.init( "navbar" );
 
 					function initDepth() {
 						$("#navbar_depth div").on("show.bs.dropdown", function() {
@@ -89,20 +91,20 @@
 	                    $application = element.find('.application');
 						$application.select2();
 
-	                    scope.applications = [
-	                        {
-	                            text: 'Loading...',
-	                            value: ''
-	                        }
-	                    ];
+	                    scope.applications = [{
+							text: 'Loading...',
+							value: ''
+						}];
 	                    scope.application = oNavbarVoService.getApplication() || "";
 						// if ( scope.application !== "" ) {
-							scope.callee = prevCallee = preferenceService.getCalleeByApp( scope.application );
-							scope.caller = prevCaller = preferenceService.getCallerByApp( scope.application );
+							scope.callee = prevCallee = PreferenceService.getCalleeByApp( scope.application );
+							scope.caller = prevCaller = PreferenceService.getCallerByApp( scope.application );
+							scope.bidirectional = prevBidirectional = PreferenceService.getBidirectionalByApp( scope.application );
+							scope.wasOnly = prevWasOnly = PreferenceService.getWasOnlyByApp( scope.application );
 						// }
 	                    scope.disableApplication = true;
-	                    scope.readablePeriod = oNavbarVoService.getReadablePeriod() || preferenceService.getPeriod();
-						scope.periodCalendar = oNavbarVoService.getReadablePeriod() || preferenceService.getPeriod();
+	                    scope.readablePeriod = oNavbarVoService.getReadablePeriod() || UserConfigService.getPeriod();
+						scope.periodCalendar = oNavbarVoService.getReadablePeriod() || UserConfigService.getPeriod();
 	                    scope.queryEndTime = oNavbarVoService.getQueryEndTime() || "";
 
 	                    initializeApplication();
@@ -118,18 +120,14 @@
 	                    oNavbarVoService = navbarVoService;
 	
 	                    scope.periodType = getPeriodType();
-	                    $application = element.find('.application');
+	                    $application = element.find(".application");
 	                    scope.application = oNavbarVoService.getApplication() || '';
 	                    scope.applicationName = oNavbarVoService.getApplicationName() || '';
-	                    scope.readablePeriod = oNavbarVoService.getReadablePeriod() || preferenceService.getPeriod();
-						scope.periodCalendar = oNavbarVoService.getReadablePeriod() || preferenceService.getPeriod();
+	                    scope.readablePeriod = oNavbarVoService.getReadablePeriod() || UserConfigService.getPeriod();
+						scope.periodCalendar = oNavbarVoService.getReadablePeriod() || UserConfigService.getPeriod();
 	                    scope.queryEndTime = oNavbarVoService.getQueryEndTime() || '';
 
 						$("#ui-datepicker-div").remove();
-						//if ( bInitCalendar === false ) {
-						//	initializeDateTimePicker();
-						//	bInitCalendar = true;
-						//}
 	                };
 	
 	                /**
@@ -137,65 +135,20 @@
 	                 */
 	                initializeDateTimePicker = function () {
 						$fromToCalendarPopup = $("#ui-datepicker-div");
-						$fromToCalendarPopup.find(".guide").html(helpContentService.navbar.searchPeriod.guide.replace(/\{\{day\}\}/, preferenceService.getMaxPeriod() ) );
+						resetGuideMessage();
 						$fromToCalendarPopup.find("button.ui-datepicker-close").on("click", function() {
-							$fromToCalendarPopup.hide();
+							if ( validateCalendar() ) {
+								$fromToCalendarPopup.hide();
+								resetGuideMessage();
+							}
 						});
 
-						$fromPicker = element.find('#from-picker');
-	                    $fromPicker.datetimepicker({
-							altField: "#from-picker-alt",
-							altFieldTimeOnly: false,
-	                        dateFormat: "yy-mm-dd",
-	                        timeFormat: "HH:mm",
-	                        controlType: "select",
-							showButtonPanel: false,
-	                        onSelect: function () {
-	                        	var momentFrom = moment(getDate($fromPicker));
-	                        	var momentTo = moment(getDate($toPicker));
-	                        	if ( momentTo.isAfter( moment(getDate($fromPicker)).add(preferenceService.getMaxPeriod(), "days") ) || momentFrom.isAfter(momentTo) ) {
-									var aPeriodTime = getPeriodForCalendar();
-	                        		setDateTime($toPicker, momentFrom.add( aPeriodTime[0], aPeriodTime[1] ).format());
-	                        	}
-	                        },
-	                        onClose: function (currentTime, oTime) {
-	                            if ($toPicker.val() !== '') {
-	                                if ($fromPicker.datetimepicker('getDate') > $toPicker.datetimepicker('getDate')) {
-	                                    $toPicker.datetimepicker('setDate', $fromPicker.datetimepicker('getDate'));
-	                                }
-	                            } else {
-	                                $toPicker.val(currentTime);
-	                            }
-	                        }
-	                    });
-	                    setDateTime($fromPicker, oNavbarVoService.getQueryStartTime() || moment().subtract(20, "minute").valueOf());
+						$fromPicker = element.find( "#from-picker" );
+	                    $fromPicker.datetimepicker( getDatePickerOption( "#from-picker-alt" ) );
+	                    setDateTime($fromPicker, oNavbarVoService.getQueryStartTime() || moment().subtract(5, "minute").valueOf());
 	
-	                    $toPicker = element.find('#to-picker');
-	                    $toPicker.datetimepicker({
-							altField: "#to-picker-alt",
-							altFieldTimeOnly: false,
-	                        dateFormat: "yy-mm-dd",
-	                        timeFormat: "HH:mm",
-	                        controlType: "select",
-							showButtonPanel: false,
-	                        onSelect: function () {
-	                        	var momentFrom = moment(getDate($fromPicker));
-	                        	var momentTo = moment(getDate($toPicker));
-	                        	if ( momentFrom.isBefore(moment(getDate($toPicker)).subtract(preferenceService.getMaxPeriod(), "days")) || momentFrom.isAfter(momentTo) ) {
-									var aPeriodTime = getPeriodForCalendar();
-	                        		setDateTime($fromPicker, momentTo.subtract(aPeriodTime[0], aPeriodTime[1]).format());
-	                        	}
-	                        },
-	                        onClose: function (currentTime, oTime) {
-	                            if ($fromPicker.val() !== '') {
-	                                if ($fromPicker.datetimepicker('getDate') > $toPicker.datetimepicker('getDate')) {
-	                                    $fromPicker.datetimepicker('setDate', $toPicker.datetimepicker('getDate'));
-	                                }
-	                            } else {
-	                                $fromPicker.val(currentTime);
-	                            }
-	                        }
-	                    });
+	                    $toPicker = element.find( "#to-picker");
+	                    $toPicker.datetimepicker( getDatePickerOption( "#to-picker-alt" ) );
 	                    setDateTime($toPicker, oNavbarVoService.getQueryEndTime());
 
 						$("#from-picker-alt").on("click", function() {
@@ -211,14 +164,46 @@
 							}
 						});
 	                };
-					getPeriodForCalendar = function() {
+	                function getDatePickerOption( altId ) {
+						return {
+							altField: altId,
+							altFieldTimeOnly: false,
+							dateFormat: "yy-mm-dd",
+							timeFormat: "HH:mm z",
+							controlType: "select",
+							showButtonPanel: false,
+							timezone: moment().utcOffset(),
+							showTimezone: false,
+							onSelect: function () {},
+							onClose: function (currentTime, oTime) {}
+						};
+					}
+					function getPeriodForCalendar(selectedPeriod) {
 						var a = [];
-						var s = scope.periodCalendar.substring( scope.periodCalendar.length - 1 );
-						a[0] = parseInt( scope.periodCalendar );
+						var s = selectedPeriod.substr(-1);
+						a[0] = parseInt( selectedPeriod );
 						a[1] = s == "d" ? "days" : s == "h" ? "hours" : "minutes";
 						return a;
-					};
-
+					}
+					function resetGuideMessage() {
+						setGuideMessage(guideDateMax, false);
+					}
+					function setGuideMessage(msg, warning) {
+						$fromToCalendarPopup.find(".guide").html(msg).css("color", warning === true ? "red" : "");
+					}
+					function validateCalendar() {
+						var momentFrom = moment(getDate($fromPicker));
+						var momentTo = moment(getDate($toPicker));
+						if ( momentTo.isAfter( moment(getDate($fromPicker)).add(PreferenceService.getMaxPeriod(), "days") ) ) {
+							setGuideMessage(guideDateMax, true);
+							return false;
+						}
+						if ( momentFrom.isAfter(momentTo) ) {
+							setGuideMessage(guideDateOrder, true);
+							return false;
+						}
+						return true;
+					}
 					toggleCalendarPopup = function() {
 						if ( $fromToCalendarPopup.is(":visible") ) {
 							$fromToCalendarPopup.hide();
@@ -227,7 +212,7 @@
 							$fromToCalendarPopup.show();
 						}
 					};
-	
+
 	                getDate = function ($picker) {
 	                    return $picker.datetimepicker('getDate');
 	                };
@@ -275,13 +260,19 @@
 	                    oNavbarVoService.setApplication(scope.application);
 						UrlVoService.setApplication(scope.application);
 
-						scope.callee = prevCallee = preferenceService.getCalleeByApp(scope.application);
-	                    scope.caller = prevCaller = preferenceService.getCallerByApp(scope.application);
+						scope.callee = prevCallee = PreferenceService.getCalleeByApp(scope.application);
+	                    scope.caller = prevCaller = PreferenceService.getCallerByApp(scope.application);
+						scope.bidirectional = prevBidirectional = PreferenceService.getBidirectionalByApp(scope.application);
+						scope.wasOnly = prevWasOnly = PreferenceService.getWasOnlyByApp( scope.application );
 
 						oNavbarVoService.setCalleeRange( scope.callee );
 	                    oNavbarVoService.setCallerRange( scope.caller );
+						oNavbarVoService.setBidirectional( scope.bidirectional );
+						oNavbarVoService.setWasOnly( scope.wasOnly );
 						UrlVoService.setCallee( scope.callee );
 						UrlVoService.setCaller( scope.caller );
+						UrlVoService.setBidirectional( scope.bidirectional );
+						UrlVoService.setWasOnly( scope.wasOnly );
 
 	                    if (scope.periodType === cfg.periodType.LAST && scope.readablePeriod) {
 							oNavbarVoService.setPeriodType( cfg.periodType.LAST );
@@ -289,10 +280,10 @@
 							getQueryEndTimeFromServer(function (currentServerTime) {
 								// currentServerTime -= 3000;
 								oNavbarVoService.setReadablePeriod(scope.readablePeriod);
-								oNavbarVoService.setQueryEndDateTime(moment(currentServerTime).format('YYYY-MM-DD-HH-mm-ss'));
+								oNavbarVoService.setQueryEndDateTime( CommonUtilService.formatDate( currentServerTime ) );
 								oNavbarVoService.autoCalculateByQueryEndDateTimeAndReadablePeriod();
 								UrlVoService.setReadablePeriod(scope.readablePeriod);
-								UrlVoService.setQueryEndDateTime(moment(currentServerTime).format('YYYY-MM-DD-HH-mm-ss'));
+								UrlVoService.setQueryEndDateTime( CommonUtilService.formatDate( currentServerTime ) );
 								UrlVoService.autoCalculateByQueryEndDateTimeAndReadablePeriod();
 								emitAsChanged();
 								setDateTime($fromPicker, oNavbarVoService.getQueryStartTime());
@@ -302,10 +293,11 @@
 							oNavbarVoService.setPeriodType( cfg.periodType.REALTIME );
 							UrlVoService.setPeriodType( cfg.periodType.REALTIME );
 							getQueryEndTimeFromServer(function (currentServerTime) {
-								oNavbarVoService.setReadablePeriod( preferenceService.getRealtimeScatterXRangeStr() );
-								oNavbarVoService.setQueryEndDateTime(moment(currentServerTime).format('YYYY-MM-DD-HH-mm-ss'));
+								oNavbarVoService.setReadablePeriod( PreferenceService.getRealtimeScatterXRangeStr() );
+								oNavbarVoService.setQueryEndDateTime( CommonUtilService.formatDate( currentServerTime ) );
 								oNavbarVoService.autoCalculateByQueryEndDateTimeAndReadablePeriod();
-								UrlVoService.setQueryEndDateTime(moment(currentServerTime).format('YYYY-MM-DD-HH-mm-ss'));
+								UrlVoService.setReadablePeriod(cfg.periodType.REALTIME);
+								UrlVoService.setQueryEndDateTime( CommonUtilService.formatDate( currentServerTime ) );
 								UrlVoService.autoCalculateByQueryEndDateTimeAndReadablePeriod();
 								emitAsChanged();
 								setDateTime($fromPicker, oNavbarVoService.getQueryStartTime());
@@ -337,7 +329,7 @@
 	                 * @param cb
 	                 */
 	                getQueryEndTimeFromServer = function (cb) {
-						commonAjaxService.getServerTime( function( serverTime ) {
+						CommonAjaxService.getServerTime( function( serverTime ) {
 							cb( serverTime );
 						});
 	                };
@@ -346,7 +338,7 @@
 	                 * get Application List
 	                 */
 	                getApplicationList = function () {
-						commonAjaxService.getApplicationList( function( data ) {
+						CommonAjaxService.getApplicationList( function( data ) {
 							if (angular.isArray(data) === false || data.length === 0) {
 								scope.applications[0].text = 'Application not found.';
 							} else {
@@ -392,32 +384,38 @@
 	                 * parse Application List
 	                 */
 	                parseApplicationList = function (data, cb) {
-	                	var aSavedFavoriteList = preferenceService.getFavoriteList();
-	                	scope.favoriteCount = aSavedFavoriteList.length;
-	                    scope.applications = [{
-	                        text: '',
-	                        value: ''
-	                    }];
-	                    var aFavoriteList = [];
-	                    var aGeneralList = [];
-	                    angular.forEach(data, function (value, key) {
-	                    	var fullName = value.applicationName + "@" + value.serviceType;
-	                    	if ( aSavedFavoriteList.indexOf( fullName ) === -1 ) {
-	                    		aGeneralList.push({
-		                            text: fullName,
-		                            value: value.applicationName + "@" + value.code
-		                        });
-	                    	} else {
-	                    		aFavoriteList.push({
-		                            text: fullName,
-		                            value: value.applicationName + "@" + value.code
-		                        });
-	                    	}
-	                    });
-	                    scope.applications = aFavoriteList.concat( aGeneralList );
-	                    if (angular.isFunction(cb)) {
-	                        cb.apply(scope);
-	                    }
+	                	UserConfigService.getFavoriteList(function( aSavedFavoriteList ){
+							// scope.favoriteCount = aSavedFavoriteList.length;
+							scope.applications = [{
+								text: '',
+								value: ''
+							}];
+							var aFavoriteList = [];
+							var aGeneralList = [];
+							angular.forEach(data, function (value, key) {
+								var bFavorite = false;
+								var oValue = {
+									text: value.applicationName + "@" + value.serviceType,
+									value: value.applicationName + "@" + value.code
+								};
+								for( var j = 0 ; j< aSavedFavoriteList.length ; j++ ) {
+									if ( aSavedFavoriteList[j].applicationName === value.applicationName && aSavedFavoriteList[j].serviceType === value.serviceType ) {
+										bFavorite = true;
+										break;
+									}
+								}
+								if ( bFavorite ) {
+									aFavoriteList.push(oValue);
+								} else {
+									aGeneralList.push(oValue);
+								}
+							});
+							scope.favoriteCount = aFavoriteList.length;
+							scope.applications = aFavoriteList.concat( aGeneralList );
+							if (angular.isFunction(cb)) {
+								cb.apply(scope);
+							}
+						});
 	                };
 	
 	                /**
@@ -456,7 +454,7 @@
 	                        }
 	                    });
 						$application.on("select2:select", function (e) {
-	                    	analyticsService.send( analyticsService.CONST.MAIN, analyticsService.CONST.CLK_APPLICATION );
+	                    	AnalyticsService.send( AnalyticsService.CONST.MAIN, AnalyticsService.CONST.CLK_APPLICATION );
 	                        scope.application = $application.val();
 	                        scope.$digest();
 	                        broadcast();
@@ -481,22 +479,30 @@
 	                };
 	                movePeriod = function( movedTime ) {
 	                	if ( scope.periodType === cfg.periodType.LAST ) {
-		                	oNavbarVoService.setQueryEndDateTime(moment(oNavbarVoService.getQueryEndTime() + movedTime).format('YYYY-MM-DD-HH-mm-ss'));
+	                		var nextTime = moment(oNavbarVoService.getQueryEndTime() + movedTime).format('YYYY-MM-DD-HH-mm-ss');
+		                	oNavbarVoService.setQueryEndDateTime(nextTime);
 		                    oNavbarVoService.autoCalculateByQueryEndDateTimeAndReadablePeriod();
+		                    UrlVoService.setQueryEndDateTime(nextTime);
+							UrlVoService.autoCalculateByQueryEndDateTimeAndReadablePeriod();
 		                    emitAsChanged();
 		                    setDateTime($fromPicker, oNavbarVoService.getQueryStartTime());
 		                    setDateTime($toPicker, oNavbarVoService.getQueryEndTime());
 	                	} else {
 		                    setDateTime($fromPicker, oNavbarVoService.getQueryStartTime() + movedTime);
 		                    setDateTime($toPicker, oNavbarVoService.getQueryEndTime() + movedTime );
-	                        oNavbarVoService.setQueryStartTime(getQueryStartTime());
-	                        oNavbarVoService.setQueryEndTime(getQueryEndTime());
+		                    var startTime = getQueryStartTime();
+		                    var endTime = getQueryEndTime();
+	                        oNavbarVoService.setQueryStartTime(startTime);
+	                        oNavbarVoService.setQueryEndTime(endTime);
 	                        oNavbarVoService.autoCalcultateByQueryStartTimeAndQueryEndTime();
+							UrlVoService.setQueryStartTime(startTime);
+							UrlVoService.setQueryEndTime(endTime);
+							UrlVoService.autoCalcultateByQueryStartTimeAndQueryEndTime();
 	                        emitAsChanged();
 	                	}
 	                };
 	                selectPeriod = function( readablePeriod ) {
-	                	analyticsService.send(analyticsService.CONST.MAIN, analyticsService.CONST.CLK_TIME, readablePeriod);
+	                	AnalyticsService.send(AnalyticsService.CONST.MAIN, AnalyticsService.CONST.CLK_TIME, readablePeriod);
 	                    scope.periodDelay = true;
 	                    scope.readablePeriod = readablePeriod;
 	                    scope.autoUpdate = false;
@@ -514,7 +520,11 @@
 	                 * search
 	                 */
 	                scope.search = function () {
-	                    broadcast();
+						if ( validateCalendar() ) {
+							broadcast();
+						} else {
+							$fromToCalendarPopup.show();
+						}
 	                };
 	
 	                /**
@@ -568,7 +578,7 @@
 						}
 	                };
 					scope.changeUpdateSetting = function() {
-						analyticsService.send(analyticsService.CONST.MAIN, scope.autoUpdate ? analyticsService.CONST.TG_UPDATE_OFF : analyticsService.CONST.TG_UPDATE_ON );
+						AnalyticsService.send(AnalyticsService.CONST.MAIN, scope.autoUpdate ? AnalyticsService.CONST.TG_UPDATE_OFF : AnalyticsService.CONST.TG_UPDATE_ON );
 					};
 	
 	                /**
@@ -593,7 +603,9 @@
 	                    scope.timeLeft = scope.timeCountDown;
 	                };
 					scope.setPeriodForCalendar = function(period) {
-						scope.periodCalendar = period;
+						var momentTo = moment(getDate($toPicker));
+						var aPeriodTime = getPeriodForCalendar(period);
+						setDateTime($fromPicker, momentTo.subtract(aPeriodTime[0], aPeriodTime[1]).format());
 					};
 	
 	                /**
@@ -601,7 +613,7 @@
 	                 * @param time
 	                 */
 	                scope.setAutoUpdateTime = function (time) {
-	                	analyticsService.send(analyticsService.CONST.MAIN, analyticsService.CONST.CLK_UPDATE_TIME, time + "s");
+	                	AnalyticsService.send(AnalyticsService.CONST.MAIN, AnalyticsService.CONST.CLK_UPDATE_TIME, time + "s");
 	                    scope.timeCountDown = time;
 	                    scope.timeLeft = time;
 	                };
@@ -611,18 +623,36 @@
 					scope.setCaller = function(caller) {
 						scope.caller = caller;
 					};
+					scope.getBidirectionalImgSrc = function() {
+						return "images/bidirect_" + (scope.bidirectional ? "on" : "off") + ".png";
+					};
+					scope.checkBidirectional = function() {
+						scope.bidirectional = !scope.bidirectional;
+					};
+					scope.checkWasOnly = function($event) {
+						scope.wasOnly = !scope.wasOnly;
+						if ( scope.wasOnly ) {
+							$( $event.target ).addClass("btn-info").css("color", "white");
+						} else {
+							$( $event.target ).removeClass("btn-info").css("color", "#DDD");
+						}
+						PreferenceService.setDepthByApp( scope.application + "+wasOnly", scope.wasOnly );
+						window.location.reload(true);
+					};
 					scope.setDepth = function() {
 						bIsClickDepthInnerArea = false;
 						bIsClickDepthInnerBtn = true;
 						$("#navbar_depth .dropdown-menu").trigger("click.bs.dropdown");
-						console.log( "previous :", prevCallee, prevCaller, ", current :", scope.callee, scope.caller );
-						if ( prevCallee !== scope.callee || prevCaller !== scope.caller ) {
-							analyticsService.send(analyticsService.CONST.MAIN, analyticsService.CONST.CLK_CALLEE_RANGE, scope.callee);
-							analyticsService.send(analyticsService.CONST.MAIN, analyticsService.CONST.CLK_CALLER_RANGE, scope.caller);
+						if ( prevCallee !== scope.callee || prevCaller !== scope.caller || prevBidirectional !== scope.bidirectional ) {
+							AnalyticsService.send(AnalyticsService.CONST.MAIN, AnalyticsService.CONST.CLK_CALLEE_RANGE, scope.callee);
+							AnalyticsService.send(AnalyticsService.CONST.MAIN, AnalyticsService.CONST.CLK_CALLER_RANGE, scope.caller);
 							prevCallee = scope.callee;
 							prevCaller = scope.caller;
-							preferenceService.setDepthByApp( scope.application + "+callee", scope.callee );
-							preferenceService.setDepthByApp( scope.application + "+caller", scope.caller );
+							prevBidirectional = scope.bidirectional;
+
+							PreferenceService.setDepthByApp( scope.application + "+callee", scope.callee );
+							PreferenceService.setDepthByApp( scope.application + "+caller", scope.caller );
+							PreferenceService.setDepthByApp( scope.application + "+bidirectional", scope.bidirectional );
 
 							window.location.reload(true);
 							// broadcast();
@@ -631,6 +661,7 @@
 					scope.cancelDepth = function( bHide ) {
 						scope.callee = prevCallee;
 						scope.caller = prevCaller;
+						scope.bidirectional = prevBidirectional;
 						if ( bHide ) {
 							bIsClickDepthInnerArea = false;
 							bIsClickDepthInnerBtn = true;
@@ -662,13 +693,13 @@
 	                 * @param type
 	                 */
 	                scope.togglePeriod = function (type) {
-	                	analyticsService.send(analyticsService.CONST.MAIN, analyticsService.CONST.TG_DATE, type);
+	                	AnalyticsService.send(AnalyticsService.CONST.MAIN, AnalyticsService.CONST.TG_DATE, type);
 	                    scope.periodType = type;
 	                    scope.autoUpdate = false;
 	                };
 					scope.setRealtime = function () {
 						if ( scope.periodType === cfg.periodType.REALTIME ) return;
-						analyticsService.send( analyticsService.CONST.MAIN, analyticsService.CONST.CLK_START_REALTIME );
+						AnalyticsService.send( AnalyticsService.CONST.MAIN, AnalyticsService.CONST.CLK_START_REALTIME );
 						scope.periodType = cfg.periodType.REALTIME;
 						scope.autoUpdate = false;
 						broadcast();
@@ -701,12 +732,12 @@
 	                scope.$on('navbarDirective.initialize.andReload', function (event, navbarVo) {
 	                    initialize(navbarVo);
 	                    scope.periodType = cfg.periodType.LAST;
-	                    selectPeriod(preferenceService.getPeriod());
+	                    selectPeriod(UserConfigService.getPeriod());
 	                });
 					scope.$on('navbarDirective.initialize.realtime.andReload', function (event, navbarVo) {
 						initialize(navbarVo);
 						scope.periodType = cfg.periodType.REALTIME;
-						selectPeriod(preferenceService.getPeriod());
+						selectPeriod(UserConfigService.getPeriod());
 					});
 	
 	                /**

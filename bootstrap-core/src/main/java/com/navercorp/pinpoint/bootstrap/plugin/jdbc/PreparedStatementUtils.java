@@ -18,8 +18,6 @@ package com.navercorp.pinpoint.bootstrap.plugin.jdbc;
 
 
 import java.lang.reflect.Method;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -33,14 +31,11 @@ public final class PreparedStatementUtils {
 
     private static final Pattern BIND_SETTER = Pattern.compile("set[A-Z]([a-zA-Z]+)");
 
-    private static final List<Method> bindMethod;
+    private static final List<Method> bindMethod = findBindVariableSetMethod0();
 
     private PreparedStatementUtils() {
     }
 
-    static {
-        bindMethod = findBindVariableSetMethod0();
-    }
 
     public static List<Method> findBindVariableSetMethod() {
         return bindMethod;
@@ -48,7 +43,7 @@ public final class PreparedStatementUtils {
 
     public static List<Method> findBindVariableSetMethod(BindVariableFilter filter) {
         if (filter == null) {
-            throw new NullPointerException("filter must not be null");
+            throw new NullPointerException("filter");
         }
 
         List<Method> temp = new ArrayList<Method>(bindMethod.size());
@@ -60,12 +55,17 @@ public final class PreparedStatementUtils {
         return temp;
     }
 
+
     static List<Method> findBindVariableSetMethod0() {
-        Method[] methods = PreparedStatement.class.getDeclaredMethods();
+        if (!SqlModule.isSqlModuleEnable()) {
+            return Collections.emptyList();
+        }
+        final Class<?> preparedStatement = SqlModule.getSqlPreparedStatement();
+        Method[] methods = preparedStatement.getDeclaredMethods();
         List<Method> bindMethod = new LinkedList<Method>();
         for (Method method : methods) {
             if (isSetter(method.getName())) {
-                Class<?>[] parameterTypes = method.getParameterTypes();
+                final Class<?>[] parameterTypes = method.getParameterTypes();
 
                 if (parameterTypes.length < 2) {
                     continue;
@@ -89,7 +89,7 @@ public final class PreparedStatementUtils {
         Class<?>[] exceptionTypes = method.getExceptionTypes();
         if (exceptionTypes.length == 1) {
             Class<?> exceptionType = exceptionTypes[0];
-            if (exceptionType.equals(SQLException.class)) {
+            if (exceptionType.getName().equals("java.sql.SQLException")) {
                 return true;
             }
         }

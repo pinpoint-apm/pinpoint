@@ -36,14 +36,8 @@ public class ResponseTime {
 
 
     public ResponseTime(String applicationName, ServiceType applicationServiceType, long timeStamp) {
-        if (applicationName == null) {
-            throw new NullPointerException("applicationName must not be null");
-        }
-        if (applicationServiceType == null) {
-            throw new NullPointerException("applicationServiceType must not be null");
-        }
-        this.applicationName = applicationName;
-        this.applicationServiceType = applicationServiceType;
+        this.applicationName = Objects.requireNonNull(applicationName, "applicationName");
+        this.applicationServiceType = Objects.requireNonNull(applicationServiceType, "applicationServiceType");
         this.timeStamp = timeStamp;
     }
 
@@ -62,20 +56,16 @@ public class ResponseTime {
 
     public Histogram findHistogram(String agentId) {
         if (agentId == null) {
-            throw new NullPointerException("agentId must not be null");
+            throw new NullPointerException("agentId");
         }
         return responseHistogramMap.get(agentId);
     }
 
     private Histogram getHistogram(String agentId) {
         if (agentId == null) {
-            throw new NullPointerException("agentId must not be null");
+            throw new NullPointerException("agentId");
         }
-        TimeHistogram histogram = responseHistogramMap.get(agentId);
-        if (histogram == null) {
-            histogram = new TimeHistogram(applicationServiceType, timeStamp);
-            responseHistogramMap.put(agentId, histogram);
-        }
+        TimeHistogram histogram = responseHistogramMap.computeIfAbsent(agentId, k -> new TimeHistogram(applicationServiceType, timeStamp));
         return histogram;
     }
 
@@ -87,7 +77,7 @@ public class ResponseTime {
 
     public void addResponseTime(String agentId, Histogram copyHistogram) {
         if (copyHistogram == null) {
-            throw new NullPointerException("copyHistogram must not be null");
+            throw new NullPointerException("copyHistogram");
         }
         Histogram histogram = getHistogram(agentId);
         histogram.add(copyHistogram);
@@ -116,12 +106,12 @@ public class ResponseTime {
 
     @Override
     public String toString() {
-        return "ResponseTime{" +
-                "applicationName='" + applicationName + '\'' +
-                ", applicationServiceType=" + applicationServiceType +
-                ", timeStamp=" + timeStamp +
-                ", responseHistogramMap=" + responseHistogramMap +
-                '}';
+        final StringBuilder sb = new StringBuilder("ResponseTime{");
+        sb.append("applicationName='").append(applicationName).append('\'');
+        sb.append(", applicationServiceType=").append(applicationServiceType);
+        sb.append(", timeStamp=").append(timeStamp);
+        sb.append(", responseHistogramMap=").append(responseHistogramMap);
+        sb.append('}');
+        return sb.toString();
     }
-
 }

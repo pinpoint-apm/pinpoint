@@ -1,0 +1,59 @@
+:host {
+    position: relative;
+}
+.l-pinpoint-user-wrapper {
+    color: #333;
+    border: 1px solid #e5e8f0;
+    height: 100%;
+    display: grid;
+    position: relative;
+    font-size: 13px;
+    font-family: 'Open Sans', sans-serif;
+    font-weight: 600;
+    background-color: #FFF;
+    grid-template-columns: auto;
+    grid-template-rows: 48px 53px calc(100% - 101px);
+}
+.l-pinpoint-user-title {
+    display: flex;
+    padding: 0px 15px;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #f6f8fb;
+    border-bottom: 1px solid #e5e8f0;
+}
+.l-pinpoint-user-title button:last-child {
+    margin-left: 2px;
+}
+.l-pinpoint-user-search {
+    position: relative;
+    padding: 10px 15px;
+    border-bottom: 1px solid #e5e8f0;
+    color: #b3b3b4;
+}
+.l-pinpoint-user-list {
+    overflow-y: auto;
+}
+.l-search-input {
+    width: 100%;
+    color: #b3b3b4;
+    border: 1px solid #d7dde4;
+    padding: 6px 11px;
+    font-size: 13px;
+}
+.l-search-input:focus {
+    border: 1px solid #469ae4;
+    box-shadow: 0 0 1px 0px #469ae4;
+}
+.l-search-button {
+    position: absolute;
+    right: 25px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 18px;
+    /* outline: none; */
+}
+.btn {
+    padding: 0 9px;
+    border-radius: 2px;
+}

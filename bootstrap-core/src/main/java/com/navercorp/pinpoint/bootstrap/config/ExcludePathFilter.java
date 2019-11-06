@@ -19,10 +19,11 @@ package com.navercorp.pinpoint.bootstrap.config;
 import com.navercorp.pinpoint.bootstrap.util.AntPathMatcher;
 import com.navercorp.pinpoint.bootstrap.util.EqualsPathMatcher;
 import com.navercorp.pinpoint.bootstrap.util.PathMatcher;
-import com.navercorp.pinpoint.bootstrap.util.StringUtils;
+import com.navercorp.pinpoint.common.util.StringUtils;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -34,7 +35,7 @@ public class ExcludePathFilter implements Filter<String> {
     public static final String DEFAULT_PATH_SEAPARATOR = "/";
     public static final String DEFAULT_FORMAT_SEPARATOR = ",";
 
-    protected final List<PathMatcher> excludePathMatchers;
+    protected final PathMatcher[] excludePathMatchers;
 
     public ExcludePathFilter(String excludePathFormatString) {
         this(excludePathFormatString, DEFAULT_PATH_SEAPARATOR);
@@ -49,16 +50,23 @@ public class ExcludePathFilter implements Filter<String> {
             throw new IllegalArgumentException("pathSeparator must not be empty");
         }
         if (StringUtils.isEmpty(excludePathFormatString)) {
-            this.excludePathMatchers = Collections.emptyList();
+            this.excludePathMatchers = new PathMatcher[0];
             return;
         }
-        final List<String> excludePathFormats = StringUtils.splitAndTrim(excludePathFormatString, formatSeparator);
+        final List<String> excludePathFormats = StringUtils.tokenizeToStringList(excludePathFormatString, formatSeparator);
         final List<PathMatcher> excludePathMatchers = new ArrayList<PathMatcher>(excludePathFormats.size());
         for (String excludePathFormat : excludePathFormats) {
             final PathMatcher pathMatcher = createPathMatcher(excludePathFormat, pathSeparator);
             excludePathMatchers.add(pathMatcher);
         }
-        this.excludePathMatchers = excludePathMatchers;
+        this.excludePathMatchers = toArray(excludePathMatchers);
+    }
+
+    public PathMatcher[] toArray(Collection<PathMatcher> collection) {
+        if (collection == null) {
+            throw new NullPointerException("collection");
+        }
+        return collection.toArray(new PathMatcher[0]);
     }
 
     protected PathMatcher createPathMatcher(String pattern, String pathSeparator) {
@@ -81,7 +89,7 @@ public class ExcludePathFilter implements Filter<String> {
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("ExcludePathFilter{");
-        sb.append("excludePathMatchers=").append(excludePathMatchers);
+        sb.append("excludePathMatchers=").append(Arrays.toString(excludePathMatchers));
         sb.append('}');
         return sb.toString();
     }

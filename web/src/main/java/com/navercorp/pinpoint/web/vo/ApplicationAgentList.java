@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,64 +16,36 @@
 
 package com.navercorp.pinpoint.web.vo;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.navercorp.pinpoint.web.view.ApplicationAgentListSerializer;
-
 import java.util.List;
-import java.util.Map;
-import java.util.SortedMap;
-import java.util.TreeMap;
+import java.util.Objects;
 
 /**
- * @author minwoo.jung
  * @author HyunGil Jeong
  */
-@JsonSerialize(using = ApplicationAgentListSerializer.class)
 public class ApplicationAgentList {
 
-    public enum Key {
-        APPLICATION_NAME {
-            @Override
-            public String getKey(AgentInfo agentInfo) {
-                return agentInfo.getApplicationName();
-            }
-        },
-        HOST_NAME {
-            @Override
-            public String getKey(AgentInfo agentInfo) {
-                return agentInfo.getHostName();
-            }
-        };
+    private final String groupName;
+    private final List<AgentInfo> agentInfos;
 
-        public abstract String getKey(AgentInfo agentInfo);
+    public ApplicationAgentList(String groupName, List<AgentInfo> agentInfos) {
+        this.groupName = Objects.requireNonNull(groupName, "groupName");
+        this.agentInfos = Objects.requireNonNull(agentInfos, "agentInfos");
     }
 
-    private final SortedMap<String, List<AgentInfo>> applicationAgentList;
-
-    public ApplicationAgentList() {
-        this.applicationAgentList = new TreeMap<>();
+    public String getGroupName() {
+        return groupName;
     }
 
-    public ApplicationAgentList(SortedMap<String, List<AgentInfo>> applicationAgentList) {
-        if (applicationAgentList == null) {
-            throw new NullPointerException("applicationAgentList must not be null");
-        }
-        this.applicationAgentList = applicationAgentList;
+    public List<AgentInfo> getAgentInfos() {
+        return agentInfos;
     }
 
-    public void merge(ApplicationAgentList applicationAgentList) {
-        for (Map.Entry<String, List<AgentInfo>> e : applicationAgentList.getApplicationAgentList().entrySet()) {
-            String key = e.getKey();
-            if (this.applicationAgentList.containsKey(key)) {
-                this.applicationAgentList.get(key).addAll(e.getValue());
-            } else {
-                this.applicationAgentList.put(key, e.getValue());
-            }
-        }
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("{");
+        sb.append('\'').append(groupName).append('\'');
+        sb.append(":").append(agentInfos);
+        sb.append('}');
+        return sb.toString();
     }
-
-    public SortedMap<String, List<AgentInfo>> getApplicationAgentList() {
-        return this.applicationAgentList;
-    }
-
 }

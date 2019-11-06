@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2014 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -27,6 +27,6 @@ public class CommonsDbcpMetadataProvider implements TraceMetadataProvider {
      */
     @Override
     public void setup(TraceMetadataSetupContext context) {
-        context.addServiceType(CommonsDbcpPlugin.DBCP_SERVICE_TYPE);
+        context.addServiceType(CommonsDbcpConstants.SERVICE_TYPE);
     }
 }

@@ -1,39 +1,34 @@
 /*
+ * Copyright 2016 NAVER Corp.
  *
- *  * Copyright 2014 NAVER Corp.
- *  *
- *  * Licensed under the Apache License, Version 2.0 (the "License");
- *  * you may not use this file except in compliance with the License.
- *  * You may obtain a copy of the License at
- *  *
- *  *     http://www.apache.org/licenses/LICENSE-2.0
- *  *
- *  * Unless required by applicable law or agreed to in writing, software
- *  * distributed under the License is distributed on an "AS IS" BASIS,
- *  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  * See the License for the specific language governing permissions and
- *  * limitations under the License.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  */
 
 package com.navercorp.pinpoint.collector.manage;
 
+import com.navercorp.pinpoint.collector.cluster.AgentInfo;
+import com.navercorp.pinpoint.collector.cluster.ClusterPoint;
 import com.navercorp.pinpoint.collector.cluster.ClusterPointLocator;
-import com.navercorp.pinpoint.collector.cluster.TargetClusterPoint;
 import com.navercorp.pinpoint.collector.config.CollectorConfiguration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public class ClusterManager extends AbstractCollectorManager implements ClusterManagerMBean {
-
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final boolean enableCluster;
     private final ClusterPointLocator clusterPointLocator;
@@ -52,26 +47,13 @@ public class ClusterManager extends AbstractCollectorManager implements ClusterM
     public List<String> getConnectedAgentList() {
         List<String> result = new ArrayList<>();
 
-        List clusterPointList = clusterPointLocator.getClusterPointList();
-        for (Object clusterPoint : clusterPointList) {
-            if (clusterPoint != null && clusterPoint instanceof TargetClusterPoint) {
-                TargetClusterPoint agentClusterPoint = (TargetClusterPoint) clusterPoint;
-                result.add(createAgentKey(agentClusterPoint));
-            }
+        List<ClusterPoint> clusterPointList = clusterPointLocator.getClusterPointList();
+        for (ClusterPoint clusterPoint : clusterPointList) {
+            AgentInfo destAgentInfo = clusterPoint.getDestAgentInfo();
+            result.add(destAgentInfo.getAgentKey());
         }
 
         return result;
-    }
-
-    private String createAgentKey(TargetClusterPoint agentClusterPoint) {
-        StringBuilder key = new StringBuilder();
-        key.append(agentClusterPoint.getApplicationName());
-        key.append("/");
-        key.append(agentClusterPoint.getAgentId());
-        key.append("/");
-        key.append(agentClusterPoint.getStartTimeStamp());
-
-        return key.toString();
     }
 
 }

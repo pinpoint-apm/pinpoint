@@ -52,4 +52,5 @@ public interface UserGroupDao {
 
     void updateUserGroupIdOfMember(UserGroup userGroup);
 
+    boolean isExistUserGroup(String userGroupId);
 }

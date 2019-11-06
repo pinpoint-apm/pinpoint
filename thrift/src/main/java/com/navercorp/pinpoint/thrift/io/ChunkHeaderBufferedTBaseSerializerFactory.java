@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.thrift.io;
 
+import com.navercorp.pinpoint.io.util.TypeLocator;
+import org.apache.thrift.TBase;
 import org.apache.thrift.protocol.TCompactProtocol;
 import org.apache.thrift.protocol.TProtocolFactory;
 
@@ -32,24 +34,24 @@ public final class ChunkHeaderBufferedTBaseSerializerFactory implements Serializ
     private static final int DEFAULT_STREAM_SIZE = 1024 * 8;
     private static final boolean DEFAULT_AUTO_EXPAND = true;
 
-    private static final TBaseLocator DEFAULT_TBASE_LOCATOR = new DefaultTBaseLocator();
+    private static final TypeLocator<TBase<?, ?>> DEFAULT_TBASE_LOCATOR = DefaultTBaseLocator.getTypeLocator();
     private static final TProtocolFactory DEFAULT_PROTOCOL_FACTORY = new TCompactProtocol.Factory();
     
     private final boolean safetyGuaranteed;
     private final int outputStreamSize;
     private final boolean autoExpand;
     private final TProtocolFactory protocolFactory;
-    private final TBaseLocator locator;
+    private final TypeLocator<TBase<?, ?>> locator;
 
     public ChunkHeaderBufferedTBaseSerializerFactory() {
         this(DEFAULT_SAFE_GUARANTEED, DEFAULT_STREAM_SIZE, DEFAULT_PROTOCOL_FACTORY, DEFAULT_TBASE_LOCATOR);
     }
 
-    public ChunkHeaderBufferedTBaseSerializerFactory(boolean safetyGuaranteed, int outputStreamSize, TProtocolFactory protocolFactory, TBaseLocator locator) {
+    public ChunkHeaderBufferedTBaseSerializerFactory(boolean safetyGuaranteed, int outputStreamSize, TProtocolFactory protocolFactory, TypeLocator<TBase<?, ?>> locator) {
         this(safetyGuaranteed, outputStreamSize, DEFAULT_AUTO_EXPAND, protocolFactory, locator);
     }
     
-    public ChunkHeaderBufferedTBaseSerializerFactory(boolean safetyGuaranteed, int outputStreamSize, boolean autoExpand, TProtocolFactory protocolFactory, TBaseLocator locator) {
+    public ChunkHeaderBufferedTBaseSerializerFactory(boolean safetyGuaranteed, int outputStreamSize, boolean autoExpand, TProtocolFactory protocolFactory, TypeLocator<TBase<?, ?>> locator) {
         this.safetyGuaranteed = safetyGuaranteed;
         this.outputStreamSize = outputStreamSize;
         this.autoExpand = autoExpand;
@@ -69,7 +71,7 @@ public final class ChunkHeaderBufferedTBaseSerializerFactory implements Serializ
         return protocolFactory;
     }
 
-    public TBaseLocator getLocator() {
+    public TypeLocator<TBase<?, ?>> getLocator() {
         return locator;
     }
 
@@ -84,4 +86,14 @@ public final class ChunkHeaderBufferedTBaseSerializerFactory implements Serializ
 
         return new ChunkHeaderBufferedTBaseSerializer(baos, protocolFactory, locator);
     }
+
+    @Override
+    public boolean isSupport(Object target) {
+        if (target instanceof TBase<?, ?>) {
+            return locator.isSupport((Class<? extends TBase<?, ?>>) target.getClass());
+        }
+
+        return false;
+    }
+
 }

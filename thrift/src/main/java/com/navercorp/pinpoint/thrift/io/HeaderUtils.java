@@ -16,6 +16,10 @@
 
 package com.navercorp.pinpoint.thrift.io;
 
+import com.navercorp.pinpoint.io.header.Header;
+import org.apache.thrift.TException;
+import org.apache.thrift.protocol.TProtocol;
+
 /**
  * @author emeroad
  */
@@ -27,9 +31,18 @@ final class HeaderUtils {
     }
 
     public static int validateSignature(byte signature) {
-        if (Header.SIGNATURE == signature) {
+        if (OK == signature) {
             return OK;
         } 
         return FAIL;
+    }
+
+    public static void writeHeader(TProtocol protocol, Header header) throws TException {
+        protocol.writeByte(header.getSignature());
+        protocol.writeByte(header.getVersion());
+        // fixed size regardless protocol
+        short type = header.getType();
+        protocol.writeByte(BytesUtils.writeShort1(type));
+        protocol.writeByte(BytesUtils.writeShort2(type));
     }
 }

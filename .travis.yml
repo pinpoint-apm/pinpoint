@@ -1,8 +1,45 @@
+sudo : required
 language: java
 
+cache:
+  directories:
+    - $HOME/.m2
+
+addons:
+  apt:
+    packages:
+      - openjdk-6-jdk
+
 jdk:
-  - oraclejdk7
+ - oraclejdk8
 
-env: JAVA_6_HOME=/usr/lib/jvm/java-6-openjdk-amd64 JAVA_7_HOME=/usr/lib/jvm/java-7-oracle JAVA_8_HOME=/usr/lib/jvm/java-8-oracle
+env:
+  global:
+   - secure: NZHVmbkzMZGm9M71n5sitb47tyHJE/byA8l6u2zqdhfeEZsrdhZKpgTRYdQYa4btsBHoO/hImziRMz2SuaQgGyK3EiizzZfFqzzqfMvq1WXKeNNI46QtN9RKA60o+/TIptmJADIXfAq5KEjOBOVIyN93Wsf0+4LP13Ve+UDFG38=
+   - JAVA_6_HOME=/usr/lib/jvm/java-6-openjdk-amd64
+     JAVA_7_HOME=/usr/lib/jvm/java-7-openjdk-amd64
+     JAVA_8_HOME=/usr/lib/jvm/java-8-oracle
+     JAVA_9_HOME=/usr/lib/jvm/java-9-oracle
 
-script: mvn test | grep -Fv 'DEBUG'
+install:
+ - set -o pipefail
+ - ls -al $JAVA_6_HOME
+ - ls -al $JAVA_7_HOME
+ - ls -al $JAVA_8_HOME
+ - ls -al $JAVA_9_HOME
+ - $JAVA_6_HOME/bin/java -version
+ - $JAVA_7_HOME/bin/java -version
+ - $JAVA_8_HOME/bin/java -version
+ - $JAVA_9_HOME/bin/java -version
+ - ./mvnw install -DskipTests=true -Plocal -Dmaven.javadoc.skip=true -B -V | grep -Fv '[copy'
+
+script:
+ - jdk_switcher use oraclejdk8
+ - ./mvnw clover:setup test -Plocal,test clover:aggregate clover:clover -e | grep -Fv 'DEBUG' | grep -Fv '[copy'
+
+after_success:
+ - bash <(curl -s https://codecov.io/bash)
+ - bash ./doc/scripts/deployGitPage.sh
+
+dist:
+ - trusty

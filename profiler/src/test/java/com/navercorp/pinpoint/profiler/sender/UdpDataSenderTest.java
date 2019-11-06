@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,8 +16,12 @@
 
 package com.navercorp.pinpoint.profiler.sender;
 
+import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.profiler.context.thrift.DefaultTransactionIdEncoder;
+import com.navercorp.pinpoint.profiler.context.id.TransactionIdEncoder;
+import com.navercorp.pinpoint.profiler.context.thrift.BypassMessageConverter;
+import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
 import com.navercorp.pinpoint.profiler.logging.Slf4jLoggerBinderInitializer;
-import com.navercorp.pinpoint.profiler.sender.UdpDataSender;
 import com.navercorp.pinpoint.thrift.dto.TAgentInfo;
 
 import org.junit.Assert;
@@ -37,6 +41,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @author emeroad
  */
 public class UdpDataSenderTest {
+    private static final String APP_NAME = "appName";
+    private static final String AGENT_ID = "agentid";
+    private static final int AGENT_START_TIME = 0;
+    private static final ServiceType APP_SERVICE_TYPE = ServiceType.STAND_ALONE;
+
     private final int PORT = SocketUtils.findAvailableUdpPort(9009);
     @BeforeClass
     public static void before() {
@@ -48,11 +57,15 @@ public class UdpDataSenderTest {
         Slf4jLoggerBinderInitializer.afterClass();
     }
 
+    private final TransactionIdEncoder transactionIdEncoder = new DefaultTransactionIdEncoder(AGENT_ID, AGENT_START_TIME);
 
 
     @Test
     public void sendAndFlushCheck() throws InterruptedException {
-        UdpDataSender sender = new UdpDataSender("localhost", PORT, "test", 128, 1000, 1024*64*100);
+        final MessageConverter<TBase<?, ?>> messageConverter = new BypassMessageConverter<TBase<?, ?>>();
+        final MessageSerializer<ByteMessage> thriftMessageSerializer = new ThriftUdpMessageSerializer(messageConverter, ThriftUdpMessageSerializer.UDP_MAX_PACKET_LENGTH);
+        UdpDataSender sender = new UdpDataSender("localhost", PORT, "test", 128, 1000, 1024*64*100,
+                thriftMessageSerializer);
 
         TAgentInfo agentInfo = new TAgentInfo();
         sender.send(agentInfo);
@@ -85,7 +98,7 @@ public class UdpDataSenderTest {
 
     @Test
     public void sendExceedData() throws InterruptedException {
-        String random = RandomStringUtils.randomAlphabetic(UdpDataSender.UDP_MAX_PACKET_LENGTH + 100);
+        String random = RandomStringUtils.randomAlphabetic(ThriftUdpMessageSerializer.UDP_MAX_PACKET_LENGTH + 100);
         TAgentInfo agentInfo = new TAgentInfo();
         agentInfo.setAgentId(random);
         boolean limit = sendMessage_getLimit(agentInfo, 1000);
@@ -98,16 +111,19 @@ public class UdpDataSenderTest {
     private boolean sendMessage_getLimit(TBase tbase, long waitTimeMillis) throws InterruptedException {
         final AtomicBoolean limitCounter = new AtomicBoolean(false);
         final CountDownLatch latch = new CountDownLatch(1);
-
-        UdpDataSender sender = new UdpDataSender("localhost", PORT, "test", 128, 1000, 1024*64*100) {
+        final MessageConverter<TBase<?, ?>> messageConverter = new BypassMessageConverter<TBase<?, ?>>();
+        final MessageSerializer<ByteMessage> thriftMessageSerializer = new ThriftUdpMessageSerializer(messageConverter, ThriftUdpMessageSerializer.UDP_MAX_PACKET_LENGTH) {
             @Override
             protected boolean isLimit(int interBufferSize) {
-                boolean limit = super.isLimit(interBufferSize);
+                final boolean limit =  super.isLimit(interBufferSize);
                 limitCounter.set(limit);
                 latch.countDown();
                 return limit;
             }
         };
+
+        UdpDataSender sender = new UdpDataSender("localhost", PORT, "test", 128, 1000, 1024*64*100,
+                thriftMessageSerializer);
         try {
             sender.send(tbase);
             latch.await(waitTimeMillis, TimeUnit.MILLISECONDS);

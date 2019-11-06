@@ -1,4 +1,22 @@
+/*
+ * Copyright 2019 NAVER Corp.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.navercorp.pinpoint.common.server.bo;
+
+import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,33 +32,38 @@ public class SpanChunkBo implements BasicSpan {
     private String applicationId;
     private long agentStartTime;
 
-    private String traceAgentId;
-    private long traceAgentStartTime;
-    private long traceTransactionSequence;
+    private TransactionId transactionId;
 
     private long spanId;
     private String endPoint;
 
+    @Deprecated
     private short serviceType;
     private Short applicationServiceType;
 
-    private List<SpanEventBo> spanEventBoList = new ArrayList<>();
+    private List<SpanEventBo> spanEventBoList = new ArrayList<SpanEventBo>();
 
     private long collectorAcceptTime;
 
+    private LocalAsyncIdBo localAsyncId;
+    private long keyTime;
 
 
     public SpanChunkBo() {
     }
 
-    public byte getVersion() {
-        return version;
+    @Override
+    public int getVersion() {
+        return version & 0xFF;
     }
 
-    public void setVersion(byte version) {
-        this.version = version;
+    public void setVersion(int version) {
+        SpanBo.checkVersion(version);
+        // check range
+        this.version = (byte) (version & 0xFF);
     }
 
+    @Override
     public String getAgentId() {
         return agentId;
     }
@@ -49,6 +72,7 @@ public class SpanChunkBo implements BasicSpan {
         this.agentId = agentId;
     }
 
+    @Override
     public String getApplicationId() {
         return applicationId;
     }
@@ -57,6 +81,7 @@ public class SpanChunkBo implements BasicSpan {
         this.applicationId = applicationId;
     }
 
+    @Override
     public long getAgentStartTime() {
         return agentStartTime;
     }
@@ -65,36 +90,31 @@ public class SpanChunkBo implements BasicSpan {
         this.agentStartTime = agentStartTime;
     }
 
-    public String getTraceAgentId() {
-        return traceAgentId;
+    @Override
+    public TransactionId getTransactionId() {
+        return transactionId;
     }
 
-    public void setTraceAgentId(String traceAgentId) {
-        this.traceAgentId = traceAgentId;
+    public void setTransactionId(TransactionId transactionId) {
+        this.transactionId = transactionId;
     }
 
-    public long getTraceAgentStartTime() {
-        return traceAgentStartTime;
-    }
-
-    public void setTraceAgentStartTime(long traceAgentStartTime) {
-        this.traceAgentStartTime = traceAgentStartTime;
-    }
-
-    public long getTraceTransactionSequence() {
-        return traceTransactionSequence;
-    }
-
-    public void setTraceTransactionSequence(long traceTransactionSequence) {
-        this.traceTransactionSequence = traceTransactionSequence;
-    }
-
+    @Override
     public long getSpanId() {
         return spanId;
     }
 
+    @Override
     public void setSpanId(long spanId) {
         this.spanId = spanId;
+    }
+
+    public long getKeyTime() {
+        return this.keyTime;
+    }
+
+    public void setKeyTime(long keyTime) {
+        this.keyTime = keyTime;
     }
 
     public String getEndPoint() {
@@ -117,10 +137,12 @@ public class SpanChunkBo implements BasicSpan {
         this.applicationServiceType  = applicationServiceType;
     }
 
+    @Deprecated
     public short getServiceType() {
         return serviceType;
     }
 
+    @Deprecated
     public void setServiceType(short serviceType) {
         this.serviceType = serviceType;
     }
@@ -148,6 +170,18 @@ public class SpanChunkBo implements BasicSpan {
         this.spanEventBoList.addAll(spanEventBoList);
     }
 
+    public boolean isAsyncSpanChunk() {
+        return localAsyncId != null;
+    }
+
+    public LocalAsyncIdBo getLocalAsyncId() {
+        return localAsyncId;
+    }
+
+    public void setLocalAsyncId(LocalAsyncIdBo localAsyncId) {
+        this.localAsyncId = localAsyncId;
+    }
+
     @Override
     public String toString() {
         return "SpanChunkBo{" +
@@ -155,12 +189,15 @@ public class SpanChunkBo implements BasicSpan {
                 ", agentId='" + agentId + '\'' +
                 ", applicationId='" + applicationId + '\'' +
                 ", agentStartTime=" + agentStartTime +
-                ", traceAgentId='" + traceAgentId + '\'' +
-                ", traceAgentStartTime=" + traceAgentStartTime +
-                ", traceTransactionSequence=" + traceTransactionSequence +
+                ", transactionId=" + transactionId +
                 ", spanId=" + spanId +
+                ", endPoint='" + endPoint + '\'' +
+                ", serviceType=" + serviceType +
+                ", applicationServiceType=" + applicationServiceType +
                 ", spanEventBoList=" + spanEventBoList +
                 ", collectorAcceptTime=" + collectorAcceptTime +
+                ", localAsyncId=" + localAsyncId +
+                ", keyTIme=" + keyTime +
                 '}';
     }
 }

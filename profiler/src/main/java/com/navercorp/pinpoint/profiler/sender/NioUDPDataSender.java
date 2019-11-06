@@ -1,5 +1,24 @@
+/*
+ * Copyright 2018 NAVER Corp.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.navercorp.pinpoint.profiler.sender;
 
+import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
+import com.navercorp.pinpoint.common.util.IOUtils;
 import com.navercorp.pinpoint.rpc.PinpointSocketException;
 import com.navercorp.pinpoint.rpc.buffer.ByteBufferFactory;
 import com.navercorp.pinpoint.rpc.buffer.ByteBufferFactoryLocator;
@@ -19,9 +38,9 @@ import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
-public class NioUDPDataSender extends AbstractDataSender implements DataSender {
+public class NioUDPDataSender implements DataSender {
 
     protected final Logger logger = LoggerFactory.getLogger(this.getClass());
     protected final boolean isDebug = logger.isDebugEnabled();
@@ -35,29 +54,20 @@ public class NioUDPDataSender extends AbstractDataSender implements DataSender {
     private final ByteBufferOutputStream byteBufferOutputStream;
 
     private final AsyncQueueingExecutor<Object> executor;
+    private final MessageConverter<TBase<?, ?>> messageConverter;
 
     private volatile boolean closed = false;
 
-    public NioUDPDataSender(String host, int port, String threadName, int queueSize) {
-        this(host, port, threadName, queueSize, SOCKET_TIMEOUT, SEND_BUFFER_SIZE);
-    }
 
-    public NioUDPDataSender(String host, int port, String threadName, int queueSize, int timeout, int sendBufferSize) {
-        if (host == null ) {
-            throw new NullPointerException("host must not be null");
-        }
-        if (threadName == null) {
-            throw new NullPointerException("threadName must not be null");
-        }
-        if (queueSize <= 0) {
-            throw new IllegalArgumentException("queueSize");
-        }
-        if (timeout <= 0) {
-            throw new IllegalArgumentException("timeout");
-        }
-        if (sendBufferSize <= 0) {
-            throw new IllegalArgumentException("sendBufferSize");
-        }
+    public NioUDPDataSender(String host, int port, String threadName, int queueSize, int timeout, int sendBufferSize,
+                            MessageConverter<TBase<?, ?>> messageConverter) {
+        Assert.requireNonNull(host, "host");
+        Assert.requireNonNull(threadName, "threadName");
+        Assert.isTrue(queueSize > 0, "queueSize");
+        Assert.isTrue(timeout > 0, "timeout");
+        Assert.isTrue(sendBufferSize > 0, "sendBufferSize");
+
+        this.messageConverter = Assert.requireNonNull(messageConverter, "messageConverter");
 
         // TODO If fail to create socket, stop agent start
         logger.info("NioUDPDataSender initialized. host={}, port={}", host, port);
@@ -72,6 +82,19 @@ public class NioUDPDataSender extends AbstractDataSender implements DataSender {
 
         this.executor = createAsyncQueueingExecutor(queueSize, threadName);
     }
+
+    private AsyncQueueingExecutor<Object> createAsyncQueueingExecutor(int queueSize, String executorName) {
+        AsyncQueueingExecutorListener<Object> listener = new DefaultAsyncQueueingExecutorListener() {
+            @Override
+            public void execute(Object message) {
+                NioUDPDataSender.this.sendPacket(message);
+            }
+        };
+        final AsyncQueueingExecutor<Object> executor = new AsyncQueueingExecutor<Object>(queueSize, executorName, listener);
+        return executor;
+    }
+
+
 
     private DatagramChannel createChannel(String host, int port, int timeout, int sendBufferSize) {
         DatagramChannel datagramChannel = null;
@@ -94,23 +117,15 @@ public class NioUDPDataSender extends AbstractDataSender implements DataSender {
 
             return datagramChannel;
         } catch (IOException e) {
-            if (socket != null) {
-                socket.close();
-            }
-
-            if (datagramChannel != null) {
-                try {
-                    datagramChannel.close();
-                } catch (IOException ignored) {
-                }
-            }
+            IOUtils.closeQuietly(socket);
+            IOUtils.closeQuietly(datagramChannel);
 
             throw new IllegalStateException("DatagramChannel create fail. Cause" + e.getMessage(), e);
         }
     }
 
     @Override
-    public boolean send(TBase<?, ?> data) {
+    public boolean send(Object data) {
         return executor.execute(data);
     }
 
@@ -128,38 +143,47 @@ public class NioUDPDataSender extends AbstractDataSender implements DataSender {
         }
     }
 
-    protected void sendPacket(Object message) {
+    private void sendPacket(Object message) {
         if (closed) {
             throw new PinpointSocketException("NioUDPDataSender already closed.");
         }
 
         if (message instanceof TBase) {
-            byteBufferOutputStream.clear();
-
-            final TBase dto = (TBase) message;
-            // do not copy bytes because it's single threaded
-
-            try {
-                serializer.serialize(dto,  byteBufferOutputStream);
-            } catch (TException e) {
-                throw new PinpointSocketException("Serialize " + dto + " failed. Error:" +  e.getMessage(), e);
-            }
-            ByteBuffer byteBuffer = byteBufferOutputStream.getByteBuffer();
-            int bufferSize = byteBuffer.remaining();
-            try {
-                datagramChannel.write(byteBuffer);
-            } catch (IOException e) {
-                final Thread currentThread = Thread.currentThread();
-                if (currentThread.isInterrupted()) {
-                    logger.warn("{} thread interrupted.", currentThread.getName());
-                    throw new PinpointSocketException(currentThread.getName() + " thread interrupted.", e);
-                } else {
-                    throw new PinpointSocketException("packet send error. size:" + bufferSize + ", " +  dto, e);
-                }
-            }
-        } else {
-            logger.warn("sendPacket fail. invalid type:{}", message != null ? message.getClass() : null);
+            final TBase tBase = (TBase) message;
+            sendPacket(tBase);
             return;
+        }
+        final TBase<?, ?> tBase = this.messageConverter.toMessage(message);
+        if (tBase != null) {
+            sendPacket(tBase);
+            return;
+        }
+        logger.warn("sendPacket fail. invalid type:{}", message != null ? message.getClass() : null);
+        if (logger.isDebugEnabled()) {
+            logger.debug("unknown message:{}", message);
+        }
+    }
+
+    private void sendPacket(TBase tBase) {
+        byteBufferOutputStream.clear();
+        // do not copy bytes because it's single threaded
+        try {
+            serializer.serialize(tBase,  byteBufferOutputStream);
+        } catch (TException e) {
+            throw new PinpointSocketException("Serialize " + tBase + " failed. Error:" +  e.getMessage(), e);
+        }
+        ByteBuffer byteBuffer = byteBufferOutputStream.getByteBuffer();
+        int bufferSize = byteBuffer.remaining();
+        try {
+            datagramChannel.write(byteBuffer);
+        } catch (IOException e) {
+            final Thread currentThread = Thread.currentThread();
+            if (currentThread.isInterrupted()) {
+                logger.warn("{} thread interrupted.", currentThread.getName());
+                throw new PinpointSocketException(currentThread.getName() + " thread interrupted.", e);
+            } else {
+                throw new PinpointSocketException("packet send error. size:" + bufferSize + ", " +  tBase, e);
+            }
         }
     }
 

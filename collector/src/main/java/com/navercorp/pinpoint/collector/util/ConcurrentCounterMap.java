@@ -22,8 +22,10 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
+ * @deprecated Since 1.7.0. Use {@link com.google.common.util.concurrent.AtomicLongMap}
  * @author emeroad
  */
+@Deprecated
 public class ConcurrentCounterMap<T> {
 
     private final int concurrencyLevel;
@@ -100,7 +102,7 @@ public class ConcurrentCounterMap<T> {
 
 
     public static class LongAdder {
-        private long value = 0;
+        private long value;
 
         public LongAdder(long increase) {
             this.value = increase;

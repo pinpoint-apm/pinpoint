@@ -1,1 +1,1 @@
-com.navercorp.pinpoint.plugin.redis.RedisTypeProvider
+com.navercorp.pinpoint.plugin.redis.jedis.JedisTypeProvider

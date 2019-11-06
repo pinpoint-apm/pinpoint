@@ -24,12 +24,10 @@ import java.util.concurrent.Callable;
  * @author emeroad
  */
 public class ContextClassLoaderExecuteTemplate<V> {
+    // @Nullable
     private final ClassLoader classLoader;
 
     public ContextClassLoaderExecuteTemplate(ClassLoader classLoader) {
-        if (classLoader == null) {
-            throw new NullPointerException("classLoader must not be null");
-        }
         this.classLoader = classLoader;
     }
 
@@ -37,7 +35,8 @@ public class ContextClassLoaderExecuteTemplate<V> {
         try {
             final Thread currentThread = Thread.currentThread();
             final ClassLoader before = currentThread.getContextClassLoader();
-            currentThread.setContextClassLoader(ContextClassLoaderExecuteTemplate.this.classLoader);
+            // ctxCl == null safe?
+            currentThread.setContextClassLoader(this.classLoader);
             try {
                 return callable.call();
             } finally {
@@ -49,7 +48,7 @@ public class ContextClassLoaderExecuteTemplate<V> {
         } catch (BootStrapException ex){
             throw ex;
         } catch (Exception ex) {
-            throw new BootStrapException("execute fail. Caused:" + ex.getMessage(), ex);
+            throw new BootStrapException("execute fail. Error:" + ex.getMessage(), ex);
         }
     }
 }

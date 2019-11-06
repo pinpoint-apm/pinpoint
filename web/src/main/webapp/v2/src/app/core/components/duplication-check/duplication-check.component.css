@@ -1,0 +1,81 @@
+:host {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.l-input-wrapper {
+    flex: 1;
+    display: inline-block;
+    position: relative;
+}
+
+input {
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 9px 14px;
+    font-size: 13px;
+    width: 100%;
+    display: inline-block;
+    outline: none;
+}
+
+input:focus {
+    border-color: #4D90FE;
+    box-shadow: 0 0 2px #4D90FE;
+}
+
+input.l-success-input {
+    border: 1px solid #3c763d;
+}
+
+input.l-success-input:focus {
+    box-shadow: 0 0 2px #3c763d;
+}
+
+input.l-fail-input {
+    border: 1px solid #a94442;
+}
+
+input.l-fail-input:focus {
+    box-shadow: 0 0 2px #a94442;
+}
+
+.l-check-status-icon {
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    font-size: 20px;
+}
+
+.fa-check {
+    color: #3c763d;
+}
+
+.fa-times {
+    color: #a94442;
+}
+
+.l-check-button {
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 9px;
+    font-size: 13px;
+    width: 100px;
+    margin-left: 15px;
+}
+
+.l-check-button:hover {
+    background-color: #e5e8f0;
+}
+
+.l-check-button:focus {
+    outline: 0;
+}
+
+.l-message {
+    text-align: center;
+    font-size: 14px;
+    margin-top: 10px;
+    width: 100%;
+}

@@ -17,25 +17,23 @@
 package com.navercorp.pinpoint.web.calltree.span;
 
 /**
- * 
+ *
  * @author jaehong.kim
  *
  */
-public class SpanAsyncCallTree implements CallTree {
+public class SpanAsyncCallTree extends SpanCallTree {
 
-    private final SpanCallTree tree;
-
-    public SpanAsyncCallTree(final SpanAlign spanAlign) {
-        tree = new SpanCallTree(spanAlign);
+    public SpanAsyncCallTree(final Align align) {
+        super(align);
     }
 
     @Override
     public CallTreeNode getRoot() {
-        if (!tree.getRoot().hasChild()) {
+        if (!super.getRoot().hasChild()) {
             return null;
         }
 
-        return tree.getRoot().getChild();
+        return super.getRoot().getChild();
     }
 
     @Override
@@ -49,26 +47,6 @@ public class SpanAsyncCallTree implements CallTree {
         if (root == null) {
             return true;
         }
-        return root.getValue() == null;
-    }
-
-    @Override
-    public void add(CallTree tree) {
-        this.tree.add(tree);
-    }
-
-    @Override
-    public void add(int parentDepth, CallTree tree) {
-        this.tree.add(parentDepth, tree);
-    }
-
-    @Override
-    public void add(int depth, SpanAlign spanAlign) {
-        tree.add(depth, spanAlign);
-    }
-
-    @Override
-    public void sort() {
-        tree.sort();
+        return root.getAlign() == null;
     }
 }

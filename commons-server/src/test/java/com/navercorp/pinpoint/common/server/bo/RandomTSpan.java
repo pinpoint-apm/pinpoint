@@ -1,6 +1,22 @@
+/*
+ * Copyright 2019 NAVER Corp.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.navercorp.pinpoint.common.server.bo;
 
-import com.navercorp.pinpoint.common.util.TransactionIdUtils;
+import com.navercorp.pinpoint.common.profiler.util.TransactionIdUtils;
 import com.navercorp.pinpoint.thrift.dto.TAnnotation;
 import com.navercorp.pinpoint.thrift.dto.TAnnotationValue;
 import com.navercorp.pinpoint.thrift.dto.TIntStringValue;
@@ -44,13 +60,17 @@ public class RandomTSpan {
             tSpan.setAnnotations(tAnnotationList);
         }
         tSpan.setFlag((short) RandomUtils.nextInt(0, 4));
-        tSpan.setErr((short) RandomUtils.nextInt(0, 1));
+        tSpan.setErr((short) RandomUtils.nextInt(0, 2));
 //        tSpan.setSpanEventList()
         tSpan.setParentApplicationName("parentApp");
         tSpan.setParentApplicationType(randomServerServiceType());
         tSpan.setAcceptorHost("acceptHost");
         tSpan.setApiId(RandomUtils.nextInt(0, 5000));
-        tSpan.setApplicationServiceType(randomServerServiceType());
+        if (random.nextBoolean()) {
+            tSpan.setApplicationServiceType(randomServerServiceType());
+        } else {
+            tSpan.setApplicationServiceType(tSpan.getServiceType());
+        }
         if (random.nextBoolean()) {
             TIntStringValue exceptionInfo = new TIntStringValue();
             exceptionInfo.setIntValue(RandomUtils.nextInt(0, 5000));
@@ -68,7 +88,7 @@ public class RandomTSpan {
 
     public List<TAnnotation> randomTAnnotationList() {
         int annotationSize = RandomUtils.nextInt(0, 3);
-        List<TAnnotation> result = new ArrayList<>();
+        List<TAnnotation> result = new ArrayList<TAnnotation>();
         for (int i = 0; i < annotationSize; i++) {
             result.add(randomTAnnotation(i));
         }
@@ -85,21 +105,21 @@ public class RandomTSpan {
         return tAnnotation;
     }
 
-    public TSpanEvent randomTSpanEvent(TSpan tSpan, short sequence) {
+    public TSpanEvent randomTSpanEvent(short sequence) {
         TSpanEvent tSpanEvent = new TSpanEvent();
 //        @deprecated
 //        tSpanEvent.setSpanId();
         tSpanEvent.setSequence(sequence);
         tSpanEvent.setStartElapsed(RandomUtils.nextInt(0, 1000));
         tSpanEvent.setEndElapsed(RandomUtils.nextInt(0, 1000));
-        tSpanEvent.setRpc(RandomStringUtils.random(10));
+//        tSpanEvent.setRpc(RandomStringUtils.random(10));
 //         Database (2000 ~ 2899)
         tSpanEvent.setServiceType((short) RandomUtils.nextInt(2000, 2889));
         tSpanEvent.setEndPoint(RandomStringUtils.random(10));
 
         List<TAnnotation> tAnnotationList = randomTAnnotationList();
         if (CollectionUtils.isNotEmpty(tAnnotationList)) {
-            tSpan.setAnnotations(tAnnotationList);
+            tSpanEvent.setAnnotations(tAnnotationList);
         }
         tSpanEvent.setDepth(RandomUtils.nextInt(0, 256));
         tSpanEvent.setNextSpanId(random.nextLong());
@@ -110,6 +130,13 @@ public class RandomTSpan {
         tSpanEvent.setAsyncId(randomNegative(RandomUtils.nextInt(0, 10)));
         tSpanEvent.setNextAsyncId(random.nextInt());
         tSpanEvent.setAsyncSequence((short) RandomUtils.nextInt(0, Short.MAX_VALUE));
+
+        if (random.nextBoolean()) {
+            TIntStringValue exceptionInfo = new TIntStringValue();
+            exceptionInfo.setIntValue(RandomUtils.nextInt(0, 5000));
+            exceptionInfo.setStringValue(RandomStringUtils.random(100));
+            tSpanEvent.setExceptionInfo(exceptionInfo);
+        }
 
         return tSpanEvent;
     }
@@ -130,7 +157,6 @@ public class RandomTSpan {
         tSpanChunk.setTransactionId(TransactionIdUtils.formatByteBuffer("agent", System.currentTimeMillis(), RandomUtils.nextLong(0, Long.MAX_VALUE)));
         tSpanChunk.setSpanId(random.nextLong());
 
-        tSpanChunk.setServiceType(randomServerServiceType());
         tSpanChunk.setEndPoint(RandomStringUtils.random(20));
 
 //        tSpanChunk.setSpanEventList()

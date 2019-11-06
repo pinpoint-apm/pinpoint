@@ -1,0 +1,15 @@
+:host {
+    display: block;
+    width: 200px;
+    border-radius: 3px;
+}
+
+.l-tooltip-caret {
+    width: 0;
+    height: 0;
+    position: absolute;
+    bottom: 100%;
+    border-bottom: 7px solid #fff;
+    border-left: 7px solid transparent;
+    border-right: 7px solid transparent;
+}

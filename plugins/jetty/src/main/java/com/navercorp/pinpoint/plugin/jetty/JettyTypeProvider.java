@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2014 NAVER Corp.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,10 @@ package com.navercorp.pinpoint.plugin.jetty;
 import com.navercorp.pinpoint.common.trace.TraceMetadataProvider;
 import com.navercorp.pinpoint.common.trace.TraceMetadataSetupContext;
 
+/**
+ * @author Chaein Jung
+ */
 public class JettyTypeProvider implements TraceMetadataProvider {
-
     @Override
     public void setup(TraceMetadataSetupContext context) {
         context.addServiceType(JettyConstants.JETTY);

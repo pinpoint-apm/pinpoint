@@ -15,16 +15,17 @@
  */
 package com.navercorp.pinpoint.web.service;
 
-import java.util.List;
-
 import com.navercorp.pinpoint.web.vo.UserGroup;
 import com.navercorp.pinpoint.web.vo.UserGroupMember;
+import com.navercorp.pinpoint.web.vo.exception.PinpointUserGroupException;
+
+import java.util.List;
 
 /**
  * @author minwoo.jung
  */
 public interface UserGroupService {
-    String createUserGroup(UserGroup userGroup);
+    String createUserGroup(UserGroup userGroup) throws PinpointUserGroupException;
     
     List<UserGroup> selectUserGroup();
     
@@ -33,8 +34,10 @@ public interface UserGroupService {
     List<UserGroup> selectUserGroupByUserGroupId(String userGroupId);
 
     void updateUserGroup(UserGroup userGroup);
-    
-    void deleteUserGroup(UserGroup userGroup);
+
+    void deleteUserGroup(UserGroup userGroup) throws PinpointUserGroupException;
+
+    boolean checkValid(String userId, String userGroupId);
 
     void insertMember(UserGroupMember userGroupMember);
 
@@ -48,10 +51,5 @@ public interface UserGroupService {
 
     List<String> selectEmailOfMember(String userGroupId);
 
-    void deleteMemberByUserGroupId(String userGroupId);
-
     void updateUserGroupIdOfMember(UserGroup userGroup);
-
-    boolean containMemberForUserGroup(String userId, String userGroupId);
-
 }

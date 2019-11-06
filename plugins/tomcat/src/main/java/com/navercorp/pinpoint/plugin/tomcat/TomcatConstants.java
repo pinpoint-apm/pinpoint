@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2014 NAVER Corp.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,8 +32,5 @@ public final class TomcatConstants {
     public static final ServiceType TOMCAT_METHOD = ServiceTypeFactory.of(1011, "TOMCAT_METHOD");
 
     public static final String TOMCAT_SERVLET_ASYNC_SCOPE = "TomcatServletAsyncScope";
-
-    public static final String ASYNC_ACCESSOR = "com.navercorp.pinpoint.plugin.tomcat.AsyncAccessor";
-    public static final String TRACE_ACCESSOR = "com.navercorp.pinpoint.plugin.tomcat.TraceAccessor";
-
+    public static final String TOMCAT_SERVLET_REQUEST_TRACE = "com.navercorp.pinpoint.trace";
 }

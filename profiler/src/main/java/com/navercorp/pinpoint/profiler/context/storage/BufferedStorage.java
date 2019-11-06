@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.profiler.context.storage;
 
+import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.profiler.context.*;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
 
@@ -37,75 +39,92 @@ public class BufferedStorage implements Storage {
 
     private final int bufferSize;
 
-    private List<SpanEvent> storage;
-    private final DataSender dataSender;
     private final SpanChunkFactory spanChunkFactory;
+    private List<SpanEvent> storage;
+    private final DataSender<Object> dataSender;
 
-    public BufferedStorage(DataSender dataSender, SpanChunkFactory spanChunkFactory) {
-        this(dataSender, spanChunkFactory, DEFAULT_BUFFER_SIZE);
-    }
 
-    public BufferedStorage(DataSender dataSender, SpanChunkFactory spanChunkFactory, int bufferSize) {
-        if (dataSender == null) {
-            throw new NullPointerException("dataSender must not be null");
-        }
-        if (spanChunkFactory == null) {
-            throw new NullPointerException("spanChunkFactory must not be null");
-        }
-        this.dataSender = dataSender;
-        this.spanChunkFactory = spanChunkFactory;
+
+    public BufferedStorage(SpanChunkFactory spanChunkFactory, DataSender<Object> dataSender, int bufferSize) {
+        this.spanChunkFactory = Assert.requireNonNull(spanChunkFactory, "spanChunkFactory");
+        this.dataSender = Assert.requireNonNull(dataSender, "dataSender");
         this.bufferSize = bufferSize;
-        this.storage = new ArrayList<SpanEvent>(bufferSize);
+        this.storage = allocateBuffer();
     }
 
     @Override
     public void store(SpanEvent spanEvent) {
-        List<SpanEvent> flushData = null;
+        final List<SpanEvent> storage = getBuffer();
         storage.add(spanEvent);
-        if (storage.size() >= bufferSize) {
-            // data copy
-            flushData = storage;
-            storage = new ArrayList<SpanEvent>(bufferSize);
-        }
 
-        if (flushData != null) {
-            final SpanChunk spanChunk = spanChunkFactory.create(flushData);
-            if (isDebug) {
-                logger.debug("[BufferedStorage] Flush span-chunk {}", spanChunk);
-            }
-            dataSender.send(spanChunk);
+        if (overflow(storage)) {
+            final List<SpanEvent> flushData = clearBuffer();
+            sendSpanChunk(flushData);
         }
+    }
+
+    private boolean overflow(List<SpanEvent> storage) {
+        return storage.size() >= bufferSize;
+    }
+
+
+    private List<SpanEvent> allocateBuffer() {
+        return new ArrayList<SpanEvent>(this.bufferSize);
+    }
+
+    private List<SpanEvent> getBuffer() {
+        List<SpanEvent> copy = this.storage;
+        if (copy == null) {
+            copy = allocateBuffer();
+            this.storage = copy;
+        }
+        return copy;
+    }
+
+    private List<SpanEvent> clearBuffer() {
+        final List<SpanEvent> copy = this.storage;
+        this.storage = null;
+        return copy;
     }
 
     @Override
     public void store(Span span) {
-        List<SpanEvent> spanEventList;
-        spanEventList = storage;
-        this.storage = new ArrayList<SpanEvent>(bufferSize);
-
-        if (spanEventList != null && !spanEventList.isEmpty()) {
-            span.setSpanEventList((List) spanEventList);
-        }
-        dataSender.send(span);
+        final List<SpanEvent> spanEventList = clearBuffer();
+        span.setSpanEventList(spanEventList);
+        span.finish();
 
         if (isDebug) {
-            logger.debug("[BufferedStorage] Flush span {}", span);
+            logger.debug("Flush {}", span);
+        }
+        final boolean success = this.dataSender.send(span);
+        if (!success) {
+            // WARN : Do not call span.toString ()
+            // concurrentmodificationexceptionr may occur in spanProcessV2
+            logger.debug("send fail");
         }
     }
 
     public void flush() {
-        List<SpanEvent> spanEventList;
-        spanEventList = storage;
-        this.storage = new ArrayList<SpanEvent>(bufferSize);
-
-        if (spanEventList != null && !spanEventList.isEmpty()) {
-            final SpanChunk spanChunk = spanChunkFactory.create(spanEventList);
-            dataSender.send(spanChunk);
-            if (isDebug) {
-                logger.debug("flush span chunk {}", spanChunk);
-            }
+        final List<SpanEvent> spanEventList = clearBuffer();
+        if (CollectionUtils.hasLength(spanEventList)) {
+            sendSpanChunk(spanEventList);
         }
     }
+
+    private void sendSpanChunk(List<SpanEvent> spanEventList) {
+        final SpanChunk spanChunk = this.spanChunkFactory.newSpanChunk(spanEventList);
+
+        if (isDebug) {
+            logger.debug("Flush {}", spanChunk);
+        }
+        final boolean success = this.dataSender.send(spanChunk);
+        if (!success) {
+            // WARN : Do not call span.toString ()
+            // concurrentmodificationexceptionr may occur in spanProcessV2
+            logger.debug("send fail");
+        }
+    }
+
 
     @Override
     public void close() {

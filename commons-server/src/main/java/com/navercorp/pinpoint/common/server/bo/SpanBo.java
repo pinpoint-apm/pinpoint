@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,10 +16,10 @@
 
 package com.navercorp.pinpoint.common.server.bo;
 
+import com.navercorp.pinpoint.common.profiler.util.TransactionId;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import com.navercorp.pinpoint.common.util.TransactionIdUtils;
 
 /**
  * @author emeroad
@@ -34,9 +34,8 @@ public class SpanBo implements Event, BasicSpan {
     private String applicationId;
     private long agentStartTime;
 
-    private String traceAgentId;
-    private long traceAgentStartTime;
-    private long traceTransactionSequence;
+    private TransactionId transactionId;
+
     private long spanId;
     private long parentSpanId;
 
@@ -56,6 +55,7 @@ public class SpanBo implements Event, BasicSpan {
     private int errCode;
 
     private List<SpanEventBo> spanEventBoList = new ArrayList<>();
+    private List<SpanChunkBo> spanChunkBoList;
 
     private long collectorAcceptTime;
 
@@ -72,52 +72,65 @@ public class SpanBo implements Event, BasicSpan {
     private byte loggingTransactionInfo; //optional
 
 
-
-
     public SpanBo() {
     }
 
+    @Override
     public int getVersion() {
         return version & 0xFF;
     }
-
 
     public byte getRawVersion() {
         return version;
     }
 
     public void setVersion(int version) {
-        if (version < 0 || version > 255) {
-            throw new IllegalArgumentException("out of range (0~255)");
-        }
+        checkVersion(version);
         // check range
         this.version = (byte) (version & 0xFF);
     }
 
-    public String getTransactionId() {
-        return TransactionIdUtils.formatString(traceAgentId, traceAgentStartTime, traceTransactionSequence);
+    static void checkVersion(int version) {
+        if (version < 0 || version > 255) {
+            throw new IllegalArgumentException("out of range (0~255)");
+        }
     }
-    
+
+    @Override
+    public TransactionId getTransactionId() {
+        return this.transactionId;
+    }
+
+    public void setTransactionId(TransactionId transactionId) {
+        this.transactionId = transactionId;
+    }
+
+    @Override
     public String getAgentId() {
         return agentId;
     }
 
+    @Override
     public void setAgentId(String agentId) {
         this.agentId = agentId;
     }
 
+    @Override
     public String getApplicationId() {
         return applicationId;
     }
 
+    @Override
     public void setApplicationId(String applicationId) {
         this.applicationId = applicationId;
     }
 
+    @Override
     public long getAgentStartTime() {
         return agentStartTime;
     }
 
+    @Override
     public void setAgentStartTime(long agentStartTime) {
         this.agentStartTime = agentStartTime;
     }
@@ -140,32 +153,6 @@ public class SpanBo implements Event, BasicSpan {
     }
 
 
-    public String getTraceAgentId() {
-        return traceAgentId;
-    }
-
-    public void setTraceAgentId(String traceAgentId) {
-        this.traceAgentId = traceAgentId;
-    }
-
-    public long getTraceAgentStartTime() {
-        return traceAgentStartTime;
-    }
-
-    public void setTraceAgentStartTime(long traceAgentStartTime) {
-        this.traceAgentStartTime = traceAgentStartTime;
-    }
-
-
-    public long getTraceTransactionSequence() {
-        return traceTransactionSequence;
-    }
-
-    public void setTraceTransactionSequence(long traceTransactionSequence) {
-        this.traceTransactionSequence = traceTransactionSequence;
-    }
-
-
     public String getRpc() {
         return rpc;
     }
@@ -174,16 +161,12 @@ public class SpanBo implements Event, BasicSpan {
         this.rpc = rpc;
     }
 
-
+    @Override
     public long getSpanId() {
         return spanId;
     }
 
-    @Deprecated
-    public void setSpanID(long spanId) {
-        this.setSpanId(spanId);
-    }
-
+    @Override
     public void setSpanId(long spanId) {
         this.spanId = spanId;
     }
@@ -249,6 +232,20 @@ public class SpanBo implements Event, BasicSpan {
 
     public List<SpanEventBo> getSpanEventBoList() {
         return spanEventBoList;
+    }
+
+    public List<SpanChunkBo> getSpanChunkBoList() {
+        if (spanChunkBoList == null) {
+            spanChunkBoList = new ArrayList<>();
+        }
+        return spanChunkBoList;
+    }
+
+    public void addSpanChunkBo(SpanChunkBo asyncSpanBo) {
+        if (spanChunkBoList == null) {
+            this.spanChunkBoList = new ArrayList<>();
+        }
+        this.spanChunkBoList.add(asyncSpanBo);
     }
 
     public short getServiceType() {
@@ -367,37 +364,40 @@ public class SpanBo implements Event, BasicSpan {
         this.loggingTransactionInfo = loggingTransactionInfo;
     }
 
-
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder(256);
-        sb.append("SpanBo{");
+        final StringBuilder sb = new StringBuilder("SpanBo{");
         sb.append("version=").append(version);
         sb.append(", agentId='").append(agentId).append('\'');
         sb.append(", applicationId='").append(applicationId).append('\'');
         sb.append(", agentStartTime=").append(agentStartTime);
-        sb.append(", traceAgentId='").append(traceAgentId).append('\'');
-        sb.append(", traceAgentStartTime=").append(traceAgentStartTime);
-        sb.append(", traceTransactionSequence=").append(traceTransactionSequence);
+        sb.append(", transactionId=").append(transactionId);
         sb.append(", spanId=").append(spanId);
         sb.append(", parentSpanId=").append(parentSpanId);
+        sb.append(", parentApplicationId='").append(parentApplicationId).append('\'');
+        sb.append(", parentApplicationServiceType=").append(parentApplicationServiceType);
         sb.append(", startTime=").append(startTime);
         sb.append(", elapsed=").append(elapsed);
         sb.append(", rpc='").append(rpc).append('\'');
         sb.append(", serviceType=").append(serviceType);
-        sb.append(", acceptorHost=").append(acceptorHost);
         sb.append(", endPoint='").append(endPoint).append('\'');
         sb.append(", apiId=").append(apiId);
         sb.append(", annotationBoList=").append(annotationBoList);
         sb.append(", flag=").append(flag);
         sb.append(", errCode=").append(errCode);
         sb.append(", spanEventBoList=").append(spanEventBoList);
+        sb.append(", spanChunkBoList=").append(spanChunkBoList);
         sb.append(", collectorAcceptTime=").append(collectorAcceptTime);
         sb.append(", hasException=").append(hasException);
-        sb.append(", exceptionId=").append(exceptionId);
-        sb.append(", exceptionMessage='").append(exceptionMessage).append('\'');
-        sb.append(", remoteAddr='").append(remoteAddr).append('\'');
+        if (hasException) {
+            sb.append(", exceptionId=").append(exceptionId);
+            sb.append(", exceptionMessage='").append(exceptionMessage).append('\'');
+        }
+        sb.append(", exceptionClass='").append(exceptionClass).append('\'');
         sb.append(", applicationServiceType=").append(applicationServiceType);
+        sb.append(", acceptorHost='").append(acceptorHost).append('\'');
+        sb.append(", remoteAddr='").append(remoteAddr).append('\'');
+        sb.append(", loggingTransactionInfo=").append(loggingTransactionInfo);
         sb.append('}');
         return sb.toString();
     }

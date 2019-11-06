@@ -26,17 +26,17 @@
     text-align: right;
 }
 .slick-header-columns {
-    background: url("/images/header-columns-bg.gif") repeat-x center bottom;
+    background: url("../images/header-columns-bg.gif") repeat-x center bottom;
     border-bottom: 1px solid silver;
 }
 
 .slick-header-column {
-    background: url("/images/header-columns-bg.gif") repeat-x center bottom;
+    background: url("../images/header-columns-bg.gif") repeat-x center bottom;
     border-right: 1px solid silver;
 }
 
 .slick-header-column:hover, .slick-header-column-active {
-    background: white url("/images/header-columns-over-bg.gif") repeat-x center bottom;
+    background: white url("../images/header-columns-over-bg.gif") repeat-x center bottom;
 }
 
 .slick-headerrow {
@@ -87,11 +87,11 @@
 }
 
 .slick-group-toggle.expanded {
-    background: url("/images/collapse.gif") no-repeat center center;
+    background: url("../images/collapse.gif") no-repeat center center;
 }
 
 .slick-group-toggle.collapsed {
-    background: url("/images/expand.gif") no-repeat center center;
+    background: url("../images/expand.gif") no-repeat center center;
 }
 
 .slick-group-totals {
@@ -149,11 +149,11 @@
 }
 
 .distributed-call-flow-directive .toggle.expand {
-    background: url("/images/expand.gif") no-repeat center center;
+    background: url("../images/expand.gif") no-repeat center center;
 }
 
 .distributed-call-flow-directive .toggle.collapse {
-    background: url("/images/collapse.gif") no-repeat center center;
+    background: url("../images/collapse.gif") no-repeat center center;
 }
 
 /* Individual cell styles */

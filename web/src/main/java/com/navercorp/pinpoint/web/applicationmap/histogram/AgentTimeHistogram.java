@@ -50,10 +50,10 @@ public class AgentTimeHistogram {
 
     public AgentTimeHistogram(Application application, Range range) {
         if (application == null) {
-            throw new NullPointerException("application must not be null");
+            throw new NullPointerException("application");
         }
         if (range == null) {
-            throw new NullPointerException("range must not be null");
+            throw new NullPointerException("range");
         }
         this.application = application;
         this.range = range;
@@ -63,13 +63,13 @@ public class AgentTimeHistogram {
 
     public AgentTimeHistogram(Application application, Range range, AgentHistogramList agentHistogramList) {
         if (application == null) {
-            throw new NullPointerException("application must not be null");
+            throw new NullPointerException("application");
         }
         if (range == null) {
-            throw new NullPointerException("range must not be null");
+            throw new NullPointerException("range");
         }
         if (agentHistogramList == null) {
-            throw new NullPointerException("agentHistogramList must not be null");
+            throw new NullPointerException("agentHistogramList");
         }
         this.application = application;
         this.range = range;
@@ -86,7 +86,7 @@ public class AgentTimeHistogram {
             AgentResponseTimeViewModel model = createAgentResponseTimeViewModel(agentId, timeList);
             result.add(model);
         }
-        Collections.sort(result, new Comparator<AgentResponseTimeViewModel>() {
+        result.sort(new Comparator<AgentResponseTimeViewModel>() {
             @Override
             public int compare(AgentResponseTimeViewModel o1, AgentResponseTimeViewModel o2) {
                 return o1.getAgentName().compareTo(o2.getAgentName());
@@ -97,7 +97,7 @@ public class AgentTimeHistogram {
 
     private List<TimeHistogram> sortTimeHistogram(Collection<TimeHistogram> timeMap) {
         List<TimeHistogram> timeList = new ArrayList<>(timeMap);
-        Collections.sort(timeList, TimeHistogram.TIME_STAMP_ASC_COMPARATOR);
+        timeList.sort(TimeHistogram.TIME_STAMP_ASC_COMPARATOR);
         return timeList;
     }
 

@@ -1,11 +1,11 @@
-/**
+/*
  * Copyright 2014 NAVER Corp.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -14,8 +14,6 @@
  */
 package com.navercorp.pinpoint.plugin.tomcat.interceptor;
 
-import com.navercorp.pinpoint.bootstrap.async.AsyncTraceIdAccessor;
-import com.navercorp.pinpoint.bootstrap.context.AsyncTraceId;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
@@ -23,16 +21,17 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.plugin.tomcat.AsyncAccessor;
+import com.navercorp.pinpoint.plugin.tomcat.TomcatAsyncListener;
 import com.navercorp.pinpoint.plugin.tomcat.TomcatConstants;
 
+import javax.servlet.AsyncContext;
+import javax.servlet.AsyncListener;
+import javax.servlet.http.HttpServletRequest;
+
 /**
- * 
  * @author jaehong.kim
- *
  */
 public class RequestStartAsyncInterceptor implements AroundInterceptor {
-
     private PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private boolean isDebug = logger.isDebugEnabled();
 
@@ -47,7 +46,7 @@ public class RequestStartAsyncInterceptor implements AroundInterceptor {
     @Override
     public void before(Object target, Object[] args) {
         if (isDebug) {
-            logger.beforeInterceptor(target, "", descriptor.getMethodName(), "", args);
+            logger.beforeInterceptor(target, args);
         }
 
         final Trace trace = traceContext.currentTraceObject();
@@ -60,7 +59,7 @@ public class RequestStartAsyncInterceptor implements AroundInterceptor {
     @Override
     public void after(Object target, Object[] args, Object result, Throwable throwable) {
         if (isDebug) {
-            logger.afterInterceptor(target, "", descriptor.getMethodName(), "", args);
+            logger.afterInterceptor(target, args, result, throwable);
         }
 
         final Trace trace = traceContext.currentTraceObject();
@@ -69,21 +68,21 @@ public class RequestStartAsyncInterceptor implements AroundInterceptor {
         }
 
         try {
-            SpanEventRecorder recorder = trace.currentSpanEventRecorder();
+            final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
             if (validate(target, result, throwable)) {
-                ((AsyncAccessor)target)._$PINPOINT$_setAsync(Boolean.TRUE);
-
-                // make asynchronous trace-id
-                final AsyncTraceId asyncTraceId = trace.getAsyncTraceId();
-                recorder.recordNextAsyncId(asyncTraceId.getAsyncId());
-                // result is BasicFuture
-                // type check validate()
-                ((AsyncTraceIdAccessor)result)._$PINPOINT$_setAsyncTraceId(asyncTraceId);
+                final HttpServletRequest request = (HttpServletRequest) target;
+                request.setAttribute(TomcatConstants.TOMCAT_SERVLET_REQUEST_TRACE, trace);
                 if (isDebug) {
-                    logger.debug("Set asyncTraceId metadata {}", asyncTraceId);
+                    logger.debug("Set request attribute {}={}", TomcatConstants.TOMCAT_SERVLET_REQUEST_TRACE, trace);
+                }
+
+                final AsyncContext asyncContext = (AsyncContext) result;
+                final AsyncListener asyncListener = new TomcatAsyncListener(this.traceContext, recorder.recordNextAsyncContext(true));
+                asyncContext.addListener(asyncListener);
+                if (isDebug) {
+                    logger.debug("Add async listener {}", asyncListener);
                 }
             }
-
             recorder.recordServiceType(TomcatConstants.TOMCAT_METHOD);
             recorder.recordApi(descriptor);
             recorder.recordException(throwable);
@@ -99,16 +98,18 @@ public class RequestStartAsyncInterceptor implements AroundInterceptor {
             return false;
         }
 
-        if (!(target instanceof AsyncAccessor)) {
-            logger.debug("Invalid target object. Need field accessor({}).", AsyncAccessor.class.getName());
+        if (!(target instanceof HttpServletRequest)) {
+            if (isDebug) {
+                logger.debug("Invalid target object, The javax.servlet.http.HttpServletRequest interface is not implemented. target={}", target);
+            }
             return false;
         }
-
-        if (!(result instanceof AsyncTraceIdAccessor)) {
-            logger.debug("Invalid target object. Need metadata accessor({}).", AsyncTraceIdAccessor.class.getName());
+        if (!(result instanceof AsyncContext)) {
+            if (isDebug) {
+                logger.debug("Invalid result object, The javax.servlet.AsyncContext interface is not implemented. result={}.", result);
+            }
             return false;
         }
-
         return true;
     }
 }

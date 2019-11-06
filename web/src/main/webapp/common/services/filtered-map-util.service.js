@@ -198,7 +198,7 @@
 	                }
 	                if (angular.isArray(filters)) {
 	                    angular.forEach(filters, function(filter, index) {
-	                        var oServerMapFilterVoService = new ServerMapFilterVo(filter);
+	                        var oServerMapFilterVoService = new ServerMapFilterVoService(filter);
 	                        if (fa === oServerMapFilterVoService.getFromApplication() &&
 	                            ta === oServerMapFilterVoService.getToApplication() &&
 	                            fst === oServerMapFilterVoService.getFromServiceType() &&

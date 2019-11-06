@@ -1,11 +1,11 @@
-/**
- * Copyright 2014 NAVER Corp.
+/*
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,7 +22,8 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor2;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.plugin.gson.GsonPlugin;
+import com.navercorp.pinpoint.plugin.gson.GsonConstants;
+
 
 /**
  * Gson method interceptor
@@ -66,12 +67,12 @@ public class FromJsonInterceptor implements AroundInterceptor2 {
 
         try {
             SpanEventRecorder recorder = trace.currentSpanEventRecorder();
-            recorder.recordServiceType(GsonPlugin.GSON_SERVICE_TYPE);
+            recorder.recordServiceType(GsonConstants.GSON_SERVICE_TYPE);
             recorder.recordApi(descriptor);
             recorder.recordException(throwable);
 
-            if (arg0 != null && arg0 instanceof String) {
-                recorder.recordAttribute(GsonPlugin.GSON_ANNOTATION_KEY_JSON_LENGTH, ((String) arg0).length());
+            if (arg0 instanceof String) {
+                recorder.recordAttribute(GsonConstants.GSON_ANNOTATION_KEY_JSON_LENGTH, ((String) arg0).length());
             }
         } finally {
             trace.traceBlockEnd();

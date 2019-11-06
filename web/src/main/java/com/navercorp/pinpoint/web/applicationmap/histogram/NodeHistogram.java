@@ -53,14 +53,8 @@ public class NodeHistogram {
 
 
     public NodeHistogram(Application application, Range range) {
-        if (application == null) {
-            throw new NullPointerException("application must not be null");
-        }
-        if (range == null) {
-            throw new NullPointerException("range must not be null");
-        }
-        this.application = application;
-        this.range = range;
+        this.application = Objects.requireNonNull(application, "application");
+        this.range = Objects.requireNonNull(range, "range");
 
         this.applicationHistogram = new Histogram(this.application.getServiceType());
         this.agentHistogramMap = new HashMap<>();
@@ -70,17 +64,10 @@ public class NodeHistogram {
     }
 
     public NodeHistogram(Application application, Range range, List<ResponseTime> responseHistogramList) {
-        if (application == null) {
-            throw new NullPointerException("application must not be null");
-        }
-        if (range == null) {
-            throw new NullPointerException("range must not be null");
-        }
-        if (responseHistogramList == null) {
-            throw new NullPointerException("responseHistogramList must not be null");
-        }
-        this.application = application;
-        this.range = range;
+        this.application = Objects.requireNonNull(application, "application");
+        this.range = Objects.requireNonNull(range, "range");
+
+        Objects.requireNonNull(responseHistogramList, "responseHistogramList");
 
         this.agentTimeHistogram = createAgentLevelTimeSeriesResponseTime(responseHistogramList);
         this.applicationTimeHistogram = createApplicationLevelTimeSeriesResponseTime(responseHistogramList);
@@ -100,10 +87,7 @@ public class NodeHistogram {
     }
 
     public void setApplicationHistogram(Histogram applicationHistogram) {
-        if (applicationHistogram == null) {
-            throw new NullPointerException("applicationHistogram must not be null");
-        }
-        this.applicationHistogram = applicationHistogram;
+        this.applicationHistogram = Objects.requireNonNull(applicationHistogram, "applicationHistogram");
     }
 
     public void setAgentHistogramMap(Map<String, Histogram> agentHistogramMap) {

@@ -1,6 +1,6 @@
 <div class="navbar main-navbar bs-docs-nav">
     <div class="nav-container">
-        <a href="/" class="navbar-brand"><img class="brand" src="/images/logo2.png" width="116" height="18"></a>
+        <a href="/" class="navbar-brand"><img class="brand" src="images/logo2.png" width="116" height="18"></a>
 
         <div class="nav-collapse">
             <form class="navbar-form pull-left">
@@ -21,8 +21,9 @@
                     </li>
                     <li class="divider-vertical" ng-hide="bIsInspector"></li>
                     <li id="navbar_depth" class="inout-bound" ng-hide="bIsInspector">
-                    	<div class="btn-group btn-group-sm input-group input-group-sm" style="margin-top:0px;width:102px;">
+                    	<div class="btn-group btn-group-sm input-group input-group-sm" style="margin-top:0px;width:127px;">
                             <button type="button" class="btn btn-default">
+								<img ng-src="images/bidirect_{{bidirectional ? 'on' : 'off'}}.png" width="18px" height="18px" style="margin-right:4px" />
                                 <img src="images/inbound.png" width="18px" height="18px"/> {{callee}} <img src="images/outbound.png" width="18px" height="18px"/> {{caller}}
                             </button>
                     		<button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="padding-bottom:6px">
@@ -38,21 +39,27 @@
                                     <li class="outbound-title"><img src="images/outbound.png" width="20px" height="20px"/> Outbound</li>
                                     <li class="depth" ng-repeat="r in rangeList" ng-class="{selected: r === caller}" ng-click="setCaller(r)">{{r}}</li>
                                 </ul>
-                                <div style="clear: both;padding: 4px 2px 2px 2px">
-                                    <button type="button" class="btn btn-default btn-xs" style="float:left;" ng-click="cancelDepth( true )">Cancel</button><button type="button" class="btn btn-default btn-xs" style="float:right;" ng-click="setDepth()">OK</button>
-                                </div>
+								<div style="clear: both;padding: 6px 2px 4px 2px">
+									<img ng-src="images/bidirect_{{bidirectional ? 'on' : 'off'}}.png" width="22px" height="22px" style="float:left;margin-left:4px;cursor:pointer;" alt="Bidirectional Search" ng-click="checkBidirectional()"/>
+									<button type="button" class="btn btn-default btn-xs" style="float:right;width:60px;" ng-click="setDepth()">OK</button>
+									<button type="button" class="btn btn-default btn-xs" style="float:right;width:60px;margin-right:4px;" ng-click="cancelDepth( true )">Cancel</button>
+								</div>
+
                             </div>
                         </div>
-                    </li>	
-                    <li class="divider-vertical"></li>
+                    </li>
+					<li ng-hide="bIsInspector">
+						<button class="btn btn-default btn-xs {{wasOnly ? 'btn-info': ''}}" style="height:30px;font-size:11px;line-height:1;{{wasOnly ? 'color:none': 'color:#DDD'}}" ng-click="checkWasOnly($event)">WAS<br>ONLY</button>
+					</li>
+					<li class="divider-vertical"></li>
                     <li class="for-datetimepicker" id="navbar_period">
                         <div ng-show="periodType != 'range'">
-                            <div class="btn-group btn-group-sm" style="margin-top:0px;width:386px;float:left;">
+                            <div class="btn-group btn-group-sm" style="margin-top:0px;float:left;height:30px">
                                 <button type="button" class="btn btn-success" ng-click="togglePeriod('range')"><span class="glyphicon glyphicon-th-list"></span></button>
-								<button type="button" class="btn btn-default" ng-click="setRealtime()" ng-hide="bIsInspector" ng-disabled="periodDelay" ng-class="isRealtime() ? 'blinkblink btn-info' : ''" style="padding-top:3px;padding-bottom:3px;line-height:1.1;font-size:10px">REAL<br/>TIME</button>
+								<button type="button" class="btn btn-default" ng-click="setRealtime()" ng-hide="bIsInspector" ng-disabled="periodDelay" ng-class="isRealtime() ? 'btn-info' : ''" style="height:100%;font-size:10px">REAL TIME</button>
                                 <button type="button" class="btn btn-default" ng-repeat="period in aReadablePeriodList" ng-class="getPeriodClass( period )" ng-click="setPeriod(period)" ng-disabled="periodDelay">{{period == "5m" ? "Last " + period : period}}</button>
                             </div>
-                            <div class="btn-group btn-group-sm input-group input-group-sm" style="margin-top:0px;padding-left:6px;width:146px;" ng-show="showUpdate()">
+                            <div class="btn-group btn-group-sm input-group input-group-sm" style="float:left;margin-top:0px;padding-left:6px;width:146px;float:left;" ng-show="showUpdate()">
                                 <span class="input-group-addon">
                                     <label style="margin:0;">
                                         <input type="checkbox" ng-model="autoUpdate" ng-click="changeUpdateSetting()"> Update
@@ -68,17 +75,17 @@
                                 </ul>
                             </div>
                         </div>
-                        <div ng-show="periodType == 'range'" class="datetimepicker input-group input-group-sm date" style="width:400px">
+                        <div ng-show="periodType == 'range'" class="datetimepicker input-group input-group-sm date" style="width:420px">
                             <span class="input-group-btn">
                                 <button class="btn btn-success" ng-click="togglePeriod('last')">
                                     <span class="glyphicon glyphicon-calendar"></span>
                                 </button>
                             </span>
-                            <input id="from-picker-alt" type="text" class="form-control ">
+                            <input id="from-picker-alt" type="text" class="form-control " readonly style="background-color:#FFF;">
                             <span class="input-group-addon">
                                 <span class="glyphicon glyphicon-minus"></span>
                             </span>
-                            <input id="to-picker-alt" type="text" class="form-control">
+                            <input id="to-picker-alt" type="text" class="form-control" readonly style="background-color:#FFF;">
                             <span class="input-group-btn">
                                 <button class="btn" ng-click="search()">
                                     <span class="glyphicon glyphicon-search"></span>
@@ -101,7 +108,7 @@
         <div id="to-picker" ></div>
         <div class="btn-group btn-group-justified" style="padding-top:6px;">
             <div class="btn-group" role="group" ng-repeat="period in aReadablePeriodList" >
-                <button type="button" class="btn btn-default btn-sm" ng-class="getPeriodClassInCalendar( period )" ng-click="setPeriodForCalendar(period)">{{period}}</button>
+				<button type="button" class="btn btn-default btn-sm" ng-click="setPeriodForCalendar(period)">{{period}}</button>
             </div>
         </div>
         <div class="guide"></div>

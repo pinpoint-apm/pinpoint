@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import com.navercorp.pinpoint.bootstrap.instrument.DynamicTransformRequestListener;
 import com.navercorp.pinpoint.bootstrap.instrument.DynamicTransformTrigger;
-import com.navercorp.pinpoint.common.util.Asserts;
+import com.navercorp.pinpoint.common.util.Assert;
 
 /**
  * @author emeroad
@@ -40,11 +40,8 @@ public class DynamicTransformService implements DynamicTransformTrigger {
     private DynamicTransformRequestListener dynamicTransformRequestListener;
 
     public DynamicTransformService(Instrumentation instrumentation, DynamicTransformRequestListener listener) {
-        Asserts.notNull(instrumentation, "instrumentation");
-        Asserts.notNull(listener, "listener");
-
-        this.instrumentation = instrumentation;
-        this.dynamicTransformRequestListener = listener;
+        this.instrumentation = Assert.requireNonNull(instrumentation, "instrumentation");
+        this.dynamicTransformRequestListener = Assert.requireNonNull(listener, "listener");
     }
 
     @Override
@@ -69,7 +66,7 @@ public class DynamicTransformService implements DynamicTransformTrigger {
     @Override
     public void addClassFileTransformer(ClassLoader classLoader, String targetClassName, ClassFileTransformer transformer) {
         if (this.logger.isDebugEnabled()) {
-            logger.debug("retransform request classLoader{}, class:{}", classLoader, targetClassName);
+            logger.debug("Add dynamic transform. classLoader={}, class={}", classLoader, targetClassName);
         }
         
         this.dynamicTransformRequestListener.onTransformRequest(classLoader, targetClassName, transformer);
@@ -91,7 +88,7 @@ public class DynamicTransformService implements DynamicTransformTrigger {
 
     public void setTransformRequestEventListener(DynamicTransformRequestListener retransformEventListener) {
         if (retransformEventListener == null) {
-            throw new NullPointerException("dynamicTransformRequestListener must not be null");
+            throw new NullPointerException("dynamicTransformRequestListener");
         }
         this.dynamicTransformRequestListener = retransformEventListener;
     }

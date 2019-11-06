@@ -17,7 +17,7 @@ public class MethodFiltersTest {
         assertTrue(MethodFilters.name("call").accept(method));
         assertFalse(MethodFilters.name("execute").accept(method));
         assertFalse(MethodFilters.name().accept(method));
-        assertFalse(MethodFilters.name(null).accept(method));
+        assertFalse(MethodFilters.name((String[]) null).accept(method));
         assertFalse(MethodFilters.name(null, null).accept(method));
     }
     

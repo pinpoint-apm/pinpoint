@@ -16,7 +16,7 @@
 package com.navercorp.pinpoint.web.scatter;
 
 /**
- * @Author Taejin Koo
+ * @author Taejin Koo
  */
 public class Coordinates {
 

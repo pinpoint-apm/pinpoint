@@ -1,0 +1,36 @@
+<div class="panel panel-default grouped-application-list" ng-show="isGroupedNode || isGroupedLink">
+	<div class="panel-heading">
+		<span class="badge">{{groupedApplicationList.length}}</span> applications<span class="badge count">{{totalCount | number:0}}</span>
+		<div ng-if="isGroupedNode" class="input-group form-group">
+			<input type="text" ng-model="searchKeyword.applicationName" class="form-control"><span class="input-group-addon"><span class="glyphicon glyphicon-search" style="top:0;"></span></span>
+		</div>
+		<div ng-if="isGroupedLink" class="input-group form-group">
+			<input type="text" ng-model="searchKeyword.toNode.applicationName" class="form-control"><span class="input-group-addon"><span class="glyphicon glyphicon-search" style="top:0;"></span></span>
+		</div>
+	</div>
+	<div class="panel-body">
+		<ul ng-if="isGroupedNode" class="outer">
+			<li ng-repeat="app in groupedApplicationList | filter:searchKeyword" >
+				<img ng-if="app.hasAlert" src="images/servermap/ERROR.png" width="12px" height="12px"/>
+				<p class="name" ng-class="isSelectedNode(app)" ng-click="onSelectNodeApplication(app)">{{app.applicationName}}</p>
+				<span class="count">{{app.totalCount | number:0}}</span>
+				<ul class="inner" ng-repeat="sub in node.subGroup[app.applicationName]" ng-if="node.subGroup">
+					<li><p class="name">{{sub.applicationName}}</p><span class="count">{{sub.totalCount | number:0}}</span></li>
+				</ul>
+			</li>
+		</ul>
+		<ul ng-if="isGroupedLink" class="outer with-icon">
+			<li ng-repeat="app in groupedApplicationList | filter:searchKeyword">
+				<button class="btn btn-default btn-xs" ng-click="openFilteredMapWindow(app)">
+					<span class="glyphicon glyphicon-filter"></span>
+				</button>
+				<button class="btn btn-default btn-xs" ng-click="openFilterWizard(app)">
+					<span class="glyphicon glyphicon-filter"></span>
+				</button>
+				<img ng-if="app.hasAlert" src="images/servermap/ERROR.png" width="12px" height="12px"/>
+				<p class="name" ng-class="isSelectedLink(app)" ng-click="onSelectLinkApplication(app)">{{app.toNode.applicationName}}</p>
+				<span class="count">{{app.totalCount | number:0}}</span>
+			</li>
+		</ul>
+	</div>
+</div>

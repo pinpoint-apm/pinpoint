@@ -21,7 +21,7 @@
         </foreach>
     </insert>
     
-    <delete id="deleteUser" parameterType="User">
+    <delete id="deleteUser" parameterType="string">
         DELETE
         FROM puser
         WHERE user_id = #{userId} 
@@ -50,6 +50,14 @@
         FROM puser
         WHERE name = #{name} 
         ORDER BY department
+    </select>
+
+    <select id="isExistUserId" resultType="java.lang.Boolean">
+        SELECT EXISTS (
+            SELECT 1
+            FROM puser
+            WHERE user_id = #{userId}
+        )
     </select>
     
     <update id="updateUser" parameterType="User">

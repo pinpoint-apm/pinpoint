@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import com.navercorp.pinpoint.common.Charsets;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
 
@@ -38,7 +39,7 @@ public class ControlMessageEncoder {
     private Charset charset;
 
     public ControlMessageEncoder() {
-        this.charset = Charset.forName("UTF-8");
+        this.charset = Charsets.UTF_8;
     }
 
     public byte[] encode(Map<String, Object> value) throws ProtocolException {

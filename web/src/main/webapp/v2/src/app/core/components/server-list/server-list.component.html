@@ -1,0 +1,17 @@
+<ul class="l-servers-list">
+    <li *ngFor="let serverName of getServerKeys(); let outerIndex = index">
+        <div class="l-server-name" [attr.title]="serverName">{{ serverName }}</div>
+        <ul>
+            <li *ngFor="let agentName of getAgentKeys(serverName); let innerIndex = index">
+                <div>
+                    <span class="l-icon-alert" *ngIf="hasError(agentName)"><img [src]="getAlertImgPath()" alt=""></span>
+                    <button class="l-text-box fas fa-chart-line" (click)="onOpenInspector(agentName)" *ngIf="isWas"></button>
+                </div>
+                <label for="step3-category-{{outerIndex}}-{{innerIndex}}" [attr.title]="agentName">
+                    <input type="radio" id="step3-category-{{outerIndex}}-{{innerIndex}}" name="main-server-list-selected-agent" (click)="onSelectAgent(agentName)" [checked]="isSelectedAgent(agentName)">
+                    {{ agentName }}
+                </label>
+            </li>
+        </ul>
+    </li>
+</ul>

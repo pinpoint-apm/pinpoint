@@ -1,0 +1,79 @@
+:host{
+    display: block;
+    position: absolute;
+    width: 100%;
+    min-width: 500px;
+    max-width: 1000px;
+    background-color: #fff;
+    border: 1px solid #e5e8f0;
+    box-shadow: 0 0 15px 0 rgba(0, 0, 0, 0.75);
+    text-align: left;
+    top: 50%;
+    transform: translateX(-50%) translateY(-50%);
+    left: 50%;
+}
+.l-title-group {
+    padding: 17px 18px;
+    height: auto;
+    background-color: #fff;
+    border-bottom: 1px solid #e5e8f0;
+    position: relative;
+    font-size: 13px;
+    font-weight: 600;
+    color: #333;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.l-title-group dt {
+    font-size: 20px;
+    font-weight: 600;
+    color: #4a8fd2;
+}
+.l-title-group button {
+    position:absolute;
+    right:27px;
+    top:50%;
+    transform:translateY(-50%);
+    color:#4a8fd2;
+    font-size: 30px;
+    width:20px;
+    height:20px;
+    background:url(../../../../assets/img/icon-close.png) no-repeat 0 0;
+}
+.l-contents-group {
+    background: #f6f8fb;
+    padding: 17px 18px;
+    overflow: auto;
+}
+.l-sql-list {
+    margin: 10px 0 0 0;
+}
+.l-sql-list:first-child {
+    margin: 0;
+}
+.l-sql-list dt {
+    font-size: 13px;
+    font-weight: 600;
+    color: #333;
+    margin: 0 0 12px;
+}
+.l-sql-list dd {
+    border: 1px solid #cfd7e1;
+    background: #fff;
+    padding: 18px 18px;
+    font-size: 13px;
+    color: #999;
+    line-height: 2em;
+    position: relative;
+}
+.l-sql-list button {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+}
+pre {
+    height: 250px;
+    overflow: auto;
+    border-radius: 0px;
+}

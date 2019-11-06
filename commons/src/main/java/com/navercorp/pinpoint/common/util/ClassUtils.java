@@ -21,7 +21,6 @@ package com.navercorp.pinpoint.common.util;
  */
 public final class ClassUtils {
     
-    private static final Object CLASS_NOT_LOADED = null;
     private static final char PACKAGE_SEPARATOR = '.';
 
     private ClassUtils() {
@@ -33,28 +32,42 @@ public final class ClassUtils {
     
     public static boolean isLoaded(String name, ClassLoader classLoader) {
         if (name == null) {
-            throw new IllegalArgumentException("name must not be null");
+            throw new IllegalArgumentException("name");
         }
         ClassLoader classLoaderToUse = classLoader;
         if (classLoaderToUse == null) {
             classLoaderToUse = ClassLoaderUtils.getDefaultClassLoader();
         }
         try {
-            return (classLoaderToUse.loadClass(name) != CLASS_NOT_LOADED);
+            classLoaderToUse.loadClass(name);
+            return true;
         } catch (ClassNotFoundException ignore) {
-            // Swallow
+            return false;
         }
-        return false;
     }
-    
-    public static String getPackageName(String fqcn) {
+
+    public static String getPackageName(String fqcn, char packageSeparator, String defaultValue) {
         if (fqcn == null) {
-            throw new IllegalArgumentException("fully-qualified class name must not be null");
+            throw new NullPointerException("fully-qualified class name");
         }
-        final int lastPackageSeparatorIndex = fqcn.lastIndexOf(PACKAGE_SEPARATOR);
+        final int lastPackageSeparatorIndex = fqcn.lastIndexOf(packageSeparator);
         if (lastPackageSeparatorIndex == -1) {
-            return "";
+            return defaultValue;
         }
         return fqcn.substring(0, lastPackageSeparatorIndex);
+    }
+
+    public static String getPackageName(String fqcn) {
+        return getPackageName(fqcn, PACKAGE_SEPARATOR, "");
+    }
+
+    /**
+     * convert "." based name to "/" based internal name.
+     */
+    public static String toInternalName(final String className) {
+        if (className == null) {
+            throw new IllegalArgumentException("class name must not be null");
+        }
+        return className.replace('.', '/');
     }
 }

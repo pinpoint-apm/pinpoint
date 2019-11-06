@@ -28,10 +28,13 @@ import com.navercorp.pinpoint.collector.cluster.route.RouteEvent;
 public class LoggingFilter<T extends RouteEvent> implements RouteFilter<T> {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final boolean isDebug = logger.isDebugEnabled();
 
     @Override
     public void doEvent(T event) {
-        logger.info("{} doEvent {}.", this.getClass().getSimpleName(), event);
+        if (isDebug) {
+            logger.debug("{} doEvent {}.", this.getClass().getSimpleName(), event);
+        }
     }
 
 }

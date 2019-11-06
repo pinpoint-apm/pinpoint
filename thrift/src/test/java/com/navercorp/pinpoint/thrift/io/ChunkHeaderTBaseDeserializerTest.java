@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,20 +20,17 @@ import static org.junit.Assert.*;
 
 import java.util.List;
 
+import com.navercorp.pinpoint.io.request.Message;
+import com.navercorp.pinpoint.io.util.TypeLocator;
 import org.apache.thrift.TBase;
 import org.apache.thrift.protocol.TCompactProtocol;
 import org.apache.thrift.protocol.TProtocolFactory;
 import org.junit.Test;
 
 import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
-import com.navercorp.pinpoint.thrift.io.ChunkHeaderBufferedTBaseSerializer;
-import com.navercorp.pinpoint.thrift.io.ChunkHeaderTBaseDeserializer;
-import com.navercorp.pinpoint.thrift.io.DefaultTBaseLocator;
-import com.navercorp.pinpoint.thrift.io.TBaseLocator;
-import com.navercorp.pinpoint.thrift.io.UnsafeByteArrayOutputStream;
 
 public class ChunkHeaderTBaseDeserializerTest {
-    private static final TBaseLocator DEFAULT_TBASE_LOCATOR = new DefaultTBaseLocator();
+    private static final TypeLocator<TBase<?, ?>> DEFAULT_TBASE_LOCATOR = DefaultTBaseLocator.getTypeLocator();
     private static final TProtocolFactory DEFAULT_PROTOCOL_FACTORY = new TCompactProtocol.Factory();
 
     @Test
@@ -45,9 +42,9 @@ public class ChunkHeaderTBaseDeserializerTest {
         TSpanChunk chunk = new TSpanMockBuilder().buildChunk(3, 10);
         serializer.add(chunk);
 
-        List<TBase<?, ?>> list = deserializer.deserialize(serializer.getTransport().getBuffer(), 0, serializer.getTransport().getBufferPosition());
+        List<Message<TBase<?, ?>>> list = deserializer.deserialize(serializer.getTransport().getBuffer(), 0, serializer.getTransport().getBufferPosition());
         assertEquals(1, list.size());
-        TSpanChunk result = (TSpanChunk) list.get(0);
+        TSpanChunk result = (TSpanChunk) list.get(0).getData();
         assertEquals(3, result.getSpanEventList().size());
     }
 }

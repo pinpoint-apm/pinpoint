@@ -1,0 +1,59 @@
+.l-wrapper {
+    display: flex;
+    flex-flow: row wrap;
+    margin-right: 10px;
+    border: 1px solid #364660;
+    border-radius: 0px;
+    line-height: 1em;
+    align-items:stretch;
+    height: 32px;
+}
+.fas {
+    font-size: 16px;
+}
+.l-type-select {
+    display: flex;
+    flex-flow: row wrap;
+    position: relative;
+}
+.l-type-select li {
+    position: relative;
+    border-left: none;
+}
+.l-type-select button {
+    height: 100%;
+    background: #3E506B;
+    padding: 0 5px;
+    width: 35px;
+    color:#38c2a2;
+}
+.l-type-select li.inactive {
+    border: 1px solid #364660;
+    border-radius: 0 0 2px 2px;
+    overflow: hidden;
+    bottom: -36px;
+    left: -1px;
+    position: absolute;
+}
+.l-type-select li:after {
+    content: '';
+    width: 0;
+    height: 0;
+    border-right: 0 solid #33b692;
+    border-bottom: 8px solid #33b692;
+    border-left: 8px solid transparent;
+    position: absolute;
+    right: 0;
+    bottom: 0;
+}
+.l-type-select li.inactive:after {
+    display:none;
+}
+.l-type-select li.inactive button {
+    color:#7185a2;
+    height: 34px;
+    width: 34px;
+}
+.l-type-select li:first-child button {
+    border-left: none;
+}

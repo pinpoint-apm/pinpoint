@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2014 NAVER Corp.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 
+import com.navercorp.pinpoint.common.Charsets;
 import org.junit.runner.Description;
 import org.junit.runner.Result;
 import org.junit.runner.notification.Failure;
@@ -30,11 +31,11 @@ import static com.navercorp.pinpoint.test.plugin.PinpointPluginTestConstants.*;
  *
  */
 public class PinpointPluginTestRunListener extends RunListener {
-    public static final String UTF_8 = "UTF-8";
+    public static final String DEFAULT_ENCODING = Charsets.UTF_8_NAME;
     private final PrintStream out;
 
     public PinpointPluginTestRunListener(OutputStream out) {
-        this(out, UTF_8);
+        this(out, DEFAULT_ENCODING);
     }
     public PinpointPluginTestRunListener(OutputStream out, String encoding) {
         try {

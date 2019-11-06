@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.bootstrap.config;
 
+import com.navercorp.pinpoint.common.util.StringUtils;
+
 import java.util.HashSet;
 import java.util.Set;
 
@@ -28,7 +30,7 @@ public class ProfilableClassFilter implements Filter<String> {
     private final Set<String> profileIncludeSub = new HashSet<String>();
 
     public ProfilableClassFilter(String profilableClass) {
-        if (profilableClass == null || profilableClass.isEmpty()) {
+        if (StringUtils.isEmpty(profilableClass)) {
             return;
         }
         String[] className = profilableClass.split(",");

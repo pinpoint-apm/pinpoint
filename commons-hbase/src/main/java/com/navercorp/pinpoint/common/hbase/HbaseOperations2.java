@@ -94,8 +94,12 @@ public interface HbaseOperations2 {
      * If asyncOperation is not set, then execute put method instead of asyncPut method.
      */
     boolean asyncPut(TableName tableName, final Put put);
+
     /**
      * If asyncOperation is not set, then execute put method instead of asyncPut method.
+     * @param tableName
+     * @param puts
+     * @return the list of puts which could not be queued or put serially. May be null if all put operations were successfully queued.
      */
     List<Put> asyncPut(TableName tableName, final List<Put> puts);
 

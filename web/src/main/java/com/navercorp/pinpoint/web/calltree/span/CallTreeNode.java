@@ -17,20 +17,18 @@
 package com.navercorp.pinpoint.web.calltree.span;
 
 /**
- *
  * @author jaehong.kim
- *
  */
 public class CallTreeNode {
 
     private CallTreeNode parent;
     private CallTreeNode child;
     private CallTreeNode sibling;
-    private final SpanAlign value;
+    private Align align;
 
-    public CallTreeNode(final CallTreeNode parent, SpanAlign value) {
+    public CallTreeNode(final CallTreeNode parent, Align align) {
         this.parent = parent;
-        this.value = value;
+        this.align = align;
     }
 
     public void setParent(final CallTreeNode parent) {
@@ -41,16 +39,20 @@ public class CallTreeNode {
         return parent;
     }
 
-    public SpanAlign getValue() {
-        return value;
+    public void setAlign(final Align align) {
+        this.align = align;
+    }
+
+    public Align getAlign() {
+        return align;
     }
 
     public void setChild(final CallTreeNode child) {
         this.child = child;
     }
 
-    public void setChild(final SpanAlign spanAlign) {
-        this.child = new CallTreeNode(this, spanAlign);
+    public void setChild(final Align align) {
+        this.child = new CallTreeNode(this, align);
     }
 
     public CallTreeNode getChild() {
@@ -65,8 +67,8 @@ public class CallTreeNode {
         this.sibling = sibling;
     }
 
-    public void setSibling(final SpanAlign spanAlign) {
-        this.sibling = new CallTreeNode(parent, spanAlign);
+    public void setSibling(final Align align) {
+        this.sibling = new CallTreeNode(parent, align);
     }
 
     public CallTreeNode getSibling() {
@@ -85,7 +87,7 @@ public class CallTreeNode {
         // change logic from recursive to loop, because of avoid call-stack-overflow.
         int depth = 1;
         CallTreeNode node = parent.getParent();
-        while(node != null) {
+        while (node != null) {
             depth++;
             node = node.getParent();
         }
@@ -106,8 +108,8 @@ public class CallTreeNode {
         builder.append(child != null ? true : false);
         builder.append(", sibling=");
         builder.append(sibling != null ? true : false);
-        builder.append(", value=");
-        builder.append(value);
+        builder.append(", align=");
+        builder.append(align);
         builder.append("}");
         return builder.toString();
     }

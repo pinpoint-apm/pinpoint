@@ -1,11 +1,11 @@
 /*
- * Copyright 2015 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,7 +20,9 @@ import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
-import com.navercorp.pinpoint.plugin.mybatis.MyBatisPlugin;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
+import com.navercorp.pinpoint.plugin.mybatis.MyBatisConstants;
+
 
 /**
  * @author HyunGil Jeong
@@ -39,9 +41,9 @@ public class SqlSessionOperationInterceptor extends SpanEventSimpleAroundInterce
     @Override
     protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result,
             Throwable throwable) {
-        recorder.recordServiceType(MyBatisPlugin.MYBATIS);
+        recorder.recordServiceType(MyBatisConstants.MYBATIS);
         recorder.recordException(throwable);
-        if (args != null && args.length > 0) {
+        if (ArrayUtils.hasLength(args)) {
             recorder.recordApiCachedString(getMethodDescriptor(), (String)args[0], 0);
         } else {
             recorder.recordApi(getMethodDescriptor());

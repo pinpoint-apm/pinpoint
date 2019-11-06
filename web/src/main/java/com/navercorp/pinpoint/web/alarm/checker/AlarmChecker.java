@@ -16,20 +16,20 @@
 
 package com.navercorp.pinpoint.web.alarm.checker;
 
-import java.util.LinkedList;
-import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.navercorp.pinpoint.web.alarm.collector.DataCollector;
 import com.navercorp.pinpoint.web.alarm.vo.Rule;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * @author koo.taejin
  * @author minwoo.jung
  */
-public abstract class AlarmChecker {
+public abstract class AlarmChecker<T> {
 
     protected final Logger logger = LoggerFactory.getLogger(this.getClass());
     protected final DataCollector dataCollector;
@@ -45,7 +45,6 @@ public abstract class AlarmChecker {
     
     public boolean isDetected() {
         return detected;
-        
     }
     
     public Rule getRule() {
@@ -67,10 +66,8 @@ public abstract class AlarmChecker {
     public String getUnit() {
         return unit;
     }
-    
-    protected boolean decideResult(long value) {
-        return value >= rule.getThreshold();
-    }
+
+    protected abstract boolean decideResult(T value);
 
     public void check() {
         dataCollector.collect();
@@ -88,7 +85,6 @@ public abstract class AlarmChecker {
         return String.format("%s value is %s%s during the past 5 mins.(Threshold : %s%s)<br>", rule.getCheckerName(), getDetectedValue(), unit, rule.getThreshold(), unit);
     }
     
-    protected abstract long getDetectedValue();
+    protected abstract T getDetectedValue();
 
-    
 }

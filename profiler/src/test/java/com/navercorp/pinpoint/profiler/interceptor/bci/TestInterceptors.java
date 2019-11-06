@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2014 NAVER Corp.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
 package com.navercorp.pinpoint.profiler.interceptor.bci;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
@@ -24,16 +25,17 @@ import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
  *
  */
 public class TestInterceptors {
-    private static List<Interceptor> interceptors = new ArrayList<Interceptor>();
-    
+
+    private static final List<Interceptor> interceptors = Collections.synchronizedList(new ArrayList<Interceptor>());
+
     public static void clear() {
         interceptors.clear();
     }
-    
+
     public static void add(Interceptor interceptor) {
         interceptors.add(interceptor);
     }
-    
+
     public static Interceptor get(int index) {
         return interceptors.get(index);
     }

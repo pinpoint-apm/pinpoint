@@ -1,0 +1,14 @@
+<div class="l-sourcelist-wrapper">
+    <h4 class="l-sourcelist-title">Data Source List</h4>
+    <ul class="l-source-data-list">
+        <li *ngFor="let d of data; let i = index"
+            class="l-source-data-list-item" [class.l-selected-item]="isItemSelected(i)"
+            (click)="onClickSourceList(i)">
+            <span class="fas fa-check"></span>
+            <div class="l-source-data-wrapper">
+                <span class="l-service-type-wrapper">{{d.serviceType}}</span>
+                <span class="l-jdbc-url-wrapper">{{d.jdbcUrl}}</span>
+            </div>
+        </li>
+    </ul>
+</div>

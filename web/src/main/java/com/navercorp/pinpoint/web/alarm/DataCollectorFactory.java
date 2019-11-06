@@ -16,18 +16,20 @@
 
 package com.navercorp.pinpoint.web.alarm;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
-import com.navercorp.pinpoint.web.alarm.collector.AgentStatDataCollector;
-import com.navercorp.pinpoint.web.alarm.collector.DataCollector;
-import com.navercorp.pinpoint.web.alarm.collector.MapStatisticsCallerDataCollector;
-import com.navercorp.pinpoint.web.alarm.collector.ResponseTimeDataCollector;
-import com.navercorp.pinpoint.web.dao.hbase.HbaseAgentStatDao;
+import com.navercorp.pinpoint.common.server.bo.stat.CpuLoadBo;
+import com.navercorp.pinpoint.common.server.bo.stat.DataSourceListBo;
+import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
+import com.navercorp.pinpoint.web.alarm.collector.*;
+import com.navercorp.pinpoint.web.dao.AgentEventDao;
 import com.navercorp.pinpoint.web.dao.hbase.HbaseApplicationIndexDao;
 import com.navercorp.pinpoint.web.dao.hbase.HbaseMapResponseTimeDao;
 import com.navercorp.pinpoint.web.dao.hbase.HbaseMapStatisticsCallerDao;
+import com.navercorp.pinpoint.web.dao.stat.AgentStatDao;
+import com.navercorp.pinpoint.web.dao.stat.FileDescriptorDao;
 import com.navercorp.pinpoint.web.vo.Application;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Component;
 
 /**
  * @author minwoo.jung
@@ -43,7 +45,23 @@ public class DataCollectorFactory {
     private HbaseMapResponseTimeDao hbaseMapResponseTimeDao;
 
     @Autowired
-    private HbaseAgentStatDao hbaseAgentStatDao;
+    @Qualifier("jvmGcDaoFactory")
+    private AgentStatDao<JvmGcBo> jvmGcDao;
+
+    @Autowired
+    @Qualifier("cpuLoadDaoFactory")
+    private AgentStatDao<CpuLoadBo> cpuLoadDao;
+
+    @Autowired
+    @Qualifier("dataSourceDaoFactory")
+    private AgentStatDao<DataSourceListBo> dataSourceDao;
+
+    @Autowired
+    @Qualifier("fileDescriptorDaoFactory")
+    FileDescriptorDao fileDescriptorDao;
+
+    @Autowired
+    private AgentEventDao agentEventDao;
 
     @Autowired
     private HbaseApplicationIndexDao hbaseApplicationIndexDao;
@@ -53,21 +71,30 @@ public class DataCollectorFactory {
 
     public DataCollector createDataCollector(CheckerCategory checker, Application application, long timeSlotEndTime) {
         switch (checker.getDataCollectorCategory()) {
-        case RESPONSE_TIME:
-            return new ResponseTimeDataCollector(DataCollectorCategory.RESPONSE_TIME, application, hbaseMapResponseTimeDao, timeSlotEndTime, SLOT_INTERVAL_FIVE_MIN);
-        case AGENT_STAT:
-            return new AgentStatDataCollector(DataCollectorCategory.AGENT_STAT, application, hbaseAgentStatDao, hbaseApplicationIndexDao, timeSlotEndTime, SLOT_INTERVAL_FIVE_MIN);
-        case CALLER_STAT:
-            return new MapStatisticsCallerDataCollector(DataCollectorCategory.CALLER_STAT, application, mapStatisticsCallerDao, timeSlotEndTime, SLOT_INTERVAL_FIVE_MIN);
+            case RESPONSE_TIME:
+                return new ResponseTimeDataCollector(DataCollectorCategory.RESPONSE_TIME, application, hbaseMapResponseTimeDao, timeSlotEndTime, SLOT_INTERVAL_FIVE_MIN);
+            case AGENT_STAT:
+                return new AgentStatDataCollector(DataCollectorCategory.AGENT_STAT, application, jvmGcDao, cpuLoadDao, hbaseApplicationIndexDao, timeSlotEndTime, SLOT_INTERVAL_FIVE_MIN);
+            case AGENT_EVENT:
+                return new AgentEventDataCollector(DataCollectorCategory.AGENT_EVENT, application, agentEventDao, hbaseApplicationIndexDao, timeSlotEndTime, SLOT_INTERVAL_FIVE_MIN);
+            case CALLER_STAT:
+                return new MapStatisticsCallerDataCollector(DataCollectorCategory.CALLER_STAT, application, mapStatisticsCallerDao, timeSlotEndTime, SLOT_INTERVAL_FIVE_MIN);
+            case DATA_SOURCE_STAT:
+                return new DataSourceDataCollector(DataCollectorCategory.DATA_SOURCE_STAT, application, dataSourceDao, hbaseApplicationIndexDao, timeSlotEndTime, SLOT_INTERVAL_FIVE_MIN);
+            case FILE_DESCRIPTOR:
+                return new FileDescriptorDataCollector(DataCollectorCategory.FILE_DESCRIPTOR, application, fileDescriptorDao, hbaseApplicationIndexDao, timeSlotEndTime, SLOT_INTERVAL_FIVE_MIN);
         }
 
         throw new IllegalArgumentException("unable to create DataCollector : " + checker.getName());
-
     }
 
     public enum DataCollectorCategory {
         RESPONSE_TIME,
         AGENT_STAT,
-        CALLER_STAT
+        AGENT_EVENT,
+        DATA_SOURCE_STAT,
+        CALLER_STAT,
+        FILE_DESCRIPTOR
     }
+
 }

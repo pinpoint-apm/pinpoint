@@ -21,24 +21,33 @@ package com.navercorp.pinpoint.common.hbase;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Table;
 
+import java.util.concurrent.ExecutorService;
+
 /**
- * Defines methods to create new HTableInterface.
+ * Defines methods to create new Table.
  */
 public interface TableFactory {
 
   /**
-   * Creates a new HTableInterface.
+   * Creates a new TableInterface.
    *
-   * @param config HBaseConfiguration instance.
    * @param tableName name of the HBase table.
-   * @return HTableInterface instance.
+   * @return Table instance.
    */
   Table getTable(TableName tableName);
 
 
   /**
+   * Creates a new TableInterface.
+   *
+   * @param tableName name of the HBase table.
+   * @return Table instance.
+   */
+  Table getTable(TableName tableName, ExecutorService executorService);
+
+  /**
    * Release the HTable resource represented by the table.
-   * @param table
+   * @param table Table instance.
    */
   void releaseTable(final Table table);
 }

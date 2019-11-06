@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2014 NAVER Corp.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,9 @@ package com.navercorp.pinpoint.profiler.instrument.interceptor;
 
 import java.lang.reflect.Method;
 
-import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
+import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
 
 /**
  * @author Jongho Moon
@@ -28,8 +28,8 @@ public class InvokeBeforeCodeGenerator extends InvokeCodeGenerator {
     private final int interceptorId;
     private final InstrumentClass targetClass;
     
-    public InvokeBeforeCodeGenerator(int interceptorId, InterceptorDefinition interceptorDefinition, InstrumentClass targetClass, InstrumentMethod targetMethod, TraceContext traceContext) {
-        super(interceptorId, interceptorDefinition, targetMethod, traceContext);
+    public InvokeBeforeCodeGenerator(int interceptorId, InterceptorDefinition interceptorDefinition, InstrumentClass targetClass, InstrumentMethod targetMethod, ApiMetaDataService apiMetaDataService) {
+        super(interceptorId, interceptorDefinition, targetMethod, apiMetaDataService);
         
         this.interceptorId = interceptorId;
         this.targetClass = targetClass;
@@ -47,7 +47,6 @@ public class InvokeBeforeCodeGenerator extends InvokeCodeGenerator {
         //     InterceptorInvokerHelper.handleException(t);
         // }
         
-        builder.append("try { ");
         builder.format("%1$s = %2$s.getInterceptor(%3$d); ", getInterceptorVar(), getInterceptorRegistryClassName(), interceptorId);
 
         final Method beforeMethod = interceptorDefinition.getBeforeMethod();
@@ -56,8 +55,6 @@ public class InvokeBeforeCodeGenerator extends InvokeCodeGenerator {
             appendArguments(builder);
             builder.format(");");
         }
-        
-        builder.format("} catch (java.lang.Throwable _$PINPOINT_EXCEPTION$_) { %1$s.handleException(_$PINPOINT_EXCEPTION$_); }", getInterceptorInvokerHelperClassName());
         
         builder.end();
         

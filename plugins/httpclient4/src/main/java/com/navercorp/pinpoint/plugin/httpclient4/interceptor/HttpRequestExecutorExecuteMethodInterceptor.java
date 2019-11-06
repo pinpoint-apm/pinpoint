@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2018 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,43 +16,39 @@
 
 package com.navercorp.pinpoint.plugin.httpclient4.interceptor;
 
-import java.io.IOException;
-
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScopeInvocation;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ClientHeaderAdaptor;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestAdaptor;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestRecorder;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestWrapper;
+import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestWrapperAdaptor;
+import com.navercorp.pinpoint.bootstrap.plugin.request.DefaultRequestTraceWriter;
+import com.navercorp.pinpoint.bootstrap.plugin.request.RequestTraceWriter;
+import com.navercorp.pinpoint.bootstrap.plugin.request.util.CookieExtractor;
+import com.navercorp.pinpoint.bootstrap.plugin.request.util.CookieRecorder;
+import com.navercorp.pinpoint.bootstrap.plugin.request.util.CookieRecorderFactory;
+import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
+import com.navercorp.pinpoint.common.util.IntBooleanIntBooleanValue;
 import com.navercorp.pinpoint.plugin.httpclient4.HttpCallContext;
 import com.navercorp.pinpoint.plugin.httpclient4.HttpCallContextFactory;
+import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4CookieExtractor;
 import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4PluginConfig;
-import org.apache.http.HeaderElement;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpEntityEnclosingRequest;
-import org.apache.http.HttpMessage;
+import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4RequestWrapper;
+import com.navercorp.pinpoint.plugin.httpclient4.HttpRequest4ClientHeaderAdaptor;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
-import org.apache.http.ParseException;
 import org.apache.http.StatusLine;
-import org.apache.http.protocol.HTTP;
 
-import com.navercorp.pinpoint.bootstrap.config.DumpType;
-import com.navercorp.pinpoint.bootstrap.context.Header;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.annotation.Scope;
-import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.pair.NameIntValuePair;
-import com.navercorp.pinpoint.bootstrap.sampler.SamplingFlagUtils;
-import com.navercorp.pinpoint.bootstrap.util.FixedByteArrayOutputStream;
-import com.navercorp.pinpoint.bootstrap.util.InterceptorUtils;
-import com.navercorp.pinpoint.bootstrap.util.SimpleSampler;
-import com.navercorp.pinpoint.bootstrap.util.SimpleSamplerFactory;
-import com.navercorp.pinpoint.bootstrap.util.StringUtils;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4Constants;
 
@@ -60,29 +56,19 @@ import com.navercorp.pinpoint.plugin.httpclient4.HttpClient4Constants;
  * @author minwoo.jung
  * @author jaehong.kim
  */
-@Scope(value = HttpClient4Constants.HTTP_CLIENT4_SCOPE, executionPolicy = ExecutionPolicy.ALWAYS)
 public class HttpRequestExecutorExecuteMethodInterceptor implements AroundInterceptor {
-    private static final int HTTP_REQUEST_INDEX = 1;
-
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
     private final TraceContext traceContext;
     private final MethodDescriptor methodDescriptor;
 
-    private final boolean param;
-    private final boolean cookie;
-    private final DumpType cookieDumpType;
-    private final SimpleSampler cookieSampler;
-
-    private final boolean entity;
-    private final DumpType entityDumpType;
-    private final SimpleSampler entitySampler;
-
     private final boolean statusCode;
     private final InterceptorScope interceptorScope;
-
     private final boolean io;
+    private final ClientRequestRecorder<ClientRequestWrapper> clientRequestRecorder;
+    private final CookieRecorder<HttpRequest> cookieRecorder;
+    private final RequestTraceWriter<HttpRequest> requestTraceWriter;
 
     public HttpRequestExecutorExecuteMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, InterceptorScope interceptorScope) {
         this.traceContext = traceContext;
@@ -90,24 +76,17 @@ public class HttpRequestExecutorExecuteMethodInterceptor implements AroundInterc
         this.interceptorScope = interceptorScope;
 
         final HttpClient4PluginConfig profilerConfig = new HttpClient4PluginConfig(traceContext.getProfilerConfig());
-        this.param = profilerConfig.isParam();
-        this.cookie = profilerConfig.isCookie();
-        this.cookieDumpType = profilerConfig.getCookieDumpType();
-        if (cookie) {
-            this.cookieSampler = SimpleSamplerFactory.createSampler(cookie, profilerConfig.getCookieSamplingRate());
-        } else {
-            this.cookieSampler = null;
-        }
 
-        this.entity = profilerConfig.isEntity();
-        this.entityDumpType = profilerConfig.getEntityDumpType();
-        if (entity) {
-            this.entitySampler = SimpleSamplerFactory.createSampler(entity, profilerConfig.getEntitySamplingRate());
-        } else {
-            this.entitySampler = null;
-        }
+        ClientRequestAdaptor<ClientRequestWrapper> clientRequestAdaptor = ClientRequestWrapperAdaptor.INSTANCE;
+        this.clientRequestRecorder = new ClientRequestRecorder<ClientRequestWrapper>(profilerConfig.isParam(), clientRequestAdaptor);
+
+        CookieExtractor<HttpRequest> cookieExtractor = HttpClient4CookieExtractor.INSTANCE;
+        this.cookieRecorder = CookieRecorderFactory.newCookieRecorder(profilerConfig.getHttpDumpConfig(), cookieExtractor);
+
         this.statusCode = profilerConfig.isStatusCode();
         this.io = profilerConfig.isIo();
+        ClientHeaderAdaptor<HttpRequest> clientHeaderAdaptor = new HttpRequest4ClientHeaderAdaptor();
+        this.requestTraceWriter = new DefaultRequestTraceWriter<HttpRequest>(clientHeaderAdaptor, traceContext);
     }
 
     @Override
@@ -121,14 +100,11 @@ public class HttpRequestExecutorExecuteMethodInterceptor implements AroundInterc
         }
 
         final HttpRequest httpRequest = getHttpRequest(args);
-
+        final NameIntValuePair<String> host = getHost();
         final boolean sampling = trace.canSampled();
         if (!sampling) {
-            if (isDebug) {
-                logger.debug("set Sampling flag=false");
-            }
             if (httpRequest != null) {
-                httpRequest.setHeader(Header.HTTP_SAMPLED.toString(), SamplingFlagUtils.SAMPLING_RATE_FALSE);
+                this.requestTraceWriter.write(httpRequest);
             }
             return;
         }
@@ -137,28 +113,22 @@ public class HttpRequestExecutorExecuteMethodInterceptor implements AroundInterc
         TraceId nextId = trace.getTraceId().getNextTraceId();
         recorder.recordNextSpanId(nextId.getSpanId());
         recorder.recordServiceType(HttpClient4Constants.HTTP_CLIENT_4);
-
         if (httpRequest != null) {
-            httpRequest.setHeader(Header.HTTP_TRACE_ID.toString(), nextId.getTransactionId());
-            httpRequest.setHeader(Header.HTTP_SPAN_ID.toString(), String.valueOf(nextId.getSpanId()));
-
-            httpRequest.setHeader(Header.HTTP_PARENT_SPAN_ID.toString(), String.valueOf(nextId.getParentSpanId()));
-
-            httpRequest.setHeader(Header.HTTP_FLAGS.toString(), String.valueOf(nextId.getFlags()));
-            httpRequest.setHeader(Header.HTTP_PARENT_APPLICATION_NAME.toString(), traceContext.getApplicationName());
-            httpRequest.setHeader(Header.HTTP_PARENT_APPLICATION_TYPE.toString(), Short.toString(traceContext.getServerTypeCode()));
-            final NameIntValuePair<String> host = getHost();
-            if (host != null) {
-                final String endpoint = getEndpoint(host.getName(), host.getValue());
-                logger.debug("Get host {}", endpoint);
-                httpRequest.setHeader(Header.HTTP_HOST.toString(), endpoint);
-            }
+            final String hostString = getHostString(host.getName(), host.getValue());
+            this.requestTraceWriter.write(httpRequest, nextId, hostString);
         }
 
         InterceptorScopeInvocation invocation = interceptorScope.getCurrentInvocation();
         if (invocation != null) {
             invocation.getOrCreateAttachment(HttpCallContextFactory.HTTPCALL_CONTEXT_FACTORY);
         }
+    }
+
+    private String getHostString(String hostName, int port) {
+        if (hostName != null) {
+            return HostAndPort.toHostAndPortString(hostName, port);
+        }
+        return null;
     }
 
     private HttpRequest getHttpRequest(Object[] args) {
@@ -171,12 +141,12 @@ public class HttpRequestExecutorExecuteMethodInterceptor implements AroundInterc
 
     private NameIntValuePair<String> getHost() {
         final InterceptorScopeInvocation transaction = interceptorScope.getCurrentInvocation();
-        if (transaction != null && transaction.getAttachment() != null && transaction.getAttachment() instanceof  HttpCallContext) {
-            HttpCallContext callContext = (HttpCallContext) transaction.getAttachment();
+        final Object attachment = getAttachment(transaction);
+        if (attachment instanceof HttpCallContext) {
+            HttpCallContext callContext = (HttpCallContext) attachment;
             return new NameIntValuePair<String>(callContext.getHost(), callContext.getPort());
         }
-
-        return null;
+        return new NameIntValuePair<String>(null, -1);
     }
 
     @Override
@@ -193,19 +163,11 @@ public class HttpRequestExecutorExecuteMethodInterceptor implements AroundInterc
         try {
             final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
             final HttpRequest httpRequest = getHttpRequest(args);
+            final NameIntValuePair<String> host = getHost();
             if (httpRequest != null) {
-                // Accessing httpRequest here not BEFORE() because it can cause side effect.
-                if(httpRequest.getRequestLine() != null) {
-                    final String httpUrl = InterceptorUtils.getHttpUrl(httpRequest.getRequestLine().getUri(), param);
-                    recorder.recordAttribute(AnnotationKey.HTTP_URL, httpUrl);
-                }
-                final NameIntValuePair<String> host = getHost();
-                if (host != null) {
-                    final String endpoint = getEndpoint(host.getName(), host.getValue());
-                    recorder.recordDestinationId(endpoint);
-                }
-
-                recordHttpRequest(trace, httpRequest, throwable);
+                ClientRequestWrapper clientRequest = new HttpClient4RequestWrapper(httpRequest, host.getName(), host.getValue());
+                this.clientRequestRecorder.record(recorder, clientRequest, throwable);
+                this.cookieRecorder.record(recorder, httpRequest, throwable);
             }
 
             if (statusCode) {
@@ -219,28 +181,27 @@ public class HttpRequestExecutorExecuteMethodInterceptor implements AroundInterc
             recorder.recordException(throwable);
 
             final InterceptorScopeInvocation invocation = interceptorScope.getCurrentInvocation();
-            if (invocation != null && invocation.getAttachment() != null && invocation.getAttachment() instanceof  HttpCallContext) {
-                final HttpCallContext callContext = (HttpCallContext) invocation.getAttachment();
+            final Object attachment = getAttachment(invocation);
+            if (attachment instanceof HttpCallContext) {
+                final HttpCallContext callContext = (HttpCallContext) attachment;
                 logger.debug("Check call context {}", callContext);
                 if (io) {
-                    final StringBuilder sb = new StringBuilder();
-                    sb.append("write=").append(callContext.getWriteElapsedTime());
-                    if (callContext.isWriteFail()) {
-                        sb.append("(fail)");
-                    }
-                    sb.append(", read=").append(callContext.getReadElapsedTime());
-                    if (callContext.isReadFail()) {
-                        sb.append("(fail)");
-                    }
-                    recorder.recordAttribute(AnnotationKey.HTTP_IO, sb.toString());
+                    final IntBooleanIntBooleanValue value = new IntBooleanIntBooleanValue((int) callContext.getWriteElapsedTime(), callContext.isWriteFail(), (int) callContext.getReadElapsedTime(), callContext.isReadFail());
+                    recorder.recordAttribute(AnnotationKey.HTTP_IO, value);
                 }
                 // clear
                 invocation.removeAttachment();
             }
-
         } finally {
             trace.traceBlockEnd();
         }
+    }
+
+    private Object getAttachment(InterceptorScopeInvocation invocation) {
+        if (invocation == null) {
+            return null;
+        }
+        return invocation.getAttachment();
     }
 
     private Integer getStatusCode(Object result) {
@@ -248,7 +209,7 @@ public class HttpRequestExecutorExecuteMethodInterceptor implements AroundInterc
     }
 
     Integer getStatusCodeFromResponse(Object result) {
-        if (result != null && result instanceof HttpResponse) {
+        if (result instanceof HttpResponse) {
             HttpResponse response = (HttpResponse) result;
 
             final StatusLine statusLine = response.getStatusLine();
@@ -259,153 +220,5 @@ public class HttpRequestExecutorExecuteMethodInterceptor implements AroundInterc
             }
         }
         return null;
-    }
-
-    private String getEndpoint(String host, int port) {
-        if (host == null) {
-            return "UnknownHttpClient";
-        }
-        if (port < 0) {
-            return host;
-        }
-        StringBuilder sb = new StringBuilder(host.length() + 8);
-        sb.append(host);
-        sb.append(':');
-        sb.append(port);
-        return sb.toString();
-    }
-
-    private void recordHttpRequest(Trace trace, HttpRequest httpRequest, Throwable throwable) {
-        final boolean isException = InterceptorUtils.isThrowable(throwable);
-        if (cookie) {
-            if (DumpType.ALWAYS == cookieDumpType) {
-                recordCookie(httpRequest, trace);
-            } else if (DumpType.EXCEPTION == cookieDumpType && isException) {
-                recordCookie(httpRequest, trace);
-            }
-        }
-        if (entity) {
-            if (DumpType.ALWAYS == entityDumpType) {
-                recordEntity(httpRequest, trace);
-            } else if (DumpType.EXCEPTION == entityDumpType && isException) {
-                recordEntity(httpRequest, trace);
-            }
-        }
-    }
-
-    protected void recordCookie(HttpMessage httpMessage, Trace trace) {
-        org.apache.http.Header[] cookies = httpMessage.getHeaders("Cookie");
-        for (org.apache.http.Header header : cookies) {
-            final String value = header.getValue();
-            if (value != null && !value.isEmpty()) {
-                if (cookieSampler.isSampling()) {
-                    final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
-                    recorder.recordAttribute(AnnotationKey.HTTP_COOKIE, StringUtils.drop(value, 1024));
-                }
-
-                // Can a cookie have 2 or more values?
-                // PMD complains if we use break here
-                return;
-            }
-        }
-    }
-
-    protected void recordEntity(HttpMessage httpMessage, Trace trace) {
-        if (httpMessage instanceof HttpEntityEnclosingRequest) {
-            final HttpEntityEnclosingRequest entityRequest = (HttpEntityEnclosingRequest) httpMessage;
-            try {
-                final HttpEntity entity = entityRequest.getEntity();
-                if (entity != null && entity.isRepeatable() && entity.getContentLength() > 0) {
-                    if (entitySampler.isSampling()) {
-                        final String entityString = entityUtilsToString(entity, "UTF8", 1024);
-                        final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
-                        recorder.recordAttribute(AnnotationKey.HTTP_PARAM_ENTITY, entityString);
-                    }
-                }
-            } catch (Exception e) {
-                logger.debug("HttpEntityEnclosingRequest entity record fail. Caused:{}", e.getMessage(), e);
-            }
-        }
-    }
-
-    /**
-     * copy: EntityUtils Get the entity content as a String, using the provided default character set if none is found in the entity. If defaultCharset is null, the default "ISO-8859-1" is used.
-     *
-     * @param entity
-     *            must not be null
-     * @param defaultCharset
-     *            character set to be applied if none found in the entity
-     * @return the entity content as a String. May be null if {@link HttpEntity#getContent()} is null.
-     * @throws ParseException
-     *             if header elements cannot be parsed
-     * @throws IllegalArgumentException
-     *             if entity is null or if content length > Integer.MAX_VALUE
-     * @throws IOException
-     *             if an error occurs reading the input stream
-     */
-    @SuppressWarnings("deprecation")
-    public static String entityUtilsToString(final HttpEntity entity, final String defaultCharset, int maxLength) throws Exception {
-        if (entity == null) {
-            throw new IllegalArgumentException("HTTP entity may not be null");
-        }
-        if (entity.getContentLength() > Integer.MAX_VALUE) {
-            return "HTTP entity is too large to be buffered in memory length:" + entity.getContentLength();
-        }
-        if (entity.getContentType().getValue().startsWith("multipart/form-data")) {
-            return "content type is multipart/form-data. content length:" + entity.getContentLength();
-        }
-        
-        String charset = getContentCharSet(entity);
-        
-        if (charset == null) {
-            charset = defaultCharset;
-        }
-        if (charset == null) {
-            charset = HTTP.DEFAULT_CONTENT_CHARSET;
-        }
-        
-        FixedByteArrayOutputStream outStream = new FixedByteArrayOutputStream(maxLength);
-        entity.writeTo(outStream);
-        
-        String entityValue = outStream.toString(charset);
-        
-        if (entity.getContentLength() > maxLength) {
-            StringBuilder sb = new StringBuilder();
-            sb.append(entityValue);
-            sb.append(" (HTTP entity is large. length: ");
-            sb.append(entity.getContentLength());
-            sb.append(" )");
-            return sb.toString();
-        }
-        
-        return entityValue;
-    }
-
-    /**
-     * copy: EntityUtils Obtains character set of the entity, if known.
-     *
-     * @param entity
-     *            must not be null
-     * @return the character set, or null if not found
-     * @throws ParseException
-     *             if header elements cannot be parsed
-     * @throws IllegalArgumentException
-     *             if entity is null
-     */
-    public static String getContentCharSet(final HttpEntity entity) throws ParseException {
-        if (entity == null) {
-            throw new IllegalArgumentException("HTTP entity may not be null");
-        }
-        String charset = null;
-        if (entity.getContentType() != null) {
-            HeaderElement values[] = entity.getContentType().getElements();
-            if (values.length > 0) {
-                NameValuePair param = values[0].getParameterByName("charset");
-                if (param != null) {
-                    charset = param.getValue();
-                }
-            }
-        }
-        return charset;
     }
 }

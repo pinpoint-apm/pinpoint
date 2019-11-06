@@ -16,42 +16,22 @@
 
 package com.navercorp.pinpoint.common.server.bo;
 
-import com.navercorp.pinpoint.common.util.AnnotationTranscoder;
-
 /**
  * @author emeroad
  */
 public class AnnotationBo {
 
-    @Deprecated
-    private static final AnnotationTranscoder transcoder = new AnnotationTranscoder();
-
-    private byte version = 0;
-
     private int key;
-
-    private byte valueType;
-    private byte[] byteValue;
     private Object value;
+
     private boolean isAuthorized = true;
-    
+
     public AnnotationBo() {
     }
 
-    public int getVersion() {
-        return version & 0xFF;
-    }
-
-    public byte getRawVersion() {
-        return version;
-    }
-
-    public void setVersion(int version) {
-        if (version < 0 || version > 255) {
-            throw new IllegalArgumentException("out of range (0~255) " + version);
-        }
-        // check range
-        this.version = (byte) (version & 0xFF);
+    public AnnotationBo(int key, Object value) {
+        this.key = key;
+        this.value = value;
     }
 
     public int getKey() {
@@ -63,26 +43,6 @@ public class AnnotationBo {
         this.key = key;
     }
 
-
-    public int getValueType() {
-        return valueType;
-    }
-
-    public byte getRawValueType() {
-        return valueType;
-    }
-
-    public void setValueType(byte valueType) {
-        this.valueType = valueType;
-    }
-
-    public byte[] getByteValue() {
-        return byteValue;
-    }
-
-    public void setByteValue(byte[] byteValue) {
-        this.byteValue = byteValue;
-    }
 
     public Object getValue() {
         return value;
@@ -103,10 +63,10 @@ public class AnnotationBo {
 
     @Override
     public String toString() {
-        if (value == null) {
-            return "AnnotationBo{" + "version=" + version + ", key='" + key + '\'' + ", valueType=" + valueType + '}';
-        }
-        return "AnnotationBo{" + "version=" + version + ", key='" + key + '\'' + ", value=" + value + '}';
+        return "AnnotationBo{" +
+                "key=" + key +
+                ", value=" + value +
+                ", isAuthorized=" + isAuthorized +
+                '}';
     }
-
 }

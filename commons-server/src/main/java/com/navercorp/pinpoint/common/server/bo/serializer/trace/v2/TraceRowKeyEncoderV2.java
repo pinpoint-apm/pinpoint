@@ -1,8 +1,25 @@
+/*
+ * Copyright 2019 NAVER Corp.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.navercorp.pinpoint.common.server.bo.serializer.trace.v2;
 
 import com.navercorp.pinpoint.common.PinpointConstants;
-import com.navercorp.pinpoint.common.server.bo.BasicSpan;
+import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyEncoder;
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.sematext.hbase.wd.AbstractRowKeyDistributor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +30,7 @@ import org.springframework.stereotype.Component;
  * @author Woonduk Kang(emeroad)
  */
 @Component
-public class TraceRowKeyEncoderV2 implements RowKeyEncoder<BasicSpan> {
+public class TraceRowKeyEncoderV2 implements RowKeyEncoder<TransactionId> {
 
     public static final int AGENT_NAME_MAX_LEN = PinpointConstants.AGENT_NAME_MAX_LEN;
     public static final int DISTRIBUTE_HASH_SIZE = 1;
@@ -23,19 +40,15 @@ public class TraceRowKeyEncoderV2 implements RowKeyEncoder<BasicSpan> {
 
     @Autowired
     public TraceRowKeyEncoderV2(@Qualifier("traceV2Distributor") AbstractRowKeyDistributor rowKeyDistributor) {
-        if (rowKeyDistributor == null) {
-            throw new NullPointerException("rowKeyDistributor must not be null");
-        }
-
-        this.rowKeyDistributor = rowKeyDistributor;
+        this.rowKeyDistributor = Assert.requireNonNull(rowKeyDistributor, "rowKeyDistributor");
     }
 
-    public byte[] encodeRowKey(BasicSpan basicSpan) {
-        if (basicSpan == null) {
-            throw new NullPointerException("basicSpan must not be null");
+    public byte[] encodeRowKey(TransactionId transactionId) {
+        if (transactionId == null) {
+            throw new NullPointerException("basicSpan");
         }
 
-        byte[] rowKey = BytesUtils.stringLongLongToBytes(basicSpan.getTraceAgentId(), AGENT_NAME_MAX_LEN, basicSpan.getTraceAgentStartTime(), basicSpan.getTraceTransactionSequence());
+        byte[] rowKey = BytesUtils.stringLongLongToBytes(transactionId.getAgentId(), AGENT_NAME_MAX_LEN, transactionId.getAgentStartTime(), transactionId.getTransactionSequence());
         return wrapDistributedRowKey(rowKey);
     }
 

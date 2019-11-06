@@ -43,7 +43,7 @@ public class AgentHistogram {
 
     public AgentHistogram(Application agentId) {
         if (agentId == null) {
-            throw new NullPointerException("agentId must not be null");
+            throw new NullPointerException("agentId");
         }
 
         this.agentId = agentId;
@@ -52,7 +52,7 @@ public class AgentHistogram {
 
     public AgentHistogram(AgentHistogram copyAgentHistogram) {
         if (copyAgentHistogram == null) {
-            throw new NullPointerException("copyAgentHistogram must not be null");
+            throw new NullPointerException("copyAgentHistogram");
         }
 
         this.agentId = copyAgentHistogram.agentId;
@@ -101,7 +101,7 @@ public class AgentHistogram {
 
     public void addTimeHistogram(Collection<TimeHistogram> histogramList) {
         if (histogramList == null) {
-            throw new NullPointerException("histogramList must not be null");
+            throw new NullPointerException("histogramList");
         }
         for (TimeHistogram timeHistogram : histogramList) {
             addTimeHistogram(timeHistogram);

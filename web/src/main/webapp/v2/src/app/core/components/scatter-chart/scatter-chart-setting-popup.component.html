@@ -1,0 +1,17 @@
+<article class="l-chart-setting">
+    <div class="l-title-group">
+        <dl>
+            <dt>Setting</dt>
+        </dl>
+    </div>
+    <div class="l-contents-group">
+        <ul>
+            <li><label>Min of Y axis</label><input type="number" min="0" #minInput value="{{min}}"></li>
+            <li><label>Max of Y axis</label><input type="number" min="0" #maxInput value="{{max}}"></li>
+        </ul>
+    </div>
+    <div class="l-bottom-group">
+        <button class="active btn" (click)="onApply()">Apply</button>
+        <button class="btn" (click)="onCancel()">Cancel</button>
+    </div>
+</article>

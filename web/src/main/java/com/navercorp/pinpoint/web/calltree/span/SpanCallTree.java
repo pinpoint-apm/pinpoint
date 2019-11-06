@@ -15,6 +15,8 @@
  */
 package com.navercorp.pinpoint.web.calltree.span;
 
+import com.navercorp.pinpoint.common.server.bo.SpanBo;
+
 import java.util.*;
 
 /**
@@ -26,12 +28,59 @@ public class SpanCallTree implements CallTree {
     private static final int LEVEL_DEPTH = -1;
     private static final int ROOT_DEPTH = 0;
 
-    private CallTreeNode root;
+    private final CallTreeNode root;
     private CallTreeNode cursor;
 
-    public SpanCallTree(final SpanAlign spanAlign) {
-        this.root = new CallTreeNode(null, spanAlign);
+    public SpanCallTree(final Align align) {
+        this.root = new CallTreeNode(null, align);
         this.cursor = this.root;
+    }
+
+    private SpanBo getSpanBo() {
+        return this.root.getAlign().getSpanBo();
+    }
+
+    public boolean isRootSpan() {
+        return this.getSpanBo().isRoot();
+    }
+
+    public boolean hasFocusSpan(final long collectorAcceptTime) {
+        travel(collectorAcceptTime, root);
+        return this.getSpanBo().getCollectorAcceptTime() == collectorAcceptTime;
+    }
+
+    boolean travel(final long collectorAcceptTime, CallTreeNode node) {
+        if (isFoucsNode(collectorAcceptTime, node)) {
+            return true;
+        }
+
+        if (node.hasChild()) {
+            travel(node.getChild());
+        }
+
+        // change logic from recursive to loop, because of avoid call-stack-overflow.
+        CallTreeNode sibling = node.getSibling();
+        while (sibling != null) {
+            if (isFoucsNode(collectorAcceptTime, sibling)) {
+                return true;
+            }
+            if (sibling.hasChild()) {
+                travel(sibling.getChild());
+            }
+            sibling = sibling.getSibling();
+        }
+        return false;
+    }
+
+    boolean isFoucsNode(final long collectorAcceptTime, CallTreeNode node) {
+        if (!node.getAlign().isSpan()) {
+            // fast filter
+            return false;
+        }
+        if (node.getAlign().getSpanBo().getCollectorAcceptTime() == collectorAcceptTime) {
+            return true;
+        }
+        return false;
     }
 
     public CallTreeNode getRoot() {
@@ -43,7 +92,7 @@ public class SpanCallTree implements CallTree {
     }
 
     public boolean isEmpty() {
-        return root.getValue() == null;
+        return root.getAlign() == null;
     }
 
     public void add(final CallTree tree) {
@@ -117,20 +166,27 @@ public class SpanCallTree implements CallTree {
         sibling.setSibling(node);
     }
 
-    public void add(final int depth, final SpanAlign spanAlign) {
+    public void add(final Align align) {
+        Objects.requireNonNull(align, "align");
 
-        if (hasCorrupted(spanAlign)) {
-            throw new CorruptedSpanCallTreeNodeException("invalid sequence", "corrupted event. depth=" + depth + ", cursor=" + cursor + ", align=" + spanAlign);
+        final int depth = align.getSpanEventBo().getDepth();
+        add(depth, align);
+    }
+
+    public void add(final int depth, final Align align) {
+
+        if (hasCorrupted(align)) {
+            throw new CorruptedSpanCallTreeNodeException("invalid sequence", "corrupted event. depth=" + depth + ", cursor=" + cursor + ", align=" + align);
         }
 
         if (depth == LEVEL_DEPTH || depth == cursor.getDepth()) {
             // validate
             if (cursor.isRoot()) {
-                throw new CorruptedSpanCallTreeNodeException("invalid depth", "invalid depth. depth=" + depth + ", cursor=" + cursor + ", align=" + spanAlign);
+                throw new CorruptedSpanCallTreeNodeException("invalid depth", "invalid depth. depth=" + depth + ", cursor=" + cursor + ", align=" + align);
             }
 
             CallTreeNode sibling = findLastSibling(cursor);
-            sibling.setSibling(spanAlign);
+            sibling.setSibling(align);
             cursor = sibling.getSibling();
             return;
         }
@@ -139,41 +195,43 @@ public class SpanCallTree implements CallTree {
         if (depth > cursor.getDepth()) {
             // validate
             if (depth > cursor.getDepth() + 1) {
-                throw new CorruptedSpanCallTreeNodeException("invalid depth", "invalid depth. depth=" + depth + ", cursor=" + cursor + ", align=" + spanAlign);
+                throw new CorruptedSpanCallTreeNodeException("invalid depth", "invalid depth. depth=" + depth + ", cursor=" + cursor + ", align=" + align);
             }
 
             if (!cursor.hasChild()) {
-                cursor.setChild(spanAlign);
+                cursor.setChild(align);
                 cursor = cursor.getChild();
                 return;
             }
 
             CallTreeNode sibling = findLastSibling(cursor.getChild());
-            sibling.setSibling(spanAlign);
+            sibling.setSibling(align);
             cursor = sibling.getSibling();
             return;
         }
 
         // lesser
         if (cursor.getDepth() - depth <= ROOT_DEPTH) {
-            throw new CorruptedSpanCallTreeNodeException("invalid depth", "invalid depth. depth=" + depth + ", cursor=" + cursor + ", align=" + spanAlign);
+            throw new CorruptedSpanCallTreeNodeException("invalid depth", "invalid depth. depth=" + depth + ", cursor=" + cursor + ", align=" + align);
         }
 
         final CallTreeNode node = findUpperLevelLastSibling(depth, cursor);
-        node.setSibling(spanAlign);
+        node.setSibling(align);
         cursor = node.getSibling();
     }
 
-    boolean hasCorrupted(final SpanAlign spanAlign) {
-        if (spanAlign.isSpan()) {
+    boolean hasCorrupted(final Align align) {
+        if (align.isSpan()) {
             return false;
         }
 
-        if (cursor.getValue().isSpan()) {
-            return spanAlign.getSpanEventBo().getSequence() != 0;
+        if (cursor.getAlign().isSpan()) {
+            return align.getSpanEventBo().getSequence() != 0;
         }
 
-        return cursor.getValue().getSpanEventBo().getSequence() + 1 != spanAlign.getSpanEventBo().getSequence();
+        int cursorSequence = cursor.getAlign().getSpanEventBo().getSequence() + 1;
+        short spanEventSequence = align.getSpanEventBo().getSequence();
+        return cursorSequence != spanEventSequence;
     }
 
     CallTreeNode findUpperLevelLastSibling(final int level, final CallTreeNode node) {
@@ -211,9 +269,9 @@ public class SpanCallTree implements CallTree {
 
         // change logic from recursive to loop, because of avoid call-stack-overflow.
         CallTreeNode sibling = node.getSibling();
-        while(sibling != null) {
+        while (sibling != null) {
             sortChildSibling(sibling);
-            if(sibling.hasChild()) {
+            if (sibling.hasChild()) {
                 travel(sibling.getChild());
             }
             sibling = sibling.getSibling();
@@ -235,17 +293,17 @@ public class SpanCallTree implements CallTree {
         }
 
         // order by abs.
-        Collections.sort(spans, new Comparator<CallTreeNode>() {
+        spans.sort(new Comparator<CallTreeNode>() {
             @Override
             public int compare(CallTreeNode source, CallTreeNode target) {
-                return (int) (source.getValue().getStartTime() - target.getValue().getStartTime());
+                return (int) (source.getAlign().getStartTime() - target.getAlign().getStartTime());
             }
         });
 
         // sort
         final List<CallTreeNode> nodes = new ArrayList<>();
         for (CallTreeNode event : events) {
-            while (spans.peek() != null && event.getValue().getStartTime() > spans.peek().getValue().getStartTime()) {
+            while (spans.peek() != null && event.getAlign().getStartTime() > spans.peek().getAlign().getStartTime()) {
                 nodes.add(spans.poll());
             }
             nodes.add(event);
@@ -269,7 +327,7 @@ public class SpanCallTree implements CallTree {
 
     private void splitChildSiblingNodes(final CallTreeNode parent, List<CallTreeNode> events, List<CallTreeNode> spans) {
         CallTreeNode node = parent.getChild();
-        if (node.getValue().isSpan()) {
+        if (node.getAlign().isSpan()) {
             spans.add(node);
         } else {
             events.add(node);
@@ -277,11 +335,24 @@ public class SpanCallTree implements CallTree {
 
         while (node.hasSibling()) {
             node = node.getSibling();
-            if (node.getValue().isSpan()) {
+            if (node.getAlign().isSpan()) {
                 spans.add(node);
             } else {
                 events.add(node);
             }
         }
+    }
+
+    @Override
+    public String toString() {
+        final SpanBo spanBo = getSpanBo();
+
+        final StringBuilder sb = new StringBuilder("{");
+        sb.append("parentSpanId=").append(spanBo.getParentSpanId());
+        sb.append(", spanId=").append(spanBo.getSpanId());
+        sb.append(", startTime=").append(spanBo.getStartTime());
+        sb.append(", elapsed=").append(spanBo.getElapsed());
+        sb.append('}');
+        return sb.toString();
     }
 }

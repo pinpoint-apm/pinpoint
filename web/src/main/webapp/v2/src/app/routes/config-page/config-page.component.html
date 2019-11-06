@@ -1,0 +1,28 @@
+<header class="flex-container flex-row">
+    <pp-header-logo></pp-header-logo>
+    <button class="l-exit-button" title="Exit the configuration page" (click)="onClickExit()"><i class="fas fa-times"></i></button>
+</header>
+<div class="l-main-container font-opensans">
+    <section class="l-sidemenu-section">
+    <ul class="l-list l-depth-0">
+            <li class="l-list-item">
+                <a class="l-link l-link-with-arrow" [class.active]="isActive(linkSetting)" (click)="toggleSettingMenu()" #linkSetting>
+                    <span class="l-link-text">Setting</span><i class="fas fa-angle-right" [@rightDown]="getSettingCollapsedState()"></i>
+                </a>
+                <ul class="l-list l-depth-1" [@collapseSpread]="getSettingCollapsedState()">
+                    <li class="l-list-item"><a (click)="onMenuClick('general')" routerLink="/config/general" routerLinkActive="active" class="l-link">General</a></li>
+                    <li class="l-list-item"><a (click)="onMenuClick('favorite')" routerLink="/config/favorite" routerLinkActive="active" class="l-link">Favorite List</a></li>
+                </ul>
+            </li>
+            <li class="l-list-item l-separator"></li>        
+            <li class="l-list-item"><a (click)="onMenuClick('userGroup')" routerLink="/config/userGroup" routerLinkActive="active" class="l-link">User Group</a></li>
+            <li class="l-list-item"><a (click)="onMenuClick('alarm')" routerLink="/config/alarm" routerLinkActive="active" class="l-link">Alarm</a></li>
+            <li class="l-list-item"><a (click)="onMenuClick('installation')" routerLink="/config/installation" routerLinkActive="active" class="l-link">Installation</a></li>
+            <li class="l-list-item l-separator"></li>
+            <li class="l-list-item"><a (click)="onMenuClick('help')" routerLink="/config/help" routerLinkActive="active" class="l-link">Help</a></li>
+        </ul>
+    </section>
+    <section class="l-main-section">
+        <router-outlet></router-outlet>
+    </section>
+</div>

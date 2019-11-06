@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2014 NAVER Corp.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,5 +23,6 @@ public enum ServiceTypeProperty {
     TERMINAL,
     QUEUE,
     RECORD_STATISTICS,
-    INCLUDE_DESTINATION_ID
+    INCLUDE_DESTINATION_ID,
+    ALIAS
 }

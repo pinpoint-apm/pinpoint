@@ -20,18 +20,32 @@ import java.security.ProtectionDomain;
 
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.Instrumentor;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.ExecutionPolicy;
+import com.navercorp.pinpoint.bootstrap.logging.PLogger;
+import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.BindValueAccessor;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.ParsingResultAccessor;
+import com.navercorp.pinpoint.bootstrap.plugin.util.InstrumentUtils;
+import com.navercorp.pinpoint.plugin.cassandra.field.WrappedStatementGetter;
+import com.navercorp.pinpoint.plugin.cassandra.interceptor.CassandraConnectionCloseInterceptor;
+import com.navercorp.pinpoint.plugin.cassandra.interceptor.CassandraDriverConnectInterceptor;
+import com.navercorp.pinpoint.plugin.cassandra.interceptor.CassandraPreparedStatementCreateInterceptor;
+import com.navercorp.pinpoint.plugin.cassandra.interceptor.CassandraStatementExecuteQueryInterceptor;
 
 /**
  * @author dawidmalina
  */
 public class CassandraPlugin implements ProfilerPlugin, TransformTemplateAware {
+
+    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
 
     // AbstractSession got added in 2.0.9
     private static final String CLASS_SESSION_MANAGER = "com.datastax.driver.core.SessionManager";
@@ -42,109 +56,151 @@ public class CassandraPlugin implements ProfilerPlugin, TransformTemplateAware {
     @Override
     public void setup(ProfilerPluginSetupContext context) {
         CassandraConfig config = new CassandraConfig(context.getConfig());
+        if (!config.isPluginEnable()) {
+            logger.info("{} disabled", this.getClass().getSimpleName());
+            return;
+        }
+        logger.info("{} config:{}", this.getClass().getSimpleName(), config);
 
-        if (config.isCassandra()) {
-            addDefaultPreparedStatementTransformer();
-            addSessionTransformer(config);
-            addClusterTransformer();
+        addStatementWrapperTransformer();
+        addDefaultPreparedStatementTransformer();
+        addSessionTransformer(config);
+        addClusterTransformer();
+    }
+
+    private void addStatementWrapperTransformer() {
+        transformTemplate.transform("com.datastax.driver.core.StatementWrapper", StatementWrapperTransform.class);
+    }
+
+    public static class StatementWrapperTransform implements TransformCallback {
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className,
+                Class<?> classBeingRedefined, ProtectionDomain protectionDomain,
+        byte[] classfileBuffer) throws InstrumentException {
+
+            InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+            target.addGetter(WrappedStatementGetter.class, "wrapped");
+            return target.toBytecode();
         }
     }
 
     private void addDefaultPreparedStatementTransformer() {
-        TransformCallback transformer = new TransformCallback() {
-
-            @Override
-            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className,
-                    Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer)
-                            throws InstrumentException {
-
-                InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
-
-                if (!target.isInterceptable()) {
-                    return null;
-                }
-
-                target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor");
-                target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.ParsingResultAccessor");
-                target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.BindValueAccessor");
-
-                return target.toBytecode();
-            }
-        };
-
-        transformTemplate.transform("com.datastax.driver.core.DefaultPreparedStatement", transformer);
+        transformTemplate.transform("com.datastax.driver.core.DefaultPreparedStatement", DefaultPreparedStatementTransform.class);
     }
+
+    public static class DefaultPreparedStatementTransform implements TransformCallback {
+
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className,
+                                    Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer)
+                throws InstrumentException {
+
+            InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+
+            if (!target.isInterceptable()) {
+                return null;
+            }
+
+            target.addField(DatabaseInfoAccessor.class);
+            target.addField(ParsingResultAccessor.class);
+            target.addField(BindValueAccessor.class);
+
+            return target.toBytecode();
+        }
+    };
 
     private void addSessionTransformer(final CassandraConfig config) {
-
-        TransformCallback transformer = new TransformCallback() {
-
-            @Override
-            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className,
-                    Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer)
-                            throws InstrumentException {
-                InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
-
-                if (!target.isInterceptable()) {
-                    return null;
-                }
-
-                if (className.equals(CLASS_SESSION_MANAGER)) {
-                    if (instrumentor.exist(loader, CLASS_ABSTRACT_SESSION)) {
-                        return null;
-                    }
-                }
-
-                target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor");
-                target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.ParsingResultAccessor");
-                target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.BindValueAccessor");
-
-                target.addScopedInterceptor(
-                        "com.navercorp.pinpoint.plugin.cassandra.interceptor.CassandraConnectionCloseInterceptor",
-                        CassandraConstants.CASSANDRA_SCOPE);
-                target.addScopedInterceptor(
-                        "com.navercorp.pinpoint.plugin.cassandra.interceptor.CassandraPreparedStatementCreateInterceptor",
-                        CassandraConstants.CASSANDRA_SCOPE);
-
-                target.addScopedInterceptor(
-                        "com.navercorp.pinpoint.plugin.cassandra.interceptor.CassandraStatementExecuteQueryInterceptor",
-                        va(config.getMaxSqlBindValueSize()), CassandraConstants.CASSANDRA_SCOPE);
-
-                return target.toBytecode();
-            }
-        };
-
-        transformTemplate.transform(CLASS_SESSION_MANAGER, transformer);
-        transformTemplate.transform(CLASS_ABSTRACT_SESSION, transformer);
+        transformTemplate.transform(CLASS_SESSION_MANAGER, SessionTransformer.class);
+        transformTemplate.transform(CLASS_ABSTRACT_SESSION, SessionTransformer.class);
 
     }
 
-    private void addClusterTransformer() {
-        transformTemplate.transform("com.datastax.driver.core.Cluster", new TransformCallback() {
+    public static class SessionTransformer implements TransformCallback {
 
-            @Override
-            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className,
-                    Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer)
-                            throws InstrumentException {
-                InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className,
+                                    Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer)
+                throws InstrumentException {
 
-                if (!target.isInterceptable()) {
+            CassandraConfig config = new CassandraConfig(instrumentor.getProfilerConfig());
+
+            InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+
+            if (!target.isInterceptable()) {
+                return null;
+            }
+
+            if (className.equals(CLASS_SESSION_MANAGER)) {
+                if (instrumentor.exist(loader, CLASS_ABSTRACT_SESSION, protectionDomain)) {
                     return null;
                 }
-
-                target.addField("com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor");
-
-                target.addScopedInterceptor(
-                        "com.navercorp.pinpoint.plugin.cassandra.interceptor.CassandraDriverConnectInterceptor",
-                        va(true), CassandraConstants.CASSANDRA_SCOPE, ExecutionPolicy.ALWAYS);
-
-                target.addScopedInterceptor(
-                        "com.navercorp.pinpoint.plugin.cassandra.interceptor.CassandraConnectionCloseInterceptor",
-                        CassandraConstants.CASSANDRA_SCOPE);
-
-                return target.toBytecode();
             }
-        });
+
+            target.addField(DatabaseInfoAccessor.class);
+            target.addField(ParsingResultAccessor.class);
+            target.addField(BindValueAccessor.class);
+
+            InstrumentMethod close = InstrumentUtils.findMethod(target, "close");
+            close.addScopedInterceptor(
+                    CassandraConnectionCloseInterceptor.class,
+                    CassandraConstants.CASSANDRA_SCOPE);
+
+            InstrumentMethod prepare1 = InstrumentUtils.findMethod(target, "prepare", "java.lang.String");
+            prepare1.addScopedInterceptor(
+                    CassandraPreparedStatementCreateInterceptor.class,
+                    CassandraConstants.CASSANDRA_SCOPE);
+            InstrumentMethod prepare2 = InstrumentUtils.findMethod(target, "prepare", "com.datastax.driver.core.RegularStatement");
+            prepare2.addScopedInterceptor(
+                    CassandraPreparedStatementCreateInterceptor.class,
+                    CassandraConstants.CASSANDRA_SCOPE);
+
+            InstrumentMethod execute1 = InstrumentUtils.findMethod(target, "execute", "java.lang.String");
+            execute1.addScopedInterceptor(
+                    CassandraStatementExecuteQueryInterceptor.class,
+                    va(config.getMaxSqlBindValueSize()), CassandraConstants.CASSANDRA_SCOPE);
+            InstrumentMethod execute2 = InstrumentUtils.findMethod(target, "execute", "java.lang.String", "java.lang.Object[]");
+            execute2.addScopedInterceptor(
+                    CassandraStatementExecuteQueryInterceptor.class,
+                    va(config.getMaxSqlBindValueSize()), CassandraConstants.CASSANDRA_SCOPE);
+            InstrumentMethod execute3 = InstrumentUtils.findMethod(target, "execute", "com.datastax.driver.core.Statement");
+            execute3.addScopedInterceptor(
+                    CassandraStatementExecuteQueryInterceptor.class,
+                    va(config.getMaxSqlBindValueSize()), CassandraConstants.CASSANDRA_SCOPE);
+
+            return target.toBytecode();
+        }
+    };
+
+    private void addClusterTransformer() {
+        transformTemplate.transform("com.datastax.driver.core.Cluster", ClusterTransformer.class );
+    }
+
+    public static class ClusterTransformer implements TransformCallback {
+
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className,
+                Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer)
+                            throws InstrumentException {
+            InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+
+            if (!target.isInterceptable()) {
+                return null;
+            }
+
+            target.addField(DatabaseInfoAccessor.class);
+
+            InstrumentMethod connect = InstrumentUtils.findMethod(target, "connect", "java.lang.String");
+            connect.addScopedInterceptor(
+                    CassandraDriverConnectInterceptor.class,
+                    va(true), CassandraConstants.CASSANDRA_SCOPE, ExecutionPolicy.ALWAYS);
+
+            InstrumentMethod close = InstrumentUtils.findMethod(target, "close");
+            close.addScopedInterceptor(
+                    CassandraConnectionCloseInterceptor.class,
+                    CassandraConstants.CASSANDRA_SCOPE);
+
+            return target.toBytecode();
+        }
     }
 
     @Override

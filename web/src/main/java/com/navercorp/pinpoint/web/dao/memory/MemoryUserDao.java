@@ -53,8 +53,8 @@ public class MemoryUserDao implements UserDao {
     }
 
     @Override
-    public void deleteUser(User user) {
-        users.remove(user.getUserId());
+    public void deleteUser(String userId) {
+        users.remove(userId);
     }
 
     @Override
@@ -65,6 +65,11 @@ public class MemoryUserDao implements UserDao {
     @Override
     public void updateUser(User user) {
         users.put(user.getUserId(), user);
+    }
+
+    @Override
+    public boolean isExistUserId(String userId) {
+        return users.containsKey(userId);
     }
 
     @Override

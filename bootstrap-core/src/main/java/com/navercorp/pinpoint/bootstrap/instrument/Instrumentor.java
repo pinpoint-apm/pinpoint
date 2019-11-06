@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2014 NAVER Corp.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,8 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 
+import java.security.ProtectionDomain;
+
 /**
  * @author Jongho Moon
  *
@@ -25,16 +27,27 @@ import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 public interface Instrumentor {
 
     ProfilerConfig getProfilerConfig();
-    
+
+
+    InstrumentClass getInstrumentClass(ClassLoader classLoader, String className, ProtectionDomain protectionDomain, byte[] classfileBuffer);
+
     InstrumentClass getInstrumentClass(ClassLoader classLoader, String className, byte[] classfileBuffer);
-    
+
     boolean exist(ClassLoader classLoader, String className);
+
+    boolean exist(ClassLoader classLoader, String className, ProtectionDomain protectionDomain);
     
     InterceptorScope getInterceptorScope(String scopeName);
         
     <T> Class<? extends T> injectClass(ClassLoader targetClassLoader, String className);
-    
+
+    /**
+     * @deprecated Since 1.9.0 Use {@link #transform(ClassLoader, String, Class)}
+     */
+    @Deprecated
     void transform(ClassLoader classLoader, String targetClassName, TransformCallback transformCallback);
+
+    void transform(ClassLoader classLoader, String targetClassName, Class<? extends TransformCallback> transformCallbackClass);
     
     void retransform(Class<?> target, TransformCallback transformCallback);
 }

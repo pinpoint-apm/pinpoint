@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2014 NAVER Corp.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,32 +38,56 @@ import com.navercorp.pinpoint.exception.PinpointException;
 public class AutoBindingObjectFactory {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
-    
+
     private final InstrumentContext pluginContext;
     private final ClassLoader classLoader;
     private final List<ArgumentProvider> commonProviders;
-    
-    public AutoBindingObjectFactory(InstrumentContext pluginContext, ClassLoader classLoader, ArgumentProvider... argumentProviders) {
+
+    public AutoBindingObjectFactory(ProfilerConfig profilerConfig, TraceContext traceContext, InstrumentContext pluginContext, ClassLoader classLoader, ArgumentProvider... argumentProviders) {
+        if (profilerConfig == null) {
+            throw new NullPointerException("profilerConfig");
+        }
+        if (traceContext == null) {
+            throw new NullPointerException("traceContext");
+        }
+        if (pluginContext == null) {
+            throw new NullPointerException("pluginContext");
+        }
         this.pluginContext = pluginContext;
         this.classLoader = classLoader;
-        this.commonProviders = new ArrayList<ArgumentProvider>(Arrays.asList(argumentProviders));
-        this.commonProviders.add(new ProfilerPluginArgumentProvider(pluginContext));
+        this.commonProviders = newArgumentProvider(profilerConfig, traceContext, pluginContext, argumentProviders);
     }
-    
+
+    private List<ArgumentProvider> newArgumentProvider(ProfilerConfig profilerConfig, TraceContext traceContext, InstrumentContext pluginContext, ArgumentProvider[] argumentProviders) {
+        final List<ArgumentProvider> commonProviders = new ArrayList<ArgumentProvider>();
+        for (ArgumentProvider argumentProvider : argumentProviders) {
+            commonProviders.add(argumentProvider);
+        }
+        ProfilerPluginArgumentProvider profilerPluginArgumentProvider = new ProfilerPluginArgumentProvider(profilerConfig, traceContext, pluginContext);
+        commonProviders.add(profilerPluginArgumentProvider);
+        return commonProviders;
+    }
+
     public Object createInstance(ObjectFactory objectFactory, ArgumentProvider... providers) {
         final Class<?> type = pluginContext.injectClass(classLoader, objectFactory.getClassName());
-        final ArgumentsResolver argumentsResolver = getArgumentResolver(objectFactory, providers);
+        final Object[] arguments = objectFactory.getArguments();
+        final ArgumentsResolver argumentsResolver = getArgumentResolver(arguments, providers);
         
         if (objectFactory instanceof ByConstructor) {
-            return byConstructor(type, (ByConstructor) objectFactory, argumentsResolver);
+            return byConstructor(type, argumentsResolver);
         } else if (objectFactory instanceof ByStaticFactoryMethod) {
             return byStaticFactoryMethod(type, (ByStaticFactoryMethod) objectFactory, argumentsResolver);
         }
         
         throw new IllegalArgumentException("Unknown objectFactory type: " + objectFactory);
     }
+
+    public Object createInstance(Class<?> type, Object[] arguments, ArgumentProvider... providers) {
+        final ArgumentsResolver argumentsResolver = getArgumentResolver(arguments, providers);
+        return byConstructor(type, argumentsResolver);
+    }
     
-    private Object byConstructor(Class<?> type, ByConstructor byConstructor, ArgumentsResolver argumentsResolver) {
+    private Object byConstructor(Class<?> type, ArgumentsResolver argumentsResolver) {
         final ConstructorResolver resolver = new ConstructorResolver(type, argumentsResolver);
         
         if (!resolver.resolve()) {
@@ -104,12 +130,12 @@ public class AutoBindingObjectFactory {
 
     }
     
-    private ArgumentsResolver getArgumentResolver(ObjectFactory objectFactory, ArgumentProvider[] providers) {
+    private ArgumentsResolver getArgumentResolver(Object[] argument, ArgumentProvider[] providers) {
         final List<ArgumentProvider> merged = new ArrayList<ArgumentProvider>(commonProviders);
         merged.addAll(Arrays.asList(providers));
         
-        if (objectFactory.getArguments() != null) {
-            merged.add(new OrderedValueProvider(this, objectFactory.getArguments()));
+        if (argument != null) {
+            merged.add(new OrderedValueProvider(this, argument));
         }
         
         return new ArgumentsResolver(merged);

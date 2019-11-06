@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -72,19 +72,20 @@ public final class ThreadMXBeanUtils {
 //        }
     }
 
-    public static ThreadInfo findThread(Thread thread) {
-        return findThread(thread.getId());
+
+    public static ThreadInfo getThreadInfo(long id) {
+        return getThreadInfo(id, DEFAULT_STACK_TRACE_MAX_DEPTH);
     }
 
-    public static ThreadInfo findThread(Thread thread, int stackTraceMaxDepth) {
-        return findThread(thread.getId(), stackTraceMaxDepth);
+    public static ThreadInfo getThreadInfo(long id, int stackTraceMaxDepth) {
+        if (stackTraceMaxDepth <= 0) {
+            return THREAD_MX_BEAN.getThreadInfo(id);
+        } else {
+            return THREAD_MX_BEAN.getThreadInfo(id, stackTraceMaxDepth);
+        }
     }
 
-    public static ThreadInfo findThread(long id) {
-        return findThread(id, DEFAULT_STACK_TRACE_MAX_DEPTH);
-    }
-
-    public static ThreadInfo findThread(long id, int stackTraceMaxDepth) {
+    public static ThreadInfo[] findThread(long[] id, int stackTraceMaxDepth) {
         if (stackTraceMaxDepth <= 0) {
             return THREAD_MX_BEAN.getThreadInfo(id);
         } else {
@@ -93,14 +94,14 @@ public final class ThreadMXBeanUtils {
     }
 
     public static List<ThreadInfo> findThread(String threadName) {
-        Asserts.notNull(threadName, "threadName may not be null.");
+        Assert.requireNonNull(threadName, "threadName");
 
         ThreadInfo[] threadInfos = dumpAllThread();
         if (threadInfos == null) {
             return Collections.emptyList();
         }
 
-        ArrayList<ThreadInfo> threadInfoList = new ArrayList<ThreadInfo>(1);
+        List<ThreadInfo> threadInfoList = new ArrayList<ThreadInfo>(1);
         for (ThreadInfo threadInfo : threadInfos) {
             if (threadName.equals(threadInfo.getThreadName())) {
                 threadInfoList.add(threadInfo);
@@ -113,6 +114,9 @@ public final class ThreadMXBeanUtils {
         if (threadInfos == null) {
             return false;
         }
+        if (threadName == null) {
+            return false;
+        }
         for (ThreadInfo threadInfo : threadInfos) {
             if (threadInfo.getThreadName().equals(threadName)) {
                 return true;
@@ -122,8 +126,16 @@ public final class ThreadMXBeanUtils {
     }
 
     public static boolean findThreadName(String threadName) {
+        if (threadName == null) {
+            return false;
+        }
+
         final ThreadInfo[] threadInfos = dumpAllThread();
         return findThreadName(threadInfos, threadName);
+    }
+
+    public static long[] findDeadlockedThreads() {
+        return THREAD_MX_BEAN.findDeadlockedThreads();
     }
 
 }

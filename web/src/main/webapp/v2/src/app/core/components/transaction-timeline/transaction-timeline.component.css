@@ -1,0 +1,50 @@
+.l-wrapper {
+    height: 100%;
+    overflow-y: auto;
+    background-color: #FFF;
+}
+.l-timeline-bar {
+    width: 100%;
+    height: 20px;
+    font-size: 11px;
+    font-family: Verdana;
+    border-style: dashed !important;
+    border-bottom: 1px solid #D3D3D3;
+    text-shadow: 1px 1px 0 #eee, 1px -1px 0 #eee, -1px 1px 0 #eee, -1px -1px 0 #eee, 1px 0px 0 #eee, 0px 1px 0 #eee, -1px 0px 0 #eee, 0px -1px 0 #eee;
+}
+.l-timeline-bar > div {
+    color: #000;
+    cursor: pointer;
+    margin-top: 1px;
+    padding-top: 2px;
+    margin-bottom: 1px;
+    padding-bottom: 2px;
+}
+.l-timeline-bar-frame {
+    width: 100%;
+    overflow-x: visible;
+    padding-left: 4px;
+}
+.l-timeline-bar-frame:hover {
+    box-shadow: 1px 1px 1px -1px rgba(0, 0, 0, 0.75);
+    font-weight: bold;
+}
+.l-timeline-bar-frame > span {
+    top: 0px;
+    position: relative;
+    white-space: nowrap;
+}
+.l-timeline-bar-frame span.before {
+    left: -70px;
+    display: none;
+    position: absolute;
+    text-align: right;
+    white-space: nowrap;
+}
+.l-timeline-bar-frame span.after {
+    display: none;
+    white-space: nowrap;
+}
+.l-timeline-bar-selected {
+    background-color: orange !important;
+}

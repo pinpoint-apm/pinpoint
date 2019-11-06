@@ -19,7 +19,6 @@
 				var $element = $(element);
 				var $elGuide = $element.find(".some-guide");
 				var $elWrapper = $element.find(".wrapper");
-				var $elTotal = $element.find(".total");
 				var $elLoading = $element.find(".some-loading");
 				var aEditNodes = [ $element.find("tr._edit1"), $element.find("tr._edit2") ];
 				var $elAlert = $element.find(".some-alert");
@@ -52,7 +51,6 @@
 						bIsLoaded = true;
 						oRuleList = oServerData;
 						scope.ruleList = oServerData;
-						AlarmUtilService.setTotal( $elTotal, oRuleList.length );
 						AlarmUtilService.hide( $elLoading );
 					}, showAlert );
 				}
@@ -151,12 +149,11 @@
 						return AlarmUtilService.hasDuplicateItem( oRuleList, function( oRule ) {
 							return oRule.userGroupId === userGroupId && oRule.checkerName === rule;
 						});
-					},function( oNewRule  ) {
+					}, function( oNewRule  ) {
 						AnalyticsService.sendMain( AnalyticsService.CONST.CLK_ALARM_CREATE_RULE );
 						oRuleList.push( oNewRule );
 						scope.ruleList = oRuleList;
 						hideEditArea();
-						AlarmUtilService.setTotal( $elTotal, oRuleList.length );
 					}, showAlert );
 				};
 				scope.onCancelAddAlarm = function() {
@@ -184,7 +181,6 @@
 						scope.$apply(function() {
 							scope.ruleList = oRuleList;
 						});
-						AlarmUtilService.setTotal( $elTotal, oRuleList.length );
 					}, showAlert );
 				};
 				scope.onUpdateAlarm = function( $event ) {
@@ -218,6 +214,20 @@
 						scope.ruleList = oRuleList;
 					}, showAlert );
 				};
+				scope.onCaptureUpdateClick = function($event) {
+					if ( $event.target.tagName.toUpperCase() === "SPAN" ) {
+						var $target = $($event.target);
+						if ( $target.hasClass( "update-confirm") ) {
+							scope.onApplyUpdateAlarm();
+						} else if ( $target.hasClass( "update-cancel") ) {
+							scope.onCancelUpdateAlarm();
+						} else if ( $target.hasClass( "add-confirm") ) {
+							scope.onApplyAddAlarm();
+						} else if ( $target.hasClass( "add-cancel" ) ) {
+							scope.onCancelAddAlarm();
+						}
+					}
+				};
 				scope.$on("applicationGroup.sub.load", function( event, appId, invokeCount ) {
 					currentApplicationId = appId;
 					cancelPreviousWork();
@@ -249,7 +259,7 @@
         };
     }]);
 	var CONSTS = {
-		SELECT_USERGROUP_OR_RULE: "Select user group or rule.",
+		SELECT_USER_GROUP_OR_RULE: "Select user group or rule.",
 		EXIST_A_SAME: "Exist a same rule set in the list",
 		DIV_NORMAL: "div._normal",
 		DIV_REMOVE: "div._remove",
@@ -282,16 +292,10 @@
 				$.each( aEditNodes, function( index, $el ) {
 					$el.addClass("blink-blink");
 				});
-				cbFail({ errorMessage: CONSTS.SELECT_USERGROUP_OR_RULE });
+				cbFail({ errorMessage: CONSTS.SELECT_USER_GROUP_OR_RULE });
 				return;
-			}
-			if ( cbHasAlarm( oNewRule.userGroupId, oNewRule.checkerName ) ) {
-				$.each( aEditNodes, function( index, $el ) {
-					$el.addClass("blink-blink");
-				});
-				cbFail({ errorMessage: CONSTS.EXIST_A_SAME });
-				return;
-			}
+            }
+
 			AlarmUtilService.sendCRUD( "createRule", oNewRule, function( oServerData ) {
 				oNewRule.ruleId = oServerData.ruleId;
 				cbSuccess( oNewRule );
@@ -350,14 +354,7 @@
 		},
 		applyAction: function( AlarmUtilService, oUpdateRule, aEditNodes, $node, $elLoading, cbHasAlarm, cbSuccess, cbFail ) {
 			var self = this;
-			AlarmUtilService.show($elLoading);
-			if ( cbHasAlarm( oUpdateRule.ruleId, oUpdateRule.applicationId, oUpdateRule.checkerName ) ) {
-				$.each( aEditNodes, function( index, $el ) {
-					$el.addClass("blink-blink");
-				});
-				cbFail({errorMessage: CONSTS.EXIST_A_SAME});
-				return;
-			}
+            AlarmUtilService.show($elLoading);
 			AlarmUtilService.sendCRUD( "updateRule", oUpdateRule, function( oServerData ) {
 				self.cancelAction( AlarmUtilService, $node, aEditNodes, function () {});
 				cbSuccess( oUpdateRule );
