@@ -35,11 +35,13 @@ export class TargetListComponent implements OnInit, OnChanges {
         this.outSelectTarget.emit(target[0]);
     }
 
-    onOpenFilter($event: any, target: any): void {
+    onOpenFilter($event: MouseEvent, target: any): void {
+        $event.stopPropagation();
         this.outOpenFilter.emit(target);
     }
 
-    onOpenFilterWizard($event: any, target: any): void {
+    onOpenFilterWizard($event: MouseEvent, target: any): void {
+        $event.stopPropagation();
         this.outOpenFilterWizard.emit(target);
     }
 
