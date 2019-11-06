@@ -65,12 +65,12 @@ export class SideBarContainerComponent implements OnInit, OnDestroy {
             this.storeHelperService.getServerMapTargetSelectedByList(this.unsubscribe).pipe(mapTo(false)),
             this.storeHelperService.getServerMapTargetSelected(this.unsubscribe).pipe(
                 filter((target: ISelectedTarget) => !!target),
-                tap((target: ISelectedTarget) => {
-                    this.target = target;
+                tap(({isNode, isWAS, isMerged}: ISelectedTarget) => {
+                    // this.target = target;
                     this.renderer.setStyle(this.el.nativeElement, 'width', '477px');
                     this.showLoading = false;
                     this.useDisable = false;
-                    this.showDivider = target.isNode && target.isWAS && !target.isMerged;
+                    this.showDivider = isNode && isWAS && !isMerged;
                 }),
                 map(({isMerged}: ISelectedTarget) => isMerged)
             )
