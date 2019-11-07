@@ -28,7 +28,7 @@ public class StatReceiverConfigurationTest {
     @Test
     public void properties() throws Exception {
         Properties properties = PropertyUtils.loadPropertyFromClassPath("test-pinpoint-collector.properties");
-        StatReceiverConfiguration configuration = new StatReceiverConfiguration(properties, new DeprecatedConfiguration());
+        StatReceiverConfiguration configuration = new StatReceiverConfiguration(properties);
 
         assertEquals(Boolean.FALSE, configuration.isGrpcEnable());
         assertEquals("2.2.2.2", configuration.getGrpcBindIp());

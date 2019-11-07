@@ -28,7 +28,7 @@ public class AgentBaseDataReceiverConfigurationTest {
     @Test
     public void properties() throws Exception {
         Properties properties = PropertyUtils.loadPropertyFromClassPath("test-pinpoint-collector.properties");
-        AgentBaseDataReceiverConfiguration configuration = new AgentBaseDataReceiverConfiguration(properties, new DeprecatedConfiguration());
+        AgentBaseDataReceiverConfiguration configuration = new AgentBaseDataReceiverConfiguration(properties);
 
         assertEquals(Boolean.FALSE, configuration.isGrpcEnable());
         assertEquals("1.1.1.1", configuration.getGrpcBindIp());

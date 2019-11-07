@@ -83,22 +83,21 @@ public final class StatReceiverConfiguration implements DataReceiverGroupConfigu
     private final int grpcStreamSchedulerRecoveryMessageCount;
     private final ServerOption grpcServerOption;
 
-    public StatReceiverConfiguration(Properties properties, DeprecatedConfiguration deprecatedConfiguration) {
+    public StatReceiverConfiguration(Properties properties) {
         Objects.requireNonNull(properties, "properties");
-        Objects.requireNonNull(deprecatedConfiguration, "deprecatedConfiguration");
 
         this.isTcpEnable = CollectorConfiguration.readBoolean(properties, TCP_ENABLE);
         this.tcpBindIp = CollectorConfiguration.readString(properties, TCP_BIND_IP, CollectorConfiguration.DEFAULT_LISTEN_IP);
         this.tcpBindPort = CollectorConfiguration.readInt(properties, TCP_BIND_PORT, -1);
-        this.isUdpEnable = isUdpEnable(properties, deprecatedConfiguration, true);
-        this.udpBindIp = getUdpBindIp(properties, deprecatedConfiguration, CollectorConfiguration.DEFAULT_LISTEN_IP);
-        this.udpBindPort = getUdpBindPort(properties, deprecatedConfiguration, 9995);
-        this.udpReceiveBufferSize = getUdpReceiveBufferSize(properties, deprecatedConfiguration, 1024 * 4096);
-        this.workerThreadSize = getWorkerThreadSize(properties, deprecatedConfiguration, 128);
+        this.isUdpEnable = isUdpEnable(properties, true);
+        this.udpBindIp = getUdpBindIp(properties, CollectorConfiguration.DEFAULT_LISTEN_IP);
+        this.udpBindPort = getUdpBindPort(properties, 9995);
+        this.udpReceiveBufferSize = getUdpReceiveBufferSize(properties, 1024 * 4096);
+        this.workerThreadSize = getWorkerThreadSize(properties, 128);
         Assert.isTrue(workerThreadSize > 0, "workerThreadSize must be greater than 0");
-        this.workerQueueSize = getWorkerQueueSize(properties, deprecatedConfiguration, 1024);
+        this.workerQueueSize = getWorkerQueueSize(properties, 1024);
         Assert.isTrue(workerQueueSize > 0, "workerQueueSize must be greater than 0");
-        this.workerMonitorEnable = isWorkerThreadMonitorEnable(properties, deprecatedConfiguration, false);
+        this.workerMonitorEnable = isWorkerThreadMonitorEnable(properties, false);
 
         // gRPC
         this.isGrpcEnable = CollectorConfiguration.readBoolean(properties, GRPC_ENABLE);
@@ -146,7 +145,7 @@ public final class StatReceiverConfiguration implements DataReceiverGroupConfigu
         }
     }
 
-    private boolean isUdpEnable(Properties properties, DeprecatedConfiguration deprecatedConfiguration, boolean defaultValue) {
+    private boolean isUdpEnable(Properties properties, boolean defaultValue) {
         if (properties.containsKey(UDP_ENABLE)) {
             return CollectorConfiguration.readBoolean(properties, UDP_ENABLE);
         }
@@ -154,74 +153,48 @@ public final class StatReceiverConfiguration implements DataReceiverGroupConfigu
         return defaultValue;
     }
 
-    private String getUdpBindIp(Properties properties, DeprecatedConfiguration deprecatedConfiguration, String defaultValue) {
+    private String getUdpBindIp(Properties properties, String defaultValue) {
         if (properties.containsKey(UDP_BIND_IP)) {
             return CollectorConfiguration.readString(properties, UDP_BIND_IP, null);
         }
 
-        if (deprecatedConfiguration.isSetUdpStatListenIp()) {
-            return deprecatedConfiguration.getUdpStatListenIp();
-        }
-
         return defaultValue;
     }
 
-    private int getUdpBindPort(Properties properties, DeprecatedConfiguration deprecatedConfiguration, int defaultValue) {
+    private int getUdpBindPort(Properties properties, int defaultValue) {
         if (properties.containsKey(UDP_BIND_PORT)) {
             return CollectorConfiguration.readInt(properties, UDP_BIND_PORT, -1);
         }
-
-        if (deprecatedConfiguration.isSetUdpStatListenPort()) {
-            return deprecatedConfiguration.getUdpStatListenPort();
-        }
-
         return defaultValue;
     }
 
 
-    private int getUdpReceiveBufferSize(Properties properties, DeprecatedConfiguration deprecatedConfiguration, int defaultValue) {
+    private int getUdpReceiveBufferSize(Properties properties, int defaultValue) {
         if (properties.containsKey(UDP_RECEIVE_BUFFER_SIZE)) {
             return CollectorConfiguration.readInt(properties, UDP_RECEIVE_BUFFER_SIZE, -1);
         }
-
-        if (deprecatedConfiguration.isSetUdpStatSocketReceiveBufferSize()) {
-            return deprecatedConfiguration.getUdpStatSocketReceiveBufferSize();
-        }
-
         return defaultValue;
     }
 
-    private int getWorkerThreadSize(Properties properties, DeprecatedConfiguration deprecatedConfiguration, int defaultValue) {
+    private int getWorkerThreadSize(Properties properties, int defaultValue) {
         if (properties.containsKey(WORKER_THREAD_SIZE)) {
             return CollectorConfiguration.readInt(properties, WORKER_THREAD_SIZE, -1);
         }
 
-        if (deprecatedConfiguration.isSetUdpStatWorkerThread()) {
-            return deprecatedConfiguration.getUdpStatWorkerThread();
-        }
-
         return defaultValue;
     }
 
-    private int getWorkerQueueSize(Properties properties, DeprecatedConfiguration deprecatedConfiguration, int defaultValue) {
+    private int getWorkerQueueSize(Properties properties, int defaultValue) {
         if (properties.containsKey(WORKER_QUEUE_SIZE)) {
             return CollectorConfiguration.readInt(properties, WORKER_QUEUE_SIZE, -1);
         }
 
-        if (deprecatedConfiguration.isSetUdpStatWorkerQueueSize()) {
-            return deprecatedConfiguration.getUdpStatWorkerQueueSize();
-        }
-
         return defaultValue;
     }
 
-    private boolean isWorkerThreadMonitorEnable(Properties properties, DeprecatedConfiguration deprecatedConfiguration, boolean defaultValue) {
+    private boolean isWorkerThreadMonitorEnable(Properties properties, boolean defaultValue) {
         if (properties.containsKey(WORKER_MONITOR_ENABLE)) {
             return CollectorConfiguration.readBoolean(properties, WORKER_MONITOR_ENABLE);
-        }
-
-        if (deprecatedConfiguration.isSetUdpStatWorkerMonitor()) {
-            return deprecatedConfiguration.isUdpStatWorkerMonitor();
         }
 
         return defaultValue;

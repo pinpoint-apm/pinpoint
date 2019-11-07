@@ -26,12 +26,6 @@ import java.util.Properties;
  * @author emeroad
  */
 public class CollectorConfigurationTest {
-    @Test
-    public void testReadConfigFile() throws Exception {
-        InputStream resourceAsStream = this.getClass().getClassLoader().getResourceAsStream("pinpoint-collector.properties");
-
-
-    }
 
     @Test
     public void l4IpTest() throws Exception {

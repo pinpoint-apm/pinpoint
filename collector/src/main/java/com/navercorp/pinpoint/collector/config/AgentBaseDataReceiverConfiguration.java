@@ -63,19 +63,18 @@ public final class AgentBaseDataReceiverConfiguration {
     private final boolean grpcWorkerExecutorMonitorEnable;
     private final ServerOption grpcServerOption;
 
-    public AgentBaseDataReceiverConfiguration(Properties properties, DeprecatedConfiguration deprecatedConfiguration) {
+    public AgentBaseDataReceiverConfiguration(Properties properties) {
         Objects.requireNonNull(properties, "properties");
-        Objects.requireNonNull(deprecatedConfiguration, "deprecatedConfiguration");
 
-        this.bindIp = getBindIp(properties, deprecatedConfiguration, CollectorConfiguration.DEFAULT_LISTEN_IP);
+        this.bindIp = getBindIp(properties, CollectorConfiguration.DEFAULT_LISTEN_IP);
         Objects.requireNonNull(bindIp);
-        this.bindPort = getBindPort(properties, deprecatedConfiguration, 9994);
+        this.bindPort = getBindPort(properties, 9994);
         Assert.isTrue(bindPort > 0, "bindPort must be greater than 0");
-        this.workerThreadSize = getWorkerThreadSize(properties, deprecatedConfiguration, 128);
+        this.workerThreadSize = getWorkerThreadSize(properties, 128);
         Assert.isTrue(workerThreadSize > 0, "workerThreadSize must be greater than 0");
-        this.workerQueueSize = getWorkerQueueSize(properties, deprecatedConfiguration, 1024 * 5);
+        this.workerQueueSize = getWorkerQueueSize(properties, 1024 * 5);
         Assert.isTrue(workerQueueSize > 0, "workerQueueSize must be greater than 0");
-        this.workerMonitorEnable = isWorkerThreadMonitorEnable(properties, deprecatedConfiguration);
+        this.workerMonitorEnable = isWorkerThreadMonitorEnable(properties);
 
         // gRPC
         this.grpcEnable = CollectorConfiguration.readBoolean(properties, GRPC_ENABLE);
@@ -103,61 +102,41 @@ public final class AgentBaseDataReceiverConfiguration {
         this.grpcServerOption = serverOptionBuilder.build();
     }
 
-    private String getBindIp(Properties properties, DeprecatedConfiguration deprecatedConfiguration, String defaultValue) {
+    private String getBindIp(Properties properties, String defaultValue) {
         if (properties.containsKey(BIND_IP)) {
             return CollectorConfiguration.readString(properties, BIND_IP, null);
         }
 
-        if (deprecatedConfiguration.isSetTcpListenIp()) {
-            return deprecatedConfiguration.getTcpListenIp();
-        }
-
-        return defaultValue;
+         return defaultValue;
     }
 
-    private int getBindPort(Properties properties, DeprecatedConfiguration deprecatedConfiguration, int defaultValue) {
+    private int getBindPort(Properties properties, int defaultValue) {
         if (properties.containsKey(BIND_PORT)) {
             return CollectorConfiguration.readInt(properties, BIND_PORT, -1);
         }
 
-        if (deprecatedConfiguration.isSetTcpListenPort()) {
-            return deprecatedConfiguration.getTcpListenPort();
-        }
-
         return defaultValue;
     }
 
-    private int getWorkerThreadSize(Properties properties, DeprecatedConfiguration deprecatedConfiguration, int defaultValue) {
+    private int getWorkerThreadSize(Properties properties, int defaultValue) {
         if (properties.containsKey(WORKER_THREAD_SIZE)) {
             return CollectorConfiguration.readInt(properties, WORKER_THREAD_SIZE, -1);
         }
 
-        if (deprecatedConfiguration.isSetTcpWorkerThread()) {
-            return deprecatedConfiguration.getTcpWorkerThread();
-        }
-
         return defaultValue;
     }
 
-    private int getWorkerQueueSize(Properties properties, DeprecatedConfiguration deprecatedConfiguration, int defaultValue) {
+    private int getWorkerQueueSize(Properties properties, int defaultValue) {
         if (properties.containsKey(WORKER_QUEUE_SIZE)) {
             return CollectorConfiguration.readInt(properties, WORKER_QUEUE_SIZE, -1);
         }
 
-        if (deprecatedConfiguration.isSetTcpWorkerQueueSize()) {
-            return deprecatedConfiguration.getTcpWorkerQueueSize();
-        }
-
         return defaultValue;
     }
 
-    private boolean isWorkerThreadMonitorEnable(Properties properties, DeprecatedConfiguration deprecatedConfiguration) {
+    private boolean isWorkerThreadMonitorEnable(Properties properties) {
         if (properties.containsKey(WORKER_MONITOR_ENABLE)) {
             return CollectorConfiguration.readBoolean(properties, WORKER_MONITOR_ENABLE);
-        }
-
-        if (deprecatedConfiguration.isSetTcpWorkerMonitor()) {
-            return deprecatedConfiguration.isTcpWorkerMonitor();
         }
 
         return false;
