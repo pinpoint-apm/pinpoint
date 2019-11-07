@@ -54,6 +54,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class TcpDataSender implements EnhancedDataSender<Object> {
 
+    private static final int DEFAULT_QUEUE_SIZE = 1024 * 5;
+
     private final Logger logger;
 
     static {
@@ -76,7 +78,7 @@ public class TcpDataSender implements EnhancedDataSender<Object> {
 
 
     public TcpDataSender(String name, String host, int port, PinpointClientFactory clientFactory) {
-        this(name, ClientFactoryUtils.newPinpointClientProvider(host, port, clientFactory), newDefaultMessageSerializer());
+        this(name, ClientFactoryUtils.newPinpointClientProvider(host, port, clientFactory), newDefaultMessageSerializer(), DEFAULT_QUEUE_SIZE);
     }
 
     private static ThriftMessageSerializer newDefaultMessageSerializer() {
@@ -85,14 +87,20 @@ public class TcpDataSender implements EnhancedDataSender<Object> {
     }
 
     public TcpDataSender(String name, String host, int port, PinpointClientFactory clientFactory, MessageSerializer<byte[]> messageSerializer) {
-        this(name, ClientFactoryUtils.newPinpointClientProvider(host, port, clientFactory), messageSerializer);
+        this(name, ClientFactoryUtils.newPinpointClientProvider(host, port, clientFactory), messageSerializer, DEFAULT_QUEUE_SIZE);
     }
 
-    private TcpDataSender(String name, ClientFactoryUtils.PinpointClientProvider clientProvider, MessageSerializer<byte[]> messageSerializer) {
+    public TcpDataSender(String name, String host, int port, PinpointClientFactory clientFactory, MessageSerializer<byte[]> messageSerializer, int queueSize) {
+        this(name, ClientFactoryUtils.newPinpointClientProvider(host, port, clientFactory), messageSerializer, queueSize);
+    }
+
+    private TcpDataSender(String name, ClientFactoryUtils.PinpointClientProvider clientProvider, MessageSerializer<byte[]> messageSerializer, int queueSize) {
         this.logger = newLogger(name);
 
         Assert.requireNonNull(clientProvider, "clientProvider");
         this.client = clientProvider.get();
+
+        Assert.isTrue(queueSize > 0, "queueSize must be 'queueSize > 0'");
 
         this.messageSerializer = Assert.requireNonNull(messageSerializer, "messageSerializer");
         this.timer = createTimer(name);
@@ -100,7 +108,7 @@ public class TcpDataSender implements EnhancedDataSender<Object> {
         this.writeFailFutureListener = new WriteFailFutureListener(logger, "io write fail.", clientProvider.getAddressAsString());
 
         final String executorName = getExecutorName(name);
-        this.executor = createAsyncQueueingExecutor(1024 * 5, executorName);
+        this.executor = createAsyncQueueingExecutor(queueSize, executorName);
     }
 
     private AsyncQueueingExecutor<Object> createAsyncQueueingExecutor(int queueSize, String executorName) {

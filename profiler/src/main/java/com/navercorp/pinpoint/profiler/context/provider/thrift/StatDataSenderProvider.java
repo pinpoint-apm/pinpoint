@@ -81,7 +81,7 @@ public class StatDataSenderProvider implements Provider<DataSender> {
 
             PinpointClientFactory pinpointClientFactory = clientFactoryProvider.get();
             MessageSerializer<byte[]> messageSerializer = new ThriftMessageSerializer(messageConverter);
-            return new TcpDataSender("StatDataSender", ip, port, pinpointClientFactory, messageSerializer);
+            return new TcpDataSender("StatDataSender", ip, port, pinpointClientFactory, messageSerializer, writeQueueSize);
         } else {
             UdpDataSenderFactory factory = new UdpDataSenderFactory(ip, port, UDP_EXECUTOR_NAME, writeQueueSize, timeout, sendBufferSize, messageConverter);
             return factory.create(ioType);
