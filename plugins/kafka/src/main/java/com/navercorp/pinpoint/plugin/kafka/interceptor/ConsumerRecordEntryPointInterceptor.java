@@ -148,7 +148,7 @@ public class ConsumerRecordEntryPointInterceptor extends SpanRecursiveAroundInte
                     if (isDebug) {
                         logger.debug("TraceID not exist. camSampled is false. skip trace.");
                     }
-                    return null;
+                    return trace;
                 }
             }
 
