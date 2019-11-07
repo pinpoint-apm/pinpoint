@@ -64,23 +64,17 @@
         <property name="properties" ref="pinpoint_collector_properties"/>
     </bean>
 
-    <bean id="deprecatedConfig" class="com.navercorp.pinpoint.collector.config.DeprecatedConfiguration">
-        <constructor-arg ref="pinpoint_collector_properties"/>
-    </bean>
 
     <bean id="baseDataReceiverConfig" class="com.navercorp.pinpoint.collector.config.AgentBaseDataReceiverConfiguration">
         <constructor-arg ref="pinpoint_collector_properties"/>
-        <constructor-arg ref="deprecatedConfig"/>
     </bean>
 
     <bean id="statReceiverConfig" class="com.navercorp.pinpoint.collector.config.StatReceiverConfiguration">
         <constructor-arg ref="pinpoint_collector_properties"/>
-        <constructor-arg ref="deprecatedConfig"/>
     </bean>
 
     <bean id="spanReceiverConfig" class="com.navercorp.pinpoint.collector.config.SpanReceiverConfiguration">
         <constructor-arg ref="pinpoint_collector_properties"/>
-        <constructor-arg ref="deprecatedConfig"/>
     </bean>
 
     <import resource="classpath:applicationContext-hbase.xml"/>

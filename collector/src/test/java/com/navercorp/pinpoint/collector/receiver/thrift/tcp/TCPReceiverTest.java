@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.collector.receiver.thrift.tcp;
 
 import com.navercorp.pinpoint.collector.config.AgentBaseDataReceiverConfiguration;
-import com.navercorp.pinpoint.collector.config.DeprecatedConfiguration;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -60,7 +59,7 @@ public class TCPReceiverTest {
         properties.put("collector.receiver.base.worker.threadSize", "8");
         properties.put("collector.receiver.base.worker.queueSize", "1024");
 
-        AgentBaseDataReceiverConfiguration config = new AgentBaseDataReceiverConfiguration(properties, new DeprecatedConfiguration());
+        AgentBaseDataReceiverConfiguration config = new AgentBaseDataReceiverConfiguration(properties);
         return config;
     }
 

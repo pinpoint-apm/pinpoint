@@ -28,7 +28,7 @@ public class SpanReceiverConfigurationTest {
     @Test
     public void properties() throws Exception {
         Properties properties = PropertyUtils.loadPropertyFromClassPath("test-pinpoint-collector.properties");
-        SpanReceiverConfiguration configuration = new SpanReceiverConfiguration(properties, new DeprecatedConfiguration());
+        SpanReceiverConfiguration configuration = new SpanReceiverConfiguration(properties);
 
         assertEquals(Boolean.FALSE, configuration.isGrpcEnable());
         assertEquals("3.3.3.3", configuration.getGrpcBindIp());
