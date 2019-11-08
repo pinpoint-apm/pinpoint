@@ -36,7 +36,6 @@ import org.apache.hadoop.hbase.client.Scan;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
@@ -170,7 +169,7 @@ public class HbaseAgentLifeCycleDaoTest {
         final AgentLifeCycleState expectedAgentLifeCycleState = AgentLifeCycleState.RUNNING;
 
         final AgentLifeCycleBo scannedLifeCycleBo = createAgentLifeCycleBo(expectedAgentId, expectedTimestamp, expectedAgentLifeCycleState);
-        when(this.hbaseOperations2.findParallel(any(TableName.class), anyListOf(Scan.class), any(ResultsExtractor.class))).thenReturn(Arrays.asList(scannedLifeCycleBo, scannedLifeCycleBo));
+        when(this.hbaseOperations2.findParallel(any(TableName.class), anyList(), any(ResultsExtractor.class))).thenReturn(Arrays.asList(scannedLifeCycleBo, scannedLifeCycleBo));
 
         AgentInfo nonNullAgentInfo = new AgentInfo();
         nonNullAgentInfo.setAgentId(expectedAgentId);

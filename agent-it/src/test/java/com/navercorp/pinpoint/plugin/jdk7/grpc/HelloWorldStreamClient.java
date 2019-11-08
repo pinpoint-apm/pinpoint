@@ -47,8 +47,7 @@ public class HelloWorldStreamClient implements HelloWorldClient {
         this(ManagedChannelBuilder.forAddress(host, port)
                 // Channels are secure by default (via SSL/TLS). For the example we disable TLS to avoid
                 // needing certificates.
-//                .usePlaintext()
-                .usePlaintext(true)
+                .usePlaintext()
                 .build());
     }
 
