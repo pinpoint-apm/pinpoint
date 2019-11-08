@@ -1,12 +1,13 @@
 import { Injectable, ComponentFactoryResolver, Injector } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Subject, Observable } from 'rxjs';
-import { map, retry } from 'rxjs/operators';
+import { Subject, Observable, throwError, of } from 'rxjs';
+import { map, retry, switchMap } from 'rxjs/operators';
 
 import { Actions } from 'app/shared/store';
 import { UrlQuery, UrlPathId, UrlPath } from 'app/shared/models';
 import { WebAppSettingDataService, NewUrlStateNotificationService, StoreHelperService, DynamicPopupService, UrlRouteManagerService } from 'app/shared/services';
 import { ServerErrorPopupContainerComponent } from 'app/core/components/server-error-popup';
+import { isThatType } from 'app/core/utils/util';
 
 @Injectable()
 export class ServerMapForFilteredMapDataService {
@@ -49,9 +50,8 @@ export class ServerMapForFilteredMapDataService {
         this.storeHelperService.dispatch(new Actions.UpdateServerMapLoadingState('loading'));
         this.http.get(this.url, this.makeRequestOptionsArgs(to)).pipe(
             retry(3),
-            map(res => {
-                return res || {};
-            })
+            map(res => res || {}),
+            switchMap((res: any) => isThatType(res, 'exception') ? throwError(res) : of(res))
         ).subscribe((res: any) => {
             if (res['lastFetchedTimestamp'] > res['applicationMapData']['range']['from']) {
                 this.nextTo = res['lastFetchedTimestamp'] - 1;
