@@ -41,9 +41,7 @@
                         com.navercorp.pinpoint.common.server.util,
                         com.navercorp.pinpoint.common.server.bo" />
 
-    <bean id="propertyConfigurer"
-          class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-        <property name="ignoreUnresolvablePlaceholders" value="true"/>
+    <bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
         <property name="locations">
             <list>
                 <value>classpath:hbase.properties</value>
@@ -51,6 +49,8 @@
             </list>
         </property>
 
+        <property name="fileEncoding" value="UTF-8"/>
+        <property name="systemPropertiesMode" value="#{T(org.springframework.beans.factory.config.PropertyPlaceholderConfigurer).SYSTEM_PROPERTIES_MODE_OVERRIDE}"/>
     </bean>
 
     <util:properties id="pinpoint_collector_properties" location="classpath:pinpoint-collector.properties" />
@@ -119,7 +119,7 @@
     </bean>
 
     <bean id="channelPropertiesFactory" class="com.navercorp.pinpoint.rpc.server.ChannelPropertiesFactory">
-        <constructor-arg value="${collector.receiver.channel.properties.key}"/>
+        <constructor-arg value="${collector.receiver.channel.properties.key:#{null}}"/>
     </bean>
     <!-- DispatchHandler-related Beans -->
     <!-- Thrift -->
