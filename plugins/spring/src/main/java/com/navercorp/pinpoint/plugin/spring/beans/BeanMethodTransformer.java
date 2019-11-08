@@ -28,6 +28,7 @@ import com.navercorp.pinpoint.bootstrap.instrument.MethodFilters;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.plugin.spring.beans.interceptor.BeanMethodInterceptor;
 
 import static com.navercorp.pinpoint.common.util.VarArgs.va;
 
@@ -89,7 +90,7 @@ public class BeanMethodTransformer implements TransformCallback {
                 return;
             }
 
-            id = targetMethod.addInterceptor("com.navercorp.pinpoint.plugin.spring.beans.interceptor.BeanMethodInterceptor", va(markError));
+            id = targetMethod.addInterceptor(BeanMethodInterceptor.class, va(markError));
             interceptorId.set(id);
         }
     }
