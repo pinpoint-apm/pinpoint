@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.profiler.util.TransactionIdUtils;
@@ -30,6 +31,7 @@ import com.navercorp.pinpoint.common.util.DateUtils;
 import com.navercorp.pinpoint.web.applicationmap.link.Link;
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.calltree.span.TraceState;
+import com.navercorp.pinpoint.web.config.LogConfiguration;
 import com.navercorp.pinpoint.web.vo.callstacks.Record;
 import com.navercorp.pinpoint.web.vo.callstacks.RecordSet;
 import org.apache.commons.lang3.StringEscapeUtils;
@@ -47,22 +49,17 @@ public class TransactionInfoViewModel {
     private Collection<Link> links;
     private RecordSet recordSet;
     private TraceState.State completeState;
-    private boolean logLinkEnable;
-    private String logButtonName;
-    private String logPageUrl;
-    private String disableButtonMessage;
 
-    public TransactionInfoViewModel(TransactionId transactionId, long spanId, Collection<Node> nodes, Collection<Link> links, RecordSet recordSet, TraceState.State state, boolean logLinkEnable, String logButtonName, String logPageUrl, String disableButtonMessage) {
+    private LogConfiguration logConfiguration;
+
+    public TransactionInfoViewModel(TransactionId transactionId, long spanId, Collection<Node> nodes, Collection<Link> links, RecordSet recordSet, TraceState.State state, LogConfiguration logConfiguration) {
         this.transactionId = transactionId;
         this.spanId = spanId;
         this.nodes = nodes;
         this.links = links;
         this.recordSet = recordSet;
         this.completeState = state;
-        this.logLinkEnable = logLinkEnable;
-        this.logButtonName = logButtonName;
-        this.logPageUrl = logPageUrl;
-        this.disableButtonMessage = disableButtonMessage;
+        this.logConfiguration = Objects.requireNonNull(logConfiguration, "logConfiguration");
     }
 
     @JsonProperty("applicationName")
@@ -107,7 +104,7 @@ public class TransactionInfoViewModel {
 
     @JsonProperty("logLinkEnable")
     public boolean isLogLinkEnable() {
-        return logLinkEnable;
+        return logConfiguration.isLogLinkEnable();
     }
 
     @JsonProperty("loggingTransactionInfo")
@@ -117,11 +114,12 @@ public class TransactionInfoViewModel {
 
     @JsonProperty("logButtonName")
     public String getLogButtonName() {
-        return logButtonName;
+        return logConfiguration.getLogButtonName();
     }
 
     @JsonProperty("logPageUrl")
     public String getLogPageUrl() {
+        final String logPageUrl = logConfiguration.getLogPageUrl();
         if (StringUtils.isNotEmpty(logPageUrl)) {
             StringBuilder sb = new StringBuilder();
             sb.append("transactionId=").append(getTransactionId());
@@ -136,7 +134,7 @@ public class TransactionInfoViewModel {
 
     @JsonProperty("disableButtonMessage")
     public String getDisableButtonMessage() {
-        return disableButtonMessage;
+        return logConfiguration.getDisableButtonMessage();
     }
 
     @JsonProperty("callStackIndex")

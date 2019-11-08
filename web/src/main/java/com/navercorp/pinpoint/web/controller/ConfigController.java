@@ -75,7 +75,7 @@ public class ConfigController {
             }
         }
         
-        if(!StringUtils.isEmpty(webProperties.getSecurityGuideUrl())) {
+        if (!StringUtils.isEmpty(webProperties.getSecurityGuideUrl())) {
             result.put("securityGuideUrl", webProperties.getSecurityGuideUrl());
         }
         

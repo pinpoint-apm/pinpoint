@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.collector.config;
+package com.navercorp.pinpoint.flink.config;
 
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,25 +23,20 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import java.io.InputStream;
-import java.util.Properties;
 
 /**
- * @author emeroad
+ * @author Woonduk Kang(emeroad)
  */
-@TestPropertySource(locations = "classpath:test-pinpoint-collector.properties")
-@ContextConfiguration(classes = CollectorConfiguration.class)
+@TestPropertySource(locations = "classpath:pinpoint-flink.properties")
+@ContextConfiguration(classes = FlinkConfiguration.class)
 @RunWith(SpringJUnit4ClassRunner.class)
-public class CollectorConfigurationTest {
-
+public class FlinkConfigurationTest {
     @Autowired
-    CollectorConfiguration collectorConfiguration;
+    FlinkConfiguration flinkConfiguration;
 
     @Test
-    public void l4IpTest() {
-        Assert.assertTrue(collectorConfiguration.getL4IpList().contains("127.0.0.1"));
-        Assert.assertTrue(collectorConfiguration.getL4IpList().contains("192.168.0.1"));
-        Assert.assertTrue(collectorConfiguration.getL4IpList().contains("255.255.255.255"));
+    public void log() {
+        flinkConfiguration.log();
     }
 
 }

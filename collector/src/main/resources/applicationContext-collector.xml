@@ -36,7 +36,6 @@
                         com.navercorp.pinpoint.collector.manage,
                         com.navercorp.pinpoint.collector.mapper,
                         com.navercorp.pinpoint.collector.util,
-                        com.navercorp.pinpoint.collector.config,
                         com.navercorp.pinpoint.collector.service,
                         com.navercorp.pinpoint.common.server.bo.codec,
                         com.navercorp.pinpoint.common.server.util,
@@ -56,13 +55,9 @@
 
     <util:properties id="pinpoint_collector_properties" location="classpath:pinpoint-collector.properties" />
 
-    <bean id="collectorConfiguration" class="com.navercorp.pinpoint.collector.config.CollectorConfiguration">
-        <property name="properties" ref="pinpoint_collector_properties"/>
-    </bean>
+    <bean id="collectorConfiguration" class="com.navercorp.pinpoint.collector.config.CollectorConfiguration"/>
 
-    <bean id="flinkConfiguration" class="com.navercorp.pinpoint.collector.config.FlinkConfiguration">
-        <property name="properties" ref="pinpoint_collector_properties"/>
-    </bean>
+    <bean id="flinkConfiguration" class="com.navercorp.pinpoint.collector.config.FlinkConfiguration"/>
 
 
     <bean id="baseDataReceiverConfig" class="com.navercorp.pinpoint.collector.config.AgentBaseDataReceiverConfiguration">
@@ -267,10 +262,10 @@
     </bean>
 
     <bean id="baseAcceptorOptionBuilder" class="com.navercorp.pinpoint.rpc.server.ServerOption.Builder">
-        <property name="requestTimeoutMillis" value="#{pinpoint_collector_properties['collector.receiver.base.request.timeout'] ?: 3000}"/>
-        <property name="serverCloseWaitTimeoutMillis"  value="#{pinpoint_collector_properties['collector.receiver.base.closewait.timeout'] ?: 3000}"/>
-        <property name="healthCheckIntervalTimeMillis"  value="#{pinpoint_collector_properties['collector.receiver.base.ping.interval'] ?: 300000}"/>
-        <property name="healthCheckPacketWaitTimeMillis"  value="#{pinpoint_collector_properties['collector.receiver.base.pingwait.timeout'] ?: 1800000}"/>
+        <property name="requestTimeoutMillis" value="${collector.receiver.base.request.timeout:3000}"/>
+        <property name="serverCloseWaitTimeoutMillis"  value="${collector.receiver.base.closewait.timeout:3000}"/>
+        <property name="healthCheckIntervalTimeMillis"  value="${collector.receiver.base.ping.interval:300000}"/>
+        <property name="healthCheckPacketWaitTimeMillis"  value="${collector.receiver.base.pingwait.timeout:1800000}"/>
     </bean>
     <bean id="baseAcceptorOption" class="com.navercorp.pinpoint.rpc.server.ServerOption" factory-bean="baseAcceptorOptionBuilder" factory-method="build"/>
     <bean id="acceptor" class="com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor">
@@ -339,10 +334,10 @@
     </bean>
 
     <bean id="spanAcceptorOptionBuilder" class="com.navercorp.pinpoint.rpc.server.ServerOption.Builder">
-        <property name="requestTimeoutMillis" value="#{pinpoint_collector_properties['collector.receiver.span.tcp.request.timeout'] ?: 3000}"/>
-        <property name="serverCloseWaitTimeoutMillis"  value="#{pinpoint_collector_properties['collector.receiver.span.tcp.closewait.timeout'] ?: 3000}"/>
-        <property name="healthCheckIntervalTimeMillis"  value="#{pinpoint_collector_properties['collector.receiver.span.tcp.ping.interval'] ?: 300000}"/>
-        <property name="healthCheckPacketWaitTimeMillis"  value="#{pinpoint_collector_properties['collector.receiver.span.tcp.pingwait.timeout'] ?: 1800000}"/>
+        <property name="requestTimeoutMillis" value="${collector.receiver.span.tcp.request.timeout: 3000}"/>
+        <property name="serverCloseWaitTimeoutMillis"  value="${collector.receiver.span.tcp.closewait.timeout: 3000}"/>
+        <property name="healthCheckIntervalTimeMillis"  value="${collector.receiver.span.tcp.ping.interval: 300000}"/>
+        <property name="healthCheckPacketWaitTimeMillis"  value="${collector.receiver.span.tcp.pingwait.timeout: 1800000}"/>
     </bean>
     <bean id="spanAcceptorOption" class="com.navercorp.pinpoint.rpc.server.ServerOption" factory-bean="spanAcceptorOptionBuilder" factory-method="build"/>
     <bean id="spanAcceptorProvider" class="com.navercorp.pinpoint.collector.receiver.thrift.PinpointServerAcceptorProvider">
@@ -382,10 +377,10 @@
     </bean>
 
     <bean id="statAcceptorOptionBuilder" class="com.navercorp.pinpoint.rpc.server.ServerOption.Builder">
-        <property name="requestTimeoutMillis" value="#{pinpoint_collector_properties['collector.receiver.stat.tcp.request.timeout'] ?: 3000}"/>
-        <property name="serverCloseWaitTimeoutMillis"  value="#{pinpoint_collector_properties['collector.receiver.stat.tcp.closewait.timeout'] ?: 3000}"/>
-        <property name="healthCheckIntervalTimeMillis"  value="#{pinpoint_collector_properties['collector.receiver.stat.tcp.ping.interval'] ?: 300000}"/>
-        <property name="healthCheckPacketWaitTimeMillis"  value="#{pinpoint_collector_properties['collector.receiver.stat.tcp.pingwait.timeout'] ?: 1800000}"/>
+        <property name="requestTimeoutMillis" value="${collector.receiver.stat.tcp.request.timeout:3000}"/>
+        <property name="serverCloseWaitTimeoutMillis"  value="${collector.receiver.stat.tcp.closewait.timeout:3000}"/>
+        <property name="healthCheckIntervalTimeMillis"  value="${collector.receiver.stat.tcp.ping.interval:300000}"/>
+        <property name="healthCheckPacketWaitTimeMillis"  value="${collector.receiver.stat.tcp.pingwait.timeout:1800000}"/>
     </bean>
     <bean id="statAcceptorOption" class="com.navercorp.pinpoint.rpc.server.ServerOption" factory-bean="statAcceptorOptionBuilder" factory-method="build"/>
     <bean id="statAcceptorProvider" class="com.navercorp.pinpoint.collector.receiver.thrift.PinpointServerAcceptorProvider">
