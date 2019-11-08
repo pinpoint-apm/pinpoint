@@ -48,16 +48,12 @@
 
 
     <bean id="flinkConfiguration" class="com.navercorp.pinpoint.flink.config.FlinkConfiguration">
-        <property name="properties" ref="pinpoint_flink_properties"/>
-    </bean>
-
-    <bean id="deprecatedConfig" class="com.navercorp.pinpoint.collector.config.DeprecatedConfiguration">
         <constructor-arg ref="pinpoint_flink_properties"/>
     </bean>
+
 
     <bean id="tcpReceiverConfig" class="com.navercorp.pinpoint.collector.config.AgentBaseDataReceiverConfiguration">
         <constructor-arg ref="pinpoint_flink_properties"/>
-        <constructor-arg ref="deprecatedConfig"/>
     </bean>
 
     <bean id="tbaseFlatMapper" class="com.navercorp.pinpoint.flink.process.TBaseFlatMapper"/>

@@ -78,13 +78,13 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
     private ProxyRequestTypeRegistryService proxyRequestTypeRegistryService;
 
     // Temporarily disabled Because We need to solve authentication problem inter system.
-    // @Value("#{pinpointWebProps['log.enable'] ?: false}")
+    // @Value("${log.enable:false}")
     // private boolean logLinkEnable;
 
-    // @Value("#{pinpointWebProps['log.button.name'] ?: ''}")
+    // @Value("${log.button.name:}")
     // private String logButtonName;
 
-    // @Value("#{pinpointWebProps['log.page.url'] ?: ''}")
+    // @Value("${log.page.url:}")
     // private String logPageUrl;
 
     @Override

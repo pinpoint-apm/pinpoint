@@ -42,7 +42,7 @@ public class AdminAuthInterceptor extends HandlerInterceptorAdapter {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     
-    @Value("#{pinpointWebProps['admin.password'] ?: ''}")
+    @Value("${admin.password:}")
     private String password;
     
     @Override

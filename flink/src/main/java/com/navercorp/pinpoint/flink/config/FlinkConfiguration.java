@@ -15,24 +15,40 @@
  */
 package com.navercorp.pinpoint.flink.config;
 
-import com.navercorp.pinpoint.collector.config.CollectorConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Configuration;
 
-import java.util.Properties;
+import javax.annotation.PostConstruct;
 
 /**
  * @author minwoo.jung
  */
-public class FlinkConfiguration extends CollectorConfiguration {
+@Configuration
+public class FlinkConfiguration {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    @Value("${flink.cluster.enable}")
     private boolean flinkClusterEnable;
+
+    @Value("${flink.cluster.zookeeper.address:}")
     private String flinkClusterZookeeperAddress;
+
+    @Value("${flink.cluster.zookeeper.sessiontimeout:-1}")
     private int flinkClusterSessionTimeout;
+
+    @Value("${flink.cluster.zookeeper.retry.interval:60000}")
     private int flinkRetryInterval;
+
+    @Value("${flink.cluster.tcp.port:19994}")
     private int flinkClusterTcpPort;
+
+    @Value("${flink.StreamExecutionEnvironment:server}")
     private String flinkStreamExecutionEnvironment;
+
+    public FlinkConfiguration() {
+    }
 
     public boolean isFlinkClusterEnable() {
         return flinkClusterEnable;
@@ -58,17 +74,22 @@ public class FlinkConfiguration extends CollectorConfiguration {
         return "local".equals(flinkStreamExecutionEnvironment) ? true : false;
     }
 
+    @PostConstruct
+    public void log() {
+        this.logger.info("{}", logger);
+    }
+
 
     @Override
-    protected void readPropertyValues(Properties properties) {
-        logger.info("pinpoint-flink.properties read.");
-        super.readPropertyValues(properties);
-
-        this.flinkClusterEnable = readBoolean(properties, "flink.cluster.enable");
-        this.flinkClusterZookeeperAddress = readString(properties, "flink.cluster.zookeeper.address", "");
-        this.flinkClusterSessionTimeout = readInt(properties, "flink.cluster.zookeeper.sessiontimeout", -1);
-        this.flinkRetryInterval =  readInt(properties, "flink.cluster.zookeeper.retry.interval", 60000);
-        this.flinkClusterTcpPort = readInt(properties,"flink.cluster.tcp.port", 19994);
-        this.flinkStreamExecutionEnvironment = readString(properties, "flink.StreamExecutionEnvironment", "server");
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("FlinkConfiguration{");
+        sb.append("flinkClusterEnable=").append(flinkClusterEnable);
+        sb.append(", flinkClusterZookeeperAddress='").append(flinkClusterZookeeperAddress).append('\'');
+        sb.append(", flinkClusterSessionTimeout=").append(flinkClusterSessionTimeout);
+        sb.append(", flinkRetryInterval=").append(flinkRetryInterval);
+        sb.append(", flinkClusterTcpPort=").append(flinkClusterTcpPort);
+        sb.append(", flinkStreamExecutionEnvironment='").append(flinkStreamExecutionEnvironment).append('\'');
+        sb.append('}');
+        return sb.toString();
     }
 }

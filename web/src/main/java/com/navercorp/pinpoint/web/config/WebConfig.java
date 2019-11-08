@@ -22,36 +22,38 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Configuration;
 
 /**
  * @author koo.taejin
  */
+@Configuration
 public class WebConfig {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(WebConfig.class);
 
-    @Value("#{pinpointWebProps['cluster.enable'] ?: false}")
+    @Value("${cluster.enable:false}")
     private boolean clusterEnable;
 
-    @Value("#{pinpointWebProps['cluster.web.tcp.port'] ?: 0}")
+    @Value("${cluster.web.tcp.port:0}")
     private int clusterTcpPort;
 
-    @Value("#{pinpointWebProps['cluster.zookeeper.address'] ?: ''}")
+    @Value("${cluster.zookeeper.address:}")
     private String clusterZookeeperAddress;
 
-    @Value("#{pinpointWebProps['cluster.zookeeper.sessiontimeout'] ?: -1}")
+    @Value("${cluster.zookeeper.sessiontimeout:-1}")
     private int clusterZookeeperSessionTimeout;
 
-    @Value("#{pinpointWebProps['cluster.zookeeper.retry.interval'] ?: 60000}")
+    @Value("${cluster.zookeeper.retry.interval:60000}")
     private int clusterZookeeperRetryInterval;
 
-    @Value("#{pinpointWebProps['cluster.zookeeper.periodic.sync.enable'] ?: false}")
+    @Value("${cluster.zookeeper.periodic.sync.enable:false}")
     private boolean clusterZookeeperPeriodicSyncEnable;
 
-    @Value("#{pinpointWebProps['cluster.zookeeper.periodic.sync.interval'] ?: 600000}")
+    @Value("${cluster.zookeeper.periodic.sync.interval:600000}")
     private int clusterZookeeperPeriodicSyncInterval;
 
-    @Value("#{pinpointWebProps['cluster.connect.address'] ?: ''}")
+    @Value("${cluster.connect.address:}")
     private String clusterConnectAddress;
 
     @PostConstruct
@@ -69,7 +71,7 @@ public class WebConfig {
             }
         }
 
-        logger.info("{}", toString());
+        logger.info("{}", this);
     }
 
     private int assertPort(int port) {
@@ -118,6 +120,11 @@ public class WebConfig {
 
     public String getClusterConnectAddress() {
         return clusterConnectAddress;
+    }
+
+    @PostConstruct
+    public void log() {
+        logger.info("{}", this);
     }
 
     @Override
