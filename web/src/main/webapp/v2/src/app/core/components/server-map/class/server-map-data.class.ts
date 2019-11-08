@@ -90,7 +90,8 @@ export class ServerMapData {
     constructor(
         private originalNodeList: INodeInfo[],
         private originalLinkList: ILinkInfo[],
-        private filters?: Filter[]) {
+        private filters?: Filter[]
+    ) {
         this.init();
     }
     reset(originalNodeList: INodeInfo[], originalLinkList: ILinkInfo[]) {
@@ -221,6 +222,9 @@ export class ServerMapData {
             if ((link.targetInfo.serviceType in collectMergeLink[link.from]) === false) {
                 collectMergeLink[link.from][link.targetInfo.serviceType] = [];
             }
+            /**
+             *  * collectMergeLink = { ACL-PORTAL-DEV(fromNode Key): { UNKNOWN: [link1, link2, link3] } } 이런식이야.
+             */
             collectMergeLink[link.from][link.targetInfo.serviceType].push(link);
         });
         for (const nodeKey in collectMergeLink) {
@@ -283,6 +287,9 @@ export class ServerMapData {
         if (this.isLeafNode(link.to) === false) {
             return false;
         }
+        if (this.filters) {
+            return !this.filters.some(({toApplication}: Filter) => link.targetInfo.applicationName === toApplication);
+        }
         return true;
     }
     private addNewNode(newNode: IShortNodeInfo): void {
@@ -324,6 +331,7 @@ export class ServerMapData {
     mergeMultiLinkNodes(): void {
         // console.time('mergeMultiLinkGroup()');
         // [1] 일단 두번째 병합 조건에 해당하는 노드들을 추림
+        // *: Node들 중에서 종단노드인데, 인입링크가 2이상인것들. 걔네를 서로 병합할수있는지 시도하는것인듯.
         const targetNodeList = this.getMergeTargetNodes();
         const checkedNodes: IStateCheckMap = {};
         const removeNodeKeys: IStateCheckMap = {};
@@ -343,7 +351,7 @@ export class ServerMapData {
                 return;
             }
             checkedNodes[outerNodeKey] = true;
-            const fromNodeKeysOfOuter: string[] = this.getFromNodeKeys(outerNodeKey);
+            const fromNodeKeysOfOuter: string[] = this.getFromNodeKeys(outerNodeKey); // * 타겟 노드들을 가리키고있는 fromNode들
             const mergeTargetLinks: {[key: string]: IShortLinkInfo[] } = {};
             const mergeTargetLoopLinks: {[key: string]: IShortLinkInfo[] } = {};
             const mergeTargetNodeList: IShortNodeInfo[] = [];
@@ -512,14 +520,6 @@ export class ServerMapData {
     }
     addFilterFlag(): void {
         if (this.filters) {
-            // this.nodeList.forEach((node: any) => {
-            //     this.filters.forEach((filter: Filter) => {
-            //         if ( filter.getFromKey() === node.key || filter.getToKey() === node.key ) {
-            //             node['isFiltered'] = true;
-            //             return;
-            //         }
-            //     });
-            // });
             this.linkList.forEach((link: any) => {
                 this.filters.forEach((filter: Filter) => {
                     if (filter.getFromKey() === link.from && filter.getToKey() === link.to) {
