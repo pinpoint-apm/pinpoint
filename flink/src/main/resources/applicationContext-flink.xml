@@ -47,10 +47,7 @@
     <util:properties id="pinpoint_flink_properties" location="classpath:pinpoint-flink.properties"/>
 
 
-    <bean id="flinkConfiguration" class="com.navercorp.pinpoint.flink.config.FlinkConfiguration">
-        <constructor-arg ref="pinpoint_flink_properties"/>
-    </bean>
-
+    <bean id="flinkConfiguration" class="com.navercorp.pinpoint.flink.config.FlinkConfiguration"/>
 
     <bean id="tcpReceiverConfig" class="com.navercorp.pinpoint.collector.config.AgentBaseDataReceiverConfiguration">
         <constructor-arg ref="pinpoint_flink_properties"/>
