@@ -51,6 +51,7 @@
 
         <property name="fileEncoding" value="UTF-8"/>
         <property name="systemPropertiesMode" value="#{T(org.springframework.beans.factory.config.PropertyPlaceholderConfigurer).SYSTEM_PROPERTIES_MODE_OVERRIDE}"/>
+        <property name="ignoreUnresolvablePlaceholders" value="true"/>
     </bean>
 
     <util:properties id="pinpoint_collector_properties" location="classpath:pinpoint-collector.properties" />
