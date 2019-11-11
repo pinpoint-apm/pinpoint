@@ -21,6 +21,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
 import javax.annotation.PostConstruct;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * @author minwoo.jung
@@ -46,6 +48,9 @@ public class FlinkConfiguration {
 
     @Value("${flink.StreamExecutionEnvironment:server}")
     private String flinkStreamExecutionEnvironment;
+
+    @Value("${collector.l4.ip:}")
+    private String[] l4IpList = new String[0];
 
     public FlinkConfiguration() {
     }
@@ -74,6 +79,10 @@ public class FlinkConfiguration {
         return "local".equals(flinkStreamExecutionEnvironment) ? true : false;
     }
 
+    public List<String> getL4IpList() {
+        return Arrays.asList(l4IpList);
+    }
+
     @PostConstruct
     public void log() {
         this.logger.info("{}", logger);
@@ -89,6 +98,7 @@ public class FlinkConfiguration {
         sb.append(", flinkRetryInterval=").append(flinkRetryInterval);
         sb.append(", flinkClusterTcpPort=").append(flinkClusterTcpPort);
         sb.append(", flinkStreamExecutionEnvironment='").append(flinkStreamExecutionEnvironment).append('\'');
+        sb.append(", l4IpList=").append(Arrays.toString(l4IpList));
         sb.append('}');
         return sb.toString();
     }
