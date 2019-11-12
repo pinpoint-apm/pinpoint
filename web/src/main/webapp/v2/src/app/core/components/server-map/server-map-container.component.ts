@@ -190,7 +190,6 @@ export class ServerMapContainerComponent implements OnInit, OnDestroy {
             }
         } else {
             payload = {
-                clickParam: nodeData.clickParam,
                 period: this.period,
                 endTime: this.endTime,
                 isAuthorized: nodeData.isAuthorized,

@@ -171,7 +171,6 @@ export class ServerMapForFilteredMapContainerComponent implements OnInit, OnDest
             };
         } else {
             payload = {
-                clickParam: nodeData.clickParam,
                 period: this.period,
                 endTime: this.endTime,
                 isAuthorized: nodeData.isAuthorized,

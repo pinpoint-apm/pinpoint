@@ -226,10 +226,6 @@ export class ServerMapTemplateWithGojs {
                         desiredSize: new go.Size(100, 100),
                         stroke: ServerMapTheme.general.circle.good.stroke,
                         strokeWidth: ServerMapTheme.general.circle.good.strokeWidth,
-                        click: (event: go.InputEvent, obj: go.GraphObject) => {
-                            serverMapComponent.onClickNode(event, obj, ServerMapNodeClickExtraParam.REQUEST_GREEN);
-                            event.handled = true;
-                        },
                     },
                     new go.Binding('visible', '', (data) => {
                         return data.isAuthorized && data.isWas;
@@ -245,10 +241,6 @@ export class ServerMapTemplateWithGojs {
                         desiredSize: new go.Size(100, 100),
                         stroke: ServerMapTheme.general.circle.slow.stroke,
                         strokeWidth: ServerMapTheme.general.circle.slow.strokeWidth,
-                        click: (event: go.InputEvent, obj: go.GraphObject) => {
-                            serverMapComponent.onClickNode(event, obj, ServerMapNodeClickExtraParam.REQUEST_GREEN);
-                            event.handled = true;
-                        },
                     },
                     new go.Binding('visible', '', (data) => {
                         return data.isAuthorized && data.isWas;
@@ -264,10 +256,6 @@ export class ServerMapTemplateWithGojs {
                         desiredSize: new go.Size(100, 100),
                         stroke: ServerMapTheme.general.circle.bad.stroke,
                         strokeWidth: ServerMapTheme.general.circle.bad.strokeWidth,
-                        click: (event: go.InputEvent, obj: go.GraphObject) => {
-                            serverMapComponent.onClickNode(event, obj, ServerMapNodeClickExtraParam.REQUEST_RED);
-                            event.handled = true;
-                        },
                     },
                     new go.Binding('visible', '', (data) => {
                         return data.isAuthorized && data.isWas;
@@ -301,10 +289,6 @@ export class ServerMapTemplateWithGojs {
                         go.TextBlock,
                         {
                             margin: new go.Margin(0, 0, 10, 0),
-                            click: (event: go.InputEvent, obj: go.GraphObject) => {
-                                serverMapComponent.onClickNode(event, obj, ServerMapNodeClickExtraParam.INSTANCE_COUNT);
-                                event.handled = true;
-                            }
                         },
                         new go.Binding('visible', 'instanceCount', (v) => {
                             return v > 1 ? true : false;

@@ -228,13 +228,11 @@ export class ServerMapDiagramWithGojs extends ServerMapDiagram {
     clear(): void {
         this.diagram.model = go.Model.fromJson({});
     }
-    onClickNode(event: go.InputEvent, obj: go.GraphObject, clickType?: string): void {
+    onClickNode(event: go.InputEvent, obj: go.GraphObject): void {
         const part = obj.part ? obj.part : <go.Part>obj;
+
         this.updateHighlights(part);
-        this.outClickNode.emit({
-            ...part['data'],
-            clickParam: new ServerMapNodeClickExtraParam(clickType || '')
-        });
+        this.outClickNode.emit(part['data']);
     }
     onDoubleClickNode(event: go.InputEvent, obj: go.GraphObject): void {
         // console.log('onDoubleClick-Node :', event, obj);
