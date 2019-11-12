@@ -64,10 +64,6 @@ export class ServerStatusContainerComponent implements OnInit, OnDestroy {
             this.hasServerList = this.selectedTarget.isNode && !this.selectedTarget.isMerged ? this.selectedTarget.hasServerList : false;
             this.isWAS = this.selectedTarget.isWAS;
             this.node = (target.isNode === true ? this.serverMapData.getNodeData(target.node[0]) as INodeInfo : null);
-            if (target.clickParam && target.clickParam.isInstanceCount()) {
-                this.onClickViewServer();
-            }
-
             this.cd.detectChanges();
         });
     }

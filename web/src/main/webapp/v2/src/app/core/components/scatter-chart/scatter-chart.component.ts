@@ -178,11 +178,7 @@ export class ScatterChartComponent implements OnInit, OnDestroy, OnChanges {
             this.fromX = params.from;
             this.toX = params.to;
             this.mode = params.mode;
-            let typeCheck;
-            if (params.clickParam) {
-                typeCheck = ScatterChartTransactionTypeManager.getTypeCheckValue(params.clickParam.isRed(), params.clickParam.isGreen() || params.clickParam.isOrange());
-            }
-            this.scatterChartInstance.reset(params.application, params.agent, params.from, params.to, params.mode, typeCheck);
+            this.scatterChartInstance.reset(params.application, params.agent, params.from, params.to, params.mode);
             this.addToWindow();
         });
         this.scatterChartInteractionService.onError$.pipe(
