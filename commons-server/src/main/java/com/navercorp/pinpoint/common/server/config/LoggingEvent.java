@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.collector.config;
+package com.navercorp.pinpoint.common.server.config;
 
 
 import org.slf4j.Logger;

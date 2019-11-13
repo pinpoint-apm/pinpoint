@@ -1,5 +1,6 @@
 package com.navercorp.pinpoint.collector.config;
 
+import com.navercorp.pinpoint.common.server.config.ConfigurationUtils;
 import com.navercorp.pinpoint.common.util.ByteSizeUnit;
 import com.navercorp.pinpoint.grpc.server.ServerOption;
 

@@ -14,10 +14,8 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.collector.config;
+package com.navercorp.pinpoint.common.server.config;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.ReflectionUtils;
 

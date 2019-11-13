@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.web.config;
 
+import com.navercorp.pinpoint.common.server.config.AnnotationVisitor;
+import com.navercorp.pinpoint.common.server.config.LoggingEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -61,6 +63,8 @@ public class LogConfiguration {
     @PostConstruct
     public void log() {
         logger.info("{}", this);
+        AnnotationVisitor annotationVisitor = new AnnotationVisitor(Value.class);
+        annotationVisitor.visit(this, new LoggingEvent(this.logger));
     }
 
     @Override

@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.collector.config;
 
+import com.navercorp.pinpoint.common.server.config.AnnotationVisitor;
+import com.navercorp.pinpoint.common.server.config.LoggingEvent;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.grpc.server.ServerOption;
 import org.slf4j.Logger;

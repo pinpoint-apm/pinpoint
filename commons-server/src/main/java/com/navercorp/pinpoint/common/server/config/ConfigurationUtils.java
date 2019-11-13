@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.collector.config;
+package com.navercorp.pinpoint.common.server.config;
 
 import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
@@ -28,7 +28,10 @@ import java.util.Properties;
 public final class ConfigurationUtils {
     private static final Logger LOGGER = LoggerFactory.getLogger(ConfigurationUtils.class);
 
-    static String readString(Properties properties, String propertyName, String defaultValue) {
+    private ConfigurationUtils() {
+    }
+
+    public static String readString(Properties properties, String propertyName, String defaultValue) {
         final String result = properties.getProperty(propertyName, defaultValue);
         if (LOGGER.isInfoEnabled()) {
             LOGGER.info("{}={}", propertyName, result);
@@ -36,7 +39,7 @@ public final class ConfigurationUtils {
         return result ;
     }
 
-    static int readInt(Properties properties, String propertyName, int defaultValue) {
+    public static int readInt(Properties properties, String propertyName, int defaultValue) {
         final String value = properties.getProperty(propertyName);
         final int result = NumberUtils.toInt(value, defaultValue);
         if (LOGGER.isInfoEnabled()) {
@@ -45,7 +48,7 @@ public final class ConfigurationUtils {
         return result;
     }
 
-    static long readLong(Properties properties, String propertyName, long defaultValue) {
+    public static long readLong(Properties properties, String propertyName, long defaultValue) {
         final String value = properties.getProperty(propertyName);
         final long result = NumberUtils.toLong(value, defaultValue);
         if (LOGGER.isInfoEnabled()) {
@@ -55,7 +58,7 @@ public final class ConfigurationUtils {
     }
 
 
-    static boolean readBoolean(Properties properties, String propertyName) {
+    public static boolean readBoolean(Properties properties, String propertyName) {
         final String value = properties.getProperty(propertyName);
 
         // if a default value will be needed afterwards, may match string value instead of Utils.
