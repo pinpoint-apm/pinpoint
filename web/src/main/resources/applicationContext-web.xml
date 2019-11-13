@@ -40,11 +40,14 @@
                 <value>classpath:hbase.properties</value>
                 <value>classpath:jdbc.properties</value>
                 <value>classpath:pinpoint-web.properties</value>
+                <!-- external property for override -->
+                <value>file:#{ systemProperties['pinpoint.collector.config.location'] ?: '-Dpinpoint.web.config.location does not set' }</value>
             </list>
         </property>
 
         <property name="fileEncoding" value="UTF-8"/>
         <property name="systemPropertiesMode" value="#{T(org.springframework.beans.factory.config.PropertyPlaceholderConfigurer).SYSTEM_PROPERTIES_MODE_OVERRIDE}"/>
+        <property name="ignoreResourceNotFound" value="true"/>
     </bean>
     
     <bean id="pinpointWebProps" class="org.springframework.beans.factory.config.PropertiesFactoryBean">

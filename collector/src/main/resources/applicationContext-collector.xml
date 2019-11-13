@@ -46,12 +46,15 @@
             <list>
                 <value>classpath:hbase.properties</value>
                 <value>classpath:pinpoint-collector.properties</value>
+                <!-- external property for override -->
+                <value>file:#{ systemProperties['pinpoint.collector.config.location'] ?: '-Dpinpoint.collector.config.location does not set' }</value>
             </list>
         </property>
 
         <property name="fileEncoding" value="UTF-8"/>
         <property name="systemPropertiesMode" value="#{T(org.springframework.beans.factory.config.PropertyPlaceholderConfigurer).SYSTEM_PROPERTIES_MODE_OVERRIDE}"/>
         <property name="ignoreUnresolvablePlaceholders" value="true"/>
+        <property name="ignoreResourceNotFound" value="true"/>
     </bean>
 
     <util:properties id="pinpoint_collector_properties" location="classpath:pinpoint-collector.properties" />
