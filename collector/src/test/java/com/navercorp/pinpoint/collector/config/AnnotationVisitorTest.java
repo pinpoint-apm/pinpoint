@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,30 +22,45 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.lang.reflect.Field;
+
+
+/**
+ * @author Woonduk Kang(emeroad)
+ */
 @TestPropertySource(locations = "classpath:test-pinpoint-collector.properties")
-@ContextConfiguration(classes = SpanReceiverConfiguration.class)
+@ContextConfiguration(classes = GrpcSpanReceiverConfiguration.class)
 @RunWith(SpringJUnit4ClassRunner.class)
-public class SpanReceiverConfigurationTest {
+public class AnnotationVisitorTest {
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @Autowired
-    SpanReceiverConfiguration configuration;
+    private final AnnotationVisitor annotationVisitor = new AnnotationVisitor(Value.class);
 
+    @Autowired
+    GrpcSpanReceiverConfiguration configuration;
+
+    boolean touch;
     @Test
-    public void properties() throws Exception {
-        Assert.assertTrue(configuration.isUdpEnable());
-        Assert.assertEquals(configuration.getUdpBindIp(), "0.0.0.3");
-        Assert.assertEquals(configuration.getUdpBindPort(), 39997);
-        Assert.assertEquals(configuration.getUdpReceiveBufferSize(), 568);
-        Assert.assertFalse(configuration.isTcpEnable());
-        Assert.assertEquals(configuration.getTcpBindIp(), "0.0.0.4");
-        Assert.assertEquals(configuration.getTcpBindPort(), 39998);
-        Assert.assertEquals(configuration.getWorkerThreadSize(), 3);
-        Assert.assertEquals(configuration.getWorkerQueueSize(), 4);
-        Assert.assertFalse(configuration.isWorkerMonitorEnable());
+    public void test() {
+//        GrpcSpanReceiverConfiguration configuration = new GrpcSpanReceiverConfiguration();
+        final int grpcBindPort = configuration.getGrpcBindPort();
+
+        this.annotationVisitor.visit(configuration, new AnnotationVisitor.FieldVisitor() {
+            @Override
+            public void visit(Field field, Object value) {
+                if (field.getName().equals("grpcBindPort")) {
+                    Assert.assertEquals(grpcBindPort , value);
+                    touch = true;
+                }
+            }
+        });
+        Assert.assertTrue(touch);
     }
+
 }

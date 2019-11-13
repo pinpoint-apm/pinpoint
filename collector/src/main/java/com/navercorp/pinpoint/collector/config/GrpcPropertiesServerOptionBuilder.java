@@ -1,12 +1,9 @@
 package com.navercorp.pinpoint.collector.config;
 
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.common.util.ByteSizeUnit;
 import com.navercorp.pinpoint.grpc.server.ServerOption;
 
 import java.util.Properties;
-
-import static com.navercorp.pinpoint.collector.config.CollectorConfiguration.*;
 
 /**
  * @author jaehong.kim
@@ -26,12 +23,12 @@ public class GrpcPropertiesServerOptionBuilder {
     public static ServerOption.Builder newBuilder(final Properties properties, final String transportName) {
         final ServerOption.Builder builder = new ServerOption.Builder();
 
-        builder.setKeepAliveTime(readLong(properties, transportName + KEEP_ALIVE_TIME, ServerOption.DEFAULT_KEEPALIVE_TIME));
-        builder.setKeepAliveTimeout(readLong(properties, transportName + KEEP_ALIVE_TIMEOUT, ServerOption.DEFAULT_KEEPALIVE_TIMEOUT));
-        builder.setPermitKeepAliveTime(readLong(properties, transportName + PERMIT_KEEPALIVE_TIMEOUT, ServerOption.DEFAULT_PERMIT_KEEPALIVE_TIME));
-        builder.setMaxConnectionIdle(readLong(properties, transportName + MAX_CONNECTION_IDLE, ServerOption.DEFAULT_MAX_CONNECTION_IDLE));
-        builder.setHandshakeTimeout(readLong(properties, transportName + HANDSHAKE_TIMEOUT, ServerOption.DEFAULT_HANDSHAKE_TIMEOUT));
-        builder.setMaxConcurrentCallsPerConnection(readInt(properties, transportName + MAX_CONCURRENT_CALLS_PER_CONNECTION, ServerOption.DEFAULT_MAX_CONCURRENT_CALLS_PER_CONNECTION));
+        builder.setKeepAliveTime(ConfigurationUtils.readLong(properties, transportName + KEEP_ALIVE_TIME, ServerOption.DEFAULT_KEEPALIVE_TIME));
+        builder.setKeepAliveTimeout(ConfigurationUtils.readLong(properties, transportName + KEEP_ALIVE_TIMEOUT, ServerOption.DEFAULT_KEEPALIVE_TIMEOUT));
+        builder.setPermitKeepAliveTime(ConfigurationUtils.readLong(properties, transportName + PERMIT_KEEPALIVE_TIMEOUT, ServerOption.DEFAULT_PERMIT_KEEPALIVE_TIME));
+        builder.setMaxConnectionIdle(ConfigurationUtils.readLong(properties, transportName + MAX_CONNECTION_IDLE, ServerOption.DEFAULT_MAX_CONNECTION_IDLE));
+        builder.setHandshakeTimeout(ConfigurationUtils.readLong(properties, transportName + HANDSHAKE_TIMEOUT, ServerOption.DEFAULT_HANDSHAKE_TIMEOUT));
+        builder.setMaxConcurrentCallsPerConnection(ConfigurationUtils.readInt(properties, transportName + MAX_CONCURRENT_CALLS_PER_CONNECTION, ServerOption.DEFAULT_MAX_CONCURRENT_CALLS_PER_CONNECTION));
 
         builder.setMaxInboundMessageSize(readByteSize(properties, transportName + MAX_INBOUND_MESSAGE_SIZE, ServerOption.DEFAULT_MAX_INBOUND_MESSAGE_SIZE));
         builder.setFlowControlWindow(readByteSize(properties, transportName + FLOW_CONTROL_WINDOW, ServerOption.DEFAULT_FLOW_CONTROL_WINDOW));
@@ -42,6 +39,6 @@ public class GrpcPropertiesServerOptionBuilder {
     }
 
     private static int readByteSize(final Properties properties, final String propertyName, final int defaultValue) {
-        return (int) ByteSizeUnit.getByteSize(readString(properties, propertyName, ""), defaultValue);
+        return (int) ByteSizeUnit.getByteSize(ConfigurationUtils.readString(properties, propertyName, ""), defaultValue);
     }
 }
