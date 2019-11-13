@@ -15,6 +15,8 @@
  */
 package com.navercorp.pinpoint.flink.config;
 
+import com.navercorp.pinpoint.common.server.config.AnnotationVisitor;
+import com.navercorp.pinpoint.common.server.config.LoggingEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,7 +31,7 @@ import java.util.List;
  */
 @Configuration
 public class FlinkConfiguration {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(FlinkConfiguration.class);
 
     @Value("${flink.cluster.enable}")
     private boolean flinkClusterEnable;
@@ -86,6 +88,8 @@ public class FlinkConfiguration {
     @PostConstruct
     public void log() {
         this.logger.info("{}", logger);
+        AnnotationVisitor annotationVisitor = new AnnotationVisitor(Value.class);
+        annotationVisitor.visit(this, new LoggingEvent(this.logger));
     }
 
 

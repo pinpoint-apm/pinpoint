@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.web.config;
 
 import javax.annotation.PostConstruct;
 
+import com.navercorp.pinpoint.common.server.config.AnnotationVisitor;
+import com.navercorp.pinpoint.common.server.config.LoggingEvent;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,6 +74,8 @@ public class WebConfig {
         }
 
         logger.info("{}", this);
+        AnnotationVisitor annotationVisitor = new AnnotationVisitor(Value.class);
+        annotationVisitor.visit(this, new LoggingEvent(this.logger));
     }
 
     private int assertPort(int port) {
