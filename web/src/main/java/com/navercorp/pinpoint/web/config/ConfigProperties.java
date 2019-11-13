@@ -63,7 +63,7 @@ public class ConfigProperties {
     @Value("${config.show.stackTraceOnError:true}")
     private boolean showStackTraceOnError;
 
-    @Value("${websocket.allowedOrigins:#{null}")
+    @Value("${websocket.allowedOrigins:#{null}}")
     private String webSocketAllowedOrigins;
 
     public String getSecurityGuideUrl() {
