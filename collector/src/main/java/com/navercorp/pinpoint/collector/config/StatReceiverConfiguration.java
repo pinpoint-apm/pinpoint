@@ -17,120 +17,66 @@
 package com.navercorp.pinpoint.collector.config;
 
 import com.navercorp.pinpoint.common.util.Assert;
-import com.navercorp.pinpoint.grpc.server.ServerOption;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Configuration;
 
+import javax.annotation.PostConstruct;
 import java.util.Objects;
-import java.util.Properties;
 
 /**
  * @author Taejin Koo
  */
-public final class StatReceiverConfiguration implements DataReceiverGroupConfiguration {
+@Configuration
+public class StatReceiverConfiguration implements DataReceiverGroupConfiguration {
+
+    private final Logger logger = LoggerFactory.getLogger(StatReceiverConfiguration.class);
 
     private static final String PREFIX = "collector.receiver.stat";
-    private static final String GRPC_PREFIX = "collector.receiver.grpc.stat";
 
-    private static final String GRPC_ENABLE = GRPC_PREFIX + ".enable";
-    private static final String GRPC_BIND_IP = GRPC_PREFIX + ".ip";
-    private static final String GRPC_BIND_PORT = GRPC_PREFIX + ".port";
-    private static final String GRPC_SERVER_EXECUTOR_THREAD_SIZE = GRPC_PREFIX + ".server.executor.thread.size";
-    private static final String GRPC_SERVER_EXECUTOR_QUEUE_SIZE = GRPC_PREFIX + ".server.executor.queue.size";
-    private static final String GRPC_SERVER_EXECUTOR_MONITOR_ENABLE = GRPC_PREFIX + ".server.executor.monitor.enable";
-    private static final String GRPC_WORKER_EXECUTOR_THREAD_SIZE = GRPC_PREFIX + ".worker.executor.thread.size";
-    private static final String GRPC_WORKER_EXECUTOR_QUEUE_SIZE = GRPC_PREFIX + ".worker.executor.queue.size";
-    private static final String GRPC_WORKER_EXECUTOR_MONITOR_ENABLE = GRPC_PREFIX + ".worker.executor.monitor.enable";
+    @Value("${collector.receiver.stat.tcp:false}")
+    private boolean isTcpEnable;
 
-    private static final String GRPC_STREAM_SCHEDULER_THREAD_SIZE = GRPC_PREFIX + ".stream.scheduler.thread.size";
-    private static final String GRPC_CALL_INIT_REQUEST_COUNT = GRPC_PREFIX + ".stream.call.init.request.count";
-    private static final String GRPC_STREAM_SCHEDULER_PERIOD_MILLIS = GRPC_PREFIX + ".stream.scheduler.period.millis";
-    private static final String GRPC_STREAM_SCHEDULER_RECOVERY_MESSAGE_COUNT = GRPC_PREFIX + ".stream.scheduler.recovery.message.count";
+    @Value("${collector.receiver.stat.tcp.ip:0.0.0.0}")
+    private String tcpBindIp;
 
+    @Value("${collector.receiver.stat.tcp.port:-1}")
+    private int tcpBindPort;
 
-    private static final String TCP_ENABLE = PREFIX + ".tcp";
-    private static final String TCP_BIND_IP = PREFIX + ".tcp.ip";
-    private static final String TCP_BIND_PORT = PREFIX + ".tcp.port";
-    private static final String UDP_ENABLE = PREFIX + ".udp";
-    private static final String UDP_BIND_IP = PREFIX + ".udp.ip";
-    private static final String UDP_BIND_PORT = PREFIX + ".udp.port";
-    private static final String UDP_RECEIVE_BUFFER_SIZE = PREFIX + ".udp.receiveBufferSize";
-    private static final String WORKER_THREAD_SIZE = PREFIX + ".worker.threadSize";
-    private static final String WORKER_QUEUE_SIZE = PREFIX + ".worker.queueSize";
-    private static final String WORKER_MONITOR_ENABLE = PREFIX + ".worker.monitor";
+    @Value("${collector.receiver.stat.udp:true}")
+    private boolean isUdpEnable;
 
-    private final boolean isTcpEnable;
-    private final String tcpBindIp;
-    private final int tcpBindPort;
-    private final boolean isUdpEnable;
-    private final String udpBindIp;
-    private final int udpBindPort;
-    private final int udpReceiveBufferSize;
-    private final int workerThreadSize;
-    private final int workerQueueSize;
-    private final boolean workerMonitorEnable;
+    @Value("${collector.receiver.stat.udp.ip:0.0.0.0}")
+    private String udpBindIp;
 
-    private final boolean isGrpcEnable;
-    private final String grpcBindIp;
-    private final int grpcBindPort;
-    private final int grpcServerExecutorThreadSize;
-    private final int grpcServerExecutorQueueSize;
-    private final boolean grpcServerExecutorMonitorEnable;
-    private final int grpcWorkerExecutorThreadSize;
-    private final int grpcWorkerExecutorQueueSize;
-    private final boolean grpcWorkerExecutorMonitorEnable;
-    private final int grpcStreamSchedulerThreadSize;
-    private final int grpcStreamCallInitRequestCount;
-    private final int grpcStreamSchedulerPeriodMillis;
-    private final int grpcStreamSchedulerRecoveryMessageCount;
-    private final ServerOption grpcServerOption;
+    @Value("${collector.receiver.stat.udp.port:9995}")
+    private int udpBindPort;
 
-    public StatReceiverConfiguration(Properties properties) {
-        Objects.requireNonNull(properties, "properties");
+    @Value("${collector.receiver.stat.udp.receiveBufferSize:" + 1024 * 4096 + "}")
+    private int udpReceiveBufferSize;
 
-        this.isTcpEnable = CollectorConfiguration.readBoolean(properties, TCP_ENABLE);
-        this.tcpBindIp = CollectorConfiguration.readString(properties, TCP_BIND_IP, CollectorConfiguration.DEFAULT_LISTEN_IP);
-        this.tcpBindPort = CollectorConfiguration.readInt(properties, TCP_BIND_PORT, -1);
-        this.isUdpEnable = isUdpEnable(properties, true);
-        this.udpBindIp = getUdpBindIp(properties, CollectorConfiguration.DEFAULT_LISTEN_IP);
-        this.udpBindPort = getUdpBindPort(properties, 9995);
-        this.udpReceiveBufferSize = getUdpReceiveBufferSize(properties, 1024 * 4096);
-        this.workerThreadSize = getWorkerThreadSize(properties, 128);
-        Assert.isTrue(workerThreadSize > 0, "workerThreadSize must be greater than 0");
-        this.workerQueueSize = getWorkerQueueSize(properties, 1024);
-        Assert.isTrue(workerQueueSize > 0, "workerQueueSize must be greater than 0");
-        this.workerMonitorEnable = isWorkerThreadMonitorEnable(properties, false);
+    @Value("${collector.receiver.stat.worker.threadSize:128}")
+    private int workerThreadSize;
 
-        // gRPC
-        this.isGrpcEnable = CollectorConfiguration.readBoolean(properties, GRPC_ENABLE);
-        this.grpcBindIp = CollectorConfiguration.readString(properties, GRPC_BIND_IP, CollectorConfiguration.DEFAULT_LISTEN_IP);
-        this.grpcBindPort = CollectorConfiguration.readInt(properties, GRPC_BIND_PORT, 9992);
+    @Value("${collector.receiver.stat.worker.queueSize:5120}")
+    private int workerQueueSize;
 
-        // Server executor
-        this.grpcServerExecutorThreadSize = CollectorConfiguration.readInt(properties, GRPC_SERVER_EXECUTOR_THREAD_SIZE, 128);
-        Assert.isTrue(grpcServerExecutorThreadSize > 0, "grpcServerExecutorThreadSize must be greater than 0");
-        this.grpcServerExecutorQueueSize = CollectorConfiguration.readInt(properties, GRPC_SERVER_EXECUTOR_QUEUE_SIZE, 1024 * 5);
-        Assert.isTrue(grpcServerExecutorQueueSize > 0, "grpcServerExecutorQueueSize must be greater than 0");
-        this.grpcServerExecutorMonitorEnable = CollectorConfiguration.readBoolean(properties, GRPC_SERVER_EXECUTOR_MONITOR_ENABLE);
+    @Value("${collector.receiver.stat.worker.monitor:false}")
+    private boolean workerMonitorEnable;
 
-        // Work executor
-        this.grpcWorkerExecutorThreadSize = CollectorConfiguration.readInt(properties, GRPC_WORKER_EXECUTOR_THREAD_SIZE, 128);
-        Assert.isTrue(grpcWorkerExecutorThreadSize > 0, "grpcWorkerExecutorThreadSize must be greater than 0");
-        this.grpcWorkerExecutorQueueSize = CollectorConfiguration.readInt(properties, GRPC_WORKER_EXECUTOR_QUEUE_SIZE, 1024 * 5);
-        Assert.isTrue(grpcWorkerExecutorQueueSize > 0, "grpcWorkerExecutorQueueSize must be greater than 0");
-        this.grpcWorkerExecutorMonitorEnable = CollectorConfiguration.readBoolean(properties, GRPC_WORKER_EXECUTOR_MONITOR_ENABLE);
-        this.grpcStreamSchedulerThreadSize = CollectorConfiguration.readInt(properties, GRPC_STREAM_SCHEDULER_THREAD_SIZE, 1);
-        Assert.isTrue(grpcStreamSchedulerThreadSize > 0, "grpcStreamSchedulerThreadSize must be greater than 0");
-        this.grpcStreamSchedulerPeriodMillis = CollectorConfiguration.readInt(properties, GRPC_STREAM_SCHEDULER_PERIOD_MILLIS, 1000);
-        this.grpcStreamCallInitRequestCount = CollectorConfiguration.readInt(properties, GRPC_CALL_INIT_REQUEST_COUNT, 64);
-        this.grpcStreamSchedulerRecoveryMessageCount = CollectorConfiguration.readInt(properties, GRPC_STREAM_SCHEDULER_RECOVERY_MESSAGE_COUNT, 10);
-
-        // Server option
-        final ServerOption.Builder serverOptionBuilder = GrpcPropertiesServerOptionBuilder.newBuilder(properties, GRPC_PREFIX);
-        this.grpcServerOption = serverOptionBuilder.build();
-
+    @PostConstruct
+    public void log() {
+        logger.info("{}", this);
+        AnnotationVisitor visitor = new AnnotationVisitor(Value.class);
+        visitor.visit(this, new LoggingEvent(logger));
+        
         validate();
     }
 
     private void validate() {
+        Assert.isTrue(workerThreadSize > 0, "workerThreadSize must be greater than 0");
+        Assert.isTrue(workerQueueSize > 0, "workerQueueSize must be greater than 0");
         Assert.isTrue(isTcpEnable || isUdpEnable, "statReceiver does not allow tcp and udp disable");
 
         if (isTcpEnable) {
@@ -145,60 +91,6 @@ public final class StatReceiverConfiguration implements DataReceiverGroupConfigu
         }
     }
 
-    private boolean isUdpEnable(Properties properties, boolean defaultValue) {
-        if (properties.containsKey(UDP_ENABLE)) {
-            return CollectorConfiguration.readBoolean(properties, UDP_ENABLE);
-        }
-
-        return defaultValue;
-    }
-
-    private String getUdpBindIp(Properties properties, String defaultValue) {
-        if (properties.containsKey(UDP_BIND_IP)) {
-            return CollectorConfiguration.readString(properties, UDP_BIND_IP, null);
-        }
-
-        return defaultValue;
-    }
-
-    private int getUdpBindPort(Properties properties, int defaultValue) {
-        if (properties.containsKey(UDP_BIND_PORT)) {
-            return CollectorConfiguration.readInt(properties, UDP_BIND_PORT, -1);
-        }
-        return defaultValue;
-    }
-
-
-    private int getUdpReceiveBufferSize(Properties properties, int defaultValue) {
-        if (properties.containsKey(UDP_RECEIVE_BUFFER_SIZE)) {
-            return CollectorConfiguration.readInt(properties, UDP_RECEIVE_BUFFER_SIZE, -1);
-        }
-        return defaultValue;
-    }
-
-    private int getWorkerThreadSize(Properties properties, int defaultValue) {
-        if (properties.containsKey(WORKER_THREAD_SIZE)) {
-            return CollectorConfiguration.readInt(properties, WORKER_THREAD_SIZE, -1);
-        }
-
-        return defaultValue;
-    }
-
-    private int getWorkerQueueSize(Properties properties, int defaultValue) {
-        if (properties.containsKey(WORKER_QUEUE_SIZE)) {
-            return CollectorConfiguration.readInt(properties, WORKER_QUEUE_SIZE, -1);
-        }
-
-        return defaultValue;
-    }
-
-    private boolean isWorkerThreadMonitorEnable(Properties properties, boolean defaultValue) {
-        if (properties.containsKey(WORKER_MONITOR_ENABLE)) {
-            return CollectorConfiguration.readBoolean(properties, WORKER_MONITOR_ENABLE);
-        }
-
-        return defaultValue;
-    }
 
     @Override
     public boolean isTcpEnable() {
@@ -250,64 +142,6 @@ public final class StatReceiverConfiguration implements DataReceiverGroupConfigu
         return workerMonitorEnable;
     }
 
-    @Override
-    public boolean isGrpcEnable() {
-        return isGrpcEnable;
-    }
-
-    @Override
-    public String getGrpcBindIp() {
-        return grpcBindIp;
-    }
-
-    @Override
-    public int getGrpcBindPort() {
-        return grpcBindPort;
-    }
-
-    public int getGrpcServerExecutorThreadSize() {
-        return grpcServerExecutorThreadSize;
-    }
-
-    public int getGrpcServerExecutorQueueSize() {
-        return grpcServerExecutorQueueSize;
-    }
-
-    public boolean isGrpcServerExecutorMonitorEnable() {
-        return grpcServerExecutorMonitorEnable;
-    }
-
-    public int getGrpcWorkerExecutorThreadSize() {
-        return grpcWorkerExecutorThreadSize;
-    }
-
-    public int getGrpcWorkerExecutorQueueSize() {
-        return grpcWorkerExecutorQueueSize;
-    }
-
-    public boolean isGrpcWorkerExecutorMonitorEnable() {
-        return grpcWorkerExecutorMonitorEnable;
-    }
-
-    public int getGrpcStreamSchedulerThreadSize() {
-        return grpcStreamSchedulerThreadSize;
-    }
-
-    public int getGrpcStreamCallInitRequestCount() {
-        return grpcStreamCallInitRequestCount;
-    }
-
-    public int getGrpcStreamSchedulerPeriodMillis() {
-        return grpcStreamSchedulerPeriodMillis;
-    }
-
-    public int getGrpcStreamSchedulerRecoveryMessageCount() {
-        return grpcStreamSchedulerRecoveryMessageCount;
-    }
-
-    public ServerOption getGrpcServerOption() {
-        return grpcServerOption;
-    }
 
     @Override
     public String toString() {
@@ -322,20 +156,6 @@ public final class StatReceiverConfiguration implements DataReceiverGroupConfigu
         sb.append(", workerThreadSize=").append(workerThreadSize);
         sb.append(", workerQueueSize=").append(workerQueueSize);
         sb.append(", workerMonitorEnable=").append(workerMonitorEnable);
-        sb.append(", isGrpcEnable=").append(isGrpcEnable);
-        sb.append(", grpcBindIp='").append(grpcBindIp).append('\'');
-        sb.append(", grpcBindPort=").append(grpcBindPort);
-        sb.append(", grpcServerExecutorThreadSize=").append(grpcServerExecutorThreadSize);
-        sb.append(", grpcServerExecutorQueueSize=").append(grpcServerExecutorQueueSize);
-        sb.append(", grpcServerExecutorMonitorEnable=").append(grpcServerExecutorMonitorEnable);
-        sb.append(", grpcWorkerExecutorThreadSize=").append(grpcWorkerExecutorThreadSize);
-        sb.append(", grpcWorkerExecutorQueueSize=").append(grpcWorkerExecutorQueueSize);
-        sb.append(", grpcWorkerExecutorMonitorEnable=").append(grpcWorkerExecutorMonitorEnable);
-        sb.append(", grpcStreamSchedulerThreadSize=").append(grpcStreamSchedulerThreadSize);
-        sb.append(", grpcStreamCallInitRequestCount=").append(grpcStreamCallInitRequestCount);
-        sb.append(", grpcStreamSchedulerPeriodMillis=").append(grpcStreamSchedulerPeriodMillis);
-        sb.append(", grpcStreamSchedulerRecoveryMessageCount=").append(grpcStreamSchedulerRecoveryMessageCount);
-        sb.append(", grpcServerOption=").append(grpcServerOption);
         sb.append('}');
         return sb.toString();
     }

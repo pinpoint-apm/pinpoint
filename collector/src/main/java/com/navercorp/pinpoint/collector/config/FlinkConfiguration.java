@@ -63,6 +63,10 @@ public class FlinkConfiguration {
     @PostConstruct
     public void log() {
         logger.info("{}", this);
+        if (logger.isDebugEnabled()) {
+            AnnotationVisitor visitor = new AnnotationVisitor(Value.class);
+            visitor.visit(this, new LoggingEvent(logger));
+        }
     }
 
 

@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.collector.config;
 
-import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,7 +25,6 @@ import javax.annotation.PostConstruct;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import java.util.Properties;
 
 /**
  * @author emeroad
@@ -34,9 +32,7 @@ import java.util.Properties;
 @Configuration
 public class CollectorConfiguration {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(CollectorConfiguration.class);
-
-    static final String DEFAULT_LISTEN_IP = "0.0.0.0";
+    private final Logger logger = LoggerFactory.getLogger(CollectorConfiguration.class);
 
     @Value("${collector.agentEventWorker.threadSize:32}")
     private int agentEventWorkerThreadSize;
@@ -133,48 +129,11 @@ public class CollectorConfiguration {
 
     @PostConstruct
     public void log() {
-        LOGGER.info("{}", this);
+        logger.info("{}", this);
+        AnnotationVisitor visitor = new AnnotationVisitor(Value.class);
+        visitor.visit(this, new LoggingEvent(logger));
     }
 
-
-    protected static String readString(Properties properties, String propertyName, String defaultValue) {
-        final String result = properties.getProperty(propertyName, defaultValue);
-        if (LOGGER.isInfoEnabled()) {
-            LOGGER.info("{}={}", propertyName, result);
-        }
-        return result ;
-    }
-
-    protected static int readInt(Properties properties, String propertyName, int defaultValue) {
-        final String value = properties.getProperty(propertyName);
-        final int result = NumberUtils.toInt(value, defaultValue);
-        if (LOGGER.isInfoEnabled()) {
-            LOGGER.info("{}={}", propertyName, result);
-        }
-        return result;
-    }
-
-    protected static long readLong(Properties properties, String propertyName, long defaultValue) {
-        final String value = properties.getProperty(propertyName);
-        final long result = NumberUtils.toLong(value, defaultValue);
-        if (LOGGER.isInfoEnabled()) {
-            LOGGER.info("{}={}", propertyName, result);
-        }
-        return result;
-    }
-
-    protected static boolean readBoolean(Properties properties, String propertyName) {
-        final String value = properties.getProperty(propertyName);
-
-        // if a default value will be needed afterwards, may match string value instead of Utils.
-        // for now stay unmodified because of no need.
-
-        final boolean result = Boolean.valueOf(value);
-        if (LOGGER.isInfoEnabled()) {
-            LOGGER.info("{}={}", propertyName, result);
-        }
-        return result;
-    }
 
     @Override
     public String toString() {

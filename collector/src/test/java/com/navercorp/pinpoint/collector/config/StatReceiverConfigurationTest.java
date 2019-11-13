@@ -16,44 +16,35 @@
 
 package com.navercorp.pinpoint.collector.config;
 
-import com.navercorp.pinpoint.common.util.PropertyUtils;
+import org.junit.Assert;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import java.util.Properties;
-
-import static org.junit.Assert.*;
-
+@TestPropertySource(locations = "classpath:test-pinpoint-collector.properties")
+@ContextConfiguration(classes = StatReceiverConfiguration.class)
+@RunWith(SpringJUnit4ClassRunner.class)
 public class StatReceiverConfigurationTest {
+
+    @Autowired
+    StatReceiverConfiguration configuration;
 
     @Test
     public void properties() throws Exception {
-        Properties properties = PropertyUtils.loadPropertyFromClassPath("test-pinpoint-collector.properties");
-        StatReceiverConfiguration configuration = new StatReceiverConfiguration(properties);
 
-        assertEquals(Boolean.FALSE, configuration.isGrpcEnable());
-        assertEquals("2.2.2.2", configuration.getGrpcBindIp());
-        assertEquals(2, configuration.getGrpcBindPort());
-        assertEquals(2, configuration.getGrpcWorkerExecutorThreadSize());
-        assertEquals(2, configuration.getGrpcWorkerExecutorQueueSize());
-        assertEquals(Boolean.FALSE, configuration.isGrpcWorkerExecutorMonitorEnable());
-        assertEquals(2, configuration.getGrpcStreamSchedulerThreadSize());
-        assertEquals(2, configuration.getGrpcStreamSchedulerPeriodMillis());
-        assertEquals(2, configuration.getGrpcStreamCallInitRequestCount());
+        Assert.assertFalse(configuration.isUdpEnable());
+        Assert.assertEquals(configuration.getUdpBindIp(), "0.0.0.1");
+        Assert.assertEquals(configuration.getUdpBindPort(), 39995);
+        Assert.assertEquals(configuration.getUdpReceiveBufferSize(), 419);
+        Assert.assertTrue(configuration.isTcpEnable());
+        Assert.assertEquals(configuration.getTcpBindIp(), "0.0.0.2");
+        Assert.assertEquals(configuration.getTcpBindPort(), 39996);
+        Assert.assertEquals(configuration.getWorkerThreadSize(), 2);
+        Assert.assertEquals(configuration.getWorkerQueueSize(), 3);
+        Assert.assertTrue(configuration.isWorkerMonitorEnable());
 
-        assertEquals(2, configuration.getGrpcServerOption().getKeepAliveTime());
-        assertEquals(2, configuration.getGrpcServerOption().getKeepAliveTimeout());
-        assertEquals(2, configuration.getGrpcServerOption().getPermitKeepAliveTime());
-        assertEquals(2, configuration.getGrpcServerOption().getMaxConnectionIdle());
-        assertEquals(2, configuration.getGrpcServerOption().getMaxConcurrentCallsPerConnection());
-        // 2M
-        assertEquals(2 * 1024 * 1024, configuration.getGrpcServerOption().getMaxInboundMessageSize());
-        // 2K
-        assertEquals(2 * 1024, configuration.getGrpcServerOption().getMaxHeaderListSize());
-        // 2M
-        assertEquals(2 * 1024 * 1024, configuration.getGrpcServerOption().getFlowControlWindow());
-
-        assertEquals(2, configuration.getGrpcServerOption().getHandshakeTimeout());
-        // 2M
-        assertEquals(2 * 1024 * 1024, configuration.getGrpcServerOption().getReceiveBufferSize());
     }
 }
