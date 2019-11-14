@@ -37,7 +37,6 @@ export class ServerMapContainerComponent implements OnInit, OnDestroy {
     mapData: ServerMapData;
     funcServerMapImagePath: Function;
     baseApplicationKey: string;
-    showOverview = false;
     showLoading = true;
     useDisable = true;
     isEmpty: boolean;
@@ -159,10 +158,9 @@ export class ServerMapContainerComponent implements OnInit, OnDestroy {
         this.baseApplicationKey = application.getKeyStr();
     }
 
-    onRenderCompleted({showOverView}: {showOverView: boolean}): void {
+    onRenderCompleted(): void {
         this.showLoading = false;
         this.useDisable = false;
-        this.showOverview = !this.isEmpty && showOverView;
     }
 
     onClickBackground($event: any): void {}

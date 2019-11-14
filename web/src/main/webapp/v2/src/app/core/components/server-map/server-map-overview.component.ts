@@ -1,4 +1,4 @@
-import { Component, OnInit, ElementRef, Input, ViewChild, OnDestroy } from '@angular/core';
+import { Component, OnInit, ElementRef, Input, ViewChild, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import * as go from 'gojs';
 import { Subject } from 'rxjs';
 import { takeUntil, filter } from 'rxjs/operators';
@@ -11,14 +11,19 @@ import { ServerMapInteractionService } from './server-map-interaction.service';
     styleUrls: ['./server-map-overview.component.css']
 })
 export class ServerMapOverviewComponent implements OnInit, OnDestroy {
-    @ViewChild('wrapper', { static: true }) overviewWrapper: ElementRef;
-    @Input() showOverview = false;
-    overview: go.Overview;
-    initialized = false;
-    unsubscribe: Subject<null> = new Subject();
+    @ViewChild('wrapper', {static: true}) overviewWrapper: ElementRef;
+
+    private overview: go.Overview;
+    private initialized = false;
+    private unsubscribe = new Subject<void>();
+
+    showOverview = false;
+
     constructor(
-        private serverMapInteractionService: ServerMapInteractionService
+        private serverMapInteractionService: ServerMapInteractionService,
+        private cd: ChangeDetectorRef
     ) {}
+
     ngOnInit() {
         this.serverMapInteractionService.onCurrentDiagram$.pipe(
             takeUntil(this.unsubscribe),
@@ -27,7 +32,7 @@ export class ServerMapOverviewComponent implements OnInit, OnDestroy {
                 return !!diagram;
             })
         ).subscribe((diagram: go.Diagram) => {
-            if (this.initialized === true) {
+            if (this.initialized) {
                 this.overview.observed = diagram;
             } else {
                 this.overview = go.GraphObject.make(go.Overview, this.overviewWrapper.nativeElement, {
@@ -37,9 +42,12 @@ export class ServerMapOverviewComponent implements OnInit, OnDestroy {
                 this.overview.box.elt(0)['stroke'] = '#E7555A';
                 this.overview.box.elt(0)['strokeWidth'] = .5;
                 this.initialized = true;
+                this.showOverview = true;
             }
+            this.cd.detectChanges();
         });
     }
+
     ngOnDestroy() {
         this.unsubscribe.next();
         this.unsubscribe.complete();

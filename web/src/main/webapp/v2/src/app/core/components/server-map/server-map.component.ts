@@ -101,9 +101,7 @@ export class ServerMapComponent implements OnInit, OnChanges, OnDestroy, AfterVi
     addEventHandler(): void {
         this.serverMapDiagram.outRenderCompleted.subscribe((diagram: go.Diagram) => {
             this.serverMapInteractionService.setCurrentDiagram(<go.Diagram>diagram);
-            this.outRenderCompleted.emit({
-                showOverView: !!diagram
-            });
+            this.outRenderCompleted.emit();
         });
         this.serverMapDiagram.outClickNode.pipe(
             filter(({key}: any) => this.hasDataUpdated || this.clickedKey !== key),
