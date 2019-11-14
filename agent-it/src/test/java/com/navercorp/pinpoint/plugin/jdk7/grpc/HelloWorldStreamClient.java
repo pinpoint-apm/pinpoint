@@ -43,11 +43,13 @@ public class HelloWorldStreamClient implements HelloWorldClient {
     /**
      * Construct client connecting to HelloWorld server at {@code host:port}.
      */
+    @SuppressWarnings("deprecated")
     public HelloWorldStreamClient(String host, int port) {
         this(ManagedChannelBuilder.forAddress(host, port)
                 // Channels are secure by default (via SSL/TLS). For the example we disable TLS to avoid
                 // needing certificates.
-                .usePlaintext()
+//                .usePlaintext() // no API in old version
+                .usePlaintext(true)
                 .build());
     }
 
