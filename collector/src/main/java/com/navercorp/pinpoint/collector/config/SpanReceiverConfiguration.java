@@ -33,7 +33,7 @@ import java.util.Objects;
  */
 @Configuration
 public class SpanReceiverConfiguration implements DataReceiverGroupConfiguration {
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(SpanReceiverConfiguration.class);
 
     @Value("${collector.receiver.span.tcp:false}")
     private boolean isTcpEnable;
