@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.plugin.httpclient3.interceptor;
 
+import com.navercorp.pinpoint.bootstrap.config.Filter;
 import com.navercorp.pinpoint.bootstrap.config.HttpDumpConfig;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientHeaderAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestAdaptor;
@@ -54,6 +55,7 @@ import com.navercorp.pinpoint.plugin.httpclient3.HttpClient3CallContextFactory;
 import com.navercorp.pinpoint.plugin.httpclient3.HttpClient3Constants;
 import com.navercorp.pinpoint.plugin.httpclient3.HttpClient3PluginConfig;
 import org.apache.commons.httpclient.URI;
+import org.apache.commons.httpclient.Header;
 
 /**
  * @author Minwoo Jung
@@ -72,6 +74,9 @@ public class HttpMethodBaseExecuteMethodInterceptor implements AroundInterceptor
     private final boolean io;
     private final CookieRecorder<HttpMethod> cookieRecorder;
     private final EntityRecorder<HttpMethod> entityRecorder;
+    private final Filter<String> replaceHeaderUrl;
+    private String originalChar;
+    private String newChar;
 
     public HttpMethodBaseExecuteMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, InterceptorScope interceptorScope) {
         if (traceContext == null) {
@@ -104,6 +109,9 @@ public class HttpMethodBaseExecuteMethodInterceptor implements AroundInterceptor
         this.requestTraceWriter = new DefaultRequestTraceWriter<HttpMethod>(clientHeaderAdaptor, traceContext);
 
         this.io = config.isIo();
+        this.replaceHeaderUrl = config.getExcludeUrlFilter();
+        this.originalChar = config.getOriginalChar();
+        this.newChar = config.getNewChar();
     }
 
     @Override
@@ -111,7 +119,6 @@ public class HttpMethodBaseExecuteMethodInterceptor implements AroundInterceptor
         if (isDebug) {
             logger.beforeInterceptor(target, args);
         }
-
         final Trace trace = traceContext.currentRawTraceObject();
         if (trace == null) {
             return;
@@ -136,10 +143,19 @@ public class HttpMethodBaseExecuteMethodInterceptor implements AroundInterceptor
             final HttpConnection httpConnection = getHttpConnection(args);
             final String host = getHost(httpMethod, httpConnection);
             this.requestTraceWriter.write(httpMethod, nextId, host);
+            String url =getUrl(httpMethod, httpConnection);
+            if(this.replaceHeaderUrl.filter(url)){
+                replaceHeaderValue(httpMethod,this.originalChar , this.newChar);
+            }
         }
 
         // init attachment for io(read/write).
         initAttachment();
+    }
+
+    private String getUrl(HttpMethod httpMethod, HttpConnection httpConnection) {
+        HttpClient3RequestWrapper wrapper = new HttpClient3RequestWrapper(httpMethod, httpConnection);
+        return wrapper.getUrl();
     }
 
 
@@ -187,6 +203,7 @@ public class HttpMethodBaseExecuteMethodInterceptor implements AroundInterceptor
             recorder.recordException(throwable);
             if (target instanceof HttpMethod) {
                 final HttpMethod httpMethod = (HttpMethod) target;
+                replaceHeaderValue(httpMethod, this.newChar, this.originalChar);
                 final HttpConnection httpConnection = getHttpConnection(args);
                 final ClientRequestWrapper requestWrapper =  new HttpClient3RequestWrapper(httpMethod, httpConnection);
                 this.clientRequestRecorder.record(recorder, requestWrapper, throwable);
@@ -204,6 +221,17 @@ public class HttpMethodBaseExecuteMethodInterceptor implements AroundInterceptor
             }
         } finally {
             trace.traceBlockEnd();
+        }
+    }
+
+    private void replaceHeaderValue(HttpMethod httpMethod, String oldChar, String newChar) {
+        Header[] headers = httpMethod.getRequestHeaders();
+        for (Header header : headers) {
+            if (header.getName().toLowerCase().contains(com.navercorp.pinpoint.bootstrap.context.Header.FILTER_PATTERN_PREFIX.toLowerCase())) {
+                String value = header.getValue();
+                value = value.replace(oldChar, newChar);
+                header.setValue(value);
+            }
         }
     }
 
@@ -237,4 +265,6 @@ public class HttpMethodBaseExecuteMethodInterceptor implements AroundInterceptor
             recorder.recordAttribute(AnnotationKey.HTTP_IO, value);
         }
     }
+
+
 }
