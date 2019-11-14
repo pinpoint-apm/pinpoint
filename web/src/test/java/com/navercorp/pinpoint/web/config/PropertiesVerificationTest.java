@@ -28,12 +28,15 @@ import java.util.Properties;
  */
 public class PropertiesVerificationTest {
 
+    private static final String LOCAL_HOST = "localhost";
+    private static final String HBASE_CLIENT_HOST_VALUE =  "${pinpoint.zookeeper.address}";
+
     @Test
     public void checkHbasePropertiesTest() throws Exception {
         Properties properties = PropertyUtils.loadPropertyFromClassPath("hbase.properties");
 
         String clientHost = properties.getProperty("hbase.client.host");
-        Assert.assertEquals("localhost", clientHost);
+        Assert.assertEquals(HBASE_CLIENT_HOST_VALUE, clientHost);
 
         String clientPort = properties.getProperty("hbase.client.port");
         Assert.assertEquals("2181", clientPort);
@@ -43,8 +46,11 @@ public class PropertiesVerificationTest {
     public void checkWebPropertiesTest() throws Exception {
         Properties properties = PropertyUtils.loadPropertyFromClassPath("pinpoint-web.properties");
 
+        String pinpointZKAddress = properties.getProperty("pinpoint.zookeeper.address");
+        Assert.assertEquals(LOCAL_HOST, pinpointZKAddress);
+
         String zookeeperAddress = properties.getProperty("cluster.zookeeper.address");
-        Assert.assertEquals("localhost", zookeeperAddress);
+        Assert.assertEquals(HBASE_CLIENT_HOST_VALUE, zookeeperAddress);
 
         String connectAddress = properties.getProperty("cluster.connect.address");
         Assert.assertTrue(StringUtils.isEmpty(connectAddress));

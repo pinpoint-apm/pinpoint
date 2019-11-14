@@ -38,7 +38,7 @@ public class LoggingEvent implements AnnotationVisitor.FieldVisitor {
     public void visit(Field field, Object value) {
         if (logger.isDebugEnabled()) {
             final Value annotation = field.getAnnotation(Value.class);
-            logger.debug("{} {} @Value({}) = {}", field.getType().getSimpleName(), field.getName(), annotation.value(), value);
+            logger.debug("{} {} @Value(\"{}\") = {}", field.getType().getSimpleName(), field.getName(), annotation.value(), value);
         }
     }
 }
