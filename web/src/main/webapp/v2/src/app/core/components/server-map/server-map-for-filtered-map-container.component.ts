@@ -40,7 +40,6 @@ export class ServerMapForFilteredMapContainerComponent implements OnInit, OnDest
     mapData: ServerMapData;
     funcServerMapImagePath: Function;
     baseApplicationKey: string;
-    showOverview = false;
     showLoading = true;
     useDisable = true;
     isEmpty: boolean;
@@ -142,11 +141,10 @@ export class ServerMapForFilteredMapContainerComponent implements OnInit, OnDest
         });
     }
 
-    onRenderCompleted({showOverView}: {showOverView: boolean}): void {
+    onRenderCompleted(): void {
         if (this.loadingCompleted) {
             this.showLoading = false;
             this.useDisable = false;
-            this.showOverview = !this.isEmpty && showOverView;
         }
     }
 
