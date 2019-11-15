@@ -51,6 +51,7 @@
 
     <bean id="spanReceiverConfig" class="com.navercorp.pinpoint.collector.config.SpanReceiverConfiguration"/>
 
+    <import resource="classpath:applicationContext-collector-profile.xml"/>
     <import resource="classpath:applicationContext-collector-grpc.xml"/>
     <import resource="classpath:applicationContext-collector-hbase.xml"/>
     <import resource="classpath:applicationContext-collector-namespace.xml"/>

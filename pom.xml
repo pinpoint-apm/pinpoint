@@ -1102,6 +1102,7 @@
             <id>local</id>
             <properties>
                 <env>local</env>
+                <spring.profiles.active>local</spring.profiles.active>
             </properties>
         </profile>
         <!-- for Release -->
@@ -1112,6 +1113,7 @@
             </activation>
             <properties>
                 <env>release</env>
+                <spring.profiles.active>release</spring.profiles.active>
             </properties>
         </profile>
 
