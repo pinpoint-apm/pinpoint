@@ -22,7 +22,7 @@
 
     <!-- servlet application context -->
     <servlet>
-        <servlet-name>pinpoint-web</servlet-name>
+        <servlet-name>pinpoint-collector</servlet-name>
         <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
         <init-param>
             <param-name>contextConfigLocation</param-name>
@@ -33,7 +33,7 @@
 
     <!-- url mapping -->
     <servlet-mapping>
-        <servlet-name>pinpoint-web</servlet-name>
+        <servlet-name>pinpoint-collector</servlet-name>
         <url-pattern>*.pinpoint</url-pattern>
     </servlet-mapping>
 
