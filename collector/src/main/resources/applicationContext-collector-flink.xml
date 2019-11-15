@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+
+
+    <bean id="flinkConfiguration" class="com.navercorp.pinpoint.collector.config.FlinkConfiguration"/>
+
+    <bean id ="sendAgentStatService" class="com.navercorp.pinpoint.collector.service.SendAgentStatService">
+        <constructor-arg index="0" ref="flinkConfiguration"/>
+    </bean>
+
+    <bean id="tcpDataSenderRepository" class="com.navercorp.pinpoint.collector.cluster.flink.TcpDataSenderRepository">
+        <constructor-arg index="0" ref="sendAgentStatService"/>
+    </bean>
+
+    <bean id="flinkTBaseLocator" class="com.navercorp.pinpoint.thrift.io.FlinkTBaseLocator">
+        <constructor-arg index="0">
+            <util:constant static-field="com.navercorp.pinpoint.io.header.v2.HeaderV2.VERSION"/>
+        </constructor-arg>
+    </bean>
+    <bean id="flinkHeaderTBaseSerializerFactory" class="com.navercorp.pinpoint.thrift.io.FlinkHeaderTBaseSerializerFactory">
+        <constructor-arg index="0" value="#{flinkTBaseLocator.typeLocator}"/>
+    </bean>
+    <bean id="flinkRequestFactory" class="com.navercorp.pinpoint.collector.sender.FlinkRequestFactory"/>
+    <bean id="flinkClusterConnectionManager" class="com.navercorp.pinpoint.collector.cluster.flink.FlinkClusterConnectionManager">
+        <constructor-arg index="0" ref="tcpDataSenderRepository"/>
+        <constructor-arg index="1" ref="flinkHeaderTBaseSerializerFactory"/>
+        <constructor-arg index="2" ref="flinkRequestFactory"/>
+    </bean>
+
+    <bean id="flinkClusterService" class="com.navercorp.pinpoint.collector.cluster.flink.FlinkClusterService">
+        <constructor-arg index="0" ref="flinkConfiguration"/>
+        <constructor-arg index="1" ref="flinkClusterConnectionManager"/>
+        <constructor-arg index="2" value="/pinpoint-cluster/flink"/>
+    </bean>
+</beans>
