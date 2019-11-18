@@ -33,7 +33,7 @@ import java.util.List;
 public class FlinkConfiguration {
     private final Logger logger = LoggerFactory.getLogger(FlinkConfiguration.class);
 
-    @Value("${flink.cluster.enable}")
+    @Value("${flink.cluster.enable:false}")
     private boolean flinkClusterEnable;
 
     @Value("${flink.cluster.zookeeper.address:}")
