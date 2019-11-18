@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.common.server.profile;
 
+import com.navercorp.pinpoint.common.util.StringUtils;
 import org.springframework.web.WebApplicationInitializer;
 
 import javax.servlet.ServletContext;
@@ -34,6 +35,8 @@ public class ProfileApplicationInicationInitializer implements WebApplicationIni
 
     public static final String PINPOINT_DEFAULT_PROFILE = "release";
 
+    public static final String PINPOINT_DEFAULT_ACTIVE_PROFILE_KEY = "pinpoint.default.active.profile";
+
     @Override
     public void onStartup(ServletContext servletContext) throws ServletException {
         String activeProfile = System.getProperty(ACTIVE_PROFILES_PROPERTY_NAME);
@@ -43,7 +46,7 @@ public class ProfileApplicationInicationInitializer implements WebApplicationIni
             }
         }
         if (activeProfile == null) {
-            activeProfile = PINPOINT_DEFAULT_PROFILE;
+            activeProfile = getDefaultProfile(servletContext);
         }
         LocalDateTime now = LocalDateTime.now();
         final String activeProfileMessage = String.format("%s PINPOINT::ActiveProfile:%s", now, activeProfile);
@@ -51,6 +54,14 @@ public class ProfileApplicationInicationInitializer implements WebApplicationIni
         servletContext.setInitParameter(ACTIVE_PROFILES_PROPERTY_NAME, activeProfile);
         System.setProperty(ACTIVE_PROFILES_PROPERTY_NAME, activeProfile);
 
+    }
+
+    private String getDefaultProfile(ServletContext servletContext) {
+        final String defaultProfile = servletContext.getInitParameter(PINPOINT_DEFAULT_ACTIVE_PROFILE_KEY);
+        if (StringUtils.isEmpty(defaultProfile)) {
+            return PINPOINT_DEFAULT_PROFILE;
+        }
+        return defaultProfile;
     }
 
     private boolean suppressGetenvAccess() {
