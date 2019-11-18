@@ -36,9 +36,6 @@ set LOGS_DIR=%BASE_DIR%\logs
 set LOG_FILE=%LOGS_DIR%\quickstart.%COMPONENT%.log
 set AGENT_LOG_FILE=%LOGS_DIR%\quickstart.agent.log
 
-set AGENT_DIR=%BASE_DIR%\agent
-set AGENT_BOOTSTRAP_DIR=%AGENT_DIR%\target\pinpoint-agent
-
 set COMPONENT_IDENTIFIER=pinpoint-quickstart-%COMPONENT%
 set IDENTIFIER=maven.pinpoint.identifier=%COMPONENT_IDENTIFIER%
 
@@ -77,20 +74,8 @@ if "%COMMAND%" == "start" (
     mkdir %LOGS_DIR%
   )
 
-  if "%COMPONENT%" == "testapp" (
-    goto build_agent
-  ) else (
-    goto :start_process
-  )
-
-:build_agent
-  call %MAVEN% -f %AGENT_DIR%/pom.xml clean package -Dmaven.pinpoint.version=%VERSION% 1> %AGENT_LOG_FILE% 2>&1
-
-  set PINPOINT_AGENT=%AGENT_BOOTSTRAP_DIR%\pinpoint-bootstrap-%VERSION%.jar
-  if not exist %PINPOINT_AGENT% (
-    echo "can't find agent file(%PINPOINT_AGENT%)."
-    goto :eof
-  )
+  goto :start_process
+)
 
 :start_process
   set UNIT_TIME=5
