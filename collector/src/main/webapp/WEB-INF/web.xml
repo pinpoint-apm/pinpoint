@@ -9,6 +9,10 @@
         <param-value>classpath:profile-${spring.profiles.active}/log4j.xml</param-value>
     </context-param>
 
+    <context-param>
+        <param-name>pinpoint.default.active.profile</param-name>
+        <param-value>release</param-value>
+    </context-param>
 
     <listener>
         <listener-class>org.springframework.web.util.Log4jConfigListener</listener-class>

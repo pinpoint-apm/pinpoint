@@ -54,11 +54,11 @@
         <property name="location" value="classpath:pinpoint-web.properties"/>
     </bean>
 
-    <import resource="classpath:applicationContext-hbase.xml" />
-    <import resource="classpath:applicationContext-datasource.xml" />
-    <import resource="classpath:applicationContext-dao-config.xml" />
-    <import resource="classpath:applicationContext-cache.xml" />
-    <import resource="classpath:applicationContext-websocket.xml" />
+    <import resource="classpath:applicationContext-web-hbase.xml" />
+    <import resource="classpath:applicationContext-web-datasource.xml" />
+    <import resource="classpath:applicationContext-web-dao-config.xml" />
+    <import resource="classpath:applicationContext-web-cache.xml" />
+    <import resource="classpath:applicationContext-web-websocket.xml" />
     <import resource="classpath:applicationContext-web-namespace.xml"/>
 
     <bean id="jsonObjectMapper" class="org.springframework.http.converter.json.Jackson2ObjectMapperFactoryBean"/>
