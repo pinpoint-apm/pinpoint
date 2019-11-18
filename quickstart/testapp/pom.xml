@@ -218,7 +218,8 @@
                             <cargo.rmi.port>${quickstart.testapp.rmi.port}</cargo.rmi.port>
                             <cargo.tomcat.ajp.port>${quickstart.testapp.ajp.port}</cargo.tomcat.ajp.port>
                             <cargo.jvmargs>
-                                -javaagent:${quickstart.root.dir}/agent/target/pinpoint-agent/pinpoint-bootstrap-${project.version}.jar
+                                -javaagent:${quickstart.root.dir}/../agent/target/pinpoint-agent-${project.version}/pinpoint-bootstrap-${project.version}.jar
+                                -Dpinpoint.config=${quickstart.root.dir}/conf/pinpoint.config
                                 -Dpinpoint.agentId=${quickstart.testapp.agentId}
                                 -Dpinpoint.applicationName=${quickstart.testapp.applicationName}
                                 -Dmaven.pinpoint.identifier=${maven.pinpoint.identifier}
