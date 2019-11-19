@@ -56,8 +56,9 @@ public class ReconnectExecutor {
                 final long failCount = rejectedCounter.incrementAndGet();
                 logger.info("{} reconnectJob scheduled fail {}", command, failCount);
             }
+        } else {
+            throw new IllegalArgumentException("unknown command type " + command);
         }
-        throw new IllegalArgumentException("unknown command type " + command);
     }
 
     public void close() {
