@@ -92,6 +92,7 @@
                             <cargo.tomcat.ajp.port>${quickstart.collector.ajp.port}</cargo.tomcat.ajp.port>
                             <cargo.jvmargs>
                                 -Dmaven.pinpoint.identifier=${maven.pinpoint.identifier}
+                                -Dspring.profiles.active=local
                             </cargo.jvmargs>
                         </properties>
                     </configuration>
