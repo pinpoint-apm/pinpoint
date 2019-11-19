@@ -19,6 +19,10 @@ layout: firstpage
 
 Pinpoint has started to support application written in PHP. [Check-out our php-agent repository](https://github.com/naver/pinpoint-c-agent).
 
+## Looking for place to ask questions?
+
+[Questions and FAQ](./faq.html) 
+
 ## Introduction  
   
 **Pinpoint** is an APM (Application Performance Management) tool for large-scale distributed systems written in Java / [PHP](https://github.com/naver/pinpoint-c-agent).
