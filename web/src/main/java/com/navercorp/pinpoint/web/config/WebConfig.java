@@ -126,11 +126,6 @@ public class WebConfig {
         return clusterConnectAddress;
     }
 
-    @PostConstruct
-    public void log() {
-        logger.info("{}", this);
-    }
-
     @Override
     public String toString() {
         return "WebConfig{" +

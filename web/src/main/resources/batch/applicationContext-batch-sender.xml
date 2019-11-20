@@ -10,13 +10,13 @@
     </bean>
 
     <bean id="javaMailSenderImpl" class="org.springframework.mail.javamail.JavaMailSenderImpl">
-        <property name="host" value="#{batchProps['alarm.mail.server.url'] ?: ''}" />
-        <property name="port" value="#{batchProps['alarm.mail.server.port'] ?: 583}" />
-        <property name="username" value="#{batchProps['alarm.mail.server.username'] ?: ''}" />
-        <property name="password" value="#{batchProps['alarm.mail.server.password'] ?: ''}" />
+        <property name="host" value="${alarm.mail.server.url:}" />
+        <property name="port" value="${alarm.mail.server.port:587}" />
+        <property name="username" value="${alarm.mail.server.username:}" />
+        <property name="password" value="${alarm.mail.server.password:}" />
         <property name="javaMailProperties">
             <props>
-                <prop key="mail.smtp.from">#{batchProps['alarm.mail.sender.address'] ?: ''}</prop>
+                <prop key="mail.smtp.from">${alarm.mail.sender.address:}</prop>
             </props>
         </property>
     </bean>
