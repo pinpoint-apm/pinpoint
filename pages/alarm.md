@@ -117,7 +117,7 @@ The class that sends emails is already registered as Spring bean in [application
 
     <bean id="javaMailSenderImpl" class="org.springframework.mail.javamail.JavaMailSenderImpl">
         <property name="host" value="#{batchProps['alarm.mail.server.url'] ?: ''}" />
-        <property name="port" value="#{batchProps['alarm.mail.server.port'] ?: 583}" />
+        <property name="port" value="#{batchProps['alarm.mail.server.port'] ?: 587}" />
         <property name="username" value="#{batchProps['alarm.mail.server.username'] ?: ''}" />
         <property name="password" value="#{batchProps['alarm.mail.server.password'] ?: ''}" />
         <property name="javaMailProperties">
@@ -141,7 +141,7 @@ alarm.mail.sender.address= #sender's email address
 ex)
 pinpoint.url=http://pinpoint.com
 alarm.mail.server.url=stmp.server.com
-alarm.mail.server.port=583
+alarm.mail.server.port=587
 alarm.mail.server.username=pinpoint
 alarm.mail.server.password=pinpoint
 alarm.mail.sender.address=pinpoint_operator@pinpoint.com
@@ -324,7 +324,7 @@ email로 알람을 설정만 추가해면 기능을 사용할수 있고, sms 전
 
     <bean id="javaMailSenderImpl" class="org.springframework.mail.javamail.JavaMailSenderImpl">
         <property name="host" value="#{batchProps['alarm.mail.server.url'] ?: ''}" />
-        <property name="port" value="#{batchProps['alarm.mail.server.port'] ?: 583}" />
+        <property name="port" value="#{batchProps['alarm.mail.server.port'] ?: 587}" />
         <property name="username" value="#{batchProps['alarm.mail.server.username'] ?: ''}" />
         <property name="password" value="#{batchProps['alarm.mail.server.password'] ?: ''}" />
         <property name="javaMailProperties">
@@ -348,7 +348,7 @@ alarm.mail.sender.address= # 송신자 email
 ex)
 pinpoint.url=http://pinpoint.com
 alarm.mail.server.url=stmp.server.com
-alarm.mail.server.port=583
+alarm.mail.server.port=587
 alarm.mail.server.username=pinpoint
 alarm.mail.server.password=pinpoint
 alarm.mail.sender.address=pinpoint_operator@pinpoint.com
