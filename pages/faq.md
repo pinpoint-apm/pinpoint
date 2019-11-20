@@ -8,9 +8,9 @@ toc: false
 disqus: false
 ---
 
-[Github issues](https://github.com/naver/pinpoint/issues)
-[Google group](https://groups.google.com/forum/#!forum/pinpoint_user)
-[Gitter](https://gitter.im/naver/pinpoint)
+[Github issues](https://github.com/naver/pinpoint/issues)  
+[Google group](https://groups.google.com/forum/#!forum/pinpoint_user)  
+[Gitter](https://gitter.im/naver/pinpoint)  
 
 Chinese groups
 [QQ and DingDing](https://twitter.com/Pinpoint_APM/status/1185117827130253318)
