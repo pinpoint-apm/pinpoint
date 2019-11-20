@@ -15,58 +15,53 @@
  */
 package com.navercorp.pinpoint.web.batch;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Properties;
-
+import com.navercorp.pinpoint.common.server.config.AnnotationVisitor;
+import com.navercorp.pinpoint.common.server.config.LoggingEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.ConditionContext;
-import org.springframework.context.annotation.Conditional;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.ConfigurationCondition;
-import org.springframework.context.annotation.ImportResource;
 
-import org.springframework.core.type.AnnotatedTypeMetadata;
+import javax.annotation.PostConstruct;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * @author minwoo.jung<minwoo.jung@navercorp.com>
  *
  */
 @Configuration
-@Conditional(BatchConfiguration.Condition.class)
-@ImportResource("classpath:/batch/applicationContext-batch-schedule.xml")
-public class BatchConfiguration implements InitializingBean {
+public class BatchConfiguration {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(BatchConfiguration.class);
 
-    @Value("#{batchProps['batch.enable'] ?: false}")
+    @Value("${batch.enable:false}")
     private boolean enableBatch;
 
-    @Value("#{T(com.navercorp.pinpoint.common.util.StringUtils).tokenizeToStringList((batchProps['batch.flink.server'] ?: ''), ',')}")
-    private List<String> flinkServerList = Collections.emptyList();
+    @Value("${batch.flink.server}")
+    private String[] flinkServerList = new String[0];
 
-    @Value("#{batchProps['batch.server.ip'] ?: null}")
+    @Value("${batch.server.ip:#{null}}")
     private String batchServerIp;
 
-    @Value("#{batchProps['alarm.mail.server.url']}")
+    @Value("${alarm.mail.server.url}")
     private String emailServerUrl;
 
-    @Value("#{batchProps['alarm.mail.sender.address']}")
+    @Value("${alarm.mail.sender.address}")
     private String senderEmailAddress;
 
-    @Value("#{batchProps['pinpoint.url']}")
+    @Value("${pinpoint.url}")
     private String pinpointUrl;
 
-    @Value("#{batchProps['batch.server.env']}")
+    @Value("${batch.server.env}")
     private String batchEnv;
 
 
-    @Override
-    public void afterPropertiesSet() throws Exception {
-        logger.info("BatchConfiguration:{}", this.toString());
+    @PostConstruct
+    public void log() {
+        logger.info("{}", this);
+        AnnotationVisitor annotationVisitor = new AnnotationVisitor(Value.class);
+        annotationVisitor.visit(this, new LoggingEvent(this.logger));
     }
 
     public String getPinpointUrl() {
@@ -78,7 +73,7 @@ public class BatchConfiguration implements InitializingBean {
     }
 
     public List<String> getFlinkServerList() {
-        return flinkServerList;
+        return Arrays.asList(flinkServerList);
     }
 
     public String getEmailServerUrl() {
@@ -93,32 +88,18 @@ public class BatchConfiguration implements InitializingBean {
         return senderEmailAddress;
     }
 
-    static class Condition implements ConfigurationCondition {
-
-        private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
-        public Condition() {
-        }
-        @Override
-        public ConfigurationPhase getConfigurationPhase() {
-            return ConfigurationPhase.PARSE_CONFIGURATION;
-        }
-        @Override
-        public boolean matches(ConditionContext context, AnnotatedTypeMetadata metadata) {
-            Properties batchProps = context.getBeanFactory().getBean("batchProps", Properties.class);
-            final String enable = batchProps.getProperty("batch.enable", "false").trim();
-            logger.info("batch.enable:{}", enable);
-            return Boolean.valueOf(enable);
-        }
-
-    }
 
     @Override
     public String toString() {
-        return "BatchConfiguration{" +
-                "enableBatch=" + enableBatch +
-                ", flinkServerList=" + flinkServerList +
-                ", batchServerIp='" + batchServerIp + '\'' +
-                '}';
+        final StringBuilder sb = new StringBuilder("BatchConfiguration{");
+        sb.append("enableBatch=").append(enableBatch);
+        sb.append(", flinkServerList=").append(Arrays.toString(flinkServerList));
+        sb.append(", batchServerIp='").append(batchServerIp).append('\'');
+        sb.append(", emailServerUrl='").append(emailServerUrl).append('\'');
+        sb.append(", senderEmailAddress='").append(senderEmailAddress).append('\'');
+        sb.append(", pinpointUrl='").append(pinpointUrl).append('\'');
+        sb.append(", batchEnv='").append(batchEnv).append('\'');
+        sb.append('}');
+        return sb.toString();
     }
 }

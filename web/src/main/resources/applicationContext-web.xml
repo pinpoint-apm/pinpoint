@@ -47,6 +47,7 @@
 
         <property name="fileEncoding" value="UTF-8"/>
         <property name="systemPropertiesMode" value="#{T(org.springframework.beans.factory.config.PropertyPlaceholderConfigurer).SYSTEM_PROPERTIES_MODE_OVERRIDE}"/>
+        <property name="ignoreUnresolvablePlaceholders" value="true"/>
         <property name="ignoreResourceNotFound" value="true"/>
     </bean>
     
@@ -54,6 +55,7 @@
         <property name="location" value="classpath:pinpoint-web.properties"/>
     </bean>
 
+    <import resource="classpath:applicationContext-web-profile.xml" />
     <import resource="classpath:applicationContext-web-hbase.xml" />
     <import resource="classpath:applicationContext-web-datasource.xml" />
     <import resource="classpath:applicationContext-web-dao-config.xml" />
@@ -134,10 +136,6 @@
         <property name="rowKeyDistributorByHashPrefix" ref="metadataRowKeyDistributor2"/>
     </bean>
 
-    <util:properties id="batchProps" location="classpath:batch.properties"/>
-
-    <!-- add to load for batch spring configuration.we need to conditional logic to behave differently base on 'batch.enable' config value -->
-    <bean id="batchConfiguration" class="com.navercorp.pinpoint.web.batch.BatchConfiguration"/>
 
     <bean id="restTemplate" class="org.springframework.web.client.RestTemplate">
         <property name="messageConverters">

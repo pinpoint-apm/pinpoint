@@ -22,6 +22,7 @@ import org.springframework.web.WebApplicationInitializer;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -36,7 +37,7 @@ public class ProfileApplicationInicationInitializer implements WebApplicationIni
     public static final String PINPOINT_DEFAULT_PROFILE = "release";
 
     public static final String PINPOINT_DEFAULT_ACTIVE_PROFILE_KEY = "pinpoint.default.active.profile";
-
+    public static final String log4jConfiguration = "log4.config.location";
     @Override
     public void onStartup(ServletContext servletContext) throws ServletException {
         String activeProfile = System.getProperty(ACTIVE_PROFILES_PROPERTY_NAME);
@@ -51,7 +52,9 @@ public class ProfileApplicationInicationInitializer implements WebApplicationIni
         LocalDateTime now = LocalDateTime.now();
         final String activeProfileMessage = String.format("%s PINPOINT::ActiveProfile:%s", now, activeProfile);
         System.out.println(activeProfileMessage);
-        servletContext.setInitParameter(ACTIVE_PROFILES_PROPERTY_NAME, activeProfile);
+
+        List<String> profileList = StringUtils.tokenizeToStringList(activeProfile, ",");
+        System.setProperty(log4jConfiguration, profileList.get(0));
         System.setProperty(ACTIVE_PROFILES_PROPERTY_NAME, activeProfile);
 
     }
