@@ -28,14 +28,14 @@
 | JDKHTTP                                                                           |                            |         |         |                        |
 | Httpclient3                                                                       | commons-httpclient         | 3.0     | 3.1     |                        | <AG>
 | Httpclient4                                                                       | httpclient                 | 4.0     | 4.5.4   |                        | <AG>  
-| Thrift                                                                            | libthrift                  | 0.9.1   | 0.12.0  |                        | <AG> 
+| Thrift                                                                            | libthrift                  | 0.9.1   | 0.13.0  |                        | <AG> 
 | Google HTTP Client                                                                | google-http-client         | 1.19.0  | 1.33.0  |                        | <AG> 
 | AsyncHttpClient                                                                   | async-http-client          | 1.7.24  | 1.8.17  |                        | <AG> 
 | OkHttp                                                                            | okhttp                     | 2.0.0   | 3.10.0  |                        | <AG> 
 | Apache HttpAsyncClient                                                            | httpasyncclient            | 4.0     | 4.1.3   |                        | <AG>
 | \*Akka HTTP                                                                       | akka-http_2.12             | 10.1.0  | 10.1.x  |                        | 
 | \*Kafka                                                                           | kafka-clients              | 0.11.0.1|         |                        |
-| GRPC                                                                              | grpc-stub                  | 1.8.0   | 1.24.1  |                        | <AG>
+| GRPC                                                                              | grpc-stub                  | 1.8.0   | 1.25.0  |                        | <AG>
 |                                                                                   |                            |         |         |                        | 
 | Log4j                                                                             | log4j                      | 1.2.16  | 1.2.17  |                        | <AG> 
 | Logback                                                                           | logback-classic            | 1.0.13  | 1.2.3   |                        | <AG> 
@@ -45,9 +45,9 @@
 | \*MsSQL (jTDS)                                                                    | jtds                       | 1.2.8   |         |                        | 
 | HikariCP                                                                          | HikariCP-java6             | 2.3.0   | 2.3.13  |                        | <AG>
 | Jackson-mapper-asl                                                                | jackson-mapper-asl         | 1.0.1   | 1.8.11  |                        | <AG>
-| Jackson Databind                                                                  | jackson-databind           | 2.0.6   | 2.10.0  |                        | <AG>
+| Jackson Databind                                                                  | jackson-databind           | 2.0.6   | 2.10.1  |                        | <AG>
 | MariaDB Connector/J                                                               | mariadb-java-client        | 1.3.0   | 2.5.1   |                        | <AG>
-| MongoDB Java Driver                                                               | mongodb-driver             | 3.0.0   | 3.11.1  |                        | <AG>
+| MongoDB Java Driver                                                               | mongodb-driver             | 3.0.0   | 3.11.2  |                        | <AG>
 | Elasticsearch                                                                     | bboss-elasticsearch-rest-jdbc | 0.0.0   | 0.0.0   |                        | <AG>
 | Elasticsearch                                                                     | elasticsearch-rest-high-level-client | 6.0.0   | 7.4.2   |                        | <AG>
 | Datastax Java Driver                                                              | cassandra-driver-core      | 2.0.10  | 3.7.2   |                        | <AG>
