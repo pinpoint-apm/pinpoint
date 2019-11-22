@@ -46,7 +46,7 @@
 	
 	<bean id="alarmController" class="com.navercorp.pinpoint.web.controller.AlarmController"/>
 
-    <bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+    <bean id="webPropertyConfigurer" class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer">
         <property name="locations">
             <list>
                 <value>test-hbase.properties</value>
