@@ -113,6 +113,13 @@ Pinpoint Version | flink 1.3.X | flink 1.4.X | flink 1.5.X | flink 1.6.X | flink
 1.8.x | yes | yes | no | no | no |
 2.0.x | yes | yes | yes | yes | yes |
 
+## Contact Us
+
+QQ Group: 897594820 | DING Group
+:----------------: | :-----------: 
+![QQ Group](doc/images/NAVERPinpoint.png) | ![DING Group](doc/images//NaverPinpoint交流群-DING.jpg)
+
+
 ## User Group
 For Q/A and discussion [here](https://groups.google.com/forum/#!forum/pinpoint_user).
 
