@@ -16,11 +16,8 @@ package com.navercorp.pinpoint.plugin.fastjson.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
-import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.logging.PLogger;
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
 import com.navercorp.pinpoint.plugin.fastjson.FastjsonConstants;
 
 /**
@@ -30,11 +27,7 @@ import com.navercorp.pinpoint.plugin.fastjson.FastjsonConstants;
  * @version 1.8.1
  * @since 2017/07/17
  */
-public class ParseArrayInterceptor implements AroundInterceptor {
-
-    private final TraceContext traceContext;
-    private final MethodDescriptor descriptor;
-    private final PLogger logger = PLoggerFactory.getLogger(getClass());
+public class ParseArrayInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
 
     /**
      * Instantiates a new Parse array interceptor.
@@ -43,53 +36,22 @@ public class ParseArrayInterceptor implements AroundInterceptor {
      * @param descriptor   the descriptor
      */
     public ParseArrayInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
-        this.traceContext = traceContext;
-        this.descriptor = descriptor;
+        super(traceContext, descriptor);
     }
 
     @Override
-    public void before(Object target, Object[] args) {
-
-        if (logger.isDebugEnabled()) {
-
-            logger.beforeInterceptor(target, args);
-        }
-
-        final Trace trace = traceContext.currentTraceObject();
-
-        if (trace == null) {
-            return;
-        }
-
-        trace.traceBlockBegin();
+    protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
     }
 
     @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable) {
+    protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
+        recorder.recordServiceType(FastjsonConstants.SERVICE_TYPE);
+        recorder.recordApi(methodDescriptor);
+        recorder.recordException(throwable);
 
-        if (logger.isDebugEnabled()) {
-
-            logger.afterInterceptor(target, args, result, throwable);
-        }
-
-        final Trace trace = traceContext.currentTraceObject();
-
-        if (trace == null) {
-            return;
-        }
-
-        try {
-            SpanEventRecorder recorder = trace.currentSpanEventRecorder();
-            recorder.recordServiceType(FastjsonConstants.SERVICE_TYPE);
-            recorder.recordApi(descriptor);
-            recorder.recordException(throwable);
-
-            if (args[0] != null && args[0] instanceof String) {
-                recorder.recordAttribute(FastjsonConstants.ANNOTATION_KEY_JSON_LENGTH, ((String) args[0]).length());
-            }
-
-        } finally {
-            trace.traceBlockEnd();
+        if (args[0] != null && args[0] instanceof String) {
+            recorder.recordAttribute(FastjsonConstants.ANNOTATION_KEY_JSON_LENGTH, ((String) args[0]).length());
         }
     }
+
 }
