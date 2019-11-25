@@ -18,11 +18,8 @@ package com.navercorp.pinpoint.plugin.jboss.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
-import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.logging.PLogger;
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
 import com.navercorp.pinpoint.plugin.jboss.JbossAsyncListener;
 import com.navercorp.pinpoint.plugin.jboss.JbossConstants;
 
@@ -33,63 +30,31 @@ import javax.servlet.http.HttpServletRequest;
 /**
  * @author jaehong.kim
  */
-public class RequestStartAsyncInterceptor implements AroundInterceptor {
-
-    private PLogger logger = PLoggerFactory.getLogger(this.getClass());
-    private boolean isDebug = logger.isDebugEnabled();
-
-    private TraceContext traceContext;
-    private MethodDescriptor descriptor;
+public class RequestStartAsyncInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
 
     public RequestStartAsyncInterceptor(TraceContext context, MethodDescriptor descriptor) {
-        this.traceContext = context;
-        this.descriptor = descriptor;
+        super(context, descriptor);
     }
 
     @Override
-    public void before(Object target, Object[] args) {
-        if (isDebug) {
-            logger.beforeInterceptor(target, args);
-        }
-
-        final Trace trace = traceContext.currentTraceObject();
-        if (trace == null) {
-            return;
-        }
-        trace.traceBlockBegin();
+    protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
     }
 
     @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable) {
-        if (isDebug) {
-            logger.afterInterceptor(target, args, result, throwable);
-        }
-
-        final Trace trace = traceContext.currentTraceObject();
-        if (trace == null) {
-            return;
-        }
-
-        try {
-            SpanEventRecorder recorder = trace.currentSpanEventRecorder();
-            if (validate(target, result, throwable)) {
-                // Add async listener. Servlet 3.0
-                final AsyncContext asyncContext = (AsyncContext) result;
-                final AsyncListener asyncListener = new JbossAsyncListener(this.traceContext, recorder.recordNextAsyncContext(true));
-                asyncContext.addListener(asyncListener);
-                if (isDebug) {
-                    logger.debug("Add async listener {}", asyncListener);
-                }
+    protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
+        if (validate(target, result, throwable)) {
+            // Add async listener. Servlet 3.0
+            final AsyncContext asyncContext = (AsyncContext) result;
+            final AsyncListener asyncListener = new JbossAsyncListener(this.traceContext, recorder.recordNextAsyncContext(true));
+            asyncContext.addListener(asyncListener);
+            if (isDebug) {
+                logger.debug("Add async listener {}", asyncListener);
             }
-
-            recorder.recordServiceType(JbossConstants.JBOSS_METHOD);
-            recorder.recordApi(descriptor);
-            recorder.recordException(throwable);
-        } catch (Throwable t) {
-            logger.warn("Failed to AFTER process. {}", t.getMessage(), t);
-        } finally {
-            trace.traceBlockEnd();
         }
+
+        recorder.recordServiceType(JbossConstants.JBOSS_METHOD);
+        recorder.recordApi(methodDescriptor);
+        recorder.recordException(throwable);
     }
 
     private boolean validate(final Object target, final Object result, final Throwable throwable) {
@@ -111,4 +76,5 @@ public class RequestStartAsyncInterceptor implements AroundInterceptor {
         }
         return true;
     }
+
 }
