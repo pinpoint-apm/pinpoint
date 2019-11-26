@@ -13,14 +13,6 @@
 
     <beans profile="batch">
 
-        <bean id="batchPropertyConfigurer" class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer" depends-on="webPropertyConfigurer">
-            <property name="locations">
-                <list>
-                    <value>classpath:batch.properties</value>
-                </list>
-            </property>
-        </bean>
-
         <!-- add to load for batch spring configuration.we need to conditional logic to behave differently base on 'batch.enable' config value -->
         <bean id="batchConfiguration" class="com.navercorp.pinpoint.web.batch.BatchConfiguration"/>
 

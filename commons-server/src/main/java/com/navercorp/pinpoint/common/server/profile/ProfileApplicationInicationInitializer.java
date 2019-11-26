@@ -37,7 +37,9 @@ public class ProfileApplicationInicationInitializer implements WebApplicationIni
     public static final String PINPOINT_DEFAULT_PROFILE = "release";
 
     public static final String PINPOINT_DEFAULT_ACTIVE_PROFILE_KEY = "pinpoint.default.active.profile";
-    public static final String log4jConfiguration = "log4.config.location";
+    public static final String PINPOINT_ACTIVE_PROFILE = "pinpoint.profiles.active";
+    // TODO
+    public static final String PINPOINT_ACTIVE_OPTIONAL_PROFILE = "pinpoint.profiles.optional";
     @Override
     public void onStartup(ServletContext servletContext) throws ServletException {
         String activeProfile = System.getProperty(ACTIVE_PROFILES_PROPERTY_NAME);
@@ -54,7 +56,8 @@ public class ProfileApplicationInicationInitializer implements WebApplicationIni
         System.out.println(activeProfileMessage);
 
         List<String> profileList = StringUtils.tokenizeToStringList(activeProfile, ",");
-        System.setProperty(log4jConfiguration, profileList.get(0));
+        // TODO exclusive profile(local or release)
+        System.setProperty(PINPOINT_ACTIVE_PROFILE, profileList.get(0));
         System.setProperty(ACTIVE_PROFILES_PROPERTY_NAME, activeProfile);
 
     }

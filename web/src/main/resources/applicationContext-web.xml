@@ -40,6 +40,12 @@
                 <value>classpath:hbase.properties</value>
                 <value>classpath:jdbc.properties</value>
                 <value>classpath:pinpoint-web.properties</value>
+                <value>classpath:batch.properties</value>
+                <!-- override configuration -->
+                <value>classpath:profile-${pinpoint.profiles.active}/hbase-env.properties</value>
+                <value>classpath:profile-${pinpoint.profiles.active}/jdbc-env.properties</value>
+                <value>classpath:profile-${pinpoint.profiles.active}/pinpoint-web-env.properties</value>
+                <value>classpath:profile-${pinpoint.profiles.active}/batch.properties</value>
                 <!-- external property for override -->
                 <value>file:#{ systemProperties['pinpoint.collector.config.location'] ?: '-Dpinpoint.web.config.location does not set' }</value>
             </list>
