@@ -44,8 +44,6 @@
         <property name="ignoreResourceNotFound" value="true"/>
     </bean>
 
-    <util:properties id="pinpoint_collector_properties" location="classpath:pinpoint-collector.properties" />
-
     <bean id="collectorConfiguration" class="com.navercorp.pinpoint.collector.config.CollectorConfiguration"/>
 
     <bean id="baseDataReceiverConfig" class="com.navercorp.pinpoint.collector.config.AgentBaseDataReceiverConfiguration"/>
