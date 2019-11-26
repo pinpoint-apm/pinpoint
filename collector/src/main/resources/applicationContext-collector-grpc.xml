@@ -11,15 +11,26 @@
 
     <context:component-scan base-package="com.navercorp.pinpoint.collector.receiver.grpc"/>
 
+    <!-- TODO Temporary properties -->
+    <bean id="collectorGrpcProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+        <property name="locations">
+            <list>
+                <value>classpath:pinpoint-collector-grpc.properties</value>
+                <value>classpath:profile-${pinpoint.profiles.active}/pinpoint-collector-grpc-env.properties</value>
+            </list>
+        </property>
+        <property name="fileEncoding" value="UTF-8"/>
+    </bean>
+
     <!-- gRPC -->
     <bean id="grpcAgentReceiverConfig" class="com.navercorp.pinpoint.collector.config.GrpcAgentDataReceiverConfiguration">
-        <constructor-arg ref="pinpoint_collector_properties"/>
+        <constructor-arg ref="collectorGrpcProperties"/>
     </bean>
     <bean id="grpcSpanReceiverConfig" class="com.navercorp.pinpoint.collector.config.GrpcSpanReceiverConfiguration">
-        <constructor-arg ref="pinpoint_collector_properties"/>
+        <constructor-arg ref="collectorGrpcProperties"/>
     </bean>
     <bean id="grpcStatReceiverConfig" class="com.navercorp.pinpoint.collector.config.GrpcStatReceiverConfiguration">
-        <constructor-arg ref="pinpoint_collector_properties"/>
+        <constructor-arg ref="collectorGrpcProperties"/>
     </bean>
 
     <bean id="grpcTcpDispatchHandler" class="com.navercorp.pinpoint.collector.receiver.TcpDispatchHandler">

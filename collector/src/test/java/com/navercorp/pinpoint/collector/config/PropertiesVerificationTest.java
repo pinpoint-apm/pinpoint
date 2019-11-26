@@ -33,7 +33,7 @@ public class PropertiesVerificationTest {
 
     @Test
     public void checkHbasePropertiesTest() throws Exception {
-        Properties properties = PropertyUtils.loadPropertyFromClassPath("hbase.properties");
+        Properties properties = PropertyUtils.loadPropertyFromClassPath("profile-release/hbase-env.properties");
 
         String clientHost = properties.getProperty("hbase.client.host");
         Assert.assertEquals(HBASE_CLIENT_HOST_VALUE, clientHost);
