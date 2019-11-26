@@ -6,7 +6,7 @@
 
     <context-param>
         <param-name>log4jConfigLocation</param-name>
-        <param-value>classpath:profile-${log4.config.location}/log4j.xml</param-value>
+        <param-value>classpath:profile-${pinpoint.profiles.active}/log4j.xml</param-value>
     </context-param>
 
     <context-param>
