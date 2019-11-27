@@ -22,7 +22,7 @@ import java.security.ProtectionDomain;
  * @author emeroad
  */
 public class UnmodifiableClassFilter implements ClassFileFilter {
-
+    private static final String COMPLETABLE_FUTURE = "java/util/concurrent/CompletableFuture";
 
     public UnmodifiableClassFilter() {
     }
@@ -36,10 +36,21 @@ public class UnmodifiableClassFilter implements ClassFileFilter {
         // fast skip java classes
         if (className.startsWith("java")) {
             if (className.startsWith("/", 4) || className.startsWith("x/", 4)) {
+                if (isCompletableFutureClass(className)) {
+                    return CONTINUE;
+                }
                 return SKIP;
             }
         }
 
         return CONTINUE;
+    }
+
+    private static boolean isCompletableFutureClass(final String className) {
+        // Check java/util/concurrent/CompletableFuture
+        if (!className.startsWith("u", 5) || !className.startsWith("/C", 20)) {
+            return false;
+        }
+        return className.equals(COMPLETABLE_FUTURE);
     }
 }
