@@ -16,6 +16,9 @@
 
 package com.navercorp.pinpoint.plugin.redis.lettuce.interceptor;
 
+import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
+import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessorUtils;
+import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
@@ -45,6 +48,14 @@ public class LettuceMethodInterceptor extends SpanEventSimpleAroundInterceptorFo
         recorder.recordDestinationId(LettuceConstants.REDIS_LETTUCE.getName());
         recorder.recordServiceType(LettuceConstants.REDIS_LETTUCE);
         recorder.recordException(throwable);
+
+        if(result instanceof AsyncContextAccessor) {
+            if(AsyncContextAccessorUtils.getAsyncContext(result) == null) {
+                // Avoid duplicate async context
+                final AsyncContext asyncContext = recorder.recordNextAsyncContext();
+                ((AsyncContextAccessor)result)._$PINPOINT$_setAsyncContext(asyncContext);
+            }
+        }
     }
 
     private String toEndPoint(final Object target) {
