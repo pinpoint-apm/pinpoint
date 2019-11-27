@@ -33,6 +33,7 @@ public class ProfileApplicationInicationInitializer implements WebApplicationIni
     // refer to : org.springframework.core.env.AbstractEnvironment
     public static final String IGNORE_GETENV_PROPERTY_NAME = "spring.getenv.ignore";
     public static final String ACTIVE_PROFILES_PROPERTY_NAME = "spring.profiles.active";
+    public static final String ACTIVE_PROFILES_PROPERTY_ENV_NAME = "SPRING_PROFILES_ACTIVE";
 
     public static final String PINPOINT_DEFAULT_PROFILE = "release";
 
@@ -45,7 +46,7 @@ public class ProfileApplicationInicationInitializer implements WebApplicationIni
         String activeProfile = System.getProperty(ACTIVE_PROFILES_PROPERTY_NAME);
         if (activeProfile == null) {
             if (!suppressGetenvAccess()) {
-                activeProfile = System.getenv(ACTIVE_PROFILES_PROPERTY_NAME);
+                activeProfile = System.getenv(ACTIVE_PROFILES_PROPERTY_ENV_NAME);
             }
         }
         if (activeProfile == null) {
