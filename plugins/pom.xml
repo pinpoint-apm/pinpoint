@@ -98,6 +98,7 @@
         <module>elasticsearch</module>
         <module>reactor</module>
         <module>reactor-netty</module>
+        <module>jdk-completable-future</module>
     </modules>
 
     <dependencyManagement>
