@@ -113,16 +113,19 @@ Pinpoint Version | flink 1.3.X | flink 1.4.X | flink 1.5.X | flink 1.6.X | flink
 1.8.x | yes | yes | no | no | no |
 2.0.x | yes | yes | yes | yes | yes |
 
-## Contact Us
+
+## Community
+
+[Github issues](https://github.com/naver/pinpoint/issues)  
+[Google group](https://groups.google.com/forum/#!forum/pinpoint_user)  
+[Gitter](https://gitter.im/naver/pinpoint)  
+
 We have Chinese community now, welcome to join!
 
 QQ Group: 897594820 | DING Group
 :----------------: | :-----------: 
 ![QQ Group](doc/images/NAVERPinpoint.png) | ![DING Group](doc/images/NaverPinpoint交流群-DING.jpg)
 
-
-## User Group
-For Q/A and discussion [here](https://groups.google.com/forum/#!forum/pinpoint_user).
 
 ## License
 Pinpoint is licensed under the Apache License, Version 2.0.
