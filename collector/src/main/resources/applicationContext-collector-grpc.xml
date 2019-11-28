@@ -16,7 +16,7 @@
         <property name="locations">
             <list>
                 <value>classpath:pinpoint-collector-grpc.properties</value>
-                <value>classpath:profile-${pinpoint.profiles.active}/pinpoint-collector-grpc-env.properties</value>
+                <value>classpath:profiles/${pinpoint.profiles.active}/pinpoint-collector-grpc-env.properties</value>
             </list>
         </property>
         <property name="fileEncoding" value="UTF-8"/>
