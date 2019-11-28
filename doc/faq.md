@@ -13,7 +13,11 @@ disqus: false
 [Gitter](https://gitter.im/naver/pinpoint)  
 
 Chinese groups
-[QQ and DingDing](https://twitter.com/Pinpoint_APM/status/1185117827130253318)
+
+QQ Group: 897594820 | DING Group
+:----------------: | :-----------: 
+![QQ Group](images/NAVERPinpoint.png) | ![DING Group](images/NaverPinpoint交流群-DING.jpg)
+
 
 ### How do I get the call stack view?
 Click on a server node, which will populate the scatter chart on the right. This chart shows all succeeded/failed requests that went through the server. If there are any requests that spike your interest, simply **drag on the scatter chart** to select them. This will bring up the call stack view containing the requests you've selected.
