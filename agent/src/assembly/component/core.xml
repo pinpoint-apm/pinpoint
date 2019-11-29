@@ -19,7 +19,7 @@
            xsi:schemaLocation="http://maven.apache.org/ASSEMBLY-COMPONENT/2.0.0 http://maven.apache.org/xsd/assembly-component-2.0.0.xsd">
     <fileSets>
         <fileSet>
-            <directory>${basedir}/src/main/resources-${env}</directory>
+            <directory>${basedir}/src/main/resources</directory>
             <outputDirectory>./</outputDirectory>
         </fileSet>
         <fileSet>

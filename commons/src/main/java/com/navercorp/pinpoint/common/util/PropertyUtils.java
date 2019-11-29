@@ -45,12 +45,7 @@ public final class PropertyUtils {
         if (filePath == null) {
             throw new NullPointerException("filePath");
         }
-        final InputStreamFactory inputStreamFactory = new InputStreamFactory() {
-            @Override
-            public InputStream openInputStream() throws IOException {
-                return new FileInputStream(filePath);
-            }
-        };
+        final InputStreamFactory inputStreamFactory = new FileInputStreamFactory(filePath);
         return loadProperty(new Properties(), inputStreamFactory, DEFAULT_ENCODING);
     }
 
@@ -103,5 +98,21 @@ public final class PropertyUtils {
         }
         return properties;
     }
+
+    public static class FileInputStreamFactory implements  InputStreamFactory {
+        private final String filePath;
+
+        public FileInputStreamFactory(String filePath) {
+            if (filePath == null) {
+                throw new NullPointerException("filePath");
+            }
+            this.filePath = filePath;
+        }
+
+        @Override
+        public InputStream openInputStream() throws IOException {
+            return new FileInputStream(filePath);
+        }
+    };
 
 }
