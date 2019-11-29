@@ -46,7 +46,7 @@ public class ConnectionFactoryBean implements FactoryBean<Connection>, Initializ
     private final Connection connection;
 
     public ConnectionFactoryBean(Configuration configuration) {
-        Objects.requireNonNull(configuration, "configuration");
+        Objects.requireNonNull(configuration, "configuration must not be null");
         try {
             warmUp = configuration.getBoolean("hbase.client.warmup.enable", false);
             connection = ConnectionFactory.createConnection(configuration);
@@ -56,10 +56,26 @@ public class ConnectionFactoryBean implements FactoryBean<Connection>, Initializ
     }
 
     public ConnectionFactoryBean(Configuration configuration, ExecutorService executorService) {
-        Objects.requireNonNull(configuration, "configuration");
-        Objects.requireNonNull(executorService, "executorService");
+        Objects.requireNonNull(configuration, "configuration must not be null");
+        Objects.requireNonNull(executorService, "executorService must not be null");
+
         try {
             warmUp = configuration.getBoolean("hbase.client.warmup.enable", false);
+            connection = ConnectionFactory.createConnection(configuration, executorService);
+        } catch (IOException e) {
+            throw new HbaseSystemException(e);
+        }
+    }
+
+    public ConnectionFactoryBean(Configuration configuration, ExecutorService executorService, HbaseSecurityInterceptorFactory hbaseSecurityInterceptorFactory) {
+        Objects.requireNonNull(configuration, "configuration must not be null");
+        Objects.requireNonNull(executorService, "executorService must not be null");
+
+        try {
+            warmUp = configuration.getBoolean("hbase.client.warmup.enable", false);
+
+            HbaseSecurityInterceptor hbaseSecurityInterceptor = hbaseSecurityInterceptorFactory.getHbaseSecurityInterceptor();
+            hbaseSecurityInterceptor.process(configuration);
             connection = ConnectionFactory.createConnection(configuration, executorService);
         } catch (IOException e) {
             throw new HbaseSystemException(e);
