@@ -40,6 +40,7 @@ export class ApplicationListForConfigurationContainerComponent implements OnInit
         this.funcImagePath = this.webAppSettingDataService.getIconPathMakeFunc();
         this.initEmptyText();
     }
+
     ngOnDestroy() {
         this.unsubscribe.next();
         this.unsubscribe.complete();
@@ -54,6 +55,7 @@ export class ApplicationListForConfigurationContainerComponent implements OnInit
             this.filterApplicationList();
         });
     }
+
     private filterApplicationList(): void {
         const applicationList = this.originalApplicationList.filter((app: IApplication) => {
             return this.favoriteApplicationList.findIndex((favApp: IApplication) => {
@@ -69,6 +71,7 @@ export class ApplicationListForConfigurationContainerComponent implements OnInit
         }
         this.hideProcessing();
     }
+
     private initEmptyText(): void {
         forkJoin(
             this.translateService.get('COMMON.MIN_LENGTH'),
@@ -78,29 +81,38 @@ export class ApplicationListForConfigurationContainerComponent implements OnInit
             this.emptyText = emptyText;
         });
     }
+
     onClearSearch(input: HTMLInputElement): void {
-        if (this.query !== '') {
-            this.query = '';
-            input.value = '';
-            this.filterApplicationList();
-            input.focus();
+        if (this.query === '') {
+            return;
         }
+
+        this.query = '';
+        input.value = '';
+        this.filterApplicationList();
+        input.focus();
     }
+
     onSearch(query: string): void {
-        if (this.query !== query) {
-            this.query = query;
-            this.filterApplicationList();
+        if (this.query === query) {
+            return;
         }
+
+        this.query = query;
+        this.filterApplicationList();
     }
+
     onSelectApp(app: IApplication): void {
         this.showProcessing();
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.SET_FAVORITE_APPLICATION_IN_CONFIGURATION);
         this.webAppSettingDataService.addFavoriteApplication(app);
     }
+
     private showProcessing(): void {
         this.useDisable = true;
         this.showLoading = true;
     }
+
     private hideProcessing(): void {
         this.useDisable = false;
         this.showLoading = false;

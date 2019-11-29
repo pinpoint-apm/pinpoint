@@ -1,11 +1,12 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { Store } from '@ngrx/store';
+import { Store, select } from '@ngrx/store';
 import { LocalStorageService } from 'angular-2-local-storage';
 import 'moment-timezone';
 import * as moment from 'moment-timezone';
+import { map, filter } from 'rxjs/operators';
 
-import { AppState, Actions } from 'app/shared/store';
+import { AppState, Actions, STORE_KEY } from 'app/shared/store';
 import { ComponentDefaultSettingDataService } from 'app/shared/services/component-default-setting-data.service';
 import { Application, Period } from 'app/core/models';
 import { NewUrlStateNotificationService } from 'app/shared/services/new-url-state-notification.service';
@@ -40,11 +41,23 @@ export class WebAppSettingDataService {
         private store: Store<AppState>,
         private localStorageService: LocalStorageService,
         private componentDefaultSettingDataService: ComponentDefaultSettingDataService,
-        private newUrlStateNotificationService: NewUrlStateNotificationService
+        private newUrlStateNotificationService: NewUrlStateNotificationService,
     ) {
-        this.store.dispatch(new Actions.AddFavoriteApplication(this.getFavoriteApplicationList()));
         this.store.dispatch(new Actions.ChangeTimezone(this.getTimezone()));
         this.store.dispatch(new Actions.ChangeDateFormat(this.getDateFormat()));
+        this.store.pipe(
+            select(STORE_KEY.APPLICATION_LIST),
+            filter((appList: IApplication[]) => appList.length !== 0),
+            map((appList: IApplication[]) => {
+                const registeredFavAppList = this.getFavoriteApplicationList();
+
+                return registeredFavAppList.filter((favApp: IApplication) => {
+                    return appList.some((app: IApplication) => app.equals(favApp));
+                });
+            })
+        ).subscribe((filteredFavAppList: IApplication[]) => {
+            this.store.dispatch(new Actions.AddFavoriteApplication(filteredFavAppList));
+        });
     }
     useActiveThreadChart(): Observable<boolean> {
         return this.newUrlStateNotificationService.getConfiguration('showActiveThread');
