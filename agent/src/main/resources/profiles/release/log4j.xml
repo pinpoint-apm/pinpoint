@@ -42,4 +42,5 @@
         <level value="INFO"/>
         <appender-ref ref="rollingFile"/>
     </root>
+
 </log4j:configuration>

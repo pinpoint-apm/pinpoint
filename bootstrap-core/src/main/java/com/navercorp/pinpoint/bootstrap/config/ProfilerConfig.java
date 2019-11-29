@@ -28,6 +28,10 @@ import java.util.Properties;
  */
 public interface ProfilerConfig {
 
+    String getActiveProfile();
+
+//    String[] getOptionalProfiles();
+
     int getInterceptorRegistrySize();
 
     TransportModule getTransportModule();

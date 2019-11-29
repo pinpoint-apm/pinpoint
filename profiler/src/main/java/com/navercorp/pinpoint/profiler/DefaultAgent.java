@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.ProductInfo;
 import com.navercorp.pinpoint.bootstrap.Agent;
 import com.navercorp.pinpoint.bootstrap.AgentOption;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.config.Profiles;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerBinder;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
@@ -35,8 +36,10 @@ import com.navercorp.pinpoint.profiler.context.provider.ShutdownHookRegisterProv
 import com.navercorp.pinpoint.profiler.logging.Slf4jLoggerBinder;
 import com.navercorp.pinpoint.profiler.util.SystemPropertyDumper;
 import com.navercorp.pinpoint.rpc.ClassPreLoader;
+import org.apache.log4j.xml.DOMConfigurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 /**
  * @author emeroad
@@ -45,7 +48,7 @@ import org.slf4j.LoggerFactory;
  */
 public class DefaultAgent implements Agent {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger;
 
     private final PLoggerBinder binder;
 
@@ -53,15 +56,9 @@ public class DefaultAgent implements Agent {
 
     private final ApplicationContext applicationContext;
 
-
     private final Object agentStatusLock = new Object();
     private volatile AgentStatus agentStatus;
 
-
-    static {
-        // Preload classes related to pinpoint-rpc module.
-        ClassPreLoader.preload();
-    }
 
     public DefaultAgent(AgentOption agentOption) {
         if (agentOption == null) {
@@ -74,6 +71,9 @@ public class DefaultAgent implements Agent {
             throw new NullPointerException("profilerConfig");
         }
 
+        initLogger(agentOption.getProfilerConfig());
+
+        logger = LoggerFactory.getLogger(this.getClass());
         logger.info("AgentOption:{}", agentOption);
 
         this.binder = new Slf4jLoggerBinder();
@@ -84,6 +84,10 @@ public class DefaultAgent implements Agent {
 
         changeStatus(AgentStatus.INITIALIZING);
 
+        if (Boolean.valueOf(System.getProperty("pinpoint.profiler.ClassPreLoader", "false"))) {
+            // Preload classes related to pinpoint-rpc module.
+            ClassPreLoader.preload();
+        }
         preloadOnStartup();
 
         this.profilerConfig = agentOption.getProfilerConfig();
@@ -133,6 +137,16 @@ public class DefaultAgent implements Agent {
         PLoggerFactory.initialize(binder);
     }
 
+    private void initLogger(ProfilerConfig config) {
+        final String location = config.readString(Profiles.LOG_CONFIG_LOCATION, null);
+        if (location == null) {
+            throw new IllegalStateException("$PINPOINT_DIR/profiles/${profile}/log4j.xml not found");
+        }
+        // log4j init
+        DOMConfigurator.configure(location);
+    }
+
+
     private void preloadOnStartup() {
         // Preload to fail fast on startup. This won't be necessary once JDK 6 support ends
         // and reflective method handle is not needed.
@@ -155,7 +169,7 @@ public class DefaultAgent implements Agent {
 
     @Override
     public void registerStopHandler() {
-        logger.info("registerStopHandler", ProductInfo.NAME);
+        logger.info("registerStopHandler");
         ShutdownHookRegisterProvider shutdownHookRegisterProvider = new ShutdownHookRegisterProvider(profilerConfig);
         ShutdownHookRegister shutdownHookRegister = shutdownHookRegisterProvider.get();
 
