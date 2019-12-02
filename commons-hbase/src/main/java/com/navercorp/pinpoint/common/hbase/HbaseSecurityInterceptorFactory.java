@@ -15,17 +15,33 @@
  */
 package com.navercorp.pinpoint.common.hbase;
 
+import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author minwoo.jung
  */
-public class HbaseSecurityInterceptorFactory {
+public class HbaseSecurityInterceptorFactory implements FactoryBean<HbaseSecurityInterceptor> {
 
     @Autowired(required = false)
     private HbaseSecurityInterceptor hbaseSecurityInterceptor = new EmptyHbaseSecurityInterceptor();
 
     public HbaseSecurityInterceptor getHbaseSecurityInterceptor() {
         return hbaseSecurityInterceptor;
+    }
+
+    @Override
+    public HbaseSecurityInterceptor getObject() throws Exception {
+        return hbaseSecurityInterceptor;
+    }
+
+    @Override
+    public Class<?> getObjectType() {
+        return HbaseSecurityInterceptor.class;
+    }
+
+    @Override
+    public boolean isSingleton() {
+        return true;
     }
 }
