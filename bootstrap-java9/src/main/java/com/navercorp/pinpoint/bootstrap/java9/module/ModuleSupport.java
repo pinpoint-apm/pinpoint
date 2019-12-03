@@ -19,6 +19,8 @@ package com.navercorp.pinpoint.bootstrap.java9.module;
 
 import com.navercorp.pinpoint.bootstrap.module.JavaModule;
 import com.navercorp.pinpoint.bootstrap.module.Providers;
+import com.navercorp.pinpoint.common.util.JvmUtils;
+import com.navercorp.pinpoint.common.util.JvmVersion;
 import jdk.internal.module.Modules;
 
 import java.lang.instrument.Instrumentation;
@@ -127,6 +129,11 @@ public class ModuleSupport {
 
         // for Java9DefineClass
         baseModule.addExports("jdk.internal.misc", agentModule);
+        final JvmVersion version = JvmUtils.getVersion();
+        if(version.onOrAfter(JvmVersion.JAVA_12)) {
+            baseModule.addExports("jdk.internal.access", agentModule);
+        }
+        agentModule.addReads(baseModule);
 
         final JavaModule instrumentModule = loadModule("java.instrument");
         agentModule.addReads(instrumentModule);
