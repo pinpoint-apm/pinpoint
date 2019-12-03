@@ -100,7 +100,7 @@
         <spring.version>4.3.20.RELEASE</spring.version>
         <spring.batch.version>3.0.9.RELEASE</spring.batch.version>
         <spring.security.version>4.2.8.RELEASE</spring.security.version>
-        <asm.version>7.1</asm.version>
+        <asm.version>7.2</asm.version>
         <thrift.version>0.11.0</thrift.version>
         <ehcache.version>2.6.11</ehcache.version>
         <netty3.version>3.10.6.Final</netty3.version>
