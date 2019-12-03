@@ -16,11 +16,13 @@
 
 package com.navercorp.pinpoint.profiler.shutdown;
 
+
 import com.navercorp.pinpoint.profiler.ShutdownHookRegister;
-import jdk.internal.misc.JavaLangAccess;
-import jdk.internal.misc.SharedSecrets;
+import com.navercorp.pinpoint.profiler.instrument.classloading.JavaLangAccessHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.lang.invoke.MethodHandle;
 
 /**
  * If  change the name of this class,
@@ -29,16 +31,18 @@ import org.slf4j.LoggerFactory;
  * @author Taejin Koo
  */
 public class Java9ShutdownHookRegister implements ShutdownHookRegister {
+    private static final Object OBJECT = JavaLangAccessHelper.getJavaLangAccessObject();
+    private static final MethodHandle REGISTER_SHUTDOWN_HOOK_METHOD_HANDLE = JavaLangAccessHelper.getRegisterShutdownHookMethodHandle();
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     @Override
     public void register(Thread thread) {
         logger.info("register() started.");
 
-        JavaLangAccess javaLangAccess = SharedSecrets.getJavaLangAccess();
         for (int i = 3; i < 10; i++) {
             try {
-                javaLangAccess.registerShutdownHook(i, true, thread);
+                REGISTER_SHUTDOWN_HOOK_METHOD_HANDLE.invoke(OBJECT, i, true, thread);
                 logger.info("register() completed.");
                 return;
             } catch (Throwable e) {

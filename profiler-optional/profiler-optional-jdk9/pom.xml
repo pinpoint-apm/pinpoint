@@ -93,7 +93,6 @@
                     <compilerVersion>${jdk.version}</compilerVersion>
                     <executable>${jdk.home}/bin/javac</executable>
                     <compilerArgs>
-                        <arg>--add-exports=java.base/jdk.internal.misc=ALL-UNNAMED</arg>
                     </compilerArgs>
                 </configuration>
             </plugin>
@@ -111,6 +110,7 @@
                     </excludes>
                     <argLine>
                         --add-exports java.base/jdk.internal.misc=ALL-UNNAMED
+                        --add-exports=java.base/jdk.internal.access=ALL-UNNAMED
                         -Dfile.encoding=${encoding}
                     </argLine>
                     <jvm>${test.jdk.home}/bin/java</jvm>
