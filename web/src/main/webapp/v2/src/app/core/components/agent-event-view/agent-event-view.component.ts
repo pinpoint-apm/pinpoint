@@ -1,5 +1,6 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import * as moment from 'moment-timezone';
+
 import { IEventStatus } from './agent-events-data.service';
 
 @Component({
@@ -11,12 +12,14 @@ export class AgentEventViewComponent implements OnInit {
     @Input() eventData: IEventStatus[];
     @Input() timezone: string;
     @Input() dateFormat: string;
-    @Output() outClose: EventEmitter<null> = new EventEmitter();
+    @Output() outClose = new EventEmitter<void>();
+
     constructor() {}
     ngOnInit() {}
     onClickClose(): void {
         this.outClose.next();
     }
+
     formatDate(time: number): string {
         return moment(time).tz(this.timezone).format(this.dateFormat) ;
     }

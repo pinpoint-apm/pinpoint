@@ -3,7 +3,7 @@ import { Observable } from 'rxjs';
 
 import { DynamicPopupService, StoreHelperService } from 'app/shared/services';
 import { AgentManagerDataService } from './agent-manager-data.service';
-import { ServerErrorPopupContainerComponent } from 'app/core/components/server-error-popup';
+import { ServerErrorPopupContainerComponent } from 'app/core/components/server-error-popup/server-error-popup-container.component';
 
 @Component({
     selector: 'pp-agent-manager-container',
@@ -12,7 +12,7 @@ import { ServerErrorPopupContainerComponent } from 'app/core/components/server-e
 })
 export class AgentManagerContainerComponent implements OnInit {
     applicationFilter = '';
-    showLoading  = false;
+    showLoading = false;
     applicationList$: Observable<IApplication[]>;
     agentList: {
         [key: string]: any;

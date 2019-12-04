@@ -5,7 +5,7 @@ import { switchMap } from 'rxjs/operators';
 import { StoreHelperService, DynamicPopupService, MessageQueueService, MESSAGE_TO } from 'app/shared/services';
 import { ITimelineEventSegment } from 'app/core/components/timeline/class/timeline-data.class';
 import { AgentEventsDataService, IEventStatus } from './agent-events-data.service';
-import { ServerErrorPopupContainerComponent } from 'app/core/components/server-error-popup';
+import { ServerErrorPopupContainerComponent } from 'app/core/components/server-error-popup/server-error-popup-container.component';
 
 @Component({
     selector: 'pp-agent-event-view-container',
@@ -14,11 +14,13 @@ import { ServerErrorPopupContainerComponent } from 'app/core/components/server-e
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AgentEventViewContainerComponent implements OnInit, OnDestroy {
-    private unsubscribe: Subject<void> = new Subject();
+    private unsubscribe = new Subject<void>();
+
     viewComponent = false;
     eventData: IEventStatus[];
     timezone$: Observable<string>;
     dateFormat$: Observable<string>;
+
     constructor(
         private changeDetectorRef: ChangeDetectorRef,
         private storeHelperService: StoreHelperService,
@@ -28,9 +30,11 @@ export class AgentEventViewContainerComponent implements OnInit, OnDestroy {
         private componentFactoryResolver: ComponentFactoryResolver,
         private injector: Injector
     ) {}
+
     ngOnInit() {
         this.connectStore();
     }
+
     private connectStore(): void {
         this.timezone$ = this.storeHelperService.getTimezone(this.unsubscribe);
         this.dateFormat$ = this.storeHelperService.getDateFormat(this.unsubscribe, 1);
@@ -56,10 +60,12 @@ export class AgentEventViewContainerComponent implements OnInit, OnDestroy {
             });
         });
     }
+
     onClose(): void {
         this.viewComponent = false;
         this.changeDetectorRef.detectChanges();
     }
+
     ngOnDestroy() {
         this.unsubscribe.next();
         this.unsubscribe.complete();

@@ -6,7 +6,7 @@ import { map, retry, switchMap } from 'rxjs/operators';
 import { Actions } from 'app/shared/store';
 import { UrlQuery, UrlPathId, UrlPath } from 'app/shared/models';
 import { WebAppSettingDataService, NewUrlStateNotificationService, StoreHelperService, DynamicPopupService, UrlRouteManagerService } from 'app/shared/services';
-import { ServerErrorPopupContainerComponent } from 'app/core/components/server-error-popup';
+import { ServerErrorPopupContainerComponent } from 'app/core/components/server-error-popup/server-error-popup-container.component';
 import { isThatType } from 'app/core/utils/util';
 
 @Injectable()

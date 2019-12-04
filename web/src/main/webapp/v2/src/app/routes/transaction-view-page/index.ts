@@ -7,10 +7,10 @@ import { ConfigurationIconModule } from 'app/core/components/configuration-icon'
 import { TransactionShortInfoModule } from 'app/core/components/transaction-short-info';
 import { TransactionViewTopContentsModule } from 'app/core/components/transaction-view-top-contents';
 import { TransactionViewBottomContentsModule } from 'app/core/components/transaction-view-bottom-contents';
-
 import { AngularSplitModule } from 'app/core/components/angular-split/angular-split';
 import { TransactionViewPageComponent } from './transaction-view-page.component';
 import { routing } from './transaction-view-page.routing';
+import { ServerErrorPopupModule } from 'app/core/components/server-error-popup';
 
 @NgModule({
     declarations: [
@@ -24,6 +24,7 @@ import { routing } from './transaction-view-page.routing';
         TransactionShortInfoModule,
         TransactionViewTopContentsModule,
         TransactionViewBottomContentsModule,
+        ServerErrorPopupModule,
         RouterModule.forChild(routing)
     ],
     exports: [

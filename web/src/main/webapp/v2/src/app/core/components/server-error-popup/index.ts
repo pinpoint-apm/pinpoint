@@ -19,4 +19,3 @@ import { ServerErrorPopupContainerComponent } from './server-error-popup-contain
     providers: []
 })
 export class ServerErrorPopupModule {}
-export * from './server-error-popup-container.component';

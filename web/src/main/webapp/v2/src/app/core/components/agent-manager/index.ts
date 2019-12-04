@@ -1,6 +1,6 @@
-
 import { NgModule } from '@angular/core';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+
 import { SharedModule } from 'app/shared';
 import { AgentManagerContainerComponent } from './agent-manager-container.component';
 import { AgentManagerComponent } from './agent-manager.component';
