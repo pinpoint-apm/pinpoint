@@ -145,11 +145,11 @@ export class ServerMapForFilteredMapContainerComponent implements OnInit, OnDest
         if (this.loadingCompleted) {
             this.showLoading = false;
             this.useDisable = false;
+            this.cd.detectChanges();
         }
+
     }
 
-    onClickBackground($event: any): void {}
-    onClickGroupNode($event: any): void {}
     onClickNode(nodeData: any): void {
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.CLICK_NODE);
         let payload;
@@ -217,7 +217,6 @@ export class ServerMapForFilteredMapContainerComponent implements OnInit, OnDest
         this.storeHelperService.dispatch(new Actions.UpdateServerMapTargetSelected(payload));
     }
 
-    onDoubleClickBackground($event: any): void {}
     onContextClickBackground(coord: ICoordinate): void {
         this.dynamicPopupService.openPopup({
             data: this.mapData,
@@ -229,7 +228,6 @@ export class ServerMapForFilteredMapContainerComponent implements OnInit, OnDest
         });
     }
 
-    onContextClickNode($event: any): void {}
     onContextClickLink({key, coord}: {key: string, coord: ICoordinate}): void {
         this.dynamicPopupService.openPopup({
             data: this.mapData.getLinkData(key),

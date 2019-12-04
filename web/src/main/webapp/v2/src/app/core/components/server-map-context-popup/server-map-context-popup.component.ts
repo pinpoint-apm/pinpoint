@@ -12,31 +12,40 @@ export class ServerMapContextPopupComponent implements OnInit {
     @Output() outClickMergeCheck = new EventEmitter<IServerMapMergeState>();
     @Output() outClickRefresh = new EventEmitter<void>();
 
-    mergeNodeStateMap: { [key: string]: boolean };
+    mergeNodeStateMap: {[key: string]: boolean};
     objectKeys = Object.keys;
+    mergeStateStyleClass: {[key: string]: {[key: string]: boolean}};
 
     constructor() {}
     ngOnInit() {
         this.mergeNodeStateMap = this.data.getMergeState();
+        this.mergeStateStyleClass = Object.keys(this.mergeNodeStateMap).reduce((acc: {[key: string]: {[key: string]: boolean}}, curr: string) => {
+            const shouldChecked = this.mergeNodeStateMap[curr];
+
+            return {
+                ...acc,
+                [curr]: this.getIconClass(shouldChecked)
+            };
+        }, {});
     }
 
     onClickMergeCheck(name: string): void {
         this.mergeNodeStateMap[name] = !this.mergeNodeStateMap[name];
+        this.mergeStateStyleClass[name] = this.getIconClass(this.mergeNodeStateMap[name]);
         this.outClickMergeCheck.emit({
             name,
             state: this.mergeNodeStateMap[name]
         });
     }
+
     onClickRefresh(): void {
         this.outClickRefresh.emit();
     }
-    getClassState(key: string): any {
-        return this.mergeNodeStateMap[key] ? {
-            fas: true,
-            'fa-check-square': true
-        } : {
-            far: true,
-            'fa-square': true
+
+    private getIconClass(shouldChecked: boolean): {[key: string]: boolean} {
+        return {
+            'fas fa-check-square': shouldChecked,
+            'far fa-square': !shouldChecked
         };
     }
 }

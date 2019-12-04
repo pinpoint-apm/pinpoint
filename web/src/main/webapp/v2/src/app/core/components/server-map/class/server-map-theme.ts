@@ -1,3 +1,4 @@
+// TODO: Restructure it according to the new stylesheet
 export default {
     general: {
         common: {
@@ -15,19 +16,19 @@ export default {
         circle: {
             default: {
                 stroke: '#D0D7DF',
-                strokeWidth: 6
+                strokeWidth: 5
             },
             good: {
                 stroke: '#32BA94',
-                strokeWidth: 4,
+                strokeWidth: 5,
             },
             slow: {
                 stroke: '#E48022',
-                strokeWidth: 4,
+                strokeWidth: 5,
             },
             bad: {
                 stroke: '#F0515B',
-                strokeWidth: 4,
+                strokeWidth: 5,
             }
         },
         instance: {

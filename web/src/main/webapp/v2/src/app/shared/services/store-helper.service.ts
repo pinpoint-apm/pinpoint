@@ -80,7 +80,7 @@ export class StoreHelperService {
     getScatterChartData<T>(unsubscribe: Subject<void>): Observable<T> {
         return this.getObservable(STORE_KEY.SCATTER_CHART, unsubscribe);
     }
-    getServerMapData<T>(unsubscribe: Subject<void>): Observable<T> {
+    getServerMapData<T>(unsubscribe?: Subject<void>): Observable<T> {
         return this.getObservable(STORE_KEY.SERVER_MAP_DATA, unsubscribe);
     }
     getServerMapLoadingState(unsubscribe: Subject<void>): Observable<string> {

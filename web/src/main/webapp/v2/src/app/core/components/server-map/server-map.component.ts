@@ -1,5 +1,4 @@
 import { Component, Input, Output, EventEmitter, OnInit, OnChanges, OnDestroy, AfterViewInit, SimpleChanges, ElementRef, ViewChild } from '@angular/core';
-import * as go from 'gojs';
 import { Subject } from 'rxjs';
 import { takeUntil, filter, tap } from 'rxjs/operators';
 
@@ -23,14 +22,10 @@ export class ServerMapComponent implements OnInit, OnChanges, OnDestroy, AfterVi
     @Input() funcServerMapImagePath: Function;
     @Input() type: ServerMapType;
     @Output() outClickNode = new EventEmitter<any>();
-    @Output() outClickGroupNode = new EventEmitter<any>();
-    @Output() outContextClickNode = new EventEmitter<string>();
     @Output() outClickLink = new EventEmitter<any>();
     @Output() outContextClickLink = new EventEmitter<string>();
-    @Output() outClickBackground: EventEmitter<void> = new EventEmitter();
-    @Output() outDoubleClickBackground = new EventEmitter<string>();
     @Output() outContextClickBackground = new EventEmitter<ICoordinate>();
-    @Output() outRenderCompleted = new EventEmitter<{[key: string]: boolean}>();
+    @Output() outRenderCompleted = new EventEmitter<void>();
 
     private hasRenderData = false;
     private serverMapDiagram: ServerMapDiagram;
@@ -99,8 +94,7 @@ export class ServerMapComponent implements OnInit, OnChanges, OnDestroy, AfterVi
     }
 
     addEventHandler(): void {
-        this.serverMapDiagram.outRenderCompleted.subscribe((diagram: go.Diagram) => {
-            this.serverMapInteractionService.setCurrentDiagram(<go.Diagram>diagram);
+        this.serverMapDiagram.outRenderCompleted.subscribe(() => {
             this.outRenderCompleted.emit();
         });
         this.serverMapDiagram.outClickNode.pipe(
@@ -111,12 +105,6 @@ export class ServerMapComponent implements OnInit, OnChanges, OnDestroy, AfterVi
             })
         ).subscribe((nodeData: any) => {
             this.outClickNode.emit(nodeData);
-        });
-        this.serverMapDiagram.outClickGroupNode.subscribe((nodeData: any) => {
-            this.outClickGroupNode.emit(nodeData);
-        });
-        this.serverMapDiagram.outContextClickNode.subscribe((node: any) => {
-            this.outContextClickNode.emit(node);
         });
         this.serverMapDiagram.outClickLink.pipe(
             filter(({key}: any) => this.hasDataUpdated || this.clickedKey !== key),
@@ -129,12 +117,6 @@ export class ServerMapComponent implements OnInit, OnChanges, OnDestroy, AfterVi
         });
         this.serverMapDiagram.outContextClickLink.subscribe((linkObj: any) => {
             this.outContextClickLink.emit(linkObj);
-        });
-        this.serverMapDiagram.outClickBackground.subscribe(() => {
-            this.outClickBackground.emit();
-        });
-        this.serverMapDiagram.outDoubleClickBackground.subscribe((msg: any) => {
-            this.outDoubleClickBackground.emit(msg);
         });
         this.serverMapDiagram.outContextClickBackground.subscribe((coord: ICoordinate) => {
             this.outContextClickBackground.emit(coord);

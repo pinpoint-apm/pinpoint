@@ -1,7 +1,7 @@
-import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, ViewChild, AfterViewInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { Subject, Observable, forkJoin } from 'rxjs';
-import { distinctUntilChanged, filter, map } from 'rxjs/operators';
+import { filter, map, tap } from 'rxjs/operators';
 
 import { UrlPathId } from 'app/shared/models';
 import { NewUrlStateNotificationService, AnalyticsService, TRACKED_EVENT_LIST } from 'app/shared/services';
@@ -14,7 +14,8 @@ import { ServerMapSearchResultViewerComponent } from './server-map-search-result
     styleUrls: ['./server-map-search-result-viewer-container.component.css'],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ServerMapSearchResultViewerContainerComponent implements OnInit {
+export class ServerMapSearchResultViewerContainerComponent implements OnInit, AfterViewInit {
+    @ViewChild(ServerMapSearchResultViewerComponent, {static: false}) comp: ServerMapSearchResultViewerComponent;
     private minLength = 3;
 
     i18nText: { [key: string]: string } = {};
@@ -31,20 +32,28 @@ export class ServerMapSearchResultViewerContainerComponent implements OnInit {
 
     ngOnInit() {
         this.getI18NText();
-        this.hiddenComponent$ = this.newUrlStateNotificationService.onUrlStateChange$.pipe(
-            map((urlService: NewUrlStateNotificationService) => {
-                return urlService.hasValue(UrlPathId.PERIOD, UrlPathId.END_TIME) ? false : true;
-            })
-        );
         this.searchResultList$ = this.serverMapInteractionService.onSearchResult$;
         this.userInput.pipe(
-            distinctUntilChanged(),
             filter((query: string) => {
                 return query.length >= this.minLength;
             })
         ).subscribe((query: string) => {
             this.serverMapInteractionService.setSearchWord(query);
         });
+    }
+
+    ngAfterViewInit() {
+        /**
+         *  TODO: Refactor the structure entirely
+         *  1. Locate the template on the container level so that closing the result area and initializing the query becomes easier.
+         *  2. Subscribing the server map data directly so that this weird userInput thing becomes unnecessary.
+         */
+        this.hiddenComponent$ = this.newUrlStateNotificationService.onUrlStateChange$.pipe(
+            tap(() => this.comp.onCloseResult()),
+            map((urlService: NewUrlStateNotificationService) => {
+                return urlService.hasValue(UrlPathId.PERIOD, UrlPathId.END_TIME) ? false : true;
+            }),
+        );
     }
 
     private getI18NText() {

@@ -8,18 +8,15 @@ export abstract class ServerMapDiagram {
     protected serverMapData: ServerMapData;
     protected baseApplicationKey: string;
 
-    outClickNode: EventEmitter<any> = new EventEmitter();
-    outClickGroupNode: EventEmitter<any> = new EventEmitter();
-    outContextClickNode: EventEmitter<any> = new EventEmitter();
-    outClickLink: EventEmitter<any> = new EventEmitter();
-    outContextClickLink: EventEmitter<any> = new EventEmitter();
-    outClickBackground: EventEmitter<void> = new EventEmitter();
-    outContextClickBackground: EventEmitter<ICoordinate> = new EventEmitter();
-    outDoubleClickBackground: EventEmitter<any> = new EventEmitter();
-    outRenderCompleted: EventEmitter<any> = new EventEmitter();
+    outClickNode = new EventEmitter<any>();
+    outClickLink = new EventEmitter<any>();
+    outContextClickLink = new EventEmitter<any>();
+    outContextClickBackground = new EventEmitter<ICoordinate>();
+    outRenderCompleted = new EventEmitter<any>();
 
     abstract setMapData(mapData: ServerMapData, baseApplicationKey?: string): void;
     abstract selectNodeBySearch(appKey: string): void;
+    abstract redraw(): void;
     abstract refresh(): void;
     abstract clear(): void;
 
@@ -46,6 +43,6 @@ export abstract class ServerMapDiagram {
 
     resetMergeState(): void {
         this.serverMapData.resetMergeState();
-        this.refresh();
+        this.redraw();
     }
 }

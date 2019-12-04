@@ -58,11 +58,8 @@ export class ServerMapOthersContainerComponent implements OnInit, OnDestroy {
         this.showLoading = false;
         this.changeDetectorRef.detectChanges();
     }
-    onClickBackground($event: any): void {}
-    onClickGroupNode($event: any): void {}
     onClickNode($event: any): void {}
     onClickLink($event: any): void {}
-    onDoubleClickBackground($event: any): void {}
     onContextClickBackground(coord: ICoordinate): void {
         this.dynamicPopupService.openPopup({
             data: this.mapData,
@@ -73,6 +70,5 @@ export class ServerMapOthersContainerComponent implements OnInit, OnDestroy {
             injector: this.injector
         });
     }
-    onContextClickNode($event: any): void {}
     onContextClickLink($param: any): void {}
 }

@@ -2,7 +2,6 @@
 import { NgModule } from '@angular/core';
 import { SharedModule } from 'app/shared';
 import { ServerMapInteractionService } from './server-map-interaction.service';
-import { ServerMapOverviewComponent } from './server-map-overview.component';
 import { ServerMapComponent } from './server-map.component';
 import { ServerMapContainerComponent } from './server-map-container.component';
 import { ServerMapOthersContainerComponent } from './server-map-others-container.component';
@@ -17,7 +16,6 @@ import { ServerErrorPopupModule } from 'app/core/components/server-error-popup';
 @NgModule({
     declarations: [
         ServerMapComponent,
-        ServerMapOverviewComponent,
         ServerMapContainerComponent,
         ServerMapOthersContainerComponent,
         ServerMapForFilteredMapContainerComponent
@@ -30,7 +28,6 @@ import { ServerErrorPopupModule } from 'app/core/components/server-error-popup';
     ],
     exports: [
         ServerMapComponent,
-        ServerMapOverviewComponent,
         ServerMapContainerComponent,
         ServerMapOthersContainerComponent,
         ServerMapForFilteredMapContainerComponent
