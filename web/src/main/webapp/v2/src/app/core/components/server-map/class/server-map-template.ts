@@ -3,7 +3,7 @@ import { NodeGroup } from './node-group.class';
 
 export abstract class ServerMapTemplate {
     private static readonly MIN_ARC_RATIO = 0.05;
-    private static readonly RADIUS = 62;
+    private static readonly RADIUS = 47;
     private static readonly DIAMETER = 2 * Math.PI * ServerMapTemplate.RADIUS;
 
     private static getCompleteSVGCircleString(showDefault: boolean, responseTime: IResponseTime): string {
@@ -22,15 +22,15 @@ export abstract class ServerMapTemplate {
 
             return ServerMapTemplate.getSVGCircleString({
                 stroke: ServerMapTheme.general.circle.good.stroke,
-                strokeWidth: ServerMapTheme.general.circle.default.strokeWidth,
+                strokeWidth: ServerMapTheme.general.circle.good.strokeWidth,
             }) + ServerMapTemplate.getSVGCircleString({
                 stroke: ServerMapTheme.general.circle.slow.stroke,
-                strokeWidth: ServerMapTheme.general.circle.default.strokeWidth,
+                strokeWidth: ServerMapTheme.general.circle.slow.strokeWidth,
                 strokeDashOffset: slowArcOffset,
                 strokeDashArray: slowArc
             }) + ServerMapTemplate.getSVGCircleString({
                 stroke: ServerMapTheme.general.circle.bad.stroke,
-                strokeWidth: ServerMapTheme.general.circle.default.strokeWidth,
+                strokeWidth: ServerMapTheme.general.circle.bad.strokeWidth,
                 strokeDashOffset: badArcOffset,
                 strokeDashArray: badArc
             });
@@ -38,9 +38,9 @@ export abstract class ServerMapTemplate {
     }
 
     private static getSVGCircleString(styleOption: {[key: string]: any}): string {
-        const { stroke, strokeWidth, strokeDashOffset = 0, strokeDashArray = 'none' } = styleOption;
+        const {stroke, strokeWidth, strokeDashOffset = 0, strokeDashArray = 'none'} = styleOption;
 
-        return `<circle cx="65" cy="65" r="${ServerMapTemplate.RADIUS}"
+        return `<circle cx="50" cy="50" r="${ServerMapTemplate.RADIUS}"
             style="fill:none;
             stroke:${stroke};
             stroke-width:${strokeWidth};
@@ -58,7 +58,7 @@ export abstract class ServerMapTemplate {
     private static getAlertSVGImgString(img: HTMLImageElement): string {
         const dataURL = this.getDataURLFromImg(img);
 
-        return `<image xlink:href="${dataURL}" height="20" width="30" stroke="red" x="50%" y="0" transform="translate(-15, 10)" />`;
+        return `<image xlink:href="${dataURL}" height="20" width="30" stroke="red" x="50%" y="0" transform="translate(10, 16)" />`;
     }
 
     private static getDataURLFromImg(img: HTMLImageElement): string {
@@ -80,14 +80,14 @@ export abstract class ServerMapTemplate {
     }
 
     private static getInstanceCountTextString(instanceCount: number): string {
-        return `<text x="50%" y="0" text-anchor="middle" alignment-baseline="central" fill="black" transform="translate(0, 106)" font-size="20px">${instanceCount >= 2 ? instanceCount : ''}</text>`;
+        return `<text x="50%" y="0" text-anchor="middle" alignment-baseline="central" fill="black" transform="translate(0, 80)" font-size="15px">${instanceCount >= 2 ? instanceCount : ''}</text>`;
     }
 
     public static getSVGString(img: HTMLImageElement[], nodeData: {[key: string]: any}): string {
-        const { key, isAuthorized, isWas, histogram, instanceCount } = nodeData;
+        const {key, isAuthorized, isWas, histogram, instanceCount} = nodeData;
         const isMergedNode = NodeGroup.isGroupKey(key);
 
-        return `<svg xmlns="http://www.w3.org/2000/svg" width="130" height="130" xmlns:xlink="http://www.w3.org/1999/xlink">` +
+        return `<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" xmlns:xlink="http://www.w3.org/1999/xlink">` +
             ServerMapTemplate.getCompleteSVGCircleString(isMergedNode || !(isAuthorized && isWas), histogram) +
             (img[1] ? ServerMapTemplate.getAlertSVGImgString(img[1]) : ``) +
             ServerMapTemplate.getServiceTypeSVGImgString(img[0]) +

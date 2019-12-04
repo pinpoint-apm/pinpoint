@@ -5,17 +5,12 @@
             [mapData]="mapData"
             [funcServerMapImagePath]="funcServerMapImagePath"
             [type]="type"
-            (outClickBackground)="onClickBackground($event)"
-            (outDoubleClickBackground)="onDoubleClickBackground($event)"
             (outContextClickBackground)="onContextClickBackground($event)"
-            (outClickGroupNode)="onClickGroupNode($event)"
             (outClickNode)="onClickNode($event)"
             (outClickLink)="onClickLink($event)"
-            (outContextClickNode)="onContextClickNode($event)"
             (outContextClickLink)="onContextClickLink($event)"
-            (outRenderCompleted)="onRenderCompleted($event)">
+            (outRenderCompleted)="onRenderCompleted()">
         </pp-server-map>
-        <pp-server-map-overview></pp-server-map-overview>  
     </ng-container>
     <ng-template #noAgentGuide>
         <div class="l-popup-section font-opensans">

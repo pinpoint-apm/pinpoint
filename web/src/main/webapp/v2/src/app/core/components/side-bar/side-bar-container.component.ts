@@ -15,11 +15,11 @@ import { ServerMapData } from 'app/core/components/server-map/class';
 export class SideBarContainerComponent implements OnInit, OnDestroy {
     private unsubscribe = new Subject<void>();
 
-    target: ISelectedTarget;
     useDisable = true;
     showLoading = true;
     showDivider = false;
     isTargetMerged$: Observable<boolean>;
+    sidebarVisibility = 'hidden';
 
     constructor(
         private router: Router,
@@ -55,10 +55,9 @@ export class SideBarContainerComponent implements OnInit, OnDestroy {
     private connectStore(): void {
         this.storeHelperService.getServerMapData(this.unsubscribe).pipe(
             filter((serverMapData: ServerMapData) => !!serverMapData),
-            filter((serverMapData: ServerMapData) => serverMapData.getNodeCount() === 0)
-        ).subscribe(() => {
-            this.renderer.setStyle(this.el.nativeElement, 'width', '0px');
-            this.cd.detectChanges();
+            map((serverMapData: ServerMapData) => serverMapData.getNodeCount() === 0)
+        ).subscribe((isEmpty: boolean) => {
+            this.renderer.setStyle(this.el.nativeElement, 'display', isEmpty ? 'none' : 'block');
         });
 
         this.isTargetMerged$ = merge(
@@ -66,11 +65,10 @@ export class SideBarContainerComponent implements OnInit, OnDestroy {
             this.storeHelperService.getServerMapTargetSelected(this.unsubscribe).pipe(
                 filter((target: ISelectedTarget) => !!target),
                 tap(({isNode, isWAS, isMerged}: ISelectedTarget) => {
-                    // this.target = target;
-                    this.renderer.setStyle(this.el.nativeElement, 'width', '477px');
                     this.showLoading = false;
                     this.useDisable = false;
                     this.showDivider = isNode && isWAS && !isMerged;
+                    this.sidebarVisibility = 'visible';
                 }),
                 map(({isMerged}: ISelectedTarget) => isMerged)
             )
