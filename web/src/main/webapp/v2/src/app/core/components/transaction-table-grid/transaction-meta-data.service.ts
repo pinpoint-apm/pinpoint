@@ -12,7 +12,7 @@ import {
     DynamicPopupService
 } from 'app/shared/services';
 import { MessagePopupContainerComponent } from 'app/core/components/message-popup/message-popup-container.component';
-import { ServerErrorPopupContainerComponent } from 'app/core/components/server-error-popup';
+import { ServerErrorPopupContainerComponent } from 'app/core/components/server-error-popup/server-error-popup-container.component';
 
 @Injectable()
 export class TransactionMetaDataService {

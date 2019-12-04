@@ -6,6 +6,7 @@ import { TimelineComponent } from './timeline.component';
 import { AgentInspectorTimelineContainerComponent } from './agent-inspector-timeline-container.component';
 import { ApplicationInspectorTimelineContainerComponent } from './application-inspector-timeline-container.component';
 import { AgentTimelineDataService } from './agent-timeline-data.service';
+import { ServerErrorPopupModule } from 'app/core/components/server-error-popup';
 
 @NgModule({
     declarations: [
@@ -14,7 +15,8 @@ import { AgentTimelineDataService } from './agent-timeline-data.service';
         ApplicationInspectorTimelineContainerComponent
     ],
     imports: [
-        SharedModule
+        SharedModule,
+        ServerErrorPopupModule
     ],
     exports: [
         AgentInspectorTimelineContainerComponent,

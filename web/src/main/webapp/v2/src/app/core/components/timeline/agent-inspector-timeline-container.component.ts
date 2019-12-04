@@ -6,7 +6,7 @@ import { StoreHelperService, NewUrlStateNotificationService, UrlRouteManagerServ
 import { ITimelineEventSegment, TimelineUIEvent } from './class';
 import { TimelineComponent } from './timeline.component';
 import { AgentTimelineDataService, IAgentTimeline } from './agent-timeline-data.service';
-import { ServerErrorPopupContainerComponent } from 'app/core/components/server-error-popup';
+import { ServerErrorPopupContainerComponent } from 'app/core/components/server-error-popup/server-error-popup-container.component';
 import { UrlPathId } from 'app/shared/models';
 import { InspectorPageService, ISourceForTimeline } from 'app/routes/inspector-page/inspector-page.service';
 

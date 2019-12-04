@@ -1,4 +1,3 @@
-
 import { NgModule } from '@angular/core';
 
 import { SharedModule } from 'app/shared';
@@ -12,6 +11,7 @@ import { TransactionTableGridModule } from 'app/core/components/transaction-tabl
 import { SyntaxHighlightPopupModule } from 'app/core/components/syntax-highlight-popup';
 import { TransactionListBottomContentsContainerComponent } from './transaction-list-bottom-contents-container.component';
 import { HelpViewerPopupModule } from 'app/core/components/help-viewer-popup';
+import { ServerErrorPopupModule } from 'app/core/components/server-error-popup';
 
 @NgModule({
     declarations: [
@@ -27,7 +27,8 @@ import { HelpViewerPopupModule } from 'app/core/components/help-viewer-popup';
         TransactionTimelineModule,
         CallTreeModule,
         SyntaxHighlightPopupModule,
-        HelpViewerPopupModule
+        HelpViewerPopupModule,
+        ServerErrorPopupModule
     ],
     exports: [
         TransactionListBottomContentsContainerComponent

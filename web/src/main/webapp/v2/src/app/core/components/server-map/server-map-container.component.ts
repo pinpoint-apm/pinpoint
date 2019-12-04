@@ -20,7 +20,7 @@ import { SERVER_MAP_TYPE, ServerMapType, NodeGroup, ServerMapData } from 'app/co
 import { ServerMapDataService } from './server-map-data.service';
 import { LinkContextPopupContainerComponent } from 'app/core/components/link-context-popup/link-context-popup-container.component';
 import { ServerMapContextPopupContainerComponent } from 'app/core/components/server-map-context-popup/server-map-context-popup-container.component';
-import { ServerErrorPopupContainerComponent } from 'app/core/components/server-error-popup';
+import { ServerErrorPopupContainerComponent } from 'app/core/components/server-error-popup/server-error-popup-container.component';
 
 @Component({
     selector: 'pp-server-map-container',

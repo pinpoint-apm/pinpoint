@@ -12,7 +12,7 @@ import {
 } from 'app/shared/services';
 import { Actions } from 'app/shared/store';
 import { UrlPathId } from 'app/shared/models';
-import { ServerErrorPopupContainerComponent } from 'app/core/components/server-error-popup';
+import { ServerErrorPopupContainerComponent } from 'app/core/components/server-error-popup/server-error-popup-container.component';
 
 @Component({
     selector: 'pp-transaction-view-page',

@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ComponentFactoryResolver, Injector, ViewChild, Renderer2, ElementRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ComponentFactoryResolver, Injector, ViewChild, Renderer2, ElementRef, ChangeDetectorRef } from '@angular/core';
 import { Subject } from 'rxjs';
 import { filter, tap, switchMap } from 'rxjs/operators';
 
@@ -13,7 +13,7 @@ import {
 import { Actions } from 'app/shared/store';
 import { UrlPath } from 'app/shared/models';
 import { HELP_VIEWER_LIST, HelpViewerPopupContainerComponent } from 'app/core/components/help-viewer-popup/help-viewer-popup-container.component';
-import { ServerErrorPopupContainerComponent } from 'app/core/components/server-error-popup';
+import { ServerErrorPopupContainerComponent } from 'app/core/components/server-error-popup/server-error-popup-container.component';
 import { CallTreeContainerComponent } from 'app/core/components/call-tree/call-tree-container.component';
 
 @Component({
@@ -40,7 +40,8 @@ export class TransactionListBottomContentsContainerComponent implements OnInit, 
         private dynamicPopupService: DynamicPopupService,
         private componentFactoryResolver: ComponentFactoryResolver,
         private injector: Injector,
-        private renderer: Renderer2
+        private renderer: Renderer2,
+        private cd: ChangeDetectorRef
     ) {}
 
     ngOnInit() {
@@ -87,6 +88,8 @@ export class TransactionListBottomContentsContainerComponent implements OnInit, 
                 resolver: this.componentFactoryResolver,
                 injector: this.injector
             });
+            this.setDisplayGuide(false);
+            this.cd.detectChanges();
         });
     }
 

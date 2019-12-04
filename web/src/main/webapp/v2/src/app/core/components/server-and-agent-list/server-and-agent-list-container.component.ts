@@ -13,7 +13,7 @@ import {
     MessageQueueService,
     MESSAGE_TO,
 } from 'app/shared/services';
-import { ServerErrorPopupContainerComponent } from 'app/core/components/server-error-popup';
+import { ServerErrorPopupContainerComponent } from 'app/core/components/server-error-popup/server-error-popup-container.component';
 import { InspectorPageService, ISourceForServerAndAgentList } from 'app/routes/inspector-page/inspector-page.service';
 import { UrlPath, UrlPathId } from 'app/shared/models';
 import { ServerAndAgentListDataService } from './server-and-agent-list-data.service';
