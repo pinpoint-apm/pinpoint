@@ -44,7 +44,9 @@ import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.filter.BinaryPrefixComparator;
 import org.apache.hadoop.hbase.filter.CompareFilter;
 import org.apache.hadoop.hbase.filter.Filter;
+import org.apache.hadoop.hbase.filter.FilterList;
 import org.apache.hadoop.hbase.filter.QualifierFilter;
+import org.apache.hadoop.hbase.filter.TimestampsFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,6 +56,7 @@ import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -196,16 +199,45 @@ public class HbaseTraceDaoV2 implements TraceDao {
     }
 
 
-    private List<Get> createGetList(List<GetTraceInfo> getTraceInfoList, byte[] columnFamily, Filter filter) {
+    private List<Get> createGetList(List<GetTraceInfo> getTraceInfoList, byte[] columnFamily, Filter defaultFilter) {
         if (CollectionUtils.isEmpty(getTraceInfoList)) {
             return Collections.emptyList();
         }
         final List<Get> getList = new ArrayList<>(getTraceInfoList.size());
         for (GetTraceInfo getTraceInfo : getTraceInfoList) {
+            final SpanHint hint = getTraceInfo.getHint();
+            final TimestampsFilter timeStampFilter = getTimeStampFilter(hint);
+
+            Filter filter = getFilter(defaultFilter, timeStampFilter);
             final Get get = createGet(getTraceInfo.getTransactionId(), columnFamily, filter);
             getList.add(get);
         }
         return getList;
+    }
+
+    private TimestampsFilter getTimeStampFilter(SpanHint hint) {
+        final long collectorAcceptorTime = hint.getCollectorAcceptorTime();
+        if (collectorAcceptorTime >= 0) {
+            return new TimestampsFilter(Arrays.asList(collectorAcceptorTime));
+        } else {
+            return null;
+        }
+    }
+
+    private Filter getFilter(Filter filter1, Filter filter2) {
+        if (filter1 != null && filter2 != null) {
+            FilterList filterList = new FilterList();
+            filterList.addFilter(filter1);
+            filterList.addFilter(filter2);
+            return filterList;
+        }
+        if (filter1 != null) {
+            return filter1;
+        }
+        if (filter2 != null) {
+            return filter2;
+        }
+        return null;
     }
 
     private List<List<SpanBo>> bulkSelect0(List<Get> multiGet, RowMapper<List<SpanBo>> rowMapperList) {
