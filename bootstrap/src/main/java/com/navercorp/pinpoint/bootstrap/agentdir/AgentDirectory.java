@@ -102,7 +102,7 @@ public class AgentDirectory {
     public String[] getProfilesDir() {
         final String profilesPath = getProfilesPath();
         final File profilesDir = new File(profilesPath);
-        return profilesDir.list(new FilenameFilter() {
+        final String[] profileDirs = profilesDir.list(new FilenameFilter() {
             @Override
             public boolean accept(File dir, String name) {
                 if (dir.isDirectory()) {
@@ -111,5 +111,13 @@ public class AgentDirectory {
                 return false;
             }
         });
+        return defaultStringArray(profileDirs);
+    }
+
+    private String[] defaultStringArray(String[] profileDirs) {
+        if (profileDirs == null) {
+            return new String[0];
+        }
+        return profileDirs;
     }
 }
