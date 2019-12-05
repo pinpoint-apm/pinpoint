@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.bootstrap;
 import com.navercorp.pinpoint.bootstrap.config.Profiles;
 import com.navercorp.pinpoint.common.util.PropertyUtils;
 import com.navercorp.pinpoint.common.util.SimpleProperty;
-import com.navercorp.pinpoint.common.util.SystemProperty;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,20 +32,24 @@ public class PropertyLoader {
     private static final String SEPARATOR = File.separator;
 
     private final BootLogger logger = BootLogger.getLogger(PinpointStarter.class.getName());
-    private final SimpleProperty systemProperty = SystemProperty.INSTANCE;
+    private final SimpleProperty systemProperty;
 
     private final String agentRootPath;
     private final String profilesPath;
 
     private final String[] supportedProfiles;
 
-    public PropertyLoader(String agentRootPath, String profilesPath, String[] supportedProfiles) {
+    public PropertyLoader(SimpleProperty systemProperty, String agentRootPath, String profilesPath, String[] supportedProfiles) {
+        if (systemProperty == null) {
+            throw new NullPointerException("systemProperty must not be null");
+        }
         if (agentRootPath == null) {
             throw new NullPointerException("agentRootPath");
         }
         if (profilesPath == null) {
             throw new NullPointerException("profilesPath");
         }
+        this.systemProperty = systemProperty;
         this.agentRootPath = agentRootPath;
         this.profilesPath = profilesPath;
         this.supportedProfiles = supportedProfiles;
@@ -71,7 +74,7 @@ public class PropertyLoader {
         }
 
         // 3. load external config
-        final String externalConfig = systemProperty.getProperty(Profiles.EXTERNAL_CONFIG_KEY);
+        final String externalConfig = this.systemProperty.getProperty(Profiles.EXTERNAL_CONFIG_KEY);
         if (externalConfig != null) {
             logger.info(String.format("load external config:%s", externalConfig));
             loadFileProperties(defaultProperties, externalConfig);
