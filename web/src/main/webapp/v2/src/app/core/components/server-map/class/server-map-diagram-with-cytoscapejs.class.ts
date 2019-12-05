@@ -93,7 +93,8 @@ export class ServerMapDiagramWithCytoscapejs extends ServerMapDiagram {
                         'loop-sweep': '-90deg'
                     }
                 }
-            ]
+            ],
+            wheelSensitivity: 0.3
         });
     }
 
