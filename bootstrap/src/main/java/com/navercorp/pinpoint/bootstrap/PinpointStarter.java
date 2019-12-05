@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.Profiles;
 import com.navercorp.pinpoint.common.Version;
+import com.navercorp.pinpoint.common.util.PropertySnapshot;
 import com.navercorp.pinpoint.common.util.SimpleProperty;
 import com.navercorp.pinpoint.common.util.SystemProperty;
 
@@ -141,8 +142,8 @@ class PinpointStarter {
         final String agentDirPath = agentDirectory.getAgentDirPath();
         final String profilesPath = agentDirectory.getProfilesPath();
         final String[] profilesDir = agentDirectory.getProfilesDir();
-
-        final PropertyLoader loader = new PropertyLoader(agentDirPath, profilesPath, profilesDir);
+        final SimpleProperty systemProperty = newSystemProperty();
+        final PropertyLoader loader = new PropertyLoader(systemProperty, agentDirPath, profilesPath, profilesDir);
         final Properties properties = loader.load();
         if (isTestAgent()) {
             properties.put(DefaultProfilerConfig.PROFILER_INTERCEPTOR_EXCEPTION_PROPAGATE, "true");
@@ -152,6 +153,14 @@ class PinpointStarter {
         properties.put(Profiles.LOG_CONFIG_LOCATION, log4jLocation);
         logger.info(String.format("logConfig path:%s", log4jLocation));
         return properties;
+    }
+
+    private SimpleProperty newSystemProperty() {
+        final SimpleProperty systemProperty = new PropertySnapshot(System.getProperties());
+        if (isTestAgent()) {
+            systemProperty.setProperty(Profiles.ACTIVE_PROFILE_KEY, Profiles.IT_TEST_PROFILE);
+        }
+        return systemProperty;
     }
 
 
