@@ -17,17 +17,16 @@
 package com.navercorp.pinpoint.common.server.profile;
 
 import com.navercorp.pinpoint.common.util.StringUtils;
-import org.springframework.web.WebApplicationInitializer;
+import com.navercorp.pinpoint.common.util.SystemProperty;
 
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class ProfileApplicationInicationInitializer implements WebApplicationInitializer {
+public class ProfileApplicationInitializer {
 
 
     // refer to : org.springframework.core.env.AbstractEnvironment
@@ -41,38 +40,48 @@ public class ProfileApplicationInicationInitializer implements WebApplicationIni
     public static final String PINPOINT_ACTIVE_PROFILE = "pinpoint.profiles.active";
     // TODO
     public static final String PINPOINT_ACTIVE_OPTIONAL_PROFILE = "pinpoint.profiles.optional";
-    @Override
-    public void onStartup(ServletContext servletContext) throws ServletException {
-        String activeProfile = System.getProperty(ACTIVE_PROFILES_PROPERTY_NAME);
+
+    private final String name;
+    private final SystemProperty systemProperty;
+    private final String defaultProfile;
+
+
+    public ProfileApplicationInitializer(String name, SystemProperty systemProperty, String defaultProfile) {
+        this.name = Objects.requireNonNull(name, "name");
+        this.systemProperty = Objects.requireNonNull(systemProperty, "systemProperty");
+        this.defaultProfile = getDefaultProfile(defaultProfile);
+    }
+
+    public void onStartup() {
+        String activeProfile = this.systemProperty.getProperty(ACTIVE_PROFILES_PROPERTY_NAME);
         if (activeProfile == null) {
             if (!suppressGetenvAccess()) {
-                activeProfile = System.getenv(ACTIVE_PROFILES_PROPERTY_ENV_NAME);
+                activeProfile = this.systemProperty.getEnv(ACTIVE_PROFILES_PROPERTY_ENV_NAME);
             }
         }
         if (activeProfile == null) {
-            activeProfile = getDefaultProfile(servletContext);
+            activeProfile = this.defaultProfile;
         }
         LocalDateTime now = LocalDateTime.now();
-        final String activeProfileMessage = String.format("%s PINPOINT::ActiveProfile:%s", now, activeProfile);
+        final String activeProfileMessage = String.format("%s %s::ActiveProfile:%s", now, name, activeProfile);
         System.out.println(activeProfileMessage);
 
         List<String> profileList = StringUtils.tokenizeToStringList(activeProfile, ",");
         // TODO exclusive profile(local or release)
-        System.setProperty(PINPOINT_ACTIVE_PROFILE, profileList.get(0));
-        System.setProperty(ACTIVE_PROFILES_PROPERTY_NAME, activeProfile);
+        this.systemProperty.setProperty(PINPOINT_ACTIVE_PROFILE, profileList.get(0));
+        this.systemProperty.setProperty(ACTIVE_PROFILES_PROPERTY_NAME, activeProfile);
 
     }
 
-    private String getDefaultProfile(ServletContext servletContext) {
-        final String defaultProfile = servletContext.getInitParameter(PINPOINT_DEFAULT_ACTIVE_PROFILE_KEY);
+    private String getDefaultProfile(String defaultProfile) {
         if (StringUtils.isEmpty(defaultProfile)) {
             return PINPOINT_DEFAULT_PROFILE;
         }
         return defaultProfile;
     }
 
-    private boolean suppressGetenvAccess() {
-        String ignore = System.getenv(IGNORE_GETENV_PROPERTY_NAME);
+     private boolean suppressGetenvAccess() {
+        String ignore = this.systemProperty.getEnv(IGNORE_GETENV_PROPERTY_NAME);
         return Boolean.parseBoolean(ignore);
     }
 }
