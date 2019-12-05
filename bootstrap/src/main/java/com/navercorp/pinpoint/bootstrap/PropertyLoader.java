@@ -41,13 +41,16 @@ public class PropertyLoader {
 
     public PropertyLoader(SimpleProperty systemProperty, String agentRootPath, String profilesPath, String[] supportedProfiles) {
         if (systemProperty == null) {
-            throw new NullPointerException("systemProperty must not be null");
+            throw new NullPointerException("systemProperty");
         }
         if (agentRootPath == null) {
             throw new NullPointerException("agentRootPath");
         }
         if (profilesPath == null) {
             throw new NullPointerException("profilesPath");
+        }
+        if (supportedProfiles == null) {
+            throw new NullPointerException("supportedProfiles");
         }
         this.systemProperty = systemProperty;
         this.agentRootPath = agentRootPath;
