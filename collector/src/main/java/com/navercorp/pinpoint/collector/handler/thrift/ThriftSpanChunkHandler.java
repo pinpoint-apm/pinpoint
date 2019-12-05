@@ -62,7 +62,7 @@ public class ThriftSpanChunkHandler implements SimpleHandler {
             final SpanChunkBo spanChunkBo = this.spanFactory.buildSpanChunkBo(tbase);
             this.traceService.insertSpanChunk(spanChunkBo);
         } catch (Exception e) {
-            logger.warn("SpanChunk handle error Caused:{}", e.getMessage(), e);
+            logger.warn("Failed to handle SpanChunk={}, Caused={}", tbase, e.getMessage(), e);
         }
     }
 }
