@@ -77,7 +77,11 @@ public class GrpcAgentStatHandlerV2 implements SimpleHandler {
         }
 
         for (AgentStatService agentStatService : agentStatServiceList) {
-            agentStatService.save(agentStatBo);
+            try {
+                agentStatService.save(agentStatBo);
+            } catch (Exception e) {
+                logger.warn("Failed to handle service={}, AgentStat={}", agentStatService, MessageFormatUtils.debugLog(agentStat), e);
+            }
         }
     }
 
@@ -93,7 +97,11 @@ public class GrpcAgentStatHandlerV2 implements SimpleHandler {
         }
 
         for (AgentStatService agentStatService : agentStatServiceList) {
-            agentStatService.save(agentStatBo);
+            try {
+                agentStatService.save(agentStatBo);
+            } catch (Exception e) {
+                logger.warn("Failed to handle service={}, AgentStatBatch={}", agentStatService, MessageFormatUtils.debugLog(agentStatBatch), e);
+            }
         }
     }
 }

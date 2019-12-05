@@ -68,7 +68,7 @@ public class ThriftSpanHandler implements SimpleHandler {
             final SpanBo spanBo = spanFactory.buildSpanBo(tSpan);
             traceService.insertSpan(spanBo);
         } catch (Exception e) {
-            logger.warn("Span handle error. Caused:{}. Span:{}", e.getMessage(), tSpan, e);
+            logger.warn("Failed to handle Span={}, Caused:{}", tSpan, e.getMessage(), e);
         }
     }
 }

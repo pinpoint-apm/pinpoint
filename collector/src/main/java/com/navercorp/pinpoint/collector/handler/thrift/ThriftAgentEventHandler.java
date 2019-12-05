@@ -75,7 +75,12 @@ public class ThriftAgentEventHandler implements SimpleHandler {
         if (agentEventBo == null) {
             return;
         }
-        insert(agentEventBo);
+
+        try {
+            insert(agentEventBo);
+        } catch (Exception e) {
+            logger.warn("Failed to handle AgentStat={}", agentStat, e);
+        }
     }
 
     private void handleAgentStatBatch(TAgentStatBatch tAgentStatBatch) {
@@ -83,21 +88,19 @@ public class ThriftAgentEventHandler implements SimpleHandler {
         if (CollectionUtils.isEmpty(agentEventBoList)) {
             return;
         }
-
-        for (AgentEventBo agentEventBo : agentEventBoList) {
-            insert(agentEventBo);
+        try {
+            for (AgentEventBo agentEventBo : agentEventBoList) {
+                insert(agentEventBo);
+            }
+        } catch (Exception e) {
+            logger.warn("Failed to handle AgentStatBatch={}", tAgentStatBatch, e);
         }
     }
 
     private void insert(final AgentEventBo agentEventBo) {
-        try {
-            final Object eventMessage = getEventMessage(agentEventBo);
-            final byte[] eventBody = agentEventMessageSerializerV1.serialize(agentEventBo.getEventType(), eventMessage);
-            agentEventBo.setEventBody(eventBody);
-        } catch (Exception e) {
-            logger.warn("error handling agent event", e);
-            return;
-        }
+        final Object eventMessage = getEventMessage(agentEventBo);
+        final byte[] eventBody = agentEventMessageSerializerV1.serialize(agentEventBo.getEventType(), eventMessage);
+        agentEventBo.setEventBody(eventBody);
         this.agentEventService.insert(agentEventBo);
     }
 

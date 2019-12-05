@@ -58,7 +58,6 @@ public class ThriftAgentInfoHandler implements SimpleAndRequestResponseHandler {
         }
     }
 
-
     @Override
     public void handleRequest(ServerRequest serverRequest, ServerResponse serverResponse) {
         final Object data = serverRequest.getData();
@@ -70,7 +69,7 @@ public class ThriftAgentInfoHandler implements SimpleAndRequestResponseHandler {
             final Object result = handleAgentInfo((TAgentInfo) data);
             serverResponse.write(result);
         } else {
-            logger.warn("invalid serverRequest:{}", serverRequest);
+            logger.warn("Invalid serverRequest:{}", serverRequest);
         }
     }
 
@@ -81,7 +80,7 @@ public class ThriftAgentInfoHandler implements SimpleAndRequestResponseHandler {
             this.agentInfoService.insert(agentInfoBo);
             return new TResult(true);
         } catch (Exception e) {
-            logger.warn("AgentInfo handle error. Caused:{}", e.getMessage(), e);
+            logger.warn("Failed to handle AgentInfo={}, Caused:{}", agentInfo, e.getMessage(), e);
             final TResult result = new TResult(false);
             result.setMessage(e.getMessage());
             return result;
