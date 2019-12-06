@@ -18,8 +18,12 @@ package com.navercorp.pinpoint.plugin.reactor;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 
+/**
+ * @author jaehong.kim
+ */
 public class ReactorPluginConfig {
     private final boolean enable;
+    private final boolean traceSubscribeError;
 
     public ReactorPluginConfig(ProfilerConfig config) {
         if (config == null) {
@@ -28,9 +32,23 @@ public class ReactorPluginConfig {
 
         // plugin
         this.enable = config.readBoolean("profiler.reactor.enable", true);
+        this.traceSubscribeError = config.readBoolean("profiler.reactor.trace.subscribe.error", true);
     }
 
     public boolean isEnable() {
         return enable;
+    }
+
+    public boolean isTraceSubscribeError() {
+        return traceSubscribeError;
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("ReactorPluginConfig{");
+        sb.append("enable=").append(enable);
+        sb.append(", traceSubscribeError=").append(traceSubscribeError);
+        sb.append('}');
+        return sb.toString();
     }
 }
