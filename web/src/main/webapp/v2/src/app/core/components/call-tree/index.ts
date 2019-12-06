@@ -1,6 +1,6 @@
 
 import { NgModule } from '@angular/core';
-import { AgGridModule } from 'ag-grid-angular/main';
+import { AgGridModule } from 'ag-grid-angular';
 
 import { SharedModule } from 'app/shared';
 import { CallTreeComponent } from './call-tree.component';

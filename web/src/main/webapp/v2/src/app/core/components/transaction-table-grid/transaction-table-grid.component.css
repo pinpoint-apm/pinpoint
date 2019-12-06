@@ -8,8 +8,8 @@
     font-family: 'Open Sans', sans-serif;
 }
 #transaction-table .ag-cell {
-    padding: 4px 4px 4px 7px;
-    border-right: 1px solid #e6e8ec;
+    padding: 4px;
+    /* border-right: 1px solid #e6e8ec; */
     font-family: 'Open Sans', sans-serif;
 }
 #transaction-table .ag-column-moving .ag-cell {
@@ -36,7 +36,7 @@
     font-size: 12px;
     font-weight: 600;
     font-family: 'Open Sans', sans-serif;
-    border-right: 1px solid #e6e8ec;
+    /* border-right: 1px solid #e6e8ec; */
     padding-left: 2px;
     padding-right: 2px;
 }
@@ -55,7 +55,7 @@
 #transaction-table .ag-row {
     cursor: pointer;
     line-height: 2;
-    border-bottom: 1px solid #e6e8ec;
+    /* border-bottom: 1px solid #e6e8ec; */
 }
 #transaction-table .ag-body {
     background-color: #ffffff;
@@ -75,4 +75,8 @@
 }
 #transaction-table .ag-row-selected {
     background-color: #e4f5e3;
+}
+
+#transaction-table .id-header .ag-header-cell-label {
+    justify-content: center !important;
 }
