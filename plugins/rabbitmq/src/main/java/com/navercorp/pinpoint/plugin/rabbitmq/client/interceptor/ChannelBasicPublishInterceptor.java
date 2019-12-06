@@ -11,9 +11,10 @@ import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScopeInvocation;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
-import com.navercorp.pinpoint.plugin.rabbitmq.client.RabbitMQClientPluginConfig;
 import com.navercorp.pinpoint.plugin.rabbitmq.client.RabbitMQClientConstants;
+import com.navercorp.pinpoint.plugin.rabbitmq.client.RabbitMQClientPluginConfig;
 import com.navercorp.pinpoint.plugin.rabbitmq.client.field.accessor.RemoteAddressAccessor;
+
 import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
@@ -66,17 +67,15 @@ public class ChannelBasicPublishInterceptor implements AroundInterceptor {
             return;
         }
 
-        if (trace.canSampled()) {
-            SpanEventRecorder recorder = trace.traceBlockBegin();
-            recorder.recordServiceType(RabbitMQClientConstants.RABBITMQ_CLIENT);
+        SpanEventRecorder recorder = trace.traceBlockBegin();
+        recorder.recordServiceType(RabbitMQClientConstants.RABBITMQ_CLIENT);
 
-            TraceId nextId = trace.getTraceId().getNextTraceId();
+        TraceId nextId = trace.getTraceId().getNextTraceId();
 
-            recorder.recordNextSpanId(nextId.getSpanId());
+        recorder.recordNextSpanId(nextId.getSpanId());
 
-            InterceptorScopeInvocation invocation = scope.getCurrentInvocation();
-            invocation.setAttachment(nextId);
-        }
+        InterceptorScopeInvocation invocation = scope.getCurrentInvocation();
+        invocation.setAttachment(nextId);
     }
 
     @Override
@@ -90,7 +89,7 @@ public class ChannelBasicPublishInterceptor implements AroundInterceptor {
         }
 
         final Trace trace = traceContext.currentTraceObject();
-        if (trace == null || !trace.canSampled()) {
+        if (trace == null) {
             return;
         }
 

@@ -78,9 +78,6 @@ public class ContextInvocationInterceptor implements AroundInterceptor {
             if (trace == null) {
                 return;
             }
-            if (!trace.canSampled()) {
-                return;
-            }
             final SpanEventRecorder recorder = trace.traceBlockBegin();
             recorder.recordServiceType(JbossConstants.JBOSS_METHOD);
         } catch (final Throwable th) {
@@ -106,9 +103,6 @@ public class ContextInvocationInterceptor implements AroundInterceptor {
             return;
         }
 
-        if (!trace.canSampled()) {
-            return;
-        }
         try {
             final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
             recorder.recordApi(methodDescriptor);
