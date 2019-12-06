@@ -5,12 +5,12 @@
 }
 
 ::ng-deep .l-icon-without-btn {
-    margin-left: 3px;
+    /* margin-left: 3px; */
     margin-right: 3px
 }
 
 ::ng-deep .l-btn-inside-method {
-    margin-left: 3px;
+    /* margin-left: 3px; */
     margin-right: 3px;
 }
 

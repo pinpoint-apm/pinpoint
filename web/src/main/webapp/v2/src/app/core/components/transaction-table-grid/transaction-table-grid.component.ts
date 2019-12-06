@@ -124,6 +124,7 @@ export class TransactionTableGridComponent implements OnInit, OnChanges {
                 headerName: '#',
                 field: 'id',
                 width: 40,
+                headerClass: 'id-header',
                 cellStyle: () => {
                     return {'text-align': 'center'};
                 },
@@ -150,7 +151,7 @@ export class TransactionTableGridComponent implements OnInit, OnChanges {
             {
                 headerName: 'Res(ms)',
                 field: 'responseTime',
-                width: 75,
+                width: 85,
                 cellStyle: this.alignRightCellStyle,
                 sort: 'desc',
                 valueFormatter: (params: any) => {

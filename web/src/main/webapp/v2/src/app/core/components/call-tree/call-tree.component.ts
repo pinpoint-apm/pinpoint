@@ -317,13 +317,13 @@ export class CallTreeComponent implements OnInit, OnChanges, AfterViewInit {
 
             switch (itemMethodType) {
                 case 100:
-                    result += '<i class="fa fa-paper-plane l-icon-without-btn"></i>';
+                    result += '<i class="fas fa-paper-plane l-icon-without-btn"></i>';
                     break;
                 case 200:
-                    result += '<i class="fa fa-exchange l-icon-without-btn"></i>';
+                    result += '<i class="fas fa-exchange-alt l-icon-without-btn"></i>';
                     break;
                 case 900:
-                    result += '<i class="fa fa-eclamation-triangle l-icon-without-btn" style="color:#FF6600"></i>';
+                    result += '<i class="fas fa-exclamation-triangle l-icon-without-btn" style="color:#FF6600"></i>';
                     break;
             }
         }
