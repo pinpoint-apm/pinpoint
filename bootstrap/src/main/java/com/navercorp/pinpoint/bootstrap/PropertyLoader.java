@@ -93,6 +93,10 @@ public class PropertyLoader {
         if (profile == null) {
             profile = defaultProperties.getProperty(Profiles.ACTIVE_PROFILE_KEY, Profiles.DEFAULT_ACTIVE_PROFILE);
         }
+        if (profile == null) {
+            // empty profile
+            return null;
+        }
 
         // prevent directory traversal attack
         for (String supportedProfile : supportedProfiles) {

@@ -105,7 +105,7 @@ class PinpointStarter {
 
             ProfilerConfig profilerConfig = new DefaultProfilerConfig(properties);
 
-
+            saveLogConfigLocation(properties);
             // set the path of log file as a system property
             saveLogFilePath(agentDirectory);
             savePinpointVersion();
@@ -141,21 +141,17 @@ class PinpointStarter {
 
         final String agentDirPath = agentDirectory.getAgentDirPath();
         final String profilesPath = agentDirectory.getProfilesPath();
-        final String[] profilesDir = agentDirectory.getProfilesDir();
-        final SimpleProperty systemProperty = newSystemProperty();
-        final PropertyLoader loader = new PropertyLoader(systemProperty, agentDirPath, profilesPath, profilesDir);
+        final String[] profileDirs = agentDirectory.getProfileDirs();
+        final SimpleProperty systemProperty = copySystemProperty();
+        final PropertyLoader loader = new PropertyLoader(systemProperty, agentDirPath, profilesPath, profileDirs);
         final Properties properties = loader.load();
         if (isTestAgent()) {
             properties.put(DefaultProfilerConfig.PROFILER_INTERCEPTOR_EXCEPTION_PROPAGATE, "true");
         }
-
-        final String log4jLocation= getLog4jXML(agentDirectory, properties);
-        properties.put(Profiles.LOG_CONFIG_LOCATION, log4jLocation);
-        logger.info(String.format("logConfig path:%s", log4jLocation));
         return properties;
     }
 
-    private SimpleProperty newSystemProperty() {
+    private SimpleProperty copySystemProperty() {
         final SimpleProperty systemProperty = new PropertySnapshot(System.getProperties());
         if (isTestAgent()) {
             systemProperty.setProperty(Profiles.ACTIVE_PROFILE_KEY, Profiles.IT_TEST_PROFILE);
@@ -209,6 +205,12 @@ class PinpointStarter {
     // for test
     void setSystemProperty(SimpleProperty systemProperty) {
         this.systemProperty = systemProperty;
+    }
+
+    private void saveLogConfigLocation(Properties properties) {
+        final String log4jLocation= getLog4jXML(agentDirectory, properties);
+        properties.put(Profiles.LOG_CONFIG_LOCATION, log4jLocation);
+        logger.info(String.format("logConfig path:%s", log4jLocation));
     }
 
     private void saveLogFilePath(AgentDirectory agentDirectory) {
