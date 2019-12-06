@@ -99,7 +99,7 @@ public class AgentDirectory {
         return this.agentDirPath + File.separator + PROFILES_DIR;
     }
 
-    public String[] getProfilesDir() {
+    public String[] getProfileDirs() {
         final String profilesPath = getProfilesPath();
         final File profilesDir = new File(profilesPath);
         final String[] profileDirs = profilesDir.list(new FilenameFilter() {
