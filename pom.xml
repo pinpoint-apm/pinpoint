@@ -969,15 +969,6 @@
                 </configuration>
             </plugin>
             <plugin>
-                <groupId>org.owasp</groupId>
-                <artifactId>dependency-check-maven</artifactId>
-                <version>3.0.2</version>
-                <configuration>
-                    <nspAnalyzerEnabled>false</nspAnalyzerEnabled>
-                    <format>xml</format>
-                </configuration>
-            </plugin>
-            <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>animal-sniffer-maven-plugin</artifactId>
                 <version>${plugin.animal-sniffer.version}</version>
