@@ -16,68 +16,35 @@ package com.navercorp.pinpoint.plugin.arcus.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
-import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.logging.PLogger;
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
 import com.navercorp.pinpoint.plugin.arcus.ArcusConstants;
 import com.navercorp.pinpoint.plugin.arcus.CacheNameAccessor;
 
 /**
  * @author harebox
  */
-public class FrontCacheGetFutureGetInterceptor implements AroundInterceptor {
+public class FrontCacheGetFutureGetInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
 
-    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
-    private final boolean isDebug = logger.isDebugEnabled();
-
-    private final MethodDescriptor methodDescriptor;
-    private final TraceContext traceContext;
-    
     public FrontCacheGetFutureGetInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
-        this.methodDescriptor = methodDescriptor;
-        this.traceContext = traceContext;
+        super(traceContext, methodDescriptor);
     }
 
     @Override
-    public void before(Object target, Object[] args) {
-        if (isDebug) {
-            logger.beforeInterceptor(target, args);
-        }
-
-        final Trace trace = traceContext.currentTraceObject();
-        if (trace == null) {
-            return;
-        }
-        
-        trace.traceBlockBegin();
+    protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
     }
 
     @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable) {
-        if (isDebug) {
-            logger.afterInterceptor(target, args, result, throwable);
-        }
-
-        final Trace trace = traceContext.currentTraceObject();
-        if (trace == null) {
-            return;
-        }
-
-        try {
-            final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
-            recorder.recordApi(methodDescriptor);
-            if (target instanceof CacheNameAccessor) {
-                final String cacheName = ((CacheNameAccessor) target)._$PINPOINT$_getCacheName();
-                if (cacheName != null) {
-                    recorder.recordDestinationId(cacheName);
-                }
+    protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
+        recorder.recordApi(methodDescriptor);
+        if (target instanceof CacheNameAccessor) {
+            final String cacheName = ((CacheNameAccessor) target)._$PINPOINT$_getCacheName();
+            if (cacheName != null) {
+                recorder.recordDestinationId(cacheName);
             }
-
-            recorder.recordServiceType(ArcusConstants.ARCUS_EHCACHE_FUTURE_GET);
-        } finally {
-            trace.traceBlockEnd();
         }
+
+        recorder.recordServiceType(ArcusConstants.ARCUS_EHCACHE_FUTURE_GET);
     }
+
 }
