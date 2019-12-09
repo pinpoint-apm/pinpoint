@@ -18,13 +18,11 @@ package com.navercorp.pinpoint.plugin.resttemplate.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
-import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.logging.PLogger;
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.plugin.resttemplate.RestTemplateConstants;
+
 import org.springframework.http.client.ClientHttpResponse;
 
 import java.io.IOException;
@@ -32,58 +30,25 @@ import java.io.IOException;
 /**
  * @author Taejin Koo
  */
-public class HttpRequestInterceptor implements AroundInterceptor {
-
-    private final PLogger logger = PLoggerFactory.getLogger(getClass());
-    private final boolean isDebug = logger.isDebugEnabled();
-
-    private final TraceContext traceContext;
-    private final MethodDescriptor descriptor;
+public class HttpRequestInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
 
     public HttpRequestInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
-        this.traceContext = traceContext;
-        this.descriptor = descriptor;
+        super(traceContext, descriptor);
     }
 
     @Override
-    public void before(Object target, Object[] args) {
-        if (isDebug) {
-            logger.beforeInterceptor(target, args);
-        }
-
-        final Trace trace = traceContext.currentTraceObject();
-        if (trace == null) {
-            return;
-        }
-
-        SpanEventRecorder recorder = trace.traceBlockBegin();
+    protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
         recorder.recordServiceType(RestTemplateConstants.SERVICE_TYPE);
     }
 
     @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable) {
-        if (isDebug) {
-            logger.afterInterceptor(target, args);
-        }
+    protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) throws IOException {
+        recorder.recordApi(methodDescriptor);
+        recorder.recordException(throwable);
 
-        final Trace trace = traceContext.currentTraceObject();
-        if (trace == null) {
-            return;
-        }
-
-        try {
-            final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
-            recorder.recordApi(descriptor);
-            recorder.recordException(throwable);
-
-            if (result instanceof ClientHttpResponse) {
-                int rawStatusCode = ((ClientHttpResponse) result).getRawStatusCode();
-                recorder.recordAttribute(AnnotationKey.HTTP_STATUS_CODE, rawStatusCode);
-            }
-        } catch (IOException ioException) {
-            logger.warn("Failed to after process. {}", ioException.getMessage(), ioException);
-        } finally {
-            trace.traceBlockEnd();
+        if (result instanceof ClientHttpResponse) {
+            int rawStatusCode = ((ClientHttpResponse) result).getRawStatusCode();
+            recorder.recordAttribute(AnnotationKey.HTTP_STATUS_CODE, rawStatusCode);
         }
     }
 
