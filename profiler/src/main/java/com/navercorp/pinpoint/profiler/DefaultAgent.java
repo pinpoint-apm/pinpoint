@@ -138,7 +138,7 @@ public class DefaultAgent implements Agent {
     }
 
     private void initLogger(ProfilerConfig config) {
-        final String location = config.readString(Profiles.LOG_CONFIG_LOCATION, null);
+        final String location = config.readString(Profiles.LOG_CONFIG_LOCATION_KEY, null);
         if (location == null) {
             throw new IllegalStateException("$PINPOINT_DIR/profiles/${profile}/log4j.xml not found");
         }
