@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.bootstrap;
+package com.navercorp.pinpoint.bootstrap.config;
 
-import com.navercorp.pinpoint.bootstrap.config.Profiles;
+import com.navercorp.pinpoint.bootstrap.BootLogger;
 import com.navercorp.pinpoint.common.util.PropertyUtils;
 import com.navercorp.pinpoint.common.util.SimpleProperty;
 
@@ -27,85 +27,58 @@ import java.util.Properties;
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class PropertyLoader {
+class SimplePropertyLoader implements PropertyLoader {
 
     private static final String SEPARATOR = File.separator;
 
-    private final BootLogger logger = BootLogger.getLogger(PinpointStarter.class.getName());
+    private final BootLogger logger = BootLogger.getLogger(SimplePropertyLoader.class.getName());
     private final SimpleProperty systemProperty;
 
     private final String agentRootPath;
     private final String profilesPath;
 
-    private final String[] supportedProfiles;
 
-    public PropertyLoader(SimpleProperty systemProperty, String agentRootPath, String profilesPath, String[] supportedProfiles) {
+    public SimplePropertyLoader(SimpleProperty systemProperty, String agentRootPath, String profilesPath) {
         if (systemProperty == null) {
             throw new NullPointerException("systemProperty");
         }
         if (agentRootPath == null) {
             throw new NullPointerException("agentRootPath");
         }
-        if (profilesPath == null) {
-            throw new NullPointerException("profilesPath");
-        }
-        if (supportedProfiles == null) {
-            throw new NullPointerException("supportedProfiles");
-        }
         this.systemProperty = systemProperty;
         this.agentRootPath = agentRootPath;
         this.profilesPath = profilesPath;
-        this.supportedProfiles = supportedProfiles;
     }
 
+    @Override
     public Properties load() {
         final String defaultConfigPath = this.agentRootPath + SEPARATOR + Profiles.CONFIG_FILE_NAME;
-        Properties defaultProperties = new Properties();
-        // 1. load default Properties
-        logger.info(String.format("load default config:%s", defaultConfigPath));
-        loadFileProperties(defaultProperties, defaultConfigPath);
 
-        // 2. load profile
-        final String activeProfile = getActiveProfile(defaultProperties);
-        logger.info(String.format("active profile:%s", activeProfile));
-        if (activeProfile != null) {
-            final String profilePath = this.profilesPath + SEPARATOR + activeProfile + SEPARATOR + Profiles.PROFILE_CONFIG_FILE_NAME;
-            logger.info(String.format("load profile:%s", profilePath));
-            loadFileProperties(defaultProperties, profilePath);
+        final Properties defaultProperties = new Properties();
 
-            defaultProperties.setProperty(Profiles.ACTIVE_PROFILE_KEY, activeProfile);
-        }
-
-        // 3. load external config
         final String externalConfig = this.systemProperty.getProperty(Profiles.EXTERNAL_CONFIG_KEY);
         if (externalConfig != null) {
             logger.info(String.format("load external config:%s", externalConfig));
             loadFileProperties(defaultProperties, externalConfig);
+        } else {
+            logger.info(String.format("load default config:%s", defaultConfigPath));
+            loadFileProperties(defaultProperties, defaultConfigPath);
         }
-        // ?? 4. systemproperty -Dkey=value?
+        saveLogConfigLocation(defaultProperties);
         return defaultProperties;
     }
 
-    private String getActiveProfile(Properties defaultProperties) {
-//        env option support??
-//        String envProfile = System.getenv(ACTIVE_PROFILE_KEY);
-        String profile = systemProperty.getProperty(Profiles.ACTIVE_PROFILE_KEY);
-        if (profile == null) {
-            profile = defaultProperties.getProperty(Profiles.ACTIVE_PROFILE_KEY, Profiles.DEFAULT_ACTIVE_PROFILE);
-        }
-        if (profile == null) {
-            // empty profile
-            return null;
-        }
 
-        // prevent directory traversal attack
-        for (String supportedProfile : supportedProfiles) {
-            if (supportedProfile.equalsIgnoreCase(profile)) {
-                return supportedProfile;
-            }
-        }
-        throw new IllegalStateException("unsupported profile:" + profile);
+    private void saveLogConfigLocation(Properties properties) {
+        String activeProfile = systemProperty.getProperty(Profiles.ACTIVE_PROFILE_KEY, Profiles.DEFAULT_ACTIVE_PROFILE);
+        LogConfigResolver logConfigResolver = new ProfileLogConfigResolver(profilesPath, activeProfile);
+        final String log4jLocation = logConfigResolver.getLogPath();
+
+        properties.put(Profiles.LOG_CONFIG_LOCATION_KEY, log4jLocation);
+        logger.info(String.format("logConfig path:%s", log4jLocation));
     }
+
+
 
     private void loadFileProperties(Properties properties, String filePath) {
         try {

@@ -23,12 +23,17 @@ public final class Profiles {
     private Profiles() {
     }
 
-    public static final String LOG_CONFIG_LOCATION = "pinpoint.profiler.log.config.location";
+    public static final String LOG_CONFIG_LOCATION_KEY = "pinpoint.profiler.log.config.location";
+
+    public static final String CONFIG_LOAD_MODE_KEY = "pinpoint.config.load.mode";
+    public enum CONFIG_LOAD_MODE {
+        PROFILE,
+        // for IT TEST
+        SIMPLE
+    }
 
     public static final String ACTIVE_PROFILE_KEY = "pinpoint.profiler.profiles.active";
     public static final String DEFAULT_ACTIVE_PROFILE = "release";
-
-    public static final String IT_TEST_PROFILE = "local";
 
     // 1. default config
     public static final String CONFIG_FILE_NAME = "pinpoint.config";

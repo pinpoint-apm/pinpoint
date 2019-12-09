@@ -21,6 +21,8 @@ import com.navercorp.pinpoint.bootstrap.classloader.ProfilerLibs;
 import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.Profiles;
+import com.navercorp.pinpoint.bootstrap.config.PropertyLoader;
+import com.navercorp.pinpoint.bootstrap.config.PropertyLoaderFactory;
 import com.navercorp.pinpoint.common.Version;
 import com.navercorp.pinpoint.common.util.PropertySnapshot;
 import com.navercorp.pinpoint.common.util.SimpleProperty;
@@ -105,9 +107,7 @@ class PinpointStarter {
 
             ProfilerConfig profilerConfig = new DefaultProfilerConfig(properties);
 
-            saveLogConfigLocation(properties);
             // set the path of log file as a system property
-            saveLogFilePath(agentDirectory);
             savePinpointVersion();
 
             // this is the library list that must be loaded
@@ -143,7 +143,8 @@ class PinpointStarter {
         final String profilesPath = agentDirectory.getProfilesPath();
         final String[] profileDirs = agentDirectory.getProfileDirs();
         final SimpleProperty systemProperty = copySystemProperty();
-        final PropertyLoader loader = new PropertyLoader(systemProperty, agentDirPath, profilesPath, profileDirs);
+        final PropertyLoaderFactory factory = new PropertyLoaderFactory(systemProperty, agentDirPath, profilesPath, profileDirs);
+        final PropertyLoader loader = factory.newPropertyLoader();
         final Properties properties = loader.load();
         if (isTestAgent()) {
             properties.put(DefaultProfilerConfig.PROFILER_INTERCEPTOR_EXCEPTION_PROPAGATE, "true");
@@ -152,11 +153,7 @@ class PinpointStarter {
     }
 
     private SimpleProperty copySystemProperty() {
-        final SimpleProperty systemProperty = new PropertySnapshot(System.getProperties());
-        if (isTestAgent()) {
-            systemProperty.setProperty(Profiles.ACTIVE_PROFILE_KEY, Profiles.IT_TEST_PROFILE);
-        }
-        return systemProperty;
+        return new PropertySnapshot(System.getProperties());
     }
 
 
@@ -207,18 +204,6 @@ class PinpointStarter {
         this.systemProperty = systemProperty;
     }
 
-    private void saveLogConfigLocation(Properties properties) {
-        final String log4jLocation= getLog4jXML(agentDirectory, properties);
-        properties.put(Profiles.LOG_CONFIG_LOCATION, log4jLocation);
-        logger.info(String.format("logConfig path:%s", log4jLocation));
-    }
-
-    private void saveLogFilePath(AgentDirectory agentDirectory) {
-        String agentLogFilePath = agentDirectory.getAgentLogFilePath();
-        logger.info(String.format("logPath:%s", agentLogFilePath));
-
-        systemProperty.setProperty(ProductInfo.NAME + ".log", agentLogFilePath);
-    }
 
     private void savePinpointVersion() {
         logger.info(String.format("pinpoint version:%s", Version.VERSION));
@@ -244,12 +229,6 @@ class PinpointStarter {
         }
 
         return libUrlList.toArray(new URL[0]);
-    }
-
-    private String getLog4jXML(AgentDirectory classPathResolver, Properties properties) {
-        final String profilePath = properties.getProperty(Profiles.ACTIVE_PROFILE_KEY);
-        return classPathResolver.getProfilesPath() + File.separator + profilePath + File.separator + "log4j.xml";
-
     }
 
     private List<URL> resolveLib(List<URL> urlList) {

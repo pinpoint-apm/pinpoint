@@ -22,6 +22,7 @@ import java.util.List;
 public class PinpointPluginTestContext {
 
     private final String agentJar;
+    private final String profile;
     private final String configFile;
 
     private final List<String> requiredLibraries;
@@ -35,8 +36,9 @@ public class PinpointPluginTestContext {
     private final int jvmVersion;
     private final String javaExecutable;
 
-    public PinpointPluginTestContext(String agentJar, String configFile, List<String> requiredLibraries, List<String> mavenDependencyLibraries, Class<?> testClass, String testClassLocation, String[] jvmArguments, boolean debug, int jvmVersion, String javaExecutable) {
+    public PinpointPluginTestContext(String agentJar, String profile, String configFile, List<String> requiredLibraries, List<String> mavenDependencyLibraries, Class<?> testClass, String testClassLocation, String[] jvmArguments, boolean debug, int jvmVersion, String javaExecutable) {
         this.agentJar = agentJar;
+        this.profile = profile;
         this.configFile = configFile;
         this.requiredLibraries = requiredLibraries;
         this.mavenDependencyLibraries = mavenDependencyLibraries;
@@ -62,6 +64,10 @@ public class PinpointPluginTestContext {
 
     public String getAgentJar() {
         return agentJar;
+    }
+
+    public String getProfile() {
+        return profile;
     }
 
     public String getConfigFile() {
