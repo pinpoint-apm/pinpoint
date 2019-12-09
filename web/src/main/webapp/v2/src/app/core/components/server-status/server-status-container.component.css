@@ -16,8 +16,9 @@
 .l-status button {
     float: left;
 }
-.l-status button.disable {
+.l-status button:disabled {
     background-color: #CCC;
+    cursor: not-allowed;
 }
 .l-status-count {
     float: right;
