@@ -28,9 +28,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * @author Woonduk Kang(emeroad)
  */
 public class LoggingRejectedExecutionHandler implements RejectedExecutionHandler {
-
     private final AtomicLong rejectedCount = new AtomicLong(0);
-
     private final Logger logger;
     private final int logRate;
 
@@ -45,7 +43,8 @@ public class LoggingRejectedExecutionHandler implements RejectedExecutionHandler
     public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
         final long error = rejectedCount.incrementAndGet();
         if ((error % logRate) == 0) {
-            logger.warn("RejectedExecutionCount={}", error);
+            final int maxPoolSize = executor != null ? executor.getMaximumPoolSize() : -1;
+            logger.warn("The executor uses finite bounds for both maximum threads and work queue capacity, and is saturated. Check the maxPoolSize, queueCapacity, and HBase options in the configuration. maxPoolSize={}, rejectedCount={}", maxPoolSize, error);
         }
     }
 }
