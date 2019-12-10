@@ -3,6 +3,29 @@
 <log4j:configuration xmlns:log4j='http://jakarta.apache.org/log4j/'>
 
     <appender name="console" class="org.apache.log4j.ConsoleAppender">
+        <param name="Threshold" value="WARN"/>
+        <layout class="org.apache.log4j.EnhancedPatternLayout">
+            <!-- %L(line number) option is extremely slow. -->
+            <param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss} [%-5p](%-35.35c{1.}) %m%n"/>
+        </layout>
+    </appender>
+
+    <appender name="dailyRollingFile" class="org.apache.log4j.DailyRollingFileAppender">
+        <param name="file" value="${catalina.home}/logs/pinpoint-web.log"/>
+        <param name="Append" value="true"/>
+        <param name="DatePattern" value="'.'yyyy-MM-dd"/>
+
+        <layout class="org.apache.log4j.EnhancedPatternLayout">
+            <!-- %L(line number) option is extremely slow. -->
+            <param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss} [%-5p](%-35.35c{1.}) %m%n"/>
+        </layout>
+    </appender>
+
+    <appender name="rollingFile" class="org.apache.log4j.RollingFileAppender">
+        <param name="file" value="${catalina.home}/logs/pinpoint-web.log"/>
+        <param name="append" value="true"/>
+        <param name="maxFileSize" value="100MB"/>
+        <param name="maxBackupIndex" value="20"/>
         <layout class="org.apache.log4j.EnhancedPatternLayout">
             <!-- %L(line number) option is extremely slow. -->
             <param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss} [%-5p](%-35.35c{1.}) %m%n"/>
@@ -89,5 +112,6 @@
     <root>
         <level value="INFO"/>
         <appender-ref ref="console"/>
+        <appender-ref ref="dailyRollingFile"/>
     </root>
 </log4j:configuration>
