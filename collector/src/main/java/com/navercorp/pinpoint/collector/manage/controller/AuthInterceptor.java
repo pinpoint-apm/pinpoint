@@ -33,7 +33,7 @@ public class AuthInterceptor extends HandlerInterceptorAdapter {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @Value("${collector.admin.password}")
+    @Value("${collector.admin.password:}")
     private String password;
 
     @Value("${collector.admin.api.rest.active:false}")
