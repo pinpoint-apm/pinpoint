@@ -9,6 +9,20 @@
         http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
         http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd">
 
+    <bean id="webPropertyConfigurer" class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer">
+        <property name="locations">
+            <list>
+                <value>classpath:pinpoint-web.properties</value>
+                <value>classpath:profiles/${pinpoint.profiles.active}/pinpoint-web-env.properties</value>
+                <value>file:#{ systemProperties['pinpoint.web.config.location'] ?: '-Dpinpoint.web.config.location does not set' }</value>
+            </list>
+        </property>
+
+        <property name="fileEncoding" value="UTF-8"/>
+        <property name="ignoreUnresolvablePlaceholders" value="true"/>
+        <property name="ignoreResourceNotFound" value="true"/>
+    </bean>
+
     <mvc:annotation-driven>
         <mvc:message-converters>
             <bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">

@@ -47,7 +47,7 @@
                 <value>classpath:profiles/${pinpoint.profiles.active}/pinpoint-web-env.properties</value>
                 <value>classpath:profiles/${pinpoint.profiles.active}/batch-env.properties</value>
                 <!-- external property for override -->
-                <value>file:#{ systemProperties['pinpoint.collector.config.location'] ?: '-Dpinpoint.web.config.location does not set' }</value>
+                <value>file:#{ systemProperties['pinpoint.web.config.location'] ?: '-Dpinpoint.web.config.location does not set' }</value>
             </list>
         </property>
 
