@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.common.trace.ServiceTypeProvider;
 public class RedissonConstants {
     public static final ServiceType REDISSON = ServiceTypeProvider.getByName("REDIS_REDISSON");
     public static final ServiceType REDISSON_INTERNAL = ServiceTypeProvider.getByName("REDIS_REDISSON_INTERNAL");
+    public static final ServiceType REDISSON_REACTIVE = ServiceTypeProvider.getByName("REDIS_REDISSON_REACTIVE");
     public static final String REDISSON_SCOPE = "redisRedissonScope";
 
 }
