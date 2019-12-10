@@ -1,6 +1,6 @@
-import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
-import { Subject } from 'rxjs';
-import { takeUntil, filter } from 'rxjs/operators';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Subject, of } from 'rxjs';
+import { takeUntil, filter, map, tap, switchMap, catchError } from 'rxjs/operators';
 
 import { UrlPathId } from 'app/shared/models';
 import { NewUrlStateNotificationService, MessageQueueService, MESSAGE_TO } from 'app/shared/services';
@@ -12,54 +12,47 @@ import { ActiveThreadDumpDetailInfoDataService } from './active-thread-dump-deta
     styleUrls: ['./thread-dump-log-container.component.css'],
 })
 export class ThreadDumpLogContainerComponent implements OnInit, OnDestroy {
-    @ViewChild('logDisplay', { static: true }) target: ElementRef;
-    private unsubscribe: Subject<null> = new Subject();
+    private unsubscribe = new Subject<void>();
     private applicationName: string;
     private agentId: string;
+
     showLoading = false;
+    logData: string;
+
     constructor(
         private newUrlStateNotificationService: NewUrlStateNotificationService,
         private messageQueueService: MessageQueueService,
         private activeThreadDumpDetailInfoDataService: ActiveThreadDumpDetailInfoDataService
     ) {}
+
     ngOnInit() {
         this.newUrlStateNotificationService.onUrlStateChange$.pipe(
             takeUntil(this.unsubscribe),
-            filter((urlService: NewUrlStateNotificationService) => {
-                return urlService.hasValue(UrlPathId.APPLICATION, UrlPathId.AGENT_ID);
-            }
-        )).subscribe((urlService: NewUrlStateNotificationService) => {
+            filter((urlService: NewUrlStateNotificationService) => urlService.hasValue(UrlPathId.APPLICATION, UrlPathId.AGENT_ID))
+        ).subscribe((urlService: NewUrlStateNotificationService) => {
             this.applicationName = urlService.getPathValue(UrlPathId.APPLICATION).getApplicationName();
             this.agentId = urlService.getPathValue(UrlPathId.AGENT_ID);
         });
-        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.THREAD_DUMP_SET_PARAM).subscribe((param: any[]) => {
-            const threadParam = param[0] as {
-                threadName: string;
-                localTraceId: number;
-            };
-            this.showLoading = true;
-            this.loadData(threadParam.threadName, threadParam.localTraceId);
+
+        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.THREAD_DUMP_SET_PARAM).pipe(
+            tap(() => this.showLoading = true),
+            switchMap(([{threadName, localTraceId}]: any[])=> {
+                return this.activeThreadDumpDetailInfoDataService.getData(this.applicationName, this.agentId, threadName, localTraceId)
+            }),
+            map(({code, message}: {[key: string]: any}) => {
+                return code === -1 ? message
+                    : message.threadDumpData.length > 0 ? message.threadDumpData[0].detailMessage
+                    : 'There is no message(may be completed)';
+            }),
+            catchError((error: IServerErrorFormat) => {
+                return of(error.exception.message);
+            }),
+        ).subscribe((message: string) => {
+            this.showLoading = false;
+            this.logData = message;
         });
     }
-    private loadData(threadName: string, localTraceId: number): void {
-        this.activeThreadDumpDetailInfoDataService.getData(this.applicationName, this.agentId, threadName, localTraceId).subscribe((data: any) => {
-            let msg = '';
-            if (data.code === -1) {
-                msg = data.message;
-            } else {
-                if (data.message.threadDumpData.length > 0) {
-                    msg = data.message.threadDumpData[0].detailMessage;
-                } else {
-                    msg = 'There is no message( may be completed )';
-                }
-            }
-            this.target.nativeElement.value = msg;
-            this.showLoading = false;
-        }, (error: IServerErrorFormat) => {
-            this.target.nativeElement.value = error.exception.message;
-            this.showLoading = false;
-        });
-    }
+
     ngOnDestroy() {
         this.unsubscribe.next();
         this.unsubscribe.complete();

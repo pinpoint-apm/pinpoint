@@ -44,6 +44,7 @@ import { WindowRefService } from './services/window-ref.service';
 import { ApplicationListDataService } from './services/application-list-data.service';
 import { SafeStylePipe } from './pipes/safe-style.pipe';
 import { RetryComponent } from './components/retry';
+import { HandleObsPipe } from './pipes/handle-obs.pipe';
 
 @NgModule({
     declarations: [
@@ -60,6 +61,7 @@ import { RetryComponent } from './components/retry';
         SafeHtmlPipe,
         SafeStylePipe,
         JSONTextParserPipe,
+        HandleObsPipe,
         ContextPopupDirective,
         SplitterDirective,
         SearchInputDirective
@@ -87,6 +89,7 @@ import { RetryComponent } from './components/retry';
         SafeHtmlPipe,
         SafeStylePipe,
         JSONTextParserPipe,
+        HandleObsPipe,
         ContextPopupDirective,
         SplitterDirective,
         SearchInputDirective
