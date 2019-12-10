@@ -24,11 +24,13 @@ import com.navercorp.pinpoint.bootstrap.instrument.MethodFilters;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformCallback;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplate;
 import com.navercorp.pinpoint.bootstrap.instrument.transformer.TransformTemplateAware;
+import com.navercorp.pinpoint.bootstrap.interceptor.BasicMethodInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.plugin.redis.redisson.interceptor.CommandAsyncServiceMethodInterceptor;
+import com.navercorp.pinpoint.plugin.redis.redisson.interceptor.ReactiveMethodInterceptor;
 import com.navercorp.pinpoint.plugin.redis.redisson.interceptor.RedissonMethodInterceptor;
 
 import java.security.ProtectionDomain;
@@ -121,7 +123,8 @@ public class RedissonPlugin implements ProfilerPlugin, TransformTemplateAware {
 
         // Reactive
         this.transformTemplate.transform("org.redisson.RedissonReactive", RedissionMethodTransform.class);
-        this.transformTemplate.transform("org.redisson.reactive.ReactiveProxyBuilder$1$1", RedissionMethodTransform.class);
+        this.transformTemplate.transform("org.redisson.reactive.ReactiveProxyBuilder$1", ReactiveProxyBuilderTransform.class);
+        this.transformTemplate.transform("org.redisson.reactive.ReactiveProxyBuilder$1$1", ReactiveProxyBuilderTransform.class);
 
         this.transformTemplate.transform("org.redisson.reactive.RedissonReadWriteLockReactive", RedissionMethodTransform.class);
         this.transformTemplate.transform("org.redisson.reactive.RedissonMapCacheReactive", RedissionMethodTransform.class);
@@ -179,4 +182,19 @@ public class RedissonPlugin implements ProfilerPlugin, TransformTemplateAware {
             return target.toBytecode();
         }
     }
+
+    public static class ReactiveProxyBuilderTransform implements TransformCallback {
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
+
+            final InstrumentMethod executeMethod = target.getDeclaredMethod("execute", "java.lang.reflect.Method", "java.lang.Object", "java.lang.Object[]");
+            if (executeMethod != null) {
+                executeMethod.addInterceptor(ReactiveMethodInterceptor.class);
+            }
+
+            return target.toBytecode();
+        }
+    }
+
 }
