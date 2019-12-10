@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, Input, Output, EventEmitter, ViewEncapsulation } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter, ViewEncapsulation } from '@angular/core';
 import * as moment from 'moment-timezone';
 import { GridOptions } from 'ag-grid-community';
 
@@ -21,16 +21,19 @@ export interface IThreadDumpData {
     styleUrls: ['./thread-dump-list.component.css'],
     encapsulation: ViewEncapsulation.None
 })
-export class ThreadDumpListComponent implements OnInit, OnDestroy {
+export class ThreadDumpListComponent implements OnInit {
     @Input() rowData: IThreadDumpData[];
     @Input() timezone: string;
     @Input() dateFormat: string;
-    @Output() outSelectThread: EventEmitter<any> = new EventEmitter();
+    @Output() outSelectThread = new EventEmitter<any>();
+
     gridOptions: GridOptions;
+
     constructor() {}
     ngOnInit() {
         this.initGridOptions();
     }
+
     private initGridOptions(): void {
         this.gridOptions = <GridOptions>{
             defaultColDef: {
@@ -43,17 +46,11 @@ export class ThreadDumpListComponent implements OnInit, OnDestroy {
             rowSelection: 'single',
             headerHeight: 34,
             enableCellTextSelection: true,
-            onCellClicked: (params: any) => {
-                if ( params.colDef.field === 'localTraceId' ) {
-                    const tag = params.event.target.tagName.toUpperCase();
-                    if (tag === 'I' || tag === 'BUTTON' ) {
-                        this.outSelectThread.next({
-                            threadName: params.data.name,
-                            localTraceId: params.data.localTraceId
-                        });
-                        return;
-                    }
-                }
+            onCellClicked: ({data}: any) => {
+                this.outSelectThread.next({
+                    threadName: data.name,
+                    localTraceId: data.localTraceId
+                });
             }
         };
     }
@@ -61,6 +58,7 @@ export class ThreadDumpListComponent implements OnInit, OnDestroy {
         return [
             {
                 headerName: '#',
+                headerClass: 'order-header',
                 field: 'index',
                 width: 30,
                 cellStyle: () => {
@@ -69,7 +67,8 @@ export class ThreadDumpListComponent implements OnInit, OnDestroy {
                 suppressSizeToFit: true
             },
             {
-                headerName: 'id',
+                headerName: 'ID',
+                headerClass: 'id-header',
                 field: 'id',
                 width: 60,
                 cellStyle: () => {
@@ -78,19 +77,19 @@ export class ThreadDumpListComponent implements OnInit, OnDestroy {
                 suppressSizeToFit: true
             },
             {
-                headerName: 'name',
+                headerName: 'Name',
                 field: 'name',
                 width: 150,
                 tooltipField: 'name'
             },
             {
-                headerName: 'state',
+                headerName: 'State',
                 field: 'state',
                 width: 120,
                 suppressSizeToFit: true
             },
             {
-                headerName: 'start time',
+                headerName: 'StartTime',
                 field: 'startTime',
                 width: 140,
                 valueFormatter: (params: any) => {
@@ -100,51 +99,38 @@ export class ThreadDumpListComponent implements OnInit, OnDestroy {
                 tooltipField: 'startTime'
             },
             {
-                headerName: 'exec(ms)',
+                headerName: 'Exec(ms)',
                 field: 'exec',
                 width: 120,
                 suppressSizeToFit: true
             },
             {
-                headerName: 'sampled',
+                headerName: 'Sampled',
                 field: 'sampled',
                 width: 90,
                 suppressSizeToFit: true
             },
             {
-                headerName: 'path',
+                headerName: 'Path',
                 field: 'path',
                 width: 200,
                 tooltipField: 'path'
             },
             {
-                headerName: 'transaction id',
+                headerName: 'Transaction ID',
                 field: 'transactionId',
                 width: 220,
                 suppressSizeToFit: true,
                 tooltipField: 'transactionId'
-            },
-            {
-                headerName: '',
-                field: 'localTraceId',
-                width: 40,
-                cellStyle: () => {
-                    return {'text-align': 'center'};
-                },
-                cellRenderer: () => {
-                    return '<button><i class="fa fa-search"></i></button>';
-                },
-                suppressSizeToFit: true
             }
         ];
     }
-    ngOnDestroy() {
-    }
+
     onGridReady(params: GridOptions): void {
         this.gridOptions.api.sizeColumnsToFit();
     }
+
     onGridSizeChanged(params: GridOptions): void {
         this.gridOptions.api.sizeColumnsToFit();
     }
-
 }
