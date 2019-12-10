@@ -167,12 +167,10 @@ public class SharedProcessManager implements ProcessManager {
         if (context.getProfile() != null) {
             list.add("-Dpinpoint.profiler.profiles.active=" + context.getProfile());
         }
-        // need dynamic change
-//        if (context.getConfigMode()) {
-        list.add("-Dpinpoint.config.load.mode=simple");
 
         if (context.getConfigFile() != null) {
             list.add("-Dpinpoint.config=" + context.getConfigFile());
+            list.add("-Dpinpoint.config.load.mode=simple");
         }
 
         for (String arg : getVmArgs()) {
