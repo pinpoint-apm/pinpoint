@@ -33,12 +33,15 @@ import org.apache.flink.streaming.api.functions.source.SourceFunction.SourceCont
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import java.util.Map;
+
 /**
  * @author minwoo.jung
  */
 public class Bootstrap {
+    private static final String SPRING_PROFILE = "spring.profiles.active";
 
-    private final static Bootstrap INSTANCE = new Bootstrap();
+    private volatile static Bootstrap instance;
 
     private final StatisticsDao statisticsDao;
 
@@ -89,8 +92,18 @@ public class Bootstrap {
         return fileDescriptorDao;
     }
 
-    public static Bootstrap getInstance() {
-        return INSTANCE;
+    public static Bootstrap getInstance(Map<String, String> jobParameters) {
+        if (instance == null)  {
+            synchronized(Bootstrap.class) {
+                if (instance == null) {
+                    String profiles = jobParameters.getOrDefault(SPRING_PROFILE, "local");
+                    System.setProperty(SPRING_PROFILE, profiles);
+                    instance = new Bootstrap();
+                }
+            }
+        }
+
+        return instance;
     }
 
     public ApplicationContext getApplicationContext() {

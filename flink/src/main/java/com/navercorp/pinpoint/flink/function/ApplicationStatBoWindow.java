@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.flink.function;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinApplicationStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinStatBo;
 import com.navercorp.pinpoint.flink.Bootstrap;
+import org.apache.flink.api.common.ExecutionConfig.GlobalJobParameters;
 import org.apache.flink.api.java.tuple.Tuple;
 import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.configuration.Configuration;
@@ -44,7 +45,8 @@ public class ApplicationStatBoWindow extends RichWindowFunction<Tuple3<String, J
 
     @Override
     public void open(Configuration parameters) throws Exception {
-        applicationStatBoWindowInterceptor = Bootstrap.getInstance().getApplicationStatBoWindowInterceptor();
+        GlobalJobParameters globalJobParameters = getRuntimeContext().getExecutionConfig().getGlobalJobParameters();
+        applicationStatBoWindowInterceptor = Bootstrap.getInstance(globalJobParameters.toMap()).getApplicationStatBoWindowInterceptor();
 
     }
 
