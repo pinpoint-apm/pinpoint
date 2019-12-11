@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.flink.function.ApplicationStatBoWindow;
 import com.navercorp.pinpoint.flink.mapper.thrift.stat.JoinAgentStatBoMapper;
 import com.navercorp.pinpoint.flink.vo.RawData;
 import com.navercorp.pinpoint.thrift.dto.flink.TFAgentStatBatch;
+import org.apache.flink.api.common.ExecutionConfig.GlobalJobParameters;
 import org.apache.flink.api.common.functions.RichFlatMapFunction;
 import org.apache.flink.api.java.tuple.Tuple3;
 
@@ -57,8 +58,9 @@ public class TBaseFlatMapper extends RichFlatMapFunction<RawData, Tuple3<String,
     }
 
     public void open(Configuration parameters) throws Exception {
+        GlobalJobParameters globalJobParameters = getRuntimeContext().getExecutionConfig().getGlobalJobParameters();
         this.joinAgentStatBoMapper = new JoinAgentStatBoMapper();
-        Bootstrap bootstrap = Bootstrap.getInstance();
+        Bootstrap bootstrap = Bootstrap.getInstance(globalJobParameters.toMap());
         applicationCache = bootstrap.getApplicationCache();
         tBaseFlatMapperInterceptor = bootstrap.getTbaseFlatMapperInterceptor();
     }
