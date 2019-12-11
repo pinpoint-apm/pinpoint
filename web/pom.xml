@@ -385,7 +385,7 @@
             <plugin>
                 <groupId>com.github.eirslett</groupId>
                 <artifactId>frontend-maven-plugin</artifactId>
-                <version>1.5</version>
+                <version>${plugin.frontend.version}</version>
                 <configuration>
                     <srcdir>${basedir}/target/main/webapp</srcdir>
                     <outputdir>${basedir}/target/main/webapp</outputdir>
@@ -399,8 +399,8 @@
                             <goal>install-node-and-npm</goal>
                         </goals>
                         <configuration>
-                            <nodeVersion>v5.11.1</nodeVersion>
-                            <npmVersion>3.9.6</npmVersion>
+                            <nodeVersion>${plugin.frontend.node.version}</nodeVersion>
+                            <npmVersion>${plugin.frontend.npm.version}</npmVersion>
                             <workingDirectory>${basedir}/target</workingDirectory>
                         </configuration>
                     </execution>
@@ -474,7 +474,7 @@
                     <plugin>
                         <groupId>com.github.eirslett</groupId>
                         <artifactId>frontend-maven-plugin</artifactId>
-                        <version>1.5</version>
+                        <version>${plugin.frontend.version}</version>
                         <configuration>
                             <installDirectory>target</installDirectory>
                         </configuration>
@@ -486,8 +486,8 @@
                                     <goal>install-node-and-npm</goal>
                                 </goals>
                                 <configuration>
-                                    <nodeVersion>v10.6.0</nodeVersion>
-                                    <npmVersion>6.1.0</npmVersion>
+                                    <nodeVersion>${plugin.frontend.node.version}</nodeVersion>
+                                    <npmVersion>${plugin.frontend.npm.version}</npmVersion>
                                     <workingDirectory>${basedir}/target/main/webapp/v2</workingDirectory>
                                 </configuration>
                             </execution>
