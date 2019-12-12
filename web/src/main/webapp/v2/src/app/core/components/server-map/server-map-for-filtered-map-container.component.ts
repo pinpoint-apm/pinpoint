@@ -10,7 +10,9 @@ import {
     WebAppSettingDataService,
     AnalyticsService,
     TRACKED_EVENT_LIST,
-    DynamicPopupService
+    DynamicPopupService,
+    MessageQueueService,
+    MESSAGE_TO
 } from 'app/shared/services';
 import { Actions } from 'app/shared/store';
 import { UrlPathId } from 'app/shared/models';
@@ -19,6 +21,7 @@ import { SERVER_MAP_TYPE, ServerMapType, NodeGroup, ServerMapData, MergeServerMa
 import { ServerMapForFilteredMapDataService } from './server-map-for-filtered-map-data.service';
 import { LinkContextPopupContainerComponent } from 'app/core/components/link-context-popup/link-context-popup-container.component';
 import { ServerMapContextPopupContainerComponent } from 'app/core/components/server-map-context-popup/server-map-context-popup-container.component';
+import { isEmpty } from 'app/core/utils/util';
 
 @Component({
     selector: 'pp-server-map-for-filtered-map-container',
@@ -58,6 +61,7 @@ export class ServerMapForFilteredMapContainerComponent implements OnInit, OnDest
         private dynamicPopupService: DynamicPopupService,
         private analyticsService: AnalyticsService,
         private cd: ChangeDetectorRef,
+        private messageQueueService: MessageQueueService,
         @Inject(SERVER_MAP_TYPE) public type: ServerMapType
     ) {}
 
@@ -79,18 +83,26 @@ export class ServerMapForFilteredMapContainerComponent implements OnInit, OnDest
         this.serverMapForFilteredMapDataService.onServerMapData$.pipe(
             takeUntil(this.unsubscribe)
         ).subscribe((serverMapAndScatterData: any) => {
-            this.storeHelperService.dispatch(new Actions.AddScatterChartData(serverMapAndScatterData.applicationScatterData));
+            if (!isEmpty(serverMapAndScatterData.applicationScatterData)) {
+                this.storeHelperService.dispatch(new Actions.AddScatterChartData(serverMapAndScatterData.applicationScatterData));
+            }
+
             this.mergeServerMapData(serverMapAndScatterData);
             this.mapData = new ServerMapData(this.mergedNodeDataList, this.mergedLinkDataList, Filter.instanceFromString(this.newUrlStateNotificationService.hasValue(UrlPathId.FILTER) ? this.newUrlStateNotificationService.getPathValue(UrlPathId.FILTER) : ''));
             this.isEmpty = this.mapData.getNodeCount() === 0;
             this.storeHelperService.dispatch(new Actions.UpdateServerMapData(this.mapData));
-            if (this.isEmpty) {
+            if (this.loadingCompleted && this.isEmpty) {
                 this.showLoading = false;
+                this.useDisable = false;
             }
 
             this.cd.detectChanges();
         });
         this.connectStore();
+        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.SERVER_MAP_DISABLE).subscribe(([disable]: boolean[]) => {
+            this.useDisable = disable;
+            this.cd.detectChanges();
+        });
     }
 
     ngOnDestroy() {
@@ -118,12 +130,8 @@ export class ServerMapForFilteredMapContainerComponent implements OnInit, OnDest
 
             this.cd.detectChanges();
         });
-
-        this.storeHelperService.getServerMapDisableState(this.unsubscribe).subscribe((disabled: boolean) => {
-            this.useDisable = disabled;
-            this.cd.detectChanges();
-        });
     }
+
     private addPageLoadingHandler(): void {
         this.router.events.pipe(
             takeUntil(this.unsubscribe),
@@ -142,12 +150,13 @@ export class ServerMapForFilteredMapContainerComponent implements OnInit, OnDest
     }
 
     onRenderCompleted(): void {
-        if (this.loadingCompleted) {
-            this.showLoading = false;
-            this.useDisable = false;
-            this.cd.detectChanges();
+        if (!this.loadingCompleted) {
+            return;
         }
 
+        this.showLoading = false;
+        this.useDisable = false;
+        this.cd.detectChanges();
     }
 
     onClickNode(nodeData: any): void {

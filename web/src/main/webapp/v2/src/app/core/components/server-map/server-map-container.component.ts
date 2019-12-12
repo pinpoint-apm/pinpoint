@@ -11,7 +11,9 @@ import {
     WebAppSettingDataService,
     AnalyticsService,
     TRACKED_EVENT_LIST,
-    DynamicPopupService
+    DynamicPopupService,
+    MessageQueueService,
+    MESSAGE_TO
 } from 'app/shared/services';
 import { Actions } from 'app/shared/store';
 import { UrlPathId } from 'app/shared/models';
@@ -56,6 +58,7 @@ export class ServerMapContainerComponent implements OnInit, OnDestroy {
         private dynamicPopupService: DynamicPopupService,
         private analyticsService: AnalyticsService,
         private cd: ChangeDetectorRef,
+        private messageQueueService: MessageQueueService,
         @Inject(SERVER_MAP_TYPE) public type: ServerMapType
     ) {}
 
@@ -63,6 +66,11 @@ export class ServerMapContainerComponent implements OnInit, OnDestroy {
         this.funcServerMapImagePath = this.webAppSettingDataService.getServerMapIconPathMakeFunc();
         this.addPageLoadingHandler();
         this.getI18NText();
+
+        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.SERVER_MAP_DISABLE).subscribe(([disable]: boolean[]) => {
+            this.useDisable = disable;
+            this.cd.detectChanges();
+        });
 
         this.newUrlStateNotificationService.onUrlStateChange$.pipe(
             takeUntil(this.unsubscribe),
@@ -118,19 +126,11 @@ export class ServerMapContainerComponent implements OnInit, OnDestroy {
                 injector: this.injector
             });
         });
-        this.connectStore();
     }
 
     ngOnDestroy() {
         this.unsubscribe.next();
         this.unsubscribe.complete();
-    }
-
-    private connectStore(): void {
-        this.storeHelperService.getServerMapDisableState(this.unsubscribe).subscribe((disabled: boolean) => {
-            this.useDisable = disabled;
-            this.cd.detectChanges();
-        });
     }
 
     private addPageLoadingHandler(): void {

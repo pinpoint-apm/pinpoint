@@ -1,11 +1,12 @@
 import { Component, OnInit, OnDestroy, OnChanges, Input, Output, EventEmitter, ViewChild, ElementRef, SimpleChanges } from '@angular/core';
 import { Subject } from 'rxjs';
 import { takeUntil, filter } from 'rxjs/operators';
+
 import { WindowRefService } from 'app/shared/services';
 import { ScatterChart } from './class/scatter-chart.class';
 import { ScatterChartDataBlock } from './class/scatter-chart-data-block.class';
 import { ScatterChartInteractionService, IChangedViewTypeParam, IRangeParam, IResetParam, IChangedAgentParam } from './scatter-chart-interaction.service';
-import { ScatterChartTransactionTypeManager } from './class/scatter-chart-transaction-type-manager.class';
+
 @Component({
     selector: 'pp-scatter-chart',
     templateUrl: './scatter-chart.component.html',
