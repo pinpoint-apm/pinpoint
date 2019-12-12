@@ -4,6 +4,7 @@ import { Subject, Observable, merge } from 'rxjs';
 import { filter, mapTo, tap, map, takeUntil } from 'rxjs/operators';
 
 import { StoreHelperService } from 'app/shared/services';
+import { ServerMapData } from 'app/core/components/server-map/class';
 
 @Component({
     selector: 'pp-side-bar-for-filtered-map-container',
@@ -52,6 +53,13 @@ export class SideBarForFilteredMapContainerComponent implements OnInit, OnDestro
     }
 
     private connectStore(): void {
+        this.storeHelperService.getServerMapData(this.unsubscribe).pipe(
+            filter((serverMapData: ServerMapData) => !!serverMapData),
+            map((serverMapData: ServerMapData) => serverMapData.getNodeCount() === 0)
+        ).subscribe((isEmpty: boolean) => {
+            this.renderer.setStyle(this.el.nativeElement, 'display', isEmpty ? 'none' : 'block');
+        });
+
         this.storeHelperService.getServerMapLoadingState(this.unsubscribe).subscribe((state: string) => {
             switch (state) {
                 case 'loading':
