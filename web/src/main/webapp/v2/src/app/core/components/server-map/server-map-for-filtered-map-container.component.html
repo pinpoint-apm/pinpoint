@@ -1,5 +1,5 @@
 <ng-container *ngIf="mapData">
-    <ng-container *ngIf="!isEmpty; else noAgentGuide">
+    <ng-template [ngIf]="!isEmpty">
         <pp-server-map 
             [baseApplicationKey]="baseApplicationKey"
             [mapData]="mapData"
@@ -11,8 +11,8 @@
             (outContextClickLink)="onContextClickLink($event)"
             (outRenderCompleted)="onRenderCompleted()">
         </pp-server-map>
-    </ng-container>
-    <ng-template #noAgentGuide>
+    </ng-template>
+    <ng-template [ngIf]="loadingCompleted && isEmpty">
         <div class="l-popup-section font-opensans">
             <article>
                 <div class="l-contents-group">

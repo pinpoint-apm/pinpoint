@@ -20,6 +20,7 @@ export class SideBarForFilteredMapContainerComponent implements OnInit, OnDestro
     showDivider = false;
     isTargetMerged$: Observable<boolean>;
     sidebarVisibility = 'hidden';
+    loadingCompleted = false;
 
     constructor(
         private router: Router,
@@ -55,7 +56,8 @@ export class SideBarForFilteredMapContainerComponent implements OnInit, OnDestro
     private connectStore(): void {
         this.storeHelperService.getServerMapData(this.unsubscribe).pipe(
             filter((serverMapData: ServerMapData) => !!serverMapData),
-            map((serverMapData: ServerMapData) => serverMapData.getNodeCount() === 0)
+            map((serverMapData: ServerMapData) => serverMapData.getNodeCount() === 0),
+            filter(() => this.loadingCompleted)
         ).subscribe((isEmpty: boolean) => {
             this.renderer.setStyle(this.el.nativeElement, 'display', isEmpty ? 'none' : 'block');
         });
@@ -63,13 +65,19 @@ export class SideBarForFilteredMapContainerComponent implements OnInit, OnDestro
         this.storeHelperService.getServerMapLoadingState(this.unsubscribe).subscribe((state: string) => {
             switch (state) {
                 case 'loading':
+                    this.loadingCompleted = false;
                     this.showLoading = true;
                     this.useDisable = true;
                     break;
                 case 'pause':
-                case 'completed':
+                    this.loadingCompleted = false;
                     this.showLoading = false;
                     this.useDisable = false;
+                    break;
+                case 'completed':
+                    this.loadingCompleted = true;
+                    // this.showLoading = false;
+                    // this.useDisable = false;
                     break;
             }
 
@@ -83,6 +91,10 @@ export class SideBarForFilteredMapContainerComponent implements OnInit, OnDestro
                 tap(({isNode, isWAS, isMerged}: ISelectedTarget) => {
                     this.showDivider = isNode && isWAS && !isMerged;
                     this.sidebarVisibility = 'visible';
+                    if (this.loadingCompleted) {
+                        this.showLoading = false;
+                        this.useDisable = false;
+                    }
                 }),
                 map(({isMerged}: ISelectedTarget) => isMerged)
             )

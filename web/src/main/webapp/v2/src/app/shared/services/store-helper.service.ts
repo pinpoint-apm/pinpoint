@@ -6,7 +6,6 @@ import { takeUntil, map, filter, debounceTime, distinctUntilChanged } from 'rxjs
 import {
     AppState,
     STORE_KEY,
-    selectServerMapDisableState,
     selectInfoPerServerVisibleState,
     selectTimelineRange,
     selectTimelineSelectedTime,
@@ -103,12 +102,6 @@ export class StoreHelperService {
     }
     getLoadChartYMax(unsubscribe: Subject<void>): Observable<number> {
         return this.getObservable(STORE_KEY.LOAD_CHART_Y_MAX, unsubscribe);
-    }
-    getServerMapDisableState(unsubscribe: Subject<void>): Observable<boolean> {
-        return this.store.pipe(
-            select(selectServerMapDisableState),
-            takeUntil(unsubscribe)
-        );
     }
     getInfoPerServerState(unsubscribe: Subject<void>): Observable<boolean> {
         return this.store.pipe(

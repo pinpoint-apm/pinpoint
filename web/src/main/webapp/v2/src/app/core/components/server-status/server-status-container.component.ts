@@ -3,7 +3,7 @@ import { Subject, combineLatest } from 'rxjs';
 import { takeUntil, filter, map, take } from 'rxjs/operators';
 
 import { Actions } from 'app/shared/store';
-import { StoreHelperService, NewUrlStateNotificationService, UrlRouteManagerService, AnalyticsService, TRACKED_EVENT_LIST } from 'app/shared/services';
+import { StoreHelperService, NewUrlStateNotificationService, UrlRouteManagerService, AnalyticsService, TRACKED_EVENT_LIST, MessageQueueService, MESSAGE_TO } from 'app/shared/services';
 import { ServerMapData } from 'app/core/components/server-map/class/server-map-data.class';
 
 @Component({
@@ -31,6 +31,7 @@ export class ServerStatusContainerComponent implements OnInit, OnDestroy {
         private urlRouteManagerService: UrlRouteManagerService,
         private analyticsService: AnalyticsService,
         private cd: ChangeDetectorRef,
+        private messageQueueService: MessageQueueService,
     ) {}
 
     ngOnInit() {
@@ -39,7 +40,6 @@ export class ServerStatusContainerComponent implements OnInit, OnDestroy {
         ).subscribe((urlService: NewUrlStateNotificationService) => {
             this.enableRealTime = urlService.isRealTimeMode();
             this.isInfoPerServerShow = false;
-            this.storeHelperService.dispatch(new Actions.ChangeServerMapDisableState(false));
             this.storeHelperService.dispatch(new Actions.ChangeInfoPerServerVisibleState(false));
             this.cd.detectChanges();
         });
@@ -80,7 +80,10 @@ export class ServerStatusContainerComponent implements OnInit, OnDestroy {
     onClickViewServer(): void {
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.SHOW_SERVER_LIST);
         this.isInfoPerServerShow = !this.isInfoPerServerShow;
-        this.storeHelperService.dispatch(new Actions.ChangeServerMapDisableState(this.isInfoPerServerShow));
+        this.messageQueueService.sendMessage({
+            to: MESSAGE_TO.SERVER_MAP_DISABLE,
+            param: [this.isInfoPerServerShow]
+        });
         this.storeHelperService.dispatch(new Actions.ChangeInfoPerServerVisibleState(this.isInfoPerServerShow));
     }
 

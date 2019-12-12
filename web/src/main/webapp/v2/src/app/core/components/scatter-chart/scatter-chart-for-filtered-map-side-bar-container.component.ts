@@ -159,7 +159,7 @@ export class ScatterChartForFilteredMapSideBarContainerComponent implements OnIn
     }
 
     getScatterData(startIndex: number): void {
-        for (let i = startIndex ; i < this.scatterChartDataOfAllNode.length ; i++) {
+        for (let i = startIndex; i < this.scatterChartDataOfAllNode.length; i++) {
             this.scatterChartInteractionService.addChartData(this.instanceKey, this.scatterChartDataOfAllNode[i][this.selectedApplication]);
         }
     }

@@ -15,3 +15,7 @@ export function isThatType<T extends object>(obj: T | any, ...props: string[]): 
         return obj.hasOwnProperty(prop);
     });
 }
+
+export function isEmpty(obj: Object | Array<any>): boolean {
+    return Array.isArray(obj) ? obj.length === 0 : Object.keys(obj).length === 0;
+}

@@ -10,7 +10,9 @@ import {
     AgentHistogramDataService,
     DynamicPopupService,
     AnalyticsService,
-    TRACKED_EVENT_LIST
+    TRACKED_EVENT_LIST,
+    MessageQueueService,
+    MESSAGE_TO
 } from 'app/shared/services';
 import { Actions } from 'app/shared/store';
 import { ServerMapData, IShortNodeInfo } from 'app/core/components/server-map/class/server-map-data.class';
@@ -64,6 +66,7 @@ export class InfoPerServerContainerComponent implements OnInit, OnDestroy {
         private dynamicPopupService: DynamicPopupService,
         private analyticsService: AnalyticsService,
         private componentFactoryResolver: ComponentFactoryResolver,
+        private messageQueueService: MessageQueueService,
         private injector: Injector,
         private cd: ChangeDetectorRef,
     ) {}
@@ -123,7 +126,10 @@ export class InfoPerServerContainerComponent implements OnInit, OnDestroy {
                 resolver: this.componentFactoryResolver,
                 injector: this.injector
             });
-            this.storeHelperService.dispatch(new Actions.ChangeServerMapDisableState(false));
+            this.messageQueueService.sendMessage({
+                to: MESSAGE_TO.SERVER_MAP_DISABLE,
+                param: [false]
+            });
             this.cd.detectChanges();
         });
     }
