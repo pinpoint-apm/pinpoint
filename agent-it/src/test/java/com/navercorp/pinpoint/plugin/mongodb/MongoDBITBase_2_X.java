@@ -34,6 +34,8 @@ import com.mongodb.DBObject;
 import com.mongodb.ReadPreference;
 import com.mongodb.WriteConcern;
 import com.mongodb.WriteResult;
+import com.navercorp.pinpoint.bootstrap.logging.PLogger;
+import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.test.ExpectedAnnotation;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
@@ -55,6 +57,8 @@ import de.flapdoodle.embed.process.runtime.Network;
  * @author Community
  */
 public abstract class MongoDBITBase_2_X {
+
+    private static final PLogger LOGGER = PLoggerFactory.getLogger(MongoDBITBase_2_X.class);
 
     protected static final String MONGO_EXECUTE_QUERY = "MONGO_EXECUTE_QUERY";
     public static DB database;
@@ -95,6 +99,7 @@ public abstract class MongoDBITBase_2_X {
         mongod.stop();
     }
 
+    @SuppressWarnings("deprecation")
     @Test
     public void testConnection() throws Exception {
         startDB();
@@ -116,14 +121,14 @@ public abstract class MongoDBITBase_2_X {
             collection2.setWriteConcern(WriteConcern.MAJORITY);
             secondCollectionWriteConcern = secondCollectionDefaultWriteConcern;
         } catch (ClassNotFoundException e) {
-            System.err.println("WriteConcern is not supported by the driver.");
+            LOGGER.error("WriteConcern is not supported by the driver.");
         } catch (NoSuchFieldException e) {
-            System.err.println(
+            LOGGER.error(
                     "WriteConcern of type ACKNOWLEDGED is not supported by the driver. Falling back to the type SAFE");
             collection.setWriteConcern(WriteConcern.SAFE);
             collection2.setWriteConcern(WriteConcern.SAFE);
         } catch (SecurityException e) {
-            e.printStackTrace();
+            LOGGER.error("Unable to inspect WriteConcern; Cause - " + e.getMessage());
         }
         Class<?> mongoDatabaseImpl = Class.forName("com.mongodb.DBCollection");
 

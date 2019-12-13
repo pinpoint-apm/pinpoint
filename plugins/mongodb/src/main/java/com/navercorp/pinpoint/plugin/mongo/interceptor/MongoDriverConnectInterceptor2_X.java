@@ -19,14 +19,15 @@ package com.navercorp.pinpoint.plugin.mongo.interceptor;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.mongodb.ServerAddress;
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.MongoDatabaseInfo;
-import com.navercorp.pinpoint.bootstrap.plugin.jdbc.UnKnownDatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.util.InterceptorUtils;
+import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 import com.navercorp.pinpoint.plugin.mongo.MongoConstants;
 
 /**
@@ -62,18 +63,16 @@ public class MongoDriverConnectInterceptor2_X implements AroundInterceptor {
                 return;
             }
 
-            DatabaseInfo databaseInfo = null;
-            if (args[0] instanceof String) {
-                final List<String> hostList = getHostList(args);
-                databaseInfo = createDatabaseInfo(hostList, "", "");
-            }
+            final List<String> hostList = getHostList(args[0]);
 
-            if (databaseInfo == null) {
-                databaseInfo = UnKnownDatabaseInfo.MONGO_INSTANCE;
-            }
+            DatabaseInfo databaseInfo = createDatabaseInfo(hostList);
 
             if (target instanceof DatabaseInfoAccessor) {
                 ((DatabaseInfoAccessor) target)._$PINPOINT$_setDatabaseInfo(databaseInfo);
+            }
+        } else {
+            if (logger.isDebugEnabled()) {
+                logger.debug("databaseInfo couldn't be constructed ");
             }
         }
     }
@@ -86,10 +85,10 @@ public class MongoDriverConnectInterceptor2_X implements AroundInterceptor {
         logger.afterInterceptor(target, args, result, throwable);
     }
 
-    private DatabaseInfo createDatabaseInfo(List<String> hostList, String readPreference, String writeConcern) {
+    private DatabaseInfo createDatabaseInfo(List<String> hostList) {
 
         DatabaseInfo databaseInfo = new MongoDatabaseInfo(MongoConstants.MONGODB, MongoConstants.MONGO_EXECUTE_QUERY,
-                null, null, hostList, null, null, readPreference, writeConcern);
+                null, null, hostList, null, null, null, null);
 
         if (isDebug) {
             logger.debug("parse DatabaseInfo:{}", databaseInfo);
@@ -98,9 +97,19 @@ public class MongoDriverConnectInterceptor2_X implements AroundInterceptor {
         return databaseInfo;
     }
 
-    private List<String> getHostList(Object[] args) {
+    private List<String> getHostList(Object args) {
         final List<String> hostList = new ArrayList<String>();
-        hostList.add((String) args[0] + ":" + args[1]);
+        if (args instanceof List) {
+            @SuppressWarnings("unchecked")
+            List<ServerAddress> hosts = (List<ServerAddress>) args;
+            for (ServerAddress serverAddress : hosts) {
+                hostList.add(HostAndPort.toHostAndPortString(serverAddress.getHost(), serverAddress.getPort()));
+            }
+        } else {
+            ServerAddress serverAddress = (ServerAddress) args;
+            hostList.add(HostAndPort.toHostAndPortString(serverAddress.getHost(), serverAddress.getPort()));
+        }
+
         return hostList;
     }
 }

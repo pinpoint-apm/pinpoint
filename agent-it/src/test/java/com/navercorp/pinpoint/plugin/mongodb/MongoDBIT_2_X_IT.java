@@ -18,13 +18,16 @@ package com.navercorp.pinpoint.plugin.mongodb;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 
-import com.mongodb.Mongo;
+import com.mongodb.MongoClient;
+import com.mongodb.MongoClientOptions;
 import com.mongodb.ReadPreference;
+import com.mongodb.ServerAddress;
 import com.mongodb.WriteConcern;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
@@ -40,16 +43,16 @@ import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
 @RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
 @JvmVersion(8)
-@Dependency({ "org.mongodb:mongo-java-driver:[2.9,2.max]", "de.flapdoodle.embed:de.flapdoodle.embed.mongo:1.47.3" })
+@Dependency({ "org.mongodb:mongo-java-driver:[2.13.0,2.max]", "de.flapdoodle.embed:de.flapdoodle.embed.mongo:1.47.3" })
 public class MongoDBIT_2_X_IT extends MongoDBITBase_2_X {
 
     private static final PLogger LOGGER = PLoggerFactory.getLogger(MongoDBIT_2_X_IT.class);
 
-    private Mongo mongo;
+    private MongoClient mongo;
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
-        version = 2.9;
+        version = 2.13;
     }
 
     @AfterClass
@@ -58,8 +61,12 @@ public class MongoDBIT_2_X_IT extends MongoDBITBase_2_X {
 
     @Override
     public void setClient() {
-        mongo = new Mongo("localhost", 27018);
+        ServerAddress addresss = new ServerAddress("localhost", 27018);
+
+        mongo = new MongoClient(Arrays.asList(addresss), MongoClientOptions.builder()
+                .readPreference(ReadPreference.secondaryPreferred()).writeConcern(WriteConcern.ACKNOWLEDGED).build());
         database = mongo.getDB("myMongoDbFake");
+        System.out.println("Database's write concern is " + database.getWriteConcern());
         try {
             // Class available from 2.7.0
             Class<?> readPreferenceClass = Class.forName("com.mongodb.ReadPreference");
@@ -74,7 +81,7 @@ public class MongoDBIT_2_X_IT extends MongoDBITBase_2_X {
         } catch (NoSuchMethodException e) {
             LOGGER.warn("Read preference is not supported by the driver.");
         } catch (SecurityException e) {
-            LOGGER.warn("Error while inspecting com.mongodb.ReadPreference; Cause - ");
+            LOGGER.warn("Error while inspecting com.mongodb.ReadPreference; Cause - ", e);
         }
 
         try {
@@ -85,6 +92,7 @@ public class MongoDBIT_2_X_IT extends MongoDBITBase_2_X {
             if (declaredField != null) {
                 database.setWriteConcern(WriteConcern.ACKNOWLEDGED);
                 mongo.setWriteConcern(WriteConcern.ACKNOWLEDGED);
+                System.out.println("Database wide write concern set to " + WriteConcern.ACKNOWLEDGED);
             }
         } catch (ClassNotFoundException e) {
             LOGGER.warn("WriteConcern is not supported by the driver.");
@@ -94,7 +102,7 @@ public class MongoDBIT_2_X_IT extends MongoDBITBase_2_X {
             database.setWriteConcern(WriteConcern.SAFE);
             mongo.setWriteConcern(WriteConcern.SAFE);
         } catch (SecurityException e) {
-            e.printStackTrace();
+            LOGGER.warn("Failed to inspect write concern. Cause - ", e);
         }
     }
 
