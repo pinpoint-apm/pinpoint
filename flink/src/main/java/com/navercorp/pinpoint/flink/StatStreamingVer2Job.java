@@ -49,7 +49,7 @@ public class StatStreamingVer2Job implements Serializable {
     }
 
     public void start(ParameterTool parameters) throws Exception {
-        logger.info("start job");
+        logger.info("start Aggregation Stat Data job with job parameter. : " + parameters.toMap() );
         final Bootstrap bootstrap = Bootstrap.getInstance(parameters.toMap());
 
         // set data source

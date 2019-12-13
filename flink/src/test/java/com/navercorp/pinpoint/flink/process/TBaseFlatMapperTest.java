@@ -24,9 +24,7 @@ import org.apache.flink.api.common.functions.util.ListCollector;
 import org.apache.flink.api.java.tuple.Tuple3;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -494,5 +492,13 @@ public class TBaseFlatMapperTest {
         tFAgentStatBatch.setAgentStats(tFAgentStatList);
 
         return tFAgentStatBatch;
+    }
+
+    @Test
+    public void test() {
+        Map<String, String> data = new HashMap<String, String>();
+        data.put("key1", "value1");
+        data.put("key2", "value2");
+        System.out.println(data);
     }
 }

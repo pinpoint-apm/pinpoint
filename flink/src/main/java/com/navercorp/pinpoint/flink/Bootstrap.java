@@ -30,6 +30,8 @@ import com.navercorp.pinpoint.flink.vo.RawData;
 import org.apache.flink.streaming.api.environment.LocalStreamEnvironment;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.source.SourceFunction.SourceContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
@@ -39,6 +41,7 @@ import java.util.Map;
  * @author minwoo.jung
  */
 public class Bootstrap {
+    private static Logger logger = LoggerFactory.getLogger(Bootstrap.class);
     private static final String SPRING_PROFILE = "spring.profiles.active";
 
     private volatile static Bootstrap instance;
@@ -99,6 +102,7 @@ public class Bootstrap {
                     String profiles = jobParameters.getOrDefault(SPRING_PROFILE, "local");
                     System.setProperty(SPRING_PROFILE, profiles);
                     instance = new Bootstrap();
+                    logger.info("Bootstrap initialization. : job parameter " + jobParameters);
                 }
             }
         }
