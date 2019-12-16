@@ -352,55 +352,24 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
                 <configuration>
-                    <attachClasses>true</attachClasses>
+                    <failOnMissingWebXml>false</failOnMissingWebXml>
                     <webResources>
                         <resource>
-                            <directory>target/main/webapp</directory>
+                            <directory>src/main/angular</directory>
                             <excludes>
-                                <exclude>v2/node_modules/</exclude>
+                                <exclude>node_modules/</exclude>
                             </excludes>
                         </resource>
                     </webResources>
-                    <warSourceExcludes>v2/node_modules/</warSourceExcludes>
                 </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>prepare-grunt</id>
-                        <phase>generate-resources</phase>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                        <configuration>
-                            <target>
-                                <copy todir="${basedir}/target/grunt" failonerror="true" verbose="true">
-                                    <fileset dir="${basedir}/src/grunt"/>
-                                </copy>
-                                <copy todir="${basedir}/target/main/webapp" failonerror="true" verbose="true">
-                                    <fileset dir="${basedir}/src/main/webapp">
-                                        <exclude name="v2/node_modules/**"/>
-                                    </fileset>
-                                </copy>
-                                <copy file="${basedir}/src/Gruntfile.js" tofile="${basedir}/target/Gruntfile.js"
-                                      failonerror="true" verbose="true"/>
-                                <copy file="${basedir}/src/package.json" tofile="${basedir}/target/package.json"
-                                      failonerror="true" verbose="true"/>
-                            </target>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
             <plugin>
                 <groupId>com.github.eirslett</groupId>
                 <artifactId>frontend-maven-plugin</artifactId>
                 <version>${plugin.frontend.version}</version>
                 <configuration>
-                    <srcdir>${basedir}/target/main/webapp</srcdir>
-                    <outputdir>${basedir}/target/main/webapp</outputdir>
                     <installDirectory>${project.parent.basedir}/${plugin.frontend.node.install.dir}</installDirectory>
+                    <workingDirectory>${basedir}/src/main/angular</workingDirectory>
                 </configuration>
                 <executions>
                     <execution>
@@ -412,29 +381,26 @@
                         <configuration>
                             <nodeVersion>${plugin.frontend.node.version}</nodeVersion>
                             <npmVersion>${plugin.frontend.npm.version}</npmVersion>
-                            <workingDirectory>${basedir}/target</workingDirectory>
                         </configuration>
                     </execution>
                     <execution>
-                        <id>npm install</id>
+                        <id>npm ci</id>
                         <phase>prepare-package</phase>
                         <goals>
                             <goal>npm</goal>
                         </goals>
                         <configuration>
-                            <arguments>install</arguments>
-                            <workingDirectory>${basedir}/target</workingDirectory>
+                            <arguments>ci</arguments>
                         </configuration>
                     </execution>
                     <execution>
-                        <id>grunt build</id>
+                        <id>npm run build</id>
                         <phase>prepare-package</phase>
                         <goals>
-                            <goal>grunt</goal>
+                            <goal>npm</goal>
                         </goals>
                         <configuration>
-                            <arguments>${grunt.build.command}</arguments>
-                            <workingDirectory>${basedir}/target</workingDirectory>
+                            <arguments>run build:real</arguments>
                         </configuration>
                     </execution>
                 </executions>
@@ -471,58 +437,6 @@
                                 <goals>
                                     <goal>shutdown</goal>
                                 </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-        <profile>
-            <!-- for ci server -->
-            <id>v2</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>com.github.eirslett</groupId>
-                        <artifactId>frontend-maven-plugin</artifactId>
-                        <version>${plugin.frontend.version}</version>
-                        <configuration>
-                            <installDirectory>${project.parent.basedir}/${plugin.frontend.node.install.dir}</installDirectory>
-                        </configuration>
-                        <executions>
-                            <execution>
-                                <id>install node and npm v2</id>
-                                <phase>prepare-package</phase>
-                                <goals>
-                                    <goal>install-node-and-npm</goal>
-                                </goals>
-                                <configuration>
-                                    <nodeVersion>${plugin.frontend.node.version}</nodeVersion>
-                                    <npmVersion>${plugin.frontend.npm.version}</npmVersion>
-                                    <workingDirectory>${basedir}/target/main/webapp/v2</workingDirectory>
-                                </configuration>
-                            </execution>
-                            <execution>
-                                <id>npm install v2</id>
-                                <phase>prepare-package</phase>
-                                <goals>
-                                    <goal>npm</goal>
-                                </goals>
-                                <configuration>
-                                    <arguments>install</arguments>
-                                    <workingDirectory>${basedir}/target/main/webapp/v2</workingDirectory>
-                                </configuration>
-                            </execution>
-                            <execution>
-                                <id>npm run build v2</id>
-                                <phase>prepare-package</phase>
-                                <goals>
-                                    <goal>npm</goal>
-                                </goals>
-                                <configuration>
-                                    <arguments>run build:real</arguments>
-                                    <workingDirectory>${basedir}/target/main/webapp/v2</workingDirectory>
-                                </configuration>
                             </execution>
                         </executions>
                     </plugin>

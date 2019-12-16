@@ -40,19 +40,19 @@ public class RewriteForV2Filter implements Filter {
     private static final char PATH_DELIMITER = '/';
 
     private final String[] rewriteTargetArray = {
-            "/v2/admin",
-            "/v2/error",
-            "/v2/filteredMap",
-            "/v2/inspector",
-            "/v2/main",
-            "/v2/realtime",
-            "/v2/scatterFullScreenMode",
-            "/v2/threadDump",
-            "/v2/transactionDetail",
-            "/v2/transactionList",
-            "/v2/transactionView",
-            "/v2/browserNotSupported",
-            "/v2/config"
+            "/admin",
+            "/error",
+            "/filteredMap",
+            "/inspector",
+            "/main",
+            "/realtime",
+            "/scatterFullScreenMode",
+            "/threadDump",
+            "/transactionDetail",
+            "/transactionList",
+            "/transactionView",
+            "/browserNotSupported",
+            "/config"
     };
 
     private final boolean enable;
@@ -76,7 +76,7 @@ public class RewriteForV2Filter implements Filter {
 
             if (isRedirectTarget(requestURI)) {
                 HttpServletRequestWrapper wrapper = new HttpServletRequestWrapper((HttpServletRequest) request);
-                RequestDispatcher dispatcher = wrapper.getRequestDispatcher("/v2/index.html");
+                RequestDispatcher dispatcher = wrapper.getRequestDispatcher("/index.html");
 
                 dispatcher.forward(request, response);
             } else {
