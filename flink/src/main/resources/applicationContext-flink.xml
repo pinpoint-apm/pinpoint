@@ -18,10 +18,6 @@
             base-package="com.navercorp.pinpoint.common.server.util,
                         com.navercorp.pinpoint.collector.mapper.thrift.stat"/>
 
-
-    <util:properties id="pinpoint_flink_properties" location="classpath:pinpoint-flink.properties"/>
-
-
     <bean id="flinkConfiguration" class="com.navercorp.pinpoint.flink.config.FlinkConfiguration"/>
 
     <bean id="tcpReceiverConfig" class="com.navercorp.pinpoint.collector.config.AgentBaseDataReceiverConfiguration"/>
