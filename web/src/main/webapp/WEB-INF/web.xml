@@ -72,7 +72,7 @@
 
     <filter-mapping>
         <filter-name>rewriteFilter</filter-name>
-        <url-pattern>/v2/*</url-pattern>
+        <url-pattern>/*</url-pattern>
     </filter-mapping>
 
     <filter-mapping>

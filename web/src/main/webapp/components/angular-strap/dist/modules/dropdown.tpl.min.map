@@ -1,1 +1,0 @@
-{"version":3,"file":"dropdown.tpl.min.js","sources":["dropdown.tpl.js"],"names":["angular","module","run","$templateCache","put"],"mappings":"AAAAA,QAAQC,OAAO,2BAA2BC,KAAK,iBAAkB,SAASC,GACxE,YAEAA,GAAeC,IAAI,6BACjB"}

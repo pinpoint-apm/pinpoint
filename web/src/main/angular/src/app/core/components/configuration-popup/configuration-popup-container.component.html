@@ -1,0 +1,7 @@
+<pp-configuration-popup
+    (outMenuClick)="onMenuClick($event)"
+    (outOpenLink)="onOpenLink()"
+    (clickOutside)="onClickOutside()"
+    [exclude]="'.fa-cog'">
+</pp-configuration-popup>
+<div class="l-tooltip-caret" #tooltipCaret [style.left]="calculateTooltipCaretLeft(tooltipCaret)"></div>
