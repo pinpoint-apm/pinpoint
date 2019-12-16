@@ -10,6 +10,8 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.plugin.dubbo.DubboConstants;
 import com.navercorp.pinpoint.plugin.dubbo.DubboProviderMethodDescriptor;
 
+import java.util.Map;
+
 /**
  * @author Jinkai.Ma
  * @author Jiaqi Feng
@@ -98,6 +100,32 @@ public class DubboProviderInterceptor extends SpanRecursiveAroundInterceptor {
                     }
                 }
             }
+        }
+        //clear attachments
+        this.clearAttachments(rpcContext);
+    }
+
+    /**
+     * clear {@link com.alibaba.dubbo.rpc.RpcContext#getAttachments()} trace header.
+     * you should to know,since dubbo 2.6.2 version.
+     * {@link com.alibaba.dubbo.rpc.protocol.AbstractInvoker#invoke(com.alibaba.dubbo.rpc.Invocation)}
+     * will force put {@link com.alibaba.dubbo.rpc.RpcContext#getAttachments()} to current Invocation
+     * replace origin invocation.addAttachmentsIfAbsent(context) method;
+     * to imagine if application(B) methodB called by application(A), application(B) is dubbo provider, methodB call next dubbo application(C).
+     * when application(C) received trace header is overwrite by application(B) received trace header.
+     *
+     * @param rpcContext
+     */
+    private void clearAttachments(RpcContext rpcContext) {
+        Map<String, String> attachments = rpcContext.getAttachments();
+        if (attachments != null) {
+            attachments.remove(DubboConstants.META_TRANSACTION_ID);
+            attachments.remove(DubboConstants.META_SPAN_ID);
+            attachments.remove(DubboConstants.META_PARENT_SPAN_ID);
+            attachments.remove(DubboConstants.META_PARENT_APPLICATION_TYPE);
+            attachments.remove(DubboConstants.META_PARENT_APPLICATION_NAME);
+            attachments.remove(DubboConstants.META_FLAGS);
+            attachments.remove(DubboConstants.META_HOST);
         }
     }
 
