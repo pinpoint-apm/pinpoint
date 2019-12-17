@@ -108,6 +108,7 @@ class PinpointStarter {
             ProfilerConfig profilerConfig = new DefaultProfilerConfig(properties);
 
             // set the path of log file as a system property
+            saveLogFilePath(agentDirectory);
             savePinpointVersion();
 
             // this is the library list that must be loaded
@@ -204,13 +205,17 @@ class PinpointStarter {
         this.systemProperty = systemProperty;
     }
 
+    private void saveLogFilePath(AgentDirectory agentDirectory) {
+        String agentLogFilePath = agentDirectory.getAgentLogFilePath();
+        logger.info("logPath:" + agentLogFilePath);
+
+        systemProperty.setProperty(ProductInfo.NAME + ".log", agentLogFilePath);
+    }
 
     private void savePinpointVersion() {
         logger.info(String.format("pinpoint version:%s", Version.VERSION));
         systemProperty.setProperty(ProductInfo.NAME + ".version", Version.VERSION);
     }
-
-
 
     private URL[] resolveLib(AgentDirectory classPathResolver) {
         // this method may handle only absolute path,  need to handle relative path (./..agentlib/lib)
