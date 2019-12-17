@@ -13,9 +13,6 @@ import * as timeline from './timeline.reducer';
 import * as timezone from './timezone.reducer';
 import * as transactionDetailData from './transaction-detail-data.reducer';
 import * as transactionData from './transaction-info.reducer';
-import * as targetList from './target-list.reducer';
-import * as serverMap from './server-map.reducer';
-import * as serverMapSelectedTarget from './server-map-selected-target.reducer';
 import * as serverMapLoadingState from './server-map-loading-state.reducer';
 import * as uiState from './ui-state.reducer';
 import * as range from './range.reducer';
@@ -35,9 +32,7 @@ export interface AppState {
     favoriteApplicationList: IApplication[];
     serverList: any;
     scatterChart: IScatterData;
-    serverMapData: any;
     serverMapLoadingState: string;
-    serverMapTargetSelected: ISelectedTarget;
     serverMapTargetSelectByList: any;
     updateFilterOfServerAndAgentList: string;
     adminAgentList: { [key: string]: IAgent[] };
@@ -60,9 +55,7 @@ export const STORE_KEY = {
     FAVORITE_APPLICATION_LIST: 'favoriteApplicationList',
     SERVER_LIST: 'serverList',
     SCATTER_CHART: 'scatterChart',
-    SERVER_MAP_DATA: 'serverMapData',
     SERVER_MAP_LOADING_STATE: 'serverMapLoadingState',
-    SERVER_MAP_TARGET_SELECTED: 'serverMapTargetSelected',
     SERVER_MAP_TARGET_SELECTED_BY_LIST: 'serverMapTargetSelectByList',
     ADMIN_AGENT_LIST: 'adminAgentList',
     SERVER_AND_AGENT: 'serverAndAgent',
@@ -86,9 +79,6 @@ export const reducers: ActionReducerMap<any> = {
     scatterChart: scatterChart.Reducer,
     serverList: serverList.Reducer,
     serverMapLoadingState: serverMapLoadingState.Reducer,
-    serverMapData: serverMap.Reducer,
-    serverMapTargetSelected: serverMapSelectedTarget.Reducer,
-    serverMapTargetSelectByList: targetList.Reducer,
     timezone: timezone.Reducer,
     transactionData: transactionData.Reducer,
     transactionDetailData: transactionDetailData.Reducer,
@@ -116,10 +106,7 @@ export const Actions = {
     'RemoveFavoriteApplication': favoriteApplicationList.RemoveFavoriteApplication,
     'UpdateServerList': serverList.UpdateServerList,
     'AddScatterChartData': scatterChart.AddScatterChartData,
-    'UpdateServerMapData': serverMap.UpdateServerMapData,
     'UpdateServerMapLoadingState': serverMapLoadingState.UpdateServerMapLoadingState,
-    'UpdateServerMapTargetSelected': serverMapSelectedTarget.UpdateServerMapTargetSelected,
-    'UpdateServerMapSelectedTargetByList': targetList.UpdateServerMapSelectedTargetByList,
     'UpdateFilterOfServerAndAgentList': serverAndAgent.UpdateFilterOfServerAndAgentList,
     'UpdateAdminAgentList': admin.UpdateAdminAgentList,
     'ChangeInfoPerServerVisibleState': uiState.ChangeInfoPerServerVisibleState,

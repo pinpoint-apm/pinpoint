@@ -7,10 +7,8 @@
     </div>
     <div class="l-contents-group">
         <div class="l-chart-group-list">
-            <ng-container *ngIf="selectedTarget?.isWAS">
-                <pp-scatter-chart-for-filtered-map-info-per-server-container></pp-scatter-chart-for-filtered-map-info-per-server-container>
-                <hr/>
-            </ng-container>
+            <pp-scatter-chart-for-filtered-map-info-per-server-container [hidden]="!selectedTarget?.isWAS"></pp-scatter-chart-for-filtered-map-info-per-server-container>
+            <hr/>
             <pp-response-summary-chart-container [sourceType]="'INFO_PER_SERVER'"></pp-response-summary-chart-container>
             <hr/>
             <pp-load-chart-container [sourceType]="'INFO_PER_SERVER'"></pp-load-chart-container>

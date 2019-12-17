@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, AfterViewInit, ComponentFactoryResolver, Injector, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { Subject, Observable, fromEvent } from 'rxjs';
-import { takeUntil, filter, delay, tap } from 'rxjs/operators';
+import { takeUntil, filter, delay, tap, map } from 'rxjs/operators';
 
 import {
     StoreHelperService,
@@ -9,7 +9,9 @@ import {
     AnalyticsService,
     TRACKED_EVENT_LIST,
     DynamicPopupService,
-    UrlRouteManagerService
+    UrlRouteManagerService,
+    MessageQueueService,
+    MESSAGE_TO
 } from 'app/shared/services';
 import { RealTimeWebSocketService, IWebSocketResponse, IWebSocketDataResult, IActiveThreadCounts } from 'app/core/components/real-time/real-time-websocket.service';
 import { HELP_VIEWER_LIST, HelpViewerPopupContainerComponent } from 'app/core/components/help-viewer-popup/help-viewer-popup-container.component';
@@ -61,6 +63,7 @@ export class RealTimeContainerComponent implements OnInit, AfterViewInit, OnDest
         private realTimeWebSocketService: RealTimeWebSocketService,
         private analyticsService: AnalyticsService,
         private dynamicPopupService: DynamicPopupService,
+        private messageQueueService: MessageQueueService,
         private componentFactoryResolver: ComponentFactoryResolver,
         private injector: Injector,
         private cd: ChangeDetectorRef
@@ -76,7 +79,7 @@ export class RealTimeContainerComponent implements OnInit, AfterViewInit, OnDest
             this.messageTemplate = MessageTemplate.LOADING;
             this.cd.markForCheck();
         });
-        this.connectStore();
+        this.listenToEmitter();
 
         this.realTimeWebSocketService.onMessage$.pipe(
             takeUntil(this.unsubscribe)
@@ -108,22 +111,20 @@ export class RealTimeContainerComponent implements OnInit, AfterViewInit, OnDest
         this.unsubscribe.complete();
     }
 
-    private connectStore(): void {
+    private listenToEmitter(): void {
         this.timezone$ = this.storeHelperService.getTimezone(this.unsubscribe);
         this.dateFormat$ = this.storeHelperService.getDateFormat(this.unsubscribe, 0);
-        this.storeHelperService.getServerMapData(this.unsubscribe).pipe(
-            filter((serverMapData: ServerMapData) => !!serverMapData),
-            filter((serverMapData: ServerMapData) => serverMapData.getNodeCount() === 0)
+        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.SERVER_MAP_DATA_UPDATE).pipe(
+            filter(([data]: ServerMapData[]) => data.getNodeCount() === 0)
         ).subscribe(() => {
             this.hiddenComponent = true;
             this.cd.markForCheck();
         });
 
-        this.storeHelperService.getServerMapTargetSelected(this.unsubscribe).pipe(
-            filter((target: ISelectedTarget) => !!target),
+        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.SERVER_MAP_TARGET_SELECT).pipe(
             tap(() => this.hiddenComponent = false),
             filter(() => !(this.isPinUp && this.applicationName !== ''))
-        ).subscribe((target: ISelectedTarget) => {
+        ).subscribe(([target]: ISelectedTarget[]) => {
             const [applicationName, serviceType] = target.node[0].split('^');
 
             if (target.isWAS) {

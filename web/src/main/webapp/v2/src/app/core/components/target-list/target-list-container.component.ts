@@ -1,18 +1,17 @@
 import { Component, OnInit, OnDestroy, ComponentFactoryResolver, Injector, ViewChild, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { Subject } from 'rxjs';
-import { filter } from 'rxjs/operators';
 
-import { Actions } from 'app/shared/store';
 import { UrlPathId } from 'app/shared/models';
 import { Filter } from 'app/core/models/filter';
 import {
     UrlRouteManagerService,
-    StoreHelperService,
     NewUrlStateNotificationService,
     AnalyticsService,
     TRACKED_EVENT_LIST,
-    DynamicPopupService
+    DynamicPopupService,
+    MessageQueueService,
+    MESSAGE_TO
 } from 'app/shared/services';
 import { ServerMapData } from 'app/core/components/server-map/class/server-map-data.class';
 import { FilterTransactionWizardPopupContainerComponent } from 'app/core/components/filter-transaction-wizard-popup/filter-transaction-wizard-popup-container.component';
@@ -45,15 +44,15 @@ export class TargetListContainerComponent implements OnInit, OnDestroy {
         private translateService: TranslateService,
         private analyticsService: AnalyticsService,
         private urlRouteManagerService: UrlRouteManagerService,
-        private storeHelperService: StoreHelperService,
         private newUrlStateNotificationService: NewUrlStateNotificationService,
         private dynamicPopupService: DynamicPopupService,
+        private messageQueueService: MessageQueueService,
         private cd: ChangeDetectorRef,
     ) {}
 
     ngOnInit() {
         this.getI18NText();
-        this.connectStore();
+        this.listenToEmitter();
     }
 
     ngOnDestroy() {
@@ -67,16 +66,12 @@ export class TargetListContainerComponent implements OnInit, OnDestroy {
         });
     }
 
-    private connectStore(): void {
-        this.storeHelperService.getServerMapData(this.unsubscribe).pipe(
-            filter((serverMapData: ServerMapData) => !!serverMapData),
-        ).subscribe((serverMapData: ServerMapData) => {
-            this.serverMapData = serverMapData;
+    private listenToEmitter(): void {
+        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.SERVER_MAP_DATA_UPDATE).subscribe(([data]: ServerMapData[]) => {
+            this.serverMapData = data;
         });
 
-        this.storeHelperService.getServerMapTargetSelected(this.unsubscribe).pipe(
-            filter((target: ISelectedTarget) => !!target)
-        ).subscribe((target: ISelectedTarget) => {
+        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.SERVER_MAP_TARGET_SELECT).subscribe(([target]: ISelectedTarget[]) => {
             this.target = target;
             this.showList = this.hasMultiInput(target);
             if (this.showList) {
@@ -128,7 +123,10 @@ export class TargetListContainerComponent implements OnInit, OnDestroy {
 
     onSelectTarget(target: any): void {
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.CLICK_NODE_IN_GROUPED_VIEW);
-        this.storeHelperService.dispatch(new Actions.UpdateServerMapSelectedTargetByList(target));
+        this.messageQueueService.sendMessage({
+            to: MESSAGE_TO.SERVER_MAP_TARGET_SELECT_BY_LIST,
+            param: [target]
+        });
     }
 
     onOpenFilter([target]: any): void {

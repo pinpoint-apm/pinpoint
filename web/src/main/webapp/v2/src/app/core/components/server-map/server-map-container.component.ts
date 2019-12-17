@@ -5,7 +5,6 @@ import { takeUntil, filter, map, switchMap } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
 
 import {
-    StoreHelperService,
     NewUrlStateNotificationService,
     UrlRouteManagerService,
     WebAppSettingDataService,
@@ -15,7 +14,6 @@ import {
     MessageQueueService,
     MESSAGE_TO
 } from 'app/shared/services';
-import { Actions } from 'app/shared/store';
 import { UrlPathId } from 'app/shared/models';
 import { EndTime } from 'app/core/models';
 import { SERVER_MAP_TYPE, ServerMapType, NodeGroup, ServerMapData } from 'app/core/components/server-map/class';
@@ -49,7 +47,6 @@ export class ServerMapContainerComponent implements OnInit, OnDestroy {
         private router: Router,
         private injector: Injector,
         private componentFactoryResolver: ComponentFactoryResolver,
-        private storeHelperService: StoreHelperService,
         private translateService: TranslateService,
         private urlRouteManagerService: UrlRouteManagerService,
         private newUrlStateNotificationService: NewUrlStateNotificationService,
@@ -100,7 +97,10 @@ export class ServerMapContainerComponent implements OnInit, OnDestroy {
         ).subscribe((res: IServerMapInfo) => {
             this.mapData = new ServerMapData(res.applicationMapData.nodeDataArray, res.applicationMapData.linkDataArray);
             this.isEmpty = this.mapData.getNodeCount() === 0;
-            this.storeHelperService.dispatch(new Actions.UpdateServerMapData(this.mapData));
+            this.messageQueueService.sendMessage({
+                to: MESSAGE_TO.SERVER_MAP_DATA_UPDATE,
+                param: [this.mapData]
+            });
             if (this.isEmpty) {
                 this.showLoading = false;
             }
@@ -199,7 +199,10 @@ export class ServerMapContainerComponent implements OnInit, OnDestroy {
                 hasServerList: nodeData.instanceCount > 0 ? true : false
             };
         }
-        this.storeHelperService.dispatch(new Actions.UpdateServerMapTargetSelected(payload));
+        this.messageQueueService.sendMessage({
+            to: MESSAGE_TO.SERVER_MAP_TARGET_SELECT,
+            param: [payload]
+        });
     }
 
     onClickLink(linkData: any): void {
@@ -236,7 +239,10 @@ export class ServerMapContainerComponent implements OnInit, OnDestroy {
                 hasServerList: false
             };
         }
-        this.storeHelperService.dispatch(new Actions.UpdateServerMapTargetSelected(payload));
+        this.messageQueueService.sendMessage({
+            to: MESSAGE_TO.SERVER_MAP_TARGET_SELECT,
+            param: [payload]
+        });
     }
 
     onContextClickBackground(coord: ICoordinate): void {

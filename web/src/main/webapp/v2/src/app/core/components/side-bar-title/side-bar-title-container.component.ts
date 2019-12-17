@@ -3,7 +3,7 @@ import { Subject } from 'rxjs';
 import { filter } from 'rxjs/operators';
 
 import { Actions } from 'app/shared/store';
-import { WebAppSettingDataService, StoreHelperService, AnalyticsService, TRACKED_EVENT_LIST } from 'app/shared/services';
+import { WebAppSettingDataService, StoreHelperService, AnalyticsService, TRACKED_EVENT_LIST, MessageQueueService, MESSAGE_TO } from 'app/shared/services';
 import { ServerMapData } from 'app/core/components/server-map/class/server-map-data.class';
 
 interface IAppData {
@@ -39,12 +39,13 @@ export class SideBarTitleContainerComponent implements OnInit, OnDestroy {
         private storeHelperService: StoreHelperService,
         private webAppSettingDataService: WebAppSettingDataService,
         private analyticsService: AnalyticsService,
+        private messageQueueService: MessageQueueService,
         private cd: ChangeDetectorRef,
     ) {}
 
     ngOnInit() {
         this.funcImagePath = this.webAppSettingDataService.getIconPathMakeFunc();
-        this.connectStore();
+        this.listenToEmitter();
     }
 
     ngOnDestroy() {
@@ -52,16 +53,12 @@ export class SideBarTitleContainerComponent implements OnInit, OnDestroy {
         this.unsubscribe.complete();
     }
 
-    private connectStore(): void {
-        this.storeHelperService.getServerMapData(this.unsubscribe).pipe(
-            filter((serverMapData: ServerMapData) => !!serverMapData),
-        ).subscribe((serverMapData: ServerMapData) => {
-            this.serverMapData = serverMapData;
+    private listenToEmitter(): void {
+        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.SERVER_MAP_DATA_UPDATE).subscribe(([data]: ServerMapData[]) => {
+            this.serverMapData = data;
         });
 
-        this.storeHelperService.getServerMapTargetSelected(this.unsubscribe).pipe(
-            filter((target: ISelectedTarget) => !!target)
-        ).subscribe((target: ISelectedTarget) => {
+        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.SERVER_MAP_TARGET_SELECT).subscribe(([target]: ISelectedTarget[]) => {
             this.originalTargetSelected = true;
             this.selectedTarget = target;
             this.onChangeAgent(SideBarTitleContainerComponent.AGENT_ALL);
@@ -69,9 +66,9 @@ export class SideBarTitleContainerComponent implements OnInit, OnDestroy {
             this.cd.detectChanges();
         });
 
-        this.storeHelperService.getServerMapTargetSelectedByList(this.unsubscribe).pipe(
+        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.SERVER_MAP_TARGET_SELECT_BY_LIST).pipe(
             filter(() => this.selectedTarget && this.selectedTarget.isNode && !this.selectedTarget.isMerged)
-        ).subscribe((target: any) => {
+        ).subscribe(([target]: any[]) => {
             this.originalTargetSelected = this.selectedTarget.node[0] === target.key;
             this.cd.detectChanges();
         });

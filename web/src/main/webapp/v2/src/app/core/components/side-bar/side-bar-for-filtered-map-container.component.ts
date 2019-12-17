@@ -3,7 +3,7 @@ import { Router, RouterEvent, NavigationStart } from '@angular/router';
 import { Subject, Observable, merge } from 'rxjs';
 import { filter, mapTo, tap, map, takeUntil } from 'rxjs/operators';
 
-import { StoreHelperService } from 'app/shared/services';
+import { StoreHelperService, MessageQueueService, MESSAGE_TO } from 'app/shared/services';
 import { ServerMapData } from 'app/core/components/server-map/class';
 
 @Component({
@@ -25,6 +25,7 @@ export class SideBarForFilteredMapContainerComponent implements OnInit, OnDestro
     constructor(
         private router: Router,
         private storeHelperService: StoreHelperService,
+        private messageQueueService: MessageQueueService,
         private el: ElementRef,
         private renderer: Renderer2,
         private cd: ChangeDetectorRef,
@@ -32,7 +33,7 @@ export class SideBarForFilteredMapContainerComponent implements OnInit, OnDestro
 
     ngOnInit() {
         this.addPageLoadingHandler();
-        this.connectStore();
+        this.listenToEmitter();
     }
 
     ngOnDestroy() {
@@ -53,10 +54,9 @@ export class SideBarForFilteredMapContainerComponent implements OnInit, OnDestro
         });
     }
 
-    private connectStore(): void {
-        this.storeHelperService.getServerMapData(this.unsubscribe).pipe(
-            filter((serverMapData: ServerMapData) => !!serverMapData),
-            map((serverMapData: ServerMapData) => serverMapData.getNodeCount() === 0),
+    private listenToEmitter(): void {
+        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.SERVER_MAP_DATA_UPDATE).pipe(
+            map(([data]: ServerMapData[]) => data.getNodeCount() === 0),
             filter(() => this.loadingCompleted)
         ).subscribe((isEmpty: boolean) => {
             this.renderer.setStyle(this.el.nativeElement, 'display', isEmpty ? 'none' : 'block');
@@ -85,10 +85,9 @@ export class SideBarForFilteredMapContainerComponent implements OnInit, OnDestro
         });
 
         this.isTargetMerged$ = merge(
-            this.storeHelperService.getServerMapTargetSelectedByList(this.unsubscribe).pipe(mapTo(false)),
-            this.storeHelperService.getServerMapTargetSelected(this.unsubscribe).pipe(
-                filter((target: ISelectedTarget) => !!target),
-                tap(({isNode, isWAS, isMerged}: ISelectedTarget) => {
+            this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.SERVER_MAP_TARGET_SELECT_BY_LIST).pipe(mapTo(false)),
+            this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.SERVER_MAP_TARGET_SELECT).pipe(
+                tap(([{isNode, isWAS, isMerged}]: ISelectedTarget[]) => {
                     this.showDivider = isNode && isWAS && !isMerged;
                     this.sidebarVisibility = 'visible';
                     if (this.loadingCompleted) {
@@ -96,7 +95,7 @@ export class SideBarForFilteredMapContainerComponent implements OnInit, OnDestro
                         this.useDisable = false;
                     }
                 }),
-                map(({isMerged}: ISelectedTarget) => isMerged)
+                map(([{isMerged}]: ISelectedTarget[]) => isMerged)
             )
         );
     }

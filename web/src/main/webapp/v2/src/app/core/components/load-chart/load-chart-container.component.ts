@@ -69,7 +69,7 @@ export class LoadChartContainerComponent implements OnInit, OnDestroy {
     ngOnInit() {
         this.initChartColors();
         this.initI18nText();
-        this.connectStore();
+        this.listenToEmitter();
     }
 
     ngOnDestroy() {
@@ -128,7 +128,7 @@ export class LoadChartContainerComponent implements OnInit, OnDestroy {
         });
     }
 
-    private connectStore(): void {
+    private listenToEmitter(): void {
         this.storeHelperService.getTimezone(this.unsubscribe).subscribe((timezone: string) => {
             this.timezone = timezone;
         });
@@ -138,17 +138,14 @@ export class LoadChartContainerComponent implements OnInit, OnDestroy {
             this.dateFormatDay = dateFormatDay;
         });
 
-        this.storeHelperService.getServerMapData(this.unsubscribe).pipe(
-            filter((serverMapData: ServerMapData) => !!serverMapData),
-        ).subscribe((serverMapData: ServerMapData) => {
-            this.serverMapData = serverMapData;
+        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.SERVER_MAP_DATA_UPDATE).subscribe(([data]: ServerMapData[]) => {
+            this.serverMapData = data;
         });
 
         merge(
-            this.storeHelperService.getServerMapTargetSelected(this.unsubscribe).pipe(
+            this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.SERVER_MAP_TARGET_SELECT).pipe(
                 filter(() => this.sourceType !== SourceType.INFO_PER_SERVER),
-                filter((target: ISelectedTarget) => !!target),
-                filter((target: ISelectedTarget) => {
+                filter(([target]: ISelectedTarget[]) => {
                     this.isOriginalNode = true;
                     this.selectedAgent = '';
                     this.selectedTarget = target;
@@ -189,13 +186,13 @@ export class LoadChartContainerComponent implements OnInit, OnDestroy {
                     }
                 }),
             ),
-            this.storeHelperService.getServerMapTargetSelectedByList(this.unsubscribe).pipe(
+            this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.SERVER_MAP_TARGET_SELECT_BY_LIST).pipe(
                 filter(() => this.sourceType !== SourceType.INFO_PER_SERVER),
                 tap(() => this.selectedAgent = ''),
-                tap(({key}: any) => {
+                tap(([{key}]: any[]) => {
                     this.isOriginalNode = this.selectedTarget.isNode ? this.selectedTarget.node.includes(key) : this.selectedTarget.link.includes(key);
                 }),
-                map((target: any) => target.timeSeriesHistogram)
+                map(([target]: any[]) => target.timeSeriesHistogram)
             ),
             this.storeHelperService.getAgentSelectionForServerList(this.unsubscribe).pipe(
                 filter(() => this.sourceType === SourceType.INFO_PER_SERVER),

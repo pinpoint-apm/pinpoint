@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Subject } from 'rxjs';
 import { takeUntil, filter } from 'rxjs/operators';
 
-import { NewUrlStateNotificationService, StoreHelperService } from 'app/shared/services';
+import { NewUrlStateNotificationService, MessageQueueService, MESSAGE_TO } from 'app/shared/services';
 import { UrlPathId } from 'app/shared/models';
 import { Filter } from 'app/core/models';
 import { ServerMapData } from 'app/core/components/server-map/class/server-map-data.class';
@@ -13,39 +13,44 @@ import { ServerMapData } from 'app/core/components/server-map/class/server-map-d
     styleUrls: ['./filter-information-container.component.css']
 })
 export class FilterInformationContainerComponent implements OnInit, OnDestroy {
-    private unsubscribe: Subject<null> = new Subject();
+    private unsubscribe = new Subject<void>();
     private serverMapData: any;
     private selectedTarget: ISelectedTarget;
+
     filterInfo: Filter[];
     filterIndexOfCurrentLink: number;
+
     constructor(
-        private storeHelperService: StoreHelperService,
-        private newUrlStateNotificationService: NewUrlStateNotificationService
+        private newUrlStateNotificationService: NewUrlStateNotificationService,
+        private messageQueueService: MessageQueueService,
     ) {}
+
     ngOnInit() {
         this.newUrlStateNotificationService.onUrlStateChange$.pipe(
             takeUntil(this.unsubscribe),
-            filter((urlService: NewUrlStateNotificationService) => {
-                return urlService.hasValue(UrlPathId.FILTER);
-            })
+            filter((urlService: NewUrlStateNotificationService) => urlService.hasValue(UrlPathId.FILTER))
         ).subscribe((urlService: NewUrlStateNotificationService) => {
             this.filterInfo = Filter.instanceFromString(urlService.getPathValue(UrlPathId.FILTER));
         });
-        this.connectStore();
+        this.listenToEmitter();
     }
-    private connectStore(): void {
-        this.storeHelperService.getServerMapData(this.unsubscribe).pipe(
-            filter((serverMapData: ServerMapData) => !!serverMapData),
-        ).subscribe((serverMapData: ServerMapData) => {
-            this.serverMapData = serverMapData;
+
+    ngOnDestroy() {
+        this.unsubscribe.next();
+        this.unsubscribe.complete();
+    }
+
+    private listenToEmitter(): void {
+        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.SERVER_MAP_DATA_UPDATE).subscribe(([data]: ServerMapData[]) => {
+            this.serverMapData = data;
         });
-        this.storeHelperService.getServerMapTargetSelected(this.unsubscribe).pipe(
-            filter((target: ISelectedTarget) => !!target)
-        ).subscribe((target: ISelectedTarget) => {
+
+        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.SERVER_MAP_TARGET_SELECT).subscribe(([target]: ISelectedTarget[]) => {
             this.filterIndexOfCurrentLink = -1;
             this.selectedTarget = target;
         });
     }
+
     showFilterInfo(): boolean {
         if (this.selectedTarget) {
             if (this.selectedTarget.isLink === true && this.selectedTarget.isMerged === false) {
@@ -57,6 +62,7 @@ export class FilterInformationContainerComponent implements OnInit, OnDestroy {
         }
         return false;
     }
+
     isFilterLink(link: any): boolean {
         for (let i = 0 ; i < this.filterInfo.length ; i++) {
             const f = this.filterInfo[i];
@@ -67,26 +73,28 @@ export class FilterInformationContainerComponent implements OnInit, OnDestroy {
         }
         return false;
     }
+
     getAgentFrom(): string {
         return this.filterInfo[this.filterIndexOfCurrentLink].fromAgentName || 'All';
     }
+
     getAgentTo(): string {
         return this.filterInfo[this.filterIndexOfCurrentLink].toAgentName || 'All';
     }
+
     getUrlPattern(): string {
         return this.filterInfo[this.filterIndexOfCurrentLink].urlPattern || 'none';
     }
+
     getResponseTimeFrom(): number {
         return this.filterInfo[this.filterIndexOfCurrentLink].responseFrom || 0;
     }
+
     getResponseTimeTo(): number {
         return this.filterInfo[this.filterIndexOfCurrentLink].responseTo || 30000;
     }
+
     getTransactionResult(): string {
         return this.filterInfo[this.filterIndexOfCurrentLink].getTransactionResultStr();
-    }
-    ngOnDestroy() {
-        this.unsubscribe.next();
-        this.unsubscribe.complete();
     }
 }
