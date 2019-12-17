@@ -63,13 +63,6 @@ export class StoreHelperService {
             distinctUntilChanged()
         );
     }
-    getServerMapTargetSelectedByList(unsubscribe: Subject<void>): Observable<any> {
-        return this.getObservable(STORE_KEY.SERVER_MAP_TARGET_SELECTED_BY_LIST, unsubscribe).pipe(
-            filter((target: any) => {
-                return (target && target.key) ? true : false;
-            })
-        );
-    }
     getAgentSelection(unsubscribe: Subject<void>): Observable<string> {
         return this.getObservable(STORE_KEY.AGENT_SELECTION, unsubscribe);
     }
@@ -79,14 +72,8 @@ export class StoreHelperService {
     getScatterChartData<T>(unsubscribe: Subject<void>): Observable<T> {
         return this.getObservable(STORE_KEY.SCATTER_CHART, unsubscribe);
     }
-    getServerMapData<T>(unsubscribe?: Subject<void>): Observable<T> {
-        return this.getObservable(STORE_KEY.SERVER_MAP_DATA, unsubscribe);
-    }
     getServerMapLoadingState(unsubscribe: Subject<void>): Observable<string> {
         return this.getObservable(STORE_KEY.SERVER_MAP_LOADING_STATE, unsubscribe);
-    }
-    getServerMapTargetSelected(unsubscribe: Subject<void>): Observable<ISelectedTarget> {
-        return this.getObservable(STORE_KEY.SERVER_MAP_TARGET_SELECTED, unsubscribe);
     }
     getTransactionData(unsubscribe: Subject<void>): Observable<ITransactionMetaData> {
         return this.getObservable(STORE_KEY.TRANSACTION_DATA, unsubscribe);

@@ -7,7 +7,9 @@ import {
     StoreHelperService,
     UrlRouteManagerService,
     AnalyticsService,
-    TRACKED_EVENT_LIST
+    TRACKED_EVENT_LIST,
+    MessageQueueService,
+    MESSAGE_TO
 } from 'app/shared/services';
 import { Actions } from 'app/shared/store';
 import { ServerMapData, IShortNodeInfo } from 'app/core/components/server-map/class/server-map-data.class';
@@ -56,11 +58,12 @@ export class InfoPerServerForFilteredMapContainerComponent implements OnInit, On
         private storeHelperService: StoreHelperService,
         private urlRouteManagerService: UrlRouteManagerService,
         private analyticsService: AnalyticsService,
+        private messageQueueService: MessageQueueService,
         private cd: ChangeDetectorRef,
     ) {}
 
     ngOnInit() {
-        this.connectStore();
+        this.listenToEmitter();
     }
 
     ngOnDestroy() {
@@ -68,16 +71,12 @@ export class InfoPerServerForFilteredMapContainerComponent implements OnInit, On
         this.unsubscribe.complete();
     }
 
-    private connectStore(): void {
-        this.storeHelperService.getServerMapData(this.unsubscribe).pipe(
-            filter((serverMapData: ServerMapData) => !!serverMapData),
-        ).subscribe((serverMapData: ServerMapData) => {
-            this.serverMapData = serverMapData;
+    private listenToEmitter(): void {
+        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.SERVER_MAP_DATA_UPDATE).subscribe(([data]: ServerMapData[]) => {
+            this.serverMapData = data;
         });
 
-        this.storeHelperService.getServerMapTargetSelected(this.unsubscribe).pipe(
-            filter((target: ISelectedTarget) => !!target)
-        ).subscribe((target: ISelectedTarget) => {
+        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.SERVER_MAP_TARGET_SELECT).subscribe(([target]: ISelectedTarget[]) => {
             this.selectedTarget = target;
             this.selectedAgent = '';
             this.cd.detectChanges();

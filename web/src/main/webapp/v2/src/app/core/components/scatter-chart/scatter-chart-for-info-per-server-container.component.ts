@@ -129,9 +129,7 @@ export class ScatterChartForInfoPerServerContainerComponent implements OnInit, A
             this.scatterChartInteractionService.changeAgent(this.instanceKey, agent);
             this.cd.detectChanges();
         });
-        this.storeHelperService.getServerMapTargetSelected(this.unsubscribe).pipe(
-            filter((target: ISelectedTarget) => !!target)
-        ).subscribe((target: ISelectedTarget) => {
+        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.SERVER_MAP_TARGET_SELECT).subscribe(([target]: ISelectedTarget[]) => {
             this.isChangedTarget = true;
             this.selectedTarget = target;
             this.selectedAgent = '';

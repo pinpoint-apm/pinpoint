@@ -90,7 +90,10 @@ export class ServerMapForFilteredMapContainerComponent implements OnInit, OnDest
             this.mergeServerMapData(serverMapAndScatterData);
             this.mapData = new ServerMapData(this.mergedNodeDataList, this.mergedLinkDataList, Filter.instanceFromString(this.newUrlStateNotificationService.hasValue(UrlPathId.FILTER) ? this.newUrlStateNotificationService.getPathValue(UrlPathId.FILTER) : ''));
             this.isEmpty = this.mapData.getNodeCount() === 0;
-            this.storeHelperService.dispatch(new Actions.UpdateServerMapData(this.mapData));
+            this.messageQueueService.sendMessage({
+                to: MESSAGE_TO.SERVER_MAP_DATA_UPDATE,
+                param: [this.mapData]
+            });
             if (this.loadingCompleted && this.isEmpty) {
                 this.showLoading = false;
                 this.useDisable = false;
@@ -189,7 +192,10 @@ export class ServerMapForFilteredMapContainerComponent implements OnInit, OnDest
                 hasServerList: nodeData.instanceCount > 0 ? true : false
             };
         }
-        this.storeHelperService.dispatch(new Actions.UpdateServerMapTargetSelected(payload));
+        this.messageQueueService.sendMessage({
+            to: MESSAGE_TO.SERVER_MAP_TARGET_SELECT,
+            param: [payload]
+        });
     }
 
     onClickLink(linkData: any): void {
@@ -223,7 +229,10 @@ export class ServerMapForFilteredMapContainerComponent implements OnInit, OnDest
                 link: [linkData.key]
             };
         }
-        this.storeHelperService.dispatch(new Actions.UpdateServerMapTargetSelected(payload));
+        this.messageQueueService.sendMessage({
+            to: MESSAGE_TO.SERVER_MAP_TARGET_SELECT,
+            param: [payload]
+        });
     }
 
     onContextClickBackground(coord: ICoordinate): void {
