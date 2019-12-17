@@ -5,7 +5,11 @@ export function makeXData(data: number[]): number[] {
 }
 
 export function makeYData(data: (number | string)[][], dataIndex: number): number[] | string[] {
-    return data.map((d: (number | string)[]) => d[dataIndex] as any);
+    return data.map((d: (number | string)[]) => {
+        const value = d[dataIndex];
+
+        return (typeof value === 'string' || value >= 0 ? value : null) as any;
+    });
 }
 
 export function getMaxTickValue(data: PrimitiveArray[], startIndex: number, endIndex?: number): number {
