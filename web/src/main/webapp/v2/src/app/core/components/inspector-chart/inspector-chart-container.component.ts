@@ -236,9 +236,7 @@ export class InspectorChartContainerComponent implements OnInit, OnDestroy {
                 linked: true,
                 format: {
                     value: (v: number, _: number, columnId: string, i: number) => {
-                        const formattedValue = this.chartContainer.getTooltipFormat(v, columnId, i);
-
-                        return v < 0 ? '-' : formattedValue;
+                        return this.chartContainer.getTooltipFormat(v, columnId, i);
                     }
                 },
                 order: ''
