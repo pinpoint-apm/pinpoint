@@ -10,6 +10,15 @@
         <fileSet>
             <directory>${basedir.parent}/tools/src/main/script</directory>
             <outputDirectory>script</outputDirectory>
+            <fileMode>775</fileMode>
+        </fileSet>
+        <fileSet>
+            <outputDirectory>log</outputDirectory>
+            <directory>${project.basedir}/target/classes</directory>
+            <excludes>
+                <exclude>**/*</exclude>
+            </excludes>
+            <directoryMode>665</directoryMode>
         </fileSet>
     </fileSets>
     <files>
