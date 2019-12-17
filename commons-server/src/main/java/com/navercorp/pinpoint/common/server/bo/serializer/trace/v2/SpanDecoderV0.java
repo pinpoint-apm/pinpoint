@@ -17,18 +17,21 @@
 package com.navercorp.pinpoint.common.server.bo.serializer.trace.v2;
 
 import com.navercorp.pinpoint.common.buffer.Buffer;
+import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
+import com.navercorp.pinpoint.common.server.bo.AnnotationTranscoder;
 import com.navercorp.pinpoint.common.server.bo.BasicSpan;
 import com.navercorp.pinpoint.common.server.bo.LocalAsyncIdBo;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
+import com.navercorp.pinpoint.common.server.bo.filter.SequenceSpanEventFilter;
+import com.navercorp.pinpoint.common.server.bo.filter.SpanEventFilter;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.bitfield.SpanBitFiled;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.bitfield.SpanEventBitField;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.bitfield.SpanEventQualifierBitField;
-import com.navercorp.pinpoint.common.profiler.util.TransactionId;
-import com.navercorp.pinpoint.common.server.bo.AnnotationTranscoder;
 import com.navercorp.pinpoint.io.SpanVersion;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -43,6 +46,8 @@ import java.util.List;
 public class SpanDecoderV0 implements SpanDecoder {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    private static final SequenceSpanEventFilter SEQUENCE_SPAN_EVENT_FILTER = new SequenceSpanEventFilter(SequenceSpanEventFilter.MAX_SEQUENCE);
 
     private static final AnnotationTranscoder transcoder = new AnnotationTranscoder();
 
@@ -105,7 +110,7 @@ public class SpanDecoderV0 implements SpanDecoder {
             spanChunk.setKeyTime(keyTime);
         }
 
-        List<SpanEventBo> spanEventBoList = readSpanEvent(buffer, decodingContext);
+        List<SpanEventBo> spanEventBoList = readSpanEvent(buffer, decodingContext, SEQUENCE_SPAN_EVENT_FILTER);
         spanChunk.addSpanEventBoList(spanEventBoList);
     }
 
@@ -173,13 +178,11 @@ public class SpanDecoderV0 implements SpanDecoder {
             span.setAnnotationBoList(annotationBoList);
         }
 
-        List<SpanEventBo> spanEventBoList = readSpanEvent(buffer, decodingContext);
+        List<SpanEventBo> spanEventBoList = readSpanEvent(buffer, decodingContext, SEQUENCE_SPAN_EVENT_FILTER);
         span.addSpanEventBoList(spanEventBoList);
-
-
     }
 
-    private List<SpanEventBo> readSpanEvent(Buffer buffer, SpanDecodingContext decodingContext) {
+    private List<SpanEventBo> readSpanEvent(Buffer buffer, SpanDecodingContext decodingContext, SpanEventFilter spanEventFilter) {
         final int spanEventSize = buffer.readVInt();
         if (spanEventSize <= 0) {
             return new ArrayList<>();
@@ -194,7 +197,10 @@ public class SpanDecoderV0 implements SpanDecoder {
                 spanEvent = readNextSpanEvent(buffer, prev, decodingContext);
             }
             prev = spanEvent;
-            spanEventBoList.add(spanEvent);
+            boolean accept = spanEventFilter.filter(spanEvent);
+            if (accept) {
+                spanEventBoList.add(spanEvent);
+            }
         }
 
         return spanEventBoList;
@@ -416,17 +422,19 @@ public class SpanDecoderV0 implements SpanDecoder {
 //            readQualifierLocalAsyncIdBo(buffer);
 
             logger.warn("sequence overflow. firstSpanEventSequence:{} basicSpan:{}", firstSpanEventSequence, basicSpan);
-            throw new IllegalStateException("sequence overflow agentId:" + agentId);
-        } else {
-            final LocalAsyncIdBo localAsyncIdBo = readQualifierLocalAsyncIdBo(buffer);
-            if (localAsyncIdBo != null) {
-                if (basicSpan instanceof SpanChunkBo) {
-                    ((SpanChunkBo) basicSpan).setLocalAsyncId(localAsyncIdBo);
-                } else {
-                    throw new IllegalStateException("decode error. unexpected span:" + basicSpan);
-                }
+        }
+        setLocalAsyncId(basicSpan, buffer);
+        return;
+    }
+
+    private void setLocalAsyncId(BasicSpan basicSpan, Buffer buffer) {
+        final LocalAsyncIdBo localAsyncIdBo = readQualifierLocalAsyncIdBo(buffer);
+        if (localAsyncIdBo != null) {
+            if (basicSpan instanceof SpanChunkBo) {
+                ((SpanChunkBo) basicSpan).setLocalAsyncId(localAsyncIdBo);
+            } else {
+                throw new IllegalStateException("decode error. unexpected span:" + basicSpan);
             }
-            return;
         }
     }
 
