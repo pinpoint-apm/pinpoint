@@ -27,6 +27,9 @@ import java.util.List;
  */
 public class AgentDirectory {
 
+    public static final String LIB_DIR = "lib";
+    public static final String PLUGIN_DIR = "plugin";
+    public static final String LOGS_DIR = "logs";
     public static final String PROFILES_DIR = "profiles";
 
     private final String agentJarName;
@@ -39,9 +42,11 @@ public class AgentDirectory {
 
 
     public AgentDirectory(String agentJarName,
-                          String agentJarFullPath, String agentDirPath,
+                          String agentJarFullPath,
+                          String agentDirPath,
                           BootDir bootDir,
-                          List<URL> libs, List<String> plugins) {
+                          List<URL> libs,
+                          List<String> plugins) {
         if (bootDir == null) {
             throw new NullPointerException("bootDir");
         }
@@ -80,23 +85,27 @@ public class AgentDirectory {
     }
 
     public String getAgentLibPath() {
-        return this.agentDirPath + File.separator + "lib";
+        return appendAgentDirPath(LIB_DIR);
     }
 
     public String getAgentLogFilePath() {
-        return this.agentDirPath + File.separator + "log";
+        return appendAgentDirPath(LOGS_DIR);
     }
 
     public String getAgentPluginPath() {
-        return this.agentDirPath + File.separator + "plugin";
+        return appendAgentDirPath(PLUGIN_DIR);
     }
 
     public String getAgentConfigPath() {
-        return agentDirPath + File.separator + "pinpoint.config";
+        return appendAgentDirPath("pinpoint.config");
     }
 
     public String getProfilesPath() {
-        return this.agentDirPath + File.separator + PROFILES_DIR;
+        return appendAgentDirPath(PROFILES_DIR);
+    }
+
+    private String appendAgentDirPath(String fileName) {
+        return this.agentDirPath + File.separator + fileName;
     }
 
     public String[] getProfileDirs() {

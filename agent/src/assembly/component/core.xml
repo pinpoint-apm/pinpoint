@@ -13,7 +13,7 @@
             <fileMode>775</fileMode>
         </fileSet>
         <fileSet>
-            <outputDirectory>log</outputDirectory>
+            <outputDirectory>logs</outputDirectory>
             <directory>${project.basedir}/target/classes</directory>
             <excludes>
                 <exclude>**/*</exclude>
