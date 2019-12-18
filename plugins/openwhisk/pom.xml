@@ -12,6 +12,14 @@
     <name>pinpoint-openwhisk-plugin</name>
     <packaging>jar</packaging>
 
+    <repositories>
+        <repository>
+            <id>project-internal</id>
+            <name>Project Internal Repository</name>
+            <url>file://${project.basedir}/libs</url>
+        </repository>
+    </repositories>
+
     <properties>
         <jdk.version>1.8</jdk.version>
         <jdk.home>${env.JAVA_8_HOME}</jdk.home>
@@ -20,11 +28,10 @@
 
     <dependencies>
         <dependency>
-            <groupId>openwhisk</groupId>
-            <artifactId>whisk.core</artifactId>
-            <version>1.0</version>
-            <scope>system</scope>
-            <systemPath>${pom.basedir}/lib/openwhisk-common.jar</systemPath>
+            <groupId>internal.com.apache.openwhisk</groupId>
+            <artifactId>openwhisk-common</artifactId>
+            <version>1.0.0</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.typesafe.akka</groupId>
