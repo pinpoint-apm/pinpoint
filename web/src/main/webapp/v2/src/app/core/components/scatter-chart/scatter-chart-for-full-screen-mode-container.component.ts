@@ -246,7 +246,7 @@ export class ScatterChartForFullScreenModeContainerComponent implements OnInit, 
     onChangeRangeX(params: IScatterXRange): void {
         this.messageQueueService.sendMessage({
             to: MESSAGE_TO.REAL_TIME_SCATTER_CHART_X_RANGE,
-            param: [params]
+            param: params
         });
     }
 

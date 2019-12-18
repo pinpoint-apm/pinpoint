@@ -56,7 +56,7 @@ export class CallTreeContainerComponent implements OnInit, OnDestroy {
             this.transactionSearchInteractionService.setSearchResultCount(this.callTreeComponent.getQueryedRowCount(params));
         });
 
-        this.selectedRowId$ = this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.TRANSACTION_TIMELINE_SELECT_TRANSACTION).pipe(map(([id]: string[]) => id));
+        this.selectedRowId$ = this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.TRANSACTION_TIMELINE_SELECT_TRANSACTION);
     }
 
     ngOnDestroy() {
@@ -92,11 +92,11 @@ export class CallTreeContainerComponent implements OnInit, OnDestroy {
 
         this.messageQueueService.sendMessage({
             to: MESSAGE_TO.CALL_TREE_ROW_SELECT,
-            param: [{
+            param: {
                 time: startTime,
                 applicationId: application,
                 agentId: agent
-            }]
+            }
         });
     }
 

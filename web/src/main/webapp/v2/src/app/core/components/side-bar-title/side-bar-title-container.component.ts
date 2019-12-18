@@ -54,11 +54,11 @@ export class SideBarTitleContainerComponent implements OnInit, OnDestroy {
     }
 
     private listenToEmitter(): void {
-        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.SERVER_MAP_DATA_UPDATE).subscribe(([data]: ServerMapData[]) => {
+        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.SERVER_MAP_DATA_UPDATE).subscribe((data: ServerMapData) => {
             this.serverMapData = data;
         });
 
-        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.SERVER_MAP_TARGET_SELECT).subscribe(([target]: ISelectedTarget[]) => {
+        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.SERVER_MAP_TARGET_SELECT).subscribe((target: ISelectedTarget) => {
             this.originalTargetSelected = true;
             this.selectedTarget = target;
             this.onChangeAgent(SideBarTitleContainerComponent.AGENT_ALL);
@@ -68,7 +68,7 @@ export class SideBarTitleContainerComponent implements OnInit, OnDestroy {
 
         this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.SERVER_MAP_TARGET_SELECT_BY_LIST).pipe(
             filter(() => this.selectedTarget && this.selectedTarget.isNode && !this.selectedTarget.isMerged)
-        ).subscribe(([target]: any[]) => {
+        ).subscribe((target: any) => {
             this.originalTargetSelected = this.selectedTarget.node[0] === target.key;
             this.cd.detectChanges();
         });

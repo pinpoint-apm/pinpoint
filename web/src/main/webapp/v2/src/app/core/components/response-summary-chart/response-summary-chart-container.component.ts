@@ -135,14 +135,14 @@ export class ResponseSummaryChartContainerComponent implements OnInit, OnDestroy
     }
 
     private listenToEmitter(): void {
-        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.SERVER_MAP_DATA_UPDATE).subscribe(([data]: ServerMapData[]) => {
+        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.SERVER_MAP_DATA_UPDATE).subscribe((data: ServerMapData) => {
             this.serverMapData = data;
         });
 
         merge(
             this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.SERVER_MAP_TARGET_SELECT).pipe(
                 filter(() => this.sourceType !== SourceType.INFO_PER_SERVER),
-                filter(([target]: ISelectedTarget[]) => {
+                filter((target: ISelectedTarget) => {
                     this.isOriginalNode = true;
                     this.selectedAgent = '';
                     this.selectedTarget = target;
@@ -186,10 +186,10 @@ export class ResponseSummaryChartContainerComponent implements OnInit, OnDestroy
             this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.SERVER_MAP_TARGET_SELECT_BY_LIST).pipe(
                 filter(() => this.sourceType !== SourceType.INFO_PER_SERVER),
                 tap(() => this.selectedAgent = ''),
-                tap(([{key}]: any[]) => {
+                tap(({key}: any) => {
                     this.isOriginalNode = this.selectedTarget.isNode ? this.selectedTarget.node.includes(key) : this.selectedTarget.link.includes(key);
                 }),
-                map(([target]: any[]) => target.histogram),
+                map((target: any) => target.histogram),
             ),
             this.storeHelperService.getAgentSelectionForServerList(this.unsubscribe).pipe(
                 filter(() => this.sourceType === SourceType.INFO_PER_SERVER),
@@ -199,7 +199,7 @@ export class ResponseSummaryChartContainerComponent implements OnInit, OnDestroy
             ),
             this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.REAL_TIME_SCATTER_CHART_X_RANGE).pipe(
                 filter(() => this.sourceType === SourceType.MAIN),
-                map(([{from, to}]: IScatterXRange[]) => [from, to]),
+                map(({from, to}: IScatterXRange) => [from, to]),
                 tap((range: number[]) => this.previousRange = range),
                 switchMap((range: number[]) => {
                     const {key, applicationName, serviceTypeCode} = this.getTargetInfo();

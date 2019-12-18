@@ -99,7 +99,7 @@ export class ServerAndAgentListContainerComponent implements OnInit, OnDestroy {
 
                             this.messageQueueService.sendMessage({
                                 to: MESSAGE_TO.INSPECTOR_PAGE_VALID,
-                                param: [range, now]
+                                param: {range, now}
                             });
                         })
                     );

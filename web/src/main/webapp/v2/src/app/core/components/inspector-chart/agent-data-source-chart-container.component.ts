@@ -66,7 +66,7 @@ export class AgentDataSourceChartContainerComponent implements OnInit, OnDestroy
         this.initTimezoneAndDateFormat();
         this.initInfoTableObj();
         this.initChartData();
-        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.INSPECTOR_CHART_MOUSE_MOVE).subscribe(([yRatio]: number[]) => {
+        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.INSPECTOR_CHART_MOUSE_MOVE).subscribe((yRatio: number) => {
             this.yRatio = yRatio;
         });
     }
@@ -115,7 +115,7 @@ export class AgentDataSourceChartContainerComponent implements OnInit, OnDestroy
 
         this.messageQueueService.sendMessage({
             to: MESSAGE_TO.INSPECTOR_CHART_MOUSE_MOVE,
-            param: [yRatio]
+            param: yRatio
         });
     }
 

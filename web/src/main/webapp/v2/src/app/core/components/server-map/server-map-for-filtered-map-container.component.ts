@@ -92,7 +92,7 @@ export class ServerMapForFilteredMapContainerComponent implements OnInit, OnDest
             this.isEmpty = this.mapData.getNodeCount() === 0;
             this.messageQueueService.sendMessage({
                 to: MESSAGE_TO.SERVER_MAP_DATA_UPDATE,
-                param: [this.mapData]
+                param: this.mapData
             });
             if (this.loadingCompleted && this.isEmpty) {
                 this.showLoading = false;
@@ -102,7 +102,7 @@ export class ServerMapForFilteredMapContainerComponent implements OnInit, OnDest
             this.cd.detectChanges();
         });
         this.connectStore();
-        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.SERVER_MAP_DISABLE).subscribe(([disable]: boolean[]) => {
+        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.SERVER_MAP_DISABLE).subscribe((disable: boolean) => {
             this.useDisable = disable;
             this.cd.detectChanges();
         });
@@ -194,7 +194,7 @@ export class ServerMapForFilteredMapContainerComponent implements OnInit, OnDest
         }
         this.messageQueueService.sendMessage({
             to: MESSAGE_TO.SERVER_MAP_TARGET_SELECT,
-            param: [payload]
+            param: payload
         });
     }
 
@@ -231,7 +231,7 @@ export class ServerMapForFilteredMapContainerComponent implements OnInit, OnDest
         }
         this.messageQueueService.sendMessage({
             to: MESSAGE_TO.SERVER_MAP_TARGET_SELECT,
-            param: [payload]
+            param: payload
         });
     }
 

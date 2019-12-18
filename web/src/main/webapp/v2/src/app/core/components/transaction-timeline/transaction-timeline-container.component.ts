@@ -87,7 +87,7 @@ export class TransactionTimelineContainerComponent implements OnInit, OnDestroy 
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.SELECT_TRANSACTION_IN_TIMELINE);
         this.messageQueueService.sendMessage({
             to: MESSAGE_TO.TRANSACTION_TIMELINE_SELECT_TRANSACTION,
-            param: [id]
+            param: id
         });
         this.storeHelperService.dispatch(new Actions.ChangeTransactionViewType('callTree'));
     }

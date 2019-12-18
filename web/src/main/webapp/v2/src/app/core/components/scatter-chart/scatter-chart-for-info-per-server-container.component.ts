@@ -129,7 +129,7 @@ export class ScatterChartForInfoPerServerContainerComponent implements OnInit, A
             this.scatterChartInteractionService.changeAgent(this.instanceKey, agent);
             this.cd.detectChanges();
         });
-        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.SERVER_MAP_TARGET_SELECT).subscribe(([target]: ISelectedTarget[]) => {
+        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.SERVER_MAP_TARGET_SELECT).subscribe((target: ISelectedTarget) => {
             this.isChangedTarget = true;
             this.selectedTarget = target;
             this.selectedAgent = '';
@@ -219,7 +219,7 @@ export class ScatterChartForInfoPerServerContainerComponent implements OnInit, A
     onChangeRangeX(params: IScatterXRange): void {
         this.messageQueueService.sendMessage({
             to: MESSAGE_TO.REAL_TIME_SCATTER_CHART_X_RANGE,
-            param: [params]
+            param: params
         });
     }
 

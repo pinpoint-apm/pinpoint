@@ -75,7 +75,7 @@ export class ThreadDumpListContainerComponent implements OnInit, OnDestroy {
     onSelectThread(param: any): void {
         this.messageQueueService.sendMessage({
             to: MESSAGE_TO.THREAD_DUMP_SET_PARAM,
-            param: [param]
+            param
         });
     }
 }

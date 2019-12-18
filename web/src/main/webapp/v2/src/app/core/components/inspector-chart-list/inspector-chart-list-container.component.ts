@@ -23,7 +23,7 @@ export class InspectorChartListContainerComponent implements OnInit {
     ) {}
 
     ngOnInit() {
-        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.INSPECTOR_CHART_MANAGER_REMOVE).subscribe(([type, chartName]: string[]) => {
+        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.INSPECTOR_CHART_MANAGER_REMOVE).subscribe(({type, chartName}: {type: string, chartName: string}) => {
             if (this.type === type) {
                 this.chartState = {
                     ...this.chartState,
@@ -32,7 +32,7 @@ export class InspectorChartListContainerComponent implements OnInit {
                 this.saveChartState();
             }
         });
-        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.INSPECTOR_CHART_MANAGER_CHANGE_ORDER).subscribe(([type, chartOrder]: [string, string[]]) => {
+        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.INSPECTOR_CHART_MANAGER_CHANGE_ORDER).subscribe(({type, chartOrder}: {type: string, chartOrder: string[]}) => {
             if (this.type === type) {
                 this.saveChartOrder(chartOrder);
             }
@@ -61,7 +61,10 @@ export class InspectorChartListContainerComponent implements OnInit {
         };
         this.messageQueueService.sendMessage({
             to: MESSAGE_TO.INSPECTOR_CHART_MANAGER_ADD,
-            param: [this.type, chartName]
+            param: {
+                type: this.type,
+                chartName
+            }
         });
         this.saveChartState();
     }

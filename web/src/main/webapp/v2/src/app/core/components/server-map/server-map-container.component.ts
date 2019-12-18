@@ -64,7 +64,7 @@ export class ServerMapContainerComponent implements OnInit, OnDestroy {
         this.addPageLoadingHandler();
         this.getI18NText();
 
-        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.SERVER_MAP_DISABLE).subscribe(([disable]: boolean[]) => {
+        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.SERVER_MAP_DISABLE).subscribe((disable: boolean) => {
             this.useDisable = disable;
             this.cd.detectChanges();
         });
@@ -99,7 +99,7 @@ export class ServerMapContainerComponent implements OnInit, OnDestroy {
             this.isEmpty = this.mapData.getNodeCount() === 0;
             this.messageQueueService.sendMessage({
                 to: MESSAGE_TO.SERVER_MAP_DATA_UPDATE,
-                param: [this.mapData]
+                param: this.mapData
             });
             if (this.isEmpty) {
                 this.showLoading = false;
@@ -201,7 +201,7 @@ export class ServerMapContainerComponent implements OnInit, OnDestroy {
         }
         this.messageQueueService.sendMessage({
             to: MESSAGE_TO.SERVER_MAP_TARGET_SELECT,
-            param: [payload]
+            param: payload
         });
     }
 
@@ -241,7 +241,7 @@ export class ServerMapContainerComponent implements OnInit, OnDestroy {
         }
         this.messageQueueService.sendMessage({
             to: MESSAGE_TO.SERVER_MAP_TARGET_SELECT,
-            param: [payload]
+            param: payload
         });
     }
 
