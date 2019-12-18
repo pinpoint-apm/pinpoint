@@ -115,7 +115,7 @@ export class RealTimeContainerComponent implements OnInit, AfterViewInit, OnDest
         this.timezone$ = this.storeHelperService.getTimezone(this.unsubscribe);
         this.dateFormat$ = this.storeHelperService.getDateFormat(this.unsubscribe, 0);
         this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.SERVER_MAP_DATA_UPDATE).pipe(
-            filter(([data]: ServerMapData[]) => data.getNodeCount() === 0)
+            filter((data: ServerMapData) => data.getNodeCount() === 0)
         ).subscribe(() => {
             this.hiddenComponent = true;
             this.cd.markForCheck();
@@ -124,7 +124,7 @@ export class RealTimeContainerComponent implements OnInit, AfterViewInit, OnDest
         this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.SERVER_MAP_TARGET_SELECT).pipe(
             tap(() => this.hiddenComponent = false),
             filter(() => !(this.isPinUp && this.applicationName !== ''))
-        ).subscribe(([target]: ISelectedTarget[]) => {
+        ).subscribe((target: ISelectedTarget) => {
             const [applicationName, serviceType] = target.node[0].split('^');
 
             if (target.isWAS) {

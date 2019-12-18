@@ -31,7 +31,7 @@ export class ChartLayoutContainerComponent implements OnInit {
         private webAppSettingDataService: WebAppSettingDataService
     ) {}
     ngOnInit() {
-        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.INSPECTOR_CHART_MANAGER_ADD).subscribe(([type, chartName]: string[]) => {
+        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.INSPECTOR_CHART_MANAGER_ADD).subscribe(({type, chartName}: {type: string, chartName: string}) => {
             if (this.type === type) {
                 this.chartList = this.chartList.concat([chartName]);
                 this.changeDetectorRef.detectChanges();
@@ -56,7 +56,10 @@ export class ChartLayoutContainerComponent implements OnInit {
         this.chartList = orderList;
         this.messageQueueService.sendMessage({
             to: MESSAGE_TO.INSPECTOR_CHART_MANAGER_CHANGE_ORDER,
-            param: [this.type, [...this.chartList]]
+            param: {
+                type: this.type,
+                chartOrder: [...this.chartList]
+            }
         });
     }
     onRemoveChart(chartName: string): void {
@@ -65,7 +68,10 @@ export class ChartLayoutContainerComponent implements OnInit {
         });
         this.messageQueueService.sendMessage({
             to: MESSAGE_TO.INSPECTOR_CHART_MANAGER_REMOVE,
-            param: [this.type, chartName]
+            param: {
+                type: this.type,
+                chartName
+            }
         });
         this.changeDetectorRef.detectChanges();
     }

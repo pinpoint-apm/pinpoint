@@ -24,8 +24,8 @@ export class GroupMemberContainerComponent implements OnInit, OnDestroy {
         private analyticsService: AnalyticsService,
     ) {}
     ngOnInit() {
-        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.USER_GROUP_SELECTED_USER_GROUP).subscribe((param: any[]) => {
-            this.currentUserGroupId = param[0];
+        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.USER_GROUP_SELECTED_USER_GROUP).subscribe((param: any) => {
+            this.currentUserGroupId = param;
             if (this.isValidUserGroupId()) {
                 this.getGroupMemberList();
             } else {
@@ -33,11 +33,11 @@ export class GroupMemberContainerComponent implements OnInit, OnDestroy {
                 this.sendMessageCurrentGroupMemeberList([]);
             }
         });
-        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.PINPOINT_USER_ADD_USER).subscribe((param: any[]) => {
-            this.addGroupMember(param[0] as string);
+        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.PINPOINT_USER_ADD_USER).subscribe((userId: string) => {
+            this.addGroupMember(userId);
         });
-        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.PINPOINT_USER_UPDATE_USER).subscribe((param: any[]) => {
-            const memberInfo = param[0];
+        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.PINPOINT_USER_UPDATE_USER).subscribe((param: any) => {
+            const memberInfo = param;
             let memberIndex = -1;
             let editMemberInfo;
             for (let i = 0 ; i < this.groupMemberList.length ; i++) {
@@ -55,8 +55,7 @@ export class GroupMemberContainerComponent implements OnInit, OnDestroy {
             }
             this.groupMemberList.splice(memberIndex, 1, editMemberInfo);
         });
-        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.PINPOINT_USER_REMOVE_USER).subscribe((param: any[]) => {
-            const userId = param[0];
+        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.PINPOINT_USER_REMOVE_USER).subscribe((userId: string) => {
             this.groupMemberList = this.groupMemberList.filter((member: IGroupMember) => {
                 return member.memberId !== userId;
             });
@@ -132,7 +131,7 @@ export class GroupMemberContainerComponent implements OnInit, OnDestroy {
     private sendMessageCurrentGroupMemeberList(list: string[]): void {
         this.messageQueueService.sendMessage({
             to: MESSAGE_TO.GROUP_MEMBER_SET_CURRENT_GROUP_MEMBERS,
-            param: [list]
+            param: list
         });
     }
     onRemoveGroupMember(id: string): void {

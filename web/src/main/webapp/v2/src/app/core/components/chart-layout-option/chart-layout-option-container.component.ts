@@ -24,7 +24,7 @@ export class ChartLayoutOptionContainerComponent implements OnInit {
         this.webAppSettingDataService.setChartLayoutOption(chartNumPerRow);
         this.messageQueueService.sendMessage({
             to: MESSAGE_TO.INSPECTOR_CHART_SET_LAYOUT,
-            param: [chartNumPerRow]
+            param: chartNumPerRow
         });
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.CLICK_INSPECTOR_CHART_LAYOUT_OPTION, `Chart Number Per Row: ${chartNumPerRow}`);
     }

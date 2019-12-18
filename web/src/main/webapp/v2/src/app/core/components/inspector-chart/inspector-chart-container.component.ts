@@ -121,7 +121,7 @@ export class InspectorChartContainerComponent implements OnInit, OnDestroy {
 
         this.messageQueueService.sendMessage({
             to: MESSAGE_TO.INSPECTOR_CHART_MOUSE_MOVE,
-            param: [yRatio]
+            param: yRatio
         });
     }
 

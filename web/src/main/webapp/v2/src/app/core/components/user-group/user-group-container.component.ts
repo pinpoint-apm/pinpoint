@@ -94,7 +94,7 @@ export class UserGroupContainerComponent implements OnInit {
                 if (response.result === 'SUCCESS') {
                     this.messageQueueService.sendMessage({
                         to: MESSAGE_TO.USER_GROUP_SELECTED_USER_GROUP,
-                        param: ['']
+                        param: ''
                     });
                     this.getUserGroupList(this.makeUserGroupQuery());
                     this.analyticsService.trackEvent(TRACKED_EVENT_LIST.REMOVE_USER_GROUP);
@@ -140,7 +140,7 @@ export class UserGroupContainerComponent implements OnInit {
         this.selectedUserGroupId = userGroupId;
         this.messageQueueService.sendMessage({
             to: MESSAGE_TO.USER_GROUP_SELECTED_USER_GROUP,
-            param: [userGroupId]
+            param: userGroupId
         });
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.SELECT_USER_GROUP);
     }

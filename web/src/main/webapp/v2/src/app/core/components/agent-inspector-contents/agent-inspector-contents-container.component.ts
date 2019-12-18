@@ -35,9 +35,7 @@ export class AgentInspectorContentsContainerComponent implements OnInit, OnDestr
         this.guideMessage$ = this.translateService.get('INSPECTOR.CHART_INTERACTION_GUIDE_MESSAGE');
         merge(
             of(this.webAppSettingDataService.getChartLayoutOption()),
-            this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.INSPECTOR_CHART_SET_LAYOUT).pipe(
-                map(([chartCountPerRow]: number[]) => chartCountPerRow)
-            )
+            this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.INSPECTOR_CHART_SET_LAYOUT)
         ).subscribe((chartCountPerRow: number) => {
             this.renderer.setStyle(this.chartGroupWrapper.nativeElement, 'grid-template-columns', this.getGridLayout(chartCountPerRow));
         });

@@ -67,11 +67,11 @@ export class TargetListContainerComponent implements OnInit, OnDestroy {
     }
 
     private listenToEmitter(): void {
-        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.SERVER_MAP_DATA_UPDATE).subscribe(([data]: ServerMapData[]) => {
+        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.SERVER_MAP_DATA_UPDATE).subscribe((data: ServerMapData) => {
             this.serverMapData = data;
         });
 
-        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.SERVER_MAP_TARGET_SELECT).subscribe(([target]: ISelectedTarget[]) => {
+        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.SERVER_MAP_TARGET_SELECT).subscribe((target: ISelectedTarget) => {
             this.target = target;
             this.showList = this.hasMultiInput(target);
             if (this.showList) {
@@ -125,7 +125,7 @@ export class TargetListContainerComponent implements OnInit, OnDestroy {
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.CLICK_NODE_IN_GROUPED_VIEW);
         this.messageQueueService.sendMessage({
             to: MESSAGE_TO.SERVER_MAP_TARGET_SELECT_BY_LIST,
-            param: [target]
+            param: target
         });
     }
 

@@ -84,7 +84,7 @@ export class InspectorPageService {
 
         this.messageQueueService.receiveMessage(unsubscribe, MESSAGE_TO.INSPECTOR_PAGE_VALID).pipe(
             tap(() => this.isFirstFlow = !this.timelineInfo)
-        ).subscribe(([range, now]: [number[], number]) => {
+        ).subscribe(({range, now}: {range: number[], now: number}) => {
             this.notifyToTimeline(range);
             if (!(this.isFirstFlow || this.shouldUpdateRange())) {
                 this.notifyToAgentInfo();

@@ -123,7 +123,7 @@ export class AgentInspectorTimelineContainerComponent implements OnInit, OnDestr
     onSelectEventStatus($eventObj: ITimelineEventSegment): void {
         this.messageQueueService.sendMessage({
             to: MESSAGE_TO.TIMELINE_SELECTED_EVENT_STATUS,
-            param: [$eventObj]
+            param: $eventObj
         });
     }
     onChangeTimelineUIEvent(event: TimelineUIEvent): void {

@@ -41,11 +41,11 @@ export class FilterInformationContainerComponent implements OnInit, OnDestroy {
     }
 
     private listenToEmitter(): void {
-        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.SERVER_MAP_DATA_UPDATE).subscribe(([data]: ServerMapData[]) => {
+        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.SERVER_MAP_DATA_UPDATE).subscribe((data: ServerMapData) => {
             this.serverMapData = data;
         });
 
-        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.SERVER_MAP_TARGET_SELECT).subscribe(([target]: ISelectedTarget[]) => {
+        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.SERVER_MAP_TARGET_SELECT).subscribe((target: ISelectedTarget) => {
             this.filterIndexOfCurrentLink = -1;
             this.selectedTarget = target;
         });

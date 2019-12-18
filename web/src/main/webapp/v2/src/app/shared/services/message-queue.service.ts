@@ -1,34 +1,31 @@
 import { Injectable } from '@angular/core';
 import { Subject, Observable } from 'rxjs';
-import { filter, takeUntil, map } from 'rxjs/operators';
+import { filter, takeUntil, pluck } from 'rxjs/operators';
 
 interface IMessageParam {
     to: string;
-    param?: any[];
+    param?: any;
 }
 
 @Injectable()
 export class MessageQueueService {
-    private messageQueue: Subject<IMessageParam> = new Subject();
+    private messageQueue = new Subject<IMessageParam>();
+
     constructor() {}
     sendMessage(message: IMessageParam): void {
         this.messageQueue.next(message);
     }
-    receiveMessage(unsubscribe: Subject<any>, to: string): Observable<any[]> {
+
+    receiveMessage(unsubscribe: Subject<any>, to: string): Observable<any> {
         return this.messageQueue.pipe(
             takeUntil(unsubscribe),
-            filter((message: IMessageParam) => {
-                return message.to === to;
-            }),
-            map((message: IMessageParam) => {
-                return message.param;
-            })
+            filter((message: IMessageParam) => message.to === to),
+            pluck('param'),
         );
     }
 }
 
 export enum MESSAGE_TO {
-    TIMELINE_SELECTED_POINTING_TIME = 'TIMELINE_SELECTED_POINTING_TIME',
     TIMELINE_SELECTED_EVENT_STATUS = 'TIMELINE_SELECTED_EVENT_STATUS',
     TIMELINE_ZOOM_IN = 'TIMELINE_ZOOM_IN',
     TIMELINE_ZOOM_OUT = 'TIMELINE_ZOOM_OUT',

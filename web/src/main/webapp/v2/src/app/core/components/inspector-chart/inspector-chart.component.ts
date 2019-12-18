@@ -46,7 +46,7 @@ export class InspectorChartComponent implements OnInit, OnChanges, OnDestroy {
             this.resize();
         });
 
-        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.CALL_TREE_ROW_SELECT).subscribe(([{time}]: [ISelectedRowInfo]) => {
+        this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.CALL_TREE_ROW_SELECT).subscribe(({time}: ISelectedRowInfo) => {
             const closestTime = (Object.values(this.chartInstance.x())[0] as Date[])
                 .map((d: Date) => d.getTime())
                 .find((t: number, i: number, arr: number[]) => {

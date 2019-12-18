@@ -39,8 +39,7 @@ export class AgentEventViewContainerComponent implements OnInit, OnDestroy {
         this.timezone$ = this.storeHelperService.getTimezone(this.unsubscribe);
         this.dateFormat$ = this.storeHelperService.getDateFormat(this.unsubscribe, 1);
         this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.TIMELINE_SELECTED_EVENT_STATUS).pipe(
-            switchMap((param: any[]) => {
-                const eventSegment = param[0] as ITimelineEventSegment;
+            switchMap((eventSegment: ITimelineEventSegment) => {
                 return this.agentEventsDataService.getData(eventSegment.startTimestamp, eventSegment.endTimestamp);
             })
         ).subscribe((response: IEventStatus[]) => {
