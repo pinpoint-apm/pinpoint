@@ -1,12 +1,10 @@
-import { Component, OnInit, ChangeDetectionStrategy, ViewChild, AfterViewInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, ViewChild, ElementRef, Renderer2, ChangeDetectorRef } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { Subject, Observable, forkJoin } from 'rxjs';
-import { filter, map, tap } from 'rxjs/operators';
+import { Observable, forkJoin } from 'rxjs';
+import { tap } from 'rxjs/operators';
 
-import { UrlPathId } from 'app/shared/models';
 import { NewUrlStateNotificationService, AnalyticsService, TRACKED_EVENT_LIST } from 'app/shared/services';
 import { ServerMapInteractionService } from 'app/core/components/server-map/server-map-interaction.service';
-import { ServerMapSearchResultViewerComponent } from './server-map-search-result-viewer.component';
 
 @Component({
     selector: 'pp-server-map-search-result-viewer-container',
@@ -14,67 +12,74 @@ import { ServerMapSearchResultViewerComponent } from './server-map-search-result
     styleUrls: ['./server-map-search-result-viewer-container.component.css'],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ServerMapSearchResultViewerContainerComponent implements OnInit, AfterViewInit {
-    @ViewChild(ServerMapSearchResultViewerComponent, {static: false}) comp: ServerMapSearchResultViewerComponent;
+export class ServerMapSearchResultViewerContainerComponent implements OnInit {
+    @ViewChild('searchInput', {static: true}) searchInput: ElementRef;
     private minLength = 3;
 
-    i18nText: { [key: string]: string } = {};
-    hiddenComponent$: Observable<boolean>;
+    i18nText: {[key: string]: string};
     searchResultList$: Observable<IApplication[]>;
-    userInput = new Subject<string>();
+    listDisplay = 'none';
+    isEmpty: boolean;
+    selectedApp: IApplication;
 
     constructor(
         private translateService: TranslateService,
         private newUrlStateNotificationService: NewUrlStateNotificationService,
         private serverMapInteractionService: ServerMapInteractionService,
-        private analyticsService: AnalyticsService
+        private renderer: Renderer2,
+        private analyticsService: AnalyticsService,
+        private cd: ChangeDetectorRef
     ) {}
 
     ngOnInit() {
-        this.getI18NText();
-        this.searchResultList$ = this.serverMapInteractionService.onSearchResult$;
-        this.userInput.pipe(
-            filter((query: string) => {
-                return query.length >= this.minLength;
-            })
-        ).subscribe((query: string) => {
-            this.serverMapInteractionService.setSearchWord(query);
-        });
+        this.initI18NText();
+        this.listenToEmitter();
     }
 
-    ngAfterViewInit() {
-        /**
-         *  TODO: Refactor the structure entirely
-         *  1. Locate the template on the container level so that closing the result area and initializing the query becomes easier.
-         *  2. Subscribing the server map data directly so that this weird userInput thing becomes unnecessary.
-         */
-        this.hiddenComponent$ = this.newUrlStateNotificationService.onUrlStateChange$.pipe(
-            tap(() => this.comp.onCloseResult()),
-            map((urlService: NewUrlStateNotificationService) => {
-                return urlService.hasValue(UrlPathId.PERIOD, UrlPathId.END_TIME) ? false : true;
-            }),
-        );
-    }
-
-    private getI18NText() {
+    private initI18NText() {
         forkJoin(
             this.translateService.get('COMMON.SEARCH_INPUT'),
             this.translateService.get('MAIN.EMPTY_RESULT')
         ).subscribe((i18n: string[]) => {
             this.i18nText = {
-                [ServerMapSearchResultViewerComponent.I18NTEXT.PLACE_HOLDER]: i18n[0],
-                [ServerMapSearchResultViewerComponent.I18NTEXT.EMPTY_RESULT]: i18n[1]
+                'PLACE_HOLDER': i18n[0],
+                'EMPTY_RESULT': i18n[1]
             };
         });
     }
 
-    onSearch($event: string): void {
-        this.analyticsService.trackEvent(TRACKED_EVENT_LIST.SEARCH_NODE);
-        this.userInput.next($event);
+    private listenToEmitter(): void {
+        this.newUrlStateNotificationService.onUrlStateChange$.subscribe(() => {
+            this.resetView();
+            this.cd.markForCheck();
+        });
+        this.searchResultList$ = this.serverMapInteractionService.onSearchResult$.pipe(
+            tap(() => this.listDisplay = 'block'),
+            tap((list: IApplication[]) => this.isEmpty = list.length === 0)
+        );
     }
 
-    onSelectApplication(app: IApplication): void {
+    private resetView(): void {
+        this.renderer.setProperty(this.searchInput.nativeElement, 'value', '');
+        this.listDisplay = 'none';
+    }
+
+    onSearch(query: string): void {
+        this.analyticsService.trackEvent(TRACKED_EVENT_LIST.SEARCH_NODE);
+        if (query.length < this.minLength) {
+            return;
+        }
+
+        this.serverMapInteractionService.setSearchWord(query);
+    }
+
+    onSelectApp(app: IApplication): void {
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.SELECT_APPLICATION_IN_SEARCH_RESULT);
+        this.selectedApp = app;
         this.serverMapInteractionService.setSelectedApplication(app.getKeyStr());
+    }
+
+    onClose() {
+        this.listDisplay = 'none';
     }
 }

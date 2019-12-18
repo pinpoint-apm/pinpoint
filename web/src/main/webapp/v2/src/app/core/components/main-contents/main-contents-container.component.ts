@@ -1,7 +1,10 @@
 import { Component, OnInit, ComponentFactoryResolver, Injector, ChangeDetectionStrategy } from '@angular/core';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 
-import { DynamicPopupService } from 'app/shared/services';
+import { DynamicPopupService, NewUrlStateNotificationService } from 'app/shared/services';
 import { HELP_VIEWER_LIST, HelpViewerPopupContainerComponent } from 'app/core/components/help-viewer-popup/help-viewer-popup-container.component';
+import { UrlPathId } from 'app/shared/models';
 
 @Component({
     selector: 'pp-main-contents-container',
@@ -10,13 +13,21 @@ import { HELP_VIEWER_LIST, HelpViewerPopupContainerComponent } from 'app/core/co
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class MainContentsContainerComponent implements OnInit {
+    showElements$: Observable<boolean>;
+
     constructor(
         private dynamicPopupService: DynamicPopupService,
+        private newUrlStateNotificationService: NewUrlStateNotificationService,
         private componentFactoryResolver: ComponentFactoryResolver,
         private injector: Injector
     ) {}
 
-    ngOnInit() {}
+    ngOnInit() {
+        this.showElements$ = this.newUrlStateNotificationService.onUrlStateChange$.pipe(
+            map((urlService: NewUrlStateNotificationService) => urlService.hasValue(UrlPathId.PERIOD, UrlPathId.END_TIME))
+        );
+    }
+
     onShowHelp($event: MouseEvent): void {
         const {left, top, width, height} = ($event.target as HTMLElement).getBoundingClientRect();
 

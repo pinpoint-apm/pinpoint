@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { Subject, Observable } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { takeUntil, filter } from 'rxjs/operators';
 
 import {
     StoreHelperService,
@@ -37,15 +37,11 @@ export class FixedPeriodMoverContainerComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
         this.newUrlStateNotificationService.onUrlStateChange$.pipe(
-            takeUntil(this.unsubscribe)
+            takeUntil(this.unsubscribe),
+            filter((urlService: NewUrlStateNotificationService) => urlService.hasValue(UrlPathId.PERIOD, UrlPathId.END_TIME))
         ).subscribe((urlService: NewUrlStateNotificationService) => {
-            if (urlService.hasValue(UrlPathId.PERIOD, UrlPathId.END_TIME)) {
-                this.period = urlService.getPathValue(UrlPathId.PERIOD);
-                this.endTime = urlService.getPathValue(UrlPathId.END_TIME);
-                this.hiddenComponent = false;
-            } else {
-                this.hiddenComponent = true;
-            }
+            this.period = urlService.getPathValue(UrlPathId.PERIOD);
+            this.endTime = urlService.getPathValue(UrlPathId.END_TIME);
             this.changeDetectorRef.markForCheck();
         });
         this.connectStore();
