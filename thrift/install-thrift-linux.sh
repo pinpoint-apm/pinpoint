@@ -2,7 +2,7 @@
 
 readonly APACHE_MIRROR_URL="http://mirror.navercorp.com/apache"
 readonly DEFAULT_PATH="./src/compiler/linux/"
-readonly DEFAULT_BIN="thrift-0.10.0"
+readonly DEFAULT_BIN="thrift-0.12.0"
 
 if [ -z "$1" ]; then
     tpath=${DEFAULT_PATH}
