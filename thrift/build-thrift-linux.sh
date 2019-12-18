@@ -1,5 +1,5 @@
 thrift_path="./src/compiler/linux/"
-thrift_bin="thrift-0.10.0"
+thrift_bin="thrift-0.12.0"
 
 rc=0
 # check thrift binary
