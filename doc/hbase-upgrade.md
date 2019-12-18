@@ -29,5 +29,5 @@ or after changing the version directly from pom.xml
 
 ```java
 <!-- hbase -->
-<hbase.shaded.client.version>1.2.6.1</hbase.shaded.client.version>
+<hbase.shaded.client.version>1.2.12</hbase.shaded.client.version>
 ```
