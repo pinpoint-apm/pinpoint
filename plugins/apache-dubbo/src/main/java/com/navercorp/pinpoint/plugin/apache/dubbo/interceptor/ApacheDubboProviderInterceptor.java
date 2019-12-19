@@ -34,6 +34,8 @@ import org.apache.dubbo.rpc.Invoker;
 import org.apache.dubbo.rpc.RpcContext;
 import org.apache.dubbo.rpc.RpcInvocation;
 
+import java.util.Map;
+
 /**
  * @author K
  */
@@ -121,6 +123,32 @@ public class ApacheDubboProviderInterceptor extends SpanRecursiveAroundIntercept
                     }
                 }
             }
+        }
+        //clear attachments
+        this.clearAttachments(rpcContext);
+    }
+
+    /**
+     * clear {@link org.apache.dubbo.rpc.RpcContext#getAttachments()} trace header.
+     * you should to know,since apache dubbo 2.6.2 version.
+     * {@link org.apache.dubbo.rpc.protocol.AbstractInvoker#invoke(org.apache.dubbo.rpc.Invocation)}
+     * will force put {@link org.apache.dubbo.rpc.RpcContext#getAttachments()} to current Invocation
+     * replace origin invocation.addAttachmentsIfAbsent(context) method;
+     * to imagine if application(B) methodB called by application(A), application(B) is dubbo provider, methodB call next dubbo application(C).
+     * when application(C) received trace header is overwrite by application(B) received trace header.
+     *
+     * @param rpcContext
+     */
+    private void clearAttachments(RpcContext rpcContext) {
+        Map<String, String> attachments = rpcContext.getAttachments();
+        if (attachments != null) {
+            attachments.remove(ApacheDubboConstants.META_TRANSACTION_ID);
+            attachments.remove(ApacheDubboConstants.META_SPAN_ID);
+            attachments.remove(ApacheDubboConstants.META_PARENT_SPAN_ID);
+            attachments.remove(ApacheDubboConstants.META_PARENT_APPLICATION_TYPE);
+            attachments.remove(ApacheDubboConstants.META_PARENT_APPLICATION_NAME);
+            attachments.remove(ApacheDubboConstants.META_FLAGS);
+            attachments.remove(ApacheDubboConstants.META_HOST);
         }
     }
 
