@@ -53,6 +53,11 @@ public class AppRequestParser implements ProxyRequestParser {
                     header.setCause("invalid received time");
                     return header.build();
                 }
+            } else if (token.startsWith("D=")) {
+                final int durationTimeMicroseconds = toDurationTimeMicros(token.substring(2));
+                if (durationTimeMicroseconds > 0) {
+                    header.setDurationTimeMicroseconds(durationTimeMicroseconds);
+                }
             } else if (token.startsWith("app=")) {
                 final String app = token.substring(4).trim();
                 if (!app.isEmpty()) {
@@ -69,9 +74,39 @@ public class AppRequestParser implements ProxyRequestParser {
         }
 
         // to milliseconds.
+        final int millisPosition = value.lastIndexOf('.');
+        if (millisPosition != -1) { //time in seconds with the milliseconds resolution
+            return seconds2MilliSeconds(value);
+        }
         try {
             return Long.parseLong(value);
         } catch (NumberFormatException ignored) {
+        }
+        return 0;
+    }
+
+    private int toDurationTimeMicros(final String value) {
+        return (int)(seconds2MilliSeconds(value)) * 1000;
+    }
+
+    /**
+     * @param value seconds in 0.3f format
+     * @return microseconds
+     */
+    private long seconds2MilliSeconds(final String value) {
+        if (value == null) {
+            return 0;
+        }
+
+        final int millisPosition = value.lastIndexOf('.');
+        if (millisPosition != -1) { // e.g. 0.000
+            if (value.length() - millisPosition != 4) { // invalid format. e.g. 0.1 should be 0.3f ie. 0.100
+                return 0;
+            }
+            try {
+                return Long.parseLong(value.substring(0, millisPosition) + value.substring(millisPosition + 1));
+            } catch (NumberFormatException ignored) {
+            }
         }
         return 0;
     }

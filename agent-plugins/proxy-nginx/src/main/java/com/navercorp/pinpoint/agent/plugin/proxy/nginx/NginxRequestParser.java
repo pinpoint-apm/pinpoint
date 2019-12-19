@@ -52,9 +52,14 @@ public class NginxRequestParser implements ProxyRequestParser {
                     return header.build();
                 }
             } else if (token.startsWith("D=")) {
-                final long durationTimeMicroseconds = toDurationTimeMicros(token.substring(2));
+                final int durationTimeMicroseconds = toDurationTimeMicros(token.substring(2));
                 if (durationTimeMicroseconds > 0) {
-                    header.setDurationTimeMicroseconds((int) durationTimeMicroseconds);
+                    header.setDurationTimeMicroseconds(durationTimeMicroseconds);
+                }
+            } else if (token.startsWith("app=")) {
+                final String app = token.substring(4).trim();
+                if (!app.isEmpty()) {
+                    header.setApp(app);
                 }
             }
         }

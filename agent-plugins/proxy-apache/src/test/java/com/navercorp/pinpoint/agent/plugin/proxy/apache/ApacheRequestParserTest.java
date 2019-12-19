@@ -29,13 +29,15 @@ public class ApacheRequestParserTest {
     public void parseApacheHttpd() throws Exception {
         ApacheRequestParser parser = new ApacheRequestParser();
         final long currentTimeMillis = System.currentTimeMillis();
-        String value = "t=" + currentTimeMillis + "999" + " D=12345 i=99 b=1";
+        final String app = "entry-1.2.3.4";
+        String value = "t=" + currentTimeMillis + "999" + " D=12345 i=99 b=1 app=" + app;
         ProxyRequestHeader proxyHttpHeader = parser.parse(value);
         assertTrue(proxyHttpHeader.isValid());
         assertEquals(currentTimeMillis, proxyHttpHeader.getReceivedTimeMillis());
         assertEquals(12345, proxyHttpHeader.getDurationTimeMicroseconds());
         assertEquals(99, proxyHttpHeader.getIdlePercent());
         assertEquals(1, proxyHttpHeader.getBusyPercent());
+        assertEquals(app, proxyHttpHeader.getApp());
     }
 
     @Test

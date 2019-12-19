@@ -30,11 +30,13 @@ public class AppRequestParserTest {
     public void parseApp() throws Exception {
         AppRequestParser parser = new AppRequestParser();
         final long currentTimeMillis = System.currentTimeMillis();
-        String value = "t=" + currentTimeMillis;
+        final String app = "testApp-ip-1.2.3.4";
+        String value = "t=" + currentTimeMillis + " app=" + app + " D=1.230";
         ProxyRequestHeader proxyHttpHeader = parser.parse(value);
         assertTrue(proxyHttpHeader.isValid());
         assertEquals(currentTimeMillis, proxyHttpHeader.getReceivedTimeMillis());
-        assertEquals(-1, proxyHttpHeader.getDurationTimeMicroseconds());
+        assertEquals(app, proxyHttpHeader.getApp());
+        assertEquals(1230000, proxyHttpHeader.getDurationTimeMicroseconds());
         assertEquals(-1, proxyHttpHeader.getIdlePercent());
         assertEquals(-1, proxyHttpHeader.getBusyPercent());
     }
