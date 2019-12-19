@@ -34,19 +34,22 @@ public class ProxyHttpHeaderParserTest {
     public void parseApacheHttpd() throws Exception {
         ProxyHttpHeaderParser parser = new ProxyHttpHeaderParser();
         final long currentTimeMillis = System.currentTimeMillis();
-        String value = "t=" + currentTimeMillis + "999" + " D=12345 i=99 b=1";
+        final String app = "lbEntry-1.2.3.4";
+        String value = "t=" + currentTimeMillis + "999" + " D=12345 i=99 b=1 app=" + app;
         ProxyHttpHeader proxyHttpHeader = parser.parse(ProxyHttpHeader.TYPE_APACHE, value);
         assertTrue(proxyHttpHeader.isValid());
         assertEquals(currentTimeMillis, proxyHttpHeader.getReceivedTimeMillis());
         assertEquals(12345, proxyHttpHeader.getDurationTimeMicroseconds());
         assertEquals(99, proxyHttpHeader.getIdlePercent());
         assertEquals(1, proxyHttpHeader.getBusyPercent());
+        assertEquals(app, proxyHttpHeader.getApp());
         assertEquals(AnnotationKey.PROXY_HTTP_HEADER, proxyHttpHeader.getAnnotationKey());
         LongIntIntByteByteStringValue tvalue = (LongIntIntByteByteStringValue) proxyHttpHeader.getAnnotationValue();
         assertEquals(currentTimeMillis, tvalue.getLongValue());
         assertEquals(12345, tvalue.getIntValue2());
         assertEquals(99, tvalue.getByteValue1());
         assertEquals(1, tvalue.getByteValue2());
+        assertEquals(app, tvalue.getStringValue());
         System.out.println("");
     }
 
@@ -105,19 +108,22 @@ public class ProxyHttpHeaderParserTest {
     @Test
     public void parseNginx() throws Exception {
         ProxyHttpHeaderParser parser = new ProxyHttpHeaderParser();
-        String value = "t=1504248328.423 D=0.123";
+        final String app = "ngJava-1.2.3.4";
+        String value = "t=1504248328.423 D=0.123 app="+app;
         ProxyHttpHeader proxyHttpHeader = parser.parse(ProxyHttpHeader.TYPE_NGINX, value);
         assertTrue(proxyHttpHeader.isValid());
         assertEquals(1504248328423L, proxyHttpHeader.getReceivedTimeMillis());
         assertEquals(123000L, proxyHttpHeader.getDurationTimeMicroseconds());
         assertEquals(-1, proxyHttpHeader.getIdlePercent());
         assertEquals(-1, proxyHttpHeader.getBusyPercent());
+        assertEquals(app, proxyHttpHeader.getApp());
         assertEquals(AnnotationKey.PROXY_HTTP_HEADER, proxyHttpHeader.getAnnotationKey());
         LongIntIntByteByteStringValue tvalue = (LongIntIntByteByteStringValue) proxyHttpHeader.getAnnotationValue();
         assertEquals(1504248328423L, tvalue.getLongValue());
         assertEquals(123000L, tvalue.getIntValue2());
         assertEquals(-1, tvalue.getByteValue1());
         assertEquals(-1, tvalue.getByteValue2());
+        assertEquals(app, tvalue.getStringValue());
     }
 
     @Test
@@ -142,19 +148,23 @@ public class ProxyHttpHeaderParserTest {
     public void parseApp() throws Exception {
         ProxyHttpHeaderParser parser = new ProxyHttpHeaderParser();
         final long currentTimeMillis = System.currentTimeMillis();
-        String value = "t=" + currentTimeMillis;
+        final String app = "routeApp-ip1.2.3.4";
+        final int durationInMicro = 4000;
+        String value = "t=" + currentTimeMillis + " app=" + app + " D="+durationInMicro;
         ProxyHttpHeader proxyHttpHeader = parser.parse(ProxyHttpHeader.TYPE_APP, value);
         assertTrue(proxyHttpHeader.isValid());
         assertEquals(currentTimeMillis, proxyHttpHeader.getReceivedTimeMillis());
-        assertEquals(-1, proxyHttpHeader.getDurationTimeMicroseconds());
+        assertEquals(durationInMicro, proxyHttpHeader.getDurationTimeMicroseconds());
+        assertEquals(app, proxyHttpHeader.getApp());
         assertEquals(-1, proxyHttpHeader.getIdlePercent());
         assertEquals(-1, proxyHttpHeader.getBusyPercent());
         assertEquals(AnnotationKey.PROXY_HTTP_HEADER, proxyHttpHeader.getAnnotationKey());
         LongIntIntByteByteStringValue tvalue = (LongIntIntByteByteStringValue) proxyHttpHeader.getAnnotationValue();
         assertEquals(currentTimeMillis, tvalue.getLongValue());
-        assertEquals(-1, tvalue.getIntValue2());
+        assertEquals(4000, tvalue.getIntValue2());
         assertEquals(-1, tvalue.getByteValue1());
         assertEquals(-1, tvalue.getByteValue2());
+        assertEquals(app, tvalue.getStringValue());
     }
 
     @Test

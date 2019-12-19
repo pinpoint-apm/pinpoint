@@ -122,10 +122,8 @@ public class ProxyHttpHeader {
     }
 
     public Object getAnnotationValue() {
-        if (this.type == TYPE_APP && this.app != null) {
-            return new LongIntIntByteByteStringValue(receivedTimeMillis, type, durationTimeMicroseconds, idlePercent, busyPercent, StringUtils.abbreviate(app, APP_MAX_LENGTH));
-        }
-        return new LongIntIntByteByteStringValue(receivedTimeMillis, type, durationTimeMicroseconds, idlePercent, busyPercent, null);
+        final String appValue = this.app != null ? StringUtils.abbreviate(this.app, APP_MAX_LENGTH) : null;
+        return new LongIntIntByteByteStringValue(receivedTimeMillis, type, durationTimeMicroseconds, idlePercent, busyPercent, appValue);
     }
 
     @Override
