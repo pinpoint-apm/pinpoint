@@ -96,11 +96,19 @@ public class KafkaPlugin implements ProfilerPlugin, TransformTemplateAware {
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
 
-            // Version 2.2.0+ is supported.
+            // Version 2.3.0+ is supported.
             InstrumentMethod constructor = target.getConstructor("java.util.Map",
                     "org.apache.kafka.common.serialization.Serializer", "org.apache.kafka.common.serialization.Serializer",
-                    "org.apache.kafka.clients.Metadata", "org.apache.kafka.clients.KafkaClient",
+                    "org.apache.kafka.clients.producer.internals.ProducerMetadata", "org.apache.kafka.clients.KafkaClient",
                     "org.apache.kafka.clients.producer.internals.ProducerInterceptors", "org.apache.kafka.common.utils.Time");
+
+            if (constructor == null) {
+                // Version 2.2.0+ is supported.
+                constructor = target.getConstructor("java.util.Map",
+                        "org.apache.kafka.common.serialization.Serializer", "org.apache.kafka.common.serialization.Serializer",
+                        "org.apache.kafka.clients.Metadata", "org.apache.kafka.clients.KafkaClient",
+                        "org.apache.kafka.clients.producer.internals.ProducerInterceptors", "org.apache.kafka.common.utils.Time");
+            }
 
             // Version 2.0.0+ is supported.
             if (constructor == null) {
