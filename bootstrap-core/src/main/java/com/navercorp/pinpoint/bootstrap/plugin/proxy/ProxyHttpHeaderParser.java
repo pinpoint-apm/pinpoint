@@ -188,6 +188,10 @@ public class ProxyHttpHeaderParser {
             }
 
             // to milliseconds.
+            final int millisPosition = value.lastIndexOf('.');
+            if (millisPosition != -1) { //time in seconds with the milliseconds resolution
+                return seconds2MilliSeconds(value);
+            }
             try {
                 return Long.parseLong(value);
             } catch (NumberFormatException ignored) {
