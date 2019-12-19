@@ -149,19 +149,18 @@ public class ProxyHttpHeaderParserTest {
         ProxyHttpHeaderParser parser = new ProxyHttpHeaderParser();
         final long currentTimeMillis = System.currentTimeMillis();
         final String app = "routeApp-ip1.2.3.4";
-        final int durationInMicro = 4000;
-        String value = "t=" + currentTimeMillis + " app=" + app + " D="+durationInMicro;
+        String value = "t=" + currentTimeMillis + " app=" + app + " D=2.123";
         ProxyHttpHeader proxyHttpHeader = parser.parse(ProxyHttpHeader.TYPE_APP, value);
         assertTrue(proxyHttpHeader.isValid());
         assertEquals(currentTimeMillis, proxyHttpHeader.getReceivedTimeMillis());
-        assertEquals(durationInMicro, proxyHttpHeader.getDurationTimeMicroseconds());
+        assertEquals(2123000, proxyHttpHeader.getDurationTimeMicroseconds());
         assertEquals(app, proxyHttpHeader.getApp());
         assertEquals(-1, proxyHttpHeader.getIdlePercent());
         assertEquals(-1, proxyHttpHeader.getBusyPercent());
         assertEquals(AnnotationKey.PROXY_HTTP_HEADER, proxyHttpHeader.getAnnotationKey());
         LongIntIntByteByteStringValue tvalue = (LongIntIntByteByteStringValue) proxyHttpHeader.getAnnotationValue();
         assertEquals(currentTimeMillis, tvalue.getLongValue());
-        assertEquals(4000, tvalue.getIntValue2());
+        assertEquals(2123000, tvalue.getIntValue2());
         assertEquals(-1, tvalue.getByteValue1());
         assertEquals(-1, tvalue.getByteValue2());
         assertEquals(app, tvalue.getStringValue());
@@ -229,6 +228,9 @@ public class ProxyHttpHeaderParserTest {
         assertEquals(1001000, parser.getNginxUnit().toDurationTimeMicros("1.001"));
         assertEquals(1000, parser.getNginxUnit().toDurationTimeMicros("0.001"));
         assertEquals(123, parser.getApacheUnit().toDurationTimeMicros("123"));
+        assertEquals(9000, parser.getAppUnit().toDurationTimeMicros("0.009"));
+        assertEquals(456789000, parser.getAppUnit().toDurationTimeMicros("456.789"));
+        assertEquals(-456789000, parser.getAppUnit().toDurationTimeMicros("-456.789")); //expose time sync difference
 
         // invalid
         assertEquals(0, parser.getNginxUnit().toDurationTimeMicros("1.01"));
@@ -240,5 +242,11 @@ public class ProxyHttpHeaderParserTest {
         assertEquals(0, parser.getApacheUnit().toDurationTimeMicros("a"));
         assertEquals(0, parser.getApacheUnit().toDurationTimeMicros(""));
         assertEquals(0, parser.getApacheUnit().toDurationTimeMicros(null));
+
+        assertEquals(0, parser.getAppUnit().toDurationTimeMicros("456.00"));
+        assertEquals(0, parser.getAppUnit().toDurationTimeMicros("invalid"));
+        assertEquals(0, parser.getAppUnit().toDurationTimeMicros(null));
+        assertEquals(0, parser.getAppUnit().toDurationTimeMicros(""));
+        assertEquals(0, parser.getAppUnit().toDurationTimeMicros("456.ab"));
     }
 }

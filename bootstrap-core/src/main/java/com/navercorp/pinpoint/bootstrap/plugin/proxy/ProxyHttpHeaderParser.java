@@ -144,25 +144,7 @@ public class ProxyHttpHeaderParser {
 
         @Override
         public int toDurationTimeMicros(final String value) {
-            if (value == null) {
-                return 0;
-            }
-
-            final int length = value.length();
-            final int millisPosition = value.lastIndexOf('.');
-            if (millisPosition != -1) {
-                // e.g. 0.000
-                if (length - millisPosition != 4) {
-                    // invalid format.
-                    return 0;
-                }
-                try {
-                    // to microseconds
-                    return Integer.parseInt(value.substring(0, millisPosition) + value.substring(millisPosition + 1)) * 1000;
-                } catch (NumberFormatException ignored) {
-                }
-            }
-            return 0;
+            return ((int)seconds2MilliSeconds(value)) * 1000;
         }
     }
 
@@ -214,8 +196,32 @@ public class ProxyHttpHeaderParser {
         }
 
         @Override
-        public int toDurationTimeMicros(String value) {
-            return 0;
+        public int toDurationTimeMicros(final String value) {
+            return ((int)seconds2MilliSeconds(value)) * 1000;
         }
     }
+
+    /**
+     *
+     * @param value seconds in 0.3f format
+     * @return microseconds
+     */
+    private static long seconds2MilliSeconds(final String value) {
+        if (value == null) {
+            return 0;
+        }
+
+        final int millisPosition = value.lastIndexOf('.');
+        if (millisPosition != -1) { // e.g. 0.000
+            if (value.length() - millisPosition != 4) { // invalid format. e.g. 0.1 should be 0.3f ie. 0.100
+                return 0;
+            }
+            try {
+                return Long.parseLong(value.substring(0, millisPosition) + value.substring(millisPosition + 1));
+            } catch (NumberFormatException ignored) {
+            }
+        }
+        return 0;
+    }
+
 }
