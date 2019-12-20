@@ -1,0 +1,26 @@
+serviceTypes:
+    - code: 9160
+      name: 'GRPC'
+      property:
+        recordStatistics: true
+      matcher:
+        type: 'exact'
+        code: 40 # http.url
+    - code: 9161
+      name: 'GRPC_INTERNAL'
+      desc: 'GRPC'
+      matcher:
+        type: 'exact'
+        code: 160 # grpc.status
+    - code: 1130
+      name: 'GRPC_SERVER'
+      desc: 'GRPC'
+    - code: 9162
+      name: 'GRPC_SERVER_INTERNAL'
+      desc: 'GRPC'
+
+annotationKeys:
+  - code: 160
+    name: 'grpc.status'
+    property:
+      viewInRecordSet: true

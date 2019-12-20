@@ -17,25 +17,23 @@
 package com.navercorp.pinpoint.plugin.grpc;
 
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
-import com.navercorp.pinpoint.common.trace.AnnotationKeyFactory;
+import com.navercorp.pinpoint.common.trace.AnnotationKeyProvider;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
 
-import static com.navercorp.pinpoint.common.trace.AnnotationKeyProperty.VIEW_IN_RECORD_SET;
-import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.RECORD_STATISTICS;
+import com.navercorp.pinpoint.common.trace.ServiceTypeProvider;
 
 public final class GrpcConstants {
 
     private GrpcConstants() {
     }
 
-    public static final ServiceType SERVICE_TYPE = ServiceTypeFactory.of(9160, "gRPC", RECORD_STATISTICS);
-    public static final ServiceType SERVICE_TYPE_INTERNAL = ServiceTypeFactory.of(9161, "gRPC_INTERNAL");
+    public static final ServiceType SERVICE_TYPE = ServiceTypeProvider.getByName("GRPC");
+    public static final ServiceType SERVICE_TYPE_INTERNAL = ServiceTypeProvider.getByName("GRPC_INTERNAL");
 
-    public static final ServiceType SERVER_SERVICE_TYPE = ServiceTypeFactory.of(1130, "gRPC_SERVER", RECORD_STATISTICS);
-    public static final ServiceType SERVER_SERVICE_TYPE_INTERNAL = ServiceTypeFactory.of(9162, "gRPC_SERVER_INTERNAL");
+    public static final ServiceType SERVER_SERVICE_TYPE = ServiceTypeProvider.getByName("GRPC_SERVER");
+    public static final ServiceType SERVER_SERVICE_TYPE_INTERNAL = ServiceTypeProvider.getByName("GRPC_SERVER_INTERNAL");
 
-    public static final AnnotationKey CLIENT_STATUS_ANNOTATION = AnnotationKeyFactory.of(160, "gRPC.status", VIEW_IN_RECORD_SET);
+    public static final AnnotationKey CLIENT_STATUS_ANNOTATION = AnnotationKeyProvider.getByCode(160);
 
     public static final String UNKNOWN_ADDRESS = "Unknown";
     public static final String UNKNOWN_METHOD = "UnknownMethod";

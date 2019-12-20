@@ -1,0 +1,10 @@
+serviceTypes:
+    - code: 8201
+      name: 'REDIS_LETTUCE'
+      desc: 'REDIS'
+      property:
+            terminal: true
+            recordStatistics: true
+      matcher:
+            type: 'exact'
+            code: 310 # redis.io
