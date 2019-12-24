@@ -147,6 +147,9 @@
                     </execution>
                 </executions>
                 <configuration>
+                    <failOnNoGitDirectory>false</failOnNoGitDirectory>
+                    <failOnUnableToExtractRepoInfo>false</failOnUnableToExtractRepoInfo>
+                    <!--https://github.com/git-commit-id/maven-git-commit-id-plugin/issues/364-->
                     <generateGitPropertiesFile>true</generateGitPropertiesFile>
                     <generateGitPropertiesFilename>${project.build.directory}/build.info</generateGitPropertiesFilename>
                     <includeOnlyProperties>
