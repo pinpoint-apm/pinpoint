@@ -49,7 +49,7 @@ export class AgentJVMHeapChartContainer implements IInspectorChartContainer {
             types: {
                 max: 'spline',
                 used: 'area-spline',
-                fgcTime: 'area-spline'
+                fgcTime: 'bar'
             },
             names: {
                 max: 'Max',
