@@ -64,11 +64,7 @@ public class OkHttpClient_3_0_0_to_3_3_x_IT {
 
     @AfterClass
     public static void AfterClass() throws Exception {
-        final WebServer copy = webServer;
-        if (copy != null) {
-            copy.stop();
-            webServer = null;
-        }
+        webServer = WebServer.cleanup(webServer);
     }
 
     @Test

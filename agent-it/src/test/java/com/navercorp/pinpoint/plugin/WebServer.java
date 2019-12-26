@@ -17,11 +17,9 @@
 package com.navercorp.pinpoint.plugin;
 
 import fi.iki.elonen.NanoHTTPD;
-import org.junit.BeforeClass;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -32,6 +30,13 @@ public class WebServer extends NanoHTTPD {
 
     public WebServer(String hostname, int port) {
         super(hostname, port);
+    }
+
+    public static WebServer cleanup(WebServer webServer) {
+        if (webServer != null) {
+            webServer.stop();
+        }
+        return webServer;
     }
 
     @Override
