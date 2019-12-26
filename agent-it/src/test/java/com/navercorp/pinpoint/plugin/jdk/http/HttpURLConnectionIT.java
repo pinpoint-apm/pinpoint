@@ -56,11 +56,7 @@ public class HttpURLConnectionIT {
 
     @AfterClass
     public static void AfterClass() throws Exception {
-        final WebServer copy = webServer;
-        if (copy != null) {
-            copy.stop();
-            webServer = null;
-        }
+        webServer = WebServer.cleanup(webServer);
     }
 
     @Test
