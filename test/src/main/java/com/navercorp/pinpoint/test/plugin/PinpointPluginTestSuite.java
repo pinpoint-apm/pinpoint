@@ -43,7 +43,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
-import java.util.Set;
 
 import static com.navercorp.pinpoint.test.plugin.PinpointPluginTestConstants.CHILD_CLASS_PATH_PREFIX;
 
@@ -59,6 +58,9 @@ public class PinpointPluginTestSuite extends AbstractPinpointPluginTestSuite {
     private final boolean testOnSystemClassLoader;
     private final boolean testOnChildClassLoader;
     private final String[] repositories;
+
+    private static final DependencyResolverFactory RESOLVER_FACTORY = new DependencyResolverFactory();
+
     private final String[] dependencies;
     private final String libraryPath;
     private final String[] librarySubDirs;
@@ -121,7 +123,7 @@ public class PinpointPluginTestSuite extends AbstractPinpointPluginTestSuite {
         this.sharedProcess = sharedProcess;
     }
 
-        @Override
+    @Override
     protected List<PinpointPluginTestInstance> createTestCases(PinpointPluginTestContext context) throws Exception {
         if (dependencies != null) {
             if (sharedProcess) {
@@ -139,7 +141,7 @@ public class PinpointPluginTestSuite extends AbstractPinpointPluginTestSuite {
     private List<PinpointPluginTestInstance> createSharedCasesWithDependencies(PinpointPluginTestContext context) throws ArtifactResolutionException, DependencyResolutionException {
         List<PinpointPluginTestInstance> cases = new ArrayList<PinpointPluginTestInstance>();
 
-        DependencyResolver resolver = DependencyResolver.get(repositories);
+        DependencyResolver resolver = getDependencyResolver(this.repositories);
 
         Map<String, List<Artifact>> dependencyMap = resolver.resolveDependencySets(dependencies);
 
@@ -171,10 +173,14 @@ public class PinpointPluginTestSuite extends AbstractPinpointPluginTestSuite {
         return cases;
     }
 
+    private DependencyResolver getDependencyResolver(String[] repositories) {
+        return RESOLVER_FACTORY.get(repositories);
+    }
+
     private List<PinpointPluginTestInstance> createCasesWithDependencies(PinpointPluginTestContext context) throws ArtifactResolutionException, DependencyResolutionException {
         List<PinpointPluginTestInstance> cases = new ArrayList<PinpointPluginTestInstance>();
 
-        DependencyResolver resolver = DependencyResolver.get(repositories);
+        DependencyResolver resolver = getDependencyResolver(repositories);
         Map<String, List<Artifact>> dependencyCases = resolver.resolveDependencySets(dependencies);
 
         for (Map.Entry<String, List<Artifact>> dependencyCase : dependencyCases.entrySet()) {
