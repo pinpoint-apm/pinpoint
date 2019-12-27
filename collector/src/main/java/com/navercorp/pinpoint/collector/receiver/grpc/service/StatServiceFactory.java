@@ -28,7 +28,7 @@ public class StatServiceFactory extends AbstractServerServiceFactory {
 
     @Override
     protected ServerServiceDefinition newServerServiceDefinition() {
-        BindableService spanService = new StatService(dispatchHandler);
+        BindableService spanService = new StatService(dispatchHandler, serverRequestFactory);
         return spanService.bindService();
     }
 

@@ -31,6 +31,7 @@ import com.navercorp.pinpoint.io.header.v2.HeaderV2;
 import com.navercorp.pinpoint.io.request.DefaultMessage;
 import com.navercorp.pinpoint.io.request.Message;
 import com.navercorp.pinpoint.thrift.io.DefaultTBaseLocator;
+
 import io.grpc.Context;
 import io.grpc.stub.StreamObserver;
 import org.slf4j.Logger;
@@ -55,8 +56,8 @@ public class AgentService extends AgentGrpc.AgentImplBase {
     private final PingEventHandler pingEventHandler;
     private final Executor executor;
 
-    public AgentService(DispatchHandler dispatchHandler, PingEventHandler pingEventHandler, Executor executor) {
-        this.simpleRequestHandlerAdaptor = new SimpleRequestHandlerAdaptor<PResult>(this.getClass().getName(), dispatchHandler);
+    public AgentService(DispatchHandler dispatchHandler, PingEventHandler pingEventHandler, Executor executor, ServerRequestFactory serverRequestFactory) {
+        this.simpleRequestHandlerAdaptor = new SimpleRequestHandlerAdaptor<PResult>(this.getClass().getName(), dispatchHandler, serverRequestFactory);
         this.pingEventHandler = Objects.requireNonNull(pingEventHandler, "pingEventHandler");
         Objects.requireNonNull(executor, "executor");
         this.executor = Context.currentContextExecutor(executor);

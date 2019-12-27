@@ -28,6 +28,7 @@ import com.navercorp.pinpoint.io.header.v2.HeaderV2;
 import com.navercorp.pinpoint.io.request.DefaultMessage;
 import com.navercorp.pinpoint.io.request.Message;
 import com.navercorp.pinpoint.thrift.io.DefaultTBaseLocator;
+
 import io.grpc.Context;
 import io.grpc.stub.StreamObserver;
 import org.slf4j.Logger;
@@ -38,7 +39,7 @@ import java.util.Objects;
 import java.util.concurrent.Executor;
 import java.util.concurrent.RejectedExecutionException;
 
-import static com.navercorp.pinpoint.grpc.MessageFormatUtils.*;
+import static com.navercorp.pinpoint.grpc.MessageFormatUtils.debugLog;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -50,12 +51,15 @@ public class MetadataService extends MetadataGrpc.MetadataImplBase {
     private final SimpleRequestHandlerAdaptor<PResult> simpleRequestHandlerAdaptor;
     private final Executor executor;
 
-    public MetadataService(DispatchHandler dispatchHandler, Executor executor) {
+    public MetadataService(DispatchHandler dispatchHandler, Executor executor, ServerRequestFactory serverRequestFactory) {
         Objects.requireNonNull(dispatchHandler, "dispatchHandler");
         Objects.requireNonNull(executor, "executor");
+        Objects.requireNonNull(serverRequestFactory, "serverRequestFactory");
+
         this.executor = Context.currentContextExecutor(executor);
-        this.simpleRequestHandlerAdaptor = new SimpleRequestHandlerAdaptor<>(this.getClass().getName(), dispatchHandler);
+        this.simpleRequestHandlerAdaptor = new SimpleRequestHandlerAdaptor<>(this.getClass().getName(), dispatchHandler, serverRequestFactory);
     }
+
 
     @Override
     public void requestApiMetaData(PApiMetaData apiMetaData, StreamObserver<PResult> responseObserver) {

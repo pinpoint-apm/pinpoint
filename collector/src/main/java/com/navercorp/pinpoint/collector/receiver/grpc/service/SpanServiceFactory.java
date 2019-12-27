@@ -26,7 +26,7 @@ public class SpanServiceFactory extends AbstractServerServiceFactory {
 
     @Override
     protected ServerServiceDefinition newServerServiceDefinition() {
-        BindableService spanService = new SpanService(dispatchHandler);
+        BindableService spanService = new SpanService(dispatchHandler, serverRequestFactory);
         return spanService.bindService();
     }
 

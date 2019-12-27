@@ -35,6 +35,8 @@ public abstract class AbstractServerServiceFactory implements FactoryBean<Server
     // @Nullable for test
     protected ServerInterceptor serverInterceptor;
 
+    protected ServerRequestFactory serverRequestFactory;
+
     public AbstractServerServiceFactory() {
         // circular reference workaround
 //        this.dispatchHandlerFactory = Objects.requireNonNull(dispatchHandlerFactory, "dispatchHandlerFactory");
@@ -49,9 +51,14 @@ public abstract class AbstractServerServiceFactory implements FactoryBean<Server
         this.serverInterceptor = serverInterceptor;
     }
 
+    public void setServerRequestFactory(ServerRequestFactory serverRequestFactory) {
+        this.serverRequestFactory = serverRequestFactory;
+    }
+
     @Override
     public void afterPropertiesSet() {
         Objects.requireNonNull(dispatchHandler, "dispatchHandler");
+        Objects.requireNonNull(serverRequestFactory, "serverRequestFactory");
     }
 
     @Override
@@ -62,8 +69,8 @@ public abstract class AbstractServerServiceFactory implements FactoryBean<Server
         if (interceptor == null) {
             return newServerServiceDefinition();
         }
-        final ServerServiceDefinition spanService = newServerServiceDefinition();
-        return ServerInterceptors.intercept(spanService, interceptor);
+        final ServerServiceDefinition serverServiceDefinition = newServerServiceDefinition();
+        return ServerInterceptors.intercept(serverServiceDefinition, interceptor);
     }
 
     abstract ServerServiceDefinition newServerServiceDefinition();
