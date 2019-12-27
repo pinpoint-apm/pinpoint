@@ -18,10 +18,10 @@ package com.navercorp.pinpoint.collector.receiver.grpc.service;
 
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.collector.receiver.grpc.GrpcServerResponse;
-
 import com.navercorp.pinpoint.io.request.Message;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.io.request.ServerResponse;
+
 import io.grpc.Status;
 import io.grpc.StatusException;
 import io.grpc.StatusRuntimeException;
@@ -38,12 +38,13 @@ public class SimpleRequestHandlerAdaptor<T> {
     private final Logger logger;
 
     private final DispatchHandler dispatchHandler;
-    private final ServerRequestFactory serverRequestFactory = new ServerRequestFactory();
+    private final ServerRequestFactory serverRequestFactory;
 
-    public SimpleRequestHandlerAdaptor(String name, DispatchHandler dispatchHandler) {
+    public SimpleRequestHandlerAdaptor(String name, DispatchHandler dispatchHandler, ServerRequestFactory serverRequestFactory) {
         Objects.requireNonNull(name, "name");
         this.logger = LoggerFactory.getLogger(name);
         this.dispatchHandler = Objects.requireNonNull(dispatchHandler, "dispatchHandler");
+        this.serverRequestFactory = Objects.requireNonNull(serverRequestFactory, "serverRequestFactory");
     }
 
     public void request(Message<?> message, StreamObserver<T> responseObserver) {

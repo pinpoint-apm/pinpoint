@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.collector.receiver.grpc;
 
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
+import com.navercorp.pinpoint.collector.receiver.grpc.service.DefaultServerRequestFactory;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.StatService;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.StreamExecutorServerInterceptorFactory;
 import com.navercorp.pinpoint.common.server.util.AddressFilter;
@@ -62,7 +63,7 @@ public class StatServerTestMain {
     private ServerServiceDefinition newStatBindableService(Executor executor) throws Exception {
         FactoryBean<ServerInterceptor> interceptorFactory = new StreamExecutorServerInterceptorFactory(executor, 100, Executors.newSingleThreadScheduledExecutor(), 1000, 10);
         ServerInterceptor interceptor = interceptorFactory.getObject();
-        StatService statService = new StatService(new MockDispatchHandler());
+        StatService statService = new StatService(new MockDispatchHandler(), new DefaultServerRequestFactory());
         return ServerInterceptors.intercept(statService, interceptor);
     }
 

@@ -97,15 +97,19 @@
         <constructor-arg index="1" ref="lifecycleListener"/>
     </bean>
 
+    <bean id="serverRequestFactory" class="com.navercorp.pinpoint.collector.receiver.grpc.service.DefaultServerRequestFactory"/>
+
     <bean id="agentService" class="com.navercorp.pinpoint.collector.receiver.grpc.service.AgentService">
         <constructor-arg index="0" ref="grpcDispatchHandlerFactoryBean"/>
         <constructor-arg index="1" ref="pingEventHandler"/>
         <constructor-arg index="2" ref="grpcAgentWorkerExecutor"/>
+        <constructor-arg index="3" ref="serverRequestFactory"/>
     </bean>
 
     <bean id="metadataService" class="com.navercorp.pinpoint.collector.receiver.grpc.service.MetadataService">
         <constructor-arg index="0" ref="grpcDispatchHandlerFactoryBean"/>
         <constructor-arg index="1" ref="grpcAgentWorkerExecutor"/>
+        <constructor-arg index="2" ref="serverRequestFactory"/>
     </bean>
 
     <bean id="commandService" class="com.navercorp.pinpoint.collector.receiver.grpc.service.command.GrpcCommandService">
@@ -163,6 +167,7 @@
     <bean id="spanServiceFactory" class="com.navercorp.pinpoint.collector.receiver.grpc.service.SpanServiceFactory">
         <property name="dispatchHandler" ref="grpcSpanDispatchHandlerFactoryBean"/>
         <property name="serverInterceptor" ref="spanStreamExecutorInterceptor"/>
+        <property name="serverRequestFactory" ref="serverRequestFactory"/>
     </bean>
     <util:list id="spanServiceList" value-type="io.grpc.ServerServiceDefinition">
         <ref bean="spanServiceFactory"/>
@@ -213,6 +218,7 @@
     <bean id="statServiceFactory" class="com.navercorp.pinpoint.collector.receiver.grpc.service.StatServiceFactory">
         <property name="dispatchHandler" ref="grpcStatDispatchHandlerFactoryBean"/>
         <property name="serverInterceptor" ref="statStreamExecutorInterceptor"/>
+        <property name="serverRequestFactory" ref="serverRequestFactory"/>
     </bean>
 
     <util:list id="statServiceList" value-type="io.grpc.ServerServiceDefinition">

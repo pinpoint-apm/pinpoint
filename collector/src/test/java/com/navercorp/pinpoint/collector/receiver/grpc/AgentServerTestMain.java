@@ -18,7 +18,9 @@ package com.navercorp.pinpoint.collector.receiver.grpc;
 
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.AgentService;
+import com.navercorp.pinpoint.collector.receiver.grpc.service.DefaultServerRequestFactory;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.MetadataService;
+import com.navercorp.pinpoint.collector.receiver.grpc.service.ServerRequestFactory;
 import com.navercorp.pinpoint.common.server.util.AddressFilter;
 import com.navercorp.pinpoint.grpc.server.ServerOption;
 import com.navercorp.pinpoint.grpc.server.lifecycle.PingEventHandler;
@@ -42,6 +44,8 @@ public class AgentServerTestMain {
     public static final String IP = "0.0.0.0";
     public static final int PORT = 9997;
 
+    private final ServerRequestFactory serverRequestFactory = new DefaultServerRequestFactory();
+
     public void run() throws Exception {
         GrpcReceiver grpcReceiver = new GrpcReceiver();
         grpcReceiver.setEnable(true);
@@ -50,14 +54,14 @@ public class AgentServerTestMain {
         grpcReceiver.setBindPort(PORT);
 
         PingEventHandler pingEventHandler = mock(PingEventHandler.class);
-        BindableService agentService = new AgentService(new MockDispatchHandler(), pingEventHandler, Executors.newFixedThreadPool(8));
-        grpcReceiver.setBindableServiceList(Arrays.asList(agentService, new MetadataService(new MockDispatchHandler(), Executors.newFixedThreadPool(8))));
+        BindableService agentService = new AgentService(new MockDispatchHandler(), pingEventHandler, Executors.newFixedThreadPool(8), serverRequestFactory);
+        grpcReceiver.setBindableServiceList(Arrays.asList(agentService, new MetadataService(new MockDispatchHandler(), Executors.newFixedThreadPool(8), serverRequestFactory)));
         grpcReceiver.setAddressFilter(new MockAddressFilter());
         grpcReceiver.setExecutor(Executors.newFixedThreadPool(8));
         grpcReceiver.setServerOption(new ServerOption.Builder().build());
 
-        grpcReceiver.afterPropertiesSet();
 
+        grpcReceiver.afterPropertiesSet();
         grpcReceiver.blockUntilShutdown();
         grpcReceiver.destroy();
     }
