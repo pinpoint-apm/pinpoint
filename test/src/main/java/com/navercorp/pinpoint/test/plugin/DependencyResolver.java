@@ -201,6 +201,18 @@ public class DependencyResolver {
         return repositories;
     }
 
+    /**
+     * for reflection
+     * @see com.navercorp.pinpoint.test.plugin.shared.ReflectionDependencyResolver
+     */
+    public static DependencyResolver getLocalResolver(String... repositoryUrls) {
+        RepositorySystem system = newRepositorySystem(false);
+        RepositorySystemSession session = newRepositorySystemSession(system);
+        List<RemoteRepository> repositories = newRepositories(repositoryUrls);
+
+        return new DependencyResolver(system, session, repositories);
+    }
+
     public DependencyResolver(RepositorySystem system, RepositorySystemSession session, List<RemoteRepository> repositories) {
         this.system = system;
         this.session = session;
