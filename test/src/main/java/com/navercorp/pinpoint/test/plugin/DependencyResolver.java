@@ -34,7 +34,6 @@ import org.eclipse.aether.impl.DefaultServiceLocator;
 import org.eclipse.aether.repository.LocalRepository;
 import org.eclipse.aether.repository.LocalRepositoryManager;
 import org.eclipse.aether.repository.RemoteRepository;
-import org.eclipse.aether.resolution.ArtifactResolutionException;
 import org.eclipse.aether.resolution.ArtifactResult;
 import org.eclipse.aether.resolution.DependencyRequest;
 import org.eclipse.aether.resolution.DependencyResolutionException;
@@ -115,7 +114,7 @@ public class DependencyResolver {
             if (result == null) {
                 logger.info("cache-get-miss-" + miss.incrementAndGet() + ":" + session + " " + key);
             } else {
-                logger.fine("cache-get-hit-" + hit.incrementAndGet() + ":" + session + " " + key + " result:" + result);
+                logger.info("cache-get-hit-" + hit.incrementAndGet() + ":" + session + " " + key + " result:" + result);
             }
             return result;
         }
@@ -201,18 +200,6 @@ public class DependencyResolver {
         return repositories;
     }
 
-    /**
-     * for reflection
-     * @see com.navercorp.pinpoint.test.plugin.shared.ReflectionDependencyResolver
-     */
-    public static DependencyResolver getLocalResolver(String... repositoryUrls) {
-        RepositorySystem system = newRepositorySystem(false);
-        RepositorySystemSession session = newRepositorySystemSession(system);
-        List<RemoteRepository> repositories = newRepositories(repositoryUrls);
-
-        return new DependencyResolver(system, session, repositories);
-    }
-
     public DependencyResolver(RepositorySystem system, RepositorySystemSession session, List<RemoteRepository> repositories) {
         this.system = system;
         this.session = session;
@@ -232,7 +219,7 @@ public class DependencyResolver {
         return versions;
     }
 
-    public List<File> resolveArtifactsAndDependencies(String artifactsAsString) throws ArtifactResolutionException, DependencyResolutionException {
+    public List<File> resolveArtifactsAndDependencies(String artifactsAsString) throws DependencyResolutionException {
         List<Artifact> artifactList = getArtifactList(artifactsAsString);
         return resolveArtifactsAndDependencies(artifactList);
     }
@@ -246,7 +233,7 @@ public class DependencyResolver {
         return ArtifactIdUtils.toArtifact(artifactNameArray);
     }
 
-    public List<File> resolveArtifactsAndDependencies(List<Artifact> artifacts) throws ArtifactResolutionException, DependencyResolutionException {
+    public List<File> resolveArtifactsAndDependencies(List<Artifact> artifacts) throws DependencyResolutionException {
         List<Dependency> dependencies = new ArrayList<Dependency>();
 
         for (Artifact artifact : artifacts) {

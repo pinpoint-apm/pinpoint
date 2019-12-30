@@ -64,33 +64,14 @@ public class SharedPinpointPluginTest {
             return;
         }
 
-        List<TestParameter> testParameters = parse(args);
+        TestParameterParser parser = new TestParameterParser();
+        List<TestParameter> testParameters = parser.parse(args);
         SharedPinpointPluginTest pluginTest = new SharedPinpointPluginTest(testClazzName, testLocation, mavenDependencyResolverClassPaths, testParameters, System.out);
         pluginTest.execute();
 
     }
 
-    private static List<TestParameter> parse(String[] args) {
-        List<TestParameter> testParameters = new ArrayList<TestParameter>();
-        for (String arg : args) {
-            if (arg == null) {
-                continue;
-            }
 
-            String[] testArguments = arg.split("=");
-            if (testArguments == null || testArguments.length != 2) {
-                continue;
-            }
-
-            String testId = testArguments[0];
-            String testMavenDependencies = testArguments[1];
-
-
-            final TestParameter testParameter = new TestParameter(testId, testMavenDependencies);
-            testParameters.add(testParameter);
-        }
-        return testParameters;
-    }
 
     private final String testClazzName;
     private final String testLocation;
