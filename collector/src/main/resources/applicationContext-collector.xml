@@ -30,10 +30,12 @@
                 <value>classpath:hbase.properties</value>
                 <value>classpath:pinpoint-collector.properties</value>
                 <value>classpath:pinpoint-collector-grpc.properties</value>
+                <value>classpath:jdbc.properties</value>
                 <!-- override configuration -->
                 <value>classpath:profiles/${pinpoint.profiles.active}/hbase-env.properties</value>
                 <value>classpath:profiles/${pinpoint.profiles.active}/pinpoint-collector-env.properties</value>
                 <value>classpath:profiles/${pinpoint.profiles.active}/pinpoint-collector-grpc-env.properties</value>
+                <value>classpath:profiles/${pinpoint.profiles.active}/jdbc-env.properties</value>
                 <!-- external property for override -->
                 <value>file:#{ systemProperties['pinpoint.collector.config.location'] ?: '-Dpinpoint.collector.config.location does not set' }</value>
             </list>
