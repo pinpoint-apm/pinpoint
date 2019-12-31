@@ -91,6 +91,8 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
  * <tr><td>2151</td><td>MARIADB_EXECUTE_QUERY</td></tr>
  * <tr><td>2200</td><td>MSSQL</td></tr>
  * <tr><td>2201</td><td>MSSQL_EXECUTE_QUERY</td></tr>
+ * <tr><td>2250</td><td>MSSQL_JDBC</td></tr>
+ * <tr><td>2251</td><td>MSSQL_JDBC_QUERY</td></tr> *
  * <tr><td>2300</td><td>ORACLE</td></tr>
  * <tr><td>2301</td><td>ORACLE_EXECUTE_QUERY</td></tr>
  * <tr><td>2400</td><td>CUBRID</td></tr>
