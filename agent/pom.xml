@@ -32,6 +32,11 @@
         packaged as a jar. -->
     <packaging>jar</packaging>
 
+    <properties>
+        <!-- for development option -->
+        <skip.agent.distribution>false</skip.agent.distribution>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
@@ -193,10 +198,21 @@
                             <descriptors>
                                 <descriptor>${basedir}/src/assembly/distribution.xml</descriptor>
                             </descriptors>
+                            <skipAssembly>${skip.agent.distribution}</skipAssembly>
+                            <tarLongFileMode>posix</tarLongFileMode>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>local</id>
+            <properties>
+                <skip.agent.distribution>true</skip.agent.distribution>
+            </properties>
+        </profile>
+    </profiles>
 </project>
