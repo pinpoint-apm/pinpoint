@@ -31,9 +31,11 @@
     <properties>
         <jdk.version>1.8</jdk.version>
         <jdk.home>${env.JAVA_8_HOME}</jdk.home>
-        <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
         <sniffer.artifactid>java18</sniffer.artifactid>
         <grunt.build.command>build_release_without_lint</grunt.build.command>
+
+        <!-- java back-end development option -->
+        <pinpoint.web.frontend.build.skip>false</pinpoint.web.frontend.build.skip>
     </properties>
 
     <dependencies>
@@ -351,17 +353,27 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
-                <configuration>
-                    <failOnMissingWebXml>false</failOnMissingWebXml>
-                    <webResources>
-                        <resource>
-                            <directory>src/main/angular</directory>
-                            <excludes>
-                                <exclude>node_modules/</exclude>
-                            </excludes>
-                        </resource>
-                    </webResources>
-                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>build-frontend-source</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}</outputDirectory>
+                            <appendAssemblyId>true</appendAssemblyId>
+                            <descriptors>
+                                <descriptor>src/assembly/frontend.xml</descriptor>
+                            </descriptors>
+                            <attach>true</attach>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>com.github.eirslett</groupId>
@@ -370,6 +382,7 @@
                 <configuration>
                     <installDirectory>${project.parent.basedir}/${plugin.frontend.node.install.dir}</installDirectory>
                     <workingDirectory>${basedir}/src/main/angular</workingDirectory>
+                    <skip>${pinpoint.web.frontend.build.skip}</skip>
                 </configuration>
                 <executions>
                     <execution>
@@ -384,13 +397,13 @@
                         </configuration>
                     </execution>
                     <execution>
-                        <id>npm ci</id>
+                        <id>npm install</id>
                         <phase>prepare-package</phase>
                         <goals>
                             <goal>npm</goal>
                         </goals>
                         <configuration>
-                            <arguments>ci</arguments>
+                            <arguments>install</arguments>
                         </configuration>
                     </execution>
                     <execution>
@@ -442,6 +455,13 @@
                     </plugin>
                 </plugins>
             </build>
+        </profile>
+
+        <profile>
+            <id>skip-frontend-build</id>
+            <properties>
+                <pinpoint.web.frontend.build.skip>true</pinpoint.web.frontend.build.skip>
+            </properties>
         </profile>
     </profiles>
 </project>
