@@ -59,12 +59,9 @@ public class CxfClientHandleMessageMethodInterceptor implements AroundIntercepto
             logger.beforeInterceptor(target, args);
         }
 
-        Trace trace = traceContext.currentRawTraceObject();
-
-        if (trace != null && trace.canSampled()) {
-
+        Trace trace = traceContext.currentTraceObject();
+        if (trace != null) {
             String destination = getDestination(args);
-
             if (destination != null) {
                 String httpUri = getHttpUri(args);
                 String requestMethod = getRequestMethod(args);
