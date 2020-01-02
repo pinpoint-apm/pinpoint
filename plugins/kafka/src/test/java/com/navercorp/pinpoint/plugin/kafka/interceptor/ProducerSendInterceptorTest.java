@@ -47,7 +47,7 @@ public class ProducerSendInterceptorTest {
     @Test
     public void before() {
 
-        doReturn(trace).when(traceContext).currentTraceObject();
+        doReturn(trace).when(traceContext).currentRawTraceObject();
         doReturn(true).when(trace).canSampled();
         doReturn(traceId).when(trace).getTraceId();
         doReturn(nextId).when(traceId).getNextTraceId();
