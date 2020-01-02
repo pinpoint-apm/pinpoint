@@ -130,7 +130,8 @@
 
         <!-- frontend-plugin -->
         <plugin.frontend.version>1.9.0</plugin.frontend.version>
-        <plugin.frontend.node.version>v12.14.0</plugin.frontend.node.version>
+        <!-- https://nodejs.org/ko/download/releases/ -->
+        <plugin.frontend.node.version>v10.18.0</plugin.frontend.node.version>
         <plugin.frontend.npm.version>6.13.4</plugin.frontend.npm.version>
         <plugin.frontend.node.install.dir>/node_install/node-${plugin.frontend.node.version}</plugin.frontend.node.install.dir>
     </properties>
