@@ -129,9 +129,9 @@
         <sniffer.artifactid>java16</sniffer.artifactid>
 
         <!-- frontend-plugin -->
-        <plugin.frontend.version>1.8.0</plugin.frontend.version>
-        <plugin.frontend.node.version>v10.16.3</plugin.frontend.node.version>
-        <plugin.frontend.npm.version>6.9.0</plugin.frontend.npm.version>
+        <plugin.frontend.version>1.9.0</plugin.frontend.version>
+        <plugin.frontend.node.version>v12.14.0</plugin.frontend.node.version>
+        <plugin.frontend.npm.version>6.13.4</plugin.frontend.npm.version>
         <plugin.frontend.node.install.dir>/node_install/node-${plugin.frontend.node.version}</plugin.frontend.node.install.dir>
     </properties>
 
