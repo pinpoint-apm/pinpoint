@@ -87,6 +87,9 @@
         <!-- hbase -->
         <hbase.shaded.client.version>1.2.12</hbase.shaded.client.version>
 
+        <plugin.clover.skip>false</plugin.clover.skip>
+        <plugin.animal-sniffer.skip>false</plugin.animal-sniffer.skip>
+
         <!-- library -->
         <slf4j.version>1.7.21</slf4j.version>
         <metrics.version>3.1.2</metrics.version>
@@ -746,33 +749,6 @@
     </dependencyManagement>
 
     <build>
-        <resources>
-            <resource>
-                <directory>${basedir}/src/main/java</directory>
-                <excludes>
-                    <exclude>**/*.java</exclude>
-                </excludes>
-            </resource>
-            <resource>
-                <filtering>true</filtering>
-                <directory>${basedir}/src/main/resources</directory>
-            </resource>
-        </resources>
-
-        <testResources>
-            <testResource>
-                <directory>${basedir}/src/test/java</directory>
-                <excludes>
-                    <exclude>**/*.java</exclude>
-                </excludes>
-            </testResource>
-            <testResource>
-                <filtering>true</filtering>
-                <directory>${basedir}/src/test/resources</directory>
-            </testResource>
-        </testResources>
-
-
         <pluginManagement>
             <plugins>
                 <plugin>
@@ -789,6 +765,13 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-jar-plugin</artifactId>
                     <version>${plugin.jar.version}</version>
+                    <configuration>
+                        <archive>
+                            <manifest>
+                                <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                            </manifest>
+                        </archive>
+                    </configuration>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -802,7 +785,6 @@
                 </plugin>
             </plugins>
         </pluginManagement>
-
 
         <plugins>
             <plugin>
@@ -827,17 +809,6 @@
                     <showDeprecation>true</showDeprecation>
                     <compilerVersion>${jdk.version}</compilerVersion>
                     <executable>${jdk.home}/bin/javac</executable>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <configuration>
-                    <archive>
-                        <manifest>
-                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
-                        </manifest>
-                    </archive>
                 </configuration>
             </plugin>
             <plugin>
@@ -883,6 +854,7 @@
                         <exclude>com/navercorp/pinpoint/common/profiler/util/jsr166/**/*.java</exclude>
                         <exclude>com/navercorp/pinpoint/profiler/util/jdk/**/*.java</exclude>
                     </excludes>
+                    <skip>${plugin.clover.skip}</skip>
                 </configuration>
             </plugin>
             <plugin>
@@ -983,6 +955,7 @@
                     <ignores>
                         <ignore>sun.*</ignore>
                     </ignores>
+                    <skip>${plugin.animal-sniffer.skip}</skip>
                 </configuration>
                 <executions>
                     <execution>
@@ -994,7 +967,6 @@
                     </execution>
                 </executions>
             </plugin>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-site-plugin</artifactId>
@@ -1057,6 +1029,7 @@
                         <exclude>com/navercorp/pinpoint/common/profiler/util/jsr166/**/*.java</exclude>
                         <exclude>com/navercorp/pinpoint/profiler/util/jdk/**/*.java</exclude>
                     </excludes>
+                    <skip>${plugin.clover.skip}</skip>
                 </configuration>
             </plugin>
 
