@@ -40,6 +40,7 @@ import com.navercorp.pinpoint.plugin.netty.NettyConfig;
 import com.navercorp.pinpoint.plugin.netty.NettyConstants;
 import com.navercorp.pinpoint.plugin.netty.NettyUtils;
 import com.navercorp.pinpoint.plugin.netty.field.accessor.AsyncStartFlagFieldAccessor;
+
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpMessage;
@@ -173,11 +174,8 @@ public class HttpEncoderInterceptor implements AroundInterceptor {
     }
 
     private void after0(Object target, Object[] args, Object result, Throwable throwable) {
-        final Trace trace = traceContext.currentRawTraceObject();
+        final Trace trace = traceContext.currentTraceObject();
         if (trace == null) {
-            return;
-        }
-        if (!trace.canSampled()) {
             return;
         }
         final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
