@@ -4,6 +4,7 @@ language: java
 cache:
   directories:
     - $HOME/.m2
+    - node_modules
 
 addons:
   apt:
