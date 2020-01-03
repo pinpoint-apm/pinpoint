@@ -22,36 +22,36 @@ import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcConfig;
  */
 public class MssqlConfig extends JdbcConfig {
 
-  private final boolean profileSetAutoCommit;
-  private final boolean profileCommit;
-  private final boolean profileRollback;
+    private final boolean profileSetAutoCommit;
+    private final boolean profileCommit;
+    private final boolean profileRollback;
 
-  public MssqlConfig(ProfilerConfig config) {
-    super(config.readBoolean("profiler.jdbc.mssql", false),
-        config.readBoolean("profiler.jdbc.mssql.tracesqlbindvalue", config.isTraceSqlBindValue()),
-        config.getMaxSqlBindValueSize());
-    this.profileSetAutoCommit = config.readBoolean("profiler.jdbc.mssql.setautocommit", false);
-    this.profileCommit = config.readBoolean("profiler.jdbc.mssql.commit", false);
-    this.profileRollback = config.readBoolean("profiler.jdbc.mssql.rollback", false);
-  }
+    public MssqlConfig(ProfilerConfig config) {
+        super(config.readBoolean("profiler.jdbc.mssql", false),
+                config.readBoolean("profiler.jdbc.mssql.tracesqlbindvalue", config.isTraceSqlBindValue()),
+                config.getMaxSqlBindValueSize());
+        this.profileSetAutoCommit = config.readBoolean("profiler.jdbc.mssql.setautocommit", false);
+        this.profileCommit = config.readBoolean("profiler.jdbc.mssql.commit", false);
+        this.profileRollback = config.readBoolean("profiler.jdbc.mssql.rollback", false);
+    }
 
-  public boolean isProfileSetAutoCommit() {
-    return profileSetAutoCommit;
-  }
+    public boolean isProfileSetAutoCommit() {
+        return profileSetAutoCommit;
+    }
 
-  public boolean isProfileCommit() {
-    return profileCommit;
-  }
+    public boolean isProfileCommit() {
+        return profileCommit;
+    }
 
-  public boolean isProfileRollback() {
-    return profileRollback;
-  }
+    public boolean isProfileRollback() {
+        return profileRollback;
+    }
 
 
-  @Override
-  public String toString() {
-    return "MssqlConfig [" + super.toString() + ", profileSetAutoCommit=" + profileSetAutoCommit
-        + ", profileCommit=" + profileCommit + ", profileRollback=" + profileRollback + "]";
-  }
+    @Override
+    public String toString() {
+        return "MssqlConfig [" + super.toString() + ", profileSetAutoCommit=" + profileSetAutoCommit
+                + ", profileCommit=" + profileCommit + ", profileRollback=" + profileRollback + "]";
+    }
 
 }
