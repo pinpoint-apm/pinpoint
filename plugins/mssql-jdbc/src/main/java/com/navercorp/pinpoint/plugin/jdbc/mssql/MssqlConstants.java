@@ -20,20 +20,18 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.TERMINAL;
 
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
+import com.navercorp.pinpoint.common.trace.ServiceTypeProvider;
 
 /**
  * @author Harris Gwag ( gwagdalf )
  */
 public final class MssqlConstants {
 
-  private MssqlConstants() {
-  }
+    private MssqlConstants() {
+    }
 
-  public static final String MSSQL_SCOPE = "MSSQL_JDBC";
+    public static final String MSSQL_SCOPE = "MSSQL_JDBC";
 
-  public static final ServiceType MSSQL_JDBC = ServiceTypeFactory
-      .of(2250, "MSSQL_JDBC", TERMINAL, INCLUDE_DESTINATION_ID);
-  public static final ServiceType MSSQL_JDBC_QUERY = ServiceTypeFactory
-      .of(2251, "MSSQL_JDBC_QUERY",
-          "MSSQL_JDBC_QUERY", TERMINAL, RECORD_STATISTICS, INCLUDE_DESTINATION_ID);
+    public static final ServiceType MSSQL_JDBC = ServiceTypeProvider.getByCode(2250);
+    public static final ServiceType MSSQL_JDBC_QUERY = ServiceTypeProvider.getByCode(2251);
 }

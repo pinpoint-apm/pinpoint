@@ -24,134 +24,64 @@ import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParserV2;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.StringMaker;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.UnKnownDatabaseInfo;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.EnumSet;
 import java.util.List;
-import java.util.Set;
 
 /**
  * @author Harris Gwag ( gwagdalf )
  */
 public class MssqlJdbcUrlParser implements JdbcUrlParserV2 {
 
-  //    jdbc:sqlserver://[serverName[\instanceName][:portNumber]][;property=value[;property=value]]
-  private static final String MSSQL_URL_PREFIX = "jdbc:sqlserver:";
-  private static final String MARIA_URL_PREFIX = "jdbc:mariadb:";
-  private static final String MYSQL_URL_PREFIX = "jdbc:mysql:";
+    //    jdbc:sqlserver://[serverName[\instanceName][:portNumber]][;property=value[;property=value]]
+    private static final String MSSQL_URL_PREFIX = "jdbc:sqlserver:";
 
-  private static final Set<Type> TYPES = EnumSet.allOf(Type.class);
+    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
 
-  private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
+    @Override
+    public DatabaseInfo parse(String jdbcUrl) {
+        if (jdbcUrl == null) {
+            logger.info("jdbcUrl");
+            return UnKnownDatabaseInfo.INSTANCE;
+        }
+        if (!jdbcUrl.startsWith(MSSQL_URL_PREFIX)) {
+            logger.info("jdbcUrl has invalid prefix.(url:{}, prefix:{})", jdbcUrl, MSSQL_URL_PREFIX);
+            return UnKnownDatabaseInfo.INSTANCE;
+        }
 
-  @Override
-  public DatabaseInfo parse(String jdbcUrl) {
-    if (jdbcUrl == null) {
-      logger.info("jdbcUrl");
-      return UnKnownDatabaseInfo.INSTANCE;
+
+        try {
+            return parse0(jdbcUrl);
+        } catch (Exception e) {
+            logger.info("MssqlJdbcUrl parse error. url: {}, Caused: {}", jdbcUrl, e.getMessage(), e);
+            return UnKnownDatabaseInfo
+                    .createUnknownDataBase(MssqlConstants.MSSQL_JDBC, MssqlConstants.MSSQL_JDBC_QUERY,
+                            jdbcUrl);
+        }
     }
 
-    Type type = getType(jdbcUrl);
-    if (type == null) {
-      logger.info("jdbcUrl has invalid prefix.(url:{}, valid prefixes:{})", jdbcUrl,
-          MSSQL_URL_PREFIX);
-      return UnKnownDatabaseInfo.INSTANCE;
+
+    private DatabaseInfo parse0(String url) {
+        // jdbc:sqlserver://localhost;databaseName=AdventureWorks;integratedSecurity=true;applicationName=MyApp;
+        StringMaker maker = new StringMaker(url);
+
+        maker.after(MSSQL_URL_PREFIX);
+
+        String host = maker.after("//").before(';').value();
+        List<String> hostList = new ArrayList<String>(1);
+        hostList.add(host);
+        // String port = maker.next().after(':').before(';').value();
+
+        String databaseId = maker.next().after("databaseName=").before(';').value();
+        String normalizedUrl =
+                maker.clear().before("databaseName=").value() + "databaseName=" + databaseId;
+        return new DefaultDatabaseInfo(MssqlConstants.MSSQL_JDBC, MssqlConstants.MSSQL_JDBC_QUERY, url,
+                normalizedUrl, hostList, databaseId);
     }
 
-    try {
-      return parse0(jdbcUrl, type);
-    } catch (Exception e) {
-      logger.info("MssqlJdbcUrl parse error. url: {}, Caused: {}", jdbcUrl, e.getMessage(), e);
-      return UnKnownDatabaseInfo
-          .createUnknownDataBase(MssqlConstants.MSSQL_JDBC, MssqlConstants.MSSQL_JDBC_QUERY,
-              jdbcUrl);
-    }
-  }
-
-  private DatabaseInfo parse0(String url, Type type) {
-    if (isLoadbalanceUrl(url, type)) {
-      return parseLoadbalancedUrl(url, type);
-    }
-    return parseNormal(url, type);
-  }
-
-  private boolean isLoadbalanceUrl(String url, Type type) {
-    String loadbalanceUrlPrefix = type.getLoadbalanceUrlPrefix();
-    return url.regionMatches(true, 0, loadbalanceUrlPrefix, 0, loadbalanceUrlPrefix.length());
-  }
-
-  private DatabaseInfo parseLoadbalancedUrl(String url, Type type) {
-    // jdbc:sqlserver://1.2.3.4:5678/test_db
-    StringMaker maker = new StringMaker(url);
-    maker.after(type.getUrlPrefix());
-    // 1.2.3.4:5678 In case of replication driver could have multiple values
-    // We have to consider mm db too.
-    String host = maker.after("//").before(';').value();
-
-    // Decided not to cache regex. This is not invoked often so don't waste
-    // memory.
-    String[] parsedHost = host.split(",");
-    List<String> hostList = Arrays.asList(parsedHost);
-
-    String databaseId = maker.next().after("databaseName=").before(';').value();
-    String normalizedUrl = maker.clear().before("databaseName=").value();
-    //.before('?').value();
-
-    return new DefaultDatabaseInfo(MssqlConstants.MSSQL_JDBC, MssqlConstants.MSSQL_JDBC_QUERY, url,
-        normalizedUrl, hostList, databaseId);
-  }
-
-  private DatabaseInfo parseNormal(String url, Type type) {
-    // jdbc:mariadb://1.2.3.4:5678/test_db
-    StringMaker maker = new StringMaker(url);
-    maker.after(type.getUrlPrefix());
-    // 1.2.3.4:5678 In case of replication driver could have multiple values
-    // We have to consider mm db too.
-    String host = maker.after("//").before(';').value();
-    List<String> hostList = new ArrayList<String>(1);
-    hostList.add(host);
-    // String port = maker.next().after(':').before(';').value();
-
-    String databaseId = maker.next().after("databaseName=").before(';').value();
-    String normalizedUrl =
-        maker.clear().before("databaseName=").value() + "databaseName=" + databaseId;
-    return new DefaultDatabaseInfo(MssqlConstants.MSSQL_JDBC, MssqlConstants.MSSQL_JDBC_QUERY, url,
-        normalizedUrl, hostList, databaseId);
-  }
-
-  @Override
-  public ServiceType getServiceType() {
-    return MssqlConstants.MSSQL_JDBC;
-  }
-
-  private static Type getType(String jdbcUrl) {
-    for (Type type : TYPES) {
-      if (jdbcUrl.startsWith(type.getUrlPrefix())) {
-        return type;
-      }
-    }
-    return null;
-  }
-
-  private enum Type {
-    MSSQL(MSSQL_URL_PREFIX),
-    MARIA(MARIA_URL_PREFIX),
-    MYSQL(MYSQL_URL_PREFIX);
-
-    private final String urlPrefix;
-    private final String loadbalanceUrlPrefix;
-
-    Type(String urlPrefix) {
-      this.urlPrefix = urlPrefix;
-      this.loadbalanceUrlPrefix = urlPrefix + "loadbalance:";
+    @Override
+    public ServiceType getServiceType() {
+        return MssqlConstants.MSSQL_JDBC;
     }
 
-    private String getUrlPrefix() {
-      return urlPrefix;
-    }
-
-    private String getLoadbalanceUrlPrefix() {
-      return loadbalanceUrlPrefix;
-    }
-  }
 }

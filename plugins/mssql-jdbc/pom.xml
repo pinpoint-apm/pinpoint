@@ -13,6 +13,12 @@
   <name>pinpoint-mssql-jdbc-driver-plugin</name>
   <packaging>jar</packaging>
 
+  <properties>
+    <jdk.version>1.7</jdk.version>
+    <jdk.home>${env.JAVA_7_HOME}</jdk.home>
+    <sniffer.artifactid>java17</sniffer.artifactid>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>com.navercorp.pinpoint</groupId>
@@ -43,8 +49,11 @@
       <artifactId>pinpoint-commons-profiler</artifactId>
       <scope>test</scope>
     </dependency>
-
-
+    <dependency>
+      <groupId>com.navercorp.pinpoint</groupId>
+      <artifactId>pinpoint-plugins-loader</artifactId>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
 
