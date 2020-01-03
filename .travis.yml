@@ -4,7 +4,7 @@ language: java
 cache:
   directories:
     - $HOME/.m2
-    - node_modules
+    - web/src/main/angular/node_modules
 
 addons:
   apt:
