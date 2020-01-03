@@ -65,11 +65,13 @@
                 "serve": {
                     "builder": "@angular-devkit/build-angular:dev-server",
                     "options": {
-                        "browserTarget": "pinpoint:build"
+                        "browserTarget": "pinpoint:build",
+                        "proxyConfig": "src/proxy.conf.js"
                     },
                     "configurations": {
                         "production": {
-                            "browserTarget": "pinpoint:build:production"
+                            "browserTarget": "pinpoint:build:production",
+                            "proxyConfig": "src/proxy.conf.js"
                         }
                     }
                 },
