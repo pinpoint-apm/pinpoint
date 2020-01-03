@@ -36,6 +36,7 @@
 
         <!-- java back-end development option -->
         <pinpoint.web.frontend.build.skip>false</pinpoint.web.frontend.build.skip>
+        <node.force.clean.skip>true</node.force.clean.skip>
     </properties>
 
     <dependencies>
@@ -340,10 +341,6 @@
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-war-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
                 <executions>
                     <execution>
@@ -406,6 +403,37 @@
                     </execution>
                 </executions>
             </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-clean-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>node-clean</id>
+                        <phase>clean</phase>
+                        <goals>
+                            <goal>clean</goal>
+                        </goals>
+                        <configuration>
+                            <filesets>
+                                <fileset>
+                                    <directory>${project.parent.basedir}/${plugin.frontend.node.install.dir}</directory>
+                                    <includes>
+                                        <include>**</include>
+                                    </includes>
+                                </fileset>
+                                <fileset>
+                                    <directory>${basedir}/src/main/angular/node_modules</directory>
+                                    <includes>
+                                        <include>**</include>
+                                    </includes>
+                                </fileset>
+                            </filesets>
+                            <skip>${node.force.clean.skip}</skip>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
     <profiles>
@@ -449,6 +477,12 @@
             <id>skip-frontend-build</id>
             <properties>
                 <pinpoint.web.frontend.build.skip>true</pinpoint.web.frontend.build.skip>
+            </properties>
+        </profile>
+        <profile>
+            <id>forceclean</id>
+            <properties>
+                <node.force.clean.skip>false</node.force.clean.skip>
             </properties>
         </profile>
     </profiles>
