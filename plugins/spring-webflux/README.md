@@ -37,6 +37,15 @@ It will be displayed as spring-boot type in pinpoint server-map.
 profiler.springboot.bootstrap.main=foo.bar.SampleApplication
 ~~~
 
+If you want to track Spring beans, you need to set `profiler.spring.beans.2.scope = post-processor`.
+~~~
+profiler.spring.beans.2.scope=post-processor
+profiler.spring.beans.2.base-packages=
+profiler.spring.beans.2.name.pattern=
+profiler.spring.beans.2.class.pattern=
+profiler.spring.beans.2.annotation=org.springframework.stereotype.Controller,org.springframework.stereotype.Service,org.springframework.stereotype.Repository
+~~~
+
 ### Web Server
 * Netty(Reactor Netty) HTTP Server
 * Tomcat
