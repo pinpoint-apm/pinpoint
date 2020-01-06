@@ -219,10 +219,10 @@
                     "DESC": "Each node is a logical unit of application."
                 }, {
                     "NAME": "[ICON]:{className=fa-info-circle\\style=font-size:15px}",
-                    "DESC": "The value on the top-right corner represents the number of server instances assigned to that application. (Not shown when there is only one such instance.)"
+                    "DESC": "The integer value inside of the node represents the number of server instances assigned to that application. (Not shown when there is only one such instance.)"
                 }, {
                     "NAME": "[ICON]:{className=fa-info-circle\\style=font-size:15px}",
-                    "DESC": "An alarm icon is displayed on the top-left corner if an error/exception is detected in one of the server instances."
+                    "DESC": "An alarm icon will be displayed inside of the node if an error/exception is detected in one of the server instances."
                 }, {
                     "NAME": "[ICON]:{className=fa-info-circle\\style=font-size:15px}",
                     "DESC": "When the node is selected, the transaction information flowing into the application is displayed on the right side of the screen."
@@ -252,16 +252,16 @@
                     "DESC": "[TEXT]:{value=When the filter is applied,}|[ICON]:{className=fa-filter\\style=font-size:15px}|[TEXT]:{value=icon will be displayed on the arrow.}"
                 }]
             }, {
-                "TITLE": "Chart Configuration",
+                "TITLE": "Server Map Configuration",
                 "ITEMS": [{
                     "NAME": "[ICON]:{className=fa-info-circle\\style=font-size:15px}",
-                    "DESC": "Right-clicking on any blank area displays a chart configuration menu."
+                    "DESC": "Right-clicking on any blank area displays a server map configuration menu."
                 }, {
                     "NAME": "[ICON]:{className=fa-info-circle\\style=font-size:15px}",
-                    "DESC": "Node Setting / Merge Unknown: Groups all applications without agent and displays it as a single node."
+                    "DESC": "Merge: Groups all mergeable nodes and displays it as a single node."
                 }, {
                     "NAME": "[ICON]:{className=fa-info-circle\\style=font-size:15px}",
-                    "DESC": "Double-clicking on any blank area resets the zoom level of the server map."
+                    "DESC": "Refresh: Initialize the viewport and the zoom level of the server map."
                 }]
             }]
         }],
