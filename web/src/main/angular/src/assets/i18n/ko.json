@@ -212,19 +212,19 @@
             "TITLE": "서버맵",
             "DESC": "분산된 서버를 도식화 한 지도입니다.",
             "CATEGORY": [{
-                "TITLE": "박스",
+                "TITLE": "노드",
                 "ITEMS": [{
                     "NAME": "[ICON]:{className=fa-info-circle\\style=font-size:15px}",
-                    "DESC": "박스는 응용프로그램 그룹을 나타냅니다."
+                    "DESC": "노드는 응용프로그램 그룹을 나타냅니다."
                 }, {
                     "NAME": "[ICON]:{className=fa-info-circle\\style=font-size:15px}",
-                    "DESC": "우측의 숫자는 응용프로그램 그룹에 속한 서버 인스턴스의 개수입니다.(한 개일 때에는 숫자를 보여주지 않습니다.)"
+                    "DESC": "노드 안의 숫자는 응용프로그램 그룹에 속한 서버 인스턴스의 개수입니다.(한 개일 때에는 숫자를 보여주지 않습니다.)"
                 }, {
                     "NAME": "[ICON]:{className=fa-info-circle\\style=font-size:15px}",
-                    "DESC": "좌측 빨간 알람은 임계값을 초과한 모니터링 항목이 있을 때 나타납니다."
+                    "DESC": "노드 안의 빨간 알람은 임계값을 초과한 모니터링 항목이 있을 때 나타납니다."
                 }, {
                     "NAME": "[ICON]:{className=fa-info-circle\\style=font-size:15px}",
-                    "DESC": "박스를 선택하면 어플리케이션으로 유입된 트랜잭션 정보를 화면 우측에 보여줍니다."
+                    "DESC": "노드를 선택하면 어플리케이션으로 유입된 트랜잭션 정보를 화면 우측에 보여줍니다."
                 }]
             }, {
                 "TITLE": "화살표",
@@ -251,16 +251,16 @@
                     "DESC": "[TEXT]:{value=필터가 적용되면 화살표에}|[ICON]:{className=fa-filter\\style=font-size:15px}|[TEXT]:{value=아이콘이 표시됩니다.}"
                 }]
             }, {
-                "TITLE": "차트 설정",
+                "TITLE": "서버맵 설정",
                 "ITEMS": [{
                     "NAME": "[ICON]:{className=fa-info-circle\\style=font-size:15px}",
-                    "DESC": "박스나 화살표가 아닌 화면의 여백에서 마우스 오른쪽 버튼을 클릭하면 차트 설정을 위한 Context menu를 보여줍니다."
+                    "DESC": "노드나 화살표가 아닌 화면의 여백에서 마우스 오른쪽 버튼을 클릭하면 서버맵 설정을 위한 Context menu를 보여줍니다."
                 }, {
                     "NAME": "[ICON]:{className=fa-info-circle\\style=font-size:15px}",
-                    "DESC": "Node Setting / Merge Unknown: Agent가 설치되어있지 않은 응용프로그램을 하나의 박스로 보여줍니다."
+                    "DESC": "Merge: 병합조건을 만족하는 노드들을 병합해서 보여줍니다."
                 }, {
                     "NAME": "[ICON]:{className=fa-info-circle\\style=font-size:15px}",
-                    "DESC": "박스나 화살표가 아닌 화면의 여백에서 더블클릭을 하면 서버맵의 줌이 초기화됩니다."
+                    "DESC": "Refresh: 서버맵의 뷰포트와 줌레벨을 초기화합니다."
                 }]
             }]
         }],
