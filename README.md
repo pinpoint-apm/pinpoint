@@ -66,11 +66,11 @@ For a more intimate guide, please check out our *[Introduction to Pinpoint](http
 * Thrift Client, Thrift Service, DUBBO PROVIDER, DUBBO CONSUMER, GRPC
 * ActiveMQ, RabbitMQ, Kafka
 * MySQL, Oracle, MSSQL(jtds), CUBRID, POSTGRESQL, MARIA
-* Arcus, Memcached, Redis([Jedis](https://github.com/naver/pinpoint/blob/master/plugins/redis), [Lettuce](https://github.com/naver/pinpoint/tree/master/plugins/redis-lettuce)), CASSANDRA, MongoDB, Hbase
+* Arcus, Memcached, Redis([Jedis](https://github.com/naver/pinpoint/blob/master/plugins/redis), [Lettuce](https://github.com/naver/pinpoint/tree/master/plugins/redis-lettuce)), CASSANDRA, MongoDB, Hbase, Elasticsearch
 * iBATIS, MyBatis
 * DBCP, DBCP2, HIKARICP, DRUID
 * gson, Jackson, Json Lib, Fastjson
-* log4j, Logback
+* log4j, Logback, log4j2
 
 ## Compatibility
 
