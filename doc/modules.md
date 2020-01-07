@@ -39,7 +39,7 @@
 |                                                                                   |                            |         |         |                        | 
 | Log4j                                                                             | log4j                      | 1.2.16  | 1.2.17  |                        | <AG> 
 | Logback                                                                           | logback-classic            | 1.0.13  | 1.2.3   |                        | <AG> 
-| log4j-core                                                                        | log4j-core                 | 2.0     | 2.12.1  |                        | <AG>
+| Log4j2                                                                            | log4j-core                 | 2.0     | 2.12.1  |                        | <AG>
 |                                                                                   |                            |         |         |                        |
 | \*Arcus                                                                           | arcus-java-client          | 1.7.0   | 1.11.4  |                        | 
 | \*MsSQL (jTDS)                                                                    | jtds                       | 1.2.8   |         |                        | 
