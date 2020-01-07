@@ -80,6 +80,7 @@
                             <cargo.tomcat.ajp.port>${quickstart.web.ajp.port}</cargo.tomcat.ajp.port>
                             <cargo.jvmargs>
                                 -Dmaven.pinpoint.identifier=${maven.pinpoint.identifier}
+                                -Dspring.profiles.active=release
                             </cargo.jvmargs>
                         </properties>
                     </configuration>
