@@ -46,8 +46,8 @@ export class RealTimeWebSocketService {
     private timeoutLimit = 5; // 서버로부터의 timeout response를 무시하는 최대횟수
     private timeoutCount: { [key: string]: number } = {}; // 각 agent별 timeout된 횟수
     private prevData: { [key: string]: IActiveThreadCounts } = {}; // Success일때의 데이터({ code, message, status })를 킵
-    private delayLimit = 5000; // 서버로부터의 응답을 기다리는 최대시간(ms)
-    private retryTimeout = 3000;
+    private delayLimit = 7000; // 서버로부터의 응답을 기다리는 최대시간(ms)
+    private retryTimeout = 7000;
     private retryCount = 0;
     private maxRetryCount = 1;
     private connectTime: number;
