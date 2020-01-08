@@ -33,28 +33,7 @@ public class MySqlUrlParserTest {
     private Logger logger = LoggerFactory.getLogger(MySqlUrlParserTest.class);
     private MySqlJdbcUrlParser jdbcUrlParser = new MySqlJdbcUrlParser();
 
-    @Test
-    public void testURIParse() throws Exception {
-
-        URI uri = URI.create("jdbc:mysql:replication://10.98.133.22:3306/test_lucy_db");
-        logger.debug(uri.toString());
-        logger.debug(uri.getScheme());
-
-        // URI parsing has limitation.
-        try {
-            URI oracleRac = URI.create("jdbc:oracle:thin:@(DESCRIPTION=(LOAD_BALANCE=on)" +
-                    "(ADDRESS=(PROTOCOL=TCP)(HOST=1.2.3.4) (PORT=1521))" +
-                    "(ADDRESS=(PROTOCOL=TCP)(HOST=1.2.3.5) (PORT=1521))" +
-                    "(CONNECT_DATA=(SERVICE_NAME=service)))");
-
-            logger.debug(oracleRac.toString());
-            logger.debug(oracleRac.getScheme());
-            Assert.fail();
-        } catch (Exception ignored) {
-        }
-    }
-
-    @Test
+     @Test
     public void mysqlParse1() {
         DatabaseInfo dbInfo = jdbcUrlParser.parse("jdbc:mysql://ip_address:3306/database_name?useUnicode=yes&amp;characterEncoding=UTF-8");
         Assert.assertTrue(dbInfo.isParsingComplete());
@@ -75,8 +54,8 @@ public class MySqlUrlParserTest {
 
         Assert.assertEquals(dbInfo.getDatabaseId(), "test_lucy_db");
         Assert.assertEquals(dbInfo.getUrl(), "jdbc:mysql://10.98.133.22:3306/test_lucy_db");
-        logger.info(dbInfo.toString());
-        logger.info(dbInfo.getMultipleHost());
+        logger.debug(dbInfo.toString());
+        logger.debug(dbInfo.getMultipleHost());
     }
 
     @Test
@@ -88,7 +67,35 @@ public class MySqlUrlParserTest {
         Assert.assertEquals(dbInfo.getHost().get(0), "61.74.71.31");
         Assert.assertEquals(dbInfo.getDatabaseId(), "log");
         Assert.assertEquals(dbInfo.getUrl(), "jdbc:mysql://61.74.71.31/log");
-        logger.info(dbInfo.toString());
+        logger.debug(dbInfo.toString());
+    }
+
+    @Test
+    public void mysqlParse4() {
+        final String url = "jdbc:mysql://1.2.3.4:3306/database_name?characterEncoding=UTF-8&serverTimezone=Asia/Seoul";
+
+        DatabaseInfo dbInfo = jdbcUrlParser.parse(url);
+        Assert.assertTrue(dbInfo.isParsingComplete());
+
+        Assert.assertEquals(dbInfo.getType(), MySqlConstants.MYSQL);
+        Assert.assertEquals(dbInfo.getHost().get(0), "1.2.3.4:3306");
+        Assert.assertEquals(dbInfo.getDatabaseId(), "database_name");
+        Assert.assertEquals(dbInfo.getUrl(), "jdbc:mysql://1.2.3.4:3306/database_name");
+        logger.debug(dbInfo.toString());
+    }
+
+    @Test
+    public void mysqlParse5() {
+        final String url = "jdbc:mysql:loadbalance://1.2.3.4:3306/database_name?characterEncoding=UTF-8&serverTimezone=Asia/Seoul";
+
+        DatabaseInfo dbInfo = jdbcUrlParser.parse(url);
+        Assert.assertTrue(dbInfo.isParsingComplete());
+
+        Assert.assertEquals(dbInfo.getType(), MySqlConstants.MYSQL);
+        Assert.assertEquals(dbInfo.getHost().get(0), "1.2.3.4:3306");
+        Assert.assertEquals(dbInfo.getDatabaseId(), "database_name");
+        Assert.assertEquals(dbInfo.getUrl(), "jdbc:mysql:loadbalance://1.2.3.4:3306/database_name");
+        logger.debug(dbInfo.toString());
     }
 
     @Test
@@ -100,7 +107,7 @@ public class MySqlUrlParserTest {
         Assert.assertEquals(dbInfo.getHost().get(0), "10.115.8.209:5605");
         Assert.assertEquals(dbInfo.getDatabaseId(), "db_cookierun");
         Assert.assertEquals(dbInfo.getUrl(), "jdbc:mysql://10.115.8.209:5605/db_cookierun");
-        logger.info(dbInfo.toString());
+        logger.debug(dbInfo.toString());
     }
 
 
@@ -113,7 +120,7 @@ public class MySqlUrlParserTest {
         Assert.assertEquals(dbInfo.getHost().get(0), "10.118.222.35:5605");
         Assert.assertEquals(dbInfo.getDatabaseId(), "db_cookierun");
         Assert.assertEquals(dbInfo.getUrl(), "jdbc:mysql:loadbalance://10.118.222.35:5605/db_cookierun");
-        logger.info(dbInfo.toString());
+        logger.debug(dbInfo.toString());
     }
 
     @Test
@@ -126,7 +133,7 @@ public class MySqlUrlParserTest {
         Assert.assertEquals(dbInfo.getHost().get(1), "10.118.222.36:5605");
         Assert.assertEquals(dbInfo.getDatabaseId(), "db_cookierun");
         Assert.assertEquals(dbInfo.getUrl(), "jdbc:mysql:loadbalance://10.118.222.35:5605,10.118.222.36:5605/db_cookierun");
-        logger.info(dbInfo.toString());
+        logger.debug(dbInfo.toString());
     }
 
     @Test
