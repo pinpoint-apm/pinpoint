@@ -1,0 +1,53 @@
+<ng-container *ngIf="{
+    app: selectedApplication,
+    agentList: agentList$ | async
+} as props;">
+    <ng-container *ngIf="props.app; else guide">
+        <section class="l-title-section">
+            <span class="l-app-name">{{selectedApplication.getApplicationName()}}</span>
+            <button class="btn l-remove-app-btn" (click)="onRemoveApplication()">Remove Application</button>
+        </section>
+        <section class="l-contents-section">
+            <pp-removable-agent-list
+                [rowData]="props.agentList"
+                (outSelectAgent)="onRemoveSelectAgent($event)">
+            </pp-removable-agent-list>
+        </section>
+        <ng-container *ngIf="isOnRemovePhase">
+            <section class="l-remove-confirm-section">
+                <section class="l-remove-confirm-content-section">
+                    <span class="l-warning-icon fas fa-exclamation-triangle"></span>
+                    <ng-container *ngIf="isAppRemove(); then app; else agent"></ng-container>
+                    <ng-template #app>
+                        <p class="l-remove-app-message">
+                            {{i18nText.removeApplication}}
+                            <span class="l-remove-target-info">Application Name: <span class="l-key">{{selectedApplication.getApplicationName()}}</span></span>
+                        </p>
+                    </ng-template>
+                    <ng-template #agent>
+                        <p class="l-remove-app-message">
+                            {{i18nText.removeAgent}}
+                            <span class="l-remove-target-info">Agent Id: <span class="l-key">{{removeTarget.agentId}}</span></span>
+                        </p>
+                    </ng-template>
+                    <section class="l-btn-section">
+                        <button class="l-submit-btn l-cancel-btn" (click)="onRemoveCancel()">{{i18nText.cancelButton}}</button>            
+                        <button class="l-submit-btn l-remove-btn" (click)="onRemoveConfirm()">{{i18nText.removeButton}}</button>            
+                    </section>
+                </section>
+            </section>
+        </ng-container>
+    </ng-container>
+    <ng-template #guide>
+        <section class="l-guide-section">{{i18nText.select}}</section>
+    </ng-template>
+    <ng-container *ngIf="errorMessage">
+        <pp-server-error-message
+            [message]="errorMessage"
+            (outClose)="onCloseErrorMessage()">
+        </pp-server-error-message>
+    </ng-container>         
+</ng-container>
+<pp-film-for-disable *ngIf="useDisable" [zIndex]="9" [marginWidth]="0"></pp-film-for-disable>    
+<pp-loading [showLoading]="showLoading" [zIndex]="20"></pp-loading>
+    

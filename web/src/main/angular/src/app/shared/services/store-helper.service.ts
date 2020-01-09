@@ -50,12 +50,8 @@ export class StoreHelperService {
             })
         );
     }
-    getAgentList<T>(unsubscribe: Subject<void>): Observable<T> {
-        return this.getObservable(STORE_KEY.ADMIN_AGENT_LIST, unsubscribe).pipe(
-            filter((data: T) => {
-                return data ? true : false;
-            })
-        );
+    getAgentList(unsubscribe: Subject<void>): Observable<IAgentList> {
+        return this.getObservable(STORE_KEY.ADMIN_AGENT_LIST, unsubscribe);
     }
     getServerAndAgentQuery<T>(unsubscribe: Subject<void>): Observable<T> {
         return this.getObservable(STORE_KEY.SERVER_AND_AGENT, unsubscribe).pipe(

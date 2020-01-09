@@ -1,5 +1,4 @@
 export class UrlPath {
-    static ADMIN = 'admin';
     static FILTERED_MAP = 'filteredMap';
     static INSPECTOR = 'inspector';
     static MAIN = 'main';
@@ -17,7 +16,6 @@ export class UrlPath {
     static getParamList(): string[] {
         return [
             UrlPath.CONFIG,
-            UrlPath.ADMIN,
             UrlPath.ERROR,
             UrlPath.FILTERED_MAP,
             UrlPath.INSPECTOR,

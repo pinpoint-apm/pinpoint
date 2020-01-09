@@ -45,6 +45,7 @@ import { ApplicationListDataService } from './services/application-list-data.ser
 import { SafeStylePipe } from './pipes/safe-style.pipe';
 import { RetryComponent } from './components/retry';
 import { HandleObsPipe } from './pipes/handle-obs.pipe';
+import { PickPropsPipe } from './pipes/pick-props.pipe';
 
 @NgModule({
     declarations: [
@@ -62,6 +63,7 @@ import { HandleObsPipe } from './pipes/handle-obs.pipe';
         SafeStylePipe,
         JSONTextParserPipe,
         HandleObsPipe,
+        PickPropsPipe,
         ContextPopupDirective,
         SplitterDirective,
         SearchInputDirective
@@ -90,6 +92,7 @@ import { HandleObsPipe } from './pipes/handle-obs.pipe';
         SafeStylePipe,
         JSONTextParserPipe,
         HandleObsPipe,
+        PickPropsPipe,
         ContextPopupDirective,
         SplitterDirective,
         SearchInputDirective

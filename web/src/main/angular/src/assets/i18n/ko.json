@@ -44,6 +44,16 @@
     },
     "SCATTER": {},
     "CONFIGURATION": {
+        "AGENT_MANAGEMENT": {
+            "REMOVE_APPLICATION": "선택한 Application을 삭제합니다.",
+            "REMOVE_AGENT": "선택한 Agent를 삭제합니다."
+        },
+        "AGENT_STATISTIC": {
+            "ZOOM_GUIDE": "마우스를 통해 차트를 Zoom In/Out 할 수 있습니다.",
+            "LOAD_GUIDE": "Agent의 통계 정보를 가져오는 작업은 많은 시간을 소요합니다.",
+            "LOADING": "데이터 가져오기",
+            "RELOAD": "데이터 다시 가져오기"
+        },
         "GENERAL": {
             "DESC": "* 설정 정보는 브라우저 캐쉬에 저장합니다. 서버 측 저장은 추후 지원할 예정입니다."
         },

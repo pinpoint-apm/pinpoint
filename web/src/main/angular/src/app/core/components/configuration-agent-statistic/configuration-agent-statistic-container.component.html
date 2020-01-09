@@ -1,0 +1,27 @@
+<ng-container 
+    *ngIf="hasData$ | async; then contents; else guide">
+</ng-container>
+
+<ng-template #contents>
+    <section class="l-contents-section">
+        <section class="l-title-section">
+            <span class="l-zoom-guide">{{i18nText.zoomGuide}}</span>
+            <span class="l-req-time">{{lastRequestTime}}</span>
+            <button (click)="onReload()" class="btn l-button fas fa-sync"></button>
+        </section>
+        <section class="l-chart-section">
+            <pp-agent-statistic-chart-container></pp-agent-statistic-chart-container>
+        </section>
+        <section class="l-list-section">
+            <pp-agent-statistic-list-container></pp-agent-statistic-list-container>
+        </section>
+    </section>
+</ng-template>
+<ng-template #guide>
+    <section class="l-guide-section">
+        <p class="l-guide-message">{{i18nText.loadGuide}}</p>
+        <button (click)="onLoadStart()" class="l-button l-load-btn">{{i18nText.loadBtnText}}</button>
+    </section>
+</ng-template>
+<pp-film-for-disable *ngIf="useDisable" [zIndex]="9" [marginWidth]="0"></pp-film-for-disable>    
+<pp-loading [showLoading]="showLoading" [zIndex]="20"></pp-loading>

@@ -11,6 +11,7 @@ import { FavoriteApplicationListForConfigurationContainerComponent } from './fav
 import { FavoriteApplicationListForConfigurationComponent } from './favorite-application-list-for-configuration.component';
 import { ApplicationListForConfigurationAlarmContainerComponent } from './application-list-for-configuration-alarm-container.component';
 import { ApplicationListInteractionForConfigurationService } from './application-list-interaction-for-configuration.service';
+import { ApplicationListForAgentManagementContainerComponent } from './application-list-for-agent-management-container.component';
 
 @NgModule({
     declarations: [
@@ -20,7 +21,8 @@ import { ApplicationListInteractionForConfigurationService } from './application
         ApplicationListForConfigurationComponent,
         FavoriteApplicationListForConfigurationComponent,
         FavoriteApplicationListForConfigurationContainerComponent,
-        ApplicationListForConfigurationAlarmContainerComponent
+        ApplicationListForConfigurationAlarmContainerComponent,
+        ApplicationListForAgentManagementContainerComponent
     ],
     imports: [
         ScrollingModule,
@@ -30,7 +32,8 @@ import { ApplicationListInteractionForConfigurationService } from './application
         ApplicationListForHeaderContainerComponent,
         ApplicationListForConfigurationContainerComponent,
         FavoriteApplicationListForConfigurationContainerComponent,
-        ApplicationListForConfigurationAlarmContainerComponent
+        ApplicationListForConfigurationAlarmContainerComponent,
+        ApplicationListForAgentManagementContainerComponent
     ],
     providers: [
         ApplicationListInteractionForConfigurationService,
