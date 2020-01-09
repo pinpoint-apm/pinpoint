@@ -26,10 +26,6 @@ const appRoutes: Routes = [
                         loadChildren: () => import('./routes/config-page/index').then(m => m.ConfigPageModule)
                     },
                     {
-                        path: UrlPath.ADMIN,
-                        loadChildren: () => import('./routes/admin-page/index').then(m => m.AdminPageModule)
-                    },
-                    {
                         path: UrlPath.BROWSER_NOT_SUPPORT,
                         loadChildren: () => import('./routes/browser-support-page/index').then(m => m.BrowserSupportPageModule)
                     },

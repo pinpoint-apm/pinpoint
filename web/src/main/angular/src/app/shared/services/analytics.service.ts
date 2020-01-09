@@ -109,7 +109,14 @@ export enum TRACKED_EVENT_LIST {
     CLICK_USER_COMMUNITY_BUTTON = 'Click User Community Button in Help',
     CLICK_START_GUIDE = 'Click Start Guide in Help',
     CLICK_TECHNICAL_OVERVIEW = 'Click Technical Overview in Help',
-    CLICK_INSPECTOR_CHART_LAYOUT_OPTION = 'Click Inspector Chart Layout Option'
+    CLICK_INSPECTOR_CHART_LAYOUT_OPTION = 'Click Inspector Chart Layout Option',
+    FETCH_AGENT_STATISTIC_DATA = 'Fetch Agent Statistic Data',
+    RELOAD_AGENT_STATISTIC_DATA = 'Reload Agent Statistic Data',
+    CLICK_APPLICATION_IN_STATISTIC_LIST = 'Click Application in Statistic List',
+    SHOW_ONE_AGENT_REMOVE_CONFIRM_VIEW = 'Show One Agent Remove Confirm View',
+    SHOW_ALL_INACTIVE_AGENTS_REMOVE_CONFIRM_VIEW = 'Show All Inactive Agents Remove Confirm View',
+    REMOVE_ONE_AGENT = 'Remove One Agent',
+    REMOVE_ALL_INACTIVE_AGENTS = 'Remove All Inactive Agents',
 }
 
 @Injectable()

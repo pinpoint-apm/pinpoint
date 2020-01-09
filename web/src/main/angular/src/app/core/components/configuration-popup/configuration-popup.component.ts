@@ -1,4 +1,4 @@
-import { Component, OnInit, HostBinding, Output, EventEmitter, Input } from '@angular/core';
+import { Component, OnInit, HostBinding, Output, EventEmitter } from '@angular/core';
 import { trigger, state, style, animate, transition } from '@angular/animations';
 
 @Component({
@@ -36,7 +36,10 @@ export class ConfigurationPopupComponent implements OnInit {
     @Output() outMenuClick = new EventEmitter<string>();
     @Output() outOpenLink = new EventEmitter<void>();
 
-    isSettingCollapsed = false;
+    isMenuCollapsed: {[key: string]: boolean} = {
+        admin: false,
+        setting: false
+    };
 
     constructor() {}
     ngOnInit() {}
@@ -48,12 +51,12 @@ export class ConfigurationPopupComponent implements OnInit {
         this.outOpenLink.emit();
     }
 
-    toggleSettingMenu(): void {
-        this.isSettingCollapsed = !this.isSettingCollapsed;
+    toggleMenu(menu: string): void {
+        this.isMenuCollapsed[menu] = !this.isMenuCollapsed[menu];
     }
 
-    getSettingCollapsedState(): string {
-        return this.isSettingCollapsed ? 'collapsed' : 'spreaded';
+    getCollapsedState(menu: string): string {
+        return this.isMenuCollapsed[menu] ? 'collapsed' : 'spreaded';
     }
 
     isActive(linkElement: HTMLAnchorElement): boolean {

@@ -45,6 +45,16 @@
     "SCATTER": {
     },
     "CONFIGURATION": {
+        "AGENT_MANAGEMENT": {
+            "REMOVE_APPLICATION": "Remove selected application.",
+            "REMOVE_AGENT": "Remove selected agent."
+        },
+        "AGENT_STATISTIC": {
+            "ZOOM_GUIDE": "You can zoom in/out the chart through the mouse.",
+            "LOAD_GUIDE": "It takes a long time to load the agent's statistical data.",
+            "LOADING": "Load",
+            "RELOAD": "Reload"
+        },
         "GENERAL": {
             "DESC": "* User configuration is stored in browser cache. Server-side storage will be supported in a future release."
         },

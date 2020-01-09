@@ -35,7 +35,11 @@ import { UrlPath } from 'app/shared/models';
     ]
 })
 export class ConfigPageComponent implements OnInit {
-    isSettingCollapsed = false;
+    isMenuCollapsed: {[key: string]: boolean} = {
+        admin: false,
+        setting: false
+    };
+
     constructor(
         private urlRouteManagerService: UrlRouteManagerService,
         private newUrlStateNotificationService: NewUrlStateNotificationService,
@@ -45,7 +49,7 @@ export class ConfigPageComponent implements OnInit {
     ngOnInit() {}
     onClickExit(): void {
         const { startPath, pathParams, queryParams } = this.newUrlStateNotificationService.getPrevPageUrlInfo();
-        const url = startPath === UrlPath.CONFIG ? [UrlPath.MAIN] : [startPath, ...[ ...pathParams.values() ]];
+        const url = startPath === UrlPath.CONFIG ? [UrlPath.MAIN] : [startPath, ...pathParams.values()];
         const queryParam = [ ...queryParams.entries() ].reduce((acc: object, [key, value]: string[]) => {
             return { ...acc, [key]: value };
         }, {});
@@ -54,12 +58,12 @@ export class ConfigPageComponent implements OnInit {
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.CLICK_CONFIGURATION_PAGE_EXIT_BUTTON);
     }
 
-    toggleSettingMenu(): void {
-        this.isSettingCollapsed = !this.isSettingCollapsed;
+    toggleMenu(menu: string): void {
+        this.isMenuCollapsed[menu] = !this.isMenuCollapsed[menu];
     }
 
-    getSettingCollapsedState(): string {
-        return this.isSettingCollapsed ? 'collapsed' : 'spreaded';
+    getCollapsedState(menu: string): string {
+        return this.isMenuCollapsed[menu] ? 'collapsed' : 'spreaded';
     }
 
     isActive(linkElement: HTMLAnchorElement): boolean {

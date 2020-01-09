@@ -10,12 +10,22 @@ import { ConfigurationUserGroupContainerComponent } from 'app/core/components/co
 import { ConfigurationAlarmContainerComponent } from 'app/core/components/configuration-alarm/configuration-alarm-container.component';
 import { ConfigurationInstallationContainerComponent } from 'app/core/components/configuration-installation/configuration-installation-container.component';
 import { ConfigurationHelpContainerComponent } from 'app/core/components/configuration-help/configuration-help-container.component';
+import { ConfigurationAgentStatisticContainerComponent } from 'app/core/components/configuration-agent-statistic/configuration-agent-statistic-container.component';
+import { ConfigurationAgentManagementContainerComponent } from 'app/core/components/configuration-agent-management/configuration-agent-management-container.component';
 
 const routes: Routes = [
     {
         path: '',
         component: ConfigPageComponent,
         children: [
+            {
+                path: UrlPathId.AGENT_STATISTIC,
+                component: ConfigurationAgentStatisticContainerComponent
+            },
+            {
+                path: UrlPathId.AGENT_MANAGEMENT,
+                component: ConfigurationAgentManagementContainerComponent
+            },
             {
                 path: UrlPathId.GENERAL,
                 component: ConfigurationGeneralContainerComponent
