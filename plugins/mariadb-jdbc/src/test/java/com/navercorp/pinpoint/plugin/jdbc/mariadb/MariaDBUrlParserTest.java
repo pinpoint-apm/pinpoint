@@ -64,8 +64,8 @@ public class MariaDBUrlParserTest {
         Assert.assertEquals(dbInfo.getHost().get(0), "10.98.133.22:3306");
         Assert.assertEquals(dbInfo.getDatabaseId(), "test_lucy_db");
         Assert.assertEquals(dbInfo.getUrl(), "jdbc:mariadb://10.98.133.22:3306/test_lucy_db");
-        logger.info(dbInfo.toString());
-        logger.info(dbInfo.getMultipleHost());
+        logger.debug(dbInfo.toString());
+        logger.debug(dbInfo.getMultipleHost());
     }
 
     @Test
@@ -78,7 +78,35 @@ public class MariaDBUrlParserTest {
         Assert.assertEquals(dbInfo.getHost().get(0), "61.74.71.31");
         Assert.assertEquals(dbInfo.getDatabaseId(), "log");
         Assert.assertEquals(dbInfo.getUrl(), "jdbc:mariadb://61.74.71.31/log");
-        logger.info(dbInfo.toString());
+        logger.debug(dbInfo.toString());
+    }
+
+    @Test
+    public void mariadbParse4() {
+        final String url = "jdbc:mariadb://1.2.3.4:3306/database_name?characterEncoding=UTF-8&serverTimezone=Asia/Seoul";
+
+        DatabaseInfo dbInfo = jdbcUrlParser.parse(url);
+        Assert.assertTrue(dbInfo.isParsingComplete());
+
+        Assert.assertEquals(dbInfo.getType(), MariaDBConstants.MARIADB);
+        Assert.assertEquals(dbInfo.getHost().get(0), "1.2.3.4:3306");
+        Assert.assertEquals(dbInfo.getDatabaseId(), "database_name");
+        Assert.assertEquals(dbInfo.getUrl(), "jdbc:mariadb://1.2.3.4:3306/database_name");
+        logger.debug(dbInfo.toString());
+    }
+
+    @Test
+    public void mariadbParse5() {
+        final String url = "jdbc:mariadb:loadbalance://1.2.3.4:3306/database_name?characterEncoding=UTF-8&serverTimezone=Asia/Seoul";
+
+        DatabaseInfo dbInfo = jdbcUrlParser.parse(url);
+        Assert.assertTrue(dbInfo.isParsingComplete());
+
+        Assert.assertEquals(dbInfo.getType(), MariaDBConstants.MARIADB);
+        Assert.assertEquals(dbInfo.getHost().get(0), "1.2.3.4:3306");
+        Assert.assertEquals(dbInfo.getDatabaseId(), "database_name");
+        Assert.assertEquals(dbInfo.getUrl(), "jdbc:mariadb:loadbalance://1.2.3.4:3306/database_name");
+        logger.debug(dbInfo.toString());
     }
 
     @Test
@@ -91,7 +119,7 @@ public class MariaDBUrlParserTest {
         Assert.assertEquals(dbInfo.getHost().get(0), "10.115.8.209:5605");
         Assert.assertEquals(dbInfo.getDatabaseId(), "db_cookierun");
         Assert.assertEquals(dbInfo.getUrl(), "jdbc:mariadb://10.115.8.209:5605/db_cookierun");
-        logger.info(dbInfo.toString());
+        logger.debug(dbInfo.toString());
     }
 
     @Test
@@ -104,7 +132,7 @@ public class MariaDBUrlParserTest {
         Assert.assertEquals(dbInfo.getHost().get(0), "10.118.222.35:5605");
         Assert.assertEquals(dbInfo.getDatabaseId(), "db_cookierun");
         Assert.assertEquals(dbInfo.getUrl(), "jdbc:mariadb:loadbalance://10.118.222.35:5605/db_cookierun");
-        logger.info(dbInfo.toString());
+        logger.debug(dbInfo.toString());
     }
 
     @Test
@@ -119,7 +147,7 @@ public class MariaDBUrlParserTest {
         Assert.assertEquals(dbInfo.getDatabaseId(), "db_cookierun");
         Assert.assertEquals(dbInfo.getUrl(),
                 "jdbc:mariadb:loadbalance://10.118.222.35:5605,10.118.222.36:5605/db_cookierun");
-        logger.info(dbInfo.toString());
+        logger.debug(dbInfo.toString());
     }
 
     @Test

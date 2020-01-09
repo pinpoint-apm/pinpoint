@@ -27,6 +27,7 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
@@ -67,35 +68,7 @@ public class MariaDBJdbcUrlParser implements JdbcUrlParserV2 {
     }
 
     private DatabaseInfo parse0(String url, Type type) {
-        if (isLoadbalanceUrl(url, type)) {
-            return parseLoadbalancedUrl(url, type);
-        }
         return parseNormal(url, type);
-    }
-
-    private boolean isLoadbalanceUrl(String url, Type type) {
-        String loadbalanceUrlPrefix = type.getLoadbalanceUrlPrefix();
-        return url.regionMatches(true, 0, loadbalanceUrlPrefix, 0, loadbalanceUrlPrefix.length());
-    }
-
-    private DatabaseInfo parseLoadbalancedUrl(String url, Type type) {
-        // jdbc:mariadb://1.2.3.4:5678/test_db
-        StringMaker maker = new StringMaker(url);
-        maker.after(type.getUrlPrefix());
-        // 1.2.3.4:5678 In case of replication driver could have multiple values
-        // We have to consider mm db too.
-        String host = maker.after("//").before('/').value();
-
-        // Decided not to cache regex. This is not invoked often so don't waste
-        // memory.
-        String[] parsedHost = host.split(",");
-        List<String> hostList = Arrays.asList(parsedHost);
-
-        String databaseId = maker.next().afterLast('/').before('?').value();
-        String normalizedUrl = maker.clear().before('?').value();
-
-        return new DefaultDatabaseInfo(MariaDBConstants.MARIADB, MariaDBConstants.MARIADB_EXECUTE_QUERY, url,
-                normalizedUrl, hostList, databaseId);
     }
 
     private DatabaseInfo parseNormal(String url, Type type) {
@@ -105,14 +78,23 @@ public class MariaDBJdbcUrlParser implements JdbcUrlParserV2 {
         // 1.2.3.4:5678 In case of replication driver could have multiple values
         // We have to consider mm db too.
         String host = maker.after("//").before('/').value();
-        List<String> hostList = new ArrayList<String>(1);
-        hostList.add(host);
+        List<String> hostList = parseHost(host);
         // String port = maker.next().after(':').before('/').value();
 
-        String databaseId = maker.next().afterLast('/').before('?').value();
+        String databaseId = maker.next().after('/').before('?').value();
         String normalizedUrl = maker.clear().before('?').value();
         return new DefaultDatabaseInfo(MariaDBConstants.MARIADB, MariaDBConstants.MARIADB_EXECUTE_QUERY, url,
                 normalizedUrl, hostList, databaseId);
+    }
+
+    private List<String> parseHost(String host) {
+        final int multiHost = host.indexOf(",");
+        if (multiHost == -1) {
+            return Collections.singletonList(host);
+        }
+        // Decided not to cache regex. This is not invoked often so don't waste memory.
+        String[] parsedHost = host.split(",");
+        return Arrays.asList(parsedHost);
     }
 
     @Override
