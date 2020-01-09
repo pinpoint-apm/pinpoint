@@ -43,7 +43,7 @@ public class ApplicationContextModuleFactory implements ModuleFactory {
         return Modules.combine(config, pluginModule, applicationContextModule, rpcModule, statsModule, thriftStatsModule);
     }
 
-    private Module newRpcModule(AgentOption agentOption) {
+    protected Module newRpcModule(AgentOption agentOption) {
         ProfilerConfig profilerConfig = agentOption.getProfilerConfig();
         final TransportModule transportModule = profilerConfig.getTransportModule();
         if (TransportModule.GRPC == transportModule) {
