@@ -52,12 +52,13 @@ public final class PinpointJUnit4ClassRunner extends BlockJUnit4ClassRunner {
         }
     }
 
-    private void beforeTestClass() {
+    private void beforeTestClass(Class<?> testClass) {
         try {
             // TODO fix static TestContext
             if (testContext == null) {
                 logger.debug("traceContext is null");
-                testContext = new TestContext();
+                TestClassWrapper testClassWrapper = new TestClassWrapper(testClass);
+                testContext = new TestContext(testClassWrapper);
             }
         } catch (Throwable ex) {
             throw new RuntimeException(ex.getMessage(), ex);
@@ -66,7 +67,7 @@ public final class PinpointJUnit4ClassRunner extends BlockJUnit4ClassRunner {
 
     protected TestClass createTestClass(Class<?> testClass) {
         logger.debug("createTestClass {}", testClass);
-        beforeTestClass();
+        beforeTestClass(testClass);
         return testContext.createTestClass(testClass);
     }
 

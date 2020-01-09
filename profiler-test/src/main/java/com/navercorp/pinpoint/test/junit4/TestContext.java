@@ -48,8 +48,8 @@ public class TestContext implements Closeable {
     private final Class<?> baseTestClass;
 
 
-    public TestContext() {
-        this.mockApplicationContext = createMockApplicationContext();
+    public TestContext(TestClassWrapper testClassWrapper) {
+        this.mockApplicationContext = createMockApplicationContext(testClassWrapper.getConfigPath());
         this.mockApplicationContext.start();
         this.classLoader = TestClassLoaderFactory.createTestClassLoader(mockApplicationContext);
         this.classLoader.initialize();
@@ -61,10 +61,10 @@ public class TestContext implements Closeable {
     }
 
 
-    private DefaultApplicationContext createMockApplicationContext() {
+    private DefaultApplicationContext createMockApplicationContext(String configPath) {
         logger.trace("agent create");
         MockApplicationContextFactory factory = new MockApplicationContextFactory();
-        return factory.build("pinpoint.config");
+        return factory.build(configPath);
     }
 
     public ClassLoader getClassLoader() {
