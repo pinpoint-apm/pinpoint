@@ -35,7 +35,7 @@ import java.util.List;
  */
 public class MySqlJdbcUrlParser implements JdbcUrlParserV2 {
 
-    private static final String URL_PREFIX = "jdbc:mysql:";
+    static final String URL_PREFIX = "jdbc:mysql:";
     // jdbc:mysql:loadbalance://10.22.33.44:3306,10.22.33.55:3306/MySQL?characterEncoding=UTF-8
     private static final String LOADBALANCE_URL_PREFIX = URL_PREFIX + "loadbalance:";
 
