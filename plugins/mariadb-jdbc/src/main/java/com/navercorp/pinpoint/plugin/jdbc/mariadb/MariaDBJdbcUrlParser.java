@@ -39,8 +39,8 @@ public class MariaDBJdbcUrlParser implements JdbcUrlParserV2 {
 
 //    jdbc:(mysql|mariadb):[replication:|failover|loadbalance:|aurora:]//<hostDescription>[,<hostDescription>]/[database>]
 //    jdbc:mariadb:loadbalance://10.22.33.44:3306,10.22.33.55:3306/MariaDB?characterEncoding=UTF-8
-    private static final String MARIA_URL_PREFIX = "jdbc:mariadb:";
-    private static final String MYSQL_URL_PREFIX = "jdbc:mysql:";
+    static final String MARIA_URL_PREFIX = "jdbc:mariadb:";
+    static final String MYSQL_URL_PREFIX = "jdbc:mysql:";
 
     private static final Set<Type> TYPES = EnumSet.allOf(Type.class);
 
