@@ -59,6 +59,11 @@ public class MariaDB_2_0_1_to_2_4_0_IT extends MariaDB_IT_Base {
         return new MariaDB_2_0_1_DriverClass(server);
     }
 
+    @Override
+    public JDBCDriverClass getJDBCDriverClass() {
+        return driverClass;
+    }
+
 
     @Test
     public void testStatement() throws Exception {
@@ -79,22 +84,22 @@ public class MariaDB_2_0_1_to_2_4_0_IT extends MariaDB_IT_Base {
     @Test
     public void testPreparedStatement() throws Exception {
         super.executePreparedStatement();
-        final JDBCApi jdbcMethod = clientJdbcApi;
+        final JDBCApi jdbcApi = clientJdbcApi;
 
         PluginTestVerifier verifier = PluginTestVerifierHolder.getInstance();
         verifier.printCache();
         verifier.verifyTraceCount(3);
 
         // Driver#connect(String, Properties)
-        Method connect = jdbcMethod.getDriver().getConnect();
+        Method connect = jdbcApi.getDriver().getConnect();
         verifier.verifyTrace(event(DB_TYPE, connect, null, URL, DATABASE_NAME, cachedArgs(JDBC_URL)));
 
         // MariaDbConnection#prepareStatement(String)
-        Method prepareStatement = jdbcMethod.getConnection().getPrepareStatement();
+        Method prepareStatement = jdbcApi.getConnection().getPrepareStatement();
         verifier.verifyTrace(event(DB_TYPE, prepareStatement, null, URL, DATABASE_NAME, sql(PREPARED_STATEMENT_QUERY, null)));
 
         // MariaDbPreparedStatementClient#executeQuery
-        Method executeQuery = jdbcMethod.getPreparedStatement().getExecuteQuery();
+        Method executeQuery = jdbcApi.getPreparedStatement().getExecuteQuery();
         verifier.verifyTrace(event(DB_EXECUTE_QUERY, executeQuery, null, URL, DATABASE_NAME, sql(PREPARED_STATEMENT_QUERY, null, "3")));
     }
 

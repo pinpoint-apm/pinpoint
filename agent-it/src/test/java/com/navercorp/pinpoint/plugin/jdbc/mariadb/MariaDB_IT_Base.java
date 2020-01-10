@@ -20,11 +20,15 @@ import ch.vorburger.exec.ManagedProcessException;
 import ch.vorburger.mariadb4j.DB;
 import com.navercorp.pinpoint.test.plugin.jdbc.DriverManagerUtils;
 import com.navercorp.pinpoint.test.plugin.jdbc.DriverProperties;
+import com.navercorp.pinpoint.test.plugin.jdbc.JDBCDriverClass;
+import org.junit.After;
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.BeforeClass;
 
 import java.sql.CallableStatement;
 import java.sql.Connection;
+import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -38,7 +42,7 @@ import static org.junit.Assert.fail;
 /**
  * @author HyunGil Jeong
  */
-public class MariaDB_IT_Base {
+public abstract class MariaDB_IT_Base {
 
     private static final int PORT = 13306;
     protected static final String URL = "127.0.0.1:" + PORT;
@@ -76,13 +80,25 @@ public class MariaDB_IT_Base {
         TEST_DATABASE.start();
         TEST_DATABASE.createDB("test");
         TEST_DATABASE.source("jdbc/mariadb/init.sql");
-
-        DriverManager.registerDriver(new org.mariadb.jdbc.Driver());
     }
 
     @AfterClass
     public static void tearDownAfterClass() throws Exception {
         TEST_DATABASE = testDBStop();
+
+    }
+
+    abstract JDBCDriverClass getJDBCDriverClass();
+
+    @Before
+    public void registerDriver() throws Exception {
+        JDBCDriverClass driverClass = getJDBCDriverClass();
+        Driver driver = driverClass.getDriver().newInstance();
+        DriverManager.registerDriver(driver);
+    }
+
+    @After
+    public void deregisterDriver() {
         DriverManagerUtils.deregisterDriver();
     }
 

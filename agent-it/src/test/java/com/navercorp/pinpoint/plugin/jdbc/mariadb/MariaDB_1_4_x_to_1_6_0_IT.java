@@ -35,7 +35,7 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.args;
 import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.cachedArgs;
 import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
 import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.sql;
-import static com.navercorp.pinpoint.test.plugin.jdbc.JDBCApi.*;
+import static com.navercorp.pinpoint.test.plugin.jdbc.JDBCApi.CallableStatementClass;
 
 /**
  * @author HyunGil Jeong
@@ -52,6 +52,11 @@ public class MariaDB_1_4_x_to_1_6_0_IT extends MariaDB_IT_Base {
     private static final JDBCDriverClass driverClass = new MariaDB_1_4_x_DriverClass();
     private static final JDBCApi jdbcApi = new DefaultJDBCApi(driverClass);
 
+    @Override
+    public JDBCDriverClass getJDBCDriverClass() {
+        return driverClass;
+    }
+    
     @Test
     public void testStatement() throws Exception {
         super.executeStatement();
