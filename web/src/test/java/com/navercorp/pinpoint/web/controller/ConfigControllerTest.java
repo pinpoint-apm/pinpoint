@@ -58,7 +58,7 @@ public class ConfigControllerTest {
     
     private MockMvc mockMvc;
     
-    private static User user = new User("naver01", "min", "pinpoint", "010", "min@naver0.com");
+    private static User user = new User("naver01", "min", "pinpoint", 82, "010", "min@naver0.com");
 
     @Before
     public void before() {

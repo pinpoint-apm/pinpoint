@@ -228,12 +228,12 @@ public class ValueValidatorTest {
 
     @Test
     public void testValidateUser() {
-        assertTrue(ValueValidator.validateUser(new User("userid", "name", "", "", "")));
-        assertTrue(ValueValidator.validateUser(new User("userid", "name", null, null, null)));
-        assertTrue(ValueValidator.validateUser(new User("userid", "name", "AAA", null, null)));
-        assertTrue(ValueValidator.validateUser(new User("userid", "name", "AAA", "01012341234", "naver@naver.com")));
-        assertFalse(ValueValidator.validateUser(new User("", "", "", "", "")));
-        assertFalse(ValueValidator.validateUser(new User("", "name", "", "", "")));
-        assertFalse(ValueValidator.validateUser(new User("userid", "", "", "", "")));
+        assertTrue(ValueValidator.validateUser(new User("userid", "name", "", 82,"", "")));
+        assertTrue(ValueValidator.validateUser(new User("userid", "name", null, 82,null, null)));
+        assertTrue(ValueValidator.validateUser(new User("userid", "name", "AAA", 82,null, null)));
+        assertTrue(ValueValidator.validateUser(new User("userid", "name", "AAA", 82,"01012341234", "naver@naver.com")));
+        assertFalse(ValueValidator.validateUser(new User("", "", "", 82,"", "")));
+        assertFalse(ValueValidator.validateUser(new User("", "name", "", 82,"", "")));
+        assertFalse(ValueValidator.validateUser(new User("userid", "", "", 82,"", "")));
     }
 }

@@ -135,5 +135,4 @@ public class UserController {
         result.put("errorMessage", "Exception occurred while trying to CRUD user information");
         return result;
     }
-    
 }

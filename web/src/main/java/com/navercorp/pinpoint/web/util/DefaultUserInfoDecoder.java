@@ -31,4 +31,9 @@ public class DefaultUserInfoDecoder implements UserInfoDecoder {
     public List<String> decodePhoneNumberList(List<String> phoneNumberList) {
         return phoneNumberList;
     }
+
+    @Override
+    public String decodePhoneNumber(String phoneNumber) {
+        return phoneNumber;
+    }
 }

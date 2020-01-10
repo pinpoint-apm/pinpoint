@@ -22,4 +22,6 @@ import java.util.List;
  */
 public interface UserInfoDecoder {
     List<String> decodePhoneNumberList(List<String> phoneNumberList);
+
+    String decodePhoneNumber(String phoneNumber);
 }

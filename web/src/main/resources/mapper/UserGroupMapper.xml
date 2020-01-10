@@ -96,6 +96,16 @@
             WHERE user_group_id = #{userGroupId}
         )
     </select>
+
+    <select id="selectPhoneInfoOfMember" resultType="UserPhoneInfo" parameterType="String">
+        SELECT phone_country_code, phoneNumber
+        FROM puser
+        WHERE user_id IN (
+            SELECT member_id
+            FROM user_group_member
+            WHERE user_group_id = #{userGroupId}
+        )
+    </select>
     
     <select id="selectEmailOfMember" resultType="String" parameterType="String">
         SELECT email

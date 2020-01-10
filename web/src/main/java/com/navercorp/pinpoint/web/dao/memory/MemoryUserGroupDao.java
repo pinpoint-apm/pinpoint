@@ -24,6 +24,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.navercorp.pinpoint.web.vo.UserPhoneInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -211,5 +212,25 @@ public class MemoryUserGroupDao implements UserGroupDao {
     @Override
     public boolean isExistUserGroup(String userGroupId) {
         return userGroups.containsKey(userGroupId);
+    }
+
+    @Override
+    public List<UserPhoneInfo> selectPhoneInfoOfMember(String userGroupId) {
+        List<UserGroupMember> userGroupMemberList = new LinkedList<>();
+
+        for (UserGroupMember member : userGroupMembers.values()) {
+            if (member.getUserGroupId().equals(userGroupId)) {
+                userGroupMemberList.add(member);
+            }
+        }
+
+        List<UserPhoneInfo> userPhoneInfoList  = new LinkedList<>();
+
+        for (UserGroupMember member : userGroupMemberList) {
+            User user = userDao.selectUserByUserId(member.getMemberId());
+            userPhoneInfoList.add(new UserPhoneInfo(user.getPhoneCountryCode(), user.getPhoneNumber()));
+        }
+
+        return userPhoneInfoList;
     }
 }
