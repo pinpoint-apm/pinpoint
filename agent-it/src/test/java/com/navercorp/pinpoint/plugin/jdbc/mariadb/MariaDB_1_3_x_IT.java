@@ -53,6 +53,11 @@ public class MariaDB_1_3_x_IT extends MariaDB_IT_Base {
     private static final JDBCDriverClass driverClass = new MariaDB_1_3_x_DriverClass();
     private static final JDBCApi jdbcApi = new DefaultJDBCApi(driverClass);
 
+    @Override
+    public JDBCDriverClass getJDBCDriverClass() {
+        return driverClass;
+    }
+
     @Test
     public void testStatement() throws Exception {
         super.executeStatement();

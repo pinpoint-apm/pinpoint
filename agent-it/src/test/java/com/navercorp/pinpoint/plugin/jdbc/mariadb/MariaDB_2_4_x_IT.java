@@ -66,6 +66,10 @@ public class MariaDB_2_4_x_IT extends MariaDB_IT_Base {
         return new MariaDB_2_4_x_DriverClass(server);
     }
 
+    @Override
+    public JDBCDriverClass getJDBCDriverClass() {
+        return driverClass;
+    }
 
     @Test
     public void testStatement() throws Exception {

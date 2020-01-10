@@ -31,6 +31,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.lang.reflect.Method;
+import java.sql.Driver;
 
 import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.args;
 import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.cachedArgs;
@@ -68,6 +69,10 @@ public class MariaDB_1_6_x_to_1_8_0_IT extends MariaDB_IT_Base {
     private static final JDBCDriverClass clientDriverClass = new MariaDB_1_6_x_DriverClass(PreparedStatementType.Client);
     private static final JDBCApi clientJdbcApi = new DefaultJDBCApi(clientDriverClass);
 
+    @Override
+    public JDBCDriverClass getJDBCDriverClass() {
+        return driverClass;
+    }
 
     @Test
     public void testStatement() throws Exception {
