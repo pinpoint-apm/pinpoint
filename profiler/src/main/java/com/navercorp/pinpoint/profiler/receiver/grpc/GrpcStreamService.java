@@ -59,7 +59,7 @@ public class GrpcStreamService {
             boolean turnOn = currentTaskReference.compareAndSet(null, timerTask);
             if (turnOn) {
                 logger.info("turn on TimerTask.");
-                timer.scheduleAtFixedRate(timerTask, flushDelay, flushDelay);
+                timer.scheduleAtFixedRate(timerTask, 0, flushDelay);
                 return true;
             }
         }
