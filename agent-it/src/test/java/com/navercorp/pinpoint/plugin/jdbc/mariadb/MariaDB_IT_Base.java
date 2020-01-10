@@ -16,20 +16,21 @@
 
 package com.navercorp.pinpoint.plugin.jdbc.mariadb;
 
+import ch.vorburger.exec.ManagedProcessException;
 import ch.vorburger.mariadb4j.DB;
+import com.navercorp.pinpoint.test.plugin.jdbc.DriverManagerUtils;
+import com.navercorp.pinpoint.test.plugin.jdbc.DriverProperties;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 
 import java.sql.CallableStatement;
 import java.sql.Connection;
-import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
-import java.util.Enumeration;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -59,10 +60,19 @@ public class MariaDB_IT_Base {
     protected static final int CALLABLE_STATMENT_OUTPUT_PARAM_TYPE = Types.INTEGER;
 
     private static DB TEST_DATABASE;
+    protected static DriverProperties driverProperties;
+
+
+    private static final String EMBEDDED_DB_PORT_KEY = "maria.embedded-db.port";
+
+    protected static final String DB_TYPE = "MARIADB";
+    protected static final String DB_EXECUTE_QUERY = "MARIADB_EXECUTE_QUERY";
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
-        TEST_DATABASE = DB.newEmbeddedDB(PORT);
+        driverProperties = new DriverProperties("database/maria.properties", "maria");
+        int embeddedDBPort = Integer.parseInt(driverProperties.getProperty(EMBEDDED_DB_PORT_KEY));
+        TEST_DATABASE = DB.newEmbeddedDB(embeddedDBPort);
         TEST_DATABASE.start();
         TEST_DATABASE.createDB("test");
         TEST_DATABASE.source("jdbc/mariadb/init.sql");
@@ -70,69 +80,67 @@ public class MariaDB_IT_Base {
         DriverManager.registerDriver(new org.mariadb.jdbc.Driver());
     }
 
+    @AfterClass
+    public static void tearDownAfterClass() throws Exception {
+        TEST_DATABASE = testDBStop();
+        DriverManagerUtils.deregisterDriver();
+    }
+
+    private static DB testDBStop() throws ManagedProcessException {
+        if (TEST_DATABASE != null) {
+            TEST_DATABASE.stop();
+        }
+        return null;
+    }
+
     protected final void executeStatement() throws Exception {
         final int expectedResultSize = 1;
         Connection connection = null;
+        Statement statement = null;
+        ResultSet rs = null;
         try {
             connection = DriverManager.getConnection(JDBC_URL, "root", null);
-
-            Statement statement = null;
-            try {
-                statement = connection.createStatement();
-
-                ResultSet rs = null;
-                try {
-                    rs = statement.executeQuery(STATEMENT_QUERY);
-                    int resultCount = 0;
-                    while (rs.next()) {
-                        ++resultCount;
-                        if (resultCount > expectedResultSize) {
-                            fail();
-                        }
-                        assertEquals(3, rs.getInt(1));
-                    }
-                    assertEquals(expectedResultSize, resultCount);
-                } finally {
-                    closeResultSet(rs);
+            statement = connection.createStatement();
+            rs = statement.executeQuery(STATEMENT_QUERY);
+            int resultCount = 0;
+            while (rs.next()) {
+                ++resultCount;
+                if (resultCount > expectedResultSize) {
+                    fail();
                 }
-            } finally {
-                closeStatement(statement);
+                assertEquals(3, rs.getInt(1));
             }
+            assertEquals(expectedResultSize, resultCount);
         } finally {
+            closeResultSet(rs);
+            closeStatement(statement);
             closeConnection(connection);
         }
     }
 
     protected final void executePreparedStatement() throws Exception {
         final int expectedResultSize = 1;
+
         Connection connection = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
         try {
             connection = DriverManager.getConnection(JDBC_URL, "root", null);
-
-            PreparedStatement ps = null;
-            try {
-                ps = connection.prepareStatement(PREPARED_STATEMENT_QUERY);
-                ps.setInt(1, 3);
-
-                ResultSet rs = null;
-                try {
-                    rs = ps.executeQuery();
-                    int resultCount = 0;
-                    while (rs.next()) {
-                        ++resultCount;
-                        if (resultCount > expectedResultSize) {
-                            fail();
-                        }
-                        assertEquals("THREE", rs.getString(2));
-                    }
-                    assertEquals(expectedResultSize, resultCount);
-                } finally {
-                    closeResultSet(rs);
+            ps = connection.prepareStatement(PREPARED_STATEMENT_QUERY);
+            ps.setInt(1, 3);
+            rs = ps.executeQuery();
+            int resultCount = 0;
+            while (rs.next()) {
+                ++resultCount;
+                if (resultCount > expectedResultSize) {
+                    fail();
                 }
-            } finally {
-                closeStatement(ps);
+                assertEquals("THREE", rs.getString(2));
             }
+            assertEquals(expectedResultSize, resultCount);
         } finally {
+            closeResultSet(rs);
+            closeStatement(ps);
             closeConnection(connection);
         }
     }
@@ -145,68 +153,66 @@ public class MariaDB_IT_Base {
         final String outputParamCountName = "outputParamCount";
 
         Connection conn = null;
+        CallableStatement cs = null;
+        ResultSet rs = null;
         try {
             conn = DriverManager.getConnection(JDBC_URL, "root", null);
 
-            CallableStatement cs = null;
-            try {
-                cs = conn.prepareCall(CALLABLE_STATEMENT_QUERY);
-                cs.setString(1, CALLABLE_STATEMENT_INPUT_PARAM);
-                cs.registerOutParameter(2, CALLABLE_STATMENT_OUTPUT_PARAM_TYPE);
+            cs = conn.prepareCall(CALLABLE_STATEMENT_QUERY);
+            cs.setString(1, CALLABLE_STATEMENT_INPUT_PARAM);
+            cs.registerOutParameter(2, CALLABLE_STATMENT_OUTPUT_PARAM_TYPE);
 
-                ResultSet rs = null;
-                try {
-                    rs = cs.executeQuery();
-                    int resultCount = 0;
-                    while (rs.next()) {
-                        ++resultCount;
-                        if (resultCount > expectedResultSize) {
-                            fail();
-                        }
-                        assertEquals(expectedMatchingId, rs.getInt(1));
-                        assertEquals(CALLABLE_STATEMENT_INPUT_PARAM, rs.getString(2));
-                    }
-                    assertEquals(expectedResultSize, resultCount);
-                } finally {
-                    closeResultSet(rs);
+            rs = cs.executeQuery();
+            int resultCount = 0;
+            while (rs.next()) {
+                ++resultCount;
+                if (resultCount > expectedResultSize) {
+                    fail();
                 }
-                final int totalCount = cs.getInt(outputParamCountName);
-                assertEquals(expectedTotalCount, totalCount);
-            } finally {
-                closeStatement(cs);
+                assertEquals(expectedMatchingId, rs.getInt(1));
+                assertEquals(CALLABLE_STATEMENT_INPUT_PARAM, rs.getString(2));
             }
+            assertEquals(expectedResultSize, resultCount);
+
+            final int totalCount = cs.getInt(outputParamCountName);
+            assertEquals(expectedTotalCount, totalCount);
+
         } finally {
+            closeResultSet(rs);
+            closeStatement(cs);
             closeConnection(conn);
         }
     }
 
     private void closeConnection(Connection conn) throws SQLException {
         if (conn != null) {
-            conn.close();
+            try {
+                conn.close();
+            } catch (SQLException e) {
+                // empty
+            }
         }
     }
 
     private void closeResultSet(ResultSet rs) throws SQLException {
         if (rs != null) {
-            rs.close();
+            try {
+                rs.close();
+            } catch (SQLException e) {
+                // empty
+            }
         }
     }
 
     private void closeStatement(Statement statement) throws SQLException {
         if (statement != null) {
-            statement.close();
+            try {
+                statement.close();
+            } catch (SQLException e) {
+                // empty
+            }
         }
     }
 
-    @AfterClass
-    public static void tearDownAfterClass() throws Exception {
-        TEST_DATABASE.stop();
-
-        Enumeration<Driver> drivers = DriverManager.getDrivers();
-        while (drivers.hasMoreElements()) {
-            Driver driver = drivers.nextElement();
-            DriverManager.deregisterDriver(driver);
-        }
-    }
 
 }
