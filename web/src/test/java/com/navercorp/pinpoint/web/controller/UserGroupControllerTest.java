@@ -82,7 +82,7 @@ public class UserGroupControllerTest {
     
     private MockMvc mockMvc;
     
-    private User user = new User(TEST_USER_GROUP_MEMBER_ID, "userName", "pinpoint_team", "0101234", "pinpoint_team@navercorp.com");
+    private User user = new User(TEST_USER_GROUP_MEMBER_ID, "userName", "pinpoint_team", 82, "0101234", "pinpoint_team@navercorp.com");
     @Before
     public void setup() {
         this.mockMvc = MockMvcBuilders.webAppContextSetup(this.wac).build();

@@ -9,15 +9,15 @@
     </select>
     
     <insert id="insertUser" parameterType="User">
-        INSERT INTO puser (user_id, name, department, phonenumber, email)
-        VALUES (#{userId}, #{name}, #{department}, #{phoneNumber}, #{email})
+        INSERT INTO puser (user_id, name, department, phone_country_code, phonenumber, email)
+        VALUES (#{userId}, #{name}, #{department}, #{phoneCountryCode}, #{phoneNumber}, #{email})
     </insert>
        
     <insert id="insertUserList">
-            INSERT INTO puser (user_id, name, department, phonenumber, email)
+            INSERT INTO puser (user_id, name, department, phone_country_code, phonenumber, email)
             VALUES
         <foreach collection="list" item="User" separator=",">
-             (#{User.userId}, #{User.name}, #{User.department}, #{User.phoneNumber}, #{User.email})
+             (#{User.userId}, #{User.name}, #{User.department}, #{User.phoneCountryCode}, #{User.phoneNumber}, #{User.email})
         </foreach>
     </insert>
     
@@ -62,7 +62,7 @@
     
     <update id="updateUser" parameterType="User">
         UPDATE puser
-        SET name = #{name}, department = #{department}, phoneNumber = #{phoneNumber}, email = #{email}
+        SET name = #{name}, department = #{department}, phone_country_code = #{phoneCountryCode}, phoneNumber = #{phoneNumber}, email = #{email}
         WHERE user_id = #{userId}
     </update>
 </mapper>

@@ -23,6 +23,7 @@ CREATE TABLE `puser` (
   `user_id` VARCHAR(30) NOT NULL,
   `name` VARCHAR(150) NOT NULL,
   `department` VARCHAR(150) NOT NULL,
+  `phone_country_code` int(10) NOT NULL DEFAULT '0',
   `phonenumber` VARCHAR(100),
   `email` VARCHAR(100),
   PRIMARY KEY (`number`)

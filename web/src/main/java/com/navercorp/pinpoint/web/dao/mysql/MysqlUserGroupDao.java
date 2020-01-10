@@ -17,6 +17,7 @@ package com.navercorp.pinpoint.web.dao.mysql;
 
 import java.util.List;
 
+import com.navercorp.pinpoint.web.vo.UserPhoneInfo;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -52,6 +53,11 @@ public class MysqlUserGroupDao implements UserGroupDao {
     @Override
     public boolean isExistUserGroup(String userGroupId) {
         return sqlSessionTemplate.selectOne(NAMESPACE + "isExistUserGroup", userGroupId);
+    }
+
+    @Override
+    public List<UserPhoneInfo> selectPhoneInfoOfMember(String userGroupId) {
+        return sqlSessionTemplate.selectList(NAMESPACE + "selectPhoneInfoOfMember", userGroupId);
     }
 
     @Override

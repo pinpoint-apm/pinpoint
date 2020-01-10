@@ -22,12 +22,14 @@ import com.navercorp.pinpoint.web.util.UserInfoDecoder;
 import com.navercorp.pinpoint.web.vo.User;
 import com.navercorp.pinpoint.web.vo.UserGroup;
 import com.navercorp.pinpoint.web.vo.UserGroupMember;
+import com.navercorp.pinpoint.web.vo.UserPhoneInfo;
 import com.navercorp.pinpoint.web.vo.exception.PinpointUserGroupException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -146,6 +148,22 @@ public class UserGroupServiceImpl implements UserGroupService {
         }
 
         return User.removeHyphenForPhoneNumberList(decodedPhoneNumberList);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<UserPhoneInfo> selectPhoneInfoOfMember(String userGroupId) {
+        final List<UserPhoneInfo> userPhoneInfoList = userGroupDao.selectPhoneInfoOfMember(userGroupId);
+
+        if (!DefaultUserInfoDecoder.EMPTY_USER_INFO_DECODER.equals(userInfoDecoder)) {
+            for (UserPhoneInfo userPhoneInfo : userPhoneInfoList) {
+                String decodedPhoneNumber = userInfoDecoder.decodePhoneNumber(userPhoneInfo.getPhoneNumber());
+                String phoneNumber = User.removeHyphenForPhoneNumber(decodedPhoneNumber);
+                userPhoneInfo.setPhoneNumber(phoneNumber);
+            }
+        }
+
+        return userPhoneInfoList;
     }
 
     @Override
