@@ -155,9 +155,6 @@
         <constructor-arg index="1" value="/pinpoint-cluster/flink"/>
     </bean>
 
-    <!-- TCPReceiver related Beans -->
-    <bean id="serverAcceptor" class="com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor"/>
-
     <bean id="metricRegistry" class="com.codahale.metrics.MetricRegistry"/>
 
     <bean id="addressFilter" class="com.navercorp.pinpoint.common.server.util.IgnoreAddressFilter">
