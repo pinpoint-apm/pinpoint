@@ -9,9 +9,11 @@
     "build": "ng build pinpoint",
     "build:real": "ng build pinpoint --prod",
     "build:watch": "ng build pinpoint --watch",
+    "build:real:forProxy": "ng build pinpoint --prod --source-map --outputPath='../dist'",
     "test": "ng test pinpoint",
     "lint": "ng lint pinpoint --type-check",
-    "e2e": "ng e2e pinpoint"
+    "e2e": "ng e2e pinpoint",
+    "copy": "cpx '../dist/**' '../../../target/deploy'"
   },
   "private": true,
   "dependencies": {
@@ -63,6 +65,7 @@
     "@types/node": "~12.7.2",
     "@types/snapsvg": "^0.5.0",
     "codelyzer": "^5.0.1",
+    "cpx": "^1.5.0",
     "jasmine-core": "~3.4.0",
     "jasmine-spec-reporter": "~4.2.1",
     "karma": "~4.2.0",

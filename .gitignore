@@ -26,3 +26,6 @@ jsdoc/
 
 #mac
 .DS_Store
+
+# FE local build dir
+dist/
