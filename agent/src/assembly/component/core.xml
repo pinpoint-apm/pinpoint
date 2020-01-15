@@ -19,13 +19,14 @@
                 <exclude>**/*</exclude>
             </excludes>
         </fileSet>
-    </fileSets>
-    <files>
-        <file>
-            <source>${project.build.directory}/build.info</source>
+        <fileSet>
             <outputDirectory>./</outputDirectory>
-        </file>
-    </files>
+            <directory>${project.build.directory}</directory>
+            <includes>
+                <include>build.info</include>
+            </includes>
+        </fileSet>
+    </fileSets>
 
     <dependencySets>
         <dependencySet>
