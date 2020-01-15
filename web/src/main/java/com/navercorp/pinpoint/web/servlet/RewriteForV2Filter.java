@@ -36,6 +36,8 @@ import java.io.IOException;
 public class RewriteForV2Filter implements Filter {
 
     private static final Log logger = LogFactory.getLog(RewriteForV2Filter.class);
+    public static final String DEFAULT_INDEX = "/index.html";
+    private static boolean isDebug = logger.isDebugEnabled();
 
     private static final char PATH_DELIMITER = '/';
 
@@ -54,6 +56,8 @@ public class RewriteForV2Filter implements Filter {
             "/browserNotSupported",
             "/config"
     };
+
+    private final String PINPOINT_REST_API_SUFFIX = ".pinpoint";
 
     private final boolean enable;
 
@@ -76,7 +80,11 @@ public class RewriteForV2Filter implements Filter {
 
             if (isRedirectTarget(requestURI)) {
                 HttpServletRequestWrapper wrapper = new HttpServletRequestWrapper((HttpServletRequest) request);
-                RequestDispatcher dispatcher = wrapper.getRequestDispatcher("/index.html");
+                RequestDispatcher dispatcher = wrapper.getRequestDispatcher(DEFAULT_INDEX);
+
+                if (isDebug) {
+                    logger.debug("requestUri:" + requestURI + " ->(forward) " + DEFAULT_INDEX );
+                }
 
                 dispatcher.forward(request, response);
             } else {
@@ -89,6 +97,14 @@ public class RewriteForV2Filter implements Filter {
     }
 
     private boolean isRedirectTarget(String uri) {
+        if (uri == null) {
+            return false;
+        }
+
+        if (uri.endsWith(PINPOINT_REST_API_SUFFIX)) {
+            return false;
+        }
+
         for (String rewriteTarget : rewriteTargetArray) {
             if (uri.equals(rewriteTarget)) {
                 return true;
