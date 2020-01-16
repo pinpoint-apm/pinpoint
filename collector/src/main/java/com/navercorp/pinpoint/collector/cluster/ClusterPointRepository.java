@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.collector.cluster;
 
+import com.navercorp.pinpoint.collector.receiver.grpc.PinpointGrpcServer;
 import com.navercorp.pinpoint.rpc.common.SocketStateCode;
 import com.navercorp.pinpoint.rpc.server.PinpointServer;
 
@@ -32,6 +33,7 @@ import java.util.Set;
 public class ClusterPointRepository<T extends ClusterPoint> implements ClusterPointLocator<T> {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     private final Map<String, Set<T>> clusterPointRepository = new HashMap<>();
 
     public boolean addAndIsKeyCreated(T clusterPoint) {
@@ -93,6 +95,11 @@ public class ClusterPointRepository<T extends ClusterPoint> implements ClusterPo
                     if (clusterPoint instanceof ThriftAgentConnection) {
                         PinpointServer pinpointServer = ((ThriftAgentConnection) clusterPoint).getPinpointServer();
                         if (SocketStateCode.isRunDuplex(pinpointServer.getCurrentStateCode())) {
+                            availableAgentKeySet.add(key);
+                        }
+                    } else if (clusterPoint instanceof GrpcAgentConnection) {
+                        PinpointGrpcServer pinpointGrpcServer = ((GrpcAgentConnection) clusterPoint).getPinpointGrpcServer();
+                        if (SocketStateCode.isRunDuplex(pinpointGrpcServer.getState())) {
                             availableAgentKeySet.add(key);
                         }
                     }
