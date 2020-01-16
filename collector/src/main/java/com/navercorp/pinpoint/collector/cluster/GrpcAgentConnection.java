@@ -86,6 +86,10 @@ public class GrpcAgentConnection implements ClusterPoint<TBase> {
         return false;
     }
 
+    public PinpointGrpcServer getPinpointGrpcServer() {
+        return pinpointGrpcServer;
+    }
+
     @Override
     public int hashCode() {
         return pinpointGrpcServer.getAgentInfo().hashCode();
