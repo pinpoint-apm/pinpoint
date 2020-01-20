@@ -38,13 +38,6 @@
         -->
     </repositories>
 
-    <pluginRepositories>
-        <pluginRepository>
-            <id>central</id>
-            <name>Maven central plugin repository</name>
-            <url>https://repo1.maven.org/maven2/</url>
-        </pluginRepository>
-    </pluginRepositories>
 
     <modules>
         <module>annotations</module>
