@@ -1,6 +1,6 @@
 <div [hidden]="!showCreate" class="l-wrapper">
     <button class="btn btn-black l-close" (click)="onClose(); formDir.resetForm();"><i class="fas fa-times"></i></button>
-    <h1>{{title}}</h1> 
+    <h1>Pinpoint User</h1> 
     <form [formGroup]="pinpointUserForm" #formDir="ngForm" (ngSubmit)="onCreateOrUpdate()">
         <div>
             <label for="userId">{{i18nLabel.USER_ID_LABEL}}</label>
