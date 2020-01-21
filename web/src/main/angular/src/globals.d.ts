@@ -392,3 +392,11 @@ interface IChartConfig {
     dataConfig: any;
     elseConfig: {[key: string]: any};
 }
+
+interface IUserProfile {
+    userId: string;
+    name: string;
+    department?: string;
+    phoneNumber?: string;
+    email?: string;
+}
