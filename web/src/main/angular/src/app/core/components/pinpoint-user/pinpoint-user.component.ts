@@ -15,7 +15,6 @@ export class PinpointUserComponent implements OnInit {
     @Output() outEditUser = new EventEmitter<string>();
 
     private removeConformId = '';
-    private selectedPinpointUser: string;
 
     constructor() {}
     ngOnInit() {}
@@ -28,10 +27,6 @@ export class PinpointUserComponent implements OnInit {
     }
 
     onAddUser(): void {
-        if (!this.isEnableUser()) {
-            return;
-        }
-
         this.outAddUser.emit(this.pinpointUser.userId);
     }
 
@@ -48,11 +43,7 @@ export class PinpointUserComponent implements OnInit {
         return this.removeConformId === this.pinpointUser.userId;
     }
 
-    isSelected(): boolean {
-        return this.selectedPinpointUser === this.pinpointUser.userId;
-    }
-
-    isEnableUser(): boolean {
+    isEnabledUser(): boolean {
         return this.isEnabled && !this.isChecked;
     }
 }
