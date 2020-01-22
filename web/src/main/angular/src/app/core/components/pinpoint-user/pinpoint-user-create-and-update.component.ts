@@ -14,7 +14,7 @@ export class PinpointUserCreateAndUpdateComponent implements OnInit, OnChanges {
     @Input() i18nLabel: any;
     @Input() i18nGuide: { [key: string]: IFormFieldErrorType };
     @Input() minLength: any;
-    @Input() editPinpointUser: IUserProfile = null;
+    @Input() userInfo: IUserProfile;
     @Output() outUpdatePinpointUser = new EventEmitter<IUserProfile>();
     @Output() outCreatePinpointUser = new EventEmitter<IUserProfile>();
     @Output() outClose = new EventEmitter<void>();
@@ -44,13 +44,15 @@ export class PinpointUserCreateAndUpdateComponent implements OnInit, OnChanges {
     constructor() {}
     ngOnInit() {}
     ngOnChanges(changes: SimpleChanges) {
-        const userChange = changes['editPinpointUser'];
+        const userChange = changes['userInfo'];
 
-        if (userChange && userChange.currentValue) {
-            const parsedObj = filterObj((key: string) => Object.keys(this.pinpointUserForm.controls).includes(key), userChange.currentValue);
+        if (userChange) {
+            const userInfo = userChange.currentValue;
+            const parsedObj = userInfo
+                ? (this.pinpointUserForm.get('userId').disable(), filterObj((key: string) => Object.keys(this.pinpointUserForm.controls).includes(key), userInfo))
+                : (this.pinpointUserForm.get('userId').enable(), {});
 
             this.pinpointUserForm.reset(parsedObj);
-            this.pinpointUserForm.get('userId').disable();
         }
     }
 
@@ -59,14 +61,11 @@ export class PinpointUserCreateAndUpdateComponent implements OnInit, OnChanges {
             return {...acc, [k]: (v || '').trim()};
         }, {} as IUserProfile);
 
-        this.editPinpointUser ? this.outUpdatePinpointUser.emit(valueObj) : this.outCreatePinpointUser.emit(valueObj);
+        this.userInfo ? this.outUpdatePinpointUser.emit(valueObj) : this.outCreatePinpointUser.emit(valueObj);
         this.onClose();
     }
 
     onClose(): void {
-        this.editPinpointUser = null;
         this.outClose.emit();
-        this.pinpointUserForm.reset();
-        this.pinpointUserForm.get('userId').enable();
     }
 }

@@ -9,11 +9,12 @@
     "build": "ng build pinpoint",
     "build:real": "ng build pinpoint --prod",
     "build:watch": "ng build pinpoint --watch",
-    "build:real:forProxy": "ng build pinpoint --prod --source-map --outputPath='../dist'",
+    "build:forProxy": "ng build pinpoint --outputPath='./dist' --watch",
     "test": "ng test pinpoint",
     "lint": "ng lint pinpoint --type-check",
     "e2e": "ng e2e pinpoint",
-    "copy": "cpx '../dist/**' '../../../target/deploy'"
+    "copy": "cpx './dist/**' '../../../target/deploy'",
+    "copy:watch": "cpx './dist/**' '../../../target/deploy' --watch"
   },
   "private": true,
   "dependencies": {

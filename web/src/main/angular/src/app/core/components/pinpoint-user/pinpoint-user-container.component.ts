@@ -35,7 +35,7 @@ export class PinpointUserContainerComponent implements OnInit, OnDestroy {
     searchUseEnter = true;
     pinpointUserList: IUserProfile[] = [];
     groupMemberList: string[] = [];
-    editPinpointUser: IUserProfile;
+    userInfo: IUserProfile;
     isUserGroupSelected = false;
     useDisable = true;
     showLoading = true;
@@ -133,10 +133,6 @@ export class PinpointUserContainerComponent implements OnInit, OnDestroy {
         });
     }
 
-    isEnable(): boolean {
-        return false;
-    }
-
     isChecked(userId: string): boolean {
         return this.groupMemberList.indexOf(userId) !== -1;
     }
@@ -168,14 +164,15 @@ export class PinpointUserContainerComponent implements OnInit, OnDestroy {
         this.showCreate = false;
     }
 
-    onShowCreateUserPopup(): void {
+    onShowAddUser(): void {
+        this.userInfo = null;
         this.showCreate = true;
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.SHOW_USER_CREATION_POPUP);
     }
 
     // TODO: Refactor - Avoid nested subscribe syntax.
-    onCreatePinpointUser(pinpointUser: IUserProfile): void {
-        this.pinpointUserDataService.create(pinpointUser).subscribe((response: IPinpointUserResponse | IServerErrorShortFormat) => {
+    onCreatePinpointUser(userInfo: IUserProfile): void {
+        this.pinpointUserDataService.create(userInfo).subscribe((response: IPinpointUserResponse | IServerErrorShortFormat) => {
             isThatType<IServerErrorShortFormat>(response, 'errorCode', 'errorMessage')
                 ? this.errorMessage = response.errorMessage
                 : (
@@ -189,6 +186,7 @@ export class PinpointUserContainerComponent implements OnInit, OnDestroy {
         });
     }
 
+    // TODO: Refactor - Avoid nested subscribe syntax.
     onUpdatePinpointUser(userInfo: IUserProfile): void {
         this.showProcessing();
         this.pinpointUserDataService.update(userInfo).subscribe((response: IPinpointUserResponse | IServerErrorShortFormat) => {
@@ -216,13 +214,14 @@ export class PinpointUserContainerComponent implements OnInit, OnDestroy {
         });
     }
 
+    // TODO: Refactor - Avoid nested subscribe syntax.
     onRemovePinpointUser(userId: string): void {
         this.showProcessing();
         this.pinpointUserDataService.remove(userId).subscribe((response: IPinpointUserResponse | IServerErrorShortFormat) => {
             if (isThatType<IServerErrorShortFormat>(response, 'errorCode', 'errorMessage')) {
                 this.errorMessage = response.errorMessage;
             } else {
-                this.pinpointUserList = this.pinpointUserList.filter(({userId: id}: IUserProfile) => id !== userId);
+                this.getPinpointUserList(this.searchQuery);
                 if (this.isUserGroupSelected) {
                     this.messageQueueService.sendMessage({
                         to: MESSAGE_TO.PINPOINT_USER_REMOVE_USER,
@@ -238,13 +237,13 @@ export class PinpointUserContainerComponent implements OnInit, OnDestroy {
         });
     }
 
-    onEditPinpointUser(userId: string): void {
-        this.editPinpointUser = this.filterUserById(userId);
-        this.onShowCreateUserPopup();
+    onShowUpdateUser(userId: string): void {
+        this.userInfo = {...this.getUserInfo(userId)};
+        this.showCreate = true;
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.SHOW_USER_UPDATE_POPUP);
     }
 
-    private filterUserById(userId: string): IUserProfile {
+    private getUserInfo(userId: string): IUserProfile {
         return this.pinpointUserList.find(({userId: id}: IUserProfile) => id === userId);
     }
 

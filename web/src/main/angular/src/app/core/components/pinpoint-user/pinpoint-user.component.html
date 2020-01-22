@@ -1,13 +1,10 @@
-<div class="l-item-wrapper">
-    <div [hidden]="!allowedUserEdit">
+<ng-container *ngIf="allowedUserEdit">
+    <section class="l-btn-section">
         <button [hidden]="isRemoveTarget()" class="far fa-edit" (click)="onEdit()"></button>
         <button [hidden]="isRemoveTarget()" class="far fa-trash-alt" (click)="onRemove()"></button>
         <button [hidden]="!isRemoveTarget()" class="fas fa-arrow-left" (click)="onCancelRemove()"></button>
         <button [hidden]="!isRemoveTarget()" class="fas fa-check" (click)="onConfirmRemove()"></button>
-    </div> 
-    <i class="far" 
-        [class.fa-square]="!isChecked" 
-        [class.fa-check-square]="isChecked"
-        [class.l-disabled]="!isEnableUser()" 
-        (click)="onAddUser()"></i> ({{pinpointUser.department}}) {{pinpointUser.name}}
-</div>
+    </section>
+</ng-container>
+<input type="checkbox" class="l-checkbox-input" id="userInfo" [disabled]="!isEnabledUser()" [checked]="isChecked" (change)="onAddUser()">
+<label class="l-userinfo-label" for="userInfo">({{pinpointUser.department}}) {{pinpointUser.name}}</label>

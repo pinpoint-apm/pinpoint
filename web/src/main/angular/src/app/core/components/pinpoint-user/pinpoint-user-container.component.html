@@ -2,7 +2,7 @@
     <div class="l-pinpoint-user-title">
         <span>Pinpoint User ({{pinpointUserList.length}})</span>
         <div>
-            <button [hidden]="!allowedUserEdit" class="btn btn-sm btn-blue" (click)="onShowCreateUserPopup()"><i class="fas fa-plus"></i></button>
+            <button [hidden]="!allowedUserEdit" class="btn btn-sm btn-blue" (click)="onShowAddUser()"><i class="fas fa-plus"></i></button>
             <button class="btn btn-sm btn-blue" (click)="onReload()"><i class="fas fa-sync"></i></button> 
         </div>
     </div>
@@ -24,7 +24,7 @@
                 [isChecked]="isChecked(pinpointUser.userId)"
                 [allowedUserEdit]="allowedUserEdit"
                 (outRemove)="onRemovePinpointUser($event)"
-                (outEditUser)="onEditPinpointUser($event)"
+                (outEditUser)="onShowUpdateUser($event)"
                 (outAddUser)="onAddUser($event)">
             </pp-pinpoint-user>
         </cdk-virtual-scroll-viewport>
@@ -34,7 +34,7 @@
         [i18nLabel]="i18nLabel"
         [i18nGuide]="i18nGuide"
         [minLength]="minLength"
-        [editPinpointUser]="editPinpointUser"
+        [userInfo]="userInfo"
         (outUpdatePinpointUser)="onUpdatePinpointUser($event)"
         (outCreatePinpointUser)="onCreatePinpointUser($event)"
         (outClose)="onCloseCreateUserPopup()">
