@@ -33,6 +33,9 @@
         <constructor-arg ref="collectorGrpcProperties"/>
     </bean>
 
+    <bean id="collectorGrpcSpanFactory" class="com.navercorp.pinpoint.common.server.bo.grpc.CollectorGrpcSpanFactory"/>
+    <bean id="grpcSpanBinder" class="com.navercorp.pinpoint.common.server.bo.grpc.GrpcSpanBinder"/>
+
     <bean id="grpcTcpDispatchHandler" class="com.navercorp.pinpoint.collector.receiver.TcpDispatchHandler">
         <constructor-arg index="0" ref="grpcAgentInfoHandler"/>
         <constructor-arg index="1" ref="grpcSqlMetaDataHandler"/>
