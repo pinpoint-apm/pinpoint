@@ -1068,6 +1068,8 @@
             <properties>
                 <env>local</env>
                 <spring.profiles.active>local</spring.profiles.active>
+                <!-- skip development environment-->
+                <plugin.animal-sniffer.skip>true</plugin.animal-sniffer.skip>
             </properties>
         </profile>
         <!-- for Release -->
