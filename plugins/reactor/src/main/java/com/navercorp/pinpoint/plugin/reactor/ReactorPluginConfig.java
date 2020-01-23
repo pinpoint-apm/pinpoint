@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 public class ReactorPluginConfig {
     private final boolean enable;
     private final boolean traceSubscribeError;
+    private final boolean traceSchedulePeriodically;
 
     public ReactorPluginConfig(ProfilerConfig config) {
         if (config == null) {
@@ -33,6 +34,7 @@ public class ReactorPluginConfig {
         // plugin
         this.enable = config.readBoolean("profiler.reactor.enable", true);
         this.traceSubscribeError = config.readBoolean("profiler.reactor.trace.subscribe.error", true);
+        this.traceSchedulePeriodically = config.readBoolean("profiler.reactor.trace.schedule.periodically", false);
     }
 
     public boolean isEnable() {
@@ -43,11 +45,16 @@ public class ReactorPluginConfig {
         return traceSubscribeError;
     }
 
+    public boolean isTraceSchedulePeriodically() {
+        return traceSchedulePeriodically;
+    }
+
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("ReactorPluginConfig{");
         sb.append("enable=").append(enable);
         sb.append(", traceSubscribeError=").append(traceSubscribeError);
+        sb.append(", traceSchedulePeriodically=").append(traceSchedulePeriodically);
         sb.append('}');
         return sb.toString();
     }
