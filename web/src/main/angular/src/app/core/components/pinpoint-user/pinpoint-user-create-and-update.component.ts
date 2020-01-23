@@ -49,8 +49,8 @@ export class PinpointUserCreateAndUpdateComponent implements OnInit, OnChanges {
         if (userChange) {
             const userInfo = userChange.currentValue;
             const parsedObj = userInfo
-                ? (this.pinpointUserForm.get('userId').disable(), filterObj((key: string) => Object.keys(this.pinpointUserForm.controls).includes(key), userInfo))
-                : (this.pinpointUserForm.get('userId').enable(), {});
+                ? filterObj((key: string) => Object.keys(this.pinpointUserForm.controls).includes(key), userInfo)
+                : {};
 
             this.pinpointUserForm.reset(parsedObj);
         }
