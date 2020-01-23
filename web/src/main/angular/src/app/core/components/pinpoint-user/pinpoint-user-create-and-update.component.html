@@ -4,7 +4,7 @@
     <form [formGroup]="pinpointUserForm" #formDir="ngForm" (ngSubmit)="onCreateOrUpdate()">
         <div>
             <label for="userId">{{i18nLabel.USER_ID_LABEL}}</label>
-            <input type="text" id="userId" formControlName="userId" required>
+            <input type="text" id="userId" formControlName="userId" [readonly]="!!userInfo" required>
             <pp-form-field-error-message
                 [control]="pinpointUserForm.get('userId')"
                 [errorMessage]="i18nGuide['userId']">
