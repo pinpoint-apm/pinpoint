@@ -12,33 +12,74 @@
     justify-content: center;
     background-color: rgba(226, 226, 226, 0.9);
 }
-.l-wrapper h1 {
+
+.l-form {
+    width: 100%;
+}
+
+.l-title {
     margin-bottom: 15px;
 }
-.l-wrapper form {
-    width: 100%;
+
+.l-field-wrapper {
+    padding: 8px 0px;
 }
-.l-wrapper input {
-    width: 100%;
-    border: 1px solid #469ae4;
-    padding: 6px 11px;
+
+.l-required-icon {
+    color: #d00;
+    margin-left: 2px;
+}
+
+.l-input {
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-shadow: 0 0 1px 0 #ccc;
+    padding: 10px 14px;
     font-size: 13px;
-    margin-bottom: 2px;
-    background-color: #FFF;
+    width: 100%;
+    display: inline-block;
+    outline: 0;
+    color: #333;
+    margin-top: 4px;
+    background-color: #fff;
 }
+
+.l-input:focus {
+    border-color: #4D90FE;
+    box-shadow: 0 0px 1px 1px #4D90FE;
+    /* box-shadow: 0 0 2px #4D90FE; */
+}
+
+.l-label {
+    font-weight: 600;
+}
+
 .l-wrapper .l-create {
     width: 100%;
     margin-top: 6px;
 }
+
 .l-wrapper .l-close {
     top: 0px;
     right: 0px;
     position: absolute;
 }
-.ng-valid[required], .ng-valid.required  {
+
+.ng-valid[required]  {
     border-left: 5px solid #42A948 !important; 
 }
 
-.ng-invalid:not(form)  {
+.ng-valid[required]:focus {
+    border-color: #42a948;
+    box-shadow: 0 0 1px 0px #42a948;
+}
+
+.ng-invalid:not(form).ng-touched  {
     border-left: 5px solid #a94442 !important;
+    border-color: #d00;
+}
+
+.ng-invalid:not(form).ng-touched:focus {
+    border-color: #d00;
+    box-shadow: 0 0 1px 0px #d00;
 }
