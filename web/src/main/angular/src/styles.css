@@ -33,7 +33,7 @@ header {background:#469ae4;border-bottom:1px solid #4484c3;height:50px;justify-c
 .btn-sm {font-size:13px;height:28px}
 .btn-blue {color:#fff;background-color:#4b99e3;}
 .btn-black{color:#fff;background-color:#3f506c;border: 1px solid #384c65}
-.btn-gray {color:#fff;background-color:#ccc;border: 1px solid #aaa}
+.btn-gray {color:#fff;background-color:#ccc;}
 .pinpoint-btn {background:#4b99e3;color:#fff;font-family: 'Open Sans', sans-serif;font-weight:600;padding:10px 15px;text-align:center;font-size: 11px;line-height: 1em;border-radius:2px}
 .pinpoint-btn span {position:relative;padding:0 0 0 14px}
 .pinpoint-btn .fas {left:0;position:absolute;top:50%;transform:translateY(-50%);font-size: 1.5em;}
