@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.bootstrap.plugin.jdbc.bindvalue;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.UUID;
 
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.SqlModule;
 import com.navercorp.pinpoint.common.util.ArrayUtils;
@@ -69,25 +70,28 @@ public class ObjectConverter implements Converter {
             return abbreviate(param);
         }
         if (param instanceof Boolean) {
-            return bypass(param);
+            return toString(param);
         }
         if (param instanceof Integer) {
-            return bypass(param);
+            return toString(param);
         }
         if (param instanceof Long) {
-            return bypass(param);
+            return toString(param);
         }
         if (param instanceof Short) {
-            return bypass(param);
+            return toString(param);
         }
         if (param instanceof Float) {
-            return bypass(param);
+            return toString(param);
         }
         if (param instanceof Double) {
-            return bypass(param);
+            return toString(param);
         }
         if (param instanceof Byte) {
-            return bypass(param);
+            return toString(param);
+        }
+        if (param instanceof UUID) {
+            return toString(param);
         }
 
         if (param instanceof byte[]) {
@@ -98,23 +102,23 @@ public class ObjectConverter implements Converter {
         }
 
         if (param instanceof BigDecimal) {
-            return bypass(param);
+            return toString(param);
         }
         if (param instanceof BigInteger) {
-            return bypass(param);
+            return toString(param);
         }
 
 
 
         if (SQL_MODULE) {
             if (SQL_DATE.isInstance(param)) {
-                return bypass(param);
+                return toString(param);
             }
             if (SQL_TIME.isInstance(param)) {
-                return bypass(param);
+                return toString(param);
             }
             if (SQL_TIMESTAMP.isInstance(param)) {
-                return bypass(param);
+                return toString(param);
             }
             if (SQL_BLOB.isInstance(param)) {
                 return getClassName(param);
@@ -130,7 +134,7 @@ public class ObjectConverter implements Converter {
         return StringUtils.abbreviate(param.toString());
     }
 
-    private String bypass(Object param) {
+    private String toString(Object param) {
         return param.toString();
     }
 
