@@ -33,10 +33,6 @@
         <jdk.home>${env.JAVA_8_HOME}</jdk.home>
         <sniffer.artifactid>java18</sniffer.artifactid>
         <grunt.build.command>build_release_without_lint</grunt.build.command>
-
-        <!-- java back-end development option -->
-        <pinpoint.web.frontend.build.skip>false</pinpoint.web.frontend.build.skip>
-        <node.force.clean.skip>true</node.force.clean.skip>
     </properties>
 
     <dependencies>
@@ -338,103 +334,7 @@
     </dependencies>
 
     <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>build-frontend-source</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>${project.build.directory}</outputDirectory>
-                            <appendAssemblyId>true</appendAssemblyId>
-                            <descriptors>
-                                <descriptor>src/assembly/frontend.xml</descriptor>
-                            </descriptors>
-                            <attach>true</attach>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>com.github.eirslett</groupId>
-                <artifactId>frontend-maven-plugin</artifactId>
-                <version>${plugin.frontend.version}</version>
-                <configuration>
-                    <installDirectory>${project.parent.basedir}/${plugin.frontend.node.install.dir}</installDirectory>
-                    <workingDirectory>${basedir}/src/main/angular</workingDirectory>
-                    <skip>${pinpoint.web.frontend.build.skip}</skip>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>install node and npm</id>
-                        <phase>prepare-package</phase>
-                        <goals>
-                            <goal>install-node-and-npm</goal>
-                        </goals>
-                        <configuration>
-                            <nodeVersion>${plugin.frontend.node.version}</nodeVersion>
-                            <npmVersion>${plugin.frontend.npm.version}</npmVersion>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>npm install</id>
-                        <phase>prepare-package</phase>
-                        <goals>
-                            <goal>npm</goal>
-                        </goals>
-                        <configuration>
-                            <arguments>install</arguments>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>npm run build</id>
-                        <phase>prepare-package</phase>
-                        <goals>
-                            <goal>npm</goal>
-                        </goals>
-                        <configuration>
-                            <arguments>run build:real</arguments>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
 
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-clean-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>node-clean</id>
-                        <phase>clean</phase>
-                        <goals>
-                            <goal>clean</goal>
-                        </goals>
-                        <configuration>
-                            <filesets>
-                                <fileset>
-                                    <directory>${project.parent.basedir}/${plugin.frontend.node.install.dir}</directory>
-                                    <includes>
-                                        <include>**</include>
-                                    </includes>
-                                </fileset>
-                                <fileset>
-                                    <directory>${basedir}/src/main/angular/node_modules</directory>
-                                    <includes>
-                                        <include>**</include>
-                                    </includes>
-                                </fileset>
-                            </filesets>
-                            <skip>${node.force.clean.skip}</skip>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
     </build>
     <profiles>
         <profile>
@@ -474,16 +374,115 @@
         </profile>
 
         <profile>
-            <id>skip-frontend-build</id>
-            <properties>
-                <pinpoint.web.frontend.build.skip>true</pinpoint.web.frontend.build.skip>
-            </properties>
+            <!-- java back-end development option -->
+            <id>build-frontend</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-assembly-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>build-frontend-source</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>single</goal>
+                                </goals>
+                                <configuration>
+                                    <outputDirectory>${project.build.directory}</outputDirectory>
+                                    <appendAssemblyId>true</appendAssemblyId>
+                                    <descriptors>
+                                        <descriptor>src/assembly/frontend.xml</descriptor>
+                                    </descriptors>
+                                    <attach>true</attach>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>com.github.eirslett</groupId>
+                        <artifactId>frontend-maven-plugin</artifactId>
+                        <version>${plugin.frontend.version}</version>
+                        <configuration>
+                            <installDirectory>${project.parent.basedir}/${plugin.frontend.node.install.dir}</installDirectory>
+                            <workingDirectory>${basedir}/src/main/angular</workingDirectory>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>install node and npm</id>
+                                <phase>prepare-package</phase>
+                                <goals>
+                                    <goal>install-node-and-npm</goal>
+                                </goals>
+                                <configuration>
+                                    <nodeVersion>${plugin.frontend.node.version}</nodeVersion>
+                                    <npmVersion>${plugin.frontend.npm.version}</npmVersion>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>npm install</id>
+                                <phase>prepare-package</phase>
+                                <goals>
+                                    <goal>npm</goal>
+                                </goals>
+                                <configuration>
+                                    <arguments>install</arguments>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>npm run build</id>
+                                <phase>prepare-package</phase>
+                                <goals>
+                                    <goal>npm</goal>
+                                </goals>
+                                <configuration>
+                                    <arguments>run build:real</arguments>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
+        
         <profile>
             <id>forceclean</id>
-            <properties>
-                <node.force.clean.skip>false</node.force.clean.skip>
-            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-clean-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>node-clean</id>
+                                <phase>clean</phase>
+                                <goals>
+                                    <goal>clean</goal>
+                                </goals>
+                                <configuration>
+                                    <filesets>
+                                        <fileset>
+                                            <directory>${project.parent.basedir}/${plugin.frontend.node.install.dir}</directory>
+                                            <includes>
+                                                <include>**</include>
+                                            </includes>
+                                        </fileset>
+                                        <fileset>
+                                            <directory>${basedir}/src/main/angular/node_modules</directory>
+                                            <includes>
+                                                <include>**</include>
+                                            </includes>
+                                        </fileset>
+                                    </filesets>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
     </profiles>
 </project>
