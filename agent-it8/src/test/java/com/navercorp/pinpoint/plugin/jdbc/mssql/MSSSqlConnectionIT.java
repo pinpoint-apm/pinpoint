@@ -20,12 +20,11 @@ import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor;
 import com.navercorp.pinpoint.profiler.context.SpanEvent;
 import com.navercorp.pinpoint.test.junit4.BasePinpointTest;
-import com.navercorp.pinpoint.test.junit4.PinpointConfig;
+import com.navercorp.pinpoint.test.junit4.JunitAgentConfigPath;
 import com.navercorp.pinpoint.test.plugin.jdbc.DriverManagerUtils;
 import com.navercorp.pinpoint.test.plugin.jdbc.DriverProperties;
 import com.navercorp.pinpoint.test.plugin.jdbc.JDBCDriverClass;
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Assume;
 import org.junit.Before;
@@ -49,7 +48,7 @@ import static org.hamcrest.CoreMatchers.is;
 /**
  * @author Woonduk Kang(emeroad)
  */
-@PinpointConfig("pinpoint-mssql.config")
+@JunitAgentConfigPath("pinpoint-mssql.config")
 public class MSSSqlConnectionIT extends BasePinpointTest {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
