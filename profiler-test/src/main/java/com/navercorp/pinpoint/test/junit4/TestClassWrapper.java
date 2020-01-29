@@ -34,7 +34,7 @@ public class TestClassWrapper {
     }
 
     public String getConfigPath() {
-        final PinpointConfig annotation = testClass.getAnnotation(PinpointConfig.class);
+        final JunitAgentConfigPath annotation = testClass.getAnnotation(JunitAgentConfigPath.class);
         if (annotation == null) {
             return DEFAULT_CONFIG_PATH;
         }
