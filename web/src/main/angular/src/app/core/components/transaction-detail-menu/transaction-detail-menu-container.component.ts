@@ -77,18 +77,22 @@ export class TransactionDetailMenuContainerComponent implements OnInit, OnDestro
 
     onOpenDetailView(): void {
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.OPEN_TRANSACTION_VIEW);
-        this.urlRouteManagerService.openPage([
-            UrlPath.TRANSACTION_VIEW,
-            this.transactionInfo.agentId,
-            this.transactionInfo.traceId,
-            this.transactionInfo.collectorAcceptTime + '',
-            this.transactionInfo.spanId,
-        ]);
+        this.urlRouteManagerService.openPage({
+            path: [
+                UrlPath.TRANSACTION_VIEW,
+                this.transactionInfo.agentId,
+                this.transactionInfo.traceId,
+                this.transactionInfo.collectorAcceptTime + '',
+                this.transactionInfo.spanId,
+            ]
+        });
     }
 
     onOpenExtraView(param: any): void {
         if (param.open) {
-            this.urlRouteManagerService.openPage(param.url);
+            this.urlRouteManagerService.openPage({
+                path: [param.url]
+            });
         } else {
             this.dynamicPopupService.openPopup({
                 data: {

@@ -78,10 +78,12 @@ export class AgentStatisticListContainerComponent implements OnInit, OnDestroy {
     }
 
     onCellClick(params: any): void {
-        this.urlRouteManagerService.openPage([
-            UrlPath.MAIN,
-            params.application + '@' + params.serviceType
-        ]);
+        this.urlRouteManagerService.openPage({
+            path: [
+                UrlPath.MAIN,
+                `${params.application}@${params.serviceType}`
+            ]
+        });
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.CLICK_APPLICATION_IN_STATISTIC_LIST);
     }
 }

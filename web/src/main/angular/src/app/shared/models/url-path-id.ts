@@ -71,8 +71,8 @@ export class UrlPathId {
     static APPLICATION = 'application';
     static PERIOD = 'period';
     static END_TIME = 'endTime';
-    static FILTER = 'filter';
-    static HINT = 'hint';
+    // static FILTER = 'filter';
+    // static HINT = 'hint';
     static REAL_TIME = 'realtime';
     static AGENT_ID = 'agentId';
     static TRANSACTION_INFO = 'transactionInfo';
@@ -96,9 +96,9 @@ export class UrlPathId {
             UrlPathId.AGENT_ID,
             UrlPathId.APPLICATION,
             UrlPathId.END_TIME,
-            UrlPathId.FILTER,
+            // UrlPathId.FILTER,
             UrlPathId.FOCUS_TIMESTAMP,
-            UrlPathId.HINT,
+            // UrlPathId.HINT,
             UrlPathId.PAGE,
             UrlPathId.PERIOD,
             UrlPathId.REAL_TIME,
@@ -124,8 +124,8 @@ export class UrlPathIdFactory {
                 return new UrlEndTime(new EndTime(paramValue)) as IUrlPathId<EndTime>;
             case UrlPathId.PAGE:
                 return new UrlGeneral(Number(paramValue)) as IUrlPathId<number>;
-            case UrlPathId.FILTER:
-            case UrlPathId.HINT:
+            // case UrlPathId.FILTER:
+            // case UrlPathId.HINT:
             case UrlPathId.REAL_TIME:
             case UrlPathId.AGENT_ID:
             case UrlPathId.TRANSACTION_INFO:

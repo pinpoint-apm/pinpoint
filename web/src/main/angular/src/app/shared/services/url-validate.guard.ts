@@ -59,8 +59,6 @@ export class UrlValidateGuard implements CanActivate {
         const subPath = route.children[0].routeConfig.path;
         switch (subPath) {
             case ':' + UrlPathId.APPLICATION + '/:' + UrlPathId.PERIOD + '/:' + UrlPathId.END_TIME:
-            case ':' + UrlPathId.APPLICATION + '/:' + UrlPathId.PERIOD + '/:' + UrlPathId.END_TIME + '/:' + UrlPathId.FILTER:
-            case ':' + UrlPathId.APPLICATION + '/:' + UrlPathId.PERIOD + '/:' + UrlPathId.END_TIME + '/:' + UrlPathId.FILTER + '/:' + UrlPathId.HINT:
                 return true;
             case ':' + UrlPathId.APPLICATION:
             case ':' + UrlPathId.APPLICATION + '/:' + UrlPathId.PERIOD:

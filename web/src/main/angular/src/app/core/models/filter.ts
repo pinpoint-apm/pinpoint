@@ -22,13 +22,14 @@ export class Filter {
     static instanceFromString(str: string): Filter[] {
         const returnFilter: Filter[] = [];
         let aFilterFromStr: any;
+
         try {
             aFilterFromStr = JSON.parse(str);
         } catch (exception) {
             return returnFilter;
         }
 
-        for ( let i = 0 ; i < aFilterFromStr.length ; i++ ) {
+        for (let i = 0; i < aFilterFromStr.length; i++) {
             const filterFromStr = aFilterFromStr[i];
             const newFilter = new Filter(
                 filterFromStr.fa,
@@ -56,6 +57,7 @@ export class Filter {
         }
         return returnFilter;
     }
+
     constructor(fa: string, fst: string, ta: string, tst: string, ie: null | boolean = null) {
         this.fromApplication = fa;
         this.fromServiceType = fst;
@@ -63,6 +65,7 @@ export class Filter {
         this.toServiceType = tst;
         this.transactionResult = ie;
     }
+
     equal(filter: Filter): boolean {
         return (
             this.fromApplication === filter.fromApplication &&
@@ -71,27 +74,35 @@ export class Filter {
             this.toServiceType === filter.toServiceType
         );
     }
+
     setResponseFrom(rf: number): void {
         this.responseFrom = rf;
     }
+
     setResponseTo(rt: number): void {
         this.responseTo = rt;
     }
+
     setUrlPattern(url: string): void {
         this.urlPattern = url;
     }
+
     setFromAgentName(fan: string): void {
         this.fromAgentName = fan;
     }
+
     setToAgentName(tan: string): void {
         this.toAgentName = tan;
     }
+
     getToKey(): string {
         return `${this.toApplication}^${this.toServiceType}`;
     }
+
     getFromKey(): string {
         return `${this.fromApplication}^${this.fromServiceType}`;
     }
+
     getTransactionResultStr(): string {
         if (this.transactionResult === true) {
             return 'Success Only';
@@ -100,9 +111,9 @@ export class Filter {
         }
         return 'Success + Failed';
     }
-    toString(): string {
 
-        const param: { [key: string]: any } = {
+    toParamFormat(): {[key: string]: any} {
+        const param: {[key: string]: any} = {
             fa: this.fromApplication,
             fst: this.fromServiceType,
             ta: this.toApplication,
@@ -124,6 +135,7 @@ export class Filter {
         if (this.toAgentName) {
             param['tan'] = this.toAgentName;
         }
-        return JSON.stringify(param);
+
+        return param;
     }
 }

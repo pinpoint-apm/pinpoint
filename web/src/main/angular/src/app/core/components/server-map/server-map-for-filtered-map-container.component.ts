@@ -15,7 +15,7 @@ import {
     MESSAGE_TO
 } from 'app/shared/services';
 import { Actions } from 'app/shared/store';
-import { UrlPathId } from 'app/shared/models';
+import { UrlPathId, UrlQuery } from 'app/shared/models';
 import { Filter } from 'app/core/models';
 import { SERVER_MAP_TYPE, ServerMapType, NodeGroup, ServerMapData, MergeServerMapData } from 'app/core/components/server-map/class';
 import { ServerMapForFilteredMapDataService } from './server-map-for-filtered-map-data.service';
@@ -88,7 +88,11 @@ export class ServerMapForFilteredMapContainerComponent implements OnInit, OnDest
             }
 
             this.mergeServerMapData(serverMapAndScatterData);
-            this.mapData = new ServerMapData(this.mergedNodeDataList, this.mergedLinkDataList, Filter.instanceFromString(this.newUrlStateNotificationService.hasValue(UrlPathId.FILTER) ? this.newUrlStateNotificationService.getPathValue(UrlPathId.FILTER) : ''));
+            this.mapData = new ServerMapData(
+                this.mergedNodeDataList,
+                this.mergedLinkDataList,
+                Filter.instanceFromString(this.newUrlStateNotificationService.hasValue(UrlQuery.FILTER) ? this.newUrlStateNotificationService.getPathValue(UrlQuery.FILTER) : '')
+            );
             this.isEmpty = this.mapData.getNodeCount() === 0;
             this.messageQueueService.sendMessage({
                 to: MESSAGE_TO.SERVER_MAP_DATA_UPDATE,
