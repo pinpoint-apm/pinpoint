@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.plugin.user.UserIncludeMethodDescriptor;
 
 /**
@@ -37,12 +38,28 @@ public class UserIncludeMethodInterceptor implements AroundInterceptor {
 
     private TraceContext traceContext;
     private MethodDescriptor descriptor;
+    private final String path;
 
     public UserIncludeMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
         this.traceContext = traceContext;
         this.descriptor = methodDescriptor;
-
+        this.path = toPath(methodDescriptor);
         traceContext.cacheApi(USER_INCLUDE_METHOD_DESCRIPTOR);
+    }
+
+    private String toPath(MethodDescriptor methodDescriptor) {
+        if (methodDescriptor == null) {
+            return "/userInclude";
+        }
+        final StringBuilder path = new StringBuilder("/");
+        if (StringUtils.hasLength(methodDescriptor.getClassName())) {
+            path.append(methodDescriptor.getClassName()).append("/");
+        }
+
+        if (StringUtils.hasLength(methodDescriptor.getMethodName())) {
+            path.append(methodDescriptor.getMethodName());
+        }
+        return path.toString().replace('.', '/');
     }
 
     @Override
@@ -53,7 +70,7 @@ public class UserIncludeMethodInterceptor implements AroundInterceptor {
 
         Trace trace = traceContext.currentRawTraceObject();
         if (trace == null) {
-            if(isDebug) {
+            if (isDebug) {
                 logger.debug("Not found trace. Create user include trace.");
             }
 
@@ -63,7 +80,7 @@ public class UserIncludeMethodInterceptor implements AroundInterceptor {
                 return;
             }
         } else {
-            if(isDebug) {
+            if (isDebug) {
                 logger.debug("Found trace {}, sampled={}.", trace, trace.canSampled());
             }
         }
@@ -93,7 +110,7 @@ public class UserIncludeMethodInterceptor implements AroundInterceptor {
 
         // leave scope(default & disable trace).
         if (!leaveUserIncludeTraceScope(trace)) {
-            if(logger.isInfoEnabled()) {
+            if (logger.isInfoEnabled()) {
                 logger.info("Failed to leave scope of user include trace. trace={}, sampled={}", trace, trace.canSampled());
             }
             // delete unstable trace.
@@ -131,7 +148,7 @@ public class UserIncludeMethodInterceptor implements AroundInterceptor {
         TraceScope oldScope = trace.addScope(SCOPE_NAME);
         if (oldScope != null) {
             // delete corrupted trace.
-            if(logger.isInfoEnabled()) {
+            if (logger.isInfoEnabled()) {
                 logger.info("Duplicated user include trace scope={}.", oldScope.getName());
             }
             deleteUserIncludeTrace(trace);
@@ -143,6 +160,9 @@ public class UserIncludeMethodInterceptor implements AroundInterceptor {
             final SpanRecorder recorder = trace.getSpanRecorder();
             recorder.recordServiceType(ServiceType.STAND_ALONE);
             recorder.recordApi(USER_INCLUDE_METHOD_DESCRIPTOR);
+            recorder.recordRemoteAddress("LOCAL");
+            recorder.recordRpcName(this.path);
+            recorder.recordEndPoint("/");
         }
         return trace;
     }
@@ -159,7 +179,7 @@ public class UserIncludeMethodInterceptor implements AroundInterceptor {
         final TraceScope scope = trace.getScope(SCOPE_NAME);
         if (scope != null) {
             scope.tryEnter();
-            if(isDebug) {
+            if (isDebug) {
                 logger.debug("Try enter trace scope={}", scope.getName());
             }
         }
@@ -170,7 +190,7 @@ public class UserIncludeMethodInterceptor implements AroundInterceptor {
         if (scope != null) {
             if (scope.canLeave()) {
                 scope.leave();
-                if(isDebug) {
+                if (isDebug) {
                     logger.debug("Leave trace scope={}", scope.getName());
                 }
             } else {
