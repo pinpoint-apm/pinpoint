@@ -9,8 +9,10 @@ import {
     DynamicPopup
 } from 'app/shared/services';
 import { Filter } from 'app/core/models/filter';
-import { UrlPathId } from 'app/shared/models';
+import { UrlPathId, UrlPath, UrlQuery } from 'app/shared/models';
 import { FilterTransactionWizardPopupContainerComponent } from 'app/core/components/filter-transaction-wizard-popup/filter-transaction-wizard-popup-container.component';
+import { FilterParamMaker } from 'app/core/utils/filter-param-maker';
+import { HintParamMaker } from 'app/core/utils/hint-param-maker';
 
 @Component({
     selector: 'pp-link-context-popup-container',
@@ -44,24 +46,31 @@ export class LinkContextPopupContainerComponent implements OnInit, AfterViewInit
     onClickFilterTransaction(): void {
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.CLICK_FILTER_TRANSACTION);
         this.outClose.emit();
-        const isBothWas = this.data.sourceInfo.isWas && this.data.targetInfo.isWas;
-        this.urlRouteManagerService.openPage(
-            this.urlRouteManagerService.makeFilterMapUrl({
-                applicationName: this.data.filterApplicationName,
-                serviceType: this.data.filterApplicationServiceTypeName,
-                periodStr: this.newUrlStateNotificationService.hasValue(UrlPathId.PERIOD) ? this.newUrlStateNotificationService.getPathValue(UrlPathId.PERIOD).getValueWithTime() : '',
-                timeStr: this.newUrlStateNotificationService.hasValue(UrlPathId.END_TIME) ? this.newUrlStateNotificationService.getPathValue(UrlPathId.END_TIME).getEndTime() : '',
-                filterStr: this.newUrlStateNotificationService.hasValue(UrlPathId.FILTER) ? this.newUrlStateNotificationService.getPathValue(UrlPathId.FILTER) : '',
-                hintStr: this.newUrlStateNotificationService.hasValue(UrlPathId.HINT) ? this.newUrlStateNotificationService.getPathValue(UrlPathId.HINT) : '',
-                addedFilter: new Filter(
-                    this.data.sourceInfo.applicationName,
-                    this.data.sourceInfo.serviceType,
-                    this.data.targetInfo.applicationName,
-                    this.data.targetInfo.serviceType
-                ),
-                addedHint: isBothWas ? {[this.data.targetInfo.applicationName]: this.data.filterTargetRpcList} : null
-            })
+        const appKey = `${this.data.filterApplicationName}@${this.data.filterApplicationServiceTypeName}`;
+        const period = this.newUrlStateNotificationService.hasValue(UrlPathId.PERIOD) ? this.newUrlStateNotificationService.getPathValue(UrlPathId.PERIOD).getValueWithTime() : '';
+        const endTime = this.newUrlStateNotificationService.hasValue(UrlPathId.END_TIME) ? this.newUrlStateNotificationService.getPathValue(UrlPathId.END_TIME).getEndTime() : '';
+        const currFilterStr = this.newUrlStateNotificationService.hasValue(UrlQuery.FILTER) ? this.newUrlStateNotificationService.getQueryValue(UrlQuery.FILTER) : '';
+        const addedFilter = new Filter(
+            this.data.sourceInfo.applicationName,
+            this.data.sourceInfo.serviceType,
+            this.data.targetInfo.applicationName,
+            this.data.targetInfo.serviceType
         );
+        const currHintStr = this.newUrlStateNotificationService.hasValue(UrlQuery.HINT) ? this.newUrlStateNotificationService.getQueryValue(UrlQuery.HINT) : '';
+        const addedHint = this.data.sourceInfo.isWas && this.data.targetInfo.isWas ? {[this.data.targetInfo.applicationName]: this.data.filterTargetRpcList} : null;
+
+        this.urlRouteManagerService.openPage({
+            path: [
+                UrlPath.FILTERED_MAP,
+                appKey,
+                period,
+                endTime
+            ],
+            queryParam: {
+                filter: FilterParamMaker.makeParam(currFilterStr, addedFilter),
+                hint: HintParamMaker.makeParam(currHintStr, addedHint)
+            }
+        });
     }
 
     onClickFilterTransactionWizard(): void {

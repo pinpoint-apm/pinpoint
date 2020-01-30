@@ -96,8 +96,8 @@ export class ServerMapForFilteredMapDataService {
                 .set('originTo', this.newUrlStateNotificationService.getEndTimeToNumber() + '')
                 .set('calleeRange', this.newUrlStateNotificationService.hasValue(UrlQuery.INBOUND) ? this.newUrlStateNotificationService.getQueryValue(UrlQuery.INBOUND) : this.webAppSettingDataService.getUserDefaultInbound())
                 .set('callerRange', this.newUrlStateNotificationService.hasValue(UrlQuery.OUTBOUND) ? this.newUrlStateNotificationService.getQueryValue(UrlQuery.OUTBOUND) : this.webAppSettingDataService.getUserDefaultOutbound())
-                .set('filter', this.newUrlStateNotificationService.hasValue(UrlPathId.FILTER) ? encodeURIComponent(this.newUrlStateNotificationService.getPathValue(UrlPathId.FILTER)) : '')
-                .set('hint', this.newUrlStateNotificationService.hasValue(UrlPathId.HINT) ? encodeURIComponent(this.newUrlStateNotificationService.getPathValue(UrlPathId.HINT)) : '')
+                .set('filter', this.newUrlStateNotificationService.hasValue(UrlQuery.FILTER) ? encodeURIComponent(this.newUrlStateNotificationService.getQueryValue(UrlQuery.FILTER)) : '')
+                .set('hint', this.newUrlStateNotificationService.hasValue(UrlQuery.HINT) ? encodeURIComponent(this.newUrlStateNotificationService.getQueryValue(UrlQuery.HINT)) : '')
                 .set('v', '4')
                 .set('limit', this.REQUEST_LIMIT + '')
                 .set('xGroupUnit', this.X_GROUP_UNIT + '') // for scatter-chart

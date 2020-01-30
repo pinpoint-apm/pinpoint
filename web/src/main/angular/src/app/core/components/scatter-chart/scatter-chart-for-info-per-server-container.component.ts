@@ -181,13 +181,15 @@ export class ScatterChartForInfoPerServerContainerComponent implements OnInit, A
 
     onOpenScatterPage(): void {
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.GO_TO_FULL_SCREEN_SCATTER);
-        this.urlRouteManagerService.openPage([
-            UrlPath.SCATTER_FULL_SCREEN_MODE,
-            this.newUrlStateNotificationService.getPathValue(UrlPathId.APPLICATION).getUrlStr(),
-            this.newUrlStateNotificationService.getPathValue(UrlPathId.PERIOD).getValueWithTime(),
-            this.newUrlStateNotificationService.getPathValue(UrlPathId.END_TIME).getEndTime(),
-            this.selectedAgent
-        ]);
+        this.urlRouteManagerService.openPage({
+            path: [
+                UrlPath.SCATTER_FULL_SCREEN_MODE,
+                this.newUrlStateNotificationService.getPathValue(UrlPathId.APPLICATION).getUrlStr(),
+                this.newUrlStateNotificationService.getPathValue(UrlPathId.PERIOD).getValueWithTime(),
+                this.newUrlStateNotificationService.getPathValue(UrlPathId.END_TIME).getEndTime(),
+                this.selectedAgent
+            ]
+        });
     }
 
     onShowHelp($event: MouseEvent): void {
@@ -225,12 +227,16 @@ export class ScatterChartForInfoPerServerContainerComponent implements OnInit, A
 
     onSelectArea(params: any): void {
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.OPEN_TRANSACTION_LIST);
-        const returnOpenWindow = this.urlRouteManagerService.openPage([
-            UrlPath.TRANSACTION_LIST,
-            this.newUrlStateNotificationService.getPathValue(UrlPathId.APPLICATION).getUrlStr(),
-            this.newUrlStateNotificationService.getPathValue(UrlPathId.PERIOD).getValueWithTime(),
-            this.newUrlStateNotificationService.getPathValue(UrlPathId.END_TIME).getEndTime()
-        ], `${this.selectedApplication}|${params.x.from}|${params.x.to}|${params.y.from}|${params.y.to}|${this.selectedAgent}|${params.type.join(',')}`);
+        const returnOpenWindow = this.urlRouteManagerService.openPage({
+            path: [
+                UrlPath.TRANSACTION_LIST,
+                this.newUrlStateNotificationService.getPathValue(UrlPathId.APPLICATION).getUrlStr(),
+                this.newUrlStateNotificationService.getPathValue(UrlPathId.PERIOD).getValueWithTime(),
+                this.newUrlStateNotificationService.getPathValue(UrlPathId.END_TIME).getEndTime()
+            ],
+            metaInfo: `${this.selectedApplication}|${params.x.from}|${params.x.to}|${params.y.from}|${params.y.to}|${this.selectedAgent}|${params.type.join(',')}`
+        });
+
         if (returnOpenWindow === null || returnOpenWindow === undefined) {
             this.showBlockMessagePopup = true;
         }

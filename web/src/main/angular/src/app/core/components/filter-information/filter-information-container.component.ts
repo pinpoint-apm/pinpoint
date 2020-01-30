@@ -3,7 +3,7 @@ import { Subject } from 'rxjs';
 import { takeUntil, filter } from 'rxjs/operators';
 
 import { NewUrlStateNotificationService, MessageQueueService, MESSAGE_TO } from 'app/shared/services';
-import { UrlPathId } from 'app/shared/models';
+import { UrlQuery } from 'app/shared/models';
 import { Filter } from 'app/core/models';
 import { ServerMapData } from 'app/core/components/server-map/class/server-map-data.class';
 
@@ -28,9 +28,9 @@ export class FilterInformationContainerComponent implements OnInit, OnDestroy {
     ngOnInit() {
         this.newUrlStateNotificationService.onUrlStateChange$.pipe(
             takeUntil(this.unsubscribe),
-            filter((urlService: NewUrlStateNotificationService) => urlService.hasValue(UrlPathId.FILTER))
+            filter((urlService: NewUrlStateNotificationService) => urlService.hasValue(UrlQuery.FILTER))
         ).subscribe((urlService: NewUrlStateNotificationService) => {
-            this.filterInfo = Filter.instanceFromString(urlService.getPathValue(UrlPathId.FILTER));
+            this.filterInfo = Filter.instanceFromString(urlService.getQueryValue(UrlQuery.FILTER));
         });
         this.listenToEmitter();
     }

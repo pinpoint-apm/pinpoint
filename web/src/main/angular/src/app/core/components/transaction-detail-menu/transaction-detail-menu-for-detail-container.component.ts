@@ -54,18 +54,22 @@ export class TransactionDetailMenuForDetailContainerComponent implements OnInit 
 
     onOpenDetailView(): void {
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.OPEN_TRANSACTION_VIEW);
-        this.urlRouteManagerService.openPage([
-            UrlPath.TRANSACTION_VIEW,
-            this.newUrlStateNotificationService.getPathValue(UrlPathId.AGENT_ID),
-            this.newUrlStateNotificationService.getPathValue(UrlPathId.TRACE_ID),
-            this.newUrlStateNotificationService.getPathValue(UrlPathId.FOCUS_TIMESTAMP),
-            this.newUrlStateNotificationService.getPathValue(UrlPathId.SPAN_ID)
-        ]);
+        this.urlRouteManagerService.openPage({
+            path: [
+                UrlPath.TRANSACTION_VIEW,
+                this.newUrlStateNotificationService.getPathValue(UrlPathId.AGENT_ID),
+                this.newUrlStateNotificationService.getPathValue(UrlPathId.TRACE_ID),
+                this.newUrlStateNotificationService.getPathValue(UrlPathId.FOCUS_TIMESTAMP),
+                this.newUrlStateNotificationService.getPathValue(UrlPathId.SPAN_ID)
+            ]
+        });
     }
 
     onOpenExtraView(param: any): void {
         if (param.open) {
-            this.urlRouteManagerService.openPage(param.url);
+            this.urlRouteManagerService.openPage({
+                path: [param.url]
+            });
         } else {
             this.dynamicPopupService.openPopup({
                 data: {

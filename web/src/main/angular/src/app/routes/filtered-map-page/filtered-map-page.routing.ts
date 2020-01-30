@@ -11,14 +11,6 @@ export const routing: Routes = [
         component: FilteredMapPageComponent,
         children: [
             {
-                path: ':' + UrlPathId.APPLICATION + '/:' + UrlPathId.PERIOD + '/:' + UrlPathId.END_TIME + '/:' + UrlPathId.FILTER + '/:' + UrlPathId.HINT,
-                component: FilteredMapContentsContainerComponent
-            },
-            {
-                path: ':' + UrlPathId.APPLICATION + '/:' + UrlPathId.PERIOD + '/:' + UrlPathId.END_TIME + '/:' + UrlPathId.FILTER,
-                component: FilteredMapContentsContainerComponent
-            },
-            {
                 path: ':' + UrlPathId.APPLICATION + '/:' + UrlPathId.PERIOD + '/:' + UrlPathId.END_TIME,
                 component: FilteredMapContentsContainerComponent
             },

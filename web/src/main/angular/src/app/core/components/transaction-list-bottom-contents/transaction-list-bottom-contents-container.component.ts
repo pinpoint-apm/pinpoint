@@ -100,13 +100,15 @@ export class TransactionListBottomContentsContainerComponent implements OnInit, 
 
     onOpenTransactionDetailPage(): void {
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.OPEN_TRANSACTION_DETAIL);
-        this.urlRouteManagerService.openPage([
-            UrlPath.TRANSACTION_DETAIL,
-            this.transactionInfo.traceId,
-            this.transactionInfo.collectorAcceptTime + '',
-            this.transactionInfo.agentId,
-            this.transactionInfo.spanId
-        ]);
+        this.urlRouteManagerService.openPage({
+            path: [
+                UrlPath.TRANSACTION_DETAIL,
+                this.transactionInfo.traceId,
+                this.transactionInfo.collectorAcceptTime + '',
+                this.transactionInfo.agentId,
+                this.transactionInfo.spanId
+            ]
+        });
     }
 
     onShowHelp($event: MouseEvent): void {
