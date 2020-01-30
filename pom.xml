@@ -28,40 +28,16 @@
     <packaging>pom</packaging>
 
     <repositories>
+        <!--
         <repository>
-            <id>cloudera</id>
-            <url>https://repository.cloudera.com/artifactory/cloudera-repos/</url>
+            <id>spring-maven-release</id>
+            <name>Spring Framework Maven Release</name>
+            <url>http://repo.spring.io/libs-release</url>
         </repository>
-        <repository>
-            <id>spring-maven-repository</id>
-            <name>Spring Framework Maven Release Repository</name>
-            <url>http://maven.springframework.org/release/</url>
-        </repository>
-        <repository>
-            <id>spring-maven-release-remote</id>
-            <name>Spring Framework Maven Release Remote Repository</name>
-            <url>http://repo.spring.io/libs-release-remote/</url>
-        </repository>
-        <repository>
-            <id>bintray</id>
-            <name>bintray</name>
-            <url>http://jcenter.bintray.com</url>
-        </repository>
-        <repository>
-            <id>jboss-3rd-party-releases</id>
-            <name>Jboss Third Party Repository</name>
-            <url>https://repository.jboss.org/nexus/content/repositories/thirdparty-releases/</url>
-        </repository>
+        -->
     </repositories>
 
-    <pluginRepositories>
-        <pluginRepository>
-            <id>central</id>
-            <name>Maven central plugin repository</name>
-            <url>http://repo1.maven.org/maven2/</url>
-        </pluginRepository>
-    </pluginRepositories>
-
+    
     <modules>
         <module>annotations</module>
         <module>agent</module>
@@ -629,7 +605,7 @@
             <dependency>
                 <groupId>org.apache.zookeeper</groupId>
                 <artifactId>zookeeper</artifactId>
-                <version>3.4.5-cdh5.7.5</version>
+                <version>3.4.14</version>
                 <exclusions>
                     <exclusion>
                         <groupId>org.jboss.netty</groupId>
