@@ -18,12 +18,16 @@ package com.navercorp.pinpoint.plugin.reactor;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 
+import java.util.List;
+
 /**
  * @author jaehong.kim
  */
 public class ReactorPluginConfig {
     private final boolean enable;
     private final boolean traceSubscribeError;
+    private final List<String> traceSubscribeErrorExcludeMessageList;
+    private final boolean traceSchedule;
     private final boolean traceSchedulePeriodically;
 
     public ReactorPluginConfig(ProfilerConfig config) {
@@ -34,6 +38,8 @@ public class ReactorPluginConfig {
         // plugin
         this.enable = config.readBoolean("profiler.reactor.enable", true);
         this.traceSubscribeError = config.readBoolean("profiler.reactor.trace.subscribe.error", true);
+        this.traceSubscribeErrorExcludeMessageList = config.readList("profiler.reactor.trace.subscribe.error.exclude.message");
+        this.traceSchedule = config.readBoolean("profiler.reactor.trace.schedule", true);
         this.traceSchedulePeriodically = config.readBoolean("profiler.reactor.trace.schedule.periodically", false);
     }
 
@@ -45,6 +51,14 @@ public class ReactorPluginConfig {
         return traceSubscribeError;
     }
 
+    public List<String> getTraceSubscribeErrorExcludeMessageList() {
+        return traceSubscribeErrorExcludeMessageList;
+    }
+
+    public boolean isTraceSchedule() {
+        return traceSchedule;
+    }
+
     public boolean isTraceSchedulePeriodically() {
         return traceSchedulePeriodically;
     }
@@ -54,6 +68,7 @@ public class ReactorPluginConfig {
         final StringBuilder sb = new StringBuilder("ReactorPluginConfig{");
         sb.append("enable=").append(enable);
         sb.append(", traceSubscribeError=").append(traceSubscribeError);
+        sb.append(", traceSubscribeErrorExcludeMessageList=").append(traceSubscribeErrorExcludeMessageList);
         sb.append(", traceSchedulePeriodically=").append(traceSchedulePeriodically);
         sb.append('}');
         return sb.toString();
