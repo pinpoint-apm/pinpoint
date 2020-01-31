@@ -52,9 +52,9 @@ public class DependencyResolverTest {
     @Test
     public void resolveArtifactsAndDependencies() throws DependencyResolutionException, ArtifactResolutionException {
         DependencyResolverFactory factory = new DependencyResolverFactory();
-        DependencyResolver resolver = factory.get("http://maven.cubrid.org");
+        DependencyResolver resolver = factory.get();
 
-        Map<String, List<Artifact>> sets = resolver.resolveDependencySets("org.eclipse.aether:aether-util:[0,)", "org.eclipse.aether:aether-spi", "cubrid:cubrid-jdbc:[8.0,)");
+        Map<String, List<Artifact>> sets = resolver.resolveDependencySets("org.eclipse.aether:aether-util:[0,)", "org.eclipse.aether:aether-spi");
 
         int i = 0;
         for (Map.Entry<String, List<Artifact>> set : sets.entrySet()) {
