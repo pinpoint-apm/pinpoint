@@ -191,13 +191,21 @@ public class DependencyResolver {
     static List<RemoteRepository> newRepositories(String... urls) {
         List<RemoteRepository> repositories = new ArrayList<RemoteRepository>(urls.length + 1);
 
-        repositories.add(new RemoteRepository.Builder("central", "default", "https://repo.maven.apache.org/maven2").build());
+        RemoteRepository mavenCentralRepository = newMavenCentralRepository();
+        repositories.add(mavenCentralRepository);
 
         for (String url : urls) {
-            repositories.add(new RemoteRepository.Builder(null, "default", url).build());
+            RemoteRepository remoteRepository = new RemoteRepository.Builder(null, "default", url).build();
+            repositories.add(remoteRepository);
         }
 
         return repositories;
+    }
+
+    private static RemoteRepository newMavenCentralRepository() {
+        final String mavenCentral = MavenCentral.getAddress();
+        RemoteRepository.Builder builder = new RemoteRepository.Builder("central", "default", mavenCentral);
+        return builder.build();
     }
 
     public DependencyResolver(RepositorySystem system, RepositorySystemSession session, List<RemoteRepository> repositories) {
