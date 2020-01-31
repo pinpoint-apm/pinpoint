@@ -94,7 +94,9 @@ public class ReactorPlugin implements ProfilerPlugin, MatchableTransformTemplate
 
         addProcessor();
         addPublisher();
-        addScheduler(config);
+        if (config.isTraceSchedule()) {
+            addScheduler(config);
+        }
     }
 
     @Override
