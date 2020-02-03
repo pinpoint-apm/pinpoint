@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.plugin.mongo.interceptor;
 
+import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
+import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
@@ -67,5 +69,25 @@ public class MongoRSessionInterceptor extends SpanEventSimpleAroundInterceptorFo
             }
         }
         recorder.recordException(throwable);
+        if (isAsynchronousInvocation(target, args, result, throwable)) {
+            // Trace to Disposable object
+            final AsyncContext asyncContext = recorder.recordNextAsyncContext();
+            ((AsyncContextAccessor) (result))._$PINPOINT$_setAsyncContext(asyncContext);
+            if (isDebug) {
+                logger.debug("Set AsyncContext {}, result={}", asyncContext, result);
+            }
+        }
+    }
+
+    private boolean isAsynchronousInvocation(final Object target, final Object[] args, Object result, Throwable throwable) {
+        if (throwable != null) {
+            return false;
+        }
+
+        if (!(result instanceof AsyncContextAccessor)) {
+            return false;
+        }
+
+        return true;
     }
 }
