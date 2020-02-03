@@ -106,6 +106,7 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
  * <tr><td>2601</td><td>CASSANDRA_EXECUTE_QUERY</td></tr>
  * <tr><td>2650</td><td>MONGO</td></tr>
  * <tr><td>2651</td><td>MONGO_EXECUTE_QUERY</td></tr>
+ * <tr><td>2652</td><td>MONGO_REACTIVE</td></tr>
  * <tr><td>2700</td><td>COUCHDB</td></tr>
  * <tr><td>2701</td><td>COUCHDB_EXECUTE_QUERY</td></tr>
  * </table>
