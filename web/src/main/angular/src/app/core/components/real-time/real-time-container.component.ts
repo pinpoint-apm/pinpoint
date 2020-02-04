@@ -159,7 +159,7 @@ export class RealTimeContainerComponent implements OnInit, AfterViewInit, OnDest
         // hidden
         visibility$.pipe(
             filter(() => document.hidden),
-            delay(60000),
+            delay(10000),
             filter(() => document.hidden),
         ).subscribe(() => {
             this.realTimeWebSocketService.close();
