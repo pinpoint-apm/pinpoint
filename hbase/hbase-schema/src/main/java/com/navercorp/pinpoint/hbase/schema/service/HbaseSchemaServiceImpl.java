@@ -63,12 +63,17 @@ public class HbaseSchemaServiceImpl implements HbaseSchemaService {
         return schemaChangeLogService.isAvailable(namespace);
     }
 
+
+    protected boolean createNamespaceIfNotExists(String namespace) {
+        return hbaseAdminOperation.createNamespaceIfNotExists(namespace);
+    }
+
     /**
      * This implementation also creates a new namespace specified by {@code namespace} if it is not already available.
      */
     @Override
     public boolean init(String namespace) {
-        if (hbaseAdminOperation.createNamespaceIfNotExists(namespace)) {
+        if (createNamespaceIfNotExists(namespace)) {
             logger.info("[{}] Namespace created.", namespace);
         }
         if (schemaChangeLogService.isAvailable(namespace)) {
