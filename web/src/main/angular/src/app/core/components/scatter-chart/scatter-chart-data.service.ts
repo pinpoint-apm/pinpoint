@@ -64,11 +64,10 @@ export class ScatterChartDataService {
                 return this.requestHttp(params).pipe(
                     retry(3)
                 );
-            })
+            }),
+            filter(() => this.loadStart)
         ).subscribe((scatterData: IScatterData) => {
-            if (this.loadStart) {
-                this.subscribeRealTimeRequest(scatterData);
-            }
+            this.subscribeRealTimeRequest(scatterData);
         }, (error: IServerErrorFormat) => {
         });
     }

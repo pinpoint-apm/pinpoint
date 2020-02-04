@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, ComponentFactoryResolver, Injector, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
-import { of, Subject, forkJoin } from 'rxjs';
+import { of, Subject, forkJoin, fromEvent } from 'rxjs';
 import { takeUntil, filter, delay } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
 
@@ -147,11 +147,36 @@ export class ScatterChartContainerComponent implements OnInit, OnDestroy {
         });
 
         this.connectStore();
+        this.addEventListener();
     }
 
     ngOnDestroy() {
         this.unsubscribe.next();
         this.unsubscribe.complete();
+    }
+
+    private addEventListener(): void {
+        const visibility$ = fromEvent(document, 'visibilitychange').pipe(
+            takeUntil(this.unsubscribe),
+            filter(() => this.scatterChartMode === ScatterChart.MODE.REALTIME)
+        );
+
+        // visible
+        visibility$.pipe(
+            filter(() => !document.hidden),
+        ).subscribe(() => {
+            // TODO: Consider preserving the data during the previous 10sec
+            this.getScatterData();
+        });
+
+        // hidden
+        visibility$.pipe(
+            filter(() => document.hidden),
+            delay(10000),
+            filter(() => document.hidden),
+        ).subscribe(() => {
+            this.scatterChartDataService.stopLoad();
+        });
     }
 
     private setScatterY() {
