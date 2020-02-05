@@ -34,6 +34,7 @@
     <properties>
         <jdk.version>1.8</jdk.version>
         <jdk.home>${env.JAVA_8_HOME}</jdk.home>
+        <testcontainers.version>1.12.5</testcontainers.version>
     </properties>
 
     <dependencyManagement>
@@ -75,6 +76,20 @@
             </exclusions>
         </dependency>
 
+
+        <!-- testcontainers -->
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>testcontainers</artifactId>
+            <version>${testcontainers.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>mssqlserver</artifactId>
+            <version>${testcontainers.version}</version>
+            <scope>test</scope>
+        </dependency>
 
         <!-- plug-ins -->
         <dependency>

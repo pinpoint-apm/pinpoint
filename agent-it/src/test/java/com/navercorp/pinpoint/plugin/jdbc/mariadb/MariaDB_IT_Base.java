@@ -74,7 +74,7 @@ public abstract class MariaDB_IT_Base {
 
     @BeforeClass
     public static void setUpBeforeClass() throws Exception {
-        driverProperties = new DriverProperties("database/maria.properties", "maria");
+        driverProperties = DriverProperties.load("database/maria.properties", "maria");
         int embeddedDBPort = Integer.parseInt(driverProperties.getProperty(EMBEDDED_DB_PORT_KEY));
         TEST_DATABASE = DB.newEmbeddedDB(embeddedDBPort);
         TEST_DATABASE.start();

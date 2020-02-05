@@ -22,9 +22,9 @@ import com.navercorp.pinpoint.profiler.context.SpanEvent;
 import com.navercorp.pinpoint.test.junit4.BasePinpointTest;
 import com.navercorp.pinpoint.test.junit4.JunitAgentConfigPath;
 import com.navercorp.pinpoint.test.plugin.jdbc.DriverManagerUtils;
-import com.navercorp.pinpoint.test.plugin.jdbc.DriverProperties;
 import com.navercorp.pinpoint.test.plugin.jdbc.JDBCDriverClass;
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Assume;
 import org.junit.Before;
@@ -32,6 +32,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testcontainers.containers.MSSQLServerContainer;
+import org.testcontainers.utility.DockerMachineClient;
 
 import java.sql.Connection;
 import java.sql.Driver;
@@ -43,25 +45,28 @@ import java.sql.Statement;
 import java.util.List;
 import java.util.Properties;
 
-import static org.hamcrest.CoreMatchers.is;
-
 /**
  * @author Woonduk Kang(emeroad)
  */
 @JunitAgentConfigPath("pinpoint-mssql.config")
 public class MSSSqlConnectionIT extends BasePinpointTest {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private static final Logger logger = LoggerFactory.getLogger(MSSSqlConnectionIT.class);
 
-    private static DriverProperties driverProperties;
-    private static JDBCDriverClass driverClass ;
+    private static JDBCDriverClass driverClass;
+    public static final MSSQLServerContainer mssqlserver = MSSQLServerContainerFactory.newMSSQLServerContainer(logger);
 
     @BeforeClass
     public static void beforeClass() throws Exception {
-        driverProperties = new DriverProperties("database/mssql.properties", "mssqlserver");
-        Assume.assumeFalse("mssqlserver not ready", DataBaseTestCase.EMPTY_DATABASE_URL.equals(driverProperties.getUrl()));
-        
+        Assume.assumeTrue("Docker not enabled", DockerMachineClient.instance().isInstalled());
+        mssqlserver.start();
+
         driverClass = new MSSqlJDBCDriverClass();
+    }
+
+    @AfterClass
+    public static void afterClass() throws Exception {
+        mssqlserver.stop();
     }
 
     @Before
@@ -69,7 +74,7 @@ public class MSSSqlConnectionIT extends BasePinpointTest {
         Driver driver = driverClass.getDriver().newInstance();
         DriverManager.registerDriver(driver);
     }
-    
+
     @After
     public void deregisterDriver() throws Exception {
         DriverManagerUtils.deregisterDriver();
@@ -90,9 +95,9 @@ public class MSSSqlConnectionIT extends BasePinpointTest {
 
     private Connection connectDB() throws SQLException {
         Properties properties = new Properties();
-        properties.setProperty("user", driverProperties.getUser());
-        properties.setProperty("password", driverProperties.getPassword());
-        return DriverManager.getConnection(driverProperties.getUrl(), properties);
+        properties.setProperty("user", mssqlserver.getUsername());
+        properties.setProperty("password", mssqlserver.getPassword());
+        return DriverManager.getConnection(mssqlserver.getJdbcUrl(), properties);
     }
 
 
