@@ -4,7 +4,7 @@ import { TranslateService } from '@ngx-translate/core';
 
 import { WebAppSettingDataService, TranslateReplaceService, MessageQueueService, MESSAGE_TO, AnalyticsService, TRACKED_EVENT_LIST } from 'app/shared/services';
 import { UserGroupDataService, IUserGroup, IUserGroupCreated, IUserGroupDeleted } from './user-group-data.service';
-import { isThatType } from 'app/core/utils/util';
+import { isThatType, isEmpty } from 'app/core/utils/util';
 
 @Component({
     selector: 'pp-user-group-container',
@@ -19,7 +19,8 @@ export class UserGroupContainerComponent implements OnInit {
     };
     i18nGuide: { [key: string]: IFormFieldErrorType };
     i18nText = {
-        SEARCH_INPUT_GUIDE: ''
+        SEARCH_INPUT_GUIDE: '',
+        EMPTY: ''
     };
     USER_GROUP_NAME_MIN_LENGTH = 4;
     SEARCH_MIN_LENGTH = 2;
@@ -30,6 +31,7 @@ export class UserGroupContainerComponent implements OnInit {
     showCreate = false;
     errorMessage: string;
     selectedUserGroupId = '';
+    isEmpty: boolean;
 
     constructor(
         private webAppSettingDataService: WebAppSettingDataService,
@@ -54,7 +56,8 @@ export class UserGroupContainerComponent implements OnInit {
             this.translateService.get('COMMON.REQUIRED'),
             this.translateService.get('CONFIGURATION.COMMON.NAME'),
             this.translateService.get('CONFIGURATION.USER_GROUP.VALIDATION'),
-        ).subscribe(([minLengthMessage, requiredMessage, nameLabel, validationGuide]: string[]) => {
+            this.translateService.get('COMMON.EMPTY_ON_SEARCH')
+        ).subscribe(([minLengthMessage, requiredMessage, nameLabel, validationGuide, emptyText]: string[]) => {
             this.i18nGuide = {
                 userGroupName: {
                     required: this.translateReplaceService.replace(requiredMessage, nameLabel),
@@ -64,6 +67,7 @@ export class UserGroupContainerComponent implements OnInit {
             };
 
             this.i18nText.SEARCH_INPUT_GUIDE = this.translateReplaceService.replace(minLengthMessage, this.SEARCH_MIN_LENGTH);
+            this.i18nText.EMPTY = emptyText;
             this.i18nLabel.NAME_LABEL = nameLabel;
         });
     }
@@ -72,7 +76,7 @@ export class UserGroupContainerComponent implements OnInit {
         this.userGroupDataService.retrieve(params).subscribe((data: IUserGroup[] | IServerErrorShortFormat) => {
             isThatType<IServerErrorShortFormat>(data, 'errorCode', 'errorMessage')
                 ? this.errorMessage = data.errorMessage
-                : this.userGroupList = data;
+                : (this.userGroupList = data, this.isEmpty = isEmpty(this.userGroupList));
             this.hideProcessing();
         }, (error: IServerErrorFormat) => {
             this.hideProcessing();

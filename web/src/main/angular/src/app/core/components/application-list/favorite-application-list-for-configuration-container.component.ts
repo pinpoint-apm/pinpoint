@@ -62,7 +62,7 @@ export class FavoriteApplicationListForConfigurationContainerComponent implement
     private initEmptyText(): void {
         forkJoin(
             this.translateService.get('COMMON.MIN_LENGTH'),
-            this.translateService.get('COMMON.NO_CONTENT_TO_DISPLAY')
+            this.translateService.get('COMMON.EMPTY_ON_SEARCH')
         ).subscribe(([minLengthMessage, emptyText]: string[]) => {
             this.i18nText.SEARCH_INPUT_GUIDE = this.translateReplaceService.replace(minLengthMessage, this.SEARCH_MIN_LENGTH);
             this.emptyText = emptyText;

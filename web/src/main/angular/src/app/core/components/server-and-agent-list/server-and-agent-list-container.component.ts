@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy, ComponentFactoryResolver, Injector } from '@angular/core';
-import { Subject, combineLatest, iif, of } from 'rxjs';
+import { Subject, combineLatest, iif, of, Observable } from 'rxjs';
 import { tap, concatMap, filter, switchMap, delay, takeUntil } from 'rxjs/operators';
+import { TranslateService } from '@ngx-translate/core';
 
 import {
     NewUrlStateNotificationService,
@@ -17,6 +18,7 @@ import { ServerErrorPopupContainerComponent } from 'app/core/components/server-e
 import { InspectorPageService, ISourceForServerAndAgentList } from 'app/routes/inspector-page/inspector-page.service';
 import { UrlPath, UrlPathId } from 'app/shared/models';
 import { ServerAndAgentListDataService } from './server-and-agent-list-data.service';
+import { isEmpty } from 'app/core/utils/util';
 
 @Component({
     selector: 'pp-server-and-agent-list-container',
@@ -32,6 +34,8 @@ export class ServerAndAgentListContainerComponent implements OnInit, OnDestroy {
     filteredServerList: { [key: string]: IServerAndAgentData[] };
     filteredServerKeyList: string[];
     funcImagePath: Function;
+    isEmpty: boolean;
+    emptyText$: Observable<string>;
 
     constructor(
         private newUrlStateNotificationService: NewUrlStateNotificationService,
@@ -45,9 +49,11 @@ export class ServerAndAgentListContainerComponent implements OnInit, OnDestroy {
         private inspectorPageService: InspectorPageService,
         private serverAndAgentListDataService: ServerAndAgentListDataService,
         private messageQueueService: MessageQueueService,
+        private translateService: TranslateService,
     ) {}
 
     ngOnInit() {
+        this.initI18nText();
         this.funcImagePath = this.webAppSettingDataService.getImagePathMakeFunc();
         combineLatest(
             this.inspectorPageService.sourceForServerAndAgentList$.pipe(
@@ -109,6 +115,7 @@ export class ServerAndAgentListContainerComponent implements OnInit, OnDestroy {
         ).subscribe(([data, query]: [{[key: string]: IServerAndAgentData[]}, string]) => {
             this.filteredServerList = this.filterServerList(data, query, ({ agentId }: IServerAndAgentData) => agentId.toLowerCase().includes(query.toLowerCase()));
             this.filteredServerKeyList = Object.keys(this.filteredServerList).sort();
+            this.isEmpty = isEmpty(this.filteredServerList);
         }, (error: IServerErrorFormat) => {
             this.dynamicPopupService.openPopup({
                 data: {
@@ -126,6 +133,10 @@ export class ServerAndAgentListContainerComponent implements OnInit, OnDestroy {
     ngOnDestroy() {
         this.unsubscribe.next();
         this.unsubscribe.complete();
+    }
+
+    private initI18nText(): void {
+        this.emptyText$ = this.translateService.get('COMMON.EMPTY_ON_SEARCH');
     }
 
     onSelectAgent(agentId: string) {

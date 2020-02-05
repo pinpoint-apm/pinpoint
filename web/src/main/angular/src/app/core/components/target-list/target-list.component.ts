@@ -17,7 +17,8 @@ export class TargetListComponent implements OnInit, OnChanges {
     constructor() {}
     ngOnInit() {}
     ngOnChanges(_: SimpleChanges) {
-        if (this.targetList && this.targetList.length === 1) {
+        // * Only when the target has multi input
+        if (this.targetList && this.targetList.length === 1 && this.targetList[0][0].fromList) {
             if (!this.isLink) {
                 this.selectedAppName = this.getSelectedAppName(this.targetList[0][0]);
             }

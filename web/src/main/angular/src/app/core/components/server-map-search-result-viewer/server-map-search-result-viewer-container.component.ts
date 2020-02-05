@@ -21,6 +21,7 @@ export class ServerMapSearchResultViewerContainerComponent implements OnInit {
     listDisplay = 'none';
     isEmpty: boolean;
     selectedApp: IApplication;
+    searchUseEnter = false;
 
     constructor(
         private translateService: TranslateService,
@@ -39,7 +40,7 @@ export class ServerMapSearchResultViewerContainerComponent implements OnInit {
     private initI18NText() {
         forkJoin(
             this.translateService.get('COMMON.SEARCH_INPUT'),
-            this.translateService.get('MAIN.EMPTY_RESULT')
+            this.translateService.get('COMMON.EMPTY_ON_SEARCH')
         ).subscribe((i18n: string[]) => {
             this.i18nText = {
                 'PLACE_HOLDER': i18n[0],

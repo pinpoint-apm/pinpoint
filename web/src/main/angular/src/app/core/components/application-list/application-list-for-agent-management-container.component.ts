@@ -93,7 +93,7 @@ export class ApplicationListForAgentManagementContainerComponent implements OnIn
         forkJoin(
             this.translateService.get('COMMON.INPUT_APP_NAME_PLACE_HOLDER'),
             this.translateService.get('MAIN.APP_LIST'),
-            this.translateService.get('COMMON.EMPTY')
+            this.translateService.get('COMMON.EMPTY_ON_SEARCH')
         ).subscribe((i18n: string[]) => {
             this.i18nText.INPUT_APPLICATION_NAME = i18n[0];
             this.i18nText.APPLICATION_LIST_TITLE = i18n[1];

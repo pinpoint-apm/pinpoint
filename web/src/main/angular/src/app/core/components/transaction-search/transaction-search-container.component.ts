@@ -63,7 +63,7 @@ export class TransactionSearchContainerComponent implements OnInit, OnDestroy {
     private getI18NText(): void {
         forkJoin(
             this.translateService.get('TRANSACTION.HAS_RESULTS'),
-            this.translateService.get('TRANSACTION.EMPTY_RESULT')
+            this.translateService.get('COMMON.EMPTY_ON_SEARCH')
         ).subscribe((i18n: string[]) => {
             this.i18nText.HAS_RESULTS = i18n[0];
             this.i18nText.EMPTY_RESULT = i18n[1];

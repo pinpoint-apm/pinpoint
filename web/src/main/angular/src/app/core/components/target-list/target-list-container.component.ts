@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, ComponentFactoryResolver, Injector, ViewChild, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { Subject } from 'rxjs';
+import { Subject, forkJoin } from 'rxjs';
 
 import { UrlPathId, UrlQuery, UrlPath } from 'app/shared/models';
 import { Filter } from 'app/core/models/filter';
@@ -18,6 +18,7 @@ import { FilterTransactionWizardPopupContainerComponent } from 'app/core/compone
 import { SearchInputDirective } from 'app/shared/directives/search-input.directive';
 import { FilterParamMaker } from 'app/core/utils/filter-param-maker';
 import { HintParamMaker } from 'app/core/utils/hint-param-maker';
+import { isEmpty } from 'app/core/utils/util';
 
 @Component({
     selector: 'pp-target-list-container',
@@ -53,7 +54,7 @@ export class TargetListContainerComponent implements OnInit, OnDestroy {
     ) {}
 
     ngOnInit() {
-        this.getI18NText();
+        this.initI18NText();
         this.listenToEmitter();
     }
 
@@ -62,9 +63,13 @@ export class TargetListContainerComponent implements OnInit, OnDestroy {
         this.unsubscribe.complete();
     }
 
-    private getI18NText() {
-        this.translateService.get('COMMON.SEARCH_INPUT').subscribe((txt: string) => {
-            this.i18nText.PLACE_HOLDER = txt;
+    private initI18NText() {
+        forkJoin(
+            this.translateService.get('COMMON.SEARCH_INPUT'),
+            this.translateService.get('COMMON.EMPTY_ON_SEARCH')
+        ).subscribe(([placeholder, emptyText]: string[]) => {
+            this.i18nText.PLACE_HOLDER = placeholder;
+            this.i18nText.EMPTY = emptyText;
         });
     }
 
@@ -99,6 +104,7 @@ export class TargetListContainerComponent implements OnInit, OnDestroy {
             : false;
     }
 
+    // TODO: Refactor
     private gatherTargets(): void {
         const targetList: any[] = [];
 
@@ -175,6 +181,10 @@ export class TargetListContainerComponent implements OnInit, OnDestroy {
             resolver: this.componentFactoryResolver,
             injector: this.injector
         });
+    }
+
+    isEmpty(): boolean {
+        return isEmpty(this.targetList);
     }
 
     onCancel(): void {

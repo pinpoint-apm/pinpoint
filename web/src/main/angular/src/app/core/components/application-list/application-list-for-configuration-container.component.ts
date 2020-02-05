@@ -38,7 +38,7 @@ export class ApplicationListForConfigurationContainerComponent implements OnInit
     ngOnInit() {
         this.initList();
         this.funcImagePath = this.webAppSettingDataService.getIconPathMakeFunc();
-        this.initEmptyText();
+        this.initI18nText();
     }
 
     ngOnDestroy() {
@@ -72,10 +72,10 @@ export class ApplicationListForConfigurationContainerComponent implements OnInit
         this.hideProcessing();
     }
 
-    private initEmptyText(): void {
+    private initI18nText(): void {
         forkJoin(
             this.translateService.get('COMMON.MIN_LENGTH'),
-            this.translateService.get('COMMON.NO_CONTENT_TO_DISPLAY')
+            this.translateService.get('COMMON.EMPTY_ON_SEARCH')
         ).subscribe(([minLengthMessage, emptyText]: string[]) => {
             this.i18nText.SEARCH_INPUT_GUIDE = this.translateReplaceService.replace(minLengthMessage, this.SEARCH_MIN_LENGTH);
             this.emptyText = emptyText;
