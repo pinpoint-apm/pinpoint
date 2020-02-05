@@ -1,9 +1,11 @@
 <input 
     type="text"
     class="l-search-input"
+    ppSearchInput
     placeholder="{{i18nText.PLACE_HOLDER}}"
-    (keydown.enter)="onSearch(searchInput.value.trim())"
-    (keydown.esc)="onClose()"
+    [useEnter]="searchUseEnter"
+    (outCancel)="onClose()"
+    (outSearch)="onSearch($event)"
     #searchInput>
 <ng-container *ngIf="searchResultList$ | async as list">
     <dl class="l-search-list" [style.display]="listDisplay">

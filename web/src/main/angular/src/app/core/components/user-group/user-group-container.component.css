@@ -57,3 +57,9 @@
     padding: 0 9px;
     border-radius: 2px;
 }
+
+.l-empty-text {
+    padding: 10px 20px;
+    font-weight: normal;
+    font-size: 14px;
+}

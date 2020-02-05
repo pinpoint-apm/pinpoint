@@ -68,3 +68,7 @@ button {
     border: none;
     font-size: 16px;
 }
+
+.l-empty-text {
+    padding: 8px;
+}

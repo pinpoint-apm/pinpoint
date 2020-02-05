@@ -4,3 +4,8 @@
     height: calc(100% - 71px); 
     overflow-y: auto;
 }
+
+.l-empty-text {
+    font-size: 14px;
+    padding: 7px 13px;
+}
