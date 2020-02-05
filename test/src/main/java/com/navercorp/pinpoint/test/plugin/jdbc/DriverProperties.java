@@ -35,16 +35,24 @@ public class DriverProperties {
     private final String user;
     private final String password;
 
-    public DriverProperties(String propertyPath, String prefix) {
-         this.properties = load(propertyPath);
-        this.url = getDatabaseProperty(prefix, URL);
-        this.user = getDatabaseProperty(prefix, USER);
-        this.password = getDatabaseProperty(prefix, PASSWARD);
+    public static DriverProperties load(String propertyPath, String prefix) {
+        Properties properties = load(propertyPath);
+        String url = getDatabaseProperty(properties, prefix, URL);
+        String user = getDatabaseProperty(properties, prefix, USER);
+        String password = getDatabaseProperty(properties, prefix, PASSWARD);
+        return new DriverProperties(url, user, password, properties);
     }
 
-    private String getDatabaseProperty(String prefix, String postfix) {
+    public DriverProperties(String url, String user, String password, Properties properties) {
+        this.properties = properties;
+        this.url = url;
+        this.user = user;
+        this.password = password;
+    }
+
+    private static String getDatabaseProperty(Properties properties, String prefix, String postfix) {
         final String key = prefix + "." + postfix;
-        final String value = this.properties.getProperty(key);
+        final String value = properties.getProperty(key);
         if (value == null) {
             throw new IllegalArgumentException(key + " not found");
         }
@@ -52,7 +60,7 @@ public class DriverProperties {
     }
 
 
-    private Properties load(String propertyPath) {
+    private static Properties load(String propertyPath) {
         try {
             return PropertyUtils.loadPropertyFromClassPath(propertyPath);
         } catch (IOException ex) {
