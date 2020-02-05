@@ -61,7 +61,7 @@ public class MSSSqlConnectionIT extends BasePinpointTest {
         driverProperties = new DriverProperties("database/mssql.properties", "mssqlserver");
         Assume.assumeFalse("mssqlserver not ready", DataBaseTestCase.EMPTY_DATABASE_URL.equals(driverProperties.getUrl()));
         
-        driverClass = new MSSqlJDBCDriverClass(MSSSqlConnectionIT.class.getClassLoader());
+        driverClass = new MSSqlJDBCDriverClass();
     }
 
     @Before
