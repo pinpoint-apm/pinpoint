@@ -3,21 +3,30 @@
         <span>Application</span>
     </div>
     <div class="l-application-search">
-        <input type="text" placeholder="{{i18nText.INPUT_APPLICATION_NAME}}" value="" #inputQuery class="l-search-input">
+        <input type="text" placeholder="{{i18nText.SEARCH_INPUT_GUIDE}}" class="l-search-input" 
+            ppSearchInput 
+            [searchMinLength]="SEARCH_MIN_LENGTH"
+            [useEnter]="searchUseEnter"
+            (outCancel)="onCancel()"
+            (outSearch)="onSearch($event)"
+            #searchInput>
     </div>
     <div class="l-application-list">
-        <pp-application-list-for-header 
-            [showTitle]="showTitle"
-            [title]="i18nText.APPLICATION_LIST_TITLE" 
-            [restCount]="restCount"
-            [focusIndex]="focusIndex"
-            [focusType]="focusType"
-            [applicationList]="filteredApplicationList" 
-            [selectedApplication]="selectedApplication"
-            [funcImagePath]="funcImagePath"
-            [emptyText]="i18nText.EMPTY_LIST"
-            (outSelected)="onSelectApplication($event)"
-            (outFocused)="onFocused($event)">
-        </pp-application-list-for-header>
+        <ng-container *ngIf="!isEmpty; else emptyText">
+            <pp-application-list-for-header 
+                [showTitle]="showTitle"
+                [restCount]="restCount"
+                [focusIndex]="focusIndex"
+                [focusType]="focusType"
+                [applicationList]="filteredAppList" 
+                [selectedApplication]="selectedApp"
+                [funcImagePath]="funcImagePath"
+                (outSelected)="onSelectApp($event)"
+                (outFocused)="onFocused($event)">
+            </pp-application-list-for-header>
+        </ng-container>
+        <ng-template #emptyText>
+            <p class="l-empty-text">{{i18nText.EMPTY}}</p>
+        </ng-template>
     </div>
 </div>

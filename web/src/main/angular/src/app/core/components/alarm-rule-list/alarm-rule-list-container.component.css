@@ -12,6 +12,7 @@
 .l-alarm-rules-table th {
     color: #333;
     font-size: 13px;
+    padding: 0 !important;
 }
 
 .l-alarm-rules-table td {
@@ -30,7 +31,7 @@
 
 .l-add-button {
     position: absolute;
-    right: 0;
+    right: 15px;
 }
 
 .l-alarm-rules-tr-wrap { 
@@ -42,13 +43,11 @@
 .l-alarm-rules-th {
     display: flex;
     height: 30px;
-    padding: 0 15px;
     position: relative;
     font-weight: 600;
     border-top: 1px solid #e6e8ec;
     border-bottom: 1px solid #e6e8ec;
     background: #f6f8fb;
-    margin: 0 -21px;    
 }
 
 .l-alarm-rules-th div {

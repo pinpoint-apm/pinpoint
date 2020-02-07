@@ -1,40 +1,38 @@
-import { Component, OnInit, AfterViewInit, ViewChild, ElementRef, OnDestroy, Renderer2 } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { Subject, fromEvent, forkJoin } from 'rxjs';
-import { debounceTime, distinctUntilChanged, filter, pluck } from 'rxjs/operators';
+import { Subject, forkJoin } from 'rxjs';
 
 import { WebAppSettingDataService, StoreHelperService, AnalyticsService, TRACKED_EVENT_LIST } from 'app/shared/services';
 import { ApplicationListInteractionForConfigurationService } from './application-list-interaction-for-configuration.service';
 import { FOCUS_TYPE } from './application-list-for-header.component';
+import { isEmpty } from 'app/core/utils/util';
 
 @Component({
     selector: 'pp-application-list-for-configuration-alarm-container',
     templateUrl: './application-list-for-configuration-alarm-container.component.html',
     styleUrls: ['./application-list-for-configuration-alarm-container.component.css'],
 })
-export class ApplicationListForConfigurationAlarmContainerComponent implements OnInit, AfterViewInit, OnDestroy {
-    @ViewChild('inputQuery', { static: true }) inputQuery: ElementRef;
-
+export class ApplicationListForConfigurationAlarmContainerComponent implements OnInit, OnDestroy {
     private unsubscribe = new Subject<void>();
-    private minLength = 3;
-    private filterStr = '';
-    private applicationList: IApplication[];
+    private _query = '';
+    private originalAppList: IApplication[];
 
-    i18nText: { [key: string]: string } = {
-        INPUT_APPLICATION_NAME: '',
-        SELECTED_APPLICATION_NAME: '',
-        EMPTY_LIST: ''
-    };
-    filteredApplicationList: IApplication[];
-    selectedApplication: IApplication;
+    filteredAppList: IApplication[];
+    funcImagePath: Function;
+    selectedApp: IApplication;
     showTitle = false;
     focusType: FOCUS_TYPE = FOCUS_TYPE.KEYBOARD;
     restCount = 0;
     focusIndex = -1;
-    funcImagePath: Function;
+    searchUseEnter = false;
+    SEARCH_MIN_LENGTH = 2;
+    i18nText = {
+        SEARCH_INPUT_GUIDE: '',
+        EMPTY: ''
+    };
+    isEmpty: boolean;
 
     constructor(
-        private renderer: Renderer2,
         private storeHelperService: StoreHelperService,
         private webAppSettingDataService: WebAppSettingDataService,
         private translateService: TranslateService,
@@ -43,16 +41,9 @@ export class ApplicationListForConfigurationAlarmContainerComponent implements O
     ) {}
 
     ngOnInit() {
+        this.initList();
         this.initI18nText();
         this.funcImagePath = this.webAppSettingDataService.getIconPathMakeFunc();
-        this.storeHelperService.getApplicationList(this.unsubscribe).subscribe((applicationList: IApplication[]) => {
-            this.applicationList = applicationList;
-            this.filteredApplicationList = this.filterList(this.applicationList);
-        });
-    }
-
-    ngAfterViewInit() {
-        this.bindUserInputEvent();
     }
 
     ngOnDestroy() {
@@ -60,103 +51,76 @@ export class ApplicationListForConfigurationAlarmContainerComponent implements O
         this.unsubscribe.complete();
     }
 
-    private bindUserInputEvent(): void {
-        fromEvent(this.inputQuery.nativeElement, 'keyup').pipe(
-            debounceTime(300),
-            filter((event: KeyboardEvent) => {
-                return !this.isArrowKey(event.keyCode);
-            }),
-            pluck('target', 'value'),
-            filter((value: string) => {
-                return this.isLengthValid(value.trim().length);
-            }),
-            distinctUntilChanged()
-        ).subscribe((value: string) => {
-            this.applyQuery(value);
+    private initList(): void {
+        this.storeHelperService.getApplicationList(this.unsubscribe).subscribe((appList: IApplication[]) => {
+            this.originalAppList = appList;
+            this.filterList();
         });
     }
 
     private initI18nText(): void {
         forkJoin(
             this.translateService.get('COMMON.INPUT_APP_NAME_PLACE_HOLDER'),
-            this.translateService.get('MAIN.APP_LIST'),
             this.translateService.get('COMMON.EMPTY_ON_SEARCH')
-        ).subscribe((i18n: string[]) => {
-            this.i18nText.INPUT_APPLICATION_NAME = i18n[0];
-            this.i18nText.APPLICATION_LIST_TITLE = i18n[1];
-            this.i18nText.EMPTY_LIST = i18n[2];
+        ).subscribe(([placeholderText, emptyText]: string[]) => {
+            this.i18nText.SEARCH_INPUT_GUIDE = placeholderText;
+            this.i18nText.EMPTY = emptyText;
         });
     }
 
-    private selectApplication(application: IApplication): void {
-        if (application) {
-            this.selectedApplication = application;
+    private selectApp(app: IApplication): void {
+        if (!app) {
+            return;
         }
+
+        this.selectedApp = app;
     }
 
-    private filterList(appList: IApplication[]): IApplication[] {
-        if (this.filterStr === '') {
-            return appList;
+    private filterList(): void {
+        if (this.query === '') {
+            this.filteredAppList = this.originalAppList;
         } else {
-            return appList.filter((application: IApplication) => {
-                return new RegExp(this.filterStr, 'i').test(application.getApplicationName());
+            this.filteredAppList = this.originalAppList.filter((app: IApplication) => {
+                return new RegExp(this.query, 'i').test(app.getApplicationName());
             });
         }
-    }
-    private applyQuery(query: string): void {
-        this.filterStr = query;
-        this.filteredApplicationList = this.filterList(this.applicationList);
-        this.focusIndex = -1;
+
+        this.isEmpty = isEmpty(this.filteredAppList);
     }
 
-    getSelectedApplicationIcon(): string {
-        return this.funcImagePath(this.selectedApplication.getServiceType());
+    private set query(query: string) {
+        this._query = query;
+        this.filterList();
     }
 
-    onSelectApplication(selectedApplication: IApplication): void {
-        if (!selectedApplication.equals(this.selectedApplication)) {
-            this.selectApplication(selectedApplication);
-            this.applicationListInteractionForConfigurationService.setSelectedApplication(selectedApplication);
-            this.analyticsService.trackEvent(TRACKED_EVENT_LIST.SELECT_APPLICATION_FOR_ALARM);
+    private get query(): string {
+        return this._query;
+    }
+
+    onSearch(query: string): void {
+        if (this.query === query) {
+            return;
         }
+
+        this.query = query;
+    }
+
+    onCancel(): void {
+        this.query = '';
+    }
+
+    onSelectApp(app: IApplication): void {
+        if (app.equals(this.selectedApp)) {
+            return;
+        }
+
+        this.selectApp(app);
+        this.applicationListInteractionForConfigurationService.setSelectedApplication(app);
+        this.analyticsService.trackEvent(TRACKED_EVENT_LIST.SELECT_APPLICATION_FOR_ALARM);
     }
 
     onFocused(index: number): void {
         this.focusIndex = index;
         this.focusType = FOCUS_TYPE.MOUSE;
-    }
-
-    onKeyDown(keyCode: number): void {
-        switch (keyCode) {
-            case 27: // ESC
-                this.renderer.setProperty(this.inputQuery.nativeElement, 'value', '');
-                this.applyQuery('');
-                break;
-            // case 13: // Enter
-            //     if (this.focusIndex !== -1) {
-            //         this.onSelectApplication(this.filteredApplicationList[this.focusIndex]);
-            //     }
-            //     break;
-            // case 38: // ArrowUp
-            //     if (this.focusIndex - 1 >= 0) {
-            //         this.focusIndex -= 1;
-            //         this.focusType = FOCUS_TYPE.KEYBOARD;
-            //     }
-            //     break;
-            // case 40: // ArrowDown
-            //     if (this.focusIndex + 1 < this.filteredApplicationList.length) {
-            //         this.focusIndex += 1;
-            //         this.focusType = FOCUS_TYPE.KEYBOARD;
-            //     }
-            //     break;
-        }
-    }
-
-    private isArrowKey(key: number): boolean {
-        return key >= 37 && key <= 40;
-    }
-
-    private isLengthValid(length: number): boolean {
-        return length === 0 || length >= this.minLength;
     }
 }

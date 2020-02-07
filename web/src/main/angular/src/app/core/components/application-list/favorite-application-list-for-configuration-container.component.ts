@@ -2,97 +2,100 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { Subject, forkJoin } from 'rxjs';
 
-import { WebAppSettingDataService, StoreHelperService, TranslateReplaceService, AnalyticsService, TRACKED_EVENT_LIST } from 'app/shared/services';
+import { WebAppSettingDataService, StoreHelperService, AnalyticsService, TRACKED_EVENT_LIST } from 'app/shared/services';
+import { isEmpty } from 'app/core/utils/util';
 
 @Component({
     selector: 'pp-favorite-application-list-for-configuration-container',
-    templateUrl: './favorite-application-list-for-configuration-container.component.html',
-    styleUrls: ['./favorite-application-list-for-configuration-container.component.css']
+    templateUrl: './application-list-for-configuration-container.component.html',
+    styleUrls: ['./application-list-for-configuration-container.component.css']
 })
 export class FavoriteApplicationListForConfigurationContainerComponent implements OnInit, OnDestroy {
     private unsubscribe = new Subject<void>();
-    favoriteApplicationList: IApplication[];
-    applicationList: IApplication[];
-    emptyText: string;
+    private _query = '';
+    private favoriteAppList: IApplication[];
+
+    filteredAppList: IApplication[];
     funcImagePath: Function;
     iconBtnClassName = 'far fa-trash-alt';
-    query = '';
     searchUseEnter = false;
     SEARCH_MIN_LENGTH = 2;
     i18nText = {
-        SEARCH_INPUT_GUIDE: ''
+        SEARCH_INPUT_GUIDE: '',
+        EMPTY: ''
     };
-    useDisable = true;
-    showLoading = true;
+    isEmpty: boolean;
 
     constructor(
         private storeHelperService: StoreHelperService,
         private translateService: TranslateService,
-        private translateReplaceService: TranslateReplaceService,
         private webAppSettingDataService: WebAppSettingDataService,
         private analyticsService: AnalyticsService,
     ) {}
 
     ngOnInit() {
         this.initList();
+        this.initI18nText();
         this.funcImagePath = this.webAppSettingDataService.getIconPathMakeFunc();
-        this.initEmptyText();
     }
+
     ngOnDestroy() {
         this.unsubscribe.next();
         this.unsubscribe.complete();
     }
 
     private initList(): void {
-        this.storeHelperService.getFavoriteApplicationList(this.unsubscribe).subscribe((favoriteApplicationList: IApplication[]) => {
-            this.favoriteApplicationList = favoriteApplicationList;
-            this.filterApplicationList();
+        this.storeHelperService.getFavoriteApplicationList(this.unsubscribe).subscribe((favoriteAppList: IApplication[]) => {
+            this.favoriteAppList = favoriteAppList;
+            this.filterList();
         });
     }
-    private filterApplicationList(): void {
+
+    private initI18nText(): void {
+        forkJoin(
+            this.translateService.get('COMMON.INPUT_APP_NAME_PLACE_HOLDER'),
+            this.translateService.get('COMMON.EMPTY_ON_SEARCH')
+        ).subscribe(([placeholderText, emptyText]: string[]) => {
+            this.i18nText.SEARCH_INPUT_GUIDE = placeholderText;
+            this.i18nText.EMPTY = emptyText;
+        });
+    }
+
+    private filterList(): void {
         if (this.query !== '') {
-            this.applicationList = this.favoriteApplicationList.filter((app: IApplication) => {
+            this.filteredAppList = this.favoriteAppList.filter((app: IApplication) => {
                 return app.getApplicationName().toLowerCase().indexOf(this.query.toLowerCase()) !== -1;
             });
         } else {
-            this.applicationList = this.favoriteApplicationList;
+            this.filteredAppList = this.favoriteAppList;
         }
-        this.hideProcessing();
+
+        this.isEmpty = isEmpty(this.filteredAppList);
     }
-    private initEmptyText(): void {
-        forkJoin(
-            this.translateService.get('COMMON.MIN_LENGTH'),
-            this.translateService.get('COMMON.EMPTY_ON_SEARCH')
-        ).subscribe(([minLengthMessage, emptyText]: string[]) => {
-            this.i18nText.SEARCH_INPUT_GUIDE = this.translateReplaceService.replace(minLengthMessage, this.SEARCH_MIN_LENGTH);
-            this.emptyText = emptyText;
-        });
+
+    private set query(query: string) {
+        this._query = query;
+        this.filterList();
     }
-    onClearSearch(input: HTMLInputElement): void {
-        if (this.query !== '') {
-            this.query = '';
-            input.value = '';
-            this.filterApplicationList();
-            input.focus();
-        }
+
+    private get query(): string {
+        return this._query;
     }
+
     onSearch(query: string): void {
-        if (this.query !== query) {
-            this.query = query;
-            this.filterApplicationList();
+        if (this.query === query) {
+            return;
         }
+
+        this.query = query;
     }
+
+    onCancel(): void {
+        this.query = '';
+    }
+
     onSelectApp(app: IApplication): void {
-        this.showProcessing();
         this.webAppSettingDataService.removeFavoriteApplication(app);
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.REMOVE_FAVORITE_APPLICATION);
-    }
-    private showProcessing(): void {
-        this.useDisable = true;
-        this.showLoading = true;
-    }
-    private hideProcessing(): void {
-        this.useDisable = false;
-        this.showLoading = false;
     }
 }

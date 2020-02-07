@@ -5,7 +5,7 @@
 
 .l-application-list-item {
     font-size: 13px;
-    padding: 12px 12px 12px 12px;
+    padding: 12px 15px;
     color: #666 !important;
     font-weight: 400 !important;
     display: flex;
@@ -33,11 +33,4 @@
 
 .l-select-button > .fa-arrow-right {
     color: #4a8fd2;
-}
-
-.l-empty-text {
-    color: #333;
-    font-size: 16px;
-    margin-top: 50px;
-    text-align: center;
 }

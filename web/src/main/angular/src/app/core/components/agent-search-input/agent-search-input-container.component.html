@@ -4,6 +4,7 @@
             ppSearchInput 
             [searchMinLength]="SEARCH_MIN_LENGTH"
             [useEnter]="searchUseEnter"
+            (outCancel)="onCancel()"
             (outSearch)="onSearchQuery($event)">
         <button class="fas fa-search"></button>
     </div>

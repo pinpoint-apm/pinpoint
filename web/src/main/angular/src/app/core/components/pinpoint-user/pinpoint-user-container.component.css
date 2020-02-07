@@ -27,7 +27,7 @@
 }
 .l-pinpoint-user-search {
     position: relative;
-    padding: 10px 15px;
+    padding: 11px;
     border-bottom: 1px solid #e5e8f0;
     color: #b3b3b4;
 }
@@ -47,7 +47,7 @@
 }
 .l-search-button {
     position: absolute;
-    right: 25px;
+    right: 18px;
     top: 50%;
     transform: translateY(-50%);
     font-size: 18px;
@@ -59,7 +59,7 @@
 }
 
 .l-empty-text {
-    padding: 10px 20px;
+    padding: 12px 15px;
     font-weight: normal;
     font-size: 14px;
 }
