@@ -2,7 +2,8 @@ import { Component, OnInit, OnDestroy} from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { Subject, forkJoin } from 'rxjs';
 
-import { StoreHelperService, WebAppSettingDataService, TranslateReplaceService, AnalyticsService, TRACKED_EVENT_LIST } from 'app/shared/services';
+import { StoreHelperService, WebAppSettingDataService, AnalyticsService, TRACKED_EVENT_LIST } from 'app/shared/services';
+import { isEmpty } from 'app/core/utils/util';
 
 @Component({
     selector: 'pp-application-list-for-configuration-container',
@@ -11,34 +12,32 @@ import { StoreHelperService, WebAppSettingDataService, TranslateReplaceService, 
 })
 export class ApplicationListForConfigurationContainerComponent implements OnInit, OnDestroy {
     private unsubscribe = new Subject<void>();
+    private _query = '';
+    private originalAppList: IApplication[];
+    private favoriteAppList: IApplication[];
 
-    originalApplicationList: IApplication[];
-    favoriteApplicationList: IApplication[];
-    applicationList: IApplication[];
+    filteredAppList: IApplication[];
     funcImagePath: Function;
-    emptyText: string;
     iconBtnClassName = 'fas fa-arrow-right';
-    query = '';
     searchUseEnter = false;
     SEARCH_MIN_LENGTH = 2;
     i18nText = {
-        SEARCH_INPUT_GUIDE: ''
+        SEARCH_INPUT_GUIDE: '',
+        EMPTY: ''
     };
-    useDisable = true;
-    showLoading = true;
+    isEmpty: boolean;
 
     constructor(
         private storeHelperService: StoreHelperService,
         private webAppSettingDataService: WebAppSettingDataService,
         private translateService: TranslateService,
-        private translateReplaceService: TranslateReplaceService,
         private analyticsService: AnalyticsService,
     ) {}
 
     ngOnInit() {
         this.initList();
-        this.funcImagePath = this.webAppSettingDataService.getIconPathMakeFunc();
         this.initI18nText();
+        this.funcImagePath = this.webAppSettingDataService.getIconPathMakeFunc();
     }
 
     ngOnDestroy() {
@@ -47,50 +46,50 @@ export class ApplicationListForConfigurationContainerComponent implements OnInit
     }
 
     private initList(): void {
-        this.storeHelperService.getApplicationList(this.unsubscribe).subscribe((applicationList: IApplication[]) => {
-            this.originalApplicationList = applicationList;
+        this.storeHelperService.getApplicationList(this.unsubscribe).subscribe((appList: IApplication[]) => {
+            this.originalAppList = appList;
         });
-        this.storeHelperService.getFavoriteApplicationList(this.unsubscribe).subscribe((favoriteApplicationList: IApplication[]) => {
-            this.favoriteApplicationList = favoriteApplicationList;
-            this.filterApplicationList();
+        this.storeHelperService.getFavoriteApplicationList(this.unsubscribe).subscribe((favoriteAppList: IApplication[]) => {
+            this.favoriteAppList = favoriteAppList;
+            this.filterList();
         });
-    }
-
-    private filterApplicationList(): void {
-        const applicationList = this.originalApplicationList.filter((app: IApplication) => {
-            return this.favoriteApplicationList.findIndex((favApp: IApplication) => {
-                return favApp.equals(app);
-            }) === -1;
-        });
-        if (this.query !== '') {
-            this.applicationList = applicationList.filter((app: IApplication) => {
-                return app.getApplicationName().toLowerCase().indexOf(this.query.toLowerCase()) !== -1;
-            });
-        } else {
-            this.applicationList = applicationList;
-        }
-        this.hideProcessing();
     }
 
     private initI18nText(): void {
         forkJoin(
-            this.translateService.get('COMMON.MIN_LENGTH'),
+            this.translateService.get('COMMON.INPUT_APP_NAME_PLACE_HOLDER'),
             this.translateService.get('COMMON.EMPTY_ON_SEARCH')
-        ).subscribe(([minLengthMessage, emptyText]: string[]) => {
-            this.i18nText.SEARCH_INPUT_GUIDE = this.translateReplaceService.replace(minLengthMessage, this.SEARCH_MIN_LENGTH);
-            this.emptyText = emptyText;
+        ).subscribe(([placeholderText, emptyText]: string[]) => {
+            this.i18nText.SEARCH_INPUT_GUIDE = placeholderText;
+            this.i18nText.EMPTY = emptyText;
         });
     }
 
-    onClearSearch(input: HTMLInputElement): void {
-        if (this.query === '') {
-            return;
+    private filterList(): void {
+        const appList = this.originalAppList.filter((app: IApplication) => {
+            return this.favoriteAppList.findIndex((favApp: IApplication) => {
+                return favApp.equals(app);
+            }) === -1;
+        });
+
+        if (this.query !== '') {
+            this.filteredAppList = appList.filter((app: IApplication) => {
+                return app.getApplicationName().toLowerCase().indexOf(this.query.toLowerCase()) !== -1;
+            });
+        } else {
+            this.filteredAppList = appList;
         }
 
-        this.query = '';
-        input.value = '';
-        this.filterApplicationList();
-        input.focus();
+        this.isEmpty = isEmpty(this.filteredAppList);
+    }
+
+    private set query(query: string) {
+        this._query = query;
+        this.filterList();
+    }
+
+    private get query(): string {
+        return this._query;
     }
 
     onSearch(query: string): void {
@@ -99,22 +98,14 @@ export class ApplicationListForConfigurationContainerComponent implements OnInit
         }
 
         this.query = query;
-        this.filterApplicationList();
+    }
+
+    onCancel(): void {
+        this.query = '';
     }
 
     onSelectApp(app: IApplication): void {
-        this.showProcessing();
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.SET_FAVORITE_APPLICATION_IN_CONFIGURATION);
         this.webAppSettingDataService.addFavoriteApplication(app);
-    }
-
-    private showProcessing(): void {
-        this.useDisable = true;
-        this.showLoading = true;
-    }
-
-    private hideProcessing(): void {
-        this.useDisable = false;
-        this.showLoading = false;
     }
 }

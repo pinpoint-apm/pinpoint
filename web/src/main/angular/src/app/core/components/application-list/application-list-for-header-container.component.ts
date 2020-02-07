@@ -35,7 +35,7 @@ export class ApplicationListForHeaderContainerComponent implements OnInit, After
         FAVORITE_LIST_TITLE: '',
         APPLICATION_LIST_TITLE: '',
         INPUT_APPLICATION_NAME: '',
-        SELECTED_APPLICATION_NAME: '',
+        SELECT_APPLICATION: '',
         EMPTY_LIST: ''
     };
     showTitle = true;
@@ -129,7 +129,7 @@ export class ApplicationListForHeaderContainerComponent implements OnInit, After
             this.i18nText.INPUT_APPLICATION_NAME = i18n[0];
             this.i18nText.APPLICATION_LIST_TITLE = i18n[1];
             this.i18nText.FAVORITE_LIST_TITLE = i18n[2];
-            this.i18nText.SELECTED_APPLICATION_NAME = i18n[3];
+            this.i18nText.SELECT_APPLICATION = i18n[3];
             this.i18nText.EMPTY_LIST = i18n[4];
         });
     }
@@ -148,7 +148,7 @@ export class ApplicationListForHeaderContainerComponent implements OnInit, After
             this.selectedAppIcon = this.funcImagePath(this.selectedApplication.getServiceType());
             this.selectedAppName = this.selectedApplication.getApplicationName();
         } else {
-            this.selectedAppName = this.i18nText.SELECTED_APPLICATION_NAME;
+            this.selectedAppName = this.i18nText.SELECT_APPLICATION;
         }
     }
 

@@ -17,7 +17,7 @@
     justify-content: space-between;
     cursor: pointer;
     height: 32px;
-    padding: 0 9px;
+    padding: 0 13px;
     border: 1px solid #4488CB;
     background: #F6FAFE;
     font-size: 13px;
@@ -77,13 +77,8 @@
     overflow-y: auto;
     height: 100%;
 }
-.l-bottom {
-    display: flex;
-    flex-flow: row wrap;
-    padding: 4px;
-    border-top: 1px solid #d7dde4;
-}
-.l-bottom button {
+.l-reload-button {
+    width: 100%;
     font-weight: 100;
-    flex: 1;
+    border-radius: 0;
 }

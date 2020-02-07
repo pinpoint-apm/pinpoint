@@ -43,6 +43,10 @@ export class AgentSearchInputContainerComponent implements OnInit {
         this.storeHelperService.dispatch(new Actions.UpdateFilterOfServerAndAgentList(query));
     }
 
+    onCancel(): void {
+        this.storeHelperService.dispatch(new Actions.UpdateFilterOfServerAndAgentList(''));
+    }
+
     onShowHelp($event: MouseEvent): void {
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.TOGGLE_HELP_VIEWER, HELP_VIEWER_LIST.AGENT_LIST);
         const {left, top, width, height} = ($event.target as HTMLElement).getBoundingClientRect();

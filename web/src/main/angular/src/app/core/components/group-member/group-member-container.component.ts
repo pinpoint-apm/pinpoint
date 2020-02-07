@@ -1,7 +1,9 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Subject } from 'rxjs';
+import { Subject, Observable } from 'rxjs';
+import { TranslateService } from '@ngx-translate/core';
+
 import { GroupMemberDataService, IGroupMember, IGroupMemberResponse } from './group-member-data.service';
-import { isThatType } from 'app/core/utils/util';
+import { isThatType, isEmpty } from 'app/core/utils/util';
 import { MessageQueueService, MESSAGE_TO, AnalyticsService, TRACKED_EVENT_LIST } from 'app/shared/services';
 
 @Component({
@@ -10,20 +12,24 @@ import { MessageQueueService, MESSAGE_TO, AnalyticsService, TRACKED_EVENT_LIST }
     styleUrls: ['./group-member-container.component.css']
 })
 export class GroupMemberContainerComponent implements OnInit, OnDestroy {
-    private unsubscribe: Subject<null> = new Subject();
+    private unsubscribe = new Subject<void>();
     private ascendSort = true;
+
     currentUserGroupId: string;
     groupMemberList: IGroupMember[] = [];
     useDisable = false;
     showLoading = false;
     errorMessage: string;
+    emptyText$: Observable<string>;
 
     constructor(
+        private translateService: TranslateService,
         private groupMemberDataService: GroupMemberDataService,
         private messageQueueService: MessageQueueService,
         private analyticsService: AnalyticsService,
     ) {}
     ngOnInit() {
+        this.emptyText$ = this.translateService.get('COMMON.EMPTY');
         this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.USER_GROUP_SELECTED_USER_GROUP).subscribe((param: any) => {
             this.currentUserGroupId = param;
             if (this.isValidUserGroupId()) {
@@ -166,5 +172,9 @@ export class GroupMemberContainerComponent implements OnInit, OnDestroy {
     private hideProcessing(): void {
         this.useDisable = false;
         this.showLoading = false;
+    }
+
+    isEmpty(): boolean {
+        return isEmpty(this.groupMemberList);
     }
 }

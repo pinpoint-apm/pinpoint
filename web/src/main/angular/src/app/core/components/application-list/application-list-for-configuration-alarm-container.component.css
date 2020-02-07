@@ -29,7 +29,7 @@
 }
 
 .l-application-search {
-    padding: 10px 15px;
+    padding: 11px;
     border-bottom: 1px solid #e5e8f0;
 }
 
@@ -40,7 +40,12 @@
 .l-search-input {
     width: 100%;
     color: #b3b3b4;
-    border: 1px solid #469ae4;
+    border: 1px solid #d7dde4;
     padding: 6px 11px;
     font-size: 13px;
+}
+
+.l-empty-text {
+    padding: 12px 15px;
+    font-size: 14px;
 }

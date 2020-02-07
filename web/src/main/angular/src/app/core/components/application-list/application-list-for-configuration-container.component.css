@@ -1,13 +1,17 @@
 :host {
     display: block;
+    height: 100%;
     position: relative;
 }
-.l-search {
+
+.l-search-section {
     position: relative;
-    padding: 10px 15px;
+    padding: 11px;
     border-bottom: 1px solid #e5e8f0;
     color: #b3b3b4;
+    height: 53px;
 }
+
 .l-search-input {
     width: 100%;
     color: #b3b3b4;
@@ -15,15 +19,17 @@
     padding: 6px 11px;
     font-size: 13px;
 }
+
 .l-search-input:focus {
     border: 1px solid #469ae4;
     box-shadow: 0 0 1px 0px #469ae4;
 }
-.l-search-button {
-    position: absolute;
-    right: 25px;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 18px;
-    /* outline: none; */
+
+.l-app-list-section {
+    height: calc(100% - 53px);
+}
+
+.l-empty-text {
+    padding: 12px 15px;
+    font-size: 14px;
 }

@@ -32,3 +32,9 @@
 .l-group-member-list {
     overflow-y: auto;
 }
+
+.l-empty-text {
+    padding: 12px 15px;
+    font-weight: normal;
+    font-size: 14px;
+}
