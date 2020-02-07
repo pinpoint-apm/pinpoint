@@ -6,7 +6,7 @@ serviceTypes:
       includeDestinationId: true
   - code: 2251
     name: 'MSSQL_JDBC_QUERY'
-    desc: 'MSSQL_JDBC_QUERY'
+    desc: 'MSSQLSERVER'
     property:
       terminal: true
       includeDestinationId: true
