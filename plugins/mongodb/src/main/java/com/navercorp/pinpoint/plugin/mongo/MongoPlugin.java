@@ -369,7 +369,6 @@ public class MongoPlugin implements ProfilerPlugin, TransformTemplateAware {
         transformTemplate.transform("com.mongodb.reactivestreams.client.internal.ListDatabasesPublisherImpl", ObservableToPublisherTransform.class);
         transformTemplate.transform("com.mongodb.reactivestreams.client.internal.ListIndexesPublisherImpl", ObservableToPublisherTransform.class);
         transformTemplate.transform("com.mongodb.reactivestreams.client.internal.MapReducePublisherImpl", ObservableToPublisherTransform.class);
-        transformTemplate.transform("com.mongodb.reactivestreams.client.internal.GridFSUploadPublisherImpl", ObservableToPublisherTransform.class);
         // 1.12
         transformTemplate.transform("com.mongodb.reactivestreams.client.internal.SingleResultObservableToPublisher", ObservableToPublisherTransform.class);
         // 1.13

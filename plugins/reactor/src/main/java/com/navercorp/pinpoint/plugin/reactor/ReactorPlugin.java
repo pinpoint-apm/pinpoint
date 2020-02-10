@@ -79,8 +79,7 @@ public class ReactorPlugin implements ProfilerPlugin, MatchableTransformTemplate
             "reactor.core.scheduler.ExecutorScheduler$ExecutorSchedulerTrampolineWorker",
             "reactor.core.scheduler.ExecutorScheduler$ExecutorSchedulerWorker",
             "reactor.core.scheduler.ExecutorServiceWorker",
-            "reactor.core.scheduler.ImmediateScheduler$ImmediateSchedulerWorker",
-            "reactor.core.scheduler.SingleWorkerScheduler"
+            "reactor.core.scheduler.ImmediateScheduler$ImmediateSchedulerWorker"
     };
 
     @Override
