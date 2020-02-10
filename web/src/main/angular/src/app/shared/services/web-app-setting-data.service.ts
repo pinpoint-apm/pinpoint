@@ -4,7 +4,7 @@ import { Store, select } from '@ngrx/store';
 import { LocalStorageService } from 'angular-2-local-storage';
 import 'moment-timezone';
 import * as moment from 'moment-timezone';
-import { map, filter } from 'rxjs/operators';
+import { map, filter, take } from 'rxjs/operators';
 
 import { AppState, Actions, STORE_KEY } from 'app/shared/store';
 import { ComponentDefaultSettingDataService } from 'app/shared/services/component-default-setting-data.service';
@@ -48,6 +48,7 @@ export class WebAppSettingDataService {
         this.store.pipe(
             select(STORE_KEY.APPLICATION_LIST),
             filter((appList: IApplication[]) => appList.length !== 0),
+            take(1),
             map((appList: IApplication[]) => {
                 const registeredFavAppList = this.getFavoriteApplicationList();
 

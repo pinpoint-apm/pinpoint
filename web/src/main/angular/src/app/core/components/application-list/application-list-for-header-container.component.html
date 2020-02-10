@@ -38,7 +38,7 @@
                 (outSelected)="onSelectApplication($event)"
                 (outFocused)="onFocused($event)"></pp-application-list-for-header>
         </div>
-        <button class="btn btn-blue l-reload-button" (click)="onReload()">Reload <span class="fas fa-sync" [class.fa-spin]="!showLoading"></span></button>
+        <button class="btn btn-blue l-reload-button" (click)="onReload()">Reload <span class="fas fa-sync" [class.fa-spin]="showLoading"></span></button>
     </div>
-    <pp-loading [showLoading]="!showLoading" [zIndex]="9999"></pp-loading>
+    <pp-loading [showLoading]="showLoading" [zIndex]="9999"></pp-loading>
 </div>
