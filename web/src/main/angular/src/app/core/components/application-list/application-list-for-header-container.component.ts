@@ -99,7 +99,7 @@ export class ApplicationListForHeaderContainerComponent implements OnInit, After
             this.storeHelperService.getFavoriteApplicationList(this.unsubscribe)
         ).subscribe((responseData: any[]) => {
             this.refreshList(responseData[0], responseData[1]);
-            this.showLoading = true;
+            this.showLoading = false;
             this.cd.detectChanges();
         });
     }
@@ -238,11 +238,8 @@ export class ApplicationListForHeaderContainerComponent implements OnInit, After
 
     onReload(): void {
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.CLICK_RELOAD_APPLICATION_LIST_BUTTON);
-        this.showLoading = false;
-        // this.refreshList([], []);
-        this.applicationListDataService.getApplicationList().subscribe(() => {
-            this.showLoading = true;
-        });
+        this.showLoading = true;
+        this.applicationListDataService.getApplicationList().subscribe(() => {});
     }
 
     private isArrowKey(key: number): boolean {
