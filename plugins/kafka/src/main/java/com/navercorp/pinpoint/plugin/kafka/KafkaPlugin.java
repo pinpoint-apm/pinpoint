@@ -122,10 +122,14 @@ public class KafkaPlugin implements ProfilerPlugin, TransformTemplateAware {
                         "org.apache.kafka.common.serialization.Serializer", "org.apache.kafka.common.serialization.Serializer");
             }
 
-            constructor.addInterceptor(ProducerConstructorInterceptor.class);
+            if (constructor != null) {
+                constructor.addInterceptor(ProducerConstructorInterceptor.class);
+            }
 
             InstrumentMethod sendMethod = target.getDeclaredMethod("send", "org.apache.kafka.clients.producer.ProducerRecord", "org.apache.kafka.clients.producer.Callback");
-            sendMethod.addInterceptor(ProducerSendInterceptor.class);
+            if (sendMethod != null) {
+                sendMethod.addInterceptor(ProducerSendInterceptor.class);
+            }
 
             target.addField(RemoteAddressFieldAccessor.class);
             return target.toBytecode();
@@ -167,7 +171,9 @@ public class KafkaPlugin implements ProfilerPlugin, TransformTemplateAware {
 
             InstrumentMethod constructor = target.getConstructor("org.apache.kafka.clients.consumer.ConsumerConfig",
                     "org.apache.kafka.common.serialization.Deserializer", "org.apache.kafka.common.serialization.Deserializer");
-            constructor.addInterceptor(ConsumerConstructorInterceptor.class);
+            if(constructor != null) {
+                constructor.addInterceptor(ConsumerConstructorInterceptor.class);
+            }
 
             // Version 2.2.0+ is supported.
             InstrumentMethod pollMethod = target.getDeclaredMethod("poll", "org.apache.kafka.common.utils.Timer", "boolean");
@@ -182,7 +188,9 @@ public class KafkaPlugin implements ProfilerPlugin, TransformTemplateAware {
                 pollMethod = target.getDeclaredMethod("poll", "long");
             }
 
-            pollMethod.addInterceptor(ConsumerPollInterceptor.class);
+            if (pollMethod != null) {
+                pollMethod.addInterceptor(ConsumerPollInterceptor.class);
+            }
 
             target.addField(RemoteAddressFieldAccessor.class);
 
@@ -316,6 +324,4 @@ public class KafkaPlugin implements ProfilerPlugin, TransformTemplateAware {
 
         return fullQualifiedMethodName.substring(0, classEndPosition);
     }
-
-
 }
