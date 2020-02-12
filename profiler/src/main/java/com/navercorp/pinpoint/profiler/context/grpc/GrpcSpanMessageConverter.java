@@ -53,6 +53,7 @@ import java.util.List;
 
 /**
  * Not thread safe
+ *
  * @author Woonduk Kang(emeroad)
  */
 public class GrpcSpanMessageConverter implements MessageConverter<GeneratedMessageV3> {
@@ -181,15 +182,30 @@ public class GrpcSpanMessageConverter implements MessageConverter<GeneratedMessa
     }
 
     private PParentInfo newParentInfo(Span span) {
+        final PParentInfo.Builder builder = PParentInfo.newBuilder();
+        // For the Queue service type, the acceptorHost value can be stored even without the parentApplicationName value.
+        // @See com.navercorp.pinpoint.collector.service.TraceService
+        boolean isChanged = false;
         final String parentApplicationName = span.getParentApplicationName();
-        if (parentApplicationName == null) {
+        if (parentApplicationName != null) {
+            builder.setParentApplicationName(parentApplicationName);
+            isChanged = true;
+        }
+        final short parentApplicationType = span.getParentApplicationType();
+        if (parentApplicationType != 0) {
+            builder.setParentApplicationType(parentApplicationType);
+            isChanged = true;
+        }
+        final String acceptorHost = span.getAcceptorHost();
+        if (acceptorHost != null) {
+            builder.setAcceptorHost(acceptorHost);
+            isChanged = true;
+        }
+        if (isChanged) {
+            return builder.build();
+        } else {
             return null;
         }
-        PParentInfo.Builder builder = PParentInfo.newBuilder();
-        builder.setParentApplicationName(parentApplicationName);
-        builder.setParentApplicationType(span.getParentApplicationType());
-        builder.setAcceptorHost(span.getAcceptorHost());
-        return builder.build();
     }
 
     private List<PSpanEvent> buildPSpanEventList(List<SpanEvent> spanEventList) {
