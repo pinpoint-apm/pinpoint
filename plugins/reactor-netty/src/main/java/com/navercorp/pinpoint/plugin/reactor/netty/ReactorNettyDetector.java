@@ -26,7 +26,7 @@ import java.util.List;
  * @author jaehong.kim
  */
 public class ReactorNettyDetector {
-    private static final String DEFAULT_EXPECTED_MAIN_CLASS = "";
+    private static final String DEFAULT_EXPECTED_MAIN_CLASS = "reactor.netty.http.server.HttpServer";
 
     private final List<String> expectedMainClasses;
 
