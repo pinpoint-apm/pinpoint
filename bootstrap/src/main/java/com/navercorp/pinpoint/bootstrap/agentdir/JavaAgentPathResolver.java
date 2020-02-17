@@ -16,10 +16,12 @@
 
 package com.navercorp.pinpoint.bootstrap.agentdir;
 
+import com.navercorp.pinpoint.bootstrap.BootLogger;
 import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
 
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
+import java.net.URL;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -29,72 +31,126 @@ import java.util.regex.Pattern;
  */
 public class JavaAgentPathResolver {
 
-    static final String JAVA_AGENT_OPTION = "-javaagent:";
-    private final Pattern DEFAULT_AGENT_PATTERN = AgentDirBaseClassPathResolver.bootstrap.getVersionPattern();
+    private final AgentPathFinder[] agentPathFinders;
 
-    private final ResolvingType resolvingType;
-
-    enum ResolvingType {
-        INPUT_ARGUMENT,
-        // Added for unknown bugs.
-        @Deprecated
-        SYSTEM_PROPERTY
-    };
-
-    JavaAgentPathResolver(ResolvingType resolvingType) {
-        if (resolvingType == null) {
-            throw new NullPointerException("type");
+    JavaAgentPathResolver(AgentPathFinder[] agentPathFinders) {
+        if (agentPathFinders == null) {
+            throw new NullPointerException("agentPathFinders");
         }
-        this.resolvingType = resolvingType;
+        this.agentPathFinders = agentPathFinders;
     }
 
     public static JavaAgentPathResolver newJavaAgentPathResolver() {
-        final ResolvingType resolvingType = getResolvingType();
-        return new JavaAgentPathResolver(resolvingType);
+        final AgentPathFinder[] agentPathFinders = newAgentPathFinder();
+        return new JavaAgentPathResolver(agentPathFinders);
     }
 
-    private static ResolvingType getResolvingType() {
-        final String type = System.getProperty("pinpoint.javaagent.resolving", "");
-        if (type.equalsIgnoreCase("system")) {
-            return ResolvingType.SYSTEM_PROPERTY;
-        }
-        return ResolvingType.INPUT_ARGUMENT;
+    private static AgentPathFinder[] newAgentPathFinder() {
+        AgentPathFinder classAgentPath = new ClassAgentPathFinder();
+        AgentPathFinder inputArgumentAgentPath = new InputArgumentAgentPathFinder();
+        return new AgentPathFinder[] {classAgentPath, inputArgumentAgentPath};
     }
 
     public String resolveJavaAgentPath() {
-        if (resolvingType == ResolvingType.SYSTEM_PROPERTY) {
-            return getClassPathFromSystemProperty();
-        }
-
-        RuntimeMXBean runtimeMXBean = getRuntimeMXBean();
-        List<String> inputArguments = runtimeMXBean.getInputArguments();
-        for (String inputArgument : inputArguments) {
-            if (isPinpointAgent(inputArgument, DEFAULT_AGENT_PATTERN)) {
-                return removeJavaAgentPrefix(inputArgument);
+        for (AgentPathFinder agentPath : agentPathFinders) {
+            final String path = agentPath.getPath();
+            if (path != null) {
+                return path;
             }
         }
-        throw new IllegalArgumentException(JAVA_AGENT_OPTION + " not found");
+        return null;
     }
 
-    @VisibleForTesting
-    RuntimeMXBean getRuntimeMXBean() {
-        return ManagementFactory.getRuntimeMXBean();
+    private interface AgentPathFinder {
+        String getPath();
     }
 
-    private String removeJavaAgentPrefix(String inputArgument) {
-        return inputArgument.substring(JAVA_AGENT_OPTION.length(), inputArgument.length());
-    }
+    static class ClassAgentPathFinder implements AgentPathFinder {
+        private final BootLogger logger = BootLogger.getLogger(ClassAgentPathFinder.class.getName());
 
-    private boolean isPinpointAgent(String inputArgument, Pattern javaPattern) {
-        if (!inputArgument.startsWith(JAVA_AGENT_OPTION)) {
-            return false;
+        private final String className;
+
+        public ClassAgentPathFinder() {
+            this("com.navercorp.pinpoint.bootstrap.PinpointBootStrap");
         }
-        Matcher matcher = javaPattern.matcher(inputArgument);
-        return matcher.find();
+
+        public ClassAgentPathFinder(String className) {
+            this.className = className;
+        }
+
+        @Override
+        public String getPath() {
+            // get bootstrap.jar location
+            return getJarLocation(this.className);
+        }
+
+        @VisibleForTesting
+        String getJarLocation(String className) {
+            final String internalClassName = className.replace('.', '/') + ".class";
+            final URL classURL = getResource(internalClassName);
+            if (classURL == null) {
+                return null;
+            }
+
+            if (classURL.getProtocol().equals("jar")) {
+                String path = classURL.getPath();
+                int jarIndex = path.indexOf("!/");
+                if (jarIndex == -1) {
+                    throw new IllegalArgumentException("!/ not found " + path);
+                }
+                final String agentPath = path.substring("file:/".length(), jarIndex);
+                logger.info("agentPath:" + agentPath);
+                return agentPath;
+           }
+            // unknown
+            return null;
+        }
+
+        private URL getResource(String internalClassName) {
+            return ClassLoader.getSystemResource(internalClassName);
+        }
+
     }
 
-    String getClassPathFromSystemProperty() {
-        return System.getProperty("java.class.path");
+    @Deprecated
+    static class InputArgumentAgentPathFinder implements AgentPathFinder {
+
+        private final BootLogger logger = BootLogger.getLogger(InputArgumentAgentPathFinder.class.getName());
+        
+        static final String JAVA_AGENT_OPTION = "-javaagent:";
+        
+        private final Pattern DEFAULT_AGENT_PATTERN = AgentDirBaseClassPathResolver.bootstrap.getVersionPattern();
+
+        @Override
+        public String getPath() {
+            RuntimeMXBean runtimeMXBean = getRuntimeMXBean();
+            List<String> inputArguments = runtimeMXBean.getInputArguments();
+            for (String inputArgument : inputArguments) {
+                if (isPinpointAgent(inputArgument, DEFAULT_AGENT_PATTERN)) {
+                    String agentPath = removeJavaAgentPrefix(inputArgument);
+                    logger.info("agentPath:" + agentPath);
+                    return agentPath;
+                }
+            }
+            return null;
+        }
+
+        @VisibleForTesting
+        RuntimeMXBean getRuntimeMXBean() {
+            return ManagementFactory.getRuntimeMXBean();
+        }
+
+        private boolean isPinpointAgent(String inputArgument, Pattern javaPattern) {
+            if (!inputArgument.startsWith(JAVA_AGENT_OPTION)) {
+                return false;
+            }
+            Matcher matcher = javaPattern.matcher(inputArgument);
+            return matcher.find();
+        }
+
+        private String removeJavaAgentPrefix(String inputArgument) {
+            return inputArgument.substring(JAVA_AGENT_OPTION.length(), inputArgument.length());
+        }
     }
 
 }
