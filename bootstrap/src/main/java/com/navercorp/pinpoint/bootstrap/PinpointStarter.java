@@ -87,12 +87,19 @@ class PinpointStarter {
 
 
     boolean start() {
+        final AgentIds agentIds = resolveAgentIds();
+        if (agentIds == null) {
+            return false;
+        }
+
         final IdValidator idValidator = new IdValidator();
-        final String agentId = idValidator.getAgentId();
+        idValidator.validate(agentIds);
+
+        final String agentId = agentIds.getAgentId();
         if (agentId == null) {
             return false;
         }
-        final String applicationName = idValidator.getApplicationName();
+        final String applicationName = agentIds.getApplicationName();
         if (applicationName == null) {
             return false;
         }
@@ -134,6 +141,14 @@ class PinpointStarter {
             return false;
         }
         return true;
+    }
+
+    private AgentIds resolveAgentIds() {
+        AgentIdResolverBuilder builder = new AgentIdResolverBuilder();
+        builder.addAgentArgument(agentArgs);
+        builder.addSystemProperties(System.getProperties());
+        AgentIdResolver agentIdResolver = builder.build();
+        return agentIdResolver.resolve();
     }
 
     private Properties loadProperties() {
