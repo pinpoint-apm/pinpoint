@@ -122,15 +122,15 @@ public class ProducerSendInterceptor implements AroundInterceptor {
             SpanEventRecorder recorder = trace.currentSpanEventRecorder();
             recorder.recordApi(descriptor);
 
+            String remoteAddress = getRemoteAddress(target);
+            recorder.recordEndPoint(remoteAddress);
+            recorder.recordDestinationId(remoteAddress);
+
+            String topic = record.topic();
+            recorder.recordAttribute(KafkaConstants.KAFKA_TOPIC_ANNOTATION_KEY, topic);
+
             if (throwable != null) {
                 recorder.recordException(throwable);
-            } else {
-                String remoteAddress = getRemoteAddress(target);
-                recorder.recordEndPoint(remoteAddress);
-
-                String topic = record.topic();
-                recorder.recordDestinationId(remoteAddress);
-                recorder.recordAttribute(KafkaConstants.KAFKA_TOPIC_ANNOTATION_KEY, topic);
             }
         } finally {
             trace.traceBlockEnd();
