@@ -23,13 +23,10 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.management.RuntimeMXBean;
 import java.net.URL;
 import java.util.Collections;
 import java.util.List;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -41,14 +38,12 @@ public class JavaAgentPathResolverTest {
     @Test
     public void testInputArgument() {
         String agentPath = "/pinpoint/agent/target/pinpoint-agent-" + Version.VERSION + "/pinpoint-bootstrap-" + Version.VERSION + ".jar";
-        final RuntimeMXBean runtimeMXBean = mock(RuntimeMXBean.class);
-        List<String> inputArguments = Collections.singletonList(JavaAgentPathResolver.InputArgumentAgentPathFinder.JAVA_AGENT_OPTION + agentPath);
-        when(runtimeMXBean.getInputArguments()).thenReturn(inputArguments);
+        final List<String> inputArguments = Collections.singletonList(JavaAgentPathResolver.InputArgumentAgentPathFinder.JAVA_AGENT_OPTION + agentPath);
 
-        InputArgumentAgentPathFinder javaAgentPathResolver = new InputArgumentAgentPathFinder() {
+        JavaAgentPathResolver.AgentPathFinder javaAgentPathResolver = new InputArgumentAgentPathFinder() {
             @Override
-            RuntimeMXBean getRuntimeMXBean() {
-                return runtimeMXBean;
+            List<String> getInputArguments() {
+                return inputArguments;
             }
         };
         String resolveJavaAgentPath = javaAgentPathResolver.getPath();

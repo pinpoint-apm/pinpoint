@@ -61,7 +61,7 @@ public class JavaAgentPathResolver {
         return null;
     }
 
-    private interface AgentPathFinder {
+    interface AgentPathFinder {
         String getPath();
     }
 
@@ -123,8 +123,7 @@ public class JavaAgentPathResolver {
 
         @Override
         public String getPath() {
-            RuntimeMXBean runtimeMXBean = getRuntimeMXBean();
-            List<String> inputArguments = runtimeMXBean.getInputArguments();
+            final List<String> inputArguments = getInputArguments();
             for (String inputArgument : inputArguments) {
                 if (isPinpointAgent(inputArgument, DEFAULT_AGENT_PATTERN)) {
                     String agentPath = removeJavaAgentPrefix(inputArgument);
@@ -136,9 +135,11 @@ public class JavaAgentPathResolver {
         }
 
         @VisibleForTesting
-        RuntimeMXBean getRuntimeMXBean() {
-            return ManagementFactory.getRuntimeMXBean();
+        List<String> getInputArguments() {
+            RuntimeMXBean runtimeMXBean = ManagementFactory.getRuntimeMXBean();
+            return runtimeMXBean.getInputArguments();
         }
+
 
         private boolean isPinpointAgent(String inputArgument, Pattern javaPattern) {
             if (!inputArgument.startsWith(JAVA_AGENT_OPTION)) {
