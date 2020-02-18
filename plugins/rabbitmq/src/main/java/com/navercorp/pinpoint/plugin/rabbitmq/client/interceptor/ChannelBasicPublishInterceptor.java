@@ -103,27 +103,27 @@ public class ChannelBasicPublishInterceptor implements AroundInterceptor {
 
             SpanEventRecorder recorder = trace.currentSpanEventRecorder();
             recorder.recordApi(descriptor);
-            if (throwable == null) {
-                String endPoint = RabbitMQClientConstants.UNKNOWN;
-                // Producer's endPoint should be the socket address of where the producer is actually connected to.
-                final Connection connection = ((Channel) target).getConnection();
-                if (connection instanceof AMQConnection) {
-                    AMQConnection amqConnection = (AMQConnection) connection;
-                    FrameHandler frameHandler = amqConnection.getFrameHandler();
-                    if (frameHandler instanceof RemoteAddressAccessor) {
-                        endPoint = ((RemoteAddressAccessor) frameHandler)._$PINPOINT$_getRemoteAddress();
-                    }
-                }
-                recorder.recordEndPoint(endPoint);
-                // DestinationId is used to render the virtual queue node.
-                // We choose the exchange name as the logical name of the queue node.
-                recorder.recordDestinationId("exchange-" + exchange);
 
-                recorder.recordAttribute(RabbitMQClientConstants.RABBITMQ_EXCHANGE_ANNOTATION_KEY, exchange);
-                recorder.recordAttribute(RabbitMQClientConstants.RABBITMQ_ROUTINGKEY_ANNOTATION_KEY, routingKey);
-            } else {
-                recorder.recordException(throwable);
+            String endPoint = RabbitMQClientConstants.UNKNOWN;
+            // Producer's endPoint should be the socket address of where the producer is actually connected to.
+            final Connection connection = ((Channel) target).getConnection();
+            if (connection instanceof AMQConnection) {
+                AMQConnection amqConnection = (AMQConnection) connection;
+                FrameHandler frameHandler = amqConnection.getFrameHandler();
+                if (frameHandler instanceof RemoteAddressAccessor) {
+                    endPoint = ((RemoteAddressAccessor) frameHandler)._$PINPOINT$_getRemoteAddress();
+                }
             }
+            recorder.recordEndPoint(endPoint);
+            // DestinationId is used to render the virtual queue node.
+            // We choose the exchange name as the logical name of the queue node.
+            recorder.recordDestinationId("exchange-" + exchange);
+
+            recorder.recordAttribute(RabbitMQClientConstants.RABBITMQ_EXCHANGE_ANNOTATION_KEY, exchange);
+            recorder.recordAttribute(RabbitMQClientConstants.RABBITMQ_ROUTINGKEY_ANNOTATION_KEY, routingKey);
+
+            recorder.recordException(throwable);
+
         } finally {
             trace.traceBlockEnd();
         }
@@ -136,13 +136,13 @@ public class ChannelBasicPublishInterceptor implements AroundInterceptor {
         if (args == null || args.length < 6) {
             return false;
         }
-        if (args[0] !=null && !(args[0] instanceof String)) {
+        if (args[0] != null && !(args[0] instanceof String)) {
             return false;
         }
-        if (args[1] !=null && !(args[1] instanceof String)) {
+        if (args[1] != null && !(args[1] instanceof String)) {
             return false;
         }
-        if (args[4] !=null && !(args[4] instanceof AMQP.BasicProperties)) {
+        if (args[4] != null && !(args[4] instanceof AMQP.BasicProperties)) {
             return false;
         }
         return true;
