@@ -72,6 +72,9 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
  * <tr><td>1401</td><td>NODE_METHOD</td></tr>
  * <tr><td>1500</td><td>PHP</td></tr>
  * <tr><td>1501</td><td>PHP_METHOD</td></tr>
+ * <tr><td>1550</td><td>ENVOY</td></tr>
+ * <tr><td>1551</td><td>ENVOY_INGRESS</td></tr>
+ * <tr><td>1552</td><td>ENVOY_EGRESS</td></tr>
  * <tr><td>1620</td><td>OPENWHISK_INTERNAL</td></tr>
  * <tr><td>1621</td><td>OPENWHISK_CONTROLLER</td></tr>
  * <tr><td>1622</td><td>OPENWHISK_INVOKER</td></tr>
