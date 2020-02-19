@@ -98,7 +98,7 @@ public class JavaAgentPathResolver {
                 if (jarIndex == -1) {
                     throw new IllegalArgumentException("!/ not found " + path);
                 }
-                final String agentPath = path.substring("file:/".length(), jarIndex);
+                final String agentPath = path.substring("file:".length(), jarIndex);
                 logger.info("agentPath:" + agentPath);
                 return agentPath;
            }

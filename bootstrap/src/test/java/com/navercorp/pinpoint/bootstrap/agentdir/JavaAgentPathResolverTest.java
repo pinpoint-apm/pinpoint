@@ -65,7 +65,7 @@ public class JavaAgentPathResolverTest {
         org.junit.Assert.assertTrue(resolveTargetPath.endsWith(".jar"));
 
         URL location = clazz.getProtectionDomain().getCodeSource().getLocation();
-        org.junit.Assert.assertEquals("/" + resolveTargetPath, location.getPath());
+        org.junit.Assert.assertEquals(resolveTargetPath, location.getPath());
     }
 
 }
