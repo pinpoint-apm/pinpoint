@@ -133,8 +133,8 @@ class ParallelClassLoader extends URLClassLoader {
 
     @Override
     public String toString() {
-        return "ParallelClassLoader{" +
+        return "ParallelClassLoader@" + this.hashCode() + "{" +
                 "name='" + name + '\'' +
-                "} " + super.toString();
+                "}";
     }
 }
