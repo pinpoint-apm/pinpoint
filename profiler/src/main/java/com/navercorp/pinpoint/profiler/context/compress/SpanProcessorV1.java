@@ -28,8 +28,8 @@ import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
 import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
 
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
+import java.util.RandomAccess;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -88,16 +88,22 @@ public class SpanProcessorV1 implements SpanProcessor<TSpan, TSpanChunk> {
 
     @VisibleForTesting
     public void postEventProcess(List<SpanEvent> spanEventList, List<TSpanEvent> tSpanEventList, long keyTime) {
+        if (CollectionUtils.isEmpty(spanEventList)) {
+            return;
+        }
         if (!(CollectionUtils.nullSafeSize(spanEventList) == CollectionUtils.nullSafeSize(tSpanEventList))) {
             throw new IllegalStateException("list size not same, spanEventList=" + CollectionUtils.nullSafeSize(spanEventList) + ", tSpanEventList=" + CollectionUtils.nullSafeSize(tSpanEventList));
         }
+        // check list type
+        assert spanEventList instanceof RandomAccess;
 
-        Iterator<TSpanEvent> tSpanEventIterator = tSpanEventList.iterator();
-        for (SpanEvent spanEvent : spanEventList) {
+        final int listSize = spanEventList.size();
+        for (int i = 0; i < listSize; i++) {
+            final SpanEvent spanEvent = spanEventList.get(i);
+            final TSpanEvent tSpanEvent = tSpanEventList.get(i);
+
             final long startTime = spanEvent.getStartTime();
             final long startElapsedTime = startTime - keyTime;
-
-            final TSpanEvent tSpanEvent = tSpanEventIterator.next();
             tSpanEvent.setStartElapsed((int) startElapsedTime);
         }
     }

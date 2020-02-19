@@ -31,7 +31,6 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -90,15 +89,22 @@ public class GrpcSpanProcessorV2Test {
         spanProcessorProtoV2.postProcess(span, builder);
         PSpan pSpan = builder.build();
 
-        List<PSpanEvent> spanEventList = pSpan.getSpanEventList();
+        List<PSpanEvent> pSpanEventList = pSpan.getSpanEventList();
+        List<SpanEvent> spanEventList = span.getSpanEventList();
         long keyStartTime = span.getStartTime();
-        Iterator<SpanEvent> spanEventIterator = span.getSpanEventList().iterator();
-        for (PSpanEvent pSpanEvent : spanEventList) {
-            SpanEvent next = spanEventIterator.next();
+        for (int i = 0; i < pSpanEventList.size(); i++) {
+            PSpanEvent pSpanEvent = pSpanEventList.get(i);
+            SpanEvent next = spanEventList.get(i);
             long startTime = keyStartTime + pSpanEvent.getStartElapsed();
             Assert.assertEquals(startTime, next.getStartTime());
             keyStartTime = startTime;
         }
+    }
 
+    @Test
+    public void postProcess_NPE() {
+        Span span = newSpan();
+        PSpan.Builder builder = PSpan.newBuilder();
+        spanProcessorProtoV2.postProcess(span, builder);
     }
 }
