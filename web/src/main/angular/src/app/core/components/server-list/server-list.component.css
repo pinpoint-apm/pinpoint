@@ -70,7 +70,7 @@
     font-size: 10px;
     color: #FFF;
     margin-left: 13px;
-    background-color: #4b99e3;
+    background-color: var(--primary-color);
 }
 .l-icon-alert {
     height: 1em;
@@ -83,18 +83,4 @@
 }
 i.fas {
     margin-right: 4px;
-}
-.l-category {
-    display: inline-block;
-    padding: 2px 5px;
-    font-size: 10px;
-    color: #fff;
-    font-weight: 600;
-    cursor: pointer;
-}
-.l-category.l-green {
-    background:#23c6c8;
-}
-.l-category.l-blue {
-    background:#5597d5;
 }

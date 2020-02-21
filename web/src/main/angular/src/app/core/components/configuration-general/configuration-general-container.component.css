@@ -42,7 +42,7 @@ tbody > tr {
 }
 
 .l-color-blue {
-    color: #4b99e3;
+    color: var(--primary-color);
 }
 
 .l-text-bold {

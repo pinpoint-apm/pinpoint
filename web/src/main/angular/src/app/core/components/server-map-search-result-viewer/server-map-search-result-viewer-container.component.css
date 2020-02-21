@@ -14,8 +14,9 @@
 }
 
 .l-search-input:focus {
-    border-color:#469ae4;
-    box-shadow: 0 0 10px -3px #4b99e3;
+    border-color: var(--primary-color);
+    /* box-shadow: 0 0 10px -3px #4b99e3; */
+    box-shadow: 0 0px 1px 1px var(--primary-color);
     outline: none;
 }
 
@@ -78,9 +79,9 @@
 .l-list-contents:hover {
     cursor: pointer;
     background-color: #eee;
-    color: #4b99e3 !important;
+    color: var(--primary-color) !important;
 }
 
 .l-list-contents.selected {
-    color: #4b99e3 !important;
+    color: var(--primary-color) !important;
 }

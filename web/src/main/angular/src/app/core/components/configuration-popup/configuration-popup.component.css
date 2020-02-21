@@ -26,7 +26,7 @@
 .l-link:hover {
     cursor: pointer;
     background-color: #eee;
-    color: #4b99e3 !important;
+    color: var(--primary-color) !important;
 }
 
 .l-link-with-arrow {

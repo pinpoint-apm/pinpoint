@@ -76,7 +76,7 @@ export class ServerMapDiagramWithCytoscapejs extends ServerMapDiagram {
                         // 'font-family': 'Font Awesome 5 Free',
                         // 'font-size': 13,
                         // 'font-weight': 900,
-                        'text-background-color': getComputedStyle(this.option.container).getPropertyValue('--background'),
+                        'text-background-color': getComputedStyle(this.option.container).getPropertyValue('--background-color'),
                         'text-background-opacity': 1,
                         // 'text-wrap': 'wrap',
                         // 'font-family': 'FontAwesome, helvetica neue',

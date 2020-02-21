@@ -18,7 +18,7 @@
     cursor: pointer;
     height: 32px;
     padding: 0 13px;
-    border: 1px solid #4488CB;
+    border: 1px solid var(--dark-primary-color);
     background: #F6FAFE;
     font-size: 13px;
     border-radius: 0px;
@@ -43,7 +43,7 @@
     position: absolute;
     top: 32px;
     width: 100%;
-    border: 1px solid #4488CB;
+    border: 1px solid var(--dark-primary-color);
     background: #FFF;
     z-index: 10;
 }

@@ -13,12 +13,12 @@
     padding: 7px 10px;
     font-size: 13px;
     font-weight: 600;
-    background-color: #4A8FD2;
+    background-color: var(--primary-color);
 }
 .l-current-time input {
     width: 180px;
     height: 100%;
-    border: 1px solid #4A8FD2;
+    border: 1px solid var(--primary-color);
     display: inline-block;
     font-size: 13px;
     text-align: center;

@@ -48,8 +48,8 @@
     border-top-color: transparent;
 }
 .l-server-info-list li.active {
-    color:#fff;
-    background-color:#4a8fd2;
+    background-color: var(--primary-color);
+    color: #fff;
 }
 .l-server-info-list li ul {
     position: absolute;
@@ -69,15 +69,13 @@
     font-weight: 600;
     cursor: pointer;
 }
-.l-category.green {
-    background:#23c6c8;
-}
 .l-category.blue {
-    background:#5597d5;
+    background-color: var(--primary-color);
 }
 .l-sub-table {
     display: table-cell;
-    padding:16px 19px;background:#fff
+    padding: 16px 19px;
+    background: #fff
 }
 .l-sub-table .table th, .l-sub-table .table td {
     padding:14px 10px;

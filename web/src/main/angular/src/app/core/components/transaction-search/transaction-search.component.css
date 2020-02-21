@@ -44,7 +44,7 @@ select {
     padding: 7px 10px;
     font-size: 13px;
     font-weight: 600;
-    background-color: #4A8FD2;
+    background-color: var(--primary-color);
     width: 100px;
 }
 .l-search-group-wrap .l-search-group2 .fa-angle-down {

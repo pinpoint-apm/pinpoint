@@ -16,7 +16,7 @@
 .l-btn-group button.active, .l-btn-group button:hover {
     color:#fff;
     font-weight:600;
-    background:#4a8fd2;
+    background:var(--primary-color);
 }
 .l-transaction-state {
     color: #FFF;

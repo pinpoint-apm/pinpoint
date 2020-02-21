@@ -32,10 +32,10 @@
 .l-name-wrapper:hover {
     cursor: pointer;
     background-color: #eee;
-    color: #418CD3 !important;
+    color: var(--primary-color) !important;
 }
 .l-name-wrapper.active {
-    color: #418CD3 !important;
+    color: var(--primary-color) !important;
 }
 .l-icon-alert > img {
     vertical-align: middle;

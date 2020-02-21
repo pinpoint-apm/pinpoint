@@ -45,7 +45,7 @@
 }
 .active a {
     color: #fff;
-    background: #4a8fd2;
+    background: var(--primary-color);
 }
 .active a:hover {
     border-color: transparent;

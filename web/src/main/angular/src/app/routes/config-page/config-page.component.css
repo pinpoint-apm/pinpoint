@@ -40,11 +40,11 @@
 .l-link:hover {
     cursor: pointer;
     background-color: #eee;
-    color: #4b99e3 !important;
+    color: var(--primary-color) !important;
 }
 
 .l-link.active { 
-    color: #4b99e3 !important;
+    color: var(--primary-color) !important;
 }
 
 .l-link-with-arrow {
@@ -72,9 +72,7 @@
 
 .l-exit-button {
     color: #fff;
-    background-color: #4b99e3;
     font-size: 20px;
     height: 100%;
-    margin-right: 17px;
     outline: none;
 }

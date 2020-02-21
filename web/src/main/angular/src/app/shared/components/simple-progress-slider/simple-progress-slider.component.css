@@ -27,7 +27,7 @@
         width: 8px;
         height: 8px;
         border-radius: 50%;
-        background-color: #4b8ed4;
+        background-color: var(--primary-color);
     }
     .slider-for-progress .sfp-left-handler {
         left: 100%;              /* @script position reset */
@@ -72,7 +72,7 @@
         left: 100%;
     }
     .slider-for-progress .sfp-label-right-arrow span:before {
-    	border-left-color: #3e83c6;
+    	border-left-color: var(--primary-color);
     }
     .slider-for-progress .sfp-label-right-arrow span:after {
     	border-left-color: #ffffff;
@@ -81,7 +81,7 @@
         right: 100%;
     }
     .slider-for-progress .sfp-label-left-arrow span:before {
-    	border-right-color: #3e83c6;
+    	border-right-color: var(--primary-color);
     }
     .slider-for-progress .sfp-label-left-arrow span:after {
     	border-right-color: #ffffff;

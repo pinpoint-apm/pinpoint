@@ -21,10 +21,10 @@
 }
 .l-item.active { 
     color: #FFF !important;
-    background-color: #4b99e3; 
+    background-color: var(--primary-color); 
 }
 .l-item.active.focus { 
-    background-color: #4b99e3; 
+    background-color: var(--primary-color); 
 }
 .l-item.focus { 
     background-color:  #e4f3eb;

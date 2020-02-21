@@ -21,8 +21,8 @@
 }
 
 .l-search-input:focus {
-    border: 1px solid #469ae4;
-    box-shadow: 0 0 1px 0px #469ae4;
+    border: 1px solid var(--primary-color);
+    box-shadow: 0 0 1px 0px var(--primary-color);
 }
 
 .l-app-list-section {

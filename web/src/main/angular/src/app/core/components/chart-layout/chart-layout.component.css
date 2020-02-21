@@ -65,7 +65,7 @@
     justify-content: space-between;
 }
 .l-chart-logo {
-    color: #469ae4;
+    color: var(--primary-color);
 }
 .l-chart-action-remove {
     color: #F78178;

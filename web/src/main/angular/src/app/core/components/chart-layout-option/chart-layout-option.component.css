@@ -13,9 +13,9 @@
 }
 
 .l-layout-option-button:hover {
-    color: #418CD3;
+    color: var(--primary-color);
 }
 
 .l-layout-option-button.active {
-    color: #418CD3 !important;
+    color: var(--primary-color) !important;
 }
