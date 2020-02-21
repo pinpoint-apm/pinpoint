@@ -25,9 +25,9 @@ import java.util.concurrent.TimeUnit;
  */
 public class ServerOption {
     public static final int DEFAULT_FLOW_CONTROL_WINDOW = 1048576; // 1MiB
-    public static final long DEFAULT_KEEPALIVE_TIME = TimeUnit.MINUTES.toMillis(5);
-    public static final long DEFAULT_KEEPALIVE_TIMEOUT = TimeUnit.MINUTES.toMillis(30);
-    public static final long DEFAULT_PERMIT_KEEPALIVE_TIME = TimeUnit.MINUTES.toMillis(3);
+    public static final long DEFAULT_KEEPALIVE_TIME = TimeUnit.SECONDS.toMillis(30);
+    public static final long DEFAULT_KEEPALIVE_TIMEOUT = TimeUnit.SECONDS.toMillis(60);
+    public static final long DEFAULT_PERMIT_KEEPALIVE_TIME = TimeUnit.SECONDS.toMillis(30);
     public static final boolean PERMIT_KEEPALIVE_WITHOUT_CALLS_DISABLE = Boolean.FALSE;
 
     public static final long DEFAULT_MAX_CONNECTION_IDLE = TimeUnit.SECONDS.toMillis(10); // 10s
