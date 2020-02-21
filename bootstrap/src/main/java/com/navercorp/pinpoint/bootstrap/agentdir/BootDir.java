@@ -36,12 +36,8 @@ public class BootDir {
     private final List<String> jars;
 
     public BootDir(String baseDir, List<JarDescription> jarDescriptions) {
-        if (baseDir == null) {
-            throw new NullPointerException("baseDir");
-        }
-        if (jarDescriptions == null) {
-            throw new NullPointerException("jarDescriptions");
-        }
+        Assert.requireNonNull(baseDir, "baseDir");
+        Assert.requireNonNull(jarDescriptions, "jarDescriptions");
         this.baseDirFile = new File(baseDir);
         this.jars = verify(baseDirFile, jarDescriptions);
     }

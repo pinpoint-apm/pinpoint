@@ -17,6 +17,7 @@
 
 package com.navercorp.pinpoint.bootstrap;
 
+import com.navercorp.pinpoint.bootstrap.agentdir.Assert;
 import com.navercorp.pinpoint.common.util.IdValidateUtils;
 
 /**
@@ -39,6 +40,8 @@ public class IdValidator {
     }
 
     public boolean validate(AgentIds agentIds) {
+        Assert.requireNonNull(agentIds, "agentIds");
+
         final AgentIdSourceType type = agentIds.getSourceType();
         
         final String agentId = agentIds.getAgentId();

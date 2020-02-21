@@ -47,15 +47,12 @@ public class AgentDirectory {
                           BootDir bootDir,
                           List<URL> libs,
                           List<String> plugins) {
-        if (bootDir == null) {
-            throw new NullPointerException("bootDir");
-        }
 
         this.agentJarName = agentJarName;
         this.agentJarFullPath = agentJarFullPath;
         this.agentDirPath = agentDirPath;
 
-        this.bootDir = bootDir;
+        this.bootDir = Assert.requireNonNull(bootDir, "bootDir");
         this.libs = libs;
         this.plugins = plugins;
     }

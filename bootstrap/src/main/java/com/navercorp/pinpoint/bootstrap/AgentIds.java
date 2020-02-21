@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.bootstrap;
 
+import com.navercorp.pinpoint.bootstrap.agentdir.Assert;
+
 /**
  * @author Woonduk Kang(emeroad)
  */
@@ -25,18 +27,9 @@ public class AgentIds {
     private final AgentIdSourceType type;
 
     public AgentIds(AgentIdSourceType type, String agentId, String applicationName) {
-        if (type == null) {
-            throw new NullPointerException("type");
-        }
-        if (agentId == null) {
-            throw new NullPointerException("agentId");
-        }
-        if (applicationName == null) {
-            throw new NullPointerException("applicationName");
-        }
-        this.type = type;
-        this.agentId = agentId;
-        this.applicationName = applicationName;
+        this.type = Assert.requireNonNull(type, "type");
+        this.agentId = Assert.requireNonNull(agentId, "agentId");
+        this.applicationName = Assert.requireNonNull(applicationName, "applicationName");
     }
 
     public AgentIdSourceType getSourceType() {
