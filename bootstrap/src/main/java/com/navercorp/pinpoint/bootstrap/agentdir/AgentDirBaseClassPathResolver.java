@@ -54,11 +54,7 @@ public class AgentDirBaseClassPathResolver implements ClassPathResolver {
 
 
     public AgentDirBaseClassPathResolver(String classPath) {
-        if (classPath == null) {
-            throw new NullPointerException("classPath");
-        }
-
-        this.classPath = classPath;
+        this.classPath = Assert.requireNonNull(classPath, "classPath");
         this.fileExtensions = getFileExtensions();
     }
 

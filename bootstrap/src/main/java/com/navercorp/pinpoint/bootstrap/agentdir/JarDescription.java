@@ -30,10 +30,7 @@ public class JarDescription {
     private final boolean required;
 
     public JarDescription(String prefix, boolean required) {
-        if (prefix == null) {
-            throw new NullPointerException("prefix");
-        }
-        this.prefix = prefix;
+        this.prefix = Assert.requireNonNull(prefix, "prefix");
         this.required = required;
     }
 

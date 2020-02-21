@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.bootstrap;
 
+import com.navercorp.pinpoint.bootstrap.agentdir.Assert;
+
 import java.util.Map;
 import java.util.Properties;
 
@@ -29,22 +31,10 @@ public class AgentProperties {
     private final String applicationNameKey;
 
     public AgentProperties(AgentIdSourceType type, Properties properties, String agentKey, String applicationNameKey) {
-        if (type == null) {
-            throw new NullPointerException("type");
-        }
-        if (properties == null) {
-            throw new NullPointerException("properties");
-        }
-        if (agentKey == null) {
-            throw new NullPointerException("agentKey");
-        }
-        if (applicationNameKey == null) {
-            throw new NullPointerException("applicationNameKey");
-        }
-        this.type = type;
-        this.properties = properties;
-        this.agentKey = agentKey;
-        this.applicationNameKey = applicationNameKey;
+        this.type = Assert.requireNonNull(type, "type");
+        this.properties = Assert.requireNonNull(properties, "properties");
+        this.agentKey = Assert.requireNonNull(agentKey, "agentKey");
+        this.applicationNameKey = Assert.requireNonNull(applicationNameKey, "applicationNameKey");
     }
 
     public AgentProperties(AgentIdSourceType type, Map<String, String> properties, String agentKey, String applicationNameKey) {

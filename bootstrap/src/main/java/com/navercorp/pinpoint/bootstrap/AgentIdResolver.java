@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.bootstrap;
 
+import com.navercorp.pinpoint.bootstrap.agentdir.Assert;
 import com.navercorp.pinpoint.common.util.StringUtils;
 
 import java.util.List;
@@ -36,7 +37,7 @@ public class AgentIdResolver {
     private final List<AgentProperties> agentPropertyList;
 
     public AgentIdResolver(List<AgentProperties> agentPropertyList) {
-        this.agentPropertyList = agentPropertyList;
+        this.agentPropertyList = Assert.requireNonNull(agentPropertyList, "agentPropertyList");
     }
 
     public AgentIds resolve() {

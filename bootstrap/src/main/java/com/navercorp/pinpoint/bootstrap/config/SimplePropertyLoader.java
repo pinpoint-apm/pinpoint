@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.bootstrap.config;
 
 import com.navercorp.pinpoint.bootstrap.BootLogger;
+import com.navercorp.pinpoint.bootstrap.agentdir.Assert;
 import com.navercorp.pinpoint.common.util.PropertyUtils;
 import com.navercorp.pinpoint.common.util.SimpleProperty;
 
@@ -39,14 +40,8 @@ class SimplePropertyLoader implements PropertyLoader {
 
 
     public SimplePropertyLoader(SimpleProperty systemProperty, String agentRootPath, String profilesPath) {
-        if (systemProperty == null) {
-            throw new NullPointerException("systemProperty");
-        }
-        if (agentRootPath == null) {
-            throw new NullPointerException("agentRootPath");
-        }
-        this.systemProperty = systemProperty;
-        this.agentRootPath = agentRootPath;
+        this.systemProperty = Assert.requireNonNull(systemProperty, "systemProperty");
+        this.agentRootPath = Assert.requireNonNull(agentRootPath, "agentRootPath");
         this.profilesPath = profilesPath;
     }
 

@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.bootstrap;
 
+import com.navercorp.pinpoint.bootstrap.agentdir.Assert;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -28,18 +30,15 @@ public class AgentIdResolverBuilder {
     private List<AgentProperties> agentProperties = new ArrayList<AgentProperties>();
     
     public void addSystemProperties(Properties system) {
-        if (system == null) {
-            throw new NullPointerException("system");
-        }
+        Assert.requireNonNull(system, "system");
+
         AgentProperties systemProperties = new AgentProperties(AgentIdSourceType.SYSTEM, system,
                 AgentIdResolver.AGENT_ID_SYSTEM_PROPERTY, AgentIdResolver.APPLICATION_NAME_SYSTEM_PROPERTY);
         this.agentProperties.add(systemProperties);
     }
 
     public void addAgentArgument(Map<String, String> agentArguments) {
-        if (agentArguments == null) {
-            throw new NullPointerException("agentArguments");
-        }
+        Assert.requireNonNull(agentArguments, "agentArguments");
 
         AgentProperties agentArgument = new AgentProperties(AgentIdSourceType.AGENT_ARGUMENT, agentArguments,
                 AgentIdResolver.AGENT_ID, AgentIdResolver.APPLICATION_NAME);

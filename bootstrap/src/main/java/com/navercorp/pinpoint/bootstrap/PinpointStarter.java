@@ -16,6 +16,7 @@ package com.navercorp.pinpoint.bootstrap;
 
 import com.navercorp.pinpoint.ProductInfo;
 import com.navercorp.pinpoint.bootstrap.agentdir.AgentDirectory;
+import com.navercorp.pinpoint.bootstrap.agentdir.Assert;
 import com.navercorp.pinpoint.bootstrap.classloader.PinpointClassLoaderFactory;
 import com.navercorp.pinpoint.bootstrap.classloader.ProfilerLibs;
 import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
@@ -68,19 +69,10 @@ class PinpointStarter {
 //        if (bootstrapClassLoader == null) {
 //            throw new NullPointerException("bootstrapClassLoader");
 //        }
-        if (agentArgs == null) {
-            throw new NullPointerException("agentArgs");
-        }
-        if (agentDirectory == null) {
-            throw new NullPointerException("agentDirectory");
-        }
-        if (instrumentation == null) {
-            throw new NullPointerException("instrumentation");
-        }
-        this.agentArgs = agentArgs;
+        this.agentArgs = Assert.requireNonNull(agentArgs, "agentArgs");
         this.parentClassLoader = parentClassLoader;
-        this.agentDirectory = agentDirectory;
-        this.instrumentation = instrumentation;
+        this.agentDirectory = Assert.requireNonNull(agentDirectory, "agentDirectory");
+        this.instrumentation = Assert.requireNonNull(instrumentation, "instrumentation");
         this.moduleBootLoader = moduleBootLoader;
 
     }
@@ -125,7 +117,7 @@ class PinpointStarter {
             }
 
             final String bootClass = getBootClass();
-            AgentBootLoader agentBootLoader = new AgentBootLoader(bootClass, urls, agentClassLoader);
+            AgentBootLoader agentBootLoader = new AgentBootLoader(bootClass, agentClassLoader);
             logger.info(String.format("pinpoint agent [%s] starting...", bootClass));
 
             final List<String> pluginJars = agentDirectory.getPlugins();
