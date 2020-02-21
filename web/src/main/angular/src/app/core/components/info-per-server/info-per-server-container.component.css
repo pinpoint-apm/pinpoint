@@ -36,7 +36,7 @@
     font-size: 11px;
     font-weight: 600;
     display: inline-block;
-    background: #4b99e3;
+    background: var(--primary-color);
     margin: 0 12px 0 0;
     padding: 6px 11px;
     line-height: 1em;
@@ -49,7 +49,7 @@
     height:0;
     border-top:4px solid transparent;
     border-bottom:4px solid transparent;
-    border-left:3px solid #4b99e3;
+    border-left:3px solid var(--primary-color);
     right:-3px;
     top:50%;
     transform:translateY(-50%);
@@ -93,7 +93,7 @@
     width: 30px;
     height: 30px;
     border-radius: 50%;
-    background: #4a8fd2;
+    background: var(--primary-color);
     color: #fff;
     align-items: center;
     display: flex;

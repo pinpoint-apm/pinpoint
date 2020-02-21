@@ -28,14 +28,14 @@
 .l-title-group dt {
     font-size: 20px;
     font-weight: 600;
-    color: #4a8fd2;
+    color: var(--primary-color);
 }
 .l-title-group button {
     position:absolute;
     right:27px;
     top:50%;
     transform:translateY(-50%);
-    color:#4a8fd2;
+    color:var(--primary-color);
     font-size: 30px;
     width:20px;
     height:20px;

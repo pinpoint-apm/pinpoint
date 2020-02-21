@@ -30,7 +30,7 @@
 :host(.agent_list),
 :host(.agent_data_source),
 :host(.application_data_source) {
-    width: 300px;   
+    width: 310px;   
 }
 
 :host(.agent_heap),

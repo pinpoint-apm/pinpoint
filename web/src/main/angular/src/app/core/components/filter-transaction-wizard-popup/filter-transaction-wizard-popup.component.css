@@ -29,7 +29,7 @@
 .l-title-group dt {
     font-weight: normal;
     font-size: 20px;
-    color: #4A8FD2;
+    color: var(--primary-color);
 }
 .l-popup-close {
     font-size: 30px;
@@ -62,7 +62,7 @@
     margin-left: -25px;
     margin-right: 10px;
     font-size: 18px;
-    color: #4B99E3;
+    color: var(--primary-color);
 }
 .l-table .col1 {
     padding: 0;
@@ -154,7 +154,7 @@
 .l-application-list li.active {
     color: #fff;
     font-weight: 600;
-    background-color: #4B99E3;
+    background-color: var(--primary-color);
 }
 .l-application-list li:hover {
     color: #000;
@@ -165,9 +165,9 @@
     width: 100%;
 }
 .l-widget-group input {
-    border: 1px solid #469ae4;
+    border: 1px solid #ccc;
     font-size: 13px;
-    color: #b3b3b4;
+    color: #333;
     padding: 6px 11px;
     width: 100%;
 }
@@ -196,9 +196,6 @@
     padding: 30px 30px 10px 30px !important;
     font-size: 11px !important;
 }
-.l-response-time div.noUi-tooltip {
-    color: #4B99E3;
-}
 .l-response-time div.noUi-connect {
     background-color: #3dcfa8 !important;
 }
@@ -209,7 +206,7 @@
     float: left;
 }
 .l-range-info .l-range-text {
-    color: #4B99E3;
+    color: var(--primary-color);
 }
 .l-range-info span:last-child {
     float: right;
@@ -228,7 +225,7 @@
 }
 .l-transaction-result button.active {
     color: #fff;
-    background: #4a8fd2;
+    background: var(--primary-color);
     border-color: transparent;
 }
 
@@ -236,6 +233,6 @@
     text-align: right;
     padding-top: 14px;
 }
-.l-buttons button {
+.l-cancel-button {
     margin-right: 15px;
 }

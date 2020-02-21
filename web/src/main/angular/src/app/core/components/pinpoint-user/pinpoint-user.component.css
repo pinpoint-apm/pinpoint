@@ -16,7 +16,7 @@
 
 :host.selected {
     /* TODO: 체크된 유저에 대한 스타일링 */
-    color: #4b99e3;
+    color: var(--primary-color);
 }
 
 .l-btn-section {

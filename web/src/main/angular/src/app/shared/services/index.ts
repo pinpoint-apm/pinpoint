@@ -21,3 +21,4 @@ export * from './window-ref.service';
 export * from './dynamic-popup.service';
 export * from './message-queue.service';
 export * from './application-list-data.service';
+export * from './theme.service';

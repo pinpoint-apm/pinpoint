@@ -28,7 +28,7 @@ export class ServerMapContextPopupContainerComponent implements OnInit, AfterVie
         this.outCreated.emit(coord);
     }
 
-    onClickMergeCheck(mergeState: IServerMapMergeState): void {
+    onChangeMergeState(mergeState: IServerMapMergeState): void {
         this.serverMapInteractionService.setMergeState(mergeState);
         this.outClose.emit();
     }

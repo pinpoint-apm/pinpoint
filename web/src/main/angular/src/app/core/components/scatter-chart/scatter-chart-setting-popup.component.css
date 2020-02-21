@@ -21,7 +21,7 @@
     background-color: #FFF;
 }
 .l-title-group dt {
-    color: #4A8FD2;
+    color: var(--primary-color);
     font-size: 20px;
     font-weight: 600;
 }

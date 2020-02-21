@@ -50,7 +50,7 @@
     position: absolute;
     left: -36px;
     background:#fff;
-    border: 1px solid #4477CB;
+    border: 1px solid var(--dark-primary-color);
     width: calc(100% + 37px);
     z-index: 701;
 }
@@ -108,7 +108,7 @@
 }
 .l-btn-group .l-time-set li.active button, .l-btn-group .l-time-set li button:hover, .l-btn-group .l-time-set li button:focus {
     border: none;
-    background:#469ae4;
+    background: var(--primary-color);
     color:#fff;
 }
 .l-btn-group .l-time-set button {
@@ -140,6 +140,6 @@
     padding: 0 4px;
 } 
 .ngui-datetime-picker > .days .day.selected { 
-    background: #469ae4 !important;
+    background: var(--primary-color) !important;
     color: #FFF !important;
 }

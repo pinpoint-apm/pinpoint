@@ -10,7 +10,7 @@ button {
     outline: none;
 }
 .l-wrapper {
-    border: 1px solid #4488CB;
+    border: 1px solid #ccc;
 }
 .l-dropdown-button {
     text-align: left;
@@ -58,7 +58,7 @@ button {
 }
 
 .l-bound-list-item {
-    font-weight: 400;
+    font-weight: 600;
     color: #333;
     font-size: 13px;
     padding: 5px 10px;
@@ -76,33 +76,28 @@ button {
 
 .l-bound-list-item:hover {
     background-color: #eee;
+    color: var(--primary-color);
 }
 
 .l-bound-list-item.active {
-    color: #4b99e3;
+    color: var(--primary-color);
     background-color: #edf2f8;
 }
 
 .l-button-group-wrapper {
     width: 100%;
     border-top: 1px solid #e5e8f0;
-    padding: 1px;
+    padding: 2px;
     text-align: right;
 }
 
 .l-apply-button {
-    background-color: #4a8fd2;
-    border: 1px solid #4a8fd2;
-    border-radius: 0px;
-    padding: 5px 11px;
+    font-size: 12px !important;
+    background-color: var(--primary-color);
+    margin-left: 2px;
     color: #fff;
-    margin: 2px;
 }
 
 .l-cancel-button {
-    border: 1px solid #e5e8f0;
-    border-radius: 0px;
-    padding: 5px 7px;
-    color: #333;
-    margin: 2px;
+    font-size: 12px !important;
 }

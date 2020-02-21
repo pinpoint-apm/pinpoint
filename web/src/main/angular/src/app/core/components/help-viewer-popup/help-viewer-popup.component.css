@@ -20,7 +20,7 @@
 .title-group > dt {
     font-size: 16px;
     font-weight: 600;
-    color: #4a8fd2;
+    color: var(--primary-color);
 }
 
 .title-group > dd {

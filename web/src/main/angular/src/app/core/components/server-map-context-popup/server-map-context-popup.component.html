@@ -1,11 +1,8 @@
-<ul class="l-one-depth-list">
-    <li>
-        <div><span class="l-icon fas fa-compress"></span>Merge</div>
-        <ul class="l-two-depth-list">
-            <li class="l-selectable-command" *ngFor="let key of objectKeys(mergeNodeStateMap)" (click)="onClickMergeCheck(key)">
-                <span class="l-icon" [ngClass]="mergeStateStyleClass[key]"></span>{{key}}
-            </li>
-        </ul>
-    </li>
-    <li class="l-selectable-command" (click)="onClickRefresh()"><span class="l-icon fas fa-sync"></span>Refresh</li>
-</ul>
+<dl class="l-list">
+    <dt class="l-list-title"><span class="l-icon fas fa-compress"></span>Merge</dt>
+    <dd class="l-list-item" *ngFor="let item of mergeState | keyvalue">
+        <input type="checkbox" class="l-checkbox-input" id="itemKey" [checked]="item.value" (change)="onChangeMergeState(item)">
+        <label class="l-item-label" for="itemKey">{{item.key}}</label>
+    </dd>
+</dl>
+<button class="l-refresh-btn" (click)="onClickRefresh()"><span class="l-icon fas fa-sync"></span>Refresh</button>

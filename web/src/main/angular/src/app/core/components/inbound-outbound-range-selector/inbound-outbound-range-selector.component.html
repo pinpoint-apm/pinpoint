@@ -14,8 +14,8 @@
             <dd *ngFor="let outbound of outboundList" class="l-bound-list-item" [class.active]="selectedOutbound === outbound" (click)="onSelectOutbound(outbound)">{{outbound}}</dd>
         </dl>
         <div class="l-button-group-wrapper">
-            <button class="l-cancel-button" (click)="onCancel()">Cancel</button>
-            <button class="l-apply-button" (click)="onApply()">Apply</button>
+            <button class="btn l-cancel-button" (click)="onCancel()">Cancel</button>
+            <button class="btn l-apply-button" (click)="onApply()">Apply</button>
         </div>
     </div>
 </div>

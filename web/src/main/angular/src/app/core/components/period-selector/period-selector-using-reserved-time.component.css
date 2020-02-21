@@ -20,7 +20,7 @@
     background:#33b692;
 }
 .l-time-set button:focus {
-    background-color:#469ae4;
+    background-color:var(--primary-color);
     color:#fff;
 }
 .l-time-set button:hover, .l-time-set button:focus {

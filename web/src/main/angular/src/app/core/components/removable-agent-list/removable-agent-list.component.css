@@ -93,7 +93,7 @@
     background-color: #e4f5e3;
 }
 #removableAgentList .ag-row-selected {
-    color: #4a8fd2;
+    color: var(--primary-color);
     background-color: #e7f5f9;
 }
 #removableAgentList .div-percent-bar {

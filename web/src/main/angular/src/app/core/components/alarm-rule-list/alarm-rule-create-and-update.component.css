@@ -44,13 +44,21 @@ form {
     margin-right: 10px;
 }
 
-.l-wrapper input {
+.l-required-icon {
+    color: #d00;
+    margin-left: 2px;
+}
+
+.l-input, .l-select {
     width: 100%;
-    border: 1px solid #469ae4;
-    padding: 6px 11px;
-    font-size: 13px;
-    margin-bottom: 2px;
+    border-radius: 4px;
     background-color: #FFF;
+    padding: 10px 14px;
+    border: 1px solid #ccc;
+    font-size: 13px;
+    color: #333;
+    box-shadow: 0 0 1px 0 #ccc;
+    outline: 0;
 }
 
 .l-wrapper .l-create {
@@ -64,35 +72,36 @@ form {
     position: absolute;
 }
 
-select { 
-    width: 100%;
+.l-select { 
     appearance: none;
     -webkit-appearance: none;
-    border-radius: 0px;
-    background-color: #FFF;
-    height: 32px;
-    padding: 0 9px;
-    border:1px solid #4488cb;
-    font-size:13px;
-    color:#666;
 }
 
-textarea { 
+.l-textarea { 
     width: 100%;
     height: 120px;
+    border-radius: 4px;
     background-color: #FFF;
-    padding: 6px 11px;
+    padding: 10px 14px;
+    border: 1px solid #ccc;
+    font-size: 13px;
+    color: #333;
+    box-shadow: 0 0 1px 0 #ccc;
+    outline: 0;
+}
+
+.l-input:focus,
+.l-select:focus,
+.l-textarea:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0px 1px 1px var(--primary-color);
 }
 
 .fa-angle-down {
     position: absolute;
-    top: 29px;
-    right: 8px;
+    top: 33px;
+    right: 10px;
     font-size: 15px;
-}
-
-input[disabled] {
-    border: 1px solid #DDD !important;
 }
 
 .l-form-label {
@@ -101,4 +110,23 @@ input[disabled] {
     font-family: 'Open Sans', sans-serif;
     font-weight: 600;
     margin-bottom: 4px;
+}
+
+.ng-valid[required]  {
+    border-left: 5px solid #42A948 !important; 
+}
+
+.ng-valid[required]:focus {
+    border-color: #42a948;
+    box-shadow: 0 0 1px 0px #42a948;
+}
+
+.ng-invalid:not(form).ng-touched  {
+    border-left: 5px solid #a94442 !important;
+    border-color: #d00;
+}
+
+.ng-invalid:not(form).ng-touched:focus {
+    border-color: #d00;
+    box-shadow: 0 0 1px 0px #d00;
 }

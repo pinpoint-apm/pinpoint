@@ -30,6 +30,7 @@
                             "./node_modules/billboard.js/dist/billboard.css",
                             "src/assets/lib/prettify/prettify.css",
                             "src/assets/lib/prettify/sunburst.css",
+                            "src/custom.css",
                             "src/styles.css"
                         ],
                         "scripts": [
@@ -42,8 +43,8 @@
                         "production": {
                             "budgets": [
                                 {
-                                "type": "anyComponentStyle",
-                                "maximumWarning": "6kb"
+                                    "type": "anyComponentStyle",
+                                    "maximumWarning": "6kb"
                                 }
                             ],
                             "fileReplacements": [{
