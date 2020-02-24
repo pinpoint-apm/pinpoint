@@ -136,19 +136,28 @@ export class CallTreeComponent implements OnInit, OnChanges, AfterViewInit {
         };
     }
 
-    private calcColor(str: string): string {
-        if ( str ) {
-            let hash = 0;
-            let colour = '#';
-            for ( let i = 0 ; i < str.length ; i++ ) {
-                hash = str.charCodeAt(i) + ((hash << 5) - hash);
-            }
-            for ( let i = 0 ; i < 3 ; i++ ) {
-                colour += ('00' + ((hash >> i * 8) & 0xFF).toString(16)).slice(-2);
-            }
-            this.previousColor = colour;
+    private calcColor({agent, index}: {[key: string]: any}): string {
+        const agentKey = agent ? agent : this.getAgentKey(index);
+        let hash = 0;
+        let color = '#';
+
+        for (let i = 0; i < agentKey.length; i++) {
+            hash = agentKey.charCodeAt(i) + ((hash << 5) - hash);
         }
-        return this.previousColor;
+        for (let i = 0; i < 3; i++ ) {
+            color += ('00' + ((hash >> i * 8) & 0xFF).toString(16)).slice(-2);
+        }
+
+        return color;
+    }
+
+    private getAgentKey(rowIndex: number): string {
+        let agentKey = null;
+
+        for (let i = rowIndex - 1; agentKey === null; i--) {
+            agentKey = this.originalData.callStack[i][20]; // 20th index indicates agentKey
+        }
+        return agentKey;
     }
 
     private makeColumnDefs(): any {
@@ -160,7 +169,7 @@ export class CallTreeComponent implements OnInit, OnChanges, AfterViewInit {
                 minWidth: 10,
                 maxWidth: 10,
                 cellStyle: (params: any) => {
-                    return { backgroundColor: this.calcColor(params.value) };
+                    return {backgroundColor: this.calcColor(params.data)};
                 },
                 cellRenderer: (params: any) => {
                     return '';
