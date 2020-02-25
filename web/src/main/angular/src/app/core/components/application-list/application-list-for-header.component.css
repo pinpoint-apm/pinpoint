@@ -12,6 +12,7 @@
     color: #333;
     font-weight: 600;
 }
+
 .l-item {
     padding: 12px 15px;
     color: #666;
@@ -19,19 +20,24 @@
     align-items: center;
     cursor: pointer; 
 }
+
 .l-item.active { 
     color: #FFF !important;
     background-color: var(--primary-color); 
 }
+
 .l-item.active.focus { 
     background-color: var(--primary-color); 
 }
+
 .l-item.focus { 
     background-color:  #e4f3eb;
 }
+
 .l-icon-img {
     margin: 0 10px 0 0;
 }
+
 .l-text-ellipsis {
     text-overflow: ellipsis;
     white-space: nowrap;

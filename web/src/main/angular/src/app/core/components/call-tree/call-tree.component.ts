@@ -56,7 +56,6 @@ export class CallTreeComponent implements OnInit, OnChanges, AfterViewInit {
     private ratio: number;
 
     gridOptions: GridOptions;
-    previousColor: string;
     rowData: IGridData[];
 
     constructor(
