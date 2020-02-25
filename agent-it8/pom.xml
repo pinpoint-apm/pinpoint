@@ -106,16 +106,17 @@
             <scope>test</scope>
         </dependency>
 
-        <dependency>
-            <groupId>com.bbossgroups.plugins</groupId>
-            <artifactId>bboss-elasticsearch-rest-jdbc</artifactId>
-            <version>5.6.9</version>
-            <scope>test</scope>
-        </dependency>
+
         <dependency>
             <groupId>org.elasticsearch.client</groupId>
             <artifactId>elasticsearch-rest-high-level-client</artifactId>
             <version>7.3.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.bbossgroups.plugins</groupId>
+            <artifactId>bboss-elasticsearch-rest-jdbc</artifactId>
+            <version>5.6.9</version>
             <scope>test</scope>
         </dependency>
         <dependency>

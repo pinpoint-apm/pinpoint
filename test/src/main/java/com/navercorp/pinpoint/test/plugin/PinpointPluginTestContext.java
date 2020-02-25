@@ -14,6 +14,7 @@
  */
 package com.navercorp.pinpoint.test.plugin;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -94,4 +95,20 @@ public class PinpointPluginTestContext {
         return javaExecutable;
     }
 
+    @Override
+    public String toString() {
+        return "PinpointPluginTestContext{" +
+                "agentJar='" + agentJar + '\'' +
+                ", profile='" + profile + '\'' +
+                ", configFile='" + configFile + '\'' +
+                ", requiredLibraries=" + requiredLibraries +
+                ", mavenDependencyLibraries=" + mavenDependencyLibraries +
+                ", testClass=" + testClass +
+                ", testClassLocation='" + testClassLocation + '\'' +
+                ", jvmArguments=" + Arrays.toString(jvmArguments) +
+                ", debug=" + debug +
+                ", jvmVersion=" + jvmVersion +
+                ", javaExecutable='" + javaExecutable + '\'' +
+                '}';
+    }
 }

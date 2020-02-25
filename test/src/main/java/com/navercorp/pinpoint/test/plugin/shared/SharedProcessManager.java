@@ -18,11 +18,11 @@ package com.navercorp.pinpoint.test.plugin.shared;
 
 import com.navercorp.pinpoint.common.Charsets;
 import com.navercorp.pinpoint.common.util.Assert;
-import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.common.util.SystemProperty;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestContext;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestInstance;
 import com.navercorp.pinpoint.test.plugin.ProcessManager;
+import com.navercorp.pinpoint.test.plugin.util.StringUtils;
 import org.eclipse.aether.artifact.Artifact;
 
 import java.io.File;
@@ -40,7 +40,6 @@ import java.util.TimerTask;
  * @author Taejin Koo
  */
 public class SharedProcessManager implements ProcessManager {
-
     private final PinpointPluginTestContext context;
     private final Map<String, List<Artifact>> testRepository = new LinkedHashMap<String, List<Artifact>>();
 
@@ -142,15 +141,17 @@ public class SharedProcessManager implements ProcessManager {
         list.add("-Xmx1024m");
         list.add("-XX:MaxPermSize=512m");
 
+        String classPath = join(context.getRequiredLibraries());
         list.add("-cp");
-        list.add(getClassPathAsString(context.getRequiredLibraries()));
+        list.add(classPath);
 
         list.add(getAgent());
 
         list.add("-Dpinpoint.agentId=build.test.0");
         list.add("-Dpinpoint.applicationName=test");
 
-        list.add("-D" + SharedPluginTestConstants.MAVEN_DEPENDENCY_RESOLVER_CLASS_PATHS + "=" + getClassPathAsString(context.getMavenDependencyLibraries()));
+        final String mavenDependencyResolverClassPaths = join(context.getMavenDependencyLibraries());
+        list.add("-D" + SharedPluginTestConstants.MAVEN_DEPENDENCY_RESOLVER_CLASS_PATHS + "=" + mavenDependencyResolverClassPaths);
         list.add("-D" + SharedPluginTestConstants.TEST_LOCATION + "=" + context.getTestClassLocation());
         list.add("-D" + SharedPluginTestConstants.TEST_CLAZZ_NAME +"=" + context.getTestClass().getName());
 
@@ -193,6 +194,10 @@ public class SharedProcessManager implements ProcessManager {
         return list.toArray(new String[0]);
     }
 
+    private String join(List<String> mavenDependencyLibraries) {
+        return StringUtils.join(mavenDependencyLibraries, File.pathSeparatorChar);
+    }
+
     private static final String DEFAULT_ENCODING = Charsets.UTF_8_NAME;
 
     private List<String> getVmArgs() {
@@ -225,22 +230,6 @@ public class SharedProcessManager implements ProcessManager {
 
     public String getMainClass() {
         return SharedPinpointPluginTest.class.getName();
-    }
-
-    private String getClassPathAsString(List<String> classPaths) {
-        StringBuilder classPath = new StringBuilder();
-        boolean first = true;
-
-        for (String lib : classPaths) {
-            if (first) {
-                first = false;
-            } else {
-                classPath.append(File.pathSeparatorChar);
-            }
-
-            classPath.append(lib);
-        }
-        return classPath.toString();
     }
 
 }
