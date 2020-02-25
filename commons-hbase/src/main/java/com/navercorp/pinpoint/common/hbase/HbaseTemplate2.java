@@ -142,17 +142,21 @@ public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, I
 
         while (true) {
             Long currentPutOpsCount = asyncOperation.getCurrentOpsCount();
-            if (logger.isWarnEnabled()) {
-                logger.warn("count {}", currentPutOpsCount);
-            }
-
             if (currentPutOpsCount <= 0L) {
                 return true;
             }
 
             if (stopWatch.stop() > waitTimeout) {
+                if (logger.isWarnEnabled()) {
+                    logger.warn("Incomplete asynchronous operation exists. operations={}, waitTimeout={}, checkUnitTime={}", currentPutOpsCount, waitTimeout, checkUnitTime);
+                }
                 return false;
             }
+
+            if (logger.isWarnEnabled()) {
+                logger.warn("Waiting for asynchronous operation to complete. operations={}, waitTimeout={}, checkUnitTime={}", currentPutOpsCount, waitTimeout, checkUnitTime);
+            }
+
             try {
                 Thread.sleep(checkUnitTime);
             } catch (InterruptedException e) {
