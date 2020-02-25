@@ -1,4 +1,4 @@
-import { Component, OnInit, OnChanges, SimpleChanges, Input, Output, EventEmitter, ViewChild, ElementRef, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, OnChanges, SimpleChanges, Input, Output, EventEmitter, ViewChild, ElementRef, ChangeDetectionStrategy, AfterViewInit } from '@angular/core';
 
 export enum FOCUS_TYPE {
     KEYBOARD,
@@ -11,19 +11,19 @@ export enum FOCUS_TYPE {
     styleUrls: ['./application-list-for-header.component.css'],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ApplicationListForHeaderComponent implements OnInit, OnChanges {
+export class ApplicationListForHeaderComponent implements OnInit, OnChanges, AfterViewInit {
     @ViewChild('appList', {static: true}) ele: ElementRef;
     @Input() showTitle: boolean;
     @Input() title: string;
-    @Input() restCount: number;
+    @Input() restCount: number; // to distinguish the focusIndex between favAppList and entire appList
     @Input() focusIndex: number;
     @Input() focusType: FOCUS_TYPE;
     @Input() applicationList: IApplication[];
     @Input() selectedApplication: IApplication;
     @Input() emptyText: string;
     @Input() funcImagePath: Function;
-    @Output() outSelected: EventEmitter<IApplication> = new EventEmitter();
-    @Output() outFocused: EventEmitter<number> = new EventEmitter();
+    @Output() outSelected = new EventEmitter<IApplication>();
+    @Output() outFocused = new EventEmitter<number>();
 
     private previousFocusIndex = -1;
 
@@ -39,15 +39,24 @@ export class ApplicationListForHeaderComponent implements OnInit, OnChanges {
         }
 
         if (focusIndex) {
-            const eleIndex = this.focusIndex - this.restCount;
+            this.scrollIntoView();
+        }
+    }
 
-            if (eleIndex >= 0 && eleIndex < this.applicationList.length && this.focusType === FOCUS_TYPE.KEYBOARD) {
-                this.ele.nativeElement.querySelectorAll('dd')[eleIndex].scrollIntoView({
-                    block: 'nearest',
-                    inline: 'nearest',
-                    behavior: 'instant'
-                });
-            }
+    ngAfterViewInit() {
+        this.scrollIntoView();
+    }
+
+    private scrollIntoView(): void {
+        const eleIndex = this.focusIndex - this.restCount;
+        const targetElem = this.ele.nativeElement.querySelectorAll('dd')[eleIndex];
+
+        if (!!targetElem && (this.focusType === FOCUS_TYPE.KEYBOARD)) {
+            targetElem.scrollIntoView({
+                block: 'nearest',
+                inline: 'nearest',
+                behavior: 'instant'
+            });
         }
     }
 
@@ -61,6 +70,7 @@ export class ApplicationListForHeaderComponent implements OnInit, OnChanges {
 
     makeClass(index: number): { [key: string]: boolean } {
         const app = this.applicationList[index - this.restCount];
+
         return {
             active: this.isSelectedApplication(app),
             focus: this.focusIndex === index
@@ -68,10 +78,12 @@ export class ApplicationListForHeaderComponent implements OnInit, OnChanges {
     }
 
     onFocus(index: number): void {
-        if (this.previousFocusIndex !== index) {
-            this.outFocused.emit(index);
-            this.previousFocusIndex = index;
+        if (this.previousFocusIndex === index) {
+            return;
         }
+
+        this.outFocused.emit(index);
+        this.previousFocusIndex = index;
     }
 
     onSelectApplication(app: IApplication): void {
