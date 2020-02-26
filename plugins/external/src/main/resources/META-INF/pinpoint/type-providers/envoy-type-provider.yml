@@ -4,9 +4,11 @@ serviceTypes:
       name: 'ENVOY'
       property:
           recordStatistics: true
-    - code: 1551
+    - code: 9301
       name: 'ENVOY_INGRESS'
-      desc: 'ENVOY-INGRESS'
-    - code: 1552
+      property:
+          recordStatistics: true
+    - code: 9302
       name: 'ENVOY_EGRESS'
-      desc: 'ENVOY-EGRESS'
+      property:
+          recordStatistics: true
