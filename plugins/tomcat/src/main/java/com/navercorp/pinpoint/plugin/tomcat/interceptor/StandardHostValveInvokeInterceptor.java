@@ -26,6 +26,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.request.RequestAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ServletRequestListenerInterceptorHelper;
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.ParameterRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.RemoteAddressResolverFactory;
+import com.navercorp.pinpoint.common.Charsets;
 import com.navercorp.pinpoint.plugin.common.servlet.util.ArgumentValidator;
 import com.navercorp.pinpoint.plugin.common.servlet.util.HttpServletRequestAdaptor;
 import com.navercorp.pinpoint.plugin.common.servlet.util.ParameterRecorderFactory;
@@ -36,6 +37,7 @@ import org.apache.catalina.connector.Response;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.net.URLEncoder;
 
 /**
  * @author emeroad
@@ -48,18 +50,21 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
 
     private final MethodDescriptor methodDescriptor;
     private final ArgumentValidator argumentValidator;
+    private final TraceContext traceContext;
+    private final TomcatConfig tomcatConfig;
 
     private final ServletRequestListenerInterceptorHelper<HttpServletRequest> servletRequestListenerInterceptorHelper;
 
 
     public StandardHostValveInvokeInterceptor(TraceContext traceContext, MethodDescriptor descriptor, RequestRecorderFactory<HttpServletRequest> requestRecorderFactory) {
+        this.traceContext = traceContext;
         this.methodDescriptor = descriptor;
         this.argumentValidator = new ServletArgumentValidator(logger, 0, HttpServletRequest.class, 1, HttpServletResponse.class);
-        final TomcatConfig config = new TomcatConfig(traceContext.getProfilerConfig());
+        this.tomcatConfig = new TomcatConfig(traceContext.getProfilerConfig());
         RequestAdaptor<HttpServletRequest> requestAdaptor = new HttpServletRequestAdaptor();
-        requestAdaptor = RemoteAddressResolverFactory.wrapRealIpSupport(requestAdaptor, config.getRealIpHeader(), config.getRealIpEmptyValue());
-        ParameterRecorder<HttpServletRequest> parameterRecorder = ParameterRecorderFactory.newParameterRecorderFactory(config.getExcludeProfileMethodFilter(), config.isTraceRequestParam());
-        this.servletRequestListenerInterceptorHelper = new ServletRequestListenerInterceptorHelper<HttpServletRequest>(TomcatConstants.TOMCAT, traceContext, requestAdaptor, config.getExcludeUrlFilter(), parameterRecorder, requestRecorderFactory);
+        requestAdaptor = RemoteAddressResolverFactory.wrapRealIpSupport(requestAdaptor, tomcatConfig.getRealIpHeader(), tomcatConfig.getRealIpEmptyValue());
+        ParameterRecorder<HttpServletRequest> parameterRecorder = ParameterRecorderFactory.newParameterRecorderFactory(tomcatConfig.getExcludeProfileMethodFilter(), tomcatConfig.isTraceRequestParam());
+        this.servletRequestListenerInterceptorHelper = new ServletRequestListenerInterceptorHelper<HttpServletRequest>(TomcatConstants.TOMCAT, traceContext, requestAdaptor, tomcatConfig.getExcludeUrlFilter(), parameterRecorder, requestRecorderFactory);
     }
 
     @Override
@@ -83,6 +88,21 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
                 return;
             }
             this.servletRequestListenerInterceptorHelper.initialized(request, TomcatConstants.TOMCAT_METHOD, this.methodDescriptor);
+            if (tomcatConfig.isResponseTraceIdHeader()) {
+                Trace currentTraceObject = traceContext.currentTraceObject();
+                if (currentTraceObject!= null) {
+                    TraceId traceId = currentTraceObject.getTraceId();
+                    if (traceId == null) {
+                        return;
+                    }
+                    String txId = traceId.getTransactionId();
+                    if (tomcatConfig.isEncodeTraceIdHeader()) {
+                        txId = URLEncoder.encode(txId, Charsets.US_ASCII_NAME);
+                    }
+                    final HttpServletResponse response = (HttpServletResponse) args[1];
+                    response.setHeader(tomcatConfig.getResponseTraceIdHeaderName(), txId);
+                }
+            }
         } catch (Throwable t) {
             if (isInfo) {
                 logger.info("Failed to servlet request event handle.", t);
