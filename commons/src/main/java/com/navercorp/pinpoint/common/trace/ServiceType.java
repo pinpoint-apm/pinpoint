@@ -73,8 +73,6 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
  * <tr><td>1500</td><td>PHP</td></tr>
  * <tr><td>1501</td><td>PHP_METHOD</td></tr>
  * <tr><td>1550</td><td>ENVOY</td></tr>
- * <tr><td>1551</td><td>ENVOY_INGRESS</td></tr>
- * <tr><td>1552</td><td>ENVOY_EGRESS</td></tr>
  * <tr><td>1620</td><td>OPENWHISK_INTERNAL</td></tr>
  * <tr><td>1621</td><td>OPENWHISK_CONTROLLER</td></tr>
  * <tr><td>1622</td><td>OPENWHISK_INVOKER</td></tr>
@@ -217,6 +215,8 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
  * <tr><td>9162</td><td>GRPC_SERVER_INTERNAL</td></tr>
  * <tr><td>9201</td><td>ElasticsearchBBoss</td></tr>
  * <tr><td>9202</td><td>ElasticsearchBBossExecutor</td></tr>
+ * <tr><td>9301</td><td>ENVOY_INGRESS</td></tr>
+ * <tr><td>9302</td><td>ENVOY_EGRESS</td></tr>
  * <tr><td>9622</td><td>OPENWHISK_CLIENT</td></tr>
  *
  * </table>
