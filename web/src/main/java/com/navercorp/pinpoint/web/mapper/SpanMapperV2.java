@@ -30,6 +30,7 @@ import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanDecoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanDecoderV0;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanDecodingContext;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
+import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.io.SpanVersion;
 
 import com.google.common.collect.LinkedListMultimap;
@@ -161,7 +162,7 @@ public class SpanMapperV2 implements RowMapper<List<SpanBo>> {
         for (SpanChunkBo spanChunkBo : spanChunkList) {
             AgentKey agentKey = newAgentKey(spanChunkBo);
             List<SpanBo> matchedSpanBoList = spanMap.get(agentKey);
-            if (matchedSpanBoList != null) {
+            if (!CollectionUtils.isEmpty(matchedSpanBoList)) {
                 final int spanIdCollisionSize = matchedSpanBoList.size();
                 if (spanIdCollisionSize > 1) {
                     // exceptional case dump
