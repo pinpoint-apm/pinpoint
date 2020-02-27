@@ -32,6 +32,9 @@ public class JettyConfiguration {
     private final List<String> bootstrapMains;
     private final Filter<String> excludeUrlFilter;
     private final boolean hidePinpointHeader;
+    private final boolean responseTraceIdHeader;
+    private final String responseTraceIdHeaderName;
+    private final boolean encodeTraceIdHeader;
     private final String realIpHeader;
     private final String realIpEmptyValue;
     private final boolean traceRequestParam;
@@ -52,6 +55,9 @@ public class JettyConfiguration {
             hidePinpointHeader = config.readBoolean("profiler.jetty.hidepinpointheader", true);
         }
         this.hidePinpointHeader = hidePinpointHeader;
+        this.responseTraceIdHeader = config.readBoolean("profiler.jetty.response-trace-header", false);
+        this.responseTraceIdHeaderName = config.readString("profiler.jetty.response-trace-header-name", "X-Trace-Id");
+        this.encodeTraceIdHeader = config.readBoolean("profiler.jetty.encode-trace-header", true);
         final String excludeProfileMethod = config.readString("profiler.jetty.excludemethod", "");
         if (!excludeProfileMethod.isEmpty()) {
             this.excludeProfileMethodFilter = new ExcludeMethodFilter(excludeProfileMethod);
@@ -79,6 +85,18 @@ public class JettyConfiguration {
         return hidePinpointHeader;
     }
 
+    public boolean isResponseTraceIdHeader() {
+        return responseTraceIdHeader;
+    }
+
+    public String getResponseTraceIdHeaderName() {
+        return responseTraceIdHeaderName;
+    }
+
+    public boolean isEncodeTraceIdHeader() {
+        return encodeTraceIdHeader;
+    }
+
     public String getRealIpHeader() {
         return realIpHeader;
     }
@@ -102,6 +120,9 @@ public class JettyConfiguration {
         sb.append(", bootstrapMains=").append(bootstrapMains);
         sb.append(", excludeUrlFilter=").append(excludeUrlFilter);
         sb.append(", hidePinpointHeader=").append(hidePinpointHeader);
+        sb.append(", responseTraceIdHeader=").append(responseTraceIdHeader);
+        sb.append(", responseTraceIdHeaderName=").append(responseTraceIdHeaderName);
+        sb.append(", encodeTraceIdHeader=").append(encodeTraceIdHeader);
         sb.append(", realIpHeader='").append(realIpHeader).append('\'');
         sb.append(", realIpEmptyValue='").append(realIpEmptyValue).append('\'');
         sb.append(", traceRequestParam=").append(traceRequestParam);

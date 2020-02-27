@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.request.RequestAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ServletRequestListenerInterceptorHelper;
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.ParameterRecorder;
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.RemoteAddressResolverFactory;
+import com.navercorp.pinpoint.common.Charsets;
 import com.navercorp.pinpoint.plugin.common.servlet.util.HttpServletRequestAdaptor;
 import com.navercorp.pinpoint.plugin.common.servlet.util.ParameterRecorderFactory;
 import com.navercorp.pinpoint.plugin.jetty.JettyConfiguration;
@@ -33,6 +34,7 @@ import com.navercorp.pinpoint.plugin.jetty.JettyConstants;
 import javax.servlet.DispatcherType;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.net.URLEncoder;
 
 /**
  * @author Chaein Jung
@@ -46,15 +48,17 @@ public abstract class AbstractServerHandleInterceptor implements AroundIntercept
 
     private final MethodDescriptor methodDescriptor;
     private final ServletRequestListenerInterceptorHelper<HttpServletRequest> servletRequestListenerInterceptorHelper;
+    private final TraceContext traceContext;
+    private final JettyConfiguration jettyConfiguration;
 
     public AbstractServerHandleInterceptor(TraceContext traceContext, MethodDescriptor descriptor, RequestRecorderFactory<HttpServletRequest> requestRecorderFactory) {
-
+        this.traceContext = traceContext;
         this.methodDescriptor = descriptor;
-        final JettyConfiguration config = new JettyConfiguration(traceContext.getProfilerConfig());
+        this.jettyConfiguration= new JettyConfiguration(traceContext.getProfilerConfig());
         RequestAdaptor<HttpServletRequest> requestRequestAdaptor = new HttpServletRequestAdaptor();
-        requestRequestAdaptor = RemoteAddressResolverFactory.wrapRealIpSupport(requestRequestAdaptor, config.getRealIpHeader(), config.getRealIpEmptyValue());
-        ParameterRecorder<HttpServletRequest> parameterRecorder = ParameterRecorderFactory.newParameterRecorderFactory(config.getExcludeProfileMethodFilter(), config.isTraceRequestParam());
-        this.servletRequestListenerInterceptorHelper = new ServletRequestListenerInterceptorHelper<HttpServletRequest>(JettyConstants.JETTY, traceContext, requestRequestAdaptor, config.getExcludeUrlFilter(), parameterRecorder, requestRecorderFactory);
+        requestRequestAdaptor = RemoteAddressResolverFactory.wrapRealIpSupport(requestRequestAdaptor, jettyConfiguration.getRealIpHeader(), jettyConfiguration.getRealIpEmptyValue());
+        ParameterRecorder<HttpServletRequest> parameterRecorder = ParameterRecorderFactory.newParameterRecorderFactory(jettyConfiguration.getExcludeProfileMethodFilter(), jettyConfiguration.isTraceRequestParam());
+        this.servletRequestListenerInterceptorHelper = new ServletRequestListenerInterceptorHelper<HttpServletRequest>(JettyConstants.JETTY, traceContext, requestRequestAdaptor, jettyConfiguration.getExcludeUrlFilter(), parameterRecorder, requestRecorderFactory);
     }
 
     abstract HttpServletRequest toHttpServletRequest(Object[] args);
@@ -76,6 +80,21 @@ public abstract class AbstractServerHandleInterceptor implements AroundIntercept
                 return;
             }
             this.servletRequestListenerInterceptorHelper.initialized(request, JettyConstants.JETTY_METHOD, this.methodDescriptor);
+            if (jettyConfiguration.isResponseTraceIdHeader()) {
+                Trace currentTraceObject = traceContext.currentTraceObject();
+                if (currentTraceObject!= null) {
+                    TraceId traceId = currentTraceObject.getTraceId();
+                    if (traceId == null) {
+                        return;
+                    }
+                    String txId = traceId.getTransactionId();
+                    if (jettyConfiguration.isEncodeTraceIdHeader()) {
+                        txId = URLEncoder.encode(txId, Charsets.US_ASCII_NAME);
+                    }
+                    final HttpServletResponse response = toHttpServletResponse(args);
+                    response.setHeader(jettyConfiguration.getResponseTraceIdHeaderName(), txId);
+                }
+            }
         } catch (Throwable t) {
             logger.info("Failed to servlet request event handle.", t);
         }
