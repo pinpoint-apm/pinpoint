@@ -71,7 +71,7 @@ public interface TestAgentStatDataPointFactory<T extends Number> {
                 }
             } else {
                 int value = RANDOM.nextInt(max - min);
-                value -= min;
+                value += min;
                 return (short) value;
             }
         }
@@ -106,7 +106,7 @@ public interface TestAgentStatDataPointFactory<T extends Number> {
                 }
             } else {
                 int value = RANDOM.nextInt(max - min);
-                value -= min;
+                value += min;
                 return value;
             }
         }
