@@ -80,6 +80,7 @@ public class KeepAliveService {
 
         final Header header = pingSession.getHeader();
         if (header == null) {
+            // TODO dump client ip for debug
             logger.warn("Not found request header");
             return;
         }
@@ -90,7 +91,8 @@ public class KeepAliveService {
 
         final long socketId = header.getSocketId();
         if (socketId == -1) {
-            logger.info("socketId not exist:{}", header);
+            // TODO dump client ip for debug
+            logger.warn("SocketId not exist. header:{}", header);
             // skip
             return;
         }
