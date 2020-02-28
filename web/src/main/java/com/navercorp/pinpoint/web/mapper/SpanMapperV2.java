@@ -162,7 +162,7 @@ public class SpanMapperV2 implements RowMapper<List<SpanBo>> {
         for (SpanChunkBo spanChunkBo : spanChunkList) {
             AgentKey agentKey = newAgentKey(spanChunkBo);
             List<SpanBo> matchedSpanBoList = spanMap.get(agentKey);
-            if (!CollectionUtils.isEmpty(matchedSpanBoList)) {
+            if (CollectionUtils.hasLength(matchedSpanBoList)) {
                 final int spanIdCollisionSize = matchedSpanBoList.size();
                 if (spanIdCollisionSize > 1) {
                     // exceptional case dump
