@@ -43,7 +43,7 @@
     
     
     <!-- proxy -->
-    <bean class="com.navercorp.pinpoint.plugin.spring.web.test.bean..DefaultAdvisorAutoProxyCreator">
+    <bean class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator">
         <property name="proxyTargetClass" value="true"></property>
     </bean>
     

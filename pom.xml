@@ -105,8 +105,8 @@
         <!-- maven-plugin -->
         <plugin.compiler.version>3.8.0</plugin.compiler.version>
         <plugin.resources.version>3.1.0</plugin.resources.version>
-        <plugin.surefire.version>2.22.0</plugin.surefire.version>
-        <plugin.failsafe.version>2.22.0</plugin.failsafe.version>
+        <plugin.surefire.version>2.22.2</plugin.surefire.version>
+        <plugin.failsafe.version>2.22.2</plugin.failsafe.version>
         <plugin.shade.version>3.1.1</plugin.shade.version>
         <plugin.assembly.version>3.1.1</plugin.assembly.version>
         <plugin.war.version>3.2.2</plugin.war.version>
