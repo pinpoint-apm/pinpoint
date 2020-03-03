@@ -34,6 +34,6 @@
 .l-transaction-error {
     background-color: #D9534F;
 }
-.l-log-info.disable {
-    color: #BBBABA;
+.l-log-info.disabled {
+    background-color: #dfdfdf !important;
 }
