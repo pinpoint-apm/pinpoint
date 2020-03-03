@@ -1,0 +1,15 @@
+serviceTypes:
+    - code: 1700
+      name: 'PYTHON'
+      property:
+          recordStatistics: true
+    - code: 1701
+      name: 'PYTHON_METHOD'
+      matcher:
+          type: 'args'
+    - code: 9900
+      name: 'PYTHON_REMOTE_METHOD'
+      property:
+          recordStatistics: true
+      matcher:
+          type: 'args'
