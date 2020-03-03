@@ -14,6 +14,7 @@ import {
 import { UrlPath } from 'app/shared/models';
 import { MessagePopupContainerComponent } from 'app/core/components/message-popup/message-popup-container.component';
 import { Actions } from 'app/shared/store';
+import { parseURL } from 'app/core/utils/url-utils';
 
 @Component({
     selector: 'pp-transaction-detail-menu-container',
@@ -90,9 +91,7 @@ export class TransactionDetailMenuContainerComponent implements OnInit, OnDestro
 
     onOpenExtraView(param: any): void {
         if (param.open) {
-            this.urlRouteManagerService.openPage({
-                path: [param.url]
-            });
+            this.urlRouteManagerService.openPage(parseURL(param.url));
         } else {
             this.dynamicPopupService.openPopup({
                 data: {

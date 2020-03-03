@@ -55,7 +55,7 @@ export class TransactionDetailMenuComponent implements OnInit {
     }
 
     hasInfo(): boolean {
-        return this.partInfo && !this.partInfo.loggingTransactionInfo;
+        return this.partInfo && this.partInfo.loggingTransactionInfo;
     }
 
     getStateClass(): string {
@@ -64,5 +64,9 @@ export class TransactionDetailMenuComponent implements OnInit {
 
     hasState(): boolean {
         return !!this.partInfo;
+    }
+
+    getLogIcon(): string {
+        return this.hasInfo() ? 'fas fa-external-link-square-alt' : 'fas fa-ban';
     }
 }

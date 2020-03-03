@@ -104,7 +104,11 @@ export class UrlRouteManagerService {
     // TODO: Refactor Scatter-TransactionList Page linking URL creation
     openPage({path, queryParam = {}, metaInfo = ''}: {path: string[], queryParam?: {[key: string]: any}, metaInfo?: string}): any {
         const pathStr = path.filter((p: string) => !!p).join('/');
-        const queryStr = Object.entries(queryParam).map(([key, value]: [string, any]) => `${key}=${encodeURIComponent(JSON.stringify(value))}`).join('&');
+        const queryStr = Object.entries(queryParam).map(([key, value]: [string, any]) => {
+            const stringifyValue = (typeof value === 'object' && value !== null) ? JSON.stringify(value) : value;
+
+            return `${key}=${encodeURIComponent(stringifyValue)}`;
+        }).join('&');
 
         return this.windowRef.nativeWindow.open(`${this.getBaseHref()}${pathStr}${queryStr ? `?${queryStr}` : ''}`, metaInfo);
     }
