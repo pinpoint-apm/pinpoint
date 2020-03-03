@@ -41,10 +41,7 @@
     <bean id="connectionFactory" class="com.navercorp.pinpoint.common.hbase.ConnectionFactoryBean">
         <constructor-arg type="org.apache.hadoop.conf.Configuration" ref="hbaseConfiguration"/>
         <constructor-arg type="java.util.concurrent.ExecutorService" ref="hbaseThreadPool"/>
-        <constructor-arg type="com.navercorp.pinpoint.common.hbase.HbaseSecurityInterceptor" ref="hbaseSecurityInterceptorFactory"/>
     </bean>
-
-    <bean id="hbaseSecurityInterceptorFactory" class="com.navercorp.pinpoint.common.hbase.HbaseSecurityInterceptorFactory"/>
 
     <bean id="hbaseTableFactory" class="com.navercorp.pinpoint.common.hbase.HbaseTableFactory">
         <constructor-arg ref="connectionFactory"/>
