@@ -58,6 +58,12 @@ public class StatReceiverConfiguration implements DataReceiverGroupConfiguration
     @Value("${collector.receiver.stat.udp.receiveBufferSize:" + 1024 * 4096 + "}")
     private int udpReceiveBufferSize;
 
+    @Value("${collector.receiver.stat.udp.socket.count:-1}")
+    private int socketCount;
+
+    @Value("${collector.receiver.stat.udp.reuseport:false}")
+    private boolean reusePort;
+
     @Value("${collector.receiver.stat.worker.threadSize:128}")
     private int workerThreadSize;
 
@@ -130,6 +136,16 @@ public class StatReceiverConfiguration implements DataReceiverGroupConfiguration
     }
 
     @Override
+    public boolean isReusePort() {
+        return reusePort;
+    }
+
+    @Override
+    public int getSocketCount() {
+        return socketCount;
+    }
+
+    @Override
     public int getWorkerThreadSize() {
         return workerThreadSize;
     }
@@ -144,7 +160,6 @@ public class StatReceiverConfiguration implements DataReceiverGroupConfiguration
         return workerMonitorEnable;
     }
 
-
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("StatReceiverConfiguration{");
@@ -155,10 +170,13 @@ public class StatReceiverConfiguration implements DataReceiverGroupConfiguration
         sb.append(", udpBindIp='").append(udpBindIp).append('\'');
         sb.append(", udpBindPort=").append(udpBindPort);
         sb.append(", udpReceiveBufferSize=").append(udpReceiveBufferSize);
+        sb.append(", socketCount=").append(socketCount);
+        sb.append(", reusePort=").append(reusePort);
         sb.append(", workerThreadSize=").append(workerThreadSize);
         sb.append(", workerQueueSize=").append(workerQueueSize);
         sb.append(", workerMonitorEnable=").append(workerMonitorEnable);
         sb.append('}');
         return sb.toString();
     }
+
 }
