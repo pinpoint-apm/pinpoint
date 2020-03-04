@@ -35,6 +35,10 @@ public interface DataReceiverGroupConfiguration {
 
     int getUdpReceiveBufferSize();
 
+    boolean isReusePort();
+
+    int getSocketCount();
+
     int getWorkerThreadSize();
 
     int getWorkerQueueSize();

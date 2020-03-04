@@ -20,20 +20,24 @@ import com.navercorp.pinpoint.collector.util.ObjectPool;
 import com.navercorp.pinpoint.collector.util.PacketUtils;
 import com.navercorp.pinpoint.collector.util.PooledObject;
 import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
+import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.CpuUtils;
-import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.net.SocketException;
+import java.net.SocketOption;
 import java.net.SocketTimeoutException;
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
@@ -56,7 +60,7 @@ public class UDPReceiver {
     private final InetSocketAddress bindAddress;
 
     // increasing ioThread size wasn't very effective
-    private final int ioThreadSize = CpuUtils.cpuCount();
+    private final int ioThreadSize;
     private ExecutorService ioExecutor;
 
     private final Executor worker;
@@ -66,7 +70,8 @@ public class UDPReceiver {
     // packet cache is necessary as the JVM does not last long if they are dynamically created with the maximum size.
     private final ObjectPool<DatagramPacket> datagramPacketPool;
 
-    private final DatagramSocket socket;
+    //    private final DatagramSocket socket;
+    private final DatagramSocket[] sockets;
 
     private final PacketHandlerFactory<DatagramPacket> packetHandlerFactory;
 
@@ -74,6 +79,11 @@ public class UDPReceiver {
 
     public UDPReceiver(String name, PacketHandlerFactory<DatagramPacket> packetHandlerFactory,
                        @Qualifier("udpWorker") Executor worker, int receiverBufferSize, InetSocketAddress bindAddress, ObjectPool<DatagramPacket> datagramPacketPool) {
+        this(name, packetHandlerFactory, worker, receiverBufferSize, bindAddress, null, datagramPacketPool);
+    }
+
+    public UDPReceiver(String name, PacketHandlerFactory<DatagramPacket> packetHandlerFactory,
+                       @Qualifier("udpWorker") Executor worker, int receiverBufferSize, InetSocketAddress bindAddress, ReusePortSocketOptionHolder socketOptionHolder, ObjectPool<DatagramPacket> datagramPacketPool) {
         this.name = Objects.requireNonNull(name);
         this.logger = LoggerFactory.getLogger(name);
 
@@ -82,16 +92,30 @@ public class UDPReceiver {
         this.worker = Objects.requireNonNull(worker, "worker");
 
         Assert.isTrue(receiverBufferSize > 0, "receiverBufferSize must be greater than 0");
-        this.socket = createSocket(receiverBufferSize);
 
+        int ioThreadSize = CpuUtils.cpuCount();
+        if (socketOptionHolder != null) {
+            int socketCount = socketOptionHolder.getSocketCount();
+            if (socketCount == -1) {
+                socketCount = ioThreadSize;
+            }
+
+            this.sockets = createSocket(receiverBufferSize, socketOptionHolder, socketCount);
+            logger.info("Created multiple UDP socket. sockets:{}", Arrays.asList(sockets));
+            if (sockets.length > ioThreadSize) {
+                ioThreadSize = sockets.length;
+            }
+        } else {
+            this.sockets = createSocket(receiverBufferSize);
+        }
+
+        this.ioThreadSize = ioThreadSize;
         this.datagramPacketPool = Objects.requireNonNull(datagramPacketPool, "datagramPacketPool");
     }
 
-
-
     private void receive(final DatagramSocket socket) {
         if (logger.isInfoEnabled()) {
-            logger.info("start ioThread localAddress:{}, IoThread:{}", this.socket.getLocalAddress(), Thread.currentThread().getName());
+            logger.info("start ioThread localAddress:{}, IoThread:{}", socket.getLocalAddress(), Thread.currentThread().getName());
         }
 
         // need shutdown logic
@@ -100,7 +124,7 @@ public class UDPReceiver {
             if (pooledPacket == null) {
                 continue;
             }
-            Runnable task = wrapTask(pooledPacket);
+            Runnable task = wrapTask(socket, pooledPacket);
             worker.execute(task);
         }
 
@@ -110,7 +134,7 @@ public class UDPReceiver {
         }
     }
 
-    private Runnable wrapTask(final PooledObject<DatagramPacket> pooledPacket) {
+    private Runnable wrapTask(final DatagramSocket socket, final PooledObject<DatagramPacket> pooledPacket) {
         return new
                 Task(socket, packetHandlerFactory, pooledPacket);
     }
@@ -170,7 +194,32 @@ public class UDPReceiver {
         return true;
     }
 
-    private DatagramSocket createSocket(int receiveBufferSize) {
+    private DatagramSocket[] createSocket(int receiveBufferSize) {
+        DatagramSocket socket = createSocket0(receiveBufferSize);
+        return new DatagramSocket[]{socket};
+    }
+
+    private DatagramSocket[] createSocket(int receiveBufferSize, ReusePortSocketOptionHolder socketOptionHolder, int socketCount) {
+        if (!socketOptionHolder.isEnable()) {
+            return createSocket(receiveBufferSize);
+        }
+
+        DatagramSocket[] datagramSockets = new DatagramSocket[socketCount];
+        for (int i = 0; i < socketCount; i++) {
+            DatagramSocket socket = createSocket0(receiveBufferSize);
+
+            boolean isSet = setSocketOption(socket, socketOptionHolder);
+            if (!isSet) {
+                logger.warn("Failed to create multipleSocket.");
+                return new DatagramSocket[]{socket};
+            }
+
+            datagramSockets[i] = socket;
+        }
+        return datagramSockets;
+    }
+
+    private DatagramSocket createSocket0(int receiveBufferSize) {
         try {
             DatagramSocket socket = new DatagramSocket(null);
             socket.setReceiveBufferSize(receiveBufferSize);
@@ -185,6 +234,22 @@ public class UDPReceiver {
         } catch (SocketException ex) {
             throw new RuntimeException("Socket create Fail. Caused:" + ex.getMessage(), ex);
         }
+    }
+
+    // caution : java9+
+    private boolean setSocketOption(DatagramSocket socket, ReusePortSocketOptionHolder socketOptionHolder) {
+        if (socketOptionHolder == null) {
+            return false;
+        }
+
+        try {
+            Method setOptionMethod = DatagramSocket.class.getDeclaredMethod("setOption", SocketOption.class, Object.class);
+            setOptionMethod.invoke(socket, socketOptionHolder.getSocketOption(), socketOptionHolder.isEnable());
+            return true;
+        } catch (Exception e) {
+            logger.warn("Failed to set SocketOption. caused : can not set 'java.net.DatagramSocket#setOption' method", e);
+        }
+        return false;
     }
 
     private void bindSocket(DatagramSocket socket, InetSocketAddress bindAddress) {
@@ -207,18 +272,21 @@ public class UDPReceiver {
         }
 
         this.ioExecutor = newThreadPoolExecutor();
-        final DatagramSocket socket = this.socket;
-        if (socket == null) {
+        final DatagramSocket[] sockets = this.sockets;
+        if (sockets == null) {
             throw new IllegalStateException("socket is null.");
         }
-        bindSocket(socket, bindAddress);
+        for (DatagramSocket socket : sockets) {
+            bindSocket(socket, bindAddress);
+        }
 
         logger.info("UDP Packet reader:{} started.", ioThreadSize);
         for (int i = 0; i < ioThreadSize; i++) {
+            final int index = i;
             ioExecutor.execute(new Runnable() {
                 @Override
                 public void run() {
-                    receive(socket);
+                    receive(sockets[index % sockets.length]);
                 }
             });
         }
@@ -235,8 +303,10 @@ public class UDPReceiver {
 
         state.set(false);
         // is it okay to just close here?
-        if (socket != null) {
-            socket.close();
+        if (sockets != null) {
+            for (DatagramSocket socket : sockets) {
+                socket.close();
+            }
         }
         if (ioExecutor != null) {
             shutdownExecutor(ioExecutor, name);

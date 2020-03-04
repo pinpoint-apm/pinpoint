@@ -312,6 +312,9 @@
         <property name="addressFilter" ref="addressFilter"/>
         <property name="dispatchHandler" ref="spanDispatchHandlerFactoryBean"/>
         <property name="udpBufferSize" value="#{spanReceiverConfig.udpReceiveBufferSize}"/>
+        <property name="reusePort" value="#{spanReceiverConfig.reusePort}"/>
+        <property name="socketSize" value="#{spanReceiverConfig.socketSize}"/>
+
         <!-- TCP & UDP share threadpool for span -->
         <property name="executor" ref="spanReceiverExecutor"/>
         <property name="datagramPoolSize" value="#{ spanReceiverConfig.workerQueueSize + spanReceiverConfig.workerThreadSize }"/>
@@ -355,6 +358,8 @@
         <property name="addressFilter" ref="addressFilter"/>
         <property name="dispatchHandler" ref="statDispatchHandlerFactoryBean"/>
         <property name="udpBufferSize" value="#{statReceiverConfig.udpReceiveBufferSize}"/>
+        <property name="reusePort" value="#{statReceiverConfig.reusePort}"/>
+        <property name="socketSize" value="#{statReceiverConfig.socketSize}"/>
         <!-- TCP & UDP share threadpool for stat -->
         <property name="executor" ref="statReceiverExecutor"/>
         <property name="datagramPoolSize" value="#{ statReceiverConfig.workerQueueSize + statReceiverConfig.workerThreadSize }"/>

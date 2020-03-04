@@ -56,6 +56,12 @@ public class SpanReceiverConfiguration implements DataReceiverGroupConfiguration
     @Value("${collector.receiver.span.udp.receiveBufferSize:" + (1024 * 4096) + "}")
     private int udpReceiveBufferSize;
 
+    @Value("${collector.receiver.span.udp.reuseport:false}")
+    private boolean reusePort;
+
+    @Value("${collector.receiver.span.udp.socket.count:-1}")
+    private int socketCount;
+
     @Value("${collector.receiver.span.worker.threadSize:256}")
     private int workerThreadSize;
 
@@ -132,6 +138,16 @@ public class SpanReceiverConfiguration implements DataReceiverGroupConfiguration
     }
 
     @Override
+    public boolean isReusePort() {
+        return reusePort;
+    }
+
+    @Override
+    public int getSocketCount() {
+        return socketCount;
+    }
+
+    @Override
     public int getWorkerThreadSize() {
         return workerThreadSize;
     }
@@ -146,7 +162,6 @@ public class SpanReceiverConfiguration implements DataReceiverGroupConfiguration
         return workerMonitorEnable;
     }
 
-
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("SpanReceiverConfiguration{");
@@ -157,10 +172,13 @@ public class SpanReceiverConfiguration implements DataReceiverGroupConfiguration
         sb.append(", udpBindIp='").append(udpBindIp).append('\'');
         sb.append(", udpBindPort=").append(udpBindPort);
         sb.append(", udpReceiveBufferSize=").append(udpReceiveBufferSize);
+        sb.append(", reusePort=").append(reusePort);
+        sb.append(", socketCount=").append(socketCount);
         sb.append(", workerThreadSize=").append(workerThreadSize);
         sb.append(", workerQueueSize=").append(workerQueueSize);
         sb.append(", workerMonitorEnable=").append(workerMonitorEnable);
         sb.append('}');
         return sb.toString();
     }
+
 }
