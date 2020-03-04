@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:aop="http://www.springframework.org/schema/aop"
+    xmlns:tx="http://www.springframework.org/schema/tx"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+    <context:component-scan base-package="com.navercorp.pinpoint.web.dao.mysql" />
+
+    <!-- Transaction manager for a single JDBC DataSource -->
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+
+    <bean id="metaDataTransactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="metaDataDataSource"/>
+    </bean>
+
+    <tx:annotation-driven/>
+
+    <!-- SqlsessionFactory setup for MyBatis Database Layer -->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"/>
+        <!-- mybatis basic config -->
+        <property name="configLocation" value="classpath:/mybatis-config.xml"/>
+        <!-- typeAliases -->
+        <property name="typeAliasesPackage" value="com.navercorp.pinpoint.web.alarm.vo" />
+        <!-- setting the location of mapper -->
+        <property name="mapperLocations" value="classpath*:mapper/*Mapper.xml"/>
+        <!-- set "true" in order to catch the errors of declaration of statement more quickly -->
+        <property name="failFast" value="true"/>
+
+        <property name="plugins">
+            <list>
+                <!-- use the patch version because of mybatis 3.2's incompatibility-->
+                <bean class="com.navercorp.pinpoint.web.dao.ibatis.BindingLogPlugin32"/>
+            </list>
+        </property>
+    </bean>
+
+    <!-- in case of using interface mapper
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="com.navercorp.pinpoint.web.mapper.mysql" />
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory" />
+    </bean>
+    -->
+    <bean id="sqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
+        <constructor-arg index="0" ref="sqlSessionFactory"/>
+    </bean>
+
+    <!-- setting of executorType for batch -->
+    <bean id="batchSqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
+        <constructor-arg index="0" ref="sqlSessionFactory"/>
+        <constructor-arg index="1" value="BATCH"/>
+    </bean>
+    <bean id="transactionTemplate" class="org.springframework.transaction.support.TransactionTemplate">
+        <property name="transactionManager" ref="transactionManager"/>
+    </bean>
+
+    <bean id="agentDownloadInfoDao" class="com.navercorp.pinpoint.web.dao.AgentDownloadInfoDaoFactory" factory-method="create">
+        <constructor-arg index="0" value="${web.installation.pinpointVersion:}"/>
+        <constructor-arg index="1" value="${web.installation.downloadUrl:}"/>
+    </bean>
+
+</beans>

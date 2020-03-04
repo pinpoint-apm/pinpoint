@@ -41,15 +41,15 @@ public class TCPServerResponse implements ServerResponse<TBase<?, ?>> {
     private boolean closed = false;
 
     public TCPServerResponse(SerializerFactory<HeaderTBaseSerializer> serializerFactory, PinpointSocket pinpointSocket, int requestId) {
-        this.serializerFactory = Objects.requireNonNull(serializerFactory, "serializerFactory must not be null");
-        this.pinpointSocket = Objects.requireNonNull(pinpointSocket, "pinpointSocket must not be null");
+        this.serializerFactory = Objects.requireNonNull(serializerFactory, "serializerFactory");
+        this.pinpointSocket = Objects.requireNonNull(pinpointSocket, "pinpointSocket");
         this.requestId = requestId;
     }
 
     @Override
     public void write(TBase<?, ?> message) {
         if (message == null) {
-            throw new NullPointerException("message must not be null");
+            throw new NullPointerException("message");
         }
         if (closed) {
             throw new IllegalStateException("ServerResponse is closed");

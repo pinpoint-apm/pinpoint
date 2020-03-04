@@ -20,6 +20,8 @@ package com.navercorp.pinpoint.test.monitor;
 import com.navercorp.pinpoint.profiler.monitor.AgentStatMonitor;
 import com.navercorp.pinpoint.profiler.monitor.DefaultAgentStatMonitor;
 import com.navercorp.pinpoint.profiler.monitor.collector.AgentStatMetricCollector;
+import com.navercorp.pinpoint.profiler.monitor.metric.AgentStatMetricSnapshot;
+import com.navercorp.pinpoint.profiler.monitor.metric.AgentStatMetricSnapshotBatch;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
 import com.navercorp.pinpoint.test.ListenableDataSender;
 import com.navercorp.pinpoint.test.TBaseRecorder;
@@ -43,18 +45,18 @@ public class AgentStatMonitorTest {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private TBaseRecorder<TAgentStatBatch> tBaseRecorder;
+    private TBaseRecorder<AgentStatMetricSnapshotBatch> tBaseRecorder;
     private DataSender dataSender;
 
     @Mock
-    private AgentStatMetricCollector<TAgentStat> agentStatCollector;
+    private AgentStatMetricCollector<AgentStatMetricSnapshot> agentStatCollector;
 
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-        when(agentStatCollector.collect()).thenReturn(new TAgentStat());
+        when(agentStatCollector.collect()).thenReturn(new AgentStatMetricSnapshot());
 
-        this.tBaseRecorder = new TBaseRecorder<TAgentStatBatch>();
+        this.tBaseRecorder = new TBaseRecorder<AgentStatMetricSnapshotBatch>();
         TBaseRecorderAdaptor recorderAdaptor = new TBaseRecorderAdaptor(tBaseRecorder);
 
         ListenableDataSender listenableDataSender = new ListenableDataSender("testDataSender");
@@ -77,7 +79,7 @@ public class AgentStatMonitorTest {
         monitor.stop();
         // Then
         assertTrue(tBaseRecorder.size() >= minNumBatchToTest);
-        for (TAgentStatBatch agentStatBatch : tBaseRecorder) {
+        for (AgentStatMetricSnapshotBatch agentStatBatch : tBaseRecorder) {
             logger.debug("agentStatBatch:{}", agentStatBatch);
             assertTrue(agentStatBatch.getAgentStats().size() <= numCollectionsPerBatch);
         }

@@ -31,13 +31,13 @@ final class RedefineModuleUtils {
 
     static void addReads(Instrumentation instrumentation, Module module, Set<Module> extraReads) {
         if (instrumentation == null) {
-            throw new NullPointerException("instrumentation must not be null");
+            throw new NullPointerException("instrumentation");
         }
         if (module == null) {
-            throw new NullPointerException("module must not be null");
+            throw new NullPointerException("module");
         }
         if (extraReads == null) {
-            throw new NullPointerException("extraReads must not be null");
+            throw new NullPointerException("extraReads");
         }
 
         // for debug
@@ -51,13 +51,13 @@ final class RedefineModuleUtils {
 
     static void addExports(Instrumentation instrumentation, Module module, Map<String, Set<Module>> extraExports) {
         if (instrumentation == null) {
-            throw new NullPointerException("instrumentation must not be null");
+            throw new NullPointerException("instrumentation");
         }
         if (module == null) {
-            throw new NullPointerException("module must not be null");
+            throw new NullPointerException("module");
         }
         if (extraExports == null) {
-            throw new NullPointerException("extraExports must not be null");
+            throw new NullPointerException("extraExports");
         }
 
         // for debug
@@ -71,13 +71,13 @@ final class RedefineModuleUtils {
 
     static void addOpens(Instrumentation instrumentation, Module module, Map<String, Set<Module>> extraOpens) {
         if (instrumentation == null) {
-            throw new NullPointerException("instrumentation must not be null");
+            throw new NullPointerException("instrumentation");
         }
         if (module == null) {
-            throw new NullPointerException("module must not be null");
+            throw new NullPointerException("module");
         }
         if (extraOpens == null) {
-            throw new NullPointerException("extraOpens must not be null");
+            throw new NullPointerException("extraOpens");
         }
 
         // for debug
@@ -91,13 +91,13 @@ final class RedefineModuleUtils {
 
     public static void addUses(Instrumentation instrumentation, Module module, Set<Class<?>> extraUses) {
         if (instrumentation == null) {
-            throw new NullPointerException("instrumentation must not be null");
+            throw new NullPointerException("instrumentation");
         }
         if (module == null) {
-            throw new NullPointerException("module must not be null");
+            throw new NullPointerException("module");
         }
         if (extraUses == null) {
-            throw new NullPointerException("extraUses must not be null");
+            throw new NullPointerException("extraUses");
         }
 
         // for debug
@@ -108,5 +108,24 @@ final class RedefineModuleUtils {
         final Map<Class<?>, List<Class<?>>> extraProvides = Map.of();
         instrumentation.redefineModule(module, extraReads, extraExports, extraOpens, extraUses, extraProvides);
 
+    }
+
+    public static void addProvides(Instrumentation instrumentation, Module module, Map<Class<?>, List<Class<?>>> extraProvides) {
+        if (instrumentation == null) {
+            throw new NullPointerException("instrumentation");
+        }
+        if (module == null) {
+            throw new NullPointerException("module");
+        }
+        if (extraProvides == null) {
+            throw new NullPointerException("extraProvides");
+        }
+
+        // for debug
+        final Set<Module> extraReads = Set.of();
+        final Map<String, Set<Module>> extraExports = Map.of();
+        final Map<String, Set<Module>> extraOpens = Map.of();
+        final Set<Class<?>> extraUses = Set.of();
+        instrumentation.redefineModule(module, extraReads, extraExports, extraOpens, extraUses, extraProvides);
     }
 }

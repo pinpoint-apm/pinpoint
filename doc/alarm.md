@@ -78,15 +78,20 @@ TOTAL COUNT TO CALLEE
    You must specify the domain or the address(ip, port) in the configuration UI's "Note..." box 
    ex) www.naver.com, 127.0.0.1:8080
 
-
 HEAP USAGE RATE
    Triggered when the application's heap usage(%) exceeds the configured threshold.
 
 JVM CPU USAGE RATE
    Triggered when the application's CPU usage(%) exceeds the configured threshold.
 
+SYSTEM CPU USAGE RATE
+   Sends an alarm when the application's CPU usage(%) exceeds the configured threshold.
+
 DATASOURCE CONNECTION USAGE RATE
    Triggered when the application's DataSource connection usage(%) exceeds the configured threshold.
+   
+FILE DESCRIPTOR COUNT
+   Sends an alarm when the number of open file descriptors exceeds the configured threshold.
 ```
 
 
@@ -111,13 +116,13 @@ The class that sends emails is already registered as Spring bean in [application
     </bean>
 
     <bean id="javaMailSenderImpl" class="org.springframework.mail.javamail.JavaMailSenderImpl">
-        <property name="host" value="#{batchProps['alarm.mail.server.url'] ?: ''}" />
-        <property name="port" value="#{batchProps['alarm.mail.server.port'] ?: 583}" />
-        <property name="username" value="#{batchProps['alarm.mail.server.username'] ?: ''}" />
-        <property name="password" value="#{batchProps['alarm.mail.server.password'] ?: ''}" />
+        <property name="host" value="${alarm.mail.server.url:}" />
+        <property name="port" value="${alarm.mail.server.port:587}" />
+        <property name="username" value="${alarm.mail.server.username:}" />
+        <property name="password" value="${alarm.mail.server.password:}" />
         <property name="javaMailProperties">
             <props>
-                 <prop key="mail.smtp.from">#{batchProps['alarm.mail.sender.address'] ?: ''}</prop>
+                 <prop key="mail.smtp.from">${alarm.mail.sender.address:}</prop>
             </props>
         </property>
     </bean>
@@ -129,15 +134,15 @@ You need to provide smtp server information and the address of the sender in bat
 pinpoint.url= #pinpoint-web server url
 alarm.mail.server.url= #smtp server address
 alarm.mail.server.port= #smtp server port
-alarm.mail.server.userName= #username for smtp server authentication
+alarm.mail.server.username= #username for smtp server authentication
 alarm.mail.server.password= #password for smtp server authentication
 alarm.mail.sender.address= #sender's email address
 
 ex)
 pinpoint.url=http://pinpoint.com
 alarm.mail.server.url=stmp.server.com
-alarm.mail.server.port=583
-alarm.mail.server.userName=pinpoint
+alarm.mail.server.port=587
+alarm.mail.server.username=pinpoint
 alarm.mail.server.password=pinpoint
 alarm.mail.sender.address=pinpoint_operator@pinpoint.com
 ```
@@ -181,6 +186,14 @@ jdbc.username=admin
 jdbc.password=admin
 ```
 Create tables by running *[CreateTableStatement-mysql.sql](https://github.com/naver/pinpoint/blob/master/web/src/main/resources/sql/CreateTableStatement-mysql.sql)*, and *[SpringBatchJobRepositorySchema-mysql.sql](https://github.com/naver/pinpoint/blob/master/web/src/main/resources/sql/SpringBatchJobRepositorySchema-mysql.sql)*.
+
+### 4) Add batch to spring profile option
+Add batch to the spring profile option when running pinpoint-web.
+```
+-Dspring.profiles.active=local,batch
+ OR
+-Dspring.profiles.active=release,batch
+```
 
 ## 4. Others
 **1) You may start the alarm batch in a separate process** - Simply start the spring batch job using the *[applicationContext-alarmJob.xml](https://github.com/naver/pinpoint/blob/master/web/src/main/resources/batch/applicationContext-alarmJob.xml)* file inside the Pinpoint-web module.
@@ -284,14 +297,18 @@ TOTAL COUNT TO CALLEE
 
 HEAP USAGE RATE
    heap의 사용률이 임계치를 초과한 경우 알람이 전송된다.
-   설정 화면의 Note 항목에 외부서버의 도메인 이나 주소(ip, port)를 입력해야 합니다.
-
+   
 JVM CPU USAGE RATE
    applicaiton의 CPU 사용률이 임계치를 초과한 경우 알람이 전송된다.
-   설정 화면의 Note 항목에 외부서버의 도메인 이나 주소(ip, port)를 입력해야 합니다.
+   
+SYSTEM CPU USAGE RATE
+   서버의 CPU 사용률이 임계치를 초과한 경우 알람이 전송된다.
 
 DATASOURCE CONNECTION USAGE RATE
    applicaiton의 DataSource내의 Connection 사용률이 임계치를 초과한 경우 알람이 전송된다.
+   
+FILE DESCRIPTOR COUNT
+   열려있는 File Descriptor 개수가 임계치를 초가한 경우 알람이 전송된다.
 ```
 
 
@@ -314,13 +331,13 @@ email로 알람을 설정만 추가해면 기능을 사용할수 있고, sms 전
     </bean>
 
     <bean id="javaMailSenderImpl" class="org.springframework.mail.javamail.JavaMailSenderImpl">
-        <property name="host" value="#{batchProps['alarm.mail.server.url'] ?: ''}" />
-        <property name="port" value="#{batchProps['alarm.mail.server.port'] ?: 583}" />
-        <property name="username" value="#{batchProps['alarm.mail.server.username'] ?: ''}" />
-        <property name="password" value="#{batchProps['alarm.mail.server.password'] ?: ''}" />
+        <property name="host" value="${alarm.mail.server.url:}" />
+        <property name="port" value="${alarm.mail.server.port:587}" />
+        <property name="username" value="${alarm.mail.server.username:}" />
+        <property name="password" value="${alarm.mail.server.password:}" />
         <property name="javaMailProperties">
             <props>
-                 <prop key="mail.smtp.from">#{batchProps['alarm.mail.sender.address'] ?: ''}</prop>
+                 <prop key="mail.smtp.from">${alarm.mail.sender.address:}</prop>
             </props>
         </property>
     </bean>
@@ -332,15 +349,15 @@ email 전송 기능을 사용하기 위해서 batch.properties파일에 smtp 서
 pinpoint.url= #pinpoint-web 서버의 url 
 alarm.mail.server.url= #smtp 서버 주소  
 alarm.mail.server.port= #smtp 서버 port 
-alarm.mail.server.userName= #smtp 인증을 위한 userName
+alarm.mail.server.username= #smtp 인증을 위한 userName
 alarm.mail.server.password= #smtp 인증을 위한 password
 alarm.mail.sender.address= # 송신자 email
 
 ex)
 pinpoint.url=http://pinpoint.com
 alarm.mail.server.url=stmp.server.com
-alarm.mail.server.port=583
-alarm.mail.server.userName=pinpoint
+alarm.mail.server.port=587
+alarm.mail.server.username=pinpoint
 alarm.mail.server.password=pinpoint
 alarm.mail.sender.address=pinpoint_operator@pinpoint.com
 ```
@@ -389,6 +406,14 @@ jdbc.username=admin
 jdbc.password=admin
 ```
 필요한 table 생성 - *[CreateTableStatement-mysql.sql](https://github.com/naver/pinpoint/blob/master/web/src/main/resources/sql/CreateTableStatement-mysql.sql)*, *[SpringBatchJobReositorySchema-mysql.sql](https://github.com/naver/pinpoint/blob/master/web/src/main/resources/sql/SpringBatchJobRepositorySchema-mysql.sql)*
+
+### 4) spring profile 옵션에 batch 추가
+pinpoint-web 실행시 spring profile 옵션에 batch를 추가한다. 
+```
+-Dspring.profiles.active=local,batch
+ OR
+-Dspring.profiles.active=release,batch
+```
 
 ## 3. 기타
 **1) alarm batch를 별도 프로세스로 실행하는 것도 가능하다.**

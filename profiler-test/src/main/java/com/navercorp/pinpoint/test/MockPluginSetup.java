@@ -47,10 +47,10 @@ public class MockPluginSetup implements PluginSetup {
     @Inject
     public MockPluginSetup(InstrumentEngine instrumentEngine, DynamicTransformTrigger dynamicTransformTrigger) {
         if (instrumentEngine == null) {
-            throw new NullPointerException("instrumentEngine must not be null");
+            throw new NullPointerException("instrumentEngine");
         }
         if (dynamicTransformTrigger == null) {
-            throw new NullPointerException("dynamicTransformTrigger must not be null");
+            throw new NullPointerException("dynamicTransformTrigger");
         }
         this.instrumentEngine = instrumentEngine;
         this.dynamicTransformTrigger = dynamicTransformTrigger;

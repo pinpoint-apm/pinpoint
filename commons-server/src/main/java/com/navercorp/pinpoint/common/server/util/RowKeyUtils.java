@@ -47,7 +47,7 @@ public final class RowKeyUtils {
 
     public static byte[] getMetaInfoRowKey(String agentId, long agentStartTime, int keyCode) {
         if (agentId == null) {
-            throw new NullPointerException("agentId must not be null");
+            throw new NullPointerException("agentId");
         }
 
         final byte[] agentBytes = BytesUtils.toBytes(agentId);

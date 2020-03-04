@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,14 +29,31 @@ public class ProfilerLibs {
 
     static {
         String[] lib = new String[] {
+                "com.navercorp.pinpoint.common.buffer",
+                "com.navercorp.pinpoint.common.profiler",
                 "com.navercorp.pinpoint.profiler",
                 "com.navercorp.pinpoint.thrift",
                 "com.navercorp.pinpoint.io",
                 "com.navercorp.pinpoint.rpc",
-                /*
-                 * @deprecated javassist
-                 */
-                "javassist",
+                "com.navercorp.pinpoint.loader.plugins",
+
+                // grpc
+                "com.navercorp.pinpoint.grpc",
+                "com.navercorp.pinpoint.io",
+                "io.grpc",
+                "io.netty",
+                "com.google.protobuf",
+                "google.protobuf",
+                "com.google.grpc",
+                // proto-google-common-protos-x.x.x.jar
+                "com.google.api",
+                "com.google.cloud",
+                "com.google.logging",
+                "com.google.longrunning",
+                "com.google.rpc",
+                "com.google.type",
+
+
                 "org.objectweb.asm",
                 "org.slf4j",
                 "org.apache.thrift",
@@ -45,6 +62,8 @@ public class ProfilerLibs {
                 // google guice
                 "com.google.inject",
                 "org.aopalliance",
+                // snakeyaml
+                "org.yaml.snakeyaml",
 
                 "org.apache.commons.lang",
                 "org.apache.log4j",

@@ -16,11 +16,12 @@
 package com.navercorp.pinpoint.web.dao.hbase;
 
 import com.navercorp.pinpoint.common.server.bo.codec.stat.join.ResponseTimeDecoder;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinResponseTimeBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.StatType;
 import com.navercorp.pinpoint.web.dao.ApplicationResponseTimeDao;
 import com.navercorp.pinpoint.web.mapper.stat.ApplicationStatMapper;
 import com.navercorp.pinpoint.web.mapper.stat.SampledApplicationStatResultExtractor;
-import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.JoinResponseTimeSampler;
+import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.ApplicationStatSampler;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinResponseTimeBo;
@@ -41,7 +42,7 @@ public class HbaseApplicationResponseTimeDao implements ApplicationResponseTimeD
     private ResponseTimeDecoder responseTimeDecoder;
 
     @Autowired
-    private JoinResponseTimeSampler joinResponseTimeSampler;
+    private ApplicationStatSampler<JoinResponseTimeBo> joinResponseTimeSampler;
 
     @Autowired
     private HbaseApplicationStatDaoOperations operations;

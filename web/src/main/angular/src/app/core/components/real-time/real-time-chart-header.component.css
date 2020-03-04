@@ -1,0 +1,55 @@
+:host {
+    display: flex;
+    width: 100%;
+    background-color: #74879a;
+    color: #FFF;
+    font-size: 14px;
+    margin: 0px 0px 5px 0px;
+    padding: 5px 5px 5px 13px;
+    align-items: center;
+}
+
+.l-txt {
+    font-weight: lighter;
+}
+
+.l-txt-bold {
+    font-weight: bolder;
+    font-size: 16px;
+    margin-right: 2px;
+}
+
+.l-active-only-toggle {
+    flex: 1;
+    margin-left: 15px;
+}
+
+.l-pagination {
+    display: flex;
+    list-style: none;
+    height: 100%;
+}
+
+.l-page-item {
+    display: block;
+    height: 100%;
+}
+
+.l-page-link {
+    padding: 0 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    height: 100%;
+}
+
+.l-page-link.active {
+    color: #000;
+    cursor: initial;
+    text-decoration: initial;
+    background-color: #FFF;
+}
+
+.l-page-link:hover {
+    color: var(--primary-color);
+}

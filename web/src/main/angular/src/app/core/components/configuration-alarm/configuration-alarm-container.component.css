@@ -1,0 +1,14 @@
+:host {
+    height: 100%;
+    display: flex;
+}
+
+.l-content-item {
+    height: 100%;
+    flex: 1;
+    margin-right: 20px;
+}
+
+.l-content-item2 {
+    flex:2;
+}

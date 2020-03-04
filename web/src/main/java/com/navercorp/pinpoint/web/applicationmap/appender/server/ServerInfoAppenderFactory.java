@@ -33,7 +33,7 @@ public class ServerInfoAppenderFactory {
 
     @Autowired
     public ServerInfoAppenderFactory(@Qualifier("serverInfoAppendExecutor") Executor executor) {
-        this.executor = Objects.requireNonNull(executor, "executor must not be null");
+        this.executor = Objects.requireNonNull(executor, "executor");
     }
 
     public ServerInfoAppender create(ServerInstanceListFactory serverInstanceListFactory) {

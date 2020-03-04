@@ -1,0 +1,21 @@
+<div class="l-wrapper" (clickOutside)="onClose()">
+    <button type="button" class="l-dropdown-button" (click)="toggleList()">
+        <span class="l-bound-text"><span class="fas fa-sign-in-alt"></span> {{selectedInbound}}</span>
+        <span class="l-bound-text"><span class="fas fa-sign-out-alt"></span> {{selectedOutbound}}</span>
+        <span class="fas fa-angle-down"></span>
+    </button>
+    <div class="l-dropdown-menu-wrapper" [hidden]="hideList">
+        <dl class="l-inbound-list">
+            <dt class="l-bound-title">Inbound</dt>
+            <dd *ngFor="let inbound of inboundList" class="l-bound-list-item" [class.active]="selectedInbound === inbound" (click)="onSelectInbound(inbound)">{{inbound}}</dd>
+        </dl>
+        <dl class="l-outbound-list">
+            <dt class="l-bound-title">Outbound</dt>
+            <dd *ngFor="let outbound of outboundList" class="l-bound-list-item" [class.active]="selectedOutbound === outbound" (click)="onSelectOutbound(outbound)">{{outbound}}</dd>
+        </dl>
+        <div class="l-button-group-wrapper">
+            <button class="btn l-cancel-button" (click)="onCancel()">Cancel</button>
+            <button class="btn l-apply-button" (click)="onApply()">Apply</button>
+        </div>
+    </div>
+</div>

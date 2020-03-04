@@ -1,6 +1,0 @@
-<div class="l-chart-section" [ppSettingHeight]="getHeightConfig()">
-    <pp-loading [showLoading]="chartSectionLayers.loading"></pp-loading>
-    <canvas #chartElement [ngClass]="chartVisibility"></canvas>
-    <pp-no-data [showNoData]="showNoData()" [message]="i18nText['NO_DATA_COLLECTED']" [hidden]="!showNoData()"></pp-no-data>
-    <pp-retry [showRetry]="chartSectionLayers.retry" [message]="retryMessage" (outRetryGetChartData)="retryGetChartData()"></pp-retry>
-</div>

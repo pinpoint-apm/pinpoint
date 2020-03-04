@@ -48,7 +48,7 @@ public class LinkVisitChecker {
 
     private boolean visit(Set<Application> visitedSet, Application application, String type) {
         if (application == null) {
-            throw new NullPointerException("application must not be null");
+            throw new NullPointerException("application");
         }
         final boolean alreadyVisited = !visitedSet.add(application);
         if (logger.isDebugEnabled()) {

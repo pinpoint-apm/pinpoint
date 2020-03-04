@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.profiler.receiver;
 
 import com.navercorp.pinpoint.profiler.receiver.service.EchoService;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamCode;
-import com.navercorp.pinpoint.rpc.stream.ServerStreamChannelContext;
+import com.navercorp.pinpoint.rpc.stream.ServerStreamChannel;
 import com.navercorp.pinpoint.thrift.io.TCommandType;
 import org.apache.thrift.TBase;
 import org.junit.Assert;
@@ -134,7 +134,7 @@ public class ProfilerCommandServiceLocatorTest {
     private static class MockStreamCommandService implements ProfilerStreamCommandService<TBase<?, ?>> {
 
         @Override
-        public StreamCode streamCommandService(TBase<?, ?> tBase, ServerStreamChannelContext streamChannelContext) {
+        public StreamCode streamCommandService(TBase<?, ?> tBase, ServerStreamChannel serverStreamChannel) {
             return StreamCode.OK;
         }
 

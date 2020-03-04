@@ -23,14 +23,18 @@ import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.plugin.kafka.KafkaConstants;
 import com.navercorp.pinpoint.plugin.kafka.field.accessor.RemoteAddressFieldAccessor;
+
 import org.apache.kafka.clients.producer.ProducerConfig;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Taejin Koo
  */
 public class ProducerConstructorInterceptor implements AroundInterceptor {
+
+    private static final String KEY_BOOTSTRAP_SERVERS = "bootstrap.servers";
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
@@ -57,12 +61,21 @@ public class ProducerConstructorInterceptor implements AroundInterceptor {
         }
 
         ProducerConfig producerConfig = getProducerConfig(args);
-        if (producerConfig == null) {
+        if (producerConfig != null) {
+            String remoteAddress = getRemoteAddress(producerConfig);
+            ((RemoteAddressFieldAccessor) target)._$PINPOINT$_setRemoteAddress(remoteAddress);
             return;
         }
 
-        String remoteAddress = getRemoteAddress(producerConfig);
-        ((RemoteAddressFieldAccessor) target)._$PINPOINT$_setRemoteAddress(remoteAddress);
+        // Version 2.2.0+ is supported.
+        Map map = getMap(args);
+        if (map != null) {
+            Object remoteAddressObject = map.get(KEY_BOOTSTRAP_SERVERS);
+            String remoteAddress = getRemoteAddress0(remoteAddressObject);
+            ((RemoteAddressFieldAccessor) target)._$PINPOINT$_setRemoteAddress(remoteAddress);
+            return;
+        }
+
     }
 
     private ProducerConfig getProducerConfig(Object args[]) {
@@ -71,20 +84,43 @@ public class ProducerConstructorInterceptor implements AroundInterceptor {
         }
 
         if (args[0] instanceof ProducerConfig) {
-            return (ProducerConfig)args[0];
+            return (ProducerConfig) args[0];
+        }
+
+        return null;
+    }
+
+    private Map getMap(Object args[]) {
+        if (ArrayUtils.isEmpty(args)) {
+            return null;
+        }
+
+        if (args[0] instanceof Map) {
+            return (Map) args[0];
         }
 
         return null;
     }
 
     private String getRemoteAddress(ProducerConfig producerConfig) {
-        List<String> serverList = producerConfig.getList("bootstrap.servers");
+        List<String> serverList = producerConfig.getList(KEY_BOOTSTRAP_SERVERS);
+        return getRemoteAddress0(serverList);
+    }
+
+    private String getRemoteAddress0(Object remoteAddressObject) {
         String remoteAddress = KafkaConstants.UNKNOWN;
-        if (CollectionUtils.nullSafeSize(serverList) == 1) {
-            remoteAddress = serverList.get(0);
-        } else if (CollectionUtils.nullSafeSize(serverList) > 1) {
-            remoteAddress = serverList.toString();
+        if (remoteAddressObject instanceof List) {
+            List remoteAddressList = (List) remoteAddressObject;
+            if (CollectionUtils.nullSafeSize(remoteAddressList) == 1) {
+                remoteAddress = String.valueOf(remoteAddressList.get(0));
+            } else if (CollectionUtils.nullSafeSize(remoteAddressList) > 1) {
+                remoteAddress = remoteAddressList.toString();
+            }
+            return remoteAddress;
+        } else if (remoteAddressObject instanceof String) {
+            return (String) remoteAddressObject;
         }
+
         return remoteAddress;
     }
 

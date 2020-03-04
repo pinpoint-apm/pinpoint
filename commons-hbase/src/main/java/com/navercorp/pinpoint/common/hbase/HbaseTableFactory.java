@@ -35,7 +35,7 @@ public class HbaseTableFactory implements TableFactory {
     private final Connection connection;
 
     public HbaseTableFactory(Connection connection) {
-        this.connection = Objects.requireNonNull(connection, "connection must not be null");
+        this.connection = Objects.requireNonNull(connection, "connection");
     }
 
     @Override

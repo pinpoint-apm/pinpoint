@@ -20,9 +20,9 @@ import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestWrapper;
 import com.navercorp.pinpoint.common.util.Assert;
+
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMessage;
 import io.netty.handler.codec.http.HttpRequest;
 
@@ -37,7 +37,7 @@ public class NettyClientRequestWrapper implements ClientRequestWrapper {
     private final ChannelHandlerContext channelHandlerContext;
 
     public NettyClientRequestWrapper(final HttpMessage httpMessage, final ChannelHandlerContext channelHandlerContext) {
-        this.httpMessage = Assert.requireNonNull(httpMessage, "httpMessage must not be null");
+        this.httpMessage = Assert.requireNonNull(httpMessage, "httpMessage");
         this.channelHandlerContext = channelHandlerContext;
     }
 

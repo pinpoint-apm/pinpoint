@@ -66,7 +66,7 @@ public class HttpClientExecuteMethodInternalInterceptor implements AroundInterce
             return;
         }
 
-        if (result != null && result instanceof HttpResponse) {
+        if (result instanceof HttpResponse) {
             final HttpResponse response = (HttpResponse) result;
             if (response.getStatusLine() != null) {
                 HttpCallContext context = new HttpCallContext();

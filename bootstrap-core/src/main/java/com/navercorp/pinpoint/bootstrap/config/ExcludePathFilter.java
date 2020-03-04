@@ -64,7 +64,7 @@ public class ExcludePathFilter implements Filter<String> {
 
     public PathMatcher[] toArray(Collection<PathMatcher> collection) {
         if (collection == null) {
-            throw new NullPointerException("collection must not be null");
+            throw new NullPointerException("collection");
         }
         return collection.toArray(new PathMatcher[0]);
     }

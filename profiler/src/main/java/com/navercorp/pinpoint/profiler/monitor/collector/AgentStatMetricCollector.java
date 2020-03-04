@@ -16,9 +16,6 @@
 
 package com.navercorp.pinpoint.profiler.monitor.collector;
 
-import org.apache.thrift.TBase;
-import org.apache.thrift.TFieldIdEnum;
-
 /**
  * @author HyunGil Jeong
  */

@@ -27,7 +27,7 @@ public class DefaultTraceScopePool {
 
     public TraceScope get(String name) {
         if (name == null) {
-            throw new IllegalArgumentException("name must not be null");
+            throw new IllegalArgumentException("name");
         }
 
         return list.get(name);
@@ -35,7 +35,7 @@ public class DefaultTraceScopePool {
 
     public TraceScope add(String name) {
         if (name == null) {
-            throw new IllegalArgumentException("name must not be null");
+            throw new IllegalArgumentException("name");
         }
 
         final TraceScope oldScope = list.add(name, new DefaultTraceScope(name));

@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.collector.receiver.thrift.tcp;
 
-import com.navercorp.pinpoint.collector.receiver.thrift.DispatchHandler;
+import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.thrift.io.DeserializerFactory;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializer;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializerFactory;
@@ -65,7 +65,7 @@ public class DefaultTCPPacketHandlerFactory implements TCPPacketHandlerFactory {
     @Override
     public TCPPacketHandler build(DispatchHandler dispatchHandler) {
 
-        Objects.requireNonNull(dispatchHandler, "dispatchHandler must not be null");
+        Objects.requireNonNull(dispatchHandler, "dispatchHandler");
 
         SerializerFactory<HeaderTBaseSerializer> serializerFactory = this.serializerFactory;
         if (serializerFactory == null) {

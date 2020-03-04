@@ -1,8 +1,0 @@
-<ul class="l-application-list">
-    <li *ngFor="let app of applicationList" class="l-application-list-item">
-        <img [src]="getIconPath(app.getServiceType())" width="23px" height="18px" class="l-icon-img"/>
-        <span class="text-ellipsis l-application-name-wrapper">{{app.getApplicationName()}}</span>
-        <button class="l-select-button" (click)="onSelectApp(app)"><span [class]="iconBtnClassName"></span></button>
-    </li>
-</ul>
-<p *ngIf="isListEmpty()" class="l-empty-text">{{emptyText}}</p>

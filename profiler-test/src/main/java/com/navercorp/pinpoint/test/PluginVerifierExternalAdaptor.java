@@ -27,7 +27,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.test.ExpectedTrace;
 import com.navercorp.pinpoint.bootstrap.plugin.test.ExpectedTraceField;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
 import com.navercorp.pinpoint.bootstrap.plugin.test.TraceType;
-import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
+import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.LoggingInfo;
 import com.navercorp.pinpoint.common.trace.ServiceType;
@@ -73,7 +73,7 @@ public class PluginVerifierExternalAdaptor implements PluginTestVerifier {
     private final ApplicationContextHandler handler;
 
     public PluginVerifierExternalAdaptor(DefaultApplicationContext applicationContext) {
-        this.applicationContext = Assert.requireNonNull(applicationContext, "applicationContext must not be null");
+        this.applicationContext = Assert.requireNonNull(applicationContext, "applicationContext");
         this.handler = new ApplicationContextHandler(applicationContext);
     }
 
@@ -894,7 +894,7 @@ public class PluginVerifierExternalAdaptor implements PluginTestVerifier {
         if (expectedTrace == null) {
             return;
         }
-        Assert.requireNonNull(expectedTrace, "expectedTrace must not be null");
+        Assert.requireNonNull(expectedTrace, "expectedTrace");
         if (waitUnitTime <= 0 || maxWaitTime <= 0) {
             throw new IllegalArgumentException("must be greater than 0");
         }

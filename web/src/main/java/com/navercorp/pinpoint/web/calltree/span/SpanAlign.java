@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,8 +21,9 @@ import java.util.Objects;
 
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
+import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
-import com.navercorp.pinpoint.common.util.TransactionIdUtils;
+import com.navercorp.pinpoint.common.profiler.util.TransactionIdUtils;
 import org.apache.commons.collections.CollectionUtils;
 
 /**
@@ -44,14 +45,23 @@ public class SpanAlign implements Align {
     }
 
     public SpanAlign(SpanBo spanBo, boolean meta) {
-        this.spanBo = Objects.requireNonNull(spanBo, "spanBo must not be null");
+        this.spanBo = Objects.requireNonNull(spanBo, "spanBo");
         this.hasChild = hasChild0();
         this.meta = meta;
     }
 
     private boolean hasChild0() {
-        List<SpanEventBo> spanEvents = this.spanBo.getSpanEventBoList();
-        return CollectionUtils.isNotEmpty(spanEvents);
+        final List<SpanEventBo> spanEvents = this.spanBo.getSpanEventBoList();
+        if (CollectionUtils.isNotEmpty(spanEvents)) {
+            return true;
+        }
+
+        final List<SpanChunkBo> spanChunkBoList = spanBo.getSpanChunkBoList();
+        if (CollectionUtils.isNotEmpty(spanChunkBoList)) {
+            return true;
+        }
+
+        return false;
     }
 
     @Override
@@ -141,7 +151,7 @@ public class SpanAlign implements Align {
     }
 
     @Override
-    public long getLastTime() {
+    public long getEndTime() {
         return spanBo.getStartTime() + spanBo.getElapsed();
     }
 

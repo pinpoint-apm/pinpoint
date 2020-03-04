@@ -25,15 +25,21 @@ public class TransactionMetricSnapshot {
     private final long sampledContinuationCount;
     private final long unsampledNewCount;
     private final long unsampledContinuationCount;
+    private final long skippedNewCount;
+    private final long skippedContinuationCount;
 
     public TransactionMetricSnapshot(long sampledNewCount,
                                      long sampledContinuationCount,
                                      long unsampledNewCount,
-                                     long unsampledContinuationCount) {
+                                     long unsampledContinuationCount,
+                                     long skippedNewCount,
+                                     long skippedContinuationCount) {
         this.sampledNewCount = sampledNewCount;
         this.sampledContinuationCount = sampledContinuationCount;
         this.unsampledNewCount = unsampledNewCount;
         this.unsampledContinuationCount = unsampledContinuationCount;
+        this.skippedNewCount = skippedNewCount;
+        this.skippedContinuationCount = skippedContinuationCount;
     }
 
     public long getSampledNewCount() {
@@ -50,5 +56,13 @@ public class TransactionMetricSnapshot {
 
     public long getUnsampledContinuationCount() {
         return unsampledContinuationCount;
+    }
+
+    public long getSkippedNewCount() {
+        return skippedNewCount;
+    }
+
+    public long getSkippedContinuationCount() {
+        return skippedContinuationCount;
     }
 }

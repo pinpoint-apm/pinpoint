@@ -40,7 +40,7 @@ public class ExceptionRecord extends BaseRecord {
         }
         final int index = exceptionClass.lastIndexOf('.');
         if (index != -1) {
-            exceptionClass = exceptionClass.substring(index + 1, exceptionClass.length());
+            exceptionClass = exceptionClass.substring(index + 1);
         }
         return exceptionClass;
     }

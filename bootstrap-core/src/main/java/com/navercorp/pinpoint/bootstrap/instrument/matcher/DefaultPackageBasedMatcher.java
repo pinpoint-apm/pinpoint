@@ -34,7 +34,7 @@ public class DefaultPackageBasedMatcher implements PackageBasedMatcher {
     }
 
     DefaultPackageBasedMatcher(final String basePackageName, final MatcherOperand additional) {
-        Assert.requireNonNull(basePackageName, "basePackageName must not be null");
+        Assert.requireNonNull(basePackageName, "basePackageName");
         if (!StringUtils.hasText(basePackageName)) {
             throw new IllegalArgumentException("basePackageName must not be empty");
         }

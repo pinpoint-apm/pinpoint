@@ -8,7 +8,16 @@ toc: false
 disqus: false
 ---
 
-For any other questions, please use the [user group](https://groups.google.com/forum/#!forum/pinpoint_user)
+[Github issues](https://github.com/naver/pinpoint/issues)  
+[Google group](https://groups.google.com/forum/#!forum/pinpoint_user)  
+[Gitter](https://gitter.im/naver/pinpoint)  
+
+Chinese groups
+
+QQ Group: 897594820 | DING Group
+:----------------: | :-----------: 
+![QQ Group](images/NAVERPinpoint.png) | ![DING Group](images/NaverPinpoint交流群-DING.jpg)
+
 
 ### How do I get the call stack view?
 Click on a server node, which will populate the scatter chart on the right. This chart shows all succeeded/failed requests that went through the server. If there are any requests that spike your interest, simply **drag on the scatter chart** to select them. This will bring up the call stack view containing the requests you've selected.
@@ -18,7 +27,7 @@ You can change the log level by modifying the agent's *log4j.xml* located in *PI
 
 ### Why is only the first/some of the requests traced?
 There is a sampling rate option in the agent's pinpoint.config file (profiler.sampling.rate).
-The agent's release binary has this value set to 20, which tells the agent to sample 1 trace every 20 transactions.
+Pinpoint agent samples 1 trace every N transactions if this value was set as N.
 Changing this value to 1 will allow you to trace every transaction.
 
 ### Request count in the Scatter Chart is different from the ones in Response Summary chart. Why is this?
@@ -55,10 +64,20 @@ Please remember to run the command `mvn clean verify -DskipTests=true` if you've
 ### How to set java runtime option when using atlassian OSGi
 `-Datlassian.org.osgi.framework.bootdelegation=sun.,com.sun.,com.navercorp.*,org.apache.xerces.*`
 
-### Why do I see UI send requests to http://www.google-analytics.com/collect?
+### Why do I see UI send requests to https://www.google-analytics.com/collect?
 Pinpoint Web module has google analytics attached which tracks the number and the order of button clicks in the Server Map, Transaction List, and the Inspector View.  
 This data is used to better understand how users interact with the Web UI which gives us valuable information on improving Pinpoint Web's user experience. To disable this for any reason, set following option to false in pinpoint-web.properties for your web instance.
 ```
 config.sendUsage=false
 ```
+
+### I'd like to use Hbase 2.x for Pinpoint.
+If you'd like to use Hbase 2.x for Pinpoint database, check out [Hbase upgrade guide](https://naver.github.io/pinpoint/plugindevguide.html).
+
+
+### What can I do if I don't wan't to use gojs
+In our next version of Pinpoint-Web, you can choose between visjs or gojs.
+The [source code](https://github.com/naver/pinpoint/blob/master/web/src/main/webapp/v2/src/app/app.module.ts) of this option and
+[the guide](https://naver.github.io/pinpoint/ui_v2.html)
+
 

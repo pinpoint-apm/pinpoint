@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,16 +16,19 @@
 
 package com.navercorp.pinpoint.collector.dao.hbase;
 
-import static com.navercorp.pinpoint.common.hbase.HBaseTables.*;
-
 import com.navercorp.pinpoint.collector.dao.MapStatisticsCalleeDao;
-import com.navercorp.pinpoint.collector.dao.hbase.statistics.*;
-import com.navercorp.pinpoint.common.hbase.TableNameProvider;
-import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
+import com.navercorp.pinpoint.collector.dao.hbase.statistics.BulkIncrementer;
+import com.navercorp.pinpoint.collector.dao.hbase.statistics.CallRowKey;
+import com.navercorp.pinpoint.collector.dao.hbase.statistics.CallerColumnName;
+import com.navercorp.pinpoint.collector.dao.hbase.statistics.ColumnName;
+import com.navercorp.pinpoint.collector.dao.hbase.statistics.RowKey;
+import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
+import com.navercorp.pinpoint.common.hbase.TableDescriptor;
+import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.common.util.ApplicationMapStatisticsUtils;
-import com.navercorp.pinpoint.common.util.TimeSlot;
+import com.navercorp.pinpoint.common.profiler.util.ApplicationMapStatisticsUtils;
+import com.navercorp.pinpoint.common.server.util.TimeSlot;
 
 import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
 import org.apache.commons.lang3.StringUtils;
@@ -56,9 +59,6 @@ public class HbaseMapStatisticsCalleeDao implements MapStatisticsCalleeDao {
     private HbaseOperations2 hbaseTemplate;
 
     @Autowired
-    private TableNameProvider tableNameProvider;
-
-    @Autowired
     private AcceptedTimeService acceptedTimeService;
 
     @Autowired
@@ -74,6 +74,9 @@ public class HbaseMapStatisticsCalleeDao implements MapStatisticsCalleeDao {
 
     private final boolean useBulk;
 
+    @Autowired
+    private TableDescriptor<HbaseColumnFamily.CallerStatMap> descriptor;
+
     public HbaseMapStatisticsCalleeDao() {
         this(true);
     }
@@ -85,10 +88,10 @@ public class HbaseMapStatisticsCalleeDao implements MapStatisticsCalleeDao {
     @Override
     public void update(String calleeApplicationName, ServiceType calleeServiceType, String callerApplicationName, ServiceType callerServiceType, String callerHost, int elapsed, boolean isError) {
         if (callerApplicationName == null) {
-            throw new NullPointerException("callerApplicationName must not be null");
+            throw new NullPointerException("callerApplicationName");
         }
         if (calleeApplicationName == null) {
-            throw new NullPointerException("calleeApplicationName must not be null");
+            throw new NullPointerException("calleeApplicationName");
         }
 
         if (logger.isDebugEnabled()) {
@@ -108,7 +111,7 @@ public class HbaseMapStatisticsCalleeDao implements MapStatisticsCalleeDao {
         final ColumnName callerColumnName = new CallerColumnName(callerServiceType.getCode(), callerApplicationName, callerHost, callerSlotNumber);
 
         if (useBulk) {
-            TableName mapStatisticsCallerTableName = tableNameProvider.getTableName(MAP_STATISTICS_CALLER_VER2_STR);
+            TableName mapStatisticsCallerTableName = descriptor.getTableName();
             bulkIncrementer.increment(mapStatisticsCallerTableName, calleeRowKey, callerColumnName);
         } else {
             final byte[] rowKey = getDistributedKey(calleeRowKey.getRowKey());
@@ -121,13 +124,13 @@ public class HbaseMapStatisticsCalleeDao implements MapStatisticsCalleeDao {
 
     private void increment(byte[] rowKey, byte[] columnName, long increment) {
         if (rowKey == null) {
-            throw new NullPointerException("rowKey must not be null");
+            throw new NullPointerException("rowKey");
         }
         if (columnName == null) {
-            throw new NullPointerException("columnName must not be null");
+            throw new NullPointerException("columnName");
         }
-        TableName mapStatisticsCallerTableName = tableNameProvider.getTableName(MAP_STATISTICS_CALLER_VER2_STR);
-        hbaseTemplate.incrementColumnValue(mapStatisticsCallerTableName, rowKey, MAP_STATISTICS_CALLER_VER2_CF_COUNTER, columnName, increment);
+        TableName mapStatisticsCallerTableName = descriptor.getTableName();
+        hbaseTemplate.incrementColumnValue(mapStatisticsCallerTableName, rowKey, descriptor.getColumnFamilyName(), columnName, increment);
     }
 
     @Override
@@ -152,4 +155,5 @@ public class HbaseMapStatisticsCalleeDao implements MapStatisticsCalleeDao {
     private byte[] getDistributedKey(byte[] rowKey) {
         return rowKeyDistributorByHashPrefix.getDistributedKey(rowKey);
     }
+
 }

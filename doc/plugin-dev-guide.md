@@ -1,7 +1,7 @@
 ---
 title: Plugin Developer Guide
 keywords: plugin, plug-in, plug
-last_updated: Feb 1, 2018
+last_updated: Jan 21, 2019
 sidebar: mydoc_sidebar
 permalink: plugindevguide.html
 disqus: false
@@ -12,7 +12,7 @@ You can write Pinpoint profiler plugins to extend profiling target coverage. It 
  * There is a [fast auto pinpoint agent plugin generate tool](https://github.com/bbossgroups/pinpoint-plugin-generate) from a 3rd party for creating a simple plug-in, if you'd like to check out.
 
 ## I. Trace Data
-In Pinpoint, a transaction consists of a group of `Spans`. Each `Span` represents a trace of a single logical node where the transaction had gone through. 
+In Pinpoint, a transaction consists of a group of `Spans`. Each `Span` represents a trace of a single logical node where the transaction has gone through. 
 
 To aid in visualization, let's suppose that there is a system like below. The *FrontEnd* server receives requests from users, then sends request to the *BackEnd* server, which queries a DB. Among these nodes, let's assume only the *FrontEnd* and *BackEnd* servers are profiled by the Pinpoint Agent.
 
@@ -23,28 +23,60 @@ When a request arrives at the *FrontEnd* server, Pinpoint Agent generates a new 
 
 A `Span` records important method invocations and their related data(arguments, return value, etc) before encapsulating them as `SpanEvents` in a call stack like representation. The `Span` itself and each of its `SpanEvents` represents a method invocation.
 
-`Span` and `SpanEvent` have many fields, but most of them are handled internally by Pinpoint Agent and most plugin developers doesn't need to concern about them. But For the fields, and information that must be handled by the plugin developers is as follow.
+`Span` and `SpanEvent` have many fields, but most of them are handled internally by Pinpoint Agent and most plugin developers won't need to worry about them. But the fields and data that must be handled by plugin developers will be listed throughout this guide.
 
 
 ## II. Pinpoint Plugin Structure
-Pinpoint plugin consists of `TraceMetadataProvider` and `ProfilerPlugin` implementations. `TraceMetadataProvider` implementation provides `ServiceType` and `AnnotationKey` to Pinpoint Agent, Web and Collector. `ProfilerPlugin` implementations are used by Pinpoint Agent to transform target classes to record trace data.
+Pinpoint plugin consists of *type-provider.yml* and `ProfilerPlugin` implementations. *type-provider.yml* defines the `ServiceTypes` and `AnnotationKeys` that will be provided by the plugin, and provides them to Pinpoint Agent, Web and Collector. `ProfilerPlugin` implementations are used by Pinpoint Agent to transform target classes to record trace data.
 
-Plugins are deployed as jar files. Pinpoint Agent searches `TraceMetadataProvider` and `ProfilerPlugin` implementations using `ServiceLoader` from the `plugin` directory, while Web and Collector look into `WEB-INF/lib` directory. `ServiceLoader` requires provider configuration file located in `META-INF/services`, so you must put the following files in the plugin jar file.
+Plugins are deployed as jar files. These jar files are packaged under the *plugin* directory for the agent, while the collector and web have them deployed under *WEB-INF/lib*.
+On start up, Pinpoint Agent, Collector, and Web iterates through each of these plugins; parses *type-provider.yml*, and loads `ProfilerPlugin` implementations using `ServiceLoader` from the following locations: 
 
+* META-INF/pinpoint/type-provider.yml
 * META-INF/services/com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin
-* META-INF/services/com.navercorp.pinpoint.common.trace.TraceMetadataProvider
 
-Here is a [template plugin project](https://github.com/naver/pinpoint-plugin-template). You can start creating your own plugin withgae0 this template.
+Here is a [template plugin project](https://github.com/naver/pinpoint-plugin-template) you can use to start creating your own plugin.
 
 
-### 1. TraceMetadataProvider
-`TraceMetadataProvider` implementations provide `ServiceTypes` and `AnnotationKeys`.
+### 1. type-provider.yml
+*type-provider.yml* defines the `ServiceTypes` and `AnnotationKeys` that will be used by the plugin and provided to the agent, collector and web; the format of which is outlined below.
+
+```yaml
+serviceTypes:
+    - code: <short>
+      name: <String>
+      desc: <String>   # May be omitted, defaulting to the same value as name.
+      property:        # May be omitted, all properties defaulting to false.
+          terminal: <boolean>               # May be omitted, defaulting to false.
+          queue: <boolean>                  # May be omitted, defaulting to false.
+          recordStatistics: <boolean>       # May be omitted, defaulting to false.
+          includeDestinationId: <boolean>   # May be omitted, defaulting to false.
+          alias: <boolean>                  # May be omitted, defaulting to false.          
+      matcher:         # May be omitted
+          type: <String>   # Any one of 'args', 'exact', 'none'
+          code: <int>      # Annotation key code - required only if type is 'exact'
+
+annotationKeys:
+    - code: <int>
+      name: <String>
+      property:        # May be omitted, all properties defaulting to false.
+          viewInRecordSet: <boolean>
+```
+
+`ServiceType` and `AnnotationKey` defined here are instantiated when the agent loads, and can be obtained using `ServiceTypeProvider` and `AnnotationKeyProvider` like below.
+```java
+// ServiceType
+ServiceType serviceType = ServiceTypeProvider.getByCode(1000);    // by ServiceType code
+ServiceType serviceType = ServiceTypeProvider.getByName("NAME");  // by ServiceType name
+// AnnotationKey
+AnnotationKey annotationKey = AnnotationKeyProvider.getByCode("100");
+``` 
 
 #### 1.1 ServiceType
 
 Every `Span` and `SpanEvent` contains a `ServiceType`. The `ServiceType` represents which library the traced method belongs to, as well as how the `Span` and `SpanEvent` should be handled.
 
-Below table shows `ServiceType`'s properties.
+The table below shows the `ServiceType`'s properties.
 
 property | description
 --- | ---
@@ -53,7 +85,7 @@ code | short type code value of the `ServiceType`. Must be unique
 desc | description
 properties | properties 
 
-The `ServiceType` code must use a value from its appropriate category. Below table shows the categories and the ranges.
+`ServiceType` code must use a value from its appropriate category. The table below shows these categories and their range of codes.
 
 category | range
 --- | ---
@@ -61,11 +93,11 @@ Internal Use | 0 ~ 999
 Server | 1000 ~ 1999 
 DB Client | 2000 ~ 2999 
 Cache Client | 8000 ~ 8999 
-RPC Client | 9000 ~ 9999 
+RPC Client | 9000 ~ 9999
 Others | 5000 ~ 7999 
 
 
-`ServiceType` code must be unique. Therefore, if you are writing a plugin that will be shared publicly, **you must** contact the Pinpoint dev. team to get a `ServiceType` code assigned. If your plugin is for private use, you may freely pick a value for `ServiceType` code from the table below.
+`ServiceType` code must be unique. Therefore, if you are writing a plugin that will be shared publicly, **you must** contact Pinpoint dev. team to get a `ServiceType` code assigned. If your plugin is for private use, you may freely pick a value for `ServiceType` code from the table below.
 
 category | range
 --- | ---
@@ -81,12 +113,14 @@ Others | 7500 ~ 7999
 property | description
 --- | ---
 TERMINAL | This `Span` or `SpanEvent` invokes a remote node but the target node is not traceable with Pinpoint
+QUEUE | This `Span` or `SpanEvent` consumes/produces a message from/to a message queue.
 INCLUDE_DESTINATION_ID | This `Span` or `SpanEvent` records a `destination id` and remote server is not a traceable type.
 RECORD_STATISTICS | Pinpoint Collector should collect execution time statistics of this `Span` or `SpanEvent`
+ALIAS | The service may or may not have Pinpoint-Agent attached at the following service but regardlessly have knowledge what will follow. (Ex. Elasticsearch client)
 
 
 #### 1.2 AnnotationKey
-You can annotate Spans or SpanEvents with more information. An `Annotation` is a key-value pair where the key is an `AnnotationKey` type and the value is a primitive type, String or a byte[]. There are pre-defined `AnnotationKeys` for commonly used annotation types, but you can define your own keys in `TraceMetadataProvider` if these are not enough.
+You can annotate spans and span events with more information. An **Annotation** is a key-value pair where the key is an `AnnotationKey` type and the value is a primitive type, String or a byte[]. There are pre-defined `AnnotationKeys` for commonly used annotation types, but you can define your own keys in *type-provider.yml* if these are not enough.
 
 
 property | description
@@ -95,7 +129,7 @@ name | Name of the `AnnotationKey`
 code | int type code value of the `AnnotationKey`. Must be unique. 
 properties | properties
 
-If your public plugin is going to add a new `AnnotationKey`, you must contact the Pinpoint dev. team to get an `AnnotationKey` code assigned. If your plugin is for private use, you may pick a value between 900 to 999 safely to use as `AnnotationKey` code.
+If you are writing a plugin for public use, and are looking to add a new `AnnotationKey`, you must contact the Pinpoint dev. team to get an `AnnotationKey` code assigned. If your plugin is for private use, you may pick a value between 900 to 999 safely to use as `AnnotationKey` code.
 
 The table below shows the `AnnotationKey` properties.
 
@@ -106,9 +140,9 @@ ERROR_API_METADATA | This property is not for plugins.
 
 
 #### Example
-You can find `TraceMetadataProvider` sample [here](https://github.com/naver/pinpoint-plugin-sample/blob/master/plugin/src/main/java/com/navercorp/pinpoint/plugin/sample/SampleTraceMetadataProvider.java).
+You can find *type-provider.yml* sample [here](https://github.com/naver/pinpoint-plugin-sample/blob/master/plugin/src/main/resources/META-INF/pinpoint/type-provider.yml).
 
-You may also pass `AnnotationKeyMatcher` with the `ServiceType` (`TraceMetadata.addServiceType(ServiceType, AnnotationKeyMatcher`) in the sample code). If you pass an `AnnotationKeyMatcher` this way, matching annotations will be displayed as representative annotation when the `ServiceType`'s `Span` or `SpanEvent` is displayed in the transaction call tree.
+You may also define and attach an `AnnotationKeyMatcher` with a `ServiceType` (`matcher` element in the sample *type-provider* code above). If you attach an `AnnotationKeyMatcher` this way, matching annotations will be displayed as representative annotation when the `ServiceType`'s `Span` or `SpanEvent` is displayed in the transaction call tree.
 
 
 
@@ -120,18 +154,18 @@ You may also pass `AnnotationKeyMatcher` with the `ServiceType` (`TraceMetadata.
 1. Pinpoint Agent is started when the JVM starts.
 2. Pinpoint Agent loads all plugins under `plugin` directory.
 3. Pinpoint Agent invokes `ProfilerPlugin.setup(ProfilerPluginSetupContext)` for each loaded plugin.
-4. In the `setup` method, the plugin defines classes that should be transformed and registers a `TransformerCallback`.
-5. Target application start.
-6. Every time a class is loaded, Pinpoint Agent looks up for the `TransformerCallback` registered for the class.
-7. If a `TransformerCallback` is registered, the Agent invokes its `doInTransform` method.
+4. In the `setup` method, the plugin registers a `TransformerCallback` to all classes that are going to be transformed.
+5. Target application starts.
+6. Every time a class is loaded, Pinpoint Agent looks for the `TransformerCallback` registered to the class.
+7. If a `TransformerCallback` is registered, the Agent invokes it's `doInTransform` method.
 8. `TransformerCallback` modifies the target class' byte code. (e.g. add interceptors, add fields, etc.)
 9. The modified byte code is returned to the JVM, and the class is loaded with the returned byte code.
 10. Application continues running.
 11. When a modified method is invoked, the injected interceptor's `before` and `after` methods are invoked.
 12. The interceptor records the trace data.
 
-The most important points of consideration boils down to i) figuring out which methods are interesting enough to warrant tracing. ii) injecting interceptors to actually trace these methods. 
-These interceptors are used to extract, store and pass trace data around before they are sent off to the Collector. Interceptors may even cooperate with each other, sharing context between them. Plugins may also aid in tracing by adding getters or even custom fields to the target class so that the interceptors may access them during execution. [Pinpoint plugin sample](https://github.com/naver/pinpoint-plugin-sample) shows you how the `TransformerCallback` modifies classes and what the injected interceptors do to trace methods.
+The most important points to consider when writing a plugin are 1) figuring out which methods are interesting enough to warrant tracing, and 2) injecting interceptors to actually trace these methods. 
+These interceptors are used to extract, store, and pass trace data around before they are sent off to the Collector. Interceptors may even cooperate with each other, sharing context between them. Plugins may also aid in tracing by adding getters or even custom fields to the target class so that the interceptors may access them during execution. [Pinpoint plugin sample](https://github.com/naver/pinpoint-plugin-sample) shows you how the `TransformerCallback` modifies classes and what the injected interceptors do to trace a method.
 
 We will now describe what interceptors must do to trace different kinds of methods.
 
@@ -160,13 +194,13 @@ endPoint | Server(current node) address
 remoteAddr | Client address
 acceptorHost | Server address that the client used
 
-Pinpoint finds caller-callee relation between nodes using *acceptorHost*. In most cases, *acceptorHost* is identical to *endPoint*. However, the address which client sent the request to, may sometimes be different from the address the server received the request (proxy). To handle such cases, you have to record the actual address the client used to send the request to as *acceptorHost*. Normally, the client plugin will have added this address into the request message along with the transaction data.
+Pinpoint finds caller-callee relation between nodes using *acceptorHost*. In most cases, *acceptorHost* is identical to *endPoint*. However, the address which client sent the request to may sometimes be different from the address the server received the request (proxy). To handle such cases, you have to record the actual address the client used to send the request to as *acceptorHost*. Normally, the client plugin will have added this address into the request message along with the transaction data.
 
 Moreover, you must also use the span id issued and sent by the previous node.
 
-Sometimes, the previous node marks the transaction not to be traced. In this case, you must not trace the transaction.
+Sometimes, the previous node marks the transaction to not be traced. In this case, you must not trace the transaction.
 
-As you can see, the client plugin have to pass many data to the server plugin. How to do it is protocol dependent.
+As you can see, the client plugin must be able pass trace data to the server plugin, and how to do this is protocol dependent.
 
 You can find an example of top-level method server interceptor [here](https://github.com/naver/pinpoint-plugin-sample/tree/master/plugin/src/main/java/com/navercorp/pinpoint/plugin/sample/_14_RPC_Server).
 

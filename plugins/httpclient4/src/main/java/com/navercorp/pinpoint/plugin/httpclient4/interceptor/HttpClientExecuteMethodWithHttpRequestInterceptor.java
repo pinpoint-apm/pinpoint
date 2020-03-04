@@ -54,7 +54,7 @@ public class HttpClientExecuteMethodWithHttpRequestInterceptor extends AbstractH
     @Override
     protected NameIntValuePair<String> getHost(Object[] args) {
         final Object arg = args[HTTP_HOST_INDEX];
-        if (arg != null && arg instanceof HttpHost) {
+        if (arg instanceof HttpHost) {
             final HttpHost httpHost = (HttpHost) arg;
             return new NameIntValuePair<String>(httpHost.getHostName(), httpHost.getPort());
         }
@@ -64,7 +64,7 @@ public class HttpClientExecuteMethodWithHttpRequestInterceptor extends AbstractH
     @Override
     protected HttpRequest getHttpRequest(Object[] args) {
         final Object arg = args[HTTP_REQUEST_INDEX];
-        if (arg != null && arg instanceof HttpRequest) {
+        if (arg instanceof HttpRequest) {
             return (HttpRequest) arg;
         }
         return null;

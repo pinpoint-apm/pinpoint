@@ -16,14 +16,28 @@
 
 package com.navercorp.pinpoint.profiler.context.thrift;
 
+import com.navercorp.pinpoint.bootstrap.context.ServerMetaData;
+import com.navercorp.pinpoint.bootstrap.context.ServiceInfo;
+import com.navercorp.pinpoint.common.Version;
 import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.profiler.AgentInformation;
+import com.navercorp.pinpoint.profiler.JvmInformation;
+import com.navercorp.pinpoint.profiler.metadata.AgentInfo;
 import com.navercorp.pinpoint.profiler.metadata.ApiMetaData;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaData;
 import com.navercorp.pinpoint.profiler.metadata.StringMetaData;
+import com.navercorp.pinpoint.thrift.dto.TAgentInfo;
 import com.navercorp.pinpoint.thrift.dto.TApiMetaData;
+import com.navercorp.pinpoint.thrift.dto.TJvmGcType;
+import com.navercorp.pinpoint.thrift.dto.TJvmInfo;
+import com.navercorp.pinpoint.thrift.dto.TServerMetaData;
+import com.navercorp.pinpoint.thrift.dto.TServiceInfo;
 import com.navercorp.pinpoint.thrift.dto.TSqlMetaData;
 import com.navercorp.pinpoint.thrift.dto.TStringMetaData;
 import org.apache.thrift.TBase;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -33,30 +47,95 @@ public class MetadataMessageConverter implements MessageConverter<TBase<?, ?>> {
     private final String applicationName;
     private final String agentId;
     private final long agentStartTime;
+    private final JvmGcTypeThriftMessageConverter jvmGcTypeMessageConverter = new JvmGcTypeThriftMessageConverter();
 
     public MetadataMessageConverter(String applicationName, String agentId, long agentStartTime) {
-        this.applicationName = Assert.requireNonNull(applicationName, "applicationName must not be null");
-        this.agentId = Assert.requireNonNull(agentId, "agentId must not be null");
+        this.applicationName = Assert.requireNonNull(applicationName, "applicationName");
+        this.agentId = Assert.requireNonNull(agentId, "agentId");
         this.agentStartTime = agentStartTime;
     }
 
     @Override
     public TBase<?, ?> toMessage(Object message) {
-        if (message instanceof SqlMetaData) {
+        if (message instanceof AgentInfo) {
+            final AgentInfo agentInfo = (AgentInfo) message;
+            return convertAgentInfo(agentInfo);
+        } else if (message instanceof SqlMetaData) {
             final SqlMetaData sqlMetaData = (SqlMetaData) message;
-            return new TSqlMetaData(agentId, agentStartTime, sqlMetaData.getSqlId(), sqlMetaData.getSql());
-        }
-        if (message instanceof ApiMetaData) {
+            return convertSqlMetaData(sqlMetaData);
+        } else if (message instanceof ApiMetaData) {
             final ApiMetaData apiMetaData = (ApiMetaData) message;
-            final TApiMetaData tApiMetaData = new TApiMetaData(agentId, agentStartTime, apiMetaData.getApiId(), apiMetaData.getApiInfo());
-            tApiMetaData.setLine(apiMetaData.getLine());
-            tApiMetaData.setType(apiMetaData.getType());
-            return tApiMetaData;
-        }
-        if (message instanceof StringMetaData) {
+            return convertApiMetaData(apiMetaData);
+        } else if (message instanceof StringMetaData) {
             final StringMetaData stringMetaData = (StringMetaData) message;
-            return new TStringMetaData(agentId, agentStartTime, stringMetaData.getStringId(), stringMetaData.getStringValue());
+            return convertStringMetaData(stringMetaData);
         }
         return null;
+    }
+
+    public TAgentInfo convertAgentInfo(final AgentInfo agentInfo) {
+        final AgentInformation agentInformation = agentInfo.getAgentInformation();
+
+        final TAgentInfo tAgentInfo = new TAgentInfo();
+        tAgentInfo.setIp(agentInformation.getHostIp());
+        tAgentInfo.setHostname(agentInformation.getMachineName());
+        tAgentInfo.setPorts("");
+        tAgentInfo.setAgentId(agentInformation.getAgentId());
+        tAgentInfo.setApplicationName(agentInformation.getApplicationName());
+        tAgentInfo.setContainer(agentInformation.isContainer());
+        tAgentInfo.setPid(agentInformation.getPid());
+        tAgentInfo.setStartTimestamp(agentInformation.getStartTime());
+        tAgentInfo.setServiceType(agentInformation.getServerType().getCode());
+        tAgentInfo.setVmVersion(agentInformation.getJvmVersion());
+        tAgentInfo.setAgentVersion(Version.VERSION);
+
+        final TServerMetaData tServerMetaData = convertServerMetaData(agentInfo.getServerMetaData());
+        tAgentInfo.setServerMetaData(tServerMetaData);
+
+        final TJvmInfo tJvmInfo = convertJvmInfo(agentInfo.getJvmInfo());
+        tAgentInfo.setJvmInfo(tJvmInfo);
+        return tAgentInfo;
+    }
+
+    private TServerMetaData convertServerMetaData(final ServerMetaData serverMetaData) {
+        if (serverMetaData == null) {
+            return null;
+        }
+
+        final TServerMetaData tServerMetaData = new TServerMetaData();
+        tServerMetaData.setServerInfo(serverMetaData.getServerInfo());
+        tServerMetaData.setVmArgs(serverMetaData.getVmArgs());
+        List<TServiceInfo> tServiceInfos = new ArrayList<TServiceInfo>();
+        for (ServiceInfo serviceInfo : serverMetaData.getServiceInfos()) {
+            TServiceInfo tServiceInfo = new TServiceInfo();
+            tServiceInfo.setServiceName(serviceInfo.getServiceName());
+            tServiceInfo.setServiceLibs(serviceInfo.getServiceLibs());
+            tServiceInfos.add(tServiceInfo);
+        }
+        tServerMetaData.setServiceInfos(tServiceInfos);
+        return tServerMetaData;
+    }
+
+    private TJvmInfo convertJvmInfo(final JvmInformation jvmInformation) {
+        final TJvmInfo tJvmInfo = new TJvmInfo();
+        tJvmInfo.setVmVersion(jvmInformation.getJvmVersion());
+        TJvmGcType gcType = this.jvmGcTypeMessageConverter.toMessage(jvmInformation.getJvmGcType());
+        tJvmInfo.setGcType(gcType);
+        return tJvmInfo;
+    }
+
+    private TSqlMetaData convertSqlMetaData(final SqlMetaData sqlMetaData) {
+        return new TSqlMetaData(agentId, agentStartTime, sqlMetaData.getSqlId(), sqlMetaData.getSql());
+    }
+
+    private TApiMetaData convertApiMetaData(final ApiMetaData apiMetaData) {
+        final TApiMetaData tApiMetaData = new TApiMetaData(agentId, agentStartTime, apiMetaData.getApiId(), apiMetaData.getApiInfo());
+        tApiMetaData.setLine(apiMetaData.getLine());
+        tApiMetaData.setType(apiMetaData.getType());
+        return tApiMetaData;
+    }
+
+    private TStringMetaData convertStringMetaData(final StringMetaData stringMetaData) {
+        return new TStringMetaData(agentId, agentStartTime, stringMetaData.getStringId(), stringMetaData.getStringValue());
     }
 }

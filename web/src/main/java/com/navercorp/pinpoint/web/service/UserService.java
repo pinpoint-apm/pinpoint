@@ -43,4 +43,6 @@ public interface UserService {
     List<User> selectUserByDepartment(String department);
 
     boolean isExistUserId(String userId);
+
+    String getUserIdFromSecurity();
 }

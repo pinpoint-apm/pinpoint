@@ -16,8 +16,11 @@
 
 package com.navercorp.pinpoint.bootstrap.module;
 
+import java.util.List;
+
 /**
  * @author Woonduk Kang(emeroad)
+ * @author jaehong.kim - Add addProvides()
  */
 public interface JavaModule {
     boolean isSupported();
@@ -26,6 +29,8 @@ public interface JavaModule {
 
     String getName();
 
+    List<Providers> getProviders();
+
     void addReads(JavaModule target);
 
     void addExports(String packageName, JavaModule target);
@@ -33,6 +38,8 @@ public interface JavaModule {
     void addOpens(String packageName, JavaModule target);
 
     void addUses(Class<?> target);
+
+    void addProvides(Class<?> service, List<Class<?>> providerList);
 
     boolean isExported(String packageName, JavaModule targetJavaModule);
 

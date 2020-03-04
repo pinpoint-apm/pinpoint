@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.bootstrap.plugin.proxy;
 
-import com.navercorp.pinpoint.bootstrap.context.Header;
 import com.navercorp.pinpoint.bootstrap.context.SpanRecorder;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
@@ -25,9 +24,15 @@ import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.StringUtils;
 
 /**
+ * @deprecated As of release 1.8.2, replaced by ProxyRequestRecorder
  * @author jaehong.kim
  */
-public class ProxyHttpHeaderRecorder<T> {
+@Deprecated
+public class ProxyHttpHeaderRecorder<T> implements ProxyRequestRecorder<T> {
+    private static final String HTTP_PROXY_NGINX = "Pinpoint-ProxyNginx";
+    private static final String HTTP_PROXY_APACHE = "Pinpoint-ProxyApache";
+    private static final String HTTP_PROXY_APP = "Pinpoint-ProxyApp";
+
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
     private final boolean isInfo = logger.isInfoEnabled();
@@ -37,7 +42,7 @@ public class ProxyHttpHeaderRecorder<T> {
 
     public ProxyHttpHeaderRecorder(final boolean enable, RequestAdaptor<T> requestAdaptor) {
         this.enable = enable;
-        this.requestAdaptor = Assert.requireNonNull(requestAdaptor, "requestAdaptor must not be null");
+        this.requestAdaptor = Assert.requireNonNull(requestAdaptor, "requestAdaptor");
     }
 
     public void record(final SpanRecorder recorder, final T request) {
@@ -53,9 +58,9 @@ public class ProxyHttpHeaderRecorder<T> {
         }
 
         try {
-            parseAndRecord(recorder, request, Header.HTTP_PROXY_APP.toString(), ProxyHttpHeader.TYPE_APP);
-            parseAndRecord(recorder, request, Header.HTTP_PROXY_NGINX.toString(), ProxyHttpHeader.TYPE_NGINX);
-            parseAndRecord(recorder, request, Header.HTTP_PROXY_APACHE.toString(), ProxyHttpHeader.TYPE_APACHE);
+            parseAndRecord(recorder, request, HTTP_PROXY_APP, ProxyHttpHeader.TYPE_APP);
+            parseAndRecord(recorder, request, HTTP_PROXY_NGINX, ProxyHttpHeader.TYPE_NGINX);
+            parseAndRecord(recorder, request, HTTP_PROXY_APACHE, ProxyHttpHeader.TYPE_APACHE);
         } catch (Exception e) {
             // for handler operations.
             if (isInfo) {

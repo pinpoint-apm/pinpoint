@@ -104,7 +104,7 @@ public class TFAgentStatMapperTest {
         final AgentStatBo agentStatBo = new AgentStatBo();
         agentStatBo.setStartTimestamp(startTimestamp);
         agentStatBo.setAgentId(TEST_AGENT);
-        agentStatBo.setDataSourceListBos(createDataSourceListBoList());;
+        agentStatBo.setDataSourceListBos(createDataSourceListBoList());
 
         List<TFAgentStat> tFAgentStatList = new TFAgentStatMapper().map(agentStatBo);
         assertEquals(2, tFAgentStatList.size());
@@ -113,7 +113,7 @@ public class TFAgentStatMapperTest {
         assertEquals(tFAgentStat1.getAgentId(), TEST_AGENT);
         assertEquals(tFAgentStat1.getStartTimestamp(), startTimestamp);
         assertEquals(tFAgentStat1.getTimestamp(), collectTime1st);
-        assertEquals(tFAgentStat1.isSetDataSourceList(), true);
+        assertTrue(tFAgentStat1.isSetDataSourceList());
         List<TFDataSource> dataSourceList1 = tFAgentStat1.getDataSourceList().getDataSourceList();
         assertEquals(dataSourceList1.size(), 2);
         TFDataSource tfDataSource1_1 = dataSourceList1.get(0);
@@ -136,7 +136,7 @@ public class TFAgentStatMapperTest {
         assertEquals(tFAgentStat2.getAgentId(), TEST_AGENT);
         assertEquals(tFAgentStat2.getStartTimestamp(), startTimestamp);
         assertEquals(tFAgentStat2.getTimestamp(), collectTime2nd);
-        assertEquals(tFAgentStat2.isSetDataSourceList(), true);
+        assertTrue(tFAgentStat2.isSetDataSourceList());
         List<TFDataSource> dataSourceList2 = tFAgentStat2.getDataSourceList().getDataSourceList();
         assertEquals(dataSourceList2.size(), 2);
         TFDataSource tfDataSource2_1 = dataSourceList2.get(0);

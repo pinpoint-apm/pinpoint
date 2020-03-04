@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,11 +16,11 @@
 
 package com.navercorp.pinpoint.web.dao.hbase;
 
-import com.navercorp.pinpoint.common.hbase.HBaseTables;
+import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
-import com.navercorp.pinpoint.common.hbase.TableNameProvider;
-import com.navercorp.pinpoint.common.util.ApplicationMapStatisticsUtils;
+import com.navercorp.pinpoint.common.hbase.TableDescriptor;
+import com.navercorp.pinpoint.common.profiler.util.ApplicationMapStatisticsUtils;
 import com.navercorp.pinpoint.web.dao.MapResponseDao;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.Range;
@@ -36,7 +36,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author netspider
@@ -60,28 +61,28 @@ public class HbaseMapResponseTimeDao implements MapResponseDao {
     private HbaseOperations2 hbaseOperations2;
 
     @Autowired
-    private TableNameProvider tableNameProvider;
-
-    @Autowired
     private RangeFactory rangeFactory;
 
     @Autowired
     @Qualifier("statisticsSelfRowKeyDistributor")
     private RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
 
+    @Autowired
+    private TableDescriptor<HbaseColumnFamily.SelfStatMap> descriptor;
+
 
     @Override
     public List<ResponseTime> selectResponseTime(Application application, Range range) {
         if (application == null) {
-            throw new NullPointerException("application must not be null");
+            throw new NullPointerException("application");
         }
         if (logger.isDebugEnabled()) {
             logger.debug("selectResponseTime applicationName:{}, {}", application, range);
         }
 
-        Scan scan = createScan(application, range, HBaseTables.MAP_STATISTICS_SELF_VER2_CF_COUNTER);
+        Scan scan = createScan(application, range, descriptor.getColumnFamilyName());
 
-        TableName mapStatisticsSelfTableName = tableNameProvider.getTableName(HBaseTables.MAP_STATISTICS_SELF_VER2_STR);
+        TableName mapStatisticsSelfTableName = descriptor.getTableName();
         List<ResponseTime> responseTimeList = hbaseOperations2.findParallel(mapStatisticsSelfTableName, scan, rowKeyDistributorByHashPrefix, responseTimeMapper, MAP_STATISTICS_SELF_VER2_NUM_PARTITIONS);
         if (logger.isDebugEnabled()) {
             logger.debug("Self data {}", responseTimeList);
@@ -113,4 +114,5 @@ public class HbaseMapResponseTimeDao implements MapResponseDao {
 
         return scan;
     }
+
 }

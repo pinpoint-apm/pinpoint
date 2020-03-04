@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.bootstrap;
 
+import com.navercorp.pinpoint.bootstrap.agentdir.Assert;
+
 import java.lang.instrument.Instrumentation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
@@ -33,10 +35,7 @@ class ModuleBootLoader {
     private Object moduleSupport;
 
     ModuleBootLoader(Instrumentation instrumentation, ClassLoader parentClassLoader) {
-        if (instrumentation == null) {
-            throw new NullPointerException("instrumentation must not be null");
-        }
-        this.instrumentation = instrumentation;
+        this.instrumentation = Assert.requireNonNull(instrumentation, "instrumentation");
         this.parentClassLoader = parentClassLoader;
     }
 

@@ -42,7 +42,7 @@ public class PinpointClientHandlerState {
     private final SocketState state;
 
     public PinpointClientHandlerState(String objectName, DefaultPinpointClientHandler clientHandler, List<StateChangeEventListener> stateChangeEventListeners) {
-        this.objectName = Assert.requireNonNull(objectName, "objectName must not be null");
+        this.objectName = Assert.requireNonNull(objectName, "objectName");
 
         this.clientHandler = clientHandler;
         this.stateChangeEventListeners = stateChangeEventListeners;
@@ -132,9 +132,9 @@ public class PinpointClientHandlerState {
     private void executeChangeEventHandler(PinpointSocket pinpointSocket, SocketStateCode nextState) {
         for (StateChangeEventListener eachListener : this.stateChangeEventListeners) {
             try {
-                eachListener.eventPerformed(pinpointSocket, nextState);
+                eachListener.stateUpdated(pinpointSocket, nextState);
             } catch (Exception e) {
-                eachListener.exceptionCaught(pinpointSocket, nextState, e);
+                logger.warn("Please handling exception in stateUpdated method. message:{}", e.getMessage(), e);
             }
         }
     }

@@ -46,6 +46,6 @@ public class JvmInformationProvider implements Provider<JvmInformation> {
 
     public JvmInformation get() {
         JvmGcType gcType = garbageCollectorMetric.getGcType();
-        return new JvmInformation(jvmVersion, gcType.getValue());
+        return new JvmInformation(jvmVersion, gcType);
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,6 @@
 package com.navercorp.pinpoint.profiler.metadata;
 
 import com.navercorp.pinpoint.bootstrap.context.ParsingResult;
-import com.navercorp.pinpoint.profiler.metadata.CachingSqlNormalizer;
-import com.navercorp.pinpoint.profiler.metadata.DefaultCachingSqlNormalizer;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -29,7 +27,8 @@ public class DefaultCachingSqlNormalizerTest {
 
     @Test
     public void testNormalizedSql() throws Exception {
-        CachingSqlNormalizer normalizer = new DefaultCachingSqlNormalizer(1);
+        SimpleCache<String> cache = newCache(1);
+        CachingSqlNormalizer normalizer = new DefaultCachingSqlNormalizer(cache);
         ParsingResult parsingResult = normalizer.wrapSql("select * from dual");
 
         boolean newCache = normalizer.normalizedSql(parsingResult);
@@ -46,7 +45,8 @@ public class DefaultCachingSqlNormalizerTest {
 
     @Test
     public void testNormalizedSql_cache_expire() throws Exception {
-        CachingSqlNormalizer normalizer = new DefaultCachingSqlNormalizer(1);
+        SimpleCache<String> cache = newCache(1);
+        CachingSqlNormalizer normalizer = new DefaultCachingSqlNormalizer(cache);
         ParsingResult parsingResult = normalizer.wrapSql("select * from table1");
         boolean newCache = normalizer.normalizedSql(parsingResult);
         Assert.assertTrue("newCacheState", newCache);
@@ -59,5 +59,9 @@ public class DefaultCachingSqlNormalizerTest {
         ParsingResult parsingResult1_recached = normalizer.wrapSql("select * from table3");
         boolean newCache_parsingResult1_recached = normalizer.normalizedSql(parsingResult1_recached);
         Assert.assertTrue(newCache_parsingResult1_recached);
+    }
+
+    private SimpleCache<String> newCache(int size) {
+        return new SimpleCache<String>(new SimpleCache.ZigZagTransformer(), size);
     }
 }

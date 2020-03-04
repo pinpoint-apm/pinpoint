@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.test.plugin.shared;
 
 import java.io.File;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.List;
 
@@ -31,22 +32,24 @@ public class ReflectionDependencyResolver {
     static List<File> get(String classpath) throws Exception {
         if (dependencyResolverObject == null) {
             ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-            Class clazz = classLoader.loadClass("com.navercorp.pinpoint.test.plugin.DependencyResolver");
 
-            resolveArtifactsAndDependenciesMethod = clazz.getMethod("resolveArtifactsAndDependencies", String.class);
+            Class<?> factory = classLoader.loadClass("com.navercorp.pinpoint.test.plugin.DependencyResolverFactory");
+            Constructor<?> factoryConstructor = factory.getConstructor(boolean.class);
+            Object factoryObject = factoryConstructor.newInstance(false);
+            Method resolverGet = factory.getMethod("get", String[].class);
 
-            Method getLocalResolver = clazz.getMethod("getLocalResolver", String[].class);
-            dependencyResolverObject = getLocalResolver.invoke(null, (Object) new String[]{});
+            dependencyResolverObject = resolverGet.invoke(factoryObject, (Object) new String[]{});
+
+            Class<?> dependencyResolverClazz = dependencyResolverObject.getClass();
+            resolveArtifactsAndDependenciesMethod = dependencyResolverClazz.getMethod("resolveArtifactsAndDependencies", String.class);
         }
 
-        List fileList = null;
         try {
-            fileList = (List) resolveArtifactsAndDependenciesMethod.invoke(dependencyResolverObject, classpath);
+            return (List<File>) resolveArtifactsAndDependenciesMethod.invoke(dependencyResolverObject, classpath);
         } catch (Exception e) {
             e.printStackTrace();
+            throw new RuntimeException("dependency resolve fail Caused by:" + e.getMessage(), e);
         }
-
-        return fileList;
     }
 
 }

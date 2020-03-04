@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.collector.receiver;
 
 import com.google.common.util.concurrent.MoreExecutors;
 import com.navercorp.pinpoint.collector.config.DataReceiverGroupConfiguration;
-import com.navercorp.pinpoint.collector.receiver.thrift.DispatchHandler;
 import com.navercorp.pinpoint.collector.receiver.thrift.PinpointServerAcceptorProvider;
 import com.navercorp.pinpoint.collector.receiver.thrift.TCPReceiverBean;
 import com.navercorp.pinpoint.collector.receiver.thrift.UDPReceiverBean;
@@ -258,7 +257,7 @@ public class DataReceiverGroupTest {
         PinpointClientFactory clientFactory = new DefaultPinpointClientFactory();
         clientFactory.setWriteTimeoutMillis(1000 * 3);
         clientFactory.setRequestTimeoutMillis(1000 * 5);
-        clientFactory.setProperties(Collections.<String, Object>emptyMap());
+        clientFactory.setProperties(Collections.emptyMap());
 
         return clientFactory;
     }

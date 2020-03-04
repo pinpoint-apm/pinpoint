@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.metadata;
 
-import com.google.inject.Inject;
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 
 /**
@@ -24,16 +24,14 @@ import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
  */
 public class DefaultStringMetaDataService implements StringMetaDataService {
 
-    private final SimpleCache<String> stringCache = new SimpleCache<String>();
+    private final SimpleCache<String> stringCache;
 
     private final EnhancedDataSender<Object> enhancedDataSender;
 
-    @Inject
-    public DefaultStringMetaDataService(EnhancedDataSender<Object> enhancedDataSender) {
-        if (enhancedDataSender == null) {
-            throw new NullPointerException("enhancedDataSender must not be null");
-        }
-        this.enhancedDataSender = enhancedDataSender;
+    public DefaultStringMetaDataService(EnhancedDataSender<Object> enhancedDataSender, SimpleCache<String> stringCache) {
+        this.enhancedDataSender = Assert.requireNonNull(enhancedDataSender, "enhancedDataSender");
+        this.stringCache = Assert.requireNonNull(stringCache, "stringCache");
+
     }
 
     @Override

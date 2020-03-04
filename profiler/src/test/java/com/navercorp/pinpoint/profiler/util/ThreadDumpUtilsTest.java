@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.util;
 
+import com.navercorp.pinpoint.profiler.context.thrift.ThreadStateThriftMessageConverter;
 import com.navercorp.pinpoint.thrift.dto.command.TThreadState;
 import org.junit.Assert;
 import org.junit.Test;
@@ -31,26 +32,25 @@ public class ThreadDumpUtilsTest {
 
     @Test
     public void toTThreadState() throws Exception {
+        ThreadStateThriftMessageConverter threadStateThriftMessageConverter = new ThreadStateThriftMessageConverter();
 
-        TThreadState newState = ThreadDumpUtils.toTThreadState(Thread.State.NEW);
+        TThreadState newState = threadStateThriftMessageConverter.toMessage(Thread.State.NEW);
         Assert.assertEquals(newState, TThreadState.NEW);
 
-        TThreadState runnable = ThreadDumpUtils.toTThreadState(Thread.State.RUNNABLE);
+        TThreadState runnable = threadStateThriftMessageConverter.toMessage(Thread.State.RUNNABLE);
         Assert.assertEquals(runnable, TThreadState.RUNNABLE);
 
-        TThreadState blocked = ThreadDumpUtils.toTThreadState(Thread.State.BLOCKED);
+        TThreadState blocked = threadStateThriftMessageConverter.toMessage(Thread.State.BLOCKED);
         Assert.assertEquals(blocked, TThreadState.BLOCKED);
 
 
-        TThreadState waiting = ThreadDumpUtils.toTThreadState(Thread.State.WAITING);
+        TThreadState waiting = threadStateThriftMessageConverter.toMessage(Thread.State.WAITING);
         Assert.assertEquals(waiting, TThreadState.WAITING);
 
-        TThreadState timedWaiting = ThreadDumpUtils.toTThreadState(Thread.State.TIMED_WAITING);
+        TThreadState timedWaiting = threadStateThriftMessageConverter.toMessage(Thread.State.TIMED_WAITING);
         Assert.assertEquals(timedWaiting, TThreadState.TIMED_WAITING);
 
-        TThreadState terminated = ThreadDumpUtils.toTThreadState(Thread.State.TERMINATED);
+        TThreadState terminated = threadStateThriftMessageConverter.toMessage(Thread.State.TERMINATED);
         Assert.assertEquals(terminated, TThreadState.TERMINATED);
-
     }
-
 }

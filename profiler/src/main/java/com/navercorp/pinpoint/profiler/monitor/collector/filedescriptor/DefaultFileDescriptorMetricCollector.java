@@ -17,32 +17,26 @@
 package com.navercorp.pinpoint.profiler.monitor.collector.filedescriptor;
 
 
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.monitor.collector.AgentStatMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.metric.filedescriptor.FileDescriptorMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.filedescriptor.FileDescriptorMetricSnapshot;
-import com.navercorp.pinpoint.thrift.dto.TFileDescriptor;
 
 /**
  * @author Roy Kim
  */
-public class DefaultFileDescriptorMetricCollector implements AgentStatMetricCollector<TFileDescriptor> {
+public class DefaultFileDescriptorMetricCollector implements AgentStatMetricCollector<FileDescriptorMetricSnapshot> {
 
     private final FileDescriptorMetric fileDescriptorMetric;
 
     public DefaultFileDescriptorMetricCollector(FileDescriptorMetric fileDescriptorMetric) {
-        if (fileDescriptorMetric == null) {
-            throw new NullPointerException("fileDescriptorMetric must not be null");
-        }
-        this.fileDescriptorMetric = fileDescriptorMetric;
+        this.fileDescriptorMetric = Assert.requireNonNull(fileDescriptorMetric, "fileDescriptorMetric");
     }
 
     @Override
-    public TFileDescriptor collect() {
-        FileDescriptorMetricSnapshot snapshot = fileDescriptorMetric.getSnapshot();
-
-        TFileDescriptor tfileDescriptor = new TFileDescriptor();
-        tfileDescriptor.setOpenFileDescriptorCount(snapshot.getOpenFileDescriptorCount());
-        return tfileDescriptor;
+    public FileDescriptorMetricSnapshot collect() {
+        final FileDescriptorMetricSnapshot snapshot = fileDescriptorMetric.getSnapshot();
+        return snapshot;
     }
 
     @Override

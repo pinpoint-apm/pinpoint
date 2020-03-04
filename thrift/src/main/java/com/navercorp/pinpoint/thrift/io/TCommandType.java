@@ -119,7 +119,7 @@ public enum TCommandType {
     private static final Set<TCommandType> TCOMMAND_TYPES = EnumSet.allOf(TCommandType.class);
 
 
-    private TCommandType(short code, BodyFactory<TBase<?, ?>> bodyFactory) {
+    TCommandType(short code, BodyFactory<TBase<?, ?>> bodyFactory) {
         this.code = code;
         this.bodyFactory = bodyFactory;
         this.clazz = bodyFactory.getObject().getClass();

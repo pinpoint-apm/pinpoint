@@ -29,8 +29,8 @@ public class ClassInjectorFactory {
     private final BootstrapCore bootstrapCore;
 
     public ClassInjectorFactory(InstrumentEngine instrumentEngine, BootstrapCore bootstrapCore) {
-        this.instrumentEngine = Assert.requireNonNull(instrumentEngine, "instrumentEngine must not be null");
-        this.bootstrapCore = Assert.requireNonNull(bootstrapCore, "bootstrapCore must not be null");
+        this.instrumentEngine = Assert.requireNonNull(instrumentEngine, "instrumentEngine");
+        this.bootstrapCore = Assert.requireNonNull(bootstrapCore, "bootstrapCore");
     }
 
     public ClassInjector newClassInjector(PluginConfig pluginConfig) {

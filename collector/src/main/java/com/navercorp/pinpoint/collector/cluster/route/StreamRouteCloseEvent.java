@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.collector.cluster.route;
 
-import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelContext;
-import com.navercorp.pinpoint.rpc.stream.ServerStreamChannelContext;
+import com.navercorp.pinpoint.rpc.stream.ClientStreamChannel;
+import com.navercorp.pinpoint.rpc.stream.ServerStreamChannel;
 import com.navercorp.pinpoint.thrift.dto.command.TCommandTransfer;
 
 /**
@@ -25,30 +25,30 @@ import com.navercorp.pinpoint.thrift.dto.command.TCommandTransfer;
  */
 public class StreamRouteCloseEvent extends DefaultRouteEvent {
 
-    private final ClientStreamChannelContext producerContext;
-    private final ServerStreamChannelContext consumerContext;
+    private final ClientStreamChannel producerStreamChannel;
+    private final ServerStreamChannel consumerStreamChannel;
 
-    public StreamRouteCloseEvent(TCommandTransfer deliveryCommand, ClientStreamChannelContext producerContext, ServerStreamChannelContext consumerContext) {
-        super(deliveryCommand, consumerContext.getStreamChannel().getChannel().getRemoteAddress());
+    public StreamRouteCloseEvent(TCommandTransfer deliveryCommand, ClientStreamChannel producerStreamChannel, ServerStreamChannel consumerStreamChannel) {
+        super(deliveryCommand, consumerStreamChannel.getRemoteAddress());
 
-        this.producerContext = producerContext;
-        this.consumerContext = consumerContext;
+        this.producerStreamChannel = producerStreamChannel;
+        this.consumerStreamChannel = consumerStreamChannel;
     }
 
     public int getProducerStreamChannelId() {
-        return producerContext.getStreamId();
+        return producerStreamChannel.getStreamId();
     }
     
     public int getConsumerStreamChannelId() {
-        return consumerContext.getStreamId();
+        return consumerStreamChannel.getStreamId();
     }
 
-    public ClientStreamChannelContext getProducerContext() {
-        return producerContext;
+    public ClientStreamChannel getProducerStreamChannel() {
+        return producerStreamChannel;
     }
 
-    public ServerStreamChannelContext getConsumerContext() {
-        return consumerContext;
+    public ServerStreamChannel getConsumerStreamChannel() {
+        return consumerStreamChannel;
     }
 
 }

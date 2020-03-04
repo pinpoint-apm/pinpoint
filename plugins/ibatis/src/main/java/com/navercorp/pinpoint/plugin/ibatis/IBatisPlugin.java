@@ -117,7 +117,7 @@ public class IBatisPlugin implements ProfilerPlugin, TransformTemplateAware {
         private final ServiceType serviceType;
 
         public ApiTransform(ServiceType serviceType) {
-            this.serviceType = Assert.requireNonNull(serviceType, "serviceType must not be null");
+            this.serviceType = Assert.requireNonNull(serviceType, "serviceType");
         }
 
         @Override

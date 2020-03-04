@@ -20,9 +20,6 @@ import com.google.inject.Inject;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 
-
-import java.nio.ByteBuffer;
-
 /**
  * @author Woonduk Kang(emeroad)
  */
@@ -35,7 +32,7 @@ public class DefaultSpanFactory implements SpanFactory {
 
     @Override
     public Span newSpan(TraceRoot traceRoot) {
-        Assert.requireNonNull(traceRoot, "traceRoot must not be null");
+        Assert.requireNonNull(traceRoot, "traceRoot");
 
         final Span span = new Span(traceRoot);
 

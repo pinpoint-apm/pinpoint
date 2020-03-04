@@ -28,7 +28,7 @@ public class ClassLoadingChecker {
 
     public boolean isFirstLoad(String className) {
         if (className == null) {
-            throw new NullPointerException("className must not be null");
+            throw new NullPointerException("className");
         }
         if (this.loadClass.add(className)) {
             // first load

@@ -87,7 +87,7 @@ public class AntPathMatcher implements PathMatcher {
      */
     public AntPathMatcher(String pathSeparator) {
         if (pathSeparator == null) {
-            throw new NullPointerException("pathSeparator must not be null");
+            throw new NullPointerException("pathSeparator");
         }
 
         this.pathSeparator = pathSeparator;
@@ -413,7 +413,7 @@ public class AntPathMatcher implements PathMatcher {
     public Map<String, String> extractUriTemplateVariables(String pattern, String path) {
         Map<String, String> variables = new LinkedHashMap<String, String>();
         boolean result = doMatch(pattern, path, true, variables);
-        if (result) {
+        if (!result) {
             throw new IllegalStateException("Pattern \"" + pattern + "\" is not a match for \"" + path + "\"");
         }
         return variables;
@@ -578,7 +578,7 @@ public class AntPathMatcher implements PathMatcher {
             if (matcher.matches()) {
                 if (uriTemplateVariables != null) {
                     // SPR-8455
-                    if (this.variableNames.size() == matcher.groupCount()) {
+                    if (this.variableNames.size() != matcher.groupCount()) {
                         throw new IllegalArgumentException("The number of capturing groups in the pattern segment " + this.pattern +
                                 " does not match the number of URI template variables it defines, which can occur if " +
                                 " capturing groups are used in a URI template regex. Use non-capturing groups instead.");

@@ -17,6 +17,8 @@ package com.navercorp.pinpoint.plugin.openwhisk;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 
+import java.util.List;
+
 /**
  * @author Seonghyun Oh
  */
@@ -27,10 +29,12 @@ public class OpenwhiskConfig {
     private final boolean loggingMessage;
 
     private final String transformTargetName;
+    private final List<String> transformParameters;
 
     static final String KEY_TRANSFORM_TARGET_NAME = "profiler.openwhisk.transform.targetname";
-    private static final String DEFAULT_TRANSFORM_TARGET_NAME = "whisk.http.BasicHttpService$$anonfun$assignId$1$$anonfun$apply$13";
+    static final String KEY_TRANSFORM_PARAMETERS = "profiler.openwhisk.transform.targetparameter";
 
+    private static final String DEFAULT_TRANSFORM_TARGET_NAME = "org.apache.openwhisk.http.BasicHttpService.$anonfun$assignId$2";
 
     public OpenwhiskConfig(ProfilerConfig config) {
         /*
@@ -40,11 +44,14 @@ public class OpenwhiskConfig {
         this.loggingMessage = config.readBoolean("profiler.openwhisk.logging.message", false);
 
         this.transformTargetName = config.readString(KEY_TRANSFORM_TARGET_NAME, DEFAULT_TRANSFORM_TARGET_NAME);
+        this.transformParameters = config.readList(KEY_TRANSFORM_PARAMETERS);
     }
 
     public String getTransformTargetName() {
         return transformTargetName;
     }
+
+    public List<String> getTransformTargetParameters() { return transformParameters; }
 
     public boolean isEnable() {
         return enable;

@@ -15,12 +15,15 @@
  */
 package com.navercorp.pinpoint.web.dao.hbase;
 
+import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.join.TransactionDecoder;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinStatBo;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinTransactionBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.StatType;
 import com.navercorp.pinpoint.web.dao.ApplicationTransactionDao;
 import com.navercorp.pinpoint.web.mapper.stat.ApplicationStatMapper;
 import com.navercorp.pinpoint.web.mapper.stat.SampledApplicationStatResultExtractor;
-import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.JoinTransactionSampler;
+import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.ApplicationStatSampler;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinTransactionBo;
@@ -41,7 +44,7 @@ public class HbaseApplicationTransactionDao implements ApplicationTransactionDao
     private TransactionDecoder transactionDecoder;
 
     @Autowired
-    private JoinTransactionSampler transactionSampler;
+    private ApplicationStatSampler<JoinTransactionBo> transactionSampler;
 
     @Autowired
     private HbaseApplicationStatDaoOperations operations;

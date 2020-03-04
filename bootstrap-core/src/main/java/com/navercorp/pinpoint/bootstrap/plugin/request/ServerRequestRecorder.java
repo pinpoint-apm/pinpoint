@@ -33,7 +33,7 @@ public class ServerRequestRecorder<T> {
     private final RequestAdaptor<T> requestAdaptor;
 
     public ServerRequestRecorder(RequestAdaptor<T> requestAdaptor) {
-        this.requestAdaptor = Assert.requireNonNull(requestAdaptor, "requestAdaptor must not be null");
+        this.requestAdaptor = Assert.requireNonNull(requestAdaptor, "requestAdaptor");
     }
 
     // Records the server's request information.

@@ -1,8 +1,0 @@
-<div class="l-checkbox-group">
-    <div class="{{type?.name}}" *ngFor="let type of innerTypeInfo">
-        <label for="{{type?.name}}-id">
-            {{upperFirstChar(type?.name)}} <span>{{getTypeCount(type.name) | number}}</span>
-        </label>
-        <input id="{{type?.name}}-id" type="checkbox" [attr.checked]="type.checked" value="{{type?.name}}" (change)="onCheck(type)">
-    </div>
-</div>

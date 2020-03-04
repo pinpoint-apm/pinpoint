@@ -33,10 +33,10 @@ public abstract class AbstractRecorder {
 
     public AbstractRecorder(final StringMetaDataService stringMetaDataService, SqlMetaDataService sqlMetaDataService) {
         if (stringMetaDataService == null) {
-            throw new NullPointerException("stringMetaDataService must not be null");
+            throw new NullPointerException("stringMetaDataService");
         }
         if (sqlMetaDataService == null) {
-            throw new NullPointerException("sqlMetaDataService must not be null");
+            throw new NullPointerException("sqlMetaDataService");
         }
         this.stringMetaDataService = stringMetaDataService;
         this.sqlMetaDataService = sqlMetaDataService;

@@ -43,8 +43,8 @@ public class DefaultNodeHistogramAppender implements NodeHistogramAppender {
     private final Executor executor;
 
     public DefaultNodeHistogramAppender(NodeHistogramFactory nodeHistogramFactory, Executor executor) {
-        this.nodeHistogramFactory = Objects.requireNonNull(nodeHistogramFactory, "nodeHistogramFactory must not be null");
-        this.executor = Objects.requireNonNull(executor, "executor must not be null");
+        this.nodeHistogramFactory = Objects.requireNonNull(nodeHistogramFactory, "nodeHistogramFactory");
+        this.executor = Objects.requireNonNull(executor, "executor");
     }
 
     @Override
@@ -83,7 +83,7 @@ public class DefaultNodeHistogramAppender implements NodeHistogramAppender {
                     return nodeHistogramFactory.createWasNodeHistogram(wasNode, range);
                 }
             }, executor);
-        } else if (serviceType.isTerminal() || serviceType.isUnknown()) {
+        } else if (serviceType.isTerminal() || serviceType.isUnknown() || serviceType.isAlias()) {
             nodeHistogramFuture = CompletableFuture.completedFuture(nodeHistogramFactory.createTerminalNodeHistogram(application, range, linkList));
         } else if (serviceType.isQueue()) {
             // Virtual queue node - queues with agent installed will be handled above as a WAS node

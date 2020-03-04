@@ -1,16 +1,31 @@
-/.project
-/.settings/
-/.idea
-/.vscode/
-/deploy
-/target
-/build/
-**/node
-**/node_modules
-**/jsdoc
-/**/.idea
+# Maven
+deploy/
+target/
+
+# Eclipse
+.classpath
+.project
+.settings/
+/.externalToolBuilders
+/build
+
+# IntelliJ
 *.iml
+*.ipr
+*.iws
+/.idea/
 out/
-/src/main/webapp/lib/js/**/*.js
-/src/main/webapp/lib/js/**/*.map
-/src/main/webapp/lib/css/**/*.css
+
+# vscode
+.vscode
+
+# npm
+node_install/
+node_modules/
+jsdoc/
+
+#mac
+.DS_Store
+
+# FE local build dir
+dist/

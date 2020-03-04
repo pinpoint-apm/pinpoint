@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,15 +17,17 @@
 package com.navercorp.pinpoint.collector.dao.hbase;
 
 import com.navercorp.pinpoint.collector.dao.HostApplicationMapDao;
-import com.navercorp.pinpoint.common.hbase.TableNameProvider;
-import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
 import com.navercorp.pinpoint.collector.util.AtomicLongUpdateMap;
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
-import com.navercorp.pinpoint.common.hbase.HBaseTables;
+import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
-import com.navercorp.pinpoint.common.util.TimeSlot;
+import com.navercorp.pinpoint.common.hbase.HbaseTableConstatns;
+import com.navercorp.pinpoint.common.hbase.TableDescriptor;
+import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
+import com.navercorp.pinpoint.common.server.util.TimeSlot;
 import com.navercorp.pinpoint.common.util.TimeUtils;
+
 import com.sematext.hbase.wd.AbstractRowKeyDistributor;
 import org.apache.hadoop.hbase.TableName;
 import org.slf4j.Logger;
@@ -33,6 +35,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
+
+import java.util.Objects;
 
 /**
  * 
@@ -48,9 +52,6 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
     private HbaseOperations2 hbaseTemplate;
 
     @Autowired
-    private TableNameProvider tableNameProvider;
-
-    @Autowired
     private AcceptedTimeService acceptedTimeService;
 
     @Autowired
@@ -63,14 +64,20 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
     // FIXME should modify to save a cachekey at each 30~50 seconds instead of saving at each time
     private final AtomicLongUpdateMap<CacheKey> updater = new AtomicLongUpdateMap<>();
 
+    @Autowired
+    private TableDescriptor<HbaseColumnFamily.HostStatMap> descriptor;
+
 
     @Override
     public void insert(String host, String bindApplicationName, short bindServiceType, String parentApplicationName, short parentServiceType) {
         if (host == null) {
-            throw new NullPointerException("host must not be null");
+            throw new NullPointerException("host");
         }
         if (bindApplicationName == null) {
-            throw new NullPointerException("bindApplicationName must not be null");
+            throw new NullPointerException("bindApplicationName");
+        }
+        if (logger.isDebugEnabled()) {
+            logger.debug("insert HostApplicationMap, host:{}, app:{},SType:{},parentApp:{},parentAppSType{}", host, bindApplicationName, bindServiceType, parentApplicationName, parentServiceType);
         }
 
         final long statisticsRowSlot = getSlotTime();
@@ -103,12 +110,12 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
 
         byte[] columnName = createColumnName(host, bindApplicationName, bindServiceType);
 
-        TableName hostApplicationMapTableName = tableNameProvider.getTableName(HBaseTables.HOST_APPLICATION_MAP_VER2_STR);
+        TableName hostApplicationMapTableName = descriptor.getTableName();
         try {
-            hbaseTemplate.put(hostApplicationMapTableName, rowKey, HBaseTables.HOST_APPLICATION_MAP_VER2_CF_MAP, columnName, null);
+            hbaseTemplate.put(hostApplicationMapTableName, rowKey, descriptor.getColumnFamilyName(), columnName, null);
         } catch (Exception ex) {
             logger.warn("retry one. Caused:{}", ex.getCause(), ex);
-            hbaseTemplate.put(hostApplicationMapTableName, rowKey, HBaseTables.HOST_APPLICATION_MAP_VER2_CF_MAP, columnName, null);
+            hbaseTemplate.put(hostApplicationMapTableName, rowKey, descriptor.getColumnFamilyName(), columnName, null);
         }
     }
 
@@ -130,13 +137,13 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
 
         // even if  a agentId be added for additional specifications, it may be safe to scan rows.
         // But is it needed to add parentAgentServiceType?
-        final int SIZE = HBaseTables.APPLICATION_NAME_MAX_LEN + 2 + 8;
+        final int SIZE = HbaseTableConstatns.APPLICATION_NAME_MAX_LEN + 2 + 8;
         final Buffer rowKeyBuffer = new AutomaticBuffer(SIZE);
-        rowKeyBuffer.putPadString(parentApplicationName, HBaseTables.APPLICATION_NAME_MAX_LEN);
+        rowKeyBuffer.putPadString(parentApplicationName, HbaseTableConstatns.APPLICATION_NAME_MAX_LEN);
         rowKeyBuffer.putShort(parentServiceType);
         rowKeyBuffer.putLong(TimeUtils.reverseTimeMillis(statisticsRowSlot));
         // there is no parentAgentId for now.  if it added later, need to comment out below code for compatibility.
-//        rowKeyBuffer.putPadString(parentAgentId, HBaseTables.AGENT_NAME_MAX_LEN);
+//        rowKeyBuffer.putPadString(parentAgentId, HbaseTableConstatns.AGENT_NAME_MAX_LEN);
         return rowKeyBuffer.getBuffer();
     }
 
@@ -149,14 +156,8 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
         private final short parentServiceType;
 
         public CacheKey(String host, String applicationName, short serviceType, String parentApplicationName, short parentServiceType) {
-            if (host == null) {
-                throw new NullPointerException("host must not be null");
-            }
-            if (applicationName == null) {
-                throw new NullPointerException("bindApplicationName must not be null");
-            }
-            this.host = host;
-            this.applicationName = applicationName;
+            this.host = Objects.requireNonNull(host, "host");
+            this.applicationName = Objects.requireNonNull(applicationName, "applicationName");
             this.serviceType = serviceType;
 
             // may be null for below two parent values.

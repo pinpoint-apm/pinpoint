@@ -1,0 +1,36 @@
+:host {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.l-content-section {
+    height: 100%;
+    position: relative;
+}
+
+.l-middle-tool-box {
+    background-color: #edf2f8;
+}
+
+.l-component-wrapper {
+    width: 100%;
+    height: calc(100% - 84px);
+    position: relative;
+}
+
+.l-middle-tool-box {
+    display: flex;
+    flex-flow: row wrap;
+    height: 54px;
+    background-color: #edf2f8;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 25px;
+    position:relative;
+}
+
+.l-middle-tool-box, .l-middle-tool-box-tip {
+    color:#a8acb5;
+    font-size: 18px
+}

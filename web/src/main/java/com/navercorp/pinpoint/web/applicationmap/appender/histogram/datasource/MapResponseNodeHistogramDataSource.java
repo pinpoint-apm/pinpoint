@@ -33,7 +33,7 @@ public class MapResponseNodeHistogramDataSource implements WasNodeHistogramDataS
 
     public MapResponseNodeHistogramDataSource(MapResponseDao mapResponseDao) {
         if (mapResponseDao == null) {
-            throw new NullPointerException("mapResponseDao must not be null");
+            throw new NullPointerException("mapResponseDao");
         }
         this.mapResponseDao = mapResponseDao;
     }

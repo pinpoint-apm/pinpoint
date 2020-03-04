@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +34,8 @@ public class DefaultSqlMetaDataServiceTest {
     @Test
     public void cacheSql() throws Exception {
         final EnhancedDataSender dataSender = mock(EnhancedDataSender.class);
-        final SqlMetaDataService sqlMetaDataService = new DefaultSqlMetaDataService(dataSender, 100);
+        SimpleCache<String> sqlCache = new SimpleCache<String>(new SimpleCache.ZigZagTransformer(), 100);
+        final SqlMetaDataService sqlMetaDataService = new DefaultSqlMetaDataService(dataSender, sqlCache);
 
         final String sql = "select * from A";
         final ParsingResult parsingResult = sqlMetaDataService.parseSql(sql);

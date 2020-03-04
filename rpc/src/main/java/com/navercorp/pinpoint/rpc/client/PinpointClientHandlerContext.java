@@ -16,10 +16,13 @@
 
 package com.navercorp.pinpoint.rpc.client;
 
-import com.navercorp.pinpoint.rpc.stream.*;
-import org.jboss.netty.channel.Channel;
-
 import com.navercorp.pinpoint.rpc.packet.stream.StreamPacket;
+import com.navercorp.pinpoint.rpc.stream.ClientStreamChannel;
+import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelEventHandler;
+import com.navercorp.pinpoint.rpc.stream.StreamChannelManager;
+import com.navercorp.pinpoint.rpc.stream.StreamException;
+
+import org.jboss.netty.channel.Channel;
 
 /**
  * @author Taejin Koo
@@ -30,10 +33,10 @@ public class PinpointClientHandlerContext {
 
     public PinpointClientHandlerContext(Channel channel, StreamChannelManager streamChannelManager) {
         if (channel == null) {
-            throw new NullPointerException("channel must not be null");
+            throw new NullPointerException("channel");
         }
         if (streamChannelManager == null) {
-            throw new NullPointerException("streamChannelManager must not be null");
+            throw new NullPointerException("streamChannelManager");
         }
         this.channel = channel;
         this.streamChannelManager = streamChannelManager;
@@ -43,12 +46,8 @@ public class PinpointClientHandlerContext {
         return channel;
     }
 
-    public ClientStreamChannelContext openStream(byte[] payload, ClientStreamChannelMessageListener messageListener) {
-        return openStream(payload, messageListener, null);
-    }
-
-    public ClientStreamChannelContext openStream(byte[] payload, ClientStreamChannelMessageListener messageListener, StreamChannelStateChangeEventHandler<ClientStreamChannel> stateChangeListener) {
-        return streamChannelManager.openStream(payload, messageListener, stateChangeListener);
+    public ClientStreamChannel openStream(byte[] payload, ClientStreamChannelEventHandler streamChannelEventHandler) throws StreamException {
+        return streamChannelManager.openStream(payload, streamChannelEventHandler);
     }
 
     public void handleStreamEvent(StreamPacket message) {
@@ -59,8 +58,4 @@ public class PinpointClientHandlerContext {
         streamChannelManager.close();
     }
 
-    public StreamChannelContext getStreamChannel(int streamChannelId) {
-        return streamChannelManager.findStreamChannel(streamChannelId);
-    }
-    
 }

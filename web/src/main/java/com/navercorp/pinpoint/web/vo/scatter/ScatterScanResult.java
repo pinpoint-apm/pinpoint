@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * To be used with @ResponseBody.
@@ -38,12 +39,9 @@ public class ScatterScanResult {
     private List<Dot> scatter = Collections.emptyList();
 
     public ScatterScanResult(long resultFrom, long resultTo, List<Dot> scatterList) {
-        if (scatterList == null) {
-            throw new NullPointerException("resultFrom must not be null");
-        }
         this.resultFrom = resultFrom;
         this.resultTo = resultTo;
-        this.scatter = scatterList;
+        this.scatter = Objects.requireNonNull(scatterList, "scatterList");
     }
 
     public ScatterScanResult() {

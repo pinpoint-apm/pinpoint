@@ -16,33 +16,26 @@
 
 package com.navercorp.pinpoint.profiler.monitor.collector.cpu;
 
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.monitor.collector.AgentStatMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.metric.cpu.CpuLoadMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.cpu.CpuLoadMetricSnapshot;
-import com.navercorp.pinpoint.thrift.dto.TCpuLoad;
 
 /**
  * @author HyunGil Jeong
  */
-public class DefaultCpuLoadMetricCollector implements AgentStatMetricCollector<TCpuLoad> {
+public class DefaultCpuLoadMetricCollector implements AgentStatMetricCollector<CpuLoadMetricSnapshot> {
 
     private final CpuLoadMetric cpuLoadMetric;
 
     public DefaultCpuLoadMetricCollector(CpuLoadMetric cpuLoadMetric) {
-        if (cpuLoadMetric == null) {
-            throw new NullPointerException("cpuLoadMetric must not be null");
-        }
-        this.cpuLoadMetric = cpuLoadMetric;
+        this.cpuLoadMetric = Assert.requireNonNull(cpuLoadMetric, "cpuLoadMetric");
     }
 
     @Override
-    public TCpuLoad collect() {
+    public CpuLoadMetricSnapshot collect() {
         final CpuLoadMetricSnapshot snapshot = cpuLoadMetric.getSnapshot();
-
-        final TCpuLoad cpuLoad = new TCpuLoad();
-        cpuLoad.setJvmCpuLoad(snapshot.getJvmCpuUsage());
-        cpuLoad.setSystemCpuLoad(snapshot.getSystemCpuUsage());
-        return cpuLoad;
+        return snapshot;
     }
 
     @Override

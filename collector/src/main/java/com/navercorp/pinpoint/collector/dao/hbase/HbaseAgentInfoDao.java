@@ -17,10 +17,11 @@
 package com.navercorp.pinpoint.collector.dao.hbase;
 
 import com.navercorp.pinpoint.collector.dao.AgentInfoDao;
-import com.navercorp.pinpoint.common.hbase.TableNameProvider;
-import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
-import com.navercorp.pinpoint.common.hbase.HBaseTables;
+import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
+import com.navercorp.pinpoint.common.hbase.HbaseTableConstatns;
+import com.navercorp.pinpoint.common.hbase.TableDescriptor;
+import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
 import com.navercorp.pinpoint.common.server.util.RowKeyUtils;
 import com.navercorp.pinpoint.common.util.TimeUtils;
 
@@ -44,12 +45,12 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
     private HbaseOperations2 hbaseTemplate;
 
     @Autowired
-    private TableNameProvider tableNameProvider;
+    private TableDescriptor<HbaseColumnFamily.AgentInfo> descriptor;
 
     @Override
     public void insert(AgentInfoBo agentInfo) {
         if (agentInfo == null) {
-            throw new NullPointerException("agentInfo must not be null");
+            throw new NullPointerException("agentInfo");
         }
 
         if (logger.isDebugEnabled()) {
@@ -58,24 +59,26 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
 
         final byte[] agentId = Bytes.toBytes(agentInfo.getAgentId());
         final long reverseKey = TimeUtils.reverseTimeMillis(agentInfo.getStartTime());
-        final byte[] rowKey = RowKeyUtils.concatFixedByteAndLong(agentId, HBaseTables.AGENT_NAME_MAX_LEN, reverseKey);
+        final byte[] rowKey = RowKeyUtils.concatFixedByteAndLong(agentId, HbaseTableConstatns.AGENT_NAME_MAX_LEN, reverseKey);
         final Put put = new Put(rowKey);
 
         // should add additional agent informations. for now added only starttime for sqlMetaData
         final byte[] agentInfoBoValue = agentInfo.writeValue();
-        put.addColumn(HBaseTables.AGENTINFO_CF_INFO, HBaseTables.AGENTINFO_CF_INFO_IDENTIFIER, agentInfoBoValue);
+        put.addColumn(descriptor.getColumnFamilyName(), descriptor.getColumnFamily().QUALIFIER_IDENTIFIER, agentInfoBoValue);
 
         if (agentInfo.getServerMetaData() != null) {
             final byte[] serverMetaDataBoValue = agentInfo.getServerMetaData().writeValue();
-            put.addColumn(HBaseTables.AGENTINFO_CF_INFO, HBaseTables.AGENTINFO_CF_INFO_SERVER_META_DATA, serverMetaDataBoValue);
+            put.addColumn(descriptor.getColumnFamilyName(), descriptor.getColumnFamily().QUALIFIER_SERVER_META_DATA, serverMetaDataBoValue);
         }
 
         if (agentInfo.getJvmInfo() != null) {
             final byte[] jvmInfoBoValue = agentInfo.getJvmInfo().writeValue();
-            put.addColumn(HBaseTables.AGENTINFO_CF_INFO, HBaseTables.AGENTINFO_CF_INFO_JVM, jvmInfoBoValue);
+            put.addColumn(descriptor.getColumnFamilyName(), descriptor.getColumnFamily().QUALIFIER_JVM, jvmInfoBoValue);
         }
 
-        final TableName agentInfoTableName = tableNameProvider.getTableName(HBaseTables.AGENTINFO_STR);
+        final TableName agentInfoTableName = descriptor.getTableName();
         hbaseTemplate.put(agentInfoTableName, put);
     }
+
+
 }

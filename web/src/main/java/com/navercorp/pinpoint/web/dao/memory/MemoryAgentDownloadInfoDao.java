@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.web.dao.memory;
 import com.navercorp.pinpoint.web.dao.AgentDownloadInfoDao;
 import com.navercorp.pinpoint.web.vo.AgentDownloadInfo;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -31,12 +31,12 @@ public class MemoryAgentDownloadInfoDao implements AgentDownloadInfoDao {
     private final List<AgentDownloadInfo> agentDownloadInfoList;
 
     public MemoryAgentDownloadInfoDao(String version, String downloadUrl) {
-        Objects.requireNonNull(version, "version must not be null");
-        Objects.requireNonNull(downloadUrl, "downloadUrl must not be null");
+        Objects.requireNonNull(version, "version");
+        Objects.requireNonNull(downloadUrl, "downloadUrl");
 
         AgentDownloadInfo agentDownloadInfo = new AgentDownloadInfo(version, downloadUrl);
 
-        this.agentDownloadInfoList = Arrays.asList(agentDownloadInfo);
+        this.agentDownloadInfoList = Collections.singletonList(agentDownloadInfo);
     }
 
     @Override

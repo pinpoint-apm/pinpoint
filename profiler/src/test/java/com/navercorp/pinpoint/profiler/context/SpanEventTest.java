@@ -16,12 +16,12 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
-import com.navercorp.pinpoint.profiler.context.compress.Context;
-import com.navercorp.pinpoint.profiler.context.compress.SpanPostProcessor;
-import com.navercorp.pinpoint.profiler.context.compress.SpanPostProcessorV1;
+import com.navercorp.pinpoint.profiler.context.compress.SpanProcessor;
+import com.navercorp.pinpoint.profiler.context.compress.SpanProcessorV1;
 import com.navercorp.pinpoint.profiler.context.id.DefaultTraceRoot;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.thrift.dto.TSpan;
+import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
 import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
 import org.junit.Assert;
 
@@ -31,12 +31,14 @@ import org.slf4j.LoggerFactory;
 
 import com.navercorp.pinpoint.profiler.context.id.DefaultTraceId;
 
+import java.util.Arrays;
+
 /**
  * @author emeroad
  */
 public class SpanEventTest {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    private final SpanPostProcessor<Context> compressorV1 = new SpanPostProcessorV1();
+    private final SpanProcessor<TSpan, TSpanChunk> compressorV1 = new SpanProcessorV1();
 
     @Test
     public void testMarkStartTime() {
@@ -55,12 +57,13 @@ public class SpanEventTest {
 
         spanEvent.setElapsedTime(10);
         logger.debug("spanEvent:{}", spanEvent);
+        span.setSpanEventList(Arrays.asList(spanEvent));
 
         TSpan tSpan = new TSpan();
         TSpanEvent tSpanEvent = new TSpanEvent();
-        Context context = compressorV1.newContext(span, tSpan);
-
-        compressorV1.postProcess(context, spanEvent, tSpanEvent);
+        tSpan.addToSpanEventList(tSpanEvent);
+        compressorV1.preProcess(span, tSpan);
+        compressorV1.postProcess(span, tSpan);
 
         Assert.assertEquals("startTime", span.getStartTime() + tSpanEvent.getStartElapsed(), spanEvent.getStartTime());
         Assert.assertEquals("endTime", span.getStartTime() + tSpanEvent.getStartElapsed() + spanEvent.getElapsedTime(), spanEvent.getAfterTime());

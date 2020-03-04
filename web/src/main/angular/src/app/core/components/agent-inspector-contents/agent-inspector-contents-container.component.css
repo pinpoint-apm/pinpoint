@@ -1,0 +1,60 @@
+:host {
+    display: flex;
+    flex-flow: column nowrap;
+    width: 100%;
+    height: 100%;
+}
+
+.l-date-range {
+    background-color: #FFF;
+    height: 150px;
+    position: relative;
+}
+
+.l-cover {
+    width: 100%;
+    height: 100%;
+    background-color: #ccc;
+    z-index: 5;
+    position: absolute;
+    left: 0;
+    top: 0;
+    opacity: 0.5
+}
+
+.l-main-contents {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    overflow: auto;
+}
+
+.l-chart-option-area {
+    width: calc(100% - 20px);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 5px 10px 0 15px;
+}
+
+.l-guide-text {
+    font-family: 'Open Sans';
+    color: #333;
+    font-size: 14px;
+    font-style: italic;
+}
+
+.l-chart-group-wrap {
+    display: grid;
+    width: 100%;
+    column-gap: 10px;
+    row-gap: 10px;
+    padding: 10px;
+    min-height: 0;
+    min-width: 0;
+}
+
+.l-chart-wrapper {
+    overflow: hidden;
+    min-width: 0;
+}

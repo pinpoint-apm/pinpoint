@@ -22,12 +22,10 @@ import com.navercorp.pinpoint.rpc.Future;
 import com.navercorp.pinpoint.rpc.PinpointSocketException;
 import com.navercorp.pinpoint.rpc.ResponseMessage;
 import com.navercorp.pinpoint.rpc.cluster.ClusterOption;
-import com.navercorp.pinpoint.rpc.packet.RequestPacket;
 import com.navercorp.pinpoint.rpc.stream.ClientStreamChannel;
-import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelContext;
-import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelMessageListener;
-import com.navercorp.pinpoint.rpc.stream.StreamChannelContext;
-import com.navercorp.pinpoint.rpc.stream.StreamChannelStateChangeEventHandler;
+import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelEventHandler;
+import com.navercorp.pinpoint.rpc.stream.StreamException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -131,16 +129,11 @@ public class DefaultPinpointClient implements PinpointClient {
     }
 
     @Override
-    public ClientStreamChannelContext openStream(byte[] payload, ClientStreamChannelMessageListener messageListener) {
-        return openStream(payload, messageListener, null);
-    }
-
-    @Override
-    public ClientStreamChannelContext openStream(byte[] payload, ClientStreamChannelMessageListener messageListener, StreamChannelStateChangeEventHandler<ClientStreamChannel> stateChangeListener) {
+    public ClientStreamChannel openStream(byte[] payload, ClientStreamChannelEventHandler streamChannelEventHandler) throws StreamException {
         // StreamChannel must be changed into interface in order to throw the StreamChannel that returns failure.
         // fow now throw just exception
         ensureOpen();
-        return pinpointClientHandler.openStream(payload, messageListener, stateChangeListener);
+        return pinpointClientHandler.openStream(payload, streamChannelEventHandler);
     }
 
     @Override
@@ -156,13 +149,6 @@ public class DefaultPinpointClient implements PinpointClient {
     @Override
     public ClusterOption getRemoteClusterOption() {
         return pinpointClientHandler.getRemoteClusterOption();
-    }
-
-    @Override
-    public StreamChannelContext findStreamChannel(int streamChannelId) {
-
-        ensureOpen();
-        return pinpointClientHandler.findStreamChannel(streamChannelId);
     }
 
     private Future<ResponseMessage> returnFailureFuture() {

@@ -16,13 +16,13 @@
 
 package com.navercorp.pinpoint.collector.receiver.thrift;
 
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.rpc.PipelineFactory;
-import com.navercorp.pinpoint.rpc.cluster.ClusterOption;
 import com.navercorp.pinpoint.rpc.server.ChannelFilter;
 import com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor;
 import com.navercorp.pinpoint.rpc.server.ServerCodecPipelineFactory;
 import com.navercorp.pinpoint.rpc.server.ServerOption;
+
+import java.util.Objects;
 
 /**
  * @author Taejin Koo
@@ -38,15 +38,15 @@ public class PinpointServerAcceptorProvider {
     }
 
     public void setServerOption(ServerOption serverOption) {
-        this.serverOption = Assert.requireNonNull(serverOption, "serverOption must not be null");
+        this.serverOption = Objects.requireNonNull(serverOption, "serverOption");
     }
 
     public void setChannelFilter(ChannelFilter channelFilter) {
-        this.channelFilter = Assert.requireNonNull(channelFilter, "channelFilter must not be null");
+        this.channelFilter = Objects.requireNonNull(channelFilter, "channelFilter");
     }
 
     public void setPipelineFactory(PipelineFactory pipelineFactory) {
-        this.pipelineFactory = Assert.requireNonNull(pipelineFactory, "pipelineFactory must not be null");
+        this.pipelineFactory = Objects.requireNonNull(pipelineFactory, "pipelineFactory");
     }
 
 }

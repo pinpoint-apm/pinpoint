@@ -40,6 +40,11 @@ public class HystrixObservableTimeoutListenerTickInterceptor extends AsyncContex
 
     @Override
     protected AsyncContext getAsyncContext(Object target) {
+        return getAsyncContext(target, null);
+    }
+
+    @Override
+    protected AsyncContext getAsyncContext(Object target, Object[] args) {
         if (target instanceof EnclosingInstanceAccessor) {
             return AsyncContextAccessorUtils.getAsyncContext(((EnclosingInstanceAccessor) target)._$PINPOINT$_getEnclosingInstance());
         }

@@ -64,13 +64,15 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
  * <tr><td>1120</td><td>UNDERTOW</td></tr>
  * <tr><td>1121</td><td>UNDERTOW_METHOD</td></tr>
  * <tr><td>1126</td><td>UNDERTOW_SERVLET_METHOD</td></tr>
- *
  * <tr><td>1130</td><td>GRPC_SERVER</td></tr>
+ * <tr><td>1140</td><td>REACTOR_NETTY</td></tr>
+ * <tr><td>1141</td><td>REACTOR_NETTY_INTERNAL</td></tr>
  *
  * <tr><td>1400</td><td>NODE</td></tr>
  * <tr><td>1401</td><td>NODE_METHOD</td></tr>
  * <tr><td>1500</td><td>PHP</td></tr>
  * <tr><td>1501</td><td>PHP_METHOD</td></tr>
+ * <tr><td>1550</td><td>ENVOY</td></tr>
  * <tr><td>1620</td><td>OPENWHISK_INTERNAL</td></tr>
  * <tr><td>1621</td><td>OPENWHISK_CONTROLLER</td></tr>
  * <tr><td>1622</td><td>OPENWHISK_INVOKER</td></tr>
@@ -90,6 +92,8 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
  * <tr><td>2151</td><td>MARIADB_EXECUTE_QUERY</td></tr>
  * <tr><td>2200</td><td>MSSQL</td></tr>
  * <tr><td>2201</td><td>MSSQL_EXECUTE_QUERY</td></tr>
+ * <tr><td>2250</td><td>MSSQL_JDBC</td></tr>
+ * <tr><td>2251</td><td>MSSQL_JDBC_QUERY</td></tr> *
  * <tr><td>2300</td><td>ORACLE</td></tr>
  * <tr><td>2301</td><td>ORACLE_EXECUTE_QUERY</td></tr>
  * <tr><td>2400</td><td>CUBRID</td></tr>
@@ -103,6 +107,7 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
  * <tr><td>2601</td><td>CASSANDRA_EXECUTE_QUERY</td></tr>
  * <tr><td>2650</td><td>MONGO</td></tr>
  * <tr><td>2651</td><td>MONGO_EXECUTE_QUERY</td></tr>
+ * <tr><td>2652</td><td>MONGO_REACTIVE</td></tr>
  * <tr><td>2700</td><td>COUCHDB</td></tr>
  * <tr><td>2701</td><td>COUCHDB_EXECUTE_QUERY</td></tr>
  * </table>
@@ -121,9 +126,11 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
  * <tr><td>5011</td><td>JACKSON</td></tr>
  * <tr><td>5012</td><td>JSON-LIB</td></tr>
  * <tr><td>5013</td><td>FASTJSON</td></tr>
+ * <tr><td>5020</td><td>JDK_FUTURE</td></tr>
  * <tr><td>5050</td><td>SPRING</td></tr>
  * <tr><td>5051</td><td>SPRING_MVC</td></tr>
  * <tr><td>5052</td><td>SPRING_ASYNC</td></tr>
+ * <tr><td>5053</td><td>SPRING_WEBFLUX</td></tr>
  * <tr><td>5061</td><td><i>RESERVED</i></td></tr>
  * <tr><td>5071</td><td>SPRING_BEAN</td></tr>
  * <tr><td>5500</td><td>IBATIS</td></tr>
@@ -134,6 +141,7 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
  * <tr><td>6060</td><td>HIKARICP</td></tr>
  * <tr><td>6062</td><td>DRUID</td></tr>
  * <tr><td>6500</td><td>RXJAVA</td></tr>
+ * <tr><td>6510</td><td>REACTOR</td></tr>
  * <tr><td>6600</td><td>EXPRESS</td></tr>
  * <tr><td>6610</td><td>KOA</td></tr>
  * <tr><td>6620</td><td>HAPI</td></tr>
@@ -154,6 +162,8 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
  * <tr><td>8200</td><td>REDIS</td></tr>
  * <tr><td>8201</td><td>REDIS_LETTUCE</td></tr>
  * <tr><td>8202</td><td>IOREDIS</td></tr>
+ * <tr><td>8203</td><td>REDIS_REDISSON</td></tr>
+ * <tr><td>8204</td><td>REDIS_REDISSON_INTERNAL</td></tr>
  * <tr><td>8250</td><td><i>RESERVED</i></td></tr>
  * <tr><td>8251</td><td><i>RESERVED</i></td></tr>
  * <tr><td>8260</td><td><i>RESERVED</i></td></tr>
@@ -199,10 +209,16 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
  * <tr><td>9150</td><td>NETTY</td></tr>
  * <tr><td>9151</td><td>NETTY_INTERNAL</td></tr>
  * <tr><td>9152</td><td>NETTY_HTTP</td></tr>
+ * <tr><td>9153</td><td>SPRING_WEBFLUX_CLIENT</td></tr>
  * <tr><td>9160</td><td>GRPC</td></tr>
  * <tr><td>9161</td><td>GRPC_INTERNAL</td></tr>
  * <tr><td>9162</td><td>GRPC_SERVER_INTERNAL</td></tr>
+ * <tr><td>9201</td><td>ElasticsearchBBoss</td></tr>
+ * <tr><td>9202</td><td>ElasticsearchBBossExecutor</td></tr>
+ * <tr><td>9301</td><td>ENVOY_INGRESS</td></tr>
+ * <tr><td>9302</td><td>ENVOY_EGRESS</td></tr>
  * <tr><td>9622</td><td>OPENWHISK_CLIENT</td></tr>
+ *
  * </table>
  * 
  * <h3>RPC Sandbox (9900 ~ 9999)</h3>
@@ -237,9 +253,9 @@ public interface ServiceType {
     // return true when the service type is USER or can not be identified
     boolean isUser();
 
-
-
     boolean isTerminal();
+
+    boolean isAlias();
 
     boolean isQueue();
 

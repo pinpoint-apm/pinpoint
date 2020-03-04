@@ -33,10 +33,10 @@ public class AuthInterceptor extends HandlerInterceptorAdapter {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @Value("#{pinpoint_collector_properties['collector.admin.password']}")
+    @Value("${collector.admin.password:}")
     private String password;
 
-    @Value("#{pinpoint_collector_properties['collector.admin.api.rest.active'] ?: false}")
+    @Value("${collector.admin.api.rest.active:false}")
     private boolean isActive;
 
     @Override

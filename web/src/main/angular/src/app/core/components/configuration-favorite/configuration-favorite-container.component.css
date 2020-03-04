@@ -1,0 +1,37 @@
+:host {
+    display: block;
+    height: 100%;
+}
+.l-desc-text-wrapper {
+    margin-bottom: 20px;
+}
+.l-desc-text {
+    color: #999;
+    font-size: 14px;
+}
+.l-title {
+    height: 48px;
+    border: 1px solid #e5e8f0;
+    border-bottom: none;
+    display: flex;
+    font-size: 13px; 
+    font-weight: 600;
+    align-items: center;
+    justify-content: center;
+    background-color: #f6f8fb;
+}
+.l-contents {
+    border: 1px solid #e5e8f0;
+    display: flex;
+    position: relative;
+    background-color: #FFF;
+    height: calc(100% - 48px);
+}
+
+.l-content-item {
+    flex: 1;
+    border-right: 1px solid #e5e8f0;
+}
+.l-content-item2 {
+    flex: 1;
+}

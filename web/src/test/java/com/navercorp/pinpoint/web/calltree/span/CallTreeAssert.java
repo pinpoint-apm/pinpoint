@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.web.calltree.span;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.List;
 
 import static org.junit.Assert.fail;
@@ -30,14 +32,11 @@ public class CallTreeAssert {
         CallTreeIterator iterator = tree.iterator();
         CallTreeNode node = null;
         while ((node = iterator.next()) != null) {
-            StringBuilder sb = new StringBuilder();
-            for (int i = 0; i <= node.getDepth(); i++) {
-                sb.append("#");
-            }
+            String depth = getDepthString(node);
             final String expected = result.get(index++);
-            assertDepth(name, index, sb.toString(), expected);
+            assertDepth(name, index, depth, expected);
         }
-        if(index != result.size()) {
+        if (index != result.size()) {
             fail("Not Matched " + name + " expected is more");
         }
     }
@@ -49,15 +48,15 @@ public class CallTreeAssert {
     }
 
     public static void printDepth(CallTree tree) {
-        int index = 0;
         CallTreeIterator iterator = tree.iterator();
         CallTreeNode node = null;
         while ((node = iterator.next()) != null) {
-            StringBuilder sb = new StringBuilder();
-            for (int i = 0; i <= node.getDepth(); i++) {
-                sb.append("#");
-            }
-            System.out.println(sb.toString() + " - " + node.getDepth());
+            String depth = getDepthString(node);
+            System.out.println(depth + " - " + node.getDepth());
         }
+    }
+
+    private static String getDepthString(CallTreeNode node) {
+        return StringUtils.repeat('#', node.getDepth() +1);
     }
 }

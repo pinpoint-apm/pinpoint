@@ -29,10 +29,10 @@ public class DefaultGarbageCollectorMetric implements GarbageCollectorMetric {
 
     public DefaultGarbageCollectorMetric(GarbageCollectorType garbageCollectorType, GarbageCollectorMXBean garbageCollectorMXBean) {
         if (garbageCollectorType == null) {
-            throw new NullPointerException("garbageCollectorType must not be null");
+            throw new NullPointerException("garbageCollectorType");
         }
         if (garbageCollectorMXBean == null) {
-            throw new NullPointerException("garbageCollectorMXBean must not be null");
+            throw new NullPointerException("garbageCollectorMXBean");
         }
         this.garbageCollectorType = garbageCollectorType;
         this.garbageCollectorMXBean = garbageCollectorMXBean;

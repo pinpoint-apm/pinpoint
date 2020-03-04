@@ -22,70 +22,39 @@ import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.logging.PLogger;
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
 import com.navercorp.pinpoint.plugin.resttemplate.ExecAsyncResultMethodDescriptor;
 import com.navercorp.pinpoint.plugin.resttemplate.RestTemplateConstants;
 import com.navercorp.pinpoint.plugin.resttemplate.field.accessor.TraceFutureFlagAccessor;
+
 import org.springframework.util.concurrent.ListenableFuture;
 
 /**
  * @author Taejin Koo
  */
-public class AsyncHttpRequestInterceptor implements AroundInterceptor {
+public class AsyncHttpRequestInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
 
     private static final ExecAsyncResultMethodDescriptor execAsyncResultMethodDescriptor = new ExecAsyncResultMethodDescriptor();
 
-    private final PLogger logger = PLoggerFactory.getLogger(getClass());
-    private final boolean isDebug = logger.isDebugEnabled();
-
-    private final TraceContext traceContext;
-    private final MethodDescriptor descriptor;
-
 
     public AsyncHttpRequestInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
-        this.traceContext = traceContext;
-        this.descriptor = descriptor;
+        super(traceContext, descriptor);
 
         traceContext.cacheApi(execAsyncResultMethodDescriptor);
     }
 
     @Override
-    public void before(Object target, Object[] args) {
-        if (isDebug) {
-            logger.beforeInterceptor(target, args);
-        }
-
-        final Trace trace = traceContext.currentTraceObject();
-        if (trace == null) {
-            return;
-        }
-
-        SpanEventRecorder recorder = trace.traceBlockBegin();
+    protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
         recorder.recordServiceType(RestTemplateConstants.SERVICE_TYPE);
     }
 
     @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable) {
-        if (isDebug) {
-            logger.afterInterceptor(target, args);
-        }
+    protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
+        recorder.recordApi(methodDescriptor);
+        recorder.recordException(throwable);
 
-        final Trace trace = traceContext.currentTraceObject();
-        if (trace == null) {
-            return;
-        }
-
-        try {
-            SpanEventRecorder recorder = trace.currentSpanEventRecorder();
-            recorder.recordApi(descriptor);
-            recorder.recordException(throwable);
-
-            traceAndRecordFuture(result, throwable);
-        } finally {
-            trace.traceBlockEnd();
-        }
+        // create virtual-method
+        traceAndRecordFuture(result, throwable);
     }
 
     // reason for virtual Method

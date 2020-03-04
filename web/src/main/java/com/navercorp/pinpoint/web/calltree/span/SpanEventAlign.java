@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.web.calltree.span;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
-import com.navercorp.pinpoint.common.util.TransactionIdUtils;
+import com.navercorp.pinpoint.common.profiler.util.TransactionIdUtils;
 
 import java.util.List;
 import java.util.Objects;
@@ -39,8 +39,8 @@ public class SpanEventAlign implements Align {
 
 
     public SpanEventAlign(SpanBo spanBo, SpanEventBo spanEventBo) {
-        this.spanBo = Objects.requireNonNull(spanBo, "spanBo must not be null");
-        this.spanEventBo = Objects.requireNonNull(spanEventBo, "spanEventBo must not be null");
+        this.spanBo = Objects.requireNonNull(spanBo, "spanBo");
+        this.spanEventBo = Objects.requireNonNull(spanEventBo, "spanEventBo");
     }
 
     @Override
@@ -129,9 +129,8 @@ public class SpanEventAlign implements Align {
     }
 
     @Override
-    public long getLastTime() {
-
-        return spanBo.getStartTime() + spanEventBo.getStartElapsed() + spanEventBo.getEndElapsed();
+    public long getEndTime() {
+        return getStartTime() + spanEventBo.getEndElapsed();
     }
 
     @Override

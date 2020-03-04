@@ -19,10 +19,6 @@ package com.navercorp.pinpoint.web.controller;
 import com.navercorp.pinpoint.thrift.dto.TResult;
 import com.navercorp.pinpoint.thrift.dto.command.TCommandEcho;
 import com.navercorp.pinpoint.thrift.dto.command.TRouteResult;
-import com.navercorp.pinpoint.thrift.io.DeserializerFactory;
-import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializer;
-import com.navercorp.pinpoint.thrift.io.HeaderTBaseSerializer;
-import com.navercorp.pinpoint.thrift.io.SerializerFactory;
 import com.navercorp.pinpoint.web.cluster.PinpointRouteResponse;
 import com.navercorp.pinpoint.web.service.AgentService;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
@@ -32,7 +28,6 @@ import org.apache.thrift.TException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -50,14 +45,6 @@ public class CommandController {
     // need a formal set of APIs and proper code
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
-    @Autowired
-    @Qualifier("commandHeaderTBaseSerializerFactory")
-    private SerializerFactory<HeaderTBaseSerializer> commandSerializerFactory;
-
-    @Autowired
-    @Qualifier("commandHeaderTBaseDeserializerFactory")
-    private DeserializerFactory<HeaderTBaseDeserializer> commandDeserializerFactory;
 
     @Autowired
     private AgentService agentService;

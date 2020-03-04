@@ -36,12 +36,12 @@ public class DefaultTypeLocator<T> implements TypeLocator<T> {
 
     DefaultTypeLocator(IntHashMap<BodyFactory<T>> bodyFactoryMap, Map<Class<?>, Header> bodyToHeaderMap,
                        IntHashMap<Header> headerMap , List<Entry<Class<?>, Header>> bodyClassToHeaderList) {
-        this.bodyFactoryMap = Assert.requireNonNull(bodyFactoryMap, "bodyFactoryMap must not be null");
-        this.bodyToHeaderMap = Assert.requireNonNull(bodyToHeaderMap, "bodyToHeaderMap must not be null");
+        this.bodyFactoryMap = Assert.requireNonNull(bodyFactoryMap, "bodyFactoryMap");
+        this.bodyToHeaderMap = Assert.requireNonNull(bodyToHeaderMap, "bodyToHeaderMap");
 
-        this.headerMap = Assert.requireNonNull(headerMap , "headerMap  must not be null");
+        this.headerMap = Assert.requireNonNull(headerMap , "headerMap ");
 
-        Assert.requireNonNull(bodyClassToHeaderList, "bodyClassToHeaderList must not be null");
+        Assert.requireNonNull(bodyClassToHeaderList, "bodyClassToHeaderList");
         this.bodyClassToHeaderArray = bodyClassToHeaderList.toArray(new Entry[0]);
     }
 
@@ -57,7 +57,7 @@ public class DefaultTypeLocator<T> implements TypeLocator<T> {
     @Override
     public Header headerLookup(T body) {
         if (body == null) {
-            throw new IllegalArgumentException("body must not be null");
+            throw new IllegalArgumentException("body");
         }
 
         for (Entry<Class<?>, Header> entry : bodyClassToHeaderArray) {

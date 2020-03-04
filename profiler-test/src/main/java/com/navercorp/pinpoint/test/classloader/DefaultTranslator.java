@@ -46,7 +46,7 @@ public class DefaultTranslator implements Translator {
 
     public DefaultTranslator(ClassLoader loader, ClassFileTransformer defaultTransformer) {
         if (defaultTransformer == null) {
-            throw new NullPointerException("dispatcher must not be null");
+            throw new NullPointerException("dispatcher");
         }
         this.loader = loader;
         this.dispatcher = defaultTransformer;

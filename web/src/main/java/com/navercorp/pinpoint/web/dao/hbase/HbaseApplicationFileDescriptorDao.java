@@ -16,11 +16,12 @@
 package com.navercorp.pinpoint.web.dao.hbase;
 
 import com.navercorp.pinpoint.common.server.bo.codec.stat.join.FileDescriptorDecoder;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinFileDescriptorBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.StatType;
 import com.navercorp.pinpoint.web.dao.ApplicationFileDescriptorDao;
 import com.navercorp.pinpoint.web.mapper.stat.ApplicationStatMapper;
 import com.navercorp.pinpoint.web.mapper.stat.SampledApplicationStatResultExtractor;
-import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.JoinFileDescriptorSampler;
+import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.ApplicationStatSampler;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinFileDescriptorBo;
@@ -41,7 +42,7 @@ public class HbaseApplicationFileDescriptorDao implements ApplicationFileDescrip
     private FileDescriptorDecoder fileDescriptorDecoder;
 
     @Autowired
-    private JoinFileDescriptorSampler fileDescriptorSampler;
+    private ApplicationStatSampler<JoinFileDescriptorBo> fileDescriptorSampler;
 
     @Autowired
     private HbaseApplicationStatDaoOperations operations;

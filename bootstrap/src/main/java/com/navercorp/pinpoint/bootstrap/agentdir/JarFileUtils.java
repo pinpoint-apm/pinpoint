@@ -26,9 +26,7 @@ import java.util.jar.JarFile;
 final class JarFileUtils {
 
     public static JarFile openJarFile(String filePath) {
-        if (filePath == null) {
-            throw new NullPointerException("filePath must not be null");
-        }
+        Assert.requireNonNull(filePath, "filePath");
 
         final File file = new File(filePath);
         if (!file.exists()) {

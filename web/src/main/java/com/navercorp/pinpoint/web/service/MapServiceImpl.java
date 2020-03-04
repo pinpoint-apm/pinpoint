@@ -83,10 +83,10 @@ public class MapServiceImpl implements MapService {
     @Override
     public ApplicationMap selectApplicationMap(Application sourceApplication, Range range, SearchOption searchOption, NodeType nodeType, LinkType linkType) {
         if (sourceApplication == null) {
-            throw new NullPointerException("sourceApplication must not be null");
+            throw new NullPointerException("sourceApplication");
         }
         if (range == null) {
-            throw new NullPointerException("range must not be null");
+            throw new NullPointerException("range");
         }
         logger.debug("SelectApplicationMap");
 

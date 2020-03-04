@@ -36,7 +36,7 @@ public class HbaseTableNameCache {
     }
 
     public TableName get(String namespace, String qualifier) {
-        Objects.requireNonNull(qualifier, "qualifier must not be null");
+        Objects.requireNonNull(qualifier, "qualifier");
         String nonEmptyNamespace = StringUtils.isEmpty(namespace) ? NamespaceDescriptor.DEFAULT_NAMESPACE_NAME_STR : namespace;
 
         TableNameKey tableNameKey = new TableNameKey(nonEmptyNamespace, qualifier);
@@ -58,8 +58,8 @@ public class HbaseTableNameCache {
         private final String qualifier;
 
         private TableNameKey(String namespace, String qualifier) {
-            this.namespace = Objects.requireNonNull(namespace, "namespace must not be null");
-            this.qualifier = Objects.requireNonNull(qualifier, "qualifier must not be null");
+            this.namespace = Objects.requireNonNull(namespace, "namespace");
+            this.qualifier = Objects.requireNonNull(qualifier, "qualifier");
         }
 
         public String getNamespace() {

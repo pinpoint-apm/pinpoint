@@ -16,19 +16,18 @@
 
 package com.navercorp.pinpoint.web.mapper;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
+import com.navercorp.pinpoint.common.hbase.RowMapper;
+import com.navercorp.pinpoint.common.server.bo.SqlMetaDataBo;
 
 import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
-
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
 
-import com.navercorp.pinpoint.common.server.bo.SqlMetaDataBo;
-import com.navercorp.pinpoint.common.hbase.HBaseTables;
-import com.navercorp.pinpoint.common.hbase.RowMapper;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @author emeroad
@@ -40,8 +39,8 @@ public class SqlMetaDataMapper implements RowMapper<List<SqlMetaDataBo>> {
 //    @Autowired
 //    @Qualifier("metadataRowKeyDistributor")
     private RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
-    
-    private final static String SQL_METADATA_CF_SQL_QUALI_SQLSTATEMENT = Bytes.toString(HBaseTables.SQL_METADATA_VER2_CF_SQL_QUALI_SQLSTATEMENT);
+
+    private final static String SQL_METADATA_CF_SQL_QUALI_SQLSTATEMENT = Bytes.toString(HbaseColumnFamily.SQL_METADATA_VER2_SQL.QUALIFIER_SQLSTATEMENT);
 
     @Override
     public List<SqlMetaDataBo> mapRow(Result result, int rowNum) throws Exception {
@@ -70,7 +69,7 @@ public class SqlMetaDataMapper implements RowMapper<List<SqlMetaDataBo>> {
     private byte[] getOriginalKey(byte[] rowKey) {
         return rowKeyDistributorByHashPrefix.getOriginalKey(rowKey);
     }
-    
+
     public void setRowKeyDistributorByHashPrefix(RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix) {
         this.rowKeyDistributorByHashPrefix = rowKeyDistributorByHashPrefix;
     }

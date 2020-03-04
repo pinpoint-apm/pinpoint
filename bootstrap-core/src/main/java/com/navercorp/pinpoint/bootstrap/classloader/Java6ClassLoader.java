@@ -41,12 +41,12 @@ public class Java6ClassLoader extends URLClassLoader {
     public Java6ClassLoader(String name, URL[] urls, ClassLoader parent, List<String> libClass) {
         super(urls, parent);
         if (name == null) {
-            throw new NullPointerException("name must not be null");
+            throw new NullPointerException("name");
         }
         this.name = name;
 
         if (libClass == null) {
-            throw new NullPointerException("libClass must not be null");
+            throw new NullPointerException("libClass");
         }
         this.parent = parent;
         this.libClass = new ProfilerLibClass(libClass);

@@ -16,39 +16,26 @@
 
 package com.navercorp.pinpoint.profiler.monitor.collector.response;
 
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.monitor.collector.AgentStatMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.metric.response.ResponseTimeValue;
 import com.navercorp.pinpoint.profiler.monitor.metric.response.ResponseTimeMetric;
-import com.navercorp.pinpoint.thrift.dto.TResponseTime;
 
 /**
  * @author Taejin Koo
  */
-public class DefaultResponseTimeMetricCollector implements AgentStatMetricCollector<TResponseTime> {
+public class DefaultResponseTimeMetricCollector implements AgentStatMetricCollector<ResponseTimeValue> {
 
     private final ResponseTimeMetric responseTimeMetric;
 
     public DefaultResponseTimeMetricCollector(ResponseTimeMetric responseTimeMetric) {
-        if (responseTimeMetric == null) {
-            throw new NullPointerException("responseTimeMetric must not be null");
-        }
-        this.responseTimeMetric = responseTimeMetric;
+        this.responseTimeMetric = Assert.requireNonNull(responseTimeMetric, "responseTimeMetric");
     }
 
     @Override
-    public TResponseTime collect() {
-        ResponseTimeValue responseTimeValue = responseTimeMetric.responseTimeValue();
-        long avg = responseTimeValue.getAvg();
-        long max = responseTimeValue.getMax();
-
-        TResponseTime tResponseTime = new TResponseTime();
-        if (avg != 0) {
-            tResponseTime.setAvg(avg);
-        }
-        if (max != 0) {
-            tResponseTime.setMax(max);
-        }
-        return tResponseTime;
+    public ResponseTimeValue collect() {
+        final ResponseTimeValue responseTimeValue = responseTimeMetric.responseTimeValue();
+        return responseTimeValue;
     }
 
 }

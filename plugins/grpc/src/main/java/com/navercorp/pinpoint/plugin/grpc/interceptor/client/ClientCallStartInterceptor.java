@@ -60,7 +60,7 @@ public class ClientCallStartInterceptor implements AroundInterceptor {
             logger.beforeInterceptor(target, args);
         }
 
-        final Trace trace = traceContext.currentTraceObject();
+        final Trace trace = traceContext.currentRawTraceObject();
         if (trace == null) {
             return;
         }
@@ -120,8 +120,8 @@ public class ClientCallStartInterceptor implements AroundInterceptor {
 
 
     private String combineAddressAndMethodName(String remoteAddress, String methodName) {
-        Assert.requireNonNull(remoteAddress, "remoteAddress must not be null");
-        Assert.requireNonNull(methodName, "methodName must not be null");
+        Assert.requireNonNull(remoteAddress, "remoteAddress");
+        Assert.requireNonNull(methodName, "methodName");
 
         if (remoteAddress.startsWith("http")) {
             return remoteAddress + "/" + methodName;

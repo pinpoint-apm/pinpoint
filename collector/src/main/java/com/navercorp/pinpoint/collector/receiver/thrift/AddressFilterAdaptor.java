@@ -31,7 +31,7 @@ public class AddressFilterAdaptor implements ChannelFilter {
     private final AddressFilter filter;
 
     public AddressFilterAdaptor(AddressFilter filter) {
-        this.filter = Objects.requireNonNull(filter, "filter must not be null");
+        this.filter = Objects.requireNonNull(filter, "filter");
     }
 
     @Override

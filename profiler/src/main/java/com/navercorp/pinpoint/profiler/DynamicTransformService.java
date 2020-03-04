@@ -40,11 +40,8 @@ public class DynamicTransformService implements DynamicTransformTrigger {
     private DynamicTransformRequestListener dynamicTransformRequestListener;
 
     public DynamicTransformService(Instrumentation instrumentation, DynamicTransformRequestListener listener) {
-        Assert.requireNonNull(instrumentation, "instrumentation must not be null");
-        Assert.requireNonNull(listener, "listener must not be null");
-
-        this.instrumentation = instrumentation;
-        this.dynamicTransformRequestListener = listener;
+        this.instrumentation = Assert.requireNonNull(instrumentation, "instrumentation");
+        this.dynamicTransformRequestListener = Assert.requireNonNull(listener, "listener");
     }
 
     @Override
@@ -91,7 +88,7 @@ public class DynamicTransformService implements DynamicTransformTrigger {
 
     public void setTransformRequestEventListener(DynamicTransformRequestListener retransformEventListener) {
         if (retransformEventListener == null) {
-            throw new NullPointerException("dynamicTransformRequestListener must not be null");
+            throw new NullPointerException("dynamicTransformRequestListener");
         }
         this.dynamicTransformRequestListener = retransformEventListener;
     }

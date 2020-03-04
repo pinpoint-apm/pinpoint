@@ -34,6 +34,7 @@ public class DefaultPinpointRouteResponse implements PinpointRouteResponse {
 
     private TRouteResult routeResult;
     private TBase response;
+    private String message;
 
     private boolean isParsed;
 
@@ -62,6 +63,7 @@ public class DefaultPinpointRouteResponse implements PinpointRouteResponse {
                 }
 
                 response = deserialize(commandDeserializerFactory, commandResponse.getPayload(), null);
+                message = commandResponse.getMessage();
             } else {
                 routeResult = TRouteResult.UNKNOWN;
                 response = object;
@@ -80,6 +82,11 @@ public class DefaultPinpointRouteResponse implements PinpointRouteResponse {
     public TBase getResponse() {
         assertParsed();
         return response;
+    }
+
+    @Override
+    public String getMessage() {
+        return message;
     }
 
     @Override

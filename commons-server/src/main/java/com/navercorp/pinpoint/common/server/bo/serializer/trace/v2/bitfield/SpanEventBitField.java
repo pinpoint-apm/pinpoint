@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.bitfield;
 
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
-import com.navercorp.pinpoint.common.util.BitFieldUtils;
+import com.navercorp.pinpoint.common.profiler.encoding.BitFieldUtils;
 import org.apache.commons.collections.CollectionUtils;
 
 import java.util.List;
@@ -52,7 +52,7 @@ public class SpanEventBitField {
 
     public static SpanEventBitField buildFirst(SpanEventBo spanEventBo) {
         if (spanEventBo == null) {
-            throw new NullPointerException("spanEventBo must not be null");
+            throw new NullPointerException("spanEventBo");
         }
         final SpanEventBitField bitFiled = new SpanEventBitField();
 
@@ -95,10 +95,10 @@ public class SpanEventBitField {
 
     public static SpanEventBitField build(SpanEventBo spanEventBo, SpanEventBo prevSpanEventBo) {
         if (spanEventBo == null) {
-            throw new NullPointerException("spanEventBo must not be null");
+            throw new NullPointerException("spanEventBo");
         }
         if (prevSpanEventBo == null) {
-            throw new NullPointerException("prevSpanEventBo must not be null");
+            throw new NullPointerException("prevSpanEventBo");
         }
 
         final SpanEventBitField bitFiled = buildFirst(spanEventBo);

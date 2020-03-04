@@ -1,0 +1,45 @@
+<article class="l-chart-item" [ngClass]="wrapperClassName">
+    <pp-scatter-chart-setting-popup [hidden]="hideSettingPopup"
+        [instanceKey]="instanceKey"
+        [min]="fromY"
+        [max]="toY"
+        (outApply)="onApplySetting($event)"
+        (outCancel)="onCancelSetting()">
+    </pp-scatter-chart-setting-popup>
+    <pp-scatter-chart-options
+        [instanceKey]="instanceKey"
+        [hiddenOptions]="{ setting: false, download: false, open: false, help: true }"
+        (outShowSetting)="onShowSetting()"
+        (outDownload)="onDownload()"
+        (outOpenScatterPage)="onOpenScatterPage()"
+        (outShowHelp)="onShowHelp($event)">
+    </pp-scatter-chart-options>
+    <pp-scatter-chart style="height: 215px"
+        [instanceKey]="instanceKey"
+        [addWindow]="addWindow"
+        [mode]="scatterChartMode"
+        [width]="width"
+        [height]="height"
+        [fromX]="fromX"
+        [toX]="toX"
+        [fromY]="fromY"
+        [toY]="toY"
+        [application]="application"
+        [agent]="selectedAgent"
+        [timezone]="timezone"
+        [dateFormat]="dateFormat"
+        [i18nText]="i18nText"
+        (outTransactionCount)="onChangeTransactionCount($event)"
+        (outSelectArea)="onSelectArea($event)"
+        (outChangeRangeX)="onChangeRangeX($event)">
+    </pp-scatter-chart>
+    <pp-scatter-chart-state-view
+        [instanceKey]="instanceKey"
+        [transactionTypeCount]="typeCount"
+        (outChanged)="onChangedSelectType($event)">
+    </pp-scatter-chart-state-view>
+    <div class="l-popup-block-message" *ngIf="showBlockMessagePopup">
+        <div class="l-button" (click)="onCloseBlockMessage()"><i class="fas fa-times-circle"></i></div>
+        <div class="l-message" [innerHTML]="i18nText.POPUP_BLOCK_MESSAGE"></div>
+    </div>    
+</article>

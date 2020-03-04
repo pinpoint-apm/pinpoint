@@ -26,7 +26,7 @@ public class PacketUtils {
 
     public static byte[] sliceData(DatagramPacket packet, int startOffset) {
         if (packet == null) {
-            throw new NullPointerException("packet must not be null");
+            throw new NullPointerException("packet");
         }
         int packetLength = packet.getLength();
         int packetOffset = packet.getOffset();
@@ -36,7 +36,7 @@ public class PacketUtils {
 
     public static byte[] sliceData(byte[] packet, int startOffset, int length) {
         if (packet == null) {
-            throw new NullPointerException("packet must not be null");
+            throw new NullPointerException("packet");
         }
         return Arrays.copyOfRange(packet, startOffset, length);
     }

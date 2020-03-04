@@ -17,6 +17,7 @@ package com.navercorp.pinpoint.web.calltree.span;
 
 import com.navercorp.pinpoint.common.server.bo.LocalAsyncIdBo;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
+import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 
 /**
@@ -73,7 +74,9 @@ public class CallStackMock {
         final SpanEventAlign spanEventAlign;
         if (this.async) {
             LocalAsyncIdBo localAsyncIdBo = new LocalAsyncIdBo(asyncId, 1);
-            spanEventAlign = new AsyncSpanEventAlign(spanBo, spanEvent, localAsyncIdBo);
+            SpanChunkBo spanChunkBo = new SpanChunkBo();
+            spanChunkBo.setLocalAsyncId(localAsyncIdBo);
+            spanEventAlign = new SpanChunkEventAlign(spanBo, spanChunkBo, spanEvent);
         } else {
             spanEventAlign = new SpanEventAlign(spanBo, spanEvent);
         }

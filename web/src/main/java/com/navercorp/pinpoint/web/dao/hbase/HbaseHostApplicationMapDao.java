@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,25 +16,21 @@
 
 package com.navercorp.pinpoint.web.dao.hbase;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
-import com.navercorp.pinpoint.common.hbase.HBaseTables;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
+import com.navercorp.pinpoint.common.hbase.HbaseTable;
+import com.navercorp.pinpoint.common.hbase.HbaseTableConstatns;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
-import com.navercorp.pinpoint.common.util.TimeSlot;
+import com.navercorp.pinpoint.common.server.util.TimeSlot;
 import com.navercorp.pinpoint.common.util.TimeUtils;
 import com.navercorp.pinpoint.web.dao.HostApplicationMapDao;
 import com.navercorp.pinpoint.web.service.map.AcceptApplication;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.Range;
-import com.sematext.hbase.wd.AbstractRowKeyDistributor;
 
+import com.sematext.hbase.wd.AbstractRowKeyDistributor;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Scan;
@@ -43,6 +39,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
+
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * 
@@ -79,11 +80,11 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
     @Override
     public Set<AcceptApplication> findAcceptApplicationName(Application fromApplication, Range range) {
         if (fromApplication == null) {
-            throw new NullPointerException("fromApplication must not be null");
+            throw new NullPointerException("fromApplication");
         }
         final Scan scan = createScan(fromApplication, range);
 
-        TableName hostApplicationMapTableName = tableNameProvider.getTableName(HBaseTables.HOST_APPLICATION_MAP_VER2_STR);
+        TableName hostApplicationMapTableName = tableNameProvider.getTableName(HbaseTable.HOST_APPLICATION_MAP_VER2);
         final List<List<AcceptApplication>> result = hbaseOperations2.findParallel(hostApplicationMapTableName, scan, acceptApplicationRowKeyDistributor, hostApplicationMapperVer2, HOST_APPLICATION_MAP_VER2_NUM_PARTITIONS);
         if (CollectionUtils.isNotEmpty(result)) {
             final Set<AcceptApplication> resultSet = new HashSet<>();
@@ -102,7 +103,7 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
 
     private Scan createScan(Application parentApplication, Range range) {
         if (parentApplication == null) {
-            throw new NullPointerException("parentApplication must not be null");
+            throw new NullPointerException("parentApplication");
         }
 
         if (logger.isDebugEnabled()) {
@@ -127,7 +128,7 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
 
     private byte[] createKey(Application parentApplication, long time) {
         Buffer buffer = new AutomaticBuffer();
-        buffer.putPadString(parentApplication.getName(), HBaseTables.APPLICATION_NAME_MAX_LEN);
+        buffer.putPadString(parentApplication.getName(), HbaseTableConstatns.APPLICATION_NAME_MAX_LEN);
         buffer.putShort(parentApplication.getServiceTypeCode());
         buffer.putLong(time);
         return buffer.getBuffer();

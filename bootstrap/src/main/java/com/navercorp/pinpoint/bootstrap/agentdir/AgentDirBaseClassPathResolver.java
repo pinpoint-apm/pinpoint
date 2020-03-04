@@ -20,8 +20,7 @@ package com.navercorp.pinpoint.bootstrap.agentdir;
 import com.navercorp.pinpoint.bootstrap.BootLogger;
 
 import java.io.File;
-import java.net.MalformedURLException;
-import java.net.URI;
+import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -51,20 +50,16 @@ public class AgentDirBaseClassPathResolver implements ClassPathResolver {
 
     private final String classPath;
 
-    private List<String> fileExtensionList;
+    private final String[] fileExtensions;
 
 
     public AgentDirBaseClassPathResolver(String classPath) {
-        if (classPath == null) {
-            throw new NullPointerException("classPath must not be null");
-        }
-
-        this.classPath = classPath;
-        this.fileExtensionList = getFileExtensionList();
+        this.classPath = Assert.requireNonNull(classPath, "classPath");
+        this.fileExtensions = getFileExtensions();
     }
 
-    private static List<String> getFileExtensionList() {
-        return Arrays.asList(".jar", ".xml", ".properties");
+    private static String[] getFileExtensions() {
+        return new String[] {".jar", ".xml", ".properties"};
     }
 
 
@@ -157,24 +152,28 @@ public class AgentDirBaseClassPathResolver implements ClassPathResolver {
         if (checkDirectory(libDir)) {
             return Collections.emptyList();
         }
-        final File[] JarFileList = FileUtils.listFiles(libDir, this.fileExtensionList);
+        final File[] libFileList = listFiles(libDir, this.fileExtensions);
 
-        final List<URL> jarURLList = new ArrayList<URL>();
-        if (JarFileList != null) {
-            for (File file : JarFileList) {
-                URL url = toURI(file);
-                if (url != null) {
-                    jarURLList.add(url);
-                }
-            }
-        }
+        List<URL> libURLList = toURLs(libFileList);
         // add directory
-        URL agentDirUri = toURI(new File(agentLibPath));
-        if (agentDirUri != null) {
-            jarURLList.add(agentDirUri);
-        }
+        URL agentDirUri = toURL(new File(agentLibPath));
 
+        List<URL> jarURLList = new ArrayList<URL>(libURLList);
+        jarURLList.add(agentDirUri);
         return jarURLList;
+    }
+
+    private File[] listFiles(File libDir, String[] p) {
+        return FileUtils.listFiles(libDir, p);
+    }
+
+    private List<URL> toURLs(File[] jarFileList) {
+        try {
+            URL[] jarURLArray = FileUtils.toURLs(jarFileList);
+            return Arrays.asList(jarURLArray);
+        } catch (IOException e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
     }
 
     private List<String> resolvePlugins(String agentPluginPath) {
@@ -185,8 +184,8 @@ public class AgentDirBaseClassPathResolver implements ClassPathResolver {
             return Collections.emptyList();
         }
 
-
-        final File[] jars = FileUtils.listFiles(directory, Collections.singletonList(".jar"));
+        final String[] jarExtensions = {".jar"};
+        final File[] jars = listFiles(directory, jarExtensions);
         if (FileUtils.isEmpty(jars)) {
             return Collections.emptyList();
         }
@@ -223,13 +222,12 @@ public class AgentDirBaseClassPathResolver implements ClassPathResolver {
         return result;
     }
 
-    private URL toURI(File file) {
-        URI uri = file.toURI();
+    private URL toURL(File file) {
         try {
-            return uri.toURL();
-        } catch (MalformedURLException e) {
+            return FileUtils.toURL(file);
+        } catch (IOException e) {
             logger.warn(file.getName() + ".toURL() failed.", e);
-            return null;
+            throw new RuntimeException(file.getName() + ".toURL() failed.", e);
         }
     }
 

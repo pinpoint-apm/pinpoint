@@ -1,0 +1,19 @@
+<input 
+    type="text"
+    class="l-search-input"
+    ppSearchInput
+    placeholder="{{i18nText.PLACE_HOLDER}}"
+    [useEnter]="searchUseEnter"
+    (outCancel)="onClose()"
+    (outSearch)="onSearch($event)"
+    #searchInput>
+<ng-container *ngIf="searchResultList$ | async as list">
+    <dl class="l-search-list" [style.display]="listDisplay">
+        <dt class="l-list-title">Result <button class="l-close-button fas fa-times" (click)="onClose()"></button></dt>
+        <div class="l-list-contents-wrapper">
+            <dd class="l-list-contents" *ngFor="let app of list" (click)="onSelectApp(app)" [class.selected]="app.equals(selectedApp)">{{app.applicationName}}({{app.serviceType}})</dd>
+            <dd class="l-empty-contents" *ngIf="isEmpty">{{i18nText.EMPTY_RESULT}}</dd>
+        </div>
+    </dl>
+</ng-container>
+<button class="l-search-button fas fa-search" (click)="onSearch(searchInput.value.trim())"></button>

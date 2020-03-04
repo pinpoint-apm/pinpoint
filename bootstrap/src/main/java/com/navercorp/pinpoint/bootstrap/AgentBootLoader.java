@@ -16,8 +16,9 @@
 
 package com.navercorp.pinpoint.bootstrap;
 
+import com.navercorp.pinpoint.bootstrap.agentdir.Assert;
+
 import java.lang.reflect.Constructor;
-import java.net.URL;
 import java.util.concurrent.Callable;
 
 
@@ -34,15 +35,9 @@ public class AgentBootLoader {
 
     private final ContextClassLoaderExecuteTemplate<Object> executeTemplate;
 
-    public AgentBootLoader(String bootClass, URL[] urls, ClassLoader agentClassLoader) {
-        if (bootClass == null) {
-            throw new NullPointerException("bootClass must not be null");
-        }
-        if (urls == null) {
-            throw new NullPointerException("urls");
-        }
-        this.bootClass = bootClass;
-        this.classLoader = agentClassLoader;
+    public AgentBootLoader(String bootClass, ClassLoader agentClassLoader) {
+        this.bootClass = Assert.requireNonNull(bootClass, "bootClass");
+        this.classLoader = Assert.requireNonNull(agentClassLoader, "agentClassLoader");
         this.executeTemplate = new ContextClassLoaderExecuteTemplate<Object>(agentClassLoader);
     }
 

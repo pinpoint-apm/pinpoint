@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,10 @@
 package com.navercorp.pinpoint.profiler.metadata;
 
 import com.navercorp.pinpoint.bootstrap.context.ParsingResult;
-import com.navercorp.pinpoint.common.util.*;
+import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.common.profiler.sql.DefaultSqlParser;
+import com.navercorp.pinpoint.common.profiler.sql.NormalizedSql;
+import com.navercorp.pinpoint.common.profiler.sql.SqlParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,8 +36,8 @@ public class DefaultCachingSqlNormalizer implements CachingSqlNormalizer {
     private final SimpleCache<String> sqlCache;
     private final SqlParser sqlParser;
 
-    public DefaultCachingSqlNormalizer(int cacheSize) {
-        this.sqlCache = new SimpleCache<String>(cacheSize);
+    public DefaultCachingSqlNormalizer(SimpleCache<String> sqlCache) {
+        this.sqlCache = Assert.requireNonNull(sqlCache, "sqlCache");
         this.sqlParser = new DefaultSqlParser();
     }
 

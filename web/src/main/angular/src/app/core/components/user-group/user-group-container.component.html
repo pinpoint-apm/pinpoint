@@ -1,0 +1,46 @@
+<div class="l-user-group-wrapper">
+    <div class="l-user-group-title">
+        <span>User Group ({{userGroupList.length}})</span>
+        <div>
+            <button class="btn btn-sm btn-blue" (click)="onShowCreateUserPopup()"><i class="fas fa-plus"></i></button>
+            <button class="btn btn-sm btn-blue" (click)="onReload()"><i class="fas fa-sync"></i></button> 
+        </div>
+    </div>
+    <div class="l-user-group-search">
+        <input type="text" placeholder="{{i18nText.SEARCH_INPUT_GUIDE}}" class="l-search-input" 
+            ppSearchInput 
+            [searchMinLength]="SEARCH_MIN_LENGTH"
+            [useEnter]="searchUseEnter"
+            (outSearch)="onSearch($event)"
+            #searchInput>
+        <button class="l-search-button" (click)="onSearch(searchInput.value)"><i class="fas fa-search"></i></button>
+    </div>
+    <div class="l-user-group-list">
+        <ng-container *ngIf="!isEmpty; else emptyText">
+            <pp-user-group
+                [groupList]="userGroupList"
+                (outRemove)="onRemoveUserGroup($event)"
+                (outSelected)="onSelectUserGroup($event)">
+            </pp-user-group>
+        </ng-container> 
+        <ng-template #emptyText>
+            <p class="l-empty-text">{{i18nText.EMPTY}}</p>
+        </ng-template>
+    </div>
+    <pp-user-group-create-and-update
+        [showCreate]="showCreate"
+        [i18nLabel]="i18nLabel"
+        [i18nGuide]="i18nGuide"
+        [minLength]="USER_GROUP_NAME_MIN_LENGTH"
+        (outCreateUserGroup)="onCreateUserGroup($event)"
+        (outClose)="onCloseCreateUserPopup()">
+    </pp-user-group-create-and-update>
+    <ng-container *ngIf="errorMessage">
+        <pp-server-error-message
+            [message]="errorMessage"
+            (outClose)="onCloseErrorMessage()">
+        </pp-server-error-message>
+    </ng-container>
+    <pp-film-for-disable *ngIf="useDisable" [zIndex]="9" [marginWidth]="0"></pp-film-for-disable>    
+    <pp-loading [showLoading]="showLoading" [zIndex]="20"></pp-loading>
+</div>

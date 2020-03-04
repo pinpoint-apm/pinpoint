@@ -61,7 +61,7 @@ public class AgentActiveThreadDumpFactory {
 
     private AgentActiveThreadDump create1(TActiveThreadDump tActiveThreadDump) {
         if (tActiveThreadDump == null) {
-            throw new NullPointerException("tActiveThreadDump must not be null");
+            throw new NullPointerException("tActiveThreadDump");
         }
 
         TThreadDump activeThreadDump = tActiveThreadDump.getThreadDump();
@@ -103,7 +103,7 @@ public class AgentActiveThreadDumpFactory {
 
     private AgentActiveThreadDump create2(TActiveThreadLightDump tActiveThreadLightDump) {
         if (tActiveThreadLightDump == null) {
-            throw new NullPointerException("tActiveThreadLightDump must not be null");
+            throw new NullPointerException("tActiveThreadLightDump");
         }
 
         TThreadLightDump activeThreadDump = tActiveThreadLightDump.getThreadDump();

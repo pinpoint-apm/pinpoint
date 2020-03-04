@@ -31,9 +31,9 @@ public class DefaultRowInfo implements RowInfo {
     private final ColumnName columnName;
 
     public DefaultRowInfo(TableName tableName, RowKey rowKey, ColumnName columnName) {
-        this.tableName = Objects.requireNonNull(tableName, "tableName must not be null");
-        this.rowKey = Objects.requireNonNull(rowKey, "rowKey must not be null");
-        this.columnName = Objects.requireNonNull(columnName, "columnName must not be null");
+        this.tableName = Objects.requireNonNull(tableName, "tableName");
+        this.rowKey = Objects.requireNonNull(rowKey, "rowKey");
+        this.columnName = Objects.requireNonNull(columnName, "columnName");
     }
 
     @Override

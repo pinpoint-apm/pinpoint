@@ -23,24 +23,24 @@ import com.navercorp.pinpoint.profiler.monitor.collector.AgentStatMetricCollecto
 import com.navercorp.pinpoint.profiler.monitor.collector.UnsupportedMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.collector.filedescriptor.DefaultFileDescriptorMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.metric.filedescriptor.FileDescriptorMetric;
-import com.navercorp.pinpoint.thrift.dto.TFileDescriptor;
+import com.navercorp.pinpoint.profiler.monitor.metric.filedescriptor.FileDescriptorMetricSnapshot;
 
 /**
  * @author Roy Kim
  */
-public class FileDescriptorMetricCollectorProvider implements Provider<AgentStatMetricCollector<TFileDescriptor>> {
+public class FileDescriptorMetricCollectorProvider implements Provider<AgentStatMetricCollector<FileDescriptorMetricSnapshot>> {
 
     private final FileDescriptorMetric fileDescriptorMetric;
 
     @Inject
     public FileDescriptorMetricCollectorProvider(FileDescriptorMetric fileDescriptorMetric) {
-        this.fileDescriptorMetric = Assert.requireNonNull(fileDescriptorMetric, "fileDescriptorMetric must not be null");
+        this.fileDescriptorMetric = Assert.requireNonNull(fileDescriptorMetric, "fileDescriptorMetric");
     }
 
     @Override
-    public AgentStatMetricCollector<TFileDescriptor> get() {
+    public AgentStatMetricCollector<FileDescriptorMetricSnapshot> get() {
         if (fileDescriptorMetric == FileDescriptorMetric.UNSUPPORTED_FILE_DESCRIPTOR_METRIC) {
-            return new UnsupportedMetricCollector<TFileDescriptor>();
+            return new UnsupportedMetricCollector<FileDescriptorMetricSnapshot>();
         }
         return new DefaultFileDescriptorMetricCollector(fileDescriptorMetric);
     }

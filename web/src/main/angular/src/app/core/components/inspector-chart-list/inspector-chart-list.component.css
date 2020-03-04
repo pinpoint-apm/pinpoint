@@ -1,0 +1,42 @@
+:host {
+    display: block;
+    height: 100%;
+}
+
+.l-chart-list-item {
+    font-size: 13px;
+    padding: 12px 12px 12px 12px;
+    color: #666 !important;
+    font-weight: 400 !important;
+}
+
+.l-chart-list-item:hover {
+    background-color:  #e4f3eb;
+}
+.l-chart-name {
+    display: block;
+    font-size: 14px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+.l-chart-name i {
+    margin-right: 5px;
+    color: var(--primary-color);
+}
+.l-select-button {
+    float: right;
+    color: var(--primary-color);
+    font-size: 18px;
+}
+.l-button-disable {
+    color: #BBB !important;
+    cursor: default;
+}
+
+.l-empty-text {
+    color: #333;
+    font-size: 16px;
+    margin-top: 50px;
+    text-align: center;
+}

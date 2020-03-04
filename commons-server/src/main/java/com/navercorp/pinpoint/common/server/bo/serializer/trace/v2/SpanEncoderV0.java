@@ -11,7 +11,8 @@ import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.bitfield.SpanBitFiled;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.bitfield.SpanEventBitField;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.bitfield.SpanEventQualifierBitField;
-import com.navercorp.pinpoint.io.util.AnnotationTranscoder;
+import com.navercorp.pinpoint.common.server.bo.AnnotationTranscoder;
+import com.navercorp.pinpoint.io.SpanVersion;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,7 +68,6 @@ public class SpanEncoderV0 implements SpanEncoder {
                 buffer.putVInt(localAsyncId.getSequence());
             }
         } else {
-            logger.info("unexpected state. firstSpanEvent==null basicSpan:{}", basicSpan);
             // simple trace case
 //            buffer.putSVInt((short) -1);
 
@@ -94,9 +94,12 @@ public class SpanEncoderV0 implements SpanEncoder {
 
         final Buffer buffer = new AutomaticBuffer(256);
 
-        final byte version = spanChunkBo.getVersion();
+        final byte version = (byte) spanChunkBo.getVersion();
         buffer.putByte(version);
-
+        if (version == SpanVersion.TRACE_V2) {
+            long keyTime = spanChunkBo.getKeyTime();
+            buffer.putVLong(keyTime);
+        }
 
         final List<SpanEventBo> spanEventBoList = spanChunkBo.getSpanEventBoList();
         writeSpanEventList(buffer, spanEventBoList, encodingContext);

@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.profiler.sender;
 
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.profiler.context.id.DefaultTransactionIdEncoder;
+import com.navercorp.pinpoint.profiler.context.thrift.DefaultTransactionIdEncoder;
 import com.navercorp.pinpoint.profiler.context.id.TransactionIdEncoder;
 import com.navercorp.pinpoint.profiler.context.thrift.BypassMessageConverter;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;

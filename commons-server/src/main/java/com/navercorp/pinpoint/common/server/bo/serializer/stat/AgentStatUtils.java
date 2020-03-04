@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.common.server.bo.serializer.stat;
 
 import java.math.BigDecimal;
 
-import static com.navercorp.pinpoint.common.hbase.HBaseTables.AGENT_STAT_TIMESPAN_MS;
+import static com.navercorp.pinpoint.common.hbase.HbaseColumnFamily.AGENT_STAT_STATISTICS;
 
 /**
  * @author HyunGil Jeong
@@ -49,6 +49,6 @@ public class AgentStatUtils {
     }
 
     public static long getBaseTimestamp(long timestamp) {
-        return timestamp - (timestamp % AGENT_STAT_TIMESPAN_MS);
+        return timestamp - (timestamp % AGENT_STAT_STATISTICS.TIMESPAN_MS);
     }
 }

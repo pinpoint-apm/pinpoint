@@ -18,65 +18,65 @@ package com.navercorp.pinpoint.profiler.monitor.collector;
 
 import com.google.inject.Inject;
 import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHistogram;
 import com.navercorp.pinpoint.profiler.context.module.AgentId;
 import com.navercorp.pinpoint.profiler.context.module.AgentStartTime;
-import com.navercorp.pinpoint.thrift.dto.TActiveTrace;
-import com.navercorp.pinpoint.thrift.dto.TAgentStat;
-import com.navercorp.pinpoint.thrift.dto.TCpuLoad;
-import com.navercorp.pinpoint.thrift.dto.TDataSourceList;
-import com.navercorp.pinpoint.thrift.dto.TDeadlock;
-import com.navercorp.pinpoint.thrift.dto.TDirectBuffer;
-import com.navercorp.pinpoint.thrift.dto.TFileDescriptor;
-import com.navercorp.pinpoint.thrift.dto.TJvmGc;
-import com.navercorp.pinpoint.thrift.dto.TResponseTime;
-import com.navercorp.pinpoint.thrift.dto.TTransaction;
+import com.navercorp.pinpoint.profiler.monitor.metric.AgentStatMetricSnapshot;
+import com.navercorp.pinpoint.profiler.monitor.metric.JvmGcMetricSnapshot;
+import com.navercorp.pinpoint.profiler.monitor.metric.buffer.BufferMetricSnapshot;
+import com.navercorp.pinpoint.profiler.monitor.metric.cpu.CpuLoadMetricSnapshot;
+import com.navercorp.pinpoint.profiler.monitor.metric.datasource.DataSourceMetricSnapshot;
+import com.navercorp.pinpoint.profiler.monitor.metric.deadlock.DeadlockMetricSnapshot;
+import com.navercorp.pinpoint.profiler.monitor.metric.filedescriptor.FileDescriptorMetricSnapshot;
+import com.navercorp.pinpoint.profiler.monitor.metric.response.ResponseTimeValue;
+import com.navercorp.pinpoint.profiler.monitor.metric.transaction.TransactionMetricSnapshot;
 
 /**
  * @author HyunGil Jeong
  */
-public class AgentStatCollector implements AgentStatMetricCollector<TAgentStat> {
+public class AgentStatCollector implements AgentStatMetricCollector<AgentStatMetricSnapshot> {
 
     private final String agentId;
     private final long agentStartTimestamp;
-    private final AgentStatMetricCollector<TJvmGc> jvmGcMetricCollector;
-    private final AgentStatMetricCollector<TCpuLoad> cpuLoadMetricCollector;
-    private final AgentStatMetricCollector<TTransaction> transactionMetricCollector;
-    private final AgentStatMetricCollector<TActiveTrace> activeTraceMetricCollector;
-    private final AgentStatMetricCollector<TDataSourceList> dataSourceMetricCollector;
-    private final AgentStatMetricCollector<TResponseTime> responseTimeMetricCollector;
-    private final AgentStatMetricCollector<TDeadlock> deadlockMetricCollector;
-    private final AgentStatMetricCollector<TFileDescriptor> fileDescriptorMetricCollector;
-    private final AgentStatMetricCollector<TDirectBuffer> bufferMetricCollector;
+    private final AgentStatMetricCollector<JvmGcMetricSnapshot> jvmGcMetricCollector;
+    private final AgentStatMetricCollector<CpuLoadMetricSnapshot> cpuLoadMetricCollector;
+    private final AgentStatMetricCollector<TransactionMetricSnapshot> transactionMetricCollector;
+    private final AgentStatMetricCollector<ActiveTraceHistogram> activeTraceMetricCollector;
+    private final AgentStatMetricCollector<DataSourceMetricSnapshot> dataSourceMetricCollector;
+    private final AgentStatMetricCollector<ResponseTimeValue> responseTimeMetricCollector;
+    private final AgentStatMetricCollector<DeadlockMetricSnapshot> deadlockMetricCollector;
+    private final AgentStatMetricCollector<FileDescriptorMetricSnapshot> fileDescriptorMetricCollector;
+    private final AgentStatMetricCollector<BufferMetricSnapshot> bufferMetricCollector;
 
     @Inject
     public AgentStatCollector(
             @AgentId String agentId,
             @AgentStartTime long agentStartTimestamp,
-            AgentStatMetricCollector<TJvmGc> jvmGcMetricCollector,
-            AgentStatMetricCollector<TCpuLoad> cpuLoadMetricCollector,
-            AgentStatMetricCollector<TTransaction> transactionMetricCollector,
-            AgentStatMetricCollector<TActiveTrace> activeTraceMetricCollector,
-            AgentStatMetricCollector<TDataSourceList> dataSourceMetricCollector,
-            AgentStatMetricCollector<TResponseTime> responseTimeMetricCollector,
-            AgentStatMetricCollector<TDeadlock> deadlockMetricCollector,
-            AgentStatMetricCollector<TFileDescriptor> fileDescriptorMetricCollector,
-            AgentStatMetricCollector<TDirectBuffer> bufferMetricCollector) {
-        this.agentId = Assert.requireNonNull(agentId, "agentId must not be null");
+            AgentStatMetricCollector<JvmGcMetricSnapshot> jvmGcMetricCollector,
+            AgentStatMetricCollector<CpuLoadMetricSnapshot> cpuLoadMetricCollector,
+            AgentStatMetricCollector<TransactionMetricSnapshot> transactionMetricCollector,
+            AgentStatMetricCollector<ActiveTraceHistogram> activeTraceMetricCollector,
+            AgentStatMetricCollector<DataSourceMetricSnapshot> dataSourceMetricCollector,
+            AgentStatMetricCollector<ResponseTimeValue> responseTimeMetricCollector,
+            AgentStatMetricCollector<DeadlockMetricSnapshot> deadlockMetricCollector,
+            AgentStatMetricCollector<FileDescriptorMetricSnapshot> fileDescriptorMetricCollector,
+            AgentStatMetricCollector<BufferMetricSnapshot> bufferMetricCollector) {
+        this.agentId = Assert.requireNonNull(agentId, "agentId");
         this.agentStartTimestamp = agentStartTimestamp;
-        this.jvmGcMetricCollector = Assert.requireNonNull(jvmGcMetricCollector, "jvmGcMetricCollector must not be null");
-        this.cpuLoadMetricCollector = Assert.requireNonNull(cpuLoadMetricCollector, "cpuLoadMetricCollector must not be null");
-        this.transactionMetricCollector = Assert.requireNonNull(transactionMetricCollector, "transactionMetricCollector must not be null");
-        this.activeTraceMetricCollector = Assert.requireNonNull(activeTraceMetricCollector, "activeTraceMetricCollector must not be null");
-        this.dataSourceMetricCollector = Assert.requireNonNull(dataSourceMetricCollector, "dataSourceMetricCollector must not be null");
-        this.responseTimeMetricCollector = Assert.requireNonNull(responseTimeMetricCollector, "responseTimeMetricCollector must not be null");
-        this.deadlockMetricCollector = Assert.requireNonNull(deadlockMetricCollector, "deadlockMetricCollector must not be null");
-        this.fileDescriptorMetricCollector = Assert.requireNonNull(fileDescriptorMetricCollector, "fileDescriptorMetricCollector must not be null");
-        this.bufferMetricCollector = Assert.requireNonNull(bufferMetricCollector, "bufferMetricCollector must not be null");
+        this.jvmGcMetricCollector = Assert.requireNonNull(jvmGcMetricCollector, "jvmGcMetricCollector");
+        this.cpuLoadMetricCollector = Assert.requireNonNull(cpuLoadMetricCollector, "cpuLoadMetricCollector");
+        this.transactionMetricCollector = Assert.requireNonNull(transactionMetricCollector, "transactionMetricCollector");
+        this.activeTraceMetricCollector = Assert.requireNonNull(activeTraceMetricCollector, "activeTraceMetricCollector");
+        this.dataSourceMetricCollector = Assert.requireNonNull(dataSourceMetricCollector, "dataSourceMetricCollector");
+        this.responseTimeMetricCollector = Assert.requireNonNull(responseTimeMetricCollector, "responseTimeMetricCollector");
+        this.deadlockMetricCollector = Assert.requireNonNull(deadlockMetricCollector, "deadlockMetricCollector");
+        this.fileDescriptorMetricCollector = Assert.requireNonNull(fileDescriptorMetricCollector, "fileDescriptorMetricCollector");
+        this.bufferMetricCollector = Assert.requireNonNull(bufferMetricCollector, "bufferMetricCollector");
     }
 
     @Override
-    public TAgentStat collect() {
-        TAgentStat agentStat = new TAgentStat();
+    public AgentStatMetricSnapshot collect() {
+        AgentStatMetricSnapshot agentStat = new AgentStatMetricSnapshot();
         agentStat.setAgentId(agentId);
         agentStat.setStartTimestamp(agentStartTimestamp);
         agentStat.setGc(jvmGcMetricCollector.collect());
@@ -109,5 +109,4 @@ public class AgentStatCollector implements AgentStatMetricCollector<TAgentStat> 
         sb.append('}');
         return sb.toString();
     }
-
 }

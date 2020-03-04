@@ -45,7 +45,7 @@ public enum ServiceTypeCategory {
         this.minCode = minCode;
         this.maxCode = maxCode;
         if (histogramSchema == null) {
-            throw new NullPointerException("histogramSchema must not be null");
+            throw new NullPointerException("histogramSchema");
         }
         this.histogramSchema = histogramSchema;
     }

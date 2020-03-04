@@ -15,19 +15,20 @@
  */
 package com.navercorp.pinpoint.common.server.bo.serializer.stat.join;
 
-import com.navercorp.pinpoint.common.hbase.HBaseTables;
+import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.ApplicationStatEncoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.HbaseSerializer;
 import com.navercorp.pinpoint.common.server.bo.serializer.SerializationContext;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatUtils;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinStatBo;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.hadoop.hbase.HConstants;
 import org.apache.hadoop.hbase.client.Put;
-import org.springframework.util.Assert;
 
 import java.nio.ByteBuffer;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author minwoo.jung
@@ -37,8 +38,7 @@ public abstract class ApplicationStatSerializer implements HbaseSerializer<List<
     private final ApplicationStatEncoder encoder;
 
     protected ApplicationStatSerializer(ApplicationStatEncoder encoder) {
-        Assert.notNull(encoder, "encoder must not be null");
-        this.encoder = encoder;
+        this.encoder = Objects.requireNonNull(encoder, "encoder");
     }
 
     @Override
@@ -51,6 +51,6 @@ public abstract class ApplicationStatSerializer implements HbaseSerializer<List<
         long timestampDelta = initialTimestamp - baseTimestamp;
         ByteBuffer qualifierBuffer = this.encoder.encodeQualifier(timestampDelta);
         ByteBuffer valueBuffer = this.encoder.encodeValue(joinStatBoList);
-        put.addColumn(HBaseTables.APPLICATION_STAT_CF_STATISTICS, qualifierBuffer, HConstants.LATEST_TIMESTAMP, valueBuffer);
+        put.addColumn(HbaseColumnFamily.APPLICATION_STAT_STATISTICS.getName(), qualifierBuffer, HConstants.LATEST_TIMESTAMP, valueBuffer);
     }
 }

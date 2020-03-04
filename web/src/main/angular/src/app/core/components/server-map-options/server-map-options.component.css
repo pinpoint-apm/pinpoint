@@ -1,0 +1,128 @@
+:host {
+    display: block;
+    position: relative;
+    width: 180px;
+}
+.fa-sign-in-alt, .fa-sign-out-alt {
+    color: #33b692;
+}
+button {
+    outline: none;
+}
+.l-dropdown-button {
+    width: 100%;
+    height: 32px;
+    border: 1px solid var(--dark-primary-color);
+    padding: 4px 0 4px 0;
+    display: flex;
+    font-size: 13px;
+    text-align: left;
+    align-items: center;
+    background-color: #fff;
+}
+.l-dropdown-button .fa-angle-down {
+    font-size: 15px;
+    display: inline-block;
+    margin-left: 16px;
+    color: #33b692;
+}
+
+.l-bound-text {
+    display: inline-block;
+    font-size: 14px;
+    margin-left: 11px;
+    color: #333;
+}
+.l-bound-double-text {
+    color: #DDD;
+    font-size: 8px;
+    text-align: center;
+    font-weight: 600;
+}
+.l-bound-double-text.selected {
+    color: var(--primary-color);
+}
+
+.l-dropdown-menu-wrapper {
+    position: absolute;
+    top: 32px;
+    left: 0;
+    z-index: 9999;
+    display: flex;
+    flex-wrap: wrap;
+    border: 1px solid var(--dark-primary-color);
+    background-color: #fff;
+    width: 180px;
+}
+
+.l-inbound-list {
+    border-right: 1px solid #e5e8f0;
+}
+
+.l-inbound-list, .l-outbound-list {
+    width: 50%;
+    text-align: center;
+}
+
+.l-bound-list-item {
+    font-weight: 600;
+    color: #333;
+    font-size: 13px;
+    padding: 5px 10px;
+    cursor: pointer;
+}
+
+.l-bound-title {
+    padding: 5px 10px;
+    color: #333;
+    background-color: #edf2f8;
+    font-weight: 600 !important;
+    font-size: 12px;
+    border-bottom: 1px solid #e5e8f0;
+}
+.l-bidirectional-title {
+    letter-spacing: -0.5px;
+}
+
+.l-bound-list-item:hover {
+    color: var(--primary-color);
+    background-color: #edf2f8;
+}
+
+.l-bound-list-item.active {
+    color: var(--primary-color);
+    background-color: #edf2f8;
+}
+.l-bidirectional-selector {
+    text-align: center;
+    color: var(--primary-color);
+    margin: 10px;
+    cursor: pointer;
+}
+.l-was-only-selector {
+    text-align: center;
+    color: #DDD;
+    margin: 12px 10px 10px 10px;
+    font-size: 20px;
+    cursor:pointer;
+}
+.l-was-only-selector .selected {
+    color: var(--primary-color);
+}
+
+.l-button-group-wrapper {
+    width: 100%;
+    border-top: 1px solid #e5e8f0;
+    padding: 2px;
+    text-align: right;
+}
+.l-apply-button {
+    font-size: 12px !important;
+    background-color: var(--primary-color);
+    margin-left: 2px;
+    color: #fff;
+}
+
+.l-cancel-button {
+    font-size: 12px !important;
+}

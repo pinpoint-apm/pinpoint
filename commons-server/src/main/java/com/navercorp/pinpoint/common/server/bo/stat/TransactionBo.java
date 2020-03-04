@@ -31,6 +31,8 @@ public class TransactionBo implements AgentStatDataPoint {
     private long sampledContinuationCount = UNCOLLECTED_VALUE;
     private long unsampledNewCount = UNCOLLECTED_VALUE;
     private long unsampledContinuationCount = UNCOLLECTED_VALUE;
+    private long skippedNewSkipCount = UNCOLLECTED_VALUE;
+    private long skippedContinuationCount = UNCOLLECTED_VALUE;
 
     @Override
     public String getAgentId() {
@@ -107,6 +109,22 @@ public class TransactionBo implements AgentStatDataPoint {
         this.unsampledContinuationCount = unsampledContinuationCount;
     }
 
+    public long getSkippedNewSkipCount() {
+        return skippedNewSkipCount;
+    }
+
+    public void setSkippedNewSkipCount(long skippedNewSkipCount) {
+        this.skippedNewSkipCount = skippedNewSkipCount;
+    }
+
+    public long getSkippedContinuationCount() {
+        return skippedContinuationCount;
+    }
+
+    public void setSkippedContinuationCount(long skippedContinuationCount) {
+        this.skippedContinuationCount = skippedContinuationCount;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -121,6 +139,8 @@ public class TransactionBo implements AgentStatDataPoint {
         if (sampledContinuationCount != that.sampledContinuationCount) return false;
         if (unsampledNewCount != that.unsampledNewCount) return false;
         if (unsampledContinuationCount != that.unsampledContinuationCount) return false;
+        if (skippedNewSkipCount != that.skippedNewSkipCount) return false;
+        if (skippedContinuationCount != that.skippedContinuationCount) return false;
         return agentId != null ? agentId.equals(that.agentId) : that.agentId == null;
 
     }
@@ -135,20 +155,25 @@ public class TransactionBo implements AgentStatDataPoint {
         result = 31 * result + (int) (sampledContinuationCount ^ (sampledContinuationCount >>> 32));
         result = 31 * result + (int) (unsampledNewCount ^ (unsampledNewCount >>> 32));
         result = 31 * result + (int) (unsampledContinuationCount ^ (unsampledContinuationCount >>> 32));
+        result = 31 * result + (int) (skippedNewSkipCount ^ (skippedNewSkipCount >>> 32));
+        result = 31 * result + (int) (skippedContinuationCount ^ (skippedContinuationCount >>> 32));
         return result;
     }
 
     @Override
     public String toString() {
-        return "TransactionBo{" +
-                "agentId='" + agentId + '\'' +
-                ", startTimestamp=" + startTimestamp +
-                ", timestamp=" + timestamp +
-                ", collectInterval=" + collectInterval +
-                ", sampledNewCount=" + sampledNewCount +
-                ", sampledContinuationCount=" + sampledContinuationCount +
-                ", unsampledNewCount=" + unsampledNewCount +
-                ", unsampledContinuationCount=" + unsampledContinuationCount +
-                '}';
+        final StringBuilder sb = new StringBuilder("TransactionBo{");
+        sb.append("agentId='").append(agentId).append('\'');
+        sb.append(", startTimestamp=").append(startTimestamp);
+        sb.append(", timestamp=").append(timestamp);
+        sb.append(", collectInterval=").append(collectInterval);
+        sb.append(", sampledNewCount=").append(sampledNewCount);
+        sb.append(", sampledContinuationCount=").append(sampledContinuationCount);
+        sb.append(", unsampledNewCount=").append(unsampledNewCount);
+        sb.append(", unsampledContinuationCount=").append(unsampledContinuationCount);
+        sb.append(", skippedNewSkipCount=").append(skippedNewSkipCount);
+        sb.append(", skippedContinuationCount=").append(skippedContinuationCount);
+        sb.append('}');
+        return sb.toString();
     }
 }

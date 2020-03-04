@@ -1,0 +1,33 @@
+<div class="l-sidemenu2" [@chartAnimationTrigger]="chartAnimationTrigger">
+    <div class="l-title-group2">
+        <div class="l-selected-agent">
+            <label>Selected Agent</label>
+            <span [attr.title]="selectedAgent">{{selectedAgent}}</span>
+        </div>
+    </div>
+    <div class="l-contents-group">
+        <div class="l-chart-group-list">
+            <pp-scatter-chart-for-info-per-server-container [hidden]="!selectedTarget?.isWAS"></pp-scatter-chart-for-info-per-server-container>
+            <hr/>
+            <pp-response-summary-chart-container [sourceType]="'INFO_PER_SERVER'"></pp-response-summary-chart-container>
+            <hr/>
+            <pp-load-chart-container [sourceType]="'INFO_PER_SERVER'"></pp-load-chart-container>
+        </div>
+    </div>
+</div>
+<div class="l-sidemenu3" [@listAnimationTrigger]="listAnimationTrigger">
+    <div class="l-title-group3">
+        <span class="fas fa-file-alt"></span>
+        <span class="l-title">Servers List</span>
+    </div>
+    <div class="l-contents-group">
+        <ng-container *ngIf="agentHistogramData">
+            <pp-server-list-container 
+                [data]="agentHistogramData"
+                [selectedAgent]="selectedAgent"
+                (outSelectAgent)="onSelectAgent($event)"
+                (outOpenInspector)="onOpenInspector($event)">
+            </pp-server-list-container>
+        </ng-container>
+    </div>
+</div>

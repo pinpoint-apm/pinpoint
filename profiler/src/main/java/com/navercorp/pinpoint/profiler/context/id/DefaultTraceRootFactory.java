@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.profiler.context.id;
 
 import com.google.inject.Inject;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.module.AgentId;
 
 /**
@@ -27,30 +28,18 @@ public class DefaultTraceRootFactory implements TraceRootFactory {
 
     private final String agentId;
     private final TraceIdFactory traceIdFactory;
-    private final IdGenerator idGenerator;
 
     @Inject
-    public DefaultTraceRootFactory(@AgentId String agentId, TraceIdFactory traceIdFactory, IdGenerator idGenerator) {
-        if (agentId == null) {
-            throw new NullPointerException("agentId must not be null");
-        }
-        if (traceIdFactory == null) {
-            throw new NullPointerException("traceIdFactory must not be null");
-        }
-        if (idGenerator == null) {
-            throw new NullPointerException("idGenerator must not be null");
-        }
-        this.agentId = agentId;
-        this.traceIdFactory = traceIdFactory;
-        this.idGenerator = idGenerator;
+    public DefaultTraceRootFactory(@AgentId String agentId, TraceIdFactory traceIdFactory) {
+        this.agentId = Assert.requireNonNull(agentId, "agentId");
+        this.traceIdFactory = Assert.requireNonNull(traceIdFactory, "traceIdFactory");
     }
 
     @Override
-    public TraceRoot newTraceRoot() {
-        final long localTransactionId = idGenerator.nextTransactionId();
-        final TraceId traceId = traceIdFactory.newTraceId(localTransactionId);
+    public TraceRoot newTraceRoot(long transactionId) {
+        final TraceId traceId = traceIdFactory.newTraceId(transactionId);
         final long startTime = traceStartTime();
-        return new DefaultTraceRoot(traceId, this.agentId, startTime, localTransactionId);
+        return new DefaultTraceRoot(traceId, this.agentId, startTime, transactionId);
     }
 
     private long traceStartTime() {
@@ -59,12 +48,11 @@ public class DefaultTraceRootFactory implements TraceRootFactory {
 
 
     @Override
-    public TraceRoot continueTraceRoot(TraceId traceId) {
+    public TraceRoot continueTraceRoot(TraceId traceId, long transactionId) {
         if (traceId == null) {
-            throw new NullPointerException("traceId must not be null");
+            throw new NullPointerException("traceId");
         }
         final long startTime = traceStartTime();
-        final long continuedTransactionId = this.idGenerator.nextContinuedTransactionId();
-        return new DefaultTraceRoot(traceId, this.agentId, startTime, continuedTransactionId);
+        return new DefaultTraceRoot(traceId, this.agentId, startTime, transactionId);
     }
 }

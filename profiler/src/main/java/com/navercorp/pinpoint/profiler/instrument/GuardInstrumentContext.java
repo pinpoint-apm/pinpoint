@@ -35,7 +35,7 @@ public class GuardInstrumentContext implements InstrumentContext {
 
     public GuardInstrumentContext(InstrumentContext instrumentContext) {
         if (instrumentContext == null) {
-            throw new NullPointerException("instrumentContext must not be null");
+            throw new NullPointerException("instrumentContext");
         }
 
         this.instrumentContext = instrumentContext;

@@ -1,20 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-  ~ Copyright 2018 NAVER Corp.
-  ~
-  ~ Licensed under the Apache License, Version 2.0 (the "License");
-  ~ you may not use this file except in compliance with the License.
-  ~ You may obtain a copy of the License at
-  ~
-  ~ http://www.apache.org/licenses/LICENSE-2.0
-  ~
-  ~ Unless required by applicable law or agreed to in writing, software
-  ~ distributed under the License is distributed on an "AS IS" BASIS,
-  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  ~ See the License for the specific language governing permissions and
-  ~ limitations under the License.
-  -->
-
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:context="http://www.springframework.org/schema/context"
@@ -35,51 +19,46 @@
                         com.navercorp.pinpoint.collector.manage,
                         com.navercorp.pinpoint.collector.mapper,
                         com.navercorp.pinpoint.collector.util,
-                        com.navercorp.pinpoint.collector.config,
                         com.navercorp.pinpoint.collector.service,
                         com.navercorp.pinpoint.common.server.bo.codec,
                         com.navercorp.pinpoint.common.server.util,
                         com.navercorp.pinpoint.common.server.bo" />
 
-    <bean id="propertyConfigurer"
-          class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-        <property name="ignoreUnresolvablePlaceholders" value="true"/>
+    <bean id="collectorPropertyConfigurer" class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer">
         <property name="locations">
             <list>
                 <value>classpath:hbase.properties</value>
                 <value>classpath:pinpoint-collector.properties</value>
+                <value>classpath:pinpoint-collector-grpc.properties</value>
+                <value>classpath:jdbc.properties</value>
+                <!-- override configuration -->
+                <value>classpath:profiles/${pinpoint.profiles.active}/hbase-env.properties</value>
+                <value>classpath:profiles/${pinpoint.profiles.active}/pinpoint-collector-env.properties</value>
+                <value>classpath:profiles/${pinpoint.profiles.active}/pinpoint-collector-grpc-env.properties</value>
+                <value>classpath:profiles/${pinpoint.profiles.active}/jdbc-env.properties</value>
+                <!-- external property for override -->
+                <value>file:#{ systemProperties['pinpoint.collector.config.location'] ?: '-Dpinpoint.collector.config.location does not set' }</value>
             </list>
         </property>
 
+        <property name="fileEncoding" value="UTF-8"/>
+        <property name="ignoreUnresolvablePlaceholders" value="true"/>
+        <property name="ignoreResourceNotFound" value="true"/>
     </bean>
 
-    <util:properties id="pinpoint_collector_properties" location="classpath:pinpoint-collector.properties" />
+    <bean id="collectorConfiguration" class="com.navercorp.pinpoint.collector.config.CollectorConfiguration"/>
 
-    <bean id="collectorConfiguration" class="com.navercorp.pinpoint.collector.config.CollectorConfiguration">
-        <property name="properties" ref="pinpoint_collector_properties"/>
-    </bean>
+    <bean id="baseDataReceiverConfig" class="com.navercorp.pinpoint.collector.config.AgentBaseDataReceiverConfiguration"/>
 
-    <bean id="deprecatedConfig" class="com.navercorp.pinpoint.collector.config.DeprecatedConfiguration">
-        <constructor-arg ref="pinpoint_collector_properties"/>
-    </bean>
+    <bean id="statReceiverConfig" class="com.navercorp.pinpoint.collector.config.StatReceiverConfiguration"/>
 
-    <bean id="baseDataReceiverConfig" class="com.navercorp.pinpoint.collector.config.AgentBaseDataReceiverConfiguration">
-        <constructor-arg ref="pinpoint_collector_properties"/>
-        <constructor-arg ref="deprecatedConfig"/>
-    </bean>
+    <bean id="spanReceiverConfig" class="com.navercorp.pinpoint.collector.config.SpanReceiverConfiguration"/>
 
-    <bean id="statReceiverConfig" class="com.navercorp.pinpoint.collector.config.StatReceiverConfiguration">
-        <constructor-arg ref="pinpoint_collector_properties"/>
-        <constructor-arg ref="deprecatedConfig"/>
-    </bean>
-
-    <bean id="spanReceiverConfig" class="com.navercorp.pinpoint.collector.config.SpanReceiverConfiguration">
-        <constructor-arg ref="pinpoint_collector_properties"/>
-        <constructor-arg ref="deprecatedConfig"/>
-    </bean>
-
-    <import resource="classpath:applicationContext-hbase.xml"/>
+    <import resource="classpath:applicationContext-collector-profile.xml"/>
+    <import resource="classpath:applicationContext-collector-grpc.xml"/>
+    <import resource="classpath:applicationContext-collector-hbase.xml"/>
     <import resource="classpath:applicationContext-collector-namespace.xml"/>
+    <import resource="classpath:applicationContext-collector-flink.xml"/>
 
     <util:list id="cachedStatisticsDaoList" value-type="com.navercorp.pinpoint.collector.dao.CachedStatisticsDao">
         <beans:ref bean="hbaseMapStatisticsCallerDao"/>
@@ -124,38 +103,52 @@
     <bean id="hBaseManager" class="com.navercorp.pinpoint.collector.manage.HBaseManager">
     </bean>
 
+    <bean id="channelPropertiesFactory" class="com.navercorp.pinpoint.rpc.server.ChannelPropertiesFactory">
+        <constructor-arg value="${collector.receiver.channel.properties.key:#{null}}"/>
+    </bean>
     <!-- DispatchHandler-related Beans -->
-    <bean id="tcpDispatchHandler" class="com.navercorp.pinpoint.collector.receiver.thrift.TcpDispatchHandler"/>
+    <!-- Thrift -->
+    <bean id="tcpDispatchHandler" class="com.navercorp.pinpoint.collector.receiver.TcpDispatchHandler">
+        <constructor-arg ref="thriftAgentInfoHandler"/>
+        <constructor-arg ref="thriftSqlMetaDataHandler"/>
+        <constructor-arg ref="thriftApiMetaDataHandler"/>
+        <constructor-arg ref="thriftStringMetaDataHandler"/>
+    </bean>
+
     <bean id="tcpDispatchHandlerFactoryBean" class="com.navercorp.pinpoint.collector.receiver.thrift.DispatchHandlerFactoryBean">
         <constructor-arg ref="tcpDispatchHandler"/>
         <constructor-arg ref="handlerManager"/>
     </bean>
 
-    <bean id="statDispatchHandler" class="com.navercorp.pinpoint.collector.receiver.thrift.StatDispatchHandler"/>
+    <bean id="statDispatchHandler" class="com.navercorp.pinpoint.collector.receiver.StatDispatchHandler">
+        <constructor-arg ref="thriftAgentStatHandlerV2"/>
+        <constructor-arg ref="thriftAgentEventHandler"/>
+    </bean>
+
     <bean id="statDispatchHandlerFactoryBean" class="com.navercorp.pinpoint.collector.receiver.thrift.DispatchHandlerFactoryBean">
         <constructor-arg ref="statDispatchHandler"/>
         <constructor-arg ref="handlerManager"/>
     </bean>
 
-    <bean id="spanDispatchHandler" class="com.navercorp.pinpoint.collector.receiver.thrift.SpanDispatchHandler"/>
+    <bean id="spanDispatchHandler" class="com.navercorp.pinpoint.collector.receiver.SpanDispatchHandler">
+        <constructor-arg ref="thriftSpanHandler"/>
+        <constructor-arg ref="thriftSpanChunkHandler"/>
+    </bean>
     <bean id="spanDispatchHandlerFactoryBean" class="com.navercorp.pinpoint.collector.receiver.thrift.DispatchHandlerFactoryBean">
         <constructor-arg ref="spanDispatchHandler"/>
         <constructor-arg ref="handlerManager"/>
     </bean>
 
     <!-- Serializer Factory Beans -->
-    <bean id="commandHeaderTBaseSerializerFactory" class="com.navercorp.pinpoint.thrift.io.CommandHeaderTBaseSerializerFactory">
+    <bean id="commandHeaderTBaseSerializerFactory" class="com.navercorp.pinpoint.thrift.io.CommandHeaderTBaseSerializerFactory" factory-method="getDefaultInstance">
     </bean>
-    <bean id="agentEventHeaderTBaseSerializerFactory" class="com.navercorp.pinpoint.thrift.io.AgentEventHeaderTBaseSerializerFactory">
-    </bean>
-
-    <bean id="commandHeaderTBaseDeserializerFactory" class="com.navercorp.pinpoint.thrift.io.CommandHeaderTBaseDeserializerFactory">
+    <bean id="commandHeaderTBaseDeserializerFactory" class="com.navercorp.pinpoint.thrift.io.CommandHeaderTBaseDeserializerFactory" factory-method="getDefaultInstance">
     </bean>
 
     <!-- Agent Event/Lifecycle related Beans -->
     <task:annotation-driven />
 
-    <bean id="agentEventWorker" class="com.navercorp.pinpoint.common.server.util.ThreadPoolExecutorFactoryBean" >
+    <bean id="agentEventWorker" class="com.navercorp.pinpoint.common.server.util.PinpointThreadPoolExecutorFactoryBean" >
         <property name="corePoolSize" value="#{collectorConfiguration.agentEventWorkerThreadSize}"/>
         <property name="maxPoolSize" value="#{collectorConfiguration.agentEventWorkerThreadSize}"/>
         <property name="queueCapacity" value="#{collectorConfiguration.agentEventWorkerQueueSize}"/>
@@ -168,7 +161,7 @@
 
     <bean id="agentEventMessageSerializerV1" class="com.navercorp.pinpoint.common.server.util.AgentEventMessageSerializerV1"/>
 
-    <bean id="agentLifeCycleChangeEventHandler" class="com.navercorp.pinpoint.collector.receiver.thrift.tcp.AgentLifeCycleChangeEventHandler"/>
+    <bean id="agentLifeCycleChangeEventHandler" class="com.navercorp.pinpoint.collector.receiver.AgentLifeCycleChangeEventHandler"/>
 
     <!-- Route Filters -->
     <bean id="loggingRouteFilter" class="com.navercorp.pinpoint.collector.cluster.route.filter.LoggingFilter"/>
@@ -254,10 +247,10 @@
     </bean>
 
     <bean id="baseAcceptorOptionBuilder" class="com.navercorp.pinpoint.rpc.server.ServerOption.Builder">
-        <property name="requestTimeoutMillis" value="#{pinpoint_collector_properties['collector.receiver.base.request.timeout'] ?: 3000}"/>
-        <property name="serverCloseWaitTimeoutMillis"  value="#{pinpoint_collector_properties['collector.receiver.base.closewait.timeout'] ?: 3000}"/>
-        <property name="healthCheckIntervalTimeMillis"  value="#{pinpoint_collector_properties['collector.receiver.base.ping.interval'] ?: 300000}"/>
-        <property name="healthCheckPacketWaitTimeMillis"  value="#{pinpoint_collector_properties['collector.receiver.base.pingwait.timeout'] ?: 1800000}"/>
+        <property name="requestTimeoutMillis" value="${collector.receiver.base.request.timeout:3000}"/>
+        <property name="serverCloseWaitTimeoutMillis"  value="${collector.receiver.base.closewait.timeout:3000}"/>
+        <property name="healthCheckIntervalTimeMillis"  value="${collector.receiver.base.ping.interval:300000}"/>
+        <property name="healthCheckPacketWaitTimeMillis"  value="${collector.receiver.base.pingwait.timeout:1800000}"/>
     </bean>
     <bean id="baseAcceptorOption" class="com.navercorp.pinpoint.rpc.server.ServerOption" factory-bean="baseAcceptorOptionBuilder" factory-method="build"/>
     <bean id="acceptor" class="com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor">
@@ -265,6 +258,7 @@
         <constructor-arg ref="channelFilter"/>
     </bean>
 
+    <bean id="abortPolicy" class="java.util.concurrent.ThreadPoolExecutor.AbortPolicy"/>
     <bean id="discardPolicy" class="java.util.concurrent.ThreadPoolExecutor.DiscardPolicy"/>
     <bean id="abstractReceiverExecutorFactoryBean" class="com.navercorp.pinpoint.collector.receiver.thrift.ExecutorFactoryBean" abstract="true">
         <property name="rejectedExecutionHandler" ref="discardPolicy"/>
@@ -301,6 +295,8 @@
 
     <bean id="networkAvailabilityCheckPacketFilter" class="com.navercorp.pinpoint.collector.receiver.thrift.udp.NetworkAvailabilityCheckPacketFilter"/>
 
+    <bean id="agentEventAsyncTask" class="com.navercorp.pinpoint.collector.service.async.AgentEventAsyncTaskService"/>
+    <bean id="agentLifeCycleAsyncTask" class="com.navercorp.pinpoint.collector.service.async.AgentLifeCycleAsyncTaskService"/>
 
     <!-- span receiver configuration start -->
     <bean id="spanReceiverExecutor" class="com.navercorp.pinpoint.collector.receiver.thrift.ExecutorFactoryBean" parent="abstractReceiverExecutorFactoryBean">
@@ -318,15 +314,15 @@
         <property name="udpBufferSize" value="#{spanReceiverConfig.udpReceiveBufferSize}"/>
         <!-- TCP & UDP share threadpool for span -->
         <property name="executor" ref="spanReceiverExecutor"/>
-        <property name="datagramPoolSize" value="#{ statReceiverConfig.workerQueueSize + statReceiverConfig.workerThreadSize }"/>
+        <property name="datagramPoolSize" value="#{ spanReceiverConfig.workerQueueSize + spanReceiverConfig.workerThreadSize }"/>
         <property name="enable" value="#{spanReceiverConfig.isUdpEnable()}"/>
     </bean>
 
     <bean id="spanAcceptorOptionBuilder" class="com.navercorp.pinpoint.rpc.server.ServerOption.Builder">
-        <property name="requestTimeoutMillis" value="#{pinpoint_collector_properties['collector.receiver.span.tcp.request.timeout'] ?: 3000}"/>
-        <property name="serverCloseWaitTimeoutMillis"  value="#{pinpoint_collector_properties['collector.receiver.span.tcp.closewait.timeout'] ?: 3000}"/>
-        <property name="healthCheckIntervalTimeMillis"  value="#{pinpoint_collector_properties['collector.receiver.span.tcp.ping.interval'] ?: 300000}"/>
-        <property name="healthCheckPacketWaitTimeMillis"  value="#{pinpoint_collector_properties['collector.receiver.span.tcp.pingwait.timeout'] ?: 1800000}"/>
+        <property name="requestTimeoutMillis" value="${collector.receiver.span.tcp.request.timeout: 3000}"/>
+        <property name="serverCloseWaitTimeoutMillis"  value="${collector.receiver.span.tcp.closewait.timeout: 3000}"/>
+        <property name="healthCheckIntervalTimeMillis"  value="${collector.receiver.span.tcp.ping.interval: 300000}"/>
+        <property name="healthCheckPacketWaitTimeMillis"  value="${collector.receiver.span.tcp.pingwait.timeout: 1800000}"/>
     </bean>
     <bean id="spanAcceptorOption" class="com.navercorp.pinpoint.rpc.server.ServerOption" factory-bean="spanAcceptorOptionBuilder" factory-method="build"/>
     <bean id="spanAcceptorProvider" class="com.navercorp.pinpoint.collector.receiver.thrift.PinpointServerAcceptorProvider">
@@ -366,10 +362,10 @@
     </bean>
 
     <bean id="statAcceptorOptionBuilder" class="com.navercorp.pinpoint.rpc.server.ServerOption.Builder">
-        <property name="requestTimeoutMillis" value="#{pinpoint_collector_properties['collector.receiver.stat.tcp.request.timeout'] ?: 3000}"/>
-        <property name="serverCloseWaitTimeoutMillis"  value="#{pinpoint_collector_properties['collector.receiver.stat.tcp.closewait.timeout'] ?: 3000}"/>
-        <property name="healthCheckIntervalTimeMillis"  value="#{pinpoint_collector_properties['collector.receiver.stat.tcp.ping.interval'] ?: 300000}"/>
-        <property name="healthCheckPacketWaitTimeMillis"  value="#{pinpoint_collector_properties['collector.receiver.stat.tcp.pingwait.timeout'] ?: 1800000}"/>
+        <property name="requestTimeoutMillis" value="${collector.receiver.stat.tcp.request.timeout:3000}"/>
+        <property name="serverCloseWaitTimeoutMillis"  value="${collector.receiver.stat.tcp.closewait.timeout:3000}"/>
+        <property name="healthCheckIntervalTimeMillis"  value="${collector.receiver.stat.tcp.ping.interval:300000}"/>
+        <property name="healthCheckPacketWaitTimeMillis"  value="${collector.receiver.stat.tcp.pingwait.timeout:1800000}"/>
     </bean>
     <bean id="statAcceptorOption" class="com.navercorp.pinpoint.rpc.server.ServerOption" factory-bean="statAcceptorOptionBuilder" factory-method="build"/>
     <bean id="statAcceptorProvider" class="com.navercorp.pinpoint.collector.receiver.thrift.PinpointServerAcceptorProvider">
@@ -386,16 +382,15 @@
         <property name="executor" ref="statReceiverExecutor"/>
         <property name="enable" value="#{statReceiverConfig.isTcpEnable()}"/>
     </bean>
-    <!-- end receiver configuration -->
+
 
     <bean id="jsonObjectMapper" class="com.fasterxml.jackson.databind.ObjectMapper">
     </bean>
 
-    <bean id="hTable" class="com.navercorp.pinpoint.common.hbase.HBaseTables">
-    </bean>
-
     <bean id="callerMerge" class="com.navercorp.pinpoint.collector.dao.hbase.statistics.RowKeyMerge">
-        <constructor-arg value="#{hTable.MAP_STATISTICS_CALLEE_VER2_CF_COUNTER}"/>
+        <constructor-arg index="0">
+            <util:constant static-field="com.navercorp.pinpoint.common.hbase.HbaseColumnFamily.MAP_STATISTICS_CALLER_VER2_COUNTER"/>
+        </constructor-arg>
     </bean>
 
     <bean id="callerBulkIncrementer" class="com.navercorp.pinpoint.collector.dao.hbase.statistics.BulkIncrementer">
@@ -403,7 +398,9 @@
     </bean>
 
     <bean id="calleeMerge" class="com.navercorp.pinpoint.collector.dao.hbase.statistics.RowKeyMerge">
-        <constructor-arg value="#{hTable.MAP_STATISTICS_CALLER_VER2_CF_COUNTER}"/>
+        <constructor-arg index="0">
+            <util:constant static-field="com.navercorp.pinpoint.common.hbase.HbaseColumnFamily.MAP_STATISTICS_CALLEE_VER2_COUNTER"/>
+        </constructor-arg>
     </bean>
 
     <bean id="calleeBulkIncrementer" class="com.navercorp.pinpoint.collector.dao.hbase.statistics.BulkIncrementer">
@@ -411,14 +408,16 @@
     </bean>
 
     <bean id="selfMerge" class="com.navercorp.pinpoint.collector.dao.hbase.statistics.RowKeyMerge">
-        <constructor-arg value="#{hTable.MAP_STATISTICS_SELF_VER2_CF_COUNTER}"/>
+        <constructor-arg index="0">
+            <util:constant static-field="com.navercorp.pinpoint.common.hbase.HbaseColumnFamily.MAP_STATISTICS_SELF_VER2_COUNTER"/>
+        </constructor-arg>
     </bean>
 
     <bean id="selfBulkIncrementer" class="com.navercorp.pinpoint.collector.dao.hbase.statistics.BulkIncrementer">
         <constructor-arg ref="selfMerge"/>
     </bean>
 
-    <bean id="timeSlot" class="com.navercorp.pinpoint.common.util.DefaultTimeSlot">
+    <bean id="timeSlot" class="com.navercorp.pinpoint.common.server.util.DefaultTimeSlot">
     </bean>
 
     <bean id="slf4jCommonLoggerFactory" class="com.navercorp.pinpoint.common.server.util.Slf4jCommonLoggerFactory">
@@ -428,40 +427,12 @@
         <constructor-arg index="0" ref="slf4jCommonLoggerFactory"/>
     </bean>
 
-    <bean id="serviceTypeRegistryService" class="com.navercorp.pinpoint.common.service.DefaultServiceTypeRegistryService">
+    <bean id="serviceTypeRegistryService" class="com.navercorp.pinpoint.loader.service.DefaultServiceTypeRegistryService">
         <constructor-arg ref="typeLoaderService"/>
-        <constructor-arg ref="slf4jCommonLoggerFactory"/>
     </bean>
 
     <bean id="sequenceSpanEventFilter" class="com.navercorp.pinpoint.common.server.bo.filter.SequenceSpanEventFilter">
         <constructor-arg index="0" value="${collector.spanEvent.sequence.limit:10000}"/>
     </bean>
 
-    <bean id ="sendAgentStatService" class="com.navercorp.pinpoint.collector.service.SendAgentStatService">
-        <constructor-arg index="0" ref="collectorConfiguration"/>
-    </bean>
-
-    <bean id="tcpDataSenderRepository" class="com.navercorp.pinpoint.collector.cluster.flink.TcpDataSenderRepository">
-        <constructor-arg index="0" ref="sendAgentStatService"/>
-    </bean>
-
-    <bean id="flinkTBaseLocator" class="com.navercorp.pinpoint.thrift.io.FlinkTBaseLocator">
-        <constructor-arg index="0">
-            <util:constant static-field="com.navercorp.pinpoint.io.header.v2.HeaderV2.VERSION"/>
-        </constructor-arg>
-    </bean>
-    <bean id="flinkHeaderTBaseSerializerFactory" class="com.navercorp.pinpoint.thrift.io.FlinkHeaderTBaseSerializerFactory">
-        <constructor-arg index="0" value="#{flinkTBaseLocator.typeLocator}"/>
-    </bean>
-    <bean id="flinkRequestFactory" class="com.navercorp.pinpoint.collector.sender.FlinkRequestFactory"/>
-    <bean id="flinkClusterConnectionManager" class="com.navercorp.pinpoint.collector.cluster.flink.FlinkClusterConnectionManager">
-        <constructor-arg index="0" ref="tcpDataSenderRepository"/>
-        <constructor-arg index="1" ref="flinkHeaderTBaseSerializerFactory"/>
-        <constructor-arg index="2" ref="flinkRequestFactory"/>
-    </bean>
-
-    <bean id="flinkClusterService" class="com.navercorp.pinpoint.collector.cluster.flink.FlinkClusterService">
-        <constructor-arg index="0" ref="collectorConfiguration"/>
-        <constructor-arg index="1" ref="flinkClusterConnectionManager"/>
-    </bean>
 </beans>

@@ -57,7 +57,8 @@ public class NodeListFactory {
 
             final Application toApplication = linkData.getToApplication();
             // FROM -> TO : TO is either a CLIENT or a node
-            if (!toApplication.getServiceType().isRpcClient()) {
+            // create node when it's alias even if RPC
+            if (!toApplication.getServiceType().isRpcClient() || toApplication.getServiceType().isAlias()) {
                 final boolean success = addNode(nodeList, nodeType, toApplication);
                 if (success) {
                     logger.debug("createTargetNode:{}", toApplication);

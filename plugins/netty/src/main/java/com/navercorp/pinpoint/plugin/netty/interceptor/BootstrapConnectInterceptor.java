@@ -18,11 +18,8 @@ package com.navercorp.pinpoint.plugin.netty.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
-import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.logging.PLogger;
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
 import com.navercorp.pinpoint.plugin.netty.NettyConstants;
 import com.navercorp.pinpoint.plugin.netty.NettyUtils;
 
@@ -31,61 +28,30 @@ import java.net.SocketAddress;
 /**
  * @author Taejin Koo
  */
-public class BootstrapConnectInterceptor implements AroundInterceptor {
-
-    private final PLogger logger = PLoggerFactory.getLogger(getClass());
-    private final boolean isDebug = logger.isDebugEnabled();
-
-    private final TraceContext traceContext;
-    private final MethodDescriptor descriptor;
+public class BootstrapConnectInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
 
     public BootstrapConnectInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
-        this.traceContext = traceContext;
-        this.descriptor = descriptor;
+        super(traceContext, descriptor);
     }
 
     @Override
-    public void before(Object target, Object[] args) {
-        if (isDebug) {
-            logger.beforeInterceptor(target, args);
-        }
-
-        Trace trace = traceContext.currentTraceObject();
-        if (trace == null) {
-            return;
-        }
-
-        final SpanEventRecorder recorder = trace.traceBlockBegin();
+    protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
         recorder.recordServiceType(NettyConstants.SERVICE_TYPE);
     }
 
     @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable) {
-        if (isDebug) {
-            logger.afterInterceptor(target, args);
-        }
+    protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
+        recorder.recordApi(methodDescriptor);
+        recorder.recordException(throwable);
 
-        Trace trace = traceContext.currentTraceObject();
-        if (trace == null) {
+        if (args == null || args.length == 0 || !(args[0] instanceof SocketAddress)) {
             return;
         }
 
-        try {
-            SpanEventRecorder recorder = trace.currentSpanEventRecorder();
-            recorder.recordApi(descriptor);
-            recorder.recordException(throwable);
+        SocketAddress address = (SocketAddress) args[0];
+        String endPoint = NettyUtils.getEndPoint(address);
 
-            if (args.length == 0 || !(args[0] instanceof SocketAddress)) {
-                return;
-            }
-
-            SocketAddress address = (SocketAddress) args[0];
-            String endPoint = NettyUtils.getEndPoint(address);
-
-            recorder.recordAttribute(NettyConstants.NETTY_ADDRESS, endPoint);
-        } finally {
-            trace.traceBlockEnd();
-        }
+        recorder.recordAttribute(NettyConstants.NETTY_ADDRESS, endPoint);
     }
 
 }

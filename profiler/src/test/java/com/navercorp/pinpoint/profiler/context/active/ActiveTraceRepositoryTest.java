@@ -210,7 +210,7 @@ public class ActiveTraceRepositoryTest {
 
         private TraceThreadTuple(Trace trace, long threadId) {
             if (trace == null) {
-                throw new NullPointerException("trace must not be null");
+                throw new NullPointerException("trace");
             }
             this.id = trace.getId();
             this.startTime = trace.getStartTime();

@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.web.service;
 
-import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
+import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.vo.Application;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +34,7 @@ public class DefaultApplicationFactory implements ApplicationFactory {
     @Override
     public Application createApplication(String applicationName, short serviceTypeCode) {
         if (applicationName == null) {
-            throw new NullPointerException("applicationName must not be null");
+            throw new NullPointerException("applicationName");
         }
 
         final ServiceType serviceType = registry.findServiceType(serviceTypeCode);
@@ -49,10 +49,10 @@ public class DefaultApplicationFactory implements ApplicationFactory {
     @Override
     public Application createApplicationByTypeName(String applicationName, String serviceTypeName) {
         if (applicationName == null) {
-            throw new NullPointerException("applicationName must not be null");
+            throw new NullPointerException("applicationName");
         }
         if (serviceTypeName == null) {
-            throw new NullPointerException("serviceTypeName must not be null");
+            throw new NullPointerException("serviceTypeName");
         }
 
         final ServiceType serviceType = registry.findServiceTypeByName(serviceTypeName);

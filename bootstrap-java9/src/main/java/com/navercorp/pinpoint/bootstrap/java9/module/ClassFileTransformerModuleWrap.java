@@ -31,7 +31,7 @@ public class ClassFileTransformerModuleWrap implements ClassFileTransformer {
 
     public ClassFileTransformerModuleWrap(ClassFileTransformModuleAdaptor delegate) {
         if (delegate == null) {
-            throw new NullPointerException("delegate must not be null");
+            throw new NullPointerException("delegate");
         }
         this.delegate = delegate;
     }

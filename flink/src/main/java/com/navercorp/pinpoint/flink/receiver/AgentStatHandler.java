@@ -25,19 +25,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.atomic.AtomicInteger;
+
 
 /**
  * @author minwoo.jung
  */
-public class AgentStatHandler implements SimpleHandler {
+public class AgentStatHandler extends SourceContextManager implements SimpleHandler {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    private final List<SourceContext> sourceContextList = new CopyOnWriteArrayList<>();
-    private AtomicInteger callCount = new AtomicInteger(1);
 
     @Override
     public void handleSimple(ServerRequest serverRequest) {
@@ -49,39 +45,13 @@ public class AgentStatHandler implements SimpleHandler {
         final Map<String, String> metaInfo = new HashMap<>(serverRequest.getHeaderEntity().getEntityAll());
         final RawData rawData = new RawData(tBase, metaInfo);
         final SourceContext sourceContext = roundRobinSourceContext();
-        sourceContext.collect(rawData);
 
         if (sourceContext == null) {
             logger.warn("sourceContext is null.");
             return;
         }
-    }
 
-    public void addSourceContext(SourceContext sourceContext) {
-        logger.info("add sourceContext.");
-        sourceContextList.add(sourceContext);
-    }
+        sourceContext.collect(rawData);
 
-    private SourceContext roundRobinSourceContext() {
-        if (sourceContextList.isEmpty()) {
-            logger.warn("sourceContextList is empty.");
-            return null;
-        }
-
-        int count = callCount.getAndIncrement();
-        int sourceContextListIndex = count % sourceContextList.size();
-
-        if (sourceContextListIndex < 0) {
-            sourceContextListIndex = sourceContextListIndex * -1;
-            callCount.set(0);
-        }
-
-        try {
-            return sourceContextList.get(sourceContextListIndex);
-        } catch (Exception e) {
-            logger.warn("not get sourceContext", e);
-        }
-
-        return null;
     }
 }

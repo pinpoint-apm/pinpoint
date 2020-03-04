@@ -27,7 +27,7 @@ public class Stack<T> {
 
     public void push(T obj) {
         if (obj == null) {
-            throw new NullPointerException("obj must not be null");
+            throw new NullPointerException("obj");
         }
 
         stack.add(obj);

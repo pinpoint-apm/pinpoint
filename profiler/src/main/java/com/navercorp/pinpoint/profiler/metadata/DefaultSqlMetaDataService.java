@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,8 @@
 
 package com.navercorp.pinpoint.profiler.metadata;
 
-import com.google.inject.Inject;
-import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.ParsingResult;
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,17 +34,11 @@ public class DefaultSqlMetaDataService implements SqlMetaDataService {
 
     private final EnhancedDataSender<Object> enhancedDataSender;
 
-    @Inject
-    public DefaultSqlMetaDataService(ProfilerConfig profilerConfig, EnhancedDataSender<Object> enhancedDataSender) {
-        this(enhancedDataSender, profilerConfig.getJdbcSqlCacheSize());
-    }
+    public DefaultSqlMetaDataService(EnhancedDataSender<Object> enhancedDataSender, SimpleCache<String> sqlCache) {
+        this.enhancedDataSender = Assert.requireNonNull(enhancedDataSender, "enhancedDataSender");
 
-    public DefaultSqlMetaDataService(EnhancedDataSender<Object> enhancedDataSender, int jdbcSqlCacheSize) {
-        if (enhancedDataSender == null) {
-            throw new NullPointerException("enhancedDataSender must not be null");
-        }
-        this.enhancedDataSender = enhancedDataSender;
-        this.cachingSqlNormalizer = new DefaultCachingSqlNormalizer(jdbcSqlCacheSize);
+        Assert.requireNonNull(sqlCache, "sqlCache");
+        this.cachingSqlNormalizer = new DefaultCachingSqlNormalizer(sqlCache);
     }
 
     @Override

@@ -52,7 +52,7 @@ public class CubridJdbcUrlParser implements JdbcUrlParserV2 {
     @Override
     public DatabaseInfo parse(String jdbcUrl) {
         if (jdbcUrl == null) {
-            logger.info("jdbcUrl must not be null");
+            logger.info("jdbcUrl");
             return UnKnownDatabaseInfo.INSTANCE;
         }
         final Matcher matcher = PREFIX_PATTERN.matcher(jdbcUrl);

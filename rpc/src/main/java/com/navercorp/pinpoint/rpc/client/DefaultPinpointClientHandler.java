@@ -17,17 +17,47 @@
 package com.navercorp.pinpoint.rpc.client;
 
 import com.navercorp.pinpoint.common.util.Assert;
-import com.navercorp.pinpoint.rpc.*;
+import com.navercorp.pinpoint.rpc.ChannelWriteCompleteListenableFuture;
+import com.navercorp.pinpoint.rpc.ChannelWriteFailListenableFuture;
+import com.navercorp.pinpoint.rpc.DefaultFuture;
+import com.navercorp.pinpoint.rpc.Future;
+import com.navercorp.pinpoint.rpc.MessageListener;
+import com.navercorp.pinpoint.rpc.PinpointSocket;
+import com.navercorp.pinpoint.rpc.PinpointSocketException;
+import com.navercorp.pinpoint.rpc.ResponseMessage;
+import com.navercorp.pinpoint.rpc.StateChangeEventListener;
 import com.navercorp.pinpoint.rpc.client.ConnectFuture.Result;
 import com.navercorp.pinpoint.rpc.cluster.ClusterOption;
 import com.navercorp.pinpoint.rpc.common.SocketStateChangeResult;
 import com.navercorp.pinpoint.rpc.common.SocketStateCode;
-import com.navercorp.pinpoint.rpc.packet.*;
+import com.navercorp.pinpoint.rpc.packet.ClientClosePacket;
+import com.navercorp.pinpoint.rpc.packet.ControlHandshakeResponsePacket;
+import com.navercorp.pinpoint.rpc.packet.HandshakeResponseCode;
+import com.navercorp.pinpoint.rpc.packet.Packet;
+import com.navercorp.pinpoint.rpc.packet.PacketType;
+import com.navercorp.pinpoint.rpc.packet.PingPayloadPacket;
+import com.navercorp.pinpoint.rpc.packet.RequestPacket;
+import com.navercorp.pinpoint.rpc.packet.ResponsePacket;
+import com.navercorp.pinpoint.rpc.packet.SendPacket;
 import com.navercorp.pinpoint.rpc.packet.stream.StreamPacket;
-import com.navercorp.pinpoint.rpc.stream.*;
+import com.navercorp.pinpoint.rpc.stream.ClientStreamChannel;
+import com.navercorp.pinpoint.rpc.stream.ClientStreamChannelEventHandler;
+import com.navercorp.pinpoint.rpc.stream.ServerStreamChannelMessageHandler;
+import com.navercorp.pinpoint.rpc.stream.StreamChannelManager;
+import com.navercorp.pinpoint.rpc.stream.StreamException;
 import com.navercorp.pinpoint.rpc.util.ClassUtils;
 import com.navercorp.pinpoint.rpc.util.IDGenerator;
-import org.jboss.netty.channel.*;
+
+import org.jboss.netty.channel.Channel;
+import org.jboss.netty.channel.ChannelException;
+import org.jboss.netty.channel.ChannelFuture;
+import org.jboss.netty.channel.ChannelFutureListener;
+import org.jboss.netty.channel.ChannelHandlerContext;
+import org.jboss.netty.channel.ChannelStateEvent;
+import org.jboss.netty.channel.Channels;
+import org.jboss.netty.channel.ExceptionEvent;
+import org.jboss.netty.channel.MessageEvent;
+import org.jboss.netty.channel.SimpleChannelHandler;
 import org.jboss.netty.util.Timeout;
 import org.jboss.netty.util.Timer;
 import org.jboss.netty.util.TimerTask;
@@ -46,6 +76,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class DefaultPinpointClientHandler extends SimpleChannelHandler implements PinpointClientHandler {
 
+    private static final String WRITE_BUFFER_FULL_MESSAGE = "write buffer is full";
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final AtomicInteger pingIdGenerator;
@@ -61,7 +93,7 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
     private volatile PinpointClient pinpointClient;
 
     private final MessageListener messageListener;
-    private final ServerStreamChannelMessageListener serverStreamChannelMessageListener;
+    private final ServerStreamChannelMessageHandler serverStreamChannelMessageHandler;
 
     private final RequestManager requestManager;
 
@@ -84,33 +116,33 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
                                         ClusterOption localClusterOption, ClientOption clientOption,
                                         Timer channelTimer,
                                         MessageListener messageListener,
-                                        ServerStreamChannelMessageListener serverStreamChannelMessageListener,
+                                        ServerStreamChannelMessageHandler serverStreamChannelMessageHandler,
                                         List<StateChangeEventListener> stateChangeEventListeners) {
 
-        this.connectionFactory = Assert.requireNonNull(connectionFactory,   "clientFactory must not be null");
-        this.socketAddressProvider = Assert.requireNonNull(socketAddressProvider, "socketAddressProvider must not be null");
+        this.connectionFactory = Assert.requireNonNull(connectionFactory, "clientFactory");
+        this.socketAddressProvider = Assert.requireNonNull(socketAddressProvider, "socketAddressProvider");
 
-        this.channelTimer = Assert.requireNonNull(channelTimer, "channelTimer must not be null");
+        this.channelTimer = Assert.requireNonNull(channelTimer, "channelTimer");
         this.requestManager = new RequestManager(channelTimer, clientOption.getRequestTimeoutMillis());
-        this.clientOption = Assert.requireNonNull(clientOption, "clientOption must not be null");
+        this.clientOption = Assert.requireNonNull(clientOption, "clientOption");
 
 
-        this.messageListener = Assert.requireNonNull(messageListener, "messageListener must not be null");
-        this.serverStreamChannelMessageListener = Assert.requireNonNull(serverStreamChannelMessageListener, "serverStreamChannelMessageListener must not be null");
+        this.messageListener = Assert.requireNonNull(messageListener, "messageListener");
+        this.serverStreamChannelMessageHandler = Assert.requireNonNull(serverStreamChannelMessageHandler, "serverStreamChannelMessageHandler");
 
         this.objectUniqName = ClassUtils.simpleClassNameAndHashCodeString(this);
-        this.handshaker = Assert.requireNonNull(handshaker, "handshaker must not be null");
+        this.handshaker = Assert.requireNonNull(handshaker, "handshaker");
 
         this.pingIdGenerator = new AtomicInteger(0);
         this.state = new PinpointClientHandlerState(this.objectUniqName, this, stateChangeEventListeners);
 
-        this.localClusterOption = Assert.requireNonNull(localClusterOption, "clusterOption must not be null");
+        this.localClusterOption = Assert.requireNonNull(localClusterOption, "clusterOption");
 
     }
 
     public void setPinpointClient(PinpointClient pinpointClient) {
         if (pinpointClient == null) {
-            throw new NullPointerException("pinpointClient must not be null");
+            throw new NullPointerException("pinpointClient");
         }
         this.pinpointClient = pinpointClient;
     }
@@ -156,7 +188,7 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
     }
 
     private void prepareChannel(Channel channel) {
-        StreamChannelManager streamChannelManager = new StreamChannelManager(channel, IDGenerator.createOddIdGenerator(), serverStreamChannelMessageListener);
+        StreamChannelManager streamChannelManager = new StreamChannelManager(channel, IDGenerator.createOddIdGenerator(), serverStreamChannelMessageHandler);
 
         PinpointClientHandlerContext context = new PinpointClientHandlerContext(channel, streamChannelManager);
         channel.setAttachment(context);
@@ -330,24 +362,11 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
     }
 
     @Override
-    public ClientStreamChannelContext openStream(byte[] payload, ClientStreamChannelMessageListener messageListener) {
-        return openStream(payload, messageListener, null);
-    }
-
-    @Override
-    public ClientStreamChannelContext openStream(byte[] payload, ClientStreamChannelMessageListener messageListener, StreamChannelStateChangeEventHandler<ClientStreamChannel> stateChangeListener) {
+    public ClientStreamChannel openStream(byte[] payload, ClientStreamChannelEventHandler streamChannelEventHandler) throws StreamException {
         ensureOpen();
 
         PinpointClientHandlerContext context = getChannelContext(channel);
-        return context.openStream(payload, messageListener, stateChangeListener);
-    }
-
-    @Override
-    public StreamChannelContext findStreamChannel(int streamChannelId) {
-        ensureOpen();
-
-        PinpointClientHandlerContext context = getChannelContext(channel);
-        return context.getStreamChannel(streamChannelId);
+        return context.openStream(payload, streamChannelEventHandler);
     }
 
     @Override
@@ -511,7 +530,7 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
             return;
         }
 
-        // stream channel clear and send stream close packet 
+        // stream channel clear and send stream close packet
         PinpointClientHandlerContext context = getChannelContext(channel);
         if (context != null) {
             context.closeAllStreamChannel();
@@ -567,19 +586,22 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
         connectionFactory.reconnect(this.pinpointClient, this.socketAddressProvider);
     }
 
-    private ChannelFuture write0(Object message) {
-        return channel.write(message);
-    }
-
     private ChannelFuture write0(Object message, ChannelFutureListener futureListener) {
         if (futureListener == null) {
-            throw new NullPointerException("futureListener must not be null");
+            throw new NullPointerException("futureListener");
         }
-        ChannelFuture future = channel.write(message);
+        ChannelFuture future = write0(message);
         future.addListener(futureListener);
         return future;
     }
 
+    private ChannelFuture write0(Object message) {
+        if (channel.isWritable()) {
+            return channel.write(message);
+        } else {
+            return Channels.failedFuture(channel, new ChannelException(WRITE_BUFFER_FULL_MESSAGE));
+        }
+    }
 
     @Override
     public ConnectFuture getConnectFuture() {
@@ -593,7 +615,7 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
 
     private PinpointClientHandlerContext getChannelContext(Channel channel) {
         if (channel == null) {
-            throw new NullPointerException("channel must not be null");
+            throw new NullPointerException("channel");
         }
         return (PinpointClientHandlerContext) channel.getAttachment();
     }
@@ -601,11 +623,6 @@ public class DefaultPinpointClientHandler extends SimpleChannelHandler implement
     @Override
     public boolean isConnected() {
         return this.state.isEnableCommunication();
-    }
-
-    @Override
-    public boolean isSupportServerMode() {
-        return messageListener != SimpleMessageListener.INSTANCE;
     }
 
     @Override

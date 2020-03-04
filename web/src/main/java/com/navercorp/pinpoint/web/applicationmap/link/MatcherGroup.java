@@ -33,7 +33,7 @@ public abstract class MatcherGroup {
 
     public void setDefaultMatcher(ServerMatcher defaultMatcher) {
         if (defaultMatcher == null) {
-            throw new NullPointerException("defaultMatcher must not be null");
+            throw new NullPointerException("defaultMatcher");
         }
         this.defaultMatcher = defaultMatcher;
     }
@@ -44,7 +44,7 @@ public abstract class MatcherGroup {
 
     public void addServerMatcher(ServerMatcher serverMatcher) {
         if (serverMatcher == null) {
-            throw new NullPointerException("serverMatcher must not be null");
+            throw new NullPointerException("serverMatcher");
         }
         serverMatcherList.add(serverMatcher);
     }
@@ -63,7 +63,7 @@ public abstract class MatcherGroup {
         String value = getMatchingSource(data);
         
         if (value == null) {
-            throw new NullPointerException("link source to make link information must not be null.");
+            throw new NullPointerException("link source to make link information");
         }
 
         for (ServerMatcher matcher : serverMatcherList) {

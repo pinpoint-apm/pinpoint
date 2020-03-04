@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.web.util;
 
-import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
+import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeCategory;
 import com.navercorp.pinpoint.common.trace.ServiceTypeProperty;
@@ -73,6 +73,9 @@ public class ServiceTypeRegistryMockFactory {
                     break;
                 case INCLUDE_DESTINATION_ID:
                     when(mockServiceType.isIncludeDestinationId()).thenReturn(true);
+                    break;
+                case ALIAS:
+                    when(mockServiceType.isAlias()).thenReturn(true);
                     break;
                 default:
                     throw new IllegalArgumentException("Unknown serviceTypeProperty : " + serviceTypeProperty);

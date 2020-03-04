@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.profiler.instrument.classloading;
 
+import com.navercorp.pinpoint.common.profiler.concurrent.jsr166.ConcurrentWeakHashMap;
 import com.navercorp.pinpoint.common.util.Assert;
-import com.navercorp.pinpoint.common.util.jsr166.ConcurrentWeakHashMap;
 import com.navercorp.pinpoint.exception.PinpointException;
 import com.navercorp.pinpoint.profiler.instrument.classreading.SimpleClassMetadata;
 import com.navercorp.pinpoint.profiler.instrument.classreading.SimpleClassMetadataReader;
@@ -55,7 +55,7 @@ public class PlainClassLoaderHandler implements ClassInjector {
     private final PluginConfig pluginConfig;
 
     public PlainClassLoaderHandler(PluginConfig pluginConfig) {
-        this.pluginConfig = Assert.requireNonNull(pluginConfig, "pluginConfig must not be null");
+        this.pluginConfig = Assert.requireNonNull(pluginConfig, "pluginConfig");
 
         this.pluginJarReader = new JarReader(pluginConfig.getPluginJarFile());
     }
@@ -199,7 +199,7 @@ public class PlainClassLoaderHandler implements ClassInjector {
 
     private void defineJarClass(ClassLoader classLoader, ClassLoaderAttachment attachment) {
         if (isDebug) {
-            logger.debug("define Jar:{}", pluginConfig.getPluginJar());
+            logger.debug("define Jar:{}", pluginConfig.getPluginUrl());
         }
 
         List<FileBinary> fileBinaryList = readJar();

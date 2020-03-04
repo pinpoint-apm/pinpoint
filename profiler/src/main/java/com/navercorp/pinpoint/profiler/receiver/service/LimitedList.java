@@ -34,7 +34,7 @@ class LimitedList<E> implements Collection<E> {
 
     public LimitedList(int maxSize, Comparator<E> comparator) {
         Assert.isTrue(maxSize > 0, "maxSize must not be negative");
-        this.comparator = Assert.requireNonNull(comparator, "comparator must not be null");
+        this.comparator = Assert.requireNonNull(comparator, "comparator");
 
         this.maxSize = maxSize;
         this.queue = new PriorityQueue<E>(maxSize, comparator);

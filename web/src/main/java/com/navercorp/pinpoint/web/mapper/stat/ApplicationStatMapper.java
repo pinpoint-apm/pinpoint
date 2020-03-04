@@ -17,13 +17,14 @@ package com.navercorp.pinpoint.web.mapper.stat;
 
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.OffsetFixedBuffer;
-import com.navercorp.pinpoint.common.hbase.HBaseTables;
+import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.ApplicationStatDecoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.ApplicationStatDecodingContext;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.ApplicationStatHbaseOperationFactory;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinStatBo;
 import com.navercorp.pinpoint.web.mapper.TimestampFilter;
+
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.client.Result;
@@ -43,7 +44,7 @@ public class ApplicationStatMapper implements RowMapper<List<JoinStatBo>> {
         public int compare(JoinStatBo o1, JoinStatBo o2) {
             long x = o2.getTimestamp();
             long y = o1.getTimestamp();
-            return (x < y) ? -1 : ((x == y) ? 0 : 1);
+            return Long.compare(x, y);
         }
     };
 
@@ -69,7 +70,7 @@ public class ApplicationStatMapper implements RowMapper<List<JoinStatBo>> {
         List<JoinStatBo> dataPoints = new ArrayList<>();
 
         for (Cell cell : result.rawCells()) {
-            if (CellUtil.matchingFamily(cell, HBaseTables.APPLICATION_STAT_CF_STATISTICS)) {
+            if (CellUtil.matchingFamily(cell, HbaseColumnFamily.APPLICATION_STAT_STATISTICS.getName())) {
                 Buffer qualifierBuffer = new OffsetFixedBuffer(cell.getQualifierArray(), cell.getQualifierOffset(), cell.getQualifierLength());
                 Buffer valueBuffer = new OffsetFixedBuffer(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength());
 

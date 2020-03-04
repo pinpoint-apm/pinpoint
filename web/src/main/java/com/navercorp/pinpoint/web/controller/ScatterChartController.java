@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,8 +18,9 @@ package com.navercorp.pinpoint.web.controller;
 
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.util.DateUtils;
-import com.navercorp.pinpoint.common.util.TransactionId;
-import com.navercorp.pinpoint.common.util.TransactionIdComparator;
+import com.navercorp.pinpoint.common.profiler.util.TransactionId;
+import com.navercorp.pinpoint.common.profiler.util.TransactionIdComparator;
+import com.navercorp.pinpoint.common.profiler.util.TransactionIdUtils;
 import com.navercorp.pinpoint.web.filter.Filter;
 import com.navercorp.pinpoint.web.filter.FilterBuilder;
 import com.navercorp.pinpoint.web.scatter.ScatterData;
@@ -28,9 +29,11 @@ import com.navercorp.pinpoint.web.service.ScatterChartService;
 import com.navercorp.pinpoint.web.util.LimitUtils;
 import com.navercorp.pinpoint.web.view.ServerTime;
 import com.navercorp.pinpoint.web.view.TransactionMetaDataViewModel;
+import com.navercorp.pinpoint.web.vo.GetTraceInfo;
 import com.navercorp.pinpoint.web.vo.LimitedScanResult;
 import com.navercorp.pinpoint.web.vo.Range;
-import com.navercorp.pinpoint.web.vo.TransactionMetadataQuery;
+import com.navercorp.pinpoint.web.vo.SpanHint;
+
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,6 +47,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -64,7 +68,7 @@ public class ScatterChartController {
     private FilteredMapService flow;
 
     @Autowired
-    private FilterBuilder filterBuilder;
+    private FilterBuilder<SpanBo> filterBuilder;
 
     private static final String PREFIX_TRANSACTION_ID = "I";
     private static final String PREFIX_TIME = "T";
@@ -98,17 +102,17 @@ public class ScatterChartController {
     @ResponseBody
     public TransactionMetaDataViewModel transactionmetadata(@RequestParam Map<String, String> requestParam) {
         TransactionMetaDataViewModel viewModel = new TransactionMetaDataViewModel();
-        TransactionMetadataQuery query = parseSelectTransaction(requestParam);
-        if (query.size() > 0) {
-            List<SpanBo> metadata = scatter.selectTransactionMetadata(query);
+        List<GetTraceInfo> selectTraceInfoList = createSelectTraceInfoList(requestParam);
+        if (selectTraceInfoList.size() > 0) {
+            List<SpanBo> metadata = scatter.selectTransactionMetadata(selectTraceInfoList);
             viewModel.setSpanBoList(metadata);
         }
 
         return viewModel;
     }
 
-    private TransactionMetadataQuery parseSelectTransaction(Map<String, String> requestParam) {
-        final TransactionMetadataQuery query = new TransactionMetadataQuery();
+    private List<GetTraceInfo> createSelectTraceInfoList(Map<String, String> requestParam) {
+        List<GetTraceInfo> getTraceInfoList = new ArrayList<>();
         int index = 0;
         while (true) {
             final String transactionId = requestParam.get(PREFIX_TRANSACTION_ID + index);
@@ -119,13 +123,16 @@ public class ScatterChartController {
                 break;
             }
 
-            query.addQueryCondition(transactionId, Long.parseLong(time), Integer.parseInt(responseTime));
+            TransactionId traceId = TransactionIdUtils.parseTransactionId(transactionId);
+            SpanHint spanHint = new SpanHint(Long.parseLong(time), Integer.parseInt(responseTime));
+
+            final GetTraceInfo getTraceInfo = new GetTraceInfo(traceId, spanHint);
+            getTraceInfoList.add(getTraceInfo);
             index++;
         }
-        logger.debug("query:{}", query);
-        return query;
+        logger.debug("query:{}", getTraceInfoList);
+        return getTraceInfoList;
     }
-
 
     /**
      * @param applicationName
@@ -163,7 +170,7 @@ public class ScatterChartController {
         final Range range = Range.createUncheckedRange(from, to);
         logger.debug("fetch scatter data. RANGE={}, X-Group-Unit:{}, Y-Group-Unit:{}, LIMIT={}, BACKWARD_DIRECTION:{}, FILTER:{}", range, xGroupUnit, yGroupUnit, limit, backwardDirection, filterText);
 
-        ModelAndView mv = null;
+        ModelAndView mv;
         if (StringUtils.isEmpty(filterText)) {
             mv = selectScatterData(applicationName, range, xGroupUnit, Math.max(yGroupUnit, 1), limit, backwardDirection, version);
         } else {
@@ -178,7 +185,9 @@ public class ScatterChartController {
 
         watch.stop();
 
-        logger.info("Fetch scatterData time : {}ms", watch.getLastTaskTimeMillis());
+        if (logger.isDebugEnabled()) {
+            logger.debug("Fetch scatterData time : {}ms", watch.getLastTaskTimeMillis());
+        }
 
         return mv;
     }
@@ -209,7 +218,7 @@ public class ScatterChartController {
         boolean requestComplete = transactionIdList.size() < limit;
 
         transactionIdList.sort(TransactionIdComparator.INSTANCE);
-        Filter filter = filterBuilder.build(filterText);
+        Filter<SpanBo> filter = filterBuilder.build(filterText);
 
         ModelAndView mv;
         if (version == 1) {

@@ -20,40 +20,21 @@ import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
-import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.logging.PLogger;
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
 import com.navercorp.pinpoint.plugin.spring.async.SpringAsyncConstants;
 
 /**
  * @author jaehong.kim
  */
-public class AsyncTaskExecutorSubmitInterceptor implements AroundInterceptor {
-    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
-    private final boolean isDebug = logger.isDebugEnabled();
-
-    private TraceContext traceContext;
-    private MethodDescriptor descriptor;
+public class AsyncTaskExecutorSubmitInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
 
     public AsyncTaskExecutorSubmitInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
-        this.traceContext = traceContext;
-        this.descriptor = descriptor;
+        super(traceContext, descriptor);
     }
 
     @Override
-    public void before(Object target, Object[] args) {
-        if (isDebug) {
-            logger.beforeInterceptor(target, args);
-        }
-
-        final Trace trace = traceContext.currentTraceObject();
-        if (trace == null) {
-            return;
-        }
-
-        final SpanEventRecorder recorder = trace.traceBlockBegin();
+    protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
         if (validate(args)) {
             // make asynchronous trace-id
             final AsyncContext asyncContext = recorder.recordNextAsyncContext();
@@ -83,23 +64,10 @@ public class AsyncTaskExecutorSubmitInterceptor implements AroundInterceptor {
     }
 
     @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable) {
-        if (isDebug) {
-            logger.afterInterceptor(target, args, result, throwable);
-        }
-
-        final Trace trace = traceContext.currentTraceObject();
-        if (trace == null) {
-            return;
-        }
-
-        try {
-            final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
-            recorder.recordApi(this.descriptor);
-            recorder.recordServiceType(SpringAsyncConstants.SPRING_ASYNC);
-            recorder.recordException(throwable);
-        } finally {
-            trace.traceBlockEnd();
-        }
+    protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
+        recorder.recordApi(this.methodDescriptor);
+        recorder.recordServiceType(SpringAsyncConstants.SPRING_ASYNC);
+        recorder.recordException(throwable);
     }
+
 }

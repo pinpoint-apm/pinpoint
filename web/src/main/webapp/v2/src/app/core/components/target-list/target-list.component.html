@@ -1,8 +1,0 @@
-<div class="l-target-item" *ngFor="let target of targetList" (click)="onSelectTarget(target)" [class.selected]="target[0].applicationName === selectedAppName">
-    <span class="l-application-name">
-        <button *ngIf="isLink" (click)="onOpenFilter($event, target)"><i class="fas fa-filter"></i></button>
-        <button *ngIf="isLink" (click)="onOpenFilterWizard($event, target)"><i class="fas fa-filter"></i></button>
-        {{target[0].applicationName}}
-    </span>
-    <span class="l-request-count">{{target[0].totalCount | number}}</span>
-</div>

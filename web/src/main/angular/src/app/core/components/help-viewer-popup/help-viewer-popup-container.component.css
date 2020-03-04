@@ -1,0 +1,86 @@
+:host {
+    display: block;
+    border: 1px solid transparent;
+}
+
+:host(.navbar),
+:host(.server_map) {
+    width: 500px;
+}
+
+:host(.response_summary),
+:host(.load),
+:host(.agent_response_time),
+:host(.application_response_time) {
+    width: 340px;
+}
+
+:host(.call_tree) {
+    width: 540px;
+}
+
+:host(.scatter) {
+    width: 580px;
+}
+
+:host(.real_time) {
+    width: 650px;
+}
+
+:host(.agent_list),
+:host(.agent_data_source),
+:host(.application_data_source) {
+    width: 310px;   
+}
+
+:host(.agent_heap),
+:host(.application_heap),
+:host(.agent_non_heap),
+:host(.application_non_heap) {
+    width: 530px;
+}
+
+:host(.agent_active_thread),
+:host(.application_active_thread),
+:host(.agent_tps),
+:host(.application_tps),
+:host(.agent_open_file_descriptor),
+:host(.application_open_file_descriptor),
+:host(.application_direct_buffer_count),
+:host(.application_direct_buffer_memory),
+:host(.application_mapped_buffer_count) {
+    width: 405px;
+}
+
+:host(.application_mapped_buffer_memory) {
+    width: 420px;
+}
+
+:host(.agent_cpu_usage) {
+    width: 470px;   
+}
+
+:host(.application_jvm_cpu_usage),
+:host(.application_system_cpu_usage) {
+    width: 520px;
+}
+
+:host(.agent_direct_buffer_count),
+:host(.agent_mapped_buffer_count) {
+    width: 270px;
+}
+
+:host(.agent_direct_buffer_memory) {
+    width: 310px;
+}
+
+:host(.agent_mapped_buffer_memory) {
+    width: 320px;
+}
+
+.tooltip-triangle {
+    width: 0;
+    height: 0;
+    display: inline-block;
+    position: fixed;
+}

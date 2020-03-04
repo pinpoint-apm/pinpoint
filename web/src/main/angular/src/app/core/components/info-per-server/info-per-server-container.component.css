@@ -1,0 +1,125 @@
+:host {
+    z-index: 9;
+}
+.l-sidemenu2 {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 477px;
+    border-left: 1px solid #e5e8f0;
+    background: #fff;
+    height: 100%;
+    overflow-x: hidden;
+    overflow-y: hidden;
+}
+.l-title-group2 {
+    display: flex;
+    flex-flow: row wrap;
+    color: #666;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 25px;
+    background: none;
+    border: none;
+    height: 50px;    
+}
+.l-selected-agent {
+    color: #666;
+    font-size: 13px;
+    display: block;
+    overflow : hidden;
+    white-space : nowrap;
+    text-overflow : ellipsis;
+}
+.l-selected-agent label {
+    color: #fff;
+    font-size: 11px;
+    font-weight: 600;
+    display: inline-block;
+    background: var(--primary-color);
+    margin: 0 12px 0 0;
+    padding: 6px 11px;
+    line-height: 1em;
+    position: relative;
+}
+.l-selected-agent label:after {
+    content:'';
+    position:absolute;
+    width:0;
+    height:0;
+    border-top:4px solid transparent;
+    border-bottom:4px solid transparent;
+    border-left:3px solid var(--primary-color);
+    right:-3px;
+    top:50%;
+    transform:translateY(-50%);
+}
+.l-contents-group {
+    height: calc(100vh - 50px);
+    padding: 51px 0px 16px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+.l-chart-group-list {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    height: calc(100vh - 150px);
+}
+
+.l-sidemenu3 {
+    top: 0px;
+    left: 0px;
+    width: 348px;
+    background: #f8f9fb;
+    border: none;
+    border-left: 1px solid #e5e8f0;
+    position: absolute;
+    height: 100%;
+    overflow-y: hidden;
+    overflow-x: hidden;
+}
+.l-title-group3 {
+    display: flex;
+    flex-flow: row wrap;
+    align-items: center;
+    height: 64px;
+    padding: 0 25px;
+    margin-bottom: 37px;
+    position: relative;
+}
+.l-title-group3 .fas {
+    font-size: 14px;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: var(--primary-color);
+    color: #fff;
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    margin: 0 7px 0 0;
+}
+.l-title-group3 .l-title {
+    font-size: 24px;
+    font-weight: 600;
+    color: #666;
+}
+.l-sidemenu3 .l-contents-group {
+    height: calc(100vh - 150px);
+    padding-top: 0px;
+}
+
+.sidemenu {
+    top: 0px;
+    left: -477px;
+}
+.title-group2 {
+    background-color: #f9fafc;
+    border-bottom: 1px solid #eaeef4;
+}
+hr {
+    height: 1px;
+    border-top: 1px solid #EAEEF4;
+    margin: 5px 0;
+}

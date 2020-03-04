@@ -40,13 +40,13 @@ public class StdoutCommonLogger implements CommonLogger {
     // for test
     StdoutCommonLogger(String loggerName, PrintStream out, PrintStream err) {
         if (loggerName == null) {
-            throw new NullPointerException("loggerName must not be null");
+            throw new NullPointerException("loggerName");
         }
         if (out == null) {
-            throw new NullPointerException("out must not be null");
+            throw new NullPointerException("out");
         }
         if (err == null) {
-            throw new NullPointerException("err must not be null");
+            throw new NullPointerException("err");
         }
 
 //        this.loggerName = loggerName;

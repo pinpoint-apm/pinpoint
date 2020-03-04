@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,14 +20,14 @@ import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
+import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
 import com.navercorp.pinpoint.profiler.context.module.AgentId;
 import com.navercorp.pinpoint.profiler.context.module.AgentStartTime;
 import com.navercorp.pinpoint.profiler.context.module.StatDataSender;
 import com.navercorp.pinpoint.profiler.monitor.collector.AgentStatMetricCollector;
+import com.navercorp.pinpoint.profiler.monitor.metric.AgentStatMetricSnapshot;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
 import com.navercorp.pinpoint.profiler.sender.EmptyDataSender;
-import com.navercorp.pinpoint.thrift.dto.TAgentStat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,23 +58,23 @@ public class DefaultAgentStatMonitor implements AgentStatMonitor {
     @Inject
     public DefaultAgentStatMonitor(@StatDataSender DataSender dataSender,
                                    @AgentId String agentId, @AgentStartTime long agentStartTimestamp,
-                                   @Named("AgentStatCollector") AgentStatMetricCollector<TAgentStat> agentStatCollector,
+                                   @Named("AgentStatCollector") AgentStatMetricCollector<AgentStatMetricSnapshot> agentStatCollector,
                                    ProfilerConfig profilerConfig) {
         this(dataSender, agentId, agentStartTimestamp, agentStatCollector, profilerConfig.getProfileJvmStatCollectIntervalMs(), profilerConfig.getProfileJvmStatBatchSendCount());
     }
 
     public DefaultAgentStatMonitor(DataSender dataSender,
                                    String agentId, long agentStartTimestamp,
-                                   AgentStatMetricCollector<TAgentStat> agentStatCollector,
+                                   AgentStatMetricCollector<AgentStatMetricSnapshot> agentStatCollector,
                                    long collectionIntervalMs, int numCollectionsPerBatch) {
         if (dataSender == null) {
-            throw new NullPointerException("dataSender must not be null");
+            throw new NullPointerException("dataSender");
         }
         if (agentId == null) {
-            throw new NullPointerException("agentId must not be null");
+            throw new NullPointerException("agentId");
         }
         if (agentStatCollector == null) {
-            throw new NullPointerException("agentStatCollector must not be null");
+            throw new NullPointerException("agentStatCollector");
         }
         if (collectionIntervalMs < MIN_COLLECTION_INTERVAL_MS) {
             collectionIntervalMs = DEFAULT_COLLECTION_INTERVAL_MS;
@@ -96,7 +96,7 @@ public class DefaultAgentStatMonitor implements AgentStatMonitor {
     // prevent deadlock for JDK6
     // Single thread execution is more safe than multi thread execution.
     // eg) executor.scheduleAtFixedRate(collectJob, 0(initialDelay is zero), this.collectionIntervalMs, TimeUnit.MILLISECONDS);
-    private void preLoadClass(String agentId, long agentStartTimestamp, AgentStatMetricCollector<TAgentStat> agentStatCollector) {
+    private void preLoadClass(String agentId, long agentStartTimestamp, AgentStatMetricCollector<AgentStatMetricSnapshot> agentStatCollector) {
         logger.debug("pre-load class start");
         CollectJob collectJob = new CollectJob(EmptyDataSender.INSTANCE, agentId, agentStartTimestamp, agentStatCollector, 1);
 

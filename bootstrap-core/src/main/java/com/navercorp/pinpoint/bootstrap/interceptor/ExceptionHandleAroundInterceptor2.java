@@ -24,10 +24,10 @@ public class ExceptionHandleAroundInterceptor2 implements AroundInterceptor2 {
 
     public ExceptionHandleAroundInterceptor2(AroundInterceptor2 delegate, ExceptionHandler exceptionHandler) {
         if (delegate == null) {
-            throw new NullPointerException("delegate must not be null");
+            throw new NullPointerException("delegate");
         }
         if (exceptionHandler == null) {
-            throw new NullPointerException("exceptionHandler must not be null");
+            throw new NullPointerException("exceptionHandler");
         }
 
         this.delegate = delegate;

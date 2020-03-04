@@ -30,8 +30,8 @@ public class MethodFilterExtractor implements ParameterExtractor<IRequest> {
     private final ParameterExtractor<IRequest> delegate;
 
     public MethodFilterExtractor(Filter<String> excludeProfileMethodFilter, ParameterExtractor<IRequest> delegate) {
-        this.excludeProfileMethodFilter = Assert.requireNonNull(excludeProfileMethodFilter, "excludeProfileMethodFilter must not be null");
-        this.delegate = Assert.requireNonNull(delegate, "delegate must not be null");
+        this.excludeProfileMethodFilter = Assert.requireNonNull(excludeProfileMethodFilter, "excludeProfileMethodFilter");
+        this.delegate = Assert.requireNonNull(delegate, "delegate");
     }
 
     @Override

@@ -56,7 +56,7 @@ public class TestClassLoader extends TransformClassLoader {
     private final InstrumentContext instrumentContext;
 
     public TestClassLoader(DefaultApplicationContext applicationContext) {
-        Assert.requireNonNull(applicationContext, "applicationContext must not be null");
+        Assert.requireNonNull(applicationContext, "applicationContext");
 
         this.applicationContext = applicationContext;
         this.classFileTransformerLoader = new ClassFileTransformerLoader(applicationContext.getProfilerConfig(), applicationContext.getDynamicTransformTrigger());
@@ -71,7 +71,7 @@ public class TestClassLoader extends TransformClassLoader {
 
     public void addDelegateClass(String className) {
         if (className == null) {
-            throw new NullPointerException("className must not be null");
+            throw new NullPointerException("className");
         }
         this.delegateClass.add(className);
     }

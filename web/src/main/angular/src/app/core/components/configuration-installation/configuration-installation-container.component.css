@@ -1,0 +1,71 @@
+:host {
+    display: block;
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.l-desc-text-wrapper {
+    margin-bottom: 25px;
+}
+
+.l-desc-text {
+    color: #999;
+    font-size: 14px;
+}
+
+.l-row {
+    margin-bottom: 25px;
+}
+
+.l-row {
+    display: flex;
+}
+
+.l-row > table {
+    flex: 1;
+}
+
+.l-row > table:first-child {
+    margin-right: 10px;
+}
+
+.l-section-table {
+    width: 100%;
+    font-family: 'Open Sans', sans-serif;
+}
+
+thead > tr {
+    background-color: #f6f8fb;
+}
+
+tbody > tr {
+    background-color: #fff;
+}
+
+.l-section-table th, .l-section-table td {
+    font-size: 13px;
+    border: 1px solid #e5e8f0;
+}
+
+.l-section-table th {
+    font-weight: 600;
+    color: #333;
+    padding: 12px 0;
+}
+
+.l-section-table td {
+    font-weight: 400;
+    padding: 11px;
+}
+
+.l-download-link-cell {
+    text-align: center;
+    height: 109px;
+}
+
+.l-download-link {
+    font-size: 16px;
+    font-weight: 600;
+    color: #428bca;
+}

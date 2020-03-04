@@ -130,6 +130,8 @@ enum TRouteResult {
     NOT_ACCEPTABLE = 240,
     NOT_SUPPORTED_SERVICE = 241,
 
+    STREAM_CREATE_ERROR = 250,
+
     UNKNOWN = -1
 }
 

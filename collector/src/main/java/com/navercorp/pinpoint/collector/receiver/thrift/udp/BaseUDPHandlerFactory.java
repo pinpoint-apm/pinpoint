@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.collector.receiver.thrift.udp;
 
-import com.navercorp.pinpoint.collector.receiver.thrift.DispatchHandler;
+import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.collector.util.PacketUtils;
 import com.navercorp.pinpoint.common.server.util.AddressFilter;
 import com.navercorp.pinpoint.io.request.DefaultServerRequest;
@@ -58,9 +58,9 @@ public class BaseUDPHandlerFactory<T extends DatagramPacket> implements PacketHa
     private final AddressFilter ignoreAddressFilter;
 
     public BaseUDPHandlerFactory(DispatchHandler dispatchHandler, TBaseFilter<SocketAddress> filter, AddressFilter ignoreAddressFilter) {
-        this.dispatchHandler = Objects.requireNonNull(dispatchHandler, "dispatchHandler must not be null");
-        this.filter = Objects.requireNonNull(filter, "filter must not be null");
-        this.ignoreAddressFilter = Objects.requireNonNull(ignoreAddressFilter, "ignoreAddressFilter must not be null");
+        this.dispatchHandler = Objects.requireNonNull(dispatchHandler, "dispatchHandler");
+        this.filter = Objects.requireNonNull(filter, "filter");
+        this.ignoreAddressFilter = Objects.requireNonNull(ignoreAddressFilter, "ignoreAddressFilter");
     }
 
     @Override

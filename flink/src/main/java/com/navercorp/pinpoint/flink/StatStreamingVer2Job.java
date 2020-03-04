@@ -27,6 +27,7 @@ import com.navercorp.pinpoint.flink.function.ApplicationStatBoFliter;
 import com.navercorp.pinpoint.flink.receiver.TcpSourceFunction;
 import com.navercorp.pinpoint.flink.vo.RawData;
 import org.apache.flink.api.java.tuple.Tuple3;
+import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
@@ -43,16 +44,18 @@ public class StatStreamingVer2Job implements Serializable {
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public static void main(String[] args) throws Exception {
-        new StatStreamingVer2Job().start();
+        ParameterTool parameters = ParameterTool.fromArgs(args);
+        new StatStreamingVer2Job().start(parameters);
     }
 
-    public void start() throws Exception {
-        logger.info("start job");
-        final Bootstrap bootstrap = Bootstrap.getInstance();
+    public void start(ParameterTool parameters) throws Exception {
+        logger.info("start Aggregation Stat Data job with job parameter. : " + parameters.toMap() );
+        final Bootstrap bootstrap = Bootstrap.getInstance(parameters.toMap());
 
         // set data source
         final TcpSourceFunction tcpSourceFunction = bootstrap.getTcpSourceFunction();
         final StreamExecutionEnvironment env = bootstrap.createStreamExecutionEnvironment();
+        env.getConfig().setGlobalJobParameters(parameters);
         DataStreamSource<RawData> rawData = env.addSource(tcpSourceFunction);
         env.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
 

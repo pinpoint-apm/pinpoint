@@ -33,14 +33,14 @@ public class NodeList {
 
     public Node findNode(Application application) {
         if (application == null) {
-            throw new NullPointerException("application must not be null");
+            throw new NullPointerException("application");
         }
         return this.nodeMap.get(application);
     }
 
     public boolean addNode(Node node) {
         if (node == null) {
-            throw new NullPointerException("node must not be null");
+            throw new NullPointerException("node");
         }
         final Application nodeId = node.getApplication();
         Node findNode = findNode(nodeId);
@@ -53,7 +53,7 @@ public class NodeList {
 
     public void addNodeList(NodeList nodeList) {
         if (nodeList == null) {
-            throw new NullPointerException("nodeList must not be null");
+            throw new NullPointerException("nodeList");
         }
         for (Node node : nodeList.getNodeList()) {
             addNode(node);
@@ -62,7 +62,7 @@ public class NodeList {
 
     public boolean containsNode(Application application) {
         if (application == null) {
-            throw new NullPointerException("application must not be null");
+            throw new NullPointerException("application");
         }
         return nodeMap.containsKey(application);
     }

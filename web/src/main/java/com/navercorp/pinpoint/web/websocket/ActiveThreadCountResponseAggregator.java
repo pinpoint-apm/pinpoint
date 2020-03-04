@@ -74,11 +74,11 @@ public class ActiveThreadCountResponseAggregator implements PinpointWebSocketRes
     private Map<String, AgentActiveThreadCount> activeThreadCountMap = new HashMap<>();
 
     public ActiveThreadCountResponseAggregator(String applicationName, AgentService agentService, Timer timer, TimerTaskDecorator timerTaskDecorator) {
-        this.applicationName = Objects.requireNonNull(applicationName, "applicationName must not be null");
-        this.agentService = Objects.requireNonNull(agentService, "agentService must not be null");
+        this.applicationName = Objects.requireNonNull(applicationName, "applicationName");
+        this.agentService = Objects.requireNonNull(agentService, "agentService");
 
-        this.timer = Objects.requireNonNull(timer, "timer must not be null");
-        this.timerTaskDecorator = Objects.requireNonNull(timerTaskDecorator, "timerTaskDecorator must not be null");
+        this.timer = Objects.requireNonNull(timer, "timer");
+        this.timerTaskDecorator = Objects.requireNonNull(timerTaskDecorator, "timerTaskDecorator");
 
         this.messageConverter = new PinpointWebSocketMessageConverter();
     }
@@ -132,7 +132,7 @@ public class ActiveThreadCountResponseAggregator implements PinpointWebSocketRes
                 }
             }
 
-            boolean added = webSocketSessions.add(webSocketSession);
+            final boolean added = webSocketSessions.add(webSocketSession);
             if (added && webSocketSessions.size() == 1) {
                 workerActiveManager.startAgentCheckJob();
             }
@@ -250,7 +250,7 @@ public class ActiveThreadCountResponseAggregator implements PinpointWebSocketRes
     }
 
     private TextMessage createWebSocketTextMessage(AgentActiveThreadCountList activeThreadCountList) {
-        Map resultMap = createResultMap(activeThreadCountList, System.currentTimeMillis());
+        Map<String, Object> resultMap = createResultMap(activeThreadCountList, System.currentTimeMillis());
         try {
             String response = messageConverter.getResponseTextMessage(ActiveThreadCountHandler.API_ACTIVE_THREAD_COUNT, resultMap);
             TextMessage responseTextMessage = new TextMessage(response);

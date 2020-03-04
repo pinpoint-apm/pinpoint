@@ -1,11 +1,11 @@
 /*
- * Copyright 2015 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.web.websocket;
 
 import com.navercorp.pinpoint.common.util.CpuUtils;
-import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
+import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
 import com.navercorp.pinpoint.rpc.util.ClassUtils;
 import com.navercorp.pinpoint.rpc.util.MapUtils;
 import com.navercorp.pinpoint.web.security.ServerMapDataFilter;
@@ -312,7 +312,7 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
         private final long startTimeMillis;
         private final long delay;
 
-        private int times = 0;
+        private int times;
 
         public ActiveThreadTimerTask(long delay) {
             this(System.currentTimeMillis(), delay, 0);
@@ -327,7 +327,9 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
         @Override
         public void run() {
             try {
-                logger.info("ActiveThreadTimerTask started.");
+                if (logger.isDebugEnabled()) {
+                    logger.debug("ActiveThreadTimerTask started.");
+                }
 
                 Collection<PinpointWebSocketResponseAggregator> values = aggregatorRepository.values();
                 for (final PinpointWebSocketResponseAggregator aggregator : values) {
@@ -364,7 +366,9 @@ public class ActiveThreadCountHandler extends TextWebSocketHandler implements Pi
         @Override
         public void run() {
             try {
-                logger.info("HealthCheckTimerTask started.");
+                if (logger.isDebugEnabled()) {
+                    logger.debug("HealthCheckTimerTask started.");
+                }
 
                 // check session state.
                 List<WebSocketSession> snapshot = filterHealthCheckSuccess(sessionRepository);

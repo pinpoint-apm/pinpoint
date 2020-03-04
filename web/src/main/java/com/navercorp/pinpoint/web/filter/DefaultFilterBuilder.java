@@ -23,8 +23,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.navercorp.pinpoint.common.service.AnnotationKeyRegistryService;
-import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
+import com.navercorp.pinpoint.common.server.bo.SpanBo;
+import com.navercorp.pinpoint.loader.service.AnnotationKeyRegistryService;
+import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import org.apache.commons.lang3.StringUtils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -41,7 +42,7 @@ import org.springframework.stereotype.Component;
  * @author emeroad
  */
 @Component
-public class DefaultFilterBuilder implements FilterBuilder {
+public class DefaultFilterBuilder implements FilterBuilder<SpanBo> {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -55,9 +56,9 @@ public class DefaultFilterBuilder implements FilterBuilder {
     private AnnotationKeyRegistryService annotationKeyRegistryService;
 
     @Override
-    public Filter build(String filterText) {
+    public Filter<SpanBo> build(String filterText) {
         if (StringUtils.isEmpty(filterText)) {
-            return Filter.NONE;
+            return Filter.acceptAllFilter();
         }
 
         filterText = decode(filterText);
@@ -68,9 +69,9 @@ public class DefaultFilterBuilder implements FilterBuilder {
 
 
     @Override
-    public Filter build(String filterText, String filterHint) {
+    public Filter<SpanBo> build(String filterText, String filterHint) {
         if (StringUtils.isEmpty(filterText)) {
-            return Filter.NONE;
+            return Filter.acceptAllFilter();
         }
 
         filterText = decode(filterText);
@@ -98,11 +99,11 @@ public class DefaultFilterBuilder implements FilterBuilder {
         }
     }
 
-    private Filter makeFilterFromJson(String jsonFilterText) {
+    private Filter<SpanBo> makeFilterFromJson(String jsonFilterText) {
         return makeFilterFromJson(jsonFilterText, FilterHint.EMPTY_JSON);
     }
 
-    private Filter makeFilterFromJson(String jsonFilterText, String jsonFilterHint) {
+    private Filter<SpanBo> makeFilterFromJson(String jsonFilterText, String jsonFilterHint) {
         if (StringUtils.isEmpty(jsonFilterText)) {
             throw new IllegalArgumentException("json string is empty");
         }
@@ -112,21 +113,21 @@ public class DefaultFilterBuilder implements FilterBuilder {
         final FilterHint hint = readFilterHint(jsonFilterHint);
         logger.debug("filterHint:{}", hint);
 
-        List<LinkFilter> linkFilter = createLinkFilter(jsonFilterText, filterDescriptorList, hint);
-        final FilterChain filterChain = new FilterChain(linkFilter);
+        List<Filter<SpanBo>> linkFilter = createLinkFilter(jsonFilterText, filterDescriptorList, hint);
+        final Filter<SpanBo> filterChain = new FilterChain<>(linkFilter);
 
         return filterChain;
     }
 
-    private List<LinkFilter> createLinkFilter(String jsonFilterText, List<FilterDescriptor> filterDescriptorList, FilterHint hint) {
-        final List<LinkFilter> result = new ArrayList<>();
+    private List<Filter<SpanBo>> createLinkFilter(String jsonFilterText, List<FilterDescriptor> filterDescriptorList, FilterHint hint) {
+        final List<Filter<SpanBo>> result = new ArrayList<>();
         for (FilterDescriptor descriptor : filterDescriptorList) {
             if (!descriptor.isValid()) {
                 throw new IllegalArgumentException("invalid json " + jsonFilterText);
             }
 
             logger.debug("FilterDescriptor={}", descriptor);
-            final LinkFilter linkFilter = new LinkFilter(descriptor, hint, serviceTypeRegistryService, annotationKeyRegistryService);
+            final Filter<SpanBo> linkFilter = new LinkFilter(descriptor, hint, serviceTypeRegistryService, annotationKeyRegistryService);
             result.add(linkFilter);
         }
         return result;

@@ -28,6 +28,12 @@ import java.util.Arrays;
  */
 public final class CommandHeaderTBaseDeserializerFactory implements DeserializerFactory<HeaderTBaseDeserializer> {
 
+    private static final CommandHeaderTBaseDeserializerFactory DEFAULT_INSTANCE = new CommandHeaderTBaseDeserializerFactory();
+
+    public static CommandHeaderTBaseDeserializerFactory getDefaultInstance() {
+        return DEFAULT_INSTANCE;
+    }
+
     private final DeserializerFactory<HeaderTBaseDeserializer> factory;
 
     public CommandHeaderTBaseDeserializerFactory() {

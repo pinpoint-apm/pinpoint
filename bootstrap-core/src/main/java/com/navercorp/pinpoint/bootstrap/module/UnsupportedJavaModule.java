@@ -16,6 +16,9 @@
 
 package com.navercorp.pinpoint.bootstrap.module;
 
+import java.util.Collections;
+import java.util.List;
+
 /**
  * @author Woonduk Kang(emeroad)
  */
@@ -41,6 +44,11 @@ class UnsupportedJavaModule implements JavaModule {
     }
 
     @Override
+    public List<Providers> getProviders() {
+        return Collections.emptyList();
+    }
+
+    @Override
     public void addReads(JavaModule target) {
         // non
     }
@@ -58,6 +66,10 @@ class UnsupportedJavaModule implements JavaModule {
     @Override
     public void addUses(Class<?> target) {
         // non
+    }
+
+    @Override
+    public void addProvides(Class<?> service, List<Class<?>> providerList) {
     }
 
     @Override

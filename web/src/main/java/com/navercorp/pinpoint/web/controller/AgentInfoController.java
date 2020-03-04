@@ -94,13 +94,20 @@ public class AgentInfoController {
             @RequestParam("from") long from,
             @RequestParam("to") long to) {
         ApplicationAgentsList.Filter containerFilter = agentInfo -> {
-            if (agentInfo.isContainer()) {
-                AgentStatus agentStatus = agentInfo.getStatus();
-                if (agentStatus == null || agentStatus.getEventTimestamp() < from) {
-                    return ApplicationAgentsList.Filter.REJECT;
-                }
+            if (!agentInfo.isContainer()) {
+                return ApplicationAgentsList.Filter.ACCEPT;
             }
-            return ApplicationAgentsList.Filter.ACCEPT;
+            AgentStatus agentStatus = agentInfo.getStatus();
+            if (agentStatus == null) {
+                return ApplicationAgentsList.Filter.REJECT;
+            }
+            if (agentStatus.getState() == AgentLifeCycleState.RUNNING) {
+                return ApplicationAgentsList.Filter.ACCEPT;
+            }
+            if (agentStatus.getEventTimestamp() >= from) {
+                return ApplicationAgentsList.Filter.ACCEPT;
+            }
+            return ApplicationAgentsList.Filter.REJECT;
         };
         long timestamp = to;
         return this.agentInfoService.getApplicationAgentsList(ApplicationAgentsList.GroupBy.HOST_NAME, containerFilter, applicationName, timestamp);
@@ -113,13 +120,17 @@ public class AgentInfoController {
             @RequestParam("application") String applicationName,
             @RequestParam("timestamp") long timestamp) {
         ApplicationAgentsList.Filter runningContainerFilter = agentInfo -> {
-            if (agentInfo.isContainer()) {
-                AgentStatus agentStatus = agentInfo.getStatus();
-                if (agentStatus == null || agentStatus.getState() != AgentLifeCycleState.RUNNING) {
-                    return ApplicationAgentsList.Filter.REJECT;
-                }
+            if (!agentInfo.isContainer()) {
+                return ApplicationAgentsList.Filter.ACCEPT;
             }
-            return ApplicationAgentsList.Filter.ACCEPT;
+            AgentStatus agentStatus = agentInfo.getStatus();
+            if (agentStatus == null) {
+                return ApplicationAgentsList.Filter.REJECT;
+            }
+            if (agentStatus.getState() == AgentLifeCycleState.RUNNING) {
+                return ApplicationAgentsList.Filter.ACCEPT;
+            }
+            return ApplicationAgentsList.Filter.REJECT;
         };
         return this.agentInfoService.getApplicationAgentsList(ApplicationAgentsList.GroupBy.HOST_NAME, runningContainerFilter, applicationName, timestamp);
     }
@@ -169,7 +180,7 @@ public class AgentInfoController {
             @RequestParam("from") long from,
             @RequestParam("to") long to) {
         Range range = new Range(from, to);
-        return agentInfoService.getAgentStatusTimeline(agentId, range, null);
+        return agentInfoService.getAgentStatusTimeline(agentId, range);
     }
 
     @PreAuthorize("hasPermission(new com.navercorp.pinpoint.web.vo.AgentParam(#agentId, #to), 'agentParam', 'inspector')")

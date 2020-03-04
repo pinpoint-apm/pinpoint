@@ -16,9 +16,11 @@
 
 package com.navercorp.pinpoint.web.mapper;
 
-import java.util.Arrays;
-
+import com.navercorp.pinpoint.common.hbase.HbaseTableConstatns;
+import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.web.service.ApplicationFactory;
+import com.navercorp.pinpoint.web.vo.Application;
+
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
@@ -26,9 +28,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.navercorp.pinpoint.common.hbase.HBaseTables;
-import com.navercorp.pinpoint.common.hbase.RowMapper;
-import com.navercorp.pinpoint.web.vo.Application;
+import java.util.Arrays;
 
 /**
  * 
@@ -50,12 +50,12 @@ public class HostApplicationMapper implements RowMapper<Application> {
         }
         byte[] value = result.value();
 
-        if (value.length != HBaseTables.APPLICATION_NAME_MAX_LEN + 2) {
+        if (value.length != HbaseTableConstatns.APPLICATION_NAME_MAX_LEN + 2) {
             logger.warn("Invalid value. {}", Arrays.toString(value));
         }
 
-        String applicationName = Bytes.toString(value, 0, HBaseTables.APPLICATION_NAME_MAX_LEN - 1).trim();
-        short serviceTypeCode = Bytes.toShort(value, HBaseTables.APPLICATION_NAME_MAX_LEN);
+        String applicationName = Bytes.toString(value, 0, HbaseTableConstatns.APPLICATION_NAME_MAX_LEN - 1).trim();
+        short serviceTypeCode = Bytes.toShort(value, HbaseTableConstatns.APPLICATION_NAME_MAX_LEN);
         return this.applicationFactory.createApplication(applicationName, serviceTypeCode);
     }
 }

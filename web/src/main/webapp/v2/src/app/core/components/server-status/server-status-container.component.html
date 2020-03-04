@@ -1,8 +1,0 @@
-<div class="l-status" *ngIf="hasServerList()">
-    <button class="pinpoint-btn" [class.disable]="!enableViewServer()" (click)="onClickViewServer()"><span><i class="fas fa-angle-{{getAngle()}}" [hidden]="isLoading"></i><i class="fas fa-spinner fa-spin fa-fw" style="top:0px;left:-10px;" [hidden]="isLoading === false"></i>VIEW SERVERS</span></button>
-    <button class="pinpoint-btn" (click)="onClickOpenInspector()" *ngIf="isWAS()"><span><i class="fas fa-chart-line"></i><span>Inspector</span></span></button>
-    <ul class="l-status-count">
-        <li>Total <span class="l-total">{{node.instanceCount}}</span></li>
-        <li>Error <span class="l-error">{{node.instanceErrorCount || 0}}</span></li>
-    </ul>
-</div>

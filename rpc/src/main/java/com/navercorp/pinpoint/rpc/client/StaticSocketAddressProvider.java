@@ -28,7 +28,7 @@ public class StaticSocketAddressProvider implements SocketAddressProvider {
     private final InetSocketAddress socketAddress;
 
     public StaticSocketAddressProvider(InetSocketAddress inetSocketAddress) {
-        this.socketAddress = Assert.requireNonNull(inetSocketAddress, "inetSocketAddress must not be null");
+        this.socketAddress = Assert.requireNonNull(inetSocketAddress, "inetSocketAddress");
     }
 
     @Override

@@ -38,8 +38,8 @@ public class SampledCpuLoad implements SampledAgentStatDataPoint {
     private final AgentStatPoint<Double> systemCpuLoad;
 
     public SampledCpuLoad(AgentStatPoint<Double> jvmCpuLoad, AgentStatPoint<Double> systemCpuLoad) {
-        this.jvmCpuLoad = Objects.requireNonNull(jvmCpuLoad, "jvmCpuLoad must not be null");
-        this.systemCpuLoad = Objects.requireNonNull(systemCpuLoad, "systemCpuLoad must not be null");
+        this.jvmCpuLoad = Objects.requireNonNull(jvmCpuLoad, "jvmCpuLoad");
+        this.systemCpuLoad = Objects.requireNonNull(systemCpuLoad, "systemCpuLoad");
     }
 
     public AgentStatPoint<Double> getJvmCpuLoad() {

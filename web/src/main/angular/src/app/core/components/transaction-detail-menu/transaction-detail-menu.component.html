@@ -1,0 +1,10 @@
+<div class="l-wrapper">
+    <div class="l-btn-group">
+        <button *ngFor="let tab of tabList" [class.active]="isActive(tab.key)" (click)="onClickTab(tab.key)">
+            {{tab.display}}
+        </button>
+        <button (click)="openDetailView()">Mixed View <i class="fas fa-external-link-square-alt" aria-hidden="true"></i></button>
+        <button class="l-log-info" (click)="openLogView()" [class.disabled]="!hasInfo()" *ngIf="hasLogView()">{{partInfo.logButtonName}} <i [ngClass]="getLogIcon()" aria-hidden="true"></i></button>
+    </div>
+    <span class="l-transaction-state" [hidden]="!hasState()" [ngClass]="getStateClass()"><i class="fas fa-th-list"></i> {{partInfo?.completeState}}</span>
+</div>

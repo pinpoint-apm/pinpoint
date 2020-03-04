@@ -41,18 +41,18 @@ public class ApplicationTimeHistogram {
     private List<TimeHistogram> histogramList;
 
     public ApplicationTimeHistogram(Application application, Range range) {
-        this(application, range, Collections.<TimeHistogram>emptyList());
+        this(application, range, Collections.emptyList());
     }
 
     public ApplicationTimeHistogram(Application application, Range range, List<TimeHistogram> histogramList) {
         if (application == null) {
-            throw new NullPointerException("application must not be null");
+            throw new NullPointerException("application");
         }
         if (range == null) {
-            throw new NullPointerException("range must not be null");
+            throw new NullPointerException("range");
         }
         if (histogramList == null) {
-            throw new NullPointerException("histogramList must not be null");
+            throw new NullPointerException("histogramList");
         }
         this.application = application;
         this.range = range;

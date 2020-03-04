@@ -16,53 +16,103 @@
 
 package com.navercorp.pinpoint.collector.cluster;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
+import com.navercorp.pinpoint.collector.receiver.grpc.PinpointGrpcServer;
+import com.navercorp.pinpoint.rpc.common.SocketStateCode;
+import com.navercorp.pinpoint.rpc.server.PinpointServer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class ClusterPointRepository<T extends ClusterPoint> implements ClusterPointLocator<T> {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final CopyOnWriteArrayList<T> clusterPointRepository = new CopyOnWriteArrayList<>();
+    private final Map<String, Set<T>> clusterPointRepository = new HashMap<>();
 
-    public boolean addClusterPoint(T clusterPoint) {
-        if (logger.isInfoEnabled()) {
-            logger.info("addClusterPoint(clusterPoint = [{}])", clusterPoint);
+    public boolean addAndIsKeyCreated(T clusterPoint) {
+        AgentInfo destAgentInfo = clusterPoint.getDestAgentInfo();
+        String key = destAgentInfo.getAgentKey();
+        synchronized (this) {
+            final Set<T> clusterPointSet = clusterPointRepository.get(key);
+            if (clusterPointSet != null) {
+                clusterPointSet.add(clusterPoint);
+
+                return false;
+            } else {
+                Set<T> newSet = new HashSet<>();
+                newSet.add(clusterPoint);
+
+                clusterPointRepository.put(key, newSet);
+                return true;
+            }
         }
-
-        boolean isAdd = clusterPointRepository.addIfAbsent(clusterPoint);
-
-        if (!isAdd) {
-            logger.warn("Already registered ClusterPoint({}).", clusterPoint);
-        }
-
-        return isAdd;
     }
 
-    public boolean removeClusterPoint(T clusterPoint) {
-        if (logger.isInfoEnabled()) {
-            logger.info("removeClusterPoint(clusterPoint = [{}])", clusterPoint);
+    public boolean removeAndGetIsKeyRemoved(T clusterPoint) {
+        AgentInfo destAgentInfo = clusterPoint.getDestAgentInfo();
+        String key = destAgentInfo.getAgentKey();
+        synchronized (this) {
+            final Set<T> clusterPointSet = clusterPointRepository.get(key);
+            if (clusterPointSet != null) {
+                clusterPointSet.remove(clusterPoint);
+
+                if (clusterPointSet.isEmpty()) {
+                    clusterPointRepository.remove(key);
+                    return true;
+                }
+            }
+            return false;
         }
-
-        boolean isRemove = clusterPointRepository.remove(clusterPoint);
-
-        if (!isRemove) {
-            logger.warn("Already unregistered or not registered ClusterPoint({}).", clusterPoint);
-        }
-
-        return isRemove;
     }
 
     public List<T> getClusterPointList() {
-        return new ArrayList<>(clusterPointRepository);
+        synchronized (this) {
+            List<T> clusterPointList = new ArrayList<>(clusterPointRepository.size());
+
+            for (Set<T> eachKeysValue : clusterPointRepository.values()) {
+                clusterPointList.addAll(eachKeysValue);
+            }
+
+            return clusterPointList;
+        }
+    }
+
+    public Set<String> getAvailableAgentKeyList() {
+        synchronized (this) {
+            Set<String> availableAgentKeySet = new HashSet<>(clusterPointRepository.size());
+
+            for (Map.Entry<String, Set<T>> entry : clusterPointRepository.entrySet()) {
+                final String key = entry.getKey();
+                final Set<T> clusterPointSet = entry.getValue();
+                for (T clusterPoint : clusterPointSet) {
+                    if (clusterPoint instanceof ThriftAgentConnection) {
+                        PinpointServer pinpointServer = ((ThriftAgentConnection) clusterPoint).getPinpointServer();
+                        if (SocketStateCode.isRunDuplex(pinpointServer.getCurrentStateCode())) {
+                            availableAgentKeySet.add(key);
+                        }
+                    } else if (clusterPoint instanceof GrpcAgentConnection) {
+                        PinpointGrpcServer pinpointGrpcServer = ((GrpcAgentConnection) clusterPoint).getPinpointGrpcServer();
+                        if (SocketStateCode.isRunDuplex(pinpointGrpcServer.getState())) {
+                            availableAgentKeySet.add(key);
+                        }
+                    }
+                }
+            }
+            return availableAgentKeySet;
+        }
     }
 
     public void clear() {
-
+        synchronized (this) {
+            clusterPointRepository.clear();
+        }
     }
 
 }

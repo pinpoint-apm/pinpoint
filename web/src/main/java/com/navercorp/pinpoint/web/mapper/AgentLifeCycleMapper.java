@@ -16,31 +16,33 @@
 
 package com.navercorp.pinpoint.web.mapper;
 
+import com.navercorp.pinpoint.common.buffer.Buffer;
+import com.navercorp.pinpoint.common.buffer.FixedBuffer;
+import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
+import com.navercorp.pinpoint.common.hbase.RowMapper;
+import com.navercorp.pinpoint.common.server.bo.AgentLifeCycleBo;
+import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
+
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.client.Result;
 import org.springframework.stereotype.Component;
 
-import com.navercorp.pinpoint.common.server.bo.AgentLifeCycleBo;
-import com.navercorp.pinpoint.common.buffer.Buffer;
-import com.navercorp.pinpoint.common.buffer.FixedBuffer;
-import com.navercorp.pinpoint.common.hbase.HBaseTables;
-import com.navercorp.pinpoint.common.hbase.RowMapper;
-import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
+import static com.navercorp.pinpoint.common.hbase.HbaseColumnFamily.AGENT_LIFECYCLE_STATUS;
 
 /**
  * @author HyunGil Jeong
  */
 @Component
 public class AgentLifeCycleMapper implements RowMapper<AgentLifeCycleBo> {
-    
+
     @Override
     public AgentLifeCycleBo mapRow(Result result, int rowNum) throws Exception {
         if (result.isEmpty()) {
             return null;
         }
 
-        Cell valueCell = result.getColumnLatestCell(HBaseTables.AGENT_LIFECYCLE_CF_STATUS, HBaseTables.AGENT_LIFECYCLE_CF_STATUS_QUALI_STATES);
+        Cell valueCell = result.getColumnLatestCell(AGENT_LIFECYCLE_STATUS.getName(), HbaseColumnFamily.AGENT_LIFECYCLE_STATUS.QUALIFIER_STATES);
         
         return createAgentLifeCycleBo(valueCell);
     }
@@ -53,18 +55,16 @@ public class AgentLifeCycleMapper implements RowMapper<AgentLifeCycleBo> {
         final Buffer buffer = new FixedBuffer(value);
         
         final int version = buffer.readInt();
-        switch (version) {
-            case 0 :
-                final String agentId = buffer.readPrefixedString();
-                final long startTimestamp = buffer.readLong();
-                final long eventTimestamp = buffer.readLong();
-                final long eventIdentifier = buffer.readLong();
-                final AgentLifeCycleState agentLifeCycleState = AgentLifeCycleState.getStateByCode(buffer.readShort());
-                final AgentLifeCycleBo agentLifeCycleBo = new AgentLifeCycleBo(agentId, startTimestamp, eventTimestamp, eventIdentifier, agentLifeCycleState);
-                return agentLifeCycleBo;
-            default : 
-                return null;
+        if (version == 0) {
+            final String agentId = buffer.readPrefixedString();
+            final long startTimestamp = buffer.readLong();
+            final long eventTimestamp = buffer.readLong();
+            final long eventIdentifier = buffer.readLong();
+            final AgentLifeCycleState agentLifeCycleState = AgentLifeCycleState.getStateByCode(buffer.readShort());
+            final AgentLifeCycleBo agentLifeCycleBo = new AgentLifeCycleBo(agentId, startTimestamp, eventTimestamp, eventIdentifier, agentLifeCycleState);
+            return agentLifeCycleBo;
         }
+        return null;
     }
     
 }

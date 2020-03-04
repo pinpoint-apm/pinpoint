@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,7 +22,7 @@ import com.navercorp.pinpoint.collector.util.PooledObject;
 import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.CpuUtils;
-import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
+import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -77,14 +77,14 @@ public class UDPReceiver {
         this.name = Objects.requireNonNull(name);
         this.logger = LoggerFactory.getLogger(name);
 
-        this.bindAddress = Objects.requireNonNull(bindAddress, "bindAddress must not be null");
-        this.packetHandlerFactory = Objects.requireNonNull(packetHandlerFactory, "packetHandlerFactory must not be null");
-        this.worker = Objects.requireNonNull(worker, "worker must not be null");
+        this.bindAddress = Objects.requireNonNull(bindAddress, "bindAddress");
+        this.packetHandlerFactory = Objects.requireNonNull(packetHandlerFactory, "packetHandlerFactory");
+        this.worker = Objects.requireNonNull(worker, "worker");
 
         Assert.isTrue(receiverBufferSize > 0, "receiverBufferSize must be greater than 0");
         this.socket = createSocket(receiverBufferSize);
 
-        this.datagramPacketPool = Objects.requireNonNull(datagramPacketPool, "datagramPacketPool must not be null");
+        this.datagramPacketPool = Objects.requireNonNull(datagramPacketPool, "datagramPacketPool");
     }
 
 
@@ -142,7 +142,7 @@ public class UDPReceiver {
             if (!state.get()) {
                 // shutdown
             } else {
-                logger.error("IoError, Caused:", e.getMessage(), e);
+                logger.error("IoError, Caused by:{}", e.getMessage(), e);
             }
             return null;
         } finally {

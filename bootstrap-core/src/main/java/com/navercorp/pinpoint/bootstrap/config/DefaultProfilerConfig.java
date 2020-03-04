@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -38,20 +38,19 @@ import java.util.regex.Pattern;
  * @author netspider
  */
 public class DefaultProfilerConfig implements ProfilerConfig {
+    public static final String PROFILER_INTERCEPTOR_EXCEPTION_PROPAGATE = "profiler.interceptor.exception.propagate";
+
     private static final CommonLogger logger = StdoutCommonLoggerFactory.INSTANCE.getLogger(DefaultProfilerConfig.class.getName());
-    private static final String DEFAULT_IP = "127.0.0.1";
+
 
     private final Properties properties;
-    private final PropertyPlaceholderHelper propertyPlaceholderHelper = new PropertyPlaceholderHelper("${", "}");
 
     public static final String INSTRUMENT_ENGINE_ASM = "ASM";
 
+    private static final TransportModule DEFAULT_TRANSPORT_MODULE = TransportModule.THRIFT;
+
     public static final int DEFAULT_AGENT_STAT_COLLECTION_INTERVAL_MS = 5 * 1000;
     public static final int DEFAULT_NUM_AGENT_STAT_BATCH_SEND = 6;
-
-    public interface ValueResolver {
-        String resolve(String value, Properties properties);
-    }
 
     private static class BypassResolver implements ValueResolver {
         public static final ValueResolver RESOLVER = new BypassResolver();
@@ -62,20 +61,25 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         }
     }
 
-    private class PlaceHolderResolver implements ValueResolver {
+    public static class PlaceHolderResolver implements ValueResolver {
         @Override
         public String resolve(String value, Properties properties) {
             if (value == null) {
                 return null;
             }
+            PropertyPlaceholderHelper propertyPlaceholderHelper = new PropertyPlaceholderHelper("${", "}");
             return propertyPlaceholderHelper.replacePlaceholders(value, properties);
         }
     }
 
     public static ProfilerConfig load(String pinpointConfigFileName) throws IOException {
+        final Properties properties = loadProperties(pinpointConfigFileName);
+        return new DefaultProfilerConfig(properties);
+    }
+
+    private static Properties loadProperties(String pinpointConfigFileName) throws IOException {
         try {
-            Properties properties = PropertyUtils.loadProperty(pinpointConfigFileName);
-            return new DefaultProfilerConfig(properties);
+            return PropertyUtils.loadProperty(pinpointConfigFileName);
         } catch (FileNotFoundException fe) {
             if (logger.isWarnEnabled()) {
                 logger.warn(pinpointConfigFileName + " file does not exist. Please check your configuration.");
@@ -91,6 +95,8 @@ public class DefaultProfilerConfig implements ProfilerConfig {
 
     private boolean profileEnable = false;
 
+    private String activeProfile = Profiles.DEFAULT_ACTIVE_PROFILE;
+
     private String profileInstrumentEngine = INSTRUMENT_ENGINE_ASM;
     private boolean instrumentMatcherEnable = true;
     private InstrumentMatcherCacheConfig instrumentMatcherCacheConfig = new InstrumentMatcherCacheConfig();
@@ -100,45 +106,9 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     @VisibleForTesting
     private boolean staticResourceCleanup = false;
 
-    private String collectorSpanServerIp = DEFAULT_IP;
-    private int collectorSpanServerPort = 9996;
+    private TransportModule transportModule = DEFAULT_TRANSPORT_MODULE;
 
-    private String collectorStatServerIp = DEFAULT_IP;
-    private int collectorStatServerPort = 9995;
-
-    private String collectorTcpServerIp = DEFAULT_IP;
-    private int collectorTcpServerPort = 9994;
-
-    private int spanDataSenderWriteQueueSize = 1024 * 5;
-    private int spanDataSenderSocketSendBufferSize = 1024 * 64 * 16;
-    private int spanDataSenderSocketTimeout = 1000 * 3;
-    private int spanDataSenderChunkSize = 1024 * 16;
-    private String spanDataSenderTransportType = "UDP";
-    private String spanDataSenderSocketType = "OIO";
-
-    private int statDataSenderWriteQueueSize = 1024 * 5;
-    private int statDataSenderSocketSendBufferSize = 1024 * 64 * 16;
-    private int statDataSenderSocketTimeout = 1000 * 3;
-    private int statDataSenderChunkSize = 1024 * 16;
-    private String statDataSenderTransportType = "UDP";
-    private String statDataSenderSocketType = "OIO";
-
-    private boolean tcpDataSenderCommandAcceptEnable = false;
-    private boolean tcpDataSenderCommandActiveThreadEnable = false;
-    private boolean tcpDataSenderCommandActiveThreadCountEnable = false;
-    private boolean tcpDataSenderCommandActiveThreadDumpEnable = false;
-    private boolean tcpDataSenderCommandActiveThreadLightDumpEnable = false;
-
-    private static long DEFAULT_DATA_SENDER_PINPOINT_CLIENT_WRITE_TIMEOUT = 3 * 1000;
-    private long tcpDataSenderPinpointClientWriteTimeout = DEFAULT_DATA_SENDER_PINPOINT_CLIENT_WRITE_TIMEOUT;
-    private static long DEFAULT_DATA_SENDER_PINPOINT_CLIENT_REQUEST_TIMEOUT = 3 * 1000;
-    private long tcpDataSenderPinpointClientRequestTimeout = DEFAULT_DATA_SENDER_PINPOINT_CLIENT_REQUEST_TIMEOUT;
-    private static long DEFAULT_DATA_SENDER_PINPOINT_CLIENT_RECONNECT_INTERVAL = 3 * 1000;
-    private long tcpDataSenderPinpointClientReconnectInterval = DEFAULT_DATA_SENDER_PINPOINT_CLIENT_RECONNECT_INTERVAL;
-    private static long DEFAULT_DATA_SENDER_PINPOINT_CLIENT_PING_INTERVAL = 60 * 1000 * 5;
-    private long tcpDataSenderPinpointClientPingInterval = DEFAULT_DATA_SENDER_PINPOINT_CLIENT_PING_INTERVAL;
-    private static long DEFAULT_DATA_SENDER_PINPOINT_CLIENT_HANDSHAKE_INTERVAL = 60 * 1000 * 1;
-    private long tcpDataSenderPinpointClientHandshakeInterval = DEFAULT_DATA_SENDER_PINPOINT_CLIENT_HANDSHAKE_INTERVAL;
+    private ThriftTransportConfig thriftTransportConfig;
 
     private boolean traceAgentActiveThread = true;
 
@@ -157,6 +127,8 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     // Sampling
     private boolean samplingEnable = true;
     private int samplingRate = 1;
+    private int samplingNewThroughput = 0;
+    private int samplingContinueThroughput = 0;
 
     // span buffering
     private boolean ioBufferingEnable;
@@ -191,14 +163,30 @@ public class DefaultProfilerConfig implements ProfilerConfig {
 
     public DefaultProfilerConfig() {
         this.properties = new Properties();
+        this.thriftTransportConfig = new DefaultThriftTransportConfig();
     }
 
     public DefaultProfilerConfig(Properties properties) {
         if (properties == null) {
-            throw new NullPointerException("properties must not be null");
+            throw new NullPointerException("properties");
         }
         this.properties = properties;
         readPropertyValues();
+    }
+
+
+    @Override
+    public String getActiveProfile() {
+        return activeProfile;
+    }
+
+    @Override
+    public TransportModule getTransportModule() {
+        return transportModule;
+    }
+
+    public void setTransportModule(TransportModule transportModule) {
+        this.transportModule = transportModule;
     }
 
     @Override
@@ -207,118 +195,263 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     }
 
     @Override
-    public String getCollectorSpanServerIp() {
-        return collectorSpanServerIp;
+    public ThriftTransportConfig getThriftTransportConfig() {
+//        if (thriftTransportConfig == null){
+//          // TODO ?
+//        }
+        return thriftTransportConfig;
     }
 
+    /**
+     * @deprecated Use {@link #getThriftTransportConfig()} instead.
+     */
+    @Deprecated
+    @Override
+    public String getCollectorSpanServerIp() {
+        return getThriftTransportConfig().getCollectorSpanServerIp();
+    }
+
+    /**
+     * @deprecated Use {@link #getThriftTransportConfig()} instead.
+     */
+    @Deprecated
     @Override
     public int getCollectorSpanServerPort() {
-        return collectorSpanServerPort;
+        return getThriftTransportConfig().getCollectorSpanServerPort();
     }
 
+    /**
+     * @deprecated Use {@link #getThriftTransportConfig()} instead.
+     */
+    @Deprecated
     @Override
     public String getCollectorStatServerIp() {
-        return collectorStatServerIp;
+        return getThriftTransportConfig().getCollectorStatServerIp();
     }
 
+    /**
+     * @deprecated Use {@link #getThriftTransportConfig()} instead.
+     */
+    @Deprecated
     @Override
     public int getCollectorStatServerPort() {
-        return collectorStatServerPort;
+        return getThriftTransportConfig().getCollectorStatServerPort();
     }
 
+    /**
+     * @deprecated Use {@link #getThriftTransportConfig()} instead.
+     */
+    @Deprecated
     @Override
     public String getCollectorTcpServerIp() {
-        return collectorTcpServerIp;
+        return getThriftTransportConfig().getCollectorTcpServerIp();
     }
 
+    /**
+     * @deprecated Use {@link #getThriftTransportConfig()} instead.
+     */
+    @Deprecated
     @Override
     public int getCollectorTcpServerPort() {
-        return collectorTcpServerPort;
+        return getThriftTransportConfig().getCollectorTcpServerPort();
     }
 
+    /**
+     * @deprecated Use {@link #getThriftTransportConfig()} instead.
+     */
+    @Deprecated
     @Override
     public int getStatDataSenderWriteQueueSize() {
-        return statDataSenderWriteQueueSize;
+        return getThriftTransportConfig().getStatDataSenderWriteQueueSize();
     }
 
+    /**
+     * @deprecated Use {@link #getThriftTransportConfig()} instead.
+     */
+    @Deprecated
     @Override
     public int getStatDataSenderSocketSendBufferSize() {
-        return statDataSenderSocketSendBufferSize;
+        return getThriftTransportConfig().getStatDataSenderSocketSendBufferSize();
     }
 
+    /**
+     * @deprecated Use {@link #getThriftTransportConfig()} instead.
+     */
+    @Deprecated
     @Override
     public int getStatDataSenderSocketTimeout() {
-        return statDataSenderSocketTimeout;
+        return getThriftTransportConfig().getStatDataSenderSocketTimeout();
     }
 
+    /**
+     * @deprecated Use {@link #getThriftTransportConfig()} instead.
+     */
+    @Deprecated
     @Override
     public String getStatDataSenderSocketType() {
-        return statDataSenderSocketType;
+        return getThriftTransportConfig().getStatDataSenderSocketType();
     }
 
+    /**
+     * @deprecated Use {@link #getThriftTransportConfig()} instead.
+     */
+    @Deprecated
     @Override
     public String getStatDataSenderTransportType() {
-        return statDataSenderTransportType;
+        return getThriftTransportConfig().getStatDataSenderTransportType();
     }
 
+    /**
+     * @deprecated Use {@link #getThriftTransportConfig()} instead.
+     */
+    @Deprecated
     @Override
     public int getSpanDataSenderWriteQueueSize() {
-        return spanDataSenderWriteQueueSize;
+        return getThriftTransportConfig().getSpanDataSenderWriteQueueSize();
     }
 
+    /**
+     * @deprecated Use {@link #getThriftTransportConfig()} instead.
+     */
+    @Deprecated
     @Override
     public int getSpanDataSenderSocketSendBufferSize() {
-        return spanDataSenderSocketSendBufferSize;
+        return getThriftTransportConfig().getSpanDataSenderSocketSendBufferSize();
     }
 
+    /**
+     * @deprecated Use {@link #getThriftTransportConfig()} instead.
+     */
+    @Deprecated
     @Override
     public boolean isTcpDataSenderCommandAcceptEnable() {
-        return tcpDataSenderCommandAcceptEnable;
+        return getThriftTransportConfig().isTcpDataSenderCommandAcceptEnable();
     }
 
+    /**
+     * @deprecated Use {@link #getThriftTransportConfig()} instead.
+     */
+    @Deprecated
     @Override
     public boolean isTcpDataSenderCommandActiveThreadEnable() {
-        return tcpDataSenderCommandActiveThreadEnable;
+        return getThriftTransportConfig().isTcpDataSenderCommandActiveThreadEnable();
     }
 
+    /**
+     * @deprecated Use {@link #getThriftTransportConfig()} instead.
+     */
+    @Deprecated
     @Override
     public boolean isTcpDataSenderCommandActiveThreadCountEnable() {
-        return tcpDataSenderCommandActiveThreadCountEnable;
+        return getThriftTransportConfig().isTcpDataSenderCommandActiveThreadCountEnable();
     }
 
+    /**
+     * @deprecated Use {@link #getThriftTransportConfig()} instead.
+     */
+    @Deprecated
     @Override
     public boolean isTcpDataSenderCommandActiveThreadDumpEnable() {
-        return tcpDataSenderCommandActiveThreadDumpEnable;
+        return getThriftTransportConfig().isTcpDataSenderCommandActiveThreadDumpEnable();
     }
 
+    /**
+     * @deprecated Use {@link #getThriftTransportConfig()} instead.
+     */
+    @Deprecated
     @Override
     public boolean isTcpDataSenderCommandActiveThreadLightDumpEnable() {
-        return tcpDataSenderCommandActiveThreadLightDumpEnable;
+        return getThriftTransportConfig().isTcpDataSenderCommandActiveThreadLightDumpEnable();
     }
 
+    /**
+     * @deprecated Use {@link #getThriftTransportConfig()} instead.
+     */
+    @Deprecated
     @Override
     public long getTcpDataSenderPinpointClientWriteTimeout() {
-        return tcpDataSenderPinpointClientWriteTimeout;
+        return getThriftTransportConfig().getTcpDataSenderPinpointClientWriteTimeout();
     }
 
+    /**
+     * @deprecated Use {@link #getThriftTransportConfig()} instead.
+     */
+    @Deprecated
     @Override
     public long getTcpDataSenderPinpointClientRequestTimeout() {
-        return tcpDataSenderPinpointClientRequestTimeout;
+        return getThriftTransportConfig().getTcpDataSenderPinpointClientRequestTimeout();
     }
 
+    /**
+     * @deprecated Use {@link #getThriftTransportConfig()} instead.
+     */
+    @Deprecated
     @Override
     public long getTcpDataSenderPinpointClientReconnectInterval() {
-        return tcpDataSenderPinpointClientReconnectInterval;
+        return getThriftTransportConfig().getTcpDataSenderPinpointClientReconnectInterval();
     }
 
+    /**
+     * @deprecated Use {@link #getThriftTransportConfig()} instead.
+     */
+    @Deprecated
     @Override
     public long getTcpDataSenderPinpointClientPingInterval() {
-        return tcpDataSenderPinpointClientPingInterval;
+        return getThriftTransportConfig().getTcpDataSenderPinpointClientPingInterval();
     }
 
+    /**
+     * @deprecated Use {@link #getThriftTransportConfig()} instead.
+     */
+    @Deprecated
     @Override
     public long getTcpDataSenderPinpointClientHandshakeInterval() {
-        return tcpDataSenderPinpointClientHandshakeInterval;
+        return getThriftTransportConfig().getTcpDataSenderPinpointClientHandshakeInterval();
+    }
+
+    /**
+     * @deprecated Use {@link #getThriftTransportConfig()} instead.
+     */
+    @Deprecated
+    @Override
+    public int getSpanDataSenderSocketTimeout() {
+        return getThriftTransportConfig().getSpanDataSenderSocketTimeout();
+    }
+
+    /**
+     * @deprecated Use {@link #getThriftTransportConfig()} instead.
+     */
+    @Deprecated
+    @Override
+    public String getSpanDataSenderSocketType() {
+        return getThriftTransportConfig().getSpanDataSenderSocketType();
+    }
+
+    /**
+     * @deprecated Use {@link #getThriftTransportConfig()} instead.
+     */
+    @Deprecated
+    @Override
+    public String getSpanDataSenderTransportType() {
+        return getThriftTransportConfig().getSpanDataSenderTransportType();
+    }
+
+    /**
+     * @deprecated Use {@link #getThriftTransportConfig()} instead.
+     */
+    @Deprecated
+    @Override
+    public int getSpanDataSenderChunkSize() {
+        return getThriftTransportConfig().getSpanDataSenderChunkSize();
+    }
+
+    /**
+     * @deprecated Use {@link #getThriftTransportConfig()} instead.
+     */
+    @Deprecated
+    @Override
+    public int getStatDataSenderChunkSize() {
+        return getThriftTransportConfig().getStatDataSenderChunkSize();
     }
 
     @Override
@@ -347,31 +480,6 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     }
 
     @Override
-    public int getSpanDataSenderSocketTimeout() {
-        return spanDataSenderSocketTimeout;
-    }
-
-    @Override
-    public String getSpanDataSenderSocketType() {
-        return spanDataSenderSocketType;
-    }
-
-    @Override
-    public String getSpanDataSenderTransportType() {
-        return spanDataSenderTransportType;
-    }
-
-    @Override
-    public int getSpanDataSenderChunkSize() {
-        return spanDataSenderChunkSize;
-    }
-
-    @Override
-    public int getStatDataSenderChunkSize() {
-        return statDataSenderChunkSize;
-    }
-
-    @Override
     public boolean isProfileEnable() {
         return profileEnable;
     }
@@ -396,10 +504,19 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         return samplingEnable;
     }
 
-
     @Override
     public int getSamplingRate() {
         return samplingRate;
+    }
+
+    @Override
+    public int getSamplingNewThroughput() {
+        return samplingNewThroughput;
+    }
+
+    @Override
+    public int getSamplingContinueThroughput() {
+        return samplingContinueThroughput;
     }
 
     @Override
@@ -447,6 +564,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         return staticResourceCleanup;
     }
 
+    @Deprecated
     public void setStaticResourceCleanup(boolean staticResourceCleanup) {
         this.staticResourceCleanup = staticResourceCleanup;
     }
@@ -490,6 +608,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         return callStackMaxDepth;
     }
 
+    @Deprecated
     public void setCallStackMaxDepth(int callStackMaxDepth) {
         this.callStackMaxDepth = callStackMaxDepth;
     }
@@ -541,10 +660,9 @@ public class DefaultProfilerConfig implements ProfilerConfig {
 
     // for test
     void readPropertyValues() {
-        // TODO : use Properties' default value instead of using a temp variable.
-        final ValueResolver placeHolderResolver = new PlaceHolderResolver();
 
         this.profileEnable = readBoolean("profiler.enable", true);
+        this.activeProfile = readString(Profiles.ACTIVE_PROFILE_KEY, Profiles.DEFAULT_ACTIVE_PROFILE);
         this.profileInstrumentEngine = readString("profiler.instrument.engine", INSTRUMENT_ENGINE_ASM);
         this.instrumentMatcherEnable = readBoolean("profiler.instrument.matcher.enable", true);
 
@@ -557,40 +675,9 @@ public class DefaultProfilerConfig implements ProfilerConfig {
 
         this.interceptorRegistrySize = readInt("profiler.interceptorregistry.size", 1024 * 8);
 
-        this.collectorSpanServerIp = readString("profiler.collector.span.ip", DEFAULT_IP, placeHolderResolver);
-        this.collectorSpanServerPort = readInt("profiler.collector.span.port", 9996);
-
-        this.collectorStatServerIp = readString("profiler.collector.stat.ip", DEFAULT_IP, placeHolderResolver);
-        this.collectorStatServerPort = readInt("profiler.collector.stat.port", 9995);
-
-        this.collectorTcpServerIp = readString("profiler.collector.tcp.ip", DEFAULT_IP, placeHolderResolver);
-        this.collectorTcpServerPort = readInt("profiler.collector.tcp.port", 9994);
-
-        this.spanDataSenderWriteQueueSize = readInt("profiler.spandatasender.write.queue.size", 1024 * 5);
-        this.spanDataSenderSocketSendBufferSize = readInt("profiler.spandatasender.socket.sendbuffersize", 1024 * 64 * 16);
-        this.spanDataSenderSocketTimeout = readInt("profiler.spandatasender.socket.timeout", 1000 * 3);
-        this.spanDataSenderChunkSize = readInt("profiler.spandatasender.chunk.size", 1024 * 16);
-        this.spanDataSenderSocketType = readString("profiler.spandatasender.socket.type", "OIO");
-        this.spanDataSenderTransportType = readString("profiler.spandatasender.transport.type", "UDP");
-
-        this.statDataSenderWriteQueueSize = readInt("profiler.statdatasender.write.queue.size", 1024 * 5);
-        this.statDataSenderSocketSendBufferSize = readInt("profiler.statdatasender.socket.sendbuffersize", 1024 * 64 * 16);
-        this.statDataSenderSocketTimeout = readInt("profiler.statdatasender.socket.timeout", 1000 * 3);
-        this.statDataSenderChunkSize = readInt("profiler.statdatasender.chunk.size", 1024 * 16);
-        this.statDataSenderSocketType = readString("profiler.statdatasender.socket.type", "OIO");
-        this.statDataSenderTransportType = readString("profiler.statdatasender.transport.type", "UDP");
-
-        this.tcpDataSenderCommandAcceptEnable = readBoolean("profiler.tcpdatasender.command.accept.enable", false);
-        this.tcpDataSenderCommandActiveThreadEnable = readBoolean("profiler.tcpdatasender.command.activethread.enable", false);
-        this.tcpDataSenderCommandActiveThreadCountEnable = readBoolean("profiler.tcpdatasender.command.activethread.count.enable", false);
-        this.tcpDataSenderCommandActiveThreadDumpEnable = readBoolean("profiler.tcpdatasender.command.activethread.threaddump.enable", false);
-        this.tcpDataSenderCommandActiveThreadLightDumpEnable = readBoolean("profiler.tcpdatasender.command.activethread.threadlightdump.enable", false);
-
-        this.tcpDataSenderPinpointClientWriteTimeout = readLong("profiler.tcpdatasender.client.write.timeout", DEFAULT_DATA_SENDER_PINPOINT_CLIENT_WRITE_TIMEOUT);
-        this.tcpDataSenderPinpointClientRequestTimeout = readLong("profiler.tcpdatasender.client.request.timeout", DEFAULT_DATA_SENDER_PINPOINT_CLIENT_REQUEST_TIMEOUT);
-        this.tcpDataSenderPinpointClientReconnectInterval = readLong("profiler.tcpdatasender.client.reconnect.interval", DEFAULT_DATA_SENDER_PINPOINT_CLIENT_RECONNECT_INTERVAL);
-        this.tcpDataSenderPinpointClientPingInterval = readLong("profiler.tcpdatasender.client.ping.interval", DEFAULT_DATA_SENDER_PINPOINT_CLIENT_PING_INTERVAL);
-        this.tcpDataSenderPinpointClientHandshakeInterval = readLong("profiler.tcpdatasender.client.handshake.interval", DEFAULT_DATA_SENDER_PINPOINT_CLIENT_HANDSHAKE_INTERVAL);
+        final String transportModuleString = readString("profiler.transport.module", DEFAULT_TRANSPORT_MODULE.name());
+        this.transportModule = TransportModule.parse(transportModuleString, DEFAULT_TRANSPORT_MODULE);
+        this.thriftTransportConfig = readThriftTransportConfig(this);
 
         this.traceAgentActiveThread = readBoolean("profiler.pinpoint.activethread", true);
 
@@ -613,6 +700,9 @@ public class DefaultProfilerConfig implements ProfilerConfig {
 
         this.samplingEnable = readBoolean("profiler.sampling.enable", true);
         this.samplingRate = readInt("profiler.sampling.rate", 1);
+        // Throughput sampling
+        this.samplingNewThroughput = readInt("profiler.sampling.new.throughput", 0);
+        this.samplingContinueThroughput = readInt("profiler.sampling.continue.throughput", 0);
 
         // configuration for sampling and IO buffer 
         this.ioBufferingEnable = readBoolean("profiler.io.buffering.enable", true);
@@ -650,7 +740,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
             this.profilableClassFilter = new ProfilableClassFilter(profilableClass);
         }
 
-        this.propagateInterceptorException = readBoolean("profiler.interceptor.exception.propagate", false);
+        this.propagateInterceptorException = readBoolean(PROFILER_INTERCEPTOR_EXCEPTION_PROPAGATE, false);
         this.supportLambdaExpressions = readBoolean("profiler.lambda.expressions.support", true);
 
         // proxy http header names
@@ -665,15 +755,21 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         logger.info("configuration loaded successfully.");
     }
 
+    private ThriftTransportConfig readThriftTransportConfig(DefaultProfilerConfig profilerConfig) {
+        DefaultThriftTransportConfig binaryTransportConfig = new DefaultThriftTransportConfig();
+        binaryTransportConfig.read(profilerConfig);
+        return binaryTransportConfig;
+    }
+
 
     @Override
     public String readString(String propertyName, String defaultValue) {
         return readString(propertyName, defaultValue, BypassResolver.RESOLVER);
     }
 
-    private String readString(String propertyName, String defaultValue, ValueResolver valueResolver) {
+    public String readString(String propertyName, String defaultValue, ValueResolver valueResolver) {
         if (valueResolver == null) {
-            throw new NullPointerException("valueResolver must not be null");
+            throw new NullPointerException("valueResolver");
         }
         String value = properties.getProperty(propertyName, defaultValue);
         value = valueResolver.resolve(value, properties);
@@ -755,8 +851,8 @@ public class DefaultProfilerConfig implements ProfilerConfig {
             }
         }
 
-        if (logger.isInfoEnabled()) {
-            logger.info(propertyNamePatternRegex + "=" + result);
+        if (logger.isDebugEnabled()) {
+            logger.debug(propertyNamePatternRegex + "=" + result);
         }
 
         return result;
@@ -766,40 +862,14 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     public String toString() {
         final StringBuilder sb = new StringBuilder("DefaultProfilerConfig{");
         sb.append("properties=").append(properties);
-        sb.append(", propertyPlaceholderHelper=").append(propertyPlaceholderHelper);
-        sb.append(", profileEnable=").append(profileEnable);
+        sb.append(", profileEnable='").append(profileEnable).append('\'');
+        sb.append(", activeProfile=").append(activeProfile);
         sb.append(", profileInstrumentEngine='").append(profileInstrumentEngine).append('\'');
         sb.append(", instrumentMatcherEnable=").append(instrumentMatcherEnable);
         sb.append(", instrumentMatcherCacheConfig=").append(instrumentMatcherCacheConfig);
         sb.append(", interceptorRegistrySize=").append(interceptorRegistrySize);
-        sb.append(", collectorSpanServerIp='").append(collectorSpanServerIp).append('\'');
-        sb.append(", collectorSpanServerPort=").append(collectorSpanServerPort);
-        sb.append(", collectorStatServerIp='").append(collectorStatServerIp).append('\'');
-        sb.append(", collectorStatServerPort=").append(collectorStatServerPort);
-        sb.append(", collectorTcpServerIp='").append(collectorTcpServerIp).append('\'');
-        sb.append(", collectorTcpServerPort=").append(collectorTcpServerPort);
-        sb.append(", spanDataSenderWriteQueueSize=").append(spanDataSenderWriteQueueSize);
-        sb.append(", spanDataSenderSocketSendBufferSize=").append(spanDataSenderSocketSendBufferSize);
-        sb.append(", spanDataSenderSocketTimeout=").append(spanDataSenderSocketTimeout);
-        sb.append(", spanDataSenderChunkSize=").append(spanDataSenderChunkSize);
-        sb.append(", spanDataSenderTransportType='").append(spanDataSenderTransportType).append('\'');
-        sb.append(", spanDataSenderSocketType='").append(spanDataSenderSocketType).append('\'');
-        sb.append(", statDataSenderWriteQueueSize=").append(statDataSenderWriteQueueSize);
-        sb.append(", statDataSenderSocketSendBufferSize=").append(statDataSenderSocketSendBufferSize);
-        sb.append(", statDataSenderSocketTimeout=").append(statDataSenderSocketTimeout);
-        sb.append(", statDataSenderChunkSize=").append(statDataSenderChunkSize);
-        sb.append(", statDataSenderTransportType='").append(statDataSenderTransportType).append('\'');
-        sb.append(", statDataSenderSocketType='").append(statDataSenderSocketType).append('\'');
-        sb.append(", tcpDataSenderCommandAcceptEnable=").append(tcpDataSenderCommandAcceptEnable);
-        sb.append(", tcpDataSenderCommandActiveThreadEnable=").append(tcpDataSenderCommandActiveThreadEnable);
-        sb.append(", tcpDataSenderCommandActiveThreadCountEnable=").append(tcpDataSenderCommandActiveThreadCountEnable);
-        sb.append(", tcpDataSenderCommandActiveThreadDumpEnable=").append(tcpDataSenderCommandActiveThreadDumpEnable);
-        sb.append(", tcpDataSenderCommandActiveThreadLightDumpEnable=").append(tcpDataSenderCommandActiveThreadLightDumpEnable);
-        sb.append(", tcpDataSenderPinpointClientWriteTimeout=").append(tcpDataSenderPinpointClientWriteTimeout);
-        sb.append(", tcpDataSenderPinpointClientRequestTimeout=").append(tcpDataSenderPinpointClientRequestTimeout);
-        sb.append(", tcpDataSenderPinpointClientReconnectInterval=").append(tcpDataSenderPinpointClientReconnectInterval);
-        sb.append(", tcpDataSenderPinpointClientPingInterval=").append(tcpDataSenderPinpointClientPingInterval);
-        sb.append(", tcpDataSenderPinpointClientHandshakeInterval=").append(tcpDataSenderPinpointClientHandshakeInterval);
+        sb.append(", thriftTransportConfig=").append(thriftTransportConfig).append('\'');
+        sb.append(", staticResourceCleanup=").append(staticResourceCleanup);
         sb.append(", traceAgentActiveThread=").append(traceAgentActiveThread);
         sb.append(", traceAgentDataSource=").append(traceAgentDataSource);
         sb.append(", dataSourceTraceLimitSize=").append(dataSourceTraceLimitSize);
@@ -811,15 +881,16 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         sb.append(", maxSqlBindValueSize=").append(maxSqlBindValueSize);
         sb.append(", samplingEnable=").append(samplingEnable);
         sb.append(", samplingRate=").append(samplingRate);
+        sb.append(", samplingNewThroughput=").append(samplingNewThroughput);
+        sb.append(", samplingContinueThroughput=").append(samplingContinueThroughput);
         sb.append(", ioBufferingEnable=").append(ioBufferingEnable);
         sb.append(", ioBufferingBufferSize=").append(ioBufferingBufferSize);
-        sb.append(", profileOsName='").append(profileOsName).append('\'');
         sb.append(", profileJvmVendorName='").append(profileJvmVendorName).append('\'');
+        sb.append(", profileOsName='").append(profileOsName).append('\'');
         sb.append(", profileJvmStatCollectIntervalMs=").append(profileJvmStatCollectIntervalMs);
         sb.append(", profileJvmStatBatchSendCount=").append(profileJvmStatBatchSendCount);
         sb.append(", profilerJvmStatCollectDetailedMetrics=").append(profilerJvmStatCollectDetailedMetrics);
         sb.append(", profilableClassFilter=").append(profilableClassFilter);
-        sb.append(", DEFAULT_AGENT_INFO_SEND_RETRY_INTERVAL=").append(DEFAULT_AGENT_INFO_SEND_RETRY_INTERVAL);
         sb.append(", agentInfoSendRetryInterval=").append(agentInfoSendRetryInterval);
         sb.append(", applicationServerType='").append(applicationServerType).append('\'');
         sb.append(", applicationTypeDetectOrder=").append(applicationTypeDetectOrder);

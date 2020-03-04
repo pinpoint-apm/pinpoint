@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.bootstrap;
 
+import com.navercorp.pinpoint.bootstrap.agentdir.Assert;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 
 import java.lang.instrument.Instrumentation;
@@ -38,27 +39,12 @@ public class DefaultAgentOption implements AgentOption {
     private final List<String> bootstrapJarPaths;
 
     public DefaultAgentOption(final Instrumentation instrumentation, String agentId, String applicationName, final boolean isContainer, final ProfilerConfig profilerConfig, final List<String> pluginJars, final List<String> bootstrapJarPaths) {
-        if (instrumentation == null) {
-            throw new NullPointerException("instrumentation must not be null");
-        }
-        if (agentId == null) {
-            throw new NullPointerException("agentId must not be null");
-        }
-        if (applicationName == null) {
-            throw new NullPointerException("applicationName must not be null");
-        }
-        if (profilerConfig == null) {
-            throw new NullPointerException("profilerConfig must not be null");
-        }
-        if (pluginJars == null) {
-            throw new NullPointerException("pluginJars must not be null");
-        }
-        this.instrumentation = instrumentation;
-        this.agentId = agentId;
-        this.applicationName = applicationName;
+        this.instrumentation = Assert.requireNonNull(instrumentation, "instrumentation");
+        this.agentId = Assert.requireNonNull(agentId, "agentId");
+        this.applicationName = Assert.requireNonNull(applicationName, "applicationName");
         this.isContainer = isContainer;
-        this.profilerConfig = profilerConfig;
-        this.pluginJars = pluginJars;
+        this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig");
+        this.pluginJars = Assert.requireNonNull(pluginJars, "pluginJars");
         if (bootstrapJarPaths == null) {
             this.bootstrapJarPaths = Collections.emptyList();
         } else {

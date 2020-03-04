@@ -24,7 +24,7 @@ import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.io.request.ServerResponse;
 import com.navercorp.pinpoint.thrift.dto.TApiMetaData;
 import com.navercorp.pinpoint.thrift.dto.TResult;
-import org.apache.thrift.TBase;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,26 +44,19 @@ public class ThriftApiMetaDataHandler implements RequestResponseHandler {
     @Override
     public void handleRequest(ServerRequest serverRequest, ServerResponse serverResponse) {
         final Object data = serverRequest.getData();
-        if (data instanceof TBase) {
-            TBase<?, ?> tBase = handleRequest((TBase<?, ?>) data);
-            serverResponse.write(tBase);
+        if (logger.isDebugEnabled()) {
+            logger.debug("Handle request data={}", data);
+        }
+
+        if (data instanceof TApiMetaData) {
+            Object result = handleApiMetaData((TApiMetaData) data);
+            serverResponse.write(result);
         } else {
             logger.warn("invalid serverRequest:{}", serverRequest);
         }
     }
 
-    private TBase<?, ?> handleRequest(TBase<?, ?> tbase) {
-        if (!(tbase instanceof TApiMetaData)) {
-            logger.error("invalid tbase:{}", tbase);
-            return null;
-        }
-
-        final TApiMetaData apiMetaData = (TApiMetaData) tbase;
-        // Because api meta data is important , logging it at info level.
-        if (logger.isInfoEnabled()) {
-            logger.info("Received ApiMetaData={}", apiMetaData);
-        }
-
+    private Object handleApiMetaData(TApiMetaData apiMetaData) {
         try {
             final ApiMetaDataBo apiMetaDataBo = new ApiMetaDataBo(apiMetaData.getAgentId(), apiMetaData.getAgentStartTime(), apiMetaData.getApiId());
             apiMetaDataBo.setApiInfo(apiMetaData.getApiInfo());
@@ -77,7 +70,7 @@ public class ThriftApiMetaDataHandler implements RequestResponseHandler {
 
             this.apiMetaDataService.insert(apiMetaDataBo);
         } catch (Exception e) {
-            logger.warn("{} handler error. Caused:{}", this.getClass(), e.getMessage(), e);
+            logger.warn("Failed to handle apiMetaData={}, Caused:{}", apiMetaData, e.getMessage(), e);
             final TResult result = new TResult(false);
             result.setMessage(e.getMessage());
             return result;

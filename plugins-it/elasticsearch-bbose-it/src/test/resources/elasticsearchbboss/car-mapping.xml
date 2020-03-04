@@ -1,0 +1,43 @@
+<properties>
+    <property name="createCarIndice">
+        <![CDATA[
+        {
+            "settings": {
+                "number_of_shards": 1,
+                "number_of_replicas": 1,
+                "index.refresh_interval": "5s"
+            },
+            "mappings":
+            {
+              "car": {
+                "properties": {
+                  "carId": {
+                    "type": "keyword"
+                  },"manufacturer": {
+                    "type": "text"
+                  },
+                  "model": {
+                    "type": "text"
+                  },
+                  "description": {
+                    "type": "text"
+                  }
+                }
+              }
+            }
+        }
+        ]]>
+    </property>
+    <property name="testSearch">
+        <![CDATA[
+        {
+            "query": {
+                "match" : {
+                    ## use a variable named description defined in condition.
+                    "description" : #[description]
+                }
+            }
+        }
+        ]]>
+    </property>
+</properties>

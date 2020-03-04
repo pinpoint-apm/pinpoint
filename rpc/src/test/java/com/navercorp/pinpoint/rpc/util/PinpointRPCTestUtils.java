@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,6 @@ import com.navercorp.pinpoint.rpc.PinpointSocket;
 import com.navercorp.pinpoint.rpc.ResponseMessage;
 import com.navercorp.pinpoint.rpc.client.DefaultPinpointClientFactory;
 import com.navercorp.pinpoint.rpc.client.PinpointClient;
-import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
 import com.navercorp.pinpoint.rpc.packet.HandshakePropertyType;
 import com.navercorp.pinpoint.rpc.packet.RequestPacket;
 import com.navercorp.pinpoint.rpc.packet.SendPacket;
@@ -57,8 +56,9 @@ public final class PinpointRPCTestUtils {
         }
     }
 
-    public static PinpointClientFactory createClientFactory(Map<String, Object> param, MessageListener messageListener) {
-        PinpointClientFactory clientFactory = new DefaultPinpointClientFactory();
+    public static DefaultPinpointClientFactory createClientFactory(Map<String, Object> param, MessageListener messageListener) {
+        DefaultPinpointClientFactory clientFactory = new DefaultPinpointClientFactory();
+        clientFactory.setConnectTimeout(100);
         clientFactory.setProperties(param);
         clientFactory.addStateChangeEventListener(LoggingStateChangeEventListener.INSTANCE);
 

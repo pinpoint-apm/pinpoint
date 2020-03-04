@@ -1,0 +1,10 @@
+<ag-grid-angular
+    style="width:100%; height:100%"
+    class="ag-theme-balham"
+    [gridOptions]="gridOptions"
+    [rowData]="rowData"
+    (cellClicked)="onCellClick($event)"
+    (firstDataRendered)="onRendered()"
+    (rowDataChanged)="onRowDataChanged()"
+    (cellDoubleClicked)="onCellDoubleClicked($event)">
+</ag-grid-angular>

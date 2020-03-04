@@ -24,10 +24,10 @@ public class ExceptionHandleStaticAroundInterceptor implements StaticAroundInter
 
     public ExceptionHandleStaticAroundInterceptor(StaticAroundInterceptor delegate, ExceptionHandler exceptionHandler) {
         if (delegate == null) {
-            throw new NullPointerException("delegate must not be null");
+            throw new NullPointerException("delegate");
         }
         if (exceptionHandler == null) {
-            throw new NullPointerException("exceptionHandler must not be null");
+            throw new NullPointerException("exceptionHandler");
         }
         this.delegate = delegate;
         this.exceptionHandler = exceptionHandler;

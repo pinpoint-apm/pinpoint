@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.common.util.DelegateEnumeration;
 
 /**
  * @author emeroad
+ * @author jaehong.kim - Remove Proxy HTTP Header
  */
 public enum Header {
 
@@ -31,10 +32,7 @@ public enum Header {
     HTTP_PARENT_APPLICATION_NAME("Pinpoint-pAppName"),
     HTTP_PARENT_APPLICATION_TYPE("Pinpoint-pAppType"),
     HTTP_PARENT_APPLICATION_NAMESPACE("Pinpoint-pAppNamespace"),
-    HTTP_HOST("Pinpoint-Host"),
-    HTTP_PROXY_NGINX("Pinpoint-ProxyNginx"),
-    HTTP_PROXY_APACHE("Pinpoint-ProxyApache"),
-    HTTP_PROXY_APP("Pinpoint-ProxyApp");
+    HTTP_HOST("Pinpoint-Host");
 
     public static final String FILTER_PATTERN_PREFIX = "Pinpoint-";
     private static final int FILTER_PATTERN_PREFIX_LENGTH = FILTER_PATTERN_PREFIX.length();

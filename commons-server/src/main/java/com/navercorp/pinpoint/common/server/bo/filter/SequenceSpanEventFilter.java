@@ -50,9 +50,9 @@ public class SequenceSpanEventFilter implements SpanEventFilter {
             return REJECT;
         }
         final int sequence = spanEventBo.getSequence();
-        if (sequence > sequenceLimit) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("discard spanEvent:{}", spanEventBo);
+        if (sequence < 0 || sequence > sequenceLimit) {
+            if (logger.isTraceEnabled()) {
+                logger.trace("discard spanEvent:{}", spanEventBo);
             }
             return REJECT;
         }

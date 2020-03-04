@@ -19,19 +19,12 @@ package com.navercorp.pinpoint.plugin.httpclient3;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestWrapper;
-import com.navercorp.pinpoint.bootstrap.util.FixedByteArrayOutputStream;
 import com.navercorp.pinpoint.common.plugin.util.HostAndPort;
 import com.navercorp.pinpoint.common.util.Assert;
-import com.navercorp.pinpoint.common.util.StringUtils;
 import org.apache.commons.httpclient.HttpConnection;
-import org.apache.commons.httpclient.HttpConstants;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
-import org.apache.commons.httpclient.methods.ByteArrayRequestEntity;
-import org.apache.commons.httpclient.methods.EntityEnclosingMethod;
-import org.apache.commons.httpclient.methods.RequestEntity;
-import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.apache.commons.httpclient.protocol.Protocol;
 
 /**
@@ -48,7 +41,7 @@ public class HttpClient3RequestWrapper implements ClientRequestWrapper {
     private final HttpConnection httpConnection;
 
     public HttpClient3RequestWrapper(final HttpMethod httpMethod, final HttpConnection httpConnection) {
-        this.httpMethod = Assert.requireNonNull(httpMethod, "httpMethod must not be null");
+        this.httpMethod = Assert.requireNonNull(httpMethod, "httpMethod");
         this.httpConnection = httpConnection;
     }
 

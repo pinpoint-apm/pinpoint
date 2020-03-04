@@ -109,7 +109,7 @@ public class ChannelPipelineWriteInterceptor implements AroundInterceptor {
     }
 
     private boolean validate(Object[] args) {
-        if (args.length == 0) {
+        if (args == null || args.length == 0) {
             return false;
         }
 

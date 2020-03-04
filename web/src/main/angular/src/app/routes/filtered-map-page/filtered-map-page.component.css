@@ -1,0 +1,33 @@
+.l-widget-group {
+    display: flex;
+    flex-flow: row wrap;
+    flex: 1;
+    padding: 0 15px;
+    height: 100%;
+    align-items: center;
+}
+.l-main-container {
+    display: flex;
+    flex-flow: row wrap;
+    height: calc(100vh - 50px);
+    overflow-y: hidden;
+}
+.l-main-section {
+    display: flex;
+    flex-flow: column nowrap;
+    flex: 1;
+    /* background: #edf2f8; */
+    --background-color: #edf2f8;
+    background: var(--background-color);
+    position: relative;
+    height: 100%;
+    overflow: hidden;
+}
+.l-main-contents {
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+}
+button {
+    outline: none;
+}

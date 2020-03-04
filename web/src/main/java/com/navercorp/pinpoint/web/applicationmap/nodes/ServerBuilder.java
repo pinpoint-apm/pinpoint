@@ -60,7 +60,7 @@ public class ServerBuilder {
 
     public void addServerInstance(ServerBuilder copy) {
         if (copy == null) {
-            throw new NullPointerException("copy must not be null");
+            throw new NullPointerException("copy");
         }
         addCallHistogramList(copy.agentHistogramList);
         addAgentInfo(copy.agentSet);

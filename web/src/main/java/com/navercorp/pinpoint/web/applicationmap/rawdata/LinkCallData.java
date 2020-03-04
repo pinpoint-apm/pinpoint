@@ -43,7 +43,7 @@ public class LinkCallData {
     }
     public LinkCallData(LinkKey linkKey, TimeWindow timeWindow) {
         if (linkKey == null) {
-            throw new NullPointerException("linkKey must not be null");
+            throw new NullPointerException("linkKey");
         }
         this.source = linkKey.getFromApplication();
         this.sourceServiceType = linkKey.getFromServiceType();
@@ -93,7 +93,7 @@ public class LinkCallData {
 
     public void addRawCallData(LinkCallData copyLinkCallData) {
         if (copyLinkCallData == null) {
-            throw new NullPointerException("copyLinkCallData must not be null");
+            throw new NullPointerException("copyLinkCallData");
         }
         if (!this.source.equals(copyLinkCallData.source)) {
             throw new IllegalArgumentException("source not equals");

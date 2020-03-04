@@ -20,7 +20,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
+import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
 import com.navercorp.pinpoint.web.applicationmap.nodes.ServerInstance;
@@ -28,6 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.Objects;
 
 /**
  * @author emeroad
@@ -36,25 +37,14 @@ import java.io.IOException;
 @Component
 public class ServerInstanceSerializer extends JsonSerializer<ServerInstance> {
 
-    @Autowired
-    private ServiceTypeRegistryService serviceTypeRegistryService;
+    private final ServiceTypeRegistryService serviceTypeRegistryService;
+
+    private final AgentLifeCycleStateSerializer agentLifeCycleStateSerializer;
 
     @Autowired
-    private AgentLifeCycleStateSerializer agentLifeCycleStateSerializer;
-
-    public ServerInstanceSerializer() {
-    }
-
-    // for Test
-    @Deprecated
-    void setServiceTypeRegistryService(ServiceTypeRegistryService serviceTypeRegistryService) {
-        this.serviceTypeRegistryService = serviceTypeRegistryService;
-    }
-
-    // for Test
-    @Deprecated
-    void setAgentLifeCycleStateSerializer(AgentLifeCycleStateSerializer agentLifeCycleStateSerializer) {
-        this.agentLifeCycleStateSerializer = agentLifeCycleStateSerializer;
+    public ServerInstanceSerializer(ServiceTypeRegistryService serviceTypeRegistryService, AgentLifeCycleStateSerializer agentLifeCycleStateSerializer) {
+        this.serviceTypeRegistryService = Objects.requireNonNull(serviceTypeRegistryService, "serviceTypeRegistryService");
+        this.agentLifeCycleStateSerializer = Objects.requireNonNull(agentLifeCycleStateSerializer, "agentLifeCycleStateSerializer");
     }
 
     @Override

@@ -30,7 +30,7 @@
         </property>
     </bean>
 
-    <bean id="hbaseThreadPool" class="com.navercorp.pinpoint.common.server.util.ThreadPoolExecutorFactoryBean">
+    <bean id="hbaseThreadPool" class="com.navercorp.pinpoint.common.server.util.PinpointThreadPoolExecutorFactoryBean">
         <property name="corePoolSize" value="${hbase.client.thread.max}"/>
         <property name="maxPoolSize" value="${hbase.client.thread.max}"/>
         <property name="queueCapacity" value="${hbase.client.threadPool.queueSize}"/>

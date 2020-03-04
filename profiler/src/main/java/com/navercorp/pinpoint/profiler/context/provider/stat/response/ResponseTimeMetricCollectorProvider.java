@@ -23,24 +23,24 @@ import com.navercorp.pinpoint.profiler.monitor.collector.AgentStatMetricCollecto
 import com.navercorp.pinpoint.profiler.monitor.collector.UnsupportedMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.collector.response.DefaultResponseTimeMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.metric.response.ResponseTimeMetric;
-import com.navercorp.pinpoint.thrift.dto.TResponseTime;
+import com.navercorp.pinpoint.profiler.monitor.metric.response.ResponseTimeValue;
 
 /**
  * @author Taejin Koo
  */
-public class ResponseTimeMetricCollectorProvider implements Provider<AgentStatMetricCollector<TResponseTime>> {
+public class ResponseTimeMetricCollectorProvider implements Provider<AgentStatMetricCollector<ResponseTimeValue>> {
 
     private final ResponseTimeMetric responseTimeMetric;
 
     @Inject
     public ResponseTimeMetricCollectorProvider(ResponseTimeMetric responseTimeMetric) {
-        this.responseTimeMetric = Assert.requireNonNull(responseTimeMetric, "responseTimeMetric must not be null");
+        this.responseTimeMetric = Assert.requireNonNull(responseTimeMetric, "responseTimeMetric");
     }
 
     @Override
-    public AgentStatMetricCollector<TResponseTime> get() {
+    public AgentStatMetricCollector<ResponseTimeValue> get() {
         if (responseTimeMetric == ResponseTimeMetric.UNSUPPORTED_RESPONSE_TIME_METRIC) {
-            return new UnsupportedMetricCollector<TResponseTime>();
+            return new UnsupportedMetricCollector<ResponseTimeValue>();
         }
         return new DefaultResponseTimeMetricCollector(responseTimeMetric);
     }

@@ -16,11 +16,13 @@
 
 package com.navercorp.pinpoint.web.dao.hbase;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
+import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
+import com.navercorp.pinpoint.common.hbase.RowMapper;
+import com.navercorp.pinpoint.common.hbase.TableDescriptor;
+import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
+import com.navercorp.pinpoint.web.vo.Application;
 
-import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -33,11 +35,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
-import com.navercorp.pinpoint.common.hbase.HBaseTables;
-import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
-import com.navercorp.pinpoint.common.hbase.RowMapper;
-import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
-import com.navercorp.pinpoint.web.vo.Application;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author netspider
@@ -50,9 +50,6 @@ public class HbaseApplicationIndexDao implements ApplicationIndexDao {
     private HbaseOperations2 hbaseOperations2;
 
     @Autowired
-    private TableNameProvider tableNameProvider;
-
-    @Autowired
     @Qualifier("applicationNameMapper")
     private RowMapper<List<Application>> applicationNameMapper;
 
@@ -60,12 +57,16 @@ public class HbaseApplicationIndexDao implements ApplicationIndexDao {
     @Qualifier("agentIdMapper")
     private RowMapper<List<String>> agentIdMapper;
 
+    @Autowired
+    private TableDescriptor<HbaseColumnFamily.ApplicationIndex> descriptor;
+
     @Override
     public List<Application> selectAllApplicationNames() {
         Scan scan = new Scan();
         scan.setCaching(30);
+        scan.addFamily(descriptor.getColumnFamilyName());
 
-        TableName applicationIndexTableName = tableNameProvider.getTableName(HBaseTables.APPLICATION_INDEX_STR);
+        TableName applicationIndexTableName = descriptor.getTableName();
         List<List<Application>> results = hbaseOperations2.find(applicationIndexTableName, scan, applicationNameMapper);
         List<Application> applications = new ArrayList<>();
         for (List<Application> result : results) {
@@ -77,14 +78,14 @@ public class HbaseApplicationIndexDao implements ApplicationIndexDao {
     @Override
     public List<String> selectAgentIds(String applicationName) {
         if (applicationName == null) {
-            throw new NullPointerException("applicationName must not be null");
+            throw new NullPointerException("applicationName");
         }
         byte[] rowKey = Bytes.toBytes(applicationName);
 
         Get get = new Get(rowKey);
-        get.addFamily(HBaseTables.APPLICATION_INDEX_CF_AGENTS);
+        get.addFamily(descriptor.getColumnFamilyName());
 
-        TableName applicationIndexTableName = tableNameProvider.getTableName(HBaseTables.APPLICATION_INDEX_STR);
+        TableName applicationIndexTableName = descriptor.getTableName();
         return hbaseOperations2.get(applicationIndexTableName, get, agentIdMapper);
     }
 
@@ -93,7 +94,7 @@ public class HbaseApplicationIndexDao implements ApplicationIndexDao {
         byte[] rowKey = Bytes.toBytes(applicationName);
         Delete delete = new Delete(rowKey);
 
-        TableName applicationIndexTableName = tableNameProvider.getTableName(HBaseTables.APPLICATION_INDEX_STR);
+        TableName applicationIndexTableName = descriptor.getTableName();
         hbaseOperations2.delete(applicationIndexTableName, delete);
     }
 
@@ -114,7 +115,7 @@ public class HbaseApplicationIndexDao implements ApplicationIndexDao {
             Delete delete = new Delete(Bytes.toBytes(applicationName));
             for (String agentId : agentIds) {
                 if (!StringUtils.isEmpty(agentId)) {
-                    delete.addColumns(HBaseTables.APPLICATION_INDEX_CF_AGENTS, Bytes.toBytes(agentId));
+                    delete.addColumns(descriptor.getColumnFamilyName(), Bytes.toBytes(agentId));
                 }
             }
             // don't delete if nothing has been specified except row
@@ -123,7 +124,7 @@ public class HbaseApplicationIndexDao implements ApplicationIndexDao {
             }
         }
 
-        TableName applicationIndexTableName = tableNameProvider.getTableName(HBaseTables.APPLICATION_INDEX_STR);
+        TableName applicationIndexTableName = descriptor.getTableName();
         hbaseOperations2.delete(applicationIndexTableName, deletes);
     }
 
@@ -138,9 +139,10 @@ public class HbaseApplicationIndexDao implements ApplicationIndexDao {
         byte[] rowKey = Bytes.toBytes(applicationName);
         Delete delete = new Delete(rowKey);
         byte[] qualifier = Bytes.toBytes(agentId);
-        delete.addColumns(HBaseTables.APPLICATION_INDEX_CF_AGENTS, qualifier);
+        delete.addColumns(descriptor.getColumnFamilyName(), qualifier);
 
-        TableName applicationIndexTableName = tableNameProvider.getTableName(HBaseTables.APPLICATION_INDEX_STR);
+        TableName applicationIndexTableName = descriptor.getTableName();
         hbaseOperations2.delete(applicationIndexTableName, delete);
     }
+
 }

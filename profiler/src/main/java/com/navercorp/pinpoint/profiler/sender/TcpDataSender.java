@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.profiler.sender;
 
 
 import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.io.request.Message;
 import com.navercorp.pinpoint.profiler.context.thrift.BypassMessageConverter;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
@@ -53,6 +54,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class TcpDataSender implements EnhancedDataSender<Object> {
 
+    private static final int DEFAULT_QUEUE_SIZE = 1024 * 5;
+
     private final Logger logger;
 
     static {
@@ -75,7 +78,7 @@ public class TcpDataSender implements EnhancedDataSender<Object> {
 
 
     public TcpDataSender(String name, String host, int port, PinpointClientFactory clientFactory) {
-        this(name, ClientFactoryUtils.newPinpointClientProvider(host, port, clientFactory), newDefaultMessageSerializer());
+        this(name, ClientFactoryUtils.newPinpointClientProvider(host, port, clientFactory), newDefaultMessageSerializer(), DEFAULT_QUEUE_SIZE);
     }
 
     private static ThriftMessageSerializer newDefaultMessageSerializer() {
@@ -84,21 +87,28 @@ public class TcpDataSender implements EnhancedDataSender<Object> {
     }
 
     public TcpDataSender(String name, String host, int port, PinpointClientFactory clientFactory, MessageSerializer<byte[]> messageSerializer) {
-        this(name, ClientFactoryUtils.newPinpointClientProvider(host, port, clientFactory), messageSerializer);
+        this(name, ClientFactoryUtils.newPinpointClientProvider(host, port, clientFactory), messageSerializer, DEFAULT_QUEUE_SIZE);
     }
 
-    private TcpDataSender(String name, ClientFactoryUtils.PinpointClientProvider clientProvider, MessageSerializer<byte[]> messageSerializer) {
+    public TcpDataSender(String name, String host, int port, PinpointClientFactory clientFactory, MessageSerializer<byte[]> messageSerializer, int queueSize) {
+        this(name, ClientFactoryUtils.newPinpointClientProvider(host, port, clientFactory), messageSerializer, queueSize);
+    }
+
+    private TcpDataSender(String name, ClientFactoryUtils.PinpointClientProvider clientProvider, MessageSerializer<byte[]> messageSerializer, int queueSize) {
         this.logger = newLogger(name);
 
-        Assert.requireNonNull(clientProvider, "clientProvider must not be null");
+        Assert.requireNonNull(clientProvider, "clientProvider");
         this.client = clientProvider.get();
 
-        this.messageSerializer = Assert.requireNonNull(messageSerializer, "messageSerializer must not be null");
+        Assert.isTrue(queueSize > 0, "queueSize must be 'queueSize > 0'");
+
+        this.messageSerializer = Assert.requireNonNull(messageSerializer, "messageSerializer");
         this.timer = createTimer(name);
-        this.writeFailFutureListener = new WriteFailFutureListener(logger, "io write fail.", "host", -1);
+
+        this.writeFailFutureListener = new WriteFailFutureListener(logger, "io write fail.", clientProvider.getAddressAsString());
 
         final String executorName = getExecutorName(name);
-        this.executor = createAsyncQueueingExecutor(1024 * 5, executorName);
+        this.executor = createAsyncQueueingExecutor(queueSize, executorName);
     }
 
     private AsyncQueueingExecutor<Object> createAsyncQueueingExecutor(int queueSize, String executorName) {
@@ -113,16 +123,20 @@ public class TcpDataSender implements EnhancedDataSender<Object> {
     }
 
     private Logger newLogger(String name) {
+        final String loggerName = getLoggerName(name);
+        return LoggerFactory.getLogger(loggerName);
+    }
+
+    private String getLoggerName(String name) {
         if (name == null) {
-            return LoggerFactory.getLogger(this.getClass());
+            return this.getClass().getName();
+        } else {
+            return this.getClass().getName() + "@" + name;
         }
-        return LoggerFactory.getLogger(this.getClass().getName() + "@" + name);
     }
 
     private String getExecutorName(String name) {
-        if (name == null) {
-            return "Pinpoint-TcpDataSender-Executor";
-        }
+        name = StringUtils.defaultString(name, "DEFAULT");
         return String.format("Pinpoint-TcpDataSender(%s)-Executor", name);
     }
 
@@ -136,9 +150,7 @@ public class TcpDataSender implements EnhancedDataSender<Object> {
     }
 
     private String getTimerName(String name) {
-        if (name == null) {
-            return "Pinpoint-TcpDataSender-Timer";
-        }
+        name = StringUtils.defaultString(name, "DEFAULT");
         return String.format("Pinpoint-TcpDataSender(%s)-Timer", name);
     }
 
@@ -194,24 +206,19 @@ public class TcpDataSender implements EnhancedDataSender<Object> {
 
     protected void sendPacket(Object message) {
         try {
-            if (message instanceof TBase<?, ?>) {
-                final byte[] copy = messageSerializer.serializer(message);
-                if (copy == null) {
-                    return;
-                }
-                doSend(copy);
-                return;
-            }
-
             if (message instanceof RequestMessage<?>) {
                 final RequestMessage<?> requestMessage = (RequestMessage<?>) message;
                 if (doRequest(requestMessage)) {
                     return;
                 }
-            } else {
+            }
+
+            final byte[] copy = messageSerializer.serializer(message);
+            if (copy == null) {
                 logger.error("sendPacket fail. invalid dto type:{}", message.getClass());
                 return;
             }
+            doSend(copy);
         } catch (Exception e) {
             logger.warn("tcp send fail. Caused:{}", e.getMessage(), e);
         }

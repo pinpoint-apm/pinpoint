@@ -17,9 +17,9 @@
 package com.navercorp.pinpoint.profiler.monitor;
 
 import com.navercorp.pinpoint.profiler.monitor.collector.AgentStatMetricCollector;
+import com.navercorp.pinpoint.profiler.monitor.metric.AgentStatMetricSnapshot;
+import com.navercorp.pinpoint.profiler.monitor.metric.AgentStatMetricSnapshotBatch;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
-import com.navercorp.pinpoint.thrift.dto.TAgentStat;
-import com.navercorp.pinpoint.thrift.dto.TAgentStatBatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,27 +36,27 @@ public class CollectJob implements Runnable {
     private final DataSender dataSender;
     private final String agentId;
     private final long agentStartTimestamp;
-    private final AgentStatMetricCollector<TAgentStat> agentStatCollector;
+    private final AgentStatMetricCollector<AgentStatMetricSnapshot> agentStatCollector;
     private final int numCollectionsPerBatch;
 
     // Not thread safe. For use with single thread ONLY
     private int collectCount = 0;
     private long prevCollectionTimestamp = System.currentTimeMillis();
-    private List<TAgentStat> agentStats;
+    private List<AgentStatMetricSnapshot> agentStats;
 
     public CollectJob(DataSender dataSender,
                        String agentId, long agentStartTimestamp,
-                       AgentStatMetricCollector<TAgentStat> agentStatCollector,
+                       AgentStatMetricCollector<AgentStatMetricSnapshot> agentStatCollector,
                        int numCollectionsPerBatch) {
         if (dataSender == null) {
-            throw new NullPointerException("dataSender must not be null");
+            throw new NullPointerException("dataSender");
         }
         this.dataSender = dataSender;
         this.agentId = agentId;
         this.agentStartTimestamp = agentStartTimestamp;
         this.agentStatCollector = agentStatCollector;
         this.numCollectionsPerBatch = numCollectionsPerBatch;
-        this.agentStats = new ArrayList<TAgentStat>(numCollectionsPerBatch);
+        this.agentStats = new ArrayList<AgentStatMetricSnapshot>(numCollectionsPerBatch);
     }
 
     @Override
@@ -64,7 +64,7 @@ public class CollectJob implements Runnable {
         final long currentCollectionTimestamp = System.currentTimeMillis();
         final long collectInterval = currentCollectionTimestamp - this.prevCollectionTimestamp;
         try {
-            final TAgentStat agentStat = agentStatCollector.collect();
+            final AgentStatMetricSnapshot agentStat = agentStatCollector.collect();
             agentStat.setTimestamp(currentCollectionTimestamp);
             agentStat.setCollectInterval(collectInterval);
             this.agentStats.add(agentStat);
@@ -83,14 +83,14 @@ public class CollectJob implements Runnable {
         // prepare TAgentStat object.
         // TODO multi thread issue.
         // If we reuse TAgentStat, there could be concurrency issue because data sender runs in a different thread.
-        final TAgentStatBatch agentStatBatch = new TAgentStatBatch();
+        final AgentStatMetricSnapshotBatch agentStatBatch = new AgentStatMetricSnapshotBatch();
         agentStatBatch.setAgentId(agentId);
         agentStatBatch.setStartTimestamp(agentStartTimestamp);
         agentStatBatch.setAgentStats(this.agentStats);
         // If we reuse agentStats list, there could be concurrency issue because data sender runs in a different
         // thread.
         // So create new list.
-        this.agentStats = new ArrayList<TAgentStat>(numCollectionsPerBatch);
+        this.agentStats = new ArrayList<AgentStatMetricSnapshot>(numCollectionsPerBatch);
         logger.trace("collect agentStat:{}", agentStatBatch);
         dataSender.send(agentStatBatch);
     }

@@ -25,7 +25,7 @@ import com.navercorp.pinpoint.common.trace.MethodType;
 public class HystrixCircuitBreakerMethodDescriptor implements MethodDescriptor {
 
     private int apiId = 0;
-    private int type = MethodType.DEFAULT;
+    private int type = MethodType.INVOCATION;
 
     @Override
     public String getMethodName() {

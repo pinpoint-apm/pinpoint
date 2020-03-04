@@ -1,0 +1,22 @@
+<section class="l-search-section">
+    <input type="text" placeholder="{{i18nText.SEARCH_INPUT_GUIDE}}" class="l-search-input" 
+        ppSearchInput 
+        [searchMinLength]="SEARCH_MIN_LENGTH"
+        [useEnter]="searchUseEnter"
+        (outCancel)="onCancel()"
+        (outSearch)="onSearch($event)"
+        #searchInput>
+</section>
+<section class="l-app-list-section">
+    <ng-container *ngIf="!isEmpty; else emptyText">
+        <pp-application-list-for-configuration
+            [applicationList]="filteredAppList"
+            [funcImagePath]="funcImagePath"
+            [iconBtnClassName]="iconBtnClassName"
+            (outSelectApp)="onSelectApp($event)">
+        </pp-application-list-for-configuration>
+    </ng-container>
+    <ng-template #emptyText>
+        <p class="l-empty-text">{{i18nText.EMPTY}}</p>
+    </ng-template>
+</section>

@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.web.vo;
 
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
-import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
+import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.TestTraceUtils;
 import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;

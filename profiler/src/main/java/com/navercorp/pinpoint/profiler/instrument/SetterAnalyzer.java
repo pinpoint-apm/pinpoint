@@ -26,7 +26,7 @@ import java.lang.reflect.Method;
 public class SetterAnalyzer {
 
     public SetterDetails analyze(Class<?> setterType) {
-        Assert.requireNonNull(setterType, "setterType must not be null");
+        Assert.requireNonNull(setterType, "setterType");
 
         if (!setterType.isInterface()) {
             throw new IllegalArgumentException("setterType " + setterType + "is not an interface");

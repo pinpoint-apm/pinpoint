@@ -58,15 +58,15 @@ public final class DefaultTrace implements Trace {
     public DefaultTrace(Span span, CallStack<SpanEvent> callStack, Storage storage, boolean sampling,
                         SpanRecorder spanRecorder, WrappedSpanEventRecorder wrappedSpanEventRecorder, ActiveTraceHandle activeTraceHandle) {
 
-        this.span = Assert.requireNonNull(span, "span must not be null");
-        this.callStack = Assert.requireNonNull(callStack, "callStack must not be null");
-        this.storage = Assert.requireNonNull(storage, "storage must not be null");
+        this.span = Assert.requireNonNull(span, "span");
+        this.callStack = Assert.requireNonNull(callStack, "callStack");
+        this.storage = Assert.requireNonNull(storage, "storage");
         Assert.isTrue(sampling, "sampling must be true");
 
-        this.spanRecorder = Assert.requireNonNull(spanRecorder, "spanRecorder must not be null");
-        this.wrappedSpanEventRecorder = Assert.requireNonNull(wrappedSpanEventRecorder, "wrappedSpanEventRecorder must not be null");
+        this.spanRecorder = Assert.requireNonNull(spanRecorder, "spanRecorder");
+        this.wrappedSpanEventRecorder = Assert.requireNonNull(wrappedSpanEventRecorder, "wrappedSpanEventRecorder");
 
-        this.activeTraceHandle = Assert.requireNonNull(activeTraceHandle, "activeTraceHandle must not be null");
+        this.activeTraceHandle = Assert.requireNonNull(activeTraceHandle, "activeTraceHandle");
         setCurrentThread();
     }
 

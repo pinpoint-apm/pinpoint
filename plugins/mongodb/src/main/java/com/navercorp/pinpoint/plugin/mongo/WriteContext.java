@@ -72,7 +72,7 @@ class WriteContext {
     static final String UNTRACED = "Unsupported-trace";
 
     public WriteContext(List<String> jsonParameterAppender, boolean decimal128Enabled, boolean traceBsonBindValue) {
-        this.jsonParameter = Assert.requireNonNull(jsonParameterAppender, "jsonParameterAppender must not be null");
+        this.jsonParameter = Assert.requireNonNull(jsonParameterAppender, "jsonParameterAppender");
         this.decimal128Enabled = decimal128Enabled;
         this.traceBsonBindValue = traceBsonBindValue;
     }

@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,15 +16,11 @@
 
 package com.navercorp.pinpoint.web.mapper;
 
-import com.google.common.collect.LinkedListMultimap;
-import com.google.common.collect.ListMultimap;
-import com.google.common.collect.Lists;
 import com.navercorp.pinpoint.common.buffer.Buffer;
-import com.navercorp.pinpoint.common.buffer.OffsetFixedBuffer;
-import com.navercorp.pinpoint.common.hbase.HBaseTables;
+import com.navercorp.pinpoint.common.buffer.FixedBuffer;
+import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.server.bo.BasicSpan;
-import com.navercorp.pinpoint.common.server.bo.LocalAsyncIdBo;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
@@ -33,7 +29,13 @@ import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyDecoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanDecoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanDecoderV0;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanDecodingContext;
-import com.navercorp.pinpoint.common.util.TransactionId;
+import com.navercorp.pinpoint.common.profiler.util.TransactionId;
+import com.navercorp.pinpoint.common.util.CollectionUtils;
+import com.navercorp.pinpoint.io.SpanVersion;
+
+import com.google.common.collect.LinkedListMultimap;
+import com.google.common.collect.ListMultimap;
+import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
@@ -41,33 +43,30 @@ import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author emeroad
  */
-@Component
 public class SpanMapperV2 implements RowMapper<List<SpanBo>> {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final SpanDecoder spanDecoder = new SpanDecoderV0();
+    private final SpanDecoder spanDecoder;
 
     private final RowKeyDecoder<TransactionId> rowKeyDecoder;
 
-    @Autowired
-    public SpanMapperV2(@Qualifier("traceRowKeyDecoderV2") RowKeyDecoder<TransactionId> rowKeyDecoder) {
-        if (rowKeyDecoder == null) {
-            throw new NullPointerException("rowKeyDecoder must not be null");
-        }
+    public SpanMapperV2(RowKeyDecoder<TransactionId> rowKeyDecoder) {
+        this(rowKeyDecoder, new SpanDecoderV0());
+    }
 
-        this.rowKeyDecoder = rowKeyDecoder;
+    public SpanMapperV2(RowKeyDecoder<TransactionId> rowKeyDecoder, SpanDecoder spanDecoder) {
+        this.rowKeyDecoder = Objects.requireNonNull(rowKeyDecoder, "rowKeyDecoder");
+        this.spanDecoder = Objects.requireNonNull(spanDecoder, "spanDecoder");
     }
 
     @Override
@@ -91,12 +90,12 @@ public class SpanMapperV2 implements RowMapper<List<SpanBo>> {
         for (Cell cell : rawCells) {
             SpanDecoder spanDecoder = null;
             // only if family name is "span"
-            if (CellUtil.matchingFamily(cell, HBaseTables.TRACE_V2_CF_SPAN)) {
+            if (CellUtil.matchingFamily(cell, HbaseColumnFamily.TRACE_V2_SPAN.getName())) {
 
                 decodingContext.setCollectorAcceptedTime(cell.getTimestamp());
 
-                final Buffer qualifier = new OffsetFixedBuffer(cell.getQualifierArray(), cell.getQualifierOffset(), cell.getQualifierLength());
-                final Buffer columnValue = new OffsetFixedBuffer(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength());
+                final Buffer qualifier = new FixedBuffer(CellUtil.cloneQualifier(cell));
+                final Buffer columnValue = new FixedBuffer(CellUtil.cloneValue(cell));
 
                 spanDecoder = resolveDecoder(columnValue);
                 final Object decodeObject = spanDecoder.decode(qualifier, columnValue, decodingContext);
@@ -137,10 +136,10 @@ public class SpanMapperV2 implements RowMapper<List<SpanBo>> {
 
     private SpanDecoder resolveDecoder(Buffer columnValue) {
         final byte version = columnValue.getByte(0);
-        if (version == 0) {
+        if (SpanVersion.supportedVersionRange(version)) {
             return this.spanDecoder;
         } else {
-            throw new IllegalStateException("unsupported version");
+            throw new IllegalStateException("unsupported version" + version);
         }
     }
 
@@ -163,7 +162,7 @@ public class SpanMapperV2 implements RowMapper<List<SpanBo>> {
         for (SpanChunkBo spanChunkBo : spanChunkList) {
             AgentKey agentKey = newAgentKey(spanChunkBo);
             List<SpanBo> matchedSpanBoList = spanMap.get(agentKey);
-            if (matchedSpanBoList != null) {
+            if (CollectionUtils.hasLength(matchedSpanBoList)) {
                 final int spanIdCollisionSize = matchedSpanBoList.size();
                 if (spanIdCollisionSize > 1) {
                     // exceptional case dump
@@ -173,12 +172,7 @@ public class SpanMapperV2 implements RowMapper<List<SpanBo>> {
                 int agentLevelCollisionCount = 0;
                 for (SpanBo spanBo : matchedSpanBoList) {
                     if (isChildSpanChunk(spanBo, spanChunkBo)) {
-                        final LocalAsyncIdBo parentAsyncIdBo = spanChunkBo.getLocalAsyncId();
-                        if (parentAsyncIdBo != null) {
-                            spanBo.addAsyncSpanBo(spanChunkBo);
-                        } else {
-                            spanBo.addSpanEventBoList(spanChunkBo.getSpanEventBoList());
-                        }
+                        spanBo.addSpanChunkBo(spanChunkBo);
                         agentLevelCollisionCount++;
                     }
                 }
@@ -224,10 +218,10 @@ public class SpanMapperV2 implements RowMapper<List<SpanBo>> {
 
         public AgentKey(String applicationId, String agentId, long agentStartTime, long spanId) {
             if (applicationId == null) {
-                throw new NullPointerException("applicationId must not be null");
+                throw new NullPointerException("applicationId");
             }
             if (agentId == null) {
-                throw new NullPointerException("agentId must not be null");
+                throw new NullPointerException("agentId");
             }
             this.applicationId = applicationId;
             this.agentId = agentId;

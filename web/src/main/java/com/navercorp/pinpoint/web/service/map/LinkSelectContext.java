@@ -43,16 +43,16 @@ public class LinkSelectContext {
 
     public LinkSelectContext(Range range, SearchDepth callerDepth, SearchDepth calleeDepth, LinkVisitChecker linkVisitChecker) {
         if (range == null) {
-            throw new NullPointerException("range must not be null");
+            throw new NullPointerException("range");
         }
         if (callerDepth == null) {
-            throw new NullPointerException("callerDepth must not be null");
+            throw new NullPointerException("callerDepth");
         }
         if (calleeDepth == null) {
-            throw new NullPointerException("calleeDepth must not be null");
+            throw new NullPointerException("calleeDepth");
         }
         if (linkVisitChecker == null) {
-            throw new NullPointerException("linkVisitChecker must not be null");
+            throw new NullPointerException("linkVisitChecker");
         }
         this.range = range;
         this.callerDepth = callerDepth;

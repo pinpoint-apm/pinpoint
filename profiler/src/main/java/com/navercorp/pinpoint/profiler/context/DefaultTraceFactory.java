@@ -38,8 +38,8 @@ public class DefaultTraceFactory implements TraceFactory {
     private final BaseTraceFactory baseTraceFactory;
 
     public DefaultTraceFactory(BaseTraceFactory baseTraceFactory, Binder<Trace> binder) {
-        this.baseTraceFactory = Assert.requireNonNull(baseTraceFactory, "baseTraceFactory must not be null");
-        this.threadLocalBinder = Assert.requireNonNull(binder, "binder must not be null");
+        this.baseTraceFactory = Assert.requireNonNull(baseTraceFactory, "baseTraceFactory");
+        this.threadLocalBinder = Assert.requireNonNull(binder, "binder");
     }
 
     /**

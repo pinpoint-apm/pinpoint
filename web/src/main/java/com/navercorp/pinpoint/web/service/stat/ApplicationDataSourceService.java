@@ -16,7 +16,7 @@
 package com.navercorp.pinpoint.web.service.stat;
 
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinDataSourceListBo.DataSourceKey;
-import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
+import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.dao.ApplicationDataSourceDao;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinDataSourceBo;
@@ -44,10 +44,10 @@ public class ApplicationDataSourceService {
 
     public List<StatChart> selectApplicationChart(String applicationId, TimeWindow timeWindow) {
         if (applicationId == null) {
-            throw new NullPointerException("applicationId must not be null");
+            throw new NullPointerException("applicationId");
         }
         if (timeWindow == null) {
-            throw new NullPointerException("timeWindow must not be null");
+            throw new NullPointerException("timeWindow");
         }
 
         List<StatChart> result = new ArrayList<>();

@@ -36,7 +36,7 @@ public class ResponseTimeMetricProvider implements Provider<ResponseTimeMetric> 
 
     @Inject
     public ResponseTimeMetricProvider(ResponseTimeCollector responseTimeCollector) {
-        this.responseTimeCollector = Assert.requireNonNull(responseTimeCollector, "responseTimeCollector must not be null");
+        this.responseTimeCollector = Assert.requireNonNull(responseTimeCollector, "responseTimeCollector");
     }
 
     @Override

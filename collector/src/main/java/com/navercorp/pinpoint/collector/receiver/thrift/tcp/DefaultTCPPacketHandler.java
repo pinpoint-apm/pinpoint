@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.collector.receiver.thrift.tcp;
 
-import com.navercorp.pinpoint.collector.receiver.thrift.DispatchHandler;
+import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.collector.util.PacketUtils;
 import com.navercorp.pinpoint.io.request.DefaultServerRequest;
 import com.navercorp.pinpoint.io.request.Message;
@@ -55,15 +55,15 @@ public class DefaultTCPPacketHandler implements TCPPacketHandler {
 
 
     public DefaultTCPPacketHandler(DispatchHandler dispatchHandler, SerializerFactory<HeaderTBaseSerializer> serializerFactory, DeserializerFactory<HeaderTBaseDeserializer> deserializerFactory) {
-        this.dispatchHandler = Objects.requireNonNull(dispatchHandler, "dispatchHandler must not be null");
-        this.serializerFactory = Objects.requireNonNull(serializerFactory, "serializerFactory must not be null");
-        this.deserializerFactory = Objects.requireNonNull(deserializerFactory, "deserializerFactory must not be null");
+        this.dispatchHandler = Objects.requireNonNull(dispatchHandler, "dispatchHandler");
+        this.serializerFactory = Objects.requireNonNull(serializerFactory, "serializerFactory");
+        this.deserializerFactory = Objects.requireNonNull(deserializerFactory, "deserializerFactory");
     }
 
     @Override
     public void handleSend(SendPacket packet, PinpointSocket pinpointSocket) {
-        Objects.requireNonNull(packet, "packet must not be null");
-        Objects.requireNonNull(pinpointSocket, "pinpointSocket must not be null");
+        Objects.requireNonNull(packet, "packet");
+        Objects.requireNonNull(pinpointSocket, "pinpointSocket");
 
         final byte[] payload = getPayload(packet);
         final InetSocketAddress remoteAddress = (InetSocketAddress) pinpointSocket.getRemoteAddress();
@@ -87,14 +87,14 @@ public class DefaultTCPPacketHandler implements TCPPacketHandler {
 
     public byte[] getPayload(BasicPacket packet) {
         final byte[] payload = packet.getPayload();
-        Objects.requireNonNull(payload, "payload must not be null");
+        Objects.requireNonNull(payload, "payload");
         return payload;
     }
 
     @Override
     public void handleRequest(RequestPacket packet, PinpointSocket pinpointSocket) {
-        Objects.requireNonNull(packet, "packet must not be null");
-        Objects.requireNonNull(pinpointSocket, "pinpointSocket must not be null");
+        Objects.requireNonNull(packet, "packet");
+        Objects.requireNonNull(pinpointSocket, "pinpointSocket");
 
         final byte[] payload = getPayload(packet);
         final InetSocketAddress remoteAddress = (InetSocketAddress) pinpointSocket.getRemoteAddress();

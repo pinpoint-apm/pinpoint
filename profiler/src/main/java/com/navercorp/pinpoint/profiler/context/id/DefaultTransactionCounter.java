@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.profiler.context.id;
 
 import com.google.inject.Inject;
+import com.navercorp.pinpoint.common.util.Assert;
 
 /**
  * @author HyunGil Jeong
@@ -27,10 +28,7 @@ public class DefaultTransactionCounter implements TransactionCounter {
 
     @Inject
     public DefaultTransactionCounter(IdGenerator idGenerator) {
-        if (idGenerator == null) {
-            throw new NullPointerException("idGenerator cannot be null");
-        }
-        this.idGenerator = idGenerator;
+        this.idGenerator = Assert.requireNonNull(idGenerator, "idGenerator");
     }
     
     @Override
@@ -54,11 +52,23 @@ public class DefaultTransactionCounter implements TransactionCounter {
     }
 
     @Override
+    public long getSkippedNewCount() {
+        return Math.abs(idGenerator.currentSkippedId() - AtomicIdGenerator.INITIAL_SKIPPED_ID) / AtomicIdGenerator.DECREMENT_CYCLE;
+    }
+
+    @Override
+    public long getSkippedContinuationCount() {
+        return Math.abs(idGenerator.currentContinuedSkippedId() - AtomicIdGenerator.INITIAL_CONTINUED_SKIPPED_ID) / AtomicIdGenerator.DECREMENT_CYCLE;
+    }
+
+    @Override
     public long getTotalTransactionCount() {
         long count = getSampledNewCount();
         count += getSampledContinuationCount();
         count += getUnSampledNewCount();
         count += getUnSampledContinuationCount();
+        count += getSkippedNewCount();
+        count += getSkippedContinuationCount();
         return count;
     }
 }

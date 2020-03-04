@@ -16,13 +16,16 @@
 
 package com.navercorp.pinpoint.collector.cluster.route;
 
+import com.navercorp.pinpoint.collector.cluster.ClusterPoint;
 import com.navercorp.pinpoint.collector.cluster.ClusterPointLocator;
-import com.navercorp.pinpoint.collector.cluster.TargetClusterPoint;
+import com.navercorp.pinpoint.collector.cluster.GrpcAgentConnection;
+import com.navercorp.pinpoint.collector.cluster.ThriftAgentConnection;
 import com.navercorp.pinpoint.collector.cluster.route.filter.RouteFilter;
 import com.navercorp.pinpoint.rpc.Future;
 import com.navercorp.pinpoint.rpc.ResponseMessage;
 import com.navercorp.pinpoint.thrift.dto.command.TCommandTransferResponse;
 import com.navercorp.pinpoint.thrift.dto.command.TRouteResult;
+
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.thrift.TBase;
 
@@ -35,7 +38,7 @@ public class DefaultRouteHandler extends AbstractRouteHandler<RequestEvent> {
     private final RouteFilterChain<RequestEvent> requestFilterChain;
     private final RouteFilterChain<ResponseEvent> responseFilterChain;
 
-    public DefaultRouteHandler(ClusterPointLocator<TargetClusterPoint> targetClusterPointLocator,
+    public DefaultRouteHandler(ClusterPointLocator<ClusterPoint> targetClusterPointLocator,
             RouteFilterChain<RequestEvent> requestFilterChain,
             RouteFilterChain<ResponseEvent> responseFilterChain) {
         super(targetClusterPointLocator);
@@ -71,7 +74,7 @@ public class DefaultRouteHandler extends AbstractRouteHandler<RequestEvent> {
             return createResponse(TRouteResult.EMPTY_REQUEST);
         }
 
-        TargetClusterPoint clusterPoint = findClusterPoint(event.getDeliveryCommand());
+        ClusterPoint clusterPoint = findClusterPoint(event.getDeliveryCommand());
         if (clusterPoint == null) {
             return createResponse(TRouteResult.NOT_FOUND);
         }
@@ -80,10 +83,24 @@ public class DefaultRouteHandler extends AbstractRouteHandler<RequestEvent> {
             return createResponse(TRouteResult.NOT_SUPPORTED_REQUEST);
         }
 
-        Future<ResponseMessage> future = clusterPoint.request(event.getDeliveryCommand().getPayload());
+        Future<ResponseMessage> future;
+        if (clusterPoint instanceof ThriftAgentConnection) {
+            ThriftAgentConnection thriftAgentConnection = (ThriftAgentConnection) clusterPoint;
+            future = thriftAgentConnection.request(event.getDeliveryCommand().getPayload());
+        } else if (clusterPoint instanceof GrpcAgentConnection) {
+            GrpcAgentConnection grpcAgentConnection = (GrpcAgentConnection) clusterPoint;
+            future = grpcAgentConnection.request(event.getRequestObject());
+        } else {
+            return createResponse(TRouteResult.NOT_ACCEPTABLE);
+        }
+
         boolean isCompleted = future.await();
         if (!isCompleted) {
             return createResponse(TRouteResult.TIMEOUT);
+        }
+
+        if (future.getCause() != null) {
+            return createResponse(TRouteResult.UNKNOWN, future.getCause().getMessage());
         }
 
         ResponseMessage responseMessage = future.getResult();
@@ -97,17 +114,6 @@ public class DefaultRouteHandler extends AbstractRouteHandler<RequestEvent> {
         }
 
         return createResponse(TRouteResult.OK, responsePayload);
-    }
-
-    private TCommandTransferResponse createResponse(TRouteResult result) {
-        return createResponse(result, new byte[0]);
-    }
-
-    private TCommandTransferResponse createResponse(TRouteResult result, byte[] payload) {
-        TCommandTransferResponse response = new TCommandTransferResponse();
-        response.setRouteResult(result);
-        response.setPayload(payload);
-        return response;
     }
 
 }

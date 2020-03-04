@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.web.vo;
 
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
+import java.util.Objects;
+
 /**
  * @author emeroad
  */
@@ -32,38 +34,21 @@ public final class LinkKey {
     private int hash;
 
     public LinkKey(Application fromApplication, Application toApplication) {
-        if (fromApplication == null) {
-            throw new NullPointerException("fromApplication must not be null");
-        }
-        if (toApplication == null) {
-            throw new NullPointerException("toApplication must not be null");
-        }
+        Objects.requireNonNull(fromApplication, "fromApplication");
         this.fromApplication = fromApplication.getName();
         this.fromServiceType = fromApplication.getServiceType();
 
+        Objects.requireNonNull(toApplication, "toApplication");
         this.toApplication = toApplication.getName();
         this.toServiceType = toApplication.getServiceType();
     }
 
     public LinkKey(String fromApplication, ServiceType fromServiceType, String toApplication, ServiceType toServiceType) {
-        if (fromApplication == null) {
-            throw new NullPointerException("fromApplication must not be null");
-        }
-        if (fromServiceType == null) {
-            throw new NullPointerException("fromServiceType must not be null");
-        }
-        if (toApplication == null) {
-            throw new NullPointerException("toApplication must not be null");
-        }
-        if (toServiceType == null) {
-            throw new NullPointerException("toServiceType must not be null");
-        }
+        this.fromApplication = Objects.requireNonNull(fromApplication, "fromApplication");
+        this.fromServiceType = Objects.requireNonNull(fromServiceType, "fromServiceType");
 
-        this.fromApplication = fromApplication;
-        this.fromServiceType = fromServiceType;
-
-        this.toApplication = toApplication;
-        this.toServiceType = toServiceType;
+        this.toApplication = Objects.requireNonNull(toApplication, "toApplication");
+        this.toServiceType = Objects.requireNonNull(toServiceType, "toServiceType");
     }
 
     public String getFromApplication() {

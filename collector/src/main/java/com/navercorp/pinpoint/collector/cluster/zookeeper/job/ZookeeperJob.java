@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.collector.cluster.zookeeper.job;
 
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.Objects;
+
 /**
  * @author Taejin Koo
  */
@@ -31,11 +33,7 @@ public class ZookeeperJob {
     }
 
     public ZookeeperJob(Type type, String key) {
-        if (type == null) {
-            throw new NullPointerException("type must not be null");
-        }
-
-        this.type = type;
+        this.type = Objects.requireNonNull(type, "type");
         this.key = key;
     }
 

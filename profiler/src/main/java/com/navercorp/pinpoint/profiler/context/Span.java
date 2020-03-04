@@ -55,7 +55,7 @@ public class Span extends DefaultFrameAttachment {
 
     public Span(final TraceRoot traceRoot) {
         if (traceRoot == null) {
-            throw new NullPointerException("traceRoot must not be null");
+            throw new NullPointerException("traceRoot");
         }
         this.traceRoot = traceRoot;
     }

@@ -15,23 +15,16 @@
  */
 package com.navercorp.pinpoint.profiler.instrument;
 
-import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
+import com.navercorp.pinpoint.bootstrap.instrument.ClassInputStreamProvider;
 import com.navercorp.pinpoint.common.util.IOUtils;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
-import org.junit.Before;
 import org.junit.Test;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.tree.ClassNode;
 
 import java.io.InputStream;
 import java.lang.reflect.Method;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * @author jaehong.kim
@@ -50,36 +43,7 @@ public class ASMAspectWeaverTest {
 
     private final String ERROR_ASPECT_INVALID_EXTENTS = "com.navercorp.pinpoint.profiler.instrument.mock.AspectInterceptorInvalidExtendClass";
 
-    private final InstrumentContext pluginContext = mock(InstrumentContext.class);
-
-    @Before
-    public void setUp() {
-
-        when(pluginContext.injectClass(any(ClassLoader.class), any(String.class))).thenAnswer(new Answer<Class<?>>() {
-
-            @Override
-            public Class<?> answer(InvocationOnMock invocation) throws Throwable {
-                ClassLoader loader = (ClassLoader) invocation.getArguments()[0];
-                String name = (String) invocation.getArguments()[1];
-
-                return loader.loadClass(name);
-            }
-
-        });
-        when(pluginContext.getResourceAsStream(any(ClassLoader.class), any(String.class))).thenAnswer(new Answer<InputStream>() {
-
-            @Override
-            public InputStream answer(InvocationOnMock invocation) throws Throwable {
-                ClassLoader loader = (ClassLoader) invocation.getArguments()[0];
-                String name = (String) invocation.getArguments()[1];
-                if(loader == null) {
-                    loader = ClassLoader.getSystemClassLoader();
-                }
-
-                return loader.getResourceAsStream(name);
-            }
-        });
-    }
+    private final ClassInputStreamProvider pluginClassInputStreamProvider = new SimpleClassInputStreamProvider();
 
     @Test
     public void weaving() throws Exception {
@@ -138,8 +102,8 @@ public class ASMAspectWeaverTest {
                         final ClassNode classNode = new ClassNode();
                         cr.accept(classNode, 0);
 
-                        final ASMClassNodeAdapter sourceClassNode = new ASMClassNodeAdapter(pluginContext, defaultClassLoader, null, classNode);
-                        final ASMClassNodeAdapter adviceClassNode = ASMClassNodeAdapter.get(pluginContext, defaultClassLoader, null, JavaAssistUtils.javaNameToJvmName(aspectName));
+                        final ASMClassNodeAdapter sourceClassNode = new ASMClassNodeAdapter(pluginClassInputStreamProvider, defaultClassLoader, null, classNode);
+                        final ASMClassNodeAdapter adviceClassNode = ASMClassNodeAdapter.get(pluginClassInputStreamProvider, defaultClassLoader, null, JavaAssistUtils.javaNameToJvmName(aspectName));
 
                         final ASMAspectWeaver aspectWeaver = new ASMAspectWeaver();
                         aspectWeaver.weaving(sourceClassNode, adviceClassNode);

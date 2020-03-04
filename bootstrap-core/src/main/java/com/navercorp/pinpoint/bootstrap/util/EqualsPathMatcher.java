@@ -25,7 +25,7 @@ public class EqualsPathMatcher implements PathMatcher {
 
     public EqualsPathMatcher(String pattern) {
         if (pattern == null) {
-            throw new NullPointerException("pattern must not be null");
+            throw new NullPointerException("pattern");
         }
         this.pattern = pattern;
     }

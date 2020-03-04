@@ -508,7 +508,7 @@ public class CallTreeIteratorTest {
             buffer.append(", startTime=");
             buffer.append(align.getStartTime());
             buffer.append(", lastTime=");
-            buffer.append(align.getLastTime());
+            buffer.append(align.getEndTime());
             if (!align.isSpan()) {
                 buffer.append(", nextAsyncId=");
                 buffer.append(align.getSpanEventBo().getNextAsyncId());
@@ -565,7 +565,7 @@ public class CallTreeIteratorTest {
         private final int exec;
 
         public StackEvent(String event, int depth, int gap, int exec) {
-            this.event = Objects.requireNonNull(event, "event must not be null");
+            this.event = Objects.requireNonNull(event, "event");
             this.depth = depth;
             this.gap = gap;
             this.exec = exec;

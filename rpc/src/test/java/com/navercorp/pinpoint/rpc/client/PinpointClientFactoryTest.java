@@ -16,7 +16,9 @@
 
 package com.navercorp.pinpoint.rpc.client;
 
+import com.navercorp.pinpoint.rpc.Future;
 import com.navercorp.pinpoint.rpc.PinpointSocketException;
+import com.navercorp.pinpoint.rpc.ResponseMessage;
 import com.navercorp.pinpoint.rpc.TestByteUtils;
 import com.navercorp.pinpoint.rpc.util.PinpointRPCTestUtils;
 import com.navercorp.pinpoint.test.server.TestPinpointServerAcceptor;
@@ -27,6 +29,7 @@ import org.jboss.netty.channel.ChannelFuture;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,6 +38,8 @@ import org.springframework.util.SocketUtils;
 import java.io.IOException;
 import java.net.ConnectException;
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -202,5 +207,39 @@ public class PinpointClientFactoryTest {
             pinpointClientFactory.release();
         }
     }
-    
+
+    @Test(expected = PinpointSocketException.class)
+    @Ignore
+    public void throwWriteBufferFullExceptionTest() {
+        TestPinpointServerAcceptor testPinpointServerAcceptor = new TestPinpointServerAcceptor();
+        int bindPort = testPinpointServerAcceptor.bind();
+
+        int defaultWriteBufferHighWaterMark = clientFactory.getWriteBufferHighWaterMark();
+        int defaultWriteBufferLowWaterMark = clientFactory.getWriteBufferLowWaterMark();
+        try {
+            clientFactory.setWriteBufferHighWaterMark(2);
+            clientFactory.setWriteBufferLowWaterMark(1);
+
+            PinpointClient client = clientFactory.connect("127.0.0.1", bindPort);
+
+            List<Future> futureList = new ArrayList();
+            for (int i = 0; i < 30; i++) {
+                Future<ResponseMessage> requestFuture = client.request(new byte[20]);
+                futureList.add(requestFuture);
+            }
+
+            for (Future future : futureList) {
+                future.getResult();
+            }
+
+            PinpointRPCTestUtils.close(client);
+        } finally {
+            clientFactory.setWriteBufferHighWaterMark(defaultWriteBufferHighWaterMark);
+            clientFactory.setWriteBufferLowWaterMark(defaultWriteBufferLowWaterMark);
+
+            testPinpointServerAcceptor.close();
+        }
+    }
+
+
 }

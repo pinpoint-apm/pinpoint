@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,14 @@
 
 package com.navercorp.pinpoint.web.controller;
 
-import com.navercorp.pinpoint.common.util.DefaultSqlParser;
-import com.navercorp.pinpoint.common.util.OutputParameterParser;
-import com.navercorp.pinpoint.common.util.SqlParser;
-import com.navercorp.pinpoint.common.util.TransactionId;
-import com.navercorp.pinpoint.common.util.TransactionIdUtils;
+import com.navercorp.pinpoint.common.profiler.sql.DefaultSqlParser;
+import com.navercorp.pinpoint.common.profiler.sql.OutputParameterParser;
+import com.navercorp.pinpoint.common.profiler.sql.SqlParser;
+import com.navercorp.pinpoint.common.profiler.util.TransactionId;
+import com.navercorp.pinpoint.common.profiler.util.TransactionIdUtils;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
 import com.navercorp.pinpoint.web.calltree.span.CallTreeIterator;
+import com.navercorp.pinpoint.web.config.LogConfiguration;
 import com.navercorp.pinpoint.web.service.FilteredMapService;
 import com.navercorp.pinpoint.web.service.SpanResult;
 import com.navercorp.pinpoint.web.service.SpanService;
@@ -63,17 +64,8 @@ public class BusinessTransactionController {
     @Autowired
     private FilteredMapService filteredMapService;
 
-    @Value("#{pinpointWebProps['log.enable'] ?: false}")
-    private boolean logLinkEnable;
-
-    @Value("#{pinpointWebProps['log.button.name'] ?: ''}")
-    private String logButtonName;
-
-    @Value("#{pinpointWebProps['log.page.url'] ?: ''}")
-    private String logPageUrl;
-
-    @Value("#{pinpointWebProps['log.button.disable.message'] ?: ''}")
-    private String disableButtonMessage;
+    @Autowired
+    private LogConfiguration logConfiguration;
 
     private SqlParser sqlParser = new DefaultSqlParser();
     private OutputParameterParser parameterParser = new OutputParameterParser();
@@ -107,7 +99,7 @@ public class BusinessTransactionController {
         ApplicationMap map = filteredMapService.selectApplicationMap(transactionId, viewVersion);
         RecordSet recordSet = this.transactionInfoService.createRecordSet(callTreeIterator, focusTimestamp, agentId, spanId);
 
-        TransactionInfoViewModel result = new TransactionInfoViewModel(transactionId, map.getNodes(), map.getLinks(), recordSet, spanResult.getCompleteTypeString(), logLinkEnable, logButtonName, logPageUrl, disableButtonMessage);
+        TransactionInfoViewModel result = new TransactionInfoViewModel(transactionId, spanId, map.getNodes(), map.getLinks(), recordSet, spanResult.getTraceState(), logConfiguration);
         return result;
     }
 

@@ -67,4 +67,11 @@ public class AgentCountStatistics {
         this.timestamp = parsedDate.getTime();
     }
 
+    @Override
+    public String toString() {
+        return "AgentCountStatistics{" +
+                "agentCount=" + agentCount +
+                ", timestamp=" + timestamp +
+                '}';
+    }
 }

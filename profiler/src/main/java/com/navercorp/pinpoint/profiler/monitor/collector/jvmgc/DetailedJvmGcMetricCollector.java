@@ -16,19 +16,20 @@
 
 package com.navercorp.pinpoint.profiler.monitor.collector.jvmgc;
 
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.monitor.collector.AgentStatMetricCollector;
+import com.navercorp.pinpoint.profiler.monitor.metric.JvmGcDetailedMetricSnapshot;
+import com.navercorp.pinpoint.profiler.monitor.metric.JvmGcMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.gc.DetailedGarbageCollectorMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.gc.DetailedGarbageCollectorMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.memory.DetailedMemoryMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.memory.DetailedMemoryMetricSnapshot;
-import com.navercorp.pinpoint.thrift.dto.TJvmGc;
-import com.navercorp.pinpoint.thrift.dto.TJvmGcDetailed;
 
 /**
  * @author dawidmalina
  * @author HyunGil Jeong
  */
-public class DetailedJvmGcMetricCollector implements AgentStatMetricCollector<TJvmGc> {
+public class DetailedJvmGcMetricCollector implements AgentStatMetricCollector<JvmGcMetricSnapshot> {
 
     private final BasicJvmGcMetricCollector jvmGcMetricCollector;
     private final DetailedMemoryMetric detailedMemoryMetric;
@@ -38,37 +39,29 @@ public class DetailedJvmGcMetricCollector implements AgentStatMetricCollector<TJ
             BasicJvmGcMetricCollector jvmGcMetricCollector,
             DetailedMemoryMetric detailedMemoryMetric,
             DetailedGarbageCollectorMetric detailedGarbageCollectorMetric) {
-        if (jvmGcMetricCollector == null) {
-            throw new NullPointerException("jvmGcMetricCollector must not be null");
-        }
-        if (detailedMemoryMetric == null) {
-            throw new NullPointerException("detailedMemoryMetric must not be null");
-        }
-        if (detailedGarbageCollectorMetric == null) {
-            throw new NullPointerException("detailedGarbageCollectorMetric must not be null");
-        }
-        this.jvmGcMetricCollector = jvmGcMetricCollector;
-        this.detailedMemoryMetric = detailedMemoryMetric;
-        this.detailedGarbageCollectorMetric = detailedGarbageCollectorMetric;
+        this.jvmGcMetricCollector = Assert.requireNonNull(jvmGcMetricCollector, "jvmGcMetricCollector");
+        this.detailedMemoryMetric = Assert.requireNonNull(detailedMemoryMetric, "detailedMemoryMetric");
+        this.detailedGarbageCollectorMetric = Assert.requireNonNull(detailedGarbageCollectorMetric, "detailedGarbageCollectorMetric");
     }
 
-    @Override
-    public TJvmGc collect() {
-        TJvmGc jvmGc = jvmGcMetricCollector.collect();
-        DetailedMemoryMetricSnapshot detailedMemoryMetricSnapshot = detailedMemoryMetric.getSnapshot();
-        DetailedGarbageCollectorMetricSnapshot detailedGarbageCollectorMetricSnapshot = detailedGarbageCollectorMetric.getSnapshot();
 
-        final TJvmGcDetailed jvmGcDetailed = new TJvmGcDetailed();
-        jvmGcDetailed.setJvmPoolNewGenUsed(detailedMemoryMetricSnapshot.getNewGenUsage());
-        jvmGcDetailed.setJvmPoolOldGenUsed(detailedMemoryMetricSnapshot.getOldGenUsage());
-        jvmGcDetailed.setJvmPoolSurvivorSpaceUsed(detailedMemoryMetricSnapshot.getSurvivorSpaceUsage());
-        jvmGcDetailed.setJvmPoolCodeCacheUsed(detailedMemoryMetricSnapshot.getCodeCacheUsage());
-        jvmGcDetailed.setJvmPoolPermGenUsed(detailedMemoryMetricSnapshot.getPermGenUsage());
-        jvmGcDetailed.setJvmPoolMetaspaceUsed(detailedMemoryMetricSnapshot.getMetaspaceUsage());
-        jvmGcDetailed.setJvmGcNewCount(detailedGarbageCollectorMetricSnapshot.getGcNewCount());
-        jvmGcDetailed.setJvmGcNewTime(detailedGarbageCollectorMetricSnapshot.getGcNewTime());
-        jvmGc.setJvmGcDetailed(jvmGcDetailed);
-        return jvmGc;
+    @Override
+    public JvmGcMetricSnapshot collect() {
+        final JvmGcMetricSnapshot jvmGcMetricSnapshot = jvmGcMetricCollector.collect();
+        final DetailedMemoryMetricSnapshot detailedMemoryMetricSnapshot = detailedMemoryMetric.getSnapshot();
+        final DetailedGarbageCollectorMetricSnapshot detailedGarbageCollectorMetricSnapshot = detailedGarbageCollectorMetric.getSnapshot();
+
+        final JvmGcDetailedMetricSnapshot jvmGcDetailedMetricSnapshot = new JvmGcDetailedMetricSnapshot();
+        jvmGcDetailedMetricSnapshot.setJvmPoolNewGenUsed(detailedMemoryMetricSnapshot.getNewGenUsage());
+        jvmGcDetailedMetricSnapshot.setJvmPoolOldGenUsed(detailedMemoryMetricSnapshot.getOldGenUsage());
+        jvmGcDetailedMetricSnapshot.setJvmPoolSurvivorSpaceUsed(detailedMemoryMetricSnapshot.getSurvivorSpaceUsage());
+        jvmGcDetailedMetricSnapshot.setJvmPoolCodeCacheUsed(detailedMemoryMetricSnapshot.getCodeCacheUsage());
+        jvmGcDetailedMetricSnapshot.setJvmPoolPermGenUsed(detailedMemoryMetricSnapshot.getPermGenUsage());
+        jvmGcDetailedMetricSnapshot.setJvmPoolMetaspaceUsed(detailedMemoryMetricSnapshot.getMetaspaceUsage());
+        jvmGcDetailedMetricSnapshot.setJvmGcNewCount(detailedGarbageCollectorMetricSnapshot.getGcNewCount());
+        jvmGcDetailedMetricSnapshot.setJvmGcNewTime(detailedGarbageCollectorMetricSnapshot.getGcNewTime());
+        jvmGcMetricSnapshot.setJvmGcDetailed(jvmGcDetailedMetricSnapshot);
+        return jvmGcMetricSnapshot;
     }
 
     @Override

@@ -16,18 +16,11 @@
 
 package com.navercorp.pinpoint.plugin.netty;
 
-import com.navercorp.pinpoint.bootstrap.interceptor.BasicMethodInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.AnnotationKeyFactory;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
 import com.navercorp.pinpoint.common.trace.ServiceTypeProperty;
-import com.navercorp.pinpoint.plugin.netty.interceptor.BootstrapConnectInterceptor;
-import com.navercorp.pinpoint.plugin.netty.interceptor.ChannelPipelineWriteInterceptor;
-import com.navercorp.pinpoint.plugin.netty.interceptor.ChannelPromiseAddListenerInterceptor;
-import com.navercorp.pinpoint.plugin.netty.interceptor.ChannelPromiseNotifyInterceptor;
-import com.navercorp.pinpoint.plugin.netty.interceptor.http.HttpEncoderInterceptor;
 
 import static com.navercorp.pinpoint.common.trace.AnnotationKeyProperty.VIEW_IN_RECORD_SET;
 

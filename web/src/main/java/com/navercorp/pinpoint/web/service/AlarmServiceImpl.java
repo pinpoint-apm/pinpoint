@@ -48,6 +48,7 @@ public class AlarmServiceImpl implements AlarmService {
     @Override
     public void deleteRule(Rule rule) {
         alarmDao.deleteRule(rule);
+        alarmDao.deleteCheckerResult(rule.getRuleId());
     }
 
     @Override
@@ -65,6 +66,7 @@ public class AlarmServiceImpl implements AlarmService {
     @Override
     public void updateRule(Rule rule) {
         alarmDao.updateRule(rule);
+        alarmDao.deleteCheckerResult(rule.getRuleId());
     }
 
     @Override
@@ -75,7 +77,7 @@ public class AlarmServiceImpl implements AlarmService {
         
         if (!CheckerResultList.isEmpty()) {
             for (CheckerResult checkerResult : CheckerResultList) {
-                checkerResults.put(checkerResult.getCheckerName(), checkerResult);
+                checkerResults.put(checkerResult.getRuleId(), checkerResult);
             }
         }
         
@@ -84,14 +86,14 @@ public class AlarmServiceImpl implements AlarmService {
 
     @Override
     public void updateBeforeCheckerResult(CheckerResult beforeCheckerResult, AlarmChecker checker) {
-        alarmDao.deleteCheckerResult(beforeCheckerResult);
+        alarmDao.deleteCheckerResult(beforeCheckerResult.getRuleId());
         
         if (checker.isDetected()) {
             beforeCheckerResult.setDetected(true);
             beforeCheckerResult.increseCount();
             alarmDao.insertCheckerResult(beforeCheckerResult);
         } else {
-            alarmDao.insertCheckerResult(new CheckerResult(checker.getRule().getApplicationId(), checker.getRule().getCheckerName(), false, 0, 1));
+            alarmDao.insertCheckerResult(new CheckerResult(checker.getRule().getRuleId(), checker.getRule().getApplicationId(), checker.getRule().getCheckerName(), false, 0, 1));
         }
         
          

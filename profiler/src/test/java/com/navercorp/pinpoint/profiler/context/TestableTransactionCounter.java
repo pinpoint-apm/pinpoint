@@ -27,6 +27,8 @@ public class TestableTransactionCounter implements TransactionCounter {
     private long unsampledTransactionCount = 0L;
     private long sampledContinuationCount = 0L;
     private long unsampledContinuationCount = 0L;
+    private long skippedTransactionCount = 0L;
+    private long skippedContinuationCount = 0L;
 
     @Override
     public long getTotalTransactionCount() {
@@ -50,6 +52,14 @@ public class TestableTransactionCounter implements TransactionCounter {
         this.unsampledContinuationCount += count;
     }
 
+    public void addSkippedNewCount(long count) {
+        this.skippedTransactionCount += count;
+    }
+
+    public void addSkippedContinuationCount(long count) {
+        this.skippedContinuationCount += count;
+    }
+
     @Override
     public long getSampledNewCount() {
         return sampledTransactionCount;
@@ -70,4 +80,13 @@ public class TestableTransactionCounter implements TransactionCounter {
         return unsampledContinuationCount;
     }
 
+    @Override
+    public long getSkippedNewCount() {
+        return skippedTransactionCount;
+    }
+
+    @Override
+    public long getSkippedContinuationCount() {
+        return skippedContinuationCount;
+    }
 }

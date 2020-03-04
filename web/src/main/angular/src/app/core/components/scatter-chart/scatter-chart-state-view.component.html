@@ -1,0 +1,8 @@
+<div class="l-checkbox-group">
+    <div class="{{name}}" *ngFor="let name of sortedKeyArr">
+        <label for="{{name}}-id">
+            {{upperFirstChar(name)}} <span>{{getTypeCount(name) | number}}</span>
+        </label>
+        <input id="{{name}}-id" type="checkbox" [checked]="transactionTypeInfo[name].checked" value="{{name}}" (change)="onCheck(name)">
+    </div>
+</div>

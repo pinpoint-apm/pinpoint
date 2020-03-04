@@ -43,7 +43,6 @@ import com.navercorp.pinpoint.profiler.instrument.lambda.LambdaTransformBootload
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.monitor.AgentStatMonitor;
 import com.navercorp.pinpoint.profiler.monitor.DeadlockMonitor;
-import com.navercorp.pinpoint.profiler.receiver.CommandDispatcher;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -81,9 +80,9 @@ public class DefaultApplicationContext implements ApplicationContext {
     private final Injector injector;
 
     public DefaultApplicationContext(AgentOption agentOption, ModuleFactory moduleFactory) {
-        Assert.requireNonNull(agentOption, "agentOption must not be null");
-        Assert.requireNonNull(moduleFactory, "moduleFactory must not be null");
-        Assert.requireNonNull(agentOption.getProfilerConfig(), "profilerConfig must not be null");
+        Assert.requireNonNull(agentOption, "agentOption");
+        Assert.requireNonNull(moduleFactory, "moduleFactory");
+        Assert.requireNonNull(agentOption.getProfilerConfig(), "profilerConfig");
 
         final Instrumentation instrumentation = agentOption.getInstrumentation();
         if (logger.isInfoEnabled()) {

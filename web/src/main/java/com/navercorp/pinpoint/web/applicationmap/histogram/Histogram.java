@@ -44,14 +44,14 @@ public class Histogram {
 
     public Histogram(ServiceType serviceType) {
         if (serviceType == null) {
-            throw new NullPointerException("serviceType must not be null");
+            throw new NullPointerException("serviceType");
         }
         this.schema = serviceType.getHistogramSchema();
     }
 
     public Histogram(HistogramSchema schema) {
         if (schema == null) {
-            throw new NullPointerException("schema must not be null");
+            throw new NullPointerException("schema");
         }
         this.schema = schema;
     }
@@ -169,7 +169,7 @@ public class Histogram {
 
     public long getCount(SlotType slotType) {
         if (slotType == null) {
-            throw new NullPointerException("slotType must not be null");
+            throw new NullPointerException("slotType");
         }
 
         switch (slotType) {
@@ -198,7 +198,7 @@ public class Histogram {
 
     public void add(final Histogram histogram) {
         if (histogram == null) {
-            throw new NullPointerException("histogram must not be null");
+            throw new NullPointerException("histogram");
         }
         if (this.schema != histogram.schema) {
             throw new IllegalArgumentException("schema not equals. this=" + this + ", histogram=" + histogram);

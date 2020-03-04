@@ -30,8 +30,8 @@ public class HeaderResolveRequestAdaptor<T> implements RequestAdaptor<T> {
     private final RemoteAddressResolver<T> remoteAddressResolver;
 
     public HeaderResolveRequestAdaptor(RequestAdaptor<T> delegate, RemoteAddressResolver<T> remoteAddressResolver) {
-        this.delegate = Assert.requireNonNull(delegate, "delegate must not be null");
-        this.remoteAddressResolver = Assert.requireNonNull(remoteAddressResolver, "remoteAddressResolver must not be null");
+        this.delegate = Assert.requireNonNull(delegate, "delegate");
+        this.remoteAddressResolver = Assert.requireNonNull(remoteAddressResolver, "remoteAddressResolver");
     }
 
     @Override

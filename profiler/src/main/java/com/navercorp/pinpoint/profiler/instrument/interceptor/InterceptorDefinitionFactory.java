@@ -40,7 +40,7 @@ public class InterceptorDefinitionFactory {
 
     public InterceptorDefinition createInterceptorDefinition(Class<?> interceptorClazz) {
         if (interceptorClazz == null) {
-            throw new NullPointerException("targetInterceptorClazz must not be null");
+            throw new NullPointerException("targetInterceptorClazz");
         }
 
         for (TypeHandler typeHandler : detectHandlers) {
@@ -80,10 +80,10 @@ public class InterceptorDefinitionFactory {
 
     private TypeHandler createInterceptorTypeHandler(Class<? extends Interceptor> interceptorClazz, InterceptorType interceptorType) {
         if (interceptorClazz == null) {
-            throw new NullPointerException("targetInterceptorClazz must not be null");
+            throw new NullPointerException("targetInterceptorClazz");
         }
         if (interceptorType == null) {
-            throw new NullPointerException("interceptorType must not be null");
+            throw new NullPointerException("interceptorType");
         }
 
         final Method[] declaredMethods = interceptorClazz.getDeclaredMethods();
@@ -131,22 +131,22 @@ public class InterceptorDefinitionFactory {
 
         public TypeHandler(Class<? extends Interceptor> interceptorClazz, InterceptorType interceptorType, String before, final Class<?>[] beforeParamList, final String after, final Class<?>[] afterParamList) {
             if (interceptorClazz == null) {
-                throw new NullPointerException("targetInterceptorClazz must not be null");
+                throw new NullPointerException("targetInterceptorClazz");
             }
             if (interceptorType == null) {
-                throw new NullPointerException("interceptorType must not be null");
+                throw new NullPointerException("interceptorType");
             }
             if (before == null) {
-                throw new NullPointerException("before must not be null");
+                throw new NullPointerException("before");
             }
             if (beforeParamList == null) {
-                throw new NullPointerException("beforeParamList must not be null");
+                throw new NullPointerException("beforeParamList");
             }
             if (after == null) {
-                throw new NullPointerException("after must not be null");
+                throw new NullPointerException("after");
             }
             if (afterParamList == null) {
-                throw new NullPointerException("afterParamList must not be null");
+                throw new NullPointerException("afterParamList");
             }
             this.interceptorClazz = interceptorClazz;
             this.interceptorType = interceptorType;
@@ -196,7 +196,7 @@ public class InterceptorDefinitionFactory {
 
         private Method searchMethod(Class<?> interceptorClazz, String searchMethodName, Class<?>[] searchMethodParameter) {
             if (searchMethodName == null) {
-                throw new NullPointerException("methodList must not be null");
+                throw new NullPointerException("methodList");
             }
 //          only DeclaredMethod search ?
 //            try {

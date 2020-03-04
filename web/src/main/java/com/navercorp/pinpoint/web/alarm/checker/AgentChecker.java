@@ -30,7 +30,7 @@ import java.util.Map.Entry;
  */
 public abstract class AgentChecker<T> extends AlarmChecker<T> {
     
-    protected Map<String, T> detectedAgents = new HashMap<>();
+    protected final Map<String, T> detectedAgents = new HashMap<>();
 
     protected AgentChecker(Rule rule, String unit, DataCollector dataCollector) {
         super(rule, unit, dataCollector);

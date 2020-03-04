@@ -16,24 +16,26 @@
 
 package com.navercorp.pinpoint.profiler;
 
+import com.navercorp.pinpoint.profiler.monitor.metric.gc.JvmGcType;
+
 /**
  * @author HyunGil Jeong
  */
 public class JvmInformation {
 
     private final String jvmVersion;
-    private final int gcTypeCode;
+    private final JvmGcType jvmGcType;
 
-    public JvmInformation(String jvmVersion, int gcTypeCode) {
+    public JvmInformation(String jvmVersion, JvmGcType jvmGcType) {
         this.jvmVersion = jvmVersion;
-        this.gcTypeCode = gcTypeCode;
+        this.jvmGcType = jvmGcType;
     }
 
     public String getJvmVersion() {
         return jvmVersion;
     }
 
-    public int getGcTypeCode() {
-        return gcTypeCode;
+    public JvmGcType getJvmGcType() {
+        return jvmGcType;
     }
 }

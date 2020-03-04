@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.plugin.RequestRecorderFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.request.RequestAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ServletRequestListenerInterceptorHelper;
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.ParameterRecorder;
@@ -43,14 +44,14 @@ public class WebAppServletContextExecuteInterceptor implements AroundInterceptor
     private MethodDescriptor methodDescriptor;
     private ServletRequestListenerInterceptorHelper<ServletRequestImpl> servletRequestListenerInterceptorHelper;
 
-    public WebAppServletContextExecuteInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
+    public WebAppServletContextExecuteInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, RequestRecorderFactory<ServletRequestImpl> requestRecorderFactory) {
 
         this.methodDescriptor = methodDescriptor;
         final WeblogicConfiguration config = new WeblogicConfiguration(traceContext.getProfilerConfig());
         RequestAdaptor<ServletRequestImpl> requestAdaptor = new ServletRequestImplAdaptor();
         requestAdaptor = RemoteAddressResolverFactory.wrapRealIpSupport(requestAdaptor, config.getRealIpHeader(), config.getRealIpEmptyValue());
         ParameterRecorder<ServletRequestImpl> parameterRecorder = ParameterRecorderFactory.newParameterRecorderFactory(config.getExcludeProfileMethodFilter(), config.isTraceRequestParam());
-        this.servletRequestListenerInterceptorHelper = new ServletRequestListenerInterceptorHelper<ServletRequestImpl>(WeblogicConstants.WEBLOGIC, traceContext, requestAdaptor, config.getExcludeUrlFilter(), parameterRecorder);
+        this.servletRequestListenerInterceptorHelper = new ServletRequestListenerInterceptorHelper<ServletRequestImpl>(WeblogicConstants.WEBLOGIC, traceContext, requestAdaptor, config.getExcludeUrlFilter(), parameterRecorder, requestRecorderFactory);
     }
 
     @Override

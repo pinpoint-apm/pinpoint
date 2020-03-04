@@ -43,8 +43,8 @@ public class DefaultApplicationsMapCreator implements ApplicationsMapCreator {
     private final Executor executor;
 
     public DefaultApplicationsMapCreator(ApplicationMapCreator applicationMapCreator, Executor executor) {
-        this.applicationMapCreator = Objects.requireNonNull(applicationMapCreator, "applicationMapCreator must not be null");
-        this.executor = Objects.requireNonNull(executor, "executor must not be null");
+        this.applicationMapCreator = Objects.requireNonNull(applicationMapCreator, "applicationMapCreator");
+        this.executor = Objects.requireNonNull(executor, "executor");
     }
 
     @Override

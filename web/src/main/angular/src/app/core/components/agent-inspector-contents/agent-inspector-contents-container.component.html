@@ -1,0 +1,29 @@
+<article class="l-date-range">
+    <pp-timeline-command-group-container></pp-timeline-command-group-container>
+    <pp-agent-inspector-timeline-container></pp-agent-inspector-timeline-container>
+    <ng-container *ngIf="coverRangeElements$ | async">
+        <div class="l-cover"></div>
+    </ng-container>
+</article>
+<pp-agent-event-view-container></pp-agent-event-view-container>
+<div class="l-main-contents">
+    <pp-agent-info-container></pp-agent-info-container>
+    <div class="l-chart-option-area">
+        <p class="l-guide-text">{{guideMessage$ | async}}</p>
+        <pp-chart-layout-option-container></pp-chart-layout-option-container>
+    </div>
+    <div class="l-chart-group-wrap" #chartGroupWrapper>
+        <div class="l-chart-wrapper"><pp-inspector-chart-container [chartType]="chartType.AGENT_JVM_HEAP"></pp-inspector-chart-container></div>
+        <div class="l-chart-wrapper"><pp-inspector-chart-container [chartType]="chartType.AGENT_JVM_NON_HEAP"></pp-inspector-chart-container></div>
+        <div class="l-chart-wrapper"><pp-inspector-chart-container [chartType]="chartType.AGENT_CPU"></pp-inspector-chart-container></div>
+        <div class="l-chart-wrapper"><pp-inspector-chart-container [chartType]="chartType.AGENT_TPS"></pp-inspector-chart-container></div>
+        <div class="l-chart-wrapper"><pp-inspector-chart-container [chartType]="chartType.AGENT_ACTIVE_THREAD"></pp-inspector-chart-container></div>
+        <div class="l-chart-wrapper"><pp-inspector-chart-container [chartType]="chartType.AGENT_RESPONSE_TIME"></pp-inspector-chart-container></div>
+        <div class="l-chart-wrapper"><pp-inspector-chart-container [chartType]="chartType.AGENT_OPEN_FILE_DESCRIPTOR"></pp-inspector-chart-container></div>
+        <div class="l-chart-wrapper"><pp-inspector-chart-container [chartType]="chartType.AGENT_DIRECT_BUFFER_COUNT"></pp-inspector-chart-container></div>
+        <div class="l-chart-wrapper"><pp-inspector-chart-container [chartType]="chartType.AGENT_DIRECT_BUFFER_MEMORY"></pp-inspector-chart-container></div>
+        <div class="l-chart-wrapper"><pp-inspector-chart-container [chartType]="chartType.AGENT_MAPPED_BUFFER_COUNT"></pp-inspector-chart-container></div>
+        <div class="l-chart-wrapper"><pp-inspector-chart-container [chartType]="chartType.AGENT_MAPPED_BUFFER_MEMORY"></pp-inspector-chart-container></div>
+        <div class="l-chart-wrapper"><pp-agent-data-source-chart-container></pp-agent-data-source-chart-container></div>
+    </div>
+</div>

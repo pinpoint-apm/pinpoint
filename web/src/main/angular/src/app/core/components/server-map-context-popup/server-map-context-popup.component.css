@@ -1,0 +1,40 @@
+:host {
+    display: block;
+}
+
+.l-list {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.l-list-title {
+    padding: 12px;
+    font-weight: 600;
+}
+
+.l-icon {
+    margin-right: 4px;
+}
+
+.l-item-label {
+    margin-left: 4px;
+}
+
+.l-list-item {
+    padding: 10px 20px;
+}
+
+.l-list-item:hover {
+    background-color: #e4f3eb;
+}
+
+.l-refresh-btn {
+    font-weight: 600;
+    padding: 12px;
+    width: 100%;
+    font-size: 13px;
+    text-align: left;
+}
+
+.l-refresh-btn:hover {
+    background-color: #eee;
+}

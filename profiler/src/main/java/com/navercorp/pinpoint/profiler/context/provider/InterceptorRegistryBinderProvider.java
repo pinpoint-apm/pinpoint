@@ -37,7 +37,7 @@ public class InterceptorRegistryBinderProvider implements Provider<InterceptorRe
     }
 
     private static int getInterceptorRegistrySize(ProfilerConfig profilerConfig) {
-        Assert.requireNonNull(profilerConfig, "profilerConfig must not be null");
+        Assert.requireNonNull(profilerConfig, "profilerConfig");
         return profilerConfig.getInterceptorRegistrySize();
     }
 

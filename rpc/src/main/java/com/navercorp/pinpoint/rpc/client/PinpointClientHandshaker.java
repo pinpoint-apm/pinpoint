@@ -77,8 +77,8 @@ public class PinpointClientHandshaker {
         Assert.isTrue(maxHandshakeCount > 0, "maxHandshakeCount must greater than zero.");
         
         this.state = new AtomicInteger(STATE_INIT);
-        this.handshakerTimer = Assert.requireNonNull(handshakerTimer, "handshakerTimer must not be null.");
-        this.handshakeData = Assert.requireNonNull(handshakeData, "handshakeData must not be null");
+        this.handshakerTimer = Assert.requireNonNull(handshakerTimer, "handshakerTimer");
+        this.handshakeData = Assert.requireNonNull(handshakeData, "handshakeData");
 
         this.retryInterval = retryInterval;
         this.maxHandshakeCount = maxHandshakeCount;
@@ -181,7 +181,7 @@ public class PinpointClientHandshaker {
     private Map decode(ControlHandshakeResponsePacket message) {
         byte[] payload = message.getPayload();
         if (payload == null) {
-            return Collections.EMPTY_MAP;
+            return Collections.emptyMap();
         }
 
         try {
@@ -191,11 +191,11 @@ public class PinpointClientHandshaker {
 
         }
 
-        return Collections.EMPTY_MAP;
+        return Collections.emptyMap();
     }
 
     private HandshakeResponseCode getResponseCode(Map handshakeResponse) {
-        if (handshakeResponse == Collections.EMPTY_MAP) {
+        if (handshakeResponse == Collections.emptyMap()) {
             return HandshakeResponseCode.PROTOCOL_ERROR;
         }
 
@@ -206,7 +206,7 @@ public class PinpointClientHandshaker {
     }
 
     private ClusterOption getClusterOption(Map handshakeResponse) {
-        if (handshakeResponse == Collections.EMPTY_MAP) {
+        if (handshakeResponse == Collections.emptyMap()) {
             return ClusterOption.DISABLE_CLUSTER_OPTION;
         }
 

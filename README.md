@@ -1,22 +1,26 @@
 
 
-![Pinpoint](web/src/main/webapp/images/logo.png)
+![Pinpoint](web/psd/logo.png)
 
 [![Build Status](https://travis-ci.org/naver/pinpoint.svg?branch=master)](https://travis-ci.org/naver/pinpoint)
 [![codecov](https://codecov.io/gh/naver/pinpoint/branch/master/graph/badge.svg)](https://codecov.io/gh/naver/pinpoint)
 
-**Visit [our official web site](http://naver.github.io/pinpoint/) for more information and [Latest updates on Pinpoint](https://naver.github.io/pinpoint/news.html)**  
+**Visit [our official web site](http://naver.github.io/pinpoint/) for more information and [Latest updates on Pinpoint](https://naver.github.io/pinpoint/news.html)**.
+
+## Live Demo
+
+Take a quick look at Pinpoint with our [demo](http://125.209.240.10:10123/v2/main/ApiGateway@SPRING_BOOT/5m?inbound=1&outbound=4&wasOnly=false&bidirectional=false) with a new UI(WIP)!
 
 ## Latest News (2018/08/30)
 
 Pinpoint has started to support application written in PHP. [Check-out our php-agent repository](https://github.com/naver/pinpoint-c-agent).
 
-## Latest Release (2019/01/02)
+## Latest Release (2019/09/18)
 
-We're happy to announce the release of Pinpoint v1.8.1.
-Please check the release note at (https://github.com/naver/pinpoint/releases/tag/1.8.1).
+We're happy to announce the release of Pinpoint v1.8.5.
+Please check the release note at (https://github.com/naver/pinpoint/releases/tag/1.8.5).
 
-The current stable version is [v1.8.1](https://github.com/naver/pinpoint/releases/tag/1.8.1).
+The current stable version is [v1.8.5](https://github.com/naver/pinpoint/releases/tag/1.8.5).
 
 ## About Pinpoint
 
@@ -62,11 +66,11 @@ For a more intimate guide, please check out our *[Introduction to Pinpoint](http
 * Thrift Client, Thrift Service, DUBBO PROVIDER, DUBBO CONSUMER, GRPC
 * ActiveMQ, RabbitMQ, Kafka
 * MySQL, Oracle, MSSQL(jtds), CUBRID, POSTGRESQL, MARIA
-* Arcus, Memcached, Redis([Jedis](https://github.com/naver/pinpoint/blob/master/plugins/redis), [Lettuce](https://github.com/naver/pinpoint/tree/master/plugins/redis-lettuce)), CASSANDRA, MongoDB, Hbase
+* Arcus, Memcached, Redis([Jedis](https://github.com/naver/pinpoint/blob/master/plugins/redis), [Lettuce](https://github.com/naver/pinpoint/tree/master/plugins/redis-lettuce)), CASSANDRA, MongoDB, Hbase, Elasticsearch
 * iBATIS, MyBatis
 * DBCP, DBCP2, HIKARICP, DRUID
 * gson, Jackson, Json Lib, Fastjson
-* log4j, Logback
+* log4j, Logback, log4j2
 
 ## Compatibility
 
@@ -74,35 +78,32 @@ Java version required to run Pinpoint:
 
 Pinpoint Version | Agent | Collector | Web
 ---------------- | ----- | --------- | ---
-1.0.x | 6-8 | 6-8 | 6-8
-1.1.x | 6-8 | 7-8 | 7-8
-1.5.x | 6-8 | 7-8 | 7-8
-1.6.x | 6-8 | 7-8 | 7-8
-1.7.x | 6-8 | 8 | 8
-1.8.0 | 6-10 | 8 | 8 
-1.8.1+ | 6-11 | 8 | 8 
+1.5.x  | 6-8  | 7-8 | 7-8
+1.6.x  | 6-8  | 7-8 | 7-8
+1.7.x  | 6-8  | 8   | 8
+1.8.0  | 6-10 | 8   | 8 
+1.8.1+ | 6-11 | 8   | 8 
+2.0.x  | 6-13 | 8   | 8
 
 HBase compatibility table:
 
-Pinpoint Version | HBase 0.94.x | HBase 0.98.x | HBase 1.0.x | HBase 1.2.x | HBase 2.0.x
----------------- | ------------ | ------------ | ----------- | ----------- | -----------
-1.0.x | yes | no | no | no | no
-1.1.x | no | not tested | yes | not tested | no
-1.5.x | no | not tested | yes | not tested | no
-1.6.x | no | not tested | not tested | yes | no
-1.7.x | no | not tested | not tested | yes | no
-1.8.x | no | not tested | not tested | yes | no
+Pinpoint Version | HBase 0.98.x | HBase 1.0.x | HBase 1.2.x | HBase 2.0.x
+---------------- | ------------ | ----------- | ----------- | -----------
+1.5.x | not tested | yes | not tested | no
+1.6.x | not tested | not tested | yes | no
+1.7.x | not tested | not tested | yes | no
+1.8.x | not tested | not tested | yes | no
+2.0.x | not tested | not tested | yes | [optional](https://naver.github.io/pinpoint/hbaseupgrade.html#do-you-like-to-use-hbase-2x-for-pinpoint)
 
 Agent - Collector compatibility table:
 
-Agent Version | Collector 1.0.x | Collector 1.1.x | Collector 1.5.x | Collector 1.6.x | Collector 1.7.x | Collector 1.8.x
-------------- | --------------- | --------------- | --------------- | --------------- | --------------- | ---------------
-1.0.x | yes | yes | yes | yes | yes | yes
-1.1.x | not tested | yes | yes | yes | yes | yes
-1.5.x | no | no | yes | yes | yes | yes
-1.6.x | no | no | not tested | yes | yes | yes
-1.7.x | no | no | no | no | yes | yes
-1.8.x | no | no | no | no | no | yes
+Agent Version | Collector 1.5.x | Collector 1.6.x | Collector 1.7.x | Collector 1.8.x | Collector 2.0.x
+------------- | --------------- | --------------- | --------------- | --------------- | ---------------
+1.5.x | yes        | yes | yes | yes | yes
+1.6.x | not tested | yes | yes | yes | yes
+1.7.x | no         | no  | yes | yes | yes
+1.8.x | no         | no  | no  | yes | yes
+2.0.x | no         | no  | no  | no  | yes
 
 Flink compatibility table:
 
@@ -110,10 +111,21 @@ Pinpoint Version | flink 1.3.X | flink 1.4.X | flink 1.5.X | flink 1.6.X | flink
 ---------------- | ----------- | ----------- | ----------- | ----------- | ----------- 
 1.7.x | yes | yes | no | no | no |
 1.8.x | yes | yes | no | no | no |
-1.9.x | yes | yes | yes | yes | yes |
+2.0.x | yes | yes | yes | yes | yes |
 
-## User Group
-For Q/A and discussion [here](https://groups.google.com/forum/#!forum/pinpoint_user).
+
+## Community
+
+[Github issues](https://github.com/naver/pinpoint/issues)  
+[Google group](https://groups.google.com/forum/#!forum/pinpoint_user)  
+[Gitter](https://gitter.im/naver/pinpoint)  
+
+We have Chinese community now, welcome to join!
+
+QQ Group: 897594820 | DING Group
+:----------------: | :-----------: 
+![QQ Group](doc/images/NAVERPinpoint.png) | ![DING Group](doc/images/NaverPinpoint交流群-DING.jpg)
+
 
 ## License
 Pinpoint is licensed under the Apache License, Version 2.0.

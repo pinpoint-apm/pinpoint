@@ -25,7 +25,7 @@ public class DefaultInterceptorScopeDefinition implements InterceptorScopeDefini
 
     public DefaultInterceptorScopeDefinition(String name) {
         if (name == null) {
-            throw new NullPointerException("name must not be null");
+            throw new NullPointerException("name");
         }
         this.name = name;
     }

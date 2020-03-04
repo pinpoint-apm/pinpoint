@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.plugin.commons.dbcp2;
 
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
+import com.navercorp.pinpoint.common.trace.ServiceTypeProvider;
 
 /**
  * @author Taejin Koo
@@ -28,6 +28,6 @@ public final class CommonsDbcp2Constants {
 
     public static final String SCOPE = "DBCP2_SCOPE";
 
-    public static final ServiceType SERVICE_TYPE = ServiceTypeFactory.of(6052, "DBCP2");
+    public static final ServiceType SERVICE_TYPE = ServiceTypeProvider.getByName("DBCP2");
 
 }

@@ -1,0 +1,49 @@
+:host {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+.l-widget-group {
+    display: flex;
+    flex-flow: row wrap;
+    flex: 1;
+    padding: 0 15px;
+    height: 100%;
+    align-items: center;
+}
+.l-main-container {
+    display: flex;
+    flex-flow: row wrap;
+    height: calc(100vh - 50px);
+    width: 100%;
+    overflow-y: hidden;
+}
+.l-sidemenu-wrap {
+    position: relative;
+    height: 100%;
+}
+.l-sidemenu-left {
+    width: 250px;
+    overflow: visible;
+    border-right: 1px solid #E5E8F0;
+    background: #FFF;
+    height: 100%;
+}
+.l-main-section {
+    flex: 1;
+    background: #edf2f8;
+    position: relative;
+    height: 100%;
+    width: calc(100% - 250px);
+}
+.fa-question-circle {
+    color: white;
+    font-size: 18px;
+    margin-right: 15px;
+}
+button {
+    outline: none;
+}
+.l-application-inspector-title-wrapper {
+    border-bottom: 1px solid #e0e7ee;
+}

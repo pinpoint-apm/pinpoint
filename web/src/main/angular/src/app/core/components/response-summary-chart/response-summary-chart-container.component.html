@@ -1,0 +1,15 @@
+<article class="l-chart-item">
+    <div class="l-tool-box">
+        <p class="l-title">Response Summary</p>
+        <button class="fas fa-question-circle" (click)="onShowHelp($event)"></button>
+    </div>
+    <div class="l-content-section">
+        <pp-loading [showLoading]="showLoading" [zIndex]="10"></pp-loading>
+        <pp-retry [showRetry]="showRetry" [message]="dataFetchFailedText" (outRetry)="onRetry()"></pp-retry>
+        <pp-response-summary-chart
+            [ngClass]="chartVisibility"
+            [chartConfig]="chartConfig"
+            (outRendered)="onRendered()">
+        </pp-response-summary-chart>
+    </div>
+</article>

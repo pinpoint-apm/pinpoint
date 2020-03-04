@@ -1,11 +1,11 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,7 +23,7 @@ import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.AnnotationKeyUtils;
-import com.navercorp.pinpoint.common.util.TransactionId;
+import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,14 +50,10 @@ public class MetaSpanCallTreeFactory {
         apiMetaData.setApiInfo("Unknown");
         apiMetaData.setMethodTypeEnum(MethodTypeEnum.WEB_REQUEST);
 
-        final AnnotationBo apiMetaDataAnnotation = new AnnotationBo();
-        apiMetaDataAnnotation.setKey(AnnotationKey.API_METADATA.getCode());
-        apiMetaDataAnnotation.setValue(apiMetaData);
+        final AnnotationBo apiMetaDataAnnotation = new AnnotationBo(AnnotationKey.API_METADATA.getCode(), apiMetaData);
         annotations.add(apiMetaDataAnnotation);
 
-        final AnnotationBo argumentAnnotation = new AnnotationBo();
-        argumentAnnotation.setKey(AnnotationKeyUtils.getArgs(0).getCode());
-        argumentAnnotation.setValue("No Agent Data");
+        final AnnotationBo argumentAnnotation = new AnnotationBo(AnnotationKeyUtils.getArgs(0).getCode(), "No Agent Data");
         annotations.add(argumentAnnotation);
         rootSpan.setAnnotationBoList(annotations);
 
@@ -82,24 +78,27 @@ public class MetaSpanCallTreeFactory {
         apiMetaData.setApiInfo("...");
         apiMetaData.setMethodTypeEnum(MethodTypeEnum.CORRUPTED);
 
-        final AnnotationBo apiMetaDataAnnotation = new AnnotationBo();
-        apiMetaDataAnnotation.setKey(AnnotationKey.API_METADATA.getCode());
-        apiMetaDataAnnotation.setValue(apiMetaData);
+        final AnnotationBo apiMetaDataAnnotation = new AnnotationBo(AnnotationKey.API_METADATA.getCode(), apiMetaData);
         annotations.add(apiMetaDataAnnotation);
 
-        final AnnotationBo argumentAnnotation = new AnnotationBo();
-        argumentAnnotation.setKey(AnnotationKeyUtils.getArgs(0).getCode());
-        if (System.currentTimeMillis() - startTimeMillis < timeoutMillisec) {
-            argumentAnnotation.setValue("Corrupted(waiting for packet) ");
-        } else {
-            if (title != null) {
-                argumentAnnotation.setValue("Corrupted(lost packet - " + title + ")");
-            } else {
-                argumentAnnotation.setValue("Corrupted(lost packet)");
-            }
-        }
+
+        int key = AnnotationKeyUtils.getArgs(0).getCode();
+        String errorMessage = getErrorMessage(title, startTimeMillis);
+        final AnnotationBo argumentAnnotation = new AnnotationBo(key, errorMessage);
         annotations.add(argumentAnnotation);
         rootSpan.setAnnotationBoList(annotations);
         return new MetaSpanCallTree(new SpanAlign(rootSpan, true));
+    }
+
+    private String getErrorMessage(String title, long startTimeMillis) {
+        if (System.currentTimeMillis() - startTimeMillis < timeoutMillisec) {
+            return "Corrupted(waiting for packet) ";
+        } else {
+            if (title != null) {
+                return "Corrupted(lost packet - " + title + ")";
+            } else {
+                return "Corrupted(lost packet)";
+            }
+        }
     }
 }

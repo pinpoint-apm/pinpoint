@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import com.google.inject.name.Named;
 import com.google.inject.name.Names;
 import com.navercorp.pinpoint.bootstrap.AgentOption;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.config.TransportModule;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.TraceDataFormatVersion;
@@ -37,8 +38,9 @@ import com.navercorp.pinpoint.profiler.context.module.PluginJars;
 import com.navercorp.pinpoint.profiler.context.provider.AgentStartTimeProvider;
 import com.navercorp.pinpoint.profiler.context.provider.ConfiguredApplicationTypeProvider;
 import com.navercorp.pinpoint.profiler.context.provider.InterceptorRegistryBinderProvider;
+import com.navercorp.pinpoint.profiler.context.provider.TraceDataFormatVersionProvider;
 import com.navercorp.pinpoint.profiler.instrument.classloading.BootstrapCore;
-import com.navercorp.pinpoint.common.plugin.PluginJar;
+import com.navercorp.pinpoint.profiler.plugin.PluginJar;
 import com.navercorp.pinpoint.profiler.context.provider.plugin.PluginJarsProvider;
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
 import org.slf4j.Logger;
@@ -56,12 +58,13 @@ public class ConfigModule extends AbstractModule {
     private final AgentOption agentOption;
 
     public ConfigModule(AgentOption agentOption) {
-        this.agentOption = Assert.requireNonNull(agentOption, "profilerConfig must not be null");
-        Assert.requireNonNull(agentOption.getProfilerConfig(), "profilerConfig must not be null");
+        this.agentOption = Assert.requireNonNull(agentOption, "profilerConfig");
+        Assert.requireNonNull(agentOption.getProfilerConfig(), "profilerConfig");
     }
 
     @Override
     protected void configure() {
+        logger.info("configure {}", this.getClass().getSimpleName());
         binder().requireExplicitBindings();
         binder().requireAtInjectOnConstructors();
         binder().disableCircularProxies();
@@ -69,6 +72,7 @@ public class ConfigModule extends AbstractModule {
         ProfilerConfig profilerConfig = agentOption.getProfilerConfig();
 
         bind(ProfilerConfig.class).toInstance(profilerConfig);
+        bind(TransportModule.class).toInstance(profilerConfig.getTransportModule());
 
         bindConstants(profilerConfig);
 
@@ -100,9 +104,7 @@ public class ConfigModule extends AbstractModule {
 
     private void bindConstants(ProfilerConfig profilerConfig) {
 
-        final TraceDataFormatVersion version = TraceDataFormatVersion.getTraceDataFormatVersion(profilerConfig);
-        logger.info("TraceDataFormatVersion:{}", version);
-        bind(TraceDataFormatVersion.class).toInstance(version);
+        bind(TraceDataFormatVersion.class).toProvider(TraceDataFormatVersionProvider.class).in(Scopes.SINGLETON);
 
         Named callstackMaxDepth = Names.named("profiler.callstack.max.depth");
         bindConstant().annotatedWith(callstackMaxDepth).to(profilerConfig.getCallStackMaxDepth());

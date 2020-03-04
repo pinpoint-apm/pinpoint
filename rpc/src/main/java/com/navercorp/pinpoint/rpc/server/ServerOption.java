@@ -130,7 +130,7 @@ public class ServerOption {
         }
 
         public void setClusterOption(ClusterOption clusterOption) {
-            this.clusterOption = Assert.requireNonNull(clusterOption, "clusterOption must not be null");
+            this.clusterOption = Assert.requireNonNull(clusterOption, "clusterOption");
         }
 
         public ServerOption build() {

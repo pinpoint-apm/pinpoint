@@ -51,7 +51,7 @@ public class URLClassLoaderHandler implements ClassInjector {
     private final PluginConfig pluginConfig;
 
     public URLClassLoaderHandler(PluginConfig pluginConfig) {
-        this.pluginConfig = Assert.requireNonNull(pluginConfig, "pluginConfig must not be null");
+        this.pluginConfig = Assert.requireNonNull(pluginConfig, "pluginConfig");
     }
 
     @Override
@@ -93,7 +93,7 @@ public class URLClassLoaderHandler implements ClassInjector {
                 if (isDebug) {
                     logger.debug("add Jar:{}", pluginConfig.getPluginJarURLExternalForm());
                 }
-                ADD_URL.invoke(classLoader, pluginConfig.getPluginJar());
+                ADD_URL.invoke(classLoader, pluginConfig.getPluginUrl());
             }
         }
     }

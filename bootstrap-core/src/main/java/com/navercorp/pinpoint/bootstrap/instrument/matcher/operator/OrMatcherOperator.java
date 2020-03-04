@@ -29,8 +29,8 @@ public class OrMatcherOperator extends AbstractMatcherOperand implements Matcher
     private final MatcherOperand rightOperand;
 
     public OrMatcherOperator(final MatcherOperand leftOperand, final MatcherOperand rightOperand) {
-        this.leftOperand = Assert.requireNonNull(leftOperand, "leftOperand must not be null");
-        this.rightOperand = Assert.requireNonNull(rightOperand, "rightOperand must not be null");
+        this.leftOperand = Assert.requireNonNull(leftOperand, "leftOperand");
+        this.rightOperand = Assert.requireNonNull(rightOperand, "rightOperand");
     }
 
     @Override

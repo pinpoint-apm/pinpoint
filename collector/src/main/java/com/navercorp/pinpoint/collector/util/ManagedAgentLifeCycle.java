@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.collector.util;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.EnumMap;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -27,39 +27,38 @@ import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
 import com.navercorp.pinpoint.rpc.common.SocketStateCode;
 
 public enum ManagedAgentLifeCycle {
-    RUNNING(0, SocketStateCode.RUN_SIMPLEX, SocketStateCode.RUN_DUPLEX),
-    CLOSED_BY_CLIENT(Integer.MAX_VALUE, SocketStateCode.CLOSED_BY_CLIENT),
-    UNEXPECTED_CLOSE_BY_CLIENT(Integer.MAX_VALUE, SocketStateCode.UNEXPECTED_CLOSE_BY_CLIENT),
-    CLOSED_BY_SERVER(Integer.MAX_VALUE, SocketStateCode.CLOSED_BY_SERVER),
-    UNEXPECTED_CLOSE_BY_SERVER(Integer.MAX_VALUE, SocketStateCode.UNEXPECTED_CLOSE_BY_SERVER, SocketStateCode.ERROR_UNKNOWN,
+    RUNNING(0, AgentLifeCycleState.RUNNING, AgentEventType.AGENT_CONNECTED, SocketStateCode.RUN_SIMPLEX,
+            SocketStateCode.RUN_DUPLEX),
+
+    CLOSED_BY_CLIENT(Integer.MAX_VALUE, AgentLifeCycleState.SHUTDOWN, AgentEventType.AGENT_SHUTDOWN,
+            SocketStateCode.CLOSED_BY_CLIENT),
+
+    UNEXPECTED_CLOSE_BY_CLIENT(Integer.MAX_VALUE, AgentLifeCycleState.UNEXPECTED_SHUTDOWN, AgentEventType.AGENT_UNEXPECTED_SHUTDOWN,
+            SocketStateCode.UNEXPECTED_CLOSE_BY_CLIENT),
+
+    CLOSED_BY_SERVER(Integer.MAX_VALUE, AgentLifeCycleState.DISCONNECTED, AgentEventType.AGENT_CLOSED_BY_SERVER,
+            SocketStateCode.CLOSED_BY_SERVER),
+
+    UNEXPECTED_CLOSE_BY_SERVER(Integer.MAX_VALUE, AgentLifeCycleState.DISCONNECTED, AgentEventType.AGENT_UNEXPECTED_CLOSE_BY_SERVER,
+            SocketStateCode.UNEXPECTED_CLOSE_BY_SERVER, SocketStateCode.ERROR_UNKNOWN,
             SocketStateCode.ERROR_ILLEGAL_STATE_CHANGE, SocketStateCode.ERROR_SYNC_STATE_SESSION);
 
-    private static final EnumMap<ManagedAgentLifeCycle, AgentLifeCycleState> MAPPED_STATE = new EnumMap<>(
-            ManagedAgentLifeCycle.class);
 
-    private static final EnumMap<ManagedAgentLifeCycle, AgentEventType> MAPPED_EVENT = new EnumMap<>(
-            ManagedAgentLifeCycle.class);
+    private static final EnumSet<ManagedAgentLifeCycle> CLOSED_EVENT
+            = EnumSet.of(CLOSED_BY_CLIENT, UNEXPECTED_CLOSE_BY_CLIENT, CLOSED_BY_SERVER, UNEXPECTED_CLOSE_BY_SERVER);
 
-    static {
-        MAPPED_STATE.put(RUNNING, AgentLifeCycleState.RUNNING);
-        MAPPED_STATE.put(CLOSED_BY_CLIENT, AgentLifeCycleState.SHUTDOWN);
-        MAPPED_STATE.put(UNEXPECTED_CLOSE_BY_CLIENT, AgentLifeCycleState.UNEXPECTED_SHUTDOWN);
-        MAPPED_STATE.put(CLOSED_BY_SERVER, AgentLifeCycleState.DISCONNECTED);
-        MAPPED_STATE.put(UNEXPECTED_CLOSE_BY_SERVER, AgentLifeCycleState.DISCONNECTED);
-
-        MAPPED_EVENT.put(RUNNING, AgentEventType.AGENT_CONNECTED);
-        MAPPED_EVENT.put(CLOSED_BY_CLIENT, AgentEventType.AGENT_SHUTDOWN);
-        MAPPED_EVENT.put(UNEXPECTED_CLOSE_BY_CLIENT, AgentEventType.AGENT_UNEXPECTED_SHUTDOWN);
-        MAPPED_EVENT.put(CLOSED_BY_SERVER, AgentEventType.AGENT_CLOSED_BY_SERVER);
-        MAPPED_EVENT.put(UNEXPECTED_CLOSE_BY_SERVER, AgentEventType.AGENT_UNEXPECTED_CLOSE_BY_SERVER);
-    }
+    private static final EnumSet<ManagedAgentLifeCycle> ALL = EnumSet.allOf(ManagedAgentLifeCycle.class);
 
     private final int eventCounter;
     private final Set<SocketStateCode> managedStateCodeSet;
+    private final AgentLifeCycleState agentLifeCycleState;
+    private final AgentEventType agentEventType;
 
-    ManagedAgentLifeCycle(int eventCounter, SocketStateCode... managedStateCodes) {
+    ManagedAgentLifeCycle(int eventCounter, AgentLifeCycleState agentLifeCycleState, AgentEventType agentEventType, SocketStateCode... managedStateCodes) {
         this.eventCounter = eventCounter;
-        this.managedStateCodeSet = new HashSet<>(Arrays.asList(managedStateCodes));
+        this.agentLifeCycleState = agentLifeCycleState;
+        this.agentEventType = agentEventType;
+        this.managedStateCodeSet = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(managedStateCodes)));
     }
 
     public int getEventCounter() {
@@ -67,23 +66,27 @@ public enum ManagedAgentLifeCycle {
     }
 
     public Set<SocketStateCode> getManagedStateCodes() {
-        return Collections.unmodifiableSet(this.managedStateCodeSet);
+        return this.managedStateCodeSet;
     }
 
     public AgentLifeCycleState getMappedState() {
-        return MAPPED_STATE.get(this);
+        return this.agentLifeCycleState;
     }
 
     public AgentEventType getMappedEvent() {
-        return MAPPED_EVENT.get(this);
+        return agentEventType;
     }
 
     public static ManagedAgentLifeCycle getManagedAgentLifeCycleByStateCode(SocketStateCode stateCode) {
-        for (ManagedAgentLifeCycle agentLifeCycle : ManagedAgentLifeCycle.values()) {
+        for (ManagedAgentLifeCycle agentLifeCycle : ALL) {
             if (agentLifeCycle.managedStateCodeSet.contains(stateCode)) {
                 return agentLifeCycle;
             }
         }
         return null;
+    }
+
+    public boolean isClosedEvent() {
+        return CLOSED_EVENT.contains(this);
     }
 }

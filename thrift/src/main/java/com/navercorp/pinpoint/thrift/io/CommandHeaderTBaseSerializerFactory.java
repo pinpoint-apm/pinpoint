@@ -28,9 +28,14 @@ import java.util.Arrays;
  */
 public final class CommandHeaderTBaseSerializerFactory implements SerializerFactory<HeaderTBaseSerializer> {
 
+    private static final CommandHeaderTBaseSerializerFactory DEFAULT_INSTANCE = new CommandHeaderTBaseSerializerFactory();
+
+    public static CommandHeaderTBaseSerializerFactory getDefaultInstance() {
+        return DEFAULT_INSTANCE;
+    }
+
     public static final int DEFAULT_SERIALIZER_MAX_SIZE = 1024 * 64;
 
-    private final TypeLocator<TBase<?, ?>> tBaseLocator;
     private final SerializerFactory<HeaderTBaseSerializer> factory;
 
     public CommandHeaderTBaseSerializerFactory() {
@@ -42,8 +47,6 @@ public final class CommandHeaderTBaseSerializerFactory implements SerializerFact
 
         TProtocolFactory protocolFactory = new TCompactProtocol.Factory();
         HeaderTBaseSerializerFactory serializerFactory = new HeaderTBaseSerializerFactory(true, outputStreamSize, protocolFactory, commandTbaseLocator);
-
-        this.tBaseLocator = commandTbaseLocator;
         this.factory = new ThreadLocalHeaderTBaseSerializerFactory<HeaderTBaseSerializer>(serializerFactory);
     }
 
@@ -54,11 +57,7 @@ public final class CommandHeaderTBaseSerializerFactory implements SerializerFact
 
     @Override
     public boolean isSupport(Object target) {
-        if (target instanceof TBase<?, ?>) {
-            return tBaseLocator.isSupport((Class<? extends TBase<?, ?>>) target.getClass());
-        }
-
-        return false;
+        return factory.isSupport(target);
     }
 
 }

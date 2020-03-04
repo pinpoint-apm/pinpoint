@@ -18,9 +18,10 @@ package com.navercorp.pinpoint.common.server.bo.serializer.stat;
 import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyEncoder;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.common.util.TimeUtils;
+
 import org.springframework.stereotype.Component;
 
-import static com.navercorp.pinpoint.common.hbase.HBaseTables.APPLICATION_NAME_MAX_LEN;
+import static com.navercorp.pinpoint.common.hbase.HbaseTableConstatns.APPLICATION_NAME_MAX_LEN;
 
 /**
  * @author minwoo.jung
@@ -31,7 +32,7 @@ public class ApplicationStatRowKeyEncoder implements RowKeyEncoder<ApplicationSt
     @Override
     public byte[] encodeRowKey(ApplicationStatRowKeyComponent component) {
         if (component == null) {
-            throw new NullPointerException("component must not be null");
+            throw new NullPointerException("component");
         }
         byte[] bApplicationId = BytesUtils.toBytes(component.getApplicationId());
         byte[] bStatType = new byte[]{component.getStatType().getRawTypeCode()};

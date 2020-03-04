@@ -25,21 +25,42 @@ public class RetryMessage {
     private final int maxRetryCount;
 
     private final byte[] bytes;
+    private final Object message;
     private final String messageDescription;
 
     public RetryMessage(int maxRetryCount, byte[] bytes) {
-        this(0, maxRetryCount, bytes, "");
+        this(0, maxRetryCount, bytes, null,"");
     }
 
     public RetryMessage(int retryCount, int maxRetryCount, byte[] bytes) {
-        this(retryCount, maxRetryCount, bytes, "");
+        this(retryCount, maxRetryCount, bytes, null,"");
     }
 
     public RetryMessage(int maxRetryCount, byte[] bytes, String messageDescription) {
-        this(0, maxRetryCount, bytes, messageDescription);
+        this(0, maxRetryCount, bytes, null, messageDescription);
     }
 
     public RetryMessage(int retryCount, int maxRetryCount, byte[] bytes, String messageDescription) {
+        this(retryCount, maxRetryCount, bytes, null, messageDescription);
+    }
+
+    public RetryMessage(int maxRetryCount, Object message) {
+        this(0, maxRetryCount, null, message, "");
+    }
+
+    public RetryMessage(int retryCount, int maxRetryCount, Object message) {
+        this(retryCount, maxRetryCount, null, message, "");
+    }
+
+    public RetryMessage(int maxRetryCount, Object message, String messageDescription) {
+        this(0, maxRetryCount, null, message, messageDescription);
+    }
+
+    public RetryMessage(int retryCount, int maxRetryCount, Object message, String messageDescription) {
+        this(retryCount, maxRetryCount, null, message, messageDescription);
+    }
+
+    public RetryMessage(int retryCount, int maxRetryCount, byte[] bytes, Object message, String messageDescription) {
         if (retryCount < 0) {
             throw new IllegalArgumentException("retryCount:" + retryCount + " must be positive number");
         }
@@ -53,6 +74,7 @@ public class RetryMessage {
         this.retryCount = retryCount;
         this.maxRetryCount = maxRetryCount;
         this.bytes = bytes;
+        this.message = message;
         this.messageDescription = messageDescription;
     }
 
@@ -93,5 +115,4 @@ public class RetryMessage {
         }
         return bytes.length;
     }
-
 }

@@ -39,7 +39,7 @@ public class MapStatisticsCallerDataCollector extends DataCollector {
     private MapStatisticsCallerDao mapStatisticsCallerDao;
     private long timeSlotEndTime;
     private long slotInterval;
-    private Map<String, LinkCallData> calleStatMap = new HashMap<>();
+    private Map<String, LinkCallData> calleeStatMap = new HashMap<>();
     private final AtomicBoolean init = new AtomicBoolean(false); // need to consider a trace condition when checkers start simultaneously.
 
     public MapStatisticsCallerDataCollector(DataCollectorCategory category, Application application, MapStatisticsCallerDao mapStatisticsCallerDao, long timeSlotEndTime, long slotInterval) {
@@ -62,7 +62,7 @@ public class MapStatisticsCallerDataCollector extends DataCollector {
             LinkCallDataMap linkCallDataMap = linkData.getLinkCallDataMap();
 
             for (LinkCallData linkCallData : linkCallDataMap.getLinkDataList()) {
-                calleStatMap.put(linkCallData.getTarget(), linkCallData);
+                calleeStatMap.put(linkCallData.getTarget(), linkCallData);
             }
         }
 
@@ -70,7 +70,7 @@ public class MapStatisticsCallerDataCollector extends DataCollector {
     }
 
     public long getCount(String calleName, DataCategory dataCategory) {
-        final LinkCallData linkCallData = calleStatMap.get(calleName);
+        final LinkCallData linkCallData = calleeStatMap.get(calleName);
         if (linkCallData == null) {
             return 0;
         }
@@ -103,7 +103,7 @@ public class MapStatisticsCallerDataCollector extends DataCollector {
     }
 
     public long getCountRate(String calleName, DataCategory dataCategory) {
-        final LinkCallData linkCallData = calleStatMap.get(calleName);
+        final LinkCallData linkCallData = calleeStatMap.get(calleName);
         if (linkCallData == null) {
             return 0;
         }

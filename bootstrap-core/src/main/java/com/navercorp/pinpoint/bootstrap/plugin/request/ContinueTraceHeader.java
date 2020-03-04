@@ -16,8 +16,6 @@
 
 package com.navercorp.pinpoint.bootstrap.plugin.request;
 
-import com.navercorp.pinpoint.bootstrap.plugin.request.TraceHeader;
-import com.navercorp.pinpoint.bootstrap.plugin.request.TraceHeaderState;
 import com.navercorp.pinpoint.common.util.Assert;
 
 /**
@@ -30,7 +28,7 @@ public class ContinueTraceHeader implements TraceHeader {
     private short flags;
 
     public ContinueTraceHeader(String transactionId, long parentSpanId, long spanId, short flags) {
-        this.transactionId = Assert.requireNonNull(transactionId, "transactionId must not be null");
+        this.transactionId = Assert.requireNonNull(transactionId, "transactionId");
         this.parentSpanId = parentSpanId;
         this.spanId = spanId;
         this.flags = flags;

@@ -1,0 +1,81 @@
+:host {
+    display: block;
+}
+
+.l-desc-text-wrapper {
+    margin-bottom: 20px;
+}
+
+.l-desc-text {
+    color: #999;
+    font-size: 14px;
+}
+
+.l-section-table {
+    width: 100%;
+    font-family: 'Open Sans', sans-serif;
+}
+
+thead > tr {
+    background-color: #f6f8fb;
+}
+
+tbody > tr {
+    background-color: #fff;
+}
+
+.l-section-table th, .l-section-table td {
+    font-size: 13px;
+    border: 1px solid #e5e8f0;
+}
+
+.l-section-table th {
+    font-weight: 600;
+    color: #333;
+    padding: 12px 0;
+}
+
+.l-section-table td {
+    font-weight: 400;
+    color: #999;
+    padding: 12px 20px;
+}
+
+.l-color-blue {
+    color: var(--primary-color);
+}
+
+.l-text-bold {
+    font-weight: 600;
+}
+
+.l-servermap-span {
+    color: #666;
+}
+.l-servermap-span .fas {
+    color:#d0d0d0;
+}
+
+.fa-sign-in-alt, .fa-sign-out-alt {
+    color: #33b692;
+}
+
+.l-row {
+    margin-top: 25px;
+}
+
+.l-row {
+    display: flex;
+}
+
+.l-row > table {
+    flex: 1;
+}
+
+.l-row > table:first-child {
+    margin-right: 10px;
+}
+
+.l-input-wrapper {
+    padding: 11px !important;
+}

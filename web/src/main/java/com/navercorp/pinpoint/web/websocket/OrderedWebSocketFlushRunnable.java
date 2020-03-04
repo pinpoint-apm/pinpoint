@@ -24,6 +24,8 @@ import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 
+import java.util.Objects;
+
 /**
  * @author Taejin Koo
  */
@@ -42,16 +44,8 @@ public class OrderedWebSocketFlushRunnable implements Runnable, SimpleOrderedThr
     }
 
     public OrderedWebSocketFlushRunnable(WebSocketSession webSocketSession, TextMessage webSocketMessage, boolean sessionCloseOnError) {
-        if (webSocketSession == null) {
-            throw new NullPointerException("webSocketSession null.");
-        }
-        if (webSocketMessage == null) {
-            throw new NullPointerException("webSocketMessage null.");
-
-        }
-
-        this.webSocketSession = webSocketSession;
-        this.webSocketMessage = webSocketMessage;
+        this.webSocketSession = Objects.requireNonNull(webSocketSession, "webSocketSession");
+        this.webSocketMessage = Objects.requireNonNull(webSocketMessage, "webSocketMessage");
         this.sessionCloseOnError = sessionCloseOnError;
     }
 

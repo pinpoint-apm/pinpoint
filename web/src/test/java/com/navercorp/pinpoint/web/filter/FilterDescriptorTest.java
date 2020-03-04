@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.web.filter;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.navercorp.pinpoint.common.Charsets;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -80,7 +81,7 @@ public class FilterDescriptorTest {
 
         json.writeNumberField("ie", 1);
 
-        json.writeStringField("url", "/**");
+        json.writeStringField("url", Base64.encodeBytes("/**".getBytes(Charsets.UTF_8)));
         json.writeEndObject();
 //        json.writeEndArray();
 

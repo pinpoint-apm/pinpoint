@@ -63,15 +63,15 @@ public class DefaultResponseTimeMetricCollectorTest {
 
     @Test
     public void defaultTest() throws Exception {
-        AgentStatMetricCollector<TResponseTime> responseTimeMetricCollector = new DefaultResponseTimeMetricCollector(responseTimeMetric);
-        TResponseTime collect = responseTimeMetricCollector.collect();
+        AgentStatMetricCollector<ResponseTimeValue> responseTimeMetricCollector = new DefaultResponseTimeMetricCollector(responseTimeMetric);
+        ResponseTimeValue collect = responseTimeMetricCollector.collect();
 
         Assert.assertEquals(totalValue / COUNT, collect.getAvg());
     }
 
     @Test(expected = NullPointerException.class)
     public void throwNPETest() throws Exception {
-        AgentStatMetricCollector<TResponseTime> responseTimeMetricCollector = new DefaultResponseTimeMetricCollector(null);
+        AgentStatMetricCollector<ResponseTimeValue> responseTimeMetricCollector = new DefaultResponseTimeMetricCollector(null);
     }
 
 }

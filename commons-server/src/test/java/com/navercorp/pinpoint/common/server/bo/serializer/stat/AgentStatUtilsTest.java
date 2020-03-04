@@ -16,12 +16,12 @@
 
 package com.navercorp.pinpoint.common.server.bo.serializer.stat;
 
+import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
+
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.Random;
-
-import static com.navercorp.pinpoint.common.hbase.HBaseTables.AGENT_STAT_TIMESPAN_MS;
 
 /**
  * @author HyunGil Jeong
@@ -79,7 +79,6 @@ public class AgentStatUtilsTest {
     public void getBaseTimestamp_should_return_a_multiple_of_AGENT_STAT_TIMESPAN_MS() {
         long timestamp = RANDOM.nextLong();
         long baseTimestamp = AgentStatUtils.getBaseTimestamp(timestamp);
-        Assert.assertTrue((baseTimestamp % AGENT_STAT_TIMESPAN_MS) == 0);
-
+        Assert.assertTrue((baseTimestamp % HbaseColumnFamily.AGENT_STAT_STATISTICS.TIMESPAN_MS) == 0);
     }
 }

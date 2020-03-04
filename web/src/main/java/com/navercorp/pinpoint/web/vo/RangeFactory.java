@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.web.vo;
 
-import com.navercorp.pinpoint.common.util.TimeSlot;
+import com.navercorp.pinpoint.common.server.util.TimeSlot;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -35,7 +35,7 @@ public class RangeFactory {
      */
     public Range createStatisticsRange(Range range) {
         if (range == null) {
-            throw new NullPointerException("range must not be null");
+            throw new NullPointerException("range");
         }
         // HBase scanner does not include endTime when scanning, so 1 is usually added to the endTime.
         // In this case, the Range is reversed, so we instead subtract 1 from the startTime.

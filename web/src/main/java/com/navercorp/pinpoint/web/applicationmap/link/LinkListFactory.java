@@ -65,7 +65,7 @@ public class LinkListFactory {
             // for RPC clients: skip if there is a dest application, convert to "unknown cloud" if not
             // shouldn't really be necessary as rpc client toNodes are converted to unknown nodes beforehand.
             if (toNode.getServiceType().isRpcClient()) {
-                if (!nodeList.containsNode(toNode.getApplication())) {
+                if (!nodeList.containsNode(toNode.getApplication()) || toNode.getServiceType().isAlias()) {
                     final Link link = addLink(linkType, linkList, fromNode, toNode, CreateType.Source, range);
                     if (link != null) {
                         logger.debug("createRpcSourceLink:{}", link);

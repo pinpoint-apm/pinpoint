@@ -18,10 +18,17 @@ package com.navercorp.pinpoint.collector.cluster;
 
 import com.navercorp.pinpoint.rpc.Future;
 
-public interface ClusterPoint {
+import org.apache.thrift.TBase;
 
-    void send(byte[] data);
+/**
+ * Connection with agent module
+ */
+public interface ClusterPoint<M> {
 
-    Future request(byte[] data);
+    Future request(M request);
+
+    AgentInfo getDestAgentInfo();
+
+    boolean isSupportCommand(TBase command);
 
 }

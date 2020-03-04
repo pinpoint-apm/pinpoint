@@ -21,9 +21,10 @@ import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.rpc.PinpointSocket;
 import com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor;
 import com.navercorp.pinpoint.rpc.server.ServerMessageListenerFactory;
-import com.navercorp.pinpoint.rpc.stream.ServerStreamChannelMessageListener;
+import com.navercorp.pinpoint.rpc.stream.ServerStreamChannelMessageHandler;
 import com.navercorp.pinpoint.test.utils.TestAwaitTaskUtils;
 import com.navercorp.pinpoint.test.utils.TestAwaitUtils;
+
 import org.jboss.netty.channel.ChannelHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,23 +51,23 @@ public class TestPinpointServerAcceptor {
         this(messageListenerFactory, null);
     }
 
-    public TestPinpointServerAcceptor(ServerMessageListenerFactory messageListenerFactory, ServerStreamChannelMessageListener streamChannelMessageListener) {
-        this(messageListenerFactory, streamChannelMessageListener, null);
+    public TestPinpointServerAcceptor(ServerMessageListenerFactory messageListenerFactory, ServerStreamChannelMessageHandler streamChannelMessageHandler) {
+        this(messageListenerFactory, streamChannelMessageHandler, null);
     }
 
     public TestPinpointServerAcceptor(ChannelHandler messageHandler) {
         this(null, null, messageHandler);
     }
 
-    public TestPinpointServerAcceptor(ServerMessageListenerFactory messageListenerFactory, ServerStreamChannelMessageListener streamChannelMessageListener, ChannelHandler messageHandler) {
+    public TestPinpointServerAcceptor(ServerMessageListenerFactory messageListenerFactory, ServerStreamChannelMessageHandler streamChannelMessageHandler, ChannelHandler messageHandler) {
         PinpointServerAcceptor serverAcceptor = new PinpointServerAcceptor();
 
         if (messageListenerFactory != null) {
             serverAcceptor.setMessageListenerFactory(messageListenerFactory);
         }
 
-        if (streamChannelMessageListener != null) {
-            serverAcceptor.setServerStreamChannelMessageListener(streamChannelMessageListener);
+        if (streamChannelMessageHandler != null) {
+            serverAcceptor.setServerStreamChannelMessageHandler(streamChannelMessageHandler);
         }
 
         if (messageHandler != null) {

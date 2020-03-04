@@ -1,0 +1,7 @@
+<cdk-virtual-scroll-viewport itemSize="43" style="height: 100%;">
+    <div class="l-application-list-item" *cdkVirtualFor="let app of applicationList; templateCacheSize: 22">
+        <img [src]="getIconPath(app?.getServiceType())" width="23px" height="18px" class="l-icon-img"/>
+        <span class="text-ellipsis l-application-name-wrapper">{{app?.getApplicationName()}}</span>
+        <button class="l-select-button" (click)="onSelectApp(app)"><span [class]="iconBtnClassName"></span></button>
+    </div>
+</cdk-virtual-scroll-viewport>

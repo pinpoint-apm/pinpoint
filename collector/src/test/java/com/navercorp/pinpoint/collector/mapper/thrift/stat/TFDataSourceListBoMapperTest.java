@@ -22,10 +22,9 @@ import com.navercorp.pinpoint.thrift.dto.flink.TFDataSource;
 import com.navercorp.pinpoint.thrift.dto.flink.TFDataSourceList;
 import org.junit.Test;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author minwoo.jung

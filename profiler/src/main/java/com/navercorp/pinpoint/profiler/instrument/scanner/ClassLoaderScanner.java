@@ -35,7 +35,7 @@ public class ClassLoaderScanner implements Scanner {
 
     @Override
     public boolean exist(String fileName) {
-        Assert.requireNonNull(fileName, "fileName must not be null");
+        Assert.requireNonNull(fileName, "fileName");
 
         // TODO
         return classLoader.getResource(fileName) != null;
@@ -43,7 +43,7 @@ public class ClassLoaderScanner implements Scanner {
 
     @Override
     public InputStream openStream(String fileName) {
-        Assert.requireNonNull(fileName, "fileName must not be null");
+        Assert.requireNonNull(fileName, "fileName");
 
         return classLoader.getResourceAsStream(fileName);
     }

@@ -16,8 +16,6 @@
 
 package com.navercorp.pinpoint.profiler.context.thrift;
 
-import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
-
 /**
  * @author Woonduk Kang(emeroad)
  */

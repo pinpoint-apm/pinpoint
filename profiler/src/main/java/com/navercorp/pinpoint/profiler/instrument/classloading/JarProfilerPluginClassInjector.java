@@ -41,9 +41,9 @@ public class JarProfilerPluginClassInjector implements ClassInjector {
 
     public JarProfilerPluginClassInjector(PluginConfig pluginConfig, InstrumentEngine instrumentEngine, BootstrapCore bootstrapCore) {
         if (pluginConfig == null) {
-            throw new NullPointerException("pluginConfig must not be null");
+            throw new NullPointerException("pluginConfig");
         }
-        this.bootstrapCore = Assert.requireNonNull(bootstrapCore, "bootstrapCore must not be null");
+        this.bootstrapCore = Assert.requireNonNull(bootstrapCore, "bootstrapCore");
         this.bootstrapClassLoaderHandler = new BootstrapClassLoaderHandler(pluginConfig, instrumentEngine);
         this.urlClassLoaderHandler = new URLClassLoaderHandler(pluginConfig);
         this.plainClassLoaderHandler = new PlainClassLoaderHandler(pluginConfig);
@@ -71,6 +71,7 @@ public class JarProfilerPluginClassInjector implements ClassInjector {
         }
     }
 
+    @Override
     public InputStream getResourceAsStream(ClassLoader targetClassLoader, String internalName) {
         try {
             if (bootstrapCore.isBootstrapPackageByInternalName(internalName)) {

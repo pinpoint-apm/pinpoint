@@ -15,24 +15,22 @@
  */
 package com.navercorp.pinpoint.plugin.openwhisk;
 
-import com.navercorp.pinpoint.common.trace.*;
-
-import static com.navercorp.pinpoint.common.trace.AnnotationKeyProperty.VIEW_IN_RECORD_SET;
-import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.RECORD_STATISTICS;
-import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.INCLUDE_DESTINATION_ID;
-import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.TERMINAL;
+import com.navercorp.pinpoint.common.trace.AnnotationKey;
+import com.navercorp.pinpoint.common.trace.AnnotationKeyProvider;
+import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.trace.ServiceTypeProvider;
 
 /**
  * @author Seonghyun Oh
  */
 public class OpenwhiskConstants {
-    public static final ServiceType OPENWHISK_INTERNAL = ServiceTypeFactory.of(1620, "OPENWHISK_INTERNAL", "OPENWHISK_INTERNAL");
-    public static final ServiceType OPENWHISK_CONTROLLER = ServiceTypeFactory.of(1621, "OPENWHISK_CONTROLLER", "OPENWHISK_CONTROLLER", ServiceTypeProperty.RECORD_STATISTICS);
-    public static final ServiceType OPENWHISK_INVOKER = ServiceTypeFactory.of(1622, "OPENWHISK_INVOKER", "OPENWHISK_INVOKER", ServiceTypeProperty.RECORD_STATISTICS);
-    public static final ServiceType OPENWHISK_CLIENT = ServiceTypeFactory.of(9622, "OPENWHISK_CLIENT", "OPENWHISK_CLIENT", ServiceTypeProperty.RECORD_STATISTICS);
+    public static final ServiceType OPENWHISK_INTERNAL = ServiceTypeProvider.getByName("OPENWHISK_INTERNAL");
+    public static final ServiceType OPENWHISK_CONTROLLER = ServiceTypeProvider.getByName("OPENWHISK_CONTROLLER");
+    public static final ServiceType OPENWHISK_INVOKER = ServiceTypeProvider.getByName("OPENWHISK_INVOKER");
+    public static final ServiceType OPENWHISK_CLIENT = ServiceTypeProvider.getByName("OPENWHISK_CLIENT");
 
-    public static final ServiceType COUCHDB = ServiceTypeFactory.of(2700, "COUCHDB", TERMINAL, INCLUDE_DESTINATION_ID);
-    public static final ServiceType COUCHDB_EXECUTE_QUERY = ServiceTypeFactory.of(2701, "COUCHDB_EXECUTE_QUERY", "COUCHDB", TERMINAL, RECORD_STATISTICS, INCLUDE_DESTINATION_ID);
+    public static final ServiceType COUCHDB = ServiceTypeProvider.getByName("COUCHDB");
+    public static final ServiceType COUCHDB_EXECUTE_QUERY = ServiceTypeProvider.getByName("COUCHDB_EXECUTE_QUERY");
 
-    public static final AnnotationKey MARKER_MESSAGE = AnnotationKeyFactory.of(923, "marker.message", VIEW_IN_RECORD_SET);
+    public static final AnnotationKey MARKER_MESSAGE = AnnotationKeyProvider.getByCode(923);
 }

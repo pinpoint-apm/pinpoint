@@ -16,12 +16,11 @@
 
 package com.navercorp.pinpoint.web.service;
 
+import org.springframework.stereotype.Service;
+
 /**
  * @author Taejin Koo
  */
-
-import org.springframework.stereotype.Service;
-
 @Service
 public interface ApplicationService {
 

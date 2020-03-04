@@ -29,9 +29,9 @@ import com.navercorp.pinpoint.common.server.bo.codec.strategy.EncodingStrategy;
 import com.navercorp.pinpoint.common.server.bo.stat.ResponseTimeBo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.util.Assert;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Taejin Koo
@@ -49,8 +49,7 @@ public class ResponseTimeCodecV2 extends AgentStatCodecV2<ResponseTimeBo> {
         private final AgentStatDataPointCodec codec;
 
         private ResponseTimeFactory(AgentStatDataPointCodec codec) {
-            Assert.notNull(codec, "codec must not be null");
-            this.codec = codec;
+            this.codec = Objects.requireNonNull(codec, "codec");
         }
 
         @Override
@@ -76,8 +75,7 @@ public class ResponseTimeCodecV2 extends AgentStatCodecV2<ResponseTimeBo> {
         private final UnsignedLongEncodingStrategy.Analyzer.Builder maxAnalyzerBuilder = new UnsignedLongEncodingStrategy.Analyzer.Builder();
 
         public ResponseTimeCodecEncoder(AgentStatDataPointCodec codec) {
-            Assert.notNull(codec, "codec must not be null");
-            this.codec = codec;
+            this.codec = Objects.requireNonNull(codec, "codec");
         }
 
         @Override
@@ -112,8 +110,7 @@ public class ResponseTimeCodecV2 extends AgentStatCodecV2<ResponseTimeBo> {
         private List<Long> maxs;
 
         public ResponseTimeCodecDecoder(AgentStatDataPointCodec codec) {
-            Assert.notNull(codec, "codec must not be null");
-            this.codec = codec;
+            this.codec = Objects.requireNonNull(codec, "codec");
         }
 
         @Override

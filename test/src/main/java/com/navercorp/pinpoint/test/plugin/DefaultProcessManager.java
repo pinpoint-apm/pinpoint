@@ -38,7 +38,7 @@ public class DefaultProcessManager implements ProcessManager {
     private Process process = null;
 
     public DefaultProcessManager(PinpointPluginTestContext context) {
-        this.context = Assert.requireNonNull(context, "context must not be null");
+        this.context = Assert.requireNonNull(context, "context");
     }
 
     @Override
@@ -113,8 +113,13 @@ public class DefaultProcessManager implements ProcessManager {
             list.addAll(getDebugOptions());
         }
 
+        if (context.getProfile() != null) {
+            list.add("-Dpinpoint.profiler.profiles.active=" + context.getProfile());
+        }
+
         if (context.getConfigFile() != null) {
             list.add("-Dpinpoint.config=" + context.getConfigFile());
+            list.add("-Dpinpoint.config.load.mode=simple");
         }
 
         for (String arg : pluginTestInstance.getVmArgs()) {

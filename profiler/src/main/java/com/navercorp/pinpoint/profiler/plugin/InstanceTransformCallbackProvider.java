@@ -27,7 +27,7 @@ public class InstanceTransformCallbackProvider implements TransformCallbackProvi
     private final TransformCallback transformCallback;
 
     public InstanceTransformCallbackProvider(TransformCallback transformCallback) {
-        this.transformCallback = Assert.requireNonNull(transformCallback, "transformCallback must not be null");
+        this.transformCallback = Assert.requireNonNull(transformCallback, "transformCallback");
     }
 
     @Override

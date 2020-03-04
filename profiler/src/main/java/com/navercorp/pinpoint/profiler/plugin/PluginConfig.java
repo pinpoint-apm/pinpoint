@@ -16,8 +16,6 @@
 
 package com.navercorp.pinpoint.profiler.plugin;
 
-import com.navercorp.pinpoint.common.plugin.JarPlugin;
-import com.navercorp.pinpoint.common.plugin.Plugin;
 import com.navercorp.pinpoint.common.util.Assert;
 
 
@@ -29,30 +27,26 @@ import java.util.jar.JarFile;
  */
 public class PluginConfig {
 
-    private final Plugin plugin;
+    private final Plugin<?> plugin;
     private final JarFile pluginJar;
+    private final ClassNameFilter pluginPackageFilter;
 
     private String pluginJarURLExternalForm;
 
-    private final ClassNameFilter pluginPackageFilter;
-
-    public PluginConfig(Plugin plugin, ClassNameFilter pluginPackageFilter) {
-        this.plugin = Assert.requireNonNull(plugin, "plugin must not be null");
-
+    public PluginConfig(Plugin<?> plugin, ClassNameFilter pluginPackageFilter) {
+        this.plugin = Assert.requireNonNull(plugin, "plugin");
         this.pluginPackageFilter = pluginPackageFilter;
         this.pluginJar = getJarFile(plugin);
-
     }
 
-    private JarFile getJarFile(Plugin plugin) {
+    private JarFile getJarFile(Plugin<?> plugin) {
         if (plugin instanceof JarPlugin) {
             return ((JarPlugin) plugin).getJarFile();
         }
         throw new IllegalArgumentException("unsupported plugin " + plugin);
     }
 
-
-    public URL getPluginJar() {
+    public URL getPluginUrl() {
         return plugin.getURL();
     }
 

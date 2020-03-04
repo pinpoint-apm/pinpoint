@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.collector.receiver.thrift;
 
+import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.collector.receiver.thrift.tcp.DefaultTCPPacketHandlerFactory;
 import com.navercorp.pinpoint.collector.receiver.thrift.tcp.TCPPacketHandler;
 import com.navercorp.pinpoint.collector.receiver.thrift.tcp.TCPPacketHandlerFactory;
@@ -54,11 +55,11 @@ public class TCPReceiverBean implements InitializingBean, DisposableBean, BeanNa
         if (!enable) {
             return;
         }
-        Objects.requireNonNull(beanName, "beanName must not be null");
-        Objects.requireNonNull(bindIp, "bindIp must not be null");
-        Objects.requireNonNull(executor, "executor must not be null");
-        Objects.requireNonNull(dispatchHandler, "dispatchHandler must not be null");
-        Objects.requireNonNull(acceptorProvider, "acceptorProvider must not be null");
+        Objects.requireNonNull(beanName, "beanName");
+        Objects.requireNonNull(bindIp, "bindIp");
+        Objects.requireNonNull(executor, "executor");
+        Objects.requireNonNull(dispatchHandler, "dispatchHandler");
+        Objects.requireNonNull(acceptorProvider, "acceptorProvider");
 
         tcpReceiver = createTcpReceiver(beanName, this.bindIp, bindPort, executor, dispatchHandler, this.tcpPacketHandlerFactory, acceptorProvider);
         tcpReceiver.start();
@@ -92,7 +93,7 @@ public class TCPReceiverBean implements InitializingBean, DisposableBean, BeanNa
     }
 
     public void setExecutor(Executor executor) {
-        this.executor = Objects.requireNonNull(executor, "executor must not be null");
+        this.executor = Objects.requireNonNull(executor, "executor");
     }
 
     public void setDispatchHandler(DispatchHandler dispatchHandler) {
@@ -104,7 +105,7 @@ public class TCPReceiverBean implements InitializingBean, DisposableBean, BeanNa
     }
 
     public void setBindIp(String bindIp) {
-        this.bindIp = Objects.requireNonNull(bindIp, "bindIp must not be null");
+        this.bindIp = Objects.requireNonNull(bindIp, "bindIp");
     }
 
     public void setBindPort(int bindPort) {

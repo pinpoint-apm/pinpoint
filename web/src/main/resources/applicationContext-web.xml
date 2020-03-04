@@ -1,4 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright 2019 NAVER Corp.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~ http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:context="http://www.springframework.org/schema/context"
@@ -13,63 +29,73 @@
                                          com.navercorp.pinpoint.web.service,
                                          com.navercorp.pinpoint.web.mapper,
                                          com.navercorp.pinpoint.web.filter,
-                                         com.navercorp.pinpoint.web.config,
                                          com.navercorp.pinpoint.web.view,
                                          com.navercorp.pinpoint.web.applicationmap,
                                          com.navercorp.pinpoint.common.server.bo,
                                          com.navercorp.pinpoint.common.server.util" />
 
-    <bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+    <bean id="webPropertyConfigurer" class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer">
         <property name="locations">
             <list>
                 <value>classpath:hbase.properties</value>
                 <value>classpath:jdbc.properties</value>
+                <value>classpath:pinpoint-web.properties</value>
+                <value>classpath:batch.properties</value>
+                <!-- override configuration -->
+                <value>classpath:profiles/${pinpoint.profiles.active}/hbase-env.properties</value>
+                <value>classpath:profiles/${pinpoint.profiles.active}/jdbc-env.properties</value>
+                <value>classpath:profiles/${pinpoint.profiles.active}/pinpoint-web-env.properties</value>
+                <value>classpath:profiles/${pinpoint.profiles.active}/batch-env.properties</value>
+                <!-- external property for override -->
+                <value>file:#{ systemProperties['pinpoint.web.config.location'] ?: '-Dpinpoint.web.config.location does not set' }</value>
             </list>
         </property>
+
+        <property name="fileEncoding" value="UTF-8"/>
+        <property name="ignoreUnresolvablePlaceholders" value="true"/>
+        <property name="ignoreResourceNotFound" value="true"/>
     </bean>
     
     <bean id="pinpointWebProps" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
         <property name="location" value="classpath:pinpoint-web.properties"/>
-        <property name="fileEncoding" value="UTF-8"/>
     </bean>
-    
-    <import resource="classpath:applicationContext-hbase.xml" />
-    <import resource="classpath:applicationContext-datasource.xml" />
-    <import resource="classpath:applicationContext-dao-config.xml" />
-    <import resource="classpath:applicationContext-cache.xml" />
-    <import resource="classpath:applicationContext-websocket.xml" />
+
+    <import resource="classpath:applicationContext-web-profile.xml" />
+    <import resource="classpath:applicationContext-web-hbase.xml" />
+    <import resource="classpath:applicationContext-web-datasource.xml" />
+    <import resource="classpath:applicationContext-web-dao-config.xml" />
+    <import resource="classpath:applicationContext-web-cache.xml" />
+    <import resource="classpath:applicationContext-web-websocket.xml" />
     <import resource="classpath:applicationContext-web-namespace.xml"/>
 
-    <bean id="jsonObjectMapper" class="org.springframework.http.converter.json.Jackson2ObjectMapperFactoryBean">
-    </bean>
-    
-    <bean id="rangeFactory" class="com.navercorp.pinpoint.web.vo.RangeFactory">
-    </bean>
+    <bean id="jsonObjectMapper" class="org.springframework.http.converter.json.Jackson2ObjectMapperFactoryBean"/>
 
-    <bean id="timeSlot" class="com.navercorp.pinpoint.common.util.DefaultTimeSlot">
-    </bean>
+    <bean id="rangeFactory" class="com.navercorp.pinpoint.web.vo.RangeFactory"/>
 
-    <bean id="config" class="com.navercorp.pinpoint.web.config.WebConfig">
-    </bean>
-    
-    <bean id="commandHeaderTBaseSerializerFactory" class="com.navercorp.pinpoint.thrift.io.CommandHeaderTBaseSerializerFactory">
-    </bean>
+    <bean id="timeSlot" class="com.navercorp.pinpoint.common.server.util.DefaultTimeSlot"/>
 
-    <bean id="commandHeaderTBaseDeserializerFactory" class="com.navercorp.pinpoint.thrift.io.CommandHeaderTBaseDeserializerFactory">
+    <bean id="webConfig" class="com.navercorp.pinpoint.web.config.WebConfig"/>
+    <bean id="configProperties" class="com.navercorp.pinpoint.web.config.ConfigProperties"/>
+    <bean id="logConfiguration" class="com.navercorp.pinpoint.web.config.LogConfiguration"/>
+    <bean id="webSocketConfig" class="com.navercorp.pinpoint.web.config.WebSocketConfig"/>
+
+    <bean id="commandHeaderTBaseSerializerFactory" class="com.navercorp.pinpoint.thrift.io.CommandHeaderTBaseSerializerFactory" factory-method="getDefaultInstance">
+    </bean>
+    <bean id="commandHeaderTBaseDeserializerFactory" class="com.navercorp.pinpoint.thrift.io.CommandHeaderTBaseDeserializerFactory" factory-method="getDefaultInstance">
     </bean>
     <bean id="agentEventHeaderTBaseDeserializerFactory" class="com.navercorp.pinpoint.thrift.io.AgentEventHeaderTBaseDeserializerFactory">
     </bean>
 
     <bean id="clusterConnectionManager" class="com.navercorp.pinpoint.web.cluster.connection.ClusterConnectionManager">
-        <constructor-arg ref="config" />
+        <constructor-arg ref="webConfig" />
     </bean>
 
     <bean id="clusterDataManager" class="com.navercorp.pinpoint.web.cluster.zookeeper.ZookeeperClusterDataManager">
-        <constructor-arg ref="config" />
+        <constructor-arg ref="webConfig" />
     </bean>
 
     <bean id="clusterManager" class="com.navercorp.pinpoint.web.cluster.ClusterManager">
-        <constructor-arg ref="config" />
+        <constructor-arg ref="webConfig" />
     </bean>
 
     <bean id="agentEventMessageDeserializer" class="com.navercorp.pinpoint.common.server.util.AgentEventMessageDeserializer">
@@ -90,14 +116,12 @@
         <constructor-arg index="0" ref="slf4jCommonLoggerFactory"/>
     </bean>
 
-    <bean id="serviceTypeRegistryService" class="com.navercorp.pinpoint.common.service.DefaultServiceTypeRegistryService">
+    <bean id="serviceTypeRegistryService" class="com.navercorp.pinpoint.loader.service.DefaultServiceTypeRegistryService">
         <constructor-arg ref="typeLoaderService"/>
-        <constructor-arg ref="slf4jCommonLoggerFactory"/>
     </bean>
 
-    <bean id="annotationKeyRegistryService" class="com.navercorp.pinpoint.common.service.DefaultAnnotationKeyRegistryService">
+    <bean id="annotationKeyRegistryService" class="com.navercorp.pinpoint.loader.service.DefaultAnnotationKeyRegistryService">
         <constructor-arg ref="typeLoaderService"/>
-        <constructor-arg ref="slf4jCommonLoggerFactory"/>
     </bean>
     
     <bean id="spanServiceImpl" class="com.navercorp.pinpoint.web.service.SpanServiceImpl">
@@ -105,22 +129,18 @@
     </bean>
     
     <bean id="hbaseSqlMetaDataDao" class="com.navercorp.pinpoint.web.dao.hbase.HbaseSqlMetaDataDao">
-        <property name="rowKeyDistributorByHashPrefix" ref="metadataRowKeyDistributor2"></property>
-        <property name="sqlMetaDataMapper" ref="sqlMetaDataMapper2"></property>
+        <property name="rowKeyDistributorByHashPrefix" ref="metadataRowKeyDistributor2"/>
+        <property name="sqlMetaDataMapper" ref="sqlMetaDataMapper2"/>
     </bean>
 
     <bean id="sqlMetaDataMapper" class="com.navercorp.pinpoint.web.mapper.SqlMetaDataMapper">
-        <property name="rowKeyDistributorByHashPrefix" ref="metadataRowKeyDistributor"></property>
+        <property name="rowKeyDistributorByHashPrefix" ref="metadataRowKeyDistributor"/>
     </bean>
     
     <bean id="sqlMetaDataMapper2" class="com.navercorp.pinpoint.web.mapper.SqlMetaDataMapper">
-        <property name="rowKeyDistributorByHashPrefix" ref="metadataRowKeyDistributor2"></property>
+        <property name="rowKeyDistributorByHashPrefix" ref="metadataRowKeyDistributor2"/>
     </bean>
 
-    <util:properties id="batchProps" location="classpath:batch.properties"/>
-
-    <!-- add to load for batch spring configuration.we need to conditional logic to behave differently base on 'batch.enable' config value -->
-    <bean id="batchConfiguration" class="com.navercorp.pinpoint.web.batch.BatchConfiguration"/>
 
     <bean id="restTemplate" class="org.springframework.web.client.RestTemplate">
         <property name="messageConverters">
@@ -174,23 +194,23 @@
     </bean>
 
     <bean id="applicationsMapCreateExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor" parent="baseTaskExecutor">
-        <property name="corePoolSize" value="#{pinpointWebProps['web.servermap.creator.worker.threadSize'] ?: 16}"/>
-        <property name="maxPoolSize" value="#{pinpointWebProps['web.servermap.creator.worker.threadSize'] ?: 16}"/>
-        <property name="queueCapacity" value="#{pinpointWebProps['web.servermap.creator.worker.queueSize'] ?: 1024}"/>
+        <property name="corePoolSize" value="${web.servermap.creator.worker.threadSize:16}"/>
+        <property name="maxPoolSize" value="${web.servermap.creator.worker.threadSize:16}"/>
+        <property name="queueCapacity" value="${web.servermap.creator.worker.queueSize:1024}"/>
         <property name="threadNamePrefix" value="Pinpoint-Link-Selector-"/>
     </bean>
 
     <bean id="nodeHistogramAppendExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor" parent="baseTaskExecutor">
-        <property name="corePoolSize" value="#{pinpointWebProps['web.servermap.appender.worker.threadSize'] ?: 16}"/>
-        <property name="maxPoolSize" value="#{pinpointWebProps['web.servermap.appender.worker.threadSize'] ?: 16}"/>
-        <property name="queueCapacity" value="#{pinpointWebProps['web.servermap.appender.worker.queueSize'] ?: 1024}"/>
+        <property name="corePoolSize" value="${web.servermap.appender.worker.threadSize:16}"/>
+        <property name="maxPoolSize" value="${web.servermap.appender.worker.threadSize:16}"/>
+        <property name="queueCapacity" value="${web.servermap.appender.worker.queueSize:1024}"/>
         <property name="threadNamePrefix" value="Pinpoint-Node-Histogram-Appender-"/>
     </bean>
 
     <bean id="serverInfoAppendExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor" parent="baseTaskExecutor">
-        <property name="corePoolSize" value="#{pinpointWebProps['web.servermap.appender.worker.threadSize'] ?: 16}"/>
-        <property name="maxPoolSize" value="#{pinpointWebProps['web.servermap.appender.worker.threadSize'] ?: 16}"/>
-        <property name="queueCapacity" value="#{pinpointWebProps['web.servermap.appender.worker.queueSize'] ?: 1024}"/>
+        <property name="corePoolSize" value="${web.servermap.appender.worker.threadSize:16}"/>
+        <property name="maxPoolSize" value="${web.servermap.appender.worker.threadSize:16}"/>
+        <property name="queueCapacity" value="${web.servermap.appender.worker.queueSize:1024}"/>
         <property name="threadNamePrefix" value="Pinpoint-Server-Info-Appender-"/>
     </bean>
     <bean id="rewriteFilter" class="com.navercorp.pinpoint.web.servlet.RewriteForV2Filter">

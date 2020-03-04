@@ -33,7 +33,7 @@ public class AgentInstallationInfo {
     private final String javaInstallationInfo;
 
     public AgentInstallationInfo(AgentDownloadInfo agentDownloadInfo) {
-        this.agentDownloadInfo = Objects.requireNonNull(agentDownloadInfo, "agentDownloadInfo must not be null");
+        this.agentDownloadInfo = Objects.requireNonNull(agentDownloadInfo, "agentDownloadInfo");
         this.javaInstallationInfo = String.format(PINPOINT_JAVA_AGENT_ARGUMENT, agentDownloadInfo.getVersion());
     }
 

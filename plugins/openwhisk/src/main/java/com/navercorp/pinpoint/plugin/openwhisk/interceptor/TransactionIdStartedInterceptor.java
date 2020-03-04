@@ -25,8 +25,8 @@ import com.navercorp.pinpoint.plugin.openwhisk.OpenwhiskConfig;
 import com.navercorp.pinpoint.plugin.openwhisk.OpenwhiskConstants;
 import com.navercorp.pinpoint.plugin.openwhisk.accessor.PinpointTraceAccessor;
 import com.navercorp.pinpoint.plugin.openwhisk.descriptor.LogMarkerMethodDescriptor;
-import scala.runtime.AbstractFunction0;
-import whisk.common.LogMarkerToken;
+import scala.Function0;
+import org.apache.openwhisk.common.LogMarkerToken;
 
 /**
  * @author Seonghyun Oh
@@ -61,15 +61,16 @@ public class TransactionIdStartedInterceptor implements AroundInterceptor {
             logger.beforeInterceptor(target, args);
         }
 
-        AsyncContext asyncContext = AsyncContextAccessorUtils.getAsyncContext(args[0]);
+        final AsyncContext asyncContext = AsyncContextAccessorUtils.getAsyncContext(args[0]);
         if (asyncContext == null) {
             logger.debug("Not found asynchronous invocation metadata {}", (LogMarkerToken)args[2]);
             return;
         }
 
-        Trace trace = asyncContext.continueAsyncTraceObject();
+        final Trace trace = asyncContext.continueAsyncTraceObject();
         if (trace == null) {
             logger.debug("trace object null");
+            return;
         }
 
         try {
@@ -110,7 +111,7 @@ public class TransactionIdStartedInterceptor implements AroundInterceptor {
             final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
 
             LogMarkerToken logMarkerToken = (LogMarkerToken) args[2];
-            String message = ((AbstractFunction0) args[3]).apply().toString();
+            String message = ((Function0) args[3]).apply().toString();
             recorder.recordApi(new LogMarkerMethodDescriptor(logMarkerToken));
 
             if (logMarkerToken.component().equals("database")) {
@@ -124,7 +125,7 @@ public class TransactionIdStartedInterceptor implements AroundInterceptor {
                 }
             }
 
-            if (result instanceof AsyncContextAccessor) {
+            if (result instanceof AsyncContextAccessor && result instanceof PinpointTraceAccessor) {
                 ((AsyncContextAccessor) (result))._$PINPOINT$_setAsyncContext(asyncContext);
                 ((PinpointTraceAccessor) (result))._$PINPOINT$_setPinpointTrace(trace);
             }

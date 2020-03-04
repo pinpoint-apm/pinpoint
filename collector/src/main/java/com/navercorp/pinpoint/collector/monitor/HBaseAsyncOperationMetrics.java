@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.common.hbase.HBaseAsyncOperation;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author Taejin Koo
@@ -41,10 +42,7 @@ public class HBaseAsyncOperationMetrics implements MetricSet {
     private final HBaseAsyncOperation hBaseAsyncOperation;
 
     public HBaseAsyncOperationMetrics(HBaseAsyncOperation hBaseAsyncOperation) {
-        if (hBaseAsyncOperation == null) {
-            throw new NullPointerException("null");
-        }
-        this.hBaseAsyncOperation = hBaseAsyncOperation;
+        this.hBaseAsyncOperation = Objects.requireNonNull(hBaseAsyncOperation, "hBaseAsyncOperation");
     }
 
     @Override

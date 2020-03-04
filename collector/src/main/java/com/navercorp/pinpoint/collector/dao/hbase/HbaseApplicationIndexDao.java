@@ -16,11 +16,10 @@
 
 package com.navercorp.pinpoint.collector.dao.hbase;
 
-import static com.navercorp.pinpoint.common.hbase.HBaseTables.*;
-
 import com.navercorp.pinpoint.collector.dao.ApplicationIndexDao;
+import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
-import com.navercorp.pinpoint.common.hbase.TableNameProvider;
+import com.navercorp.pinpoint.common.hbase.TableDescriptor;
 import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
 
 import org.apache.hadoop.hbase.TableName;
@@ -46,22 +45,25 @@ public class HbaseApplicationIndexDao implements ApplicationIndexDao {
     private HbaseOperations2 hbaseTemplate;
 
     @Autowired
-    private TableNameProvider tableNameProvider;
+    private TableDescriptor<HbaseColumnFamily.ApplicationIndex> descriptor;
 
     @Override
     public void insert(final AgentInfoBo agentInfo) {
         if (agentInfo == null) {
-            throw new NullPointerException("agentInfo must not be null");
+            throw new NullPointerException("agentInfo");
         }
 
         final Put put = new Put(Bytes.toBytes(agentInfo.getApplicationName()));
         final byte[] qualifier = Bytes.toBytes(agentInfo.getAgentId());
         final byte[] value = Bytes.toBytes(agentInfo.getServiceTypeCode());
-        put.addColumn(APPLICATION_INDEX_CF_AGENTS, qualifier, value);
+        put.addColumn(descriptor.getColumnFamilyName(), qualifier, value);
 
-        final TableName applicationIndexTableName = tableNameProvider.getTableName(APPLICATION_INDEX_STR);
+        final TableName applicationIndexTableName = descriptor.getTableName();
         hbaseTemplate.put(applicationIndexTableName, put);
 
-        logger.debug("Insert agentInfo. {}", agentInfo);
+        logger.debug("Insert ApplicationIndex: {}", agentInfo);
     }
+
+
+
 }

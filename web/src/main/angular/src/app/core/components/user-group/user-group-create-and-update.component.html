@@ -1,0 +1,15 @@
+<div [hidden]="!showCreate" class="l-wrapper">
+    <button class="btn btn-black l-close" (click)="onClose()"><i class="fas fa-times"></i></button>
+    <h1 class="l-title">User Group</h1> 
+    <form class="l-form" [formGroup]="userGroupForm" #formDir="ngForm" (ngSubmit)="onCreateOrUpdate()">
+        <div class="l-field-wrapper">
+            <label class="l-label" for="userGroupName">{{i18nLabel.NAME_LABEL}} <span class="l-required-icon">*</span></label>
+            <input type="text" class="l-input" id="userGroupName" formControlName="userGroupName" required autofocus>
+            <pp-form-field-error-message
+                [control]="userGroupForm.get('userGroupName')"
+                [errorMessage]="i18nGuide['userGroupName']">
+            </pp-form-field-error-message>
+        </div>
+        <button type="submit" class="btn btn-blue l-create" [class.btn-gray]="userGroupForm.invalid" [disabled]="userGroupForm.invalid">OK</button>
+    </form>
+</div>

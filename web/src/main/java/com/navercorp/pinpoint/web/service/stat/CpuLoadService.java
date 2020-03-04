@@ -41,10 +41,10 @@ public class CpuLoadService implements AgentStatService<CpuLoadBo> {
     @Override
     public List<CpuLoadBo> selectAgentStatList(String agentId, Range range) {
         if (agentId == null) {
-            throw new NullPointerException("agentId must not be null");
+            throw new NullPointerException("agentId");
         }
         if (range == null) {
-            throw new NullPointerException("range must not be null");
+            throw new NullPointerException("range");
         }
         return this.cpuLoadDao.getAgentStatList(agentId, range);
     }

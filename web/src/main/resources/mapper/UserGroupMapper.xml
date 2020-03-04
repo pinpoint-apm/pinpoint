@@ -29,6 +29,14 @@
         WHERE id LIKE CONCAT('%', #{userGroupId}, '%')
     </select>
 
+    <select id="isExistUserGroup" resultType="java.lang.Boolean">
+        SELECT EXISTS (
+            SELECT 1
+            FROM user_group
+            WHERE id = #{userGroupId}
+        )
+    </select>
+
     <delete id="deleteUserGroup" parameterType="UserGroup">
         DELETE
         FROM user_group
@@ -98,6 +106,5 @@
             WHERE user_group_id = #{userGroupId}
         )
     </select>
-    
-    
+
 </mapper>

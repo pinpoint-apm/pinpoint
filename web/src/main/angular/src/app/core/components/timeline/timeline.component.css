@@ -1,0 +1,91 @@
+:host {
+    display: block;
+    user-select: none;
+}
+.l-timeline-svg {
+    width: 100%;
+}
+.l-timeline-svg text { 
+    user-select: none;
+}
+.hide {
+    display: none;
+}
+.background rect {
+    fill: #EEE;
+}
+
+.selection-zone rect {
+    fill: rgba(255, 255, 255, 0.5);
+}
+.x-axis text {
+    font-size: 12px;
+    text-anchor: middle;
+}
+.x-axis line {
+    stroke: #FFF;
+    stroke-width: 0.5;
+    stroke-linecap: square;
+}
+.left-handler rect, .right-handler rect {
+    fill: #FFF;
+}
+.left-handler line, .right-handler line {
+    stroke: #000;
+    stroke-width: 2;
+}
+.guide line {
+    stroke: #F00;
+    stroke-width: .5;
+    stroke-linecap: square;
+    stroke-dasharray: 2, 2;
+}
+.guide circle {
+    stroke: #F00;
+    stroke-width: 2;
+}
+.selection-point line {
+    stroke: #FF0;
+    stroke-width: 1;
+}
+.selection-point circle {
+    fill: #FF0;
+    stroke: #000;
+    stroke-width: 2;
+}
+.events line {
+    stroke: #000;
+    stroke-width: 1;
+}
+.events circle {
+    fill: #BDB76B;
+}
+.events text {
+    fill: #FFF;
+    font-size: 11px;
+}
+image {
+    cursor: pointer;
+}
+.event {
+    cursor: pointer;
+}
+.loading {
+    fill: rgba(170, 170, 170, 0.1);
+}
+.loading rect {
+    stroke-width: 2px;
+}
+.loading rect:nth-child(2) {
+    stroke: rgba(197, 197, 197, .9);
+}
+.loading rect:nth-child(3) {
+    stroke: rgba(239, 246, 105, .9);
+}
+.time-left-signboard text, .time-right-signboard text {
+    fill: #000;
+    font-size: 13px;
+}
+.time-series-signboard text {
+    fill: #BBB;
+}

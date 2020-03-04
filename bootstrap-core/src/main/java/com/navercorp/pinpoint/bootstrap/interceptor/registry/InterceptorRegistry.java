@@ -30,7 +30,7 @@ public final class InterceptorRegistry {
 
     public static void bind(final InterceptorRegistryAdaptor interceptorRegistryAdaptor, final Object lock) {
         if (interceptorRegistryAdaptor == null) {
-            throw new NullPointerException("interceptorRegistryAdaptor must not be null");
+            throw new NullPointerException("interceptorRegistryAdaptor");
         }
         
         if (LOCK.lock(lock)) {

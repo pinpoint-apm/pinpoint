@@ -2,14 +2,13 @@ package com.navercorp.pinpoint.web.filter;
 
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
-import com.navercorp.pinpoint.common.service.AnnotationKeyRegistryService;
-import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
+import com.navercorp.pinpoint.loader.service.AnnotationKeyRegistryService;
+import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.trace.AnnotationKeyFactory;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.web.TestTraceUtils;
-import org.apache.hadoop.hbase.util.Base64;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -70,7 +69,7 @@ public class LinkFilterTest {
 
         FilterHint hint = new FilterHint(Collections.emptyList());
 
-        LinkFilter linkFilter = new LinkFilter(descriptor, hint, serviceTypeRegistryService, annotationKeyRegistryService);
+        LinkFilter linkFilter = newLinkFilter(descriptor, hint);
         logger.debug(linkFilter.toString());
 
         SpanBo fromSpanBo = new SpanBo();
@@ -112,7 +111,7 @@ public class LinkFilterTest {
 
         FilterHint hint = new FilterHint(Collections.emptyList());
 
-        LinkFilter linkFilter = new LinkFilter(descriptor, hint, serviceTypeRegistryService, annotationKeyRegistryService);
+        LinkFilter linkFilter = newLinkFilter(descriptor, hint);
         logger.debug(linkFilter.toString());
 
         SpanBo fromSpanBo = new SpanBo();
@@ -150,7 +149,7 @@ public class LinkFilterTest {
 
         FilterHint hint = new FilterHint(Collections.emptyList());
 
-        LinkFilter linkFilter = new LinkFilter(descriptor, hint, serviceTypeRegistryService, annotationKeyRegistryService);
+        LinkFilter linkFilter = newLinkFilter(descriptor, hint);
         logger.debug(linkFilter.toString());
 
         SpanBo user_appA = new SpanBo();
@@ -175,6 +174,10 @@ public class LinkFilterTest {
         Assert.assertTrue(linkFilter.include(Arrays.asList(user_appA, appA_appB, appB_appA)));
     }
 
+    private LinkFilter newLinkFilter(FilterDescriptor descriptor, FilterHint hint) {
+        return new LinkFilter(descriptor, hint, serviceTypeRegistryService, annotationKeyRegistryService);
+    }
+
     @Test
     public void wasToUnknownFilter() {
         final ServiceType tomcat = serviceTypeRegistryService.findServiceTypeByName(TOMCAT_TYPE_NAME);
@@ -189,11 +192,11 @@ public class LinkFilterTest {
         descriptor.setFromServiceType(tomcat.getName());
         descriptor.setToApplicationName(rpcHost);
         descriptor.setToServiceType(unknown.getName());
-        descriptor.setUrl(encodeUrl(urlPattern));
+        descriptor.setUrlPattern(encodeUrl(urlPattern));
 
         FilterHint hint = new FilterHint(Collections.emptyList());
 
-        LinkFilter linkFilter = new LinkFilter(descriptor, hint, serviceTypeRegistryService, annotationKeyRegistryService);
+        LinkFilter linkFilter = newLinkFilter(descriptor, hint);
         logger.debug(linkFilter.toString());
 
         // Reject - no rpc span event
@@ -205,9 +208,7 @@ public class LinkFilterTest {
         Assert.assertFalse(linkFilter.include(Collections.singletonList(spanBo)));
 
         // Accept - has matching rpc span event
-        AnnotationBo rpcAnnotation = new AnnotationBo();
-        rpcAnnotation.setKey(RPC_ANNOTATION_CODE);
-        rpcAnnotation.setValue(rpcUrl);
+        AnnotationBo rpcAnnotation = new AnnotationBo(RPC_ANNOTATION_CODE, rpcUrl);
         SpanEventBo rpcSpanEvent = new SpanEventBo();
         rpcSpanEvent.setServiceType(RPC_TYPE_CODE);
         rpcSpanEvent.setDestinationId(rpcHost);
@@ -228,7 +229,7 @@ public class LinkFilterTest {
 
         FilterHint hint = new FilterHint(Collections.emptyList());
 
-        LinkFilter linkFilter = new LinkFilter(descriptor, hint, serviceTypeRegistryService, annotationKeyRegistryService);
+        LinkFilter linkFilter = newLinkFilter(descriptor, hint);
         logger.debug(linkFilter.toString());
 
         // Accept - perfect match
@@ -257,7 +258,7 @@ public class LinkFilterTest {
 
         FilterHint hint = new FilterHint(Collections.emptyList());
 
-        LinkFilter linkFilter = new LinkFilter(descriptor, hint, serviceTypeRegistryService, annotationKeyRegistryService);
+        LinkFilter linkFilter = newLinkFilter(descriptor, hint);
         logger.debug(linkFilter.toString());
 
         // Reject - fromNode different
@@ -308,9 +309,9 @@ public class LinkFilterTest {
                 new RpcHint("APP_B", Collections.singletonList(
                         new RpcType(rpcHost, RPC_TYPE_CODE)))));
 
-        LinkFilter emptyHintLinkFilter = new LinkFilter(descriptor, emptyHint, serviceTypeRegistryService, annotationKeyRegistryService);
-        LinkFilter unmatchingHintLinkFilter = new LinkFilter(descriptor, unmatchingHint, serviceTypeRegistryService, annotationKeyRegistryService);
-        LinkFilter matchingHintLinkFilter = new LinkFilter(descriptor, matchingHint, serviceTypeRegistryService, annotationKeyRegistryService);
+        LinkFilter emptyHintLinkFilter = newLinkFilter(descriptor, emptyHint);
+        LinkFilter unmatchingHintLinkFilter = newLinkFilter(descriptor, unmatchingHint);
+        LinkFilter matchingHintLinkFilter = newLinkFilter(descriptor, matchingHint);
         logger.debug("emptyHintLinkFilter : {}", emptyHintLinkFilter.toString());
         logger.debug("unmatchingHintLinkFilter : {}", unmatchingHintLinkFilter.toString());
         logger.debug("matchingHintLinkFilter : {}", matchingHintLinkFilter.toString());
@@ -320,9 +321,7 @@ public class LinkFilterTest {
         fromSpan.setParentSpanId(-1);
         fromSpan.setApplicationId("APP_A");
         fromSpan.setApplicationServiceType(tomcat.getCode());
-        AnnotationBo rpcAnnotation = new AnnotationBo();
-        rpcAnnotation.setKey(RPC_ANNOTATION_CODE);
-        rpcAnnotation.setValue(rpcUrl);
+        AnnotationBo rpcAnnotation = new AnnotationBo(RPC_ANNOTATION_CODE, rpcUrl);
         SpanEventBo rpcSpanEvent = new SpanEventBo();
         rpcSpanEvent.setServiceType(RPC_TYPE_CODE);
         rpcSpanEvent.setDestinationId(rpcHost);
@@ -339,12 +338,12 @@ public class LinkFilterTest {
         final String unmatchingUrlPattern = "/other/test/**";
         final String matchingUrlPattern = "/some/test/**";
         // Reject - url pattern does not match
-        descriptor.setUrl(unmatchingUrlPattern);
-        LinkFilter matchingHintLinkFilterWithUnmatchingUrlPattern = new LinkFilter(descriptor, matchingHint, serviceTypeRegistryService, annotationKeyRegistryService);
+        descriptor.setUrlPattern(unmatchingUrlPattern);
+        LinkFilter matchingHintLinkFilterWithUnmatchingUrlPattern = newLinkFilter(descriptor, matchingHint);
         Assert.assertFalse(matchingHintLinkFilterWithUnmatchingUrlPattern.include(Collections.singletonList(fromSpan)));
         // Accept - url pattern matches
-        descriptor.setUrl(encodeUrl(matchingUrlPattern));
-        LinkFilter matchingHintLinkFilterWithMatchingUrlPattern = new LinkFilter(descriptor, matchingHint, serviceTypeRegistryService, annotationKeyRegistryService);
+        descriptor.setUrlPattern(encodeUrl(matchingUrlPattern));
+        LinkFilter matchingHintLinkFilterWithMatchingUrlPattern = newLinkFilter(descriptor, matchingHint);
         Assert.assertTrue(matchingHintLinkFilterWithMatchingUrlPattern.include(Collections.singletonList(fromSpan)));
     }
 
@@ -364,7 +363,7 @@ public class LinkFilterTest {
 
         FilterHint hint = new FilterHint(Collections.emptyList());
 
-        LinkFilter linkFilter = new LinkFilter(descriptor, hint, serviceTypeRegistryService, annotationKeyRegistryService);
+        LinkFilter linkFilter = newLinkFilter(descriptor, hint);
         logger.debug(linkFilter.toString());
 
         SpanBo matchingSpan = new SpanBo();
@@ -410,7 +409,7 @@ public class LinkFilterTest {
 
         FilterHint hint = new FilterHint(Collections.emptyList());
 
-        LinkFilter linkFilter = new LinkFilter(descriptor, hint, serviceTypeRegistryService, annotationKeyRegistryService);
+        LinkFilter linkFilter = newLinkFilter(descriptor, hint);
         logger.debug(linkFilter.toString());
 
         SpanBo matchingSpan = new SpanBo();
@@ -456,7 +455,7 @@ public class LinkFilterTest {
 
         FilterHint hint = new FilterHint(Collections.emptyList());
 
-        LinkFilter linkFilter = new LinkFilter(descriptor, hint, serviceTypeRegistryService, annotationKeyRegistryService);
+        LinkFilter linkFilter = newLinkFilter(descriptor, hint);
         logger.debug(linkFilter.toString());
 
         SpanBo matchingSpan = new SpanBo();

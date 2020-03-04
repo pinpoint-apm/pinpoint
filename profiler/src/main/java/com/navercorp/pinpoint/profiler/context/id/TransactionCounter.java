@@ -31,4 +31,7 @@ public interface TransactionCounter {
 
     long getTotalTransactionCount();
 
+    long getSkippedNewCount();
+
+    long getSkippedContinuationCount();
 }

@@ -20,7 +20,6 @@ import com.navercorp.pinpoint.bootstrap.BootLogger;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.jar.JarFile;
 import java.util.regex.Matcher;
@@ -37,18 +36,15 @@ public class BootDir {
     private final List<String> jars;
 
     public BootDir(String baseDir, List<JarDescription> jarDescriptions) {
-        if (baseDir == null) {
-            throw new NullPointerException("baseDir must not be null");
-        }
-        if (jarDescriptions == null) {
-            throw new NullPointerException("jarDescriptions must not be null");
-        }
+        Assert.requireNonNull(baseDir, "baseDir");
+        Assert.requireNonNull(jarDescriptions, "jarDescriptions");
         this.baseDirFile = new File(baseDir);
         this.jars = verify(baseDirFile, jarDescriptions);
     }
 
     private List<String> verify(File baseDirFile, List<JarDescription> jarDescriptions) {
-        final File[] jarFiles = FileUtils.listFiles(baseDirFile, Collections.singletonList(".jar"));
+        final String[] jarExtensions = {".jar"};
+        final File[] jarFiles = FileUtils.listFiles(baseDirFile, jarExtensions);
         if (FileUtils.isEmpty(jarFiles)) {
             logger.info(baseDirFile.getName() + " is empty");
             return null;

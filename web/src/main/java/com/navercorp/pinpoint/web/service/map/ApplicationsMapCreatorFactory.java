@@ -33,7 +33,7 @@ public class ApplicationsMapCreatorFactory {
 
     @Autowired
     public ApplicationsMapCreatorFactory(@Qualifier("applicationsMapCreateExecutor") Executor executor) {
-        this.executor = Objects.requireNonNull(executor, "executor must not be null");
+        this.executor = Objects.requireNonNull(executor, "executor");
     }
 
     public ApplicationsMapCreator create(ApplicationMapCreator applicationMapCreator) {

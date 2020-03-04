@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,8 +16,18 @@
 
 package com.navercorp.pinpoint.web.controller;
 
-import java.util.List;
-
+import com.navercorp.pinpoint.common.server.bo.SpanBo;
+import com.navercorp.pinpoint.common.util.DateUtils;
+import com.navercorp.pinpoint.common.profiler.util.TransactionId;
+import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
+import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
+import com.navercorp.pinpoint.web.applicationmap.FilterMapWrap;
+import com.navercorp.pinpoint.web.filter.Filter;
+import com.navercorp.pinpoint.web.filter.FilterBuilder;
+import com.navercorp.pinpoint.web.service.FilteredMapService;
+import com.navercorp.pinpoint.web.util.LimitUtils;
+import com.navercorp.pinpoint.web.vo.LimitedScanResult;
+import com.navercorp.pinpoint.web.vo.Range;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,17 +37,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
-import com.navercorp.pinpoint.common.util.DateUtils;
-import com.navercorp.pinpoint.common.util.TransactionId;
-import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
-import com.navercorp.pinpoint.web.applicationmap.FilterMapWrap;
-import com.navercorp.pinpoint.web.filter.Filter;
-import com.navercorp.pinpoint.web.filter.FilterBuilder;
-import com.navercorp.pinpoint.web.service.FilteredMapService;
-import com.navercorp.pinpoint.web.util.LimitUtils;
-import com.navercorp.pinpoint.web.vo.LimitedScanResult;
-import com.navercorp.pinpoint.web.vo.Range;
+import java.util.List;
 
 /**
  *
@@ -53,7 +53,7 @@ public class FilteredMapController {
     private FilteredMapService filteredMapService;
 
     @Autowired
-    private FilterBuilder filterBuilder;
+    private FilterBuilder<SpanBo> filterBuilder;
 
     @Autowired
     private ServiceTypeRegistryService registry;
@@ -99,7 +99,7 @@ public class FilteredMapController {
         }
 
         limit = LimitUtils.checkRange(limit);
-        final Filter filter = filterBuilder.build(filterText, filterHint);
+        final Filter<SpanBo> filter = filterBuilder.build(filterText, filterHint);
         final Range range = new Range(from, to);
         final LimitedScanResult<List<TransactionId>> limitedScanResult = filteredMapService.selectTraceIdsFromApplicationTraceIndex(applicationName, range, limit);
 

@@ -1,0 +1,21 @@
+<div class="l-content-section">
+    <pp-transaction-short-info-container></pp-transaction-short-info-container>
+    <div class="l-tab-menu-options l-middle-tool-box">
+        <pp-transaction-detail-menu-for-detail-container></pp-transaction-detail-menu-for-detail-container>
+        <pp-transaction-search-container [hidden]="!showSearch"></pp-transaction-search-container>
+        <div>
+            <button class="fas fa-question-circle l-middle-tool-box-tip" (click)="onShowHelp($event)"></button>
+        </div>
+    </div>
+    <div class="l-component-wrapper">
+        <pp-call-tree-container></pp-call-tree-container>
+        <ng-container [ngSwitch]="activeView">
+            <ng-container *ngSwitchCase="'serverMap'">
+                <pp-server-map-others-container [sourceType]="'TRANSACTION_LIST'"></pp-server-map-others-container>
+            </ng-container>
+            <ng-container *ngSwitchCase="'timeline'">
+                <pp-transaction-timeline-container></pp-transaction-timeline-container>    
+            </ng-container>
+        </ng-container>
+    </div>
+</div>

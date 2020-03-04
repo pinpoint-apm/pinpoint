@@ -1,0 +1,84 @@
+.l-wrapper {
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 100%;
+    z-index: 15;
+    display: flex;
+    padding: 0px 20px;
+    position: absolute;
+    align-items: center;
+    flex-direction: column;
+    justify-content: center;
+    background-color: rgba(226, 226, 226, 0.9);
+}
+
+.l-form {
+    width: 100%;
+}
+
+.l-title {
+    margin-bottom: 15px;
+}
+
+.l-field-wrapper {
+    padding: 8px 0px;
+}
+
+.l-required-icon {
+    color: #d00;
+    margin-left: 2px;
+}
+
+.l-input {
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-shadow: 0 0 1px 0 #ccc;
+    padding: 10px 14px;
+    font-size: 13px;
+    width: 100%;
+    display: inline-block;
+    outline: 0;
+    color: #333;
+    margin-top: 4px;
+    background-color: #fff;
+}
+
+.l-input:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0px 1px 1px var(--primary-color);
+}
+
+.l-label {
+    font-weight: 600;
+}
+
+.l-wrapper .l-create {
+    width: 100%;
+    margin-top: 6px;
+}
+
+.l-wrapper .l-close {
+    top: 0px;
+    right: 0px;
+    position: absolute;
+}
+
+.ng-valid[required]  {
+    border-left: 5px solid #42A948 !important; 
+}
+
+.ng-valid[required]:focus {
+    border-color: #42a948;
+    box-shadow: 0 0 1px 0px #42a948;
+}
+
+.ng-invalid:not(form).ng-touched  {
+    border-left: 5px solid #a94442 !important;
+    border-color: #d00;
+}
+
+.ng-invalid:not(form).ng-touched:focus {
+    border-color: #d00;
+    box-shadow: 0 0 1px 0px #d00;
+}

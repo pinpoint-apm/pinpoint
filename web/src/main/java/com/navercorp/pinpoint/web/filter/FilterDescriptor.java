@@ -17,6 +17,8 @@
 package com.navercorp.pinpoint.web.filter;
 
 import com.fasterxml.jackson.annotation.JsonSetter;
+import com.navercorp.pinpoint.common.Charsets;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -37,7 +39,7 @@ public class FilterDescriptor {
     /**
      * requested url
      */
-    private String url = null;
+    private String urlPattern = null;
 
     /**
      * to application
@@ -68,7 +70,7 @@ public class FilterDescriptor {
     }
 
     public boolean isSetUrl() {
-        return !StringUtils.isEmpty(url);
+        return !StringUtils.isEmpty(urlPattern);
     }
 
 
@@ -84,7 +86,7 @@ public class FilterDescriptor {
 
 
     public String getUrlPattern() {
-        return url;
+        return urlPattern;
     }
 
     public String getFromApplicationName() {
@@ -150,13 +152,16 @@ public class FilterDescriptor {
         this.includeException = includeException;
     }
 
-    public String getUrl() {
-        return url;
+    @JsonSetter(value = "url")
+    public void setUrlPattern(String urlPattern) {
+        this.urlPattern = decodeBase64(urlPattern);
     }
 
-    @JsonSetter(value = "url")
-    public void setUrl(String url) {
-        this.url = url;
+    private String decodeBase64(String urlPattern) {
+        if (urlPattern == null) {
+            return null;
+        }
+        return new String(Base64.decodeBase64(urlPattern), Charsets.UTF_8);
     }
 
     public String getFromAgentName() {
@@ -187,7 +192,7 @@ public class FilterDescriptor {
         sb.append(", fromResponseTime=").append(fromResponseTime);
         sb.append(", toResponseTime='").append(toResponseTime).append('\'');
         sb.append(", includeException=").append(includeException);
-        sb.append(", url='").append(url).append('\'');
+        sb.append(", urlPattern='").append(urlPattern).append('\'');
         sb.append(", fromAgentId='").append(fromAgentId).append('\'');
         sb.append(", toAgentId='").append(toAgentId).append('\'');
         sb.append('}');

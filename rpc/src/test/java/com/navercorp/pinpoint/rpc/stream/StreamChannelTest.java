@@ -16,8 +16,12 @@
 
 package com.navercorp.pinpoint.rpc.stream;
 
+import com.navercorp.pinpoint.rpc.RecordedStreamChannelMessageListener;
+
+import org.jboss.netty.channel.Channel;
 import org.junit.Assert;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 /**
  * @author Taejin Koo
@@ -26,62 +30,30 @@ public class StreamChannelTest {
 
     @Test
     public void stateChangeTest() throws Exception {
-        ClientStreamChannel sc = new ClientStreamChannel(null, 1, null);
+        Channel mockChannel = Mockito.mock(Channel.class);
+        NettyClientStreamChannel sc = new NettyClientStreamChannel(mockChannel, 1, new StreamChannelRepository(), new RecordedStreamChannelMessageListener(0));
 
-        boolean isChanged = sc.changeStateOpen();
-        Assert.assertTrue(isChanged);
+        sc.init();
         Assert.assertEquals(StreamChannelStateCode.OPEN, sc.getCurrentState());
 
-        isChanged = sc.changeStateConnected();
+        boolean isChanged = sc.changeStateConnected();
         Assert.assertFalse(isChanged);
         Assert.assertEquals(StreamChannelStateCode.ILLEGAL_STATE, sc.getCurrentState());
     }
 
-    @Test
+    @Test(expected = StreamException.class)
     public void testName() throws Exception {
-        TestStateChangeHandler testStateChangeHandler = new TestStateChangeHandler();
+        Channel mockChannel = Mockito.mock(Channel.class);
+        Mockito.when(mockChannel.write(Mockito.any())).thenReturn(null);
 
-        ClientStreamChannel sc = new ClientStreamChannel(null, 1, null);
-        sc.addStateChangeEventHandler(testStateChangeHandler);
+        RecordedStreamChannelMessageListener recordEventHandler = new RecordedStreamChannelMessageListener(0);
 
-        sc.changeStateOpen();
-        Assert.assertEquals(StreamChannelStateCode.OPEN, testStateChangeHandler.getLatestEventPerformedStateCode());
+        NettyClientStreamChannel sc = new NettyClientStreamChannel(mockChannel, 1, new StreamChannelRepository(), recordEventHandler);
 
-        sc.changeStateConnectAwait();
-        Assert.assertEquals(StreamChannelStateCode.CONNECT_AWAIT, testStateChangeHandler.getLatestEventPerformedStateCode());
+        sc.init();
+        Assert.assertEquals(StreamChannelStateCode.OPEN, recordEventHandler.getCurrentState());
 
-        sc.changeStateConnected();
-        Assert.assertEquals(StreamChannelStateCode.CONNECTED, testStateChangeHandler.getLatestEventPerformedStateCode());
-
-        sc.changeStateClose();
-        Assert.assertEquals(StreamChannelStateCode.CLOSED, testStateChangeHandler.getLatestEventPerformedStateCode());
-
-        Assert.assertEquals(4, testStateChangeHandler.getTotalEventPerformedCount());
-    }
-
-    class TestStateChangeHandler implements StreamChannelStateChangeEventHandler {
-
-        private int totalEventPerformedCount;
-        private StreamChannelStateCode latestEventPerformedStateCode;
-
-
-        @Override
-        public void eventPerformed(StreamChannel streamChannel, StreamChannelStateCode updatedStateCode) throws Exception {
-            this.latestEventPerformedStateCode = updatedStateCode;
-            this.totalEventPerformedCount++;
-        }
-
-        @Override
-        public void exceptionCaught(StreamChannel streamChannel, StreamChannelStateCode updatedStateCode, Throwable e) {
-        }
-
-        public StreamChannelStateCode getLatestEventPerformedStateCode() {
-            return latestEventPerformedStateCode;
-        }
-
-        public int getTotalEventPerformedCount() {
-            return totalEventPerformedCount;
-        }
+        sc.connect(new byte[0], 3000);
     }
 
 }

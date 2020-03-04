@@ -1,0 +1,13 @@
+serviceTypes:
+  - code: 2250
+    name: 'MSSQL_JDBC'
+    property:
+      terminal: true
+      includeDestinationId: true
+  - code: 2251
+    name: 'MSSQL_JDBC_QUERY'
+    desc: 'MSSQLSERVER'
+    property:
+      terminal: true
+      includeDestinationId: true
+      recordStatistics: true

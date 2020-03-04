@@ -23,24 +23,24 @@ import com.navercorp.pinpoint.profiler.monitor.collector.AgentStatMetricCollecto
 import com.navercorp.pinpoint.profiler.monitor.collector.UnsupportedMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.collector.cpu.DefaultCpuLoadMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.metric.cpu.CpuLoadMetric;
-import com.navercorp.pinpoint.thrift.dto.TCpuLoad;
+import com.navercorp.pinpoint.profiler.monitor.metric.cpu.CpuLoadMetricSnapshot;
 
 /**
  * @author HyunGil Jeong
  */
-public class CpuLoadMetricCollectorProvider implements Provider<AgentStatMetricCollector<TCpuLoad>> {
+public class CpuLoadMetricCollectorProvider implements Provider<AgentStatMetricCollector<CpuLoadMetricSnapshot>> {
 
     private final CpuLoadMetric cpuLoadMetric;
 
     @Inject
     public CpuLoadMetricCollectorProvider(CpuLoadMetric cpuLoadMetric) {
-        this.cpuLoadMetric = Assert.requireNonNull(cpuLoadMetric, "cpuLoadMetric must not be null");
+        this.cpuLoadMetric = Assert.requireNonNull(cpuLoadMetric, "cpuLoadMetric");
     }
 
     @Override
-    public AgentStatMetricCollector<TCpuLoad> get() {
+    public AgentStatMetricCollector<CpuLoadMetricSnapshot> get() {
         if (cpuLoadMetric == CpuLoadMetric.UNSUPPORTED_CPU_LOAD_METRIC) {
-            return new UnsupportedMetricCollector<TCpuLoad>();
+            return new UnsupportedMetricCollector<CpuLoadMetricSnapshot>();
         }
         return new DefaultCpuLoadMetricCollector(cpuLoadMetric);
     }

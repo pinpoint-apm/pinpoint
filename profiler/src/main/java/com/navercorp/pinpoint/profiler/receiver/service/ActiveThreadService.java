@@ -19,6 +19,7 @@
 
 package com.navercorp.pinpoint.profiler.receiver.service;
 
+import com.navercorp.pinpoint.bootstrap.config.ThriftTransportConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
 import com.navercorp.pinpoint.profiler.receiver.ProfilerCommandService;
@@ -37,19 +38,20 @@ public class ActiveThreadService implements ProfilerCommandServiceGroup {
     public ActiveThreadService(ProfilerConfig profilerConfig, ActiveTraceRepository activeTraceRepository) {
         serviceList = new ArrayList<ProfilerCommandService>();
 
-        if (!profilerConfig.isTcpDataSenderCommandActiveThreadEnable()) {
+        ThriftTransportConfig thriftTransportConfig = profilerConfig.getThriftTransportConfig();
+        if (!thriftTransportConfig.isTcpDataSenderCommandActiveThreadEnable()) {
             return;
         }
 
-        if (profilerConfig.isTcpDataSenderCommandActiveThreadCountEnable()) {
+        if (thriftTransportConfig.isTcpDataSenderCommandActiveThreadCountEnable()) {
             serviceList.add(new ActiveThreadCountService(activeTraceRepository));
         }
 
         ActiveThreadDumpCoreService activeThreadDump = new ActiveThreadDumpCoreService(activeTraceRepository);
-        if (profilerConfig.isTcpDataSenderCommandActiveThreadLightDumpEnable()) {
+        if (thriftTransportConfig.isTcpDataSenderCommandActiveThreadLightDumpEnable()) {
             serviceList.add(new ActiveThreadLightDumpService(activeThreadDump));
         }
-        if (profilerConfig.isTcpDataSenderCommandActiveThreadDumpEnable()) {
+        if (thriftTransportConfig.isTcpDataSenderCommandActiveThreadDumpEnable()) {
             serviceList.add(new ActiveThreadDumpService(activeThreadDump));
         }
     }

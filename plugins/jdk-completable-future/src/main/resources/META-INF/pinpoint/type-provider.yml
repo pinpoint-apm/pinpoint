@@ -1,0 +1,5 @@
+serviceTypes:
+    - code: 5020
+      name: 'COMPLETABLE_FUTURE'
+      desc: 'FUTURE'
+

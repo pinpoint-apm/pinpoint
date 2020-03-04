@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.common.server.bo.serializer.stat;
 import com.navercorp.pinpoint.common.server.bo.serializer.HbaseSerializer;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatDataPoint;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatType;
+
 import org.apache.hadoop.hbase.client.Put;
 import org.junit.Before;
 import org.junit.Test;
@@ -35,7 +36,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
-import static com.navercorp.pinpoint.common.hbase.HBaseTables.AGENT_STAT_TIMESPAN_MS;
+import static com.navercorp.pinpoint.common.hbase.HbaseColumnFamily.AGENT_STAT_STATISTICS;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -78,7 +79,7 @@ public class AgentStatHbaseOperationFactoryTest {
     public void create_should_create_one_put_if_there_is_only_one_dataPoint() {
         // Given
         final int numDataPoints = 1;
-        final long initialTimestamp = AGENT_STAT_TIMESPAN_MS + 1L;
+        final long initialTimestamp = AGENT_STAT_STATISTICS.TIMESPAN_MS + 1L;
         final long expectedBaseTimestamp = AgentStatUtils.getBaseTimestamp(initialTimestamp);
         final List<AgentStatDataPoint> testDataPoints = createTestDataPoints(initialTimestamp, TEST_COLLECTION_INTERVAL, numDataPoints);
         // When
@@ -95,7 +96,7 @@ public class AgentStatHbaseOperationFactoryTest {
     public void create_should_create_one_put_if_dataPoints_fit_into_a_single_slot() {
         // Given
         final int numDataPoints = 6;
-        final long initialTimestamp = AGENT_STAT_TIMESPAN_MS;
+        final long initialTimestamp = AGENT_STAT_STATISTICS.TIMESPAN_MS;
         final long expectedBaseTimestamp = AgentStatUtils.getBaseTimestamp(initialTimestamp);
         final List<AgentStatDataPoint> testDataPoints = createTestDataPoints(initialTimestamp, TEST_COLLECTION_INTERVAL, numDataPoints);
         // When
@@ -112,9 +113,9 @@ public class AgentStatHbaseOperationFactoryTest {
     public void create_should_create_two_puts_if_dataPoints_span_over_a_timespan() {
         // Given
         final int numDataPoints = 6;
-        final long initialTimestamp = AGENT_STAT_TIMESPAN_MS - TEST_COLLECTION_INTERVAL;
+        final long initialTimestamp = AGENT_STAT_STATISTICS.TIMESPAN_MS - TEST_COLLECTION_INTERVAL;
         final long expectedBaseTimestamp1 = AgentStatUtils.getBaseTimestamp(initialTimestamp);
-        final long expectedBaseTimestamp2 = AgentStatUtils.getBaseTimestamp(expectedBaseTimestamp1 + AGENT_STAT_TIMESPAN_MS);
+        final long expectedBaseTimestamp2 = AgentStatUtils.getBaseTimestamp(expectedBaseTimestamp1 + AGENT_STAT_STATISTICS.TIMESPAN_MS);
         final List<AgentStatDataPoint> testDataPoints = createTestDataPoints(initialTimestamp, TEST_COLLECTION_INTERVAL, numDataPoints);
         // When
         List<Put> puts = this.agentStatHbaseOperationFactory.createPuts(TEST_AGENT_ID, TEST_AGENT_STAT_TYPE, testDataPoints, this.mockSerializer);
@@ -134,9 +135,9 @@ public class AgentStatHbaseOperationFactoryTest {
     public void create_should_create_the_same_number_of_puts_as_dataPoints_if_collectionInterval_equals_timespan() {
         // Given
         final int numDataPoints = 100;
-        final long initialTimestamp = AGENT_STAT_TIMESPAN_MS - 1L;
+        final long initialTimestamp = AGENT_STAT_STATISTICS.TIMESPAN_MS - 1L;
         final long expectedInitialBaseTimestamp = AgentStatUtils.getBaseTimestamp(initialTimestamp);
-        final List<AgentStatDataPoint> testDataPoints = createTestDataPoints(initialTimestamp, AGENT_STAT_TIMESPAN_MS, numDataPoints);
+        final List<AgentStatDataPoint> testDataPoints = createTestDataPoints(initialTimestamp, AGENT_STAT_STATISTICS.TIMESPAN_MS, numDataPoints);
         // When
         List<Put> puts = this.agentStatHbaseOperationFactory.createPuts(TEST_AGENT_ID, TEST_AGENT_STAT_TYPE, testDataPoints, this.mockSerializer);
         // Then
@@ -145,7 +146,7 @@ public class AgentStatHbaseOperationFactoryTest {
             Put put = puts.get(i);
             assertEquals(TEST_AGENT_ID, this.agentStatHbaseOperationFactory.getAgentId(put.getRow()));
             assertEquals(TEST_AGENT_STAT_TYPE, this.agentStatHbaseOperationFactory.getAgentStatType(put.getRow()));
-            long expectedBaseTimestamp = expectedInitialBaseTimestamp + (i * AGENT_STAT_TIMESPAN_MS);
+            long expectedBaseTimestamp = expectedInitialBaseTimestamp + (i * AGENT_STAT_STATISTICS.TIMESPAN_MS);
             assertEquals(expectedBaseTimestamp, this.agentStatHbaseOperationFactory.getBaseTimestamp(put.getRow()));
         }
     }

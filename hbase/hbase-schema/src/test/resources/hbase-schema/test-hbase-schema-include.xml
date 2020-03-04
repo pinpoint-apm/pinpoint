@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hbaseSchema xmlns="com.navercorp.pinpoint.hbase.schema.definition">
+    
+    <changeSet id="include-1">
+        <createTable name="IncludeTable1">
+            <createColumnFamily name="CF1">
+                <configuration>
+                    <timeToLive>5184000</timeToLive>
+                </configuration>
+            </createColumnFamily>
+            <split>
+                <splitKeys>
+                    <splitKey>\x01</splitKey>
+                    <splitKey>\x02</splitKey>
+                    <splitKey>\x03</splitKey>
+                </splitKeys>
+            </split>
+        </createTable>
+    </changeSet>
+    
+</hbaseSchema>

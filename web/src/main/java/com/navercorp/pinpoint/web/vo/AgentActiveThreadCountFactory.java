@@ -43,7 +43,7 @@ public class AgentActiveThreadCountFactory {
 
     public AgentActiveThreadCount create(TBase<?, ?> value) {
         if (agentId == null) {
-            throw new NullPointerException("agentId must not be null");
+            throw new NullPointerException("agentId");
         }
 
         if (value instanceof TCmdActiveThreadCountRes) {
@@ -70,7 +70,7 @@ public class AgentActiveThreadCountFactory {
 
     public AgentActiveThreadCount createFail(short code, String message) {
         if (agentId == null) {
-            throw new NullPointerException("agentId must not be null");
+            throw new NullPointerException("agentId");
         }
 
         return createFail0(code, message);
@@ -85,14 +85,14 @@ public class AgentActiveThreadCountFactory {
         AgentActiveThreadCount.Builder builder = new AgentActiveThreadCount.Builder();
         builder.setAgentId(agentId);
         builder.setActiveThreadCountList(activeThreadCountList);
-        builder.setStatus(builder.SUCCESS_STATUS);
+        builder.setStatus(AgentActiveThreadCount.Builder.SUCCESS_STATUS);
         return builder.build();
     }
 
     private AgentActiveThreadCount createFail0(short code, String codeMessage) {
         AgentActiveThreadCount.Builder builder = new AgentActiveThreadCount.Builder();
         builder.setAgentId(agentId);
-        builder.setActiveThreadCountList(Collections.EMPTY_LIST);
+        builder.setActiveThreadCountList(Collections.emptyList());
         builder.setStatus(code, codeMessage);
         return builder.build();
     }

@@ -1,0 +1,28 @@
+:host {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.l-error-message {
+    color: #F00;
+    font-size: 18px;
+}
+
+.l-error-guide {
+    margin-top: 25px;
+    font-weight: bold;
+}
+
+.l-check-list {
+    list-style: none;
+    margin-top: 10px;
+}
+
+.l-check-list-item:first-child {
+    padding-top: 0px;
+}
+
+.l-check-list-item {
+    padding: 3px;
+}

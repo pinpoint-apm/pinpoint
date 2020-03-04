@@ -74,7 +74,7 @@ public class GrpcStreamListenerResultMethodDescriptor implements MethodDescripto
 
     @Override
     public String getApiDescriptor() {
-        return "gRPC client listener Result Invocation";
+        return "io.grpc.internal.ClientCallImpl$ClientStreamListenerImpl()";
     }
 
     public int getType() {

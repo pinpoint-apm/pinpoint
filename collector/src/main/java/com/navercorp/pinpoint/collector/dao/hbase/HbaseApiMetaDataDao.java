@@ -17,14 +17,14 @@
 package com.navercorp.pinpoint.collector.dao.hbase;
 
 import com.navercorp.pinpoint.collector.dao.ApiMetaDataDao;
-import com.navercorp.pinpoint.common.hbase.TableNameProvider;
-import com.navercorp.pinpoint.common.server.bo.ApiMetaDataBo;
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
-import com.navercorp.pinpoint.common.hbase.HBaseTables;
+import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
-import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
+import com.navercorp.pinpoint.common.hbase.TableDescriptor;
+import com.navercorp.pinpoint.common.server.bo.ApiMetaDataBo;
 
+import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Put;
 import org.slf4j.Logger;
@@ -46,11 +46,11 @@ public class HbaseApiMetaDataDao implements ApiMetaDataDao {
     private HbaseOperations2 hbaseTemplate;
 
     @Autowired
-    private TableNameProvider tableNameProvider;
-
-    @Autowired
     @Qualifier("metadataRowKeyDistributor")
     private RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
+
+    @Autowired
+    private TableDescriptor<HbaseColumnFamily.ApiMetadata> description;
 
     @Override
     public void insert(ApiMetaDataBo apiMetaData) {
@@ -67,13 +67,15 @@ public class HbaseApiMetaDataDao implements ApiMetaDataDao {
         buffer.putInt(apiMetaData.getMethodTypeEnum().getCode());
 
         final byte[] apiMetaDataBytes = buffer.getBuffer();
-        put.addColumn(HBaseTables.API_METADATA_CF_API, HBaseTables.API_METADATA_CF_API_QUALI_SIGNATURE, apiMetaDataBytes);
+        put.addColumn(description.getColumnFamilyName(), description.getColumnFamily().QUALIFIER_SIGNATURE, apiMetaDataBytes);
 
-        final TableName apiMetaDataTableName = tableNameProvider.getTableName(HBaseTables.API_METADATA_STR);
+        final TableName apiMetaDataTableName = description.getTableName();
         hbaseTemplate.put(apiMetaDataTableName, put);
     }
 
     private byte[] getDistributedKey(byte[] rowKey) {
         return rowKeyDistributorByHashPrefix.getDistributedKey(rowKey);
     }
+
+
 }

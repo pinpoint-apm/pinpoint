@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
 import com.google.inject.TypeLiteral;
 import com.google.inject.name.Names;
+import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHistogram;
 import com.navercorp.pinpoint.profiler.context.provider.stat.activethread.ActiveTraceMetricCollectorProvider;
 import com.navercorp.pinpoint.profiler.context.provider.stat.buffer.BufferMetricCollectorProvider;
 import com.navercorp.pinpoint.profiler.context.provider.stat.cpu.CpuLoadMetricCollectorProvider;
@@ -31,66 +32,69 @@ import com.navercorp.pinpoint.profiler.context.provider.stat.response.ResponseTi
 import com.navercorp.pinpoint.profiler.context.provider.stat.transaction.TransactionMetricCollectorProvider;
 import com.navercorp.pinpoint.profiler.monitor.collector.AgentStatCollector;
 import com.navercorp.pinpoint.profiler.monitor.collector.AgentStatMetricCollector;
-import com.navercorp.pinpoint.thrift.dto.TActiveTrace;
-import com.navercorp.pinpoint.thrift.dto.TAgentStat;
-import com.navercorp.pinpoint.thrift.dto.TCpuLoad;
-import com.navercorp.pinpoint.thrift.dto.TDataSourceList;
-import com.navercorp.pinpoint.thrift.dto.TDeadlock;
-import com.navercorp.pinpoint.thrift.dto.TDirectBuffer;
-import com.navercorp.pinpoint.thrift.dto.TFileDescriptor;
-import com.navercorp.pinpoint.thrift.dto.TJvmGc;
-import com.navercorp.pinpoint.thrift.dto.TResponseTime;
-import com.navercorp.pinpoint.thrift.dto.TTransaction;
+import com.navercorp.pinpoint.profiler.monitor.metric.AgentStatMetricSnapshot;
+import com.navercorp.pinpoint.profiler.monitor.metric.JvmGcMetricSnapshot;
+import com.navercorp.pinpoint.profiler.monitor.metric.buffer.BufferMetricSnapshot;
+import com.navercorp.pinpoint.profiler.monitor.metric.cpu.CpuLoadMetricSnapshot;
+import com.navercorp.pinpoint.profiler.monitor.metric.datasource.DataSourceMetricSnapshot;
+import com.navercorp.pinpoint.profiler.monitor.metric.deadlock.DeadlockMetricSnapshot;
+import com.navercorp.pinpoint.profiler.monitor.metric.filedescriptor.FileDescriptorMetricSnapshot;
+import com.navercorp.pinpoint.profiler.monitor.metric.response.ResponseTimeValue;
+import com.navercorp.pinpoint.profiler.monitor.metric.transaction.TransactionMetricSnapshot;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
 public class ThriftStatsModule extends AbstractModule {
-
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
     @Override
     protected void configure() {
+        logger.info("configure {}", this.getClass().getSimpleName());
+
         binder().requireExplicitBindings();
         binder().requireAtInjectOnConstructors();
         binder().disableCircularProxies();
 
         // gc
-        TypeLiteral<AgentStatMetricCollector<TJvmGc>> jvmGcCollector = new TypeLiteral<AgentStatMetricCollector<TJvmGc>>() {};
+        TypeLiteral<AgentStatMetricCollector<JvmGcMetricSnapshot>> jvmGcCollector = new TypeLiteral<AgentStatMetricCollector<JvmGcMetricSnapshot>>() {};
         bind(jvmGcCollector).toProvider(JvmGcMetricCollectorProvider.class).in(Scopes.SINGLETON);
 
         // cpu
-        TypeLiteral<AgentStatMetricCollector<TCpuLoad>> cpuLoadCollector = new TypeLiteral<AgentStatMetricCollector<TCpuLoad>>() {};
+        TypeLiteral<AgentStatMetricCollector<CpuLoadMetricSnapshot>> cpuLoadCollector = new TypeLiteral<AgentStatMetricCollector<CpuLoadMetricSnapshot>>() {};
         bind(cpuLoadCollector).toProvider(CpuLoadMetricCollectorProvider.class).in(Scopes.SINGLETON);
 
         // FD
-        TypeLiteral<AgentStatMetricCollector<TFileDescriptor>> fdCollector = new TypeLiteral<AgentStatMetricCollector<TFileDescriptor>>() {};
+        TypeLiteral<AgentStatMetricCollector<FileDescriptorMetricSnapshot>> fdCollector = new TypeLiteral<AgentStatMetricCollector<FileDescriptorMetricSnapshot>>() {};
         bind(fdCollector).toProvider(FileDescriptorMetricCollectorProvider.class).in(Scopes.SINGLETON);
 
         // buffer
-        TypeLiteral<AgentStatMetricCollector<TDirectBuffer>> bufferCollector = new TypeLiteral<AgentStatMetricCollector<TDirectBuffer>>() {};
+        TypeLiteral<AgentStatMetricCollector<BufferMetricSnapshot>> bufferCollector = new TypeLiteral<AgentStatMetricCollector<BufferMetricSnapshot>>() {};
         bind(bufferCollector).toProvider(BufferMetricCollectorProvider.class).in(Scopes.SINGLETON);
 
         // transaction
-        TypeLiteral<AgentStatMetricCollector<TTransaction>> transactionCollector = new TypeLiteral<AgentStatMetricCollector<TTransaction>>() {};
+        TypeLiteral<AgentStatMetricCollector<TransactionMetricSnapshot>> transactionCollector = new TypeLiteral<AgentStatMetricCollector<TransactionMetricSnapshot>>() {};
         bind(transactionCollector).toProvider(TransactionMetricCollectorProvider.class).in(Scopes.SINGLETON);
 
         // activeTrace
-        TypeLiteral<AgentStatMetricCollector<TActiveTrace>> activeTraceCollector = new TypeLiteral<AgentStatMetricCollector<TActiveTrace>>() {};
+        TypeLiteral<AgentStatMetricCollector<ActiveTraceHistogram>> activeTraceCollector = new TypeLiteral<AgentStatMetricCollector<ActiveTraceHistogram>>() {};
         bind(activeTraceCollector).toProvider(ActiveTraceMetricCollectorProvider.class).in(Scopes.SINGLETON);
 
         // responseTime
-        TypeLiteral<AgentStatMetricCollector<TResponseTime>> responseTimeCollector = new TypeLiteral<AgentStatMetricCollector<TResponseTime>>() {};
+        TypeLiteral<AgentStatMetricCollector<ResponseTimeValue>> responseTimeCollector = new TypeLiteral<AgentStatMetricCollector<ResponseTimeValue>>() {};
         bind(responseTimeCollector).toProvider(ResponseTimeMetricCollectorProvider.class).in(Scopes.SINGLETON);
 
         // datasource
-        TypeLiteral<AgentStatMetricCollector<TDataSourceList>> datasourceCollector = new TypeLiteral<AgentStatMetricCollector<TDataSourceList>>() {};
+        TypeLiteral<AgentStatMetricCollector<DataSourceMetricSnapshot>> datasourceCollector = new TypeLiteral<AgentStatMetricCollector<DataSourceMetricSnapshot>>() {};
         bind(datasourceCollector).toProvider(DataSourceMetricCollectorProvider.class).in(Scopes.SINGLETON);
 
         // deadlock
-        TypeLiteral<AgentStatMetricCollector<TDeadlock>> deadlockCollector = new TypeLiteral<AgentStatMetricCollector<TDeadlock>>() {};
+        TypeLiteral<AgentStatMetricCollector<DeadlockMetricSnapshot>> deadlockCollector = new TypeLiteral<AgentStatMetricCollector<DeadlockMetricSnapshot>>() {};
         bind(deadlockCollector).toProvider(DeadlockMetricCollectorProvider.class).in(Scopes.SINGLETON);
 
         // stat
-        TypeLiteral<AgentStatMetricCollector<TAgentStat>> statMetric = new TypeLiteral<AgentStatMetricCollector<TAgentStat>>() {};
+        TypeLiteral<AgentStatMetricCollector<AgentStatMetricSnapshot>> statMetric = new TypeLiteral<AgentStatMetricCollector<AgentStatMetricSnapshot>>() {};
         bind(statMetric).annotatedWith(Names.named("AgentStatCollector"))
                 .to(AgentStatCollector.class).in(Scopes.SINGLETON);
     }

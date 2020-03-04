@@ -1,0 +1,112 @@
+:host {
+    display: block;
+    width: 100%;
+    height: 100%;
+    position: relative;
+    color: #333;
+    font-size: 13px;
+    font-family: 'Open Sans', sans-serif;
+    font-weight: 600;
+}
+
+.l-title-section {
+    width: 100%;
+    height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.l-app-name {
+    font-size: 20px;
+    margin-right: 10px;
+}
+
+.l-contents-section {
+    width: 100%;
+    height: calc(100% - 52px);
+}
+
+.l-guide-section {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    font-size: 16px;
+    text-align: center;
+    font-weight: 600;
+    align-items: center;
+    justify-content: center;
+}
+
+.l-submit-btn {
+    border-radius: 5px;
+    outline: none;
+    font-size: 16px;
+    width: 130px;
+    height: 45px;
+    text-align: center;
+}
+
+.l-remove-confirm-section {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    font-size: 40px;
+    background: linear-gradient(135deg, rgba(226,226,226,0.7) 0%, rgba(219,219,219,0.7) 43%, rgba(209,209,209,0.7) 51%, rgba(254,254,254,0.7) 100%);
+    align-items: center;
+    /* flex-direction: column; */
+    justify-content: center;
+}
+
+.l-remove-confirm-content-section {
+    width: 90%;
+    padding: 30px 0px 15px;
+    text-align: center;
+    background-color: #FFF;
+    border-radius: 5px;
+}
+
+.l-warning-icon {
+    font-size: 50px;
+    color: #a94442;
+    margin-bottom: 15px;
+}
+
+.l-remove-app-message {
+    font-size: 22px;
+    color: #333;
+    font-weight: 600;
+}
+
+.l-remove-target-info {
+    display: block;
+    font-size: 16px;
+    font-weight: normal;
+}
+
+.l-key {
+    color: #f7a626;
+    font-weight: 600;
+}
+
+.l-btn-section {
+    margin-top: 20px;
+}
+
+.l-cancel-btn {
+    color: #fff;
+    background-color: #ddd;
+}
+
+.l-remove-app-btn,
+.l-remove-btn {
+    color: #fff;
+    background-color: #c70606;
+}
+
+.l-submit-btn:first-child {
+    margin-right: 15px;
+}

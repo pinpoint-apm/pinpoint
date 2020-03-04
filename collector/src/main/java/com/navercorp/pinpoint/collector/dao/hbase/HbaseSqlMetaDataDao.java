@@ -17,12 +17,12 @@
 package com.navercorp.pinpoint.collector.dao.hbase;
 
 import com.navercorp.pinpoint.collector.dao.SqlMetaDataDao;
-import com.navercorp.pinpoint.common.hbase.TableNameProvider;
-import com.navercorp.pinpoint.common.server.bo.SqlMetaDataBo;
-import com.navercorp.pinpoint.common.hbase.HBaseTables;
+import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
-import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
+import com.navercorp.pinpoint.common.hbase.TableDescriptor;
+import com.navercorp.pinpoint.common.server.bo.SqlMetaDataBo;
 
+import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
@@ -44,16 +44,16 @@ public class HbaseSqlMetaDataDao implements SqlMetaDataDao {
     private HbaseOperations2 hbaseTemplate;
 
     @Autowired
-    private TableNameProvider tableNameProvider;
-
-    @Autowired
     @Qualifier("metadataRowKeyDistributor2")
     private RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
+
+    @Autowired
+    private TableDescriptor<HbaseColumnFamily.SqlMetadataV2> descriptor;
 
     @Override
     public void insert(SqlMetaDataBo sqlMetaData) {
         if (sqlMetaData == null) {
-            throw new NullPointerException("sqlMetaData must not be null");
+            throw new NullPointerException("sqlMetaData");
         }
         if (logger.isDebugEnabled()) {
             logger.debug("insert:{}", sqlMetaData);
@@ -63,13 +63,15 @@ public class HbaseSqlMetaDataDao implements SqlMetaDataDao {
         final Put put = new Put(rowKey);
         final String sql = sqlMetaData.getSql();
         final byte[] sqlBytes = Bytes.toBytes(sql);
-        put.addColumn(HBaseTables.SQL_METADATA_VER2_CF_SQL, HBaseTables.SQL_METADATA_VER2_CF_SQL_QUALI_SQLSTATEMENT, sqlBytes);
+        put.addColumn(descriptor.getColumnFamilyName(), descriptor.getColumnFamily().QUALIFIER_SQLSTATEMENT, sqlBytes);
 
-        final TableName sqlMetaDataTableName = tableNameProvider.getTableName(HBaseTables.SQL_METADATA_VER2_STR);
+        final TableName sqlMetaDataTableName = descriptor.getTableName();
         hbaseTemplate.put(sqlMetaDataTableName, put);
     }
 
     private byte[] getDistributedKey(byte[] rowKey) {
         return rowKeyDistributorByHashPrefix.getDistributedKey(rowKey);
     }
+
+
 }

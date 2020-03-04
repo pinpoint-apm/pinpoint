@@ -1,11 +1,11 @@
 /*
- * Copyright 2015 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,15 +20,18 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
-import com.navercorp.pinpoint.common.util.TransactionId;
-import com.navercorp.pinpoint.common.util.TransactionIdUtils;
+import com.navercorp.pinpoint.common.profiler.util.TransactionId;
+import com.navercorp.pinpoint.common.profiler.util.TransactionIdUtils;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.navercorp.pinpoint.common.util.DateUtils;
 import com.navercorp.pinpoint.web.applicationmap.link.Link;
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
+import com.navercorp.pinpoint.web.calltree.span.TraceState;
+import com.navercorp.pinpoint.web.config.LogConfiguration;
 import com.navercorp.pinpoint.web.vo.callstacks.Record;
 import com.navercorp.pinpoint.web.vo.callstacks.RecordSet;
 import org.apache.commons.lang3.StringEscapeUtils;
@@ -41,25 +44,22 @@ import org.apache.commons.lang3.StringUtils;
 public class TransactionInfoViewModel {
 
     private TransactionId transactionId;
+    private long spanId;
     private Collection<Node> nodes;
     private Collection<Link> links;
     private RecordSet recordSet;
-    private String completeState;
-    private boolean logLinkEnable;
-    private String logButtonName;
-    private String logPageUrl;
-    private String disableButtonMessage;
+    private TraceState.State completeState;
 
-    public TransactionInfoViewModel(TransactionId transactionId, Collection<Node> nodes, Collection<Link> links, RecordSet recordSet, String completeState, boolean logLinkEnable, String logButtonName, String logPageUrl, String disableButtonMessage) {
+    private LogConfiguration logConfiguration;
+
+    public TransactionInfoViewModel(TransactionId transactionId, long spanId, Collection<Node> nodes, Collection<Link> links, RecordSet recordSet, TraceState.State state, LogConfiguration logConfiguration) {
         this.transactionId = transactionId;
+        this.spanId = spanId;
         this.nodes = nodes;
         this.links = links;
         this.recordSet = recordSet;
-        this.completeState = completeState;
-        this.logLinkEnable = logLinkEnable;
-        this.logButtonName = logButtonName;
-        this.logPageUrl = logPageUrl;
-        this.disableButtonMessage = disableButtonMessage;
+        this.completeState = state;
+        this.logConfiguration = Objects.requireNonNull(logConfiguration, "logConfiguration");
     }
 
     @JsonProperty("applicationName")
@@ -70,6 +70,11 @@ public class TransactionInfoViewModel {
     @JsonProperty("transactionId")
     public String getTransactionId() {
         return TransactionIdUtils.formatString(transactionId);
+    }
+
+    @JsonProperty("spanId")
+    public long getSpanId() {
+        return spanId;
     }
 
     @JsonProperty("agentId")
@@ -94,12 +99,12 @@ public class TransactionInfoViewModel {
 
     @JsonProperty("completeState")
     public String getCompleteState() {
-        return completeState;
+        return completeState.toString();
     }
 
     @JsonProperty("logLinkEnable")
     public boolean isLogLinkEnable() {
-        return logLinkEnable;
+        return logConfiguration.isLogLinkEnable();
     }
 
     @JsonProperty("loggingTransactionInfo")
@@ -109,14 +114,17 @@ public class TransactionInfoViewModel {
 
     @JsonProperty("logButtonName")
     public String getLogButtonName() {
-        return logButtonName;
+        return logConfiguration.getLogButtonName();
     }
 
     @JsonProperty("logPageUrl")
     public String getLogPageUrl() {
+        final String logPageUrl = logConfiguration.getLogPageUrl();
         if (StringUtils.isNotEmpty(logPageUrl)) {
             StringBuilder sb = new StringBuilder();
             sb.append("transactionId=").append(getTransactionId());
+            sb.append("&spanId=").append(spanId);
+            sb.append("&applicationName=").append(getApplicationId());
             sb.append("&time=").append(recordSet.getStartTime());
             return logPageUrl + "?" + sb.toString();
         }
@@ -126,7 +134,7 @@ public class TransactionInfoViewModel {
 
     @JsonProperty("disableButtonMessage")
     public String getDisableButtonMessage() {
-        return disableButtonMessage;
+        return logConfiguration.getDisableButtonMessage();
     }
 
     @JsonProperty("callStackIndex")
@@ -165,15 +173,11 @@ public class TransactionInfoViewModel {
     @JsonProperty("applicationMapData")
     public Map<String, List<Object>> getApplicationMapData() {
         Map<String, List<Object>> result = new HashMap<String, List<Object>>();
-        List<Object> nodeDataArray = new ArrayList<Object>();
-        for(Node node : nodes) {
-            nodeDataArray.add(node);
-        }
+
+        List<Object> nodeDataArray = new ArrayList<>(nodes);
         result.put("nodeDataArray", nodeDataArray);
-        List<Object> linkDataArray = new ArrayList<Object>();
-        for(Link link : links) {
-            linkDataArray.add(link);
-        }
+
+        List<Object> linkDataArray = new ArrayList<>(links);
         result.put("linkDataArray", linkDataArray);
 
         return result;

@@ -16,10 +16,12 @@
 package com.navercorp.pinpoint.web.dao.hbase;
 
 import com.navercorp.pinpoint.common.server.bo.codec.stat.join.MemoryDecoder;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinMemoryBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.StatType;
 import com.navercorp.pinpoint.web.dao.ApplicationMemoryDao;
 import com.navercorp.pinpoint.web.mapper.stat.ApplicationStatMapper;
 import com.navercorp.pinpoint.web.mapper.stat.SampledApplicationStatResultExtractor;
+import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.ApplicationStatSampler;
 import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.JoinMemorySampler;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.Range;
@@ -41,7 +43,7 @@ public class HbaseApplicationMemoryDao implements ApplicationMemoryDao {
     private MemoryDecoder memoryDecoder;
 
     @Autowired
-    private JoinMemorySampler memorySampler;
+    private ApplicationStatSampler<JoinMemoryBo> memorySampler;
 
     @Autowired
     private HbaseApplicationStatDaoOperations operations;

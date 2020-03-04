@@ -1,0 +1,45 @@
+:host {
+    position: relative;
+    width: 477px;
+}
+.l-sidemenu-wrap {
+    width: 100%;
+    display: flex;
+    flex-flow: column nowrap;
+    height: 100%;
+    overflow-x: hidden;
+}
+.l-sidemenu {
+    width: 100%;
+    height: 100%;
+    z-index: 10;
+    border-left: 1px solid #e5e8f0;
+    background-color: #fff;
+}
+.l-title-group {
+    display: flex;
+    flex-flow: row wrap;
+    color: #666;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 15px;
+    background: #F9FAFC;
+    height: 50px;
+    border-bottom: 1px solid #e5e8f0;
+}
+.l-contents-group {
+    height: calc(100vh - 99px);
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+.l-chart-group-list {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    height: calc(100vh - 150px);
+}
+hr {
+    height: 1px;
+    border-top: 1px solid #EAEEF4;
+    margin: 5px 0;
+}

@@ -82,7 +82,7 @@ public final class NetUtils {
         if (StringUtils.isEmpty(address)) {
             return null;
         }
-        Assert.requireNonNull(hostAndPortFactory, "hostAndPortFactory must not be null");
+        Assert.requireNonNull(hostAndPortFactory, "hostAndPortFactory");
 
         final int hostIndex = address.indexOf(':');
         if (hostIndex == -1) {

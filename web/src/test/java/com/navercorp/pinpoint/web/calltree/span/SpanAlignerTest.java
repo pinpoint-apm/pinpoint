@@ -18,7 +18,13 @@ package com.navercorp.pinpoint.web.calltree.span;
 
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
+import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
+
+import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,6 +35,15 @@ import static org.junit.Assert.*;
  * @author jaehong.kim
  */
 public class SpanAlignerTest {
+
+
+    private ServiceTypeRegistryService serviceTypeRegistryService;
+
+    @Before
+    public void setUp() throws Exception {
+        serviceTypeRegistryService = Mockito.mock(ServiceTypeRegistryService.class);
+        Mockito.when(serviceTypeRegistryService.findServiceType(Mockito.anyShort())).thenReturn(ServiceType.UNKNOWN);
+    }
 
     @Test
     public void singleSpan() throws Exception {
@@ -48,7 +63,7 @@ public class SpanAlignerTest {
         span.addSpanEvent(makeSpanEvent(2, 3, -1));
         list.add(span);
 
-        SpanAligner spanAligner = new SpanAligner(list, 1);
+        SpanAligner spanAligner = new SpanAligner(list, 1, serviceTypeRegistryService);
         final CallTree callTree = spanAligner.align();
         CallTreeAssert.assertDepth("single", callTree, expectResult);
     }
@@ -83,7 +98,7 @@ public class SpanAlignerTest {
         nextSpan.addSpanEvent(makeSpanEvent(2, 3, -1));
         list.add(nextSpan);
 
-        SpanAligner spanAligner = new SpanAligner(list, 1);
+        SpanAligner spanAligner = new SpanAligner(list, 1, serviceTypeRegistryService);
         final CallTree callTree = spanAligner.align();
         CallTreeAssert.assertDepth("link", callTree, expectResult);
     }
@@ -106,7 +121,7 @@ public class SpanAlignerTest {
         span.addSpanEvent(makeSpanEvent(2, 3, 100));
         list.add(span);
 
-        SpanAligner spanAligner = new SpanAligner(list, 1);
+        SpanAligner spanAligner = new SpanAligner(list, 1, serviceTypeRegistryService);
         final CallTree callTree = spanAligner.align();
         CallTreeAssert.assertDepth("notFoundNextSpan", callTree, expectResult);
     }
@@ -128,7 +143,7 @@ public class SpanAlignerTest {
         span.addSpanEvent(makeSpanEvent(1, 2, -1));
         list.add(span);
 
-        SpanAligner spanAligner = new SpanAligner(list, 1);
+        SpanAligner spanAligner = new SpanAligner(list, 1, serviceTypeRegistryService);
         final CallTree callTree = spanAligner.align();
         CallTreeAssert.assertDepth("notFoundRoot", callTree, expectResult);
     }
@@ -157,7 +172,7 @@ public class SpanAlignerTest {
         rootSpan2.addSpanEvent(makeSpanEvent(1, 1, -1));
         list.add(rootSpan2);
 
-        SpanAligner spanAligner = new SpanAligner(list, 1);
+        SpanAligner spanAligner = new SpanAligner(list, 1, serviceTypeRegistryService);
         final CallTree callTree = spanAligner.align();
         CallTreeAssert.assertDepth("duplicatedRoot", callTree, expectResult);
     }
@@ -197,7 +212,7 @@ public class SpanAlignerTest {
 
         list.add(nextSpan);
 
-        SpanAligner spanAligner = new SpanAligner(list, 1);
+        SpanAligner spanAligner = new SpanAligner(list, 1, serviceTypeRegistryService);
         final CallTree callTree = spanAligner.align();
         CallTreeAssert.assertDepth("fill", callTree, expectResult);
     }
@@ -233,7 +248,7 @@ public class SpanAlignerTest {
 
         list.add(nextSpan);
 
-        SpanAligner spanAligner = new SpanAligner(list, 1);
+        SpanAligner spanAligner = new SpanAligner(list, 1, serviceTypeRegistryService);
         final CallTree callTree = spanAligner.align();
         CallTreeAssert.assertDepth("fill", callTree, expectResult);
     }
@@ -277,7 +292,7 @@ public class SpanAlignerTest {
         nextSpan.addSpanEvent(makeSpanEvent(2, 2, -1));
         list.add(nextSpan);
 
-        SpanAligner spanAligner = new SpanAligner(list, 1);
+        SpanAligner spanAligner = new SpanAligner(list, 1, serviceTypeRegistryService);
         final CallTree callTree = spanAligner.align();
         CallTreeAssert.assertDepth("duplicatedSpan", callTree, expectResult);
     }
@@ -314,7 +329,7 @@ public class SpanAlignerTest {
         secondSpan.addSpanEvent(makeSpanEvent(2, 3, -1));
         list.add(secondSpan);
 
-        SpanAligner spanAligner = new SpanAligner(list, 1);
+        SpanAligner spanAligner = new SpanAligner(list, 1, serviceTypeRegistryService);
         final CallTree callTree = spanAligner.align();
         CallTreeAssert.assertDepth("multipleSpanNotFoundRoot", callTree, expectResult);
     }
@@ -336,7 +351,7 @@ public class SpanAlignerTest {
         span.addSpanEvent(makeSpanEvent(2, 3, 100, 3));
         list.add(span);
 
-        SpanAligner spanAligner = new SpanAligner(list, 1);
+        SpanAligner spanAligner = new SpanAligner(list, 1, serviceTypeRegistryService);
         final CallTree callTree = spanAligner.align();
         CallTreeAssert.assertDepth("corrupted", callTree, expectResult);
     }
@@ -367,7 +382,7 @@ public class SpanAlignerTest {
         nextSpan.addSpanEvent(makeSpanEvent(0, 1, -1));
         list.add(nextSpan);
 
-        SpanAligner spanAligner = new SpanAligner(list, 1);
+        SpanAligner spanAligner = new SpanAligner(list, 1, serviceTypeRegistryService);
         final CallTree callTree = spanAligner.align();
         CallTreeAssert.assertDepth("corruptedNextSpan", callTree, expectResult);
     }
@@ -378,7 +393,7 @@ public class SpanAlignerTest {
         expectResult.add("#"); // unknown
 
         List<SpanBo> list = new ArrayList<>();
-        SpanAligner spanAligner = new SpanAligner(list, 1);
+        SpanAligner spanAligner = new SpanAligner(list, 1, serviceTypeRegistryService);
         final CallTree callTree = spanAligner.align();
         CallTreeAssert.assertDepth("emptySpanList", callTree, expectResult);
     }
@@ -405,7 +420,7 @@ public class SpanAlignerTest {
         nextSpan.addSpanEvent(makeSpanEvent(0, 2, 1));
         list.add(nextSpan);
 
-        SpanAligner spanAligner = new SpanAligner(list, 1);
+        SpanAligner spanAligner = new SpanAligner(list, 1, serviceTypeRegistryService);
         final CallTree callTree = spanAligner.align();
         CallTreeAssert.assertDepth("loopSpanList", callTree, expectResult);
     }

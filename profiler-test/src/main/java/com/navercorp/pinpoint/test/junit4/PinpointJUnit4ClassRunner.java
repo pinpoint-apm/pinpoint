@@ -52,12 +52,13 @@ public final class PinpointJUnit4ClassRunner extends BlockJUnit4ClassRunner {
         }
     }
 
-    private void beforeTestClass() {
+    private void beforeTestClass(Class<?> testClass) {
         try {
             // TODO fix static TestContext
             if (testContext == null) {
                 logger.debug("traceContext is null");
-                testContext = new TestContext();
+                TestClassWrapper testClassWrapper = new TestClassWrapper(testClass);
+                testContext = new TestContext(testClassWrapper);
             }
         } catch (Throwable ex) {
             throw new RuntimeException(ex.getMessage(), ex);
@@ -66,7 +67,7 @@ public final class PinpointJUnit4ClassRunner extends BlockJUnit4ClassRunner {
 
     protected TestClass createTestClass(Class<?> testClass) {
         logger.debug("createTestClass {}", testClass);
-        beforeTestClass();
+        beforeTestClass(testClass);
         return testContext.createTestClass(testClass);
     }
 
@@ -79,7 +80,7 @@ public final class PinpointJUnit4ClassRunner extends BlockJUnit4ClassRunner {
     protected void runChild(FrameworkMethod method, RunNotifier notifier) {
         beginTracing(method);
         final Thread thread = Thread.currentThread();
-        ClassLoader originalClassLoader = thread.getContextClassLoader();
+        final ClassLoader originalClassLoader = thread.getContextClassLoader();
         try {
             thread.setContextClassLoader(testContext.getClassLoader());
             super.runChild(method, notifier);
@@ -157,12 +158,13 @@ public final class PinpointJUnit4ClassRunner extends BlockJUnit4ClassRunner {
     @Override
     protected Statement withBeforeClasses(Statement statement) {
         final Statement beforeClasses = super.withBeforeClasses(statement);
-        return new BeforeCallbackStatement(beforeClasses, new Statement() {
+        final BeforeCallbackStatement beforeCallbackStatement = new BeforeCallbackStatement(beforeClasses, new Statement() {
             @Override
             public void evaluate() throws Throwable {
                 beforeClass();
             }
         });
+        return ContextClassLoaderStatement.wrap(beforeCallbackStatement, testContext.getClassLoader());
     }
 
     public void beforeClass() throws Throwable {
@@ -173,12 +175,13 @@ public final class PinpointJUnit4ClassRunner extends BlockJUnit4ClassRunner {
     @Override
     protected Statement withAfterClasses(Statement statement) {
         final Statement afterClasses = super.withAfterClasses(statement);
-        return new AfterCallbackStatement(afterClasses, new Statement() {
+        final AfterCallbackStatement afterCallbackStatement = new AfterCallbackStatement(afterClasses, new Statement() {
             @Override
             public void evaluate() throws Throwable {
                 afterClass();
             }
         });
+        return ContextClassLoaderStatement.wrap(afterCallbackStatement, testContext.getClassLoader());
     }
 
     public void afterClass() throws Throwable {

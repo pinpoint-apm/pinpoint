@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
 import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.plugin.RequestRecorderFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.request.RequestAdaptor;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ServletRequestListenerInterceptorHelper;
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.ParameterRecorder;
@@ -48,16 +49,14 @@ public class WebContainerHandleRequestInterceptor implements AroundInterceptor {
     private final ArgumentValidator argumentValidator;
     private final ServletRequestListenerInterceptorHelper<IRequest> servletRequestListenerInterceptorHelper;
 
-    public WebContainerHandleRequestInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
-
+    public WebContainerHandleRequestInterceptor(TraceContext traceContext, MethodDescriptor descriptor, RequestRecorderFactory<IRequest> requestRecorderFactory) {
         this.methodDescriptor = descriptor;
-
         this.argumentValidator = new ServletArgumentValidator(logger, 0, IRequest.class, 1, IResponse.class);
         final WebsphereConfiguration config = new WebsphereConfiguration(traceContext.getProfilerConfig());
         RequestAdaptor<IRequest> requestAdaptor = new IRequestAdaptor();
         requestAdaptor = RemoteAddressResolverFactory.wrapRealIpSupport(requestAdaptor, config.getRealIpHeader(), config.getRealIpEmptyValue());
         final ParameterRecorder<IRequest> parameterRecorder = ParameterRecorderFactory.newParameterRecorderFactory(config.getExcludeProfileMethodFilter(), config.isTraceRequestParam());
-        this.servletRequestListenerInterceptorHelper = new ServletRequestListenerInterceptorHelper<IRequest>(WebsphereConstants.WEBSPHERE, traceContext, requestAdaptor, config.getExcludeUrlFilter(), parameterRecorder);
+        this.servletRequestListenerInterceptorHelper = new ServletRequestListenerInterceptorHelper<IRequest>(WebsphereConstants.WEBSPHERE, traceContext, requestAdaptor, config.getExcludeUrlFilter(), parameterRecorder, requestRecorderFactory);
     }
 
     @Override

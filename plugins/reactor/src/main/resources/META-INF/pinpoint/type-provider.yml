@@ -1,0 +1,8 @@
+serviceTypes:
+    - code: 6510
+      name: 'REACTOR'
+    - code: 6511
+      name: 'REACTOR_SCHEDULER'
+      property:
+          recordStatistics: true
+

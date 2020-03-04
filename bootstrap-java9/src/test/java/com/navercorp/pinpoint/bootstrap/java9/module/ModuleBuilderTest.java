@@ -49,8 +49,9 @@ public class ModuleBuilderTest {
 
 
         JarFile jarFile = new JarFile(testClassJar.getFile());
-        PackageAnalyzer packageAnalyzer = new JarPackageAnalyzer(jarFile);
-        Set<String> slf4j = packageAnalyzer.getPackage();
+        PackageAnalyzer packageAnalyzer = new JarFileAnalyzer(jarFile);
+        PackageInfo packageInfo = packageAnalyzer.analyze();
+        Set<String> slf4j = packageInfo.getPackage();
         logger.debug("slf4j packages:{}", slf4j);
 
         Java9ClassLoader classLoader = new Java9ClassLoader(moduleName, urls, this.getClass().getClassLoader(), new ArrayList<>(slf4j));
@@ -82,8 +83,9 @@ public class ModuleBuilderTest {
 
 
         JarFile jarFile = new JarFile(testClassJar.getFile());
-        PackageAnalyzer packageAnalyzer = new JarPackageAnalyzer(jarFile);
-        Set<String> slf4j = packageAnalyzer.getPackage();
+        PackageAnalyzer packageAnalyzer = new JarFileAnalyzer(jarFile);
+        PackageInfo analyze = packageAnalyzer.analyze();
+        Set<String> slf4j = analyze.getPackage();
         logger.debug("slf4j packages:{}", slf4j);
 
         Java9ClassLoader classLoader = new Java9ClassLoader(moduleName, urls, this.getClass().getClassLoader(), new ArrayList<>(slf4j));

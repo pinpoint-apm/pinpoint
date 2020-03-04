@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.web.service;
 
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
-import com.navercorp.pinpoint.common.service.ServiceTypeRegistryService;
+import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.trace.HistogramSchema;
 import com.navercorp.pinpoint.common.trace.HistogramSlot;
 import com.navercorp.pinpoint.common.trace.ServiceType;
@@ -182,7 +182,7 @@ public class FilteredMapServiceImplTest {
         when(traceDao.selectAllSpans(anyList())).thenReturn(Collections.singletonList(Arrays.asList(rootSpan, appASpan)));
 
         // When
-        ApplicationMap applicationMap = filteredMapService.selectApplicationMapWithScatterData(Collections.emptyList(), originalRange, scanRange, 1, 1, Filter.NONE, 0);
+        ApplicationMap applicationMap = filteredMapService.selectApplicationMapWithScatterData(Collections.emptyList(), originalRange, scanRange, 1, 1, Filter.acceptAllFilter(), 0);
 
         // Then
         Collection<Node> nodes = applicationMap.getNodes();

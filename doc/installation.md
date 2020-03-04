@@ -40,7 +40,8 @@ To try out a simple quickstart project, please refer to the [quick-start guide](
 5. Pinpoint Agent ([details](#5-pinpoint-agent))
 	1. Extract/move *pinpoint-agent/* to a convenient location (`$AGENT_PATH`).
 	2. Set `-javaagent:$AGENT_PATH/pinpoint-bootstrap-$VERSION.jar` JVM argument to attach the agent to a java application.
-	3. Set `-Dpinpoint.agentId` and `-Dpinpoint.applicationName` command-line arguments.
+	3. Set `-Dpinpoint.agentId` and `-Dpinpoint.applicationName` command-line arguments.  
+		a) If you're launching an agent in a containerized environment with dynamically changing *agent id*, consider adding `-Dpinpoint.container` command-line argument.
 	4. Launch java application with the options above.
 
 ## 1. HBase
@@ -92,6 +93,8 @@ There are two options:
 	The default agent built this way will have log level set to DEBUG by default. If you're building an agent for release and need a higher log level, you can set maven profile to *release* when building :  
 	`./mvnw install -Prelease -DskipTests=true`
 	
+	Note that having multibyte characters in maven local repository path, or any class paths may cause the build to fail.
+	
 	The guide will refer to the full path of the pinpoint home directory as `$PINPOINT_PATH`.
 
 	
@@ -108,19 +111,41 @@ The path to this file should look like *$PINPOINT_PATH/collector/target/pinpoint
 Since Pinpoint Collector is packaged as a deployable war file, you may deploy them to a web container as you would any other web applications.
 
 ### Configuration
-There are 2 configuration files available for Pinpoint Collector: *pinpoint-collector.properties*, and *hbase.properties*.
+There are 3 configuration files available for Pinpoint Collector: *pinpoint-collector.properties*, *pinpoint-grpc-collector.properties*, and *hbase.properties*.
 
 * pinpoint-collector.properties - contains configurations for the collector. Check the following values with the agent's configuration options :
-	* `collector.tcpListenPort` (agent's *profiler.collector.tcp.port* - default: 9994)
-	* `collector.udpStatListenPort` (agent's *profiler.collector.stat.port* - default: 9995)
-	* `collector.udpSpanListenPort` (agent's *profiler.collector.span.port* - default: 9996)
+	* `collector.receiver.base.port` (agent's *profiler.collector.tcp.port* - default: 9994)
+	* `collector.receiver.stat.udp.port` (agent's *profiler.collector.stat.port* - default: 9995)
+	* `collector.receiver.span.udp.port` (agent's *profiler.collector.span.port* - default: 9996)
+* pinpoint-grpc-collector.properties - contains configurations for the grpc.
+    * `collector.receiver.grpc.agent.port` (agent's *profiler.transport.grpc.agent.collector.port*, *profiler.transport.grpc.metadata.collector.port* - default: 9991)
+	* `collector.receiver.grpc.stat.port` (agent's *profiler.transport.grpc.stat.collector.port* - default: 9992)
+	* `collector.receiver.grpc.span.port` (agent's *profiler.transport.grpc.span.collector.port* - default: 9993)
 * hbase.properties - contains configurations to connect to HBase.
 	* `hbase.client.host` (default: localhost)
 	* `hbase.client.port` (default: 2181)
 
 These files are located under `WEB-INF/classes/` inside the war file.
 
-You may take a look at the default configuration files here: [pinpoint-collector.properties](https://github.com/naver/pinpoint/blob/master/collector/src/main/resources/pinpoint-collector.properties), [hbase.properties](https://github.com/naver/pinpoint/blob/master/collector/src/main/resources/hbase.properties)
+You may take a look at the default configuration files here
+- [pinpoint-collector.properties](https://github.com/naver/pinpoint/blob/master/collector/src/main/resources/pinpoint-collector.properties)
+- [pinpoint-grpc-collector.properties](https://github.com/naver/pinpoint/blob/master/collector/src/main/resources/pinpoint-grpc-collector.properties)
+- [hbase.properties](https://github.com/naver/pinpoint/blob/master/collector/src/main/resources/hbase.properties)
+
+### Profiles
+Add `-Dkey=value` to Java System Properties
+* WEB-INF/classes/profiles/$PROFILE
+  - `-Dspring.profiles.active=release or local`
+  - Default profile : `release`
+* Support external property
+  - `-Dpinpoint.zookeeper.address=$MY_ZOOKEEPER_ADDRESS` `-Dcollector.receiver.span.worker.threadSize=1024` ...
+* Support external config
+  - `-Dpinpoint.collector.config.location=$MY_EXTERNAL_CONFIG_PATH`
+* Add custom profile
+  1. Create a custom profile in WEB-INF/classes/profiles/MyProfile
+     - Add *-env.config & log4j.xml
+  2. Add `-Dspring.profiles.active=MyProfile`
+
 
 ## 4. Pinpoint Web
 You should have the following **war** file that can be deployed to a web container.
@@ -147,7 +172,23 @@ Make sure you check the following configuration options :
 
 These files are located under `WEB-INF/classes/` inside the war file.
 
-You may take a look at the default configuration files here: [pinpoint-web.properties](https://github.com/naver/pinpoint/blob/master/web/src/main/resources/pinpoint-web.properties), [hbase.properties](https://github.com/naver/pinpoint/blob/master/web/src/main/resources/hbase.properties)
+You may take a look at the default configuration files here
+  - [pinpoint-web.properties](https://github.com/naver/pinpoint/blob/master/web/src/main/resources/pinpoint-web.properties)
+  - [hbase.properties](https://github.com/naver/pinpoint/blob/master/web/src/main/resources/hbase.properties)
+
+### Profiles
+Add `-Dkey=value` to Java System Properties
+* WEB-INF/classes/profiles/$PROFILE
+  - `-Dspring.profiles.active=release or local`
+  - Default profile : `release`
+* Support external property
+  - `-Dpinpoint.zookeeper.address=$MY_ZOOKEEPER_ADDRESS` `-Dhbase.rpc.timeout=30000` ...
+* Support external config
+  - `-Dpinpoint.web.config.location=$MY_EXTERNAL_CONFIG_PATH`
+* Add custom profile
+  1. Create a custom profile in WEB-INF/classes/profiles/MyProfile
+     - Add *-env.config & log4j.xml
+  2. Add `-Dspring.profiles.active=MyProfile`
 
 ## 5. Pinpoint Agent
 If downloaded, unzip the Pinpoint Agent file. You should have a **pinpoint-agent** directory with the layout below :
@@ -162,7 +203,6 @@ pinpoint-agent
 |   |-- pinpoint-bootstrap-java9-$VERSION.jar
 |   |-- pinpoint-commons-$VERSION.jar
 |-- lib
-|   |-- log4j.xml
 |   |-- pinpoint-profiler-$VERSION.jar
 |   |-- pinpoint-profiler-optional-$VERSION.jar
 |   |-- pinpoint-rpc-$VERSION.jar
@@ -170,8 +210,15 @@ pinpoint-agent
 |   |-- ...
 |-- plugin
 |   |-- pinpoint-activemq-client-plugin-$VERSION.jar
-|   |-- pinpoint-arcus-plugin-$VERSION.jar
+|   |-- pinpoint-tomcat-plugin-$VERSION.jar
 |   |-- ...
+|-- profiles
+|   |-- local
+|   |   |-- log4j.xml
+|   |   |-- pinpoint-env.config
+|   |-- release
+|       |-- log4j.xml
+|       |-- pinpoint-env.config
 |-- pinpoint-bootstrap-$VERSION.jar
 |-- pinpoint.config
 ```
@@ -179,7 +226,7 @@ The path to this directory should look like *$PINPOINT_PATH/agent/target/pinpoin
 
 You may move/extract the contents of **pinpoint-agent** directory to any location of your choice. The guide will refer to the full path of this directory as `$AGENT_PATH`.
 
-> Note that you may change the agent's log level by modifying the *log4j.xml* located in the *lib* directory above.
+> Note that you may change the agent's log level by modifying the *log4j.xml* located in the *profiles/$PROFILE/log4j.xml* directory above.
 
 Agent compatibility to Collector table:
 
@@ -198,6 +245,8 @@ Additionally, Pinpoint Agent requires 2 command-line arguments in order to ident
 * `-Dpinpoint.applicationName` - groups a number of identical application instances as a single service
 
 Note that *pinpoint.agentId* must be globally unique to identify an application instance, and all applications that share the same *pinpoint.applicationName* are treated as multiple instances of a single service.
+
+If you're launching the agent in a containerized environment, you might have set your *agent id* to be auto-generated every time the container is launched. With frequent deployment and auto-scaling, this will lead to the Web UI being cluttered with all the list of agents that were launched and destroyed previously. For such cases, you might want to add `-Dpinpoint.container` in addition to the 2 required command-line arguments above when launching the agent.
 
 **Tomcat Example**
 
@@ -224,12 +273,33 @@ Most of these options are self explanatory, but the most important configuration
 
 Set these values appropriately in *pinpoint.config*:
 
+**THRIFT**
 * `profiler.collector.ip` (default: 127.0.0.1)
-* `profiler.collector.tcp.port` (collector's *collector.tcpListenPort* - default: 9994)
-* `profiler.collector.stat.port` (collector's *collector.udpStatListenPort* - default: 9995)
-* `profiler.collector.span.port` (collector's *collector.udpSpanListenPort* - default: 9996)
+* `profiler.collector.tcp.port` (collector's *collector.receiver.base.port* - default: 9994)
+* `profiler.collector.stat.port` (collector's *collector.receiver.stat.udp.port* - default: 9995)
+* `profiler.collector.span.port` (collector's *collector.receiver.span.udp.port* - default: 9996)
+
+**GRPC**
+* `profiler.transport.grpc.collector.ip`  (default: 127.0.0.1)
+* `profiler.transport.grpc.agent.collector.port` (collector's *collector.receiver.grpc.agent.port* - default: 9991)
+* `profiler.transport.grpc.metadata.collector.port` (collector's *collector.receiver.grpc.agent.port* - default: 9991)
+* `profiler.transport.grpc.stat.collector.port` (collector's *collector.receiver.grpc.stat.port* - default: 9992)
+* `profiler.transport.grpc.span.collector.port` (collector's *collector.receiver.grpc.span.port* - default: 9993)
 
 You may take a look at the default *pinpoint.config* file [here](https://github.com/naver/pinpoint/blob/master/agent/src/main/resources/pinpoint-real-env-lowoverhead-sample.config "pinpoint.config") along with all the available configuration options.
+
+### Profiles
+Add `-Dkey=value` to Java System Properties
+* $PINPOINT_AGENT_DIR/profiles/$PROFILE
+  - `-Dpinpoint.profiler.profiles.active=release or local`
+  - Modify `pinpoint.profiler.profiles.active=release` in $PINPOINT_AGENT_DIR/pinpoint.config
+  - Default profile : `release`
+* Custom Profile
+  1. Create a custom profile in $PINPOINT_AGENT_HOME/profiles/MyProfile
+     - Add pinpoint-env.config & log4j.xml
+  2. Add `-Dpinpoint.profiler.profiles.active=MyProfile`
+* Support external config
+  - `-Dpinpoint.config=$MY_EXTERNAL_CONFIG_PATH`
 
 ## Miscellaneous
 

@@ -29,7 +29,7 @@ public class HeaderEntity {
 
     public HeaderEntity(Map<String, String> headerEntityData) {
         if (headerEntityData == null) {
-            throw new NullPointerException("headerEntityData must not be null.");
+            throw new NullPointerException("headerEntityData");
         }
 
         this.entity = Collections.unmodifiableMap(headerEntityData);

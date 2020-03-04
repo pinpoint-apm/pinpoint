@@ -57,7 +57,7 @@ public class DateLimiter implements Limiter {
     @Override
     public void limit(Range range) {
         if (range == null) {
-            throw new NullPointerException("range must not be null");
+            throw new NullPointerException("range");
         }
         final long elapsedTime = range.getRange();
         if (elapsedTime < 0) {

@@ -22,7 +22,6 @@ import weblogic.servlet.internal.ServletRequestImpl;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -43,11 +42,10 @@ public class ServletRequestImplParameterExtractor implements ParameterExtractor<
         String queryString = request.getQueryString();
         final StringBuilder params = new StringBuilder(64);
         try {
-            Map<String, String> query_pairs = splitQuery(queryString);
+            final Map<String, String> queryPairs = splitQuery(queryString);
 
-            Iterator<String> attrs = query_pairs.keySet().iterator();
+            for (Map.Entry<String, String> attrs : queryPairs.entrySet()) {
 
-            while (attrs.hasNext()) {
                 if (params.length() != 0) {
                     params.append('&');
                 }
@@ -57,15 +55,17 @@ public class ServletRequestImplParameterExtractor implements ParameterExtractor<
                     params.append("...");
                     return params.toString();
                 }
-                String key = attrs.next();
+
+                final String key = attrs.getKey();
                 params.append(StringUtils.abbreviate(key, eachLimit));
-                params.append("=");
-                String value = query_pairs.get(key);
+                params.append('=');
+                final String value = attrs.getValue();
                 if (value != null) {
                     params.append(StringUtils.abbreviate(StringUtils.toString(value), eachLimit));
                 }
             }
-        } catch (UnsupportedEncodingException e) {
+        } catch (UnsupportedEncodingException ignore) {
+            // ignore
         }
         return params.toString();
     }
@@ -75,11 +75,15 @@ public class ServletRequestImplParameterExtractor implements ParameterExtractor<
         if (query != null) {
             String[] pairs = query.split("&");
             for (String pair : pairs) {
-                int idx = pair.indexOf("=");
+                int idx = pair.indexOf('=');
                 if (idx > 0)
-                    query_pairs.put(URLDecoder.decode(pair.substring(0, idx), "UTF-8"), URLDecoder.decode(pair.substring(idx + 1), "UTF-8"));
+                    query_pairs.put(decode(pair.substring(0, idx)), decode(pair.substring(idx + 1)));
             }
         }
         return query_pairs;
+    }
+
+    private String decode(String substring) throws UnsupportedEncodingException {
+        return URLDecoder.decode(substring, "UTF-8");
     }
 }

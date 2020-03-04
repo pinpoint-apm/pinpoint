@@ -16,13 +16,13 @@
 
 package com.navercorp.pinpoint.plugin.mongo.interceptor;
 
+import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
+import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
-import com.navercorp.pinpoint.bootstrap.logging.PLogger;
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.MongoDatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.UnKnownDatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.util.InterceptorUtils;
@@ -34,7 +34,6 @@ import com.navercorp.pinpoint.plugin.mongo.NormalizedBson;
  */
 public class MongoCUDSessionInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
 
-    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean collectJson;
     private final boolean traceBsonBindValue;
 
@@ -58,10 +57,6 @@ public class MongoCUDSessionInterceptor extends SpanEventSimpleAroundInterceptor
     }
 
     @Override
-    protected void prepareAfterTrace(Object target, Object[] args, Object result, Throwable throwable) {
-    }
-
-    @Override
     public void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
         if (collectJson) {
             final boolean success = InterceptorUtils.isSuccess(throwable);
@@ -73,5 +68,26 @@ public class MongoCUDSessionInterceptor extends SpanEventSimpleAroundInterceptor
             }
         }
         recorder.recordException(throwable);
+
+        if (isAsynchronousInvocation(target, args, result, throwable)) {
+            // Trace to Disposable object
+            final AsyncContext asyncContext = recorder.recordNextAsyncContext();
+            ((AsyncContextAccessor) (result))._$PINPOINT$_setAsyncContext(asyncContext);
+            if (isDebug) {
+                logger.debug("Set AsyncContext {}, result={}", asyncContext, result);
+            }
+        }
+    }
+
+    private boolean isAsynchronousInvocation(final Object target, final Object[] args, Object result, Throwable throwable) {
+        if (throwable != null) {
+            return false;
+        }
+
+        if (!(result instanceof AsyncContextAccessor)) {
+            return false;
+        }
+
+        return true;
     }
 }

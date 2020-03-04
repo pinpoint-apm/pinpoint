@@ -24,7 +24,9 @@ import com.navercorp.pinpoint.profiler.context.SpanEvent;
 import com.navercorp.pinpoint.profiler.context.id.DefaultTraceRoot;
 import com.navercorp.pinpoint.profiler.context.id.DefaultTraceId;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
+import com.navercorp.pinpoint.thrift.dto.TSpan;
 import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
+import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -40,32 +42,49 @@ public class SpanPostProcessorTest {
     private final long agentStartTime = System.currentTimeMillis();
 
     @Test
-    public void create() {
+    public void postProcess1() {
 
-        SpanPostProcessor spanChunkPostProcessor = new SpanPostProcessorV1();
+        SpanProcessor<TSpan, TSpanChunk> spanChunkPostProcessor = new SpanProcessorV1();
 
         TraceRoot internalTraceId = newInternalTraceId();
         TSpanChunk tSpanChunk = new TSpanChunk();
         try {
             SpanChunk spanChunk = new DefaultSpanChunk(internalTraceId, new ArrayList<SpanEvent>());
-            spanChunkPostProcessor.newContext(spanChunk, tSpanChunk);
+            spanChunkPostProcessor.postProcess(spanChunk, tSpanChunk);
             Assert.fail();
         } catch (Exception ignored) {
         }
+    }
+
+    @Test
+    public void postProcess2() {
+
+        SpanProcessor<TSpan, TSpanChunk> spanChunkPostProcessor = new SpanProcessorV1();
+
+        TraceRoot internalTraceId = newInternalTraceId();
+        List<TSpanEvent> tSpanEvents = new ArrayList<TSpanEvent>();
+        TSpanChunk tSpanChunk = new TSpanChunk();
+        tSpanChunk.setSpanEventList(tSpanEvents);
+
         List<SpanEvent> spanEvents = new ArrayList<SpanEvent>();
         SpanChunk spanChunk = new DefaultSpanChunk(internalTraceId, spanEvents);
         // one spanEvent
-        spanEvents.add(new SpanEvent());
-        spanChunkPostProcessor.newContext(spanChunk, tSpanChunk);
+        addSpanEvent(tSpanEvents, spanEvents);
+        spanChunkPostProcessor.postProcess(spanChunk, tSpanChunk);
 
         // two spanEvent
-        spanEvents.add(new SpanEvent());
-        spanChunkPostProcessor.newContext(spanChunk, tSpanChunk);
+        addSpanEvent(tSpanEvents, spanEvents);
+        spanChunkPostProcessor.postProcess(spanChunk, tSpanChunk);
 
         // three
-        spanEvents.add(new SpanEvent());
-        spanChunkPostProcessor.newContext(spanChunk, tSpanChunk);
+        addSpanEvent(tSpanEvents, spanEvents);
+        spanChunkPostProcessor.postProcess(spanChunk, tSpanChunk);
 
+    }
+
+    private void addSpanEvent(List<TSpanEvent> tSpanEvents, List<SpanEvent> spanEvents) {
+        spanEvents.add(new SpanEvent());
+        tSpanEvents.add(new TSpanEvent());
     }
 
     private TraceRoot newInternalTraceId() {

@@ -24,6 +24,7 @@ import org.apache.hadoop.hbase.HConstants;
 import org.apache.hadoop.hbase.TableName;
 
 import java.nio.charset.Charset;
+import java.util.Objects;
 
 /**
  * @author HyunGil Jeong
@@ -43,17 +44,11 @@ public class ScanTaskConfig {
     }
 
     public ScanTaskConfig(TableName tableName, Configuration configuration, Charset charset, TableFactory tableFactory, AbstractRowKeyDistributor rowKeyDistributor, int scanCaching) {
-        if (tableName == null) {
-            throw new NullPointerException("No table specified");
-        }
-        if (rowKeyDistributor == null) {
-            throw new NullPointerException("rowKeyDistributor must not be null");
-        }
-        this.tableName = tableName;
+        this.tableName = Objects.requireNonNull(tableName, "tableName");
         this.configuration = configuration;
         this.charset = charset;
         this.tableFactory = tableFactory;
-        this.rowKeyDistributor = rowKeyDistributor;
+        this.rowKeyDistributor = Objects.requireNonNull(rowKeyDistributor, "rowKeyDistributor");
         if (scanCaching > 0) {
             this.scanTaskQueueSize = scanCaching;
         } else {

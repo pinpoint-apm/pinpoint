@@ -1,0 +1,20 @@
+<pp-notice-container></pp-notice-container>
+<header class="flex-container flex-row">
+    <pp-header-logo></pp-header-logo>
+    <div class="l-widget-group">
+        <pp-application-list-for-header-container></pp-application-list-for-header-container>
+        <pp-server-map-options-container [hidden]="enableRealTime$ | async"></pp-server-map-options-container>
+        <pp-period-selector-container></pp-period-selector-container>
+    </div>
+    <button class="fa fa-question-circle" (click)="onShowHelp($event)"></button>
+    <pp-configuration-icon-container></pp-configuration-icon-container>
+</header>
+<div class="l-main-container">
+    <section class="l-main-section">
+        <article class="l-main-contents">
+            <router-outlet></router-outlet>
+        </article>
+        <pp-real-time-container *ngIf="enableRealTime$ | async"></pp-real-time-container>
+    </section>
+    <pp-side-bar-container *ngIf="isAppKeyProvided$ | async"></pp-side-bar-container>
+</div>

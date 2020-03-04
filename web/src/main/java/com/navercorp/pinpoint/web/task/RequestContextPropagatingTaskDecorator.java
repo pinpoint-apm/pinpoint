@@ -38,7 +38,7 @@ public class RequestContextPropagatingTaskDecorator implements TaskDecorator {
         private final RequestAttributes requestAttributes;
 
         private RequestContextPropagatingRunnable(Runnable delegate) {
-            this.delegate = Objects.requireNonNull(delegate, "delegate must not be null");
+            this.delegate = Objects.requireNonNull(delegate, "delegate");
             this.requestAttributes = RequestContextHolder.getRequestAttributes();
         }
 

@@ -1,0 +1,12 @@
+<ng-container *ngIf="filteredServerList && !isEmpty; else emptyText">
+    <pp-server-and-agent-list
+        [funcImagePath]="funcImagePath"
+        [serverKeyList]="filteredServerKeyList"
+        [serverList]="filteredServerList"
+        [agentId]="agentId"
+        (outSelectAgent)="onSelectAgent($event)">
+    </pp-server-and-agent-list>
+</ng-container>
+<ng-template #emptyText>
+    <p class="l-empty-text">{{emptyText$ | async}}</p>
+</ng-template>

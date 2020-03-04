@@ -1,8 +1,0 @@
-:host {
-    display: block;
-    height: calc(100% - 45px);
-}
-l-content-item {
-    width: 100%;
-    margin: 0px;
-}

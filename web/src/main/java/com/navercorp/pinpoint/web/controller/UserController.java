@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.navercorp.pinpoint.web.util.ValueValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,11 +52,10 @@ public class UserController {
     @RequestMapping(method = RequestMethod.POST)
     @ResponseBody
     public Map<String, String> insertUser(@RequestBody User user) {
-        
-        if (StringUtils.isEmpty(user.getUserId()) || StringUtils.isEmpty(user.getName())) {
+        if(ValueValidator.validateUser(user) == false) {
             Map<String, String> result = new HashMap<>();
             result.put("errorCode", "500");
-            result.put("errorMessage", "there is not userId or name in params to creating user infomation");
+            result.put("errorMessage", "User information validation failed to creating user infomation.");
             return result;
         }
         
@@ -111,11 +111,10 @@ public class UserController {
     @RequestMapping(method = RequestMethod.PUT)
     @ResponseBody
     public Map<String, String> updateUser(@RequestBody User user) {
-       
-        if (StringUtils.isEmpty(user.getUserId())) {
+        if(ValueValidator.validateUser(user) == false) {
             Map<String, String> result = new HashMap<>();
             result.put("errorCode", "500");
-            result.put("errorMessage", "there is not userId in params to update user");
+            result.put("errorMessage", "User information validation failed to creating user infomation.");
             return result;
         }
         

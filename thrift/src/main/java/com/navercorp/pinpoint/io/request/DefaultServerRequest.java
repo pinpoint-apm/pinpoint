@@ -30,10 +30,10 @@ public class DefaultServerRequest<T> extends DefaultAttributeMap implements Serv
 
     public DefaultServerRequest(Message<T> message, String remoteAddress, int remotePort) {
         if (message == null) {
-            throw new NullPointerException("message must not be null");
+            throw new NullPointerException("message");
         }
         if (remoteAddress == null) {
-            throw new NullPointerException("remoteAddress must not be null");
+            throw new NullPointerException("remoteAddress");
         }
         this.message = message;
         this.remoteAddress = remoteAddress;

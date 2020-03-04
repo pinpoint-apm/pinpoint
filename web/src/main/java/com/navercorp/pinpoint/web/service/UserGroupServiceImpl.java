@@ -15,22 +15,20 @@
  */
 package com.navercorp.pinpoint.web.service;
 
-import java.util.List;
-
 import com.navercorp.pinpoint.web.config.ConfigProperties;
+import com.navercorp.pinpoint.web.dao.UserGroupDao;
 import com.navercorp.pinpoint.web.util.DefaultUserInfoDecoder;
 import com.navercorp.pinpoint.web.util.UserInfoDecoder;
 import com.navercorp.pinpoint.web.vo.User;
-import com.navercorp.pinpoint.web.vo.UserGroupMemberParam;
+import com.navercorp.pinpoint.web.vo.UserGroup;
+import com.navercorp.pinpoint.web.vo.UserGroupMember;
 import com.navercorp.pinpoint.web.vo.exception.PinpointUserGroupException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import com.navercorp.pinpoint.web.dao.UserGroupDao;
-import com.navercorp.pinpoint.web.vo.UserGroup;
-import com.navercorp.pinpoint.web.vo.UserGroupMember;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
+
+import java.util.List;
 
 /**
  * @author minwoo.jung
@@ -51,13 +49,19 @@ public class UserGroupServiceImpl implements UserGroupService {
     @Autowired
     private ConfigProperties webProperties;
 
+    @Autowired
+    UserService userService;
 
-    
     @Override
-    public String createUserGroup(UserGroup userGroup, String userId) throws PinpointUserGroupException {
+    public String createUserGroup(UserGroup userGroup) throws PinpointUserGroupException {
+        if (userGroupDao.isExistUserGroup(userGroup.getId())) {
+            throw new PinpointUserGroupException("userGroup's name already exist. :" + userGroup.getId());
+        }
+
         String userGroupNumber = userGroupDao.createUserGroup(userGroup);
 
         if (webProperties.isOpenSource() == false) {
+            String userId = userService.getUserIdFromSecurity();
             if (StringUtils.isEmpty(userId)) {
                 throw new PinpointUserGroupException("There is not userId or fail to create userGroup.");
             }
@@ -92,19 +96,14 @@ public class UserGroupServiceImpl implements UserGroupService {
     }
 
     @Override
-    public void deleteUserGroup(UserGroup userGroup, String userId) throws PinpointUserGroupException {
-        if (webProperties.isOpenSource() == false) {
-            if (checkValid(userId, userGroup.getId()) == false) {
-                throw new PinpointUserGroupException("There is not userId or you don't have authoriy for user group.");
-            }
-        }
-
+    public void deleteUserGroup(UserGroup userGroup) throws PinpointUserGroupException {
         userGroupDao.deleteUserGroup(userGroup);
-        deleteMemberByUserGroupId(userGroup.getId());
+        userGroupDao.deleteMemberByUserGroupId(userGroup.getId());
         alarmService.deleteRuleByUserGroupId(userGroup.getId());
     }
 
-    private boolean checkValid(String userId, String userGroupId) {
+    @Transactional(readOnly = true)
+    public boolean checkValid(String userId, String userGroupId) {
         if (StringUtils.isEmpty(userId)) {
             return false;
         }
@@ -118,31 +117,6 @@ public class UserGroupServiceImpl implements UserGroupService {
     @Override
     public void insertMember(UserGroupMember userGroupMember) {
         userGroupDao.insertMember(userGroupMember);
-    }
-
-    @Override
-    public void insertMemberWithCheckAuthority(UserGroupMemberParam userGroupMember, String userId) throws PinpointUserGroupException {
-        if (webProperties.isOpenSource() == false) {
-            boolean isValid = checkValid(userId, userGroupMember.getUserGroupId());
-            if (isValid == false) {
-                throw new PinpointUserGroupException("there is not userId or you don't have authority for user group.");
-            }
-        }
-
-        insertMember(userGroupMember);
-    }
-
-
-    @Override
-    public void deleteMemberWithCheckAuthority(UserGroupMember userGroupMember, String userId) throws PinpointUserGroupException {
-        if (webProperties.isOpenSource() == false) {
-            boolean isValid = checkValid(userId, userGroupMember.getUserGroupId());
-            if (isValid == false) {
-                throw new PinpointUserGroupException("there is not userId or you don't have authority for user group.");
-            }
-        }
-
-        userGroupDao.deleteMember(userGroupMember);
     }
 
     @Override
@@ -181,18 +155,11 @@ public class UserGroupServiceImpl implements UserGroupService {
     }
 
     @Override
-    public void deleteMemberByUserGroupId(String userGroupId) {
-        userGroupDao.deleteMemberByUserGroupId(userGroupId);
-    }
-
-    @Override
     public void updateUserGroupIdOfMember(UserGroup userGroup) {
         userGroupDao.updateUserGroupIdOfMember(userGroup);
     }
 
-    @Override
-    @Transactional(readOnly = true)
-    public boolean containMemberForUserGroup(String userId, String userGroupId) {
+    private boolean containMemberForUserGroup(String userId, String userGroupId) {
         List<UserGroupMember> memberList = userGroupDao.selectMember(userGroupId);
         for (UserGroupMember member : memberList) {
             if(member.getMemberId().equals(userId)) {

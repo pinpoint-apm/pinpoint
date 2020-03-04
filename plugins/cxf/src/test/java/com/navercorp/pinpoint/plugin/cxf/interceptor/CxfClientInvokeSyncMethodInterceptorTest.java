@@ -15,14 +15,21 @@
 package com.navercorp.pinpoint.plugin.cxf.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
-import com.navercorp.pinpoint.bootstrap.context.*;
+import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
+import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
+import com.navercorp.pinpoint.bootstrap.context.Trace;
+import com.navercorp.pinpoint.bootstrap.context.TraceContext;
+import com.navercorp.pinpoint.bootstrap.context.TraceId;
 import com.navercorp.pinpoint.plugin.cxf.CxfPluginConstants;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
 /**
  * @author barney
@@ -54,8 +61,7 @@ public class CxfClientInvokeSyncMethodInterceptorTest {
     @Test
     public void before() throws Exception {
         doReturn(profilerConfig).when(traceContext).getProfilerConfig();
-        doReturn(trace).when(traceContext).currentRawTraceObject();
-        doReturn(true).when(trace).canSampled();
+        doReturn(trace).when(traceContext).currentTraceObject();
         doReturn(traceId).when(trace).getTraceId();
         doReturn(nextId).when(traceId).getNextTraceId();
         doReturn(recorder).when(trace).traceBlockBegin();
@@ -77,8 +83,7 @@ public class CxfClientInvokeSyncMethodInterceptorTest {
     @Test
     public void sampled_false() throws Exception {
         doReturn(profilerConfig).when(traceContext).getProfilerConfig();
-        doReturn(trace).when(traceContext).currentRawTraceObject();
-        doReturn(false).when(trace).canSampled();
+        doReturn(null).when(traceContext).currentTraceObject();
 
         Object target = new Object();
         Object[] args = new Object[]{};
@@ -94,8 +99,7 @@ public class CxfClientInvokeSyncMethodInterceptorTest {
         doReturn(profilerConfig).when(traceContext).getProfilerConfig();
         String hiddenParams = "{http://foo.com/}getFoo";
         doReturn(hiddenParams).when(profilerConfig).readString("profiler.cxf.client.hiddenParams", "");
-        doReturn(trace).when(traceContext).currentRawTraceObject();
-        doReturn(true).when(trace).canSampled();
+        doReturn(trace).when(traceContext).currentTraceObject();
         doReturn(traceId).when(trace).getTraceId();
         doReturn(nextId).when(traceId).getNextTraceId();
         doReturn(recorder).when(trace).traceBlockBegin();
@@ -119,8 +123,7 @@ public class CxfClientInvokeSyncMethodInterceptorTest {
         doReturn(profilerConfig).when(traceContext).getProfilerConfig();
         String hiddenParams = "{http://foo.com/}getFoo:1";
         doReturn(hiddenParams).when(profilerConfig).readString("profiler.cxf.client.hiddenParams", "");
-        doReturn(trace).when(traceContext).currentRawTraceObject();
-        doReturn(true).when(trace).canSampled();
+        doReturn(trace).when(traceContext).currentTraceObject();
         doReturn(traceId).when(trace).getTraceId();
         doReturn(nextId).when(traceId).getNextTraceId();
         doReturn(recorder).when(trace).traceBlockBegin();
@@ -144,8 +147,7 @@ public class CxfClientInvokeSyncMethodInterceptorTest {
         doReturn(profilerConfig).when(traceContext).getProfilerConfig();
         String hiddenParams = "{http://foo.com/}getFoo:2";
         doReturn(hiddenParams).when(profilerConfig).readString("profiler.cxf.client.hiddenParams", "");
-        doReturn(trace).when(traceContext).currentRawTraceObject();
-        doReturn(true).when(trace).canSampled();
+        doReturn(trace).when(traceContext).currentTraceObject();
         doReturn(traceId).when(trace).getTraceId();
         doReturn(nextId).when(traceId).getNextTraceId();
         doReturn(recorder).when(trace).traceBlockBegin();

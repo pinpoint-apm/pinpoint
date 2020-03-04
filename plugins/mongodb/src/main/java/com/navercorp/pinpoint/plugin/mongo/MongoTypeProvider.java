@@ -28,6 +28,7 @@ public class MongoTypeProvider implements TraceMetadataProvider {
     public void setup(TraceMetadataSetupContext context) {
         context.addServiceType(MongoConstants.MONGODB, AnnotationKeyMatchers.exact(AnnotationKey.ARGS0));
         context.addServiceType(MongoConstants.MONGO_EXECUTE_QUERY, AnnotationKeyMatchers.exact(AnnotationKey.ARGS0));
+        context.addServiceType(MongoConstants.MONGO_REACTIVE);
 
         context.addAnnotationKey(MongoConstants.MONGO_JSON_DATA);
         context.addAnnotationKey(MongoConstants.MONGO_COLLECTION_INFO);

@@ -16,11 +16,7 @@
 
 package com.navercorp.pinpoint.plugin.jdk.http;
 
-import com.navercorp.pinpoint.bootstrap.logging.PLogger;
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestAdaptor;
-import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestWrapper;
-import com.navercorp.pinpoint.common.util.Assert;
 
 import java.net.HttpURLConnection;
 import java.net.URL;

@@ -30,7 +30,7 @@ public class ApplicationFilter implements LinkDataMapProcessor {
 
     public ApplicationFilter(Application application) {
         if (application == null) {
-            throw new NullPointerException("application must not be null");
+            throw new NullPointerException("application");
         }
         this.application = application;
     }

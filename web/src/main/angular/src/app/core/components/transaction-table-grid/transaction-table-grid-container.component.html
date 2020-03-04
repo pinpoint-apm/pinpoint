@@ -1,0 +1,10 @@
+<pp-transaction-table-grid
+    [rowData]="transactionDataForAgGrid"
+    [addData]="transactionAddedDataForAgGrid"
+    [currentTraceId]="selectedTraceId"
+    [resized]="areaResized"
+    [timezone]="timezone"
+    [dateFormat]="dateFormat"
+    (outSelectTransaction)="onSelectTransaction($event)"
+    (outSelectTransactionView)="onOpenTransactionView($event)">
+</pp-transaction-table-grid>

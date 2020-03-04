@@ -7,7 +7,7 @@
         <groupId>com.navercorp.pinpoint</groupId>
         <artifactId>pinpoint</artifactId>
         <relativePath>../..</relativePath>
-        <version>1.9.0-SNAPSHOT</version>
+        <version>2.0.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>pinpoint-plugins-assembly</artifactId>
@@ -15,6 +15,16 @@
     <packaging>pom</packaging>
 
     <dependencies>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-common-servlet</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-external-plugins</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-httpclient3-plugin</artifactId>
@@ -59,6 +69,11 @@
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-mariadb-jdbc-driver-plugin</artifactId>
             <version>${project.version}</version>
+        </dependency>
+        <dependency>
+          <groupId>com.navercorp.pinpoint</groupId>
+          <artifactId>pinpoint-mssql-jdbc-driver-plugin</artifactId>
+          <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
@@ -108,6 +123,11 @@
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-redis-lettuce-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-redis-redisson-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -172,6 +192,11 @@
         </dependency>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-spring-webflux-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-ibatis-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -193,6 +218,11 @@
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-logback-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-log4j2-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -252,11 +282,6 @@
         </dependency>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
-            <artifactId>pinpoint-php-plugin</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-akka-http-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -300,9 +325,34 @@
             <artifactId>pinpoint-openwhisk-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
+	    <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-elasticsearch-bboss-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
-            <artifactId>pinpoint-node-js-plugin</artifactId>
+            <artifactId>pinpoint-apache-dubbo-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-elasticsearch-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-reactor-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-reactor-netty-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-jdk-completable-future-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

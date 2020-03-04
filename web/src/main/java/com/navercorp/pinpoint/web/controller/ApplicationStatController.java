@@ -31,6 +31,7 @@ import com.navercorp.pinpoint.web.vo.stat.chart.StatChart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -51,6 +52,7 @@ public class ApplicationStatController {
         this.applicationStatChartService = applicationStatChartService;
     }
 
+    @PreAuthorize("hasPermission(#applicationId, 'application', 'inspector')")
     @RequestMapping(method = RequestMethod.GET)
     @ResponseBody
     public StatChart getAgentStatChart(@RequestParam("applicationId") String applicationId, @RequestParam("from") long from, @RequestParam("to") long to) {
@@ -113,12 +115,12 @@ public class ApplicationStatController {
     @RequestMapping("/getApplicationStat/dataSource/chart")
     public static class ApplicationDataSourceController {
 
-        private final Logger logger = LoggerFactory.getLogger(ApplicationDataSourceController.this.getClass());
+        private final Logger logger = LoggerFactory.getLogger(this.getClass());
         private ApplicationDataSourceService applicationDataSourceService;
 
         @Autowired
         public ApplicationDataSourceController(ApplicationDataSourceService applicationDataSourceService) {
-            ApplicationDataSourceController.this.applicationDataSourceService = applicationDataSourceService;
+            this.applicationDataSourceService = applicationDataSourceService;
         }
 
         @RequestMapping(method = RequestMethod.GET)

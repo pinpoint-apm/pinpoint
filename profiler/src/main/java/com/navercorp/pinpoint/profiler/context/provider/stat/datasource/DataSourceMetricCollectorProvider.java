@@ -23,25 +23,25 @@ import com.navercorp.pinpoint.profiler.monitor.collector.AgentStatMetricCollecto
 import com.navercorp.pinpoint.profiler.monitor.collector.UnsupportedMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.collector.datasource.DefaultDataSourceMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.metric.datasource.DataSourceMetric;
-import com.navercorp.pinpoint.thrift.dto.TDataSourceList;
+import com.navercorp.pinpoint.profiler.monitor.metric.datasource.DataSourceMetricSnapshot;
 
 /**
  * @author Taejin Koo
  * @author HyunGil Jeong
  */
-public class DataSourceMetricCollectorProvider implements Provider<AgentStatMetricCollector<TDataSourceList>> {
+public class DataSourceMetricCollectorProvider implements Provider<AgentStatMetricCollector<DataSourceMetricSnapshot>> {
 
     private final DataSourceMetric dataSourceMetric;
 
     @Inject
     public DataSourceMetricCollectorProvider(DataSourceMetric dataSourceMetric) {
-        this.dataSourceMetric = Assert.requireNonNull(dataSourceMetric, "dataSourceMetric must not be null");
+        this.dataSourceMetric = Assert.requireNonNull(dataSourceMetric, "dataSourceMetric");
     }
 
     @Override
-    public AgentStatMetricCollector<TDataSourceList> get() {
+    public AgentStatMetricCollector<DataSourceMetricSnapshot> get() {
         if (dataSourceMetric == DataSourceMetric.UNSUPPORTED_DATA_SOURCE_METRIC) {
-            return new UnsupportedMetricCollector<TDataSourceList>();
+            return new UnsupportedMetricCollector<DataSourceMetricSnapshot>();
         }
         return new DefaultDataSourceMetricCollector(dataSourceMetric);
     }

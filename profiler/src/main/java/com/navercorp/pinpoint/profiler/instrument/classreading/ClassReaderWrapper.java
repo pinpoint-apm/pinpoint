@@ -58,7 +58,7 @@ public class ClassReaderWrapper {
     }
 
     public ClassReaderWrapper(final byte[] classBinary, final boolean readAttributes) {
-        Assert.requireNonNull(classBinary, "classBinary must not be null");
+        Assert.requireNonNull(classBinary, "classBinary");
         this.classReader = new ClassReader(classBinary);
         if (readAttributes) {
             readAttributes();
@@ -71,7 +71,7 @@ public class ClassReaderWrapper {
 
     // classloader and class internal name.
     public ClassReaderWrapper(final ClassLoader classLoader, final String classInternalName, final boolean readAttributes) throws IOException {
-        Assert.requireNonNull(classInternalName, "classInternalName must not be null");
+        Assert.requireNonNull(classInternalName, "classInternalName");
 
         ClassLoader cl = classLoader;
         if (cl == null) {

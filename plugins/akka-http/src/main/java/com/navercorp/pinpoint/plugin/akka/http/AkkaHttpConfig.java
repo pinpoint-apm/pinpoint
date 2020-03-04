@@ -23,7 +23,6 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.SkipFilter;
 import com.navercorp.pinpoint.common.util.Assert;
 
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -50,7 +49,7 @@ public class AkkaHttpConfig {
     private final List<String> transformParameters;
 
     public AkkaHttpConfig(ProfilerConfig config) {
-        Assert.requireNonNull(config, "config must not be null");
+        Assert.requireNonNull(config, "config");
 
         this.enable = config.readBoolean(KEY_ENABLE, DEFAULT_ENABLE);
 

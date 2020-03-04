@@ -131,7 +131,7 @@ public class CallTreeIterator implements Iterator<CallTreeNode> {
         while (true) {
             if (!node.getAlign().isAsyncFirst()) {
                 // not async first.
-                return node.getAlign().getLastTime();
+                return node.getAlign().getEndTime();
             } else if (isFirstChild(node)) {
                 // first child
                 return node.getParent().getAlign().getStartTime();

@@ -16,12 +16,11 @@
 
 package com.navercorp.pinpoint.bootstrap.java9.module;
 
-import java.util.Set;
-
 /**
  * @author Woonduk Kang(emeroad)
  */
 public interface PackageAnalyzer {
 
-    Set<String> getPackage();
+    PackageInfo analyze();
+
 }

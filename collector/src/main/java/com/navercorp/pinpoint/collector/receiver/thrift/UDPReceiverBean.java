@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.collector.receiver.thrift;
 
+import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.collector.receiver.thrift.udp.BaseUDPHandlerFactory;
 import com.navercorp.pinpoint.collector.receiver.thrift.udp.NetworkAvailabilityCheckPacketFilter;
 import com.navercorp.pinpoint.collector.receiver.thrift.udp.PacketHandlerFactory;
@@ -64,11 +65,11 @@ public class UDPReceiverBean implements InitializingBean, DisposableBean, BeanNa
         if (!enable) {
             return;
         }
-        Objects.requireNonNull(beanName, "beanName must not be null");
-        Objects.requireNonNull(bindIp, "bindIp must not be null");
-        Objects.requireNonNull(dispatchHandler, "dispatchHandler must not be null");
-        Objects.requireNonNull(addressFilter, "addressFilter must not be null");
-        Objects.requireNonNull(executor, "executor must not be null");
+        Objects.requireNonNull(beanName, "beanName");
+        Objects.requireNonNull(bindIp, "bindIp");
+        Objects.requireNonNull(dispatchHandler, "dispatchHandler");
+        Objects.requireNonNull(addressFilter, "addressFilter");
+        Objects.requireNonNull(executor, "executor");
 
         udpReceiver = createUdpReceiver(beanName, this.bindIp, bindPort, udpBufferSize, executor, dispatchHandler, addressFilter);
         udpReceiver.start();
@@ -106,19 +107,19 @@ public class UDPReceiverBean implements InitializingBean, DisposableBean, BeanNa
     }
 
     public void setExecutor(Executor executor) {
-        this.executor = Objects.requireNonNull(executor, "executor must not be null");
+        this.executor = Objects.requireNonNull(executor, "executor");
     }
 
     public void setDispatchHandler(DispatchHandler dispatchHandler) {
-        this.dispatchHandler = Objects.requireNonNull(dispatchHandler, "dispatchHandler must not be null");
+        this.dispatchHandler = Objects.requireNonNull(dispatchHandler, "dispatchHandler");
     }
 
     public void setAddressFilter(AddressFilter addressFilter) {
-        this.addressFilter = Objects.requireNonNull(addressFilter, "addressFilter must not be null");
+        this.addressFilter = Objects.requireNonNull(addressFilter, "addressFilter");
     }
 
     public void setBindIp(String bindIp) {
-        this.bindIp = Objects.requireNonNull(bindIp, "bindIp must not be null");
+        this.bindIp = Objects.requireNonNull(bindIp, "bindIp");
     }
 
     public void setBindPort(int bindPort) {

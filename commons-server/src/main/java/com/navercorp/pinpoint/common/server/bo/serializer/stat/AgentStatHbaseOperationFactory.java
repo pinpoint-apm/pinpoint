@@ -16,9 +16,11 @@
 
 package com.navercorp.pinpoint.common.server.bo.serializer.stat;
 
+import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.server.bo.serializer.HbaseSerializer;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatDataPoint;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatType;
+
 import com.sematext.hbase.wd.AbstractRowKeyDistributor;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.hadoop.hbase.client.Put;
@@ -26,15 +28,13 @@ import org.apache.hadoop.hbase.client.Scan;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
-import org.springframework.util.Assert;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.TreeMap;
-
-import static com.navercorp.pinpoint.common.hbase.HBaseTables.AGENT_STAT_TIMESPAN_MS;
 
 /**
  * @author HyunGil Jeong
@@ -53,12 +53,9 @@ public class AgentStatHbaseOperationFactory {
             AgentStatRowKeyEncoder rowKeyEncoder,
             AgentStatRowKeyDecoder rowKeyDecoder,
             @Qualifier("agentStatV2RowKeyDistributor") AbstractRowKeyDistributor rowKeyDistributor) {
-        Assert.notNull(rowKeyEncoder, "rowKeyEncoder must not be null");
-        Assert.notNull(rowKeyDecoder, "rowKeyDecoder must not be null");
-        Assert.notNull(rowKeyDistributor, "rowKeyDistributor must not be null");
-        this.rowKeyEncoder = rowKeyEncoder;
-        this.rowKeyDecoder = rowKeyDecoder;
-        this.rowKeyDistributor = rowKeyDistributor;
+        this.rowKeyEncoder = Objects.requireNonNull(rowKeyEncoder, "rowKeyEncoder");
+        this.rowKeyDecoder = Objects.requireNonNull(rowKeyDecoder, "rowKeyDecoder");
+        this.rowKeyDistributor = Objects.requireNonNull(rowKeyDistributor, "rowKeyDistributor");
     }
 
     public <T extends AgentStatDataPoint> List<Put> createPuts(String agentId, AgentStatType agentStatType, List<T> agentStatDataPoints, HbaseSerializer<List<T>, Put> agentStatSerializer) {
@@ -84,7 +81,7 @@ public class AgentStatHbaseOperationFactory {
 
     public Scan createScan(String agentId, AgentStatType agentStatType, long startTimestamp, long endTimestamp) {
         final AgentStatRowKeyComponent startRowKeyComponent = new AgentStatRowKeyComponent(agentId, agentStatType, AgentStatUtils.getBaseTimestamp(endTimestamp));
-        final AgentStatRowKeyComponent endRowKeyComponenet = new AgentStatRowKeyComponent(agentId, agentStatType, AgentStatUtils.getBaseTimestamp(startTimestamp) - AGENT_STAT_TIMESPAN_MS);
+        final AgentStatRowKeyComponent endRowKeyComponenet = new AgentStatRowKeyComponent(agentId, agentStatType, AgentStatUtils.getBaseTimestamp(startTimestamp) - HbaseColumnFamily.AGENT_STAT_STATISTICS.TIMESPAN_MS);
         byte[] startRowKey = this.rowKeyEncoder.encodeRowKey(startRowKeyComponent);
         byte[] endRowKey = this.rowKeyEncoder.encodeRowKey(endRowKeyComponenet);
         return new Scan(startRowKey, endRowKey);

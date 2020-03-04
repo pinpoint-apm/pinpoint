@@ -16,13 +16,13 @@
 
 package com.navercorp.pinpoint.common.server.cluster.zookeeper;
 
-import com.navercorp.pinpoint.common.util.Assert;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.state.ConnectionState;
 import org.apache.curator.framework.state.ConnectionStateListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -37,7 +37,7 @@ class PinpointZookeeperConnectionStateListener implements ConnectionStateListene
     private final ZookeeperEventWatcher zookeeperEventWatcher;
 
     public PinpointZookeeperConnectionStateListener(ZookeeperEventWatcher zookeeperEventWatcher) {
-        this.zookeeperEventWatcher = Assert.requireNonNull(zookeeperEventWatcher, "zookeeperEventWatcher must not be null");
+        this.zookeeperEventWatcher = Objects.requireNonNull(zookeeperEventWatcher, "zookeeperEventWatcher");
     }
 
     @Override

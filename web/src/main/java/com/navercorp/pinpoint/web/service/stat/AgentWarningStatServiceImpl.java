@@ -72,13 +72,10 @@ public class AgentWarningStatServiceImpl implements AgentWarningStatService {
     }
 
     private List<AgentWarningStatDataPoint> select0(String agentId, Range range) {
-        List<AgentWarningStatDataPoint> agentWarningStatDataPointList = new ArrayList<>();
 
         List<DeadlockThreadCountBo> deadlockThreadCountBoList = deadlockDao.getAgentStatList(agentId, range);
-        for (DeadlockThreadCountBo deadlockThreadCountBo : deadlockThreadCountBoList) {
-            agentWarningStatDataPointList.add(deadlockThreadCountBo);
-        }
 
+        List<AgentWarningStatDataPoint> agentWarningStatDataPointList = new ArrayList<>(deadlockThreadCountBoList);
         return agentWarningStatDataPointList;
     }
 

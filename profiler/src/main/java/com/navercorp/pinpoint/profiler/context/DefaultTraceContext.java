@@ -69,18 +69,18 @@ public class DefaultTraceContext implements TraceContext {
                                final SqlMetaDataService sqlMetaDataService,
                                final JdbcContext jdbcContext
     ) {
-        this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig must not be null");
-        this.agentInformation = Assert.requireNonNull(agentInformation, "agentInformation must not be null");
-        this.serverMetaDataHolder = Assert.requireNonNull(serverMetaDataHolder, "serverMetaDataHolder must not be null");
+        this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig");
+        this.agentInformation = Assert.requireNonNull(agentInformation, "agentInformation");
+        this.serverMetaDataHolder = Assert.requireNonNull(serverMetaDataHolder, "serverMetaDataHolder");
 
-        this.traceIdFactory = Assert.requireNonNull(traceIdFactory, "traceIdFactory must not be null");
-        this.traceFactory = Assert.requireNonNull(traceFactory, "traceFactory must not be null");
+        this.traceIdFactory = Assert.requireNonNull(traceIdFactory, "traceIdFactory");
+        this.traceFactory = Assert.requireNonNull(traceFactory, "traceFactory");
 
-        this.jdbcContext = Assert.requireNonNull(jdbcContext, "jdbcContext must not be null");
+        this.jdbcContext = Assert.requireNonNull(jdbcContext, "jdbcContext");
 
-        this.apiMetaDataService = Assert.requireNonNull(apiMetaDataService, "apiMetaDataService must not be null");
-        this.stringMetaDataService = Assert.requireNonNull(stringMetaDataService, "stringMetaDataService must not be null");
-        this.sqlMetaDataService = Assert.requireNonNull(sqlMetaDataService, "sqlMetaDataService must not be null");
+        this.apiMetaDataService = Assert.requireNonNull(apiMetaDataService, "apiMetaDataService");
+        this.stringMetaDataService = Assert.requireNonNull(stringMetaDataService, "stringMetaDataService");
+        this.sqlMetaDataService = Assert.requireNonNull(sqlMetaDataService, "sqlMetaDataService");
     }
 
     /**
@@ -212,7 +212,7 @@ public class DefaultTraceContext implements TraceContext {
     @Override
     public TraceId createTraceId(final String transactionId, final long parentSpanId, final long spanId, final short flags) {
         if (transactionId == null) {
-            throw new NullPointerException("transactionId must not be null");
+            throw new NullPointerException("transactionId");
         }
         // TODO Should handle exception when parsing failed.
         return traceIdFactory.continueTraceId(transactionId, parentSpanId, spanId, flags);

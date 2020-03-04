@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,11 +16,10 @@
 
 package com.navercorp.pinpoint.common.server.bo;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 
-import com.navercorp.pinpoint.common.util.TransactionId;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author emeroad
@@ -56,7 +55,7 @@ public class SpanBo implements Event, BasicSpan {
     private int errCode;
 
     private List<SpanEventBo> spanEventBoList = new ArrayList<>();
-    private List<SpanChunkBo> asyncSpanChunkBoList;
+    private List<SpanChunkBo> spanChunkBoList;
 
     private long collectorAcceptTime;
 
@@ -73,28 +72,31 @@ public class SpanBo implements Event, BasicSpan {
     private byte loggingTransactionInfo; //optional
 
 
-
-
     public SpanBo() {
     }
 
+    @Override
     public int getVersion() {
         return version & 0xFF;
     }
-
 
     public byte getRawVersion() {
         return version;
     }
 
     public void setVersion(int version) {
-        if (version < 0 || version > 255) {
-            throw new IllegalArgumentException("out of range (0~255)");
-        }
+        checkVersion(version);
         // check range
         this.version = (byte) (version & 0xFF);
     }
 
+    static void checkVersion(int version) {
+        if (version < 0 || version > 255) {
+            throw new IllegalArgumentException("out of range (0~255)");
+        }
+    }
+
+    @Override
     public TransactionId getTransactionId() {
         return this.transactionId;
     }
@@ -102,27 +104,33 @@ public class SpanBo implements Event, BasicSpan {
     public void setTransactionId(TransactionId transactionId) {
         this.transactionId = transactionId;
     }
-    
+
+    @Override
     public String getAgentId() {
         return agentId;
     }
 
+    @Override
     public void setAgentId(String agentId) {
         this.agentId = agentId;
     }
 
+    @Override
     public String getApplicationId() {
         return applicationId;
     }
 
+    @Override
     public void setApplicationId(String applicationId) {
         this.applicationId = applicationId;
     }
 
+    @Override
     public long getAgentStartTime() {
         return agentStartTime;
     }
 
+    @Override
     public void setAgentStartTime(long agentStartTime) {
         this.agentStartTime = agentStartTime;
     }
@@ -153,11 +161,12 @@ public class SpanBo implements Event, BasicSpan {
         this.rpc = rpc;
     }
 
-
+    @Override
     public long getSpanId() {
         return spanId;
     }
 
+    @Override
     public void setSpanId(long spanId) {
         this.spanId = spanId;
     }
@@ -225,18 +234,18 @@ public class SpanBo implements Event, BasicSpan {
         return spanEventBoList;
     }
 
-    public List<SpanChunkBo> getAsyncSpanChunkBoList() {
-        if (asyncSpanChunkBoList == null) {
-            return Collections.emptyList();
+    public List<SpanChunkBo> getSpanChunkBoList() {
+        if (spanChunkBoList == null) {
+            spanChunkBoList = new ArrayList<>();
         }
-        return asyncSpanChunkBoList;
+        return spanChunkBoList;
     }
 
-    public void addAsyncSpanBo(SpanChunkBo asyncSpanBo) {
-        if (asyncSpanChunkBoList == null) {
-            this.asyncSpanChunkBoList = new ArrayList<>();
+    public void addSpanChunkBo(SpanChunkBo asyncSpanBo) {
+        if (spanChunkBoList == null) {
+            this.spanChunkBoList = new ArrayList<>();
         }
-        this.asyncSpanChunkBoList.add(asyncSpanBo);
+        this.spanChunkBoList.add(asyncSpanBo);
     }
 
     public short getServiceType() {
@@ -355,38 +364,41 @@ public class SpanBo implements Event, BasicSpan {
         this.loggingTransactionInfo = loggingTransactionInfo;
     }
 
-
     @Override
     public String toString() {
-        return "SpanBo{" +
-                "version=" + version +
-                ", agentId='" + agentId + '\'' +
-                ", applicationId='" + applicationId + '\'' +
-                ", agentStartTime=" + agentStartTime +
-                ", transactionId=" + transactionId +
-                ", spanId=" + spanId +
-                ", parentSpanId=" + parentSpanId +
-                ", parentApplicationId='" + parentApplicationId + '\'' +
-                ", parentApplicationServiceType=" + parentApplicationServiceType +
-                ", startTime=" + startTime +
-                ", elapsed=" + elapsed +
-                ", rpc='" + rpc + '\'' +
-                ", serviceType=" + serviceType +
-                ", endPoint='" + endPoint + '\'' +
-                ", apiId=" + apiId +
-                ", annotationBoList=" + annotationBoList +
-                ", flag=" + flag +
-                ", errCode=" + errCode +
-                ", spanEventBoList=" + spanEventBoList +
-                ", collectorAcceptTime=" + collectorAcceptTime +
-                ", hasException=" + hasException +
-                ", exceptionId=" + exceptionId +
-                ", exceptionMessage='" + exceptionMessage + '\'' +
-                ", exceptionClass='" + exceptionClass + '\'' +
-                ", applicationServiceType=" + applicationServiceType +
-                ", acceptorHost='" + acceptorHost + '\'' +
-                ", remoteAddr='" + remoteAddr + '\'' +
-                ", loggingTransactionInfo=" + loggingTransactionInfo +
-                '}';
+        final StringBuilder sb = new StringBuilder("SpanBo{");
+        sb.append("version=").append(version);
+        sb.append(", agentId='").append(agentId).append('\'');
+        sb.append(", applicationId='").append(applicationId).append('\'');
+        sb.append(", agentStartTime=").append(agentStartTime);
+        sb.append(", transactionId=").append(transactionId);
+        sb.append(", spanId=").append(spanId);
+        sb.append(", parentSpanId=").append(parentSpanId);
+        sb.append(", parentApplicationId='").append(parentApplicationId).append('\'');
+        sb.append(", parentApplicationServiceType=").append(parentApplicationServiceType);
+        sb.append(", startTime=").append(startTime);
+        sb.append(", elapsed=").append(elapsed);
+        sb.append(", rpc='").append(rpc).append('\'');
+        sb.append(", serviceType=").append(serviceType);
+        sb.append(", endPoint='").append(endPoint).append('\'');
+        sb.append(", apiId=").append(apiId);
+        sb.append(", annotationBoList=").append(annotationBoList);
+        sb.append(", flag=").append(flag);
+        sb.append(", errCode=").append(errCode);
+        sb.append(", spanEventBoList=").append(spanEventBoList);
+        sb.append(", spanChunkBoList=").append(spanChunkBoList);
+        sb.append(", collectorAcceptTime=").append(collectorAcceptTime);
+        sb.append(", hasException=").append(hasException);
+        if (hasException) {
+            sb.append(", exceptionId=").append(exceptionId);
+            sb.append(", exceptionMessage='").append(exceptionMessage).append('\'');
+        }
+        sb.append(", exceptionClass='").append(exceptionClass).append('\'');
+        sb.append(", applicationServiceType=").append(applicationServiceType);
+        sb.append(", acceptorHost='").append(acceptorHost).append('\'');
+        sb.append(", remoteAddr='").append(remoteAddr).append('\'');
+        sb.append(", loggingTransactionInfo=").append(loggingTransactionInfo);
+        sb.append('}');
+        return sb.toString();
     }
 }

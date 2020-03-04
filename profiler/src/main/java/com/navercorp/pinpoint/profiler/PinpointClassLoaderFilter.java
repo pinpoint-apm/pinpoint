@@ -26,8 +26,8 @@ public class PinpointClassLoaderFilter implements ClassFileFilter {
     private final ClassLoader agentLoader;
 
     public PinpointClassLoaderFilter(ClassLoader agentLoader) {
-        Assert.requireNonNull(agentLoader, "agentLoader");
-        this.agentLoader = agentLoader;
+
+        this.agentLoader = Assert.requireNonNull(agentLoader, "agentLoader");
     }
 
     @Override

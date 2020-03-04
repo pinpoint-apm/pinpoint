@@ -23,25 +23,24 @@ import com.navercorp.pinpoint.profiler.monitor.collector.AgentStatMetricCollecto
 import com.navercorp.pinpoint.profiler.monitor.collector.UnsupportedMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.collector.buffer.DefaultBufferMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.metric.buffer.BufferMetric;
-import com.navercorp.pinpoint.thrift.dto.TDirectBuffer;
-
+import com.navercorp.pinpoint.profiler.monitor.metric.buffer.BufferMetricSnapshot;
 
 /**
  * @author Roy Kim
  */
-public class BufferMetricCollectorProvider implements Provider<AgentStatMetricCollector<TDirectBuffer>> {
+public class BufferMetricCollectorProvider implements Provider<AgentStatMetricCollector<BufferMetricSnapshot>> {
 
     private final BufferMetric bufferMetric;
 
     @Inject
     public BufferMetricCollectorProvider(BufferMetric bufferMetric) {
-        this.bufferMetric = Assert.requireNonNull(bufferMetric, "bufferMetric must not be null");
+        this.bufferMetric = Assert.requireNonNull(bufferMetric, "bufferMetric");
     }
 
     @Override
-    public AgentStatMetricCollector<TDirectBuffer> get() {
+    public AgentStatMetricCollector<BufferMetricSnapshot> get() {
         if (bufferMetric == BufferMetric.UNSUPPORTED_BUFFER_METRIC) {
-            return new UnsupportedMetricCollector<TDirectBuffer>();
+            return new UnsupportedMetricCollector<BufferMetricSnapshot>();
         }
         return new DefaultBufferMetricCollector(bufferMetric);
     }

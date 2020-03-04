@@ -1,0 +1,22 @@
+serviceTypes:
+    - code: 8203
+      name: 'REDIS_REDISSON'
+      desc: 'REDIS'
+      property:
+          terminal: true
+          recordStatistics: true
+      matcher:
+          type: 'exact'
+          code: -1 # args[0]
+    - code: 8204
+      name: 'REDIS_REDISSON_INTERNAL'
+      desc: 'REDIS'
+    - code: 8205
+      name: 'REDIS_REDISSON_REACTIVE'
+      desc: 'REDIS'
+      matcher:
+        type: 'exact'
+        code: -1 # args[0]
+
+
+

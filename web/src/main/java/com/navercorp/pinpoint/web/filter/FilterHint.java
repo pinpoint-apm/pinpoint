@@ -47,7 +47,7 @@ public class FilterHint {
 
     public List<RpcHint> getRpcHintList(String targetApplicationName) {
         if (targetApplicationName == null) {
-            throw new NullPointerException("targetApplicationName must not be null");
+            throw new NullPointerException("targetApplicationName");
         }
         final List<RpcHint> findRpcHintList = new ArrayList<>();
         for (RpcHint rpcHint : rpcHintList) {

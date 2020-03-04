@@ -48,14 +48,14 @@ public class AgentInfoServerInstanceListDataSource implements ServerInstanceList
 
     public AgentInfoServerInstanceListDataSource(AgentInfoService agentInfoService) {
         if (agentInfoService == null) {
-            throw new NullPointerException("agentInfoService must not be null");
+            throw new NullPointerException("agentInfoService");
         }
         this.agentInfoService = agentInfoService;
     }
 
     public ServerInstanceList createServerInstanceList(Node node, long timestamp) {
         if (node == null) {
-            throw new NullPointerException("node must not be null");
+            throw new NullPointerException("node");
         }
         if (timestamp < 0) {
             return new ServerInstanceList();

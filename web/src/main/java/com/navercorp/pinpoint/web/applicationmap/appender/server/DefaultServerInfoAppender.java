@@ -46,8 +46,8 @@ public class DefaultServerInfoAppender implements ServerInfoAppender {
     private final Executor executor;
 
     public DefaultServerInfoAppender(ServerInstanceListFactory serverInstanceListFactory, Executor executor) {
-        this.serverInstanceListFactory = Objects.requireNonNull(serverInstanceListFactory, "serverInstanceListFactory must not be null");
-        this.executor = Objects.requireNonNull(executor, "executor must not be null");
+        this.serverInstanceListFactory = Objects.requireNonNull(serverInstanceListFactory, "serverInstanceListFactory");
+        this.executor = Objects.requireNonNull(executor, "executor");
     }
 
     @Override
@@ -87,7 +87,7 @@ public class DefaultServerInfoAppender implements ServerInfoAppender {
                     return serverInstanceListFactory.createWasNodeInstanceList(node, to);
                 }
             }, executor);
-        } else if (nodeServiceType.isTerminal()) {
+        } else if (nodeServiceType.isTerminal() || nodeServiceType.isAlias()) {
             // extract information about the terminal node
             serverInstanceListFuture = CompletableFuture.completedFuture(serverInstanceListFactory.createTerminalNodeInstanceList(node, linkDataDuplexMap));
         } else if (nodeServiceType.isQueue()) {

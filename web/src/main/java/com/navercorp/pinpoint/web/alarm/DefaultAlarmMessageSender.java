@@ -16,9 +16,8 @@
 package com.navercorp.pinpoint.web.alarm;
 
 import com.navercorp.pinpoint.web.alarm.checker.AlarmChecker;
+import org.springframework.batch.core.StepExecution;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.util.Assert;
 
 /**
  * @author minwoo.jung
@@ -32,12 +31,12 @@ public class DefaultAlarmMessageSender implements AlarmMessageSender {
     private SmsSender smsSender = new EmptySmsSender();
 
     @Override
-    public void sendSms(AlarmChecker checker, int sequenceCount) {
-        smsSender.sendSms(checker, sequenceCount);
+    public void sendSms(AlarmChecker checker, int sequenceCount, StepExecution stepExecution) {
+        smsSender.sendSms(checker, sequenceCount, stepExecution);
     }
 
     @Override
-    public void sendEmail(AlarmChecker checker, int sequenceCount) {
-        mailSender.sendEmail(checker, sequenceCount);
+    public void sendEmail(AlarmChecker checker, int sequenceCount, StepExecution stepExecution) {
+        mailSender.sendEmail(checker, sequenceCount, stepExecution);
     }
 }

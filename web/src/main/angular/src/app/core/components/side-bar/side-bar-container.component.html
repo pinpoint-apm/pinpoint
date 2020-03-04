@@ -1,0 +1,23 @@
+<section class="l-sidemenu-wrap font-opensans" [style.visibility]="sidebarVisibility">
+    <div class="l-sidemenu">
+        <div class="l-title-group">
+            <pp-side-bar-title-container></pp-side-bar-title-container>
+        </div>
+        <div class="l-contents-group">
+            <pp-server-status-container></pp-server-status-container>
+            <div class="l-chart-group-list">
+                <pp-scatter-chart-container></pp-scatter-chart-container>
+                <pp-target-list-container></pp-target-list-container>
+                <hr *ngIf="showDivider"/>
+                <div [hidden]="isTargetMerged$ | async">
+                    <pp-response-summary-chart-container [sourceType]="'MAIN'"></pp-response-summary-chart-container>
+                    <hr/>
+                    <pp-load-chart-container [sourceType]="'MAIN'"></pp-load-chart-container>
+                </div>
+            </div>
+        </div>
+    </div>
+    <pp-info-per-server-container></pp-info-per-server-container>
+</section>
+<pp-film-for-disable *ngIf="useDisable" [zIndex]="100" [marginWidth]="0"></pp-film-for-disable>
+<pp-loading [showLoading]="showLoading" [zIndex]="101"></pp-loading>

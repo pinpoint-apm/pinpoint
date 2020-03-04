@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.test.plugin.shared;
 
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
+import com.navercorp.pinpoint.test.plugin.util.ArrayUtils;
 import com.navercorp.pinpoint.test.plugin.ForkedPinpointPluginTestRunner;
 import com.navercorp.pinpoint.test.plugin.PluginTestClassLoader;
 import org.junit.runner.Description;
@@ -40,44 +41,37 @@ import static com.navercorp.pinpoint.test.plugin.PinpointPluginTestConstants.JUN
 public class SharedPinpointPluginTest {
 
     public static void main(String[] args) throws Exception {
-        String mavenDependencyResolverClassPaths = System.getProperty(SharedPluginTestConstants.MAVEN_DEPENDENCY_RESOLVER_CLASS_PATHS);
-        String testLocation = System.getProperty(SharedPluginTestConstants.TEST_LOCATION);
-        String testClazzName = System.getProperty(SharedPluginTestConstants.TEST_CLAZZ_NAME);
-        if (mavenDependencyResolverClassPaths == null || testLocation == null || testClazzName == null) {
-            System.out.println("must not be empty required properties");
+        final String mavenDependencyResolverClassPaths = System.getProperty(SharedPluginTestConstants.MAVEN_DEPENDENCY_RESOLVER_CLASS_PATHS);
+        if (mavenDependencyResolverClassPaths == null) {
+            System.out.println("mavenDependencyResolverClassPaths must not be empty");
             return;
         }
-        if (args == null || args.length == 0) {
-            System.out.println("test must not be empty");
+
+        final String testLocation = System.getProperty(SharedPluginTestConstants.TEST_LOCATION);
+        if (testLocation == null) {
+            System.out.println("testLocation must not be empty");
+            return;
         }
 
-        List<TestParameter> testParameters = parse(args);
+        final String testClazzName = System.getProperty(SharedPluginTestConstants.TEST_CLAZZ_NAME);
+        if (testClazzName == null) {
+            System.out.println("testClazzName must not be empty");
+            return;
+        }
+
+        if (ArrayUtils.isEmpty(args)) {
+            System.out.println("test must not be empty");
+            return;
+        }
+
+        TestParameterParser parser = new TestParameterParser();
+        List<TestParameter> testParameters = parser.parse(args);
         SharedPinpointPluginTest pluginTest = new SharedPinpointPluginTest(testClazzName, testLocation, mavenDependencyResolverClassPaths, testParameters, System.out);
         pluginTest.execute();
 
     }
 
-    private static List<TestParameter> parse(String[] args) {
-        List<TestParameter> testParameters = new ArrayList<TestParameter>();
-        for (String arg : args) {
-            if (arg == null) {
-                continue;
-            }
 
-            String[] testArguments = arg.split("=");
-            if (testArguments == null || testArguments.length != 2) {
-                continue;
-            }
-
-            String testId = testArguments[0];
-            String testMavenDependencies = testArguments[1];
-
-
-            final TestParameter testParameter = new TestParameter(testId, testMavenDependencies);
-            testParameters.add(testParameter);
-        }
-        return testParameters;
-    }
 
     private final String testClazzName;
     private final String testLocation;

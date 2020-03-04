@@ -1,0 +1,28 @@
+:host {
+    display: block;
+    height: 32px;
+}
+.l-wrapper {
+    cursor: pointer;
+    display: block;
+    padding: 8px 6px 6px 13px;
+    overflow: hidden;
+    font-size: 12px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+.l-wrapper img {
+    float: left;
+    width: 22px;
+    height: 18px;
+    margin-right: 4px;
+}
+.l-wrapper.active {
+    color: var(--primary-color);
+    font-weight: 600;
+}
+.l-wrapper:hover {
+    cursor: pointer;
+    color: var(--primary-color);
+    background-color: #eee;
+}

@@ -16,13 +16,8 @@
 
 package com.navercorp.pinpoint.plugin.resttemplate;
 
-import com.navercorp.pinpoint.bootstrap.interceptor.BasicMethodInterceptor;
-import com.navercorp.pinpoint.bootstrap.interceptor.Interceptor;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
-import com.navercorp.pinpoint.plugin.resttemplate.interceptor.AsyncHttpRequestInterceptor;
-import com.navercorp.pinpoint.plugin.resttemplate.interceptor.HttpRequestInterceptor;
-import com.navercorp.pinpoint.plugin.resttemplate.interceptor.ListenableFutureInterceptor;
 
 /**
  * @author Taejin Koo

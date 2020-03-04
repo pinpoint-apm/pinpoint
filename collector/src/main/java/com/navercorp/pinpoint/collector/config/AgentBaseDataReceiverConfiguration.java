@@ -16,113 +16,63 @@
 
 package com.navercorp.pinpoint.collector.config;
 
+import com.navercorp.pinpoint.common.server.config.AnnotationVisitor;
+import com.navercorp.pinpoint.common.server.config.LoggingEvent;
 import com.navercorp.pinpoint.common.util.Assert;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Configuration;
 
-import java.util.Objects;
-import java.util.Properties;
+import javax.annotation.PostConstruct;
 
 /**
  * @author Taejin Koo
  */
-public final class AgentBaseDataReceiverConfiguration {
+@Configuration
+public class AgentBaseDataReceiverConfiguration {
+    private final Logger logger = LoggerFactory.getLogger(AgentBaseDataReceiverConfiguration.class);
 
-    private static final String PREFIX = "collector.receiver.base";
+    @Value("${collector.receiver.base.ip:0.0.0.0}")
+    private String bindIp;
 
-    private static final String BIND_IP = PREFIX + ".ip";
-    private final String bindIp;
-    private static final String BIND_PORT = PREFIX + ".port";
-    private final int bindPort;
+    @Value("${collector.receiver.base.port:9994}")
+    private int bindPort;
 
-    private static final String WORKER_THREAD_SIZE = PREFIX + ".worker.threadSize";
-    private final int workerThreadSize;
-    private static final String WORKER_QUEUE_SIZE = PREFIX + ".worker.queueSize";
-    private final int workerQueueSize;
+    @Value("${collector.receiver.base.worker.threadSize:128}")
+    private int workerThreadSize;
 
-    private static final String WORKER_MONITOR_ENABLE = PREFIX + ".worker.monitor";
-    private final boolean workerMonitorEnable;
+    @Value("${collector.receiver.base.worker.queueSize:5120}")
+    private int workerQueueSize;
 
-    public AgentBaseDataReceiverConfiguration(Properties properties, DeprecatedConfiguration deprecatedConfiguration) {
-        Objects.requireNonNull(properties, "properties must not be null");
-        Objects.requireNonNull(deprecatedConfiguration, "deprecatedConfiguration must not be null");
+    @Value("${collector.receiver.base.worker.monitor:false}")
+    private boolean workerMonitorEnable;
 
-        this.bindIp = getBindIp(properties, deprecatedConfiguration, CollectorConfiguration.DEFAULT_LISTEN_IP);
-        Objects.requireNonNull(bindIp);
 
-        this.bindPort = getBindPort(properties, deprecatedConfiguration, 9994);
+    public AgentBaseDataReceiverConfiguration() {
+    }
+
+
+
+    @PostConstruct
+    public void log() {
+        logger.info("{}", this);
+        AnnotationVisitor visitor = new AnnotationVisitor(Value.class);
+        visitor.visit(this, new LoggingEvent(logger));
+
+        validate();
+    }
+
+    private void validate() {
         Assert.isTrue(bindPort > 0, "bindPort must be greater than 0");
-
-        this.workerThreadSize = getWorkerThreadSize(properties, deprecatedConfiguration, 128);
         Assert.isTrue(workerThreadSize > 0, "workerThreadSize must be greater than 0");
-
-        this.workerQueueSize = getWorkerQueueSize(properties, deprecatedConfiguration, 1024 * 5);
         Assert.isTrue(workerQueueSize > 0, "workerQueueSize must be greater than 0");
-
-        this.workerMonitorEnable = isWorkerThreadMonitorEnable(properties, deprecatedConfiguration);
-    }
-
-    private String getBindIp(Properties properties, DeprecatedConfiguration deprecatedConfiguration, String defaultValue) {
-        if (properties.containsKey(BIND_IP)) {
-            return CollectorConfiguration.readString(properties, BIND_IP, null);
-        }
-
-        if (deprecatedConfiguration.isSetTcpListenIp()) {
-            return deprecatedConfiguration.getTcpListenIp();
-        }
-
-        return defaultValue;
-    }
-
-    private int getBindPort(Properties properties, DeprecatedConfiguration deprecatedConfiguration, int defaultValue) {
-        if (properties.containsKey(BIND_PORT)) {
-            return CollectorConfiguration.readInt(properties, BIND_PORT, -1);
-        }
-
-        if (deprecatedConfiguration.isSetTcpListenPort()) {
-            return deprecatedConfiguration.getTcpListenPort();
-        }
-
-        return defaultValue;
-    }
-
-    private int getWorkerThreadSize(Properties properties, DeprecatedConfiguration deprecatedConfiguration, int defaultValue) {
-        if (properties.containsKey(WORKER_THREAD_SIZE)) {
-            return CollectorConfiguration.readInt(properties, WORKER_THREAD_SIZE, -1);
-        }
-
-        if (deprecatedConfiguration.isSetTcpWorkerThread()) {
-            return deprecatedConfiguration.getTcpWorkerThread();
-        }
-
-        return defaultValue;
-    }
-
-    private int getWorkerQueueSize(Properties properties, DeprecatedConfiguration deprecatedConfiguration, int defaultValue) {
-        if (properties.containsKey(WORKER_QUEUE_SIZE)) {
-            return CollectorConfiguration.readInt(properties, WORKER_QUEUE_SIZE, -1);
-        }
-
-        if (deprecatedConfiguration.isSetTcpWorkerQueueSize()) {
-            return deprecatedConfiguration.getTcpWorkerQueueSize();
-        }
-
-        return defaultValue;
-    }
-
-    private boolean isWorkerThreadMonitorEnable(Properties properties, DeprecatedConfiguration deprecatedConfiguration) {
-        if (properties.containsKey(WORKER_MONITOR_ENABLE)) {
-            return CollectorConfiguration.readBoolean(properties, WORKER_MONITOR_ENABLE);
-        }
-
-        if (deprecatedConfiguration.isSetTcpWorkerMonitor()) {
-            return deprecatedConfiguration.isTcpWorkerMonitor();
-        }
-
-        return false;
     }
 
     public String getBindIp() {
         return bindIp;
     }
+
 
     public int getBindPort() {
         return bindPort;
@@ -140,6 +90,7 @@ public final class AgentBaseDataReceiverConfiguration {
         return workerMonitorEnable;
     }
 
+
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("AgentBaseDataReceiverConfiguration{");
@@ -151,5 +102,4 @@ public final class AgentBaseDataReceiverConfiguration {
         sb.append('}');
         return sb.toString();
     }
-
 }

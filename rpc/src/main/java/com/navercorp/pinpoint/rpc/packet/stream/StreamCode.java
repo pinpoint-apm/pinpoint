@@ -60,6 +60,13 @@ public enum StreamCode {
         this.value = value;
     }
 
+    public static boolean isConnectionError(StreamCode streamCode) {
+        if (CONNECTION_ERRROR == streamCode || CONNECTION_NOT_FOUND == streamCode || CONNECTION_TIMEOUT == streamCode || CONNECTION_UNSUPPORT == streamCode) {
+            return true;
+        }
+        return false;
+    }
+
     public static StreamCode getCode(short value) {
         StreamCode streamCode = CODE_MAP.get(value);
         if (streamCode != null) {

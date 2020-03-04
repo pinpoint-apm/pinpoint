@@ -19,17 +19,17 @@ package com.navercorp.pinpoint.collector.handler.thrift;
 import com.navercorp.pinpoint.collector.handler.SimpleHandler;
 import com.navercorp.pinpoint.collector.service.TraceService;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
-import com.navercorp.pinpoint.common.server.bo.SpanFactory;
 
+import com.navercorp.pinpoint.common.server.bo.thrift.SpanFactory;
 import com.navercorp.pinpoint.io.request.ServerRequest;
-import org.apache.thrift.TBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import com.navercorp.pinpoint.thrift.dto.TSpan;
 
 import org.springframework.stereotype.Service;
+
+import java.util.Objects;
 
 /**
  * @author emeroad
@@ -40,37 +40,35 @@ public class ThriftSpanHandler implements SimpleHandler {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    @Autowired
-    private TraceService traceService;
+    private final TraceService traceService;
 
-    @Autowired
-    private SpanFactory spanFactory;
+    private final SpanFactory spanFactory;
+
+    public ThriftSpanHandler(TraceService traceService, SpanFactory spanFactory) {
+        this.traceService = Objects.requireNonNull(traceService, "traceService");
+        this.spanFactory = Objects.requireNonNull(spanFactory, "spanFactory");
+    }
 
     @Override
     public void handleSimple(ServerRequest serverRequest) {
         final Object data = serverRequest.getData();
-        if (data instanceof TBase<?, ?>) {
-            handleSimple((TBase<?, ?>) data);
+        if (logger.isDebugEnabled()) {
+            logger.debug("Handle simple data={}", data);
+        }
+
+        if (data instanceof TSpan) {
+            handleSpan((TSpan) data);
         } else {
             throw new UnsupportedOperationException("data is not support type : " + data);
         }
     }
 
-    private void handleSimple(TBase<?, ?> tbase) {
-        if (!(tbase instanceof TSpan)) {
-            throw new IllegalArgumentException("unexpected tbase:" + tbase + " expected:" + this.getClass().getName());
-        }
-
+    private void handleSpan(TSpan tSpan) {
         try {
-            final TSpan tSpan = (TSpan) tbase;
-            if (logger.isDebugEnabled()) {
-                logger.debug("Received SPAN={}", tSpan);
-            }
-
             final SpanBo spanBo = spanFactory.buildSpanBo(tSpan);
             traceService.insertSpan(spanBo);
         } catch (Exception e) {
-            logger.warn("Span handle error. Caused:{}. Span:{}", e.getMessage(), tbase, e);
+            logger.warn("Failed to handle Span={}, Caused:{}", tSpan, e.getMessage(), e);
         }
     }
 }

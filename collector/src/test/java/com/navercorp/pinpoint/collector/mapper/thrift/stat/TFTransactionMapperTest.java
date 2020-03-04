@@ -35,12 +35,15 @@ public class TFTransactionMapperTest {
         transactionBo.setUnsampledContinuationCount(6);
         transactionBo.setSampledNewCount(11);
         transactionBo.setUnsampledNewCount(10);
+        transactionBo.setSkippedNewSkipCount(11);
+        transactionBo.setSkippedContinuationCount(5);
         TFTransaction tFtransaction = tFTransactionMapper.map(transactionBo);
 
         assertEquals(tFtransaction.getSampledContinuationCount(), 5);
         assertEquals(tFtransaction.getUnsampledContinuationCount(), 6);
         assertEquals(tFtransaction.getSampledNewCount(), 11);
         assertEquals(tFtransaction.getUnsampledNewCount(), 10);
+        assertEquals(tFtransaction.getSkippedNewCount(), 11);
+        assertEquals(tFtransaction.getSkippedContinuationCount(), 5);
     }
-
 }

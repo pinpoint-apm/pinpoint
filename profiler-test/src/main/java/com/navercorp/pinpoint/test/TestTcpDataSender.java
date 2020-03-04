@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 import com.navercorp.pinpoint.rpc.FutureListener;
 import com.navercorp.pinpoint.rpc.ResponseMessage;
 import com.navercorp.pinpoint.rpc.client.PinpointClientReconnectEventListener;
+import com.navercorp.pinpoint.test.util.IntegerUtils;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
@@ -53,7 +54,9 @@ public class TestTcpDataSender implements EnhancedDataSender<Object> {
 
         @Override
         public int compare(Entry<Integer, String> o1, Entry<Integer, String> o2) {
-            return o1.getKey() > o2.getKey() ? 1 : (o1.getKey() < o2.getKey() ? -1 : 0);
+            final int key1 = o1.getKey();
+            final int key2 = o2.getKey();
+            return IntegerUtils.compare(key1, key2);
         }
 
     };

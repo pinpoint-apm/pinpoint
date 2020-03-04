@@ -1,0 +1,11 @@
+:host {
+    display: block;
+    /* 71px = 38px(Search Input) + 33px(Title) */
+    height: calc(100% - 71px); 
+    overflow-y: auto;
+}
+
+.l-empty-text {
+    font-size: 14px;
+    padding: 7px 13px;
+}

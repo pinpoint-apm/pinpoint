@@ -26,7 +26,7 @@ public class DefaultResponseTimeMetric implements ResponseTimeMetric {
     private final ResponseTimeCollector responseTimeCollector;
 
     public DefaultResponseTimeMetric(ResponseTimeCollector responseTimeCollector) {
-        this.responseTimeCollector = Assert.requireNonNull(responseTimeCollector, "responseTimeCollector must not be null");
+        this.responseTimeCollector = Assert.requireNonNull(responseTimeCollector, "responseTimeCollector");
 
     }
 

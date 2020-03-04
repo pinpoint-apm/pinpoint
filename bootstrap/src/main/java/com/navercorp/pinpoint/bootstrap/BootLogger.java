@@ -17,6 +17,8 @@
 
 package com.navercorp.pinpoint.bootstrap;
 
+import com.navercorp.pinpoint.bootstrap.agentdir.Assert;
+
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -52,9 +54,8 @@ public final class BootLogger {
 
     // for test
     BootLogger(String loggerName, PrintStream out, PrintStream err) {
-        if (loggerName == null) {
-            throw new NullPointerException("loggerName must not be null");
-        }
+        Assert.requireNonNull(loggerName, "loggerName");
+
 //        this.loggerName = loggerName;
         this.messagePattern = "{0,date,yyyy-MM-dd HH:mm:ss} [{1}](" + loggerName + ") {2}{3}";
         this.out = out;

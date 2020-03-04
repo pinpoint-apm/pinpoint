@@ -28,8 +28,8 @@ public class FlinkRequest {
     private final TBase<?, ?> data;
 
     public FlinkRequest(HeaderEntity headerEntity, TBase<?, ?> data) {
-        this.headerEntity = Assert.requireNonNull(headerEntity, "headerEntity must not be null");
-        this.data = Assert.requireNonNull(data, "data must not be null");
+        this.headerEntity = Assert.requireNonNull(headerEntity, "headerEntity");
+        this.data = Assert.requireNonNull(data, "data");
     }
 
     public HeaderEntity getHeaderEntity() {

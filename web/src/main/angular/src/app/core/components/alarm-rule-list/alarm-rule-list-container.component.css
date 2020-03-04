@@ -1,0 +1,85 @@
+:host {
+    position: relative;
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.l-alarm-rules-table {
+    height: 100%;
+}
+
+.l-alarm-rules-table th {
+    color: #333;
+    font-size: 13px;
+    padding: 0 !important;
+}
+
+.l-alarm-rules-table td {
+    padding: 10px 15px;
+    height: auto;
+    font-size: 13px;
+}
+
+.l-alarm-rules-table th .l-table-title {
+    position: relative;
+    height: 47px;
+    justify-content: center;
+    display: flex;
+    align-items: center;
+}
+
+.l-add-button {
+    position: absolute;
+    right: 15px;
+}
+
+.l-alarm-rules-tr-wrap { 
+    height: 100%;
+    position: relative;
+    overflow-y: scroll;
+}
+
+.l-alarm-rules-th {
+    display: flex;
+    height: 30px;
+    position: relative;
+    font-weight: 600;
+    border-top: 1px solid #e6e8ec;
+    border-bottom: 1px solid #e6e8ec;
+    background: #f6f8fb;
+}
+
+.l-alarm-rules-th div {
+    height: 100%;
+    line-height: 30px;
+    border-right: 1px solid #e6e8ec;
+}
+
+.l-alarm-rules-th div:nth-child(1) {
+    flex: 4;
+}
+
+.l-alarm-rules-th div:nth-child(2) {
+    flex: 3
+}
+
+.l-alarm-rules-th div:nth-child(3) {
+    flex: 1.5;
+}
+
+.l-alarm-rules-th div:nth-child(4) {
+    flex: 2;
+    margin-right: 22px;
+    border-right: 0
+}
+
+.l-alarm-rules-th div:nth-child(5) {
+    height: 0;
+}
+
+.l-guide {
+    padding-top: 30%;
+    text-align: center;
+    font-size: 16px;
+}

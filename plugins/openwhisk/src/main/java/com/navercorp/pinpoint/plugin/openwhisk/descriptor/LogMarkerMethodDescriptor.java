@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.plugin.openwhisk.descriptor;
 
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.common.trace.MethodType;
-import whisk.common.LogMarkerToken;
+import org.apache.openwhisk.common.LogMarkerToken;
 
 public class LogMarkerMethodDescriptor implements MethodDescriptor {
     private int apiId = 0;

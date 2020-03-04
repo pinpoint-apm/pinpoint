@@ -17,13 +17,14 @@
 package com.navercorp.pinpoint.collector.dao.hbase.stat;
 
 import com.navercorp.pinpoint.collector.dao.AgentStatDaoV2;
-import com.navercorp.pinpoint.common.hbase.HBaseTables;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
+import com.navercorp.pinpoint.common.hbase.HbaseTable;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatHbaseOperationFactory;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.FileDescriptorSerializer;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatType;
 import com.navercorp.pinpoint.common.server.bo.stat.FileDescriptorBo;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Put;
@@ -53,14 +54,14 @@ public class HbaseFileDescriptorDao implements AgentStatDaoV2<FileDescriptorBo> 
     @Override
     public void insert(String agentId, List<FileDescriptorBo> fileDescriptorBos) {
         if (agentId == null) {
-            throw new NullPointerException("agentId must not be null");
+            throw new NullPointerException("agentId");
         }
         if (CollectionUtils.isEmpty(fileDescriptorBos)) {
             return;
         }
         List<Put> fileDescriptorPuts = this.agentStatHbaseOperationFactory.createPuts(agentId, AgentStatType.FILE_DESCRIPTOR, fileDescriptorBos, this.fileDescriptorSerializer);
         if (!fileDescriptorPuts.isEmpty()) {
-            TableName agentStatTableName = tableNameProvider.getTableName(HBaseTables.AGENT_STAT_VER2_STR);
+            TableName agentStatTableName = tableNameProvider.getTableName(HbaseTable.AGENT_STAT_VER2);
             List<Put> rejectedPuts = this.hbaseTemplate.asyncPut(agentStatTableName, fileDescriptorPuts);
             if (CollectionUtils.isNotEmpty(rejectedPuts)) {
                 this.hbaseTemplate.put(agentStatTableName, rejectedPuts);

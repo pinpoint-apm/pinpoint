@@ -38,8 +38,8 @@ public class DefaultAsyncTraceContext implements AsyncTraceContext {
     private final Binder<Trace> binder;
 
     public DefaultAsyncTraceContext(Provider<BaseTraceFactory> baseTraceFactoryProvider, Binder<Trace> binder) {
-        this.baseTraceFactoryProvider = Assert.requireNonNull(baseTraceFactoryProvider, "baseTraceFactoryProvider must not be null");
-        this.binder = Assert.requireNonNull(binder, "binder must not be null");
+        this.baseTraceFactoryProvider = Assert.requireNonNull(baseTraceFactoryProvider, "baseTraceFactoryProvider");
+        this.binder = Assert.requireNonNull(binder, "binder");
     }
 
     @Override

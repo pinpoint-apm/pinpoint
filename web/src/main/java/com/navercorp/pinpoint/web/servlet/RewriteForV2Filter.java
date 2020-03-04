@@ -36,24 +36,28 @@ import java.io.IOException;
 public class RewriteForV2Filter implements Filter {
 
     private static final Log logger = LogFactory.getLog(RewriteForV2Filter.class);
+    public static final String DEFAULT_INDEX = "/index.html";
+    private static boolean isDebug = logger.isDebugEnabled();
 
     private static final char PATH_DELIMITER = '/';
 
     private final String[] rewriteTargetArray = {
-            "/v2/admin",
-            "/v2/error",
-            "/v2/filteredMap",
-            "/v2/inspector",
-            "/v2/main",
-            "/v2/realtime",
-            "/v2/scatterFullScreenMode",
-            "/v2/threadDump",
-            "/v2/transactionDetail",
-            "/v2/transactionList",
-            "/v2/transactionView",
-            "/v2/browserNotSupported",
-            "/v2/config"
+            "/admin",
+            "/error",
+            "/filteredMap",
+            "/inspector",
+            "/main",
+            "/realtime",
+            "/scatterFullScreenMode",
+            "/threadDump",
+            "/transactionDetail",
+            "/transactionList",
+            "/transactionView",
+            "/browserNotSupported",
+            "/config"
     };
+
+    private final String PINPOINT_REST_API_SUFFIX = ".pinpoint";
 
     private final boolean enable;
 
@@ -76,7 +80,11 @@ public class RewriteForV2Filter implements Filter {
 
             if (isRedirectTarget(requestURI)) {
                 HttpServletRequestWrapper wrapper = new HttpServletRequestWrapper((HttpServletRequest) request);
-                RequestDispatcher dispatcher = wrapper.getRequestDispatcher("/v2/index.html");
+                RequestDispatcher dispatcher = wrapper.getRequestDispatcher(DEFAULT_INDEX);
+
+                if (isDebug) {
+                    logger.debug("requestUri:" + requestURI + " ->(forward) " + DEFAULT_INDEX );
+                }
 
                 dispatcher.forward(request, response);
             } else {
@@ -89,6 +97,14 @@ public class RewriteForV2Filter implements Filter {
     }
 
     private boolean isRedirectTarget(String uri) {
+        if (uri == null) {
+            return false;
+        }
+
+        if (uri.endsWith(PINPOINT_REST_API_SUFFIX)) {
+            return false;
+        }
+
         for (String rewriteTarget : rewriteTargetArray) {
             if (uri.equals(rewriteTarget)) {
                 return true;

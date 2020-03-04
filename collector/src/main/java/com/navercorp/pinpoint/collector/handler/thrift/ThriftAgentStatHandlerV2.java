@@ -17,8 +17,8 @@
 package com.navercorp.pinpoint.collector.handler.thrift;
 
 import com.navercorp.pinpoint.collector.handler.SimpleHandler;
-import com.navercorp.pinpoint.collector.mapper.thrift.stat.AgentStatBatchMapper;
-import com.navercorp.pinpoint.collector.mapper.thrift.stat.AgentStatMapper;
+import com.navercorp.pinpoint.collector.mapper.thrift.stat.ThriftAgentStatBatchMapper;
+import com.navercorp.pinpoint.collector.mapper.thrift.stat.ThriftAgentStatMapper;
 import com.navercorp.pinpoint.collector.service.AgentStatService;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
 import com.navercorp.pinpoint.io.request.ServerRequest;
@@ -39,14 +39,13 @@ import java.util.List;
  */
 @Service
 public class ThriftAgentStatHandlerV2 implements SimpleHandler {
-
-    private final Logger logger = LoggerFactory.getLogger(ThriftAgentStatHandlerV2.class.getName());
-
-    @Autowired
-    private AgentStatMapper agentStatMapper;
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     @Autowired
-    private AgentStatBatchMapper agentStatBatchMapper;
+    private ThriftAgentStatMapper agentStatMapper;
+
+    @Autowired
+    private ThriftAgentStatBatchMapper agentStatBatchMapper;
 
     @Autowired(required = false)
     private List<AgentStatService> agentStatServiceList = Collections.emptyList();
@@ -54,8 +53,14 @@ public class ThriftAgentStatHandlerV2 implements SimpleHandler {
     @Override
     public void handleSimple(ServerRequest serverRequest) {
         final Object data = serverRequest.getData();
-        if (data instanceof TBase<?, ?>) {
-            handleSimple((TBase<?, ?>) data);
+        if (logger.isDebugEnabled()) {
+            logger.debug("Handle simple data={}", data);
+        }
+
+        if (data instanceof TAgentStat) {
+            handleAgentStat((TAgentStat) data);
+        } else if (data instanceof TAgentStatBatch) {
+            handleAgentStatBatch((TAgentStatBatch) data);
         } else {
             throw new UnsupportedOperationException("data is not support type : " + data);
         }
@@ -64,7 +69,7 @@ public class ThriftAgentStatHandlerV2 implements SimpleHandler {
     void handleSimple(TBase<?, ?> tBase) {
         // FIXME (2014.08) Legacy - TAgentStat should not be sent over the wire.
         if (tBase instanceof TAgentStat) {
-            TAgentStat tAgentStat = (TAgentStat)tBase;
+            TAgentStat tAgentStat = (TAgentStat) tBase;
             this.handleAgentStat(tAgentStat);
         } else if (tBase instanceof TAgentStatBatch) {
             TAgentStatBatch tAgentStatBatch = (TAgentStatBatch) tBase;
@@ -75,32 +80,32 @@ public class ThriftAgentStatHandlerV2 implements SimpleHandler {
     }
 
     private void handleAgentStat(TAgentStat tAgentStat) {
-        if (logger.isDebugEnabled()) {
-            logger.debug("Received TAgentStat={}", tAgentStat);
-        }
-
         final AgentStatBo agentStatBo = this.agentStatMapper.map(tAgentStat);
         if (agentStatBo == null) {
             return;
         }
 
         for (AgentStatService agentStatService : agentStatServiceList) {
-            agentStatService.save(agentStatBo);
+            try {
+                agentStatService.save(agentStatBo);
+            } catch (Exception e) {
+                logger.warn("Failed to handle service={}, AgentStat={}, Caused={}", agentStatService, tAgentStat, e.getMessage(), e);
+            }
         }
     }
 
     private void handleAgentStatBatch(TAgentStatBatch tAgentStatBatch) {
-        if (logger.isDebugEnabled()) {
-            logger.debug("Received TAgentStatBatch={}", tAgentStatBatch);
-        }
-
         final AgentStatBo agentStatBo = this.agentStatBatchMapper.map(tAgentStatBatch);
         if (agentStatBo == null) {
             return;
         }
 
         for (AgentStatService agentStatService : agentStatServiceList) {
-            agentStatService.save(agentStatBo);
+            try {
+                agentStatService.save(agentStatBo);
+            } catch (Exception e) {
+                logger.warn("Failed to handle service={}, AgentStatBatch={}, Caused={}", agentStatService, tAgentStatBatch, e.getMessage(), e);
+            }
         }
     }
 }

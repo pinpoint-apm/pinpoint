@@ -29,7 +29,7 @@ public class SuperClassInternalNameMatcherOperand extends AbstractMatcherOperand
     private final boolean javaPackage;
 
     public SuperClassInternalNameMatcherOperand(final String superClassName, final boolean considerHierarchy) {
-        Assert.requireNonNull(superClassName, "superClassName must not be null");
+        Assert.requireNonNull(superClassName, "superClassName");
         this.superClassInternalName = ClassUtils.toInternalName(superClassName);
         this.considerHierarchy = considerHierarchy;
         this.javaPackage = this.superClassInternalName.startsWith("java/");

@@ -1,0 +1,18 @@
+<div class="l-wrapper" *ngFor="let target of targetList">
+    <div class="l-target-item" [class.selected]="isSelected(target)" (click)="onSelectTarget(target)">
+        <span class="l-application-name">
+            <button *ngIf="isLink" (click)="onOpenFilter($event, target)"><i class="fas fa-filter"></i></button>
+            <button *ngIf="isLink" (click)="onOpenFilterWizard($event, target)"><i class="fas fa-filter"></i></button>
+            <i class="fas fa-arrow-circle-right"></i> {{getApplicationName(target)}}
+        </span>
+        <span class="l-request-count">{{target[0].totalCount | number}}</span>
+    </div>
+    <ng-container *ngIf="target[0].fromList">
+        <div class="l-target-sub-item" *ngFor="let from of target[0].fromList" [class.selected]="isSelected([from])" (click)="onSelectTarget([from])">
+            <span class="l-application-name">
+                {{from.sourceInfo.applicationName}} <i class="fas fa-arrow-circle-right"></i>
+            </span>
+            <span class="l-request-count">{{from.totalCount | number}}</span>
+        </div>
+    </ng-container>
+</div>

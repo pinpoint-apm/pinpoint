@@ -16,12 +16,15 @@
 
 package com.navercorp.pinpoint.web.vo.callstacks;
 
+import com.navercorp.pinpoint.agent.plugin.proxy.common.ProxyRequestType;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.util.DateUtils;
 import com.navercorp.pinpoint.common.util.IntBooleanIntBooleanValue;
 import com.navercorp.pinpoint.common.util.LongIntIntByteByteStringValue;
+import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.web.calltree.span.Align;
+import com.navercorp.pinpoint.web.service.ProxyRequestTypeRegistryService;
 
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
@@ -34,30 +37,21 @@ public class AnnotationRecordFormatter {
     private static final long HOUR = TimeUnit.HOURS.toMillis(1);
     private static final long MINUTE = TimeUnit.MINUTES.toMillis(1);
     private static final long SECOND = TimeUnit.SECONDS.toMillis(1);
-    private static final String PROXY_APP = "PROXY(APP)";
-    private static final String PROXY_NGINX = "PROXY(NGINX)";
-    private static final String PROXY_APACHE = "PROXY(APACHE)";
-    private static final String PROXY_UNKNOWN = "PROXY(UNKNOWN)";
+    private final ProxyRequestTypeRegistryService proxyRequestTypeRegistryService;
 
-    public AnnotationRecordFormatter() {
+    public AnnotationRecordFormatter(final ProxyRequestTypeRegistryService proxyRequestTypeRegistryService) {
+        this.proxyRequestTypeRegistryService = proxyRequestTypeRegistryService;
     }
 
     public String formatTitle(final AnnotationKey annotationKey, final AnnotationBo annotationBo, Align align) {
         if (annotationKey.getCode() == AnnotationKey.PROXY_HTTP_HEADER.getCode()) {
             if (!(annotationBo.getValue() instanceof LongIntIntByteByteStringValue)) {
-                return PROXY_UNKNOWN;
+                return proxyRequestTypeRegistryService.unknown().getDisplayName();
             }
 
             final LongIntIntByteByteStringValue value = (LongIntIntByteByteStringValue) annotationBo.getValue();
-            if (value.getIntValue1() == 1) {
-                return PROXY_APP;
-            } else if (value.getIntValue1() == 2) {
-                return PROXY_NGINX;
-            } else if (value.getIntValue1() == 3) {
-                return PROXY_APACHE;
-            } else {
-                return PROXY_UNKNOWN;
-            }
+            final ProxyRequestType type = this.proxyRequestTypeRegistryService.findByCode(value.getIntValue1());
+            return type.getDisplayName();
         }
         return annotationKey.getName();
     }
@@ -96,7 +90,7 @@ public class AnnotationRecordFormatter {
             appendComma(sb);
             sb.append("busy: ").append(value.getByteValue2()).append("%");
         }
-        if (value.getStringValue() != null) {
+        if (StringUtils.hasLength(value.getStringValue())) {
             appendComma(sb);
             sb.append("app: ").append(value.getStringValue());
         }

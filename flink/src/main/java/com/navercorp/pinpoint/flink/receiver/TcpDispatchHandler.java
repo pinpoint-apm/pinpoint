@@ -16,7 +16,7 @@
 package com.navercorp.pinpoint.flink.receiver;
 
 import com.navercorp.pinpoint.collector.handler.SimpleHandler;
-import com.navercorp.pinpoint.collector.receiver.thrift.DispatchHandler;
+import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.io.header.Header;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.io.request.ServerResponse;
@@ -29,11 +29,11 @@ import java.util.Objects;
  */
 public class TcpDispatchHandler implements DispatchHandler {
 
-    private AgentStatHandler agentStatHandler;
+    private SimpleHandler simpleHandler;
 
     private SimpleHandler getSimpleHandler(Header header) {
         if (header.getType() == FlinkTBaseLocator.AGENT_STAT_BATCH) {
-            return agentStatHandler;
+            return simpleHandler;
         }
         throw new UnsupportedOperationException("unsupported header:" + header);
     }
@@ -43,8 +43,8 @@ public class TcpDispatchHandler implements DispatchHandler {
         return getSimpleHandler(header);
     }
 
-    public void setAgentStatHandler(AgentStatHandler agentStatHandler) {
-        this.agentStatHandler = Objects.requireNonNull(agentStatHandler, "agentStatHandler must not be null");
+    public void setSimpletHandler(SimpleHandler simpleHandler) {
+        this.simpleHandler = Objects.requireNonNull(simpleHandler, "agentStatHandler");
     }
 
     @Override

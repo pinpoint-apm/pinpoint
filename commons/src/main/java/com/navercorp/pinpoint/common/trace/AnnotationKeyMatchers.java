@@ -26,8 +26,8 @@ public final class AnnotationKeyMatchers {
     private static class ExactMatcher implements AnnotationKeyMatcher {
         private final int code;
         
-        public ExactMatcher(AnnotationKey key) {
-            this.code = key.getCode();
+        public ExactMatcher(int code) {
+            this.code = code;
         }
     
         @Override
@@ -67,8 +67,11 @@ public final class AnnotationKeyMatchers {
     private AnnotationKeyMatchers() { }
 
     public static AnnotationKeyMatcher exact(AnnotationKey key) {
-        return new AnnotationKeyMatchers.ExactMatcher(key);
+        return new AnnotationKeyMatchers.ExactMatcher(key.getCode());
     }
 
+    public static AnnotationKeyMatcher exact(int code) {
+        return new AnnotationKeyMatchers.ExactMatcher(code);
+    }
 
 }

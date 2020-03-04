@@ -50,10 +50,10 @@ public class AgentTimeHistogram {
 
     public AgentTimeHistogram(Application application, Range range) {
         if (application == null) {
-            throw new NullPointerException("application must not be null");
+            throw new NullPointerException("application");
         }
         if (range == null) {
-            throw new NullPointerException("range must not be null");
+            throw new NullPointerException("range");
         }
         this.application = application;
         this.range = range;
@@ -63,13 +63,13 @@ public class AgentTimeHistogram {
 
     public AgentTimeHistogram(Application application, Range range, AgentHistogramList agentHistogramList) {
         if (application == null) {
-            throw new NullPointerException("application must not be null");
+            throw new NullPointerException("application");
         }
         if (range == null) {
-            throw new NullPointerException("range must not be null");
+            throw new NullPointerException("range");
         }
         if (agentHistogramList == null) {
-            throw new NullPointerException("agentHistogramList must not be null");
+            throw new NullPointerException("agentHistogramList");
         }
         this.application = application;
         this.range = range;

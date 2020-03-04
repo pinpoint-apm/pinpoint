@@ -20,12 +20,11 @@ import com.google.inject.Inject;
 import com.navercorp.pinpoint.profiler.monitor.collector.AgentStatMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.metric.transaction.TransactionMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.transaction.TransactionMetricSnapshot;
-import com.navercorp.pinpoint.thrift.dto.TTransaction;
 
 /**
  * @author HyunGil Jeong
  */
-public class DefaultTransactionMetricCollector implements AgentStatMetricCollector<TTransaction> {
+public class DefaultTransactionMetricCollector implements AgentStatMetricCollector<TransactionMetricSnapshot> {
 
     private final TransactionMetric transactionMetric;
 
@@ -35,15 +34,10 @@ public class DefaultTransactionMetricCollector implements AgentStatMetricCollect
     }
 
     @Override
-    public TTransaction collect() {
-        TransactionMetricSnapshot transactionMetricSnapshot = transactionMetric.getSnapshot();
 
-        TTransaction transaction = new TTransaction();
-        transaction.setSampledNewCount(transactionMetricSnapshot.getSampledNewCount());
-        transaction.setSampledContinuationCount(transactionMetricSnapshot.getSampledContinuationCount());
-        transaction.setUnsampledNewCount(transactionMetricSnapshot.getUnsampledNewCount());
-        transaction.setUnsampledContinuationCount(transactionMetricSnapshot.getUnsampledContinuationCount());
-        return transaction;
+    public TransactionMetricSnapshot collect() {
+        final TransactionMetricSnapshot transactionMetricSnapshot = transactionMetric.getSnapshot();
+        return transactionMetricSnapshot;
     }
 
     @Override

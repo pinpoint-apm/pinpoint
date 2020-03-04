@@ -33,13 +33,13 @@ public class ScopedInterceptor3 implements AroundInterceptor3 {
     
     public ScopedInterceptor3(AroundInterceptor3 interceptor, InterceptorScope scope, ExecutionPolicy policy) {
         if (interceptor == null) {
-            throw new NullPointerException("interceptor must not be null");
+            throw new NullPointerException("interceptor");
         }
         if (scope == null) {
-            throw new NullPointerException("scope must not be null");
+            throw new NullPointerException("scope");
         }
         if (policy == null) {
-            throw new NullPointerException("policy must not be null");
+            throw new NullPointerException("policy");
         }
         this.interceptor = interceptor;
         this.scope = scope;

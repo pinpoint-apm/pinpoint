@@ -16,36 +16,38 @@
 
 package com.navercorp.pinpoint.collector.cluster.route;
 
+import com.navercorp.pinpoint.rpc.stream.ServerStreamChannel;
+import com.navercorp.pinpoint.thrift.dto.command.TCommandTransfer;
+
 import org.apache.thrift.TBase;
 
-import com.navercorp.pinpoint.rpc.stream.ServerStreamChannelContext;
-import com.navercorp.pinpoint.thrift.dto.command.TCommandTransfer;
+import java.util.Objects;
 
 /**
  * @author koo.taejin
  */
 public class StreamEvent extends DefaultRouteEvent {
 
-    private final ServerStreamChannelContext streamChannelContext;
+    private final ServerStreamChannel serverStreamChannel;
     private final TBase requestObject;
     
-    public StreamEvent(RouteEvent routeEvent, ServerStreamChannelContext streamChannelContext, TBase requestObject) {
-        this(routeEvent.getDeliveryCommand(), streamChannelContext, requestObject);
+    public StreamEvent(RouteEvent routeEvent, ServerStreamChannel serverStreamChannel, TBase requestObject) {
+        this(routeEvent.getDeliveryCommand(), serverStreamChannel, requestObject);
     }
 
-    public StreamEvent(TCommandTransfer deliveryCommand, ServerStreamChannelContext streamChannelContext, TBase requestObject) {
-        super(deliveryCommand, streamChannelContext.getStreamChannel().getChannel().getRemoteAddress());
+    public StreamEvent(TCommandTransfer deliveryCommand, ServerStreamChannel serverStreamChannel, TBase requestObject) {
+        super(deliveryCommand, serverStreamChannel.getRemoteAddress());
 
-        this.streamChannelContext = streamChannelContext;
-        this.requestObject = requestObject;
+        this.serverStreamChannel = Objects.requireNonNull(serverStreamChannel, "serverStreamChannel");
+        this.requestObject = Objects.requireNonNull(requestObject, "requestObject");
     }
 
-    public ServerStreamChannelContext getStreamChannelContext() {
-        return streamChannelContext;
+    public ServerStreamChannel getStreamChannel() {
+        return serverStreamChannel;
     }
-    
+
     public int getStreamChannelId() {
-        return getStreamChannelContext().getStreamId();
+        return serverStreamChannel.getStreamId();
     }
 
     public TBase getRequestObject() {
@@ -61,7 +63,7 @@ public class StreamEvent extends DefaultRouteEvent {
         sb.append("applicationName=").append(getDeliveryCommand().getApplicationName()).append(", ");
         sb.append("agentId=").append(getDeliveryCommand().getAgentId()).append(", ");
         sb.append("startTimeStamp=").append(getDeliveryCommand().getStartTime()).append(", ");
-        sb.append("streamChannelContext=").append(getStreamChannelContext()).append(", ");
+        sb.append("serverStreamChannel=").append(getStreamChannel()).append(", ");
         sb.append("streamChannelId=").append(getStreamChannelId()).append(", ");
         sb.append("requestObject=").append(requestObject);
         sb.append('}');

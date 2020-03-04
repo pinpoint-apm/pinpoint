@@ -56,11 +56,11 @@ public class InstrumentEngineProvider implements Provider<InstrumentEngine> {
                                     InterceptorRegistryBinder interceptorRegistryBinder,
                                     Provider<ApiMetaDataService> apiMetaDataServiceProvider) {
 
-        this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig must not be null");
-        this.instrumentation = Assert.requireNonNull(instrumentation, "instrumentation must not be null");
-        this.objectBinderFactory = Assert.requireNonNull(objectBinderFactory, "objectBinderFactory must not be null");
-        this.interceptorRegistryBinder = Assert.requireNonNull(interceptorRegistryBinder, "interceptorRegistryBinder must not be null");
-        this.apiMetaDataServiceProvider = Assert.requireNonNull(apiMetaDataServiceProvider, "apiMetaDataServiceProvider must not be null");
+        this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig");
+        this.instrumentation = Assert.requireNonNull(instrumentation, "instrumentation");
+        this.objectBinderFactory = Assert.requireNonNull(objectBinderFactory, "objectBinderFactory");
+        this.interceptorRegistryBinder = Assert.requireNonNull(interceptorRegistryBinder, "interceptorRegistryBinder");
+        this.apiMetaDataServiceProvider = Assert.requireNonNull(apiMetaDataServiceProvider, "apiMetaDataServiceProvider");
     }
 
     public InstrumentEngine get() {

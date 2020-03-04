@@ -26,7 +26,7 @@ public class FlinkHeaderTBaseDeserializerFactory implements DeserializerFactory<
 
     public FlinkHeaderTBaseDeserializerFactory(TypeLocator<TBase<?, ?>> flinkTBaseLocator) {
         if (flinkTBaseLocator == null) {
-            throw new NullPointerException("flinkTBaseLocator must not be null.");
+            throw new NullPointerException("flinkTBaseLocator");
         }
 
         this.headerTBaseDeserializerFactory = new HeaderTBaseDeserializerFactory(flinkTBaseLocator);

@@ -27,19 +27,24 @@ import com.navercorp.pinpoint.flink.receiver.AgentStatHandler;
 import com.navercorp.pinpoint.flink.receiver.TcpDispatchHandler;
 import com.navercorp.pinpoint.flink.receiver.TcpSourceFunction;
 import com.navercorp.pinpoint.flink.vo.RawData;
-import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.environment.LocalStreamEnvironment;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.source.SourceFunction.SourceContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+
+import java.util.Map;
 
 /**
  * @author minwoo.jung
  */
 public class Bootstrap {
+    private static Logger logger = LoggerFactory.getLogger(Bootstrap.class);
+    private static final String SPRING_PROFILE = "spring.profiles.active";
 
-    private final static Bootstrap INSTANCE = new Bootstrap();
+    private volatile static Bootstrap instance;
 
     private final StatisticsDao statisticsDao;
 
@@ -90,8 +95,19 @@ public class Bootstrap {
         return fileDescriptorDao;
     }
 
-    public static Bootstrap getInstance() {
-        return INSTANCE;
+    public static Bootstrap getInstance(Map<String, String> jobParameters) {
+        if (instance == null)  {
+            synchronized(Bootstrap.class) {
+                if (instance == null) {
+                    String profiles = jobParameters.getOrDefault(SPRING_PROFILE, "local");
+                    System.setProperty(SPRING_PROFILE, profiles);
+                    instance = new Bootstrap();
+                    logger.info("Bootstrap initialization. : job parameter " + jobParameters);
+                }
+            }
+        }
+
+        return instance;
     }
 
     public ApplicationContext getApplicationContext() {
@@ -154,7 +170,7 @@ public class Bootstrap {
 
     public void setStatHandlerTcpDispatchHandler(SourceContext<RawData> sourceContext) {
         agentStatHandler.addSourceContext(sourceContext);
-        tcpDispatchHandler.setAgentStatHandler(agentStatHandler);
+        tcpDispatchHandler.setSimpletHandler(agentStatHandler);
     }
 
     public FlinkServerRegister initFlinkServerRegister() {

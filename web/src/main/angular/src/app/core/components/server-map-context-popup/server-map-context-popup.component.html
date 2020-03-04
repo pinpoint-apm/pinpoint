@@ -1,0 +1,8 @@
+<dl class="l-list">
+    <dt class="l-list-title"><span class="l-icon fas fa-compress"></span>Merge</dt>
+    <dd class="l-list-item" *ngFor="let item of mergeState | keyvalue">
+        <input type="checkbox" class="l-checkbox-input" id="itemKey" [checked]="item.value" (change)="onChangeMergeState(item)">
+        <label class="l-item-label" for="itemKey">{{item.key}}</label>
+    </dd>
+</dl>
+<button class="l-refresh-btn" (click)="onClickRefresh()"><span class="l-icon fas fa-sync"></span>Refresh</button>

@@ -47,7 +47,7 @@ public class CpuLoadMetricProvider implements Provider<CpuLoadMetric> {
     @Inject
     public CpuLoadMetricProvider(ProfilerConfig profilerConfig) {
         if (profilerConfig == null) {
-            throw new NullPointerException("profilerConfig must not be null");
+            throw new NullPointerException("profilerConfig");
         }
         vendorName = profilerConfig.getProfilerJvmVendorName();
     }

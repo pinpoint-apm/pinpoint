@@ -32,7 +32,7 @@ public class ThreadLocalScopePool implements ScopePool {
     @Override
     public InterceptorScopeInvocation getScope(InterceptorScopeDefinition scopeDefinition) {
         if (scopeDefinition == null) {
-            throw new NullPointerException("scopeDefinition must not be null");
+            throw new NullPointerException("scopeDefinition");
         }
         final InterceptorScopeInvocation scope = this.pool.get(scopeDefinition);
         if (scope != null) {

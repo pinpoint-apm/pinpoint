@@ -16,11 +16,8 @@ package com.navercorp.pinpoint.plugin.jackson.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
-import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.logging.PLogger;
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
 import com.navercorp.pinpoint.plugin.jackson.JacksonConstants;
 import com.navercorp.pinpoint.plugin.jackson.JacksonPlugin;
 
@@ -28,49 +25,22 @@ import com.navercorp.pinpoint.plugin.jackson.JacksonPlugin;
  * @see JacksonPlugin#intercept_ObjectMapper(com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext)
  * @author Sungkook Kim
  */
-public class WriteValueAsBytesInterceptor implements AroundInterceptor {
-    private final PLogger logger = PLoggerFactory.getLogger(getClass());
-    private final boolean isDebug = logger.isDebugEnabled();
-
-    private final MethodDescriptor descriptor;
-    private final TraceContext traceContext;
+public class WriteValueAsBytesInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
 
     public WriteValueAsBytesInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
-        this.descriptor = descriptor;
-        this.traceContext = traceContext;
+        super(traceContext, descriptor);
     }
-    
-    @Override
-    public void before(Object target, Object[] args) {
-        if (isDebug) {
-            logger.beforeInterceptor(target, args);
-        }
-        Trace trace = traceContext.currentTraceObject();
-        if (trace == null) {
-            return;
-        }
 
-        SpanEventRecorder recorder = trace.traceBlockBegin();
+    @Override
+    protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
         recorder.recordServiceType(JacksonConstants.SERVICE_TYPE);
     }
 
     @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable) {
-        if (isDebug) {
-            logger.afterInterceptor(target, args);
-        }
-        Trace trace = traceContext.currentTraceObject();
-        if (trace == null) {
-            return;
-        }
-
-        try {
-            SpanEventRecorder recorder = trace.currentSpanEventRecorder();
-            recorder.recordApi(descriptor);
-            recorder.recordException(throwable);
-            recorder.recordAttribute(JacksonConstants.ANNOTATION_KEY_LENGTH_VALUE, ((byte []) result).length);
-        } finally {
-            trace.traceBlockEnd();
-        }
+    protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
+        recorder.recordApi(methodDescriptor);
+        recorder.recordException(throwable);
+        recorder.recordAttribute(JacksonConstants.ANNOTATION_KEY_LENGTH_VALUE, ((byte []) result).length);
     }
+
 }

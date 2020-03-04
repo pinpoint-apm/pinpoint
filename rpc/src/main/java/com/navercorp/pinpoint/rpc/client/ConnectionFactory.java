@@ -45,15 +45,15 @@ public class ConnectionFactory {
     ConnectionFactory(Timer connectTimer, Closed closed, ChannelFactory channelFactory,
                              SocketOption socketOption, ClientOption clientOption, ClientHandlerFactory clientHandlerFactory, PipelineFactory pipelineFactory) {
 
-        this.connectTimer = Assert.requireNonNull(connectTimer, "connectTimer must not be null");
-        this.closed = Assert.requireNonNull(closed, "release must not be null");
+        this.connectTimer = Assert.requireNonNull(connectTimer, "connectTimer");
+        this.closed = Assert.requireNonNull(closed, "release");
 
-        this.channelFactory = Assert.requireNonNull(channelFactory, "channelFactory must not be null");
+        this.channelFactory = Assert.requireNonNull(channelFactory, "channelFactory");
 
-        this.socketOption = Assert.requireNonNull(socketOption, "option must not be null");
-        this.clientOption = Assert.requireNonNull(clientOption, "connectTimer must not be null");
-        this.clientHandlerFactory = Assert.requireNonNull(clientHandlerFactory, "clientHandlerFactory must not be null");
-        this.pipelineFactory = Assert.requireNonNull(pipelineFactory, "pipelineFactory must not be null");
+        this.socketOption = Assert.requireNonNull(socketOption, "option");
+        this.clientOption = Assert.requireNonNull(clientOption, "connectTimer");
+        this.clientHandlerFactory = Assert.requireNonNull(clientHandlerFactory, "clientHandlerFactory");
+        this.pipelineFactory = Assert.requireNonNull(pipelineFactory, "pipelineFactory");
     }
 
     public boolean isClosed() {
@@ -82,9 +82,9 @@ public class ConnectionFactory {
 
 
         private ConnectEvent(ConnectionFactory connectionFactory, SocketAddressProvider socketAddressProvider, PinpointClient pinpointClient) {
-            this.connectionFactory = Assert.requireNonNull(connectionFactory, "connectionFactory must not be null");
-            this.socketAddressProvider = Assert.requireNonNull(socketAddressProvider, "socketAddressProvider must not be null");
-            this.pinpointClient = Assert.requireNonNull(pinpointClient, "pinpointClient must not be null");
+            this.connectionFactory = Assert.requireNonNull(connectionFactory, "connectionFactory");
+            this.socketAddressProvider = Assert.requireNonNull(socketAddressProvider, "socketAddressProvider");
+            this.pinpointClient = Assert.requireNonNull(pinpointClient, "pinpointClient");
         }
 
         @Override

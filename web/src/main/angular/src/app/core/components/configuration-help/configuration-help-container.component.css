@@ -1,0 +1,116 @@
+:host {
+    display: block;
+}
+
+.l-card-link-list {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    margin-bottom: 40px;
+}
+
+.l-card-link-list-item {
+    display: block;
+    flex: 1;
+    margin-right: 15px;
+    height: 120px;
+}
+
+.l-card-link-list-item:last-child {
+    margin-right: 0;
+}
+
+.l-card-link {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    justify-content: center;
+    align-items: center;
+    border-radius: 7px;
+}
+
+.l-faq-link {
+    background-color: #4a8fd2;
+}
+
+.l-issue-link {
+    background-color: #4ab0d2;
+}
+
+.l-user-community-link {
+    background-color: #50cba4;
+}
+
+.l-card-text {
+    font-size: 18px;
+    font-weight: 400;
+    color: #fff;
+}
+
+.l-card-link .fas, .l-card-link .fab {
+    font-size: 42px;
+    margin-right: 7px;
+}
+
+.fa-comments {
+    color: #b4cce9;
+}
+
+.fa-github {
+    color: #b4dae9;
+}
+
+.fa-users {
+    color: #b5e6d5;
+}
+
+.l-guide-section {
+    background-color: #fff;
+    border: 1px solid #e5e8f0;
+    border-radius: 1px;
+}
+
+.l-guide-title {
+    font-size: 18px;
+    font-weight: 600;
+    padding: 20px 28px;
+    border-bottom: 1px solid #e5e8f0;
+}
+
+.l-guide-contents-wrapper {
+    display: flex;
+    position: relative;
+}
+
+.l-guide-contents {
+    width: 50%;
+    padding: 20px 0 20px 30px;
+}
+
+.l-guide-contents:first-child {
+    border-right: 1px solid #e5e8f0;
+}
+
+.l-guide-language-text {
+    /* color: #666; */
+    font-size: 17px;
+    font-weight: 600;
+    margin-bottom: 15px;
+}
+
+.l-guide-contents-list li {
+    padding: 5px 0;
+}
+
+.l-guide-contents-list a > .fas {
+    color: #9ec2e4;
+    margin-right: 5px;
+}
+
+.l-guide-contents-list a:link {
+    color: #428bca;
+}
+
+.l-guide-contents-list a:visited {
+    color: #609;
+}

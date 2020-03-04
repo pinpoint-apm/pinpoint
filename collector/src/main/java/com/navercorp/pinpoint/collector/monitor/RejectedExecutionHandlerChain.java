@@ -28,13 +28,13 @@ public class RejectedExecutionHandlerChain implements RejectedExecutionHandler {
     private final RejectedExecutionHandler[] handlerChain;
 
     public static RejectedExecutionHandler build(List<RejectedExecutionHandler> chain) {
-        Objects.requireNonNull(chain, "handlerChain must not be null");
+        Objects.requireNonNull(chain, "handlerChain");
         RejectedExecutionHandler[] handlerChain = chain.toArray(new RejectedExecutionHandler[0]);
         return new RejectedExecutionHandlerChain(handlerChain);
     }
 
     private RejectedExecutionHandlerChain(RejectedExecutionHandler[] handlerChain) {
-        this.handlerChain = Objects.requireNonNull(handlerChain, "handlerChain must not be null");
+        this.handlerChain = Objects.requireNonNull(handlerChain, "handlerChain");
     }
 
     @Override
