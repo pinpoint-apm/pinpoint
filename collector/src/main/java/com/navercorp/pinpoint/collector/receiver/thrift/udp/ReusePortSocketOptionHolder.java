@@ -54,10 +54,10 @@ public class ReusePortSocketOptionHolder {
         return socketCount;
     }
 
-    public static ReusePortSocketOptionHolder create(int socketSize) {
+    public static ReusePortSocketOptionHolder create(int socketCount) {
         SocketOption reusePortSocketOption = getReusePortSocketOption();
         if (reusePortSocketOption != null) {
-            return new ReusePortSocketOptionHolder(reusePortSocketOption, true, socketSize);
+            return new ReusePortSocketOptionHolder(reusePortSocketOption, true, socketCount);
         }
         return null;
     }
