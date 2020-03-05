@@ -31,7 +31,7 @@ public final class BytecodeUtils {
 
     public static byte[] getClassFile(ClassLoader classLoader, String className) {
         if (className == null) {
-            throw new NullPointerException("className must not be null");
+            throw new NullPointerException("className");
         }
         classLoader = getClassLoader(classLoader);
 

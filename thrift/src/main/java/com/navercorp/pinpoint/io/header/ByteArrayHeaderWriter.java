@@ -36,7 +36,7 @@ public class ByteArrayHeaderWriter implements HeaderWriter {
 
     public ByteArrayHeaderWriter(Header header) {
         if (header == null) {
-            throw new NullPointerException("header must not be null.");
+            throw new NullPointerException("header");
         }
 
         this.buffer = new AutomaticBuffer(4);
@@ -46,7 +46,7 @@ public class ByteArrayHeaderWriter implements HeaderWriter {
 
     public ByteArrayHeaderWriter(Header header, HeaderEntity headerEntity) {
         if (header == null) {
-            throw new NullPointerException("header must not be null.");
+            throw new NullPointerException("header");
         }
 
         this.buffer = new AutomaticBuffer(4);

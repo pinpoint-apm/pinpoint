@@ -1,0 +1,20 @@
+<ul class="l-servers-list l-depth-0">
+    <li *ngFor="let serverName of serverKeyList">
+        <div [attr.title]="serverName" class="l-server-name-wrapper l-name-wrapper" [class.active]="isActive(serverDiv)" (click)="toggleMenu(serverName)" #serverDiv>
+            <span class="l-name">
+                <i class="fas fa-server"></i> {{serverName}}
+            </span>
+            <i class="fas fa-angle-right" [@rightDown]="getCollapsedState(serverName)"></i>
+        </div>
+        <ul class="l-agent-list l-depth-1" [@collapseSpread]="getCollapsedState(serverName)">
+            <li class="l-agent" *ngFor="let agent of serverList[serverName]" (click)="onSelectAgent(agent.agentId)" [attr.title]="agent.agentId">
+                <div class="l-agent-name-wrapper l-name-wrapper" [class.active]="agent.agentId === agentId">
+                    <span class="l-name">
+                        <i class="fas fa-hdd"></i> {{agent.agentId}}
+                    </span>
+                    <span class="l-icon-alert" *ngIf="agent.status.state.code !== 100"><img [src]="getIconPath(agent.status.state.code)"></span>
+                </div>
+            </li>
+        </ul>
+    </li>
+</ul>

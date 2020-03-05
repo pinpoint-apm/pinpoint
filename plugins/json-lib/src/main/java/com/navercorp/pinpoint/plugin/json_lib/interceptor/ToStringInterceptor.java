@@ -17,11 +17,8 @@ package com.navercorp.pinpoint.plugin.json_lib.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
-import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.logging.PLogger;
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
 import com.navercorp.pinpoint.plugin.json_lib.JsonLibConstants;
 
 /**
@@ -29,49 +26,22 @@ import com.navercorp.pinpoint.plugin.json_lib.JsonLibConstants;
  *
  * @author Sangyoon Lee
  */
-public class ToStringInterceptor implements AroundInterceptor {
-    private final TraceContext traceContext;
-    private final MethodDescriptor descriptor;
-    private final PLogger logger = PLoggerFactory.getLogger(getClass());
+public class ToStringInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
 
     public ToStringInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
-        this.traceContext = traceContext;
-        this.descriptor = descriptor;
+        super(traceContext, descriptor);
     }
 
     @Override
-    public void before(Object target, Object[] args) {
-        if (logger.isDebugEnabled()) {
-            logger.beforeInterceptor(target, args);
-        }
-
-        final Trace trace = traceContext.currentTraceObject();
-        if (trace == null) {
-            return;
-        }
-
-        trace.traceBlockBegin();
+    protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
     }
 
     @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable) {
-        if (logger.isDebugEnabled()) {
-            logger.afterInterceptor(target, args, result, throwable);
-        }
-
-        final Trace trace = traceContext.currentTraceObject();
-        if (trace == null) {
-            return;
-        }
-
-        try {
-            SpanEventRecorder recorder = trace.currentSpanEventRecorder();
-            recorder.recordServiceType(JsonLibConstants.SERVICE_TYPE);
-            recorder.recordApi(descriptor);
-            recorder.recordException(throwable);
-            recorder.recordAttribute(JsonLibConstants.JSON_LIB_ANNOTATION_KEY_JSON_LENGTH, ((String) result).length());
-        } finally {
-            trace.traceBlockEnd();
-        }
+    protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
+        recorder.recordServiceType(JsonLibConstants.SERVICE_TYPE);
+        recorder.recordApi(methodDescriptor);
+        recorder.recordException(throwable);
+        recorder.recordAttribute(JsonLibConstants.JSON_LIB_ANNOTATION_KEY_JSON_LENGTH, ((String) result).length());
     }
+
 }

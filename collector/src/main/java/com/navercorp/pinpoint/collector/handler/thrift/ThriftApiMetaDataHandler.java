@@ -70,7 +70,7 @@ public class ThriftApiMetaDataHandler implements RequestResponseHandler {
 
             this.apiMetaDataService.insert(apiMetaDataBo);
         } catch (Exception e) {
-            logger.warn("{} handler error. Caused:{}", this.getClass(), e.getMessage(), e);
+            logger.warn("Failed to handle apiMetaData={}, Caused:{}", apiMetaData, e.getMessage(), e);
             final TResult result = new TResult(false);
             result.setMessage(e.getMessage());
             return result;

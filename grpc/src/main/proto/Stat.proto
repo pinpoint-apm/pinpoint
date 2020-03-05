@@ -128,6 +128,8 @@ message PTransaction {
     int64 sampledContinuationCount = 3;
     int64 unsampledNewCount = 4;
     int64 unsampledContinuationCount = 5;
+    int64 skippedNewCount = 6;
+    int64 skippedContinuationCount = 7;
 }
 
 message PActiveTraceHistogram {

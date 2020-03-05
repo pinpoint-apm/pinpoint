@@ -17,17 +17,17 @@
 package com.navercorp.pinpoint.collector.receiver.thrift.tcp;
 
 import com.navercorp.pinpoint.collector.cluster.ClusterPointStateChangedEventHandler;
+import com.navercorp.pinpoint.collector.cluster.ProfilerClusterManager;
 import com.navercorp.pinpoint.collector.cluster.zookeeper.ZookeeperClusterService;
-import com.navercorp.pinpoint.collector.cluster.zookeeper.ZookeeperProfilerClusterManager;
 import com.navercorp.pinpoint.collector.config.AgentBaseDataReceiverConfiguration;
 import com.navercorp.pinpoint.collector.receiver.DispatchHandler;
 import com.navercorp.pinpoint.collector.service.async.AgentEventAsyncTaskService;
 import com.navercorp.pinpoint.collector.service.async.AgentLifeCycleAsyncTaskService;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.rpc.server.ChannelPropertiesFactory;
 import com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor;
 import com.navercorp.pinpoint.rpc.server.ServerMessageListenerFactory;
 import com.navercorp.pinpoint.rpc.server.handler.ServerStateChangeEventHandler;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,7 +48,7 @@ public class AgentBaseDataReceiver {
 
     private final Logger logger = LoggerFactory.getLogger(AgentBaseDataReceiver.class);
 
-    private PinpointServerAcceptor acceptor;
+    private final PinpointServerAcceptor acceptor;
 
     private final AgentBaseDataReceiverConfiguration configuration;
 
@@ -81,17 +81,17 @@ public class AgentBaseDataReceiver {
     }
 
     public AgentBaseDataReceiver(AgentBaseDataReceiverConfiguration configuration, Executor executor, PinpointServerAcceptor acceptor, TCPPacketHandlerFactory tcpPacketHandlerFactory, DispatchHandler dispatchHandler, ZookeeperClusterService service) {
-        this.configuration = Assert.requireNonNull(configuration, "config must not be null");
-        this.executor = Objects.requireNonNull(executor, "executor must not be null");
-        this.acceptor = Objects.requireNonNull(acceptor, "acceptor must not be null");
+        this.configuration = Objects.requireNonNull(configuration, "config");
+        this.executor = Objects.requireNonNull(executor, "executor");
+        this.acceptor = Objects.requireNonNull(acceptor, "acceptor");
 
-        this.tcpPacketHandlerFactory = Assert.requireNonNull(tcpPacketHandlerFactory, "tcpPacketHandlerFactory must not be null");
+        this.tcpPacketHandlerFactory = Objects.requireNonNull(tcpPacketHandlerFactory, "tcpPacketHandlerFactory");
         this.tcpPacketHandler = wrapDispatchHandler(dispatchHandler);
         this.clusterService = service;
     }
 
     private TCPPacketHandler wrapDispatchHandler(DispatchHandler dispatchHandler) {
-        Objects.requireNonNull(dispatchHandler, "dispatchHandler must not be null");
+        Objects.requireNonNull(dispatchHandler, "dispatchHandler");
         return tcpPacketHandlerFactory.build(dispatchHandler);
     }
 
@@ -119,7 +119,7 @@ public class AgentBaseDataReceiver {
 
     private void prepare(PinpointServerAcceptor acceptor) {
         if (clusterService != null && clusterService.isEnable()) {
-            ZookeeperProfilerClusterManager profilerClusterManager = clusterService.getProfilerClusterManager();
+            ProfilerClusterManager profilerClusterManager = clusterService.getProfilerClusterManager();
             final ServerStateChangeEventHandler stateChangeEventHandler = new ClusterPointStateChangedEventHandler(channelPropertiesFactory, profilerClusterManager);
 
             logger.info("Add Cluster channel state change event handlers {}", stateChangeEventHandler);

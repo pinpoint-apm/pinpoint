@@ -33,8 +33,8 @@ public class GrpcSpanChunkHandler implements SimpleHandler {
 
     @Autowired
     public GrpcSpanChunkHandler(TraceService traceService, GrpcSpanFactory spanFactory) {
-        this.traceService = Objects.requireNonNull(traceService, "traceService must not be null");
-        this.spanFactory = Objects.requireNonNull(spanFactory, "spanFactory must not be null");
+        this.traceService = Objects.requireNonNull(traceService, "traceService");
+        this.spanFactory = Objects.requireNonNull(spanFactory, "spanFactory");
     }
 
     @Override

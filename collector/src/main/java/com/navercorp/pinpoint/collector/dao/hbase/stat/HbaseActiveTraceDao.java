@@ -54,7 +54,7 @@ public class HbaseActiveTraceDao implements AgentStatDaoV2<ActiveTraceBo> {
     @Override
     public void insert(String agentId, List<ActiveTraceBo> agentStatDataPoints) {
         if (agentId == null) {
-            throw new NullPointerException("agentId must not be null");
+            throw new NullPointerException("agentId");
         }
         if (CollectionUtils.isEmpty(agentStatDataPoints)) {
             return;

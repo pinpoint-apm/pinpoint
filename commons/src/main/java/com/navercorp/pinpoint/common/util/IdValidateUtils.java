@@ -43,7 +43,7 @@ public final class IdValidateUtils {
 
     public static boolean validateId(String id, int maxLength) {
         if (id == null) {
-            throw new NullPointerException("id must not be null");
+            throw new NullPointerException("id");
         }
         if (maxLength <= 0) {
             throw new IllegalArgumentException("negative maxLength:" + maxLength);
@@ -66,7 +66,7 @@ public final class IdValidateUtils {
 
     public static boolean checkLength(String id, int maxLength) {
         if (id == null) {
-            throw new NullPointerException("id must not be null");
+            throw new NullPointerException("id");
         }
         // try encode
         final int idLength = getLength(id);

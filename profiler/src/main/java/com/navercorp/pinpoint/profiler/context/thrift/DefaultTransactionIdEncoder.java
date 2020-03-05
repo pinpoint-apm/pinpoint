@@ -23,7 +23,7 @@ import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.common.util.StringUtils;
-import com.navercorp.pinpoint.common.util.TransactionIdUtils;
+import com.navercorp.pinpoint.common.profiler.util.TransactionIdUtils;
 import com.navercorp.pinpoint.profiler.context.id.TransactionIdEncoder;
 import com.navercorp.pinpoint.profiler.context.module.AgentId;
 import com.navercorp.pinpoint.profiler.context.module.AgentStartTime;
@@ -45,7 +45,7 @@ public class DefaultTransactionIdEncoder implements TransactionIdEncoder {
 
     @Inject
     public DefaultTransactionIdEncoder(@AgentId String agentId, @AgentStartTime  long agentStartTime) {
-        this.agentId = Assert.requireNonNull(agentId, "agentId must not be null");
+        this.agentId = Assert.requireNonNull(agentId, "agentId");
         this.agentStartTime = agentStartTime;
 
         this.agentIdCache = newCache(null);
@@ -122,7 +122,7 @@ public class DefaultTransactionIdEncoder implements TransactionIdEncoder {
     @Override
     public ByteBuffer encodeTransactionId(TraceId traceId) {
         if (traceId == null) {
-            throw new NullPointerException("traceId must not be null");
+            throw new NullPointerException("traceId");
         }
 
         return ByteBuffer.wrap(encodeTransaction0(traceId));

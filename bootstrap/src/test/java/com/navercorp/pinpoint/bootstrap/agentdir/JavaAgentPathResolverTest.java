@@ -16,36 +16,51 @@
 
 package com.navercorp.pinpoint.bootstrap.agentdir;
 
+import com.navercorp.pinpoint.bootstrap.agentdir.JavaAgentPathResolver.ClassAgentPathFinder;
+import com.navercorp.pinpoint.bootstrap.agentdir.JavaAgentPathResolver.InputArgumentAgentPathFinder;
 import com.navercorp.pinpoint.common.Version;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.lang.management.RuntimeMXBean;
+import java.net.URL;
 import java.util.Collections;
 import java.util.List;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
 public class JavaAgentPathResolverTest {
 
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    
     @Test
     public void testInputArgument() {
         String agentPath = "/pinpoint/agent/target/pinpoint-agent-" + Version.VERSION + "/pinpoint-bootstrap-" + Version.VERSION + ".jar";
-        final RuntimeMXBean runtimeMXBean = mock(RuntimeMXBean.class);
-        List<String> inputArguments = Collections.singletonList(JavaAgentPathResolver.JAVA_AGENT_OPTION + agentPath);
-        when(runtimeMXBean.getInputArguments()).thenReturn(inputArguments);
+        final List<String> inputArguments = Collections.singletonList(JavaAgentPathResolver.InputArgumentAgentPathFinder.JAVA_AGENT_OPTION + agentPath);
 
-        JavaAgentPathResolver javaAgentPathResolver = new JavaAgentPathResolver(JavaAgentPathResolver.ResolvingType.INPUT_ARGUMENT) {
+        JavaAgentPathResolver.AgentPathFinder javaAgentPathResolver = new InputArgumentAgentPathFinder() {
             @Override
-            RuntimeMXBean getRuntimeMXBean() {
-                return runtimeMXBean;
+            List<String> getInputArguments() {
+                return inputArguments;
             }
         };
-        String resolveJavaAgentPath = javaAgentPathResolver.resolveJavaAgentPath();
+        String resolveJavaAgentPath = javaAgentPathResolver.getPath();
         org.junit.Assert.assertEquals(resolveJavaAgentPath, agentPath);
+    }
+
+    @Test
+    public void testClassAgentPath() {
+        Class<Logger> clazz = Logger.class;
+
+        ClassAgentPathFinder classAgentPath = new ClassAgentPathFinder();
+        String resolveTargetPath = classAgentPath.getJarLocation(clazz.getName());
+        logger.debug("{}", resolveTargetPath);
+        org.junit.Assert.assertTrue(resolveTargetPath.endsWith(".jar"));
+
+        URL location = clazz.getProtectionDomain().getCodeSource().getLocation();
+        org.junit.Assert.assertEquals(resolveTargetPath, location.getPath());
     }
 
 }

@@ -1,0 +1,19 @@
+<div class="l-wrapper" *ngIf="isNode">
+    <div class="l-title" [attr.title]="toAppData?.applicationName">
+        <img *ngIf="toAppData" height="25px" [src]="getIconPath(toAppData?.serviceType)" (error)="onLoadError($event.target)"> <span>{{toAppData?.applicationName}}</span>
+    </div>
+    <mat-form-field class="l-select-agent" *ngIf="showAgentList()">
+        <mat-select [(value)]="selectedAgent" (selectionChange)="onSelectionChange($event.value)">
+            <mat-option *ngFor="let agentName of toAppData.agentList" value="{{agentName}}">{{agentName}}</mat-option>
+        </mat-select>
+    </mat-form-field>
+</div>
+<div class="l-wrapper-grid" *ngIf="!isNode">
+    <div class="l-title" [attr.title]="fromAppData?.applicationName">
+        <img *ngIf="fromAppData" height="25px" [src]="getIconPath(fromAppData?.serviceType)" (error)="onLoadError($event.target)"> <span>{{fromAppData?.applicationName}}</span>
+    </div>
+    <div><i class="fas fa-arrow-circle-right"></i></div>
+    <div class="l-title" [attr.title]="toAppData?.applicationName">
+        <img *ngIf="toAppData" height="25px" [src]="getIconPath(toAppData?.serviceType)" (error)="onLoadError($event.target)"> <span>{{toAppData?.applicationName}}</span>
+    </div>
+</div>

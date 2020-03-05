@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,18 +16,16 @@
 
 package com.navercorp.pinpoint.profiler.sender;
 
+import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.Collection;
-import java.util.concurrent.Executor;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import com.navercorp.pinpoint.common.util.Assert;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
 
 /**
  * @author emeroad
@@ -50,7 +48,7 @@ public class AsyncQueueingExecutor<T> implements Runnable {
 
 
     public AsyncQueueingExecutor(int queueSize, String executorName, AsyncQueueingExecutorListener<T> listener) {
-        Assert.requireNonNull(executorName, "executorName must not be null");
+        Assert.requireNonNull(executorName, "executorName");
 
         this.logger = LoggerFactory.getLogger(this.getClass().getName() + "@" + executorName);
         this.isWarn = logger.isWarnEnabled();
@@ -63,7 +61,7 @@ public class AsyncQueueingExecutor<T> implements Runnable {
         this.executeThread = this.createExecuteThread(executorName);
         this.executorName = executeThread.getName();
 
-        this.listener = Assert.requireNonNull(listener, "listener must not be null");
+        this.listener = Assert.requireNonNull(listener, "listener");
     }
 
     private Thread createExecuteThread(String executorName) {

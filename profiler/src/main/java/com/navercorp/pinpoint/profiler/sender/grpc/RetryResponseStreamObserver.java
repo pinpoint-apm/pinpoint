@@ -19,6 +19,8 @@ package com.navercorp.pinpoint.profiler.sender.grpc;
 import com.google.protobuf.GeneratedMessageV3;
 import com.google.protobuf.TextFormat;
 import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.grpc.StatusError;
+import com.navercorp.pinpoint.grpc.StatusErrors;
 import io.grpc.stub.StreamObserver;
 import org.slf4j.Logger;
 
@@ -32,9 +34,9 @@ public class RetryResponseStreamObserver<ReqT, ResT> implements StreamObserver<R
     private final int remainingRetryCount;
 
     public RetryResponseStreamObserver(Logger logger, RetryScheduler<ReqT, ResT> retryScheduler, ReqT message, int remainingRetryCount) {
-        this.logger = Assert.requireNonNull(logger, "logger must not be null");
-        this.retryScheduler = Assert.requireNonNull(retryScheduler, "retryScheduler must not be null");
-        this.message = Assert.requireNonNull(message, "message must not be null");
+        this.logger = Assert.requireNonNull(logger, "logger");
+        this.retryScheduler = Assert.requireNonNull(retryScheduler, "retryScheduler");
+        this.message = Assert.requireNonNull(message, "message");
         this.remainingRetryCount = remainingRetryCount;
     }
 
@@ -57,10 +59,14 @@ public class RetryResponseStreamObserver<ReqT, ResT> implements StreamObserver<R
 
     @Override
     public void onError(Throwable throwable) {
-        // Retry
-        if (logger.isInfoEnabled()) {
-            logger.info("Request error. request={}, Caused by:{}", logString(message), throwable.getMessage(), throwable);
+        final StatusError statusError = StatusErrors.throwable(throwable);
+        if (statusError.isSimpleError()) {
+            logger.info("Error. request={}, cause={}", logString(message), statusError.getMessage());
+        } else {
+            logger.warn("Error. request={}, cause={}", logString(message), statusError.getMessage(), statusError.getThrowable());
         }
+
+        // Retry
         final int remainingRetryCount = nextRetryCount();
         retryScheduler.scheduleNextRetry(message, remainingRetryCount);
     }

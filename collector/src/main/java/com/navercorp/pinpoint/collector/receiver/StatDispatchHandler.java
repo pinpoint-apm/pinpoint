@@ -29,9 +29,9 @@ import com.navercorp.pinpoint.thrift.io.DefaultTBaseLocator;
  */
 public class StatDispatchHandler implements DispatchHandler {
 
-    private SimpleHandler agentStatHandler;
+    private final SimpleHandler agentStatHandler;
 
-    private SimpleHandler agentEventHandler;
+    private final SimpleHandler agentEventHandler;
 
 
     public StatDispatchHandler(SimpleHandler agentStatHandler, SimpleHandler agentEventHandler) {

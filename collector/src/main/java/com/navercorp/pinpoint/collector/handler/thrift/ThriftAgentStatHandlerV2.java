@@ -86,7 +86,11 @@ public class ThriftAgentStatHandlerV2 implements SimpleHandler {
         }
 
         for (AgentStatService agentStatService : agentStatServiceList) {
-            agentStatService.save(agentStatBo);
+            try {
+                agentStatService.save(agentStatBo);
+            } catch (Exception e) {
+                logger.warn("Failed to handle service={}, AgentStat={}, Caused={}", agentStatService, tAgentStat, e.getMessage(), e);
+            }
         }
     }
 
@@ -97,7 +101,11 @@ public class ThriftAgentStatHandlerV2 implements SimpleHandler {
         }
 
         for (AgentStatService agentStatService : agentStatServiceList) {
-            agentStatService.save(agentStatBo);
+            try {
+                agentStatService.save(agentStatBo);
+            } catch (Exception e) {
+                logger.warn("Failed to handle service={}, AgentStatBatch={}, Caused={}", agentStatService, tAgentStatBatch, e.getMessage(), e);
+            }
         }
     }
 }

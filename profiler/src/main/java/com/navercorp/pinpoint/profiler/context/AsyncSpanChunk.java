@@ -16,10 +16,6 @@
 
 package com.navercorp.pinpoint.profiler.context;
 
-import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
-
-import java.util.List;
-
 /**
  * @author Woonduk Kang(emeroad)
  */

@@ -22,7 +22,8 @@ import com.navercorp.pinpoint.common.server.bo.codec.stat.v2.CpuLoadCodecV2;
 import com.navercorp.pinpoint.common.server.bo.stat.CpuLoadBo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.util.Assert;
+
+import java.util.Objects;
 
 /**
  * @author HyunGil Jeong
@@ -41,8 +42,7 @@ public class CpuLoadCodecV1 extends AgentStatCodecV1<CpuLoadBo> {
         private final AgentStatDataPointCodec codec;
 
         private CpuLoadCodecFactory(AgentStatDataPointCodec codec) {
-            Assert.notNull(codec, "codec must not be null");
-            this.codec = codec;
+            this.codec = Objects.requireNonNull(codec, "codec");
         }
 
         @Override

@@ -32,8 +32,8 @@ public class DefaultPingEventHandler implements PingEventHandler {
     private final LifecycleListener lifecycleListener;
 
     public DefaultPingEventHandler(PingSessionRegistry pingSessionRegistry, LifecycleListener lifecycleListener) {
-        this.pingSessionRegistry = Assert.requireNonNull(pingSessionRegistry, "pingSessionRegistry must not be null");
-        this.lifecycleListener = Assert.requireNonNull(lifecycleListener, "lifecycleListener must not be null");
+        this.pingSessionRegistry = Assert.requireNonNull(pingSessionRegistry, "pingSessionRegistry");
+        this.lifecycleListener = Assert.requireNonNull(lifecycleListener, "lifecycleListener");
     }
 
     @Override

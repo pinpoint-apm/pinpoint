@@ -25,21 +25,19 @@ import com.navercorp.pinpoint.common.server.util.AgentEventType;
 import com.navercorp.pinpoint.rpc.packet.HandshakePropertyType;
 import com.navercorp.pinpoint.rpc.server.ChannelProperties;
 import com.navercorp.pinpoint.rpc.server.ChannelPropertiesFactory;
-
-import static org.junit.Assert.assertEquals;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 /**
  * @author HyunGil Jeong
@@ -48,7 +46,7 @@ import java.util.Map;
 public class AgentEventAsyncTaskServiceTest {
 
 
-    private ChannelPropertiesFactory channelPropertiesFactory = new ChannelPropertiesFactory();
+    private final ChannelPropertiesFactory channelPropertiesFactory = new ChannelPropertiesFactory();
 
     @Mock
     private AgentEventService agentEventService;

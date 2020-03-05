@@ -41,7 +41,7 @@ public class WebsphereConfiguration {
     private final boolean hidePinpointHeader;
 
     public WebsphereConfiguration(ProfilerConfig config) {
-        Assert.requireNonNull(config, "config must not be null");
+        Assert.requireNonNull(config, "config");
 
         // plugin
         this.enable = config.readBoolean("profiler.websphere.enable", true);

@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,9 +17,9 @@
 package com.navercorp.pinpoint.profiler.sender.grpc;
 
 import com.google.protobuf.GeneratedMessageV3;
-import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
+import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
-import com.navercorp.pinpoint.grpc.client.ChannelFactoryOption;
+import com.navercorp.pinpoint.grpc.client.ChannelFactory;
 import com.navercorp.pinpoint.grpc.trace.MetadataGrpc;
 import com.navercorp.pinpoint.grpc.trace.PApiMetaData;
 import com.navercorp.pinpoint.grpc.trace.PResult;
@@ -51,14 +51,12 @@ public class MetadataGrpcDataSender extends GrpcDataSender implements EnhancedDa
     private final int retryDelayMillis;
 
     private final Timer retryTimer;
-    private final long maxPendingTimeouts = 1024 * 4;
+    private static final long MAX_PENDING_TIMEOUTS = 1024 * 4;
 
     private final RetryScheduler<GeneratedMessageV3, PResult> retryScheduler;
 
-    protected volatile boolean shutdown;
-
-    public MetadataGrpcDataSender(String host, int port, int executorQueueSize, MessageConverter<GeneratedMessageV3> messageConverter, ChannelFactoryOption channelFactoryOption, int retryMaxCount, int retryDelayMillis) {
-        super(host, port, executorQueueSize, messageConverter, channelFactoryOption);
+    public MetadataGrpcDataSender(String host, int port, int executorQueueSize, MessageConverter<GeneratedMessageV3> messageConverter, ChannelFactory channelFactory, int retryMaxCount, int retryDelayMillis) {
+        super(host, port, executorQueueSize, messageConverter, channelFactory);
 
         this.maxAttempts = getMaxAttempts(retryMaxCount);
         this.retryDelayMillis = retryDelayMillis;
@@ -88,7 +86,7 @@ public class MetadataGrpcDataSender extends GrpcDataSender implements EnhancedDa
 
     private Timer newTimer(String name) {
         ThreadFactory threadFactory = new PinpointThreadFactory(PinpointThreadFactory.DEFAULT_THREAD_NAME_PREFIX + name, true);
-        return new HashedWheelTimer(threadFactory, 100, TimeUnit.MILLISECONDS, 512, false, maxPendingTimeouts);
+        return new HashedWheelTimer(threadFactory, 100, TimeUnit.MILLISECONDS, 512, false, MAX_PENDING_TIMEOUTS);
     }
 
     // Unsupported Operation

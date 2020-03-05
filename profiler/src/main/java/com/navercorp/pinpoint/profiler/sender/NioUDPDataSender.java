@@ -61,13 +61,13 @@ public class NioUDPDataSender implements DataSender {
 
     public NioUDPDataSender(String host, int port, String threadName, int queueSize, int timeout, int sendBufferSize,
                             MessageConverter<TBase<?, ?>> messageConverter) {
-        Assert.requireNonNull(host, "host must not be null");
-        Assert.requireNonNull(threadName, "threadName must not be null");
+        Assert.requireNonNull(host, "host");
+        Assert.requireNonNull(threadName, "threadName");
         Assert.isTrue(queueSize > 0, "queueSize");
         Assert.isTrue(timeout > 0, "timeout");
         Assert.isTrue(sendBufferSize > 0, "sendBufferSize");
 
-        this.messageConverter = Assert.requireNonNull(messageConverter, "messageConverter must not be null");
+        this.messageConverter = Assert.requireNonNull(messageConverter, "messageConverter");
 
         // TODO If fail to create socket, stop agent start
         logger.info("NioUDPDataSender initialized. host={}, port={}", host, port);

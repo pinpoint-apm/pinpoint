@@ -35,8 +35,8 @@ public class SpanDispatchHandler implements DispatchHandler {
     
 
     public SpanDispatchHandler(SimpleHandler spanDataHandler, SimpleHandler spanChunkHandler) {
-        this.spanDataHandler = Objects.requireNonNull(spanDataHandler, "spanDataHandler must not be null");
-        this.spanChunkHandler = Objects.requireNonNull(spanChunkHandler, "spanChunkHandler must not be null");
+        this.spanDataHandler = Objects.requireNonNull(spanDataHandler, "spanDataHandler");
+        this.spanChunkHandler = Objects.requireNonNull(spanChunkHandler, "spanChunkHandler");
     }
 
     private SimpleHandler getSimpleHandler(Header header) {

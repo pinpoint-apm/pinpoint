@@ -31,10 +31,10 @@ public class NodeHistogramSummary {
 
     public NodeHistogramSummary(ServerInstanceList serverInstanceList, NodeHistogram nodeHistogram) {
         if (serverInstanceList == null) {
-            throw new NullPointerException("serverInstanceList must not be null");
+            throw new NullPointerException("serverInstanceList");
         }
         if (nodeHistogram == null) {
-            throw new NullPointerException("nodeHistogram must not be null");
+            throw new NullPointerException("nodeHistogram");
         }
         this.serverInstanceList = serverInstanceList;
         this.nodeHistogram = nodeHistogram;

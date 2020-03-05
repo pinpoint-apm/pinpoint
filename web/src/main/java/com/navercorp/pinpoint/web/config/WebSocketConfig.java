@@ -37,7 +37,6 @@ import java.util.Objects;
  */
 @Configuration
 @EnableWebSocket
-@Component
 public class WebSocketConfig implements WebSocketConfigurer {
 
     private static final String[] DEFAULT_ALLOWED_ORIGIN = new String[0];

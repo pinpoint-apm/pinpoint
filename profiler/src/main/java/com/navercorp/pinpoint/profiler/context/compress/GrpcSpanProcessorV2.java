@@ -28,8 +28,8 @@ import com.navercorp.pinpoint.profiler.context.TraceDataFormatVersion;
 
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.List;
+import java.util.RandomAccess;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -82,16 +82,22 @@ public class GrpcSpanProcessorV2 implements SpanProcessor<PSpan.Builder, PSpanCh
     }
 
     private void postProcess(long keyTime, List<SpanEvent> spanEventList, List<PSpanEvent.Builder> pSpanEventList) {
+        if (CollectionUtils.isEmpty(spanEventList)) {
+            return;
+        }
         if (!(CollectionUtils.nullSafeSize(spanEventList) == CollectionUtils.nullSafeSize(pSpanEventList))) {
             throw new IllegalStateException("list size not same");
         }
-
-        final Iterator<PSpanEvent.Builder> pSpanEventIterator = pSpanEventList.iterator();
+        // check list type
+        assert spanEventList instanceof RandomAccess;
 
         int prevDepth = 0;
         boolean first = true;
-        for (SpanEvent spanEvent : spanEventList) {
-            final PSpanEvent.Builder pSpanEvent = pSpanEventIterator.next();
+
+        final int listSize = spanEventList.size();
+        for (int i = 0; i < listSize; i++) {
+            final SpanEvent spanEvent = spanEventList.get(i);
+            final PSpanEvent.Builder pSpanEvent = pSpanEventList.get(i);
 
             final long startTime = spanEvent.getStartTime();
             final long startElapsedTime = startTime - keyTime;

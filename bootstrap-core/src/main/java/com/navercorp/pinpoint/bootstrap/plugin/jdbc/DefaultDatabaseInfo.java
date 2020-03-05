@@ -41,10 +41,10 @@ public class DefaultDatabaseInfo implements DatabaseInfo {
 
     public DefaultDatabaseInfo(ServiceType type, ServiceType executeQueryType, String realUrl, String normalizedUrl, List<String> host, String databaseId, boolean parsingComplete) {
         if (type == null) {
-            throw new NullPointerException("type must not be null");
+            throw new NullPointerException("type");
         }
         if (executeQueryType == null) {
-            throw new NullPointerException("executeQueryType must not be null");
+            throw new NullPointerException("executeQueryType");
         }
         this.type = type;
         this.executeQueryType = executeQueryType;

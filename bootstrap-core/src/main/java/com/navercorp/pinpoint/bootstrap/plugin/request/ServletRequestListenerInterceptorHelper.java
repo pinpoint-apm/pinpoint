@@ -54,8 +54,8 @@ public class ServletRequestListenerInterceptorHelper<T> {
     private final HttpStatusCodeRecorder httpStatusCodeRecorder;
 
     private final ParameterRecorder<T> parameterRecorder;
-    private final RequestRecorderFactory requestRecorderFactory;
-    private final ProxyRequestRecorder proxyRequestRecorder;
+    private final RequestRecorderFactory<T> requestRecorderFactory;
+    private final ProxyRequestRecorder<T> proxyRequestRecorder;
 
     @Deprecated
     public ServletRequestListenerInterceptorHelper(final ServiceType serviceType, final TraceContext traceContext, RequestAdaptor<T> requestAdaptor, final Filter<String> excludeUrlFilter, ParameterRecorder<T> parameterRecorder) {
@@ -63,9 +63,9 @@ public class ServletRequestListenerInterceptorHelper<T> {
     }
 
     public ServletRequestListenerInterceptorHelper(final ServiceType serviceType, final TraceContext traceContext, RequestAdaptor<T> requestAdaptor, final Filter<String> excludeUrlFilter, ParameterRecorder<T> parameterRecorder, RequestRecorderFactory<T> requestRecorderFactory) {
-        this.serviceType = Assert.requireNonNull(serviceType, "serviceType must not be null");
-        this.traceContext = Assert.requireNonNull(traceContext, "traceContext must not be null");
-        this.requestAdaptor = Assert.requireNonNull(requestAdaptor, "requestAdaptor must not be null");
+        this.serviceType = Assert.requireNonNull(serviceType, "serviceType");
+        this.traceContext = Assert.requireNonNull(traceContext, "traceContext");
+        this.requestAdaptor = Assert.requireNonNull(requestAdaptor, "requestAdaptor");
         this.requestTraceReader = new RequestTraceReader<T>(traceContext, requestAdaptor, true);
         this.requestRecorderFactory = requestRecorderFactory;
         if (this.requestRecorderFactory != null) {
@@ -75,7 +75,7 @@ public class ServletRequestListenerInterceptorHelper<T> {
             proxyRequestRecorder = new ProxyHttpHeaderRecorder<T>(traceContext.getProfilerConfig().isProxyHttpHeaderEnable(), requestAdaptor);
         }
         this.excludeUrlFilter = defaultFilter(excludeUrlFilter);
-        this.parameterRecorder = Assert.requireNonNull(parameterRecorder, "parameterRecorder must not be null");
+        this.parameterRecorder = Assert.requireNonNull(parameterRecorder, "parameterRecorder");
         this.serverRequestRecorder = new ServerRequestRecorder<T>(requestAdaptor);
         this.httpStatusCodeRecorder = new HttpStatusCodeRecorder(traceContext.getProfilerConfig().getHttpStatusCodeErrors());
 
@@ -90,9 +90,9 @@ public class ServletRequestListenerInterceptorHelper<T> {
     }
 
     public void initialized(T request, final ServiceType serviceType, final MethodDescriptor methodDescriptor) {
-        Assert.requireNonNull(request, "request must not be null");
-        Assert.requireNonNull(serviceType, "serviceType must not be null");
-        Assert.requireNonNull(methodDescriptor, "methodDescriptor must not be null");
+        Assert.requireNonNull(request, "request");
+        Assert.requireNonNull(serviceType, "serviceType");
+        Assert.requireNonNull(methodDescriptor, "methodDescriptor");
 
         if (isDebug) {
             logger.debug("Initialized requestEvent. request={}, serviceType={}, methodDescriptor={}", request, serviceType, methodDescriptor);

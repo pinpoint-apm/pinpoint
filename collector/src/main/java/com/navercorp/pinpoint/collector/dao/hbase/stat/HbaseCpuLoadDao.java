@@ -54,7 +54,7 @@ public class HbaseCpuLoadDao implements AgentStatDaoV2<CpuLoadBo> {
     @Override
     public void insert(String agentId, List<CpuLoadBo> cpuLoadBos) {
         if (agentId == null) {
-            throw new NullPointerException("agentId must not be null");
+            throw new NullPointerException("agentId");
         }
         if (CollectionUtils.isEmpty(cpuLoadBos)) {
             return;

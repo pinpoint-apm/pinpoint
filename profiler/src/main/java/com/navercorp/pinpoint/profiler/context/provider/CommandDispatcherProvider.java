@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.profiler.context.provider;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
 import com.navercorp.pinpoint.profiler.receiver.CommandDispatcher;
 import com.navercorp.pinpoint.profiler.receiver.ProfilerCommandLocatorBuilder;
@@ -36,14 +37,9 @@ public class CommandDispatcherProvider implements Provider<CommandDispatcher> {
 
     @Inject
     public CommandDispatcherProvider(ProfilerConfig profilerConfig, Provider<ActiveTraceRepository> activeTraceRepositoryProvider) {
-        if (profilerConfig == null) {
-            throw new NullPointerException("profilerConfig must not be null");
-        }
-        if (activeTraceRepositoryProvider == null) {
-            throw new NullPointerException("activeTraceRepositoryProvider must not be null");
-        }
+        this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig");
 
-        this.profilerConfig = profilerConfig;
+        Assert.requireNonNull(activeTraceRepositoryProvider, "activeTraceRepositoryProvider");
         this.activeTraceRepository = activeTraceRepositoryProvider.get();
     }
 

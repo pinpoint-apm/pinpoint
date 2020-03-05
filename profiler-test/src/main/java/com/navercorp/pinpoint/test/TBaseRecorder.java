@@ -20,8 +20,6 @@ import java.util.Iterator;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import org.apache.thrift.TBase;
-
 /**
  * @author hyungil.jeong
  */

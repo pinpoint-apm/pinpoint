@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,9 @@ package com.navercorp.pinpoint.profiler.context.id;
 
 import com.google.inject.Inject;
 import com.navercorp.pinpoint.bootstrap.context.TraceId;
-import com.navercorp.pinpoint.common.util.TransactionId;
-import com.navercorp.pinpoint.common.util.TransactionIdUtils;
+import com.navercorp.pinpoint.common.profiler.util.TransactionId;
+import com.navercorp.pinpoint.common.profiler.util.TransactionIdUtils;
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.module.AgentId;
 import com.navercorp.pinpoint.profiler.context.module.AgentStartTime;
 
@@ -33,11 +34,7 @@ public class DefaultTraceIdFactory implements TraceIdFactory {
 
     @Inject
     public DefaultTraceIdFactory(@AgentId String agentId, @AgentStartTime long agentStartTime) {
-        if (agentId == null) {
-            throw new NullPointerException("agentId must not be null");
-        }
-
-        this.agentId = agentId;
+        this.agentId = Assert.requireNonNull(agentId, "agentId");
         this.agentStartTime = agentStartTime;
 
     }
@@ -50,7 +47,7 @@ public class DefaultTraceIdFactory implements TraceIdFactory {
 
     public TraceId continueTraceId(String transactionId, long parentSpanId, long spanId, short flags) {
         if (transactionId == null) {
-            throw new NullPointerException("transactionId must not be null");
+            throw new NullPointerException("transactionId");
         }
         final TransactionId parseId = TransactionIdUtils.parseTransactionId(transactionId);
         return new DefaultTraceId(parseId.getAgentId(), parseId.getAgentStartTime(), parseId.getTransactionSequence(), parentSpanId, spanId, flags);

@@ -29,8 +29,8 @@ public class RawData {
     private final Map<String, String> metaInfo;
 
     public RawData(TBase<?, ?> data, Map<String,String> metaInfo) {
-        this.data = Objects.requireNonNull(data, "data must not be null");
-        this.metaInfo = Objects.requireNonNull(metaInfo, "metaInfo must not be null");
+        this.data = Objects.requireNonNull(data, "data");
+        this.metaInfo = Objects.requireNonNull(metaInfo, "metaInfo");
     }
 
     public TBase<?, ?> getData() {

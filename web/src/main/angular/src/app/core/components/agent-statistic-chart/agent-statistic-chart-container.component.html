@@ -1,0 +1,17 @@
+<ng-container *ngIf="{
+    emptyText: emptyText$ | async,
+    chartData: chartData$ | async
+} as obs;">
+    <pp-agent-statistic-chart
+        [title]="'JVM'"
+        [barColor]="'rgb(75, 192, 192)'"
+        [emptyText]="obs.emptyText"
+        [chartData]="obs.chartData['jvm']">
+    </pp-agent-statistic-chart>
+    <pp-agent-statistic-chart
+        [title]="'Agent (' + agentCount + ')'"
+        [barColor]="'rgb(54, 162, 235)'"
+        [emptyText]="obs.emptyText"
+        [chartData]="obs.chartData['agent']">
+    </pp-agent-statistic-chart>
+</ng-container>

@@ -31,7 +31,7 @@ public class ProfilerLibClass {
 
     public ProfilerLibClass(List<String> libClass) {
         if (libClass == null) {
-            throw new NullPointerException("libClass must not be null");
+            throw new NullPointerException("libClass");
         }
         this.libClass = libClass.toArray(new String[0]);
     }

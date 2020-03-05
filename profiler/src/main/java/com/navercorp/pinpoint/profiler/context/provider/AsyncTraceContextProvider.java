@@ -36,12 +36,12 @@ public class AsyncTraceContextProvider implements Provider<AsyncTraceContext> {
 
     @Inject
     public AsyncTraceContextProvider(Binder<Trace> binder) {
-        this.binder = Assert.requireNonNull(binder, "binder must not be null");
+        this.binder = Assert.requireNonNull(binder, "binder");
     }
 
     @Inject
     public void setBaseTraceFactoryProvider(Provider<BaseTraceFactory> baseTraceFactoryProvider) {
-        this.baseTraceFactoryProvider = Assert.requireNonNull(baseTraceFactoryProvider, "baseTraceFactoryProvider must not be null");
+        this.baseTraceFactoryProvider = Assert.requireNonNull(baseTraceFactoryProvider, "baseTraceFactoryProvider");
     }
 
     @Override

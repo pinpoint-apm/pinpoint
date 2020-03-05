@@ -24,18 +24,12 @@ import com.navercorp.pinpoint.io.util.TypeLocator;
 import com.navercorp.pinpoint.io.util.TypeLocatorBuilder;
 import com.navercorp.pinpoint.thrift.dto.flink.TFAgentStatBatch;
 import org.apache.thrift.TBase;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.Collections;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author minwoo.jung
  */
 public class FlinkTBaseLocator {
 
-    private Logger logger = LoggerFactory.getLogger(this.getClass());
     public static final short AGENT_STAT_BATCH = 1000;
 
     private final byte version;

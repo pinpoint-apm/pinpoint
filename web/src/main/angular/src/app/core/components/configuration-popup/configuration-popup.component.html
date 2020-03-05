@@ -1,0 +1,28 @@
+<ul class="l-list l-depth-0">
+    <li class="l-list-item">
+        <a class="l-link l-link-with-arrow" [class.active]="isActive(linkAdmin)" (click)="toggleMenu('admin')" #linkAdmin>
+            <span class="l-link-text">Administration</span><i class="fas fa-angle-right" [@rightDown]="getCollapsedState('admin')"></i>
+        </a>
+    </li>
+    <ul class="l-list l-depth-1" [@collapseSpread]="getCollapsedState('admin')">
+        <li class="l-list-item"><a (click)="onMenuClick('agentStatistic')" class="l-link">Agent Statistic</a></li>
+        <li class="l-list-item"><a (click)="onMenuClick('agentManagement')" class="l-link">Agent Management</a></li>
+    </ul>
+    <li class="l-list-item l-separator"></li>
+    <li class="l-list-item">
+        <a class="l-link l-link-with-arrow" [class.active]="isActive(linkSetting)" (click)="toggleMenu('setting')" #linkSetting>
+            <span class="l-link-text">Setting</span><i class="fas fa-angle-right" [@rightDown]="getCollapsedState('setting')"></i>
+        </a>
+        <ul class="l-list l-depth-1" [@collapseSpread]="getCollapsedState('setting')">
+            <li class="l-list-item"><a (click)="onMenuClick('general')" class="l-link">General</a></li>
+            <li class="l-list-item"><a (click)="onMenuClick('favorite')" class="l-link">Favorite List</a></li>
+        </ul>    
+    </li>
+    <li class="l-list-item l-separator"></li>
+    <li class="l-list-item"><a (click)="onMenuClick('userGroup')" class="l-link">User Group</a></li>
+    <li class="l-list-item"><a (click)="onMenuClick('alarm')" class="l-link">Alarm</a></li>
+    <li class="l-list-item"><a (click)="onMenuClick('installation')" class="l-link">Installation</a></li>
+    <li class="l-list-item l-separator"></li>
+    <li class="l-list-item"><a (click)="onMenuClick('help')" class="l-link">Help</a></li>
+    <li class="l-list-item"><a (click)="onOpenLink()" class="l-link">Github</a></li>
+</ul>

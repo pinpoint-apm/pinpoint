@@ -21,7 +21,6 @@ import com.navercorp.pinpoint.collector.mapper.grpc.stat.GrpcAgentStatBatchMappe
 import com.navercorp.pinpoint.collector.mapper.grpc.stat.GrpcAgentStatMapper;
 import com.navercorp.pinpoint.collector.service.AgentStatService;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatBo;
-import com.navercorp.pinpoint.grpc.AgentHeaderFactory;
 import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
 import com.navercorp.pinpoint.grpc.server.ServerContext;
@@ -78,7 +77,11 @@ public class GrpcAgentStatHandlerV2 implements SimpleHandler {
         }
 
         for (AgentStatService agentStatService : agentStatServiceList) {
-            agentStatService.save(agentStatBo);
+            try {
+                agentStatService.save(agentStatBo);
+            } catch (Exception e) {
+                logger.warn("Failed to handle service={}, AgentStat={}", agentStatService, MessageFormatUtils.debugLog(agentStat), e);
+            }
         }
     }
 
@@ -94,7 +97,11 @@ public class GrpcAgentStatHandlerV2 implements SimpleHandler {
         }
 
         for (AgentStatService agentStatService : agentStatServiceList) {
-            agentStatService.save(agentStatBo);
+            try {
+                agentStatService.save(agentStatBo);
+            } catch (Exception e) {
+                logger.warn("Failed to handle service={}, AgentStatBatch={}", agentStatService, MessageFormatUtils.debugLog(agentStatBatch), e);
+            }
         }
     }
 }

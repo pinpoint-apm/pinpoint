@@ -24,7 +24,7 @@ public class DefaultMethodNameReplacer implements MethodNameReplacer {
 
     public String replaceMethodName(String methodName) {
         if (methodName == null) {
-            throw new NullPointerException("methodName must not be null");
+            throw new NullPointerException("methodName");
         }
         return PREFIX + methodName + POSTFIX;
     }

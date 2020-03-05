@@ -41,10 +41,10 @@ public class MongoWriteConcernInterceptor implements AroundInterceptor {
 
     public MongoWriteConcernInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
         if (traceContext == null) {
-            throw new NullPointerException("traceContext must not be null");
+            throw new NullPointerException("traceContext");
         }
         if (descriptor == null) {
-            throw new NullPointerException("descriptor must not be null");
+            throw new NullPointerException("descriptor");
         }
         this.traceContext = traceContext;
         this.methodDescriptor = descriptor;

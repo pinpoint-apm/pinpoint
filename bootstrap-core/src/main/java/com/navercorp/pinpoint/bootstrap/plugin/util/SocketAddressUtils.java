@@ -59,7 +59,7 @@ public final class SocketAddressUtils {
 
         private ReflectiveHostStringAccessor(Method method) {
             if (method == null) {
-                throw new NullPointerException("method must not be null");
+                throw new NullPointerException("method");
             }
             this.method = method;
         }

@@ -55,16 +55,16 @@ public class UdpDataSender implements DataSender {
     public UdpDataSender(String host, int port, String threadName,
                          int queueSize, int timeout, int sendBufferSize,
                          MessageSerializer<ByteMessage> messageSerializer) {
-        Assert.requireNonNull(host, "host must not be null");
+        Assert.requireNonNull(host, "host");
         if (!HostAndPort.isValidPort(port)) {
             throw new IllegalArgumentException("port out of range:" + port);
         }
-        Assert.requireNonNull(host, "host must not be null");
+        Assert.requireNonNull(host, "host");
         Assert.isTrue(queueSize > 0, "queueSize");
         Assert.isTrue(timeout > 0, "timeout");
         Assert.isTrue(sendBufferSize > 0, "sendBufferSize");
 
-        this.messageSerializer = Assert.requireNonNull(messageSerializer, "messageSerializer must not be null");
+        this.messageSerializer = Assert.requireNonNull(messageSerializer, "messageSerializer");
 
         final SocketAddressProvider socketAddressProvider = new DnsSocketAddressProvider(host, port);
         this.socketAddressProvider = new RefreshStrategy(socketAddressProvider);

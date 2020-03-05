@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.grpc.server.ServerFactory;
 import com.navercorp.pinpoint.grpc.server.ServerOption;
 import com.navercorp.pinpoint.grpc.server.TransportMetadataFactory;
 import com.navercorp.pinpoint.grpc.server.TransportMetadataServerInterceptor;
+
 import io.grpc.BindableService;
 import io.grpc.Server;
 import io.grpc.ServerInterceptor;
@@ -38,6 +39,7 @@ import org.springframework.beans.factory.InitializingBean;
 import java.io.Closeable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.Executor;
 
 /**
@@ -58,7 +60,10 @@ public class GrpcReceiver implements InitializingBean, DisposableBean, BeanNameA
     private List<Object> serviceList = new ArrayList<>();
 
     private AddressFilter addressFilter;
-    private ServerTransportFilter lifecycleTransportFilter;
+
+    private List<ServerInterceptor> serverInterceptorList;
+    private List<ServerTransportFilter> transportFilterList;
+
     private ServerOption serverOption;
 
     private Server server;
@@ -70,26 +75,48 @@ public class GrpcReceiver implements InitializingBean, DisposableBean, BeanNameA
             return;
         }
 
-        Assert.requireNonNull(this.beanName, "beanName must not be null");
-        Assert.requireNonNull(this.bindIp, "bindIp must not be null");
-        Assert.requireNonNull(this.addressFilter, "addressFilter must not be null");
+        Objects.requireNonNull(this.beanName, "beanName");
+        Objects.requireNonNull(this.bindIp, "bindIp");
+        Objects.requireNonNull(this.addressFilter, "addressFilter");
         Assert.isTrue(CollectionUtils.hasLength(this.serviceList), "serviceList must not be empty");
-        Assert.requireNonNull(this.serverOption, "serverOption must not be null");
+        Objects.requireNonNull(this.serverOption, "serverOption");
 
         this.serverFactory = new ServerFactory(beanName, this.bindIp, this.bindPort, this.executor, serverOption);
-        ServerTransportFilter permissionServerTransportFilter = new PermissionServerTransportFilter(addressFilter);
+        ServerTransportFilter permissionServerTransportFilter = new PermissionServerTransportFilter(this.beanName, addressFilter);
         this.serverFactory.addTransportFilter(permissionServerTransportFilter);
 
         TransportMetadataFactory transportMetadataFactory = new TransportMetadataFactory(beanName);
+        // Mandatory interceptor
         final ServerTransportFilter metadataTransportFilter = new MetadataServerTransportFilter(transportMetadataFactory);
         this.serverFactory.addTransportFilter(metadataTransportFilter);
 
-        if (lifecycleTransportFilter != null) {
-            this.serverFactory.addTransportFilter(lifecycleTransportFilter);
+        if (CollectionUtils.hasLength(transportFilterList)) {
+            for (ServerTransportFilter transportFilter : transportFilterList) {
+                this.serverFactory.addTransportFilter(transportFilter);
+            }
         }
+
+        // Mandatory interceptor
         ServerInterceptor transportMetadataServerInterceptor = new TransportMetadataServerInterceptor();
         this.serverFactory.addInterceptor(transportMetadataServerInterceptor);
 
+        if (CollectionUtils.hasLength(serverInterceptorList)) {
+            for (ServerInterceptor serverInterceptor : serverInterceptorList) {
+                this.serverFactory.addInterceptor(serverInterceptor);
+            }
+        }
+
+        // Add service
+        addService();
+
+        this.server = serverFactory.build();
+        if (logger.isInfoEnabled()) {
+            logger.info("Start {} server {}", this.beanName, this.server);
+        }
+        this.server.start();
+    }
+
+    private void addService() {
         // Add service
         for (Object service : serviceList) {
             if (service instanceof BindableService) {
@@ -100,12 +127,6 @@ public class GrpcReceiver implements InitializingBean, DisposableBean, BeanNameA
                 throw new IllegalStateException("unsupported service type " + service);
             }
         }
-
-        this.server = serverFactory.build();
-        if (logger.isInfoEnabled()) {
-            logger.info("Start {} server {}", this.beanName, this.server);
-        }
-        this.server.start();
     }
 
     @Override
@@ -179,7 +200,12 @@ public class GrpcReceiver implements InitializingBean, DisposableBean, BeanNameA
         this.serviceList = serviceList;
     }
 
-    public void setLifecycleTransportFilter(ServerTransportFilter lifecycleTransportFilter) {
-        this.lifecycleTransportFilter = lifecycleTransportFilter;
+    public void setTransportFilterList(List<ServerTransportFilter> transportFilterList) {
+        this.transportFilterList = transportFilterList;
     }
+
+    public void setServerInterceptorList(List<ServerInterceptor> serverInterceptorList) {
+        this.serverInterceptorList = serverInterceptorList;
+    }
+
 }

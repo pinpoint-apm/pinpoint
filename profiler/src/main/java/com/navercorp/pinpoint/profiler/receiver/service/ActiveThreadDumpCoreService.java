@@ -38,7 +38,7 @@ public class ActiveThreadDumpCoreService {
     private final Comparator<ThreadDump> reverseOrder =  Collections.reverseOrder(new ThreadDumpComparator());
 
     public ActiveThreadDumpCoreService(ActiveTraceRepository activeTraceRepository) {
-        this.activeTraceRepository = Assert.requireNonNull(activeTraceRepository, "activeTraceRepository must not be null");
+        this.activeTraceRepository = Assert.requireNonNull(activeTraceRepository, "activeTraceRepository");
     }
 
     public Collection<ThreadDump> getActiveThreadDumpList(ThreadDumpRequest request) {

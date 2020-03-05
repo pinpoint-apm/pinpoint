@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -47,14 +48,8 @@ public class VirtualLinkHandler {
     private final VirtualLinkMarker virtualLinkMarker;
 
     public VirtualLinkHandler(LinkDataMapService linkDataMapService, VirtualLinkMarker virtualLinkMarker) {
-        if (linkDataMapService == null) {
-            throw new NullPointerException("linkDataMapService must not be null");
-        }
-        if (virtualLinkMarker == null) {
-            throw new NullPointerException("virtualLinkMarker must not be null");
-        }
-        this.linkDataMapService = linkDataMapService;
-        this.virtualLinkMarker = virtualLinkMarker;
+        this.linkDataMapService = Objects.requireNonNull(linkDataMapService, "linkDataMapService");
+        this.virtualLinkMarker = Objects.requireNonNull(virtualLinkMarker, "virtualLinkMarker");
     }
 
     public LinkDataDuplexMap processVirtualLinks(LinkDataDuplexMap linkDataDuplexMap, LinkVisitChecker linkVisitChecker, Range range) {

@@ -45,7 +45,7 @@ public class ThriftUdpMessageSerializer implements MessageSerializer<ByteMessage
 
 
     public ThriftUdpMessageSerializer(MessageConverter<TBase<?, ?>> messageConverter, int maxPacketLength) {
-        this.messageConverter = Assert.requireNonNull(messageConverter, "messageConverter must not be null");
+        this.messageConverter = Assert.requireNonNull(messageConverter, "messageConverter");
         this.maxPacketLength = maxPacketLength;
         // Caution. not thread safe
         SerializerFactory<HeaderTBaseSerializer> headerTBaseSerializerFactory = new HeaderTBaseSerializerFactory(false, maxPacketLength, false);

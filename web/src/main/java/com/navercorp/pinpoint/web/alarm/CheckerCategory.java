@@ -76,7 +76,7 @@ public enum CheckerCategory {
     SLOW_RATE_TO_CALLEE("SLOW RATE TO CALLEE", DataCollectorCategory.CALLER_STAT) {
         @Override
         public AlarmChecker createChecker(DataCollector dataCollector, Rule rule) {
-            return new SlowRateToCalleeChecker((MapStatisticsCallerDataCollector)dataCollector, rule);
+            return new SlowRateToCalleeChecker(dataCollector, rule);
         }
     },
     
@@ -90,7 +90,7 @@ public enum CheckerCategory {
     ERROR_RATE_TO_CALLEE("ERROR RATE TO CALLEE", DataCollectorCategory.CALLER_STAT) {
         @Override
         public AlarmChecker createChecker(DataCollector dataCollector, Rule rule) {
-            return new ErrorRateToCalleeChecker((MapStatisticsCallerDataCollector)dataCollector, rule);
+            return new ErrorRateToCalleeChecker(dataCollector, rule);
         }
     },
     

@@ -34,6 +34,7 @@ public class DefaultTransactionMetricCollector implements AgentStatMetricCollect
     }
 
     @Override
+
     public TransactionMetricSnapshot collect() {
         final TransactionMetricSnapshot transactionMetricSnapshot = transactionMetric.getSnapshot();
         return transactionMetricSnapshot;

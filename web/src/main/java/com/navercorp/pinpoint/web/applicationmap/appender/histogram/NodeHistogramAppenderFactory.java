@@ -33,7 +33,7 @@ public class NodeHistogramAppenderFactory {
 
     @Autowired
     public NodeHistogramAppenderFactory(@Qualifier("nodeHistogramAppendExecutor") Executor executor) {
-        this.executor = Objects.requireNonNull(executor, "executor must not be null");
+        this.executor = Objects.requireNonNull(executor, "executor");
     }
 
     public NodeHistogramAppender create(NodeHistogramFactory nodeHistogramFactory) {

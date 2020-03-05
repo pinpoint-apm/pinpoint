@@ -61,7 +61,7 @@ public class AgentClientMock {
     private final MetadataGrpc.MetadataBlockingStub metadataStub;
 
 
-    public AgentClientMock(final String host, final int port, final boolean agentHeader) throws Exception {
+    public AgentClientMock(final String host, final int port, final boolean agentHeader) {
         NettyChannelBuilder builder = NettyChannelBuilder.forAddress(host, port);
 
         if (agentHeader) {
@@ -84,7 +84,7 @@ public class AgentClientMock {
         channel.shutdown().awaitTermination(await, TimeUnit.SECONDS);
     }
 
-    public void info() throws InterruptedException {
+    public void info() {
         info(1);
     }
 
@@ -102,7 +102,7 @@ public class AgentClientMock {
         apiMetaData(1);
     }
 
-    public void apiMetaData(final int count) throws InterruptedException {
+    public void apiMetaData(final int count) {
         for (int i = 0; i < count; i++) {
             PApiMetaData request = PApiMetaData.newBuilder().build();
             PResult result = metadataStub.requestApiMetaData(request);
@@ -113,7 +113,7 @@ public class AgentClientMock {
         sqlMetaData(1);
     }
 
-    public void sqlMetaData(final int count) throws InterruptedException {
+    public void sqlMetaData(final int count) {
         for (int i = 0; i < count; i++) {
             PSqlMetaData request = PSqlMetaData.newBuilder().build();
             PResult result = metadataStub.requestSqlMetaData(request);
@@ -124,7 +124,7 @@ public class AgentClientMock {
         stringMetaData(1);
     }
 
-    public void stringMetaData(final int count) throws InterruptedException {
+    public void stringMetaData(final int count) {
         for (int i = 0; i < count; i++) {
             PStringMetaData request = PStringMetaData.newBuilder().build();
             PResult result = metadataStub.requestStringMetaData(request);
@@ -163,7 +163,7 @@ public class AgentClientMock {
         public void onCompleted() {
             logger.info("Completed");
         }
-    };
+    }
 
     public class CustomLoadBalancerFactory extends LoadBalancer.Factory {
         @Override

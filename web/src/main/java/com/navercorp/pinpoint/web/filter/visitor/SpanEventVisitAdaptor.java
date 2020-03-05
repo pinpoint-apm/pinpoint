@@ -29,7 +29,7 @@ public class SpanEventVisitAdaptor implements SpanVisitor {
     private final SpanEventVisitor spanEventVisitor;
 
     public SpanEventVisitAdaptor(SpanEventVisitor spanEventVisitor) {
-        this.spanEventVisitor = Objects.requireNonNull(spanEventVisitor, "spanEventVisitor must not be null");
+        this.spanEventVisitor = Objects.requireNonNull(spanEventVisitor, "spanEventVisitor");
     }
 
     @Override

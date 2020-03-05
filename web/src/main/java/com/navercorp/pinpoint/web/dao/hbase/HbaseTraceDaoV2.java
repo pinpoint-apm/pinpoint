@@ -1,7 +1,24 @@
+/*
+ * Copyright 2019 NAVER Corp.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.navercorp.pinpoint.web.dao.hbase;
 
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
+import com.navercorp.pinpoint.common.hbase.TableDescriptor;
 import com.navercorp.pinpoint.common.hbase.rowmapper.RequestAwareDynamicRowMapper;
 import com.navercorp.pinpoint.common.hbase.rowmapper.RequestAwareRowMapper;
 import com.navercorp.pinpoint.common.hbase.rowmapper.RequestAwareRowMapperAdaptor;
@@ -12,8 +29,7 @@ import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyEncoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanDecoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanDecoderV0;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanEncoder;
-import com.navercorp.pinpoint.common.util.Assert;
-import com.navercorp.pinpoint.common.util.TransactionId;
+import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.web.dao.TraceDao;
 import com.navercorp.pinpoint.web.mapper.CellTraceMapper;
 import com.navercorp.pinpoint.web.mapper.SpanMapperV2;
@@ -28,7 +44,9 @@ import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.filter.BinaryPrefixComparator;
 import org.apache.hadoop.hbase.filter.CompareFilter;
 import org.apache.hadoop.hbase.filter.Filter;
+import org.apache.hadoop.hbase.filter.FilterList;
 import org.apache.hadoop.hbase.filter.QualifierFilter;
+import org.apache.hadoop.hbase.filter.TimestampsFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,14 +56,16 @@ import org.springframework.stereotype.Repository;
 
 import javax.annotation.PostConstruct;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
  */
 @Repository
-public class HbaseTraceDaoV2 extends AbstractHbaseDao implements TraceDao {
+public class HbaseTraceDaoV2 implements TraceDao {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -62,13 +82,16 @@ public class HbaseTraceDaoV2 extends AbstractHbaseDao implements TraceDao {
 
     private RowMapper<List<SpanBo>> spanMapperV2;
 
-    @Value("#{pinpointWebProps['web.hbase.selectSpans.limit'] ?: 500}")
+    @Value("${web.hbase.selectSpans.limit:500}")
     private int selectSpansLimit;
 
-    @Value("#{pinpointWebProps['web.hbase.selectAllSpans.limit'] ?: 500}")
+    @Value("${web.hbase.selectAllSpans.limit:500}")
     private int selectAllSpansLimit;
 
     private final Filter spanFilter = createSpanQualifierFilter();
+
+    @Autowired
+    private TableDescriptor<HbaseColumnFamily.Trace> descriptor;
 
     @PostConstruct
     private void setup() {
@@ -84,12 +107,12 @@ public class HbaseTraceDaoV2 extends AbstractHbaseDao implements TraceDao {
     @Override
     public List<SpanBo> selectSpan(TransactionId transactionId) {
         if (transactionId == null) {
-            throw new NullPointerException("transactionId must not be null");
+            throw new NullPointerException("transactionId");
         }
 
         byte[] transactionIdRowKey = rowKeyEncoder.encodeRowKey(transactionId);
-        TableName traceTableName = getTableName();
-        return template2.get(traceTableName, transactionIdRowKey, getColumnFamilyName(), spanMapperV2);
+        TableName traceTableName = descriptor.getTableName();
+        return template2.get(traceTableName, transactionIdRowKey, descriptor.getColumnFamilyName(), spanMapperV2);
     }
 
 
@@ -104,7 +127,7 @@ public class HbaseTraceDaoV2 extends AbstractHbaseDao implements TraceDao {
         }
 
         List<List<GetTraceInfo>> partitionGetTraceInfoList = partition(getTraceInfoList, eachPartitionSize);
-        return partitionSelect(partitionGetTraceInfoList, getColumnFamilyName(), spanFilter);
+        return partitionSelect(partitionGetTraceInfoList, descriptor.getColumnFamilyName(), spanFilter);
     }
 
     @Override
@@ -123,7 +146,7 @@ public class HbaseTraceDaoV2 extends AbstractHbaseDao implements TraceDao {
         }
 
         List<List<GetTraceInfo>> partitionGetTraceInfoList = partition(getTraceInfoList, eachPartitionSize);
-        return partitionSelect(partitionGetTraceInfoList, getColumnFamilyName(), null);
+        return partitionSelect(partitionGetTraceInfoList, descriptor.getColumnFamilyName(), null);
     }
 
     private List<List<GetTraceInfo>> partition(List<GetTraceInfo> getTraceInfoList, int maxTransactionIdListSize) {
@@ -135,7 +158,7 @@ public class HbaseTraceDaoV2 extends AbstractHbaseDao implements TraceDao {
             return Collections.emptyList();
         }
         if (columnFamily == null) {
-            throw new NullPointerException("columnFamily must not be null.");
+            throw new NullPointerException("columnFamily");
         }
 
         List<List<SpanBo>> spanBoList = new ArrayList<>();
@@ -150,7 +173,7 @@ public class HbaseTraceDaoV2 extends AbstractHbaseDao implements TraceDao {
         if (CollectionUtils.isEmpty(getTraceInfoList)) {
             return Collections.emptyList();
         }
-        Assert.requireNonNull(columnFamily, "columnFamily must not be null");
+        Objects.requireNonNull(columnFamily, "columnFamily");
 
         List<Get> getList = createGetList(getTraceInfoList, columnFamily, filter);
 
@@ -176,16 +199,45 @@ public class HbaseTraceDaoV2 extends AbstractHbaseDao implements TraceDao {
     }
 
 
-    private List<Get> createGetList(List<GetTraceInfo> getTraceInfoList, byte[] columnFamily, Filter filter) {
+    private List<Get> createGetList(List<GetTraceInfo> getTraceInfoList, byte[] columnFamily, Filter defaultFilter) {
         if (CollectionUtils.isEmpty(getTraceInfoList)) {
             return Collections.emptyList();
         }
         final List<Get> getList = new ArrayList<>(getTraceInfoList.size());
         for (GetTraceInfo getTraceInfo : getTraceInfoList) {
+            final SpanHint hint = getTraceInfo.getHint();
+            final TimestampsFilter timeStampFilter = getTimeStampFilter(hint);
+
+            Filter filter = getFilter(defaultFilter, timeStampFilter);
             final Get get = createGet(getTraceInfo.getTransactionId(), columnFamily, filter);
             getList.add(get);
         }
         return getList;
+    }
+
+    private TimestampsFilter getTimeStampFilter(SpanHint hint) {
+        final long collectorAcceptorTime = hint.getCollectorAcceptorTime();
+        if (collectorAcceptorTime >= 0) {
+            return new TimestampsFilter(Arrays.asList(collectorAcceptorTime));
+        } else {
+            return null;
+        }
+    }
+
+    private Filter getFilter(Filter filter1, Filter filter2) {
+        if (filter1 != null && filter2 != null) {
+            FilterList filterList = new FilterList();
+            filterList.addFilter(filter1);
+            filterList.addFilter(filter2);
+            return filterList;
+        }
+        if (filter1 != null) {
+            return filter1;
+        }
+        if (filter2 != null) {
+            return filter2;
+        }
+        return null;
     }
 
     private List<List<SpanBo>> bulkSelect0(List<Get> multiGet, RowMapper<List<SpanBo>> rowMapperList) {
@@ -193,7 +245,7 @@ public class HbaseTraceDaoV2 extends AbstractHbaseDao implements TraceDao {
             return Collections.emptyList();
         }
 
-        TableName traceTableName = getTableName();
+        TableName traceTableName = descriptor.getTableName();
         return template2.get(traceTableName, multiGet, rowMapperList);
     }
 
@@ -215,9 +267,5 @@ public class HbaseTraceDaoV2 extends AbstractHbaseDao implements TraceDao {
         return qualifierPrefixFilter;
     }
 
-    @Override
-    public HbaseColumnFamily getColumnFamily() {
-        return HbaseColumnFamily.TRACE_V2_SPAN;
-    }
 
 }

@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.collector.dao.hbase;
 import com.navercorp.pinpoint.collector.dao.SqlMetaDataDao;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
+import com.navercorp.pinpoint.common.hbase.TableDescriptor;
 import com.navercorp.pinpoint.common.server.bo.SqlMetaDataBo;
 
 import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
@@ -35,7 +36,7 @@ import org.springframework.stereotype.Repository;
  * @author minwoo.jung
  */
 @Repository
-public class HbaseSqlMetaDataDao extends AbstractHbaseDao implements SqlMetaDataDao {
+public class HbaseSqlMetaDataDao implements SqlMetaDataDao {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -46,10 +47,13 @@ public class HbaseSqlMetaDataDao extends AbstractHbaseDao implements SqlMetaData
     @Qualifier("metadataRowKeyDistributor2")
     private RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
 
+    @Autowired
+    private TableDescriptor<HbaseColumnFamily.SqlMetadataV2> descriptor;
+
     @Override
     public void insert(SqlMetaDataBo sqlMetaData) {
         if (sqlMetaData == null) {
-            throw new NullPointerException("sqlMetaData must not be null");
+            throw new NullPointerException("sqlMetaData");
         }
         if (logger.isDebugEnabled()) {
             logger.debug("insert:{}", sqlMetaData);
@@ -59,9 +63,9 @@ public class HbaseSqlMetaDataDao extends AbstractHbaseDao implements SqlMetaData
         final Put put = new Put(rowKey);
         final String sql = sqlMetaData.getSql();
         final byte[] sqlBytes = Bytes.toBytes(sql);
-        put.addColumn(getColumnFamilyName(), getColumnFamily().QUALIFIER_SQLSTATEMENT, sqlBytes);
+        put.addColumn(descriptor.getColumnFamilyName(), descriptor.getColumnFamily().QUALIFIER_SQLSTATEMENT, sqlBytes);
 
-        final TableName sqlMetaDataTableName = getTableName();
+        final TableName sqlMetaDataTableName = descriptor.getTableName();
         hbaseTemplate.put(sqlMetaDataTableName, put);
     }
 
@@ -69,9 +73,5 @@ public class HbaseSqlMetaDataDao extends AbstractHbaseDao implements SqlMetaData
         return rowKeyDistributorByHashPrefix.getDistributedKey(rowKey);
     }
 
-    @Override
-    public HbaseColumnFamily.SqlMetadataV2 getColumnFamily() {
-        return HbaseColumnFamily.SQL_METADATA_VER2_SQL;
-    }
 
 }

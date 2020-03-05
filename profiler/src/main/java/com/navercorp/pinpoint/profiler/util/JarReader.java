@@ -17,6 +17,7 @@
 
 package com.navercorp.pinpoint.profiler.util;
 
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,7 +25,6 @@ import org.slf4j.LoggerFactory;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
@@ -43,10 +43,7 @@ public class JarReader {
     private final JarFile jarFile;
 
     public JarReader(JarFile jarFile) {
-        if (jarFile == null) {
-            throw new NullPointerException("jarFile must not be null");
-        }
-        this.jarFile = jarFile;
+        this.jarFile = Assert.requireNonNull(jarFile, "jarFile");
     }
 
     public InputStream getInputStream(String name) throws IOException {
@@ -60,7 +57,7 @@ public class JarReader {
 
     public List<FileBinary> read(JarEntryFilter jarEntryFilter) throws IOException{
         if (jarEntryFilter == null) {
-            throw new NullPointerException("jarEntryFilter must not be null");
+            throw new NullPointerException("jarEntryFilter");
         }
 
         final BufferedContext bufferedContext = new BufferedContext();

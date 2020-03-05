@@ -38,7 +38,7 @@ public class JMXCollectorManagerList {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @Value("#{pinpoint_collector_properties['collector.admin.api.jmx.active'] ?: false}")
+    @Value("${collector.admin.api.jmx.active:false}")
     private boolean isActive;
 
     @Autowired

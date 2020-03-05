@@ -34,10 +34,10 @@ public class InstrumentorDelegate implements Instrumentor {
 
     public InstrumentorDelegate(ProfilerConfig profilerConfig, InstrumentContext instrumentContext) {
         if (profilerConfig == null) {
-            throw new NullPointerException("profilerConfig must not be null");
+            throw new NullPointerException("profilerConfig");
         }
         if (instrumentContext == null) {
-            throw new NullPointerException("instrumentContext must not be null");
+            throw new NullPointerException("instrumentContext");
         }
         this.profilerConfig = profilerConfig;
         this.instrumentContext = instrumentContext;
@@ -85,7 +85,7 @@ public class InstrumentorDelegate implements Instrumentor {
 
     @Override
     public void transform(ClassLoader classLoader, String targetClassName, Class<? extends TransformCallback> transformCallbackClass) {
-        Assert.requireNonNull(transformCallbackClass, "transformCallback must not be null");
+        Assert.requireNonNull(transformCallbackClass, "transformCallback");
         TransformCallbackChecker.validate(transformCallbackClass);
 
         final String transformCallbackClassName = transformCallbackClass.getName();

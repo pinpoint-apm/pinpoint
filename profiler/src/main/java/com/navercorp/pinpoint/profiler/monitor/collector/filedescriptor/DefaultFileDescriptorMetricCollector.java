@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.profiler.monitor.collector.filedescriptor;
 
 
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.monitor.collector.AgentStatMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.metric.filedescriptor.FileDescriptorMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.filedescriptor.FileDescriptorMetricSnapshot;
@@ -29,10 +30,7 @@ public class DefaultFileDescriptorMetricCollector implements AgentStatMetricColl
     private final FileDescriptorMetric fileDescriptorMetric;
 
     public DefaultFileDescriptorMetricCollector(FileDescriptorMetric fileDescriptorMetric) {
-        if (fileDescriptorMetric == null) {
-            throw new NullPointerException("fileDescriptorMetric must not be null");
-        }
-        this.fileDescriptorMetric = fileDescriptorMetric;
+        this.fileDescriptorMetric = Assert.requireNonNull(fileDescriptorMetric, "fileDescriptorMetric");
     }
 
     @Override

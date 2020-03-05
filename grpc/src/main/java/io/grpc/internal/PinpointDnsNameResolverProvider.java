@@ -35,8 +35,8 @@ public final class PinpointDnsNameResolverProvider extends NameResolverProvider 
     private final String name;
 
     public PinpointDnsNameResolverProvider(String name, ExecutorService dnsExecutorService) {
-        this.name = Assert.requireNonNull(name, "name must not be null");
-        this.dnsExecutorService = Assert.requireNonNull(dnsExecutorService, "dnsExecutorService must not be null");
+        this.name = Assert.requireNonNull(name, "name");
+        this.dnsExecutorService = Assert.requireNonNull(dnsExecutorService, "dnsExecutorService");
     }
 
     @Override

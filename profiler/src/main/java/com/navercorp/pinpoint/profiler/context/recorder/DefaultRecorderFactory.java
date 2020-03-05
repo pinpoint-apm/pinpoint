@@ -38,9 +38,9 @@ public class DefaultRecorderFactory implements RecorderFactory {
 
     @Inject
     public DefaultRecorderFactory(Provider<AsyncContextFactory> asyncContextFactoryProvider, StringMetaDataService stringMetaDataService, SqlMetaDataService sqlMetaDataService) {
-        this.asyncContextFactoryProvider = Assert.requireNonNull(asyncContextFactoryProvider, "asyncContextFactoryProvider must not be null");
-        this.stringMetaDataService = Assert.requireNonNull(stringMetaDataService, "stringMetaDataService must not be null");
-        this.sqlMetaDataService = Assert.requireNonNull(sqlMetaDataService, "sqlMetaDataService must not be null");
+        this.asyncContextFactoryProvider = Assert.requireNonNull(asyncContextFactoryProvider, "asyncContextFactoryProvider");
+        this.stringMetaDataService = Assert.requireNonNull(stringMetaDataService, "stringMetaDataService");
+        this.sqlMetaDataService = Assert.requireNonNull(sqlMetaDataService, "sqlMetaDataService");
     }
 
     @Override
@@ -61,7 +61,7 @@ public class DefaultRecorderFactory implements RecorderFactory {
 
     @Override
     public WrappedSpanEventRecorder newWrappedSpanEventRecorder(TraceRoot traceRoot, AsyncState asyncState) {
-        Assert.requireNonNull(asyncState, "asyncState must not be null");
+        Assert.requireNonNull(asyncState, "asyncState");
 
         final AsyncContextFactory asyncContextFactory = asyncContextFactoryProvider.get();
         return new WrappedAsyncSpanEventRecorder(traceRoot, asyncContextFactory, stringMetaDataService, sqlMetaDataService, asyncState);

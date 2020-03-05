@@ -1,0 +1,53 @@
+<div class="l-wrapper">
+    <button class="btn btn-black l-close" (click)="onClose(); formDir.resetForm();"><i class="fas fa-times"></i></button>
+    <h1>Alarm</h1> 
+    <form [formGroup]="alarmForm" #formDir="ngForm" (ngSubmit)="onCreateOrUpdate()">
+        <div class="l-form-grid">
+            <div>
+                <div class="l-form-label">{{i18nLabel.CHECKER_LABEL}} <span class="l-required-icon">*</span></div>
+                <select class="l-select" formControlName="checkerName" required>
+                    <option value="">Select rule</option>
+                    <option *ngFor="let checker of checkerList" [value]="checker">{{checker}}</option>
+                </select>
+                <span class="fas fa-angle-down"></span>
+                <pp-form-field-error-message
+                    [control]="alarmForm.get('checkerName')"
+                    [errorMessage]="i18nFormGuide['checkerName']">
+                </pp-form-field-error-message>
+            </div>
+            <div>
+                <div class="l-form-label">{{i18nLabel.USER_GROUP_LABEL}} <span class="l-required-icon">*</span></div>
+                <select class="l-select" formControlName="userGroupId" required>
+                    <option value="">Select user group</option>
+                    <option *ngFor="let userGroup of userGroupList" [value]="userGroup">{{userGroup}}</option>
+                </select>
+                <span class="fas fa-angle-down"></span>
+                <pp-form-field-error-message
+                    [control]="alarmForm.get('userGroupId')"
+                    [errorMessage]="i18nFormGuide['userGroupId']">
+                </pp-form-field-error-message>
+            </div>
+            <div>
+                <div class="l-form-label">{{i18nLabel.THRESHOLD_LABEL}} <span class="l-required-icon">*</span></div>
+                <input type="number" id="threshold" class="l-input" formControlName="threshold" required>
+                <pp-form-field-error-message
+                    [control]="alarmForm.get('threshold')"
+                    [errorMessage]="i18nFormGuide['threshold']">
+                </pp-form-field-error-message>
+            </div>
+            <div>
+                <div class="l-form-label">{{i18nLabel.TYPE_LABEL}}</div>
+                <select class="l-select" formControlName="type">
+                    <option value="all">All</option>
+                    <option value="email">Email</option>
+                    <option value="sms">SMS</option>
+                    <option value="none">None</option>
+                </select>
+                <span class="fas fa-angle-down"></span>
+            </div>
+        </div>
+        <div class="l-form-label">{{i18nLabel.NOTES_LABEL}}</div>
+        <textarea id="notes" class="l-textarea" formControlName="notes"></textarea>
+        <button type="submit" class="btn btn-blue l-create" [disabled]="alarmForm.invalid">OK</button>
+    </form>
+</div>

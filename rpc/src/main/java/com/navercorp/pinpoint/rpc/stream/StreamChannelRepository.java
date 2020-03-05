@@ -31,7 +31,7 @@ public class StreamChannelRepository {
     private final ConcurrentMap<Integer, StreamChannel> streamChannelMap = new ConcurrentHashMap<Integer, StreamChannel>();
 
     public void registerIfAbsent(StreamChannel streamChannel) throws StreamException {
-        Assert.requireNonNull(streamChannel, "streamChannel must not be null");
+        Assert.requireNonNull(streamChannel, "streamChannel");
 
         int streamId = streamChannel.getStreamId();
         if (streamChannelMap.putIfAbsent(streamId, streamChannel) != null) {
@@ -40,7 +40,7 @@ public class StreamChannelRepository {
     }
 
     public StreamChannel unregister(StreamChannel streamChannel) {
-        Assert.requireNonNull(streamChannel, "streamChannel must not be null");
+        Assert.requireNonNull(streamChannel, "streamChannel");
         return unregister(streamChannel.getStreamId());
     }
 

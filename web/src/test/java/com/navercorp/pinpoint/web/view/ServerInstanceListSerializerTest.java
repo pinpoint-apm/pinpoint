@@ -77,11 +77,6 @@ public class ServerInstanceListSerializerTest {
     private ObjectMapper createMapper() throws Exception {
         final Jackson2ObjectMapperFactoryBean factoryBean = new Jackson2ObjectMapperFactoryBean();
 
-        final ServerInstanceSerializer serverInstanceSerializer = new ServerInstanceSerializer();
-
-        final ServiceTypeRegistryService serviceTypeRegistryService = mockServiceTypeRegistryService();
-        serverInstanceSerializer.setServiceTypeRegistryService(serviceTypeRegistryService);
-
         factoryBean.setHandlerInstantiator(new TestHandlerInstantiator());
         // TODO FIX spring managed object
 
@@ -97,13 +92,9 @@ public class ServerInstanceListSerializerTest {
         public JsonSerializer<?> serializerInstance(SerializationConfig config, Annotated annotated, Class<?> keyDeserClass) {
             if (annotated.getName().equals("com.navercorp.pinpoint.web.applicationmap.nodes.ServerInstance")) {
                 final ServiceTypeRegistryService serviceTypeRegistryService = mockServiceTypeRegistryService();
-
-                final ServerInstanceSerializer serverInstanceSerializer = new ServerInstanceSerializer();
-                serverInstanceSerializer.setServiceTypeRegistryService(serviceTypeRegistryService);
-
                 final AgentLifeCycleStateSerializer agentLifeCycleStateSerializer = new AgentLifeCycleStateSerializer();
-                serverInstanceSerializer.setAgentLifeCycleStateSerializer(agentLifeCycleStateSerializer);
-                return serverInstanceSerializer;
+
+                return new ServerInstanceSerializer(serviceTypeRegistryService, agentLifeCycleStateSerializer);
             }
             return null;
         }

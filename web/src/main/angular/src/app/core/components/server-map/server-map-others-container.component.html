@@ -1,0 +1,12 @@
+<pp-server-map
+    [baseApplicationKey]="baseApplicationKey"
+    [mapData]="mapData"
+    [funcServerMapImagePath]="funcServerMapImagePath"
+    [type]="type"
+    (outContextClickBackground)="onContextClickBackground($event)"
+    (outClickNode)="onClickNode($event)"
+    (outClickLink)="onClickLink($event)"
+    (outContextClickLink)="onContextClickLink($event)"
+    (outRenderCompleted)="onRenderCompleted($event)">
+</pp-server-map>
+<pp-loading [showLoading]="showLoading"></pp-loading>

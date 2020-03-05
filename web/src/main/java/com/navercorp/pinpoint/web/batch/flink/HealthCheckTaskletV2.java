@@ -66,7 +66,7 @@ public class HealthCheckTaskletV2 implements Tasklet {
 
         Map<String, Boolean> jobExecuteStatus = createjobExecuteStatus();
 
-        for(String url : urlList) {
+        for (String url : urlList) {
             try {
                 ResponseEntity<Map> responseEntity = this.restTemplate.exchange(url, HttpMethod.GET, null, Map.class);
 
@@ -96,12 +96,12 @@ public class HealthCheckTaskletV2 implements Tasklet {
     }
 
     private void checkJobExecuteStatus(ResponseEntity<Map> responseEntity, Map<String, Boolean> jobExecuteStatus) {
-        Map<Object, Object> responseData = responseEntity.getBody();
-        List<Object> jobs = (List<Object>)responseData.get("jobs");
+        Map<?, ?> responseData = responseEntity.getBody();
+        List<?> jobs = (List<?>)responseData.get("jobs");
 
         if (jobs != null) {
             for (Object job : jobs) {
-                Map<String, Object> jobInfo = (Map<String, Object>)job;
+                Map<?, ?> jobInfo = (Map<?, ?>)job;
                 final String jobName = (String) jobInfo.get(NAME);
                 if (jobExecuteStatus.containsKey(jobName)) {
                     if (RUNNING.equals(jobInfo.get(STATE))) {

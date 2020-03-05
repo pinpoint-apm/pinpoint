@@ -16,13 +16,11 @@
 
 package com.navercorp.pinpoint.test.plugin.shared;
 
-import java.io.File;
-import java.net.MalformedURLException;
+import com.navercorp.pinpoint.test.plugin.util.FileUtils;
+
+import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 public class MavenDependencyResolverClassLoader extends URLClassLoader {
     // find child first classloader
@@ -46,31 +44,22 @@ public class MavenDependencyResolverClassLoader extends URLClassLoader {
     }
 
     static ClassLoader getClassLoader(String[] jars) {
-        List<URL> urlList = getUrlList(jars);
+        final URL[] urlList = getUrlList(jars);
 
-        return new MavenDependencyResolverClassLoader(urlList.toArray(new URL[0]));
+        return new MavenDependencyResolverClassLoader(urlList);
     }
 
-    private static List<URL> getUrlList(String[] jars) {
+    private static URL[] getUrlList(String[] jars) {
         if (jars == null) {
-            return Collections.emptyList();
+            return new URL[0];
         }
 
-        List<URL> urlList = new ArrayList<URL>();
-        for (String jar : jars) {
-            URL url = toURL(jar);
-            urlList.add(url);
-        }
-        return urlList;
-    }
-
-    private static URL toURL(String jar) {
         try {
-            File file = new File(jar);
-            return file.toURI().toURL();
-        } catch (MalformedURLException e) {
+            return FileUtils.toURLs(jars);
+        } catch (IOException e) {
             throw new RuntimeException(e.getMessage(), e);
         }
+
     }
 
 }

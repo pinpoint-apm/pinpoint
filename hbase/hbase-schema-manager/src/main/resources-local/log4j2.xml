@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration>
+
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="[%-5p] HbaseSchemaManager> %m%n"/>
+            <Filters>
+                <MarkerFilter marker="TERMINAL" onMatch="ACCEPT" onMismatch="NEUTRAL"/>
+                <MarkerFilter marker="APP_LOG" onMatch="DENY" onMismatch="NEUTRAL"/>
+            </Filters>
+        </Console>
+        <Console name="AppLog" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} [%-5p](%-35.35c{1.}:%-3L) %m%n"/>
+            <Filters>
+                <MarkerFilter marker="TERMINAL" onMatch="DENY" onMismatch="NEUTRAL"/>
+                <MarkerFilter marker="APP_LOG" onMatch="ACCEPT" onMismatch="NEUTRAL"/>
+            </Filters>
+        </Console>
+    </Appenders>
+
+    <Loggers>
+        <Logger name="com.navercorp.pinpoint.hbase.manager" level="DEBUG" additivity="false">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="AppLog"/>
+        </Logger>
+
+        <Logger name="com.navercorp.pinpoint.hbase.schema" level="DEBUG" additivity="false">
+            <AppenderRef ref="AppLog"/>
+        </Logger>
+
+        <Logger name="com.navercorp.pinpoint.hbase.schema.service" level="DEBUG" additivity="false">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="AppLog"/>
+        </Logger>
+
+        <Logger name="com.navercorp.pinpoint.hbase.schema.core" level="DEBUG" additivity="false">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="AppLog"/>
+        </Logger>
+
+        <Logger name="com.navercorp.pinpoint" level="DEBUG" additivity="false">
+            <AppenderRef ref="AppLog"/>
+        </Logger>
+
+        <Logger name="org.apache.zookeeper" level="INFO" additivity="false">
+            <AppenderRef ref="AppLog"/>
+        </Logger>
+
+        <Logger name="org.apache.hadoop.hbase" level="INFO" additivity="false">
+            <AppenderRef ref="AppLog"/>
+        </Logger>
+
+        <Root level="INFO">
+            <AppenderRef ref="AppLog"/>
+        </Root>
+    </Loggers>
+
+</Configuration>

@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.collector.cluster.zookeeper;
 
 import com.navercorp.pinpoint.collector.cluster.AbstractClusterService;
 import com.navercorp.pinpoint.collector.cluster.ClusterPointRouter;
+import com.navercorp.pinpoint.collector.cluster.DisabledProfilerClusterManager;
+import com.navercorp.pinpoint.collector.cluster.ProfilerClusterManager;
 import com.navercorp.pinpoint.collector.cluster.connection.CollectorClusterAcceptor;
 import com.navercorp.pinpoint.collector.cluster.connection.CollectorClusterConnectionFactory;
 import com.navercorp.pinpoint.collector.cluster.connection.CollectorClusterConnectionManager;
@@ -65,7 +67,7 @@ public class ZookeeperClusterService extends AbstractClusterService {
     private ZookeeperClusterManager webClusterManager;
 
     // ProfilerClusterManager detects/manages profiler -> collector connections, and saves their information in Zookeeper.
-    private ZookeeperProfilerClusterManager profilerClusterManager;
+    private ProfilerClusterManager profilerClusterManager;
 
     public ZookeeperClusterService(CollectorConfiguration config, ClusterPointRouter clusterPointRouter) {
         super(config, clusterPointRouter);
@@ -91,6 +93,7 @@ public class ZookeeperClusterService extends AbstractClusterService {
     public void setUp() throws KeeperException, IOException, InterruptedException {
         if (!config.isClusterEnable()) {
             logger.info("pinpoint-collector cluster disable.");
+            this.profilerClusterManager = new DisabledProfilerClusterManager();
             return;
         }
 
@@ -174,12 +177,8 @@ public class ZookeeperClusterService extends AbstractClusterService {
         return config.isClusterEnable();
     }
 
-    public ZookeeperProfilerClusterManager getProfilerClusterManager() {
+    public ProfilerClusterManager getProfilerClusterManager() {
         return profilerClusterManager;
-    }
-
-    public ZookeeperClusterManager getWebClusterManager() {
-        return webClusterManager;
     }
 
     class ClusterManagerWatcher implements ZookeeperEventWatcher {
@@ -207,7 +206,7 @@ public class ZookeeperClusterService extends AbstractClusterService {
         @Override
         public boolean handleConnected() {
             if (serviceState.isStarted()) {
-                profilerClusterManager.initZookeeperClusterData();
+                profilerClusterManager.refresh();
                 webClusterManager.handleAndRegisterWatcher(ZookeeperConstants.PINPOINT_WEB_CLUSTER_PATH);
                 return true;
             } else {

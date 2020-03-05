@@ -19,26 +19,32 @@ package com.navercorp.pinpoint.bootstrap.plugin.jdbc.bindvalue;
 import java.util.HashMap;
 import java.util.Map;
 
-public class BindValueConverter {
-    private static final BindValueConverter converter;
-    static {
-        converter = new BindValueConverter();
-        converter.register();
-    }
+public final class BindValueConverter {
 
-    private final Map<String, Converter> convertermap = new HashMap<String, Converter>() ;
+    private static final BindValueConverter CONVERTER = newBindValueConverter();
+    
+    private final Map<String, Converter> converterMap = new HashMap<String, Converter>() ;
 
-    private void register() {
-        simpleType();
-        classNameType();
+    private static BindValueConverter newBindValueConverter() {
+        final BindValueConverter converter = new BindValueConverter();
+        converter.simpleType();
+        converter.classNameType();
 
         // There also is method with 3 parameters.
-        convertermap.put("setNull", new NullTypeConverter());
+        converter.register("setNull", new NullTypeConverter());
 
         BytesConverter bytesConverter = new BytesConverter();
-        convertermap.put("setBytes", bytesConverter);
+        converter.register("setBytes", bytesConverter);
 
-        convertermap.put("setObject", new ObjectConverter());
+        converter.register("setObject", new ObjectConverter());
+        return converter;
+    }
+
+    private BindValueConverter() {
+    }
+
+    private void register(String methodName, Converter converter) {
+        this.converterMap.put(methodName, converter);
     }
 
     private void classNameType() {
@@ -46,56 +52,57 @@ public class BindValueConverter {
         ClassNameConverter classNameConverter = new ClassNameConverter();
         
      // There also is method with 3 parameters.
-        convertermap.put("setAsciiStream", classNameConverter);
-        convertermap.put("setUnicodeStream", classNameConverter);
-        convertermap.put("setBinaryStream", classNameConverter);
+        this.register("setAsciiStream", classNameConverter);
+        this.register("setUnicodeStream", classNameConverter);
+        this.register("setBinaryStream", classNameConverter);
 
      // There also is method with 3 parameters.
-        convertermap.put("setBlob", classNameConverter);
+        this.register("setBlob", classNameConverter);
      // There also is method with 3 parameters.
-        convertermap.put("setClob", classNameConverter);
-        convertermap.put("setArray", classNameConverter);
-        convertermap.put("setNCharacterStream", classNameConverter);
+        this.register("setClob", classNameConverter);
+        this.register("setArray", classNameConverter);
+        this.register("setNCharacterStream", classNameConverter);
 
      // There also is method with 3 parameters.
-        convertermap.put("setNClob", classNameConverter);
+        this.register("setNClob", classNameConverter);
 
-        convertermap.put("setCharacterStream", classNameConverter);
-        convertermap.put("setSQLXML", classNameConverter);
+        this.register("setCharacterStream", classNameConverter);
+        this.register("setSQLXML", classNameConverter);
     }
 
     private void simpleType() {
 
         SimpleTypeConverter simpleTypeConverter = new SimpleTypeConverter();
-        convertermap.put("setByte", simpleTypeConverter);
-        convertermap.put("setBoolean", simpleTypeConverter);
-        convertermap.put("setShort", simpleTypeConverter);
-        convertermap.put("setInt", simpleTypeConverter);
-        convertermap.put("setLong", simpleTypeConverter);
-        convertermap.put("setFloat", simpleTypeConverter);
-        convertermap.put("setDouble", simpleTypeConverter);
-        convertermap.put("setBigDecimal", simpleTypeConverter);
-        convertermap.put("setString", simpleTypeConverter);
-        convertermap.put("setDate", simpleTypeConverter);
+
+        this.register("setByte", simpleTypeConverter);
+        this.register("setBoolean", simpleTypeConverter);
+        this.register("setShort", simpleTypeConverter);
+        this.register("setInt", simpleTypeConverter);
+        this.register("setLong", simpleTypeConverter);
+        this.register("setFloat", simpleTypeConverter);
+        this.register("setDouble", simpleTypeConverter);
+        this.register("setBigDecimal", simpleTypeConverter);
+        this.register("setString", simpleTypeConverter);
+        this.register("setDate", simpleTypeConverter);
 
      // There also is method with 3 parameters.
-        convertermap.put("setTime", simpleTypeConverter);
-        //convertermap.put("setTime", simpleTypeConverter);
+        this.register("setTime", simpleTypeConverter);
+        //this.register("setTime", simpleTypeConverter);
 
      // There also is method with 3 parameters.
-        convertermap.put("setTimestamp", simpleTypeConverter);
-        //convertermap.put("setTimestamp", simpleTypeConverter);
+        this.register("setTimestamp", simpleTypeConverter);
+        //this.register("setTimestamp", simpleTypeConverter);
 
 
         // could be replaced with string
-        convertermap.put("setURL", simpleTypeConverter);
+        this.register("setURL", simpleTypeConverter);
         // could be replaced with string
-        convertermap.put("setRef", simpleTypeConverter);
-        convertermap.put("setNString", simpleTypeConverter);
+        this.register("setRef", simpleTypeConverter);
+        this.register("setNString", simpleTypeConverter);
     }
 
     private String convert0(String methodName, Object[] args) {
-        final Converter converter = this.convertermap.get(methodName);
+        final Converter converter = this.converterMap.get(methodName);
         if (converter == null) {
             return "";
         }
@@ -104,7 +111,7 @@ public class BindValueConverter {
 
 
     public static String convert(String methodName, Object[] args) {
-        return converter.convert0(methodName, args);
+        return CONVERTER.convert0(methodName, args);
     }
 
 }

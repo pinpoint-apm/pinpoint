@@ -23,9 +23,10 @@ public class SpanClientTestMain {
 
     public static void main(String[] args) throws Exception {
         SpanClientMock clientMock = new SpanClientMock("localhost", 9998);
-        TimeUnit.SECONDS.sleep(10);
+        TimeUnit.SECONDS.sleep(5);
 
-        clientMock.span(9999999);
+        long startTime = System.currentTimeMillis();
+        clientMock.span(1000);
 
         TimeUnit.SECONDS.sleep(60);
         clientMock.stop();

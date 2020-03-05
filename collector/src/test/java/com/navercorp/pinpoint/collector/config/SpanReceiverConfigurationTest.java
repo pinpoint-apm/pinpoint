@@ -16,36 +16,36 @@
 
 package com.navercorp.pinpoint.collector.config;
 
-import com.navercorp.pinpoint.common.util.PropertyUtils;
+import org.junit.Assert;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import java.util.Properties;
-
-import static org.junit.Assert.*;
-
+@TestPropertySource(locations = "classpath:test-pinpoint-collector.properties")
+@ContextConfiguration(classes = SpanReceiverConfiguration.class)
+@RunWith(SpringJUnit4ClassRunner.class)
 public class SpanReceiverConfigurationTest {
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    @Autowired
+    SpanReceiverConfiguration configuration;
 
     @Test
     public void properties() throws Exception {
-        Properties properties = PropertyUtils.loadPropertyFromClassPath("test-pinpoint-collector.properties");
-        SpanReceiverConfiguration configuration = new SpanReceiverConfiguration(properties, new DeprecatedConfiguration());
-
-        assertEquals(Boolean.FALSE, configuration.isGrpcEnable());
-        assertEquals("3.3.3.3", configuration.getGrpcBindIp());
-        assertEquals(3, configuration.getGrpcBindPort());
-        assertEquals(3, configuration.getGrpcWorkerThreadSize());
-        assertEquals(3, configuration.getGrpcWorkerQueueSize());
-        assertEquals(Boolean.FALSE, configuration.isGrpcWorkerMonitorEnable());
-        assertEquals(3, configuration.getGrpcServerOption().getKeepAliveTime());
-        assertEquals(3, configuration.getGrpcServerOption().getKeepAliveTimeout());
-        assertEquals(3, configuration.getGrpcServerOption().getPermitKeepAliveTime());
-        assertEquals(3, configuration.getGrpcServerOption().getMaxConnectionIdle());
-        assertEquals(3, configuration.getGrpcServerOption().getMaxConcurrentCallsPerConnection());
-        assertEquals(3, configuration.getGrpcServerOption().getMaxInboundMessageSize());
-        assertEquals(3, configuration.getGrpcServerOption().getMaxHeaderListSize());
-        assertEquals(3, configuration.getGrpcServerOption().getFlowControlWindow());
-
-        assertEquals(3, configuration.getGrpcServerOption().getHandshakeTimeout());
-        assertEquals(3, configuration.getGrpcServerOption().getReceiveBufferSize());
+        Assert.assertTrue(configuration.isUdpEnable());
+        Assert.assertEquals(configuration.getUdpBindIp(), "0.0.0.3");
+        Assert.assertEquals(configuration.getUdpBindPort(), 39997);
+        Assert.assertEquals(configuration.getUdpReceiveBufferSize(), 568);
+        Assert.assertFalse(configuration.isTcpEnable());
+        Assert.assertEquals(configuration.getTcpBindIp(), "0.0.0.4");
+        Assert.assertEquals(configuration.getTcpBindPort(), 39998);
+        Assert.assertEquals(configuration.getWorkerThreadSize(), 3);
+        Assert.assertEquals(configuration.getWorkerQueueSize(), 4);
+        Assert.assertFalse(configuration.isWorkerMonitorEnable());
     }
 }

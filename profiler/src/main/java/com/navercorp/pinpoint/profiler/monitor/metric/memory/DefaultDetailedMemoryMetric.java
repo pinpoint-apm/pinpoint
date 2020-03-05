@@ -44,7 +44,7 @@ public class DefaultDetailedMemoryMetric implements DetailedMemoryMetric {
             MemoryPoolMXBean permGenPool,
             MemoryPoolMXBean metaspacePool) {
         if (memoryPoolType == null) {
-            throw new NullPointerException("memoryPoolType must not be null");
+            throw new NullPointerException("memoryPoolType");
         }
         this.memoryPoolType = memoryPoolType;
         this.codeCachePool = wrap(codeCachePool);

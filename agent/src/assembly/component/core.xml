@@ -3,12 +3,28 @@
            xsi:schemaLocation="http://maven.apache.org/ASSEMBLY-COMPONENT/2.0.0 http://maven.apache.org/xsd/assembly-component-2.0.0.xsd">
     <fileSets>
         <fileSet>
-            <directory>${basedir}/src/main/resources-${env}</directory>
+            <directory>${basedir}/src/main/resources</directory>
             <outputDirectory>./</outputDirectory>
+            <filtered>true</filtered>
         </fileSet>
         <fileSet>
             <directory>${basedir.parent}/tools/src/main/script</directory>
             <outputDirectory>script</outputDirectory>
+            <fileMode>775</fileMode>
+        </fileSet>
+        <fileSet>
+            <outputDirectory>logs</outputDirectory>
+            <directory>${project.basedir}/target/classes</directory>
+            <excludes>
+                <exclude>**/*</exclude>
+            </excludes>
+        </fileSet>
+        <fileSet>
+            <outputDirectory>./</outputDirectory>
+            <directory>${project.build.directory}</directory>
+            <includes>
+                <include>build.info</include>
+            </includes>
         </fileSet>
     </fileSets>
 
@@ -17,6 +33,12 @@
             <includes>
                 <include>com.navercorp.pinpoint:pinpoint-bootstrap</include>
             </includes>
+        </dependencySet>
+        <dependencySet>
+            <includes>
+                <include>com.navercorp.pinpoint:pinpoint-bootstrap</include>
+            </includes>
+            <outputFileNameMapping>pinpoint-bootstrap.jar</outputFileNameMapping>
         </dependencySet>
         <dependencySet>
             <includes>
@@ -46,6 +68,15 @@
             <outputDirectory>lib</outputDirectory>
             <useProjectArtifact>false</useProjectArtifact>
             <useTransitiveFiltering>true</useTransitiveFiltering>
+        </dependencySet>
+        <dependencySet>
+            <includes>
+                <include>com.navercorp.pinpoint:pinpoint-commons-buffer</include>
+                <include>com.navercorp.pinpoint:pinpoint-commons-profiler</include>
+            </includes>
+            <outputDirectory>lib</outputDirectory>
+            <useProjectArtifact>false</useProjectArtifact>
+            <useTransitiveFiltering>false</useTransitiveFiltering>
         </dependencySet>
         <dependencySet>
             <includes>

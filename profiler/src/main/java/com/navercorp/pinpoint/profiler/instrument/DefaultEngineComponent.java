@@ -43,11 +43,11 @@ public class DefaultEngineComponent implements EngineComponent {
                                   InterceptorDefinitionFactory interceptorDefinitionFactory,
                                   Provider<ApiMetaDataService> apiMetaDataServiceProvider,
                                   ScopeFactory scopeFactory) {
-        this.objectBinderFactory = Assert.requireNonNull(objectBinderFactory, "objectBinderFactory must not be null");
-        this.interceptorRegistryBinder = Assert.requireNonNull(interceptorRegistryBinder, "interceptorRegistryBinder must not be null");
-        this.interceptorDefinitionFactory = Assert.requireNonNull(interceptorDefinitionFactory, "interceptorDefinitionFactory must not be null");
-        this.apiMetaDataServiceProvider = Assert.requireNonNull(apiMetaDataServiceProvider, "apiMetaDataService must not be null");
-        this.scopeFactory = Assert.requireNonNull(scopeFactory, "scopeFactory must not be null");
+        this.objectBinderFactory = Assert.requireNonNull(objectBinderFactory, "objectBinderFactory");
+        this.interceptorRegistryBinder = Assert.requireNonNull(interceptorRegistryBinder, "interceptorRegistryBinder");
+        this.interceptorDefinitionFactory = Assert.requireNonNull(interceptorDefinitionFactory, "interceptorDefinitionFactory");
+        this.apiMetaDataServiceProvider = Assert.requireNonNull(apiMetaDataServiceProvider, "apiMetaDataService");
+        this.scopeFactory = Assert.requireNonNull(scopeFactory, "scopeFactory");
     }
 
     @Override

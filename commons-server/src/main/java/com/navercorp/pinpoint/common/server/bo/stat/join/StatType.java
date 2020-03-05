@@ -60,7 +60,7 @@ public enum StatType {
 
     private static final IntHashMap<StatType> STAT_TYPE_MAP = toStatTypeMap();
 
-    private StatType(int typeCode, String name) {
+    StatType(int typeCode, String name) {
         if (typeCode < 0 || typeCode > 255) {
             throw new IllegalArgumentException("type code out of range (0~255)");
         }

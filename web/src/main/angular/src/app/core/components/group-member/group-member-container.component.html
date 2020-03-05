@@ -1,0 +1,28 @@
+<div class="l-group-member-wrapper">
+    <div class="l-group-member-title">
+        <span>Group Member ({{groupMemberList.length}})</span>
+        <div>
+            <button *ngIf="currentUserGroupId" class="btn btn-sm btn-blue" (click)="onReload()"><i class="fas fa-sync"></i></button>
+            <button class="fas fa-exchange-alt l-group-member-sort-exchange" (click)="onSort()"></button>
+        </div>
+    </div>
+    <div class="l-group-member-list">
+        <ng-container *ngIf="!isEmpty(); else emptyText">
+            <pp-group-member
+                [groupMemberList]="groupMemberList"
+                (outRemove)="onRemoveGroupMember($event)">
+            </pp-group-member>
+        </ng-container>
+        <ng-template #emptyText>
+            <p class="l-empty-text">{{emptyText$ | async}}</p>
+        </ng-template>
+    </div>
+    <ng-container *ngIf="errorMessage">
+        <pp-server-error-message
+            [message]="errorMessage"
+            (outClose)="onCloseErrorMessage()">
+        </pp-server-error-message>
+    </ng-container>
+    <pp-film-for-disable *ngIf="useDisable" [zIndex]="9" [marginWidth]="0"></pp-film-for-disable>    
+    <pp-loading [showLoading]="showLoading" [zIndex]="20"></pp-loading>
+</div>

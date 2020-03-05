@@ -6,7 +6,7 @@
         <format>zip</format>
         <format>tar.gz</format>
     </formats>
-    <includeBaseDirectory>false</includeBaseDirectory>
+    <includeBaseDirectory>true</includeBaseDirectory>
     <componentDescriptors>
         <componentDescriptor>component/core.xml</componentDescriptor>
     </componentDescriptors>

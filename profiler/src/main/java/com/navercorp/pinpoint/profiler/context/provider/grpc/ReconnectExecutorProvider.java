@@ -31,7 +31,7 @@ public class ReconnectExecutorProvider implements Provider<ReconnectExecutor> {
 
     @Inject
     public ReconnectExecutorProvider(ScheduledExecutorService scheduledExecutorService) {
-        this.scheduledExecutorService = Assert.requireNonNull(scheduledExecutorService, "scheduledExecutorService must not be null");
+        this.scheduledExecutorService = Assert.requireNonNull(scheduledExecutorService, "scheduledExecutorService");
     }
 
     @Override

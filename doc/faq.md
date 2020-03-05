@@ -8,7 +8,16 @@ toc: false
 disqus: false
 ---
 
-For any other questions, please use the [user group](https://groups.google.com/forum/#!forum/pinpoint_user)
+[Github issues](https://github.com/naver/pinpoint/issues)  
+[Google group](https://groups.google.com/forum/#!forum/pinpoint_user)  
+[Gitter](https://gitter.im/naver/pinpoint)  
+
+Chinese groups
+
+QQ Group: 897594820 | DING Group
+:----------------: | :-----------: 
+![QQ Group](images/NAVERPinpoint.png) | ![DING Group](images/NaverPinpoint交流群-DING.jpg)
+
 
 ### How do I get the call stack view?
 Click on a server node, which will populate the scatter chart on the right. This chart shows all succeeded/failed requests that went through the server. If there are any requests that spike your interest, simply **drag on the scatter chart** to select them. This will bring up the call stack view containing the requests you've selected.
@@ -18,7 +27,7 @@ You can change the log level by modifying the agent's *log4j.xml* located in *PI
 
 ### Why is only the first/some of the requests traced?
 There is a sampling rate option in the agent's pinpoint.config file (profiler.sampling.rate).
-The agent's release binary has this value set to 20, which tells the agent to sample 1 trace every 20 transactions.
+Pinpoint agent samples 1 trace every N transactions if this value was set as N.
 Changing this value to 1 will allow you to trace every transaction.
 
 ### Request count in the Scatter Chart is different from the ones in Response Summary chart. Why is this?

@@ -56,10 +56,8 @@ public class CxfClientInvokeSyncMethodInterceptor implements AroundInterceptor {
             logger.beforeInterceptor(target, args);
         }
 
-        Trace trace = traceContext.currentRawTraceObject();
-
-        if (trace != null && trace.canSampled()) {
-
+        Trace trace = traceContext.currentTraceObject();
+        if (trace != null) {
             String endpoint = getDestination(args);
             String operation = getOperation(args);
             Object[] parameters = getParameters(operation, args);

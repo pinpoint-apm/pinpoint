@@ -31,7 +31,7 @@ public final class JavaModuleFactoryFinder {
 
     public static JavaModuleFactory lookup(Instrumentation instrumentation) {
         if (instrumentation == null) {
-            throw new NullPointerException("instrumentation must not be null");
+            throw new NullPointerException("instrumentation");
         }
 
         final Class<JavaModuleFactory> javaModuleFactory = getJavaModuleFactory();

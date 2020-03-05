@@ -135,7 +135,10 @@ public class PinpointPluginTestStatement extends Statement {
             String trace = traceInText.get(i);
 
             if (trace.equals("$CAUSE$")) {
-                PinpointPluginTestException cause = toException(traceInText.get(i + 2), traceInText.get(i + 1), traceInText.subList(i + 3, traceInText.size()));
+                final String parsedMessage = traceInText.get(i + 2);
+                final String parsedexceptionClass = traceInText.get(i + 1);
+                final List<String> sublist = traceInText.subList(i + 3, traceInText.size());
+                PinpointPluginTestException cause = toException(parsedMessage, parsedexceptionClass, sublist);
                 return new PinpointPluginTestException(exceptionClass + ": " + message, Arrays.copyOf(stackTrace, i), cause);
             }
             

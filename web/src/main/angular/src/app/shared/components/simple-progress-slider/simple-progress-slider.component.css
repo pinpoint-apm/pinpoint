@@ -1,0 +1,132 @@
+    :host {
+        width: 100%;
+    }
+    .slider-for-progress {
+        width: 100%;
+        padding-top: 10px;
+    }
+    .slider-for-progress .sfp-line {
+        width: 100%;
+        height: 14px;
+        position: relative;
+    }
+    .slider-for-progress .sfp-line div, .slider-for-progress .sfp-line span {
+        position: absolute;
+    }
+    .slider-for-progress .sfp-handle {
+        top: -4px;
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        background-color: #FFF;
+        box-shadow: 1px 1px 3px 1px rgba(0,0,0,0.4);
+    }
+    .slider-for-progress .sfp-handle span {
+        top: 3px;
+        left: 3px;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background-color: var(--primary-color);
+    }
+    .slider-for-progress .sfp-left-handler {
+        left: 100%;              /* @script position reset */
+        margin-left: -7px;
+    }
+    .slider-for-progress .sfp-right-handler {
+        right: 0px;             /* @script position reset */
+        margin-right: -7px;
+    }
+    .slider-for-progress .sfp-label {
+        top: -2px;
+        position: absolute;
+        font-size: 10px;
+    }
+    .slider-for-progress .sfp-label span {
+        border: 1px solid #3e83c6;
+        padding: 2px 4px 1px 4px;
+        position: relative;
+        background-color: #FFF;
+        box-shadow: 1px 1px 3px 1px rgba(0,0,0,0.4);
+    }
+    .slider-for-progress .sfp-label span:before, .slider-for-progress .sfp-label span:after {
+        top: 50%;
+    	border: solid transparent;
+    	content: " ";
+    	height: 0;
+    	width: 0;
+    	position: absolute;
+    	pointer-events: none;
+    }
+    .slider-for-progress .sfp-label span:before {
+        border-color: rgba(62, 131, 198, 0);
+    	border-width: 5px;
+    	margin-top: -5px;
+    }
+    .slider-for-progress .sfp-label span:after {
+        border-color: rgba(255, 255, 255, 0);
+    	border-width: 4px;
+    	margin-top: -4px;
+    }
+    .slider-for-progress .sfp-label-right-arrow span:before, .slider-for-progress .sfp-label-right-arrow span:after {
+        left: 100%;
+    }
+    .slider-for-progress .sfp-label-right-arrow span:before {
+    	border-left-color: var(--primary-color);
+    }
+    .slider-for-progress .sfp-label-right-arrow span:after {
+    	border-left-color: #ffffff;
+    }
+    .slider-for-progress .sfp-label-left-arrow span:before, .slider-for-progress .sfp-label-left-arrow span:after {
+        right: 100%;
+    }
+    .slider-for-progress .sfp-label-left-arrow span:before {
+    	border-right-color: var(--primary-color);
+    }
+    .slider-for-progress .sfp-label-left-arrow span:after {
+    	border-right-color: #ffffff;
+    }
+
+    .slider-for-progress .sfp-label-right-arrow {
+        margin-left: -50px;
+        left: 0%;/* @script position reset */
+    }
+    .slider-for-progress .sfp-label-left-arrow {
+        margin-left: 13px;
+        left: 0%;  /* @script position reset */
+    }
+    .slider-for-progress .sfp-value {
+        width: 100%;
+        height: 20px;
+    }
+    .slider-for-progress .sfp-background {
+        top: 0px;
+        left: 0px;
+        width: 100%;
+        height: 7px;
+        background-color: #c9def3;
+    }
+    .slider-for-progress .sfp-foreground {
+        top: 0px;
+        right: 0px;
+        width: 0px; /* @script position reset */
+        height: 7px;
+        background-color: #3dcfa8;
+    }
+    .slider-for-progress .sfp-value {
+        color: #FFF;
+        width: 100%;
+        position: relative;
+        font-size: 10px;
+    }
+    .slider-for-progress .sfp-value span {
+        position: absolute;
+    }
+    .slider-for-progress .sfp-value .first {
+        left: 0px;
+        margin-left: -15px;
+    }
+    .slider-for-progress .sfp-value .last {
+        right: 0px;
+        margin-right: -15px;
+    }

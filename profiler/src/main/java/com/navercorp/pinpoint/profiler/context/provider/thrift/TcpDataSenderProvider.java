@@ -44,10 +44,10 @@ public class TcpDataSenderProvider implements Provider<EnhancedDataSender<Object
     public TcpDataSenderProvider(ThriftTransportConfig thriftTransportConfig, @DefaultClientFactory Provider<PinpointClientFactory> clientFactoryProvider,
                                  Provider<HeaderTBaseSerializer> tBaseSerializerProvider,
                                  @MetadataConverter MessageConverter<TBase<?, ?>> messageConverter) {
-        this.thriftTransportConfig = Assert.requireNonNull(thriftTransportConfig, "thriftTransportConfig must not be null");
-        this.clientFactoryProvider = Assert.requireNonNull(clientFactoryProvider, "clientFactoryProvider must not be null");
-        this.tBaseSerializerProvider = Assert.requireNonNull(tBaseSerializerProvider, "tBaseSerializerProvider must not be null");
-        this.messageConverter = Assert.requireNonNull(messageConverter, "messageConverter must not be null");
+        this.thriftTransportConfig = Assert.requireNonNull(thriftTransportConfig, "thriftTransportConfig");
+        this.clientFactoryProvider = Assert.requireNonNull(clientFactoryProvider, "clientFactoryProvider");
+        this.tBaseSerializerProvider = Assert.requireNonNull(tBaseSerializerProvider, "tBaseSerializerProvider");
+        this.messageConverter = Assert.requireNonNull(messageConverter, "messageConverter");
     }
 
     @Override

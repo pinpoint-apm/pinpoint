@@ -36,10 +36,10 @@ public final class DefaultInterceptorRegistryAdaptor implements InterceptorRegis
         if (interceptor == null) {
             return -1;
         }
-        
+
         final int newId = nextId();
         if (newId >= registrySize) {
-            throw new IndexOutOfBoundsException("size=" + index.length() + " id=" + id);
+            throw new IndexOutOfBoundsException("Interceptor registry size exceeded. Check the \"profiler.interceptorregistry.size\" setting. size=" + index.length() + " id=" + id);
         }
         index.set(newId, interceptor);
         return newId;

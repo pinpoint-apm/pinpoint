@@ -29,7 +29,7 @@ public class BufferedStorageFactory implements StorageFactory {
     private final int ioBufferingBufferSize;
 
     public BufferedStorageFactory(int ioBufferingBufferSize, DataSender dataSender) {
-        this.dataSender = Assert.requireNonNull(dataSender, "dataSender must not be null");
+        this.dataSender = Assert.requireNonNull(dataSender, "dataSender");
         this.ioBufferingBufferSize = ioBufferingBufferSize;
     }
 

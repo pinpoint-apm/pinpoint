@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,12 +16,12 @@
 
 package com.navercorp.pinpoint.profiler.sender.grpc;
 
+import com.navercorp.pinpoint.grpc.client.ChannelFactory;
 import com.navercorp.pinpoint.grpc.client.SocketIdClientInterceptor;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
 import com.navercorp.pinpoint.profiler.receiver.grpc.CommandServiceStubFactory;
 import com.navercorp.pinpoint.profiler.receiver.grpc.GrpcCommandService;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
-import com.navercorp.pinpoint.grpc.client.ChannelFactoryOption;
 import com.navercorp.pinpoint.grpc.trace.AgentGrpc;
 import com.navercorp.pinpoint.grpc.trace.PAgentInfo;
 import com.navercorp.pinpoint.grpc.trace.PResult;
@@ -61,9 +61,9 @@ public class AgentGrpcDataSender extends GrpcDataSender implements EnhancedDataS
                                MessageConverter<GeneratedMessageV3> messageConverter,
                                ReconnectExecutor reconnectExecutor,
                                final ScheduledExecutorService retransmissionExecutor,
-                               ChannelFactoryOption channelFactoryOption,
+                               ChannelFactory channelFactory,
                                ActiveTraceRepository activeTraceRepository) {
-        super(host, port, executorQueueSize, messageConverter, channelFactoryOption);
+        super(host, port, executorQueueSize, messageConverter, channelFactory);
 
         this.agentInfoStub = AgentGrpc.newStub(managedChannel);
         this.agentPingStub = newAgentPingStub();
@@ -72,13 +72,14 @@ public class AgentGrpcDataSender extends GrpcDataSender implements EnhancedDataS
         CommandServiceStubFactory commandServiceStubFactory = new CommandServiceStubFactory(managedChannel);
         this.grpcCommandService = new GrpcCommandService(commandServiceStubFactory, reconnectExecutor, activeTraceRepository);
         {
-            this.reconnector = reconnectExecutor.newReconnector(new Runnable() {
+            final Runnable reconnectJob = new Runnable() {
                 @Override
                 public void run() {
                     pingStreamContext = newPingStream(agentPingStub, retransmissionExecutor);
                 }
-            });
-            pingStreamContext = newPingStream(agentPingStub, retransmissionExecutor);
+            };
+            this.reconnector = reconnectExecutor.newReconnector(reconnectJob);
+            reconnectJob.run();
         }
     }
 
@@ -156,7 +157,7 @@ public class AgentGrpcDataSender extends GrpcDataSender implements EnhancedDataS
         throw new UnsupportedOperationException("unsupported operation removeReconnectEventListener(eventListener)");
     }
 
-    private class FutureListenerStreamObserver implements StreamObserver<PResult> {
+    private static class FutureListenerStreamObserver implements StreamObserver<PResult> {
         private final FutureListener listener;
 
         private FutureListenerStreamObserver(FutureListener listener) {

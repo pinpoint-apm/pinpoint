@@ -44,7 +44,7 @@ public class ByteArrayHeaderReader implements HeaderReader {
 
     private static byte[] checkBytes(byte[] bytes) {
         if (bytes == null) {
-            throw new NullPointerException("bytes must not be null");
+            throw new NullPointerException("bytes");
         }
         return bytes;
     }

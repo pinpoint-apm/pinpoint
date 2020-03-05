@@ -34,8 +34,8 @@ public class DefaultSpanChunk implements SpanChunk {
 
 
     public DefaultSpanChunk(TraceRoot traceRoot, List<SpanEvent> spanEventList) {
-        this.traceRoot = Assert.requireNonNull(traceRoot, "traceRoot must not be null");
-        this.spanEventList = Assert.requireNonNull(spanEventList, "spanEventList must not be null");
+        this.traceRoot = Assert.requireNonNull(traceRoot, "traceRoot");
+        this.spanEventList = Assert.requireNonNull(spanEventList, "spanEventList");
     }
 
     @Override

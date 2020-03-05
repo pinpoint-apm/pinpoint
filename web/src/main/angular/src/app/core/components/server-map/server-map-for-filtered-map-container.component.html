@@ -1,0 +1,29 @@
+<ng-container *ngIf="mapData">
+    <ng-template [ngIf]="!isEmpty">
+        <pp-server-map 
+            [baseApplicationKey]="baseApplicationKey"
+            [mapData]="mapData"
+            [funcServerMapImagePath]="funcServerMapImagePath"
+            [type]="type"
+            (outContextClickBackground)="onContextClickBackground($event)"
+            (outClickNode)="onClickNode($event)"
+            (outClickLink)="onClickLink($event)"
+            (outContextClickLink)="onContextClickLink($event)"
+            (outRenderCompleted)="onRenderCompleted()">
+        </pp-server-map>
+    </ng-template>
+    <ng-template [ngIf]="loadingCompleted && isEmpty">
+        <div class="l-popup-section font-opensans">
+            <article>
+                <div class="l-contents-group">
+                    <dl class="l-sql-list">
+                        <dt>Notice</dt>
+                        <dd>{{i18nText['NO_AGENTS']}}</dd>
+                    </dl>
+                </div>
+            </article>
+        </div>
+    </ng-template>
+</ng-container>
+<pp-film-for-disable *ngIf="useDisable" [zIndex]="9" [marginWidth]="0"></pp-film-for-disable>          
+<pp-loading [showLoading]="showLoading" [zIndex]="10"></pp-loading>

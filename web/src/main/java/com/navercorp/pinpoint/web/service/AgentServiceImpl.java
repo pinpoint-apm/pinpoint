@@ -82,7 +82,7 @@ public class AgentServiceImpl implements AgentService {
     @Qualifier("commandHeaderTBaseDeserializerFactory")
     private DeserializerFactory<HeaderTBaseDeserializer> commandDeserializerFactory;
 
-    @Value("#{pinpointWebProps['web.activethread.activeAgent.duration.days'] ?: 7}")
+    @Value("${web.activethread.activeAgent.duration.days:7}")
     private void setTimeDiffMs(int durationDays) {
         this.timeDiffMs = TimeUnit.MILLISECONDS.convert(durationDays, TimeUnit.DAYS);
     }

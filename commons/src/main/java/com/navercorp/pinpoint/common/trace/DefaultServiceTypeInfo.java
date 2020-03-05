@@ -27,10 +27,10 @@ public class DefaultServiceTypeInfo implements ServiceTypeInfo {
 
     public DefaultServiceTypeInfo(ServiceType serviceType, AnnotationKeyMatcher annotationKeyMatcher) {
         if (serviceType == null) {
-            throw new NullPointerException("serviceType must not be null");
+            throw new NullPointerException("serviceType");
         }
         if (annotationKeyMatcher == null) {
-            throw new NullPointerException("annotationKeyMatcher must not be null");
+            throw new NullPointerException("annotationKeyMatcher");
         }
         this.serviceType = serviceType;
         this.annotationKeyMatcher = annotationKeyMatcher;
@@ -38,7 +38,7 @@ public class DefaultServiceTypeInfo implements ServiceTypeInfo {
 
     public DefaultServiceTypeInfo(ServiceType serviceType) {
         if (serviceType == null) {
-            throw new NullPointerException("serviceType must not be null");
+            throw new NullPointerException("serviceType");
         }
         this.serviceType = serviceType;
         this.annotationKeyMatcher = null;

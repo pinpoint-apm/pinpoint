@@ -20,7 +20,8 @@ import com.navercorp.pinpoint.common.server.bo.stat.join.JoinApplicationStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.StatType;
 import com.navercorp.pinpoint.flink.Bootstrap;
-import org.apache.flink.api.common.io.OutputFormat;
+import org.apache.flink.api.common.ExecutionConfig;
+import org.apache.flink.api.common.io.RichOutputFormat;
 import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.util.CollectionUtil;
@@ -34,7 +35,7 @@ import java.util.List;
 /**
  * @author minwoo.jung
  */
-public class StatisticsDao implements OutputFormat<Tuple3<String, JoinStatBo, Long>> {
+public class StatisticsDao extends RichOutputFormat<Tuple3<String, JoinStatBo, Long>> {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private static final long serialVersionUID = 1L;
@@ -48,13 +49,10 @@ public class StatisticsDao implements OutputFormat<Tuple3<String, JoinStatBo, Lo
     private transient DirectBufferDao directBufferDao;
     private transient StatisticsDaoInterceptor statisticsDaoInterceptor;
 
-
-    public StatisticsDao() {
-    }
-
     @Override
     public void configure(Configuration parameters) {
-        Bootstrap bootstrap = Bootstrap.getInstance();
+        ExecutionConfig.GlobalJobParameters globalJobParameters = getRuntimeContext().getExecutionConfig().getGlobalJobParameters();
+        Bootstrap bootstrap = Bootstrap.getInstance(globalJobParameters.toMap());
         cpuLoadDao = bootstrap.getCpuLoadDao();
         memoryDao = bootstrap.getMemoryDao();
         transactionDao = bootstrap.getTransactionDao();

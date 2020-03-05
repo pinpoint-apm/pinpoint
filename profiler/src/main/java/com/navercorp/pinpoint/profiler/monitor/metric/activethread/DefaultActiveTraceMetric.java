@@ -29,7 +29,7 @@ public class DefaultActiveTraceMetric implements ActiveTraceMetric {
     private final ActiveTraceRepository activeTraceRepository;
 
     public DefaultActiveTraceMetric(ActiveTraceRepository activeTraceRepository) {
-        this.activeTraceRepository = Assert.requireNonNull(activeTraceRepository, "activeTraceRepository must not be null");
+        this.activeTraceRepository = Assert.requireNonNull(activeTraceRepository, "activeTraceRepository");
     }
 
     @Override

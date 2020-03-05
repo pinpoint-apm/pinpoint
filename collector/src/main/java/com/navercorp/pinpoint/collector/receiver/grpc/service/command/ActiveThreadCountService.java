@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.collector.receiver.grpc.service.command;
 
 import com.navercorp.pinpoint.collector.receiver.grpc.PinpointGrpcServer;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadCountRes;
 import com.navercorp.pinpoint.grpc.trace.PCmdStreamResponse;
 import com.navercorp.pinpoint.rpc.stream.StreamException;
@@ -30,6 +29,8 @@ import io.grpc.stub.StreamObserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Objects;
+
 /**
  * @author Taejin Koo
  */
@@ -40,7 +41,7 @@ public class ActiveThreadCountService implements GrpcStreamCommandService<PCmdAc
         return new ActiveThreadCountStreamObserver(pinpointGrpcServer, connectionObserver);
     }
 
-    public class ActiveThreadCountStreamObserver implements StreamObserver<PCmdActiveThreadCountRes> {
+    public static class ActiveThreadCountStreamObserver implements StreamObserver<PCmdActiveThreadCountRes> {
 
         private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -50,7 +51,7 @@ public class ActiveThreadCountService implements GrpcStreamCommandService<PCmdAc
         private volatile int streamChannelId = -1;
 
         public ActiveThreadCountStreamObserver(PinpointGrpcServer pinpointGrpcServer, StreamObserver<Empty> connectionObserver) {
-            this.pinpointGrpcServer = Assert.requireNonNull(pinpointGrpcServer, "pinpointGrpcServer");
+            this.pinpointGrpcServer = Objects.requireNonNull(pinpointGrpcServer, "pinpointGrpcServer");
             if (connectionObserver instanceof ServerCallStreamObserver) {
                 this.connectionObserver = (ServerCallStreamObserver<Empty>) connectionObserver;
             } else {
@@ -76,7 +77,6 @@ public class ActiveThreadCountService implements GrpcStreamCommandService<PCmdAc
 
             try {
                 pinpointGrpcServer.handleStreamMessage(streamChannelId, response);
-                connectionObserver.request(1);
             } catch (StreamException e) {
                 logger.warn("Failed to handle streamMessage. message:{}", e.getMessage(), e);
                 connectionObserver.onError(new StatusException(Status.INTERNAL.withDescription(e.getMessage())));

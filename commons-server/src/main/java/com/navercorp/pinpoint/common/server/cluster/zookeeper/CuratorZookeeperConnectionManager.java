@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -42,9 +43,9 @@ class CuratorZookeeperConnectionManager {
 
 
     public CuratorZookeeperConnectionManager(String hostPort, int sessionTimeout, ZookeeperEventWatcher zookeeperEventWatcher) {
-        Assert.requireNonNull(hostPort, "hostPort must not be null");
+        Objects.requireNonNull(hostPort, "hostPort");
         Assert.isTrue(sessionTimeout > 0, "sessionTimeout must be greater than 0");
-        Assert.requireNonNull(zookeeperEventWatcher, "zookeeperEventWatcher must not be null");
+        Objects.requireNonNull(zookeeperEventWatcher, "zookeeperEventWatcher");
 
         CuratorFrameworkFactory.Builder builder = CuratorFrameworkFactory.builder();
         builder.connectString(hostPort);

@@ -33,7 +33,7 @@ public class ResponseHistogramsNodeHistogramDataSource implements WasNodeHistogr
 
     public ResponseHistogramsNodeHistogramDataSource(ResponseHistograms responseHistograms) {
         if (responseHistograms == null) {
-            throw new NullPointerException("responseHistograms must not be null");
+            throw new NullPointerException("responseHistograms");
         }
         this.responseHistograms = responseHistograms;
     }

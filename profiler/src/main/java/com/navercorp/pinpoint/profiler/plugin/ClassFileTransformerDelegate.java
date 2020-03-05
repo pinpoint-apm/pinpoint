@@ -38,15 +38,15 @@ public class ClassFileTransformerDelegate implements ClassFileTransformer {
     private final TransformCallbackProvider transformCallbackProvider;
 
     public ClassFileTransformerDelegate(ProfilerConfig profilerConfig, InstrumentContext instrumentContext, TransformCallbackProvider transformCallbackProvider) {
-        this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig must not be null");
-        this.instrumentContext = Assert.requireNonNull(instrumentContext, "instrumentContext must not be null");
-        this.transformCallbackProvider = Assert.requireNonNull(transformCallbackProvider, "transformCallbackProvider must not be null");
+        this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig");
+        this.instrumentContext = Assert.requireNonNull(instrumentContext, "instrumentContext");
+        this.transformCallbackProvider = Assert.requireNonNull(transformCallbackProvider, "transformCallbackProvider");
     }
 
     @Override
     public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
         if (className == null) {
-            throw new NullPointerException("className must not be null");
+            throw new NullPointerException("className");
         }
 
         final InstrumentContext instrumentContext = this.instrumentContext;

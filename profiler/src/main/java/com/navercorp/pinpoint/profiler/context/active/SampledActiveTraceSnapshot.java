@@ -27,7 +27,7 @@ public class SampledActiveTraceSnapshot implements ActiveTraceSnapshot {
     private final TraceRoot traceRoot;
 
     public SampledActiveTraceSnapshot(TraceRoot traceRoot) {
-        this.traceRoot = Assert.requireNonNull(traceRoot, "traceRoot must not be null");
+        this.traceRoot = Assert.requireNonNull(traceRoot, "traceRoot");
 
     }
 

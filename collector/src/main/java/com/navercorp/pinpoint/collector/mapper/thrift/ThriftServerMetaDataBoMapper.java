@@ -49,7 +49,7 @@ public class ThriftServerMetaDataBoMapper implements ThriftBoMapper<ServerMetaDa
             builder.serviceInfos(serviceInfos);
             return builder.build();
         } else {
-            builder.serviceInfos(Collections.<ServiceInfoBo> emptyList());
+            builder.serviceInfos(Collections.emptyList());
             return builder.build();
         }
     }

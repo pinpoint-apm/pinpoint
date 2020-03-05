@@ -1,0 +1,49 @@
+:host {
+    display: block;
+    width: 100%;
+    margin: 0;
+    color: #333;
+    padding: 12px 15px;
+    font-size: 13px;    
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+:host:hover {
+    background:#e4f3eb;
+}
+
+:host.selected {
+    /* TODO: 체크된 유저에 대한 스타일링 */
+    color: var(--primary-color);
+}
+
+.l-btn-section {
+    float: right;
+}
+
+.fa-arrow-left {
+    font-size: 14px;
+}
+
+.fa-edit {
+    color: #666;
+    font-size: 14px;
+}
+
+.fa-trash-alt {
+    color: #b3b6bf;
+    font-size: 15px;
+    margin-left: 4px;
+}
+
+.fa-check {
+    font-size: 14px;
+    color: #F00;
+    margin-left: 8px;
+}
+
+.l-userinfo-label {
+    margin-left: 4px;
+}

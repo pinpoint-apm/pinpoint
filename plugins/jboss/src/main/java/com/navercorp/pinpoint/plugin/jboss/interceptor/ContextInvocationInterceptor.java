@@ -18,11 +18,8 @@ package com.navercorp.pinpoint.plugin.jboss.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
-import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.logging.PLogger;
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
 import com.navercorp.pinpoint.plugin.jboss.JbossConstants;
 
 /**
@@ -31,26 +28,7 @@ import com.navercorp.pinpoint.plugin.jboss.JbossConstants;
  * @author <a href="mailto:suraj.raturi89@gmail.com">Suraj Raturi</a>
  * @author jaehong.kim
  */
-public class ContextInvocationInterceptor implements AroundInterceptor {
-    /**
-     * The logger.
-     */
-    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
-
-    /**
-     * The is debug.
-     */
-    private final boolean isDebug = logger.isDebugEnabled();
-
-    /**
-     * The method descriptor.
-     */
-    private final MethodDescriptor methodDescriptor;
-
-    /**
-     * The trace context.
-     */
-    private final TraceContext traceContext;
+public class ContextInvocationInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
 
     /**
      * Instantiates a new invoke context interceptor.
@@ -59,66 +37,18 @@ public class ContextInvocationInterceptor implements AroundInterceptor {
      * @param descriptor   the descriptor
      */
     public ContextInvocationInterceptor(final TraceContext traceContext, final MethodDescriptor descriptor) {
-        this.traceContext = traceContext;
-        this.methodDescriptor = descriptor;
+        super(traceContext, descriptor);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor#before(java.lang.Object, java.lang.Object[])
-     */
     @Override
-    public void before(final Object target, final Object[] args) {
-        if (isDebug) {
-            logger.beforeInterceptor(target, args);
-        }
-        try {
-            final Trace trace = traceContext.currentTraceObject();
-            if (trace == null) {
-                return;
-            }
-            if (!trace.canSampled()) {
-                return;
-            }
-            final SpanEventRecorder recorder = trace.traceBlockBegin();
-            recorder.recordServiceType(JbossConstants.JBOSS_METHOD);
-        } catch (final Throwable th) {
-            if (logger.isWarnEnabled()) {
-                logger.warn("BEFORE. Caused:{}", th.getMessage(), th);
-            }
-        }
+    protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
+        recorder.recordServiceType(JbossConstants.JBOSS_METHOD);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor#after(java.lang.Object, java.lang.Object[],
-     * java.lang.Object, java.lang.Throwable)
-     */
     @Override
-    public void after(final Object target, final Object[] args, final Object result, final Throwable throwable) {
-        if (isDebug) {
-            logger.afterInterceptor(target, args, result, throwable);
-        }
-        final Trace trace = traceContext.currentTraceObject();
-        if (trace == null) {
-            return;
-        }
-
-        if (!trace.canSampled()) {
-            return;
-        }
-        try {
-            final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
-            recorder.recordApi(methodDescriptor);
-            recorder.recordException(throwable);
-        } catch (final Throwable th) {
-            if (logger.isWarnEnabled()) {
-                logger.warn("AFTER. Caused:{}", th.getMessage(), th);
-            }
-        } finally {
-            trace.traceBlockEnd();
-        }
+    protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
+        recorder.recordApi(methodDescriptor);
+        recorder.recordException(throwable);
     }
+
 }

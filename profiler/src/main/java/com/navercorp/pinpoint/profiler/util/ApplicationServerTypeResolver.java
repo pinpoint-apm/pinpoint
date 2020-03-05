@@ -47,7 +47,7 @@ public class ApplicationServerTypeResolver {
 
     public ApplicationServerTypeResolver(List<ApplicationTypeDetector> applicationTypeDetector, ServiceType defaultType, List<String> orderedDetectors) {
         if (applicationTypeDetector == null) {
-            throw new NullPointerException("applicationTypeDetector must not be null");
+            throw new NullPointerException("applicationTypeDetector");
         }
 
         if (isValidApplicationServerType(defaultType)) {

@@ -64,6 +64,7 @@ public abstract class AbstractPinpointPluginTestSuite extends Suite {
     private final String testClassLocation;
 
     private final String agentJar;
+    private final String profile;
     private final String configFile;
     private final String[] jvmArguments;
     private final int[] jvmVersions;
@@ -78,6 +79,9 @@ public abstract class AbstractPinpointPluginTestSuite extends Suite {
         PinpointConfig config = testClass.getAnnotation(PinpointConfig.class);
         this.configFile = config == null ? null : resolveConfigFileLocation(config.value());
 
+        PinpointProfile profile = testClass.getAnnotation(PinpointProfile.class);
+        this.profile = resolveProfile(profile);
+
         JvmArgument jvmArgument = testClass.getAnnotation(JvmArgument.class);
         this.jvmArguments = jvmArgument == null ? new String[0] : jvmArgument.value();
 
@@ -89,8 +93,8 @@ public abstract class AbstractPinpointPluginTestSuite extends Suite {
         this.testClassLocation = resolveTestClassLocation(testClass);
         this.debug = isDebugMode();
     }
-    
-    protected String getJavaExecutable(int version) {
+
+     protected String getJavaExecutable(int version) {
         StringBuilder builder = new StringBuilder();
         
         String javaHome;
@@ -202,6 +206,13 @@ public abstract class AbstractPinpointPluginTestSuite extends Suite {
         
         throw new PinpointException("Cannot find pinpoint configuration file: " + configFile);
     }
+
+    private String resolveProfile(PinpointProfile profile) {
+        if (profile == null) {
+            return PinpointProfile.DEFAULT_PROFILE;
+        }
+        return profile.value();
+    }
     
     private boolean isDebugMode() {
         return ManagementFactory.getRuntimeMXBean().getInputArguments().toString().contains("jdwp");
@@ -234,7 +245,7 @@ public abstract class AbstractPinpointPluginTestSuite extends Suite {
                     continue;
                 }
 
-                PinpointPluginTestContext context = new PinpointPluginTestContext(agentJar, configFile, requiredLibraries, mavenDependencyLibraries, getTestClass().getJavaClass(), testClassLocation, jvmArguments, debug, ver, javaExe);
+                PinpointPluginTestContext context = new PinpointPluginTestContext(agentJar, profile, configFile, requiredLibraries, mavenDependencyLibraries, getTestClass().getJavaClass(), testClassLocation, jvmArguments, debug, ver, javaExe);
                 
                 List<PinpointPluginTestInstance> cases = createTestCases(context);
                 

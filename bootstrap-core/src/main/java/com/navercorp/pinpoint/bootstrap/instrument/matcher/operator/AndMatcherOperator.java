@@ -30,8 +30,8 @@ public class AndMatcherOperator extends AbstractMatcherOperand implements Matche
     private final MatcherOperand rightOperand;
 
     public AndMatcherOperator(final MatcherOperand leftOperand, final MatcherOperand rightOperand) {
-        this.leftOperand = Assert.requireNonNull(leftOperand, "leftOperand must not be null");
-        this.rightOperand = Assert.requireNonNull(rightOperand, "rightOperand must not be null");
+        this.leftOperand = Assert.requireNonNull(leftOperand, "leftOperand");
+        this.rightOperand = Assert.requireNonNull(rightOperand, "rightOperand");
     }
 
     @Override

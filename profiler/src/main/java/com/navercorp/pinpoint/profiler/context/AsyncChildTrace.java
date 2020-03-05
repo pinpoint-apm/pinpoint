@@ -52,15 +52,15 @@ public class AsyncChildTrace implements Trace {
     public AsyncChildTrace(final TraceRoot traceRoot, CallStack<SpanEvent> callStack, Storage storage, boolean sampling,
                              SpanRecorder spanRecorder, WrappedSpanEventRecorder wrappedSpanEventRecorder, final LocalAsyncId localAsyncId) {
 
-        this.traceRoot = Assert.requireNonNull(traceRoot, "traceRoot must not be null");
-        this.callStack = Assert.requireNonNull(callStack, "callStack must not be null");
-        this.storage = Assert.requireNonNull(storage, "storage must not be null");
+        this.traceRoot = Assert.requireNonNull(traceRoot, "traceRoot");
+        this.callStack = Assert.requireNonNull(callStack, "callStack");
+        this.storage = Assert.requireNonNull(storage, "storage");
         Assert.isTrue(sampling, "sampling must be true");
 
-        this.spanRecorder = Assert.requireNonNull(spanRecorder, "spanRecorder must not be null");
-        this.wrappedSpanEventRecorder = Assert.requireNonNull(wrappedSpanEventRecorder, "wrappedSpanEventRecorder must not be null");
+        this.spanRecorder = Assert.requireNonNull(spanRecorder, "spanRecorder");
+        this.wrappedSpanEventRecorder = Assert.requireNonNull(wrappedSpanEventRecorder, "wrappedSpanEventRecorder");
 
-        this.localAsyncId = Assert.requireNonNull(localAsyncId, "localAsyncId must not be null");
+        this.localAsyncId = Assert.requireNonNull(localAsyncId, "localAsyncId");
         traceBlockBegin(ASYNC_BEGIN_STACK_ID);
     }
 

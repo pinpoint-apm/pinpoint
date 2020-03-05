@@ -1,0 +1,9 @@
+<ag-grid-angular
+    id="removableAgentList"
+    style="width:100%; height: 100%;"
+    [gridOptions]="gridOptions"
+    [rowData]="rowData"
+    (gridReady)="onGridReady($event)"
+    (gridSizeChanged)="onGridSizeChanged()"
+    (cellClicked)="onCellClick($event)">
+</ag-grid-angular>

@@ -40,14 +40,21 @@ public class DefaultTransformerMatcher implements TransformerMatcher {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private HierarchyCaches interfaceCaches;
-    private HierarchyCaches annotationCaches;
-    private HierarchyCaches superCaches;
+    private final HierarchyCaches interfaceCaches;
+    private final HierarchyCaches annotationCaches;
+    private final HierarchyCaches superCaches;
 
     public DefaultTransformerMatcher(final InstrumentMatcherCacheConfig cacheConfig) {
-        this.interfaceCaches = new HierarchyCaches(cacheConfig.getInterfaceCacheSize(), cacheConfig.getInterfaceCacheEntrySize());
-        this.annotationCaches = new HierarchyCaches(cacheConfig.getAnnotationCacheSize(), cacheConfig.getAnnotationCacheEntrySize());
-        this.superCaches = new HierarchyCaches(cacheConfig.getSuperCacheSize(), cacheConfig.getSuperCacheEntrySize());
+        this.interfaceCaches = newHierarchyCaches(cacheConfig.getInterfaceCacheSize(), cacheConfig.getInterfaceCacheEntrySize());
+        this.annotationCaches = newHierarchyCaches(cacheConfig.getAnnotationCacheSize(), cacheConfig.getAnnotationCacheEntrySize());
+        this.superCaches = newHierarchyCaches(cacheConfig.getSuperCacheSize(), cacheConfig.getSuperCacheEntrySize());
+    }
+
+    private HierarchyCaches newHierarchyCaches(final int size, final int entrySize) {
+        if (size > 0) {
+            return new DefaultHierarchyCaches(size, entrySize);
+        }
+        return new DisableHierarchyCaches();
     }
 
     public boolean match(ClassLoader classLoader, MatcherOperand operand, InternalClassMetadata classMetadata) {

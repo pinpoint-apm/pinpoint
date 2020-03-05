@@ -51,7 +51,7 @@ public class URLClassLoaderHandler implements ClassInjector {
     private final PluginConfig pluginConfig;
 
     public URLClassLoaderHandler(PluginConfig pluginConfig) {
-        this.pluginConfig = Assert.requireNonNull(pluginConfig, "pluginConfig must not be null");
+        this.pluginConfig = Assert.requireNonNull(pluginConfig, "pluginConfig");
     }
 
     @Override

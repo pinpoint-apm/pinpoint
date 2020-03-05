@@ -16,9 +16,9 @@
 
 package com.navercorp.pinpoint.grpc.server;
 
+import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.CpuUtils;
-import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
 import com.navercorp.pinpoint.grpc.ExecutorUtils;
 import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.HeaderReader;
@@ -62,7 +62,7 @@ public class ServerFactory {
     private final ExecutorService workerExecutor;
     private final EventLoopGroup workerEventLoopGroup;
 
-    private final Executor executor;
+    private final Executor serverExecutor;
 
     private final List<Object> bindableServices = new ArrayList<Object>();
     private final List<ServerTransportFilter> serverTransportFilters = new ArrayList<ServerTransportFilter>();
@@ -70,10 +70,10 @@ public class ServerFactory {
 
     private ServerOption serverOption;
 
-    public ServerFactory(String name, String hostname, int port, Executor executor, ServerOption serverOption) {
-        this.name = Assert.requireNonNull(name, "name must not be null");
-        this.hostname = Assert.requireNonNull(hostname, "hostname must not be null");
-        this.serverOption = Assert.requireNonNull(serverOption, "serverOption must not be null");
+    public ServerFactory(String name, String hostname, int port, Executor serverExecutor, ServerOption serverOption) {
+        this.name = Assert.requireNonNull(name, "name");
+        this.hostname = Assert.requireNonNull(hostname, "hostname");
+        this.serverOption = Assert.requireNonNull(serverOption, "serverOption");
         this.port = port;
 
         this.bossExecutor = newExecutor(name + "-Channel-Boss");
@@ -81,7 +81,7 @@ public class ServerFactory {
         this.workerExecutor = newExecutor(name + "-Channel-Worker");
         this.workerEventLoopGroup = newEventLoopGroup(CpuUtils.workerCount(), workerExecutor);
 
-        this.executor = Assert.requireNonNull(executor, "executor must not be null");
+        this.serverExecutor = Assert.requireNonNull(serverExecutor, "executor");
     }
 
     private ExecutorService newExecutor(String name) {
@@ -90,28 +90,28 @@ public class ServerFactory {
     }
 
     private NioEventLoopGroup newEventLoopGroup(int i, ExecutorService executorService) {
-        Assert.requireNonNull(executorService, "executorService must not be null");
+        Assert.requireNonNull(executorService, "executorService");
         return new NioEventLoopGroup(i, executorService);
     }
 
 
     public void addService(BindableService bindableService) {
-        Assert.requireNonNull(bindableService, "bindableService must not be null");
+        Assert.requireNonNull(bindableService, "bindableService");
         this.bindableServices.add(bindableService.bindService());
     }
 
     public void addService(ServerServiceDefinition serverServiceDefinition) {
-        Assert.requireNonNull(serverServiceDefinition, "serverServiceDefinition must not be null");
+        Assert.requireNonNull(serverServiceDefinition, "serverServiceDefinition");
         this.bindableServices.add(serverServiceDefinition);
     }
 
     public void addTransportFilter(ServerTransportFilter serverTransportFilter) {
-        Assert.requireNonNull(serverTransportFilter, "serverTransportFilter must not be null");
+        Assert.requireNonNull(serverTransportFilter, "serverTransportFilter");
         this.serverTransportFilters.add(serverTransportFilter);
     }
 
     public void addInterceptor(ServerInterceptor serverInterceptor) {
-        Assert.requireNonNull(serverInterceptor, "serverInterceptor must not be null");
+        Assert.requireNonNull(serverInterceptor, "serverInterceptor");
         this.serverInterceptors.add(serverInterceptor);
     }
 
@@ -124,11 +124,14 @@ public class ServerFactory {
         setupInternal(serverBuilder);
 
         for (Object service : this.bindableServices) {
-            logger.info("Add service={}, server={}", service, name);
+
             if (service instanceof BindableService) {
+                logger.info("Add BindableService={}, server={}", service, name);
                 serverBuilder.addService((BindableService) service);
             } else if (service instanceof ServerServiceDefinition) {
-                serverBuilder.addService((ServerServiceDefinition) service);
+                final ServerServiceDefinition definition = (ServerServiceDefinition) service;
+                logger.info("Add ServerServiceDefinition={}, server={}", definition.getServiceDescriptor(), name);
+                serverBuilder.addService(definition);
             }
         }
         for (ServerTransportFilter transportFilter : this.serverTransportFilters) {
@@ -140,7 +143,7 @@ public class ServerFactory {
             serverBuilder.intercept(serverInterceptor);
         }
 
-        serverBuilder.executor(executor);
+        serverBuilder.executor(serverExecutor);
         setupServerOption(serverBuilder);
 
         HeaderReader<Header> headerReader = new AgentHeaderReader();

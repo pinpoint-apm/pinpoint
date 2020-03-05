@@ -5,6 +5,7 @@ public class CheckerResult {
     private int historyId;
     private String applicationId;
     private String checkerName;
+    private String ruleId;
     private boolean detected;
     private int sequenceCount;
     private int timingCount;
@@ -12,12 +13,21 @@ public class CheckerResult {
     public CheckerResult() {
     }
     
-    public CheckerResult(String applicationId, String checkerName, boolean detected, int sequenceCount, int timingCount) {
+    public CheckerResult(String ruleId, String applicationId, String checkerName, boolean detected, int sequenceCount, int timingCount) {
+        this.ruleId = ruleId;
         this.applicationId = applicationId;
         this.checkerName = checkerName;
         this.detected = detected;
         this.sequenceCount = sequenceCount;
         this.timingCount = timingCount;
+    }
+
+    public String getRuleId() {
+        return ruleId;
+    }
+
+    public void setRuleId(String ruleId) {
+        this.ruleId = ruleId;
     }
 
     public int getHistoryId() {

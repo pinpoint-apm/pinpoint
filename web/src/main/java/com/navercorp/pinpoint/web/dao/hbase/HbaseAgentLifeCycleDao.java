@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
 import com.navercorp.pinpoint.common.hbase.HbaseTableConstatns;
 import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
+import com.navercorp.pinpoint.common.hbase.TableDescriptor;
 import com.navercorp.pinpoint.common.server.bo.AgentLifeCycleBo;
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
 import com.navercorp.pinpoint.common.server.util.RowKeyUtils;
@@ -43,12 +44,13 @@ import org.springframework.util.Assert;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author HyunGil Jeong
  */
 @Repository
-public class HbaseAgentLifeCycleDao extends AbstractHbaseDao implements AgentLifeCycleDao {
+public class HbaseAgentLifeCycleDao implements AgentLifeCycleDao {
 
     private static final int SCANNER_CACHING = 20;
 
@@ -59,14 +61,24 @@ public class HbaseAgentLifeCycleDao extends AbstractHbaseDao implements AgentLif
     @Qualifier("agentLifeCycleMapper")
     private RowMapper<AgentLifeCycleBo> agentLifeCycleMapper;
 
+    @Autowired
+    private TableDescriptor<HbaseColumnFamily.AgentLifeCycleStatus> descriptor;
+
+    public HbaseAgentLifeCycleDao(TableDescriptor<HbaseColumnFamily.AgentLifeCycleStatus> descriptor, HbaseOperations2 hbaseOperations2, RowMapper<AgentLifeCycleBo> agentLifeCycleMapper) {
+        this.descriptor = Objects.requireNonNull(descriptor, "descriptor");
+        this.hbaseOperations2 = Objects.requireNonNull(hbaseOperations2, "hbaseOperations2");
+        this.agentLifeCycleMapper = Objects.requireNonNull(agentLifeCycleMapper, "agentLifeCycleMapper");
+
+    }
+
     @Override
     public AgentStatus getAgentStatus(String agentId, long timestamp) {
-        Assert.notNull(agentId, "agentId must not be null");
+        Objects.requireNonNull(agentId, "agentId");
         Assert.isTrue(timestamp >= 0, "timestamp must not be less than 0");
 
         Scan scan = createScan(agentId, 0, timestamp);
 
-        TableName agentLifeCycleTableName = getTableName();
+        TableName agentLifeCycleTableName = descriptor.getTableName();
         AgentLifeCycleBo agentLifeCycleBo = this.hbaseOperations2.find(agentLifeCycleTableName, scan, new MostRecentAgentLifeCycleResultsExtractor(this.agentLifeCycleMapper, timestamp));
         return createAgentStatus(agentId, agentLifeCycleBo);
     }
@@ -83,7 +95,7 @@ public class HbaseAgentLifeCycleDao extends AbstractHbaseDao implements AgentLif
         final long fromTimestamp = toTimestamp - 1;
         Scan scan = createScan(agentId, fromTimestamp, toTimestamp);
 
-        TableName agentLifeCycleTableName = getTableName();
+        TableName agentLifeCycleTableName = descriptor.getTableName();
         AgentLifeCycleBo agentLifeCycleBo = this.hbaseOperations2.find(agentLifeCycleTableName, scan, new MostRecentAgentLifeCycleResultsExtractor(this.agentLifeCycleMapper, timestamp));
         AgentStatus agentStatus = createAgentStatus(agentId, agentLifeCycleBo);
         agentInfo.setStatus(agentStatus);
@@ -105,7 +117,7 @@ public class HbaseAgentLifeCycleDao extends AbstractHbaseDao implements AgentLif
             }
         }
 
-        TableName agentLifeCycleTableName = getTableName();
+        TableName agentLifeCycleTableName = descriptor.getTableName();
         List<AgentLifeCycleBo> agentLifeCycles = this.hbaseOperations2.findParallel(agentLifeCycleTableName, scans, new MostRecentAgentLifeCycleResultsExtractor(this.agentLifeCycleMapper, timestamp));
         int idx = 0;
         for (AgentInfo agentInfo : agentInfos) {
@@ -124,7 +136,7 @@ public class HbaseAgentLifeCycleDao extends AbstractHbaseDao implements AgentLif
         byte[] endKeyBytes = RowKeyUtils.concatFixedByteAndLong(agentIdBytes, HbaseTableConstatns.AGENT_NAME_MAX_LEN, reverseFromTimestamp);
 
         Scan scan = new Scan(startKeyBytes, endKeyBytes);
-        scan.addColumn(getColumnFamilyName(), getColumnFamily().QUALIFIER_STATES);
+        scan.addColumn(descriptor.getColumnFamilyName(), descriptor.getColumnFamily().QUALIFIER_STATES);
         scan.setMaxVersions(1);
         scan.setCaching(SCANNER_CACHING);
 
@@ -164,9 +176,5 @@ public class HbaseAgentLifeCycleDao extends AbstractHbaseDao implements AgentLif
         }
     }
 
-    @Override
-    public HbaseColumnFamily.AgentLifeCycleStatus getColumnFamily() {
-        return HbaseColumnFamily.AGENT_LIFECYCLE_STATUS;
-    }
 
 }

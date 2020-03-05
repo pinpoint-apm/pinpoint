@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.plugin.spring.webflux.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
+import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessorUtils;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
@@ -60,5 +61,25 @@ public class ExchangeFunctionMethodInterceptor extends SpanEventSimpleAroundInte
         recorder.recordApi(methodDescriptor);
         recorder.recordServiceType(SpringWebFluxConstants.SPRING_WEBFLUX);
         recorder.recordException(throwable);
+
+        if (isAsync(args) && isAsync(result)) {
+            final AsyncContext asyncContext = AsyncContextAccessorUtils.getAsyncContext(args[0]);
+            if (asyncContext != null) {
+                ((AsyncContextAccessor) result)._$PINPOINT$_setAsyncContext(asyncContext);
+                if (isDebug) {
+                    logger.debug("Set closeable-AsyncContext {}", asyncContext);
+                }
+            }
+        }
+    }
+
+    private boolean isAsync(Object result) {
+        if (result == null) {
+            return false;
+        }
+        if (!(result instanceof AsyncContextAccessor)) {
+            return false;
+        }
+        return true;
     }
 }

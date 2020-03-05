@@ -35,7 +35,7 @@ public class StreamResponsePacket extends BasicStreamPacket {
     public StreamResponsePacket(int streamChannelId, byte[] payload) {
         super(streamChannelId);
 
-        Assert.requireNonNull(payload, "payload must not be null");
+        Assert.requireNonNull(payload, "payload");
         this.payload = payload;
     }
 

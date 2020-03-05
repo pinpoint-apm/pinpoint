@@ -31,8 +31,8 @@ public class CountingRejectedExecutionHandler implements RejectedExecutionHandle
     private final Meter rejected;
 
     public CountingRejectedExecutionHandler(String executorName, MetricRegistry registry) {
-        Objects.requireNonNull(executorName, "executorName must not be null");
-        Objects.requireNonNull(registry, "registry must not be null");
+        Objects.requireNonNull(executorName, "executorName");
+        Objects.requireNonNull(registry, "registry");
 
         this.rejected = registry.meter(MetricRegistry.name(executorName, "rejected"));
     }

@@ -51,7 +51,6 @@ public class ThriftStringMetaDataHandler implements RequestResponseHandler {
             serverResponse.write(result);
         } else {
             logger.warn("invalid serverRequest:{}", serverRequest);
-            return;
         }
     }
 
@@ -61,7 +60,7 @@ public class ThriftStringMetaDataHandler implements RequestResponseHandler {
             stringMetaDataBo.setStringValue(stringMetaData.getStringValue());
             stringMetaDataService.insert(stringMetaDataBo);
         } catch (Exception e) {
-            logger.warn("{} handler error. Caused:{}", this.getClass(), e.getMessage(), e);
+            logger.warn("Failed to handle stringMetaData={}, Caused:{}", stringMetaData, e.getMessage(), e);
             final TResult result = new TResult(false);
             result.setMessage(e.getMessage());
             return result;

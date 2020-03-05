@@ -33,9 +33,9 @@ public class DefaultTraceMetadataLoaderService implements TraceMetadataLoaderSer
     private final AnnotationKeyMatcherLocator annotationKeyMatcherLocator;
 
     public DefaultTraceMetadataLoaderService(ServiceTypeLocator serviceTypeLocator, AnnotationKeyLocator annotationKeyLocator, AnnotationKeyMatcherLocator annotationKeyMatcherLocator) {
-        this.serviceTypeLocator = Assert.requireNonNull(serviceTypeLocator, "serviceTypeLocator must not be null");
-        this.annotationKeyLocator = Assert.requireNonNull(annotationKeyLocator, "annotationKeyLocator must not be null");
-        this.annotationKeyMatcherLocator = Assert.requireNonNull(annotationKeyMatcherLocator, "annotationKeyMatcherLocator must not be null");
+        this.serviceTypeLocator = Assert.requireNonNull(serviceTypeLocator, "serviceTypeLocator");
+        this.annotationKeyLocator = Assert.requireNonNull(annotationKeyLocator, "annotationKeyLocator");
+        this.annotationKeyMatcherLocator = Assert.requireNonNull(annotationKeyMatcherLocator, "annotationKeyMatcherLocator");
     }
 
     @Override

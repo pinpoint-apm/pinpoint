@@ -29,9 +29,9 @@ import com.navercorp.pinpoint.common.server.bo.codec.strategy.EncodingStrategy;
 import com.navercorp.pinpoint.common.server.bo.stat.TransactionBo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.util.Assert;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author HyunGil Jeong
@@ -50,8 +50,7 @@ public class TransactionCodecV2 extends AgentStatCodecV2<TransactionBo> {
         private final AgentStatDataPointCodec codec;
 
         private TransactionFactory(AgentStatDataPointCodec codec) {
-            Assert.notNull(codec, "codec must not be null");
-            this.codec = codec;
+            this.codec = Objects.requireNonNull(codec, "codec");
         }
 
         @Override
@@ -78,10 +77,11 @@ public class TransactionCodecV2 extends AgentStatCodecV2<TransactionBo> {
         private final UnsignedLongEncodingStrategy.Analyzer.Builder sampledContinuationCountAnalyzerBuilder = new UnsignedLongEncodingStrategy.Analyzer.Builder();
         private final UnsignedLongEncodingStrategy.Analyzer.Builder unsampledNewCountAnalyzerBuilder = new UnsignedLongEncodingStrategy.Analyzer.Builder();
         private final UnsignedLongEncodingStrategy.Analyzer.Builder unsampledContinuationCountAnalyzerBuilder = new UnsignedLongEncodingStrategy.Analyzer.Builder();
+        private final UnsignedLongEncodingStrategy.Analyzer.Builder skippedNewCountAnalyzerBuilder = new UnsignedLongEncodingStrategy.Analyzer.Builder();
+        private final UnsignedLongEncodingStrategy.Analyzer.Builder skippedContinuationCountAnalyzerBuilder = new UnsignedLongEncodingStrategy.Analyzer.Builder();
 
         public TransactionCodecEncoder(AgentStatDataPointCodec codec) {
-            Assert.notNull(codec, "codec must not be null");
-            this.codec = codec;
+            this.codec = Objects.requireNonNull(codec, "codec");
         }
 
         @Override
@@ -91,6 +91,8 @@ public class TransactionCodecV2 extends AgentStatCodecV2<TransactionBo> {
             sampledContinuationCountAnalyzerBuilder.addValue(transactionBo.getSampledContinuationCount());
             unsampledNewCountAnalyzerBuilder.addValue(transactionBo.getUnsampledNewCount());
             unsampledContinuationCountAnalyzerBuilder.addValue(transactionBo.getUnsampledContinuationCount());
+            skippedNewCountAnalyzerBuilder.addValue(transactionBo.getSkippedNewSkipCount());
+            skippedContinuationCountAnalyzerBuilder.addValue(transactionBo.getSkippedContinuationCount());
         }
 
         @Override
@@ -100,6 +102,9 @@ public class TransactionCodecV2 extends AgentStatCodecV2<TransactionBo> {
             StrategyAnalyzer<Long> sampledContinuationCountStrategyAnalyzer = sampledContinuationCountAnalyzerBuilder.build();
             StrategyAnalyzer<Long> unsampledNewCountStrategyAnalyzer = unsampledNewCountAnalyzerBuilder.build();
             StrategyAnalyzer<Long> unsampledContinuationCountStrategyAnalyzer = unsampledContinuationCountAnalyzerBuilder.build();
+            StrategyAnalyzer<Long> skippedNewCountStrategyAnalyzer = skippedNewCountAnalyzerBuilder.build();
+            StrategyAnalyzer<Long> skippedContinuationCountStrategyAnalyzer = skippedContinuationCountAnalyzerBuilder.build();
+
             // encode header
             AgentStatHeaderEncoder headerEncoder = new BitCountingHeaderEncoder();
             headerEncoder.addCode(collectIntervalStrategyAnalyzer.getBestStrategy().getCode());
@@ -107,6 +112,9 @@ public class TransactionCodecV2 extends AgentStatCodecV2<TransactionBo> {
             headerEncoder.addCode(sampledContinuationCountStrategyAnalyzer.getBestStrategy().getCode());
             headerEncoder.addCode(unsampledNewCountStrategyAnalyzer.getBestStrategy().getCode());
             headerEncoder.addCode(unsampledContinuationCountStrategyAnalyzer.getBestStrategy().getCode());
+            headerEncoder.addCode(skippedNewCountStrategyAnalyzer.getBestStrategy().getCode());
+            headerEncoder.addCode(skippedContinuationCountStrategyAnalyzer.getBestStrategy().getCode());
+
             final byte[] header = headerEncoder.getHeader();
             valueBuffer.putPrefixedBytes(header);
             // encode values
@@ -115,6 +123,8 @@ public class TransactionCodecV2 extends AgentStatCodecV2<TransactionBo> {
             this.codec.encodeValues(valueBuffer, sampledContinuationCountStrategyAnalyzer.getBestStrategy(), sampledContinuationCountStrategyAnalyzer.getValues());
             this.codec.encodeValues(valueBuffer, unsampledNewCountStrategyAnalyzer.getBestStrategy(), unsampledNewCountStrategyAnalyzer.getValues());
             this.codec.encodeValues(valueBuffer, unsampledContinuationCountStrategyAnalyzer.getBestStrategy(), unsampledContinuationCountStrategyAnalyzer.getValues());
+            this.codec.encodeValues(valueBuffer, skippedNewCountStrategyAnalyzer.getBestStrategy(), skippedNewCountStrategyAnalyzer.getValues());
+            this.codec.encodeValues(valueBuffer, skippedContinuationCountStrategyAnalyzer.getBestStrategy(), skippedContinuationCountStrategyAnalyzer.getValues());
         }
 
     }
@@ -127,10 +137,11 @@ public class TransactionCodecV2 extends AgentStatCodecV2<TransactionBo> {
         private List<Long> sampledContinuationCounts;
         private List<Long> unsampledNewCounts;
         private List<Long> unsampledContinuationCounts;
+        private List<Long> skippedNewCounts;
+        private List<Long> skippedContinuationCounts;
 
         public TransactionCodecDecoder(AgentStatDataPointCodec codec) {
-            Assert.notNull(codec, "codec must not be null");
-            this.codec = codec;
+            this.codec = Objects.requireNonNull(codec, "codec");
         }
 
         @Override
@@ -141,12 +152,20 @@ public class TransactionCodecV2 extends AgentStatCodecV2<TransactionBo> {
             EncodingStrategy<Long> unsampledNewCountEncodingStrategy = UnsignedLongEncodingStrategy.getFromCode(headerDecoder.getCode());
             EncodingStrategy<Long> unsampledContinuationCountEncodingStrategy = UnsignedLongEncodingStrategy.getFromCode(headerDecoder.getCode());
 
+            EncodingStrategy<Long> skippedNewCountEncodingStrategy = UnsignedLongEncodingStrategy.getFromCode(headerDecoder.getCode());
+            EncodingStrategy<Long> skippedContinuationCountEncodingStrategy = UnsignedLongEncodingStrategy.getFromCode(headerDecoder.getCode());
+
             // decode values
             this.collectIntervals = this.codec.decodeValues(valueBuffer, collectIntervalEncodingStrategy, valueSize);
             this.sampledNewCounts = this.codec.decodeValues(valueBuffer, sampledNewCountEncodingStrategy, valueSize);
             this.sampledContinuationCounts = this.codec.decodeValues(valueBuffer, sampledContinuationCountEncodingStrategy, valueSize);
             this.unsampledNewCounts = this.codec.decodeValues(valueBuffer, unsampledNewCountEncodingStrategy, valueSize);
             this.unsampledContinuationCounts = this.codec.decodeValues(valueBuffer, unsampledContinuationCountEncodingStrategy, valueSize);
+            if (valueBuffer.remaining() > 0) {
+                // Since 1.8.5-SNAPSHOT
+                this.skippedNewCounts = this.codec.decodeValues(valueBuffer, skippedNewCountEncodingStrategy, valueSize);
+                this.skippedContinuationCounts = this.codec.decodeValues(valueBuffer, skippedContinuationCountEncodingStrategy, valueSize);
+            }
         }
 
         @Override
@@ -157,9 +176,14 @@ public class TransactionCodecV2 extends AgentStatCodecV2<TransactionBo> {
             transactionBo.setSampledContinuationCount(sampledContinuationCounts.get(index));
             transactionBo.setUnsampledNewCount(unsampledNewCounts.get(index));
             transactionBo.setUnsampledContinuationCount(unsampledContinuationCounts.get(index));
+            if (skippedNewCounts != null) {
+                transactionBo.setSkippedNewSkipCount(skippedNewCounts.get(index));
+            }
+            if (skippedContinuationCounts != null) {
+                transactionBo.setSkippedContinuationCount(skippedContinuationCounts.get(index));
+            }
             return transactionBo;
         }
 
     }
-
 }

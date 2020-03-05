@@ -1,0 +1,10 @@
+<ag-grid-angular
+    id="callTree"
+    class="ag-theme-balham"
+    style="width:100%; height: 100%;"
+    [gridOptions]="gridOptions"
+    [rowData]="gridData"
+    (firstDataRendered)="onRendered()"
+    (cellClicked)="onCellClick($event)"
+    (gridSizeChanged)="onGridSizeChanged($event)">
+</ag-grid-angular>

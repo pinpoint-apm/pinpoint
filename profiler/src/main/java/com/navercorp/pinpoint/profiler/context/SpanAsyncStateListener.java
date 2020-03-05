@@ -43,8 +43,8 @@ public class SpanAsyncStateListener implements ListenableAsyncState.AsyncStateLi
     private final StorageFactory storageFactory;
 
     SpanAsyncStateListener(Span span, StorageFactory storageFactory) {
-        this.span = Assert.requireNonNull(span, "span must not be null");
-        this.storageFactory = Assert.requireNonNull(storageFactory, "storageFactory must not be null");
+        this.span = Assert.requireNonNull(span, "span");
+        this.storageFactory = Assert.requireNonNull(storageFactory, "storageFactory");
     }
 
     @Override

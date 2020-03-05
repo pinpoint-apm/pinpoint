@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.collector.receiver.grpc;
 
 import com.navercorp.pinpoint.collector.cluster.AgentInfo;
-import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.grpc.MessageFormatUtils;
 import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadCount;
 import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadDump;
 import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadLightDump;
@@ -55,6 +55,7 @@ import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -63,6 +64,7 @@ import java.util.concurrent.atomic.AtomicReference;
 public class PinpointGrpcServer {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final boolean isInfo = logger.isInfoEnabled();
 
     private final SocketState state = new SocketState();
     private final AtomicReference<List<Integer>> supportCommandServiceList = new AtomicReference<>();
@@ -78,10 +80,10 @@ public class PinpointGrpcServer {
     private final StreamObserver<PCmdRequest> requestObserver;
 
     public PinpointGrpcServer(InetSocketAddress remoteAddress, AgentInfo agentInfo, RequestManager requestManager, StreamObserver<PCmdRequest> requestObserver) {
-        this.remoteAddress = Assert.requireNonNull(remoteAddress, "remoteAddress");
-        this.agentInfo = Assert.requireNonNull(agentInfo, "agentInfo");
-        this.requestManager = Assert.requireNonNull(requestManager, "requestManager");
-        this.requestObserver = Assert.requireNonNull(requestObserver, "requestObserver");
+        this.remoteAddress = Objects.requireNonNull(remoteAddress, "remoteAddress");
+        this.agentInfo = Objects.requireNonNull(agentInfo, "agentInfo");
+        this.requestManager = Objects.requireNonNull(requestManager, "requestManager");
+        this.requestObserver = Objects.requireNonNull(requestObserver, "requestObserver");
     }
 
     public void connected() {
@@ -89,7 +91,9 @@ public class PinpointGrpcServer {
     }
 
     public boolean handleHandshake(List<Integer> supportCommandServiceList) {
-        logger.info("{} handleHandshake() started. data:{}", agentInfo, supportCommandServiceList);
+        if (isInfo) {
+            logger.info("{} handleHandshake() started. data:{}", agentInfo, supportCommandServiceList);
+        }
 
         boolean isFirst = this.supportCommandServiceList.compareAndSet(null, supportCommandServiceList);
         if (isFirst) {
@@ -102,7 +106,9 @@ public class PinpointGrpcServer {
 
     private SocketStateChangeResult toState(SocketStateCode socketStateCode) {
         SocketStateChangeResult result = state.to(socketStateCode);
-        logger.info(result.toString());
+        if (logger.isDebugEnabled()) {
+            logger.debug(result.toString());
+        }
         return result;
     }
 
@@ -177,7 +183,9 @@ public class PinpointGrpcServer {
             return;
         }
 
-        logger.info("{} handleMessage:{}", agentInfo, message);
+        if (isInfo) {
+            logger.info("{} handleMessage:{}", agentInfo, MessageFormatUtils.debugLog(message));
+        }
         TBase tMessage = messageConverter.toMessage(message);
 
         try {
@@ -200,7 +208,10 @@ public class PinpointGrpcServer {
 
     // 2nd message : server(agent) -> client(collector)
     public boolean handleStreamCreateMessage(int streamId, StreamObserver<Empty> connectionObserver) {
-        logger.info("handleStreamCreateMessage. streamId:{}", streamId);
+        if (isInfo) {
+            logger.info("handleStreamCreateMessage. streamId:{}", streamId);
+        }
+
         StreamChannel streamChannel = streamChannelRepository.getStreamChannel(streamId);
         if (streamChannel == null) {
             logger.warn("Can't find suitable streamChannel.(streamId:{})", streamId);
@@ -214,7 +225,7 @@ public class PinpointGrpcServer {
 
     public void handleStreamMessage(int streamId, GeneratedMessageV3 message) throws StreamException {
         if (logger.isDebugEnabled()) {
-            logger.debug("handleStreamMessage() streamId:{}, message:{}", streamId, message);
+            logger.debug("handleStreamMessage() streamId:{}, message:{}", streamId, MessageFormatUtils.debugLog(message));
         }
 
         GrpcClientStreamChannel streamChannel = (GrpcClientStreamChannel) streamChannelRepository.getStreamChannel(streamId);
@@ -224,7 +235,7 @@ public class PinpointGrpcServer {
 
         TBase tBase = messageConverter.toMessage(message);
         if (tBase == null) {
-            throw new StreamException(StreamCode.TYPE_ERROR, "Failed to convert message.(message:" + message + ")");
+            throw new StreamException(StreamCode.TYPE_ERROR, "Failed to convert message.(message:" + MessageFormatUtils.debugLog(message).toString() + ")");
         }
 
         if (logger.isDebugEnabled()) {
@@ -288,7 +299,7 @@ public class PinpointGrpcServer {
                     logger.warn("stop(). Socket has closed state({}).", currentStateCode);
                 } else {
                     toState(SocketStateCode.ERROR_ILLEGAL_STATE_CHANGE);
-                    logger.warn("stop(). Socket has unexpected state.", currentStateCode);
+                    logger.warn("stop(). Socket has unexpected state({})", currentStateCode);
                 }
             } finally {
                 logger.info("{} <=> local all streamChannels will be close.", agentInfo.getAgentKey());
@@ -317,5 +328,4 @@ public class PinpointGrpcServer {
         failedFuture.setFailure(failException);
         return failedFuture;
     }
-
 }

@@ -33,7 +33,7 @@ public class DefaultClassBasedMatcher implements ClassBasedMatcher {
     }
 
     DefaultClassBasedMatcher(final String baseClassName, final MatcherOperand additional) {
-        this.baseClassName = Assert.requireNonNull(baseClassName, "baseClassName must not be null");
+        this.baseClassName = Assert.requireNonNull(baseClassName, "baseClassName");
 
         this.matcherOperand = getMatcherOperand(baseClassName, additional);
     }

@@ -34,7 +34,7 @@ public class DefaultNameSpaceChecker<T> implements NameSpaceChecker<T> {
 
 
     public DefaultNameSpaceChecker(RequestAdaptor<T> requestAdaptor, String applicationNamespace) {
-        this.requestAdaptor = Assert.requireNonNull(requestAdaptor, "requestAdaptor must not be null");
+        this.requestAdaptor = Assert.requireNonNull(requestAdaptor, "requestAdaptor");
 
         if (StringUtils.isEmpty(applicationNamespace)) {
             throw new IllegalArgumentException("applicationNamespace must not be empty");

@@ -28,8 +28,8 @@ public class Providers {
     private final List<String> providers;
 
     public Providers(String services, List<String> providers) {
-        this.services = Assert.requireNonNull(services, "services must not be null");
-        this.providers = Assert.requireNonNull(providers, "providers must not be null");
+        this.services = Assert.requireNonNull(services, "services");
+        this.providers = Assert.requireNonNull(providers, "providers");
     }
 
     public String getService() {

@@ -54,7 +54,7 @@ public class HbaseTransactionDao implements AgentStatDaoV2<TransactionBo> {
     @Override
     public void insert(String agentId, List<TransactionBo> transactionBos) {
         if (agentId == null) {
-            throw new NullPointerException("agentId must not be null");
+            throw new NullPointerException("agentId");
         }
         if (CollectionUtils.isEmpty(transactionBos)) {
             return;

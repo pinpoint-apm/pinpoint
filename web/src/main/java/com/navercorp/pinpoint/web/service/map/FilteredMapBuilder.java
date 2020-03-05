@@ -75,12 +75,12 @@ public class FilteredMapBuilder {
     private final Map<String, Application> applicationHashMap = new HashMap<>();
 
     public FilteredMapBuilder(ApplicationFactory applicationFactory, ServiceTypeRegistryService registry, Range range, int version) {
-        this.applicationFactory = Objects.requireNonNull(applicationFactory, "applicationFactory must not be null");
-        this.registry = Objects.requireNonNull(registry, "registry must not be null");
-        Objects.requireNonNull(range, "range must not be null");
+        this.applicationFactory = Objects.requireNonNull(applicationFactory, "applicationFactory");
+        this.registry = Objects.requireNonNull(registry, "registry");
 
         this.version = version;
 
+        Objects.requireNonNull(range, "range");
         this.timeWindow = new TimeWindow(range, TimeWindowDownSampler.SAMPLER);
         this.linkDataDuplexMap = new LinkDataDuplexMap();
         this.responseHistogramsBuilder = new ResponseHistograms.Builder(range);

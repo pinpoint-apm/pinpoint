@@ -213,6 +213,12 @@ public class TraceService {
             final int elapsed = spanEvent.getEndElapsed();
             final boolean hasException = spanEvent.hasException();
 
+            if (applicationId == null || spanEventApplicationName == null) {
+                logger.warn("Failed to insert statistics. Cause:SpanEvent has invalid format.(application:{}/{}[{}], spanEventApplication:{}[{}])",
+                        applicationId, agentId, applicationServiceType, spanEventApplicationName, spanEventType);
+                continue;
+            }
+
             /*
              * save information to draw a server map based on statistics
              */

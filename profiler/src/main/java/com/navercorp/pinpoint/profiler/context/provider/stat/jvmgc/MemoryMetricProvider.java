@@ -20,12 +20,8 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.navercorp.pinpoint.profiler.monitor.metric.memory.DefaultMemoryMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.memory.MemoryMetric;
-import com.navercorp.pinpoint.profiler.monitor.metric.memory.UnknownMemoryMetric;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.lang.management.ManagementFactory;
-import java.lang.management.MemoryMXBean;
 
 /**
  * @author dawidmalina

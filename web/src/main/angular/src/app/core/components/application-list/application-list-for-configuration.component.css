@@ -1,0 +1,36 @@
+:host {
+    display: block;
+    height: 100%;
+}
+
+.l-application-list-item {
+    font-size: 13px;
+    padding: 12px 15px;
+    color: #666 !important;
+    font-weight: 400 !important;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.l-application-list-item:hover {
+    background-color:  #e4f3eb;
+}
+
+.l-application-name-wrapper {
+    flex: auto;
+    margin-right: 5px;
+}
+
+.l-icon-img {
+    margin-right: 5px;
+}
+
+.l-select-button > .fas,
+.l-select-button > .far {
+    font-size: 18px;
+}
+
+.l-select-button > .fa-arrow-right {
+    color: var(--primary-color);
+}

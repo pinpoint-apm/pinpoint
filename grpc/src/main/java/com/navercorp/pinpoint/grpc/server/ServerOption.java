@@ -25,9 +25,9 @@ import java.util.concurrent.TimeUnit;
  */
 public class ServerOption {
     public static final int DEFAULT_FLOW_CONTROL_WINDOW = 1048576; // 1MiB
-    public static final long DEFAULT_KEEPALIVE_TIME = TimeUnit.MINUTES.toMillis(5);
-    public static final long DEFAULT_KEEPALIVE_TIMEOUT = TimeUnit.MINUTES.toMillis(30);
-    public static final long DEFAULT_PERMIT_KEEPALIVE_TIME = TimeUnit.MINUTES.toMillis(3);
+    public static final long DEFAULT_KEEPALIVE_TIME = TimeUnit.SECONDS.toMillis(30);
+    public static final long DEFAULT_KEEPALIVE_TIMEOUT = TimeUnit.SECONDS.toMillis(60);
+    public static final long DEFAULT_PERMIT_KEEPALIVE_TIME = TimeUnit.SECONDS.toMillis(30);
     public static final boolean PERMIT_KEEPALIVE_WITHOUT_CALLS_DISABLE = Boolean.FALSE;
 
     public static final long DEFAULT_MAX_CONNECTION_IDLE = TimeUnit.SECONDS.toMillis(10); // 10s
@@ -233,6 +233,23 @@ public class ServerOption {
         public void setReceiveBufferSize(int receiveBufferSize) {
             Assert.isTrue(receiveBufferSize > 0, "receiveBufferSize " + receiveBufferSize + " must be positive");
             this.receiveBufferSize = receiveBufferSize;
+        }
+
+        @Override
+        public String toString() {
+            final StringBuilder sb = new StringBuilder("Builder{");
+            sb.append("keepAliveTime=").append(keepAliveTime);
+            sb.append(", keepAliveTimeout=").append(keepAliveTimeout);
+            sb.append(", permitKeepAliveTime=").append(permitKeepAliveTime);
+            sb.append(", maxConnectionIdle=").append(maxConnectionIdle);
+            sb.append(", maxConcurrentCallsPerConnection=").append(maxConcurrentCallsPerConnection);
+            sb.append(", maxInboundMessageSize=").append(maxInboundMessageSize);
+            sb.append(", maxHeaderListSize=").append(maxHeaderListSize);
+            sb.append(", handshakeTimeout=").append(handshakeTimeout);
+            sb.append(", flowControlWindow=").append(flowControlWindow);
+            sb.append(", receiveBufferSize=").append(receiveBufferSize);
+            sb.append('}');
+            return sb.toString();
         }
     }
 }

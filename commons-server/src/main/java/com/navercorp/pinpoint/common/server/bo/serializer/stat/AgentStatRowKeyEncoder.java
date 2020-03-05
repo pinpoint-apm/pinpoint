@@ -33,7 +33,7 @@ public class AgentStatRowKeyEncoder implements RowKeyEncoder<AgentStatRowKeyComp
     @Override
     public byte[] encodeRowKey(AgentStatRowKeyComponent component) {
         if (component == null) {
-            throw new NullPointerException("component must not be null");
+            throw new NullPointerException("component");
         }
         byte[] bAgentId = BytesUtils.toBytes(component.getAgentId());
         byte[] bStatType = new byte[]{component.getAgentStatType().getRawTypeCode()};

@@ -1,0 +1,39 @@
+.l-wrapper {
+    display: flex;
+    flex-flow: row wrap;
+}
+.l-btn-group {
+    border:1px solid #e5e8ea;
+    height:32px;
+}
+.l-btn-group button {
+    background:#fff;
+    float:left;
+    padding:0 15px;
+    height:100%;
+    outline: none;
+}
+.l-btn-group button.active, .l-btn-group button:hover {
+    color:#fff;
+    font-weight:600;
+    background:var(--primary-color);
+}
+.l-transaction-state {
+    color: #FFF;
+    height: 32px;
+    padding: 8px;
+    font-size: 12px;
+    margin-left: 10px;
+}
+.l-transaction-complete {
+    background-color: #5CB85C;
+}
+.l-transaction-progress {
+    background-color: rgb(91, 192, 222);
+}
+.l-transaction-error {
+    background-color: #D9534F;
+}
+.l-log-info.disabled {
+    background-color: #dfdfdf !important;
+}

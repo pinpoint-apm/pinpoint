@@ -33,7 +33,7 @@ public class NetworkAvailabilityCheckPacket implements org.apache.thrift.TBase<N
 
     private static byte[] getBytes(String str) {
         if (str == null) {
-            throw new NullPointerException("str must not be null");
+            throw new NullPointerException("str");
         }
         try {
             return str.getBytes("UTF8");

@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.profiler.sender.grpc;
 
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
+import com.navercorp.pinpoint.grpc.StatusError;
+import com.navercorp.pinpoint.grpc.StatusErrors;
 import com.navercorp.pinpoint.grpc.trace.AgentGrpc;
 import com.navercorp.pinpoint.grpc.trace.PPing;
 import io.grpc.stub.ClientCallStreamObserver;
@@ -49,15 +51,15 @@ public class PingStreamContext {
     public PingStreamContext(AgentGrpc.AgentStub agentStub,
                              Reconnector reconnector,
                              ScheduledExecutorService retransmissionExecutor) {
-        Assert.requireNonNull(agentStub, "agentStub must not be null");
+        Assert.requireNonNull(agentStub, "agentStub");
 
         this.streamId = StreamId.newStreamId("PingStream");
 
         this.responseObserver = new PingClientResponseObserver();
         this.requestObserver = agentStub.pingSession(responseObserver);
 
-        this.reconnector = Assert.requireNonNull(reconnector, "reconnector must not be null");
-        this.retransmissionExecutor = Assert.requireNonNull(retransmissionExecutor, "retransmissionExecutor must not be null");
+        this.reconnector = Assert.requireNonNull(reconnector, "reconnector");
+        this.retransmissionExecutor = Assert.requireNonNull(retransmissionExecutor, "retransmissionExecutor");
     }
 
     private PPing newPing() {
@@ -78,7 +80,12 @@ public class PingStreamContext {
 
         @Override
         public void onError(Throwable t) {
-            logger.info("{} error Caused by:{}", streamId, t.getMessage(), t);
+            final StatusError statusError = StatusErrors.throwable(t);
+            if (statusError.isSimpleError()) {
+                logger.info("Failed to ping stream, streamId={}, cause={}", streamId, statusError.getMessage());
+            } else {
+                logger.warn("Failed to ping stream, streamId={}, cause={}", streamId, statusError.getMessage(), statusError.getThrowable());
+            }
             cancelPingScheduler();
             reconnector.reconnect();
         }
@@ -105,7 +112,7 @@ public class PingStreamContext {
             requestStream.setOnReadyHandler(new Runnable() {
                 @Override
                 public void run() {
-                    logger.info("{} ready", streamId);
+                    logger.info("{} onReady", streamId);
                     reconnector.reset();
 
                     final Runnable pingRunnable = new Runnable() {

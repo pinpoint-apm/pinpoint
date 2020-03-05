@@ -37,8 +37,8 @@ public class ConfiguredApplicationTypeProvider implements Provider<ServiceType> 
 
     @Inject
     public ConfiguredApplicationTypeProvider(ProfilerConfig profilerConfig, ServiceTypeRegistryService serviceTypeRegistryService) {
-        Assert.requireNonNull(profilerConfig, "profilerConfig must not be null");
-        this.serviceTypeRegistryService = Assert.requireNonNull(serviceTypeRegistryService, "serviceTypeRegistryService must not be null");
+        Assert.requireNonNull(profilerConfig, "profilerConfig");
+        this.serviceTypeRegistryService = Assert.requireNonNull(serviceTypeRegistryService, "serviceTypeRegistryService");
         this.applicationTypeString = profilerConfig.getApplicationServerType();
     }
 

@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.web.dao.hbase;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
+import com.navercorp.pinpoint.common.hbase.TableDescriptor;
 import com.navercorp.pinpoint.common.server.bo.SqlMetaDataBo;
 import com.navercorp.pinpoint.web.dao.SqlMetaDataDao;
 
@@ -34,7 +35,7 @@ import java.util.List;
  * @author minwoo.jung
  */
 //@Repository
-public class HbaseSqlMetaDataDao extends AbstractHbaseDao implements SqlMetaDataDao {
+public class HbaseSqlMetaDataDao implements SqlMetaDataDao {
 
     @Autowired
     private HbaseOperations2 hbaseOperations2;
@@ -47,19 +48,22 @@ public class HbaseSqlMetaDataDao extends AbstractHbaseDao implements SqlMetaData
 //    @Qualifier("metadataRowKeyDistributor2")
     private RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
 
+    @Autowired
+    private TableDescriptor<HbaseColumnFamily.SqlMetadataV2> descriptor;
+
     @Override
     public List<SqlMetaDataBo> getSqlMetaData(String agentId, long time, int sqlId) {
         if (agentId == null) {
-            throw new NullPointerException("agentId must not be null");
+            throw new NullPointerException("agentId");
         }
 
         SqlMetaDataBo sqlMetaData = new SqlMetaDataBo(agentId, time, sqlId);
         byte[] rowKey = getDistributedKey(sqlMetaData.toRowKey());
 
         Get get = new Get(rowKey);
-        get.addFamily(getColumnFamilyName());
+        get.addFamily(descriptor.getColumnFamilyName());
 
-        TableName sqlMetaDataTableName = getTableName();
+        TableName sqlMetaDataTableName = descriptor.getTableName();
         return hbaseOperations2.get(sqlMetaDataTableName, get, sqlMetaDataMapper);
     }
 
@@ -75,9 +79,5 @@ public class HbaseSqlMetaDataDao extends AbstractHbaseDao implements SqlMetaData
         this.rowKeyDistributorByHashPrefix = rowKeyDistributorByHashPrefix;
     }
 
-    @Override
-    public HbaseColumnFamily getColumnFamily() {
-        return HbaseColumnFamily.SQL_METADATA_VER2_SQL;
-    }
 
 }

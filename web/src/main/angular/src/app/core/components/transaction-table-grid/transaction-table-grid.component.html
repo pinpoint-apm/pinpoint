@@ -1,0 +1,10 @@
+<ag-grid-angular
+    id="transaction-table"
+    class="ag-theme-balham"
+    style="width:100% ;height:100%"
+    [gridOptions]="gridOptions"
+    [rowData]="rowData"
+    (gridReady)="onGridReady($event)"
+    (gridSizeChanged)="onGridSizeChanged($event)"
+    (firstDataRendered)="onRendered()">
+</ag-grid-angular>

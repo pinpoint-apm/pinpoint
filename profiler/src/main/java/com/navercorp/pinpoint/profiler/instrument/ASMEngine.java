@@ -41,14 +41,14 @@ public class ASMEngine implements InstrumentEngine {
 
 
     public ASMEngine(Instrumentation instrumentation, EngineComponent engineComponent) {
-        this.instrumentation = Assert.requireNonNull(instrumentation, "instrumentation must not be null");
-        this.engineComponent = Assert.requireNonNull(engineComponent, "engineComponent must not be null");
+        this.instrumentation = Assert.requireNonNull(instrumentation, "instrumentation");
+        this.engineComponent = Assert.requireNonNull(engineComponent, "engineComponent");
     }
 
     @Override
     public InstrumentClass getClass(InstrumentContext instrumentContext, ClassLoader classLoader, String className, ProtectionDomain protectionDomain, byte[] classFileBuffer) throws NotFoundInstrumentException {
         if (className == null) {
-            throw new NullPointerException("class name must not be null.");
+            throw new NullPointerException("className");
         }
 
         try {
@@ -76,7 +76,7 @@ public class ASMEngine implements InstrumentEngine {
     @Override
     public void appendToBootstrapClassPath(JarFile jarFile) {
         if (jarFile == null) {
-            throw new NullPointerException("jarFile must not be null");
+            throw new NullPointerException("jarFile");
         }
         if (isInfo) {
             logger.info("appendToBootstrapClassPath:{}", jarFile.getName());

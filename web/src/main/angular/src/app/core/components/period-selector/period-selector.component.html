@@ -1,0 +1,27 @@
+<div class="l-wrapper font-opensans">
+    <ul class="l-type-select">
+        <li [class.inactive]="isReservedType">
+            <button class="fas fa-clock" (click)="changeToReservedType()"></button>
+        </li>
+        <li [class.inactive]="!isReservedType">
+            <button class="fas fa-calendar-alt" (click)="changeToCalendarType()"></button>
+        </li>
+    </ul>
+    <pp-period-selector-using-reserved-time 
+        [showRealTimeButton]="showRealTimeButton"
+        [isRealTimeMode]="isRealTimeMode" 
+        [periodList]="periodList" 
+        [initPeriod]="selectedPeriod"
+        (outChangePeriod)="onChangePeriodTime($event)"
+        [isHidden]="!isReservedType"></pp-period-selector-using-reserved-time>
+    <pp-period-selector-using-calendar 
+        [i18nText]="i18nText"
+        [periodList]="periodList"
+        [initPeriod]="selectedPeriod"
+        [initEndTime]="selectedEndTime"
+        [maxPeriod]="maxPeriod"
+        [timezone]="timezone"
+        [dateFormat]="dateFormat"
+        (outChangePeriod)="onChangeCalendarTime($event)"
+        [isHidden]="isReservedType"></pp-period-selector-using-calendar>
+</div>

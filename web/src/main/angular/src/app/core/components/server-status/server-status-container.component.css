@@ -1,0 +1,46 @@
+:host {
+    display: block;
+    width: 100%;
+}
+.l-status {
+    padding: 10px 12px 10px 12px;
+}
+.l-status:after {
+    content:"";
+    display:block;
+    width:100%;
+    height:0;
+    visibility:hidden;
+    clear:both;
+}
+.l-status button {
+    float: left;
+}
+.l-status button:disabled {
+    background-color: #CCC;
+    cursor: not-allowed;
+}
+.l-status-count {
+    float: right;
+}
+.l-status-count li {
+    font-size: 12px;
+    color: #B3B3B4;
+    float: left;
+}
+.l-status-count li:first-child {
+    margin: 0 15px 0 0;
+    padding: 0 15px 0 0;
+    position: relative;
+}
+.l-status-count span {
+    font-size: 18px;
+    font-weight: 600;
+    color: #EB4747;
+}
+.l-status-count span.l-total {
+    color: #000;
+}
+button:first-child {
+    margin-right: 10px;
+}

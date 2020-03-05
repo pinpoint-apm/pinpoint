@@ -45,8 +45,8 @@ public class ThriftSpanHandler implements SimpleHandler {
     private final SpanFactory spanFactory;
 
     public ThriftSpanHandler(TraceService traceService, SpanFactory spanFactory) {
-        this.traceService = Objects.requireNonNull(traceService, "traceService must not be null");
-        this.spanFactory = Objects.requireNonNull(spanFactory, "spanFactory must not be null");
+        this.traceService = Objects.requireNonNull(traceService, "traceService");
+        this.spanFactory = Objects.requireNonNull(spanFactory, "spanFactory");
     }
 
     @Override
@@ -68,7 +68,7 @@ public class ThriftSpanHandler implements SimpleHandler {
             final SpanBo spanBo = spanFactory.buildSpanBo(tSpan);
             traceService.insertSpan(spanBo);
         } catch (Exception e) {
-            logger.warn("Span handle error. Caused:{}. Span:{}", e.getMessage(), tSpan, e);
+            logger.warn("Failed to handle Span={}, Caused:{}", tSpan, e.getMessage(), e);
         }
     }
 }

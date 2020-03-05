@@ -38,41 +38,47 @@ public class SampledTransaction implements SampledAgentStatDataPoint {
     private final AgentStatPoint<Double> sampledContinuation;
     private final AgentStatPoint<Double> unsampledNew;
     private final AgentStatPoint<Double> unsampledContinuation;
+    private final AgentStatPoint<Double> skippedNew;
+    private final AgentStatPoint<Double> skippedContinuation;
     private final AgentStatPoint<Double> total;
 
-    public SampledTransaction(AgentStatPoint<Double> sampledNew, AgentStatPoint<Double> sampledContinuation, AgentStatPoint<Double> unsampledNew, AgentStatPoint<Double> unsampledContinuation, AgentStatPoint<Double> total) {
-        this.sampledNew = Objects.requireNonNull(sampledNew, "sampledNew must not be null");
-        this.sampledContinuation = Objects.requireNonNull(sampledContinuation, "sampledContinuation must not be null");
-        this.unsampledNew = Objects.requireNonNull(unsampledNew, "unsampledNew must not be null");
-        this.unsampledContinuation = Objects.requireNonNull(unsampledContinuation, "unsampledContinuation must not be null");
-        this.total = Objects.requireNonNull(total, "total must not be null");
+    public SampledTransaction(AgentStatPoint<Double> sampledNew, AgentStatPoint<Double> sampledContinuation, AgentStatPoint<Double> unsampledNew, AgentStatPoint<Double> unsampledContinuation, AgentStatPoint<Double> skippedNew, AgentStatPoint<Double> skippedContinuation, AgentStatPoint<Double> total) {
+        this.sampledNew = Objects.requireNonNull(sampledNew, "sampledNew");
+        this.sampledContinuation = Objects.requireNonNull(sampledContinuation, "sampledContinuation");
+        this.unsampledNew = Objects.requireNonNull(unsampledNew, "unsampledNew");
+        this.unsampledContinuation = Objects.requireNonNull(unsampledContinuation, "unsampledContinuation");
+        this.skippedNew = Objects.requireNonNull(skippedNew, "skippedNew");
+        this.skippedContinuation = Objects.requireNonNull(skippedContinuation, "skippedContinuation");
+        this.total = Objects.requireNonNull(total, "total");
     }
 
     public AgentStatPoint<Double> getSampledNew() {
         return sampledNew;
     }
 
-
-
     public AgentStatPoint<Double> getSampledContinuation() {
         return sampledContinuation;
     }
-
 
     public AgentStatPoint<Double> getUnsampledNew() {
         return unsampledNew;
     }
 
-
     public AgentStatPoint<Double> getUnsampledContinuation() {
         return unsampledContinuation;
     }
-
 
     public AgentStatPoint<Double> getTotal() {
         return total;
     }
 
+    public AgentStatPoint<Double> getSkippedNew() {
+        return skippedNew;
+    }
+
+    public AgentStatPoint<Double> getSkippedContinuation() {
+        return skippedContinuation;
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -87,6 +93,10 @@ public class SampledTransaction implements SampledAgentStatDataPoint {
         if (unsampledNew != null ? !unsampledNew.equals(that.unsampledNew) : that.unsampledNew != null) return false;
         if (unsampledContinuation != null ? !unsampledContinuation.equals(that.unsampledContinuation) : that.unsampledContinuation != null)
             return false;
+        if (skippedNew != null ? !skippedNew.equals(that.skippedNew) : that.skippedNew != null) return false;
+        if (skippedContinuation != null ? !skippedContinuation.equals(that.skippedContinuation) : that.skippedContinuation != null)
+            return false;
+
         return total != null ? total.equals(that.total) : that.total == null;
     }
 
@@ -96,6 +106,8 @@ public class SampledTransaction implements SampledAgentStatDataPoint {
         result = 31 * result + (sampledContinuation != null ? sampledContinuation.hashCode() : 0);
         result = 31 * result + (unsampledNew != null ? unsampledNew.hashCode() : 0);
         result = 31 * result + (unsampledContinuation != null ? unsampledContinuation.hashCode() : 0);
+        result = 31 * result + (skippedNew != null ? skippedNew.hashCode() : 0);
+        result = 31 * result + (skippedContinuation != null ? skippedContinuation.hashCode() : 0);
         result = 31 * result + (total != null ? total.hashCode() : 0);
         return result;
     }
@@ -107,6 +119,8 @@ public class SampledTransaction implements SampledAgentStatDataPoint {
         sb.append(", sampledContinuation=").append(sampledContinuation);
         sb.append(", unsampledNew=").append(unsampledNew);
         sb.append(", unsampledContinuation=").append(unsampledContinuation);
+        sb.append(", skippedNew=").append(skippedNew);
+        sb.append(", skippedContinuation=").append(skippedContinuation);
         sb.append(", total=").append(total);
         sb.append('}');
         return sb.toString();

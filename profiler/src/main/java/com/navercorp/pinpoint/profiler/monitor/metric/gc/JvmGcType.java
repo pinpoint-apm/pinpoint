@@ -28,7 +28,7 @@ public enum JvmGcType {
 
     private final int value;
 
-    private JvmGcType(int value) {
+    JvmGcType(int value) {
         this.value = value;
     }
 

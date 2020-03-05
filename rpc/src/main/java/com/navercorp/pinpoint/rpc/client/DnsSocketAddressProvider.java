@@ -39,7 +39,7 @@ public class DnsSocketAddressProvider implements SocketAddressProvider{
     private InetSocketAddress oldAddress;
 
     public DnsSocketAddressProvider(String host, int port) {
-        this.host = Assert.requireNonNull(host, "host must not be null");
+        this.host = Assert.requireNonNull(host, "host");
         this.port = checkPort(port);
     }
 

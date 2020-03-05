@@ -45,13 +45,13 @@ public class DefaultPinpointClientHandlerFactory implements ClientHandlerFactory
                                                ServerStreamChannelMessageHandler serverStreamChannelMessageHandler,
                                                List<StateChangeEventListener> stateChangeEventListeners) {
 
-        this.clientOption = Assert.requireNonNull(clientOption, "clientOption must not be null");
-        this.clusterOption = Assert.requireNonNull(clusterOption, "clusterOption must not be null");
-        this.handshakerFactory = Assert.requireNonNull(handshakerFactory, "handshakerFactory must not be null");
+        this.clientOption = Assert.requireNonNull(clientOption, "clientOption");
+        this.clusterOption = Assert.requireNonNull(clusterOption, "clusterOption");
+        this.handshakerFactory = Assert.requireNonNull(handshakerFactory, "handshakerFactory");
 
-        this.messageListener = Assert.requireNonNull(messageListener, "messageListener must not be null");
-        this.serverStreamChannelMessageHandler = Assert.requireNonNull(serverStreamChannelMessageHandler, "serverStreamChannelMessageHandler must not be null");
-        this.stateChangeEventListeners = Assert.requireNonNull(stateChangeEventListeners, "stateChangeEventListeners must not be null");
+        this.messageListener = Assert.requireNonNull(messageListener, "messageListener");
+        this.serverStreamChannelMessageHandler = Assert.requireNonNull(serverStreamChannelMessageHandler, "serverStreamChannelMessageHandler");
+        this.stateChangeEventListeners = Assert.requireNonNull(stateChangeEventListeners, "stateChangeEventListeners");
     }
 
     @Override

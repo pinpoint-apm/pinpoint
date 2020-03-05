@@ -36,10 +36,10 @@ public abstract class SpanEventSimpleAroundInterceptorForPlugin implements Aroun
 
     protected SpanEventSimpleAroundInterceptorForPlugin(TraceContext traceContext, MethodDescriptor descriptor) {
         if (traceContext == null) {
-            throw new NullPointerException("traceContext must not be null");
+            throw new NullPointerException("traceContext");
         }
         if (descriptor == null) {
-            throw new NullPointerException("descriptor must not be null");
+            throw new NullPointerException("descriptor");
         }
         this.traceContext = traceContext;
         this.methodDescriptor = descriptor;
@@ -76,7 +76,7 @@ public abstract class SpanEventSimpleAroundInterceptorForPlugin implements Aroun
 
     }
 
-    protected abstract void doInBeforeTrace(final SpanEventRecorder recorder, final Object target, final Object[] args);
+    protected abstract void doInBeforeTrace(final SpanEventRecorder recorder, final Object target, final Object[] args) throws Exception;
 
     @Override
     public void after(Object target, Object[] args, Object result, Throwable throwable) {
@@ -109,7 +109,7 @@ public abstract class SpanEventSimpleAroundInterceptorForPlugin implements Aroun
     protected void prepareAfterTrace(Object target, Object[] args, Object result, Throwable throwable) {
     }
 
-    protected abstract void doInAfterTrace(final SpanEventRecorder recorder, final Object target, final Object[] args, final Object result, Throwable throwable);
+    protected abstract void doInAfterTrace(final SpanEventRecorder recorder, final Object target, final Object[] args, final Object result, Throwable throwable) throws Exception;
 
     protected MethodDescriptor getMethodDescriptor() {
         return methodDescriptor;

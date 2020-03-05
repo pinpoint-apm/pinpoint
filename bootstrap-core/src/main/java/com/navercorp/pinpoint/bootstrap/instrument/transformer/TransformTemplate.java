@@ -29,7 +29,7 @@ public class TransformTemplate implements TransformOperations {
     private final InstrumentContext instrumentContext;
 
     public TransformTemplate(InstrumentContext instrumentContext) {
-        this.instrumentContext = Assert.requireNonNull(instrumentContext, "instrumentContext must not be null");
+        this.instrumentContext = Assert.requireNonNull(instrumentContext, "instrumentContext");
     }
 
     protected InstrumentContext getInstrumentContext() {
@@ -42,8 +42,8 @@ public class TransformTemplate implements TransformOperations {
     @Deprecated
     @Override
     public void transform(String className, TransformCallback transformCallback) {
-        Assert.requireNonNull(className, "className must not be null");
-        Assert.requireNonNull(transformCallback, "transformCallback must not be null");
+        Assert.requireNonNull(className, "className");
+        Assert.requireNonNull(transformCallback, "transformCallback");
 
         final Matcher matcher = Matchers.newClassNameMatcher(className);
         this.instrumentContext.addClassFileTransformer(matcher, transformCallback);
@@ -51,8 +51,8 @@ public class TransformTemplate implements TransformOperations {
 
     @Override
     public void transform(String className, Class<? extends TransformCallback> transformCallbackClass) {
-        Assert.requireNonNull(className, "className must not be null");
-        Assert.requireNonNull(transformCallbackClass, "transformCallbackClass must not be null");
+        Assert.requireNonNull(className, "className");
+        Assert.requireNonNull(transformCallbackClass, "transformCallbackClass");
 
         final Matcher matcher = Matchers.newClassNameMatcher(className);
 
@@ -65,8 +65,8 @@ public class TransformTemplate implements TransformOperations {
 
 //    @Override
 //    public void transform(String className, Class<? extends TransformCallback> transformCallbackClass, Object[] parameters) {
-//        Assert.requireNonNull(className, "className must not be null");
-//        Assert.requireNonNull(transformCallbackClass, "transformCallbackClass must not be null");
+//        Assert.requireNonNull(className, "className");
+//        Assert.requireNonNull(transformCallbackClass, "transformCallbackClass");
 //
 ////        if (ParameterUtils.hasNull(parameters)) {
 ////            throw new IllegalArgumentException("null parameter not supported");
@@ -81,8 +81,8 @@ public class TransformTemplate implements TransformOperations {
 
     @Override
     public void transform(String className, Class<? extends TransformCallback> transformCallbackClass, Object[] parameters, Class<?>[] parameterTypes) {
-        Assert.requireNonNull(className, "className must not be null");
-        Assert.requireNonNull(transformCallbackClass, "transformCallbackClass must not be null");
+        Assert.requireNonNull(className, "className");
+        Assert.requireNonNull(transformCallbackClass, "transformCallbackClass");
 
 
 

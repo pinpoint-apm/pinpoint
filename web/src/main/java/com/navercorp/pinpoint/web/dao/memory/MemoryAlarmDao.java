@@ -122,7 +122,7 @@ public class MemoryAlarmDao implements AlarmDao {
     }
 
     @Override
-    public void deleteCheckerResult(CheckerResult checkerResult) {
+    public void deleteCheckerResult(String ruleId) {
     }
 
     @Override

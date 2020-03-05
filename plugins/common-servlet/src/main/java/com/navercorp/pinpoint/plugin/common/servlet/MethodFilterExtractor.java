@@ -32,8 +32,8 @@ public class MethodFilterExtractor implements ParameterExtractor<HttpServletRequ
     private final ParameterExtractor<HttpServletRequest> delegate;
 
     public MethodFilterExtractor(Filter<String> excludeProfileMethodFilter, ParameterExtractor<HttpServletRequest> delegate) {
-        this.excludeProfileMethodFilter = Assert.requireNonNull(excludeProfileMethodFilter, "excludeProfileMethodFilter must not be null");
-        this.delegate = Assert.requireNonNull(delegate, "delegate must not be null");
+        this.excludeProfileMethodFilter = Assert.requireNonNull(excludeProfileMethodFilter, "excludeProfileMethodFilter");
+        this.delegate = Assert.requireNonNull(delegate, "delegate");
     }
 
     @Override

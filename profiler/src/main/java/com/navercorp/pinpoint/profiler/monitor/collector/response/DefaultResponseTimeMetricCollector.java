@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.monitor.collector.response;
 
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.monitor.collector.AgentStatMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.metric.response.ResponseTimeValue;
 import com.navercorp.pinpoint.profiler.monitor.metric.response.ResponseTimeMetric;
@@ -28,10 +29,7 @@ public class DefaultResponseTimeMetricCollector implements AgentStatMetricCollec
     private final ResponseTimeMetric responseTimeMetric;
 
     public DefaultResponseTimeMetricCollector(ResponseTimeMetric responseTimeMetric) {
-        if (responseTimeMetric == null) {
-            throw new NullPointerException("responseTimeMetric must not be null");
-        }
-        this.responseTimeMetric = responseTimeMetric;
+        this.responseTimeMetric = Assert.requireNonNull(responseTimeMetric, "responseTimeMetric");
     }
 
     @Override

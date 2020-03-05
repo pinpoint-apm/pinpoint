@@ -33,7 +33,7 @@ public class TransportMetadataFactory {
     private final String debugString;
 
     public TransportMetadataFactory(String debugString) {
-        this.debugString = Assert.requireNonNull(debugString, "debugString must not be null");
+        this.debugString = Assert.requireNonNull(debugString, "debugString");
     }
 
     public TransportMetadata build(Attributes attributes) {
@@ -47,5 +47,11 @@ public class TransportMetadataFactory {
         return new DefaultTransportMetadata(debugString, remoteSocketAddress, transportId, connectedTime);
     }
 
-
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("TransportMetadataFactory{");
+        sb.append("debugString='").append(debugString).append('\'');
+        sb.append('}');
+        return sb.toString();
+    }
 }

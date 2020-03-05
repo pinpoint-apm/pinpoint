@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Breadth-first link search
@@ -51,14 +52,8 @@ public class BidirectionalLinkSelector implements LinkSelector {
             ApplicationsMapCreator applicationsMapCreator,
             VirtualLinkHandler virtualLinkHandler,
             ServerMapDataFilter serverMapDataFilter) {
-        if (applicationsMapCreator == null) {
-            throw new NullPointerException("applicationsMapCreator must not be null");
-        }
-        if (virtualLinkHandler == null) {
-            throw new NullPointerException("virtualLinkHandler must not be null");
-        }
-        this.applicationsMapCreator = applicationsMapCreator;
-        this.virtualLinkHandler = virtualLinkHandler;
+        this.applicationsMapCreator = Objects.requireNonNull(applicationsMapCreator, "applicationsMapCreator");
+        this.virtualLinkHandler = Objects.requireNonNull(virtualLinkHandler, "virtualLinkHandler");
         this.serverMapDataFilter = serverMapDataFilter;
     }
 

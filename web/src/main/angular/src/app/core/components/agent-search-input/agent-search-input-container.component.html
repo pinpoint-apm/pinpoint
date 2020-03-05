@@ -1,0 +1,12 @@
+<div class="l-container-wrapper font-opensans">
+    <div class="l-wrapper">
+        <input type="text" placeholder="{{i18nText.MIN_LENGTH_MSG}}" class="l-search-input" 
+            ppSearchInput 
+            [searchMinLength]="SEARCH_MIN_LENGTH"
+            [useEnter]="searchUseEnter"
+            (outCancel)="onCancel()"
+            (outSearch)="onSearchQuery($event)">
+        <button class="fas fa-search"></button>
+    </div>
+    <button class="fas fa-question-circle" (click)="onShowHelp($event)"></button>
+</div>

@@ -18,21 +18,22 @@ package com.navercorp.pinpoint.collector.cluster.zookeeper;
 
 import com.navercorp.pinpoint.collector.cluster.ClusterPoint;
 import com.navercorp.pinpoint.collector.cluster.ClusterPointRepository;
+import com.navercorp.pinpoint.collector.cluster.ProfilerClusterManager;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperClient;
 import com.navercorp.pinpoint.common.server.util.concurrent.CommonStateContext;
-import com.navercorp.pinpoint.common.util.Assert;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 /**
  * @author Taejin Koo
  */
-public class ZookeeperProfilerClusterManager {
+public class ZookeeperProfilerClusterManager implements ProfilerClusterManager {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -47,11 +48,12 @@ public class ZookeeperProfilerClusterManager {
     // keep it simple - register on RUN, remove on FINISHED, skip otherwise
     // should only be instantiated when cluster is enabled.
     public ZookeeperProfilerClusterManager(ZookeeperClient client, String serverIdentifier, ClusterPointRepository profileCluster) {
-        this.profileCluster = Assert.requireNonNull(profileCluster, "profileCluster must not be null");
+        this.profileCluster = Objects.requireNonNull(profileCluster, "profileCluster");
 
         this.worker = new ZookeeperJobWorker(client, serverIdentifier);
     }
 
+    @Override
     public void start() {
         switch (this.workerState.getCurrentState()) {
             case NEW:
@@ -80,6 +82,7 @@ public class ZookeeperProfilerClusterManager {
         }
     }
 
+    @Override
     public void stop() {
         if (!(this.workerState.changeStateDestroying())) {
             logger.info("stop() failed. caused:unexpected state.");
@@ -94,6 +97,12 @@ public class ZookeeperProfilerClusterManager {
         logger.info("stop() completed.");
     }
 
+    @Override
+    public boolean isRunning() {
+        return workerState.isStarted();
+    }
+
+    @Override
     public void register(ClusterPoint targetClusterPoint) {
         if (workerState.isStarted()) {
             synchronized (lock) {
@@ -109,6 +118,7 @@ public class ZookeeperProfilerClusterManager {
         }
     }
 
+    @Override
     public void unregister(ClusterPoint targetClusterPoint) {
         if (workerState.isStarted()) {
             synchronized (lock) {
@@ -124,11 +134,8 @@ public class ZookeeperProfilerClusterManager {
         }
     }
 
-    public List<String> getClusterData() {
-        return worker.getClusterList();
-    }
-
-    public void initZookeeperClusterData() {
+    @Override
+    public void refresh() {
         worker.clear();
 
         synchronized (lock) {
@@ -137,6 +144,11 @@ public class ZookeeperProfilerClusterManager {
                 worker.addPinpointServer(availableAgentKey);
             }
         }
+    }
+
+    @Override
+    public List<String> getClusterData() {
+        return worker.getClusterList();
     }
 
 }

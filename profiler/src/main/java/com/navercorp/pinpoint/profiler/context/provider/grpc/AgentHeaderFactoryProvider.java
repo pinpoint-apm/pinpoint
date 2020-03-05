@@ -31,7 +31,7 @@ public class AgentHeaderFactoryProvider implements Provider<HeaderFactory> {
 
     @Inject
     public AgentHeaderFactoryProvider(AgentInformation agentInformation) {
-        this.agentInformation = Assert.requireNonNull(agentInformation, "agentInformation must not be null");
+        this.agentInformation = Assert.requireNonNull(agentInformation, "agentInformation");
     }
 
     @Override

@@ -16,18 +16,17 @@
 
 package com.navercorp.pinpoint.bootstrap;
 
-import java.lang.instrument.Instrumentation;
-import java.net.URL;
-import java.util.List;
-import java.util.Map;
-import java.util.jar.JarFile;
-
 import com.navercorp.pinpoint.ProductInfo;
 import com.navercorp.pinpoint.bootstrap.agentdir.AgentDirBaseClassPathResolver;
 import com.navercorp.pinpoint.bootstrap.agentdir.AgentDirectory;
 import com.navercorp.pinpoint.bootstrap.agentdir.BootDir;
 import com.navercorp.pinpoint.bootstrap.agentdir.ClassPathResolver;
 import com.navercorp.pinpoint.bootstrap.agentdir.JavaAgentPathResolver;
+
+import java.lang.instrument.Instrumentation;
+import java.util.List;
+import java.util.Map;
+import java.util.jar.JarFile;
 
 /**
  * @author emeroad
@@ -39,7 +38,6 @@ public class PinpointBootStrap {
 
     private static final LoadState STATE = new LoadState();
 
-
     public static void premain(String agentArgs, Instrumentation instrumentation) {
         final boolean success = STATE.start();
         if (!success) {
@@ -48,12 +46,15 @@ public class PinpointBootStrap {
         }
 
         logger.info(ProductInfo.NAME + " agentArgs:" + agentArgs);
-        logger.info("getClassLoader():" + PinpointBootStrap.class.getClassLoader());
-        logger.info("getContextClassLoader():" + Thread.currentThread().getContextClassLoader());
+        logger.info("PinpointBootStrap.ClassLoader:" + PinpointBootStrap.class.getClassLoader());
+        logger.info("ContextClassLoader:" + Thread.currentThread().getContextClassLoader());
 
-        JavaAgentPathResolver javaAgentPathResolver = JavaAgentPathResolver.newJavaAgentPathResolver();
-        String agentPath = javaAgentPathResolver.resolveJavaAgentPath();
+        final JavaAgentPathResolver javaAgentPathResolver = JavaAgentPathResolver.newJavaAgentPathResolver();
+        final String agentPath = javaAgentPathResolver.resolveJavaAgentPath();
         logger.info("JavaAgentPath:" + agentPath);
+        if (agentPath == null) {
+            logger.warn("AgentPath not found path:" + agentPath);
+        }
 
         if (Object.class.getClassLoader() != PinpointBootStrap.class.getClassLoader()) {
             // TODO bug : location is null

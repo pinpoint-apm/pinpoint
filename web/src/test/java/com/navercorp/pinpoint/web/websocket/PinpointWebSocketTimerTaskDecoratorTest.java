@@ -73,8 +73,8 @@ public class PinpointWebSocketTimerTaskDecoratorTest {
         private final Authentication expectedAuthentication;
 
         private TestTimerTask(CountDownLatch executeLatch, Authentication expectedAuthentication) {
-            this.executeLatch = Objects.requireNonNull(executeLatch, "executeLatch must not be null");
-            this.expectedAuthentication = Objects.requireNonNull(expectedAuthentication, "expectedAuthentication must not be null");
+            this.executeLatch = Objects.requireNonNull(executeLatch, "executeLatch");
+            this.expectedAuthentication = Objects.requireNonNull(expectedAuthentication, "expectedAuthentication");
         }
 
         @Override

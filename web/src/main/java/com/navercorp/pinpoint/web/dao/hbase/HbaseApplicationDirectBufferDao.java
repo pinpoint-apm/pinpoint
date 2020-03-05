@@ -16,11 +16,12 @@
 package com.navercorp.pinpoint.web.dao.hbase;
 
 import com.navercorp.pinpoint.common.server.bo.codec.stat.join.DirectBufferDecoder;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinDirectBufferBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.StatType;
 import com.navercorp.pinpoint.web.dao.ApplicationDirectBufferDao;
 import com.navercorp.pinpoint.web.mapper.stat.ApplicationStatMapper;
 import com.navercorp.pinpoint.web.mapper.stat.SampledApplicationStatResultExtractor;
-import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.JoinDirectBufferSampler;
+import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.ApplicationStatSampler;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinDirectBufferBo;
@@ -41,7 +42,7 @@ public class HbaseApplicationDirectBufferDao implements ApplicationDirectBufferD
     private DirectBufferDecoder directBufferDecoder;
 
     @Autowired
-    private JoinDirectBufferSampler directBufferSampler;
+    private ApplicationStatSampler<JoinDirectBufferBo> directBufferSampler;
 
     @Autowired
     private HbaseApplicationStatDaoOperations operations;

@@ -16,23 +16,10 @@
 
 package com.navercorp.pinpoint.plugin.httpclient4;
 
-import com.navercorp.pinpoint.bootstrap.logging.PLogger;
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.request.ClientRequestWrapper;
-import com.navercorp.pinpoint.bootstrap.util.FixedByteArrayOutputStream;
-import com.navercorp.pinpoint.common.Charsets;
 import com.navercorp.pinpoint.common.util.Assert;
-import com.navercorp.pinpoint.common.util.StringUtils;
-import org.apache.http.HeaderElement;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpRequest;
-import org.apache.http.NameValuePair;
-import org.apache.http.ParseException;
 import org.apache.http.RequestLine;
-import org.apache.http.protocol.HTTP;
-
-import java.io.IOException;
 
 /**
  * @author jaehong.kim
@@ -44,7 +31,7 @@ public class HttpClient4RequestWrapper implements ClientRequestWrapper {
     private final int port;
 
     public HttpClient4RequestWrapper(final HttpRequest httpRequest, final String hostName, final int port) {
-        this.httpRequest = Assert.requireNonNull(httpRequest, "httpRequest must not be null");
+        this.httpRequest = Assert.requireNonNull(httpRequest, "httpRequest");
         this.hostName = hostName;
         this.port = port;
     }

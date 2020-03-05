@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.profiler.context.provider;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.config.TransportModule;
 import com.navercorp.pinpoint.profiler.context.TraceDataFormatVersion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,9 +38,9 @@ public class TraceDataFormatVersionProvider implements Provider<TraceDataFormatV
     }
 
     private TraceDataFormatVersion getVersion(ProfilerConfig profilerConfig) {
-        final String transportModule = profilerConfig.getTransportModule();
+        final TransportModule transportModule = profilerConfig.getTransportModule();
         logger.info("TransportModule:{}", transportModule);
-        if ("THRIFT".equalsIgnoreCase(transportModule)) {
+        if (TransportModule.THRIFT == transportModule) {
             final String version = profilerConfig.readString(TraceDataFormatVersion.THRIFT_TRACE_VERSION_KEY, "v1");
             if ("v1".equalsIgnoreCase(version)) {
                 return TraceDataFormatVersion.V1;
@@ -48,7 +49,7 @@ public class TraceDataFormatVersionProvider implements Provider<TraceDataFormatV
         }
 
 
-        if ("GRPC".equalsIgnoreCase(transportModule)) {
+        if (TransportModule.GRPC == transportModule) {
             final String version = profilerConfig.readString(TraceDataFormatVersion.GRPC_TRACE_VERSION_KEY, "v2");
             if ("v2".equalsIgnoreCase(version)) {
                 return TraceDataFormatVersion.V2;

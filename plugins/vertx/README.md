@@ -5,6 +5,17 @@ Currently supports vertx.io 3.3.x, 3.4.1, 3.4.2, 3.5.0
 ### Pinpoint Configuration
 pinpoint.config
 
+#### Compatibility setting
+Vert.x 3.6 ~ 3.7
+~~~
+profiler.vertx.http.server.request-handler.method.name=io.vertx.ext.web.impl.RouterImpl.handle
+~~~
+
+Vert.x 3.5
+~~~
+profiler.vertx.http.server.request-handler.method.name=io.vertx.ext.web.impl.RouterImpl.accept
+~~~
+
 #### Set enable options.
 ~~~
 profiler.vertx.enable=true

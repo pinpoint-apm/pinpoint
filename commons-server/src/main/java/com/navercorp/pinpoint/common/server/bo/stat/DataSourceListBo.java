@@ -24,7 +24,7 @@ import java.util.List;
  */
 public class DataSourceListBo implements AgentStatDataPointList<DataSourceBo> {
 
-    private final List<DataSourceBo> dataSourceBoList = new ArrayList<DataSourceBo>();
+    private final List<DataSourceBo> dataSourceBoList = new ArrayList<>();
 
     private String agentId;
     private long startTimestamp;
@@ -86,7 +86,7 @@ public class DataSourceListBo implements AgentStatDataPointList<DataSourceBo> {
 
     @Override
     public List<DataSourceBo> getList() {
-        return new ArrayList<DataSourceBo>(dataSourceBoList);
+        return new ArrayList<>(dataSourceBoList);
     }
 
     @Override

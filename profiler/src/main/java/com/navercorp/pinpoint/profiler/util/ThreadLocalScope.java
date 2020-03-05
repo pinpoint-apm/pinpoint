@@ -32,7 +32,7 @@ public class ThreadLocalScope implements InterceptorScopeInvocation {
 
     public ThreadLocalScope(final InterceptorScopeDefinition scopeDefinition) {
         if (scopeDefinition == null) {
-            throw new NullPointerException("scopeDefinition must not be null");
+            throw new NullPointerException("scopeDefinition");
         }
         
         this.scope = new NamedThreadLocal<InterceptorScopeInvocation>(scopeDefinition.getName()) {

@@ -30,6 +30,7 @@ import org.springframework.util.Assert;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Taejin Koo
@@ -41,8 +42,7 @@ public class AgentStatCodecV2<T extends AgentStatDataPoint> implements AgentStat
     private final CodecFactory<T> codecFactory;
 
     public AgentStatCodecV2(final CodecFactory<T> codecFactory) {
-        Assert.notNull(codecFactory, "codecFactory must not be null");
-        this.codecFactory = codecFactory;
+        this.codecFactory = Objects.requireNonNull(codecFactory, "codecFactory");
     }
 
     @Override

@@ -35,10 +35,10 @@ public class DefaultAsyncContextFactory implements AsyncContextFactory {
     private final int asyncMethodApiId;
 
     public DefaultAsyncContextFactory(AsyncTraceContext asyncTraceContext, AsyncIdGenerator asyncIdGenerator, PredefinedMethodDescriptorRegistry predefinedMethodDescriptorRegistry) {
-        this.asyncTraceContext = Assert.requireNonNull(asyncTraceContext, "traceFactoryProvider must not be null");
-        this.asyncIdGenerator = Assert.requireNonNull(asyncIdGenerator, "asyncIdGenerator must not be null");
+        this.asyncTraceContext = Assert.requireNonNull(asyncTraceContext, "traceFactoryProvider");
+        this.asyncIdGenerator = Assert.requireNonNull(asyncIdGenerator, "asyncIdGenerator");
 
-        this.predefinedMethodDescriptorRegistry = Assert.requireNonNull(predefinedMethodDescriptorRegistry, "predefinedMethodDescriptorRegistry must not be null");
+        this.predefinedMethodDescriptorRegistry = Assert.requireNonNull(predefinedMethodDescriptorRegistry, "predefinedMethodDescriptorRegistry");
 
         this.asyncMethodApiId = getAsyncMethodApiId(predefinedMethodDescriptorRegistry);
     }
@@ -55,17 +55,17 @@ public class DefaultAsyncContextFactory implements AsyncContextFactory {
 
     @Override
     public AsyncContext newAsyncContext(TraceRoot traceRoot, AsyncId asyncId) {
-        Assert.requireNonNull(traceRoot, "traceRoot must not be null");
-        Assert.requireNonNull(asyncId, "asyncId must not be null");
+        Assert.requireNonNull(traceRoot, "traceRoot");
+        Assert.requireNonNull(asyncId, "asyncId");
 
         return new DefaultAsyncContext(asyncTraceContext, traceRoot, asyncId, this.asyncMethodApiId);
     }
 
     @Override
     public AsyncContext newAsyncContext(TraceRoot traceRoot, AsyncId asyncId, AsyncState asyncState) {
-        Assert.requireNonNull(traceRoot, "traceRoot must not be null");
-        Assert.requireNonNull(asyncId, "asyncId must not be null");
-        Assert.requireNonNull(asyncState, "asyncState must not be null");
+        Assert.requireNonNull(traceRoot, "traceRoot");
+        Assert.requireNonNull(asyncId, "asyncId");
+        Assert.requireNonNull(asyncState, "asyncState");
 
         return new StatefulAsyncContext(asyncTraceContext, traceRoot, asyncId, asyncMethodApiId, asyncState);
     }

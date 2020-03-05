@@ -20,15 +20,15 @@ import com.navercorp.pinpoint.web.batch.BatchConfiguration;
 import com.navercorp.pinpoint.web.service.UserGroupService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.mail.SimpleMailMessage;
+import org.springframework.batch.core.StepExecution;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
-import org.springframework.util.Assert;
 
 import javax.mail.Message;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author minwoo.jung
@@ -45,9 +45,9 @@ public class SpringSmtpMailSender implements MailSender {
     private final JavaMailSenderImpl springMailSender;
 
     public SpringSmtpMailSender(BatchConfiguration batchConfiguration, UserGroupService userGroupService, JavaMailSenderImpl springMailSender) {
-        Assert.notNull(batchConfiguration, "batchConfiguration must not be null");
-        Assert.notNull(userGroupService, "userGroupService must not be null");
-        Assert.notNull(springMailSender, "mailSender must not be null");
+        Objects.requireNonNull(batchConfiguration, "batchConfiguration");
+        Objects.requireNonNull(userGroupService, "userGroupService");
+        Objects.requireNonNull(springMailSender, "mailSender");
 
         this.pinpointUrl = batchConfiguration.getPinpointUrl();
         this.batchEnv = batchConfiguration.getBatchEnv();
@@ -62,7 +62,7 @@ public class SpringSmtpMailSender implements MailSender {
     }
 
     @Override
-    public void sendEmail(AlarmChecker checker, int sequenceCount) {
+    public void sendEmail(AlarmChecker checker, int sequenceCount, StepExecution stepExecution) {
         List<String> receivers = userGroupService.selectEmailOfMember(checker.getuserGroupId());
 
         if (receivers.size() == 0) {

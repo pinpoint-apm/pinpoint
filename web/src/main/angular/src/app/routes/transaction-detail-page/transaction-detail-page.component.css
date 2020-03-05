@@ -1,0 +1,34 @@
+.l-transaction-content {
+    height:100%;
+}
+.l-main-container {
+    display: flex;
+    flex-flow: row wrap;
+    overflow-y: hidden;
+    height: calc(100vh - 50px);
+}
+.l-main-section {
+    display: flex;
+    flex-flow: column nowrap;
+    flex:1;
+    /* background:#edf2f8; */
+    position: relative;
+    height: 100%;
+}
+.l-main-section .l-main-contents {
+    height: 100%;
+    position: relative;
+    overflow: auto;
+}
+.l-main-section .l-main-contents.l-main-contents-transaction {
+    overflow: hidden;
+}
+.l-main-contents .l-content-item {
+    margin:10px;
+}
+.l-main-contents .l-content-item.l-margin-none {
+    margin:0;
+}
+.l-main-contents .l-content-item.l-border-none {
+    border:none;
+}

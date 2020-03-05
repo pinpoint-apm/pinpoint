@@ -97,7 +97,6 @@ public class ValueValidator {
         }
 
         final Matcher matcher = PASSWORD_PATTERN.matcher(password);
-        matcher.matches();
         return matcher.matches();
     }
 

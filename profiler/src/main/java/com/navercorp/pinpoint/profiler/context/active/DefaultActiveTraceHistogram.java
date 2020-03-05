@@ -35,11 +35,11 @@ public class DefaultActiveTraceHistogram implements ActiveTraceHistogram {
     private int verySlowCount;
 
     public DefaultActiveTraceHistogram(HistogramSchema histogramSchema) {
-        this.histogramSchema = Assert.requireNonNull(histogramSchema, "histogramSchema must not be null");
+        this.histogramSchema = Assert.requireNonNull(histogramSchema, "histogramSchema");
     }
 
     public void increment(HistogramSlot slot) {
-        Assert.requireNonNull(slot, "slot must not be null");
+        Assert.requireNonNull(slot, "slot");
 
         final SlotType slotType = slot.getSlotType();
         switch (slotType) {

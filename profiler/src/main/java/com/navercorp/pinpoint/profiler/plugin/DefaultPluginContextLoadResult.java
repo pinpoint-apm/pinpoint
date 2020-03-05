@@ -35,8 +35,8 @@ public class DefaultPluginContextLoadResult implements PluginContextLoadResult {
     private final PluginsSetupResult pluginsSetupResult;
 
     public DefaultPluginContextLoadResult(ProfilerPluginContextLoader profilerPluginContextLoader, ClassLoader pluginClassLoader) {
-        Assert.requireNonNull(profilerPluginContextLoader, "profilerPluginConfigurer must not be null");
-        Assert.requireNonNull(pluginClassLoader, "pluginClassLoader must not be null");
+        Assert.requireNonNull(profilerPluginContextLoader, "profilerPluginConfigurer");
+        Assert.requireNonNull(pluginClassLoader, "pluginClassLoader");
         ProfilerPluginLoader profilerPluginLoader = new ProfilerPluginLoader();
         List<ProfilerPlugin> profilerPlugins = profilerPluginLoader.load(pluginClassLoader);
         this.pluginsSetupResult = profilerPluginContextLoader.load(profilerPlugins);

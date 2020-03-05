@@ -31,7 +31,7 @@ public class HttpParameterRecorder<T> implements ParameterRecorder<T> {
     private final ParameterExtractor<T> parameterExtractor;
 
     public HttpParameterRecorder(ParameterExtractor<T> parameterExtractor) {
-        this.parameterExtractor = Assert.requireNonNull(parameterExtractor, "parameterExtractor must not be null");
+        this.parameterExtractor = Assert.requireNonNull(parameterExtractor, "parameterExtractor");
     }
 
     @Override

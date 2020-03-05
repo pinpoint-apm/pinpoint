@@ -30,7 +30,7 @@ public class EmptyActiveTraceHistogram implements ActiveTraceHistogram {
 
 
     public EmptyActiveTraceHistogram(HistogramSchema histogramSchema) {
-        this.histogramSchema = Assert.requireNonNull(histogramSchema, "histogramSchema must not be null");
+        this.histogramSchema = Assert.requireNonNull(histogramSchema, "histogramSchema");
     }
 
     @Override

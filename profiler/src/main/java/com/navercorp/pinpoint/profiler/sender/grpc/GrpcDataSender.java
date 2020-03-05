@@ -17,12 +17,11 @@
 package com.navercorp.pinpoint.profiler.sender.grpc;
 
 import com.navercorp.pinpoint.common.util.Assert;
-import com.navercorp.pinpoint.common.util.ExecutorFactory;
-import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
+import com.navercorp.pinpoint.common.profiler.concurrent.ExecutorFactory;
+import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
 import com.navercorp.pinpoint.grpc.ExecutorUtils;
 import com.navercorp.pinpoint.grpc.ManagedChannelUtils;
 import com.navercorp.pinpoint.grpc.client.ChannelFactory;
-import com.navercorp.pinpoint.grpc.client.ChannelFactoryOption;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
 
@@ -60,19 +59,18 @@ public abstract class GrpcDataSender implements DataSender<Object> {
     public GrpcDataSender(String host, int port,
                           int executorQueueSize,
                           MessageConverter<GeneratedMessageV3> messageConverter,
-                          ChannelFactoryOption channelFactoryOption) {
-        Assert.requireNonNull(channelFactoryOption, "channelFactoryOption must not be null");
+                          ChannelFactory channelFactory) {
+        this.channelFactory = Assert.requireNonNull(channelFactory, "channelFactory");
 
-        this.name = Assert.requireNonNull(channelFactoryOption.getName(), "name must not be null");
-        this.host = Assert.requireNonNull(host, "host must not be null");
+        this.name = Assert.requireNonNull(channelFactory.getFactoryName(), "channelFactory.name");
+        this.host = Assert.requireNonNull(host, "host");
         this.port = port;
 
-        this.messageConverter = Assert.requireNonNull(messageConverter, "messageConverter must not be null");
+        this.messageConverter = Assert.requireNonNull(messageConverter, "messageConverter");
 
         this.executor = newExecutorService(name + "-Executor", executorQueueSize);
 
-        this.channelFactory = new ChannelFactory(channelFactoryOption);
-        this.managedChannel = channelFactory.build(name, host, port);
+        this.managedChannel = channelFactory.build(host, port);
     }
 
     protected ExecutorService newExecutorService(String name, int senderExecutorQueueSize) {

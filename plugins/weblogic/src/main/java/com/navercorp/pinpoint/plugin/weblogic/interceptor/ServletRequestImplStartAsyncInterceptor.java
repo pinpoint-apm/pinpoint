@@ -18,11 +18,8 @@ package com.navercorp.pinpoint.plugin.weblogic.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
-import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.logging.PLogger;
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
 import com.navercorp.pinpoint.plugin.weblogic.WeblogicAsyncListener;
 import com.navercorp.pinpoint.plugin.weblogic.WeblogicConstants;
 
@@ -33,60 +30,29 @@ import javax.servlet.http.HttpServletRequest;
 /**
  * @author jaehong.kim
  */
-public class ServletRequestImplStartAsyncInterceptor implements AroundInterceptor {
-    private PLogger logger = PLoggerFactory.getLogger(this.getClass());
-    private boolean isDebug = logger.isDebugEnabled();
-
-    private TraceContext traceContext;
-    private MethodDescriptor descriptor;
+public class ServletRequestImplStartAsyncInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
 
     public ServletRequestImplStartAsyncInterceptor(TraceContext context, MethodDescriptor descriptor) {
-        this.traceContext = context;
-        this.descriptor = descriptor;
+        super(context, descriptor);
     }
 
     @Override
-    public void before(Object target, Object[] args) {
-        if (isDebug) {
-            logger.beforeInterceptor(target, args);
-        }
-
-        final Trace trace = traceContext.currentTraceObject();
-        if (trace == null) {
-            return;
-        }
-        trace.traceBlockBegin();
+    protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
     }
 
     @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable) {
-        if (isDebug) {
-            logger.afterInterceptor(target, args, result, throwable);
-        }
-
-        final Trace trace = traceContext.currentTraceObject();
-        if (trace == null) {
-            return;
-        }
-
-        try {
-            final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
-            if (validate(target, result, throwable)) {
-                final AsyncContext asyncContext = (AsyncContext) result;
-                final AsyncListener asyncListener = new WeblogicAsyncListener(this.traceContext, recorder.recordNextAsyncContext(true));
-                asyncContext.addListener(asyncListener);
-                if (isDebug) {
-                    logger.debug("Add async listener {}", asyncListener);
-                }
+    protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
+        if (validate(target, result, throwable)) {
+            final AsyncContext asyncContext = (AsyncContext) result;
+            final AsyncListener asyncListener = new WeblogicAsyncListener(this.traceContext, recorder.recordNextAsyncContext(true));
+            asyncContext.addListener(asyncListener);
+            if (isDebug) {
+                logger.debug("Add async listener {}", asyncListener);
             }
-            recorder.recordServiceType(WeblogicConstants.WEBLOGIC_METHOD);
-            recorder.recordApi(descriptor);
-            recorder.recordException(throwable);
-        } catch (Throwable t) {
-            logger.warn("Failed to AFTER process. {}", t.getMessage(), t);
-        } finally {
-            trace.traceBlockEnd();
         }
+        recorder.recordServiceType(WeblogicConstants.WEBLOGIC_METHOD);
+        recorder.recordApi(methodDescriptor);
+        recorder.recordException(throwable);
     }
 
     private boolean validate(final Object target, final Object result, final Throwable throwable) {
@@ -109,4 +75,5 @@ public class ServletRequestImplStartAsyncInterceptor implements AroundIntercepto
         }
         return true;
     }
+
 }

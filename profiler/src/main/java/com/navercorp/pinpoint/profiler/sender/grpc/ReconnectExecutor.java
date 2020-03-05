@@ -38,11 +38,11 @@ public class ReconnectExecutor {
     private final AtomicLong rejectedCounter = new AtomicLong();
 
     public ReconnectExecutor(ScheduledExecutorService scheduledExecutorService) {
-        this.scheduledExecutorService = Assert.requireNonNull(scheduledExecutorService, "scheduledExecutorService must not be null");
+        this.scheduledExecutorService = Assert.requireNonNull(scheduledExecutorService, "scheduledExecutorService");
     }
 
     private void execute0(Runnable command) {
-        Assert.requireNonNull(command, "command must not be null");
+        Assert.requireNonNull(command, "command");
 
         if (shutdown) {
             logger.debug("already shutdown");
@@ -56,8 +56,9 @@ public class ReconnectExecutor {
                 final long failCount = rejectedCounter.incrementAndGet();
                 logger.info("{} reconnectJob scheduled fail {}", command, failCount);
             }
+        } else {
+            throw new IllegalArgumentException("unknown command type " + command);
         }
-        throw new IllegalArgumentException("unknown command type " + command);
     }
 
     public void close() {
@@ -65,7 +66,7 @@ public class ReconnectExecutor {
     }
 
     public Reconnector newReconnector(Runnable reconnectJob) {
-        Assert.requireNonNull(reconnectJob, "reconnectJob must not be null");
+        Assert.requireNonNull(reconnectJob, "reconnectJob");
         if (logger.isInfoEnabled()) {
             logger.info("newReconnector(reconnectJob = [{}])", reconnectJob);
         }

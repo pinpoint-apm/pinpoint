@@ -25,10 +25,10 @@ import com.navercorp.pinpoint.common.server.bo.stat.join.JoinStatBo;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.hadoop.hbase.HConstants;
 import org.apache.hadoop.hbase.client.Put;
-import org.springframework.util.Assert;
 
 import java.nio.ByteBuffer;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author minwoo.jung
@@ -38,8 +38,7 @@ public abstract class ApplicationStatSerializer implements HbaseSerializer<List<
     private final ApplicationStatEncoder encoder;
 
     protected ApplicationStatSerializer(ApplicationStatEncoder encoder) {
-        Assert.notNull(encoder, "encoder must not be null");
-        this.encoder = encoder;
+        this.encoder = Objects.requireNonNull(encoder, "encoder");
     }
 
     @Override

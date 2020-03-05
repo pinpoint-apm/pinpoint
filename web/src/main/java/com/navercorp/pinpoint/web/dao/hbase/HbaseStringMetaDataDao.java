@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.web.dao.hbase;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
+import com.navercorp.pinpoint.common.hbase.TableDescriptor;
 import com.navercorp.pinpoint.common.server.bo.StringMetaDataBo;
 import com.navercorp.pinpoint.web.dao.StringMetaDataDao;
 
@@ -35,7 +36,7 @@ import java.util.List;
  * @author emeroad
  */
 @Repository
-public class HbaseStringMetaDataDao extends AbstractHbaseDao implements StringMetaDataDao {
+public class HbaseStringMetaDataDao implements StringMetaDataDao {
 
     @Autowired
     private HbaseOperations2 hbaseOperations2;
@@ -48,29 +49,27 @@ public class HbaseStringMetaDataDao extends AbstractHbaseDao implements StringMe
     @Qualifier("metadataRowKeyDistributor")
     private RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
 
+    @Autowired
+    private TableDescriptor<HbaseColumnFamily.StringMetadataStr> descriptor;
+
     @Override
     public List<StringMetaDataBo> getStringMetaData(String agentId, long time, int stringId) {
         if (agentId == null) {
-            throw new NullPointerException("agentId must not be null");
+            throw new NullPointerException("agentId");
         }
 
         StringMetaDataBo stringMetaData = new StringMetaDataBo(agentId, time, stringId);
         byte[] rowKey = getDistributedKey(stringMetaData.toRowKey());
 
         Get get = new Get(rowKey);
-        get.addFamily(getColumnFamilyName());
+        get.addFamily(descriptor.getColumnFamilyName());
 
-        TableName stringMetaDataTableName = getTableName();
+        TableName stringMetaDataTableName = descriptor.getTableName();
         return hbaseOperations2.get(stringMetaDataTableName, get, stringMetaDataMapper);
     }
 
     private byte[] getDistributedKey(byte[] rowKey) {
         return rowKeyDistributorByHashPrefix.getDistributedKey(rowKey);
-    }
-
-    @Override
-    public HbaseColumnFamily getColumnFamily() {
-        return HbaseColumnFamily.STRING_METADATA_STR;
     }
 
 }

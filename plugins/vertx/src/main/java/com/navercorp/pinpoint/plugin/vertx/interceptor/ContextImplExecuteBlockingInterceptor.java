@@ -19,40 +19,21 @@ import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
-import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.logging.PLogger;
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
 import com.navercorp.pinpoint.plugin.vertx.VertxConstants;
 
 /**
  * @author jaehong.kim
  */
-public class ContextImplExecuteBlockingInterceptor implements AroundInterceptor {
-    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
-    private final boolean isDebug = logger.isDebugEnabled();
-
-    private TraceContext traceContext;
-    private MethodDescriptor descriptor;
+public class ContextImplExecuteBlockingInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
 
     public ContextImplExecuteBlockingInterceptor(final TraceContext traceContext, final MethodDescriptor methodDescriptor) {
-        this.traceContext = traceContext;
-        this.descriptor = methodDescriptor;
+        super(traceContext, methodDescriptor);
     }
 
     @Override
-    public void before(Object target, Object[] args) {
-        if (isDebug) {
-            logger.beforeInterceptor(target, args);
-        }
-
-        final Trace trace = traceContext.currentTraceObject();
-        if (trace == null) {
-            return;
-        }
-
-        final SpanEventRecorder recorder = trace.traceBlockBegin();
+    protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
         if (!validate(args)) {
             return;
         }
@@ -113,30 +94,16 @@ public class ContextImplExecuteBlockingInterceptor implements AroundInterceptor 
         return handlers;
     }
 
-
     @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable) {
-        if (isDebug) {
-            logger.afterInterceptor(target, args, result, throwable);
-        }
-
-        Trace trace = traceContext.currentTraceObject();
-        if (trace == null) {
-            return;
-        }
-
-        try {
-            final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
-            recorder.recordApi(this.descriptor);
-            recorder.recordServiceType(VertxConstants.VERTX_INTERNAL);
-            recorder.recordException(throwable);
-        } finally {
-            trace.traceBlockEnd();
-        }
+    protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
+        recorder.recordApi(methodDescriptor);
+        recorder.recordServiceType(VertxConstants.VERTX_INTERNAL);
+        recorder.recordException(throwable);
     }
 
     private static class AsyncContextAccessorHandlers {
         private AsyncContextAccessor blockingCodeHandler;
         private AsyncContextAccessor resultHandler;
     }
+
 }

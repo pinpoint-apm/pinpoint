@@ -17,10 +17,8 @@
 
 package com.navercorp.pinpoint.bootstrap;
 
+import com.navercorp.pinpoint.bootstrap.agentdir.Assert;
 import com.navercorp.pinpoint.common.util.IdValidateUtils;
-
-
-import java.util.Properties;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -29,51 +27,41 @@ public class IdValidator {
 
     private final BootLogger logger = BootLogger.getLogger(IdValidator.class.getName());
 
-    private final Properties property;
     private static final int MAX_ID_LENGTH = 24;
 
+    private final int maxSize;
+
+    public IdValidator(int maxSize) {
+        this.maxSize = maxSize;
+    }
+
     public IdValidator() {
-        this(System.getProperties());
+        this(MAX_ID_LENGTH);
     }
 
-    public IdValidator(Properties property) {
-        if (property == null) {
-            throw new NullPointerException("property must not be null");
-        }
-        this.property = property;
-    }
+    public boolean validate(AgentIds agentIds) {
+        Assert.requireNonNull(agentIds, "agentIds");
 
-    private String getValidId(String propertyName, int maxSize) {
-        logger.info("check -D" + propertyName);
-        String value = property.getProperty(propertyName);
-        if (value == null){
-            logger.warn("-D" + propertyName + " is null. value:null");
-            return null;
-        }
-        // blanks not permitted around value
-        value = value.trim();
-        if (value.isEmpty()) {
-            logger.warn("-D" + propertyName + " is empty. value:''");
-            return null;
-        }
+        final AgentIdSourceType type = agentIds.getSourceType();
+        
+        final String agentId = agentIds.getAgentId();
+        validate0(type + " agentId", agentId);
 
-        if (!IdValidateUtils.validateId(value, maxSize)) {
-            logger.warn("invalid Id. " + propertyName + " can only contain [a-zA-Z0-9], '.', '-', '_'. maxLength:" + maxSize + " value:" + value);
-            return null;
-        }
+        final String applicationName = agentIds.getApplicationName();
+        validate0(type + " applicationName", applicationName);
 
         if (logger.isInfoEnabled()) {
-            logger.info("check success. -D" + propertyName + ":" + value + " length:" + IdValidateUtils.getLength(value));
+            logger.info("check success. Source:" + type + " agentId:" + agentId + " applicationName:" + applicationName);
         }
-        return value;
+        return true;
     }
 
-
-    public String getApplicationName() {
-        return this.getValidId("pinpoint.applicationName", MAX_ID_LENGTH);
+    private void validate0(String keyName, String keyValue) {
+        logger.info("check " + keyName + ":" + keyValue);
+        if (!IdValidateUtils.validateId(keyValue, maxSize)) {
+            logger.warn("invalid Id. " + keyName + " can only contain [a-zA-Z0-9], '.', '-', '_'. maxLength:" + maxSize + " value:" + keyValue);
+            throw new IllegalArgumentException(keyName + " validation fail keyName:" + keyValue);
+        }
     }
 
-    public String getAgentId() {
-        return this.getValidId("pinpoint.agentId", MAX_ID_LENGTH);
-    }
 }

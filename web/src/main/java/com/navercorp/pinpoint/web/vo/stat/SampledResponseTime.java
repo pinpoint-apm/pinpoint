@@ -38,8 +38,8 @@ public class SampledResponseTime implements SampledAgentStatDataPoint {
     private final AgentStatPoint<Long> max;
 
     public SampledResponseTime(AgentStatPoint<Long> avg, AgentStatPoint<Long> max) {
-        this.avg = Objects.requireNonNull(avg, "avg must not be null");
-        this.max = Objects.requireNonNull(max, "max must not be null");
+        this.avg = Objects.requireNonNull(avg, "avg");
+        this.max = Objects.requireNonNull(max, "max");
     }
 
     public AgentStatPoint<Long> getAvg() {

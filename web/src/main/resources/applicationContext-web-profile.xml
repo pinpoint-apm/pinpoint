@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <beans profile="local">
+
+    </beans>
+
+    <beans profile="release">
+
+    </beans>
+
+    <beans profile="batch">
+
+        <!-- add to load for batch spring configuration.we need to conditional logic to behave differently base on 'batch.enable' config value -->
+        <bean id="batchConfiguration" class="com.navercorp.pinpoint.web.batch.BatchConfiguration"/>
+
+        <import resource="classpath:batch/applicationContext-batch-schedule.xml"/>
+    </beans>
+
+</beans>

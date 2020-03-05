@@ -18,7 +18,10 @@ package com.navercorp.pinpoint.web.vo;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.web.view.ApplicationSerializer;
+
+import java.util.Objects;
 
 /**
  * 
@@ -33,14 +36,8 @@ public final class Application {
     private final ServiceType serviceType;
 
     public Application(String name, ServiceType serviceType) {
-        if (name == null) {
-            throw new NullPointerException("name must not be null. serviceType=" + serviceType);
-        }
-        if (serviceType == null) {
-            throw new NullPointerException("serviceType must not be null. name=" + name);
-        }
-        this.name = name;
-        this.serviceType = serviceType;
+        this.name = Objects.requireNonNull(name, "name");
+        this.serviceType = Assert.requireNonNull(serviceType, "serviceType");
     }
 
 
@@ -58,10 +55,10 @@ public final class Application {
 
     public boolean equals(String thatName, ServiceType thatServiceType) {
         if (thatName == null) {
-            throw new NullPointerException("thatName must not be null");
+            throw new NullPointerException("thatName");
         }
         if (thatServiceType == null) {
-            throw new NullPointerException("thatServiceType must not be null");
+            throw new NullPointerException("thatServiceType");
         }
         if (!name.equals(thatName)) return false;
         return serviceType.equals(thatServiceType);

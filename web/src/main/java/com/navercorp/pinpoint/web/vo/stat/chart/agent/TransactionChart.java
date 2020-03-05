@@ -56,6 +56,8 @@ public class TransactionChart implements StatChart {
             TPS_SAMPLED_CONTINUATION,
             TPS_UNSAMPLED_NEW,
             TPS_UNSAMPLED_CONTINUATION,
+            TPS_SKIPPED_NEW,
+            TPS_SKIPPED_CONTINUATION,
             TPS_TOTAL
         }
 
@@ -69,14 +71,20 @@ public class TransactionChart implements StatChart {
             Chart<AgentStatPoint<Double>> sampledContinuationTps = newChart(sampledTransactions, SampledTransaction::getSampledContinuation);
             Chart<AgentStatPoint<Double>> unsampledNewTps = newChart(sampledTransactions, SampledTransaction::getUnsampledNew);
             Chart<AgentStatPoint<Double>> unsampledContinuationTps = newChart(sampledTransactions, SampledTransaction::getUnsampledContinuation);
+            Chart<AgentStatPoint<Double>> skippedNewTps = newChart(sampledTransactions, SampledTransaction::getSkippedNew);
+            Chart<AgentStatPoint<Double>> skippedContinuationTps = newChart(sampledTransactions, SampledTransaction::getSkippedContinuation);
             Chart<AgentStatPoint<Double>> totalTps = newChart(sampledTransactions, SampledTransaction::getTotal);
 
+            ImmutableMap.Builder<ChartType, Chart<? extends Point>> builder = ImmutableMap.builder();
+            builder.put(TransactionChartType.TPS_SAMPLED_NEW, sampledNewTps);
+            builder.put(TransactionChartType.TPS_SAMPLED_CONTINUATION, sampledContinuationTps);
+            builder.put(TransactionChartType.TPS_UNSAMPLED_NEW, unsampledNewTps);
+            builder.put(TransactionChartType.TPS_UNSAMPLED_CONTINUATION, unsampledContinuationTps);
+            builder.put(TransactionChartType.TPS_SKIPPED_NEW, skippedNewTps);
+            builder.put(TransactionChartType.TPS_SKIPPED_CONTINUATION, skippedContinuationTps);
+            builder.put(TransactionChartType.TPS_TOTAL, totalTps);
 
-            return ImmutableMap.of(TransactionChartType.TPS_SAMPLED_NEW, sampledNewTps,
-                    TransactionChartType.TPS_SAMPLED_CONTINUATION, sampledContinuationTps,
-                    TransactionChartType.TPS_UNSAMPLED_NEW, unsampledNewTps,
-                    TransactionChartType.TPS_UNSAMPLED_CONTINUATION, unsampledContinuationTps,
-                    TransactionChartType.TPS_TOTAL, totalTps);
+            return builder.build();
         }
 
         private Chart<AgentStatPoint<Double>> newChart(List<SampledTransaction> transactionList, Function<SampledTransaction, AgentStatPoint<Double>> filter) {

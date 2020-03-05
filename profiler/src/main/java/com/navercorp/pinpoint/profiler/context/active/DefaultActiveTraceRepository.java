@@ -57,7 +57,7 @@ public class DefaultActiveTraceRepository implements ActiveTraceRepository {
     }
 
     public DefaultActiveTraceRepository(ResponseTimeCollector responseTimeCollector, int maxActiveTraceSize) {
-        this.responseTimeCollector = Assert.requireNonNull(responseTimeCollector, "responseTimeCollector must not be null");
+        this.responseTimeCollector = Assert.requireNonNull(responseTimeCollector, "responseTimeCollector");
         this.activeTraceInfoMap = createCache(maxActiveTraceSize);
     }
 

@@ -28,8 +28,8 @@ public class ReconnectAdaptor implements Reconnector {
     private final ReconnectJob reconnectJob;
 
     public ReconnectAdaptor(Executor executor, ReconnectJob reconnectJob) {
-        this.executor = Assert.requireNonNull(executor, "executor must not be null");
-        this.reconnectJob = Assert.requireNonNull(reconnectJob, "reconnectJob must not be null");
+        this.executor = Assert.requireNonNull(executor, "executor");
+        this.reconnectJob = Assert.requireNonNull(reconnectJob, "reconnectJob");
     }
 
 

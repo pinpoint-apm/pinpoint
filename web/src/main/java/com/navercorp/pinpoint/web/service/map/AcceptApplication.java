@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.web.service.map;
 
 import com.navercorp.pinpoint.web.vo.Application;
 
+import java.util.Objects;
+
 /**
  * @author emeroad
  */
@@ -27,14 +29,8 @@ public class AcceptApplication {
 
 
     public AcceptApplication(String host, Application application) {
-        if (host == null) {
-            throw new NullPointerException("host must not be null");
-        }
-        if (application == null) {
-            throw new NullPointerException("application must not be null");
-        }
-        this.application = application;
-        this.host = host;
+        this.host = Objects.requireNonNull(host, "host");
+        this.application = Objects.requireNonNull(application, "application");
     }
 
     public String getHost() {

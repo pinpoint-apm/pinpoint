@@ -33,7 +33,7 @@ public class DefaultServerMetaDataHolder implements ServerMetaDataHolder {
 
     public DefaultServerMetaDataHolder(ServerMetaDataRegistryService serverMetaDataRegistryService) {
         if (serverMetaDataRegistryService == null) {
-            throw new NullPointerException("serverMetaDataRegistryService must not be null");
+            throw new NullPointerException("serverMetaDataRegistryService");
         }
         this.serverMetaDataRegistryService = serverMetaDataRegistryService;
     }

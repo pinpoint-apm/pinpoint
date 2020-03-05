@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.monitor.collector.jvmgc;
 
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.monitor.collector.AgentStatMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.metric.JvmGcMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.gc.GarbageCollectorMetric;
@@ -33,14 +34,8 @@ public class BasicJvmGcMetricCollector implements AgentStatMetricCollector<JvmGc
     private final GarbageCollectorMetric garbageCollectorMetric;
 
     public BasicJvmGcMetricCollector(MemoryMetric memoryMetric, GarbageCollectorMetric garbageCollectorMetric) {
-        if (memoryMetric == null) {
-            throw new NullPointerException("memoryMetric must not be null");
-        }
-        if (garbageCollectorMetric == null) {
-            throw new NullPointerException("garbageCollectorMetric must not be null");
-        }
-        this.memoryMetric = memoryMetric;
-        this.garbageCollectorMetric = garbageCollectorMetric;
+        this.memoryMetric = Assert.requireNonNull(memoryMetric, "memoryMetric");
+        this.garbageCollectorMetric = Assert.requireNonNull(garbageCollectorMetric, "garbageCollectorMetric");
     }
 
     @Override

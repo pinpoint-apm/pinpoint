@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,8 +23,9 @@ import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
 import com.navercorp.pinpoint.common.hbase.HbaseTableConstatns;
+import com.navercorp.pinpoint.common.hbase.TableDescriptor;
 import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
-import com.navercorp.pinpoint.common.util.TimeSlot;
+import com.navercorp.pinpoint.common.server.util.TimeSlot;
 import com.navercorp.pinpoint.common.util.TimeUtils;
 
 import com.sematext.hbase.wd.AbstractRowKeyDistributor;
@@ -35,13 +36,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
+import java.util.Objects;
+
 /**
  * 
  * @author netspider
  * @author emeroad
  */
 @Repository
-public class HbaseHostApplicationMapDao extends AbstractHbaseDao implements HostApplicationMapDao {
+public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -61,14 +64,20 @@ public class HbaseHostApplicationMapDao extends AbstractHbaseDao implements Host
     // FIXME should modify to save a cachekey at each 30~50 seconds instead of saving at each time
     private final AtomicLongUpdateMap<CacheKey> updater = new AtomicLongUpdateMap<>();
 
+    @Autowired
+    private TableDescriptor<HbaseColumnFamily.HostStatMap> descriptor;
+
 
     @Override
     public void insert(String host, String bindApplicationName, short bindServiceType, String parentApplicationName, short parentServiceType) {
         if (host == null) {
-            throw new NullPointerException("host must not be null");
+            throw new NullPointerException("host");
         }
         if (bindApplicationName == null) {
-            throw new NullPointerException("bindApplicationName must not be null");
+            throw new NullPointerException("bindApplicationName");
+        }
+        if (logger.isDebugEnabled()) {
+            logger.debug("insert HostApplicationMap, host:{}, app:{},SType:{},parentApp:{},parentAppSType{}", host, bindApplicationName, bindServiceType, parentApplicationName, parentServiceType);
         }
 
         final long statisticsRowSlot = getSlotTime();
@@ -101,12 +110,12 @@ public class HbaseHostApplicationMapDao extends AbstractHbaseDao implements Host
 
         byte[] columnName = createColumnName(host, bindApplicationName, bindServiceType);
 
-        TableName hostApplicationMapTableName = getTableName();
+        TableName hostApplicationMapTableName = descriptor.getTableName();
         try {
-            hbaseTemplate.put(hostApplicationMapTableName, rowKey, getColumnFamilyName(), columnName, null);
+            hbaseTemplate.put(hostApplicationMapTableName, rowKey, descriptor.getColumnFamilyName(), columnName, null);
         } catch (Exception ex) {
             logger.warn("retry one. Caused:{}", ex.getCause(), ex);
-            hbaseTemplate.put(hostApplicationMapTableName, rowKey, getColumnFamilyName(), columnName, null);
+            hbaseTemplate.put(hostApplicationMapTableName, rowKey, descriptor.getColumnFamilyName(), columnName, null);
         }
     }
 
@@ -138,11 +147,6 @@ public class HbaseHostApplicationMapDao extends AbstractHbaseDao implements Host
         return rowKeyBuffer.getBuffer();
     }
 
-    @Override
-    public HbaseColumnFamily getColumnFamily() {
-        return HbaseColumnFamily.HOST_APPLICATION_MAP_VER2_MAP;
-    }
-
     private static final class CacheKey {
         private final String host;
         private final String applicationName;
@@ -152,14 +156,8 @@ public class HbaseHostApplicationMapDao extends AbstractHbaseDao implements Host
         private final short parentServiceType;
 
         public CacheKey(String host, String applicationName, short serviceType, String parentApplicationName, short parentServiceType) {
-            if (host == null) {
-                throw new NullPointerException("host must not be null");
-            }
-            if (applicationName == null) {
-                throw new NullPointerException("bindApplicationName must not be null");
-            }
-            this.host = host;
-            this.applicationName = applicationName;
+            this.host = Objects.requireNonNull(host, "host");
+            this.applicationName = Objects.requireNonNull(applicationName, "applicationName");
             this.serviceType = serviceType;
 
             // may be null for below two parent values.

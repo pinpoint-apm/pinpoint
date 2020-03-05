@@ -1,0 +1,42 @@
+:host {
+    display: block;
+    height: 100%;
+    font-size: 13px;
+}
+.l-servers-list {
+    overflow-x: hidden;
+    height: 100%;
+}
+.l-depth-0 .l-name-wrapper {
+    padding: 8px 10px 8px 17px;
+    display: flex;
+    align-items: center;
+}
+.l-name {
+    flex: 1;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+.l-depth-1 .l-name-wrapper {
+    margin-left: 15px;
+    font-size: 90%;
+    max-width: calc(100% - 15px);
+}
+.l-name-wrapper {
+    display: block;
+}
+.l-name-wrapper i {
+    margin-right: 4px;
+}
+.l-name-wrapper:hover {
+    cursor: pointer;
+    background-color: #eee;
+    color: var(--primary-color) !important;
+}
+.l-name-wrapper.active {
+    color: var(--primary-color) !important;
+}
+.l-icon-alert > img {
+    vertical-align: middle;
+}

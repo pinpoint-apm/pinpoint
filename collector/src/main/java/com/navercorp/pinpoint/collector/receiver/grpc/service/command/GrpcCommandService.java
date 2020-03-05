@@ -16,16 +16,15 @@
 
 package com.navercorp.pinpoint.collector.receiver.grpc.service.command;
 
-import com.google.protobuf.Empty;
 import com.navercorp.pinpoint.collector.cluster.AgentInfo;
 import com.navercorp.pinpoint.collector.cluster.GrpcAgentConnection;
+import com.navercorp.pinpoint.collector.cluster.ProfilerClusterManager;
 import com.navercorp.pinpoint.collector.cluster.zookeeper.ZookeeperClusterService;
-import com.navercorp.pinpoint.collector.cluster.zookeeper.ZookeeperProfilerClusterManager;
 import com.navercorp.pinpoint.collector.receiver.grpc.PinpointGrpcServer;
 import com.navercorp.pinpoint.collector.receiver.grpc.PinpointGrpcServerRepository;
-import com.navercorp.pinpoint.common.util.Assert;
-import com.navercorp.pinpoint.grpc.AgentHeaderFactory;
 import com.navercorp.pinpoint.grpc.Header;
+import com.navercorp.pinpoint.grpc.StatusError;
+import com.navercorp.pinpoint.grpc.StatusErrors;
 import com.navercorp.pinpoint.grpc.server.ServerContext;
 import com.navercorp.pinpoint.grpc.server.TransportMetadata;
 import com.navercorp.pinpoint.grpc.trace.PCmdActiveThreadCountRes;
@@ -38,6 +37,8 @@ import com.navercorp.pinpoint.grpc.trace.PCmdResponse;
 import com.navercorp.pinpoint.grpc.trace.ProfilerCommandServiceGrpc;
 import com.navercorp.pinpoint.rpc.client.RequestManager;
 import com.navercorp.pinpoint.rpc.util.TimerFactory;
+
+import com.google.protobuf.Empty;
 import io.grpc.Status;
 import io.grpc.StatusException;
 import io.grpc.stub.ServerCallStreamObserver;
@@ -50,6 +51,7 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -61,7 +63,7 @@ public class GrpcCommandService extends ProfilerCommandServiceGrpc.ProfilerComma
 
     private final PinpointGrpcServerRepository grpcServerRepository = new PinpointGrpcServerRepository();
 
-    private final ZookeeperProfilerClusterManager zookeeperProfilerClusterManager;
+    private final ProfilerClusterManager profilerClusterManager;
     private final Timer timer;
 
     private final EchoService echoService = new EchoService();
@@ -70,9 +72,8 @@ public class GrpcCommandService extends ProfilerCommandServiceGrpc.ProfilerComma
     private final ActiveThreadCountService activeThreadCountService = new ActiveThreadCountService();
 
     public GrpcCommandService(ZookeeperClusterService clusterService) {
-        Assert.requireNonNull(clusterService, "clusterService must not be null");
-        this.zookeeperProfilerClusterManager = Assert.requireNonNull(clusterService.getProfilerClusterManager(), "zookeeperProfilerClusterManager must not be null");
-        Assert.requireNonNull(zookeeperProfilerClusterManager, "zookeeperProfilerClusterManager must not be null");
+        Objects.requireNonNull(clusterService, "clusterService");
+        this.profilerClusterManager = Objects.requireNonNull(clusterService.getProfilerClusterManager(), "profilerClusterManager");
         this.timer = TimerFactory.createHashedWheelTimer("GrpcCommandService-Timer", 100, TimeUnit.MILLISECONDS, 512);
     }
 
@@ -98,7 +99,6 @@ public class GrpcCommandService extends ProfilerCommandServiceGrpc.ProfilerComma
                 if (serverCallStreamObserver.isReady()) {
                     logger.info("{} => local. ready() transportId:{}", agentInfo.getAgentKey(), transportId);
                     pinpointGrpcServer.connected();
-                    serverCallStreamObserver.request(1);
                 }
             }
         });
@@ -106,33 +106,36 @@ public class GrpcCommandService extends ProfilerCommandServiceGrpc.ProfilerComma
         StreamObserver<PCmdMessage> responseObserver = new StreamObserver<PCmdMessage>() {
             @Override
             public void onNext(PCmdMessage value) {
-                try {
-                    if (value.hasHandshakeMessage()) {
-                        List<Integer> supportCommandServiceKeyList = value.getHandshakeMessage().getSupportCommandServiceKeyList();
-                        logger.info("{} => local. execute handshake:{}", getAgentInfo().getAgentKey(), supportCommandServiceKeyList);
-                        boolean handshakeSucceed = pinpointGrpcServer.handleHandshake(supportCommandServiceKeyList);
-                        if (handshakeSucceed) {
-                            GrpcAgentConnection grpcAgentConnection = new GrpcAgentConnection(pinpointGrpcServer, supportCommandServiceKeyList);
-                            zookeeperProfilerClusterManager.register(grpcAgentConnection);
-                        }
-                    } else if (value.hasFailMessage()) {
-                        PCmdResponse failMessage = value.getFailMessage();
-                        pinpointGrpcServer.handleFail(failMessage);
+                if (value.hasHandshakeMessage()) {
+                    List<Integer> supportCommandServiceKeyList = value.getHandshakeMessage().getSupportCommandServiceKeyList();
+                    logger.info("{} => local. execute handshake:{}", getAgentInfo().getAgentKey(), supportCommandServiceKeyList);
+                    boolean handshakeSucceed = pinpointGrpcServer.handleHandshake(supportCommandServiceKeyList);
+                    if (handshakeSucceed) {
+                        GrpcAgentConnection grpcAgentConnection = new GrpcAgentConnection(pinpointGrpcServer, supportCommandServiceKeyList);
+                        profilerClusterManager.register(grpcAgentConnection);
                     }
-                } finally {
-                    serverCallStreamObserver.request(1);
+                } else if (value.hasFailMessage()) {
+                    PCmdResponse failMessage = value.getFailMessage();
+                    pinpointGrpcServer.handleFail(failMessage);
                 }
             }
 
             @Override
             public void onError(Throwable t) {
-                logger.info("{} => local. onError:{}", getAgentInfo().getAgentKey(), t.getMessage(), t);
+                final StatusError statusError = StatusErrors.throwable(t);
+                if (statusError.isSimpleError()) {
+                    logger.info("Failed to command stream, {} => local, cause={}", getAgentInfo().getAgentKey(), statusError.getMessage());
+                } else {
+                    logger.warn("Failed to command stream, {} => local, cause={}", getAgentInfo().getAgentKey(), statusError.getMessage(), statusError.getThrowable());
+                }
                 pinpointGrpcServer.disconnected();
             }
 
             @Override
             public void onCompleted() {
-                logger.info("{} => local. onCompleted", getAgentInfo().getAgentKey());
+                if (logger.isDebugEnabled()) {
+                    logger.debug("{} => local. onCompleted", getAgentInfo().getAgentKey());
+                }
                 pinpointGrpcServer.disconnected();
             }
 

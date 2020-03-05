@@ -90,7 +90,7 @@ public class Slf4jPLoggerAdapter implements PLogger {
 
     public Slf4jPLoggerAdapter(org.slf4j.Logger logger) {
         if (logger == null) {
-            throw new NullPointerException("logger must not be null");
+            throw new NullPointerException("logger");
         }
         this.logger = logger;
     }

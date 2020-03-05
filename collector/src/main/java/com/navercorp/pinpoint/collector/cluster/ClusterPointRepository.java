@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.collector.cluster;
 
+import com.navercorp.pinpoint.collector.receiver.grpc.PinpointGrpcServer;
 import com.navercorp.pinpoint.rpc.common.SocketStateCode;
 import com.navercorp.pinpoint.rpc.server.PinpointServer;
 
@@ -32,6 +33,7 @@ import java.util.Set;
 public class ClusterPointRepository<T extends ClusterPoint> implements ClusterPointLocator<T> {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     private final Map<String, Set<T>> clusterPointRepository = new HashMap<>();
 
     public boolean addAndIsKeyCreated(T clusterPoint) {
@@ -86,18 +88,22 @@ public class ClusterPointRepository<T extends ClusterPoint> implements ClusterPo
         synchronized (this) {
             Set<String> availableAgentKeySet = new HashSet<>(clusterPointRepository.size());
 
-            Set<String> keySet = clusterPointRepository.keySet();
-            for (String key : keySet) {
-                Set<T> clusterPointSet = clusterPointRepository.get(key);
+            for (Map.Entry<String, Set<T>> entry : clusterPointRepository.entrySet()) {
+                final String key = entry.getKey();
+                final Set<T> clusterPointSet = entry.getValue();
                 for (T clusterPoint : clusterPointSet) {
                     if (clusterPoint instanceof ThriftAgentConnection) {
                         PinpointServer pinpointServer = ((ThriftAgentConnection) clusterPoint).getPinpointServer();
                         if (SocketStateCode.isRunDuplex(pinpointServer.getCurrentStateCode())) {
                             availableAgentKeySet.add(key);
                         }
+                    } else if (clusterPoint instanceof GrpcAgentConnection) {
+                        PinpointGrpcServer pinpointGrpcServer = ((GrpcAgentConnection) clusterPoint).getPinpointGrpcServer();
+                        if (SocketStateCode.isRunDuplex(pinpointGrpcServer.getState())) {
+                            availableAgentKeySet.add(key);
+                        }
                     }
                 }
-
             }
             return availableAgentKeySet;
         }

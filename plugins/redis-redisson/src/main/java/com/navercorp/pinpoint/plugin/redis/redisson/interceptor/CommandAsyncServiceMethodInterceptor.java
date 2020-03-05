@@ -143,13 +143,15 @@ public class CommandAsyncServiceMethodInterceptor extends SpanEventSimpleAroundI
                 return HostAndPort.toHostAndPortString(address.getHostString(), address.getPort());
             } else {
                 final MasterSlaveEntry entry = nodeSource.getEntry();
-                if (entry == null && nodeSource.getSlot() != null) {
+                if (entry != null) {
+                    if (entry.getClient() != null) {
+                        final InetSocketAddress address = entry.getClient().getAddr();
+                        return HostAndPort.toHostAndPortString(address.getHostString(), address.getPort());
+                    }
+                } else if (nodeSource.getSlot() != null) {
                     return "slot=" + nodeSource.getSlot();
                 }
-                if (entry.getClient() != null) {
-                    final InetSocketAddress address = entry.getClient().getAddr();
-                    return HostAndPort.toHostAndPortString(address.getHostString(), address.getPort());
-                }
+
             }
         } catch (Exception ignored) {
             if (isDebug) {

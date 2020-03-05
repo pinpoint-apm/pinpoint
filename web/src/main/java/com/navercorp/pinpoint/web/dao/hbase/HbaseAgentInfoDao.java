@@ -19,10 +19,11 @@ package com.navercorp.pinpoint.web.dao.hbase;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
 import com.navercorp.pinpoint.common.hbase.HbaseTableConstatns;
+import com.navercorp.pinpoint.common.hbase.ResultsExtractor;
+import com.navercorp.pinpoint.common.hbase.TableDescriptor;
 import com.navercorp.pinpoint.common.server.util.RowKeyUtils;
 import com.navercorp.pinpoint.common.util.TimeUtils;
 import com.navercorp.pinpoint.web.dao.AgentInfoDao;
-import com.navercorp.pinpoint.web.mapper.AgentInfoResultsExtractor;
 import com.navercorp.pinpoint.web.vo.AgentInfo;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -41,7 +42,7 @@ import java.util.List;
  * @author HyunGil Jeong
  */
 @Repository
-public class HbaseAgentInfoDao extends AbstractHbaseDao implements AgentInfoDao {
+public class HbaseAgentInfoDao implements AgentInfoDao {
 
     private static final int SCANNER_CACHING = 1;
 
@@ -49,7 +50,10 @@ public class HbaseAgentInfoDao extends AbstractHbaseDao implements AgentInfoDao 
     private HbaseOperations2 hbaseOperations2;
 
     @Autowired
-    private AgentInfoResultsExtractor agentInfoResultsExtractor;
+    private ResultsExtractor<AgentInfo> agentInfoResultsExtractor;
+
+    @Autowired
+    private TableDescriptor<HbaseColumnFamily.AgentInfo> descriptor;
 
     /**
      * Returns the very first information of the agent
@@ -59,11 +63,11 @@ public class HbaseAgentInfoDao extends AbstractHbaseDao implements AgentInfoDao 
     @Override
     public AgentInfo getInitialAgentInfo(final String agentId) {
         if (agentId == null) {
-            throw new NullPointerException("agentId must not be null");
+            throw new NullPointerException("agentId");
         }
         Scan scan = createScanForInitialAgentInfo(agentId);
 
-        TableName agentInfoTableName = getTableName();
+        TableName agentInfoTableName = descriptor.getTableName();
         return this.hbaseOperations2.find(agentInfoTableName, scan, agentInfoResultsExtractor);
     }
 
@@ -77,7 +81,7 @@ public class HbaseAgentInfoDao extends AbstractHbaseDao implements AgentInfoDao 
             scans.add(createScanForInitialAgentInfo(agentId));
         }
 
-        TableName agentInfoTableName = getTableName();
+        TableName agentInfoTableName = descriptor.getTableName();
         return this.hbaseOperations2.find(agentInfoTableName, scans, agentInfoResultsExtractor);
     }
 
@@ -102,12 +106,12 @@ public class HbaseAgentInfoDao extends AbstractHbaseDao implements AgentInfoDao 
     @Override
     public AgentInfo getAgentInfo(final String agentId, final long timestamp) {
         if (agentId == null) {
-            throw new NullPointerException("agentId must not be null");
+            throw new NullPointerException("agentId");
         }
 
         Scan scan = createScan(agentId, timestamp);
 
-        TableName agentInfoTableName = getTableName();
+        TableName agentInfoTableName = descriptor.getTableName();
         return this.hbaseOperations2.find(agentInfoTableName, scan, agentInfoResultsExtractor);
     }
 
@@ -122,7 +126,7 @@ public class HbaseAgentInfoDao extends AbstractHbaseDao implements AgentInfoDao 
             scans.add(createScan(agentId, timestamp));
         }
 
-        TableName agentInfoTableName = getTableName();
+        TableName agentInfoTableName = descriptor.getTableName();
         return this.hbaseOperations2.findParallel(agentInfoTableName, scans, agentInfoResultsExtractor);
     }
 
@@ -136,7 +140,7 @@ public class HbaseAgentInfoDao extends AbstractHbaseDao implements AgentInfoDao 
 
         scan.setStartRow(startKeyBytes);
         scan.setStopRow(endKeyBytes);
-        scan.addFamily(getColumnFamilyName());
+        scan.addFamily(descriptor.getColumnFamilyName());
 
         scan.setMaxVersions(1);
         scan.setCaching(SCANNER_CACHING);
@@ -144,9 +148,5 @@ public class HbaseAgentInfoDao extends AbstractHbaseDao implements AgentInfoDao 
         return scan;
     }
 
-    @Override
-    public HbaseColumnFamily getColumnFamily() {
-        return HbaseColumnFamily.AGENTINFO_INFO;
-    }
 
 }

@@ -22,6 +22,7 @@ import java.util.concurrent.ConcurrentMap;
 
 import com.google.inject.Inject;
 import com.navercorp.pinpoint.bootstrap.instrument.RequestHandle;
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,10 +40,10 @@ public class DefaultDynamicTransformerRegistry implements DynamicTransformerRegi
     @Override
     public RequestHandle onRetransformRequest(Class<?> target, final ClassFileTransformer transformer) {
         if (target == null) {
-            throw new NullPointerException("target must not be null");
+            throw new NullPointerException("target");
         }
         if (transformer == null) {
-            throw new NullPointerException("transformer must not be null");
+            throw new NullPointerException("transformer");
         }
 
         final TransformerKey key = createTransformKey(target);
@@ -116,11 +117,8 @@ public class DefaultDynamicTransformerRegistry implements DynamicTransformerRegi
         private final String targetClassInternalName;
         
         public TransformerKey(ClassLoader classLoader, String targetClassInternalName) {
-            if (targetClassInternalName == null) {
-                throw new NullPointerException("targetClassInternalName must not be null");
-            }
             this.classLoader = classLoader;
-            this.targetClassInternalName = targetClassInternalName;
+            this.targetClassInternalName = Assert.requireNonNull(targetClassInternalName, "targetClassInternalName");
         }
 
         @Override
@@ -156,7 +154,7 @@ public class DefaultDynamicTransformerRegistry implements DynamicTransformerRegi
 
         public DefaultRequestHandle(TransformerKey key) {
             if (key == null) {
-                throw new NullPointerException("key must not be null");
+                throw new NullPointerException("key");
             }
             this.key = key;
         }

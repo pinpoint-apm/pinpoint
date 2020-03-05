@@ -1,20 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-  ~ Copyright 2018 NAVER Corp.
-  ~
-  ~ Licensed under the Apache License, Version 2.0 (the "License");
-  ~ you may not use this file except in compliance with the License.
-  ~ You may obtain a copy of the License at
-  ~
-  ~ http://www.apache.org/licenses/LICENSE-2.0
-  ~
-  ~ Unless required by applicable law or agreed to in writing, software
-  ~ distributed under the License is distributed on an "AS IS" BASIS,
-  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  ~ See the License for the specific language governing permissions and
-  ~ limitations under the License.
-  -->
-
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:context="http://www.springframework.org/schema/context"
@@ -25,6 +9,7 @@
 
     <context:annotation-config/>
 
+    <import resource="classpath:applicationContext-flink-profile.xml"/>
     <import resource="classpath:applicationContext-flink-extend.xml"/>
     <import resource="classpath:applicationContext-hbase.xml"/>
     <import resource="classpath:applicationContext-cache.xml"/>
@@ -33,32 +18,9 @@
             base-package="com.navercorp.pinpoint.common.server.util,
                         com.navercorp.pinpoint.collector.mapper.thrift.stat"/>
 
+    <bean id="flinkConfiguration" class="com.navercorp.pinpoint.flink.config.FlinkConfiguration"/>
 
-    <bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-        <property name="locations">
-            <list>
-                <value>classpath:hbase.properties</value>
-                <value>classpath:pinpoint-flink.properties</value>
-            </list>
-        </property>
-
-    </bean>
-
-    <util:properties id="pinpoint_flink_properties" location="classpath:pinpoint-flink.properties"/>
-
-
-    <bean id="flinkConfiguration" class="com.navercorp.pinpoint.flink.config.FlinkConfiguration">
-        <property name="properties" ref="pinpoint_flink_properties"/>
-    </bean>
-
-    <bean id="deprecatedConfig" class="com.navercorp.pinpoint.collector.config.DeprecatedConfiguration">
-        <constructor-arg ref="pinpoint_flink_properties"/>
-    </bean>
-
-    <bean id="tcpReceiverConfig" class="com.navercorp.pinpoint.collector.config.AgentBaseDataReceiverConfiguration">
-        <constructor-arg ref="pinpoint_flink_properties"/>
-        <constructor-arg ref="deprecatedConfig"/>
-    </bean>
+    <bean id="tcpReceiverConfig" class="com.navercorp.pinpoint.collector.config.AgentBaseDataReceiverConfiguration"/>
 
     <bean id="tbaseFlatMapper" class="com.navercorp.pinpoint.flink.process.TBaseFlatMapper"/>
 
@@ -192,9 +154,6 @@
         <constructor-arg index="0" ref="flinkConfiguration"/>
         <constructor-arg index="1" value="/pinpoint-cluster/flink"/>
     </bean>
-
-    <!-- TCPReceiver related Beans -->
-    <bean id="serverAcceptor" class="com.navercorp.pinpoint.rpc.server.PinpointServerAcceptor"/>
 
     <bean id="metricRegistry" class="com.codahale.metrics.MetricRegistry"/>
 

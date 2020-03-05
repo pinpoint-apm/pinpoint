@@ -34,7 +34,7 @@ public class PluginConfig {
     private String pluginJarURLExternalForm;
 
     public PluginConfig(Plugin<?> plugin, ClassNameFilter pluginPackageFilter) {
-        this.plugin = Assert.requireNonNull(plugin, "plugin must not be null");
+        this.plugin = Assert.requireNonNull(plugin, "plugin");
         this.pluginPackageFilter = pluginPackageFilter;
         this.pluginJar = getJarFile(plugin);
     }

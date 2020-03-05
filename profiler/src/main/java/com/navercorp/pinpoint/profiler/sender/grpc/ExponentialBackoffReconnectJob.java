@@ -37,7 +37,7 @@ public class ExponentialBackoffReconnectJob implements ReconnectJob {
     }
 
     public ExponentialBackoffReconnectJob(Runnable runnable, long maxBackOffNanos) {
-        this.runnable = Assert.requireNonNull(runnable, "runnable must not be null");
+        this.runnable = Assert.requireNonNull(runnable, "runnable");
 
         Assert.isTrue(maxBackOffNanos > 0, "maxBackOffNanos > 0");
         this.maxBackOffNanos = getMaxBackOffNanos(maxBackOffNanos);

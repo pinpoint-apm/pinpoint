@@ -49,7 +49,7 @@ public class CollectJob implements Runnable {
                        AgentStatMetricCollector<AgentStatMetricSnapshot> agentStatCollector,
                        int numCollectionsPerBatch) {
         if (dataSender == null) {
-            throw new NullPointerException("dataSender must not be null");
+            throw new NullPointerException("dataSender");
         }
         this.dataSender = dataSender;
         this.agentId = agentId;

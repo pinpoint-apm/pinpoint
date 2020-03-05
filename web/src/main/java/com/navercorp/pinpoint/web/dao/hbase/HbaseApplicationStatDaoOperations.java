@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.web.dao.hbase;
 
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
+import com.navercorp.pinpoint.common.hbase.TableDescriptor;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.ApplicationStatDecoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatUtils;
 import com.navercorp.pinpoint.common.server.bo.serializer.stat.ApplicationStatHbaseOperationFactory;
@@ -42,7 +43,7 @@ import java.util.List;
  * @author Minwoo Jung
  */
 @Repository
-public class HbaseApplicationStatDaoOperations extends AbstractHbaseDao {
+public class HbaseApplicationStatDaoOperations {
 
     private static final int APPLICATION_STAT_NUM_PARTITIONS = 32;
     private static final int MAX_SCAN_CACHE_SIZE = 256;
@@ -55,19 +56,22 @@ public class HbaseApplicationStatDaoOperations extends AbstractHbaseDao {
     @Autowired
     private ApplicationStatHbaseOperationFactory operationFactory;
 
+    @Autowired
+    private TableDescriptor<HbaseColumnFamily.ApplicationStatStatistics> descriptor;
+
     List<AggregationStatData> getSampledStatList(StatType statType, SampledApplicationStatResultExtractor resultExtractor, String applicationId, Range range) {
         if (applicationId == null) {
-            throw new NullPointerException("applicationId must not be null");
+            throw new NullPointerException("applicationId");
         }
         if (range == null) {
-            throw new NullPointerException("range must not be null");
+            throw new NullPointerException("range");
         }
         if (resultExtractor == null) {
-            throw new NullPointerException("resultExtractor must not be null");
+            throw new NullPointerException("resultExtractor");
         }
         Scan scan = this.createScan(statType, applicationId, range);
 
-        TableName applicationStatAggreTableName = getTableName();
+        TableName applicationStatAggreTableName = descriptor.getTableName();
         return hbaseOperations2.findParallel(applicationStatAggreTableName, scan, this.operationFactory.getRowKeyDistributor(), resultExtractor, APPLICATION_STAT_NUM_PARTITIONS);
     }
 
@@ -78,7 +82,7 @@ public class HbaseApplicationStatDaoOperations extends AbstractHbaseDao {
 
     private Scan createScan(StatType statType, String applicationId, Range range) {
         long scanRange = range.getTo() - range.getFrom();
-        long expectedNumRows = ((scanRange - 1) / getColumnFamily().TIMESPAN_MS) + 1;
+        long expectedNumRows = ((scanRange - 1) / descriptor.getColumnFamily().TIMESPAN_MS) + 1;
         if (range.getFrom() != AgentStatUtils.getBaseTimestamp(range.getFrom())) {
             expectedNumRows++;
         }
@@ -94,13 +98,8 @@ public class HbaseApplicationStatDaoOperations extends AbstractHbaseDao {
         Scan scan = this.operationFactory.createScan(applicationId, statType, range.getFrom(), range.getTo());
         scan.setCaching(scanCacheSize);
         scan.setId("ApplicationStat_" + statType);
-        scan.addFamily(getColumnFamilyName());
+        scan.addFamily(descriptor.getColumnFamilyName());
         return scan;
-    }
-
-    @Override
-    public HbaseColumnFamily.ApplicationStatStatistics getColumnFamily() {
-        return HbaseColumnFamily.APPLICATION_STAT_STATISTICS;
     }
 
 }

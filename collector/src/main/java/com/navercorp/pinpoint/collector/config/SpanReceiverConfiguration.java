@@ -1,11 +1,11 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,184 +16,84 @@
 
 package com.navercorp.pinpoint.collector.config;
 
+import com.navercorp.pinpoint.common.server.config.AnnotationVisitor;
+import com.navercorp.pinpoint.common.server.config.LoggingEvent;
 import com.navercorp.pinpoint.common.util.Assert;
-import com.navercorp.pinpoint.grpc.server.ServerOption;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Configuration;
 
+
+import javax.annotation.PostConstruct;
 import java.util.Objects;
-import java.util.Properties;
 
 /**
  * @author Taejin Koo
  */
-public final class SpanReceiverConfiguration implements DataReceiverGroupConfiguration {
+@Configuration
+public class SpanReceiverConfiguration implements DataReceiverGroupConfiguration {
+    private final Logger logger = LoggerFactory.getLogger(SpanReceiverConfiguration.class);
 
-    private static final String PREFIX = "collector.receiver.span";
-    private static final String GRPC_PREFIX = "collector.receiver.grpc.span";
+    @Value("${collector.receiver.span.tcp:false}")
+    private boolean isTcpEnable;
 
-    private static final String GRPC_ENABLE = GRPC_PREFIX + ".enable";
-    private static final String GRPC_BIND_IP = GRPC_PREFIX + ".ip";
-    private static final String GRPC_BIND_PORT = GRPC_PREFIX + ".port";
-    private static final String GRPC_WORKER_THREAD_SIZE = GRPC_PREFIX + ".worker.threadSize";
-    private static final String GRPC_WORKER_QUEUE_SIZE = GRPC_PREFIX + ".worker.queueSize";
-    private static final String GRPC_WORKER_MONITOR_ENABLE = GRPC_PREFIX + ".worker.monitor";
+    @Value("${collector.receiver.span.tcp.ip:0.0.0.0}")
+    private String tcpBindIp;
 
-    private static final String TCP_ENABLE = PREFIX + ".tcp";
-    private static final String TCP_BIND_IP = PREFIX + ".tcp.ip";
-    private static final String TCP_BIND_PORT = PREFIX + ".tcp.port";
-    private static final String UDP_ENABLE = PREFIX + ".udp";
-    private static final String UDP_BIND_IP = PREFIX + ".udp.ip";
-    private static final String UDP_BIND_PORT = PREFIX + ".udp.port";
-    private static final String UDP_RECEIVE_BUFFER_SIZE = PREFIX + ".udp.receiveBufferSize";
-    private static final String WORKER_THREAD_SIZE = PREFIX + ".worker.threadSize";
-    private static final String WORKER_QUEUE_SIZE = PREFIX + ".worker.queueSize";
-    private static final String WORKER_MONITOR_ENABLE = PREFIX + ".worker.monitor";
+    @Value("${collector.receiver.span.tcp.port:-1}")
+    private int tcpBindPort;
 
-    private final boolean isTcpEnable;
-    private final String tcpBindIp;
-    private final int tcpBindPort;
-    private final boolean isUdpEnable;
-    private final String udpBindIp;
-    private final int udpBindPort;
-    private final int udpReceiveBufferSize;
-    private final int workerThreadSize;
-    private final int workerQueueSize;
-    private final boolean workerMonitorEnable;
+    @Value("${collector.receiver.span.udp:true}")
+    private boolean isUdpEnable;
 
-    private final boolean isGrpcEnable;
-    private final String grpcBindIp;
-    private final int grpcBindPort;
-    private final int grpcWorkerThreadSize;
-    private final int grpcWorkerQueueSize;
-    private final boolean grpcWorkerMonitorEnable;
-    private final ServerOption grpcServerOption;
+    @Value("${collector.receiver.span.udp.ip:0.0.0.0}")
+    private String udpBindIp;
 
-    public SpanReceiverConfiguration(Properties properties, DeprecatedConfiguration deprecatedConfiguration) {
-        Objects.requireNonNull(properties, "properties must not be null");
-        Objects.requireNonNull(deprecatedConfiguration, "deprecatedConfiguration must not be null");
+    @Value("${collector.receiver.span.udp.port:9996}")
+    private int udpBindPort;
 
-        this.isTcpEnable = CollectorConfiguration.readBoolean(properties, TCP_ENABLE);
-        this.tcpBindIp = CollectorConfiguration.readString(properties, TCP_BIND_IP, CollectorConfiguration.DEFAULT_LISTEN_IP);
-        this.tcpBindPort = CollectorConfiguration.readInt(properties, TCP_BIND_PORT, -1);
+    @Value("${collector.receiver.span.udp.receiveBufferSize:" + (1024 * 4096) + "}")
+    private int udpReceiveBufferSize;
 
-        this.isUdpEnable = isUdpEnable(properties, deprecatedConfiguration, true);
-        this.udpBindIp = getUdpBindIp(properties, deprecatedConfiguration, CollectorConfiguration.DEFAULT_LISTEN_IP);
-        this.udpBindPort = getUdpBindPort(properties, deprecatedConfiguration, 9996);
-        this.udpReceiveBufferSize = getUdpReceiveBufferSize(properties, deprecatedConfiguration, 1024 * 4096);
-        this.workerThreadSize = getWorkerThreadSize(properties, deprecatedConfiguration, 256);
-        Assert.isTrue(workerThreadSize > 0, "workerThreadSize must be greater than 0");
-        this.workerQueueSize = getWorkerQueueSize(properties, deprecatedConfiguration, 1024 * 5);
-        Assert.isTrue(workerQueueSize > 0, "workerQueueSize must be greater than 0");
-        this.workerMonitorEnable = isWorkerThreadMonitorEnable(properties, deprecatedConfiguration);
+    @Value("${collector.receiver.span.worker.threadSize:256}")
+    private int workerThreadSize;
 
-        // gRPC
-        this.isGrpcEnable = CollectorConfiguration.readBoolean(properties, GRPC_ENABLE);
-        this.grpcBindIp = CollectorConfiguration.readString(properties, GRPC_BIND_IP, CollectorConfiguration.DEFAULT_LISTEN_IP);
-        this.grpcBindPort = CollectorConfiguration.readInt(properties, GRPC_BIND_PORT, 9998);
-        this.grpcWorkerThreadSize = CollectorConfiguration.readInt(properties, GRPC_WORKER_THREAD_SIZE, 128);
-        Assert.isTrue(grpcWorkerThreadSize > 0, "grpcWorkerThreadSize must be greater than 0");
-        this.grpcWorkerQueueSize = CollectorConfiguration.readInt(properties, GRPC_WORKER_QUEUE_SIZE, 1024 * 5);
-        Assert.isTrue(grpcWorkerQueueSize > 0, "grpcWorkerQueueSize must be greater than 0");
-        this.grpcWorkerMonitorEnable = CollectorConfiguration.readBoolean(properties, GRPC_WORKER_MONITOR_ENABLE);
-        final ServerOption.Builder serverOptionBuilder = GrpcPropertiesServerOptionBuilder.newBuilder(properties, GRPC_PREFIX);
-        this.grpcServerOption = serverOptionBuilder.build();
+    @Value("${collector.receiver.span.worker.queueSize:5120}")
+    private int workerQueueSize;
 
-        validate();
+    @Value("${collector.receiver.span.worker.monitor:true}")
+    private boolean workerMonitorEnable;
+
+
+    public SpanReceiverConfiguration() {
     }
 
-    private void validate() {
+    @PostConstruct
+    public  void validate() {
+        Assert.isTrue(workerThreadSize > 0, "workerThreadSize must be greater than 0");
+        Assert.isTrue(workerQueueSize > 0, "workerQueueSize must be greater than 0");
+
         Assert.isTrue(isTcpEnable || isUdpEnable, "spanReceiver does not allow tcp and udp disable");
 
         if (isTcpEnable) {
-            Objects.requireNonNull(tcpBindIp, "tcpBindIp must not be null");
+            Objects.requireNonNull(tcpBindIp, "tcpBindIp");
             Assert.isTrue(tcpBindPort > 0, "tcpBindPort must be greater than 0");
         }
 
         if (isUdpEnable) {
-            Objects.requireNonNull(udpBindIp, "udpBindIp must not be null");
+            Objects.requireNonNull(udpBindIp, "udpBindIp");
             Assert.isTrue(udpBindPort > 0, "udpBindPort must be greater than 0");
             Assert.isTrue(udpReceiveBufferSize > 0, "udpReceiveBufferSize must be greater than 0");
         }
     }
 
-    private boolean isUdpEnable(Properties properties, DeprecatedConfiguration deprecatedConfiguration, boolean defaultValue) {
-        if (properties.containsKey(UDP_ENABLE)) {
-            return CollectorConfiguration.readBoolean(properties, UDP_ENABLE);
-        }
+    @PostConstruct
+    public void log() {
+        logger.info("{}", this);
 
-        return defaultValue;
-    }
-
-    private String getUdpBindIp(Properties properties, DeprecatedConfiguration deprecatedConfiguration, String defaultValue) {
-        if (properties.containsKey(UDP_BIND_IP)) {
-            return CollectorConfiguration.readString(properties, UDP_BIND_IP, null);
-        }
-
-        if (deprecatedConfiguration.isSetUdpSpanListenIp()) {
-            return deprecatedConfiguration.getUdpSpanListenIp();
-        }
-
-        return defaultValue;
-    }
-
-    private int getUdpBindPort(Properties properties, DeprecatedConfiguration deprecatedConfiguration, int defaultValue) {
-        if (properties.containsKey(UDP_BIND_PORT)) {
-            return CollectorConfiguration.readInt(properties, UDP_BIND_PORT, -1);
-        }
-
-        if (deprecatedConfiguration.isSetUdpSpanListenPort()) {
-            return deprecatedConfiguration.getUdpSpanListenPort();
-        }
-
-        return defaultValue;
-    }
-
-
-    private int getUdpReceiveBufferSize(Properties properties, DeprecatedConfiguration deprecatedConfiguration, int defaultValue) {
-        if (properties.containsKey(UDP_RECEIVE_BUFFER_SIZE)) {
-            return CollectorConfiguration.readInt(properties, UDP_RECEIVE_BUFFER_SIZE, -1);
-        }
-
-        if (deprecatedConfiguration.isSetUdpSpanSocketReceiveBufferSize()) {
-            return deprecatedConfiguration.getUdpSpanSocketReceiveBufferSize();
-        }
-
-        return defaultValue;
-    }
-
-    private int getWorkerThreadSize(Properties properties, DeprecatedConfiguration deprecatedConfiguration, int defaultValue) {
-        if (properties.containsKey(WORKER_THREAD_SIZE)) {
-            return CollectorConfiguration.readInt(properties, WORKER_THREAD_SIZE, -1);
-        }
-
-        if (deprecatedConfiguration.isSetUdpSpanWorkerThread()) {
-            return deprecatedConfiguration.getUdpSpanWorkerThread();
-        }
-
-        return defaultValue;
-    }
-
-    private int getWorkerQueueSize(Properties properties, DeprecatedConfiguration deprecatedConfiguration, int defaultValue) {
-        if (properties.containsKey(WORKER_QUEUE_SIZE)) {
-            return CollectorConfiguration.readInt(properties, WORKER_QUEUE_SIZE, -1);
-        }
-
-        if (deprecatedConfiguration.isSetUdpSpanWorkerQueueSize()) {
-            return deprecatedConfiguration.getUdpSpanWorkerQueueSize();
-        }
-
-        return defaultValue;
-    }
-
-    private boolean isWorkerThreadMonitorEnable(Properties properties, DeprecatedConfiguration deprecatedConfiguration) {
-        if (properties.containsKey(WORKER_MONITOR_ENABLE)) {
-            return CollectorConfiguration.readBoolean(properties, WORKER_MONITOR_ENABLE);
-        }
-
-        if (deprecatedConfiguration.isSetUdpSpanWorkerMonitor()) {
-            return deprecatedConfiguration.isUdpSpanWorkerMonitor();
-        }
-
-        return false;
+        AnnotationVisitor visitor = new AnnotationVisitor(Value.class);
+        visitor.visit(this, new LoggingEvent(logger));
     }
 
     @Override
@@ -246,36 +146,6 @@ public final class SpanReceiverConfiguration implements DataReceiverGroupConfigu
         return workerMonitorEnable;
     }
 
-    @Override
-    public boolean isGrpcEnable() {
-        return isGrpcEnable;
-    }
-
-    @Override
-    public String getGrpcBindIp() {
-        return grpcBindIp;
-    }
-
-    @Override
-    public int getGrpcBindPort() {
-        return grpcBindPort;
-    }
-
-    public int getGrpcWorkerThreadSize() {
-        return grpcWorkerThreadSize;
-    }
-
-    public int getGrpcWorkerQueueSize() {
-        return grpcWorkerQueueSize;
-    }
-
-    public boolean isGrpcWorkerMonitorEnable() {
-        return grpcWorkerMonitorEnable;
-    }
-
-    public ServerOption getGrpcServerOption() {
-        return grpcServerOption;
-    }
 
     @Override
     public String toString() {
@@ -290,13 +160,6 @@ public final class SpanReceiverConfiguration implements DataReceiverGroupConfigu
         sb.append(", workerThreadSize=").append(workerThreadSize);
         sb.append(", workerQueueSize=").append(workerQueueSize);
         sb.append(", workerMonitorEnable=").append(workerMonitorEnable);
-        sb.append(", isGrpcEnable=").append(isGrpcEnable);
-        sb.append(", grpcBindIp='").append(grpcBindIp).append('\'');
-        sb.append(", grpcBindPort=").append(grpcBindPort);
-        sb.append(", grpcWorkerThreadSize=").append(grpcWorkerThreadSize);
-        sb.append(", grpcWorkerQueueSize=").append(grpcWorkerQueueSize);
-        sb.append(", grpcWorkerMonitorEnable=").append(grpcWorkerMonitorEnable);
-        sb.append(", grpcServerOption=").append(grpcServerOption);
         sb.append('}');
         return sb.toString();
     }

@@ -42,8 +42,8 @@ public class MockPluginContextLoadResult implements PluginContextLoadResult {
     private PluginsSetupResult lazy;
 
     public MockPluginContextLoadResult(ProfilerPluginContextLoader profilerPluginContextLoader, ClassLoader pluginClassLoader) {
-        this.profilerPluginContextLoader = Assert.requireNonNull(profilerPluginContextLoader, "profilerPluginConfigurer must not be null");
-        this.pluginClassLoader = Assert.requireNonNull(pluginClassLoader, "pluginClassLoader must not be null");
+        this.profilerPluginContextLoader = Assert.requireNonNull(profilerPluginContextLoader, "profilerPluginConfigurer");
+        this.pluginClassLoader = Assert.requireNonNull(pluginClassLoader, "pluginClassLoader");
     }
 
     private PluginsSetupResult getPluginsSetupResult() {

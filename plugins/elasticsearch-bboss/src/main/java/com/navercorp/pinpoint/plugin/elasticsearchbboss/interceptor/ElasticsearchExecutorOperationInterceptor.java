@@ -19,6 +19,7 @@ import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.plugin.elasticsearchbboss.ClusterVersionAccessor;
 import com.navercorp.pinpoint.plugin.elasticsearchbboss.ElasticsearchConstants;
 import com.navercorp.pinpoint.plugin.elasticsearchbboss.ElasticsearchPluginConfig;
@@ -34,7 +35,7 @@ public class ElasticsearchExecutorOperationInterceptor extends SpanEventSimpleAr
     private boolean recordDsl = false;
     private boolean recordResponseHandler = false;
     private boolean recordESVersion = false;
-    private Method getClusterVersionInfo;
+    private volatile Method getClusterVersionInfo;
     private int maxDslSize;
 
     public ElasticsearchExecutorOperationInterceptor(TraceContext context, MethodDescriptor descriptor) {
@@ -42,23 +43,25 @@ public class ElasticsearchExecutorOperationInterceptor extends SpanEventSimpleAr
         final ElasticsearchPluginConfig elasticsearchPluginConfig = new ElasticsearchPluginConfig(context.getProfilerConfig());
         recordResult = elasticsearchPluginConfig.isRecordResult();
         recordArgs = elasticsearchPluginConfig.isRecordArgs();
-        recordDsl =  elasticsearchPluginConfig.isRecordDsl();
-        maxDslSize =  elasticsearchPluginConfig.getMaxDslSize();
-        recordResponseHandler =  elasticsearchPluginConfig.isRecordResponseHandler();
+        recordDsl = elasticsearchPluginConfig.isRecordDsl();
+        maxDslSize = elasticsearchPluginConfig.getMaxDslSize();
+        recordResponseHandler = elasticsearchPluginConfig.isRecordResponseHandler();
         recordESVersion = elasticsearchPluginConfig.isRecordESVersion();
 
 
     }
+
     @Override
     public void before(Object target, Object[] args) {
-        super.before(target,args);
+        super.before(target, args);
 
     }
+
     @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable){
+    public void after(Object target, Object[] args, Object result, Throwable throwable) {
 
 
-        super.after(target,args,result,throwable);
+        super.after(target, args, result, throwable);
     }
 
 
@@ -68,8 +71,8 @@ public class ElasticsearchExecutorOperationInterceptor extends SpanEventSimpleAr
         recorder.recordServiceType(ElasticsearchConstants.ELASTICSEARCH_EXECUTOR);
     }
 
-    private String getClusterVersionInfo(Object target){
-        if(target instanceof ClusterVersionAccessor) {
+    private String getClusterVersionInfo(Object target) {
+        if (target instanceof ClusterVersionAccessor) {
             ClusterVersionAccessor clusterVersionAccessor = (ClusterVersionAccessor) target;
             if (clusterVersionAccessor._$PINPOINT$_getClusterVersion() != null) {
                 return clusterVersionAccessor._$PINPOINT$_getClusterVersion();
@@ -93,8 +96,7 @@ public class ElasticsearchExecutorOperationInterceptor extends SpanEventSimpleAr
                 }
                 return clusterVersionAccessor._$PINPOINT$_getClusterVersion();
             }
-        }
-        else{
+        } else {
             if (getClusterVersionInfo == null) {
                 synchronized (target.getClass()) {
                     if (getClusterVersionInfo == null) {
@@ -106,7 +108,7 @@ public class ElasticsearchExecutorOperationInterceptor extends SpanEventSimpleAr
                     }
                 }
             }
-            if(getClusterVersionInfo != null){
+            if (getClusterVersionInfo != null) {
                 try {
                     String version = (String) getClusterVersionInfo.invoke(target);
                     if (version == null) {
@@ -118,107 +120,102 @@ public class ElasticsearchExecutorOperationInterceptor extends SpanEventSimpleAr
                 } catch (Exception e) {
                     return "UNKNOWN_VERSION";
                 }
-            }
-            else{
+            } else {
                 return "UNKNOWN_VERSION";
             }
         }
     }
-    private String getEndPoint(Object[] args){
-        String url = (String)args[0];
+
+    private String getEndPoint(Object[] args) {
+        String url = (String) args[0];
         //http://xxx:9200/
         int idx = url.indexOf("://");
         String endPoint = null;
-        if(idx > 0){
-            int sub = url.indexOf('/',idx + 3);
-            if(sub > 0 ){
-                endPoint = url.substring(idx + 3,sub);
-            }
-            else
-            {
+        if (idx > 0) {
+            int sub = url.indexOf('/', idx + 3);
+            if (sub > 0) {
+                endPoint = url.substring(idx + 3, sub);
+            } else {
                 endPoint = url.substring(idx + 3);
             }
-        }
-        else{
+        } else {
             endPoint = "Unknown";
         }
         return endPoint;
 
     }
+
     @Override
     protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result,
-            Throwable throwable) {
+                                  Throwable throwable) {
 
-		recorder.recordApi(getMethodDescriptor());
+        recorder.recordApi(getMethodDescriptor());
         recorder.recordDestinationId("ElasticsearchBBoss");
-        recorder.recordEndPoint(getEndPoint( args));
-        if(recordESVersion) {
+        if (ArrayUtils.hasLength(args)) {
+            recorder.recordEndPoint(getEndPoint(args));
+        }
+        if (recordESVersion) {
             // Each target(ClientInstance) has a specific version of Elasticsearch Datasource in one application,
             // and each Elasticsearch Datasource retains its corresponding Elasticsearch cluster version information
             // such as Elasticsearch 1.x or 2.x or 5.x or 6.x or 7.x or 8.x and so on.
             // so we should get elasticsearchClusterVersionInfo in target everytime.
-            String elasticsearchClusterVersionInfo = getClusterVersionInfo( target);
+            String elasticsearchClusterVersionInfo = getClusterVersionInfo(target);
             recorder.recordAttribute(ElasticsearchConstants.ARGS_VERSION_ANNOTATION_KEY, elasticsearchClusterVersionInfo);//record elasticsearch version and cluster name.
         }
         recorder.recordException(throwable);
-        if (recordArgs && args != null && args.length > 0) {
-            recordAttributes(  recorder,   methodDescriptor,  args);
+        if (recordArgs && ArrayUtils.hasLength(args)) {
+            recordAttributes(recorder, methodDescriptor, args);
         }
 
-        if(recordResult){
-        	recorder.recordAttribute(AnnotationKey.RETURN_DATA,result);
-		}
+        if (recordResult) {
+            recorder.recordAttribute(AnnotationKey.RETURN_DATA, result);
+        }
     }
 
 
-
-
-    private void recordAttributes(SpanEventRecorder recorder, MethodDescriptor methodDescriptor,Object[] args){
-        if(methodDescriptor.getMethodName().equals("execute")) {
+    private void recordAttributes(SpanEventRecorder recorder, MethodDescriptor methodDescriptor, Object[] args) {
+        if (methodDescriptor.getMethodName().equals("execute")) {
 
             recorder.recordAttribute(ElasticsearchConstants.ARGS_URL_ANNOTATION_KEY, args[0]);
-            if(recordDsl)
-                recorder.recordAttribute(ElasticsearchConstants.ARGS_DSL_ANNOTATION_KEY, chunkDsl((String)args[1]));
+            if (recordDsl)
+                recorder.recordAttribute(ElasticsearchConstants.ARGS_DSL_ANNOTATION_KEY, chunkDsl((String) args[1]));
             recorder.recordAttribute(ElasticsearchConstants.ARGS_ACTION_ANNOTATION_KEY, "POST");
-            if(recordResponseHandler)
+            if (recordResponseHandler)
                 recorder.recordAttribute(ElasticsearchConstants.ARGS_RESPONSEHANDLE_ANNOTATION_KEY, args[2]);
-        }
-        else if(methodDescriptor.getMethodName().equals("executeHttp")) {
+        } else if (methodDescriptor.getMethodName().equals("executeHttp")) {
             recorder.recordAttribute(ElasticsearchConstants.ARGS_URL_ANNOTATION_KEY, args[0]);
-            if(recordDsl)
-                recorder.recordAttribute(ElasticsearchConstants.ARGS_DSL_ANNOTATION_KEY, chunkDsl((String)args[1]));
+            if (recordDsl)
+                recorder.recordAttribute(ElasticsearchConstants.ARGS_DSL_ANNOTATION_KEY, chunkDsl((String) args[1]));
             recorder.recordAttribute(ElasticsearchConstants.ARGS_ACTION_ANNOTATION_KEY, args[2]);
-            if(recordResponseHandler)
+            if (recordResponseHandler)
                 recorder.recordAttribute(ElasticsearchConstants.ARGS_RESPONSEHANDLE_ANNOTATION_KEY, args[3]);
-        }
-        else if(methodDescriptor.getMethodName().equals("executeSimpleRequest")) {
+        } else if (methodDescriptor.getMethodName().equals("executeSimpleRequest")) {
             recorder.recordAttribute(ElasticsearchConstants.ARGS_URL_ANNOTATION_KEY, args[0]);
-            if(recordDsl)
-                recorder.recordAttribute(ElasticsearchConstants.ARGS_DSL_ANNOTATION_KEY, chunkDsl((String)args[1]));
+            if (recordDsl)
+                recorder.recordAttribute(ElasticsearchConstants.ARGS_DSL_ANNOTATION_KEY, chunkDsl((String) args[1]));
             recorder.recordAttribute(ElasticsearchConstants.ARGS_ACTION_ANNOTATION_KEY, "POST");
-            if(recordResponseHandler)
+            if (recordResponseHandler)
                 recorder.recordAttribute(ElasticsearchConstants.ARGS_RESPONSEHANDLE_ANNOTATION_KEY, args[2]);
 
-        }
-        else if(methodDescriptor.getMethodName().equals("executeRequest")) {
+        } else if (methodDescriptor.getMethodName().equals("executeRequest")) {
             recorder.recordAttribute(ElasticsearchConstants.ARGS_URL_ANNOTATION_KEY, args[0]);
-            if(recordDsl)
-                recorder.recordAttribute(ElasticsearchConstants.ARGS_DSL_ANNOTATION_KEY, chunkDsl((String)args[1]));
-            recorder.recordAttribute(ElasticsearchConstants.ARGS_ACTION_ANNOTATION_KEY, args[2] );
-            if(recordResponseHandler)
+            if (recordDsl)
+                recorder.recordAttribute(ElasticsearchConstants.ARGS_DSL_ANNOTATION_KEY, chunkDsl((String) args[1]));
+            recorder.recordAttribute(ElasticsearchConstants.ARGS_ACTION_ANNOTATION_KEY, args[2]);
+            if (recordResponseHandler)
                 recorder.recordAttribute(ElasticsearchConstants.ARGS_RESPONSEHANDLE_ANNOTATION_KEY, args[3]);
 
         }
     }
-    private String chunkDsl(String dsl){
-        if(dsl == null){
+
+    private String chunkDsl(String dsl) {
+        if (dsl == null) {
             return null;
         }
-        if(dsl.length() <= maxDslSize || maxDslSize <= 0){
+        if (dsl.length() <= maxDslSize || maxDslSize <= 0) {
             return dsl;
-        }
-        else{
-            return dsl.substring(0,maxDslSize);
+        } else {
+            return dsl.substring(0, maxDslSize);
         }
     }
 

@@ -83,7 +83,7 @@ public class DefaultRouteHandler extends AbstractRouteHandler<RequestEvent> {
             return createResponse(TRouteResult.NOT_SUPPORTED_REQUEST);
         }
 
-        Future<ResponseMessage> future = null;
+        Future<ResponseMessage> future;
         if (clusterPoint instanceof ThriftAgentConnection) {
             ThriftAgentConnection thriftAgentConnection = (ThriftAgentConnection) clusterPoint;
             future = thriftAgentConnection.request(event.getDeliveryCommand().getPayload());

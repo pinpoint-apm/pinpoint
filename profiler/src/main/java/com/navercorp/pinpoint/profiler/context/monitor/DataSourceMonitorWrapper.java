@@ -33,7 +33,7 @@ public class DataSourceMonitorWrapper implements PluginMonitorWrapper, DataSourc
 
     public DataSourceMonitorWrapper(int id, DataSourceMonitor dataSourceMonitor) {
         if (dataSourceMonitor == null) {
-            throw new NullPointerException("dataSourceMonitor must not be null");
+            throw new NullPointerException("dataSourceMonitor");
         }
 
         this.id = id;

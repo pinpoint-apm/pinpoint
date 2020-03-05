@@ -42,7 +42,7 @@ public class ASMBytecodeDumpService implements BytecodeDumpService {
 
     public ASMBytecodeDumpService(ProfilerConfig profilerConfig) {
         if (profilerConfig == null) {
-            throw new NullPointerException("profilerConfig must not be null");
+            throw new NullPointerException("profilerConfig");
         }
 
         this.dumpBytecode = profilerConfig.readBoolean(BYTECODE_DUMP_BYTECODE, BYTECODE_DUMP_BYTECODE_DEFAULT_VALUE);
@@ -65,7 +65,7 @@ public class ASMBytecodeDumpService implements BytecodeDumpService {
 
     public ASMBytecodeDumpService(boolean dumpBytecode, boolean dumpVerify, boolean dumpASM, List<String> classNameList) {
         if (classNameList == null) {
-            throw new NullPointerException("classNameList must not be null");
+            throw new NullPointerException("classNameList");
         }
 
         this.dumpBytecode = dumpBytecode;
@@ -88,7 +88,7 @@ public class ASMBytecodeDumpService implements BytecodeDumpService {
     @Override
     public void dumpBytecode(String dumpMessage, final String classInternalName, final byte[] bytes, ClassLoader classLoader) {
         if (classInternalName == null) {
-            throw new NullPointerException("classInternalName must not be null");
+            throw new NullPointerException("classInternalName");
         }
 
         if (!filterClassName(classInternalName)) {

@@ -35,7 +35,7 @@ public class LoadFactor {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public static final Integer SLOT_VERY_SLOW = Integer.MAX_VALUE - 1;
-    public static final Integer SLOT_ERROR = (int)Integer.MAX_VALUE;
+    public static final Integer SLOT_ERROR = Integer.MAX_VALUE;
 
 //    /**
 //     * <pre>
@@ -62,10 +62,7 @@ public class LoadFactor {
     private final TimeWindow timeWindow;
 
     public LoadFactor(Range range) {
-        if (range == null) {
-            throw new NullPointerException("range must not be null");
-        }
-        this.range = range;
+        this.range = Objects.requireNonNull(range, "range");
         this.timeWindow = new TimeWindow(range);
     }
 
@@ -139,7 +136,7 @@ public class LoadFactor {
 //        long value = histogramSummary.containsKey(responseTimeslot) ? histogramSummary.get(responseTimeslot) + callCount : callCount;
 //        histogramSummary.put(responseTimeslot, value);
 
-        /**
+        /*
          * <pre>
          * timeseriesValueList :
          * list[response_slot_no + 0] = value<timestamp, call count>

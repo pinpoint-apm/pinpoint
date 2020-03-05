@@ -116,13 +116,13 @@ The class that sends emails is already registered as Spring bean in [application
     </bean>
 
     <bean id="javaMailSenderImpl" class="org.springframework.mail.javamail.JavaMailSenderImpl">
-        <property name="host" value="#{batchProps['alarm.mail.server.url'] ?: ''}" />
-        <property name="port" value="#{batchProps['alarm.mail.server.port'] ?: 583}" />
-        <property name="username" value="#{batchProps['alarm.mail.server.username'] ?: ''}" />
-        <property name="password" value="#{batchProps['alarm.mail.server.password'] ?: ''}" />
+        <property name="host" value="${alarm.mail.server.url:}" />
+        <property name="port" value="${alarm.mail.server.port:587}" />
+        <property name="username" value="${alarm.mail.server.username:}" />
+        <property name="password" value="${alarm.mail.server.password:}" />
         <property name="javaMailProperties">
             <props>
-                 <prop key="mail.smtp.from">#{batchProps['alarm.mail.sender.address'] ?: ''}</prop>
+                 <prop key="mail.smtp.from">${alarm.mail.sender.address:}</prop>
             </props>
         </property>
     </bean>
@@ -141,7 +141,7 @@ alarm.mail.sender.address= #sender's email address
 ex)
 pinpoint.url=http://pinpoint.com
 alarm.mail.server.url=stmp.server.com
-alarm.mail.server.port=583
+alarm.mail.server.port=587
 alarm.mail.server.username=pinpoint
 alarm.mail.server.password=pinpoint
 alarm.mail.sender.address=pinpoint_operator@pinpoint.com
@@ -186,6 +186,14 @@ jdbc.username=admin
 jdbc.password=admin
 ```
 Create tables by running *[CreateTableStatement-mysql.sql](https://github.com/naver/pinpoint/blob/master/web/src/main/resources/sql/CreateTableStatement-mysql.sql)*, and *[SpringBatchJobRepositorySchema-mysql.sql](https://github.com/naver/pinpoint/blob/master/web/src/main/resources/sql/SpringBatchJobRepositorySchema-mysql.sql)*.
+
+### 4) Add batch to spring profile option
+Add batch to the spring profile option when running pinpoint-web.
+```
+-Dspring.profiles.active=local,batch
+ OR
+-Dspring.profiles.active=release,batch
+```
 
 ## 4. Others
 **1) You may start the alarm batch in a separate process** - Simply start the spring batch job using the *[applicationContext-alarmJob.xml](https://github.com/naver/pinpoint/blob/master/web/src/main/resources/batch/applicationContext-alarmJob.xml)* file inside the Pinpoint-web module.
@@ -323,13 +331,13 @@ email로 알람을 설정만 추가해면 기능을 사용할수 있고, sms 전
     </bean>
 
     <bean id="javaMailSenderImpl" class="org.springframework.mail.javamail.JavaMailSenderImpl">
-        <property name="host" value="#{batchProps['alarm.mail.server.url'] ?: ''}" />
-        <property name="port" value="#{batchProps['alarm.mail.server.port'] ?: 583}" />
-        <property name="username" value="#{batchProps['alarm.mail.server.username'] ?: ''}" />
-        <property name="password" value="#{batchProps['alarm.mail.server.password'] ?: ''}" />
+        <property name="host" value="${alarm.mail.server.url:}" />
+        <property name="port" value="${alarm.mail.server.port:587}" />
+        <property name="username" value="${alarm.mail.server.username:}" />
+        <property name="password" value="${alarm.mail.server.password:}" />
         <property name="javaMailProperties">
             <props>
-                 <prop key="mail.smtp.from">#{batchProps['alarm.mail.sender.address'] ?: ''}</prop>
+                 <prop key="mail.smtp.from">${alarm.mail.sender.address:}</prop>
             </props>
         </property>
     </bean>
@@ -348,7 +356,7 @@ alarm.mail.sender.address= # 송신자 email
 ex)
 pinpoint.url=http://pinpoint.com
 alarm.mail.server.url=stmp.server.com
-alarm.mail.server.port=583
+alarm.mail.server.port=587
 alarm.mail.server.username=pinpoint
 alarm.mail.server.password=pinpoint
 alarm.mail.sender.address=pinpoint_operator@pinpoint.com
@@ -398,6 +406,14 @@ jdbc.username=admin
 jdbc.password=admin
 ```
 필요한 table 생성 - *[CreateTableStatement-mysql.sql](https://github.com/naver/pinpoint/blob/master/web/src/main/resources/sql/CreateTableStatement-mysql.sql)*, *[SpringBatchJobReositorySchema-mysql.sql](https://github.com/naver/pinpoint/blob/master/web/src/main/resources/sql/SpringBatchJobRepositorySchema-mysql.sql)*
+
+### 4) spring profile 옵션에 batch 추가
+pinpoint-web 실행시 spring profile 옵션에 batch를 추가한다. 
+```
+-Dspring.profiles.active=local,batch
+ OR
+-Dspring.profiles.active=release,batch
+```
 
 ## 3. 기타
 **1) alarm batch를 별도 프로세스로 실행하는 것도 가능하다.**

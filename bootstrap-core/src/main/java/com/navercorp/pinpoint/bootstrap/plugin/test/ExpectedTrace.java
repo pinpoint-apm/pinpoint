@@ -120,10 +120,10 @@ public class ExpectedTrace {
 
         public Builder(TraceType type, String serviceType) {
             if (type == null) {
-                throw new NullPointerException("type must not be null");
+                throw new NullPointerException("type");
             }
             if (serviceType == null) {
-                throw new NullPointerException("serviceType must not be null");
+                throw new NullPointerException("serviceType");
             }
             this.type = type;
             this.serviceType = serviceType;
@@ -147,7 +147,7 @@ public class ExpectedTrace {
 
         public void setRpc(ExpectedTraceField rpc) {
             if (rpc == null) {
-                throw new NullPointerException("rpc must not be null");
+                throw new NullPointerException("rpc");
             }
             this.rpc = rpc;
         }
@@ -158,7 +158,7 @@ public class ExpectedTrace {
 
         public void setEndPoint(ExpectedTraceField endPoint) {
             if (endPoint == null) {
-                throw new NullPointerException("endPoint must not be null");
+                throw new NullPointerException("endPoint");
             }
             this.endPoint = endPoint;
         }
@@ -169,7 +169,7 @@ public class ExpectedTrace {
 
         public void setRemoteAddr(ExpectedTraceField remoteAddr) {
             if (remoteAddr == null) {
-                throw new NullPointerException("remoteAddr must not be null");
+                throw new NullPointerException("remoteAddr");
             }
             this.remoteAddr = remoteAddr;
         }
@@ -180,7 +180,7 @@ public class ExpectedTrace {
 
         public void setDestinationId(ExpectedTraceField destinationId) {
             if (destinationId == null) {
-                throw new NullPointerException("destinationId must not be null");
+                throw new NullPointerException("destinationId");
             }
             this.destinationId = destinationId;
         }

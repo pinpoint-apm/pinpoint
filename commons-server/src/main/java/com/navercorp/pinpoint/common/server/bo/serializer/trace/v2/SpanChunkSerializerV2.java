@@ -23,7 +23,7 @@ public class SpanChunkSerializerV2 implements HbaseSerializer<SpanChunkBo, Put> 
     @Override
     public void serialize(SpanChunkBo spanChunkBo, Put put, SerializationContext context) {
         if (spanChunkBo == null) {
-            throw new NullPointerException("spanChunkBo must not be null");
+            throw new NullPointerException("spanChunkBo");
         }
 
         SpanEncodingContext<SpanChunkBo> encodingContext = new SpanEncodingContext<SpanChunkBo>(spanChunkBo);

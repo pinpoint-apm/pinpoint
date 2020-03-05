@@ -20,7 +20,9 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.protobuf.GeneratedMessageV3;
 
-import com.navercorp.pinpoint.grpc.client.ChannelFactoryOption;
+import com.navercorp.pinpoint.grpc.client.ChannelFactory;
+import com.navercorp.pinpoint.grpc.client.ChannelFactoryBuilder;
+import com.navercorp.pinpoint.grpc.client.DefaultChannelFactoryBuilder;
 import com.navercorp.pinpoint.grpc.client.UnaryCallDeadlineInterceptor;
 import com.navercorp.pinpoint.grpc.client.ClientOption;
 
@@ -30,8 +32,12 @@ import com.navercorp.pinpoint.grpc.client.HeaderFactory;
 import com.navercorp.pinpoint.profiler.context.module.SpanConverter;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
 import com.navercorp.pinpoint.profiler.sender.DataSender;
+import com.navercorp.pinpoint.profiler.sender.grpc.DiscardClientInterceptor;
+import com.navercorp.pinpoint.profiler.sender.grpc.DiscardEventListener;
+import com.navercorp.pinpoint.profiler.sender.grpc.LoggingDiscardEventListener;
 import com.navercorp.pinpoint.profiler.sender.grpc.ReconnectExecutor;
 import com.navercorp.pinpoint.profiler.sender.grpc.SpanGrpcDataSender;
+import io.grpc.ClientInterceptor;
 import io.grpc.NameResolverProvider;
 
 /**
@@ -50,13 +56,13 @@ public class SpanGrpcDataSenderProvider implements Provider<DataSender<Object>> 
                                       HeaderFactory headerFactory,
                                       Provider<ReconnectExecutor> reconnectExecutor,
                                       NameResolverProvider nameResolverProvider) {
-        this.grpcTransportConfig = Assert.requireNonNull(grpcTransportConfig, "grpcTransportConfig must not be null");
-        this.messageConverter = Assert.requireNonNull(messageConverter, "messageConverter must not be null");
-        this.headerFactory = Assert.requireNonNull(headerFactory, "headerFactory must not be null");
+        this.grpcTransportConfig = Assert.requireNonNull(grpcTransportConfig, "grpcTransportConfig");
+        this.messageConverter = Assert.requireNonNull(messageConverter, "messageConverter");
+        this.headerFactory = Assert.requireNonNull(headerFactory, "headerFactory");
 
-        this.reconnectExecutor = Assert.requireNonNull(reconnectExecutor, "reconnectExecutor must not be null");
+        this.reconnectExecutor = Assert.requireNonNull(reconnectExecutor, "reconnectExecutor");
 
-        this.nameResolverProvider = Assert.requireNonNull(nameResolverProvider, "nameResolverProvider must not be null");
+        this.nameResolverProvider = Assert.requireNonNull(nameResolverProvider, "nameResolverProvider");
     }
 
     @Override
@@ -64,21 +70,36 @@ public class SpanGrpcDataSenderProvider implements Provider<DataSender<Object>> 
         final String collectorIp = grpcTransportConfig.getSpanCollectorIp();
         final int collectorPort = grpcTransportConfig.getSpanCollectorPort();
         final int senderExecutorQueueSize = grpcTransportConfig.getSpanSenderExecutorQueueSize();
-        final int channelExecutorQueueSize = grpcTransportConfig.getSpanChannelExecutorQueueSize();
-        final UnaryCallDeadlineInterceptor unaryCallDeadlineInterceptor = new UnaryCallDeadlineInterceptor(grpcTransportConfig.getSpanRequestTimeout());
-        final ClientOption clientOption = grpcTransportConfig.getSpanClientOption();
-
-        ChannelFactoryOption.Builder channelFactoryOptionBuilder = ChannelFactoryOption.newBuilder();
-        channelFactoryOptionBuilder.setName("SpanGrpcDataSender");
-        channelFactoryOptionBuilder.setHeaderFactory(headerFactory);
-        channelFactoryOptionBuilder.setNameResolverProvider(nameResolverProvider);
-        channelFactoryOptionBuilder.addClientInterceptor(unaryCallDeadlineInterceptor);
-        channelFactoryOptionBuilder.setExecutorQueueSize(channelExecutorQueueSize);
-        channelFactoryOptionBuilder.setClientOption(clientOption);
-        ChannelFactoryOption channelFactoryOption = channelFactoryOptionBuilder.build();
+        final ChannelFactoryBuilder channelFactoryBuilder = newChannelFactoryBuilder();
+        final ChannelFactory channelFactory = channelFactoryBuilder.build();
 
         final ReconnectExecutor reconnectExecutor = this.reconnectExecutor.get();
-        return new SpanGrpcDataSender(collectorIp, collectorPort, senderExecutorQueueSize, messageConverter, reconnectExecutor, channelFactoryOption);
+        return new SpanGrpcDataSender(collectorIp, collectorPort, senderExecutorQueueSize, messageConverter, reconnectExecutor, channelFactory);
+    }
+
+    protected ChannelFactoryBuilder newChannelFactoryBuilder() {
+        final int channelExecutorQueueSize = grpcTransportConfig.getSpanChannelExecutorQueueSize();
+        final ClientOption clientOption = grpcTransportConfig.getSpanClientOption();
+
+        ChannelFactoryBuilder channelFactoryBuilder = new DefaultChannelFactoryBuilder("SpanGrpcDataSender");
+        channelFactoryBuilder.setHeaderFactory(headerFactory);
+        channelFactoryBuilder.setNameResolverProvider(nameResolverProvider);
+
+        final ClientInterceptor unaryCallDeadlineInterceptor = new UnaryCallDeadlineInterceptor(grpcTransportConfig.getSpanRequestTimeout());
+        channelFactoryBuilder.addClientInterceptor(unaryCallDeadlineInterceptor);
+        final ClientInterceptor discardClientInterceptor = newDiscardClientInterceptor();
+        channelFactoryBuilder.addClientInterceptor(discardClientInterceptor);
+
+        channelFactoryBuilder.setExecutorQueueSize(channelExecutorQueueSize);
+        channelFactoryBuilder.setClientOption(clientOption);
+        return channelFactoryBuilder;
+    }
+
+    private ClientInterceptor newDiscardClientInterceptor() {
+        final int spanDiscardLogRateLimit = grpcTransportConfig.getSpanDiscardLogRateLimit();
+        final long spanDiscardMaxPendingThreshold = grpcTransportConfig.getSpanDiscardMaxPendingThreshold();
+        final DiscardEventListener<?> discardEventListener = new LoggingDiscardEventListener(SpanGrpcDataSender.class.getName(), spanDiscardLogRateLimit);
+        return new DiscardClientInterceptor(discardEventListener, spanDiscardMaxPendingThreshold);
     }
 
 }

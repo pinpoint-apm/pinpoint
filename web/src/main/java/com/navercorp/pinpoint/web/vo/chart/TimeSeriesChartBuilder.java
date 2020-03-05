@@ -38,11 +38,8 @@ public class TimeSeriesChartBuilder<P extends Point> {
         if (timeWindow.getWindowRangeCount() > Integer.MAX_VALUE) {
             throw new IllegalArgumentException("range yields too many timeslots");
         }
-        if (uncollectedPointCreator == null) {
-            throw new NullPointerException("uncollectedPointCreator must not be null");
-        }
         this.timeWindow = timeWindow;
-        this.uncollectedPointCreator = uncollectedPointCreator;
+        this.uncollectedPointCreator = Objects.requireNonNull(uncollectedPointCreator, "uncollectedPointCreator");
     }
 
     public Chart<P> build(List<P> sampledPoints) {
@@ -61,7 +58,7 @@ public class TimeSeriesChartBuilder<P extends Point> {
     }
 
     public <S> Chart<P> build(List<S> sourceList, Function<S, P> function) {
-        Objects.requireNonNull(function, "function must not be null");
+        Objects.requireNonNull(function, "function");
 
         List<P> filter = applyFilter(sourceList, function);
         return build(filter);

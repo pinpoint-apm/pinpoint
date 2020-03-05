@@ -18,8 +18,6 @@ package com.navercorp.pinpoint.web.filter;
 
 import java.util.List;
 
-import com.navercorp.pinpoint.common.server.bo.SpanBo;
-
 /**
  *
  * @author netspider
@@ -35,6 +33,12 @@ public interface Filter<T> {
             return ACCEPT;
         }
     };
+
+    static <T> Filter<T> acceptAllFilter() {
+        @SuppressWarnings("unchecked")
+        final Filter<T> none = NONE;
+        return none;
+    }
 
     boolean include(List<T> transaction);
 }

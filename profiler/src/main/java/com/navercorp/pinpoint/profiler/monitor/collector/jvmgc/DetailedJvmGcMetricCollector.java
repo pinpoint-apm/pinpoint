@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.monitor.collector.jvmgc;
 
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.monitor.collector.AgentStatMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.metric.JvmGcDetailedMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.JvmGcMetricSnapshot;
@@ -23,8 +24,6 @@ import com.navercorp.pinpoint.profiler.monitor.metric.gc.DetailedGarbageCollecto
 import com.navercorp.pinpoint.profiler.monitor.metric.gc.DetailedGarbageCollectorMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.memory.DetailedMemoryMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.memory.DetailedMemoryMetricSnapshot;
-import com.navercorp.pinpoint.thrift.dto.TJvmGc;
-import com.navercorp.pinpoint.thrift.dto.TJvmGcDetailed;
 
 /**
  * @author dawidmalina
@@ -40,19 +39,11 @@ public class DetailedJvmGcMetricCollector implements AgentStatMetricCollector<Jv
             BasicJvmGcMetricCollector jvmGcMetricCollector,
             DetailedMemoryMetric detailedMemoryMetric,
             DetailedGarbageCollectorMetric detailedGarbageCollectorMetric) {
-        if (jvmGcMetricCollector == null) {
-            throw new NullPointerException("jvmGcMetricCollector must not be null");
-        }
-        if (detailedMemoryMetric == null) {
-            throw new NullPointerException("detailedMemoryMetric must not be null");
-        }
-        if (detailedGarbageCollectorMetric == null) {
-            throw new NullPointerException("detailedGarbageCollectorMetric must not be null");
-        }
-        this.jvmGcMetricCollector = jvmGcMetricCollector;
-        this.detailedMemoryMetric = detailedMemoryMetric;
-        this.detailedGarbageCollectorMetric = detailedGarbageCollectorMetric;
+        this.jvmGcMetricCollector = Assert.requireNonNull(jvmGcMetricCollector, "jvmGcMetricCollector");
+        this.detailedMemoryMetric = Assert.requireNonNull(detailedMemoryMetric, "detailedMemoryMetric");
+        this.detailedGarbageCollectorMetric = Assert.requireNonNull(detailedGarbageCollectorMetric, "detailedGarbageCollectorMetric");
     }
+
 
     @Override
     public JvmGcMetricSnapshot collect() {

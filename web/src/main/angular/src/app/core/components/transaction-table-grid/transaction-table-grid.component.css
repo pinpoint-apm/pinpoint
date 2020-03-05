@@ -1,0 +1,82 @@
+:host {
+    width: 100%;
+    height: 100%;
+}
+#transaction-table .ag-root {
+    border: none;
+    font-size: 12px;    
+    font-family: 'Open Sans', sans-serif;
+}
+#transaction-table .ag-cell {
+    padding: 4px;
+    /* border-right: 1px solid #e6e8ec; */
+    font-family: 'Open Sans', sans-serif;
+}
+#transaction-table .ag-column-moving .ag-cell {
+    transition: left 0.2s;
+}
+#transaction-table .ag-header-cell-moving .ag-header-cell-label {
+    opacity: 0;
+    filter: alpha(opacity=0);
+}
+#transaction-table .ag-header-cell-moving {
+    background-color: #bebebe;
+}
+#transaction-table .ag-header-cell-moving-clone {
+    border-right: 1px solid #808080;
+    border-left: 1px solid #808080;
+    background-color: rgba(220,220,220,0.8);
+}
+#transaction-table .ag-header {
+    background: #f6f8fb;
+    border-bottom: 1px solid #e6e8ec;
+    line-height: 2;
+}
+#transaction-table .ag-header-cell {
+    font-size: 12px;
+    font-weight: 600;
+    font-family: 'Open Sans', sans-serif;
+    /* border-right: 1px solid #e6e8ec; */
+    padding-left: 2px;
+    padding-right: 2px;
+}
+#transaction-table .ag-header-cell-resize:after {
+    border-right: none;
+}
+#transaction-table .ag-header-cell-label {
+    padding: 4px;
+}
+#transaction-table .ag-group-expanded span {
+    margin-right: 4px;
+}
+#transaction-table .ag-row:hover {
+    background-color: #F5F5F5;
+}
+#transaction-table .ag-row {
+    cursor: pointer;
+    line-height: 2;
+    /* border-bottom: 1px solid #e6e8ec; */
+}
+#transaction-table .ag-body {
+    background-color: #ffffff;
+}
+#transaction-table .ag-body-viewport {
+    background-color: #ffffff;
+}
+#transaction-table .ag-menu {
+    background-color: #ffffff;
+    border: 1px solid grey;
+}
+#transaction-table .fa {
+    font-size: 14px;
+}
+#transaction-table .ag-row-exception {
+    background-color: #fff1f1;
+}
+#transaction-table .ag-row-selected {
+    background-color: #e4f5e3;
+}
+
+#transaction-table .id-header .ag-header-cell-label {
+    justify-content: center !important;
+}

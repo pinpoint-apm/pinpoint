@@ -55,7 +55,7 @@ public class TraceMetadataProviderLoader implements PinpointPluginLoader<TraceMe
 
     public TraceMetadataProviderLoader(Collection<URL> customTypeProviderUrls) {
         this.typeProviderDefEntry = TYPE_PROVIDER_DEF_ENTRY;
-        this.customTypeProviderUrls = Assert.requireNonNull(customTypeProviderUrls, "customTypeProviderUrls must not be null");
+        this.customTypeProviderUrls = Assert.requireNonNull(customTypeProviderUrls, "customTypeProviderUrls");
     }
 
     @Override

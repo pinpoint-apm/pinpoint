@@ -44,9 +44,9 @@ public class DefaultRequestTraceWriter<T> implements RequestTraceWriter<T> {
     }
 
     public DefaultRequestTraceWriter(ClientHeaderAdaptor<T> clientHeaderAdaptor, String applicationName, short serverTypeCode, String applicationNamespace) {
-        this.clientHeaderAdaptor = Assert.requireNonNull(clientHeaderAdaptor, "clientHeaderAdaptor must not be null");
+        this.clientHeaderAdaptor = Assert.requireNonNull(clientHeaderAdaptor, "clientHeaderAdaptor");
 
-        this.applicationName = Assert.requireNonNull(applicationName, "applicationName must not be null");
+        this.applicationName = Assert.requireNonNull(applicationName, "applicationName");
         this.serverTypeCode = serverTypeCode;
         if (StringUtils.isEmpty(applicationNamespace)) {
             this.applicationNamespace = NOT_SET;
@@ -66,7 +66,7 @@ public class DefaultRequestTraceWriter<T> implements RequestTraceWriter<T> {
     // Set transaction information in the request.
     @Override
     public void write(T header, final TraceId traceId, final String host) {
-        Assert.requireNonNull(traceId, "traceId must not be null");
+        Assert.requireNonNull(traceId, "traceId");
 
         if (isDebug) {
             logger.debug("Set request header. traceId={}, applicationName={}, serverTypeCode={}, applicationNamespace={}", traceId, applicationName, serverTypeCode, applicationNamespace);

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+
+    <beans profile="local">
+        <bean class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer">
+            <property name="locations">
+                <list>
+                    <value>classpath:profiles/local/hbase.properties</value>
+                    <value>classpath:profiles/local/pinpoint-flink.properties</value>
+                </list>
+            </property>
+        </bean>
+    </beans>
+
+    <beans profile="release">
+        <bean class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer">
+            <property name="locations">
+                <list>
+                    <value>classpath:profiles/release/hbase.properties</value>
+                    <value>classpath:profiles/release/pinpoint-flink.properties</value>
+                </list>
+            </property>
+        </bean>
+    </beans>
+
+</beans>

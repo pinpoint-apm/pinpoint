@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.util.DateUtils;
 import com.navercorp.pinpoint.common.util.IntBooleanIntBooleanValue;
 import com.navercorp.pinpoint.common.util.LongIntIntByteByteStringValue;
+import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.web.calltree.span.Align;
 import com.navercorp.pinpoint.web.service.ProxyRequestTypeRegistryService;
 
@@ -89,7 +90,7 @@ public class AnnotationRecordFormatter {
             appendComma(sb);
             sb.append("busy: ").append(value.getByteValue2()).append("%");
         }
-        if (value.getStringValue() != null) {
+        if (StringUtils.hasLength(value.getStringValue())) {
             appendComma(sb);
             sb.append("app: ").append(value.getStringValue());
         }

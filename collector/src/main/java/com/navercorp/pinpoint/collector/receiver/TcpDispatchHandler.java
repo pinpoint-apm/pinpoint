@@ -30,13 +30,13 @@ import com.navercorp.pinpoint.thrift.io.DefaultTBaseLocator;
  */
 public class TcpDispatchHandler implements DispatchHandler {
 
-    private SimpleAndRequestResponseHandler agentInfoHandler;
+    private final SimpleAndRequestResponseHandler agentInfoHandler;
 
-    private RequestResponseHandler sqlMetaDataHandler;
+    private final RequestResponseHandler sqlMetaDataHandler;
 
-    private RequestResponseHandler apiMetaDataHandler;
+    private final RequestResponseHandler apiMetaDataHandler;
 
-    private RequestResponseHandler stringMetaDataHandler;
+    private final RequestResponseHandler stringMetaDataHandler;
 
     public TcpDispatchHandler(final SimpleAndRequestResponseHandler agentInfoHandler, final RequestResponseHandler sqlMetaDataHandler, final RequestResponseHandler apiMetaDataHandler, final RequestResponseHandler stringMetaDataHandler) {
         this.agentInfoHandler = agentInfoHandler;

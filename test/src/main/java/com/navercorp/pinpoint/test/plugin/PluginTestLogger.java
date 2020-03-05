@@ -53,7 +53,7 @@ public final class PluginTestLogger {
     // for test
     PluginTestLogger(String loggerName, PrintStream out, PrintStream err) {
         if (loggerName == null) {
-            throw new NullPointerException("loggerName must not be null");
+            throw new NullPointerException("loggerName");
         }
 //        this.loggerName = loggerName;
         this.messagePattern = "{0,date,yyyy-MM-dd HH:mm:ss} [{1}](" + loggerName + ") {2}{3}";

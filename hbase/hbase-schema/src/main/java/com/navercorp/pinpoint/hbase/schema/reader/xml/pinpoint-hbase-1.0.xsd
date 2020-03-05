@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xsd:schema targetNamespace="com.navercorp.pinpoint.hbase.schema.definition"
+            elementFormDefault="qualified"
+            xmlns="com.navercorp.pinpoint.hbase.schema.definition"
+            xmlns:npp="com.navercorp.pinpoint.hbase.schema.definition"
+            xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+    <!-- Types -->
+
+    <xsd:simpleType name="dataBlockEncoding">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="NONE"/>
+            <xsd:enumeration value="PREFIX"/>
+            <xsd:enumeration value="DIFF"/>
+            <xsd:enumeration value="FAST_DIFF"/>
+            <xsd:enumeration value="PREFIX_TREE"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+
+    <xsd:simpleType name="bloomFilter">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="NONE"/>
+            <xsd:enumeration value="ROW"/>
+            <xsd:enumeration value="ROWCOL"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+
+    <xsd:simpleType name="durability">
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="ASYNC_WAL"/>
+            <xsd:enumeration value="FSYNC_WAL"/>
+            <xsd:enumeration value="SKIP_WAL"/>
+            <xsd:enumeration value="SYNC_WAL"/>
+            <xsd:enumeration value="USE_DEFAULT"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+
+    <!-- Element definitions -->
+
+    <xsd:element name="hbaseSchema">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element name="include" minOccurs="0" maxOccurs="unbounded">
+                    <xsd:complexType>
+                        <xsd:attribute name="file" type="xsd:string" use="required"/>
+                    </xsd:complexType>
+                </xsd:element>
+                <xsd:element ref="changeSet" minOccurs="0" maxOccurs="unbounded"/>
+            </xsd:sequence>
+        </xsd:complexType>
+        <xsd:unique name="uniqueChangeSetId">
+            <xsd:selector xpath="npp:changeSet"/>
+            <xsd:field xpath="@id"/>
+        </xsd:unique>
+    </xsd:element>
+
+    <xsd:element name="changeSet">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element name="modifyTable" minOccurs="0" maxOccurs="unbounded">
+                    <xsd:complexType>
+                        <xsd:complexContent>
+                            <xsd:extension base="table"/>
+                        </xsd:complexContent>
+                    </xsd:complexType>
+                </xsd:element>
+                <xsd:element name="createTable" minOccurs="0" maxOccurs="unbounded">
+                    <xsd:complexType>
+                        <xsd:complexContent>
+                            <xsd:extension base="table">
+                                <xsd:sequence>
+                                    <xsd:element name="configuration" minOccurs="0">
+                                        <xsd:complexType>
+                                            <xsd:group ref="tableConfiguration"/>
+                                        </xsd:complexType>
+                                    </xsd:element>
+                                    <xsd:element name="split" minOccurs="0">
+                                        <xsd:complexType>
+                                            <xsd:group ref="splitOptions"/>
+                                        </xsd:complexType>
+                                    </xsd:element>
+                                </xsd:sequence>
+                            </xsd:extension>
+                        </xsd:complexContent>
+                    </xsd:complexType>
+                </xsd:element>
+            </xsd:sequence>
+            <xsd:attribute name="id" type="xsd:string" use="required"/>
+        </xsd:complexType>
+    </xsd:element>
+
+    <xsd:complexType name="table" abstract="true">
+        <xsd:sequence>
+            <xsd:element name="createColumnFamily" maxOccurs="unbounded">
+                <xsd:complexType>
+                    <xsd:complexContent>
+                        <xsd:extension base="columnFamily">
+                            <xsd:sequence>
+                                <xsd:element name="configuration" minOccurs="0">
+                                    <xsd:complexType>
+                                        <xsd:group ref="columnFamilyConfiguration"/>
+                                    </xsd:complexType>
+                                </xsd:element>
+                            </xsd:sequence>
+                        </xsd:extension>
+                    </xsd:complexContent>
+                </xsd:complexType>
+            </xsd:element>
+        </xsd:sequence>
+        <xsd:attribute name="name" type="xsd:string" use="required"/>
+    </xsd:complexType>
+
+    <xsd:complexType name="columnFamily" abstract="true">
+        <xsd:attribute name="name" type="xsd:string" use="required"/>
+    </xsd:complexType>
+
+    <xsd:group name="tableConfiguration">
+        <xsd:all>
+            <xsd:element name="maxFilesize" type="xsd:long" minOccurs="0"/>
+            <xsd:element name="readonly" type="xsd:boolean" minOccurs="0"/>
+            <xsd:element name="compactionEnabled" type="xsd:boolean" minOccurs="0"/>
+            <xsd:element name="memstoreFlushsize" type="xsd:long" minOccurs="0"/>
+            <xsd:element name="durability" type="durability" minOccurs="0"/>
+        </xsd:all>
+    </xsd:group>
+
+    <xsd:group name="splitOptions">
+        <xsd:choice>
+            <xsd:element name="splitKeys">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element name="splitKey" type="xsd:string" maxOccurs="unbounded"/>
+                    </xsd:sequence>
+                </xsd:complexType>
+            </xsd:element>
+            <xsd:element name="auto">
+                <xsd:complexType>
+                    <xsd:attribute name="numRegions" use="required">
+                        <xsd:simpleType>
+                            <xsd:restriction base="xsd:int">
+                                <xsd:minExclusive value="1"/>
+                            </xsd:restriction>
+                        </xsd:simpleType>
+                    </xsd:attribute>
+                </xsd:complexType>
+            </xsd:element>
+        </xsd:choice>
+    </xsd:group>
+
+    <xsd:group name="columnFamilyConfiguration">
+            <xsd:all>
+                <xsd:element name="blockCacheEnabled" type="xsd:boolean" minOccurs="0"/>
+                <xsd:element name="replicationScope" type="xsd:int" minOccurs="0"/>
+                <xsd:element name="inMemory" type="xsd:boolean" minOccurs="0"/>
+                <xsd:element name="timeToLive" type="xsd:int" minOccurs="0"/>
+                <xsd:element name="dataBlockEncoding" type="dataBlockEncoding" minOccurs="0"/>
+                <xsd:element name="blockSize" type="xsd:int" minOccurs="0"/>
+                <xsd:element name="maxVersions" type="xsd:int" minOccurs="0"/>
+                <xsd:element name="minVersions" type="xsd:int" minOccurs="0"/>
+                <xsd:element name="bloomFilter" type="bloomFilter" minOccurs="0"/>
+            </xsd:all>
+    </xsd:group>
+</xsd:schema>

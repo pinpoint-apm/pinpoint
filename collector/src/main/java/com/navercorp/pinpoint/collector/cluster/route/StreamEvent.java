@@ -16,11 +16,12 @@
 
 package com.navercorp.pinpoint.collector.cluster.route;
 
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.rpc.stream.ServerStreamChannel;
 import com.navercorp.pinpoint.thrift.dto.command.TCommandTransfer;
 
 import org.apache.thrift.TBase;
+
+import java.util.Objects;
 
 /**
  * @author koo.taejin
@@ -37,8 +38,8 @@ public class StreamEvent extends DefaultRouteEvent {
     public StreamEvent(TCommandTransfer deliveryCommand, ServerStreamChannel serverStreamChannel, TBase requestObject) {
         super(deliveryCommand, serverStreamChannel.getRemoteAddress());
 
-        this.serverStreamChannel = Assert.requireNonNull(serverStreamChannel, "serverStreamChannel must not be null");
-        this.requestObject = Assert.requireNonNull(requestObject, "requestObject must not be null");
+        this.serverStreamChannel = Objects.requireNonNull(serverStreamChannel, "serverStreamChannel");
+        this.requestObject = Objects.requireNonNull(requestObject, "requestObject");
     }
 
     public ServerStreamChannel getStreamChannel() {

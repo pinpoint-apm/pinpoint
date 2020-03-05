@@ -30,8 +30,8 @@ public class PackageInfo {
     private final List<Providers> providersList;
 
     public PackageInfo(Set<String> packageSet, List<Providers> providersList) {
-        this.packageSet = Assert.requireNonNull(packageSet, "packageSet must not be null");
-        this.providersList = Assert.requireNonNull(providersList, "providersList must not be null");
+        this.packageSet = Assert.requireNonNull(packageSet, "packageSet");
+        this.providersList = Assert.requireNonNull(providersList, "providersList");
     }
 
     public Set<String> getPackage() {

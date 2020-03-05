@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -29,8 +29,8 @@ import com.navercorp.pinpoint.common.server.bo.serializer.RowKeyDecoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanDecoder;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanDecoderV0;
 import com.navercorp.pinpoint.common.server.bo.serializer.trace.v2.SpanDecodingContext;
-import com.navercorp.pinpoint.common.util.Assert;
-import com.navercorp.pinpoint.common.util.TransactionId;
+import com.navercorp.pinpoint.common.profiler.util.TransactionId;
+import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.io.SpanVersion;
 
 import com.google.common.collect.LinkedListMultimap;
@@ -47,6 +47,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author emeroad
@@ -64,8 +65,8 @@ public class SpanMapperV2 implements RowMapper<List<SpanBo>> {
     }
 
     public SpanMapperV2(RowKeyDecoder<TransactionId> rowKeyDecoder, SpanDecoder spanDecoder) {
-        this.rowKeyDecoder = Assert.requireNonNull(rowKeyDecoder, "rowKeyDecoder must not be null");
-        this.spanDecoder = Assert.requireNonNull(spanDecoder, "spanDecoder must not be null");
+        this.rowKeyDecoder = Objects.requireNonNull(rowKeyDecoder, "rowKeyDecoder");
+        this.spanDecoder = Objects.requireNonNull(spanDecoder, "spanDecoder");
     }
 
     @Override
@@ -161,7 +162,7 @@ public class SpanMapperV2 implements RowMapper<List<SpanBo>> {
         for (SpanChunkBo spanChunkBo : spanChunkList) {
             AgentKey agentKey = newAgentKey(spanChunkBo);
             List<SpanBo> matchedSpanBoList = spanMap.get(agentKey);
-            if (matchedSpanBoList != null) {
+            if (CollectionUtils.hasLength(matchedSpanBoList)) {
                 final int spanIdCollisionSize = matchedSpanBoList.size();
                 if (spanIdCollisionSize > 1) {
                     // exceptional case dump
@@ -217,10 +218,10 @@ public class SpanMapperV2 implements RowMapper<List<SpanBo>> {
 
         public AgentKey(String applicationId, String agentId, long agentStartTime, long spanId) {
             if (applicationId == null) {
-                throw new NullPointerException("applicationId must not be null");
+                throw new NullPointerException("applicationId");
             }
             if (agentId == null) {
-                throw new NullPointerException("agentId must not be null");
+                throw new NullPointerException("agentId");
             }
             this.applicationId = applicationId;
             this.agentId = agentId;

@@ -33,8 +33,8 @@ public class HttpRequestTransformer  implements TransformCallback {
     @Override
     public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
         final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
-        target.addField(AsyncContextAccessor.class.getName());
-        target.addField(AsyncStartFlagFieldAccessor.class.getName());
+        target.addField(AsyncContextAccessor.class);
+        target.addField(AsyncStartFlagFieldAccessor.class);
 
         return target.toBytecode();
     }

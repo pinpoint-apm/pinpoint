@@ -28,7 +28,7 @@ public final class IntHashMapUtils {
 
     public static <V> IntHashMap<V> copy(Map<Integer, V> target) {
         if (target == null) {
-            throw new NullPointerException("target must not be null");
+            throw new NullPointerException("target");
         }
         final IntHashMap<V> copyMap = new IntHashMap<V>();
         for (Map.Entry<Integer, V> entry : target.entrySet()) {
@@ -39,7 +39,7 @@ public final class IntHashMapUtils {
 
     public static <V> IntHashMap<V> copyShortMap(Map<Short, V> target) {
         if (target == null) {
-            throw new NullPointerException("target must not be null");
+            throw new NullPointerException("target");
         }
         final IntHashMap<V> copyMap = new IntHashMap<V>();
         for (Map.Entry<Short, V> entry : target.entrySet()) {

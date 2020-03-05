@@ -1,0 +1,35 @@
+li {
+    color: #333;
+    /* height: 28px; */
+    margin: 0;
+    cursor: pointer;
+    padding: 12px 15px;
+    font-size: 13px;    
+}
+li:hover {
+    background:#e4f3eb;
+}
+li.selected {
+    background:#e4f3eb;
+}
+.item-wrapper {
+    display: block;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+.item-wrapper > div {
+    float: right;
+}
+.item-wrapper .fa-trash-alt {
+    color: #b3b6bf;
+    font-size: 15px;
+}
+.item-wrapper .fa-check {
+    color: #F00;
+    margin-left: 10px;
+    font-size: 14px;
+}
+.fa-arrow-left {
+    font-size: 14px;
+}

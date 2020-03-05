@@ -16,46 +16,54 @@
 
 package com.navercorp.pinpoint.web.config;
 
+import com.navercorp.pinpoint.common.server.config.AnnotationVisitor;
+import com.navercorp.pinpoint.common.server.config.LoggingEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
+import org.springframework.context.annotation.Configuration;
+
+import javax.annotation.PostConstruct;
 
 /**
  * @author HyunGil Jeong
  */
-@Component
+@Configuration
 public class ConfigProperties {
 
-    @Value("#{pinpointWebProps['config.sendUsage'] ?: true}")
+    private final Logger logger = LoggerFactory.getLogger(ConfigProperties.class);
+
+    @Value("${config.sendUsage:true}")
     private boolean sendUsage;
     
-    @Value("#{pinpointWebProps['config.editUserInfo'] ?: true}")
+    @Value("${config.editUserInfo:true}")
     private boolean editUserInfo;
 
-    @Value("#{pinpointWebProps['config.show.activeThread'] ?: false}")
+    @Value("${config.show.activeThread:false}")
     private boolean showActiveThread;
 
-    @Value("#{pinpointWebProps['config.show.activeThreadDump'] ?: false}")
+    @Value("${config.show.activeThreadDump:false}")
     private boolean showActiveThreadDump;
 
-    @Value("#{pinpointWebProps['config.enable.activeThreadDump'] ?: false}")
+    @Value("${config.enable.activeThreadDump:false}")
     private boolean enableActiveThreadDump;
 
-    @Value("#{pinpointWebProps['config.enable.serverMapRealTime'] ?: false}")
+    @Value("${config.enable.serverMapRealTime:false}")
     private boolean enableServerMapRealTime;
 
-    @Value("#{pinpointWebProps['config.openSource'] ?: true}")
+    @Value("${config.openSource:true}")
     private boolean openSource;
 
-    @Value("#{pinpointWebProps['security.guide.url']}")
+    @Value("${security.guide.url:#{null}}")
     private String securityGuideUrl;
 
-    @Value("#{pinpointWebProps['config.show.applicationStat'] ?: false}")
+    @Value("${config.show.applicationStat:false}")
     private boolean showApplicationStat;
 
-    @Value("#{pinpointWebProps['config.show.stackTraceOnError'] ?: true}")
+    @Value("${config.show.stackTraceOnError:true}")
     private boolean showStackTraceOnError;
 
-    @Value("#{pinpointWebProps['websocket.allowedOrigins']}")
+    @Value("${websocket.allowedOrigins:#{null}}")
     private String webSocketAllowedOrigins;
 
     public String getSecurityGuideUrl() {
@@ -100,6 +108,13 @@ public class ConfigProperties {
 
     public String getWebSocketAllowedOrigins() {
         return webSocketAllowedOrigins;
+    }
+
+    @PostConstruct
+    public void log() {
+        logger.info("{}", this);
+        AnnotationVisitor annotationVisitor = new AnnotationVisitor(Value.class);
+        annotationVisitor.visit(this, new LoggingEvent(this.logger));
     }
 
     @Override

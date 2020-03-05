@@ -1,5 +1,5 @@
 thrift_path="./src/compiler/linux/"
-thrift_bin="thrift-0.10.0"
+thrift_bin="thrift-0.12.0"
 
 rc=0
 # check thrift binary
@@ -14,7 +14,7 @@ fi
 
 if [ $rc -eq 0 ]; then 
     echo "INFO: Autogenerate source code with Thrift"
-    mvn generate-sources -P with-thrift -Dmaven.test.skip -Dthrift.executable.path=${thrift_path}${thrift_bin}
+    mvn generate-sources -P build-thrift -Dmaven.test.skip -Dthrift.executable.path=${thrift_path}${thrift_bin}
 
     rc=$?
     if [[ $rc != 0 ]] ; then

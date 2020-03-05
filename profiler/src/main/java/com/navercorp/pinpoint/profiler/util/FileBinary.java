@@ -17,6 +17,8 @@
 
 package com.navercorp.pinpoint.profiler.util;
 
+import com.navercorp.pinpoint.common.util.Assert;
+
 /**
  * @author Woonduk Kang(emeroad)
  */
@@ -26,14 +28,8 @@ public class FileBinary {
     private final byte[] fileBinary;
 
     FileBinary(String fileName, byte[] fileBinary) {
-        if (fileName == null) {
-            throw new NullPointerException("fileName must not be null");
-        }
-        if (fileBinary == null) {
-            throw new NullPointerException("fileBinary must not be null");
-        }
-        this.className = fileName;
-        this.fileBinary = fileBinary;
+        this.className = Assert.requireNonNull(fileName, "fileName");
+        this.fileBinary = Assert.requireNonNull(fileBinary, "fileBinary");
     }
 
     public String getFileName() {

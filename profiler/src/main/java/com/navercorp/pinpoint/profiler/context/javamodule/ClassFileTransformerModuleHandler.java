@@ -41,13 +41,13 @@ public class ClassFileTransformerModuleHandler implements ClassFileTransformModu
 
     public ClassFileTransformerModuleHandler(Instrumentation instrumentation, ClassFileTransformer delegate, JavaModuleFactory javaModuleFactory) {
         if (instrumentation == null) {
-            throw new NullPointerException("instrumentation must not be null");
+            throw new NullPointerException("instrumentation");
         }
         if (delegate == null) {
-            throw new NullPointerException("delegate must not be null");
+            throw new NullPointerException("delegate");
         }
         if (javaModuleFactory == null) {
-            throw new NullPointerException("javaModuleFactory must not be null");
+            throw new NullPointerException("javaModuleFactory");
         }
         this.delegate = delegate;
         this.javaModuleFactory = javaModuleFactory;

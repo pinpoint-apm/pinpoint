@@ -22,6 +22,9 @@ import com.google.inject.Scopes;
 import com.google.inject.TypeLiteral;
 import com.google.inject.name.Names;
 import com.google.protobuf.GeneratedMessageV3;
+
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.grpc.GrpcTransportConfig;
 import com.navercorp.pinpoint.grpc.client.HeaderFactory;
 import com.navercorp.pinpoint.grpc.trace.PSpan;
@@ -48,6 +51,8 @@ import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 import com.navercorp.pinpoint.profiler.sender.ResultResponse;
 import com.navercorp.pinpoint.profiler.sender.grpc.ReconnectExecutor;
 import io.grpc.NameResolverProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledExecutorService;
@@ -56,8 +61,18 @@ import java.util.concurrent.ScheduledExecutorService;
  * @author Woonduk Kang(emeroad)
  */
 public class GrpcModule extends PrivateModule {
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    private final ProfilerConfig profilerConfig;
+
+    public GrpcModule(ProfilerConfig profilerConfig) {
+        this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig");
+    }
+
     @Override
     protected void configure() {
+        logger.info("configure {}", this.getClass().getSimpleName());
 
         bind(GrpcTransportConfig.class).toProvider(GrpcTransportConfigProvider.class).in(Scopes.SINGLETON);
         // dns executor
@@ -114,5 +129,9 @@ public class GrpcModule extends PrivateModule {
         Key<ModuleLifeCycle> rpcModuleLifeCycleKey = Key.get(ModuleLifeCycle.class, Names.named("RPC-MODULE"));
         bind(rpcModuleLifeCycleKey).to(GrpcModuleLifeCycle.class).in(Scopes.SINGLETON);
         expose(rpcModuleLifeCycleKey);
+
+        NettyPlatformDependent nettyPlatformDependent = new NettyPlatformDependent(profilerConfig, System.getProperties());
+        nettyPlatformDependent.setup();
     }
+
 }

@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.web.vo.stat;
 
+import java.util.Objects;
+
 /**
  * @author HyunGil Jeong
  */
@@ -32,10 +34,7 @@ public class JvmGc {
     private long gcOldTime;
 
     public JvmGc(String agentId, long timestamp) {
-        if (agentId == null) {
-            throw new NullPointerException("agentId must not be null");
-        }
-        this.agentId = agentId;
+        this.agentId = Objects.requireNonNull(agentId, "agentId");
         this.timestamp = timestamp;
     }
 

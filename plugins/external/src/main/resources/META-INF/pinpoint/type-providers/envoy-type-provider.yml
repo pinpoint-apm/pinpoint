@@ -1,0 +1,14 @@
+serviceTypes:
+    # Envoy
+    - code: 1550
+      name: 'ENVOY'
+      property:
+          recordStatistics: true
+    - code: 9301
+      name: 'ENVOY_INGRESS'
+      property:
+        recordStatistics: true
+    - code: 9302
+      name: 'ENVOY_EGRESS'
+      property:
+        recordStatistics: true

@@ -41,7 +41,7 @@ public enum ByteSizeUnit {
     private final long maxSize;
     private final long intMaxSize;
 
-    private ByteSizeUnit(char unitChar1, char unitChar2, long unitSize) {
+    ByteSizeUnit(char unitChar1, char unitChar2, long unitSize) {
         this.unitChar1 = unitChar1;
         this.unitChar2 = unitChar2;
         this.unitSize = unitSize;

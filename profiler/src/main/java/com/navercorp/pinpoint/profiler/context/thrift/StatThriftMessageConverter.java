@@ -186,6 +186,8 @@ public class StatThriftMessageConverter implements MessageConverter<TBase<?, ?>>
         transaction.setSampledContinuationCount(transactionMetricSnapshot.getSampledContinuationCount());
         transaction.setUnsampledNewCount(transactionMetricSnapshot.getUnsampledNewCount());
         transaction.setUnsampledContinuationCount(transactionMetricSnapshot.getUnsampledContinuationCount());
+        transaction.setSkippedNewCount(transactionMetricSnapshot.getSkippedNewCount());
+        transaction.setSkippedContinuationCount(transactionMetricSnapshot.getSkippedContinuationCount());
         return transaction;
     }
 

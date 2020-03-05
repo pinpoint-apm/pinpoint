@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.web.filter.deserializer.RpcHintJsonDeserializer;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author emeroad
@@ -34,13 +35,9 @@ public class RpcHint {
     private final List<RpcType> rpcTypeList;
 
     public RpcHint(String applicationName, List<RpcType> rpcTypeList) {
-        if (applicationName == null) {
-            throw new NullPointerException("applicationName must not be null");
-        }
-        if (rpcTypeList == null) {
-            throw new NullPointerException("rpcTypeList must not be null");
-        }
-        this.applicationName = applicationName;
+        this.applicationName = Objects.requireNonNull(applicationName, "applicationName");
+
+        Objects.requireNonNull(rpcTypeList, "rpcTypeList");
         this.rpcTypeList = Collections.unmodifiableList(rpcTypeList);
     }
 

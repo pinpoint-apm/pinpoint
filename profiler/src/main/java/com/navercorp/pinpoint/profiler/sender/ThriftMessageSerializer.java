@@ -43,8 +43,8 @@ public class ThriftMessageSerializer implements MessageSerializer<byte[]> {
     }
 
     public ThriftMessageSerializer(MessageConverter<TBase<?, ?>> messageConverter, TBaseSerializer serializer) {
-        this.messageConverter = Assert.requireNonNull(messageConverter, "messageConverter must not be null");
-        this.serializer = Assert.requireNonNull(serializer, "serializer must not be null");
+        this.messageConverter = Assert.requireNonNull(messageConverter, "messageConverter");
+        this.serializer = Assert.requireNonNull(serializer, "serializer");
 
     }
 

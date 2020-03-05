@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.profiler.sender;
 
 import com.navercorp.pinpoint.common.util.Assert;
-import com.navercorp.pinpoint.profiler.context.module.SpanConverter;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
 import org.apache.thrift.TBase;
 
@@ -43,7 +42,7 @@ public final class UdpDataSenderFactory {
         this.timeout = timeout;
         this.sendBufferSize = sendBufferSize;
 
-        this.messageConverter = Assert.requireNonNull(messageConverter, "messageConverter must not be null");
+        this.messageConverter = Assert.requireNonNull(messageConverter, "messageConverter");
     }
 
     public DataSender create(String typeName) {

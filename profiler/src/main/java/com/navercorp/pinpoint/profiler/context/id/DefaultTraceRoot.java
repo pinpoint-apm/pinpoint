@@ -34,8 +34,8 @@ public class DefaultTraceRoot implements TraceRoot {
 
 
     public DefaultTraceRoot(TraceId traceId, String agentId, long traceStartTime, long localTransactionId) {
-        this.traceId = Assert.requireNonNull(traceId, "traceId must not be null");
-        this.agentId = Assert.requireNonNull(agentId, "agentId must not be null");
+        this.traceId = Assert.requireNonNull(traceId, "traceId");
+        this.agentId = Assert.requireNonNull(agentId, "agentId");
         this.traceStartTime = traceStartTime;
         this.localTransactionId = localTransactionId;
     }

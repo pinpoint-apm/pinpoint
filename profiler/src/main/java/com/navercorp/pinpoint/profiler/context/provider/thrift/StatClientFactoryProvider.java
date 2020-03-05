@@ -39,9 +39,9 @@ public class StatClientFactoryProvider extends AbstractClientFactoryProvider imp
 
     @Inject
     public StatClientFactoryProvider(ThriftTransportConfig thriftTransportConfig, @SpanStatChannelFactory Provider<ChannelFactory> channelFactoryProvider, @SpanStatConnectTimer Provider<Timer> connectTimerProvider) {
-        this.thriftTransportConfig = Assert.requireNonNull(thriftTransportConfig, "thriftTransportConfig must not be null");
-        this.channelFactoryProvider = Assert.requireNonNull(channelFactoryProvider, "channelFactoryProvider must not be null");
-        this.connectTimerProvider = Assert.requireNonNull(connectTimerProvider, "connectTimerProvider must not be null");
+        this.thriftTransportConfig = Assert.requireNonNull(thriftTransportConfig, "thriftTransportConfig");
+        this.channelFactoryProvider = Assert.requireNonNull(channelFactoryProvider, "channelFactoryProvider");
+        this.connectTimerProvider = Assert.requireNonNull(connectTimerProvider, "connectTimerProvider");
     }
 
     public PinpointClientFactory get() {

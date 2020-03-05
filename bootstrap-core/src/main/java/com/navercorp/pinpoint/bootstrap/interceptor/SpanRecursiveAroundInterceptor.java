@@ -37,9 +37,9 @@ public abstract class SpanRecursiveAroundInterceptor implements AroundIntercepto
     protected final String scopeName;
 
     protected SpanRecursiveAroundInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, final String scopeName) {
-        this.traceContext = Assert.requireNonNull(traceContext, "traceContext must not be null");
-        this.methodDescriptor = Assert.requireNonNull(methodDescriptor, "methodDescriptor must not be null");
-        this.scopeName = Assert.requireNonNull(scopeName, "scopeName must not be null");
+        this.traceContext = Assert.requireNonNull(traceContext, "traceContext");
+        this.methodDescriptor = Assert.requireNonNull(methodDescriptor, "methodDescriptor");
+        this.scopeName = Assert.requireNonNull(scopeName, "scopeName");
     }
 
     @Override

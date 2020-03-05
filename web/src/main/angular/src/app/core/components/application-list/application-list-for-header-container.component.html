@@ -1,0 +1,46 @@
+<div class="l-wrapper" (clickOutside)="onClose()" [exclude]="'.l-logo-link, .l-exit-button'" (keydown)="onKeyDown($event.keyCode)">
+    <div class="l-app-select" (click)="toggleApplicationList()">
+        <div>
+            <img [src]="selectedAppIcon" width="23px" height="18px" *ngIf="selectedApplication"/>
+            <span>{{selectedAppName}}</span>
+        </div>
+        <span><i class="fas fa-angle-down"></i></span>
+    </div>
+    <div class="l-input-layer" [hidden]="hiddenComponent">
+        <div class="l-search-group-wrap font-opensans">
+            <div class="l-search-group">
+                <input type="text" placeholder="{{i18nText.INPUT_APPLICATION_NAME}}" value="" #inputQuery>
+            </div>
+        </div>
+        <div class="l-app-list">
+            <pp-application-list-for-header 
+                [showTitle]="showTitle"
+                [title]="i18nText.FAVORITE_LIST_TITLE" 
+                [restCount]="0"
+                [focusIndex]="focusIndex"
+                [focusType]="focusType"
+                [applicationList]="filteredFavoriteApplicationList" 
+                [selectedApplication]="selectedApplication"
+                [funcImagePath]="funcImagePath"
+                [emptyText]="i18nText.EMPTY_LIST" 
+                (outSelected)="onSelectApplication($event)"
+                (outFocused)="onFocused($event)">
+            </pp-application-list-for-header>
+            <pp-application-list-for-header 
+                [showTitle]="showTitle"
+                [title]="i18nText.APPLICATION_LIST_TITLE" 
+                [restCount]="filteredFavoriteApplicationList.length"
+                [focusIndex]="focusIndex"
+                [focusType]="focusType"
+                [applicationList]="filteredApplicationList" 
+                [selectedApplication]="selectedApplication"
+                [funcImagePath]="funcImagePath"
+                [emptyText]="i18nText.EMPTY_LIST"
+                (outSelected)="onSelectApplication($event)"
+                (outFocused)="onFocused($event)">
+            </pp-application-list-for-header>
+        </div>
+        <button class="btn btn-blue l-reload-button" (click)="onReload()">Reload <span class="fas fa-sync" [class.fa-spin]="showLoading"></span></button>
+    </div>
+    <pp-loading [showLoading]="showLoading" [zIndex]="9999"></pp-loading>
+</div>

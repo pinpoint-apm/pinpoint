@@ -68,7 +68,7 @@ public final class ClassLoaderUtils {
 
     public static ClassLoader getDefaultClassLoader(ClassLoaderCallable defaultClassLoaderCallable) {
         if (defaultClassLoaderCallable == null) {
-            throw new NullPointerException("defaultClassLoaderCallable must not be null");
+            throw new NullPointerException("defaultClassLoaderCallable");
         }
 
         try {

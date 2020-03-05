@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.profiler.context.provider;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.IdValidateUtils;
 import com.navercorp.pinpoint.bootstrap.util.NetworkUtils;
 import com.navercorp.pinpoint.common.Version;
@@ -47,20 +48,16 @@ public class AgentInformationProvider implements Provider<AgentInformation> {
     @Inject
     public AgentInformationProvider(@AgentId String agentId, @ApplicationName String applicationName, @Container boolean isContainer, @AgentStartTime long agentStartTime, @ApplicationServerType ServiceType serverType) {
         if (agentId == null) {
-            throw new NullPointerException("agentId must not be null");
+            throw new NullPointerException("agentId");
         }
         if (applicationName == null) {
-            throw new NullPointerException("applicationName must not be null");
+            throw new NullPointerException("applicationName");
         }
-        if (serverType == null) {
-            throw new NullPointerException("serverType must not be null");
-        }
-
         this.agentId = checkId("agentId", agentId);
         this.applicationName = checkId("applicationName", applicationName);
         this.isContainer = isContainer;
         this.agentStartTime = agentStartTime;
-        this.serverType = serverType;
+        this.serverType = Assert.requireNonNull(serverType, "serverType");
 
     }
 

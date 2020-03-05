@@ -16,23 +16,20 @@
 
 package com.navercorp.pinpoint.bootstrap.plugin.jdbc.interceptor;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import com.navercorp.pinpoint.bootstrap.context.DatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.ParsingResult;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
-import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.logging.PLogger;
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.BindValueAccessor;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.DatabaseInfoAccessor;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.ParsingResultAccessor;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.UnKnownDatabaseInfo;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.bindvalue.BindValueUtils;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author emeroad
@@ -44,15 +41,10 @@ import com.navercorp.pinpoint.bootstrap.plugin.jdbc.bindvalue.BindValueUtils;
 //        @TargetMethod(name="executeQuery"),
 //        @TargetMethod(name="executeUpdate")
 //})
-public class PreparedStatementExecuteQueryInterceptor implements AroundInterceptor {
+public class PreparedStatementExecuteQueryInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
 
     private static final int DEFAULT_BIND_VALUE_LENGTH = 1024;
 
-    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
-    private final boolean isDebug = logger.isDebugEnabled();
-
-    private final MethodDescriptor descriptor;
-    private final TraceContext traceContext;
     private final int maxSqlBindValueLength;
     
     
@@ -61,64 +53,44 @@ public class PreparedStatementExecuteQueryInterceptor implements AroundIntercept
     }
     
     public PreparedStatementExecuteQueryInterceptor(TraceContext traceContext, MethodDescriptor descriptor, int maxSqlBindValueLength) {
-        this.traceContext = traceContext;
-        this.descriptor = descriptor;
+        super(traceContext, descriptor);
         this.maxSqlBindValueLength = maxSqlBindValueLength;
     }
 
     @Override
-    public void before(Object target, Object[] args) {
-        if (isDebug) {
-            logger.beforeInterceptor(target, args);
+    protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
+        DatabaseInfo databaseInfo = (target instanceof DatabaseInfoAccessor) ? ((DatabaseInfoAccessor)target)._$PINPOINT$_getDatabaseInfo() : null;
+
+        if (databaseInfo == null) {
+            databaseInfo = UnKnownDatabaseInfo.INSTANCE;
         }
 
-        Trace trace = traceContext.currentTraceObject();
-        if (trace == null) {
-            return;
+        recorder.recordServiceType(databaseInfo.getExecuteQueryType());
+        recorder.recordEndPoint(databaseInfo.getMultipleHost());
+        recorder.recordDestinationId(databaseInfo.getDatabaseId());
+
+        ParsingResult parsingResult = null;
+        if (target instanceof ParsingResultAccessor) {
+            parsingResult = ((ParsingResultAccessor)target)._$PINPOINT$_getParsingResult();
+        }
+        Map<Integer, String> bindValue = null;
+        if (target instanceof BindValueAccessor) {
+            bindValue = ((BindValueAccessor)target)._$PINPOINT$_getBindValue();
+        }
+        if (bindValue != null) {
+            String bindString = toBindVariable(bindValue);
+            recorder.recordSqlParsingResult(parsingResult, bindString);
+        } else {
+            recorder.recordSqlParsingResult(parsingResult);
         }
 
-        SpanEventRecorder recorder = trace.traceBlockBegin();
-        try {
-            DatabaseInfo databaseInfo = (target instanceof DatabaseInfoAccessor) ? ((DatabaseInfoAccessor)target)._$PINPOINT$_getDatabaseInfo() : null;
-            
-            if (databaseInfo == null) {
-                databaseInfo = UnKnownDatabaseInfo.INSTANCE;
-            }
-            
-            recorder.recordServiceType(databaseInfo.getExecuteQueryType());
-            recorder.recordEndPoint(databaseInfo.getMultipleHost());
-            recorder.recordDestinationId(databaseInfo.getDatabaseId());
-
-            ParsingResult parsingResult = null;
-            if (target instanceof ParsingResultAccessor) {
-                parsingResult = ((ParsingResultAccessor)target)._$PINPOINT$_getParsingResult();
-            }
-            Map<Integer, String> bindValue = null;
-            if (target instanceof BindValueAccessor) {
-                bindValue = ((BindValueAccessor)target)._$PINPOINT$_getBindValue();
-            }
-            if (bindValue != null) {
-                String bindString = toBindVariable(bindValue);
-                recorder.recordSqlParsingResult(parsingResult, bindString);
-            } else {
-                recorder.recordSqlParsingResult(parsingResult);
-            }
-
-            recorder.recordApi(descriptor);
+        recorder.recordApi(methodDescriptor);
 //            trace.recordApi(apiId);
-            
-            // Need to change where to invoke clean().
-            // There is cleanParameters method but it's not necessary to intercept that method.
-            // iBatis intentionally does not invoke it in most cases. 
-            clean(target);
 
-
-        } catch (Exception e) {
-            if (logger.isWarnEnabled()) {
-                logger.warn(e.getMessage(), e);
-            }
-        }
-
+        // Need to change where to invoke clean().
+        // There is cleanParameters method but it's not necessary to intercept that method.
+        // iBatis intentionally does not invoke it in most cases.
+        clean(target);
     }
 
     private void clean(Object target) {
@@ -132,23 +104,9 @@ public class PreparedStatementExecuteQueryInterceptor implements AroundIntercept
     }
 
     @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable) {
-        if (isDebug) {
-            logger.afterInterceptor(target, args, result, throwable);
-        }
-
-        Trace trace = traceContext.currentTraceObject();
-        if (trace == null) {
-            return;
-        }
-
-        
-        try {
-            SpanEventRecorder recorder = trace.currentSpanEventRecorder();
-            // TODO Test if it's success. if failed terminate. else calculate resultset fetch too. we'd better make resultset fetch optional.
-            recorder.recordException(throwable);
-        } finally {
-            trace.traceBlockEnd();
-        }
+    protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
+        // TODO Test if it's success. if failed terminate. else calculate resultset fetch too. we'd better make resultset fetch optional.
+        recorder.recordException(throwable);
     }
+
 }

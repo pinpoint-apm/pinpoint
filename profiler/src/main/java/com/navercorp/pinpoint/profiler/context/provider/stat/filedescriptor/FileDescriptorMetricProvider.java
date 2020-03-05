@@ -48,7 +48,7 @@ public class FileDescriptorMetricProvider implements Provider<FileDescriptorMetr
     @Inject
     public FileDescriptorMetricProvider(ProfilerConfig profilerConfig) {
         if (profilerConfig == null) {
-            throw new NullPointerException("profilerConfig must not be null");
+            throw new NullPointerException("profilerConfig");
         }
         vendorName = profilerConfig.getProfilerJvmVendorName();
         osName = profilerConfig.getProfilerOSName();
@@ -139,7 +139,7 @@ public class FileDescriptorMetricProvider implements Provider<FileDescriptorMetr
                 return FileDescriptorMetric.UNSUPPORTED_FILE_DESCRIPTOR_METRIC;
             }
         } catch (Exception e) {
-            logger.warn("Error creating FileDescriptorMetric [" + classToLoad + "]");
+            logger.warn("Error creating FileDescriptorMetric [{}]", classToLoad);
             return FileDescriptorMetric.UNSUPPORTED_FILE_DESCRIPTOR_METRIC;
         }
     }

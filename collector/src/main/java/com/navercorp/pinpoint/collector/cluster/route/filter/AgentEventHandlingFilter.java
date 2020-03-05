@@ -67,7 +67,7 @@ public class AgentEventHandlingFilter implements RouteFilter<ResponseEvent> {
 
     @Async("agentEventWorker")
     public void handleResponseEvent(ResponseEvent responseEvent, long eventTimestamp) {
-        Objects.requireNonNull(responseEvent, "responseEvent must not be null");
+        Objects.requireNonNull(responseEvent, "responseEvent");
         if (logger.isDebugEnabled()) {
             logger.debug("Handle response event {}", responseEvent);
         }

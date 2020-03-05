@@ -33,12 +33,6 @@ public interface DataReceiverGroupConfiguration {
 
     int getUdpBindPort();
 
-    boolean isGrpcEnable();
-
-    String getGrpcBindIp();
-
-    int getGrpcBindPort();
-
     int getUdpReceiveBufferSize();
 
     int getWorkerThreadSize();

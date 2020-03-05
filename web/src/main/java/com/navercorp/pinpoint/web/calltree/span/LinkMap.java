@@ -26,7 +26,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -67,7 +67,7 @@ public class LinkMap {
                     // duplicated span, choose focus span
                     if (span.getCollectorAcceptTime() == collectorAcceptTime) {
                         // replace value
-                        spanToLinkMap.put(spanIdPairKey, Arrays.asList(node));
+                        spanToLinkMap.put(spanIdPairKey, Collections.singletonList(node));
                         duplicatedNodeList.add(node);
                         logger.warn("Duplicated span - choose focus {}", node);
                     } else {
@@ -85,7 +85,7 @@ public class LinkMap {
     }
 
     public List<Node> findNode(Link link) {
-        Objects.requireNonNull(link, "link must not be null");
+        Objects.requireNonNull(link, "link");
 
         final LongPair key = new LongPair(link.getSpanId(), link.getNextSpanId());
         return this.spanToLinkMap.get(key);

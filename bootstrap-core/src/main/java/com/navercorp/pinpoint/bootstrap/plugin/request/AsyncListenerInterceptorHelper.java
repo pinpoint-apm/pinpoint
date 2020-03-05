@@ -48,8 +48,8 @@ public class AsyncListenerInterceptorHelper {
     private final HttpStatusCodeRecorder httpStatusCodeRecorder;
 
     public AsyncListenerInterceptorHelper(final TraceContext traceContext, final AsyncContext asyncContext) {
-        Assert.requireNonNull(traceContext, "traceContext must not be null");
-        this.asyncContext = Assert.requireNonNull(asyncContext, "asyncContext must not be null");
+        Assert.requireNonNull(traceContext, "traceContext");
+        this.asyncContext = Assert.requireNonNull(asyncContext, "asyncContext");
         this.httpStatusCodeRecorder = new HttpStatusCodeRecorder(traceContext.getProfilerConfig().getHttpStatusCodeErrors());
 
         traceContext.cacheApi(ASYNC_LISTENER_ON_COMPLETE_METHOD_DESCRIPTOR);

@@ -18,11 +18,8 @@ package com.navercorp.pinpoint.plugin.httpclient3.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
-import com.navercorp.pinpoint.bootstrap.context.Trace;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
-import com.navercorp.pinpoint.bootstrap.interceptor.AroundInterceptor;
-import com.navercorp.pinpoint.bootstrap.logging.PLogger;
-import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
+import com.navercorp.pinpoint.bootstrap.interceptor.SpanEventSimpleAroundInterceptorForPlugin;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.plugin.httpclient3.HttpClient3Constants;
 
@@ -30,65 +27,27 @@ import com.navercorp.pinpoint.plugin.httpclient3.HttpClient3Constants;
  * @author Minwoo Jung
  * @author jaehong.kim
  */
-public class RetryMethodInterceptor implements AroundInterceptor {
-
-    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
-    private final boolean isDebug = logger.isDebugEnabled();
-
-    private final MethodDescriptor descriptor;
-    private final TraceContext traceContext;
+public class RetryMethodInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
 
     public RetryMethodInterceptor(TraceContext context, MethodDescriptor methodDescriptor) {
-        if (context == null) {
-            throw new NullPointerException("context must not be null");
-        }
-        if (methodDescriptor == null) {
-            throw new NullPointerException("methodDescriptor must not be null");
-        }
-        this.traceContext = context;
-        this.descriptor = methodDescriptor;
+        super(context, methodDescriptor);
     }
-    
 
     @Override
-    public void before(Object target, Object[] args) {
-        if (isDebug) {
-            logger.beforeInterceptor(target, args);
-        }
-
-        final Trace trace = traceContext.currentTraceObject();
-        if (trace == null) {
-            return;
-        }
-
-        final SpanEventRecorder recorder = trace.traceBlockBegin();
+    protected void doInBeforeTrace(SpanEventRecorder recorder, Object target, Object[] args) {
         recorder.recordServiceType(HttpClient3Constants.HTTP_CLIENT_3_INTERNAL);
     }
 
     @Override
-    public void after(Object target, Object[] args, Object result, Throwable throwable) {
-        if (isDebug) {
-            logger.afterInterceptor(target, args);
-        }
+    protected void doInAfterTrace(SpanEventRecorder recorder, Object target, Object[] args, Object result, Throwable throwable) {
+        recorder.recordApi(methodDescriptor);
+        recorder.recordException(throwable);
 
-        final Trace trace = traceContext.currentTraceObject();
-        if (trace == null) {
-            return;
-        }
+        final String retryMessage = getRetryMessage(args);
+        recorder.recordAttribute(AnnotationKey.HTTP_INTERNAL_DISPLAY, retryMessage);
 
-        try {
-            final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
-            recorder.recordApi(descriptor);
-            recorder.recordException(throwable);
-
-            final String retryMessage = getRetryMessage(args);
-            recorder.recordAttribute(AnnotationKey.HTTP_INTERNAL_DISPLAY, retryMessage);
-
-            if (result != null) {
-                recorder.recordAttribute(AnnotationKey.RETURN_DATA, result);
-            }
-        } finally {
-            trace.traceBlockEnd();
+        if (result != null) {
+            recorder.recordAttribute(AnnotationKey.RETURN_DATA, result);
         }
     }
 
@@ -105,4 +64,5 @@ public class RetryMethodInterceptor implements AroundInterceptor {
         }
         return sb.toString();
     }
+
 }

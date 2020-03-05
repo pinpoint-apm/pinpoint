@@ -57,9 +57,9 @@ public class StatDataSenderProvider implements Provider<DataSender> {
 
     @Inject
     public StatDataSenderProvider(ProfilerConfig profilerConfig, @StatClientFactory Provider<PinpointClientFactory> clientFactoryProvider, @StatConverter MessageConverter<TBase<?, ?>> messageConverter) {
-        Assert.requireNonNull(profilerConfig, "profilerConfig must not be null");
+        Assert.requireNonNull(profilerConfig, "profilerConfig");
 
-        this.clientFactoryProvider = Assert.requireNonNull(clientFactoryProvider, "clientFactoryProvider must not be null");
+        this.clientFactoryProvider = Assert.requireNonNull(clientFactoryProvider, "clientFactoryProvider");
 
         ThriftTransportConfig thriftTransportConfig = profilerConfig.getThriftTransportConfig();
         this.ip = thriftTransportConfig.getCollectorStatServerIp();
@@ -81,7 +81,7 @@ public class StatDataSenderProvider implements Provider<DataSender> {
 
             PinpointClientFactory pinpointClientFactory = clientFactoryProvider.get();
             MessageSerializer<byte[]> messageSerializer = new ThriftMessageSerializer(messageConverter);
-            return new TcpDataSender("StatDataSender", ip, port, pinpointClientFactory, messageSerializer);
+            return new TcpDataSender("StatDataSender", ip, port, pinpointClientFactory, messageSerializer, writeQueueSize);
         } else {
             UdpDataSenderFactory factory = new UdpDataSenderFactory(ip, port, UDP_EXECUTOR_NAME, writeQueueSize, timeout, sendBufferSize, messageConverter);
             return factory.create(ioType);

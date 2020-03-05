@@ -35,7 +35,7 @@ public class SpanChunkEventAlign extends SpanEventAlign {
 
     public SpanChunkEventAlign(SpanBo spanBo, SpanChunkBo spanChunkBo, SpanEventBo spanEventBo) {
         super(spanBo, spanEventBo);
-        this.spanChunkBo = Objects.requireNonNull(spanChunkBo, "spanChunkBo must not be null");
+        this.spanChunkBo = Objects.requireNonNull(spanChunkBo, "spanChunkBo");
     }
 
     @Override

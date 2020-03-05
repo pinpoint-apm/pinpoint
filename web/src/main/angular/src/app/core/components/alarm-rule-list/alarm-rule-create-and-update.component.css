@@ -1,0 +1,132 @@
+:host {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.l-wrapper {
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 100%;
+    z-index: 15;
+    display: flex;
+    padding: 0px 20px;
+    position: absolute;
+    align-items: center;
+    flex-direction: column;
+    justify-content: center;
+    background-color: rgba(226, 226, 226, 0.8);
+}
+
+.l-wrapper h1 {
+    margin-bottom: 15px;
+}
+
+form { 
+    width: 100%;
+}
+
+.l-form-grid {
+    border: 1px solid #e5e8f0;
+    display: grid;
+    position: relative;
+    grid-template-columns: 50% 50%;
+    grid-template-rows: auto;    
+}
+
+.l-form-grid > div {
+    position: relative;
+    margin-bottom: 10px;
+}
+
+.l-form-grid > div:nth-child(odd) {
+    margin-right: 10px;
+}
+
+.l-required-icon {
+    color: #d00;
+    margin-left: 2px;
+}
+
+.l-input, .l-select {
+    width: 100%;
+    border-radius: 4px;
+    background-color: #FFF;
+    padding: 10px 14px;
+    border: 1px solid #ccc;
+    font-size: 13px;
+    color: #333;
+    box-shadow: 0 0 1px 0 #ccc;
+    outline: 0;
+}
+
+.l-wrapper .l-create {
+    width: 100%;
+    margin-top: 6px;
+}
+
+.l-wrapper .l-close {
+    top: 0px;
+    right: 0px;
+    position: absolute;
+}
+
+.l-select { 
+    appearance: none;
+    -webkit-appearance: none;
+}
+
+.l-textarea { 
+    width: 100%;
+    height: 120px;
+    border-radius: 4px;
+    background-color: #FFF;
+    padding: 10px 14px;
+    border: 1px solid #ccc;
+    font-size: 13px;
+    color: #333;
+    box-shadow: 0 0 1px 0 #ccc;
+    outline: 0;
+}
+
+.l-input:focus,
+.l-select:focus,
+.l-textarea:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0px 1px 1px var(--primary-color);
+}
+
+.fa-angle-down {
+    position: absolute;
+    top: 33px;
+    right: 10px;
+    font-size: 15px;
+}
+
+.l-form-label {
+    color: #333;
+    font-size: 13px;
+    font-family: 'Open Sans', sans-serif;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.ng-valid[required]  {
+    border-left: 5px solid #42A948 !important; 
+}
+
+.ng-valid[required]:focus {
+    border-color: #42a948;
+    box-shadow: 0 0 1px 0px #42a948;
+}
+
+.ng-invalid:not(form).ng-touched  {
+    border-left: 5px solid #a94442 !important;
+    border-color: #d00;
+}
+
+.ng-invalid:not(form).ng-touched:focus {
+    border-color: #d00;
+    box-shadow: 0 0 1px 0px #d00;
+}

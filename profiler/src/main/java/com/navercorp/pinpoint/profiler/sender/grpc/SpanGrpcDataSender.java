@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,18 +17,16 @@
 package com.navercorp.pinpoint.profiler.sender.grpc;
 
 
-import com.navercorp.pinpoint.common.util.Assert;
-import com.navercorp.pinpoint.grpc.client.ChannelFactoryOption;
-
 import com.google.protobuf.Empty;
-
+import com.google.protobuf.GeneratedMessageV3;
+import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.grpc.client.ChannelFactory;
 import com.navercorp.pinpoint.grpc.trace.PSpan;
 import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
 import com.navercorp.pinpoint.grpc.trace.PSpanMessage;
 import com.navercorp.pinpoint.grpc.trace.SpanGrpc;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
-
-import com.google.protobuf.GeneratedMessageV3;
+import io.grpc.ClientInterceptor;
 import io.grpc.stub.StreamObserver;
 
 import java.util.concurrent.RejectedExecutionException;
@@ -39,6 +37,7 @@ import static com.navercorp.pinpoint.grpc.MessageFormatUtils.debugLog;
  * @author jaehong.kim
  */
 public class SpanGrpcDataSender extends GrpcDataSender {
+
     private final SpanGrpc.SpanStub spanStub;
     private final ReconnectExecutor reconnectExecutor;
 
@@ -49,11 +48,11 @@ public class SpanGrpcDataSender extends GrpcDataSender {
                               int executorQueueSize,
                               MessageConverter<GeneratedMessageV3> messageConverter,
                               ReconnectExecutor reconnectExecutor,
-                              ChannelFactoryOption channelFactoryOption) {
-        super(host, port, executorQueueSize, messageConverter, channelFactoryOption);
+                              ChannelFactory channelFactory) {
+        super(host, port, executorQueueSize, messageConverter, channelFactory);
 
-        this.spanStub = SpanGrpc.newStub(managedChannel);
-        this.reconnectExecutor = Assert.requireNonNull(reconnectExecutor, "reconnectExecutor must not be null");
+        this.spanStub = newSpanStub();
+        this.reconnectExecutor = Assert.requireNonNull(reconnectExecutor, "reconnectExecutor");
         {
             final Runnable spanStreamReconnectJob = new Runnable() {
                 @Override
@@ -62,8 +61,14 @@ public class SpanGrpcDataSender extends GrpcDataSender {
                 }
             };
             this.spanStreamReconnector = reconnectExecutor.newReconnector(spanStreamReconnectJob);
-            this.spanStream = newSpanStream();
+            spanStreamReconnectJob.run();
         }
+
+    }
+
+    private SpanGrpc.SpanStub newSpanStub() {
+        SpanGrpc.SpanStub spanStub = SpanGrpc.newStub(managedChannel);
+        return spanStub;
     }
 
     private StreamObserver<PSpanMessage> newSpanStream() {
@@ -138,4 +143,5 @@ public class SpanGrpcDataSender extends GrpcDataSender {
                 ", port=" + port +
                 "} " + super.toString();
     }
+
 }

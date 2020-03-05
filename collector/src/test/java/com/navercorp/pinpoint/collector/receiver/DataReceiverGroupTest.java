@@ -257,7 +257,7 @@ public class DataReceiverGroupTest {
         PinpointClientFactory clientFactory = new DefaultPinpointClientFactory();
         clientFactory.setWriteTimeoutMillis(1000 * 3);
         clientFactory.setRequestTimeoutMillis(1000 * 5);
-        clientFactory.setProperties(Collections.<String, Object>emptyMap());
+        clientFactory.setProperties(Collections.emptyMap());
 
         return clientFactory;
     }

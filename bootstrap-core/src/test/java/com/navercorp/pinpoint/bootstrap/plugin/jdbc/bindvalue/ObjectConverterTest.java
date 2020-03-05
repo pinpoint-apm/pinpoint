@@ -16,11 +16,13 @@
 
 package com.navercorp.pinpoint.bootstrap.plugin.jdbc.bindvalue;
 
+import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.Time;
+import java.util.UUID;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -32,9 +34,9 @@ public class ObjectConverterTest {
     @Test
     public void convert_sqlTime() {
         Time sqlTime = new Time(System.currentTimeMillis());
-        String convert = convert(sqlTime);
+        String stringTime = convert(sqlTime);
 
-        logger.debug("{}", convert);
+        Assert.assertEquals(stringTime, sqlTime.toString());
     }
 
     @Test
@@ -42,12 +44,19 @@ public class ObjectConverterTest {
         byte byte1 = 0;
         String convert = convert(byte1);
 
-        logger.debug("{}", convert);
+        Assert.assertEquals(convert, String.valueOf(byte1));
     }
 
     private String convert(Object param) {
         Object[] args = new Object[] { new Object(), param };
         ObjectConverter objectConverter = new ObjectConverter();
         return objectConverter.convert(args);
+    }
+
+    @Test
+    public void convert_UUID() {
+        UUID uuid = UUID.randomUUID();
+        String uuidStr = convert(uuid);
+        Assert.assertEquals(uuidStr, uuidStr.toString());
     }
 }

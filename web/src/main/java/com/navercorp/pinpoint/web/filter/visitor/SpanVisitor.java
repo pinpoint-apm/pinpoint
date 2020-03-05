@@ -19,10 +19,6 @@ package com.navercorp.pinpoint.web.filter.visitor;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
-import org.apache.commons.collections.CollectionUtils;
-
-import java.util.List;
-import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)

@@ -1,0 +1,19 @@
+:host {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+::ng-deep .l-icon-without-btn {
+    /* margin-left: 3px; */
+    margin-right: 3px
+}
+
+::ng-deep .l-btn-inside-method {
+    /* margin-left: 3px; */
+    margin-right: 3px;
+}
+
+::ng-deep .l-icon-inside-btn {
+    margin-right: 3px;
+}

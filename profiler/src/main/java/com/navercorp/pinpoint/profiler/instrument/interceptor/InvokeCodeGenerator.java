@@ -14,14 +14,13 @@
  */
 package com.navercorp.pinpoint.profiler.instrument.interceptor;
 
-import java.lang.reflect.Modifier;
-
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
-import com.navercorp.pinpoint.bootstrap.interceptor.*;
 import com.navercorp.pinpoint.bootstrap.interceptor.registry.InterceptorRegistry;
 import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
 import com.navercorp.pinpoint.profiler.util.JavaAssistUtils;
+
+import java.lang.reflect.Modifier;
 
 /**
  * @author Jongho Moon
@@ -35,13 +34,13 @@ public class InvokeCodeGenerator {
 
     public InvokeCodeGenerator(int interceptorId, InterceptorDefinition interceptorDefinition, InstrumentMethod targetMethod, ApiMetaDataService apiMetaDataService) {
         if (interceptorDefinition == null) {
-            throw new NullPointerException("interceptorDefinition must not be null");
+            throw new NullPointerException("interceptorDefinition");
         }
         if (targetMethod == null) {
-            throw new NullPointerException("targetMethod must not be null");
+            throw new NullPointerException("targetMethod");
         }
         if (apiMetaDataService == null) {
-            throw new NullPointerException("apiMetaDataService must not be null");
+            throw new NullPointerException("apiMetaDataService");
         }
 
         this.interceptorDefinition = interceptorDefinition;

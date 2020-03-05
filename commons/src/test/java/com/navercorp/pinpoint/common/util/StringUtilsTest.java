@@ -186,7 +186,7 @@ public class StringUtilsTest {
             return Collections.emptyList();
         }
         if (separator == null) {
-            throw new NullPointerException("separator must not be null");
+            throw new NullPointerException("separator");
         }
         final List<String> result = new ArrayList<String>();
         final String[] split = value.split(separator);

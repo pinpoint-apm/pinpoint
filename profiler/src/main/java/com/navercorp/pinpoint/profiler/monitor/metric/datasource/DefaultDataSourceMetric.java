@@ -37,10 +37,10 @@ public class DefaultDataSourceMetric implements DataSourceMetric {
 
     public DefaultDataSourceMetric(DataSourceMonitorRegistryService dataSourceMonitorRegistryService, JdbcUrlParsingService jdbcUrlParsingService) {
         if (dataSourceMonitorRegistryService == null) {
-            throw new NullPointerException("dataSourceMonitorRegistryService must not be null");
+            throw new NullPointerException("dataSourceMonitorRegistryService");
         }
         if (jdbcUrlParsingService == null) {
-            throw new NullPointerException("jdbcUrlParsingService must not be null");
+            throw new NullPointerException("jdbcUrlParsingService");
         }
         this.dataSourceMonitorRegistryService = dataSourceMonitorRegistryService;
         this.jdbcUrlParsingService = jdbcUrlParsingService;

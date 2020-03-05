@@ -36,6 +36,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
+import java.util.Objects;
+
 /**
  * rowkey = caller col = callee
  *
@@ -63,10 +65,7 @@ public class MapStatisticsCallerMapper implements RowMapper<LinkDataMap> {
     }
 
     public MapStatisticsCallerMapper(LinkFilter filter) {
-        if (filter == null) {
-            throw new NullPointerException("filter must not be null");
-        }
-        this.filter = filter;
+        this.filter = Objects.requireNonNull(filter, "filter");
     }
 
     @Override

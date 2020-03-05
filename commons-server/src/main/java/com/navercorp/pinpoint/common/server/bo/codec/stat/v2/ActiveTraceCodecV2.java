@@ -31,9 +31,9 @@ import com.navercorp.pinpoint.common.server.bo.stat.ActiveTraceBo;
 import com.navercorp.pinpoint.common.server.bo.stat.ActiveTraceHistogram;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.util.Assert;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author HyunGil Jeong
@@ -52,8 +52,7 @@ public class ActiveTraceCodecV2 extends AgentStatCodecV2<ActiveTraceBo> {
         private final AgentStatDataPointCodec codec;
 
         private ActiveTraceCodecFactory(AgentStatDataPointCodec codec) {
-            Assert.notNull(codec, "codec must not be null");
-            this.codec = codec;
+            this.codec = Objects.requireNonNull(codec, "codec");
         }
 
         @Override
@@ -83,8 +82,7 @@ public class ActiveTraceCodecV2 extends AgentStatCodecV2<ActiveTraceBo> {
         private final UnsignedIntegerEncodingStrategy.Analyzer.Builder verySlowTraceCountsAnalyzerBuilder = new UnsignedIntegerEncodingStrategy.Analyzer.Builder();
 
         public ActiveTraceCodecEncoder(AgentStatDataPointCodec codec) {
-            Assert.notNull(codec, "codec must not be null");
-            this.codec = codec;
+            this.codec = Objects.requireNonNull(codec, "codec");
         }
 
         @Override
@@ -139,8 +137,7 @@ public class ActiveTraceCodecV2 extends AgentStatCodecV2<ActiveTraceBo> {
         private List<Integer> verySlowTraceCounts;
 
         public ActiveTraceCodecDecoder(AgentStatDataPointCodec codec) {
-            Assert.notNull(codec, "codec must not be null");
-            this.codec = codec;
+            this.codec = Objects.requireNonNull(codec, "codec");
         }
 
         @Override

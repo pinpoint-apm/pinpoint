@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.profiler;
 
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.util.Assert;
 
 /**
  * @author emeroad
@@ -46,28 +47,16 @@ public class DefaultAgentInformation implements AgentInformation {
             ServiceType serverType,
             String jvmVersion,
             String agentVersion) {
-        if (agentId == null) {
-            throw new NullPointerException("agentId must not be null");
-        }
-        if (applicationName == null) {
-            throw new NullPointerException("applicationName must not be null");
-        }
-        if (machineName == null) {
-            throw new NullPointerException("machineName must not be null");
-        }
-        if (agentVersion == null) {
-            throw new NullPointerException("version must not be null");
-        }
-        this.agentId = agentId;
-        this.applicationName = applicationName;
+        this.agentId = Assert.requireNonNull(agentId, "agentId");
+        this.applicationName = Assert.requireNonNull(applicationName, "applicationName");
         this.isContainer = isContainer;
         this.startTime = startTime;
         this.pid = pid;
-        this.machineName = machineName;
+        this.machineName = Assert.requireNonNull(machineName, "machineName");
         this.hostIp = hostIp;
         this.serverType = serverType;
         this.jvmVersion = jvmVersion;
-        this.agentVersion = agentVersion;
+        this.agentVersion = Assert.requireNonNull(agentVersion, "agentVersion");
     }
 
     @Override

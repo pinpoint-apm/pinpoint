@@ -43,10 +43,10 @@ public class PinpointClientFactoryProvider extends AbstractClientFactoryProvider
 
     @Inject
     public PinpointClientFactoryProvider(ThriftTransportConfig thriftTransportConfig, Provider<AgentInformation> agentInformation, CommandDispatcher commandDispatcher, Provider<ConnectionFactoryProvider> connectionFactoryProvider) {
-        this.thriftTransportConfig = Assert.requireNonNull(thriftTransportConfig, "thriftTransportConfig must not be null");
-        this.agentInformation = Assert.requireNonNull(agentInformation, "agentInformation must not be null");
-        this.commandDispatcher = Assert.requireNonNull(commandDispatcher, "commandDispatcher must not be null");
-        this.connectionFactoryProvider = Assert.requireNonNull(connectionFactoryProvider, "connectionFactoryProvider must not be null");
+        this.thriftTransportConfig = Assert.requireNonNull(thriftTransportConfig, "thriftTransportConfig");
+        this.agentInformation = Assert.requireNonNull(agentInformation, "agentInformation");
+        this.commandDispatcher = Assert.requireNonNull(commandDispatcher, "commandDispatcher");
+        this.connectionFactoryProvider = Assert.requireNonNull(connectionFactoryProvider, "connectionFactoryProvider");
 
     }
 

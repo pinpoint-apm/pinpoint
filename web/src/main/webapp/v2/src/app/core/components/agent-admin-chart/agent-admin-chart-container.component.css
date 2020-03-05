@@ -1,6 +1,0 @@
-.l-wrapper {
-    display: grid;
-    grid-template-columns: 45% 10% 45%;
-    grid-template-rows: 100%;
-    padding: 16px;
-}

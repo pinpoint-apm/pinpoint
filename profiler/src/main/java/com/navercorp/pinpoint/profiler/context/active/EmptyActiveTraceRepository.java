@@ -34,7 +34,7 @@ public class EmptyActiveTraceRepository implements ActiveTraceRepository {
     private final ActiveTraceHistogram emptyActiveTraceHistogram = new EmptyActiveTraceHistogram(BaseHistogramSchema.NORMAL_SCHEMA);
 
     public EmptyActiveTraceRepository(ResponseTimeCollector responseTimeCollector) {
-        this.responseTimeCollector = Assert.requireNonNull(responseTimeCollector, "responseTimeCollector must not be null");
+        this.responseTimeCollector = Assert.requireNonNull(responseTimeCollector, "responseTimeCollector");
     }
 
     @Override
@@ -54,7 +54,7 @@ public class EmptyActiveTraceRepository implements ActiveTraceRepository {
 
     @Override
     public ActiveTraceHandle register(TraceRoot traceRoot) {
-        Assert.requireNonNull(traceRoot, "traceRoot must not be null");
+        Assert.requireNonNull(traceRoot, "traceRoot");
         return new EmptyActiveTraceHandle(traceRoot.getTraceStartTime());
     }
 

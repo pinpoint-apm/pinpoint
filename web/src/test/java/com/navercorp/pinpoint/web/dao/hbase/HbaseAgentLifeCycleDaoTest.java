@@ -18,7 +18,9 @@ package com.navercorp.pinpoint.web.dao.hbase;
 
 import static org.mockito.Mockito.*;
 
+import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseTable;
+import com.navercorp.pinpoint.common.hbase.TableDescriptor;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
 import com.navercorp.pinpoint.common.server.bo.AgentLifeCycleBo;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
@@ -34,7 +36,6 @@ import org.apache.hadoop.hbase.client.Scan;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
@@ -72,12 +73,15 @@ public class HbaseAgentLifeCycleDaoTest {
     @Mock
     private RowMapper<AgentLifeCycleBo> agentLifeCycleMapper;
 
-    @InjectMocks
-    private AgentLifeCycleDao agentLifeCycleDao = new HbaseAgentLifeCycleDao();
+
+    private AgentLifeCycleDao agentLifeCycleDao;
 
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
+        TableDescriptorConfig tableDescriptorConfig = new TableDescriptorConfig(tableNameProvider);
+        TableDescriptor<HbaseColumnFamily.AgentLifeCycleStatus> descriptor = tableDescriptorConfig.getAgentLifeCycleStatus();
+        this.agentLifeCycleDao = new HbaseAgentLifeCycleDao(descriptor, hbaseOperations2, agentLifeCycleMapper);
     }
 
     @Test
@@ -165,7 +169,7 @@ public class HbaseAgentLifeCycleDaoTest {
         final AgentLifeCycleState expectedAgentLifeCycleState = AgentLifeCycleState.RUNNING;
 
         final AgentLifeCycleBo scannedLifeCycleBo = createAgentLifeCycleBo(expectedAgentId, expectedTimestamp, expectedAgentLifeCycleState);
-        when(this.hbaseOperations2.findParallel(any(TableName.class), anyListOf(Scan.class), any(ResultsExtractor.class))).thenReturn(Arrays.asList(scannedLifeCycleBo, scannedLifeCycleBo));
+        when(this.hbaseOperations2.findParallel(any(TableName.class), anyList(), any(ResultsExtractor.class))).thenReturn(Arrays.asList(scannedLifeCycleBo, scannedLifeCycleBo));
 
         AgentInfo nonNullAgentInfo = new AgentInfo();
         nonNullAgentInfo.setAgentId(expectedAgentId);

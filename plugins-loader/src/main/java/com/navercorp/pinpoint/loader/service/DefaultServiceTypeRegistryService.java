@@ -31,7 +31,7 @@ public class DefaultServiceTypeRegistryService implements ServiceTypeRegistrySer
     private final ServiceTypeLocator serviceTypeLocator;
 
     public DefaultServiceTypeRegistryService(TraceMetadataLoaderService typeLoaderService) {
-        Assert.requireNonNull(typeLoaderService, "typeLoaderService must not be null");
+        Assert.requireNonNull(typeLoaderService, "typeLoaderService");
         this.serviceTypeLocator = typeLoaderService.getServiceTypeLocator();
     }
 

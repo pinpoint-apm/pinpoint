@@ -66,7 +66,7 @@ public class LinkCallDataMap {
 
     public void addLinkDataMap(LinkCallDataMap target) {
         if (target == null) {
-            throw new NullPointerException("target must not be null");
+            throw new NullPointerException("target");
         }
         for (Map.Entry<LinkKey, LinkCallData> copyEntry : target.linkDataMap.entrySet()) {
             final LinkKey key = copyEntry.getKey();

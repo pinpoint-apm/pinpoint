@@ -41,10 +41,10 @@ public class DeadlockService implements AgentStatService<DeadlockThreadCountBo> 
     @Override
     public List<DeadlockThreadCountBo> selectAgentStatList(String agentId, Range range) {
         if (agentId == null) {
-            throw new NullPointerException("agentId must not be null");
+            throw new NullPointerException("agentId");
         }
         if (range == null) {
-            throw new NullPointerException("range must not be null");
+            throw new NullPointerException("range");
         }
         return this.deadlockDao.getAgentStatList(agentId, range);
     }

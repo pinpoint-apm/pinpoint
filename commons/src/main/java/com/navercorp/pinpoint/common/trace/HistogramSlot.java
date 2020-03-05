@@ -27,10 +27,10 @@ public class HistogramSlot {
 
     public HistogramSlot(short slotTime, SlotType slotType, String slotName) {
         if (slotType == null) {
-            throw new NullPointerException("slotType must not be null");
+            throw new NullPointerException("slotType");
         }
         if (slotName == null) {
-            throw new NullPointerException("slotName must not be null");
+            throw new NullPointerException("slotName");
         }
         this.slotTime = slotTime;
         this.slotType = slotType;

@@ -17,9 +17,11 @@
 package com.navercorp.pinpoint.grpc.server;
 
 import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.common.util.IdValidateUtils;
 import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.HeaderReader;
 import io.grpc.Metadata;
+import io.grpc.Status;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -31,16 +33,32 @@ public class AgentHeaderReader implements HeaderReader<Header> {
 
     @Override
     public Header extract(Metadata headers) {
-        final String agentId = headers.get(Header.AGENT_ID_KEY);
-        final String applicationName = headers.get(Header.APPLICATION_NAME_KEY);
-        final String agentStartTimeStr = headers.get(Header.AGENT_START_TIME_KEY);
-        Assert.requireNonNull(agentStartTimeStr, "agentStartTime must not be null");
-        // check number format
-        final long startTime = Long.parseLong(agentStartTimeStr);
-
+        final String agentId = getId(headers, Header.AGENT_ID_KEY);
+        final String applicationName = getId(headers, Header.APPLICATION_NAME_KEY);
+        final long startTime = getTime(headers, Header.AGENT_START_TIME_KEY);
         final long socketId = getSocketId(headers);
-
         return new Header(agentId, applicationName, startTime, socketId);
+    }
+
+    private long getTime(Metadata headers, Metadata.Key<String> timeKey) {
+        final String timeStr = headers.get(timeKey);
+        if (timeStr == null) {
+            throw Status.INVALID_ARGUMENT.withDescription(timeKey.name() + " header is missing").asRuntimeException();
+        }
+        try {
+            // check number format
+            return Long.parseLong(timeStr);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("unsupported format");
+        }
+    }
+
+    private String getId(Metadata headers, Metadata.Key<String> idKey) {
+        final String id = headers.get(idKey);
+        if (id == null) {
+            throw Status.INVALID_ARGUMENT.withDescription(idKey.name() + " header is missing").asRuntimeException();
+        }
+        return validateId(id, idKey);
     }
 
     private long getSocketId(Metadata headers) {
@@ -53,6 +71,13 @@ public class AgentHeaderReader implements HeaderReader<Header> {
         } catch (NumberFormatException e) {
             return Header.SOCKET_ID_NOT_EXIST;
         }
+    }
+
+    private String validateId(String id, Metadata.Key key) {
+        if (!IdValidateUtils.validateId(id)) {
+            throw Status.INVALID_ARGUMENT.withDescription("invalid " + key.name()).asRuntimeException();
+        }
+        return id;
     }
 
 

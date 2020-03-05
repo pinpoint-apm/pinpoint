@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.grpc;
 
 import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.common.util.IdValidateUtils;
 import io.grpc.Metadata;
 
 /**
@@ -45,15 +46,10 @@ public class Header {
     private final long socketId;
 
     public Header(String agentId, String applicationName, long agentStartTime, long socketId) {
-        this.agentId = validateId(Assert.requireNonNull(agentId, "agentId must not be null"));
-        this.applicationName = validateId(Assert.requireNonNull(applicationName, "applicationName must not be null"));
+        this.agentId = Assert.requireNonNull(agentId, "agentId");
+        this.applicationName = Assert.requireNonNull(applicationName, "applicationName");
         this.agentStartTime = agentStartTime;
         this.socketId = socketId;
-    }
-
-    private String validateId(String id) {
-        // TODO
-        return id;
     }
 
     public String getAgentId() {

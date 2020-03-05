@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,7 +21,7 @@ import com.navercorp.pinpoint.common.server.bo.Event;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.trace.AnnotationKeyMatcher;
 import com.navercorp.pinpoint.common.trace.LoggingInfo;
-import com.navercorp.pinpoint.common.util.TransactionId;
+import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.loader.service.AnnotationKeyRegistryService;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.calltree.span.Align;
@@ -78,34 +78,34 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
     private ProxyRequestTypeRegistryService proxyRequestTypeRegistryService;
 
     // Temporarily disabled Because We need to solve authentication problem inter system.
-    // @Value("#{pinpointWebProps['log.enable'] ?: false}")
+    // @Value("${log.enable:false}")
     // private boolean logLinkEnable;
 
-    // @Value("#{pinpointWebProps['log.button.name'] ?: ''}")
+    // @Value("${log.button.name:}")
     // private String logButtonName;
 
-    // @Value("#{pinpointWebProps['log.page.url'] ?: ''}")
+    // @Value("${log.page.url:}")
     // private String logPageUrl;
 
     @Override
     public BusinessTransactions selectBusinessTransactions(List<TransactionId> transactionIdList, String applicationName, Range range, Filter filter) {
         if (transactionIdList == null) {
-            throw new NullPointerException("transactionIdList must not be null");
+            throw new NullPointerException("transactionIdList");
         }
         if (applicationName == null) {
-            throw new NullPointerException("applicationName must not be null");
+            throw new NullPointerException("applicationName");
         }
         if (filter == null) {
-            throw new NullPointerException("filter must not be null");
+            throw new NullPointerException("filter");
         }
         if (range == null) {
             // TODO range is not used - check the logic again
-            throw new NullPointerException("range must not be null");
+            throw new NullPointerException("range");
         }
 
         List<List<SpanBo>> traceList;
 
-        if (filter == Filter.NONE) {
+        if (filter == Filter.acceptAllFilter()) {
             List<GetTraceInfo> getTraceInfoList = new ArrayList<>(transactionIdList.size());
             for (TransactionId transactionId : transactionIdList) {
                 getTraceInfoList.add(new GetTraceInfo(transactionId));
@@ -135,7 +135,7 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
     @Override
     public RecordSet createRecordSet(CallTreeIterator callTreeIterator, long focusTimestamp, String agentId, long spanId) {
         if (callTreeIterator == null) {
-            throw new NullPointerException("callTreeIterator must not be null");
+            throw new NullPointerException("callTreeIterator");
         }
 
         RecordSet recordSet = new RecordSet();
@@ -341,7 +341,7 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
     private class SpanAlignPopulate {
         private List<Record> populateSpanRecord(CallTreeIterator callTreeIterator) {
             if (callTreeIterator == null) {
-                throw new NullPointerException("callTreeIterator must not be null");
+                throw new NullPointerException("callTreeIterator");
             }
 
             final List<Record> recordList = new ArrayList<>(callTreeIterator.size() * 2);

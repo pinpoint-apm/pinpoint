@@ -54,7 +54,7 @@ public class LinkDataDuplexMap {
 
     public void addLinkDataDuplexMap(LinkDataDuplexMap linkDataDuplexMap) {
         if (linkDataDuplexMap == null) {
-            throw new NullPointerException("linkDataDuplexMap must not be null");
+            throw new NullPointerException("linkDataDuplexMap");
         }
         for (LinkData copyLinkData : linkDataDuplexMap.sourceLinkDataMap.getLinkDataList()) {
             addSourceLinkData(copyLinkData);
@@ -66,7 +66,7 @@ public class LinkDataDuplexMap {
 
     public void addSourceLinkData(LinkData copyLinkData) {
         if (copyLinkData == null) {
-            throw new NullPointerException("copyLinkData must not be null");
+            throw new NullPointerException("copyLinkData");
         }
         sourceLinkDataMap.addLinkData(copyLinkData);
     }
@@ -74,7 +74,7 @@ public class LinkDataDuplexMap {
 
     public void addTargetLinkData(LinkData copyLinkData) {
         if (copyLinkData == null) {
-            throw new NullPointerException("copyLinkData must not be null");
+            throw new NullPointerException("copyLinkData");
         }
         targetLinkDataMap.addLinkData(copyLinkData);
     }
@@ -87,7 +87,7 @@ public class LinkDataDuplexMap {
 
     public LinkData getSourceLinkData(LinkKey findLinkKey) {
         if (findLinkKey == null) {
-            throw new NullPointerException("findLinkKey must not be null");
+            throw new NullPointerException("findLinkKey");
         }
 
         return sourceLinkDataMap.getLinkData(findLinkKey);
@@ -95,7 +95,7 @@ public class LinkDataDuplexMap {
 
     public LinkData getTargetLinkData(LinkKey findLinkKey) {
         if (findLinkKey == null) {
-            throw new NullPointerException("findLinkKey must not be null");
+            throw new NullPointerException("findLinkKey");
         }
 
         return targetLinkDataMap.getLinkData(findLinkKey);

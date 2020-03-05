@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.profiler.context.grpc;
 
 import com.google.protobuf.ByteString;
+import com.google.protobuf.StringValue;
 import com.navercorp.pinpoint.common.util.IntBooleanIntBooleanValue;
 import com.navercorp.pinpoint.common.util.IntStringStringValue;
 import com.navercorp.pinpoint.common.util.IntStringValue;
@@ -32,12 +33,13 @@ import com.navercorp.pinpoint.grpc.trace.PStringStringValue;
 import org.apache.thrift.TBase;
 
 /**
- * Not thread safe
+ * WARNING Not thread safe
  * @author Woonduk Kang(emeroad)
  */
 public class GrpcAnnotationValueMapper {
 
     private final PAnnotationValue.Builder annotationBuilder = PAnnotationValue.newBuilder();
+    private final StringValue.Builder stringValueBuilder = StringValue.newBuilder();
 
     public PAnnotationValue buildPAnnotationValue(Object value) {
         if (value == null) {
@@ -137,7 +139,7 @@ public class GrpcAnnotationValueMapper {
         return builder.build();
     }
 
-    private static PIntBooleanIntBooleanValue newIntBooleanIntBooleanValue(IntBooleanIntBooleanValue v) {
+    private PIntBooleanIntBooleanValue newIntBooleanIntBooleanValue(IntBooleanIntBooleanValue v) {
         PIntBooleanIntBooleanValue.Builder builder = PIntBooleanIntBooleanValue.newBuilder();
         builder.setIntValue1(v.getIntValue1());
         builder.setBoolValue1(v.isBooleanValue1());
@@ -146,10 +148,10 @@ public class GrpcAnnotationValueMapper {
         return builder.build();
     }
 
-    private static PLongIntIntByteByteStringValue newLongIntIntByteByteStringValue(LongIntIntByteByteStringValue v) {
+    private PLongIntIntByteByteStringValue newLongIntIntByteByteStringValue(LongIntIntByteByteStringValue v) {
         final PLongIntIntByteByteStringValue.Builder builder = PLongIntIntByteByteStringValue.newBuilder();
         builder.setLongValue(v.getLongValue());
-        builder.setLongValue(v.getIntValue1());
+        builder.setIntValue1(v.getIntValue1());
         if (v.getIntValue2() != -1) {
             builder.setIntValue2(v.getIntValue2());
         }
@@ -160,45 +162,62 @@ public class GrpcAnnotationValueMapper {
             builder.setByteValue2(v.getByteValue2());
         }
         if (v.getStringValue() != null) {
-            builder.setStringValue(v.getStringValue());
+            StringValue stringValue = newStringValue(v.getStringValue());
+            builder.setStringValue(stringValue);
         }
         return builder.build();
     }
 
-    private static PIntStringStringValue newIntStringStringValue(IntStringStringValue v) {
+
+
+    private PIntStringStringValue newIntStringStringValue(IntStringStringValue v) {
         final PIntStringStringValue.Builder builder = PIntStringStringValue.newBuilder();
         builder.setIntValue(v.getIntValue());
         if (v.getStringValue1() != null) {
-            builder.setStringValue1(v.getStringValue1());
+            StringValue stringValue1 = newStringValue(v.getStringValue1());
+            builder.setStringValue1(stringValue1);
         }
         if (v.getStringValue2() != null) {
-            builder.setStringValue2(v.getStringValue2());
-        }
-        return builder.build();
-    }
-
-    private static PIntStringValue newIntStringValue(IntStringValue v) {
-        PIntStringValue.Builder valueBuilder = PIntStringValue.newBuilder();
-        valueBuilder.setIntValue(v.getIntValue());
-        if (v.getStringValue() != null) {
-            valueBuilder.setStringValue(v.getStringValue());
-        }
-        return valueBuilder.build();
-    }
-
-    private static PStringStringValue newStringStringValue(StringStringValue v) {
-        PStringStringValue.Builder builder = PStringStringValue.newBuilder();
-        builder.setStringValue1(v.getStringValue1());
-
-        final String stringValue2 = v.getStringValue2();
-        if (stringValue2 != null) {
+            StringValue stringValue2 = newStringValue(v.getStringValue2());
             builder.setStringValue2(stringValue2);
         }
         return builder.build();
     }
 
+    private PIntStringValue newIntStringValue(IntStringValue v) {
+        PIntStringValue.Builder valueBuilder = PIntStringValue.newBuilder();
+        valueBuilder.setIntValue(v.getIntValue());
+        if (v.getStringValue() != null) {
+            StringValue stringValue = newStringValue(v.getStringValue());
+            valueBuilder.setStringValue(stringValue);
+        }
+        return valueBuilder.build();
+    }
+
+    private PStringStringValue newStringStringValue(StringStringValue v) {
+        PStringStringValue.Builder builder = PStringStringValue.newBuilder();
+        if (v.getStringValue1() != null) {
+            StringValue stringValue1 = newStringValue(v.getStringValue1());
+            builder.setStringValue1(stringValue1);
+        }
+
+        if (v.getStringValue2() != null) {
+            StringValue stringValue2 = newStringValue(v.getStringValue2());
+            builder.setStringValue2(stringValue2);
+        }
+        return builder.build();
+    }
+
+    private StringValue newStringValue(String stringValue) {
+        final StringValue.Builder builder = this.stringValueBuilder;
+        builder.clear();
+        builder.setValue(stringValue);
+        return builder.build();
+    }
+
     private PAnnotationValue.Builder getAnnotationBuilder() {
-        this.annotationBuilder.clear();
-        return annotationBuilder;
+        final PAnnotationValue.Builder builder = this.annotationBuilder;
+        builder.clear();
+        return builder;
     }
 }

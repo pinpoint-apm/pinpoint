@@ -19,8 +19,6 @@ package com.navercorp.pinpoint.web.filter;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.navercorp.pinpoint.common.server.bo.SpanBo;
-
 /**
  *
  * @author netspider
@@ -39,7 +37,7 @@ public class FilterChain<T> implements Filter<T> {
 
     public void addFilter(Filter<T> filter) {
         if (filter == null) {
-            throw new NullPointerException("filter must not be null");
+            throw new NullPointerException("filter");
         }
         this.filterList.add(filter);
     }
@@ -47,7 +45,7 @@ public class FilterChain<T> implements Filter<T> {
     @Override
     public boolean include(List<T> transaction) {
         // FIXME how to improve performance without "for loop"
-        for (Filter filter : filterList) {
+        for (Filter<T> filter : filterList) {
             if (!filter.include(transaction)) {
                 return REJECT;
             }

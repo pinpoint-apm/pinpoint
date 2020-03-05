@@ -76,7 +76,7 @@ public class ParsedServiceType {
 
     ServiceTypeInfo toServiceTypeInfo() {
         if (code == null) {
-            throw new IllegalArgumentException("service type code must not be null");
+            throw new NullPointerException("service type code");
         }
         if (StringUtils.isEmpty(name)) {
             throw new IllegalArgumentException("service type name must not be empty");

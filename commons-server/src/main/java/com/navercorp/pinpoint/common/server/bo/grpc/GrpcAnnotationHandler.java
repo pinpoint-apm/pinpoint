@@ -73,29 +73,55 @@ public class GrpcAnnotationHandler implements AnnotationFactory.AnnotationTypeHa
 
 
     private IntStringValue newIntStringValue(Object annotationValue) {
-        PIntStringValue tValue = (PIntStringValue) annotationValue;
-        return new IntStringValue(tValue.getIntValue(), tValue.getStringValue());
+        final PIntStringValue pValue = (PIntStringValue) annotationValue;
+        String stringValue = null;
+        if (pValue.hasStringValue()) {
+            stringValue = pValue.getStringValue().getValue();
+        }
+        return new IntStringValue(pValue.getIntValue(), stringValue);
     }
 
     private IntStringStringValue newIntStringString(Object annotationValue) {
-        PIntStringStringValue tValue = (PIntStringStringValue) annotationValue;
-        return new IntStringStringValue(tValue.getIntValue(), tValue.getStringValue1(), tValue.getStringValue2());
+        final PIntStringStringValue pValue = (PIntStringStringValue) annotationValue;
+        String stringValue1 = null;
+        if (pValue.hasStringValue1()) {
+            stringValue1 = pValue.getStringValue1().getValue();
+        }
+        String stringValue2 = null;
+        if (pValue.hasStringValue2()) {
+            stringValue2 = pValue.getStringValue2().getValue();
+        }
+        return new IntStringStringValue(pValue.getIntValue(), stringValue1, stringValue2);
     }
 
     private StringStringValue newStringStringValue(Object annotationValue) {
-        PStringStringValue tValue = (PStringStringValue) annotationValue;
-        return new StringStringValue(tValue.getStringValue1(), tValue.getStringValue2());
+        final PStringStringValue pValue = (PStringStringValue) annotationValue;
+
+        String stringValue1 = null;
+        if (pValue.hasStringValue1()) {
+            stringValue1 = pValue.getStringValue1().getValue();
+        }
+
+        String stringValue2 = null;
+        if (pValue.hasStringValue2()) {
+            stringValue2 = pValue.getStringValue2().getValue();
+        }
+        return new StringStringValue(stringValue1, stringValue2);
     }
 
     private IntBooleanIntBooleanValue newIntBooleanIntBooleanValue(Object annotationValue) {
-        PIntBooleanIntBooleanValue tValue = (PIntBooleanIntBooleanValue) annotationValue;
-        return new IntBooleanIntBooleanValue(tValue.getIntValue1(), tValue.getBoolValue1(),
-                tValue.getIntValue2(), tValue.getBoolValue2());
+        final PIntBooleanIntBooleanValue pValue = (PIntBooleanIntBooleanValue) annotationValue;
+        return new IntBooleanIntBooleanValue(pValue.getIntValue1(), pValue.getBoolValue1(),
+                pValue.getIntValue2(), pValue.getBoolValue2());
     }
 
     private LongIntIntByteByteStringValue newLongIntIntByteByteStringValue(Object annotationValue) {
-        PLongIntIntByteByteStringValue tValue = (PLongIntIntByteByteStringValue) annotationValue;
-        return new LongIntIntByteByteStringValue(tValue.getLongValue(), tValue.getIntValue1(), tValue.getIntValue2(),
-                (byte)tValue.getByteValue1(), (byte)tValue.getByteValue2(), tValue.getStringValue());
+        final PLongIntIntByteByteStringValue pValue = (PLongIntIntByteByteStringValue) annotationValue;
+        String stringValue = null;
+        if (pValue.hasStringValue()) {
+            stringValue = pValue.getStringValue().getValue();
+        }
+        return new LongIntIntByteByteStringValue(pValue.getLongValue(), pValue.getIntValue1(), pValue.getIntValue2(),
+                (byte)pValue.getByteValue1(), (byte)pValue.getByteValue2(), stringValue);
     }
 }

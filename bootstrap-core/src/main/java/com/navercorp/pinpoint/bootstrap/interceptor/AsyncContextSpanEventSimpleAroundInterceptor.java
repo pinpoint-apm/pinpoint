@@ -34,10 +34,10 @@ public abstract class AsyncContextSpanEventSimpleAroundInterceptor implements Ar
 
     public AsyncContextSpanEventSimpleAroundInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor) {
         if (traceContext == null) {
-            throw new NullPointerException("traceContext must not be null");
+            throw new NullPointerException("traceContext");
         }
         if (methodDescriptor == null) {
-            throw new NullPointerException("methodDescriptor must not be null");
+            throw new NullPointerException("methodDescriptor");
         }
 
         this.methodDescriptor = methodDescriptor;
@@ -82,7 +82,7 @@ public abstract class AsyncContextSpanEventSimpleAroundInterceptor implements Ar
             logger.afterInterceptor(target, args, result, throwable);
         }
 
-        final AsyncContext asyncContext = getAsyncContext(target);
+        final AsyncContext asyncContext = getAsyncContext(target, args);
         if (asyncContext == null) {
             logger.debug("AsyncContext not found");
             return;

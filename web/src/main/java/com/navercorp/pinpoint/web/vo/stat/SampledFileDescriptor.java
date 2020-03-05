@@ -37,7 +37,7 @@ public class SampledFileDescriptor implements SampledAgentStatDataPoint {
     private final AgentStatPoint<Long> openFileDescriptorCount;
 
     public SampledFileDescriptor(AgentStatPoint<Long> openFileDescriptorCount) {
-        this.openFileDescriptorCount = Objects.requireNonNull(openFileDescriptorCount, "openFileDescriptorCount must not be null");
+        this.openFileDescriptorCount = Objects.requireNonNull(openFileDescriptorCount, "openFileDescriptorCount");
     }
 
     public AgentStatPoint<Long> getOpenFileDescriptorCount() {

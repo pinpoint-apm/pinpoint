@@ -1,0 +1,15 @@
+:host {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+textarea {
+    width: calc(100% - 40px);
+    height: calc(100% - 65px);
+    resize: none;
+    padding: 10px;
+    margin: 20px;
+    background-color: #FFF;
+    border: 1px solid #D0D7E1;
+}

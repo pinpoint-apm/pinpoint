@@ -38,7 +38,7 @@ public class PinpointProfilerPackageFilter implements ClassNameFilter {
 
     public PinpointProfilerPackageFilter(List<String> packageList) {
         if (packageList == null) {
-            throw new NullPointerException("packageList must not be null");
+            throw new NullPointerException("packageList");
         }
         this.packageList = new ArrayList<String>(packageList);
     }

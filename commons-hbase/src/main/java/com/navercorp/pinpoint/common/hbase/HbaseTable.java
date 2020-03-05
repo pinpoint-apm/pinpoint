@@ -40,16 +40,12 @@ public enum HbaseTable {
 
     private final String name;
 
-    private HbaseTable(String name) {
+    HbaseTable(String name) {
         this.name = name;
     }
 
     public String getName() {
         return name;
-    }
-
-    HbaseColumnFamily createColumnFamily(byte[] columnFamilyName) {
-        return new HbaseColumnFamily(this, columnFamilyName);
     }
 
 }

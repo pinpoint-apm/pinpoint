@@ -82,7 +82,12 @@ public class GrpcAgentEventHandler implements SimpleHandler {
         if (agentEventBo == null) {
             return;
         }
-        insert(agentEventBo);
+
+        try {
+            insert(agentEventBo);
+        } catch (Exception e) {
+            logger.warn("Failed to handle agentStat={}", MessageFormatUtils.debugLog(agentStat), e);
+        }
     }
 
     private void handleAgentStatBatch(PAgentStatBatch agentStatBatch) {
@@ -96,21 +101,20 @@ public class GrpcAgentEventHandler implements SimpleHandler {
             return;
         }
 
-        for (AgentEventBo agentEventBo : agentEventBoList) {
-            insert(agentEventBo);
+        try {
+            for (AgentEventBo agentEventBo : agentEventBoList) {
+                insert(agentEventBo);
+            }
+        } catch (Exception e) {
+            logger.warn("Failed to handle agentStatBatch={}", MessageFormatUtils.debugLog(agentStatBatch), e);
         }
     }
 
     private void insert(final AgentEventBo agentEventBo) {
-        try {
-            final Object eventMessage = getEventMessage(agentEventBo);
-            final byte[] eventBody = agentEventMessageSerializerV1.serialize(agentEventBo.getEventType(), eventMessage);
-            agentEventBo.setEventBody(eventBody);
-            this.agentEventService.insert(agentEventBo);
-        } catch (Exception e) {
-            logger.warn("Failed to insert agentEventBo={}", agentEventBo, e);
-            return;
-        }
+        final Object eventMessage = getEventMessage(agentEventBo);
+        final byte[] eventBody = agentEventMessageSerializerV1.serialize(agentEventBo.getEventType(), eventMessage);
+        agentEventBo.setEventBody(eventBody);
+        this.agentEventService.insert(agentEventBo);
     }
 
     private Object getEventMessage(AgentEventBo agentEventBo) {

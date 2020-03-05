@@ -82,4 +82,5 @@ public final class MongoConstants {
 
     public static final ServiceType MONGODB = ServiceTypeFactory.of(2650, "MONGO", TERMINAL, INCLUDE_DESTINATION_ID);
     public static final ServiceType MONGO_EXECUTE_QUERY = ServiceTypeFactory.of(2651, "MONGO_EXECUTE_QUERY", "MONGO", TERMINAL, RECORD_STATISTICS, INCLUDE_DESTINATION_ID);
+    public static final ServiceType MONGO_REACTIVE = ServiceTypeFactory.of(2652, "MONGO_REACTIVE", "MONGO");
 }

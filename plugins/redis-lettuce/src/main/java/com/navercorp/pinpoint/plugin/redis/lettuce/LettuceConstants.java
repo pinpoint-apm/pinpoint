@@ -19,6 +19,7 @@ import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
 
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
+import com.navercorp.pinpoint.common.trace.ServiceTypeProvider;
 
 /**
  * 
@@ -29,7 +30,7 @@ public final class LettuceConstants {
     private LettuceConstants() {
     }
 
-    public static final ServiceType REDIS_LETTUCE = ServiceTypeFactory.of(8201, "REDIS_LETTUCE", "REDIS", TERMINAL, RECORD_STATISTICS);
+    public static final ServiceType REDIS_LETTUCE = ServiceTypeProvider.getByName("REDIS_LETTUCE");
     public static final String REDIS_SCOPE = "redisLettuceScope";
 
 }

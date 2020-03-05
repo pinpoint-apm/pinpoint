@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.profiler.context.provider;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.navercorp.pinpoint.bootstrap.instrument.DynamicTransformTrigger;
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.DynamicTransformService;
 import com.navercorp.pinpoint.profiler.DynamicTransformerRegistry;
 
@@ -34,15 +35,8 @@ public class DynamicTransformTriggerProvider implements Provider<DynamicTransfor
 
     @Inject
     public DynamicTransformTriggerProvider(Instrumentation instrumentation, DynamicTransformerRegistry dynamicTransformerRegistry) {
-        if (instrumentation == null) {
-            throw new NullPointerException("instrumentation must not be null");
-        }
-        if (dynamicTransformerRegistry == null) {
-            throw new NullPointerException("dynamicTransformerRegistry must not be null");
-        }
-
-        this.instrumentation = instrumentation;
-        this.dynamicTransformerRegistry = dynamicTransformerRegistry;
+        this.instrumentation = Assert.requireNonNull(instrumentation, "instrumentation");
+        this.dynamicTransformerRegistry = Assert.requireNonNull(dynamicTransformerRegistry, "dynamicTransformerRegistry");
     }
 
     @Override

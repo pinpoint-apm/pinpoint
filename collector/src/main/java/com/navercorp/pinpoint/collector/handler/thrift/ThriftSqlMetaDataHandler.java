@@ -45,7 +45,7 @@ public class ThriftSqlMetaDataHandler implements RequestResponseHandler {
     public void handleRequest(ServerRequest serverRequest, ServerResponse serverResponse) {
         final Object data = serverRequest.getData();
         if (logger.isDebugEnabled()) {
-            logger.debug("Handle request data=={}", data);
+            logger.debug("Handle request data={}", data);
         }
 
         if (data instanceof TSqlMetaData) {
@@ -62,7 +62,7 @@ public class ThriftSqlMetaDataHandler implements RequestResponseHandler {
             sqlMetaDataBo.setSql(sqlMetaData.getSql());
             sqlMetaDataService.insert(sqlMetaDataBo);
         } catch (Exception e) {
-            logger.warn("{} handler error. Caused:{}", this.getClass(), e.getMessage(), e);
+            logger.warn("Failed to handle SqlMetaData={}, Caused:{}", sqlMetaData, e.getMessage(), e);
             final TResult result = new TResult(false);
             result.setMessage(e.getMessage());
             return result;

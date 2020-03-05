@@ -52,7 +52,7 @@ public class LambdaFactoryClassAdaptor {
 
     public byte[] transform(byte[] bytes, LambdaClass lambdaClass) {
         if (bytes == null) {
-            throw new NullPointerException("bytes must not be null");
+            throw new NullPointerException("bytes");
         }
 
         final ClassReader reader = new ClassReader(bytes);

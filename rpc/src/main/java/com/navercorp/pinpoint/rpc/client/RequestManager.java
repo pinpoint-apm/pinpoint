@@ -53,7 +53,7 @@ public class RequestManager {
 
     public RequestManager(Timer timer, long defaultTimeoutMillis) {
         if (timer == null) {
-            throw new NullPointerException("timer must not be null");
+            throw new NullPointerException("timer");
         }
         
         if (defaultTimeoutMillis <= 0) {

@@ -30,7 +30,7 @@ public class ThriftTransportConfigProvider implements Provider<ThriftTransportCo
 
     @Inject
     public ThriftTransportConfigProvider(ProfilerConfig profilerConfig) {
-        this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig must not be null");
+        this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig");
     }
 
     @Override

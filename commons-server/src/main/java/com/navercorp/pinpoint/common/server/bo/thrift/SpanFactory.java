@@ -17,12 +17,10 @@
 package com.navercorp.pinpoint.common.server.bo.thrift;
 
 
-
 import com.google.common.annotations.VisibleForTesting;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.AnnotationComparator;
 import com.navercorp.pinpoint.common.server.bo.AnnotationFactory;
-import com.navercorp.pinpoint.common.server.bo.BasicSpan;
 import com.navercorp.pinpoint.common.server.bo.LocalAsyncIdBo;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanChunkBo;
@@ -32,8 +30,8 @@ import com.navercorp.pinpoint.common.server.bo.filter.EmptySpanEventFilter;
 import com.navercorp.pinpoint.common.server.bo.filter.SpanEventFilter;
 import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
 import com.navercorp.pinpoint.common.server.util.EmptyAcceptedTimeService;
-import com.navercorp.pinpoint.common.util.TransactionId;
-import com.navercorp.pinpoint.common.util.TransactionIdUtils;
+import com.navercorp.pinpoint.common.profiler.util.TransactionId;
+import com.navercorp.pinpoint.common.profiler.util.TransactionIdUtils;
 import com.navercorp.pinpoint.thrift.dto.TAnnotation;
 import com.navercorp.pinpoint.thrift.dto.TIntStringValue;
 import com.navercorp.pinpoint.thrift.dto.TLocalAsyncId;
@@ -374,7 +372,7 @@ public class SpanFactory {
     // for test
     public SpanEventBo buildSpanEventBo(TSpanEvent tSpanEvent) {
         if (tSpanEvent == null) {
-            throw new NullPointerException("tSpanEvent must not be null");
+            throw new NullPointerException("tSpanEvent");
         }
 
         final SpanEventBo spanEvent = new SpanEventBo();
@@ -384,7 +382,7 @@ public class SpanFactory {
 
     private AnnotationBo newAnnotationBo(TAnnotation tAnnotation) {
         if (tAnnotation == null) {
-            throw new NullPointerException("annotation must not be null");
+            throw new NullPointerException("annotation");
         }
         AnnotationBo annotationBo = annotationFactory.buildAnnotation(tAnnotation);
         return annotationBo;

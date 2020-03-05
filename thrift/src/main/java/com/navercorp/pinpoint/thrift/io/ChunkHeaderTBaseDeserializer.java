@@ -16,20 +16,23 @@
 
 package com.navercorp.pinpoint.thrift.io;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import com.navercorp.pinpoint.io.header.*;
+import com.navercorp.pinpoint.io.header.ByteArrayHeaderReader;
+import com.navercorp.pinpoint.io.header.Header;
+import com.navercorp.pinpoint.io.header.HeaderEntity;
+import com.navercorp.pinpoint.io.header.HeaderReader;
+import com.navercorp.pinpoint.io.header.InvalidHeaderException;
 import com.navercorp.pinpoint.io.request.DefaultMessage;
 import com.navercorp.pinpoint.io.request.Message;
-import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.io.util.TypeLocator;
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.protocol.TProtocolFactory;
 import org.apache.thrift.transport.TMemoryInputTransport;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Deserialize chunked packets 

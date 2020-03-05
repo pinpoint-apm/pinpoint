@@ -45,15 +45,15 @@ public class DefaultTCPReceiver implements TCPReceiver {
 
 
     public DefaultTCPReceiver(String name, TCPPacketHandler tcpPacketHandler, Executor executor, InetSocketAddress bindAddress, PinpointServerAcceptorProvider acceptorProvider) {
-        this.name = Objects.requireNonNull(name, "name must not be null");
+        this.name = Objects.requireNonNull(name, "name");
         this.logger = LoggerFactory.getLogger(name);
 
-        this.bindAddress = Objects.requireNonNull(bindAddress, "bindAddress must not be null");
+        this.bindAddress = Objects.requireNonNull(bindAddress, "bindAddress");
 
-        this.acceptorProvider = Objects.requireNonNull(acceptorProvider, "acceptorProvider must not be null");
-        this.executor = Objects.requireNonNull(executor, "executor must not be null");
+        this.acceptorProvider = Objects.requireNonNull(acceptorProvider, "acceptorProvider");
+        this.executor = Objects.requireNonNull(executor, "executor");
 
-        this.tcpPacketHandler = Objects.requireNonNull(tcpPacketHandler, "tcpPacketHandler must not be null");
+        this.tcpPacketHandler = Objects.requireNonNull(tcpPacketHandler, "tcpPacketHandler");
 
     }
 

@@ -28,12 +28,15 @@ import java.util.Properties;
  */
 public class PropertiesVerificationTest {
 
+    private static final String LOCAL_HOST = "localhost";
+    private static final String HBASE_CLIENT_HOST_VALUE =  "${pinpoint.zookeeper.address}";
+
     @Test
     public void checkHbasePropertiesTest() throws Exception {
-        Properties properties = PropertyUtils.loadPropertyFromClassPath("hbase.properties");
+        Properties properties = PropertyUtils.loadPropertyFromClassPath("profiles/release/hbase-env.properties");
 
         String clientHost = properties.getProperty("hbase.client.host");
-        Assert.assertEquals("localhost", clientHost);
+        Assert.assertEquals(HBASE_CLIENT_HOST_VALUE, clientHost);
 
         String clientPort = properties.getProperty("hbase.client.port");
         Assert.assertEquals("2181", clientPort);
@@ -61,11 +64,14 @@ public class PropertiesVerificationTest {
         String l4Ip = properties.getProperty("collector.l4.ip");
         Assert.assertTrue(StringUtils.isEmpty(l4Ip));
 
+        String pinpointZKAddress = properties.getProperty("pinpoint.zookeeper.address");
+        Assert.assertEquals(LOCAL_HOST, pinpointZKAddress);
+
         String zookeeperAddress = properties.getProperty("cluster.zookeeper.address");
-        Assert.assertEquals("localhost", zookeeperAddress);
+        Assert.assertEquals(HBASE_CLIENT_HOST_VALUE, zookeeperAddress);
 
         zookeeperAddress = properties.getProperty("flink.cluster.zookeeper.address");
-        Assert.assertEquals("localhost", zookeeperAddress);
+        Assert.assertEquals(HBASE_CLIENT_HOST_VALUE, zookeeperAddress);
 
         String clusterListenIp = properties.getProperty("cluster.listen.ip");
         Assert.assertTrue(StringUtils.isEmpty(clusterListenIp));

@@ -15,23 +15,30 @@
  */
 package com.navercorp.pinpoint.collector.config;
 
+import com.navercorp.pinpoint.common.server.config.AnnotationVisitor;
+import com.navercorp.pinpoint.common.server.config.LoggingEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Configuration;
 
-import java.util.Objects;
-import java.util.Properties;
+import javax.annotation.PostConstruct;
 
 /**
  * @author minwoo.jung
  */
-public class FlinkConfiguration implements InitializingBean {
+@Configuration
+public class FlinkConfiguration {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(FlinkConfiguration.class);
-    private Properties properties;
+    private final Logger logger = LoggerFactory.getLogger(FlinkConfiguration.class);
 
+    @Value("${flink.cluster.enable:false}")
     protected boolean flinkClusterEnable;
+
+    @Value("${flink.cluster.zookeeper.address:}")
     protected String flinkClusterZookeeperAddress;
+
+    @Value("${flink.cluster.zookeeper.sessiontimeout:-1}")
     protected int flinkClusterSessionTimeout;
 
     public FlinkConfiguration() {
@@ -41,10 +48,6 @@ public class FlinkConfiguration implements InitializingBean {
         this.flinkClusterEnable = flinkClusterEnable;
         this.flinkClusterZookeeperAddress = flinkClusterZookeeperAddress;
         this.flinkClusterSessionTimeout = flinkClusterSessionTimeout;
-    }
-
-    public void setProperties(Properties properties) {
-        this.properties = properties;
     }
 
     public boolean isFlinkClusterEnable() {
@@ -59,19 +62,15 @@ public class FlinkConfiguration implements InitializingBean {
         return flinkClusterSessionTimeout;
     }
 
-    @Override
-    public void afterPropertiesSet() throws Exception {
-        final Properties properties = Objects.requireNonNull(this.properties, "properties must not be null");
-        readPropertyValues(properties);
+    @PostConstruct
+    public void log() {
+        logger.info("{}", this);
+        if (logger.isDebugEnabled()) {
+            AnnotationVisitor visitor = new AnnotationVisitor(Value.class);
+            visitor.visit(this, new LoggingEvent(logger));
+        }
     }
 
-    protected void readPropertyValues(Properties properties) {
-        LOGGER.info("pinpoint-collector.properties read.");
-
-        this.flinkClusterEnable = CollectorConfiguration.readBoolean(properties, "flink.cluster.enable");
-        this.flinkClusterZookeeperAddress = CollectorConfiguration.readString(properties, "flink.cluster.zookeeper.address", "");
-        this.flinkClusterSessionTimeout = CollectorConfiguration.readInt(properties, "flink.cluster.zookeeper.sessiontimeout", -1);
-    }
 
     @Override
     public String toString() {

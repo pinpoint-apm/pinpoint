@@ -33,7 +33,7 @@ public class DefaultProxyRequestParserLoaderService implements ProxyRequestParse
     private final List<ProxyRequestParser> proxyHttpHeaderParserList = new ArrayList<ProxyRequestParser>();
 
     public DefaultProxyRequestParserLoaderService(final List<ProxyRequestParserProvider> providerList) {
-        this.providerList = Assert.requireNonNull(providerList, "providerList must not be null");
+        this.providerList = Assert.requireNonNull(providerList, "providerList");
         load();
     }
 

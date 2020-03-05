@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,7 +18,7 @@ package com.navercorp.pinpoint.profiler.sender.grpc;
 
 
 import com.navercorp.pinpoint.common.util.Assert;
-import com.navercorp.pinpoint.grpc.client.ChannelFactoryOption;
+import com.navercorp.pinpoint.grpc.client.ChannelFactory;
 
 import com.google.protobuf.Empty;
 
@@ -49,11 +49,11 @@ public class StatGrpcDataSender extends GrpcDataSender {
                               int senderExecutorQueueSize,
                               MessageConverter<GeneratedMessageV3> messageConverter,
                               ReconnectExecutor reconnectExecutor,
-                              ChannelFactoryOption channelFactoryOption) {
-        super(host, port, senderExecutorQueueSize, messageConverter, channelFactoryOption);
+                              ChannelFactory channelFactory) {
+        super(host, port, senderExecutorQueueSize, messageConverter, channelFactory);
 
         this.statStub = StatGrpc.newStub(managedChannel);
-        this.reconnectExecutor = Assert.requireNonNull(reconnectExecutor, "reconnectExecutor must not be null");
+        this.reconnectExecutor = Assert.requireNonNull(reconnectExecutor, "reconnectExecutor");
         {
             final Runnable statStreamReconnectJob = new Runnable() {
                 @Override
@@ -61,9 +61,8 @@ public class StatGrpcDataSender extends GrpcDataSender {
                     statStream = newStatStream();
                 }
             };
-
             this.statStreamReconnector = reconnectExecutor.newReconnector(statStreamReconnectJob);
-            this.statStream = newStatStream();
+            statStreamReconnectJob.run();
         }
     }
 

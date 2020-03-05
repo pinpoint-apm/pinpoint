@@ -31,12 +31,12 @@ public class DirectoryScanner implements Scanner {
     private final String directory;
 
     public DirectoryScanner(String directory) {
-        this.directory = Assert.requireNonNull(directory, "directory must not be null");
+        this.directory = Assert.requireNonNull(directory, "directory");
     }
 
     @Override
     public boolean exist(String fileName) {
-        Assert.requireNonNull(fileName, "fileName must not be null");
+        Assert.requireNonNull(fileName, "fileName");
 
         final String fullPath = getFullPath(fileName);
         final File file = new File(fullPath);
@@ -50,7 +50,7 @@ public class DirectoryScanner implements Scanner {
 
     @Override
     public InputStream openStream(String fileName) {
-        Assert.requireNonNull(fileName, "fileName must not be null");
+        Assert.requireNonNull(fileName, "fileName");
 
         final String fullPath = getFullPath(fileName);
         try {

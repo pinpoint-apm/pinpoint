@@ -23,7 +23,7 @@ import io.grpc.Metadata;
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class AgentHeaderFactory implements HeaderFactory<Header> {
+public class AgentHeaderFactory implements HeaderFactory {
 
     private final String agentId;
     private final String applicationName;
@@ -31,8 +31,8 @@ public class AgentHeaderFactory implements HeaderFactory<Header> {
 
 
     public AgentHeaderFactory(String agentId, String applicationName, long agentStartTime) {
-        this.agentId = Assert.requireNonNull(agentId, "agentId must not be null");
-        this.applicationName = Assert.requireNonNull(applicationName, "applicationName must not be null");
+        this.agentId = Assert.requireNonNull(agentId, "agentId");
+        this.applicationName = Assert.requireNonNull(applicationName, "applicationName");
         this.agentStartTime = agentStartTime;
 
     }

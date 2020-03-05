@@ -1,14 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xmlns="http://java.sun.com/xml/ns/javaee"
-         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
-         id="pinpoint-web" version="2.5">
+         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+         id="pinpoint-web" version="3.0">
 
     <context-param>
         <param-name>log4jConfigLocation</param-name>
-        <param-value>classpath:log4j.xml</param-value>
+        <param-value>classpath:profiles/${pinpoint.profiles.active}/log4j.xml</param-value>
     </context-param>
 
+    <context-param>
+        <param-name>pinpoint.default.active.profile</param-name>
+        <param-value>release</param-value>
+    </context-param>
+
+    <listener>
+        <listener-class>org.springframework.web.util.Log4jConfigListener</listener-class>
+    </listener>
     <!-- root application context -->
     <listener>
         <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
@@ -64,7 +72,7 @@
 
     <filter-mapping>
         <filter-name>rewriteFilter</filter-name>
-        <url-pattern>/v2/*</url-pattern>
+        <url-pattern>/*</url-pattern>
     </filter-mapping>
 
     <filter-mapping>

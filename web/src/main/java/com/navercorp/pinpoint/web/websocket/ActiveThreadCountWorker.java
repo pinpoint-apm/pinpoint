@@ -74,12 +74,12 @@ public class ActiveThreadCountWorker implements PinpointWebSocketHandlerWorker {
     }
 
     public ActiveThreadCountWorker(AgentService agentService, String applicationName, String agentId, PinpointWebSocketResponseAggregator webSocketResponseAggregator, WorkerActiveManager workerActiveManager) {
-        this.agentService = Objects.requireNonNull(agentService, "agentService must not be null");
-        this.applicationName = Objects.requireNonNull(applicationName, "applicationName must not be null");
-        this.agentId = Objects.requireNonNull(agentId, "agentId must not be null");
+        this.agentService = Objects.requireNonNull(agentService, "agentService");
+        this.applicationName = Objects.requireNonNull(applicationName, "applicationName");
+        this.agentId = Objects.requireNonNull(agentId, "agentId");
 
-        this.responseAggregator = Objects.requireNonNull(webSocketResponseAggregator, "responseAggregator must not be null");
-        this.workerActiveManager = Objects.requireNonNull(workerActiveManager, "workerActiveManager must not be null");
+        this.responseAggregator = Objects.requireNonNull(webSocketResponseAggregator, "responseAggregator");
+        this.workerActiveManager = Objects.requireNonNull(workerActiveManager, "workerActiveManager");
 
         AgentActiveThreadCountFactory failResponseFactory = new AgentActiveThreadCountFactory();
         failResponseFactory.setAgentId(agentId);
@@ -197,7 +197,9 @@ public class ActiveThreadCountWorker implements PinpointWebSocketHandlerWorker {
 
         @Override
         public void handleStreamResponsePacket(ClientStreamChannel streamChannel, StreamResponsePacket packet) {
-            logger.info("handleStreamResponsePacket() streamChannel:{}, packet:{}", streamChannel, packet);
+            if (logger.isDebugEnabled()) {
+                logger.debug("handleStreamResponsePacket() streamChannel:{}, packet:{}", streamChannel, packet);
+            }
 
             TBase response = agentService.deserializeResponse(packet.getPayload(), null);
             AgentActiveThreadCount activeThreadCount = getAgentActiveThreadCount(response);
@@ -206,14 +208,18 @@ public class ActiveThreadCountWorker implements PinpointWebSocketHandlerWorker {
 
         @Override
         public void handleStreamClosePacket(ClientStreamChannel streamChannel, StreamClosePacket packet) {
-            logger.info("handleStreamClosePacket() streamChannel:{}, packet:{}", streamChannel, packet);
+            if (logger.isDebugEnabled()) {
+                logger.debug("handleStreamClosePacket() streamChannel:{}, packet:{}", streamChannel, packet);
+            }
 
             setDefaultErrorMessage(StreamCode.STATE_CLOSED.name());
         }
 
         @Override
         public void stateUpdated(ClientStreamChannel streamChannel, StreamChannelStateCode updatedStateCode) {
-            logger.info("stateUpdated() streamChannel:{}, stateCode:{}", streamChannel, updatedStateCode);
+            if (logger.isDebugEnabled()) {
+                logger.debug("stateUpdated() streamChannel:{}, stateCode:{}", streamChannel, updatedStateCode);
+            }
 
             switch (updatedStateCode) {
                 case CLOSED:

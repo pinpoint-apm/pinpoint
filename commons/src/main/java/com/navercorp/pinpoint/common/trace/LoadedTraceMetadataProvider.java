@@ -26,7 +26,7 @@ public class LoadedTraceMetadataProvider implements TraceMetadataProvider {
     private final TraceMetadataProvider traceMetadataProvider;
 
     public LoadedTraceMetadataProvider(TraceMetadataProvider traceMetadataProvider) {
-        this.traceMetadataProvider = Assert.requireNonNull(traceMetadataProvider, "traceMetadataProvider must not be null");
+        this.traceMetadataProvider = Assert.requireNonNull(traceMetadataProvider, "traceMetadataProvider");
     }
 
 

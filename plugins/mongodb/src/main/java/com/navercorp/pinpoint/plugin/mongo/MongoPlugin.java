@@ -14,6 +14,7 @@
  */
 package com.navercorp.pinpoint.plugin.mongo;
 
+import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
 import com.navercorp.pinpoint.bootstrap.instrument.ClassFilters;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentException;
@@ -48,6 +49,7 @@ import com.navercorp.pinpoint.plugin.mongo.field.getter.filters.SearchGetter;
 import com.navercorp.pinpoint.plugin.mongo.field.getter.filters.TextSearchOptionsGetter;
 import com.navercorp.pinpoint.plugin.mongo.field.getter.updates.ListValuesGetter;
 import com.navercorp.pinpoint.plugin.mongo.field.getter.updates.PushOptionsGetter;
+import com.navercorp.pinpoint.plugin.mongo.interceptor.PublisherInterceptor;
 import com.navercorp.pinpoint.plugin.mongo.interceptor.MongoCUDSessionInterceptor;
 import com.navercorp.pinpoint.plugin.mongo.interceptor.MongoDriverConnectInterceptor3_0;
 import com.navercorp.pinpoint.plugin.mongo.interceptor.MongoDriverConnectInterceptor3_7;
@@ -94,8 +96,11 @@ public class MongoPlugin implements ProfilerPlugin, TransformTemplateAware {
         addConnectionTransformer3_0_X();
         addConnectionTransformer3_7_X();
         addConnectionTransformer3_8_X();
+        addConnectionTransformerReactive();
         addSessionTransformer3_0_X();
         addSessionTransformer3_7_X();
+        // Reactive stream
+        addSessionTransformerReactive();
     }
 
     private void addConnectionTransformer3_0_X() {
@@ -270,6 +275,14 @@ public class MongoPlugin implements ProfilerPlugin, TransformTemplateAware {
         }
     }
 
+    private void addConnectionTransformerReactive() {
+        //reactivestreams
+        transformTemplate.transform("com.mongodb.reactivestreams.client.MongoClients", ClientConnectionTransform3_7_X.class);
+        transformTemplate.transform("com.mongodb.reactivestreams.client.internal.MongoClientImpl", DatabaseConnectionTransform3_8_X.class);
+        transformTemplate.transform("com.mongodb.reactivestreams.client.internal.MongoDatabaseImpl", CollectionConnectionTransform3_7_X.class);
+    }
+
+
     private void addSessionTransformer3_0_X() {
         transformTemplate.transform("com.mongodb.MongoCollectionImpl", SessionTransform3_0_X.class);
     }
@@ -337,6 +350,41 @@ public class MongoPlugin implements ProfilerPlugin, TransformTemplateAware {
             getWriteConcern.addScopedInterceptor(MongoWriteConcernInterceptor.class, MONGO_SCOPE, ExecutionPolicy.BOUNDARY);
 
 
+            return target.toBytecode();
+        }
+    }
+
+    private void addSessionTransformerReactive() {
+        transformTemplate.transform("com.mongodb.reactivestreams.client.internal.MongoCollectionImpl", SessionTransform3_7_X.class);
+
+        // Reactive
+        transformTemplate.transform("com.mongodb.reactivestreams.client.internal.FindPublisherImpl", ObservableToPublisherTransform.class);
+        transformTemplate.transform("com.mongodb.reactivestreams.client.internal.AggregatePublisherImpl", ObservableToPublisherTransform.class);
+        transformTemplate.transform("com.mongodb.reactivestreams.client.internal.ChangeStreamPublisherImpl", ObservableToPublisherTransform.class);
+        transformTemplate.transform("com.mongodb.reactivestreams.client.internal.DistinctPublisherImpl", ObservableToPublisherTransform.class);
+        transformTemplate.transform("com.mongodb.reactivestreams.client.internal.GridFSDownloadPublisherImpl", ObservableToPublisherTransform.class);
+        transformTemplate.transform("com.mongodb.reactivestreams.client.internal.GridFSFindPublisherImpl", ObservableToPublisherTransform.class);
+        transformTemplate.transform("com.mongodb.reactivestreams.client.internal.GridFSUploadPublisherImpl", ObservableToPublisherTransform.class);
+        transformTemplate.transform("com.mongodb.reactivestreams.client.internal.ListCollectionsPublisherImpl", ObservableToPublisherTransform.class);
+        transformTemplate.transform("com.mongodb.reactivestreams.client.internal.ListDatabasesPublisherImpl", ObservableToPublisherTransform.class);
+        transformTemplate.transform("com.mongodb.reactivestreams.client.internal.ListIndexesPublisherImpl", ObservableToPublisherTransform.class);
+        transformTemplate.transform("com.mongodb.reactivestreams.client.internal.MapReducePublisherImpl", ObservableToPublisherTransform.class);
+        // 1.12
+        transformTemplate.transform("com.mongodb.reactivestreams.client.internal.SingleResultObservableToPublisher", ObservableToPublisherTransform.class);
+        // 1.13
+        transformTemplate.transform("com.mongodb.reactivestreams.client.internal.ObservableToPublisher", ObservableToPublisherTransform.class);
+    }
+
+    public static class ObservableToPublisherTransform implements TransformCallback {
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+            target.addField(AsyncContextAccessor.class);
+
+            final InstrumentMethod subscribeMethod = target.getDeclaredMethod("subscribe", "org.reactivestreams.Subscriber");
+            if (subscribeMethod != null) {
+                subscribeMethod.addInterceptor(PublisherInterceptor.class);
+            }
             return target.toBytecode();
         }
     }

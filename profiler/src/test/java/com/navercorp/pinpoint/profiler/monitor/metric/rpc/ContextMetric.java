@@ -34,7 +34,7 @@ public class ContextMetric {
 
     public ContextMetric(ServiceType contextServiceType) {
         if (contextServiceType == null) {
-            throw new NullPointerException("contextServiceType must not be null");
+            throw new NullPointerException("contextServiceType");
         }
 
         this.contextServiceType = contextServiceType;
@@ -49,7 +49,7 @@ public class ContextMetric {
 
     public void addAcceptHistogram(String parentApplicationName, short serviceType, int millis, boolean error) {
         if (parentApplicationName == null) {
-            throw new NullPointerException("parentApplicationName must not be null");
+            throw new NullPointerException("parentApplicationName");
         }
         this.acceptHistogram.addResponseTime(parentApplicationName, serviceType, millis, error);
     }

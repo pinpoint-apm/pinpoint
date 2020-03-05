@@ -16,8 +16,6 @@
 
 package com.navercorp.pinpoint.io.header;
 
-import java.util.Map;
-
 /**
  * @author emeroad
  */

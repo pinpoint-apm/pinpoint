@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,11 +20,11 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.navercorp.pinpoint.profiler.metadata.DefaultTraceMetadataLoaderService;
 import com.navercorp.pinpoint.loader.service.TraceMetadataLoaderService;
-import com.navercorp.pinpoint.loader.trace.TraceMetadataRegistrar;
-import com.navercorp.pinpoint.loader.trace.AnnotationKeyMatcherRegistry;
-import com.navercorp.pinpoint.loader.trace.AnnotationKeyRegistry;
-import com.navercorp.pinpoint.loader.trace.ServiceTypeRegistry;
-import com.navercorp.pinpoint.loader.trace.TraceMetadataLoader;
+import com.navercorp.pinpoint.common.profiler.trace.TraceMetadataRegistrar;
+import com.navercorp.pinpoint.common.profiler.trace.AnnotationKeyMatcherRegistry;
+import com.navercorp.pinpoint.common.profiler.trace.AnnotationKeyRegistry;
+import com.navercorp.pinpoint.common.profiler.trace.ServiceTypeRegistry;
+import com.navercorp.pinpoint.common.profiler.trace.TraceMetadataLoader;
 import com.navercorp.pinpoint.common.util.Assert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,7 +43,7 @@ public class TraceMetadataLoaderServiceProvider implements Provider<TraceMetadat
 
     @Inject
     public TraceMetadataLoaderServiceProvider(TraceMetadataLoader traceMetadataLoader) {
-        Assert.requireNonNull(traceMetadataLoader, "traceMetadataLoader must not be null");
+        Assert.requireNonNull(traceMetadataLoader, "traceMetadataLoader");
         this.serviceTypeRegistry = traceMetadataLoader.createServiceTypeRegistry();
         this.annotationKeyRegistry = traceMetadataLoader.createAnnotationKeyRegistry();
         this.annotationKeyMatcherRegistry = traceMetadataLoader.createAnnotationKeyMatcherRegistry();

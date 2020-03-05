@@ -42,7 +42,7 @@ public class ProxyHttpHeaderRecorder<T> implements ProxyRequestRecorder<T> {
 
     public ProxyHttpHeaderRecorder(final boolean enable, RequestAdaptor<T> requestAdaptor) {
         this.enable = enable;
-        this.requestAdaptor = Assert.requireNonNull(requestAdaptor, "requestAdaptor must not be null");
+        this.requestAdaptor = Assert.requireNonNull(requestAdaptor, "requestAdaptor");
     }
 
     public void record(final SpanRecorder recorder, final T request) {

@@ -45,13 +45,13 @@ public class AutoBindingObjectFactory {
 
     public AutoBindingObjectFactory(ProfilerConfig profilerConfig, TraceContext traceContext, InstrumentContext pluginContext, ClassLoader classLoader, ArgumentProvider... argumentProviders) {
         if (profilerConfig == null) {
-            throw new NullPointerException("profilerConfig must not be null");
+            throw new NullPointerException("profilerConfig");
         }
         if (traceContext == null) {
-            throw new NullPointerException("traceContext must not be null");
+            throw new NullPointerException("traceContext");
         }
         if (pluginContext == null) {
-            throw new NullPointerException("pluginContext must not be null");
+            throw new NullPointerException("pluginContext");
         }
         this.pluginContext = pluginContext;
         this.classLoader = classLoader;

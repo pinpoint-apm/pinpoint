@@ -201,6 +201,18 @@ public class TestAgentStatFactory {
                 10L,
                 100L,
                 numValues);
+        List<Long> skippedNewCount = TestAgentStatDataPointFactory.LONG.createFluctuatingValues(
+                100L,
+                10000L,
+                10L,
+                100L,
+                numValues);
+        List<Long> skippedContinuationCount = TestAgentStatDataPointFactory.LONG.createFluctuatingValues(
+                100L,
+                10000L,
+                10L,
+                100L,
+                numValues);
         for (int i = 0; i < numValues; i++) {
             TransactionBo transactionBo = new TransactionBo();
             transactionBo.setAgentId(agentId);
@@ -211,6 +223,8 @@ public class TestAgentStatFactory {
             transactionBo.setSampledContinuationCount(sampledContinuationCounts.get(i));
             transactionBo.setUnsampledNewCount(unsampledNewCount.get(i));
             transactionBo.setUnsampledContinuationCount(unsampledContinuationCount.get(i));
+            transactionBo.setSkippedNewSkipCount(skippedNewCount.get(i));
+            transactionBo.setSkippedContinuationCount(skippedContinuationCount.get(i));
             transactionBos.add(transactionBo);
         }
         return transactionBos;

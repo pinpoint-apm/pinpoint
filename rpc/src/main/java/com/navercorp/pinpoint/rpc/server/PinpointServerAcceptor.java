@@ -1,11 +1,11 @@
 /*
- * Copyright 2014 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,9 +17,9 @@
 package com.navercorp.pinpoint.rpc.server;
 
 import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
+import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.CpuUtils;
-import com.navercorp.pinpoint.common.util.PinpointThreadFactory;
 import com.navercorp.pinpoint.rpc.PinpointSocket;
 import com.navercorp.pinpoint.rpc.PinpointSocketException;
 import com.navercorp.pinpoint.rpc.PipelineFactory;
@@ -29,7 +29,6 @@ import com.navercorp.pinpoint.rpc.server.handler.ServerStateChangeEventHandler;
 import com.navercorp.pinpoint.rpc.stream.ServerStreamChannelMessageHandler;
 import com.navercorp.pinpoint.rpc.util.LoggerFactorySetup;
 import com.navercorp.pinpoint.rpc.util.TimerFactory;
-
 import org.jboss.netty.bootstrap.ServerBootstrap;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFuture;
@@ -118,7 +117,7 @@ public class PinpointServerAcceptor implements PinpointServerConfig {
         setOptions(bootstrap);
         this.bootstrap = bootstrap;
 
-        this.serverOption = Assert.requireNonNull(serverOption, "serverOption must not be null");
+        this.serverOption = Assert.requireNonNull(serverOption, "serverOption");
         logger.info("serverOption : {}", serverOption);
 
         this.healthCheckTimer = TimerFactory.createHashedWheelTimer("PinpointServerSocket-HealthCheckTimer", 50, TimeUnit.MILLISECONDS, 512);
@@ -126,9 +125,9 @@ public class PinpointServerAcceptor implements PinpointServerConfig {
 
         this.requestManagerTimer = TimerFactory.createHashedWheelTimer("PinpointServerSocket-RequestManager", 50, TimeUnit.MILLISECONDS, 512);
 
-        this.channelConnectedFilter = Assert.requireNonNull(channelConnectedFilter, "channelConnectedFilter must not be null");
+        this.channelConnectedFilter = Assert.requireNonNull(channelConnectedFilter, "channelConnectedFilter");
 
-        this.pipelineFactory = Assert.requireNonNull(pipelineFactory, "pipelineFactory must not be null");
+        this.pipelineFactory = Assert.requireNonNull(pipelineFactory, "pipelineFactory");
         addPipeline(bootstrap, pipelineFactory);
     }
 
@@ -174,14 +173,14 @@ public class PinpointServerAcceptor implements PinpointServerConfig {
     @VisibleForTesting
     void setPipelineFactory(ChannelPipelineFactory channelPipelineFactory) {
         if (channelPipelineFactory == null) {
-            throw new NullPointerException("channelPipelineFactory must not be null");
+            throw new NullPointerException("channelPipelineFactory");
         }
         bootstrap.setPipelineFactory(channelPipelineFactory);
     }
 
     @VisibleForTesting
     public void setMessageHandler(final ChannelHandler messageHandler) {
-        Assert.requireNonNull(messageHandler, "messageHandler must not be null");
+        Assert.requireNonNull(messageHandler, "messageHandler");
         bootstrap.setPipelineFactory(new ChannelPipelineFactory() {
             @Override
             public ChannelPipeline getPipeline() throws Exception {
@@ -224,7 +223,7 @@ public class PinpointServerAcceptor implements PinpointServerConfig {
     }
 
     public void setMessageListenerFactory(ServerMessageListenerFactory messageListenerFactory) {
-        this.messageListenerFactory = Assert.requireNonNull(messageListenerFactory, "messageListenerFactory must not be null");
+        this.messageListenerFactory = Assert.requireNonNull(messageListenerFactory, "messageListenerFactory");
     }
 
     @Override
@@ -233,7 +232,7 @@ public class PinpointServerAcceptor implements PinpointServerConfig {
     }
 
     public void addStateChangeEventHandler(ServerStateChangeEventHandler stateChangeEventHandler) {
-        Assert.requireNonNull(stateChangeEventHandler, "stateChangeEventHandler must not be null");
+        Assert.requireNonNull(stateChangeEventHandler, "stateChangeEventHandler");
 
         this.stateChangeEventHandler.add(stateChangeEventHandler);
     }
@@ -244,7 +243,7 @@ public class PinpointServerAcceptor implements PinpointServerConfig {
     }
 
     public void setServerStreamChannelMessageHandler(ServerStreamChannelMessageHandler serverStreamChannelMessageHandler) {
-        this.serverStreamChannelMessageHandler = Assert.requireNonNull(serverStreamChannelMessageHandler, "serverStreamChannelMessageHandler must not be null");
+        this.serverStreamChannelMessageHandler = Assert.requireNonNull(serverStreamChannelMessageHandler, "serverStreamChannelMessageHandler");
     }
 
     @Override

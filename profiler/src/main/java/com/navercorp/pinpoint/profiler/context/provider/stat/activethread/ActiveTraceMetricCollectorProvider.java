@@ -34,7 +34,7 @@ public class ActiveTraceMetricCollectorProvider implements Provider<AgentStatMet
 
     @Inject
     public ActiveTraceMetricCollectorProvider(ActiveTraceMetric activeTraceMetric) {
-        this.activeTraceMetric = Assert.requireNonNull(activeTraceMetric, "activeTraceMetric must not be null");
+        this.activeTraceMetric = Assert.requireNonNull(activeTraceMetric, "activeTraceMetric");
     }
 
     @Override

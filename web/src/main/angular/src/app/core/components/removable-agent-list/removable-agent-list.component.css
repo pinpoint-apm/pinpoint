@@ -1,0 +1,115 @@
+:host {
+    width: 100%;
+    position: relative;
+}
+
+#removableAgentList .ag-root {
+    border: 1px solid #e6e8ec;
+    font-size: 12px;    
+    font-family: 'Open Sans', sans-serif;
+}
+#removableAgentList .ag-cell {
+    padding: 4px;
+    font-family: 'Open Sans', sans-serif;
+    border-right: 1px solid #e6e8ec;
+    border-bottom: 1px solid #e6e8ec;
+}
+
+#removableAgentList .ag-column-moving .ag-cell {
+    transition: left 0.2s;
+}
+#removableAgentList .ag-header-cell-moving .ag-header-cell-label {
+    opacity: 0;
+    filter: alpha(opacity=0);
+}
+#removableAgentList .ag-header-cell-moving {
+    background-color: #bebebe;
+}
+#removableAgentList .ag-header-cell-moving-clone {
+    border-right: 1px solid #808080;
+    border-left: 1px solid #808080;
+    background-color: rgba(220,220,220,0.8);
+}
+#removableAgentList .ag-header {
+    background: #f6f8fb;
+    border-bottom: 1px solid #e6e8ec;
+    line-height: 2;
+}
+#removableAgentList .ag-header-cell {
+    font-size: 12px;
+    text-align: center;
+    font-weight: 600;
+    font-family: 'Open Sans', sans-serif;
+    border-top: 1px solid #e6e8ec;
+    border-right: 1px solid #e6e8ec;
+    padding-left: 2px;
+    padding-right: 2px;
+}
+#removableAgentList .ag-header-group-cell {
+    font-size: 13px;
+    font-weight: 600;
+    font-family: 'Open Sans', sans-serif;
+    border-right: 1px solid #e6e8ec;
+    padding-left: 6px;
+}
+#removableAgentList .ag-header-group-cell-label {
+    align-items: center;
+    justify-content: center;
+}
+
+#removableAgentList .ag-header-cell-resize:after {
+    border-right: none;
+}
+#removableAgentList .ag-header-cell-label {
+    padding: 4px;
+    justify-content: center;
+}
+#removableAgentList .ag-group-expanded span {
+    margin-right: 4px;
+}
+#removableAgentList .ag-row {
+    line-height: 2;
+}
+#removableAgentList .ag-row-exception {
+    background-color: #fff1f1;
+}
+#removableAgentList .ag-row-focused {
+    background-color: #e4f5e3;
+}
+#removableAgentList .ag-body {
+    background-color: #ffffff;
+}
+#removableAgentList .ag-body-viewport {
+    background-color: #ffffff;
+}
+#removableAgentList .ag-menu {
+    background-color: #ffffff;
+    border: 1px solid grey;
+}
+#removableAgentList .fa {
+    font-size: 14px;
+}
+#removableAgentList .ag-row-focused {
+    background-color: #e4f5e3;
+}
+#removableAgentList .ag-row-selected {
+    color: var(--primary-color);
+    background-color: #e7f5f9;
+}
+#removableAgentList .div-percent-bar {
+    display: inline-block;
+    height: 30%;
+    position: absolute;
+}
+#removableAgentList .div-percent-value {
+    position: absolute;
+    padding-left: 4px;
+    font-weight: bold;
+    font-size: 13px;
+}
+#removableAgentList .div-outer-div {
+    display: inline-block;
+    margin-right: 20px;
+    height: 30%;
+    width: 92%;
+}

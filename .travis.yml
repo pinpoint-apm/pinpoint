@@ -1,6 +1,12 @@
 sudo : required
 language: java
 
+cache:
+  directories:
+    - $HOME/.m2
+    - web/src/main/angular/node_modules
+    - node_install
+
 addons:
   apt:
     packages:

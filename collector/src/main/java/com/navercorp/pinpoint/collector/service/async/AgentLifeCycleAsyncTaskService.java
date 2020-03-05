@@ -43,10 +43,12 @@ public class AgentLifeCycleAsyncTaskService {
 
     @Async("agentEventWorker")
     public void handleLifeCycleEvent(AgentProperty agentProperty, long eventTimestamp, AgentLifeCycleState agentLifeCycleState, long eventIdentifier) {
-        Objects.requireNonNull(agentProperty, "agentProperty must not be null");
-        Objects.requireNonNull(agentLifeCycleState, "agentLifeCycleState must not be null");
+        Objects.requireNonNull(agentProperty, "agentProperty");
+        Objects.requireNonNull(agentLifeCycleState, "agentLifeCycleState");
 
-        logger.info("Handle lifecycle event - pinpointServer:{}, state:{}", agentProperty, agentLifeCycleState);
+        if (logger.isDebugEnabled()) {
+            logger.debug("Handle lifecycle event - pinpointServer:{}, state:{}", agentProperty, agentLifeCycleState);
+        }
 
         final String agentId = agentProperty.getAgentId();
         final long startTimestamp = agentProperty.getStartTime();

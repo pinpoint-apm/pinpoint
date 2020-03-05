@@ -29,7 +29,7 @@ public class ChainedTaskDecorator implements TaskDecorator {
     private final List<TaskDecorator> taskDecorators;
 
     public ChainedTaskDecorator(List<TaskDecorator> taskDecorators) {
-        this.taskDecorators = Objects.requireNonNull(taskDecorators, "taskDecorators must not be null");
+        this.taskDecorators = Objects.requireNonNull(taskDecorators, "taskDecorators");
     }
 
     @Override

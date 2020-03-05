@@ -45,7 +45,7 @@ public class RowKeyMerge {
 
     public RowKeyMerge(byte[] family) {
         if (family == null) {
-            throw new NullPointerException("family must not be null");
+            throw new NullPointerException("family");
         }
         this.family = Arrays.copyOf(family, family.length);
     }
@@ -72,18 +72,21 @@ public class RowKeyMerge {
 
     private Increment createIncrement(Map.Entry<RowKey, List<ColumnName>> rowKeyEntry, RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix) {
         RowKey rowKey = rowKeyEntry.getKey();
-        byte[] key = null;
-        if (rowKeyDistributorByHashPrefix == null) {
-            key = rowKey.getRowKey();
-        } else {
-            key = rowKeyDistributorByHashPrefix.getDistributedKey(rowKey.getRowKey());
-        }
+        byte[] key = getRowKey(rowKey, rowKeyDistributorByHashPrefix);
         final Increment increment = new Increment(key);
         for (ColumnName columnName : rowKeyEntry.getValue()) {
             increment.addColumn(family, columnName.getColumnName(), columnName.getCallCount());
         }
         logger.trace("create increment row:{}, column:{}", rowKey, rowKeyEntry.getValue());
         return increment;
+    }
+
+    private byte[] getRowKey(RowKey rowKey, RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix) {
+        if (rowKeyDistributorByHashPrefix == null) {
+            return rowKey.getRowKey();
+        } else {
+            return rowKeyDistributorByHashPrefix.getDistributedKey(rowKey.getRowKey());
+        }
     }
 
     private Map<TableName, Map<RowKey, List<ColumnName>>> mergeRowKeys(Map<RowInfo, Long> data) {

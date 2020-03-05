@@ -38,6 +38,7 @@ import org.mockito.Mockito;
 
 import java.net.InetSocketAddress;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -78,7 +79,7 @@ public class PinpointGrpcServerTest {
         future = pinpointGrpcServer.request(request);
         requestOnInvalidState(future, recordedStreamObserver);
 
-        List<Integer> supportCommandList = Arrays.asList(Short.toUnsignedInt(TCommandType.ECHO.getCode()));
+        List<Integer> supportCommandList = Collections.singletonList(Short.toUnsignedInt(TCommandType.ECHO.getCode()));
         pinpointGrpcServer.handleHandshake(supportCommandList);
         assertCurrentState(SocketStateCode.RUN_DUPLEX, pinpointGrpcServer);
 
@@ -101,7 +102,7 @@ public class PinpointGrpcServerTest {
         PinpointGrpcServer pinpointGrpcServer = new PinpointGrpcServer(Mockito.mock(InetSocketAddress.class), agentInfo, new RequestManager(testTimer, 3000), recordedStreamObserver);
         pinpointGrpcServer.connected();
 
-        List<Integer> supportCommandList = Arrays.asList(Short.toUnsignedInt(TCommandType.ECHO.getCode()));
+        List<Integer> supportCommandList = Collections.singletonList(Short.toUnsignedInt(TCommandType.ECHO.getCode()));
         pinpointGrpcServer.handleHandshake(supportCommandList);
 
         Future<ResponseMessage> future = pinpointGrpcServer.request(this.request);

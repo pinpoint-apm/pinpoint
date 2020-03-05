@@ -46,10 +46,10 @@ public class InterceptorArgumentProvider implements ArgumentProvider {
     
     public InterceptorArgumentProvider(DataSourceMonitorRegistry dataSourceMonitorRegistry, ApiMetaDataService apiMetaDataService, RequestRecorderFactory requestRecorderFactory, InterceptorScope interceptorScope, InstrumentClass targetClass, InstrumentMethod targetMethod) {
         if (dataSourceMonitorRegistry == null) {
-            throw new NullPointerException("dataSourceMonitorRegistry must not be null");
+            throw new NullPointerException("dataSourceMonitorRegistry");
         }
         if (apiMetaDataService == null) {
-            throw new NullPointerException("apiMetaDataService must not be null");
+            throw new NullPointerException("apiMetaDataService");
         }
         this.dataSourceMonitorRegistry = dataSourceMonitorRegistry;
         this.apiMetaDataService = apiMetaDataService;

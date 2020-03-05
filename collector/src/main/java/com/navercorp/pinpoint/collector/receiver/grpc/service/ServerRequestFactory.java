@@ -31,26 +31,8 @@ import java.net.InetSocketAddress;
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class ServerRequestFactory {
+public interface ServerRequestFactory {
 
+    <T> ServerRequest<T> newServerRequest(Message<T> message) throws StatusException;
 
-    public ServerRequestFactory() {
-    }
-
-    public <T> ServerRequest<T> newServerRequest(Message<T> message) throws StatusException {
-        final Context current = Context.current();
-        final Header header = ServerContext.getAgentInfo(current);
-        if (header == null) {
-            throw Status.INTERNAL.withDescription("Not found request header").asException();
-        }
-
-        final TransportMetadata transportMetadata = ServerContext.getTransportMetadata(current);
-        if (transportMetadata == null) {
-            throw Status.INTERNAL.withDescription("Not found transportMetadata").asException();
-        }
-
-        InetSocketAddress inetSocketAddress = transportMetadata.getRemoteAddress();
-        ServerRequest<T> request = new DefaultServerRequest<>(message, inetSocketAddress.getHostString(), inetSocketAddress.getPort());
-        return request;
-    }
 }

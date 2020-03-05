@@ -42,10 +42,10 @@ public class ApplicationTimeHistogramBuilder {
 
     public ApplicationTimeHistogramBuilder(Application application, Range range) {
         if (application == null) {
-            throw new NullPointerException("application must not be null");
+            throw new NullPointerException("application");
         }
         if (range == null) {
-            throw new NullPointerException("range must not be null");
+            throw new NullPointerException("range");
         }
         this.application = application;
         this.range = range;
@@ -54,7 +54,7 @@ public class ApplicationTimeHistogramBuilder {
 
     public ApplicationTimeHistogram build(List<ResponseTime> responseHistogramList) {
         if (responseHistogramList == null) {
-            throw new NullPointerException("responseHistogramList must not be null");
+            throw new NullPointerException("responseHistogramList");
         }
 
         Map<Long, TimeHistogram> applicationLevelHistogram = new HashMap<>();

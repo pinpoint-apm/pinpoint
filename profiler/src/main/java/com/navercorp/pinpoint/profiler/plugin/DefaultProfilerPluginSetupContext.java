@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginGlobalContext;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParserV2;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.util.Assert;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,10 +39,7 @@ public class DefaultProfilerPluginSetupContext implements ProfilerPluginSetupCon
     private final List<JdbcUrlParserV2> jdbcUrlParserList = new ArrayList<JdbcUrlParserV2>();
 
     public DefaultProfilerPluginSetupContext(ProfilerPluginGlobalContext globalContext) {
-        if (globalContext == null) {
-            throw new NullPointerException("globalContext must not be null");
-        }
-        this.globalContext = globalContext;
+        this.globalContext = Assert.requireNonNull(globalContext, "globalContext");
     }
 
     @Override

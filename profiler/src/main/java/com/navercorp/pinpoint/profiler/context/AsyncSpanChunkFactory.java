@@ -30,8 +30,8 @@ public class AsyncSpanChunkFactory implements SpanChunkFactory {
     private final LocalAsyncId localAsyncId;
 
     public AsyncSpanChunkFactory(TraceRoot traceRoot, LocalAsyncId localAsyncId) {
-        this.traceRoot = Assert.requireNonNull(traceRoot, "traceRoot must not be null");
-        this.localAsyncId = Assert.requireNonNull(localAsyncId, "localAsyncId must not be null");
+        this.traceRoot = Assert.requireNonNull(traceRoot, "traceRoot");
+        this.localAsyncId = Assert.requireNonNull(localAsyncId, "localAsyncId");
     }
 
     @Override

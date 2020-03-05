@@ -41,7 +41,7 @@ public class AgentEventMessageSerializer {
 
     public byte[] serialize(AgentEventType agentEventType, Object eventMessage) throws UnsupportedEncodingException {
         if (agentEventType == null) {
-            throw new NullPointerException("agentEventType must not be null");
+            throw new NullPointerException("agentEventType");
         }
 
         Class<?> eventMessageType = agentEventType.getMessageType();

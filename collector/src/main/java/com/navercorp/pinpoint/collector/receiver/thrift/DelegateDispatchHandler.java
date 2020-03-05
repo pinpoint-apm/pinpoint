@@ -33,15 +33,15 @@ import java.util.Objects;
 public class DelegateDispatchHandler implements DispatchHandler {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private AcceptedTimeService acceptedTimeService;
+    private final AcceptedTimeService acceptedTimeService;
     private final DispatchHandler delegate;
 
     private final HandlerManager handlerManager;
 
     public DelegateDispatchHandler(AcceptedTimeService acceptedTimeService, DispatchHandler delegate, HandlerManager handlerManager) {
-        this.acceptedTimeService = Objects.requireNonNull(acceptedTimeService, "acceptedTimeService must not be null");
-        this.delegate = Objects.requireNonNull(delegate, "delegate must not be null");
-        this.handlerManager = Objects.requireNonNull(handlerManager, "handlerManager must not be null");
+        this.acceptedTimeService = Objects.requireNonNull(acceptedTimeService, "acceptedTimeService");
+        this.delegate = Objects.requireNonNull(delegate, "delegate");
+        this.handlerManager = Objects.requireNonNull(handlerManager, "handlerManager");
     }
 
 

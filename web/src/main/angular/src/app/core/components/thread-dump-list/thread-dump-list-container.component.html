@@ -1,0 +1,23 @@
+<ng-container *ngIf="rowData$ | handleObs | async as data">
+    <ng-template [ngIf]="data.value">
+        <pp-thread-dump-list
+            [rowData]="data.value"
+            [timezone]="timezone$ | async"
+            [dateFormat]="dateFormat$ | async"
+            (outSelectThread)="onSelectThread($event)">
+        </pp-thread-dump-list>
+    </ng-template>
+    <ng-template [ngIf]="data.error">
+        <section class="l-error-section">
+            <h3 class="l-error-message">{{data.error.message}}</h3>
+            <p class="l-error-guide">For the above reasons, this agent does not support thread dump.</p>
+            <ol class="l-check-list">
+                <li class="l-check-list-item">1. Check if this agent version is 1.6.1+</li>
+                <li class="l-check-list-item">2. Check if cluster feature is enabled.</li>
+            </ol>
+        </section>
+    </ng-template>
+    <ng-template [ngIf]="data.loading">
+        <pp-loading [showLoading]="showLoading"></pp-loading>
+    </ng-template>
+</ng-container>

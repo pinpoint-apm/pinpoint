@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.TreeMap;
 
 /**
@@ -47,7 +48,7 @@ public class AgentEventTimelineBuilder {
     }
 
     public AgentEventTimelineBuilder(Range range, int numTimeslots) {
-        Assert.notNull(range, "range must not be null");
+        Objects.requireNonNull(range, "range");
         Assert.isTrue(range.getRange() > 0, "timeline must have range greater than 0");
         Assert.isTrue(numTimeslots > 0, "numTimeslots must be greater than 0");
         this.timelineStartTimestamp = range.getFrom();

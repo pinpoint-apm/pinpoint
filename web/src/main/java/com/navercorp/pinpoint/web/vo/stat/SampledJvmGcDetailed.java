@@ -52,14 +52,14 @@ public class SampledJvmGcDetailed implements SampledAgentStatDataPoint {
 
     public SampledJvmGcDetailed(AgentStatPoint<Long> gcNewCount, AgentStatPoint<Long> gcNewTime, AgentStatPoint<Double> codeCacheUsed, AgentStatPoint<Double> newGenUsed,
                                 AgentStatPoint<Double> oldGenUsed, AgentStatPoint<Double> survivorSpaceUsed, AgentStatPoint<Double> permGenUsed, AgentStatPoint<Double> metaspaceUsed) {
-        this.gcNewCount = Objects.requireNonNull(gcNewCount, "gcNewCount must not be null");
-        this.gcNewTime = Objects.requireNonNull(gcNewTime, "gcNewTime must not be null");
-        this.codeCacheUsed = Objects.requireNonNull(codeCacheUsed, "codeCacheUsed must not be null");
-        this.newGenUsed = Objects.requireNonNull(newGenUsed, "newGenUsed must not be null");
-        this.oldGenUsed = Objects.requireNonNull(oldGenUsed, "oldGenUsed must not be null");
-        this.survivorSpaceUsed = Objects.requireNonNull(survivorSpaceUsed, "survivorSpaceUsed must not be null");
-        this.permGenUsed = Objects.requireNonNull(permGenUsed, "permGenUsed must not be null");
-        this.metaspaceUsed = Objects.requireNonNull(metaspaceUsed, "metaspaceUsed must not be null");
+        this.gcNewCount = Objects.requireNonNull(gcNewCount, "gcNewCount");
+        this.gcNewTime = Objects.requireNonNull(gcNewTime, "gcNewTime");
+        this.codeCacheUsed = Objects.requireNonNull(codeCacheUsed, "codeCacheUsed");
+        this.newGenUsed = Objects.requireNonNull(newGenUsed, "newGenUsed");
+        this.oldGenUsed = Objects.requireNonNull(oldGenUsed, "oldGenUsed");
+        this.survivorSpaceUsed = Objects.requireNonNull(survivorSpaceUsed, "survivorSpaceUsed");
+        this.permGenUsed = Objects.requireNonNull(permGenUsed, "permGenUsed");
+        this.metaspaceUsed = Objects.requireNonNull(metaspaceUsed, "metaspaceUsed");
     }
 
     public AgentStatPoint<Long> getGcNewCount() {

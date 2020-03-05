@@ -33,7 +33,7 @@ public final class ActiveTraceHistogramUtils {
     }
 
     public static List<Integer> asList(ActiveTraceHistogram activeTraceHistogram) {
-        Assert.requireNonNull(activeTraceHistogram, "activeTraceHistogram must not be null");
+        Assert.requireNonNull(activeTraceHistogram, "activeTraceHistogram");
 
         if (activeTraceHistogram instanceof EmptyActiveTraceHistogram) {
             return ZERO_LIST;

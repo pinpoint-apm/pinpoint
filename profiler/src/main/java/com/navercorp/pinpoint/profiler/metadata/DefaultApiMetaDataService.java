@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 NAVER Corp.
+ * Copyright 2019 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.profiler.metadata;
 
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
 
 /**
@@ -24,15 +25,13 @@ import com.navercorp.pinpoint.profiler.sender.EnhancedDataSender;
  */
 public class DefaultApiMetaDataService implements ApiMetaDataService {
 
-    private final SimpleCache<String> apiCache = new SimpleCache<String>();
+    private final SimpleCache<String> apiCache;
 
     private final EnhancedDataSender<Object> enhancedDataSender;
 
-    public DefaultApiMetaDataService(EnhancedDataSender<Object> enhancedDataSender) {
-        if (enhancedDataSender == null) {
-            throw new NullPointerException("enhancedDataSender must not be null");
-        }
-        this.enhancedDataSender = enhancedDataSender;
+    public DefaultApiMetaDataService(EnhancedDataSender<Object> enhancedDataSender, SimpleCache<String> apiCache) {
+        this.enhancedDataSender = Assert.requireNonNull(enhancedDataSender, "enhancedDataSender");
+        this.apiCache = Assert.requireNonNull(apiCache, "apiCache");
     }
 
     @Override

@@ -37,10 +37,10 @@ public class MongoReadPreferenceInterceptor implements AroundInterceptor {
 
     public MongoReadPreferenceInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
         if (traceContext == null) {
-            throw new NullPointerException("traceContext must not be null");
+            throw new NullPointerException("traceContext");
         }
         if (descriptor == null) {
-            throw new NullPointerException("descriptor must not be null");
+            throw new NullPointerException("descriptor");
         }
     }
 

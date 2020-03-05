@@ -32,18 +32,18 @@ public class SpanReader implements SpanAcceptor {
     private final List<SpanBo> spanBoList;
 
     public SpanReader(List<SpanBo> spanBoList) {
-        this.spanBoList = Objects.requireNonNull(spanBoList, "spanBoList must not be null");
+        this.spanBoList = Objects.requireNonNull(spanBoList, "spanBoList");
     }
 
     public boolean accept(SpanEventVisitor spanEventVisitor) {
-        Objects.requireNonNull(spanEventVisitor, "spanEventVisitor must not be null");
+        Objects.requireNonNull(spanEventVisitor, "spanEventVisitor");
 
         SpanVisitor spanEventAdaptor = new SpanEventVisitAdaptor(spanEventVisitor);
         return accept(spanEventAdaptor);
     }
 
     public boolean accept(SpanVisitor spanVisitor) {
-        Objects.requireNonNull(spanVisitor, "spanVisitor must not be null");
+        Objects.requireNonNull(spanVisitor, "spanVisitor");
 
         if (CollectionUtils.isEmpty(spanBoList)) {
             return SpanVisitor.REJECT;

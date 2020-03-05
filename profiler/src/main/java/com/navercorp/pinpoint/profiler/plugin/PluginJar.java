@@ -16,13 +16,13 @@
 
 package com.navercorp.pinpoint.profiler.plugin;
 
+import com.navercorp.pinpoint.common.util.FileUtils;
 import com.navercorp.pinpoint.profiler.util.JarFileUtils;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 import java.util.jar.JarFile;
@@ -45,8 +45,8 @@ public class PluginJar {
     private final List<String> pluginPackages;
 
     public PluginJar(URL url, JarFile jarFile) {
-        this.url = Assert.requireNonNull(url, "url must not be null");
-        this.jarFile = Assert.requireNonNull(jarFile, "jarFile must not be null");
+        this.url = Assert.requireNonNull(url, "url");
+        this.jarFile = Assert.requireNonNull(jarFile, "jarFile");
         this.pluginId = JarFileUtils.getManifestValue(jarFile, PINPOINT_PLUGIN_ID, null);
         this.pluginCompilerVersion = JarFileUtils.getManifestValue(jarFile, PINPOINT_PLUGIN_COMPILER_VERSION, null);
         String pluginPackages = JarFileUtils.getManifestValue(jarFile, PINPOINT_PLUGIN_PACKAGE, DEFAULT_PINPOINT_PLUGIN_PACKAGE_NAME);
@@ -59,7 +59,7 @@ public class PluginJar {
     }
 
     public static PluginJar fromFile(File file) {
-        final URL url = toUrl(file);
+        final URL url = toURL(file);
         final JarFile jarFile = createJarFile(file);
         return new PluginJar(url, jarFile);
     }
@@ -78,10 +78,10 @@ public class PluginJar {
         return file;
     }
 
-    private static URL toUrl(File file) {
+    private static URL toURL(File file) {
         try {
-            return file.toURI().toURL();
-        } catch (MalformedURLException e) {
+            return FileUtils.toURL(file);
+        } catch (IOException e) {
             throw new RuntimeException("Invalid URL:" + file);
         }
     }

@@ -26,8 +26,6 @@ import com.navercorp.pinpoint.profiler.instrument.classloading.DebugTransformerC
 import com.navercorp.pinpoint.profiler.instrument.classreading.InternalClassMetadata;
 import com.navercorp.pinpoint.profiler.plugin.ClassFileTransformerLoader;
 import com.navercorp.pinpoint.profiler.plugin.PluginInstrumentContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.lang.instrument.ClassFileTransformer;
 
@@ -41,13 +39,13 @@ public class DebugTransformerRegistry implements TransformerRegistry {
 
     public DebugTransformerRegistry(ProfilerConfig profilerConfig, InstrumentEngine instrumentEngine, DynamicTransformTrigger dynamicTransformTrigger) {
         if (profilerConfig == null) {
-            throw new NullPointerException("profilerConfig must not be null");
+            throw new NullPointerException("profilerConfig");
         }
         if (instrumentEngine == null) {
-            throw new NullPointerException("instrumentEngine must not be null");
+            throw new NullPointerException("instrumentEngine");
         }
         if (dynamicTransformTrigger == null) {
-            throw new NullPointerException("dynamicTransformTrigger must not be null");
+            throw new NullPointerException("dynamicTransformTrigger");
         }
         this.debugTargetFilter = profilerConfig.getProfilableClassFilter();
         this.debugTransformer = newDebugTransformer(profilerConfig, instrumentEngine, dynamicTransformTrigger);
@@ -71,7 +69,7 @@ public class DebugTransformerRegistry implements TransformerRegistry {
     @Override
     public ClassFileTransformer findTransformer(ClassLoader classLoader, String classInternalName, byte[] classFileBuffer, InternalClassMetadata classMetadata) {
         if (classInternalName == null) {
-            throw new NullPointerException("classInternalName must not be null");
+            throw new NullPointerException("classInternalName");
         }
         if (this.debugTargetFilter.filter(classInternalName)) {
             // Added to see if call stack view is OK on a test machine.

@@ -58,15 +58,12 @@ public class GrpcClientPlugin implements ProfilerPlugin, TransformTemplateAware 
         addInterceptor();
     }
 
-
-
     private void addInterceptor() {
         final String managedChannel = "io.grpc.internal.ManagedChannelImpl$RealChannel";
         transformTemplate.transform(managedChannel, ChannelTransform.class);
 
         final String oobChannel = "io.grpc.internal.OobChannel";
         transformTemplate.transform(oobChannel, ChannelTransform.class);
-
 
         final String clientStreamListener = "io.grpc.internal.ClientCallImpl$ClientStreamListenerImpl";
         transformTemplate.transform(clientStreamListener, ClientStreamListenerImplTransformer.class);
@@ -75,7 +72,6 @@ public class GrpcClientPlugin implements ProfilerPlugin, TransformTemplateAware 
     }
 
     public static class ChannelTransform implements TransformCallback {
-
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
@@ -111,7 +107,6 @@ public class GrpcClientPlugin implements ProfilerPlugin, TransformTemplateAware 
 
             return target.toBytecode();
         }
-
     }
 
     public static class ClientCallImplTransformer implements TransformCallback {

@@ -32,7 +32,7 @@ public class InterceptorRegistryModule extends AbstractModule {
     }
 
     private InterceptorRegistryModule(InterceptorRegistryBinder interceptorRegistryBinder) {
-        this.interceptorRegistryBinder = Assert.requireNonNull(interceptorRegistryBinder, "interceptorRegistryBinder must not be null");
+        this.interceptorRegistryBinder = Assert.requireNonNull(interceptorRegistryBinder, "interceptorRegistryBinder");
     }
 
     @Override

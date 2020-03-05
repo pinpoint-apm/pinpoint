@@ -16,21 +16,14 @@
 
 package com.navercorp.pinpoint.collector.cluster;
 
-import com.navercorp.pinpoint.common.util.Assert;
-import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.rpc.Future;
 import com.navercorp.pinpoint.rpc.server.ChannelProperties;
-import com.navercorp.pinpoint.rpc.server.DefaultChannelProperties;
 import com.navercorp.pinpoint.rpc.server.PinpointServer;
 import com.navercorp.pinpoint.thrift.io.TCommandType;
 import com.navercorp.pinpoint.thrift.io.TCommandTypeVersion;
-
 import org.apache.thrift.TBase;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -51,9 +44,9 @@ public class ThriftAgentConnection implements ClusterPoint<byte[]> {
     }
 
     public ThriftAgentConnection(PinpointServer pinpointServer, AgentInfo agentInfo, List<TCommandType> supportCommandList) {
-        this.pinpointServer = Objects.requireNonNull(pinpointServer, "pinpointServer must not be null");
-        this.agentInfo = Objects.requireNonNull(agentInfo, "agentInfo must not be null");
-        this.supportCommandList = Objects.requireNonNull(supportCommandList, "supportCommandList must not be null");
+        this.pinpointServer = Objects.requireNonNull(pinpointServer, "pinpointServer");
+        this.agentInfo = Objects.requireNonNull(agentInfo, "agentInfo");
+        this.supportCommandList = Objects.requireNonNull(supportCommandList, "supportCommandList");
     }
 
     private static AgentInfo newAgentInfo(ChannelProperties channelProperties) {

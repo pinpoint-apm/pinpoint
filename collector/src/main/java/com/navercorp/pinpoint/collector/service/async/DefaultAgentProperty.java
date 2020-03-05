@@ -16,9 +16,8 @@
 
 package com.navercorp.pinpoint.collector.service.async;
 
-import com.navercorp.pinpoint.common.util.Assert;
-
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -29,9 +28,9 @@ public class DefaultAgentProperty implements AgentProperty {
     private final Map<String, Object> properties;
 
     public DefaultAgentProperty(String agentId, long agentStartTime, Map<String, Object> properties) {
-        this.agentId = Assert.requireNonNull(agentId, "agentId must not be null");
-        this.agentStartTime = Assert.requireNonNull(agentStartTime, "agentStartTime must not be null");
-        this.properties = Assert.requireNonNull(properties, "properties must not be null");
+        this.agentId = Objects.requireNonNull(agentId, "agentId");
+        this.agentStartTime = agentStartTime;
+        this.properties = Objects.requireNonNull(properties, "properties");
     }
 
     @Override

@@ -41,13 +41,13 @@ public class HttpMethodBaseRequestAndResponseMethodInterceptor implements Around
 
     public HttpMethodBaseRequestAndResponseMethodInterceptor(TraceContext traceContext, MethodDescriptor methodDescriptor, InterceptorScope interceptorScope) {
         if (traceContext == null) {
-            throw new NullPointerException("traceContext must not be null");
+            throw new NullPointerException("traceContext");
         }
         if (methodDescriptor == null) {
-            throw new NullPointerException("methodDescriptor must not be null");
+            throw new NullPointerException("methodDescriptor");
         }
         if (interceptorScope == null) {
-            throw new NullPointerException("interceptorScope must not be null");
+            throw new NullPointerException("interceptorScope");
         }
         this.traceContext = traceContext;
         this.methodDescriptor = methodDescriptor;

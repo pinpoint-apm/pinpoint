@@ -16,14 +16,13 @@
 
 package com.navercorp.pinpoint.profiler.monitor.collector.deadlock;
 
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.profiler.monitor.collector.AgentStatMetricCollector;
 import com.navercorp.pinpoint.profiler.monitor.metric.deadlock.DeadlockMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.deadlock.DeadlockMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.deadlock.ThreadDumpMetricSnapshot;
 import com.navercorp.pinpoint.profiler.util.ThreadDumpUtils;
-import com.navercorp.pinpoint.thrift.dto.TDeadlock;
-import com.navercorp.pinpoint.thrift.dto.command.TThreadDump;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -38,10 +37,7 @@ public class DefaultDeadlockMetricCollector implements AgentStatMetricCollector<
     private final DeadlockMetric deadlockMetric;
 
     public DefaultDeadlockMetricCollector(DeadlockMetric deadlockMetric) {
-        if (deadlockMetric == null) {
-            throw new NullPointerException("deadlockMetric must not be null");
-        }
-        this.deadlockMetric = deadlockMetric;
+        this.deadlockMetric = Assert.requireNonNull(deadlockMetric, "deadlockMetric");
     }
 
     @Override
