@@ -23,6 +23,7 @@ body {
 button {
     cursor: pointer;
     background: none;
+    outline: none;
 }
 
 table {
