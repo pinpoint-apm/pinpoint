@@ -18,6 +18,7 @@ This page, documents **alphabetical list** of organizations using Pinpoint.
 1. Pikicast (www.pikicast.com)
 1. SKPlanet(www.skplanet.com)
 1. XLGAMES (http://www.xlgames.com)
+1. Toss (https://toss.im/)
 
 ## Naver
 Naver Co., Ltd. uses Pinpoint as primary APM. Monitoring 2k+ applications with 10k+ instances.
