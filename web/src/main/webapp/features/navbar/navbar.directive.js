@@ -526,6 +526,7 @@
 							$fromToCalendarPopup.show();
 						}
 	                };
+	                
 	                /**
                     * search by traceId
                     */
