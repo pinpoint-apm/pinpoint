@@ -12,3 +12,13 @@ serviceTypes:
       name: 'ENVOY_EGRESS'
       property:
         recordStatistics: true
+
+annotationKeys:
+  - code: 9441
+    name: envoy.operation
+    property:
+      viewInRecordSet: true
+  - code: 9442
+    name: upstream.cluster
+    property:
+      viewInRecordSet: true
