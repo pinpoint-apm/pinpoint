@@ -18,13 +18,13 @@ The current stable version is [v2.0.2](https://github.com/naver/pinpoint/release
 
 Take a quick look at Pinpoint with our [demo](http://125.209.240.10:10123/main/ApiGateway@SPRING_BOOT/5m?inbound=1&outbound=4&wasOnly=false&bidirectional=false)!
 
-## PHP Agent
+## PHP, PYTHON
 
-Pinpoint also supports application written in PHP. [Check-out our php-agent repository](https://github.com/naver/pinpoint-c-agent).
+Pinpoint also supports application written in PHP, Python. [Check-out our agent repository](https://github.com/naver/pinpoint-c-agent).
 
 ## About Pinpoint
 
-**Pinpoint** is an APM (Application Performance Management) tool for large-scale distributed systems written in Java / [PHP](https://github.com/naver/pinpoint-c-agent).
+**Pinpoint** is an APM (Application Performance Management) tool for large-scale distributed systems written in Java / [PHP](https://github.com/naver/pinpoint-c-agent)/[PYTHON]((https://github.com/naver/pinpoint-c-agent)).
 Inspired by [Dapper](http://research.google.com/pubs/pub36356.html "Google Dapper"),
 Pinpoint provides a solution to help analyze the overall structure of the system and how components within them are interconnected by tracing transactions across distributed applications.
 
