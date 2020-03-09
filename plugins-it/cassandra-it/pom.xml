@@ -29,8 +29,8 @@
     <packaging>jar</packaging>
 
     <properties>
-        <jdk.version>1.7</jdk.version>
-        <jdk.home>${env.JAVA_7_HOME}</jdk.home>
+        <jdk.version>1.8</jdk.version>
+        <jdk.home>${env.JAVA_8_HOME}</jdk.home>
     </properties>
 
     <dependencies>
@@ -40,9 +40,9 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.scassandra</groupId>
-            <artifactId>java-client</artifactId>
-            <version>1.1.2</version>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>cassandra</artifactId>
+            <version>${testcontainers.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>

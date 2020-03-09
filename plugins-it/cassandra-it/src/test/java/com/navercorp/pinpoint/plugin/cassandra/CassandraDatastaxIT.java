@@ -44,7 +44,7 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.sql;
 /**
  * @author HyunGil Jeong
  */
-public abstract class CassandraDatastaxITBase {
+public abstract class CassandraDatastaxIT {
 
     // com.navercorp.pinpoint.plugin.cassandra.CassandraConstants
     private static final String CASSANDRA = "CASSANDRA";
@@ -65,13 +65,14 @@ public abstract class CassandraDatastaxITBase {
 
     private static String CASSANDRA_ADDRESS = HOST + ":" + CassandraContainer.CQL_PORT;
 
-    public static CassandraContainer cassandra;
+    public static final CassandraContainer cassandra = new CassandraContainer();
 
     private static Cluster cluster;
 
-    public static void startCassandra(String dockerImageVersion) {
+    @BeforeClass
+    public static void startUpBeforeClass() {
         Assume.assumeTrue("Docker not enabled", DockerMachineClient.instance().isInstalled());
-        cassandra = new CassandraContainer(dockerImageVersion);
+
         cassandra.start();
 
 //        String containerIpAddress = cassandra.getContainerIpAddress();
