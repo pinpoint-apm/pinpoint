@@ -149,6 +149,7 @@ public class SharedProcessManager implements ProcessManager {
 
         list.add("-Dpinpoint.agentId=build.test.0");
         list.add("-Dpinpoint.applicationName=test");
+        list.add("-Djava.net.preferIPv4Addresses=true");
 
         final String mavenDependencyResolverClassPaths = join(context.getMavenDependencyLibraries());
         list.add("-D" + SharedPluginTestConstants.MAVEN_DEPENDENCY_RESOLVER_CLASS_PATHS + "=" + mavenDependencyResolverClassPaths);
