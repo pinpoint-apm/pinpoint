@@ -253,9 +253,18 @@ public abstract class AbstractPinpointPluginTestSuite extends Suite {
                     runners.add(new PinpointPluginTestRunner(context, c));
                 }
             }
+
+        } catch (InitializationError junitError) {
+            // handle MultipleFailureException ?
+            List<Throwable> causes = junitError.getCauses();
+            for (Throwable cause : causes) {
+                System.out.println("junit error Caused By:" + cause.getMessage());
+                cause.printStackTrace();
+            }
+            throw newTestError(junitError);
         } catch (Exception e) {
             System.out.println(e.getMessage());
-            throw new RuntimeException("Fail to create test runners", e);
+            throw newTestError(e);
         }
         
         if (runners.isEmpty()) {
@@ -263,6 +272,10 @@ public abstract class AbstractPinpointPluginTestSuite extends Suite {
         }
 
         return runners;
+    }
+
+    private RuntimeException newTestError(Exception e) {
+        return new RuntimeException("Fail to create test runners", e);
     }
     
     protected abstract List<PinpointPluginTestInstance> createTestCases(PinpointPluginTestContext context) throws Exception;
