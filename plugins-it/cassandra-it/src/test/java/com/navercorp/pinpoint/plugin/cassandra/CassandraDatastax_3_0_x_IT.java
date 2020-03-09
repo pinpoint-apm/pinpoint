@@ -19,20 +19,25 @@ package com.navercorp.pinpoint.plugin.cassandra;
 import com.navercorp.pinpoint.pluginit.utils.AgentPath;
 import com.navercorp.pinpoint.pluginit.utils.PluginITConstants;
 import com.navercorp.pinpoint.test.plugin.Dependency;
-import com.navercorp.pinpoint.test.plugin.JvmVersion;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
+import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 
 /**
  * @author HyunGil Jeong
  */
+
 @RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
-@JvmVersion(8)
 @Dependency({
-        "com.datastax.cassandra:cassandra-driver-core:[3.0.0,4.0.0)",
-        "org.scassandra:java-client:1.1.2",
-        PluginITConstants.VERSION, CassandraITConstants.COMMONS_PROFILER})
+        // cassandra 4.x not supported
+        "com.datastax.cassandra:cassandra-driver-core:[3.0.0,3.max)",
+        PluginITConstants.VERSION, CassandraITConstants.COMMONS_PROFILER, CassandraITConstants.CASSANDRA_TESTCONTAINER})
 public class CassandraDatastax_3_0_x_IT extends CassandraDatastaxITBase {
+
+    @BeforeClass
+    public static void beforeClass() {
+        startCassandra(CassandraITConstants.CASSANDRA_3_X_IMAGE);
+    }
 }

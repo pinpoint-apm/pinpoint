@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.pluginit.utils.PluginITConstants;
 import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
+import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 
 /**
@@ -33,7 +34,10 @@ import org.junit.runner.RunWith;
 @PinpointAgent(AgentPath.PATH)
 @Dependency({
         "com.datastax.cassandra:cassandra-driver-core:[2.0.10,2.0.max]",
-        "org.scassandra:java-client:1.1.2",
-        PluginITConstants.VERSION, CassandraITConstants.COMMONS_PROFILER})
+        PluginITConstants.VERSION, CassandraITConstants.COMMONS_PROFILER, CassandraITConstants.CASSANDRA_TESTCONTAINER})
 public class CassandraDatastax_2_0_x_IT extends CassandraDatastaxITBase {
+    @BeforeClass
+    public static void beforeClass() {
+        startCassandra(CassandraITConstants.CASSANDRA_2_X_IMAGE);
+    }
 }
