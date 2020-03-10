@@ -116,7 +116,9 @@ public abstract class CassandraDatastaxITBase {
 
     @AfterClass
     public static void tearDownAfterClass() {
-        cassandra.stop();
+        if (cassandra != null) {
+            cassandra.stop();
+        }
     }
 
     @Test
