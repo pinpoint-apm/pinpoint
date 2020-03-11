@@ -60,12 +60,12 @@ export class ScatterChartDataService {
             this.outScatterErrorData.next(error);
         });
         this.innerRealTimeDataRequest.pipe(
+            filter(() => this.loadStart),
             switchMap((params: IScatterRequest) => {
                 return this.requestHttp(params).pipe(
                     retry(3)
                 );
             }),
-            filter(() => this.loadStart)
         ).subscribe((scatterData: IScatterData) => {
             this.subscribeRealTimeRequest(scatterData);
         }, (error: IServerErrorFormat) => {
@@ -138,6 +138,9 @@ export class ScatterChartDataService {
     }
     stopLoad(): void {
         this.loadStart = false;
+    }
+    isConnected(): boolean {
+        return this.loadStart;
     }
     private subscribeRealTimeRequest(scatterData: IScatterData): void {
         const roundTripTime = Date.now() - this.requestTime;
