@@ -164,8 +164,8 @@ export class ScatterChartContainerComponent implements OnInit, OnDestroy {
         // visible
         visibility$.pipe(
             filter(() => !document.hidden),
+            filter(() => !this.scatterChartDataService.isConnected())
         ).subscribe(() => {
-            // TODO: Consider preserving the data during the previous 10sec
             this.getScatterData();
         });
 
