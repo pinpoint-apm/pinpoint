@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.grpc;
 
 import com.navercorp.pinpoint.common.util.Assert;
-import com.navercorp.pinpoint.common.util.IdValidateUtils;
+
 import io.grpc.Metadata;
 
 /**

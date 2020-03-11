@@ -16,17 +16,10 @@
 
 package com.navercorp.pinpoint.collector.receiver.grpc.service;
 
-import com.navercorp.pinpoint.grpc.Header;
-import com.navercorp.pinpoint.grpc.server.ServerContext;
-import com.navercorp.pinpoint.grpc.server.TransportMetadata;
-import com.navercorp.pinpoint.io.request.DefaultServerRequest;
 import com.navercorp.pinpoint.io.request.Message;
 import com.navercorp.pinpoint.io.request.ServerRequest;
-import io.grpc.Context;
-import io.grpc.Status;
-import io.grpc.StatusException;
 
-import java.net.InetSocketAddress;
+import io.grpc.StatusException;
 
 /**
  * @author Woonduk Kang(emeroad)
