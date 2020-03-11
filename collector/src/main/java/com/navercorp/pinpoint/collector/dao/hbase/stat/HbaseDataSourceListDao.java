@@ -31,8 +31,6 @@ import com.navercorp.pinpoint.common.util.CollectionUtils;
 import org.apache.commons.collections.map.MultiKeyMap;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Put;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -45,8 +43,6 @@ import java.util.List;
  */
 @Repository
 public class HbaseDataSourceListDao implements AgentStatDaoV2<DataSourceListBo> {
-
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private HbaseOperations2 hbaseTemplate;

@@ -16,9 +16,6 @@
 package com.navercorp.pinpoint.common.hbase;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.security.UserGroupInformation;
-
-import java.io.IOException;
 
 /**
  * @author minwoo.jung

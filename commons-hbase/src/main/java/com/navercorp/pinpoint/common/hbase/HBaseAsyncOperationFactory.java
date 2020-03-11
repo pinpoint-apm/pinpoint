@@ -20,8 +20,6 @@ package com.navercorp.pinpoint.common.hbase;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.HTableMultiplexer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
@@ -29,8 +27,6 @@ import java.io.IOException;
  * @author Taejin Koo
  */
 public class HBaseAsyncOperationFactory {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(HBaseAsyncOperationFactory.class);
 
     public static final String ENABLE_ASYNC_METHOD = "hbase.client.async.enable";
     public static final boolean DEFAULT_ENABLE_ASYNC_METHOD = false;

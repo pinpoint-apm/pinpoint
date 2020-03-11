@@ -16,12 +16,7 @@
 
 package com.navercorp.pinpoint.common.hbase;
 
-import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
-import com.navercorp.pinpoint.common.hbase.TableNameProvider;
-import com.navercorp.pinpoint.common.util.Assert;
 import org.apache.hadoop.hbase.TableName;
-
-import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)

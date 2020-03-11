@@ -72,7 +72,9 @@ public class DataSourceConstructorInterceptor extends SpanEventSimpleAroundInter
                         ((DataSourceMonitorAccessor) target)._$PINPOINT$_setDataSourceMonitor(dataSourceMonitor);
                     }
 
-                    logger.debug("create HikariCpDataSourceMonitor success. jdbcUrl:{}", jdbcUrl);
+                    if (isDebug) {
+                        logger.debug("create HikariCpDataSourceMonitor success. jdbcUrl:{}", jdbcUrl);
+                    }
                 } else {
                     logger.info("failed while creating HikariCpDataSourceMonitor. can't find jdbclUrl");
                 }
