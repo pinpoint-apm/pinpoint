@@ -56,10 +56,12 @@ public class ReusePortSocketOptionHolder {
 
     public static ReusePortSocketOptionHolder create(int socketCount) {
         SocketOption reusePortSocketOption = getReusePortSocketOption();
-        if (reusePortSocketOption != null) {
-            return new ReusePortSocketOptionHolder(reusePortSocketOption, true, socketCount);
+        if (reusePortSocketOption == null) {
+            LOGGER.warn("Failed to get ReusePort SocketOption. Please use Jvm9+ for using ReusePort SocketOption");
+            return null;
         }
-        return null;
+
+        return new ReusePortSocketOptionHolder(reusePortSocketOption, true, socketCount);
     }
 
     private static SocketOption getReusePortSocketOption() {
@@ -74,7 +76,7 @@ public class ReusePortSocketOptionHolder {
                 }
             }
         } catch (Exception e) {
-            LOGGER.warn("Failed to get ReuserPort SocketOption. caused:{}", e.getMessage(), e);
+            LOGGER.warn("Failed to get ReusePort SocketOption. caused:{}", e.getMessage(), e);
         }
         return null;
     }
