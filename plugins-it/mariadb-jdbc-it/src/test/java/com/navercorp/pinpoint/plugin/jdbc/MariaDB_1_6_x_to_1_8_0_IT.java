@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
 import com.navercorp.pinpoint.pluginit.jdbc.DefaultJDBCApi;
 import com.navercorp.pinpoint.pluginit.jdbc.JDBCApi;
 import com.navercorp.pinpoint.pluginit.jdbc.JDBCDriverClass;
+import com.navercorp.pinpoint.pluginit.jdbc.JDBCTestConstants;
 import com.navercorp.pinpoint.pluginit.utils.AgentPath;
 import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.JvmVersion;
@@ -54,7 +55,8 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.sql;
 @RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
 @JvmVersion(7) // 1.6.2+ works with Java 6, but since the IT includes 1.6.0 and 1.6.1 just run on Java 7
-@Dependency({ "org.mariadb.jdbc:mariadb-java-client:[1.6.0,1.8.0)", "ch.vorburger.mariaDB4j:mariaDB4j:2.2.2" })
+@Dependency({ "org.mariadb.jdbc:mariadb-java-client:[1.6.0,1.8.0)", "ch.vorburger.mariaDB4j:mariaDB4j:2.2.2",
+        JDBCTestConstants.VERSION})
 public class MariaDB_1_6_x_to_1_8_0_IT extends MariaDB_IT_Base {
 
     // see CallableParameterMetaData#queryMetaInfos
