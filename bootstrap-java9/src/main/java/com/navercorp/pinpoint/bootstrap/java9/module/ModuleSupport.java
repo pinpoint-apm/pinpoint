@@ -40,15 +40,20 @@ public class ModuleSupport {
 
     private final JavaModule javaBaseModule;
     private final JavaModule bootstrapModule;
+    private List<String> allowedProviders;
 
-
-    ModuleSupport(Instrumentation instrumentation) {
+    ModuleSupport(Instrumentation instrumentation, List<String> allowedProviders) {
         if (instrumentation == null) {
+            throw new NullPointerException("instrumentation");
+        }
+        if (allowedProviders == null) {
             throw new NullPointerException("instrumentation");
         }
         this.instrumentation = instrumentation;
         this.javaBaseModule = wrapJavaModule(Object.class);
         this.bootstrapModule = wrapJavaModule(this.getClass());
+
+        this.allowedProviders = allowedProviders;
 
     }
 
@@ -171,14 +176,21 @@ public class ModuleSupport {
 
         List<Providers> providersList = agentModule.getProviders();
         for (Providers providers : providersList) {
-//            if (!serviceClassName.equals(providers.getService())) {
-//                // filter unknown service
-//                continue;
-//            }
-            Class<?> serviceClass = forName(providers.getService(), classLoader);
-            List<Class<?>> providerClassList = loadProviderClassList(providers.getProviders(), classLoader);
-            agentModule.addProvides(serviceClass, providerClassList);
+            final String service = providers.getService();
+            if (isAllowedProvider(service)) {
+                logger.info("load provider:" + providers);
+                Class<?> serviceClass = forName(providers.getService(), classLoader);
+                List<Class<?>> providerClassList = loadProviderClassList(providers.getProviders(), classLoader);
+                agentModule.addProvides(serviceClass, providerClassList);
+            }
         }
+    }
+
+    public boolean isAllowedProvider(String serviceName) {
+        for (String allowedProvider : this.allowedProviders) {
+            return allowedProvider.equals(serviceName);
+        }
+        return false;
     }
 
     private List<Class<?>> loadProviderClassList(List<String> classNameList, ClassLoader classLoader) {
