@@ -13,16 +13,18 @@ announce that **all commercial dependencies(amchart, go.js) has been removed.**
 
 {% include important.html content="If you plan to upgrade pinpoint-web to v2.0.0 from version 1.8.5 or earlier please check the [Upgrade Guide](http://naver.github.io/pinpoint/2.0.0/main.html#Notice-for-Pinpoint-Web-version-upgrade)" %}
 
+Pinpoint started using GRPC as default 
+
 ### Fully changed UI
 
 Lighter, faster, smoother
-* Servermap
-![servermap](https://user-images.githubusercontent.com/10057874/68727830-dae27280-0608-11ea-9e98-c5c904f6b98c.jpg)
+* Servermap  
+![servermap](https://user-images.githubusercontent.com/20402016/76491441-04a18e00-6471-11ea-9afd-0ae9f1df367a.png)
 
-* Distributed calltree
+* Distributed calltree  
 ![callstack](https://user-images.githubusercontent.com/10057874/68727854-ee8dd900-0608-11ea-8185-f2fc2fd101fe.jpg)
 
-* Inspector
+* Inspector  
 ![inspector](https://user-images.githubusercontent.com/10057874/68727863-f483ba00-0608-11ea-99f8-217aa6329d14.jpg)
 
 ### Support JAVA 12, 13
@@ -36,7 +38,7 @@ Currently, the default setting of 2.0.0-RC2 is
   * agent
     -  grpc (default)
 
-![grpc](https://user-images.githubusercontent.com/10057874/69118773-edace980-0ad7-11ea-85e8-c490b86f048a.jpg)
+    ![grpc](https://user-images.githubusercontent.com/10057874/69118773-edace980-0ad7-11ea-85e8-c490b86f048a.jpg)
  
 ### Maximum throughput limit feature
 
@@ -171,4 +173,5 @@ Agent compatibility to Collector table:
 * Supported versions of the \* indicated library may differ from the actual version.
 
 {% include_relative modules.md %}
+
 
