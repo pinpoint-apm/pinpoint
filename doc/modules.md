@@ -20,7 +20,8 @@
 | Spring RabbitMQ                                                                   | spring-rabbit              | 1.3.3   | 2.2.3   |                        | <AG>
 | Spring IBatis                                                                     | spring-ibatis              | 2.0.7   | 2.0.8   |                        | <AG>
 | Spring MyBatis                                                                    | mybatis-spring             | 1.1.0   | 1.3.3   |                        | <AG>
-| Spring Boot                                                                       | spring-boot-autoconfigure  |         |         |                        |  
+| \*Spring Boot                                                                     | spring-boot-autoconfigure  |         |         |                        |
+| \*Spring Webflux                                                                  | spring-webflux             |         |         |                        |    
 |                                                                                   |                            |         |         |                        | 
 | MyBatis                                                                           | mybatis                    | 3.0.3   | 3.3.1   |                        | <AG>
 | Hystrix                                                                           | hystrix-core               | 1.4.0   | 1.5.18  |                        | <AG>
@@ -42,7 +43,8 @@
 | Log4j2                                                                            | log4j-core                 | 2.0     | 2.12.1  |                        | <AG>
 |                                                                                   |                            |         |         |                        |
 | \*Arcus                                                                           | arcus-java-client          | 1.7.0   | 1.11.4  |                        | 
-| \*MsSQL (jTDS)                                                                    | jtds                       | 1.2.8   |         |                        | 
+| \*MsSQL (jTDS)                                                                    | jtds                       | 1.2.8   |         |                        |
+| \*MsSQL                                                                           | mssql-jdbc                 |         |         |                        | 
 | HikariCP                                                                          | HikariCP-java6             | 2.3.0   | 2.3.13  |                        | <AG>
 | Jackson-mapper-asl                                                                | jackson-mapper-asl         | 1.0.1   | 1.8.11  |                        | <AG>
 | Jackson Databind                                                                  | jackson-databind           | 2.0.6   | 2.10.2  |                        | <AG>
