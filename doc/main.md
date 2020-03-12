@@ -11,7 +11,8 @@ We have a new UI for Pinpoint-Web.
 A lot of users asked on the commercial issue and we are happy to 
 announce that **all commercial dependencies(amchart, go.js) has been removed.**
 
-{% include important.html content="If you plan to upgrade pinpoint-web to v2.0.0 from version 1.8.5 or earlier please check the [Upgrade Guide](http://naver.github.io/pinpoint/2.0.0/main.html#Notice-for-Pinpoint-Web-version-upgrade)" %}
+{% include important.html content="If you plan to upgrade pinpoint-web to v2.0.0 from version 1.8.5 or earlier 
+please check the [Upgrade Guide](http://naver.github.io/pinpoint/2.0.0/main.html#notice-for-pinpoint-web-version-upgrade)" %}
 
 Pinpoint started using GRPC as default 
 
