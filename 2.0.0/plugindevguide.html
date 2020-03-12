@@ -1,0 +1,1118 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="">
+<meta name="keywords" content=" plugin, plug-in, plug">
+<title>Plugin Developer Guide | Leading Open-Source APM</title>
+<link rel="stylesheet" href="css/syntax.css">
+
+<link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+<!--<link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">-->
+<link rel="stylesheet" href="css/modern-business.css">
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+<link rel="stylesheet" href="css/customstyles.css">
+<link rel="stylesheet" href="css/boxshadowproperties.css">
+<!-- most color styles are extracted out to here -->
+<link rel="stylesheet" href="css/theme-black.css">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
+<script src="js/jquery.navgoco.min.js"></script>
+
+
+<!-- Latest compiled and minified JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<!-- Anchor.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/anchor-js/2.0.0/anchor.min.js"></script>
+<script src="js/toc.js"></script>
+<script src="js/customscripts.js"></script>
+
+<link rel="shortcut icon" href="images/favicon.ico">
+
+<!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+<!--[if lt IE 9]>
+<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+<![endif]-->
+
+<link rel="alternate" type="application/rss+xml" title="pinpoint" href="http://localhost:4000/feed.xml">
+
+    <script>
+        $(document).ready(function() {
+            // Initialize navgoco with default options
+            $("#mysidebar").navgoco({
+                caretHtml: '',
+                accordion: true,
+                openClass: 'active', // open
+                save: false, // leave false or nav highlighting doesn't work right
+                cookie: {
+                    name: 'navgoco',
+                    expires: false,
+                    path: '/'
+                },
+                slide: {
+                    duration: 400,
+                    easing: 'swing'
+                }
+            });
+
+            $("#collapseAll").click(function(e) {
+                e.preventDefault();
+                $("#mysidebar").navgoco('toggle', false);
+            });
+
+            $("#expandAll").click(function(e) {
+                e.preventDefault();
+                $("#mysidebar").navgoco('toggle', true);
+            });
+
+        });
+
+    </script>
+    <script>
+        $(function () {
+            $('[data-toggle="tooltip"]').tooltip()
+        })
+    </script>
+    <script>
+        $(document).ready(function() {
+            $("#tg-sb-link").click(function() {
+                $("#tg-sb-sidebar").toggle();
+                $("#tg-sb-content").toggleClass('col-md-9');
+                $("#tg-sb-content").toggleClass('col-md-12');
+                $("#tg-sb-icon").toggleClass('fa-toggle-on');
+                $("#tg-sb-icon").toggleClass('fa-toggle-off');
+            });
+        });
+    </script>
+    
+
+</head>
+<body>
+
+<!-- Navigation -->
+<nav class="navbar navbar-inverse navbar-static-top">
+    <div class="container topnavlinks">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="fa fa-home fa-lg navbar-brand" href="/pinpoint/index.html">&nbsp;<span class="projectTitle"> <img src="./images/logo2.png"> </span></a>
+        </div>
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav navbar-right">
+                <!-- toggle sidebar button -->
+                <li><a id="tg-sb-link" href="#"><i id="tg-sb-icon" class="fa fa-toggle-on"></i> Nav</a></li>
+                <!-- entries without drop-downs appear here -->
+
+
+
+
+                
+                
+                
+                <li><a href="https://github.com/naver/pinpoint" target="_blank">GitHub</a></li>
+                
+                
+                
+                <li><a href="https://twitter.com/Pinpoint_APM" target="_blank">News</a></li>
+                
+                
+                
+                <li><a href="https://naver.github.io/pinpoint/resources" target="_blank">Pinpoint Blogs</a></li>
+                
+                
+                
+                <!-- entries with drop-downs appear here -->
+                <!-- conditional logic to control which topnav appears for the audience defined in the configuration file.-->
+                
+                
+			<li>
+
+
+
+  <a class="email" title="Submit feedback" href="#" onclick="javascript:window.location='mailto:roy.kim@navercorp.com?subject=pinpoint feedback&body=If it\'s an issue please check QnA page in the homepage or Pinpoint GitHub repository https://github.com/naver/pinpoint/issues' "><i class="fa fa-envelope-o"></i> Feedback</a>
+
+</li>
+
+		
+                <!--comment out this block if you want to hide search-->
+                <li>
+                    <!--start search-->
+                    <div id="search-demo-container">
+                        <input type="text" id="search-input" placeholder="search...">
+                        <ul id="results-container"></ul>
+                    </div>
+                    <script src="js/jekyll-search.js" type="text/javascript"></script>
+                    <script type="text/javascript">
+                            SimpleJekyllSearch.init({
+                                searchInput: document.getElementById('search-input'),
+                                resultsContainer: document.getElementById('results-container'),
+                                dataSource: 'search.json',
+                                searchResultTemplate: '<li><a href="{url}" title="Plugin Developer Guide">{title}</a></li>',
+                    noResultsText: 'No results found.',
+                            limit: 10,
+                            fuzzy: true,
+                    })
+                    </script>
+                    <!--end search-->
+                </li>
+            </ul>
+        </div>
+        </div>
+        <!-- /.container -->
+</nav>
+
+<!-- Page Content -->
+
+<div class="container">
+
+  <div id="main">
+    <!-- Content Row -->
+    <div class="row">
+        
+        
+            <!-- Sidebar Column -->
+            <div class="col-md-3" id="tg-sb-sidebar">
+                <script language="javascript" type="text/javascript">
+    $(document).ready(function () {
+        GetVersionInfo();
+    });
+
+    function GetVersionInfo() {
+
+        var pathname = window.location.pathname;
+        var path = pathname.slice(10,15);
+        var versioned = true;
+        var tempNum1 = path.slice(0,1);
+        var tempNum2 = path.slice(2,3);
+        var tempNum3 = path.slice(4,5);
+
+        if($.isEmptyObject(path)){
+            versioned = false;
+        }else{
+            if(isNaN(tempNum1) || isNaN(tempNum2) && isNaN(tempNum3)){
+                versioned = false;
+            }
+        }
+
+        $.getJSON("https://raw.githubusercontent.com/naver/pinpoint/gh-pages/version.json").done(function (data){
+
+            $.each(data, function(key, value) {
+
+                if(versioned && path == value.ver){
+                    $('#selbox').append('<option selected="selected" value="http://naver.github.io/pinpoint/'+ value.url +'">'+ value.ver +'</option>');
+                }else{
+                    $('#selbox').append('<option value="http://naver.github.io/pinpoint/'+ value.url +'">'+ value.ver +'</option>');
+                }
+            })
+        });
+    }
+</script>
+
+
+
+
+<ul id="mysidebar" class="nav">
+    <li class="sidebarTitle">
+        <tr>
+            <td>
+                Pinpoint
+            </td>
+            <td>
+                <select id="selbox" name="ver" onchange="document.location.href=this.value">
+                </select>
+            </td>
+        </tr>
+    </li>
+    <tr></tr>
+    <tr> <td><iframe src="https://ghbtns.com/github-btn.html?user=naver&repo=pinpoint&type=star&count=true" frameborder="0" scrolling="0" width="110px" height="20px"></iframe>
+    <iframe src="https://ghbtns.com/github-btn.html?user=naver&repo=pinpoint&type=fork&count=true" frameborder="0" scrolling="0" width="110px" height="20px"></iframe>
+    </td> </tr>
+  
+  
+  
+
+    
+      
+  
+
+    
+    <li>
+        
+        <li><a href="main.html">What's New</a></li>
+        
+    </li>
+    
+      
+  
+  <li>
+      <a href="#">Pinpoint</a>
+      <ul>
+          
+          
+          
+          <li><a href="overview.html">Overview</a></li>
+          
+          
+          
+          
+          
+          
+          <li><a href="history.html">History</a></li>
+          
+          
+          
+          
+          
+          
+          <li><a href="techdetail.html">Technical Details</a></li>
+          
+          
+          
+          
+          
+          
+          <li><a href="additionalplugins.html">Additional Plugins</a></li>
+          
+          
+          
+          
+      </ul>
+   </li>
+    
+
+    
+      
+  
+  <li>
+      <a href="#">Getting Started</a>
+      <ul>
+          
+          
+          
+          <li><a href="quickstart.html">QuickStart</a></li>
+          
+          
+          
+          
+          
+          
+          <li><a href="installation.html">Installation</a></li>
+          
+          
+          
+          
+          
+          
+          <li><a href="docker.html">Install with Docker</a></li>
+          
+          
+          
+          
+          
+          
+          <li><a href="troubleshooting_network.html">TrobleShooting(Network)</a></li>
+          
+          
+          
+          
+      </ul>
+   </li>
+    
+
+    
+      
+  
+  <li>
+      <a href="#">Documents</a>
+      <ul>
+          
+          
+          
+          <li><a href="ui_v2.html">UI v2(Currently under development)</a></li>
+          
+          
+          
+          
+          
+          
+          <li class="active"><a href="plugindevguide.html">Plugin Developer Guide</a></li>
+          
+          
+          
+          
+          
+          
+          <li><a href="alarm.html">Setting Alarms</a></li>
+          
+          
+          
+          
+          
+          
+          <li><a href="applicationinspector.html">How to use Application Inspector</a></li>
+          
+          
+          
+          
+          
+          
+          <li><a href="perrequestfeatureguide.html">Separate Log Per Request</a></li>
+          
+          
+          
+          
+          
+          
+          <li><a href="httpstatuscodefailure.html">Marking Transaction as Fail</a></li>
+          
+          
+          
+          
+          
+          
+          <li><a href="proxyhttpheader.html">Monitoring Proxy Server</a></li>
+          
+          
+          
+          
+          
+          
+          <li><a href="hbaseupgrade.html">Upgrade Database Hbase2</a></li>
+          
+          
+          
+          
+      </ul>
+   </li>
+    
+
+    
+      
+  
+  <li>
+      <a href="#">Contribution</a>
+      <ul>
+          
+          
+          
+          <li><a href="contribution.html">Readme</a></li>
+          
+          
+          
+          
+          
+          
+          <li><a href="https://github.com/naver/pinpoint/labels/proposal" target="_blank">Open to Contribution</a></li>
+          
+          
+          
+          
+      </ul>
+   </li>
+    
+
+    
+      
+  
+
+    
+    <li>
+        
+        <li><a href="videos.html">Videos</a></li>
+        
+    </li>
+    
+      
+  
+
+    
+    <li>
+        
+        <li><a href="performance.html">Performance Analysis</a></li>
+        
+    </li>
+    
+      
+  
+
+    
+    <li>
+        
+        <li><a href="http://125.209.240.10:10123" target="_blank">Live Demo</a></li>
+        
+    </li>
+    
+      
+  
+
+    
+    <li>
+        
+        <li><a href="https://twitter.com/Pinpoint_APM" target="_blank">Twitter</a></li>
+        
+    </li>
+    
+      
+  
+
+    
+    <li>
+        
+        <li><a href="https://github.com/naver/pinpoint/releases" target="_blank">Release Notes</a></li>
+        
+    </li>
+    
+      
+  
+
+    
+    <li>
+        
+        <li><a href="faq.html">FAQ</a></li>
+        
+    </li>
+    
+      
+  
+
+    
+    <li>
+        
+        <li><a href="poweredby.html">Powered by Pinpoint</a></li>
+        
+    </li>
+    
+      
+  
+
+    
+    <li>
+        
+        <li><a href="https://github.com/naver/pinpoint/issues" target="_blank">Questions and answers</a></li>
+        
+    </li>
+    
+      
+  
+
+    
+    <li>
+        
+        <li><a href="https://github.com/naver/pinpoint" target="_blank">Fork me at Github</a></li>
+        
+    </li>
+    
+      
+      
+      <!-- if you aren't using the accordion, uncomment this block:
+         <p class="external">
+             <a href="#" id="collapseAll">Collapse All</a> | <a href="#" id="expandAll">Expand All</a>
+         </p>
+         -->
+</ul>
+
+<!-- this highlights the active parent class in the navgoco sidebar. this is critical so that the parent expands when you're viewing a page. This must appear below the sidebar code above. Otherwise, if placed inside customscripts.js, the script runs before the sidebar code runs and the class never gets inserted.-->
+<script>$("li.active").parents('li').toggleClass("active");</script>
+
+            </div>
+            
+        
+
+        <!-- Content Column -->
+        <div class="col-md-9" id="tg-sb-content">
+            <a no_icon href="https://github.com/naver/pinpoint"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/365986a132ccd6a44c23a9169022c0b5c890c387/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f7265645f6161303030302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png"></a>
+            <script language="javascript" type="text/javascript">
+    $(document).ready(function () {
+        GetUrl();
+    });
+
+    function GetUrl() {
+
+        var pathname = window.location.pathname;
+        if(pathname == "/pinpoint/main.html"){
+            document.getElementById("pathname").innerHTML = "Snapshot(Unstable)";
+        }
+    }
+</script>
+
+<div class="post-header">
+   <h1 class="post-title-main" id="pathname">Plugin Developer Guide</h1>
+</div>
+
+
+
+<div class="post-content">
+
+   
+
+    
+    
+<!-- this handles the automatic toc. use ## for subheads to auto-generate the on-page minitoc. if you use html tags, you must supply an ID for the heading element in order for it to appear in the minitoc. -->
+<script>
+$( document ).ready(function() {
+  // Handler for .ready() called.
+
+$('#toc').toc({ minimumHeaders: 0, listType: 'ul', showSpeed: 0, headers: 'h2,h3,h4' });
+
+/* this offset helps account for the space taken up by the floating toolbar. */
+$('#toc').on('click', 'a', function() {
+  var target = $(this.getAttribute('href'))
+    , scroll_target = target.offset().top
+
+  $(window).scrollTop(scroll_target - 10);
+  return false
+})
+  
+});
+</script>
+
+<div id="toc"></div>
+
+    
+
+
+    
+
+
+    
+
+  <p>You can write Pinpoint profiler plugins to extend profiling target coverage. It is highly advisable to look into the trace data recorded by pinpoint plugins before jumping into plugin development.</p>
+
+<ul>
+  <li>There is a <a href="https://github.com/bbossgroups/pinpoint-plugin-generate">fast auto pinpoint agent plugin generate tool</a> from a 3rd party for creating a simple plug-in, if you’d like to check out.</li>
+</ul>
+
+<h2 id="i-trace-data">I. Trace Data</h2>
+<p>In Pinpoint, a transaction consists of a group of <code class="highlighter-rouge">Spans</code>. Each <code class="highlighter-rouge">Span</code> represents a trace of a single logical node where the transaction has gone through.</p>
+
+<p>To aid in visualization, let’s suppose that there is a system like below. The <em>FrontEnd</em> server receives requests from users, then sends request to the <em>BackEnd</em> server, which queries a DB. Among these nodes, let’s assume only the <em>FrontEnd</em> and <em>BackEnd</em> servers are profiled by the Pinpoint Agent.</p>
+
+<p><img src="https://cloud.githubusercontent.com/assets/8037461/13870778/0073df06-ed22-11e5-97a3-ebe116186947.jpg" alt="trace" /></p>
+
+<p>When a request arrives at the <em>FrontEnd</em> server, Pinpoint Agent generates a new transaction id and creates a <code class="highlighter-rouge">Span</code> with it. To handle the request, the <em>FrontEnd</em> server then invokes the <em>BackEnd</em> server. At this point, Pinpoint Agent injects the transaction id (plus a few other values for propagation) into the invocation message. When the <em>BackEnd</em> server receives this message, it extracts the transaction id (and the other values) from the message and creates a new <code class="highlighter-rouge">Span</code> with them. Resulting, all <code class="highlighter-rouge">Spans</code> in a single transaction share the same transaction id.</p>
+
+<p>A <code class="highlighter-rouge">Span</code> records important method invocations and their related data(arguments, return value, etc) before encapsulating them as <code class="highlighter-rouge">SpanEvents</code> in a call stack like representation. The <code class="highlighter-rouge">Span</code> itself and each of its <code class="highlighter-rouge">SpanEvents</code> represents a method invocation.</p>
+
+<p><code class="highlighter-rouge">Span</code> and <code class="highlighter-rouge">SpanEvent</code> have many fields, but most of them are handled internally by Pinpoint Agent and most plugin developers won’t need to worry about them. But the fields and data that must be handled by plugin developers will be listed throughout this guide.</p>
+
+<h2 id="ii-pinpoint-plugin-structure">II. Pinpoint Plugin Structure</h2>
+<p>Pinpoint plugin consists of <em>type-provider.yml</em> and <code class="highlighter-rouge">ProfilerPlugin</code> implementations. <em>type-provider.yml</em> defines the <code class="highlighter-rouge">ServiceTypes</code> and <code class="highlighter-rouge">AnnotationKeys</code> that will be provided by the plugin, and provides them to Pinpoint Agent, Web and Collector. <code class="highlighter-rouge">ProfilerPlugin</code> implementations are used by Pinpoint Agent to transform target classes to record trace data.</p>
+
+<p>Plugins are deployed as jar files. These jar files are packaged under the <em>plugin</em> directory for the agent, while the collector and web have them deployed under <em>WEB-INF/lib</em>.
+On start up, Pinpoint Agent, Collector, and Web iterates through each of these plugins; parses <em>type-provider.yml</em>, and loads <code class="highlighter-rouge">ProfilerPlugin</code> implementations using <code class="highlighter-rouge">ServiceLoader</code> from the following locations:</p>
+
+<ul>
+  <li>META-INF/pinpoint/type-provider.yml</li>
+  <li>META-INF/services/com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin</li>
+</ul>
+
+<p>Here is a <a href="https://github.com/naver/pinpoint-plugin-template">template plugin project</a> you can use to start creating your own plugin.</p>
+
+<h3 id="1-type-provideryml">1. type-provider.yml</h3>
+<p><em>type-provider.yml</em> defines the <code class="highlighter-rouge">ServiceTypes</code> and <code class="highlighter-rouge">AnnotationKeys</code> that will be used by the plugin and provided to the agent, collector and web; the format of which is outlined below.</p>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">serviceTypes</span><span class="pi">:</span>
+    <span class="pi">-</span> <span class="na">code</span><span class="pi">:</span> <span class="s">&lt;short&gt;</span>
+      <span class="na">name</span><span class="pi">:</span> <span class="s">&lt;String&gt;</span>
+      <span class="na">desc</span><span class="pi">:</span> <span class="s">&lt;String&gt;</span>   <span class="c1"># May be omitted, defaulting to the same value as name.</span>
+      <span class="na">property</span><span class="pi">:</span>        <span class="c1"># May be omitted, all properties defaulting to false.</span>
+          <span class="na">terminal</span><span class="pi">:</span> <span class="s">&lt;boolean&gt;</span>               <span class="c1"># May be omitted, defaulting to false.</span>
+          <span class="na">queue</span><span class="pi">:</span> <span class="s">&lt;boolean&gt;</span>                  <span class="c1"># May be omitted, defaulting to false.</span>
+          <span class="na">recordStatistics</span><span class="pi">:</span> <span class="s">&lt;boolean&gt;</span>       <span class="c1"># May be omitted, defaulting to false.</span>
+          <span class="na">includeDestinationId</span><span class="pi">:</span> <span class="s">&lt;boolean&gt;</span>   <span class="c1"># May be omitted, defaulting to false.</span>
+          <span class="na">alias</span><span class="pi">:</span> <span class="s">&lt;boolean&gt;</span>                  <span class="c1"># May be omitted, defaulting to false.          </span>
+      <span class="na">matcher</span><span class="pi">:</span>         <span class="c1"># May be omitted</span>
+          <span class="na">type</span><span class="pi">:</span> <span class="s">&lt;String&gt;</span>   <span class="c1"># Any one of 'args', 'exact', 'none'</span>
+          <span class="na">code</span><span class="pi">:</span> <span class="s">&lt;int&gt;</span>      <span class="c1"># Annotation key code - required only if type is 'exact'</span>
+
+<span class="na">annotationKeys</span><span class="pi">:</span>
+    <span class="pi">-</span> <span class="na">code</span><span class="pi">:</span> <span class="s">&lt;int&gt;</span>
+      <span class="na">name</span><span class="pi">:</span> <span class="s">&lt;String&gt;</span>
+      <span class="na">property</span><span class="pi">:</span>        <span class="c1"># May be omitted, all properties defaulting to false.</span>
+          <span class="na">viewInRecordSet</span><span class="pi">:</span> <span class="s">&lt;boolean&gt;</span>
+</code></pre></div></div>
+
+<p><code class="highlighter-rouge">ServiceType</code> and <code class="highlighter-rouge">AnnotationKey</code> defined here are instantiated when the agent loads, and can be obtained using <code class="highlighter-rouge">ServiceTypeProvider</code> and <code class="highlighter-rouge">AnnotationKeyProvider</code> like below.</p>
+<div class="language-java highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">// ServiceType</span>
+<span class="n">ServiceType</span> <span class="n">serviceType</span> <span class="o">=</span> <span class="n">ServiceTypeProvider</span><span class="o">.</span><span class="na">getByCode</span><span class="o">(</span><span class="mi">1000</span><span class="o">);</span>    <span class="c1">// by ServiceType code</span>
+<span class="n">ServiceType</span> <span class="n">serviceType</span> <span class="o">=</span> <span class="n">ServiceTypeProvider</span><span class="o">.</span><span class="na">getByName</span><span class="o">(</span><span class="s">"NAME"</span><span class="o">);</span>  <span class="c1">// by ServiceType name</span>
+<span class="c1">// AnnotationKey</span>
+<span class="n">AnnotationKey</span> <span class="n">annotationKey</span> <span class="o">=</span> <span class="n">AnnotationKeyProvider</span><span class="o">.</span><span class="na">getByCode</span><span class="o">(</span><span class="s">"100"</span><span class="o">);</span>
+</code></pre></div></div>
+
+<h4 id="11-servicetype">1.1 ServiceType</h4>
+
+<p>Every <code class="highlighter-rouge">Span</code> and <code class="highlighter-rouge">SpanEvent</code> contains a <code class="highlighter-rouge">ServiceType</code>. The <code class="highlighter-rouge">ServiceType</code> represents which library the traced method belongs to, as well as how the <code class="highlighter-rouge">Span</code> and <code class="highlighter-rouge">SpanEvent</code> should be handled.</p>
+
+<p>The table below shows the <code class="highlighter-rouge">ServiceType</code>’s properties.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>property</th>
+      <th>description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>name</td>
+      <td>name of the <code class="highlighter-rouge">ServiceType</code>. Must be unique</td>
+    </tr>
+    <tr>
+      <td>code</td>
+      <td>short type code value of the <code class="highlighter-rouge">ServiceType</code>. Must be unique</td>
+    </tr>
+    <tr>
+      <td>desc</td>
+      <td>description</td>
+    </tr>
+    <tr>
+      <td>properties</td>
+      <td>properties</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><code class="highlighter-rouge">ServiceType</code> code must use a value from its appropriate category. The table below shows these categories and their range of codes.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>category</th>
+      <th>range</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Internal Use</td>
+      <td>0 ~ 999</td>
+    </tr>
+    <tr>
+      <td>Server</td>
+      <td>1000 ~ 1999</td>
+    </tr>
+    <tr>
+      <td>DB Client</td>
+      <td>2000 ~ 2999</td>
+    </tr>
+    <tr>
+      <td>Cache Client</td>
+      <td>8000 ~ 8999</td>
+    </tr>
+    <tr>
+      <td>RPC Client</td>
+      <td>9000 ~ 9999</td>
+    </tr>
+    <tr>
+      <td>Others</td>
+      <td>5000 ~ 7999</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><code class="highlighter-rouge">ServiceType</code> code must be unique. Therefore, if you are writing a plugin that will be shared publicly, <strong>you must</strong> contact Pinpoint dev. team to get a <code class="highlighter-rouge">ServiceType</code> code assigned. If your plugin is for private use, you may freely pick a value for <code class="highlighter-rouge">ServiceType</code> code from the table below.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>category</th>
+      <th>range</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Server</td>
+      <td>1900 ~ 1999</td>
+    </tr>
+    <tr>
+      <td>DB client</td>
+      <td>2900 ~ 2999</td>
+    </tr>
+    <tr>
+      <td>Cache client</td>
+      <td>8900 ~ 8999</td>
+    </tr>
+    <tr>
+      <td>RPC client</td>
+      <td>9900 ~ 9999</td>
+    </tr>
+    <tr>
+      <td>Others</td>
+      <td>7500 ~ 7999</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><code class="highlighter-rouge">ServiceTypes</code> can have the following properties.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>property</th>
+      <th>description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>TERMINAL</td>
+      <td>This <code class="highlighter-rouge">Span</code> or <code class="highlighter-rouge">SpanEvent</code> invokes a remote node but the target node is not traceable with Pinpoint</td>
+    </tr>
+    <tr>
+      <td>QUEUE</td>
+      <td>This <code class="highlighter-rouge">Span</code> or <code class="highlighter-rouge">SpanEvent</code> consumes/produces a message from/to a message queue.</td>
+    </tr>
+    <tr>
+      <td>INCLUDE_DESTINATION_ID</td>
+      <td>This <code class="highlighter-rouge">Span</code> or <code class="highlighter-rouge">SpanEvent</code> records a <code class="highlighter-rouge">destination id</code> and remote server is not a traceable type.</td>
+    </tr>
+    <tr>
+      <td>RECORD_STATISTICS</td>
+      <td>Pinpoint Collector should collect execution time statistics of this <code class="highlighter-rouge">Span</code> or <code class="highlighter-rouge">SpanEvent</code></td>
+    </tr>
+    <tr>
+      <td>ALIAS</td>
+      <td>The service may or may not have Pinpoint-Agent attached at the following service but regardlessly have knowledge what will follow. (Ex. Elasticsearch client)</td>
+    </tr>
+  </tbody>
+</table>
+
+<h4 id="12-annotationkey">1.2 AnnotationKey</h4>
+<p>You can annotate spans and span events with more information. An <strong>Annotation</strong> is a key-value pair where the key is an <code class="highlighter-rouge">AnnotationKey</code> type and the value is a primitive type, String or a byte[]. There are pre-defined <code class="highlighter-rouge">AnnotationKeys</code> for commonly used annotation types, but you can define your own keys in <em>type-provider.yml</em> if these are not enough.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>property</th>
+      <th>description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>name</td>
+      <td>Name of the <code class="highlighter-rouge">AnnotationKey</code></td>
+    </tr>
+    <tr>
+      <td>code</td>
+      <td>int type code value of the <code class="highlighter-rouge">AnnotationKey</code>. Must be unique.</td>
+    </tr>
+    <tr>
+      <td>properties</td>
+      <td>properties</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>If you are writing a plugin for public use, and are looking to add a new <code class="highlighter-rouge">AnnotationKey</code>, you must contact the Pinpoint dev. team to get an <code class="highlighter-rouge">AnnotationKey</code> code assigned. If your plugin is for private use, you may pick a value between 900 to 999 safely to use as <code class="highlighter-rouge">AnnotationKey</code> code.</p>
+
+<p>The table below shows the <code class="highlighter-rouge">AnnotationKey</code> properties.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>property</th>
+      <th>description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>VIEW_IN_RECORD_SET</td>
+      <td>Show this annotation in transaction call tree.</td>
+    </tr>
+    <tr>
+      <td>ERROR_API_METADATA</td>
+      <td>This property is not for plugins.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h4 id="example">Example</h4>
+<p>You can find <em>type-provider.yml</em> sample <a href="https://github.com/naver/pinpoint-plugin-sample/blob/master/plugin/src/main/resources/META-INF/pinpoint/type-provider.yml">here</a>.</p>
+
+<p>You may also define and attach an <code class="highlighter-rouge">AnnotationKeyMatcher</code> with a <code class="highlighter-rouge">ServiceType</code> (<code class="highlighter-rouge">matcher</code> element in the sample <em>type-provider</em> code above). If you attach an <code class="highlighter-rouge">AnnotationKeyMatcher</code> this way, matching annotations will be displayed as representative annotation when the <code class="highlighter-rouge">ServiceType</code>’s <code class="highlighter-rouge">Span</code> or <code class="highlighter-rouge">SpanEvent</code> is displayed in the transaction call tree.</p>
+
+<h3 id="2-profilerplugin">2. ProfilerPlugin</h3>
+<p><code class="highlighter-rouge">ProfilerPlugin</code> modifies target library classes to collect trace data.</p>
+
+<p><code class="highlighter-rouge">ProfilerPlugin</code> works in the order of following steps:</p>
+
+<ol>
+  <li>Pinpoint Agent is started when the JVM starts.</li>
+  <li>Pinpoint Agent loads all plugins under <code class="highlighter-rouge">plugin</code> directory.</li>
+  <li>Pinpoint Agent invokes <code class="highlighter-rouge">ProfilerPlugin.setup(ProfilerPluginSetupContext)</code> for each loaded plugin.</li>
+  <li>In the <code class="highlighter-rouge">setup</code> method, the plugin registers a <code class="highlighter-rouge">TransformerCallback</code> to all classes that are going to be transformed.</li>
+  <li>Target application starts.</li>
+  <li>Every time a class is loaded, Pinpoint Agent looks for the <code class="highlighter-rouge">TransformerCallback</code> registered to the class.</li>
+  <li>If a <code class="highlighter-rouge">TransformerCallback</code> is registered, the Agent invokes it’s <code class="highlighter-rouge">doInTransform</code> method.</li>
+  <li><code class="highlighter-rouge">TransformerCallback</code> modifies the target class’ byte code. (e.g. add interceptors, add fields, etc.)</li>
+  <li>The modified byte code is returned to the JVM, and the class is loaded with the returned byte code.</li>
+  <li>Application continues running.</li>
+  <li>When a modified method is invoked, the injected interceptor’s <code class="highlighter-rouge">before</code> and <code class="highlighter-rouge">after</code> methods are invoked.</li>
+  <li>The interceptor records the trace data.</li>
+</ol>
+
+<p>The most important points to consider when writing a plugin are 1) figuring out which methods are interesting enough to warrant tracing, and 2) injecting interceptors to actually trace these methods. 
+These interceptors are used to extract, store, and pass trace data around before they are sent off to the Collector. Interceptors may even cooperate with each other, sharing context between them. Plugins may also aid in tracing by adding getters or even custom fields to the target class so that the interceptors may access them during execution. <a href="https://github.com/naver/pinpoint-plugin-sample">Pinpoint plugin sample</a> shows you how the <code class="highlighter-rouge">TransformerCallback</code> modifies classes and what the injected interceptors do to trace a method.</p>
+
+<p>We will now describe what interceptors must do to trace different kinds of methods.</p>
+
+<h4 id="21-plain-method">2.1 Plain method</h4>
+<p><em>Plain method</em> refers to anything that is not a top-level method of a node, or is not related to remote or asynchronous invocation. <a href="https://github.com/naver/pinpoint-plugin-sample/tree/master/plugin/src/main/java/com/navercorp/pinpoint/plugin/sample/_02_Injecting_Custom_Interceptor">Sample 2</a> shows you how to trace these plain methods.</p>
+
+<h4 id="22-top-level-method-of-a-node">2.2 Top level method of a node</h4>
+<p><em>Top level method of a node</em> is a method in which its interceptor begins a new trace in a node. These methods are typically acceptors for RPCs, and the trace is recorded as a <code class="highlighter-rouge">Span</code> with <code class="highlighter-rouge">ServiceType</code> categorized as a server.</p>
+
+<p>How the <code class="highlighter-rouge">Span</code> is recorded depends on whether the transaction has already begun at any previous nodes.</p>
+
+<h5 id="221-new-transaction">2.2.1 New transaction</h5>
+<p>If the current node is the first one that is recording the transaction, you must issue a new transaction id and record it. <code class="highlighter-rouge">TraceContext.newTraceObject()</code> will handle this task automatically, so you will simply need to invoke it.</p>
+
+<h5 id="222-continue-transaction">2.2.2 Continue Transaction</h5>
+<p>If the request came from another node traced by a Pinpoint Agent, then the transaction will already have a transaction id issued; and you will have to record the data below to the <code class="highlighter-rouge">Span</code>. (Most of these data are sent from the previous node, usually packed in the request message)</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>name</th>
+      <th>description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>transactionId</td>
+      <td>Transaction ID</td>
+    </tr>
+    <tr>
+      <td>parentSpanId</td>
+      <td>Span ID of the previous node</td>
+    </tr>
+    <tr>
+      <td>parentApplicationName</td>
+      <td>Application name of the previous node</td>
+    </tr>
+    <tr>
+      <td>parentApplicationType</td>
+      <td>Application type of the previous node</td>
+    </tr>
+    <tr>
+      <td>rpc</td>
+      <td>Procedure name (Optional)</td>
+    </tr>
+    <tr>
+      <td>endPoint</td>
+      <td>Server(current node) address</td>
+    </tr>
+    <tr>
+      <td>remoteAddr</td>
+      <td>Client address</td>
+    </tr>
+    <tr>
+      <td>acceptorHost</td>
+      <td>Server address that the client used</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Pinpoint finds caller-callee relation between nodes using <em>acceptorHost</em>. In most cases, <em>acceptorHost</em> is identical to <em>endPoint</em>. However, the address which client sent the request to may sometimes be different from the address the server received the request (proxy). To handle such cases, you have to record the actual address the client used to send the request to as <em>acceptorHost</em>. Normally, the client plugin will have added this address into the request message along with the transaction data.</p>
+
+<p>Moreover, you must also use the span id issued and sent by the previous node.</p>
+
+<p>Sometimes, the previous node marks the transaction to not be traced. In this case, you must not trace the transaction.</p>
+
+<p>As you can see, the client plugin must be able pass trace data to the server plugin, and how to do this is protocol dependent.</p>
+
+<p>You can find an example of top-level method server interceptor <a href="https://github.com/naver/pinpoint-plugin-sample/tree/master/plugin/src/main/java/com/navercorp/pinpoint/plugin/sample/_14_RPC_Server">here</a>.</p>
+
+<h4 id="23-methods-invoking-a-remote-node">2.3 Methods invoking a remote node</h4>
+
+<p>An interceptor of a method that invokes a remote node has to record the following data:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>name</th>
+      <th>description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>endPoint</td>
+      <td>Target server address</td>
+    </tr>
+    <tr>
+      <td>destinationId</td>
+      <td>Logical name of the target</td>
+    </tr>
+    <tr>
+      <td>rpc</td>
+      <td>Invoking target procedure name (optional)</td>
+    </tr>
+    <tr>
+      <td>nextSpanId</td>
+      <td>Span id that will be used by next node’s span (If next node is traceable by Pinpoint)</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Whether or not the next node is traceable by Pinpoint affects how the interceptor is implemented. The term “traceable” here is about possibility. For example, a HTTP client’s next node is a HTTP server. Pinpoint does not trace all HTTP servers, but it is possible to trace them (and there already are HTTP server plugins). In this case, the HTTP client’s next node is traceable. On the other hand, MySQL JDBC’s next node, a MySQL database server, is not traceable.</p>
+
+<h5 id="231-if-the-next-node-is-traceable">2.3.1 If the next node is traceable</h5>
+<p>If the next node is traceable, the interceptor must propagate the following data to the next node. How to pass them is protocol dependent, and in worst cases may be impossible to pass them at all.</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>name</th>
+      <th>description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>transactionId</td>
+      <td>Transaction ID</td>
+    </tr>
+    <tr>
+      <td>parentApplicationName</td>
+      <td>Application name of current node</td>
+    </tr>
+    <tr>
+      <td>parentApplicationType</td>
+      <td>Application type of current node</td>
+    </tr>
+    <tr>
+      <td>parentSpanId</td>
+      <td>Span id of trace at current node</td>
+    </tr>
+    <tr>
+      <td>nextSpanId</td>
+      <td>Span id that will be used by the next node’s span (same value with nextSpanId of above table)</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Pinpoint finds out caller-callee relation by matching <em>destinationId</em> of client trace and <em>acceptorHost</em> of server trace. Therefore the client plugin has to record <em>destinationId</em> and the server plugin has to record <em>acceptorHost</em> with the same value. If server cannot acquire the value by itself, client plugin has to pass it to server.</p>
+
+<p>The interceptor’s recorded <code class="highlighter-rouge">ServiceType</code> must be from the RPC client category.</p>
+
+<p>You can find an example for these interceptors <a href="https://github.com/naver/pinpoint-plugin-sample/tree/master/plugin/src/main/java/com/navercorp/pinpoint/plugin/sample/_13_RPC_Client">here</a>.</p>
+
+<h5 id="232-if-the-next-node-is-not-traceable">2.3.2 If the next node is not traceable</h5>
+<p>If the next node is not traceable, your <code class="highlighter-rouge">ServiceType</code> must have the <code class="highlighter-rouge">TERMINAL</code> property.</p>
+
+<p>If you want to record the <em>destinationId</em>, it must also have the <code class="highlighter-rouge">INCLUDE_DESTINATION_ID</code> property. If you record <em>destinationId</em>, server map will show a node per destinationId even if they have same <em>endPoint</em>.</p>
+
+<p>Also, the <code class="highlighter-rouge">ServiceType</code> must be a DB client or Cache client category. Note that you do not need to concern yourself about the terms “DB” or “Cache”, as any plugin tracing a client library with non-traceable target server may use them. The only difference between “DB” and “Cache” is the time range of the response time histogram (“Cache” having smaller intervals for the histogram).</p>
+
+<h4 id="24-asynchronous-task">2.4 Asynchronous task</h4>
+
+<p>Trace objects are bound to the thread that first created them via <strong>ThreadLocal</strong> and whenever the execution crosses a thread boundary, trace objects are <em>lost</em> to the new thread. Therefore, in order to trace tasks across thread boundaries, you must take care of passing the current trace context over to the new thread. This is done by injecting an <strong>AsyncContext</strong> into an object shared by both the invocation thread and the execution thread.<br />
+The invocation thread creates an <strong>AsyncContext</strong> from the current trace, and injects it into an object that will be passed over to the execution thread. The execution thread then retrieves the <strong>AsyncContext</strong> from the object, creates a new trace out of it and binds it to it’s own <strong>ThreadLocal</strong>.<br />
+You must therefore create interceptors for two methods : i) one that initiates the task (invocation thread), and ii) the other that actually handles the task (execution thread).</p>
+
+<p>The initiating method’s interceptor has to issue an <strong>AsyncContext</strong> and pass it to the handling method. How to pass this value depends on the target library. In worst cases, you may not be able to pass it at all.</p>
+
+<p>The handling method’s interceptor must then continue the trace using the propagated <strong>AsyncContext</strong> and bind it to it’s own thread. However, it is very strongly recommended that you simply extend the <strong>AsyncContextSpanEventSimpleAroundInterceptor</strong> so that you do not have to handle this manually.</p>
+
+<p>Keep in mind that since the shared object must be able have <strong>AsyncContext</strong> injected into it, you have to add a field using <code class="highlighter-rouge">AsyncContextAccessor</code> during it’s class transformation.
+You can find an example for tracing asynchronous tasks <a href="https://github.com/naver/pinpoint-plugin-sample/tree/master/plugin/src/main/java/com/navercorp/pinpoint/plugin/sample/_12_Asynchronous_Trace">here</a>.</p>
+
+<h4 id="25-case-study-http">2.5 Case Study: HTTP</h4>
+<p>HTTP client is an example of <em>a method invoking a remote node</em> (client), and HTTP server is an example of a <em>top level method of a node</em> (server). As mentioned before, client plugins must have a way to pass transaction data to server plugins to continue the trace. Note that the implementation is protocol dependent, and <a href="https://github.com/naver/pinpoint/blob/master/plugins/httpclient3/src/main/java/com/navercorp/pinpoint/plugin/httpclient3/interceptor/HttpMethodBaseExecuteMethodInterceptor.java">HttpMethodBaseExecuteMethodInterceptor</a> of <a href="https://github.com/naver/pinpoint/tree/master/plugins/httpclient3">HttpClient3 plugin</a> and <a href="https://github.com/naver/pinpoint/blob/master/plugins/tomcat/src/main/java/com/navercorp/pinpoint/plugin/tomcat/interceptor/StandardHostValveInvokeInterceptor.java">StandardHostValveInvokeInterceptor</a> of <a href="https://github.com/naver/pinpoint/tree/master/plugins/tomcat">Tomcat plugin</a> show a working example of this for HTTP:</p>
+
+<ol>
+  <li>Pass transaction data as HTTP headers. You can find header names <a href="https://github.com/naver/pinpoint/blob/master/bootstrap-core/src/main/java/com/navercorp/pinpoint/bootstrap/context/Header.java">here</a></li>
+  <li>Client plugin records <code class="highlighter-rouge">IP:PORT</code> of the server as <code class="highlighter-rouge">destinationId</code>.</li>
+  <li>Client plugin passes <code class="highlighter-rouge">destinationId</code> value to server as <code class="highlighter-rouge">Header.HTTP_HOST</code> header.</li>
+  <li>Server plugin records <code class="highlighter-rouge">Header.HTTP_HOST</code> header value as <code class="highlighter-rouge">acceptorHost</code>.</li>
+</ol>
+
+<p>One more thing you have to remember is that all the clients and servers using the same protocol must pass the transaction data in the same way to ensure compatibility. So if you are writing a plugin of some other HTTP client or server, your plugin has to record and pass transaction data as described above.</p>
+
+<h3 id="3-plugin-integration-test">3. Plugin Integration Test</h3>
+<p>You can run plugin integration tests (<code class="highlighter-rouge">mvn integration-test</code>) with <a href="https://github.com/naver/pinpoint/blob/master/test/src/main/java/com/navercorp/pinpoint/test/plugin/PinpointPluginTestSuite.java">PinointPluginTestSuite</a>, which is a <em>JUnit Runner</em>. It downloads all the required dependencies from maven repositories and launches a new JVM with the Pinpoint Agent and the aforementioned dependencies. The JUnit tests are executed in this JVM.</p>
+
+<p>To run the plugin integration test, it needs a complete agent distribution - which is why integration tests are in the <em>plugin-sample-agent</em> module and why they are run in <strong>integration-test phase</strong>.</p>
+
+<p>For the actual integration test, you will want to first invoke the method you are tracing, and then use <a href="https://github.com/naver/pinpoint/blob/master/bootstrap-core/src/main/java/com/navercorp/pinpoint/bootstrap/plugin/test/PluginTestVerifier.java">PluginTestVerifier</a> to check if the trace data is correctly recorded.</p>
+
+<h4 id="31-test-dependency">3.1 Test Dependency</h4>
+<p><code class="highlighter-rouge">PinointPluginTestSuite</code> doesn’t use the project’s dependencies (configured in pom.xml). It uses the dependencies that are listed by <code class="highlighter-rouge">@Dependency</code> annotation. This way, you may test multiple versions of the target library using the same test class.</p>
+
+<p>Dependencies are declared as following. You may specify versions or version ranges for a dependency library.</p>
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>@Dependency({"some.group:some-artifact:1.0", "another.group:another-artifact:2.1-RELEASE"})
+@Dependency({"some.group:some-artifact:[1.0,)"})
+@Dependency({"some.group:some-artifact:[1.0,1.9]"})
+@Dependency({"some.group:some-artifact:[1.0],[2.1],[3.2])"})
+</code></pre></div></div>
+<p><code class="highlighter-rouge">PinointPluginTestSuite</code> by default searches the local repository and maven central repository. You may also add your own repositories by using the <code class="highlighter-rouge">@Repository</code> annotation.</p>
+
+<h4 id="32-jvm-version">3.2 Jvm Version</h4>
+<p>You can specify the JVM version for a test using <code class="highlighter-rouge">@JvmVersion</code>. If <code class="highlighter-rouge">@JvmVersion</code> is not present, JVM at <code class="highlighter-rouge">java.home property</code> will be used.</p>
+
+<h4 id="33-application-test">3.3 Application Test</h4>
+<p><code class="highlighter-rouge">PinpointPluginTestSuite</code> is not for applications that has to be launched by its own main class. You can extend <a href="https://github.com/naver/pinpoint/blob/master/test/src/main/java/com/navercorp/pinpoint/test/plugin/AbstractPinpointPluginTestSuite.java">AbstractPinpointPluginTestSuite</a> and related types to test such applications.</p>
+
+<h3 id="4-adding-images">4. Adding Images</h3>
+
+<p>If you’re developing a plugin for applications, you need to add images so the server map can render the corresponding node. The plugin jar itself cannot provide these image files and for now, you will have to add the image files to the web module manually.</p>
+
+<p>First, put the PNG files to following directories:</p>
+
+<ul>
+  <li>web/src/main/webapp/images/icons (25x25)</li>
+  <li>web/src/main/webapp/images/servermap (80x40)</li>
+</ul>
+
+<p>Then, add <code class="highlighter-rouge">ServiceType</code> name and the image file name to <code class="highlighter-rouge">htIcons</code> in <em>web/src/main/webapp/components/server-map2/jquery.ServerMap2.js</em>.</p>
+
+
+    <div class="tags">
+        
+    </div>
+
+</div>
+
+
+
+<hr class="shaded"/>
+
+<footer>
+            <div class="row">
+                <div class="col-lg-12 footer">
+               &copy;2020 Naver. All rights reserved. <br />
+<span>Page last updated:</span> Jan 21, 2019<br/>
+
+<p><img src="images/company_logo.png" alt="Company logo"/></p>
+                </div>
+            </div>
+</footer>
+
+
+        </div>
+    <!-- /.row -->
+</div>
+<!-- /.container -->
+</div>
+<!-- /#main -->
+    </div>
+
+</body>
+
+<!-- the google_analytics_id gets auto inserted from the config file -->
+
+
+
+<script>(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','//www.google-analytics.com/analytics.js','ga');ga('create','UA-57786344-4','auto');ga('require','displayfeatures');ga('send','pageview');</script>
+
+
+</html>
