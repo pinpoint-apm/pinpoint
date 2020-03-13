@@ -15,12 +15,12 @@ Take a quick look at Pinpoint with our [demo](http://125.209.240.10:10123/v2/mai
 
 Pinpoint has started to support application written in PHP. [Check-out our php-agent repository](https://github.com/naver/pinpoint-c-agent).
 
-## Latest Release (2020/03/12)
+## Latest Release (2020/03/13)
 
-We're happy to announce the release of Pinpoint v2.0.0.
-Please check the release note at (https://github.com/naver/pinpoint/releases/tag/v2.0.0).
+We're happy to announce the release of Pinpoint v2.0.1.
+Please check the release note at (https://github.com/naver/pinpoint/releases/tag/v2.0.1).
 
-The current stable version is [v2.0.0](https://github.com/naver/pinpoint/releases/tag/v2.0.0).
+The current stable version is [v2.0.0](https://github.com/naver/pinpoint/releases/tag/v2.0.1).
 
 ## About Pinpoint
 
