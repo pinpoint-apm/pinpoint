@@ -7,20 +7,20 @@
 
 **Visit [our official web site](http://naver.github.io/pinpoint/) for more information and [Latest updates on Pinpoint](https://naver.github.io/pinpoint/news.html)**.
 
-## Live Demo
-
-Take a quick look at Pinpoint with our [demo](http://125.209.240.10:10123/v2/main/ApiGateway@SPRING_BOOT/5m?inbound=1&outbound=4&wasOnly=false&bidirectional=false) with a new UI(WIP)!
-
-## Latest News (2018/08/30)
-
-Pinpoint has started to support application written in PHP. [Check-out our php-agent repository](https://github.com/naver/pinpoint-c-agent).
-
-## Latest Release (2020/03/13)
+## Latest Release (2020/03/12)
 
 We're happy to announce the release of Pinpoint v2.0.1.
 Please check the release note at (https://github.com/naver/pinpoint/releases/tag/v2.0.1).
 
 The current stable version is [v2.0.1](https://github.com/naver/pinpoint/releases/tag/v2.0.1).
+
+## Live Demo
+
+Take a quick look at Pinpoint with our [demo](http://125.209.240.10:10123/v2/main/ApiGateway@SPRING_BOOT/5m?inbound=1&outbound=4&wasOnly=false&bidirectional=false)!
+
+## PHP Agent
+
+Pinpoint also supports application written in PHP. [Check-out our php-agent repository](https://github.com/naver/pinpoint-c-agent).
 
 ## About Pinpoint
 
