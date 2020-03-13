@@ -77,7 +77,7 @@ entries:
     output: web, pdf
     folderitems:
 
-    - title: UI v2(Currently under development)
+    - title: UI v2
       url: /ui_v2.html
       output: web, pdf
 
