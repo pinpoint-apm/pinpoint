@@ -42,6 +42,9 @@ public class DefaultProfilerConfig implements ProfilerConfig {
 
     private static final CommonLogger logger = StdoutCommonLoggerFactory.INSTANCE.getLogger(DefaultProfilerConfig.class.getName());
 
+    public static final String PLUGIN_DISABLE = "profiler.plugin.disable";
+    // TestAgent only
+    public static final String IMPORT_PLUGIN = "profiler.plugin.import-plugin";
 
     private final Properties properties;
 
@@ -729,7 +732,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
 
         this.pluginLoadOrder = readList("profiler.plugin.load.order");
 
-        this.disabledPlugins = readList("profiler.plugin.disable");
+        this.disabledPlugins = readList(PLUGIN_DISABLE);
 
         // TODO have to remove        
         // profile package included in order to test "call stack view".

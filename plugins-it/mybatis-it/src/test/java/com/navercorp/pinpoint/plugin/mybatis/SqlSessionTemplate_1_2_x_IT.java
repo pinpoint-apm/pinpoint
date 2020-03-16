@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.pluginit.utils.AgentPath;
 import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
+import com.navercorp.pinpoint.test.plugin.ImportPlugin;
 import org.junit.runner.RunWith;
 
 /**
@@ -31,5 +32,6 @@ import org.junit.runner.RunWith;
 @PinpointAgent(AgentPath.PATH)
 @Dependency({ "org.mybatis:mybatis-spring:[1.2.0,1.2.max)", "org.mybatis:mybatis:3.2.7",
         "org.springframework:spring-jdbc:[4.1.7.RELEASE]", "org.mockito:mockito-all:1.8.4" })
+@ImportPlugin("com.navercorp.pinpoint:pinpoint-mybatis-plugin")
 public class SqlSessionTemplate_1_2_x_IT extends SqlSessionTemplateITBase {
 }

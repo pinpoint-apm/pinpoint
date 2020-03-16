@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.test.plugin;
 
 import com.navercorp.pinpoint.common.Version;
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 import com.navercorp.pinpoint.common.util.SystemProperty;
 import com.navercorp.pinpoint.exception.PinpointException;
 import org.eclipse.aether.resolution.ArtifactResolutionException;
@@ -34,6 +35,7 @@ import java.lang.management.ManagementFactory;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -70,6 +72,8 @@ public abstract class AbstractPinpointPluginTestSuite extends Suite {
     private final int[] jvmVersions;
     private final boolean debug;
 
+    private final List<String> importPluginIds;
+
     public AbstractPinpointPluginTestSuite(Class<?> testClass) throws InitializationError, ArtifactResolutionException, DependencyResolutionException {
         super(testClass, Collections.<Runner> emptyList());
 
@@ -83,10 +87,13 @@ public abstract class AbstractPinpointPluginTestSuite extends Suite {
         this.profile = resolveProfile(profile);
 
         JvmArgument jvmArgument = testClass.getAnnotation(JvmArgument.class);
-        this.jvmArguments = jvmArgument == null ? new String[0] : jvmArgument.value();
+        this.jvmArguments = getJvmArguments(jvmArgument);
 
         JvmVersion jvmVersion = testClass.getAnnotation(JvmVersion.class);
         this.jvmVersions = jvmVersion == null ? new int[] { NO_JVM_VERSION } : jvmVersion.value();
+
+        ImportPlugin importPlugin = testClass.getAnnotation(ImportPlugin.class);
+        this.importPluginIds = getImportPlugin(importPlugin);
 
         this.requiredLibraries = getClassPathList(REQUIRED_CLASS_PATHS);
         this.mavenDependencyLibraries = getClassPathList(MAVEN_DEPENDENCY_CLASS_PATHS);
@@ -94,7 +101,25 @@ public abstract class AbstractPinpointPluginTestSuite extends Suite {
         this.debug = isDebugMode();
     }
 
-     protected String getJavaExecutable(int version) {
+    private List<String> getImportPlugin(ImportPlugin importPlugin) {
+        if (importPlugin == null) {
+            return null;
+        }
+        String[] ids = importPlugin.value();
+        if (ArrayUtils.isEmpty(ids)) {
+            return null;
+        }
+        return Arrays.asList(ids);
+    }
+
+    private String[] getJvmArguments(JvmArgument jvmArgument) {
+        if (jvmArgument == null) {
+            return new String[0];
+        }
+        return jvmArgument.value();
+    }
+
+    protected String getJavaExecutable(int version) {
         StringBuilder builder = new StringBuilder();
         
         String javaHome;
@@ -129,6 +154,7 @@ public abstract class AbstractPinpointPluginTestSuite extends Suite {
         }
         return toPathString(testClassLocation);
     }
+
 
     private List<String> getClassPathList(String[] classPathCandidates) {
         List<String> result = new ArrayList<String>();
@@ -245,7 +271,10 @@ public abstract class AbstractPinpointPluginTestSuite extends Suite {
                     continue;
                 }
 
-                PinpointPluginTestContext context = new PinpointPluginTestContext(agentJar, profile, configFile, requiredLibraries, mavenDependencyLibraries, getTestClass().getJavaClass(), testClassLocation, jvmArguments, debug, ver, javaExe);
+                PinpointPluginTestContext context = new PinpointPluginTestContext(agentJar, profile,
+                        configFile, requiredLibraries, mavenDependencyLibraries,
+                        getTestClass().getJavaClass(), testClassLocation,
+                        jvmArguments, debug, ver, javaExe, importPluginIds);
                 
                 List<PinpointPluginTestInstance> cases = createTestCases(context);
                 
