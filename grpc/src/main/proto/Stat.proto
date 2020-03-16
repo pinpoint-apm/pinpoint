@@ -158,3 +158,20 @@ message PDirectBuffer {
     int64 mappedCount = 3;
     int64 mappedMemoryUsed = 4;
 }
+
+message PRequestUrlStatBatch {
+    repeated PRequestUrlStatMetadata requestsUrlStatMetadata = 1;
+    repeated PRequestUrlStatData requestsStatData = 2;
+}
+
+message PRequestUrlStatMetadata {
+    int32 id = 1;
+    string url = 2;
+}
+
+message PRequestUrlStatData {
+    int32 urlId = 1;
+    int32 status = 2;
+    int64 startTime = 3;
+    int64 elapsedTime = 4;
+}

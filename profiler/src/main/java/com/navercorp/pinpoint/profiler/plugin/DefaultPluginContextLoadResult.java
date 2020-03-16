@@ -18,10 +18,11 @@ package com.navercorp.pinpoint.profiler.plugin;
 
 import com.navercorp.pinpoint.bootstrap.plugin.ApplicationTypeDetector;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
+import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParserV2;
+import com.navercorp.pinpoint.bootstrap.plugin.monitor.RequestUrlMappingExtractorProvider;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.loader.plugins.profiler.ProfilerPluginLoader;
-import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParserV2;
 
 import java.lang.instrument.ClassFileTransformer;
 import java.util.ArrayList;
@@ -78,6 +79,18 @@ public class DefaultPluginContextLoadResult implements PluginContextLoadResult {
         for (PluginSetupResult context : pluginsSetupResult.getPluginSetupResults()) {
             List<JdbcUrlParserV2> jdbcUrlParserList = context.getJdbcUrlParserList();
             result.addAll(jdbcUrlParserList);
+        }
+
+        return result;
+    }
+
+    @Override
+    public List<RequestUrlMappingExtractorProvider> getRequestUrlMappingExtractorProviderList() {
+        final List<RequestUrlMappingExtractorProvider> result = new ArrayList<RequestUrlMappingExtractorProvider>();
+
+        for (PluginSetupResult context : pluginsSetupResult.getPluginSetupResults()) {
+            List<RequestUrlMappingExtractorProvider> providerList = context.getRequestUrlMappingExtractorProviderList();
+            result.addAll(providerList);
         }
 
         return result;

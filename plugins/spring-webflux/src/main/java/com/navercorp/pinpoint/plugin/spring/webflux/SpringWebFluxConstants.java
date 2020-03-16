@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.plugin.spring.webflux;
 
+import com.navercorp.pinpoint.common.trace.RequestUrlMappingExtractorType;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.ServiceTypeProvider;
 
@@ -25,4 +26,8 @@ import com.navercorp.pinpoint.common.trace.ServiceTypeProvider;
 public class SpringWebFluxConstants {
     public static final ServiceType SPRING_WEBFLUX = ServiceTypeProvider.getByName("SPRING_WEBFLUX");
     public static final ServiceType SPRING_WEBFLUX_CLIENT = ServiceTypeProvider.getByName("SPRING_WEBFLUX_CLIENT");
+
+    public static final RequestUrlMappingExtractorType REQUEST_URL_MAPPING_EXTRACTOR_TYPE = RequestUrlMappingExtractorType.SERVLET_REQUEST_ATTRIBUTE;
+    public static final String SERVLET_REQUEST_ATTRIBUTE_MAPPING_KEY = "org.springframework.web.reactive.HandlerMapping.bestMatchingPattern";
+
 }

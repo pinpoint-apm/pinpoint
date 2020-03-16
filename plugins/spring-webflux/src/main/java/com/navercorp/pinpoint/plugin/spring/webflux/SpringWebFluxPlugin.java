@@ -28,6 +28,7 @@ import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
+import com.navercorp.pinpoint.bootstrap.plugin.monitor.RequestUrlMappingExtractorProvider;
 import com.navercorp.pinpoint.plugin.spring.webflux.interceptor.BodyInserterRequestBuilderConstructorInterceptor;
 import com.navercorp.pinpoint.plugin.spring.webflux.interceptor.BodyInserterRequestBuilderWriteToInterceptor;
 import com.navercorp.pinpoint.plugin.spring.webflux.interceptor.ClientResponseFunctionInterceptor;
@@ -51,6 +52,15 @@ public class SpringWebFluxPlugin implements ProfilerPlugin, MatchableTransformTe
         if (!config.isEnable()) {
             logger.info("{} disabled", this.getClass().getSimpleName());
             return;
+        }
+
+        if (config.isRequestUrlStatEnable()) {
+            RequestUrlMappingExtractorProvider requestUrlMappingExtractorProvider =
+                    new RequestUrlMappingExtractorProvider(
+                            SpringWebFluxConstants.REQUEST_URL_MAPPING_EXTRACTOR_TYPE,
+                            SpringWebFluxConstants.SERVLET_REQUEST_ATTRIBUTE_MAPPING_KEY);
+
+            context.addRequestUrlMappingExtractorProvider(requestUrlMappingExtractorProvider);
         }
 
         logger.info("{} version range=[5.0.0.RELEASE, 5.2.1.RELEASE], config:{}", this.getClass().getSimpleName(), config);

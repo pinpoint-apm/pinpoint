@@ -30,6 +30,7 @@ import com.navercorp.pinpoint.grpc.trace.PFileDescriptor;
 import com.navercorp.pinpoint.grpc.trace.PJvmGc;
 import com.navercorp.pinpoint.grpc.trace.PJvmGcDetailed;
 import com.navercorp.pinpoint.grpc.trace.PJvmGcType;
+import com.navercorp.pinpoint.grpc.trace.PRequestUrlStatBatch;
 import com.navercorp.pinpoint.grpc.trace.PResponseTime;
 import com.navercorp.pinpoint.grpc.trace.PThreadDump;
 import com.navercorp.pinpoint.grpc.trace.PTransaction;
@@ -74,6 +75,8 @@ public class GrpcStatMessageConverter implements MessageConverter<GeneratedMessa
             final AgentStatMetricSnapshot agentStatMetricSnapshot = (AgentStatMetricSnapshot) message;
             final PAgentStat agentStat = converAgentStat(agentStatMetricSnapshot);
             return agentStat;
+        } else if (message instanceof PRequestUrlStatBatch) {
+            return (PRequestUrlStatBatch) message;
         }
         return null;
     }

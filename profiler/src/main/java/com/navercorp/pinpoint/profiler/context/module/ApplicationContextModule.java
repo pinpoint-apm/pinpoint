@@ -25,6 +25,8 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.DynamicTransformTrigger;
 import com.navercorp.pinpoint.bootstrap.plugin.RequestRecorderFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcContext;
+import com.navercorp.pinpoint.bootstrap.plugin.monitor.RequestUrlMappingExtractorProviderLocator;
+import com.navercorp.pinpoint.bootstrap.plugin.monitor.RequestUrlStatMonitorFactory;
 import com.navercorp.pinpoint.bootstrap.sampler.Sampler;
 import com.navercorp.pinpoint.bootstrap.sampler.TraceSampler;
 import com.navercorp.pinpoint.common.trace.ServiceType;
@@ -64,6 +66,7 @@ import com.navercorp.pinpoint.profiler.context.provider.ActiveTraceRepositoryPro
 import com.navercorp.pinpoint.profiler.context.provider.AgentInfoFactoryProvider;
 import com.navercorp.pinpoint.profiler.context.provider.AgentInfoSenderProvider;
 import com.navercorp.pinpoint.profiler.context.provider.AgentInformationProvider;
+import com.navercorp.pinpoint.profiler.context.provider.RequestUrlStatMonitorFactoryProvider;
 import com.navercorp.pinpoint.profiler.context.provider.metadata.ApiMetaDataServiceProvider;
 import com.navercorp.pinpoint.profiler.context.provider.ApplicationServerTypeProvider;
 import com.navercorp.pinpoint.profiler.context.provider.AsyncContextFactoryProvider;
@@ -94,6 +97,7 @@ import com.navercorp.pinpoint.profiler.context.provider.plugin.PluginClassLoader
 import com.navercorp.pinpoint.profiler.context.provider.plugin.PluginSetupProvider;
 import com.navercorp.pinpoint.profiler.context.provider.plugin.ProfilerPluginContextLoaderProvider;
 import com.navercorp.pinpoint.profiler.context.provider.plugin.ProxyRequestParserLoaderServiceProvider;
+import com.navercorp.pinpoint.profiler.context.provider.plugin.RequestUrlMappingExtractorProviderLocatorProvider;
 import com.navercorp.pinpoint.profiler.context.provider.sampler.SamplerProvider;
 import com.navercorp.pinpoint.profiler.context.provider.sampler.TraceSamplerProvider;
 import com.navercorp.pinpoint.profiler.context.recorder.DefaultRecorderFactory;
@@ -180,6 +184,10 @@ public class ApplicationContextModule extends AbstractModule {
 
         bind(JdbcContext.class).to(DefaultJdbcContext.class).in(Scopes.SINGLETON);
         bind(JdbcUrlParsingService.class).toProvider(JdbcUrlParsingServiceProvider.class).in(Scopes.SINGLETON);
+
+        bind(RequestUrlMappingExtractorProviderLocator.class).toProvider(RequestUrlMappingExtractorProviderLocatorProvider.class).in(Scopes.SINGLETON);
+
+        bind(RequestUrlStatMonitorFactory.class).toProvider(RequestUrlStatMonitorFactoryProvider.class).in(Scopes.SINGLETON);
 
         bind(AgentInformation.class).toProvider(AgentInformationProvider.class).in(Scopes.SINGLETON);
         // ProxyRequestRecorder

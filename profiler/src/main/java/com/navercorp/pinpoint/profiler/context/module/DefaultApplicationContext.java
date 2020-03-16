@@ -28,6 +28,7 @@ import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.DynamicTransformTrigger;
 import com.navercorp.pinpoint.bootstrap.module.ClassFileTransformModuleAdaptor;
 import com.navercorp.pinpoint.bootstrap.module.JavaModuleFactory;
+import com.navercorp.pinpoint.bootstrap.plugin.monitor.RequestUrlStatMonitorFactory;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.JvmUtils;
 import com.navercorp.pinpoint.common.util.JvmVersion;
@@ -63,6 +64,7 @@ public class DefaultApplicationContext implements ApplicationContext {
     private final DeadlockMonitor deadlockMonitor;
     private final AgentInfoSender agentInfoSender;
     private final AgentStatMonitor agentStatMonitor;
+    private final RequestUrlStatMonitorFactory requestUrlStatMonitorFactory;
 
     private final TraceContext traceContext;
 
@@ -128,6 +130,7 @@ public class DefaultApplicationContext implements ApplicationContext {
         this.deadlockMonitor = injector.getInstance(DeadlockMonitor.class);
         this.agentInfoSender = injector.getInstance(AgentInfoSender.class);
         this.agentStatMonitor = injector.getInstance(AgentStatMonitor.class);
+        this.requestUrlStatMonitorFactory = injector.getInstance(RequestUrlStatMonitorFactory.class);
     }
 
     private void lambdaFactorySetup(Instrumentation instrumentation, ClassFileTransformModuleAdaptor classFileTransformer, JavaModuleFactory javaModuleFactory) {
@@ -219,6 +222,7 @@ public class DefaultApplicationContext implements ApplicationContext {
 
     @Override
     public void close() {
+        this.requestUrlStatMonitorFactory.releaseResources();
         this.agentInfoSender.stop();
         this.agentStatMonitor.stop();
         this.deadlockMonitor.stop();

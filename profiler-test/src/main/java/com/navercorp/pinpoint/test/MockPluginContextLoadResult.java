@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.test;
 
+import com.navercorp.pinpoint.bootstrap.plugin.monitor.RequestUrlMappingExtractorProvider;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.loader.plugins.profiler.ProfilerPluginLoader;
@@ -85,6 +86,11 @@ public class MockPluginContextLoadResult implements PluginContextLoadResult {
 
     @Override
     public List<JdbcUrlParserV2> getJdbcUrlParserList() {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public List<RequestUrlMappingExtractorProvider> getRequestUrlMappingExtractorProviderList() {
         return Collections.emptyList();
     }
 

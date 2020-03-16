@@ -26,6 +26,10 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
 import com.navercorp.pinpoint.bootstrap.plugin.RequestRecorderFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.monitor.DataSourceMonitorRegistry;
+import com.navercorp.pinpoint.bootstrap.plugin.monitor.RequestUrlMappingExtractorProviderLocator;
+import com.navercorp.pinpoint.bootstrap.plugin.monitor.RequestUrlMappingExtractorProviderRegistry;
+import com.navercorp.pinpoint.bootstrap.plugin.monitor.RequestUrlStatMonitor;
+import com.navercorp.pinpoint.bootstrap.plugin.monitor.RequestUrlStatMonitorFactory;
 import com.navercorp.pinpoint.profiler.instrument.ScopeInfo;
 import com.navercorp.pinpoint.profiler.interceptor.factory.ExceptionHandlerFactory;
 import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
@@ -56,6 +60,8 @@ public class AnnotatedInterceptorFactoryTest {
     private final InstrumentMethod instrumentMethod = mock(InstrumentMethod.class);
     private final MethodDescriptor descriptor = mock(MethodDescriptor.class);
     private final RequestRecorderFactory requestRecorderFactory = mock(RequestRecorderFactory.class);
+    private final RequestUrlStatMonitorFactory requestUrlStatMonitorFactory = mock(RequestUrlStatMonitorFactory.class);
+
 
     private final ExceptionHandlerFactory exceptionHandlerFactory = new ExceptionHandlerFactory(false);
 
@@ -77,7 +83,7 @@ public class AnnotatedInterceptorFactoryTest {
     }
 
     private AnnotatedInterceptorFactory newAnnotatedInterceptorFactory() {
-        return new AnnotatedInterceptorFactory(profilerConfig, traceContext, dataSourceMonitorRegistry, apiMetaDataService, pluginContext, exceptionHandlerFactory, requestRecorderFactory);
+        return new AnnotatedInterceptorFactory(profilerConfig, traceContext, dataSourceMonitorRegistry, apiMetaDataService, pluginContext, exceptionHandlerFactory, requestRecorderFactory, requestUrlStatMonitorFactory);
     }
 
     private ScopeInfo newEmptyScopeInfo() {

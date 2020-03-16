@@ -27,6 +27,7 @@ public class SpringWebFluxPluginConfig {
     private final boolean enable;
     private final boolean param;
     private final HttpDumpConfig httpDumpConfig;
+    private final boolean requestUrlStatEnable;
 
     public SpringWebFluxPluginConfig(ProfilerConfig config) {
         if (config == null) {
@@ -41,6 +42,8 @@ public class SpringWebFluxPluginConfig {
         int cookieSamplingRate = config.readInt("profiler.spring.webflux.client.cookie.sampling.rate", 1);
         int cookieDumpSize = config.readInt("profiler.spring.webflux.client.cookie.dumpsize", 1024);
         this.httpDumpConfig = HttpDumpConfig.get(cookie, cookieDumpType, cookieSamplingRate, cookieDumpSize, false, cookieDumpType, 1, 1024);
+        this.requestUrlStatEnable = config.readBoolean("profiler.spring.webflux.stat.requesturl.enable", false);
+
     }
 
     public boolean isEnable() {
@@ -55,13 +58,19 @@ public class SpringWebFluxPluginConfig {
         return httpDumpConfig;
     }
 
+    public boolean isRequestUrlStatEnable() {
+        return requestUrlStatEnable;
+    }
+
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("SpringWebFluxPluginConfig{");
         sb.append("enable=").append(enable);
         sb.append(", param=").append(param);
         sb.append(", httpDumpConfig=").append(httpDumpConfig);
+        sb.append(", requestUrlStatEnable=").append(requestUrlStatEnable);
         sb.append('}');
         return sb.toString();
     }
+
 }

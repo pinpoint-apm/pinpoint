@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.profiler.plugin;
 
 import com.navercorp.pinpoint.bootstrap.plugin.ApplicationTypeDetector;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParserV2;
+import com.navercorp.pinpoint.bootstrap.plugin.monitor.RequestUrlMappingExtractorProvider;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 
 import java.lang.instrument.ClassFileTransformer;
@@ -35,5 +36,7 @@ public interface PluginContextLoadResult {
     ServiceType getApplicationType();
 
     List<JdbcUrlParserV2> getJdbcUrlParserList();
+
+    List<RequestUrlMappingExtractorProvider> getRequestUrlMappingExtractorProviderList();
 
 }

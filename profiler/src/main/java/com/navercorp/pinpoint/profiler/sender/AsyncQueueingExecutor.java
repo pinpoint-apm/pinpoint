@@ -35,7 +35,7 @@ public class AsyncQueueingExecutor<T> implements Runnable {
     private final Logger logger;
     private final boolean isWarn;
 
-    private final LinkedBlockingQueue<T> queue;
+    protected final LinkedBlockingQueue<T> queue;
     private final AtomicBoolean isRun = new AtomicBoolean(true);
     private final Thread executeThread;
     private final String executorName;
@@ -120,7 +120,7 @@ public class AsyncQueueingExecutor<T> implements Runnable {
         }
     }
 
-    private T takeOne() {
+    protected T takeOne() {
         try {
             return queue.poll(1000 * 2, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {

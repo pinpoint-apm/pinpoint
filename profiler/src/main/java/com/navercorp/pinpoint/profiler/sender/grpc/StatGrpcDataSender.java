@@ -24,6 +24,7 @@ import com.google.protobuf.Empty;
 
 import com.navercorp.pinpoint.grpc.trace.PAgentStat;
 import com.navercorp.pinpoint.grpc.trace.PAgentStatBatch;
+import com.navercorp.pinpoint.grpc.trace.PRequestUrlStatBatch;
 import com.navercorp.pinpoint.grpc.trace.PStatMessage;
 import com.navercorp.pinpoint.grpc.trace.StatGrpc;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
@@ -113,6 +114,12 @@ public class StatGrpcDataSender extends GrpcDataSender {
             statStream.onNext(statMessage);
             return true;
         }
+
+        if (message instanceof PRequestUrlStatBatch) {
+            // need to insert logic
+            return true;
+        }
+
         throw new IllegalStateException("unsupported message " + message);
     }
 
