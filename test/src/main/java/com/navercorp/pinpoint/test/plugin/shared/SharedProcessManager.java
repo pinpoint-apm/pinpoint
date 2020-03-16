@@ -16,8 +16,11 @@
 
 package com.navercorp.pinpoint.test.plugin.shared;
 
+import com.navercorp.pinpoint.bootstrap.AgentParameter;
+import com.navercorp.pinpoint.bootstrap.ArgsParser;
 import com.navercorp.pinpoint.common.Charsets;
 import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.common.util.SystemProperty;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestContext;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestInstance;
@@ -40,6 +43,8 @@ import java.util.TimerTask;
  * @author Taejin Koo
  */
 public class SharedProcessManager implements ProcessManager {
+    public static final String PATH_SEPARATOR = ";";
+
     private final PinpointPluginTestContext context;
     private final Map<String, List<Artifact>> testRepository = new LinkedHashMap<String, List<Artifact>>();
 
@@ -196,7 +201,7 @@ public class SharedProcessManager implements ProcessManager {
     }
 
     private String join(List<String> mavenDependencyLibraries) {
-        return StringUtils.join(mavenDependencyLibraries, File.pathSeparatorChar);
+        return StringUtils.join(mavenDependencyLibraries, PATH_SEPARATOR);
     }
 
     private static final String DEFAULT_ENCODING = Charsets.UTF_8_NAME;
@@ -210,7 +215,19 @@ public class SharedProcessManager implements ProcessManager {
     }
 
     private String getAgent() {
-        return "-javaagent:" + context.getAgentJar() + "=AGENT_TYPE=PLUGIN_TEST";
+        return "-javaagent:" + context.getAgentJar() + "=" + buildAgentArguments();
+    }
+
+    private String buildAgentArguments() {
+        final Map<String, String> agentArgumentMap = new LinkedHashMap<String, String>();
+        agentArgumentMap.put("AGENT_TYPE", "PLUGIN_TEST");
+
+        final List<String> importPluginIds = context.getImportPluginIds();
+        if (CollectionUtils.hasLength(importPluginIds)) {
+            String enablePluginIds = com.navercorp.pinpoint.test.plugin.util.StringUtils.join(importPluginIds, ArtifactIdUtils.ARTIFACT_SEPARATOR);
+            agentArgumentMap.put(AgentParameter.IMPORT_PLUGIN, enablePluginIds);
+        }
+        return com.navercorp.pinpoint.test.plugin.util.StringUtils.join(agentArgumentMap, "=", ArgsParser.DELIMITER);
     }
 
     private String addTest(String testId, List<Artifact> artifactList) {

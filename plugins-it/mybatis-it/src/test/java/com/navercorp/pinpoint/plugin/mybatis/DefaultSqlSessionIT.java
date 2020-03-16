@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.pluginit.utils.AgentPath;
 import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
+import com.navercorp.pinpoint.test.plugin.ImportPlugin;
 import org.apache.ibatis.executor.Executor;
 import org.apache.ibatis.reflection.factory.ObjectFactory;
 import org.apache.ibatis.session.Configuration;
@@ -42,6 +43,7 @@ import static org.mockito.Mockito.when;
 @RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
 @Dependency({ "org.mybatis:mybatis:[3.0.3,)", "org.mockito:mockito-all:1.8.4" })
+@ImportPlugin("com.navercorp.pinpoint:pinpoint-mybatis-plugin")
 public class DefaultSqlSessionIT extends SqlSessionTestBase {
 
     @Mock
