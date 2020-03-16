@@ -31,6 +31,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 @JvmVersion(8)
 @Dependency({"org.springframework:spring-context:[5.0.0.RELEASE,)", "cglib:cglib-nodep:3.1"})
 @PinpointConfig("pinpoint-spring-bean-test.config")
+@ImportPlugin({"com.navercorp.pinpoint:pinpoint-spring-plugin"})
 public class AbstractAutowireCapableBeanFactoryModifier_5_x_IT {
 
     @Test

@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
 import com.navercorp.pinpoint.pluginit.utils.AgentPath;
 import com.navercorp.pinpoint.test.plugin.Dependency;
+import com.navercorp.pinpoint.test.plugin.ImportPlugin;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointConfig;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
@@ -33,6 +34,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 @PinpointAgent(AgentPath.PATH)
 @Dependency({"org.springframework:spring-context:[3.0.7.RELEASE],[3.1.4.RELEASE],[3.2.14.RELEASE],[4.0.9.RELEASE],[4.1.7.RELEASE],[4.2.0.RELEASE,4.max]", "cglib:cglib-nodep:3.1"})
 @PinpointConfig("pinpoint-spring-bean-test.config")
+@ImportPlugin({"com.navercorp.pinpoint:pinpoint-spring-plugin"})
 public class AbstractAutowireCapableBeanFactoryModifierIT {
 
     @Test

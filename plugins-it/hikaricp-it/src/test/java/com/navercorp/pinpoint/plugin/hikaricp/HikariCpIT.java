@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.pluginit.utils.AgentPath;
 import com.navercorp.pinpoint.test.plugin.Dependency;
+import com.navercorp.pinpoint.test.plugin.ImportPlugin;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
 import com.zaxxer.hikari.HikariConfig;
@@ -44,6 +45,7 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
  */
 @RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
+@ImportPlugin("com.navercorp.pinpoint:pinpoint-hikaricp-plugin")
 @Dependency({"com.zaxxer:HikariCP-java6:[2.3.0,2.3.4),(2.3.4,2.3.9],[2.3.12,]", "com.h2database:h2:1.4.191"})
 public class HikariCpIT {
 
@@ -96,7 +98,7 @@ public class HikariCpIT {
     }
 
     @Test
-    public void defaultTest2() throws InterruptedException, SQLException, NoSuchMethodException {
+    public void defaultTest2() throws InterruptedException, SQLException {
         HikariDataSource dataSource = new HikariDataSource();
         dataSource.setDataSourceClassName(DATA_SOURCE_CLASS_NAME);
         dataSource.addDataSourceProperty("url", JDBC_URL);
@@ -127,7 +129,7 @@ public class HikariCpIT {
     }
 
     @Test
-    public void defaultTest3() throws InterruptedException, SQLException, NoSuchMethodException {
+    public void defaultTest3() throws InterruptedException, SQLException {
         HikariDataSource dataSource = new HikariDataSource();
         dataSource.setDataSourceClassName(DATA_SOURCE_CLASS_NAME);
         dataSource.addDataSourceProperty("url", JDBC_URL);

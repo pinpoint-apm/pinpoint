@@ -25,6 +25,7 @@ import java.lang.reflect.Method;
 import java.nio.charset.Charset;
 
 import com.navercorp.pinpoint.pluginit.utils.AgentPath;
+import com.navercorp.pinpoint.test.plugin.ImportPlugin;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.map.DeserializerProvider;
@@ -45,6 +46,7 @@ import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
  */
 @RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
+@ImportPlugin("com.navercorp.pinpoint:pinpoint-jackson-plugin")
 @Dependency({"org.codehaus.jackson:jackson-mapper-asl:[1.0.1],[1.1.2],[1.2.1],[1.3.5],[1.4.5],[1.5.8],[1.6.9],[1.7.9],[1.8.11],[1.9.13]"})
 public class ObjectMapper_1_x_IT {
 
