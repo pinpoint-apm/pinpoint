@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.plugin.thrift.common.server.HttpEchoTestServer;
 import com.navercorp.pinpoint.plugin.thrift.it.EchoTestRunner;
 import com.navercorp.pinpoint.pluginit.utils.AgentPath;
 import com.navercorp.pinpoint.test.plugin.Dependency;
+import com.navercorp.pinpoint.test.plugin.ImportPlugin;
 import com.navercorp.pinpoint.test.plugin.JvmVersion;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
@@ -39,10 +40,11 @@ import static org.junit.Assert.assertEquals;
 @JvmVersion(8)
 @Dependency({ "org.apache.thrift:libthrift:[0.9.1,)", "org.eclipse.jetty:jetty-server:9.2.11.v20150529",
         "org.slf4j:slf4j-simple:1.6.6", "org.slf4j:log4j-over-slf4j:1.6.6", "org.slf4j:slf4j-api:1.6.6" })
+@ImportPlugin({"com.navercorp.pinpoint:pinpoint-thrift-plugin"})
 public class ThriftHttpIT extends EchoTestRunner<HttpEchoTestServer> {
 
     @Override
-    protected HttpEchoTestServer createEchoServer(TestEnvironment environment) throws TTransportException {
+    protected HttpEchoTestServer createEchoServer(TestEnvironment environment) {
         return HttpEchoTestServer.createServer(environment);
     }
 

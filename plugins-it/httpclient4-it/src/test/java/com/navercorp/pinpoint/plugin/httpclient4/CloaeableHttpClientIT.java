@@ -23,6 +23,7 @@ import java.io.InputStream;
 import com.navercorp.pinpoint.pluginit.utils.AgentPath;
 import com.navercorp.pinpoint.pluginit.utils.PluginITConstants;
 import com.navercorp.pinpoint.pluginit.utils.WebServer;
+import com.navercorp.pinpoint.test.plugin.ImportPlugin;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import org.apache.http.HttpClientConnection;
 import org.apache.http.HttpEntity;
@@ -51,6 +52,7 @@ import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
  */
 @RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
+@ImportPlugin("com.navercorp.pinpoint:pinpoint-httpclient4-plugin")
 @Dependency({ "org.apache.httpcomponents:httpclient:[4.3],[4.3.1],[4.3.2],[4.3.3],[4.3.4],[4.3.6],[4.4],[4.4.1],[4.5],[4.5.1],[4.5.2],[4.5.3],[4.5.4],[4.3.5]",
         WebServer.VERSION, PluginITConstants.VERSION})
 public class CloaeableHttpClientIT {
@@ -63,7 +65,7 @@ public class CloaeableHttpClientIT {
     }
 
     @AfterClass
-    public static void AfterClass() throws Exception {
+    public static void AfterClass() {
         webServer = WebServer.cleanup(webServer);
     }
 

@@ -27,6 +27,7 @@ import com.navercorp.pinpoint.test.plugin.JvmVersion;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointConfig;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
+import com.navercorp.pinpoint.test.plugin.ImportPlugin;
 import org.apache.cxf.interceptor.LoggingInInterceptor;
 import org.apache.cxf.interceptor.LoggingMessage;
 import org.apache.cxf.interceptor.LoggingOutInterceptor;
@@ -47,6 +48,7 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
 @PinpointAgent(AgentPath.PATH)
 @JvmVersion(8)
 @Dependency({"org.apache.cxf:cxf-rt-rs-client:[3.0.0][3.0.16][3.1.0][3.1.16],[3.2.1,)", WebServer.VERSION, PluginITConstants.VERSION})
+@ImportPlugin({"com.navercorp.pinpoint:pinpoint-cxf-plugin", "com.navercorp.pinpoint:pinpoint-jdk-http-plugin"})
 @PinpointConfig("cxf/pinpoint-cxf-test.config")
 public class CxfClientIT {
 
@@ -59,7 +61,7 @@ public class CxfClientIT {
     }
 
     @AfterClass
-    public static void AfterClass() throws Exception {
+    public static void AfterClass() {
         webServer = WebServer.cleanup(webServer);
     }
 

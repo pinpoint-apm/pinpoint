@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.plugin.hystrix.commands.SayHelloObservableCommand;
+import com.navercorp.pinpoint.test.plugin.ImportPlugin;
 import com.navercorp.test.pinpoint.plugin.hystrix.repository.HelloRepository;
 import com.navercorp.pinpoint.plugin.hystrix.runners.HystrixObservableCommandTestRunner;
 import com.navercorp.pinpoint.pluginit.utils.AgentPath;
@@ -56,6 +57,7 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
 @JvmVersion(7)
 // rxjava, hystrix plugin enabled + custom trace method config
 @PinpointConfig("hystrix/pinpoint-hystrix.config")
+@ImportPlugin({"com.navercorp.pinpoint:pinpoint-hystrix-plugin", "com.navercorp.pinpoint:pinpoint-rxjava-plugin", "com.navercorp.pinpoint:pinpoint-user-plugin"})
 @Dependency({"com.netflix.hystrix:hystrix-core:[1.4.0,1.5.2]","com.netflix.hystrix:hystrix-metrics-event-stream:1.1.2"})
 public class HystrixObservableCommand_1_4_0_to_1_5_2_IT {
 

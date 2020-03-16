@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.pluginit.jdbc.JDBCDriverClass;
 import com.navercorp.pinpoint.pluginit.jdbc.JDBCTestConstants;
 import com.navercorp.pinpoint.pluginit.utils.AgentPath;
 import com.navercorp.pinpoint.test.plugin.Dependency;
+import com.navercorp.pinpoint.test.plugin.ImportPlugin;
 import com.navercorp.pinpoint.test.plugin.JvmVersion;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
@@ -43,6 +44,7 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.sql;
 @RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
 @JvmVersion(7)
+@ImportPlugin("com.navercorp.pinpoint:pinpoint-mariadb-jdbc-driver-plugin")
 @Dependency({ "org.mariadb.jdbc:mariadb-java-client:[1.4.min,1.6.min)", "ch.vorburger.mariaDB4j:mariaDB4j:2.2.2",
         JDBCTestConstants.VERSION})
 public class MariaDB_1_4_x_to_1_6_0_IT extends MariaDB_IT_Base {

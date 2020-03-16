@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.pluginit.utils.AgentPath;
 import com.navercorp.pinpoint.pluginit.utils.PluginITConstants;
 import com.navercorp.pinpoint.pluginit.utils.WebServer;
 import com.navercorp.pinpoint.test.plugin.Dependency;
+import com.navercorp.pinpoint.test.plugin.ImportPlugin;
 import com.navercorp.pinpoint.test.plugin.JvmVersion;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointConfig;
@@ -66,6 +67,7 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
 @JvmVersion(7)
 @Dependency({"io.netty:netty-all:[4.1.0.Final,4.1.max]", WebServer.VERSION, PluginITConstants.VERSION})
 @PinpointConfig("pinpoint-netty-plugin-test.config")
+@ImportPlugin({"com.navercorp.pinpoint:pinpoint-netty-plugin"})
 public class NettyIT {
 
     private static WebServer webServer;
@@ -76,7 +78,7 @@ public class NettyIT {
     }
 
     @AfterClass
-    public static void AfterClass() throws Exception {
+    public static void AfterClass() {
         webServer = WebServer.cleanup(webServer);
     }
 
@@ -89,7 +91,7 @@ public class NettyIT {
 
         channel.pipeline().addLast(new SimpleChannelInboundHandler<FullHttpResponse>() {
             @Override
-            protected void channelRead0(ChannelHandlerContext ctx, FullHttpResponse msg) throws Exception {
+            protected void channelRead0(ChannelHandlerContext ctx, FullHttpResponse msg) {
                 awaitLatch.countDown();
             }
         });
@@ -122,7 +124,7 @@ public class NettyIT {
                     channel.pipeline().addLast(new SimpleChannelInboundHandler() {
 
                         @Override
-                        protected void channelRead0(ChannelHandlerContext ctx, Object msg) throws Exception {
+                        protected void channelRead0(ChannelHandlerContext ctx, Object msg) {
                             awaitLatch.countDown();
                         }
 

@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.pluginit.utils.AgentPath;
 import com.navercorp.pinpoint.pluginit.utils.PluginITConstants;
 import com.navercorp.pinpoint.pluginit.utils.WebServer;
 import com.navercorp.pinpoint.test.plugin.Dependency;
+import com.navercorp.pinpoint.test.plugin.ImportPlugin;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
 import okhttp3.Call;
@@ -51,6 +52,7 @@ import static com.navercorp.pinpoint.plugin.okhttp.OkHttpConstants.OK_HTTP_CLIEN
  */
 @RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
+@ImportPlugin("com.navercorp.pinpoint:pinpoint-okhttp-plugin")
 @Dependency({"com.squareup.okhttp3:okhttp:[3.0.0,3.3.max]", WebServer.VERSION, PluginITConstants.VERSION})
 public class OkHttpClient_3_0_0_to_3_3_x_IT {
 
@@ -64,7 +66,7 @@ public class OkHttpClient_3_0_0_to_3_3_x_IT {
 
 
     @AfterClass
-    public static void AfterClass() throws Exception {
+    public static void AfterClass() {
         webServer = WebServer.cleanup(webServer);
     }
 

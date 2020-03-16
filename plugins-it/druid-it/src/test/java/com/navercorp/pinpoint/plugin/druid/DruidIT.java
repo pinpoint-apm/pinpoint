@@ -9,6 +9,7 @@ import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointConfig;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
+import com.navercorp.pinpoint.test.plugin.ImportPlugin;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -23,6 +24,7 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
 @RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
 @Dependency({"com.alibaba:druid:[1.0.0][1.0.31],[1.1.0,)", "com.h2database:h2:1.4.191"})
+@ImportPlugin("com.navercorp.pinpoint:pinpoint-druid-plugin")
 @PinpointConfig("druid/pinpoint-druid-test.config")
 public class DruidIT {
     private static final String serviceType = "DRUID";

@@ -21,6 +21,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.navercorp.pinpoint.pluginit.utils.AgentPath;
+import com.navercorp.pinpoint.test.plugin.ImportPlugin;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -42,7 +43,9 @@ import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
  */
 @RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
-@Dependency({"org.springframework:spring-webmvc:[3.0.7.RELEASE],[3.1.4.RELEASE],[3.2.14.RELEASE],[4.0.9.RELEASE],[4.1.7.RELEASE],[4.2.0.RELEASE,4.max]", "org.springframework:spring-test", "javax.servlet:javax.servlet-api:3.0.1"})
+@Dependency({"org.springframework:spring-webmvc:[3.0.7.RELEASE],[3.1.4.RELEASE],[3.2.14.RELEASE],[4.0.9.RELEASE],[4.1.7.RELEASE],[4.2.0.RELEASE,4.max]",
+        "org.springframework:spring-test", "javax.servlet:javax.servlet-api:3.0.1"})
+@ImportPlugin({"com.navercorp.pinpoint:pinpoint-spring-plugin"})
 public class SpringWebMvc_3_x_to_4_x_IT {
     private static final String SPRING_MVC = "SPRING_MVC";
 

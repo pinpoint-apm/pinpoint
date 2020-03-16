@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifierHolder;
 import com.navercorp.pinpoint.pluginit.utils.AgentPath;
 import com.navercorp.pinpoint.test.plugin.Dependency;
+import com.navercorp.pinpoint.test.plugin.ImportPlugin;
 import com.navercorp.pinpoint.test.plugin.JvmVersion;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
@@ -43,6 +44,7 @@ import java.lang.reflect.Method;
 @PinpointAgent(AgentPath.PATH)
 @JvmVersion(8)
 @Dependency({"org.springframework:spring-webmvc:[5.0.0.RELEASE,)", "org.springframework:spring-test", "javax.servlet:javax.servlet-api:3.0.1"})
+@ImportPlugin({"com.navercorp.pinpoint:pinpoint-spring-plugin"})
 public class SpringWebMvc_5_x_IT {
     private static final String SPRING_MVC = "SPRING_MVC";
 

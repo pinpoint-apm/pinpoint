@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.plugin.jdk7.rabbitmq.spring;
+package com.navercorp.pinpoint.plugin.rabbitmq.spring;
 
 import com.navercorp.pinpoint.bootstrap.plugin.test.Expectations;
 import com.navercorp.pinpoint.bootstrap.plugin.test.ExpectedTrace;
 import com.navercorp.pinpoint.bootstrap.plugin.test.PluginTestVerifier;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.plugin.rabbitmq.spring.SpringAmqpRabbitTestRunner;
-import com.navercorp.pinpoint.plugin.rabbitmq.spring.TestApplicationContext;
 import com.navercorp.pinpoint.pluginit.utils.AgentPath;
+import com.navercorp.pinpoint.test.plugin.ImportPlugin;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.test.pinpoint.plugin.rabbitmq.spring.config.CommonConfig;
 import com.navercorp.test.pinpoint.plugin.rabbitmq.spring.config.MessageListenerConfig_Post_1_4_0;
@@ -53,6 +52,7 @@ import java.lang.reflect.Method;
 @RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
 @PinpointConfig("rabbitmq/client/pinpoint-rabbitmq.config")
+@ImportPlugin({"com.navercorp.pinpoint:pinpoint-rabbitmq-plugin", "com.navercorp.pinpoint:pinpoint-jetty-plugin", "com.navercorp.pinpoint:pinpoint-user-plugin"})
 @Dependency({"org.springframework.amqp:spring-rabbit:[1.7.0.RELEASE,1.7.7.RELEASE)", "com.fasterxml.jackson.core:jackson-core:2.8.11", "org.apache.qpid:qpid-broker:6.1.1"})
 public class SpringAmqpRabbit_1_7_0_to_1_7_7_IT {
 

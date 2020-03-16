@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.pluginit.utils.AgentPath;
 import com.navercorp.pinpoint.pluginit.utils.PluginITConstants;
 import com.navercorp.pinpoint.pluginit.utils.WebServer;
 import com.navercorp.pinpoint.test.plugin.Dependency;
+import com.navercorp.pinpoint.test.plugin.ImportPlugin;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointConfig;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
@@ -46,6 +47,7 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.event;
         "org.apache.httpcomponents:httpclient:4.3", "io.netty:netty-all:4.1.9.Final",
         WebServer.VERSION, PluginITConstants.VERSION})
 @PinpointConfig("pinpoint-disabled-plugin-test.config")
+@ImportPlugin({"com.navercorp.pinpoint:pinpoint-resttemplate-plugin"})
 public class RestTemplateIT {
 
     private static WebServer webServer;

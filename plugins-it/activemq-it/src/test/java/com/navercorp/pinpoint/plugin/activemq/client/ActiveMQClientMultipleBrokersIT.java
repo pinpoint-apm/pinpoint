@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.plugin.activemq.client.util.ActiveMQClientITHelper
 import com.navercorp.pinpoint.plugin.activemq.client.util.TestBroker;
 import com.navercorp.pinpoint.pluginit.utils.AgentPath;
 import com.navercorp.pinpoint.test.plugin.Dependency;
+import com.navercorp.pinpoint.test.plugin.ImportPlugin;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointConfig;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
@@ -35,6 +36,7 @@ import java.util.Arrays;
 @RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
 @PinpointConfig("activemq/client/pinpoint-activemq-client.config")
+@ImportPlugin("com.navercorp.pinpoint:pinpoint-activemq-client-plugin")
 // 5.4.1 bug creates activemq-data directory even if persistence is set to false - skip it
 // 5.5.x activemq-all missing slf4j binder - just skip instead of supplying one
 @Dependency({"org.apache.activemq:activemq-all:[5.1.0,5.4.1),[5.4.2,5.4.max],[5.6.0,5.14.max]"})

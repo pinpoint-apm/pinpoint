@@ -29,6 +29,7 @@ import com.navercorp.pinpoint.pluginit.utils.AgentPath;
 import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
+import com.navercorp.pinpoint.test.plugin.ImportPlugin;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -46,6 +47,7 @@ import static org.mockito.Mockito.when;
  */
 @RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
+@ImportPlugin("com.navercorp.pinpoint:pinpoint-dubbo-plugin")
 @Dependency({"com.alibaba:dubbo:[2.5.x,]", "org.mockito:mockito-all:1.8.4"})
 public class DubboConsumerIT {
 

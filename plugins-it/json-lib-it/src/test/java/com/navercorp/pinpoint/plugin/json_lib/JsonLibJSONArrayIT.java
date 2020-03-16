@@ -20,6 +20,7 @@ import static com.navercorp.pinpoint.bootstrap.plugin.test.Expectations.*;
 import java.lang.reflect.Method;
 
 import com.navercorp.pinpoint.pluginit.utils.AgentPath;
+import com.navercorp.pinpoint.test.plugin.ImportPlugin;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import net.sf.json.JSONArray;
 
@@ -37,6 +38,7 @@ import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
  */
 @RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
+@ImportPlugin({"com.navercorp.pinpoint:pinpoint-json-lib-plugin"})
 @Dependency({ "net.sf.json-lib:json-lib:jar:jdk15:(,)" })
 public class JsonLibJSONArrayIT {
 

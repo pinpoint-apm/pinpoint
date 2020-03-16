@@ -28,6 +28,7 @@ import com.navercorp.pinpoint.pluginit.utils.AgentPath;
 import com.navercorp.pinpoint.test.plugin.Dependency;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
+import com.navercorp.pinpoint.test.plugin.ImportPlugin;
 import com.navercorp.pinpoint.test.plugin.TraceObjectManagable;
 import org.junit.Before;
 import org.junit.Test;
@@ -44,6 +45,7 @@ import static org.mockito.Mockito.when;
  */
 @RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
+@ImportPlugin("com.navercorp.pinpoint:pinpoint-dubbo-plugin")
 @Dependency({"com.alibaba:dubbo:[2.5.x,]", "org.mockito:mockito-all:1.8.4"})
 @TraceObjectManagable
 public class DubboProviderIT {
@@ -81,7 +83,7 @@ public class DubboProviderIT {
     }
 
     @Test
-    public void testProvider() throws NoSuchMethodException {
+    public void testProvider() {
         AbstractProxyInvoker abstractProxyInvoker = new AbstractProxyInvoker(new String(), String.class, url) {
             @Override
             protected Object doInvoke(Object proxy, String methodName, Class[] parameterTypes, Object[] arguments) throws Throwable {
@@ -102,7 +104,7 @@ public class DubboProviderIT {
     }
 
     @Test
-    public void testDoNotTrace() throws Exception {
+    public void testDoNotTrace() {
         when(rpcInvocation.getAttachment(META_DO_NOT_TRACE)).thenReturn("1");
 
         AbstractProxyInvoker abstractProxyInvoker = new AbstractProxyInvoker(new String(), String.class, url) {

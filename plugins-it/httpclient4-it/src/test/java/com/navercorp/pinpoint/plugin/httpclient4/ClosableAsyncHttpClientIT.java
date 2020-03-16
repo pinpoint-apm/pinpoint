@@ -25,6 +25,7 @@ import java.util.concurrent.Future;
 import com.navercorp.pinpoint.pluginit.utils.AgentPath;
 import com.navercorp.pinpoint.pluginit.utils.PluginITConstants;
 import com.navercorp.pinpoint.pluginit.utils.WebServer;
+import com.navercorp.pinpoint.test.plugin.ImportPlugin;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import org.apache.http.Consts;
 import org.apache.http.HttpResponse;
@@ -53,6 +54,7 @@ import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
  */
 @RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
+@ImportPlugin("com.navercorp.pinpoint:pinpoint-httpclient4-plugin")
 @Dependency({ "org.apache.httpcomponents:httpasyncclient:[4.0],[4.0.1],[4.0.2],[4.1],[4.1.1],[4.1.2],[4.1.3]",
         WebServer.VERSION, PluginITConstants.VERSION})
 public class ClosableAsyncHttpClientIT {
@@ -64,7 +66,7 @@ public class ClosableAsyncHttpClientIT {
     }
 
     @AfterClass
-    public static void AfterClass() throws Exception {
+    public static void AfterClass() {
         webServer = WebServer.cleanup(webServer);
     }
 

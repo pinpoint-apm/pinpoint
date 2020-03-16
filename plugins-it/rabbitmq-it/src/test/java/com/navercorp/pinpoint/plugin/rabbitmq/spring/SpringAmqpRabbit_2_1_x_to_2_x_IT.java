@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.plugin.rabbitmq.util.RabbitMQTestConstants;
 import com.navercorp.pinpoint.plugin.rabbitmq.util.TestBroker;
 import com.navercorp.pinpoint.pluginit.utils.AgentPath;
 import com.navercorp.pinpoint.test.plugin.Dependency;
+import com.navercorp.pinpoint.test.plugin.ImportPlugin;
 import com.navercorp.pinpoint.test.plugin.JvmVersion;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointConfig;
@@ -59,6 +60,7 @@ import java.util.List;
 @RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
 @PinpointConfig("rabbitmq/client/pinpoint-rabbitmq.config")
+@ImportPlugin({"com.navercorp.pinpoint:pinpoint-rabbitmq-plugin", "com.navercorp.pinpoint:pinpoint-jetty-plugin", "com.navercorp.pinpoint:pinpoint-user-plugin"})
 @Dependency({"org.springframework.amqp:spring-rabbit:[2.1.0.RELEASE],(2.1.1.RELEASE,2.1.9.RELEASE),(2.1.9.RELEASE,)", "com.fasterxml.jackson.core:jackson-core:2.8.11", "org.apache.qpid:qpid-broker:6.1.1"})
 @JvmVersion(8)
 public class SpringAmqpRabbit_2_1_x_to_2_x_IT {

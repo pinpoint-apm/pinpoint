@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.plugin.ibatis;
 
 import com.navercorp.pinpoint.pluginit.utils.AgentPath;
+import com.navercorp.pinpoint.test.plugin.ImportPlugin;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -31,6 +32,7 @@ import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
  */
 @RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
+@ImportPlugin("com.navercorp.pinpoint:pinpoint-ibatis-plugin")
 @Dependency({ "org.apache.ibatis:ibatis-sqlmap:[2.3.4.726]", "org.mockito:mockito-all:1.8.4" })
 public class SqlMapClientIT extends SqlMapExecutorTestBase {
 

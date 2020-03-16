@@ -21,6 +21,7 @@ import static org.junit.Assert.assertEquals;
 import com.navercorp.pinpoint.plugin.thrift.common.client.SyncEchoTestClient;
 import com.navercorp.pinpoint.plugin.thrift.common.server.ThriftEchoTestServer;
 import com.navercorp.pinpoint.pluginit.utils.AgentPath;
+import com.navercorp.pinpoint.test.plugin.ImportPlugin;
 import org.apache.thrift.server.TThreadPoolServer;
 import org.apache.thrift.transport.TTransportException;
 import org.junit.Test;
@@ -44,6 +45,7 @@ import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
 @PinpointAgent(AgentPath.PATH)
 @Dependency({ "org.apache.thrift:libthrift:[0.9.1,)",
         "org.slf4j:slf4j-simple:1.6.6", "org.slf4j:log4j-over-slf4j:1.6.6", "org.slf4j:slf4j-api:1.6.6" })
+@ImportPlugin({"com.navercorp.pinpoint:pinpoint-thrift-plugin"})
 public class ThriftThreadPoolServerIT extends EchoTestRunner<ThriftEchoTestServer<TThreadPoolServer>> {
 
     @Override
