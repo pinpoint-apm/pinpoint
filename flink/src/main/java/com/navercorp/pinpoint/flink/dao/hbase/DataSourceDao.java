@@ -23,11 +23,11 @@ import com.navercorp.pinpoint.common.server.bo.serializer.stat.join.DataSourceSe
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.StatType;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Put;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.util.Date;
 import java.util.List;
@@ -44,7 +44,10 @@ public class DataSourceDao {
     private final DataSourceSerializer dataSourceSerializer;
     private final TableNameProvider tableNameProvider;
 
-    public DataSourceDao(HbaseTemplate2 hbaseTemplate2, ApplicationStatHbaseOperationFactory applicationStatHbaseOperationFactory, DataSourceSerializer dataSourceSerializer, TableNameProvider tableNameProvider) {
+    public DataSourceDao(@Qualifier("asyncPutHbaseTemplate") HbaseTemplate2 hbaseTemplate2,
+                         ApplicationStatHbaseOperationFactory applicationStatHbaseOperationFactory,
+                         DataSourceSerializer dataSourceSerializer,
+                         TableNameProvider tableNameProvider) {
         this.hbaseTemplate2 = Objects.requireNonNull(hbaseTemplate2, "hbaseTemplate2");
         this.applicationStatHbaseOperationFactory = Objects.requireNonNull(applicationStatHbaseOperationFactory, "applicationStatHbaseOperationFactory");
         this.dataSourceSerializer = Objects.requireNonNull(dataSourceSerializer, "dataSourceSerializer");
@@ -58,10 +61,7 @@ public class DataSourceDao {
         List<Put> responseTimePuts = applicationStatHbaseOperationFactory.createPuts(id, joinResponseTimeBoList, statType, dataSourceSerializer);
         if (!responseTimePuts.isEmpty()) {
             TableName applicationStatAggreTableName = tableNameProvider.getTableName(HbaseTable.APPLICATION_STAT_AGGRE);
-            List<Put> rejectedPuts = hbaseTemplate2.asyncPut(applicationStatAggreTableName, responseTimePuts);
-            if (CollectionUtils.isNotEmpty(rejectedPuts)) {
-                hbaseTemplate2.put(applicationStatAggreTableName, rejectedPuts);
-            }
+            hbaseTemplate2.asyncPut(applicationStatAggreTableName, responseTimePuts);
         }
     }
 }

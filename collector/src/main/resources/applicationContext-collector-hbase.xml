@@ -73,6 +73,10 @@
         <property name="asyncOperation" ref="asyncOperation"/>
     </bean>
 
+    <bean id="asyncPutHbaseTemplate" class="com.navercorp.pinpoint.common.hbase.AsyncPutHbaseTemplate2">
+        <constructor-arg ref="hbaseTemplate"/>
+    </bean>
+
     <bean id="hbaseAdminFactory" class="com.navercorp.pinpoint.common.hbase.HbaseAdminFactory">
         <constructor-arg ref="connectionFactory"/>
     </bean>

@@ -23,11 +23,11 @@ import com.navercorp.pinpoint.common.server.bo.serializer.stat.join.TransactionS
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.StatType;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Put;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.util.Date;
 import java.util.List;
@@ -39,12 +39,16 @@ import java.util.Objects;
 public class TransactionDao {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+
     private final HbaseTemplate2 hbaseTemplate2;
     private final ApplicationStatHbaseOperationFactory applicationStatHbaseOperationFactory;
     private final TransactionSerializer transactionSerializer;
     private final TableNameProvider tableNameProvider;
 
-    public TransactionDao(HbaseTemplate2 hbaseTemplate2, ApplicationStatHbaseOperationFactory applicationStatHbaseOperationFactory, TransactionSerializer transactionSerializer, TableNameProvider tableNameProvider) {
+    public TransactionDao(@Qualifier("asyncPutHbaseTemplate") HbaseTemplate2 hbaseTemplate2,
+                          ApplicationStatHbaseOperationFactory applicationStatHbaseOperationFactory,
+                          TransactionSerializer transactionSerializer,
+                          TableNameProvider tableNameProvider) {
         this.hbaseTemplate2 = Objects.requireNonNull(hbaseTemplate2, "hbaseTemplate2");
         this.applicationStatHbaseOperationFactory = Objects.requireNonNull(applicationStatHbaseOperationFactory, "applicationStatHbaseOperationFactory");
         this.transactionSerializer = Objects.requireNonNull(transactionSerializer, "transactionSerializer");
@@ -58,10 +62,7 @@ public class TransactionDao {
         List<Put> transactionPuts = applicationStatHbaseOperationFactory.createPuts(id, joinTransactionBoList, statType, transactionSerializer);
         if (!transactionPuts.isEmpty()) {
             TableName applicationStatAggreTableName = tableNameProvider.getTableName(HbaseTable.APPLICATION_STAT_AGGRE);
-            List<Put> rejectedPuts = hbaseTemplate2.asyncPut(applicationStatAggreTableName, transactionPuts);
-            if (CollectionUtils.isNotEmpty(rejectedPuts)) {
-                hbaseTemplate2.put(applicationStatAggreTableName, rejectedPuts);
-            }
+            hbaseTemplate2.asyncPut(applicationStatAggreTableName, transactionPuts);
         }
     }
 }

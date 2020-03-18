@@ -36,6 +36,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
+import java.util.Objects;
+
 /**
  * find traceids by application name
  * 
@@ -47,6 +49,7 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    @Qualifier("asyncPutHbaseTemplate")
     @Autowired
     private HbaseOperations2 hbaseTemplate;
 
@@ -62,9 +65,8 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 
     @Override
     public void insert(final SpanBo span) {
-        if (span == null) {
-            throw new NullPointerException("span");
-        }
+        Objects.requireNonNull(span, "span");
+
         if (logger.isDebugEnabled()) {
             logger.debug("insert ApplicationTraceIndex: {}", span);
         }
@@ -82,10 +84,7 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
         put.addColumn(descriptor.getColumnFamilyName(), makeQualifier(span) , acceptedTime, value);
 
         final TableName applicationTraceIndexTableName = descriptor.getTableName();
-        boolean success = hbaseTemplate.asyncPut(applicationTraceIndexTableName, put);
-        if (!success) {
-            hbaseTemplate.put(applicationTraceIndexTableName, put);
-        }
+        hbaseTemplate.asyncPut(applicationTraceIndexTableName, put);
     }
 
     private byte[] makeQualifier(final SpanBo span) {
