@@ -32,6 +32,7 @@ import org.apache.commons.collections.map.MultiKeyMap;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Put;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
@@ -44,6 +45,7 @@ import java.util.List;
 @Repository
 public class HbaseDataSourceListDao implements AgentStatDaoV2<DataSourceListBo> {
 
+    @Qualifier("asyncPutHbaseTemplate")
     @Autowired
     private HbaseOperations2 hbaseTemplate;
 
@@ -69,10 +71,7 @@ public class HbaseDataSourceListDao implements AgentStatDaoV2<DataSourceListBo> 
         List<Put> activeTracePuts = this.agentStatHbaseOperationFactory.createPuts(agentId, AgentStatType.DATASOURCE, reorderedDataSourceListBos, dataSourceSerializer);
         if (!activeTracePuts.isEmpty()) {
             TableName agentStatTableName = tableNameProvider.getTableName(HbaseTable.AGENT_STAT_VER2);
-            List<Put> rejectedPuts = this.hbaseTemplate.asyncPut(agentStatTableName, activeTracePuts);
-            if (CollectionUtils.hasLength(rejectedPuts)) {
-                this.hbaseTemplate.put(agentStatTableName, rejectedPuts);
-            }
+            this.hbaseTemplate.asyncPut(agentStatTableName, activeTracePuts);
         }
     }
 

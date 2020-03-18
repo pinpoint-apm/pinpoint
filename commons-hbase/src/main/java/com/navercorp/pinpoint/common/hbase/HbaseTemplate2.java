@@ -167,7 +167,7 @@ public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, I
 
     private void assertAccessAvailable() {
         if (isClose.get()) {
-            throw new HBaseAccessException("Already closed.");
+            throw new HBaseAccessException("Already closed");
         }
     }
 
@@ -187,7 +187,6 @@ public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, I
 
     @Override
     public <T> T find(TableName tableName, final Scan scan, final ResultsExtractor<T> action) {
-        assertAccessAvailable();
         return execute(tableName, new TableCallback<T>() {
             @Override
             public T doInTable(Table table) throws Throwable {
@@ -232,7 +231,6 @@ public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, I
 
     @Override
     public <T> T get(TableName tableName, final String rowName, final String familyName, final String qualifier, final RowMapper<T> mapper) {
-        assertAccessAvailable();
         return execute(tableName, new TableCallback<T>() {
             @Override
             public T doInTable(Table table) throws Throwable {
@@ -264,7 +262,6 @@ public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, I
 
     @Override
     public <T> T get(TableName tableName, final byte[] rowName, final byte[] familyName, final byte[] qualifier, final RowMapper<T> mapper) {
-        assertAccessAvailable();
         return execute(tableName, new TableCallback<T>() {
             @Override
             public T doInTable(Table table) throws Throwable {
@@ -284,7 +281,6 @@ public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, I
 
     @Override
     public <T> T get(TableName tableName, final Get get, final RowMapper<T> mapper) {
-        assertAccessAvailable();
         return execute(tableName, new TableCallback<T>() {
             @Override
             public T doInTable(Table table) throws Throwable {
@@ -296,7 +292,6 @@ public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, I
 
     @Override
     public <T> List<T> get(TableName tableName, final List<Get> getList, final RowMapper<T> mapper) {
-        assertAccessAvailable();
         return execute(tableName, new TableCallback<List<T>>() {
             @Override
             public List<T> doInTable(Table table) throws Throwable {
@@ -318,7 +313,6 @@ public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, I
 
     @Override
     public void put(TableName tableName, final byte[] rowName, final byte[] familyName, final byte[] qualifier, final Long timestamp, final byte[] value) {
-        assertAccessAvailable();
         execute(tableName, new TableCallback() {
             @Override
             public Object doInTable(Table table) throws Throwable {
@@ -336,7 +330,6 @@ public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, I
 
     @Override
     public <T> void put(TableName tableName, final byte[] rowName, final byte[] familyName, final byte[] qualifier, final Long timestamp, final T value, final ValueMapper<T> mapper) {
-        assertAccessAvailable();
         execute(tableName, new TableCallback<T>() {
             @Override
             public T doInTable(Table table) throws Throwable {
@@ -350,7 +343,6 @@ public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, I
 
     @Override
     public void put(TableName tableName, final Put put) {
-        assertAccessAvailable();
         execute(tableName, new TableCallback() {
             @Override
             public Object doInTable(Table table) throws Throwable {
@@ -362,7 +354,6 @@ public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, I
 
     @Override
     public void put(TableName tableName, final List<Put> puts) {
-        assertAccessAvailable();
         execute(tableName, new TableCallback() {
             @Override
             public Object doInTable(Table table) throws Throwable {
@@ -431,7 +422,6 @@ public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, I
 
     @Override
     public void delete(TableName tableName, final Delete delete) {
-        assertAccessAvailable();
         execute(tableName, new TableCallback() {
             @Override
             public Object doInTable(Table table) throws Throwable {
@@ -443,7 +433,6 @@ public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, I
 
     @Override
     public void delete(TableName tableName, final List<Delete> deletes) {
-        assertAccessAvailable();
         execute(tableName, new TableCallback() {
             @Override
             public Object doInTable(Table table) throws Throwable {
@@ -455,7 +444,6 @@ public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, I
 
     @Override
     public <T> List<T> find(TableName tableName, final List<Scan> scanList, final ResultsExtractor<T> action) {
-        assertAccessAvailable();
         return execute(tableName, new TableCallback<List<T>>() {
             @Override
             public List<T> doInTable(Table table) throws Throwable {
@@ -701,7 +689,6 @@ public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, I
 
     @Override
     public Result increment(TableName tableName, final Increment increment) {
-        assertAccessAvailable();
         return execute(tableName, new TableCallback<Result>() {
             @Override
             public Result doInTable(Table table) throws Throwable {
@@ -712,7 +699,6 @@ public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, I
 
     @Override
     public List<Result> increment(final TableName tableName, final List<Increment> incrementList) {
-        assertAccessAvailable();
         return execute(tableName, new TableCallback<List<Result>>() {
             @Override
             public List<Result> doInTable(Table table) throws Throwable {
@@ -738,7 +724,6 @@ public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, I
 
     @Override
     public long incrementColumnValue(TableName tableName, final byte[] rowName, final byte[] familyName, final byte[] qualifier, final long amount) {
-        assertAccessAvailable();
         return execute(tableName, new TableCallback<Long>() {
             @Override
             public Long doInTable(Table table) throws Throwable {
@@ -749,7 +734,6 @@ public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, I
 
     @Override
     public long incrementColumnValue(TableName tableName, final byte[] rowName, final byte[] familyName, final byte[] qualifier, final long amount, final boolean writeToWAL) {
-        assertAccessAvailable();
         return execute(tableName, new TableCallback<Long>() {
             @Override
             public Long doInTable(Table table) throws Throwable {

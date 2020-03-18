@@ -23,11 +23,11 @@ import com.navercorp.pinpoint.common.server.bo.serializer.stat.join.CpuLoadSeria
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinStatBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.StatType;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Put;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.util.Date;
 import java.util.List;
@@ -44,7 +44,10 @@ public class CpuLoadDao {
     private final CpuLoadSerializer cpuLoadSerializer;
     private final TableNameProvider tableNameProvider;
 
-    public CpuLoadDao(HbaseTemplate2 hbaseTemplate2, ApplicationStatHbaseOperationFactory applicationStatHbaseOperationFactory, CpuLoadSerializer cpuLoadSerializer, TableNameProvider tableNameProvider) {
+    public CpuLoadDao(@Qualifier("asyncPutHbaseTemplate") HbaseTemplate2 hbaseTemplate2,
+                      ApplicationStatHbaseOperationFactory applicationStatHbaseOperationFactory,
+                      CpuLoadSerializer cpuLoadSerializer,
+                      TableNameProvider tableNameProvider) {
         this.hbaseTemplate2 = Objects.requireNonNull(hbaseTemplate2, "hbaseTemplate2");
         this.applicationStatHbaseOperationFactory = Objects.requireNonNull(applicationStatHbaseOperationFactory, "applicationStatHbaseOperationFactory");
         this.cpuLoadSerializer = Objects.requireNonNull(cpuLoadSerializer, "cpuLoadSerializer");
@@ -58,10 +61,7 @@ public class CpuLoadDao {
         List<Put> cpuLoadPuts = applicationStatHbaseOperationFactory.createPuts(id, joinCpuLoadBoList, statType, cpuLoadSerializer);
         if (!cpuLoadPuts.isEmpty()) {
             TableName applicationStatAggreTableName = tableNameProvider.getTableName(HbaseTable.APPLICATION_STAT_AGGRE);
-            List<Put> rejectedPuts = hbaseTemplate2.asyncPut(applicationStatAggreTableName, cpuLoadPuts);
-            if (CollectionUtils.isNotEmpty(rejectedPuts)) {
-                hbaseTemplate2.put(applicationStatAggreTableName, rejectedPuts);
-            }
+            hbaseTemplate2.asyncPut(applicationStatAggreTableName, cpuLoadPuts);
         }
     }
 }

@@ -38,6 +38,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -47,6 +48,7 @@ public class HbaseTraceDaoV2 implements TraceDao {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
+    @Qualifier("asyncPutHbaseTemplate")
     @Autowired
     private HbaseOperations2 hbaseTemplate;
 
@@ -65,9 +67,8 @@ public class HbaseTraceDaoV2 implements TraceDao {
 
     @Override
     public boolean insert(final SpanBo spanBo) {
-        if (spanBo == null) {
-            throw new NullPointerException("spanBo");
-        }
+        Objects.requireNonNull(spanBo, "spanBo");
+
         if (logger.isDebugEnabled()) {
             logger.debug("insert trace: {}", spanBo);
         }
@@ -81,19 +82,15 @@ public class HbaseTraceDaoV2 implements TraceDao {
         this.spanSerializer.serialize(spanBo, put, null);
 
         TableName traceTableName = descriptor.getTableName();
-        boolean success = hbaseTemplate.asyncPut(traceTableName, put);
-        if (!success) {
-            hbaseTemplate.put(traceTableName, put);
-            success = true;
-        }
 
-        return success;
+        return hbaseTemplate.asyncPut(traceTableName, put);
     }
 
 
 
     @Override
     public boolean insertSpanChunk(SpanChunkBo spanChunkBo) {
+        Objects.requireNonNull(spanChunkBo, "spanChunkBo");
 
         TransactionId transactionId = spanChunkBo.getTransactionId();
         final byte[] rowKey = this.rowKeyEncoder.encodeRowKey(transactionId);
@@ -108,16 +105,11 @@ public class HbaseTraceDaoV2 implements TraceDao {
 
         this.spanChunkSerializer.serialize(spanChunkBo, put, null);
 
-        boolean success = false;
         if (!put.isEmpty()) {
             TableName traceTableName = descriptor.getTableName();
-            success = hbaseTemplate.asyncPut(traceTableName, put);
-            if (!success) {
-                hbaseTemplate.put(traceTableName, put);
-                success = true;
-            }
+            return hbaseTemplate.asyncPut(traceTableName, put);
         }
 
-        return success;
+        return false;
     }
 }
