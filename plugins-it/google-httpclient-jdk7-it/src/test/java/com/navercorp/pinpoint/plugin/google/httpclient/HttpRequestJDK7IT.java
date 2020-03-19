@@ -30,6 +30,7 @@ import com.navercorp.pinpoint.pluginit.utils.AgentPath;
 import com.navercorp.pinpoint.pluginit.utils.PluginITConstants;
 import com.navercorp.pinpoint.pluginit.utils.WebServer;
 import com.navercorp.pinpoint.test.plugin.Dependency;
+import com.navercorp.pinpoint.test.plugin.ImportPlugin;
 import com.navercorp.pinpoint.test.plugin.PinpointAgent;
 import com.navercorp.pinpoint.test.plugin.PinpointPluginTestSuite;
 import org.junit.AfterClass;
@@ -49,6 +50,7 @@ import java.util.concurrent.Executor;
 @PinpointAgent(AgentPath.PATH)
 // guava dependency issue
 // google-http-client 1.26.0 does not include repackaged guava
+@ImportPlugin("com.navercorp.pinpoint:pinpoint-google-httpclient-plugin")
 @Dependency({ "com.google.http-client:google-http-client:[1.28.0,)",
         WebServer.VERSION, PluginITConstants.VERSION})
 public class HttpRequestJDK7IT {
