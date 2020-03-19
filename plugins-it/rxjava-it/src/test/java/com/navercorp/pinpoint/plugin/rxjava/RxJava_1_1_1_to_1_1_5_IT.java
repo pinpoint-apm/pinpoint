@@ -37,7 +37,7 @@ import org.junit.runner.RunWith;
 // rxjava plugin enabled + custom trace method config
 @PinpointConfig("rxjava/pinpoint-rxjava.config")
 @Dependency({"io.reactivex:rxjava:[1.1.1,1.1.5]"})
-@ImportPlugin({"com.navercorp.pinpoint:pinpoint-rxjava-plugin"})
+@ImportPlugin({"com.navercorp.pinpoint:pinpoint-rxjava-plugin", "com.navercorp.pinpoint:pinpoint-user-plugin"})
 public class RxJava_1_1_1_to_1_1_5_IT {
 
     private final ObservableTestRunner observableTestRunner = new ObservableTestRunner();
