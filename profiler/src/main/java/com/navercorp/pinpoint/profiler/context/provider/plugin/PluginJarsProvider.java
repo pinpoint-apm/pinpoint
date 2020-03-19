@@ -98,11 +98,12 @@ public class PluginJarsProvider implements Provider<List<PluginJar>> {
         pluginJars.addAll(unorderedPlugins);
         return pluginJars;
     }
-
+    // ArtifactIdUtils.ARTIFACT_SEPARATOR
+    private static final String ARTIFACT_SEPARATOR = ";";
     private PluginFilter createPluginJarFilter(ProfilerConfig profilerConfig) {
         final String importPluginIdString = profilerConfig.readString(DefaultProfilerConfig.IMPORT_PLUGIN, null);
         if (StringUtils.hasLength(importPluginIdString)) {
-            List<String> importPluginIds = StringUtils.tokenizeToStringList(importPluginIdString, ",");
+            List<String> importPluginIds = StringUtils.tokenizeToStringList(importPluginIdString, ARTIFACT_SEPARATOR);
             PluginFilterFactory filterFactory = new ImportPluginFilterFactory(importPluginIds);
             return filterFactory.newPluginFilter();
         }
