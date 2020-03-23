@@ -16,7 +16,13 @@
         <property name="password" value="${alarm.mail.server.password:}" />
         <property name="javaMailProperties">
             <props>
+                <prop key="mail.transport.protocol">${alarm.mail.transport.protocol:}</prop>
+                <prop key="mail.smtp.port">${alarm.mail.smtp.port:}</prop>
                 <prop key="mail.smtp.from">${alarm.mail.sender.address:}</prop>
+                <prop key="mail.smtp.auth">${alarm.mail.smtp.auth:false}</prop>
+                <prop key="mail.smtp.starttls.enable">${alarm.mail.smtp.starttls.enable:false}</prop>
+                <prop key="mail.smtp.starttls.required">${alarm.mail.smtp.starttls.required:false}</prop>
+                <prop key="mail.debug">${alarm.mail.debug:false}</prop>
             </props>
         </property>
     </bean>
