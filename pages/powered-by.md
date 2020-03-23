@@ -13,6 +13,7 @@ This page, documents **alphabetical list** of organizations using Pinpoint.
 ## Sites using Pinpoint
 
 1. Coupang (www.coupang.com)
+1. Echemi (https://www.echemi.com)
 1. NAVER (www.naver.com)
 1. NHN Entertainment 
 1. Pikicast (www.pikicast.com)
