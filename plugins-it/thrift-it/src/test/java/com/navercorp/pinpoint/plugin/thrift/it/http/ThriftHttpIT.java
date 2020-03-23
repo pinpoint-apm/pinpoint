@@ -40,7 +40,10 @@ import static org.junit.Assert.assertEquals;
 @JvmVersion(8)
 @Dependency({ "org.apache.thrift:libthrift:[0.9.1,)", "org.eclipse.jetty:jetty-server:9.2.11.v20150529",
         "org.slf4j:slf4j-simple:1.6.6", "org.slf4j:log4j-over-slf4j:1.6.6", "org.slf4j:slf4j-api:1.6.6" })
-@ImportPlugin({"com.navercorp.pinpoint:pinpoint-thrift-plugin"})
+@ImportPlugin({"com.navercorp.pinpoint:pinpoint-thrift-plugin",
+        "com.navercorp.pinpoint:pinpoint-jdk-http-plugin",
+        "com.navercorp.pinpoint:pinpoint-jetty-plugin"
+        })
 public class ThriftHttpIT extends EchoTestRunner<HttpEchoTestServer> {
 
     @Override
