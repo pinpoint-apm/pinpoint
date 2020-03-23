@@ -1,18 +1,18 @@
 ---
-title: "Pinpoint 2.0.0"
-keywords: pinpoint release, 2.0.0
+title: "Pinpoint 2.0.1"
+keywords: pinpoint release, 2.0.1
 permalink: main.html
 sidebar: mydoc_sidebar
 ---
 
-## What's New in 2.0.0
+## What's New in 2.0.1
 
 We have a new UI for Pinpoint-Web. 
 A lot of users asked on the commercial issue and we are happy to 
 announce that **all commercial dependencies(amchart, go.js) has been removed.**
 
-{% include important.html content="If you plan to upgrade pinpoint-web to v2.0.0 from version 1.8.5 or earlier 
-please check the [Upgrade Guide](http://naver.github.io/pinpoint/2.0.0/main.html#notice-for-pinpoint-web-version-upgrade)" %}
+{% include important.html content="If you plan to upgrade pinpoint-web to v2.0.0+ from version 1.8.5 or earlier 
+please check the [Upgrade Guide](http://naver.github.io/pinpoint/2.0.1/main.html#notice-for-pinpoint-web-version-upgrade)" %}
 
 Pinpoint started using GRPC as default 
 
@@ -33,7 +33,7 @@ Lighter, faster, smoother
 ### Support gRpc transport 
 
 Starting from v2.0.0, gRpc is available to transfer data between agents and collectors.
-Currently, the default setting of 2.0.0-RC2 is
+Currently, the default setting is
   * collector
     -  thrift, grpc (both active)
   * agent
@@ -81,7 +81,7 @@ https://github.com/naver/pinpoint/blob/master/doc/application-inspector.md#3-con
 ### Notice for Pinpoint Web version upgrade
 
 {% include callout.html content="**Important information**: 
-If you upgrade pinpoint-web to v2.0.0 from version 1.8.5 or earlier, you need to change the schema of the alarm history table.
+If you upgrade pinpoint-web to v2.0.0+ from version 1.8.5 or earlier, you need to change the schema of the alarm history table.
 The schema has been changed to allow multiple settings of the same alarm rule.
 <br/><br/>sql statement : ALTER TABLE `alarm_history` ADD `rule_id` INT(10) NOT NULL AFTER `history_id`;" type="primary" %} 
    
