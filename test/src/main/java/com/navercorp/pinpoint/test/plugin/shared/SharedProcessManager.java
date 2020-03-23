@@ -43,7 +43,7 @@ import java.util.TimerTask;
  * @author Taejin Koo
  */
 public class SharedProcessManager implements ProcessManager {
-    public static final String PATH_SEPARATOR = ";";
+    public static final String PATH_SEPARATOR = File.pathSeparator;
 
     private final PinpointPluginTestContext context;
     private final Map<String, List<Artifact>> testRepository = new LinkedHashMap<String, List<Artifact>>();
