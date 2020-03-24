@@ -149,9 +149,9 @@
 
 
 {
-"title": "Pinpoint 2.0.0",
+"title": "Pinpoint 2.0.1",
 "tags": "",
-"keywords": "pinpoint release, 2.0.0",
+"keywords": "pinpoint release, 2.0.1",
 "url": "main.html",
 "summary": ""
 }
@@ -685,61 +685,6 @@
 "tags": "",
 "keywords": "",
 "url": "1.8.5pagesmodules.html",
-"summary": ""
-}
-,
-
-
-
-{
-"title": "",
-"tags": "",
-"keywords": "",
-"url": "2.0.1pagescompatibilityHbase.html",
-"summary": ""
-}
-,
-
-
-
-{
-"title": "",
-"tags": "",
-"keywords": "",
-"url": "2.0.1pagescompatibilityJava.html",
-"summary": ""
-}
-,
-
-
-
-{
-"title": "",
-"tags": "",
-"keywords": "",
-"url": "2.0.1pagescompatibilityPinpoint.html",
-"summary": ""
-}
-,
-
-
-
-{
-"title": "Architecture",
-"tags": "",
-"keywords": "",
-"url": "2.0.1pagesdev-architecture.html",
-"summary": ""
-}
-,
-
-
-
-{
-"title": "",
-"tags": "",
-"keywords": "",
-"url": "2.0.1pagesmodules.html",
 "summary": ""
 }
 ,

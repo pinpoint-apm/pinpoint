@@ -5,8 +5,8 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="">
-<meta name="keywords" content=" pinpoint release, 2.0.0">
-<title>Pinpoint 2.0.0 | Leading Open-Source APM</title>
+<meta name="keywords" content=" pinpoint release, 2.0.1">
+<title>Pinpoint 2.0.1 | Leading Open-Source APM</title>
 <link rel="stylesheet" href="css/syntax.css">
 
 <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -158,7 +158,7 @@
                                 searchInput: document.getElementById('search-input'),
                                 resultsContainer: document.getElementById('results-container'),
                                 dataSource: 'search.json',
-                                searchResultTemplate: '<li><a href="{url}" title="Pinpoint 2.0.0">{title}</a></li>',
+                                searchResultTemplate: '<li><a href="{url}" title="Pinpoint 2.0.1">{title}</a></li>',
                     noResultsText: 'No results found.',
                             limit: 10,
                             fuzzy: true,
@@ -540,7 +540,7 @@
 </script>
 
 <div class="post-header">
-   <h1 class="post-title-main" id="pathname">Pinpoint 2.0.0</h1>
+   <h1 class="post-title-main" id="pathname">Pinpoint 2.0.1</h1>
 </div>
 
 
@@ -580,14 +580,14 @@ $('#toc').on('click', 'a', function() {
 
     
 
-  <h2 id="whats-new-in-200">What’s New in 2.0.0</h2>
+  <h2 id="whats-new-in-201">What’s New in 2.0.1</h2>
 
 <p>We have a new UI for Pinpoint-Web. 
 A lot of users asked on the commercial issue and we are happy to 
 announce that <strong>all commercial dependencies(amchart, go.js) has been removed.</strong></p>
 
-<div class="alert alert-warning" role="alert"><i class="fa fa-warning"></i> <b>Important:</b> If you plan to upgrade pinpoint-web to v2.0.0 from version 1.8.5 or earlier 
-please check the <a href="http://naver.github.io/pinpoint/2.0.0/main.html#notice-for-pinpoint-web-version-upgrade">Upgrade Guide</a></div>
+<div class="alert alert-warning" role="alert"><i class="fa fa-warning"></i> <b>Important:</b> If you plan to upgrade pinpoint-web to v2.0.0+ from version 1.8.5 or earlier 
+please check the <a href="http://naver.github.io/pinpoint/2.0.1/main.html#notice-for-pinpoint-web-version-upgrade">Upgrade Guide</a></div>
 
 <p>Pinpoint started using GRPC as default</p>
 
@@ -614,7 +614,7 @@ please check the <a href="http://naver.github.io/pinpoint/2.0.0/main.html#notice
 <h3 id="support-grpc-transport">Support gRpc transport</h3>
 
 <p>Starting from v2.0.0, gRpc is available to transfer data between agents and collectors.
-Currently, the default setting of 2.0.0-RC2 is</p>
+Currently, the default setting is</p>
 <ul>
   <li>collector
     <ul>
@@ -678,7 +678,7 @@ https://github.com/naver/pinpoint/blob/master/doc/application-inspector.md#3-con
 <h3 id="notice-for-pinpoint-web-version-upgrade">Notice for Pinpoint Web version upgrade</h3>
 
 <div class="bs-callout bs-callout-primary"><strong>Important information</strong>: 
-If you upgrade pinpoint-web to v2.0.0 from version 1.8.5 or earlier, you need to change the schema of the alarm history table.
+If you upgrade pinpoint-web to v2.0.0+ from version 1.8.5 or earlier, you need to change the schema of the alarm history table.
 The schema has been changed to allow multiple settings of the same alarm rule.
 <br /><br />sql statement : ALTER TABLE <code class="highlighter-rouge">alarm_history</code> ADD <code class="highlighter-rouge">rule_id</code> INT(10) NOT NULL AFTER <code class="highlighter-rouge">history_id</code>;</div>
 
