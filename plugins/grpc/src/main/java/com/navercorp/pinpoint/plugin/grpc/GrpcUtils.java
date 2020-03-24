@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.plugin.grpc.interceptor.client.ChannelNewCallInterceptor;
 import com.navercorp.pinpoint.plugin.grpc.interceptor.server.CopyAsyncContextInterceptor;
+import com.navercorp.pinpoint.plugin.grpc.interceptor.server.ServerHalfCloseListenerInterceptor;
 import com.navercorp.pinpoint.plugin.grpc.interceptor.server.ServerListenerInterceptor;
 
 import java.util.List;
@@ -54,12 +55,17 @@ public final class GrpcUtils {
         }
     }
 
-    public static void addListenerMethod(InstrumentClass target, boolean traceOnMessage) throws InstrumentException {
+    public static void addServerListenerMethod(InstrumentClass target, boolean traceOnMessage) throws InstrumentException {
         List<InstrumentMethod> declaredMethods = target.getDeclaredMethods();
         for (InstrumentMethod declaredMethod : declaredMethods) {
             if (declaredMethod.getName().equals("onMessage") && !traceOnMessage) {
                 PLogger logger = PLoggerFactory.getLogger(GrpcUtils.class.getName());
                 logger.debug("skip add onMessage interceptor");
+                continue;
+            }
+
+            if (declaredMethod.getName().equals("onHalfClose")) {
+                declaredMethod.addInterceptor(ServerHalfCloseListenerInterceptor.class);
                 continue;
             }
 
