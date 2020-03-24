@@ -428,36 +428,6 @@
   
   
   <url>
-    <loc>http://localhost:4000/2.0.1/pages/compatibilityHbase.html</loc>
-  </url>
-  
-  
-  
-  <url>
-    <loc>http://localhost:4000/2.0.1/pages/compatibilityJava.html</loc>
-  </url>
-  
-  
-  
-  <url>
-    <loc>http://localhost:4000/2.0.1/pages/compatibilityPinpoint.html</loc>
-  </url>
-  
-  
-  
-  <url>
-    <loc>http://localhost:4000/2.0.1/pages/dev-architecture.html</loc>
-  </url>
-  
-  
-  
-  <url>
-    <loc>http://localhost:4000/2.0.1/pages/modules.html</loc>
-  </url>
-  
-  
-  
-  <url>
     <loc>http://localhost:4000/pages/compatibilityHbase.html</loc>
   </url>
   
