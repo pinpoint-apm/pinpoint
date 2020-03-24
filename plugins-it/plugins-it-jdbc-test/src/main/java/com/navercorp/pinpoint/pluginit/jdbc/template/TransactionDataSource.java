@@ -47,7 +47,7 @@ public class TransactionDataSource implements DataSource {
     }
 
     public void doInTransaction(TransactionCallback transacion) throws SQLException {
-        final Connection innerConnection = this.innerConnection;
+        final Connection innerConnection = getCurrentConnection();
         innerConnection.setAutoCommit(false);
         try {
             transacion.doInTransaction();
@@ -60,6 +60,13 @@ public class TransactionDataSource implements DataSource {
             }
         }
 
+    }
+
+    private Connection getCurrentConnection() throws SQLException {
+        if (this.innerConnection == null) {
+            this.innerConnection = this.dataSource.getConnection();
+        }
+        return this.innerConnection;
     }
 
     private UnclosedConnection wrapUnclosedConnection(Connection innerConnection) {
