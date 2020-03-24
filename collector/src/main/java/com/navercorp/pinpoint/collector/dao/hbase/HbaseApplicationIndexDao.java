@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.collector.dao.hbase;
 
 import com.navercorp.pinpoint.collector.dao.ApplicationIndexDao;
+import com.navercorp.pinpoint.collector.util.CollectorUtils;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
 import com.navercorp.pinpoint.common.hbase.TableDescriptor;
@@ -27,7 +28,6 @@ import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.Objects;
@@ -56,6 +56,11 @@ public class HbaseApplicationIndexDao implements ApplicationIndexDao {
     public void insert(final AgentInfoBo agentInfo) {
         Objects.requireNonNull(agentInfo, "agentInfo");
 
+        // Assert agentId
+        CollectorUtils.checkAgentId(agentInfo.getAgentId());
+        // Assert applicationName
+        CollectorUtils.checkApplicationName(agentInfo.getApplicationName());
+
         final Put put = new Put(Bytes.toBytes(agentInfo.getApplicationName()));
         final byte[] qualifier = Bytes.toBytes(agentInfo.getAgentId());
         final byte[] value = Bytes.toBytes(agentInfo.getServiceTypeCode());
@@ -66,7 +71,4 @@ public class HbaseApplicationIndexDao implements ApplicationIndexDao {
 
         logger.debug("Insert ApplicationIndex: {}", agentInfo);
     }
-
-
-
 }

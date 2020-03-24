@@ -30,7 +30,6 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.profiler.util.ApplicationMapStatisticsUtils;
 import com.navercorp.pinpoint.common.server.util.TimeSlot;
 
-import com.navercorp.pinpoint.common.util.Assert;
 import com.sematext.hbase.wd.RowKeyDistributorByHashPrefix;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Increment;

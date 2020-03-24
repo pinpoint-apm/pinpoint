@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.collector.dao.hbase;
 
 import com.navercorp.pinpoint.collector.dao.TraceDao;
+import com.navercorp.pinpoint.collector.util.CollectorUtils;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
 import com.navercorp.pinpoint.common.hbase.TableDescriptor;
@@ -73,10 +74,14 @@ public class HbaseTraceDaoV2 implements TraceDao {
     @Override
     public boolean insert(final SpanBo spanBo) {
         Objects.requireNonNull(spanBo, "spanBo");
-
         if (logger.isDebugEnabled()) {
             logger.debug("insert trace: {}", spanBo);
         }
+
+        // Assert agentId
+        CollectorUtils.checkAgentId(spanBo.getAgentId());
+        // Assert applicationName
+        CollectorUtils.checkApplicationName(spanBo.getApplicationId());
 
         long acceptedTime = spanBo.getCollectorAcceptTime();
 
@@ -90,8 +95,6 @@ public class HbaseTraceDaoV2 implements TraceDao {
 
         return hbaseTemplate.asyncPut(traceTableName, put);
     }
-
-
 
     @Override
     public boolean insertSpanChunk(SpanChunkBo spanChunkBo) {

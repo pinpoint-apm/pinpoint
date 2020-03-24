@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.collector.dao.hbase.stat;
 
 import com.navercorp.pinpoint.collector.dao.AgentStatDaoV2;
+import com.navercorp.pinpoint.collector.util.CollectorUtils;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
 import com.navercorp.pinpoint.common.hbase.HbaseTable;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
@@ -31,7 +32,6 @@ import com.navercorp.pinpoint.common.util.CollectionUtils;
 import org.apache.commons.collections.map.MultiKeyMap;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Put;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
@@ -64,9 +64,10 @@ public class HbaseDataSourceListDao implements AgentStatDaoV2<DataSourceListBo> 
 
     @Override
     public void insert(String agentId, List<DataSourceListBo> dataSourceListBos) {
-        if (agentId == null) {
-            throw new NullPointerException("agentId");
-        }
+        Objects.requireNonNull(agentId, "agentId");
+        // Assert agentId
+        CollectorUtils.checkAgentId(agentId);
+
         if (CollectionUtils.isEmpty(dataSourceListBos)) {
             return;
         }
@@ -111,5 +112,4 @@ public class HbaseDataSourceListDao implements AgentStatDaoV2<DataSourceListBo> 
         Collection values = dataSourceListBoMap.values();
         return new ArrayList<DataSourceListBo>(values);
     }
-
 }

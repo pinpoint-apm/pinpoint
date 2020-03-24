@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.collector.dao.hbase;
 
 import com.navercorp.pinpoint.collector.dao.ApiMetaDataDao;
+import com.navercorp.pinpoint.collector.util.CollectorUtils;
 import com.navercorp.pinpoint.common.buffer.AutomaticBuffer;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
@@ -64,6 +65,9 @@ public class HbaseApiMetaDataDao implements ApiMetaDataDao {
             logger.debug("insert:{}", apiMetaData);
         }
 
+        // Assert agentId
+        CollectorUtils.checkAgentId(apiMetaData.getAgentId());
+
         final byte[] rowKey = getDistributedKey(apiMetaData.toRowKey());
         final Put put = new Put(rowKey);
         final Buffer buffer = new AutomaticBuffer(64);
@@ -82,6 +86,4 @@ public class HbaseApiMetaDataDao implements ApiMetaDataDao {
     private byte[] getDistributedKey(byte[] rowKey) {
         return rowKeyDistributorByHashPrefix.getDistributedKey(rowKey);
     }
-
-
 }

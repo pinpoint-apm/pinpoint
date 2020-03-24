@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.collector.dao.hbase.stat;
 
 import com.navercorp.pinpoint.collector.dao.AgentStatDaoV2;
+import com.navercorp.pinpoint.collector.util.CollectorUtils;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
 import com.navercorp.pinpoint.common.hbase.HbaseTable;
 import com.navercorp.pinpoint.common.hbase.TableNameProvider;
@@ -33,6 +34,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Roy Kim
@@ -55,9 +57,10 @@ public class HbaseDirectBufferDao implements AgentStatDaoV2<DirectBufferBo> {
 
     @Override
     public void insert(String agentId, List<DirectBufferBo> directBufferBos) {
-        if (agentId == null) {
-            throw new NullPointerException("agentId");
-        }
+        Objects.requireNonNull(agentId, "agentId");
+        // Assert agentId
+        CollectorUtils.checkAgentId(agentId);
+
         if (CollectionUtils.isEmpty(directBufferBos)) {
             return;
         }
