@@ -75,12 +75,8 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
 
     @Override
     public void insert(String host, String bindApplicationName, short bindServiceType, String parentApplicationName, short parentServiceType) {
-        if (host == null) {
-            throw new NullPointerException("host");
-        }
-        if (bindApplicationName == null) {
-            throw new NullPointerException("bindApplicationName");
-        }
+        Objects.requireNonNull(host, "host");
+        Objects.requireNonNull(bindApplicationName, "bindApplicationName");
         if (logger.isDebugEnabled()) {
             logger.debug("insert HostApplicationMap, host:{}, app:{},SType:{},parentApp:{},parentAppSType{}", host, bindApplicationName, bindServiceType, parentApplicationName, parentServiceType);
         }

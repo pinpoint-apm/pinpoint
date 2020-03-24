@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.collector.dao.hbase;
 
 import com.navercorp.pinpoint.collector.dao.AgentLifeCycleDao;
+import com.navercorp.pinpoint.collector.util.CollectorUtils;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
 import com.navercorp.pinpoint.common.hbase.HbaseTableConstatns;
@@ -57,10 +58,12 @@ public class HbaseAgentLifeCycleDao implements AgentLifeCycleDao {
     @Override
     public void insert(AgentLifeCycleBo agentLifeCycleBo) {
         Objects.requireNonNull(agentLifeCycleBo, "agentLifeCycleBo");
-
         if (logger.isDebugEnabled()) {
             logger.debug("insert agent life cycle. {}", agentLifeCycleBo.toString());
         }
+
+        // Assert agentId
+        CollectorUtils.checkAgentId(agentLifeCycleBo.getAgentId());
 
         final String agentId = agentLifeCycleBo.getAgentId();
         final long startTimestamp = agentLifeCycleBo.getStartTimestamp();
@@ -87,5 +90,4 @@ public class HbaseAgentLifeCycleDao implements AgentLifeCycleDao {
 
         return rowKey;
     }
-
 }

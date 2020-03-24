@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.collector.dao.hbase;
 
 import com.navercorp.pinpoint.collector.dao.AgentInfoDao;
+import com.navercorp.pinpoint.collector.util.CollectorUtils;
 import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
 import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
 import com.navercorp.pinpoint.common.hbase.HbaseTableConstatns;
@@ -30,7 +31,6 @@ import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.Objects;
@@ -55,10 +55,14 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
     @Override
     public void insert(AgentInfoBo agentInfo) {
         Objects.requireNonNull(agentInfo, "agentInfo");
-
         if (logger.isDebugEnabled()) {
             logger.debug("insert agent info. {}", agentInfo);
         }
+
+        // Assert agentId
+        CollectorUtils.checkAgentId(agentInfo.getAgentId());
+        // Assert applicationName
+        CollectorUtils.checkApplicationName(agentInfo.getApplicationName());
 
         final byte[] agentId = Bytes.toBytes(agentInfo.getAgentId());
         final long reverseKey = TimeUtils.reverseTimeMillis(agentInfo.getStartTime());
@@ -82,6 +86,4 @@ public class HbaseAgentInfoDao implements AgentInfoDao {
         final TableName agentInfoTableName = descriptor.getTableName();
         hbaseTemplate.put(agentInfoTableName, put);
     }
-
-
 }
