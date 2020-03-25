@@ -27,7 +27,8 @@ public class ServerOption {
     public static final int DEFAULT_FLOW_CONTROL_WINDOW = 1048576; // 1MiB
     public static final long DEFAULT_KEEPALIVE_TIME = TimeUnit.SECONDS.toMillis(30);
     public static final long DEFAULT_KEEPALIVE_TIMEOUT = TimeUnit.SECONDS.toMillis(60);
-    public static final long DEFAULT_PERMIT_KEEPALIVE_TIME = TimeUnit.SECONDS.toMillis(30);
+    // Set it to 10 seconds shorter than the client's KeepAliveTime.
+    public static final long DEFAULT_PERMIT_KEEPALIVE_TIME = TimeUnit.SECONDS.toMillis(20);
     public static final boolean PERMIT_KEEPALIVE_WITHOUT_CALLS_DISABLE = Boolean.FALSE;
 
     public static final long DEFAULT_MAX_CONNECTION_IDLE = TimeUnit.SECONDS.toMillis(10); // 10s
