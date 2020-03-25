@@ -7,21 +7,33 @@
         <dt>Binded {{data.type}}</dt>
         <dd>
             <pre class="prettyprint" [ngClass]="getClassName()" [textContent]="formatting(data.bindedContents)"></pre>
-            <button class="btn active" (click)="onCopyBindedContents()">Copy</button>
+            <button (click)="onCopyBindedContents()"><span class="far fa-clone" title="Copy to Clipboard"></span></button>
+            <ng-container *ngIf="copyState.bindedContents">
+                <ng-container *ngTemplateOutlet="copiedNoti; context: {color: '#fff'}"></ng-container>
+            </ng-container>
         </dd>
     </dl>
     <dl class="l-sql-list">
         <dt>Original {{data.type}}</dt>
         <dd>
             <pre class="prettyprint" [ngClass]="getClassName()" [textContent]="formatting(data.originalContents)"></pre>
-            <button class="btn active" (click)="onCopyOriginalContents()">Copy</button>
+            <button (click)="onCopyOriginalContents()"><span class="far fa-clone" title="Copy to Clipboard"></span></button>
+            <ng-container *ngIf="copyState.originalContents">
+                <ng-container *ngTemplateOutlet="copiedNoti; context: {color: '#fff'}"></ng-container>
+            </ng-container>
         </dd>
     </dl>
     <dl class="l-sql-list" *ngIf="hasBind()">
         <dt>{{data.type}} Bind Value</dt>
-        <dd>
+        <dd class="l-sql-bind-value">
             {{data.bindValue}}
-            <button class="btn active" (click)="onCopyBindValue()">Copy</button>
+            <button (click)="onCopyBindValue()"><span class="far fa-clone" title="Copy to Clipboard"></span></button>
+            <ng-container *ngIf="copyState.bindValue">
+                <ng-container *ngTemplateOutlet="copiedNoti; context: {color: '#999'}"></ng-container>
+            </ng-container>
         </dd>
     </dl>
 </div>
+<ng-template #copiedNoti let-color="color">
+    <div class="copied-noti-text-wrapper" @showHide><p [style.color]="color" class="copied-noti-text">Copied!</p></div>
+</ng-template>
