@@ -28,9 +28,9 @@ export class ApplicationSystemCpuChartContainer implements IInspectorChartContai
 
         return [
             ['x', ...makeXData(charts.x)],
-            ['min', ...makeYData(charts.y['CPU_LOAD_SYSTEM'], 0)],
-            ['avg', ...makeYData(charts.y['CPU_LOAD_SYSTEM'], 4)],
             ['max', ...makeYData(charts.y['CPU_LOAD_SYSTEM'], 2)],
+            ['avg', ...makeYData(charts.y['CPU_LOAD_SYSTEM'], 4)],
+            ['min', ...makeYData(charts.y['CPU_LOAD_SYSTEM'], 0)],
         ];
     }
 

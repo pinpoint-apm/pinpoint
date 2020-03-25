@@ -28,9 +28,9 @@ export class ApplicationDirectBufferMemoryChartContainer implements IInspectorCh
 
         return [
             ['x', ...makeXData(charts.x)],
-            ['min', ...makeYData(charts.y['DIRECT_MEMORY_USED'], 0)],
-            ['avg', ...makeYData(charts.y['DIRECT_MEMORY_USED'], 4)],
             ['max', ...makeYData(charts.y['DIRECT_MEMORY_USED'], 2)],
+            ['avg', ...makeYData(charts.y['DIRECT_MEMORY_USED'], 4)],
+            ['min', ...makeYData(charts.y['DIRECT_MEMORY_USED'], 0)],
         ];
     }
 

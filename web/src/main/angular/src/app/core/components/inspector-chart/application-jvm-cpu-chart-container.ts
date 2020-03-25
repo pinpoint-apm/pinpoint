@@ -28,9 +28,9 @@ export class ApplicationJVMCpuChartContainer implements IInspectorChartContainer
 
         return [
             ['x', ...makeXData(charts.x)],
-            ['min', ...makeYData(charts.y['CPU_LOAD_JVM'], 0)],
-            ['avg', ...makeYData(charts.y['CPU_LOAD_JVM'], 4)],
             ['max', ...makeYData(charts.y['CPU_LOAD_JVM'], 2)],
+            ['avg', ...makeYData(charts.y['CPU_LOAD_JVM'], 4)],
+            ['min', ...makeYData(charts.y['CPU_LOAD_JVM'], 0)],
         ];
     }
 

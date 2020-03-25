@@ -28,9 +28,9 @@ export class ApplicationActiveThreadChartContainer implements IInspectorChartCon
 
         return [
             ['x', ...makeXData(charts.x)],
-            ['min', ...makeYData(charts.y['ACTIVE_TRACE_COUNT'], 0)],
-            ['avg', ...makeYData(charts.y['ACTIVE_TRACE_COUNT'], 4)],
             ['max', ...makeYData(charts.y['ACTIVE_TRACE_COUNT'], 2)],
+            ['avg', ...makeYData(charts.y['ACTIVE_TRACE_COUNT'], 4)],
+            ['min', ...makeYData(charts.y['ACTIVE_TRACE_COUNT'], 0)],
         ];
     }
 
