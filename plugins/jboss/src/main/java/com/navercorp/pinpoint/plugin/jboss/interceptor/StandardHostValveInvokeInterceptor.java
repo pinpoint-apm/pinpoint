@@ -32,8 +32,11 @@ import com.navercorp.pinpoint.plugin.common.servlet.util.ParameterRecorderFactor
 import com.navercorp.pinpoint.plugin.common.servlet.util.ServletArgumentValidator;
 import com.navercorp.pinpoint.plugin.jboss.JbossConfig;
 import com.navercorp.pinpoint.plugin.jboss.JbossConstants;
+import com.navercorp.pinpoint.plugin.jboss.util.Servlet2ApiHelper;
+import com.navercorp.pinpoint.plugin.jboss.util.Servlet3ApiHelper;
+import com.navercorp.pinpoint.plugin.jboss.util.ServletApiHelper;
 
-import javax.servlet.DispatcherType;
+import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -52,6 +55,7 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
     private final MethodDescriptor methodDescriptor;
     private final ArgumentValidator argumentValidator;
     private final ServletRequestListenerInterceptorHelper<HttpServletRequest> servletRequestListenerInterceptorHelper;
+    private final ServletApiHelper servletApiHelper;
 
     /**
      * Instantiates a new standard host valve invoke interceptor.
@@ -67,6 +71,16 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
         requestAdaptor = RemoteAddressResolverFactory.wrapRealIpSupport(requestAdaptor, config.getRealIpHeader(), config.getRealIpEmptyValue());
         ParameterRecorder<HttpServletRequest> parameterRecorder = ParameterRecorderFactory.newParameterRecorderFactory(config.getExcludeProfileMethodFilter(), config.isTraceRequestParam());
         this.servletRequestListenerInterceptorHelper = new ServletRequestListenerInterceptorHelper<HttpServletRequest>(JbossConstants.JBOSS, traceContext, requestAdaptor, config.getExcludeUrlFilter(), parameterRecorder, requestRecorderFactory);
+        this.servletApiHelper = newServletApi();
+    }
+
+    private ServletApiHelper newServletApi() {
+        try {
+            ServletRequest.class.getMethod("isAsyncStarted");
+        } catch (NoSuchMethodException e) {
+            return new Servlet2ApiHelper();
+        }
+        return new Servlet3ApiHelper();
     }
 
     @Override
@@ -81,7 +95,7 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
 
         try {
             final HttpServletRequest request = (HttpServletRequest) args[0];
-            if (request.isAsyncStarted() || request.getDispatcherType() == DispatcherType.ASYNC) {
+            if (servletApiHelper.isAsyncDispatcherBefore(request)) {
                 if (isDebug) {
                     logger.debug("Skip async servlet request event. isAsyncStarted={}, dispatcherType={}", request.isAsyncStarted(), request.getDispatcherType());
                 }
@@ -108,13 +122,14 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
         try {
             final HttpServletRequest request = (HttpServletRequest) args[0];
             final HttpServletResponse response = (HttpServletResponse) args[1];
-            if (request.getDispatcherType() == DispatcherType.ASYNC) {
+
+            if (servletApiHelper.isAsyncDispatcherAfter(request)) {
                 if (isDebug) {
                     logger.debug("Skip async servlet request event. isAsyncStarted={}, dispatcherType={}", request.isAsyncStarted(), request.getDispatcherType());
                 }
                 return;
             }
-            final int statusCode = getStatusCode(response);
+            final int statusCode = servletApiHelper.getStatus(response);
             this.servletRequestListenerInterceptorHelper.destroyed(request, throwable, statusCode);
         } catch (Throwable t) {
             if (isInfo) {
@@ -123,11 +138,4 @@ public class StandardHostValveInvokeInterceptor implements AroundInterceptor {
         }
     }
 
-    private int getStatusCode(final HttpServletResponse response) {
-        try {
-            return response.getStatus();
-        } catch (Exception ignored) {
-        }
-        return 0;
-    }
 }
