@@ -28,9 +28,9 @@ export class ApplicationTPSChartContainer implements IInspectorChartContainer {
 
         return [
             ['x', ...makeXData(charts.x)],
-            ['min', ...makeYData(charts.y['TRANSACTION_COUNT'], 0)],
-            ['avg', ...makeYData(charts.y['TRANSACTION_COUNT'], 4)],
             ['max', ...makeYData(charts.y['TRANSACTION_COUNT'], 2)],
+            ['avg', ...makeYData(charts.y['TRANSACTION_COUNT'], 4)],
+            ['min', ...makeYData(charts.y['TRANSACTION_COUNT'], 0)],
         ];
     }
 

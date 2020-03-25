@@ -28,9 +28,9 @@ export class ApplicationJVMHeapChartContainer implements IInspectorChartContaine
 
         return [
             ['x', ...makeXData(charts.x)],
-            ['min', ...makeYData(charts.y['MEMORY_HEAP'], 0)],
-            ['avg', ...makeYData(charts.y['MEMORY_HEAP'], 4)],
             ['max', ...makeYData(charts.y['MEMORY_HEAP'], 2)],
+            ['avg', ...makeYData(charts.y['MEMORY_HEAP'], 4)],
+            ['min', ...makeYData(charts.y['MEMORY_HEAP'], 0)],
         ];
     }
 

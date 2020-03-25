@@ -28,9 +28,9 @@ export class ApplicationDirectBufferCountChartContainer implements IInspectorCha
 
         return [
             ['x', ...makeXData(charts.x)],
-            ['min', ...makeYData(charts.y['DIRECT_COUNT'], 0)],
-            ['avg', ...makeYData(charts.y['DIRECT_COUNT'], 4)],
             ['max', ...makeYData(charts.y['DIRECT_COUNT'], 2)],
+            ['avg', ...makeYData(charts.y['DIRECT_COUNT'], 4)],
+            ['min', ...makeYData(charts.y['DIRECT_COUNT'], 0)],
         ];
     }
 

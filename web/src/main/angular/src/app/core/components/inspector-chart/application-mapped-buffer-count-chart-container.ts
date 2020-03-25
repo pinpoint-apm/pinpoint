@@ -28,9 +28,9 @@ export class ApplicationMappedBufferCountChartContainer implements IInspectorCha
 
         return [
             ['x', ...makeXData(charts.x)],
-            ['min', ...makeYData(charts.y['MAPPED_COUNT'], 0)],
-            ['avg', ...makeYData(charts.y['MAPPED_COUNT'], 4)],
             ['max', ...makeYData(charts.y['MAPPED_COUNT'], 2)],
+            ['avg', ...makeYData(charts.y['MAPPED_COUNT'], 4)],
+            ['min', ...makeYData(charts.y['MAPPED_COUNT'], 0)],
         ];
     }
 

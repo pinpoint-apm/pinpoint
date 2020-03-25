@@ -169,9 +169,9 @@ export class ApplicationDataSourceChartContainerComponent implements OnInit, OnD
     private makeChartData({charts}: IApplicationDataSourceChart): PrimitiveArray[] {
         return [
             ['x', ...makeXData(charts.x)],
-            ['min', ...makeYData(charts.y['ACTIVE_CONNECTION_SIZE'], 0)],
-            ['avg', ...makeYData(charts.y['ACTIVE_CONNECTION_SIZE'], 4)],
             ['max', ...makeYData(charts.y['ACTIVE_CONNECTION_SIZE'], 2)],
+            ['avg', ...makeYData(charts.y['ACTIVE_CONNECTION_SIZE'], 4)],
+            ['min', ...makeYData(charts.y['ACTIVE_CONNECTION_SIZE'], 0)],
         ];
     }
 

@@ -28,9 +28,9 @@ export class ApplicationResponseTimeChartContainer implements IInspectorChartCon
 
         return [
             ['x', ...makeXData(charts.x)],
-            ['min', ...makeYData(charts.y['RESPONSE_TIME'], 0)],
-            ['avg', ...makeYData(charts.y['RESPONSE_TIME'], 4)],
             ['max', ...makeYData(charts.y['RESPONSE_TIME'], 2)],
+            ['avg', ...makeYData(charts.y['RESPONSE_TIME'], 4)],
+            ['min', ...makeYData(charts.y['RESPONSE_TIME'], 0)],
         ];
     }
 

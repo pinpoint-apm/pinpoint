@@ -28,9 +28,9 @@ export class ApplicationOpenFileDescriptorChartContainer implements IInspectorCh
 
         return [
             ['x', ...makeXData(charts.x)],
-            ['min', ...makeYData(charts.y['OPEN_FILE_DESCRIPTOR_COUNT'], 0)],
-            ['avg', ...makeYData(charts.y['OPEN_FILE_DESCRIPTOR_COUNT'], 4)],
             ['max', ...makeYData(charts.y['OPEN_FILE_DESCRIPTOR_COUNT'], 2)],
+            ['avg', ...makeYData(charts.y['OPEN_FILE_DESCRIPTOR_COUNT'], 4)],
+            ['min', ...makeYData(charts.y['OPEN_FILE_DESCRIPTOR_COUNT'], 0)],
         ];
     }
 

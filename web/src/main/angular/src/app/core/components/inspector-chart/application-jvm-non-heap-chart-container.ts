@@ -28,9 +28,9 @@ export class ApplicationJVMNonHeapChartContainer implements IInspectorChartConta
 
         return [
             ['x', ...makeXData(charts.x)],
-            ['min', ...makeYData(charts.y['MEMORY_NON_HEAP'], 0)],
-            ['avg', ...makeYData(charts.y['MEMORY_NON_HEAP'], 4)],
             ['max', ...makeYData(charts.y['MEMORY_NON_HEAP'], 2)],
+            ['avg', ...makeYData(charts.y['MEMORY_NON_HEAP'], 4)],
+            ['min', ...makeYData(charts.y['MEMORY_NON_HEAP'], 0)],
         ];
     }
 
