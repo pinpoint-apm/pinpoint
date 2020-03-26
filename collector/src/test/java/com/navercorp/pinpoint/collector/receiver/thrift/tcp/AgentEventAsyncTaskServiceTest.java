@@ -16,7 +16,9 @@
 
 package com.navercorp.pinpoint.collector.receiver.thrift.tcp;
 
+import com.navercorp.pinpoint.collector.handler.thrift.ThriftAgentStatHandlerV2;
 import com.navercorp.pinpoint.collector.service.AgentEventService;
+import com.navercorp.pinpoint.collector.service.HBaseAgentStatService;
 import com.navercorp.pinpoint.collector.service.async.AgentEventAsyncTaskService;
 import com.navercorp.pinpoint.collector.service.async.AgentProperty;
 import com.navercorp.pinpoint.collector.service.async.AgentPropertyChannelAdaptor;
@@ -25,15 +27,18 @@ import com.navercorp.pinpoint.common.server.util.AgentEventType;
 import com.navercorp.pinpoint.rpc.packet.HandshakePropertyType;
 import com.navercorp.pinpoint.rpc.server.ChannelProperties;
 import com.navercorp.pinpoint.rpc.server.ChannelPropertiesFactory;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.times;
@@ -42,17 +47,14 @@ import static org.mockito.Mockito.verify;
 /**
  * @author HyunGil Jeong
  */
-@RunWith(MockitoJUnitRunner.class)
 public class AgentEventAsyncTaskServiceTest {
-
 
     private final ChannelPropertiesFactory channelPropertiesFactory = new ChannelPropertiesFactory();
 
     @Mock
     private AgentEventService agentEventService;
 
-    @InjectMocks
-    private AgentEventAsyncTaskService agentEventAsyncTaskService = new AgentEventAsyncTaskService();
+    private AgentEventAsyncTaskService agentEventAsyncTaskService;
 
     private static final String TEST_APP_ID = "TEST_APP_ID";
     private static final String TEST_AGENT_ID = "TEST_AGENT";
@@ -61,7 +63,11 @@ public class AgentEventAsyncTaskServiceTest {
 
     private static final Map<Object, Object> TEST_CHANNEL_PROPERTIES = createTestChannelProperties();
 
-
+    @Before
+    public void setUp() throws Exception {
+        MockitoAnnotations.initMocks(this);
+        this.agentEventAsyncTaskService = new AgentEventAsyncTaskService(agentEventService);
+    }
 
     @Test
     public void handler_should_handle_events_with_empty_message_body() throws Exception {

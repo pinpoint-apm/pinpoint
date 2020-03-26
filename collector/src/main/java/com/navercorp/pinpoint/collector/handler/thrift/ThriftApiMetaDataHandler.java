@@ -30,6 +30,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
+
 /**
  * @author emeroad
  */
@@ -38,8 +40,11 @@ public class ThriftApiMetaDataHandler implements RequestResponseHandler {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    @Autowired
-    private ApiMetaDataService apiMetaDataService;
+    private final ApiMetaDataService apiMetaDataService;
+
+    public ThriftApiMetaDataHandler(ApiMetaDataService apiMetaDataService) {
+        this.apiMetaDataService = Objects.requireNonNull(apiMetaDataService, "apiMetaDataService");
+    }
 
     @Override
     public void handleRequest(ServerRequest serverRequest, ServerResponse serverResponse) {

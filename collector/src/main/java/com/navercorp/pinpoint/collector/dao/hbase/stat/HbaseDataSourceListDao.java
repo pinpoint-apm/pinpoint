@@ -38,6 +38,7 @@ import org.springframework.stereotype.Repository;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Taejin Koo
@@ -45,18 +46,21 @@ import java.util.List;
 @Repository
 public class HbaseDataSourceListDao implements AgentStatDaoV2<DataSourceListBo> {
 
-    @Qualifier("asyncPutHbaseTemplate")
-    @Autowired
-    private HbaseOperations2 hbaseTemplate;
+    private final HbaseOperations2 hbaseTemplate;
 
-    @Autowired
-    private TableNameProvider tableNameProvider;
+    private final TableNameProvider tableNameProvider;
 
-    @Autowired
-    private AgentStatHbaseOperationFactory agentStatHbaseOperationFactory;
+    private final AgentStatHbaseOperationFactory agentStatHbaseOperationFactory;
 
-    @Autowired
-    private DataSourceSerializer dataSourceSerializer;
+    private final DataSourceSerializer dataSourceSerializer;
+
+    public HbaseDataSourceListDao(@Qualifier("asyncPutHbaseTemplate") HbaseOperations2 hbaseTemplate, TableNameProvider tableNameProvider,
+                                  AgentStatHbaseOperationFactory agentStatHbaseOperationFactory, DataSourceSerializer dataSourceSerializer) {
+        this.hbaseTemplate = Objects.requireNonNull(hbaseTemplate, "hbaseTemplate");
+        this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
+        this.agentStatHbaseOperationFactory = Objects.requireNonNull(agentStatHbaseOperationFactory, "agentStatHbaseOperationFactory");
+        this.dataSourceSerializer = Objects.requireNonNull(dataSourceSerializer, "dataSourceSerializer");
+    }
 
     @Override
     public void insert(String agentId, List<DataSourceListBo> dataSourceListBos) {

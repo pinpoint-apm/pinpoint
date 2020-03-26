@@ -44,8 +44,8 @@
     </bean>
 
     <bean id="grpcDispatchHandlerFactoryBean" class="com.navercorp.pinpoint.collector.receiver.thrift.DispatchHandlerFactoryBean">
-        <constructor-arg index="0" ref="grpcTcpDispatchHandler"/>
-        <constructor-arg index="1" ref="handlerManager"/>
+        <property name="dispatchHandler" ref="grpcTcpDispatchHandler"/>
+        <property name="handlerManager" ref="handlerManager"/>
     </bean>
 
     <bean id="grpcSpanDispatchHandler" class="com.navercorp.pinpoint.collector.receiver.SpanDispatchHandler">
@@ -53,8 +53,8 @@
         <constructor-arg index="1" ref="grpcSpanChunkHandler"/>
     </bean>
     <bean id="grpcSpanDispatchHandlerFactoryBean" class="com.navercorp.pinpoint.collector.receiver.thrift.DispatchHandlerFactoryBean">
-        <constructor-arg index="0" ref="grpcSpanDispatchHandler"/>
-        <constructor-arg index="1" ref="handlerManager"/>
+        <property name="dispatchHandler" ref="grpcSpanDispatchHandler"/>
+        <property name="handlerManager" ref="handlerManager"/>
     </bean>
 
     <bean id="grpcStatDispatchHandler" class="com.navercorp.pinpoint.collector.receiver.StatDispatchHandler">
@@ -62,8 +62,8 @@
         <constructor-arg index="1" ref="grpcAgentEventHandler"/>
     </bean>
     <bean id="grpcStatDispatchHandlerFactoryBean" class="com.navercorp.pinpoint.collector.receiver.thrift.DispatchHandlerFactoryBean">
-        <constructor-arg index="0" ref="grpcStatDispatchHandler"/>
-        <constructor-arg index="1" ref="handlerManager"/>
+        <property name="dispatchHandler" ref="grpcStatDispatchHandler"/>
+        <property name="handlerManager" ref="handlerManager"/>
     </bean>
 
     <bean id="grpcAgentWorkerExecutor" class="com.navercorp.pinpoint.collector.receiver.thrift.ExecutorFactoryBean" parent="abstractReceiverExecutorFactoryBean">

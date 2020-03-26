@@ -22,14 +22,19 @@ import com.navercorp.pinpoint.thrift.dto.TJvmInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Objects;
+
 /**
  * @author HyunGil Jeong
  */
 @Component
 public class ThriftJvmInfoBoMapper implements ThriftBoMapper<JvmInfoBo, TJvmInfo> {
 
-    @Autowired
-    private ThriftJvmGcTypeMapper jvmGcTypeMapper;
+    private final ThriftJvmGcTypeMapper jvmGcTypeMapper;
+
+    public ThriftJvmInfoBoMapper(ThriftJvmGcTypeMapper jvmGcTypeMapper) {
+        this.jvmGcTypeMapper = Objects.requireNonNull(jvmGcTypeMapper, "jvmGcTypeMapper");
+    }
 
     @Override
     public JvmInfoBo map(TJvmInfo thriftObject) {

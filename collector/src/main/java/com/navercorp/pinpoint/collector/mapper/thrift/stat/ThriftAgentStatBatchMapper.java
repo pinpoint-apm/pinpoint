@@ -39,6 +39,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author HyunGil Jeong
@@ -46,35 +47,43 @@ import java.util.List;
 @Component
 public class ThriftAgentStatBatchMapper {
 
-    @Autowired
-    private ThriftJvmGcBoMapper jvmGcBoMapper;
+    private final ThriftJvmGcBoMapper jvmGcBoMapper;
 
-    @Autowired
-    private ThriftJvmGcDetailedBoMapper jvmGcDetailedBoMapper;
+    private final ThriftJvmGcDetailedBoMapper jvmGcDetailedBoMapper;
 
-    @Autowired
-    private ThriftCpuLoadBoMapper cpuLoadBoMapper;
+    private final ThriftCpuLoadBoMapper cpuLoadBoMapper;
 
-    @Autowired
-    private ThriftTransactionBoMapper transactionBoMapper;
+    private final ThriftTransactionBoMapper transactionBoMapper;
 
-    @Autowired
-    private ThriftActiveTraceBoMapper activeTraceBoMapper;
+    private final ThriftActiveTraceBoMapper activeTraceBoMapper;
 
-    @Autowired
-    private ThriftDataSourceBoMapper dataSourceBoMapper;
+    private final ThriftDataSourceBoMapper dataSourceBoMapper;
 
-    @Autowired
-    private ThriftResponseTimeBoMapper responseTimeBoMapper;
+    private final ThriftResponseTimeBoMapper responseTimeBoMapper;
 
-    @Autowired
-    private ThriftDeadlockThreadCountBoMapper deadlockThreadCountBoMapper;
+    private final ThriftDeadlockThreadCountBoMapper deadlockThreadCountBoMapper;
 
-    @Autowired
-    private ThriftFileDescriptorBoMapper fileDescriptorBoMapper;
+    private final ThriftFileDescriptorBoMapper fileDescriptorBoMapper;
 
-    @Autowired
-    private ThriftDirectBufferBoMapper directBufferBoMapper;
+    private final ThriftDirectBufferBoMapper directBufferBoMapper;
+
+    public ThriftAgentStatBatchMapper(ThriftJvmGcBoMapper jvmGcBoMapper, ThriftJvmGcDetailedBoMapper jvmGcDetailedBoMapper,
+                                      ThriftCpuLoadBoMapper cpuLoadBoMapper, ThriftTransactionBoMapper transactionBoMapper,
+                                      ThriftActiveTraceBoMapper activeTraceBoMapper, ThriftDataSourceBoMapper dataSourceBoMapper,
+                                      ThriftResponseTimeBoMapper responseTimeBoMapper, ThriftDeadlockThreadCountBoMapper deadlockThreadCountBoMapper,
+                                      ThriftFileDescriptorBoMapper fileDescriptorBoMapper, ThriftDirectBufferBoMapper directBufferBoMapper) {
+        this.jvmGcBoMapper = Objects.requireNonNull(jvmGcBoMapper, "jvmGcBoMapper");
+        this.jvmGcDetailedBoMapper = Objects.requireNonNull(jvmGcDetailedBoMapper, "jvmGcDetailedBoMapper");
+        this.cpuLoadBoMapper = Objects.requireNonNull(cpuLoadBoMapper, "cpuLoadBoMapper");
+        this.transactionBoMapper = Objects.requireNonNull(transactionBoMapper, "transactionBoMapper");
+        this.activeTraceBoMapper = Objects.requireNonNull(activeTraceBoMapper, "activeTraceBoMapper");
+        this.dataSourceBoMapper = Objects.requireNonNull(dataSourceBoMapper, "dataSourceBoMapper");
+        this.responseTimeBoMapper = Objects.requireNonNull(responseTimeBoMapper, "responseTimeBoMapper");
+        this.deadlockThreadCountBoMapper = Objects.requireNonNull(deadlockThreadCountBoMapper, "deadlockThreadCountBoMapper");
+        this.fileDescriptorBoMapper = Objects.requireNonNull(fileDescriptorBoMapper, "fileDescriptorBoMapper");
+        this.directBufferBoMapper = Objects.requireNonNull(directBufferBoMapper, "directBufferBoMapper");
+    }
+
 
     public AgentStatBo map(TAgentStatBatch tAgentStatBatch) {
         if (!tAgentStatBatch.isSetAgentStats()) {

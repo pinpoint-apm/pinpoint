@@ -24,6 +24,8 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
+
 /**
  * 
  * @author netspider
@@ -32,14 +34,17 @@ import org.springframework.stereotype.Service;
 @Service
 public class StatisticsService {
 
-    @Autowired
-    private MapStatisticsCalleeDao mapStatisticsCalleeDao;
+    private final MapStatisticsCalleeDao mapStatisticsCalleeDao;
 
-    @Autowired
-    private MapStatisticsCallerDao mapStatisticsCallerDao;
+    private final MapStatisticsCallerDao mapStatisticsCallerDao;
 
-    @Autowired
-    private MapResponseTimeDao mapResponseTimeDao;
+    private final MapResponseTimeDao mapResponseTimeDao;
+
+    public StatisticsService(MapStatisticsCalleeDao mapStatisticsCalleeDao, MapStatisticsCallerDao mapStatisticsCallerDao, MapResponseTimeDao mapResponseTimeDao) {
+        this.mapStatisticsCalleeDao = Objects.requireNonNull(mapStatisticsCalleeDao, "mapStatisticsCalleeDao");
+        this.mapStatisticsCallerDao = Objects.requireNonNull(mapStatisticsCallerDao, "mapStatisticsCallerDao");
+        this.mapResponseTimeDao = Objects.requireNonNull(mapResponseTimeDao, "mapResponseTimeDao");
+    }
 
     /**
      * Calling MySQL from Tomcat generates the following message for the caller(Tomcat) :<br/>

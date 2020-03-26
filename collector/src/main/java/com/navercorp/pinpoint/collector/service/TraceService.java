@@ -31,25 +31,30 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class TraceService {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    @Autowired
-    private TraceDao traceDao;
+    private final TraceDao traceDao;
 
-    @Autowired
-    private ApplicationTraceIndexDao applicationTraceIndexDao;
+    private final ApplicationTraceIndexDao applicationTraceIndexDao;
 
-    @Autowired
-    private HostApplicationMapDao hostApplicationMapDao;
+    private final HostApplicationMapDao hostApplicationMapDao;
 
-    @Autowired
-    private StatisticsService statisticsService;
+    private final StatisticsService statisticsService;
 
-    @Autowired
-    private ServiceTypeRegistryService registry;
+    private final ServiceTypeRegistryService registry;
+
+    public TraceService(TraceDao traceDao, ApplicationTraceIndexDao applicationTraceIndexDao, HostApplicationMapDao hostApplicationMapDao,
+                        StatisticsService statisticsService, ServiceTypeRegistryService registry) {
+        this.traceDao = Objects.requireNonNull(traceDao, "traceDao");
+        this.applicationTraceIndexDao = Objects.requireNonNull(applicationTraceIndexDao, "applicationTraceIndexDao");
+        this.hostApplicationMapDao = Objects.requireNonNull(hostApplicationMapDao, "hostApplicationMapDao");
+        this.statisticsService = Objects.requireNonNull(statisticsService, "statisticsService");
+        this.registry = Objects.requireNonNull(registry, "registry");
+    }
 
     public void insertSpanChunk(final SpanChunkBo spanChunkBo) {
         traceDao.insertSpanChunk(spanChunkBo);

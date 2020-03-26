@@ -47,39 +47,44 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Collections;
+import java.util.Objects;
 
 @Component
 public class GrpcAgentStatMapper {
 
-    @Autowired
-    private GrpcJvmGcBoMapper jvmGcBoMapper;
+    private final GrpcJvmGcBoMapper jvmGcBoMapper;
 
-    @Autowired
-    private GrpcJvmGcDetailedBoMapper jvmGcDetailedBoMapper;
+    private final GrpcJvmGcDetailedBoMapper jvmGcDetailedBoMapper;
 
-    @Autowired
-    private GrpcCpuLoadBoMapper cpuLoadBoMapper;
+    private final GrpcCpuLoadBoMapper cpuLoadBoMapper;
 
-    @Autowired
-    private GrpcTransactionBoMapper transactionBoMapper;
+    private final GrpcTransactionBoMapper transactionBoMapper;
 
-    @Autowired
-    private GrpcActiveTraceBoMapper activeTraceBoMapper;
+    private final GrpcActiveTraceBoMapper activeTraceBoMapper;
 
-    @Autowired
-    private GrpcDataSourceBoMapper dataSourceBoMapper;
+    private final GrpcDataSourceBoMapper dataSourceBoMapper;
 
-    @Autowired
-    private GrpcResponseTimeBoMapper responseTimeBoMapper;
+    private final GrpcResponseTimeBoMapper responseTimeBoMapper;
 
-    @Autowired
-    private GrpcDeadlockThreadCountBoMapper deadlockThreadCountBoMapper;
+    private final GrpcDeadlockThreadCountBoMapper deadlockThreadCountBoMapper;
 
-    @Autowired
-    private GrpcFileDescriptorBoMapper fileDescriptorBoMapper;
+    private final GrpcFileDescriptorBoMapper fileDescriptorBoMapper;
 
-    @Autowired
-    private GrpcDirectBufferBoMapper directBufferBoMapper;
+    private final GrpcDirectBufferBoMapper directBufferBoMapper;
+
+    public GrpcAgentStatMapper(GrpcJvmGcBoMapper jvmGcBoMapper, GrpcJvmGcDetailedBoMapper jvmGcDetailedBoMapper, GrpcCpuLoadBoMapper cpuLoadBoMapper, GrpcTransactionBoMapper transactionBoMapper, GrpcActiveTraceBoMapper activeTraceBoMapper, GrpcDataSourceBoMapper dataSourceBoMapper, GrpcResponseTimeBoMapper responseTimeBoMapper, GrpcDeadlockThreadCountBoMapper deadlockThreadCountBoMapper, GrpcFileDescriptorBoMapper fileDescriptorBoMapper, GrpcDirectBufferBoMapper directBufferBoMapper) {
+        this.jvmGcBoMapper = Objects.requireNonNull(jvmGcBoMapper, "jvmGcBoMapper");
+        this.jvmGcDetailedBoMapper = Objects.requireNonNull(jvmGcDetailedBoMapper, "jvmGcDetailedBoMapper");
+        this.cpuLoadBoMapper = Objects.requireNonNull(cpuLoadBoMapper, "cpuLoadBoMapper");
+        this.transactionBoMapper = Objects.requireNonNull(transactionBoMapper, "transactionBoMapper");
+        this.activeTraceBoMapper = Objects.requireNonNull(activeTraceBoMapper, "activeTraceBoMapper");
+        this.dataSourceBoMapper = Objects.requireNonNull(dataSourceBoMapper, "dataSourceBoMapper");
+        this.responseTimeBoMapper = Objects.requireNonNull(responseTimeBoMapper, "responseTimeBoMapper");
+        this.deadlockThreadCountBoMapper = Objects.requireNonNull(deadlockThreadCountBoMapper, "deadlockThreadCountBoMapper");
+        this.fileDescriptorBoMapper = Objects.requireNonNull(fileDescriptorBoMapper, "fileDescriptorBoMapper");
+        this.directBufferBoMapper = Objects.requireNonNull(directBufferBoMapper, "directBufferBoMapper");
+    }
+
 
     public AgentStatBo map(PAgentStat agentStat) {
         if (agentStat == null) {

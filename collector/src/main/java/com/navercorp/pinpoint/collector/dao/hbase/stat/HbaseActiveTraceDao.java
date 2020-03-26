@@ -33,6 +33,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author HyunGil Jeong
@@ -40,18 +41,21 @@ import java.util.List;
 @Repository
 public class HbaseActiveTraceDao implements AgentStatDaoV2<ActiveTraceBo> {
 
-    @Qualifier("asyncPutHbaseTemplate")
-    @Autowired
-    private HbaseOperations2 hbaseTemplate;
+    private final HbaseOperations2 hbaseTemplate;
 
-    @Autowired
-    private TableNameProvider tableNameProvider;
+    private final TableNameProvider tableNameProvider;
 
-    @Autowired
-    private AgentStatHbaseOperationFactory agentStatHbaseOperationFactory;
+    private final AgentStatHbaseOperationFactory agentStatHbaseOperationFactory;
 
-    @Autowired
-    private ActiveTraceSerializer activeTraceSerializer;
+    private final ActiveTraceSerializer activeTraceSerializer;
+
+    public HbaseActiveTraceDao(@Qualifier("asyncPutHbaseTemplate") HbaseOperations2 hbaseTemplate, TableNameProvider tableNameProvider,
+                               AgentStatHbaseOperationFactory agentStatHbaseOperationFactory, ActiveTraceSerializer activeTraceSerializer) {
+        this.hbaseTemplate = Objects.requireNonNull(hbaseTemplate, "hbaseTemplate");
+        this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
+        this.agentStatHbaseOperationFactory = Objects.requireNonNull(agentStatHbaseOperationFactory, "agentStatHbaseOperationFactory");
+        this.activeTraceSerializer = Objects.requireNonNull(activeTraceSerializer, "activeTraceSerializer");
+    }
 
     @Override
     public void insert(String agentId, List<ActiveTraceBo> agentStatDataPoints) {

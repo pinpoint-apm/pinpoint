@@ -28,6 +28,7 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Taejin Koo
@@ -35,8 +36,12 @@ import java.util.List;
 @Component
 public class ThriftAgentEventBatchMapper {
 
-    @Autowired
-    private ThriftDeadlockEventBoMapper deadlockEventBoMapper;
+    private final ThriftDeadlockEventBoMapper deadlockEventBoMapper;
+
+    public ThriftAgentEventBatchMapper(ThriftDeadlockEventBoMapper deadlockEventBoMapper) {
+        this.deadlockEventBoMapper = Objects.requireNonNull(deadlockEventBoMapper, "deadlockEventBoMapper");
+    }
+
 
     public List<AgentEventBo> map(TAgentStatBatch tAgentStatBatch) {
         if (tAgentStatBatch == null) {

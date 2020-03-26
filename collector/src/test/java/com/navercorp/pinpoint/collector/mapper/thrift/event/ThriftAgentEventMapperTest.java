@@ -80,11 +80,6 @@ public class ThriftAgentEventMapperTest {
         Assert.assertNull(actualEventBo);
     }
 
-    private DeadlockEventBo getExpectedDeadlockEventBo(String agentId, long startTimestamp, long eventTimestamp, TAgentStat agentStat) {
-        ThriftDeadlockEventBoMapper mapper = new ThriftDeadlockEventBoMapper();
-        return mapper.map(agentId, startTimestamp, startTimestamp, agentStat.getDeadlock());
-    }
-
     private TAgentStat createAgentStat(String agentId, long startTimestamp, long eventTimestamp, int deadlockThreadCount) {
         final TAgentStat agentStat = new TAgentStat();
         agentStat.setAgentId(agentId);

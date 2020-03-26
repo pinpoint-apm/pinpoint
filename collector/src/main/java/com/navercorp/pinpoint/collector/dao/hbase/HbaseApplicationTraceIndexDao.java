@@ -32,7 +32,6 @@ import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Put;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
@@ -49,19 +48,23 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @Qualifier("asyncPutHbaseTemplate")
-    @Autowired
-    private HbaseOperations2 hbaseTemplate;
+    private final HbaseOperations2 hbaseTemplate;
 
-    @Autowired
-    private AcceptedTimeService acceptedTimeService;
+    private final TableDescriptor<HbaseColumnFamily.ApplicationTraceIndexTrace> descriptor;
 
-    @Autowired
-    @Qualifier("applicationTraceIndexDistributor")
-    private AbstractRowKeyDistributor rowKeyDistributor;
+    private final AcceptedTimeService acceptedTimeService;
 
-    @Autowired
-    private TableDescriptor<HbaseColumnFamily.ApplicationTraceIndexTrace> descriptor;
+    private final AbstractRowKeyDistributor rowKeyDistributor;
+
+    public HbaseApplicationTraceIndexDao(@Qualifier("asyncPutHbaseTemplate") HbaseOperations2 hbaseTemplate,
+                                         TableDescriptor<HbaseColumnFamily.ApplicationTraceIndexTrace> descriptor,
+                                         @Qualifier("applicationTraceIndexDistributor") AbstractRowKeyDistributor rowKeyDistributor,
+                                         AcceptedTimeService acceptedTimeService) {
+        this.hbaseTemplate = Objects.requireNonNull(hbaseTemplate, "hbaseTemplate");
+        this.acceptedTimeService = Objects.requireNonNull(acceptedTimeService, "acceptedTimeService");
+        this.rowKeyDistributor = Objects.requireNonNull(rowKeyDistributor, "rowKeyDistributor");
+        this.descriptor = Objects.requireNonNull(descriptor, "descriptor");
+    }
 
     @Override
     public void insert(final SpanBo span) {
@@ -97,5 +100,6 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
         final byte[] applicationTraceIndexRowKey = SpanUtils.getApplicationTraceIndexRowKey(span.getApplicationId(), acceptedTime);
         return rowKeyDistributor.getDistributedKey(applicationTraceIndexRowKey);
     }
+
 
 }

@@ -28,17 +28,21 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author jaehong.kim
  */
 @Component
 public class ThriftThreadDumpBoMapper implements ThriftBoMapper<ThreadDumpBo, TThreadDump> {
-    @Autowired
-    private ThriftMonitorInfoBoMapper monitorInfoBoMapper;
+    private final ThriftMonitorInfoBoMapper monitorInfoBoMapper;
 
-    @Autowired
-    private ThriftThreadStateMapper threadStateMapper;
+    private final ThriftThreadStateMapper threadStateMapper;
+
+    public ThriftThreadDumpBoMapper(ThriftMonitorInfoBoMapper monitorInfoBoMapper, ThriftThreadStateMapper threadStateMapper) {
+        this.monitorInfoBoMapper = Objects.requireNonNull(monitorInfoBoMapper, "monitorInfoBoMapper");
+        this.threadStateMapper = Objects.requireNonNull(threadStateMapper, "threadStateMapper");
+    }
 
     public ThreadDumpBo map(final TThreadDump threadDump) {
         final ThreadDumpBo threadDumpBo = new ThreadDumpBo();

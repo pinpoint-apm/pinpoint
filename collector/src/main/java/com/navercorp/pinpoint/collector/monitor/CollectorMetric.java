@@ -33,6 +33,7 @@ import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -45,15 +46,18 @@ public class CollectorMetric {
 
     private final Logger reporterLogger = LoggerFactory.getLogger(REPORTER_LOGGER_NAME);
 
-    @Autowired
-    private MetricRegistry metricRegistry;
+    private final MetricRegistry metricRegistry;
 
-    @Autowired(required = false)
-    private HBaseAsyncOperationMetrics hBaseAsyncOperationMetrics;
+    private final HBaseAsyncOperationMetrics hBaseAsyncOperationMetrics;
 
     private ScheduledReporter reporter;
 
     private final boolean isEnable = isEnable0(REPORTER_LOGGER_NAME);
+
+    public CollectorMetric(MetricRegistry metricRegistry, Optional<HBaseAsyncOperationMetrics> hBaseAsyncOperationMetrics) {
+        this.metricRegistry = metricRegistry;
+        this.hBaseAsyncOperationMetrics = hBaseAsyncOperationMetrics.orElse(null);
+    }
 
     @PostConstruct
     public void start() {

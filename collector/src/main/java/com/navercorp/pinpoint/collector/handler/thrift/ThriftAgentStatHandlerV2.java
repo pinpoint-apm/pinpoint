@@ -32,6 +32,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 /**
  * @author emeroad
@@ -41,14 +43,19 @@ import java.util.List;
 public class ThriftAgentStatHandlerV2 implements SimpleHandler {
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    @Autowired
-    private ThriftAgentStatMapper agentStatMapper;
+    private final ThriftAgentStatMapper agentStatMapper;
 
-    @Autowired
-    private ThriftAgentStatBatchMapper agentStatBatchMapper;
+    private final ThriftAgentStatBatchMapper agentStatBatchMapper;
 
-    @Autowired(required = false)
-    private List<AgentStatService> agentStatServiceList = Collections.emptyList();
+    private final List<AgentStatService> agentStatServiceList;
+
+    public ThriftAgentStatHandlerV2(ThriftAgentStatMapper agentStatMapper,
+                                    ThriftAgentStatBatchMapper agentStatBatchMapper,
+                                    Optional<List<AgentStatService>> agentStatServiceList) {
+        this.agentStatMapper = Objects.requireNonNull(agentStatMapper, "agentStatMapper");
+        this.agentStatBatchMapper = Objects.requireNonNull(agentStatBatchMapper, "agentStatBatchMapper");
+        this.agentStatServiceList = Objects.requireNonNull(agentStatServiceList, "agentStatServiceList").orElse(Collections.emptyList());
+    }
 
     @Override
     public void handleSimple(ServerRequest serverRequest) {
