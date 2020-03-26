@@ -29,9 +29,10 @@ import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Put;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
+
+import java.util.Objects;
 
 /**
  * @author emeroad
@@ -42,18 +43,23 @@ public class HbaseApiMetaDataDao implements ApiMetaDataDao {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @Autowired
-    private HbaseOperations2 hbaseTemplate;
+    private final HbaseOperations2 hbaseTemplate;
 
-    @Autowired
-    @Qualifier("metadataRowKeyDistributor")
-    private RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
+    private final TableDescriptor<HbaseColumnFamily.ApiMetadata> description;
 
-    @Autowired
-    private TableDescriptor<HbaseColumnFamily.ApiMetadata> description;
+    private final RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
+
+    public HbaseApiMetaDataDao(HbaseOperations2 hbaseTemplate,
+                               TableDescriptor<HbaseColumnFamily.ApiMetadata> description,
+                               @Qualifier("metadataRowKeyDistributor") RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix) {
+        this.hbaseTemplate = Objects.requireNonNull(hbaseTemplate, "hbaseTemplate");
+        this.description = Objects.requireNonNull(description, "description");
+        this.rowKeyDistributorByHashPrefix = Objects.requireNonNull(rowKeyDistributorByHashPrefix, "rowKeyDistributorByHashPrefix");
+    }
 
     @Override
     public void insert(ApiMetaDataBo apiMetaData) {
+        Objects.requireNonNull(apiMetaData, "apiMetaData");
         if (logger.isDebugEnabled()) {
             logger.debug("insert:{}", apiMetaData);
         }

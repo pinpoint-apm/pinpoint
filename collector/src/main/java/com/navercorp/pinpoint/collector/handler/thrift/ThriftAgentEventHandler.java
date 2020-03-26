@@ -33,6 +33,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Taejin Koo
@@ -42,17 +43,23 @@ import java.util.List;
 public class ThriftAgentEventHandler implements SimpleHandler {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @Autowired
-    private ThriftAgentEventMapper agentEventMapper;
+    private final ThriftAgentEventMapper agentEventMapper;
 
-    @Autowired
-    private ThriftAgentEventBatchMapper agentEventBatchMapper;
+    private final ThriftAgentEventBatchMapper agentEventBatchMapper;
 
-    @Autowired
-    private AgentEventMessageSerializerV1 agentEventMessageSerializerV1;
+    private final AgentEventMessageSerializerV1 agentEventMessageSerializerV1;
 
-    @Autowired
-    private AgentEventService agentEventService;
+    private final AgentEventService agentEventService;
+
+    public ThriftAgentEventHandler(ThriftAgentEventMapper agentEventMapper,
+                                   ThriftAgentEventBatchMapper agentEventBatchMapper,
+                                   AgentEventMessageSerializerV1 agentEventMessageSerializerV1,
+                                   AgentEventService agentEventService) {
+        this.agentEventMapper = Objects.requireNonNull(agentEventMapper, "agentEventMapper");
+        this.agentEventBatchMapper = Objects.requireNonNull(agentEventBatchMapper, "agentEventBatchMapper");
+        this.agentEventMessageSerializerV1 = Objects.requireNonNull(agentEventMessageSerializerV1, "agentEventMessageSerializerV1");
+        this.agentEventService = Objects.requireNonNull(agentEventService, "agentEventService");
+    }
 
     @Override
     public void handleSimple(ServerRequest serverRequest) {

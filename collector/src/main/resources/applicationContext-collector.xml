@@ -116,8 +116,8 @@
     </bean>
 
     <bean id="tcpDispatchHandlerFactoryBean" class="com.navercorp.pinpoint.collector.receiver.thrift.DispatchHandlerFactoryBean">
-        <constructor-arg ref="tcpDispatchHandler"/>
-        <constructor-arg ref="handlerManager"/>
+        <property name="dispatchHandler" ref="tcpDispatchHandler"/>
+        <property name="handlerManager" ref="handlerManager"/>
     </bean>
 
     <bean id="statDispatchHandler" class="com.navercorp.pinpoint.collector.receiver.StatDispatchHandler">
@@ -126,8 +126,8 @@
     </bean>
 
     <bean id="statDispatchHandlerFactoryBean" class="com.navercorp.pinpoint.collector.receiver.thrift.DispatchHandlerFactoryBean">
-        <constructor-arg ref="statDispatchHandler"/>
-        <constructor-arg ref="handlerManager"/>
+        <property name="dispatchHandler" ref="statDispatchHandler"/>
+        <property name="handlerManager" ref="handlerManager"/>
     </bean>
 
     <bean id="spanDispatchHandler" class="com.navercorp.pinpoint.collector.receiver.SpanDispatchHandler">
@@ -135,8 +135,8 @@
         <constructor-arg ref="thriftSpanChunkHandler"/>
     </bean>
     <bean id="spanDispatchHandlerFactoryBean" class="com.navercorp.pinpoint.collector.receiver.thrift.DispatchHandlerFactoryBean">
-        <constructor-arg ref="spanDispatchHandler"/>
-        <constructor-arg ref="handlerManager"/>
+        <property name="dispatchHandler" ref="spanDispatchHandler"/>
+        <property name="handlerManager" ref="handlerManager"/>
     </bean>
 
     <!-- Serializer Factory Beans -->

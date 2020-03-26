@@ -33,6 +33,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
+
 /**
  * @author emeroad
  */
@@ -42,8 +44,11 @@ public class GrpcApiMetaDataHandler implements RequestResponseHandler {
     private final Logger logger = LoggerFactory.getLogger(getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
-    @Autowired
-    private ApiMetaDataService apiMetaDataService;
+    private final ApiMetaDataService apiMetaDataService;
+
+    public GrpcApiMetaDataHandler(ApiMetaDataService apiMetaDataService) {
+        this.apiMetaDataService = Objects.requireNonNull(apiMetaDataService, "apiMetaDataService");
+    }
 
     @Override
     public void handleRequest(ServerRequest serverRequest, ServerResponse serverResponse) {

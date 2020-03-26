@@ -21,14 +21,18 @@ import com.navercorp.pinpoint.common.hbase.HBaseAsyncOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author Taejin Koo
  */
 public class HBaseManager extends AbstractCollectorManager implements HBaseManagerMBean {
 
-    @Autowired
-    private HBaseAsyncOperation hBaseAsyncOperation;
+    private final HBaseAsyncOperation hBaseAsyncOperation;
+
+    public HBaseManager(HBaseAsyncOperation hBaseAsyncOperation) {
+        this.hBaseAsyncOperation = Objects.requireNonNull(hBaseAsyncOperation, "hBaseAsyncOperation");
+    }
 
     @Override
     public Long getAsyncOpsCount() {

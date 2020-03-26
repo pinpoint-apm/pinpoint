@@ -34,14 +34,14 @@ import com.navercorp.pinpoint.thrift.dto.command.TRouteResult;
 import com.navercorp.pinpoint.thrift.io.DeserializerFactory;
 import com.navercorp.pinpoint.thrift.io.HeaderTBaseDeserializer;
 import org.apache.thrift.TBase;
+import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.MockitoAnnotations;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -51,7 +51,6 @@ import static org.mockito.Mockito.when;
 /**
  * @author HyunGil Jeong
  */
-@RunWith(MockitoJUnitRunner.class)
 public class AgentEventHandlingFilterTest {
 
     @Mock
@@ -66,12 +65,17 @@ public class AgentEventHandlingFilterTest {
     @Mock
     private DeserializerFactory<HeaderTBaseDeserializer> deserializerFactory;
 
-    @InjectMocks
-    private AgentEventHandlingFilter agentEventHandlingFilter = new AgentEventHandlingFilter();
+    private AgentEventHandlingFilter agentEventHandlingFilter;
 
     private static final String TEST_AGENT_ID = "TEST_AGENT";
     private static final long TEST_START_TIMESTAMP = System.currentTimeMillis();
     private static final long TEST_EVENT_TIMESTAMP = TEST_START_TIMESTAMP + 10;
+
+    @Before
+    public void setUp() throws Exception {
+        MockitoAnnotations.initMocks(this);
+        agentEventHandlingFilter = new AgentEventHandlingFilter(agentEventService, deserializerFactory);
+    }
 
     @Test
     @SuppressWarnings({ "rawtypes", "unchecked" })

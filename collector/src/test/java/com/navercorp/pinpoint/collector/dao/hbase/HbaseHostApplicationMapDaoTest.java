@@ -38,9 +38,8 @@ public class HbaseHostApplicationMapDaoTest {
 
     @Test
     public void testCreateRowKey() throws Exception {
-        HbaseHostApplicationMapDao dao = new HbaseHostApplicationMapDao();
         long statisticsRowSlot = timeSlot.getTimeSlot(System.currentTimeMillis());
-        byte[] parentApps = dao.createRowKey0("parentApp", ServiceType.STAND_ALONE.getCode(), statisticsRowSlot, null);
+        byte[] parentApps = HbaseHostApplicationMapDao.createRowKey0("parentApp", ServiceType.STAND_ALONE.getCode(), statisticsRowSlot, null);
         logger.debug("rowKey size:{}", parentApps.length);
 
         Buffer readBuffer = new FixedBuffer(parentApps);

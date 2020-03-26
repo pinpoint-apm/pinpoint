@@ -24,16 +24,21 @@ import com.navercorp.pinpoint.grpc.trace.PServerMetaData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Objects;
+
 /**
  * @author hyungil.jeong
  */
 @Component
 public class GrpcAgentInfoBoMapper {
-    @Autowired
-    private GrpcServerMetaDataBoMapper serverMetaDataBoMapper;
+    private final GrpcServerMetaDataBoMapper serverMetaDataBoMapper;
 
-    @Autowired
-    private GrpcJvmInfoBoMapper jvmInfoBoMapper;
+    private final GrpcJvmInfoBoMapper jvmInfoBoMapper;
+
+    public GrpcAgentInfoBoMapper(GrpcServerMetaDataBoMapper serverMetaDataBoMapper, GrpcJvmInfoBoMapper jvmInfoBoMapper) {
+        this.serverMetaDataBoMapper = Objects.requireNonNull(serverMetaDataBoMapper, "serverMetaDataBoMapper");
+        this.jvmInfoBoMapper = Objects.requireNonNull(jvmInfoBoMapper, "jvmInfoBoMapper");
+    }
 
     public AgentInfoBo map(final PAgentInfo agentInfo, final Header header) {
         final String agentId = header.getAgentId();

@@ -42,6 +42,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Update statistics of callee node
@@ -55,44 +56,48 @@ public class HbaseMapStatisticsCalleeDao implements MapStatisticsCalleeDao {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @Autowired
-    private HbaseOperations2 hbaseTemplate;
+    private final HbaseOperations2 hbaseTemplate;
 
-    @Autowired
-    private AcceptedTimeService acceptedTimeService;
+    private final TableDescriptor<HbaseColumnFamily.CallerStatMap> descriptor;
 
-    @Autowired
-    private TimeSlot timeSlot;
+    private final AcceptedTimeService acceptedTimeService;
 
-    @Autowired
-    @Qualifier("calleeBulkIncrementer")
-    private BulkIncrementer bulkIncrementer;
+    private final TimeSlot timeSlot;
 
-    @Autowired
-    @Qualifier("statisticsCalleeRowKeyDistributor")
-    private RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
+    private final BulkIncrementer bulkIncrementer;
+
+    private final RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
 
     private final boolean useBulk;
 
-    @Autowired
-    private TableDescriptor<HbaseColumnFamily.CallerStatMap> descriptor;
 
-    public HbaseMapStatisticsCalleeDao() {
-        this(true);
+    @Autowired
+    public HbaseMapStatisticsCalleeDao(HbaseOperations2 hbaseTemplate,
+                                       TableDescriptor<HbaseColumnFamily.CallerStatMap> descriptor,
+                                       @Qualifier("statisticsCalleeRowKeyDistributor") RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix,
+                                       AcceptedTimeService acceptedTimeService, TimeSlot timeSlot,
+                                       @Qualifier("calleeBulkIncrementer") BulkIncrementer bulkIncrementer) {
+        this(hbaseTemplate, descriptor, rowKeyDistributorByHashPrefix, acceptedTimeService, timeSlot, bulkIncrementer, true);
     }
 
-    public HbaseMapStatisticsCalleeDao(boolean useBulk) {
+    public HbaseMapStatisticsCalleeDao(HbaseOperations2 hbaseTemplate,
+                                       TableDescriptor<HbaseColumnFamily.CallerStatMap> descriptor,
+                                       RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix,
+                                       AcceptedTimeService acceptedTimeService, TimeSlot timeSlot,
+                                       BulkIncrementer bulkIncrementer, boolean useBulk) {
+        this.hbaseTemplate = Objects.requireNonNull(hbaseTemplate, "hbaseTemplate");
+        this.descriptor = Objects.requireNonNull(descriptor, "descriptor");
+        this.rowKeyDistributorByHashPrefix = Objects.requireNonNull(rowKeyDistributorByHashPrefix, "rowKeyDistributorByHashPrefix");
+        this.acceptedTimeService = Objects.requireNonNull(acceptedTimeService, "acceptedTimeService");
+        this.timeSlot = Objects.requireNonNull(timeSlot, "timeSlot");
+        this.bulkIncrementer = Objects.requireNonNull(bulkIncrementer, "bulkIncrementer");
         this.useBulk = useBulk;
     }
 
     @Override
     public void update(String calleeApplicationName, ServiceType calleeServiceType, String callerApplicationName, ServiceType callerServiceType, String callerHost, int elapsed, boolean isError) {
-        if (callerApplicationName == null) {
-            throw new NullPointerException("callerApplicationName");
-        }
-        if (calleeApplicationName == null) {
-            throw new NullPointerException("calleeApplicationName");
-        }
+        Objects.requireNonNull(calleeApplicationName, "calleeApplicationName");
+        Objects.requireNonNull(callerApplicationName, "callerApplicationName");
 
         if (logger.isDebugEnabled()) {
             logger.debug("[Callee] {} ({}) <- {} ({})[{}]",

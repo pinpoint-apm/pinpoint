@@ -25,6 +25,8 @@ import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.common.util.TimeUtils;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 
+import java.util.Objects;
+
 /**
  * @author emeroad
  */
@@ -33,24 +35,20 @@ public final class SpanUtils {
     }
 
     public static byte[] getApplicationTraceIndexRowKey(String applicationName, long timestamp) {
-        if (applicationName == null) {
-            throw new IllegalArgumentException("applicationName must not null");
-        }
+        Objects.requireNonNull(applicationName, applicationName);
+
         final byte[] bApplicationName = BytesUtils.toBytes(applicationName);
         return RowKeyUtils.concatFixedByteAndLong(bApplicationName, APPLICATION_NAME_MAX_LEN, TimeUtils.reverseTimeMillis(timestamp));
     }
 
     public static byte[] getApplicationTraceIndexRowKey(byte[] applicationName, long timestamp) {
-        if (applicationName == null) {
-            throw new NullPointerException("applicationName");
-        }
+        Objects.requireNonNull(applicationName, "applicationName");
+
         return RowKeyUtils.concatFixedByteAndLong(applicationName, APPLICATION_NAME_MAX_LEN, TimeUtils.reverseTimeMillis(timestamp));
     }
 
     public static byte[] getVarTransactionId(SpanBo span) {
-        if (span == null) {
-            throw new NullPointerException("span");
-        }
+        Objects.requireNonNull(span, "span");
 
         final TransactionId transactionId = span.getTransactionId();
         String agentId = transactionId.getAgentId();

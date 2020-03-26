@@ -21,11 +21,16 @@ import com.navercorp.pinpoint.common.server.bo.AgentLifeCycleBo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
+
 @Service
 public class AgentLifeCycleService {
 
-    @Autowired
-    private AgentLifeCycleDao agentLifeCycleDao;
+    private final AgentLifeCycleDao agentLifeCycleDao;
+
+    public AgentLifeCycleService(AgentLifeCycleDao agentLifeCycleDao) {
+        this.agentLifeCycleDao = Objects.requireNonNull(agentLifeCycleDao, "agentLifeCycleDao");
+    }
 
     public void insert(final AgentLifeCycleBo agentLifeCycleBo) {
         this.agentLifeCycleDao.insert(agentLifeCycleBo);

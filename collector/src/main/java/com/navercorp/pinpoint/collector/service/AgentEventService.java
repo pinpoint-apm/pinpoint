@@ -29,8 +29,11 @@ import java.util.Objects;
 public class AgentEventService {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @Autowired
-    private AgentEventDao agentEventDao;
+    private final AgentEventDao agentEventDao;
+
+    public AgentEventService(AgentEventDao agentEventDao) {
+        this.agentEventDao = Objects.requireNonNull(agentEventDao, "agentEventDao");
+    }
 
     public void insert(final AgentEventBo agentEventBo) {
         Objects.requireNonNull(agentEventBo, "agentEventBo");
