@@ -16,7 +16,7 @@ The current stable version is [v2.0.1](https://github.com/naver/pinpoint/release
 
 ## Live Demo
 
-Take a quick look at Pinpoint with our [demo](http://125.209.240.10:10123/v2/main/ApiGateway@SPRING_BOOT/5m?inbound=1&outbound=4&wasOnly=false&bidirectional=false)!
+Take a quick look at Pinpoint with our [demo](http://125.209.240.10:10123/main/ApiGateway@SPRING_BOOT/5m?inbound=1&outbound=4&wasOnly=false&bidirectional=false)!
 
 ## PHP Agent
 
