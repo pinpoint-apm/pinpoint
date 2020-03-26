@@ -67,7 +67,7 @@
         <constructor-arg ref="asyncOperation"/>
     </bean>
 
-    <bean id="hbaseTemplate" class="com.navercorp.pinpoint.common.hbase.HbaseTemplate2" destroy-method="destroy">
+    <bean id="hbaseTemplate" class="com.navercorp.pinpoint.common.hbase.HbaseTemplate2" destroy-method="destroy" primary="true">
         <property name="configuration" ref="hbaseConfiguration"/>
         <property name="tableFactory" ref="hbaseTableFactory"/>
         <property name="asyncOperation" ref="asyncOperation"/>
