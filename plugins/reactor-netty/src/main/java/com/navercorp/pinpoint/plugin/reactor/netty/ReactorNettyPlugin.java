@@ -30,6 +30,7 @@ import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.plugin.reactor.netty.interceptor.ChannelOperationsChannelMethodInterceptor;
 import com.navercorp.pinpoint.plugin.reactor.netty.interceptor.ChannelOperationsInterceptor;
 import com.navercorp.pinpoint.plugin.reactor.netty.interceptor.HttpServerHandleHttpServerStateInterceptor;
 import com.navercorp.pinpoint.plugin.reactor.netty.interceptor.HttpServerHandleStateInterceptor;
@@ -96,9 +97,16 @@ public class ReactorNettyPlugin implements ProfilerPlugin, TransformTemplateAwar
         @Override
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+
             // HTTP server end-point
-            for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("onError", "onComplete"))) {
+            for (InstrumentMethod method : target.getDeclaredMethods(MethodFilters.name("terminate", "onInboundError", "onInboundCancel", "onTerminate", "dispose", "onComplete", "onError"))) {
                 method.addInterceptor(ChannelOperationsInterceptor.class);
+            }
+
+            // HTTP server end-point(defense code for try ~ catch)
+            final InstrumentMethod channelMethod = target.getDeclaredMethod("channel");
+            if (channelMethod != null) {
+                channelMethod.addInterceptor(ChannelOperationsChannelMethodInterceptor.class);
             }
 
             return target.toBytecode();

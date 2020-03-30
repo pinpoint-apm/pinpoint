@@ -40,8 +40,30 @@ public class HttpServerHandleStateInterceptor extends AbstractHttpServerHandleIn
         if (!(args[1] instanceof ConnectionObserver.State)) {
             return false;
         }
+
+        return true;
+    }
+
+    public boolean isReceived(Object[] args) {
+        if (!validate(args)) {
+            return false;
+        }
+
         ConnectionObserver.State state = (ConnectionObserver.State) args[1];
         if (state != ConnectionObserver.State.CONFIGURED) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public boolean isDisconnecting(Object[] args) {
+        if (!validate(args)) {
+            return false;
+        }
+
+        ConnectionObserver.State state = (ConnectionObserver.State) args[1];
+        if (state != ConnectionObserver.State.DISCONNECTING) {
             return false;
         }
 

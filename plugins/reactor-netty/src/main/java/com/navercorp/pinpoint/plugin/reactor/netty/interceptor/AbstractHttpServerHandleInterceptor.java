@@ -17,7 +17,10 @@
 package com.navercorp.pinpoint.plugin.reactor.netty.interceptor;
 
 import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessor;
+import com.navercorp.pinpoint.bootstrap.async.AsyncContextAccessorUtils;
 import com.navercorp.pinpoint.bootstrap.context.AsyncContext;
+import com.navercorp.pinpoint.bootstrap.context.AsyncState;
+import com.navercorp.pinpoint.bootstrap.context.AsyncStateSupport;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
 import com.navercorp.pinpoint.bootstrap.context.Trace;
@@ -46,6 +49,7 @@ public abstract class AbstractHttpServerHandleInterceptor implements AroundInter
 
     private final TraceContext traceContext;
     private final MethodDescriptor methodDescriptor;
+    private final boolean enableAsyncEndPoint;
 
     private final ServletRequestListenerInterceptorHelper<HttpServerRequest> servletRequestListenerInterceptorHelper;
 
@@ -58,6 +62,7 @@ public abstract class AbstractHttpServerHandleInterceptor implements AroundInter
         requestAdaptor = RemoteAddressResolverFactory.wrapRealIpSupport(requestAdaptor, config.getRealIpHeader(), config.getRealIpEmptyValue());
         ParameterRecorder<HttpServerRequest> parameterRecorder = ParameterRecorderFactory.newParameterRecorderFactory(config.getExcludeProfileMethodFilter(), config.isTraceRequestParam());
         this.servletRequestListenerInterceptorHelper = new ServletRequestListenerInterceptorHelper<HttpServerRequest>(ReactorNettyConstants.REACTOR_NETTY, traceContext, requestAdaptor, config.getExcludeUrlFilter(), parameterRecorder, requestRecorderFactory);
+        this.enableAsyncEndPoint = config.isEnableAsyncEndPoint();
     }
 
     @Override
@@ -67,15 +72,29 @@ public abstract class AbstractHttpServerHandleInterceptor implements AroundInter
         }
 
         if (traceContext.currentRawTraceObject() != null) {
+            if (isDisconnecting(args)) {
+                final AsyncContext asyncContext = AsyncContextAccessorUtils.getAsyncContext(args[0]);
+                if (asyncContext != null) {
+                    if (asyncContext instanceof AsyncStateSupport) {
+                        final AsyncStateSupport asyncStateSupport = (AsyncStateSupport) asyncContext;
+                        AsyncState asyncState = asyncStateSupport.getAsyncState();
+                        asyncState.finish();
+                        if (isDebug) {
+                            logger.debug("Finished asyncState. asyncTraceId={}", asyncContext);
+                        }
+                    }
+                }
+            }
             // duplicate trace.
             return;
         }
 
         try {
-            if (!validate(args)) {
+            if (!isReceived(args)) {
                 // invalid args
                 return;
             }
+
             final HttpServerRequest request = (HttpServerRequest) args[0];
             this.servletRequestListenerInterceptorHelper.initialized(request, ReactorNettyConstants.REACTOR_NETTY_INTERNAL, this.methodDescriptor);
 
@@ -88,10 +107,15 @@ public abstract class AbstractHttpServerHandleInterceptor implements AroundInter
             final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
             if (recorder != null) {
                 // make asynchronous trace-id
-                final AsyncContext asyncContext = recorder.recordNextAsyncContext(true);
-                ((AsyncContextAccessor) request)._$PINPOINT$_setAsyncContext(asyncContext);
+                final boolean asyncStateSupport = enableAsyncEndPoint;
+                final AsyncContext asyncContext = recorder.recordNextAsyncContext(asyncStateSupport);
+                ((AsyncContextAccessor) args[0])._$PINPOINT$_setAsyncContext(asyncContext);
                 if (isDebug) {
-                    logger.debug("Set closeable-AsyncContext {}", asyncContext);
+                    if(enableAsyncEndPoint) {
+                        logger.debug("Set closeable-AsyncContext {}", asyncContext);
+                    } else {
+                        logger.debug("Set AsyncContext {}", asyncContext);
+                    }
                 }
             }
         } catch (Throwable t) {
@@ -108,10 +132,9 @@ public abstract class AbstractHttpServerHandleInterceptor implements AroundInter
         }
 
         try {
-            if (!validate(args)) {
+            if (!isReceived(args)) {
                 return;
             }
-
             final HttpServerRequest request = (HttpServerRequest) args[0];
             final HttpServerResponse response = (HttpServerResponse) args[0];
             final int statusCode = getStatusCode(response);
@@ -123,7 +146,9 @@ public abstract class AbstractHttpServerHandleInterceptor implements AroundInter
         }
     }
 
-    abstract boolean validate(Object[] args);
+    abstract boolean isReceived(Object[] args);
+
+    abstract boolean isDisconnecting(Object[] args);
 
     private int getStatusCode(final HttpServerResponse response) {
         try {
