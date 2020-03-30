@@ -16,7 +16,12 @@
 
 package com.navercorp.pinpoint.common.server.util;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -26,12 +31,46 @@ import java.util.Objects;
  */
 public class IgnoreAddressFilter implements AddressFilter {
 
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     private final InetAddress[] ignoreAddressList;
+    private final List<CidrAddressFilter> cidrAddressFilterList;
 
     public IgnoreAddressFilter(List<String> ignoreAddressList) {
         Objects.requireNonNull(ignoreAddressList, "ignoreAddressList");
 
-        this.ignoreAddressList = InetAddressUtils.toInetAddressArray(ignoreAddressList);
+        List<String> ignoreRawAddressList = new ArrayList<>(ignoreAddressList.size());
+        List<CidrAddressFilter> cidrAddressFilterList = new ArrayList<CidrAddressFilter>(0);
+        for (String ignoreAddress : ignoreAddressList) {
+            if (isCidrAddress(ignoreAddress)) {
+                CidrAddressFilter cidrAddressFilter = createCidrAddressFilter(ignoreAddress);
+                if (cidrAddressFilter != null) {
+                    cidrAddressFilterList.add(cidrAddressFilter);
+                }
+            } else {
+                ignoreRawAddressList.add(ignoreAddress);
+            }
+        }
+
+        this.ignoreAddressList = InetAddressUtils.toInetAddressArray(ignoreRawAddressList);
+        this.cidrAddressFilterList = cidrAddressFilterList;
+    }
+
+    private boolean isCidrAddress(String address) {
+        return address.contains("/");
+    }
+
+    private CidrAddressFilter createCidrAddressFilter(String address) {
+        try {
+            String[] cidrAddress = address.split("/", 2);
+            String ipAddress = cidrAddress[0];
+            int cidrPrefix = Integer.parseInt(cidrAddress[1]);
+
+            return new CidrAddressFilter(ipAddress, cidrPrefix);
+        } catch (Exception e) {
+            logger.warn("Failed to create CidrAddress:{}. message:{}", address, e.getMessage());
+        }
+        return null;
     }
 
     @Override
@@ -42,6 +81,18 @@ public class IgnoreAddressFilter implements AddressFilter {
                 return false;
             }
         }
+
+        if (cidrAddressFilterList.isEmpty()) {
+            return true;
+        }
+
+        InetSocketAddress inetSocketAddress = new InetSocketAddress(address, 0);
+        for (CidrAddressFilter cidrAddressFilter : cidrAddressFilterList) {
+            if (cidrAddressFilter.matches(inetSocketAddress)) {
+                return false;
+            }
+        }
+
         return true;
     }
 
@@ -49,7 +100,9 @@ public class IgnoreAddressFilter implements AddressFilter {
     public String toString() {
         final StringBuilder sb = new StringBuilder("IgnoreAddressFilter{");
         sb.append("ignoreAddressList=").append(Arrays.toString(ignoreAddressList));
+        sb.append(", cidrAddressFilterList=").append(cidrAddressFilterList);
         sb.append('}');
         return sb.toString();
     }
+
 }
