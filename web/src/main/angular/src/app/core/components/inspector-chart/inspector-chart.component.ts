@@ -33,11 +33,7 @@ export class InspectorChartComponent implements OnInit, OnChanges, OnDestroy {
         merge(
             fromEvent(window, 'resize'),
             this.messageQueueService.receiveMessage(this.unsubscribe, MESSAGE_TO.INSPECTOR_CHART_SET_LAYOUT).pipe(),
-            this.gutterEventService.onGutterResized$.pipe(
-                filter((ratioArr: number[]) => !!ratioArr),
-                map(([upperRatio]: number[]) => upperRatio),
-                filter((ratio: number) => ratio >= 30 && ratio <= 55), // 30, 50: 차트가 포함되어 있는 split-area의 최소, 최대 사이즈(비율)
-            )
+            this.gutterEventService.onGutterResized$
         ).pipe(
             filter(() => {
                 return this.chartInstance && this.el.nativeElement.isConnected;

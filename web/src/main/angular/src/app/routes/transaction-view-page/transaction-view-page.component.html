@@ -7,12 +7,12 @@
     <div class="l-component-wrapper">
         <pp-transaction-short-info-container></pp-transaction-short-info-container>
     </div>
-    <split direction="vertical" style="flex-direction: column" ppSplitter>
-        <split-area [size]="splitSize[0]">
+    <as-split direction="vertical" (dragEnd)="onGutterResized($event)" #splitElem>
+        <as-split-area [size]="splitSize[0]" minSize="30" maxSize="55">
             <router-outlet></router-outlet>        
-        </split-area>
-        <split-area [size]="splitSize[1]">
+        </as-split-area>
+        <as-split-area [size]="splitSize[1]">
             <pp-transaction-view-bottom-contents-container></pp-transaction-view-bottom-contents-container>
-        </split-area>
-    </split>
+        </as-split-area>
+    </as-split>
 </div>
