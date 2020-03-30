@@ -1,8 +1,8 @@
 import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
+import { AngularSplitModule } from 'angular-split';
 
 import { SharedModule } from 'app/shared';
-import { AngularSplitModule } from 'app/core/components/angular-split/angular-split';
 import { NoticeModule } from 'app/core/components/notice';
 import { DataLoadIndicatorModule } from 'app/core/components/data-load-indicator';
 import { StateButtonModule } from 'app/core/components/state-button';

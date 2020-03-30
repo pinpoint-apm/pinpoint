@@ -8,12 +8,12 @@
     <pp-configuration-icon-container></pp-configuration-icon-container>
 </header>
 <div class="l-main-container">
-    <split [direction]="direction" (dragEnd)="onGutterResized($event)">
-        <split-area [size]="handlePosition[0]">
+    <as-split direction="vertical" (dragEnd)="onGutterResized($event)">
+        <as-split-area [size]="splitSize[0]">
             <pp-transaction-table-grid-container></pp-transaction-table-grid-container>
-        </split-area>
-        <split-area [size]="handlePosition[1]">
+        </as-split-area>
+        <as-split-area [size]="splitSize[1]">
             <router-outlet></router-outlet>
-        </split-area>
-    </split>
+        </as-split-area>
+    </as-split>
 </div>

@@ -9,8 +9,7 @@ import { WebAppSettingDataService, GutterEventService } from 'app/shared/service
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TransactionListPageComponent implements OnInit {
-    direction = 'vertical';
-    handlePosition: number[];
+    splitSize: number[];
 
     constructor(
         private webAppSettingDataService: WebAppSettingDataService,
@@ -18,11 +17,11 @@ export class TransactionListPageComponent implements OnInit {
     ) {}
 
     ngOnInit() {
-        this.handlePosition = this.webAppSettingDataService.getListHandlePosition();
+        this.splitSize = this.webAppSettingDataService.getSplitSize();
     }
 
     onGutterResized({sizes}: {sizes: number[]}): void {
-        this.webAppSettingDataService.setListHandlePosition(sizes.map((size: number): number => {
+        this.webAppSettingDataService.setSplitSize(sizes.map((size: number): number => {
             return Number.parseFloat(size.toFixed(2));
         }));
         this.gutterEventService.resizedGutter(sizes);

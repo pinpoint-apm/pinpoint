@@ -22,7 +22,7 @@ export class WebAppSettingDataService {
         FAVORLIITE_APPLICATION_LIST: 'favoriteApplicationList',
         TIMEZONE: 'timezone',
         DATE_FORMAT: 'dateFormat',
-        LIST_HANDLE_POSITION: 'listHandlePosition',
+        SPLIT_SIZE: 'splitSize',
         LAYER_HEIGHT: 'layerHeight',
         USER_DEFAULT_INBOUND: 'userDefaultInbound',
         USER_DEFAULT_OUTBOUND: 'userDefaultOutbound',
@@ -179,11 +179,11 @@ export class WebAppSettingDataService {
     getDateFormatList(): string[][] {
         return this.componentDefaultSettingDataService.getDateFormatList();
     }
-    setListHandlePosition(value: number[]): void {
-        this.localStorageService.set(WebAppSettingDataService.KEYS.LIST_HANDLE_POSITION, value);
+    setSplitSize(value: number[]): void {
+        this.localStorageService.set(WebAppSettingDataService.KEYS.SPLIT_SIZE, value);
     }
-    getListHandlePosition(): number[] {
-        return this.localStorageService.get(WebAppSettingDataService.KEYS.LIST_HANDLE_POSITION) || [30, 70];
+    getSplitSize(): number[] {
+        return this.localStorageService.get(WebAppSettingDataService.KEYS.SPLIT_SIZE) || [30, 70];
     }
     setLayerHeight(value: number): void {
         this.localStorageService.set(WebAppSettingDataService.KEYS.LAYER_HEIGHT, value);
