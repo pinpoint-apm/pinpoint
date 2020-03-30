@@ -107,8 +107,7 @@
                             "src/tsconfig.spec.json"
                         ],
                         "exclude": [
-                            "**/node_modules/**",
-                            "**/src/app/core/components/angular-split/**"
+                            "**/node_modules/**"
                         ]
                     }
                 }

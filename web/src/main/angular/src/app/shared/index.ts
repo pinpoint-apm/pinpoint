@@ -35,7 +35,6 @@ import { SimpleProgressSliderComponent } from './components/simple-progress-slid
 import { FormFieldErrorMessageComponent } from './components/form-field-error-message';
 import { ServerErrorMessageComponent } from './components/server-error-message';
 import { ContextPopupDirective } from './directives/context-popup.directive';
-import { SplitterDirective } from './directives/splitter.directive';
 import { SearchInputDirective } from './directives/search-input.directive';
 import { SafeHtmlPipe } from './pipes/safe-html.pipe';
 import { JSONTextParserPipe } from './pipes/json-text-parser.pipe';
@@ -66,7 +65,6 @@ import { PickPropsPipe } from './pipes/pick-props.pipe';
         HandleObsPipe,
         PickPropsPipe,
         ContextPopupDirective,
-        SplitterDirective,
         SearchInputDirective
     ],
     imports: [
@@ -95,7 +93,6 @@ import { PickPropsPipe } from './pipes/pick-props.pipe';
         HandleObsPipe,
         PickPropsPipe,
         ContextPopupDirective,
-        SplitterDirective,
         SearchInputDirective
     ],
     providers: []
