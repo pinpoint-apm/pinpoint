@@ -31,6 +31,7 @@ import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
 import com.navercorp.pinpoint.plugin.netty.interceptor.BootstrapConnectInterceptor;
+import com.navercorp.pinpoint.plugin.netty.interceptor.ChannelCloseMethodInterceptor;
 import com.navercorp.pinpoint.plugin.netty.interceptor.ChannelPipelineWriteInterceptor;
 import com.navercorp.pinpoint.plugin.netty.interceptor.ChannelPromiseAddListenerInterceptor;
 import com.navercorp.pinpoint.plugin.netty.interceptor.ChannelPromiseNotifyInterceptor;
@@ -54,6 +55,13 @@ public class NettyPlugin implements ProfilerPlugin, TransformTemplateAware {
     @Override
     public void setup(ProfilerPluginSetupContext context) {
         NettyConfig config = new NettyConfig(context.getConfig());
+
+        if (config.isChannelClose()) {
+            logger.info("Add channel.close() transform");
+            transformTemplate.transform("io.netty.channel.socket.nio.NioSocketChannel", NioSocketChannelTransformer.class);
+            transformTemplate.transform("io.netty.channel.AbstractChannel", AbstractChannelTransformer.class);
+        }
+
         if (!config.isPluginEnable()) {
             logger.info("{} disabled 'profiler.netty=false'", this.getClass().getSimpleName());
             return;
@@ -220,4 +228,25 @@ public class NettyPlugin implements ProfilerPlugin, TransformTemplateAware {
 
     }
 
+    public static class AbstractChannelTransformer implements TransformCallback {
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+
+            final InstrumentMethod closeMethod = target.getDeclaredMethod("close");
+            if (closeMethod != null) {
+                closeMethod.addInterceptor(ChannelCloseMethodInterceptor.class);
+            }
+            return target.toBytecode();
+        }
+    }
+
+    public static class NioSocketChannelTransformer implements TransformCallback {
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
+            target.addField(AsyncContextAccessor.class);
+            return target.toBytecode();
+        }
+    }
 }

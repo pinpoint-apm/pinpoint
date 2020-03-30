@@ -36,6 +36,7 @@ public class ReactorNettyPluginConfig {
     private final String realIpHeader;
     private final String realIpEmptyValue;
     private final Filter<String> excludeProfileMethodFilter;
+    private final boolean enableAsyncEndPoint;
 
     public ReactorNettyPluginConfig(ProfilerConfig config) {
         if (config == null) {
@@ -45,6 +46,7 @@ public class ReactorNettyPluginConfig {
         // plugin
         this.enable = config.readBoolean("profiler.reactor-netty.enable", true);
         this.bootstrapMains = config.readList("profiler.reactor-netty.server.bootstrap.main");
+        this.enableAsyncEndPoint = config.readBoolean("profiler.reactor-netty.server.end-point.async.enable", true);
 
         // runtime
         this.traceRequestParam = config.readBoolean("profiler.reactor-netty.server.tracerequestparam", true);
@@ -91,5 +93,24 @@ public class ReactorNettyPluginConfig {
 
     public Filter<String> getExcludeProfileMethodFilter() {
         return excludeProfileMethodFilter;
+    }
+
+    public boolean isEnableAsyncEndPoint() {
+        return enableAsyncEndPoint;
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("ReactorNettyPluginConfig{");
+        sb.append("enable=").append(enable);
+        sb.append(", bootstrapMains=").append(bootstrapMains);
+        sb.append(", traceRequestParam=").append(traceRequestParam);
+        sb.append(", excludeUrlFilter=").append(excludeUrlFilter);
+        sb.append(", realIpHeader='").append(realIpHeader).append('\'');
+        sb.append(", realIpEmptyValue='").append(realIpEmptyValue).append('\'');
+        sb.append(", excludeProfileMethodFilter=").append(excludeProfileMethodFilter);
+        sb.append(", enableAsyncEndPoint=").append(enableAsyncEndPoint);
+        sb.append('}');
+        return sb.toString();
     }
 }

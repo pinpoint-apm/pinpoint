@@ -40,7 +40,7 @@ public class DispatchHandlerHandleMethodInterceptor extends SpanEventSimpleAroun
             final AsyncContext asyncContext = recorder.recordNextAsyncContext();
             ((AsyncContextAccessor) args[0])._$PINPOINT$_setAsyncContext(asyncContext);
             if (isDebug) {
-                logger.debug("Set closeable-AsyncContext {}", asyncContext);
+                logger.debug("Set AsyncContext {}", asyncContext);
             }
         }
     }

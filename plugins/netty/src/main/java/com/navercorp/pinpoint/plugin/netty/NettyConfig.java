@@ -27,17 +27,20 @@ public class NettyConfig {
     static final String PLUGIN_ENABLE = "profiler.netty";
 
     static final String HTTP_CODEC_ENABLE = "profiler.netty.http";
+    static final String NETTY_CHANNEL_CLOSE_ENABLE = "profiler.netty.channel.close";
 
     private final boolean pluginEnable;
 
     private final boolean httpCodecEnable;
     private final boolean param;
     private final HttpDumpConfig httpDumpConfig;
+    private final boolean channelClose;
 
     public NettyConfig(ProfilerConfig config) {
         pluginEnable = config.readBoolean(PLUGIN_ENABLE, false);
         httpCodecEnable = config.readBoolean(HTTP_CODEC_ENABLE, false);
         param = config.readBoolean("profiler.netty.http.param", false);
+        channelClose = config.readBoolean(NETTY_CHANNEL_CLOSE_ENABLE, true);
         httpDumpConfig = HttpDumpConfig.getDefault();
     }
 
@@ -57,6 +60,10 @@ public class NettyConfig {
         return httpDumpConfig;
     }
 
+    public boolean isChannelClose() {
+        return channelClose;
+    }
+
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("NettyConfig{");
@@ -64,6 +71,7 @@ public class NettyConfig {
         sb.append(", httpCodecEnable=").append(httpCodecEnable);
         sb.append(", param=").append(param);
         sb.append(", httpDumpConfig=").append(httpDumpConfig);
+        sb.append(", channelClose=").append(channelClose);
         sb.append('}');
         return sb.toString();
     }
