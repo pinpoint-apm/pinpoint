@@ -180,9 +180,6 @@ public class MetadataClientMock {
         final TimerTask timerTask = new TimerTask() {
             @Override
             public void run(Timeout timeout) throws Exception {
-                if (timeout.isExpired()) {
-                    return;
-                }
                 if (timeout.cancel()) {
                     return;
                 }

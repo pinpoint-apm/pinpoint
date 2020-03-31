@@ -176,6 +176,7 @@ public class MetadataGrpcDataSender extends GrpcDataSender implements EnhancedDa
             if (isDebug) {
                 logger.debug("Request drop. remainingRetryCount={}, request={}", MessageFormatUtils.debugLog(message), remainingRetryCount);
             }
+            return;
         }
 
         if (isDebug) {
@@ -184,9 +185,6 @@ public class MetadataGrpcDataSender extends GrpcDataSender implements EnhancedDa
         final TimerTask timerTask = new TimerTask() {
             @Override
             public void run(Timeout timeout) throws Exception {
-                if (timeout.isExpired()) {
-                    return;
-                }
                 if (timeout.cancel()) {
                     return;
                 }
