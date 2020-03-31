@@ -5,7 +5,7 @@
     height: 100%;
     z-index: 15;
     display: flex;
-    padding: 0px 20px;
+    padding: 15px 0px;
     position: absolute;
     align-items: center;
     flex-direction: column;
@@ -15,6 +15,9 @@
 
 .l-form {
     width: 100%;
+    overflow-y: auto;
+    max-height: calc(100% - 42px);
+    padding: 0 20px;
 }
 
 .l-title {
