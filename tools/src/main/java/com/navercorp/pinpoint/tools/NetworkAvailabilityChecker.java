@@ -130,7 +130,7 @@ public class NetworkAvailabilityChecker {
         checker.check();
     }
 
-    private static void checkGRPCStaT(GrpcTransportConfig grpcTransportConfig) throws Exception {
+    private static void checkGRPCStat(GrpcTransportConfig grpcTransportConfig) throws Exception {
         String ip = grpcTransportConfig.getStatCollectorIp();
         int port = grpcTransportConfig.getStatCollectorPort();
 
