@@ -31,6 +31,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author minwoo.jung
@@ -38,14 +39,17 @@ import java.util.List;
 @Repository
 public class HbaseApplicationCpuLoadDao implements ApplicationCpuLoadDao {
 
-    @Autowired
-    private CpuLoadDecoder cpuLoadDecoder;
+    private final CpuLoadDecoder cpuLoadDecoder;
 
-    @Autowired
-    private ApplicationStatSampler<JoinCpuLoadBo> cpuLoadSampler;
+    private final ApplicationStatSampler<JoinCpuLoadBo> cpuLoadSampler;
 
-    @Autowired
-    private HbaseApplicationStatDaoOperations operations;
+    private final HbaseApplicationStatDaoOperations operations;
+
+    public HbaseApplicationCpuLoadDao(CpuLoadDecoder cpuLoadDecoder, ApplicationStatSampler<JoinCpuLoadBo> cpuLoadSampler, HbaseApplicationStatDaoOperations operations) {
+        this.cpuLoadDecoder = Objects.requireNonNull(cpuLoadDecoder, "cpuLoadDecoder");
+        this.cpuLoadSampler = Objects.requireNonNull(cpuLoadSampler, "cpuLoadSampler");
+        this.operations = Objects.requireNonNull(operations, "operations");
+    }
 
     @Override
     public List<AggreJoinCpuLoadBo> getApplicationStatList(String applicationId, TimeWindow timeWindow) {

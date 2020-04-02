@@ -32,16 +32,14 @@ public class NodeList {
     }
 
     public Node findNode(Application application) {
-        if (application == null) {
-            throw new NullPointerException("application");
-        }
+        Objects.requireNonNull(application, "application");
+
         return this.nodeMap.get(application);
     }
 
     public boolean addNode(Node node) {
-        if (node == null) {
-            throw new NullPointerException("node");
-        }
+        Objects.requireNonNull(node, "node");
+
         final Application nodeId = node.getApplication();
         Node findNode = findNode(nodeId);
         if (findNode != null) {
@@ -52,18 +50,16 @@ public class NodeList {
 
 
     public void addNodeList(NodeList nodeList) {
-        if (nodeList == null) {
-            throw new NullPointerException("nodeList");
-        }
+        Objects.requireNonNull(nodeList, "nodeList");
+
         for (Node node : nodeList.getNodeList()) {
             addNode(node);
         }
     }
 
     public boolean containsNode(Application application) {
-        if (application == null) {
-            throw new NullPointerException("application");
-        }
+        Objects.requireNonNull(application, "application");
+
         return nodeMap.containsKey(application);
     }
 

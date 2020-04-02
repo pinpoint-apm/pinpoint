@@ -57,6 +57,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -100,8 +101,7 @@ public class FilteredMapServiceImplTest {
             new ServerInfoAppenderFactory(executor)
     );
 
-    @InjectMocks
-    private FilteredMapService filteredMapService = new FilteredMapServiceImpl();
+    private FilteredMapService filteredMapService;
 
     @Before
     public void init() {
@@ -120,6 +120,7 @@ public class FilteredMapServiceImplTest {
             ServiceType serviceType = registry.findServiceTypeByName(invocation.getArgument(1));
             return new Application(applicationName, serviceType);
         });
+        filteredMapService = new FilteredMapServiceImpl(agentInfoService, traceDao, applicationTraceIndexDao, registry, applicationFactory, Optional.empty(), applicationMapBuilderFactory);
     }
 
     @After

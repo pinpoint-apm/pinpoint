@@ -31,6 +31,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Roy Kim
@@ -38,14 +39,17 @@ import java.util.List;
 @Repository
 public class HbaseApplicationDirectBufferDao implements ApplicationDirectBufferDao {
 
-    @Autowired
-    private DirectBufferDecoder directBufferDecoder;
+    private final DirectBufferDecoder directBufferDecoder;
 
-    @Autowired
-    private ApplicationStatSampler<JoinDirectBufferBo> directBufferSampler;
+    private final ApplicationStatSampler<JoinDirectBufferBo> directBufferSampler;
 
-    @Autowired
-    private HbaseApplicationStatDaoOperations operations;
+    private final HbaseApplicationStatDaoOperations operations;
+
+    public HbaseApplicationDirectBufferDao(DirectBufferDecoder directBufferDecoder, ApplicationStatSampler<JoinDirectBufferBo> directBufferSampler, HbaseApplicationStatDaoOperations operations) {
+        this.directBufferDecoder = Objects.requireNonNull(directBufferDecoder, "directBufferDecoder");
+        this.directBufferSampler = Objects.requireNonNull(directBufferSampler, "directBufferSampler");
+        this.operations = Objects.requireNonNull(operations, "operations");
+    }
 
     @Override
     public List<AggreJoinDirectBufferBo> getApplicationStatList(String applicationId, TimeWindow timeWindow) {

@@ -28,6 +28,7 @@ import org.apache.hadoop.hbase.util.Bytes;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author emeroad
@@ -41,6 +42,10 @@ public class SqlMetaDataMapper implements RowMapper<List<SqlMetaDataBo>> {
     private RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
 
     private final static String SQL_METADATA_CF_SQL_QUALI_SQLSTATEMENT = Bytes.toString(HbaseColumnFamily.SQL_METADATA_VER2_SQL.QUALIFIER_SQLSTATEMENT);
+
+    public SqlMetaDataMapper(RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix) {
+        this.rowKeyDistributorByHashPrefix = Objects.requireNonNull(rowKeyDistributorByHashPrefix, "rowKeyDistributorByHashPrefix");
+    }
 
     @Override
     public List<SqlMetaDataBo> mapRow(Result result, int rowNum) throws Exception {

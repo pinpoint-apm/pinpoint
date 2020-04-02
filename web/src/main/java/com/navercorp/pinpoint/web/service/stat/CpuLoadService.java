@@ -24,6 +24,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author HyunGil Jeong
@@ -33,9 +34,8 @@ public class CpuLoadService implements AgentStatService<CpuLoadBo> {
 
     private final CpuLoadDao cpuLoadDao;
 
-    @Autowired
     public CpuLoadService(@Qualifier("cpuLoadDaoFactory") CpuLoadDao cpuLoadDao) {
-        this.cpuLoadDao = cpuLoadDao;
+        this.cpuLoadDao = Objects.requireNonNull(cpuLoadDao, "cpuLoadDao");
     }
 
     @Override

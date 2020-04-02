@@ -125,20 +125,17 @@
     </bean>
     
     <bean id="spanServiceImpl" class="com.navercorp.pinpoint.web.service.SpanServiceImpl">
-        <property name="sqlMetaDataDao" ref="hbaseSqlMetaDataDao"/>
     </bean>
     
     <bean id="hbaseSqlMetaDataDao" class="com.navercorp.pinpoint.web.dao.hbase.HbaseSqlMetaDataDao">
-        <property name="rowKeyDistributorByHashPrefix" ref="metadataRowKeyDistributor2"/>
-        <property name="sqlMetaDataMapper" ref="sqlMetaDataMapper2"/>
     </bean>
 
     <bean id="sqlMetaDataMapper" class="com.navercorp.pinpoint.web.mapper.SqlMetaDataMapper">
-        <property name="rowKeyDistributorByHashPrefix" ref="metadataRowKeyDistributor"/>
+        <constructor-arg ref="metadataRowKeyDistributor"/>
     </bean>
     
     <bean id="sqlMetaDataMapper2" class="com.navercorp.pinpoint.web.mapper.SqlMetaDataMapper">
-        <property name="rowKeyDistributorByHashPrefix" ref="metadataRowKeyDistributor2"/>
+        <constructor-arg ref="metadataRowKeyDistributor2"/>
     </bean>
 
 

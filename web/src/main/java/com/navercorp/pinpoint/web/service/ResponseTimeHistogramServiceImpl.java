@@ -63,6 +63,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.PostConstruct;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author HyunGil Jeong
@@ -72,21 +73,24 @@ public class ResponseTimeHistogramServiceImpl implements ResponseTimeHistogramSe
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @Autowired
-    private LinkSelectorFactory linkSelectorFactory;
+    private final LinkSelectorFactory linkSelectorFactory;
 
-    @Autowired
-    private AgentInfoService agentInfoService;
+    private final AgentInfoService agentInfoService;
 
-    @Autowired
-    private MapResponseDao mapResponseDao;
+    private final MapResponseDao mapResponseDao;
 
-    @Autowired
-    private ApplicationFactory applicationFactory;
+    private final ApplicationFactory applicationFactory;
 
     private ServerInstanceListFactory serverInstanceListFactory;
 
     private NodeHistogramFactory nodeHistogramFactory;
+
+    public ResponseTimeHistogramServiceImpl(LinkSelectorFactory linkSelectorFactory, AgentInfoService agentInfoService, MapResponseDao mapResponseDao, ApplicationFactory applicationFactory) {
+        this.linkSelectorFactory = Objects.requireNonNull(linkSelectorFactory, "linkSelectorFactory");
+        this.agentInfoService = Objects.requireNonNull(agentInfoService, "agentInfoService");
+        this.mapResponseDao = Objects.requireNonNull(mapResponseDao, "mapResponseDao");
+        this.applicationFactory = Objects.requireNonNull(applicationFactory, "applicationFactory");
+    }
 
     @PostConstruct
     public void init() {
@@ -105,18 +109,10 @@ public class ResponseTimeHistogramServiceImpl implements ResponseTimeHistogramSe
 
     @Override
     public NodeHistogramSummary selectNodeHistogramData(Application application, Range range, List<Application> fromApplications, List<Application> toApplications) {
-        if (application == null) {
-            throw new NullPointerException("application");
-        }
-        if (range == null) {
-            throw new NullPointerException("range");
-        }
-        if (fromApplications == null) {
-            throw new NullPointerException("fromApplications");
-        }
-        if (toApplications == null) {
-            throw new NullPointerException("toApplications");
-        }
+        Objects.requireNonNull(application, "application");
+        Objects.requireNonNull(range, "range");
+        Objects.requireNonNull(fromApplications, "fromApplications");
+        Objects.requireNonNull(toApplications, "toApplications");
 
         Node node = new Node(application);
         ServiceType applicationServiceType = application.getServiceType();
@@ -199,15 +195,10 @@ public class ResponseTimeHistogramServiceImpl implements ResponseTimeHistogramSe
 
     @Override
     public LinkHistogramSummary selectLinkHistogramData(Application fromApplication, Application toApplication, Range range) {
-        if (fromApplication == null) {
-            throw new NullPointerException("fromApplication");
-        }
-        if (toApplication == null) {
-            throw new NullPointerException("toApplication");
-        }
-        if (range == null) {
-            throw new NullPointerException("range");
-        }
+        Objects.requireNonNull(fromApplication, "fromApplication");
+        Objects.requireNonNull(toApplication, "toApplication");
+        Objects.requireNonNull(range, "range");
+
 
         LinkDataDuplexMap linkDataDuplexMap;
         ServiceType fromApplicationServiceType = fromApplication.getServiceType();

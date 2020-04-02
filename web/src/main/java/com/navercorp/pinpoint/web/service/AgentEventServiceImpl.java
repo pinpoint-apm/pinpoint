@@ -37,6 +37,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.PriorityQueue;
 import java.util.Set;
 
@@ -49,20 +50,22 @@ public class AgentEventServiceImpl implements AgentEventService {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @Autowired
-    private AgentEventDao agentEventDao;
+    private final AgentEventDao agentEventDao;
 
-    @Autowired
-    private AgentEventMessageDeserializer agentEventMessageDeserializer;
+    private final AgentEventMessageDeserializer agentEventMessageDeserializer;
 
-    @Autowired
-    private AgentEventMessageDeserializerV1 agentEventMessageDeserializerV1;
+    private final AgentEventMessageDeserializerV1 agentEventMessageDeserializerV1;
+
+    public AgentEventServiceImpl(AgentEventDao agentEventDao, AgentEventMessageDeserializer agentEventMessageDeserializer, AgentEventMessageDeserializerV1 agentEventMessageDeserializerV1) {
+        this.agentEventDao = Objects.requireNonNull(agentEventDao, "agentEventDao");
+        this.agentEventMessageDeserializer = Objects.requireNonNull(agentEventMessageDeserializer, "agentEventMessageDeserializer");
+        this.agentEventMessageDeserializerV1 = Objects.requireNonNull(agentEventMessageDeserializerV1, "agentEventMessageDeserializerV1");
+    }
 
     @Override
     public List<AgentEvent> getAgentEvents(String agentId, Range range, int... excludeEventTypeCodes) {
-        if (agentId == null) {
-            throw new NullPointerException("agentId");
-        }
+        Objects.requireNonNull(agentId, "agentId");
+
         Set<AgentEventType> excludeEventTypes = EnumSet.noneOf(AgentEventType.class);
         for (int excludeEventTypeCode : excludeEventTypeCodes) {
             AgentEventType excludeEventType = AgentEventType.getTypeByCode(excludeEventTypeCode);
@@ -78,12 +81,11 @@ public class AgentEventServiceImpl implements AgentEventService {
 
     @Override
     public AgentEvent getAgentEvent(String agentId, long eventTimestamp, int eventTypeCode) {
-        if (agentId == null) {
-            throw new NullPointerException("agentId");
-        }
+        Objects.requireNonNull(agentId, "agentId");
         if (eventTimestamp < 0) {
             throw new IllegalArgumentException("eventTimeTimestamp must not be less than 0");
         }
+
         final AgentEventType eventType = AgentEventType.getTypeByCode(eventTypeCode);
         if (eventType == null) {
             throw new IllegalArgumentException("invalid eventTypeCode [" + eventTypeCode + "]");

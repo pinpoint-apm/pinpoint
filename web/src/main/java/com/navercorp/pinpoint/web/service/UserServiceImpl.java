@@ -20,7 +20,6 @@ import com.navercorp.pinpoint.web.dao.UserDao;
 import com.navercorp.pinpoint.web.util.DefaultUserInfoDecoder;
 import com.navercorp.pinpoint.web.util.UserInfoDecoder;
 import com.navercorp.pinpoint.web.vo.User;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -28,6 +27,8 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 /**
  * @author minwoo.jung
@@ -38,11 +39,14 @@ public class UserServiceImpl implements UserService {
 
     private static final String EMPTY = "";
 
-    @Autowired
-    UserDao userDao;
+    private final UserDao userDao;
 
-    @Autowired(required = false)
-    UserInfoDecoder userInfoDecoder = DefaultUserInfoDecoder.EMPTY_USER_INFO_DECODER;
+    private final UserInfoDecoder userInfoDecoder;
+
+    public UserServiceImpl(UserDao userDao, Optional<UserInfoDecoder> userInfoDecoder) {
+        this.userDao = Objects.requireNonNull(userDao, "userDao");
+        this.userInfoDecoder = Objects.requireNonNull(userInfoDecoder, "userInfoDecoder").orElse(DefaultUserInfoDecoder.EMPTY_USER_INFO_DECODER);
+    }
     
     @Override
     public void insertUser(User user) {

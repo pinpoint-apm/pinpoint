@@ -19,6 +19,7 @@ import com.navercorp.pinpoint.web.vo.scatter.Dot;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Taejin Koo
@@ -31,7 +32,7 @@ public class DotGroup {
     private Dot dotLeader;
 
     public DotGroup(Coordinates coordinates) {
-        this.coordinates = coordinates;
+        this.coordinates = Objects.requireNonNull(coordinates, "coordinates");
     }
 
     public Coordinates getCoordinates() {

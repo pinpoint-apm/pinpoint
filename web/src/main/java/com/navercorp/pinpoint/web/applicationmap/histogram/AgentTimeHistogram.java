@@ -49,32 +49,17 @@ public class AgentTimeHistogram {
     private final AgentHistogramList agentHistogramList;
 
     public AgentTimeHistogram(Application application, Range range) {
-        if (application == null) {
-            throw new NullPointerException("application");
-        }
-        if (range == null) {
-            throw new NullPointerException("range");
-        }
-        this.application = application;
-        this.range = range;
+        this.application = Objects.requireNonNull(application, "application");
+        this.range = Objects.requireNonNull(range, "range");
         this.window = new TimeWindow(range, TimeWindowDownSampler.SAMPLER);
         this.agentHistogramList = new AgentHistogramList();
     }
 
     public AgentTimeHistogram(Application application, Range range, AgentHistogramList agentHistogramList) {
-        if (application == null) {
-            throw new NullPointerException("application");
-        }
-        if (range == null) {
-            throw new NullPointerException("range");
-        }
-        if (agentHistogramList == null) {
-            throw new NullPointerException("agentHistogramList");
-        }
-        this.application = application;
-        this.range = range;
+        this.application = Objects.requireNonNull(application, "application");
+        this.range = Objects.requireNonNull(range, "range");
         this.window = new TimeWindow(range, TimeWindowDownSampler.SAMPLER);
-        this.agentHistogramList = agentHistogramList;
+        this.agentHistogramList = Objects.requireNonNull(agentHistogramList, "agentHistogramList");
     }
 
 

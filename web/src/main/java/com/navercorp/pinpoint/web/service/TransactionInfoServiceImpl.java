@@ -48,6 +48,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  *
@@ -58,24 +59,30 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @Autowired
-    @Qualifier("hbaseTraceDaoFactory")
-    private TraceDao traceDao;
+    private final TraceDao traceDao;
 
-    @Autowired
-    private AnnotationKeyMatcherService annotationKeyMatcherService;
+    private final AnnotationKeyMatcherService annotationKeyMatcherService;
 
-    @Autowired
-    private ServiceTypeRegistryService registry;
+    private final ServiceTypeRegistryService registry;
 
-    @Autowired
-    private AnnotationKeyRegistryService annotationKeyRegistryService;
+    private final AnnotationKeyRegistryService annotationKeyRegistryService;
 
-    @Autowired(required=false)
-    private MetaDataFilter metaDataFilter;
+    private final MetaDataFilter metaDataFilter;
 
-    @Autowired
-    private ProxyRequestTypeRegistryService proxyRequestTypeRegistryService;
+    private final ProxyRequestTypeRegistryService proxyRequestTypeRegistryService;
+
+    public TransactionInfoServiceImpl(@Qualifier("hbaseTraceDaoFactory") TraceDao traceDao,
+                                      AnnotationKeyMatcherService annotationKeyMatcherService,
+                                      ServiceTypeRegistryService registry,
+                                      AnnotationKeyRegistryService annotationKeyRegistryService,
+                                      Optional<MetaDataFilter> metaDataFilter, ProxyRequestTypeRegistryService proxyRequestTypeRegistryService) {
+        this.traceDao = Objects.requireNonNull(traceDao, "traceDao");
+        this.annotationKeyMatcherService = Objects.requireNonNull(annotationKeyMatcherService, "annotationKeyMatcherService");
+        this.registry = Objects.requireNonNull(registry, "registry");
+        this.annotationKeyRegistryService = Objects.requireNonNull(annotationKeyRegistryService, "annotationKeyRegistryService");
+        this.metaDataFilter = Objects.requireNonNull(metaDataFilter, "metaDataFilter").orElse(null);
+        this.proxyRequestTypeRegistryService = Objects.requireNonNull(proxyRequestTypeRegistryService, "proxyRequestTypeRegistryService");
+    }
 
     // Temporarily disabled Because We need to solve authentication problem inter system.
     // @Value("${log.enable:false}")
@@ -89,15 +96,9 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
 
     @Override
     public BusinessTransactions selectBusinessTransactions(List<TransactionId> transactionIdList, String applicationName, Range range, Filter filter) {
-        if (transactionIdList == null) {
-            throw new NullPointerException("transactionIdList");
-        }
-        if (applicationName == null) {
-            throw new NullPointerException("applicationName");
-        }
-        if (filter == null) {
-            throw new NullPointerException("filter");
-        }
+        Objects.requireNonNull(transactionIdList, "transactionIdList");
+        Objects.requireNonNull(applicationName, "applicationName");
+        Objects.requireNonNull(filter, "filter");
         if (range == null) {
             // TODO range is not used - check the logic again
             throw new NullPointerException("range");
@@ -134,9 +135,7 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
 
     @Override
     public RecordSet createRecordSet(CallTreeIterator callTreeIterator, long focusTimestamp, String agentId, long spanId) {
-        if (callTreeIterator == null) {
-            throw new NullPointerException("callTreeIterator");
-        }
+        Objects.requireNonNull(callTreeIterator, "callTreeIterator");
 
         RecordSet recordSet = new RecordSet();
         final List<Align> alignList = callTreeIterator.values();

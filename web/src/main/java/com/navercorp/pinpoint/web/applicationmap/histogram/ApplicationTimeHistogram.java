@@ -45,18 +45,9 @@ public class ApplicationTimeHistogram {
     }
 
     public ApplicationTimeHistogram(Application application, Range range, List<TimeHistogram> histogramList) {
-        if (application == null) {
-            throw new NullPointerException("application");
-        }
-        if (range == null) {
-            throw new NullPointerException("range");
-        }
-        if (histogramList == null) {
-            throw new NullPointerException("histogramList");
-        }
-        this.application = application;
-        this.range = range;
-        this.histogramList = histogramList;
+        this.application = Objects.requireNonNull(application, "application");
+        this.range = Objects.requireNonNull(range, "range");
+        this.histogramList = Objects.requireNonNull(histogramList, "histogramList");
     }
 
     public List<ResponseTimeViewModel> createViewModel() {

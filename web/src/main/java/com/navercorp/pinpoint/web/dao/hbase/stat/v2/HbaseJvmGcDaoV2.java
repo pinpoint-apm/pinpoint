@@ -22,10 +22,10 @@ import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
 import com.navercorp.pinpoint.web.dao.stat.JvmGcDao;
 import com.navercorp.pinpoint.web.mapper.stat.AgentStatMapperV2;
 import com.navercorp.pinpoint.web.vo.Range;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author HyunGil Jeong
@@ -33,11 +33,14 @@ import java.util.List;
 @Repository("jvmGcDaoV2")
 public class HbaseJvmGcDaoV2 implements JvmGcDao {
 
-    @Autowired
-    private JvmGcDecoder jvmGcDecoder;
+    private final HbaseAgentStatDaoOperationsV2 operations;
 
-    @Autowired
-    private HbaseAgentStatDaoOperationsV2 operations;
+    private final JvmGcDecoder jvmGcDecoder;
+
+    public HbaseJvmGcDaoV2(HbaseAgentStatDaoOperationsV2 operations, JvmGcDecoder jvmGcDecoder) {
+        this.operations = Objects.requireNonNull(operations, "operations");
+        this.jvmGcDecoder = Objects.requireNonNull(jvmGcDecoder, "jvmGcDecoder");
+    }
 
     @Override
     public List<JvmGcBo> getAgentStatList(String agentId, Range range) {

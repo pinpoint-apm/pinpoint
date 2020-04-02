@@ -22,10 +22,10 @@ import com.navercorp.pinpoint.common.server.bo.stat.DeadlockThreadCountBo;
 import com.navercorp.pinpoint.web.dao.stat.DeadlockDao;
 import com.navercorp.pinpoint.web.mapper.stat.AgentStatMapperV2;
 import com.navercorp.pinpoint.web.vo.Range;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Taejin Koo
@@ -33,11 +33,14 @@ import java.util.List;
 @Repository("deadlockDaoV2")
 public class HbaseDeadlockDaoV2 implements DeadlockDao {
 
-    @Autowired
-    private DeadlockDecoder deadlockDecoder;
+    private final DeadlockDecoder deadlockDecoder;
 
-    @Autowired
-    private HbaseAgentStatDaoOperationsV2 operations;
+    private final HbaseAgentStatDaoOperationsV2 operations;
+
+    public HbaseDeadlockDaoV2(HbaseAgentStatDaoOperationsV2 operations, DeadlockDecoder deadlockDecoder) {
+        this.operations = Objects.requireNonNull(operations, "operations");
+        this.deadlockDecoder = Objects.requireNonNull(deadlockDecoder, "deadlockDecoder");
+    }
 
     @Override
     public List<DeadlockThreadCountBo> getAgentStatList(String agentId, Range range) {

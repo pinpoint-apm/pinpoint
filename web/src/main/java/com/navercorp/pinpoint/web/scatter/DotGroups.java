@@ -23,6 +23,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -41,6 +42,8 @@ public class DotGroups {
     }
 
     void addDot(Coordinates coordinates, Dot dot) {
+        Objects.requireNonNull(dot, "dot");
+
         Key key = new Key(coordinates, dot.getSimpleExceptionCode());
 
         DotGroup dotGroup = dotGroupMap.get(key);

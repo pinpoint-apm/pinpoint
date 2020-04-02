@@ -16,6 +16,7 @@
 package com.navercorp.pinpoint.web.dao.mysql;
 
 import java.util.List;
+import java.util.Objects;
 
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,10 +34,12 @@ public class MysqlUserDao implements UserDao {
 
     private static final String NAMESPACE = UserDao.class.getPackage().getName() + "." + UserDao.class.getSimpleName() + ".";
 
-    @Autowired
-    @Qualifier("sqlSessionTemplate")
-    private SqlSessionTemplate sqlSessionTemplate;
-    
+    private final SqlSessionTemplate sqlSessionTemplate;
+
+    public MysqlUserDao(@Qualifier("sqlSessionTemplate") SqlSessionTemplate sqlSessionTemplate) {
+        this.sqlSessionTemplate = Objects.requireNonNull(sqlSessionTemplate, "sqlSessionTemplate");
+    }
+
     @Override
     public void insertUser(User user) {
         sqlSessionTemplate.insert(NAMESPACE + "insertUser", user);

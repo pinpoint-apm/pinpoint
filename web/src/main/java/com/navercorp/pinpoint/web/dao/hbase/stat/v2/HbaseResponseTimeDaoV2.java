@@ -22,10 +22,10 @@ import com.navercorp.pinpoint.common.server.bo.stat.ResponseTimeBo;
 import com.navercorp.pinpoint.web.dao.stat.ResponseTimeDao;
 import com.navercorp.pinpoint.web.mapper.stat.AgentStatMapperV2;
 import com.navercorp.pinpoint.web.vo.Range;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Taejin Koo
@@ -33,11 +33,14 @@ import java.util.List;
 @Repository("responseTimeDaoV2")
 public class HbaseResponseTimeDaoV2 implements ResponseTimeDao {
 
-    @Autowired
-    private ResponseTimeDecoder responseTimeDecoder;
+    private final HbaseAgentStatDaoOperationsV2 operations;
 
-    @Autowired
-    private HbaseAgentStatDaoOperationsV2 operations;
+    private final ResponseTimeDecoder responseTimeDecoder;
+
+    public HbaseResponseTimeDaoV2(HbaseAgentStatDaoOperationsV2 operations, ResponseTimeDecoder responseTimeDecoder) {
+        this.operations = Objects.requireNonNull(operations, "operations");
+        this.responseTimeDecoder = Objects.requireNonNull(responseTimeDecoder, "responseTimeDecoder");
+    }
 
     @Override
     public List<ResponseTimeBo> getAgentStatList(String agentId, Range range) {

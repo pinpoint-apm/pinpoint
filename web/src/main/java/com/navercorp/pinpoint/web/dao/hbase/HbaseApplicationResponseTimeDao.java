@@ -31,6 +31,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author minwoo.jung
@@ -38,14 +39,17 @@ import java.util.List;
 @Repository
 public class HbaseApplicationResponseTimeDao implements ApplicationResponseTimeDao {
 
-    @Autowired
-    private ResponseTimeDecoder responseTimeDecoder;
+    private final ResponseTimeDecoder responseTimeDecoder;
 
-    @Autowired
-    private ApplicationStatSampler<JoinResponseTimeBo> joinResponseTimeSampler;
+    private final ApplicationStatSampler<JoinResponseTimeBo> joinResponseTimeSampler;
 
-    @Autowired
-    private HbaseApplicationStatDaoOperations operations;
+    private final HbaseApplicationStatDaoOperations operations;
+
+    public HbaseApplicationResponseTimeDao(ResponseTimeDecoder responseTimeDecoder, ApplicationStatSampler<JoinResponseTimeBo> joinResponseTimeSampler, HbaseApplicationStatDaoOperations operations) {
+        this.responseTimeDecoder = Objects.requireNonNull(responseTimeDecoder, "responseTimeDecoder");
+        this.joinResponseTimeSampler = Objects.requireNonNull(joinResponseTimeSampler, "joinResponseTimeSampler");
+        this.operations = Objects.requireNonNull(operations, "operations");
+    }
 
     @Override
     public List<AggreJoinResponseTimeBo> getApplicationStatList(String applicationId, TimeWindow timeWindow) {

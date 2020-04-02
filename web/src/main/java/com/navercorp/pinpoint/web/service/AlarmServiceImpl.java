@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.web.service;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -36,9 +37,12 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(rollbackFor = {Exception.class})
 public class AlarmServiceImpl implements AlarmService {
 
-    @Autowired
-    AlarmDao alarmDao;
-    
+    private final AlarmDao alarmDao;
+
+    public AlarmServiceImpl(AlarmDao alarmDao) {
+        this.alarmDao = Objects.requireNonNull(alarmDao, "alarmDao");
+    }
+
     @Override
     public String insertRule(Rule rule) {
         return alarmDao.insertRule(rule);

@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.web.applicationmap.rawdata;
 import com.navercorp.pinpoint.web.vo.LinkKey;
 
 import java.util.Collection;
+import java.util.Objects;
 
 /**
  * @author emeroad
@@ -53,9 +54,8 @@ public class LinkDataDuplexMap {
 
 
     public void addLinkDataDuplexMap(LinkDataDuplexMap linkDataDuplexMap) {
-        if (linkDataDuplexMap == null) {
-            throw new NullPointerException("linkDataDuplexMap");
-        }
+        Objects.requireNonNull(linkDataDuplexMap, "linkDataDuplexMap");
+
         for (LinkData copyLinkData : linkDataDuplexMap.sourceLinkDataMap.getLinkDataList()) {
             addSourceLinkData(copyLinkData);
         }
@@ -65,17 +65,14 @@ public class LinkDataDuplexMap {
     }
 
     public void addSourceLinkData(LinkData copyLinkData) {
-        if (copyLinkData == null) {
-            throw new NullPointerException("copyLinkData");
-        }
+        Objects.requireNonNull(copyLinkData, "copyLinkData");
+
         sourceLinkDataMap.addLinkData(copyLinkData);
     }
 
 
     public void addTargetLinkData(LinkData copyLinkData) {
-        if (copyLinkData == null) {
-            throw new NullPointerException("copyLinkData");
-        }
+        Objects.requireNonNull(copyLinkData, "copyLinkData");
         targetLinkDataMap.addLinkData(copyLinkData);
     }
 
@@ -86,17 +83,13 @@ public class LinkDataDuplexMap {
 
 
     public LinkData getSourceLinkData(LinkKey findLinkKey) {
-        if (findLinkKey == null) {
-            throw new NullPointerException("findLinkKey");
-        }
+        Objects.requireNonNull(findLinkKey, "findLinkKey");
 
         return sourceLinkDataMap.getLinkData(findLinkKey);
     }
 
     public LinkData getTargetLinkData(LinkKey findLinkKey) {
-        if (findLinkKey == null) {
-            throw new NullPointerException("findLinkKey");
-        }
+        Objects.requireNonNull(findLinkKey, "findLinkKey");
 
         return targetLinkDataMap.getLinkData(findLinkKey);
     }

@@ -39,14 +39,17 @@ import java.util.List;
 @Repository
 public class HbaseApplicationTransactionDao implements ApplicationTransactionDao {
 
-    @Autowired
-    private TransactionDecoder transactionDecoder;
+    private final TransactionDecoder transactionDecoder;
 
-    @Autowired
-    private ApplicationStatSampler<JoinTransactionBo> transactionSampler;
+    private final ApplicationStatSampler<JoinTransactionBo> transactionSampler;
 
-    @Autowired
-    private HbaseApplicationStatDaoOperations operations;
+    private final HbaseApplicationStatDaoOperations operations;
+
+    public HbaseApplicationTransactionDao(TransactionDecoder transactionDecoder, ApplicationStatSampler<JoinTransactionBo> transactionSampler, HbaseApplicationStatDaoOperations operations) {
+        this.transactionDecoder = transactionDecoder;
+        this.transactionSampler = transactionSampler;
+        this.operations = operations;
+    }
 
     @Override
     public List<AggreJoinTransactionBo> getApplicationStatList(String applicationId, TimeWindow timeWindow) {

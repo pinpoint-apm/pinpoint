@@ -22,20 +22,23 @@ import com.navercorp.pinpoint.web.vo.Application;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Objects;
+
 /**
  * @author emeroad
  */
 @Component
 public class DefaultApplicationFactory implements ApplicationFactory {
 
-    @Autowired
-    private ServiceTypeRegistryService registry;
+    private final ServiceTypeRegistryService registry;
+
+    public DefaultApplicationFactory(ServiceTypeRegistryService registry) {
+        this.registry = Objects.requireNonNull(registry, "registry");
+    }
 
     @Override
     public Application createApplication(String applicationName, short serviceTypeCode) {
-        if (applicationName == null) {
-            throw new NullPointerException("applicationName");
-        }
+        Objects.requireNonNull(applicationName, "applicationName");
 
         final ServiceType serviceType = registry.findServiceType(serviceTypeCode);
         return new Application(applicationName, serviceType);
@@ -48,12 +51,8 @@ public class DefaultApplicationFactory implements ApplicationFactory {
 
     @Override
     public Application createApplicationByTypeName(String applicationName, String serviceTypeName) {
-        if (applicationName == null) {
-            throw new NullPointerException("applicationName");
-        }
-        if (serviceTypeName == null) {
-            throw new NullPointerException("serviceTypeName");
-        }
+        Objects.requireNonNull(applicationName, "applicationName");
+        Objects.requireNonNull(serviceTypeName, "serviceTypeName");
 
         final ServiceType serviceType = registry.findServiceTypeByName(serviceTypeName);
         return new Application(applicationName, serviceType);

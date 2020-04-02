@@ -129,7 +129,7 @@ public class ScatterData {
     }
 
     public ScatterAgentMetaData getScatterAgentMetadata() {
-        return new ScatterAgentMetaData(scatterAgentMetadataRepository);
+        return new ScatterAgentMetaData(scatterAgentMetadataRepository.getDotAgentInfoSet());
     }
 
     public Map<Long, DotGroups> getScatterDataMap() {

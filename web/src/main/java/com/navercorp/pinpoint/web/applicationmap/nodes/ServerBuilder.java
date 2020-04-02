@@ -25,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -59,9 +60,8 @@ public class ServerBuilder {
     }
 
     public void addServerInstance(ServerBuilder copy) {
-        if (copy == null) {
-            throw new NullPointerException("copy");
-        }
+        Objects.requireNonNull(copy, "copy");
+
         addCallHistogramList(copy.agentHistogramList);
         addAgentInfo(copy.agentSet);
     }

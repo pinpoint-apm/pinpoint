@@ -31,6 +31,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author minwoo.jung
@@ -38,14 +39,18 @@ import java.util.List;
 @Repository
 public class HbaseApplicationDataSourceDao implements ApplicationDataSourceDao {
 
-    @Autowired
-    private DataSourceDecoder dataSourceDecoder;
+    private final DataSourceDecoder dataSourceDecoder;
 
-    @Autowired
-    private ApplicationStatSampler<JoinDataSourceListBo> dataSourceSampler;
+    private final ApplicationStatSampler<JoinDataSourceListBo> dataSourceSampler;
 
-    @Autowired
-    private HbaseApplicationStatDaoOperations operations;
+    private final HbaseApplicationStatDaoOperations operations;
+
+    public HbaseApplicationDataSourceDao(DataSourceDecoder dataSourceDecoder,
+                                         ApplicationStatSampler<JoinDataSourceListBo> dataSourceSampler, HbaseApplicationStatDaoOperations operations) {
+        this.dataSourceDecoder = Objects.requireNonNull(dataSourceDecoder, "dataSourceDecoder");
+        this.dataSourceSampler = Objects.requireNonNull(dataSourceSampler, "dataSourceSampler");
+        this.operations = Objects.requireNonNull(operations, "operations");
+    }
 
     @Override
     public List<AggreJoinDataSourceListBo> getApplicationStatList(String applicationId, TimeWindow timeWindow) {

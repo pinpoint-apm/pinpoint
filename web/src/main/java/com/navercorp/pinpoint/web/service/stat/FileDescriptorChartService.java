@@ -27,6 +27,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Roy Kim
@@ -36,19 +37,15 @@ public class FileDescriptorChartService implements AgentStatChartService {
 
     private final SampledFileDescriptorDao sampledFileDescriptorDao;
 
-    @Autowired
     public FileDescriptorChartService(@Qualifier("sampledFileDescriptorDaoFactory") SampledFileDescriptorDao sampledFileDescriptorDao) {
-        this.sampledFileDescriptorDao = sampledFileDescriptorDao;
+        this.sampledFileDescriptorDao = Objects.requireNonNull(sampledFileDescriptorDao, "sampledFileDescriptorDao");
     }
 
     @Override
     public StatChart selectAgentChart(String agentId, TimeWindow timeWindow) {
-        if (agentId == null) {
-            throw new NullPointerException("agentId");
-        }
-        if (timeWindow == null) {
-            throw new NullPointerException("timeWindow");
-        }
+        Objects.requireNonNull(agentId, "agentId");
+        Objects.requireNonNull(timeWindow, "timeWindow");
+
         List<SampledFileDescriptor> sampledFileDescriptors = this.sampledFileDescriptorDao.getSampledAgentStatList(agentId, timeWindow);
         return new FileDescriptorChart(timeWindow, sampledFileDescriptors);
     }

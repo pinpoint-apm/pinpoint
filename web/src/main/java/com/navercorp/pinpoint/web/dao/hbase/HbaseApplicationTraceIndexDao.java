@@ -56,12 +56,12 @@ import org.apache.hadoop.hbase.filter.QualifierFilter;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author emeroad
@@ -74,38 +74,38 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @Autowired
-    private HbaseOperations2 hbaseOperations2;
+    private final HbaseOperations2 hbaseOperations2;
 
-    @Autowired
-    @Qualifier("transactionIdMapper")
-    private RowMapper<List<TransactionId>> traceIndexMapper;
+    private final RowMapper<List<TransactionId>> traceIndexMapper;
 
-    @Autowired
-    @Qualifier("traceIndexScatterMapper")
-    private RowMapper<List<Dot>> traceIndexScatterMapper;
+    private final RowMapper<List<Dot>> traceIndexScatterMapper;
 
-    @Autowired
-    @Qualifier("applicationTraceIndexDistributor")
-    private AbstractRowKeyDistributor traceIdRowKeyDistributor;
+    private final AbstractRowKeyDistributor traceIdRowKeyDistributor;
 
     private int scanCacheSize = 256;
+
+    public HbaseApplicationTraceIndexDao(HbaseOperations2 hbaseOperations2,
+                                         TableDescriptor<HbaseColumnFamily.ApplicationTraceIndexTrace> descriptor,
+                                         @Qualifier("transactionIdMapper") RowMapper<List<TransactionId>> traceIndexMapper,
+                                         @Qualifier("traceIndexScatterMapper") RowMapper<List<Dot>> traceIndexScatterMapper,
+                                         @Qualifier("applicationTraceIndexDistributor") AbstractRowKeyDistributor traceIdRowKeyDistributor) {
+        this.hbaseOperations2 = Objects.requireNonNull(hbaseOperations2, "hbaseOperations2");
+        this.descriptor = Objects.requireNonNull(descriptor, "descriptor");
+        this.traceIndexMapper = Objects.requireNonNull(traceIndexMapper, "traceIndexMapper");
+        this.traceIndexScatterMapper = Objects.requireNonNull(traceIndexScatterMapper, "traceIndexScatterMapper");
+        this.traceIdRowKeyDistributor = Objects.requireNonNull(traceIdRowKeyDistributor, "traceIdRowKeyDistributor");
+    }
 
     public void setScanCacheSize(int scanCacheSize) {
         this.scanCacheSize = scanCacheSize;
     }
 
-    @Autowired
-    private TableDescriptor<HbaseColumnFamily.ApplicationTraceIndexTrace> descriptor;
+    private final TableDescriptor<HbaseColumnFamily.ApplicationTraceIndexTrace> descriptor;
 
     @Override
     public LimitedScanResult<List<TransactionId>> scanTraceIndex(final String applicationName, Range range, int limit, boolean scanBackward) {
-        if (applicationName == null) {
-            throw new NullPointerException("applicationName");
-        }
-        if (range == null) {
-            throw new NullPointerException("range");
-        }
+        Objects.requireNonNull(applicationName, "applicationName");
+        Objects.requireNonNull(range, "range");
         if (limit < 0) {
             throw new IllegalArgumentException("negative limit:" + limit);
         }
@@ -143,12 +143,8 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 
     @Override
     public LimitedScanResult<List<TransactionId>> scanTraceIndex(final String applicationName, SelectedScatterArea area, int limit) {
-        if (applicationName == null) {
-            throw new NullPointerException("applicationName");
-        }
-        if (area == null) {
-            throw new NullPointerException("area");
-        }
+        Objects.requireNonNull(applicationName, "applicationName");
+        Objects.requireNonNull(area, "area");
         if (limit < 0) {
             throw new IllegalArgumentException("negative limit:" + limit);
         }
@@ -259,12 +255,8 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
      */
     @Override
     public List<Dot> scanTraceScatter(String applicationName, SelectedScatterArea area, TransactionId offsetTransactionId, int offsetTransactionElapsed, int limit) {
-        if (applicationName == null) {
-            throw new NullPointerException("applicationName");
-        }
-        if (area == null) {
-            throw new NullPointerException("range");
-        }
+        Objects.requireNonNull(applicationName, "applicationName");
+        Objects.requireNonNull(area, "area");
         if (limit < 0) {
             throw new IllegalArgumentException("negative limit:" + limit);
         }
@@ -292,12 +284,8 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
 
     @Override
     public ScatterData scanTraceScatterData(String applicationName, Range range, int xGroupUnit, int yGroupUnit, int limit, boolean scanBackward) {
-        if (applicationName == null) {
-            throw new NullPointerException("applicationName");
-        }
-        if (range == null) {
-            throw new NullPointerException("range");
-        }
+        Objects.requireNonNull(applicationName, "applicationName");
+        Objects.requireNonNull(range, "range");
         if (limit < 0) {
             throw new IllegalArgumentException("negative limit:" + limit);
         }

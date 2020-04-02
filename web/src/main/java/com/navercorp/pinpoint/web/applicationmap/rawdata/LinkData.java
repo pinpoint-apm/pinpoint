@@ -24,6 +24,8 @@ import com.navercorp.pinpoint.web.vo.Application;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Objects;
+
 /**
  * application caller/callee relationship stored in DB
  *
@@ -43,15 +45,8 @@ public class LinkData {
         this(fromApplication, toApplication, null);
     }
     public LinkData(Application fromApplication, Application toApplication, TimeWindow timeWindow) {
-        if (fromApplication == null) {
-            throw new NullPointerException("fromApplication");
-        }
-        if (toApplication == null) {
-            throw new NullPointerException("toApplication");
-        }
-
-        this.fromApplication = fromApplication;
-        this.toApplication = toApplication;
+        this.fromApplication = Objects.requireNonNull(fromApplication, "fromApplication");
+        this.toApplication = Objects.requireNonNull(toApplication, "toApplication");
 
         this.timeWindow = timeWindow;
         this.linkCallDataMap = new LinkCallDataMap(timeWindow);
@@ -65,9 +60,8 @@ public class LinkData {
      * @param count
      */
     public void addLinkData(String callerAgentId, ServiceType callerServiceTypeCode, String hostname, ServiceType serviceTypeCode, long timestamp, short slot, long count) {
-        if (hostname == null) {
-            throw new NullPointerException("hostname");
-        }
+        Objects.requireNonNull(hostname, "hostname");
+
         this.linkCallDataMap.addCallData(callerAgentId, callerServiceTypeCode, hostname, serviceTypeCode, timestamp, slot, count);
     }
 
@@ -101,9 +95,8 @@ public class LinkData {
     }
 
     public void add(final LinkData linkData) {
-        if (linkData == null) {
-            throw new NullPointerException("linkData");
-        }
+        Objects.requireNonNull(linkData, "linkData");
+
         if (!this.equals(linkData)) {
             throw new IllegalArgumentException("Can't merge with different link.");
         }

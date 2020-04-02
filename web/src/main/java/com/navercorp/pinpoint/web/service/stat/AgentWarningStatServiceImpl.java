@@ -34,6 +34,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author Taejin Koo
@@ -43,9 +44,11 @@ public class AgentWarningStatServiceImpl implements AgentWarningStatService {
 
     private static final long LIMIT_TIME = 60000;
 
-    @Autowired
-    @Qualifier("deadlockDaoV2")
-    private DeadlockDao deadlockDao;
+    private final DeadlockDao deadlockDao;
+
+    public AgentWarningStatServiceImpl(@Qualifier("deadlockDaoV2") DeadlockDao deadlockDao) {
+        this.deadlockDao = Objects.requireNonNull(deadlockDao, "deadlockDao");
+    }
 
     @Override
     public List<AgentStatusTimelineSegment> select(String agentId, Range range) {

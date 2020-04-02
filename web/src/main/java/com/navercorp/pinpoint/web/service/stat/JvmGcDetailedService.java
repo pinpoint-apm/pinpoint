@@ -24,6 +24,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author HyunGil Jeong
@@ -33,19 +34,15 @@ public class JvmGcDetailedService implements AgentStatService<JvmGcDetailedBo> {
 
     private final JvmGcDetailedDao jvmGcDetailedDao;
 
-    @Autowired
     public JvmGcDetailedService(@Qualifier("jvmGcDetailedDaoFactory") JvmGcDetailedDao jvmGcDetailedDao) {
-        this.jvmGcDetailedDao = jvmGcDetailedDao;
+        this.jvmGcDetailedDao = Objects.requireNonNull(jvmGcDetailedDao, "jvmGcDetailedDao");
     }
 
     @Override
     public List<JvmGcDetailedBo> selectAgentStatList(String agentId, Range range) {
-        if (agentId == null) {
-            throw new NullPointerException("agentId");
-        }
-        if (range == null) {
-            throw new NullPointerException("range");
-        }
+        Objects.requireNonNull(agentId, "agentId");
+        Objects.requireNonNull(range, "range");
+
         return this.jvmGcDetailedDao.getAgentStatList(agentId, range);
     }
 }

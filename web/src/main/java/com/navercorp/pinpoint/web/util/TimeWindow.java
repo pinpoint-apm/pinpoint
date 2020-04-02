@@ -20,6 +20,7 @@ import com.navercorp.pinpoint.web.vo.Range;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 
 /**
  * 
@@ -39,14 +40,9 @@ public class TimeWindow implements Iterable<Long> {
     }
 
     public TimeWindow(Range range, TimeWindowSampler sampler) {
-        if (range == null) {
-            throw new NullPointerException("range");
-        }
-        if (sampler == null) {
-            throw new NullPointerException("sampler");
-        }
+        this.range = Objects.requireNonNull(range, "range");
+        Objects.requireNonNull(sampler, "sampler");
         this.windowSlotSize = sampler.getWindowSize(range);
-        this.range = range;
         this.windowRange = createWindowRange();
     }
 

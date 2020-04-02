@@ -38,6 +38,8 @@ import com.navercorp.pinpoint.web.vo.Range;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Objects;
+
 /**
  * @author emeroad
  * @author minwoo.jung
@@ -58,18 +60,9 @@ public class ApplicationMapBuilder {
     private ServerInstanceListFactory serverInstanceListFactory;
 
     public ApplicationMapBuilder(Range range, NodeHistogramAppenderFactory nodeHistogramAppenderFactory, ServerInfoAppenderFactory serverInfoAppenderFactory) {
-        if (range == null) {
-            throw new NullPointerException("range");
-        }
-        if (nodeHistogramAppenderFactory == null) {
-            throw new NullPointerException("nodeHistogramAppenderFactory");
-        }
-        if (serverInfoAppenderFactory == null) {
-            throw new NullPointerException("serverInfoAppenderFactory");
-        }
-        this.range = range;
-        this.nodeHistogramAppenderFactory = nodeHistogramAppenderFactory;
-        this.serverInfoAppenderFactory = serverInfoAppenderFactory;
+        this.range = Objects.requireNonNull(range, "range");
+        this.nodeHistogramAppenderFactory = Objects.requireNonNull(nodeHistogramAppenderFactory, "nodeHistogramAppenderFactory");
+        this.serverInfoAppenderFactory = Objects.requireNonNull(serverInfoAppenderFactory, "serverInfoAppenderFactory");
     }
 
     public ApplicationMapBuilder nodeType(NodeType nodeType) {

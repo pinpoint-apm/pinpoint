@@ -31,6 +31,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Roy Kim
@@ -38,14 +39,19 @@ import java.util.List;
 @Repository
 public class HbaseApplicationFileDescriptorDao implements ApplicationFileDescriptorDao {
 
-    @Autowired
-    private FileDescriptorDecoder fileDescriptorDecoder;
+    private final FileDescriptorDecoder fileDescriptorDecoder;
 
-    @Autowired
-    private ApplicationStatSampler<JoinFileDescriptorBo> fileDescriptorSampler;
+    private final ApplicationStatSampler<JoinFileDescriptorBo> fileDescriptorSampler;
 
-    @Autowired
-    private HbaseApplicationStatDaoOperations operations;
+    private final HbaseApplicationStatDaoOperations operations;
+
+    public HbaseApplicationFileDescriptorDao(FileDescriptorDecoder fileDescriptorDecoder,
+                                             ApplicationStatSampler<JoinFileDescriptorBo> fileDescriptorSampler,
+                                             HbaseApplicationStatDaoOperations operations) {
+        this.fileDescriptorDecoder = Objects.requireNonNull(fileDescriptorDecoder, "fileDescriptorDecoder");
+        this.fileDescriptorSampler = Objects.requireNonNull(fileDescriptorSampler, "fileDescriptorSampler");
+        this.operations = Objects.requireNonNull(operations, "operations");
+    }
 
     @Override
     public List<AggreJoinFileDescriptorBo> getApplicationStatList(String applicationId, TimeWindow timeWindow) {

@@ -27,11 +27,11 @@ import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinActiveTraceBo;
 import com.navercorp.pinpoint.web.vo.stat.AggregationStatData;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author minwoo.jung
@@ -39,14 +39,17 @@ import java.util.List;
 @Repository
 public class HbaseApplicationActiveTraceDao implements ApplicationActiveTraceDao {
 
-    @Autowired
-    private ActiveTraceDecoder activeTraceDecoder;
+    private final ActiveTraceDecoder activeTraceDecoder;
 
-    @Autowired
-    private ApplicationStatSampler<JoinActiveTraceBo> activeTraceSampler;
+    private final ApplicationStatSampler<JoinActiveTraceBo> activeTraceSampler;
 
-    @Autowired
-    private HbaseApplicationStatDaoOperations operations;
+    private final HbaseApplicationStatDaoOperations operations;
+
+    public HbaseApplicationActiveTraceDao(ActiveTraceDecoder activeTraceDecoder, ApplicationStatSampler<JoinActiveTraceBo> activeTraceSampler, HbaseApplicationStatDaoOperations operations) {
+        this.activeTraceDecoder = Objects.requireNonNull(activeTraceDecoder, "activeTraceDecoder");
+        this.activeTraceSampler = Objects.requireNonNull(activeTraceSampler, "activeTraceSampler");
+        this.operations = Objects.requireNonNull(operations, "operations");
+    }
 
     @Override
     public List<AggreJoinActiveTraceBo> getApplicationStatList(String applicationId, TimeWindow timeWindow) {

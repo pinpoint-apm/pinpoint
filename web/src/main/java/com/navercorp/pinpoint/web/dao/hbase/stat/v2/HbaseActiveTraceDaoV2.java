@@ -22,10 +22,10 @@ import com.navercorp.pinpoint.common.server.bo.stat.AgentStatType;
 import com.navercorp.pinpoint.web.dao.stat.ActiveTraceDao;
 import com.navercorp.pinpoint.web.mapper.stat.AgentStatMapperV2;
 import com.navercorp.pinpoint.web.vo.Range;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author HyunGil Jeong
@@ -33,11 +33,14 @@ import java.util.List;
 @Repository("activeTraceDaoV2")
 public class HbaseActiveTraceDaoV2 implements ActiveTraceDao {
 
-    @Autowired
-    private ActiveTraceDecoder activeTraceDecoder;
+    private final HbaseAgentStatDaoOperationsV2 operations;
 
-    @Autowired
-    private HbaseAgentStatDaoOperationsV2 operations;
+    private final ActiveTraceDecoder activeTraceDecoder;
+
+    public HbaseActiveTraceDaoV2(HbaseAgentStatDaoOperationsV2 operations, ActiveTraceDecoder activeTraceDecoder) {
+        this.activeTraceDecoder = Objects.requireNonNull(activeTraceDecoder, "activeTraceDecoder");
+        this.operations = Objects.requireNonNull(operations, "operations");
+    }
 
     @Override
     public List<ActiveTraceBo> getAgentStatList(String agentId, Range range) {
