@@ -18,12 +18,14 @@ package com.navercorp.pinpoint.web.alarm;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.mockito.Mockito.*;
 
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import com.navercorp.pinpoint.web.dao.AlarmDao;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.batch.core.StepExecution;
@@ -69,10 +71,10 @@ public class AlarmReaderTest {
         ExecutionContext executionContext = new ExecutionContext();
         stepExecution.setExecutionContext(executionContext);
         
-        AlarmServiceImpl alarmService = new AlarmServiceImpl() {
+        AlarmServiceImpl alarmService = new AlarmServiceImpl(mock(AlarmDao.class)) {
             @Override
             public java.util.List<Rule> selectRuleByApplicationId(String applicationId) {
-                return new LinkedList<Rule>();
+                return new LinkedList<>();
             }
         };
         
@@ -104,10 +106,10 @@ public class AlarmReaderTest {
             @Override public void deleteAgentId(String applicationName, String agentId) {}
             
         };
-        
-        alarmService = new AlarmServiceImpl() {
+
+        alarmService = new AlarmServiceImpl(mock(AlarmDao.class)) {
             private Map<String, Rule> ruleMap ;
-            
+
             {
                 ruleMap = new HashMap<String, Rule>();
 
@@ -115,10 +117,10 @@ public class AlarmReaderTest {
                     ruleMap.put(APP_NAME + i, new Rule(APP_NAME + i, SERVICE_TYPE, CheckerCategory.SLOW_COUNT.getName(), 76, "testGroup", false, false, ""));
                 }
             }
-            
+
             @Override
             public List<Rule> selectRuleByApplicationId(String applicationId) {
-                List<Rule> rules = new LinkedList<Rule>();
+                List<Rule> rules = new LinkedList<>();
                 rules.add(ruleMap.get(applicationId));
                 return rules;
             }

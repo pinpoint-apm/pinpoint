@@ -66,13 +66,11 @@ public class HbaseMapStatisticsCallerDao implements MapStatisticsCallerDao {
 
     private TableDescriptor<HbaseColumnFamily.CalleeStatMap> descriptor;
 
-    @Autowired
     public HbaseMapStatisticsCallerDao(
             HbaseOperations2 hbaseTemplate,
-            @Qualifier("mapStatisticsCallerMapper") RowMapper<LinkDataMap> mapStatisticsCallerMapper,
+            TableDescriptor<HbaseColumnFamily.CalleeStatMap> descriptor, @Qualifier("mapStatisticsCallerMapper") RowMapper<LinkDataMap> mapStatisticsCallerMapper,
             RangeFactory rangeFactory,
-            @Qualifier("statisticsCallerRowKeyDistributor") RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix,
-            TableDescriptor<HbaseColumnFamily.CalleeStatMap> descriptor) {
+            @Qualifier("statisticsCallerRowKeyDistributor") RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix) {
         this.hbaseTemplate = Objects.requireNonNull(hbaseTemplate, "hbaseTemplate");
         this.mapStatisticsCallerMapper = Objects.requireNonNull(mapStatisticsCallerMapper, "mapStatisticsCallerMapper");
         this.rangeFactory = Objects.requireNonNull(rangeFactory, "rangeFactory");
@@ -82,12 +80,8 @@ public class HbaseMapStatisticsCallerDao implements MapStatisticsCallerDao {
 
     @Override
     public LinkDataMap selectCaller(Application callerApplication, Range range) {
-        if (callerApplication == null) {
-            throw new NullPointerException("callerApplication");
-        }
-        if (range == null) {
-            throw new NullPointerException("range");
-        }
+        Objects.requireNonNull(callerApplication, "callerApplication");
+        Objects.requireNonNull(range, "range");
 
         final TimeWindow timeWindow = new TimeWindow(range, TimeWindowDownSampler.SAMPLER);
         // find distributed key.

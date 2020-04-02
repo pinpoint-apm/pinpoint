@@ -24,6 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Roy Kim
@@ -31,18 +32,18 @@ import java.util.List;
 @Service
 public class ApplicationDirectBufferService implements ApplicationStatChartService {
 
-    @Autowired
-    private ApplicationDirectBufferDao applicationDirectBufferDao;
+    private final ApplicationDirectBufferDao applicationDirectBufferDao;
+
+    public ApplicationDirectBufferService(ApplicationDirectBufferDao applicationDirectBufferDao) {
+        this.applicationDirectBufferDao = Objects.requireNonNull(applicationDirectBufferDao, "applicationDirectBufferDao");
+    }
 
 
     @Override
     public StatChart selectApplicationChart(String applicationId, TimeWindow timeWindow) {
-        if (applicationId == null) {
-            throw new NullPointerException("applicationId");
-        }
-        if (timeWindow == null) {
-            throw new NullPointerException("timeWindow");
-        }
+        Objects.requireNonNull(applicationId, "applicationId");
+        Objects.requireNonNull(timeWindow, "timeWindow");
+
         List<AggreJoinDirectBufferBo> aggreJoinDirectBufferBoList = this.applicationDirectBufferDao.getApplicationStatList(applicationId, timeWindow);
         return new ApplicationDirectBufferChart(timeWindow, aggreJoinDirectBufferBoList);
     }

@@ -26,10 +26,10 @@ import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.DirectBufferSampl
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.stat.SampledDirectBuffer;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Roy Kim
@@ -37,14 +37,16 @@ import java.util.List;
 @Repository("sampledDirectBufferDaoV2")
 public class HbaseSampledDirectBufferDaoV2 implements SampledDirectBufferDao {
 
-    @Autowired
-    private DirectBufferDecoder directBufferDecoder;
+    private final HbaseAgentStatDaoOperationsV2 operations;
 
-    @Autowired
-    private DirectBufferSampler directBufferSampler;
+    private final DirectBufferDecoder directBufferDecoder;
+    private final DirectBufferSampler directBufferSampler;
 
-    @Autowired
-    private HbaseAgentStatDaoOperationsV2 operations;
+    public HbaseSampledDirectBufferDaoV2(HbaseAgentStatDaoOperationsV2 operations, DirectBufferDecoder directBufferDecoder, DirectBufferSampler directBufferSampler) {
+        this.operations = Objects.requireNonNull(operations, "operations");
+        this.directBufferDecoder = Objects.requireNonNull(directBufferDecoder, "directBufferDecoder");
+        this.directBufferSampler = Objects.requireNonNull(directBufferSampler, "directBufferSampler");
+    }
 
     @Override
     public List<SampledDirectBuffer> getSampledAgentStatList(String agentId, TimeWindow timeWindow) {

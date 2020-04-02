@@ -20,10 +20,10 @@ import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinFileDescriptorBo;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChart;
 import com.navercorp.pinpoint.web.vo.stat.chart.application.ApplicationFileDescriptorChart;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Roy Kim
@@ -31,18 +31,17 @@ import java.util.List;
 @Service
 public class ApplicationFileDescriptorService implements ApplicationStatChartService {
 
-    @Autowired
-    private ApplicationFileDescriptorDao applicationFileDescriptorDao;
+    private final ApplicationFileDescriptorDao applicationFileDescriptorDao;
 
+    public ApplicationFileDescriptorService(ApplicationFileDescriptorDao applicationFileDescriptorDao) {
+        this.applicationFileDescriptorDao = Objects.requireNonNull(applicationFileDescriptorDao, "applicationFileDescriptorDao");
+    }
 
     @Override
     public StatChart selectApplicationChart(String applicationId, TimeWindow timeWindow) {
-        if (applicationId == null) {
-            throw new NullPointerException("applicationId");
-        }
-        if (timeWindow == null) {
-            throw new NullPointerException("timeWindow");
-        }
+        Objects.requireNonNull(applicationId, "applicationId");
+        Objects.requireNonNull(timeWindow, "timeWindow");
+
         List<AggreJoinFileDescriptorBo> aggreJoinFileDescriptorBoList = this.applicationFileDescriptorDao.getApplicationStatList(applicationId, timeWindow);
         return new ApplicationFileDescriptorChart(timeWindow, aggreJoinFileDescriptorBoList);
     }

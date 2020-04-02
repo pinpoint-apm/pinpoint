@@ -49,7 +49,6 @@ import org.apache.hadoop.hbase.filter.QualifierFilter;
 import org.apache.hadoop.hbase.filter.TimestampsFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
@@ -69,16 +68,11 @@ public class HbaseTraceDaoV2 implements TraceDao {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @Autowired
-    private HbaseOperations2 template2;
+    private final HbaseOperations2 template2;
 
-    @Autowired
-    @Qualifier("traceRowKeyEncoderV2")
-    private RowKeyEncoder<TransactionId> rowKeyEncoder;
+    private final RowKeyEncoder<TransactionId> rowKeyEncoder;
 
-    @Autowired
-    @Qualifier("traceRowKeyDecoderV2")
-    private RowKeyDecoder<TransactionId> rowKeyDecoder;
+    private final RowKeyDecoder<TransactionId> rowKeyDecoder;
 
     private RowMapper<List<SpanBo>> spanMapperV2;
 
@@ -90,8 +84,14 @@ public class HbaseTraceDaoV2 implements TraceDao {
 
     private final Filter spanFilter = createSpanQualifierFilter();
 
-    @Autowired
-    private TableDescriptor<HbaseColumnFamily.Trace> descriptor;
+    private final TableDescriptor<HbaseColumnFamily.Trace> descriptor;
+
+    public HbaseTraceDaoV2(HbaseOperations2 template2, TableDescriptor<HbaseColumnFamily.Trace> descriptor, @Qualifier("traceRowKeyEncoderV2") RowKeyEncoder<TransactionId> rowKeyEncoder, @Qualifier("traceRowKeyDecoderV2") RowKeyDecoder<TransactionId> rowKeyDecoder) {
+        this.template2 = Objects.requireNonNull(template2, "template2");
+        this.descriptor = Objects.requireNonNull(descriptor, "descriptor");
+        this.rowKeyEncoder = Objects.requireNonNull(rowKeyEncoder, "rowKeyEncoder");
+        this.rowKeyDecoder = Objects.requireNonNull(rowKeyDecoder, "rowKeyDecoder");
+    }
 
     @PostConstruct
     private void setup() {

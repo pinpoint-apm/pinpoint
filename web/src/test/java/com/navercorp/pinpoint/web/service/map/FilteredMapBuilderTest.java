@@ -32,9 +32,9 @@ import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.ResponseHistograms;
 import com.navercorp.pinpoint.web.vo.ResponseTime;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Arrays;
@@ -54,8 +54,12 @@ public class FilteredMapBuilderTest {
     // Mocked
     private ServiceTypeRegistryService registry = TestTraceUtils.mockServiceTypeRegistryService();
 
-    @InjectMocks
-    private ApplicationFactory applicationFactory = new DefaultApplicationFactory();
+    private ApplicationFactory applicationFactory;
+
+    @Before
+    public void setUp() {
+        this.applicationFactory = new DefaultApplicationFactory(registry);
+    }
 
     /**
      * USER -> ROOT_APP -> APP_A -> CACHE

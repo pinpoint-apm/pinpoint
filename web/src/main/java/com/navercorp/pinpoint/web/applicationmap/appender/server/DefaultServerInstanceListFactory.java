@@ -24,6 +24,8 @@ import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkData;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkDataDuplexMap;
 import com.navercorp.pinpoint.web.vo.Application;
 
+import java.util.Objects;
+
 /**
  * @author HyunGil Jeong
  */
@@ -32,10 +34,7 @@ public class DefaultServerInstanceListFactory implements ServerInstanceListFacto
     private final ServerInstanceListDataSource serverInstanceListDataSource;
 
     public DefaultServerInstanceListFactory(ServerInstanceListDataSource serverInstanceListDataSource) {
-        if (serverInstanceListDataSource == null) {
-            throw new NullPointerException("serverInstanceListDataSource");
-        }
-        this.serverInstanceListDataSource = serverInstanceListDataSource;
+        this.serverInstanceListDataSource = Objects.requireNonNull(serverInstanceListDataSource, "serverInstanceListDataSource");
     }
 
     @Override

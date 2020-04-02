@@ -24,6 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author minwoo.jung
@@ -31,17 +32,17 @@ import java.util.List;
 @Service
 public class ApplicationMemoryService implements ApplicationStatChartService {
 
-    @Autowired
-    private ApplicationMemoryDao applicationMemoryDao;
+    private final ApplicationMemoryDao applicationMemoryDao;
+
+    public ApplicationMemoryService(ApplicationMemoryDao applicationMemoryDao) {
+        this.applicationMemoryDao = Objects.requireNonNull(applicationMemoryDao, "applicationMemoryDao");
+    }
 
     @Override
     public StatChart selectApplicationChart(String applicationId, TimeWindow timeWindow) {
-        if (applicationId == null) {
-            throw new NullPointerException("applicationId");
-        }
-        if (timeWindow == null) {
-            throw new NullPointerException("timeWindow");
-        }
+        Objects.requireNonNull(applicationId, "applicationId");
+        Objects.requireNonNull(timeWindow, "timeWindow");
+
         List<AggreJoinMemoryBo> aggreJoinMemoryBoList = this.applicationMemoryDao.getApplicationStatList(applicationId, timeWindow);
         return new ApplicationMemoryChart(timeWindow, aggreJoinMemoryBoList);
     }

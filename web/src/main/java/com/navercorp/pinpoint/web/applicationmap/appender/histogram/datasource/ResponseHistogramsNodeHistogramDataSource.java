@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.web.vo.ResponseHistograms;
 import com.navercorp.pinpoint.web.vo.ResponseTime;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author HyunGil Jeong
@@ -32,10 +33,7 @@ public class ResponseHistogramsNodeHistogramDataSource implements WasNodeHistogr
     private final ResponseHistograms responseHistograms;
 
     public ResponseHistogramsNodeHistogramDataSource(ResponseHistograms responseHistograms) {
-        if (responseHistograms == null) {
-            throw new NullPointerException("responseHistograms");
-        }
-        this.responseHistograms = responseHistograms;
+        this.responseHistograms = Objects.requireNonNull(responseHistograms, "responseHistograms");
     }
 
     @Override

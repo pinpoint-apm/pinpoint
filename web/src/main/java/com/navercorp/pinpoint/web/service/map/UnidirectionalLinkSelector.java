@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author HyunGil Jeong
@@ -47,14 +48,8 @@ public class UnidirectionalLinkSelector implements LinkSelector {
             ApplicationsMapCreator applicationsMapCreator,
             VirtualLinkHandler virtualLinkHandler,
             ServerMapDataFilter serverMapDataFilter) {
-        if (applicationsMapCreator == null) {
-            throw new NullPointerException("applicationsMapCreator");
-        }
-        if (virtualLinkHandler == null) {
-            throw new NullPointerException("virtualLinkProcessor");
-        }
-        this.applicationsMapCreator = applicationsMapCreator;
-        this.virtualLinkHandler = virtualLinkHandler;
+        this.applicationsMapCreator = Objects.requireNonNull(applicationsMapCreator, "applicationsMapCreator");
+        this.virtualLinkHandler = Objects.requireNonNull(virtualLinkHandler, "virtualLinkHandler");
         this.serverMapDataFilter = serverMapDataFilter;
     }
 

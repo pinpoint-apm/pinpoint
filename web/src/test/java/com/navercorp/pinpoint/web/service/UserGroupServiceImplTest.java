@@ -16,17 +16,18 @@
 
 package com.navercorp.pinpoint.web.service;
 
+import com.navercorp.pinpoint.web.config.ConfigProperties;
 import com.navercorp.pinpoint.web.dao.UserGroupDao;
 import com.navercorp.pinpoint.web.util.UserInfoDecoder;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.when;
@@ -38,12 +39,20 @@ import static org.mockito.Mockito.when;
 public class UserGroupServiceImplTest {
 
     @Mock
-    UserGroupDao userGroupDao;
-
+    private UserGroupDao userGroupDao;
     @Mock
-    UserInfoDecoder userInfoDecoder;
+    private UserInfoDecoder userInfoDecoder;
+    @Mock
+    private UserService userService;
+    @Mock
+    private AlarmService alarmService;
 
-    UserGroupServiceImpl userGroupService = new UserGroupServiceImpl();
+    UserGroupServiceImpl userGroupService;
+
+    @Before
+    public void before() throws Exception {
+        userGroupService = new UserGroupServiceImpl(userGroupDao, Optional.of(userInfoDecoder), alarmService, new ConfigProperties(), userService);
+    }
 
     @Test
     public void selectPhoneNumberOfMemberTest() {
@@ -52,7 +61,8 @@ public class UserGroupServiceImplTest {
         phoneNumberWithHyphenList.add("010-1111-1111");
         phoneNumberWithHyphenList.add("-010-2222-2222-");
 
-        ReflectionTestUtils.setField(userGroupService, "userGroupDao", userGroupDao);
+
+        userGroupService = new UserGroupServiceImpl(userGroupDao, Optional.empty(), alarmService, new ConfigProperties(), userService);
         when(userGroupDao.selectPhoneNumberOfMember(groupId)).thenReturn(phoneNumberWithHyphenList);
         List<String> phoneNumberList = userGroupService.selectPhoneNumberOfMember(groupId);
 
@@ -72,8 +82,7 @@ public class UserGroupServiceImplTest {
         decodedPhoneNumberList.add("010-1111-1111");
         decodedPhoneNumberList.add("010-2222-2222");
 
-        ReflectionTestUtils.setField(userGroupService, "userInfoDecoder", userInfoDecoder);
-        ReflectionTestUtils.setField(userGroupService, "userGroupDao", userGroupDao);
+
         when(userGroupDao.selectPhoneNumberOfMember(groupId)).thenReturn(encodedPhoneNumberList);
         when(userInfoDecoder.decodePhoneNumberList(encodedPhoneNumberList)).thenReturn(decodedPhoneNumberList);
         List<String> phoneNumberList = userGroupService.selectPhoneNumberOfMember(groupId);
@@ -95,8 +104,6 @@ public class UserGroupServiceImplTest {
         decodedPhoneNumberList.add("01011111111");
         decodedPhoneNumberList.add("01022222222");
 
-        ReflectionTestUtils.setField(userGroupService, "userInfoDecoder", userInfoDecoder);
-        ReflectionTestUtils.setField(userGroupService, "userGroupDao", userGroupDao);
         when(userGroupDao.selectPhoneNumberOfMember(groupId)).thenReturn(encodedPhoneNumberList);
         when(userInfoDecoder.decodePhoneNumberList(encodedPhoneNumberList)).thenReturn(decodedPhoneNumberList);
         List<String> phoneNumberList = userGroupService.selectPhoneNumberOfMember(groupId);

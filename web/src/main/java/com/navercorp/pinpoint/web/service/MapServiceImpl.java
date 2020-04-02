@@ -42,11 +42,12 @@ import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.SearchOption;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StopWatch;
 
 import java.util.Collections;
+import java.util.Objects;
+import java.util.Optional;
 
 /**
  * @author netspider
@@ -59,23 +60,25 @@ public class MapServiceImpl implements MapService {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @Autowired
-    private LinkSelectorFactory linkSelectorFactory;
+    private final LinkSelectorFactory linkSelectorFactory;
 
-    @Autowired
-    private AgentInfoService agentInfoService;
+    private final AgentInfoService agentInfoService;
 
-    @Autowired
-    private MapResponseDao mapResponseDao;
+    private final MapResponseDao mapResponseDao;
 
-    @Autowired
-    private ApplicationFactory applicationFactory;
-    
-    @Autowired(required=false)
-    private ServerMapDataFilter serverMapDataFilter;
+    private final ServerMapDataFilter serverMapDataFilter;
 
-    @Autowired
-    private ApplicationMapBuilderFactory applicationMapBuilderFactory;
+    private final ApplicationMapBuilderFactory applicationMapBuilderFactory;
+
+    public MapServiceImpl(LinkSelectorFactory linkSelectorFactory, AgentInfoService agentInfoService,
+                          MapResponseDao mapResponseDao,
+                          Optional<ServerMapDataFilter> serverMapDataFilter, ApplicationMapBuilderFactory applicationMapBuilderFactory) {
+        this.linkSelectorFactory = Objects.requireNonNull(linkSelectorFactory, "linkSelectorFactory");
+        this.agentInfoService = Objects.requireNonNull(agentInfoService, "agentInfoService");
+        this.mapResponseDao = Objects.requireNonNull(mapResponseDao, "mapResponseDao");
+        this.serverMapDataFilter = Objects.requireNonNull(serverMapDataFilter, "serverMapDataFilter").orElse(null);
+        this.applicationMapBuilderFactory = Objects.requireNonNull(applicationMapBuilderFactory, "applicationMapBuilderFactory");
+    }
 
     /**
      * Used in the main UI - draws the server map by querying the timeslot by time.

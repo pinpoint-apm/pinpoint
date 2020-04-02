@@ -31,13 +31,13 @@ import org.apache.hadoop.hbase.client.Delete;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author netspider
@@ -46,19 +46,23 @@ import java.util.Map;
 @Repository
 public class HbaseApplicationIndexDao implements ApplicationIndexDao {
 
-    @Autowired
-    private HbaseOperations2 hbaseOperations2;
+    private final HbaseOperations2 hbaseOperations2;
 
-    @Autowired
-    @Qualifier("applicationNameMapper")
-    private RowMapper<List<Application>> applicationNameMapper;
+    private final RowMapper<List<Application>> applicationNameMapper;
 
-    @Autowired
-    @Qualifier("agentIdMapper")
-    private RowMapper<List<String>> agentIdMapper;
+    private final RowMapper<List<String>> agentIdMapper;
 
-    @Autowired
-    private TableDescriptor<HbaseColumnFamily.ApplicationIndex> descriptor;
+    private final TableDescriptor<HbaseColumnFamily.ApplicationIndex> descriptor;
+
+    public HbaseApplicationIndexDao(HbaseOperations2 hbaseOperations2,
+                                    TableDescriptor<HbaseColumnFamily.ApplicationIndex> descriptor,
+                                    @Qualifier("applicationNameMapper") RowMapper<List<Application>> applicationNameMapper,
+                                    @Qualifier("agentIdMapper") RowMapper<List<String>> agentIdMapper) {
+        this.hbaseOperations2 = Objects.requireNonNull(hbaseOperations2, "hbaseOperations2");
+        this.descriptor = Objects.requireNonNull(descriptor, "descriptor");
+        this.applicationNameMapper = Objects.requireNonNull(applicationNameMapper, "applicationNameMapper");
+        this.agentIdMapper = Objects.requireNonNull(agentIdMapper, "agentIdMapper");
+    }
 
     @Override
     public List<Application> selectAllApplicationNames() {

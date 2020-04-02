@@ -16,6 +16,7 @@
 package com.navercorp.pinpoint.web.dao.mysql;
 
 import java.util.List;
+import java.util.Objects;
 
 import com.navercorp.pinpoint.web.vo.UserPhoneInfo;
 import org.mybatis.spring.SqlSessionTemplate;
@@ -35,9 +36,11 @@ public class MysqlUserGroupDao implements UserGroupDao {
     
     private static final String NAMESPACE = UserGroupDao.class.getPackage().getName() + "." + UserGroupDao.class.getSimpleName() + ".";
 
-    @Autowired
-    @Qualifier("sqlSessionTemplate")
-    private SqlSessionTemplate sqlSessionTemplate;
+    private final SqlSessionTemplate sqlSessionTemplate;
+
+    public MysqlUserGroupDao(@Qualifier("sqlSessionTemplate") SqlSessionTemplate sqlSessionTemplate) {
+        this.sqlSessionTemplate = Objects.requireNonNull(sqlSessionTemplate, "sqlSessionTemplate");
+    }
 
     @Override
     public String createUserGroup(UserGroup userGroup) {

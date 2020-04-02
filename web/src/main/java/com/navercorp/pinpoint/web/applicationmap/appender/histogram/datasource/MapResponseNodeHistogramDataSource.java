@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.ResponseTime;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author HyunGil Jeong
@@ -32,10 +33,7 @@ public class MapResponseNodeHistogramDataSource implements WasNodeHistogramDataS
     private final MapResponseDao mapResponseDao;
 
     public MapResponseNodeHistogramDataSource(MapResponseDao mapResponseDao) {
-        if (mapResponseDao == null) {
-            throw new NullPointerException("mapResponseDao");
-        }
-        this.mapResponseDao = mapResponseDao;
+        this.mapResponseDao = Objects.requireNonNull(mapResponseDao, "mapResponseDao");
     }
 
     @Override

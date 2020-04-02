@@ -34,6 +34,7 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -49,12 +50,14 @@ public class AdminServiceImpl implements AdminService {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @Autowired
-    private ApplicationIndexDao applicationIndexDao;
+    private final ApplicationIndexDao applicationIndexDao;
 
-    @Autowired
-    @Qualifier("jvmGcDaoFactory")
-    private JvmGcDao jvmGcDao;
+    private final JvmGcDao jvmGcDao;
+
+    public AdminServiceImpl(ApplicationIndexDao applicationIndexDao, @Qualifier("jvmGcDaoFactory") JvmGcDao jvmGcDao) {
+        this.applicationIndexDao = Objects.requireNonNull(applicationIndexDao, "applicationIndexDao");
+        this.jvmGcDao = Objects.requireNonNull(jvmGcDao, "jvmGcDao");
+    }
 
     @Override
     public void removeApplicationName(String applicationName) {

@@ -23,6 +23,8 @@ import com.navercorp.pinpoint.common.trace.SlotType;
 import com.navercorp.pinpoint.web.view.HistogramSerializer;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
+import java.util.Objects;
+
 /**
  * @author emeroad
  * @author netspider
@@ -43,17 +45,12 @@ public class Histogram {
     private long verySlowErrorCount;
 
     public Histogram(ServiceType serviceType) {
-        if (serviceType == null) {
-            throw new NullPointerException("serviceType");
-        }
+        Objects.requireNonNull(serviceType, "serviceType");
         this.schema = serviceType.getHistogramSchema();
     }
 
     public Histogram(HistogramSchema schema) {
-        if (schema == null) {
-            throw new NullPointerException("schema");
-        }
-        this.schema = schema;
+        this.schema = Objects.requireNonNull(schema, "schema");
     }
 
     public void addCallCountByElapsedTime(int elapsedTime, boolean error) {

@@ -23,6 +23,7 @@ import com.navercorp.pinpoint.web.vo.scatter.Dot;
 import com.navercorp.pinpoint.web.vo.scatter.DotAgentInfo;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -33,11 +34,9 @@ public class ScatterAgentMetaData {
 
     private final BiMap<DotAgentInfo, Integer> metaData;
 
-    public ScatterAgentMetaData(ScatterAgentMetadataRepository scatterAgentMetadataRepository) {
-        this(scatterAgentMetadataRepository.getDotAgentInfoSet());
-    }
-
     public ScatterAgentMetaData(Set<DotAgentInfo> dotAgentInfoSet) {
+        Objects.requireNonNull(dotAgentInfoSet, "dotAgentInfoSet");
+        
         this.metaData = HashBiMap.create(dotAgentInfoSet.size());
 
         int dotAgentInfoId = 1;

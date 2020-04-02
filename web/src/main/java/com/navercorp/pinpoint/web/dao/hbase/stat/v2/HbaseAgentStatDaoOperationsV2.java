@@ -35,11 +35,11 @@ import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Scan;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author HyunGil Jeong
@@ -52,22 +52,22 @@ public class HbaseAgentStatDaoOperationsV2 {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @Autowired
-    private HbaseOperations2 hbaseOperations2;
+    private final HbaseOperations2 hbaseOperations2;
 
-    @Autowired
-    private AgentStatHbaseOperationFactory operationFactory;
+    private final AgentStatHbaseOperationFactory operationFactory;
 
-    @Autowired
-    private TableDescriptor<HbaseColumnFamily.AgentStatStatistics> descriptor;
+    private final TableDescriptor<HbaseColumnFamily.AgentStatStatistics> descriptor;
+
+    public HbaseAgentStatDaoOperationsV2(HbaseOperations2 hbaseOperations2,
+                                         TableDescriptor<HbaseColumnFamily.AgentStatStatistics> descriptor, AgentStatHbaseOperationFactory operationFactory) {
+        this.hbaseOperations2 = Objects.requireNonNull(hbaseOperations2, "hbaseOperations2");
+        this.operationFactory = Objects.requireNonNull(operationFactory, "operationFactory");
+        this.descriptor = Objects.requireNonNull(descriptor, "descriptor");
+    }
 
     <T extends AgentStatDataPoint> List<T> getAgentStatList(AgentStatType agentStatType, AgentStatMapperV2<T> mapper, String agentId, Range range) {
-        if (agentId == null) {
-            throw new NullPointerException("agentId");
-        }
-        if (range == null) {
-            throw new NullPointerException("range");
-        }
+        Objects.requireNonNull(agentId, "agentId");
+        Objects.requireNonNull(range, "range");
 
         Scan scan = this.createScan(agentStatType, agentId, range);
 
@@ -82,12 +82,8 @@ public class HbaseAgentStatDaoOperationsV2 {
     }
 
     <T extends AgentStatDataPoint> boolean agentStatExists(AgentStatType agentStatType, AgentStatMapperV2<T> mapper, String agentId, Range range) {
-        if (agentId == null) {
-            throw new NullPointerException("agentId");
-        }
-        if (range == null) {
-            throw new NullPointerException("range");
-        }
+        Objects.requireNonNull(agentId, "agentId");
+        Objects.requireNonNull(range, "range");
 
         if (logger.isDebugEnabled()) {
             logger.debug("checking for stat data existence : agentId={}, {}", agentId, range);
@@ -106,15 +102,10 @@ public class HbaseAgentStatDaoOperationsV2 {
     }
 
     <S extends SampledAgentStatDataPoint> List<S> getSampledAgentStatList(AgentStatType agentStatType, ResultsExtractor<List<S>> resultExtractor, String agentId, Range range) {
-        if (agentId == null) {
-            throw new NullPointerException("agentId");
-        }
-        if (range == null) {
-            throw new NullPointerException("range");
-        }
-        if (resultExtractor == null) {
-            throw new NullPointerException("resultExtractor");
-        }
+        Objects.requireNonNull(agentId, "agentId");
+        Objects.requireNonNull(range, "range");
+        Objects.requireNonNull(resultExtractor, "resultExtractor");
+
         Scan scan = this.createScan(agentStatType, agentId, range);
 
         TableName agentStatTableName = descriptor.getTableName();

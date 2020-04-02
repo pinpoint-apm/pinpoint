@@ -24,6 +24,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Roy Kim
@@ -33,19 +34,15 @@ public class DirectBufferService implements AgentStatService<DirectBufferBo> {
 
     private final DirectBufferDao directBufferDao;
 
-    @Autowired
     public DirectBufferService(@Qualifier("directBufferDaoFactory") DirectBufferDao directBufferDao) {
-        this.directBufferDao = directBufferDao;
+        this.directBufferDao = Objects.requireNonNull(directBufferDao, "directBufferDao");
     }
 
     @Override
     public List<DirectBufferBo> selectAgentStatList(String agentId, Range range) {
-        if (agentId == null) {
-            throw new NullPointerException("agentId");
-        }
-        if (range == null) {
-            throw new NullPointerException("range");
-        }
+        Objects.requireNonNull(agentId, "agentId");
+        Objects.requireNonNull(range, "range");
+
         return this.directBufferDao.getAgentStatList(agentId, range);
     }
 }

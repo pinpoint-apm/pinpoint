@@ -18,15 +18,16 @@ package com.navercorp.pinpoint.web.service.stat;
 
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinDataSourceBo;
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinDataSourceListBo;
-import com.navercorp.pinpoint.web.mapper.TimestampFilter;
+import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
+import com.navercorp.pinpoint.web.dao.ApplicationDataSourceDao;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinDataSourceBo;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinDataSourceListBo;
 import org.junit.Test;
 
-import java.security.Timestamp;
 import java.util.*;
 
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
 
 /**
  * @author minwoo.jung
@@ -36,7 +37,10 @@ public class ApplicationDataSourceServiceTest {
     public void classifyByDataSourceUrlTest() throws Exception {
         final String id = "test_app";
         long timestamp = new Date().getTime();
-        ApplicationDataSourceService applicationDataSourceService = new ApplicationDataSourceService();
+
+        final ApplicationDataSourceDao applicationDataSourceDao = mock(ApplicationDataSourceDao.class);
+        final ServiceTypeRegistryService serviceTypeRegistryService = mock(ServiceTypeRegistryService.class);
+        ApplicationDataSourceService applicationDataSourceService = new ApplicationDataSourceService(applicationDataSourceDao, serviceTypeRegistryService);
 
         Map<JoinDataSourceListBo.DataSourceKey, List<AggreJoinDataSourceBo>> dataSourceKeyListMap = applicationDataSourceService.classifyByDataSourceUrl(createJoinDataSourceListBoList(id, timestamp));
 

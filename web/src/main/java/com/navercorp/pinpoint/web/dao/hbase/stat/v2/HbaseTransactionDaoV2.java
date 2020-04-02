@@ -22,10 +22,10 @@ import com.navercorp.pinpoint.common.server.bo.stat.TransactionBo;
 import com.navercorp.pinpoint.web.dao.stat.TransactionDao;
 import com.navercorp.pinpoint.web.mapper.stat.AgentStatMapperV2;
 import com.navercorp.pinpoint.web.vo.Range;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author HyunGil Jeong
@@ -33,11 +33,14 @@ import java.util.List;
 @Repository("transactionDaoV2")
 public class HbaseTransactionDaoV2 implements TransactionDao {
 
-    @Autowired
-    private TransactionDecoder transactionDecoder;
+    private final HbaseAgentStatDaoOperationsV2 operations;
 
-    @Autowired
-    private HbaseAgentStatDaoOperationsV2 operations;
+    private final TransactionDecoder transactionDecoder;
+
+    public HbaseTransactionDaoV2(HbaseAgentStatDaoOperationsV2 operations, TransactionDecoder transactionDecoder) {
+        this.operations = Objects.requireNonNull(operations, "operations");
+        this.transactionDecoder = Objects.requireNonNull(transactionDecoder, "transactionDecoder");
+    }
 
     @Override
     public List<TransactionBo> getAgentStatList(String agentId, Range range) {

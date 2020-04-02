@@ -21,9 +21,9 @@ import com.navercorp.pinpoint.web.dao.stat.DeadlockDao;
 import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.timeline.inspector.AgentStatusTimelineSegment;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
@@ -47,8 +47,12 @@ public class AgentWarningStatServiceTest {
     @Mock
     private DeadlockDao deadlockDao;
 
-    @InjectMocks
-    private AgentWarningStatService agentWarningStatService = new AgentWarningStatServiceImpl();
+    private AgentWarningStatService agentWarningStatService;
+
+    @Before
+    public void setUp() throws Exception {
+        this.agentWarningStatService = new AgentWarningStatServiceImpl(deadlockDao);
+    }
 
     @Test
     public void selectTest1() throws Exception {

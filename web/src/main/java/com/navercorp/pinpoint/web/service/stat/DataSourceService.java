@@ -24,6 +24,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Taejin Koo
@@ -33,20 +34,16 @@ public class DataSourceService implements AgentStatService<DataSourceListBo> {
 
     private final DataSourceDao dataSourceDao;
 
-    @Autowired
     public DataSourceService(@Qualifier("dataSourceDaoFactory") DataSourceDao dataSourceDao) {
-        this.dataSourceDao = dataSourceDao;
+        this.dataSourceDao = Objects.requireNonNull(dataSourceDao, "dataSourceDao");
     }
 
     @Override
     public List<DataSourceListBo> selectAgentStatList(String agentId, Range range) {
-        if (agentId == null) {
-            throw new NullPointerException("agentId");
-        }
-        if (range == null) {
-            throw new NullPointerException("range");
-        }
-        return  this.dataSourceDao.getAgentStatList(agentId, range);
+        Objects.requireNonNull(agentId, "agentId");
+        Objects.requireNonNull(range, "range");
+
+        return this.dataSourceDao.getAgentStatList(agentId, range);
     }
 
 }

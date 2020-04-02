@@ -20,6 +20,8 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
 import com.navercorp.pinpoint.web.view.NodeHistogramSummarySerializer;
 
+import java.util.Objects;
+
 /**
  * @author HyunGil Jeong
  */
@@ -30,14 +32,8 @@ public class NodeHistogramSummary {
     private final NodeHistogram nodeHistogram;
 
     public NodeHistogramSummary(ServerInstanceList serverInstanceList, NodeHistogram nodeHistogram) {
-        if (serverInstanceList == null) {
-            throw new NullPointerException("serverInstanceList");
-        }
-        if (nodeHistogram == null) {
-            throw new NullPointerException("nodeHistogram");
-        }
-        this.serverInstanceList = serverInstanceList;
-        this.nodeHistogram = nodeHistogram;
+        this.serverInstanceList = Objects.requireNonNull(serverInstanceList, "serverInstanceList");
+        this.nodeHistogram = Objects.requireNonNull(nodeHistogram, "nodeHistogram");
     }
 
     public ServerInstanceList getServerInstanceList() {

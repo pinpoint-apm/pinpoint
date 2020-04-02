@@ -36,6 +36,7 @@ import org.slf4j.LoggerFactory;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author HyunGil Jeong
@@ -47,10 +48,7 @@ public class DefaultNodeHistogramFactory implements NodeHistogramFactory {
     private final WasNodeHistogramDataSource wasNodeHistogramDataSource;
 
     public DefaultNodeHistogramFactory(WasNodeHistogramDataSource wasNodeHistogramDataSource) {
-        if (wasNodeHistogramDataSource == null) {
-            throw new NullPointerException("nodeHistogramDataSource");
-        }
-        this.wasNodeHistogramDataSource = wasNodeHistogramDataSource;
+        this.wasNodeHistogramDataSource = Objects.requireNonNull(wasNodeHistogramDataSource, "wasNodeHistogramDataSource");
     }
 
     @Override

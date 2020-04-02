@@ -32,6 +32,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author minwoo.jung
@@ -39,14 +40,17 @@ import java.util.List;
 @Repository
 public class HbaseApplicationMemoryDao implements ApplicationMemoryDao {
 
-    @Autowired
-    private MemoryDecoder memoryDecoder;
+    private final MemoryDecoder memoryDecoder;
 
-    @Autowired
-    private ApplicationStatSampler<JoinMemoryBo> memorySampler;
+    private final ApplicationStatSampler<JoinMemoryBo> memorySampler;
 
-    @Autowired
-    private HbaseApplicationStatDaoOperations operations;
+    private final HbaseApplicationStatDaoOperations operations;
+
+    public HbaseApplicationMemoryDao(MemoryDecoder memoryDecoder, ApplicationStatSampler<JoinMemoryBo> memorySampler, HbaseApplicationStatDaoOperations operations) {
+        this.memoryDecoder = Objects.requireNonNull(memoryDecoder, "memoryDecoder");
+        this.memorySampler = Objects.requireNonNull(memorySampler, "memorySampler");
+        this.operations = Objects.requireNonNull(operations, "operations");
+    }
 
     @Override
     public List<AggreJoinMemoryBo> getApplicationStatList(String applicationId, TimeWindow timeWindow) {

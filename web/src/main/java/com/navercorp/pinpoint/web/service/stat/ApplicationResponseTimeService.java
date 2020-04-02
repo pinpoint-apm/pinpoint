@@ -24,6 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author minwoo.jung
@@ -31,17 +32,17 @@ import java.util.List;
 @Service
 public class ApplicationResponseTimeService implements ApplicationStatChartService {
 
-    @Autowired
-    private ApplicationResponseTimeDao applicationResponseTimeDao;
+    private final ApplicationResponseTimeDao applicationResponseTimeDao;
+
+    public ApplicationResponseTimeService(ApplicationResponseTimeDao applicationResponseTimeDao) {
+        this.applicationResponseTimeDao = applicationResponseTimeDao;
+    }
 
     @Override
     public StatChart selectApplicationChart(String applicationId, TimeWindow timeWindow) {
-        if (applicationId == null) {
-            throw new NullPointerException("applicationId");
-        }
-        if (timeWindow == null) {
-            throw new NullPointerException("timeWindow");
-        }
+        Objects.requireNonNull(applicationId, "applicationId");
+        Objects.requireNonNull(timeWindow, "timeWindow");
+
 
         List<AggreJoinResponseTimeBo> aggreJoinResponseTimeBoList = this.applicationResponseTimeDao.getApplicationStatList(applicationId, timeWindow);
         return new ApplicationResponseTimeChart(timeWindow, aggreJoinResponseTimeBoList);

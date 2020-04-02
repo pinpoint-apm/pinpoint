@@ -66,23 +66,29 @@ public class AgentInfoServiceImpl implements AgentInfoService {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @Autowired
-    private AgentEventService agentEventService;
+    private final AgentEventService agentEventService;
 
-    @Autowired
-    private AgentWarningStatService agentWarningStatService;
+    private final AgentWarningStatService agentWarningStatService;
 
-    @Autowired
-    private ApplicationIndexDao applicationIndexDao;
+    private final ApplicationIndexDao applicationIndexDao;
 
-    @Autowired
-    private AgentInfoDao agentInfoDao;
+    private final AgentInfoDao agentInfoDao;
 
-    @Autowired
-    private AgentLifeCycleDao agentLifeCycleDao;
+    private final AgentLifeCycleDao agentLifeCycleDao;
 
-    @Autowired
-    private AgentDownloadInfoDao agentDownloadInfoDao;
+    private final AgentDownloadInfoDao agentDownloadInfoDao;
+
+    public AgentInfoServiceImpl(AgentEventService agentEventService,
+                                AgentWarningStatService agentWarningStatService, ApplicationIndexDao applicationIndexDao,
+                                AgentInfoDao agentInfoDao, AgentLifeCycleDao agentLifeCycleDao,
+                                AgentDownloadInfoDao agentDownloadInfoDao) {
+        this.agentEventService = Objects.requireNonNull(agentEventService, "agentEventService");
+        this.agentWarningStatService = Objects.requireNonNull(agentWarningStatService, "agentWarningStatService");
+        this.applicationIndexDao = Objects.requireNonNull(applicationIndexDao, "applicationIndexDao");
+        this.agentInfoDao = Objects.requireNonNull(agentInfoDao, "agentInfoDao");
+        this.agentLifeCycleDao = Objects.requireNonNull(agentLifeCycleDao, "agentLifeCycleDao");
+        this.agentDownloadInfoDao = Objects.requireNonNull(agentDownloadInfoDao, "agentDownloadInfoDao");
+    }
 
     @Override
     public ApplicationAgentsList getAllApplicationAgentsList(ApplicationAgentsList.Filter filter, long timestamp) {

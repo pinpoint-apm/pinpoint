@@ -26,10 +26,10 @@ import com.navercorp.pinpoint.web.mapper.stat.SampledAgentStatResultExtractor;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.stat.SampledJvmGc;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author HyunGil Jeong
@@ -37,14 +37,16 @@ import java.util.List;
 @Repository("sampledJvmGcDaoV2")
 public class HbaseSampledJvmGcDaoV2 implements SampledJvmGcDao {
 
-    @Autowired
-    private JvmGcDecoder jvmGcDecoder;
+    private final HbaseAgentStatDaoOperationsV2 operations;
 
-    @Autowired
-    private JvmGcSampler jvmGcSampler;
+    private final JvmGcDecoder jvmGcDecoder;
+    private final JvmGcSampler jvmGcSampler;
 
-    @Autowired
-    private HbaseAgentStatDaoOperationsV2 operations;
+    public HbaseSampledJvmGcDaoV2(HbaseAgentStatDaoOperationsV2 operations, JvmGcDecoder jvmGcDecoder, JvmGcSampler jvmGcSampler) {
+        this.operations = Objects.requireNonNull(operations, "operations");
+        this.jvmGcDecoder = Objects.requireNonNull(jvmGcDecoder, "jvmGcDecoder");
+        this.jvmGcSampler = Objects.requireNonNull(jvmGcSampler, "jvmGcSampler");
+    }
 
     @Override
     public List<SampledJvmGc> getSampledAgentStatList(String agentId, TimeWindow timeWindow) {

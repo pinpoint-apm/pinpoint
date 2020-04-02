@@ -25,6 +25,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Taejin Koo
@@ -34,9 +35,11 @@ public class MysqlAgentStatisticsDao implements AgentStatisticsDao {
 
     private static final String NAMESPACE = MysqlAgentStatisticsDao.class.getPackage().getName() + "." + MysqlAgentStatisticsDao.class.getSimpleName() + ".";
 
-    @Autowired
-    @Qualifier("sqlSessionTemplate")
-    private SqlSessionTemplate sqlSessionTemplate;
+    private final SqlSessionTemplate sqlSessionTemplate;
+
+    public MysqlAgentStatisticsDao(@Qualifier("sqlSessionTemplate") SqlSessionTemplate sqlSessionTemplate) {
+        this.sqlSessionTemplate = Objects.requireNonNull(sqlSessionTemplate, "sqlSessionTemplate");
+    }
 
     @Override
     public boolean insertAgentCount(AgentCountStatistics agentCountStatistics) {

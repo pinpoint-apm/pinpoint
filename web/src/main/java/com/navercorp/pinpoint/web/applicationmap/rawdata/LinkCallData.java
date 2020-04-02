@@ -42,9 +42,8 @@ public class LinkCallData {
         this(linkKey, null);
     }
     public LinkCallData(LinkKey linkKey, TimeWindow timeWindow) {
-        if (linkKey == null) {
-            throw new NullPointerException("linkKey");
-        }
+        Objects.requireNonNull(linkKey, "linkKey");
+
         this.source = linkKey.getFromApplication();
         this.sourceServiceType = linkKey.getFromServiceType();
 

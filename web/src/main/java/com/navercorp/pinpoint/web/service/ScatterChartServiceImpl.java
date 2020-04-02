@@ -46,12 +46,14 @@ public class ScatterChartServiceImpl implements ScatterChartService {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @Autowired
-    private ApplicationTraceIndexDao applicationTraceIndexDao;
+    private final ApplicationTraceIndexDao applicationTraceIndexDao;
 
-    @Autowired
-    @Qualifier("hbaseTraceDaoFactory")
-    private TraceDao traceDao;
+    private final TraceDao traceDao;
+
+    public ScatterChartServiceImpl(ApplicationTraceIndexDao applicationTraceIndexDao, @Qualifier("hbaseTraceDaoFactory") TraceDao traceDao) {
+        this.applicationTraceIndexDao = Objects.requireNonNull(applicationTraceIndexDao, "applicationTraceIndexDao");
+        this.traceDao = Objects.requireNonNull(traceDao, "traceDao");
+    }
 
     @Override
     public List<Dot> selectScatterData(String applicationName, SelectedScatterArea area, TransactionId offsetTransactionId, int offsetTransactionElapsed, int limit) {

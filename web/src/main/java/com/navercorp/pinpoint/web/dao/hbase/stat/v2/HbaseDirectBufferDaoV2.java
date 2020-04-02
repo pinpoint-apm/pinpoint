@@ -22,10 +22,10 @@ import com.navercorp.pinpoint.common.server.bo.stat.DirectBufferBo;
 import com.navercorp.pinpoint.web.dao.stat.DirectBufferDao;
 import com.navercorp.pinpoint.web.mapper.stat.AgentStatMapperV2;
 import com.navercorp.pinpoint.web.vo.Range;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Roy Kim
@@ -33,11 +33,14 @@ import java.util.List;
 @Repository("directBufferDaoV2")
 public class HbaseDirectBufferDaoV2 implements DirectBufferDao {
 
-    @Autowired
-    private DirectBufferDecoder directBufferDecoder;
+    private final HbaseAgentStatDaoOperationsV2 operations;
 
-    @Autowired
-    private HbaseAgentStatDaoOperationsV2 operations;
+    private final DirectBufferDecoder directBufferDecoder;
+
+    public HbaseDirectBufferDaoV2(HbaseAgentStatDaoOperationsV2 operations, DirectBufferDecoder directBufferDecoder) {
+        this.operations = Objects.requireNonNull(operations, "operations");
+        this.directBufferDecoder = Objects.requireNonNull(directBufferDecoder, "directBufferDecoder");
+    }
 
     @Override
     public List<DirectBufferBo> getAgentStatList(String agentId, Range range) {

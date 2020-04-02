@@ -35,6 +35,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -47,16 +48,11 @@ public class AgentInfoServerInstanceListDataSource implements ServerInstanceList
     private final AgentInfoService agentInfoService;
 
     public AgentInfoServerInstanceListDataSource(AgentInfoService agentInfoService) {
-        if (agentInfoService == null) {
-            throw new NullPointerException("agentInfoService");
-        }
-        this.agentInfoService = agentInfoService;
+        this.agentInfoService = Objects.requireNonNull(agentInfoService, "agentInfoService");
     }
 
     public ServerInstanceList createServerInstanceList(Node node, long timestamp) {
-        if (node == null) {
-            throw new NullPointerException("node");
-        }
+        Objects.requireNonNull(node, "node");
         if (timestamp < 0) {
             return new ServerInstanceList();
         }

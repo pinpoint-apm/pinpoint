@@ -54,6 +54,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 /**
  * @author emeroad
@@ -63,39 +65,40 @@ import java.util.List;
 //@Service
 public class SpanServiceImpl implements SpanService {
 
-    private Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @Autowired
-    @Qualifier("hbaseTraceDaoFactory")
-    private TraceDao traceDao;
+    private final TraceDao traceDao;
 
-    //    @Autowired
-    private SqlMetaDataDao sqlMetaDataDao;
+    private final SqlMetaDataDao sqlMetaDataDao;
 
-    @Autowired(required = false)
-    private MetaDataFilter metaDataFilter;
+    private final MetaDataFilter metaDataFilter;
 
-    @Autowired
-    private ApiMetaDataDao apiMetaDataDao;
+    private final ApiMetaDataDao apiMetaDataDao;
 
-    @Autowired
-    private StringMetaDataDao stringMetaDataDao;
+    private final StringMetaDataDao stringMetaDataDao;
 
-    @Autowired
-    private ServiceTypeRegistryService serviceTypeRegistryService;
+    private final ServiceTypeRegistryService serviceTypeRegistryService;
 
     private final SqlParser sqlParser = new DefaultSqlParser();
     private final OutputParameterParser outputParameterParser = new OutputParameterParser();
 
-    public void setSqlMetaDataDao(SqlMetaDataDao sqlMetaDataDao) {
-        this.sqlMetaDataDao = sqlMetaDataDao;
+    public SpanServiceImpl(@Qualifier("hbaseTraceDaoFactory") TraceDao traceDao,
+                           SqlMetaDataDao sqlMetaDataDao,
+                           Optional<MetaDataFilter> metaDataFilter,
+                           ApiMetaDataDao apiMetaDataDao,
+                           StringMetaDataDao stringMetaDataDao,
+                           ServiceTypeRegistryService serviceTypeRegistryService) {
+        this.traceDao = Objects.requireNonNull(traceDao, "traceDao");
+        this.sqlMetaDataDao = Objects.requireNonNull(sqlMetaDataDao, "sqlMetaDataDao");
+        this.metaDataFilter = Objects.requireNonNull(metaDataFilter, "metaDataFilter").orElse(null);
+        this.apiMetaDataDao = Objects.requireNonNull(apiMetaDataDao, "apiMetaDataDao");
+        this.stringMetaDataDao = Objects.requireNonNull(stringMetaDataDao, "stringMetaDataDao");
+        this.serviceTypeRegistryService = Objects.requireNonNull(serviceTypeRegistryService, "serviceTypeRegistryService");
     }
 
     @Override
     public SpanResult selectSpan(TransactionId transactionId, long selectedSpanHint) {
-        if (transactionId == null) {
-            throw new NullPointerException("transactionId");
-        }
+        Objects.requireNonNull(transactionId, "transactionId");
 
         final List<SpanBo> spans = traceDao.selectSpan(transactionId);
         if (CollectionUtils.isEmpty(spans)) {

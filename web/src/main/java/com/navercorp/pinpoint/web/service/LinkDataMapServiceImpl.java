@@ -21,8 +21,9 @@ import com.navercorp.pinpoint.web.dao.MapStatisticsCalleeDao;
 import com.navercorp.pinpoint.web.dao.MapStatisticsCallerDao;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.Range;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.Objects;
 
 /**
  * @author HyunGil Jeong
@@ -30,11 +31,14 @@ import org.springframework.stereotype.Service;
 @Service
 public class LinkDataMapServiceImpl implements LinkDataMapService {
 
-    @Autowired
-    private MapStatisticsCallerDao mapStatisticsCallerDao;
+    private final MapStatisticsCallerDao mapStatisticsCallerDao;
 
-    @Autowired
-    private MapStatisticsCalleeDao mapStatisticsCalleeDao;
+    private final MapStatisticsCalleeDao mapStatisticsCalleeDao;
+
+    public LinkDataMapServiceImpl(MapStatisticsCallerDao mapStatisticsCallerDao, MapStatisticsCalleeDao mapStatisticsCalleeDao) {
+        this.mapStatisticsCallerDao = Objects.requireNonNull(mapStatisticsCallerDao, "mapStatisticsCallerDao");
+        this.mapStatisticsCalleeDao = Objects.requireNonNull(mapStatisticsCalleeDao, "mapStatisticsCalleeDao");
+    }
 
     @Override
     public LinkDataMap selectCallerLinkDataMap(Application application, Range range) {

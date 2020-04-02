@@ -63,31 +63,25 @@ public class HbaseMapStatisticsCalleeDao implements MapStatisticsCalleeDao {
 
     private final RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
 
-    @Autowired
-    private TableDescriptor<HbaseColumnFamily.CallerStatMap> descriptor;
+    private final TableDescriptor<HbaseColumnFamily.CallerStatMap> descriptor;
 
-    @Autowired
     public HbaseMapStatisticsCalleeDao(
             HbaseOperations2 hbaseTemplate,
+            TableDescriptor<HbaseColumnFamily.CallerStatMap> descriptor,
             @Qualifier("mapStatisticsCalleeMapper") RowMapper<LinkDataMap> mapStatisticsCalleeMapper,
             RangeFactory rangeFactory,
-            @Qualifier("statisticsCalleeRowKeyDistributor") RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix,
-            TableDescriptor<HbaseColumnFamily.CallerStatMap> descriptor)  {
+            @Qualifier("statisticsCalleeRowKeyDistributor") RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix)  {
         this.hbaseTemplate = Objects.requireNonNull(hbaseTemplate, "hbaseTemplate");
+        this.descriptor = Objects.requireNonNull(descriptor, "descriptor");
         this.mapStatisticsCalleeMapper = Objects.requireNonNull(mapStatisticsCalleeMapper, "mapStatisticsCalleeMapper");
         this.rangeFactory = Objects.requireNonNull(rangeFactory, "rangeFactory");
         this.rowKeyDistributorByHashPrefix = Objects.requireNonNull(rowKeyDistributorByHashPrefix, "rowKeyDistributorByHashPrefix");
-        this.descriptor = Objects.requireNonNull(descriptor, "descriptor");
     }
 
     @Override
     public LinkDataMap selectCallee(Application calleeApplication, Range range) {
-        if (calleeApplication == null) {
-            throw new NullPointerException("calleeApplication");
-        }
-        if (range == null) {
-            throw new NullPointerException("range");
-        }
+        Objects.requireNonNull(calleeApplication, "calleeApplication");
+        Objects.requireNonNull(range, "range");
 
         final TimeWindow timeWindow = new TimeWindow(range, TimeWindowDownSampler.SAMPLER);
         // find distributed key - ver2.

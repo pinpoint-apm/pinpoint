@@ -27,6 +27,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Roy Kim
@@ -36,19 +37,15 @@ public class DirectBufferChartService implements AgentStatChartService {
 
     private final SampledDirectBufferDao sampledDirectBufferDao;
 
-    @Autowired
     public DirectBufferChartService(@Qualifier("sampledDirectBufferDaoFactory") SampledDirectBufferDao sampledDirectBufferDao) {
-        this.sampledDirectBufferDao = sampledDirectBufferDao;
+        this.sampledDirectBufferDao = Objects.requireNonNull(sampledDirectBufferDao, "sampledDirectBufferDao");
     }
 
     @Override
     public StatChart selectAgentChart(String agentId, TimeWindow timeWindow) {
-        if (agentId == null) {
-            throw new NullPointerException("agentId");
-        }
-        if (timeWindow == null) {
-            throw new NullPointerException("timeWindow");
-        }
+        Objects.requireNonNull(agentId, "agentId");
+        Objects.requireNonNull(timeWindow, "timeWindow");
+
         List<SampledDirectBuffer> sampledDirectBuffers = this.sampledDirectBufferDao.getSampledAgentStatList(agentId, timeWindow);
         return new DirectBufferChart(timeWindow, sampledDirectBuffers);
     }

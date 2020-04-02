@@ -24,10 +24,10 @@ import com.navercorp.pinpoint.web.mapper.stat.AgentStatMapperV2;
 import com.navercorp.pinpoint.web.vo.Range;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Taejin Koo
@@ -37,11 +37,14 @@ public class HbaseDataSourceDaoV2 implements DataSourceDao {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @Autowired
-    private DataSourceDecoder dataSourceDecoder;
+    private final HbaseAgentStatDaoOperationsV2 operations;
 
-    @Autowired
-    private HbaseAgentStatDaoOperationsV2 operations;
+    private final DataSourceDecoder dataSourceDecoder;
+
+    public HbaseDataSourceDaoV2(HbaseAgentStatDaoOperationsV2 operations, DataSourceDecoder dataSourceDecoder) {
+        this.operations = Objects.requireNonNull(operations, "operations");
+        this.dataSourceDecoder = Objects.requireNonNull(dataSourceDecoder, "dataSourceDecoder");
+    }
 
     @Override
     public List<DataSourceListBo> getAgentStatList(String agentId, Range range) {

@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.TableDescriptor;
 import com.navercorp.pinpoint.common.profiler.util.ApplicationMapStatisticsUtils;
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.web.dao.MapResponseDao;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.Range;
@@ -32,12 +33,12 @@ import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Scan;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author netspider
@@ -52,23 +53,27 @@ public class HbaseMapResponseTimeDao implements MapResponseDao {
 
     private int scanCacheSize = 40;
 
-    @Autowired
-    @Qualifier("responseTimeMapper")
-    private RowMapper<ResponseTime> responseTimeMapper;
+    private final RowMapper<ResponseTime> responseTimeMapper;
 
+    private final HbaseOperations2 hbaseOperations2;
 
-    @Autowired
-    private HbaseOperations2 hbaseOperations2;
+    private final RangeFactory rangeFactory;
 
-    @Autowired
-    private RangeFactory rangeFactory;
+    private final RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
 
-    @Autowired
-    @Qualifier("statisticsSelfRowKeyDistributor")
-    private RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
+    private final TableDescriptor<HbaseColumnFamily.SelfStatMap> descriptor;
 
-    @Autowired
-    private TableDescriptor<HbaseColumnFamily.SelfStatMap> descriptor;
+    public HbaseMapResponseTimeDao(HbaseOperations2 hbaseOperations2,
+                                   TableDescriptor<HbaseColumnFamily.SelfStatMap> descriptor,
+                                   @Qualifier("responseTimeMapper") RowMapper<ResponseTime> responseTimeMapper,
+                                   RangeFactory rangeFactory,
+                                   @Qualifier("statisticsSelfRowKeyDistributor") RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix) {
+        this.hbaseOperations2 = Objects.requireNonNull(hbaseOperations2, "hbaseOperations2");
+        this.descriptor = Assert.requireNonNull(descriptor, "descriptor");
+        this.responseTimeMapper = Objects.requireNonNull(responseTimeMapper, "responseTimeMapper");
+        this.rangeFactory = Objects.requireNonNull(rangeFactory, "rangeFactory");
+        this.rowKeyDistributorByHashPrefix = Objects.requireNonNull(rowKeyDistributorByHashPrefix, "rowKeyDistributorByHashPrefix");
+    }
 
 
     @Override

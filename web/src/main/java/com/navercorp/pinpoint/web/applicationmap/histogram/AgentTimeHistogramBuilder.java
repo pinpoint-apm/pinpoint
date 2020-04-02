@@ -43,14 +43,8 @@ public class AgentTimeHistogramBuilder {
     private final TimeWindow window;
 
     public AgentTimeHistogramBuilder(Application application, Range range) {
-        if (application == null) {
-            throw new NullPointerException("application");
-        }
-        if (range == null) {
-            throw new NullPointerException("range");
-        }
-        this.application = application;
-        this.range = range;
+        this.application = Objects.requireNonNull(application, "application");
+        this.range = Objects.requireNonNull(range, "range");
         this.window = new TimeWindow(range, TimeWindowDownSampler.SAMPLER);
     }
 

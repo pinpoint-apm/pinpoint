@@ -46,7 +46,7 @@ public class ApplicationTimeHistogramViewModel {
         List<AgentTimeHistogramSummary> agentTimeHistogramSummaryList = new ArrayList<>(agentHistogramList.size());
 
         for (AgentHistogram agentHistogram : agentHistogramList.getAgentHistogramList()) {
-            agentTimeHistogramSummaryList.add(new AgentTimeHistogramSummary(agentHistogram));
+            agentTimeHistogramSummaryList.add(AgentTimeHistogramSummary.createSummary(agentHistogram));
         }
 
         return agentTimeHistogramSummaryList;

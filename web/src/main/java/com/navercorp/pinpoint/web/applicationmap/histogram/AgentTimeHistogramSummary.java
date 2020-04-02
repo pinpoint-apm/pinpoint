@@ -19,6 +19,8 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogram;
 import com.navercorp.pinpoint.web.view.AgentTimeHistogramSummarySerializer;
 
+import java.util.Objects;
+
 /**
  * @author Taejin Koo
  */
@@ -28,13 +30,14 @@ public class AgentTimeHistogramSummary {
     private final String agentId;
     private final Histogram histogram;
 
-    public AgentTimeHistogramSummary(AgentHistogram agentHistogram) {
-        this(agentHistogram.getAgentId().getName(), agentHistogram.getHistogram());
+    public static AgentTimeHistogramSummary createSummary(AgentHistogram agentHistogram) {
+        Objects.requireNonNull(agentHistogram, "agentHistogram");
+        return new AgentTimeHistogramSummary(agentHistogram.getAgentId().getName(), agentHistogram.getHistogram());
     }
 
     public AgentTimeHistogramSummary(String agentId, Histogram histogram) {
-        this.agentId = agentId;
-        this.histogram = histogram;
+        this.agentId = Objects.requireNonNull(agentId, "agentId");
+        this.histogram = Objects.requireNonNull(histogram, "histogram");
     }
 
     public String getAgentId() {

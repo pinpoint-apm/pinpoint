@@ -34,10 +34,10 @@ import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Scan;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Minwoo Jung
@@ -50,25 +50,25 @@ public class HbaseApplicationStatDaoOperations {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @Autowired
-    private HbaseOperations2 hbaseOperations2;
+    private final HbaseOperations2 hbaseOperations2;
 
-    @Autowired
-    private ApplicationStatHbaseOperationFactory operationFactory;
+    private final ApplicationStatHbaseOperationFactory operationFactory;
 
-    @Autowired
-    private TableDescriptor<HbaseColumnFamily.ApplicationStatStatistics> descriptor;
+    private final TableDescriptor<HbaseColumnFamily.ApplicationStatStatistics> descriptor;
+
+    public HbaseApplicationStatDaoOperations(HbaseOperations2 hbaseOperations2,
+                                             TableDescriptor<HbaseColumnFamily.ApplicationStatStatistics> descriptor,
+                                             ApplicationStatHbaseOperationFactory operationFactory) {
+        this.hbaseOperations2 = Objects.requireNonNull(hbaseOperations2, "hbaseOperations2");
+        this.descriptor = Objects.requireNonNull(descriptor, "descriptor");
+        this.operationFactory = Objects.requireNonNull(operationFactory, "operationFactory");
+    }
 
     List<AggregationStatData> getSampledStatList(StatType statType, SampledApplicationStatResultExtractor resultExtractor, String applicationId, Range range) {
-        if (applicationId == null) {
-            throw new NullPointerException("applicationId");
-        }
-        if (range == null) {
-            throw new NullPointerException("range");
-        }
-        if (resultExtractor == null) {
-            throw new NullPointerException("resultExtractor");
-        }
+        Objects.requireNonNull(applicationId, "applicationId");
+        Objects.requireNonNull(range, "range");
+        Objects.requireNonNull(resultExtractor, "resultExtractor");
+
         Scan scan = this.createScan(statType, applicationId, range);
 
         TableName applicationStatAggreTableName = descriptor.getTableName();

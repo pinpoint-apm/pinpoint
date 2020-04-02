@@ -27,6 +27,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author HyunGil Jeong
@@ -36,19 +37,15 @@ public class CpuLoadChartService implements AgentStatChartService {
 
     private final SampledCpuLoadDao sampledCpuLoadDao;
 
-    @Autowired
     public CpuLoadChartService(@Qualifier("sampledCpuLoadDaoFactory") SampledCpuLoadDao sampledCpuLoadDao) {
-        this.sampledCpuLoadDao = sampledCpuLoadDao;
+        this.sampledCpuLoadDao = Objects.requireNonNull(sampledCpuLoadDao, "sampledCpuLoadDao");
     }
 
     @Override
     public StatChart selectAgentChart(String agentId, TimeWindow timeWindow) {
-        if (agentId == null) {
-            throw new NullPointerException("agentId");
-        }
-        if (timeWindow == null) {
-            throw new NullPointerException("timeWindow");
-        }
+        Objects.requireNonNull(agentId, "agentId");
+        Objects.requireNonNull(timeWindow, "timeWindow");
+
         List<SampledCpuLoad> sampledCpuLoads = this.sampledCpuLoadDao.getSampledAgentStatList(agentId, timeWindow);
         return new CpuLoadChart(timeWindow, sampledCpuLoads);
     }

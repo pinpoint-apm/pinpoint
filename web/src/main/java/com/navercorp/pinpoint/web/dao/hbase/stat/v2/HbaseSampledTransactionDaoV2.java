@@ -26,10 +26,10 @@ import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.TransactionSample
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.stat.SampledTransaction;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author HyunGil Jeong
@@ -37,14 +37,16 @@ import java.util.List;
 @Repository("sampledTransactionDaoV2")
 public class HbaseSampledTransactionDaoV2 implements SampledTransactionDao {
 
-    @Autowired
-    private TransactionDecoder transactionDecoder;
+    private final HbaseAgentStatDaoOperationsV2 operations;
 
-    @Autowired
-    private TransactionSampler transactionSampler;
+    private final TransactionDecoder transactionDecoder;
+    private final TransactionSampler transactionSampler;
 
-    @Autowired
-    private HbaseAgentStatDaoOperationsV2 operations;
+    public HbaseSampledTransactionDaoV2(HbaseAgentStatDaoOperationsV2 operations, TransactionDecoder transactionDecoder, TransactionSampler transactionSampler) {
+        this.operations = Objects.requireNonNull(operations, "operations");
+        this.transactionDecoder = Objects.requireNonNull(transactionDecoder, "transactionDecoder");
+        this.transactionSampler = Objects.requireNonNull(transactionSampler, "transactionSampler");
+    }
 
     @Override
     public List<SampledTransaction> getSampledAgentStatList(String agentId, TimeWindow timeWindow) {

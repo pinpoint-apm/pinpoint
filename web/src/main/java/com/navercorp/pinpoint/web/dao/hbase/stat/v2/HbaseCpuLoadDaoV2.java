@@ -22,10 +22,10 @@ import com.navercorp.pinpoint.common.server.bo.stat.CpuLoadBo;
 import com.navercorp.pinpoint.web.dao.stat.CpuLoadDao;
 import com.navercorp.pinpoint.web.mapper.stat.AgentStatMapperV2;
 import com.navercorp.pinpoint.web.vo.Range;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author HyunGil Jeong
@@ -33,11 +33,14 @@ import java.util.List;
 @Repository("cpuLoadDaoV2")
 public class HbaseCpuLoadDaoV2 implements CpuLoadDao {
 
-    @Autowired
-    private CpuLoadDecoder cpuLoadDecoder;
+    private final HbaseAgentStatDaoOperationsV2 operations;
 
-    @Autowired
-    private HbaseAgentStatDaoOperationsV2 operations;
+    private final CpuLoadDecoder cpuLoadDecoder;
+
+    public HbaseCpuLoadDaoV2(HbaseAgentStatDaoOperationsV2 operations, CpuLoadDecoder cpuLoadDecoder) {
+        this.operations = Objects.requireNonNull(operations, "operations");
+        this.cpuLoadDecoder = Objects.requireNonNull(cpuLoadDecoder, "cpuLoadDecoder");
+    }
 
     @Override
     public List<CpuLoadBo> getAgentStatList(String agentId, Range range) {

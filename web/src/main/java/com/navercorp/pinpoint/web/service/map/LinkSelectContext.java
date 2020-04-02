@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -42,22 +43,10 @@ public class LinkSelectContext {
     private final Set<Application> nextApplications = Sets.newConcurrentHashSet();
 
     public LinkSelectContext(Range range, SearchDepth callerDepth, SearchDepth calleeDepth, LinkVisitChecker linkVisitChecker) {
-        if (range == null) {
-            throw new NullPointerException("range");
-        }
-        if (callerDepth == null) {
-            throw new NullPointerException("callerDepth");
-        }
-        if (calleeDepth == null) {
-            throw new NullPointerException("calleeDepth");
-        }
-        if (linkVisitChecker == null) {
-            throw new NullPointerException("linkVisitChecker");
-        }
-        this.range = range;
-        this.callerDepth = callerDepth;
-        this.calleeDepth = calleeDepth;
-        this.linkVisitChecker = linkVisitChecker;
+        this.range = Objects.requireNonNull(range, "range");
+        this.callerDepth = Objects.requireNonNull(callerDepth, "callerDepth");
+        this.calleeDepth = Objects.requireNonNull(calleeDepth, "calleeDepth");
+        this.linkVisitChecker = Objects.requireNonNull(linkVisitChecker, "linkVisitChecker");
     }
 
     public Range getRange() {

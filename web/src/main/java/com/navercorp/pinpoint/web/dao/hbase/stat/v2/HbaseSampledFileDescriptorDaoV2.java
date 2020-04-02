@@ -26,10 +26,10 @@ import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.FileDescriptorSam
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.stat.SampledFileDescriptor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Roy Kim
@@ -37,14 +37,16 @@ import java.util.List;
 @Repository("sampledFileDescriptorDaoV2")
 public class HbaseSampledFileDescriptorDaoV2 implements SampledFileDescriptorDao {
 
-    @Autowired
-    private FileDescriptorDecoder fileDescriptorDecoder;
+    private final HbaseAgentStatDaoOperationsV2 operations;
 
-    @Autowired
-    private FileDescriptorSampler fileDescriptorSampler;
+    private final FileDescriptorDecoder fileDescriptorDecoder;
+    private final FileDescriptorSampler fileDescriptorSampler;
 
-    @Autowired
-    private HbaseAgentStatDaoOperationsV2 operations;
+    public HbaseSampledFileDescriptorDaoV2(HbaseAgentStatDaoOperationsV2 operations, FileDescriptorDecoder fileDescriptorDecoder, FileDescriptorSampler fileDescriptorSampler) {
+        this.operations = Objects.requireNonNull(operations, "operations");
+        this.fileDescriptorDecoder = Objects.requireNonNull(fileDescriptorDecoder, "fileDescriptorDecoder");
+        this.fileDescriptorSampler = Objects.requireNonNull(fileDescriptorSampler, "fileDescriptorSampler");
+    }
 
     @Override
     public List<SampledFileDescriptor> getSampledAgentStatList(String agentId, TimeWindow timeWindow) {

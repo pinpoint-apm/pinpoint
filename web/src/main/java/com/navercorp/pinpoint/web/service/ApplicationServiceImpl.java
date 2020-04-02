@@ -22,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Taejin Koo
@@ -29,8 +30,11 @@ import java.util.List;
 @Service
 public class ApplicationServiceImpl implements ApplicationService {
 
-    @Autowired
-    private ApplicationIndexDao applicationIndexDao;
+    private final ApplicationIndexDao applicationIndexDao;
+
+    public ApplicationServiceImpl(ApplicationIndexDao applicationIndexDao) {
+        this.applicationIndexDao = Objects.requireNonNull(applicationIndexDao, "applicationIndexDao");
+    }
 
     @Override
     public boolean isExistApplicationName(String applicationName) {

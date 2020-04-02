@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.web.vo.LinkKey;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author emeroad
@@ -65,9 +66,8 @@ public class LinkCallDataMap {
     }
 
     public void addLinkDataMap(LinkCallDataMap target) {
-        if (target == null) {
-            throw new NullPointerException("target");
-        }
+        Objects.requireNonNull(target, "target");
+
         for (Map.Entry<LinkKey, LinkCallData> copyEntry : target.linkDataMap.entrySet()) {
             final LinkKey key = copyEntry.getKey();
             final LinkCallData copyLinkCallData = copyEntry.getValue();

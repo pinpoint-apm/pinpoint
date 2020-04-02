@@ -24,13 +24,14 @@ import com.navercorp.pinpoint.web.vo.UserGroup;
 import com.navercorp.pinpoint.web.vo.UserGroupMember;
 import com.navercorp.pinpoint.web.vo.UserPhoneInfo;
 import com.navercorp.pinpoint.web.vo.exception.PinpointUserGroupException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 /**
  * @author minwoo.jung
@@ -39,20 +40,23 @@ import java.util.List;
 @Transactional(rollbackFor = {Exception.class})
 public class UserGroupServiceImpl implements UserGroupService {
 
-    @Autowired
-    UserGroupDao userGroupDao;
+    private final UserGroupDao userGroupDao;
 
-    @Autowired(required = false)
-    UserInfoDecoder userInfoDecoder = DefaultUserInfoDecoder.EMPTY_USER_INFO_DECODER;
+    private final UserInfoDecoder userInfoDecoder;
 
-    @Autowired
-    AlarmService alarmService;
+    private final AlarmService alarmService;
 
-    @Autowired
-    private ConfigProperties webProperties;
+    private final ConfigProperties webProperties;
 
-    @Autowired
-    UserService userService;
+    private final UserService userService;
+
+    public UserGroupServiceImpl(UserGroupDao userGroupDao, Optional<UserInfoDecoder> userInfoDecoder, AlarmService alarmService, ConfigProperties webProperties, UserService userService) {
+        this.userGroupDao = Objects.requireNonNull(userGroupDao, "userGroupDao");
+        this.userInfoDecoder = Objects.requireNonNull(userInfoDecoder, "userInfoDecoder").orElse(DefaultUserInfoDecoder.EMPTY_USER_INFO_DECODER);
+        this.alarmService = Objects.requireNonNull(alarmService, "alarmService");
+        this.webProperties = Objects.requireNonNull(webProperties, "webProperties");
+        this.userService = Objects.requireNonNull(userService, "userService");
+    }
 
     @Override
     public String createUserGroup(UserGroup userGroup) throws PinpointUserGroupException {

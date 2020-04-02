@@ -27,6 +27,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author HyunGil Jeong
@@ -36,19 +37,14 @@ public class ActiveTraceChartService implements AgentStatChartService {
 
     private final SampledActiveTraceDao sampledActiveTraceDao;
 
-    @Autowired
     public ActiveTraceChartService(@Qualifier("sampledActiveTraceDaoFactory") SampledActiveTraceDao sampledActiveTraceDao) {
-        this.sampledActiveTraceDao = sampledActiveTraceDao;
+        this.sampledActiveTraceDao = Objects.requireNonNull(sampledActiveTraceDao, "sampledActiveTraceDao");
     }
 
     @Override
     public StatChart selectAgentChart(String agentId, TimeWindow timeWindow) {
-        if (agentId == null) {
-            throw new NullPointerException("agentId");
-        }
-        if (timeWindow == null) {
-            throw new NullPointerException("timeWindow");
-        }
+        Objects.requireNonNull(agentId, "agentId");
+        Objects.requireNonNull(timeWindow, "timeWindow");
         List<SampledActiveTrace> sampledActiveTraces = this.sampledActiveTraceDao.getSampledAgentStatList(agentId, timeWindow);
         return new ActiveTraceChart(timeWindow, sampledActiveTraces);
     }

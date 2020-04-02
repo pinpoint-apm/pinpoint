@@ -43,6 +43,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -59,29 +60,28 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private int scanCacheSize = 10;
 
-    @Autowired
-    private HbaseOperations2 hbaseOperations2;
+    private final HbaseOperations2 hbaseOperations2;
 
-    @Autowired
-    private TableNameProvider tableNameProvider;
+    private final TableNameProvider tableNameProvider;
 
-    @Autowired
-    @Qualifier("hostApplicationMapperVer2")
-    private RowMapper<List<AcceptApplication>> hostApplicationMapperVer2;
+    private final RowMapper<List<AcceptApplication>> hostApplicationMapperVer2;
 
-    @Autowired
-    private TimeSlot timeSlot;
+    private final TimeSlot timeSlot;
 
-    @Autowired
-    @Qualifier("acceptApplicationRowKeyDistributor")
-    private AbstractRowKeyDistributor acceptApplicationRowKeyDistributor;
+    private final AbstractRowKeyDistributor acceptApplicationRowKeyDistributor;
+
+    public HbaseHostApplicationMapDao(HbaseOperations2 hbaseOperations2, TableNameProvider tableNameProvider, @Qualifier("hostApplicationMapperVer2") RowMapper<List<AcceptApplication>> hostApplicationMapperVer2, TimeSlot timeSlot, @Qualifier("acceptApplicationRowKeyDistributor") AbstractRowKeyDistributor acceptApplicationRowKeyDistributor) {
+        this.hbaseOperations2 = Objects.requireNonNull(hbaseOperations2, "hbaseOperations2");
+        this.tableNameProvider = Objects.requireNonNull(tableNameProvider, "tableNameProvider");
+        this.hostApplicationMapperVer2 = Objects.requireNonNull(hostApplicationMapperVer2, "hostApplicationMapperVer2");
+        this.timeSlot = Objects.requireNonNull(timeSlot, "timeSlot");
+        this.acceptApplicationRowKeyDistributor = Objects.requireNonNull(acceptApplicationRowKeyDistributor, "acceptApplicationRowKeyDistributor");
+    }
 
 
     @Override
     public Set<AcceptApplication> findAcceptApplicationName(Application fromApplication, Range range) {
-        if (fromApplication == null) {
-            throw new NullPointerException("fromApplication");
-        }
+        Objects.requireNonNull(fromApplication, "fromApplication");
         final Scan scan = createScan(fromApplication, range);
 
         TableName hostApplicationMapTableName = tableNameProvider.getTableName(HbaseTable.HOST_APPLICATION_MAP_VER2);
@@ -102,9 +102,7 @@ public class HbaseHostApplicationMapDao implements HostApplicationMapDao {
 
 
     private Scan createScan(Application parentApplication, Range range) {
-        if (parentApplication == null) {
-            throw new NullPointerException("parentApplication");
-        }
+        Objects.requireNonNull(parentApplication, "parentApplication");
 
         if (logger.isDebugEnabled()) {
             logger.debug("scan parentApplication:{}, range:{}", parentApplication, range);

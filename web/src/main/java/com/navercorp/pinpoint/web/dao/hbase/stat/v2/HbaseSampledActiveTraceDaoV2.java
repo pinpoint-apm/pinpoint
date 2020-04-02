@@ -26,10 +26,10 @@ import com.navercorp.pinpoint.web.mapper.stat.SampledAgentStatResultExtractor;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.stat.SampledActiveTrace;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author HyunGil Jeong
@@ -37,14 +37,16 @@ import java.util.List;
 @Repository("sampledActiveTraceDaoV2")
 public class HbaseSampledActiveTraceDaoV2 implements SampledActiveTraceDao {
 
-    @Autowired
-    private ActiveTraceDecoder activeTraceDecoder;
+    private final HbaseAgentStatDaoOperationsV2 operations;
 
-    @Autowired
-    private ActiveTraceSampler activeTraceSampler;
+    private final ActiveTraceDecoder activeTraceDecoder;
+    private final ActiveTraceSampler activeTraceSampler;
 
-    @Autowired
-    private HbaseAgentStatDaoOperationsV2 operations;
+    public HbaseSampledActiveTraceDaoV2(HbaseAgentStatDaoOperationsV2 operations, ActiveTraceDecoder activeTraceDecoder, ActiveTraceSampler activeTraceSampler) {
+        this.operations = Objects.requireNonNull(operations, "operations");
+        this.activeTraceDecoder = Objects.requireNonNull(activeTraceDecoder, "activeTraceDecoder");
+        this.activeTraceSampler = Objects.requireNonNull(activeTraceSampler, "activeTraceSampler");
+    }
 
     @Override
     public List<SampledActiveTrace> getSampledAgentStatList(String agentId, TimeWindow timeWindow) {

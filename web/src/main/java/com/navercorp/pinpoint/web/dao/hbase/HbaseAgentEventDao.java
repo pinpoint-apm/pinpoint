@@ -40,11 +40,11 @@ import org.apache.hadoop.hbase.filter.QualifierFilter;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -57,27 +57,27 @@ public class HbaseAgentEventDao implements AgentEventDao {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @Autowired
-    private HbaseOperations2 hbaseOperations2;
+    private final HbaseOperations2 hbaseOperations2;
 
-    @Autowired
-    @Qualifier("agentEventMapper")
-    private RowMapper<List<AgentEventBo>> agentEventMapper;
+    private final RowMapper<List<AgentEventBo>> agentEventMapper;
 
-    @Autowired
-    private ResultsExtractor<List<AgentEventBo>> agentEventResultsExtractor;
+    private final ResultsExtractor<List<AgentEventBo>> agentEventResultsExtractor;
 
-    @Autowired
-    private TableDescriptor<HbaseColumnFamily.AgentEvent> descriptor;
+    private final TableDescriptor<HbaseColumnFamily.AgentEvent> descriptor;
+
+    public HbaseAgentEventDao(HbaseOperations2 hbaseOperations2, TableDescriptor<HbaseColumnFamily.AgentEvent> descriptor,
+                              @Qualifier("agentEventMapper") RowMapper<List<AgentEventBo>> agentEventMapper,
+                              ResultsExtractor<List<AgentEventBo>> agentEventResultsExtractor) {
+        this.hbaseOperations2 = Objects.requireNonNull(hbaseOperations2, "hbaseOperations2");
+        this.descriptor = Objects.requireNonNull(descriptor, "descriptor");
+        this.agentEventMapper = Objects.requireNonNull(agentEventMapper, "agentEventMapper");
+        this.agentEventResultsExtractor = Objects.requireNonNull(agentEventResultsExtractor, "agentEventResultsExtractor");
+    }
 
     @Override
     public List<AgentEventBo> getAgentEvents(String agentId, Range range, Set<AgentEventType> excludeEventTypes) {
-        if (agentId == null) {
-            throw new NullPointerException("agentId");
-        }
-        if (range == null) {
-            throw new NullPointerException("range");
-        }
+        Objects.requireNonNull(agentId, "agentId");
+        Objects.requireNonNull(range, "range");
 
         Scan scan = new Scan();
         scan.setMaxVersions(1);
@@ -104,15 +104,11 @@ public class HbaseAgentEventDao implements AgentEventDao {
 
     @Override
     public AgentEventBo getAgentEvent(String agentId, long eventTimestamp, AgentEventType eventType) {
-        if (agentId == null) {
-            throw new NullPointerException("agentId");
-        }
+        Objects.requireNonNull(agentId, "agentId");
         if (eventTimestamp < 0) {
             throw new IllegalArgumentException("eventTimestamp must not be less than 0");
         }
-        if (eventType == null) {
-            throw new NullPointerException("eventType");
-        }
+        Objects.requireNonNull(eventType, "eventType");
 
         final byte[] rowKey = createRowKey(agentId, eventTimestamp);
         byte[] qualifier = Bytes.toBytes(eventType.getCode());
