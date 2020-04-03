@@ -63,7 +63,7 @@ public class RetryResponseStreamObserver<ReqT, ResT> implements StreamObserver<R
         if (statusError.isSimpleError()) {
             logger.info("Error. request={}, cause={}", logString(message), statusError.getMessage());
         } else {
-            logger.warn("Error. request={}, cause={}", logString(message), statusError.getMessage(), statusError.getThrowable());
+            logger.info("Error. request={}, cause={}", logString(message), statusError.getMessage(), statusError.getThrowable());
         }
 
         // Retry
