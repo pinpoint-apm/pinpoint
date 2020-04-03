@@ -29,8 +29,12 @@ public class ClassScannerFactory {
     private static final String FORCE_CLASS_LOADER_SCANNER_PROPERTY_KEY = "pinpoint.force.classloader.scanner";
     private static final boolean FORCE_CLASS_LOADER_SCANNER = forceClassLoaderScanner();
 
+    public static final String JAR_URL_PREFIX = "jar:";
+    public static final String FILE_URL_PREFIX = "file:";
+    public static final String JAR_URL_SEPARATOR = "!/";
+
     // jboss vfs support
-    private static final String[] FILE_PROTOCOLS = {"file", "vfs"};
+    private static final String[] FILE_PROTOCOLS = {"file", "vfs", "jar"};
     private static final String[] JAR_EXTENSIONS = {".jar", ".war", ".ear"};
 
     public static Scanner newScanner(ProtectionDomain protectionDomain, ClassLoader classLoader) {
@@ -71,7 +75,7 @@ public class ClassScannerFactory {
     private static Scanner newURLScanner(URL codeLocation) {
         final String protocol = codeLocation.getProtocol();
         if (isFileProtocol(protocol)) {
-            final String path = codeLocation.getPath();
+            final String path = cleanupPath(codeLocation.getPath());
             final boolean isJarFile = isJarExtension(path);
             if (isJarFile) {
                 return new JarFileScanner(path);
@@ -87,6 +91,17 @@ public class ClassScannerFactory {
         // to be a way to efficiently handle them.
         // Spring Boot loader's JarFile and JarFileEntries implementations look like a great reference for this.
         return null;
+    }
+
+    private static String cleanupPath(String path) {
+        final int index = path.indexOf(JAR_URL_SEPARATOR);
+        if (index == -1) {
+            return path;
+        }
+        if (path.startsWith(FILE_URL_PREFIX)) {
+            return path.substring(FILE_URL_PREFIX.length(), index);
+        }
+        return path.substring(0, index);
     }
 
     static boolean isJarExtension(String path) {
