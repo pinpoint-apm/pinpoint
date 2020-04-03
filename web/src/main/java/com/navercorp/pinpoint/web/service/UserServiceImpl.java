@@ -26,6 +26,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -129,8 +130,8 @@ public class UserServiceImpl implements UserService {
         }
 
         String phoneNumber = userInfoDecoder.decodePhoneNumber(user.getPhoneNumber());
-        user.setPhoneNumber(phoneNumber);
-        return user;
+        User decodedUser = new User(user.getNumber(), user.getUserId(), user.getName(), user.getDepartment(), user.getPhoneCountryCode(), phoneNumber, user.getEmail());
+        return decodedUser;
     }
 
     private List<User> decodePhoneNumber(List<User> userList) {
@@ -142,11 +143,12 @@ public class UserServiceImpl implements UserService {
             return userList;
         }
 
+        List<User> decodedUserList = new ArrayList<>(userList.size());
         for (User user : userList) {
-            decodePhoneNumber(user);
+            decodedUserList.add(decodePhoneNumber(user));
         }
 
-        return userList;
+        return decodedUserList;
     }
 
 }

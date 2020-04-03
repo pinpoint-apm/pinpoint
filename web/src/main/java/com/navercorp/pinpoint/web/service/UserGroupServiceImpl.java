@@ -15,6 +15,7 @@
  */
 package com.navercorp.pinpoint.web.service;
 
+import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.web.config.ConfigProperties;
 import com.navercorp.pinpoint.web.dao.UserGroupDao;
 import com.navercorp.pinpoint.web.util.DefaultUserInfoDecoder;
@@ -159,15 +160,24 @@ public class UserGroupServiceImpl implements UserGroupService {
     public List<UserPhoneInfo> selectPhoneInfoOfMember(String userGroupId) {
         final List<UserPhoneInfo> userPhoneInfoList = userGroupDao.selectPhoneInfoOfMember(userGroupId);
 
-        if (!DefaultUserInfoDecoder.EMPTY_USER_INFO_DECODER.equals(userInfoDecoder)) {
-            for (UserPhoneInfo userPhoneInfo : userPhoneInfoList) {
-                String decodedPhoneNumber = userInfoDecoder.decodePhoneNumber(userPhoneInfo.getPhoneNumber());
-                String phoneNumber = User.removeHyphenForPhoneNumber(decodedPhoneNumber);
-                userPhoneInfo.setPhoneNumber(phoneNumber);
-            }
+        if (CollectionUtils.isEmpty(userPhoneInfoList)) {
+            return userPhoneInfoList;
         }
 
-        return userPhoneInfoList;
+        if (DefaultUserInfoDecoder.EMPTY_USER_INFO_DECODER.equals(userInfoDecoder)) {
+            return userPhoneInfoList;
+        }
+
+
+        List<UserPhoneInfo> convertedUserPhoneInfoList = new ArrayList<>(userPhoneInfoList.size());
+
+        for (UserPhoneInfo userPhoneInfo : userPhoneInfoList) {
+            String decodedPhoneNumber = userInfoDecoder.decodePhoneNumber(userPhoneInfo.getPhoneNumber());
+            String phoneNumber = User.removeHyphenForPhoneNumber(decodedPhoneNumber);
+            convertedUserPhoneInfoList.add(new UserPhoneInfo(userPhoneInfo.getPhoneCountryCode(), phoneNumber));
+        }
+
+        return convertedUserPhoneInfoList;
     }
 
     @Override
