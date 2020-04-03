@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.web.service;
 import com.navercorp.pinpoint.web.config.ConfigProperties;
 import com.navercorp.pinpoint.web.dao.UserGroupDao;
 import com.navercorp.pinpoint.web.util.UserInfoDecoder;
+import com.navercorp.pinpoint.web.vo.UserPhoneInfo;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -112,5 +113,50 @@ public class UserGroupServiceImplTest {
         assertEquals(phoneNumberList.get(0), "01011111111");
         assertEquals(phoneNumberList.get(1), "01022222222");
     }
+
+    @Test
+    public void selectPhoneInfoOfMemberTest() {
+
+        UserGroupService userGroupService = new UserGroupServiceImpl(userGroupDao, Optional.of(new CustomUserInfoDecoder()), alarmService, new ConfigProperties(), userService);
+
+        UserInfoDecoder userInfoDecoder = new CustomUserInfoDecoder();
+
+        String groupId = "groupId";
+        List<UserPhoneInfo> userPhoneInfoList = new ArrayList<>(2);
+        userPhoneInfoList.add(new UserPhoneInfo(82, "ASDFG@#$%T"));
+        userPhoneInfoList.add(new UserPhoneInfo(82, "ASDF@#%$HG"));
+
+        when(userGroupDao.selectPhoneInfoOfMember(groupId)).thenReturn(userPhoneInfoList);
+
+        List<UserPhoneInfo> decodedUserPhoneInfoList = userGroupService.selectPhoneInfoOfMember("groupId");
+
+        for (UserPhoneInfo userPhoneInfo : decodedUserPhoneInfoList) {
+            assertEquals(userPhoneInfo.getPhoneCountryCode(), 82);
+            assertEquals(userPhoneInfo.getPhoneNumber(), REMOVED_HYPHEN_CHANGED_PHONE_NUMBER);
+        }
+    }
+
+    private final static String CHANGED_PHONE_NUMBER = "123-4567-8900";
+    private final static String REMOVED_HYPHEN_CHANGED_PHONE_NUMBER = "12345678900";
+
+    private class CustomUserInfoDecoder implements UserInfoDecoder {
+
+        @Override
+        public List<String> decodePhoneNumberList(List<String> phoneNumberList) {
+            List<String> changedPhoneNumberList = new ArrayList<>(phoneNumberList.size());
+            for (int i = 0 ; i < phoneNumberList.size() ; i++) {
+                changedPhoneNumberList.add(CHANGED_PHONE_NUMBER);
+            }
+
+            return changedPhoneNumberList;
+        }
+
+        @Override
+        public String decodePhoneNumber(String phoneNumber) {
+            return CHANGED_PHONE_NUMBER;
+        }
+    }
+
+
 
 }

@@ -26,6 +26,16 @@ public class User {
         this.email = email;
     }
 
+    public User(String number, String userId, String name, String department, int phoneCountryCode, String phoneNumber, String email) {
+        this.number = number;
+        this.userId = userId;
+        this.name = name;
+        this.department = department;
+        this.phoneCountryCode = phoneCountryCode;
+        this.phoneNumber = phoneNumber;
+        this.email = email;
+    }
+
     public String getNumber() {
         return number;
     }
