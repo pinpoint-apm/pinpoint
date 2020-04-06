@@ -11,9 +11,9 @@
             <directory>${basedir}/src/main/angular</directory>
             <outputDirectory>./</outputDirectory>
             <excludes>
+                <exclude>dist/</exclude>
                 <exclude>node_modules/</exclude>
             </excludes>
         </fileSet>
     </fileSets>
-
 </assembly>
