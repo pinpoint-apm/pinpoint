@@ -85,3 +85,12 @@
     border-color: #d00;
     box-shadow: 0 0 1px 0px #d00;
 }
+
+::ng-deep .iti {
+    display: block;
+    margin-top: 4px;
+}
+
+::ng-deep .iti__selected-flag {
+    outline: 0;
+}

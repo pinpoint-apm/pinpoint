@@ -22,7 +22,7 @@ input {
 
 input:focus {
     border-color: var(--primary-color);;
-    box-shadow: 0 0 2px var(--primary-color);;
+    box-shadow: 0 0 1px 1px var(--primary-color);;
 }
 
 input.l-success-input {

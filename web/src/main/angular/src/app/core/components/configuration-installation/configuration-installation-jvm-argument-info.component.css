@@ -35,6 +35,7 @@
     height: 80px;
     padding: 10px;
     resize: none;
+    outline: 0;
 }
 
 .copy-button {

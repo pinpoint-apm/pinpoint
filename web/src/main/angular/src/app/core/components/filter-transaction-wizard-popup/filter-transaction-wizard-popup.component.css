@@ -171,6 +171,11 @@
     padding: 6px 11px;
     width: 100%;
 }
+.l-widget-group input:focus {
+    border: 1px solid var(--primary-color);
+    box-shadow: 0 0 1px 1px var(--primary-color);
+    outline: none;
+}
 .l-pattern-guide {
     margin-top: 6px;
     border: 1px solid #e6e8ec;

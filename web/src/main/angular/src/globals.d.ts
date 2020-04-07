@@ -397,6 +397,7 @@ interface IUserProfile {
     userId: string;
     name: string;
     department?: string;
+    phoneCountryCode?: string;
     phoneNumber?: string;
     email?: string;
 }

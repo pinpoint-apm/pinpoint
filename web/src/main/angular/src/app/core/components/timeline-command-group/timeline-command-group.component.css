@@ -23,6 +23,7 @@
     font-size: 13px;
     text-align: center;
     background-color: #FFF;
+    outline: 0;
 }
 .l-command-group {
     display: inline-block;

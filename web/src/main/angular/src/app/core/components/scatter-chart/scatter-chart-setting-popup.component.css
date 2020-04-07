@@ -44,6 +44,11 @@
     height:22px;
     padding:0 8px;
 }
+.l-contents-group input:focus {
+    border: 1px solid var(--primary-color);
+    box-shadow: 0 0 1px 1px var(--primary-color);
+    outline: none;
+}
 .l-bottom-group {
     text-align: center;
     margin: 0 0 20px;
