@@ -73,8 +73,8 @@
             "USER_ID_VALIDATION": "You can enter only numbers, alphabets lowercase, and '-' ,'_' characters.(4~24)",
             "NAME_VALIDATION": "You can enter only numbers, alphabets, Hangeul, and '-', '_', '.' characters.(1~30)",
             "DEPARTMENT_VALIDATION": "You can enter only numbers, alphabets, Hangeul, and '-', '_', '.' characters.(3~40)",
-            "PHONE_VALIDATION": "You can enter only numbers.(3~24)",
-            "EMAIL_VALIDATION": "Enter your email."
+            "PHONE_VALIDATION": "Enter a valid number.",
+            "EMAIL_VALIDATION": "Enter a valid e-mail address."
         },
         "COMMON": {
             "NAME": "Name",

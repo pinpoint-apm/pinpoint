@@ -34,16 +34,17 @@
             <p class="l-empty-text">{{i18nText.EMPTY}}</p>
         </ng-template>
     </div>
-    <pp-pinpoint-user-create-and-update
-        [showCreate]="showCreate"
-        [i18nLabel]="i18nLabel"
-        [i18nGuide]="i18nGuide"
-        [minLength]="minLength"
-        [userInfo]="userInfo"
-        (outUpdatePinpointUser)="onUpdatePinpointUser($event)"
-        (outCreatePinpointUser)="onCreatePinpointUser($event)"
-        (outClose)="onCloseCreateUserPopup()">
-    </pp-pinpoint-user-create-and-update>
+    <ng-container *ngIf="showCreate">
+        <pp-pinpoint-user-create-and-update
+            [i18nLabel]="i18nLabel"
+            [i18nGuide]="i18nGuide"
+            [minLength]="minLength"
+            [userInfo]="userInfo"
+            (outUpdatePinpointUser)="onUpdatePinpointUser($event)"
+            (outCreatePinpointUser)="onCreatePinpointUser($event)"
+            (outClose)="onCloseCreateUserPopup()">
+        </pp-pinpoint-user-create-and-update>
+    </ng-container>
     <ng-container *ngIf="errorMessage">
         <pp-server-error-message
             [message]="errorMessage"

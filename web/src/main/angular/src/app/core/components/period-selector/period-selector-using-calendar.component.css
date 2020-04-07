@@ -17,6 +17,7 @@
     width: 180px;
     font-weight: 600;
     text-align: center;
+    outline: 0;
 }
 
 .l-input-wrap {

@@ -20,7 +20,12 @@
                         "tsConfig": "src/tsconfig.app.json",
                         "assets": [
                             "src/favicon.ico",
-                            "src/assets"
+                            "src/assets",
+                            {
+                                "glob": "utils.js",
+                                "input": "node_modules/intl-tel-input/build/js",
+                                "output": "/assets/scripts"
+                            }
                         ],
                         "styles": [
                             "./node_modules/@angular/material/prebuilt-themes/indigo-pink.css",
@@ -28,6 +33,7 @@
                             "./node_modules/ag-grid-community/dist/styles/ag-theme-balham.css",
                             "./node_modules/nouislider/distribute/nouislider.css",
                             "./node_modules/billboard.js/dist/billboard.css",
+                            "./node_modules/intl-tel-input/build/css/intlTelInput.min.css",
                             "src/assets/lib/prettify/prettify.css",
                             "src/assets/lib/prettify/sunburst.css",
                             "src/custom.css",

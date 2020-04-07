@@ -242,7 +242,7 @@ export class PinpointUserContainerComponent implements OnInit, OnDestroy {
     }
 
     onShowUpdateUser(userId: string): void {
-        this.userInfo = {...this.getUserInfo(userId)};
+        this.userInfo = this.getUserInfo(userId);
         this.showCreate = true;
         this.analyticsService.trackEvent(TRACKED_EVENT_LIST.SHOW_USER_UPDATE_POPUP);
     }

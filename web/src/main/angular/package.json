@@ -41,6 +41,7 @@
     "core-js": "^3.2.1",
     "cytoscape": "^3.12.1",
     "cytoscape-dagre": "^2.2.2",
+    "intl-tel-input": "^16.0.8",
     "js-beautify": "^1.10.2",
     "moment": "^2.24.0",
     "moment-timezone": "^0.5.26",

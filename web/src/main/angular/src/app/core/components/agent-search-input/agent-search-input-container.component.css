@@ -33,6 +33,11 @@
     background-color: #fff;
     padding: 9px 8px 9px 11px;
 }
+.l-wrapper input:focus {
+    border: 1px solid var(--primary-color);
+    box-shadow: 0 0 1px 1px var(--primary-color);
+    outline: none;
+}
 .l-wrapper button {
     position: absolute;
     top: 50%;

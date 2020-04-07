@@ -1,11 +1,11 @@
 import { ValidatorFn, AbstractControl } from '@angular/forms';
 
 export class CustomFormValidatorService {
-    static validate(regExp: RegExp): ValidatorFn {
+    static validate(condi: any): ValidatorFn {
         return (control: AbstractControl): {[key: string]: any} | null => {
-            return !control.value || regExp.test(control.value.trim())
+            return !control.value || (condi instanceof RegExp ? condi.test(control.value.trim()) : condi)
                 ? null
-                : {'valueRule': {value: control.value}}
+                : {'valueRule': {value: control.value}};
         };
     }
 }

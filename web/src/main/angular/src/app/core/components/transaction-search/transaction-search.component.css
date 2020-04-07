@@ -24,6 +24,11 @@
     padding:0 10px;
     background:#fff;
 }
+.l-search-group-wrap .l-search-group2 input:focus {
+    border: 1px solid var(--primary-color);
+    box-shadow: 0 0 1px 1px var(--primary-color);
+    outline: none;
+}
 .l-search-group-wrap button {
     margin-left: 10px;
 }

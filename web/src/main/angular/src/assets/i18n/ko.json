@@ -72,8 +72,8 @@
             "USER_ID_VALIDATION": "영문 소문자와 숫자, '-', '_'만 입력할 수 있습니다.(4~24)",
             "NAME_VALIDATION": "영문자와 한글, 숫자, '_', '-', '.'만 입력할 수 있습니다.(1~30)",
             "DEPARTMENT_VALIDATION": "영문자와 한글, 숫자, '_', '-', '.'만 입력할 수 있습니다.(3~40)",
-            "PHONE_VALIDATION": "숫자만 입력할 수 있습니다.(3~24)",
-            "EMAIL_VALIDATION": "이메일을 입력하세요."
+            "PHONE_VALIDATION": "전화번호를 다시 입력해주세요.",
+            "EMAIL_VALIDATION": "이메일 주소를 다시 입력해주세요."
         },
         "COMMON": {
             "NAME": "이름",
