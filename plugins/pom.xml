@@ -43,6 +43,7 @@
         <module>netty</module>
         <module>jackson</module>
         <module>cubrid-jdbc</module>
+        <module>informix-jdbc</module>
         <module>mysql-jdbc</module>
         <module>mariadb-jdbc</module>
         <module>mssql-jdbc</module>

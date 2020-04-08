@@ -62,6 +62,11 @@
         </dependency>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-informix-jdbc-driver-plugin</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-mysql-jdbc-driver-plugin</artifactId>
             <version>${project.version}</version>
         </dependency>
