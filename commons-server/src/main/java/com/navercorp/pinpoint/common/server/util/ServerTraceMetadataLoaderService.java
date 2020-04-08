@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.common.server.util;
 
-import com.navercorp.pinpoint.bootstrap.config.Filter;
 import com.navercorp.pinpoint.common.Version;
 import com.navercorp.pinpoint.common.profiler.trace.AnnotationKeyMatcherRegistry;
 import com.navercorp.pinpoint.common.profiler.trace.AnnotationKeyRegistry;
@@ -27,6 +26,7 @@ import com.navercorp.pinpoint.common.trace.AnnotationKeyMatcherLocator;
 import com.navercorp.pinpoint.common.trace.ServiceTypeLocator;
 import com.navercorp.pinpoint.common.trace.TraceMetadataProvider;
 import com.navercorp.pinpoint.common.util.ArrayUtils;
+import com.navercorp.pinpoint.common.util.Filter;
 import com.navercorp.pinpoint.common.util.logger.CommonLoggerFactory;
 import com.navercorp.pinpoint.loader.plugins.trace.TraceMetadataProviderLoader;
 import com.navercorp.pinpoint.loader.service.TraceMetadataLoaderService;
@@ -50,6 +50,7 @@ import java.util.Objects;
 /**
  * @author Woonduk Kang(emeroad)
  * @author HyunGil Jeong
+ * @author Taejin Koo
  */
 public class ServerTraceMetadataLoaderService implements TraceMetadataLoaderService {
 
