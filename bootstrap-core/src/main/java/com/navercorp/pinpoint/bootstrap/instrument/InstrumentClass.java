@@ -38,6 +38,8 @@ public interface InstrumentClass {
     
     InstrumentMethod getConstructor(String... parameterTypes);
 
+    List<InstrumentMethod> getAllConstructor();
+
     List<InstrumentMethod> getDeclaredMethods();
 
     List<InstrumentMethod> getDeclaredMethods(MethodFilter filter);
