@@ -105,6 +105,11 @@ public class ASMNestedClass implements InstrumentClass {
     }
 
     @Override
+    public List<InstrumentMethod> getAllConstructor() {
+        return null;
+    }
+
+    @Override
     public boolean hasConstructor(String... parameterTypeArray) {
         return this.aClass.hasConstructor(parameterTypeArray);
     }
