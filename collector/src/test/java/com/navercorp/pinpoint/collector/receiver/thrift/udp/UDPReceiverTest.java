@@ -21,7 +21,7 @@ import com.navercorp.pinpoint.collector.util.DatagramPacketFactory;
 import com.navercorp.pinpoint.collector.util.DefaultObjectPool;
 import com.navercorp.pinpoint.collector.util.ObjectPool;
 import com.navercorp.pinpoint.collector.util.ObjectPoolFactory;
-import org.apache.hadoop.hbase.shaded.org.apache.commons.io.IOUtils;
+import com.navercorp.pinpoint.common.util.IOUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -29,6 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.SocketUtils;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -160,9 +161,7 @@ public class UDPReceiverTest {
             if (receiver != null) {
                 receiver.shutdown();
             }
-            IOUtils.closeQuietly(datagramSocket);
-
-
+            IOUtils.closeQuietly((Closeable) datagramSocket);
         }
     }
 

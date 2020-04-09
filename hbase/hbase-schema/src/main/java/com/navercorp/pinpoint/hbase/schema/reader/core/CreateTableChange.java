@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.hbase.schema.reader.core;
 
-import org.apache.hadoop.hbase.shaded.org.apache.commons.lang.ArrayUtils;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.springframework.util.CollectionUtils;
 
@@ -28,6 +27,8 @@ import java.util.Objects;
  * @author HyunGil Jeong
  */
 public class CreateTableChange extends TableChange {
+    private static final byte[] EMPTY_BYTE_ARRAY = new byte[0];
+
     private final SplitOption splitOption;
 
     public CreateTableChange(
@@ -100,7 +101,7 @@ public class CreateTableChange extends TableChange {
         // https://github.com/apache/hbase/blob/master/hbase-server/src/main/java/org/apache/hadoop/hbase/util/RegionSplitter.java
         public class Auto implements SplitOption {
             private static final byte xFF = (byte) 0xFF;
-            private static final byte[] FIRST_ROW_BYTES = ArrayUtils.EMPTY_BYTE_ARRAY;
+            private static final byte[] FIRST_ROW_BYTES = EMPTY_BYTE_ARRAY;
             private static final byte[] LAST_ROW_BYTES = new byte[]{xFF, xFF, xFF, xFF, xFF, xFF, xFF, xFF};
 
             private final int numRegions;

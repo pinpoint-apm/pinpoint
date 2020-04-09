@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.collector.receiver;
 import com.navercorp.pinpoint.collector.receiver.thrift.AddressFilterAdaptor;
 import com.navercorp.pinpoint.common.server.util.AddressFilter;
 import com.navercorp.pinpoint.common.server.util.IgnoreAddressFilter;
-import org.apache.hadoop.hbase.shaded.com.google.common.net.InetAddresses;
+import com.google.common.net.InetAddresses;
 import org.jboss.netty.channel.Channel;
 import org.junit.Assert;
 import org.junit.Test;
