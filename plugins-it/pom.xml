@@ -52,6 +52,7 @@
         <module>hikaricp-jdk7-it</module>
         <module>hystrix-it</module>
         <module>ibatis-it</module>
+        <module>informix-jdbc-it</module>
         <module>jackson-it</module>
         <module>jackson-jdk7-it</module>
         <module>jdk-http-it</module>
