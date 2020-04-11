@@ -50,6 +50,7 @@ public class ConnectionFactoryBean implements FactoryBean<Connection>, Initializ
     private final boolean warmUp;
     private final Configuration configuration;
     private Connection connection;
+    private ExecutorService executorService;
 
     public ConnectionFactoryBean(Configuration configuration) {
         Objects.requireNonNull(configuration, "configuration");
@@ -61,6 +62,7 @@ public class ConnectionFactoryBean implements FactoryBean<Connection>, Initializ
         Objects.requireNonNull(configuration, "configuration");
         Objects.requireNonNull(executorService, "executorService");
         this.configuration = configuration;
+        this.executorService = executorService;
         warmUp = configuration.getBoolean("hbase.client.warmup.enable", false);
     }
 
@@ -68,7 +70,11 @@ public class ConnectionFactoryBean implements FactoryBean<Connection>, Initializ
     public void afterPropertiesSet() throws Exception {
         hbaseSecurityInterceptor.process(configuration);
         try {
-            connection = ConnectionFactory.createConnection(this.configuration);
+            if (Objects.isNull(executorService)) {
+                connection = ConnectionFactory.createConnection(this.configuration);
+            } else {
+                connection = ConnectionFactory.createConnection(this.configuration, executorService);
+            }
         } catch (IOException e) {
             throw new HbaseSystemException(e);
         }
