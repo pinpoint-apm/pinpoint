@@ -22,8 +22,8 @@ export class AgentResponseTimeChartContainer implements IInspectorChartContainer
     makeChartData({charts}: IInspectorChartData): PrimitiveArray[] {
         return [
             ['x', ...makeXData(charts.x)],
-            ['avg', ...makeYData(charts.y['AVG'], 2)],
             ['max', ...makeYData(charts.y['MAX'], 1)],
+            ['avg', ...makeYData(charts.y['AVG'], 2)],
         ];
     }
 
