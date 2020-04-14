@@ -19,16 +19,20 @@ package com.navercorp.pinpoint.collector.cluster.zookeeper;
 import com.navercorp.pinpoint.collector.cluster.connection.ClusterConnectionManager;
 import com.navercorp.pinpoint.collector.util.Address;
 import com.navercorp.pinpoint.collector.util.AddressParser;
+import com.navercorp.pinpoint.collector.util.MultipleAddress;
+import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperClient;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.ZookeeperConstants;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.exception.ConnectionException;
 import com.navercorp.pinpoint.common.server.cluster.zookeeper.exception.PinpointZookeeperException;
 import com.navercorp.pinpoint.common.server.util.concurrent.CommonState;
 import com.navercorp.pinpoint.common.server.util.concurrent.CommonStateContext;
-import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
+
+import org.apache.curator.utils.ZKPaths;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.BlockingQueue;
@@ -248,8 +252,46 @@ public class ZookeeperClusterManager {
         }
 
         private List<Address> getTargetAddressList(String parentPath) throws PinpointZookeeperException, InterruptedException {
+            List<Address> result = new ArrayList<>();
+
             List<String> childNodeList = client.getChildNodeList(parentPath, true);
+
+            try {
+                for (String childNodeName : childNodeList) {
+                    String fullPath = ZKPaths.makePath(parentPath, childNodeName);
+                    byte[] data = client.getData(fullPath);
+                    String nodeContents = new String(data);
+
+                    String[] nodeAddresses = nodeContents.split("\r\n");
+
+                    Address address = AddressParser.parseAddress(childNodeName);
+                    if (nodeAddresses.length > 1) {
+                        List<String> hostList = createHostList(nodeAddresses, address.getHost());
+                        result.add(new MultipleAddress(hostList, address.getPort()));
+                    } else {
+                        result.add(address);
+                    }
+                }
+                return result;
+            } catch (Exception e) {
+                logger.warn("Failed to process getting detail address. message:{}", e.getMessage(), e);
+            }
+
             return AddressParser.parseAddressLIst(childNodeList);
+        }
+
+        private List<String> createHostList(String[] hostAddresses, String representativeHostAddress) {
+            List<String> hostAddressList = new ArrayList<>(hostAddresses.length);
+
+            hostAddressList.add(representativeHostAddress);
+            for (String hostAddress : hostAddresses) {
+                if (hostAddressList.contains(hostAddress)) {
+                    continue;
+                }
+                hostAddressList.add(hostAddress);
+            }
+
+            return hostAddressList;
         }
 
     }
