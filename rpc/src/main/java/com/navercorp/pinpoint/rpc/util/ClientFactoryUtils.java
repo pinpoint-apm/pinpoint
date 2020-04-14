@@ -20,6 +20,8 @@ import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.rpc.PinpointSocketException;
 import com.navercorp.pinpoint.rpc.client.PinpointClient;
 import com.navercorp.pinpoint.rpc.client.PinpointClientFactory;
+import com.navercorp.pinpoint.rpc.client.SocketAddressProvider;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -82,5 +84,22 @@ public final class ClientFactoryUtils {
         return pinpointClient;
     }
 
+    public static PinpointClient createPinpointClient(SocketAddressProvider addressProvider, PinpointClientFactory clientFactory) {
+        PinpointClient pinpointClient = null;
+        for (int i = 0; i < 3; i++) {
+            try {
+                pinpointClient = clientFactory.connect(addressProvider);
+
+                LOGGER.info("tcp connect success. remote:{}", pinpointClient.getRemoteAddress());
+                return pinpointClient;
+            } catch (PinpointSocketException e) {
+                LOGGER.warn("tcp connect fail. remote:{} try reconnect, retryCount:{}", addressProvider, i);
+            }
+        }
+        LOGGER.warn("change background tcp connect mode remote:{} ", addressProvider);
+        pinpointClient = clientFactory.scheduledConnect(addressProvider);
+
+        return pinpointClient;
+    }
 
 }

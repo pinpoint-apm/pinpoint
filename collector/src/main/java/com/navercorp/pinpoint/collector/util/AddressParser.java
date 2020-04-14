@@ -32,7 +32,12 @@ public class AddressParser {
         }
     };
 
+    public static Address parseAddress(String address) {
+        return NetUtils.parseHostAndPort(address, addressFactory);
+    }
+
     public static List<Address> parseAddressLIst(List<String> addressList) {
         return NetUtils.toHostAndPortLIst(addressList, addressFactory);
     }
+
 }
