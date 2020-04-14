@@ -187,12 +187,12 @@ public class ASMClassNodeAdapter {
         return findDeclaredMethod(methodName, desc);
     }
 
-    public List<ASMMethodNodeAdapter> getDeclaredMethod(final String methodName) {
+    public List<ASMMethodNodeAdapter> getDeclaredConstructors() {
         if (this.skipCode) {
             throw new IllegalStateException("not supported operation, skipCode option is true.");
         }
 
-        return findDeclaredMethod(methodName);
+        return findDeclaredMethod("<init>");
     }
 
     public boolean hasDeclaredMethod(final String methodName, final String desc) {
@@ -228,13 +228,13 @@ public class ASMClassNodeAdapter {
         }
 
         final List<MethodNode> declaredMethods = classNode.methods;
-        final List<ASMMethodNodeAdapter> methodNodes = new ArrayList<ASMMethodNodeAdapter>();
         if (declaredMethods == null) {
             return null;
         }
 
+        final List<ASMMethodNodeAdapter> methodNodes = new ArrayList<ASMMethodNodeAdapter>();
         for (MethodNode methodNode : declaredMethods) {
-            if (methodNode.name == null || !methodNode.name.equals(methodName)) {
+            if (!strEquals(methodNode.name, methodName)) {
                 continue;
             }
 

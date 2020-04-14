@@ -105,7 +105,7 @@ public class ASMNestedClass implements InstrumentClass {
     }
 
     @Override
-    public List<InstrumentMethod> getAllConstructor() {
+    public List<InstrumentMethod> getDeclaredConstructors() {
         return null;
     }
 

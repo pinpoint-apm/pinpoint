@@ -36,56 +36,60 @@ public class ThreadPlugin implements ProfilerPlugin, MatchableTransformTemplateA
     @Override
     public void setup(ProfilerPluginSetupContext context) {
         ThreadConfig threadConfig = new ThreadConfig(context.getConfig());
-        logger.info("init thread plugin,config:{}", threadConfig);
+
+        logger.info("init {},config:{}", this.getClass().getSimpleName(), threadConfig);
         if (StringUtils.isEmpty(threadConfig.getThreadMatchPackage())) {
             logger.info("thread plugin package is empty,skip it");
             return;
         }
         addRunnableInterceptor(threadConfig);
-
         addCallableInterceptor(threadConfig);
     }
 
     private void addRunnableInterceptor(ThreadConfig threadConfig) {
         Matcher matcher = Matchers.newPackageBasedMatcher(threadConfig.getThreadMatchPackage(), new InterfaceInternalNameMatcherOperand("java.lang.Runnable", true));
-        transformTemplate.transform(matcher, new TransformCallback() {
-            @Override
-            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
-                List<InstrumentMethod> allConstructor = target.getAllConstructor();
-                for (int i = 0; i < allConstructor.size(); i++) {
-                    InstrumentMethod instrumentMethod = allConstructor.get(i);
-                    instrumentMethod.addScopedInterceptor(ThreadConstructorInterceptor.class, ThreadConstants.SCOPE_NAME);
-                }
-                target.addField(AsyncContextAccessor.class);
-                final InstrumentMethod callMethod = target.getDeclaredMethod("run");
-                if (callMethod != null) {
-                    callMethod.addInterceptor(ThreadCallInterceptor.class);
-                }
-                return target.toBytecode();
+        transformTemplate.transform(matcher, RunnableTransformCallback.class);
+    }
+
+    public static class RunnableTransformCallback implements TransformCallback {
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, protectionDomain, classfileBuffer);
+            List<InstrumentMethod> allConstructor = target.getDeclaredConstructors();
+            for (int i = 0; i < allConstructor.size(); i++) {
+                InstrumentMethod instrumentMethod = allConstructor.get(i);
+                instrumentMethod.addScopedInterceptor(ThreadConstructorInterceptor.class, ThreadConstants.SCOPE_NAME);
             }
-        });
+            target.addField(AsyncContextAccessor.class);
+            final InstrumentMethod callMethod = target.getDeclaredMethod("run");
+            if (callMethod != null) {
+                callMethod.addInterceptor(ThreadCallInterceptor.class);
+            }
+            return target.toBytecode();
+        }
     }
 
     private void addCallableInterceptor(ThreadConfig threadConfig) {
         Matcher matcher = Matchers.newPackageBasedMatcher(threadConfig.getThreadMatchPackage(), new InterfaceInternalNameMatcherOperand("java.util.concurrent.Callable", true));
-        transformTemplate.transform(matcher, new TransformCallback() {
-            @Override
-            public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
-                final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
-                List<InstrumentMethod> allConstructor = target.getAllConstructor();
-                for (int i = 0; i < allConstructor.size(); i++) {
-                    InstrumentMethod instrumentMethod = allConstructor.get(i);
-                    instrumentMethod.addScopedInterceptor(ThreadConstructorInterceptor.class, ThreadConstants.SCOPE_NAME);
-                }
-                target.addField(AsyncContextAccessor.class);
-                final InstrumentMethod callMethod = target.getDeclaredMethod("call");
-                if (callMethod != null) {
-                    callMethod.addInterceptor(ThreadCallInterceptor.class);
-                }
-                return target.toBytecode();
+        transformTemplate.transform(matcher, CallableTransformCallback.class);
+    }
+
+    public static class CallableTransformCallback implements TransformCallback {
+        @Override
+        public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
+            final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, protectionDomain, classfileBuffer);
+            List<InstrumentMethod> allConstructor = target.getDeclaredConstructors();
+            for (int i = 0; i < allConstructor.size(); i++) {
+                InstrumentMethod instrumentMethod = allConstructor.get(i);
+                instrumentMethod.addScopedInterceptor(ThreadConstructorInterceptor.class, ThreadConstants.SCOPE_NAME);
             }
-        });
+            target.addField(AsyncContextAccessor.class);
+            final InstrumentMethod callMethod = target.getDeclaredMethod("call");
+            if (callMethod != null) {
+                callMethod.addInterceptor(ThreadCallInterceptor.class);
+            }
+            return target.toBytecode();
+        }
     }
 
     @Override

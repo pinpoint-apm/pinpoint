@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
 import java.lang.reflect.Method;
 import java.util.List;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -241,6 +242,20 @@ public class ASMClassNodeAdapterTest {
         Class<?> clazz = testClassLoader.loadClass(targetClassName);
         Method method = clazz.getDeclaredMethod("arg");
         method.invoke(clazz.newInstance());
+    }
+
+    @Test
+    public void getDeclaredMethod() {
+        ASMClassNodeAdapter adapter = ASMClassNodeAdapter.get(pluginClassInputStreamProvider, ASMClassNodeLoader.getClassLoader(),
+                getClass().getProtectionDomain(),"com/navercorp/pinpoint/profiler/instrument/mock/ArgsClass");
+        List<ASMMethodNodeAdapter> constructors = adapter.getDeclaredConstructors();
+        Assert.assertEquals(2, constructors.size());
+        assertEquals("ArgsClass", constructors.get(0).getName());
+
+        assertEquals("ArgsClass", constructors.get(1).getName());
+        assertArrayEquals(new String[] {"int"}, constructors.get(1).getParameterTypes());
+        ASMMethodNodeAdapter m1 = adapter.getDeclaredMethod("<init>", null);
+        logger.debug("{}", m1.getName());
     }
 
     @Test
