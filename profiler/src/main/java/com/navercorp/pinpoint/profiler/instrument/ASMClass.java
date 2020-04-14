@@ -160,9 +160,9 @@ public class ASMClass implements InstrumentClass {
     }
 
     @Override
-    public List<InstrumentMethod> getAllConstructor() {
+    public List<InstrumentMethod> getDeclaredConstructors() {
         final List<InstrumentMethod> candidateList = new ArrayList<InstrumentMethod>();
-        for (ASMMethodNodeAdapter methodNode : this.classNode.getDeclaredMethod("<init>")) {
+        for (ASMMethodNodeAdapter methodNode : this.classNode.getDeclaredConstructors()) {
             final InstrumentMethod method = new ASMMethod(this.engineComponent, this.pluginContext, this, methodNode);
             candidateList.add(method);
         }

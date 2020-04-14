@@ -26,6 +26,7 @@ import com.navercorp.pinpoint.bootstrap.instrument.MethodFilters;
 import com.navercorp.pinpoint.bootstrap.plugin.RequestRecorderFactory;
 import com.navercorp.pinpoint.profiler.context.monitor.DataSourceMonitorRegistryService;
 import com.navercorp.pinpoint.profiler.instrument.interceptor.InterceptorDefinitionFactory;
+import com.navercorp.pinpoint.profiler.instrument.mock.ArgsClass;
 import com.navercorp.pinpoint.profiler.interceptor.factory.ExceptionHandlerFactory;
 import com.navercorp.pinpoint.profiler.interceptor.registry.DefaultInterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
@@ -39,8 +40,12 @@ import org.mockito.stubbing.Answer;
 import org.objectweb.asm.tree.ClassNode;
 
 import java.io.InputStream;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.List;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -194,6 +199,18 @@ public class ASMClassTest {
         methods = clazz.getDeclaredMethods(MethodFilters.name("arg"));
         assertEquals(1, methods.size());
         assertEquals("arg", methods.get(0).getName());
+    }
+
+    @Test
+    public void getDeclaredConstructors() throws Exception {
+        ASMClass clazz = getClass("com.navercorp.pinpoint.profiler.instrument.mock.ArgsClass");
+        List<InstrumentMethod> constructors = clazz.getDeclaredConstructors();
+        assertNotNull(constructors);
+        assertEquals(2, constructors.size());
+        assertEquals("ArgsClass", constructors.get(0).getName());
+
+        assertEquals("ArgsClass", constructors.get(1).getName());
+        assertArrayEquals(new String[] {"int"}, constructors.get(1).getParameterTypes());
     }
 
     @Test
