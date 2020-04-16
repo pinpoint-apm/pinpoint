@@ -19,6 +19,6 @@ package com.navercorp.pinpoint.plugin.jdbc.informix.interceptor.getter;
 /**
  * @author Guillermo Adrian Molina
  */
-public interface ConnectionInfoGetter {
+public interface InformixConnectionInfoGetter {
     java.util.Properties _$PINPOINT$_getConnectionInfo();
 }

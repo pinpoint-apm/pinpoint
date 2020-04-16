@@ -30,10 +30,12 @@ import com.navercorp.pinpoint.bootstrap.util.InterceptorUtils;
 
 import java.util.Arrays;
 import java.util.Properties;
+import com.informix.util.AdvancedUppercaseProperties;
 
 import com.navercorp.pinpoint.plugin.jdbc.informix.InformixConstants;
-import com.navercorp.pinpoint.plugin.jdbc.informix.interceptor.getter.DatabaseNameGetter;
-import com.navercorp.pinpoint.plugin.jdbc.informix.interceptor.getter.ConnectionInfoGetter;
+import com.navercorp.pinpoint.plugin.jdbc.informix.interceptor.getter.InformixDatabaseNameGetter;
+import com.navercorp.pinpoint.plugin.jdbc.informix.interceptor.getter.InformixConnectionInfoGetter;
+import com.navercorp.pinpoint.plugin.jdbc.informix.interceptor.getter.Informix_4_50_ConnectionInfoGetter;
 
 /**
  * @author Guillermo Adrian Molina
@@ -124,15 +126,20 @@ public class InformixPreparedStatementCreateInterceptor extends SpanEventSimpleA
     }
 
     private String getDatabaseName(Object target) {
-        if (target instanceof DatabaseNameGetter) {
-            return ((DatabaseNameGetter) target)._$PINPOINT$_getDatabaseName();
+        if (target instanceof InformixDatabaseNameGetter) {
+            return ((InformixDatabaseNameGetter) target)._$PINPOINT$_getDatabaseName();
         }
         return null;
     }
 
     private String getURL(Object target) {
-        if (target instanceof ConnectionInfoGetter) {
-            Properties connInfo = ((ConnectionInfoGetter) target)._$PINPOINT$_getConnectionInfo();
+        if (target instanceof InformixConnectionInfoGetter) {
+            Properties connInfo = ((InformixConnectionInfoGetter) target)._$PINPOINT$_getConnectionInfo();
+            String url = connInfo.getProperty("IFXHOST") + ":" + connInfo.getProperty("PORTNO");
+            return url;
+        }
+        if (target instanceof Informix_4_50_ConnectionInfoGetter) {
+            AdvancedUppercaseProperties connInfo = ((Informix_4_50_ConnectionInfoGetter) target)._$PINPOINT$_getConnectionInfo();
             String url = connInfo.getProperty("IFXHOST") + ":" + connInfo.getProperty("PORTNO");
             return url;
         }
