@@ -11,7 +11,7 @@
     <artifactId>pinpoint-informix-jdbc-driver-plugin</artifactId>
     <name>pinpoint-informix-jdbc-driver-plugin</name>
     <packaging>jar</packaging>
-
+    
     <dependencies>
         <dependency>
             <groupId>com.navercorp.pinpoint</groupId>
@@ -34,6 +34,12 @@
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.ibm.informix</groupId>
+            <artifactId>jdbc</artifactId>
+            <version>4.10.10.0</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 </project>

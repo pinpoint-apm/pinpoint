@@ -16,9 +16,11 @@
 
 package com.navercorp.pinpoint.plugin.jdbc.informix.interceptor.getter;
 
+import com.informix.util.AdvancedUppercaseProperties;
+
 /**
  * @author Guillermo Adrian Molina
  */
-public interface DatabaseNameGetter {
-    String _$PINPOINT$_getDatabaseName();
+public interface Informix_4_50_ConnectionInfoGetter {
+    AdvancedUppercaseProperties _$PINPOINT$_getConnectionInfo();
 }

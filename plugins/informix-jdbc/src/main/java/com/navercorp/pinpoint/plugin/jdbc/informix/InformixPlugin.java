@@ -47,8 +47,9 @@ import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParserV2;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.PreparedStatementBindingMethodFilter;
 import com.navercorp.pinpoint.plugin.jdbc.informix.interceptor.InformixStatementCreateInterceptor;
 import com.navercorp.pinpoint.plugin.jdbc.informix.interceptor.InformixPreparedStatementCreateInterceptor;
-import com.navercorp.pinpoint.plugin.jdbc.informix.interceptor.getter.DatabaseNameGetter;
-import com.navercorp.pinpoint.plugin.jdbc.informix.interceptor.getter.ConnectionInfoGetter;
+import com.navercorp.pinpoint.plugin.jdbc.informix.interceptor.getter.InformixDatabaseNameGetter;
+import com.navercorp.pinpoint.plugin.jdbc.informix.interceptor.getter.InformixConnectionInfoGetter;
+import com.navercorp.pinpoint.plugin.jdbc.informix.interceptor.getter.Informix_4_50_ConnectionInfoGetter;
 
 import java.security.ProtectionDomain;
 import java.util.List;
@@ -113,8 +114,16 @@ public class InformixPlugin implements ProfilerPlugin, TransformTemplateAware {
             InstrumentClass target = instrumentor.getInstrumentClass(loader, className, classfileBuffer);
 
             target.addField(DatabaseInfoAccessor.class);
-            target.addGetter(DatabaseNameGetter.class, "dbName");
-            target.addGetter(ConnectionInfoGetter.class, "connInfo");
+
+            target.addGetter(InformixDatabaseNameGetter.class, "dbName");
+            if (target.hasField("connInfo", "com.informix.util.AdvancedUppercaseProperties")) {
+                // 4.50.x+
+                target.addGetter(Informix_4_50_ConnectionInfoGetter.class, "connInfo");
+            }
+            else {
+                // 4.10.x or previous
+                target.addGetter(InformixConnectionInfoGetter.class, "connInfo");
+            }
 
             // close
             InstrumentUtils.findMethod(target, "close")
