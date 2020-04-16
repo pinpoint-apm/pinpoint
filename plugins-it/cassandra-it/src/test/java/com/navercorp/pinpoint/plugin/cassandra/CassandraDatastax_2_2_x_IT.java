@@ -30,7 +30,7 @@ import org.junit.runner.RunWith;
  */
 @RunWith(PinpointPluginTestSuite.class)
 @PinpointAgent(AgentPath.PATH)
-@ImportPlugin("com.navercorp.pinpoint:pinpoint-cassandra-driver-plugin")
+@ImportPlugin({"com.navercorp.pinpoint:pinpoint-cassandra-driver-plugin", "com.navercorp.pinpoint:pinpoint-httpclient4-plugin"})
 @Dependency({
         "com.datastax.cassandra:cassandra-driver-core:[2.2.min,2.2.max]",
         PluginITConstants.VERSION, CassandraITConstants.COMMONS_PROFILER, CassandraITConstants.CASSANDRA_TESTCONTAINER})
