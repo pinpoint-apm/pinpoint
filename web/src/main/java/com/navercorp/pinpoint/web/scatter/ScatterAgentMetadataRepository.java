@@ -26,7 +26,15 @@ import java.util.Set;
  */
 public class ScatterAgentMetadataRepository {
 
-    private final Set<DotAgentInfo> dotAgentInfoSet = new HashSet<>();
+    private final Set<DotAgentInfo> dotAgentInfoSet;
+
+    public ScatterAgentMetadataRepository() {
+        this.dotAgentInfoSet = new HashSet<>();
+    }
+
+    public ScatterAgentMetadataRepository(Set<DotAgentInfo> dotAgentInfoSet) {
+        this.dotAgentInfoSet = Objects.requireNonNull(dotAgentInfoSet, "dotAgentInfoSet");
+    }
 
     void addDotAgentInfo(DotAgentInfo dotAgentInfo) {
         Objects.requireNonNull(dotAgentInfo, "dotAgentInfo");

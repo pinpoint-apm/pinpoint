@@ -28,6 +28,7 @@ import com.navercorp.pinpoint.common.server.bo.stat.AgentStatType;
 import com.navercorp.pinpoint.web.mapper.RangeTimestampFilter;
 import com.navercorp.pinpoint.web.mapper.TimestampFilter;
 import com.navercorp.pinpoint.web.mapper.stat.AgentStatMapperV2;
+import com.navercorp.pinpoint.web.util.ListListUtils;
 import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.stat.SampledAgentStatDataPoint;
 
@@ -37,7 +38,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -74,11 +74,8 @@ public class HbaseAgentStatDaoOperationsV2 {
         TableName agentStatTableName = descriptor.getTableName();
         List<List<T>> intermediate = hbaseOperations2.findParallel(agentStatTableName, scan, this.operationFactory.getRowKeyDistributor(), mapper, AGENT_STAT_VER2_NUM_PARTITIONS);
         int expectedSize = (int) (range.getRange() / descriptor.getColumnFamily().TIMESPAN_MS);
-        List<T> merged = new ArrayList<>(expectedSize);
-        for (List<T> each : intermediate) {
-            merged.addAll(each);
-        }
-        return merged;
+
+        return ListListUtils.toList(intermediate, expectedSize);
     }
 
     <T extends AgentStatDataPoint> boolean agentStatExists(AgentStatType agentStatType, AgentStatMapperV2<T> mapper, String agentId, Range range) {

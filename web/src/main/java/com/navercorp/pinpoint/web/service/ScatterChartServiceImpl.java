@@ -22,14 +22,14 @@ import com.navercorp.pinpoint.web.dao.ApplicationTraceIndexDao;
 import com.navercorp.pinpoint.web.dao.TraceDao;
 import com.navercorp.pinpoint.web.filter.Filter;
 import com.navercorp.pinpoint.web.scatter.ScatterData;
+import com.navercorp.pinpoint.web.scatter.ScatterDataBuilder;
+import com.navercorp.pinpoint.web.util.ListListUtils;
 import com.navercorp.pinpoint.web.vo.GetTraceInfo;
 import com.navercorp.pinpoint.web.vo.Range;
-import com.navercorp.pinpoint.web.vo.SelectedScatterArea;
 import com.navercorp.pinpoint.web.vo.scatter.Dot;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
@@ -56,15 +56,7 @@ public class ScatterChartServiceImpl implements ScatterChartService {
     }
 
     @Override
-    public List<Dot> selectScatterData(String applicationName, SelectedScatterArea area, TransactionId offsetTransactionId, int offsetTransactionElapsed, int limit) {
-        Objects.requireNonNull(applicationName, "applicationName");
-        Objects.requireNonNull(area, "area");
-
-        return applicationTraceIndexDao.scanTraceScatter(applicationName, area, offsetTransactionId, offsetTransactionElapsed, limit);
-    }
-
-    @Override
-    public List<Dot> selectScatterData(List<TransactionId> transactionIdList, String applicationName, Filter filter) {
+    public List<Dot> selectScatterData(List<TransactionId> transactionIdList, String applicationName, Filter<SpanBo> filter) {
         Objects.requireNonNull(transactionIdList, "transactionIdList");
         Objects.requireNonNull(applicationName, "applicationName");
         Objects.requireNonNull(filter, "filter");
@@ -99,13 +91,7 @@ public class ScatterChartServiceImpl implements ScatterChartService {
 
         final List<List<SpanBo>> selectedSpans = traceDao.selectSpans(getTraceInfoList);
 
-
-        final List<SpanBo> result = new ArrayList<>(getTraceInfoList.size());
-        for (List<SpanBo> spans : selectedSpans) {
-            result.addAll(spans);
-        }
-
-        return result;
+        return ListListUtils.toList(selectedSpans, getTraceInfoList.size());
     }
 
     @Override
@@ -117,14 +103,14 @@ public class ScatterChartServiceImpl implements ScatterChartService {
     }
 
     @Override
-    public ScatterData selectScatterData(List<TransactionId> transactionIdList, String applicationName, Range range, int xGroupUnit, int yGroupUnit, Filter filter) {
+    public ScatterData selectScatterData(List<TransactionId> transactionIdList, String applicationName, Range range, int xGroupUnit, int yGroupUnit, Filter<SpanBo> filter) {
         Objects.requireNonNull(transactionIdList, "transactionIdList");
         Objects.requireNonNull(applicationName, "applicationName");
         Objects.requireNonNull(filter, "filter");
 
         final List<List<SpanBo>> traceList = traceDao.selectAllSpans(transactionIdList);
 
-        ScatterData scatterData = new ScatterData(range.getFrom(), range.getTo(), xGroupUnit, yGroupUnit);
+        ScatterDataBuilder scatterData = new ScatterDataBuilder(range.getFrom(), range.getTo(), xGroupUnit, yGroupUnit);
         for (List<SpanBo> trace : traceList) {
             if (!filter.include(trace)) {
                 continue;
@@ -139,7 +125,7 @@ public class ScatterChartServiceImpl implements ScatterChartService {
             }
         }
 
-        return scatterData;
+        return scatterData.build();
     }
 
 }
