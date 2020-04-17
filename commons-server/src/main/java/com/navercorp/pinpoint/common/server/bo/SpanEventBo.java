@@ -226,6 +226,13 @@ public class SpanEventBo implements Event {
         this.asyncSequence = asyncSequence;
     }
 
+    private boolean isDeprecatedAsyncFieldsSet() {
+        if (asyncId != -1 || asyncSequence != -1) {
+            return true;
+        }
+
+        return false;
+    }
 
     @Override
     public String toString() {
@@ -262,12 +269,14 @@ public class SpanEventBo implements Event {
         }
         builder.append(", exceptionClass=");
         builder.append(exceptionClass);
-        builder.append(", asyncId=");
-        builder.append(asyncId);
         builder.append(", nextAsyncId=");
         builder.append(nextAsyncId);
-        builder.append(", asyncSequence=");
-        builder.append(asyncSequence);
+        if (isDeprecatedAsyncFieldsSet()) {
+            builder.append(", asyncId=");
+            builder.append(asyncId);
+            builder.append(", asyncSequence=");
+            builder.append(asyncSequence);
+        }
         builder.append("}");
         return builder.toString();
     }
