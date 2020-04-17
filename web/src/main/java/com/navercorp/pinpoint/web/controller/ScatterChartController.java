@@ -48,6 +48,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -152,8 +153,7 @@ public class ScatterChartController {
             @RequestParam("limit") int limit,
             @RequestParam(value = "backwardDirection", required = false, defaultValue = "true") boolean backwardDirection,
             @RequestParam(value = "filter", required = false) String filterText,
-            @RequestParam(value = "_callback", required = false) String jsonpCallback,
-            @RequestParam(value = "v", required = false, defaultValue = "1") int version) {
+            @RequestParam(value = "_callback", required = false) String jsonpCallback) {
         if (xGroupUnit <= 0) {
             throw new IllegalArgumentException("xGroupUnit(" + xGroupUnit + ") must be positive number");
         }
@@ -170,18 +170,15 @@ public class ScatterChartController {
         final Range range = Range.createUncheckedRange(from, to);
         logger.debug("fetch scatter data. RANGE={}, X-Group-Unit:{}, Y-Group-Unit:{}, LIMIT={}, BACKWARD_DIRECTION:{}, FILTER:{}", range, xGroupUnit, yGroupUnit, limit, backwardDirection, filterText);
 
-        ModelAndView mv;
+        Map<String, Object> model;
         if (StringUtils.isEmpty(filterText)) {
-            mv = selectScatterData(applicationName, range, xGroupUnit, Math.max(yGroupUnit, 1), limit, backwardDirection, version);
+            model = selectScatterData(applicationName, range, xGroupUnit, Math.max(yGroupUnit, 1), limit, backwardDirection);
         } else {
-            mv = selectFilterScatterData(applicationName, range, xGroupUnit, Math.max(yGroupUnit, 1), limit, backwardDirection, filterText, version);
+            model = selectFilterScatterData(applicationName, range, xGroupUnit, Math.max(yGroupUnit, 1), limit, backwardDirection, filterText);
         }
 
-        if (jsonpCallback == null) {
-            mv.setViewName("jsonView");
-        } else {
-            mv.setViewName("jsonpView");
-        }
+        final String viewName = getViewName(jsonpCallback);
+        ModelAndView mv = new ModelAndView(viewName, model);
 
         watch.stop();
 
@@ -192,24 +189,27 @@ public class ScatterChartController {
         return mv;
     }
 
-    private ModelAndView selectScatterData(String applicationName, Range range, int xGroupUnit, int yGroupUnit, int limit, boolean backwardDirection, int version) {
-        ModelAndView mv = null;
-        if (version == 1) {
-            final ScatterData scatterData = scatter.selectScatterData(applicationName, range, xGroupUnit, yGroupUnit, limit, backwardDirection);
-            boolean requestComplete = scatterData.getDotSize() < limit;
-
-            mv = createScatterDataV1(scatterData, requestComplete);
+    private String getViewName(String jsonpCallback) {
+        if (jsonpCallback != null) {
+            return "jsonpView";
         } else {
-            mv = new ModelAndView();
+            return "jsonView";
         }
-
-        mv.addObject("currentServerTime", new ServerTime().getCurrentServerTime());
-        mv.addObject("from", range.getFrom());
-        mv.addObject("to", range.getTo());
-        return mv;
     }
 
-    private ModelAndView selectFilterScatterData(String applicationName, Range range, int xGroupUnit, int yGroupUnit, int limit, boolean backwardDirection, String filterText, int version) {
+    private Map<String, Object> selectScatterData(String applicationName, Range range, int xGroupUnit, int yGroupUnit, int limit, boolean backwardDirection) {
+
+        final ScatterData scatterData = scatter.selectScatterData(applicationName, range, xGroupUnit, yGroupUnit, limit, backwardDirection);
+        boolean requestComplete = scatterData.getDotSize() < limit;
+
+        Map<String, Object> model = createScatterDataV1(scatterData, requestComplete);
+        model.put("currentServerTime", new ServerTime().getCurrentServerTime());
+        model.put("from", range.getFrom());
+        model.put("to", range.getTo());
+        return model;
+    }
+
+    private Map<String, Object> selectFilterScatterData(String applicationName, Range range, int xGroupUnit, int yGroupUnit, int limit, boolean backwardDirection, String filterText) {
         final LimitedScanResult<List<TransactionId>> limitedScanResult = flow.selectTraceIdsFromApplicationTraceIndex(applicationName, range, limit, backwardDirection);
 
         final List<TransactionId> transactionIdList = limitedScanResult.getScanData();
@@ -220,35 +220,29 @@ public class ScatterChartController {
         transactionIdList.sort(TransactionIdComparator.INSTANCE);
         Filter<SpanBo> filter = filterBuilder.build(filterText);
 
-        ModelAndView mv;
-        if (version == 1) {
-            ScatterData scatterData = scatter.selectScatterData(transactionIdList, applicationName, range, xGroupUnit, yGroupUnit, filter);
-            if (logger.isDebugEnabled()) {
-                logger.debug("getScatterData range scan(limited:{}, backwardDirection:{}) from ~ to:{} ~ {}, limited:{}, filterDataSize:{}",
-                        limit, backwardDirection, DateUtils.longToDateStr(range.getFrom()), DateUtils.longToDateStr(range.getTo()), DateUtils.longToDateStr(limitedScanResult.getLimitedTime()), transactionIdList.size());
-            }
-
-            mv = createScatterDataV1(scatterData, requestComplete);
-        } else {
-            mv = new ModelAndView();
+        ScatterData scatterData = scatter.selectScatterData(transactionIdList, applicationName, range, xGroupUnit, yGroupUnit, filter);
+        if (logger.isDebugEnabled()) {
+            logger.debug("getScatterData range scan(limited:{}, backwardDirection:{}) from ~ to:{} ~ {}, limited:{}, filterDataSize:{}",
+                    limit, backwardDirection, DateUtils.longToDateStr(range.getFrom()), DateUtils.longToDateStr(range.getTo()), DateUtils.longToDateStr(limitedScanResult.getLimitedTime()), transactionIdList.size());
         }
 
-        mv.addObject("currentServerTime", new ServerTime().getCurrentServerTime());
-        mv.addObject("from", range.getFrom());
-        mv.addObject("to", range.getTo());
-        return mv;
+        Map<String, Object> model = createScatterDataV1(scatterData, requestComplete);
+        model.put("currentServerTime", new ServerTime().getCurrentServerTime());
+        model.put("from", range.getFrom());
+        model.put("to", range.getTo());
+        return model;
     }
 
-    private ModelAndView createScatterDataV1(ScatterData scatterData, boolean complete) {
-        ModelAndView mv = new ModelAndView();
+    private Map<String, Object> createScatterDataV1(ScatterData scatterData, boolean complete) {
+        Map<String, Object> model = new HashMap<>();
 
-        mv.addObject("resultFrom", scatterData.getOldestAcceptedTime());
-        mv.addObject("resultTo", scatterData.getLatestAcceptedTime());
+        model.put("resultFrom", scatterData.getOldestAcceptedTime());
+        model.put("resultTo", scatterData.getLatestAcceptedTime());
 
-        mv.addObject("complete", complete);
-        mv.addObject("scatter", scatterData);
+        model.put("complete", complete);
+        model.put("scatter", scatterData);
 
-        return mv;
+        return model;
     }
 
 }

@@ -122,20 +122,6 @@ public class FilteredMapServiceImpl implements FilteredMapService {
         return this.applicationTraceIndexDao.scanTraceIndex(applicationName, range, limit, backwardDirection);
     }
 
-    @Override
-    public LimitedScanResult<List<TransactionId>> selectTraceIdsFromApplicationTraceIndex(String applicationName, SelectedScatterArea area, int limit) {
-        if (applicationName == null) {
-            throw new NullPointerException("applicationName");
-        }
-        if (area == null) {
-            throw new NullPointerException("area");
-        }
-        if (logger.isTraceEnabled()) {
-            logger.trace("scan(selectTraceIdsFromApplicationTraceIndex) {}, {}", applicationName, area);
-        }
-
-        return this.applicationTraceIndexDao.scanTraceIndex(applicationName, area, limit);
-    }
 
     @Override
     @Deprecated

@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.TableDescriptor;
 import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
+import com.navercorp.pinpoint.web.util.ListListUtils;
 import com.navercorp.pinpoint.web.vo.Application;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -72,11 +73,8 @@ public class HbaseApplicationIndexDao implements ApplicationIndexDao {
 
         TableName applicationIndexTableName = descriptor.getTableName();
         List<List<Application>> results = hbaseOperations2.find(applicationIndexTableName, scan, applicationNameMapper);
-        List<Application> applications = new ArrayList<>();
-        for (List<Application> result : results) {
-            applications.addAll(result);
-        }
-        return applications;
+
+        return ListListUtils.toList(results);
     }
 
     @Override

@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.web.service;
 
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.web.scatter.ScatterData;
+import com.navercorp.pinpoint.web.scatter.ScatterDataBuilder;
 import com.navercorp.pinpoint.web.vo.*;
 import com.navercorp.pinpoint.web.vo.scatter.ApplicationScatterScanResult;
 import com.navercorp.pinpoint.web.vo.scatter.Dot;
@@ -85,10 +86,10 @@ public class DotExtractor {
             Application application = entry.getKey();
             List<Dot> dotList = entry.getValue();
 
-            ScatterData scatterData = new ScatterData(from, to, xGroupUnitMillis, yGroupUnitMillis);
+            ScatterDataBuilder scatterData = new ScatterDataBuilder(from, to, xGroupUnitMillis, yGroupUnitMillis);
             scatterData.addDot(dotList);
 
-            applicationScatterDataMap.put(application, scatterData);
+            applicationScatterDataMap.put(application, scatterData.build());
         }
         return applicationScatterDataMap;
     }

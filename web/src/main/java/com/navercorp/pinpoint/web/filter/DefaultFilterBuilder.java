@@ -93,7 +93,7 @@ public class DefaultFilterBuilder implements FilterBuilder<SpanBo> {
     }
 
     private String decode(String value) {
-        if (value ==null) {
+        if (value == null) {
             return null;
         }
         try {

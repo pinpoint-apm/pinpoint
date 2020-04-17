@@ -57,19 +57,18 @@ public class TraceIndexScatterMapper implements RowMapper<List<Dot>> {
         return list;
     }
 
-    private Dot createDot(Cell cell) {
+    static Dot createDot(Cell cell) {
 
         final Buffer valueBuffer = new OffsetFixedBuffer(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength());
         int elapsed = valueBuffer.readVInt();
         int exceptionCode = valueBuffer.readSVInt();
         String agentId = valueBuffer.readPrefixedString();
 
-        long reverseAcceptedTime = BytesUtils.bytesToLong(cell.getRowArray(), cell.getRowOffset() + HbaseTableConstatns.APPLICATION_NAME_MAX_LEN + HbaseColumnFamily.APPLICATION_TRACE_INDEX_TRACE.ROW_DISTRIBUTE_SIZE);
+        final int acceptTimeOffset = cell.getRowOffset() + HbaseTableConstatns.APPLICATION_NAME_MAX_LEN + HbaseColumnFamily.APPLICATION_TRACE_INDEX_TRACE.ROW_DISTRIBUTE_SIZE;
+        long reverseAcceptedTime = BytesUtils.bytesToLong(cell.getRowArray(), acceptTimeOffset);
         long acceptedTime = TimeUtils.recoveryTimeMillis(reverseAcceptedTime);
 
-        final int qualifierOffset = cell.getQualifierOffset();
-
-        TransactionId transactionId = TransactionIdMapper.parseVarTransactionId(cell.getQualifierArray(), qualifierOffset, cell.getQualifierLength());
+        TransactionId transactionId = TransactionIdMapper.parseVarTransactionId(cell.getQualifierArray(), cell.getQualifierOffset(), cell.getQualifierLength());
         
         return new Dot(transactionId, acceptedTime, elapsed, exceptionCode, agentId);
     }

@@ -106,9 +106,7 @@ public class HbaseTraceDaoV2 implements TraceDao {
 
     @Override
     public List<SpanBo> selectSpan(TransactionId transactionId) {
-        if (transactionId == null) {
-            throw new NullPointerException("transactionId");
-        }
+        Objects.requireNonNull(transactionId, "transactionId");
 
         byte[] transactionIdRowKey = rowKeyEncoder.encodeRowKey(transactionId);
         TableName traceTableName = descriptor.getTableName();
@@ -157,9 +155,7 @@ public class HbaseTraceDaoV2 implements TraceDao {
         if (CollectionUtils.isEmpty(partitionGetTraceInfoList)) {
             return Collections.emptyList();
         }
-        if (columnFamily == null) {
-            throw new NullPointerException("columnFamily");
-        }
+        Objects.requireNonNull(columnFamily, "columnFamily");
 
         List<List<SpanBo>> spanBoList = new ArrayList<>();
         for (List<GetTraceInfo> getTraceInfoList : partitionGetTraceInfoList) {

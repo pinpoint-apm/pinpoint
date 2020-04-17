@@ -25,63 +25,74 @@ import com.navercorp.pinpoint.common.util.BytesUtils;
 import com.navercorp.pinpoint.common.util.TimeUtils;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.web.scatter.ScatterData;
+import com.navercorp.pinpoint.web.scatter.ScatterDataBuilder;
 import com.navercorp.pinpoint.web.vo.scatter.Dot;
 
 import org.apache.hadoop.hbase.Cell;
+import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.client.Result;
+import org.apache.hadoop.hbase.util.Bytes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Objects;
+import java.util.function.Predicate;
 
 /**
  * @author Taejin Koo
  */
 public class TraceIndexScatterMapper3 implements RowMapper<ScatterData> {
 
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    public static final Predicate<Dot> TRUE_PREDICATE = new Predicate<Dot>() {
+        @Override
+        public boolean test(Dot dot) {
+            return true;
+        }
+    };
+
     private final long from;
     private final long to;
     private final int xGroupUnit;
     private final int yGroupUnit;
+    private final Predicate<Dot> filter;
+
 
     public TraceIndexScatterMapper3(long from, long to, int xGroupUnit, int yGroupUnit) {
+        this(from, to, xGroupUnit, yGroupUnit, TRUE_PREDICATE);
+    }
+
+    public TraceIndexScatterMapper3(long from, long to, int xGroupUnit, int yGroupUnit, Predicate<Dot> filter) {
         this.from = from;
         this.to = to;
         this.xGroupUnit = xGroupUnit;
         this.yGroupUnit = yGroupUnit;
+        this.filter = Objects.requireNonNull(filter, "filter");
     }
 
     @Override
     public ScatterData mapRow(Result result, int rowNum) throws Exception {
         if (result.isEmpty()) {
-            return new ScatterData(from, to, xGroupUnit, yGroupUnit);
+            ScatterDataBuilder builder = new ScatterDataBuilder(from, to, xGroupUnit, yGroupUnit);
+            return builder.build();
         }
 
-        ScatterData scatterData = new ScatterData(from, to, xGroupUnit, yGroupUnit);
+        ScatterDataBuilder builder = new ScatterDataBuilder(from, to, xGroupUnit, yGroupUnit);
 
         Cell[] rawCells = result.rawCells();
         for (Cell cell : rawCells) {
-            final Dot dot = createDot(cell);
-            if (dot != null) {
-                scatterData.addDot(dot);
+            if (logger.isDebugEnabled()) {
+                final byte[] row = CellUtil.cloneRow(cell);
+                logger.debug("row:{} {}", Bytes.toStringBinary(row), row.length);
+            }
+
+            final Dot dot = TraceIndexScatterMapper.createDot(cell);
+            if (filter.test(dot)) {
+                builder.addDot(dot);
             }
         }
 
-        return scatterData;
-    }
-
-    private Dot createDot(Cell cell) {
-        final Buffer valueBuffer = new OffsetFixedBuffer(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength());
-        int elapsed = valueBuffer.readVInt();
-
-        int exceptionCode = valueBuffer.readSVInt();
-        String agentId = valueBuffer.readPrefixedString();
-
-        long reverseAcceptedTime = BytesUtils.bytesToLong(cell.getRowArray(), cell.getRowOffset() + HbaseTableConstatns.APPLICATION_NAME_MAX_LEN + HbaseColumnFamily.APPLICATION_TRACE_INDEX_TRACE.ROW_DISTRIBUTE_SIZE);
-        long acceptedTime = TimeUtils.recoveryTimeMillis(reverseAcceptedTime);
-
-        // TransactionId transactionId = new TransactionId(buffer,
-        // qualifierOffset);
-
-        // for temporary, used TransactionIdMapper
-        TransactionId transactionId = TransactionIdMapper.parseVarTransactionId(cell.getQualifierArray(), cell.getQualifierOffset(), cell.getQualifierLength());
-
-        return new Dot(transactionId, acceptedTime, elapsed, exceptionCode, agentId);
+        return builder.build();
     }
 }
