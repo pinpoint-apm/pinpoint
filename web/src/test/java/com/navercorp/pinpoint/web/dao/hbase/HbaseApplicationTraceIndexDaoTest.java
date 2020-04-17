@@ -36,9 +36,11 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 
 import java.util.*;
+import java.util.function.Predicate;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class HbaseApplicationTraceIndexDaoTest {
@@ -168,6 +170,38 @@ public class HbaseApplicationTraceIndexDaoTest {
             }
         }
         return ret;
+    }
+
+    @Test
+    public void dotStatusFilterTest() {
+        Predicate<Dot> dotStatusFilter = new HbaseApplicationTraceIndexDao.DotStatusFilter("agent", Dot.Status.SUCCESS);
+        Dot dot = mock(Dot.class);
+        when(dot.getAgentId()).thenReturn("agent");
+        when(dot.getStatus()).thenReturn(Dot.Status.SUCCESS);
+
+        Assert.assertTrue(dotStatusFilter.test(dot));
+    }
+
+    @Test
+    public void dotStatusFilterTest_fail1() {
+        Predicate<Dot> dotStatusFilter = new HbaseApplicationTraceIndexDao.DotStatusFilter("agent", Dot.Status.SUCCESS);
+        Dot dot = mock(Dot.class);
+        when(dot.getAgentId()).thenReturn("agent");
+        when(dot.getStatus()).thenReturn(Dot.Status.FAILED);
+
+        Assert.assertFalse(dotStatusFilter.test(dot));
+
+    }
+
+    @Test
+    public void dotStatusFilterTest_fail2() {
+        Predicate<Dot> dotStatusFilter = new HbaseApplicationTraceIndexDao.DotStatusFilter("agent", Dot.Status.SUCCESS);
+        Dot dot = mock(Dot.class);
+        when(dot.getAgentId()).thenReturn("xxx");
+        when(dot.getStatus()).thenReturn(Dot.Status.SUCCESS);
+
+        Assert.assertFalse(dotStatusFilter.test(dot));
+
     }
 
 }

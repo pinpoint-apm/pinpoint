@@ -21,4 +21,12 @@ public final class ListListUtils {
         return toList(listList, 128);
     }
 
+    private static <T> int getSize(List<List<T>> listList) {
+        int size = 0;
+        for (List<T> list : listList) {
+            size += list.size();
+        }
+        return size;
+    }
+
 }

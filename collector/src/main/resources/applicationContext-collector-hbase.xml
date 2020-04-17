@@ -13,6 +13,7 @@
 
     <context:component-scan base-package="com.navercorp.pinpoint.collector.dao.hbase"/>
 
+    <bean id="scatterConfiguration" class="com.navercorp.pinpoint.collector.config.ScatterConfiguration"/>
 
     <bean id="hbaseConfiguration" class="com.navercorp.pinpoint.common.hbase.HbaseConfigurationFactoryBean">
         <property name="properties">

@@ -1,8 +1,7 @@
-package com.navercorp.pinpoint.web.controller;
+package com.navercorp.pinpoint.web.scatter;
 
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
-import com.navercorp.pinpoint.web.scatter.ScatterData;
-import com.navercorp.pinpoint.web.vo.Range;
+
 
 import java.util.Objects;
 
@@ -13,10 +12,10 @@ public class ScatterView {
         return new ResultView(dotView, status);
     }
 
-    static class ResultView {
-        @JsonUnwrapped
+    public static class ResultView {
+
         private final DotView dotViewV1;
-        @JsonUnwrapped
+
         private final Status status;
 
         public ResultView(DotView dotViewV1, Status status) {
@@ -24,10 +23,12 @@ public class ScatterView {
             this.status = Objects.requireNonNull(status, "status");
         }
 
+        @JsonUnwrapped
         public DotView getDotView() {
             return dotViewV1;
         }
 
+        @JsonUnwrapped
         public Status getStatus() {
             return status;
         }
@@ -56,34 +57,6 @@ public class ScatterView {
 
         public boolean isComplete() {
             return complete;
-        }
-    }
-
-    public static class Status {
-        private final long currentServerTime;
-        private final long from;
-        private final long to;
-
-        public Status(long currentServerTime, Range range) {
-            this(currentServerTime, range.getFrom(), range.getTo());
-        }
-
-        public Status(long currentServerTime, long from, long to) {
-            this.currentServerTime = currentServerTime;
-            this.from = from;
-            this.to = to;
-        }
-
-        public long getCurrentServerTime() {
-            return currentServerTime;
-        }
-
-        public long getFrom() {
-            return from;
-        }
-
-        public long getTo() {
-            return to;
         }
     }
 

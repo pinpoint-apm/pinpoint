@@ -105,10 +105,23 @@ public final class Range {
     public String toString() {
         final StringBuilder sb = new StringBuilder("Range{");
         sb.append("from=").append(from);
-        sb.append(", to=").append(to);
+        sb.append(' ');
+        sb.append(getSign(from, to));
+        sb.append(" to=").append(to);
         sb.append(", range=").append(getRange());
         sb.append('}');
         return sb.toString();
+    }
+
+    static char getSign(long long1, long long2 ) {
+        if (long1 < long2) {
+            return '<';
+        }
+        if (long1 == long2) {
+            return '=';
+        } else {
+            return '>';
+        }
     }
 
     public String prettyToString() {
