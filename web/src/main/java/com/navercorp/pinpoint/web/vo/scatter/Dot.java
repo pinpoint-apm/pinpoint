@@ -27,8 +27,19 @@ import java.util.Objects;
 public class Dot {
     public static final int EXCEPTION_NONE = 0;
 
-    public static final int SUCCESS_STATE = 1;
-    public static final int FAILED_STATE = 0;
+    public enum Status {
+        SUCCESS(1), FAILED(0);
+
+        private final int status;
+
+        Status(int status) {
+            this.status = status;
+        }
+
+        public int getCode() {
+            return status;
+        }
+    }
 
     private final TransactionId transactionId;
     private final long acceptedTime;
@@ -64,17 +75,12 @@ public class Dot {
         return exceptionCode;
     }
 
-    /**
-     * Simple stateCode used in the UI. May need to be fleshed out with state transitions in the future. 
-     * 
-     * @return
-     */
-    public int getSimpleExceptionCode() {
+    public Dot.Status getStatus() {
         if (getExceptionCode() == Dot.EXCEPTION_NONE) {
             // feels like a failure should be a value greater 1
-            return Dot.SUCCESS_STATE;
+            return Status.SUCCESS;
         } else {
-            return Dot.FAILED_STATE;
+            return Status.FAILED;
         }
     }
 

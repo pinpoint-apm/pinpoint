@@ -603,10 +603,14 @@ public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, I
             // use DistributedScanner if parallel scan is disabled or if called to use a single thread
             return find(tableName, scan, rowKeyDistributor, action);
         } else {
-            int numThreadsUsed = numParallelThreads < this.maxThreadsPerParallelScan ? numParallelThreads : this.maxThreadsPerParallelScan;
+            int numThreadsUsed = getThreadsUsedNum(numParallelThreads);
             final ResultsExtractor<List<T>> resultsExtractor = new RowMapperResultsExtractor<>(action);
             return executeParallelDistributedScan(tableName, scan, rowKeyDistributor, resultsExtractor, numThreadsUsed);
         }
+    }
+
+    private int getThreadsUsedNum(int numParallelThreads) {
+        return Math.min(numParallelThreads, this.maxThreadsPerParallelScan);
     }
 
     @Override
@@ -615,7 +619,7 @@ public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, I
             // use DistributedScanner if parallel scan is disabled or if called to use a single thread
             return find(tableName, scan, rowKeyDistributor, limit, action);
         } else {
-            int numThreadsUsed = numParallelThreads < this.maxThreadsPerParallelScan ? numParallelThreads : this.maxThreadsPerParallelScan;
+            int numThreadsUsed = getThreadsUsedNum(numParallelThreads);
             final ResultsExtractor<List<T>> resultsExtractor = new LimitRowMapperResultsExtractor<>(action, limit);
             return executeParallelDistributedScan(tableName, scan, rowKeyDistributor, resultsExtractor, numThreadsUsed);
         }
@@ -627,7 +631,7 @@ public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, I
             // use DistributedScanner if parallel scan is disabled or if called to use a single thread
             return find(tableName, scan, rowKeyDistributor, limit, action, limitEventHandler);
         } else {
-            int numThreadsUsed = numParallelThreads < this.maxThreadsPerParallelScan ? numParallelThreads : this.maxThreadsPerParallelScan;
+            int numThreadsUsed = getThreadsUsedNum(numParallelThreads);
             final LimitRowMapperResultsExtractor<T> resultsExtractor = new LimitRowMapperResultsExtractor<>(action, limit, limitEventHandler);
             return executeParallelDistributedScan(tableName, scan, rowKeyDistributor, resultsExtractor, numThreadsUsed);
         }
@@ -639,7 +643,7 @@ public class HbaseTemplate2 extends HbaseAccessor implements HbaseOperations2, I
             // use DistributedScanner if parallel scan is disabled or if called to use a single thread
             return find(tableName, scan, rowKeyDistributor, action);
         } else {
-            int numThreadsUsed = numParallelThreads < this.maxThreadsPerParallelScan ? numParallelThreads : this.maxThreadsPerParallelScan;
+            int numThreadsUsed = getThreadsUsedNum(numParallelThreads);
             return executeParallelDistributedScan(tableName, scan, rowKeyDistributor, action, numThreadsUsed);
         }
     }
