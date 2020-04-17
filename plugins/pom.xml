@@ -102,7 +102,7 @@
         <module>reactor</module>
         <module>reactor-netty</module>
         <module>jdk-completable-future</module>
-        <module>thread-plugin</module>
+        <module>thread</module>
     </modules>
 
 
