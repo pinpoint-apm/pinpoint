@@ -9,6 +9,8 @@ import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
 import com.navercorp.pinpoint.grpc.server.ServerContext;
 import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
+import com.navercorp.pinpoint.grpc.trace.PSpanEvent;
+import com.navercorp.pinpoint.grpc.trace.PTransactionId;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import io.grpc.Status;
 import org.slf4j.Logger;
@@ -16,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -51,7 +54,7 @@ public class GrpcSpanChunkHandler implements SimpleHandler {
 
     private void handleSpanChunk(PSpanChunk spanChunk) {
         if (isDebug) {
-            logger.debug("Handle PSpanChunk={}", MessageFormatUtils.debugLog(spanChunk));
+            logger.debug("Handle PSpanChunk={}", createSimpleSpanChunkLog(spanChunk));
         }
 
         try {
@@ -62,4 +65,33 @@ public class GrpcSpanChunkHandler implements SimpleHandler {
             logger.warn("Failed to handle spanChunk={}", MessageFormatUtils.debugLog(spanChunk), e);
         }
     }
+
+    private String createSimpleSpanChunkLog(PSpanChunk spanChunk) {
+        if (!isDebug) {
+            return "";
+        }
+
+        StringBuilder log = new StringBuilder();
+
+        PTransactionId transactionId = spanChunk.getTransactionId();
+        log.append(" transactionId:");
+        log.append(MessageFormatUtils.debugLog(transactionId));
+
+        log.append(" spanId:").append(spanChunk.getSpanId());
+
+
+        StringBuilder spanEventSequenceLog = new StringBuilder();
+        List<PSpanEvent> spanEventList = spanChunk.getSpanEventList();
+        for (PSpanEvent pSpanEvent : spanEventList) {
+            if (pSpanEvent == null) {
+                continue;
+            }
+            spanEventSequenceLog.append(pSpanEvent.getSequence()).append(" ");
+        }
+
+        log.append(" spanEventSequence:").append(spanEventSequenceLog.toString());
+
+        return log.toString();
+    }
+
 }

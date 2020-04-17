@@ -24,13 +24,17 @@ import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.MessageFormatUtils;
 import com.navercorp.pinpoint.grpc.server.ServerContext;
 import com.navercorp.pinpoint.grpc.trace.PSpan;
+import com.navercorp.pinpoint.grpc.trace.PSpanEvent;
+import com.navercorp.pinpoint.grpc.trace.PTransactionId;
 import com.navercorp.pinpoint.io.request.ServerRequest;
+
 import io.grpc.Status;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -66,7 +70,7 @@ public class GrpcSpanHandler implements SimpleHandler {
 
     private void handleSpan(PSpan span) {
         if (isDebug) {
-            logger.debug("Handle PSpan={}", MessageFormatUtils.debugLog(span));
+            logger.debug("Handle PSpan={}", createSimpleSpanLog(span));
         }
 
         try {
@@ -77,4 +81,32 @@ public class GrpcSpanHandler implements SimpleHandler {
             logger.warn("Failed to handle span={}", MessageFormatUtils.debugLog(span), e);
         }
     }
+
+    private String createSimpleSpanLog(PSpan span) {
+        if (!isDebug) {
+            return "";
+        }
+
+        StringBuilder log = new StringBuilder();
+
+        PTransactionId transactionId = span.getTransactionId();
+        log.append(" transactionId:");
+        log.append(MessageFormatUtils.debugLog(transactionId));
+
+        log.append(" spanId:").append(span.getSpanId());
+
+        StringBuilder spanEventSequenceLog = new StringBuilder();
+        List<PSpanEvent> spanEventList = span.getSpanEventList();
+        for (PSpanEvent pSpanEvent : spanEventList) {
+            if (pSpanEvent == null) {
+                continue;
+            }
+            spanEventSequenceLog.append(pSpanEvent.getSequence()).append(" ");
+        }
+
+        log.append(" spanEventSequence:").append(spanEventSequenceLog.toString());
+
+        return log.toString();
+    }
+
 }
