@@ -72,6 +72,7 @@
         <module>rabbitmq-it</module>
         <module>rxjava-it</module>
         <module>spring-it</module>
+        <module>thread-it</module>
     </modules>
 
     <properties>
