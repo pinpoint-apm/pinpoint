@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef, Input, Output, AfterViewInit, OnDestroy, EventEmitter, OnChanges, SimpleChanges, NgZone } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, Input, Output, AfterViewInit, OnDestroy, EventEmitter, OnChanges, SimpleChanges, NgZone, Renderer2 } from '@angular/core';
 import * as moment from 'moment-timezone';
 import { from } from 'rxjs';
 import { tap, filter } from 'rxjs/operators';
@@ -59,7 +59,8 @@ export class RealTimeChartComponent implements OnInit, AfterViewInit, OnDestroy,
 
     constructor(
         private el: ElementRef,
-        private ngZone: NgZone
+        private ngZone: NgZone,
+        private renderer: Renderer2
     ) {}
     ngOnInit() {}
     ngOnChanges(changes: SimpleChanges) {
@@ -653,6 +654,8 @@ export class RealTimeChartComponent implements OnInit, AfterViewInit, OnDestroy,
             coordX: xPosOnCanvas,
             coordY: yPosOnCanvas
         };
+
+        this.renderer.setAttribute(this.canvasRef.nativeElement, 'title', this.getLinkedKey() ? 'Thread Dump' : '');
     }
 
     onMouseOut(): void {
