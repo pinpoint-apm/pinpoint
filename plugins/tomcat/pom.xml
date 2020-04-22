@@ -110,6 +110,16 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
+                            <filters>
+                                <filter>
+                                    <artifact>com.navercorp.pinpoint:pinpoint-jboss-plugin</artifact>
+                                    <includes>
+                                        <include>com/navercorp/pinpoint/plugin/jboss/JbossConfig.class</include>
+                                        <include>com/navercorp/pinpoint/plugin/jboss/JbossConstants.class</include>
+                                        <include>com/navercorp/pinpoint/plugin/jboss/JbossDetector.class</include>
+                                    </includes>
+                                </filter>
+                            </filters>
                             <relocations>
                                 <relocation>
                                     <pattern>com.navercorp.pinpoint.plugin.common.servlet</pattern>
