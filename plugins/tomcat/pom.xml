@@ -125,15 +125,6 @@
                                     <pattern>com.navercorp.pinpoint.plugin.common.servlet</pattern>
                                     <shadedPattern>com.navercorp.pinpoint.plugin.tomcat.common.servlet</shadedPattern>
                                 </relocation>
-                                <relocation>
-                                    <pattern>com.navercorp.pinpoint.plugin.spring.boot</pattern>
-                                    <shadedPattern>com.navercorp.pinpoint.plugin.tomcat.spring.boot</shadedPattern>
-                                    <includes>
-                                        <include>com.navercorp.pinpoint.plugin.spring.boot.SpringBootConfiguration</include>
-                                        <include>com.navercorp.pinpoint.plugin.spring.boot.SpringBootConstants</include>
-                                        <include>com.navercorp.pinpoint.plugin.spring.boot.SpringBootDetector</include>
-                                    </includes>
-                                </relocation>
                             </relocations>
                             <dependencyReducedPomLocation>
                                 ${project.build.directory}/dependency-reduced-pom.xml
