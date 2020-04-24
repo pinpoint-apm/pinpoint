@@ -62,7 +62,7 @@ public class ChannelPropertiesFactory {
         }
         final String applicationName = MapUtils.getString(properties, HandshakePropertyType.APPLICATION_NAME.getName());
         if (!IdValidateUtils.validateId(applicationName)) {
-            throw new IllegalArgumentException("Invalid applicationName :" + agentId);
+            throw new IllegalArgumentException("Invalid applicationName :" + applicationName);
         }
         final String hostName = MapUtils.getString(properties, HandshakePropertyType.HOSTNAME.getName());
         final String ip = MapUtils.getString(properties, HandshakePropertyType.IP.getName());
