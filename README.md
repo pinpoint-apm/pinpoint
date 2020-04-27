@@ -7,12 +7,12 @@
 
 **Visit [our official web site](http://naver.github.io/pinpoint/) for more information and [Latest updates on Pinpoint](https://naver.github.io/pinpoint/news.html)**.
 
-## Latest Release (2020/03/12)
+## Latest Release (2020/04/27)
 
-We're happy to announce the release of Pinpoint v2.0.1.
-Please check the release note at (https://github.com/naver/pinpoint/releases/tag/v2.0.1).
+We're happy to announce the release of Pinpoint v2.0.2.
+Please check the release note at (https://github.com/naver/pinpoint/releases/tag/v2.0.2).
 
-The current stable version is [v2.0.1](https://github.com/naver/pinpoint/releases/tag/v2.0.1).
+The current stable version is [v2.0.2](https://github.com/naver/pinpoint/releases/tag/v2.0.2).
 
 ## Live Demo
 
