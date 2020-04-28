@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="">
+<meta name="keywords" content=" inspector, how, how-to">
+<title>How to use Application Inspector | Leading Open-Source APM</title>
+<link rel="stylesheet" href="css/syntax.css">
+
+<link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+<!--<link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">-->
+<link rel="stylesheet" href="css/modern-business.css">
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+<link rel="stylesheet" href="css/customstyles.css">
+<link rel="stylesheet" href="css/boxshadowproperties.css">
+<!-- most color styles are extracted out to here -->
+<link rel="stylesheet" href="css/theme-black.css">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
+<script src="js/jquery.navgoco.min.js"></script>
+
+
+<!-- Latest compiled and minified JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<!-- Anchor.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/anchor-js/2.0.0/anchor.min.js"></script>
+<script src="js/toc.js"></script>
+<script src="js/customscripts.js"></script>
+
+<link rel="shortcut icon" href="images/favicon.ico">
+
+<!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+<!--[if lt IE 9]>
+<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+<![endif]-->
+
+<link rel="alternate" type="application/rss+xml" title="pinpoint" href="http://localhost:4000/feed.xml">
+
+    <script>
+        $(document).ready(function() {
+            // Initialize navgoco with default options
+            $("#mysidebar").navgoco({
+                caretHtml: '',
+                accordion: true,
+                openClass: 'active', // open
+                save: false, // leave false or nav highlighting doesn't work right
+                cookie: {
+                    name: 'navgoco',
+                    expires: false,
+                    path: '/'
+                },
+                slide: {
+                    duration: 400,
+                    easing: 'swing'
+                }
+            });
+
+            $("#collapseAll").click(function(e) {
+                e.preventDefault();
+                $("#mysidebar").navgoco('toggle', false);
+            });
+
+            $("#expandAll").click(function(e) {
+                e.preventDefault();
+                $("#mysidebar").navgoco('toggle', true);
+            });
+
+        });
+
+    </script>
+    <script>
+        $(function () {
+            $('[data-toggle="tooltip"]').tooltip()
+        })
+    </script>
+    <script>
+        $(document).ready(function() {
+            $("#tg-sb-link").click(function() {
+                $("#tg-sb-sidebar").toggle();
+                $("#tg-sb-content").toggleClass('col-md-9');
+                $("#tg-sb-content").toggleClass('col-md-12');
+                $("#tg-sb-icon").toggleClass('fa-toggle-on');
+                $("#tg-sb-icon").toggleClass('fa-toggle-off');
+            });
+        });
+    </script>
+    
+
+</head>
+<body>
+
+<!-- Navigation -->
+<nav class="navbar navbar-inverse navbar-static-top">
+    <div class="container topnavlinks">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="fa fa-home fa-lg navbar-brand" href="/pinpoint/index.html">&nbsp;<span class="projectTitle"> <img src="./images/logo2.png"> </span></a>
+        </div>
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav navbar-right">
+                <!-- toggle sidebar button -->
+                <li><a id="tg-sb-link" href="#"><i id="tg-sb-icon" class="fa fa-toggle-on"></i> Nav</a></li>
+                <!-- entries without drop-downs appear here -->
+
+
+
+
+                
+                
+                
+                <li><a href="https://github.com/naver/pinpoint" target="_blank">GitHub</a></li>
+                
+                
+                
+                <li><a href="https://twitter.com/Pinpoint_APM" target="_blank">News</a></li>
+                
+                
+                
+                <li><a href="https://naver.github.io/pinpoint/resources" target="_blank">Pinpoint Blogs</a></li>
+                
+                
+                
+                <!-- entries with drop-downs appear here -->
+                <!-- conditional logic to control which topnav appears for the audience defined in the configuration file.-->
+                
+                
+			<li>
+
+
+
+  <a class="email" title="Submit feedback" href="#" onclick="javascript:window.location='mailto:roy.kim@navercorp.com?subject=pinpoint feedback&body=If it\'s an issue please check QnA page in the homepage or Pinpoint GitHub repository https://github.com/naver/pinpoint/issues' "><i class="fa fa-envelope-o"></i> Feedback</a>
+
+</li>
+
+		
+                <!--comment out this block if you want to hide search-->
+                <li>
+                    <!--start search-->
+                    <div id="search-demo-container">
+                        <input type="text" id="search-input" placeholder="search...">
+                        <ul id="results-container"></ul>
+                    </div>
+                    <script src="js/jekyll-search.js" type="text/javascript"></script>
+                    <script type="text/javascript">
+                            SimpleJekyllSearch.init({
+                                searchInput: document.getElementById('search-input'),
+                                resultsContainer: document.getElementById('results-container'),
+                                dataSource: 'search.json',
+                                searchResultTemplate: '<li><a href="{url}" title="How to use Application Inspector">{title}</a></li>',
+                    noResultsText: 'No results found.',
+                            limit: 10,
+                            fuzzy: true,
+                    })
+                    </script>
+                    <!--end search-->
+                </li>
+            </ul>
+        </div>
+        </div>
+        <!-- /.container -->
+</nav>
+
+<!-- Page Content -->
+
+<div class="container">
+
+  <div id="main">
+    <!-- Content Row -->
+    <div class="row">
+        
+        
+            <!-- Sidebar Column -->
+            <div class="col-md-3" id="tg-sb-sidebar">
+                <script language="javascript" type="text/javascript">
+    $(document).ready(function () {
+        GetVersionInfo();
+    });
+
+    function GetVersionInfo() {
+
+        var pathname = window.location.pathname;
+        var path = pathname.slice(10,15);
+        var versioned = true;
+        var tempNum1 = path.slice(0,1);
+        var tempNum2 = path.slice(2,3);
+        var tempNum3 = path.slice(4,5);
+
+        if($.isEmptyObject(path)){
+            versioned = false;
+        }else{
+            if(isNaN(tempNum1) || isNaN(tempNum2) && isNaN(tempNum3)){
+                versioned = false;
+            }
+        }
+
+        $.getJSON("https://raw.githubusercontent.com/naver/pinpoint/gh-pages/version.json").done(function (data){
+
+            $.each(data, function(key, value) {
+
+                if(versioned && path == value.ver){
+                    $('#selbox').append('<option selected="selected" value="http://naver.github.io/pinpoint/'+ value.url +'">'+ value.ver +'</option>');
+                }else{
+                    $('#selbox').append('<option value="http://naver.github.io/pinpoint/'+ value.url +'">'+ value.ver +'</option>');
+                }
+            })
+        });
+    }
+</script>
+
+
+
+
+<ul id="mysidebar" class="nav">
+    <li class="sidebarTitle">
+        <tr>
+            <td>
+                Pinpoint
+            </td>
+            <td>
+                <select id="selbox" name="ver" onchange="document.location.href=this.value">
+                </select>
+            </td>
+        </tr>
+    </li>
+    <tr></tr>
+    <tr> <td><iframe src="https://ghbtns.com/github-btn.html?user=naver&repo=pinpoint&type=star&count=true" frameborder="0" scrolling="0" width="110px" height="20px"></iframe>
+    <iframe src="https://ghbtns.com/github-btn.html?user=naver&repo=pinpoint&type=fork&count=true" frameborder="0" scrolling="0" width="110px" height="20px"></iframe>
+    </td> </tr>
+  
+  
+  
+
+    
+      
+  
+
+    
+    <li>
+        
+        <li><a href="main.html">What's New</a></li>
+        
+    </li>
+    
+      
+  
+  <li>
+      <a href="#">Pinpoint</a>
+      <ul>
+          
+          
+          
+          <li><a href="overview.html">Overview</a></li>
+          
+          
+          
+          
+          
+          
+          <li><a href="history.html">History</a></li>
+          
+          
+          
+          
+          
+          
+          <li><a href="techdetail.html">Technical Details</a></li>
+          
+          
+          
+          
+          
+          
+          <li><a href="additionalplugins.html">Additional Plugins</a></li>
+          
+          
+          
+          
+      </ul>
+   </li>
+    
+
+    
+      
+  
+  <li>
+      <a href="#">Getting Started</a>
+      <ul>
+          
+          
+          
+          <li><a href="quickstart.html">QuickStart</a></li>
+          
+          
+          
+          
+          
+          
+          <li><a href="installation.html">Installation</a></li>
+          
+          
+          
+          
+          
+          
+          <li><a href="docker.html">Install with Docker</a></li>
+          
+          
+          
+          
+          
+          
+          <li><a href="troubleshooting_network.html">TrobleShooting(Network)</a></li>
+          
+          
+          
+          
+      </ul>
+   </li>
+    
+
+    
+      
+  
+  <li>
+      <a href="#">Documents</a>
+      <ul>
+          
+          
+          
+          <li><a href="plugindevguide.html">Plugin Developer Guide</a></li>
+          
+          
+          
+          
+          
+          
+          <li><a href="alarm.html">Setting Alarms</a></li>
+          
+          
+          
+          
+          
+          
+          <li class="active"><a href="applicationinspector.html">How to use Application Inspector</a></li>
+          
+          
+          
+          
+          
+          
+          <li><a href="perrequestfeatureguide.html">Separate Log Per Request</a></li>
+          
+          
+          
+          
+          
+          
+          <li><a href="httpstatuscodefailure.html">Marking Transaction as Fail</a></li>
+          
+          
+          
+          
+          
+          
+          <li><a href="proxyhttpheader.html">Monitoring Proxy Server</a></li>
+          
+          
+          
+          
+          
+          
+          <li><a href="hbaseupgrade.html">Upgrade Database Hbase2</a></li>
+          
+          
+          
+          
+      </ul>
+   </li>
+    
+
+    
+      
+  
+  <li>
+      <a href="#">Contribution</a>
+      <ul>
+          
+          
+          
+          <li><a href="contribution.html">Readme</a></li>
+          
+          
+          
+          
+          
+          
+          <li><a href="https://github.com/naver/pinpoint/labels/proposal" target="_blank">Open to Contribution</a></li>
+          
+          
+          
+          
+      </ul>
+   </li>
+    
+
+    
+      
+  
+
+    
+    <li>
+        
+        <li><a href="videos.html">Videos</a></li>
+        
+    </li>
+    
+      
+  
+
+    
+    <li>
+        
+        <li><a href="performance.html">Performance Analysis</a></li>
+        
+    </li>
+    
+      
+  
+
+    
+    <li>
+        
+        <li><a href="http://125.209.240.10:10123" target="_blank">Live Demo</a></li>
+        
+    </li>
+    
+      
+  
+
+    
+    <li>
+        
+        <li><a href="https://twitter.com/Pinpoint_APM" target="_blank">Twitter</a></li>
+        
+    </li>
+    
+      
+  
+
+    
+    <li>
+        
+        <li><a href="https://github.com/naver/pinpoint/releases" target="_blank">Release Notes</a></li>
+        
+    </li>
+    
+      
+  
+
+    
+    <li>
+        
+        <li><a href="faq.html">FAQ</a></li>
+        
+    </li>
+    
+      
+  
+
+    
+    <li>
+        
+        <li><a href="poweredby.html">Powered by Pinpoint</a></li>
+        
+    </li>
+    
+      
+  
+
+    
+    <li>
+        
+        <li><a href="https://github.com/naver/pinpoint/issues" target="_blank">Questions and answers</a></li>
+        
+    </li>
+    
+      
+  
+
+    
+    <li>
+        
+        <li><a href="https://github.com/naver/pinpoint" target="_blank">Fork me at Github</a></li>
+        
+    </li>
+    
+      
+      
+      <!-- if you aren't using the accordion, uncomment this block:
+         <p class="external">
+             <a href="#" id="collapseAll">Collapse All</a> | <a href="#" id="expandAll">Expand All</a>
+         </p>
+         -->
+</ul>
+
+<!-- this highlights the active parent class in the navgoco sidebar. this is critical so that the parent expands when you're viewing a page. This must appear below the sidebar code above. Otherwise, if placed inside customscripts.js, the script runs before the sidebar code runs and the class never gets inserted.-->
+<script>$("li.active").parents('li').toggleClass("active");</script>
+
+            </div>
+            
+        
+
+        <!-- Content Column -->
+        <div class="col-md-9" id="tg-sb-content">
+            <a no_icon href="https://github.com/naver/pinpoint"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/365986a132ccd6a44c23a9169022c0b5c890c387/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f7265645f6161303030302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png"></a>
+            <script language="javascript" type="text/javascript">
+    $(document).ready(function () {
+        GetUrl();
+    });
+
+    function GetUrl() {
+
+        var pathname = window.location.pathname;
+        if(pathname == "/pinpoint/main.html"){
+            document.getElementById("pathname").innerHTML = "Snapshot(Unstable)";
+        }
+    }
+</script>
+
+<div class="post-header">
+   <h1 class="post-title-main" id="pathname">How to use Application Inspector</h1>
+</div>
+
+
+
+<div class="post-content">
+
+   
+
+    
+    
+<!-- this handles the automatic toc. use ## for subheads to auto-generate the on-page minitoc. if you use html tags, you must supply an ID for the heading element in order for it to appear in the minitoc. -->
+<script>
+$( document ).ready(function() {
+  // Handler for .ready() called.
+
+$('#toc').toc({ minimumHeaders: 0, listType: 'ul', showSpeed: 0, headers: 'h2,h3,h4' });
+
+/* this offset helps account for the space taken up by the floating toolbar. */
+$('#toc').on('click', 'a', function() {
+  var target = $(this.getAttribute('href'))
+    , scroll_target = target.offset().top
+
+  $(window).scrollTop(scroll_target - 10);
+  return false
+})
+  
+});
+</script>
+
+<div id="toc"></div>
+
+    
+
+
+    
+
+
+    
+
+  <p><a href="#application-inspector">English</a> | <a href="#application-inspector-1">한글</a></p>
+<h1 id="application-inspector">Application Inspector</h1>
+
+<h2 id="1-introduction">1. Introduction</h2>
+
+<p>Application inspector provides an aggregate view of all the agent’s resource data (cpu, memory, tps, datasource connection count, etc) registered under the same application name. A separate view is provided for the application inspector with stat charts similar to the agent inspector.</p>
+
+<p>To access application inspector, click on the application inspector menu on the left side of the screen.</p>
+
+<ul>
+  <li>1 : application inspector menu, 2 : application stat data
+<img src="images/applicationInspector/inspector_view.jpg" alt="inspector_view.jpg" /></li>
+</ul>
+
+<p>The Heap Usage chart above for example, shows the average(Avg), smallest(Min), greatest(Max) heap usage of the agents registered under the same application name along with the id of the agent that had the smallest/greatest heap usage at a certain point in time. The application inspector also provides other statistics found in the agent inspector in a similar fashion.</p>
+
+<p><img src="images/applicationInspector/graph.jpg" alt="graph.jpg" /></p>
+
+<p>Application inspector requires <a href="https://flink.apache.org">flink</a> and <a href="https://zookeeper.apache.org/">zookeeper</a>. Please read on for more detail.</p>
+
+<h2 id="2-architecture">2. Architecture</h2>
+
+<p><img src="images/applicationInspector/execute_flow.jpg" alt="execute_flow.jpg" /></p>
+
+<p><strong>A.</strong> Run a streaming job on <a href="https://flink.apache.org">flink</a>.<br />
+<strong>B.</strong> The taskmanager server is registered to zookeeper as a data node once the job starts.<br />
+<strong>C.</strong> The Collector obtains the flink server info from zookeeper to create a tcp connection with it and starts sending agent data.<br />
+<strong>D.</strong> The flink server aggregates data sent by the Collector and stores them into hbase.</p>
+
+<h2 id="3-configuration">3. Configuration</h2>
+
+<p>In order to enable application inspector, you will need to do the following and run Pinpoint.</p>
+
+<p><strong>A.</strong> Create <strong>ApplicationStatAggre</strong> table (refer to <a href="https://github.com/naver/pinpoint/tree/master/hbase/scripts">create table script</a>), which stores application stat data.</p>
+
+<p><strong>B.</strong> Configure zookeeper address in <a href="https://github.com/naver/pinpoint/blob/master/flink/src/main/resources/pinpoint-flink.properties">Pinpoint-flink.properties</a> which will be used to store flink’s taskmanager server information.</p>
+<div class="language-properties highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    <span class="py">flink.cluster.enable</span><span class="p">=</span><span class="s">true</span>
+    <span class="py">flink.cluster.zookeeper.address</span><span class="p">=</span><span class="s">YOUR_ZOOKEEPER_ADDRESS</span>
+    <span class="py">flink.cluster.zookeeper.sessiontimeout</span><span class="p">=</span><span class="s">3000</span>
+    <span class="py">flink.cluster.zookeeper.retry.interval</span><span class="p">=</span><span class="s">5000</span>
+    <span class="py">flink.cluster.tcp.port</span><span class="p">=</span><span class="s">19994</span>
+</code></pre></div></div>
+
+<p><strong>C.</strong> Configure job execution type and the number of listeners to receive data from the Collector in <a href="https://github.com/naver/pinpoint/blob/master/flink/src/main/resources/profiles/release/pinpoint-flink.properties">Pinpoint-flink.properties</a>.</p>
+<ul>
+  <li>If you are running a flink cluster, set <em>flink.StreamExecutionEnvironment</em> to <strong>server</strong>.</li>
+  <li>If you are running flink as a standalone, set <em>flink.StreamExecutionEnvironment</em> to <strong>local</strong>.
+    <div class="language-properties highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="py">flink.StreamExecutionEnvironment</span><span class="p">=</span><span class="s">server</span>
+</code></pre></div>    </div>
+  </li>
+</ul>
+
+<p><strong>D.</strong> Configure hbase address in <a href="https://github.com/naver/pinpoint/blob/master/flink/src/main/resources/profiles/release/hbase.properties">hbase.properties</a> which will be used to store aggregated application data.</p>
+<div class="language-properties highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    <span class="py">hbase.client.host</span><span class="p">=</span><span class="s">YOUR_HBASE_ADDRESS</span>
+    <span class="py">hbase.client.port</span><span class="p">=</span><span class="s">2181</span>
+</code></pre></div></div>
+
+<p><strong>E.</strong> Build <a href="https://github.com/naver/pinpoint/tree/master/flink">Pinpoint-flink</a> and run the streaming job file created under <em>target</em> directory on the flink server.</p>
+<ul>
+  <li>The name of the streaming job is <code class="highlighter-rouge">pinpoint-flink-job-{pinpoint.version}.jar</code>.</li>
+  <li>For details on how to run the job, please refer to the <a href="https://flink.apache.org">flink website</a>.</li>
+  <li>You must put <code class="highlighter-rouge">spring.profiles.active release</code> or<code class="highlighter-rouge"> spring.profiles.active local</code> as the job parameter so that the job can refer to the configuration file configured above when running. It must be entered because it uses the spring profile function inside the job to refer to the configuration file.</li>
+</ul>
+
+<p><strong>F.</strong> Configure zookeeper address in <a href="https://github.com/naver/pinpoint/blob/master/collector/src/main/resources/profiles/release/pinpoint-collector.properties">Pinpoint-Collector.properties</a> so that the Collector can connect to the flink server.</p>
+<div class="language-properties highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    <span class="py">flink.cluster.enable</span><span class="p">=</span><span class="s">true</span>
+    <span class="py">flink.cluster.zookeeper.address</span><span class="p">=</span><span class="s">YOUR_ZOOKEEPER_ADDRESS</span>
+    <span class="py">flink.cluster.zookeeper.sessiontimeout</span><span class="p">=</span><span class="s">3000</span>
+</code></pre></div></div>
+
+<p><strong>G.</strong> Enable application inspector in the web-ui by enabling the following configuration in <a href="https://github.com/naver/pinpoint/blob/master/web/src/main/resources/pinpoint-web.properties">pinpoint-web.properties</a>.</p>
+<div class="language-properties highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    <span class="py">config.show.applicationStat</span><span class="p">=</span><span class="s">true</span>
+</code></pre></div></div>
+
+<h2 id="4-monitoring-streaming-jobs">4. Monitoring Streaming Jobs</h2>
+
+<p>There is a batch job that monitors how Pinpoint streaming jobs are running. To enable this batch job, configure the following files for <em>Pinpoint-web</em>.</p>
+
+<p><strong>batch.properties</strong></p>
+<div class="language-properties highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="py">batch.flink.server</span><span class="p">=</span><span class="s">FLINK_MANGER_SERVER_IP_LIST</span>
+<span class="c"># Flink job manager server IPs, separated by ','.
+# ex) batch.flink.server=123.124.125.126,123.124.125.127
+</span></code></pre></div></div>
+<p><strong>applicationContext-batch-schedule.xml</strong></p>
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;task:scheduled-tasks</span> <span class="na">scheduler=</span><span class="s">"scheduler"</span><span class="nt">&gt;</span>
+	...
+	<span class="nt">&lt;task:scheduled</span> <span class="na">ref=</span><span class="s">"batchJobLauncher"</span> <span class="na">method=</span><span class="s">"flinkCheckJob"</span> <span class="na">cron=</span><span class="s">"0 0/10 * * * *"</span> <span class="nt">/&gt;</span>
+<span class="nt">&lt;/task:scheduled-tasks&gt;</span>
+</code></pre></div></div>
+
+<p>If you would like to send alarms in case of batch job failure, you must implement <code class="highlighter-rouge">com.navercorp.pinpoint.web.batch.JobFailMessageSender class</code> and register it as a Spring bean.</p>
+
+<h2 id="5-others">5. Others</h2>
+
+<p>For more details on how to install and operate flink, please refer to the <a href="https://flink.apache.org">flink website</a>.</p>
+
+<h1 id="application-inspector-1">Application Inspector</h1>
+
+<h2 id="1-기능-설명">1. 기능 설명</h2>
+
+<p>application inspector 기능은 agent들의 리소스 데이터(stat : cpu, memory, tps, datasource connection count)를 집계하여 데이터를 보여주는 기능이다. 참고로 application은 agent의 그룹으로 이뤄진다. 그리고 agent의 리소스 데이터는 agent inspector 화면에서 에서 볼 수 있다. application inspector 기능 또한 별도의 화면에서 확인할 수 있다.</p>
+
+<p>inspector 화면 왼쪽 메뉴의 링크를 클릭하면 application inspector 버튼을 클릭하고 데이터를 볼 수 있다.</p>
+
+<ul>
+  <li>1 : application inspector menu, 2: application stat data
+<img src="images/applicationInspector/inspector_view.jpg" alt="inspector_view.jpg" /></li>
+</ul>
+
+<p>예를들면 A라는 application에 포함된 agent들의 heap 사용량을 모아서 heap 사용량 평균값 , heap 사용량의 평균값,  heap 사용량이 가장 높은 agentid와 사용량, heap 사용량이 가장 적은 agentid와 사용량을 보여준다. 이외에도 agent inspector 에서 제공하는 다른 데이터들도 집계하여 application inspector에서 제공한다.</p>
+
+<p><img src="images/applicationInspector/graph.jpg" alt="graph.jpg" /></p>
+
+<p>application inspector 기능을 동작시키기 위해서는 <a href="https://flink.apache.org">flink</a>와 <a href="https://zookeeper.apache.org/">zookeeper</a>가 필요하고, 기능의 동작 구조와 구성 및 설정 방법을 아래 설명한다.</p>
+
+<h2 id="2-동작-구조">2. 동작 구조</h2>
+
+<p>application inspector 기능의 동작 및 구조를 그림과 함께 보자.</p>
+
+<p><img src="images/applicationInspector/execute_flow.jpg" alt="execute_flow.jpg" /></p>
+
+<p><strong>A.</strong> <a href="https://flink.apache.org">flink</a>에 streaming job을 실행시킨다.<br />
+<strong>B.</strong> job이 실행되면 taskmanager 서버의 정보가 zookeeper의 데이터 노드로 등록이 된다.<br />
+<strong>C.</strong> Collector는 zookeeper에서 flink 서버의 정보를 가져와서 flink 서버와 tcp 연결을 맺고 agent stat 데이터를 전송한다.<br />
+<strong>D.</strong> flink 서버에서는 agent 데이터를 집계하여 통계 데이터를 hbase에 저장한다.</p>
+
+<h2 id="3-기능-실행-방법">3. 기능 실행 방법</h2>
+
+<p>application inspector 기능을 실행하기 위해서 아래와 같이 설정을 변경하고 Pinpoint를 실행해야 한다.</p>
+
+<p><strong>A.</strong> <a href="https://github.com/naver/pinpoint/tree/master/hbase/scripts">테이블 생성 스크립트를 참조</a>하여 application 통계 데이터를 저장하는 <strong>ApplicationStatAggre</strong> 테이블을 생성한다.</p>
+
+<p><strong>B.</strong> flink 프로젝트 설정파일(<a href="https://github.com/naver/pinpoint/blob/master/flink/src/main/resources/profiles/release/pinpoint-flink.properties">Pinpoint-flink.properties</a>)에 taskmanager 서버 정보를 저장하는 zookeeper 주소를 설정한다.</p>
+<div class="language-properties highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    <span class="py">flink.cluster.enable</span><span class="p">=</span><span class="s">true</span>
+    <span class="py">flink.cluster.zookeeper.address</span><span class="p">=</span><span class="s">YOUR_ZOOKEEPER_ADDRESS</span>
+    <span class="py">flink.cluster.zookeeper.sessiontimeout</span><span class="p">=</span><span class="s">3000</span>
+    <span class="py">flink.cluster.zookeeper.retry.interval</span><span class="p">=</span><span class="s">5000</span>
+    <span class="py">flink.cluster.tcp.port</span><span class="p">=</span><span class="s">19994</span>
+</code></pre></div></div>
+
+<p><strong>C.</strong> flink 프로젝트 설정파일(<a href="https://github.com/naver/pinpoint/blob/master/flink/src/main/resources/profiles/release/pinpoint-flink.properties">Pinpoint-flink.properties</a>)에 job의 실행 방법과 Collector에서 데이터를 받는 listener의 개수를 설정한다.</p>
+<ul>
+  <li>flink를 cluster로 구축해서 사용한다면 <em>flink.StreamExecutionEnvironment</em>에는 <strong>server</strong>를 설정한다.</li>
+  <li>flink를 Standalone 형태로 실행한다면 <em>flink.StreamExecutionEnvironment</em>에는 <strong>local</strong>을 설정한다.</li>
+</ul>
+
+<div class="language-properties highlighter-rouge"><div class="highlight"><pre class="highlight"><code> <span class="err"> </span> <span class="err"> </span><span class="py">flink.StreamExecutionEnvironment</span><span class="p">=</span><span class="s">server</span>
+ <span class="err"> </span>  <span class="py">flink.sourceFunction.Parallel</span><span class="p">=</span><span class="s">1</span>
+</code></pre></div></div>
+
+<p><strong>D.</strong> flink 프로젝트 설정파일(<a href="https://github.com/naver/pinpoint/blob/master/flink/src/main/resources/profiles/release/hbase.properties">hbase.properties</a>)에 집계 데이터를 저장하는 hbase 주소를 설정한다.</p>
+<div class="language-properties highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    <span class="py">hbase.client.host</span><span class="p">=</span><span class="s">YOUR_HBASE_ADDRESS</span>
+    <span class="py">hbase.client.port</span><span class="p">=</span><span class="s">2181</span>
+</code></pre></div></div>
+
+<p><strong>E.</strong> <a href="https://github.com/naver/pinpoint/tree/master/flink">flink 프로젝트</a>를 빌드하여 target 폴더 하위에 생성된 streaming job 파일을 flink 서버에 job을 실행한다.</p>
+<ul>
+  <li>streaming job 파일 이름은 <code class="highlighter-rouge">pinpoint-flink-job-{pinpoint.version}.jar</code> 이다.</li>
+  <li>실행방법은 <a href="https://flink.apache.org">flink 사이트</a>를 참조한다.</li>
+  <li>반드시 실행시 job이 위에서 설정한 설정파일을 참고 할수 있도록 job parameter로 <code class="highlighter-rouge">spring.profiles.active release</code> or <code class="highlighter-rouge">spring.profiles.active local</code>를 넣어주야 한다. job 내부에서 spring profile 기능을 사용하여 설정파일을 참고 하고 있기때문에 반드시 입력해야한다.</li>
+</ul>
+
+<p><strong>F.</strong> Collector에서 flink와 연결을 맺을 수 있도록 설정파일(<a href="https://github.com/naver/pinpoint/blob/master/collector/src/main/resources/pinpoint-collector.properties">Pinpoint-Collector.porperties</a>)에 zookeeper 주소를 설정한다.</p>
+<div class="language-properties highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    <span class="py">flink.cluster.enable</span><span class="p">=</span><span class="s">true</span>
+    <span class="py">flink.cluster.zookeeper.address</span><span class="p">=</span><span class="s">YOUR_ZOOKEEPER_ADDRESS</span>
+    <span class="py">flink.cluster.zookeeper.sessiontimeout</span><span class="p">=</span><span class="s">3000</span>
+</code></pre></div></div>
+
+<p><strong>G.</strong> web에서 application inspector 버튼을 활성화 하기 위해서 설정파일(pinpoint-web.porperties)을 수정한다.</p>
+<div class="language-properties highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    <span class="py">config.show.applicationStat</span><span class="p">=</span><span class="s">true</span>
+</code></pre></div></div>
+
+<h2 id="4-streaming-job-동작-확인-모니터링-batch">4. streaming job 동작 확인 모니터링 batch</h2>
+
+<p>Pinpoint streaming job이 실행되고 있는지 확인하는 batch job이 있다. 
+batch job을 동작 시키고 싶다면 Pinpoint web 프로젝트의 설정 파일을 수정하면 된다.</p>
+
+<p><strong>batch.properties</strong></p>
+<div class="language-properties highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="py">batch.flink.server</span><span class="p">=</span><span class="s">FLINK_MANGER_SERVER_IP_LIST</span>
+<span class="c">#`batch.flink.server` 속성 값에 flink job manager 서버 IP를 입력하면 된다. 서버 리스트의 구분자는 ','이다.
+# ex) batch.flink.server=123.124.125.126,123.124.125.127
+</span></code></pre></div></div>
+<p><strong>applicationContext-batch-schedule.xml</strong></p>
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;task:scheduled-tasks</span> <span class="na">scheduler=</span><span class="s">"scheduler"</span><span class="nt">&gt;</span>
+	...
+	<span class="nt">&lt;task:scheduled</span> <span class="na">ref=</span><span class="s">"batchJobLauncher"</span> <span class="na">method=</span><span class="s">"flinkCheckJob"</span> <span class="na">cron=</span><span class="s">"0 0/10 * * * *"</span> <span class="nt">/&gt;</span>
+<span class="nt">&lt;/task:scheduled-tasks&gt;</span>
+</code></pre></div></div>
+
+<p>batch job이 실패할 경우 알람이 전송되도록 기능을 추가 하고싶다면 <code class="highlighter-rouge">com.navercorp.pinpoint.web.batch.JobFailMessageSender class</code> 구현체를 만들고 bean으로 등록하면 된다.</p>
+
+<h2 id="5-기타">5. 기타</h2>
+
+<p>자세한 flink 운영 설치에 대한 내용은 <a href="https://flink.apache.org">flink 사이트</a>를 참고하자.</p>
+
+
+    <div class="tags">
+        
+    </div>
+
+</div>
+
+
+
+<hr class="shaded"/>
+
+<footer>
+            <div class="row">
+                <div class="col-lg-12 footer">
+               &copy;2020 Naver. All rights reserved. <br />
+<span>Page last updated:</span> Feb 1, 2018<br/>
+
+<p><img src="images/company_logo.png" alt="Company logo"/></p>
+                </div>
+            </div>
+</footer>
+
+
+        </div>
+    <!-- /.row -->
+</div>
+<!-- /.container -->
+</div>
+<!-- /#main -->
+    </div>
+
+</body>
+
+<!-- the google_analytics_id gets auto inserted from the config file -->
+
+
+
+<script>(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','//www.google-analytics.com/analytics.js','ga');ga('create','UA-57786344-4','auto');ga('require','displayfeatures');ga('send','pageview');</script>
+
+
+</html>
