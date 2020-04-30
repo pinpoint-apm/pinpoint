@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.common.util.SimpleProperty;
 import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
+import java.util.Set;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -74,6 +75,7 @@ class ProfilePropertyLoader implements PropertyLoader {
             loadFileProperties(defaultProperties, externalConfig);
         }
         // ?? 4. systemproperty -Dkey=value?
+        loadSystemProperties(defaultProperties);
 
         // log path
         saveLogConfigLocation(activeProfile, defaultProperties);
@@ -116,6 +118,17 @@ class ProfilePropertyLoader implements PropertyLoader {
         } catch (IOException e) {
             logger.info(String.format("%s load fail Caused by:%s", filePath, e.getMessage()));
             throw new IllegalStateException(String.format("%s load fail Caused by:%s", filePath, e.getMessage()));
+        }
+    }
+
+    private void loadSystemProperties(Properties dstProperties) {
+        Set<String> stringPropertyNames = this.systemProperty.stringPropertyNames();
+        for (String propertyName : stringPropertyNames) {
+            boolean isPinpointProperty = propertyName.startsWith("bytecode.") || propertyName.startsWith("profiler.") || propertyName.startsWith("pinpoint.");
+            if (isPinpointProperty) {
+                String val = this.systemProperty.getProperty(propertyName);
+                dstProperties.setProperty(propertyName, val);
+            }
         }
     }
 
