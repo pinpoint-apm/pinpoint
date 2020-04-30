@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.bootstrap;
 import com.navercorp.pinpoint.bootstrap.agentdir.Assert;
 import com.navercorp.pinpoint.common.util.StringUtils;
 
+import java.io.File;
 import java.util.Properties;
 
 /**
@@ -27,6 +28,8 @@ import java.util.Properties;
 public class ContainerResolver {
 
     public static final String CONTAINER_PROPERTY_KEY = "pinpoint.container";
+
+    public static final String CONTAINER_AUTO = "pinpoint.container.auto";
 
     private final BootLogger logger = BootLogger.getLogger(ContainerResolver.class.getName());
 
@@ -47,15 +50,27 @@ public class ContainerResolver {
      */
     public boolean isContainer() {
         if (properties.containsKey(CONTAINER_PROPERTY_KEY)) {
-            String value = properties.getProperty(CONTAINER_PROPERTY_KEY);
-            if (StringUtils.isEmpty(value)) {
-                logger.info("-D" + CONTAINER_PROPERTY_KEY + " found.");
-                return true;
-            }
-            boolean isContainer = Boolean.parseBoolean(value);
-            logger.info("-D" + CONTAINER_PROPERTY_KEY + " found : " + value + ", resolved to " + isContainer);
-            return isContainer;
+            return readPropertyBool(CONTAINER_PROPERTY_KEY);
+        }
+        if (properties.containsKey(CONTAINER_AUTO) && readPropertyBool(CONTAINER_AUTO)) {
+            return isDockerEnv();
         }
         return false;
+    }
+
+    private boolean readPropertyBool(String key) {
+        String value = properties.getProperty(key);
+        if (StringUtils.isEmpty(value)) {
+            logger.info("-D" + key + " found.");
+            return true;
+        }
+        boolean boolValue = Boolean.parseBoolean(value);
+        logger.info("-D" + key + " found : " + value + ", resolved to " + boolValue);
+        return boolValue;
+    }
+
+    private boolean isDockerEnv() {
+        File file = new File("/.dockerenv");
+        return file.exists() || System.getenv("KUBERNETES_SERVICE_HOST") != null;
     }
 }
