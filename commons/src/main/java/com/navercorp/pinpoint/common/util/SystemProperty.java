@@ -17,6 +17,8 @@
 package com.navercorp.pinpoint.common.util;
 
 
+import java.util.Set;
+
 /**
  * @author emeroad
  */
@@ -38,6 +40,12 @@ public class SystemProperty implements SimpleProperty {
     public String getProperty(String key, String defaultValue) {
         return System.getProperty(key, defaultValue);
     }
+
+    @Override
+    public Set<String> stringPropertyNames() {
+        return System.getProperties().stringPropertyNames();
+    }
+
 
     public String getEnv(String name) {
         return System.getenv(name);

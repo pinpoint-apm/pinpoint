@@ -55,4 +55,9 @@ public class PropertySnapshot implements SimpleProperty {
     public String getProperty(String key, String defaultValue) {
         return this.properties.getProperty(key, defaultValue);
     }
+
+    @Override
+    public Set<String> stringPropertyNames() {
+        return this.properties.stringPropertyNames();
+    }
 }

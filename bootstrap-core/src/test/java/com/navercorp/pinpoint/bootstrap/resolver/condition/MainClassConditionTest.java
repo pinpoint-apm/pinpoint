@@ -20,6 +20,7 @@ import static org.junit.Assert.*;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import org.junit.Test;
 
@@ -133,6 +134,11 @@ public class MainClassConditionTest {
                 } else {
                     return defaultValue;
                 }
+            }
+
+            @Override
+            public Set<String> stringPropertyNames() {
+                return this.properties.keySet();
             }
         };
     }
