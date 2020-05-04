@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.bootstrap.config;
 
 import com.navercorp.pinpoint.bootstrap.BootLogger;
 import com.navercorp.pinpoint.bootstrap.agentdir.Assert;
+import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
 import com.navercorp.pinpoint.common.util.PropertyUtils;
 import com.navercorp.pinpoint.common.util.SimpleProperty;
 
@@ -27,6 +28,7 @@ import java.util.Properties;
 import java.util.Set;
 
 /**
+ * @author yjqg6666
  * @author Woonduk Kang(emeroad)
  */
 class ProfilePropertyLoader implements PropertyLoader {
@@ -40,6 +42,8 @@ class ProfilePropertyLoader implements PropertyLoader {
     private final String profilesPath;
 
     private final String[] supportedProfiles;
+
+    public static final String[] ALLOWED_PROPERTY_PREFIX = new String[]{"bytecode.", "profiler.", "pinpoint."};
 
     public ProfilePropertyLoader(SimpleProperty systemProperty, String agentRootPath, String profilesPath, String[] supportedProfiles) {
         this.systemProperty = Assert.requireNonNull(systemProperty, "systemProperty");
@@ -124,12 +128,21 @@ class ProfilePropertyLoader implements PropertyLoader {
     private void loadSystemProperties(Properties dstProperties) {
         Set<String> stringPropertyNames = this.systemProperty.stringPropertyNames();
         for (String propertyName : stringPropertyNames) {
-            boolean isPinpointProperty = propertyName.startsWith("bytecode.") || propertyName.startsWith("profiler.") || propertyName.startsWith("pinpoint.");
-            if (isPinpointProperty) {
+            if (isAllowPinpointProperty(propertyName)) {
                 String val = this.systemProperty.getProperty(propertyName);
                 dstProperties.setProperty(propertyName, val);
             }
         }
+    }
+
+    @VisibleForTesting
+    boolean isAllowPinpointProperty(String propertyName) {
+        for (String prefix : ALLOWED_PROPERTY_PREFIX) {
+            if (propertyName.startsWith(prefix)) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }
