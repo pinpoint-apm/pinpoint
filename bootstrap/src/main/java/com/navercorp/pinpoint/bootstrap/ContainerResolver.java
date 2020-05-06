@@ -28,8 +28,7 @@ import java.util.Properties;
 public class ContainerResolver {
 
     public static final String CONTAINER_PROPERTY_KEY = "pinpoint.container";
-
-    public static final String CONTAINER_AUTO = "pinpoint.container.auto";
+    public static final String KUBERNETES_SERVICE_HOST = "KUBERNETES_SERVICE_HOST";
 
     private final BootLogger logger = BootLogger.getLogger(ContainerResolver.class.getName());
 
@@ -51,11 +50,9 @@ public class ContainerResolver {
     public boolean isContainer() {
         if (properties.containsKey(CONTAINER_PROPERTY_KEY)) {
             return readPropertyBool(CONTAINER_PROPERTY_KEY);
-        }
-        if (properties.containsKey(CONTAINER_AUTO) && readPropertyBool(CONTAINER_AUTO)) {
+        } else {
             return isDockerEnv();
         }
-        return false;
     }
 
     private boolean readPropertyBool(String key) {
@@ -71,6 +68,6 @@ public class ContainerResolver {
 
     private boolean isDockerEnv() {
         File file = new File("/.dockerenv");
-        return file.exists() || System.getenv("KUBERNETES_SERVICE_HOST") != null;
+        return file.exists() || System.getenv(KUBERNETES_SERVICE_HOST) != null;
     }
 }

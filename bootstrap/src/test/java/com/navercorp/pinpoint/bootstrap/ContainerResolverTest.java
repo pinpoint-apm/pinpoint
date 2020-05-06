@@ -34,6 +34,13 @@ public class ContainerResolverTest {
     }
 
     @Test
+    public void noKeyAndDockerEnvShouldReturnFalse() {
+        Properties properties = new Properties();
+        ContainerResolver containerResolver = new ContainerResolver(properties);
+        Assert.assertFalse(containerResolver.isContainer());
+    }
+
+    @Test
     public void emptyValueShouldReturnTrue() {
         Properties properties = new Properties();
         properties.put(ContainerResolver.CONTAINER_PROPERTY_KEY, "");
@@ -47,5 +54,13 @@ public class ContainerResolverTest {
         properties.put(ContainerResolver.CONTAINER_PROPERTY_KEY, "tRue");
         ContainerResolver containerResolver = new ContainerResolver(properties);
         Assert.assertTrue(containerResolver.isContainer());
+    }
+
+    @Test
+    public void falseValueShouldReturnFalse() {
+        Properties properties = new Properties();
+        properties.put(ContainerResolver.CONTAINER_PROPERTY_KEY, "FALSE");
+        ContainerResolver containerResolver = new ContainerResolver(properties);
+        Assert.assertFalse(containerResolver.isContainer());
     }
 }
