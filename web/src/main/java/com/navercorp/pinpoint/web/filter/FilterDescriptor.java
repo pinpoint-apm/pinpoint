@@ -37,6 +37,13 @@ public class FilterDescriptor {
     private Long fromResponseTime = null;
 
     /**
+     * application
+     */
+    private String applicationName = null;
+    private String serviceType = null;
+    private String agentId = null;
+
+    /**
      * requested url
      */
     private String urlPattern = null;
@@ -62,7 +69,17 @@ public class FilterDescriptor {
     }
 
     public boolean isValidFromToInfo() {
-        return !(StringUtils.isEmpty(fromApplicationName) || StringUtils.isEmpty(fromServiceType) || StringUtils.isEmpty(toApplicationName) || StringUtils.isEmpty(toServiceType));
+        final boolean validFrom = !StringUtils.isEmpty(fromApplicationName) && !StringUtils.isEmpty(fromServiceType);
+        final boolean validTo = !StringUtils.isEmpty(toApplicationName) && !StringUtils.isEmpty(toServiceType);
+        return validFrom || validTo || isValidApplication();
+    }
+
+    public  boolean isApplicationFilterDescriptor() {
+        return isValidApplication();
+    }
+
+    private boolean isValidApplication() {
+        return !StringUtils.isEmpty(applicationName) && !StringUtils.isEmpty(serviceType);
     }
 
     public boolean isValidFromToResponseTime() {
@@ -105,6 +122,24 @@ public class FilterDescriptor {
     @JsonSetter(value = "fst")
     public void setFromServiceType(String fromServiceType) {
         this.fromServiceType = fromServiceType;
+    }
+
+    public String getApplicationName() {
+        return applicationName;
+    }
+
+    @JsonSetter(value = "a")
+    public void setApplicationName(String applicationName) {
+        this.applicationName = applicationName;
+    }
+
+    public String getServiceType() {
+        return serviceType;
+    }
+
+    @JsonSetter(value = "st")
+    public void setServiceType(String serviceType) {
+        this.serviceType = serviceType;
     }
 
     public String getToApplicationName() {
@@ -182,11 +217,22 @@ public class FilterDescriptor {
         this.toAgentId = toAgentId;
     }
 
+    public String getAgentName() {
+        return agentId;
+    }
+
+    @JsonSetter(value = "an")
+    public void setAgentId(String agentId) {
+        this.agentId = agentId;
+    }
+
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("FilterDescriptor{");
         sb.append("fromApplicationName='").append(fromApplicationName).append('\'');
         sb.append(", fromServiceType='").append(fromServiceType).append('\'');
+        sb.append(", applicationName='").append(applicationName).append('\'');
+        sb.append(", serviceType='").append(serviceType).append('\'');
         sb.append(", toApplicationName='").append(toApplicationName).append('\'');
         sb.append(", toServiceType='").append(toServiceType).append('\'');
         sb.append(", fromResponseTime=").append(fromResponseTime);
@@ -195,6 +241,7 @@ public class FilterDescriptor {
         sb.append(", urlPattern='").append(urlPattern).append('\'');
         sb.append(", fromAgentId='").append(fromAgentId).append('\'');
         sb.append(", toAgentId='").append(toAgentId).append('\'');
+        sb.append(", agentId='").append(agentId).append('\'');
         sb.append('}');
         return sb.toString();
     }

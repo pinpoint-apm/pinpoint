@@ -131,8 +131,14 @@ public class DefaultFilterBuilder implements FilterBuilder<SpanBo> {
             }
 
             logger.debug("FilterDescriptor={}", descriptor);
-            final Filter<SpanBo> linkFilter = new LinkFilter(descriptor, hint, serviceTypeRegistryService, annotationKeyRegistryService);
-            result.add(linkFilter);
+            Filter<SpanBo> filter;
+            if (descriptor.isApplicationFilterDescriptor()) {
+                filter = new ApplicationFilter(descriptor, hint, serviceTypeRegistryService, annotationKeyRegistryService);
+            } else {
+                filter = new LinkFilter(descriptor, hint, serviceTypeRegistryService, annotationKeyRegistryService);
+
+            }
+            result.add(filter);
         }
         return result;
     }
