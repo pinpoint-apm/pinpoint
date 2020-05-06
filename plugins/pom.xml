@@ -103,6 +103,7 @@
         <module>reactor-netty</module>
         <module>jdk-completable-future</module>
         <module>thread</module>
+        <module>process</module>
     </modules>
 
 

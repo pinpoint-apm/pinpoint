@@ -107,6 +107,8 @@ import static com.navercorp.pinpoint.common.trace.AnnotationKeyProperty.VIEW_IN_
  * <tr><td>174</td><td>es.action</td></tr>
  * <tr><td>175</td><td>es.responseHandle</td></tr>
  * <tr><td>176</td><td>es.version</td></tr>
+ * <tr><td>180</td><td>process.command</td></tr>
+ * <tr><td>181</td><td>process.pid</td></tr>
  *
  * <tr><td><s>200</s></td><td><s>cxf.operation</s></td></tr>
  * <tr><td><s>201</s></td><td><s>cxf.args</s></td></tr>

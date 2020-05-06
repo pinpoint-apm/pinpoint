@@ -73,6 +73,7 @@
         <module>rxjava-it</module>
         <module>spring-it</module>
         <module>thread-it</module>
+        <module>process-it</module>
     </modules>
 
     <properties>
