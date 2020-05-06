@@ -23,6 +23,7 @@ import java.security.ProtectionDomain;
  */
 public class UnmodifiableClassFilter implements ClassFileFilter {
     private static final String COMPLETABLE_FUTURE = "java/util/concurrent/CompletableFuture";
+    private static final String PROCESS_BUILDER = "java/lang/ProcessBuilder";
 
     public UnmodifiableClassFilter() {
     }
@@ -39,6 +40,9 @@ public class UnmodifiableClassFilter implements ClassFileFilter {
                 if (isCompletableFutureClass(className)) {
                     return CONTINUE;
                 }
+                if (isProcessBuilder(className)) {
+                    return CONTINUE;
+                }
                 return SKIP;
             }
         }
@@ -52,5 +56,13 @@ public class UnmodifiableClassFilter implements ClassFileFilter {
             return false;
         }
         return className.equals(COMPLETABLE_FUTURE);
+    }
+
+    private static boolean isProcessBuilder(final String className) {
+        // Check java/lang/ProcessBuilder
+        if (!className.startsWith("l", 5) || !className.startsWith("/P", 9)) {
+            return false;
+        }
+        return className.equals(PROCESS_BUILDER);
     }
 }
