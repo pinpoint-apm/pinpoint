@@ -105,9 +105,9 @@ export class Filter {
 
     getTransactionResultStr(): string {
         if (this.transactionResult === true) {
-            return 'Success Only';
-        } else if (this.transactionResult === false) {
             return 'Failed Only';
+        } else if (this.transactionResult === false) {
+            return 'Success Only';
         }
         return 'Success + Failed';
     }

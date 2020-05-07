@@ -52,9 +52,9 @@ export class FilterTransactionWizardPopupComponent implements OnInit {
             this.responseTimeRange = [this.filterInfo.responseFrom, this.filterInfo.responseTo];
             this.urlPattern = this.filterInfo.urlPattern || '';
             if (this.filterInfo.transactionResult === true) {
-                this.selectedResultType = RESULT_TYPE.SUCCESS_ONLY;
-            } else if (this.filterInfo.transactionResult === false) {
                 this.selectedResultType = RESULT_TYPE.FAIL_ONLY;
+            } else if (this.filterInfo.transactionResult === false) {
+                this.selectedResultType = RESULT_TYPE.SUCCESS_ONLY;
             } else {
                 this.selectedResultType = RESULT_TYPE.SUCCESS_AND_FAIL;
             }
@@ -79,7 +79,7 @@ export class FilterTransactionWizardPopupComponent implements OnInit {
             urlPattern: this.urlPattern,
             responseFrom: this.responseTimeRange[0],
             responseTo: this.responseTimeRange[1],
-            transactionResult: this.selectedResultType === 0 ? null : this.selectedResultType === 1 ? true : false,
+            transactionResult: this.selectedResultType === 0 ? null : (this.selectedResultType === 2 ? true : false),
             filterTargetRpcList : this.link.sourceInfo.isWas && this.link.targetInfo.isWas ? this.link.filterTargetRpcList : []
         });
         this.onClickClose();
