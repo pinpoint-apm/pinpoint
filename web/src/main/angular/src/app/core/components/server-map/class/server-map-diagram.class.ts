@@ -11,6 +11,7 @@ export abstract class ServerMapDiagram {
     outClickNode = new EventEmitter<any>();
     outClickLink = new EventEmitter<any>();
     outContextClickLink = new EventEmitter<any>();
+    outContextClickNode = new EventEmitter<any>();
     outContextClickBackground = new EventEmitter<ICoordinate>();
     outRenderCompleted = new EventEmitter<any>();
 

@@ -134,6 +134,11 @@ export class ServerMapDiagramWithCytoscapejs extends ServerMapDiagram {
                         key: target.id(),
                         coord: {coordX: clientX, coordY: clientY}
                     });
+                } else if (target.isNode() && !NodeGroup.isGroupKey(target.id())) {
+                    this.outContextClickNode.emit({
+                        key: target.id(),
+                        coord: {coordX: clientX, coordY: clientY}
+                    });
                 }
             });
         });

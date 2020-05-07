@@ -22,6 +22,7 @@ export class ServerMapComponent implements OnInit, OnChanges, OnDestroy, AfterVi
     @Input() funcServerMapImagePath: Function;
     @Input() type: ServerMapType;
     @Output() outClickNode = new EventEmitter<any>();
+    @Output() outContextClickNode = new EventEmitter<string>();
     @Output() outClickLink = new EventEmitter<any>();
     @Output() outContextClickLink = new EventEmitter<string>();
     @Output() outContextClickBackground = new EventEmitter<ICoordinate>();
@@ -117,6 +118,9 @@ export class ServerMapComponent implements OnInit, OnChanges, OnDestroy, AfterVi
         });
         this.serverMapDiagram.outContextClickLink.subscribe((linkObj: any) => {
             this.outContextClickLink.emit(linkObj);
+        });
+        this.serverMapDiagram.outContextClickNode.subscribe((node: any) => {
+            this.outContextClickNode.emit(node);
         });
         this.serverMapDiagram.outContextClickBackground.subscribe((coord: ICoordinate) => {
             this.outContextClickBackground.emit(coord);

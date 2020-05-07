@@ -1,0 +1,37 @@
+:host {
+    display: block;
+}
+.l-one-depth-list {
+    width: 100%;
+    margin: 0 0;
+    padding: 0 0;
+    list-style-type: none;
+}
+.l-one-depth-list > li {
+    border-bottom: 1px solid #E5E5E5;
+    padding: 10px;
+}
+.l-one-depth-list > li:last-of-type {
+    border-bottom: none;
+}
+li.l-selectable-command:first-of-type .fa-filter {
+    color:var(--primary-color);
+}
+li.l-selectable-command:last-of-type .fa-filter {
+    color: #e95459;
+}
+li.l-selectable-command {
+    cursor: pointer;
+}
+li.l-selectable-command:hover {
+    background-color: #e4f3eb;
+}
+.l-two-depth-list {
+    padding-top: 10px;
+}
+.l-two-depth-list li {
+    padding: 4px;
+}
+.l-fas {
+    margin-right: 4px;
+}

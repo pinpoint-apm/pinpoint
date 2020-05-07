@@ -3,6 +3,10 @@ export class Filter {
     fromApplication = '';
     // paramName = fst
     fromServiceType = '';
+    // paramName = a
+    application = '';
+    // paramName = st
+    serviceType = '';
     // paramName = ta
     toApplication = '';
     // paramName = tst
@@ -19,10 +23,11 @@ export class Filter {
     fromAgentName?: string;
     // paramName = tan
     toAgentName?: string;
+    // paramName = an
+    agentName?: string;
     static instanceFromString(str: string): Filter[] {
         const returnFilter: Filter[] = [];
         let aFilterFromStr: any;
-
         try {
             aFilterFromStr = JSON.parse(str);
         } catch (exception) {
@@ -37,6 +42,8 @@ export class Filter {
                 filterFromStr.ta,
                 filterFromStr.tst,
                 filterFromStr.ie,
+                filterFromStr.a,
+                filterFromStr.st
             );
             if (filterFromStr.rf || filterFromStr.rf === 0) {
                 newFilter.setResponseFrom(filterFromStr.rf);
@@ -57,21 +64,23 @@ export class Filter {
         }
         return returnFilter;
     }
-
-    constructor(fa: string, fst: string, ta: string, tst: string, ie: null | boolean = null) {
+    constructor(fa: string, fst: string, ta: string, tst: string, ie: null | boolean = null, a: string = null, st: string = null) {
         this.fromApplication = fa;
         this.fromServiceType = fst;
         this.toApplication = ta;
         this.toServiceType = tst;
         this.transactionResult = ie;
+        this.application = a;
+        this.serviceType = st;
     }
 
     equal(filter: Filter): boolean {
         return (
-            this.fromApplication === filter.fromApplication &&
+            (this.application === filter.application && this.serviceType === filter.serviceType)
+            || (this.fromApplication === filter.fromApplication &&
             this.fromServiceType === filter.fromServiceType &&
             this.toApplication === filter.toApplication &&
-            this.toServiceType === filter.toServiceType
+            this.toServiceType === filter.toServiceType)
         );
     }
 
@@ -93,6 +102,10 @@ export class Filter {
 
     setToAgentName(tan: string): void {
         this.toAgentName = tan;
+    }
+
+    setAgentName(an: string): void {
+        this.agentName = an;
     }
 
     getToKey(): string {
@@ -118,6 +131,8 @@ export class Filter {
             fst: this.fromServiceType,
             ta: this.toApplication,
             tst: this.toServiceType,
+            a: this.application,
+            st: this.serviceType,
             ie: this.transactionResult
         };
         if (this.responseFrom || this.responseFrom === 0) {
@@ -135,7 +150,9 @@ export class Filter {
         if (this.toAgentName) {
             param['tan'] = this.toAgentName;
         }
-
+        if (this.agentName) {
+            param['an'] = this.agentName;
+        }
         return param;
     }
 }

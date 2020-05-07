@@ -19,6 +19,7 @@ import { EndTime } from 'app/core/models';
 import { SERVER_MAP_TYPE, ServerMapType, NodeGroup, ServerMapData } from 'app/core/components/server-map/class';
 import { ServerMapDataService } from './server-map-data.service';
 import { LinkContextPopupContainerComponent } from 'app/core/components/link-context-popup/link-context-popup-container.component';
+import { NodeContextPopupContainerComponent } from 'app/core/components/node-context-popup/node-context-popup-container.component';
 import { ServerMapContextPopupContainerComponent } from 'app/core/components/server-map-context-popup/server-map-context-popup-container.component';
 import { ServerErrorPopupContainerComponent } from 'app/core/components/server-error-popup/server-error-popup-container.component';
 
@@ -256,6 +257,19 @@ export class ServerMapContainerComponent implements OnInit, OnDestroy {
         });
     }
 
+    onContextClickNode({key, coord}: {key: string, coord: ICoordinate}): void {
+        const nodeData = this.mapData.getNodeData(key);
+        if (nodeData.isWas) {
+            this.dynamicPopupService.openPopup({
+                data: nodeData,
+                coord,
+                component: NodeContextPopupContainerComponent
+            }, {
+                resolver: this.componentFactoryResolver,
+                injector: this.injector
+            });
+        }
+    }
     onContextClickLink({key, coord}: {key: string, coord: ICoordinate}): void {
         this.dynamicPopupService.openPopup({
             data: this.mapData.getLinkData(key),
