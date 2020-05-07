@@ -10,6 +10,7 @@ import { ServerMapDataService } from './server-map-data.service';
 import { ServerMapForFilteredMapDataService } from './server-map-for-filtered-map-data.service';
 import { ServerMapChangeNotificationService } from './server-map-change-notification.service';
 import { LinkContextPopupModule } from 'app/core/components/link-context-popup';
+import { NodeContextPopupModule } from 'app/core/components/node-context-popup';
 import { ServerMapContextPopupModule } from 'app/core/components/server-map-context-popup';
 import { ServerErrorPopupModule } from 'app/core/components/server-error-popup';
 
@@ -24,6 +25,7 @@ import { ServerErrorPopupModule } from 'app/core/components/server-error-popup';
         SharedModule,
         ServerErrorPopupModule,
         LinkContextPopupModule,
+        NodeContextPopupModule,
         ServerMapContextPopupModule
     ],
     exports: [

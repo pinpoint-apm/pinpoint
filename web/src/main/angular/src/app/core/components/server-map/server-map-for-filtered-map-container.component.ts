@@ -20,6 +20,7 @@ import { Filter } from 'app/core/models';
 import { SERVER_MAP_TYPE, ServerMapType, NodeGroup, ServerMapData, MergeServerMapData } from 'app/core/components/server-map/class';
 import { ServerMapForFilteredMapDataService } from './server-map-for-filtered-map-data.service';
 import { LinkContextPopupContainerComponent } from 'app/core/components/link-context-popup/link-context-popup-container.component';
+import { NodeContextPopupContainerComponent } from 'app/core/components/node-context-popup/node-context-popup-container.component';
 import { ServerMapContextPopupContainerComponent } from 'app/core/components/server-map-context-popup/server-map-context-popup-container.component';
 import { isEmpty } from 'app/core/utils/util';
 
@@ -248,6 +249,20 @@ export class ServerMapForFilteredMapContainerComponent implements OnInit, OnDest
             resolver: this.componentFactoryResolver,
             injector: this.injector
         });
+    }
+
+    onContextClickNode({key, coord}: {key: string, coord: ICoordinate}): void {
+        const nodeData = this.mapData.getNodeData(key);
+        if (nodeData.isWas) {
+            this.dynamicPopupService.openPopup({
+                data: nodeData,
+                coord,
+                component: NodeContextPopupContainerComponent
+            }, {
+                resolver: this.componentFactoryResolver,
+                injector: this.injector
+            });
+        }
     }
 
     onContextClickLink({key, coord}: {key: string, coord: ICoordinate}): void {
