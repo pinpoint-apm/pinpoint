@@ -18,22 +18,29 @@ package com.navercorp.pinpoint.profiler.context.provider;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+import com.navercorp.pinpoint.bootstrap.config.Filter;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.instrument.DynamicTransformTrigger;
+import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.instrument.InstrumentEngine;
 import com.navercorp.pinpoint.profiler.DefaultClassFileTransformerDispatcher;
 import com.navercorp.pinpoint.profiler.DynamicTransformerRegistry;
+import com.navercorp.pinpoint.profiler.instrument.classloading.ClassInjector;
+import com.navercorp.pinpoint.profiler.instrument.classloading.DebugTransformerClassInjector;
 import com.navercorp.pinpoint.profiler.instrument.transformer.BaseTransformerRegistry;
 import com.navercorp.pinpoint.profiler.instrument.transformer.BypassLambdaClassFileResolver;
+import com.navercorp.pinpoint.profiler.instrument.transformer.DebugTransformer;
 import com.navercorp.pinpoint.profiler.instrument.transformer.DebugTransformerRegistry;
 import com.navercorp.pinpoint.profiler.instrument.transformer.DefaultLambdaClassFileResolver;
 import com.navercorp.pinpoint.profiler.instrument.transformer.DefaultTransformerRegistry;
 import com.navercorp.pinpoint.profiler.instrument.transformer.LambdaClassFileResolver;
 import com.navercorp.pinpoint.profiler.instrument.transformer.MatchableTransformerRegistry;
 import com.navercorp.pinpoint.profiler.instrument.transformer.TransformerRegistry;
+import com.navercorp.pinpoint.profiler.plugin.ClassFileTransformerLoader;
 import com.navercorp.pinpoint.profiler.plugin.MatchableClassFileTransformer;
 import com.navercorp.pinpoint.profiler.plugin.PluginContextLoadResult;
+import com.navercorp.pinpoint.profiler.plugin.PluginInstrumentContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,8 +76,25 @@ public class ClassFileTransformerProvider implements Provider<ClassFileTransform
 
         final BaseTransformerRegistry baseTransformerRegistry = newDefaultTransformerRegistry();
         final TransformerRegistry transformerRegistry = setupTransformerRegistry(baseTransformerRegistry, pluginContextLoadResult);
-        final TransformerRegistry debugTransformerRegistry = new DebugTransformerRegistry(profilerConfig, instrumentEngine, dynamicTransformTrigger);
+
+        final TransformerRegistry debugTransformerRegistry = newTransformerRegistry();
         return new DefaultClassFileTransformerDispatcher(transformerRegistry, debugTransformerRegistry, dynamicTransformerRegistry, lambdaClassFileResolver);
+    }
+
+    private TransformerRegistry newTransformerRegistry() {
+        final DebugTransformer debugTransformer = newDebugTransformer(profilerConfig, instrumentEngine, dynamicTransformTrigger);
+        final Filter<String> debugTargetFilter = profilerConfig.getProfilableClassFilter();
+        return new DebugTransformerRegistry(debugTargetFilter, debugTransformer);
+    }
+
+    private DebugTransformer newDebugTransformer(ProfilerConfig profilerConfig, InstrumentEngine instrumentEngine, DynamicTransformTrigger dynamicTransformTrigger) {
+
+        ClassInjector classInjector = new DebugTransformerClassInjector();
+
+        ClassFileTransformerLoader transformerRegistry = new ClassFileTransformerLoader(profilerConfig, dynamicTransformTrigger);
+        InstrumentContext debugContext = new PluginInstrumentContext(profilerConfig, instrumentEngine, dynamicTransformTrigger, classInjector, transformerRegistry);
+
+        return new DebugTransformer(instrumentEngine, debugContext);
     }
 
 

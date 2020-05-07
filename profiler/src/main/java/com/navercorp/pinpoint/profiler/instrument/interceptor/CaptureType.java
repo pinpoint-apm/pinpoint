@@ -20,5 +20,5 @@ package com.navercorp.pinpoint.profiler.instrument.interceptor;
  * @author Woonduk Kang(emeroad)
  */
 public enum CaptureType {
-    AROUND(), BEFORE(), AFTER(), NON(), UNKNOWN()
+    AROUND, BEFORE, AFTER, NON, UNKNOWN
 }

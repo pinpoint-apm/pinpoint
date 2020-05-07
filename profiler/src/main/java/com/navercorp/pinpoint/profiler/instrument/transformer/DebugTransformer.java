@@ -20,6 +20,7 @@ import java.security.ProtectionDomain;
 import java.util.Arrays;
 
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.instrument.InstrumentEngine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,14 +42,8 @@ public class DebugTransformer implements ClassFileTransformer {
     private final InstrumentEngine instrumentEngine;
 
     public DebugTransformer(InstrumentEngine instrumentEngine, InstrumentContext instrumentContext) {
-        if (instrumentEngine == null) {
-            throw new NullPointerException("instrumentEngine");
-        }
-        if (instrumentContext == null) {
-            throw new NullPointerException("instrumentContext");
-        }
-        this.instrumentEngine = instrumentEngine;
-        this.instrumentContext = instrumentContext;
+        this.instrumentEngine = Assert.requireNonNull(instrumentEngine, "instrumentEngine");
+        this.instrumentContext = Assert.requireNonNull(instrumentContext, "instrumentContext");
     }
 
     @Override
@@ -72,7 +67,7 @@ public class DebugTransformer implements ClassFileTransformer {
                     logger.trace("### c={}, m={}, params={}", className, method.getName(), Arrays.toString(method.getParameterTypes()));
                 }
                 
-                method.addInterceptor(BasicMethodInterceptor.class.getName());
+                method.addInterceptor(BasicMethodInterceptor.class);
             }
     
             return target.toBytecode();
