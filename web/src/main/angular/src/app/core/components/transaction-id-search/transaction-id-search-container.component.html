@@ -1,0 +1,5 @@
+<div class="l-search-group-wrap font-opensans">
+    <input type="text" placeholder="search pTxId" class="l-search-input"
+           [(ngModel)]="inputValue" (keydown.esc)="onClear()" (keyup.enter)="onSearchId()">
+    <button class="l-search-button fas fa-search" (click)="onSearchId()"></button>
+</div>
