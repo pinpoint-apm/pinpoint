@@ -6,6 +6,7 @@ import { NoticeModule } from 'app/core/components/notice';
 import { ApplicationListModule } from 'app/core/components/application-list';
 import { ServerMapOptionsModule } from 'app/core/components/server-map-options';
 import { PeriodSelectorModule } from 'app/core/components/period-selector';
+import { TransactionIdSearchModule} from "app/core/components/transaction-id-search";
 import { ConfigurationIconModule } from 'app/core/components/configuration-icon';
 import { MainContentsModule } from 'app/core/components/main-contents';
 import { RealTimeModule } from 'app/core/components/real-time';
@@ -24,6 +25,7 @@ import { HelpViewerPopupModule } from 'app/core/components/help-viewer-popup';
         ApplicationListModule,
         ServerMapOptionsModule,
         PeriodSelectorModule,
+        TransactionIdSearchModule,
         ConfigurationIconModule,
         MainContentsModule,
         RealTimeModule,
