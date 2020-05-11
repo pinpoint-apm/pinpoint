@@ -11,23 +11,9 @@ export class UrlPath {
     static BROWSER_NOT_SUPPORT = 'browserNotSupported';
     static ERROR = 'error';
     static CONFIG = 'config';
+    static AUTH = 'auth';
 
     constructor() {}
-    static getParamList(): string[] {
-        return [
-            UrlPath.CONFIG,
-            UrlPath.ERROR,
-            UrlPath.FILTERED_MAP,
-            UrlPath.INSPECTOR,
-            UrlPath.MAIN,
-            UrlPath.REAL_TIME,
-            UrlPath.SCATTER_FULL_SCREEN_MODE,
-            UrlPath.THREAD_DUMP,
-            UrlPath.TRANSACTION_DETAIL,
-            UrlPath.TRANSACTION_LIST,
-            UrlPath.TRANSACTION_VIEW
-        ];
-    }
 }
 
 export default UrlPath;
