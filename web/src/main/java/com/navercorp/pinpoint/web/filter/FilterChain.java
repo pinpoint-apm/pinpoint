@@ -16,8 +16,9 @@
 
 package com.navercorp.pinpoint.web.filter;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 /**
  *
@@ -26,26 +27,19 @@ import java.util.List;
  */
 public class FilterChain<T> implements Filter<T> {
 
-    private final List<Filter<T>> filterList = new ArrayList<>();
+    private final Filter<T>[] filters;
 
-    public FilterChain() {
-    }
 
     public FilterChain(List<Filter<T>> linkFilterList) {
-        this.filterList.addAll(linkFilterList);
+        Objects.requireNonNull(linkFilterList, "linkFilterList");
+        this.filters = linkFilterList.toArray(new Filter[0]);
     }
 
-    public void addFilter(Filter<T> filter) {
-        if (filter == null) {
-            throw new NullPointerException("filter");
-        }
-        this.filterList.add(filter);
-    }
 
     @Override
-    public boolean include(List<T> transaction) {
+    public boolean include(T transaction) {
         // FIXME how to improve performance without "for loop"
-        for (Filter<T> filter : filterList) {
+        for (Filter<T> filter : filters) {
             if (!filter.include(transaction)) {
                 return REJECT;
             }
@@ -57,7 +51,7 @@ public class FilterChain<T> implements Filter<T> {
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("FilterChain{");
-        sb.append("filterList=").append(filterList);
+        sb.append("filters=").append(Arrays.toString(filters));
         sb.append('}');
         return sb.toString();
     }

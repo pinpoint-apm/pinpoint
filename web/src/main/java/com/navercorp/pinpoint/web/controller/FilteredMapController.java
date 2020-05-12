@@ -53,7 +53,7 @@ public class FilteredMapController {
     private FilteredMapService filteredMapService;
 
     @Autowired
-    private FilterBuilder<SpanBo> filterBuilder;
+    private FilterBuilder<List<SpanBo>> filterBuilder;
 
     @Autowired
     private ServiceTypeRegistryService registry;
@@ -99,7 +99,7 @@ public class FilteredMapController {
         }
 
         limit = LimitUtils.checkRange(limit);
-        final Filter<SpanBo> filter = filterBuilder.build(filterText, filterHint);
+        final Filter<List<SpanBo>> filter = filterBuilder.build(filterText, filterHint);
         final Range range = new Range(from, to);
         final LimitedScanResult<List<TransactionId>> limitedScanResult = filteredMapService.selectTraceIdsFromApplicationTraceIndex(applicationName, range, limit);
 

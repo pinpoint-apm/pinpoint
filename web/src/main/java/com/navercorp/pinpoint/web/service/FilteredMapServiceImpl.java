@@ -46,10 +46,8 @@ import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.LimitedScanResult;
 import com.navercorp.pinpoint.web.vo.LoadFactor;
 import com.navercorp.pinpoint.web.vo.Range;
-import com.navercorp.pinpoint.web.vo.SelectedScatterArea;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StopWatch;
@@ -125,7 +123,7 @@ public class FilteredMapServiceImpl implements FilteredMapService {
 
     @Override
     @Deprecated
-    public LoadFactor linkStatistics(Range range, List<TransactionId> traceIdSet, Application sourceApplication, Application destinationApplication, Filter<SpanBo> filter) {
+    public LoadFactor linkStatistics(Range range, List<TransactionId> traceIdSet, Application sourceApplication, Application destinationApplication, Filter<List<SpanBo>> filter) {
         if (sourceApplication == null) {
             throw new NullPointerException("sourceApplication");
         }
@@ -174,7 +172,7 @@ public class FilteredMapServiceImpl implements FilteredMapService {
         return statistics;
     }
 
-    private List<SpanBo> filterList(List<List<SpanBo>> transactionList, Filter<SpanBo> filter) {
+    private List<SpanBo> filterList(List<List<SpanBo>> transactionList, Filter<List<SpanBo>> filter) {
         final List<SpanBo> filteredResult = new ArrayList<>();
         for (List<SpanBo> transaction : transactionList) {
             if (filter.include(transaction)) {
@@ -184,7 +182,7 @@ public class FilteredMapServiceImpl implements FilteredMapService {
         return filteredResult;
     }
 
-    private List<List<SpanBo>> filterList2(List<List<SpanBo>> transactionList, Filter<SpanBo> filter) {
+    private List<List<SpanBo>> filterList2(List<List<SpanBo>> transactionList, Filter<List<SpanBo>> filter) {
         final List<List<SpanBo>> filteredResult = new ArrayList<>();
         for (List<SpanBo> transaction : transactionList) {
             if (filter.include(transaction)) {
@@ -214,7 +212,7 @@ public class FilteredMapServiceImpl implements FilteredMapService {
     }
 
     @Override
-    public ApplicationMap selectApplicationMapWithScatterData(List<TransactionId> transactionIdList, Range originalRange, Range scanRange, int xGroupUnit, int yGroupUnit, Filter<SpanBo> filter, int version) {
+    public ApplicationMap selectApplicationMapWithScatterData(List<TransactionId> transactionIdList, Range originalRange, Range scanRange, int xGroupUnit, int yGroupUnit, Filter<List<SpanBo>> filter, int version) {
         if (transactionIdList == null) {
             throw new NullPointerException("transactionIdList");
         }
@@ -242,7 +240,7 @@ public class FilteredMapServiceImpl implements FilteredMapService {
         return applicationMapWithScatterData;
     }
 
-    private List<List<SpanBo>> selectFilteredSpan(List<TransactionId> transactionIdList, Filter<SpanBo> filter) {
+    private List<List<SpanBo>> selectFilteredSpan(List<TransactionId> transactionIdList, Filter<List<SpanBo>> filter) {
         // filters out recursive calls by looking at each objects
         // do not filter here if we change to a tree-based collision check in the future. 
         final List<TransactionId> recursiveFilterList = recursiveCallFilter(transactionIdList);

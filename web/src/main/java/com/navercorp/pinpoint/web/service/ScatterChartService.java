@@ -36,7 +36,7 @@ public interface ScatterChartService {
      * @param filter
      * @return
      */
-    List<Dot> selectScatterData(List<TransactionId> traceIds, String applicationName, Filter<SpanBo> filter);
+    List<Dot> selectScatterData(List<TransactionId> traceIds, String applicationName, Filter<List<SpanBo>> filter);
 
 
     /**
@@ -53,6 +53,6 @@ public interface ScatterChartService {
 
     ScatterData selectScatterData(String applicationName, Range range, int xGroupUnit, int yGroupUnit, int limit, boolean backwardDirection);
 
-    ScatterData selectScatterData(List<TransactionId> transactionIdList, String applicationName, Range range, int xGroupUnit, int yGroupUnit, Filter<SpanBo> filter);
+    ScatterData selectScatterData(List<TransactionId> transactionIdList, String applicationName, Range range, int xGroupUnit, int yGroupUnit, Filter<List<SpanBo>> filter);
 
 }

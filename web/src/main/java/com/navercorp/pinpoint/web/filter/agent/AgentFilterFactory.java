@@ -26,6 +26,13 @@ public class AgentFilterFactory {
     private final String fromAgent;
     private final String toAgent;
 
+    public static AgentFilter createAgentFilter(String agentId) {
+        if (StringUtils.isBlank(agentId)) {
+            return SkipAgentFilter.SKIP_FILTER;
+        }
+        return new DefaultAgentFilter(agentId);
+    }
+
     public AgentFilterFactory(String fromAgent, String toAgent) {
         this.fromAgent = fromAgent;
         this.toAgent = toAgent;
@@ -37,13 +44,6 @@ public class AgentFilterFactory {
 
     public AgentFilter createToAgentFilter() {
         return createAgentFilter(toAgent);
-    }
-
-    private AgentFilter createAgentFilter(String agentId) {
-        if (StringUtils.isBlank(agentId)) {
-            return SkipAgentFilter.SKIP_FILTER;
-        }
-        return new DefaultAgentFilter(agentId);
     }
 
     public boolean fromAgentExist() {
