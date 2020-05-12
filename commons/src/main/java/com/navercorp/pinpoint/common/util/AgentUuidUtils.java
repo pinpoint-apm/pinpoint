@@ -100,7 +100,6 @@ public class AgentUuidUtils {
         byteBuffer.putLong(uuid.getMostSignificantBits());
         byteBuffer.putLong(uuid.getLeastSignificantBits());
         byte[] encoded = encodeUuidBytes(byteBuffer.array());
-        System.out.println(BytesUtils.toString(encoded));
         return new String(encoded, Charsets.US_ASCII);
     }
 
