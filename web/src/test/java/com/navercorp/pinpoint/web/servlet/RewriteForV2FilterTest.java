@@ -30,7 +30,7 @@ import java.io.IOException;
  */
 public class RewriteForV2FilterTest {
 
-    public static final String ADMIN_REWRITE_TARGET = "/admin";
+    public static final String ADMIN_REWRITE_TARGET = "/auth";
 
     @Test(expected = NullPointerException.class)
     public void rewriteTest() throws IOException, ServletException {
