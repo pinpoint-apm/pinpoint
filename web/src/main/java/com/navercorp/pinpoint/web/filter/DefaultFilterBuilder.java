@@ -42,7 +42,7 @@ import org.springframework.stereotype.Component;
  * @author emeroad
  */
 @Component
-public class DefaultFilterBuilder implements FilterBuilder<SpanBo> {
+public class DefaultFilterBuilder implements FilterBuilder<List<SpanBo>> {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -60,7 +60,7 @@ public class DefaultFilterBuilder implements FilterBuilder<SpanBo> {
 
 
     @Override
-    public Filter<SpanBo> build(String filterText) {
+    public Filter<List<SpanBo>> build(String filterText) {
         if (StringUtils.isEmpty(filterText)) {
             return Filter.acceptAllFilter();
         }
@@ -73,7 +73,7 @@ public class DefaultFilterBuilder implements FilterBuilder<SpanBo> {
 
 
     @Override
-    public Filter<SpanBo> build(String filterText, String filterHint) {
+    public Filter<List<SpanBo>> build(String filterText, String filterHint) {
         if (StringUtils.isEmpty(filterText)) {
             return Filter.acceptAllFilter();
         }
@@ -103,11 +103,11 @@ public class DefaultFilterBuilder implements FilterBuilder<SpanBo> {
         }
     }
 
-    private Filter<SpanBo> makeFilterFromJson(String jsonFilterText) {
+    private Filter<List<SpanBo>> makeFilterFromJson(String jsonFilterText) {
         return makeFilterFromJson(jsonFilterText, FilterHint.EMPTY_JSON);
     }
 
-    private Filter<SpanBo> makeFilterFromJson(String jsonFilterText, String jsonFilterHint) {
+    private Filter<List<SpanBo>> makeFilterFromJson(String jsonFilterText, String jsonFilterHint) {
         if (StringUtils.isEmpty(jsonFilterText)) {
             throw new IllegalArgumentException("json string is empty");
         }
@@ -117,23 +117,23 @@ public class DefaultFilterBuilder implements FilterBuilder<SpanBo> {
         final FilterHint hint = readFilterHint(jsonFilterHint);
         logger.debug("filterHint:{}", hint);
 
-        List<Filter<SpanBo>> linkFilter = createLinkFilter(jsonFilterText, filterDescriptorList, hint);
-        final Filter<SpanBo> filterChain = new FilterChain<>(linkFilter);
+        List<Filter<List<SpanBo>>> linkFilter = createLinkFilter(jsonFilterText, filterDescriptorList, hint);
+        final Filter<List<SpanBo>> filterChain = new FilterChain<>(linkFilter);
 
         return filterChain;
     }
 
-    private List<Filter<SpanBo>> createLinkFilter(String jsonFilterText, List<FilterDescriptor> filterDescriptorList, FilterHint hint) {
-        final List<Filter<SpanBo>> result = new ArrayList<>();
+    private List<Filter<List<SpanBo>>> createLinkFilter(String jsonFilterText, List<FilterDescriptor> filterDescriptorList, FilterHint hint) {
+        final List<Filter<List<SpanBo>>> result = new ArrayList<>();
         for (FilterDescriptor descriptor : filterDescriptorList) {
             if (!descriptor.isValid()) {
                 throw new IllegalArgumentException("invalid json " + jsonFilterText);
             }
 
             logger.debug("FilterDescriptor={}", descriptor);
-            Filter<SpanBo> filter;
+            Filter<List<SpanBo>> filter;
             if (descriptor.isApplicationFilterDescriptor()) {
-                filter = new ApplicationFilter(descriptor, hint, serviceTypeRegistryService, annotationKeyRegistryService);
+                filter = new ApplicationFilter(descriptor, serviceTypeRegistryService);
             } else {
                 filter = new LinkFilter(descriptor, hint, serviceTypeRegistryService, annotationKeyRegistryService);
 

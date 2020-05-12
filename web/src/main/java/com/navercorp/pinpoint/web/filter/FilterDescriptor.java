@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.web.filter;
 
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.navercorp.pinpoint.common.Charsets;
+import com.navercorp.pinpoint.loader.service.AnnotationKeyRegistryService;
+import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
 
@@ -245,4 +247,5 @@ public class FilterDescriptor {
         sb.append('}');
         return sb.toString();
     }
+
 }

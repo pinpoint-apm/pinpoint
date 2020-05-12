@@ -56,7 +56,7 @@ public class ScatterChartServiceImpl implements ScatterChartService {
     }
 
     @Override
-    public List<Dot> selectScatterData(List<TransactionId> transactionIdList, String applicationName, Filter<SpanBo> filter) {
+    public List<Dot> selectScatterData(List<TransactionId> transactionIdList, String applicationName, Filter<List<SpanBo>> filter) {
         Objects.requireNonNull(transactionIdList, "transactionIdList");
         Objects.requireNonNull(applicationName, "applicationName");
         Objects.requireNonNull(filter, "filter");
@@ -103,7 +103,7 @@ public class ScatterChartServiceImpl implements ScatterChartService {
     }
 
     @Override
-    public ScatterData selectScatterData(List<TransactionId> transactionIdList, String applicationName, Range range, int xGroupUnit, int yGroupUnit, Filter<SpanBo> filter) {
+    public ScatterData selectScatterData(List<TransactionId> transactionIdList, String applicationName, Range range, int xGroupUnit, int yGroupUnit, Filter<List<SpanBo>> filter) {
         Objects.requireNonNull(transactionIdList, "transactionIdList");
         Objects.requireNonNull(applicationName, "applicationName");
         Objects.requireNonNull(filter, "filter");
