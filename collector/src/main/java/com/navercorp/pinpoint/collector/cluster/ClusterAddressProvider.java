@@ -45,7 +45,6 @@ public class ClusterAddressProvider implements SocketAddressProvider {
         int port = address.getPort();
 
         InetSocketAddress address = new InetSocketAddress(host, port);
-        System.out.println("ADDRESS:" + address);
         return address;
     }
 
