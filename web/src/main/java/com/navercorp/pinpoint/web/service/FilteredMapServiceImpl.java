@@ -32,6 +32,7 @@ import com.navercorp.pinpoint.web.applicationmap.appender.histogram.datasource.R
 import com.navercorp.pinpoint.web.applicationmap.appender.histogram.datasource.WasNodeHistogramDataSource;
 import com.navercorp.pinpoint.web.applicationmap.appender.server.DefaultServerInstanceListFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.server.ServerInstanceListFactory;
+import com.navercorp.pinpoint.web.applicationmap.appender.server.StatisticsServerInstanceListFactory;
 import com.navercorp.pinpoint.web.applicationmap.appender.server.datasource.AgentInfoServerInstanceListDataSource;
 import com.navercorp.pinpoint.web.applicationmap.appender.server.datasource.ServerInstanceListDataSource;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkType;
@@ -193,45 +194,31 @@ public class FilteredMapServiceImpl implements FilteredMapService {
     }
 
     @Override
-    public ApplicationMap selectApplicationMap(TransactionId transactionId, int version) {
-        if (transactionId == null) {
-            throw new NullPointerException("transactionId");
-        }
-        List<TransactionId> transactionIdList = Collections.singletonList(transactionId);
-        // FIXME from,to -1
-        Range range = new Range(-1, -1);
-
-        final List<List<SpanBo>> filterList = selectFilteredSpan(transactionIdList, Filter.acceptAllFilter());
-        FilteredMapBuilder filteredMapBuilder = new FilteredMapBuilder(applicationFactory, registry, range, version);
+    public ApplicationMap selectApplicationMap(FilteredMapServiceOption option) {
+        final List<List<SpanBo>> filterList = selectFilteredSpan(option.getTransactionIdList(), option.getFilter());
+        FilteredMapBuilder filteredMapBuilder = new FilteredMapBuilder(applicationFactory, registry, option.getOriginalRange(), option.getVersion());
         filteredMapBuilder.serverMapDataFilter(serverMapDataFilter);
         filteredMapBuilder.addTransactions(filterList);
         FilteredMap filteredMap = filteredMapBuilder.build();
 
-        ApplicationMap map = createMap(range, filteredMap);
+        ApplicationMap map = createMap(option, filteredMap);
         return map;
     }
 
     @Override
-    public ApplicationMap selectApplicationMapWithScatterData(List<TransactionId> transactionIdList, Range originalRange, Range scanRange, int xGroupUnit, int yGroupUnit, Filter<List<SpanBo>> filter, int version) {
-        if (transactionIdList == null) {
-            throw new NullPointerException("transactionIdList");
-        }
-        if (filter == null) {
-            throw new NullPointerException("filter");
-        }
-
+    public ApplicationMap selectApplicationMapWithScatterData(FilteredMapServiceOption option) {
         StopWatch watch = new StopWatch();
         watch.start();
 
-        final List<List<SpanBo>> filterList = selectFilteredSpan(transactionIdList, filter);
-        FilteredMapBuilder filteredMapBuilder = new FilteredMapBuilder(applicationFactory, registry, originalRange, version);
+        final List<List<SpanBo>> filterList = selectFilteredSpan(option.getTransactionIdList(), option.getFilter());
+        FilteredMapBuilder filteredMapBuilder = new FilteredMapBuilder(applicationFactory, registry, option.getOriginalRange(), option.getVersion());
         filteredMapBuilder.serverMapDataFilter(serverMapDataFilter);
         filteredMapBuilder.addTransactions(filterList);
         FilteredMap filteredMap = filteredMapBuilder.build();
 
-        ApplicationMap map = createMap(originalRange, filteredMap);
+        ApplicationMap map = createMap(option, filteredMap);
 
-        Map<Application, ScatterData> applicationScatterData = filteredMap.getApplicationScatterData(originalRange.getFrom(), originalRange.getTo(), xGroupUnit, yGroupUnit);
+        Map<Application, ScatterData> applicationScatterData = filteredMap.getApplicationScatterData(option.getOriginalRange().getFrom(), option.getOriginalRange().getTo(), option.getxGroupUnit(), option.getyGroupUnit());
         ApplicationMapWithScatterData applicationMapWithScatterData = new ApplicationMapWithScatterData(map, applicationScatterData);
 
         watch.stop();
@@ -251,19 +238,18 @@ public class FilteredMapServiceImpl implements FilteredMapService {
         return filterList2(originalList, filter);
     }
 
-    private ApplicationMap createMap(Range range, FilteredMap filteredMap) {
-        WasNodeHistogramDataSource wasNodeHistogramDataSource = new ResponseHistogramsNodeHistogramDataSource(filteredMap.getResponseHistograms());
-        NodeHistogramFactory nodeHistogramFactory = new DefaultNodeHistogramFactory(wasNodeHistogramDataSource);
-
-        ServerInstanceListDataSource serverInstanceListDataSource = new AgentInfoServerInstanceListDataSource(agentInfoService);
-        ServerInstanceListFactory serverInstanceListFactory = new DefaultServerInstanceListFactory(serverInstanceListDataSource);
-
-        ApplicationMapBuilder applicationMapBuilder = applicationMapBuilderFactory.createApplicationMapBuilder(range);
+    private ApplicationMap createMap(FilteredMapServiceOption option, FilteredMap filteredMap) {
+        final ApplicationMapBuilder applicationMapBuilder = applicationMapBuilderFactory.createApplicationMapBuilder(option.getOriginalRange());
         applicationMapBuilder.linkType(LinkType.DETAILED);
-        applicationMapBuilder.includeNodeHistogram(nodeHistogramFactory);
-        applicationMapBuilder.includeServerInfo(serverInstanceListFactory);
+        final WasNodeHistogramDataSource wasNodeHistogramDataSource = new ResponseHistogramsNodeHistogramDataSource(filteredMap.getResponseHistograms());
+        applicationMapBuilder.includeNodeHistogram(new DefaultNodeHistogramFactory(wasNodeHistogramDataSource));
+        if(option.isUseStatisticsServerInstanceList()) {
+            applicationMapBuilder.includeServerInfo(new StatisticsServerInstanceListFactory());
+        } else {
+            ServerInstanceListDataSource serverInstanceListDataSource = new AgentInfoServerInstanceListDataSource(agentInfoService);
+            applicationMapBuilder.includeServerInfo(new DefaultServerInstanceListFactory(serverInstanceListDataSource));
+        }
         ApplicationMap map = applicationMapBuilder.build(filteredMap.getLinkDataDuplexMap());
-
         if(serverMapDataFilter != null) {
             map = serverMapDataFilter.dataFiltering(map);
         }

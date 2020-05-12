@@ -64,6 +64,9 @@ public class CollectorConfiguration {
     @Value("${cluster.listen.port:-1}")
     private int clusterListenPort;
 
+    @Value("${collector.statistics.agent-state.enable:false}")
+    private boolean statisticsAgentStateEnable;
+
     public int getAgentEventWorkerThreadSize() {
         return this.agentEventWorkerThreadSize;
     }
@@ -129,6 +132,14 @@ public class CollectorConfiguration {
         this.clusterListenPort = clusterListenPort;
     }
 
+    public void setStatisticsAgentStateEnable(boolean statisticsAgentStateEnable) {
+        this.statisticsAgentStateEnable = statisticsAgentStateEnable;
+    }
+
+    public boolean isStatisticsAgentStateEnable() {
+        return statisticsAgentStateEnable;
+    }
+
     @PostConstruct
     public void log() {
         logger.info("{}", this);
@@ -148,6 +159,7 @@ public class CollectorConfiguration {
         sb.append(", clusterSessionTimeout=").append(clusterSessionTimeout);
         sb.append(", clusterListenIp='").append(clusterListenIp).append('\'');
         sb.append(", clusterListenPort=").append(clusterListenPort);
+        sb.append(", statisticsAgentStateEnable=").append(statisticsAgentStateEnable);
         sb.append('}');
         return sb.toString();
     }

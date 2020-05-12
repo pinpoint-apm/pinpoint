@@ -25,4 +25,6 @@ public interface PingEventHandler {
     void ping();
 
     void close();
+
+    void update(short serviceType);
 }

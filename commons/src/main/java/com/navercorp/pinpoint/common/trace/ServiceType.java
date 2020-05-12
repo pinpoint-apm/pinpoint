@@ -290,7 +290,7 @@ public interface ServiceType {
     ServiceType TEST = of(5, "TEST");
 
     ServiceType COLLECTOR = of(7, "COLLECTOR");
-    
+
     ServiceType ASYNC = of(100, "ASYNC");
     
     // Java applications, WAS

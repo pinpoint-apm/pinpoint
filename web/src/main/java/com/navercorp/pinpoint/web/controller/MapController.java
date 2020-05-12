@@ -24,7 +24,9 @@ import com.navercorp.pinpoint.web.applicationmap.link.LinkType;
 import com.navercorp.pinpoint.web.applicationmap.nodes.NodeType;
 import com.navercorp.pinpoint.web.service.ApplicationFactory;
 import com.navercorp.pinpoint.web.service.MapService;
+import com.navercorp.pinpoint.web.service.MapServiceOption;
 import com.navercorp.pinpoint.web.service.ResponseTimeHistogramService;
+import com.navercorp.pinpoint.web.service.ResponseTimeHistogramServiceOption;
 import com.navercorp.pinpoint.web.util.Limiter;
 import com.navercorp.pinpoint.web.view.ApplicationTimeHistogramViewModel;
 import com.navercorp.pinpoint.web.applicationmap.nodes.NodeHistogramSummary;
@@ -106,7 +108,7 @@ public class MapController {
 
         Application application = applicationFactory.createApplication(applicationName, serviceTypeCode);
 
-        return selectApplicationMap(application, range, searchOption, NodeType.DETAILED, LinkType.DETAILED);
+        return selectApplicationMap(application, range, searchOption, NodeType.DETAILED, LinkType.DETAILED, false);
     }
 
     /**
@@ -137,7 +139,7 @@ public class MapController {
 
         Application application = applicationFactory.createApplicationByTypeName(applicationName, serviceTypeName);
 
-        return selectApplicationMap(application, range, searchOption, NodeType.DETAILED, LinkType.DETAILED);
+        return selectApplicationMap(application, range, searchOption, NodeType.DETAILED, LinkType.DETAILED, false);
     }
 
     /**
@@ -168,7 +170,7 @@ public class MapController {
 
         Application application = applicationFactory.createApplication(applicationName, serviceTypeCode);
 
-        return selectApplicationMap(application, range, searchOption, NodeType.BASIC, LinkType.BASIC);
+        return selectApplicationMap(application, range, searchOption, NodeType.BASIC, LinkType.BASIC, false);
     }
 
     /**
@@ -199,24 +201,75 @@ public class MapController {
 
         Application application = applicationFactory.createApplicationByTypeName(applicationName, serviceTypeName);
 
-        return selectApplicationMap(application, range, searchOption, NodeType.BASIC, LinkType.BASIC);
+        return selectApplicationMap(application, range, searchOption, NodeType.BASIC, LinkType.BASIC, false);
     }
 
-    private MapWrap selectApplicationMap(Application application, Range range, SearchOption searchOption, NodeType nodeType, LinkType linkType) {
-        if (application == null) {
-            throw new NullPointerException("application");
-        }
-        if (range == null) {
-            throw new NullPointerException("range");
-        }
-        if (searchOption == null) {
-            throw new NullPointerException("searchOption");
-        }
+    /**
+     * Server map data query within from ~ to timeframe
+     *
+     * @param applicationName
+     * @param serviceTypeCode
+     * @param from
+     * @param to
+     * @return
+     */
+    @RequestMapping(value = "/getServerMapDataV3", method = RequestMethod.GET, params="serviceTypeCode")
+    @ResponseBody
+    public MapWrap getServerMapDataV3(
+            @RequestParam("applicationName") String applicationName,
+            @RequestParam("serviceTypeCode") short serviceTypeCode,
+            @RequestParam("from") long from,
+            @RequestParam("to") long to,
+            @RequestParam(value = "callerRange", defaultValue = DEFAULT_SEARCH_DEPTH) int callerRange,
+            @RequestParam(value = "calleeRange", defaultValue = DEFAULT_SEARCH_DEPTH) int calleeRange,
+            @RequestParam(value = "bidirectional", defaultValue = "true", required = false) boolean bidirectional,
+            @RequestParam(value = "wasOnly", defaultValue="false", required = false) boolean wasOnly) {
+        final Range range = new Range(from, to);
+        this.dateLimit.limit(range);
 
-        logger.info("getServerMap() application:{} range:{} searchOption:{}", application, range, searchOption);
+        SearchOption searchOption = new SearchOption(callerRange, calleeRange, bidirectional, wasOnly);
+        assertSearchOption(searchOption);
 
-        ApplicationMap map = mapService.selectApplicationMap(application, range, searchOption, nodeType, linkType);
-        
+        Application application = applicationFactory.createApplication(applicationName, serviceTypeCode);
+
+        return selectApplicationMap(application, range, searchOption, NodeType.BASIC, LinkType.BASIC, true);
+    }
+
+    /**
+     * Server map data query within from ~ to timeframe
+     *
+     * @param applicationName
+     * @param serviceTypeName
+     * @param from
+     * @param to
+     * @return
+     */
+    @RequestMapping(value = "/getServerMapDataV3", method = RequestMethod.GET, params="serviceTypeName")
+    @ResponseBody
+    public MapWrap getServerMapDataV3(
+            @RequestParam("applicationName") String applicationName,
+            @RequestParam("serviceTypeName") String serviceTypeName,
+            @RequestParam("from") long from,
+            @RequestParam("to") long to,
+            @RequestParam(value = "callerRange", defaultValue = DEFAULT_SEARCH_DEPTH) int callerRange,
+            @RequestParam(value = "calleeRange", defaultValue = DEFAULT_SEARCH_DEPTH) int calleeRange,
+            @RequestParam(value = "bidirectional", defaultValue = "true", required = false) boolean bidirectional,
+            @RequestParam(value = "wasOnly", defaultValue ="false", required = false) boolean wasOnly) {
+        final Range range = new Range(from, to);
+        this.dateLimit.limit(range);
+
+        SearchOption searchOption = new SearchOption(callerRange, calleeRange, bidirectional, wasOnly);
+        assertSearchOption(searchOption);
+
+        Application application = applicationFactory.createApplicationByTypeName(applicationName, serviceTypeName);
+
+        return selectApplicationMap(application, range, searchOption, NodeType.BASIC, LinkType.BASIC, true);
+    }
+
+    private MapWrap selectApplicationMap(Application application, Range range, SearchOption searchOption, NodeType nodeType, LinkType linkType, boolean useStatisticsServerInstanceList) {
+        final MapServiceOption mapServiceOption = new MapServiceOption.Builder(application, range, searchOption, nodeType, linkType).setUseStatisticsServerInstanceList(useStatisticsServerInstanceList).build();
+        logger.info("Select applicationMap. option={}", mapServiceOption);
+        final ApplicationMap map = mapService.selectApplicationMap(mapServiceOption);
         return new MapWrap(map);
     }
 
@@ -270,8 +323,29 @@ public class MapController {
 
         List<Application> fromApplications = mapApplicationPairsToApplications(applicationPairs.getFromApplications());
         List<Application> toApplications = mapApplicationPairsToApplications(applicationPairs.getToApplications());
+        final ResponseTimeHistogramServiceOption option = new ResponseTimeHistogramServiceOption.Builder(application, range, fromApplications, toApplications).build();
 
-        return responseTimeHistogramService.selectNodeHistogramData(application, range, fromApplications, toApplications);
+        return responseTimeHistogramService.selectNodeHistogramData(option);
+    }
+
+    @RequestMapping(value = "/getResponseTimeHistogramDataV3", method = RequestMethod.POST)
+    @ResponseBody
+    public NodeHistogramSummary postResponseTimeHistogramDataV3(
+            @RequestParam("applicationName") String applicationName,
+            @RequestParam("serviceTypeCode") Short serviceTypeCode,
+            @RequestParam("from") long from,
+            @RequestParam("to") long to,
+            @RequestBody ApplicationPairs applicationPairs) {
+        final Range range = new Range(from, to);
+        dateLimit.limit(range);
+
+        Application application = applicationFactory.createApplication(applicationName, serviceTypeCode);
+
+        List<Application> fromApplications = mapApplicationPairsToApplications(applicationPairs.getFromApplications());
+        List<Application> toApplications = mapApplicationPairsToApplications(applicationPairs.getToApplications());
+        final ResponseTimeHistogramServiceOption option = new ResponseTimeHistogramServiceOption.Builder(application, range, fromApplications, toApplications).setUseStatisticsServerInstanceList(true).build();
+
+        return responseTimeHistogramService.selectNodeHistogramData(option);
     }
 
     @RequestMapping(value = "/getResponseTimeHistogramDataV2", method = RequestMethod.GET)
@@ -307,8 +381,47 @@ public class MapController {
             Application toApplication = applicationFactory.createApplication(toApplicationNames.get(i), toServiceTypeCodes.get(i));
             toApplications.add(toApplication);
         }
+        final ResponseTimeHistogramServiceOption option = new ResponseTimeHistogramServiceOption.Builder(application, range, fromApplications, toApplications).build();
 
-        return responseTimeHistogramService.selectNodeHistogramData(application, range, fromApplications, toApplications);
+        return responseTimeHistogramService.selectNodeHistogramData(option);
+    }
+
+    @RequestMapping(value = "/getResponseTimeHistogramDataV3", method = RequestMethod.GET)
+    @ResponseBody
+    public NodeHistogramSummary getResponseTimeHistogramDataV3(
+            @RequestParam("applicationName") String applicationName,
+            @RequestParam("serviceTypeCode") Short serviceTypeCode,
+            @RequestParam("from") long from,
+            @RequestParam("to") long to,
+            @RequestParam(value = "fromApplicationNames", defaultValue = "", required = false) List<String> fromApplicationNames,
+            @RequestParam(value = "fromServiceTypeCodes", defaultValue = "", required = false) List<Short> fromServiceTypeCodes,
+            @RequestParam(value = "toApplicationNames", defaultValue = "", required = false) List<String> toApplicationNames,
+            @RequestParam(value = "toServiceTypeCodes", defaultValue = "", required = false) List<Short> toServiceTypeCodes) {
+        final Range range = new Range(from, to);
+        dateLimit.limit(range);
+
+        if (fromApplicationNames.size() != fromServiceTypeCodes.size()) {
+            throw new IllegalArgumentException("fromApplicationNames and fromServiceTypeCodes must have the same number of elements");
+        }
+        if (toApplicationNames.size() != toServiceTypeCodes.size()) {
+            throw new IllegalArgumentException("toApplicationNames and toServiceTypeCodes must have the same number of elements");
+        }
+
+        Application application = applicationFactory.createApplication(applicationName, serviceTypeCode);
+
+        List<Application> fromApplications = new ArrayList<>(fromApplicationNames.size());
+        for (int i = 0; i < fromApplicationNames.size(); i++) {
+            Application fromApplication = applicationFactory.createApplication(fromApplicationNames.get(i), fromServiceTypeCodes.get(i));
+            fromApplications.add(fromApplication);
+        }
+        List<Application> toApplications = new ArrayList<>(toApplicationNames.size());
+        for (int i = 0; i < toApplicationNames.size(); i++) {
+            Application toApplication = applicationFactory.createApplication(toApplicationNames.get(i), toServiceTypeCodes.get(i));
+            toApplications.add(toApplication);
+        }
+        final ResponseTimeHistogramServiceOption option = new ResponseTimeHistogramServiceOption.Builder(application, range, fromApplications, toApplications).setUseStatisticsServerInstanceList(true).build();
+
+        return responseTimeHistogramService.selectNodeHistogramData(option);
     }
 
     private List<Application> mapApplicationPairsToApplications(List<ApplicationPair> applicationPairs) {

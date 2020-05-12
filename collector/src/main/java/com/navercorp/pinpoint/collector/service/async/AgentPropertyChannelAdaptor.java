@@ -32,6 +32,11 @@ public class AgentPropertyChannelAdaptor implements AgentProperty {
     }
 
     @Override
+    public String getApplicationName() {
+        return channelProperties.getApplicationName();
+    }
+
+    @Override
     public String getAgentId() {
         return channelProperties.getAgentId();
     }
@@ -47,9 +52,15 @@ public class AgentPropertyChannelAdaptor implements AgentProperty {
     }
 
     @Override
+    public short getServiceType() {
+        return (short) channelProperties.getServiceType();
+    }
+
+    @Override
     public String toString() {
-        return "AgentPropertyChannelAdaptor{" +
-                "channelProperties=" + channelProperties +
-                '}';
+        final StringBuilder sb = new StringBuilder("AgentPropertyChannelAdaptor{");
+        sb.append("channelProperties=").append(channelProperties);
+        sb.append('}');
+        return sb.toString();
     }
 }

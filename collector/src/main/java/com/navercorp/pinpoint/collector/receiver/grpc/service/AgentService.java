@@ -69,16 +69,14 @@ public class AgentService extends AgentGrpc.AgentImplBase {
             logger.debug("Request PAgentInfo={}", MessageFormatUtils.debugLog(agentInfo));
         }
 
-        Message<PAgentInfo> message = newMessage(agentInfo, DefaultTBaseLocator.AGENT_INFO);
-        doExecutor(message, responseObserver);
-    }
-
-    void doExecutor(final Message message, final StreamObserver<PResult> responseObserver) {
         try {
             executor.execute(new Runnable() {
                 @Override
                 public void run() {
+                    final Message<PAgentInfo> message = newMessage(agentInfo, DefaultTBaseLocator.AGENT_INFO);
                     simpleRequestHandlerAdaptor.request(message, responseObserver);
+                    // Update service type of PingSession
+                    AgentService.this.pingEventHandler.update((short) agentInfo.getServiceType());
                 }
             });
         } catch (RejectedExecutionException ree) {

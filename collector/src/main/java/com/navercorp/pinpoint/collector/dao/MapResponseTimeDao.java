@@ -22,5 +22,5 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
  * @author emeroad
  */
 public interface MapResponseTimeDao extends CachedStatisticsDao {
-    void received(String applicationName, ServiceType serviceType, String agentId, int elapsed, boolean isError);
+    void received(String applicationName, ServiceType serviceType, String agentId, int elapsed, boolean isError, boolean isPing);
 }

@@ -44,9 +44,11 @@ public class NodeListFactory {
     private static void createNode(NodeList nodeList, NodeType nodeType, LinkDataMap linkDataMap) {
         for (LinkData linkData : linkDataMap.getLinkDataList()) {
             final Application fromApplication = linkData.getFromApplication();
+            final Application toApplication = linkData.getToApplication();
+
             // FROM is either a CLIENT or a node
             // cannot be RPC. Already converted to unknown.
-            if (!fromApplication.getServiceType().isRpcClient()) {
+            if (isFromNode(fromApplication, toApplication)) {
                 final boolean success = addNode(nodeList, nodeType, fromApplication);
                 if (success) {
                     logger.debug("createSourceNode:{}", fromApplication);
@@ -55,10 +57,9 @@ public class NodeListFactory {
                 logger.warn("found rpc fromNode linkData:{}", linkData);
             }
 
-            final Application toApplication = linkData.getToApplication();
             // FROM -> TO : TO is either a CLIENT or a node
             // create node when it's alias even if RPC
-            if (!toApplication.getServiceType().isRpcClient() || toApplication.getServiceType().isAlias()) {
+            if (isToNode(fromApplication, toApplication)) {
                 final boolean success = addNode(nodeList, nodeType, toApplication);
                 if (success) {
                     logger.debug("createTargetNode:{}", toApplication);
@@ -67,6 +68,23 @@ public class NodeListFactory {
                 logger.warn("found rpc toNode:{}", linkData);
             }
         }
+    }
+
+    private static boolean isFromNode(final Application fromApplication, final Application toApplication) {
+        if (fromApplication.getServiceType().isRpcClient()) {
+            return false;
+        }
+        return true;
+    }
+
+    private static boolean isToNode(final Application fromApplication, final Application toApplication) {
+        if (!toApplication.getServiceType().isRpcClient()) {
+            return true;
+        }
+        if (toApplication.getServiceType().isAlias()) {
+            return true;
+        }
+        return false;
     }
 
     private static boolean addNode(NodeList nodeList, NodeType nodeType, Application application) {

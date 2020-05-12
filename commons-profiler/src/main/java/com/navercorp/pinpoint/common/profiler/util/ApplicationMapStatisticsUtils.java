@@ -55,9 +55,12 @@ public class ApplicationMapStatisticsUtils {
     }
 
     public static short getSlotNumber(ServiceType serviceType, int elapsed, boolean isError) {
-        return findResponseHistogramSlotNo(serviceType, elapsed, isError);
+        return findResponseHistogramSlotNo(serviceType, elapsed, isError, false);
     }
 
+    public static short getSlotNumber(ServiceType serviceType, int elapsed, boolean isError, boolean isPing) {
+        return findResponseHistogramSlotNo(serviceType, elapsed, isError, isPing);
+    }
 
     public static byte[] makeColumnName(String agentId, short columnSlotNumber) {
         if (agentId == null) {
@@ -74,11 +77,14 @@ public class ApplicationMapStatisticsUtils {
     }
 
 
-    private static short findResponseHistogramSlotNo(ServiceType serviceType, int elapsed, boolean isError) {
+    private static short findResponseHistogramSlotNo(ServiceType serviceType, int elapsed, boolean isError, boolean isPing) {
         if (serviceType == null) {
             throw new NullPointerException("serviceType");
         }
         final HistogramSchema histogramSchema = serviceType.getHistogramSchema();
+        if(isPing) {
+            return histogramSchema.getPingSlot().getSlotTime();
+        }
         final HistogramSlot histogramSlot = histogramSchema.findHistogramSlot(elapsed, isError);
         return histogramSlot.getSlotTime();
     }

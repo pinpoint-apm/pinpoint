@@ -16,10 +16,14 @@
 
 package com.navercorp.pinpoint.collector.service.async;
 
+import com.navercorp.pinpoint.collector.config.CollectorConfiguration;
 import com.navercorp.pinpoint.collector.service.AgentLifeCycleService;
+import com.navercorp.pinpoint.collector.service.StatisticsService;
 import com.navercorp.pinpoint.common.server.bo.AgentLifeCycleBo;
 import com.navercorp.pinpoint.common.server.util.AgentLifeCycleState;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.BytesUtils;
+import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,21 +45,52 @@ public class AgentLifeCycleAsyncTaskService {
     @Autowired
     private AgentLifeCycleService agentLifeCycleService;
 
+    @Autowired
+    private StatisticsService statisticsService;
+
+    @Autowired
+    private ServiceTypeRegistryService registry;
+
+    @Autowired
+    private CollectorConfiguration configuration;
+
     @Async("agentEventWorker")
     public void handleLifeCycleEvent(AgentProperty agentProperty, long eventTimestamp, AgentLifeCycleState agentLifeCycleState, long eventIdentifier) {
         Objects.requireNonNull(agentProperty, "agentProperty");
         Objects.requireNonNull(agentLifeCycleState, "agentLifeCycleState");
 
-        if (logger.isDebugEnabled()) {
-            logger.debug("Handle lifecycle event - pinpointServer:{}, state:{}", agentProperty, agentLifeCycleState);
+        final String agentId = agentProperty.getAgentId();
+        if (agentId == null) {
+            logger.warn("Failed to handle event of agent life cycle, agentId is null. agentProperty={}", agentProperty);
+            return;
         }
 
-        final String agentId = agentProperty.getAgentId();
         final long startTimestamp = agentProperty.getStartTime();
         final AgentLifeCycleBo agentLifeCycleBo = new AgentLifeCycleBo(agentId, startTimestamp, eventTimestamp, eventIdentifier, agentLifeCycleState);
-
         agentLifeCycleService.insert(agentLifeCycleBo);
+
+        final String applicationName = agentProperty.getApplicationName();
+        if (applicationName == null) {
+            logger.warn("Failed to handle event of agent life cycle, applicationName is null. agentProperty={}", agentProperty);
+            return;
+        }
+
+        final ServiceType serviceType = registry.findServiceType(agentProperty.getServiceType());
+        if (isUpdateAgentState(serviceType)) {
+            statisticsService.updateAgentState(applicationName, serviceType, agentId);
+        }
     }
+
+    private boolean isUpdateAgentState(ServiceType serviceType) {
+        if (!configuration.isStatisticsAgentStateEnable()) {
+            return false;
+        }
+        if (serviceType == null || serviceType == ServiceType.UNDEFINED) {
+            return false;
+        }
+        return true;
+    }
+
 
     public static long createEventIdentifier(int socketId, int eventCounter) {
         if (socketId < 0) {

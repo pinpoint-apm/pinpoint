@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
 import com.navercorp.pinpoint.web.calltree.span.CallTreeIterator;
 import com.navercorp.pinpoint.web.config.LogConfiguration;
 import com.navercorp.pinpoint.web.service.FilteredMapService;
+import com.navercorp.pinpoint.web.service.FilteredMapServiceOption;
 import com.navercorp.pinpoint.web.service.SpanResult;
 import com.navercorp.pinpoint.web.service.SpanService;
 import com.navercorp.pinpoint.web.service.TransactionInfoService;
@@ -37,7 +38,6 @@ import org.apache.commons.lang3.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -96,10 +96,34 @@ public class BusinessTransactionController {
         final CallTreeIterator callTreeIterator = spanResult.getCallTree();
 
         // application map
-        ApplicationMap map = filteredMapService.selectApplicationMap(transactionId, viewVersion);
+        FilteredMapServiceOption option = new FilteredMapServiceOption.Builder(transactionId, viewVersion).build();
+        ApplicationMap map = filteredMapService.selectApplicationMap(option);
         RecordSet recordSet = this.transactionInfoService.createRecordSet(callTreeIterator, focusTimestamp, agentId, spanId);
 
         TransactionInfoViewModel result = new TransactionInfoViewModel(transactionId, spanId, map.getNodes(), map.getLinks(), recordSet, spanResult.getTraceState(), logConfiguration);
+        return result;
+    }
+
+    @RequestMapping(value = "/transactionInfoV2", method = RequestMethod.GET)
+    @ResponseBody
+    public TransactionInfoViewModel transactionInfoV2(@RequestParam("traceId") String traceIdParam,
+                                                    @RequestParam(value = "focusTimestamp", required = false, defaultValue = "0") long focusTimestamp,
+                                                    @RequestParam(value = "agentId", required = false) String agentId,
+                                                    @RequestParam(value = "spanId", required = false, defaultValue = "-1") long spanId,
+                                                    @RequestParam(value = "v", required = false, defaultValue = "0") int viewVersion) {
+        logger.debug("GET /transactionInfo params {traceId={}, focusTimestamp={}, agentId={}, spanId={}, v={}}", traceIdParam, focusTimestamp, agentId, spanId, viewVersion);
+
+        final TransactionId transactionId = TransactionIdUtils.parseTransactionId(traceIdParam);
+
+        // select spans
+        final SpanResult spanResult = this.spanService.selectSpan(transactionId, focusTimestamp);
+        final CallTreeIterator callTreeIterator = spanResult.getCallTree();
+
+        // application map
+        final FilteredMapServiceOption option = new FilteredMapServiceOption.Builder(transactionId, viewVersion).setUseStatisticsServerInstanceList(true).build();
+        final ApplicationMap map = filteredMapService.selectApplicationMap(option);
+        final RecordSet recordSet = this.transactionInfoService.createRecordSet(callTreeIterator, focusTimestamp, agentId, spanId);
+        final TransactionInfoViewModel result = new TransactionInfoViewModel(transactionId, spanId, map.getNodes(), map.getLinks(), recordSet, spanResult.getTraceState(), logConfiguration);
         return result;
     }
 

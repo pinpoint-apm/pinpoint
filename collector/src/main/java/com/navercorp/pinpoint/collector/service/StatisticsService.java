@@ -27,9 +27,9 @@ import org.springframework.stereotype.Service;
 import java.util.Objects;
 
 /**
- * 
+ *
  * @author netspider
- * 
+ *
  */
 @Service
 public class StatisticsService {
@@ -83,6 +83,10 @@ public class StatisticsService {
     }
 
     public void updateResponseTime(String applicationName, ServiceType serviceType, String agentId, int elapsed, boolean isError) {
-        mapResponseTimeDao.received(applicationName, serviceType, agentId, elapsed, isError);
+        mapResponseTimeDao.received(applicationName, serviceType, agentId, elapsed, isError, false);
+    }
+
+    public void updateAgentState(final String callerApplicationName, final ServiceType callerServiceType, final String callerAgentId) {
+        mapResponseTimeDao.received(callerApplicationName, callerServiceType, callerAgentId, 0, false, true);
     }
 }

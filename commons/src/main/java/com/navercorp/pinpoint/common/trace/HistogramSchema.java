@@ -48,4 +48,6 @@ public interface HistogramSchema {
     HistogramSlot getSlowErrorSlot();
 
     HistogramSlot getVerySlowErrorSlot();
+
+    HistogramSlot getPingSlot();
 }

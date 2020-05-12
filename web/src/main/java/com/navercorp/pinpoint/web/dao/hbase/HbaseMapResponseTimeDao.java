@@ -89,9 +89,6 @@ public class HbaseMapResponseTimeDao implements MapResponseDao {
 
         TableName mapStatisticsSelfTableName = descriptor.getTableName();
         List<ResponseTime> responseTimeList = hbaseOperations2.findParallel(mapStatisticsSelfTableName, scan, rowKeyDistributorByHashPrefix, responseTimeMapper, MAP_STATISTICS_SELF_VER2_NUM_PARTITIONS);
-        if (logger.isDebugEnabled()) {
-            logger.debug("Self data {}", responseTimeList);
-        }
 
         if (!responseTimeList.isEmpty()) {
             return responseTimeList;

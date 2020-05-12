@@ -31,7 +31,7 @@ public interface ResponseTimeHistogramService {
 
     ApplicationTimeHistogramViewModel selectResponseTimeHistogramData(Application application, Range range);
 
-    NodeHistogramSummary selectNodeHistogramData(Application application, Range range, List<Application> fromApplications, List<Application> toApplications);
+    NodeHistogramSummary selectNodeHistogramData(ResponseTimeHistogramServiceOption option);
 
     LinkHistogramSummary selectLinkHistogramData(Application fromApplication, Application toApplication, Range range);
 }

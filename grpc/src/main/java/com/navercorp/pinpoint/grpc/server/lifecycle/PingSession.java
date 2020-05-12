@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.grpc.server.lifecycle;
 
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.grpc.Header;
 
@@ -28,11 +29,12 @@ public class PingSession {
     private final Long id;
     private final Header header;
     private final AtomicLong eventIdAllocator;
+    private short serviceType = ServiceType.UNDEFINED.getCode();
+    private boolean updated = false;
 
     public PingSession(Long id, Header header) {
-        this.id = Assert.requireNonNull(id, "transportMetadata");
+        this.id = Assert.requireNonNull(id, "id");
         this.header = Assert.requireNonNull(header, "header");
-
         this.eventIdAllocator = new AtomicLong();
     }
 
@@ -48,12 +50,31 @@ public class PingSession {
         return eventIdAllocator.incrementAndGet();
     }
 
+    public short getServiceType() {
+        return serviceType;
+    }
+
+    public void setServiceType(short serviceType) {
+        this.serviceType = serviceType;
+    }
+
+    // Flag to avoid duplication.
+    public boolean isUpdated() {
+        return updated;
+    }
+
+    public void setUpdated(boolean updated) {
+        this.updated = updated;
+    }
+
     @Override
     public String toString() {
-        return "PingSession{" +
-                "id=" + id +
-                ", header=" + header +
-                ", eventIdAllocator=" + eventIdAllocator +
-                '}';
+        final StringBuilder sb = new StringBuilder("PingSession{");
+        sb.append("id=").append(id);
+        sb.append(", header=").append(header);
+        sb.append(", eventIdAllocator=").append(eventIdAllocator);
+        sb.append(", serviceType=").append(serviceType);
+        sb.append('}');
+        return sb.toString();
     }
 }

@@ -65,7 +65,7 @@ class DefaultServiceType implements ServiceType {
         boolean recordStatistics = false;
         boolean includeDestinationId = false;
         boolean alias = false;
-        
+
         for (ServiceTypeProperty property : properties) {
             switch (property) {
             case TERMINAL:
@@ -75,11 +75,11 @@ class DefaultServiceType implements ServiceType {
             case QUEUE:
                 queue = true;
                 break;
-                
+
             case RECORD_STATISTICS:
                 recordStatistics = true;
                 break;
-                
+
             case INCLUDE_DESTINATION_ID:
                 includeDestinationId = true;
                 break;
@@ -92,7 +92,7 @@ class DefaultServiceType implements ServiceType {
                 throw new IllegalStateException("Unknown ServiceTypeProperty:" + property);
             }
         }
-        
+
         this.terminal = terminal;
         this.queue = queue;
         this.recordStatistics = recordStatistics;
@@ -176,7 +176,7 @@ class DefaultServiceType implements ServiceType {
     public boolean isWas() {
         return this.category == ServiceTypeCategory.SERVER;
     }
-    
+
     @Override
     public String toString() {
         return desc;

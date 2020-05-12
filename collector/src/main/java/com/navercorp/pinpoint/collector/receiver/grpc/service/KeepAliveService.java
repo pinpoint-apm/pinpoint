@@ -35,9 +35,7 @@ import java.util.Collections;
 import java.util.Objects;
 
 public class KeepAliveService {
-
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
     private final AgentEventAsyncTaskService agentEventAsyncTask;
     private final AgentLifeCycleAsyncTaskService agentLifeCycleAsyncTask;
     private final PingSessionRegistry pingSessionRegistry;
@@ -51,7 +49,6 @@ public class KeepAliveService {
         this.pingSessionRegistry = Objects.requireNonNull(pingSessionRegistry, "pingSessionRegistry");
     }
 
-
     public void updateState() {
         final Collection<PingSession> lifecycles = pingSessionRegistry.values();
         for (PingSession lifecycle : lifecycles) {
@@ -62,14 +59,14 @@ public class KeepAliveService {
         }
     }
 
-    private AgentProperty newChannelProperties(Header header) {
+    private AgentProperty newChannelProperties(Header header, short serviceType) {
+        final String applicationName = header.getApplicationName();
         final String agentId = header.getAgentId();
         final long agentStartTime = header.getAgentStartTime();
-        return new DefaultAgentProperty(agentId, agentStartTime, Collections.emptyMap());
+        return new DefaultAgentProperty(applicationName, serviceType, agentId, agentStartTime, Collections.emptyMap());
     }
 
     public void updateState(PingSession lifecycle, ManagedAgentLifeCycle managedAgentLifeCycle) {
-
         boolean closeState = managedAgentLifeCycle.isClosedEvent();
         AgentLifeCycleState agentLifeCycleState = managedAgentLifeCycle.getMappedState();
         AgentEventType agentEventType = managedAgentLifeCycle.getMappedEvent();
@@ -77,7 +74,6 @@ public class KeepAliveService {
     }
 
     public void updateState(PingSession pingSession, boolean closeState, AgentLifeCycleState agentLifeCycleState, AgentEventType agentEventType) {
-
         final Header header = pingSession.getHeader();
         if (header == null) {
             // TODO dump client ip for debug
@@ -85,10 +81,7 @@ public class KeepAliveService {
             return;
         }
 
-        logger.debug("updateState:{} {} {}/{}", pingSession, closeState, agentLifeCycleState, agentEventType);
-
         final long pingTimestamp = System.currentTimeMillis();
-
         final long socketId = header.getSocketId();
         if (socketId == -1) {
             // TODO dump client ip for debug
@@ -96,9 +89,9 @@ public class KeepAliveService {
             // skip
             return;
         }
-        final AgentProperty agentProperty = newChannelProperties(header);
 
         try {
+            final AgentProperty agentProperty = newChannelProperties(header, pingSession.getServiceType());
             long eventIdentifier = AgentLifeCycleAsyncTaskService.createEventIdentifier((int)socketId, (int) pingSession.nextEventIdAllocator());
             this.agentLifeCycleAsyncTask.handleLifeCycleEvent(agentProperty , pingTimestamp, agentLifeCycleState, eventIdentifier);
             this.agentEventAsyncTask.handleEvent(agentProperty, pingTimestamp, agentEventType);
@@ -107,7 +100,6 @@ public class KeepAliveService {
         }
     }
 
-
 //    @PreDestroy
     public void destroy() {
         final Collection<PingSession> lifecycles = pingSessionRegistry.values();
@@ -115,5 +107,4 @@ public class KeepAliveService {
             updateState(lifecycle, ManagedAgentLifeCycle.CLOSED_BY_SERVER);
         }
     }
-
 }
