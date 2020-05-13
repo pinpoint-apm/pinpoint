@@ -35,32 +35,36 @@ import java.util.Objects;
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class WasToWasFilter implements Filter<LinkFilterContext> {
+public class WasToWasFilter implements Filter<LinkContext> {
     private final Filter<SpanBo> spanResponseConditionFilter;
 
     private final Filter<SpanEventBo> spanEventResponseConditionFilter;
 
     private final AgentFilterFactory agentFilterFactory;
 
-    private final URLPatternFilter rpcUrlFilter;
+
     private final URLPatternFilter acceptURLFilter;
 
-
+    private final URLPatternFilter rpcUrlFilter;
     private final List<RpcHint> rpcHintList;
 
-    public WasToWasFilter(Filter<SpanBo> spanResponseConditionFilter, Filter<SpanEventBo> spanEventResponseConditionFilter,
+    public WasToWasFilter(Filter<SpanBo> spanResponseConditionFilter,
+                          Filter<SpanEventBo> spanEventResponseConditionFilter,
+                          URLPatternFilter acceptURLFilter,
                           AgentFilterFactory agentFilterFactory,
                           URLPatternFilter rpcUrlFilter,
-                          URLPatternFilter acceptURLFilter, List<RpcHint> rpcHintList) {
+                          List<RpcHint> rpcHintList) {
         this.spanResponseConditionFilter = Objects.requireNonNull(spanResponseConditionFilter, "spanResponseConditionFilter");
         this.spanEventResponseConditionFilter = Objects.requireNonNull(spanEventResponseConditionFilter, "spanEventResponseConditionFilter");
-        this.agentFilterFactory = Objects.requireNonNull(agentFilterFactory, "agentFilterFactory");
-        this.rpcUrlFilter = Objects.requireNonNull(rpcUrlFilter, "rpcUrlFilter");
         this.acceptURLFilter = Objects.requireNonNull(acceptURLFilter, "acceptURLFilter");
+
+        this.agentFilterFactory = Objects.requireNonNull(agentFilterFactory, "agentFilterFactory");
+
+        this.rpcUrlFilter = Objects.requireNonNull(rpcUrlFilter, "rpcUrlFilter");
         this.rpcHintList = Objects.requireNonNull(rpcHintList, "rpcHintList");
     }
 
-    public boolean include(LinkFilterContext transaction) {
+    public boolean include(LinkContext transaction) {
         /*
          * WAS -> WAS
          * if destination is a "WAS", the span of src and dest may exist. need to check if be circular or not.
@@ -96,7 +100,7 @@ public class WasToWasFilter implements Filter<LinkFilterContext> {
         return fromBaseFilter(fromSpanList, transaction);
     }
 
-    private boolean fromBaseFilter(List<SpanBo> fromSpanList, LinkFilterContext transaction) {
+    private boolean fromBaseFilter(List<SpanBo> fromSpanList, LinkContext transaction) {
         // from base filter. hint base filter
         // exceptional case
         // 1. remote call fail
@@ -114,14 +118,14 @@ public class WasToWasFilter implements Filter<LinkFilterContext> {
         });
     }
 
-    private boolean filterByRpcHints(SpanEventBo spanEventBo, LinkFilterContext transaction) {
+    private boolean filterByRpcHints(SpanEventBo spanEventBo, LinkContext transaction) {
         if (filterByRpcHints(rpcHintList, spanEventBo, transaction)) {
             return SpanVisitor.ACCEPT;
         }
         return SpanVisitor.REJECT;
     }
 
-    private boolean filterByRpcHints(List<RpcHint> rpcHintList, SpanEventBo event, LinkFilterContext transaction) {
+    private boolean filterByRpcHints(List<RpcHint> rpcHintList, SpanEventBo event, LinkContext transaction) {
         final ServiceType eventServiceType = transaction.findServiceType(event.getServiceType());
         if (!eventServiceType.isRecordStatistics()) {
             return false;

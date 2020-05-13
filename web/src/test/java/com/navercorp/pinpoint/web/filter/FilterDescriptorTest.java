@@ -30,9 +30,7 @@ import java.io.StringWriter;
 import java.util.List;
 
 /**
- *
  * @author netspider
- *
  */
 public class FilterDescriptorTest {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -46,18 +44,21 @@ public class FilterDescriptorTest {
 
         FilterDescriptor descriptor = mapper.readValue(jsonString, FilterDescriptor.class);
 
-        Assert.assertEquals("FROM_APPLICATION", descriptor.getFromApplicationName());
-        Assert.assertEquals("FROM_SERVICE_TYPE", descriptor.getFromServiceType());
-        Assert.assertEquals("FROM_AGENT_ID", descriptor.getFromAgentName());
-        Assert.assertEquals((Long)0L, descriptor.getFromResponseTime());
+        FilterDescriptor.ResponseTime responseTime = descriptor.getResponseTime();
+        FilterDescriptor.FromNode fromNode = descriptor.getFromNode();
+        Assert.assertEquals("FROM_APPLICATION", fromNode.getApplicationName());
+        Assert.assertEquals("FROM_SERVICE_TYPE", fromNode.getServiceType());
+        Assert.assertEquals("FROM_AGENT_ID", fromNode.getAgentId());
+        Assert.assertEquals((Long) 0L, descriptor.getResponseTime().getFromResponseTime());
 
-        Assert.assertEquals("TO_APPLICATION", descriptor.getToApplicationName());
-        Assert.assertEquals("TO_SERVICE_TYPE", descriptor.getToServiceType());
-        Assert.assertEquals("TO_AGENT_ID", descriptor.getToAgentName());
-        Assert.assertEquals((Long)1000L, descriptor.getResponseTo());
+        FilterDescriptor.ToNode toNode = descriptor.getToNode();
+        Assert.assertEquals("TO_APPLICATION", toNode.getApplicationName());
+        Assert.assertEquals("TO_SERVICE_TYPE", toNode.getServiceType());
+        Assert.assertEquals("TO_AGENT_ID", toNode.getAgentId());
+        Assert.assertEquals((Long) 1000L, responseTime.getToResponseTime());
 
-        Assert.assertEquals(Boolean.TRUE, descriptor.getIncludeException());
-        Assert.assertEquals("/**", descriptor.getUrlPattern());
+        Assert.assertEquals(Boolean.TRUE, descriptor.getOption().getIncludeException());
+        Assert.assertEquals("/**", descriptor.getOption().getUrlPattern());
     }
 
     private String writeJsonString() throws IOException {
@@ -96,7 +97,7 @@ public class FilterDescriptorTest {
     @Test
     public void convert_array() throws IOException {
 
-        String arrayJson = "["+writeJsonString() + "]";
+        String arrayJson = "[" + writeJsonString() + "]";
 
 
         logger.debug("json:{}", arrayJson);

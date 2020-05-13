@@ -29,7 +29,7 @@ import com.navercorp.pinpoint.web.filter.visitor.SpanVisitor;
 import java.util.List;
 import java.util.Objects;
 
-public class WasToUnknownFilter implements Filter<LinkFilterContext> {
+public class WasToUnknownFilter implements Filter<LinkContext> {
 
     private final Filter<SpanEventBo> spanEventResponseConditionFilter;
     private final URLPatternFilter rpcUrlFilter;
@@ -39,7 +39,7 @@ public class WasToUnknownFilter implements Filter<LinkFilterContext> {
         this.rpcUrlFilter = Objects.requireNonNull(rpcUrlFilter, "rpcUrlFilter");
     }
 
-    public boolean include(LinkFilterContext spanContainer) {
+    public boolean include(LinkContext spanContainer) {
         /*
          * WAS -> UNKNOWN
          */
@@ -56,12 +56,12 @@ public class WasToUnknownFilter implements Filter<LinkFilterContext> {
         });
     }
 
-    private boolean filter(SpanEventBo spanEventBo, LinkFilterContext linkFilterContext) {
+    private boolean filter(SpanEventBo spanEventBo, LinkContext linkContext) {
 
         // check only whether a client exists or not.
-        final ServiceType eventServiceType = linkFilterContext.findServiceType(spanEventBo.getServiceType());
+        final ServiceType eventServiceType = linkContext.findServiceType(spanEventBo.getServiceType());
         if (eventServiceType.isRpcClient() && eventServiceType.isRecordStatistics()) {
-            if (linkFilterContext.isToApplicationName(spanEventBo.getDestinationId())) {
+            if (linkContext.isToApplicationName(spanEventBo.getDestinationId())) {
                 if (spanEventResponseConditionFilter.include(spanEventBo)) {
                     return SpanVisitor.ACCEPT;
                 }
