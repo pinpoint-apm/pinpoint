@@ -26,7 +26,8 @@ import com.navercorp.pinpoint.web.filter.responsetime.ExecutionTypeFilter;
 import com.navercorp.pinpoint.web.filter.responsetime.ResponseTimeFilter;
 import com.navercorp.pinpoint.web.filter.responsetime.ResponseTimeFilterFactory;
 import com.navercorp.pinpoint.web.filter.responsetime.SpanResponseConditionFilter;
-import com.navercorp.pinpoint.web.filter.transaction.SpanContainer;
+import com.navercorp.pinpoint.web.filter.transaction.NodeContext;
+import com.navercorp.pinpoint.web.filter.transaction.SpanContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
@@ -43,14 +44,13 @@ public class ApplicationFilter implements Filter<List<SpanBo>> {
 
     private final List<ServiceType> serviceDescList;
 
-    private final String applicationName;
+    private final FilterDescriptor.SelfNode selfNode;
 
     private final Filter<SpanBo> spanResponseConditionFilter;
 
     private final AgentFilter agentFilter;
 
     private final ServiceTypeRegistryService serviceTypeRegistryService;
-
 
     private final URLPatternFilter acceptURLFilter;
 
@@ -59,86 +59,61 @@ public class ApplicationFilter implements Filter<List<SpanBo>> {
 
         this.serviceTypeRegistryService = Objects.requireNonNull(serviceTypeRegistryService, "serviceTypeRegistryService");
 
-        final String serviceType = filterDescriptor.getServiceType();
-        this.serviceDescList = serviceTypeRegistryService.findDesc(serviceType);
-        if (this.serviceDescList == null) {
-            throw new IllegalArgumentException("serviceDescList not found. serviceType:" + serviceType);
-        }
+        this.selfNode = filterDescriptor.getSelfNode();
 
-        this.applicationName = filterDescriptor.getApplicationName();
+        String applicationName = selfNode.getApplicationName();
         Objects.requireNonNull(applicationName, "applicationName");
 
-        ResponseTimeFilter responseTimeFilter = createResponseTimeFilter(filterDescriptor);
+        final String serviceType = selfNode.getServiceType();
+        this.serviceDescList = findDesc(serviceType, "applicationServiceType");
 
-        ExecutionTypeFilter executionErrorFilter = newExecutionErrorFilter(filterDescriptor);
+        ResponseTimeFilter responseTimeFilter = createResponseTimeFilter(filterDescriptor.getResponseTime());
+
+        ExecutionTypeFilter executionErrorFilter = newExecutionErrorFilter(filterDescriptor.getOption());
         this.spanResponseConditionFilter = new SpanResponseConditionFilter(responseTimeFilter, executionErrorFilter, SpanResponseConditionFilter.ErrorCheck.SPAN_AND_SPANEVENT);
 
 
-        logger.debug("agentFilter:agentId:{}", filterDescriptor.getAgentName());
-        this.agentFilter = AgentFilterFactory.createAgentFilter(filterDescriptor.getAgentName());
+        logger.debug("agentFilter:agentId:{}", selfNode.getAgentId());
+        this.agentFilter = AgentFilterFactory.createAgentFilter(selfNode.getAgentId());
 
-        this.acceptURLFilter = createAcceptUrlFilter(filterDescriptor);
+        this.acceptURLFilter = createAcceptUrlFilter(filterDescriptor.getOption());
         logger.info("acceptURLFilter:{}", acceptURLFilter);
+    }
+
+    private List<ServiceType> findDesc(String serviceType, String typeName) {
+        List<ServiceType> toServiceDescList = serviceTypeRegistryService.findDesc(serviceType);
+        if (toServiceDescList == null) {
+            throw new IllegalArgumentException(typeName + " not found. toServiceDescList:" + serviceType);
+        }
+        return toServiceDescList;
     }
 
     @Override
     public boolean include(List<SpanBo> spanBoList) {
-        SpanContainer node = new SpanContainer(spanBoList, serviceTypeRegistryService);
-        final List<SpanBo> spanList = findApplicationNode(node);
-        if (spanList.isEmpty()) {
-            logger.debug("Find no application node, application name:{}, agent filter:{}", applicationName, agentFilter);
-            return false;
-        }
+        SpanContext spanContext = new SpanContext(spanBoList, serviceTypeRegistryService);
+        NodeContext nodeContext = new NodeContext(spanContext, selfNode.getApplicationName(), serviceDescList, agentFilter);
 
-        if (!acceptURLFilter.accept(spanList)) {
-            return false;
-        }
-
-        return responseFilter(spanList);
+        com.navercorp.pinpoint.web.filter.transaction.ApplicationFilter filter = new com.navercorp.pinpoint.web.filter.transaction.ApplicationFilter(spanResponseConditionFilter, acceptURLFilter);
+        return filter.include(nodeContext);
     }
 
-    private URLPatternFilter createAcceptUrlFilter(FilterDescriptor filterDescriptor) {
-        if (StringUtils.isEmpty(filterDescriptor.getUrlPattern())) {
+    private URLPatternFilter createAcceptUrlFilter(FilterDescriptor.Option option) {
+        if (StringUtils.isEmpty(option.getUrlPattern())) {
             return new BypassURLPatternFilter();
         }
-        return new AcceptUrlFilter(filterDescriptor.getUrlPattern());
+        return new AcceptUrlFilter(option.getUrlPattern());
     }
 
-    private ResponseTimeFilter createResponseTimeFilter(FilterDescriptor filterDescriptor) {
-        final ResponseTimeFilterFactory factory = new ResponseTimeFilterFactory(filterDescriptor.getFromResponseTime(), filterDescriptor.getResponseTo());
+    private ResponseTimeFilter createResponseTimeFilter(FilterDescriptor.ResponseTime responseTime) {
+        final ResponseTimeFilterFactory factory = new ResponseTimeFilterFactory(responseTime.getFromResponseTime(), responseTime.getToResponseTime());
         return factory.createFilter();
     }
 
 
-    private ExecutionTypeFilter newExecutionErrorFilter(FilterDescriptor filterDescriptor) {
-        final Boolean includeException = filterDescriptor.getIncludeException();
-        return DefaultExecutionTypeFilter.newExecutionTypeFilter(includeException);
-    }
-
-    private boolean responseFilter(List<SpanBo> spanList) {
-        for (SpanBo span : spanList) {
-            if (this.spanResponseConditionFilter.include(span)) {
-                return true;
-            }
-        }
-        return false;
+    private ExecutionTypeFilter newExecutionErrorFilter(FilterDescriptor.Option option) {
+        return DefaultExecutionTypeFilter.newExecutionTypeFilter(option.getIncludeException());
     }
 
 
-    private List<SpanBo> findApplicationNode(SpanContainer spanContainer) {
-        return spanContainer.findNode(applicationName, serviceDescList, agentFilter);
-    }
 
-
-    @Override
-    public String toString() {
-        final StringBuilder sb = new StringBuilder("LinkFilter{");
-        sb.append("serviceDescList=").append(serviceDescList);
-        sb.append(", applicationName='").append(applicationName).append('\'');
-        sb.append(", spanResponseConditionFilter=").append(spanResponseConditionFilter);
-        sb.append(", agentFilter=").append(agentFilter);
-        sb.append(", acceptURLFilter=").append(acceptURLFilter);
-        sb.append('}');
-        return sb.toString();
-    }
 }

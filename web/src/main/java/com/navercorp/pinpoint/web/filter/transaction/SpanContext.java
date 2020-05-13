@@ -30,12 +30,12 @@ import java.util.Objects;
 /**
  * @author Woonduk Kang(emeroad)
  */
-public class SpanContainer {
+public class SpanContext {
     private final List<SpanBo> nodeList;
     private final ServiceTypeRegistryService serviceTypeRegistryService;
 
-    public SpanContainer(List<SpanBo> nodeList,
-                         ServiceTypeRegistryService serviceTypeRegistryService) {
+    public SpanContext(List<SpanBo> nodeList,
+                       ServiceTypeRegistryService serviceTypeRegistryService) {
         this.nodeList = Objects.requireNonNull(nodeList, "nodeList");
         this.serviceTypeRegistryService = Objects.requireNonNull(serviceTypeRegistryService, "serviceTypeRegistryService");
     }

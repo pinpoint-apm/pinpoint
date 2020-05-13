@@ -31,27 +31,27 @@ import java.util.Objects;
 /**
  * WAS -> BACKEND (non-WAS)
  */
-public class WasToBackendFilter implements Filter<LinkFilterContext> {
+public class WasToBackendFilter implements Filter<LinkContext> {
     private final Filter<SpanEventBo> spanEventResponseConditionFilter;
 
     public WasToBackendFilter(Filter<SpanEventBo> spanEventResponseConditionFilter) {
         this.spanEventResponseConditionFilter = Objects.requireNonNull(spanEventResponseConditionFilter, "spanEventResponseConditionFilter");
     }
 
-    public boolean include(LinkFilterContext spanContainer) {
-        final List<SpanBo> fromNode = spanContainer.findFromNode();
+    public boolean include(LinkContext linkContext) {
+        final List<SpanBo> fromNode = linkContext.findFromNode();
         SpanAcceptor acceptor = new SpanReader(fromNode);
         return acceptor.accept(new SpanEventVisitor() {
             @Override
             public boolean visit(SpanEventBo spanEventBo) {
-                return filter(spanEventBo, spanContainer);
+                return filter(spanEventBo, linkContext);
             }
         });
     }
 
-    private boolean filter(SpanEventBo event, LinkFilterContext linkFilterContext) {
-        final ServiceType eventServiceType = linkFilterContext.findServiceType(event.getServiceType());
-        if (linkFilterContext.isToNode(event.getDestinationId(), eventServiceType)) {
+    private boolean filter(SpanEventBo event, LinkContext linkContext) {
+        final ServiceType eventServiceType = linkContext.findServiceType(event.getServiceType());
+        if (linkContext.isToApplicationName(event.getDestinationId(), eventServiceType)) {
             if (spanEventResponseConditionFilter.include(event)) {
                 return SpanVisitor.ACCEPT;
             }

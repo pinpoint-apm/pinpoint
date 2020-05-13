@@ -27,7 +27,7 @@ import java.util.Objects;
 /**
  * USER -> WAS
  */
-public class UserToWasFilter implements Filter<LinkFilterContext> {
+public class UserToWasFilter implements Filter<LinkContext> {
     private final Filter<SpanBo> spanResponseConditionFilter;
     private final URLPatternFilter acceptURLFilter;
 
@@ -36,7 +36,7 @@ public class UserToWasFilter implements Filter<LinkFilterContext> {
         this.acceptURLFilter = Objects.requireNonNull(acceptURLFilter, "acceptURLFilter");
     }
 
-    public boolean include(LinkFilterContext spanContainer) {
+    public boolean include(LinkContext spanContainer) {
         final List<SpanBo> toNode = spanContainer.findToNode(acceptURLFilter);
         for (SpanBo span : toNode) {
             if (span.isRoot()) {

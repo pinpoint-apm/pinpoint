@@ -32,7 +32,7 @@ import java.util.Objects;
 /**
  * Queue (virtual) -> WAS
  */
-public class QueueToWasFilter implements Filter<LinkFilterContext> {
+public class QueueToWasFilter implements Filter<LinkContext> {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final Filter<SpanBo> spanResponseConditionFilter;
@@ -43,13 +43,13 @@ public class QueueToWasFilter implements Filter<LinkFilterContext> {
         this.acceptURLFilter = Objects.requireNonNull(acceptURLFilter, "acceptURLFilter");
     }
 
-    public boolean include(LinkFilterContext linkFilterContext) {
-        final List<SpanBo> toNode = linkFilterContext.findToNode(acceptURLFilter);
+    public boolean include(LinkContext linkContext) {
+        final List<SpanBo> toNode = linkContext.findToNode(acceptURLFilter);
         if (logger.isDebugEnabled()) {
             logger.debug("matching toNode spans: {}", toNode);
         }
         for (SpanBo span : toNode) {
-            if (linkFilterContext.isFromApplicationName(span.getAcceptorHost())) {
+            if (linkContext.isFromApplicationName(span.getAcceptorHost())) {
                 if (spanResponseConditionFilter.include(span)) {
                     return Filter.ACCEPT;
                 }
