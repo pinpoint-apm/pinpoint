@@ -31,7 +31,6 @@ public class JavaLangAccessHelperTest {
     public void getJavaLangAccessObject() {
         Object object = JavaLangAccessHelper.getJavaLangAccessObject();
         assertNotNull(object);
-        System.out.println(object);
     }
 
     @Test
