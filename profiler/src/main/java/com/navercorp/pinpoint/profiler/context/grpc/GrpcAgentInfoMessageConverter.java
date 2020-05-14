@@ -61,7 +61,7 @@ public class GrpcAgentInfoMessageConverter implements MessageConverter<Generated
         builder.setPid(agentInformation.getPid());
         builder.setServiceType(agentInformation.getServerType().getCode());
         builder.setVmVersion(agentInformation.getJvmVersion());
-        builder.setAgentVersion(Version.VERSION);
+        builder.setAgentVersion(agentInformation.getAgentVersion());
 
         final ServerMetaData serverMetaData = agentInfo.getServerMetaData();
         if (serverMetaData != null) {

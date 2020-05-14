@@ -18,12 +18,15 @@ package com.navercorp.pinpoint.profiler.context.provider;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
+import com.navercorp.pinpoint.bootstrap.agentdir.AgentBuildInfo;
+import com.navercorp.pinpoint.bootstrap.agentdir.AgentBuildInfoHolder;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.common.util.IdValidateUtils;
 import com.navercorp.pinpoint.bootstrap.util.NetworkUtils;
 import com.navercorp.pinpoint.common.Version;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.JvmUtils;
+import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.common.util.SystemPropertyKey;
 import com.navercorp.pinpoint.profiler.AgentInformation;
 import com.navercorp.pinpoint.profiler.DefaultAgentInformation;
@@ -72,7 +75,18 @@ public class AgentInformationProvider implements Provider<AgentInformation> {
 
         final int pid = RuntimeMXBeanUtils.getPid();
         final String jvmVersion = JvmUtils.getSystemProperty(SystemPropertyKey.JAVA_VERSION);
-        return new DefaultAgentInformation(agentId, applicationName, isContainer, agentStartTime, pid, machineName, hostIp, serverType, jvmVersion, Version.VERSION);
+        return new DefaultAgentInformation(agentId, applicationName, isContainer, agentStartTime, pid, machineName, hostIp, serverType, jvmVersion, getAgentVersion());
+    }
+
+    private String getAgentVersion() {
+        AgentBuildInfo agentBuildInfo = AgentBuildInfoHolder.get();
+        if (agentBuildInfo.isAvailable()) {
+            final String buildCommitId = agentBuildInfo.getGitCommitIdAbbrev();
+            if (!StringUtils.isEmpty(buildCommitId)) {
+                return Version.VERSION + '(' + buildCommitId + ')';
+            }
+        }
+        return Version.VERSION;
     }
 
     private String checkId(String keyName,String id) {

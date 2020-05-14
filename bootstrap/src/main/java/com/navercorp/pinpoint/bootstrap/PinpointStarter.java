@@ -15,6 +15,8 @@
 package com.navercorp.pinpoint.bootstrap;
 
 import com.navercorp.pinpoint.ProductInfo;
+import com.navercorp.pinpoint.bootstrap.agentdir.AgentBuildInfoHolder;
+import com.navercorp.pinpoint.bootstrap.agentdir.AgentBuildInfoResolver;
 import com.navercorp.pinpoint.bootstrap.agentdir.AgentDirectory;
 import com.navercorp.pinpoint.bootstrap.agentdir.Assert;
 import com.navercorp.pinpoint.bootstrap.classloader.PinpointClassLoaderFactory;
@@ -115,6 +117,9 @@ class PinpointStarter {
             saveLogFilePath(agentDirectory);
             savePinpointVersion();
 
+            // parse agent build.info
+            parseAgentBuildInfo(agentDirectory);
+
             // this is the library list that must be loaded
             URL[] urls = resolveLib(agentDirectory);
             final ClassLoader agentClassLoader = createClassLoader("pinpoint.agent", urls, parentClassLoader);
@@ -140,6 +145,11 @@ class PinpointStarter {
             return false;
         }
         return true;
+    }
+
+    private void parseAgentBuildInfo(AgentDirectory agentDirectory) {
+        AgentBuildInfoResolver agentBuildInfoResolver = new AgentBuildInfoResolver(agentDirectory);
+        AgentBuildInfoHolder.set(agentBuildInfoResolver.resolve());
     }
 
     private AgentIds resolveAgentIds() {

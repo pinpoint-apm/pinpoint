@@ -87,7 +87,7 @@ public class MetadataMessageConverter implements MessageConverter<TBase<?, ?>> {
         tAgentInfo.setStartTimestamp(agentInformation.getStartTime());
         tAgentInfo.setServiceType(agentInformation.getServerType().getCode());
         tAgentInfo.setVmVersion(agentInformation.getJvmVersion());
-        tAgentInfo.setAgentVersion(Version.VERSION);
+        tAgentInfo.setAgentVersion(agentInformation.getAgentVersion());
 
         final TServerMetaData tServerMetaData = convertServerMetaData(agentInfo.getServerMetaData());
         tAgentInfo.setServerMetaData(tServerMetaData);
