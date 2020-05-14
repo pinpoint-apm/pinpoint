@@ -21,7 +21,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import org.apache.commons.lang3.StringUtils;
@@ -47,8 +46,7 @@ public class GithubAgentDownloadInfo extends AgentDownloadInfo {
         @Override
         public GithubAgentDownloadInfo deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException, JsonProcessingException {
 
-            ObjectMapper mapper = (ObjectMapper) jp.getCodec();
-            JsonNode jsonNode = mapper.readTree(jp);
+            JsonNode jsonNode = jp.readValueAsTree();
 
             if (!jsonNode.isObject()) {
                 return null;
