@@ -39,13 +39,14 @@ public class Java9ShutdownHookRegister implements ShutdownHookRegister {
     @Override
     public void register(Thread thread) {
         logger.info("register() started.");
-
-        for (int i = 3; i < 10; i++) {
-            try {
-                REGISTER_SHUTDOWN_HOOK_METHOD_HANDLE.invoke(OBJECT, i, true, thread);
-                logger.info("register() completed.");
-                return;
-            } catch (Throwable e) {
+        if (REGISTER_SHUTDOWN_HOOK_METHOD_HANDLE != null) {
+            for (int i = 3; i < 10; i++) {
+                try {
+                    REGISTER_SHUTDOWN_HOOK_METHOD_HANDLE.invoke(OBJECT, i, true, thread);
+                    logger.info("register({}) completed.", i);
+                    return;
+                } catch (Throwable ignore) {
+                }
             }
         }
 
