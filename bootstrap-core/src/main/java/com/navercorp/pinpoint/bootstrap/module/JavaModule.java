@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.bootstrap.module;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -50,4 +51,6 @@ public interface JavaModule {
     boolean canRead(Class<?> targetClazz);
 
     ClassLoader getClassLoader();
+
+    Set<String> getPackages();
 }
