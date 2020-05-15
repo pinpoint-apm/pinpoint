@@ -135,9 +135,15 @@ public class ModuleSupport {
         // for Java9DefineClass
         baseModule.addExports("jdk.internal.misc", agentModule);
         final JvmVersion version = JvmUtils.getVersion();
-        if(version.onOrAfter(JvmVersion.JAVA_12)) {
-            baseModule.addExports("jdk.internal.access", agentModule);
+        if (version.onOrAfter(JvmVersion.JAVA_11)) {
+            final String internalAccessModule = "jdk.internal.access";
+            if (baseModule.getPackages().contains(internalAccessModule)) {
+                baseModule.addExports(internalAccessModule, agentModule);
+            } else {
+                logger.info(internalAccessModule + " package not found");
+            }
         }
+
         agentModule.addReads(baseModule);
 
         final JavaModule instrumentModule = loadModule("java.instrument");

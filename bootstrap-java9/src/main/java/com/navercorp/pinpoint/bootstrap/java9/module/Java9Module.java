@@ -183,6 +183,11 @@ public class Java9Module implements JavaModule {
     }
 
     @Override
+    public Set<String> getPackages() {
+        return module.getPackages();
+    }
+
+    @Override
     public String toString() {
         return module.toString();
     }

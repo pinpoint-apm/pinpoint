@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.bootstrap.module;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -95,6 +96,11 @@ class UnsupportedJavaModule implements JavaModule {
     @Override
     public ClassLoader getClassLoader() {
         throw new UnsupportedOperationException("getClassLoader()");
+    }
+
+    @Override
+    public Set<String> getPackages() {
+        return Collections.emptySet();
     }
 
     @Override
