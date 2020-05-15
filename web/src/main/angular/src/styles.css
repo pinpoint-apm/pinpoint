@@ -45,7 +45,7 @@ caption {
     height: 100%
 }
 
-header {
+.l-header {
     background: var(--header-background-color);
     border-bottom: 1px solid var(--dark-primary-color);
     height: 50px;
