@@ -59,7 +59,7 @@ export class FilterAppTransactionWizardPopupComponent implements OnInit {
             urlPattern: this.urlPattern,
             responseFrom: this.responseTimeRange[0],
             responseTo: this.responseTimeRange[1],
-            transactionResult: this.selectedResultType === 0 ? null : (this.selectedResultType === 2 ? true : false),
+            transactionResult: this.selectedResultType === RESULT_TYPE.SUCCESS_AND_FAIL ? null : !(this.selectedResultType === RESULT_TYPE.SUCCESS_ONLY),
             filterTargetRpcList : []
         });
         this.onClickClose();

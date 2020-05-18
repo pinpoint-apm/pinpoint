@@ -58,7 +58,6 @@ export class FilterAppTransactionWizardPopupContainerComponent implements OnInit
     openFilterMapPage(param: any): void {
         const applicationName = param.filterApplicationName;
         const serviceType = param.filterApplicationServiceTypeName;
-        debugger;
 
         const f = new Filter(
             null,
