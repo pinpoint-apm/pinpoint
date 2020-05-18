@@ -21,6 +21,10 @@
             <groupId>com.navercorp.pinpoint</groupId>
             <artifactId>pinpoint-commons</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.navercorp.pinpoint</groupId>
+            <artifactId>pinpoint-trace-info-export</artifactId>
+        </dependency>
     
         <!-- Logging dependencies -->
         <dependency>
