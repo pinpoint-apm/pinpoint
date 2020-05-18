@@ -22,18 +22,14 @@ import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.plugin.process.ProcessPluginConstants;
 
-import javax.lang.model.SourceVersion;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.List;
 
 public class ProcessExecuteInterceptor implements AroundInterceptor {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
-    public final long PID_INACCESSIBLE = -1L;
 
-    private static final Method pidMethod = getPidMethod();
-    private static Field pidField = null;
+    private static final PidProvider pidProvider = getPidMethod();
+
 
     private TraceContext traceContext;
     private MethodDescriptor descriptor;
@@ -41,6 +37,8 @@ public class ProcessExecuteInterceptor implements AroundInterceptor {
     public ProcessExecuteInterceptor(TraceContext traceContext, MethodDescriptor descriptor) {
         this.traceContext = traceContext;
         this.descriptor = descriptor;
+
+
     }
 
     @Override
@@ -70,64 +68,28 @@ public class ProcessExecuteInterceptor implements AroundInterceptor {
         }
 
         try {
+            Process process = (Process) result;
+
             final SpanEventRecorder recorder = trace.currentSpanEventRecorder();
             recorder.recordException(throwable);
             recorder.recordApi(descriptor);
 
-            List<String> commands = ((ProcessBuilder)target).command();
+            List<String> commands = ((ProcessBuilder) target).command();
             recorder.recordAttribute(ProcessPluginConstants.PROCESS_COMMAND, commands.toString());
 
-            long pid = getPid(result);
-            if(pid != -1L) {
+            Long pid = pidProvider.getPid(process);
+            if (pid != null) {
                 recorder.recordAttribute(ProcessPluginConstants.PROCESS_ID, pid);
-            } else {
-                recorder.recordAttribute(ProcessPluginConstants.PROCESS_ID, "PID not supported");
             }
         } finally {
             trace.traceBlockEnd();
         }
     }
 
-    private static Method getPidMethod() {
-        if (SourceVersion.latest().toString().compareTo("RELEASE_9") >= 0) {
-            /* Use pid() when it is available (JDK 9 or above) */
-            try {
-                return Process.class.getDeclaredMethod("pid");
-            } catch (Exception ignore) {}
-        }
-        return null;
+
+    private static PidProvider getPidMethod() {
+        PidProviderFactory factory = new PidProviderFactory();
+        return factory.newPidProvider();
     }
 
-    private void initializePidField(Object process) {
-        if(process.getClass().getName().equals("java.lang.UNIXProcess")) {
-            /* Assuming it is not on Windows */
-            try {
-                pidField = process.getClass().getDeclaredField("pid");
-                pidField.setAccessible(true);
-            } catch (Exception ignore) {}
-        } else {
-            try {
-                pidField = this.getClass().getDeclaredField("PID_INACCESSIBLE");
-            } catch (Exception ignore) {}
-        }
-    }
-
-    private long getPid(Object process) {
-        if (pidMethod != null) {
-            try {
-                return (Long) pidMethod.invoke(process);
-            } catch (Exception ignore) {}
-        } else {
-            if (pidField == null) {
-                initializePidField(process);
-            }
-
-            try {
-                Object value = pidField.get(process);
-                logger.debug("Pid of the forked process: {}", value);
-                return ((Integer)value).longValue();
-            } catch (Exception ignore) {}
-        }
-        return -1L;
-    }
 }
