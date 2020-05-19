@@ -204,10 +204,8 @@ public class RecordFactory {
     }
 
     private Api getApi(final Align align) {
-
         final AnnotationBo annotation = AnnotationUtils.findAnnotationBo(align.getAnnotationBoList(), AnnotationKey.API_METADATA);
         if (annotation != null) {
-
             final Api api = new Api();
             final ApiMetaDataBo apiMetaData = (ApiMetaDataBo) annotation.getValue();
             String apiInfo = getApiInfo(apiMetaData);
@@ -218,15 +216,12 @@ public class RecordFactory {
                     ApiDescription apiDescription = apiDescriptionParser.parse(api.description);
                     api.setTitle(apiDescription.getSimpleMethodDescription());
                     api.setClassName(apiDescription.getSimpleClassName());
-                } catch (Exception e) {
-                    logger.debug("Failed to api parse. {}", api.description, e);
+                } catch (Exception ignored) {
                 }
             }
             api.setMethodTypeEnum(apiMetaData.getMethodTypeEnum());
             return api;
-
         } else {
-
             final Api api = new Api();
             AnnotationKey apiMetaDataError = getApiMetaDataError(align.getAnnotationBoList());
             api.setTitle(apiMetaDataError.getName());
