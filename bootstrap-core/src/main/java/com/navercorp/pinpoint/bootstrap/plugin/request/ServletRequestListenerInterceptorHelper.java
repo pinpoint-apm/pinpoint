@@ -45,6 +45,8 @@ public class ServletRequestListenerInterceptorHelper<T> {
     private PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
     private final boolean isTrace = logger.isTraceEnabled();
+    private final boolean exportTraceInfo;
+    private static final String CONFIG_KEY_EXPORT_TRACE = "profiler.export.trace.info";
 
     private final TraceContext traceContext;
     private final ServiceType serviceType;
@@ -82,6 +84,7 @@ public class ServletRequestListenerInterceptorHelper<T> {
         this.httpStatusCodeRecorder = new HttpStatusCodeRecorder(traceContext.getProfilerConfig().getHttpStatusCodeErrors());
 
         this.traceContext.cacheApi(SERVLET_SYNC_METHOD_DESCRIPTOR);
+        this.exportTraceInfo = this.traceContext.getProfilerConfig().readBoolean(CONFIG_KEY_EXPORT_TRACE, false);
     }
 
     private <T> Filter<T> defaultFilter(Filter<T> excludeUrlFilter) {
@@ -109,9 +112,11 @@ public class ServletRequestListenerInterceptorHelper<T> {
             return;
         }
 
-        TraceId traceId = trace.getTraceId();
-        if (traceId != null) {
-            TraceInfoExportHelper.exportTraceInfo(request, traceId.getTransactionId(), traceId.getSpanId());
+        if (exportTraceInfo) {
+            TraceId traceId = trace.getTraceId();
+            if (traceId != null) {
+                TraceInfoExportHelper.exportTraceInfo(request, traceId.getTransactionId(), traceId.getSpanId());
+            }
         }
         final SpanEventRecorder recorder = trace.traceBlockBegin();
         recorder.recordServiceType(serviceType);
@@ -151,7 +156,9 @@ public class ServletRequestListenerInterceptorHelper<T> {
         }
 
         // clear trace info which is put in initialized method
-        TraceInfoExportHelper.clearExportedTraceInfo(request);
+        if (exportTraceInfo) {
+            TraceInfoExportHelper.clearExportedTraceInfo(request);
+        }
 
         // TODO STATDISABLE this logic was added to disable statistics tracing
         if (!trace.canSampled()) {
