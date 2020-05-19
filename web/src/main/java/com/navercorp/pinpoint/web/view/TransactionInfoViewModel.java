@@ -248,8 +248,7 @@ public class TransactionInfoViewModel {
             }
             isMethod = record.isMethod();
             hasChild = record.getHasChild();
-            title = StringEscapeUtils.escapeJson(record.getTitle());
-            //arguments = StringEscapeUtils.escapeJson(StringEscapeUtils.escapeHtml4(record.getArguments()));
+            title = record.getTitle();
             arguments = record.getArguments();
             if (record.isMethod()) {
                 executeTime = DateUtils.longToDateStr(record.getBegin(), "HH:mm:ss SSS"); // time format
