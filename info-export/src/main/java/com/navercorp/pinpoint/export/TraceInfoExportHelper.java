@@ -26,7 +26,7 @@ import java.lang.reflect.Method;
 public class TraceInfoExportHelper {
 
     public static final String TRACE_INFO_CLZ_NAME = "com.navercorp.pinpoint.export.DefaultTraceInfo";
-    public static final String TRACE_INFO_HOLDER_CLZ_NAME = "com.navercorp.pinpoint.export.DefaultTraceInfoHolder";
+    public static final String TRACE_INFO_HOLDER_CLZ_NAME = "com.navercorp.pinpoint.export.TraceInfoHolder";
 
     public static void exportTraceInfo(Object appLoadedObject, String transactionId, Long spanId) {
         if (transactionId == null || spanId == null) {
@@ -39,15 +39,15 @@ public class TraceInfoExportHelper {
 
         try {
             Class<?> traceInfoClass = Class.forName(TRACE_INFO_CLZ_NAME, false, appClassLoader);
-            Class<?> traceInfoHolderClass = Class.forName(TRACE_INFO_HOLDER_CLZ_NAME, false, appClassLoader);
             Object traceInfoObj = traceInfoClass.getDeclaredConstructor().newInstance();
             Method setTxIdMethod = traceInfoClass.getDeclaredMethod("setTransactionId", String.class);
             setTxIdMethod.invoke(traceInfoObj, transactionId);
             Method setSpanIdMethod = traceInfoClass.getDeclaredMethod("setSpanId", Long.TYPE);
             setSpanIdMethod.invoke(traceInfoObj, spanId);
-            Object traceInfoHolderObj = traceInfoHolderClass.getDeclaredConstructor().newInstance();
+            Class<?> traceInfoHolderClass = Class.forName(TRACE_INFO_HOLDER_CLZ_NAME, false, appClassLoader);
             Method setTraceInfoMethod = traceInfoHolderClass.getDeclaredMethod("setTraceInfo", TraceInfo.class);
-            setTraceInfoMethod.invoke(traceInfoHolderObj, traceInfoObj);
+            //noinspection JavaReflectionInvocation
+            setTraceInfoMethod.invoke(traceInfoHolderClass, traceInfoObj);
         } catch (Throwable t) {
             //t.printStackTrace();
             //do nothing even no logging for no introduced dependency
@@ -72,9 +72,8 @@ public class TraceInfoExportHelper {
         }
         try {
             Class<?> traceInfoHolderClass = Class.forName(TRACE_INFO_HOLDER_CLZ_NAME, false, appClassLoader);
-            Object traceInfoHolderObj = traceInfoHolderClass.getDeclaredConstructor().newInstance();
             Method setTraceInfoMethod = traceInfoHolderClass.getDeclaredMethod("clearTraceInfo");
-            setTraceInfoMethod.invoke(traceInfoHolderObj);
+            setTraceInfoMethod.invoke(traceInfoHolderClass);
         } catch (Throwable t) {
             //t.printStackTrace();
             //do nothing even no logging for no introduced dependency

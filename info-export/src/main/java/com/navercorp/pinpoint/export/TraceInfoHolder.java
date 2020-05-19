@@ -18,41 +18,46 @@ package com.navercorp.pinpoint.export;
 
 /**
  * @author yjqg6666
+ * @since 2020-05-15 14:25:50
  */
 @SuppressWarnings("unused")
-public interface TraceInfoHolder {
+public class TraceInfoHolder {
 
-    /**
-     * get transaction in trace info
-     *
-     * @return transaction id
-     */
-    String getTransactionId();
+    private static final ThreadLocal<TraceInfo> HOLDER = new ThreadLocal<TraceInfo>();
 
-    /**
-     * get span id in trace info
-     *
-     * @return span id
-     */
-    long getSpanId();
+    public static String getTransactionId() {
+        TraceInfo traceInfo = getTraceInfo();
+        return traceInfo == null ? null : traceInfo.getTransactionId();
+    }
 
-    /**
-     * get TraceInfo in holder
-     *
-     * @return trace info
-     */
-    TraceInfo getTraceInfo();
+    public static long getSpanId() {
+        TraceInfo traceInfo = getTraceInfo();
+        return traceInfo == null ? 0 : traceInfo.getSpanId();
+    }
 
-    /**
-     * set the TraceInfo in holder
-     *
-     * @param traceInfo traceInfo
-     */
-    void setTraceInfo(TraceInfo traceInfo);
+    public static TraceInfo getTraceInfo() {
+        return HOLDER.get();
+    }
 
-    /**
-     * clear TraceInfo in holder, should be called after request served.
-     */
-    void clearTraceInfo();
+    static void setTraceInfo(TraceInfo traceInfo) {
+        if (traceInfo == null) {
+            throw new NullPointerException("TraceInfo can NOT be null");
+        }
+        if (traceInfo.getTransactionId() == null) {
+            throw new NullPointerException("TraceInfo.transactionId can NOT be null");
+        }
+        HOLDER.set(traceInfo);
+    }
 
+    static void setTraceInfo(String txId, long spanId) {
+        HOLDER.set(new DefaultTraceInfo(txId, spanId));
+    }
+
+    public static void clearTraceInfo() {
+        HOLDER.remove();
+    }
+
+    public static String toInfoString() {
+        return "DefaultTraceInfoHolder{data=" + getTraceInfo() + "}";
+    }
 }
