@@ -45,11 +45,8 @@ public class ThreadPlugin implements ProfilerPlugin, MatchableTransformTemplateA
         }
         List<String> threadMatchPackageList = StringUtils.tokenizeToStringList(threadMatchPackages, ",");
         for (String threadMatchPackage : threadMatchPackageList) {
-            String trimmedMatchPackage = threadMatchPackage.trim();
-            if(trimmedMatchPackage.length() > 0) {
-                addRunnableInterceptor(trimmedMatchPackage);
-                addCallableInterceptor(trimmedMatchPackage);
-            }
+            addRunnableInterceptor(threadMatchPackage);
+            addCallableInterceptor(threadMatchPackage);
         }
     }
 
@@ -63,8 +60,7 @@ public class ThreadPlugin implements ProfilerPlugin, MatchableTransformTemplateA
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, protectionDomain, classfileBuffer);
             List<InstrumentMethod> allConstructor = target.getDeclaredConstructors();
-            for (int i = 0; i < allConstructor.size(); i++) {
-                InstrumentMethod instrumentMethod = allConstructor.get(i);
+            for (InstrumentMethod instrumentMethod : allConstructor) {
                 instrumentMethod.addScopedInterceptor(ThreadConstructorInterceptor.class, ThreadConstants.SCOPE_NAME);
             }
             target.addField(AsyncContextAccessor.class);
@@ -86,8 +82,7 @@ public class ThreadPlugin implements ProfilerPlugin, MatchableTransformTemplateA
         public byte[] doInTransform(Instrumentor instrumentor, ClassLoader classLoader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws InstrumentException {
             final InstrumentClass target = instrumentor.getInstrumentClass(classLoader, className, protectionDomain, classfileBuffer);
             List<InstrumentMethod> allConstructor = target.getDeclaredConstructors();
-            for (int i = 0; i < allConstructor.size(); i++) {
-                InstrumentMethod instrumentMethod = allConstructor.get(i);
+            for (InstrumentMethod instrumentMethod : allConstructor) {
                 instrumentMethod.addScopedInterceptor(ThreadConstructorInterceptor.class, ThreadConstants.SCOPE_NAME);
             }
             target.addField(AsyncContextAccessor.class);
