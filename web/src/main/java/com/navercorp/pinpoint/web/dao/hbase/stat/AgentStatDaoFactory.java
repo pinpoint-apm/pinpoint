@@ -28,6 +28,7 @@ import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcDetailedBo;
 import com.navercorp.pinpoint.common.server.bo.stat.ResponseTimeBo;
 import com.navercorp.pinpoint.common.server.bo.stat.TransactionBo;
+import com.navercorp.pinpoint.common.server.bo.stat.TotalThreadCountBo;
 import com.navercorp.pinpoint.web.dao.stat.ActiveTraceDao;
 import com.navercorp.pinpoint.web.dao.stat.AgentStatDao;
 import com.navercorp.pinpoint.web.dao.stat.CpuLoadDao;
@@ -39,6 +40,7 @@ import com.navercorp.pinpoint.web.dao.stat.JvmGcDao;
 import com.navercorp.pinpoint.web.dao.stat.JvmGcDetailedDao;
 import com.navercorp.pinpoint.web.dao.stat.ResponseTimeDao;
 import com.navercorp.pinpoint.web.dao.stat.TransactionDao;
+import com.navercorp.pinpoint.web.dao.stat.TotalThreadCountDao;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -293,5 +295,22 @@ abstract class AgentStatDaoFactory<T extends AgentStatDataPoint, D extends Agent
         public boolean isSingleton() {
             return true;
         }
+    }
+
+    @Repository("totalThreadCountDaoFactory")
+    public static class TotalThreadCountDaoFactory extends AgentStatDaoFactory<TotalThreadCountBo, TotalThreadCountDao> implements FactoryBean<TotalThreadCountDao> {
+
+        @Autowired
+        public void setV2(@Qualifier("totalThreadCountDaoV2") TotalThreadCountDao v2) {this.v2 = v2; }
+        @Override
+        public TotalThreadCountDao getObject() throws Exception {
+            return super.getDao();
+        }
+
+        @Override
+        public Class<?> getObjectType() { return TotalThreadCountDao.class; }
+
+        @Override
+        public boolean isSingleton() { return true; }
     }
 }

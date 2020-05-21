@@ -24,6 +24,7 @@ import com.navercorp.pinpoint.web.service.stat.ApplicationResponseTimeService;
 import com.navercorp.pinpoint.web.service.stat.ApplicationStatChartService;
 import com.navercorp.pinpoint.web.service.stat.ApplicationTransactionService;
 import com.navercorp.pinpoint.web.service.stat.ApplicationFileDescriptorService;
+import com.navercorp.pinpoint.web.service.stat.ApplicationTotalThreadCountService;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.util.TimeWindowSlotCentricSampler;
 import com.navercorp.pinpoint.web.vo.Range;
@@ -152,6 +153,15 @@ public class ApplicationStatController {
         @Autowired
         public ApplicationDirectBufferController(ApplicationDirectBufferService applicationDirectBufferService) {
             super(applicationDirectBufferService);
+        }
+    }
+
+    @Controller
+    @RequestMapping("/getApplicationStat/totalThreadCount/chart")
+    public static class ApplicationTotalThreadCountController extends ApplicationStatController {
+        @Autowired
+        public ApplicationTotalThreadCountController(ApplicationTotalThreadCountService applicationTotalThreadCountService) {
+            super(applicationTotalThreadCountService);
         }
     }
 }

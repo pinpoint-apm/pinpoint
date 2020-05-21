@@ -573,6 +573,17 @@
                             "DESC": "Currently used Mapped buffer memory"
                         }]
                     }]
+                }],
+                "TOTAL_THREAD": [{
+                    "TITLE": "Total Thread",
+                    "DESC": "Shows the agent's total thread count",
+                    "CATEGORY": [{
+                        "TITLE": "Legend",
+                        "ITEMS": [{
+                            "NAME": "Total Thread Count",
+                            "DESC": "Number of total thread"
+                        }]
+                    }]
                 }]
             },
             "APPLICATION_CHART": {
@@ -794,6 +805,23 @@
                         }, {
                             "NAME": "Max",
                             "DESC": "Max memory used by mapped buffer"
+                        }]
+                    }]
+                }],
+                "TOTAL_THREAD":[{
+                    "TITLE": "Total Thread",
+                    "DESC": "Number of total thread used by each agent",
+                    "CATEGORY": [{
+                        "TITLE": "Legend",
+                        "ITEMS": [{
+                            "NAME": "Min",
+                            "DESC": "Minimum of total thread count by each agent"
+                        }, {
+                            "NAME": "Avg",
+                            "DESC": "Average of total thread count by each agent"
+                        }, {
+                            "NAME": "Max",
+                            "DESC": "Maximum of total thread count by each agent"
                         }]
                     }]
                 }]

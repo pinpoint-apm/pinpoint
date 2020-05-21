@@ -7,6 +7,7 @@ import { AgentJVMNonHeapChartContainer } from './agent-jvm-non-heap-chart-contai
 import { AgentCPUChartContainer } from './agent-cpu-chart-container';
 import { AgentTPSChartContainer } from './agent-tps-chart-container';
 import { AgentActiveThreadChartContainer } from './agent-active-thread-chart-container';
+import { AgentTotalThreadCountChartContainer} from "./agent-total-thread-count-chart-container";
 import { AgentResponseTimeChartContainer } from './agent-response-time-chart-container';
 import { AgentOpenFileDescriptorChartContainer } from './agent-open-file-descriptor-chart-container';
 import { AgentDirectBufferCountChartContainer } from './agent-direct-buffer-count-chart-container';
@@ -19,6 +20,7 @@ import { ApplicationJVMCpuChartContainer } from './application-jvm-cpu-chart-con
 import { ApplicationSystemCpuChartContainer } from './application-system-cpu-chart-container';
 import { ApplicationTPSChartContainer } from './application-tps-chart-container';
 import { ApplicationActiveThreadChartContainer } from './application-active-thread-chart-container';
+import { ApplicationTotalThreadCountChartContainer } from "./application-total-thread-count-chart-container";
 import { ApplicationResponseTimeChartContainer } from './application-response-time-chart-container';
 import { ApplicationOpenFileDescriptorChartContainer } from './application-open-file-descriptor-chart-container';
 import { ApplicationDirectBufferCountChartContainer } from './application-direct-buffer-count-chart-container';
@@ -46,6 +48,7 @@ export enum ChartType {
     AGENT_CPU = 'AGENT_CPU',
     AGENT_TPS = 'AGENT_TPS',
     AGENT_ACTIVE_THREAD = 'AGENT_ACTIVE_THREAD',
+    AGENT_TOTAL_THREAD = 'AGENT_TOTAL_THREAD',
     AGENT_RESPONSE_TIME = 'AGENT_RESPONSE_TIME',
     AGENT_OPEN_FILE_DESCRIPTOR = 'AGENT_OPEN_FILE_DESCRIPTOR',
     AGENT_DIRECT_BUFFER_COUNT = 'AGENT_DIRECT_BUFFER_COUNT',
@@ -59,6 +62,7 @@ export enum ChartType {
     APPLICATION_SYSTEM_CPU = 'APPLICATION_SYSTEM_CPU',
     APPLICATION_TPS = 'APPLICATION_TPS',
     APPLICATION_ACTIVE_THREAD = 'APPLICATION_ACTIVE_THREAD',
+    APPLICATION_TOTAL_THREAD = 'APPLICATION_TOTAL_THREAD',
     APPLICATION_RESPONSE_TIME = 'APPLICATION_RESPONSE_TIME',
     APPLICATION_OPEN_FILE_DESCRIPTOR = 'APPLICATION_OPEN_FILE_DESCRIPTOR',
     APPLICATION_DIRECT_BUFFER_COUNT = 'APPLICATION_DIRECT_BUFFER_COUNT',
@@ -81,6 +85,8 @@ export class InspectorChartContainerFactory {
                 return new AgentTPSChartContainer(dataService);
             case ChartType.AGENT_ACTIVE_THREAD:
                 return new AgentActiveThreadChartContainer(dataService);
+            case ChartType.AGENT_TOTAL_THREAD:
+                return new AgentTotalThreadCountChartContainer(dataService);
             case ChartType.AGENT_RESPONSE_TIME:
                 return new AgentResponseTimeChartContainer(dataService);
             case ChartType.AGENT_OPEN_FILE_DESCRIPTOR:
@@ -105,6 +111,8 @@ export class InspectorChartContainerFactory {
                 return new ApplicationTPSChartContainer(dataService);
             case ChartType.APPLICATION_ACTIVE_THREAD:
                 return new ApplicationActiveThreadChartContainer(dataService);
+            case ChartType.APPLICATION_TOTAL_THREAD:
+                return new ApplicationTotalThreadCountChartContainer(dataService);
             case ChartType.APPLICATION_RESPONSE_TIME:
                 return new ApplicationResponseTimeChartContainer(dataService);
             case ChartType.APPLICATION_OPEN_FILE_DESCRIPTOR:

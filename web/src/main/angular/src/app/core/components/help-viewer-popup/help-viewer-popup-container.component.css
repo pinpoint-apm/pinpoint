@@ -48,7 +48,9 @@
 :host(.application_open_file_descriptor),
 :host(.application_direct_buffer_count),
 :host(.application_direct_buffer_memory),
-:host(.application_mapped_buffer_count) {
+:host(.application_mapped_buffer_count),
+:host(.application_total_thread),
+:host(.agent_total_thread){
     width: 405px;
 }
 
