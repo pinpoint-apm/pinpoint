@@ -29,6 +29,7 @@ import com.navercorp.pinpoint.profiler.context.provider.stat.deadlock.DeadlockMe
 import com.navercorp.pinpoint.profiler.context.provider.stat.filedescriptor.FileDescriptorMetricCollectorProvider;
 import com.navercorp.pinpoint.profiler.context.provider.stat.jvmgc.JvmGcMetricCollectorProvider;
 import com.navercorp.pinpoint.profiler.context.provider.stat.response.ResponseTimeMetricCollectorProvider;
+import com.navercorp.pinpoint.profiler.context.provider.stat.totalthread.TotalThreadMetricCollectorProvider;
 import com.navercorp.pinpoint.profiler.context.provider.stat.transaction.TransactionMetricCollectorProvider;
 import com.navercorp.pinpoint.profiler.monitor.collector.AgentStatCollector;
 import com.navercorp.pinpoint.profiler.monitor.collector.AgentStatMetricCollector;
@@ -40,6 +41,7 @@ import com.navercorp.pinpoint.profiler.monitor.metric.datasource.DataSourceMetri
 import com.navercorp.pinpoint.profiler.monitor.metric.deadlock.DeadlockMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.filedescriptor.FileDescriptorMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.response.ResponseTimeValue;
+import com.navercorp.pinpoint.profiler.monitor.metric.totalthread.TotalThreadMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.transaction.TransactionMetricSnapshot;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -92,6 +94,10 @@ public class ThriftStatsModule extends AbstractModule {
         // deadlock
         TypeLiteral<AgentStatMetricCollector<DeadlockMetricSnapshot>> deadlockCollector = new TypeLiteral<AgentStatMetricCollector<DeadlockMetricSnapshot>>() {};
         bind(deadlockCollector).toProvider(DeadlockMetricCollectorProvider.class).in(Scopes.SINGLETON);
+
+        // totalThread
+        TypeLiteral<AgentStatMetricCollector<TotalThreadMetricSnapshot>> totalThreadCountCollector = new TypeLiteral<AgentStatMetricCollector<TotalThreadMetricSnapshot>>() {};
+        bind(totalThreadCountCollector).toProvider(TotalThreadMetricCollectorProvider.class).in(Scopes.SINGLETON);
 
         // stat
         TypeLiteral<AgentStatMetricCollector<AgentStatMetricSnapshot>> statMetric = new TypeLiteral<AgentStatMetricCollector<AgentStatMetricSnapshot>>() {};

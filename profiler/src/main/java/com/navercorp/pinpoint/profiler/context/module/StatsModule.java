@@ -29,6 +29,7 @@ import com.navercorp.pinpoint.profiler.context.provider.stat.jvmgc.DetailedMemor
 import com.navercorp.pinpoint.profiler.context.provider.stat.jvmgc.GarbageCollectorMetricProvider;
 import com.navercorp.pinpoint.profiler.context.provider.stat.jvmgc.MemoryMetricProvider;
 import com.navercorp.pinpoint.profiler.context.provider.stat.response.ResponseTimeMetricProvider;
+import com.navercorp.pinpoint.profiler.context.provider.stat.totalthread.TotalThreadMetricProvider;
 import com.navercorp.pinpoint.profiler.context.provider.stat.transaction.TransactionMetricProvider;
 import com.navercorp.pinpoint.profiler.monitor.metric.activethread.ActiveTraceMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.cpu.CpuLoadMetric;
@@ -41,6 +42,7 @@ import com.navercorp.pinpoint.profiler.monitor.metric.gc.GarbageCollectorMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.memory.DetailedMemoryMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.memory.MemoryMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.response.ResponseTimeMetric;
+import com.navercorp.pinpoint.profiler.monitor.metric.totalthread.TotalThreadMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.transaction.TransactionMetric;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -88,6 +90,9 @@ public class StatsModule extends AbstractModule {
 
         // deadlock
         bind(DeadlockMetric.class).toProvider(DeadlockMetricProvider.class).in(Scopes.SINGLETON);
+
+        // totalThread
+        bind(TotalThreadMetric.class).toProvider(TotalThreadMetricProvider.class).in(Scopes.SINGLETON);
 
     }
 }
