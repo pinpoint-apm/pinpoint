@@ -32,6 +32,7 @@ public enum StatType {
     APP_DATA_SOURCE(7, "Application data Source"),
     APP_FILE_DESCRIPTOR(8, "Application File Descriptor Count"),
     APP_DIRECT_BUFFER(9, "Application Direct Buffer"),
+    APP_TOTAL_THREAD_COUNT(10, "Application Total Thread Count"),
 
     APP_STST_AGGRE(51, "Application stst aggregation"),
     APP_CPU_LOAD_AGGRE(52, "Application Cpu Usage aggregation"),
@@ -42,6 +43,7 @@ public enum StatType {
     APP_DATA_SOURCE_AGGRE(57, "Application Data Source aggregation"),
     APP_FILE_DESCRIPTOR_AGGRE(58, "Application File Descriptor count aggregation"),
     APP_DIRECT_BUFFER_AGGRE(59, "Application Direct Buffer aggregation"),
+    APP_TOTAL_THREAD_COUNT_AGGRE(60, "Application Total Thread count aggregation"),
 
     AGENT_STST_AGGRE(101, "Agent stst aggregation"),
     AGENT_CPU_LOAD_AGGRE(102, "Agent Cpu Usage aggregation"),
@@ -51,7 +53,8 @@ public enum StatType {
     AGENT_RESPONSE_TIME_AGGRE(106, "Agent response time aggregation"),
     AGENT_DATA_SOURCE_AGGRE(107, "Agent data source aggregation"),
     AGENT_FILE_DESCRIPTOR_AGGRE(108, "Agent File Descriptor count aggregation"),
-    AGENT_DIRECT_BUFFER_AGGRE(109, "Agent Direct Buffer aggregation");
+    AGENT_DIRECT_BUFFER_AGGRE(109, "Agent Direct Buffer aggregation"),
+    AGENT_TOTAL_THREAD_AGGRE(110, "Agent Total Thread count aggregation");
 
     public static final int TYPE_CODE_BYTE_LENGTH = 1;
 

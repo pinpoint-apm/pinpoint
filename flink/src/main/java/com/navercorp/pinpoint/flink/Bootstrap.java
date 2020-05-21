@@ -63,6 +63,7 @@ public class Bootstrap {
     private final DataSourceDao dataSourceDao;
     private final FileDescriptorDao fileDescriptorDao;
     private final DirectBufferDao directBufferDao;
+    private final TotalThreadCountDao totalThreadCountDao;
     private final TBaseFlatMapperInterceptor tBaseFlatMapperInterceptor;
     private final StatisticsDaoInterceptor statisticsDaoInterceptor;
     private final ApplicationStatBoWindowInterceptor applicationStatBoWindowInterceptor;
@@ -83,6 +84,7 @@ public class Bootstrap {
         activeTraceDao = applicationContext.getBean("activeTraceDao", ActiveTraceDao.class);
         responseTimeDao = applicationContext.getBean("responseTimeDao", ResponseTimeDao.class);
         dataSourceDao = applicationContext.getBean("dataSourceDao", DataSourceDao.class);
+        totalThreadCountDao = applicationContext.getBean("totalThreadCountDao", TotalThreadCountDao.class);
         fileDescriptorDao = applicationContext.getBean("fileDescriptorDao", FileDescriptorDao.class);
         directBufferDao = applicationContext.getBean("directBufferDao", DirectBufferDao.class);
         tBaseFlatMapperInterceptor = applicationContext.getBean("tBaseFlatMapperInterceptor", TBaseFlatMapperInterceptor.class);
@@ -145,6 +147,8 @@ public class Bootstrap {
     public DirectBufferDao getDirectBufferDao() {
         return directBufferDao;
     }
+
+    public TotalThreadCountDao getTotalThreadCountDao() { return totalThreadCountDao; }
 
     public TBaseFlatMapper getTbaseFlatMapper() {
         return tbaseFlatMapper;

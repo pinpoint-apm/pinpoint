@@ -34,6 +34,7 @@ public class JoinApplicationStatBo implements JoinStatBo {
     private List<JoinDataSourceListBo> joinDataSourceListBoList = Collections.emptyList();
     private List<JoinFileDescriptorBo> joinFileDescriptorBoList = Collections.emptyList();
     private List<JoinDirectBufferBo> joinDirectBufferBoList = Collections.emptyList();
+    private List<JoinTotalThreadCountBo> joinTotalThreadCountBoList = Collections.emptyList();
 
     private long timestamp = Long.MIN_VALUE;
     private StatType statType = StatType.APP_STST;
@@ -52,6 +53,7 @@ public class JoinApplicationStatBo implements JoinStatBo {
         this.joinDataSourceListBoList = joinApplicationStatBo.getJoinDataSourceListBoList();
         this.joinFileDescriptorBoList = joinApplicationStatBo.getJoinFileDescriptorBoList();
         this.joinDirectBufferBoList = joinApplicationStatBo.getJoinDirectBufferBoList();
+        this.joinTotalThreadCountBoList = joinApplicationStatBo.getJoinTotalThreadCountBoList();
 
         this.timestamp= joinApplicationStatBo.getTimestamp();
         this.statType = joinApplicationStatBo.getStatType();
@@ -75,6 +77,7 @@ public class JoinApplicationStatBo implements JoinStatBo {
         newJoinApplicationStatBo.setJoinDataSourceListBoList(JoinDataSourceListBoBytTimeSlice(joinApplicationStatBoList));
         newJoinApplicationStatBo.setJoinFileDescriptorBoList(joinFileDescriptorBoByTimeSlice(joinApplicationStatBoList));
         newJoinApplicationStatBo.setJoinDirectBufferBoList(joinDirectBufferBoByTimeSlice(joinApplicationStatBoList));
+        newJoinApplicationStatBo.setJoinTotalThreadCountBoList(joinTotalThreadCountBoByTimeSlice(joinApplicationStatBoList));
         newJoinApplicationStatBo.setTimestamp(extractMinTimestamp(newJoinApplicationStatBo));
         return newJoinApplicationStatBo;
     }
@@ -127,6 +130,12 @@ public class JoinApplicationStatBo implements JoinStatBo {
         for (JoinDirectBufferBo joinDirectBufferBo : joinApplicationStatBo.getJoinDirectBufferBoList()) {
             if (joinDirectBufferBo.getTimestamp() < minTimestamp) {
                 minTimestamp = joinDirectBufferBo.getTimestamp();
+            }
+        }
+
+        for (JoinTotalThreadCountBo joinTotalThreadCountBo : joinApplicationStatBo.getJoinTotalThreadCountBoList()) {
+            if (joinTotalThreadCountBo.getTimestamp() < minTimestamp) {
+                minTimestamp = joinTotalThreadCountBo.getTimestamp();
             }
         }
 
@@ -355,6 +364,33 @@ public class JoinApplicationStatBo implements JoinStatBo {
         }
         return newJoinDirectBufferBoList;
     }
+
+    private static List<JoinTotalThreadCountBo> joinTotalThreadCountBoByTimeSlice(List<JoinApplicationStatBo> joinApplicationStatBoList) {
+        Map<Long, List<JoinTotalThreadCountBo>> joinTotalThreadCountBoMap = new HashMap<Long, List<JoinTotalThreadCountBo>>();
+
+        for (JoinApplicationStatBo joinApplicationStatBo : joinApplicationStatBoList) {
+            for (JoinTotalThreadCountBo joinTotalThreadCountBo : joinApplicationStatBo.getJoinTotalThreadCountBoList()) {
+                long shiftTimestamp = shiftTimestamp(joinTotalThreadCountBo.getTimestamp());
+                List<JoinTotalThreadCountBo> joinTotalThreadCountBoList = joinTotalThreadCountBoMap.get(shiftTimestamp);
+
+                if (joinTotalThreadCountBoList == null) {
+                    joinTotalThreadCountBoList = new ArrayList<JoinTotalThreadCountBo>();
+                    joinTotalThreadCountBoMap.put(shiftTimestamp, joinTotalThreadCountBoList);
+                }
+
+                joinTotalThreadCountBoList.add(joinTotalThreadCountBo);
+            }
+        }
+
+        List<JoinTotalThreadCountBo> newJoinTotalThreadCountBoList = new ArrayList<JoinTotalThreadCountBo>();
+        for(Map.Entry<Long, List<JoinTotalThreadCountBo>> entry : joinTotalThreadCountBoMap.entrySet()) {
+            List<JoinTotalThreadCountBo> joinTotalThreadCountBoList = entry.getValue();
+            JoinTotalThreadCountBo joinTotalThreadCountBo = JoinTotalThreadCountBo.joinTotalThreadCountBoList(joinTotalThreadCountBoList, entry.getKey());
+            newJoinTotalThreadCountBoList.add(joinTotalThreadCountBo);
+        }
+        return newJoinTotalThreadCountBoList;
+    }
+
     public static JoinApplicationStatBo joinApplicationStatBo(List<JoinApplicationStatBo> joinApplicationStatBoList) {
         JoinApplicationStatBo newJoinApplicationStatBo = new JoinApplicationStatBo();
 
@@ -471,6 +507,12 @@ public class JoinApplicationStatBo implements JoinStatBo {
         this.joinDirectBufferBoList = joinDirectBufferBoList;
     }
 
+    public List<JoinTotalThreadCountBo> getJoinTotalThreadCountBoList() { return joinTotalThreadCountBoList; }
+
+    public void setJoinTotalThreadCountBoList(List<JoinTotalThreadCountBo> joinTotalThreadCountBoList) {
+        this.joinTotalThreadCountBoList = joinTotalThreadCountBoList;
+    }
+
     public static List<JoinApplicationStatBo> createJoinApplicationStatBo(String applicationId, JoinAgentStatBo joinAgentStatBo, long rangeTime) {
         List<JoinApplicationStatBo> joinApplicationStatBoList = new ArrayList<JoinApplicationStatBo>();
         List<JoinAgentStatBo> joinAgentStatBoList = splitJoinAgentStatBo(applicationId, joinAgentStatBo, rangeTime);
@@ -487,6 +529,7 @@ public class JoinApplicationStatBo implements JoinStatBo {
             joinApplicationStatBo.setJoinDataSourceListBoList(sliceJoinAgentStatBo.getJoinDataSourceListBoList());
             joinApplicationStatBo.setJoinFileDescriptorBoList(sliceJoinAgentStatBo.getJoinFileDescriptorBoList());
             joinApplicationStatBo.setJoinDirectBufferBoList(sliceJoinAgentStatBo.getJoinDirectBufferBoList());
+            joinApplicationStatBo.setJoinTotalThreadCountBoList(sliceJoinAgentStatBo.getJoinTotalThreadCountBoList());
             joinApplicationStatBoList.add(joinApplicationStatBo);
         }
 
@@ -503,6 +546,7 @@ public class JoinApplicationStatBo implements JoinStatBo {
         sliceJoinDataSourceListBo(applicationId, joinAgentStatBo, rangeTime, joinAgentStatBoMap);
         sliceJoinFileDescriptorBo(applicationId, joinAgentStatBo, rangeTime, joinAgentStatBoMap);
         sliceJoinDirectBufferBo(applicationId, joinAgentStatBo, rangeTime, joinAgentStatBoMap);
+        sliceJoinTotalThreadCountBo(applicationId, joinAgentStatBo, rangeTime, joinAgentStatBoMap);
         return new ArrayList<JoinAgentStatBo>(joinAgentStatBoMap.values());
     }
 
@@ -682,6 +726,29 @@ public class JoinApplicationStatBo implements JoinStatBo {
             sliceJoinAgentStatBo.setJoinDirectBufferBoList(entry.getValue());
         }
     }
+
+    private static void sliceJoinTotalThreadCountBo(String applicationId, JoinAgentStatBo joinAgentStatBo, long rangeTime, Map<Long, JoinAgentStatBo> joinAgentStatBoMap) {
+        Map<Long, List<JoinTotalThreadCountBo>> joinTotalThreadCountBoMap = new HashMap<Long, List<JoinTotalThreadCountBo>>();
+
+        for (JoinTotalThreadCountBo joinTotalThreadCountBo : joinAgentStatBo.getJoinTotalThreadCountBoList()) {
+            long timestamp = joinTotalThreadCountBo.getTimestamp();
+            long time = timestamp - (timestamp % rangeTime);
+            List<JoinTotalThreadCountBo> joinTotalThreadCountBoList = joinTotalThreadCountBoMap.get(time);
+
+            if (joinTotalThreadCountBoList == null) {
+                joinTotalThreadCountBoList = new ArrayList<JoinTotalThreadCountBo>();
+                joinTotalThreadCountBoMap.put(time, joinTotalThreadCountBoList);
+            }
+
+            joinTotalThreadCountBoList.add(joinTotalThreadCountBo);
+        }
+        for (Map.Entry<Long, List<JoinTotalThreadCountBo>> entry : joinTotalThreadCountBoMap.entrySet()) {
+            long time = entry.getKey();
+            JoinAgentStatBo sliceJoinAgentStatBo = getORCreateJoinAgentStatBo(applicationId, joinAgentStatBoMap, time);
+            sliceJoinAgentStatBo.setJoinTotalThreadCountBoList(entry.getValue());
+        }
+    }
+
     private static JoinAgentStatBo getORCreateJoinAgentStatBo(String applicationId, Map<Long, JoinAgentStatBo> joinAgentStatBoMap, long time) {
         JoinAgentStatBo joinAgentStatBo = joinAgentStatBoMap.get(time);
 
@@ -708,6 +775,7 @@ public class JoinApplicationStatBo implements JoinStatBo {
             ", joinDataSourceListBoList=" + joinDataSourceListBoList +
             ", joinFileDescriptorBoList=" + joinFileDescriptorBoList +
             ", joinDirectBufferBoList=" + joinDirectBufferBoList +
+            ", joinTotalThreadCountBoList=" + joinTotalThreadCountBoList +
             ", statType=" + statType +
             '}';
     }

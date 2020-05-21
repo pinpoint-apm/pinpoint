@@ -63,6 +63,9 @@
     <bean id="joinDirectBufferCodec" class="com.navercorp.pinpoint.common.server.bo.codec.stat.join.DirectBufferCodec"/>
     <bean id="directBufferEncoder" class="com.navercorp.pinpoint.common.server.bo.codec.stat.join.DirectBufferEncoder"/>
     <bean id="directBufferSerializer" class="com.navercorp.pinpoint.common.server.bo.serializer.stat.join.DirectBufferSerializer"/>
+    <bean id="joinTotalThreadCountCodec" class="com.navercorp.pinpoint.common.server.bo.codec.stat.join.TotalThreadCountCodec"/>
+    <bean id="totalThreadCountEncoder" class="com.navercorp.pinpoint.common.server.bo.codec.stat.join.TotalThreadCountEncoder"/>
+    <bean id="totalThreadCountSerializer" class="com.navercorp.pinpoint.common.server.bo.serializer.stat.join.TotalThreadCountSerializer"/>
 
     <bean id="joinAgentStatBoMapper" class="com.navercorp.pinpoint.flink.mapper.thrift.stat.JoinAgentStatBoMapper"/>
 
@@ -121,6 +124,13 @@
         <constructor-arg index="0" ref="hbaseTemplate"/>
         <constructor-arg index="1" ref="applicationStatHbaseOperationFactory"/>
         <constructor-arg index="2" ref="directBufferSerializer"/>
+        <constructor-arg index="3" ref="tableNameProvider"/>
+    </bean>
+
+    <bean id="totalThreadCountDao" class="com.navercorp.pinpoint.flink.dao.hbase.TotalThreadCountDao">
+        <constructor-arg index="0" ref="hbaseTemplate"/>
+        <constructor-arg index="1" ref="applicationStatHbaseOperationFactory"/>
+        <constructor-arg index="2" ref="totalThreadCountSerializer"/>
         <constructor-arg index="3" ref="tableNameProvider"/>
     </bean>
 
