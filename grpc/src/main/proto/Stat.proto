@@ -73,6 +73,7 @@ message PAgentStat {
     PFileDescriptor fileDescriptor = 10;
     PDirectBuffer directBuffer = 11;
     string metadata = 12;
+    PTotalThread totalThread = 13;
 }
 
 message PAgentStatBatch {
@@ -157,4 +158,8 @@ message PDirectBuffer {
     int64 directMemoryUsed = 2;
     int64 mappedCount = 3;
     int64 mappedMemoryUsed = 4;
+}
+
+message PTotalThread {
+    int64 totalThreadCount = 1;
 }

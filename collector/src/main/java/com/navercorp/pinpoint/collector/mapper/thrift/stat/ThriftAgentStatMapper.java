@@ -29,6 +29,7 @@ import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcDetailedBo;
 import com.navercorp.pinpoint.common.server.bo.stat.ResponseTimeBo;
 import com.navercorp.pinpoint.common.server.bo.stat.TransactionBo;
+import com.navercorp.pinpoint.common.server.bo.stat.TotalThreadCountBo;
 import com.navercorp.pinpoint.thrift.dto.TAgentStat;
 import com.navercorp.pinpoint.thrift.dto.TDataSource;
 import com.navercorp.pinpoint.thrift.dto.TDataSourceList;
@@ -66,11 +67,14 @@ public class ThriftAgentStatMapper {
 
     private final ThriftDirectBufferBoMapper directBufferBoMapper;
 
+    private final ThriftTotalThreadCountBoMapper totalThreadCountBoMapper;
+
     public ThriftAgentStatMapper(ThriftJvmGcBoMapper jvmGcBoMapper, ThriftJvmGcDetailedBoMapper jvmGcDetailedBoMapper,
                                  ThriftCpuLoadBoMapper cpuLoadBoMapper, ThriftTransactionBoMapper transactionBoMapper,
                                  ThriftActiveTraceBoMapper activeTraceBoMapper, ThriftDataSourceBoMapper dataSourceBoMapper,
                                  ThriftResponseTimeBoMapper responseTimeBoMapper, ThriftDeadlockThreadCountBoMapper deadlockThreadCountBoMapper,
-                                 ThriftFileDescriptorBoMapper fileDescriptorBoMapper, ThriftDirectBufferBoMapper directBufferBoMapper) {
+                                 ThriftFileDescriptorBoMapper fileDescriptorBoMapper, ThriftDirectBufferBoMapper directBufferBoMapper,
+                                 ThriftTotalThreadCountBoMapper totalThreadCountBoMapper) {
         this.jvmGcBoMapper = Objects.requireNonNull(jvmGcBoMapper, "jvmGcBoMapper");
         this.jvmGcDetailedBoMapper = Objects.requireNonNull(jvmGcDetailedBoMapper, "jvmGcDetailedBoMapper");
         this.cpuLoadBoMapper = Objects.requireNonNull(cpuLoadBoMapper, "cpuLoadBoMapper");
@@ -81,6 +85,7 @@ public class ThriftAgentStatMapper {
         this.deadlockThreadCountBoMapper = Objects.requireNonNull(deadlockThreadCountBoMapper, "deadlockThreadCountBoMapper");
         this.fileDescriptorBoMapper = Objects.requireNonNull(fileDescriptorBoMapper, "fileDescriptorBoMapper");
         this.directBufferBoMapper = Objects.requireNonNull(directBufferBoMapper, "directBufferBoMapper");
+        this.totalThreadCountBoMapper = Objects.requireNonNull(totalThreadCountBoMapper, "totalThreadCountBoMapper");
     }
 
     public AgentStatBo map(TAgentStat tAgentStat) {
@@ -163,6 +168,10 @@ public class ThriftAgentStatMapper {
             agentStatBo.setDirectBufferBos(asList(directBufferBo));
         }
 
+        // TODO: totalThreadCount
+        if (tAgentStat.isSetTotalThreadCount()) {
+            TotalThreadCountBo totalThreadCountBo = this.totalThreadCountBoMapper.map(tAgentStat.getTotalThreadCount());
+        }
         return agentStatBo;
     }
 

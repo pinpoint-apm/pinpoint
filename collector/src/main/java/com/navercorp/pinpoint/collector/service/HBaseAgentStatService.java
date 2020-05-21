@@ -27,6 +27,7 @@ import com.navercorp.pinpoint.common.server.bo.stat.JvmGcBo;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcDetailedBo;
 import com.navercorp.pinpoint.common.server.bo.stat.ResponseTimeBo;
 import com.navercorp.pinpoint.common.server.bo.stat.TransactionBo;
+import com.navercorp.pinpoint.common.server.bo.stat.TotalThreadCountBo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,6 +63,8 @@ public class HBaseAgentStatService implements AgentStatService {
 
     private final AgentStatDaoV2<DirectBufferBo> directBufferDao;
 
+    private final AgentStatDaoV2<TotalThreadCountBo> totalThreadCountDao;
+
     public HBaseAgentStatService(AgentStatDaoV2<JvmGcBo> jvmGcDao,
                                  AgentStatDaoV2<JvmGcDetailedBo> jvmGcDetailedDao,
                                  AgentStatDaoV2<CpuLoadBo> cpuLoadDao,
@@ -71,7 +74,8 @@ public class HBaseAgentStatService implements AgentStatService {
                                  AgentStatDaoV2<ResponseTimeBo> responseTimeDao,
                                  AgentStatDaoV2<DeadlockThreadCountBo> deadlockDao,
                                  AgentStatDaoV2<FileDescriptorBo> fileDescriptorDao,
-                                 AgentStatDaoV2<DirectBufferBo> directBufferDao) {
+                                 AgentStatDaoV2<DirectBufferBo> directBufferDao,
+                                 AgentStatDaoV2<TotalThreadCountBo> totalThreadCountDao) {
         this.jvmGcDao = Objects.requireNonNull(jvmGcDao, "jvmGcDao");
         this.jvmGcDetailedDao = Objects.requireNonNull(jvmGcDetailedDao, "jvmGcDetailedDao");
         this.cpuLoadDao = Objects.requireNonNull(cpuLoadDao, "cpuLoadDao");
@@ -82,6 +86,7 @@ public class HBaseAgentStatService implements AgentStatService {
         this.deadlockDao = Objects.requireNonNull(deadlockDao, "deadlockDao");
         this.fileDescriptorDao = Objects.requireNonNull(fileDescriptorDao, "fileDescriptorDao");
         this.directBufferDao = Objects.requireNonNull(directBufferDao, "directBufferDao");
+        this.totalThreadCountDao = Objects.requireNonNull(totalThreadCountDao, "totalThreadCountDao");
     }
 
     @Override
@@ -98,6 +103,7 @@ public class HBaseAgentStatService implements AgentStatService {
             this.deadlockDao.insert(agentId, agentStatBo.getDeadlockThreadCountBos());
             this.fileDescriptorDao.insert(agentId, agentStatBo.getFileDescriptorBos());
             this.directBufferDao.insert(agentId, agentStatBo.getDirectBufferBos());
+            this.totalThreadCountDao.insert(agentId, agentStatBo.getTotalThreadCountBos());
         } catch (Exception e) {
             logger.warn("Error inserting AgentStatBo. Caused:{}", e.getMessage(), e);
         }
