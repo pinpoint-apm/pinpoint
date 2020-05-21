@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.collector.config;
 
+import com.navercorp.pinpoint.common.server.profile.Log4j2ProfileProperty;
 import com.navercorp.pinpoint.common.server.profile.ProfileApplicationInitializer;
 import com.navercorp.pinpoint.common.util.SystemProperty;
 import org.springframework.web.WebApplicationInitializer;
@@ -37,5 +38,15 @@ public class PinpointCollectorApplicationInitializer implements WebApplicationIn
         String defaultProfile = servletContext.getInitParameter(ProfileApplicationInitializer.PINPOINT_DEFAULT_ACTIVE_PROFILE_KEY);
         ProfileApplicationInitializer initializer = new ProfileApplicationInitializer(getClass().getSimpleName(), SystemProperty.INSTANCE, defaultProfile);
         initializer.onStartup();
+
+        // log4j2 initialize
+        final String log4jConfigurationProfile = servletContext.getInitParameter(Log4j2ProfileProperty.LOG4J2_CONFIGURATION_PROFILE);
+        if (log4jConfigurationProfile != null) {
+            Log4j2ProfileProperty log4J2ProfileProperty = new Log4j2ProfileProperty();
+            // Log4jServletContextListener does not support placeHolder
+            String log4jConfiguration = log4J2ProfileProperty.getLog4jProfileConfiguration(log4jConfigurationProfile);
+            servletContext.setInitParameter(Log4j2ProfileProperty.LOG4J2_CONFIGURATION, log4jConfiguration);
+        }
     }
+
 }
