@@ -37,6 +37,7 @@ public class JoinAgentStatBo implements JoinStatBo {
     private List<JoinDataSourceListBo> joinDataSourceListBoList = Collections.emptyList();
     private List<JoinFileDescriptorBo> joinFileDescriptorBoList = Collections.emptyList();
     private List<JoinDirectBufferBo> joinDirectBufferBoList = Collections.emptyList();
+    private List<JoinTotalThreadCountBo> joinTotalThreadCountBoList = Collections.emptyList();
 
     protected JoinAgentStatBo(JoinAgentStatBo joinAgentStatBo) {
         if (joinAgentStatBo == null) {
@@ -54,6 +55,7 @@ public class JoinAgentStatBo implements JoinStatBo {
         this.joinDataSourceListBoList = joinAgentStatBo.getJoinDataSourceListBoList();
         this.joinFileDescriptorBoList = joinAgentStatBo.getJoinFileDescriptorBoList();
         this.joinDirectBufferBoList = joinAgentStatBo.getJoinDirectBufferBoList();
+        this.joinTotalThreadCountBoList = joinAgentStatBo.getJoinTotalThreadCountBoList();
     }
 
     public JoinAgentStatBo() {
@@ -109,6 +111,12 @@ public class JoinAgentStatBo implements JoinStatBo {
 
     public void setJoinDirectBufferBoList(List<JoinDirectBufferBo> joinDirectBufferBoList) {
         this.joinDirectBufferBoList = joinDirectBufferBoList;
+    }
+
+    public List<JoinTotalThreadCountBo> getJoinTotalThreadCountBoList() { return joinTotalThreadCountBoList; }
+
+    public void setJoinTotalThreadCountBoList(List<JoinTotalThreadCountBo> joinTotalThreadCountBoList) {
+        this.joinTotalThreadCountBoList = joinTotalThreadCountBoList;
     }
 
     public long getAgentStartTimestamp() {
@@ -184,6 +192,7 @@ public class JoinAgentStatBo implements JoinStatBo {
             ", joinDataSourceListBoList=" + joinDataSourceListBoList +
             ", joinFileDescriptorBoList=" + joinFileDescriptorBoList +
             ", joinDirectBufferBoList=" + joinDirectBufferBoList +
+            ", joinTotalThreadCOuntBoList=" + joinTotalThreadCountBoList +
             '}';
     }
 }
