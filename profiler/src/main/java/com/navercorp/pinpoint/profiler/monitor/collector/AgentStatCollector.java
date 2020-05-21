@@ -29,6 +29,7 @@ import com.navercorp.pinpoint.profiler.monitor.metric.datasource.DataSourceMetri
 import com.navercorp.pinpoint.profiler.monitor.metric.deadlock.DeadlockMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.filedescriptor.FileDescriptorMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.response.ResponseTimeValue;
+import com.navercorp.pinpoint.profiler.monitor.metric.totalthread.TotalThreadMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.transaction.TransactionMetricSnapshot;
 
 /**
@@ -47,6 +48,7 @@ public class AgentStatCollector implements AgentStatMetricCollector<AgentStatMet
     private final AgentStatMetricCollector<DeadlockMetricSnapshot> deadlockMetricCollector;
     private final AgentStatMetricCollector<FileDescriptorMetricSnapshot> fileDescriptorMetricCollector;
     private final AgentStatMetricCollector<BufferMetricSnapshot> bufferMetricCollector;
+    private final AgentStatMetricCollector<TotalThreadMetricSnapshot> totalThreadMetricCollector;
 
     @Inject
     public AgentStatCollector(
@@ -60,7 +62,8 @@ public class AgentStatCollector implements AgentStatMetricCollector<AgentStatMet
             AgentStatMetricCollector<ResponseTimeValue> responseTimeMetricCollector,
             AgentStatMetricCollector<DeadlockMetricSnapshot> deadlockMetricCollector,
             AgentStatMetricCollector<FileDescriptorMetricSnapshot> fileDescriptorMetricCollector,
-            AgentStatMetricCollector<BufferMetricSnapshot> bufferMetricCollector) {
+            AgentStatMetricCollector<BufferMetricSnapshot> bufferMetricCollector,
+            AgentStatMetricCollector<TotalThreadMetricSnapshot> totalThreadMetricCollector) {
         this.agentId = Assert.requireNonNull(agentId, "agentId");
         this.agentStartTimestamp = agentStartTimestamp;
         this.jvmGcMetricCollector = Assert.requireNonNull(jvmGcMetricCollector, "jvmGcMetricCollector");
@@ -72,6 +75,7 @@ public class AgentStatCollector implements AgentStatMetricCollector<AgentStatMet
         this.deadlockMetricCollector = Assert.requireNonNull(deadlockMetricCollector, "deadlockMetricCollector");
         this.fileDescriptorMetricCollector = Assert.requireNonNull(fileDescriptorMetricCollector, "fileDescriptorMetricCollector");
         this.bufferMetricCollector = Assert.requireNonNull(bufferMetricCollector, "bufferMetricCollector");
+        this.totalThreadMetricCollector = Assert.requireNonNull(totalThreadMetricCollector, "totalThreadMetricCollector");
     }
 
     @Override
@@ -88,6 +92,7 @@ public class AgentStatCollector implements AgentStatMetricCollector<AgentStatMet
         agentStat.setDeadlock(deadlockMetricCollector.collect());
         agentStat.setFileDescriptor(fileDescriptorMetricCollector.collect());
         agentStat.setDirectBuffer(bufferMetricCollector.collect());
+        agentStat.setTotalThread(totalThreadMetricCollector.collect());
 
         return agentStat;
     }
@@ -106,6 +111,7 @@ public class AgentStatCollector implements AgentStatMetricCollector<AgentStatMet
         sb.append(", deadlockMetricCollector=").append(deadlockMetricCollector);
         sb.append(", fileDescriptorMetricCollector=").append(fileDescriptorMetricCollector);
         sb.append(", bufferMetricCollector=").append(bufferMetricCollector);
+        sb.append(", totalThreadMetricCollector=").append(totalThreadMetricCollector);
         sb.append('}');
         return sb.toString();
     }

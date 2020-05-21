@@ -32,6 +32,7 @@ import com.navercorp.pinpoint.grpc.trace.PJvmGcDetailed;
 import com.navercorp.pinpoint.grpc.trace.PJvmGcType;
 import com.navercorp.pinpoint.grpc.trace.PResponseTime;
 import com.navercorp.pinpoint.grpc.trace.PThreadDump;
+import com.navercorp.pinpoint.grpc.trace.PTotalThread;
 import com.navercorp.pinpoint.grpc.trace.PTransaction;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHistogram;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHistogramUtils;
@@ -48,6 +49,7 @@ import com.navercorp.pinpoint.profiler.monitor.metric.deadlock.DeadlockMetricSna
 import com.navercorp.pinpoint.profiler.monitor.metric.deadlock.ThreadDumpMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.filedescriptor.FileDescriptorMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.response.ResponseTimeValue;
+import com.navercorp.pinpoint.profiler.monitor.metric.totalthread.TotalThreadMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.transaction.TransactionMetricSnapshot;
 
 import java.util.List;
@@ -136,6 +138,12 @@ public class GrpcStatMessageConverter implements MessageConverter<GeneratedMessa
         if (bufferMetricSnapshot != null) {
             final PDirectBuffer directBuffer = convertDirectBuffer(bufferMetricSnapshot);
             agentStatBuilder.setDirectBuffer(directBuffer);
+        }
+
+        final TotalThreadMetricSnapshot totalThreadMetricSnapshot = agentStatMetricSnapshot.getTotalThread();
+        if (totalThreadMetricSnapshot != null) {
+            final PTotalThread totalThread =convertTotalThread(totalThreadMetricSnapshot);
+            agentStatBuilder.setTotalThread(totalThread);
         }
         return agentStatBuilder.build();
     }
@@ -257,5 +265,11 @@ public class GrpcStatMessageConverter implements MessageConverter<GeneratedMessa
         directBufferBuilder.setMappedCount(directBufferCollectData.getMappedCount());
         directBufferBuilder.setMappedMemoryUsed(directBufferCollectData.getMappedMemoryUsed());
         return directBufferBuilder.build();
+    }
+
+    private PTotalThread convertTotalThread(TotalThreadMetricSnapshot totalThreadCountData) {
+        final PTotalThread.Builder totalThreadBuilder = PTotalThread.newBuilder();
+        totalThreadBuilder.setTotalThreadCount(totalThreadCountData.getTotalThreadCount());
+        return totalThreadBuilder.build();
     }
 }
