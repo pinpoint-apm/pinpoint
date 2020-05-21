@@ -3,9 +3,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -22,6 +22,8 @@ import com.navercorp.pinpoint.bootstrap.interceptor.annotation.NoCache;
 import com.navercorp.pinpoint.bootstrap.interceptor.scope.InterceptorScope;
 import com.navercorp.pinpoint.bootstrap.plugin.RequestRecorderFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.monitor.DataSourceMonitorRegistry;
+import com.navercorp.pinpoint.bootstrap.plugin.monitor.metric.CustomMetricRegistry;
+import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.exception.PinpointException;
 import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
 import com.navercorp.pinpoint.profiler.util.TypeUtils;
@@ -30,28 +32,30 @@ import java.lang.annotation.Annotation;
 
 /**
  * @author Jongho Moon
- *
  */
 public class InterceptorArgumentProvider implements ArgumentProvider {
     private final DataSourceMonitorRegistry dataSourceMonitorRegistry;
+    private final CustomMetricRegistry customMetricRegistry;
     private final ApiMetaDataService apiMetaDataService;
     private final InterceptorScope interceptorScope;
     private final InstrumentClass targetClass;
     private final InstrumentMethod targetMethod;
     private final RequestRecorderFactory requestRecorderFactory;
 
-    public InterceptorArgumentProvider(DataSourceMonitorRegistry dataSourceMonitorRegistry, ApiMetaDataService apiMetaDataService, RequestRecorderFactory requestRecorderFactory, InstrumentClass targetClass) {
-        this(dataSourceMonitorRegistry, apiMetaDataService, requestRecorderFactory, null, targetClass, null);
+    public InterceptorArgumentProvider(DataSourceMonitorRegistry dataSourceMonitorRegistry, CustomMetricRegistry customMetricRegistry, ApiMetaDataService apiMetaDataService, RequestRecorderFactory requestRecorderFactory, InstrumentClass targetClass) {
+        this(dataSourceMonitorRegistry, customMetricRegistry, apiMetaDataService, requestRecorderFactory, null, targetClass, null);
     }
-    
-    public InterceptorArgumentProvider(DataSourceMonitorRegistry dataSourceMonitorRegistry, ApiMetaDataService apiMetaDataService, RequestRecorderFactory requestRecorderFactory, InterceptorScope interceptorScope, InstrumentClass targetClass, InstrumentMethod targetMethod) {
+
+    public InterceptorArgumentProvider(DataSourceMonitorRegistry dataSourceMonitorRegistry, CustomMetricRegistry customMetricRegistry, ApiMetaDataService apiMetaDataService, RequestRecorderFactory requestRecorderFactory, InterceptorScope interceptorScope, InstrumentClass targetClass, InstrumentMethod targetMethod) {
         if (dataSourceMonitorRegistry == null) {
             throw new NullPointerException("dataSourceMonitorRegistry");
         }
+
         if (apiMetaDataService == null) {
             throw new NullPointerException("apiMetaDataService");
         }
         this.dataSourceMonitorRegistry = dataSourceMonitorRegistry;
+        this.customMetricRegistry = Assert.requireNonNull(customMetricRegistry, "customMetricRegistry");
         this.apiMetaDataService = apiMetaDataService;
         this.requestRecorderFactory = requestRecorderFactory;
         this.interceptorScope = interceptorScope;
@@ -66,13 +70,13 @@ public class InterceptorArgumentProvider implements ArgumentProvider {
         } else if (type == MethodDescriptor.class) {
             MethodDescriptor descriptor = targetMethod.getDescriptor();
             cacheApiIfAnnotationNotPresent(annotations, descriptor);
-            
+
             return Option.withValue(descriptor);
         } else if (type == InstrumentMethod.class) {
             return Option.withValue(targetMethod);
         } else if (type == InterceptorScope.class) {
             Name annotation = TypeUtils.findAnnotation(annotations, Name.class);
-            
+
             if (annotation == null) {
                 if (interceptorScope == null) {
                     throw new PinpointException("Scope parameter is not annotated with @Name and the target class is not associated with any Scope");
@@ -84,10 +88,12 @@ public class InterceptorArgumentProvider implements ArgumentProvider {
             }
         } else if (type == DataSourceMonitorRegistry.class) {
             return Option.withValue(dataSourceMonitorRegistry);
-        } else if(type == RequestRecorderFactory.class) {
+        } else if (type == RequestRecorderFactory.class) {
             return Option.withValue(requestRecorderFactory);
+        } else if (type == CustomMetricRegistry.class) {
+            return Option.withValue(customMetricRegistry);
         }
-        
+
         return Option.empty();
     }
 

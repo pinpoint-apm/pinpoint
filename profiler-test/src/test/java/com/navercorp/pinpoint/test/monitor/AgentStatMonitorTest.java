@@ -17,6 +17,7 @@
 
 package com.navercorp.pinpoint.test.monitor;
 
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.profiler.monitor.AgentStatMonitor;
 import com.navercorp.pinpoint.profiler.monitor.DefaultAgentStatMonitor;
 import com.navercorp.pinpoint.profiler.monitor.collector.AgentStatMetricCollector;
@@ -26,11 +27,11 @@ import com.navercorp.pinpoint.profiler.sender.DataSender;
 import com.navercorp.pinpoint.test.ListenableDataSender;
 import com.navercorp.pinpoint.test.TBaseRecorder;
 import com.navercorp.pinpoint.test.TBaseRecorderAdaptor;
-import com.navercorp.pinpoint.thrift.dto.TAgentStat;
-import com.navercorp.pinpoint.thrift.dto.TAgentStatBatch;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,9 +72,16 @@ public class AgentStatMonitorTest {
         final int numCollectionsPerBatch = 2;
         final int minNumBatchToTest = 2;
         final long totalTestDurationMs = collectionIntervalMs + collectionIntervalMs * numCollectionsPerBatch * minNumBatchToTest;
+
+//        profilerConfig.getProfileJvmStatCollectIntervalMs(), profilerConfig.getProfileJvmStatBatchSendCount()
+
+        ProfilerConfig mockProfilerConfig = Mockito.mock(ProfilerConfig.class);
+        Mockito.when(mockProfilerConfig.getProfileJvmStatCollectIntervalMs()).thenReturn((int) collectionIntervalMs);
+        Mockito.when(mockProfilerConfig.getProfileJvmStatBatchSendCount()).thenReturn(numCollectionsPerBatch);
+
         // When
         AgentStatMonitor monitor = new DefaultAgentStatMonitor(this.dataSender, "agentId", System.currentTimeMillis(),
-                agentStatCollector, collectionIntervalMs, numCollectionsPerBatch);
+                agentStatCollector, null, mockProfilerConfig);
         monitor.start();
         Thread.sleep(totalTestDurationMs);
         monitor.stop();

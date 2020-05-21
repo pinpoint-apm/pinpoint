@@ -19,15 +19,14 @@ package com.navercorp.pinpoint.profiler.sender.grpc;
 
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.grpc.client.ChannelFactory;
-
-import com.google.protobuf.Empty;
-
 import com.navercorp.pinpoint.grpc.trace.PAgentStat;
 import com.navercorp.pinpoint.grpc.trace.PAgentStatBatch;
+import com.navercorp.pinpoint.grpc.trace.PCustomMetricMessage;
 import com.navercorp.pinpoint.grpc.trace.PStatMessage;
 import com.navercorp.pinpoint.grpc.trace.StatGrpc;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
 
+import com.google.protobuf.Empty;
 import com.google.protobuf.GeneratedMessageV3;
 import io.grpc.stub.StreamObserver;
 
@@ -111,6 +110,12 @@ public class StatGrpcDataSender extends GrpcDataSender {
             final PAgentStat agentStat = (PAgentStat) message;
             final PStatMessage statMessage = PStatMessage.newBuilder().setAgentStat(agentStat).build();
             statStream.onNext(statMessage);
+            return true;
+        }
+        if (message instanceof PCustomMetricMessage) {
+            final PCustomMetricMessage customMetricMessage = (PCustomMetricMessage) message;
+            logger.info("Message will not delivered. message:{}", message);
+
             return true;
         }
         throw new IllegalStateException("unsupported message " + message);

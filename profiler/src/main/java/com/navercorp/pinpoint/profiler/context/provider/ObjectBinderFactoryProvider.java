@@ -16,16 +16,18 @@
 
 package com.navercorp.pinpoint.profiler.context.provider;
 
-import com.google.inject.Inject;
-import com.google.inject.Provider;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.plugin.RequestRecorderFactory;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.monitor.DataSourceMonitorRegistryService;
+import com.navercorp.pinpoint.profiler.context.monitor.metric.CustomMetricRegistryService;
 import com.navercorp.pinpoint.profiler.interceptor.factory.ExceptionHandlerFactory;
 import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
 import com.navercorp.pinpoint.profiler.objectfactory.ObjectBinderFactory;
+
+import com.google.inject.Inject;
+import com.google.inject.Provider;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -35,6 +37,7 @@ public class ObjectBinderFactoryProvider implements Provider<ObjectBinderFactory
     private final ProfilerConfig profilerConfig;
     private final Provider<TraceContext> traceContextProvider;
     private final DataSourceMonitorRegistryService dataSourceMonitorRegistryService;
+    private final CustomMetricRegistryService customMetricRegistryService;
     private final Provider<ApiMetaDataService> apiMetaDataServiceProvider;
     private final ExceptionHandlerFactory exceptionHandlerFactory;
     private final RequestRecorderFactory requestRecorderFactory;
@@ -42,6 +45,7 @@ public class ObjectBinderFactoryProvider implements Provider<ObjectBinderFactory
     @Inject
     public ObjectBinderFactoryProvider(ProfilerConfig profilerConfig,
                                        Provider<TraceContext> traceContextProvider,
+                                       CustomMetricRegistryService customMetricRegistryService,
                                        DataSourceMonitorRegistryService dataSourceMonitorRegistryService,
                                        Provider<ApiMetaDataService> apiMetaDataServiceProvider,
                                        ExceptionHandlerFactory exceptionHandlerFactory,
@@ -49,6 +53,7 @@ public class ObjectBinderFactoryProvider implements Provider<ObjectBinderFactory
         this.profilerConfig = Assert.requireNonNull(profilerConfig, "profilerConfig");
         this.traceContextProvider = Assert.requireNonNull(traceContextProvider, "traceContextProvider");
         this.dataSourceMonitorRegistryService = Assert.requireNonNull(dataSourceMonitorRegistryService, "dataSourceMonitorRegistryService");
+        this.customMetricRegistryService = Assert.requireNonNull(customMetricRegistryService, "customMetricRegistryService");
         this.apiMetaDataServiceProvider = Assert.requireNonNull(apiMetaDataServiceProvider, "apiMetaDataServiceProvider");
         this.exceptionHandlerFactory = Assert.requireNonNull(exceptionHandlerFactory, "exceptionHandlerFactory");
         this.requestRecorderFactory = Assert.requireNonNull(requestRecorderFactory, "requestRecorderFactory");
@@ -56,7 +61,7 @@ public class ObjectBinderFactoryProvider implements Provider<ObjectBinderFactory
 
     @Override
     public ObjectBinderFactory get() {
-        return new ObjectBinderFactory(profilerConfig, traceContextProvider, dataSourceMonitorRegistryService, apiMetaDataServiceProvider, exceptionHandlerFactory, requestRecorderFactory);
+        return new ObjectBinderFactory(profilerConfig, traceContextProvider, dataSourceMonitorRegistryService, customMetricRegistryService, apiMetaDataServiceProvider, exceptionHandlerFactory, requestRecorderFactory);
     }
 
 }

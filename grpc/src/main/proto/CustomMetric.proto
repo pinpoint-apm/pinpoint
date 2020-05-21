@@ -1,0 +1,63 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "com.navercorp.pinpoint.grpc.trace";
+option java_outer_classname = "CustomMetricProto";
+option objc_class_prefix = "PIN";
+
+package v1;
+
+message PCustomMetricMessage {
+    repeated int64 timestamp = 1;
+    repeated int64 collectInterval = 2;
+    repeated PCustomMetric customMetrics = 3;
+}
+
+message PCustomMetric {
+    oneof field {
+        PIntCountMetric intCountMetric = 1;
+        PLongCountMetric longCountMetric = 2;
+        PIntGaugeMetric intGaugeMetric = 3;
+        PLongGaugeMetric longGaugeMetric = 4;
+        PDouleGaugeMetric doubleGaugeMetric = 5;
+    }
+}
+
+message PIntCountMetric {
+    string name = 1;
+    repeated PIntValue values = 2;
+}
+message PLongCountMetric {
+    string name = 1;
+    repeated PLongValue values = 2;
+}
+
+message PIntGaugeMetric {
+    string name = 1;
+    repeated PIntValue values = 2;
+}
+
+message PLongGaugeMetric {
+    string name = 1;
+    repeated PLongValue values = 2;
+}
+
+message PDouleGaugeMetric {
+    string name = 1;
+    repeated PDoubleValue values = 2;
+}
+
+message PIntValue {
+    int32 value = 1;
+    bool isNotSet = 2;
+}
+
+message PLongValue {
+    int64 value = 1;
+    bool isNotSet = 2;
+}
+
+message PDoubleValue {
+    double value = 1;
+    bool isNotSet = 2;
+}
