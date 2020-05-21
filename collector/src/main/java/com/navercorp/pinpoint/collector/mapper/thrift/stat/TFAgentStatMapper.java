@@ -32,6 +32,7 @@ public class TFAgentStatMapper {
     private static final TFDataSourceListBoMapper tFDataSourceListBoMapper = new TFDataSourceListBoMapper();
     private static final TFFileDescriptorMapper tFFileDescriptorBoMapper = new TFFileDescriptorMapper();
     private static final TFDirectBufferMapper tFDirectBufferMapper = new TFDirectBufferMapper();
+    private static final TFTotalThreadCountMapper tFTotalThreadCountMapper = new TFTotalThreadCountMapper();
 
     public List<TFAgentStat> map(AgentStatBo agentStatBo) {
         final TreeMap<Long, TFAgentStat> tFAgentStatMap = new TreeMap<>();
@@ -46,6 +47,8 @@ public class TFAgentStatMapper {
         insertTFDataSourceList(tFAgentStatMap, agentStatBo.getDataSourceListBos(), agentId, startTimestamp);
         insertTFileDescriptorList(tFAgentStatMap, agentStatBo.getFileDescriptorBos(), agentId, startTimestamp);
         insertTDirectBufferList(tFAgentStatMap, agentStatBo.getDirectBufferBos(), agentId, startTimestamp);
+        insertTFTotalThreadCountList(tFAgentStatMap, agentStatBo.getTotalThreadCountBos(), agentId, startTimestamp);
+
         return new ArrayList<>(tFAgentStatMap.values());
     }
 
@@ -135,6 +138,17 @@ public class TFAgentStatMapper {
         for (DirectBufferBo directBufferBo : directBufferBoList) {
             TFAgentStat tFAgentStat = getOrCreateTFAgentStat(tFAgentStatMap, directBufferBo.getTimestamp(), agentId, startTimestamp);
             tFAgentStat.setDirectBuffer(tFDirectBufferMapper.map(directBufferBo));
+        }
+    }
+
+    private void insertTFTotalThreadCountList(Map<Long, TFAgentStat> tfAgentStatMap, List<TotalThreadCountBo> totalThreadCountBoList, String agentId, long startTimestamp) {
+        if (totalThreadCountBoList == null) {
+            return;
+        }
+
+        for (TotalThreadCountBo totalThreadCountBo : totalThreadCountBoList) {
+            TFAgentStat tfAgentStat = getOrCreateTFAgentStat(tfAgentStatMap, totalThreadCountBo.getTimestamp(), agentId, startTimestamp);
+            tfAgentStat.setTotalThreadCount(tFTotalThreadCountMapper.map(totalThreadCountBo));
         }
     }
 

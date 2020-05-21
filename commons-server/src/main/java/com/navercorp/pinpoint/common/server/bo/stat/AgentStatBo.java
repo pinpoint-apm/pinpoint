@@ -37,6 +37,7 @@ public class AgentStatBo {
     private List<DeadlockThreadCountBo> deadlockThreadCountBos;
     private List<FileDescriptorBo> fileDescriptorBos;
     private List<DirectBufferBo> directBufferBos;
+    private List<TotalThreadCountBo> totalThreadCountBos;
 
     public long getStartTimestamp() {
         return startTimestamp;
@@ -130,6 +131,12 @@ public class AgentStatBo {
 
     public void setDirectBufferBos(List<DirectBufferBo> directBufferBos) { this.directBufferBos = directBufferBos; }
 
+    public List<TotalThreadCountBo> getTotalThreadCountBos() { return totalThreadCountBos; }
+
+    public void setTotalThreadCountBos(List<TotalThreadCountBo> totalThreadCountBos) {
+        this.totalThreadCountBos = totalThreadCountBos;
+    }
+
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("AgentStatBo{");
@@ -144,6 +151,7 @@ public class AgentStatBo {
         sb.append(", deadlockThreadCountBos=").append(deadlockThreadCountBos);
         sb.append(", fileDescriptorBos=").append(fileDescriptorBos);
         sb.append(", directBufferBos=").append(directBufferBos);
+        sb.append(", totalThreadCountBos=").append(totalThreadCountBos);
         sb.append('}');
         return sb.toString();
     }
