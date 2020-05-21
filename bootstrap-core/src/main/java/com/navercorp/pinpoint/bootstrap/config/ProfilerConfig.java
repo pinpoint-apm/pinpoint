@@ -285,6 +285,10 @@ public interface ProfilerConfig {
 
     String getApplicationNamespace();
 
+    boolean isCustomMetricEnable();
+
+    int getCustomMetricLimitSize();
+
     String readString(String propertyName, String defaultValue);
 
     String readString(String propertyName, String defaultValue, ValueResolver valueResolver);

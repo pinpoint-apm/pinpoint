@@ -16,19 +16,23 @@
 
 package com.navercorp.pinpoint.profiler.objectfactory;
 
-import com.google.inject.Provider;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.context.TraceContext;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentClass;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
 import com.navercorp.pinpoint.bootstrap.plugin.RequestRecorderFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.monitor.DataSourceMonitorRegistry;
+import com.navercorp.pinpoint.bootstrap.plugin.monitor.metric.CustomMetricRegistry;
 import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.profiler.context.monitor.DataSourceMonitorRegistryAdaptor;
 import com.navercorp.pinpoint.profiler.context.monitor.DataSourceMonitorRegistryService;
+import com.navercorp.pinpoint.profiler.context.monitor.metric.CustomMetricRegistryAdaptor;
+import com.navercorp.pinpoint.profiler.context.monitor.metric.CustomMetricRegistryService;
 import com.navercorp.pinpoint.profiler.interceptor.factory.AnnotatedInterceptorFactory;
 import com.navercorp.pinpoint.profiler.interceptor.factory.ExceptionHandlerFactory;
 import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
+
+import com.google.inject.Provider;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -37,6 +41,7 @@ public class ObjectBinderFactory {
     private final ProfilerConfig profilerConfig;
     private final Provider<TraceContext> traceContextProvider;
     private final DataSourceMonitorRegistry dataSourceMonitorRegistry;
+    private final CustomMetricRegistry customMetricRegistry;
     private final Provider<ApiMetaDataService> apiMetaDataServiceProvider;
     private final ExceptionHandlerFactory exceptionHandlerFactory;
     private final RequestRecorderFactory requestRecorderFactory;
@@ -44,6 +49,7 @@ public class ObjectBinderFactory {
     public ObjectBinderFactory(ProfilerConfig profilerConfig,
                                Provider<TraceContext> traceContextProvider,
                                DataSourceMonitorRegistryService dataSourceMonitorRegistryService,
+                               CustomMetricRegistryService customMonitorRegistryService,
                                Provider<ApiMetaDataService> apiMetaDataServiceProvider,
                                ExceptionHandlerFactory exceptionHandlerFactory,
                                RequestRecorderFactory requestRecorderFactory) {
@@ -52,6 +58,9 @@ public class ObjectBinderFactory {
 
         Assert.requireNonNull(dataSourceMonitorRegistryService, "dataSourceMonitorRegistryService");
         this.dataSourceMonitorRegistry = new DataSourceMonitorRegistryAdaptor(dataSourceMonitorRegistryService);
+
+        Assert.requireNonNull(customMonitorRegistryService, "customMonitorRegistryService");
+        this.customMetricRegistry = new CustomMetricRegistryAdaptor(customMonitorRegistryService);
 
         this.apiMetaDataServiceProvider = Assert.requireNonNull(apiMetaDataServiceProvider, "apiMetaDataServiceProvider");
         this.exceptionHandlerFactory = Assert.requireNonNull(exceptionHandlerFactory, "exceptionHandlerFactory");
@@ -66,12 +75,12 @@ public class ObjectBinderFactory {
 
     public InterceptorArgumentProvider newInterceptorArgumentProvider(InstrumentClass instrumentClass) {
         ApiMetaDataService apiMetaDataService = this.apiMetaDataServiceProvider.get();
-        return new InterceptorArgumentProvider(dataSourceMonitorRegistry, apiMetaDataService, requestRecorderFactory, instrumentClass);
+        return new InterceptorArgumentProvider(dataSourceMonitorRegistry, customMetricRegistry, apiMetaDataService, requestRecorderFactory, instrumentClass);
     }
 
     public AnnotatedInterceptorFactory newAnnotatedInterceptorFactory(InstrumentContext pluginContext) {
         final TraceContext traceContext = this.traceContextProvider.get();
         ApiMetaDataService apiMetaDataService = this.apiMetaDataServiceProvider.get();
-        return new AnnotatedInterceptorFactory(profilerConfig, traceContext, dataSourceMonitorRegistry, apiMetaDataService, pluginContext, exceptionHandlerFactory, requestRecorderFactory);
+        return new AnnotatedInterceptorFactory(profilerConfig, traceContext, dataSourceMonitorRegistry, customMetricRegistry, apiMetaDataService, pluginContext, exceptionHandlerFactory, requestRecorderFactory);
     }
 }

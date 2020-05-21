@@ -164,6 +164,9 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     private String injectionModuleFactoryClazzName = null;
     private String applicationNamespace = "";
 
+    private boolean customMetricEnable = false;
+    private int customMetricLimitSize = 10;
+
     public DefaultProfilerConfig() {
         this.properties = new Properties();
         this.thriftTransportConfig = new DefaultThriftTransportConfig();
@@ -661,6 +664,16 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         return applicationNamespace;
     }
 
+    @Override
+    public boolean isCustomMetricEnable() {
+        return customMetricEnable;
+    }
+
+    @Override
+    public int getCustomMetricLimitSize() {
+        return customMetricLimitSize;
+    }
+
     // for test
     void readPropertyValues() {
 
@@ -754,6 +767,9 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         this.injectionModuleFactoryClazzName = readString("profiler.guice.module.factory", null);
 
         this.applicationNamespace = readString("profiler.application.namespace", "");
+
+        this.customMetricEnable = readBoolean("profiler.custommetric.enable", false);
+        this.customMetricLimitSize = readInt("profiler.custommetric.limit.size", 10);
 
         logger.info("configuration loaded successfully.");
     }
@@ -905,8 +921,9 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         sb.append(", httpStatusCodeErrors=").append(httpStatusCodeErrors);
         sb.append(", injectionModuleFactoryClazzName='").append(injectionModuleFactoryClazzName).append('\'');
         sb.append(", applicationNamespace='").append(applicationNamespace).append('\'');
+        sb.append(", customMetricEnable=").append(customMetricEnable).append('\'');
+        sb.append(", customMetricLimitSize=").append(customMetricLimitSize);
         sb.append('}');
         return sb.toString();
     }
-
 }
