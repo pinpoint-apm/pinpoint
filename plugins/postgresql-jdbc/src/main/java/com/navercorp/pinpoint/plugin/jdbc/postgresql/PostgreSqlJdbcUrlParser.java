@@ -30,6 +30,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
+ * https://jdbc.postgresql.org/documentation/head/connect.html
  * @author Brad Hong
  */
 public class PostgreSqlJdbcUrlParser implements JdbcUrlParserV2 {
