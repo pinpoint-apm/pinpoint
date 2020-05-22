@@ -24,9 +24,8 @@ import com.navercorp.pinpoint.bootstrap.plugin.jdbc.JdbcUrlParserV2;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.StringMaker;
 import com.navercorp.pinpoint.bootstrap.plugin.jdbc.UnKnownDatabaseInfo;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.util.StringUtils;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -36,8 +35,6 @@ import java.util.List;
 public class PostgreSqlJdbcUrlParser implements JdbcUrlParserV2 {
 
     private static final String URL_PREFIX = "jdbc:postgresql:";
-    // jdbc:postgresql:loadbalance://10.22.33.44:3306,10.22.33.55:3306/PostgreSQL?characterEncoding=UTF-8
-    private static final String LOADBALANCE_URL_PREFIX = URL_PREFIX + "loadbalance:";
 
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
 
@@ -63,46 +60,11 @@ public class PostgreSqlJdbcUrlParser implements JdbcUrlParserV2 {
     }
 
     private DatabaseInfo parse0(String url) {
-        if (isLoadbalanceUrl(url)) {
-            return parseLoadbalancedUrl(url);
-        }
-        return parseNormal(url);
-    }
-
-    private DatabaseInfo parseLoadbalancedUrl(String url) {
-        // jdbc:postgresql://1.2.3.4:5678/test_db
-        StringMaker maker = new StringMaker(url);
-        maker.after(URL_PREFIX);
-        // 1.2.3.4:5678 In case of replication driver could have multiple values
-        // We have to consider mm db too.
-        String host = maker.after("//").before('/').value();
-
-        // Decided not to cache regex. This is not invoked often so don't waste memory.
-        String[] parsedHost = host.split(",");
-        List<String> hostList = Arrays.asList(parsedHost);
-
-
-        String databaseId = maker.next().afterLast('/').before('?').value();
-        String normalizedUrl = maker.clear().before('?').value();
-
-        return new DefaultDatabaseInfo(PostgreSqlConstants.POSTGRESQL, PostgreSqlConstants.POSTGRESQL_EXECUTE_QUERY, url, normalizedUrl, hostList, databaseId);
-    }
-
-    private boolean isLoadbalanceUrl(String url) {
-        return url.regionMatches(true, 0, LOADBALANCE_URL_PREFIX, 0, LOADBALANCE_URL_PREFIX.length());
-    }
-
-    private DatabaseInfo parseNormal(String url) {
      // jdbc:postgresql://1.2.3.4:5678/test_db
         StringMaker maker = new StringMaker(url);
         maker.after(URL_PREFIX);
-        // 1.2.3.4:5678 In case of replication driver could have multiple values
-        // We have to consider mm db too.
-        String host = maker.after("//").before('/').value();
-        List<String> hostList = new ArrayList<String>(1);
-        hostList.add(host);
-        // String port = maker.next().after(':').before('/').value();
-
+        String hosts = maker.after("//").before('/').value();
+        List<String> hostList = StringUtils.tokenizeToStringList(hosts, ",");
         String databaseId = maker.next().afterLast('/').before('?').value();
         String normalizedUrl = maker.clear().before('?').value();
         return new DefaultDatabaseInfo(PostgreSqlConstants.POSTGRESQL, PostgreSqlConstants.POSTGRESQL_EXECUTE_QUERY, url, normalizedUrl, hostList, databaseId);
