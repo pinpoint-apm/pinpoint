@@ -440,4 +440,59 @@ public class TFAgentStatMapperTest {
         return fileDescriptorBoList;
     }
 
+    @Test
+    public void map7Test() {
+        final AgentStatBo agentStatBo = new AgentStatBo();
+        agentStatBo.setStartTimestamp(startTimestamp);
+        agentStatBo.setAgentId(TEST_AGENT);
+        agentStatBo.setTotalThreadCountBos(createTotalThreadCountBoList());
+
+        List<TFAgentStat> tFAgentStatList = new TFAgentStatMapper().map(agentStatBo);
+        assertEquals(3, tFAgentStatList.size());
+
+        TFAgentStat tFAgentStat1 = tFAgentStatList.get(0);
+        assertEquals(TEST_AGENT, tFAgentStat1.getAgentId());
+        assertEquals(startTimestamp, tFAgentStat1.getStartTimestamp());
+        assertEquals(collectTime1st, tFAgentStat1.getTimestamp());
+        assertEquals(4, tFAgentStat1.getTotalThreadCount().getTotalThreadCount(), 0);
+
+        TFAgentStat tFAgentStat2 = tFAgentStatList.get(1);
+        assertEquals(TEST_AGENT, tFAgentStat2.getAgentId());
+        assertEquals(startTimestamp, tFAgentStat2.getStartTimestamp());
+        assertEquals(collectTime2nd, tFAgentStat2.getTimestamp());
+        assertEquals(5, tFAgentStat2.getTotalThreadCount().getTotalThreadCount(), 0);
+
+        TFAgentStat tFAgentStat3 = tFAgentStatList.get(2);
+        assertEquals(TEST_AGENT, tFAgentStat3.getAgentId());
+        assertEquals(startTimestamp, tFAgentStat3.getStartTimestamp());
+        assertEquals(collectTime3rd, tFAgentStat3.getTimestamp());
+        assertEquals(8, tFAgentStat3.getTotalThreadCount().getTotalThreadCount(), 0);
+    }
+
+    private List<TotalThreadCountBo> createTotalThreadCountBoList() {
+        final List<TotalThreadCountBo> totalThreadCountBoList = new ArrayList<>();
+
+        TotalThreadCountBo totalThreadCountBo1 = new TotalThreadCountBo();
+        totalThreadCountBo1.setAgentId(TEST_AGENT);
+        totalThreadCountBo1.setTimestamp(collectTime1st);
+        totalThreadCountBo1.setStartTimestamp(startTimestamp);
+        totalThreadCountBo1.setTotalThreadCount(4);
+        totalThreadCountBoList.add(totalThreadCountBo1);
+
+        TotalThreadCountBo totalThreadCountBo2 = new TotalThreadCountBo();
+        totalThreadCountBo2.setAgentId(TEST_AGENT);
+        totalThreadCountBo2.setTimestamp(collectTime2nd);
+        totalThreadCountBo2.setStartTimestamp(startTimestamp);
+        totalThreadCountBo2.setTotalThreadCount(5);
+        totalThreadCountBoList.add(totalThreadCountBo2);
+
+        TotalThreadCountBo totalThreadCountBo3 = new TotalThreadCountBo();
+        totalThreadCountBo3.setAgentId(TEST_AGENT);
+        totalThreadCountBo3.setTimestamp(collectTime3rd);
+        totalThreadCountBo3.setStartTimestamp(startTimestamp);
+        totalThreadCountBo3.setTotalThreadCount(8);
+        totalThreadCountBoList.add(totalThreadCountBo3);
+
+        return totalThreadCountBoList;
+    }
 }
