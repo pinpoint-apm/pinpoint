@@ -33,26 +33,6 @@ public class JDBCUrlParserTest {
     private Logger logger = LoggerFactory.getLogger(JDBCUrlParserTest.class);
     private OracleJdbcUrlParser jdbcUrlParser = new OracleJdbcUrlParser();
 
-    @Test
-    public void testURIParse() throws Exception {
-
-        URI uri = URI.create("jdbc:mysql:replication://10.98.133.22:3306/test_lucy_db");
-        logger.debug(uri.toString());
-        logger.debug(uri.getScheme());
-
-        // URI parsing has limitation.
-        try {
-            URI oracleRac = URI.create("jdbc:oracle:thin:@(DESCRIPTION=(LOAD_BALANCE=on)" +
-                    "(ADDRESS=(PROTOCOL=TCP)(HOST=1.2.3.4) (PORT=1521))" +
-                    "(ADDRESS=(PROTOCOL=TCP)(HOST=1.2.3.5) (PORT=1521))" +
-                    "(CONNECT_DATA=(SERVICE_NAME=service)))");
-
-            logger.debug(oracleRac.toString());
-            logger.debug(oracleRac.getScheme());
-            Assert.fail();
-        } catch (Exception ignored) {
-        }
-    }
 
     @Test
     public void oracleParser1() {
