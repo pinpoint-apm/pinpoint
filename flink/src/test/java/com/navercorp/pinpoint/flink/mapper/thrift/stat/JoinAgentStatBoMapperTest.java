@@ -350,4 +350,59 @@ public class JoinAgentStatBoMapperTest {
         assertEquals(joinResponseTimeBo2.getMaxAvgAgentId(), agentId);
     }
 
+    @Test
+    public void map6Test() {
+        final String agentId = "testAgent";
+        final JoinAgentStatBoMapper joinAgentStatBoMapper = new JoinAgentStatBoMapper();
+
+        final TFAgentStatBatch tFAgentStatBatch = new TFAgentStatBatch();
+        tFAgentStatBatch.setStartTimestamp(1491274138454L);
+        tFAgentStatBatch.setAgentId(agentId);
+
+        final TFTotalThreadCount tfTotalThreadCount = new TFTotalThreadCount();
+        tfTotalThreadCount.setTotalThreadCount(100);
+        final TFAgentStat tFAgentStat = new TFAgentStat();
+        tFAgentStat.setAgentId(agentId);
+        tFAgentStat.setTimestamp(1491274148454L);
+        tFAgentStat.setTotalThreadCount(tfTotalThreadCount);
+
+        final TFTotalThreadCount tfTotalThreadCount2 = new TFTotalThreadCount();
+        tfTotalThreadCount2.setTotalThreadCount(120);
+        final TFAgentStat tFAgentStat2 = new TFAgentStat();
+        tFAgentStat2.setAgentId(agentId);
+        tFAgentStat2.setTimestamp(1491275148454L);
+        tFAgentStat2.setTotalThreadCount(tfTotalThreadCount2);
+
+        final List<TFAgentStat> tFAgentStatList = new ArrayList<>(2);
+        tFAgentStatList.add(tFAgentStat);
+        tFAgentStatList.add(tFAgentStat2);
+        tFAgentStatBatch.setAgentStats(tFAgentStatList);
+
+        JoinAgentStatBo joinAgentStatBo = joinAgentStatBoMapper.map(tFAgentStatBatch);
+        assertEquals(agentId, joinAgentStatBo.getId());
+        assertEquals(1491274138454L, joinAgentStatBo.getAgentStartTimestamp());
+        assertEquals(1491274148454L, joinAgentStatBo.getTimestamp());
+
+        List<JoinTotalThreadCountBo> joinTotalThreadCountBoList = joinAgentStatBo.getJoinTotalThreadCountBoList();
+        assertEquals(joinTotalThreadCountBoList.size(), 2);
+
+        JoinTotalThreadCountBo joinTotalThreadCountBo = joinTotalThreadCountBoList.get(0);
+        assertEquals(agentId, joinTotalThreadCountBo.getId());
+        assertEquals(1491274148454L, joinTotalThreadCountBo.getTimestamp());
+        assertEquals(100, joinTotalThreadCountBo.getAvgTotalThreadCount());
+        assertEquals(100, joinTotalThreadCountBo.getMinTotalThreadCount());
+        assertEquals(agentId, joinTotalThreadCountBo.getMinTotalThreadCountAgentId());
+        assertEquals(100, joinTotalThreadCountBo.getMaxTotalThreadCount());
+        assertEquals(agentId, joinTotalThreadCountBo.getMaxTotalThreadCountAgentId());
+
+        JoinTotalThreadCountBo joinTotalThreadCountBo2 = joinTotalThreadCountBoList.get(1);
+        assertEquals(agentId, joinTotalThreadCountBo2.getId());
+        assertEquals(1491275148454L, joinTotalThreadCountBo2.getTimestamp());
+        assertEquals(120, joinTotalThreadCountBo2.getAvgTotalThreadCount());
+        assertEquals(120, joinTotalThreadCountBo2.getMinTotalThreadCount());
+        assertEquals(agentId, joinTotalThreadCountBo2.getMinTotalThreadCountAgentId());
+        assertEquals(120, joinTotalThreadCountBo2.getMaxTotalThreadCount());
+        assertEquals(agentId, joinTotalThreadCountBo2.getMaxTotalThreadCountAgentId());
+    }
+
 }

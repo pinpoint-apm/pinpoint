@@ -408,6 +408,31 @@ public class TestAgentStatFactory {
         }
         return directBufferBos;
     }
+
+    public static List<TotalThreadCountBo> createTotalThreadCountBos(String agentId, long startTimestamp, long initialTimestamp) {
+        final int numValues = RandomUtils.nextInt(1, MAX_NUM_TEST_VALUES);
+        return createTotalThreadCountBos(agentId, startTimestamp, initialTimestamp, numValues);
+    }
+
+    public static List<TotalThreadCountBo> createTotalThreadCountBos(String agentId, long startTimestamp, long initialTimestamp, int numValues) {
+        List<TotalThreadCountBo> totalThreadCountBos = new ArrayList<TotalThreadCountBo>(numValues);
+        List<Long> startTimestamps = createStartTimestamps(startTimestamp, numValues);
+        List<Long> timestamps = createTimestamps(initialTimestamp, numValues);
+
+        List<Integer> totalThreadCounts = TestAgentStatDataPointFactory.INTEGER.createRandomValues(0, 1000, numValues);
+        for (int i = 0; i < numValues; i++) {
+            TotalThreadCountBo totalThreadCountBo = new TotalThreadCountBo();
+            totalThreadCountBo.setAgentId(agentId);
+            totalThreadCountBo.setStartTimestamp(startTimestamps.get(i));
+            totalThreadCountBo.setTimestamp(timestamps.get(i));
+            totalThreadCountBo.setTotalThreadCount(totalThreadCounts.get(i));
+
+            totalThreadCountBos.add(totalThreadCountBo);
+        }
+        return totalThreadCountBos;
+    }
+
+
     private static List<Long> createStartTimestamps(long startTimestamp, int numValues) {
         return TestAgentStatDataPointFactory.LONG.createConstantValues(startTimestamp, startTimestamp, numValues);
     }
