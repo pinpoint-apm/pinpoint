@@ -48,7 +48,7 @@
         <module>bootstrap-java7</module>
         <module>bootstrap-java8</module>
         <module>bootstrap-java9</module>
-        <module>info-export</module>
+        <module>application-interaction</module>
         <module>collector</module>
         <module>commons</module>
         <module>commons-buffer</module>
@@ -164,7 +164,7 @@
             </dependency>
             <dependency>
                 <groupId>com.navercorp.pinpoint</groupId>
-                <artifactId>pinpoint-trace-info-export</artifactId>
+                <artifactId>pinpoint-application-interaction</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

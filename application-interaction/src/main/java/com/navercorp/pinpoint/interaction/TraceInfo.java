@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.export;
+package com.navercorp.pinpoint.interaction;
 
 /**
  * @author yjqg6666

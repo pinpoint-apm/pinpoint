@@ -36,7 +36,7 @@ public class ProfilerLibs {
                 "com.navercorp.pinpoint.io",
                 "com.navercorp.pinpoint.rpc",
                 "com.navercorp.pinpoint.loader.plugins",
-                "com.navercorp.pinpoint.export",
+                "com.navercorp.pinpoint.interaction",
 
                 // grpc
                 "com.navercorp.pinpoint.grpc",
