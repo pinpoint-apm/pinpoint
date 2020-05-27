@@ -17,6 +17,8 @@
 package com.navercorp.pinpoint.interaction.trace.export;
 
 
+import com.navercorp.pinpoint.interaction.util.ClassLoaderUtils;
+
 import java.lang.reflect.Method;
 
 /**
@@ -26,25 +28,32 @@ import java.lang.reflect.Method;
 public class TraceInfoExportHelper {
 
     public static final String TRACE_INFO_CLZ_NAME = "com.navercorp.pinpoint.interaction.trace.export.DefaultTraceInfo";
+
     public static final String TRACE_INFO_HOLDER_CLZ_NAME = "com.navercorp.pinpoint.interaction.trace.export.TraceInfoHolder";
+
+    private TraceInfoExportHelper() {
+    }
 
     public static void exportTraceInfo(Object appLoadedObject, String transactionId, Long spanId) {
         if (transactionId == null || spanId == null) {
             return;
         }
-        ClassLoader appClassLoader = getAppClassLoader(appLoadedObject);
-        if (appClassLoader == null) {
-            return;
-        }
 
         try {
-            Class<?> traceInfoClass = Class.forName(TRACE_INFO_CLZ_NAME, false, appClassLoader);
+            ClassLoader appClassLoader = ClassLoaderUtils.getAppClassLoader(appLoadedObject);
+            Class<?> traceInfoClass = ClassLoaderUtils.loadClassFromClassLoader(appClassLoader, TRACE_INFO_CLZ_NAME);
+            if (traceInfoClass == null) {
+                return;
+            }
+            Class<?> traceInfoHolderClass = ClassLoaderUtils.loadClassFromClassLoader(appClassLoader, TRACE_INFO_HOLDER_CLZ_NAME);
+            if (traceInfoHolderClass == null) {
+                return;
+            }
             Object traceInfoObj = traceInfoClass.getDeclaredConstructor().newInstance();
             Method setTxIdMethod = traceInfoClass.getDeclaredMethod("setTransactionId", String.class);
             setTxIdMethod.invoke(traceInfoObj, transactionId);
             Method setSpanIdMethod = traceInfoClass.getDeclaredMethod("setSpanId", Long.TYPE);
             setSpanIdMethod.invoke(traceInfoObj, spanId);
-            Class<?> traceInfoHolderClass = Class.forName(TRACE_INFO_HOLDER_CLZ_NAME, false, appClassLoader);
             Method setTraceInfoMethod = traceInfoHolderClass.getDeclaredMethod("setTraceInfo", TraceInfo.class);
             //noinspection JavaReflectionInvocation
             setTraceInfoMethod.invoke(traceInfoHolderClass, traceInfoObj);
@@ -66,12 +75,11 @@ public class TraceInfoExportHelper {
     }
 
     public static void clearExportedTraceInfo(Object appLoadedObject) {
-        ClassLoader appClassLoader = getAppClassLoader(appLoadedObject);
-        if (appClassLoader == null) {
-            return;
-        }
         try {
-            Class<?> traceInfoHolderClass = Class.forName(TRACE_INFO_HOLDER_CLZ_NAME, false, appClassLoader);
+            Class<?> traceInfoHolderClass = ClassLoaderUtils.loadClassFromAppObject(appLoadedObject, TRACE_INFO_HOLDER_CLZ_NAME);
+            if (traceInfoHolderClass == null) {
+                return;
+            }
             Method setTraceInfoMethod = traceInfoHolderClass.getDeclaredMethod("clearTraceInfo");
             setTraceInfoMethod.invoke(traceInfoHolderClass);
         } catch (Throwable t) {
