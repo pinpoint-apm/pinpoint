@@ -1,3 +1,8 @@
+<input type="checkbox" class="l-checkbox-input" id="userInfo" [disabled]="!isEnabledUser()" [checked]="isChecked" (change)="onAddUser()">
+<label class="l-userinfo-label" for="userInfo">
+    <ng-container *ngIf="pinpointUser.department">({{pinpointUser.department}})</ng-container>
+     {{pinpointUser.name}}
+</label>
 <ng-container *ngIf="allowedUserEdit">
     <section class="l-btn-section">
         <button [hidden]="isRemoveTarget()" class="far fa-edit" (click)="onEdit()"></button>
@@ -6,8 +11,3 @@
         <button [hidden]="!isRemoveTarget()" class="fas fa-check" (click)="onConfirmRemove()"></button>
     </section>
 </ng-container>
-<input type="checkbox" class="l-checkbox-input" id="userInfo" [disabled]="!isEnabledUser()" [checked]="isChecked" (change)="onAddUser()">
-<label class="l-userinfo-label" for="userInfo">
-    <ng-container *ngIf="pinpointUser.department">({{pinpointUser.department}})</ng-container>
-     {{pinpointUser.name}}
-</label>
