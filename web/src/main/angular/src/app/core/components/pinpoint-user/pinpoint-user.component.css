@@ -1,13 +1,11 @@
 :host {
-    display: block;
+    display: flex;
+    align-items: center;
     width: 100%;
     margin: 0;
     color: #333;
     padding: 12px 15px;
     font-size: 13px;    
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
 }
 
 :host:hover {
@@ -20,7 +18,7 @@
 }
 
 .l-btn-section {
-    float: right;
+    /* float: right; */
 }
 
 .fa-arrow-left {
@@ -46,4 +44,8 @@
 
 .l-userinfo-label {
     margin-left: 4px;
+    flex: 1;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }
