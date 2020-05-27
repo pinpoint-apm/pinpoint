@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.interaction;
+package com.navercorp.pinpoint.interaction.trace.export;
 
 /**
  * @author yjqg6666

@@ -34,7 +34,7 @@ import com.navercorp.pinpoint.bootstrap.plugin.request.method.ServletSyncMethodD
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.ParameterRecorder;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.util.Assert;
-import com.navercorp.pinpoint.interaction.TraceInfoExportHelper;
+import com.navercorp.pinpoint.interaction.trace.export.TraceInfoExportHelper;
 
 /**
  * @author jaehong.kim

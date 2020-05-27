@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.navercorp.pinpoint.interaction;
+package com.navercorp.pinpoint.interaction.trace.export;
 
 
 import java.lang.reflect.Method;
@@ -25,8 +25,8 @@ import java.lang.reflect.Method;
 @SuppressWarnings("unused")
 public class TraceInfoExportHelper {
 
-    public static final String TRACE_INFO_CLZ_NAME = "com.navercorp.pinpoint.interaction.DefaultTraceInfo";
-    public static final String TRACE_INFO_HOLDER_CLZ_NAME = "com.navercorp.pinpoint.interaction.TraceInfoHolder";
+    public static final String TRACE_INFO_CLZ_NAME = "com.navercorp.pinpoint.interaction.trace.export.DefaultTraceInfo";
+    public static final String TRACE_INFO_HOLDER_CLZ_NAME = "com.navercorp.pinpoint.interaction.trace.export.TraceInfoHolder";
 
     public static void exportTraceInfo(Object appLoadedObject, String transactionId, Long spanId) {
         if (transactionId == null || spanId == null) {
