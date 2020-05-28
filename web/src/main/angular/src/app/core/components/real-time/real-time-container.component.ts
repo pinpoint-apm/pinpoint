@@ -13,11 +13,11 @@ import {
     MessageQueueService,
     MESSAGE_TO
 } from 'app/shared/services';
-import { RealTimeWebSocketService, IWebSocketResponse, IWebSocketDataResult, IActiveThreadCounts } from 'app/core/components/real-time/real-time-websocket.service';
+import { RealTimeWebSocketService, IWebSocketResponse, IWebSocketDataResult, IActiveRequestCounts } from 'app/core/components/real-time/real-time-websocket.service';
 import { HELP_VIEWER_LIST, HelpViewerPopupContainerComponent } from 'app/core/components/help-viewer-popup/help-viewer-popup-container.component';
 import { UrlPathId, UrlPath } from 'app/shared/models';
-import { IParsedATC } from './real-time-chart.component';
-import { getATCforAgent, getATCforTotal, getFilteredATC } from './real-time-util';
+import { IParsedARC } from './real-time-chart.component';
+import { getARCforAgent, getARCforTotal, getFilteredARC } from './real-time-util';
 import { ServerMapData } from 'app/core/components/server-map/class/server-map-data.class';
 
 // TODO: 나중에 공통으로 추출.
@@ -47,9 +47,9 @@ export class RealTimeContainerComponent implements OnInit, AfterViewInit, OnDest
     dateFormat$: Observable<string>;
     applicationName = '';
     timeStamp: number;
-    activeThreadCounts: { [key: string]: IActiveThreadCounts };
-    atcForAgent: { [key: string]: IParsedATC };
-    atcForTotal: { [key: string]: IParsedATC };
+    activeRequestCounts: { [key: string]: IActiveRequestCounts };
+    arcForAgent: { [key: string]: IParsedARC };
+    arcForTotal: { [key: string]: IParsedARC };
     totalCount: number;
     sum: number[];
     hiddenComponent = true;
@@ -169,7 +169,7 @@ export class RealTimeContainerComponent implements OnInit, AfterViewInit, OnDest
     private resetState() {
         this.applicationName = '';
         this.serviceType = '';
-        this.activeThreadCounts = null;
+        this.activeRequestCounts = null;
         this.isPinUp = true;
     }
 
@@ -205,7 +205,7 @@ export class RealTimeContainerComponent implements OnInit, AfterViewInit, OnDest
 
     private onClose(): void {
         this.messageTemplate = MessageTemplate.RETRY;
-        this.activeThreadCounts = null;
+        this.activeRequestCounts = null;
         this.cd.markForCheck();
     }
 
@@ -216,18 +216,18 @@ export class RealTimeContainerComponent implements OnInit, AfterViewInit, OnDest
 
     private onMessage(data: IWebSocketDataResult): void {
         // this.messageTemplate = MessageTemplate.NOTHING;
-        const { timeStamp, applicationName, activeThreadCounts } = data;
+        const {timeStamp, applicationName, activeThreadCounts} = data;
 
         if (applicationName && applicationName !== this.applicationName) {
             return;
         }
 
         this.timeStamp = timeStamp;
-        this.atcForAgent = this.activeOnly ? getFilteredATC(getATCforAgent(this.activeThreadCounts, activeThreadCounts)) : getATCforAgent(this.activeThreadCounts, activeThreadCounts);
-        this.atcForTotal = getATCforTotal(applicationName, activeThreadCounts);
-        this.sum = this.atcForTotal[Object.keys(this.atcForTotal)[0]].status;
-        this.totalCount = Object.keys(this.atcForAgent).length;
-        this.activeThreadCounts = activeThreadCounts;
+        this.arcForAgent = this.activeOnly ? getFilteredARC(getARCforAgent(this.activeRequestCounts, activeThreadCounts)) : getARCforAgent(this.activeRequestCounts, activeThreadCounts);
+        this.arcForTotal = getARCforTotal(applicationName, activeThreadCounts);
+        this.sum = this.arcForTotal[Object.keys(this.arcForTotal)[0]].status;
+        this.totalCount = Object.keys(this.arcForAgent).length;
+        this.activeRequestCounts = activeThreadCounts;
         this.cd.markForCheck();
     }
 

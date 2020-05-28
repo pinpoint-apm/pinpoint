@@ -1,6 +1,6 @@
 import { Component, OnInit, Input, Output, EventEmitter, AfterViewInit } from '@angular/core';
 
-import { IParsedATC } from './real-time-chart.component';
+import { IParsedARC } from './real-time-chart.component';
 
 @Component({
     selector: 'pp-real-time-agent-chart',
@@ -9,7 +9,7 @@ import { IParsedATC } from './real-time-chart.component';
 })
 export class RealTimeAgentChartComponent implements OnInit, AfterViewInit {
     @Input() timeStamp: number;
-    @Input() activeThreadCounts: { [key: string]: IParsedATC };
+    @Input() activeRequestCounts: { [key: string]: IParsedARC };
     @Input() currentPage = 1;
     @Input() sum: number[];
     @Output() outOpenThreadDump = new EventEmitter<string>();

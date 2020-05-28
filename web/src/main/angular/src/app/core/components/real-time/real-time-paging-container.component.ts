@@ -4,9 +4,9 @@ import { takeUntil, filter, delay } from 'rxjs/operators';
 
 import { UrlPathId, UrlPath, UrlQuery } from 'app/shared/models';
 import { NewUrlStateNotificationService, UrlRouteManagerService, AnalyticsService, TRACKED_EVENT_LIST } from 'app/shared/services';
-import { RealTimeWebSocketService, IWebSocketResponse, IWebSocketDataResult, IActiveThreadCounts } from 'app/core/components/real-time/real-time-websocket.service';
-import { IParsedATC } from './real-time-chart.component';
-import { getATCforAgent, getTotalResponseCount, getSuccessDataList, getFilteredATC } from './real-time-util';
+import { RealTimeWebSocketService, IWebSocketResponse, IWebSocketDataResult, IActiveRequestCounts } from 'app/core/components/real-time/real-time-websocket.service';
+import { IParsedARC } from './real-time-chart.component';
+import { getARCforAgent, getTotalResponseCount, getSuccessDataList, getFilteredARC } from './real-time-util';
 
 // TODO: 나중에 공통으로 추출.
 const enum MessageTemplate {
@@ -27,8 +27,8 @@ export class RealTimePagingContainerComponent implements OnInit, AfterViewInit, 
     private serviceType = '';
     activeOnly: boolean;
     timeStamp: number;
-    activeThreadCounts: { [key: string]: IActiveThreadCounts };
-    atcForAgent: { [key: string]: IParsedATC };
+    activeRequestCounts: { [key: string]: IActiveRequestCounts };
+    arcForAgent: { [key: string]: IParsedARC };
     messageTemplate = MessageTemplate.LOADING;
     totalCount: number;
     sum: number[];
@@ -110,7 +110,7 @@ export class RealTimePagingContainerComponent implements OnInit, AfterViewInit, 
     private resetState() {
         this.applicationName = '';
         this.serviceType = '';
-        this.activeThreadCounts = null;
+        this.activeRequestCounts = null;
     }
     private startDataRequest(): void {
         this.realTimeWebSocketService.send(this.getRequestDataStr(this.applicationName));
@@ -129,24 +129,24 @@ export class RealTimePagingContainerComponent implements OnInit, AfterViewInit, 
     }
     private onClose(): void {
         this.messageTemplate = MessageTemplate.RETRY;
-        this.activeThreadCounts = null;
+        this.activeRequestCounts = null;
     }
     private onRetry(): void {
         this.retryConnection();
     }
     private onMessage(data: IWebSocketDataResult): void {
         // this.messageTemplate = MessageTemplate.NOTHING;
-        const { timeStamp, applicationName, activeThreadCounts } = data;
+        const {timeStamp, applicationName, activeThreadCounts} = data;
 
         if (applicationName && applicationName !== this.applicationName) {
             return;
         }
 
         this.timeStamp = timeStamp;
-        this.atcForAgent = this.activeOnly ? getFilteredATC(getATCforAgent(this.activeThreadCounts, activeThreadCounts)) : getATCforAgent(this.activeThreadCounts, activeThreadCounts);
-        this.sum = getTotalResponseCount(getSuccessDataList(this.atcForAgent));
-        this.totalCount = Object.keys(this.atcForAgent).length;
-        this.activeThreadCounts = activeThreadCounts;
+        this.arcForAgent = this.activeOnly ? getFilteredARC(getARCforAgent(this.activeRequestCounts, activeThreadCounts)) : getARCforAgent(this.activeRequestCounts, activeThreadCounts);
+        this.sum = getTotalResponseCount(getSuccessDataList(this.arcForAgent));
+        this.totalCount = Object.keys(this.arcForAgent).length;
+        this.activeRequestCounts = activeThreadCounts;
     }
     retryConnection(): void {
         this.messageTemplate = MessageTemplate.LOADING;

@@ -3,7 +3,7 @@ import * as moment from 'moment-timezone';
 import { from } from 'rxjs';
 import { tap, filter } from 'rxjs/operators';
 
-import { IActiveThreadCounts, ResponseCode } from 'app/core/components/real-time/real-time-websocket.service';
+import { IActiveRequestCounts, ResponseCode } from 'app/core/components/real-time/real-time-websocket.service';
 import { sliceObj } from 'app/core/utils/util';
 
 export const enum ChartState {
@@ -12,7 +12,7 @@ export const enum ChartState {
     NORMAL = 'normal'
 }
 
-export interface IParsedATC extends IActiveThreadCounts {
+export interface IParsedARC extends IActiveRequestCounts {
     chartState: ChartState;
 }
 
@@ -26,7 +26,7 @@ export class RealTimeChartComponent implements OnInit, AfterViewInit, OnDestroy,
     @Input() timezone: string;
     @Input() dateFormat: string;
     @Input() timeStamp: number;
-    @Input() activeThreadCounts: { [key: string]: IParsedATC };
+    @Input() activeRequestCounts: { [key: string]: IParsedARC };
     @Input() currentPage = 1;
     @Input() maxChartNumberPerPage: number;
     @Input() sum: number[];
@@ -47,7 +47,7 @@ export class RealTimeChartComponent implements OnInit, AfterViewInit, OnDestroy,
     private lastMousePosInCanvas: ICoordinate;
     private chartNumPerRow: number;
     private dataSumList: number[][] = [];
-    private atcOnUse: { [key: string]: IParsedATC };
+    private arcOnUse: { [key: string]: IParsedARC };
     private numOfCharts: number;
 
     showTooltip = false;
@@ -64,34 +64,34 @@ export class RealTimeChartComponent implements OnInit, AfterViewInit, OnDestroy,
     ) {}
     ngOnInit() {}
     ngOnChanges(changes: SimpleChanges) {
-        const changesOnATC = changes['activeThreadCounts'];
+        const changesOnARC = changes['activeRequestCounts'];
         const changesOnTimeStamp = changes['timeStamp'];
         const firstChartIndex = (this.currentPage - 1) * this.maxChartNumberPerPage;
 
-        if (changesOnATC && changesOnTimeStamp) {
-            const { previousValue: prevATC = {}, currentValue: currATC }: { previousValue: { [key: string]: IParsedATC }, currentValue: { [key: string]: IParsedATC } } = changesOnATC;
+        if (changesOnARC && changesOnTimeStamp) {
+            const { previousValue: prevARC = {}, currentValue: currARC }: { previousValue: { [key: string]: IParsedARC }, currentValue: { [key: string]: IParsedARC } } = changesOnARC;
             const { currentValue: timeStamp } = changesOnTimeStamp;
-            const prevATCKeys = Object.keys(prevATC);
+            const prevARCKeys = Object.keys(prevARC);
 
-            for (const key of Object.keys(currATC)) {
-                const chartState = currATC[key].chartState;
+            for (const key of Object.keys(currARC)) {
+                const chartState = currARC[key].chartState;
 
                 if (chartState === ChartState.REMOVED) {
                     this.removeData(key);
                 } else {
-                    const { status } = currATC[key];
+                    const { status } = currARC[key];
                     const data = status ? status : [];
 
-                    chartState === ChartState.ADDED || !prevATCKeys.includes(key) ? this.initData(key, data, timeStamp) : this.addData(key, data, timeStamp);
+                    chartState === ChartState.ADDED || !prevARCKeys.includes(key) ? this.initData(key, data, timeStamp) : this.addData(key, data, timeStamp);
                 }
             }
 
             this.dataSumList.push(this.sum);
         }
 
-        this.atcOnUse = sliceObj(this.activeThreadCounts, firstChartIndex, firstChartIndex + this.maxChartNumberPerPage);
+        this.arcOnUse = sliceObj(this.activeRequestCounts, firstChartIndex, firstChartIndex + this.maxChartNumberPerPage);
 
-        if (this.canvas && (this.numOfCharts !== Object.keys(this.atcOnUse).length)) {
+        if (this.canvas && (this.numOfCharts !== Object.keys(this.arcOnUse).length)) {
             this.setCanvasSize();
         }
     }
@@ -141,7 +141,7 @@ export class RealTimeChartComponent implements OnInit, AfterViewInit, OnDestroy,
     private setCanvasSize(): void {
         const { titleHeight, containerHeight, canvasBottomPadding } = this.chartOption;
 
-        this.numOfCharts = Object.keys(this.atcOnUse).length;
+        this.numOfCharts = Object.keys(this.arcOnUse).length;
         this.canvas.width = this.el.nativeElement.offsetWidth;
         this.setChartNumPerRow();
         this.canvas.height = this.getTopEdgeYPos(this.numOfCharts - 1) + titleHeight + containerHeight + canvasBottomPadding;
@@ -193,14 +193,14 @@ export class RealTimeChartComponent implements OnInit, AfterViewInit, OnDestroy,
 
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-        from(Object.keys(this.activeThreadCounts)).pipe(
+        from(Object.keys(this.activeRequestCounts)).pipe(
             tap((key: string) => this.setStartingXPos(timeStamp, key)),
-            filter((key: string) => this.atcOnUse.hasOwnProperty(key)),
+            filter((key: string) => this.arcOnUse.hasOwnProperty(key)),
             tap(() => ++i)
         ).subscribe((key: string) => {
             this.drawChartTitle(key, i);
             this.drawChartContainerRect(i);
-            if (this.atcOnUse[key].chartState === ChartState.REMOVED) {
+            if (this.arcOnUse[key].chartState === ChartState.REMOVED) {
                 this.drawRemovedText(i);
                 return;
             }
@@ -297,7 +297,7 @@ export class RealTimeChartComponent implements OnInit, AfterViewInit, OnDestroy,
         this.ctx.textAlign = 'center';
         this.ctx.textBaseline = 'middle';
 
-        const { code, message } = this.atcOnUse[key];
+        const { code, message } = this.arcOnUse[key];
         const isResponseSuccess = code === ResponseCode.SUCCESS;
 
         if (!isResponseSuccess) {
@@ -339,8 +339,8 @@ export class RealTimeChartComponent implements OnInit, AfterViewInit, OnDestroy,
 
     private drawChartTitle(key: string, i: number): void {
         const { containerWidth, titleHeight, titleFontSize, marginRightForLinkIcon, linkIconCode } = this.chartOption;
-        const isRemovedKey = this.atcOnUse[key].chartState === ChartState.REMOVED;
-        const isAddedKey = this.atcOnUse[key].chartState === ChartState.ADDED;
+        const isRemovedKey = this.arcOnUse[key].chartState === ChartState.REMOVED;
+        const isAddedKey = this.arcOnUse[key].chartState === ChartState.ADDED;
 
         this.ctx.fillStyle = isAddedKey ? '#34b994' : isRemovedKey ? '#e95459' : '#74879a';
         this.ctx.fillRect(this.getLeftEdgeXPos(i), this.getTopEdgeYPos(i), containerWidth, titleHeight);
@@ -679,7 +679,7 @@ export class RealTimeChartComponent implements OnInit, AfterViewInit, OnDestroy,
         }
 
         const { coordX, coordY } = this.lastMousePosInCanvas;
-        const key = Object.keys(this.atcOnUse).find((_: string, i: number) => {
+        const key = Object.keys(this.arcOnUse).find((_: string, i: number) => {
             const leftX = this.getLeftEdgeXPos(i) + containerWidth - marginRightForLinkIcon - this.linkIconWidth;
             const rightX = this.getLeftEdgeXPos(i) + containerWidth - marginRightForLinkIcon;
             const topY = this.getTopEdgeYPos(i) + titleHeight / 2 - this.linkIconWidth / 2;

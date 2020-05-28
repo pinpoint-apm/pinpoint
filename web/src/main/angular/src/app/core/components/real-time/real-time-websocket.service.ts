@@ -14,10 +14,10 @@ interface IWebSocketData {
 export interface IWebSocketDataResult {
     timeStamp: number;
     applicationName: string;
-    activeThreadCounts: {[key: string]: IActiveThreadCounts};
+    activeThreadCounts: {[key: string]: IActiveRequestCounts};
 }
 
-export interface IActiveThreadCounts {
+export interface IActiveRequestCounts {
     code: ResponseCode;
     message: string;
     status?: number[];
@@ -45,7 +45,7 @@ export class RealTimeWebSocketService {
     private url = 'agent/activeThread.pinpointws';
     private timeoutLimit = 5; // 서버로부터의 timeout response를 무시하는 최대횟수
     private timeoutCount: { [key: string]: number } = {}; // 각 agent별 timeout된 횟수
-    private prevData: { [key: string]: IActiveThreadCounts } = {}; // Success일때의 데이터({ code, message, status })를 킵
+    private prevData: { [key: string]: IActiveRequestCounts } = {}; // Success일때의 데이터({ code, message, status })를 킵
     private delayLimit = 7000; // 서버로부터의 응답을 기다리는 최대시간(ms)
     private retryTimeout = 7000;
     private retryCount = 0;
@@ -155,7 +155,7 @@ export class RealTimeWebSocketService {
 
     private parseResult(result: IWebSocketDataResult): IWebSocketDataResult {
         const {timeStamp, applicationName, activeThreadCounts} = result;
-        const parsedATC = Object.keys(activeThreadCounts).reduce((prev: {[key: string]: IActiveThreadCounts}, curr: string) => {
+        const parsedARC = Object.keys(activeThreadCounts).reduce((prev: {[key: string]: IActiveRequestCounts}, curr: string) => {
             let agentData = activeThreadCounts[curr];
             const responseCode = agentData.code;
 
@@ -176,9 +176,9 @@ export class RealTimeWebSocketService {
                 ...prev,
                 [curr]: agentData
             };
-        }, {} as {[key: string]: IActiveThreadCounts});
+        }, {} as {[key: string]: IActiveRequestCounts});
 
-        return {timeStamp, applicationName, activeThreadCounts: parsedATC};
+        return {timeStamp, applicationName, activeThreadCounts: parsedARC};
     }
 
     // TODO: No Response 메시지 띄워주기

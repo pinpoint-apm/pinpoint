@@ -6,8 +6,8 @@ import { AgentJVMHeapChartContainer } from './agent-jvm-heap-chart-container';
 import { AgentJVMNonHeapChartContainer } from './agent-jvm-non-heap-chart-container';
 import { AgentCPUChartContainer } from './agent-cpu-chart-container';
 import { AgentTPSChartContainer } from './agent-tps-chart-container';
-import { AgentActiveThreadChartContainer } from './agent-active-thread-chart-container';
-import { AgentTotalThreadCountChartContainer} from "./agent-total-thread-count-chart-container";
+import { AgentActiveRequestChartContainer } from './agent-active-request-chart-container';
+import { AgentTotalThreadCountChartContainer} from './agent-total-thread-count-chart-container';
 import { AgentResponseTimeChartContainer } from './agent-response-time-chart-container';
 import { AgentOpenFileDescriptorChartContainer } from './agent-open-file-descriptor-chart-container';
 import { AgentDirectBufferCountChartContainer } from './agent-direct-buffer-count-chart-container';
@@ -19,8 +19,8 @@ import { ApplicationJVMNonHeapChartContainer } from './application-jvm-non-heap-
 import { ApplicationJVMCpuChartContainer } from './application-jvm-cpu-chart-container';
 import { ApplicationSystemCpuChartContainer } from './application-system-cpu-chart-container';
 import { ApplicationTPSChartContainer } from './application-tps-chart-container';
-import { ApplicationActiveThreadChartContainer } from './application-active-thread-chart-container';
-import { ApplicationTotalThreadCountChartContainer } from "./application-total-thread-count-chart-container";
+import { ApplicationActiveRequestChartContainer } from './application-active-request-chart-container';
+import { ApplicationTotalThreadCountChartContainer } from './application-total-thread-count-chart-container';
 import { ApplicationResponseTimeChartContainer } from './application-response-time-chart-container';
 import { ApplicationOpenFileDescriptorChartContainer } from './application-open-file-descriptor-chart-container';
 import { ApplicationDirectBufferCountChartContainer } from './application-direct-buffer-count-chart-container';
@@ -47,7 +47,7 @@ export enum ChartType {
     AGENT_JVM_NON_HEAP = 'AGENT_JVM_NON_HEAP',
     AGENT_CPU = 'AGENT_CPU',
     AGENT_TPS = 'AGENT_TPS',
-    AGENT_ACTIVE_THREAD = 'AGENT_ACTIVE_THREAD',
+    AGENT_ACTIVE_REQUEST = 'AGENT_ACTIVE_REQUEST',
     AGENT_TOTAL_THREAD = 'AGENT_TOTAL_THREAD',
     AGENT_RESPONSE_TIME = 'AGENT_RESPONSE_TIME',
     AGENT_OPEN_FILE_DESCRIPTOR = 'AGENT_OPEN_FILE_DESCRIPTOR',
@@ -61,7 +61,7 @@ export enum ChartType {
     APPLICATION_JVM_CPU = 'APPLICATION_JVM_CPU',
     APPLICATION_SYSTEM_CPU = 'APPLICATION_SYSTEM_CPU',
     APPLICATION_TPS = 'APPLICATION_TPS',
-    APPLICATION_ACTIVE_THREAD = 'APPLICATION_ACTIVE_THREAD',
+    APPLICATION_ACTIVE_REQUEST = 'APPLICATION_ACTIVE_REQUEST',
     APPLICATION_TOTAL_THREAD = 'APPLICATION_TOTAL_THREAD',
     APPLICATION_RESPONSE_TIME = 'APPLICATION_RESPONSE_TIME',
     APPLICATION_OPEN_FILE_DESCRIPTOR = 'APPLICATION_OPEN_FILE_DESCRIPTOR',
@@ -83,8 +83,8 @@ export class InspectorChartContainerFactory {
                 return new AgentCPUChartContainer(dataService);
             case ChartType.AGENT_TPS:
                 return new AgentTPSChartContainer(dataService);
-            case ChartType.AGENT_ACTIVE_THREAD:
-                return new AgentActiveThreadChartContainer(dataService);
+            case ChartType.AGENT_ACTIVE_REQUEST:
+                return new AgentActiveRequestChartContainer(dataService);
             case ChartType.AGENT_TOTAL_THREAD:
                 return new AgentTotalThreadCountChartContainer(dataService);
             case ChartType.AGENT_RESPONSE_TIME:
@@ -109,8 +109,8 @@ export class InspectorChartContainerFactory {
                 return new ApplicationSystemCpuChartContainer(dataService);
             case ChartType.APPLICATION_TPS:
                 return new ApplicationTPSChartContainer(dataService);
-            case ChartType.APPLICATION_ACTIVE_THREAD:
-                return new ApplicationActiveThreadChartContainer(dataService);
+            case ChartType.APPLICATION_ACTIVE_REQUEST:
+                return new ApplicationActiveRequestChartContainer(dataService);
             case ChartType.APPLICATION_TOTAL_THREAD:
                 return new ApplicationTotalThreadCountChartContainer(dataService);
             case ChartType.APPLICATION_RESPONSE_TIME:

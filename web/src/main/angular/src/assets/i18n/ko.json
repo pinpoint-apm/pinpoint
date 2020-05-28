@@ -273,8 +273,8 @@
             }]
         }],
         "REAL_TIME": [{
-            "TITLE": "Realtime Active Thread Chart",
-            "DESC": "각 Agent의 Active Thread 개수를 실시간으로 보여줍니다.",
+            "TITLE": "Active Request",
+            "DESC": "각 Agent의 Active Request 개수를 실시간으로 보여줍니다.",
             "CATEGORY": [{
                 "TITLE": "에러 메시지 설명",
                 "ITEMS": [{
@@ -285,7 +285,7 @@
                     "DESC": "해당 에이전트의 설정에서 기능이 비활성화되어 있습니다. (pinpoint 설정 파일에서 profiler.pinpoint.activethread 항목을 true로 변경하세요.)"
                 }, {
                     "NAME": "TIMEOUT",
-                    "DESC": "해당 에이전트에서 일시적으로 활성화 된 스레드 개수를 받지 못하였습니다.(오래 지속될 경우 담당자에게 문의하세요.)"
+                    "DESC": "해당 에이전트에서 일시적으로 활성화 된 리퀘스트 개수를 받지 못하였습니다.(오래 지속될 경우 담당자에게 문의하세요.)"
                 }, {
                     "NAME": "NOT FOUND",
                     "DESC": "해당 에이전트를 찾을 수 없습니다.(에이전트가 활성화 되어 있는 경우에 해당 메시지가 발생한다면 pinpoint 설정 파일에서 profiler.tcpdatasender.command.accept.enable 항목을 true로 변경하세요.)"
@@ -297,7 +297,7 @@
                     "DESC": "핀포인트 내부 에러가 발생하였습니다.(담당자에게 문의하세요.)"
                 }, {
                     "NAME": "No Active Thread",
-                    "DESC": "현재 해당 에이전트는 활성화된 스레드가 존재하지 않습니다."
+                    "DESC": "현재 해당 에이전트는 활성화된 리퀘스트가 존재하지 않습니다."
                 }, {
                     "NAME": "No Response",
                     "DESC": "핀포인트 웹 서버로부터의 응답을 받지 못하였습니다.(담당자에게 문의하세요.)"
@@ -464,23 +464,23 @@
                         }]
                     }]
                 }],
-                "ACTIVE_THREAD": [{
-                    "TITLE": "Active Thread",
-                    "DESC": "사용자 Request를 처리하는 Agent의 Active Thread 현황을 보여줍니다.",
+                "ACTIVE_REQUEST": [{
+                    "TITLE": "Active Request",
+                    "DESC": "사용자 Request를 처리하는 Agent의 Active Request 현황을 보여줍니다.",
                     "CATEGORY": [{
                         "TITLE": "범례",
                         "ITEMS": [{
                             "NAME": "Fast (1s)",
-                            "DESC": "현재 소요시간이 1초 이하인 Thread 개수"
+                            "DESC": "현재 소요시간이 1초 이하인 Request 개수"
                         }, {
                             "NAME": "Normal (3s)",
-                            "DESC": "현재 소요시간이 1초 초과, 3초 이하인 Thread 개수"
+                            "DESC": "현재 소요시간이 1초 초과, 3초 이하인 Request 개수"
                         }, {
                             "NAME": "Slow (5s)",
-                            "DESC": "현재 소요시간이 3초 초과, 5초 이하인 Thread 개수"
+                            "DESC": "현재 소요시간이 3초 초과, 5초 이하인 Request 개수"
                         }, {
                             "NAME": "Very Slow (slow)",
-                            "DESC": "현재 소요시간이 5초를 넘고 있는 Thread 개수"
+                            "DESC": "현재 소요시간이 5초를 넘고 있는 Request 개수"
                         }]
                     }]
                 }],
@@ -660,20 +660,20 @@
                         }]
                     }]
                 }],
-                "ACTIVE_THREAD": [{
-                    "TITLE": "Active Thread",
-                    "DESC": "사용자 Request를 처리하는 Active Thread 수",
+                "ACTIVE_REQUEST": [{
+                    "TITLE": "Active Request",
+                    "DESC": "사용자 Request를 처리하는 Active Request 수",
                     "CATEGORY": [{
                         "TITLE": "범례",
                         "ITEMS": [{
                             "NAME": "Min",
-                            "DESC": "Agent들의 Active Thread 수 중 가장 작은 값"
+                            "DESC": "Agent들의 Active Request 수 중 가장 작은 값"
                         }, {
                             "NAME": "Avg",
-                            "DESC": "Agent들의 Active Thread 수의 평균값"
+                            "DESC": "Agent들의 Active Request 수의 평균값"
                         }, {
                             "NAME": "Max",
-                            "DESC": "Agent들의 Active Thread 수 중 가장 큰 값"
+                            "DESC": "Agent들의 Active Request 수 중 가장 큰 값"
                         }]
                     }]
                 }],
