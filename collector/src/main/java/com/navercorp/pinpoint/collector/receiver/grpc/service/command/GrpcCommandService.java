@@ -84,11 +84,12 @@ public class GrpcCommandService extends ProfilerCommandServiceGrpc.ProfilerComma
 
         logger.debug("{} => local. handleCommand(). transportId:{}", agentInfo, transportId);
 
-        RequestManager requestManager = new RequestManager(timer, 3000);
+        final RequestManager requestManager = new RequestManager(timer, 3000);
         final PinpointGrpcServer pinpointGrpcServer = new PinpointGrpcServer(getRemoteAddress(), agentInfo, requestManager, requestObserver);
 
-        boolean registered = grpcServerRepository.registerIfAbsent(transportId, pinpointGrpcServer);
+        final boolean registered = grpcServerRepository.registerIfAbsent(transportId, pinpointGrpcServer);
         if (!registered) {
+            logger.warn("Duplicate PCmdRequestStream found. Terminate stream. {} transportId:{}", agentInfo, transportId);
             requestObserver.onError(new StatusException(Status.ALREADY_EXISTS));
             return DisabledStreamObserver.DISABLED_INSTANCE;
         }
@@ -103,7 +104,7 @@ public class GrpcCommandService extends ProfilerCommandServiceGrpc.ProfilerComma
             }
         });
 
-        StreamObserver<PCmdMessage> responseObserver = new StreamObserver<PCmdMessage>() {
+        final StreamObserver<PCmdMessage> responseObserver = new StreamObserver<PCmdMessage>() {
             @Override
             public void onNext(PCmdMessage value) {
                 if (value.hasHandshakeMessage()) {
