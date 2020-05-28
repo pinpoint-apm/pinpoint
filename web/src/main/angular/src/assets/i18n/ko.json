@@ -805,7 +805,7 @@
                             "NAME": "Max",
                             "DESC": "Agent가 사용 중인 Mapped Buffer Memory 중 가장 큰 값"
                         }]
-                    }],
+                    }]
                 }],
                 "TOTAL_THREAD":[{
                     "TITLE": "Total Thread",
