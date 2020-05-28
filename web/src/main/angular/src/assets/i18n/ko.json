@@ -572,6 +572,17 @@
                             "DESC": "현재 Mapped Buffer 가 사용중인 메모리"
                         }]
                     }]
+                }],
+                "TOTAL_THREAD": [{
+                    "TITLE": "Total Thread",
+                    "DESC": "Agent의 전체 thread 수를 보여줍니다.",
+                    "CATEGORY": [{
+                        "TITLE": "범례",
+                        "ITEMS": [{
+                            "NAME": "Total Thread Count",
+                            "DESC": "현재 총 thread의 수"
+                        }]
+                    }]
                 }]
             },
             "APPLICATION_CHART": {
@@ -793,6 +804,23 @@
                         }, {
                             "NAME": "Max",
                             "DESC": "Agent가 사용 중인 Mapped Buffer Memory 중 가장 큰 값"
+                        }]
+                    }],
+                }],
+                "TOTAL_THREAD":[{
+                    "TITLE": "Total Thread",
+                    "DESC": "Agent들의 total thread 수 현황",
+                    "CATEGORY": [{
+                        "TITLE": "범례",
+                        "ITEMS": [{
+                            "NAME": "Min",
+                            "DESC": "각 Agent의 total thread 수 중 가장 작은 값"
+                        }, {
+                            "NAME": "Avg",
+                            "DESC": "각 Agent의 total thread 수의 평균 값"
+                        }, {
+                            "NAME": "Max",
+                            "DESC": "각 Agent의 total thread 수 중 가장 큰 값"
                         }]
                     }]
                 }]
