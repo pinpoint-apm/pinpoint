@@ -1,7 +1,7 @@
 <div class="l-thread-chart-wrap" [style.height.px]="lastHeight" [hidden]="hiddenComponent">
     <div ppResizeTop [minHeight]="minHeight" [maxHeightPadding]="maxHeightPadding" class="l-title-group font-opensans">
         <div class="l-title">
-            <span class="fas fa-chart-area"></span>Realtime Active Thread Chart
+            <span class="fas fa-chart-area"></span>Active Request
         </div>
         <div class="l-tool-box">
             <button class="fas fa-thumbtack" [class.l-pin-up]="isPinUp" (click)="onPinUp()"></button>
@@ -9,14 +9,14 @@
         </div>
     </div>
     <div class="l-chart-group-wrap font-opensans">
-        <ng-container *ngIf="activeThreadCounts">
+        <ng-container *ngIf="activeRequestCounts">
             <article class="l-total-chart">
                 <pp-real-time-total-chart
                     [timeStamp]="timeStamp"
                     [timezone]="timezone$ | async"
                     [dateFormat]="dateFormat$ | async"
                     [sum]="sum"
-                    [activeThreadCounts]="atcForTotal">
+                    [activeRequestCounts]="arcForTotal">
                 </pp-real-time-total-chart>
             </article>
             <article class="l-agent-chart">
@@ -27,7 +27,7 @@
                 </pp-real-time-chart-header>
                 <pp-real-time-agent-chart
                     [timeStamp]="timeStamp"
-                    [activeThreadCounts]="atcForAgent"
+                    [activeRequestCounts]="arcForAgent"
                     [sum]="sum"
                     (outOpenThreadDump)="onOpenThreadDump($event)"
                     (outRenderCompleted)="onRenderCompleted()">

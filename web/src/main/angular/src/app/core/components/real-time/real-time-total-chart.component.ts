@@ -1,6 +1,6 @@
 import { Component, OnInit, Input, OnChanges, SimpleChanges } from '@angular/core';
 
-import { IParsedATC } from './real-time-chart.component';
+import { IParsedARC } from './real-time-chart.component';
 
 @Component({
     selector: 'pp-real-time-total-chart',
@@ -13,7 +13,7 @@ export class RealTimeTotalChartComponent implements OnChanges, OnInit {
     @Input() applicationName: string;
     @Input() timeStamp: number;
     @Input() sum: number[];
-    @Input() activeThreadCounts: {[key: string]: IParsedATC};
+    @Input() activeRequestCounts: {[key: string]: IParsedARC};
 
     maxChartNumberPerPage = 1;
     chartOption = {

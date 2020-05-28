@@ -1,6 +1,6 @@
 <div class="l-thread-chart-wrap">
     <div class="l-chart-group-wrap font-opensans">
-        <ng-container *ngIf="activeThreadCounts">
+        <ng-container *ngIf="activeRequestCounts">
             <article class="l-agent-chart">
                 <pp-real-time-chart-header
                     [activeOnly]="activeOnly"
@@ -11,7 +11,7 @@
                 </pp-real-time-chart-header>
                 <pp-real-time-agent-chart
                     [timeStamp]="timeStamp"
-                    [activeThreadCounts]="atcForAgent"
+                    [activeRequestCounts]="arcForAgent"
                     [sum]="sum"
                     [currentPage]="currentPage"
                     (outOpenThreadDump)="onOpenThreadDump($event)"

@@ -274,8 +274,8 @@
             }]
         }],
         "REAL_TIME": [{
-            "TITLE": "Realtime Active Thread Chart",
-            "DESC": "Shows the Active Thread count of each agent in realtime.",
+            "TITLE": "Active Request",
+            "DESC": "Shows the active request count of each agent in realtime.",
             "CATEGORY": [{
                 "TITLE": "Error Messages",
                 "ITEMS": [{
@@ -286,7 +286,7 @@
                     "DESC": "Option disabled by agent. (Please set profiler.pinpoint.activethread to true in profiler.config)"
                 }, {
                     "NAME": "TIMEOUT",
-                    "DESC": "Agent connection timed out receiving active thread count. Please contact the administrator if problem persists."
+                    "DESC": "Agent connection timed out receiving active request count. Please contact the administrator if problem persists."
                 }, {
                     "NAME": "NOT FOUND",
                     "DESC": "Agent not found. (If you get this message while the agent is running, please set profiler.tcpdatasender.command.accept.enable to true in profiler.config)"
@@ -298,7 +298,7 @@
                     "DESC": "Pinpoint internal error. Please contact the administrator."
                 }, {
                     "NAME": "No Active Thread",
-                    "DESC": "The agent has no threads that are currently active."
+                    "DESC": "The agent has no requests that are currently active."
                 }, {
                     "NAME": "No Response",
                     "DESC": "No response from Pinpoint Web. Please contact the administrator."
@@ -465,23 +465,23 @@
                         }]
                     }]
                 }],
-                "ACTIVE_THREAD": [{
-                    "TITLE": "Active Thread",
-                    "DESC": "Snapshots of the agent's active thread status, categorized by how long they have been active for serving a request.",
+                "ACTIVE_REQUEST": [{
+                    "TITLE": "Active Request",
+                    "DESC": "Snapshots of the agent's active request status, categorized by how long they have been active for serving a request.",
                     "CATEGORY": [{
                         "TITLE": "Legend",
                         "ITEMS": [{
                             "NAME": "Fast (1s)",
-                            "DESC": "Number of threads that have been active for less than or equal to 1s"
+                            "DESC": "Number of requests that have been active for less than or equal to 1s"
                         }, {
                             "NAME": "Normal (3s)",
-                            "DESC": "Number of threads that have been active for less than or equal to 3s but longer than 1s"
+                            "DESC": "Number of requests that have been active for less than or equal to 3s but longer than 1s"
                         }, {
                             "NAME": "Slow (5s)",
-                            "DESC": "Number of threads that have been active for less than or equal to 5s but longer than 3s"
+                            "DESC": "Number of requests that have been active for less than or equal to 5s but longer than 3s"
                         }, {
                             "NAME": "Very Slow (slow)",
-                            "DESC": "Number of threads that have been active for longer than 5s"
+                            "DESC": "Number of requests that have been active for longer than 5s"
                         }]
                     }]
                 }],
@@ -672,20 +672,20 @@
                         }]
                     }]
                 }],
-                "ACTIVE_THREAD": [{
-                    "TITLE": "Active Thread",
-                    "DESC": "Number of active threads serving user requests",
+                "ACTIVE_REQUEST": [{
+                    "TITLE": "Active Request",
+                    "DESC": "Number of active requests serving user requests",
                     "CATEGORY": [{
                         "TITLE": "Legend",
                         "ITEMS": [{
                             "NAME": "Min",
-                            "DESC": "Lowest active thread count of the agents serving user requests"
+                            "DESC": "Lowest active request count of the agents serving user requests"
                         }, {
                             "NAME": "Avg",
-                            "DESC": "Average active thread count of the agents serving user requests"
+                            "DESC": "Average active request count of the agents serving user requests"
                         }, {
                             "NAME": "Max",
-                            "DESC": "Highest active thread count of the agents serving user requests"
+                            "DESC": "Highest active request count of the agents serving user requests"
                         }]
                     }]
                 }],

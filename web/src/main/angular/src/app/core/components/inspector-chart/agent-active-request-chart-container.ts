@@ -1,18 +1,15 @@
 import { PrimitiveArray, Data } from 'billboard.js';
 import { Observable } from 'rxjs';
 
-import { IInspectorChartContainer } from './inspector-chart-container-factory';
-import { makeYData, makeXData, getMaxTickValue } from 'app/core/utils/chart-util';
+import { makeYData, makeXData, getMaxTickValue, getStackedData } from 'app/core/utils/chart-util';
 import { IInspectorChartData, InspectorChartDataService } from './inspector-chart-data.service';
-import { getAgentId } from './inspector-chart-util';
+import { IInspectorChartContainer } from './inspector-chart-container-factory';
 
-export class ApplicationActiveThreadChartContainer implements IInspectorChartContainer {
-    private apiUrl = 'getApplicationStat/activeTrace/chart.pinpoint';
-    private minAgentIdList: string[];
-    private maxAgentIdList: string[];
+export class AgentActiveRequestChartContainer implements IInspectorChartContainer {
+    private apiUrl = 'getAgentStat/activeTrace/chart.pinpoint';
 
     defaultYMax = 4;
-    title = 'Active Thread';
+    title = 'Active Request';
 
     constructor(
         private inspectorChartDataService: InspectorChartDataService
@@ -23,46 +20,44 @@ export class ApplicationActiveThreadChartContainer implements IInspectorChartCon
     }
 
     makeChartData({charts}: IInspectorChartData): PrimitiveArray[] {
-        this.minAgentIdList = makeYData(charts.y['ACTIVE_TRACE_COUNT'], 1) as string[];
-        this.maxAgentIdList = makeYData(charts.y['ACTIVE_TRACE_COUNT'], 3) as string[];
-
         return [
             ['x', ...makeXData(charts.x)],
-            ['max', ...makeYData(charts.y['ACTIVE_TRACE_COUNT'], 2)],
-            ['avg', ...makeYData(charts.y['ACTIVE_TRACE_COUNT'], 4)],
-            ['min', ...makeYData(charts.y['ACTIVE_TRACE_COUNT'], 0)],
+            ['fast', ...makeYData(charts.y['ACTIVE_TRACE_FAST'], 2)],
+            ['normal', ...makeYData(charts.y['ACTIVE_TRACE_NORMAL'], 2)],
+            ['slow', ...makeYData(charts.y['ACTIVE_TRACE_SLOW'], 2)],
+            ['verySlow', ...makeYData(charts.y['ACTIVE_TRACE_VERY_SLOW'], 2)],
         ];
     }
 
     makeDataOption(): Data {
         return {
-            type: 'spline',
+            type: 'area-spline',
             names: {
-                min: 'Min',
-                avg: 'Avg',
-                max: 'Max',
+                fast: 'Fast',
+                normal: 'Normal',
+                slow: 'Slow',
+                verySlow: 'Very Slow'
             },
             colors: {
-                min: '#66B2FF',
-                avg: '#4C0099',
-                max: '#0000CC',
-            }
+                fast: 'rgba(44, 160, 44, 0.4)',
+                normal: 'rgba(60, 129, 250, 0.4)',
+                slow: 'rgba(248, 199, 49, 0.4)',
+                verySlow: 'rgba(246, 145, 36, 0.4)'
+            },
+            groups: [['fast', 'normal', 'slow', 'verySlow']],
+            order: null
         };
     }
 
     makeElseOption(): {[key: string]: any} {
-        return {
-            line: {
-                classes: ['min', 'avg', 'max']
-            }
-        };
+        return {};
     }
 
     makeYAxisOptions(data: PrimitiveArray[]): {[key: string]: any} {
         return {
             y: {
                 label: {
-                    text: 'Active Thread (count)',
+                    text: 'Active Request (count)',
                     position: 'outer-middle'
                 },
                 tick: {
@@ -75,7 +70,7 @@ export class ApplicationActiveThreadChartContainer implements IInspectorChartCon
                 },
                 min: 0,
                 max: (() => {
-                    const maxTickValue = getMaxTickValue(data, 1);
+                    const maxTickValue = getMaxTickValue(getStackedData(data), 1);
 
                     return maxTickValue === 0 ? this.defaultYMax : maxTickValue;
                 })(),
@@ -97,6 +92,6 @@ export class ApplicationActiveThreadChartContainer implements IInspectorChartCon
     }
 
     getTooltipFormat(v: number, columnId: string, i: number): string {
-        return `${this.convertWithUnit(v)} ${getAgentId(columnId, i, this.minAgentIdList, this.maxAgentIdList)}`;
+        return this.convertWithUnit(v);
     }
 }

@@ -40,8 +40,8 @@
     width: 530px;
 }
 
-:host(.agent_active_thread),
-:host(.application_active_thread),
+:host(.agent_active_request),
+:host(.application_active_request),
 :host(.agent_tps),
 :host(.application_tps),
 :host(.agent_open_file_descriptor),

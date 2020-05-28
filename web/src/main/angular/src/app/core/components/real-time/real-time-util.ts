@@ -1,11 +1,11 @@
-import { IActiveThreadCounts, ResponseCode } from './real-time-websocket.service';
+import { IActiveRequestCounts, ResponseCode } from './real-time-websocket.service';
 import { filterObj } from 'app/core/utils/util';
-import { IParsedATC, ChartState } from './real-time-chart.component';
+import { IParsedARC, ChartState } from './real-time-chart.component';
 
-export function getSuccessDataList(atc: { [key: string]: IActiveThreadCounts }): number[][] {
-    const successATC = filterObj((agentName: string) => atc[agentName].code === ResponseCode.SUCCESS, atc);
+export function getSuccessDataList(arc: {[key: string]: IActiveRequestCounts}): number[][] {
+    const successARC = filterObj((agentName: string) => arc[agentName].code === ResponseCode.SUCCESS, arc);
 
-    return Object.keys(successATC).map((agentName: string) => atc[agentName].status);
+    return Object.keys(successARC).map((agentName: string) => arc[agentName].status);
 }
 
 export function getTotalResponseCount(dataList: number[][]): number[] {
@@ -14,22 +14,22 @@ export function getTotalResponseCount(dataList: number[][]): number[] {
     }, [0, 0, 0, 0]);
 }
 
-export function getATCforAgent(prevATC: { [key: string]: IActiveThreadCounts }, currATC: { [key: string]: IActiveThreadCounts }): { [key: string]: IParsedATC } {
-    const isFirstData = !prevATC;
-    const prevATCKeys = isFirstData ? [] : Object.keys(prevATC);
-    const currATCKeys = Object.keys(currATC);
-    const mergedKeys = [...new Set([...prevATCKeys, ...currATCKeys])];
-    const atc = mergedKeys.reduce((acc: { [key: string]: IParsedATC }, key: string) => {
-        return !prevATCKeys.includes(key) ? { ...acc, [key]: { ...currATC[key], chartState: isFirstData ? ChartState.NORMAL : ChartState.ADDED } }
-            : !currATCKeys.includes(key) ? { ...acc, [key]: { ...prevATC[key], chartState: ChartState.REMOVED }}
-            : { ...acc, [key]: { ...currATC[key], chartState: ChartState.NORMAL }};
+export function getARCforAgent(prevARC: {[key: string]: IActiveRequestCounts}, currARC: {[key: string]: IActiveRequestCounts}): {[key: string]: IParsedARC} {
+    const isFirstData = !prevARC;
+    const prevARCKeys = isFirstData ? [] : Object.keys(prevARC);
+    const currARCKeys = Object.keys(currARC);
+    const mergedKeys = [...new Set([...prevARCKeys, ...currARCKeys])];
+    const arc = mergedKeys.reduce((acc: {[key: string]: IParsedARC}, key: string) => {
+        return !prevARCKeys.includes(key) ? {...acc, [key]: {...currARC[key], chartState: isFirstData ? ChartState.NORMAL : ChartState.ADDED}}
+            : !currARCKeys.includes(key) ? {...acc, [key]: {...prevARC[key], chartState: ChartState.REMOVED}}
+            : { ...acc, [key]: { ...currARC[key], chartState: ChartState.NORMAL }};
     }, {});
 
-    return atc;
+    return arc;
 }
 
-export function getATCforTotal(applicationName: string, atc: { [key: string]: IActiveThreadCounts }): { [key: string]: IParsedATC } {
-    const successDataList = getSuccessDataList(atc);
+export function getARCforTotal(applicationName: string, arc: {[key: string]: IActiveRequestCounts}): {[key: string]: IParsedARC} {
+    const successDataList = getSuccessDataList(arc);
     const hasError = successDataList.length === 0;
     const totalResponseCount = getTotalResponseCount(successDataList);
 
@@ -43,6 +43,6 @@ export function getATCforTotal(applicationName: string, atc: { [key: string]: IA
     };
 }
 
-export function getFilteredATC(atc: { [key: string]: IParsedATC }): { [key: string]: IParsedATC } {
-    return filterObj((agentName: string) => atc[agentName].code === ResponseCode.SUCCESS, atc);
+export function getFilteredARC(arc: {[key: string]: IParsedARC}): {[key: string]: IParsedARC} {
+    return filterObj((agentName: string) => arc[agentName].code === ResponseCode.SUCCESS, arc);
 }
