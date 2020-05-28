@@ -19,8 +19,10 @@ package com.navercorp.pinpoint.interaction.util;
 /**
  * @author yjqg6666
  */
-@SuppressWarnings("unused")
 public class ClassLoaderUtils {
+
+    private ClassLoaderUtils(){
+    }
 
     public static Class<?> loadClassFromAppObject(Object appLoadedObject, String className) {
         ClassLoader appClassLoader = getAppClassLoader(appLoadedObject);

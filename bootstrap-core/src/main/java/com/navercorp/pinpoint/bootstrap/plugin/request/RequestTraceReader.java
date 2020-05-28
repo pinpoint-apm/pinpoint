@@ -26,6 +26,9 @@ import com.navercorp.pinpoint.bootstrap.plugin.request.util.NameSpaceCheckFactor
 import com.navercorp.pinpoint.bootstrap.plugin.request.util.NameSpaceChecker;
 import com.navercorp.pinpoint.bootstrap.sampler.SamplingHint;
 import com.navercorp.pinpoint.common.util.Assert;
+import com.navercorp.pinpoint.interaction.trace.decision.TraceDecisionEnum;
+import com.navercorp.pinpoint.interaction.trace.decision.TraceDecisionHelper;
+import com.navercorp.pinpoint.interaction.trace.decision.TraceDecisionMakerHolder;
 
 /**
  * @author jaehong.kim
@@ -60,10 +63,15 @@ public class RequestTraceReader<T> {
     public Trace read(T request) {
         Assert.requireNonNull(request, "request");
 
+        boolean headerForceTracing = forceSamplingHeaderEnabled && requestAdaptor.getHeader(request, Header.HTTP_FORCE_SAMPLE.toString()) != null;
+        TraceDecisionEnum appTraceDecision = TraceDecisionHelper.shouldTrace(request);
+        boolean forceTracing = headerForceTracing || appTraceDecision.forceTrace();
+
         final TraceHeader traceHeader = traceHeaderReader.read(request);
         // Check sampling flag from client. If the flag is false, do not sample this request.
         final TraceHeaderState state = traceHeader.getState();
-        if (state == TraceHeaderState.DISABLE) {
+        boolean disableTracing = (state == TraceHeaderState.DISABLE) || appTraceDecision.noTrace();
+        if (disableTracing) {
             // Even if this transaction is not a sampling target, we have to create Trace object to mark 'not sampling'.
             // For example, if this transaction invokes rpc call, we can add parameter to tell remote node 'don't sample this transaction'
             final Trace trace = this.traceContext.disableSampling();
@@ -75,19 +83,19 @@ public class RequestTraceReader<T> {
 
         if (state == TraceHeaderState.CONTINUE) {
             if (!nameSpaceChecker.checkNamespace(request)) {
-                return newTrace(request);
+                return newTrace(request, forceTracing);
             }
 
             return continueTrace(request, traceHeader);
         }
         if (state == TraceHeaderState.NEW_TRACE) {
-            return newTrace(request);
+            return newTrace(request, forceTracing);
         }
         throw new UnsupportedOperationException("Unsupported state=" + state);
     }
 
-    private Trace newTrace(T request) {
-        if (forceSamplingHeaderEnabled && requestAdaptor.getHeader(request, Header.HTTP_FORCE_SAMPLE.toString()) != null) {
+    private Trace newTrace(T request, boolean forceTracing) {
+        if (forceTracing) {
             SamplingHint.forceSampling();
         }
         final Trace trace = newTrace();
