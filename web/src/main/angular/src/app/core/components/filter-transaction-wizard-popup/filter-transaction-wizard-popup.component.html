@@ -73,8 +73,8 @@
                 [step]="100" 
                 [format]="getTimeFormatter()" 
                 [tooltips]="[true, true]" 
-                [(ngModel)]="responseTimeRange"
-            ></nouislider>
+                [(ngModel)]="responseTimeRange">
+            </nouislider>
             <div class="l-range-info">
                 <span>{{responseTimeMin.toLocaleString()}} ms</span>
                 <span class="l-range-text">Range {{(responseTimeRange[1] - responseTimeRange[0]).toLocaleString()}} ms</span>

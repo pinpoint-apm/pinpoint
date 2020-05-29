@@ -92,7 +92,7 @@ export class ServerMapForFilteredMapContainerComponent implements OnInit, OnDest
             this.mapData = new ServerMapData(
                 this.mergedNodeDataList,
                 this.mergedLinkDataList,
-                Filter.instanceFromString(this.newUrlStateNotificationService.hasValue(UrlQuery.FILTER) ? this.newUrlStateNotificationService.getPathValue(UrlQuery.FILTER) : '')
+                Filter.instanceFromString(this.newUrlStateNotificationService.hasValue(UrlQuery.FILTER) ? this.newUrlStateNotificationService.getQueryValue(UrlQuery.FILTER) : '')
             );
             this.isEmpty = this.mapData.getNodeCount() === 0;
             this.messageQueueService.sendMessage({
@@ -253,6 +253,7 @@ export class ServerMapForFilteredMapContainerComponent implements OnInit, OnDest
 
     onContextClickNode({key, coord}: {key: string, coord: ICoordinate}): void {
         const nodeData = this.mapData.getNodeData(key);
+
         if (nodeData.isWas) {
             this.dynamicPopupService.openPopup({
                 data: nodeData,
