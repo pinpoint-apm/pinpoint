@@ -22,6 +22,7 @@ import java.util.Objects;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.ApiMetaDataBo;
 import com.navercorp.pinpoint.common.server.bo.MethodTypeEnum;
+import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.loader.service.AnnotationKeyRegistryService;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
@@ -97,7 +98,9 @@ public class RecordFactory {
     private String getArgument(final Align align) {
         final String rpc = align.getRpc();
         if (rpc != null) {
-            return rpc;
+            SpanBo spanBo = align.getSpanBo();
+            String endPoint = spanBo != null ? spanBo.getEndPoint() : "";
+            return endPoint + rpc;
         }
 
         return getDisplayArgument(align);
