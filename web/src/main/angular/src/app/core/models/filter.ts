@@ -1,3 +1,13 @@
+export const enum ResponseRange {
+    MIN = 0,
+    MAX = 30000
+}
+
+const enum FilterType {
+    NODE,
+    LINK
+}
+
 export class Filter {
     // paramName = fa
     fromApplication = '';
@@ -25,6 +35,9 @@ export class Filter {
     toAgentName?: string;
     // paramName = an
     agentName?: string;
+    // node or link
+    type: FilterType;
+
     static instanceFromString(str: string): Filter[] {
         const returnFilter: Filter[] = [];
         let aFilterFromStr: any;
@@ -49,7 +62,7 @@ export class Filter {
                 newFilter.setResponseFrom(filterFromStr.rf);
             }
             if (filterFromStr.rt) {
-                newFilter.setResponseTo(filterFromStr.rt);
+                newFilter.setResponseTo(filterFromStr.rt === 'max' ? ResponseRange.MAX : filterFromStr.rt);
             }
             if (filterFromStr.url) {
                 newFilter.setUrlPattern(filterFromStr.url);
@@ -64,6 +77,7 @@ export class Filter {
         }
         return returnFilter;
     }
+
     constructor(fa: string, fst: string, ta: string, tst: string, ie: null | boolean = null, a: string = null, st: string = null) {
         this.fromApplication = fa;
         this.fromServiceType = fst;
@@ -72,16 +86,22 @@ export class Filter {
         this.transactionResult = ie;
         this.application = a;
         this.serviceType = st;
+        this.type = this.getFilterType();
+    }
+
+    private getFilterType(): FilterType {
+        return this.application === null && this.serviceType === null
+            ? FilterType.LINK
+            : FilterType.NODE;
     }
 
     equal(filter: Filter): boolean {
-        return (
-            (this.application === filter.application && this.serviceType === filter.serviceType)
-            || (this.fromApplication === filter.fromApplication &&
+        return this.type !== filter.type ? false
+            : filter.type === FilterType.NODE ? this.application === filter.application && this.serviceType === filter.serviceType
+            : this.fromApplication === filter.fromApplication &&
             this.fromServiceType === filter.fromServiceType &&
             this.toApplication === filter.toApplication &&
-            this.toServiceType === filter.toServiceType)
-        );
+            this.toServiceType === filter.toServiceType;
     }
 
     setResponseFrom(rf: number): void {
@@ -139,7 +159,7 @@ export class Filter {
             param['rf'] = this.responseFrom;
         }
         if (this.responseTo) {
-            param['rt'] = this.responseTo;
+            param['rt'] = this.responseTo === ResponseRange.MAX ? 'max' : this.responseTo;
         }
         if (this.urlPattern) {
             param['url'] = this.urlPattern;

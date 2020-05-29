@@ -1,7 +1,7 @@
 import { Component, OnInit, Input, Output, EventEmitter, HostBinding } from '@angular/core';
 import { NouiFormatter } from 'ng2-nouislider';
 
-import { Filter } from 'app/core/models/';
+import { Filter, ResponseRange } from 'app/core/models/';
 
 export class TimeFormatter implements NouiFormatter {
     to(value: number): string {
@@ -37,9 +37,9 @@ export class FilterTransactionWizardPopupComponent implements OnInit {
     selectedFromAgent = AGENT_ALL;
     selectedToAgent = AGENT_ALL;
     urlPattern = '';
-    responseTimeMin = 0;
-    responseTimeMax = 30000;
-    responseTimeRange = [0, 30000];
+    responseTimeMin = ResponseRange.MIN;
+    responseTimeMax = ResponseRange.MAX;
+    responseTimeRange = [ResponseRange.MIN, ResponseRange.MAX];
 
     constructor() {}
     ngOnInit() {
