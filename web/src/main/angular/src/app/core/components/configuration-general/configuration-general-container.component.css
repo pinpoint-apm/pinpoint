@@ -79,3 +79,7 @@ tbody > tr {
 .l-input-wrapper {
     padding: 11px !important;
 }
+
+.l-empty-space-consumer {
+    flex: 1;
+}

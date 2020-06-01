@@ -11,9 +11,7 @@ export class TimezoneSelectComponent implements OnInit {
     @Output() outChangeTimezone = new EventEmitter<string>();
 
     constructor() {}
-    ngOnInit() {
-    }
-
+    ngOnInit() {}
     onChangeTimezone(value: string): void {
         this.outChangeTimezone.emit(value);
     }

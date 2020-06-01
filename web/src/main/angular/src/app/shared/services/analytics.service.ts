@@ -117,6 +117,7 @@ export enum TRACKED_EVENT_LIST {
     SHOW_ALL_INACTIVE_AGENTS_REMOVE_CONFIRM_VIEW = 'Show All Inactive Agents Remove Confirm View',
     REMOVE_ONE_AGENT = 'Remove One Agent',
     REMOVE_ALL_INACTIVE_AGENTS = 'Remove All Inactive Agents',
+    CHANGE_LANGUAGE = 'Change language',
 }
 
 @Injectable()
