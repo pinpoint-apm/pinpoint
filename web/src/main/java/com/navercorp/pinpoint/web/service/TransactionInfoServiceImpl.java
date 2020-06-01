@@ -389,6 +389,16 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
                     final Record remoteAddressRecord = factory.getParameter(record.getTab() + 1, record.getId(), "REMOTE_ADDRESS", align.getRemoteAddr());
                     recordList.add(remoteAddressRecord);
                 }
+
+                // add endPoint.(span only)
+                if (align.isSpan()) {
+                    final SpanBo spanBo = align.getSpanBo();
+                    final String endPoint = spanBo.getEndPoint();
+                    if (endPoint != null) {
+                        final Record endPointRecord = factory.getParameter(record.getTab() + 1, record.getId(), "ENDPOINT", endPoint);
+                        recordList.add(endPointRecord);
+                    }
+                }
             }
 
             return recordList;
