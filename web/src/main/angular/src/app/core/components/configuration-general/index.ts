@@ -6,6 +6,7 @@ import { SearchPeriodModule } from 'app/core/components/search-period';
 import { ApplicationListModule } from 'app/core/components/application-list';
 import { TimezoneModule } from 'app/core/components/timezone';
 import { DateFormatModule } from 'app/core/components/date-format';
+import { LanguageSettingModule } from 'app/core/components/language-setting';
 import { ConfigurationGeneralContainerComponent } from './configuration-general-container.component';
 
 @NgModule({
@@ -19,6 +20,7 @@ import { ConfigurationGeneralContainerComponent } from './configuration-general-
         ApplicationListModule,
         TimezoneModule,
         DateFormatModule,
+        LanguageSettingModule
     ],
     exports: [
         ConfigurationGeneralContainerComponent

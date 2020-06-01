@@ -31,6 +31,7 @@ export class WebAppSettingDataService {
         CHART_NUM_PER_ROW: 'chartNumPerRow',
         APPLICATION_CHART_LAYOUT_INFO: 'applicationChartLayoutInfo',
         AGENT_CHART_LAYOUT_INFO: 'agentChartLayoutInfo',
+        LANGUAGE: 'language',
     };
     private IMAGE_PATH = './assets/img/';
     private IMAGE_EXT = '.png';
@@ -45,6 +46,7 @@ export class WebAppSettingDataService {
     ) {
         this.store.dispatch(new Actions.ChangeTimezone(this.getTimezone()));
         this.store.dispatch(new Actions.ChangeDateFormat(this.getDateFormat()));
+        this.store.dispatch(new Actions.ChangeLanguage(this.getLanguage()));
         this.store.pipe(
             select(STORE_KEY.APPLICATION_LIST),
             filter((appList: IApplication[]) => appList.length !== 0),
@@ -259,5 +261,11 @@ export class WebAppSettingDataService {
     }
     setAgentLayoutInfo(chartInfo: IChartLayoutInfoResponse): void {
         this.localStorageService.set(WebAppSettingDataService.KEYS.AGENT_CHART_LAYOUT_INFO, chartInfo);
+    }
+    setLanguage(value: string): void {
+        this.localStorageService.set(WebAppSettingDataService.KEYS.LANGUAGE, value);
+    }
+    private getLanguage(): string {
+        return this.localStorageService.get(WebAppSettingDataService.KEYS.LANGUAGE) || window.navigator.language.substring(0, 2);
     }
 }

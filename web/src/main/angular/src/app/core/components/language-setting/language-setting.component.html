@@ -1,0 +1,5 @@
+<select class="l-lang-select" [ngModel]="currentLanguage" (ngModelChange)="onChangeLanguage($event)">
+    <option *ngFor="let language of languagelist" [ngValue]="language.key">{{language.display}}</option>
+</select>
+<span class="fas fa-angle-down"></span>
+    

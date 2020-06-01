@@ -19,6 +19,7 @@ import * as range from './range.reducer';
 import * as chartLayout from './inspector-chart-layout-info.reducer';
 import * as transactionViewType from './transaction-view-type.reducer';
 import * as chartYMax from './chart-y-max.reducer';
+import * as language from './language.reducer';
 
 export interface AppState {
     timeline: ITimelineInfo;
@@ -66,6 +67,7 @@ export const STORE_KEY = {
     TRANSACTION_VIEW_TYPE: 'transactionViewType',
     RESPONSE_SUMMARY_CHART_Y_MAX: 'responseSummaryChartYMax',
     LOAD_CHART_Y_MAX: 'loadChartYMax',
+    LANGUAGE: 'language',
 };
 
 
@@ -91,7 +93,8 @@ export const reducers: ActionReducerMap<any> = {
     agentInspectorChartLayout: chartLayout.AgentInspectorChartLayoutReducer,
     transactionViewType: transactionViewType.Reducer,
     responseSummaryChartYMax: chartYMax.ResponseSummaryChartYMaxReducer,
-    loadChartYMax: chartYMax.LoadChartYMaxReducer
+    loadChartYMax: chartYMax.LoadChartYMaxReducer,
+    language: language.Reducer
 };
 
 export const Actions = {
@@ -116,7 +119,8 @@ export const Actions = {
     'UpdateAgentInspectorChartLayout': chartLayout.UpdateAgentInspectorChartLayoutInfo,
     'ChangeTransactionViewType': transactionViewType.ChangeTransactionViewType,
     'UpdateResponseSummaryChartYMax': chartYMax.UpdateResponseSummaryChartYMax,
-    'UpdateLoadChartYMax': chartYMax.UpdateLoadChartYMax
+    'UpdateLoadChartYMax': chartYMax.UpdateLoadChartYMax,
+    'ChangeLanguage': language.ChangeLanguage
 };
 
 const getUI = createFeatureSelector('uiState');

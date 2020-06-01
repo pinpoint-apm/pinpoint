@@ -31,6 +31,9 @@ export class StoreHelperService {
     getTimezone(unsubscribe?: Subject<void>): Observable<string> {
         return this.getObservable(STORE_KEY.TIMEZONE, unsubscribe);
     }
+    getLanguage(unsubscribe?: Subject<void>): Observable<string> {
+        return this.getObservable(STORE_KEY.LANGUAGE, unsubscribe);
+    }
     getDateFormatIndex(unsubscribe: Subject<void>): Observable<number> {
         return this.getObservable(STORE_KEY.DATE_FORMAT, unsubscribe);
     }
