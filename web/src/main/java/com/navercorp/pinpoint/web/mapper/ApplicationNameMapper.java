@@ -25,7 +25,6 @@ import java.util.Set;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.web.service.ApplicationFactory;
 import org.apache.hadoop.hbase.Cell;
-import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,7 +51,7 @@ public class ApplicationNameMapper implements RowMapper<List<Application>> {
         
         Cell[] rawCells = result.rawCells();
         for (Cell cell : rawCells) {
-            short serviceTypeCode = Bytes.toShort(CellUtil.cloneValue(cell));
+            short serviceTypeCode = Bytes.toShort(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength());
             uniqueTypeCodes.add(serviceTypeCode);
         }
         List<Application> applicationList = new ArrayList<>();

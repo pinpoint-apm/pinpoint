@@ -50,7 +50,7 @@ public class ApiMetaDataMapper implements RowMapper<List<ApiMetaDataBo>> {
 
     private final RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix;
     
-    private final static String API_METADATA_CF_API_QUALI_SIGNATURE  = Bytes.toString(HbaseColumnFamily.API_METADATA_API.QUALIFIER_SIGNATURE);
+    private final static byte[] API_METADATA_CF_API_QUALI_SIGNATURE  = HbaseColumnFamily.API_METADATA_API.QUALIFIER_SIGNATURE;
 
     public ApiMetaDataMapper(@Qualifier("metadataRowKeyDistributor") RowKeyDistributorByHashPrefix rowKeyDistributorByHashPrefix) {
         this.rowKeyDistributorByHashPrefix = Objects.requireNonNull(rowKeyDistributorByHashPrefix, "rowKeyDistributorByHashPrefix");
@@ -69,8 +69,7 @@ public class ApiMetaDataMapper implements RowMapper<List<ApiMetaDataBo>> {
             ApiMetaDataBo apiMetaDataBo = new ApiMetaDataBo();
             apiMetaDataBo.readRowKey(rowKey);
 
-            final byte[] qualifier = CellUtil.cloneQualifier(cell);
-            final byte[] value = getValue(cell, qualifier);
+            final byte[] value = getValue(cell);
 
             Buffer buffer = new FixedBuffer(value);
             String apiInfo = buffer.readPrefixedString();
@@ -90,11 +89,13 @@ public class ApiMetaDataMapper implements RowMapper<List<ApiMetaDataBo>> {
         return apiMetaDataList;
     }
 
-    private byte[] getValue(Cell cell, byte[] qualifier) {
-        if (API_METADATA_CF_API_QUALI_SIGNATURE.equals(Bytes.toString(qualifier))) {
+    private byte[] getValue(Cell cell) {
+        if (Bytes.equals(API_METADATA_CF_API_QUALI_SIGNATURE, 0, API_METADATA_CF_API_QUALI_SIGNATURE.length,
+                cell.getQualifierArray(), cell.getQualifierOffset(), cell.getQualifierLength())) {
             return CellUtil.cloneValue(cell);
         } else {
-            return qualifier;
+            // backward compatibility
+            return CellUtil.cloneQualifier(cell);
         }
     }
 

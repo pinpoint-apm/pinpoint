@@ -115,7 +115,10 @@ public class SpanMapperV2 implements RowMapper<List<SpanBo>> {
                 }
 
             } else {
-                logger.warn("Unknown ColumnFamily :{}", Bytes.toStringBinary(CellUtil.cloneFamily(cell)));
+                if (logger.isWarnEnabled()) {
+                    String columnFamily = Bytes.toStringBinary(cell.getFamilyArray(), cell.getFamilyOffset(), cell.getFamilyLength());
+                    logger.warn("Unknown ColumnFamily :{}", columnFamily);
+                }
             }
             nextCell(spanDecoder, decodingContext);
         }
