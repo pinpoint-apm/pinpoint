@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.collector.mapper.grpc.stat.GrpcAgentStatMapper;
 import com.navercorp.pinpoint.collector.mapper.grpc.stat.GrpcAgentUriStatMapper;
 import com.navercorp.pinpoint.collector.service.AgentStatService;
 import com.navercorp.pinpoint.collector.service.AgentUriStatService;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.common.trace.UriStatHistogramBucket;
 import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.server.ServerContext;
@@ -93,7 +94,7 @@ public class GrpcAgentUriStatHandlerV2Test {
     public void handleTest() {
         AgentUriStatService mockAgentUriStatService = Mockito.mock(AgentUriStatService.class);
 
-        attachContext(new Header("agent", "applicationName", System.currentTimeMillis(), Header.SOCKET_ID_NOT_EXIST, new ArrayList<>()));
+        attachContext(new Header("agent", "applicationName", ServiceType.UNKNOWN.getCode(), System.currentTimeMillis(), Header.SOCKET_ID_NOT_EXIST, new ArrayList<>()));
 
         PAgentUriStat pAgentUriStat = createPAgentUriStat();
 

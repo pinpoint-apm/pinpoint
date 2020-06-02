@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.collector.cluster.zookeeper.ZookeeperClusterServic
 import com.navercorp.pinpoint.collector.cluster.zookeeper.ZookeeperProfilerClusterManager;
 import com.navercorp.pinpoint.collector.receiver.grpc.RecordedStreamObserver;
 import com.navercorp.pinpoint.collector.receiver.grpc.service.command.GrpcCommandService;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.server.DefaultTransportMetadata;
 import com.navercorp.pinpoint.grpc.server.ServerContext;
@@ -56,7 +57,7 @@ public class GrpcCommandServiceTest {
     private final TestAwaitUtils awaitUtils = new TestAwaitUtils(100, 1000);
 
     @Test
-    public void oldVersionHandshakeTest() throws IOException {
+        public void oldVersionHandshakeTest() throws IOException {
         ZookeeperProfilerClusterManager manager = creteMemoryClusterManager();
 
         ZookeeperClusterService mockClusterService = Mockito.mock(ZookeeperClusterService.class);
@@ -67,7 +68,8 @@ public class GrpcCommandServiceTest {
         try {
             TransportMetadata transportMetaData = createTransportMetaData(new InetSocketAddress("127.0.0.1", 61613), 10);
             attachContext(transportMetaData);
-            attachContext(new Header("agent", "applicationName", System.currentTimeMillis(), Header.SOCKET_ID_NOT_EXIST, null));
+
+            attachContext(new Header("agent", "applicationName", ServiceType.UNDEFINED.getCode(), System.currentTimeMillis(), Header.SOCKET_ID_NOT_EXIST, null));
 
             StreamObserver<PCmdMessage> handleMessageObserver = commandService.handleCommand(new TempServerCallStreamObserver<PCmdRequest>());
 
@@ -98,7 +100,7 @@ public class GrpcCommandServiceTest {
         try {
             TransportMetadata transportMetaData = createTransportMetaData(new InetSocketAddress("127.0.0.1", 61613), 10);
             attachContext(transportMetaData);
-            attachContext(new Header("agent", "applicationName", System.currentTimeMillis(), Header.SOCKET_ID_NOT_EXIST, getCodeList()));
+            attachContext(new Header("agent", "applicationName", ServiceType.UNDEFINED.getCode(), System.currentTimeMillis(), Header.SOCKET_ID_NOT_EXIST, getCodeList()));
 
             final TempServerCallStreamObserver<PCmdRequest> requestObserver = new TempServerCallStreamObserver<>();
             StreamObserver<PCmdMessage> handleMessageObserver = commandService.handleCommand(requestObserver);
@@ -129,7 +131,7 @@ public class GrpcCommandServiceTest {
         try {
             TransportMetadata transportMetaData = createTransportMetaData(new InetSocketAddress("127.0.0.1", 61613), 10);
             attachContext(transportMetaData);
-            attachContext(new Header("agent", "applicationName", System.currentTimeMillis(), Header.SOCKET_ID_NOT_EXIST, getCodeList()));
+            attachContext(new Header("agent", "applicationName", ServiceType.UNDEFINED.getCode(), System.currentTimeMillis(), Header.SOCKET_ID_NOT_EXIST, getCodeList()));
 
             StreamObserver<PCmdMessage> handleMessageObserver = commandService.handleCommandV2(new TempServerCallStreamObserver<PCmdRequest>());
 
