@@ -6,6 +6,7 @@
         class="l-search-input"
         [useEnter]="searchUseEnter"
         (outSearch)="onSearchId($event)"
+        (keydown.esc)="onClearSearch(searchInput)"
         #searchInput>
     <button class="l-search-button fas fa-search" (click)="onSearchId(searchInput.value.trim())"></button>
     <ng-container *ngIf="coord">

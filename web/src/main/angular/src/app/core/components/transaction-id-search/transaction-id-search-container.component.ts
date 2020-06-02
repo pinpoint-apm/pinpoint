@@ -98,4 +98,8 @@ export class TransactionIdSearchContainerComponent implements OnInit, AfterViewI
     onClickOutside(): void {
         this.outClose.emit();
     }
+
+    onClearSearch(searchInput: HTMLInputElement): void {
+        searchInput.value = "";
+    }
 }
