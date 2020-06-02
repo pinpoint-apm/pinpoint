@@ -16,20 +16,11 @@
 
 package com.navercorp.pinpoint.web.mapper;
 
-import com.navercorp.pinpoint.common.buffer.Buffer;
-import com.navercorp.pinpoint.common.buffer.OffsetFixedBuffer;
-import com.navercorp.pinpoint.common.hbase.HbaseColumnFamily;
-import com.navercorp.pinpoint.common.hbase.HbaseTableConstatns;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
-import com.navercorp.pinpoint.common.util.BytesUtils;
-import com.navercorp.pinpoint.common.util.TimeUtils;
-import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.web.scatter.ScatterData;
 import com.navercorp.pinpoint.web.scatter.ScatterDataBuilder;
 import com.navercorp.pinpoint.web.vo.scatter.Dot;
-
 import org.apache.hadoop.hbase.Cell;
-import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
@@ -83,8 +74,8 @@ public class TraceIndexScatterMapper3 implements RowMapper<ScatterData> {
         Cell[] rawCells = result.rawCells();
         for (Cell cell : rawCells) {
             if (logger.isDebugEnabled()) {
-                final byte[] row = CellUtil.cloneRow(cell);
-                logger.debug("row:{} {}", Bytes.toStringBinary(row), row.length);
+                String row = Bytes.toStringBinary(cell.getRowArray(), cell.getRowOffset(), cell.getRowLength());
+                logger.debug("row:{} {}", row, cell.getRowLength());
             }
 
             final Dot dot = TraceIndexScatterMapper.createDot(cell);
