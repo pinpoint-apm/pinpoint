@@ -1,3 +1,6 @@
+import { fromEvent } from 'rxjs';
+import { filter } from 'rxjs/operators';
+
 import {
     Injectable,
     ComponentFactoryResolver,
@@ -50,6 +53,11 @@ export class DynamicPopupService {
         rendererFactory: RendererFactory2,
     ) {
         this.renderer = rendererFactory.createRenderer(null, null);
+        fromEvent(window, 'resize').pipe(
+            filter(() => !!this.componentRef)
+        ).subscribe(() => {
+            this.closePopup();
+        });
     }
 
     openPopup($param: IPopupParam, { resolver, injector }: IContext): void {

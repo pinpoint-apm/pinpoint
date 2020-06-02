@@ -14,6 +14,9 @@ import { TransactionIdSearchContainerComponent } from './transaction-id-search-c
     exports: [
         TransactionIdSearchContainerComponent,
     ],
+    entryComponents: [
+        TransactionIdSearchContainerComponent,
+    ],
     providers: []
 })
 export class TransactionIdSearchModule { }
