@@ -94,7 +94,7 @@ export class ServerMapDiagramWithCytoscapejs extends ServerMapDiagram {
                     }
                 }
             ],
-            wheelSensitivity: 0.3
+            wheelSensitivity: 0.2
         });
     }
 
