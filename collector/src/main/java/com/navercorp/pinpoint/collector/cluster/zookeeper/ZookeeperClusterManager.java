@@ -28,10 +28,12 @@ import com.navercorp.pinpoint.common.server.cluster.zookeeper.exception.Pinpoint
 import com.navercorp.pinpoint.common.server.util.concurrent.CommonState;
 import com.navercorp.pinpoint.common.server.util.concurrent.CommonStateContext;
 
+import com.navercorp.pinpoint.common.util.StringUtils;
 import org.apache.curator.utils.ZKPaths;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -260,7 +262,7 @@ public class ZookeeperClusterManager {
                 for (String childNodeName : childNodeList) {
                     String fullPath = ZKPaths.makePath(parentPath, childNodeName);
                     byte[] data = client.getData(fullPath);
-                    String nodeContents = new String(data);
+                    String nodeContents = StringUtils.toString(data);
 
                     String[] nodeAddresses = nodeContents.split("\r\n");
 
