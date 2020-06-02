@@ -47,13 +47,14 @@ public class AgentGrpcDataSenderTestMain {
     private static final String AGENT_ID = "mockAgentId";
     private static final String APPLICATION_NAME = "mockApplicationName";
     private static final long START_TIME = System.currentTimeMillis();
+    private static final int SERVICE_TYPE = ServiceType.UNDEFINED.getCode();
     private final ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
     private final ReconnectExecutor reconnectExecutor = new ReconnectExecutor(scheduledExecutorService);
 
 
     public void request() throws Exception {
         MessageConverter<GeneratedMessageV3> messageConverter = new GrpcMetadataMessageConverter();
-        HeaderFactory headerFactory = new AgentHeaderFactory(AGENT_ID, APPLICATION_NAME, START_TIME);
+        HeaderFactory headerFactory = new AgentHeaderFactory(AGENT_ID, APPLICATION_NAME, START_TIME, SERVICE_TYPE);
 
         DnsExecutorServiceProvider dnsExecutorServiceProvider = new DnsExecutorServiceProvider();
         GrpcNameResolverProvider grpcNameResolverProvider = new GrpcNameResolverProvider(dnsExecutorServiceProvider);

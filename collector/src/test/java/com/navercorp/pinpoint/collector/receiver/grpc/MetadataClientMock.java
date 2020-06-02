@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.collector.receiver.grpc;
 import com.google.common.util.concurrent.Uninterruptibles;
 import com.google.protobuf.GeneratedMessageV3;
 import com.navercorp.pinpoint.common.profiler.concurrent.PinpointThreadFactory;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.grpc.AgentHeaderFactory;
 import com.navercorp.pinpoint.grpc.client.ChannelFactory;
 import com.navercorp.pinpoint.grpc.client.ChannelFactoryBuilder;
@@ -91,7 +92,7 @@ public class MetadataClientMock {
     }
 
     private ChannelFactory newChannelFactory() {
-        HeaderFactory headerFactory = new AgentHeaderFactory("mockAgentId", "mockApplicationName", System.currentTimeMillis());
+        HeaderFactory headerFactory = new AgentHeaderFactory("mockAgentId", "mockApplicationName", System.currentTimeMillis(), ServiceType.UNDEFINED.getCode());
         ChannelFactoryBuilder channelFactoryBuilder = new DefaultChannelFactoryBuilder("MetadataClientMock");
         channelFactoryBuilder.setHeaderFactory(headerFactory);
         channelFactoryBuilder.setClientOption(new ClientOption.Builder().build());

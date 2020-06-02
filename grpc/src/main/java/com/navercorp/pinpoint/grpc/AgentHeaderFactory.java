@@ -22,19 +22,20 @@ import io.grpc.Metadata;
 
 /**
  * @author Woonduk Kang(emeroad)
+ * @author jaehong.kim
  */
 public class AgentHeaderFactory implements HeaderFactory {
 
     private final String agentId;
     private final String applicationName;
     private final long agentStartTime;
+    private final int serviceType;
 
-
-    public AgentHeaderFactory(String agentId, String applicationName, long agentStartTime) {
+    public AgentHeaderFactory(String agentId, String applicationName, long agentStartTime, int serviceType) {
         this.agentId = Assert.requireNonNull(agentId, "agentId");
         this.applicationName = Assert.requireNonNull(applicationName, "applicationName");
         this.agentStartTime = agentStartTime;
-
+        this.serviceType = serviceType;
     }
 
     public Metadata newHeader() {
@@ -42,8 +43,7 @@ public class AgentHeaderFactory implements HeaderFactory {
         headers.put(Header.AGENT_ID_KEY, agentId);
         headers.put(Header.APPLICATION_NAME_KEY, applicationName);
         headers.put(Header.AGENT_START_TIME_KEY, Long.toString(agentStartTime));
+        headers.put(Header.SERVICE_TYPE_KEY, Integer.toString(serviceType));
         return headers;
     }
-
-
 }

@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.collector.receiver.grpc;
 
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Empty;
+import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.grpc.AgentHeaderFactory;
 import com.navercorp.pinpoint.grpc.client.ChannelFactory;
 import com.navercorp.pinpoint.grpc.client.ChannelFactoryBuilder;
@@ -85,7 +86,7 @@ public class SpanClientMock {
     }
 
     private ChannelFactory newChannelFactory() {
-        HeaderFactory headerFactory = new AgentHeaderFactory("mockAgentId", "mockApplicationName", System.currentTimeMillis());
+        HeaderFactory headerFactory = new AgentHeaderFactory("mockAgentId", "mockApplicationName", System.currentTimeMillis(), ServiceType.UNDEFINED.getCode());
 
         ChannelFactoryBuilder channelFactoryBuilder = new DefaultChannelFactoryBuilder("SpanClientMock");
         channelFactoryBuilder.setHeaderFactory(headerFactory);
