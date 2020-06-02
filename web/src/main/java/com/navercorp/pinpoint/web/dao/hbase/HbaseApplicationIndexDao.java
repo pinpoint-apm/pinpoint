@@ -79,34 +79,31 @@ public class HbaseApplicationIndexDao implements ApplicationIndexDao {
 
     @Override
     public List<Application> selectApplicationName(String applicationName) {
-        if (applicationName == null) {
-            throw new NullPointerException("applicationName");
-        }
-        byte[] rowKey = Bytes.toBytes(applicationName);
-
-        Get get = new Get(rowKey);
-        get.addFamily(descriptor.getColumnFamilyName());
-
-        TableName applicationIndexTableName = descriptor.getTableName();
-        return hbaseOperations2.get(applicationIndexTableName, get, applicationNameMapper);
+        return selectApplicationIndex0(applicationName, applicationNameMapper);
     }
 
     @Override
     public List<String> selectAgentIds(String applicationName) {
-        if (applicationName == null) {
-            throw new NullPointerException("applicationName");
-        }
+        return selectApplicationIndex0(applicationName, agentIdMapper);
+    }
+
+    private <T> List<T> selectApplicationIndex0(String applicationName, RowMapper<List<T>> rowMapper) {
+        Objects.requireNonNull(applicationName, "applicationName");
+        Objects.requireNonNull(rowMapper, "rowMapper");
+
         byte[] rowKey = Bytes.toBytes(applicationName);
 
         Get get = new Get(rowKey);
         get.addFamily(descriptor.getColumnFamilyName());
 
         TableName applicationIndexTableName = descriptor.getTableName();
-        return hbaseOperations2.get(applicationIndexTableName, get, agentIdMapper);
+        return hbaseOperations2.get(applicationIndexTableName, get, rowMapper);
     }
 
     @Override
     public void deleteApplicationName(String applicationName) {
+        Objects.requireNonNull(applicationName, "applicationName");
+
         byte[] rowKey = Bytes.toBytes(applicationName);
         Delete delete = new Delete(rowKey);
 
