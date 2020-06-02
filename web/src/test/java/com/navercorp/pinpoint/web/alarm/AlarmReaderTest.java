@@ -97,6 +97,13 @@ public class AlarmReaderTest {
                 return apps;
             }
 
+            @Override
+            public List<Application> selectApplicationName(String applicationName) {
+                List<Application> apps = new LinkedList<Application>();
+                apps.add(new Application(APP_NAME, ServiceType.STAND_ALONE));
+                return apps;
+            }
+
             @Override public List<String> selectAgentIds(String applicationName) {return null;}
             @Override public void deleteApplicationName(String applicationName) { }
 

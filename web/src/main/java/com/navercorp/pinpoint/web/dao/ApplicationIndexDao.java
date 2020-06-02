@@ -29,6 +29,8 @@ import com.navercorp.pinpoint.web.vo.Application;
 public interface ApplicationIndexDao {
     List<Application> selectAllApplicationNames();
 
+    List<Application> selectApplicationName(String applicationName);
+
     List<String> selectAgentIds(String applicationName);
 
     void deleteApplicationName(String applicationName);

@@ -78,6 +78,20 @@ public class HbaseApplicationIndexDao implements ApplicationIndexDao {
     }
 
     @Override
+    public List<Application> selectApplicationName(String applicationName) {
+        if (applicationName == null) {
+            throw new NullPointerException("applicationName");
+        }
+        byte[] rowKey = Bytes.toBytes(applicationName);
+
+        Get get = new Get(rowKey);
+        get.addFamily(descriptor.getColumnFamilyName());
+
+        TableName applicationIndexTableName = descriptor.getTableName();
+        return hbaseOperations2.get(applicationIndexTableName, get, applicationNameMapper);
+    }
+
+    @Override
     public List<String> selectAgentIds(String applicationName) {
         if (applicationName == null) {
             throw new NullPointerException("applicationName");
