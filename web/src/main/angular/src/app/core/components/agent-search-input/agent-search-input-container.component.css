@@ -31,7 +31,10 @@
     height: 100%;
     border: 1px solid #d7dde4;
     background-color: #fff;
-    padding: 9px 8px 9px 11px;
+    padding: 0 28px 0 10px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
 }
 .l-wrapper input:focus {
     border: 1px solid var(--primary-color);

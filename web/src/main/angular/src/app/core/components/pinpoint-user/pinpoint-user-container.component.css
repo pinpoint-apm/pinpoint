@@ -36,10 +36,14 @@
 }
 .l-search-input {
     width: 100%;
+    height: 100%;
     color: #b3b3b4;
     border: 1px solid #d7dde4;
-    padding: 6px 11px;
+    padding: 0 28px 0 10px;
     font-size: 13px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
 }
 .l-search-input:focus {
     border: 1px solid var(--primary-color);
