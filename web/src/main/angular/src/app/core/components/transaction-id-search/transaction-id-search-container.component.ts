@@ -1,7 +1,5 @@
 import {
     Component,
-    OnInit,
-    OnDestroy,
     ChangeDetectionStrategy,
     Output,
     EventEmitter
@@ -10,7 +8,7 @@ import {
 import {
     UrlRouteManagerService
 } from 'app/shared/services';
-import {UrlPath} from "../../../shared/models";
+import { UrlPath } from 'app/shared/models';
 
 @Component({
     selector: 'pp-transaction-id-search-container',
@@ -18,32 +16,32 @@ import {UrlPath} from "../../../shared/models";
     styleUrls: ['./transaction-id-search-container.component.css'],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class TransactionIdSearchContainerComponent implements OnInit, OnDestroy {
-    @Output() outSearchId: EventEmitter<{txId: string}> = new EventEmitter();
+export class TransactionIdSearchContainerComponent {
+    @Output() outSearchId = new EventEmitter<{txId: string}>();
 
-    inputValue: string;
+    searchUseEnter = true;
 
     constructor(
         private urlRouteManagerService: UrlRouteManagerService,
     ) {}
 
-    ngOnInit() {}
-
-    ngOnDestroy() {}
-
-    onSearchId(): void {
-        const txId = this.inputValue.trim();
-
+    onSearchId(txId: string): void {
         if (txId === '') {
             return;
         }
+
         const spanId = '-1';
+
         const collectorAcceptTime = '0';
+
         const txInfo = txId.split('^');
-        if (txInfo.length != 3) {
+
+        if (txInfo.length !== 3) {
             return;
         }
+
         const agentId = txInfo[0];
+
         this.urlRouteManagerService.openPage({
             path: [
                 UrlPath.TRANSACTION_DETAIL,
@@ -53,10 +51,5 @@ export class TransactionIdSearchContainerComponent implements OnInit, OnDestroy 
                 spanId
             ]
         });
-        this.onClear();
-    }
-
-    onClear() {
-        this.inputValue = '';
     }
 }
