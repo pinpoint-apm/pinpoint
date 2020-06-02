@@ -1,10 +1,15 @@
 import { Component, OnInit, ComponentFactoryResolver, Injector, ChangeDetectionStrategy } from '@angular/core';
-import { Observable, combineLatest } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { Observable, combineLatest, fromEvent } from 'rxjs';
+import { map, startWith, pluck } from 'rxjs/operators';
 
 import { WebAppSettingDataService, NewUrlStateNotificationService, AnalyticsService, TRACKED_EVENT_LIST, DynamicPopupService } from 'app/shared/services';
 import { HELP_VIEWER_LIST, HelpViewerPopupContainerComponent } from 'app/core/components/help-viewer-popup/help-viewer-popup-container.component';
 import { UrlPathId } from 'app/shared/models';
+import { TransactionIdSearchContainerComponent } from 'app/core/components/transaction-id-search/transaction-id-search-container.component';
+
+const enum ScreenWidth {
+    MIN = 1380
+}
 
 @Component({
     selector: 'pp-main-page',
@@ -15,6 +20,7 @@ import { UrlPathId } from 'app/shared/models';
 export class MainPageComponent implements OnInit {
     enableRealTime$: Observable<boolean>;
     isAppKeyProvided$: Observable<boolean>;
+    isScreenWideEnough$: Observable<boolean>;
 
     constructor(
         private newUrlStateNotificationService: NewUrlStateNotificationService,
@@ -40,6 +46,12 @@ export class MainPageComponent implements OnInit {
         this.webAppSettingDataService.getVersion().subscribe((version: string) => {
             this.analyticsService.trackEvent(TRACKED_EVENT_LIST.VERSION, version);
         });
+
+        this.isScreenWideEnough$ = fromEvent(window, 'resize').pipe(
+            pluck('target', 'innerWidth'),
+            startWith(window.innerWidth),
+            map((width: number) => width >= ScreenWidth.MIN)
+        );
     }
 
     onShowHelp($event: MouseEvent): void {
@@ -53,6 +65,22 @@ export class MainPageComponent implements OnInit {
                 coordY: top + height / 2
             },
             component: HelpViewerPopupContainerComponent
+        }, {
+            resolver: this.componentFactoryResolver,
+            injector: this.injector
+        });
+    }
+
+    onClickSearchIcon(btn: HTMLElement): void {
+        const {left, top, width, height} = btn.getBoundingClientRect();
+        const coord = {
+            coordX: left + width / 2,
+            coordY: top + height / 2
+        };
+
+        this.dynamicPopupService.openPopup({
+            coord,
+            component: TransactionIdSearchContainerComponent
         }, {
             resolver: this.componentFactoryResolver,
             injector: this.injector

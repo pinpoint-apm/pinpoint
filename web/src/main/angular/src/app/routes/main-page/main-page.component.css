@@ -8,6 +8,7 @@
     padding: 0 15px;
     height: 100%;
     align-items: center;
+    position: relative;
 }
 .l-main-container {
     display: flex;
@@ -39,4 +40,13 @@
 
 button {
     outline: none;
+}
+
+.l-concised-search-button {
+    position: absolute;
+    right: 0;
+    color: white;
+    font-size: 18px;
+    margin-right: 15px;
+
 }
