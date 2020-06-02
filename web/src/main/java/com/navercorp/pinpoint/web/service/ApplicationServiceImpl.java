@@ -42,7 +42,7 @@ public class ApplicationServiceImpl implements ApplicationService {
             return false;
         }
 
-        List<Application> applications = applicationIndexDao.selectAllApplicationNames();
+        List<Application> applications = applicationIndexDao.selectApplicationName(applicationName);
         for (Application application : applications) {
             if (applicationName.equals(application.getName())) {
                 return true;

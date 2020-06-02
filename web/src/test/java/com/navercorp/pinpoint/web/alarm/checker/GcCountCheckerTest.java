@@ -86,6 +86,11 @@ public class GcCountCheckerTest {
             }
 
             @Override
+            public List<Application> selectApplicationName(String applicationName) {
+                throw new UnsupportedOperationException();
+            }
+
+            @Override
             public List<String> selectAgentIds(String applicationName) {
                 if (SERVICE_NAME.equals(applicationName)) {
                     List<String> agentIds = new LinkedList<String>();
