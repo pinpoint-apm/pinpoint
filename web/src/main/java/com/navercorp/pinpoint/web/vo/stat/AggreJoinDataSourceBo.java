@@ -23,7 +23,7 @@ import com.navercorp.pinpoint.common.server.bo.stat.join.JoinDataSourceBo;
  */
 public class AggreJoinDataSourceBo extends JoinDataSourceBo implements AggregationStatData {
 
-    private long timestamp;
+    private final long timestamp;
 
 
     public AggreJoinDataSourceBo(short serviceTypeCode, String url, int avgActiveConnectionSize, int minActiveConnectionSize, String minActiveConnectionAgentId, int maxActiveConnectionSize, String maxActiveConnectionAgentId ,long timestamp) {

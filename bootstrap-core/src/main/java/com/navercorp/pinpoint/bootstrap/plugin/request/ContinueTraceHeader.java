@@ -23,9 +23,9 @@ import com.navercorp.pinpoint.common.util.Assert;
  */
 public class ContinueTraceHeader implements TraceHeader {
     private final String transactionId;
-    private long parentSpanId;
-    private long spanId;
-    private short flags;
+    private final long parentSpanId;
+    private final long spanId;
+    private final short flags;
 
     public ContinueTraceHeader(String transactionId, long parentSpanId, long spanId, short flags) {
         this.transactionId = Assert.requireNonNull(transactionId, "transactionId");

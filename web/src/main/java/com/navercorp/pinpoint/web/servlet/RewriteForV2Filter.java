@@ -37,7 +37,7 @@ public class RewriteForV2Filter implements Filter {
 
     private static final Log logger = LogFactory.getLog(RewriteForV2Filter.class);
     public static final String DEFAULT_INDEX = "/index.html";
-    private static boolean isDebug = logger.isDebugEnabled();
+    private static final boolean isDebug = logger.isDebugEnabled();
 
     private static final char PATH_DELIMITER = '/';
 

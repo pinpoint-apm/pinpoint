@@ -18,8 +18,6 @@ package com.navercorp.pinpoint.profiler.shutdown;
 
 import org.junit.Test;
 
-import static org.junit.Assert.*;
-
 /**
  * @author jaehong.kim
  */

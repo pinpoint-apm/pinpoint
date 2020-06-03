@@ -39,7 +39,7 @@ public class ServiceTypeProvider {
             throw new IllegalStateException("ServiceTypeRegistry not registered");
         }
     };
-
+    // must be non final  : TraceMetadataRegistrar
     private static ServiceTypeLocator registry = UNREGISTERED;
 
     private ServiceTypeProvider() {

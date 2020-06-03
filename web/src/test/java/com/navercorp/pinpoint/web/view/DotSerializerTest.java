@@ -34,7 +34,7 @@ public class DotSerializerTest {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper mapper = new ObjectMapper();
 
     @Test
     public void testSerialize() throws Exception {

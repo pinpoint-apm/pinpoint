@@ -23,7 +23,7 @@ public enum DumpType {
 //  NONE(-1),  comment out because of duplicated configuration.
     ALWAYS(0), EXCEPTION(1);
 
-    private int code;
+    private final int code;
     DumpType(int code) {
         this.code = code;
     }

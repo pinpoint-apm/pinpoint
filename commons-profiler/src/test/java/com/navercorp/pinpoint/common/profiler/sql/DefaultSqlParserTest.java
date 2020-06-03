@@ -31,8 +31,8 @@ public class DefaultSqlParserTest {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private SqlParser sqlParser = new DefaultSqlParser();
-    private OutputParameterParser outputParameterParser = new OutputParameterParser();
+    private final SqlParser sqlParser = new DefaultSqlParser();
+    private final OutputParameterParser outputParameterParser = new OutputParameterParser();
 
     @Test
     public void normalizedSql() {

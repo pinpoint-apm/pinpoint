@@ -52,7 +52,7 @@ public class HbaseAgentLifeCycleDaoTest {
     private HbaseOperations2 hbaseOperations2;
 
     @Spy
-    private TableNameProvider tableNameProvider = new TableNameProvider() {
+    private final TableNameProvider tableNameProvider = new TableNameProvider() {
 
         @Override
         public TableName getTableName(HbaseTable hBaseTable) {

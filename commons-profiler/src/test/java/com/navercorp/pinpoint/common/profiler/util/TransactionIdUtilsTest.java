@@ -100,7 +100,7 @@ public class TransactionIdUtilsTest {
         long time = System.currentTimeMillis();
         byte[] bytes = TransactionIdUtils.formatBytes(null, time, 1);
         TransactionId transactionId = TransactionIdUtils.parseTransactionId(bytes);
-        Assert.assertEquals(transactionId.getAgentId(), null);
+        Assert.assertNull(transactionId.getAgentId());
         Assert.assertEquals(transactionId.getAgentStartTime(), time);
         Assert.assertEquals(transactionId.getTransactionSequence(), 1L);
     }

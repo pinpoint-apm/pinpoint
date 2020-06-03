@@ -31,7 +31,7 @@ import java.util.Objects;
  * @author jaehong.kim
  */
 public class LinkedCallTree implements CallTree {
-    private CallTreeNode root;
+    private final CallTreeNode root;
 
     public LinkedCallTree(final Align align) {
         this.root = new CallTreeNode(null, align);

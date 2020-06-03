@@ -37,7 +37,7 @@ public class CallStackMock {
 
     private boolean async = false;
     private int asyncId = 0;
-    private CallTree callTree;
+    private final CallTree callTree;
 
     public CallStackMock() {
         this(false, -1);

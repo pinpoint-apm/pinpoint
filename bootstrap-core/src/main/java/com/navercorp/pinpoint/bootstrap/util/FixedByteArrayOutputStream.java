@@ -16,33 +16,33 @@
 
 package com.navercorp.pinpoint.bootstrap.util;
 
-import java.io.ByteArrayOutputStream; 
+import java.io.ByteArrayOutputStream;
 
 /**
  * @author minwoo.jung
  */
-public class FixedByteArrayOutputStream extends ByteArrayOutputStream { 
- 
-    
-    public FixedByteArrayOutputStream(int size) { 
-        super(size); 
-    } 
- 
-    public void write(int b) { 
-        if (count+1 > buf.length) { 
-            return; 
-        } 
-        super.write(b); 
-    } 
- 
+public class FixedByteArrayOutputStream extends ByteArrayOutputStream {
+
+
+    public FixedByteArrayOutputStream(int size) {
+        super(size);
+    }
+
+    public void write(int b) {
+        if (count + 1 > buf.length) {
+            return;
+        }
+        super.write(b);
+    }
+
     public void write(byte b[], int off, int len) {
-        if (count+len > buf.length) { 
-            if (count  >= buf.length) {
+        if (count + len > buf.length) {
+            if (count >= buf.length) {
                 return;
             }
             super.write(b, off, buf.length - count);
         } else {
-            super.write(b, off, len); 
+            super.write(b, off, len);
         }
-    } 
+    }
 }

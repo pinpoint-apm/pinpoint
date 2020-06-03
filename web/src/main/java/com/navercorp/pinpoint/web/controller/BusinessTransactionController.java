@@ -37,7 +37,6 @@ import org.apache.commons.lang3.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -53,7 +52,7 @@ import java.util.List;
 @Controller
 public class BusinessTransactionController {
 
-    private Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private SpanService spanService;
@@ -67,11 +66,11 @@ public class BusinessTransactionController {
     @Autowired
     private LogConfiguration logConfiguration;
 
-    private SqlParser sqlParser = new DefaultSqlParser();
-    private OutputParameterParser parameterParser = new OutputParameterParser();
+    private final SqlParser sqlParser = new DefaultSqlParser();
+    private final OutputParameterParser parameterParser = new OutputParameterParser();
 
-    private MongoJsonParser mongoJsonParser = new DefaultMongoJsonParser();
-    private OutputParameterMongoJsonParser parameterJsonParser = new OutputParameterMongoJsonParser();
+    private final MongoJsonParser mongoJsonParser = new DefaultMongoJsonParser();
+    private final OutputParameterMongoJsonParser parameterJsonParser = new OutputParameterMongoJsonParser();
 
     /**
      * info lookup for a selected transaction

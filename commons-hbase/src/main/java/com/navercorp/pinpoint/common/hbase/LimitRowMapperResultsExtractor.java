@@ -35,7 +35,7 @@ public class LimitRowMapperResultsExtractor<T> implements ResultsExtractor<List<
 
     private int limit = Integer.MAX_VALUE;
     private final RowMapper<T> rowMapper;
-    private LimitEventHandler eventHandler;
+    private final LimitEventHandler eventHandler;
 
     public int getLimit() {
         return limit;

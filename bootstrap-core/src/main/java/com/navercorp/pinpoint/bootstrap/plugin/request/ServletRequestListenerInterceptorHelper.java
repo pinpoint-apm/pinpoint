@@ -40,7 +40,7 @@ import com.navercorp.pinpoint.common.util.Assert;
 public class ServletRequestListenerInterceptorHelper<T> {
     private static final MethodDescriptor SERVLET_SYNC_METHOD_DESCRIPTOR = new ServletSyncMethodDescriptor();
 
-    private PLogger logger = PLoggerFactory.getLogger(this.getClass());
+    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
     private final boolean isTrace = logger.isTraceEnabled();
 

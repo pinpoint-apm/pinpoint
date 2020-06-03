@@ -31,7 +31,7 @@ import java.util.List;
  */
 public class AgentStatDataPointCodecTest {
 
-    private AgentStatDataPointCodec codec = new AgentStatDataPointCodec();
+    private final AgentStatDataPointCodec codec = new AgentStatDataPointCodec();
 
     @Test
     public void test_timestamps() {

@@ -41,7 +41,7 @@ public class SpanChunkBo implements BasicSpan {
     private short serviceType;
     private Short applicationServiceType;
 
-    private List<SpanEventBo> spanEventBoList = new ArrayList<SpanEventBo>();
+    private final List<SpanEventBo> spanEventBoList = new ArrayList<SpanEventBo>();
 
     private long collectorAcceptTime;
 

@@ -35,7 +35,6 @@ import com.navercorp.pinpoint.thrift.dto.TAgentStatBatch;
 import com.navercorp.pinpoint.thrift.dto.TDataSource;
 import com.navercorp.pinpoint.thrift.dto.TDataSourceList;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;

@@ -85,7 +85,7 @@ public class ApplicationMapBuilderTest {
         agentInfoServerInstanceListDataSource = new AgentInfoServerInstanceListDataSource(agentInfoService);
 
         Answer<List<ResponseTime>> responseTimeAnswer = new Answer<List<ResponseTime>>() {
-            long timestamp = System.currentTimeMillis();
+            final long timestamp = System.currentTimeMillis();
             @Override
             public List<ResponseTime> answer(InvocationOnMock invocation) throws Throwable {
                 Application application = invocation.getArgument(0);

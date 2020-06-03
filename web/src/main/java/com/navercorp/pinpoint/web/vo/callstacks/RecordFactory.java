@@ -46,9 +46,9 @@ public class RecordFactory {
 
     // spans with id = 0 are regarded as root - start at 1
     private int idGen = 1;
-    private AnnotationKeyMatcherService annotationKeyMatcherService;
-    private ServiceTypeRegistryService registry;
-    private AnnotationKeyRegistryService annotationKeyRegistryService;
+    private final AnnotationKeyMatcherService annotationKeyMatcherService;
+    private final ServiceTypeRegistryService registry;
+    private final AnnotationKeyRegistryService annotationKeyRegistryService;
     private final ApiDescriptionParser apiDescriptionParser = new ApiDescriptionParser();
     private final AnnotationRecordFormatter annotationRecordFormatter;
     private final ProxyRequestTypeRegistryService proxyRequestTypeRegistryService;

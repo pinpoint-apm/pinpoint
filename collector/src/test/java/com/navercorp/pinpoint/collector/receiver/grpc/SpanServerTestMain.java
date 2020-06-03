@@ -25,14 +25,13 @@ import com.navercorp.pinpoint.grpc.server.ServerOption;
 import com.navercorp.pinpoint.grpc.trace.PResult;
 import com.navercorp.pinpoint.io.request.ServerRequest;
 import com.navercorp.pinpoint.io.request.ServerResponse;
-
 import io.grpc.ServerInterceptor;
 import io.grpc.ServerInterceptors;
 import io.grpc.ServerServiceDefinition;
 import org.springframework.beans.factory.FactoryBean;
 
 import java.net.InetAddress;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -56,7 +55,7 @@ public class SpanServerTestMain {
 
         Executor executor = newWorkerExecutor(8);
         ServerServiceDefinition bindableService = newSpanBindableService(executor);
-        grpcReceiver.setBindableServiceList(Arrays.asList(bindableService));
+        grpcReceiver.setBindableServiceList(Collections.singletonList(bindableService));
         grpcReceiver.setAddressFilter(new MockAddressFilter());
         grpcReceiver.setExecutor(Executors.newFixedThreadPool(8));
         grpcReceiver.setEnable(true);

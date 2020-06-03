@@ -41,7 +41,7 @@ public class AgentEventTimelineBuilder {
     private final int numTimeslots;
 
     private List<AgentEvent> agentEvents = Collections.emptyList();
-    private List<AgentEventFilter> filters = new ArrayList<>();
+    private final List<AgentEventFilter> filters = new ArrayList<>();
 
     public AgentEventTimelineBuilder(Range range) {
         this(range, DEFAULT_NUM_TIMESLOTS);

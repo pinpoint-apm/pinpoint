@@ -14,7 +14,7 @@ import java.util.List;
  */
 public class PartitionTest {
 
-    private List<Integer> original = Lists.newArrayList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
+    private final List<Integer> original = Lists.newArrayList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10);
 
 
     @Test

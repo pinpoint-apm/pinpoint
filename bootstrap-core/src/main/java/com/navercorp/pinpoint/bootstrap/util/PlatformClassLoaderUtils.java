@@ -26,7 +26,7 @@ import java.lang.reflect.Method;
  */
 public final class PlatformClassLoaderUtils {
 
-    private static ClassLoader platformClassLoader = lookupPlatformOrBootstrapClassLoader();
+    private static final ClassLoader platformClassLoader = lookupPlatformOrBootstrapClassLoader();
 
     private PlatformClassLoaderUtils() {
     }

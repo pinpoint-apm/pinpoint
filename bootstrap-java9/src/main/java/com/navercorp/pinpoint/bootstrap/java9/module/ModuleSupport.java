@@ -40,7 +40,7 @@ public class ModuleSupport {
 
     private final JavaModule javaBaseModule;
     private final JavaModule bootstrapModule;
-    private List<String> allowedProviders;
+    private final List<String> allowedProviders;
 
     ModuleSupport(Instrumentation instrumentation, List<String> allowedProviders) {
         if (instrumentation == null) {

@@ -31,7 +31,7 @@ public abstract class SourceContextManager {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final List<SourceFunction.SourceContext> sourceContextList = new CopyOnWriteArrayList<>();
-    private AtomicInteger callCount = new AtomicInteger(1);
+    private final AtomicInteger callCount = new AtomicInteger(1);
 
     public void addSourceContext(SourceFunction.SourceContext sourceContext) {
         logger.info("add sourceContext.");

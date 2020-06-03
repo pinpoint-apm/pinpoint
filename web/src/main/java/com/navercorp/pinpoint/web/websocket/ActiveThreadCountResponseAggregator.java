@@ -287,7 +287,7 @@ public class ActiveThreadCountResponseAggregator implements PinpointWebSocketRes
         return applicationName;
     }
 
-    private Map createResultMap(AgentActiveThreadCountList activeThreadCount, long timeStamp) {
+    private Map<String, Object> createResultMap(AgentActiveThreadCountList activeThreadCount, long timeStamp) {
         Map<String, Object> response = new HashMap<>();
 
         response.put(APPLICATION_NAME, applicationName);

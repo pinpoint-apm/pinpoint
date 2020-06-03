@@ -117,7 +117,7 @@ public class ApplicationStatController {
     public static class ApplicationDataSourceController {
 
         private final Logger logger = LoggerFactory.getLogger(this.getClass());
-        private ApplicationDataSourceService applicationDataSourceService;
+        private final ApplicationDataSourceService applicationDataSourceService;
 
         @Autowired
         public ApplicationDataSourceController(ApplicationDataSourceService applicationDataSourceService) {

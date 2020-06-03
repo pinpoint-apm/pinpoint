@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.web.mapper.stat.sampling.sampler;
 
 import com.navercorp.pinpoint.common.server.bo.stat.join.JoinMemoryBo;
-import com.navercorp.pinpoint.common.server.bo.stat.join.JoinStatBo;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinMemoryBo;
 import org.junit.Test;
 

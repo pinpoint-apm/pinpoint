@@ -50,7 +50,7 @@ public class ExceptionHandleScopedInterceptor2 implements AroundInterceptor2 {
         this.interceptor = interceptor;
         this.scope = scope;
         this.policy = policy;
-        this.exceptionHandler = exceptionHandler;;
+        this.exceptionHandler = exceptionHandler;
     }
 
     @Override

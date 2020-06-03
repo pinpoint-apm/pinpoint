@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.collector.mapper.thrift;
 import com.navercorp.pinpoint.common.server.bo.AgentInfoBo;
 import com.navercorp.pinpoint.thrift.dto.TAgentInfo;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Objects;

@@ -36,7 +36,7 @@ public class AgentHistogramTest {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper mapper = new ObjectMapper();
     @Test
     public void testDeepCopy() throws Exception {
         AgentHistogram agentHistogram = new AgentHistogram(new Application("test", ServiceType.STAND_ALONE));

@@ -84,5 +84,5 @@ public class MockTraceContextFactory {
         public String getInterceptorRegistryClassName() {
             return null;
         }
-    };
+    }
 }

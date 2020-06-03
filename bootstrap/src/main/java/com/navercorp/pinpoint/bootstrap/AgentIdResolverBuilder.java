@@ -27,7 +27,7 @@ import java.util.Properties;
  * @author Woonduk Kang(emeroad)
  */
 public class AgentIdResolverBuilder {
-    private List<AgentProperties> agentProperties = new ArrayList<AgentProperties>();
+    private final List<AgentProperties> agentProperties = new ArrayList<AgentProperties>();
     
     public void addSystemProperties(Properties system) {
         Assert.requireNonNull(system, "system");

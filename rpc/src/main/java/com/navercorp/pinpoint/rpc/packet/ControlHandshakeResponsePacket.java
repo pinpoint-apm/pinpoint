@@ -29,8 +29,8 @@ public class ControlHandshakeResponsePacket extends BasicPacket {
 
     public static final String CLUSTER = "cluster";
 
-    private final int requestId;;
-    
+    private final int requestId;
+
     public ControlHandshakeResponsePacket(int requestId, byte[] payload) {
         super(payload);
         this.requestId = requestId;

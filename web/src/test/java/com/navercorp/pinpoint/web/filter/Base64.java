@@ -26,6 +26,7 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -113,7 +114,7 @@ public class Base64 {
             b64os = new Base64.Base64OutputStream(baos, 1 | options);
             oos = (options & 2) == 2 ? new ObjectOutputStream(new GZIPOutputStream(b64os)) : new ObjectOutputStream(b64os);
             oos.writeObject(serializableObject);
-            String var5 = new String(baos.toByteArray(), "UTF-8");
+            String var5 = new String(baos.toByteArray(), StandardCharsets.UTF_8);
             return var5;
         } catch (UnsupportedEncodingException var28) {
             var6 = new String(baos.toByteArray());
@@ -172,7 +173,7 @@ public class Base64 {
                 gzos.write(source, off, len);
                 gzos.close();
                 gzos = null;
-                String var32 = new String(baos.toByteArray(), "UTF-8");
+                String var32 = new String(baos.toByteArray(), StandardCharsets.UTF_8);
                 return var32;
             } catch (UnsupportedEncodingException var27) {
                 var33 = new String(baos.toByteArray());
@@ -223,11 +224,7 @@ public class Base64 {
                 e += 4;
             }
 
-            try {
-                return new String(outBuff, 0, e, "UTF-8");
-            } catch (UnsupportedEncodingException var26) {
-                return new String(outBuff, 0, e);
-            }
+            return new String(outBuff, 0, e, StandardCharsets.UTF_8);
         }
     }
 
@@ -296,11 +293,7 @@ public class Base64 {
 
     public static byte[] decode(String s, int options) {
         byte[] bytes;
-        try {
-            bytes = s.getBytes("UTF-8");
-        } catch (UnsupportedEncodingException var21) {
-            bytes = s.getBytes();
-        }
+        bytes = s.getBytes(StandardCharsets.UTF_8);
 
         bytes = decode(bytes, 0, bytes.length, options);
         if (bytes != null && bytes.length >= 4) {

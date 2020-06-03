@@ -54,7 +54,7 @@ public class SpanBo implements Event, BasicSpan {
     private short flag; // optional
     private int errCode;
 
-    private List<SpanEventBo> spanEventBoList = new ArrayList<>();
+    private final List<SpanEventBo> spanEventBoList = new ArrayList<>();
     private List<SpanChunkBo> spanChunkBoList;
 
     private long collectorAcceptTime;

@@ -16,8 +16,6 @@
 
 package com.navercorp.pinpoint.web.filter;
 
-import java.util.function.Predicate;
-
 /**
  *
  * @author netspider

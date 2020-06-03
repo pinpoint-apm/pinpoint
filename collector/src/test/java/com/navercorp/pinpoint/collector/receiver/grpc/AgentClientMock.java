@@ -165,7 +165,7 @@ public class AgentClientMock {
         }
     }
 
-    public class CustomLoadBalancerFactory extends LoadBalancer.Factory {
+    public static class CustomLoadBalancerFactory extends LoadBalancer.Factory {
         @Override
         public LoadBalancer newLoadBalancer(LoadBalancer.Helper helper) {
             return new CustomLoadBalancer(helper);

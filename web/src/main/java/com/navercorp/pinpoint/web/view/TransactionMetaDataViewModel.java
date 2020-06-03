@@ -44,7 +44,7 @@ public class TransactionMetaDataViewModel {
     }
 
     public static class MetaData {
-        private SpanBo span;
+        private final SpanBo span;
 
         public MetaData(SpanBo span) {
             this.span = span;

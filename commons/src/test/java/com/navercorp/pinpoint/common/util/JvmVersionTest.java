@@ -16,15 +16,20 @@
 
 package com.navercorp.pinpoint.common.util;
 
-import static org.junit.Assert.*;
-import static com.navercorp.pinpoint.common.util.JvmVersion.*;
-
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.lang.management.ManagementFactory;
-import java.lang.management.RuntimeMXBean;
+import static com.navercorp.pinpoint.common.util.JvmVersion.JAVA_10;
+import static com.navercorp.pinpoint.common.util.JvmVersion.JAVA_11;
+import static com.navercorp.pinpoint.common.util.JvmVersion.JAVA_5;
+import static com.navercorp.pinpoint.common.util.JvmVersion.JAVA_6;
+import static com.navercorp.pinpoint.common.util.JvmVersion.JAVA_7;
+import static com.navercorp.pinpoint.common.util.JvmVersion.JAVA_8;
+import static com.navercorp.pinpoint.common.util.JvmVersion.JAVA_9;
+import static com.navercorp.pinpoint.common.util.JvmVersion.JAVA_RECENT;
+import static com.navercorp.pinpoint.common.util.JvmVersion.UNSUPPORTED;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author hyungil.jeong

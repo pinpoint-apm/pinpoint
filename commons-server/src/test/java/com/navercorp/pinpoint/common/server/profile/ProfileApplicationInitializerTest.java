@@ -17,11 +17,8 @@
 package com.navercorp.pinpoint.common.server.profile;
 
 import com.navercorp.pinpoint.common.util.SystemProperty;
-import org.junit.Assert;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;

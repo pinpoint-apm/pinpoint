@@ -32,13 +32,12 @@ public class BootDir {
 
     private final BootLogger logger = BootLogger.getLogger(this.getClass().getName());
 
-    private final File baseDirFile;
     private final List<String> jars;
 
     public BootDir(String baseDir, List<JarDescription> jarDescriptions) {
         Assert.requireNonNull(baseDir, "baseDir");
         Assert.requireNonNull(jarDescriptions, "jarDescriptions");
-        this.baseDirFile = new File(baseDir);
+        final File baseDirFile = new File(baseDir);
         this.jars = verify(baseDirFile, jarDescriptions);
     }
 

@@ -81,7 +81,7 @@ public class PinpointServerAcceptor implements PinpointServerConfig {
     private ServerMessageListenerFactory messageListenerFactory = new LoggingServerMessageListenerFactory();
 
     private ServerStreamChannelMessageHandler serverStreamChannelMessageHandler = ServerStreamChannelMessageHandler.DISABLED_INSTANCE;
-    private List<ServerStateChangeEventHandler> stateChangeEventHandler = new ArrayList<ServerStateChangeEventHandler>();
+    private final List<ServerStateChangeEventHandler> stateChangeEventHandler = new ArrayList<ServerStateChangeEventHandler>();
 
     private final Timer healthCheckTimer;
     private final HealthCheckManager healthCheckManager;

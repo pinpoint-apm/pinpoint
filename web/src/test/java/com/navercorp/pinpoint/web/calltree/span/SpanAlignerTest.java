@@ -23,13 +23,10 @@ import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.junit.Assert.*;
 
 /**
  * @author jaehong.kim

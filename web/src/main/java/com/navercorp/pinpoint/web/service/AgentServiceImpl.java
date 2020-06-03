@@ -45,7 +45,6 @@ import com.navercorp.pinpoint.web.vo.AgentInfo;
 
 import org.apache.thrift.TBase;
 import org.apache.thrift.TException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;

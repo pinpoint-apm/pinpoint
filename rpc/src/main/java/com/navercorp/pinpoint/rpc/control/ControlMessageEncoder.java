@@ -36,7 +36,7 @@ import org.jboss.netty.buffer.ChannelBuffers;
 public class ControlMessageEncoder {
 
 
-    private Charset charset;
+    private final Charset charset;
 
     public ControlMessageEncoder() {
         this.charset = Charsets.UTF_8;

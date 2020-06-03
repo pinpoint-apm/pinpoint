@@ -34,7 +34,6 @@ import com.navercorp.pinpoint.web.calltree.span.TraceState;
 import com.navercorp.pinpoint.web.config.LogConfiguration;
 import com.navercorp.pinpoint.web.vo.callstacks.Record;
 import com.navercorp.pinpoint.web.vo.callstacks.RecordSet;
-import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -43,14 +42,14 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class TransactionInfoViewModel {
 
-    private TransactionId transactionId;
-    private long spanId;
-    private Collection<Node> nodes;
-    private Collection<Link> links;
-    private RecordSet recordSet;
-    private TraceState.State completeState;
+    private final TransactionId transactionId;
+    private final long spanId;
+    private final Collection<Node> nodes;
+    private final Collection<Link> links;
+    private final RecordSet recordSet;
+    private final TraceState.State completeState;
 
-    private LogConfiguration logConfiguration;
+    private final LogConfiguration logConfiguration;
 
     public TransactionInfoViewModel(TransactionId transactionId, long spanId, Collection<Node> nodes, Collection<Link> links, RecordSet recordSet, TraceState.State state, LogConfiguration logConfiguration) {
         this.transactionId = transactionId;

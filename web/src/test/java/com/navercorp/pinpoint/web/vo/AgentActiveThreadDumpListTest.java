@@ -41,8 +41,8 @@ public class AgentActiveThreadDumpListTest {
     private static final int CREATE_DUMP_SIZE = 10;
 
     private final PinpointThreadFactory pinpointThreadFactory = new PinpointThreadFactory(this.getClass().getSimpleName());
-    private ThreadDumpThriftMessageConverter threadDumpThriftMessageConverter = new ThreadDumpThriftMessageConverter();
-    private ThreadStateThriftMessageConverter threadStateThriftMessageConverter = new ThreadStateThriftMessageConverter();
+    private final ThreadDumpThriftMessageConverter threadDumpThriftMessageConverter = new ThreadDumpThriftMessageConverter();
+    private final ThreadStateThriftMessageConverter threadStateThriftMessageConverter = new ThreadStateThriftMessageConverter();
 
     @Test
     public void basicFunctionTest1() throws Exception {

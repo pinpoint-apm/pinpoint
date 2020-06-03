@@ -1,6 +1,5 @@
 package com.navercorp.pinpoint.web.service;
 
-import com.navercorp.pinpoint.web.config.ConfigProperties;
 import com.navercorp.pinpoint.web.dao.UserDao;
 import com.navercorp.pinpoint.web.util.UserInfoDecoder;
 import com.navercorp.pinpoint.web.vo.User;
@@ -9,7 +8,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +25,7 @@ public class UserServiceImplTest {
     @Mock
     private UserDao userDao;
 
-    private UserInfoDecoder userInfoDecoder = new CustomUserInfoDecoder();
+    private final UserInfoDecoder userInfoDecoder = new CustomUserInfoDecoder();
 
     private UserService userService;
 

@@ -35,7 +35,7 @@ public class AutomaticBufferTest {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private Random random = new Random();
+    private final Random random = new Random();
 
     @Test
     public void testPutPrefixedBytes() throws Exception {

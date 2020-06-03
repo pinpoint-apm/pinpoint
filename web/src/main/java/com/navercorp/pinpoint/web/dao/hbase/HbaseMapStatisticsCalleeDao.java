@@ -37,7 +37,6 @@ import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Scan;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 
@@ -53,7 +52,7 @@ public class HbaseMapStatisticsCalleeDao implements MapStatisticsCalleeDao {
     private static final int MAP_STATISTICS_CALLER_VER2_NUM_PARTITIONS = 32;
     private static final int SCAN_CACHE_SIZE = 40;
 
-    private Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private final HbaseOperations2 hbaseTemplate;
 

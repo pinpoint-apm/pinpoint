@@ -82,7 +82,7 @@ public class DefaultPinpointServer implements PinpointServer {
     private final DefaultPinpointServerState state;
     private final CyclicStateChecker stateChecker;
 
-    private HealthCheckStateContext healthCheckStateContext = new HealthCheckStateContext();
+    private final HealthCheckStateContext healthCheckStateContext = new HealthCheckStateContext();
 
     private final ServerMessageListener messageListener;
 

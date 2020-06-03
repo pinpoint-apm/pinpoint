@@ -25,8 +25,8 @@ import java.util.Objects;
  */
 public class ResponseColumnName implements ColumnName {
 
-    private String agentId;
-    private short columnSlotNumber;
+    private final String agentId;
+    private final short columnSlotNumber;
 
  // WARNING - cached hash value should not be included for equals/hashCode
     private int hash;

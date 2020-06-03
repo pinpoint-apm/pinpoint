@@ -27,7 +27,6 @@ import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinTransactionBo;
 import com.navercorp.pinpoint.web.vo.stat.AggregationStatData;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;

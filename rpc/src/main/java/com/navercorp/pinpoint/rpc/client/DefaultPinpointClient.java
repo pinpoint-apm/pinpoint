@@ -43,7 +43,7 @@ public class DefaultPinpointClient implements PinpointClient {
 
     private volatile boolean closed;
 
-    private List<PinpointClientReconnectEventListener> reconnectEventListeners = new CopyOnWriteArrayList<PinpointClientReconnectEventListener>();
+    private final List<PinpointClientReconnectEventListener> reconnectEventListeners = new CopyOnWriteArrayList<PinpointClientReconnectEventListener>();
 
      public DefaultPinpointClient(PinpointClientHandler pinpointClientHandler) {
         this.pinpointClientHandler = Assert.requireNonNull(pinpointClientHandler, "pinpointClientHandler");
