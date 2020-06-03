@@ -39,12 +39,12 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 public class TestServerMessageListenerFactory implements ServerMessageListenerFactory {
 
-    public static enum HandshakeType {
+    public enum HandshakeType {
         SIMPLEX,
         DUPLEX
     }
 
-    public static enum ResponseType {
+    public enum ResponseType {
         NO_RESPONSE,
         ECHO
     }

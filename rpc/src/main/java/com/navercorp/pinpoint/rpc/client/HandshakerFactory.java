@@ -34,7 +34,7 @@ public class HandshakerFactory {
 
     private static final int DEFAULT_ENABLE_WORKER_PACKET_RETRY_COUNT = Integer.MAX_VALUE;
 
-    private int maxHandshakeCount = DEFAULT_ENABLE_WORKER_PACKET_RETRY_COUNT;
+    private final int maxHandshakeCount = DEFAULT_ENABLE_WORKER_PACKET_RETRY_COUNT;
 
 
     private final SocketIdFactory socketIdFactory;

@@ -30,7 +30,7 @@ import java.util.Map;
  */
 public class ControlMessageDecoder {
 
-    private Charset charset;
+    private final Charset charset;
 
     public ControlMessageDecoder() {
         this.charset = Charsets.UTF_8;

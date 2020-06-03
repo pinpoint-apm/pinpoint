@@ -33,7 +33,7 @@ public class StringTraceHeaderParserTest {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private StringTraceHeaderParser parser= new StringTraceHeaderParser();
+    private final StringTraceHeaderParser parser= new StringTraceHeaderParser();
 
     @Test
     public void getIdSize() {

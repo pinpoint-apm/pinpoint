@@ -82,7 +82,7 @@ public class PinpointMBeanServerTest {
 
     }
 
-    private class ATest extends AbstractCollectorManager implements ATestMBean {
+    private static class ATest extends AbstractCollectorManager implements ATestMBean {
 
     }
 

@@ -38,6 +38,7 @@ public class AnnotationKeyProvider {
         }
     };
 
+    // must be non final  : TraceMetadataRegistrar
     private static AnnotationKeyLocator registry = UNREGISTERED;
 
     private AnnotationKeyProvider() {

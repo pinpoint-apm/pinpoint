@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.collector.service;
 
 import com.navercorp.pinpoint.collector.dao.ApiMetaDataDao;
 import com.navercorp.pinpoint.common.server.bo.ApiMetaDataBo;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;

@@ -23,7 +23,7 @@ import org.junit.runners.model.Statement;
  */
 public class ContextClassLoaderStatement extends Statement {
     private final Statement delegate;
-    private ClassLoader classLoader;
+    private final ClassLoader classLoader;
 
     public ContextClassLoaderStatement(Statement delegate, ClassLoader classLoader) {
         if (delegate == null) {

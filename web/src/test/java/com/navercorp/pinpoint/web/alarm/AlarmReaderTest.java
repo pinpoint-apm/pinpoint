@@ -115,7 +115,7 @@ public class AlarmReaderTest {
         };
 
         alarmService = new AlarmServiceImpl(mock(AlarmDao.class)) {
-            private Map<String, Rule> ruleMap ;
+            private final Map<String, Rule> ruleMap ;
 
             {
                 ruleMap = new HashMap<String, Rule>();

@@ -27,7 +27,7 @@ import java.util.List;
  */
 public class LinkDataMapProcessors implements LinkDataMapProcessor {
 
-    private List<LinkDataMapProcessor> linkDataMapProcessors = new ArrayList<>();
+    private final List<LinkDataMapProcessor> linkDataMapProcessors = new ArrayList<>();
 
     public void addLinkDataMapProcessor(LinkDataMapProcessor linkDataMapProcessor) {
         if (linkDataMapProcessor == null) {

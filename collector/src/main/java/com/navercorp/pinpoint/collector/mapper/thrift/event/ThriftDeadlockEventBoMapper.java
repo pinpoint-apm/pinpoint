@@ -20,7 +20,6 @@ import com.navercorp.pinpoint.common.server.bo.event.DeadlockBo;
 import com.navercorp.pinpoint.common.server.bo.event.DeadlockEventBo;
 import com.navercorp.pinpoint.common.server.util.AgentEventType;
 import com.navercorp.pinpoint.thrift.dto.TDeadlock;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Objects;

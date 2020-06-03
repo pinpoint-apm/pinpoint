@@ -41,7 +41,7 @@ public class AsyncListenerInterceptorHelper {
     private static final MethodDescriptor ASYNC_LISTENER_ON_ERROR_METHOD_DESCRIPTOR = new AsyncListenerOnErrorMethodDescriptor();
     private static final MethodDescriptor ASYNC_LISTENER_ON_TIMEOUT_METHOD_DESCRIPTOR = new AsyncListenerOnTimeoutMethodDescriptor();
 
-    private PLogger logger = PLoggerFactory.getLogger(this.getClass());
+    private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
 
     private final AsyncContext asyncContext;

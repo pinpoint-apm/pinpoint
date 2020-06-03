@@ -33,7 +33,7 @@ import java.util.TreeMap;
 @Repository
 public class MemoryAgentStatisticsDao implements AgentStatisticsDao {
 
-    private Map<Long, Integer> agentCountPerTime = new TreeMap<>(new LongComparator());
+    private final Map<Long, Integer> agentCountPerTime = new TreeMap<>(new LongComparator());
 
     @Override
     public boolean insertAgentCount(AgentCountStatistics agentCountStatistics) {

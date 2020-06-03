@@ -20,16 +20,13 @@ import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatCodec;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatCodecTestBase;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.TestAgentStatFactory;
 import com.navercorp.pinpoint.common.server.bo.stat.ActiveTraceBo;
-import com.navercorp.pinpoint.common.trace.SlotType;
 import org.junit.Assert;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.util.CollectionUtils;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author HyunGil Jeong

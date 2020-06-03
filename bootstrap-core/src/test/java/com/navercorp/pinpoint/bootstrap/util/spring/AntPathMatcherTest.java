@@ -20,8 +20,6 @@ import org.junit.Test;
 
 import java.util.Map;
 
-import static org.junit.Assert.assertThat;
-
 /**
  * copy from spring-framework
  * https://github.com/spring-projects/spring-framework/blob/master/spring-core/src/test/java/org/springframework/util/AntPathMatcherTests.java

@@ -38,7 +38,7 @@ public abstract class DownSamplerTestBase<T extends Number & Comparable<? super 
 
     protected static final Random RANDOM = new Random();
 
-    private DownSampler<T> sampler = getSampler();
+    private final DownSampler<T> sampler = getSampler();
 
     protected abstract DownSampler<T> getSampler();
 

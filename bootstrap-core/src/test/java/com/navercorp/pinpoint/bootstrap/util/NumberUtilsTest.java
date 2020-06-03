@@ -25,7 +25,7 @@ import org.junit.Test;
  * @author poap
  */
 public class NumberUtilsTest {
-	private String notNumber = "H3110 W0r1d";
+	private final String notNumber = "H3110 W0r1d";
 
 	@Test
 	public void parseLong() {

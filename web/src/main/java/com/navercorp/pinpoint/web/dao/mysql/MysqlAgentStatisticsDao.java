@@ -20,7 +20,6 @@ import com.navercorp.pinpoint.web.dao.AgentStatisticsDao;
 import com.navercorp.pinpoint.web.vo.AgentCountStatistics;
 import com.navercorp.pinpoint.web.vo.Range;
 import org.mybatis.spring.SqlSessionTemplate;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Repository;
 

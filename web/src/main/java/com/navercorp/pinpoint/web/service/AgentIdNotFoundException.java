@@ -21,8 +21,8 @@ package com.navercorp.pinpoint.web.service;
  */
 public class AgentIdNotFoundException extends RuntimeException {
 
-    private String agentId;
-    private long startTime;
+    private final String agentId;
+    private final long startTime;
 
     public AgentIdNotFoundException(String agentId, long startTime) {
         super("agentId:" + agentId + " startTime:" + startTime + " not found");

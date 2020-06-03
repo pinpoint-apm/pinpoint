@@ -25,7 +25,7 @@ public class CorruptedSpanCallTreeNodeException extends RuntimeException {
 
     private static final long serialVersionUID = 1L;
 
-    private String title;
+    private final String title;
 
     public CorruptedSpanCallTreeNodeException(String title, String message) {
         super(message);

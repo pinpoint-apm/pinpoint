@@ -36,9 +36,9 @@ public class DefaultThriftTransportConfig implements ThriftTransportConfig {
     private int spanDataSenderSocketSendBufferSize = 1024 * 64 * 16;
     private int spanDataSenderSocketTimeout = 1000 * 3;
     private int spanDataSenderChunkSize = 1024 * 16;
-    private static String DEFAULT_SPAN_DATA_SENDER_WRITE_BUFFER_HIGH_WATER_MAK = "16m";
+    private static final String DEFAULT_SPAN_DATA_SENDER_WRITE_BUFFER_HIGH_WATER_MAK = "16m";
     private String spanDataSenderWriteBufferHighWaterMark = DEFAULT_SPAN_DATA_SENDER_WRITE_BUFFER_HIGH_WATER_MAK;
-    private static String DEFAULT_SPAN_DATA_SENDER_WRITE_BUFFER_LOW_WATER_MAK = "8m";
+    private static final String DEFAULT_SPAN_DATA_SENDER_WRITE_BUFFER_LOW_WATER_MAK = "8m";
     private String spanDataSenderWriteBufferLowWaterMark = DEFAULT_SPAN_DATA_SENDER_WRITE_BUFFER_LOW_WATER_MAK;
     private String spanDataSenderTransportType = "UDP";
     private String spanDataSenderSocketType = "OIO";
@@ -47,9 +47,9 @@ public class DefaultThriftTransportConfig implements ThriftTransportConfig {
     private int statDataSenderSocketSendBufferSize = 1024 * 64 * 16;
     private int statDataSenderSocketTimeout = 1000 * 3;
     private int statDataSenderChunkSize = 1024 * 16;
-    private static String DEFAULT_STAT_DATA_SENDER_WRITE_BUFFER_HIGH_WATER_MAK = "16m";
+    private static final String DEFAULT_STAT_DATA_SENDER_WRITE_BUFFER_HIGH_WATER_MAK = "16m";
     private String statDataSenderWriteBufferHighWaterMark = DEFAULT_STAT_DATA_SENDER_WRITE_BUFFER_HIGH_WATER_MAK;
-    private static String DEFAULT_STAT_DATA_SENDER_WRITE_BUFFER_LOW_WATER_MAK = "8m";
+    private static final String DEFAULT_STAT_DATA_SENDER_WRITE_BUFFER_LOW_WATER_MAK = "8m";
     private String statDataSenderWriteBufferLowWaterMark = DEFAULT_STAT_DATA_SENDER_WRITE_BUFFER_LOW_WATER_MAK;
     private String statDataSenderTransportType = "UDP";
     private String statDataSenderSocketType = "OIO";
@@ -60,19 +60,19 @@ public class DefaultThriftTransportConfig implements ThriftTransportConfig {
     private boolean tcpDataSenderCommandActiveThreadDumpEnable = false;
     private boolean tcpDataSenderCommandActiveThreadLightDumpEnable = false;
 
-    private static long DEFAULT_DATA_SENDER_PINPOINT_CLIENT_WRITE_TIMEOUT = 3 * 1000;
+    private static final long DEFAULT_DATA_SENDER_PINPOINT_CLIENT_WRITE_TIMEOUT = 3 * 1000;
     private long tcpDataSenderPinpointClientWriteTimeout = DEFAULT_DATA_SENDER_PINPOINT_CLIENT_WRITE_TIMEOUT;
-    private static long DEFAULT_DATA_SENDER_PINPOINT_CLIENT_REQUEST_TIMEOUT = 3 * 1000;
+    private static final long DEFAULT_DATA_SENDER_PINPOINT_CLIENT_REQUEST_TIMEOUT = 3 * 1000;
     private long tcpDataSenderPinpointClientRequestTimeout = DEFAULT_DATA_SENDER_PINPOINT_CLIENT_REQUEST_TIMEOUT;
-    private static long DEFAULT_DATA_SENDER_PINPOINT_CLIENT_RECONNECT_INTERVAL = 3 * 1000;
+    private static final long DEFAULT_DATA_SENDER_PINPOINT_CLIENT_RECONNECT_INTERVAL = 3 * 1000;
     private long tcpDataSenderPinpointClientReconnectInterval = DEFAULT_DATA_SENDER_PINPOINT_CLIENT_RECONNECT_INTERVAL;
-    private static long DEFAULT_DATA_SENDER_PINPOINT_CLIENT_PING_INTERVAL = 60 * 1000 * 5;
+    private static final long DEFAULT_DATA_SENDER_PINPOINT_CLIENT_PING_INTERVAL = 60 * 1000 * 5;
     private long tcpDataSenderPinpointClientPingInterval = DEFAULT_DATA_SENDER_PINPOINT_CLIENT_PING_INTERVAL;
-    private static long DEFAULT_DATA_SENDER_PINPOINT_CLIENT_HANDSHAKE_INTERVAL = 60 * 1000 * 1;
+    private static final long DEFAULT_DATA_SENDER_PINPOINT_CLIENT_HANDSHAKE_INTERVAL = 60 * 1000 * 1;
     private long tcpDataSenderPinpointClientHandshakeInterval = DEFAULT_DATA_SENDER_PINPOINT_CLIENT_HANDSHAKE_INTERVAL;
-    private static String DEFAULT_DATA_SENDER_PINPOINT_CLIENT_WRITE_BUFFER_HIGH_WATER_MAK = "32m";
+    private static final String DEFAULT_DATA_SENDER_PINPOINT_CLIENT_WRITE_BUFFER_HIGH_WATER_MAK = "32m";
     private String tcpDataSenderPinpointClientWriteBufferHighWaterMark = DEFAULT_DATA_SENDER_PINPOINT_CLIENT_WRITE_BUFFER_HIGH_WATER_MAK;
-    private static String DEFAULT_DATA_SENDER_PINPOINT_CLIENT_WRITE_BUFFER_LOW_WATER_MAK = "16m";
+    private static final String DEFAULT_DATA_SENDER_PINPOINT_CLIENT_WRITE_BUFFER_LOW_WATER_MAK = "16m";
     private String tcpDataSenderPinpointClientWriteBufferLowWaterMark = DEFAULT_DATA_SENDER_PINPOINT_CLIENT_WRITE_BUFFER_LOW_WATER_MAK;
 
     public DefaultThriftTransportConfig() {

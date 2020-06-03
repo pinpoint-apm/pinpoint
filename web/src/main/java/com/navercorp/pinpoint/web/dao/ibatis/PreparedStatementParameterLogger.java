@@ -33,7 +33,7 @@ import java.util.List;
  */
 public class PreparedStatementParameterLogger implements PreparedStatement {
 
-    private List<Object> parameterList = new ArrayList<>();
+    private final List<Object> parameterList = new ArrayList<>();
 
     private void setColumn(Object value) {
         parameterList.add(value);

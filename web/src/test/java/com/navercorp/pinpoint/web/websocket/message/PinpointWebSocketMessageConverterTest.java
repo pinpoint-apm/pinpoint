@@ -27,7 +27,7 @@ import java.util.Map;
  */
 public class PinpointWebSocketMessageConverterTest {
 
-    private PinpointWebSocketMessageConverter messageConverter = new PinpointWebSocketMessageConverter();
+    private final PinpointWebSocketMessageConverter messageConverter = new PinpointWebSocketMessageConverter();
 
     @Test
     public void requestMessageTest() throws Exception {

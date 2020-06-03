@@ -21,7 +21,6 @@ import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.trace.PAgentInfo;
 import com.navercorp.pinpoint.grpc.trace.PJvmInfo;
 import com.navercorp.pinpoint.grpc.trace.PServerMetaData;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Objects;

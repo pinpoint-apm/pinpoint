@@ -24,7 +24,6 @@ import com.navercorp.pinpoint.web.dao.stat.DeadlockDao;
 import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.timeline.inspector.AgentState;
 import com.navercorp.pinpoint.web.vo.timeline.inspector.AgentStatusTimelineSegment;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 

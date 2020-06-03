@@ -1,13 +1,11 @@
 package com.navercorp.pinpoint.common.hbase.util;
 
-import com.navercorp.pinpoint.common.util.BytesUtils;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.junit.Assert;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 

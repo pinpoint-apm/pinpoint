@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.collector.service;
 
 import com.navercorp.pinpoint.collector.dao.AgentLifeCycleDao;
 import com.navercorp.pinpoint.common.server.bo.AgentLifeCycleBo;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;

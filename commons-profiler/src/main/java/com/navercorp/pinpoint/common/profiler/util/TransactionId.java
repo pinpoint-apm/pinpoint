@@ -24,8 +24,8 @@ import com.navercorp.pinpoint.common.util.Assert;
 public class TransactionId {
 
     private String agentId;
-    private long agentStartTime;
-    private long transactionSequence;
+    private final long agentStartTime;
+    private final long transactionSequence;
 
     public TransactionId(String agentId, long agentStartTime, long transactionSequence) {
         this.agentId = Assert.requireNonNull(agentId, "agentId");

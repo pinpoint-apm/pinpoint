@@ -36,9 +36,9 @@ import java.util.Random;
  */
 public class FixedBufferTest {
     public static final Charset UTF8_CHARSET = Charsets.UTF_8;
-    private Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private Random random = new Random();
+    private final Random random = new Random();
 
     @Test
     public void testPutPrefixedBytes() throws Exception {

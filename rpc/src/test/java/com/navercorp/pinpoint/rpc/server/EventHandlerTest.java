@@ -105,7 +105,7 @@ public class EventHandlerTest {
         Assert.assertNotNull(testRawSocket.readResponsePacket(3000));
     }
 
-    class EventHandler extends ServerStateChangeEventHandler {
+    static class EventHandler extends ServerStateChangeEventHandler {
 
         private SocketStateCode code;
 
@@ -119,7 +119,7 @@ public class EventHandlerTest {
         }
     }
 
-    class ThrowExceptionEventHandler extends ServerStateChangeEventHandler {
+    static class ThrowExceptionEventHandler extends ServerStateChangeEventHandler {
 
         private int errorCount = 0;
 

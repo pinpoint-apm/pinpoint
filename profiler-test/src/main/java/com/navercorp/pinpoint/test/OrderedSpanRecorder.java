@@ -31,7 +31,7 @@ import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
  * @author Jongho Moon
  */
 public class OrderedSpanRecorder implements ListenableDataSender.Listener<Object>, Iterable<Object> {
-    private static String LINE_SEPARATOR = System.getProperty("line.separator");
+    private static final String LINE_SEPARATOR = System.getProperty("line.separator");
     public static final int ROOT_SEQUENCE = -1;
     public static final int ASYNC_ID_NOT_SET = -1;
     public static final int ASYNC_SEQUENCE_NOT_SET = -1;

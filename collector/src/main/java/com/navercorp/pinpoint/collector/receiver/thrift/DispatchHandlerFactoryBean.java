@@ -21,7 +21,6 @@ import com.navercorp.pinpoint.common.server.util.AcceptedTimeService;
 
 import com.navercorp.pinpoint.collector.manage.HandlerManager;
 import org.springframework.beans.factory.FactoryBean;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.annotation.PostConstruct;

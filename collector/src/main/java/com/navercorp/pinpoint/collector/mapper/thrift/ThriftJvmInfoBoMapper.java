@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.collector.mapper.thrift;
 import com.navercorp.pinpoint.collector.mapper.thrift.stat.ThriftJvmGcTypeMapper;
 import com.navercorp.pinpoint.common.server.bo.JvmInfoBo;
 import com.navercorp.pinpoint.thrift.dto.TJvmInfo;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Objects;

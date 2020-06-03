@@ -70,7 +70,7 @@ public class DefaultPinpointClientFactory implements PinpointClientFactory {
     private ClusterOption clusterOption = ClusterOption.DISABLE_CLUSTER_OPTION;
 
     private MessageListener messageListener = SimpleMessageListener.INSTANCE;
-    private List<StateChangeEventListener> stateChangeEventListeners = new ArrayList<StateChangeEventListener>();
+    private final List<StateChangeEventListener> stateChangeEventListeners = new ArrayList<StateChangeEventListener>();
     private volatile ServerStreamChannelMessageHandler serverStreamChannelMessageHandler = ServerStreamChannelMessageHandler.DISABLED_INSTANCE;
 
 

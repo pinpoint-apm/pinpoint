@@ -113,6 +113,6 @@ public final class PropertyUtils {
         public InputStream openInputStream() throws IOException {
             return new FileInputStream(filePath);
         }
-    };
+    }
 
 }

@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.common.hbase;
 
 import com.navercorp.pinpoint.common.hbase.namespace.NamespaceValidator;
-import org.apache.hadoop.hbase.NamespaceDescriptor;
 import org.apache.hadoop.hbase.TableName;
 import org.junit.Assert;
 import org.junit.Test;
@@ -25,8 +24,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.only;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;

@@ -66,7 +66,7 @@ public class ThreadMXBeanUtilsTest {
         Assert.assertFalse(ThreadMXBeanUtils.findThreadName(threadName));
     }
 
-    private class WaitingRunnable implements Runnable {
+    private static class WaitingRunnable implements Runnable {
 
         private final CountDownLatch latch = new CountDownLatch(1);
 

@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.collector.mapper.grpc;
 import com.navercorp.pinpoint.collector.mapper.grpc.stat.GrpcJvmGcTypeMapper;
 import com.navercorp.pinpoint.common.server.bo.JvmInfoBo;
 import com.navercorp.pinpoint.grpc.trace.PJvmInfo;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Objects;

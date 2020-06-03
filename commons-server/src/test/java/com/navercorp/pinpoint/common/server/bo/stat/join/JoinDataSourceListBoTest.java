@@ -100,7 +100,7 @@ public class JoinDataSourceListBoTest {
         assertEquals(joinDataSourceListBo, JoinDataSourceListBo.EMPTY_JOIN_DATA_SOURCE_LIST_BO);
     }
 
-    private class ComparatorImpl implements Comparator<JoinDataSourceBo> {
+    private static class ComparatorImpl implements Comparator<JoinDataSourceBo> {
         @Override
         public int compare(JoinDataSourceBo bo1, JoinDataSourceBo bo2) {
             return bo1.getServiceTypeCode() < bo2.getServiceTypeCode() ? -1 : 1;

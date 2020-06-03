@@ -23,7 +23,7 @@ import java.util.List;
  */
 public class ProfilerLibClass implements LibClass {
 
-    private String[] profilerClass;
+    private final String[] profilerClass;
 
     public ProfilerLibClass(List<String> profilerClass) {
         if (profilerClass == null) {

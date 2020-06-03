@@ -37,7 +37,7 @@ public enum Header {
     public static final String FILTER_PATTERN_PREFIX = "Pinpoint-";
     private static final int FILTER_PATTERN_PREFIX_LENGTH = FILTER_PATTERN_PREFIX.length();
 
-    private String name;
+    private final String name;
 
     Header(String name) {
         this.name = name;

@@ -46,7 +46,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 //@Ignore
 public class ReconnectTest {
 
-    private Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private static PinpointClientFactory clientFactory;
 

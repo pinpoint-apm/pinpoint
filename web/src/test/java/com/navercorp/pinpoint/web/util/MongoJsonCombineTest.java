@@ -30,8 +30,8 @@ public class MongoJsonCombineTest {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private MongoJsonParser jsonParser = new DefaultMongoJsonParser();
-    private OutputParameterMongoJsonParser outputParameterMongoJsonParser = new OutputParameterMongoJsonParser();
+    private final MongoJsonParser jsonParser = new DefaultMongoJsonParser();
+    private final OutputParameterMongoJsonParser outputParameterMongoJsonParser = new OutputParameterMongoJsonParser();
 
 
     @Test

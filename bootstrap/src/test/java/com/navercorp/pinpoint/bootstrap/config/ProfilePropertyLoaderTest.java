@@ -25,8 +25,6 @@ import org.junit.rules.TemporaryFolder;
 import java.io.File;
 import java.util.Properties;
 
-import static org.junit.Assert.*;
-
 /**
  * @author Woonduk Kang(emeroad)
  */

@@ -45,7 +45,6 @@ import com.navercorp.pinpoint.grpc.trace.PJvmGcDetailed;
 import com.navercorp.pinpoint.grpc.trace.PResponseTime;
 import com.navercorp.pinpoint.grpc.trace.PTransaction;
 import com.navercorp.pinpoint.grpc.trace.PTotalThread;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Collections;

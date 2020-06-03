@@ -49,7 +49,7 @@ public class CpuLoadChart implements StatChart {
 
         private final TimeWindow timeWindow;
 
-        private Map<ChartType, Chart<? extends Point>> cpuLoadCharts;
+        private final Map<ChartType, Chart<? extends Point>> cpuLoadCharts;
 
         public enum CpuLoadChartType implements AgentChartType {
             CPU_LOAD_JVM,

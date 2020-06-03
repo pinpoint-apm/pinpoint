@@ -39,7 +39,7 @@ import org.junit.Test;
  */
 public class ServiceTypeInitializerTest {
 
-    private CommonLoggerFactory loggerFactory = StdoutCommonLoggerFactory.INSTANCE;
+    private final CommonLoggerFactory loggerFactory = StdoutCommonLoggerFactory.INSTANCE;
 
     private static final ServiceType[] TEST_TYPES = {
         ServiceTypeFactory.of(1209, "FOR_UNIT_TEST", "UNDEFINED", TERMINAL, RECORD_STATISTICS, INCLUDE_DESTINATION_ID)

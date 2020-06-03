@@ -17,17 +17,12 @@ package com.navercorp.pinpoint.web.scatter;
 
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import java.util.TreeMap;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.navercorp.pinpoint.web.view.ScatterDataSerializer;
-import com.navercorp.pinpoint.web.vo.scatter.Dot;
-import com.navercorp.pinpoint.web.vo.scatter.DotAgentInfo;
 
 /**
  * @author Taejin Koo

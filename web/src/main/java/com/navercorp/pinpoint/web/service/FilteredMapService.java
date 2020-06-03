@@ -24,7 +24,6 @@ import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.LimitedScanResult;
 import com.navercorp.pinpoint.web.vo.LoadFactor;
 import com.navercorp.pinpoint.web.vo.Range;
-import com.navercorp.pinpoint.web.vo.SelectedScatterArea;
 
 import java.util.List;
 

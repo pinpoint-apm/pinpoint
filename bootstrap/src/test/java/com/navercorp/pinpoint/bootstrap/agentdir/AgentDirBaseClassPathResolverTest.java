@@ -30,7 +30,6 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.security.CodeSource;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.jar.JarFile;

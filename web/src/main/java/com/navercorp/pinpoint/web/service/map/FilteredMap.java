@@ -33,8 +33,8 @@ import java.util.Objects;
 public class FilteredMap {
 
     private final LinkDataDuplexMap linkDataDuplexMap;
-    private ResponseHistograms responseHistograms;
-    private DotExtractor dotExtractor;
+    private final ResponseHistograms responseHistograms;
+    private final DotExtractor dotExtractor;
 
     FilteredMap(LinkDataDuplexMap linkDataDuplexMap, ResponseHistograms responseHistograms, DotExtractor dotExtractor) {
         this.linkDataDuplexMap = Objects.requireNonNull(linkDataDuplexMap, "linkDataDuplexMap");

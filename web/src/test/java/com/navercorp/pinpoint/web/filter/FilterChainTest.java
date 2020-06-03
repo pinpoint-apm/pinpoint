@@ -19,11 +19,8 @@ package com.navercorp.pinpoint.web.filter;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-
-import static org.junit.Assert.*;
 
 /**
  * @author Woonduk Kang(emeroad)

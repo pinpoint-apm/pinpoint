@@ -41,7 +41,7 @@ public class JoinApplicationStatBoTest {
         assertJoinCpuLoadBoList(joinCpuLoadBoList);
     }
 
-    private class ComparatorImpl implements Comparator<JoinCpuLoadBo> {
+    private static class ComparatorImpl implements Comparator<JoinCpuLoadBo> {
         @Override
         public int compare(JoinCpuLoadBo bo1, JoinCpuLoadBo bo2) {
             return bo1.getTimestamp() < bo2.getTimestamp() ? -1 : 1;
@@ -236,7 +236,7 @@ public class JoinApplicationStatBoTest {
         assertEquals("id4_4", joinMemoryBo5.getMaxNonHeapAgentId());
     }
 
-    private class ComparatorImpl2 implements Comparator<JoinMemoryBo> {
+    private static class ComparatorImpl2 implements Comparator<JoinMemoryBo> {
         @Override
         public int compare(JoinMemoryBo bo1, JoinMemoryBo bo2) {
             return bo1.getTimestamp() < bo2.getTimestamp() ? -1 : 1;
@@ -402,7 +402,7 @@ public class JoinApplicationStatBoTest {
         assertJoinTransactionBoList(joinTransactionBoList);
     }
 
-    private class ComparatorImpl3 implements Comparator<JoinTransactionBo> {
+    private static class ComparatorImpl3 implements Comparator<JoinTransactionBo> {
         @Override
         public int compare(JoinTransactionBo bo1, JoinTransactionBo bo2) {
             return bo1.getTimestamp() < bo2.getTimestamp() ? -1 : 1;
@@ -617,7 +617,7 @@ public class JoinApplicationStatBoTest {
         assertEquals(joinActiveTraceBoList.get(4).getTotalCount(), 30);
     }
 
-    private class ComparatorImpl4 implements Comparator<JoinActiveTraceBo> {
+    private static class ComparatorImpl4 implements Comparator<JoinActiveTraceBo> {
         @Override
         public int compare(JoinActiveTraceBo bo1, JoinActiveTraceBo bo2) {
             return bo1.getTimestamp() < bo2.getTimestamp() ? -1 : 1;
@@ -832,7 +832,7 @@ public class JoinApplicationStatBoTest {
         assertEquals(joinResponseTimeBo5.getMaxAvgAgentId(), "id4_2");
     }
 
-    private class ComparatorImpl5 implements Comparator<JoinResponseTimeBo> {
+    private static class ComparatorImpl5 implements Comparator<JoinResponseTimeBo> {
         @Override
         public int compare(JoinResponseTimeBo bo1, JoinResponseTimeBo bo2) {
             return bo1.getTimestamp() < bo2.getTimestamp() ? -1 : 1;
@@ -1074,7 +1074,7 @@ public class JoinApplicationStatBoTest {
 
     }
 
-    private class ComparatorImpl6 implements Comparator<JoinDataSourceListBo> {
+    private static class ComparatorImpl6 implements Comparator<JoinDataSourceListBo> {
         @Override
         public int compare(JoinDataSourceListBo bo1, JoinDataSourceListBo bo2) {
             return bo1.getTimestamp() < bo2.getTimestamp() ? -1 : 1;
@@ -1202,7 +1202,7 @@ public class JoinApplicationStatBoTest {
         assertEquals(joinFileDescriptorBoList.get(4).getAvgOpenFDCount(), 880,0);
     }
 
-    private class ComparatorImpl7 implements Comparator<JoinFileDescriptorBo> {
+    private static class ComparatorImpl7 implements Comparator<JoinFileDescriptorBo> {
         @Override
         public int compare(JoinFileDescriptorBo bo1, JoinFileDescriptorBo bo2) {
             return bo1.getTimestamp() < bo2.getTimestamp() ? -1 : 1;
@@ -1376,7 +1376,7 @@ public class JoinApplicationStatBoTest {
         assertEquals(joinDirectBufferBoList.get(4).getAvgMappedMemoryUsed(), 880,0);
     }
 
-    private class ComparatorImpl8 implements Comparator<JoinDirectBufferBo> {
+    private static class ComparatorImpl8 implements Comparator<JoinDirectBufferBo> {
         @Override
         public int compare(JoinDirectBufferBo bo1, JoinDirectBufferBo bo2) {
             return bo1.getTimestamp() < bo2.getTimestamp() ? -1 : 1;

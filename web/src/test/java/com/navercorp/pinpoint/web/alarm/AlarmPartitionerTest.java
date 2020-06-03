@@ -16,18 +16,12 @@
 
 package com.navercorp.pinpoint.web.alarm;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-
+import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
 import org.junit.Assert;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.batch.item.ExecutionContext;
 
-import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.web.dao.ApplicationIndexDao;
-import com.navercorp.pinpoint.web.vo.Application;
+import java.util.Map;
 
 public class AlarmPartitionerTest {
 

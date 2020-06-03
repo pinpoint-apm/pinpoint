@@ -23,6 +23,6 @@ public enum HealthCheckState {
 
     WAIT,
     RECEIVED,
-    RECEIVED_LEGACY;
+    RECEIVED_LEGACY
 
 }

@@ -28,7 +28,7 @@ public abstract class AbstractCollectorManager implements CollectorManager {
     }
 
     private String simpleClassName() {
-        Class clazz = this.getClass();
+        Class<?> clazz = this.getClass();
 
         Package pkg = clazz.getPackage();
         if (pkg != null) {

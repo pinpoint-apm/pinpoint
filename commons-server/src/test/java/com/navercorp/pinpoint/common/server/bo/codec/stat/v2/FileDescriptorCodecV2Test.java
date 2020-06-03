@@ -19,7 +19,6 @@ package com.navercorp.pinpoint.common.server.bo.codec.stat.v2;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatCodec;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.AgentStatCodecTestBase;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.TestAgentStatFactory;
-import com.navercorp.pinpoint.common.server.bo.serializer.stat.AgentStatUtils;
 import com.navercorp.pinpoint.common.server.bo.stat.FileDescriptorBo;
 import org.junit.Assert;
 import org.junit.runner.RunWith;

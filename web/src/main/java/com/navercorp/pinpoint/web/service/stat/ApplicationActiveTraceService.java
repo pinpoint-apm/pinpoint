@@ -21,7 +21,6 @@ import com.navercorp.pinpoint.web.vo.stat.AggreJoinActiveTraceBo;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChart;
 import com.navercorp.pinpoint.web.vo.stat.chart.application.ApplicationActiveTraceChart;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

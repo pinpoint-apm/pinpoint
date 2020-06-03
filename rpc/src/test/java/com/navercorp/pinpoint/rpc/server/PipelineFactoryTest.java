@@ -44,7 +44,7 @@ public class PipelineFactoryTest {
 
     private static int bindPort;
 
-    private static char START_KEY = '!';
+    private static final char START_KEY = '!';
 
     @BeforeClass
     public static void setUp() throws IOException {

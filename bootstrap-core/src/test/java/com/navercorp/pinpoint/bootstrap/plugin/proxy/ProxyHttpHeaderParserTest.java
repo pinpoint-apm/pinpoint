@@ -47,7 +47,7 @@ public class ProxyHttpHeaderParserTest {
         assertEquals(12345, tvalue.getIntValue2());
         assertEquals(99, tvalue.getByteValue1());
         assertEquals(1, tvalue.getByteValue2());
-        System.out.println("");
+        System.out.println();
     }
 
     @Test
@@ -161,7 +161,7 @@ public class ProxyHttpHeaderParserTest {
     public void parseTimestampInvalidValue() throws Exception {
         ProxyHttpHeaderParser parser = new ProxyHttpHeaderParser();
         final long currentTimeMillis = System.currentTimeMillis();
-        String value = "t=" + String.valueOf(Long.MAX_VALUE) + String.valueOf(Long.MAX_VALUE);
+        String value = "t=" + Long.MAX_VALUE + Long.MAX_VALUE;
         ProxyHttpHeader proxyHttpHeader = parser.parse(ProxyHttpHeader.TYPE_APP, value);
         assertFalse(proxyHttpHeader.isValid());
     }

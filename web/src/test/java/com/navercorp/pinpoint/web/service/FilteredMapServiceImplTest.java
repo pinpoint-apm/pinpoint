@@ -46,7 +46,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -93,7 +92,7 @@ public class FilteredMapServiceImplTest {
     private ApplicationFactory applicationFactory;
 
     // Mocked
-    private ServiceTypeRegistryService registry = TestTraceUtils.mockServiceTypeRegistryService();
+    private final ServiceTypeRegistryService registry = TestTraceUtils.mockServiceTypeRegistryService();
 
     @Spy
     private ApplicationMapBuilderFactory applicationMapBuilderFactory = new ApplicationMapBuilderFactory(

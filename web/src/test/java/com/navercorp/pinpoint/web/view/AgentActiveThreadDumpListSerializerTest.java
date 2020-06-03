@@ -39,8 +39,8 @@ import java.util.Map;
  */
 public class AgentActiveThreadDumpListSerializerTest {
 
-    private ObjectMapper mapper = new ObjectMapper();
-    private ThreadDumpThriftMessageConverter threadDumpThriftMessageConverter = new ThreadDumpThriftMessageConverter();
+    private final ObjectMapper mapper = new ObjectMapper();
+    private final ThreadDumpThriftMessageConverter threadDumpThriftMessageConverter = new ThreadDumpThriftMessageConverter();
 
     @Test
     public void serializeTest() throws Exception {
@@ -48,11 +48,11 @@ public class AgentActiveThreadDumpListSerializerTest {
         AgentActiveThreadDumpList activeThreadDumpList = createThreadDumpList(allThreadInfo);
         String jsonValue = mapper.writeValueAsString(activeThreadDumpList);
 
-        List list = mapper.readValue(jsonValue, List.class);
+        List<?> list = mapper.readValue(jsonValue, List.class);
 
         Assert.assertTrue(CollectionUtils.hasLength(list));
 
-        Map map = (Map) list.get(0);
+        Map<?, ?> map = (Map<?, ?>) list.get(0);
 
         Assert.assertTrue(map.containsKey("threadId"));
         Assert.assertTrue(map.containsKey("threadName"));

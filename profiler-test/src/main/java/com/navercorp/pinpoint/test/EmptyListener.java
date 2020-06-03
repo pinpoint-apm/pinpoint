@@ -29,4 +29,4 @@ public class EmptyListener<T> implements ListenableDataSender.Listener<T> {
     public String toString() {
         return "EMPTY_LISTENER";
     }
-};
+}

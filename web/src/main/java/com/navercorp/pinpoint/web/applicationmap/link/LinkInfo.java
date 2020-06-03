@@ -58,7 +58,7 @@ public class LinkInfo {
         ATAG("aTag"),
         BUTTON("button");
         
-        private String name;
+        private final String name;
         
         LinkType(String name) {
             this.name = name;

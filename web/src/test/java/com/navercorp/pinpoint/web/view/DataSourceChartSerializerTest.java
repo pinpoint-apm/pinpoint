@@ -52,7 +52,7 @@ public class DataSourceChartSerializerTest {
 
     private final DataSourceSampler sampler = new DataSourceSampler();
 
-    private ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper mapper = new ObjectMapper();
 
     @Mock
     private ServiceTypeRegistryService serviceTypeRegistryService;

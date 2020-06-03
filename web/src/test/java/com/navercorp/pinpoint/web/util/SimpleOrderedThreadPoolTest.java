@@ -53,7 +53,7 @@ public class SimpleOrderedThreadPoolTest {
 
     public class TestHashSelectorRunnable implements Runnable, SimpleOrderedThreadPool.HashSelector {
         private final Logger logger = LoggerFactory.getLogger(this.getClass());
-        private int selectKey;
+        private final int selectKey;
         private final CountDownLatch latch;
 
         public TestHashSelectorRunnable(int selectKey, CountDownLatch latch) {

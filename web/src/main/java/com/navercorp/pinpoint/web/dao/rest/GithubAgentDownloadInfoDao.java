@@ -38,7 +38,7 @@ public class GithubAgentDownloadInfoDao implements AgentDownloadInfoDao {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private static String GITHUB_API_URL = "https://api.github.com/repos/naver/pinpoint/releases";
+    private static final String GITHUB_API_URL = "https://api.github.com/repos/naver/pinpoint/releases";
 
     private static final Pattern STABLE_VERSION_PATTERN = Pattern.compile(IdValidateUtils.STABLE_VERSION_PATTERN_VALUE);
 

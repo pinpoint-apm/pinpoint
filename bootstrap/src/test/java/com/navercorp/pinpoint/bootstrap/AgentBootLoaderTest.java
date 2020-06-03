@@ -35,7 +35,7 @@ import static org.mockito.Mockito.mock;
  */
 public class AgentBootLoaderTest {
 
-    private Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Test
     public void boot() {

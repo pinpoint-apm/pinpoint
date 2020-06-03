@@ -20,8 +20,8 @@ package com.navercorp.pinpoint.common.util;
  * @author Roy Kim
  */
 public class StringStringValue {
-    private String stringValue1;
-    private String stringValue2;
+    private final String stringValue1;
+    private final String stringValue2;
 
     public StringStringValue(String stringValue1, String stringValue2) {
         this.stringValue1 = stringValue1;

@@ -49,7 +49,7 @@ public class FileDescriptorChart implements StatChart {
 
         private final TimeWindow timeWindow;
 
-        private Map<ChartType, Chart<? extends Point>> FileDescriptorCharts;
+        private final Map<ChartType, Chart<? extends Point>> FileDescriptorCharts;
 
         public enum FileDescriptorChartType implements AgentChartType {
             OPEN_FILE_DESCRIPTOR_COUNT

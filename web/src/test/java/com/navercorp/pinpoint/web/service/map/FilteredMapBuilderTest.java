@@ -52,7 +52,7 @@ public class FilteredMapBuilderTest {
     private static final int VERSION = 0;
 
     // Mocked
-    private ServiceTypeRegistryService registry = TestTraceUtils.mockServiceTypeRegistryService();
+    private final ServiceTypeRegistryService registry = TestTraceUtils.mockServiceTypeRegistryService();
 
     private ApplicationFactory applicationFactory;
 

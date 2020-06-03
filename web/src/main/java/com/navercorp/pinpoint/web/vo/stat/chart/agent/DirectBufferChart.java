@@ -49,7 +49,7 @@ public class DirectBufferChart implements StatChart {
 
         private final TimeWindow timeWindow;
 
-        private Map<ChartType, Chart<? extends Point>> DirectBufferCharts;
+        private final Map<ChartType, Chart<? extends Point>> DirectBufferCharts;
 
         public enum DirectBufferChartType implements AgentChartType {
             DIRECT_COUNT,

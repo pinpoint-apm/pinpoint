@@ -16,9 +16,7 @@
 
 package com.navercorp.pinpoint.collector.receiver.thrift.tcp;
 
-import com.navercorp.pinpoint.collector.handler.thrift.ThriftAgentStatHandlerV2;
 import com.navercorp.pinpoint.collector.service.AgentEventService;
-import com.navercorp.pinpoint.collector.service.HBaseAgentStatService;
 import com.navercorp.pinpoint.collector.service.async.AgentEventAsyncTaskService;
 import com.navercorp.pinpoint.collector.service.async.AgentProperty;
 import com.navercorp.pinpoint.collector.service.async.AgentPropertyChannelAdaptor;
@@ -29,16 +27,12 @@ import com.navercorp.pinpoint.rpc.server.ChannelProperties;
 import com.navercorp.pinpoint.rpc.server.ChannelPropertiesFactory;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.times;

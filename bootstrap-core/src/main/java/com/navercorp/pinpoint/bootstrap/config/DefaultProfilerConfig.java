@@ -102,7 +102,7 @@ public class DefaultProfilerConfig implements ProfilerConfig {
 
     private String profileInstrumentEngine = INSTRUMENT_ENGINE_ASM;
     private boolean instrumentMatcherEnable = true;
-    private InstrumentMatcherCacheConfig instrumentMatcherCacheConfig = new InstrumentMatcherCacheConfig();
+    private final InstrumentMatcherCacheConfig instrumentMatcherCacheConfig = new InstrumentMatcherCacheConfig();
 
     private int interceptorRegistrySize = 1024 * 8;
 

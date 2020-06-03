@@ -37,7 +37,7 @@ public enum OsType {
 
     private final String inclusiveString;
 
-    private static EnumSet<OsType> OS_TYPE = EnumSet.allOf(OsType.class);
+    private static final EnumSet<OsType> OS_TYPE = EnumSet.allOf(OsType.class);
 
     OsType(String inclusiveString) {
         this.inclusiveString = inclusiveString;

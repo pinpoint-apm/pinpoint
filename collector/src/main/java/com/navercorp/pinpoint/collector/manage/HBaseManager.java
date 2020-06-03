@@ -18,7 +18,6 @@
 package com.navercorp.pinpoint.collector.manage;
 
 import com.navercorp.pinpoint.common.hbase.HBaseAsyncOperation;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Map;
 import java.util.Objects;

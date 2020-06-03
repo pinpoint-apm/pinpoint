@@ -30,8 +30,8 @@ public class TraceState {
         // transaction in-flight or missing data
         PROGRESS(2, "Progress");
 
-        private int code;
-        private String message;
+        private final int code;
+        private final String message;
 
         State(int code, String message) {
             this.code = code;
