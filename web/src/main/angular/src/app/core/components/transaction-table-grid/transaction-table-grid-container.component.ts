@@ -104,6 +104,7 @@ export class TransactionTableGridContainerComponent implements OnInit, OnDestroy
             id: this.transactionIndex++,
             startTime: gridData.startTime,
             path: gridData.application,
+            endpoint: gridData.endpoint,
             responseTime: gridData.elapsed,
             exception: gridData.exception,
             agentId: gridData.agentId,
