@@ -200,12 +200,10 @@ public class ASMClassNodeAdapter {
     }
 
     private ASMMethodNodeAdapter findDeclaredMethod(final String methodName, final String desc) {
-        if (methodName == null) {
-            return null;
-        }
+        Assert.requireNonNull(methodName, "methodName");
 
         final List<MethodNode> declaredMethods = classNode.methods;
-        if (declaredMethods == null) {
+        if (CollectionUtils.isEmpty(declaredMethods)) {
             return null;
         }
 
@@ -223,13 +221,11 @@ public class ASMClassNodeAdapter {
     }
 
     private List<ASMMethodNodeAdapter> findDeclaredMethod(final String methodName) {
-        if (methodName == null) {
-            return null;
-        }
+        Assert.requireNonNull(methodName, "methodName");
 
         final List<MethodNode> declaredMethods = classNode.methods;
-        if (declaredMethods == null) {
-            return null;
+        if (CollectionUtils.isEmpty(declaredMethods)) {
+            return Collections.emptyList();
         }
 
         final List<ASMMethodNodeAdapter> methodNodes = new ArrayList<ASMMethodNodeAdapter>();
@@ -263,7 +259,7 @@ public class ASMClassNodeAdapter {
         }
 
         final List<MethodNode> methods = this.classNode.methods;
-        if (methods == null) {
+        if (CollectionUtils.isEmpty(methods)) {
             return Collections.emptyList();
         }
 
@@ -312,9 +308,8 @@ public class ASMClassNodeAdapter {
     }
 
     public ASMFieldNodeAdapter getField(final String fieldName, final String fieldDesc) {
-        if (fieldName == null) {
-            return null;
-        }
+        Assert.requireNonNull(fieldName, "fieldName");
+
         if (this.classNode.fields == null) {
             return null;
         }

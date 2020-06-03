@@ -122,9 +122,11 @@ public class ASMClass implements InstrumentClass {
     }
 
     @Override
-    public InstrumentMethod getDeclaredMethod(final String name, final String... parameterTypes) {
+    public InstrumentMethod getDeclaredMethod(final String methodName, final String... parameterTypes) {
+        Assert.requireNonNull(methodName, "name");
+
         final String desc = JavaAssistUtils.javaTypeToJvmSignature(parameterTypes);
-        final ASMMethodNodeAdapter methodNode = this.classNode.getDeclaredMethod(name, desc);
+        final ASMMethodNodeAdapter methodNode = this.classNode.getDeclaredMethod(methodName, desc);
         if (methodNode == null) {
             return null;
         }
@@ -139,9 +141,7 @@ public class ASMClass implements InstrumentClass {
 
     @Override
     public List<InstrumentMethod> getDeclaredMethods(final MethodFilter methodFilter) {
-        if (methodFilter == null) {
-            throw new NullPointerException("methodFilter");
-        }
+        Assert.requireNonNull(methodFilter, "methodFilter");
 
         final List<InstrumentMethod> candidateList = new ArrayList<InstrumentMethod>();
         for (ASMMethodNodeAdapter methodNode : this.classNode.getDeclaredMethods()) {
@@ -171,18 +171,24 @@ public class ASMClass implements InstrumentClass {
 
     @Override
     public boolean hasDeclaredMethod(final String methodName, final String... parameterTypes) {
+        Assert.requireNonNull(methodName, "methodName");
+
         final String desc = JavaAssistUtils.javaTypeToJvmSignature(parameterTypes);
         return this.classNode.hasDeclaredMethod(methodName, desc);
     }
 
     @Override
     public boolean hasMethod(final String methodName, final String... parameterTypes) {
+        Assert.requireNonNull(methodName, "methodName");
+
         final String desc = JavaAssistUtils.javaTypeToJvmSignature(parameterTypes);
         return this.classNode.hasMethod(methodName, desc);
     }
 
     @Override
     public boolean hasEnclosingMethod(final String methodName, final String... parameterTypes) {
+        Assert.requireNonNull(methodName, "methodName");
+
         final String desc = JavaAssistUtils.javaTypeToJvmSignature(parameterTypes);
         return this.classNode.hasOutClass(methodName, desc);
     }
@@ -193,9 +199,11 @@ public class ASMClass implements InstrumentClass {
     }
 
     @Override
-    public boolean hasField(String name, String type) {
+    public boolean hasField(String fieldName, String type) {
+        Assert.requireNonNull(fieldName, "name");
+
         final String desc = type == null ? null : JavaAssistUtils.toJvmSignature(type);
-        return this.classNode.getField(name, desc) != null;
+        return this.classNode.getField(fieldName, desc) != null;
     }
 
     @Override
@@ -205,9 +213,7 @@ public class ASMClass implements InstrumentClass {
 
     @Override
     public void weave(final String adviceClassName) throws InstrumentException {
-        if (adviceClassName == null) {
-            throw new NotFoundInstrumentException("advice class name");
-        }
+        Assert.requireNonNull(adviceClassName, "adviceClassName");
 
         final String classInternalName = JavaAssistUtils.javaNameToJvmName(adviceClassName);
         final ClassLoader classLoader = classNode.getClassLoader();
@@ -224,6 +230,8 @@ public class ASMClass implements InstrumentClass {
 
     @Override
     public InstrumentMethod addDelegatorMethod(final String methodName, final String... paramTypes) throws InstrumentException {
+        Assert.requireNonNull(methodName, "methodName");
+
         // check duplicated method.
         if (getDeclaredMethod(methodName, paramTypes) != null) {
             throw new InstrumentException(getName() + " already have method(" + methodName + ").");
@@ -247,6 +255,8 @@ public class ASMClass implements InstrumentClass {
 
     @Override
     public void addField(final String accessorTypeName) throws InstrumentException {
+        Assert.requireNonNull(accessorTypeName, "accessorTypeName");
+
         final Class<?> accessorClass = loadInterceptorClass(accessorTypeName);
         try {
             addField(accessorClass);
@@ -278,6 +288,9 @@ public class ASMClass implements InstrumentClass {
 
     @Override
     public void addGetter(final String getterTypeName, final String fieldName) throws InstrumentException {
+        Assert.requireNonNull(getterTypeName, "getterTypeName");
+        Assert.requireNonNull(fieldName, "fieldName");
+
         final Class<?> accessorClass = loadInterceptorClass(getterTypeName);
         try {
             addGetter(accessorClass, fieldName);
@@ -288,6 +301,9 @@ public class ASMClass implements InstrumentClass {
 
     @Override
     public void addGetter(Class<?> getterClass, String fieldName) throws InstrumentException {
+        Assert.requireNonNull(getterClass, "getterClass");
+        Assert.requireNonNull(fieldName, "fieldName");
+
         try {
             final GetterAnalyzer.GetterDetails getterDetails = new GetterAnalyzer().analyze(getterClass);
             final ASMFieldNodeAdapter fieldNode = this.classNode.getField(fieldName, null);
@@ -315,6 +331,8 @@ public class ASMClass implements InstrumentClass {
 
     @Override
     public void addSetter(String setterTypeName, String fieldName, boolean removeFinal) throws InstrumentException {
+        Assert.requireNonNull(setterTypeName, "setterTypeName");
+
         final Class<?> setterClass = loadInterceptorClass(setterTypeName);
         try {
             addSetter(setterClass, fieldName, removeFinal);
@@ -776,6 +794,8 @@ public class ASMClass implements InstrumentClass {
 
     @Override
     public List<InstrumentClass> getNestedClasses(ClassFilter filter) {
+        Assert.requireNonNull(filter, "filter");
+
         final List<InstrumentClass> nestedClasses = new ArrayList<InstrumentClass>();
         for (ASMClassNodeAdapter innerClassNode : this.classNode.getInnerClasses()) {
             final ASMNestedClass nestedClass = new ASMNestedClass(engineComponent, this.pluginContext, innerClassNode);
