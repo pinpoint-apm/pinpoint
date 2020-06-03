@@ -1,4 +1,3 @@
-
 ---
 title: Quick Start Guide
 keywords: start, begin, quickstart, quick
