@@ -18,9 +18,9 @@ package com.navercorp.pinpoint.profiler.context.monitor.metric;
 
 import com.navercorp.pinpoint.bootstrap.plugin.monitor.metric.CustomMetric;
 import com.navercorp.pinpoint.bootstrap.plugin.monitor.metric.DoubleGauge;
-import com.navercorp.pinpoint.bootstrap.plugin.monitor.metric.IntCount;
+import com.navercorp.pinpoint.bootstrap.plugin.monitor.metric.IntCounter;
 import com.navercorp.pinpoint.bootstrap.plugin.monitor.metric.IntGauge;
-import com.navercorp.pinpoint.bootstrap.plugin.monitor.metric.LongCount;
+import com.navercorp.pinpoint.bootstrap.plugin.monitor.metric.LongCounter;
 import com.navercorp.pinpoint.bootstrap.plugin.monitor.metric.LongGauge;
 import com.navercorp.pinpoint.common.util.Assert;
 
@@ -54,42 +54,42 @@ public class DefaultCustomMetricRegistryService implements CustomMetricRegistryS
     }
 
     @Override
-    public boolean register(IntCount intCount) {
-        Assert.requireNonNull(intCount, "intCount");
+    public boolean register(IntCounter intCounter) {
+        Assert.requireNonNull(intCounter, "intCount");
 
-        boolean filter = this.filter.filter(intCount);
+        boolean filter = this.filter.filter(intCounter);
         if (filter) {
-            LOGGER.warn("Failed to register CustomMetric({}). message:not allowed metric", intCount);
+            LOGGER.warn("Failed to register CustomMetric({}). message:not allowed metric", intCounter);
             return false;
         }
 
-        int id = customMetricIdGenerator.create(intCount.getName());
+        int id = customMetricIdGenerator.create(intCounter.getName());
         if (id == CustomMetricIdGenerator.NOT_REGISTERED) {
-            LOGGER.warn("Failed to create metricId. metric:{}", intCount);
+            LOGGER.warn("Failed to create metricId. metric:{}", intCounter);
             return false;
         }
 
-        IntCountWrapper customMetricWrapper = customMetricWrapperFactory.create(id, intCount);
+        IntCounterWrapper customMetricWrapper = customMetricWrapperFactory.create(id, intCounter);
         return add(customMetricWrapper);
     }
 
     @Override
-    public boolean register(LongCount longCount) {
-        Assert.requireNonNull(longCount, "longCount");
+    public boolean register(LongCounter longCounter) {
+        Assert.requireNonNull(longCounter, "longCount");
 
-        boolean filter = this.filter.filter(longCount);
+        boolean filter = this.filter.filter(longCounter);
         if (filter) {
-            LOGGER.warn("Failed to register CustomMetric({}). message:not allowed metric", longCount);
+            LOGGER.warn("Failed to register CustomMetric({}). message:not allowed metric", longCounter);
             return false;
         }
 
-        int id = customMetricIdGenerator.create(longCount.getName());
+        int id = customMetricIdGenerator.create(longCounter.getName());
         if (id == CustomMetricIdGenerator.NOT_REGISTERED) {
-            LOGGER.warn("Failed to create metricId. metric:{}", longCount);
+            LOGGER.warn("Failed to create metricId. metric:{}", longCounter);
             return false;
         }
 
-        LongCountWrapper customMetricWrapper = customMetricWrapperFactory.create(id, longCount);
+        LongCounterWrapper customMetricWrapper = customMetricWrapperFactory.create(id, longCounter);
         return add(customMetricWrapper);
     }
 
@@ -159,12 +159,12 @@ public class DefaultCustomMetricRegistryService implements CustomMetricRegistryS
     }
 
     @Override
-    public boolean unregister(IntCount customMetric) {
+    public boolean unregister(IntCounter customMetric) {
         return remove(customMetric);
     }
 
     @Override
-    public boolean unregister(LongCount customMetric) {
+    public boolean unregister(LongCounter customMetric) {
         return remove(customMetric);
     }
 

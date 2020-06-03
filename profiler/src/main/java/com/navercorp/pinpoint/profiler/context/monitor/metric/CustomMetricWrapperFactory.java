@@ -17,9 +17,9 @@
 package com.navercorp.pinpoint.profiler.context.monitor.metric;
 
 import com.navercorp.pinpoint.bootstrap.plugin.monitor.metric.DoubleGauge;
-import com.navercorp.pinpoint.bootstrap.plugin.monitor.metric.IntCount;
+import com.navercorp.pinpoint.bootstrap.plugin.monitor.metric.IntCounter;
 import com.navercorp.pinpoint.bootstrap.plugin.monitor.metric.IntGauge;
-import com.navercorp.pinpoint.bootstrap.plugin.monitor.metric.LongCount;
+import com.navercorp.pinpoint.bootstrap.plugin.monitor.metric.LongCounter;
 import com.navercorp.pinpoint.bootstrap.plugin.monitor.metric.LongGauge;
 
 /**
@@ -30,12 +30,12 @@ public class CustomMetricWrapperFactory {
     CustomMetricWrapperFactory() {
     }
 
-    IntCountWrapper create(int id, IntCount intCount) {
-        return new IntCountWrapper(id, intCount);
+    IntCounterWrapper create(int id, IntCounter intCounter) {
+        return new IntCounterWrapper(id, intCounter);
     }
 
-    LongCountWrapper create(int id, LongCount longCount) {
-        return new LongCountWrapper(id, longCount);
+    LongCounterWrapper create(int id, LongCounter longCounter) {
+        return new LongCounterWrapper(id, longCounter);
     }
 
     IntGaugeWrapper create(int id, IntGauge intGauge) {

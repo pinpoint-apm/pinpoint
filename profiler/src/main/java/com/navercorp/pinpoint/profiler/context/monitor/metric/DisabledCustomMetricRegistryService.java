@@ -17,9 +17,9 @@
 package com.navercorp.pinpoint.profiler.context.monitor.metric;
 
 import com.navercorp.pinpoint.bootstrap.plugin.monitor.metric.DoubleGauge;
-import com.navercorp.pinpoint.bootstrap.plugin.monitor.metric.IntCount;
+import com.navercorp.pinpoint.bootstrap.plugin.monitor.metric.IntCounter;
 import com.navercorp.pinpoint.bootstrap.plugin.monitor.metric.IntGauge;
-import com.navercorp.pinpoint.bootstrap.plugin.monitor.metric.LongCount;
+import com.navercorp.pinpoint.bootstrap.plugin.monitor.metric.LongCounter;
 import com.navercorp.pinpoint.bootstrap.plugin.monitor.metric.LongGauge;
 
 import java.util.Collections;
@@ -31,12 +31,12 @@ import java.util.Map;
 public class DisabledCustomMetricRegistryService implements CustomMetricRegistryService {
 
     @Override
-    public boolean register(IntCount intCount) {
+    public boolean register(IntCounter intCounter) {
         return false;
     }
 
     @Override
-    public boolean register(LongCount longCount) {
+    public boolean register(LongCounter longCounter) {
         return false;
     }
 
@@ -56,12 +56,12 @@ public class DisabledCustomMetricRegistryService implements CustomMetricRegistry
     }
 
     @Override
-    public boolean unregister(IntCount intCount) {
+    public boolean unregister(IntCounter intCounter) {
         return false;
     }
 
     @Override
-    public boolean unregister(LongCount longCount) {
+    public boolean unregister(LongCounter longCounter) {
         return false;
     }
 

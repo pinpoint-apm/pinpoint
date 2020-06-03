@@ -18,9 +18,9 @@ package com.navercorp.pinpoint.profiler.context.monitor.metric;
 
 import com.navercorp.pinpoint.bootstrap.plugin.monitor.metric.CustomMetric;
 import com.navercorp.pinpoint.bootstrap.plugin.monitor.metric.DoubleGauge;
-import com.navercorp.pinpoint.bootstrap.plugin.monitor.metric.IntCount;
+import com.navercorp.pinpoint.bootstrap.plugin.monitor.metric.IntCounter;
 import com.navercorp.pinpoint.bootstrap.plugin.monitor.metric.IntGauge;
-import com.navercorp.pinpoint.bootstrap.plugin.monitor.metric.LongCount;
+import com.navercorp.pinpoint.bootstrap.plugin.monitor.metric.LongCounter;
 import com.navercorp.pinpoint.bootstrap.plugin.monitor.metric.LongGauge;
 
 import org.junit.Assert;
@@ -44,19 +44,19 @@ public class CustomMetricRegistryServiceTest {
 
         int value = random.nextInt(100);
 
-        CustomMetric customMetric = createAndAddFixedValueMetric(customMetricRegistryService, DEFAULT_TEST_METRIC_NAME, value, IntCount.class);
+        CustomMetric customMetric = createAndAddFixedValueMetric(customMetricRegistryService, DEFAULT_TEST_METRIC_NAME, value, IntCounter.class);
         Assert.assertNotNull(customMetric);
 
         Map<String, CustomMetricWrapper> customMetricMap = customMetricRegistryService.getCustomMetricMap();
         Assert.assertEquals(1, customMetricMap.size());
 
         CustomMetricWrapper customMetricWrapper = customMetricMap.get(DEFAULT_TEST_METRIC_NAME);
-        Assert.assertTrue(customMetricWrapper instanceof IntCountWrapper);
+        Assert.assertTrue(customMetricWrapper instanceof IntCounterWrapper);
 
-        IntCountWrapper intCountMetricWrapper = (IntCountWrapper) customMetricWrapper;
+        IntCounterWrapper intCountMetricWrapper = (IntCounterWrapper) customMetricWrapper;
         Assert.assertEquals(value, intCountMetricWrapper.getValue());
 
-        boolean unregister = customMetricRegistryService.unregister((IntCount) customMetric);
+        boolean unregister = customMetricRegistryService.unregister((IntCounter) customMetric);
         Assert.assertTrue(unregister);
 
         customMetricMap = customMetricRegistryService.getCustomMetricMap();
@@ -69,19 +69,19 @@ public class CustomMetricRegistryServiceTest {
 
         long value = random.nextLong();
 
-        CustomMetric customMetric = createAndAddFixedValueMetric(customMetricRegistryService, DEFAULT_TEST_METRIC_NAME, value, LongCount.class);
+        CustomMetric customMetric = createAndAddFixedValueMetric(customMetricRegistryService, DEFAULT_TEST_METRIC_NAME, value, LongCounter.class);
         Assert.assertNotNull(customMetric);
 
         Map<String, CustomMetricWrapper> customMetricMap = customMetricRegistryService.getCustomMetricMap();
         Assert.assertEquals(1, customMetricMap.size());
 
         CustomMetricWrapper customMetricWrapper = customMetricMap.get(DEFAULT_TEST_METRIC_NAME);
-        Assert.assertTrue(customMetricWrapper instanceof LongCountWrapper);
+        Assert.assertTrue(customMetricWrapper instanceof LongCounterWrapper);
 
-        LongCountWrapper longCountMetricWrapper = (LongCountWrapper) customMetricWrapper;
+        LongCounterWrapper longCountMetricWrapper = (LongCounterWrapper) customMetricWrapper;
         Assert.assertEquals(value, longCountMetricWrapper.getValue());
 
-        boolean unregister = customMetricRegistryService.unregister((LongCount) customMetric);
+        boolean unregister = customMetricRegistryService.unregister((LongCounter) customMetric);
         Assert.assertTrue(unregister);
 
         customMetricMap = customMetricRegistryService.getCustomMetricMap();
@@ -171,7 +171,7 @@ public class CustomMetricRegistryServiceTest {
 
         int intValue = random.nextInt(100);
         final String intMetricName = "groupName/metricName/int";
-        CustomMetric intCountMetric = createAndAddFixedValueMetric(customMetricRegistryService, intMetricName, intValue, IntCount.class);
+        CustomMetric intCountMetric = createAndAddFixedValueMetric(customMetricRegistryService, intMetricName, intValue, IntCounter.class);
         Assert.assertNotNull(intCountMetric);
 
         long longValue = random.nextLong();
@@ -182,13 +182,13 @@ public class CustomMetricRegistryServiceTest {
         Map<String, CustomMetricWrapper> customMetricMap = customMetricRegistryService.getCustomMetricMap();
         Assert.assertEquals(2, customMetricMap.size());
 
-        IntCountWrapper intCountMetricWrapper = (IntCountWrapper) customMetricMap.get(intMetricName);
+        IntCounterWrapper intCountMetricWrapper = (IntCounterWrapper) customMetricMap.get(intMetricName);
         Assert.assertEquals(intValue, intCountMetricWrapper.getValue());
 
         LongGaugeWrapper longGaugeMetricWrapper = (LongGaugeWrapper) customMetricMap.get(longMetricName);
         Assert.assertEquals(longValue, longGaugeMetricWrapper.getValue());
 
-        customMetricRegistryService.unregister((IntCount) intCountMetric);
+        customMetricRegistryService.unregister((IntCounter) intCountMetric);
         Assert.assertEquals(1, customMetricMap.size());
 
         customMetricRegistryService.unregister((LongGauge) longGaugeMetric);
@@ -235,10 +235,10 @@ public class CustomMetricRegistryServiceTest {
     private CustomMetric createAndAddFixedValueMetric(CustomMetricRegistryService customMetricRegistryService, final String metricName, final Number fixedValue, Class clazz) {
         CustomMetric fixedValueMetric = createFixedValueMetric(metricName, fixedValue, clazz);
         boolean register = false;
-        if (clazz == IntCount.class) {
-            register = customMetricRegistryService.register((IntCount) fixedValueMetric);
-        } else if (clazz == LongCount.class) {
-            register = customMetricRegistryService.register((LongCount) fixedValueMetric);
+        if (clazz == IntCounter.class) {
+            register = customMetricRegistryService.register((IntCounter) fixedValueMetric);
+        } else if (clazz == LongCounter.class) {
+            register = customMetricRegistryService.register((LongCounter) fixedValueMetric);
         } else if (clazz == IntGauge.class) {
             register = customMetricRegistryService.register((IntGauge) fixedValueMetric);
         } else if (clazz == LongGauge.class) {
@@ -258,8 +258,8 @@ public class CustomMetricRegistryServiceTest {
 
     //
     private CustomMetric createFixedValueMetric(final String metricName, final Number fixedValue, Class clazz) {
-        if (clazz == IntCount.class) {
-            return new IntCount() {
+        if (clazz == IntCounter.class) {
+            return new IntCounter() {
                 @Override
                 public int getValue() {
                     return (Integer) fixedValue;
@@ -271,8 +271,8 @@ public class CustomMetricRegistryServiceTest {
                 }
             };
         }
-        if (clazz == LongCount.class) {
-            return new LongCount() {
+        if (clazz == LongCounter.class) {
+            return new LongCounter() {
                 @Override
                 public long getValue() {
                     return (Long) fixedValue;

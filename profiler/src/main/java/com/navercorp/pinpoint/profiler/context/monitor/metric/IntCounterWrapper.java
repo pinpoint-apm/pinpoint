@@ -16,16 +16,16 @@
 
 package com.navercorp.pinpoint.profiler.context.monitor.metric;
 
-import com.navercorp.pinpoint.bootstrap.plugin.monitor.metric.IntCount;
+import com.navercorp.pinpoint.bootstrap.plugin.monitor.metric.IntCounter;
 import com.navercorp.pinpoint.profiler.monitor.metric.custom.CustomMetricVo;
 import com.navercorp.pinpoint.profiler.monitor.metric.custom.IntCountMetricVo;
 
 /**
  * @author Taejin Koo
  */
-public class IntCountWrapper extends AbstractCustomMetricWrapper<IntCount> implements IntCount {
+public class IntCounterWrapper extends AbstractCustomMetricWrapper<IntCounter> implements IntCounter {
 
-    public IntCountWrapper(int id, IntCount customMetric) {
+    public IntCounterWrapper(int id, IntCounter customMetric) {
         super(id, customMetric);
     }
 

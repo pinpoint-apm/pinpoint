@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.profiler.context.monitor.metric;
 
 import com.navercorp.pinpoint.bootstrap.plugin.monitor.metric.CustomMetric;
-import com.navercorp.pinpoint.bootstrap.plugin.monitor.metric.LongCount;
+import com.navercorp.pinpoint.bootstrap.plugin.monitor.metric.LongCounter;
 import com.navercorp.pinpoint.common.util.Assert;
 
 import java.util.ArrayList;
@@ -30,8 +30,8 @@ import java.util.List;
 public class DefaultCustomMetricRegistryFilter implements CustomMetricRegistryFilter {
 
     // default
-    private static final AllowedSource<LongCount> NETTY_USED_DIRECT_MEMORY = new AllowedSource<LongCount>("custom/netty/usedDirectMemory", LongCount.class);
-    private static final AllowedSource<LongCount> NETTY_MAX_DIRECT_MEMORY = new AllowedSource<LongCount>("custom/netty/maxDirectMemory ", LongCount.class);
+    private static final AllowedSource<LongCounter> NETTY_USED_DIRECT_MEMORY = new AllowedSource<LongCounter>("custom/netty/usedDirectMemory", LongCounter.class);
+    private static final AllowedSource<LongCounter> NETTY_MAX_DIRECT_MEMORY = new AllowedSource<LongCounter>("custom/netty/maxDirectMemory ", LongCounter.class);
 
     private final List<AllowedSource> allowedSourceList;
 
