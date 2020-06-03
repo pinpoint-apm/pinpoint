@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.monitor.metric.custom;
 
-import com.navercorp.pinpoint.profiler.context.monitor.metric.LongCountWrapper;
+import com.navercorp.pinpoint.profiler.context.monitor.metric.LongCounterWrapper;
 
 /**
  * @author Taejin Koo
@@ -25,7 +25,7 @@ public class LongCountMetricVo extends AbstractCustomMetricVo {
 
     private final long value;
 
-    public LongCountMetricVo(LongCountWrapper longCountMetricWrapper) {
+    public LongCountMetricVo(LongCounterWrapper longCountMetricWrapper) {
         super(longCountMetricWrapper);
         this.value = longCountMetricWrapper.getValue();
     }

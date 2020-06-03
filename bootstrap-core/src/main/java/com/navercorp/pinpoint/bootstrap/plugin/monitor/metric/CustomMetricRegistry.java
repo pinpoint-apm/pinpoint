@@ -21,9 +21,9 @@ package com.navercorp.pinpoint.bootstrap.plugin.monitor.metric;
  */
 public interface CustomMetricRegistry {
 
-    boolean register(IntCount intCount);
+    boolean register(IntCounter intCounter);
 
-    boolean register(LongCount longCount);
+    boolean register(LongCounter longCounter);
 
     boolean register(IntGauge intGauge);
 
@@ -32,9 +32,9 @@ public interface CustomMetricRegistry {
     boolean register(DoubleGauge doubleGauge);
 
 
-    boolean unregister(IntCount intCount);
+    boolean unregister(IntCounter intCounter);
 
-    boolean unregister(LongCount longCount);
+    boolean unregister(LongCounter longCounter);
 
     boolean unregister(IntGauge intGauge);
 

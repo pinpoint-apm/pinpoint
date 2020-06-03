@@ -18,9 +18,9 @@ package com.navercorp.pinpoint.profiler.context.monitor.metric;
 
 import com.navercorp.pinpoint.bootstrap.plugin.monitor.metric.CustomMetricRegistry;
 import com.navercorp.pinpoint.bootstrap.plugin.monitor.metric.DoubleGauge;
-import com.navercorp.pinpoint.bootstrap.plugin.monitor.metric.IntCount;
+import com.navercorp.pinpoint.bootstrap.plugin.monitor.metric.IntCounter;
 import com.navercorp.pinpoint.bootstrap.plugin.monitor.metric.IntGauge;
-import com.navercorp.pinpoint.bootstrap.plugin.monitor.metric.LongCount;
+import com.navercorp.pinpoint.bootstrap.plugin.monitor.metric.LongCounter;
 import com.navercorp.pinpoint.bootstrap.plugin.monitor.metric.LongGauge;
 import com.navercorp.pinpoint.common.util.Assert;
 
@@ -36,13 +36,13 @@ public class CustomMetricRegistryAdaptor implements CustomMetricRegistry {
     }
 
     @Override
-    public boolean register(IntCount intCount) {
-        return delegate.register(intCount);
+    public boolean register(IntCounter intCounter) {
+        return delegate.register(intCounter);
     }
 
     @Override
-    public boolean register(LongCount longCount) {
-        return delegate.register(longCount);
+    public boolean register(LongCounter longCounter) {
+        return delegate.register(longCounter);
     }
 
     @Override
@@ -61,13 +61,13 @@ public class CustomMetricRegistryAdaptor implements CustomMetricRegistry {
     }
 
     @Override
-    public boolean unregister(IntCount intCount) {
-        return delegate.unregister(intCount);
+    public boolean unregister(IntCounter intCounter) {
+        return delegate.unregister(intCounter);
     }
 
     @Override
-    public boolean unregister(LongCount longCount) {
-        return delegate.unregister(longCount);
+    public boolean unregister(LongCounter longCounter) {
+        return delegate.unregister(longCounter);
     }
 
     @Override

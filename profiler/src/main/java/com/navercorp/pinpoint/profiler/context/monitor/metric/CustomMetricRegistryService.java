@@ -17,9 +17,9 @@
 package com.navercorp.pinpoint.profiler.context.monitor.metric;
 
 import com.navercorp.pinpoint.bootstrap.plugin.monitor.metric.DoubleGauge;
-import com.navercorp.pinpoint.bootstrap.plugin.monitor.metric.IntCount;
+import com.navercorp.pinpoint.bootstrap.plugin.monitor.metric.IntCounter;
 import com.navercorp.pinpoint.bootstrap.plugin.monitor.metric.IntGauge;
-import com.navercorp.pinpoint.bootstrap.plugin.monitor.metric.LongCount;
+import com.navercorp.pinpoint.bootstrap.plugin.monitor.metric.LongCounter;
 import com.navercorp.pinpoint.bootstrap.plugin.monitor.metric.LongGauge;
 
 import java.util.Map;
@@ -29,9 +29,9 @@ import java.util.Map;
  */
 public interface CustomMetricRegistryService {
 
-    boolean register(IntCount intCount);
+    boolean register(IntCounter intCounter);
 
-    boolean register(LongCount longCount);
+    boolean register(LongCounter longCounter);
 
     boolean register(IntGauge intGauge);
 
@@ -40,9 +40,9 @@ public interface CustomMetricRegistryService {
     boolean register(DoubleGauge doubleGauge);
 
 
-    boolean unregister(IntCount intCount);
+    boolean unregister(IntCounter intCounter);
 
-    boolean unregister(LongCount longCount);
+    boolean unregister(LongCounter longCounter);
 
     boolean unregister(IntGauge intGauge);
 

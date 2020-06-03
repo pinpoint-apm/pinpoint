@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.profiler.monitor.metric.custom;
 
-import com.navercorp.pinpoint.profiler.context.monitor.metric.IntCountWrapper;
+import com.navercorp.pinpoint.profiler.context.monitor.metric.IntCounterWrapper;
 
 /**
  * @author Taejin Koo
@@ -25,7 +25,7 @@ public class IntCountMetricVo extends AbstractCustomMetricVo {
 
     private final int value;
 
-    public IntCountMetricVo(IntCountWrapper intCountMetricWrapper) {
+    public IntCountMetricVo(IntCounterWrapper intCountMetricWrapper) {
         super(intCountMetricWrapper);
         this.value = intCountMetricWrapper.getValue();
     }

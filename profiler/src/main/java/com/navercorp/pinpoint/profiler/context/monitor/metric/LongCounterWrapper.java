@@ -16,16 +16,16 @@
 
 package com.navercorp.pinpoint.profiler.context.monitor.metric;
 
-import com.navercorp.pinpoint.bootstrap.plugin.monitor.metric.LongCount;
+import com.navercorp.pinpoint.bootstrap.plugin.monitor.metric.LongCounter;
 import com.navercorp.pinpoint.profiler.monitor.metric.custom.CustomMetricVo;
 import com.navercorp.pinpoint.profiler.monitor.metric.custom.LongCountMetricVo;
 
 /**
  * @author Taejin Koo
  */
-public class LongCountWrapper extends AbstractCustomMetricWrapper<LongCount> implements LongCount {
+public class LongCounterWrapper extends AbstractCustomMetricWrapper<LongCounter> implements LongCounter {
 
-    public LongCountWrapper(int id, LongCount customMetric) {
+    public LongCounterWrapper(int id, LongCounter customMetric) {
         super(id, customMetric);
     }
 

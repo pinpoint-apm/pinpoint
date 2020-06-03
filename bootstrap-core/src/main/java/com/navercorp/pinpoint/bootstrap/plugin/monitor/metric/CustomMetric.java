@@ -25,7 +25,7 @@ package com.navercorp.pinpoint.bootstrap.plugin.monitor.metric;
  * public StandardHostValveInvokeInterceptor(...., CustomMetricRegistry customMetricMonitorRegistry) {
  *         ...
  *         this.requestCount = new AtomicInteger();
- *         intCountMetric = new IntCount() {
+ *         intCountMetric = new IntCounter() {
  *
  *             public String getName() {
  *                 return "tomcat/request/count";

@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.bootstrap.plugin.monitor.metric;
 /**
  * @author Taejin Koo
  */
-public interface LongCount extends CustomMetric {
+public interface LongCounter extends CustomMetric {
 
     long getValue();
 

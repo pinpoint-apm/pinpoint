@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.profiler.monitor.metric;
 
-import com.navercorp.pinpoint.bootstrap.plugin.monitor.metric.IntCount;
-import com.navercorp.pinpoint.bootstrap.plugin.monitor.metric.LongCount;
+import com.navercorp.pinpoint.bootstrap.plugin.monitor.metric.IntCounter;
+import com.navercorp.pinpoint.bootstrap.plugin.monitor.metric.LongCounter;
 import com.navercorp.pinpoint.profiler.context.monitor.metric.CustomMetricRegistryFilter;
 import com.navercorp.pinpoint.profiler.context.monitor.metric.DefaultCustomMetricRegistryFilter;
 
@@ -35,28 +35,28 @@ public class CustomMetricRegistryFilterTest {
     public void customMetricRegistryFilterTest() {
         final String allowedMetricName = "test";
 
-        final DefaultCustomMetricRegistryFilter.AllowedSource allowedSource = new DefaultCustomMetricRegistryFilter.AllowedSource(allowedMetricName, IntCount.class);
+        final DefaultCustomMetricRegistryFilter.AllowedSource allowedSource = new DefaultCustomMetricRegistryFilter.AllowedSource(allowedMetricName, IntCounter.class);
         final CustomMetricRegistryFilter filter = new DefaultCustomMetricRegistryFilter(Arrays.asList(allowedSource));
 
-        TestIntCount testIntCount = new TestIntCount(allowedMetricName);
+        TestIntCounter testIntCount = new TestIntCounter(allowedMetricName);
         boolean filtered = filter.filter(testIntCount);
         Assert.assertFalse(filtered);
 
-        TestIntCount testIntCount2 = new TestIntCount("test2");
+        TestIntCounter testIntCount2 = new TestIntCounter("test2");
         filtered = filter.filter(testIntCount2);
         Assert.assertTrue(filtered);
 
 
-        TestLongCount testLongCount = new TestLongCount(allowedMetricName);
+        TestLongCounter testLongCount = new TestLongCounter(allowedMetricName);
         filtered = filter.filter(testLongCount);
         Assert.assertTrue(filtered);
     }
 
-    private static class TestIntCount implements IntCount {
+    private static class TestIntCounter implements IntCounter {
 
         private final String name;
 
-        public TestIntCount(String name) {
+        public TestIntCounter(String name) {
             this.name = name;
         }
 
@@ -72,11 +72,11 @@ public class CustomMetricRegistryFilterTest {
 
     }
 
-    private static class TestLongCount implements LongCount {
+    private static class TestLongCounter implements LongCounter {
 
         private final String name;
 
-        public TestLongCount(String name) {
+        public TestLongCounter(String name) {
             this.name = name;
         }
 
