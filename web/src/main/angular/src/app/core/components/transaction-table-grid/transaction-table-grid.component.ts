@@ -6,6 +6,7 @@ export interface IGridData {
     id: number;
     startTime: number;
     path: string;
+    endpoint: string;
     responseTime: number;
     exception: number;
     agentId: string;
@@ -149,9 +150,16 @@ export class TransactionTableGridComponent implements OnInit, OnChanges {
                 tooltipField: 'path'
             },
             {
+                headerName: 'EndPoint',
+                field: 'endpoint',
+                width: 130,
+                cellStyle: this.alignLeftCellStyle,
+                suppressSizeToFit: true
+            },
+            {
                 headerName: 'Res(ms)',
                 field: 'responseTime',
-                width: 85,
+                width: 70,
                 cellStyle: this.alignRightCellStyle,
                 sort: 'desc',
                 valueFormatter: (params: any) => {
@@ -162,7 +170,7 @@ export class TransactionTableGridComponent implements OnInit, OnChanges {
             {
                 headerName: 'Exception',
                 field: 'exception',
-                width: 85,
+                width: 50,
                 cellStyle: () => {
                     return {'text-align': 'center'};
                 },
@@ -196,7 +204,7 @@ export class TransactionTableGridComponent implements OnInit, OnChanges {
         ];
     }
 
-    argumentCellStyle(): any {
+    alignLeftCellStyle(): any {
         return {'text-align': 'left'};
     }
 
