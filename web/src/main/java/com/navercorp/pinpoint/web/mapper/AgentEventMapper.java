@@ -19,12 +19,12 @@ package com.navercorp.pinpoint.web.mapper;
 import com.navercorp.pinpoint.common.buffer.Buffer;
 import com.navercorp.pinpoint.common.buffer.FixedBuffer;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
+import com.navercorp.pinpoint.common.hbase.util.CellUtils;
 import com.navercorp.pinpoint.common.server.bo.event.AgentEventBo;
 import com.navercorp.pinpoint.common.server.util.AgentEventType;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
 import org.apache.hadoop.hbase.client.Result;
-import org.apache.hadoop.hbase.util.Bytes;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -46,7 +46,7 @@ public class AgentEventMapper implements RowMapper<List<AgentEventBo>> {
         
         List<AgentEventBo> agentEvents = new ArrayList<>();
         for (Cell cell : result.rawCells()) {
-            final int code = Bytes.toInt(cell.getQualifierArray(), cell.getQualifierOffset(), cell.getQualifierLength());
+            final int code = CellUtils.qualifierToInt(cell);
             final AgentEventType eventType = AgentEventType.getTypeByCode(code);
             if (eventType == null) {
                 continue;

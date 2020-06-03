@@ -23,10 +23,10 @@ import java.util.List;
 import java.util.Set;
 
 import com.navercorp.pinpoint.common.hbase.RowMapper;
+import com.navercorp.pinpoint.common.hbase.util.CellUtils;
 import com.navercorp.pinpoint.web.service.ApplicationFactory;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.client.Result;
-import org.apache.hadoop.hbase.util.Bytes;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -47,11 +47,11 @@ public class ApplicationNameMapper implements RowMapper<List<Application>> {
             return Collections.emptyList();
         }
         Set<Short> uniqueTypeCodes = new HashSet<>();
-        String applicationName = Bytes.toString(result.getRow());
+        String applicationName = CellUtils.rowToString(result);
         
         Cell[] rawCells = result.rawCells();
         for (Cell cell : rawCells) {
-            short serviceTypeCode = Bytes.toShort(cell.getValueArray(), cell.getValueOffset(), cell.getValueLength());
+            short serviceTypeCode = CellUtils.valueToShort(cell);
             uniqueTypeCodes.add(serviceTypeCode);
         }
         List<Application> applicationList = new ArrayList<>();
