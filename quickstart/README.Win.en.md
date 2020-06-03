@@ -5,22 +5,27 @@ Download Pinpoint with `git clone https://github.com/naver/pinpoint.git` or [dow
 
 Install Pinpoint by running `mvnw.cmd install -DskipTests=true`
 
+### Notice
+If you run QuickStart's cmd file on Windows, you must run it at `quickstart\bin` directory.
+
+If you want to run it in a different directory, you need to set the absolute path of the `quickstart\bin` directory in the `QUICKSTART_BIN_PATH` environment variable.
+
 ### Install & Start HBase
 Download `HBase-1.0.x-bin.tar.gz` from [Apache download site](http://apache.mirror.cdnetworks.com/hbase/)) and unzip it to `quickstart\hbase` directory.
 
 Rename the unzipped directory to `hbase` so that the final HBase directory looks like `quickstart\hbase\hbase`.
 
-**Start HBase** - Run `quickstart\bin\start-hbase.cmd`
+**Start HBase** - Run `start-hbase.cmd`
 
-**Initialize Tables** - Run `quickstart\bin\init-hbase.cmd`
+**Initialize Tables** - Run `init-hbase.cmd`
 
 ### Start Pinpoint Daemons
 
-**Collector** - Run `quickstart\bin\start-collector.cmd`
+**Collector** - Run `start-collector.cmd`
 
-**TestApp** - Run `quickstart\bin\start-testapp.cmd`
+**TestApp** - Run `start-testapp.cmd`
 
-**Web UI** - Run `quickstart\bin\start-web.cmd`
+**Web UI** - Run `start-web.cmd`
 
 ### Check Status
 Once HBase and the 3 daemons are running, you may visit the following addresses to test out your very own Pinpoint instance.
@@ -32,10 +37,10 @@ You can feed trace data to Pinpoint using the TestApp UI, and check them using P
 
 ## Stopping
 
-**Web UI** - Run `quickstart\bin\stop-web.cmd`
+**Web UI** - Run `stop-web.cmd`
 
-**TestApp** - Run `quickstart\bin\stop-testapp.cmd`
+**TestApp** - Run `stop-testapp.cmd`
 
-**Collector** - Run `quickstart\bin\stop-collector.cmd`
+**Collector** - Run `stop-collector.cmd`
 
-**HBase** - Run `quickstart\bin\stop-hbase.cmd`
+**HBase** - Run `stop-hbase.cmd`
