@@ -17,7 +17,6 @@ public final class CellUtils {
         if (ArrayUtils.isEmpty(cells)) {
             return null;
         }
-        result.getRow();
         final Cell firstCell = cells[0];
         return Bytes.toString(firstCell.getRowArray(), firstCell.getRowOffset(), firstCell.getRowLength());
     }
