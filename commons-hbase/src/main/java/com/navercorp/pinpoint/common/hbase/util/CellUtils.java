@@ -1,8 +1,8 @@
 package com.navercorp.pinpoint.common.hbase.util;
 
+import com.navercorp.pinpoint.common.util.ArrayUtils;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.client.Result;
-import org.apache.hadoop.hbase.util.ArrayUtils;
 import org.apache.hadoop.hbase.util.Bytes;
 
 import java.util.Objects;
