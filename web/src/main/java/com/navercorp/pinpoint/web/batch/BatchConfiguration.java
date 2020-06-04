@@ -17,6 +17,7 @@ package com.navercorp.pinpoint.web.batch;
 
 import com.navercorp.pinpoint.common.server.config.AnnotationVisitor;
 import com.navercorp.pinpoint.common.server.config.LoggingEvent;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -35,12 +36,6 @@ public class BatchConfiguration {
 
     private final Logger logger = LoggerFactory.getLogger(BatchConfiguration.class);
 
-    @Value("${batch.enable:false}")
-    private boolean enableBatch;
-
-    @Value("${batch.flink.server}")
-    private String[] flinkServerList = new String[0];
-
     @Value("${batch.server.ip:#{null}}")
     private String batchServerIp;
 
@@ -56,6 +51,8 @@ public class BatchConfiguration {
     @Value("${batch.server.env}")
     private String batchEnv;
 
+    @Value("${batch.flink.server}")
+    private String[] flinkServerList = new String[0];
 
     @PostConstruct
     public void log() {
@@ -88,18 +85,17 @@ public class BatchConfiguration {
         return senderEmailAddress;
     }
 
-
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("BatchConfiguration{");
-        sb.append("enableBatch=").append(enableBatch);
-        sb.append(", flinkServerList=").append(Arrays.toString(flinkServerList));
-        sb.append(", batchServerIp='").append(batchServerIp).append('\'');
+        sb.append("batchServerIp='").append(batchServerIp).append('\'');
         sb.append(", emailServerUrl='").append(emailServerUrl).append('\'');
         sb.append(", senderEmailAddress='").append(senderEmailAddress).append('\'');
         sb.append(", pinpointUrl='").append(pinpointUrl).append('\'');
         sb.append(", batchEnv='").append(batchEnv).append('\'');
+        sb.append(", flinkServerList=").append(Arrays.toString(flinkServerList));
         sb.append('}');
         return sb.toString();
     }
+
 }
