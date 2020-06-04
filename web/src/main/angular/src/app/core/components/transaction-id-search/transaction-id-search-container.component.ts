@@ -9,13 +9,16 @@ import {
     ElementRef,
     Renderer2
 } from '@angular/core';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 import {
     UrlRouteManagerService,
     DynamicPopup,
-    PopupConstant
+    PopupConstant,
+    NewUrlStateNotificationService
 } from 'app/shared/services';
-import { UrlPath } from 'app/shared/models';
+import { UrlPath, UrlPathId } from 'app/shared/models';
 
 @Component({
     selector: 'pp-transaction-id-search-container',
@@ -33,14 +36,20 @@ export class TransactionIdSearchContainerComponent implements OnInit, AfterViewI
     private posX: number;
 
     searchUseEnter = true;
+    isAppSelected$: Observable<boolean>;
 
     constructor(
         private urlRouteManagerService: UrlRouteManagerService,
+        private newUrlStateNotificationService: NewUrlStateNotificationService,
         private el: ElementRef,
         private renderer: Renderer2
     ) {}
 
     ngOnInit() {
+        this.isAppSelected$ = this.newUrlStateNotificationService.onUrlStateChange$.pipe(
+            map((urlService: NewUrlStateNotificationService) => urlService.hasValue(UrlPathId.APPLICATION))
+        );
+
         if (this.coord) {
             this.posX = this.coord.coordX - PopupConstant.SPACE_FROM_LEFT + this.el.nativeElement.offsetWidth <= window.innerWidth
                 ? this.coord.coordX - PopupConstant.SPACE_FROM_LEFT
