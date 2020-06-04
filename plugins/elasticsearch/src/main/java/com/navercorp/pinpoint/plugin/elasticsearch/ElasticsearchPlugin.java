@@ -27,7 +27,6 @@ import com.navercorp.pinpoint.bootstrap.logging.PLogger;
 import com.navercorp.pinpoint.bootstrap.logging.PLoggerFactory;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPlugin;
 import com.navercorp.pinpoint.bootstrap.plugin.ProfilerPluginSetupContext;
-import com.navercorp.pinpoint.bootstrap.plugin.util.InstrumentUtils;
 import com.navercorp.pinpoint.plugin.elasticsearch.accessor.ClusterInfoAccessor;
 import com.navercorp.pinpoint.plugin.elasticsearch.accessor.EndPointAccessor;
 import com.navercorp.pinpoint.plugin.elasticsearch.accessor.HttpHostInfoAccessor;

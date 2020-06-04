@@ -26,7 +26,6 @@ import com.navercorp.pinpoint.grpc.trace.PSpanChunk;
 import com.navercorp.pinpoint.grpc.trace.PSpanMessage;
 import com.navercorp.pinpoint.grpc.trace.SpanGrpc;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
-import io.grpc.ClientInterceptor;
 import io.grpc.stub.StreamObserver;
 
 import java.util.concurrent.RejectedExecutionException;

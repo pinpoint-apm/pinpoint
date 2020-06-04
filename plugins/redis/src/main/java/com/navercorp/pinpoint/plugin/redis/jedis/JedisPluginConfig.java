@@ -24,9 +24,9 @@ import java.util.List;
  * @author jaehong.kim
  */
 public class JedisPluginConfig {
-    private boolean enable = true;
-    private boolean pipeline = true;
-    private boolean io = true;
+    private final boolean enable;
+    private final boolean pipeline;
+    private final boolean io;
 
     public JedisPluginConfig(ProfilerConfig src) {
         this.enable = readBoolean(src, Arrays.asList("profiler.redis.jedis.enable", "profiler.redis.enable", "profiler.redis"), true);

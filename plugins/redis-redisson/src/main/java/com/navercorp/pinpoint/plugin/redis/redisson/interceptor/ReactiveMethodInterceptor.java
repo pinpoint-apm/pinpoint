@@ -27,7 +27,6 @@ import com.navercorp.pinpoint.common.trace.AnnotationKey;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.plugin.redis.redisson.RedissonConstants;
 import com.navercorp.pinpoint.plugin.redis.redisson.RedissonPluginConfig;
-import org.redisson.client.protocol.RedisCommand;
 
 import java.lang.reflect.Method;
 

@@ -21,7 +21,7 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
  * @author jaehong.kim
  */
 public class LettucePluginConfig {
-    private boolean enable = true;
+    private final boolean enable;
 
     public LettucePluginConfig(ProfilerConfig src) {
         this.enable = src.readBoolean("profiler.redis.lettuce.enable", true);

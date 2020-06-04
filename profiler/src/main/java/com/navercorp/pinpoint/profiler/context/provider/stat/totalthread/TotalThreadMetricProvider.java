@@ -18,15 +18,11 @@ package com.navercorp.pinpoint.profiler.context.provider.stat.totalthread;
 
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.navercorp.pinpoint.profiler.monitor.metric.buffer.BufferMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.totalthread.DefaultTotalThreadMetric;
 import com.navercorp.pinpoint.profiler.monitor.metric.totalthread.TotalThreadMetric;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class TotalThreadMetricProvider implements Provider<TotalThreadMetric> {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Inject
     public TotalThreadMetricProvider() {

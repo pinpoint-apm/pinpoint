@@ -23,8 +23,8 @@ import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
  */
 public class RedissonPluginConfig {
 
-    private boolean enable;
-    private boolean keyTrace;
+    private final boolean enable;
+    private final boolean keyTrace;
 
     public RedissonPluginConfig(ProfilerConfig src) {
         this.enable = src.readBoolean("profiler.redis.redisson.enable", true);

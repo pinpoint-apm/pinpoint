@@ -18,7 +18,6 @@ package com.navercorp.pinpoint.web.vo;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.web.view.ApplicationSerializer;
 
 import java.util.Objects;
@@ -37,7 +36,7 @@ public final class Application {
 
     public Application(String name, ServiceType serviceType) {
         this.name = Objects.requireNonNull(name, "name");
-        this.serviceType = Assert.requireNonNull(serviceType, "serviceType");
+        this.serviceType = Objects.requireNonNull(serviceType, "serviceType");
     }
 
 

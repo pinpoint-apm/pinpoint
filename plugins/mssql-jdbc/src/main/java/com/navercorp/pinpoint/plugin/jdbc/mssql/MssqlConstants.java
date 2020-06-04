@@ -14,12 +14,7 @@
  */
 package com.navercorp.pinpoint.plugin.jdbc.mssql;
 
-import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.INCLUDE_DESTINATION_ID;
-import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.RECORD_STATISTICS;
-import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.TERMINAL;
-
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
 import com.navercorp.pinpoint.common.trace.ServiceTypeProvider;
 
 /**
