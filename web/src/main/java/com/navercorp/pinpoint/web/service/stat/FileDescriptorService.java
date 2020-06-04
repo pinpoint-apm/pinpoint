@@ -17,7 +17,6 @@
 package com.navercorp.pinpoint.web.service.stat;
 
 import com.navercorp.pinpoint.common.server.bo.stat.FileDescriptorBo;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.web.dao.stat.FileDescriptorDao;
 import com.navercorp.pinpoint.web.vo.Range;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -41,7 +40,7 @@ public class FileDescriptorService implements AgentStatService<FileDescriptorBo>
     @Override
     public List<FileDescriptorBo> selectAgentStatList(String agentId, Range range) {
         Objects.requireNonNull(agentId, "agentId");
-        Assert.requireNonNull(range, "range");
+        Objects.requireNonNull(range, "range");
 
         return this.fileDescriptorDao.getAgentStatList(agentId, range);
     }

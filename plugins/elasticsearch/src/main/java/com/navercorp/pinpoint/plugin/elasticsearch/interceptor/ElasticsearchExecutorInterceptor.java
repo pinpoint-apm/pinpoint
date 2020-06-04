@@ -33,14 +33,14 @@ import org.elasticsearch.action.update.UpdateRequest;
  * @author Roy Kim
  */
 public class ElasticsearchExecutorInterceptor extends SpanEventSimpleAroundInterceptorForPlugin {
-    private boolean recordDsl;
-    private boolean recordESVersion;
+    private final boolean recordDsl;
+    private final boolean recordESVersion;
 
     public ElasticsearchExecutorInterceptor(TraceContext context, MethodDescriptor descriptor) {
         super(context, descriptor);
         final ElasticsearchPluginConfig elasticsearchPluginConfig = new ElasticsearchPluginConfig(context.getProfilerConfig());
-        recordDsl = elasticsearchPluginConfig.isRecordDsl();
-        recordESVersion = elasticsearchPluginConfig.isRecordESVersion();
+        this.recordDsl = elasticsearchPluginConfig.isRecordDsl();
+        this.recordESVersion = elasticsearchPluginConfig.isRecordESVersion();
     }
 
     @Override

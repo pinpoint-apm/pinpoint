@@ -2,8 +2,6 @@ package com.navercorp.pinpoint.plugin.jboss.util;
 
 import org.apache.catalina.connector.Response;
 
-import javax.servlet.DispatcherType;
-import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 

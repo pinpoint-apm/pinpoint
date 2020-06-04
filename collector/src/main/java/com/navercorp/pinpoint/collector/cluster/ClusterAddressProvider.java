@@ -17,10 +17,10 @@
 package com.navercorp.pinpoint.collector.cluster;
 
 import com.navercorp.pinpoint.collector.util.Address;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.rpc.client.SocketAddressProvider;
 
 import java.net.InetSocketAddress;
+import java.util.Objects;
 
 /**
  * @author Taejin Koo
@@ -30,7 +30,7 @@ public class ClusterAddressProvider implements SocketAddressProvider {
     private final Address address;
 
     public ClusterAddressProvider(Address address) {
-        this.address = Assert.requireNonNull(address, "address");
+        this.address = Objects.requireNonNull(address, "address");
     }
 
     private void assertAddressNotNull(InetSocketAddress inetSocketAddress) {

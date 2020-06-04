@@ -20,7 +20,6 @@ import com.navercorp.pinpoint.bootstrap.instrument.aspect.Aspect;
 import com.navercorp.pinpoint.bootstrap.instrument.aspect.JointPoint;
 import com.navercorp.pinpoint.bootstrap.instrument.aspect.PointCut;
 import com.rabbitmq.client.AMQP;
-import com.rabbitmq.client.MessageProperties;
 
 /**
  * Make a copy of {@code AMQP.BasicProperties} to inject pinpoint headers.

@@ -16,7 +16,6 @@
 
 package com.navercorp.pinpoint.web.service.stat;
 
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.web.dao.stat.SampledJvmGcDao;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.stat.SampledJvmGc;
@@ -43,7 +42,7 @@ public class JvmGcChartService implements AgentStatChartService {
 
     @Override
     public StatChart selectAgentChart(String agentId, TimeWindow timeWindow) {
-        Assert.requireNonNull(agentId, "agentId");
+        Objects.requireNonNull(agentId, "agentId");
         Objects.requireNonNull(timeWindow, "timeWindow");
 
         List<SampledJvmGc> sampledJvmGcs = this.sampledJvmGcDao.getSampledAgentStatList(agentId, timeWindow);

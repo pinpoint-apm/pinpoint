@@ -19,11 +19,10 @@ package com.navercorp.pinpoint.web.dao.hbase.stat.v2;
 import com.navercorp.pinpoint.common.server.bo.codec.stat.JvmGcDetailedDecoder;
 import com.navercorp.pinpoint.common.server.bo.stat.AgentStatType;
 import com.navercorp.pinpoint.common.server.bo.stat.JvmGcDetailedBo;
-import com.navercorp.pinpoint.common.util.Assert;
 import com.navercorp.pinpoint.web.dao.stat.SampledJvmGcDetailedDao;
 import com.navercorp.pinpoint.web.mapper.stat.AgentStatMapperV2;
-import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.JvmGcDetailedSampler;
 import com.navercorp.pinpoint.web.mapper.stat.SampledAgentStatResultExtractor;
+import com.navercorp.pinpoint.web.mapper.stat.sampling.sampler.JvmGcDetailedSampler;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.stat.SampledJvmGcDetailed;
@@ -46,7 +45,7 @@ public class HbaseSampledJvmGcDetailedDaoV2 implements SampledJvmGcDetailedDao {
     public HbaseSampledJvmGcDetailedDaoV2(HbaseAgentStatDaoOperationsV2 operations, JvmGcDetailedDecoder jvmGcDetailedDecoder, JvmGcDetailedSampler jvmGcDetailedSampler) {
         this.operations = Objects.requireNonNull(operations, "operations");
         this.jvmGcDetailedDecoder = Objects.requireNonNull(jvmGcDetailedDecoder, "jvmGcDetailedDecoder");
-        this.jvmGcDetailedSampler = Assert.requireNonNull(jvmGcDetailedSampler, "jvmGcDetailedSampler");
+        this.jvmGcDetailedSampler = Objects.requireNonNull(jvmGcDetailedSampler, "jvmGcDetailedSampler");
     }
 
     @Override
