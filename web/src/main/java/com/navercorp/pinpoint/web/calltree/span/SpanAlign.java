@@ -39,6 +39,7 @@ public class SpanAlign implements Align {
     private long gap;
     private int depth;
     private long executionMilliseconds;
+    private boolean isExcludeFromTimeline;
 
     public SpanAlign(SpanBo spanBo) {
         this(spanBo, false);
@@ -48,6 +49,7 @@ public class SpanAlign implements Align {
         this.spanBo = Objects.requireNonNull(spanBo, "spanBo");
         this.hasChild = hasChild0();
         this.meta = meta;
+        this.isExcludeFromTimeline = false;
     }
 
     private boolean hasChild0() {
@@ -261,6 +263,12 @@ public class SpanAlign implements Align {
     public int getAsyncId() {
         return -1;
     }
+
+    @Override
+    public boolean getExcludeFromTimeline() { return isExcludeFromTimeline; }
+
+    @Override
+    public void setExcludeFromTimeline(boolean exclude) { isExcludeFromTimeline = exclude; }
 
     @Override
     public String toString() {

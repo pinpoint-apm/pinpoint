@@ -8,13 +8,14 @@ import { TransactionSearchModule } from 'app/core/components/transaction-search'
 import { CallTreeModule } from 'app/core/components/call-tree';
 import { ServerMapModule } from 'app/core/components/server-map';
 import { TransactionTimelineModule } from 'app/core/components/transaction-timeline';
+import { TransactionTimelineModuleV2 } from 'app/core/components/transaction-timeline-v2';
 import { SyntaxHighlightPopupModule } from 'app/core/components/syntax-highlight-popup';
 import { TransactionDetailContentsContainerComponent } from './transaction-detail-contents-container.component';
 import { HelpViewerPopupModule } from 'app/core/components/help-viewer-popup';
 
 @NgModule({
     declarations: [
-        TransactionDetailContentsContainerComponent
+        TransactionDetailContentsContainerComponent,
     ],
     imports: [
         SharedModule,
@@ -24,6 +25,7 @@ import { HelpViewerPopupModule } from 'app/core/components/help-viewer-popup';
         CallTreeModule,
         ServerMapModule,
         TransactionTimelineModule,
+        TransactionTimelineModuleV2,
         SyntaxHighlightPopupModule,
         HelpViewerPopupModule
     ],

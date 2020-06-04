@@ -101,4 +101,8 @@ public interface Align {
     String getDestinationId();
 
     int getAsyncId();
+
+    boolean getExcludeFromTimeline();
+
+    void setExcludeFromTimeline(boolean exclude);
 }
