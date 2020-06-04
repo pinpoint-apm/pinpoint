@@ -119,9 +119,9 @@ public abstract class BaseRecord implements Record{
 
     }
 
-    public boolean isExcludeFromTimeline() {
-        return excludeFromTimeline;
-    }
+    public boolean isExcludeFromTimeline() { return excludeFromTimeline; }
+
+    public void setExcludeFromTimeline(boolean exclude) { excludeFromTimeline = exclude; }
 
     public String getSimpleClassName() {
         return simpleClassName;

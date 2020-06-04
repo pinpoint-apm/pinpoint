@@ -23,6 +23,9 @@ export class TransactionDetailMenuComponent implements OnInit {
         }, {
             key: 'timeline',
             display: 'Timeline'
+        }, {
+            key: 'timelineV2',
+            display: 'Timeline Beta'
         }
     ];
 

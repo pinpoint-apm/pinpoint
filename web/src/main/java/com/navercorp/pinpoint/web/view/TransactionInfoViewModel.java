@@ -162,6 +162,10 @@ public class TransactionInfoViewModel {
                 }
                 first = false;
             }
+
+            if (!"ASYNC".equals(record.getApiType()) && (record.getElapsed() == 0)) {
+                record.setExcludeFromTimeline(true);
+            }
             list.add(new CallStack(record, barRatio));
         }
 
