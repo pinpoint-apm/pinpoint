@@ -167,10 +167,6 @@ public interface SmsSender {
 ```
 
 ### 2) Configuring batch properties
-Set `batch.enable` flag to **true** in *batch.properties*
-```
-batch.enable=true
-```
 
 `batch.server.ip` configuration is there to prevent concurrent batch operations when there are multiple pinpoint web servers. The batch is executed only if the server's IP address is identical to the value set in `batch.server.ip`. (Setting this to 127.0.0.1 will start the batch in all the web servers)
 ```
@@ -382,11 +378,6 @@ public interface SmsSender {
 ```
 
 ### 2) batch properties 설정 
-
-batch.properties 설정 파일에 batch.enable 값을 true로 설정한다.
-```
-batch.enable=true 
-```
 
 pinpoint web서버가 2대 이상일 경우에 동일한 batch가 여러대의 서버에서 동시에 실행되는것을 방지하기 위한 기능이다.
 batch.properties 파일에 설정한 ip의 값과 pinpoint-web 서버의 ip가 일치할 경우에만 batch가 동작이 된다.
