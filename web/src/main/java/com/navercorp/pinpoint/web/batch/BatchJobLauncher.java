@@ -16,16 +16,34 @@
 
 package com.navercorp.pinpoint.web.batch;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.JobParameters;
 import org.springframework.batch.core.JobParametersBuilder;
+import org.springframework.beans.factory.annotation.Autowired;
 
+import javax.annotation.PostConstruct;
 import java.util.Date;
 
 /**
  * @author minwoo.jung<minwoo.jung@navercorp.com>
- *
  */
 public class BatchJobLauncher extends JobLaunchSupport {
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    public static final String CLEANUP_INACTIVE_AGENTS_JOB_NAME = "cleanupInactiveAgentsJob";
+
+    @Autowired
+    private BatchConfiguration batchConfiguration;
+
+    private boolean enableCleanupInactiveAgentsJob;
+
+    @PostConstruct
+    private void setup() {
+        boolean enableCleanupInactiveAgents = batchConfiguration.isEnableCleanupInactiveAgents();
+        this.enableCleanupInactiveAgentsJob = enableCleanupInactiveAgents;
+    }
 
     public void alarmJob() {
         JobParameters params = createTimeParameter();
@@ -45,6 +63,14 @@ public class BatchJobLauncher extends JobLaunchSupport {
 
     public void flinkCheckJob() {
         run("flinkCheckJob", createTimeParameter());
+    }
+
+    public void cleanupInactiveAgentsJob() {
+        if (enableCleanupInactiveAgentsJob) {
+            run(CLEANUP_INACTIVE_AGENTS_JOB_NAME, createTimeParameter());
+        } else {
+            logger.debug("Skip " + CLEANUP_INACTIVE_AGENTS_JOB_NAME + ", because 'enableCleanupInactiveAgentsJob' is disabled.");
+        }
     }
 
 }
