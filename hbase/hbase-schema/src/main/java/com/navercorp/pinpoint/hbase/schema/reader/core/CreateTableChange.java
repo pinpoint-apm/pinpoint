@@ -44,7 +44,7 @@ public class CreateTableChange extends TableChange {
 
         byte[][] getSplitKeys();
 
-        public SplitOption NONE = new SplitOption() {
+        SplitOption NONE = new SplitOption() {
             @Override
             public byte[][] getSplitKeys() {
                 return new byte[0][];
@@ -56,7 +56,7 @@ public class CreateTableChange extends TableChange {
             }
         };
 
-        public class Manual implements SplitOption {
+        class Manual implements SplitOption {
             private final List<String> splitKeys;
 
             public Manual(List<String> splitKeys) {
@@ -99,7 +99,7 @@ public class CreateTableChange extends TableChange {
 
         // Implementation copied from hbase's RegionSplitter$UniformSplit
         // https://github.com/apache/hbase/blob/master/hbase-server/src/main/java/org/apache/hadoop/hbase/util/RegionSplitter.java
-        public class Auto implements SplitOption {
+        class Auto implements SplitOption {
             private static final byte xFF = (byte) 0xFF;
             private static final byte[] FIRST_ROW_BYTES = EMPTY_BYTE_ARRAY;
             private static final byte[] LAST_ROW_BYTES = new byte[]{xFF, xFF, xFF, xFF, xFF, xFF, xFF, xFF};

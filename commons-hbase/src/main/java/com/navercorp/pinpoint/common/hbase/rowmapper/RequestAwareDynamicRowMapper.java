@@ -38,4 +38,4 @@ public class RequestAwareDynamicRowMapper<T, ReqT> implements RequestAwareRowMap
         final T mapRow = spanMapper.mapRow(result, rowNum);
         return mapRow;
     }
-};
+}

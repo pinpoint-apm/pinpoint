@@ -56,4 +56,4 @@ public class DefaultLambdaBytecodeHandler implements LambdaBytecodeHandler {
             return data;
         }
     }
-};
+}

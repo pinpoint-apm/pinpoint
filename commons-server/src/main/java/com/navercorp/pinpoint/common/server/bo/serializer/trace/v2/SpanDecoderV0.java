@@ -424,7 +424,6 @@ public class SpanDecoderV0 implements SpanDecoder {
             logger.warn("sequence overflow. firstSpanEventSequence:{} basicSpan:{}", firstSpanEventSequence, basicSpan);
         }
         setLocalAsyncId(basicSpan, buffer);
-        return;
     }
 
     private void setLocalAsyncId(BasicSpan basicSpan, Buffer buffer) {

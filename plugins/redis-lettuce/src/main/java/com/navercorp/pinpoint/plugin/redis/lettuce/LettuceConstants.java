@@ -15,10 +15,7 @@
  */
 package com.navercorp.pinpoint.plugin.redis.lettuce;
 
-import static com.navercorp.pinpoint.common.trace.ServiceTypeProperty.*;
-
 import com.navercorp.pinpoint.common.trace.ServiceType;
-import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
 import com.navercorp.pinpoint.common.trace.ServiceTypeProvider;
 
 /**

@@ -16,8 +16,6 @@
 
 package com.navercorp.pinpoint.common.server.trace;
 
-import com.navercorp.pinpoint.common.server.trace.ApiDescription;
-import com.navercorp.pinpoint.common.server.trace.DefaultApiDescription;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;

@@ -22,8 +22,8 @@ package com.navercorp.pinpoint.profiler.monitor.metric.datasource;
 public class DataSource {
     private final int id; // required
     private short serviceTypeCode; // optional
-    private java.lang.String databaseName; // optional
-    private java.lang.String url; // optional
+    private String databaseName; // optional
+    private String url; // optional
     private int activeConnectionSize; // optional
     private int maxConnectionSize; // optional
 
