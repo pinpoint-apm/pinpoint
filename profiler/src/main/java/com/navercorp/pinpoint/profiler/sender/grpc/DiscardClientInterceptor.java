@@ -67,7 +67,7 @@ public class DiscardClientInterceptor implements ClientInterceptor {
         private final long maxPendingThreshold;
         private final DiscardEventListener listener;
 
-        public DiscardClientCall(io.grpc.ClientCall<ReqT, RespT> delegate, DiscardEventListener listener, long maxPendingThreshold) {
+        public DiscardClientCall(ClientCall<ReqT, RespT> delegate, DiscardEventListener listener, long maxPendingThreshold) {
             super(delegate);
             this.listener = Assert.requireNonNull(listener, "listener");
             this.maxPendingThreshold = maxPendingThreshold;

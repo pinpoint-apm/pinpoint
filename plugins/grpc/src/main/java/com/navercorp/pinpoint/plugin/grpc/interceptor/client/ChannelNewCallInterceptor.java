@@ -62,9 +62,9 @@ public class ChannelNewCallInterceptor implements AroundInterceptor {
         }
 
         try {
-            if (methodDescriptor instanceof io.grpc.MethodDescriptor) {
+            if (methodDescriptor instanceof MethodDescriptor) {
                 String fullMethodName = ((MethodDescriptor) methodDescriptor).getFullMethodName();
-                ((MethodNameAccessor) result)._$PINPOINT$_setMethodName((String) fullMethodName);
+                ((MethodNameAccessor) result)._$PINPOINT$_setMethodName(fullMethodName);
             } else {
                 if (isDebug) {
                     logger.debug("invalid methodDescriptor. methodDescriptor:{}", methodDescriptor);

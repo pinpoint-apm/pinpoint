@@ -224,10 +224,10 @@ public class SharedProcessManager implements ProcessManager {
 
         final List<String> importPluginIds = context.getImportPluginIds();
         if (CollectionUtils.hasLength(importPluginIds)) {
-            String enablePluginIds = com.navercorp.pinpoint.test.plugin.util.StringUtils.join(importPluginIds, ArtifactIdUtils.ARTIFACT_SEPARATOR);
+            String enablePluginIds = StringUtils.join(importPluginIds, ArtifactIdUtils.ARTIFACT_SEPARATOR);
             agentArgumentMap.put(AgentParameter.IMPORT_PLUGIN, enablePluginIds);
         }
-        return com.navercorp.pinpoint.test.plugin.util.StringUtils.join(agentArgumentMap, "=", ArgsParser.DELIMITER);
+        return StringUtils.join(agentArgumentMap, "=", ArgsParser.DELIMITER);
     }
 
     private String addTest(String testId, List<Artifact> artifactList) {

@@ -53,13 +53,13 @@ public class GrpcServerStreamRequest {
 
     static boolean validate(Object[] args) {
         if (ArrayUtils.getLength(args) == 3) {
-            if (!(args[0] instanceof io.grpc.internal.ServerStream)) {
+            if (!(args[0] instanceof ServerStream)) {
                 return false;
             }
             if (!(args[1] instanceof String)) {
                 return false;
             }
-            if (!(args[2] instanceof io.grpc.Metadata)) {
+            if (!(args[2] instanceof Metadata)) {
                 return false;
             }
             return true;

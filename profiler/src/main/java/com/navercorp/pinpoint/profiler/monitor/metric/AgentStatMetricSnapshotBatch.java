@@ -22,7 +22,7 @@ import java.util.List;
  * @author jaehong.kim
  */
 public class AgentStatMetricSnapshotBatch {
-    private java.lang.String agentId;
+    private String agentId;
     private long startTimestamp;
     private List<AgentStatMetricSnapshot> agentStats;
 
