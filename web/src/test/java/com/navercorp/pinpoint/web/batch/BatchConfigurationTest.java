@@ -46,4 +46,17 @@ public class BatchConfigurationTest {
         Assert.assertEquals(Arrays.asList("1", "2"), configuration.getFlinkServerList());
     }
 
+    @Test
+    public void cleanupInactiveAgentsConfigurationTest() {
+        configuration.setup();
+
+        boolean enableCleanupInactiveAgents = configuration.isEnableCleanupInactiveAgents();
+        String cleanupInactiveAgentsCron = configuration.getCleanupInactiveAgentsCron();
+        int cleanupInactiveAgentsDurationDays = configuration.getCleanupInactiveAgentsDurationDays();
+
+        Assert.assertEquals(false, enableCleanupInactiveAgents);
+        Assert.assertEquals("0 0 0 29 2 ?", cleanupInactiveAgentsCron);
+        Assert.assertEquals(30, cleanupInactiveAgentsDurationDays);
+    }
+
 }
