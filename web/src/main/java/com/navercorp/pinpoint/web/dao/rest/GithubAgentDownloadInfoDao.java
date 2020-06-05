@@ -16,8 +16,6 @@
 
 package com.navercorp.pinpoint.web.dao.rest;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.common.util.IdValidateUtils;
 import com.navercorp.pinpoint.web.dao.AgentDownloadInfoDao;
@@ -25,6 +23,9 @@ import com.navercorp.pinpoint.web.vo.AgentDownloadInfo;
 import com.navercorp.pinpoint.web.vo.GithubAgentDownloadInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
@@ -41,17 +42,20 @@ public class GithubAgentDownloadInfoDao implements AgentDownloadInfoDao {
     private static final String GITHUB_API_URL = "https://api.github.com/repos/naver/pinpoint/releases";
 
     private static final Pattern STABLE_VERSION_PATTERN = Pattern.compile(IdValidateUtils.STABLE_VERSION_PATTERN_VALUE);
+    private static final ParameterizedTypeReference<List<GithubAgentDownloadInfo>> responseType
+            = new ParameterizedTypeReference<List<GithubAgentDownloadInfo>>() {};
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final RestTemplate restTemplate;
+
+    public GithubAgentDownloadInfoDao(RestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
+    }
 
     public List<AgentDownloadInfo> getDownloadInfoList() {
         List<AgentDownloadInfo> result = new ArrayList<>();
         try {
-            RestTemplate restTemplate = new RestTemplate();
-            String responseBody = restTemplate.getForObject(GITHUB_API_URL, String.class);
-
-            TypeReference<List<GithubAgentDownloadInfo>> typeReference = new TypeReference<List<GithubAgentDownloadInfo>>() {};
-            List<GithubAgentDownloadInfo> agentDownloadInfoList = objectMapper.readValue(responseBody, typeReference);
+            ResponseEntity<List<GithubAgentDownloadInfo>> responseEntity = restTemplate.exchange(GITHUB_API_URL, HttpMethod.GET, null, responseType);
+            List<GithubAgentDownloadInfo> agentDownloadInfoList = responseEntity.getBody();
 
             if (CollectionUtils.isEmpty(agentDownloadInfoList)) {
                 return result;
