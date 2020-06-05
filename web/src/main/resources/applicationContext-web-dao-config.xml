@@ -63,6 +63,7 @@
     <bean id="agentDownloadInfoDao" class="com.navercorp.pinpoint.web.dao.AgentDownloadInfoDaoFactory" factory-method="create">
         <constructor-arg index="0" value="${web.installation.pinpointVersion:}"/>
         <constructor-arg index="1" value="${web.installation.downloadUrl:}"/>
+        <constructor-arg index="2" ref="restTemplate"/>
     </bean>
 
 </beans>

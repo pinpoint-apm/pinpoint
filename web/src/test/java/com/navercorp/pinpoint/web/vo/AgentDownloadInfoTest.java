@@ -26,6 +26,7 @@ import com.navercorp.pinpoint.web.dao.rest.GithubAgentDownloadInfoDao;
 import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
 import org.junit.Test;
+import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,21 +36,21 @@ import java.util.List;
  * @author Taejin Koo
  */
 public class AgentDownloadInfoTest {
-
+    private RestTemplate restTemplate = new RestTemplate();
     @Test
     public void factoryTest() {
         String version = "1.6.0";
         String downloadUrl = "http://localhost:8080/pinpoint-agent-1.6.0.tar.gz";
 
-        AgentDownloadInfoDao agentDownloadInfoDao = AgentDownloadInfoDaoFactory.create(version, downloadUrl);
+        AgentDownloadInfoDao agentDownloadInfoDao = AgentDownloadInfoDaoFactory.create(version, downloadUrl, restTemplate);
         Assert.assertTrue(agentDownloadInfoDao instanceof MemoryAgentDownloadInfoDao);
         Assert.assertEquals(version, agentDownloadInfoDao.getDownloadInfoList().get(0).getVersion());
         Assert.assertEquals(downloadUrl, agentDownloadInfoDao.getDownloadInfoList().get(0).getDownloadUrl());
 
-        agentDownloadInfoDao = AgentDownloadInfoDaoFactory.create(version, "");
+        agentDownloadInfoDao = AgentDownloadInfoDaoFactory.create(version, "", restTemplate);
         Assert.assertTrue(agentDownloadInfoDao instanceof GithubAgentDownloadInfoDao);
 
-        agentDownloadInfoDao = AgentDownloadInfoDaoFactory.create("   ", downloadUrl);
+        agentDownloadInfoDao = AgentDownloadInfoDaoFactory.create("   ", downloadUrl, restTemplate);
         Assert.assertTrue(agentDownloadInfoDao instanceof GithubAgentDownloadInfoDao);
     }
 

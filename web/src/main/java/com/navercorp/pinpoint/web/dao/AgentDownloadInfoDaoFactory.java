@@ -19,17 +19,18 @@ package com.navercorp.pinpoint.web.dao;
 import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.web.dao.memory.MemoryAgentDownloadInfoDao;
 import com.navercorp.pinpoint.web.dao.rest.GithubAgentDownloadInfoDao;
+import org.springframework.web.client.RestTemplate;
 
 /**
  * @author Taejin Koo
  */
 public class AgentDownloadInfoDaoFactory {
 
-    public static AgentDownloadInfoDao create(String version, String downloadUrl) {
+    public static AgentDownloadInfoDao create(String version, String downloadUrl, RestTemplate restTemplate) {
         if (StringUtils.hasText(version) && StringUtils.hasText(downloadUrl)) {
             return new MemoryAgentDownloadInfoDao(version, downloadUrl);
         }
-        return new GithubAgentDownloadInfoDao();
+        return new GithubAgentDownloadInfoDao(restTemplate);
     }
 
 }
