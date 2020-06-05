@@ -62,10 +62,12 @@ export class FilterTransactionWizardPopupContainerComponent implements OnInit, A
             param.from.serviceType,
             param.to.applicationName,
             param.to.serviceType,
-            param.transactionResult
+            param.transactionResult,
+            null,
+            null,
+            param.responseFrom,
+            param.responseTo
         );
-        f.setResponseFrom(param.responseFrom);
-        f.setResponseTo(param.responseTo);
         if (param.urlPattern) {
             f.setUrlPattern(this.windowRefService.nativeWindow.btoa(param.urlPattern));
         }
