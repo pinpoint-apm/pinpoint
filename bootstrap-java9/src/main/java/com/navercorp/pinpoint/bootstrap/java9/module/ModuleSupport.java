@@ -193,10 +193,7 @@ public class ModuleSupport {
     }
 
     public boolean isAllowedProvider(String serviceName) {
-        for (String allowedProvider : this.allowedProviders) {
-            return allowedProvider.equals(serviceName);
-        }
-        return false;
+        return allowedProviders.contains(serviceName);
     }
 
     private List<Class<?>> loadProviderClassList(List<String> classNameList, ClassLoader classLoader) {
