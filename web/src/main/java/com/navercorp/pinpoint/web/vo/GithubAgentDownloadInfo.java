@@ -42,6 +42,7 @@ public class GithubAgentDownloadInfo extends AgentDownloadInfo {
     }
 
     public static class Deserializer extends JsonDeserializer<GithubAgentDownloadInfo> {
+        private static final String VERSION_PREFIX = "v";
 
         @Override
         public GithubAgentDownloadInfo deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException, JsonProcessingException {
@@ -72,9 +73,19 @@ public class GithubAgentDownloadInfo extends AgentDownloadInfo {
             if (StringUtils.isEmpty(downloadUrl)) {
                 return null;
             }
-
-
+            tagName = cleanupVersionPrefix(tagName);
             return new GithubAgentDownloadInfo(tagName, downloadUrl);
+        }
+
+        private String cleanupVersionPrefix(String version) {
+            if (version == null) {
+                return null;
+            }
+            final boolean prefix = version.startsWith(VERSION_PREFIX);
+            if (prefix) {
+                return version.substring(VERSION_PREFIX.length());
+            }
+            return version;
         }
 
 
