@@ -56,14 +56,10 @@ export class Filter {
                 filterFromStr.tst,
                 filterFromStr.ie,
                 filterFromStr.a,
-                filterFromStr.st
+                filterFromStr.st,
+                filterFromStr.rf,
+                filterFromStr.rt === 'max' ? ResponseRange.MAX : filterFromStr.rt
             );
-            if (filterFromStr.rf || filterFromStr.rf === 0) {
-                newFilter.setResponseFrom(filterFromStr.rf);
-            }
-            if (filterFromStr.rt) {
-                newFilter.setResponseTo(filterFromStr.rt === 'max' ? ResponseRange.MAX : filterFromStr.rt);
-            }
             if (filterFromStr.url) {
                 newFilter.setUrlPattern(filterFromStr.url);
             }
@@ -78,7 +74,7 @@ export class Filter {
         return returnFilter;
     }
 
-    constructor(fa: string, fst: string, ta: string, tst: string, ie: null | boolean = null, a: string = null, st: string = null) {
+    constructor(fa: string, fst: string, ta: string, tst: string, ie: null | boolean = null, a: string = null, st: string = null, rf = ResponseRange.MIN, rt = ResponseRange.MAX) {
         this.fromApplication = fa;
         this.fromServiceType = fst;
         this.toApplication = ta;
@@ -86,6 +82,8 @@ export class Filter {
         this.transactionResult = ie;
         this.application = a;
         this.serviceType = st;
+        this.responseFrom = rf;
+        this.responseTo = rt;
         this.type = this.getFilterType();
     }
 
@@ -102,14 +100,6 @@ export class Filter {
             this.fromServiceType === filter.fromServiceType &&
             this.toApplication === filter.toApplication &&
             this.toServiceType === filter.toServiceType;
-    }
-
-    setResponseFrom(rf: number): void {
-        this.responseFrom = rf;
-    }
-
-    setResponseTo(rt: number): void {
-        this.responseTo = rt;
     }
 
     setUrlPattern(url: string): void {
@@ -153,14 +143,10 @@ export class Filter {
             tst: this.toServiceType,
             a: this.application,
             st: this.serviceType,
-            ie: this.transactionResult
+            ie: this.transactionResult,
+            rf: this.responseFrom,
+            rt: this.responseTo === ResponseRange.MAX ? 'max' : this.responseTo
         };
-        if (this.responseFrom || this.responseFrom === 0) {
-            param['rf'] = this.responseFrom;
-        }
-        if (this.responseTo) {
-            param['rt'] = this.responseTo === ResponseRange.MAX ? 'max' : this.responseTo;
-        }
         if (this.urlPattern) {
             param['url'] = this.urlPattern;
         }
