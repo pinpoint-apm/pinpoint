@@ -40,7 +40,7 @@ import java.util.Map;
 public class AgentStatisticsController {
 
     @Autowired
-    AgentStatisticsService agentStatisticsService;
+    private AgentStatisticsService agentStatisticsService;
 
     @RequestMapping(value = "/insertAgentCount", method = RequestMethod.GET, params = {"agentCount"})
     @ResponseBody
