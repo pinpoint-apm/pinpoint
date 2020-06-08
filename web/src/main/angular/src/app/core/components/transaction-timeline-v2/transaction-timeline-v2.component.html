@@ -1,16 +1,17 @@
 <div class="l-wrapper">
     <cdk-virtual-scroll-viewport itemSize="20" style="width: 100%; height: 100%;">    
-        <div class="l-timeline-bar" *cdkVirtualFor="let row of rowData; let i = index;" [ngStyle]="getLineStyle(row[0])">
-            <div class="clickable-bar" *ngFor="let call of row; let j = index;" [ngStyle]="getStyles(call, i, j)" (click)="onSelectCall(call)">
-                <span class="l-tooltip-text" *ngIf="!showName(call)">{{getText(call, i)}}</span>
+        <div class="l-timeline-bar" *cdkVirtualFor="let row of rowData; let i = index;" [ngStyle]="getLineStyle(row)">
+            <div class="clickable-bar" *ngFor="let call of row; let j = index;" [ngStyle]="getStyles(call, i, j)" (click)="onSelectCall(call[0]?call[0]:call[1])">
+                <span class="l-tooltip-text" *ngIf="!showName(call[0]?call[0]:call[1])">{{getText(call, i)}}</span>
                 <span class="l-timeline-bar-frame">
                     <span>
-                        <span class="before"><i class="fas fa-arrows-alt-h"></i> <span class="startTime">{{getStartTime(call)}}</span>ms</span>
-                        <span class="nameType" *ngIf="showName(call)">{{getText(call, i)}}</span>
-                        <span class="after">( <i class="fas fa-arrows-alt-h"></i> <span class="startTime">{{getStartTime(call)}}</span>ms )</span>
+                        <span class="before"><i class="fas fa-arrows-alt-h"></i> <span class="startTime">{{getStartTime(call[0]?call[0]:call[1])}}</span>ms</span>
+                        <span class="nameType" *ngIf="showName(call[0]?call[0]:call[1])">{{getText(call, i)}}</span>
+                        <span class="after">( <i class="fas fa-arrows-alt-h"></i> <span class="startTime">{{getStartTime(call[0]?call[0]:call[1])}}</span>ms )</span>
                     </span>
                 </span>
             </div>
         </div>
+        <div [ngStyle]="{width: ((endTime-startTime)*barRatio+1)+'px'}"></div>
     </cdk-virtual-scroll-viewport>
 </div>

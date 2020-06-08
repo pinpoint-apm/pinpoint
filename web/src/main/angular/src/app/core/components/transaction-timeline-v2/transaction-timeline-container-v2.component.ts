@@ -63,63 +63,67 @@ export class TransactionTimelineContainerComponentV2 implements OnInit, OnDestro
     }
 
     private getBarRatio(tInfo: ITransactionDetailData): number {
-        return 1000 / (tInfo.callStack[0][tInfo.callStackIndex.end] - tInfo.callStack[0][tInfo.callStackIndex.begin]);
+        return Math.max(1000 / (tInfo.callStackEnd - tInfo.callStackStart), 1);
     }
 
-    private filterCallStack(rowData: ITransactionDetailData): any {
-        let data=[];
-        let async=[];
-        let asyncRootInfo = [[],[]];
+    private filterCallStack(data: ITransactionDetailData): any {
+        let rowData=[];
+        let asyncRootInfo = [[],[]];        /* depth, application name*/
         let isAsync = false;
+        let prevApplication = "";
 
-        rowData.callStack.filter(call =>
+        function checkAsyncDepth(call): number {
+            let asyncInfoLastIndex = asyncRootInfo[0].length - 1;
+            while (call[this.keyIndex.tab] <= asyncRootInfo[0][asyncInfoLastIndex]) {
+                asyncRootInfo[0].pop();
+                asyncRootInfo[1].pop();
+                asyncInfoLastIndex--;
+                isAsync = false;
+            }
+            return asyncInfoLastIndex;
+        }
+
+        data.callStack.filter(call =>
             (call[this.keyIndex.isMethod] && !call[this.keyIndex.excludeFromTimeline] && call[this.keyIndex.service] !== ''))
             .forEach((call) => {
                 let depth = call[this.keyIndex.tab];
-                while (depth >= data.length) {
-                    data.push([]);
-                    async.push([]);
+                while (depth >= rowData.length) {
+                    rowData.push([]);
                 }
 
-                if(isAsync) {
-                    let asyncInfoLastIndex = asyncRootInfo[0].length - 1;
-                    if (call[this.keyIndex.applicationName] != asyncRootInfo[1][asyncInfoLastIndex]) {
-                        isAsync = false;
-                    } else if (call[this.keyIndex.tab] <= asyncRootInfo[0][asyncInfoLastIndex]) {
-                        asyncRootInfo[0].pop();
-                        asyncRootInfo[1].pop();
+                let asyncInfoLastIndex = checkAsyncDepth.call(this, call);
+
+                if (asyncInfoLastIndex >= 0) {
+                    if (call[this.keyIndex.applicationName] === asyncRootInfo[1][asyncInfoLastIndex]) {
+                        if (call[this.keyIndex.tab] > asyncRootInfo[0][asyncInfoLastIndex]) {
+                            // returned to previous async trace
+                            isAsync = true;
+                        }
+                    } else if (call[this.keyIndex.applicationName] != prevApplication){
+                        // now at synchronous application trace
                         isAsync = false;
                     }
                 }
 
                 if (call[this.keyIndex.apiType] === "ASYNC") {
-                    isAsync = true;
+                    isAsync = true
                     asyncRootInfo[0].push(call[this.keyIndex.tab]);
                     asyncRootInfo[1].push(call[this.keyIndex.applicationName]);
                 }
 
-                let count = isAsync? async[depth].length : data[depth].length;
-                if (count != 0) {
-                    let prevSibling = isAsync? async[depth][count-1] : data[depth][count-1];
-                    if (call[this.keyIndex.begin] === prevSibling[this.keyIndex.begin]) {
-                        if(isAsync) {
-                            async[depth].pop();
-                        } else {
-                            data[depth].pop();
-                        }
-                    }
-                }
-
+                let rearranged = [];
                 if (isAsync) {
-                    async[call[this.keyIndex.tab]].push(call);
+                    rearranged.push(null);
+                    rearranged.push(call);
                 } else {
-                    data[call[this.keyIndex.tab]].push(call);
+                    rearranged.push(call);
+                    rearranged.push(null);
                 }
+                rowData[depth].push(rearranged);
+                prevApplication = call[this.keyIndex.applicationName];
             }
         )
-        console.log(async);
-        console.log(data);
-        return data;
+        return rowData;
     }
 
     onSelectTransaction(id: string): void {
