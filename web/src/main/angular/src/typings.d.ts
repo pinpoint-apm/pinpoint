@@ -2,6 +2,7 @@
 // https://www.typescriptlang.org/docs/handbook/writing-declaration-files.html
 declare var ga: Function;
 declare var module: NodeModule;
+declare var intlTelInputGlobals: any;
 interface NodeModule {
     id: string;
 }

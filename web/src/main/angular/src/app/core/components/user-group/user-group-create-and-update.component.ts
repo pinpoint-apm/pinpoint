@@ -26,12 +26,16 @@ export class UserGroupCreateAndUpdateComponent implements OnInit {
     constructor() {}
     ngOnInit() {}
     onCreateOrUpdate(): void {
-        this.outCreateUserGroup.emit(this.userGroupForm.get('userGroupName').value);
+        this.outCreateUserGroup.emit(this.userGroupName.value);
         this.onClose();
     }
 
     onClose(): void {
         this.outClose.emit();
         this.userGroupForm.reset();
+    }
+
+    get userGroupName(): FormControl {
+        return this.userGroupForm.get('userGroupName') as FormControl;
     }
 }
