@@ -39,7 +39,7 @@ import java.util.Map;
 @Controller
 @RequestMapping(value = "/userGroup")
 public class UserGroupController {
-    
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public static final String EDIT_GROUP_ONLY_GROUPMEMBER = "permission_userGroup_editGroupOnlyGroupMember";
@@ -47,7 +47,7 @@ public class UserGroupController {
     public static final String USER_ID = "userId";
 
     @Autowired
-    UserGroupService userGroupService;
+    private UserGroupService userGroupService;
 
     @RequestMapping(method = RequestMethod.POST)
     @ResponseBody
@@ -85,10 +85,10 @@ public class UserGroupController {
             return createErrorMessage("500", e.getMessage());
         }
     }
-    
+
     @RequestMapping(method = RequestMethod.GET)
     @ResponseBody
-    public List<UserGroup> getUserGroup(@RequestParam(value=USER_ID, required=false) String userId, @RequestParam(value=USER_GROUP_ID, required=false) String userGroupId) {
+    public List<UserGroup> getUserGroup(@RequestParam(value = USER_ID, required = false) String userId, @RequestParam(value = USER_GROUP_ID, required = false) String userGroupId) {
         if (!StringUtils.isEmpty(userId)) {
             return userGroupService.selectUserGroupByUserId(userId);
         } else if (!StringUtils.isEmpty(userGroupId)) {
@@ -125,13 +125,13 @@ public class UserGroupController {
         result.put("result", "SUCCESS");
         return result;
     }
-    
+
     @RequestMapping(value = "/member", method = RequestMethod.GET)
     @ResponseBody
     public List<UserGroupMember> getUserGroupMember(@RequestParam(USER_GROUP_ID) String userGroupId) {
         return userGroupService.selectMember(userGroupId);
     }
-    
+
     @ExceptionHandler(Exception.class)
     @ResponseBody
     public Map<String, String> handleException(Exception e) {

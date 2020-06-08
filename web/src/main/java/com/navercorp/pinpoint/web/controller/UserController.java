@@ -43,29 +43,29 @@ import com.navercorp.pinpoint.web.vo.User;
 @RequestMapping(value = "/user")
 public class UserController {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    
+
     public final static String USER_ID = "userid";
-    
+
     @Autowired
-    UserService userService;
-    
+    private UserService userService;
+
     @RequestMapping(method = RequestMethod.POST)
     @ResponseBody
     public Map<String, String> insertUser(@RequestBody User user) {
-        if(ValueValidator.validateUser(user) == false) {
+        if (ValueValidator.validateUser(user) == false) {
             Map<String, String> result = new HashMap<>();
             result.put("errorCode", "500");
             result.put("errorMessage", "User information validation failed to creating user infomation.");
             return result;
         }
-        
+
         userService.insertUser(user);
 
         Map<String, String> result = new HashMap<>();
         result.put("result", "SUCCESS");
         return result;
     }
-    
+
     @RequestMapping(method = RequestMethod.DELETE)
     @ResponseBody
     public Map<String, String> deletetUser(@RequestBody User user) {
@@ -75,19 +75,19 @@ public class UserController {
             result.put("errorMessage", "there is not userId in params to delete user");
             return result;
         }
-        
+
         userService.deleteUser(user.getUserId());
 
         Map<String, String> result = new HashMap<>();
         result.put("result", "SUCCESS");
         return result;
     }
-    
+
     @RequestMapping(method = RequestMethod.GET)
     @ResponseBody
-    public Object getUser(@RequestParam(value="userId", required=false) String userId, @RequestParam(value="searchKey", required=false) String searchKey) {
+    public Object getUser(@RequestParam(value = "userId", required = false) String userId, @RequestParam(value = "searchKey", required = false) String searchKey) {
         try {
-            if(userId != null) {
+            if (userId != null) {
                 List<User> users = new ArrayList<>(1);
                 users.add(userService.selectUserByUserId(userId));
                 return users;
@@ -100,36 +100,36 @@ public class UserController {
             }
         } catch (Exception e) {
             logger.error("can't select user", e);
-            
+
             Map<String, String> result = new HashMap<>();
             result.put("errorCode", "500");
             result.put("errorMessage", "This api need to collect condition for search.");
             return result;
         }
     }
-    
+
     @RequestMapping(method = RequestMethod.PUT)
     @ResponseBody
     public Map<String, String> updateUser(@RequestBody User user) {
-        if(ValueValidator.validateUser(user) == false) {
+        if (ValueValidator.validateUser(user) == false) {
             Map<String, String> result = new HashMap<>();
             result.put("errorCode", "500");
             result.put("errorMessage", "User information validation failed to creating user infomation.");
             return result;
         }
-        
+
         userService.updateUser(user);
-        
+
         Map<String, String> result = new HashMap<>();
         result.put("result", "SUCCESS");
         return result;
     }
-    
+
     @ExceptionHandler(Exception.class)
     @ResponseBody
     public Map<String, String> handleException(Exception e) {
         logger.error(" Exception occurred while trying to CRUD user information", e);
-        
+
         Map<String, String> result = new HashMap<>();
         result.put("errorCode", "500");
         result.put("errorMessage", "Exception occurred while trying to CRUD user information");

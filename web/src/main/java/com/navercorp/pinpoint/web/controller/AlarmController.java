@@ -50,7 +50,7 @@ public class AlarmController {
     public final static String APPLICATION_ID = "applicationId";
 
     @Autowired
-    AlarmService alarmService;
+    private AlarmService alarmService;
 
     @PreAuthorize("hasPermission(#rule.getApplicationId(), null, T(com.navercorp.pinpoint.web.controller.AlarmController).EDIT_ALARM_ONLY_MANAGER)")
     @RequestMapping(method = RequestMethod.POST)
