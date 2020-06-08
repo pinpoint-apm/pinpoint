@@ -16,11 +16,11 @@
 
 package com.navercorp.pinpoint.web.controller;
 
-import com.navercorp.pinpoint.common.server.bo.SpanBo;
-import com.navercorp.pinpoint.common.util.DateUtils;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.profiler.util.TransactionIdComparator;
 import com.navercorp.pinpoint.common.profiler.util.TransactionIdUtils;
+import com.navercorp.pinpoint.common.server.bo.SpanBo;
+import com.navercorp.pinpoint.common.util.DateUtils;
 import com.navercorp.pinpoint.web.filter.Filter;
 import com.navercorp.pinpoint.web.filter.FilterBuilder;
 import com.navercorp.pinpoint.web.scatter.ScatterData;
@@ -33,7 +33,6 @@ import com.navercorp.pinpoint.web.vo.GetTraceInfo;
 import com.navercorp.pinpoint.web.vo.LimitedScanResult;
 import com.navercorp.pinpoint.web.vo.Range;
 import com.navercorp.pinpoint.web.vo.SpanHint;
-
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,7 +44,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.servlet.ModelAndView;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -144,7 +142,8 @@ public class ScatterChartController {
      * @return
      */
     @RequestMapping(value = "/getScatterData", method = RequestMethod.GET)
-    public ModelAndView getScatterData(
+    @ResponseBody
+    public Map<String, Object> getScatterData(
             @RequestParam("application") String applicationName,
             @RequestParam("from") long from,
             @RequestParam("to") long to,
@@ -152,8 +151,7 @@ public class ScatterChartController {
             @RequestParam("yGroupUnit") int yGroupUnit,
             @RequestParam("limit") int limit,
             @RequestParam(value = "backwardDirection", required = false, defaultValue = "true") boolean backwardDirection,
-            @RequestParam(value = "filter", required = false) String filterText,
-            @RequestParam(value = "_callback", required = false) String jsonpCallback) {
+            @RequestParam(value = "filter", required = false) String filterText) {
         if (xGroupUnit <= 0) {
             throw new IllegalArgumentException("xGroupUnit(" + xGroupUnit + ") must be positive number");
         }
@@ -177,8 +175,6 @@ public class ScatterChartController {
             model = selectFilterScatterData(applicationName, range, xGroupUnit, Math.max(yGroupUnit, 1), limit, backwardDirection, filterText);
         }
 
-        final String viewName = getViewName(jsonpCallback);
-        ModelAndView mv = new ModelAndView(viewName, model);
 
         watch.stop();
 
@@ -186,15 +182,7 @@ public class ScatterChartController {
             logger.debug("Fetch scatterData time : {}ms", watch.getLastTaskTimeMillis());
         }
 
-        return mv;
-    }
-
-    private String getViewName(String jsonpCallback) {
-        if (jsonpCallback != null) {
-            return "jsonpView";
-        } else {
-            return "jsonView";
-        }
+        return model;
     }
 
     private Map<String, Object> selectScatterData(String applicationName, Range range, int xGroupUnit, int yGroupUnit, int limit, boolean backwardDirection) {
