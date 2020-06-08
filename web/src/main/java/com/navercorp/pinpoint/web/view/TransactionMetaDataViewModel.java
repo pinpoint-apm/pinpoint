@@ -16,22 +16,27 @@
 package com.navercorp.pinpoint.web.view;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.profiler.util.TransactionIdUtils;
+import com.navercorp.pinpoint.common.server.bo.SpanBo;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author jaehong.kim
  */
 public class TransactionMetaDataViewModel {
-    private List<SpanBo> spanBoList = new ArrayList<SpanBo>();
+    private final List<SpanBo> spanBoList;
 
-    public void setSpanBoList(List<SpanBo> spanBoList) {
-        this.spanBoList = spanBoList;
+    public TransactionMetaDataViewModel() {
+        this(Collections.emptyList());
     }
 
+    public TransactionMetaDataViewModel(List<SpanBo> spanBoList) {
+        this.spanBoList = Objects.requireNonNull(spanBoList, "spanBoList");
+    }
 
     @JsonProperty("metadata")
     public List<MetaData> getMetadata() {

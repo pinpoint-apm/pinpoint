@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.web.controller;
 
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.profiler.util.TransactionIdComparator;
-import com.navercorp.pinpoint.common.profiler.util.TransactionIdUtils;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
+import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.common.util.DateUtils;
 import com.navercorp.pinpoint.web.filter.Filter;
 import com.navercorp.pinpoint.web.filter.FilterBuilder;
@@ -30,9 +30,9 @@ import com.navercorp.pinpoint.web.util.LimitUtils;
 import com.navercorp.pinpoint.web.view.ServerTime;
 import com.navercorp.pinpoint.web.view.TransactionMetaDataViewModel;
 import com.navercorp.pinpoint.web.vo.GetTraceInfo;
+import com.navercorp.pinpoint.web.vo.GetTraceInfoParser;
 import com.navercorp.pinpoint.web.vo.LimitedScanResult;
 import com.navercorp.pinpoint.web.vo.Range;
-import com.navercorp.pinpoint.web.vo.SpanHint;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,9 +69,8 @@ public class ScatterChartController {
     @Autowired
     private FilterBuilder<List<SpanBo>> filterBuilder;
 
-    private static final String PREFIX_TRANSACTION_ID = "I";
-    private static final String PREFIX_TIME = "T";
-    private static final String PREFIX_RESPONSE_TIME = "R";
+    private final GetTraceInfoParser getTraceInfoParser = new GetTraceInfoParser();
+
 
     @Deprecated
     @RequestMapping(value = "/scatterpopup", method = RequestMethod.GET)
@@ -100,38 +99,16 @@ public class ScatterChartController {
     @RequestMapping(value = "/transactionmetadata", method = RequestMethod.POST)
     @ResponseBody
     public TransactionMetaDataViewModel transactionmetadata(@RequestParam Map<String, String> requestParam) {
-        TransactionMetaDataViewModel viewModel = new TransactionMetaDataViewModel();
-        List<GetTraceInfo> selectTraceInfoList = createSelectTraceInfoList(requestParam);
-        if (selectTraceInfoList.size() > 0) {
-            List<SpanBo> metadata = scatter.selectTransactionMetadata(selectTraceInfoList);
-            viewModel.setSpanBoList(metadata);
+        final List<GetTraceInfo> selectTraceInfoList = this.getTraceInfoParser.parse(requestParam);
+
+        if (CollectionUtils.isEmpty(selectTraceInfoList)) {
+            return new TransactionMetaDataViewModel();
         }
 
-        return viewModel;
+        List<SpanBo> metadata = scatter.selectTransactionMetadata(selectTraceInfoList);
+        return new TransactionMetaDataViewModel(metadata);
     }
 
-    private List<GetTraceInfo> createSelectTraceInfoList(Map<String, String> requestParam) {
-        List<GetTraceInfo> getTraceInfoList = new ArrayList<>();
-        int index = 0;
-        while (true) {
-            final String transactionId = requestParam.get(PREFIX_TRANSACTION_ID + index);
-            final String time = requestParam.get(PREFIX_TIME + index);
-            final String responseTime = requestParam.get(PREFIX_RESPONSE_TIME + index);
-
-            if (transactionId == null || time == null || responseTime == null) {
-                break;
-            }
-
-            TransactionId traceId = TransactionIdUtils.parseTransactionId(transactionId);
-            SpanHint spanHint = new SpanHint(Long.parseLong(time), Integer.parseInt(responseTime));
-
-            final GetTraceInfo getTraceInfo = new GetTraceInfo(traceId, spanHint);
-            getTraceInfoList.add(getTraceInfo);
-            index++;
-        }
-        logger.debug("query:{}", getTraceInfoList);
-        return getTraceInfoList;
-    }
 
     /**
      * @param applicationName
@@ -201,7 +178,9 @@ public class ScatterChartController {
         final LimitedScanResult<List<TransactionId>> limitedScanResult = flow.selectTraceIdsFromApplicationTraceIndex(applicationName, range, limit, backwardDirection);
 
         final List<TransactionId> transactionIdList = limitedScanResult.getScanData();
-        logger.trace("submitted transactionId count={}", transactionIdList.size());
+        if (logger.isTraceEnabled()) {
+            logger.trace("submitted transactionId count={}", transactionIdList.size());
+        }
 
         boolean requestComplete = transactionIdList.size() < limit;
 
