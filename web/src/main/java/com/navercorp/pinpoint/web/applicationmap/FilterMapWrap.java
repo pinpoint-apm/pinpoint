@@ -17,6 +17,9 @@
 package com.navercorp.pinpoint.web.applicationmap;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
+import com.navercorp.pinpoint.web.applicationmap.link.Link;
+import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.view.FilterMapWrapSerializer;
 
 /**
@@ -27,10 +30,18 @@ public class FilterMapWrap {
     private final ApplicationMap applicationMap;
     private Long lastFetchedTimestamp;
 
-    public FilterMapWrap(ApplicationMap applicationMap) {
+    public FilterMapWrap(ApplicationMap applicationMap, TimeHistogramFormat timeHistogramFormat) {
         this.applicationMap = applicationMap;
-    }
 
+        if(timeHistogramFormat == TimeHistogramFormat.V2) {
+            for(Node node : applicationMap.getNodes()) {
+                node.setTimeHistogramFormat(timeHistogramFormat);
+            }
+            for(Link link : applicationMap.getLinks()) {
+                link.setTimeHistogramFormat(timeHistogramFormat);
+            }
+        }
+    }
 
     public void setLastFetchedTimestamp(Long lastFetchedTimestamp) {
         this.lastFetchedTimestamp = lastFetchedTimestamp;

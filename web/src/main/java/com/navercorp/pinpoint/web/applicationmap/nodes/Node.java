@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.web.applicationmap.nodes;
 
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.web.applicationmap.appender.metric.DBMetric;
+import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
 import com.navercorp.pinpoint.web.applicationmap.histogram.NodeHistogram;
 import com.navercorp.pinpoint.web.view.NodeSerializer;
 import com.navercorp.pinpoint.web.vo.Application;
@@ -54,6 +55,7 @@ public class Node {
     private NodeHistogram nodeHistogram;
     
     private boolean authorized = true;
+    private TimeHistogramFormat timeHistogramFormat = TimeHistogramFormat.V1;
 
     private List<DBMetric> dbMetricList = new ArrayList<>(0);
 
@@ -125,7 +127,15 @@ public class Node {
     public void setAuthorized(boolean authorized) {
         this.authorized = authorized;
     }
-    
+
+    public TimeHistogramFormat getTimeHistogramFormat() {
+        return timeHistogramFormat;
+    }
+
+    public void setTimeHistogramFormat(TimeHistogramFormat timeHistogramFormat) {
+        this.timeHistogramFormat = timeHistogramFormat;
+    }
+
     @Override
     public String toString() {
         return "Node [" + application + "]";
@@ -138,5 +148,4 @@ public class Node {
     public List<DBMetric> getDBMetricList() {
         return dbMetricList;
     }
-
 }

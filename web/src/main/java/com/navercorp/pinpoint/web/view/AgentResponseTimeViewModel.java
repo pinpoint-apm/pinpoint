@@ -30,9 +30,9 @@ public class AgentResponseTimeViewModel {
 
     private final Application agentName;
 
-    private final List<ResponseTimeViewModel> responseTimeViewModel;
+    private final List<TimeViewModel> responseTimeViewModel;
 
-    public AgentResponseTimeViewModel(Application agentName, List<ResponseTimeViewModel> responseTimeViewModel) {
+    public AgentResponseTimeViewModel(Application agentName, List<TimeViewModel> responseTimeViewModel) {
         this.agentName = Objects.requireNonNull(agentName, "agentName");
         this.responseTimeViewModel = Objects.requireNonNull(responseTimeViewModel, "responseTimeViewModel");
     }
@@ -41,8 +41,7 @@ public class AgentResponseTimeViewModel {
         return agentName.getName();
     }
 
-    public List<ResponseTimeViewModel> getResponseTimeViewModel() {
+    public List<TimeViewModel> getResponseTimeViewModel() {
         return responseTimeViewModel;
     }
-
 }

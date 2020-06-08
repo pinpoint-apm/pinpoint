@@ -103,7 +103,7 @@ public class LinkSerializer extends JsonSerializer<Link> {
             jgen.writeFieldName(fieldName);
             jgen.writeStartArray();
             ServerInstanceList serverInstanceList = node.getServerInstanceList();
-            if (serverInstanceList!= null) {
+            if (serverInstanceList != null) {
                 for (String agentId : serverInstanceList.getAgentIdList()) {
                     jgen.writeObject(agentId);
                 }
@@ -117,7 +117,7 @@ public class LinkSerializer extends JsonSerializer<Link> {
             jgen.writeFieldName(fieldName);
             jgen.writeStartObject();
             ServerInstanceList serverInstanceList = node.getServerInstanceList();
-            if (serverInstanceList!= null) {
+            if (serverInstanceList != null) {
                 for (Map.Entry<String, String> entry : serverInstanceList.getAgentIdNameMap().entrySet()) {
                     jgen.writeStringField(entry.getKey(), entry.getValue());
                 }
@@ -141,11 +141,8 @@ public class LinkSerializer extends JsonSerializer<Link> {
 
     }
 
-
-
     private void writeTimeSeriesHistogram(Link link, JsonGenerator jgen) throws IOException {
-        List<ResponseTimeViewModel> sourceApplicationTimeSeriesHistogram = link.getLinkApplicationTimeSeriesHistogram();
-
+        List<TimeViewModel> sourceApplicationTimeSeriesHistogram = link.getLinkApplicationTimeSeriesHistogram();
         jgen.writeFieldName("timeSeriesHistogram");
         jgen.writeObject(sourceApplicationTimeSeriesHistogram);
     }

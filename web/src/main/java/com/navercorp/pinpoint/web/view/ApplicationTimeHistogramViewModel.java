@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.web.view;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.navercorp.pinpoint.web.applicationmap.histogram.AgentTimeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.AgentTimeHistogramSummary;
+import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogram;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.AgentHistogramList;
 import com.navercorp.pinpoint.web.vo.Application;
@@ -35,11 +36,16 @@ public class ApplicationTimeHistogramViewModel {
     private final Application application;
     private final Range range;
     private final AgentHistogramList agentHistogramList;
+    private TimeHistogramFormat timeHistogramFormat = TimeHistogramFormat.V1;
 
     public ApplicationTimeHistogramViewModel(Application application, Range range, AgentHistogramList agentHistogramList) {
         this.application = application;
         this.range = range;
         this.agentHistogramList = agentHistogramList;
+    }
+
+    public void setTimeHistogramFormat(TimeHistogramFormat timeHistogramFormat) {
+        this.timeHistogramFormat = timeHistogramFormat;
     }
 
     public List<AgentTimeHistogramSummary> getSummaryList() {
@@ -54,7 +60,7 @@ public class ApplicationTimeHistogramViewModel {
 
     public List<AgentResponseTimeViewModel> getTimeSeriesViewModel() {
         AgentTimeHistogram histogram = new AgentTimeHistogram(application, range, agentHistogramList);
-        List<AgentResponseTimeViewModel> timeSeriesViewModelList = histogram.createViewModel();
+        List<AgentResponseTimeViewModel> timeSeriesViewModelList = histogram.createViewModel(timeHistogramFormat);
         return timeSeriesViewModelList;
     }
 

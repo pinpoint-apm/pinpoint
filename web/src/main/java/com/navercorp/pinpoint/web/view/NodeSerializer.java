@@ -38,7 +38,7 @@ import java.util.Map;
  * @author minwoo.jung
  * @author HyunGil Jeong
  */
-public class NodeSerializer extends JsonSerializer<Node>  {
+public class NodeSerializer extends JsonSerializer<Node> {
     @Override
     public void serialize(Node node, JsonGenerator jgen, SerializerProvider provider) throws IOException, JsonProcessingException {
         jgen.writeStartObject();
@@ -109,7 +109,7 @@ public class NodeSerializer extends JsonSerializer<Node>  {
             jgen.writeNumberField("instanceCount", serverInstanceList.getInstanceCount());
             long instanceErrorCount = 0;
             NodeHistogram nodeHistogram = node.getNodeHistogram();
-            if (nodeHistogram!= null) {
+            if (nodeHistogram != null) {
                 Map<String, Histogram> agentHistogramMap = node.getNodeHistogram().getAgentHistogramMap();
                 if (agentHistogramMap != null) {
                     instanceErrorCount = agentHistogramMap.values().stream()
@@ -183,14 +183,15 @@ public class NodeSerializer extends JsonSerializer<Node>  {
         }
         // FIXME isn't this all ServiceTypes that can be a node?
         if (serviceType.isWas() || serviceType.isUser() || serviceType.isTerminal() || serviceType.isUnknown() || serviceType.isQueue() || serviceType.isAlias()) {
-            List<ResponseTimeViewModel> applicationTimeSeriesHistogram = nodeHistogram.getApplicationTimeHistogram();
+            List<TimeViewModel> applicationTimeSeriesHistogram = nodeHistogram.getApplicationTimeHistogram(node.getTimeHistogramFormat());
             if (applicationTimeSeriesHistogram == null) {
                 writeEmptyArray(jgen, "timeSeriesHistogram");
             } else {
                 jgen.writeObjectField("timeSeriesHistogram", applicationTimeSeriesHistogram);
             }
+
             if (NodeType.DETAILED == node.getNodeType()) {
-                AgentResponseTimeViewModelList agentTimeSeriesHistogram = nodeHistogram.getAgentTimeHistogram();
+                AgentResponseTimeViewModelList agentTimeSeriesHistogram = nodeHistogram.getAgentTimeHistogram(node.getTimeHistogramFormat());
                 jgen.writeObject(agentTimeSeriesHistogram);
             }
         }

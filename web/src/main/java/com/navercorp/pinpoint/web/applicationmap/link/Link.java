@@ -19,6 +19,7 @@ package com.navercorp.pinpoint.web.applicationmap.link;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
 import com.navercorp.pinpoint.web.applicationmap.nodes.Node;
 import com.navercorp.pinpoint.web.applicationmap.histogram.AgentTimeHistogram;
 import com.navercorp.pinpoint.web.applicationmap.histogram.AgentTimeHistogramBuilder;
@@ -30,7 +31,7 @@ import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkCallData;
 import com.navercorp.pinpoint.web.applicationmap.rawdata.LinkCallDataMap;
 import com.navercorp.pinpoint.web.view.AgentResponseTimeViewModelList;
 import com.navercorp.pinpoint.web.view.LinkSerializer;
-import com.navercorp.pinpoint.web.view.ResponseTimeViewModel;
+import com.navercorp.pinpoint.web.view.TimeViewModel;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.LinkKey;
 import com.navercorp.pinpoint.web.vo.Range;
@@ -71,6 +72,7 @@ public class Link {
     private final LinkCallDataMap targetLinkCallDataMap = new LinkCallDataMap();
 
     private Histogram linkHistogram;
+    private TimeHistogramFormat timeHistogramFormat = TimeHistogramFormat.V1;
 
     public Link(CreateType createType, Node fromNode, Node toNode, Range range) {
         this(LinkType.DETAILED, createType, fromNode, toNode, range);
@@ -119,6 +121,14 @@ public class Link {
 
     public String getLinkName() {
         return createLinkName(fromNode, toNode);
+    }
+
+    public TimeHistogramFormat getTimeHistogramFormat() {
+        return timeHistogramFormat;
+    }
+
+    public void setTimeHistogramFormat(TimeHistogramFormat timeHistogramFormat) {
+        this.timeHistogramFormat = timeHistogramFormat;
     }
 
     public static String createLinkName(Node fromNode, Node toNode) {
@@ -179,17 +189,17 @@ public class Link {
         return targetList.mergeHistogram(toNode.getServiceType());
     }
 
-    public List<ResponseTimeViewModel> getLinkApplicationTimeSeriesHistogram() {
-        if (createType == CreateType.Source)  {
+    public List<TimeViewModel> getLinkApplicationTimeSeriesHistogram() {
+        if (createType == CreateType.Source) {
             return getSourceApplicationTimeSeriesHistogram();
         } else {
             return getTargetApplicationTimeSeriesHistogram();
         }
     }
 
-    public List<ResponseTimeViewModel> getSourceApplicationTimeSeriesHistogram() {
+    public List<TimeViewModel> getSourceApplicationTimeSeriesHistogram() {
         ApplicationTimeHistogram histogramData = getSourceApplicationTimeSeriesHistogramData();
-        return histogramData.createViewModel();
+        return histogramData.createViewModel(this.timeHistogramFormat);
     }
 
     private ApplicationTimeHistogram getSourceApplicationTimeSeriesHistogramData() {
@@ -198,9 +208,9 @@ public class Link {
         return builder.build(sourceLinkCallDataMap.getLinkDataList());
     }
 
-    public List<ResponseTimeViewModel> getTargetApplicationTimeSeriesHistogram() {
+    public List<TimeViewModel> getTargetApplicationTimeSeriesHistogram() {
         ApplicationTimeHistogram targetApplicationTimeHistogramData = getTargetApplicationTimeSeriesHistogramData();
-        return targetApplicationTimeHistogramData.createViewModel();
+        return targetApplicationTimeHistogramData.createViewModel(this.timeHistogramFormat);
     }
 
     public ApplicationTimeHistogram getTargetApplicationTimeSeriesHistogramData() {
@@ -221,7 +231,7 @@ public class Link {
         // we need Target (to)'s time since time in link is RPC-based
         AgentTimeHistogramBuilder builder = new AgentTimeHistogramBuilder(toNode.getApplication(), range);
         AgentTimeHistogram applicationTimeSeriesHistogram = builder.buildSource(sourceLinkCallDataMap);
-        AgentResponseTimeViewModelList agentResponseTimeViewModelList = new AgentResponseTimeViewModelList(applicationTimeSeriesHistogram.createViewModel());
+        AgentResponseTimeViewModelList agentResponseTimeViewModelList = new AgentResponseTimeViewModelList(applicationTimeSeriesHistogram.createViewModel(timeHistogramFormat));
         return agentResponseTimeViewModelList;
     }
 
