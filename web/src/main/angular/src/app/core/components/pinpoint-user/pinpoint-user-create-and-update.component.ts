@@ -65,8 +65,9 @@ export class PinpointUserCreateAndUpdateComponent implements OnInit, OnChanges, 
             formatOnDisplay: false,
             separateDialCode: true,
             preferredCountries: ['kr'],
-            utilsScript: 'assets/scripts/utils.js'
+            // utilsScript: 'assets/scripts/utils.js'
         });
+        intlTelInputGlobals.loadUtils('assets/scripts/utils.js');
 
         if (this.userInfo && this.userInfo.phoneCountryCode && this.userInfo.phoneNumber) {
             this.telIti.setNumber(`+${this.userInfo.phoneCountryCode}${this.userInfo.phoneNumber}`);
@@ -76,7 +77,7 @@ export class PinpointUserCreateAndUpdateComponent implements OnInit, OnChanges, 
     onCreateOrUpdate(): void {
         const valueObj = Object.entries(this.pinpointUserForm.value).reduce((acc: IUserProfile, [k, v]: [string, string]) => {
             const value = k === 'phoneNumber' ? v.replace(/-/g, '')
-                : k === 'phoneCountryCode' && this.pinpointUserForm.get('phoneNumber').value === '' ? ''
+                : k === 'phoneCountryCode' && this.phoneNumber.value === '' ? ''
                 : v;
 
             return {...acc, [k]: (value.toString() || '').trim()};
@@ -103,10 +104,14 @@ export class PinpointUserCreateAndUpdateComponent implements OnInit, OnChanges, 
     }
 
     private updateValidator(): void {
-        this.pinpointUserForm.controls['phoneNumber'].setValidators([
+        this.phoneNumber.setValidators([
             CustomFormValidatorService.validate(/^[\d-]+$/),
             CustomFormValidatorService.validate(this.telIti.isValidNumber())
         ]);
-        this.pinpointUserForm.controls['phoneNumber'].updateValueAndValidity();
+        this.phoneNumber.updateValueAndValidity();
+    }
+
+    get phoneNumber(): FormControl {
+        return this.pinpointUserForm.get('phoneNumber') as FormControl;
     }
 }
