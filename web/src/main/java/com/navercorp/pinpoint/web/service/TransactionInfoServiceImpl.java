@@ -238,16 +238,27 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
         if (CollectionUtils.isEmpty(alignList)) {
             return 0;
         }
-        Align align = alignList.get(0);
-        return align.getStartTime();
+
+        long min = alignList.get(0).getStartTime();
+        for(Align align : alignList) {
+            if(align.getStartTime() < min) {
+                min = align.getStartTime();
+            }
+        }
+        return min;
     }
 
     private long getEndTime(List<Align> alignList) {
         if (CollectionUtils.isEmpty(alignList)) {
             return 0;
         }
-        Align align = alignList.get(0);
-        return align.getEndTime();
+        long max = alignList.get(0).getEndTime();
+        for(Align align : alignList) {
+            if(align.getEndTime() > max) {
+                max = align.getEndTime();
+            }
+        }
+        return max;
     }
 
     private Align findViewPoint(List<Align> alignList, long focusTimestamp, String agentId, long spanId) {

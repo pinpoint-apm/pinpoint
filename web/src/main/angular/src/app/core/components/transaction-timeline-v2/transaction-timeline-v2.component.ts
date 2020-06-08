@@ -11,7 +11,7 @@ export class TransactionTimelineComponentV2 implements OnInit {
     @Input() startTime: number;
     @Input() endTime: number;
     @Input() barRatio: number;
-    @Input() rowData: any[];
+    @Input() rowData: any;
     @Output() outSelectTransaction = new EventEmitter<string>();
 
     colorSet: { [key: string]: string } = {};
@@ -37,20 +37,39 @@ export class TransactionTimelineComponentV2 implements OnInit {
     }
 
     private getWidth(call: any): number {
-        return ((call[this.keyIndex.end] - call[this.keyIndex.begin]) * this.barRatio);
+        let width = (call[this.keyIndex.end] - call[this.keyIndex.begin]) * this.barRatio;
+        return (width < 1 ? 0 : width);
     }
-    getLineStyle(call: any): object {
+
+    getLineStyle(row: any): object {
         return {
-            'background-color': 'rgba(' + this.calcColor(call[this.keyIndex.applicationName]) + ', 0.1)',
+            'background-color': 'rgba(' + this.calcColor(row[0][this.getDataIndex(row[0])][this.keyIndex.applicationName]) + ', 0.1)',
         };
     }
+
     getStyles(call: any, i: number, j: number): object {
-        return {
-            'display': 'inline-block',
-            'width': this.getWidth(call) + 'px',
-            'background-color': 'rgb(' + this.calcColor(call[this.keyIndex.applicationName]) + ')',
-            'margin-left': this.getMarginLeft(call, i, j) + 'px'
-        };
+        let dataIndex = this.getDataIndex(call);
+        let color = this.calcColor(call[dataIndex][this.keyIndex.applicationName]);
+        if (dataIndex == 0) {
+            // sync
+            return {
+                'display': 'inline-block',
+                'width': this.getWidth(call[dataIndex]) + 'px',
+                'background-color': 'rgb(' + color + ')',
+                'margin-left': this.getMarginLeft(call[dataIndex], i, j) + 'px'
+            };
+        } else {
+            // async
+            return {
+                'display': 'inline-block',
+                'width': this.getWidth(call[dataIndex]) + 'px',
+                'margin-left': this.getMarginLeft(call[dataIndex], i, j) + 'px',
+                'background-color': 'rgb('+color+')',
+                'height': '50%',
+                'background': 'repeating-linear-gradient(45deg, transparent, transparent 1px, rgb(' + color + ') 1px, rgb(' + color + ') 2px),' +
+                              ' linear-gradient(to bottom, rgba(' + color + ', 0.3), rgba(' + color + ', 0.3))'
+            };
+        }
     }
     getStartTime(call: any): number {
         return call[this.keyIndex.begin] - this.startTime;
@@ -59,25 +78,34 @@ export class TransactionTimelineComponentV2 implements OnInit {
     getMarginLeft(call: any, i: number, j: number): number {
         let startTime: number;
         let offset = 0;
+
         if ((j === 0)) {
             startTime = Number(this.startTime);
             offset = 1;
+
         } else {
-            startTime = this.rowData[i][j-1][this.keyIndex.end];
+            let prev = this.rowData[i][j-1];
+            startTime = Number(prev[this.getDataIndex(prev)][this.keyIndex.end])
         }
+
         return ((Number(call[this.keyIndex.begin]) - startTime) * this.barRatio) + offset;
     }
 
     onSelectCall(call: any): void {
         this.outSelectTransaction.emit(call[this.keyIndex.id]);
     }
-    findParent(call:any, depth: number): number {
-        let ret = -1;
+
+    getDataIndex(call: any): number {
+        return (call[0]==null)? 1: 0;
+    }
+
+    findParent(call:any, depth: number): any {
+        let ret = null;
         if (depth > 0) {
             if (this.rowData[depth-1].length > 0) {
                 this.rowData[depth-1].forEach((candidate: any, index: number) => {
-                    if (candidate[this.keyIndex.id] === call[this.keyIndex.parentId]) {
-                        ret = index;
+                    if (candidate[this.getDataIndex(candidate)][this.keyIndex.id] === call[this.keyIndex.parentId]) {
+                        ret = candidate[this.getDataIndex(candidate)];
                     }
                 });
             }
@@ -86,12 +114,12 @@ export class TransactionTimelineComponentV2 implements OnInit {
     }
 
     showApplicationName(call: any, depth: number): boolean {
-        let parentIndex = this.findParent(call, depth);
-        if ((depth === 0) || (parentIndex === -1)) {
+        let parent = this.findParent(call, depth);
+        if ((depth === 0) || (parent === null)) {
             return true;
         }
 
-        if (this.rowData[depth - 1][parentIndex][this.keyIndex.applicationName] === call[this.keyIndex.applicationName]) {
+        if (parent[this.keyIndex.applicationName] === call[this.keyIndex.applicationName]) {
             return false;
         } else {
             return true;
@@ -105,11 +133,16 @@ export class TransactionTimelineComponentV2 implements OnInit {
         }
     }
     getText(call: any, depth: number): string {
+        let dataIndex = this.getDataIndex(call);
         let ret: string = "";
-        if (this.showApplicationName(call, depth)) {
-            ret = "[" + call[this.keyIndex.applicationName] + "] ";
+        if (this.showApplicationName(call[dataIndex], depth)) {
+            ret = "[" + call[dataIndex][this.keyIndex.applicationName] + "] ";
         }
-        ret += call[this.keyIndex.apiType] + " (" + (call[this.keyIndex.end] - call[this.keyIndex.begin]) + " ms)";
+        ret += call[dataIndex][this.keyIndex.apiType] + " (" + (call[dataIndex][this.keyIndex.end] - call[dataIndex][this.keyIndex.begin]) + " ms)";
+
+        if (dataIndex === 1) {
+            ret += " / Asynchronous"
+        }
         return ret;
     }
     onScrollDown() {}
