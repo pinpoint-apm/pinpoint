@@ -40,11 +40,6 @@
         <property name="disableCaching" value="false"/>
     </bean>
 
-    <bean id="jsonpView" class="com.navercorp.pinpoint.web.util.MappingJackson2JsonpView">
-        <!-- another filter caches -->
-        <property name="disableCaching" value="false"/>
-    </bean>
-
     <bean id="viewResolver" class="org.springframework.web.servlet.view.BeanNameViewResolver"/>
 
     <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
