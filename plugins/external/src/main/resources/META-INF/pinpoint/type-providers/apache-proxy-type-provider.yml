@@ -1,0 +1,6 @@
+serviceTypes:
+    - code: 1903
+      name: 'APACHE'
+      property:
+          recordStatistics: true
+

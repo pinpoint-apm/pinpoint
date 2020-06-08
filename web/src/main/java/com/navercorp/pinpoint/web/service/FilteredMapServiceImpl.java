@@ -17,9 +17,18 @@
 package com.navercorp.pinpoint.web.service;
 
 import com.google.common.collect.Lists;
+import com.navercorp.pinpoint.agent.plugin.proxy.apache.ApacheRequestType;
+import com.navercorp.pinpoint.agent.plugin.proxy.app.AppRequestType;
+import com.navercorp.pinpoint.agent.plugin.proxy.nginx.NginxRequestType;
+import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
+import com.navercorp.pinpoint.common.trace.AnnotationKey;
+import com.navercorp.pinpoint.common.trace.ServiceType;
+import com.navercorp.pinpoint.common.trace.ServiceTypeFactory;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
+import com.navercorp.pinpoint.common.util.LongIntIntByteByteStringValue;
+import com.navercorp.pinpoint.common.util.StringUtils;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
@@ -54,11 +63,14 @@ import org.springframework.util.StopWatch;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Random;
 import java.util.Set;
 
 /**
@@ -68,6 +80,16 @@ import java.util.Set;
  */
 @Service
 public class FilteredMapServiceImpl implements FilteredMapService {
+    private static final Map<Integer, ServiceType> PROXY_TYPE_NAME_MAP = new HashMap<>(4);
+    private static final ServiceType SERVICE_TYPE_APP = ServiceTypeFactory.of(1901, "APP_PROXY", "App Proxy");
+    private static final ServiceType SERVICE_TYPE_NGINX = ServiceTypeFactory.of(1902, "NGINX_PROXY", "Nginx Proxy");
+    private static final ServiceType SERVICE_TYPE_APACHE = ServiceTypeFactory.of(1903, "APACHE_PROXY", "Apache Proxy");
+
+    static {
+        PROXY_TYPE_NAME_MAP.put(new AppRequestType().getCode(), SERVICE_TYPE_APP);
+        PROXY_TYPE_NAME_MAP.put(new NginxRequestType().getCode(), SERVICE_TYPE_NGINX);
+        PROXY_TYPE_NAME_MAP.put(new ApacheRequestType().getCode(), SERVICE_TYPE_APACHE);
+    }
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -193,7 +215,7 @@ public class FilteredMapServiceImpl implements FilteredMapService {
     }
 
     @Override
-    public ApplicationMap selectApplicationMap(TransactionId transactionId, int version) {
+    public ApplicationMap selectApplicationMap(TransactionId transactionId, int version, boolean proxyAsApp) {
         if (transactionId == null) {
             throw new NullPointerException("transactionId");
         }
@@ -204,11 +226,123 @@ public class FilteredMapServiceImpl implements FilteredMapService {
         final List<List<SpanBo>> filterList = selectFilteredSpan(transactionIdList, Filter.acceptAllFilter());
         FilteredMapBuilder filteredMapBuilder = new FilteredMapBuilder(applicationFactory, registry, range, version);
         filteredMapBuilder.serverMapDataFilter(serverMapDataFilter);
-        filteredMapBuilder.addTransactions(filterList);
+        List<List<SpanBo>> filterListWithProxy = proxyAsApp ? insertProxyBo(filterList) : filterList;
+        filteredMapBuilder.addTransactions(filterListWithProxy);
         FilteredMap filteredMap = filteredMapBuilder.build();
 
         ApplicationMap map = createMap(range, filteredMap);
         return map;
+    }
+
+    public List<List<SpanBo>> insertProxyBo(List<List<SpanBo>> oldListList) {
+        if (oldListList == null) {
+            return null;
+        }
+        List<List<SpanBo>> newList = new ArrayList<>(oldListList.size());
+        int proxyCount = 0;
+        for (List<SpanBo> spanBoList : oldListList) {
+            List<SpanBo> newSpanBoList = new ArrayList<>(spanBoList.size() * 3);
+            for (SpanBo spanBo : spanBoList) {
+                List<AnnotationBo> annotationBoList = spanBo.getAnnotationBoList();
+                if (annotationBoList == null || annotationBoList.isEmpty()) {
+                    newSpanBoList.add(spanBo);
+                    continue;
+                }
+                List<AnnotationBo> newAnnotationBoList = new ArrayList<>(annotationBoList.size());
+                List<SpanBo> proxySpanBoList = new ArrayList<>(4);
+                for (AnnotationBo annotationBo : annotationBoList) {
+                    SpanBo proxyBo = getProxyBo(spanBo, annotationBo);
+                    if (proxyBo == null) {
+                        newAnnotationBoList.add(annotationBo);
+                    } else {
+                        proxySpanBoList.add(proxyBo);
+                    }
+                }
+
+                proxySpanBoList.sort(Comparator.comparing(SpanBo::getCollectorAcceptTime).thenComparing(SpanBo::getServiceType));
+
+                SpanBo prevSpan = null;
+                long nextSpanId = nextSpanId(spanBo.getSpanId(), spanBo.getParentSpanId());
+                for (int i = 0; i < proxySpanBoList.size(); i++) {
+                    SpanBo curSpan = proxySpanBoList.get(i);
+                    if (i == 0) {
+                        curSpan.setSpanId(nextSpanId);
+                        curSpan.setParentSpanId(spanBo.getParentSpanId());
+                        curSpan.setParentApplicationId(spanBo.getParentApplicationId());
+                        curSpan.setParentApplicationServiceType(spanBo.getParentApplicationServiceType());
+                    }
+                    if (prevSpan != null) {
+                        nextSpanId = nextSpanId(prevSpan.getSpanId(), prevSpan.getParentSpanId());
+                        curSpan.setSpanId(nextSpanId);
+                        curSpan.setParentSpanId(prevSpan.getSpanId());
+                        curSpan.setParentApplicationId(prevSpan.getApplicationId());
+                        curSpan.setParentApplicationServiceType(prevSpan.getApplicationServiceType());
+                    }
+                    proxyCount++;
+                    curSpan.setApplicationId(curSpan.getApplicationId() + "-" + proxyCount);
+                    prevSpan = curSpan;
+                    newSpanBoList.add(curSpan);
+                }
+                if (prevSpan != null) {
+                    spanBo.setParentSpanId(prevSpan.getSpanId());
+                    spanBo.setParentApplicationId(prevSpan.getApplicationId());
+                    spanBo.setParentApplicationServiceType(prevSpan.getApplicationServiceType());
+                }
+
+                spanBo.setAnnotationBoList(newAnnotationBoList);
+                newSpanBoList.add(spanBo);
+            }
+            newList.add(newSpanBoList);
+        }
+        return newList;
+    }
+
+    private SpanBo getProxyBo(SpanBo spanBo, AnnotationBo annotationBo) {
+        if (annotationBo.getKey() != AnnotationKey.PROXY_HTTP_HEADER.getCode()) {
+            return null;
+        }
+        if (!(annotationBo.getValue() instanceof LongIntIntByteByteStringValue)) {
+            return null;
+        }
+        final LongIntIntByteByteStringValue annotationBoValue = (LongIntIntByteByteStringValue) annotationBo.getValue();
+        //return new LongIntIntByteByteStringValue(header.getReceivedTimeMillis(), code, header.getDurationTimeMicroseconds(), header.getIdlePercent(), header.getBusyPercent(), StringUtils.abbreviate(header.getApp(), APP_MAX_LENGTH));
+        long recTime = annotationBoValue.getLongValue();
+        ServiceType appType = PROXY_TYPE_NAME_MAP.getOrDefault(annotationBoValue.getIntValue1(), ServiceType.UNKNOWN);
+        int duration = annotationBoValue.getIntValue2();
+        String appName = annotationBoValue.getStringValue();
+        SpanBo proxySpanBo = new SpanBo();
+        proxySpanBo.setTransactionId(spanBo.getTransactionId());
+        proxySpanBo.setAnnotationBoList(Collections.emptyList());
+        proxySpanBo.setServiceType(appType.getCode());
+        proxySpanBo.setApplicationId(appType.getName());
+        proxySpanBo.setElapsed(duration);
+        proxySpanBo.setAgentId(StringUtils.isEmpty(appName) ? appType.getName() : appName);
+        proxySpanBo.setAgentStartTime(spanBo.getAgentStartTime());
+        proxySpanBo.setCollectorAcceptTime(recTime);
+        //proxySpanBo.setFlag(spanBo.getFlag());
+        //proxySpanBo.setExceptionClass(spanBo.getExceptionClass());
+        //proxySpanBo.setErrCode(spanBo.getErrCode());
+        //proxySpanBo.setExceptionInfo(spanBo.getExceptionId(), spanBo.getExceptionMessage());
+        return proxySpanBo;
+    }
+
+    private long nextSpanId(long spanId, long parentSpanId) {
+        final Random seed = java.util.concurrent.ThreadLocalRandom.current();
+
+        long newId = createSpanId(seed);
+        while (newId == spanId || newId == parentSpanId) {
+            newId = createSpanId(seed);
+        }
+        return newId;
+    }
+
+    private long createSpanId(Random seed) {
+        long id = seed.nextLong();
+        long rootSpanId = -1;
+        while (id == rootSpanId) {
+            id = seed.nextLong();
+        }
+        return id;
     }
 
     @Override

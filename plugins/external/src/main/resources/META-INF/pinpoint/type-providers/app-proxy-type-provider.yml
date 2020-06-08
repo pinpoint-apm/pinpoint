@@ -1,0 +1,6 @@
+serviceTypes:
+    - code: 1901
+      name: 'OPENRESTY'
+      property:
+          recordStatistics: true
+

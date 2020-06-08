@@ -1,0 +1,6 @@
+serviceTypes:
+    - code: 1902
+      name: 'NGINX'
+      property:
+          recordStatistics: true
+

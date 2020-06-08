@@ -95,7 +95,7 @@ public class BusinessTransactionController {
         final CallTreeIterator callTreeIterator = spanResult.getCallTree();
 
         // application map
-        ApplicationMap map = filteredMapService.selectApplicationMap(transactionId, viewVersion);
+        ApplicationMap map = filteredMapService.selectApplicationMap(transactionId, viewVersion, true);
         RecordSet recordSet = this.transactionInfoService.createRecordSet(callTreeIterator, focusTimestamp, agentId, spanId);
 
         TransactionInfoViewModel result = new TransactionInfoViewModel(transactionId, spanId, map.getNodes(), map.getLinks(), recordSet, spanResult.getTraceState(), logConfiguration);

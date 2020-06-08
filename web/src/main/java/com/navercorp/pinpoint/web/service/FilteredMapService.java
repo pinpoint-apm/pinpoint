@@ -40,7 +40,7 @@ public interface FilteredMapService {
 
     LoadFactor linkStatistics(Range range, List<TransactionId> traceIdSet, Application sourceApplication, Application destinationApplication, Filter<List<SpanBo>> filter);
 
-    ApplicationMap selectApplicationMap(TransactionId transactionId, int version);
+    ApplicationMap selectApplicationMap(TransactionId transactionId, int version, boolean proxyAsApp);
 
     ApplicationMap selectApplicationMapWithScatterData(List<TransactionId> traceIdList, Range originalRange, Range scanRange, int xGroupUnit, int yGroupUnit, Filter<List<SpanBo>> filter, int version);
 
