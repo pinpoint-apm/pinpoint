@@ -25,7 +25,7 @@ import java.util.Objects;
 /**
  * @author emeroad
  */
-public class ResponseTimeViewModel {
+public class ResponseTimeViewModel implements TimeViewModel {
 
     private final String columnName;
     private final List<TimeCount> columnValue;

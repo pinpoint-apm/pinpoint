@@ -18,6 +18,7 @@ package com.navercorp.pinpoint.web.controller;
 
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
 import com.navercorp.pinpoint.web.applicationmap.MapWrap;
+import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkHistogramSummary;
 import com.navercorp.pinpoint.web.applicationmap.link.LinkType;
 import com.navercorp.pinpoint.web.applicationmap.nodes.NodeType;
@@ -84,7 +85,7 @@ public class MapController {
      * @param to
      * @return
      */
-    @GetMapping(value = "/getServerMapData", params="serviceTypeCode")
+    @GetMapping(value = "/getServerMapData", params = "serviceTypeCode")
     public MapWrap getServerMapData(
             @RequestParam("applicationName") String applicationName,
             @RequestParam("serviceTypeCode") short serviceTypeCode,
@@ -102,7 +103,7 @@ public class MapController {
 
         Application application = applicationFactory.createApplication(applicationName, serviceTypeCode);
 
-        return selectApplicationMap(application, range, searchOption, NodeType.DETAILED, LinkType.DETAILED, false);
+        return selectApplicationMap(application, range, searchOption, NodeType.DETAILED, LinkType.DETAILED, false, false);
     }
 
     /**
@@ -114,7 +115,7 @@ public class MapController {
      * @param to
      * @return
      */
-    @GetMapping(value = "/getServerMapData", params="serviceTypeName")
+    @GetMapping(value = "/getServerMapData", params = "serviceTypeName")
     public MapWrap getServerMapData(
             @RequestParam("applicationName") String applicationName,
             @RequestParam("serviceTypeName") String serviceTypeName,
@@ -132,7 +133,7 @@ public class MapController {
 
         Application application = applicationFactory.createApplicationByTypeName(applicationName, serviceTypeName);
 
-        return selectApplicationMap(application, range, searchOption, NodeType.DETAILED, LinkType.DETAILED, false);
+        return selectApplicationMap(application, range, searchOption, NodeType.DETAILED, LinkType.DETAILED, false, false);
     }
 
     /**
@@ -144,7 +145,7 @@ public class MapController {
      * @param to
      * @return
      */
-    @GetMapping(value = "/getServerMapDataV2", params="serviceTypeCode")
+    @GetMapping(value = "/getServerMapDataV2", params = "serviceTypeCode")
     public MapWrap getServerMapDataV2(
             @RequestParam("applicationName") String applicationName,
             @RequestParam("serviceTypeCode") short serviceTypeCode,
@@ -154,7 +155,8 @@ public class MapController {
             @RequestParam(value = "calleeRange", defaultValue = DEFAULT_SEARCH_DEPTH) int calleeRange,
             @RequestParam(value = "bidirectional", defaultValue = "true", required = false) boolean bidirectional,
             @RequestParam(value = "wasOnly", defaultValue = "false", required = false) boolean wasOnly,
-            @RequestParam(value = "useStatisticsAgentState", defaultValue = "false", required = false) boolean useStatisticsAgentState) {
+            @RequestParam(value = "useStatisticsAgentState", defaultValue = "false", required = false) boolean useStatisticsAgentState,
+            @RequestParam(value = "useLoadHistogramFormat", defaultValue = "false", required = false) boolean useLoadHistogramFormat) {
         final Range range = Range.newRange(from, to);
         this.dateLimit.limit(range);
 
@@ -163,7 +165,7 @@ public class MapController {
 
         Application application = applicationFactory.createApplication(applicationName, serviceTypeCode);
 
-        return selectApplicationMap(application, range, searchOption, NodeType.BASIC, LinkType.BASIC, useStatisticsAgentState);
+        return selectApplicationMap(application, range, searchOption, NodeType.BASIC, LinkType.BASIC, useStatisticsAgentState, useLoadHistogramFormat);
     }
 
     /**
@@ -176,7 +178,7 @@ public class MapController {
      * @return
      */
 
-    @GetMapping(value = "/getServerMapDataV2", params="serviceTypeName")
+    @GetMapping(value = "/getServerMapDataV2", params = "serviceTypeName")
     public MapWrap getServerMapDataV2(
             @RequestParam("applicationName") String applicationName,
             @RequestParam("serviceTypeName") String serviceTypeName,
@@ -186,7 +188,8 @@ public class MapController {
             @RequestParam(value = "calleeRange", defaultValue = DEFAULT_SEARCH_DEPTH) int calleeRange,
             @RequestParam(value = "bidirectional", defaultValue = "true", required = false) boolean bidirectional,
             @RequestParam(value = "wasOnly", defaultValue = "false", required = false) boolean wasOnly,
-            @RequestParam(value = "useStatisticsAgentState", defaultValue = "false", required = false) boolean useStatisticsAgentState) {
+            @RequestParam(value = "useStatisticsAgentState", defaultValue = "false", required = false) boolean useStatisticsAgentState,
+            @RequestParam(value = "useLoadHistogramFormat", defaultValue = "false", required = false) boolean useLoadHistogramFormat) {
         final Range range = Range.newRange(from, to);
         this.dateLimit.limit(range);
 
@@ -194,10 +197,10 @@ public class MapController {
         assertSearchOption(searchOption);
 
         Application application = applicationFactory.createApplicationByTypeName(applicationName, serviceTypeName);
-        return selectApplicationMap(application, range, searchOption, NodeType.BASIC, LinkType.BASIC, useStatisticsAgentState);
+        return selectApplicationMap(application, range, searchOption, NodeType.BASIC, LinkType.BASIC, useStatisticsAgentState, useLoadHistogramFormat);
     }
 
-    private MapWrap selectApplicationMap(Application application, Range range, SearchOption searchOption, NodeType nodeType, LinkType linkType, boolean useStatisticsAgentState) {
+    private MapWrap selectApplicationMap(Application application, Range range, SearchOption searchOption, NodeType nodeType, LinkType linkType, boolean useStatisticsAgentState, boolean useLoadHistogramFormat) {
         Objects.requireNonNull(application, "application");
         Objects.requireNonNull(range, "range");
         Objects.requireNonNull(searchOption, "searchOption");
@@ -205,7 +208,11 @@ public class MapController {
         final MapServiceOption mapServiceOption = new MapServiceOption.Builder(application, range, searchOption, nodeType, linkType).setUseStatisticsAgentState(useStatisticsAgentState).build();
         logger.info("Select applicationMap. option={}", mapServiceOption);
         final ApplicationMap map = mapService.selectApplicationMap(mapServiceOption);
-        return new MapWrap(map);
+
+        if (useLoadHistogramFormat) {
+            return new MapWrap(map, TimeHistogramFormat.V2);
+        }
+        return new MapWrap(map, TimeHistogramFormat.V1);
     }
 
     private void assertSearchOption(SearchOption searchOption) {
@@ -248,7 +255,8 @@ public class MapController {
             @RequestParam("from") long from,
             @RequestParam("to") long to,
             @RequestBody ApplicationPairs applicationPairs,
-            @RequestParam(value = "useStatisticsAgentState", defaultValue = "false", required = false) boolean useStatisticsAgentState) {
+            @RequestParam(value = "useStatisticsAgentState", defaultValue = "false", required = false) boolean useStatisticsAgentState,
+            @RequestParam(value = "useLoadHistogramFormat", defaultValue = "false", required = false) boolean useLoadHistogramFormat) {
         final Range range = Range.newRange(from, to);
         dateLimit.limit(range);
 
@@ -257,8 +265,11 @@ public class MapController {
         List<Application> fromApplications = mapApplicationPairsToApplications(applicationPairs.getFromApplications());
         List<Application> toApplications = mapApplicationPairsToApplications(applicationPairs.getToApplications());
         final ResponseTimeHistogramServiceOption option = new ResponseTimeHistogramServiceOption.Builder(application, range, fromApplications, toApplications).setUseStatisticsAgentState(useStatisticsAgentState).build();
-
-        return responseTimeHistogramService.selectNodeHistogramData(option);
+        final NodeHistogramSummary nodeHistogramSummary = responseTimeHistogramService.selectNodeHistogramData(option);
+        if (useLoadHistogramFormat) {
+            nodeHistogramSummary.setTimeHistogramFormat(TimeHistogramFormat.V2);
+        }
+        return nodeHistogramSummary;
     }
 
     @GetMapping(value = "/getResponseTimeHistogramDataV2")
@@ -271,7 +282,8 @@ public class MapController {
             @RequestParam(value = "fromServiceTypeCodes", defaultValue = "", required = false) List<Short> fromServiceTypeCodes,
             @RequestParam(value = "toApplicationNames", defaultValue = "", required = false) List<String> toApplicationNames,
             @RequestParam(value = "toServiceTypeCodes", defaultValue = "", required = false) List<Short> toServiceTypeCodes,
-            @RequestParam(value = "useStatisticsAgentState", defaultValue = "false", required = false) boolean useStatisticsAgentState) {
+            @RequestParam(value = "useStatisticsAgentState", defaultValue = "false", required = false) boolean useStatisticsAgentState,
+            @RequestParam(value = "useLoadHistogramFormat", defaultValue = "false", required = false) boolean useLoadHistogramFormat) {
         final Range range = Range.newRange(from, to);
         dateLimit.limit(range);
 
@@ -296,7 +308,11 @@ public class MapController {
         }
         final ResponseTimeHistogramServiceOption option = new ResponseTimeHistogramServiceOption.Builder(application, range, fromApplications, toApplications).setUseStatisticsAgentState(useStatisticsAgentState).build();
 
-        return responseTimeHistogramService.selectNodeHistogramData(option);
+        final NodeHistogramSummary nodeHistogramSummary = responseTimeHistogramService.selectNodeHistogramData(option);
+        if (useLoadHistogramFormat) {
+            nodeHistogramSummary.setTimeHistogramFormat(TimeHistogramFormat.V2);
+        }
+        return nodeHistogramSummary;
     }
 
     private List<Application> mapApplicationPairsToApplications(List<ApplicationPair> applicationPairs) {
@@ -320,7 +336,8 @@ public class MapController {
             @RequestParam(value = "toApplicationName", required = false) String toApplicationName,
             @RequestParam(value = "toServiceTypeCode", required = false) Short toServiceTypeCode,
             @RequestParam("from") long from,
-            @RequestParam("to") long to) {
+            @RequestParam("to") long to,
+            @RequestParam(value = "useLoadHistogramFormat", defaultValue = "false", required = false) boolean useLoadHistogramFormat) {
         final Range range = Range.newRange(from, to);
         dateLimit.limit(range);
 
@@ -334,6 +351,10 @@ public class MapController {
             toApplication = applicationFactory.createApplication(toApplicationName, toServiceTypeCode);
         }
 
-        return responseTimeHistogramService.selectLinkHistogramData(fromApplication, toApplication, range);
+        LinkHistogramSummary linkHistogramSummary = responseTimeHistogramService.selectLinkHistogramData(fromApplication, toApplication, range);
+        if (useLoadHistogramFormat) {
+            linkHistogramSummary.setTimeHistogramFormat(TimeHistogramFormat.V2);
+        }
+        return linkHistogramSummary;
     }
 }

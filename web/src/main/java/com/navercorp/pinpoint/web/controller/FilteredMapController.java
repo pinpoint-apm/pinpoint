@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.common.server.util.DateTimeFormatUtils;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
 import com.navercorp.pinpoint.web.applicationmap.FilterMapWrap;
+import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
 import com.navercorp.pinpoint.web.filter.Filter;
 import com.navercorp.pinpoint.web.filter.FilterBuilder;
 import com.navercorp.pinpoint.web.service.FilteredMapService;
@@ -39,7 +40,6 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- *
  * @author emeroad
  * @author netspider
  * @author jaehong.kim
@@ -58,7 +58,7 @@ public class FilteredMapController {
         this.registry = Objects.requireNonNull(registry, "registry");
     }
 
-    @GetMapping(value = "/getFilteredServerMapDataMadeOfDotGroup", params="serviceTypeCode")
+    @GetMapping(value = "/getFilteredServerMapDataMadeOfDotGroup", params = "serviceTypeCode")
     public FilterMapWrap getFilteredServerMapDataMadeOfDotGroup(
             @RequestParam("applicationName") String applicationName,
             @RequestParam("serviceTypeCode") short serviceTypeCode,
@@ -71,12 +71,13 @@ public class FilteredMapController {
             @RequestParam(value = "hint", required = false) String filterHint,
             @RequestParam(value = "limit", required = false, defaultValue = "10000") int limit,
             @RequestParam(value = "v", required = false, defaultValue = "0") int viewVersion,
-            @RequestParam(value = "useStatisticsAgentState", defaultValue = "false", required = false) boolean useStatisticsAgentState) {
+            @RequestParam(value = "useStatisticsAgentState", defaultValue = "false", required = false) boolean useStatisticsAgentState,
+            @RequestParam(value = "useLoadHistogramFormat", defaultValue = "false", required = false) boolean useLoadHistogramFormat) {
         String serviceTypeName = registry.findServiceType(serviceTypeCode).getName();
-        return getFilteredServerMapDataMadeOfDotGroup(applicationName, serviceTypeName, from, to, originTo, xGroupUnit, yGroupUnit, filterText, filterHint, limit, viewVersion, useStatisticsAgentState);
+        return getFilteredServerMapDataMadeOfDotGroup(applicationName, serviceTypeName, from, to, originTo, xGroupUnit, yGroupUnit, filterText, filterHint, limit, viewVersion, useStatisticsAgentState, useLoadHistogramFormat);
     }
 
-    @GetMapping(value = "/getFilteredServerMapDataMadeOfDotGroup", params="serviceTypeName")
+    @GetMapping(value = "/getFilteredServerMapDataMadeOfDotGroup", params = "serviceTypeName")
     public FilterMapWrap getFilteredServerMapDataMadeOfDotGroup(
             @RequestParam("applicationName") String applicationName,
             @RequestParam("serviceTypeName") String serviceTypeName,
@@ -89,7 +90,8 @@ public class FilteredMapController {
             @RequestParam(value = "hint", required = false) String filterHint,
             @RequestParam(value = "limit", required = false, defaultValue = "10000") int limit,
             @RequestParam(value = "v", required = false, defaultValue = "0") int viewVersion,
-            @RequestParam(value = "useStatisticsAgentState", defaultValue = "false", required = false) boolean useStatisticsAgentState) {
+            @RequestParam(value = "useStatisticsAgentState", defaultValue = "false", required = false) boolean useStatisticsAgentState,
+            @RequestParam(value = "useLoadHistogramFormat", defaultValue = "false", required = false) boolean useLoadHistogramFormat) {
         if (xGroupUnit <= 0) {
             throw new IllegalArgumentException("xGroupUnit(" + xGroupUnit + ") must be positive number");
         }
@@ -115,7 +117,12 @@ public class FilteredMapController {
             logger.debug("getFilteredServerMapData range scan(limit:{}) range:{} lastFetchedTimestamp:{}", limit, range.prettyToString(), DateTimeFormatUtils.format(lastScanTime));
         }
 
-        FilterMapWrap mapWrap = new FilterMapWrap(map);
+        FilterMapWrap mapWrap;
+        if (useLoadHistogramFormat) {
+            mapWrap = new FilterMapWrap(map, TimeHistogramFormat.V2);
+        } else {
+            mapWrap = new FilterMapWrap(map, TimeHistogramFormat.V1);
+        }
         mapWrap.setLastFetchedTimestamp(lastScanTime);
         return mapWrap;
     }

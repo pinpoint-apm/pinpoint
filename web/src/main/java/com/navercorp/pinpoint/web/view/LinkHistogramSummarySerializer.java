@@ -41,7 +41,7 @@ public class LinkHistogramSummarySerializer extends JsonSerializer<LinkHistogram
         Histogram histogram = summary.getHistogram();
         jgen.writeObjectField("histogram", histogram);
 
-        List<ResponseTimeViewModel> timeSeriesHistogram = summary.getTimeSeriesHistogram();
+        List<TimeViewModel> timeSeriesHistogram = summary.getTimeSeriesHistogram();
         jgen.writeObjectField("timeSeriesHistogram", timeSeriesHistogram);
 
         jgen.writeEndObject();

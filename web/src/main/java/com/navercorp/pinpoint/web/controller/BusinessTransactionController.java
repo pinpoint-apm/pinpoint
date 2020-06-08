@@ -25,6 +25,7 @@ import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.common.profiler.util.TransactionIdUtils;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
+import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
 import com.navercorp.pinpoint.web.calltree.span.CallTreeIterator;
 import com.navercorp.pinpoint.web.calltree.span.SpanFilters;
 import com.navercorp.pinpoint.web.calltree.span.TraceState;
@@ -99,7 +100,8 @@ public class BusinessTransactionController {
                                                     @RequestParam(value = "agentId", required = false) String agentId,
                                                     @RequestParam(value = "spanId", required = false, defaultValue = DEFAULT_SPANID) long spanId,
                                                     @RequestParam(value = "v", required = false, defaultValue = "0") int viewVersion,
-                                                    @RequestParam(value = "useStatisticsAgentState", required = false, defaultValue = "false") boolean useStatisticsAgentState) {
+                                                    @RequestParam(value = "useStatisticsAgentState", required = false, defaultValue = "false") boolean useStatisticsAgentState,
+                                                    @RequestParam(value = "useLoadHistogramFormat", required = false, defaultValue = "false") boolean useLoadHistogramFormat) {
         logger.debug("GET /transactionInfo params {traceId={}, focusTimestamp={}, agentId={}, spanId={}, v={}}", traceId, focusTimestamp, agentId, spanId, viewVersion);
         final TransactionId transactionId = TransactionIdUtils.parseTransactionId(traceId);
         final ColumnGetCount columnGetCount = ColumnGetCountFactory.create(callstackSelectSpansLimit);
@@ -116,10 +118,16 @@ public class BusinessTransactionController {
 
         RecordSet recordSet = this.transactionInfoService.createRecordSet(callTreeIterator, spanMatchFilter);
 
+        TransactionInfoViewModel result;
         if (spanResult.getTraceState() == TraceState.State.PROGRESS && columnGetCount.isreachedLimit()) {
-            return new TransactionInfoViewModel(transactionId, spanId, map.getNodes(), map.getLinks(), recordSet, TraceState.State.OVERFLOW, logConfiguration);
+            result = new TransactionInfoViewModel(transactionId, spanId, map.getNodes(), map.getLinks(), recordSet, TraceState.State.OVERFLOW, logConfiguration);
+        } else {
+            result = new TransactionInfoViewModel(transactionId, spanId, map.getNodes(), map.getLinks(), recordSet, spanResult.getTraceState(), logConfiguration);
         }
-        return new TransactionInfoViewModel(transactionId, spanId, map.getNodes(), map.getLinks(), recordSet, spanResult.getTraceState(), logConfiguration);
+        if (useLoadHistogramFormat) {
+            result.setTimeHistogramFormat(TimeHistogramFormat.V2);
+        }
+        return result;
     }
 
     /**
@@ -148,7 +156,6 @@ public class BusinessTransactionController {
         TransactionTimelineInfoViewModel result = new TransactionTimelineInfoViewModel(transactionId, spanId, recordSet, logConfiguration);
         return result;
     }
-
 
     @PostMapping(value = "/bind")
     public String metaDataBind(@RequestParam("type") String type,

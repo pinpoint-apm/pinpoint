@@ -18,8 +18,9 @@ package com.navercorp.pinpoint.web.applicationmap.link;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.navercorp.pinpoint.web.applicationmap.histogram.Histogram;
+import com.navercorp.pinpoint.web.applicationmap.histogram.TimeHistogramFormat;
 import com.navercorp.pinpoint.web.view.LinkHistogramSummarySerializer;
-import com.navercorp.pinpoint.web.view.ResponseTimeViewModel;
+import com.navercorp.pinpoint.web.view.TimeViewModel;
 
 import java.util.List;
 import java.util.Objects;
@@ -30,37 +31,33 @@ import java.util.Objects;
 @JsonSerialize(using = LinkHistogramSummarySerializer.class)
 public class LinkHistogramSummary {
 
-    private final String linkName;
-    private final Histogram histogram;
-    private final List<ResponseTimeViewModel> timeSeriesHistogram;
+    private final Link link;
 
     public LinkHistogramSummary(Link link) {
         Objects.requireNonNull(link, "link");
+        this.link = link;
+    }
 
-        linkName = link.getLinkName();
-        histogram = link.getHistogram();
-        timeSeriesHistogram = link.getLinkApplicationTimeSeriesHistogram();
+    public void setTimeHistogramFormat(TimeHistogramFormat timeHistogramFormat) {
+        link.setTimeHistogramFormat(timeHistogramFormat);
     }
 
     public String getLinkName() {
-        return linkName;
+        return link.getLinkName();
     }
 
     public Histogram getHistogram() {
-        return histogram;
+        return link.getHistogram();
     }
 
-    public List<ResponseTimeViewModel> getTimeSeriesHistogram() {
-        return timeSeriesHistogram;
+    public List<TimeViewModel> getTimeSeriesHistogram() {
+        return link.getLinkApplicationTimeSeriesHistogram();
     }
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("LinkHistogramSummary{");
-        sb.append("linkName='").append(linkName).append('\'');
-        sb.append(", histogram=").append(histogram);
-        sb.append(", timeSeriesHistogram=").append(timeSeriesHistogram);
-        sb.append('}');
-        return sb.toString();
+        return "LinkHistogramSummary{" +
+                "link=" + link +
+                '}';
     }
 }
