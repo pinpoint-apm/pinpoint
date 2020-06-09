@@ -62,7 +62,7 @@ public class KeepAliveService {
         }
     }
 
-    private AgentProperty newChannelProperties(Header header) {
+    protected AgentProperty newChannelProperties(Header header) {
         final String agentId = header.getAgentId();
         final long agentStartTime = header.getAgentStartTime();
         return new DefaultAgentProperty(agentId, agentStartTime, Collections.emptyMap());
