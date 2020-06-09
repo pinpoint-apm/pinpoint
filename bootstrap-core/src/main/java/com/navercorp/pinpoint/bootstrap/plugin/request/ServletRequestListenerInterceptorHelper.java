@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.bootstrap.plugin.request;
 
 import com.navercorp.pinpoint.bootstrap.config.Filter;
+import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.SkipFilter;
 import com.navercorp.pinpoint.bootstrap.context.MethodDescriptor;
 import com.navercorp.pinpoint.bootstrap.context.SpanEventRecorder;
@@ -43,6 +44,8 @@ public class ServletRequestListenerInterceptorHelper<T> {
     private final PLogger logger = PLoggerFactory.getLogger(this.getClass());
     private final boolean isDebug = logger.isDebugEnabled();
     private final boolean isTrace = logger.isTraceEnabled();
+    private static final String CONFIG_KEY_RECORD_REQ_HEADERS = "profiler.http.record.request.headers";
+    private static final String CONFIG_KEY_RECORD_REQ_COOKIES = "profiler.http.record.request.cookies";
 
     private final TraceContext traceContext;
     private final ServiceType serviceType;
@@ -68,16 +71,19 @@ public class ServletRequestListenerInterceptorHelper<T> {
         this.requestAdaptor = Assert.requireNonNull(requestAdaptor, "requestAdaptor");
         this.requestTraceReader = new RequestTraceReader<T>(traceContext, requestAdaptor, true);
         this.requestRecorderFactory = requestRecorderFactory;
+        ProfilerConfig profilerConfig = this.traceContext.getProfilerConfig();
         if (this.requestRecorderFactory != null) {
-            proxyRequestRecorder = this.requestRecorderFactory.getProxyRequestRecorder(traceContext.getProfilerConfig().isProxyHttpHeaderEnable(), requestAdaptor);
+            proxyRequestRecorder = this.requestRecorderFactory.getProxyRequestRecorder(profilerConfig.isProxyHttpHeaderEnable(), requestAdaptor);
         } else {
             // Compatibility 1.8.1
-            proxyRequestRecorder = new ProxyHttpHeaderRecorder<T>(traceContext.getProfilerConfig().isProxyHttpHeaderEnable(), requestAdaptor);
+            proxyRequestRecorder = new ProxyHttpHeaderRecorder<T>(profilerConfig.isProxyHttpHeaderEnable(), requestAdaptor);
         }
         this.excludeUrlFilter = defaultFilter(excludeUrlFilter);
         this.parameterRecorder = Assert.requireNonNull(parameterRecorder, "parameterRecorder");
-        this.serverRequestRecorder = new ServerRequestRecorder<T>(requestAdaptor);
-        this.httpStatusCodeRecorder = new HttpStatusCodeRecorder(traceContext.getProfilerConfig().getHttpStatusCodeErrors());
+        String recordRequestHeaders = profilerConfig.readString(CONFIG_KEY_RECORD_REQ_HEADERS, "");
+        String recordRequestCookies = profilerConfig.readString(CONFIG_KEY_RECORD_REQ_COOKIES, "");
+        this.serverRequestRecorder = new ServerRequestRecorder<T>(requestAdaptor, recordRequestHeaders, recordRequestCookies);
+        this.httpStatusCodeRecorder = new HttpStatusCodeRecorder(profilerConfig.getHttpStatusCodeErrors());
 
         this.traceContext.cacheApi(SERVLET_SYNC_METHOD_DESCRIPTOR);
     }
