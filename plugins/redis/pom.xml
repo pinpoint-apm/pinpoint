@@ -28,11 +28,6 @@
             <artifactId>pinpoint-profiler-test</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>com.navercorp.pinpoint</groupId>
-            <artifactId>pinpoint-commons-server</artifactId>
-            <scope>test</scope>
-        </dependency>
 
         <dependency>
             <groupId>redis.clients</groupId>
