@@ -25,6 +25,7 @@ import java.util.GregorianCalendar;
 /**
  * @author emeroad
  */
+@Deprecated
 public final class DateUtils {
 
     private static final ThreadLocal<DateFormat> CACHE = new ThreadLocal<DateFormat>() {
@@ -42,17 +43,20 @@ public final class DateUtils {
     private DateUtils() {
     }
 
+    @Deprecated
     public static String longToDateStr(long date) {
         final DateFormat dateFormat = CACHE.get();
         return dateFormat.format(date);
     }
 
+    @Deprecated
     public static String longToDateStr(long date, String fmt) {
         String pattern = (fmt == null) ? FORMAT : fmt;
         final SimpleDateFormat format = new SimpleDateFormat(pattern);
         return format.format(new Date(date));
     }
 
+    @Deprecated
     public static long timestampToMidNight(long timestamp) {
         Calendar calendar = new GregorianCalendar();
         calendar.setTime(new Date(timestamp));

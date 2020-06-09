@@ -16,8 +16,8 @@
 
 package com.navercorp.pinpoint.web.controller;
 
-import com.navercorp.pinpoint.common.util.DateUtils;
 import com.navercorp.pinpoint.web.service.AgentStatisticsService;
+import com.navercorp.pinpoint.web.util.DateTimeUtils;
 import com.navercorp.pinpoint.web.vo.AgentCountStatistics;
 import com.navercorp.pinpoint.web.vo.Range;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,7 +58,7 @@ public class AgentStatisticsController {
             return result;
         }
 
-        AgentCountStatistics agentCountStatistics = new AgentCountStatistics(agentCount, DateUtils.timestampToMidNight(timestamp));
+        AgentCountStatistics agentCountStatistics = new AgentCountStatistics(agentCount, DateTimeUtils.timestampToStartOfDay(timestamp));
         boolean success = agentStatisticsService.insertAgentCount(agentCountStatistics);
 
         if (success) {
@@ -88,7 +88,7 @@ public class AgentStatisticsController {
     @RequestMapping(value = "/selectAgentCount", method = RequestMethod.GET, params = {"from", "to"})
     @ResponseBody
     public List<AgentCountStatistics> selectAgentCount(@RequestParam("from") long from, @RequestParam("to") long to) {
-        Range range = new Range(DateUtils.timestampToMidNight(from), DateUtils.timestampToMidNight(to), true);
+        Range range = new Range(DateTimeUtils.timestampToStartOfDay(from), DateTimeUtils.timestampToStartOfDay(to), true);
         List<AgentCountStatistics> agentCountStatisticsList = agentStatisticsService.selectAgentCount(range);
 
         agentCountStatisticsList.sort(new Comparator<AgentCountStatistics>() {
@@ -104,5 +104,6 @@ public class AgentStatisticsController {
 
         return agentCountStatisticsList;
     }
+
 
 }

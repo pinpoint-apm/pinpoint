@@ -16,18 +16,12 @@
 
 package com.navercorp.pinpoint.web.vo;
 
-import com.navercorp.pinpoint.common.util.DateUtils;
-
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import com.navercorp.pinpoint.common.server.util.DateTimeFormatUtils;
 
 /**
  * @author Taejin Koo
  */
 public class AgentCountStatistics {
-
-    private static final String DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
     private int agentCount;
     private long timestamp;
@@ -57,14 +51,11 @@ public class AgentCountStatistics {
     }
 
     public String getDateVal() {
-        return DateUtils.longToDateStr(timestamp, DATE_TIME_FORMAT);
+        return DateTimeFormatUtils.formatSimple(timestamp);
     }
 
-    public void setDateVal(String dateTime) throws ParseException {
-        SimpleDateFormat format = new SimpleDateFormat(DATE_TIME_FORMAT);
-        Date parsedDate = format.parse(dateTime);
-
-        this.timestamp = parsedDate.getTime();
+    public void setDateVal(String dateTime) {
+        this.timestamp = DateTimeFormatUtils.parseSimple(dateTime);
     }
 
     @Override

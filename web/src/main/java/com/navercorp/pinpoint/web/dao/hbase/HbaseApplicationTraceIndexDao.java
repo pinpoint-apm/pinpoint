@@ -22,9 +22,9 @@ import com.navercorp.pinpoint.common.hbase.HbaseOperations2;
 import com.navercorp.pinpoint.common.hbase.LimitEventHandler;
 import com.navercorp.pinpoint.common.hbase.RowMapper;
 import com.navercorp.pinpoint.common.hbase.TableDescriptor;
+import com.navercorp.pinpoint.common.server.util.DateTimeFormatUtils;
 import com.navercorp.pinpoint.common.server.util.SpanUtils;
 import com.navercorp.pinpoint.common.util.BytesUtils;
-import com.navercorp.pinpoint.common.util.DateUtils;
 import com.navercorp.pinpoint.common.util.TimeUtils;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.web.dao.ApplicationTraceIndexDao;
@@ -117,13 +117,13 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
         if (transactionIdSum.size() >= limit) {
             Long lastRowTimestamp = lastRowAccessor.getLastRowTimestamp();
             if (logger.isDebugEnabled()) {
-                logger.debug("lastRowTimestamp lastTime:{}", DateUtils.longToDateStr(lastRowTimestamp));
+                logger.debug("lastRowTimestamp lastTime:{}", DateTimeFormatUtils.format(lastRowTimestamp));
             }
             return lastRowTimestamp;
         } else {
             long from = range.getFrom();
             if (logger.isDebugEnabled()) {
-                logger.debug("scanner start lastTime:{}", DateUtils.longToDateStr(from));
+                logger.debug("scanner start lastTime:{}", DateTimeFormatUtils.format(from));
             }
             return from;
         }
@@ -153,7 +153,7 @@ public class HbaseApplicationTraceIndexDao implements ApplicationTraceIndexDao {
             this.lastTransactionElapsed = BytesUtils.bytesToInt(qualifier, 0);
             
             if (logger.isDebugEnabled()) {
-                logger.debug("lastRowTimestamp={}, lastTransactionId={}, lastTransactionElapsed={}", DateUtils.longToDateStr(lastRowTimestamp), lastTransactionId, lastTransactionElapsed);
+                logger.debug("lastRowTimestamp={}, lastTransactionId={}, lastTransactionElapsed={}", DateTimeFormatUtils.format(lastRowTimestamp), lastTransactionId, lastTransactionElapsed);
             }
         }
 

@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.web.vo;
 
-import com.navercorp.pinpoint.common.util.DateUtils;
+import com.navercorp.pinpoint.common.server.util.DateTimeFormatUtils;
 
 import java.util.concurrent.TimeUnit;
 
@@ -25,8 +25,6 @@ import java.util.concurrent.TimeUnit;
  * @author netspider
  */
 public final class Range {
-
-    private static final String DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
     private final long from;
     private final long to;
@@ -54,7 +52,7 @@ public final class Range {
     }
 
     public String getFromDateTime() {
-        return DateUtils.longToDateStr(from, DATE_TIME_FORMAT);
+        return DateTimeFormatUtils.formatSimple(from);
     }
 
     public long getTo() {
@@ -62,7 +60,7 @@ public final class Range {
     }
 
     public String getToDateTime() {
-        return DateUtils.longToDateStr(to, DATE_TIME_FORMAT);
+        return DateTimeFormatUtils.formatSimple(from);
     }
 
     public long getRange() {

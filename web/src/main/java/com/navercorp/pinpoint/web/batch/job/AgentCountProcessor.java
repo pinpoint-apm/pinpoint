@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.web.batch.job;
 
-import com.navercorp.pinpoint.common.util.DateUtils;
+import com.navercorp.pinpoint.web.util.DateTimeUtils;
 import com.navercorp.pinpoint.web.vo.AgentCountStatistics;
 import com.navercorp.pinpoint.web.vo.ApplicationAgentList;
 import com.navercorp.pinpoint.web.vo.ApplicationAgentsList;
@@ -36,7 +36,7 @@ public class AgentCountProcessor implements ItemProcessor<ApplicationAgentsList,
         }
 
         int agentCount = getAgentCount(item.getApplicationAgentLists());
-        AgentCountStatistics agentCountStatistics = new AgentCountStatistics(agentCount, DateUtils.timestampToMidNight(System.currentTimeMillis()));
+        AgentCountStatistics agentCountStatistics = new AgentCountStatistics(agentCount, DateTimeUtils.timestampToStartOfDay(System.currentTimeMillis()));
         return agentCountStatistics;
     }
 
