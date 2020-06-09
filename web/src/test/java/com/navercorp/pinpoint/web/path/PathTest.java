@@ -31,8 +31,8 @@ import org.slf4j.LoggerFactory;
 public class PathTest {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    int index;
-    SimpleDateFormat format = new SimpleDateFormat("ss.SSS");
+//    int index;
+//    SimpleDateFormat format = new SimpleDateFormat("ss.SSS");
 
     @Test
     public void testPath() {

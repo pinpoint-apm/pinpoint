@@ -18,8 +18,8 @@ package com.navercorp.pinpoint.web.vo.callstacks;
 
 import com.navercorp.pinpoint.agent.plugin.proxy.common.ProxyRequestType;
 import com.navercorp.pinpoint.common.server.bo.AnnotationBo;
+import com.navercorp.pinpoint.common.server.util.DateTimeFormatUtils;
 import com.navercorp.pinpoint.common.trace.AnnotationKey;
-import com.navercorp.pinpoint.common.util.DateUtils;
 import com.navercorp.pinpoint.common.util.IntBooleanIntBooleanValue;
 import com.navercorp.pinpoint.common.util.LongIntIntByteByteStringValue;
 import com.navercorp.pinpoint.common.util.StringUtils;
@@ -163,9 +163,9 @@ public class AnnotationRecordFormatter {
 
         buffer.append('(');
         if (TimeUnit.MILLISECONDS.toDays(proxyTimeMillis) == TimeUnit.MILLISECONDS.toDays(startTimeMillis)) {
-            buffer.append(DateUtils.longToDateStr(proxyTimeMillis, "HH:mm:ss SSS"));
+            buffer.append(DateTimeFormatUtils.formatAbsolute(proxyTimeMillis));
         } else {
-            buffer.append(DateUtils.longToDateStr(proxyTimeMillis));
+            buffer.append(DateTimeFormatUtils.format(proxyTimeMillis));
         }
         buffer.append(')');
         return buffer.toString();
