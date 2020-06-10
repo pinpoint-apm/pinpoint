@@ -125,6 +125,16 @@
         <ref bean="commandService"/>
     </util:list>
 
+    <util:list id="interceptorList" value-type="io.grpc.ServerInterceptor">
+        <ref bean="headerPropagationInterceptor"/>
+    </util:list>
+
+    <bean id="headerRader" class="com.navercorp.pinpoint.grpc.server.AgentHeaderReader"/>
+
+    <bean id="headerPropagationInterceptor" class="com.navercorp.pinpoint.grpc.server.HeaderPropagationInterceptor">
+        <constructor-arg index="0" ref="headerRader"/>
+    </bean>
+
     <bean id="grpcAgentServerExecutor" class="com.navercorp.pinpoint.collector.receiver.thrift.ExecutorFactoryBean" parent="abstractReceiverExecutorFactoryBean">
         <property name="corePoolSize" value="#{grpcAgentReceiverConfig.grpcServerExecutorThreadSize}"/>
         <property name="maxPoolSize" value="#{grpcAgentReceiverConfig.grpcServerExecutorThreadSize}"/>
@@ -139,6 +149,7 @@
         <property name="executor" ref="grpcAgentServerExecutor"/>
         <property name="addressFilter" ref="addressFilter"/>
         <property name="bindableServiceList" ref="agentServiceList"/>
+        <property name="serverInterceptorList" ref="interceptorList"/>
         <property name="enable" value="#{grpcAgentReceiverConfig.isGrpcEnable()}"/>
         <property name="serverOption" value="#{grpcAgentReceiverConfig.getGrpcServerOption()}"/>
     </bean>
@@ -189,6 +200,7 @@
         <property name="bindPort" value="#{grpcSpanReceiverConfig.grpcBindPort}"/>
         <property name="addressFilter" ref="addressFilter"/>
         <property name="bindableServiceList" ref="spanServiceList"/>
+        <property name="serverInterceptorList" ref="interceptorList"/>
         <property name="executor" ref="grpcSpanServerExecutor"/>
         <property name="enable" value="#{grpcSpanReceiverConfig.isGrpcEnable()}"/>
         <property name="serverOption" value="#{grpcSpanReceiverConfig.getGrpcServerOption()}"/>
@@ -241,6 +253,7 @@
         <property name="bindPort" value="#{grpcStatReceiverConfig.grpcBindPort}"/>
         <property name="addressFilter" ref="addressFilter"/>
         <property name="bindableServiceList" ref="statServiceList"/>
+        <property name="serverInterceptorList" ref="interceptorList"/>
         <property name="executor" ref="grpcStatServerExecutor"/>
         <property name="enable" value="#{grpcStatReceiverConfig.isGrpcEnable()}"/>
         <property name="serverOption" value="#{grpcStatReceiverConfig.getGrpcServerOption()}"/>

@@ -39,7 +39,7 @@ public class AgentHeaderReader implements HeaderReader<Header> {
         return new Header(agentId, applicationName, startTime, socketId);
     }
 
-    private long getTime(Metadata headers, Metadata.Key<String> timeKey) {
+    protected long getTime(Metadata headers, Metadata.Key<String> timeKey) {
         final String timeStr = headers.get(timeKey);
         if (timeStr == null) {
             throw Status.INVALID_ARGUMENT.withDescription(timeKey.name() + " header is missing").asRuntimeException();
@@ -52,7 +52,7 @@ public class AgentHeaderReader implements HeaderReader<Header> {
         }
     }
 
-    private String getId(Metadata headers, Metadata.Key<String> idKey) {
+    protected String getId(Metadata headers, Metadata.Key<String> idKey) {
         final String id = headers.get(idKey);
         if (id == null) {
             throw Status.INVALID_ARGUMENT.withDescription(idKey.name() + " header is missing").asRuntimeException();
@@ -60,7 +60,7 @@ public class AgentHeaderReader implements HeaderReader<Header> {
         return validateId(id, idKey);
     }
 
-    private long getSocketId(Metadata headers) {
+    protected long getSocketId(Metadata headers) {
         final String socketIdStr = headers.get(Header.SOCKET_ID);
         if (socketIdStr == null) {
             return Header.SOCKET_ID_NOT_EXIST;

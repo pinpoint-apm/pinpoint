@@ -146,10 +146,6 @@ public class ServerFactory {
         serverBuilder.executor(serverExecutor);
         setupServerOption(serverBuilder);
 
-        HeaderReader<Header> headerReader = new AgentHeaderReader();
-        ServerInterceptor headerContext = new HeaderPropagationInterceptor<Header>(headerReader, ServerContext.getAgentInfoKey());
-        serverBuilder.intercept(headerContext);
-
         Server server = serverBuilder.build();
         return server;
     }

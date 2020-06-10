@@ -20,6 +20,9 @@ import com.navercorp.pinpoint.common.util.Assert;
 
 import io.grpc.Metadata;
 
+import java.util.Collections;
+import java.util.Map;
+
 /**
  * @author Woonduk Kang(emeroad)
  */
@@ -45,11 +48,19 @@ public class Header {
 
     private final long socketId;
 
+    private final Map<String, Object> properties;
+
     public Header(String agentId, String applicationName, long agentStartTime, long socketId) {
+        this(agentId, applicationName, agentStartTime, socketId, Collections.<String, Object>emptyMap());
+    }
+
+    public Header(String agentId, String applicationName, long agentStartTime, long socketId, final Map<String, Object> properties) {
         this.agentId = Assert.requireNonNull(agentId, "agentId");
         this.applicationName = Assert.requireNonNull(applicationName, "applicationName");
         this.agentStartTime = agentStartTime;
         this.socketId = socketId;
+
+        this.properties = Assert.requireNonNull(properties, "properties");
     }
 
     public String getAgentId() {
@@ -68,6 +79,14 @@ public class Header {
         return socketId;
     }
 
+    public Object get(String key) {
+        return properties.get(key);
+    }
+
+    public Map<String, Object> getProperties() {
+        return Collections.unmodifiableMap(properties);
+    }
+
     @Override
     public String toString() {
         return "Header{" +
@@ -75,21 +94,22 @@ public class Header {
                 ", applicationName='" + applicationName + '\'' +
                 ", agentStartTime=" + agentStartTime +
                 ", socketId=" + socketId +
+                ", properties=" + properties +
                 '}';
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Header)) return false;
+        if (o == null || getClass() != o.getClass()) return false;
 
         Header header = (Header) o;
 
         if (agentStartTime != header.agentStartTime) return false;
         if (socketId != header.socketId) return false;
         if (agentId != null ? !agentId.equals(header.agentId) : header.agentId != null) return false;
-        return applicationName != null ? applicationName.equals(header.applicationName) : header.applicationName == null;
-
+        if (applicationName != null ? !applicationName.equals(header.applicationName) : header.applicationName != null) return false;
+        return properties != null ? properties.equals(header.properties) : header.properties == null;
     }
 
     @Override
@@ -98,6 +118,8 @@ public class Header {
         result = 31 * result + (applicationName != null ? applicationName.hashCode() : 0);
         result = 31 * result + (int) (agentStartTime ^ (agentStartTime >>> 32));
         result = 31 * result + (int) (socketId ^ (socketId >>> 32));
+        result = 31 * result + (properties != null ? properties.hashCode() : 0);
         return result;
     }
+
 }
