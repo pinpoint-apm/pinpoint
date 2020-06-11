@@ -18,6 +18,8 @@ package com.navercorp.pinpoint.web.vo;
 
 import com.navercorp.pinpoint.common.server.util.DateTimeFormatUtils;
 
+import java.time.Instant;
+
 /**
  * @author Taejin Koo
  */
@@ -54,8 +56,8 @@ public class AgentCountStatistics {
         return DateTimeFormatUtils.formatSimple(timestamp);
     }
 
-    public void setDateVal(String dateTime) {
-        this.timestamp = DateTimeFormatUtils.parseSimple(dateTime);
+    public void setDateVal(Instant dateTime) {
+        this.timestamp = dateTime.toEpochMilli();
     }
 
     @Override
