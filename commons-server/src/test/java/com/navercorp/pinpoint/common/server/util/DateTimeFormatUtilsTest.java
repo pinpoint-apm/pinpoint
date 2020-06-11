@@ -20,8 +20,10 @@ import com.navercorp.pinpoint.common.util.DateUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.format.DateTimeParseException;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -51,6 +53,16 @@ public class DateTimeFormatUtilsTest {
         Assert.assertEquals(time, DateTimeFormatUtils.parseSimple(simpleDate));
     }
 
+    @Test(expected = DateTimeParseException.class)
+    public void parseSimple_sqltimestamp_error() throws ParseException {
+        Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+        // "2100-12-31 23:59:59.111"
+        String simpleDate = timestamp.toString();
+        SimpleDateFormat format = new SimpleDateFormat(DateTimeFormatUtils.SIMPLE_DATE_FORMAT);
+
+        long time = format.parse(simpleDate).getTime();
+        DateTimeFormatUtils.parseSimple(simpleDate);
+    }
 
 
 }
