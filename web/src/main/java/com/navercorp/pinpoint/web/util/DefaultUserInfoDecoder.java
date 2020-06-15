@@ -15,6 +15,8 @@
  */
 package com.navercorp.pinpoint.web.util;
 
+import com.navercorp.pinpoint.web.vo.User;
+
 import java.util.List;
 
 /**
@@ -35,5 +37,20 @@ public class DefaultUserInfoDecoder implements UserInfoDecoder {
     @Override
     public String decodePhoneNumber(String phoneNumber) {
         return phoneNumber;
+    }
+
+    @Override
+    public List<User> decodeUserInfoList(List<User> userList) {
+        return userList;
+    }
+
+    @Override
+    public User decodeUserInfo(User user) {
+        return user;
+    }
+
+    @Override
+    public List<String> decodeEmailList(List<String> emailList) {
+        return emailList;
     }
 }

@@ -16,9 +16,11 @@
 
 package com.navercorp.pinpoint.web.service;
 
+import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.web.config.ConfigProperties;
 import com.navercorp.pinpoint.web.dao.UserGroupDao;
 import com.navercorp.pinpoint.web.util.UserInfoDecoder;
+import com.navercorp.pinpoint.web.vo.User;
 import com.navercorp.pinpoint.web.vo.UserPhoneInfo;
 import org.junit.Before;
 import org.junit.Test;
@@ -119,8 +121,6 @@ public class UserGroupServiceImplTest {
 
         UserGroupService userGroupService = new UserGroupServiceImpl(userGroupDao, Optional.of(new CustomUserInfoDecoder()), alarmService, new ConfigProperties(), userService);
 
-        UserInfoDecoder userInfoDecoder = new CustomUserInfoDecoder();
-
         String groupId = "groupId";
         List<UserPhoneInfo> userPhoneInfoList = new ArrayList<>(2);
         userPhoneInfoList.add(new UserPhoneInfo(82, "ASDFG@#$%T"));
@@ -136,8 +136,47 @@ public class UserGroupServiceImplTest {
         }
     }
 
+    @Test
+    public void selectEmailOfMemberTest() {
+        UserGroupService userGroupService = new UserGroupServiceImpl(userGroupDao, Optional.of(new CustomUserInfoDecoder()), alarmService, new ConfigProperties(), userService);
+
+        String groupId = "groupId";
+        List<String> encodedEmailList = new ArrayList<>();
+        encodedEmailList.add("ASDFG@#$%T");
+        encodedEmailList.add("ASDF@#%$HG");
+
+        when(userGroupDao.selectEmailOfMember(groupId)).thenReturn(encodedEmailList);
+
+        List<String> decodedEmailList = userGroupService.selectEmailOfMember("groupId");
+
+        for (String email : decodedEmailList) {
+            assertEquals(email, DECODED_EMAIL);
+        }
+    }
+
+    @Test
+    public void selectEmailOfMember2Test() {
+        final String groupId = "test_group";
+        List<String> encodedEmailList = new ArrayList<>();
+        encodedEmailList.add("ASDFG@#$%T");
+        encodedEmailList.add("ASDF@#%$HG");
+
+        List<String> decodedEmailList = new ArrayList<>();
+        decodedEmailList.add("user01@navercorp.com");
+        decodedEmailList.add("user02@navercorp.com");
+
+        when(userGroupDao.selectEmailOfMember(groupId)).thenReturn(encodedEmailList);
+        when(userInfoDecoder.decodeEmailList(encodedEmailList)).thenReturn(decodedEmailList);
+        List<String> phoneNumberList = userGroupService.selectEmailOfMember(groupId);
+
+        assertEquals(2, phoneNumberList.size());
+        assertEquals(phoneNumberList.get(0), "user01@navercorp.com");
+        assertEquals(phoneNumberList.get(1), "user02@navercorp.com");
+    }
+
     private final static String CHANGED_PHONE_NUMBER = "123-4567-8900";
     private final static String REMOVED_HYPHEN_CHANGED_PHONE_NUMBER = "12345678900";
+    private final static String DECODED_EMAIL = "user@navercorp.com";
 
     private class CustomUserInfoDecoder implements UserInfoDecoder {
 
@@ -154,6 +193,46 @@ public class UserGroupServiceImplTest {
         @Override
         public String decodePhoneNumber(String phoneNumber) {
             return CHANGED_PHONE_NUMBER;
+        }
+
+        @Override
+        public List<User> decodeUserInfoList(List<User> userList) {
+            if (CollectionUtils.isEmpty(userList)) {
+                return userList;
+            }
+
+            List<User> decodedUserList = new ArrayList<>(userList.size());
+            for (User user : userList) {
+                decodedUserList.add(decodeUserInfo(user));
+            }
+
+            return decodedUserList;
+        }
+
+        @Override
+        public User decodeUserInfo(User user) {
+            if (user == null) {
+                return user;
+            }
+
+            String phoneNumber = decodePhoneNumber(user.getPhoneNumber());
+            String email = decodeEmail(user.getEmail());
+            User decodedUser = new User(user.getNumber(), user.getUserId(), user.getName(), user.getDepartment(), user.getPhoneCountryCode(), phoneNumber, email);
+            return decodedUser;
+        }
+
+        @Override
+        public List<String> decodeEmailList(List<String> emailList) {
+            List<String> encodedEmailList = new ArrayList<>(emailList.size());
+            for (int i = 0 ; i < emailList.size() ; i++) {
+                encodedEmailList.add(DECODED_EMAIL);
+            }
+
+            return encodedEmailList;
+        }
+
+        private String decodeEmail(String email) {
+            return DECODED_EMAIL;
         }
     }
 

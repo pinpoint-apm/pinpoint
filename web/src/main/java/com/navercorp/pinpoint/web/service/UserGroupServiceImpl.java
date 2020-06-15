@@ -183,7 +183,15 @@ public class UserGroupServiceImpl implements UserGroupService {
     @Override
     @Transactional(readOnly = true)
     public List<String> selectEmailOfMember(String userGroupId) {
-        return userGroupDao.selectEmailOfMember(userGroupId);
+        List<String> emailList = userGroupDao.selectEmailOfMember(userGroupId);
+
+        List<String> decodedEmailList = emailList;
+
+        if (!DefaultUserInfoDecoder.EMPTY_USER_INFO_DECODER.equals(userInfoDecoder)) {
+            decodedEmailList =  userInfoDecoder.decodeEmailList(decodedEmailList);
+        }
+
+        return decodedEmailList;
     }
 
     @Override
