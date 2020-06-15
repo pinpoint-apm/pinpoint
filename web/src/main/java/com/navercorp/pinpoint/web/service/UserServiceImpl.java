@@ -18,7 +18,9 @@ package com.navercorp.pinpoint.web.service;
 import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.web.dao.UserDao;
 import com.navercorp.pinpoint.web.util.DefaultUserInfoDecoder;
+import com.navercorp.pinpoint.web.util.DefaultUserInfoEncoder;
 import com.navercorp.pinpoint.web.util.UserInfoDecoder;
+import com.navercorp.pinpoint.web.util.UserInfoEncoder;
 import com.navercorp.pinpoint.web.vo.User;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -43,15 +45,18 @@ public class UserServiceImpl implements UserService {
     private final UserDao userDao;
 
     private final UserInfoDecoder userInfoDecoder;
+    private final UserInfoEncoder userInfoEncoder;
 
-    public UserServiceImpl(UserDao userDao, Optional<UserInfoDecoder> userInfoDecoder) {
+    public UserServiceImpl(UserDao userDao, Optional<UserInfoDecoder> userInfoDecoder, Optional<UserInfoEncoder> userInfoEncoder) {
         this.userDao = Objects.requireNonNull(userDao, "userDao");
         this.userInfoDecoder = Objects.requireNonNull(userInfoDecoder, "userInfoDecoder").orElse(DefaultUserInfoDecoder.EMPTY_USER_INFO_DECODER);
+        this.userInfoEncoder = Objects.requireNonNull(userInfoEncoder, "userInfoEncoder").orElse(DefaultUserInfoEncoder.EMPTY_USER_INFO_ENCODER);
     }
     
     @Override
     public void insertUser(User user) {
-        userDao.insertUser(user);
+        User encodedUser = userInfoEncoder.encodeUserInfo(user);
+        userDao.insertUser(encodedUser);
     }
 
     @Override
@@ -62,35 +67,36 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void updateUser(User user) {
-        userDao.updateUser(user);
+        User encodedUser = userInfoEncoder.encodeUserInfo(user);
+        userDao.updateUser(encodedUser);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<User> selectUser() {
         List<User> userList = userDao.selectUser();
-        return decodePhoneNumber(userList);
+        return userInfoDecoder.decodeUserInfoList(userList);
     }
 
     @Override
     @Transactional(readOnly = true)
     public User selectUserByUserId(String userId) {
         User user = userDao.selectUserByUserId(userId);
-        return decodePhoneNumber(user);
+        return userInfoDecoder.decodeUserInfo(user);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<User> selectUserByUserName(String userName) {
         List<User> userList = userDao.selectUserByUserName(userName);
-        return decodePhoneNumber(userList);
+        return userInfoDecoder.decodeUserInfoList(userList);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<User> selectUserByDepartment(String department) {
         List<User> userList = userDao.selectUserByDepartment(department);
-        return decodePhoneNumber(userList);
+        return userInfoDecoder.decodeUserInfoList(userList);
     }
 
     @Override
@@ -105,8 +111,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void insertUserList(List<User> users) {
-        userDao.insertUserList(users);
+    public void insertUserList(List<User> userList) {
+        List<User> encodedUserList = userInfoEncoder.encodeUserInfoList(userList);
+        userDao.insertUserList(encodedUserList);
     }
 
     @Override
@@ -119,36 +126,4 @@ public class UserServiceImpl implements UserService {
 
         return EMPTY;
     }
-
-    private User decodePhoneNumber(User user) {
-        if (user == null) {
-            return user;
-        }
-
-        if (DefaultUserInfoDecoder.EMPTY_USER_INFO_DECODER.equals(userInfoDecoder)) {
-            return user;
-        }
-
-        String phoneNumber = userInfoDecoder.decodePhoneNumber(user.getPhoneNumber());
-        User decodedUser = new User(user.getNumber(), user.getUserId(), user.getName(), user.getDepartment(), user.getPhoneCountryCode(), phoneNumber, user.getEmail());
-        return decodedUser;
-    }
-
-    private List<User> decodePhoneNumber(List<User> userList) {
-        if (CollectionUtils.isEmpty(userList)) {
-            return userList;
-        }
-
-        if (DefaultUserInfoDecoder.EMPTY_USER_INFO_DECODER.equals(userInfoDecoder)) {
-            return userList;
-        }
-
-        List<User> decodedUserList = new ArrayList<>(userList.size());
-        for (User user : userList) {
-            decodedUserList.add(decodePhoneNumber(user));
-        }
-
-        return decodedUserList;
-    }
-
 }

@@ -15,6 +15,8 @@
  */
 package com.navercorp.pinpoint.web.util;
 
+import com.navercorp.pinpoint.web.vo.User;
+
 import java.util.List;
 
 /**
@@ -24,4 +26,10 @@ public interface UserInfoDecoder {
     List<String> decodePhoneNumberList(List<String> phoneNumberList);
 
     String decodePhoneNumber(String phoneNumber);
+
+    List<User> decodeUserInfoList(List<User> userList);
+
+    User decodeUserInfo(User user);
+
+    List<String> decodeEmailList(List<String> emailList);
 }
