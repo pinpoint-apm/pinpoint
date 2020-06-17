@@ -6,8 +6,8 @@
         <tr>
             <th>
                 <div class="l-table-title">
-                    Alarm
-                    <button class="btn btn-blue btn-sm l-add-button" (click)="onClickAddBtn()" [disabled]="!isApplicationSelected()"><i class="fas fa-plus"></i></button>
+                    <div class="l-title-text">Alarm</div>
+                    <button class="btn btn-blue btn-sm l-add-button fas fa-plus" (click)="onClickAddBtn()" [disabled]="!isApplicationSelected()"></button>
                 </div>
                 <div class="l-alarm-rules-th">
                     <div>Rule Name</div>
@@ -47,7 +47,8 @@
         [i18nFormGuide]="i18nFormGuide"
         (outUpdateAlarm)="onUpdateAlarm($event)"
         (outCreateAlarm)="onCreateAlarm($event)"
-        (outClose)="onClosePopup()">
+        (outClose)="onClosePopup()"
+        (outShowHelp)="onShowHelp($event)">
     </pp-alarm-rule-create-and-update>
 </ng-container>
 <ng-container *ngIf="errorMessage">

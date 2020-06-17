@@ -1,14 +1,15 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ComponentFactoryResolver, Injector } from '@angular/core';
 import { Subject, forkJoin } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
 
-import { TranslateReplaceService, AnalyticsService, TRACKED_EVENT_LIST } from 'app/shared/services';
+import { TranslateReplaceService, AnalyticsService, TRACKED_EVENT_LIST, DynamicPopupService } from 'app/shared/services';
 import { UserGroupDataService, IUserGroup } from 'app/core/components/user-group/user-group-data.service';
 import { ApplicationListInteractionForConfigurationService } from 'app/core/components/application-list/application-list-interaction-for-configuration.service';
 import { NotificationType, IAlarmForm } from './alarm-rule-create-and-update.component';
 import { AlarmRuleDataService, IAlarmRule, IAlarmRuleCreated, IAlarmRuleResponse } from './alarm-rule-data.service';
 import { isThatType } from 'app/core/utils/util';
 import { takeUntil } from 'rxjs/operators';
+import { HELP_VIEWER_LIST, HelpViewerPopupContainerComponent } from '../help-viewer-popup/help-viewer-popup-container.component';
 
 @Component({
     selector: 'pp-alarm-rule-list-container',
@@ -47,6 +48,9 @@ export class AlarmRuleListContainerComponent implements OnInit, OnDestroy {
         private userGroupDataSerivce: UserGroupDataService,
         private applicationListInteractionForConfigurationService: ApplicationListInteractionForConfigurationService,
         private analyticsService: AnalyticsService,
+        private dynamicPopupService: DynamicPopupService,
+        private componentFactoryResolver: ComponentFactoryResolver,
+        private injector: Injector
     ) {}
 
     ngOnInit() {
@@ -246,5 +250,18 @@ export class AlarmRuleListContainerComponent implements OnInit, OnDestroy {
     private hideProcessing(): void {
         this.useDisable = false;
         this.showLoading = false;
+    }
+
+    onShowHelp({coord}: {coord: ICoordinate}): void {
+        this.analyticsService.trackEvent(TRACKED_EVENT_LIST.TOGGLE_HELP_VIEWER, HELP_VIEWER_LIST.ALARM);
+
+        this.dynamicPopupService.openPopup({
+            data: HELP_VIEWER_LIST.ALARM,
+            coord,
+            component: HelpViewerPopupContainerComponent
+        }, {
+            resolver: this.componentFactoryResolver,
+            injector: this.injector
+        });
     }
 }
