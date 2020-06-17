@@ -1,7 +1,7 @@
 :host {
-    display: block;
+    /* display: block;
     width: 100%;
-    height: 100%;
+    height: 100%; */
 }
 
 .l-wrapper {
@@ -129,4 +129,10 @@ form {
 .ng-invalid:not(form).ng-touched:focus {
     border-color: #d00;
     box-shadow: 0 0 1px 0px #d00;
+}
+
+.fa-question-circle {
+    font-size: 14px;
+    color: #a8acb5;
+    margin-left: 5px;
 }

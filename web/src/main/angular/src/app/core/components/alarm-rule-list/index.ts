@@ -1,11 +1,12 @@
-
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+
 import { SharedModule } from 'app/shared';
 import { AlarmRuleListComponent } from './alarm-rule-list.component';
 import { AlarmRuleListContainerComponent } from './alarm-rule-list-container.component';
 import { AlarmRuleCreateAndUpdateComponent } from './alarm-rule-create-and-update.component';
 import { AlarmRuleDataService } from './alarm-rule-data.service';
+import { HelpViewerPopupModule } from 'app/core/components/help-viewer-popup';
 
 @NgModule({
     declarations: [
@@ -16,7 +17,8 @@ import { AlarmRuleDataService } from './alarm-rule-data.service';
     imports: [
         FormsModule,
         ReactiveFormsModule,
-        SharedModule
+        SharedModule,
+        HelpViewerPopupModule
     ],
     exports: [
         AlarmRuleListContainerComponent,

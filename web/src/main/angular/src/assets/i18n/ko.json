@@ -59,6 +59,9 @@
         "INSPECTOR_MANAGER": {
             "EMPTY": "화면에 표시 할 차트를 선택하세요."
         },
+        "ALARM": {
+            "EMPTY": "등록된 알람이 없습니다." 
+        },
         "INSTALLATION": {
             "DESC": "* Application Name과 Agent ID의 중복 여부를 확인할 수 있습니다.",
             "LENGTH_GUIDE": "1 ~ !{0} 자의 문자를 입력하세요.",
@@ -86,9 +89,6 @@
             "THRESHOLD": "기준점",
             "TYPE": "알림 형식",
             "NOTES": "메모"
-        },
-        "ALARM": {
-            "EMPTY": "등록된 알람이 없습니다." 
         }
     },
     "TRANSACTION": {
@@ -825,6 +825,62 @@
                     }]
                 }]
             }
-        }
+        },
+        "ALARM": [{
+            "TITLE": "알람 룰의 종류",
+            "DESC": "Pinpoint에서 지원하는 Alarm rule의 종류는 아래와 같습니다.",
+            "CATEGORY": [{
+                "TITLE": "항목",
+                "ITEMS": [{
+                    "NAME": "SLOW COUNT",
+                    "DESC": "외부에서 application을 호출한 요청 중에 외부서버로 응답을 늦게 준 요청의 개수가 임계치를 초과한 경우 알람이 전송된다."
+                },{
+                    "NAME": "SLOW RATE",
+                    "DESC": "외부에서 application을 호출한 요청 중에 외부서버로 응답을 늦게 준 요청의 비율(%)이 임계치를 초과한 경우 알람이 전송된다."
+                },{
+                    "NAME": "ERROR COUNT",
+                    "DESC": "외부에서 application을 호출한 요청 중에 에러가 발생한 요청의 개수가 임계치를 초과한 경우 알람이 전송된다."
+                },{
+                    "NAME": "ERROR RATE",
+                    "DESC": "외부에서 application을 호출한 요청 중에 에러가 발생한 요청의 비율(%)이 임계치를 초과한 경우 알람이 전송된다."
+                },{
+                    "NAME": "TOTAL COUNT",
+                    "DESC": "외부에서 application을 호출한 요청 개수가 임계치를 초과한 경우 알람이 전송된다."
+                },{
+                    "NAME": "SLOW COUNT TO CALLEE",
+                    "DESC": "application 내에서 외부서버를 호출한 요청 중 slow 호출의 개수가 임계치를 초과한 경우 알람이 전송된다. 메모 항목에 외부서버의 도메인 이나 주소(ip, port)를 입력해야 합니다. ex) naver.com, 127.0.0.1:8080"
+                },{
+                    "NAME": "SLOW RATE TO CALLEE",
+                    "DESC": "application 내에서 외부서버를 호출한 요청 중 slow 호출의 비율(%)이 임계치를 초과한 경우 알람이 전송된다. 메모 항목에 외부서버의 도메인 이나 주소(ip, port)를 입력해야 합니다. ex) naver.com, 127.0.0.1:8080"
+                },{
+                    "NAME": "ERROR COUNT TO CALLEE",
+                    "DESC": "application 내에서 외부서버를 호출한 요청 중 error 가 발생한 호출의 개수가 임계치를 초과한 경우 알람이 전송된다. 메모 항목에 외부서버의 도메인 이나 주소(ip, port)를 입력해야 합니다. ex) naver.com, 127.0.0.1:8080"
+                },{
+                    "NAME": "ERROR RATE TO CALLEE",
+                    "DESC": "application 내에서 외부서버를 호출한 요청 중 error 가 발생한 호출의 비율이 임계치를 초과한 경우 알람이 전송된다. 메모 항목에 외부서버의 도메인 이나 주소(ip, port)를 입력해야 합니다. ex) naver.com, 127.0.0.1:8080"
+                },{
+                    "NAME": "TOTAL COUNT TO CALLEE",
+                    "DESC": "application 내에서 외부서버를 호출한 요청의 개수가 임계치를 초과한 경우 알람이 전송된다. 메모 항목에 외부서버의 도메인 이나 주소(ip, port)를 입력해야 합니다. ex) naver.com, 127.0.0.1:8080"
+                },{
+                    "NAME": "HEAP USAGE RATE",
+                    "DESC": "heap의 사용률이 임계치를 초과한 경우 알람이 전송된다."
+                },{
+                    "NAME": "JVM CPU USAGE RATE",
+                    "DESC": "application의 CPU 사용률이 임계치를 초과한 경우 알람이 전송된다."
+                },{
+                    "NAME": "SYSTEM CPU USAGE RATE",
+                    "DESC": "서버의 CPU 사용률이 임계치를 초과한 경우 알람이 전송된다."
+                },{
+                    "NAME": "DATASOURCE CONNECTION USAGE RATE",
+                    "DESC": "application의 DataSource내의 Connection 사용률이 임계치를 초과한 경우 알람이 전송된다."
+                },{
+                    "NAME": "DEADLOCK OCCURRENCE",
+                    "DESC": "application에서 데드락 상태가 탐지되면 알람이 전송된다."
+                },{
+                    "NAME": "FILE DESCRIPTOR COUNT",
+                    "DESC": "열려있는 File Descriptor 개수가 임계치를 초가한 경우 알람이 전송된다."
+                }]
+            }]
+        }]
     }
 }

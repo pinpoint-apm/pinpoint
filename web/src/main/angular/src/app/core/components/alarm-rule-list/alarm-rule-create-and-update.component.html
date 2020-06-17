@@ -4,7 +4,11 @@
     <form [formGroup]="alarmForm" #formDir="ngForm" (ngSubmit)="onCreateOrUpdate()">
         <div class="l-form-grid">
             <div>
-                <div class="l-form-label">{{i18nLabel.CHECKER_LABEL}} <span class="l-required-icon">*</span></div>
+                <div class="l-form-label">
+                    {{i18nLabel.CHECKER_LABEL}}
+                    <span class="l-required-icon">*</span>
+                    <button type="button" class="fas fa-question-circle" (click)="onShowHelp($event.target)"></button>
+                </div>
                 <select class="l-select" formControlName="checkerName" required>
                     <option value="">Select rule</option>
                     <option *ngFor="let checker of checkerList" [value]="checker">{{checker}}</option>

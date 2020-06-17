@@ -826,6 +826,62 @@
                     }]
                 }]
             }
-        }
+        },
+        "ALARM": [{
+            "TITLE": "Types of Alarm Rule",
+            "DESC": "The following types of alarm rules are supported by Pinpoint.",
+            "CATEGORY": [{
+                "TITLE": "Type",
+                "ITEMS": [{
+                    "NAME": "SLOW COUNT",
+                    "DESC": "Triggered when the number of slow requests sent to the application exceeds the configured threshold."
+                },{
+                    "NAME": "SLOW RATE",
+                    "DESC": "Triggered when the percentage(%) of slow requests sent to the application exceeds the configured threshold."
+                },{
+                    "NAME": "ERROR COUNT",
+                    "DESC": "Triggered when the number of failed requests sent to the application exceeds the configured threshold."
+                },{
+                    "NAME": "ERROR RATE",
+                    "DESC": "Triggered when the percentage(%) of failed requests sent to the application exceeds the configured threshold."
+                },{
+                    "NAME": "TOTAL COUNT",
+                    "DESC": "Triggered when the number of all requests sent to the application exceeds the configured threshold."
+                },{
+                    "NAME": "SLOW COUNT TO CALLEE",
+                    "DESC": "Triggered when the number of slow requests sent by the application exceeds the configured threshold. You must specify the domain or the address(ip, port) in the 'Notes' field: ex) www.naver.com, 127.0.0.1:8080"
+                },{
+                    "NAME": "SLOW RATE TO CALLEE",
+                    "DESC": "Triggered when the percentage(%) of slow requests sent by the application exceeds the configured threshold. You must specify the domain or the address(ip, port) in the 'Notes' field: ex) www.naver.com, 127.0.0.1:8080"
+                },{
+                    "NAME": "ERROR COUNT TO CALLEE",
+                    "DESC": "Triggered when the number of failed requests sent by the application exceeds the configured threshold. You must specify the domain or the address(ip, port) in the 'Notes' field: ex) www.naver.com, 127.0.0.1:8080"
+                },{
+                    "NAME": "ERROR RATE TO CALLEE",
+                    "DESC": "Triggered when the percentage(%) of failed requests sent by the application exceeds the configured threshold. You must specify the domain or the address(ip, port) in the 'Notes' field: ex) www.naver.com, 127.0.0.1:8080"
+                },{
+                    "NAME": "TOTAL COUNT TO CALLEE",
+                    "DESC": "Triggered when the number of all requests sent by the application exceeds the configured threshold. You must specify the domain or the address(ip, port) in the 'Notes' field: ex) www.naver.com, 127.0.0.1:8080"
+                },{
+                    "NAME": "HEAP USAGE RATE",
+                    "DESC": "Triggered when the application's heap usage(%) exceeds the configured threshold."
+                },{
+                    "NAME": "JVM CPU USAGE RATE",
+                    "DESC": "Triggered when the application's CPU usage(%) exceeds the configured threshold."
+                },{
+                    "NAME": "SYSTEM CPU USAGE RATE",
+                    "DESC": "Sends an alarm when the application's CPU usage(%) exceeds the configured threshold."
+                },{
+                    "NAME": "DATASOURCE CONNECTION USAGE RATE",
+                    "DESC": "Triggered when the application's DataSource connection usage(%) exceeds the configured threshold."
+                },{
+                    "NAME": "DEADLOCK OCCURRENCE",
+                    "DESC": "Sends an alarm when deadlock condition is detected in application."
+                },{
+                    "NAME": "FILE DESCRIPTOR COUNT",
+                    "DESC": "Sends an alarm when the number of open file descriptors exceeds the configured threshold."
+                }]
+            }]
+        }]
     }
 }

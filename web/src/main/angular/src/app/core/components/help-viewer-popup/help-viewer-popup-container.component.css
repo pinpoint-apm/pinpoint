@@ -1,6 +1,8 @@
 :host {
     display: block;
     border: 1px solid transparent;
+    max-height: 800px;
+    overflow-y: auto;
 }
 
 :host(.navbar),
@@ -78,6 +80,10 @@
 
 :host(.agent_mapped_buffer_memory) {
     width: 320px;
+}
+
+:host(.alarm) {
+    width: 600px;
 }
 
 .tooltip-triangle {
