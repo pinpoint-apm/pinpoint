@@ -135,16 +135,20 @@ export class TransactionMetaDataService {
     private makeRequestOptionsArgs(): string {
         const requestStr = [];
         const len = this.requestSourceData.length;
+        const appName = this.newUrlStateNotificationService.getPathValue(UrlPathId.APPLICATION).getApplicationName();
         const maxLen = Math.min(len, this.maxLoadLength + this.lastFetchedIndex);
-        for ( let index = 0, dataIndex = this.lastFetchedIndex ; dataIndex < maxLen ; index++, dataIndex++ ) {
+
+        for (let index = 0, dataIndex = this.lastFetchedIndex; dataIndex < maxLen; index++, dataIndex++) {
             // transactionId, x, y
             requestStr.push(`I${index}=${this.requestSourceData[dataIndex][0]}`);
             requestStr.push(`T${index}=${this.requestSourceData[dataIndex][1]}`);
             requestStr.push(`R${index}=${this.requestSourceData[dataIndex][2]}`);
         }
+
         this.requestCount = requestStr.length / 3;
         this.lastFetchedIndex = maxLen;
-        return requestStr.join('&');
+
+        return `ApplicationName=${appName}&${requestStr.join('&')}`;
         // load from parent window;
         // 브라우저 윈도우 이름으로 아래의 정보를 넘김
         // applicationName
