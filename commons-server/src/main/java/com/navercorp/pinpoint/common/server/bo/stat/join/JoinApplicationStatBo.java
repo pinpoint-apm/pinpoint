@@ -35,6 +35,7 @@ public class JoinApplicationStatBo implements JoinStatBo {
     private List<JoinFileDescriptorBo> joinFileDescriptorBoList = Collections.emptyList();
     private List<JoinDirectBufferBo> joinDirectBufferBoList = Collections.emptyList();
     private List<JoinTotalThreadCountBo> joinTotalThreadCountBoList = Collections.emptyList();
+    private List<JoinLoadedClassBo> joinLoadedClassBoList = Collections.emptyList();
 
     private long timestamp = Long.MIN_VALUE;
     private StatType statType = StatType.APP_STST;
@@ -54,6 +55,7 @@ public class JoinApplicationStatBo implements JoinStatBo {
         this.joinFileDescriptorBoList = joinApplicationStatBo.getJoinFileDescriptorBoList();
         this.joinDirectBufferBoList = joinApplicationStatBo.getJoinDirectBufferBoList();
         this.joinTotalThreadCountBoList = joinApplicationStatBo.getJoinTotalThreadCountBoList();
+        this.joinLoadedClassBoList = joinApplicationStatBo.getJoinLoadedClassBoList();
 
         this.timestamp= joinApplicationStatBo.getTimestamp();
         this.statType = joinApplicationStatBo.getStatType();
@@ -78,6 +80,7 @@ public class JoinApplicationStatBo implements JoinStatBo {
         newJoinApplicationStatBo.setJoinFileDescriptorBoList(joinFileDescriptorBoByTimeSlice(joinApplicationStatBoList));
         newJoinApplicationStatBo.setJoinDirectBufferBoList(joinDirectBufferBoByTimeSlice(joinApplicationStatBoList));
         newJoinApplicationStatBo.setJoinTotalThreadCountBoList(joinTotalThreadCountBoByTimeSlice(joinApplicationStatBoList));
+        newJoinApplicationStatBo.setJoinLoadedClassBoList(joinLoadedClassBoByTimeSlice(joinApplicationStatBoList));
         newJoinApplicationStatBo.setTimestamp(extractMinTimestamp(newJoinApplicationStatBo));
         return newJoinApplicationStatBo;
     }
@@ -136,6 +139,12 @@ public class JoinApplicationStatBo implements JoinStatBo {
         for (JoinTotalThreadCountBo joinTotalThreadCountBo : joinApplicationStatBo.getJoinTotalThreadCountBoList()) {
             if (joinTotalThreadCountBo.getTimestamp() < minTimestamp) {
                 minTimestamp = joinTotalThreadCountBo.getTimestamp();
+            }
+        }
+
+        for (JoinLoadedClassBo joinLoadedClassBo : joinApplicationStatBo.getJoinLoadedClassBoList()) {
+            if (joinLoadedClassBo.getTimestamp() < minTimestamp) {
+                minTimestamp = joinLoadedClassBo.getTimestamp();
             }
         }
 
@@ -391,6 +400,30 @@ public class JoinApplicationStatBo implements JoinStatBo {
         return newJoinTotalThreadCountBoList;
     }
 
+    private static List<JoinLoadedClassBo> joinLoadedClassBoByTimeSlice(List<JoinApplicationStatBo> joinApplicationStatBoList) {
+        Map<Long, List<JoinLoadedClassBo>> joinLoadedClassBoMap = new HashMap<Long, List<JoinLoadedClassBo>>();
+
+        for (JoinApplicationStatBo joinApplicationStatBo : joinApplicationStatBoList) {
+            for (JoinLoadedClassBo joinLoadedClassBo : joinApplicationStatBo.getJoinLoadedClassBoList()) {
+                long shiftTimestamp = shiftTimestamp(joinLoadedClassBo.getTimestamp());
+                List<JoinLoadedClassBo> joinLoadedClassBoList = joinLoadedClassBoMap.get(shiftTimestamp);
+
+                if(joinLoadedClassBoList == null) {
+                    joinLoadedClassBoList = new ArrayList<JoinLoadedClassBo>();
+                    joinLoadedClassBoMap.put(shiftTimestamp, joinLoadedClassBoList);
+                }
+                joinLoadedClassBoList.add(joinLoadedClassBo);
+            }
+        }
+        List<JoinLoadedClassBo> newJoinLoadedBoList = new ArrayList<JoinLoadedClassBo>();
+        for (Map.Entry<Long, List<JoinLoadedClassBo>> entry : joinLoadedClassBoMap.entrySet()) {
+            List<JoinLoadedClassBo> joinLoadedClassBoList = entry.getValue();
+            JoinLoadedClassBo joinLoadedClassBo = JoinLoadedClassBo.joinLoadedClassBoList(joinLoadedClassBoList, entry.getKey());
+            newJoinLoadedBoList.add(joinLoadedClassBo);
+        }
+        return newJoinLoadedBoList;
+    }
+
     public static JoinApplicationStatBo joinApplicationStatBo(List<JoinApplicationStatBo> joinApplicationStatBoList) {
         JoinApplicationStatBo newJoinApplicationStatBo = new JoinApplicationStatBo();
 
@@ -513,6 +546,12 @@ public class JoinApplicationStatBo implements JoinStatBo {
         this.joinTotalThreadCountBoList = joinTotalThreadCountBoList;
     }
 
+    public List<JoinLoadedClassBo> getJoinLoadedClassBoList() { return joinLoadedClassBoList; }
+
+    public void setJoinLoadedClassBoList(List<JoinLoadedClassBo> joinLoadedClassBoList) {
+        this.joinLoadedClassBoList = joinLoadedClassBoList;
+    }
+
     public static List<JoinApplicationStatBo> createJoinApplicationStatBo(String applicationId, JoinAgentStatBo joinAgentStatBo, long rangeTime) {
         List<JoinApplicationStatBo> joinApplicationStatBoList = new ArrayList<JoinApplicationStatBo>();
         List<JoinAgentStatBo> joinAgentStatBoList = splitJoinAgentStatBo(applicationId, joinAgentStatBo, rangeTime);
@@ -530,6 +569,7 @@ public class JoinApplicationStatBo implements JoinStatBo {
             joinApplicationStatBo.setJoinFileDescriptorBoList(sliceJoinAgentStatBo.getJoinFileDescriptorBoList());
             joinApplicationStatBo.setJoinDirectBufferBoList(sliceJoinAgentStatBo.getJoinDirectBufferBoList());
             joinApplicationStatBo.setJoinTotalThreadCountBoList(sliceJoinAgentStatBo.getJoinTotalThreadCountBoList());
+            joinApplicationStatBo.setJoinLoadedClassBoList(sliceJoinAgentStatBo.getJoinLoadedClassBoList());
             joinApplicationStatBoList.add(joinApplicationStatBo);
         }
 
@@ -547,6 +587,7 @@ public class JoinApplicationStatBo implements JoinStatBo {
         sliceJoinFileDescriptorBo(applicationId, joinAgentStatBo, rangeTime, joinAgentStatBoMap);
         sliceJoinDirectBufferBo(applicationId, joinAgentStatBo, rangeTime, joinAgentStatBoMap);
         sliceJoinTotalThreadCountBo(applicationId, joinAgentStatBo, rangeTime, joinAgentStatBoMap);
+        sliceJoinLoadedClassBo(applicationId, joinAgentStatBo, rangeTime, joinAgentStatBoMap);
         return new ArrayList<JoinAgentStatBo>(joinAgentStatBoMap.values());
     }
 
@@ -749,6 +790,28 @@ public class JoinApplicationStatBo implements JoinStatBo {
         }
     }
 
+    private static void sliceJoinLoadedClassBo(String applicationId, JoinAgentStatBo joinAgentStatBo, long rangeTime, Map<Long, JoinAgentStatBo> joinAgentStatBoMap) {
+        Map<Long, List<JoinLoadedClassBo>> joinLoadedClassBoMap = new HashMap<Long, List<JoinLoadedClassBo>>();
+
+        for (JoinLoadedClassBo joinLoadedClassBo : joinAgentStatBo.getJoinLoadedClassBoList()) {
+            long timestamp = joinLoadedClassBo.getTimestamp();
+            long time = timestamp - (timestamp % rangeTime);
+            List<JoinLoadedClassBo> joinLoadedClassBoList = joinLoadedClassBoMap.get(time);
+
+            if (joinLoadedClassBoList == null) {
+                joinLoadedClassBoList = new ArrayList<JoinLoadedClassBo>();
+                joinLoadedClassBoMap.put(time, joinLoadedClassBoList);
+            }
+
+            joinLoadedClassBoList.add(joinLoadedClassBo);
+        }
+        for (Map.Entry<Long, List<JoinLoadedClassBo>> entry : joinLoadedClassBoMap.entrySet()) {
+            long time = entry.getKey();
+            JoinAgentStatBo sliceJoinAgentStatBo = getORCreateJoinAgentStatBo(applicationId, joinAgentStatBoMap, time);
+            sliceJoinAgentStatBo.setJoinLoadedClassBoList(entry.getValue());
+        }
+    }
+
     private static JoinAgentStatBo getORCreateJoinAgentStatBo(String applicationId, Map<Long, JoinAgentStatBo> joinAgentStatBoMap, long time) {
         JoinAgentStatBo joinAgentStatBo = joinAgentStatBoMap.get(time);
 
@@ -776,6 +839,7 @@ public class JoinApplicationStatBo implements JoinStatBo {
             ", joinFileDescriptorBoList=" + joinFileDescriptorBoList +
             ", joinDirectBufferBoList=" + joinDirectBufferBoList +
             ", joinTotalThreadCountBoList=" + joinTotalThreadCountBoList +
+            ", joinLoadedClassBoList=" + joinLoadedClassBoList +
             ", statType=" + statType +
             '}';
     }

@@ -29,6 +29,7 @@ import com.navercorp.pinpoint.profiler.monitor.metric.datasource.DataSourceMetri
 import com.navercorp.pinpoint.profiler.monitor.metric.deadlock.DeadlockMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.deadlock.ThreadDumpMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.filedescriptor.FileDescriptorMetricSnapshot;
+import com.navercorp.pinpoint.profiler.monitor.metric.loadedclass.LoadedClassMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.response.ResponseTimeValue;
 import com.navercorp.pinpoint.profiler.monitor.metric.transaction.TransactionMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.totalthread.TotalThreadMetricSnapshot;
@@ -48,6 +49,7 @@ import com.navercorp.pinpoint.thrift.dto.TJvmGcType;
 import com.navercorp.pinpoint.thrift.dto.TResponseTime;
 import com.navercorp.pinpoint.thrift.dto.TTransaction;
 import com.navercorp.pinpoint.thrift.dto.TTotalThreadCount;
+import com.navercorp.pinpoint.thrift.dto.TLoadedClass;
 import com.navercorp.pinpoint.thrift.dto.command.TThreadDump;
 import org.apache.thrift.TBase;
 
@@ -133,21 +135,27 @@ public class StatThriftMessageConverter implements MessageConverter<TBase<?, ?>>
         }
 
         final FileDescriptorMetricSnapshot fileDescriptorMetricSnapshot = agentStatMetricSnapshot.getFileDescriptor();
-        if(fileDescriptorMetricSnapshot != null) {
+        if (fileDescriptorMetricSnapshot != null) {
             final TFileDescriptor fileDescriptor = convertFileDescriptor(fileDescriptorMetricSnapshot);
             agentStat.setFileDescriptor(fileDescriptor);
         }
 
         final BufferMetricSnapshot bufferMetricSnapshot = agentStatMetricSnapshot.getDirectBuffer();
-        if(bufferMetricSnapshot != null) {
+        if (bufferMetricSnapshot != null) {
             final TDirectBuffer directBuffer = convertDirectBuffer(bufferMetricSnapshot);
             agentStat.setDirectBuffer(directBuffer);
         }
 
         final TotalThreadMetricSnapshot totalThreadMetricSnapshot = agentStatMetricSnapshot.getTotalThread();
-        if(totalThreadMetricSnapshot != null) {
+        if (totalThreadMetricSnapshot != null) {
             final TTotalThreadCount totalThreadCount = convertTotalThreadCount(totalThreadMetricSnapshot);
             agentStat.setTotalThreadCount(totalThreadCount);
+        }
+
+        final LoadedClassMetricSnapshot loadedClassMetricSnapshot = agentStatMetricSnapshot.getLoadedClassCount();
+        if (loadedClassMetricSnapshot != null) {
+            final TLoadedClass loadedClass = convertLoadedClass(loadedClassMetricSnapshot);
+            agentStat.setLoadedClass(loadedClass);
         }
 
         return agentStat;
@@ -276,5 +284,12 @@ public class StatThriftMessageConverter implements MessageConverter<TBase<?, ?>>
         final TTotalThreadCount tTotalThreadCount = new TTotalThreadCount();
         tTotalThreadCount.setTotalThreadCount(totalThreadMetricSnapshot.getTotalThreadCount());
         return tTotalThreadCount;
+    }
+
+    private TLoadedClass convertLoadedClass(LoadedClassMetricSnapshot loadedClassMetricSnapshot) {
+        final TLoadedClass tLoadedClass = new TLoadedClass();
+        tLoadedClass.setLoadedClassCount(loadedClassMetricSnapshot.getLoadedClassCount());
+        tLoadedClass.setUnloadedClassCount(loadedClassMetricSnapshot.getUnloadedClassCount());
+        return tLoadedClass;
     }
 }

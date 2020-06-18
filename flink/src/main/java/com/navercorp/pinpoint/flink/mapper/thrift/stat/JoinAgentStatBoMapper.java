@@ -39,6 +39,7 @@ public class JoinAgentStatBoMapper implements ThriftBoMapper<JoinAgentStatBo, TF
     private final JoinFileDescriptorBoMapper joinFileDescriptorBoMapper = new JoinFileDescriptorBoMapper();
     private final JoinDirectBufferBoMapper joinDirectBufferBoMapper = new JoinDirectBufferBoMapper();
     private final JoinTotalThreadCountBoMapper joinTotalThreadCountBoMapper = new JoinTotalThreadCountBoMapper();
+    private final JoinLoadedClassBoMapper joinLoadedClassBoMapper = new JoinLoadedClassBoMapper();
 
     @Override
     public JoinAgentStatBo map(TFAgentStatBatch tFAgentStatBatch) {
@@ -61,6 +62,7 @@ public class JoinAgentStatBoMapper implements ThriftBoMapper<JoinAgentStatBo, TF
         List<JoinFileDescriptorBo> joinFileDescriptorBoList = new ArrayList<>(agentStatSize);
         List<JoinDirectBufferBo> joinDirectBufferBoList = new ArrayList<>(agentStatSize);
         List<JoinTotalThreadCountBo> joinTotalThreadCountBoList = new ArrayList<>(agentStatSize);
+        List<JoinLoadedClassBo> joinLoadedClassBoList = new ArrayList<>(agentStatSize);
 
         for (TFAgentStat tFAgentStat : tFAgentStatBatch.getAgentStats()) {
             createAndAddJoinCpuLoadBo(tFAgentStat, joinCpuLoadBoList);
@@ -72,6 +74,7 @@ public class JoinAgentStatBoMapper implements ThriftBoMapper<JoinAgentStatBo, TF
             createAndAddJoinFileDescriptorBo(tFAgentStat, joinFileDescriptorBoList);
             createAndAddJoinDirectBufferBo(tFAgentStat, joinDirectBufferBoList);
             createAndAddJoinTotalThreadCountBo(tFAgentStat, joinTotalThreadCountBoList);
+            createAndAddJoinLoadedClassBo(tFAgentStat, joinLoadedClassBoList);
         }
 
         joinAgentStatBo.setJoinCpuLoadBoList(joinCpuLoadBoList);
@@ -83,6 +86,7 @@ public class JoinAgentStatBoMapper implements ThriftBoMapper<JoinAgentStatBo, TF
         joinAgentStatBo.setJoinFileDescriptorBoList(joinFileDescriptorBoList);
         joinAgentStatBo.setJoinDirectBufferBoList(joinDirectBufferBoList);
         joinAgentStatBo.setJoinTotalThreadCountBoList(joinTotalThreadCountBoList);
+        joinAgentStatBo.setJoinLoadedClassBoList(joinLoadedClassBoList);
         joinAgentStatBo.setId(tFAgentStatBatch.getAgentId());
         joinAgentStatBo.setAgentStartTimestamp(tFAgentStatBatch.getStartTimestamp());
         joinAgentStatBo.setTimestamp(getTimeStamp(joinAgentStatBo));
@@ -184,6 +188,12 @@ public class JoinAgentStatBoMapper implements ThriftBoMapper<JoinAgentStatBo, TF
             return joinTotalThreadCountBoList.get(0).getTimestamp();
         }
 
+        List<JoinLoadedClassBo> joinLoadedClassBoList = joinAgentStatBo.getJoinLoadedClassBoList();
+
+        if(joinLoadedClassBoList.size() != 0) {
+            return joinLoadedClassBoList.get(0).getTimestamp();
+        }
+
         return Long.MIN_VALUE;
     }
 
@@ -235,5 +245,15 @@ public class JoinAgentStatBoMapper implements ThriftBoMapper<JoinAgentStatBo, TF
         }
 
         joinTotalThreadCountBoList.add(joinTotalThreadCountBo);
+    }
+
+    public void createAndAddJoinLoadedClassBo(TFAgentStat tfAgentStat, List<JoinLoadedClassBo> joinLoadedClassBoList) {
+        JoinLoadedClassBo joinLoadedClassBo = joinLoadedClassBoMapper.map(tfAgentStat);
+
+        if (joinLoadedClassBo == JoinLoadedClassBo.EMPTY_JOIN_LOADED_CLASS_BO) {
+            return;
+        }
+
+        joinLoadedClassBoList.add(joinLoadedClassBo);
     }
 }

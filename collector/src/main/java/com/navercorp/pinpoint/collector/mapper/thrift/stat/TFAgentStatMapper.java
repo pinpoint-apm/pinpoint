@@ -17,6 +17,7 @@ package com.navercorp.pinpoint.collector.mapper.thrift.stat;
 
 import com.navercorp.pinpoint.common.server.bo.stat.*;
 import com.navercorp.pinpoint.thrift.dto.flink.TFAgentStat;
+import com.navercorp.pinpoint.thrift.dto.flink.TFLoadedClass;
 
 import java.util.*;
 
@@ -33,6 +34,7 @@ public class TFAgentStatMapper {
     private static final TFFileDescriptorMapper tFFileDescriptorBoMapper = new TFFileDescriptorMapper();
     private static final TFDirectBufferMapper tFDirectBufferMapper = new TFDirectBufferMapper();
     private static final TFTotalThreadCountMapper tFTotalThreadCountMapper = new TFTotalThreadCountMapper();
+    private static final TFLoadedClassMapper tFLoadedClassMapper = new TFLoadedClassMapper();
 
     public List<TFAgentStat> map(AgentStatBo agentStatBo) {
         final TreeMap<Long, TFAgentStat> tFAgentStatMap = new TreeMap<>();
@@ -48,6 +50,7 @@ public class TFAgentStatMapper {
         insertTFileDescriptorList(tFAgentStatMap, agentStatBo.getFileDescriptorBos(), agentId, startTimestamp);
         insertTDirectBufferList(tFAgentStatMap, agentStatBo.getDirectBufferBos(), agentId, startTimestamp);
         insertTFTotalThreadCountList(tFAgentStatMap, agentStatBo.getTotalThreadCountBos(), agentId, startTimestamp);
+        insertTFLoadedClassList(tFAgentStatMap, agentStatBo.getLoadedClassBos(), agentId, startTimestamp);
 
         return new ArrayList<>(tFAgentStatMap.values());
     }
@@ -149,6 +152,17 @@ public class TFAgentStatMapper {
         for (TotalThreadCountBo totalThreadCountBo : totalThreadCountBoList) {
             TFAgentStat tfAgentStat = getOrCreateTFAgentStat(tfAgentStatMap, totalThreadCountBo.getTimestamp(), agentId, startTimestamp);
             tfAgentStat.setTotalThreadCount(tFTotalThreadCountMapper.map(totalThreadCountBo));
+        }
+    }
+
+    private void insertTFLoadedClassList(Map<Long, TFAgentStat> tfAgentStatMap, List<LoadedClassBo> loadedClassBoList, String agentId, long startTimestamp) {
+        if (loadedClassBoList == null) {
+            return;
+        }
+
+        for (LoadedClassBo loadedClassBo : loadedClassBoList) {
+            TFAgentStat tfAgentStat = getOrCreateTFAgentStat(tfAgentStatMap, loadedClassBo.getTimestamp(), agentId, startTimestamp);
+            tfAgentStat.setLoadedClass(tFLoadedClassMapper.map(loadedClassBo));
         }
     }
 

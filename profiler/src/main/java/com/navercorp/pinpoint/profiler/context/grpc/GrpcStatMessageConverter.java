@@ -34,6 +34,7 @@ import com.navercorp.pinpoint.grpc.trace.PResponseTime;
 import com.navercorp.pinpoint.grpc.trace.PThreadDump;
 import com.navercorp.pinpoint.grpc.trace.PTotalThread;
 import com.navercorp.pinpoint.grpc.trace.PTransaction;
+import com.navercorp.pinpoint.grpc.trace.PLoadedClass;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHistogram;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceHistogramUtils;
 import com.navercorp.pinpoint.profiler.context.thrift.MessageConverter;
@@ -49,6 +50,7 @@ import com.navercorp.pinpoint.profiler.monitor.metric.datasource.DataSourceMetri
 import com.navercorp.pinpoint.profiler.monitor.metric.deadlock.DeadlockMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.deadlock.ThreadDumpMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.filedescriptor.FileDescriptorMetricSnapshot;
+import com.navercorp.pinpoint.profiler.monitor.metric.loadedclass.LoadedClassMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.response.ResponseTimeValue;
 import com.navercorp.pinpoint.profiler.monitor.metric.totalthread.TotalThreadMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.transaction.TransactionMetricSnapshot;
@@ -153,6 +155,13 @@ public class GrpcStatMessageConverter implements MessageConverter<GeneratedMessa
             final PTotalThread totalThread =convertTotalThread(totalThreadMetricSnapshot);
             agentStatBuilder.setTotalThread(totalThread);
         }
+
+        final LoadedClassMetricSnapshot loadedClassMetricSnapshot = agentStatMetricSnapshot.getLoadedClassCount();
+        if (loadedClassMetricSnapshot != null) {
+            final PLoadedClass loadedClass = convertLoadedClass(loadedClassMetricSnapshot);
+            agentStatBuilder.setLoadedClass(loadedClass);
+        }
+
         return agentStatBuilder.build();
     }
 
@@ -279,5 +288,12 @@ public class GrpcStatMessageConverter implements MessageConverter<GeneratedMessa
         final PTotalThread.Builder totalThreadBuilder = PTotalThread.newBuilder();
         totalThreadBuilder.setTotalThreadCount(totalThreadCountData.getTotalThreadCount());
         return totalThreadBuilder.build();
+    }
+
+    private PLoadedClass convertLoadedClass(LoadedClassMetricSnapshot loadedClassCountData) {
+        final PLoadedClass.Builder loadedClassBuilder = PLoadedClass.newBuilder();
+        loadedClassBuilder.setLoadedClassCount(loadedClassCountData.getLoadedClassCount());
+        loadedClassBuilder.setUnloadedClassCount(loadedClassCountData.getUnloadedClassCount());
+        return loadedClassBuilder.build();
     }
 }

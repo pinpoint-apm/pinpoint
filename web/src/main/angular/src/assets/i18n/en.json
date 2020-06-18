@@ -584,6 +584,28 @@
                             "DESC": "Number of total thread"
                         }]
                     }]
+                }],
+                "LOADED_CLASS_COUNT": [{
+                    "TITLE": "Loaded Class Count",
+                    "DESC": "Shows the agent's loaded class count",
+                    "CATEGORY": [{
+                        "TITLE": "Legend",
+                        "ITEMS": [{
+                            "NAME": "Loaded Class Count",
+                            "DESC": "Number of loaded class"
+                        }]
+                    }]
+                }],
+                "UNLOADED_CLASS_COUNT": [{
+                    "TITLE": "Unloaded Class Count",
+                    "DESC": "Shows the agent's unloaded class count",
+                    "CATEGORY": [{
+                        "TITLE": "Legend",
+                        "ITEMS": [{
+                            "NAME": "Unloaded Class Count",
+                            "DESC": "Number of unloaded class"
+                        }]
+                    }]
                 }]
             },
             "APPLICATION_CHART": {
@@ -822,6 +844,40 @@
                         }, {
                             "NAME": "Max",
                             "DESC": "Maximum of total thread count by each agent"
+                        }]
+                    }]
+                }],
+                "LOADED_CLASS_COUNT":[{
+                    "TITLE": "Loaded Class Count",
+                    "DESC": "Number of loaded class by each agent",
+                    "CATEGORY": [{
+                        "TITLE": "Legend",
+                        "ITEMS": [{
+                            "NAME": "Min",
+                            "DESC": "Minimum of loaded class count by each agent"
+                        }, {
+                            "NAME": "Avg",
+                            "DESC": "Average of loaded class count by each agent"
+                        }, {
+                            "NAME": "Max",
+                            "DESC": "Maximum of loaded class count by each agent"
+                        }]
+                    }]
+                }],
+                "UNLOADED_CLASS_COUNT":[{
+                    "TITLE": "Unloaded Class Count",
+                    "DESC": "Number of unloaded class by each agent",
+                    "CATEGORY": [{
+                        "TITLE": "Legend",
+                        "ITEMS": [{
+                            "NAME": "Min",
+                            "DESC": "Minimum of unloaded class count by each agent"
+                        }, {
+                            "NAME": "Avg",
+                            "DESC": "Average of unloaded class count by each agent"
+                        }, {
+                            "NAME": "Max",
+                            "DESC": "Maximum of unloaded class count by each agent"
                         }]
                     }]
                 }]

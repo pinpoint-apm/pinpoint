@@ -28,6 +28,7 @@ import com.navercorp.pinpoint.profiler.context.provider.stat.datasource.DataSour
 import com.navercorp.pinpoint.profiler.context.provider.stat.deadlock.DeadlockMetricCollectorProvider;
 import com.navercorp.pinpoint.profiler.context.provider.stat.filedescriptor.FileDescriptorMetricCollectorProvider;
 import com.navercorp.pinpoint.profiler.context.provider.stat.jvmgc.JvmGcMetricCollectorProvider;
+import com.navercorp.pinpoint.profiler.context.provider.stat.loadedclass.LoadedClassMetricCollectorProvider;
 import com.navercorp.pinpoint.profiler.context.provider.stat.response.ResponseTimeMetricCollectorProvider;
 import com.navercorp.pinpoint.profiler.context.provider.stat.totalthread.TotalThreadMetricCollectorProvider;
 import com.navercorp.pinpoint.profiler.context.provider.stat.transaction.TransactionMetricCollectorProvider;
@@ -40,6 +41,8 @@ import com.navercorp.pinpoint.profiler.monitor.metric.cpu.CpuLoadMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.datasource.DataSourceMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.deadlock.DeadlockMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.filedescriptor.FileDescriptorMetricSnapshot;
+import com.navercorp.pinpoint.profiler.monitor.metric.loadedclass.LoadedClassMetric;
+import com.navercorp.pinpoint.profiler.monitor.metric.loadedclass.LoadedClassMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.response.ResponseTimeValue;
 import com.navercorp.pinpoint.profiler.monitor.metric.totalthread.TotalThreadMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.transaction.TransactionMetricSnapshot;
@@ -98,6 +101,10 @@ public class ThriftStatsModule extends AbstractModule {
         // totalThread
         TypeLiteral<AgentStatMetricCollector<TotalThreadMetricSnapshot>> totalThreadCountCollector = new TypeLiteral<AgentStatMetricCollector<TotalThreadMetricSnapshot>>() {};
         bind(totalThreadCountCollector).toProvider(TotalThreadMetricCollectorProvider.class).in(Scopes.SINGLETON);
+
+        // loadedClass
+        TypeLiteral<AgentStatMetricCollector<LoadedClassMetricSnapshot>> loadedClassCollector = new TypeLiteral<AgentStatMetricCollector<LoadedClassMetricSnapshot>>() {};
+        bind(loadedClassCollector).toProvider(LoadedClassMetricCollectorProvider.class).in(Scopes.SINGLETON);
 
         // stat
         TypeLiteral<AgentStatMetricCollector<AgentStatMetricSnapshot>> statMetric = new TypeLiteral<AgentStatMetricCollector<AgentStatMetricSnapshot>>() {};

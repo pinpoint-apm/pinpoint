@@ -30,6 +30,7 @@ import com.navercorp.pinpoint.common.server.bo.stat.JvmGcDetailedBo;
 import com.navercorp.pinpoint.common.server.bo.stat.ResponseTimeBo;
 import com.navercorp.pinpoint.common.server.bo.stat.TransactionBo;
 import com.navercorp.pinpoint.common.server.bo.stat.TotalThreadCountBo;
+import com.navercorp.pinpoint.common.server.bo.stat.LoadedClassBo;
 import com.navercorp.pinpoint.grpc.Header;
 import com.navercorp.pinpoint.grpc.server.ServerContext;
 import com.navercorp.pinpoint.grpc.trace.PActiveTrace;
@@ -45,6 +46,7 @@ import com.navercorp.pinpoint.grpc.trace.PJvmGcDetailed;
 import com.navercorp.pinpoint.grpc.trace.PResponseTime;
 import com.navercorp.pinpoint.grpc.trace.PTransaction;
 import com.navercorp.pinpoint.grpc.trace.PTotalThread;
+import com.navercorp.pinpoint.grpc.trace.PLoadedClass;
 import org.springframework.stereotype.Component;
 
 import java.util.Collections;
@@ -75,7 +77,9 @@ public class GrpcAgentStatMapper {
 
     private final GrpcTotalThreadCountBoMapper totalThreadCountBoMapper;
 
-    public GrpcAgentStatMapper(GrpcJvmGcBoMapper jvmGcBoMapper, GrpcJvmGcDetailedBoMapper jvmGcDetailedBoMapper, GrpcCpuLoadBoMapper cpuLoadBoMapper, GrpcTransactionBoMapper transactionBoMapper, GrpcActiveTraceBoMapper activeTraceBoMapper, GrpcDataSourceBoMapper dataSourceBoMapper, GrpcResponseTimeBoMapper responseTimeBoMapper, GrpcDeadlockThreadCountBoMapper deadlockThreadCountBoMapper, GrpcFileDescriptorBoMapper fileDescriptorBoMapper, GrpcDirectBufferBoMapper directBufferBoMapper, GrpcTotalThreadCountBoMapper totalThreadCountBoMapper) {
+    private final GrpcLoadedClassBoMapper loadedClassBoMapper;
+
+    public GrpcAgentStatMapper(GrpcJvmGcBoMapper jvmGcBoMapper, GrpcJvmGcDetailedBoMapper jvmGcDetailedBoMapper, GrpcCpuLoadBoMapper cpuLoadBoMapper, GrpcTransactionBoMapper transactionBoMapper, GrpcActiveTraceBoMapper activeTraceBoMapper, GrpcDataSourceBoMapper dataSourceBoMapper, GrpcResponseTimeBoMapper responseTimeBoMapper, GrpcDeadlockThreadCountBoMapper deadlockThreadCountBoMapper, GrpcFileDescriptorBoMapper fileDescriptorBoMapper, GrpcDirectBufferBoMapper directBufferBoMapper, GrpcTotalThreadCountBoMapper totalThreadCountBoMapper, GrpcLoadedClassBoMapper loadedClassBoMapper) {
         this.jvmGcBoMapper = Objects.requireNonNull(jvmGcBoMapper, "jvmGcBoMapper");
         this.jvmGcDetailedBoMapper = Objects.requireNonNull(jvmGcDetailedBoMapper, "jvmGcDetailedBoMapper");
         this.cpuLoadBoMapper = Objects.requireNonNull(cpuLoadBoMapper, "cpuLoadBoMapper");
@@ -87,6 +91,7 @@ public class GrpcAgentStatMapper {
         this.fileDescriptorBoMapper = Objects.requireNonNull(fileDescriptorBoMapper, "fileDescriptorBoMapper");
         this.directBufferBoMapper = Objects.requireNonNull(directBufferBoMapper, "directBufferBoMapper");
         this.totalThreadCountBoMapper = Objects.requireNonNull(totalThreadCountBoMapper, "totalThreadCountBoMapper");
+        this.loadedClassBoMapper = Objects.requireNonNull(loadedClassBoMapper, "loadedClassBoMapper");
     }
 
 
@@ -196,6 +201,14 @@ public class GrpcAgentStatMapper {
             final TotalThreadCountBo totalThreadCountBo = this.totalThreadCountBoMapper.map(totalThread);
             setBaseData(totalThreadCountBo, agentId, startTimestamp, timestamp);
             agentStatBo.setTotalThreadCountBos(Collections.singletonList(totalThreadCountBo));
+        }
+
+        // loadedClass
+        if (agentStat.hasLoadedClass()) {
+            final PLoadedClass loadedClass = agentStat.getLoadedClass();
+            final LoadedClassBo loadedClassBo = this.loadedClassBoMapper.map(loadedClass);
+            setBaseData(loadedClassBo, agentId, startTimestamp, timestamp);
+            agentStatBo.setLoadedClassBos(Collections.singletonList(loadedClassBo));
         }
 
         return agentStatBo;

@@ -52,7 +52,11 @@
 :host(.application_direct_buffer_memory),
 :host(.application_mapped_buffer_count),
 :host(.application_total_thread),
-:host(.agent_total_thread){
+:host(.agent_total_thread_),
+:host(.agent_loaded_class_count),
+:host(.agent_unloaded_class_count),
+:host(.application_loaded_class_count),
+:host(.application_unloaded_class_count) {
     width: 405px;
 }
 

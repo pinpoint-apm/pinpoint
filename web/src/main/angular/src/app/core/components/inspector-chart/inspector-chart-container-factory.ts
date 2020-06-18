@@ -14,6 +14,8 @@ import { AgentDirectBufferCountChartContainer } from './agent-direct-buffer-coun
 import { AgentDirectBufferMemoryChartContainer } from './agent-direct-buffer-memory-chart-container';
 import { AgentMappedBufferCountChartContainer } from './agent-mapped-buffer-count-chart-container';
 import { AgentMappedBufferMemoryChartContainer } from './agent-mapped-buffer-memory-chart-container';
+import { AgentLoadedCLassCountChartContainer } from './agent-loaded-class-count-chart-container';
+import { AgentUnloadedCLassCountChartContainer } from "./agent-unloaded-class-count-chart-container";
 import { ApplicationJVMHeapChartContainer } from './application-jvm-heap-chart-container';
 import { ApplicationJVMNonHeapChartContainer } from './application-jvm-non-heap-chart-container';
 import { ApplicationJVMCpuChartContainer } from './application-jvm-cpu-chart-container';
@@ -27,6 +29,8 @@ import { ApplicationDirectBufferCountChartContainer } from './application-direct
 import { ApplicationDirectBufferMemoryChartContainer } from './application-direct-buffer-memory-chart-container';
 import { ApplicationMappedBufferCountChartContainer } from './application-mapped-buffer-count-chart-container';
 import { ApplicationMappedBufferMemoryChartContainer } from './application-mapped-buffer-memory-chart-container';
+import { ApplicationLoadedClassCountChartContainer } from './application-loaded-class-count-chart-container';
+import { ApplicationUnloadedClassCountChartContainer } from './application-unloaded-class-count-chart-container';
 import { IInspectorChartData } from './inspector-chart-data.service';
 
 export interface IInspectorChartContainer {
@@ -56,6 +60,8 @@ export enum ChartType {
     AGENT_MAPPED_BUFFER_COUNT = 'AGENT_MAPPED_BUFFER_COUNT',
     AGENT_MAPPED_BUFFER_MEMORY = 'AGENT_MAPPED_BUFFER_MEMORY',
     AGENT_DATA_SOURCE = 'AGENT_DATA_SOURCE',
+    AGENT_LOADED_CLASS_COUNT = 'AGENT_LOADED_CLASS_COUNT',
+    AGENT_UNLOADED_CLASS_COUNT = 'AGENT_UNLOADED_CLASS_COUNT',
     APPLICATION_JVM_HEAP = 'APPLICATION_JVM_HEAP',
     APPLICATION_JVM_NON_HEAP = 'APPLICATION_JVM_NON_HEAP',
     APPLICATION_JVM_CPU = 'APPLICATION_JVM_CPU',
@@ -70,6 +76,8 @@ export enum ChartType {
     APPLICATION_MAPPED_BUFFER_COUNT = 'APPLICATION_MAPPED_BUFFER_COUNT',
     APPLICATION_MAPPED_BUFFER_MEMORY = 'APPLICATION_MAPPED_BUFFER_MEMORY',
     APPLICATION_DATA_SOURCE = 'APPLICATION_DATA_SOURCE',
+    APPLICATION_LOADED_CLASS_COUNT = 'APPLICATION_LOADED_CLASS_COUNT',
+    APPLICATION_UNLOADED_CLASS_COUNT = 'APPLICATION_UNLOADED_CLASS_COUNT'
 }
 
 export class InspectorChartContainerFactory {
@@ -99,6 +107,10 @@ export class InspectorChartContainerFactory {
                 return new AgentMappedBufferCountChartContainer(dataService);
             case ChartType.AGENT_MAPPED_BUFFER_MEMORY:
                 return new AgentMappedBufferMemoryChartContainer(dataService);
+            case ChartType.AGENT_LOADED_CLASS_COUNT:
+                return new AgentLoadedCLassCountChartContainer(dataService);
+            case ChartType.AGENT_UNLOADED_CLASS_COUNT:
+                return new AgentUnloadedCLassCountChartContainer(dataService);
             case ChartType.APPLICATION_JVM_HEAP:
                 return new ApplicationJVMHeapChartContainer(dataService);
             case ChartType.APPLICATION_JVM_NON_HEAP:
@@ -125,6 +137,10 @@ export class InspectorChartContainerFactory {
                 return new ApplicationMappedBufferCountChartContainer(dataService);
             case ChartType.APPLICATION_MAPPED_BUFFER_MEMORY:
                 return new ApplicationMappedBufferMemoryChartContainer(dataService);
+            case ChartType.APPLICATION_LOADED_CLASS_COUNT:
+                return new ApplicationLoadedClassCountChartContainer(dataService);
+            case ChartType.APPLICATION_UNLOADED_CLASS_COUNT:
+                return new ApplicationUnloadedClassCountChartContainer(dataService);
         }
     }
 }
