@@ -27,7 +27,6 @@ import com.navercorp.pinpoint.web.scatter.ScatterData;
 import com.navercorp.pinpoint.web.service.FilteredMapService;
 import com.navercorp.pinpoint.web.service.ScatterChartService;
 import com.navercorp.pinpoint.web.util.LimitUtils;
-import com.navercorp.pinpoint.web.view.ServerTime;
 import com.navercorp.pinpoint.web.view.TransactionMetaDataViewModel;
 import com.navercorp.pinpoint.web.vo.GetTraceInfo;
 import com.navercorp.pinpoint.web.vo.GetTraceInfoParser;
@@ -44,7 +43,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -100,7 +98,7 @@ public class ScatterChartController {
      */
     @RequestMapping(value = "/getScatterData", method = RequestMethod.GET)
     @ResponseBody
-    public Map<String, Object> getScatterData(
+    public ScatterView.ResultView getScatterData(
             @RequestParam("application") String applicationName,
             @RequestParam("from") long from,
             @RequestParam("to") long to,
@@ -125,36 +123,31 @@ public class ScatterChartController {
         final Range range = Range.createUncheckedRange(from, to);
         logger.debug("fetch scatter data. RANGE={}, X-Group-Unit:{}, Y-Group-Unit:{}, LIMIT={}, BACKWARD_DIRECTION:{}, FILTER:{}", range, xGroupUnit, yGroupUnit, limit, backwardDirection, filterText);
 
-        Map<String, Object> model;
+        ScatterView.DotView dotView;
         if (StringUtils.isEmpty(filterText)) {
-            model = selectScatterData(applicationName, range, xGroupUnit, Math.max(yGroupUnit, 1), limit, backwardDirection);
+            dotView = selectScatterData(applicationName, range, xGroupUnit, Math.max(yGroupUnit, 1), limit, backwardDirection);
         } else {
-            model = selectFilterScatterData(applicationName, range, xGroupUnit, Math.max(yGroupUnit, 1), limit, backwardDirection, filterText);
+            dotView = selectFilterScatterData(applicationName, range, xGroupUnit, Math.max(yGroupUnit, 1), limit, backwardDirection, filterText);
         }
-
-
+        ScatterView.Status status = new ScatterView.Status(System.currentTimeMillis(), range);
         watch.stop();
 
         if (logger.isDebugEnabled()) {
             logger.debug("Fetch scatterData time : {}ms", watch.getLastTaskTimeMillis());
         }
 
-        return model;
+        return ScatterView.wrapResult(dotView, status);
     }
 
-    private Map<String, Object> selectScatterData(String applicationName, Range range, int xGroupUnit, int yGroupUnit, int limit, boolean backwardDirection) {
+    private ScatterView.DotView selectScatterData(String applicationName, Range range, int xGroupUnit, int yGroupUnit, int limit, boolean backwardDirection) {
 
         final ScatterData scatterData = scatter.selectScatterData(applicationName, range, xGroupUnit, yGroupUnit, limit, backwardDirection);
-        boolean requestComplete = scatterData.getDotSize() < limit;
+        final boolean requestComplete = scatterData.getDotSize() < limit;
 
-        Map<String, Object> model = createScatterDataV1(scatterData, requestComplete);
-        model.put("currentServerTime", new ServerTime().getCurrentServerTime());
-        model.put("from", range.getFrom());
-        model.put("to", range.getTo());
-        return model;
+        return new ScatterView.DotView(scatterData, requestComplete);
     }
 
-    private Map<String, Object> selectFilterScatterData(String applicationName, Range range, int xGroupUnit, int yGroupUnit, int limit, boolean backwardDirection, String filterText) {
+    private ScatterView.DotView selectFilterScatterData(String applicationName, Range range, int xGroupUnit, int yGroupUnit, int limit, boolean backwardDirection, String filterText) {
         final LimitedScanResult<List<TransactionId>> limitedScanResult = flow.selectTraceIdsFromApplicationTraceIndex(applicationName, range, limit, backwardDirection);
 
         final List<TransactionId> transactionIdList = limitedScanResult.getScanData();
@@ -162,7 +155,7 @@ public class ScatterChartController {
             logger.trace("submitted transactionId count={}", transactionIdList.size());
         }
 
-        boolean requestComplete = transactionIdList.size() < limit;
+        final boolean requestComplete = transactionIdList.size() < limit;
 
         transactionIdList.sort(TransactionIdComparator.INSTANCE);
         Filter<List<SpanBo>> filter = filterBuilder.build(filterText);
@@ -173,23 +166,7 @@ public class ScatterChartController {
                     limit, backwardDirection, DateTimeFormatUtils.format(range.getFrom()), DateTimeFormatUtils.format(range.getTo()), DateTimeFormatUtils.format(limitedScanResult.getLimitedTime()), transactionIdList.size());
         }
 
-        Map<String, Object> model = createScatterDataV1(scatterData, requestComplete);
-        model.put("currentServerTime", new ServerTime().getCurrentServerTime());
-        model.put("from", range.getFrom());
-        model.put("to", range.getTo());
-        return model;
-    }
-
-    private Map<String, Object> createScatterDataV1(ScatterData scatterData, boolean complete) {
-        Map<String, Object> model = new HashMap<>();
-
-        model.put("resultFrom", scatterData.getOldestAcceptedTime());
-        model.put("resultTo", scatterData.getLatestAcceptedTime());
-
-        model.put("complete", complete);
-        model.put("scatter", scatterData);
-
-        return model;
+        return new ScatterView.DotView(scatterData, requestComplete);
     }
 
 }
