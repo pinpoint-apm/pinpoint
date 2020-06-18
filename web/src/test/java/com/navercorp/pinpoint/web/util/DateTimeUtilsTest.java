@@ -16,9 +16,12 @@
 
 package com.navercorp.pinpoint.web.util;
 
-import com.navercorp.pinpoint.common.util.DateUtils;
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 
 /**
  * @author Woonduk Kang(emeroad)
@@ -28,6 +31,17 @@ public class DateTimeUtilsTest {
     @Test
     public void timestampToMidNight() {
         long current = System.currentTimeMillis();
-        Assert.assertEquals(DateUtils.timestampToMidNight(current), DateTimeUtils.timestampToStartOfDay(current));
+        Assert.assertEquals(timestampToMidNight(current), DateTimeUtils.timestampToStartOfDay(current));
+    }
+
+    private static long timestampToMidNight(long timestamp) {
+        Calendar calendar = new GregorianCalendar();
+        calendar.setTime(new Date(timestamp));
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+
+        return calendar.getTime().getTime();
     }
 }

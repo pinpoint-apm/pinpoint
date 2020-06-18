@@ -20,7 +20,7 @@ import com.navercorp.pinpoint.common.server.bo.SpanBo;
 import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 
-import com.navercorp.pinpoint.common.server.util.LongPair;
+import com.navercorp.pinpoint.common.server.util.pair.LongPair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.LinkedMultiValueMap;
@@ -43,8 +43,8 @@ public class LinkMap {
     private final List<Node> duplicatedNodeList;
 
     public LinkMap(MultiValueMap<LongPair, Node> spanToLinkMap, List<Node> duplicatedNodeList) {
-        this.spanToLinkMap = spanToLinkMap;
-        this.duplicatedNodeList = duplicatedNodeList;
+        this.spanToLinkMap = Objects.requireNonNull(spanToLinkMap, "spanToLinkMap");
+        this.duplicatedNodeList = Objects.requireNonNull(duplicatedNodeList, "duplicatedNodeList");
     }
 
     public static LinkMap buildLinkMap(List<Node> nodeList, TraceState traceState, long collectorAcceptTime, ServiceTypeRegistryService serviceTypeRegistryService) {
