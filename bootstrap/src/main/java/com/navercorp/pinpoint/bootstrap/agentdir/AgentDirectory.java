@@ -27,6 +27,8 @@ import java.util.List;
  */
 public class AgentDirectory {
 
+    public static final String AGENT_ROOT_PATH_KEY = "pinpoint.agent.root.path";
+
     public static final String LIB_DIR = "lib";
     public static final String PLUGIN_DIR = "plugin";
     public static final String LOGS_DIR = "logs";
