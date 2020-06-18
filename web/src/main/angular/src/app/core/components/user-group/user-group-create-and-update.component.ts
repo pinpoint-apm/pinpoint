@@ -26,6 +26,12 @@ export class UserGroupCreateAndUpdateComponent implements OnInit {
     constructor() {}
     ngOnInit() {}
     onCreateOrUpdate(): void {
+        this.userGroupForm.markAllAsTouched();
+
+        if (this.userGroupForm.invalid) {
+            return;
+        }
+
         this.outCreateUserGroup.emit(this.userGroupName.value);
         this.onClose();
     }

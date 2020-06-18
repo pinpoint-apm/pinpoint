@@ -63,6 +63,12 @@ export class AlarmRuleCreateAndUpdateComponent implements OnInit, OnChanges {
     }
 
     onCreateOrUpdate() {
+        this.alarmForm.markAllAsTouched();
+
+        if (this.alarmForm.invalid) {
+            return;
+        }
+
         const alarm = this.alarmForm.value;
 
         this.editAlarm ? this.outUpdateAlarm.emit(alarm) : this.outCreateAlarm.emit(alarm);
