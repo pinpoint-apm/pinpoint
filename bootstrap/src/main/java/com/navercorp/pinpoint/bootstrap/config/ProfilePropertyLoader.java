@@ -17,6 +17,7 @@
 package com.navercorp.pinpoint.bootstrap.config;
 
 import com.navercorp.pinpoint.bootstrap.BootLogger;
+import com.navercorp.pinpoint.bootstrap.agentdir.AgentDirectory;
 import com.navercorp.pinpoint.bootstrap.agentdir.Assert;
 import com.navercorp.pinpoint.common.annotations.VisibleForTesting;
 import com.navercorp.pinpoint.common.util.PropertyUtils;
@@ -81,9 +82,17 @@ class ProfilePropertyLoader implements PropertyLoader {
         // ?? 4. systemproperty -Dkey=value?
         loadSystemProperties(defaultProperties);
 
+        // root path
+        saveAgentRootPath(agentRootPath, defaultProperties);
+
         // log path
         saveLogConfigLocation(activeProfile, defaultProperties);
         return defaultProperties;
+    }
+
+    private void saveAgentRootPath(String agentRootPath, Properties properties) {
+        properties.put(AgentDirectory.AGENT_ROOT_PATH_KEY, agentRootPath);
+        logger.info(String.format("agent root path:%s", agentRootPath));
     }
 
     private void saveLogConfigLocation(String activeProfile, Properties properties) {
