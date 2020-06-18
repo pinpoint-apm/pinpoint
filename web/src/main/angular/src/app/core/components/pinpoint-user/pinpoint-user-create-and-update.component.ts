@@ -75,6 +75,12 @@ export class PinpointUserCreateAndUpdateComponent implements OnInit, OnChanges, 
     }
 
     onCreateOrUpdate(): void {
+        this.pinpointUserForm.markAllAsTouched();
+
+        if (this.pinpointUserForm.invalid) {
+            return;
+        }
+
         const valueObj = Object.entries(this.pinpointUserForm.value).reduce((acc: IUserProfile, [k, v]: [string, string]) => {
             const value = k === 'phoneNumber' ? v.replace(/-/g, '')
                 : k === 'phoneCountryCode' && this.phoneNumber.value === '' ? ''
