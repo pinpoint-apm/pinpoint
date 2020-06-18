@@ -18,7 +18,7 @@
 |                                                                                            |                            |         |         |                        |
 | OpenWhisk                                                                                  | whisk.core                 |         |         |                        | 
 |                                                                                            |                            |         |         |                        |
-| SpringMVC Framework                                                                        | spring-webmvc              | 3.0.7   | 5.2.3   |                        | <AG>
+| SpringMVC Framework                                                                        | spring-webmvc              | 3.0.7   | 5.2.5   |                        | <AG>
 | Spring Web                                                                                 | spring-web                 | 4.1.2   | 4.3.26  |                        | <AG>
 | Spring RabbitMQ                                                                            | spring-rabbit              | 1.3.3   | 2.2.5   |                        | <AG>
 | Spring IBatis                                                                              | spring-ibatis              | 2.0.7   | 2.0.8   |                        | <AG>
@@ -52,12 +52,12 @@
 | \*MsSQL                                                                                    | mssql-jdbc                 |         |         |                        | 
 | HikariCP                                                                                   | HikariCP-java6             | 2.3.0   | 2.3.13  |                        | <AG>
 | Jackson-mapper-asl                                                                         | jackson-mapper-asl         | 1.0.1   | 1.8.11  |                        | <AG>
-| Jackson Databind                                                                           | jackson-databind           | 2.0.6   | 2.10.2  |                        | <AG>
+| Jackson Databind                                                                           | jackson-databind           | 2.0.6   | 2.11.0  |                        | <AG>
 | MariaDB Connector/J                                                                        | mariadb-java-client        | 1.3.0   | 2.6.0   |                        | <AG>
-| MongoDB Java Driver                                                                        | mongodb-driver             | 3.0.0   | 3.12.2  |                        | <AG>
+| MongoDB Java Driver                                                                        | mongodb-driver             | 3.0.0   | 3.12.3  |                        | <AG>
 | [Elasticsearch](https://github.com/naver/pinpoint/tree/master/plugins/elasticsearch-bboss) | bboss-elasticsearch-rest-jdbc | 5.6.9   | 5.8.2   |                     | <AG>
 | Elasticsearch                                                                              | elasticsearch-rest-high-level-client | 6.0.0   | 7.6.2   |              | <AG>
-| Datastax Java Driver                                                                       | cassandra-driver-core      | 2.0.10  | 3.7.2   |                        | <AG>
+| Datastax Java Driver                                                                       | cassandra-driver-core      | 2.0.10  | 3.8.0   |                        | <AG>
 | Druid                                                                                      | druid                      | 1.0.0   | 1.1.21  |                        | <AG>
 | \*Cubrid                                                                                   | cubrid-jdbc-driver         | 8.4.1   | 10.0.0  |                        | 
 | \*Commons DBCP                                                                             | commons-dbcp               | 1.0     | 1.4     |                        | 
@@ -72,12 +72,12 @@
 |                                                                                            |                            |         |         |                        |
 | Apache CXF                                                                                 | cxf-rt-rs-client           | 3.0.0   | 3.3.5   |                        | <AG> 
 | Netty                                                                                      | netty-all                  | 4.1.0   | 4.1.46  |                        | <AG> 
-| ActiveMQ                                                                                   | activemq-all               | 5.1.0   | 5.15.11 |                        | <AG> 
+| ActiveMQ                                                                                   | activemq-all               | 5.1.0   | 5.15.12 |                        | <AG> 
 | [RxJAVA](https://github.com/naver/pinpoint/tree/master/plugins/rxjava)                     | rxjava                     | 1.0.0   | 1.3.8   |                        | <AG> 
 | [RabbitMQ](https://github.com/naver/pinpoint/tree/master/plugins/rabbitmq)                 | amqp-client                | 2.7.0   | 5.8.0   |                        | <AG> 
 |                                                                                            |                            |         |         |                        |
 | Gson                                                                                       | gson                       | 1.1     | 2.8.3   |                        | <AG>
 | Json                                                                                       | json-lib                   | 1.0     | 2.2.2   |                        | <AG>
-| FastJson                                                                                   | fastjson                   | 1.2.10  | 1.2.66  |                        | <AG>
+| FastJson                                                                                   | fastjson                   | 1.2.10  | 1.2.68  |                        | <AG>
 | Dubbo                                                                                      | dubbo                      | 2.5.1   | 2.6.8   |                        | <AG> 
  
