@@ -17,7 +17,7 @@
 package com.navercorp.pinpoint.common.server.bo.stat;
 
 public class TotalThreadCountBo implements AgentStatDataPoint {
-    public static final int UNCOLLECTED_VALUE = -1;
+    public static final long UNCOLLECTED_VALUE = -1L;
 
     private String agentId;
     private long startTimestamp;

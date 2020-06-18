@@ -38,6 +38,7 @@ public class AgentStatBo {
     private List<FileDescriptorBo> fileDescriptorBos;
     private List<DirectBufferBo> directBufferBos;
     private List<TotalThreadCountBo> totalThreadCountBos;
+    private List<LoadedClassBo> loadedClassBos;
 
     public long getStartTimestamp() {
         return startTimestamp;
@@ -136,6 +137,9 @@ public class AgentStatBo {
     public void setTotalThreadCountBos(List<TotalThreadCountBo> totalThreadCountBos) {
         this.totalThreadCountBos = totalThreadCountBos;
     }
+    public List<LoadedClassBo> getLoadedClassBos() { return loadedClassBos; }
+
+    public void setLoadedClassBos(List<LoadedClassBo> loadedClassBos) { this.loadedClassBos = loadedClassBos; }
 
     @Override
     public String toString() {
@@ -152,6 +156,7 @@ public class AgentStatBo {
         sb.append(", fileDescriptorBos=").append(fileDescriptorBos);
         sb.append(", directBufferBos=").append(directBufferBos);
         sb.append(", totalThreadCountBos=").append(totalThreadCountBos);
+        sb.append(", loadedClassBos=").append(loadedClassBos);
         sb.append('}');
         return sb.toString();
     }

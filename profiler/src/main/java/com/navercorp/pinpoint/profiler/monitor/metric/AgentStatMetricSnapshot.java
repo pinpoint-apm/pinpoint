@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.profiler.monitor.metric.cpu.CpuLoadMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.datasource.DataSourceMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.deadlock.DeadlockMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.filedescriptor.FileDescriptorMetricSnapshot;
+import com.navercorp.pinpoint.profiler.monitor.metric.loadedclass.LoadedClassMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.response.ResponseTimeValue;
 import com.navercorp.pinpoint.profiler.monitor.metric.totalthread.TotalThreadMetricSnapshot;
 import com.navercorp.pinpoint.profiler.monitor.metric.transaction.TransactionMetricSnapshot;
@@ -44,6 +45,7 @@ public class AgentStatMetricSnapshot {
     private FileDescriptorMetricSnapshot fileDescriptor;
     private BufferMetricSnapshot directBuffer;
     private TotalThreadMetricSnapshot totalThreadCount;
+    private LoadedClassMetricSnapshot loadedClassCount;
     private String metadata;
 
     public String getAgentId() {
@@ -153,6 +155,10 @@ public class AgentStatMetricSnapshot {
     public TotalThreadMetricSnapshot getTotalThread() { return totalThreadCount;}
 
     public void setTotalThread(TotalThreadMetricSnapshot totalThreadCount) { this.totalThreadCount = totalThreadCount; }
+
+    public LoadedClassMetricSnapshot getLoadedClassCount() { return loadedClassCount; }
+
+    public void setLoadedClassCount(LoadedClassMetricSnapshot loadedClassCount) { this.loadedClassCount = loadedClassCount; }
 
     public String getMetadata() {
         return metadata;

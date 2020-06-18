@@ -583,6 +583,28 @@
                             "DESC": "현재 총 thread의 수"
                         }]
                     }]
+                }],
+                "LOADED_CLASS_COUNT": [{
+                    "TITLE": "Loaded Class Count",
+                    "DESC": "Agent에 loading 된 class의 수를 보여줍니다.",
+                    "CATEGORY": [{
+                        "TITLE": "범례",
+                        "ITEMS": [{
+                            "NAME": "Loaded Class Count",
+                            "DESC": "현재 loading된 class의 수"
+                        }]
+                    }]
+                }],
+                "UNLOADED_CLASS_COUNT": [{
+                    "TITLE": "Unloaded Class Count",
+                    "DESC": "Agent에 unloading 된 class의 수를 보여줍니다.",
+                    "CATEGORY": [{
+                        "TITLE": "범례",
+                        "ITEMS": [{
+                            "NAME": "Unloaded Class Count",
+                            "DESC": "현재 unloading된 class의 수"
+                        }]
+                    }]
                 }]
             },
             "APPLICATION_CHART": {
@@ -821,6 +843,40 @@
                         }, {
                             "NAME": "Max",
                             "DESC": "각 Agent의 total thread 수 중 가장 큰 값"
+                        }]
+                    }]
+                }],
+                "LOADED_CLASS_COUNT":[{
+                    "TITLE": "Loaded Class Count",
+                    "DESC": "Agent들이 loading한 class의 수 현황",
+                    "CATEGORY": [{
+                        "TITLE": "범례",
+                        "ITEMS": [{
+                            "NAME": "Min",
+                            "DESC": "각 Agent가 loading한 class 수 중 가장 작은 값"
+                        }, {
+                            "NAME": "Avg",
+                            "DESC": "각 Agent의 loading class한 수의 평균 값"
+                        }, {
+                            "NAME": "Max",
+                            "DESC": "각 Agent의 loading class한 수 중 가장 큰 값"
+                        }]
+                    }]
+                }],
+                "UNLOADED_CLASS_COUNT":[{
+                    "TITLE": "Unloaded Class Count",
+                    "DESC": "Agent들이 unloading한 class의 수 현황",
+                    "CATEGORY": [{
+                        "TITLE": "범례",
+                        "ITEMS": [{
+                            "NAME": "Min",
+                            "DESC": "각 Agent가 unloading한 class 수 중 가장 작은 값"
+                        }, {
+                            "NAME": "Avg",
+                            "DESC": "각 Agent의 unloading class한 수의 평균 값"
+                        }, {
+                            "NAME": "Max",
+                            "DESC": "각 Agent의 unloading class한 수 중 가장 큰 값"
                         }]
                     }]
                 }]

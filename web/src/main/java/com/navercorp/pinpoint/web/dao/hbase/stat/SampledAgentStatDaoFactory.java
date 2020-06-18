@@ -29,6 +29,7 @@ import com.navercorp.pinpoint.web.dao.stat.SampledJvmGcDetailedDao;
 import com.navercorp.pinpoint.web.dao.stat.SampledResponseTimeDao;
 import com.navercorp.pinpoint.web.dao.stat.SampledTransactionDao;
 import com.navercorp.pinpoint.web.dao.stat.SampledTotalThreadCountDao;
+import com.navercorp.pinpoint.web.dao.stat.SampledLoadedClassCountDao;
 import com.navercorp.pinpoint.web.vo.stat.SampledActiveTrace;
 import com.navercorp.pinpoint.web.vo.stat.SampledAgentStatDataPoint;
 import com.navercorp.pinpoint.web.vo.stat.SampledCpuLoad;
@@ -41,6 +42,7 @@ import com.navercorp.pinpoint.web.vo.stat.SampledJvmGcDetailed;
 import com.navercorp.pinpoint.web.vo.stat.SampledResponseTime;
 import com.navercorp.pinpoint.web.vo.stat.SampledTransaction;
 import com.navercorp.pinpoint.web.vo.stat.SampledTotalThreadCount;
+import com.navercorp.pinpoint.web.vo.stat.SampledLoadedClassCount;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -312,6 +314,26 @@ abstract class SampledAgentStatDaoFactory<S extends SampledAgentStatDataPoint, D
 
         @Override
         public Class<?> getObjectType() { return SampledTotalThreadCountDao.class; }
+
+        @Override
+        public boolean isSingleton() { return true; }
+    }
+
+    @Repository("sampledLoadedClassCountDaoFactory")
+    public static class SampledLoadedClassDaoFactory
+            extends SampledAgentStatDaoFactory<SampledLoadedClassCount, SampledLoadedClassCountDao>
+            implements FactoryBean<SampledLoadedClassCountDao> {
+
+        @Autowired
+        public void setV2(@Qualifier("sampledLoadedClassDaoV2") SampledLoadedClassCountDao v2) { this.v2 = v2; }
+
+        @Override
+        public SampledLoadedClassCountDao getObject() throws Exception {
+            return super.getDao();
+        }
+
+        @Override
+        public Class<?> getObjectType() { return SampledLoadedClassCountDao.class; }
 
         @Override
         public boolean isSingleton() { return true; }

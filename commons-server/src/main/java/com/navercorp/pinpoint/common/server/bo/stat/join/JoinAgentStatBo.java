@@ -38,6 +38,7 @@ public class JoinAgentStatBo implements JoinStatBo {
     private List<JoinFileDescriptorBo> joinFileDescriptorBoList = Collections.emptyList();
     private List<JoinDirectBufferBo> joinDirectBufferBoList = Collections.emptyList();
     private List<JoinTotalThreadCountBo> joinTotalThreadCountBoList = Collections.emptyList();
+    private List<JoinLoadedClassBo> joinLoadedClassBoList = Collections.emptyList();
 
     protected JoinAgentStatBo(JoinAgentStatBo joinAgentStatBo) {
         if (joinAgentStatBo == null) {
@@ -56,6 +57,7 @@ public class JoinAgentStatBo implements JoinStatBo {
         this.joinFileDescriptorBoList = joinAgentStatBo.getJoinFileDescriptorBoList();
         this.joinDirectBufferBoList = joinAgentStatBo.getJoinDirectBufferBoList();
         this.joinTotalThreadCountBoList = joinAgentStatBo.getJoinTotalThreadCountBoList();
+        this.joinLoadedClassBoList = joinAgentStatBo.getJoinLoadedClassBoList();
     }
 
     public JoinAgentStatBo() {
@@ -117,6 +119,12 @@ public class JoinAgentStatBo implements JoinStatBo {
 
     public void setJoinTotalThreadCountBoList(List<JoinTotalThreadCountBo> joinTotalThreadCountBoList) {
         this.joinTotalThreadCountBoList = joinTotalThreadCountBoList;
+    }
+
+    public List<JoinLoadedClassBo> getJoinLoadedClassBoList() { return joinLoadedClassBoList; }
+
+    public void setJoinLoadedClassBoList(List<JoinLoadedClassBo> joinLoadedClassBoList) {
+        this.joinLoadedClassBoList = joinLoadedClassBoList;
     }
 
     public long getAgentStartTimestamp() {
@@ -192,7 +200,8 @@ public class JoinAgentStatBo implements JoinStatBo {
             ", joinDataSourceListBoList=" + joinDataSourceListBoList +
             ", joinFileDescriptorBoList=" + joinFileDescriptorBoList +
             ", joinDirectBufferBoList=" + joinDirectBufferBoList +
-            ", joinTotalThreadCOuntBoList=" + joinTotalThreadCountBoList +
+            ", joinTotalThreadCountBoList=" + joinTotalThreadCountBoList +
+            ", joinLoadedClassBoList=" + joinLoadedClassBoList +
             '}';
     }
 }
