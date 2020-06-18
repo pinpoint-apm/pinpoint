@@ -1,5 +1,8 @@
-package com.navercorp.pinpoint.common.server.util;
+package com.navercorp.pinpoint.common.server.util.pair;
 
+/**
+ * ImmutablePair
+ */
 public class LongPair {
     private final long first;
     private final long second;
@@ -37,9 +40,6 @@ public class LongPair {
 
     @Override
     public String toString() {
-        return "LongPair{" +
-                "first=" + first +
-                ", second=" + second +
-                '}';
+        return "LongPair{" + first + "=" + second + "}";
     }
 }

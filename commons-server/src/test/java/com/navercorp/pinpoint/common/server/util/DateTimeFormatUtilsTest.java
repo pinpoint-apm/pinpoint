@@ -16,11 +16,11 @@
 
 package com.navercorp.pinpoint.common.server.util;
 
-import com.navercorp.pinpoint.common.util.DateUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.sql.Timestamp;
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.format.DateTimeParseException;
@@ -30,18 +30,20 @@ import java.time.format.DateTimeParseException;
  */
 public class DateTimeFormatUtilsTest {
 
+    private final DateFormat defaultDateFormatfinal = new SimpleDateFormat(DateTimeFormatUtils.DEFAULT_DATE_FORMAT);
+    private final DateFormat simpleDateFormatfinal = new SimpleDateFormat(DateTimeFormatUtils.SIMPLE_DATE_FORMAT);
 
     @Test
     public void format() {
         long time = System.currentTimeMillis();
-        Assert.assertEquals(DateUtils.longToDateStr(time), DateTimeFormatUtils.format(time));
+        Assert.assertEquals(defaultDateFormatfinal.format(time), DateTimeFormatUtils.format(time));
     }
 
     @Test
     public void formatSimple() {
         long time = System.currentTimeMillis();
         String actual = DateTimeFormatUtils.formatSimple(time);
-        Assert.assertEquals(DateUtils.longToDateStr(time, DateTimeFormatUtils.SIMPLE_DATE_FORMAT), actual);
+        Assert.assertEquals(simpleDateFormatfinal.format(time), actual);
     }
 
     @Test
