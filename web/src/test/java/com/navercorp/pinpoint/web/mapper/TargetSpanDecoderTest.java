@@ -81,12 +81,40 @@ public class TargetSpanDecoderTest {
         Assert.assertNotNull(result);
     }
 
+    @Test
+    public void decodeTest3() {
+        final String applicationId = "test";
+        SpanBo spanBo = Random.createSpanBo(applicationId);
+        SpanDecoder mockSpanDecoder = createMockSpanDecoder(spanBo);
+
+        GetTraceInfo getTraceInfo = new GetTraceInfo(spanBo.getTransactionId(), new SpanHint(spanBo.getCollectorAcceptTime(), spanBo.getElapsed(), applicationId + "1"));
+
+        TargetSpanDecoder targetSpanDecoder = new TargetSpanDecoder(mockSpanDecoder, getTraceInfo);
+
+        Object result = targetSpanDecoder.decode(null, null, null);
+        Assert.assertNull(result);
+    }
+
+    @Test
+    public void decodeTest4() {
+        final String applicationId = "test";
+        SpanBo spanBo = Random.createSpanBo(applicationId);
+        SpanDecoder mockSpanDecoder = createMockSpanDecoder(spanBo);
+
+        GetTraceInfo getTraceInfo = new GetTraceInfo(spanBo.getTransactionId(), new SpanHint(spanBo.getCollectorAcceptTime(), spanBo.getElapsed(), null));
+
+        TargetSpanDecoder targetSpanDecoder = new TargetSpanDecoder(mockSpanDecoder, getTraceInfo);
+
+        Object result = targetSpanDecoder.decode(null, null, null);
+        Assert.assertNotNull(result);
+    }
+
     private GetTraceInfo createGetTraceInfo() {
         return createGetTraceInfo(Random.createSpanBo());
     }
 
     private GetTraceInfo createGetTraceInfo(SpanBo spanBo) {
-        return new GetTraceInfo(spanBo.getTransactionId(), new SpanHint(spanBo.getCollectorAcceptTime(), spanBo.getElapsed()));
+        return new GetTraceInfo(spanBo.getTransactionId(), new SpanHint(spanBo.getCollectorAcceptTime(), spanBo.getElapsed(), spanBo.getApplicationId()));
     }
 
     private SpanDecoder createMockSpanDecoder() {
@@ -103,10 +131,19 @@ public class TargetSpanDecoderTest {
     private static class Random {
 
         private static SpanBo createSpanBo() {
+            return createSpanBo(null);
+        }
+
+        private static SpanBo createSpanBo(String applicationId) {
             SpanBo spanBo = new SpanBo();
             spanBo.setTransactionId(createTransactionId());
             spanBo.setCollectorAcceptTime(createCollectorAcceptTime());
             spanBo.setElapsed(createElapsed());
+
+            if (applicationId != null) {
+                spanBo.setApplicationId("appName");
+            }
+
             return spanBo;
         }
 

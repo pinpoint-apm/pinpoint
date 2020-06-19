@@ -70,7 +70,16 @@ public class TargetSpanDecoder implements SpanDecoder {
                 return null;
             }
 
-            return spanBo;
+            final String hintApplicationName = hint.getApplicationName();
+            if (hintApplicationName == null) {
+                return spanBo;
+            }
+
+            final String applicationId = spanBo.getApplicationId();
+            if (hintApplicationName.equals(applicationId)) {
+                return spanBo;
+            }
+            return null;
         }
 
         return null;
