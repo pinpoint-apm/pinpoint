@@ -25,20 +25,24 @@ public final class SpanHint {
 
     private final long collectorAcceptorTime;
     private final int responseTime;
+    private final String applicationName;
+
     private final boolean isSet;
 
     public SpanHint() {
         this.collectorAcceptorTime = -1;
         this.responseTime = -1;
+        this.applicationName = null;
 
         this.isSet = false;
     }
 
-    public SpanHint(long collectorAcceptorTime, int responseTime) {
+    public SpanHint(long collectorAcceptorTime, int responseTime, String applicationName) {
         Assert.isTrue(collectorAcceptorTime > 0, "collectorAcceptorTime must be 'collectorAcceptorTime > 0'");
         this.collectorAcceptorTime = collectorAcceptorTime;
         Assert.isTrue(responseTime >= 0, "responseTime must be 'responseTime >= 0'");
         this.responseTime = responseTime;
+        this.applicationName = applicationName;
 
         this.isSet = true;
     }
@@ -49,6 +53,10 @@ public final class SpanHint {
 
     public int getResponseTime() {
         return responseTime;
+    }
+
+    public String getApplicationName() {
+        return applicationName;
     }
 
     public boolean isSet() {
