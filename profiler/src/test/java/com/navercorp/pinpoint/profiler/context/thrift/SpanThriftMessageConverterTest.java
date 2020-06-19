@@ -31,11 +31,11 @@ import com.navercorp.pinpoint.profiler.context.id.DefaultTraceRoot;
 import com.navercorp.pinpoint.profiler.context.id.Shared;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.context.id.TransactionIdEncoder;
+import com.navercorp.pinpoint.profiler.util.RandomExUtils;
 import com.navercorp.pinpoint.thrift.dto.TAnnotation;
 import com.navercorp.pinpoint.thrift.dto.TSpan;
 import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
 import com.navercorp.pinpoint.thrift.dto.TSpanEvent;
-import org.apache.commons.lang3.RandomUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -78,22 +78,22 @@ public class SpanThriftMessageConverterTest {
         final Span span = newSpan();
 
         span.setStartTime(System.currentTimeMillis());
-        span.setElapsedTime(RandomUtils.nextInt(0, 100));
+        span.setElapsedTime(RandomExUtils.nextInt(0, 100));
         span.setAcceptorHost("acceptorHost");
-        span.setExceptionInfo(new IntStringValue(RandomUtils.nextInt(0, 100), "error"));
-        span.setApiId(RandomUtils.nextInt(0, 100));
-        span.setServiceType((short) RandomUtils.nextInt(0, 100));
+        span.setExceptionInfo(new IntStringValue(RandomExUtils.nextInt(0, 100), "error"));
+        span.setApiId(RandomExUtils.nextInt(0, 100));
+        span.setServiceType((short) RandomExUtils.nextInt(0, 100));
         span.setRemoteAddr("remoteAddr");
         span.setParentApplicationName("pApp");
-        span.setParentApplicationType((short) RandomUtils.nextInt(0, 100));
+        span.setParentApplicationType((short) RandomExUtils.nextInt(0, 100));
 
         final TraceRoot traceRoot = span.getTraceRoot();
         Shared shared = traceRoot.getShared();
         shared.setEndPoint("endPoint");
         shared.setRpcName("rpcName");
-        shared.setLoggingInfo((byte) RandomUtils.nextInt(0, 10));
-        shared.maskErrorCode(RandomUtils.nextInt(0, 100));
-        shared.setStatusCode(RandomUtils.nextInt(0, 100));
+        shared.setLoggingInfo((byte) RandomExUtils.nextInt(0, 10));
+        shared.maskErrorCode(RandomExUtils.nextInt(0, 100));
+        shared.setStatusCode(RandomExUtils.nextInt(0, 100));
 
         span.addAnnotation(new Annotation(1));
         span.setSpanEventList(Collections.singletonList(new SpanEvent()));
@@ -124,6 +124,7 @@ public class SpanThriftMessageConverterTest {
         Assert.assertEquals(span.getSpanEventList().size(), tSpan.getSpanEventList().size());
     }
 
+
     private SpanChunk newSpanChunk() {
         final TraceId traceId = new DefaultTraceId(AGENT_ID, AGENT_START_TIME, 1L);
         final TraceRoot traceRoot = new DefaultTraceRoot(traceId, AGENT_ID, AGENT_START_TIME, 100L);
@@ -148,14 +149,14 @@ public class SpanThriftMessageConverterTest {
         final long startTime = System.currentTimeMillis() - 100;
 
         SpanEvent spanEvent = new SpanEvent();
-        spanEvent.setDepth(RandomUtils.nextInt(0, 100));
-        spanEvent.setStartTime(startTime + RandomUtils.nextInt(0, 100));
-        spanEvent.setAfterTime(spanEvent.getStartTime() + RandomUtils.nextInt(5, 100));
+        spanEvent.setDepth(RandomExUtils.nextInt(0, 100));
+        spanEvent.setStartTime(startTime + RandomExUtils.nextInt(0, 100));
+        spanEvent.setAfterTime(spanEvent.getStartTime() + RandomExUtils.nextInt(5, 100));
         spanEvent.setDestinationId("destinationId");
-        spanEvent.setSequence((short) RandomUtils.nextInt(0, 100));
-        spanEvent.setNextSpanId(RandomUtils.nextInt(0, 100));
+        spanEvent.setSequence((short) RandomExUtils.nextInt(0, 100));
+        spanEvent.setNextSpanId(RandomExUtils.nextInt(0, 100));
 
-        spanEvent.setAsyncIdObject(new DefaultAsyncId(RandomUtils.nextInt(0, 100)));
+        spanEvent.setAsyncIdObject(new DefaultAsyncId(RandomExUtils.nextInt(0, 100)));
 
 
         spanEvent.addAnnotation(new Annotation(1));
@@ -178,7 +179,7 @@ public class SpanThriftMessageConverterTest {
 
     @Test
     public void buildTAnnotation() {
-        Annotation annotation = new Annotation(RandomUtils.nextInt(0, 100), "value");
+        Annotation annotation = new Annotation(RandomExUtils.nextInt(0, 100), "value");
         List<Annotation> annotations = Collections.singletonList(annotation);
         List<TAnnotation> tAnnotations = messageConverter.buildTAnnotation(annotations);
 

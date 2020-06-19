@@ -21,7 +21,7 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.profiler.context.monitor.DataSourceMonitorRegistryService;
 import com.navercorp.pinpoint.profiler.context.monitor.DefaultDataSourceMonitorRegistryService;
 import com.navercorp.pinpoint.profiler.context.monitor.JdbcUrlParsingService;
-import org.apache.commons.lang3.RandomUtils;
+import com.navercorp.pinpoint.profiler.util.RandomExUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -115,9 +115,9 @@ public class DefaultDataSourceMetricTest {
 
         public MockDataSourceMonitor(int index) {
             this.id = index;
-            this.serviceType = SERVICE_TYPE_LIST[RandomUtils.nextInt(0, SERVICE_TYPE_LIST.length)];
-            this.maxConnectionSize = RandomUtils.nextInt(MIN_VALUE_OF_MAX_CONNECTION_SIZE, MIN_VALUE_OF_MAX_CONNECTION_SIZE * 2);
-            this.activeConnectionSize = RandomUtils.nextInt(0, maxConnectionSize + 1);
+            this.serviceType = SERVICE_TYPE_LIST[RandomExUtils.nextInt(0, SERVICE_TYPE_LIST.length)];
+            this.maxConnectionSize = RandomExUtils.nextInt(MIN_VALUE_OF_MAX_CONNECTION_SIZE, MIN_VALUE_OF_MAX_CONNECTION_SIZE * 2);
+            this.activeConnectionSize = RandomExUtils.nextInt(0, maxConnectionSize + 1);
         }
 
         @Override
