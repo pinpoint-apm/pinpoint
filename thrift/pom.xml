@@ -67,8 +67,8 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <artifactId>commons-lang3</artifactId>
-            <groupId>org.apache.commons</groupId>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
             <scope>test</scope>
         </dependency>
 

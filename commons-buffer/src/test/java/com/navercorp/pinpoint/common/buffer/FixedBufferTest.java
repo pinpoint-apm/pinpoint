@@ -20,7 +20,7 @@ import com.google.common.primitives.Ints;
 import com.navercorp.pinpoint.common.Charsets;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang.StringUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -131,7 +131,7 @@ public class FixedBufferTest {
         int TEST_SIZE = 10;
         int PAD_SIZE = TOTAL_LENGTH - TEST_SIZE;
         Buffer buffer= new FixedBuffer(32);
-        String test = StringUtils.repeat('a', TEST_SIZE);
+        String test = StringUtils.repeat("a", TEST_SIZE);
 
         buffer.putPadString(test, TOTAL_LENGTH);
 
@@ -150,7 +150,7 @@ public class FixedBufferTest {
 
     @Test
     public void readPadString() {
-        String testString = StringUtils.repeat('a', 10);
+        String testString = StringUtils.repeat("a", 10);
         Buffer writeBuffer = new FixedBuffer(32);
         writeBuffer.putPadString(testString, 20);
         writeBuffer.putInt(255);
@@ -164,7 +164,7 @@ public class FixedBufferTest {
 
     @Test
     public void readPadStringAndRightTrim() {
-        String testString = StringUtils.repeat('a', 10);
+        String testString = StringUtils.repeat("a", 10);
         Buffer writeBuffer = new FixedBuffer(32);
         writeBuffer.putPadString(testString, 20);
         writeBuffer.putInt(255);
@@ -181,19 +181,19 @@ public class FixedBufferTest {
 
         Buffer buffer1_1 = new FixedBuffer(32);
         try {
-            buffer1_1.putPadString(StringUtils.repeat('a', 11), 10);
+            buffer1_1.putPadString(StringUtils.repeat("a", 11), 10);
         } catch (IndexOutOfBoundsException ignore) {
         }
 
         Buffer buffer1_2 = new FixedBuffer(32);
         try {
-            buffer1_2.putPadString(StringUtils.repeat('a', 20), 10);
+            buffer1_2.putPadString(StringUtils.repeat("a", 20), 10);
             Assert.fail("error");
         } catch (IndexOutOfBoundsException ignore) {
         }
 
         Buffer buffer2 = new FixedBuffer(32);
-        buffer2.putPadString(StringUtils.repeat('a', 10), 10);
+        buffer2.putPadString(StringUtils.repeat("a", 10), 10);
     }
 
     @Test

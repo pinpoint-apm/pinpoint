@@ -19,7 +19,7 @@ package com.navercorp.pinpoint.common.buffer;
 import com.navercorp.pinpoint.common.Charsets;
 import com.navercorp.pinpoint.common.util.BytesUtils;
 
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang.StringUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -98,7 +98,7 @@ public class AutomaticBufferTest {
         int TEST_SIZE = 10;
         int PAD_SIZE = TOTAL_LENGTH - TEST_SIZE;
         Buffer buffer = new AutomaticBuffer(32);
-        String test = StringUtils.repeat('a', TEST_SIZE);
+        String test = StringUtils.repeat("a", TEST_SIZE);
 
         buffer.putPadString(test, TOTAL_LENGTH);
 
@@ -120,23 +120,23 @@ public class AutomaticBufferTest {
 
         Buffer buffer1_1 = new AutomaticBuffer(32);
         try {
-            buffer1_1.putPadString(StringUtils.repeat('a', 11), 10);
+            buffer1_1.putPadString(StringUtils.repeat("a", 11), 10);
             Assert.fail("error");
         } catch (IndexOutOfBoundsException ignore) {
         }
 
         Buffer buffer1_2 = new AutomaticBuffer(32);
         try {
-            buffer1_2.putPadString(StringUtils.repeat('a', 20), 10);
+            buffer1_2.putPadString(StringUtils.repeat("a", 20), 10);
             Assert.fail("error");
         } catch (Exception ignore) {
         }
 
         Buffer buffer2 = new AutomaticBuffer(32);
-        buffer2.putPadString(StringUtils.repeat('a', 10), 10);
+        buffer2.putPadString(StringUtils.repeat("a", 10), 10);
 
         Buffer buffer3 = new AutomaticBuffer(5);
-        buffer3.putPadString(StringUtils.repeat('a', 10), 10);
+        buffer3.putPadString(StringUtils.repeat("a", 10), 10);
     }
 
     @Test

@@ -26,7 +26,7 @@ import com.navercorp.pinpoint.thrift.dto.TAgentInfo;
 
 import org.junit.Assert;
 
-import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang.RandomStringUtils;
 import org.apache.thrift.TBase;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;

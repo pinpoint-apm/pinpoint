@@ -27,7 +27,7 @@ import com.navercorp.pinpoint.profiler.context.thrift.SpanThriftMessageConverter
 import com.navercorp.pinpoint.thrift.dto.TAgentInfo;
 import com.navercorp.pinpoint.thrift.dto.TSpan;
 import com.navercorp.pinpoint.thrift.dto.TSpanChunk;
-import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang.RandomStringUtils;
 import org.apache.thrift.TBase;
 import org.junit.After;
 import org.junit.Before;
