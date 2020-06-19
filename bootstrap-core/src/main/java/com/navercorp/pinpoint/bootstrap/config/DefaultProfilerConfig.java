@@ -318,11 +318,6 @@ public class DefaultProfilerConfig implements ProfilerConfig {
         return staticResourceCleanup;
     }
 
-    @Deprecated
-    public void setStaticResourceCleanup(boolean staticResourceCleanup) {
-        this.staticResourceCleanup = staticResourceCleanup;
-    }
-
 
     @Override
     public Filter<String> getProfilableClassFilter() {
@@ -360,11 +355,6 @@ public class DefaultProfilerConfig implements ProfilerConfig {
     @Override
     public int getCallStackMaxDepth() {
         return callStackMaxDepth;
-    }
-
-    @Deprecated
-    public void setCallStackMaxDepth(int callStackMaxDepth) {
-        this.callStackMaxDepth = callStackMaxDepth;
     }
 
     @Override

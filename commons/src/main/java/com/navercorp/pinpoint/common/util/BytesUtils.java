@@ -521,20 +521,6 @@ public final class BytesUtils {
         return buf;
     }
 
-    @Deprecated
-    public static byte[] add(final long preFix, final short postFix, final int intArg, final short shortArg) {
-        byte[] buf = new byte[LONG_BYTE_LENGTH + SHORT_BYTE_LENGTH + INT_BYTE_LENGTH + SHORT_BYTE_LENGTH];
-        int offset = 0;
-        writeLong(preFix, buf, offset);
-        offset += LONG_BYTE_LENGTH;
-        writeShort(postFix, buf, offset);
-        offset += SHORT_BYTE_LENGTH;
-        writeInt(intArg, buf, offset);
-        offset += INT_BYTE_LENGTH;
-        writeShort(shortArg, buf, offset);
-        return buf;
-    }
-
 
     public static byte[] toBytes(final String value) {
         if (value == null) {

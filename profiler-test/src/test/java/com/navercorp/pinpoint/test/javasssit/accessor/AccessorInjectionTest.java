@@ -30,7 +30,7 @@ import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
 import com.navercorp.pinpoint.profiler.logging.Slf4jLoggerBinder;
 import com.navercorp.pinpoint.test.MockApplicationContextFactory;
 import com.navercorp.pinpoint.test.classloader.TestClassLoader;
-import com.navercorp.pinpoint.test.javasssit.JavassistClassTest;
+import com.navercorp.pinpoint.test.javasssit.TestBeforeInterceptor;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
@@ -46,7 +46,7 @@ import java.security.ProtectionDomain;
 @Deprecated
 public class AccessorInjectionTest {
 
-    private final Logger logger = LoggerFactory.getLogger(JavassistClassTest.class.getName());
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private DefaultApplicationContext applicationContext;
 
@@ -86,15 +86,15 @@ public class AccessorInjectionTest {
 
                     InstrumentClass aClass = instrumentor.getInstrumentClass(loader, javassistClassName, classfileBuffer);
 
-                    aClass.addField(ObjectTraceValue.class.getName());
-                    aClass.addField(IntTraceValue.class.getName());
-                    aClass.addField(IntArrayTraceValue.class.getName());
-                    aClass.addField(IntegerArrayTraceValue.class.getName());
-                    aClass.addField(DatabaseInfoTraceValue.class.getName());
-                    aClass.addField(BindValueTraceValue.class.getName());
+                    aClass.addField(ObjectTraceValue.class);
+                    aClass.addField(IntTraceValue.class);
+                    aClass.addField(IntArrayTraceValue.class);
+                    aClass.addField(IntegerArrayTraceValue.class);
+                    aClass.addField(DatabaseInfoTraceValue.class);
+                    aClass.addField(BindValueTraceValue.class);
 
                     String methodName = "callA";
-                    aClass.getDeclaredMethod(methodName).addInterceptor("com.navercorp.pinpoint.test.javasssit.TestBeforeInterceptor");
+                    aClass.getDeclaredMethod(methodName).addInterceptor(TestBeforeInterceptor.class);
                     return aClass.toBytecode();
                 } catch (InstrumentException e) {
                     e.printStackTrace();
@@ -159,10 +159,10 @@ public class AccessorInjectionTest {
                     logger.info("modify cl:{}", classLoader);
                     InstrumentClass aClass = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
 
-                    aClass.addGetter(StringGetter.class.getName(), "value");
-                    aClass.addGetter(IntGetter.class.getName(), "intValue");
-                    aClass.addGetter(IntArrayGetter.class.getName(), "intValues");
-                    aClass.addGetter(IntegerArrayGetter.class.getName(), "integerValues");
+                    aClass.addGetter(StringGetter.class, "value");
+                    aClass.addGetter(IntGetter.class, "intValue");
+                    aClass.addGetter(IntArrayGetter.class, "intValues");
+                    aClass.addGetter(IntegerArrayGetter.class, "integerValues");
 
                     return aClass.toBytecode();
                 } catch (InstrumentException e) {
@@ -229,9 +229,9 @@ public class AccessorInjectionTest {
                     logger.info("modify cl:{}", classLoader);
                     InstrumentClass testClass = instrumentor.getInstrumentClass(classLoader, className, classfileBuffer);
 
-                    testClass.addSetter(IntSetter.class.getName(), "intValue");
-                    testClass.addSetter(IntArraySetter.class.getName(), "intValues");
-                    testClass.addSetter(IntegerArraySetter.class.getName(), "integerValues");
+                    testClass.addSetter(IntSetter.class, "intValue");
+                    testClass.addSetter(IntArraySetter.class, "intValues");
+                    testClass.addSetter(IntegerArraySetter.class, "integerValues");
 
                     return testClass.toBytecode();
                 } catch (InstrumentException e) {

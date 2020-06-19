@@ -331,11 +331,6 @@ public class FixedBuffer implements Buffer {
         return BytesUtils.zigzagToInt(readVInt());
     }
 
-    @Deprecated
-    public int readSVarInt() {
-        return readSVInt();
-    }
-
     @Override
     public short readShort() {
         final short i = BytesUtils.bytesToShort(buffer, offset);

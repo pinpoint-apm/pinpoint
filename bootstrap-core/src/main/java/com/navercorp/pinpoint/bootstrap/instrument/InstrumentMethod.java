@@ -37,68 +37,6 @@ public interface InstrumentMethod {
     
     MethodDescriptor getDescriptor();
 
-    /**
-     * @deprecated Since 1.9.0 Use {@link #addInterceptor(Class)}
-     */
-    @Deprecated
-    int addInterceptor(String interceptorClassName) throws InstrumentException;
-
-    /**
-     * @deprecated Since 1.9.0 Use {@link #addInterceptor(Class, Object[])}
-     */
-    @Deprecated
-    int addInterceptor(String interceptorClassName, Object[] constructorArgs) throws InstrumentException;
-
-
-    /**
-     * @deprecated Since 1.9.0 Use {@link #addScopedInterceptor(Class, String)} }
-     */
-    @Deprecated
-    int addScopedInterceptor(String interceptorClassName, String scopeName) throws InstrumentException;
-
-    /**
-     * @deprecated Since 1.9.0 Use {@link #addScopedInterceptor(Class, InterceptorScope)} }
-     */
-    @Deprecated
-    int addScopedInterceptor(String interceptorClassName, InterceptorScope interceptorScope) throws InstrumentException;
-
-    /**
-     * @deprecated Since 1.9.0 Use {@link #addScopedInterceptor(Class, String, ExecutionPolicy)} }
-     */
-    @Deprecated
-    int addScopedInterceptor(String interceptorClassName, String scopeName, ExecutionPolicy executionPolicy) throws InstrumentException;
-
-    /**
-     * @deprecated Since 1.9.0 Use {@link #addScopedInterceptor(Class, InterceptorScope, ExecutionPolicy)} }
-     */
-    @Deprecated
-    int addScopedInterceptor(String interceptorClassName, InterceptorScope interceptorScope, ExecutionPolicy executionPolicy) throws InstrumentException;
-
-    /**
-     * @deprecated Since 1.9.0 Use {@link #addScopedInterceptor(Class, Object[], String)} }
-     */
-    @Deprecated
-    int addScopedInterceptor(String interceptorClassName, Object[] constructorArgs, String scopeName) throws InstrumentException;
-
-    /**
-     * @deprecated Since 1.9.0 Use {@link #addScopedInterceptor(Class, Object[], InterceptorScope)} }
-     */
-    @Deprecated
-    int addScopedInterceptor(String interceptorClassName, Object[] constructorArgs, InterceptorScope scope) throws InstrumentException;
-
-    /**
-     * @deprecated Since 1.9.0 Use {@link #addScopedInterceptor(Class, Object[], String, ExecutionPolicy)} }
-     */
-    @Deprecated
-    int addScopedInterceptor(String interceptorClassName, Object[] constructorArgs, String scopeName, ExecutionPolicy executionPolicy) throws InstrumentException;
-
-    /**
-     * @deprecated Since 1.9.0 Use {@link #addScopedInterceptor(Class, Object[], InterceptorScope, ExecutionPolicy)} }
-     */
-    @Deprecated
-    int addScopedInterceptor(String interceptorClassName, Object[] constructorArgs, InterceptorScope interceptorScope, ExecutionPolicy executionPolicy) throws InstrumentException;
-    
-
     //-------------------- Plugin V2 Api  ----------------------------------
     int addInterceptor(Class<? extends Interceptor> interceptorClass) throws InstrumentException;
 
@@ -124,6 +62,7 @@ public interface InstrumentMethod {
     int addScopedInterceptor(Class<? extends Interceptor> interceptorClass, Object[] constructorArgs, InterceptorScope interceptorScope, ExecutionPolicy executionPolicy) throws InstrumentException;
 
 
-
     void addInterceptor(int interceptorId) throws InstrumentException;
+
+    Class<? extends Interceptor> loadInterceptorClass(String interceptorClassName) throws InstrumentException;
 }
