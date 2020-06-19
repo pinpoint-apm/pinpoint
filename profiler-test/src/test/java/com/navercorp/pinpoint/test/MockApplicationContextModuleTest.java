@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.bootstrap.AgentOption;
 import com.navercorp.pinpoint.bootstrap.DefaultAgentOption;
 import com.navercorp.pinpoint.bootstrap.config.DefaultProfilerConfig;
 import com.navercorp.pinpoint.bootstrap.config.ProfilerConfig;
+import com.navercorp.pinpoint.bootstrap.config.Profiles;
 import com.navercorp.pinpoint.profiler.AgentInfoSender;
 import com.navercorp.pinpoint.profiler.context.module.DefaultApplicationContext;
 import com.navercorp.pinpoint.profiler.context.module.ModuleFactory;
@@ -32,6 +33,7 @@ import org.mockito.Mockito;
 
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.Instrumentation;
+import java.net.URL;
 import java.util.Collections;
 
 import static org.mockito.Mockito.spy;
@@ -46,6 +48,8 @@ public class MockApplicationContextModuleTest {
     public void test() {
         ProfilerConfig profilerConfig = spy(new DefaultProfilerConfig());
         when(profilerConfig.getStaticResourceCleanup()).thenReturn(true);
+        URL resource = getClass().getResource("/log4j.xml");
+        when(profilerConfig.readString(Profiles.LOG_CONFIG_LOCATION_KEY, null)).thenReturn(resource.getPath());
         Instrumentation instrumentation = Mockito.mock(Instrumentation.class);
 
         AgentOption agentOption = new DefaultAgentOption(instrumentation,

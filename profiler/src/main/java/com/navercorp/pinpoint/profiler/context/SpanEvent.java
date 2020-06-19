@@ -197,12 +197,6 @@ public class SpanEvent extends DefaultFrameAttachment {
         this.exceptionInfo = exceptionInfo;
     }
 
-    @Deprecated
-    public LocalAsyncId getLocalAsyncId() {
-        return null;
-    }
-
-
     public void setAsyncIdObject(AsyncId asyncIdObject) {
         this.asyncIdObject = asyncIdObject;
     }

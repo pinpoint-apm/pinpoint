@@ -135,27 +135,13 @@ public class ASMNestedClass implements InstrumentClass {
     }
 
     @Override
-    public void addField(String accessorTypeName) throws InstrumentException {
-        // nothing.
-    }
-
-    @Override
     public void addField(Class<?> accessorClass) throws InstrumentException {
 
     }
 
-    @Override
-    public void addGetter(String getterTypeName, String fieldName) throws InstrumentException {
-        // nothing.
-    }
 
     @Override
     public void addGetter(Class<?> getterClass, String fieldName) throws InstrumentException {
-        // nothing.
-    }
-
-    @Override
-    public void addSetter(String setterTypeName, String fieldName) throws InstrumentException {
         // nothing.
     }
 
@@ -164,145 +150,12 @@ public class ASMNestedClass implements InstrumentClass {
         // nothing.
     }
 
-    @Override
-    public void addSetter(String setterTypeName, String fieldName, boolean removeFinal) throws InstrumentException {
-        // nothing.
-    }
 
     @Override
     public void addSetter(Class<?> setterClass, String fieldName, boolean removeFinal) throws InstrumentException {
         // nothing.
     }
 
-    @Override
-    public int addInterceptor(String interceptorClassName) throws InstrumentException {
-        Assert.requireNonNull(interceptorClassName, "interceptorClassName");
-        return 0;
-    }
-
-    @Override
-    public int addInterceptor(String interceptorClassName, Object[] constructorArgs) throws InstrumentException {
-        Assert.requireNonNull(interceptorClassName, "interceptorClassName");
-        Assert.requireNonNull(constructorArgs, "constructorArgs");
-        return 0;
-    }
-
-    @Override
-    public int addScopedInterceptor(String interceptorClassName, String scopeName) throws InstrumentException {
-        Assert.requireNonNull(interceptorClassName, "interceptorClassName");
-        Assert.requireNonNull(scopeName, "scopeName");
-        return 0;
-    }
-
-    @Override
-    public int addScopedInterceptor(String interceptorClassName, InterceptorScope scope) throws InstrumentException {
-        Assert.requireNonNull(interceptorClassName, "interceptorClassName");
-        Assert.requireNonNull(scope, "scope");
-        return 0;
-    }
-
-    @Override
-    public int addScopedInterceptor(String interceptorClassName, Object[] constructorArgs, String scopeName) throws InstrumentException {
-        Assert.requireNonNull(interceptorClassName, "interceptorClassName");
-        Assert.requireNonNull(constructorArgs, "constructorArgs");
-        Assert.requireNonNull(scopeName, "scopeName");
-        return 0;
-    }
-
-    @Override
-    public int addScopedInterceptor(String interceptorClassName, Object[] constructorArgs, InterceptorScope scope) throws InstrumentException {
-        Assert.requireNonNull(interceptorClassName, "interceptorClassName");
-        Assert.requireNonNull(constructorArgs, "constructorArgs");
-        Assert.requireNonNull(scope, "scope");
-        return 0;
-    }
-
-    @Override
-    public int addScopedInterceptor(String interceptorClassName, String scopeName, ExecutionPolicy executionPolicy) throws InstrumentException {
-        Assert.requireNonNull(interceptorClassName, "interceptorClassName");
-        Assert.requireNonNull(scopeName, "scopeName");
-        Assert.requireNonNull(executionPolicy, "executionPolicy");
-        return 0;
-    }
-
-    @Override
-    public int addScopedInterceptor(String interceptorClassName, InterceptorScope scope, ExecutionPolicy executionPolicy) throws InstrumentException {
-        Assert.requireNonNull(interceptorClassName, "interceptorClassName");
-        Assert.requireNonNull(scope, "scope");
-        Assert.requireNonNull(executionPolicy, "executionPolicy");
-        return 0;
-    }
-
-    @Override
-    public int addScopedInterceptor(String interceptorClassName, Object[] constructorArgs, String scopeName, ExecutionPolicy executionPolicy) throws InstrumentException {
-        Assert.requireNonNull(interceptorClassName, "interceptorClassName");
-        Assert.requireNonNull(constructorArgs, "constructorArgs");
-        Assert.requireNonNull(scopeName, "scopeName");
-        Assert.requireNonNull(executionPolicy, "executionPolicy");
-        return 0;
-    }
-
-    @Override
-    public int addScopedInterceptor(String interceptorClassName, Object[] constructorArgs, InterceptorScope scope, ExecutionPolicy executionPolicy) throws InstrumentException {
-        Assert.requireNonNull(interceptorClassName, "interceptorClassName");
-        Assert.requireNonNull(constructorArgs, "constructorArgs");
-        Assert.requireNonNull(scope, "scope");
-        Assert.requireNonNull(executionPolicy, "executionPolicy");
-        return 0;
-    }
-
-    @Override
-    public int addInterceptor(MethodFilter filter, String interceptorClassName) throws InstrumentException {
-        Assert.requireNonNull(filter, "filter");
-        Assert.requireNonNull(interceptorClassName, "interceptorClassName");
-        return 0;
-    }
-
-    @Override
-    public int addInterceptor(MethodFilter filter, String interceptorClassName, Object[] constructorArgs) throws InstrumentException {
-        Assert.requireNonNull(filter, "filter");
-        Assert.requireNonNull(interceptorClassName, "interceptorClassName");
-        Assert.requireNonNull(constructorArgs, "constructorArgs");
-        return 0;
-    }
-
-    @Override
-    public int addScopedInterceptor(MethodFilter filter, String interceptorClassName, String scopeName, ExecutionPolicy executionPolicy) throws InstrumentException {
-        Assert.requireNonNull(filter, "filter");
-        Assert.requireNonNull(interceptorClassName, "interceptorClassName");
-        Assert.requireNonNull(scopeName, "scopeName");
-        Assert.requireNonNull(executionPolicy, "executionPolicy");
-        return 0;
-    }
-
-    @Override
-    public int addScopedInterceptor(MethodFilter filter, String interceptorClassName, InterceptorScope scope, ExecutionPolicy executionPolicy) throws InstrumentException {
-        Assert.requireNonNull(filter, "filter");
-        Assert.requireNonNull(interceptorClassName, "interceptorClassName");
-        Assert.requireNonNull(scope, "scope");
-        Assert.requireNonNull(executionPolicy, "executionPolicy");
-        return 0;
-    }
-
-    @Override
-    public int addScopedInterceptor(MethodFilter filter, String interceptorClassName, Object[] constructorArgs, String scopeName, ExecutionPolicy executionPolicy) throws InstrumentException {
-        Assert.requireNonNull(filter, "filter");
-        Assert.requireNonNull(interceptorClassName, "interceptorClassName");
-        Assert.requireNonNull(constructorArgs, "constructorArgs");
-        Assert.requireNonNull(scopeName, "scopeName");
-        Assert.requireNonNull(executionPolicy, "executionPolicy");
-        return 0;
-    }
-
-    @Override
-    public int addScopedInterceptor(MethodFilter filter, String interceptorClassName, Object[] constructorArgs, InterceptorScope scope, ExecutionPolicy executionPolicy) throws InstrumentException {
-        Assert.requireNonNull(filter, "filter");
-        Assert.requireNonNull(interceptorClassName, "interceptorClassName");
-        Assert.requireNonNull(constructorArgs, "constructorArgs");
-        Assert.requireNonNull(scope, "scope");
-        Assert.requireNonNull(executionPolicy, "executionPolicy");
-        return 0;
-    }
 
     @Override
     public int addInterceptor(Class<? extends Interceptor> interceptorClass) throws InstrumentException {

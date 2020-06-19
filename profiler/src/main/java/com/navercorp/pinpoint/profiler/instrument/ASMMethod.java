@@ -49,7 +49,6 @@ public class ASMMethod implements InstrumentMethod {
     private final ASMMethodNodeAdapter methodNode;
     private final MethodDescriptor descriptor;
 
-
     public ASMMethod(EngineComponent engineComponent, InstrumentContext pluginContext, ASMClass declaringClass, MethodNode methodNode) {
         this(engineComponent, pluginContext, declaringClass, new ASMMethodNodeAdapter(JavaAssistUtils.javaNameToJvmName(declaringClass.getName()), methodNode));
 
@@ -100,100 +99,13 @@ public class ASMMethod implements InstrumentMethod {
         return this.descriptor;
     }
 
-    private Class<? extends Interceptor> loadInterceptorClass(String interceptorClassName) throws InstrumentException {
+    public Class<? extends Interceptor> loadInterceptorClass(String interceptorClassName) throws InstrumentException {
         try {
             ClassLoader classLoader = this.declaringClass.getClassLoader();
             return pluginContext.injectClass(classLoader, interceptorClassName);
         } catch (Exception ex) {
             throw new InstrumentException(interceptorClassName + " not found Caused by:" + ex.getMessage(), ex);
         }
-    }
-
-    @Override
-    public int addInterceptor(String interceptorClassName) throws InstrumentException {
-        Assert.requireNonNull(interceptorClassName, "interceptorClassName");
-        final Class<? extends Interceptor> interceptorClass = loadInterceptorClass(interceptorClassName);
-        return addInterceptor(interceptorClass);
-    }
-
-    @Override
-    public int addInterceptor(String interceptorClassName, Object[] constructorArgs) throws InstrumentException {
-        Assert.requireNonNull(interceptorClassName, "interceptorClassName");
-        Assert.requireNonNull(constructorArgs, "constructorArgs");
-        final Class<? extends Interceptor> interceptorClass = loadInterceptorClass(interceptorClassName);
-        return addInterceptor(interceptorClass, constructorArgs);
-    }
-
-    @Override
-    public int addScopedInterceptor(String interceptorClassName, String scopeName) throws InstrumentException {
-        Assert.requireNonNull(interceptorClassName, "interceptorClassName");
-        Assert.requireNonNull(scopeName, "scopeName");
-        final Class<? extends Interceptor> interceptorClass = loadInterceptorClass(interceptorClassName);
-        return addScopedInterceptor(interceptorClass, scopeName);
-    }
-
-    @Override
-    public int addScopedInterceptor(String interceptorClassName, InterceptorScope interceptorScope) throws InstrumentException {
-        Assert.requireNonNull(interceptorClassName, "interceptorClassName");
-        Assert.requireNonNull(interceptorScope, "interceptorScope");
-        final Class<? extends Interceptor> interceptorClass = loadInterceptorClass(interceptorClassName);
-        return addScopedInterceptor(interceptorClass, interceptorScope);
-    }
-
-    @Override
-    public int addScopedInterceptor(String interceptorClassName, String scopeName, ExecutionPolicy executionPolicy) throws InstrumentException {
-        Assert.requireNonNull(interceptorClassName, "interceptorClassName");
-        Assert.requireNonNull(scopeName, "scopeName");
-        Assert.requireNonNull(executionPolicy, "executionPolicy");
-        final Class<? extends Interceptor> interceptorClass = loadInterceptorClass(interceptorClassName);
-        return addScopedInterceptor(interceptorClass, scopeName, executionPolicy);
-    }
-
-    @Override
-    public int addScopedInterceptor(String interceptorClassName, InterceptorScope interceptorScope, ExecutionPolicy executionPolicy) throws InstrumentException {
-        Assert.requireNonNull(interceptorClassName, "interceptorClassName");
-        Assert.requireNonNull(interceptorScope, "interceptorScope");
-        Assert.requireNonNull(executionPolicy, "executionPolicy");
-        final Class<? extends Interceptor> interceptorClass = loadInterceptorClass(interceptorClassName);
-        return addScopedInterceptor(interceptorClass, interceptorScope, executionPolicy);
-    }
-
-    @Override
-    public int addScopedInterceptor(String interceptorClassName, Object[] constructorArgs, String scopeName) throws InstrumentException {
-        Assert.requireNonNull(interceptorClassName, "interceptorClassName");
-        Assert.requireNonNull(constructorArgs, "constructorArgs");
-        Assert.requireNonNull(scopeName, "scopeName");
-        final Class<? extends Interceptor> interceptorClass = pluginContext.injectClass(this.declaringClass.getClassLoader(), interceptorClassName);
-        return addScopedInterceptor(interceptorClass, constructorArgs, scopeName);
-    }
-
-    @Override
-    public int addScopedInterceptor(String interceptorClassName, Object[] constructorArgs, InterceptorScope interceptorScope) throws InstrumentException {
-        Assert.requireNonNull(interceptorClassName, "interceptorClassName");
-        Assert.requireNonNull(constructorArgs, "constructorArgs");
-        Assert.requireNonNull(interceptorScope, "interceptorScope");
-        final Class<? extends Interceptor> interceptorClass = pluginContext.injectClass(this.declaringClass.getClassLoader(), interceptorClassName);
-        return addScopedInterceptor(interceptorClass, constructorArgs, interceptorScope);
-    }
-
-    @Override
-    public int addScopedInterceptor(String interceptorClassName, Object[] constructorArgs, String scopeName, ExecutionPolicy executionPolicy) throws InstrumentException {
-        Assert.requireNonNull(interceptorClassName, "interceptorClassName");
-        Assert.requireNonNull(constructorArgs, "constructorArgs");
-        Assert.requireNonNull(scopeName, "scopeName");
-        Assert.requireNonNull(executionPolicy, "executionPolicy");
-        final Class<? extends Interceptor> interceptorClass = loadInterceptorClass(interceptorClassName);
-        return addScopedInterceptor(interceptorClass, constructorArgs, scopeName, executionPolicy);
-    }
-
-    @Override
-    public int addScopedInterceptor(String interceptorClassName, Object[] constructorArgs, InterceptorScope interceptorScope, ExecutionPolicy executionPolicy) throws InstrumentException {
-        Assert.requireNonNull(interceptorClassName, "interceptorClassName");
-        Assert.requireNonNull(constructorArgs, "constructorArgs");
-        Assert.requireNonNull(interceptorScope, "interceptorScope");
-        Assert.requireNonNull(executionPolicy, "executionPolicy");
-        final Class<? extends Interceptor> interceptorClass = loadInterceptorClass(interceptorClassName);
-        return addScopedInterceptor(interceptorClass, constructorArgs, interceptorScope, executionPolicy);
     }
 
     @Override

@@ -24,15 +24,66 @@ import com.navercorp.pinpoint.bootstrap.instrument.InstrumentContext;
 import com.navercorp.pinpoint.bootstrap.instrument.InstrumentMethod;
 import com.navercorp.pinpoint.bootstrap.instrument.MethodFilters;
 import com.navercorp.pinpoint.bootstrap.plugin.RequestRecorderFactory;
-import com.navercorp.pinpoint.bootstrap.plugin.monitor.metric.CustomMetricRegistry;
 import com.navercorp.pinpoint.profiler.context.monitor.DataSourceMonitorRegistryService;
 import com.navercorp.pinpoint.profiler.context.monitor.metric.CustomMetricRegistryService;
 import com.navercorp.pinpoint.profiler.instrument.interceptor.InterceptorDefinitionFactory;
-import com.navercorp.pinpoint.profiler.instrument.mock.ArgsClass;
+import com.navercorp.pinpoint.profiler.instrument.mock.BaseAnnotationInterceptor;
+import com.navercorp.pinpoint.profiler.instrument.mock.BaseGetter;
+import com.navercorp.pinpoint.profiler.instrument.mock.BaseSetter;
+import com.navercorp.pinpoint.profiler.instrument.mock.accessor.IntAccessor;
+import com.navercorp.pinpoint.profiler.instrument.mock.accessor.IntArrayAccessor;
+import com.navercorp.pinpoint.profiler.instrument.mock.accessor.IntArraysAccessor;
+import com.navercorp.pinpoint.profiler.instrument.mock.accessor.ObjectAccessor;
+import com.navercorp.pinpoint.profiler.instrument.mock.accessor.ObjectArrayAccessor;
+import com.navercorp.pinpoint.profiler.instrument.mock.accessor.ObjectArraysAccessor;
+import com.navercorp.pinpoint.profiler.instrument.mock.accessor.PublicStrAccessor;
+import com.navercorp.pinpoint.profiler.instrument.mock.accessor.ThrowExceptionAccessor;
+import com.navercorp.pinpoint.profiler.instrument.mock.getter.FieldDefaultStaticFinalStrGetter;
+import com.navercorp.pinpoint.profiler.instrument.mock.getter.FieldDefaultStaticStrGetter;
+import com.navercorp.pinpoint.profiler.instrument.mock.getter.FieldDefaultStrGetter;
+import com.navercorp.pinpoint.profiler.instrument.mock.getter.FieldEnumGetter;
+import com.navercorp.pinpoint.profiler.instrument.mock.getter.FieldIntArrayGetter;
+import com.navercorp.pinpoint.profiler.instrument.mock.getter.FieldIntGetter;
+import com.navercorp.pinpoint.profiler.instrument.mock.getter.FieldMapGetter;
+import com.navercorp.pinpoint.profiler.instrument.mock.getter.FieldObjectArrayGetter;
+import com.navercorp.pinpoint.profiler.instrument.mock.getter.FieldObjectArraysGetter;
+import com.navercorp.pinpoint.profiler.instrument.mock.getter.FieldObjectGetter;
+import com.navercorp.pinpoint.profiler.instrument.mock.getter.FieldObjectMapGetter;
+import com.navercorp.pinpoint.profiler.instrument.mock.getter.FieldPrivateStaticFinalStrGetter;
+import com.navercorp.pinpoint.profiler.instrument.mock.getter.FieldPrivateStaticStrGetter;
+import com.navercorp.pinpoint.profiler.instrument.mock.getter.FieldPrivateStrGetter;
+import com.navercorp.pinpoint.profiler.instrument.mock.getter.FieldProtectedStaticFinalStrGetter;
+import com.navercorp.pinpoint.profiler.instrument.mock.getter.FieldProtectedStaticStrGetter;
+import com.navercorp.pinpoint.profiler.instrument.mock.getter.FieldProtectedStrGetter;
+import com.navercorp.pinpoint.profiler.instrument.mock.getter.FieldPublicStaticFinalStrGetter;
+import com.navercorp.pinpoint.profiler.instrument.mock.getter.FieldPublicStaticStrGetter;
+import com.navercorp.pinpoint.profiler.instrument.mock.getter.FieldPublicStrGetter;
+import com.navercorp.pinpoint.profiler.instrument.mock.getter.FieldStrMapGetter;
+import com.navercorp.pinpoint.profiler.instrument.mock.getter.FieldTransientIntGetter;
+import com.navercorp.pinpoint.profiler.instrument.mock.getter.FieldVolatileIntGetter;
+import com.navercorp.pinpoint.profiler.instrument.mock.getter.FieldWildcardMapGetter;
+import com.navercorp.pinpoint.profiler.instrument.mock.setter.FieldDefaultFinalStrSetter;
+import com.navercorp.pinpoint.profiler.instrument.mock.setter.FieldDefaultStaticStrSetter;
+import com.navercorp.pinpoint.profiler.instrument.mock.setter.FieldDefaultStrSetter;
+import com.navercorp.pinpoint.profiler.instrument.mock.setter.FieldEnumSetter;
+import com.navercorp.pinpoint.profiler.instrument.mock.setter.FieldIntArraySetter;
+import com.navercorp.pinpoint.profiler.instrument.mock.setter.FieldIntSetter;
+import com.navercorp.pinpoint.profiler.instrument.mock.setter.FieldMapSetter;
+import com.navercorp.pinpoint.profiler.instrument.mock.setter.FieldObjectArraySetter;
+import com.navercorp.pinpoint.profiler.instrument.mock.setter.FieldObjectArraysSetter;
+import com.navercorp.pinpoint.profiler.instrument.mock.setter.FieldObjectMapSetter;
+import com.navercorp.pinpoint.profiler.instrument.mock.setter.FieldObjectSetter;
+import com.navercorp.pinpoint.profiler.instrument.mock.setter.FieldPrivateStrSetter;
+import com.navercorp.pinpoint.profiler.instrument.mock.setter.FieldProtectedStrSetter;
+import com.navercorp.pinpoint.profiler.instrument.mock.setter.FieldPublicFinalStrSetter;
+import com.navercorp.pinpoint.profiler.instrument.mock.setter.FieldPublicStrSetter;
+import com.navercorp.pinpoint.profiler.instrument.mock.setter.FieldStrMapSetter;
+import com.navercorp.pinpoint.profiler.instrument.mock.setter.FieldTransientIntSetter;
+import com.navercorp.pinpoint.profiler.instrument.mock.setter.FieldVolatileIntSetter;
+import com.navercorp.pinpoint.profiler.instrument.mock.setter.FieldWildcardMapSetter;
 import com.navercorp.pinpoint.profiler.interceptor.factory.ExceptionHandlerFactory;
 import com.navercorp.pinpoint.profiler.interceptor.registry.DefaultInterceptorRegistryBinder;
 import com.navercorp.pinpoint.profiler.interceptor.registry.InterceptorRegistryBinder;
-
 import com.navercorp.pinpoint.profiler.metadata.ApiMetaDataService;
 import com.navercorp.pinpoint.profiler.objectfactory.ObjectBinderFactory;
 import org.junit.Before;
@@ -42,9 +93,6 @@ import org.mockito.stubbing.Answer;
 import org.objectweb.asm.tree.ClassNode;
 
 import java.io.InputStream;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.assertArrayEquals;
@@ -340,43 +388,43 @@ public class ASMClassTest {
     @Test
     public void addField() throws Exception {
         ASMClass clazz = getClass("com.navercorp.pinpoint.profiler.instrument.mock.BaseClass");
-        clazz.addField("com.navercorp.pinpoint.profiler.instrument.mock.accessor.IntAccessor");
+        clazz.addField(IntAccessor.class);
         assertNotNull(clazz.getDeclaredMethod("_$PINPOINT$_setTraceInt", "int"));
         assertNotNull(clazz.getDeclaredMethod("_$PINPOINT$_getTraceInt"));
 
         clazz = getClass("com.navercorp.pinpoint.profiler.instrument.mock.BaseClass");
-        clazz.addField("com.navercorp.pinpoint.profiler.instrument.mock.accessor.IntArrayAccessor");
+        clazz.addField(IntArrayAccessor.class);
         assertNotNull(clazz.getDeclaredMethod("_$PINPOINT$_setTraceIntArray", "int[]"));
         assertNotNull(clazz.getDeclaredMethod("_$PINPOINT$_getTraceIntArray"));
 
         clazz = getClass("com.navercorp.pinpoint.profiler.instrument.mock.BaseClass");
-        clazz.addField("com.navercorp.pinpoint.profiler.instrument.mock.accessor.IntArraysAccessor");
+        clazz.addField(IntArraysAccessor.class);
         assertNotNull(clazz.getDeclaredMethod("_$PINPOINT$_setTraceIntArrays", "int[][]"));
         assertNotNull(clazz.getDeclaredMethod("_$PINPOINT$_getTraceIntArrays"));
 
         clazz = getClass("com.navercorp.pinpoint.profiler.instrument.mock.BaseClass");
-        clazz.addField("com.navercorp.pinpoint.profiler.instrument.mock.accessor.ObjectAccessor");
+        clazz.addField(ObjectAccessor.class);
         assertNotNull(clazz.getDeclaredMethod("_$PINPOINT$_setTraceObject", "java.lang.Object"));
         assertNotNull(clazz.getDeclaredMethod("_$PINPOINT$_getTraceObject"));
 
         clazz = getClass("com.navercorp.pinpoint.profiler.instrument.mock.BaseClass");
-        clazz.addField("com.navercorp.pinpoint.profiler.instrument.mock.accessor.ObjectArrayAccessor");
+        clazz.addField(ObjectArrayAccessor.class);
         assertNotNull(clazz.getDeclaredMethod("_$PINPOINT$_setTraceObjectArray", "java.lang.Object[]"));
         assertNotNull(clazz.getDeclaredMethod("_$PINPOINT$_getTraceObjectArray"));
 
         clazz = getClass("com.navercorp.pinpoint.profiler.instrument.mock.BaseClass");
-        clazz.addField("com.navercorp.pinpoint.profiler.instrument.mock.accessor.ObjectArraysAccessor");
+        clazz.addField(ObjectArraysAccessor.class);
         assertNotNull(clazz.getDeclaredMethod("_$PINPOINT$_setTraceObjectArrays", "java.lang.Object[][]"));
         assertNotNull(clazz.getDeclaredMethod("_$PINPOINT$_getTraceObjectArrays"));
 
         clazz = getClass("com.navercorp.pinpoint.profiler.instrument.mock.BaseClass");
-        clazz.addField("com.navercorp.pinpoint.profiler.instrument.mock.accessor.PublicStrAccessor");
+        clazz.addField(PublicStrAccessor.class);
         assertNotNull(clazz.getDeclaredMethod("_$PINPOINT$_setTracePublicStr", "java.lang.String"));
         assertNotNull(clazz.getDeclaredMethod("_$PINPOINT$_getTracePublicStr"));
 
         // skip throw exception.
         clazz = getClass("com.navercorp.pinpoint.profiler.instrument.mock.BaseClass");
-        clazz.addField("com.navercorp.pinpoint.profiler.instrument.mock.accessor.ThrowExceptionAccessor");
+        clazz.addField(ThrowExceptionAccessor.class);
         assertNotNull(clazz.getDeclaredMethod("_$PINPOINT$_setTraceDefaultStr", "java.lang.String"));
         assertNotNull(clazz.getDeclaredMethod("_$PINPOINT$_getTraceDefaultStr"));
     }
@@ -385,159 +433,159 @@ public class ASMClassTest {
     public void addGetter() throws Exception {
         // TODO super field.
         ASMClass clazz = getClass("com.navercorp.pinpoint.profiler.instrument.mock.BaseClass");
-        clazz.addGetter("com.navercorp.pinpoint.profiler.instrument.mock.BaseGetter", "b");
+        clazz.addGetter(BaseGetter.class, "b");
         assertNotNull(clazz.getDeclaredMethod("_$PINPOINT$_isB"));
 
         clazz = getClass("com.navercorp.pinpoint.profiler.instrument.mock.FieldClass");
-        clazz.addGetter("com.navercorp.pinpoint.profiler.instrument.mock.getter.FieldIntGetter", "i");
+        clazz.addGetter(FieldIntGetter.class, "i");
         assertNotNull(clazz.getDeclaredMethod("_$PINPOINT$_getInt"));
 
         clazz = getClass("com.navercorp.pinpoint.profiler.instrument.mock.FieldClass");
-        clazz.addGetter("com.navercorp.pinpoint.profiler.instrument.mock.getter.FieldIntArrayGetter", "iArray");
+        clazz.addGetter(FieldIntArrayGetter.class, "iArray");
         assertNotNull(clazz.getDeclaredMethod("_$PINPOINT$_getIntArray"));
 
         clazz = getClass("com.navercorp.pinpoint.profiler.instrument.mock.FieldClass");
-        clazz.addGetter("com.navercorp.pinpoint.profiler.instrument.mock.getter.FieldObjectGetter", "object");
+        clazz.addGetter(FieldObjectGetter.class, "object");
         assertNotNull(clazz.getDeclaredMethod("_$PINPOINT$_getObject"));
 
         clazz = getClass("com.navercorp.pinpoint.profiler.instrument.mock.FieldClass");
-        clazz.addGetter("com.navercorp.pinpoint.profiler.instrument.mock.getter.FieldObjectArrayGetter", "objectArray");
+        clazz.addGetter(FieldObjectArrayGetter.class, "objectArray");
         assertNotNull(clazz.getDeclaredMethod("_$PINPOINT$_getObjectArray"));
 
         clazz = getClass("com.navercorp.pinpoint.profiler.instrument.mock.FieldClass");
-        clazz.addGetter("com.navercorp.pinpoint.profiler.instrument.mock.getter.FieldObjectArraysGetter", "objectArrays");
+        clazz.addGetter(FieldObjectArraysGetter.class, "objectArrays");
         assertNotNull(clazz.getDeclaredMethod("_$PINPOINT$_getObjectArrays"));
 
         clazz = getClass("com.navercorp.pinpoint.profiler.instrument.mock.FieldClass");
-        clazz.addGetter("com.navercorp.pinpoint.profiler.instrument.mock.getter.FieldEnumGetter", "e");
+        clazz.addGetter(FieldEnumGetter.class, "e");
         assertNotNull(clazz.getDeclaredMethod("_$PINPOINT$_getEnum"));
 
         clazz = getClass("com.navercorp.pinpoint.profiler.instrument.mock.FieldClass");
-        clazz.addGetter("com.navercorp.pinpoint.profiler.instrument.mock.getter.FieldMapGetter", "map");
+        clazz.addGetter(FieldMapGetter.class, "map");
         assertNotNull(clazz.getDeclaredMethod("_$PINPOINT$_getMap"));
 
         clazz = getClass("com.navercorp.pinpoint.profiler.instrument.mock.FieldClass");
-        clazz.addGetter("com.navercorp.pinpoint.profiler.instrument.mock.getter.FieldStrMapGetter", "strMap");
+        clazz.addGetter(FieldStrMapGetter.class, "strMap");
         assertNotNull(clazz.getDeclaredMethod("_$PINPOINT$_getStrMap"));
 
         clazz = getClass("com.navercorp.pinpoint.profiler.instrument.mock.FieldClass");
-        clazz.addGetter("com.navercorp.pinpoint.profiler.instrument.mock.getter.FieldObjectMapGetter", "objectMap");
+        clazz.addGetter(FieldObjectMapGetter.class, "objectMap");
         assertNotNull(clazz.getDeclaredMethod("_$PINPOINT$_getObjectMap"));
 
         clazz = getClass("com.navercorp.pinpoint.profiler.instrument.mock.FieldClass");
-        clazz.addGetter("com.navercorp.pinpoint.profiler.instrument.mock.getter.FieldWildcardMapGetter", "wildcardMap");
+        clazz.addGetter(FieldWildcardMapGetter.class, "wildcardMap");
         assertNotNull(clazz.getDeclaredMethod("_$PINPOINT$_getWildcardMap"));
 
         clazz = getClass("com.navercorp.pinpoint.profiler.instrument.mock.FieldClass");
-        clazz.addGetter("com.navercorp.pinpoint.profiler.instrument.mock.getter.FieldDefaultStrGetter", "defaultStr");
+        clazz.addGetter(FieldDefaultStrGetter.class, "defaultStr");
         assertNotNull(clazz.getDeclaredMethod("_$PINPOINT$_getDefaultStr"));
 
         clazz = getClass("com.navercorp.pinpoint.profiler.instrument.mock.FieldClass");
-        clazz.addGetter("com.navercorp.pinpoint.profiler.instrument.mock.getter.FieldDefaultStaticStrGetter", "defaultStaticStr");
+        clazz.addGetter(FieldDefaultStaticStrGetter.class, "defaultStaticStr");
         assertNotNull(clazz.getDeclaredMethod("_$PINPOINT$_getDefaultStaticStr"));
 
         clazz = getClass("com.navercorp.pinpoint.profiler.instrument.mock.FieldClass");
-        clazz.addGetter("com.navercorp.pinpoint.profiler.instrument.mock.getter.FieldDefaultStaticFinalStrGetter", "defaultStaticFinalStr");
+        clazz.addGetter(FieldDefaultStaticFinalStrGetter.class, "defaultStaticFinalStr");
         assertNotNull(clazz.getDeclaredMethod("_$PINPOINT$_getDefaultStaticFinalStr"));
 
         clazz = getClass("com.navercorp.pinpoint.profiler.instrument.mock.FieldClass");
-        clazz.addGetter("com.navercorp.pinpoint.profiler.instrument.mock.getter.FieldPrivateStrGetter", "privateStr");
+        clazz.addGetter(FieldPrivateStrGetter.class, "privateStr");
         assertNotNull(clazz.getDeclaredMethod("_$PINPOINT$_getPrivateStr"));
 
         clazz = getClass("com.navercorp.pinpoint.profiler.instrument.mock.FieldClass");
-        clazz.addGetter("com.navercorp.pinpoint.profiler.instrument.mock.getter.FieldPrivateStaticStrGetter", "privateStaticStr");
+        clazz.addGetter(FieldPrivateStaticStrGetter.class, "privateStaticStr");
         assertNotNull(clazz.getDeclaredMethod("_$PINPOINT$_getPrivateStaticStr"));
 
         clazz = getClass("com.navercorp.pinpoint.profiler.instrument.mock.FieldClass");
-        clazz.addGetter("com.navercorp.pinpoint.profiler.instrument.mock.getter.FieldPrivateStaticFinalStrGetter", "privateStaticFinalStr");
+        clazz.addGetter(FieldPrivateStaticFinalStrGetter.class, "privateStaticFinalStr");
         assertNotNull(clazz.getDeclaredMethod("_$PINPOINT$_getPrivateStaticFinalStr"));
 
         clazz = getClass("com.navercorp.pinpoint.profiler.instrument.mock.FieldClass");
-        clazz.addGetter("com.navercorp.pinpoint.profiler.instrument.mock.getter.FieldProtectedStrGetter", "protectedStr");
+        clazz.addGetter(FieldProtectedStrGetter.class, "protectedStr");
         assertNotNull(clazz.getDeclaredMethod("_$PINPOINT$_getProtectedStr"));
 
         clazz = getClass("com.navercorp.pinpoint.profiler.instrument.mock.FieldClass");
-        clazz.addGetter("com.navercorp.pinpoint.profiler.instrument.mock.getter.FieldProtectedStaticStrGetter", "protectedStaticStr");
+        clazz.addGetter(FieldProtectedStaticStrGetter.class, "protectedStaticStr");
         assertNotNull(clazz.getDeclaredMethod("_$PINPOINT$_getProtectedStaticStr"));
 
         clazz = getClass("com.navercorp.pinpoint.profiler.instrument.mock.FieldClass");
-        clazz.addGetter("com.navercorp.pinpoint.profiler.instrument.mock.getter.FieldProtectedStaticFinalStrGetter", "protectedStaticFinalStr");
+        clazz.addGetter(FieldProtectedStaticFinalStrGetter.class, "protectedStaticFinalStr");
         assertNotNull(clazz.getDeclaredMethod("_$PINPOINT$_getProtectedStaticFinalStr"));
 
         clazz = getClass("com.navercorp.pinpoint.profiler.instrument.mock.FieldClass");
-        clazz.addGetter("com.navercorp.pinpoint.profiler.instrument.mock.getter.FieldPublicStrGetter", "publicStr");
+        clazz.addGetter(FieldPublicStrGetter.class, "publicStr");
         assertNotNull(clazz.getDeclaredMethod("_$PINPOINT$_getPublicStr"));
 
         clazz = getClass("com.navercorp.pinpoint.profiler.instrument.mock.FieldClass");
-        clazz.addGetter("com.navercorp.pinpoint.profiler.instrument.mock.getter.FieldPublicStaticStrGetter", "publicStaticStr");
+        clazz.addGetter(FieldPublicStaticStrGetter.class, "publicStaticStr");
         assertNotNull(clazz.getDeclaredMethod("_$PINPOINT$_getPublicStaticStr"));
 
         clazz = getClass("com.navercorp.pinpoint.profiler.instrument.mock.FieldClass");
-        clazz.addGetter("com.navercorp.pinpoint.profiler.instrument.mock.getter.FieldPublicStaticFinalStrGetter", "publicStaticFinalStr");
+        clazz.addGetter(FieldPublicStaticFinalStrGetter.class, "publicStaticFinalStr");
         assertNotNull(clazz.getDeclaredMethod("_$PINPOINT$_getPublicStaticFinalStr"));
 
         clazz = getClass("com.navercorp.pinpoint.profiler.instrument.mock.FieldClass");
-        clazz.addGetter("com.navercorp.pinpoint.profiler.instrument.mock.getter.FieldVolatileIntGetter", "volatileInt");
+        clazz.addGetter(FieldVolatileIntGetter.class, "volatileInt");
         assertNotNull(clazz.getDeclaredMethod("_$PINPOINT$_getVolatileInt"));
 
         clazz = getClass("com.navercorp.pinpoint.profiler.instrument.mock.FieldClass");
-        clazz.addGetter("com.navercorp.pinpoint.profiler.instrument.mock.getter.FieldTransientIntGetter", "transientInt");
+        clazz.addGetter(FieldTransientIntGetter.class, "transientInt");
         assertNotNull(clazz.getDeclaredMethod("_$PINPOINT$_getTransientInt"));
     }
 
     @Test
     public void addSetter() throws Exception {
         ASMClass clazz = getClass("com.navercorp.pinpoint.profiler.instrument.mock.BaseClass");
-        clazz.addSetter("com.navercorp.pinpoint.profiler.instrument.mock.BaseSetter", "b");
+        clazz.addSetter(BaseSetter.class, "b");
         assertNotNull(clazz.getDeclaredMethod("_$PINPOINT$_setB", "boolean"));
 
         clazz = getClass("com.navercorp.pinpoint.profiler.instrument.mock.FieldClass");
-        clazz.addSetter("com.navercorp.pinpoint.profiler.instrument.mock.setter.FieldIntSetter", "i");
+        clazz.addSetter(FieldIntSetter.class, "i");
         assertNotNull(clazz.getDeclaredMethod("_$PINPOINT$_setInt", "int"));
 
         clazz = getClass("com.navercorp.pinpoint.profiler.instrument.mock.FieldClass");
-        clazz.addSetter("com.navercorp.pinpoint.profiler.instrument.mock.setter.FieldIntArraySetter", "iArray");
+        clazz.addSetter(FieldIntArraySetter.class, "iArray");
         assertNotNull(clazz.getDeclaredMethod("_$PINPOINT$_setIntArray", "int[]"));
 
         clazz = getClass("com.navercorp.pinpoint.profiler.instrument.mock.FieldClass");
-        clazz.addSetter("com.navercorp.pinpoint.profiler.instrument.mock.setter.FieldObjectSetter", "object");
+        clazz.addSetter(FieldObjectSetter.class, "object");
         assertNotNull(clazz.getDeclaredMethod("_$PINPOINT$_setObject", "java.lang.Object"));
 
         clazz = getClass("com.navercorp.pinpoint.profiler.instrument.mock.FieldClass");
-        clazz.addSetter("com.navercorp.pinpoint.profiler.instrument.mock.setter.FieldObjectArraySetter", "objectArray");
+        clazz.addSetter(FieldObjectArraySetter.class, "objectArray");
         assertNotNull(clazz.getDeclaredMethod("_$PINPOINT$_setObjectArray", "java.lang.Object[]"));
 
         clazz = getClass("com.navercorp.pinpoint.profiler.instrument.mock.FieldClass");
-        clazz.addSetter("com.navercorp.pinpoint.profiler.instrument.mock.setter.FieldObjectArraysSetter", "objectArrays");
+        clazz.addSetter(FieldObjectArraysSetter.class, "objectArrays");
         assertNotNull(clazz.getDeclaredMethod("_$PINPOINT$_setObjectArrays", "java.lang.Object[][]"));
 
         clazz = getClass("com.navercorp.pinpoint.profiler.instrument.mock.FieldClass");
-        clazz.addSetter("com.navercorp.pinpoint.profiler.instrument.mock.setter.FieldEnumSetter", "e");
+        clazz.addSetter(FieldEnumSetter.class, "e");
         assertNotNull(clazz.getDeclaredMethod("_$PINPOINT$_setEnum", "java.lang.Enum"));
 
         clazz = getClass("com.navercorp.pinpoint.profiler.instrument.mock.FieldClass");
-        clazz.addSetter("com.navercorp.pinpoint.profiler.instrument.mock.setter.FieldMapSetter", "map");
+        clazz.addSetter(FieldMapSetter.class, "map");
         assertNotNull(clazz.getDeclaredMethod("_$PINPOINT$_setMap", "java.util.Map"));
 
         clazz = getClass("com.navercorp.pinpoint.profiler.instrument.mock.FieldClass");
-        clazz.addSetter("com.navercorp.pinpoint.profiler.instrument.mock.setter.FieldStrMapSetter", "strMap");
+        clazz.addSetter(FieldStrMapSetter.class, "strMap");
         assertNotNull(clazz.getDeclaredMethod("_$PINPOINT$_setStrMap", "java.util.Map"));
 
         clazz = getClass("com.navercorp.pinpoint.profiler.instrument.mock.FieldClass");
-        clazz.addSetter("com.navercorp.pinpoint.profiler.instrument.mock.setter.FieldObjectMapSetter", "objectMap");
+        clazz.addSetter(FieldObjectMapSetter.class, "objectMap");
         assertNotNull(clazz.getDeclaredMethod("_$PINPOINT$_setObjectMap", "java.util.Map"));
 
         clazz = getClass("com.navercorp.pinpoint.profiler.instrument.mock.FieldClass");
-        clazz.addSetter("com.navercorp.pinpoint.profiler.instrument.mock.setter.FieldWildcardMapSetter", "wildcardMap");
+        clazz.addSetter(FieldWildcardMapSetter.class, "wildcardMap");
         assertNotNull(clazz.getDeclaredMethod("_$PINPOINT$_setWildcardMap", "java.util.Map"));
 
         clazz = getClass("com.navercorp.pinpoint.profiler.instrument.mock.FieldClass");
-        clazz.addSetter("com.navercorp.pinpoint.profiler.instrument.mock.setter.FieldDefaultStrSetter", "defaultStr");
+        clazz.addSetter(FieldDefaultStrSetter.class, "defaultStr");
         assertNotNull(clazz.getDeclaredMethod("_$PINPOINT$_setDefaultStr", "java.lang.String"));
 
         try {
             clazz = getClass("com.navercorp.pinpoint.profiler.instrument.mock.FieldClass");
-            clazz.addSetter("com.navercorp.pinpoint.profiler.instrument.mock.setter.FieldDefaultStaticStrSetter", "defaultStaticStr");
+            clazz.addSetter(FieldDefaultStaticStrSetter.class, "defaultStaticStr");
             assertNotNull(clazz.getDeclaredMethod("_$PINPOINT$_setDefaultStaticStr", "java.lang.String"));
             fail("can't throw exception");
         } catch(Exception ignored) {
@@ -545,27 +593,27 @@ public class ASMClassTest {
 
         try {
             clazz = getClass("com.navercorp.pinpoint.profiler.instrument.mock.FieldClass");
-            clazz.addSetter("com.navercorp.pinpoint.profiler.instrument.mock.setter.FieldDefaultFinalStrSetter", "defaultFinalStr");
+            clazz.addSetter(FieldDefaultFinalStrSetter.class, "defaultFinalStr");
             assertNotNull(clazz.getDeclaredMethod("_$PINPOINT$_setDefaultFinalStr", "java.lang.String"));
             fail("can't throw exception");
         } catch(Exception ignored) {
         }
 
         clazz = getClass("com.navercorp.pinpoint.profiler.instrument.mock.FieldClass");
-        clazz.addSetter("com.navercorp.pinpoint.profiler.instrument.mock.setter.FieldPrivateStrSetter", "privateStr");
+        clazz.addSetter(FieldPrivateStrSetter.class, "privateStr");
         assertNotNull(clazz.getDeclaredMethod("_$PINPOINT$_setPrivateStr", "java.lang.String"));
 
         clazz = getClass("com.navercorp.pinpoint.profiler.instrument.mock.FieldClass");
-        clazz.addSetter("com.navercorp.pinpoint.profiler.instrument.mock.setter.FieldProtectedStrSetter", "protectedStr");
+        clazz.addSetter(FieldProtectedStrSetter.class, "protectedStr");
         assertNotNull(clazz.getDeclaredMethod("_$PINPOINT$_setProtectedStr", "java.lang.String"));
 
         clazz = getClass("com.navercorp.pinpoint.profiler.instrument.mock.FieldClass");
-        clazz.addSetter("com.navercorp.pinpoint.profiler.instrument.mock.setter.FieldPublicStrSetter", "publicStr");
+        clazz.addSetter(FieldPublicStrSetter.class, "publicStr");
         assertNotNull(clazz.getDeclaredMethod("_$PINPOINT$_setPublicStr", "java.lang.String"));
 
         try {
             clazz = getClass("com.navercorp.pinpoint.profiler.instrument.mock.FieldClass");
-            clazz.addSetter("com.navercorp.pinpoint.profiler.instrument.mock.setter.FieldPublicFinalStrSetter", "publicFinalStr");
+            clazz.addSetter(FieldPublicFinalStrSetter.class, "publicFinalStr");
             assertNotNull(clazz.getDeclaredMethod("_$PINPOINT$_setPublicFinalStr", "java.lang.String"));
             fail("can't throw exception");
         } catch(Exception ignored) {
@@ -573,22 +621,22 @@ public class ASMClassTest {
 
         // removeFinal is true
         clazz = getClass("com.navercorp.pinpoint.profiler.instrument.mock.FieldClass");
-        clazz.addSetter("com.navercorp.pinpoint.profiler.instrument.mock.setter.FieldPublicFinalStrSetter", "publicFinalStr", true);
+        clazz.addSetter(FieldPublicFinalStrSetter.class, "publicFinalStr", true);
         assertNotNull(clazz.getDeclaredMethod("_$PINPOINT$_setPublicFinalStr", "java.lang.String"));
 
         clazz = getClass("com.navercorp.pinpoint.profiler.instrument.mock.FieldClass");
-        clazz.addSetter("com.navercorp.pinpoint.profiler.instrument.mock.setter.FieldVolatileIntSetter", "volatileInt");
+        clazz.addSetter(FieldVolatileIntSetter.class, "volatileInt");
         assertNotNull(clazz.getDeclaredMethod("_$PINPOINT$_setVolatileInt", "int"));
 
         clazz = getClass("com.navercorp.pinpoint.profiler.instrument.mock.FieldClass");
-        clazz.addSetter("com.navercorp.pinpoint.profiler.instrument.mock.setter.FieldTransientIntSetter", "transientInt");
+        clazz.addSetter(FieldTransientIntSetter.class, "transientInt");
         assertNotNull(clazz.getDeclaredMethod("_$PINPOINT$_setTransientInt", "int"));
     }
 
     @Test
     public void addInterceptor() throws Exception {
         ASMClass clazz = getClass("com.navercorp.pinpoint.profiler.instrument.mock.BaseClass");
-        clazz.addInterceptor("com.navercorp.pinpoint.profiler.instrument.mock.BaseAnnotationInterceptor");
+        clazz.addInterceptor(BaseAnnotationInterceptor.class);
     }
 
     @Test
