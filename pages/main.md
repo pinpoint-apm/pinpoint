@@ -1,47 +1,30 @@
 ---
-title: "Pinpoint 2.0.3"
-keywords: pinpoint release, 2.0.3
+title: "Pinpoint 2.0.2"
+keywords: pinpoint release, 2.0.2
 permalink: main.html
 sidebar: mydoc_sidebar
 ---
 
-## What's New in 2.0.3
+## What's New in 2.0.2
 
+ Fixed minor bugs and addiotional plugins added.
+ 
+### Pinpoint Plugin
 
-### Plugins
- * Started to support Async Thread Plugin
-    * Distributed CallStack 
-    ![Process](https://user-images.githubusercontent.com/10057874/84873501-4bc99b80-b0be-11ea-834e-d01928a81fda.png)
+ - Started to support Async Thread Plugin
+   * Servermap
+   ![Async Thread Plugin](https://user-images.githubusercontent.com/10057874/80352564-06070880-88af-11ea-81a4-22f5e6ac0f91.jpg)
+   Thank you @zifeihan  for your contribution
+ 
+ - Started to support Informix JDBC Plugin
+   * Mix view
+   ![Informix Plugin](https://user-images.githubusercontent.com/10057874/80352447-dfe16880-88ae-11ea-8502-7f76fdf61ca7.png)
+   Thank you @guillermomolina for your contribution
+    
+### Bugs
 
-### New Features
-
-#### Total Thread Count Inspector
-
- * Inspector  
-    ![ThreadCount](https://user-images.githubusercontent.com/10057874/84873858-ce525b00-b0be-11ea-8199-79f8491a8233.png)
-
-
-#### FilterWizard for ApplicationNode
-
- (Thank you @yjqg6666  for your contribution)
- * Image  
- ![필터위자드](https://user-images.githubusercontent.com/10057874/84874592-c8a94500-b0bf-11ea-96a5-ac12d6c2b48f.png)
-
-
-#### Support System Properties Override in agent
- (Thank you @yjqg6666  for your contribution)
- * Description  
-    with `-Dkey=value`
-    ```
-    -javaagent:${pinpointPath}/pinpoint-bootstrap-2.0.2.jar
-    -Dpinpoint.applicationName=application
-    -Dpinpoint.agentId=agent
-    -Dpinpoint.sampling.rate=10
-    ```
-
-#### Automatic detection of docker environment
- (Thank you @yjqg6666 for your contribution)
- - `-Dpinpoint.container` option is no longer required
+ Fixed problem that does not retransmit when metadata transmission fails. [#6662](https://github.com/naver/pinpoint/issues/6662)
+ Fixed problem where completed transaction is not recognized in certain cases while using Webflux. [#6465](https://github.com/naver/pinpoint/issues/6465)
 
 ## Upgrade consideration
 
