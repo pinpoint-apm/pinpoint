@@ -5,12 +5,14 @@
         <pp-application-list-for-header-container></pp-application-list-for-header-container>
         <pp-server-map-options-container></pp-server-map-options-container>
         <pp-period-selector-container></pp-period-selector-container>
-        <ng-container *ngIf="isScreenWideEnough$ | async; else searchIcon">
-            <pp-transaction-id-search-container></pp-transaction-id-search-container>
+        <ng-container *ngIf="isAppSelected$ | async">
+            <ng-container *ngIf="isScreenWideEnough$ | async; else searchIcon">
+                <pp-transaction-id-search-container></pp-transaction-id-search-container>
+            </ng-container>
+            <ng-template #searchIcon>
+                <button class="l-concised-search-button fas fa-search" (click)="onClickSearchIcon($event.target)"></button>
+            </ng-template>
         </ng-container>
-        <ng-template #searchIcon>
-            <button class="l-concised-search-button fas fa-search" (click)="onClickSearchIcon($event.target)"></button>
-        </ng-template>
     </div>
     <button class="fa fa-question-circle" (click)="onShowHelp($event)"></button>
     <pp-configuration-icon-container></pp-configuration-icon-container>
@@ -22,5 +24,5 @@
         </article>
         <pp-real-time-container *ngIf="enableRealTime$ | async"></pp-real-time-container>
     </section>
-    <pp-side-bar-container *ngIf="isAppKeyProvided$ | async"></pp-side-bar-container>
+    <pp-side-bar-container *ngIf="isAppSelected$ | async"></pp-side-bar-container>
 </div>
