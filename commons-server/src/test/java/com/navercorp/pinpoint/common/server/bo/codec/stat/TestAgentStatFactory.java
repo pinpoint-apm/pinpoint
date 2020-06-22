@@ -432,6 +432,30 @@ public class TestAgentStatFactory {
         return totalThreadCountBos;
     }
 
+    public static List<LoadedClassBo> createLoadedClassBos(String agentId, long startTimestamp, long initialTimestamp) {
+        final int numValues = RandomUtils.nextInt(1, MAX_NUM_TEST_VALUES);
+        return createLoadedClassBos(agentId, startTimestamp, initialTimestamp, numValues);
+    }
+
+    public static List<LoadedClassBo> createLoadedClassBos(String agentId, long startTimestamp, long initialTimestamp, int numValues) {
+        List<LoadedClassBo> loadedClassBos = new ArrayList<LoadedClassBo>(numValues);
+        List<Long> startTimestamps = createStartTimestamps(startTimestamp, numValues);
+        List<Long> timestamps = createTimestamps(initialTimestamp, numValues);
+
+        List<Integer> loadedClassCounts = TestAgentStatDataPointFactory.INTEGER.createRandomValues(0, 1000, numValues);
+        List<Integer> unloadedClassCounts = TestAgentStatDataPointFactory.INTEGER.createRandomValues(0, 1000, numValues);
+        for (int i = 0; i < numValues; i++) {
+            LoadedClassBo loadedClassBo = new LoadedClassBo();
+            loadedClassBo.setAgentId(agentId);
+            loadedClassBo.setStartTimestamp(startTimestamps.get(i));
+            loadedClassBo.setTimestamp(timestamps.get(i));
+            loadedClassBo.setLoadedClassCount(loadedClassCounts.get(i));
+            loadedClassBo.setUnloadedClassCount(unloadedClassCounts.get(i));
+
+            loadedClassBos.add(loadedClassBo);
+        }
+        return loadedClassBos;
+    }
 
     private static List<Long> createStartTimestamps(long startTimestamp, int numValues) {
         return TestAgentStatDataPointFactory.LONG.createConstantValues(startTimestamp, startTimestamp, numValues);

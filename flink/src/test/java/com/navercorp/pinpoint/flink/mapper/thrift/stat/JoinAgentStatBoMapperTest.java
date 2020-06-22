@@ -396,4 +396,70 @@ public class JoinAgentStatBoMapperTest {
         assertEquals(new JoinLongFieldBo(120L, 120L, agentId, 120L, agentId), joinTotalThreadCountBo2.getTotalThreadCountJoinValue());
     }
 
+    @Test
+    public void map7Test() {
+        final String agentId = "testAgent";
+        final JoinAgentStatBoMapper joinAgentStatBoMapper = new JoinAgentStatBoMapper();
+
+        final TFAgentStatBatch tFAgentStatBatch = new TFAgentStatBatch();
+        tFAgentStatBatch.setStartTimestamp(1491274138454L);
+        tFAgentStatBatch.setAgentId(agentId);
+
+        final TFLoadedClass tfLoadedClass = new TFLoadedClass();
+        tfLoadedClass.setLoadedClassCount(100);
+        tfLoadedClass.setUnloadedClassCount(100);
+        final TFAgentStat tFAgentStat = new TFAgentStat();
+        tFAgentStat.setAgentId(agentId);
+        tFAgentStat.setTimestamp(1491274148454L);
+        tFAgentStat.setLoadedClass(tfLoadedClass);
+
+        final TFLoadedClass tfLoadedClass2 = new TFLoadedClass();
+        tfLoadedClass2.setLoadedClassCount(120);
+        tfLoadedClass2.setUnloadedClassCount(120);
+        final TFAgentStat tFAgentStat2 = new TFAgentStat();
+        tFAgentStat2.setAgentId(agentId);
+        tFAgentStat2.setTimestamp(1491275148454L);
+        tFAgentStat2.setLoadedClass(tfLoadedClass2);
+
+        final List<TFAgentStat> tFAgentStatList = new ArrayList<>(2);
+        tFAgentStatList.add(tFAgentStat);
+        tFAgentStatList.add(tFAgentStat2);
+        tFAgentStatBatch.setAgentStats(tFAgentStatList);
+
+        JoinAgentStatBo joinAgentStatBo = joinAgentStatBoMapper.map(tFAgentStatBatch);
+        assertEquals(agentId, joinAgentStatBo.getId());
+        assertEquals(1491274138454L, joinAgentStatBo.getAgentStartTimestamp());
+        assertEquals(1491274148454L, joinAgentStatBo.getTimestamp());
+
+        List<JoinLoadedClassBo> joinLoadedClassBoList = joinAgentStatBo.getJoinLoadedClassBoList();
+        assertEquals(joinLoadedClassBoList.size(), 2);
+
+        JoinLoadedClassBo joinLoadedClassBo = joinLoadedClassBoList.get(0);
+        assertEquals(agentId, joinLoadedClassBo.getId());
+        assertEquals(1491274148454L, joinLoadedClassBo.getTimestamp());
+        assertEquals(100, joinLoadedClassBo.getAvgLoadedClass());
+        assertEquals(100, joinLoadedClassBo.getMinLoadedClass());
+        assertEquals(agentId, joinLoadedClassBo.getMinLoadedClassAgentId());
+        assertEquals(100, joinLoadedClassBo.getMaxLoadedClass());
+        assertEquals(agentId, joinLoadedClassBo.getMaxLoadedClassAgentId());
+        assertEquals(100, joinLoadedClassBo.getAvgUnloadedClass());
+        assertEquals(100, joinLoadedClassBo.getMinUnloadedClass());
+        assertEquals(agentId, joinLoadedClassBo.getMinUnloadedClassAgentId());
+        assertEquals(100, joinLoadedClassBo.getMaxUnloadedClass());
+        assertEquals(agentId, joinLoadedClassBo.getMaxUnloadedClassAgentId());
+
+        JoinLoadedClassBo joinLoadedClassBo2 = joinLoadedClassBoList.get(1);
+        assertEquals(agentId, joinLoadedClassBo2.getId());
+        assertEquals(1491275148454L, joinLoadedClassBo2.getTimestamp());
+        assertEquals(120, joinLoadedClassBo2.getAvgLoadedClass());
+        assertEquals(120, joinLoadedClassBo2.getMinLoadedClass());
+        assertEquals(agentId, joinLoadedClassBo2.getMinLoadedClassAgentId());
+        assertEquals(120, joinLoadedClassBo2.getMaxLoadedClass());
+        assertEquals(agentId, joinLoadedClassBo2.getMaxLoadedClassAgentId());
+        assertEquals(120, joinLoadedClassBo2.getAvgUnloadedClass());
+        assertEquals(120, joinLoadedClassBo2.getMinUnloadedClass());
+        assertEquals(agentId, joinLoadedClassBo2.getMinUnloadedClassAgentId());
+        assertEquals(120, joinLoadedClassBo2.getMaxUnloadedClass());
+        assertEquals(agentId, joinLoadedClassBo2.getMaxUnloadedClassAgentId());
+    }
 }
