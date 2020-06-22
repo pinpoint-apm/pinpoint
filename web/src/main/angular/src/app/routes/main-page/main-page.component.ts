@@ -19,7 +19,7 @@ const enum ScreenWidth {
 })
 export class MainPageComponent implements OnInit {
     enableRealTime$: Observable<boolean>;
-    isAppKeyProvided$: Observable<boolean>;
+    isAppSelected$: Observable<boolean>;
     isScreenWideEnough$: Observable<boolean>;
 
     constructor(
@@ -40,7 +40,7 @@ export class MainPageComponent implements OnInit {
         ).pipe(
             map(([isRealTimeMode, useActiveThreadChart]: boolean[]) => isRealTimeMode && useActiveThreadChart)
         );
-        this.isAppKeyProvided$ = this.newUrlStateNotificationService.onUrlStateChange$.pipe(
+        this.isAppSelected$ = this.newUrlStateNotificationService.onUrlStateChange$.pipe(
             map((urlService: NewUrlStateNotificationService) => urlService.hasValue(UrlPathId.APPLICATION))
         );
         this.webAppSettingDataService.getVersion().subscribe((version: string) => {
