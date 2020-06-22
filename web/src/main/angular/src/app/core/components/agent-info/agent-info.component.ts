@@ -30,8 +30,7 @@ export class AgentInfoComponent implements OnInit, OnChanges {
             .forEach((propName: string) => {
                 switch (propName) {
                     case 'agentData':
-                        this.isHideDetailInfo = true;
-                        this.selectedServiceIndex = 0;
+                        this.selectedServiceIndex = this.agentData.serverMetaData.serviceInfos[this.selectedServiceIndex] ? this.selectedServiceIndex : 0;
                         break;
                 }
             });
