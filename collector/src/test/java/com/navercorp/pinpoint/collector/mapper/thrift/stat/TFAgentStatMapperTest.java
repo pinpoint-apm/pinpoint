@@ -495,4 +495,66 @@ public class TFAgentStatMapperTest {
 
         return totalThreadCountBoList;
     }
+
+    @Test
+    public void map8Test() {
+        final AgentStatBo agentStatBo = new AgentStatBo();
+        agentStatBo.setStartTimestamp(startTimestamp);
+        agentStatBo.setAgentId(TEST_AGENT);
+        agentStatBo.setLoadedClassBos(createLoadedClassCountBoList());
+
+        List<TFAgentStat> tFAgentStatList = new TFAgentStatMapper().map(agentStatBo);
+        assertEquals(3, tFAgentStatList.size());
+
+        TFAgentStat tFAgentStat1 = tFAgentStatList.get(0);
+        assertEquals(TEST_AGENT, tFAgentStat1.getAgentId());
+        assertEquals(startTimestamp, tFAgentStat1.getStartTimestamp());
+        assertEquals(collectTime1st, tFAgentStat1.getTimestamp());
+        assertEquals(4, tFAgentStat1.getLoadedClass().getLoadedClassCount(), 0);
+        assertEquals(4, tFAgentStat1.getLoadedClass().getUnloadedClassCount(), 0);
+
+        TFAgentStat tFAgentStat2 = tFAgentStatList.get(1);
+        assertEquals(TEST_AGENT, tFAgentStat2.getAgentId());
+        assertEquals(startTimestamp, tFAgentStat2.getStartTimestamp());
+        assertEquals(collectTime2nd, tFAgentStat2.getTimestamp());
+        assertEquals(5, tFAgentStat2.getLoadedClass().getLoadedClassCount(), 0);
+        assertEquals(5, tFAgentStat2.getLoadedClass().getUnloadedClassCount(), 0);
+
+        TFAgentStat tFAgentStat3 = tFAgentStatList.get(2);
+        assertEquals(TEST_AGENT, tFAgentStat3.getAgentId());
+        assertEquals(startTimestamp, tFAgentStat3.getStartTimestamp());
+        assertEquals(collectTime3rd, tFAgentStat3.getTimestamp());
+        assertEquals(6, tFAgentStat3.getLoadedClass().getLoadedClassCount(), 0);
+        assertEquals(6, tFAgentStat3.getLoadedClass().getUnloadedClassCount(), 0);
+    }
+
+    private List<LoadedClassBo> createLoadedClassCountBoList() {
+        final List<LoadedClassBo> loadedClassBoList = new ArrayList<>();
+
+        LoadedClassBo loadedClassBo1 = new LoadedClassBo();
+        loadedClassBo1.setAgentId(TEST_AGENT);
+        loadedClassBo1.setTimestamp(collectTime1st);
+        loadedClassBo1.setStartTimestamp(startTimestamp);
+        loadedClassBo1.setLoadedClassCount(4);
+        loadedClassBo1.setUnloadedClassCount(4);
+        loadedClassBoList.add(loadedClassBo1);
+
+        LoadedClassBo loadedClassBo2 = new LoadedClassBo();
+        loadedClassBo2.setAgentId(TEST_AGENT);
+        loadedClassBo2.setTimestamp(collectTime2nd);
+        loadedClassBo2.setStartTimestamp(startTimestamp);
+        loadedClassBo2.setLoadedClassCount(5);
+        loadedClassBo2.setUnloadedClassCount(5);
+        loadedClassBoList.add(loadedClassBo2);
+
+        LoadedClassBo loadedClassBo3 = new LoadedClassBo();
+        loadedClassBo3.setAgentId(TEST_AGENT);
+        loadedClassBo3.setTimestamp(collectTime3rd);
+        loadedClassBo3.setStartTimestamp(startTimestamp);
+        loadedClassBo3.setLoadedClassCount(6);
+        loadedClassBo3.setUnloadedClassCount(6);
+        loadedClassBoList.add(loadedClassBo3);
+
+        return loadedClassBoList;
+    }
 }
