@@ -51,7 +51,6 @@ import java.util.Objects;
 import java.util.Optional;
 
 /**
- *
  * @author jaehong.kim
  */
 @Service
@@ -239,11 +238,9 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
             return 0;
         }
 
-        long min = alignList.get(0).getStartTime();
-        for(Align align : alignList) {
-            if(align.getStartTime() < min) {
-                min = align.getStartTime();
-            }
+        long min = Long.MAX_VALUE;
+        for (Align align : alignList) {
+            min = Math.min(min, align.getStartTime());
         }
         return min;
     }
@@ -252,11 +249,9 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
         if (CollectionUtils.isEmpty(alignList)) {
             return 0;
         }
-        long max = alignList.get(0).getEndTime();
-        for(Align align : alignList) {
-            if(align.getEndTime() > max) {
-                max = align.getEndTime();
-            }
+        long max = Long.MIN_VALUE;
+        for (Align align : alignList) {
+            max = Math.max(max, align.getEndTime());
         }
         return max;
     }
@@ -384,7 +379,7 @@ public class TransactionInfoServiceImpl implements TransactionInfoService {
                 // add exception record.
                 if (align.hasException()) {
                     final Record exceptionRecord = factory.getException(record.getTab() + 1, record.getId(), align);
-                    if(exceptionRecord != null) {
+                    if (exceptionRecord != null) {
                         recordList.add(exceptionRecord);
                     }
                 }
