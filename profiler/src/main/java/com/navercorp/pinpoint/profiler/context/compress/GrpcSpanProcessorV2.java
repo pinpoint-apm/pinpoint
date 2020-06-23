@@ -82,10 +82,11 @@ public class GrpcSpanProcessorV2 implements SpanProcessor<PSpan.Builder, PSpanCh
     }
 
     private void postProcess(long keyTime, List<SpanEvent> spanEventList, List<PSpanEvent.Builder> pSpanEventList) {
-        if (CollectionUtils.isEmpty(spanEventList)) {
+        final int spanEventSize = CollectionUtils.nullSafeSize(spanEventList);
+        if (spanEventSize == 0) {
             return;
         }
-        if (!(CollectionUtils.nullSafeSize(spanEventList) == CollectionUtils.nullSafeSize(pSpanEventList))) {
+        if (!(spanEventSize == CollectionUtils.nullSafeSize(pSpanEventList))) {
             throw new IllegalStateException("list size not same");
         }
         // check list type
