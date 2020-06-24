@@ -30,7 +30,7 @@ import java.util.Arrays;
 /**
  * @author Woonduk Kang(emeroad)
  */
-@TestPropertySource(locations = "classpath:batch.properties",
+@TestPropertySource(locations = "classpath:batch-root.properties",
         properties = {"batch.flink.server=1,2"})
 @ContextConfiguration(classes = BatchConfiguration.class)
 @RunWith(SpringJUnit4ClassRunner.class)

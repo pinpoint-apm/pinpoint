@@ -17,6 +17,8 @@
 package com.navercorp.pinpoint.bootstrap.agentdir;
 
 
+import com.navercorp.pinpoint.bootstrap.config.Profiles;
+
 import java.io.File;
 import java.io.FilenameFilter;
 import java.net.URL;
@@ -96,7 +98,7 @@ public class AgentDirectory {
     }
 
     public String getAgentConfigPath() {
-        return appendAgentDirPath("pinpoint.config");
+        return appendAgentDirPath(Profiles.CONFIG_FILE_NAME);
     }
 
     public String getProfilesPath() {

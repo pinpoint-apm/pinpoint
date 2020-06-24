@@ -37,15 +37,15 @@
     <bean id="webPropertyConfigurer" class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer">
         <property name="locations">
             <list>
-                <value>classpath:hbase.properties</value>
-                <value>classpath:jdbc.properties</value>
-                <value>classpath:pinpoint-web.properties</value>
-                <value>classpath:batch.properties</value>
+                <value>classpath:hbase-root.properties</value>
+                <value>classpath:jdbc-root.properties</value>
+                <value>classpath:pinpoint-web-root.properties</value>
+                <value>classpath:batch-root.properties</value>
                 <!-- override configuration -->
-                <value>classpath:profiles/${pinpoint.profiles.active}/hbase-env.properties</value>
-                <value>classpath:profiles/${pinpoint.profiles.active}/jdbc-env.properties</value>
-                <value>classpath:profiles/${pinpoint.profiles.active}/pinpoint-web-env.properties</value>
-                <value>classpath:profiles/${pinpoint.profiles.active}/batch-env.properties</value>
+                <value>classpath:profiles/${pinpoint.profiles.active}/hbase.properties</value>
+                <value>classpath:profiles/${pinpoint.profiles.active}/jdbc.properties</value>
+                <value>classpath:profiles/${pinpoint.profiles.active}/pinpoint-web.properties</value>
+                <value>classpath:profiles/${pinpoint.profiles.active}/batch.properties</value>
                 <!-- external property for override -->
                 <value>file:#{ systemProperties['pinpoint.web.config.location'] ?: '-Dpinpoint.web.config.location does not set' }</value>
             </list>
@@ -57,7 +57,7 @@
     </bean>
     
     <bean id="pinpointWebProps" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
-        <property name="location" value="classpath:pinpoint-web.properties"/>
+        <property name="location" value="classpath:pinpoint-web-root.properties"/>
     </bean>
 
     <import resource="classpath:applicationContext-web-profile.xml" />

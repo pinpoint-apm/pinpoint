@@ -33,7 +33,7 @@ public class PropertiesVerificationTest {
 
     @Test
     public void checkHbasePropertiesTest() throws Exception {
-        Properties properties = PropertyUtils.loadPropertyFromClassPath("hbase.properties");
+        Properties properties = PropertyUtils.loadPropertyFromClassPath("hbase-root.properties");
 
         String clientHost = properties.getProperty("hbase.client.host");
         Assert.assertEquals(HBASE_CLIENT_HOST_VALUE, clientHost);
@@ -44,7 +44,7 @@ public class PropertiesVerificationTest {
 
     @Test
     public void checkWebPropertiesTest() throws Exception {
-        Properties properties = PropertyUtils.loadPropertyFromClassPath("pinpoint-web.properties");
+        Properties properties = PropertyUtils.loadPropertyFromClassPath("pinpoint-web-root.properties");
 
         String pinpointZKAddress = properties.getProperty("pinpoint.zookeeper.address");
         Assert.assertEquals(LOCAL_HOST, pinpointZKAddress);

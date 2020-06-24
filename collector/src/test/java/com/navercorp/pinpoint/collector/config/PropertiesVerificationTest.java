@@ -33,7 +33,7 @@ public class PropertiesVerificationTest {
 
     @Test
     public void checkHbasePropertiesTest() throws Exception {
-        Properties properties = PropertyUtils.loadPropertyFromClassPath("profiles/release/hbase-env.properties");
+        Properties properties = PropertyUtils.loadPropertyFromClassPath("profiles/release/hbase.properties");
 
         String clientHost = properties.getProperty("hbase.client.host");
         Assert.assertEquals(HBASE_CLIENT_HOST_VALUE, clientHost);
@@ -44,7 +44,7 @@ public class PropertiesVerificationTest {
 
     @Test
     public void checkCollectionPropertiesTest() throws Exception {
-        Properties properties = PropertyUtils.loadPropertyFromClassPath("pinpoint-collector.properties");
+        Properties properties = PropertyUtils.loadPropertyFromClassPath("pinpoint-collector-root.properties");
 
         String receiverIp = properties.getProperty("collector.receiver.base.ip");
         Assert.assertEquals("0.0.0.0", receiverIp);
