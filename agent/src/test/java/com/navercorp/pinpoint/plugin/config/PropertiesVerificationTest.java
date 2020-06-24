@@ -29,7 +29,7 @@ public class PropertiesVerificationTest {
 
     @Test
     public void checkConfigTest() throws Exception {
-        Properties properties = PropertyUtils.loadPropertyFromClassPath("pinpoint.config");
+        Properties properties = PropertyUtils.loadPropertyFromClassPath("pinpoint-root.config");
 
         String collectorIp = properties.getProperty("profiler.collector.ip");
         Assert.assertEquals("127.0.0.1", collectorIp);

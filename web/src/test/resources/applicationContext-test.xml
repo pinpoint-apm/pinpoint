@@ -50,7 +50,7 @@
         <property name="locations">
             <list>
                 <value>test-hbase.properties</value>
-                <value>jdbc.properties</value>
+                <value>jdbc-root.properties</value>
             </list>
         </property>
     </bean>

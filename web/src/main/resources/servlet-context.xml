@@ -12,8 +12,8 @@
     <bean id="webPropertyConfigurer" class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer">
         <property name="locations">
             <list>
-                <value>classpath:pinpoint-web.properties</value>
-                <value>classpath:profiles/${pinpoint.profiles.active}/pinpoint-web-env.properties</value>
+                <value>classpath:pinpoint-web-root.properties</value>
+                <value>classpath:profiles/${pinpoint.profiles.active}/pinpoint-web.properties</value>
                 <value>file:#{ systemProperties['pinpoint.web.config.location'] ?: '-Dpinpoint.web.config.location does not set' }</value>
             </list>
         </property>

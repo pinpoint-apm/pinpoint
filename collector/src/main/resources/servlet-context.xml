@@ -18,8 +18,8 @@
     <bean id="collectorPropertyConfigurer" class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer">
         <property name="locations">
             <list>
-                <value>classpath:pinpoint-collector.properties</value>
-                <value>classpath:profiles/${pinpoint.profiles.active}/pinpoint-collector-env.properties</value>
+                <value>classpath:pinpoint-collector-root.properties</value>
+                <value>classpath:profiles/${pinpoint.profiles.active}/pinpoint-collector.properties</value>
                 <value>file:#{ systemProperties['pinpoint.collector.config.location'] ?: '-Dpinpoint.collector.config.location does not set' }</value>
             </list>
         </property>

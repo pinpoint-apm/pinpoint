@@ -15,8 +15,8 @@
     <bean id="collectorGrpcProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
         <property name="locations">
             <list>
-                <value>classpath:pinpoint-collector-grpc.properties</value>
-                <value>classpath:profiles/${pinpoint.profiles.active}/pinpoint-collector-grpc-env.properties</value>
+                <value>classpath:pinpoint-collector-grpc-root.properties</value>
+                <value>classpath:profiles/${pinpoint.profiles.active}/pinpoint-collector-grpc.properties</value>
             </list>
         </property>
         <property name="fileEncoding" value="UTF-8"/>

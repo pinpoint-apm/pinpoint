@@ -36,9 +36,10 @@ public final class Profiles {
     public static final String DEFAULT_ACTIVE_PROFILE = "release";
 
     // 1. default config
-    public static final String CONFIG_FILE_NAME = "pinpoint.config";
+    public static final String CONFIG_FILE_NAME = "pinpoint-root.config";
     // 2. profile config
-    public static final String PROFILE_CONFIG_FILE_NAME = "pinpoint-env.config";
+    public static final String PROFILE_CONFIG_FILE_NAME = "pinpoint.config";
+    
     // 3. external config
-    public static final String EXTERNAL_CONFIG_KEY = CONFIG_FILE_NAME;
+    public static final String EXTERNAL_CONFIG_KEY = "pinpoint.config";
 }

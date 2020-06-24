@@ -57,7 +57,7 @@ public class ClusterTest {
     private static final Charset UTF_8_CHARSET = StandardCharsets.UTF_8;
 
     // some tests may fail when executed in local environment
-    // when failures happen, you have to copy pinpoint-web.properties of resource-test to resource-local. Tests will succeed.
+    // when failures happen, you have to copy pinpoint-web-root.properties of resource-test to resource-local. Tests will succeed.
 
     private static TestAwaitUtils awaitUtils = new TestAwaitUtils(100, 10000);
 

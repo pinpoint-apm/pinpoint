@@ -27,15 +27,15 @@
     <bean id="collectorPropertyConfigurer" class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer">
         <property name="locations">
             <list>
-                <value>classpath:hbase.properties</value>
-                <value>classpath:pinpoint-collector.properties</value>
-                <value>classpath:pinpoint-collector-grpc.properties</value>
-                <value>classpath:jdbc.properties</value>
+                <value>classpath:hbase-root.properties</value>
+                <value>classpath:pinpoint-collector-root.properties</value>
+                <value>classpath:pinpoint-collector-grpc-root.properties</value>
+                <value>classpath:jdbc-root.properties</value>
                 <!-- override configuration -->
-                <value>classpath:profiles/${pinpoint.profiles.active}/hbase-env.properties</value>
-                <value>classpath:profiles/${pinpoint.profiles.active}/pinpoint-collector-env.properties</value>
-                <value>classpath:profiles/${pinpoint.profiles.active}/pinpoint-collector-grpc-env.properties</value>
-                <value>classpath:profiles/${pinpoint.profiles.active}/jdbc-env.properties</value>
+                <value>classpath:profiles/${pinpoint.profiles.active}/hbase.properties</value>
+                <value>classpath:profiles/${pinpoint.profiles.active}/pinpoint-collector.properties</value>
+                <value>classpath:profiles/${pinpoint.profiles.active}/pinpoint-collector-grpc.properties</value>
+                <value>classpath:profiles/${pinpoint.profiles.active}/jdbc.properties</value>
                 <!-- external property for override -->
                 <value>file:#{ systemProperties['pinpoint.collector.config.location'] ?: '-Dpinpoint.collector.config.location does not set' }</value>
             </list>
