@@ -38,7 +38,7 @@ public class ApplicationDataSourceChartGroupTest {
     @Test
     public void createApplicationDataSourceChartGroup() {
         long time = 1495418083250L;
-        Range range = new Range(time - 240000, time);
+        Range range = Range.newRange(time - 240000, time);
         TimeWindow timeWindow = new TimeWindow(range);
 
         List<AggreJoinDataSourceBo> aggreJoinDataSourceBoList = new ArrayList<>();

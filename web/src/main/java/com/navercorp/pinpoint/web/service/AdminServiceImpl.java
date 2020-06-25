@@ -156,7 +156,7 @@ public class AdminServiceImpl implements AdminService {
         Calendar cal = Calendar.getInstance();
         cal.add(Calendar.DATE, durationDays * -1);
         final long fromTimestamp = cal.getTimeInMillis();
-        Range queryRange = new Range(fromTimestamp, toTimestamp);
+        Range queryRange = Range.newRange(fromTimestamp, toTimestamp);
         for (String agentId : agentIds) {
             // FIXME This needs to be done with a more accurate information.
             // If at any time a non-java agent is introduced, or an agent that does not collect jvm data,

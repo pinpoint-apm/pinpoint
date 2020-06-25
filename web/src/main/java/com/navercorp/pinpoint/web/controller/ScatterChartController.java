@@ -120,7 +120,7 @@ public class ScatterChartController {
         watch.start("getScatterData");
 
         // TODO range check verification exception occurs. "from" is bigger than "to"
-        final Range range = Range.createUncheckedRange(from, to);
+        final Range range = Range.newUncheckedRange(from, to);
         logger.debug("fetch scatter data. RANGE={}, X-Group-Unit:{}, Y-Group-Unit:{}, LIMIT={}, BACKWARD_DIRECTION:{}, FILTER:{}", range, xGroupUnit, yGroupUnit, limit, backwardDirection, filterText);
 
         ScatterView.DotView dotView;

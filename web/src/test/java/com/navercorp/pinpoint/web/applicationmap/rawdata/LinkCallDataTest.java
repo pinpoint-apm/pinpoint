@@ -38,7 +38,7 @@ public class LinkCallDataTest {
         
         logger.debug("{}", data1.getTimeHistogram().size());
         
-        Range range = new Range(currentTime, currentTime + SIX_HOURS);
+        Range range = Range.newRange(currentTime, currentTime + SIX_HOURS);
         TimeWindow window = new TimeWindow(range, TimeWindowDownSampler.SAMPLER);
         LinkCallData data2 = new LinkCallData(key, window);
         data2.addCallData(currentTime, (short) 100, 1L);

@@ -100,14 +100,14 @@ public class FilteredMapController {
 
         limit = LimitUtils.checkRange(limit);
         final Filter<List<SpanBo>> filter = filterBuilder.build(filterText, filterHint);
-        final Range range = new Range(from, to);
+        final Range range = Range.newRange(from, to);
         final LimitedScanResult<List<TransactionId>> limitedScanResult = filteredMapService.selectTraceIdsFromApplicationTraceIndex(applicationName, range, limit);
 
         final long lastScanTime = limitedScanResult.getLimitedTime();
         // original range: needed for visual chart data sampling
-        final Range originalRange = new Range(from, originTo);
+        final Range originalRange = Range.newRange(from, originTo);
         // needed to figure out already scanned ranged
-        final Range scannerRange = new Range(lastScanTime, to);
+        final Range scannerRange = Range.newRange(lastScanTime, to);
         logger.debug("originalRange:{} scannerRange:{} ", originalRange, scannerRange);
         ApplicationMap map = filteredMapService.selectApplicationMapWithScatterData(limitedScanResult.getScanData(), originalRange, scannerRange, xGroupUnit, yGroupUnit, filter, viewVersion);
 

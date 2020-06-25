@@ -58,7 +58,7 @@ public class ApplicationStatController {
     @ResponseBody
     public StatChart getAgentStatChart(@RequestParam("applicationId") String applicationId, @RequestParam("from") long from, @RequestParam("to") long to) {
         TimeWindowSlotCentricSampler sampler = new TimeWindowSlotCentricSampler();
-        TimeWindow timeWindow = new TimeWindow(new Range(from, to), sampler);
+        TimeWindow timeWindow = new TimeWindow(Range.newRange(from, to), sampler);
         try {
             return this.applicationStatChartService.selectApplicationChart(applicationId, timeWindow);
         } catch (Exception e ) {
@@ -128,7 +128,7 @@ public class ApplicationStatController {
         @ResponseBody
         public List<StatChart> getAgentStatChart(@RequestParam("applicationId") String applicationId, @RequestParam("from") long from, @RequestParam("to") long to) {
             TimeWindowSlotCentricSampler sampler = new TimeWindowSlotCentricSampler();
-            TimeWindow timeWindow = new TimeWindow(new Range(from, to), sampler);
+            TimeWindow timeWindow = new TimeWindow(Range.newRange(from, to), sampler);
             try {
                 return this.applicationDataSourceService.selectApplicationChart(applicationId, timeWindow);
             } catch (Exception e ) {

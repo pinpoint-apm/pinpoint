@@ -53,7 +53,7 @@ public class FileDescriptorDataCollectorTest {
 
         FileDescriptorDao fileDescriptorDao = mock(FileDescriptorDao.class);
         long timeStamp = 1558936971494L;
-        Range range = Range.createUncheckedRange(timeStamp - DataCollectorFactory.SLOT_INTERVAL_FIVE_MIN, timeStamp);
+        Range range = Range.newUncheckedRange(timeStamp - DataCollectorFactory.SLOT_INTERVAL_FIVE_MIN, timeStamp);
 
         List<FileDescriptorBo> fileDescriptorBoList1 = new ArrayList<>();
         FileDescriptorBo fileDescriptorBo1_1 = new FileDescriptorBo();

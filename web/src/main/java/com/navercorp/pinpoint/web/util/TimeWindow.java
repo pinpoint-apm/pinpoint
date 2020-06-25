@@ -76,7 +76,7 @@ public class TimeWindow implements Iterable<Long> {
     private Range createWindowRange() {
         long from = refineTimestamp(range.getFrom());
         long to = refineTimestamp(range.getTo());
-        return new Range(from, to);
+        return Range.newRange(from, to);
     }
 
     public int getWindowIndex(long time) {

@@ -38,7 +38,7 @@ public class ApplicationResponseTimeChartGroupTest {
     @Test
     public void createApplicationResponseTimeChartGroupTest() {
         long time = 1495418083250L;
-        Range range = new Range(time - 240000, time);
+        Range range = Range.newRange(time - 240000, time);
         TimeWindow timeWindow = new TimeWindow(range);
 
         final String id = "test_app";

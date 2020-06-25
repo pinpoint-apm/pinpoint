@@ -81,7 +81,7 @@ public class NodeHistogramAppenderTest {
     @Test
     public void emptyNodeList() {
         // Given
-        Range range = new Range(0, 60 * 1000);
+        Range range = Range.newRange(0, 60 * 1000);
         NodeList nodeList = new NodeList();
         LinkList linkList = new LinkList();
         // When
@@ -97,7 +97,7 @@ public class NodeHistogramAppenderTest {
     @Test
     public void wasNode() {
         // Given
-        Range range = new Range(0, 60 * 1000);
+        Range range = Range.newRange(0, 60 * 1000);
         NodeList nodeList = new NodeList();
         LinkList linkList = new LinkList();
         Node node = createNode("testApp", ServiceTypeFactory.of(1000, "WAS"));
@@ -121,7 +121,7 @@ public class NodeHistogramAppenderTest {
     @Test
     public void terminalNode() {
         // Given
-        Range range = new Range(0, 60 * 1000);
+        Range range = Range.newRange(0, 60 * 1000);
         NodeList nodeList = new NodeList();
         LinkList linkList = new LinkList();
 
@@ -176,7 +176,7 @@ public class NodeHistogramAppenderTest {
     @Test
     public void terminalNode_multiple() {
         // Given
-        Range range = new Range(0, 60 * 1000);
+        Range range = Range.newRange(0, 60 * 1000);
         NodeList nodeList = new NodeList();
         LinkList linkList = new LinkList();
 
@@ -231,7 +231,7 @@ public class NodeHistogramAppenderTest {
     @Test
     public void terminalNodes() {
         // Given
-        Range range = new Range(0, 60 * 1000);
+        Range range = Range.newRange(0, 60 * 1000);
         NodeList nodeList = new NodeList();
         LinkList linkList = new LinkList();
 
@@ -303,7 +303,7 @@ public class NodeHistogramAppenderTest {
     @Test
     public void userNode() {
         // Given
-        Range range = new Range(0, 60 * 1000);
+        Range range = Range.newRange(0, 60 * 1000);
         NodeList nodeList = new NodeList();
         LinkList linkList = new LinkList();
         // userNode : [userNode] user

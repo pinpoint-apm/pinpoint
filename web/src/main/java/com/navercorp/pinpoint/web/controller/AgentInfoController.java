@@ -168,7 +168,7 @@ public class AgentInfoController {
             @RequestParam("from") long from,
             @RequestParam("to") long to,
             @RequestParam(value = "exclude", defaultValue = "") int[] excludeEventTypeCodes) {
-        Range range = new Range(from, to);
+        Range range = Range.newRange(from, to);
         return this.agentEventService.getAgentEvents(agentId, range, excludeEventTypeCodes);
     }
 
@@ -179,7 +179,7 @@ public class AgentInfoController {
             @RequestParam("agentId") String agentId,
             @RequestParam("from") long from,
             @RequestParam("to") long to) {
-        Range range = new Range(from, to);
+        Range range = Range.newRange(from, to);
         return agentInfoService.getAgentStatusTimeline(agentId, range);
     }
 
@@ -191,7 +191,7 @@ public class AgentInfoController {
             @RequestParam("from") long from,
             @RequestParam("to") long to,
             @RequestParam(value = "exclude", defaultValue = "") int[] excludeEventTypeCodes) {
-        Range range = new Range(from, to);
+        Range range = Range.newRange(from, to);
         return agentInfoService.getAgentStatusTimeline(agentId, range, excludeEventTypeCodes);
     }
 

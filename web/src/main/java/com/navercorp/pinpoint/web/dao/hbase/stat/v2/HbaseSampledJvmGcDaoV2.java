@@ -52,7 +52,7 @@ public class HbaseSampledJvmGcDaoV2 implements SampledJvmGcDao {
     public List<SampledJvmGc> getSampledAgentStatList(String agentId, TimeWindow timeWindow) {
         long scanFrom = timeWindow.getWindowRange().getFrom();
         long scanTo = timeWindow.getWindowRange().getTo() + timeWindow.getWindowSlotSize();
-        Range range = new Range(scanFrom, scanTo);
+        Range range = Range.newRange(scanFrom, scanTo);
         AgentStatMapperV2<JvmGcBo> mapper = operations.createRowMapper(jvmGcDecoder, range);
         SampledAgentStatResultExtractor<JvmGcBo, SampledJvmGc> resultExtractor = new SampledAgentStatResultExtractor<>(timeWindow, mapper, jvmGcSampler);
         return operations.getSampledAgentStatList(AgentStatType.JVM_GC, resultExtractor, agentId, range);

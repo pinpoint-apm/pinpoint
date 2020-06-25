@@ -48,7 +48,7 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class RpcCallProcessorTest {
 
-    private final Range testRange = new Range(System.currentTimeMillis(), System.currentTimeMillis());
+    private final Range testRange = Range.newRange(System.currentTimeMillis(), System.currentTimeMillis());
 
     @Mock
     private HostApplicationMapDao hostApplicationMapDao;

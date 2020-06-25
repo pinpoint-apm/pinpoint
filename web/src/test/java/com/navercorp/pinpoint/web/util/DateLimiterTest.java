@@ -47,12 +47,12 @@ public class DateLimiterTest {
     public void checkRange() {
         Limiter limiter = new DateLimiter(2);
 
-        limiter.limit(new Range(0, TimeUnit.DAYS.toMillis(2)));
+        limiter.limit(Range.newRange(0, TimeUnit.DAYS.toMillis(2)));
 
         long time = 1000;
-        limiter.limit(new Range(time, time + TimeUnit.DAYS.toMillis(2)));
+        limiter.limit(Range.newRange(time, time + TimeUnit.DAYS.toMillis(2)));
 
-        limiter.limit(new Range(TimeUnit.DAYS.toMillis(2), TimeUnit.DAYS.toMillis(2)));
+        limiter.limit(Range.newRange(TimeUnit.DAYS.toMillis(2), TimeUnit.DAYS.toMillis(2)));
     }
 
     @Test
@@ -75,13 +75,13 @@ public class DateLimiterTest {
     public void checkRangeFail() {
         Limiter limiter = new DateLimiter(2);
         try {
-            limiter.limit(new Range(0, TimeUnit.DAYS.toMillis(2) + 1));
+            limiter.limit(Range.newRange(0, TimeUnit.DAYS.toMillis(2) + 1));
             Assert.fail();
         } catch (Exception ignored) {
         }
 
         try {
-            limiter.limit(new Range(TimeUnit.DAYS.toMillis(2), 0));
+            limiter.limit(Range.newRange(TimeUnit.DAYS.toMillis(2), 0));
             Assert.fail();
         } catch (Exception ignored) {
         }

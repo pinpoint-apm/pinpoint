@@ -49,7 +49,7 @@ public class HbaseApplicationTotalThreadCountDao implements ApplicationTotalThre
     public List<AggreJoinTotalThreadCountBo> getApplicationStatList(String applicationId, TimeWindow timewindow) {
         long scanFrom = timewindow.getWindowRange().getFrom();
         long scanTo = timewindow.getWindowRange().getTo() + timewindow.getWindowSlotSize();
-        Range range = new Range(scanFrom, scanTo);
+        Range range = Range.newRange(scanFrom, scanTo);
         ApplicationStatMapper mapper = operations.createRowMapper(totalThreadCountDecoder, range);
         SampledApplicationStatResultExtractor resultExtractor = new SampledApplicationStatResultExtractor(timewindow, mapper, totalThreadCountSampler);
         List<AggregationStatData> aggregationStatDataList = operations.getSampledStatList(StatType.APP_TOTAL_THREAD_COUNT, resultExtractor, applicationId, range);

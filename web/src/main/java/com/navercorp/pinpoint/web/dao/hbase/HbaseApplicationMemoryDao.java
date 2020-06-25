@@ -55,7 +55,7 @@ public class HbaseApplicationMemoryDao implements ApplicationMemoryDao {
     public List<AggreJoinMemoryBo> getApplicationStatList(String applicationId, TimeWindow timeWindow) {
         long scanFrom = timeWindow.getWindowRange().getFrom();
         long scanTo = timeWindow.getWindowRange().getTo() + timeWindow.getWindowSlotSize();
-        Range range = new Range(scanFrom, scanTo);
+        Range range = Range.newRange(scanFrom, scanTo);
         ApplicationStatMapper mapper = operations.createRowMapper(memoryDecoder, range);
         SampledApplicationStatResultExtractor resultExtractor = new SampledApplicationStatResultExtractor(timeWindow, mapper, memorySampler);
         List<AggregationStatData> aggregationStatDataList = operations.getSampledStatList(StatType.APP_MEMORY_USED, resultExtractor, applicationId, range);

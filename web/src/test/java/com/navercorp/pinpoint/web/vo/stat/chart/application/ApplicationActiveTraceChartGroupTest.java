@@ -39,7 +39,7 @@ public class ApplicationActiveTraceChartGroupTest {
     public void createApplicationActiveTraceChartGroupTest() {
         long time = 1495418083250L;
         String id = "testApp";
-        Range range = new Range(time - 240000, time);
+        Range range = Range.newRange(time - 240000, time);
         TimeWindow timeWindow = new TimeWindow(range);
         List<AggreJoinActiveTraceBo> aggreJoinActiveTraceBoList = new ArrayList<>(5);
         AggreJoinActiveTraceBo aggreJoinActiveTraceBo1 = new AggreJoinActiveTraceBo(id, 1, (short)2, 150, 10, "app_1_1", 230, "app_1_2", time);

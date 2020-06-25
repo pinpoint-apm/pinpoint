@@ -52,7 +52,7 @@ public class HbaseSampledTransactionDaoV2 implements SampledTransactionDao {
     public List<SampledTransaction> getSampledAgentStatList(String agentId, TimeWindow timeWindow) {
         long scanFrom = timeWindow.getWindowRange().getFrom();
         long scanTo = timeWindow.getWindowRange().getTo() + timeWindow.getWindowSlotSize();
-        Range range = new Range(scanFrom, scanTo);
+        Range range = Range.newRange(scanFrom, scanTo);
         AgentStatMapperV2<TransactionBo> mapper = operations.createRowMapper(transactionDecoder, range);
         SampledAgentStatResultExtractor<TransactionBo, SampledTransaction> resultExtractor = new SampledAgentStatResultExtractor<>(timeWindow, mapper, transactionSampler);
         return operations.getSampledAgentStatList(AgentStatType.TRANSACTION, resultExtractor, agentId, range);

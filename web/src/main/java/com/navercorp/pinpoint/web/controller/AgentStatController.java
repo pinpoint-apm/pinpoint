@@ -92,7 +92,7 @@ public abstract class AgentStatController<T extends AgentStatDataPoint> {
             @RequestParam("agentId") String agentId,
             @RequestParam("from") long from,
             @RequestParam("to") long to) {
-        Range rangeToScan = new Range(from, to);
+        Range rangeToScan = Range.newRange(from, to);
         return this.agentStatService.selectAgentStatList(agentId, rangeToScan);
     }
 
@@ -104,7 +104,7 @@ public abstract class AgentStatController<T extends AgentStatDataPoint> {
             @RequestParam("from") long from,
             @RequestParam("to") long to) {
         TimeWindowSampler sampler = new TimeWindowSlotCentricSampler();
-        TimeWindow timeWindow = new TimeWindow(new Range(from, to), sampler);
+        TimeWindow timeWindow = new TimeWindow(Range.newRange(from, to), sampler);
         return this.agentStatChartService.selectAgentChart(agentId, timeWindow);
     }
 
@@ -124,7 +124,7 @@ public abstract class AgentStatController<T extends AgentStatDataPoint> {
                 return intervalMs;
             }
         };
-        TimeWindow timeWindow = new TimeWindow(new Range(from, to), sampler);
+        TimeWindow timeWindow = new TimeWindow(Range.newRange(from, to), sampler);
         return this.agentStatChartService.selectAgentChart(agentId, timeWindow);
     }
 
@@ -136,7 +136,7 @@ public abstract class AgentStatController<T extends AgentStatDataPoint> {
             @RequestParam("from") long from,
             @RequestParam("to") long to) {
         TimeWindowSampler sampler = new TimeWindowSlotCentricSampler();
-        TimeWindow timeWindow = new TimeWindow(new Range(from, to), sampler);
+        TimeWindow timeWindow = new TimeWindow(Range.newRange(from, to), sampler);
         return this.agentStatChartService.selectAgentChartList(agentId, timeWindow);
     }
 
@@ -156,7 +156,7 @@ public abstract class AgentStatController<T extends AgentStatDataPoint> {
                 return intervalMs;
             }
         };
-        TimeWindow timeWindow = new TimeWindow(new Range(from, to), sampler);
+        TimeWindow timeWindow = new TimeWindow(Range.newRange(from, to), sampler);
         return this.agentStatChartService.selectAgentChartList(agentId, timeWindow);
     }
 

@@ -56,7 +56,7 @@ public class FileDescriptorDataCollector extends DataCollector {
             return;
         }
 
-        Range range = Range.createUncheckedRange(timeSlotEndTime - slotInterval, timeSlotEndTime);
+        Range range = Range.newUncheckedRange(timeSlotEndTime - slotInterval, timeSlotEndTime);
         List<String> agentIds = applicationIndexDao.selectAgentIds(application.getName());
 
         for(String agentId : agentIds) {

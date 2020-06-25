@@ -141,8 +141,8 @@ public class FilteredMapServiceImplTest {
     @Test
     public void twoTier() {
         // Given
-        Range originalRange = new Range(1000, 2000);
-        Range scanRange = new Range(1000, 2000);
+        Range originalRange = Range.newRange(1000, 2000);
+        Range scanRange = Range.newRange(1000, 2000);
         final TimeWindow timeWindow = new TimeWindow(originalRange, TimeWindowDownSampler.SAMPLER);
 
         // root app span

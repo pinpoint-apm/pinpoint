@@ -49,7 +49,7 @@ public class HBaseSampledTotalThreadCountDaoV2 implements SampledTotalThreadCoun
     public List<SampledTotalThreadCount> getSampledAgentStatList(String agentId, TimeWindow timeWindow) {
         long scanFrom = timeWindow.getWindowRange().getFrom();
         long scanTo = timeWindow.getWindowRange().getTo() + timeWindow.getWindowSlotSize();
-        Range range = new Range(scanFrom, scanTo);
+        Range range = Range.newRange(scanFrom, scanTo);
         AgentStatMapperV2<TotalThreadCountBo> mapper = operations.createRowMapper(totalThreadCountDecoder, range);
 
         SampledAgentStatResultExtractor<TotalThreadCountBo, SampledTotalThreadCount> resultExtractor = new SampledAgentStatResultExtractor<>(timeWindow, mapper, totalThreadCountSampler);

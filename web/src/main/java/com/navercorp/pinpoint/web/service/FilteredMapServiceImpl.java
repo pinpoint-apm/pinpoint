@@ -18,8 +18,6 @@ package com.navercorp.pinpoint.web.service;
 
 import com.google.common.collect.Lists;
 import com.navercorp.pinpoint.common.server.bo.SpanBo;
-import com.navercorp.pinpoint.common.server.bo.SpanEventBo;
-import com.navercorp.pinpoint.common.util.CollectionUtils;
 import com.navercorp.pinpoint.loader.service.ServiceTypeRegistryService;
 import com.navercorp.pinpoint.common.profiler.util.TransactionId;
 import com.navercorp.pinpoint.web.applicationmap.ApplicationMap;
@@ -44,7 +42,6 @@ import com.navercorp.pinpoint.web.service.map.FilteredMap;
 import com.navercorp.pinpoint.web.service.map.FilteredMapBuilder;
 import com.navercorp.pinpoint.web.vo.Application;
 import com.navercorp.pinpoint.web.vo.LimitedScanResult;
-import com.navercorp.pinpoint.web.vo.LoadFactor;
 import com.navercorp.pinpoint.web.vo.Range;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -80,7 +77,7 @@ public class FilteredMapServiceImpl implements FilteredMapService {
     private final ServiceTypeRegistryService registry;
 
     private final ApplicationFactory applicationFactory;
-    
+
     private final ServerMapDataFilter serverMapDataFilter;
 
     private final ApplicationMapBuilderFactory applicationMapBuilderFactory;
@@ -107,12 +104,9 @@ public class FilteredMapServiceImpl implements FilteredMapService {
 
     @Override
     public LimitedScanResult<List<TransactionId>> selectTraceIdsFromApplicationTraceIndex(String applicationName, Range range, int limit, boolean backwardDirection) {
-        if (applicationName == null) {
-            throw new NullPointerException("applicationName");
-        }
-        if (range == null) {
-            throw new NullPointerException("range");
-        }
+        Objects.requireNonNull(applicationName, "applicationName");
+        Objects.requireNonNull(range, "range");
+
         if (logger.isTraceEnabled()) {
             logger.trace("scan(selectTraceIdsFromApplicationTraceIndex) {}, {}", applicationName, range);
         }
@@ -120,67 +114,6 @@ public class FilteredMapServiceImpl implements FilteredMapService {
         return this.applicationTraceIndexDao.scanTraceIndex(applicationName, range, limit, backwardDirection);
     }
 
-
-    @Override
-    @Deprecated
-    public LoadFactor linkStatistics(Range range, List<TransactionId> traceIdSet, Application sourceApplication, Application destinationApplication, Filter<List<SpanBo>> filter) {
-        if (sourceApplication == null) {
-            throw new NullPointerException("sourceApplication");
-        }
-        if (destinationApplication == null) {
-            throw new NullPointerException("destApplicationName");
-        }
-        if (filter == null) {
-            throw new NullPointerException("filter");
-        }
-
-        StopWatch watch = new StopWatch();
-        watch.start();
-
-        List<List<SpanBo>> originalList = this.traceDao.selectAllSpans(traceIdSet);
-        List<SpanBo> filteredTransactionList = filterList(originalList, filter);
-
-        LoadFactor statistics = new LoadFactor(range);
-
-        // TODO need to handle these separately by node type (like fromToFilter)
-
-        // scan transaction list
-        for (SpanBo span : filteredTransactionList) {
-            if (sourceApplication.equals(span.getApplicationId(), registry.findServiceType(span.getApplicationServiceType()))) {
-                List<SpanEventBo> spanEventBoList = span.getSpanEventBoList();
-                if (CollectionUtils.isEmpty(spanEventBoList)) {
-                    continue;
-                }
-
-                // find dest elapsed time
-                for (SpanEventBo spanEventBo : spanEventBoList) {
-                    if (destinationApplication.equals(spanEventBo.getDestinationId(), registry.findServiceType(spanEventBo.getServiceType()))) {
-                        // find exception
-                        boolean hasException = spanEventBo.hasException();
-                        // add sample
-                        // TODO : need timeslot value instead of the actual value
-                        statistics.addSample(span.getStartTime() + spanEventBo.getStartElapsed(), spanEventBo.getEndElapsed(), 1, hasException);
-                        break;
-                    }
-                }
-            }
-        }
-
-        watch.stop();
-        logger.info("Fetch link statistics elapsed. {}ms", watch.getLastTaskTimeMillis());
-
-        return statistics;
-    }
-
-    private List<SpanBo> filterList(List<List<SpanBo>> transactionList, Filter<List<SpanBo>> filter) {
-        final List<SpanBo> filteredResult = new ArrayList<>();
-        for (List<SpanBo> transaction : transactionList) {
-            if (filter.include(transaction)) {
-                filteredResult.addAll(transaction);
-            }
-        }
-        return filteredResult;
-    }
 
     private List<List<SpanBo>> filterList2(List<List<SpanBo>> transactionList, Filter<List<SpanBo>> filter) {
         final List<List<SpanBo>> filteredResult = new ArrayList<>();
@@ -194,12 +127,11 @@ public class FilteredMapServiceImpl implements FilteredMapService {
 
     @Override
     public ApplicationMap selectApplicationMap(TransactionId transactionId, int version) {
-        if (transactionId == null) {
-            throw new NullPointerException("transactionId");
-        }
+        Objects.requireNonNull(transactionId, "transactionId");
+
         List<TransactionId> transactionIdList = Collections.singletonList(transactionId);
         // FIXME from,to -1
-        Range range = new Range(-1, -1);
+        Range range = Range.newRange(-1, -1);
 
         final List<List<SpanBo>> filterList = selectFilteredSpan(transactionIdList, Filter.acceptAllFilter());
         FilteredMapBuilder filteredMapBuilder = new FilteredMapBuilder(applicationFactory, registry, range, version);
@@ -213,12 +145,10 @@ public class FilteredMapServiceImpl implements FilteredMapService {
 
     @Override
     public ApplicationMap selectApplicationMapWithScatterData(List<TransactionId> transactionIdList, Range originalRange, Range scanRange, int xGroupUnit, int yGroupUnit, Filter<List<SpanBo>> filter, int version) {
-        if (transactionIdList == null) {
-            throw new NullPointerException("transactionIdList");
-        }
-        if (filter == null) {
-            throw new NullPointerException("filter");
-        }
+        Objects.requireNonNull(transactionIdList, "transactionIdList");
+        Objects.requireNonNull(originalRange, "originalRange");
+        Objects.requireNonNull(scanRange, "scanRange");
+        Objects.requireNonNull(filter, "filter");
 
         StopWatch watch = new StopWatch();
         watch.start();
@@ -264,7 +194,7 @@ public class FilteredMapServiceImpl implements FilteredMapService {
         applicationMapBuilder.includeServerInfo(serverInstanceListFactory);
         ApplicationMap map = applicationMapBuilder.build(filteredMap.getLinkDataDuplexMap());
 
-        if(serverMapDataFilter != null) {
+        if (serverMapDataFilter != null) {
             map = serverMapDataFilter.dataFiltering(map);
         }
 
@@ -272,9 +202,7 @@ public class FilteredMapServiceImpl implements FilteredMapService {
     }
 
     private List<TransactionId> recursiveCallFilter(List<TransactionId> transactionIdList) {
-        if (transactionIdList == null) {
-            throw new NullPointerException("transactionIdList");
-        }
+        Objects.requireNonNull(transactionIdList, "transactionIdList");
 
         List<TransactionId> crashKey = new ArrayList<>();
         Map<TransactionId, Object> filterMap = new LinkedHashMap<>(transactionIdList.size());

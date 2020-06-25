@@ -56,21 +56,21 @@ public class MemoryAgentStatisticsDaoTest {
             dao.insertAgentCount(testData);
         }
 
-        Range range = new Range(660L, 1320L);
+        Range range = Range.newRange(660L, 1320L);
         List<AgentCountStatistics> agentCountStatisticses = dao.selectAgentCount(range);
         Assert.assertEquals(7, agentCountStatisticses.size());
 
 
-        range = new Range(7100L, System.currentTimeMillis());
+        range = Range.newRange(7100L, System.currentTimeMillis());
         agentCountStatisticses = dao.selectAgentCount(range);
         Assert.assertEquals(30, agentCountStatisticses.size());
 
-        range = new Range(0L, System.currentTimeMillis());
+        range = Range.newRange(0L, System.currentTimeMillis());
         agentCountStatisticses = dao.selectAgentCount(range);
         Assert.assertEquals(100, agentCountStatisticses.size());
 
         long currentTime = System.currentTimeMillis();
-        range = new Range(currentTime, currentTime + 100);
+        range = Range.newRange(currentTime, currentTime + 100);
         agentCountStatisticses = dao.selectAgentCount(range);
         Assert.assertEquals(0, agentCountStatisticses.size());
     }

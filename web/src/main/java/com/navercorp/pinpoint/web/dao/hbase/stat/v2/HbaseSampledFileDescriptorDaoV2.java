@@ -52,7 +52,7 @@ public class HbaseSampledFileDescriptorDaoV2 implements SampledFileDescriptorDao
     public List<SampledFileDescriptor> getSampledAgentStatList(String agentId, TimeWindow timeWindow) {
         long scanFrom = timeWindow.getWindowRange().getFrom();
         long scanTo = timeWindow.getWindowRange().getTo() + timeWindow.getWindowSlotSize();
-        Range range = new Range(scanFrom, scanTo);
+        Range range = Range.newRange(scanFrom, scanTo);
         AgentStatMapperV2<FileDescriptorBo> mapper = operations.createRowMapper(fileDescriptorDecoder, range);
         SampledAgentStatResultExtractor<FileDescriptorBo, SampledFileDescriptor> resultExtractor = new SampledAgentStatResultExtractor<>(timeWindow, mapper, fileDescriptorSampler);
         return operations.getSampledAgentStatList(AgentStatType.FILE_DESCRIPTOR, resultExtractor, agentId, range);
