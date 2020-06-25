@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.web.vo.stat.chart.application;
 
-import com.google.common.collect.ImmutableMap;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinTotalThreadCountBo;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.chart.Chart;
 import com.navercorp.pinpoint.web.vo.chart.Point;
@@ -24,6 +24,8 @@ import com.navercorp.pinpoint.web.vo.chart.TimeSeriesChartBuilder;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinTotalThreadCountBo;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChart;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChartGroup;
+
+import com.google.common.collect.ImmutableMap;
 
 import java.util.List;
 import java.util.Map;
@@ -42,8 +44,8 @@ public class ApplicationTotalThreadCountChart implements StatChart {
     }
 
     public static class ApplicationTotalThreadCountChartGroup implements StatChartGroup {
-        private static final TotalThreadCountPoint.UncollectedTotalThreadCountPointCreator
-                UNCOLLECTED_TOTAL_THREAD_COUNT_POINT = new TotalThreadCountPoint.UncollectedTotalThreadCountPointCreator();
+
+        private static final LongApplicationStatPoint.UncollectedCreator UNCOLLECTED_TOTAL_THREAD_COUNT_POINT = new LongApplicationStatPoint.UncollectedCreator(JoinTotalThreadCountBo.UNCOLLECTED_VALUE);
 
         private final TimeWindow timeWindow;
         private final Map<ChartType, Chart<? extends Point>> totalThreadCountChartMap;
@@ -59,17 +61,17 @@ public class ApplicationTotalThreadCountChart implements StatChart {
         }
 
         private Map<ChartType, Chart<? extends Point>> newChart(List<AggreJoinTotalThreadCountBo> aggreJoinTotalThreadCountBoList) {
-            Chart<TotalThreadCountPoint> totalThreadCountPointChart = newChart(aggreJoinTotalThreadCountBoList, this::newTotalThreadCount);
+            Chart<LongApplicationStatPoint> totalThreadCountPointChart = newChart(aggreJoinTotalThreadCountBoList, this::newTotalThreadCount);
             return ImmutableMap.of(TotalThreadCountChartType.TOTAL_THREAD_COUNT, totalThreadCountPointChart);
         }
 
-        private Chart<TotalThreadCountPoint> newChart(List<AggreJoinTotalThreadCountBo> aggreJoinTotalThraedCountBoList, Function<AggreJoinTotalThreadCountBo, TotalThreadCountPoint> filter) {
-            TimeSeriesChartBuilder<TotalThreadCountPoint> builder = new TimeSeriesChartBuilder<>(this.timeWindow, UNCOLLECTED_TOTAL_THREAD_COUNT_POINT);
+        private Chart<LongApplicationStatPoint> newChart(List<AggreJoinTotalThreadCountBo> aggreJoinTotalThraedCountBoList, Function<AggreJoinTotalThreadCountBo, LongApplicationStatPoint> filter) {
+            TimeSeriesChartBuilder<LongApplicationStatPoint> builder = new TimeSeriesChartBuilder<>(this.timeWindow, UNCOLLECTED_TOTAL_THREAD_COUNT_POINT);
             return builder.build(aggreJoinTotalThraedCountBoList, filter);
         }
 
-        private TotalThreadCountPoint newTotalThreadCount(AggreJoinTotalThreadCountBo totalThreadCountBo) {
-            return new TotalThreadCountPoint(totalThreadCountBo.getTimestamp(), totalThreadCountBo.getMinTotalThreadCount(), totalThreadCountBo.getMinTotalThreadCountAgentId(), totalThreadCountBo.getMaxTotalThreadCount(), totalThreadCountBo.getMaxTotalThreadCountAgentId(), totalThreadCountBo.getAvgTotalThreadCount());
+        private LongApplicationStatPoint newTotalThreadCount(AggreJoinTotalThreadCountBo totalThreadCountBo) {
+            return new LongApplicationStatPoint(totalThreadCountBo.getTimestamp(), totalThreadCountBo.getMinTotalThreadCount(), totalThreadCountBo.getMinTotalThreadCountAgentId(), totalThreadCountBo.getMaxTotalThreadCount(), totalThreadCountBo.getMaxTotalThreadCountAgentId(), totalThreadCountBo.getAvgTotalThreadCount());
         }
 
         @Override

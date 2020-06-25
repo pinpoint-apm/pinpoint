@@ -1,11 +1,11 @@
 /*
- * Copyright 2017 NAVER Corp.
+ * Copyright 2020 NAVER Corp.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,27 +16,28 @@
 
 package com.navercorp.pinpoint.web.view;
 
+import com.navercorp.pinpoint.web.vo.stat.chart.application.LongApplicationStatPoint;
+
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import com.navercorp.pinpoint.web.vo.stat.chart.application.ResponseTimePoint;
 
 import java.io.IOException;
 
 /**
- * @author HyunGil Jeong
+ * @author Taejin Koo
  */
-public class ResponseTimePointSerializer extends JsonSerializer<ResponseTimePoint> {
+public class LongApplicationStatSerializer extends JsonSerializer<LongApplicationStatPoint> {
 
     @Override
-    public void serialize(ResponseTimePoint responseTimePoint, JsonGenerator jgen, SerializerProvider serializers) throws IOException, JsonProcessingException {
+    public void serialize(LongApplicationStatPoint longApplicationStatPoint, JsonGenerator jgen, SerializerProvider serializers) throws IOException {
         jgen.writeStartArray();
-        jgen.writeNumber(responseTimePoint.getYValForMin());
-        jgen.writeString(responseTimePoint.getAgentIdForMin());
-        jgen.writeNumber(responseTimePoint.getYValForMax());
-        jgen.writeString(responseTimePoint.getAgentIdForMax());
-        jgen.writeNumber(responseTimePoint.getYValForAvg());
+        jgen.writeNumber(longApplicationStatPoint.getYValForMin());
+        jgen.writeString(longApplicationStatPoint.getAgentIdForMin());
+        jgen.writeNumber(longApplicationStatPoint.getYValForMax());
+        jgen.writeString(longApplicationStatPoint.getAgentIdForMax());
+        jgen.writeNumber(longApplicationStatPoint.getYValForAvg());
         jgen.writeEndArray();
     }
 }
+

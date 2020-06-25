@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.web.vo.chart.Chart;
 import com.navercorp.pinpoint.web.vo.chart.Point;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinDataSourceBo;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChartGroup;
+
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -42,11 +43,11 @@ public class ApplicationDataSourceChartGroupTest {
         TimeWindow timeWindow = new TimeWindow(range);
 
         List<AggreJoinDataSourceBo> aggreJoinDataSourceBoList = new ArrayList<>();
-        AggreJoinDataSourceBo aggreJoinDataSourceBo1 = new AggreJoinDataSourceBo((short)1000, "jdbc:mysql", 30, 25, "agent_id_1", 60, "agent_id_6", time);
-        AggreJoinDataSourceBo aggreJoinDataSourceBo2 = new AggreJoinDataSourceBo((short)1000, "jdbc:mysql", 20, 5, "agent_id_2", 30, "agent_id_7", time - 60000);
-        AggreJoinDataSourceBo aggreJoinDataSourceBo3 = new AggreJoinDataSourceBo((short)1000, "jdbc:mysql", 10, 25, "agent_id_3", 50, "agent_id_8", time - 120000);
-        AggreJoinDataSourceBo aggreJoinDataSourceBo4 = new AggreJoinDataSourceBo((short)1000, "jdbc:mysql", 40, 4, "agent_id_4", 70, "agent_id_9", time - 180000);
-        AggreJoinDataSourceBo aggreJoinDataSourceBo5 = new AggreJoinDataSourceBo((short)1000, "jdbc:mysql", 50, 25, "agent_id_5", 80, "agent_id_10", time - 240000);
+        AggreJoinDataSourceBo aggreJoinDataSourceBo1 = new AggreJoinDataSourceBo((short) 1000, "jdbc:mysql", 30, 25, "agent_id_1", 60, "agent_id_6", time);
+        AggreJoinDataSourceBo aggreJoinDataSourceBo2 = new AggreJoinDataSourceBo((short) 1000, "jdbc:mysql", 20, 5, "agent_id_2", 30, "agent_id_7", time - 60000);
+        AggreJoinDataSourceBo aggreJoinDataSourceBo3 = new AggreJoinDataSourceBo((short) 1000, "jdbc:mysql", 10, 25, "agent_id_3", 50, "agent_id_8", time - 120000);
+        AggreJoinDataSourceBo aggreJoinDataSourceBo4 = new AggreJoinDataSourceBo((short) 1000, "jdbc:mysql", 40, 4, "agent_id_4", 70, "agent_id_9", time - 180000);
+        AggreJoinDataSourceBo aggreJoinDataSourceBo5 = new AggreJoinDataSourceBo((short) 1000, "jdbc:mysql", 50, 25, "agent_id_5", 80, "agent_id_10", time - 240000);
         aggreJoinDataSourceBoList.add(aggreJoinDataSourceBo1);
         aggreJoinDataSourceBoList.add(aggreJoinDataSourceBo2);
         aggreJoinDataSourceBoList.add(aggreJoinDataSourceBo3);
@@ -63,11 +64,11 @@ public class ApplicationDataSourceChartGroupTest {
         int index = dataSourcePoints.size();
 
         for (Point point : dataSourcePoints) {
-            testDataSource((DataSourcePoint)point, aggreJoinDataSourceBoList.get(--index));
+            testDataSource((IntApplicationStatPoint) point, aggreJoinDataSourceBoList.get(--index));
         }
     }
 
-    private void testDataSource(DataSourcePoint dataSourcePoint, AggreJoinDataSourceBo aggreJoinDataSourceBo) {
+    private void testDataSource(IntApplicationStatPoint dataSourcePoint, AggreJoinDataSourceBo aggreJoinDataSourceBo) {
         assertEquals(dataSourcePoint.getXVal(), aggreJoinDataSourceBo.getTimestamp());
         assertEquals(dataSourcePoint.getYValForAvg(), aggreJoinDataSourceBo.getAvgActiveConnectionSize(), 0);
         assertEquals(dataSourcePoint.getYValForMin(), aggreJoinDataSourceBo.getMinActiveConnectionSize(), 0);

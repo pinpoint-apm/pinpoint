@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.vo.stat.chart.application;
 
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinTransactionBo;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.chart.Chart;
 import com.navercorp.pinpoint.web.vo.chart.Point;
@@ -48,7 +49,7 @@ public class ApplicationTransactionChart implements StatChart {
 
     public static class ApplicationTransactionChartGroup implements StatChartGroup {
 
-        private static final TransactionPoint.UncollectedTransactionPointCreator UNCOLLECTED_TRANSACTION_POINT = new TransactionPoint.UncollectedTransactionPointCreator();
+        private static final DoubleApplicationStatPoint.UncollectedCreator UNCOLLECTED_TRANSACTION_POINT = new DoubleApplicationStatPoint.UncollectedCreator(JoinTransactionBo.UNCOLLECTED_VALUE);
 
         private final TimeWindow timeWindow;
         private final Map<ChartType, Chart<? extends Point>> transactionChartMap;
@@ -64,18 +65,18 @@ public class ApplicationTransactionChart implements StatChart {
 
         private Map<ChartType, Chart<? extends Point>> newChart(List<AggreJoinTransactionBo> joinTransactionBoList) {
 
-            TimeSeriesChartBuilder<TransactionPoint> chartBuilder = new TimeSeriesChartBuilder<>(this.timeWindow, UNCOLLECTED_TRANSACTION_POINT);
-            Chart<TransactionPoint> chart = chartBuilder.build(joinTransactionBoList, this::newTransactionPoint);
+            TimeSeriesChartBuilder<DoubleApplicationStatPoint> chartBuilder = new TimeSeriesChartBuilder<>(this.timeWindow, UNCOLLECTED_TRANSACTION_POINT);
+            Chart<DoubleApplicationStatPoint> chart = chartBuilder.build(joinTransactionBoList, this::newTransactionPoint);
 
             return Collections.singletonMap(TransactionChartType.TRANSACTION_COUNT, chart);
         }
 
 
-        private TransactionPoint newTransactionPoint(AggreJoinTransactionBo transaction) {
+        private DoubleApplicationStatPoint newTransactionPoint(AggreJoinTransactionBo transaction) {
             double minTotalCount = calculateTPS(transaction.getMinTotalCount(), transaction.getCollectInterval());
             double maxTotalCount = calculateTPS(transaction.getMaxTotalCount(), transaction.getCollectInterval());
             double totalCount = calculateTPS(transaction.getTotalCount(), transaction.getCollectInterval());
-            return new TransactionPoint(transaction.getTimestamp(), minTotalCount, transaction.getMinTotalCountAgentId(), maxTotalCount, transaction.getMaxTotalCountAgentId(), totalCount);
+            return new DoubleApplicationStatPoint(transaction.getTimestamp(), minTotalCount, transaction.getMinTotalCountAgentId(), maxTotalCount, transaction.getMaxTotalCountAgentId(), totalCount);
         }
 
         private double calculateTPS(double value, long timeMs) {

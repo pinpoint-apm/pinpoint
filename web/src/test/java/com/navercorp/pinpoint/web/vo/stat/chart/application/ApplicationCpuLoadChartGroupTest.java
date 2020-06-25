@@ -61,7 +61,7 @@ public class ApplicationCpuLoadChartGroupTest {
         assertEquals(5, jvmCpuLoadPoints.size());
         int index = jvmCpuLoadPoints.size();
         for (Point point : jvmCpuLoadPoints) {
-            testJvmCpuLoad((CpuLoadPoint)point, aggreCpuLoadList.get(--index));
+            testJvmCpuLoad((DoubleApplicationStatPoint)point, aggreCpuLoadList.get(--index));
         }
 
         Chart sysCpuLoadChart = charts.get(ApplicationCpuLoadChart.ApplicationCpuLoadChartGroup.CpuLoadChartType.CPU_LOAD_SYSTEM);
@@ -69,12 +69,12 @@ public class ApplicationCpuLoadChartGroupTest {
         assertEquals(5, sysCpuLoadPoints.size());
         index = sysCpuLoadPoints.size();
         for (Point point : sysCpuLoadPoints) {
-            testSysCpuLoad((CpuLoadPoint)point, aggreCpuLoadList.get(--index));
+            testSysCpuLoad((DoubleApplicationStatPoint)point, aggreCpuLoadList.get(--index));
         }
 
     }
 
-    private void testSysCpuLoad(CpuLoadPoint cpuLoadPoint, AggreJoinCpuLoadBo aggreJoinCpuLoadBo) {
+    private void testSysCpuLoad(DoubleApplicationStatPoint cpuLoadPoint, AggreJoinCpuLoadBo aggreJoinCpuLoadBo) {
         assertEquals(cpuLoadPoint.getXVal(), aggreJoinCpuLoadBo.getTimestamp());
         assertEquals(cpuLoadPoint.getYValForAvg(), aggreJoinCpuLoadBo.getSystemCpuLoad(), 0);
         assertEquals(cpuLoadPoint.getYValForMin(), aggreJoinCpuLoadBo.getMinSystemCpuLoad(), 0);
@@ -83,7 +83,7 @@ public class ApplicationCpuLoadChartGroupTest {
         assertEquals(cpuLoadPoint.getAgentIdForMax(), aggreJoinCpuLoadBo.getMaxSysCpuAgentId());
     }
 
-    private void testJvmCpuLoad(CpuLoadPoint cpuLoadPoint, AggreJoinCpuLoadBo aggreJoinCpuLoadBo) {
+    private void testJvmCpuLoad(DoubleApplicationStatPoint cpuLoadPoint, AggreJoinCpuLoadBo aggreJoinCpuLoadBo) {
         assertEquals(cpuLoadPoint.getYValForAvg(), aggreJoinCpuLoadBo.getJvmCpuLoad(), 0);
         assertEquals(cpuLoadPoint.getYValForMin(), aggreJoinCpuLoadBo.getMinJvmCpuLoad(), 0);
         assertEquals(cpuLoadPoint.getYValForMax(), aggreJoinCpuLoadBo.getMaxJvmCpuLoad(), 0);

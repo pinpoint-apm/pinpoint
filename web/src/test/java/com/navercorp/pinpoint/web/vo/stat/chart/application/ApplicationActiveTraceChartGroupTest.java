@@ -61,14 +61,14 @@ public class ApplicationActiveTraceChartGroupTest {
         assertEquals(5, activeTracePointList.size());
         int index = activeTracePointList.size();
         for (Point point : activeTracePointList) {
-            testActiveTraceCount((ActiveTracePoint) point, aggreJoinActiveTraceBoList.get(--index));
+            testActiveTraceCount((IntApplicationStatPoint) point, aggreJoinActiveTraceBoList.get(--index));
         }
     }
 
-    private void testActiveTraceCount(ActiveTracePoint activeTracePoint, AggreJoinActiveTraceBo aggreJoinActiveTraceBo) {
-        assertEquals(activeTracePoint.getYValForAvg(), aggreJoinActiveTraceBo.getTotalCount());
-        assertEquals(activeTracePoint.getYValForMin(), aggreJoinActiveTraceBo.getMinTotalCount());
-        assertEquals(activeTracePoint.getYValForMax(), aggreJoinActiveTraceBo.getMaxTotalCount());
+    private void testActiveTraceCount(IntApplicationStatPoint activeTracePoint, AggreJoinActiveTraceBo aggreJoinActiveTraceBo) {
+        assertTrue(activeTracePoint.getYValForAvg() == aggreJoinActiveTraceBo.getTotalCount());
+        assertTrue(activeTracePoint.getYValForMin() == aggreJoinActiveTraceBo.getMinTotalCount());
+        assertTrue(activeTracePoint.getYValForMax() == aggreJoinActiveTraceBo.getMaxTotalCount());
         assertEquals(activeTracePoint.getAgentIdForMin(), aggreJoinActiveTraceBo.getMinTotalCountAgentId());
         assertEquals(activeTracePoint.getAgentIdForMax(), aggreJoinActiveTraceBo.getMaxTotalCountAgentId());
     }

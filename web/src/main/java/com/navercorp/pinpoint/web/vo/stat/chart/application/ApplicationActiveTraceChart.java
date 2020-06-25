@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.vo.stat.chart.application;
 
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinActiveTraceBo;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.chart.Chart;
 import com.navercorp.pinpoint.web.vo.chart.Point;
@@ -47,7 +48,7 @@ public class ApplicationActiveTraceChart implements StatChart {
 
     public static class ApplicationActiveTraceChartGroup implements StatChartGroup {
 
-        private static final ActiveTracePoint.UncollectedActiveTracePointCreator UNCOLLECTED_ACTIVE_TRACE_POINT = new ActiveTracePoint.UncollectedActiveTracePointCreator();
+        private static final IntApplicationStatPoint.UncollectedCreator UNCOLLECTED_ACTIVE_TRACE_POINT = new IntApplicationStatPoint.UncollectedCreator(JoinActiveTraceBo.UNCOLLECTED_VALUE);
         private final TimeWindow timeWindow;
         private final Map<ChartType, Chart<? extends Point>> activeTraceChartMap;
 
@@ -62,16 +63,16 @@ public class ApplicationActiveTraceChart implements StatChart {
 
         private Map<ChartType, Chart<? extends Point>> newChart(List<AggreJoinActiveTraceBo> aggreJoinActiveTraceBoList) {
 
-            TimeSeriesChartBuilder<ActiveTracePoint> chartBuilder = new TimeSeriesChartBuilder<>(this.timeWindow, UNCOLLECTED_ACTIVE_TRACE_POINT);
-            Chart<ActiveTracePoint> chart = chartBuilder.build(aggreJoinActiveTraceBoList, this::newActiveTracePoint);
+            TimeSeriesChartBuilder<IntApplicationStatPoint> chartBuilder = new TimeSeriesChartBuilder<>(this.timeWindow, UNCOLLECTED_ACTIVE_TRACE_POINT);
+            Chart<IntApplicationStatPoint> chart = chartBuilder.build(aggreJoinActiveTraceBoList, this::newActiveTracePoint);
 
 
             return Collections.singletonMap(ActiveTraceChartType.ACTIVE_TRACE_COUNT, chart);
         }
 
-        private ActiveTracePoint newActiveTracePoint(AggreJoinActiveTraceBo activeTrace) {
-            return new ActiveTracePoint(activeTrace.getTimestamp(), activeTrace.getMinTotalCount(),
-                                activeTrace.getMinTotalCountAgentId(), activeTrace.getMaxTotalCount(), activeTrace.getMaxTotalCountAgentId(), activeTrace.getTotalCount());
+        private IntApplicationStatPoint newActiveTracePoint(AggreJoinActiveTraceBo activeTrace) {
+            return new IntApplicationStatPoint(activeTrace.getTimestamp(), activeTrace.getMinTotalCount(),
+                    activeTrace.getMinTotalCountAgentId(), activeTrace.getMaxTotalCount(), activeTrace.getMaxTotalCountAgentId(), activeTrace.getTotalCount());
         }
 
         @Override

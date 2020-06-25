@@ -16,7 +16,7 @@
 
 package com.navercorp.pinpoint.web.vo.stat.chart.application;
 
-import com.google.common.collect.ImmutableMap;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinMemoryBo;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.chart.Chart;
 import com.navercorp.pinpoint.web.vo.chart.Point;
@@ -24,6 +24,8 @@ import com.navercorp.pinpoint.web.vo.chart.TimeSeriesChartBuilder;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinMemoryBo;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChart;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChartGroup;
+
+import com.google.common.collect.ImmutableMap;
 
 import java.util.List;
 import java.util.Map;
@@ -47,7 +49,8 @@ public class ApplicationMemoryChart implements StatChart {
 
     public static class ApplicationMemoryChartGroup implements StatChartGroup {
 
-        private static final MemoryPoint.UncollectedMemoryPointCreator UNCOLLECTED_MEMORY_POINT = new MemoryPoint.UncollectedMemoryPointCreator();
+        private static final DoubleApplicationStatPoint.UncollectedCreator UNCOLLECTED_MEMORY_POINT = new DoubleApplicationStatPoint.UncollectedCreator(JoinMemoryBo.UNCOLLECTED_VALUE);
+
         private final TimeWindow timeWindow;
         private final Map<ChartType, Chart<? extends Point>> memoryChartMap;
 
@@ -63,24 +66,24 @@ public class ApplicationMemoryChart implements StatChart {
 
         private Map<ChartType, Chart<? extends Point>> newChart(List<AggreJoinMemoryBo> aggreJoinMemoryBoList) {
 
-            Chart<MemoryPoint> heapChart = newChart(aggreJoinMemoryBoList, this::newHeap);
-            Chart<MemoryPoint> nonHeapChart = newChart(aggreJoinMemoryBoList, this::newNonHeap);
+            Chart<DoubleApplicationStatPoint> heapChart = newChart(aggreJoinMemoryBoList, this::newHeap);
+            Chart<DoubleApplicationStatPoint> nonHeapChart = newChart(aggreJoinMemoryBoList, this::newNonHeap);
 
             return ImmutableMap.of(MemoryChartType.MEMORY_HEAP, heapChart, MemoryChartType.MEMORY_NON_HEAP, nonHeapChart);
         }
 
-        private MemoryPoint newHeap(AggreJoinMemoryBo memory) {
-            return new MemoryPoint(memory.getTimestamp(), memory.getMinHeapUsed(), memory.getMinHeapAgentId(),
-                    memory.getMaxHeapUsed(), memory.getMaxHeapAgentId(), memory.getHeapUsed());
+        private DoubleApplicationStatPoint newHeap(AggreJoinMemoryBo memory) {
+            return new DoubleApplicationStatPoint(memory.getTimestamp(), (double) memory.getMinHeapUsed(), memory.getMinHeapAgentId(),
+                    (double) memory.getMaxHeapUsed(), memory.getMaxHeapAgentId(), (double) memory.getHeapUsed());
         }
 
-        private MemoryPoint newNonHeap(AggreJoinMemoryBo memory) {
-            return new MemoryPoint(memory.getTimestamp(), memory.getMinNonHeapUsed(), memory.getMinNonHeapAgentId(),
-                    memory.getMaxNonHeapUsed(), memory.getMaxNonHeapAgentId(), memory.getNonHeapUsed());
+        private DoubleApplicationStatPoint newNonHeap(AggreJoinMemoryBo memory) {
+            return new DoubleApplicationStatPoint(memory.getTimestamp(), (double) memory.getMinNonHeapUsed(), memory.getMinNonHeapAgentId(),
+                    (double) memory.getMaxNonHeapUsed(), memory.getMaxNonHeapAgentId(), (double) memory.getNonHeapUsed());
         }
 
-        private Chart<MemoryPoint> newChart(List<AggreJoinMemoryBo> aggreJoinMemoryBoList, Function<AggreJoinMemoryBo, MemoryPoint> filter) {
-            TimeSeriesChartBuilder<MemoryPoint> builder = new TimeSeriesChartBuilder<>(this.timeWindow, UNCOLLECTED_MEMORY_POINT);
+        private Chart<DoubleApplicationStatPoint> newChart(List<AggreJoinMemoryBo> aggreJoinMemoryBoList, Function<AggreJoinMemoryBo, DoubleApplicationStatPoint> filter) {
+            TimeSeriesChartBuilder<DoubleApplicationStatPoint> builder = new TimeSeriesChartBuilder<>(this.timeWindow, UNCOLLECTED_MEMORY_POINT);
             return builder.build(aggreJoinMemoryBoList, filter);
         }
 

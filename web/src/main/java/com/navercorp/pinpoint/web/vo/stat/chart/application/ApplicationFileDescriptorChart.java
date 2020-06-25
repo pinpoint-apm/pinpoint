@@ -15,7 +15,7 @@
  */
 package com.navercorp.pinpoint.web.vo.stat.chart.application;
 
-import com.google.common.collect.ImmutableMap;
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinFileDescriptorBo;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.chart.Chart;
 import com.navercorp.pinpoint.web.vo.chart.Point;
@@ -23,6 +23,8 @@ import com.navercorp.pinpoint.web.vo.chart.TimeSeriesChartBuilder;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinFileDescriptorBo;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChart;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChartGroup;
+
+import com.google.common.collect.ImmutableMap;
 
 import java.util.List;
 import java.util.Map;
@@ -46,7 +48,7 @@ public class ApplicationFileDescriptorChart implements StatChart {
 
     public static class ApplicationFileDescriptorChartGroup implements StatChartGroup {
 
-        private static final FileDescriptorPoint.UncollectedFileDescriptorPointCreator UNCOLLECTED_FILE_DESCRIPTOR_POINT = new FileDescriptorPoint.UncollectedFileDescriptorPointCreator();
+        private static final LongApplicationStatPoint.UncollectedCreator UNCOLLECTED_FILE_DESCRIPTOR_POINT = new LongApplicationStatPoint.UncollectedCreator(JoinFileDescriptorBo.UNCOLLECTED_VALUE);
 
         private final TimeWindow timeWindow;
         private final Map<ChartType, Chart<? extends Point>> fileDescriptorChartMap;
@@ -61,18 +63,17 @@ public class ApplicationFileDescriptorChart implements StatChart {
         }
 
         private Map<ChartType, Chart<? extends Point>> newChart(List<AggreJoinFileDescriptorBo> aggreFileDescriptorList) {
-            Chart<FileDescriptorPoint> openFileDescriptorCountChart = newChart(aggreFileDescriptorList, this::newOpenFileDescriptorCount);
+            Chart<LongApplicationStatPoint> openFileDescriptorCountChart = newChart(aggreFileDescriptorList, this::newOpenFileDescriptorCount);
             return ImmutableMap.of(FileDescriptorChartType.OPEN_FILE_DESCRIPTOR_COUNT, openFileDescriptorCountChart);
         }
 
-        private Chart<FileDescriptorPoint> newChart(List<AggreJoinFileDescriptorBo> fileDescriptorList, Function<AggreJoinFileDescriptorBo, FileDescriptorPoint> filter) {
-
-            TimeSeriesChartBuilder<FileDescriptorPoint> builder = new TimeSeriesChartBuilder<>(this.timeWindow, UNCOLLECTED_FILE_DESCRIPTOR_POINT);
+        private Chart<LongApplicationStatPoint> newChart(List<AggreJoinFileDescriptorBo> fileDescriptorList, Function<AggreJoinFileDescriptorBo, LongApplicationStatPoint> filter) {
+            TimeSeriesChartBuilder<LongApplicationStatPoint> builder = new TimeSeriesChartBuilder<>(this.timeWindow, UNCOLLECTED_FILE_DESCRIPTOR_POINT);
             return builder.build(fileDescriptorList, filter);
         }
 
-        private FileDescriptorPoint newOpenFileDescriptorCount(AggreJoinFileDescriptorBo fileDescriptor) {
-            return new FileDescriptorPoint(fileDescriptor.getTimestamp(), fileDescriptor.getMinOpenFDCount(), fileDescriptor.getMinOpenFDCountAgentId(), fileDescriptor.getMaxOpenFDCount(), fileDescriptor.getMaxOpenFDCountAgentId(), fileDescriptor.getAvgOpenFDCount());
+        private LongApplicationStatPoint newOpenFileDescriptorCount(AggreJoinFileDescriptorBo fileDescriptor) {
+            return new LongApplicationStatPoint(fileDescriptor.getTimestamp(), fileDescriptor.getMinOpenFDCount(), fileDescriptor.getMinOpenFDCountAgentId(), fileDescriptor.getMaxOpenFDCount(), fileDescriptor.getMaxOpenFDCountAgentId(), fileDescriptor.getAvgOpenFDCount());
         }
 
         @Override
