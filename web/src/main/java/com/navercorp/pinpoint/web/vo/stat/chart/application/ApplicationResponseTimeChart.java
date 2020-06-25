@@ -16,6 +16,7 @@
 
 package com.navercorp.pinpoint.web.vo.stat.chart.application;
 
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinResponseTimeBo;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.chart.Chart;
 import com.navercorp.pinpoint.web.vo.chart.Point;
@@ -23,7 +24,6 @@ import com.navercorp.pinpoint.web.vo.chart.TimeSeriesChartBuilder;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinResponseTimeBo;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChart;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChartGroup;
-
 
 import java.util.Collections;
 import java.util.List;
@@ -47,7 +47,7 @@ public class ApplicationResponseTimeChart implements StatChart {
 
     public static class ApplicationResponseTimeChartGroup implements StatChartGroup {
 
-        private static final ResponseTimePoint.UncollectedResponseTimePointCreator UNCOLLECTED_RESPONSE_TIME_POINT = new ResponseTimePoint.UncollectedResponseTimePointCreator();
+        private static final DoubleApplicationStatPoint.UncollectedCreator UNCOLLECTED_RESPONSE_TIME_POINT = new DoubleApplicationStatPoint.UncollectedCreator(JoinResponseTimeBo.UNCOLLECTED_VALUE);
 
         private final TimeWindow timeWindow;
         private final Map<ChartType, Chart<? extends Point>> responseTimeChartMap;
@@ -63,15 +63,15 @@ public class ApplicationResponseTimeChart implements StatChart {
 
         private Map<ChartType, Chart<? extends Point>> newChart(List<AggreJoinResponseTimeBo> responseTimeBoList) {
 
-            TimeSeriesChartBuilder<ResponseTimePoint> chartBuilder = new TimeSeriesChartBuilder<>(this.timeWindow, UNCOLLECTED_RESPONSE_TIME_POINT);
-            Chart<ResponseTimePoint> chart = chartBuilder.build(responseTimeBoList, this::newResponseTime);
+            TimeSeriesChartBuilder<DoubleApplicationStatPoint> chartBuilder = new TimeSeriesChartBuilder<>(this.timeWindow, UNCOLLECTED_RESPONSE_TIME_POINT);
+            Chart<DoubleApplicationStatPoint> chart = chartBuilder.build(responseTimeBoList, this::newResponseTime);
 
             return Collections.singletonMap(ResponseTimeChartType.RESPONSE_TIME, chart);
         }
 
 
-        private ResponseTimePoint newResponseTime(AggreJoinResponseTimeBo time) {
-            return new ResponseTimePoint(time.getTimestamp(), time.getMinAvg(), time.getMinAvgAgentId(), time.getMaxAvg(), time.getMaxAvgAgentId(), time.getAvg());
+        private DoubleApplicationStatPoint newResponseTime(AggreJoinResponseTimeBo time) {
+            return new DoubleApplicationStatPoint(time.getTimestamp(), (double) time.getMinAvg(), time.getMinAvgAgentId(), (double) time.getMaxAvg(), time.getMaxAvgAgentId(), (double) time.getAvg());
         }
 
         @Override

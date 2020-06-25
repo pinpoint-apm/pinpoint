@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.web.vo.chart.Chart;
 import com.navercorp.pinpoint.web.vo.chart.Point;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinMemoryBo;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChartGroup;
+
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -60,7 +61,7 @@ public class ApplicationMemoryChartGroupTest {
         assertEquals(5, heapPoints.size());
         int index = heapPoints.size();
         for (Point point : heapPoints) {
-            testHeap((MemoryPoint)point, aggreJoinMemoryList.get(--index));
+            testHeap((DoubleApplicationStatPoint) point, aggreJoinMemoryList.get(--index));
         }
 
         Chart nonHeapChart = charts.get(ApplicationMemoryChart.ApplicationMemoryChartGroup.MemoryChartType.MEMORY_NON_HEAP);
@@ -68,11 +69,11 @@ public class ApplicationMemoryChartGroupTest {
         assertEquals(5, nonHeapPoints.size());
         index = nonHeapPoints.size();
         for (Point point : nonHeapPoints) {
-            testHeap((MemoryPoint)point, aggreJoinMemoryList.get(--index));
+            testHeap((DoubleApplicationStatPoint) point, aggreJoinMemoryList.get(--index));
         }
     }
 
-    private void testHeap(MemoryPoint memoryPoint, AggreJoinMemoryBo aggreJoinMemoryBo) {
+    private void testHeap(DoubleApplicationStatPoint memoryPoint, AggreJoinMemoryBo aggreJoinMemoryBo) {
         assertEquals(memoryPoint.getYValForAvg(), aggreJoinMemoryBo.getHeapUsed(), 0);
         assertEquals(memoryPoint.getYValForMin(), aggreJoinMemoryBo.getMinHeapUsed(), 0);
         assertEquals(memoryPoint.getYValForMax(), aggreJoinMemoryBo.getMaxHeapUsed(), 0);

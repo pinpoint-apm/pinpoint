@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.web.vo.chart.Chart;
 import com.navercorp.pinpoint.web.vo.chart.Point;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinFileDescriptorBo;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChartGroup;
+
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -63,11 +64,11 @@ public class ApplicationFileDescriptorChartGroupTest {
         int index = fileDescriptorPoints.size();
 
         for (Point point : fileDescriptorPoints) {
-            testOpenFileDescriptor((FileDescriptorPoint)point, aggreFileDescriptorList.get(--index));
+            testOpenFileDescriptor((LongApplicationStatPoint) point, aggreFileDescriptorList.get(--index));
         }
     }
 
-    private void testOpenFileDescriptor(FileDescriptorPoint fileDescriptorPoint, AggreJoinFileDescriptorBo aggreJoinFileDescriptorBo) {
+    private void testOpenFileDescriptor(LongApplicationStatPoint fileDescriptorPoint, AggreJoinFileDescriptorBo aggreJoinFileDescriptorBo) {
         assertEquals(fileDescriptorPoint.getXVal(), aggreJoinFileDescriptorBo.getTimestamp());
         assertEquals(fileDescriptorPoint.getYValForAvg(), aggreJoinFileDescriptorBo.getAvgOpenFDCount(), 0);
         assertEquals(fileDescriptorPoint.getYValForMin(), aggreJoinFileDescriptorBo.getMinOpenFDCount(), 0);

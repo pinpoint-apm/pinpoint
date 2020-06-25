@@ -22,6 +22,7 @@ import com.navercorp.pinpoint.web.vo.chart.Chart;
 import com.navercorp.pinpoint.web.vo.chart.Point;
 import com.navercorp.pinpoint.web.vo.stat.AggreJoinTotalThreadCountBo;
 import com.navercorp.pinpoint.web.vo.stat.chart.StatChartGroup;
+
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -58,11 +59,11 @@ public class ApplicationTotalThreadCountChartGroupTest {
         int index = totalThreadCountChartPoints.size();
 
         for (Point point : totalThreadCountChartPoints) {
-            testTotalThreadCount((TotalThreadCountPoint)point, aggreJoinTotalThreadCountBoList.get(--index));
+            testTotalThreadCount((LongApplicationStatPoint) point, aggreJoinTotalThreadCountBoList.get(--index));
         }
     }
 
-    private void testTotalThreadCount(TotalThreadCountPoint point, AggreJoinTotalThreadCountBo totalThreadCountBo) {
+    private void testTotalThreadCount(LongApplicationStatPoint point, AggreJoinTotalThreadCountBo totalThreadCountBo) {
         assertEquals(point.getXVal(), totalThreadCountBo.getTimestamp());
         assertEquals(point.getYValForAvg(), totalThreadCountBo.getAvgTotalThreadCount(), 0);
         assertEquals(point.getYValForMin(), totalThreadCountBo.getMinTotalThreadCount(), 0);

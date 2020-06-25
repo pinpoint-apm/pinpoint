@@ -15,6 +15,7 @@
  */
 package com.navercorp.pinpoint.web.vo.stat.chart.application;
 
+import com.navercorp.pinpoint.common.server.bo.stat.join.JoinDataSourceBo;
 import com.navercorp.pinpoint.web.util.TimeWindow;
 import com.navercorp.pinpoint.web.vo.chart.Chart;
 import com.navercorp.pinpoint.web.vo.chart.Point;
@@ -53,7 +54,7 @@ public class ApplicationDataSourceChart implements StatChart {
 
     public static class ApplicationDataSourceChartGroup implements StatChartGroup {
 
-        private static final DataSourcePoint.UncollectedDataSourcePointCreator UNCOLLECTED_DATASOURCE_POINT = new DataSourcePoint.UncollectedDataSourcePointCreator();
+        private static final IntApplicationStatPoint.UncollectedCreator UNCOLLECTED_DATASOURCE_POINT = new IntApplicationStatPoint.UncollectedCreator(JoinDataSourceBo.UNCOLLECTED_VALUE);
 
         private final TimeWindow timeWindow;
         private final String url;
@@ -74,15 +75,15 @@ public class ApplicationDataSourceChart implements StatChart {
 
         private Map<ChartType, Chart<? extends Point>> newChart(List<AggreJoinDataSourceBo> aggreJoinDataSourceBoList) {
 
-            TimeSeriesChartBuilder<DataSourcePoint> chartBuilder = new TimeSeriesChartBuilder<>(this.timeWindow, UNCOLLECTED_DATASOURCE_POINT);
-            Chart<DataSourcePoint> chart = chartBuilder.build(aggreJoinDataSourceBoList, this::newDataSource);
+            TimeSeriesChartBuilder<IntApplicationStatPoint> chartBuilder = new TimeSeriesChartBuilder<>(this.timeWindow, UNCOLLECTED_DATASOURCE_POINT);
+            Chart<IntApplicationStatPoint> chart = chartBuilder.build(aggreJoinDataSourceBoList, this::newDataSource);
 
             return Collections.singletonMap(DataSourceChartType.ACTIVE_CONNECTION_SIZE, chart);
         }
 
 
-        private DataSourcePoint newDataSource(AggreJoinDataSourceBo ds) {
-            return new DataSourcePoint(ds.getTimestamp(), ds.getMinActiveConnectionSize(), ds.getMinActiveConnectionAgentId(), ds.getMaxActiveConnectionSize(), ds.getMaxActiveConnectionAgentId(), ds.getAvgActiveConnectionSize());
+        private IntApplicationStatPoint newDataSource(AggreJoinDataSourceBo ds) {
+            return new IntApplicationStatPoint(ds.getTimestamp(), ds.getMinActiveConnectionSize(), ds.getMinActiveConnectionAgentId(), ds.getMaxActiveConnectionSize(), ds.getMaxActiveConnectionAgentId(), ds.getAvgActiveConnectionSize());
         }
 
         public String getJdbcUrl() {
