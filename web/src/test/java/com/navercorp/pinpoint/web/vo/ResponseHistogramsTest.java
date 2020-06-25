@@ -37,7 +37,7 @@ public class ResponseHistogramsTest {
     @Test
     public void empty() {
         // Given
-        final Range range = new Range(1, 200000);
+        final Range range = Range.newRange(1, 200000);
         final String applicationName = "TEST_APP";
         final ServiceType serviceType = registry.findServiceType(TestTraceUtils.TEST_STAND_ALONE_TYPE_CODE);
         final Application application = new Application(applicationName, serviceType);
@@ -55,7 +55,7 @@ public class ResponseHistogramsTest {
     @Test
     public void nonExistentApplication() {
         // Given
-        final Range range = new Range(1, 200000);
+        final Range range = Range.newRange(1, 200000);
         final String applicationName = "TEST_APP";
         final ServiceType serviceType = registry.findServiceType(TestTraceUtils.TEST_STAND_ALONE_TYPE_CODE);
         final Application application = new Application(applicationName, serviceType);
@@ -80,7 +80,7 @@ public class ResponseHistogramsTest {
     @Test
     public void timeslots() {
         // Given
-        final Range range = new Range(1, 200000);
+        final Range range = Range.newRange(1, 200000);
         final String applicationName = "TEST_APP";
         final ServiceType serviceType = registry.findServiceType(TestTraceUtils.TEST_STAND_ALONE_TYPE_CODE);
         final Application application = new Application(applicationName, serviceType);
@@ -141,7 +141,7 @@ public class ResponseHistogramsTest {
     @Test
     public void multipleAgents() {
         // Given
-        final Range range = new Range(1, 200000);
+        final Range range = Range.newRange(1, 200000);
         final String applicationName = "TEST_APP";
         final ServiceType serviceType = registry.findServiceType(TestTraceUtils.TEST_STAND_ALONE_TYPE_CODE);
         final Application application = new Application(applicationName, serviceType);
@@ -191,7 +191,7 @@ public class ResponseHistogramsTest {
     @Test
     public void multipleApplications() {
         // Given
-        final Range range = new Range(1, 200000);
+        final Range range = Range.newRange(1, 200000);
         final String appAName = "APP_A";
         final ServiceType appAServiceType = registry.findServiceType(TestTraceUtils.TEST_STAND_ALONE_TYPE_CODE);
         final Application appA = new Application(appAName, appAServiceType);

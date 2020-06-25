@@ -45,7 +45,7 @@ public class DeadlockChartGroupTest {
     @Test
     public void basicFunctionTest1() throws Exception {
         long currentTimeMillis = System.currentTimeMillis();
-        TimeWindow timeWindow = new TimeWindow(new Range(currentTimeMillis - 300000, currentTimeMillis));
+        TimeWindow timeWindow = new TimeWindow(Range.newRange(currentTimeMillis - 300000, currentTimeMillis));
 
         List<SampledDeadlock> sampledDeadlockList = createSampledResponseTimeList(timeWindow);
         StatChartGroup deadlockChartGroup = new DeadlockChart.DeadlockChartGroup(timeWindow, sampledDeadlockList);

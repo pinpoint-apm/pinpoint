@@ -29,22 +29,19 @@ public final class Range {
     private final long from;
     private final long to;
 
-    public Range(long from, long to) {
+    private Range(long from, long to) {
         this.from = from;
         this.to = to;
-        validate();
     }
 
-    public Range(long from, long to, boolean check) {
-        this.from = from;
-        this.to = to;
-        if (check) {
-            validate();
-        }
+    public static Range newRange(long from, long to) {
+        final Range range = new Range(from, to);
+        validate(range);
+        return range;
     }
 
-    public static Range createUncheckedRange(long from, long to) {
-        return new Range(from, to, false);
+    public static Range newUncheckedRange(long from, long to) {
+        return new Range(from, to);
     }
 
     public long getFrom() {
@@ -67,9 +64,9 @@ public final class Range {
         return to - from;
     }
 
-    public void validate() {
-        if (this.to < this.from) {
-            throw new IllegalArgumentException("invalid range:" + this);
+    public static void validate(Range range) {
+        if (range.to < range.from) {
+            throw new IllegalArgumentException("invalid range:" + range);
         }
     }
 

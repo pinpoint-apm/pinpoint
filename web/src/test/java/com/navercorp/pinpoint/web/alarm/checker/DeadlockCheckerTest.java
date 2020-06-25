@@ -82,7 +82,7 @@ public class DeadlockCheckerTest {
         Rule rule = new Rule(APPLICATION_NAME, SERVICE_TYPE, CheckerCategory.ERROR_COUNT.getName(), 50, "testGroup", false, false, "");
         Application application = new Application(APPLICATION_NAME, ServiceType.STAND_ALONE);
 
-        Range range = Range.createUncheckedRange(START_TIME_MILLIS, CURRENT_TIME_MILLIS);
+        Range range = Range.newUncheckedRange(START_TIME_MILLIS, CURRENT_TIME_MILLIS);
         when(mockAgentEventDao.getAgentEvents(AGENT_ID_1, range, Collections.emptySet())).thenReturn(Arrays.asList(createAgentEvent(AGENT_ID_1, createEventTimestamp(), AgentEventType.AGENT_CLOSED_BY_SERVER)));
         when(mockAgentEventDao.getAgentEvents(AGENT_ID_2, range, Collections.emptySet())).thenReturn(Arrays.asList(createAgentEvent(AGENT_ID_2, createEventTimestamp(), AgentEventType.AGENT_DEADLOCK_DETECTED)));
         when(mockAgentEventDao.getAgentEvents(AGENT_ID_3, range, Collections.emptySet())).thenReturn(Arrays.asList(createAgentEvent(AGENT_ID_3, createEventTimestamp(), AgentEventType.AGENT_PING)));
@@ -104,7 +104,7 @@ public class DeadlockCheckerTest {
         Rule rule = new Rule(APPLICATION_NAME, SERVICE_TYPE, CheckerCategory.ERROR_COUNT.getName(), 50, "testGroup", false, false, "");
         Application application = new Application(APPLICATION_NAME, ServiceType.STAND_ALONE);
 
-        Range range = Range.createUncheckedRange(START_TIME_MILLIS, CURRENT_TIME_MILLIS);
+        Range range = Range.newUncheckedRange(START_TIME_MILLIS, CURRENT_TIME_MILLIS);
         when(mockAgentEventDao.getAgentEvents(AGENT_ID_1, range, Collections.emptySet())).thenReturn(Arrays.asList(createAgentEvent(AGENT_ID_1, createEventTimestamp(), AgentEventType.AGENT_CLOSED_BY_SERVER)));
         when(mockAgentEventDao.getAgentEvents(AGENT_ID_2, range, Collections.emptySet())).thenReturn(Arrays.asList(createAgentEvent(AGENT_ID_2, createEventTimestamp(), AgentEventType.AGENT_SHUTDOWN)));
         when(mockAgentEventDao.getAgentEvents(AGENT_ID_3, range, Collections.emptySet())).thenReturn(Arrays.asList(createAgentEvent(AGENT_ID_3, createEventTimestamp(), AgentEventType.AGENT_PING)));

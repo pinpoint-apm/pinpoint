@@ -55,7 +55,7 @@ public class HbaseApplicationActiveTraceDao implements ApplicationActiveTraceDao
     public List<AggreJoinActiveTraceBo> getApplicationStatList(String applicationId, TimeWindow timeWindow) {
         long scanFrom = timeWindow.getWindowRange().getFrom();
         long scanTo = timeWindow.getWindowRange().getTo() + timeWindow.getWindowSlotSize();
-        Range range = new Range(scanFrom, scanTo);
+        Range range = Range.newRange(scanFrom, scanTo);
         ApplicationStatMapper mapper = operations.createRowMapper(activeTraceDecoder, range);
         SampledApplicationStatResultExtractor resultExtractor = new SampledApplicationStatResultExtractor(timeWindow, mapper, activeTraceSampler);
         List<AggregationStatData> aggregationStatDataList = operations.getSampledStatList(StatType.APP_ACTIVE_TRACE_COUNT, resultExtractor, applicationId, range);

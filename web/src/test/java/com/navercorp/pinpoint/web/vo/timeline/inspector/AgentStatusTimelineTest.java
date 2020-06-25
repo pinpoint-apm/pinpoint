@@ -37,7 +37,7 @@ public class AgentStatusTimelineTest {
     @Test
     public void nullAgentStatus() {
         // Given
-        Range timelineRange = new Range(0, 100);
+        Range timelineRange = Range.newRange(0, 100);
         List<AgentStatusTimelineSegment> expectedTimelineSegments = Collections.singletonList(
                 createSegment(0, 100, AgentState.UNKNOWN));
         // When
@@ -50,7 +50,7 @@ public class AgentStatusTimelineTest {
     @Test
     public void nullAgentStatus_nullAgentEvents() {
         // Given
-        Range timelineRange = new Range(0, 100);
+        Range timelineRange = Range.newRange(0, 100);
         List<AgentStatusTimelineSegment> expectedTimelineSegments = Collections.singletonList(
                 createSegment(0, 100, AgentState.UNKNOWN));
         // When
@@ -63,7 +63,7 @@ public class AgentStatusTimelineTest {
     @Test
     public void agentStatus() {
         // Given
-        Range timelineRange = new Range(100, 200);
+        Range timelineRange = Range.newRange(100, 200);
         AgentLifeCycleState expectedState = AgentLifeCycleState.RUNNING;
         List<AgentStatusTimelineSegment> expectedTimelineSegments = Collections.singletonList(
                 createSegment(100, 200, AgentState.fromAgentLifeCycleState(expectedState)));
@@ -78,7 +78,7 @@ public class AgentStatusTimelineTest {
     @Test
     public void agentStatus_nullAgentEvents() {
         // Given
-        Range timelineRange = new Range(100, 200);
+        Range timelineRange = Range.newRange(100, 200);
         AgentLifeCycleState expectedState = AgentLifeCycleState.RUNNING;
         List<AgentStatusTimelineSegment> expectedTimelineSegments = Collections.singletonList(
                 createSegment(100, 200, AgentState.fromAgentLifeCycleState(expectedState)));
@@ -93,7 +93,7 @@ public class AgentStatusTimelineTest {
     @Test
     public void singleLifeCycle_startedBeforeTimelineStartTimestamp() {
         // Given
-        Range timelineRange = new Range(100, 200);
+        Range timelineRange = Range.newRange(100, 200);
         List<AgentStatusTimelineSegment> expectedTimelineSegments = Collections.singletonList(
                 createSegment(100, 200, AgentState.RUNNING));
         // When
@@ -112,7 +112,7 @@ public class AgentStatusTimelineTest {
     @Test
     public void singleLifeCycle_startedAfterTimelineStartTimestamp_initialStateRunning() {
         // Given
-        Range timelineRange = new Range(100, 200);
+        Range timelineRange = Range.newRange(100, 200);
         List<AgentStatusTimelineSegment> expectedTimelineSegments = Arrays.asList(
                 createSegment(100, 150, AgentState.RUNNING),
                 createSegment(150, 200, AgentState.RUNNING));
@@ -132,7 +132,7 @@ public class AgentStatusTimelineTest {
     @Test
     public void singleLifeCycle_startedAfterTimelineStartTimestamp_initialStateShutdown() {
         // Given
-        Range timelineRange = new Range(100, 200);
+        Range timelineRange = Range.newRange(100, 200);
         List<AgentStatusTimelineSegment> expectedTimelineSegments = Arrays.asList(
                 createSegment(100, 150, AgentState.SHUTDOWN),
                 createSegment(150, 200, AgentState.RUNNING));
@@ -152,7 +152,7 @@ public class AgentStatusTimelineTest {
     @Test
     public void singleLifeCycle_endedBeforeTimelineEndTimestamp() {
         // Given
-        Range timelineRange = new Range(100, 200);
+        Range timelineRange = Range.newRange(100, 200);
         List<AgentStatusTimelineSegment> expectedTimelineSegments = Arrays.asList(
                 createSegment(100, 180, AgentState.RUNNING),
                 createSegment(180, 200, AgentState.SHUTDOWN));
@@ -173,7 +173,7 @@ public class AgentStatusTimelineTest {
     @Test
     public void singleLifeCycle_disconnected() {
         // Given
-        Range timelineRange = new Range(100, 200);
+        Range timelineRange = Range.newRange(100, 200);
         List<AgentStatusTimelineSegment> expectedTimelineSegments = Collections.singletonList(
                 createSegment(100, 200, AgentState.RUNNING));
         // When
@@ -193,7 +193,7 @@ public class AgentStatusTimelineTest {
     @Test
     public void multipleLifeCycles_disconnected() {
         // Given
-        Range timelineRange = new Range(100, 200);
+        Range timelineRange = Range.newRange(100, 200);
         List<AgentStatusTimelineSegment> expectedTimelineSegments = Arrays.asList(
                 createSegment(100, 150, AgentState.RUNNING),
                 createSegment(150, 160, AgentState.UNKNOWN),
@@ -216,7 +216,7 @@ public class AgentStatusTimelineTest {
     @Test
     public void multipleLifeCycles_noOverlap() {
         // Given
-        Range timelineRange = new Range(100, 200);
+        Range timelineRange = Range.newRange(100, 200);
         List<AgentStatusTimelineSegment> expectedTimelineSegments = Arrays.asList(
                 createSegment(100, 140, AgentState.RUNNING),
                 createSegment(140, 160, AgentState.SHUTDOWN),
@@ -239,7 +239,7 @@ public class AgentStatusTimelineTest {
     @Test
     public void multipleLifeCycles_noOverlap2() {
         // Given
-        Range timelineRange = new Range(100, 200);
+        Range timelineRange = Range.newRange(100, 200);
         List<AgentStatusTimelineSegment> expectedTimelineSegments = Arrays.asList(
                 createSegment(100, 159, AgentState.RUNNING),
                 createSegment(159, 160, AgentState.SHUTDOWN),
@@ -262,7 +262,7 @@ public class AgentStatusTimelineTest {
     @Test
     public void multipleLifeCycles_noOverlap3() {
         // Given
-        Range timelineRange = new Range(100, 200);
+        Range timelineRange = Range.newRange(100, 200);
         List<AgentStatusTimelineSegment> expectedTimelineSegments = Arrays.asList(
                 createSegment(100, 120, AgentState.SHUTDOWN),
                 createSegment(120, 140, AgentState.RUNNING),
@@ -288,7 +288,7 @@ public class AgentStatusTimelineTest {
     @Test
     public void multipleLifeCycles_overlap() {
         // Given
-        Range timelineRange = new Range(100, 200);
+        Range timelineRange = Range.newRange(100, 200);
         List<AgentStatusTimelineSegment> expectedTimelineSegments = Arrays.asList(
                 createSegment(100, 180, AgentState.RUNNING),
                 createSegment(180, 200, AgentState.SHUTDOWN));
@@ -311,7 +311,7 @@ public class AgentStatusTimelineTest {
     @Test
     public void multipleLifeCycles_overlap2() {
         // Given
-        Range timelineRange = new Range(100, 200);
+        Range timelineRange = Range.newRange(100, 200);
         List<AgentStatusTimelineSegment> expectedTimelineSegments = Collections.singletonList(
                 createSegment(100, 200, AgentState.RUNNING));
         // When
@@ -332,7 +332,7 @@ public class AgentStatusTimelineTest {
     @Test
     public void multipleLifeCycles_overlap3() {
         // Given
-        Range timelineRange = new Range(100, 200);
+        Range timelineRange = Range.newRange(100, 200);
         List<AgentStatusTimelineSegment> expectedTimelineSegments = Collections.singletonList(
                 createSegment(100, 200, AgentState.RUNNING));
         // When
@@ -358,7 +358,7 @@ public class AgentStatusTimelineTest {
     @Test
     public void multipleLifeCycles_overlap4() {
         // Given
-        Range timelineRange = new Range(100, 200);
+        Range timelineRange = Range.newRange(100, 200);
         List<AgentStatusTimelineSegment> expectedTimelineSegments = Collections.singletonList(
                 createSegment(100, 200, AgentState.RUNNING));
         // When
@@ -385,7 +385,7 @@ public class AgentStatusTimelineTest {
     @Test
     public void multipleLifeCycles_mixed() {
         // Given
-        Range timelineRange = new Range(100, 300);
+        Range timelineRange = Range.newRange(100, 300);
         List<AgentStatusTimelineSegment> expectedTimelineSegments = Arrays.asList(
                 createSegment(100, 150, AgentState.RUNNING),
                 createSegment(150, 160, AgentState.UNKNOWN),

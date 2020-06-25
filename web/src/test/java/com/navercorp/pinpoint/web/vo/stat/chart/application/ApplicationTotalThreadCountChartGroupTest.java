@@ -34,7 +34,7 @@ public class ApplicationTotalThreadCountChartGroupTest {
     @Test
     public void createApplicationTotalThreadCountChartGroupTest() {
         long time = 1495418083250L;
-        Range range = new Range(time - 240000, time);
+        Range range = Range.newRange(time - 240000, time);
         TimeWindow timeWindow = new TimeWindow(range);
         List<AggreJoinTotalThreadCountBo> aggreJoinTotalThreadCountBoList = new ArrayList<>(5);
         AggreJoinTotalThreadCountBo aggreJoinFileDescriptorBo1 = new AggreJoinTotalThreadCountBo("testApp", time, 11, 20, "agent1_1", 60, "agent1_2");

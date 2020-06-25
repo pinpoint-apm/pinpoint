@@ -55,7 +55,7 @@ public class HbaseApplicationDataSourceDao implements ApplicationDataSourceDao {
     public List<AggreJoinDataSourceListBo> getApplicationStatList(String applicationId, TimeWindow timeWindow) {
         long scanFrom = timeWindow.getWindowRange().getFrom();
         long scanTo = timeWindow.getWindowRange().getTo() + timeWindow.getWindowSlotSize();
-        Range range = new Range(scanFrom, scanTo);
+        Range range = Range.newRange(scanFrom, scanTo);
         ApplicationStatMapper mapper = operations.createRowMapper(dataSourceDecoder, range);
         SampledApplicationStatResultExtractor resultExtractor = new SampledApplicationStatResultExtractor(timeWindow, mapper, dataSourceSampler);
         List<AggregationStatData> aggregationStatDataList = operations.getSampledStatList(StatType.APP_DATA_SOURCE, resultExtractor, applicationId, range);

@@ -32,7 +32,7 @@ import org.junit.Test;
  */
 public class WasOnlyProcessorTest {
 
-    private final Range testRange = new Range(System.currentTimeMillis(), System.currentTimeMillis());
+    private final Range testRange = Range.newRange(System.currentTimeMillis(), System.currentTimeMillis());
 
     @Test
     public void shouldFilterLinksToTerminalNodes() {

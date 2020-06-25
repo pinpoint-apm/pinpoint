@@ -54,7 +54,7 @@ public class HbaseApplicationResponseTimeDao implements ApplicationResponseTimeD
     public List<AggreJoinResponseTimeBo> getApplicationStatList(String applicationId, TimeWindow timeWindow) {
         long scanFrom = timeWindow.getWindowRange().getFrom();
         long scanTo = timeWindow.getWindowRange().getTo() + timeWindow.getWindowSlotSize();
-        Range range = new Range(scanFrom, scanTo);
+        Range range = Range.newRange(scanFrom, scanTo);
         ApplicationStatMapper mapper = operations.createRowMapper(responseTimeDecoder, range);
         SampledApplicationStatResultExtractor resultExtractor = new SampledApplicationStatResultExtractor(timeWindow, mapper, joinResponseTimeSampler);
         List<AggregationStatData> aggregationStatDataList = operations.getSampledStatList(StatType.APP_RESPONSE_TIME, resultExtractor, applicationId, range);

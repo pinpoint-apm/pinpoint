@@ -88,7 +88,7 @@ public class AgentStatisticsController {
     @RequestMapping(value = "/selectAgentCount", method = RequestMethod.GET, params = {"from", "to"})
     @ResponseBody
     public List<AgentCountStatistics> selectAgentCount(@RequestParam("from") long from, @RequestParam("to") long to) {
-        Range range = new Range(DateTimeUtils.timestampToStartOfDay(from), DateTimeUtils.timestampToStartOfDay(to), true);
+        Range range = Range.newRange(DateTimeUtils.timestampToStartOfDay(from), DateTimeUtils.timestampToStartOfDay(to));
         List<AgentCountStatistics> agentCountStatisticsList = agentStatisticsService.selectAgentCount(range);
 
         agentCountStatisticsList.sort(new Comparator<AgentCountStatistics>() {

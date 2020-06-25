@@ -170,7 +170,7 @@ public class ApplicationMapBuilderTest {
 
     @Test
     public void testNoCallData() {
-        Range range = new Range(0, 1000);
+        Range range = Range.newRange(0, 1000);
         Application application = ApplicationMapBuilderTestHelper.createApplicationFromDepth(0);
 
         ServerInstanceListFactory serverInstanceListFactory = new DefaultServerInstanceListFactory(agentInfoServerInstanceListDataSource);
@@ -198,7 +198,7 @@ public class ApplicationMapBuilderTest {
 
     @Test
     public void testEmptyCallData() {
-        Range range = new Range(0, 1000);
+        Range range = Range.newRange(0, 1000);
         LinkDataDuplexMap linkDataDuplexMap = new LinkDataDuplexMap();
 
         NodeHistogramFactory nodeHistogramFactory = new DefaultNodeHistogramFactory(mapResponseNodeHistogramDataSource);
@@ -295,7 +295,7 @@ public class ApplicationMapBuilderTest {
     }
 
     private void runTest(int callerDepth, int calleeDepth) {
-        Range range = new Range(0, 1000);
+        Range range = Range.newRange(0, 1000);
         int expectedNumNodes = ApplicationMapBuilderTestHelper.getExpectedNumNodes(calleeDepth, callerDepth);
         int expectedNumLinks = ApplicationMapBuilderTestHelper.getExpectedNumLinks(calleeDepth, callerDepth);
 

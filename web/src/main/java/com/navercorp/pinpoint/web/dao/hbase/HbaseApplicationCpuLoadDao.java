@@ -54,7 +54,7 @@ public class HbaseApplicationCpuLoadDao implements ApplicationCpuLoadDao {
     public List<AggreJoinCpuLoadBo> getApplicationStatList(String applicationId, TimeWindow timeWindow) {
         long scanFrom = timeWindow.getWindowRange().getFrom();
         long scanTo = timeWindow.getWindowRange().getTo() + timeWindow.getWindowSlotSize();
-        Range range = new Range(scanFrom, scanTo);
+        Range range = Range.newRange(scanFrom, scanTo);
         ApplicationStatMapper mapper = operations.createRowMapper(cpuLoadDecoder, range);
         SampledApplicationStatResultExtractor resultExtractor = new SampledApplicationStatResultExtractor(timeWindow, mapper, cpuLoadSampler);
         List<AggregationStatData> aggregationStatDataList = operations.getSampledStatList(StatType.APP_CPU_LOAD, resultExtractor, applicationId, range);

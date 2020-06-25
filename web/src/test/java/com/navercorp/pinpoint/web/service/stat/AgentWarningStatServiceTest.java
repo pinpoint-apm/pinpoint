@@ -56,7 +56,7 @@ public class AgentWarningStatServiceTest {
 
     @Test
     public void selectTest1() throws Exception {
-        Range range = new Range(CURRENT_TIME - TIME, CURRENT_TIME);
+        Range range = Range.newRange(CURRENT_TIME - TIME, CURRENT_TIME);
 
         List<DeadlockThreadCountBo> mockData = createMockData(10, 5000);
         when(deadlockDao.getAgentStatList("pinpoint", range)).thenReturn(mockData);
@@ -66,7 +66,7 @@ public class AgentWarningStatServiceTest {
 
     @Test
     public void selectTest2() throws Exception {
-        Range range = new Range(CURRENT_TIME - TIME, CURRENT_TIME);
+        Range range = Range.newRange(CURRENT_TIME - TIME, CURRENT_TIME);
 
         List<DeadlockThreadCountBo> mockData = createMockData(10, 70000);
         when(deadlockDao.getAgentStatList("pinpoint", range)).thenReturn(mockData);

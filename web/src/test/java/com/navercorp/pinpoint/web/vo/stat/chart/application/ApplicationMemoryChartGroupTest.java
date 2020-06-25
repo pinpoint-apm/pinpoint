@@ -38,7 +38,7 @@ public class ApplicationMemoryChartGroupTest {
     @Test
     public void createApplicationMemoryChartGroupTest() {
         long time = 1495418083250L;
-        Range range = new Range(time - 240000, time);
+        Range range = Range.newRange(time - 240000, time);
         TimeWindow timeWindow = new TimeWindow(range);
         List<AggreJoinMemoryBo> aggreJoinMemoryList = new ArrayList<>(5);
         AggreJoinMemoryBo aggreJoinMemoryBo1 = new AggreJoinMemoryBo("testApp", time, 3000, 1000, 5000, "agent1_1", "agent1_2", 300, 100, 500, "agent1_3", "agent1_4");

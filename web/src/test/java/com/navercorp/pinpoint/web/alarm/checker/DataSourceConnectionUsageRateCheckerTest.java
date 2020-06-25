@@ -71,7 +71,7 @@ public class DataSourceConnectionUsageRateCheckerTest {
     public void before() {
         when(mockApplicationIndexDao.selectAgentIds(APPLICATION_NAME)).thenReturn(Arrays.asList(AGENT_ID));
 
-        Range range = Range.createUncheckedRange(START_TIME_MILLIS, CURRENT_TIME_MILLIS);
+        Range range = Range.newUncheckedRange(START_TIME_MILLIS, CURRENT_TIME_MILLIS);
 
         List<DataSourceListBo> dataSourceListBoList = new ArrayList<>();
         dataSourceListBoList.add(createDataSourceListBo(1, 30, 40, 3));

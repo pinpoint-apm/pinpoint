@@ -41,7 +41,7 @@ public class AgentEventTimelineTest {
     @Test
     public void noFilter() {
         // Given
-        Range timelineRange = new Range(100, 200);
+        Range timelineRange = Range.newRange(100, 200);
         List<AgentEvent> agentEvents = Arrays.asList(
                 createAgentEvent(140, AgentEventType.AGENT_PING),
                 createAgentEvent(190, AgentEventType.AGENT_PING));
@@ -58,7 +58,7 @@ public class AgentEventTimelineTest {
     @Test
     public void nullFilter() {
         // Given
-        Range timelineRange = new Range(100, 200);
+        Range timelineRange = Range.newRange(100, 200);
         List<AgentEvent> agentEvents = Arrays.asList(
                 createAgentEvent(140, AgentEventType.AGENT_PING),
                 createAgentEvent(190, AgentEventType.AGENT_PING));
@@ -76,7 +76,7 @@ public class AgentEventTimelineTest {
     @Test
     public void multipleFilters() {
         // Given
-        Range timelineRange = new Range(100, 200);
+        Range timelineRange = Range.newRange(100, 200);
         List<AgentEvent> agentEvents = Arrays.asList(
                 createAgentEvent(110, AgentEventType.AGENT_PING),
                 createAgentEvent(120, AgentEventType.AGENT_CONNECTED),
@@ -121,7 +121,7 @@ public class AgentEventTimelineTest {
     @Test
     public void leftBiasedSpread() {
         // Given
-        Range range = new Range(100, 200);
+        Range range = Range.newRange(100, 200);
         AgentEvent event1 = createAgentEvent(0, AgentEventType.AGENT_CONNECTED);
         AgentEvent event2 = createAgentEvent(5, AgentEventType.AGENT_PING);
         AgentEvent event3 = createAgentEvent(50, AgentEventType.AGENT_PING);
@@ -143,7 +143,7 @@ public class AgentEventTimelineTest {
     @Test
     public void rightBiasedSpread() {
         // Given
-        Range range = new Range(0, 199);
+        Range range = Range.newRange(0, 199);
         AgentEvent event1 = createAgentEvent(0, AgentEventType.AGENT_CONNECTED);
         AgentEvent event2 = createAgentEvent(5, AgentEventType.AGENT_PING);
         AgentEvent event3 = createAgentEvent(100, AgentEventType.AGENT_PING);
@@ -165,7 +165,7 @@ public class AgentEventTimelineTest {
     @Test
     public void rangeLessThanNumTimeslots() {
         // Given
-        Range range = new Range(10, 20);
+        Range range = Range.newRange(10, 20);
         AgentEvent event1 = createAgentEvent(10, AgentEventType.AGENT_PING);
         AgentEvent event2 = createAgentEvent(11, AgentEventType.AGENT_PING);
         AgentEvent event3 = createAgentEvent(12, AgentEventType.AGENT_PING);
@@ -201,7 +201,7 @@ public class AgentEventTimelineTest {
         long timeRangeMs = TimeUnit.DAYS.toMillis(7);
         long from = System.currentTimeMillis();
         long to = from + timeRangeMs;
-        Range range = new Range(from, to);
+        Range range = Range.newRange(from, to);
         int numTimeslots = 100;
         int expectedEventCountPerSegment = 20;
         List<AgentEvent> agentEvents = new ArrayList<>();

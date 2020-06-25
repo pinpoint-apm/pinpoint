@@ -52,7 +52,7 @@ public class HbaseSampledDirectBufferDaoV2 implements SampledDirectBufferDao {
     public List<SampledDirectBuffer> getSampledAgentStatList(String agentId, TimeWindow timeWindow) {
         long scanFrom = timeWindow.getWindowRange().getFrom();
         long scanTo = timeWindow.getWindowRange().getTo() + timeWindow.getWindowSlotSize();
-        Range range = new Range(scanFrom, scanTo);
+        Range range = Range.newRange(scanFrom, scanTo);
         AgentStatMapperV2<DirectBufferBo> mapper = operations.createRowMapper(directBufferDecoder, range);
         SampledAgentStatResultExtractor<DirectBufferBo, SampledDirectBuffer> resultExtractor = new SampledAgentStatResultExtractor<>(timeWindow, mapper, directBufferSampler);
         return operations.getSampledAgentStatList(AgentStatType.DIRECT_BUFFER, resultExtractor, agentId, range);

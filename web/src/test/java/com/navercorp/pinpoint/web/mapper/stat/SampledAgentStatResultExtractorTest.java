@@ -91,7 +91,7 @@ public class SampledAgentStatResultExtractorTest {
         final int numValues = 10;
         final long initialTimestamp = System.currentTimeMillis();
         final long finalTimestamp = initialTimestamp + (DEFAULT_TIME_INTERVAL * numValues);
-        final TimeWindow timeWindow = new TimeWindow(new Range(initialTimestamp, finalTimestamp), ONE_TO_ONE_SAMPLER);
+        final TimeWindow timeWindow = new TimeWindow(Range.newRange(initialTimestamp, finalTimestamp), ONE_TO_ONE_SAMPLER);
         final List<TestAgentStatDataPoint> dataPoints = createDataPoints(finalTimestamp, DEFAULT_TIME_INTERVAL, numValues);
         final Map<Long, List<TestAgentStatDataPoint>> expectedDataPointSlotMap = getExpectedDataPointSlotMap(timeWindow, dataPoints);
         when(this.rowMapper.mapRow(this.result, 0)).thenReturn(dataPoints);
@@ -114,7 +114,7 @@ public class SampledAgentStatResultExtractorTest {
         final int numValues = 20;
         final long initialTimestamp = System.currentTimeMillis();
         final long finalTimestamp = initialTimestamp + (DEFAULT_TIME_INTERVAL * numValues);
-        final TimeWindow timeWindow = new TimeWindow(new Range(initialTimestamp, finalTimestamp), TWO_TO_ONE_SAMPLER);
+        final TimeWindow timeWindow = new TimeWindow(Range.newRange(initialTimestamp, finalTimestamp), TWO_TO_ONE_SAMPLER);
         final List<TestAgentStatDataPoint> dataPoints = createDataPoints(finalTimestamp, DEFAULT_TIME_INTERVAL, numValues);
         final Map<Long, List<TestAgentStatDataPoint>> expectedDataPointSlotMap = getExpectedDataPointSlotMap(timeWindow, dataPoints);
         when(this.rowMapper.mapRow(this.result, 0)).thenReturn(dataPoints);
@@ -137,7 +137,7 @@ public class SampledAgentStatResultExtractorTest {
         final int numValues = 100;
         final long initialTimestamp = System.currentTimeMillis();
         final long finalTimestamp = initialTimestamp + (DEFAULT_TIME_INTERVAL * numValues);
-        final TimeWindow timeWindow = new TimeWindow(new Range(initialTimestamp, finalTimestamp), TEN_TO_ONE_SAMPLER);
+        final TimeWindow timeWindow = new TimeWindow(Range.newRange(initialTimestamp, finalTimestamp), TEN_TO_ONE_SAMPLER);
         final List<TestAgentStatDataPoint> dataPoints = createDataPoints(finalTimestamp, DEFAULT_TIME_INTERVAL, numValues);
         final Map<Long, List<TestAgentStatDataPoint>> expectedDataPointSlotMap = getExpectedDataPointSlotMap(timeWindow, dataPoints);
         when(this.rowMapper.mapRow(this.result, 0)).thenReturn(dataPoints);

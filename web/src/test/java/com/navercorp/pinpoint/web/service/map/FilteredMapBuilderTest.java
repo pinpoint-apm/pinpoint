@@ -67,7 +67,7 @@ public class FilteredMapBuilderTest {
     @Test
     public void twoTier() {
         // Given
-        final Range range = new Range(1, 200000);
+        final Range range = Range.newRange(1, 200000);
         final FilteredMapBuilder builder = new FilteredMapBuilder(applicationFactory, registry, range, VERSION);
 
         // root app span

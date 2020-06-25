@@ -65,7 +65,7 @@ public class DataSourceChartGroupTest {
     @Test
     public void basicFunctionTest1() throws Exception {
         long currentTimeMillis = System.currentTimeMillis();
-        TimeWindow timeWindow = new TimeWindow(new Range(currentTimeMillis - 300000, currentTimeMillis));
+        TimeWindow timeWindow = new TimeWindow(Range.newRange(currentTimeMillis - 300000, currentTimeMillis));
 
         List<SampledDataSource> sampledDataSourceList = createSampledDataSourceList(timeWindow);
         StatChartGroup dataSourceChartGroup = DataSourceChart.newDataSourceChartGroup(timeWindow, sampledDataSourceList, serviceTypeRegistryService);
@@ -76,7 +76,7 @@ public class DataSourceChartGroupTest {
     @Test
     public void basicFunctionTest2() throws Exception {
         long currentTimeMillis = System.currentTimeMillis();
-        TimeWindow timeWindow = new TimeWindow(new Range(currentTimeMillis - 300000, currentTimeMillis));
+        TimeWindow timeWindow = new TimeWindow(Range.newRange(currentTimeMillis - 300000, currentTimeMillis));
 
         List<SampledDataSource> sampledDataSourceList = Collections.emptyList();
         DataSourceChart dataSourceChartGroup = new DataSourceChart(timeWindow, sampledDataSourceList, serviceTypeRegistryService);

@@ -52,7 +52,7 @@ public class HbaseSampledResponseTimeDaoV2 implements SampledResponseTimeDao {
     public List<SampledResponseTime> getSampledAgentStatList(String agentId, TimeWindow timeWindow) {
         long scanFrom = timeWindow.getWindowRange().getFrom();
         long scanTo = timeWindow.getWindowRange().getTo() + timeWindow.getWindowSlotSize();
-        Range range = new Range(scanFrom, scanTo);
+        Range range = Range.newRange(scanFrom, scanTo);
         AgentStatMapperV2<ResponseTimeBo> mapper = operations.createRowMapper(responseTimeDecoder, range);
 
         SampledAgentStatResultExtractor<ResponseTimeBo, SampledResponseTime> resultExtractor = new SampledAgentStatResultExtractor<>(timeWindow, mapper, responseTimeSampler);
