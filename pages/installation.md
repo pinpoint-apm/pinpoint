@@ -62,13 +62,13 @@ To run these scripts, feed them into the HBase shell like below:
 
 See [here](https://github.com/naver/pinpoint/tree/master/hbase/scripts "Pinpoint HBase scripts") for a complete list of scripts.
 
-## 2. Building Pinpoint (Optional)
+## 2. Building Pinpoint 
 
 There are two options:
 
-1. Download the build results from our [**latest release**](https://github.com/naver/pinpoint/releases/latest) and skip building process.**(Recommended)**
+1. Download the build results from our [**latest release**](https://github.com/naver/pinpoint/releases/latest) and skip building process. **(Recommended)**
 
-2. Build Pinpoint manually from the Git clone.
+2. Build Pinpoint manually from the Git clone. **(Optional)**
 	
 	In order to do so, the following **requirements** must be met:
 
@@ -114,13 +114,13 @@ Since Pinpoint Collector is packaged as a deployable war file, you may deploy th
 There are 3 configuration files available for Pinpoint Collector: *pinpoint-collector.properties*, *pinpoint-grpc-collector.properties*, and *hbase.properties*.
 
 * pinpoint-collector.properties - contains configurations for the collector. Check the following values with the agent's configuration options :
-	* `collector.receiver.base.port` (agent's *profiler.collector.tcp.port* - default: 9994)
-	* `collector.receiver.stat.udp.port` (agent's *profiler.collector.stat.port* - default: 9995)
-	* `collector.receiver.span.udp.port` (agent's *profiler.collector.span.port* - default: 9996)
+	* `collector.receiver.base.port` (agent's *profiler.collector.tcp.port* - default: 9994/TCP)
+	* `collector.receiver.stat.udp.port` (agent's *profiler.collector.stat.port* - default: 9995/UDP)
+	* `collector.receiver.span.udp.port` (agent's *profiler.collector.span.port* - default: 9996/UDP)
 * pinpoint-grpc-collector.properties - contains configurations for the grpc.
-    * `collector.receiver.grpc.agent.port` (agent's *profiler.transport.grpc.agent.collector.port*, *profiler.transport.grpc.metadata.collector.port* - default: 9991)
-	* `collector.receiver.grpc.stat.port` (agent's *profiler.transport.grpc.stat.collector.port* - default: 9992)
-	* `collector.receiver.grpc.span.port` (agent's *profiler.transport.grpc.span.collector.port* - default: 9993)
+    * `collector.receiver.grpc.agent.port` (agent's *profiler.transport.grpc.agent.collector.port*, *profiler.transport.grpc.metadata.collector.port* - default: 9991/TCP)
+	* `collector.receiver.grpc.stat.port` (agent's *profiler.transport.grpc.stat.collector.port* - default: 9992/TCP)
+	* `collector.receiver.grpc.span.port` (agent's *profiler.transport.grpc.span.collector.port* - default: 9993/TCP)
 * hbase.properties - contains configurations to connect to HBase.
 	* `hbase.client.host` (default: localhost)
 	* `hbase.client.port` (default: 2181)
@@ -143,7 +143,7 @@ Add `-Dkey=value` to Java System Properties
   - `-Dpinpoint.collector.config.location=$MY_EXTERNAL_CONFIG_PATH`
 * Add custom profile
   1. Create a custom profile in WEB-INF/classes/profiles/MyProfile
-     - Add *-env.config & log4j.xml
+     - Add *.config & log4j.xml
   2. Add `-Dspring.profiles.active=MyProfile`
 
 
@@ -187,7 +187,7 @@ Add `-Dkey=value` to Java System Properties
   - `-Dpinpoint.web.config.location=$MY_EXTERNAL_CONFIG_PATH`
 * Add custom profile
   1. Create a custom profile in WEB-INF/classes/profiles/MyProfile
-     - Add *-env.config & log4j.xml
+     - Add *.config & log4j.xml
   2. Add `-Dspring.profiles.active=MyProfile`
 
 ## 5. Pinpoint Agent
@@ -215,12 +215,12 @@ pinpoint-agent
 |-- profiles
 |   |-- local
 |   |   |-- log4j.xml
-|   |   |-- pinpoint-env.config
+|   |   |-- pinpoint.config
 |   |-- release
 |       |-- log4j.xml
-|       |-- pinpoint-env.config
+|       |-- pinpoint.config
 |-- pinpoint-bootstrap-$VERSION.jar
-|-- pinpoint.config
+|-- pinpoint-root.config
 ```
 The path to this directory should look like *$PINPOINT_PATH/agent/target/pinpoint-agent* if you built it manually.
 
@@ -267,36 +267,36 @@ Some application servers require additional configuration and/or may have caveat
 
 ### Configuration
 
-There are various configuration options for Pinpoint Agent available in *$AGENT_PATH/pinpoint.config*.
+There are various configuration options for Pinpoint Agent available in *$AGENT_PATH/pinpoint-root.config*.
 
 Most of these options are self explanatory, but the most important configuration options you must check are **Collector ip address**, and the **TCP/UDP ports**. These values are required for the agent to establish connection to the *Collector* and function correctly. 
 
-Set these values appropriately in *pinpoint.config*:
+Set these values appropriately in *pinpoint-root.config*:
 
 **THRIFT**
 * `profiler.collector.ip` (default: 127.0.0.1)
-* `profiler.collector.tcp.port` (collector's *collector.receiver.base.port* - default: 9994)
-* `profiler.collector.stat.port` (collector's *collector.receiver.stat.udp.port* - default: 9995)
-* `profiler.collector.span.port` (collector's *collector.receiver.span.udp.port* - default: 9996)
+* `profiler.collector.tcp.port` (collector's *collector.receiver.base.port* - default: 9994/TCP)
+* `profiler.collector.stat.port` (collector's *collector.receiver.stat.udp.port* - default: 9995/UDP)
+* `profiler.collector.span.port` (collector's *collector.receiver.span.udp.port* - default: 9996/UDP)
 
 **GRPC**
 * `profiler.transport.grpc.collector.ip`  (default: 127.0.0.1)
-* `profiler.transport.grpc.agent.collector.port` (collector's *collector.receiver.grpc.agent.port* - default: 9991)
-* `profiler.transport.grpc.metadata.collector.port` (collector's *collector.receiver.grpc.agent.port* - default: 9991)
-* `profiler.transport.grpc.stat.collector.port` (collector's *collector.receiver.grpc.stat.port* - default: 9992)
-* `profiler.transport.grpc.span.collector.port` (collector's *collector.receiver.grpc.span.port* - default: 9993)
+* `profiler.transport.grpc.agent.collector.port` (collector's *collector.receiver.grpc.agent.port* - default: 9991/TCP)
+* `profiler.transport.grpc.metadata.collector.port` (collector's *collector.receiver.grpc.agent.port* - default: 9991/TCP)
+* `profiler.transport.grpc.stat.collector.port` (collector's *collector.receiver.grpc.stat.port* - default: 9992/TCP)
+* `profiler.transport.grpc.span.collector.port` (collector's *collector.receiver.grpc.span.port* - default: 9993/TCP)
 
-You may take a look at the default *pinpoint.config* file [here](https://github.com/naver/pinpoint/blob/master/agent/src/main/resources/pinpoint-real-env-lowoverhead-sample.config "pinpoint.config") along with all the available configuration options.
+You may take a look at the default *pinpoint-root.config* file [here](https://github.com/naver/pinpoint/blob/master/agent/src/main/resources/pinpoint-root.config "pinpoint.config") along with all the available configuration options.
 
 ### Profiles
 Add `-Dkey=value` to Java System Properties
 * $PINPOINT_AGENT_DIR/profiles/$PROFILE
   - `-Dpinpoint.profiler.profiles.active=release or local`
-  - Modify `pinpoint.profiler.profiles.active=release` in $PINPOINT_AGENT_DIR/pinpoint.config
+  - Modify `pinpoint.profiler.profiles.active=release` in $PINPOINT_AGENT_DIR/pinpoint-root.config
   - Default profile : `release`
 * Custom Profile
   1. Create a custom profile in $PINPOINT_AGENT_HOME/profiles/MyProfile
-     - Add pinpoint-env.config & log4j.xml
+     - Add pinpoint.config & log4j.xml
   2. Add `-Dpinpoint.profiler.profiles.active=MyProfile`
 * Support external config
   - `-Dpinpoint.config=$MY_EXTERNAL_CONFIG_PATH`
