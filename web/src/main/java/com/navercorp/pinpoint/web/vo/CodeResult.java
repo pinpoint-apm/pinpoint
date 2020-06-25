@@ -16,13 +16,11 @@
 
 package com.navercorp.pinpoint.web.vo;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.navercorp.pinpoint.web.view.CodeResultSerializer;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 /**
  * @author Taejin Koo
  */
-@JsonSerialize(using = CodeResultSerializer.class)
 public class CodeResult {
 
     private final int code;
@@ -41,6 +39,7 @@ public class CodeResult {
         return code;
     }
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     public Object getMessage() {
         return message;
     }
