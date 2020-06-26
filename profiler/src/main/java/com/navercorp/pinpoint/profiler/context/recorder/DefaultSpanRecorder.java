@@ -21,6 +21,7 @@ import com.navercorp.pinpoint.common.trace.ServiceType;
 import com.navercorp.pinpoint.profiler.context.Annotation;
 import com.navercorp.pinpoint.profiler.context.DefaultTrace;
 import com.navercorp.pinpoint.profiler.context.Span;
+import com.navercorp.pinpoint.profiler.context.errorhandler.IgnoreErrorHandler;
 import com.navercorp.pinpoint.profiler.context.id.TraceRoot;
 import com.navercorp.pinpoint.profiler.metadata.SqlMetaDataService;
 import com.navercorp.pinpoint.profiler.metadata.StringMetaDataService;
@@ -40,8 +41,10 @@ public class DefaultSpanRecorder extends AbstractRecorder implements SpanRecorde
     private final boolean isRoot;
     private final boolean sampling;
     
-    public DefaultSpanRecorder(final Span span, final boolean isRoot, final boolean sampling, final StringMetaDataService stringMetaDataService, SqlMetaDataService sqlMetaDataService) {
-        super(stringMetaDataService, sqlMetaDataService);
+    public DefaultSpanRecorder(final Span span, final boolean isRoot, final boolean sampling,
+                               final StringMetaDataService stringMetaDataService, SqlMetaDataService sqlMetaDataService,
+                               final IgnoreErrorHandler errorHandler) {
+        super(stringMetaDataService, sqlMetaDataService, errorHandler);
         this.span = span;
         this.isRoot = isRoot;
         this.sampling = sampling;
