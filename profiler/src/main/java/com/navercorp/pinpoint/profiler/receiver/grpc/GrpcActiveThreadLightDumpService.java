@@ -29,7 +29,6 @@ import com.navercorp.pinpoint.grpc.trace.ProfilerCommandServiceGrpc;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceRepository;
 import com.navercorp.pinpoint.profiler.context.active.ActiveTraceSnapshot;
 import com.navercorp.pinpoint.profiler.context.grpc.GrpcThreadStateMessageConverter;
-import com.navercorp.pinpoint.profiler.receiver.ProfilerSimpleCommandService;
 import com.navercorp.pinpoint.profiler.receiver.service.ActiveThreadDumpCoreService;
 import com.navercorp.pinpoint.profiler.receiver.service.ThreadDump;
 import com.navercorp.pinpoint.profiler.receiver.service.ThreadDumpRequest;
@@ -45,7 +44,7 @@ import java.util.List;
 /**
  * @author Taejin Koo
  */
-public class GrpcActiveThreadLightDumpService implements ProfilerSimpleCommandService<PCmdRequest> {
+public class GrpcActiveThreadLightDumpService implements ProfilerGrpcCommandService {
 
     static final String JAVA = "JAVA";
 
@@ -55,17 +54,14 @@ public class GrpcActiveThreadLightDumpService implements ProfilerSimpleCommandSe
 
     private final ActiveThreadDumpCoreService activeThreadDump;
 
-    private final ProfilerCommandServiceGrpc.ProfilerCommandServiceStub profilerCommandServiceStub;
-
-    public GrpcActiveThreadLightDumpService(ProfilerCommandServiceGrpc.ProfilerCommandServiceStub profilerCommandServiceStub, ActiveTraceRepository activeTraceRepository) {
-        this.profilerCommandServiceStub = Assert.requireNonNull(profilerCommandServiceStub, "profilerCommandServiceStub");
+    public GrpcActiveThreadLightDumpService(ActiveTraceRepository activeTraceRepository) {
         Assert.requireNonNull(activeTraceRepository, "activeTraceRepository");
 
         this.activeThreadDump = new ActiveThreadDumpCoreService(activeTraceRepository);
     }
 
     @Override
-    public void simpleCommandService(PCmdRequest request) {
+    public void handle(PCmdRequest request, ProfilerCommandServiceGrpc.ProfilerCommandServiceStub profilerCommandServiceStub) {
         logger.info("simpleCommandService:{}", request);
 
         PCmdActiveThreadLightDump commandActiveThreadLightDump = request.getCommandActiveThreadLightDump();

@@ -16,6 +16,8 @@
 
 package com.navercorp.pinpoint.profiler.receiver;
 
+import com.navercorp.pinpoint.profiler.receiver.grpc.ProfilerGrpcCommandService;
+
 import java.util.Set;
 
 /**
@@ -30,6 +32,8 @@ public interface ProfilerCommandServiceLocator<REQ, RES> {
     ProfilerRequestCommandService<REQ, RES> getRequestService(short commandCode);
 
     ProfilerStreamCommandService<REQ> getStreamService(short commandCode);
+
+    ProfilerGrpcCommandService getGrpcService(short commandCode);
 
     Set<Short> getCommandServiceCodes();
 
